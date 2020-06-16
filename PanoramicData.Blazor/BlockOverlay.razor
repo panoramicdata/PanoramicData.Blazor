@@ -1,0 +1,12 @@
+﻿@implements IDisposable
+
+<div class="@BlockOverlayClass">
+	@if (Html != null)
+	{
+		<div class="text-container">
+			<div class="text-box">
+				@((MarkupString)Html)
+			</div>
+		</div>
+	}
+</div>

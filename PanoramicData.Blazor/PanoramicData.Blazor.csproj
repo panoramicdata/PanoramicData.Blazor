@@ -1,7 +1,48 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<RazorLangVersion>3.0</RazorLangVersion>
+		<LangVersion>8.0</LangVersion>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Authors>Panoramic Data Limited</Authors>
+		<Copyright>Copyright © Panoramic Data Limited 2020</Copyright>
+		<PackageLicenseUrl></PackageLicenseUrl>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageIcon>Icon.png</PackageIcon>
+		<PackageTags>blazor components</PackageTags>
+		<Title>PanoramicData.Blazor</Title>
+		<Description>Blazor components</Description>
+		<Summary>A library of components for Blazor projects</Summary>
+		<Company>Panoramic Data Limited</Company>
+		<PackageReleaseNotes>Initial release</PackageReleaseNotes>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor/</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Remove="compilerconfig.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.5" />
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.1.91">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="Icon.png" />
+		<_ContentIncludedByDefault Remove="wwwroot\css\main.css" />
+		<None Include="compilerconfig.json" />
+		<None Include="Icon.png" Pack="true" PackagePath="" />
+	</ItemGroup>
 
 </Project>
