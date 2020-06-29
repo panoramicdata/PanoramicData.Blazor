@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		version.json = version.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PanoramicData.Blazor", "PanoramicData.Blazor\PanoramicData.Blazor.csproj", "{734CFADF-2F52-4DA6-8095-5A6913A06484}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PanoramicData.Blazor", "PanoramicData.Blazor\PanoramicData.Blazor.csproj", "{734CFADF-2F52-4DA6-8095-5A6913A06484}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

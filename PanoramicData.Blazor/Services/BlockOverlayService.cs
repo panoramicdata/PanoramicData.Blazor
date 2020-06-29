@@ -4,7 +4,7 @@ namespace PanoramicData.Blazor.Services
 {
 	/// <summary>
 	/// See IBlockOverlayService for description.
-	/// The BlockOverlay component can then implement the behaviour as appropriate.
+	/// The BlockOverlay component can then implement the behavior as appropriate.
 	/// </summary>
 	public class BlockOverlayService : IBlockOverlayService
 	{

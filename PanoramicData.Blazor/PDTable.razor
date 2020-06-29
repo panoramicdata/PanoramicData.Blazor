@@ -1,0 +1,51 @@
+﻿@typeparam TItem
+
+@if (TableInitialised)
+{
+	<div class="pd-table">
+		<table class="table @TableClass">
+			<tr>
+				@foreach (var column in ColumnsToDisplay)
+				{
+					<th scope="col" class="@column.ThClass">
+						<div title="@column.HelpText">@column.Title</div>
+					</th>
+				}
+			</tr>
+			<tbody>
+				@if (ItemsToDisplay.Any())
+				{
+					foreach (var item in ItemsToDisplay)
+					{
+						<tr>
+							@foreach (var column in ColumnsToDisplay)
+							{
+								if (column.Template != null)
+								{
+									<td class="@column.TdClass">@column.Template(item)</td>
+								}
+								else
+								{
+									<td class="@column.TdClass">@column.Render(item)</td>
+								}
+							}
+						</tr>
+					}
+				}
+				else
+				{
+					<tr>
+						<td colspan="@ColumnsToDisplay.Count()" style="text-align: center;">
+							@NoDataMessage
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}
+
+
+<CascadingValue Value="(PDTable<TItem>)this" Name="Table">
+	@ChildContent
+</CascadingValue>
