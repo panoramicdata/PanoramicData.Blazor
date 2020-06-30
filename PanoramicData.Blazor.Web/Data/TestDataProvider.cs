@@ -3,8 +3,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using PanoramicData.Blazor.Services;
 
-namespace PanoramicData.Blazor.Services
+namespace PanoramicData.Blazor.Web.Data
 {
 	public class TestDataProvider : IDataProviderService<TestRow>
 	{

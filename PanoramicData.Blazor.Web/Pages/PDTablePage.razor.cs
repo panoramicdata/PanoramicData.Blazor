@@ -1,4 +1,4 @@
-﻿using PanoramicData.Blazor.Services;
+﻿using PanoramicData.Blazor.Web.Data;
 
 namespace PanoramicData.Blazor.Web.Pages
 {

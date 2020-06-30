@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PanoramicData.Blazor.Services
+namespace PanoramicData.Blazor.Web.Data
 {
 	public class TestRow
 	{
