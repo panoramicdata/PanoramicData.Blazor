@@ -7,9 +7,18 @@
 			<tr>
 				@foreach (var column in ColumnsToDisplay)
 				{
-					<th scope="col" class="@column.ThClass">
+				<th scope="col" class="@column.ThClass">
+					@if (column.Sortable)
+					{
+						<div title="@column.HelpText" @onclick="@(async () => await SortBy(column))">
+							<span class="text-nowrap pd-pointer">@column.Title&nbsp;@((MarkupString)column.SortIcon)</span>
+						</div>
+					}
+					else
+					{
 						<div title="@column.HelpText">@column.Title</div>
-					</th>
+					}
+				</th>
 				}
 			</tr>
 			<tbody>

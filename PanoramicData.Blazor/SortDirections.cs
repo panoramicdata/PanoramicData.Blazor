@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor.Services
+﻿namespace PanoramicData.Blazor
 {
 	public enum SortDirection
 	{

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Exceptions;
-using System.Threading;
+using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
 {
@@ -54,9 +56,19 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
 		/// <summary>
+		/// Gets or sets the default sort column.
+		/// </summary>
+		[Parameter] public string? DefaultSortColumn { get; set; }
+
+		/// <summary>
+		/// Gets or sets the default sort direction.
+		/// </summary>
+		[Parameter] public SortDirection DefaultSortDirection { get; set; }
+
+		/// <summary>
 		/// Gets a full list of all columns.
 		/// </summary>
-		protected List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
+		public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
 
 		/// <summary>
 		/// Gets a list of columns to be displayed.
@@ -89,7 +101,45 @@ namespace PanoramicData.Blazor
 			{
 				try
 				{
+					if (DefaultSortColumn != null)
+					{
+						var columnToSortBy = Columns.SingleOrDefault(c => c.Title == DefaultSortColumn);
+						if (columnToSortBy != null)
+						{
+							await columnToSortBy.SortByAsync(DefaultSortDirection).ConfigureAwait(true);
+						}
+					}
 
+					var defaultSortColumns = Columns.Where(c => c.DefaultSortColumn).ToList();
+					if (defaultSortColumns.Count > 1)
+					{
+						throw new PDTableException($"Only one column can have {nameof(PDColumn<TItem>.DefaultSortColumn)} set to true.");
+					}
+
+					// Get the requested table parameters from the QueryString
+					var uri = new Uri(NavigationManager.Uri);
+					var query = QueryHelpers.ParseQuery(uri.Query);
+
+					// Sort
+					if (query.TryGetValue("sort", out var requestedSortFields))
+					{
+						var sortFieldSpecs = requestedSortFields[0].Split('|');
+						if (sortFieldSpecs.Length == 2)
+						{
+							// Find the sort column if we can
+							var targetSortColumn = Columns.SingleOrDefault(c => string.Equals(c.PropertyInfo?.Name, sortFieldSpecs[0], StringComparison.InvariantCultureIgnoreCase));
+							if (targetSortColumn != null)
+							{
+								var requestedSortDirection = sortFieldSpecs[1] switch
+								{
+									"asc" => SortDirection.Ascending,
+									"desc" => SortDirection.Descending,
+									_ => targetSortColumn.DefaultSortDirection
+								};
+								await targetSortColumn.SortByAsync(requestedSortDirection).ConfigureAwait(true);
+							}
+						}
+					}
 				}
 				catch (Exception ex)
 				{
@@ -147,11 +197,14 @@ namespace PanoramicData.Blazor
 		{
 			try
 			{
+				var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 				var request = new DataRequest<TItem>
 				{
 					Skip = 0,
 					Take = 10,
-					ForceUpdate = false
+					ForceUpdate = false,
+					SortFieldExpression = sortColumn?.Field,
+					SortDirection = sortColumn?.SortDirection
 				};
 
 				// perform query data
@@ -163,6 +216,23 @@ namespace PanoramicData.Blazor
 			}
 			finally
 			{
+			}
+		}
+
+		/// <summary>
+		/// Sort the data by the specified column.
+		/// </summary>
+		/// <param name="column">The column to sort by.</param>
+		/// <remarks>To disable sorting for any given column, set its Sortable property set to false.</remarks>
+		public async Task SortBy(PDColumn<TItem> column)
+		{
+			if (column.Sortable)
+			{
+				await column.SortByAsync().ConfigureAwait(true);
+				var sortStr = column.SortDirection == SortDirection.Ascending ? "asc" : "desc";
+				// Update the URI for bookmarking
+				NavigationManager.SetUri(new Dictionary<string, object> { { "sort", $"{column.PropertyInfo!.Name}|{sortStr}" } });
+				await GetDataAsync().ConfigureAwait(true);
 			}
 		}
 	}

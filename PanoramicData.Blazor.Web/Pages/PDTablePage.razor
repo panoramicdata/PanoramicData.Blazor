@@ -2,7 +2,7 @@
 @using PanoramicData.Blazor.Web.Data
 <h1>PDTable</h1>
 
-<PDTable TItem="TestRow" DataProvider="DataProvider">
+<PDTable TItem="TestRow" DataProvider="DataProvider" DefaultSortColumn="Id" DefaultSortDirection="SortDirection.Descending">
 
 	<PDColumn TItem="TestRow" Title="Id" Field="x => x.IntField"></PDColumn>
 	<PDColumn TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm"></PDColumn>
@@ -11,6 +11,6 @@
 			@(context.BooleanField ? "Yes" : "")
 		</Template>
 	</PDColumn>
-	<PDColumn TItem="TestRow" Title="Comments" Field="x => x.StringField"></PDColumn>
+	<PDColumn TItem="TestRow" Title="Comments" Field="x => x.StringField" Sortable="false"></PDColumn>
 
 </PDTable>

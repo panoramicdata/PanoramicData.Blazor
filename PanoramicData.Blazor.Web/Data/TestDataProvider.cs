@@ -33,11 +33,22 @@ namespace PanoramicData.Blazor.Web.Data
 			var items = new List<TestRow>();
 			await Task.Run(() =>
 			{
-				items = _testData
+				var query = _testData
 					.Skip(request.Skip)
 					.Take(request.Take)
-					//.OrderBy(request.SortFieldExpression)
-					.ToList();
+					.AsQueryable<TestRow>();
+				if (request.SortFieldExpression != null)
+				{
+					if (request.SortDirection != null && request.SortDirection == SortDirection.Descending)
+					{
+						query = query.OrderByDescending(request.SortFieldExpression);
+					}
+					else
+					{
+						query = query.OrderBy(request.SortFieldExpression);
+					}
+				}
+				items = query.ToList();
 			}).ConfigureAwait(false);
 			return new DataResponse<TestRow>(items, 55);
 		}

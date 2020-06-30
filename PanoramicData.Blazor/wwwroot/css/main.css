@@ -26,3 +26,9 @@
 
 .blockoverlay_hide {
   display: none; }
+
+.fa-hidden {
+  color: transparent; }
+
+.pd-pointer {
+  cursor: pointer; }
