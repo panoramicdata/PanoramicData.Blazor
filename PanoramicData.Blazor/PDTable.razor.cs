@@ -71,9 +71,41 @@ namespace PanoramicData.Blazor
 		public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
 
 		/// <summary>
+		/// When given provides a sub-set of columns to display, along with the ability
+		/// to override column defaults. When not given, all columns will be displayed.
+		/// </summary>
+		[Parameter] public List<PDColumnConfig>? ColumnsConfig { get; set; }
+
+		/// <summary>
 		/// Gets a list of columns to be displayed.
 		/// </summary>
-		protected List<PDColumn<TItem>> ColumnsToDisplay => Columns;
+		protected List<PDColumn<TItem>> ColumnsToDisplayInternal
+		{
+			get
+			{
+				var availableColumnIds = Columns
+									.Select(c => c.Id)
+									.ToList();
+
+				var columns =
+					ColumnsConfig?
+						.Where(columnConfig => availableColumnIds.Contains(columnConfig.Id))
+						.Select(columnConfig =>
+						{
+							var dTColumn = Columns.Single(c => c.Id == columnConfig.Id);
+		   					if (columnConfig.Title != default)
+							{
+								dTColumn.Title = columnConfig.Title;
+							}
+							return dTColumn;
+						})
+					?? Columns;
+
+				return columns
+					.Where(c => c.ShowInList)
+					.ToList();
+			}
+		}
 
 		/// <summary>
 		/// Gets the items to be displayed as rows.
@@ -103,17 +135,11 @@ namespace PanoramicData.Blazor
 				{
 					if (DefaultSortColumn != null)
 					{
-						var columnToSortBy = Columns.SingleOrDefault(c => c.Title == DefaultSortColumn);
+						var columnToSortBy = Columns.SingleOrDefault(c => c.Id == DefaultSortColumn || c.Title == DefaultSortColumn);
 						if (columnToSortBy != null)
 						{
 							await columnToSortBy.SortByAsync(DefaultSortDirection).ConfigureAwait(true);
 						}
-					}
-
-					var defaultSortColumns = Columns.Where(c => c.DefaultSortColumn).ToList();
-					if (defaultSortColumns.Count > 1)
-					{
-						throw new PDTableException($"Only one column can have {nameof(PDColumn<TItem>.DefaultSortColumn)} set to true.");
 					}
 
 					// Get the requested table parameters from the QueryString

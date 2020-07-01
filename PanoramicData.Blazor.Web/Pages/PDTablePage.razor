@@ -2,15 +2,20 @@
 @using PanoramicData.Blazor.Web.Data
 <h1>PDTable</h1>
 
-<PDTable TItem="TestRow" DataProvider="DataProvider" DefaultSortColumn="Id" DefaultSortDirection="SortDirection.Descending">
+<PDTable TItem="TestRow" DataProvider="DataProvider" DefaultSortColumn="Col1" DefaultSortDirection="SortDirection.Descending" ColumnsConfig="_columnsConfig">
 
-	<PDColumn TItem="TestRow" Title="Id" Field="x => x.IntField"></PDColumn>
-	<PDColumn TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm"></PDColumn>
-	<PDColumn TItem="TestRow" Title="Enabled" Field="x => x.BooleanField">
+	<PDColumn Id="Col1" TItem="TestRow" Title="Id" Field="x => x.IntField"></PDColumn>
+	<PDColumn Id="Col2" TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm"></PDColumn>
+	<PDColumn Id="Col3" TItem="TestRow" Title="Enabled" Field="x => x.BooleanField">
 		<Template>
 			@(context.BooleanField ? "Yes" : "")
 		</Template>
 	</PDColumn>
-	<PDColumn TItem="TestRow" Title="Comments" Field="x => x.StringField" Sortable="false"></PDColumn>
+	<PDColumn Id="Col4" TItem="TestRow" Title="Comments" Field="x => x.StringField" Sortable="false"></PDColumn>
+	<PDColumn Id="Col5" TItem="TestRow" Title="Notes" Field="x => x.StringField2" Sortable="false" ShowInList="false"></PDColumn>
 
 </PDTable>
+
+<p class="font-weight-bold">Columns Config - edit and tab out of field to apply changes</p>
+<textarea rows="8" cols="40" @bind="ColumnsConfigJson">
+</textarea>

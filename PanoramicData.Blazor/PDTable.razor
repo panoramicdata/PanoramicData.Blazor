@@ -5,7 +5,7 @@
 	<div class="pd-table">
 		<table class="table @TableClass">
 			<tr>
-				@foreach (var column in ColumnsToDisplay)
+				@foreach (var column in ColumnsToDisplayInternal)
 				{
 				<th scope="col" class="@column.ThClass">
 					@if (column.Sortable)
@@ -27,7 +27,7 @@
 					foreach (var item in ItemsToDisplay)
 					{
 						<tr>
-							@foreach (var column in ColumnsToDisplay)
+							@foreach (var column in ColumnsToDisplayInternal)
 							{
 								if (column.Template != null)
 								{
@@ -44,7 +44,7 @@
 				else
 				{
 					<tr>
-						<td colspan="@ColumnsToDisplay.Count()" style="text-align: center;">
+						<td colspan="@ColumnsToDisplayInternal.Count()" style="text-align: center;">
 							@NoDataMessage
 						</td>
 					</tr>

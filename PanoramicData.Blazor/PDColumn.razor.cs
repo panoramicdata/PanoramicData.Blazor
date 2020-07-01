@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
@@ -70,19 +69,25 @@ namespace PanoramicData.Blazor
 		[Parameter] public string? Format { get; set; }
 
 		/// <summary>
-		/// gets or sets whether this column can be sorted.
+		/// Gets or sets whether this column can be sorted.
 		/// </summary>
 		[Parameter] public bool Sortable { get; set; } = true;
-
-		/// <summary>
-		/// Gets or sets whether this column is sorted by default.
-		/// </summary>
-		[Parameter] public bool DefaultSortColumn { get; set; }
 
 		/// <summary>
 		/// Gets or sets the default sort direction for this column.
 		/// </summary>
 		[Parameter] public SortDirection DefaultSortDirection { get; set; }
+
+		/// <summary>
+		/// This sets whether something CAN be shown in the list, use DTTable ColumnsToDisplay to dynamically
+		/// change which to display from those that CAN be shown in the list
+		/// </summary>
+		[Parameter] public bool ShowInList { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets whether this column is visible.
+		/// </summary>
+		[Parameter] public bool Visible { get; set; } = true;
 
 		/// <summary>
 		/// If set will override the FieldExpression's name
@@ -197,7 +202,6 @@ namespace PanoramicData.Blazor
 					// Unset all other columns
 					Table.Columns.ForEach(c => c.SortColumn = false);
 					SortColumn = true;
-					SortDirection = requestedSortDirection ?? DefaultSortDirection;
 				}
 			}
 			catch (Exception ex)

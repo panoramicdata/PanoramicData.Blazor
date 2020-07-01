@@ -8,5 +8,6 @@ namespace PanoramicData.Blazor.Web.Data
 		public DateTimeOffset DateField { get; set; }
 		public bool BooleanField { get; set; }
 		public string StringField { get; set; } = "";
+		public string StringField2 { get; set; } = "";
 	}
 }
