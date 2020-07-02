@@ -4,15 +4,15 @@
 
 <PDTable TItem="TestRow" DataProvider="DataProvider" DefaultSortColumn="Col1" DefaultSortDirection="SortDirection.Descending" ColumnsConfig="_columnsConfig">
 
-	<PDColumn Id="Col1" TItem="TestRow" Title="Id" Field="x => x.IntField"></PDColumn>
-	<PDColumn Id="Col2" TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm"></PDColumn>
+	<PDColumn Id="Col1" TItem="TestRow" Title="Id" Field="x => x.IntField" />
+	<PDColumn Id="Col2" TdClass="text-nowrap" TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm" />
 	<PDColumn Id="Col3" TItem="TestRow" Title="Enabled" Field="x => x.BooleanField">
 		<Template>
 			@(context.BooleanField ? "Yes" : "")
 		</Template>
 	</PDColumn>
-	<PDColumn Id="Col4" TItem="TestRow" Title="Comments" Field="x => x.StringField" Sortable="false"></PDColumn>
-	<PDColumn Id="Col5" TItem="TestRow" Title="Notes" Field="x => x.StringField2" Sortable="false" ShowInList="false"></PDColumn>
+	<PDColumn Id="Col4" TItem="TestRow" Title="Comments" Field="x => x.StringField" Sortable="false"/>
+	<PDColumn Id="Col5" TItem="TestRow" Title="Notes" Field="x => x.StringField2" Sortable="false" ShowInList="false"/>
 
 </PDTable>
 
