@@ -66,6 +66,17 @@ namespace PanoramicData.Blazor
 		[Parameter] public SortDirection DefaultSortDirection { get; set; }
 
 		/// <summary>
+		/// When set, turns on paging and specifies the number of displayed items per page.
+		/// </summary>
+		[Parameter] public int? PageSize { get; set; }
+
+		/// <summary>
+		/// Allows an application defined configuration to be applied to the available columns
+		/// at runtime.
+		/// </summary>
+		[Parameter] public List<PDColumnConfig>? ColumnsConfig { get; set; }
+
+		/// <summary>
 		/// Gets a full list of all columns.
 		/// </summary>
 		public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
@@ -74,12 +85,11 @@ namespace PanoramicData.Blazor
 		/// When given provides a sub-set of columns to display, along with the ability
 		/// to override column defaults. When not given, all columns will be displayed.
 		/// </summary>
-		[Parameter] public List<PDColumnConfig>? ColumnsConfig { get; set; }
 
 		/// <summary>
-		/// Gets a list of columns to be displayed.
+		/// Gets a calculated list of actual columns to be displayed.
 		/// </summary>
-		protected List<PDColumn<TItem>> ColumnsToDisplayInternal
+		protected List<PDColumn<TItem>> ActualColumnsToDisplay
 		{
 			get
 			{
@@ -116,6 +126,16 @@ namespace PanoramicData.Blazor
 		/// Has the table been initialized?
 		/// </summary>
 		protected bool TableInitialised { get; set; } = false;
+
+		/// <summary>
+		/// Current page number, when paging enabled.
+		/// </summary>
+		protected int CurrentPage { get; set; } = 1;
+
+		/// <summary>
+		/// Total number of pages available.
+		/// </summary>
+		protected int? PageCount { get; set; }
 
 		protected override void OnInitialized()
 		{
@@ -165,6 +185,13 @@ namespace PanoramicData.Blazor
 								await targetSortColumn.SortByAsync(requestedSortDirection).ConfigureAwait(true);
 							}
 						}
+					}
+
+					// Paging
+					if (query.TryGetValue("page", out var requestedPage) && query.TryGetValue("pageSize", out var requestedPageSize))
+					{
+						PageSize = Convert.ToInt32(requestedPageSize[0]);
+						CurrentPage = Convert.ToInt32(requestedPage[0]);
 					}
 				}
 				catch (Exception ex)
@@ -227,16 +254,27 @@ namespace PanoramicData.Blazor
 				var request = new DataRequest<TItem>
 				{
 					Skip = 0,
-					Take = 10,
 					ForceUpdate = false,
 					SortFieldExpression = sortColumn?.Field,
 					SortDirection = sortColumn?.SortDirection
 				};
 
+				// paging
+				if(PageSize.HasValue)
+				{
+					request.Take = PageSize.Value;
+					request.Skip = (CurrentPage - 1) * PageSize.Value;
+				}
+
 				// perform query data
 				var response = await DataProvider
 					.GetDataAsync(request, CancellationToken.None)
 					.ConfigureAwait(true);
+
+				if(PageSize.HasValue)
+				{
+					PageCount = (response.TotalCount / PageSize.Value) + (response.TotalCount % PageSize.Value > 0 ? 1 : 0);
+				}
 
 				ItemsToDisplay = response.Items;
 			}
@@ -260,6 +298,15 @@ namespace PanoramicData.Blazor
 				NavigationManager.SetUri(new Dictionary<string, object> { { "sort", $"{column.PropertyInfo!.Name}|{sortStr}" } });
 				await GetDataAsync().ConfigureAwait(true);
 			}
+		}
+
+		private async void PageChangeHandler(int newPage)
+		{
+			CurrentPage = newPage;
+			// Update the URI for bookmarking
+			NavigationManager.SetUri(new Dictionary<string, object> { { "pageSize", $"{PageSize}" }, { "page", $"{CurrentPage}" } });
+			await GetDataAsync();
+			StateHasChanged();
 		}
 	}
 }

@@ -2,7 +2,7 @@
 @using PanoramicData.Blazor.Web.Data
 <h1>PDTable</h1>
 
-<PDTable TItem="TestRow" DataProvider="DataProvider" DefaultSortColumn="Col1" DefaultSortDirection="SortDirection.Descending" ColumnsConfig="_columnsConfig">
+<PDTable TItem="TestRow" DataProvider="DataProvider" PageSize="_pageSize" DefaultSortColumn="Col1" DefaultSortDirection="SortDirection.Descending" ColumnsConfig="_columnsConfig">
 
 	<PDColumn Id="Col1" TItem="TestRow" Title="Id" Field="x => x.IntField" />
 	<PDColumn Id="Col2" TdClass="text-nowrap" TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm" />
@@ -16,6 +16,19 @@
 
 </PDTable>
 
-<p class="font-weight-bold">Columns Config - edit and tab out of field to apply changes</p>
-<textarea rows="8" cols="40" @bind="ColumnsConfigJson">
-</textarea>
+<div>
+	<div class="form-inline">
+
+		<div class="form-group col-3">
+			<label>Page Size</label>
+			<input type="number" class="form-control" @bind="_pageSize">
+		</div>
+
+		<div class="form-group col-3">
+			<label>Columns Config - edit and tab out of field to apply changes</label>
+			<textarea rows="8" cols="40" class="form-control" @bind="ColumnsConfigJson">
+			</textarea>
+		</div>
+
+	</div>
+</div>

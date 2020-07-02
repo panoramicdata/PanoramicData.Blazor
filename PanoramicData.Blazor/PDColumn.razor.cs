@@ -202,6 +202,8 @@ namespace PanoramicData.Blazor
 					// Unset all other columns
 					Table.Columns.ForEach(c => c.SortColumn = false);
 					SortColumn = true;
+					if(requestedSortDirection.HasValue)
+						SortDirection = requestedSortDirection.Value;
 				}
 			}
 			catch (Exception ex)

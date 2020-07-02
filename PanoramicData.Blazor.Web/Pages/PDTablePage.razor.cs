@@ -6,6 +6,8 @@ namespace PanoramicData.Blazor.Web.Pages
 {
 	public partial class PDTablePage
 	{
+		private int _pageSize = 5;
+
 		// columns config enables config to be defined per user or customer etc.
 		private List<PDColumnConfig>? _columnsConfig = new List<PDColumnConfig>
 			{

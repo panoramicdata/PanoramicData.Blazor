@@ -16,16 +16,19 @@ namespace PanoramicData.Blazor.Web.Data
 		public TestDataProvider()
 		{
 			// generate random rows
-			foreach (var id in Enumerable.Range(1, 55))
+			if (_testData.Count() == 0)
 			{
-				_testData.Add(new TestRow
+				foreach (var id in Enumerable.Range(1, 55))
 				{
-					IntField = id,
-					BooleanField = _random.Next(0, 2) == 1,
-					DateField = DateTimeOffset.Now.AddDays(_random.Next(0, 7)),
-					StringField = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length)),
-					StringField2 = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length))
-				});
+					_testData.Add(new TestRow
+					{
+						IntField = id,
+						BooleanField = _random.Next(0, 2) == 1,
+						DateField = DateTimeOffset.Now.AddDays(_random.Next(0, 7)),
+						StringField = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length)),
+						StringField2 = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length))
+					});
+				}
 			}
 		}
 
@@ -35,8 +38,6 @@ namespace PanoramicData.Blazor.Web.Data
 			await Task.Run(() =>
 			{
 				var query = _testData
-					.Skip(request.Skip)
-					.Take(request.Take)
 					.AsQueryable<TestRow>();
 				if (request.SortFieldExpression != null)
 				{
@@ -48,6 +49,10 @@ namespace PanoramicData.Blazor.Web.Data
 					{
 						query = query.OrderBy(request.SortFieldExpression);
 					}
+				}
+				if(request.Take > 0)
+				{
+					query = query.Skip(request.Skip).Take(request.Take);
 				}
 				items = query.ToList();
 			}).ConfigureAwait(false);

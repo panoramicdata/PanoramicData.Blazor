@@ -1,0 +1,29 @@
+﻿<nav aria-label="Pager">
+	<ul class="pagination">
+		<li class="page-item @(IsFirstPage || CurrentPage < 1 ? "disabled" : "pd-pointer")">
+			<a class="page-link" href="#" @onclick="@(() => OnPageChange.InvokeAsync(1))" @onclick:preventDefault>
+				<i class="fas fa-fast-backward" />
+			</a>
+		</li>
+		<li class="page-item @(IsFirstPage || CurrentPage < 1 ? "disabled" : "pd-pointer")">
+			<a class="page-link" href="#" @onclick="@(() => OnPageChange.InvokeAsync(CurrentPage - 1))" @onclick:preventDefault>
+				<i class="fas fa-backward" />
+			</a>
+		</li>
+		<li class="page-item disabled">
+			<a class="page-link" href="#">
+				Page&nbsp;@CurrentPage@(PageCount.HasValue ? "/" + PageCount : string.Empty)
+			</a>
+		</li>
+		<li class="page-item @(IsLastPage || CurrentPage > PageCount ? "disabled" : "pd-pointer")">
+			<a class="page-link" href="#" @onclick="@(() => OnPageChange.InvokeAsync(CurrentPage + 1))" @onclick:preventDefault>
+				<i class="fas fa-forward" />
+			</a>
+		</li>
+		<li class="page-item @(IsLastPage || PageCount == null || CurrentPage > PageCount ? "disabled" : "pd-pointer")">
+			<a class="page-link" href="#" @onclick="@(() => OnPageChange.InvokeAsync(PageCount ?? 1))" @onclick:preventDefault>
+				<i class="fas fa-fast-forward" />
+			</a>
+		</li>
+	</ul>
+</nav>

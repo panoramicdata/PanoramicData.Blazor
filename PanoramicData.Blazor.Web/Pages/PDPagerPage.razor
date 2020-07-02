@@ -1,0 +1,28 @@
+﻿@page "/pdpager"
+@using PanoramicData.Blazor.Web.Data
+
+<h1>PDPager</h1>
+
+<div class="form-inline">
+
+	<div class="form-group col-3">
+		<label>Current Page</label>
+		<input type="number" class="form-control" @bind="_currentPage">
+	</div>
+
+	<div class="form-group col-3">
+		<label>Page Count</label>
+		<input type="number" class="form-control" @bind="_pageCount">
+	</div>
+
+</div>
+
+<br/>
+
+<div>
+	<PDPager CurrentPage="@_currentPage" PageCount="@_pageCount" OnPageChange="PageChangeHandler" ></PDPager>
+</div>
+
+<br/>
+
+<span>@_message</span>
