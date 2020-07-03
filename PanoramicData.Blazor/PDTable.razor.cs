@@ -13,7 +13,7 @@ using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDTable<TItem>
+	public partial class PDTable<TItem> : ISortableComponent
 	{
 		/// <summary>
 		/// Injected log service.
@@ -56,14 +56,14 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
 		/// <summary>
-		/// Gets or sets the default sort column.
+		/// Gets or sets the default sort criteria.
 		/// </summary>
-		[Parameter] public string? DefaultSortColumn { get; set; }
+		[Parameter] public SortCriteria? DefaultSort { get; set; }
 
 		/// <summary>
-		/// Gets or sets the default sort direction.
+		/// Event callback fired whenever the sort criteria has changed.
 		/// </summary>
-		[Parameter] public SortDirection DefaultSortDirection { get; set; }
+		[Parameter] public EventCallback<SortCriteria> OnSortChanged { get; set; }
 
 		/// <summary>
 		/// When set, turns on paging and specifies the number of displayed items per page.
@@ -159,45 +159,18 @@ namespace PanoramicData.Blazor
 			{
 				try
 				{
-					if (DefaultSortColumn != null)
+					if (DefaultSort != null)
 					{
-						var columnToSortBy = Columns.SingleOrDefault(c => c.Id == DefaultSortColumn || c.Title == DefaultSortColumn);
+						var columnToSortBy = Columns.SingleOrDefault(c => c.Id == DefaultSort.Key || c.Title == DefaultSort.Key);
 						if (columnToSortBy != null)
 						{
-							await columnToSortBy.SortByAsync(DefaultSortDirection).ConfigureAwait(true);
+							await columnToSortBy.SortByAsync(DefaultSort.Direction).ConfigureAwait(true);
 						}
 					}
 
 					// Get the requested table parameters from the QueryString
 					var uri = new Uri(NavigationManager.Uri);
 					var query = QueryHelpers.ParseQuery(uri.Query);
-
-					// Search
-					//if (query.TryGetValue("search", out var requestedSearchText))
-					//{
-					//	SearchText = requestedSearchText;
-					//}
-
-					// Sort
-					if (query.TryGetValue("sort", out var requestedSortFields))
-					{
-						var sortFieldSpecs = requestedSortFields[0].Split('|');
-						if (sortFieldSpecs.Length == 2)
-						{
-							// Find the sort column if we can
-							var targetSortColumn = Columns.SingleOrDefault(c => string.Equals(c.PropertyInfo?.Name, sortFieldSpecs[0], StringComparison.InvariantCultureIgnoreCase));
-							if (targetSortColumn != null)
-							{
-								var requestedSortDirection = sortFieldSpecs[1] switch
-								{
-									"asc" => SortDirection.Ascending,
-									"desc" => SortDirection.Descending,
-									_ => targetSortColumn.DefaultSortDirection
-								};
-								await targetSortColumn.SortByAsync(requestedSortDirection).ConfigureAwait(true);
-							}
-						}
-					}
 
 					// Paging
 					if (query.TryGetValue("page", out var requestedPage) && query.TryGetValue("pageSize", out var requestedPageSize))
@@ -303,19 +276,31 @@ namespace PanoramicData.Blazor
 			=> GetDataAsync();
 
 		/// <summary>
+		/// Sort the displayed items.
+		/// </summary>
+		/// <param name="sortCriteria">Details of the sort operation to be performed.</param>
+		public Task SortAsync(SortCriteria criteria)
+		{
+			var column = Columns.SingleOrDefault(c => string.Equals(c.PropertyInfo?.Name, criteria.Key, StringComparison.InvariantCultureIgnoreCase));
+			if (column != null)
+			{
+				return SortBy(column, criteria.Direction);
+			}
+			return Task.CompletedTask;
+		}
+
+		/// <summary>
 		/// Sort the data by the specified column.
 		/// </summary>
 		/// <param name="column">The column to sort by.</param>
 		/// <remarks>To disable sorting for any given column, set its Sortable property set to false.</remarks>
-		protected async Task SortBy(PDColumn<TItem> column)
+		protected async Task SortBy(PDColumn<TItem> column, SortDirection? direction = null)
 		{
 			if (column.Sortable)
 			{
-				await column.SortByAsync().ConfigureAwait(true);
-				var sortStr = column.SortDirection == SortDirection.Ascending ? "asc" : "desc";
-				// Update the URI for bookmarking
-				NavigationManager.SetUri(new Dictionary<string, object> { { "sort", $"{column.PropertyInfo!.Name}|{sortStr}" } });
+				await column.SortByAsync(direction).ConfigureAwait(true);
 				await GetDataAsync().ConfigureAwait(true);
+				await OnSortChanged.InvokeAsync(new SortCriteria { Key = column.Id, Direction = direction ?? column.SortDirection }).ConfigureAwait(true);
 			}
 		}
 
@@ -324,7 +309,7 @@ namespace PanoramicData.Blazor
 			CurrentPage = newPage;
 			// Update the URI for bookmarking
 			NavigationManager.SetUri(new Dictionary<string, object> { { "pageSize", $"{PageSize}" }, { "page", $"{CurrentPage}" } });
-			await GetDataAsync();
+			await GetDataAsync().ConfigureAwait(true);
 			StateHasChanged();
 		}
 	}

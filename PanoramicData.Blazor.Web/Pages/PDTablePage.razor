@@ -13,7 +13,7 @@
 </div>
 
 <PDTable @ref="_table" TItem="TestRow" DataProvider="DataProvider" PageSize="_pageSize" SearchText="@_searchText"
-		 DefaultSortColumn="Col1" DefaultSortDirection="SortDirection.Descending" ColumnsConfig="_columnsConfig">
+		 OnSortChanged="SortChangeHandler" DefaultSort="_defaultSort" ColumnsConfig="_columnsConfig">
 
 	<PDColumn Id="Col1" TItem="TestRow" Title="Id" Field="x => x.IntField" />
 	<PDColumn Id="Col2" TdClass="text-nowrap" TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm" />
@@ -22,7 +22,7 @@
 			@(context.BooleanField ? "Yes" : "")
 		</Template>
 	</PDColumn>
-	<PDColumn Id="Col4" TItem="TestRow" Title="User" Field="x => x.NameField" Sortable="false" />
+	<PDColumn Id="Col4" TItem="TestRow" Title="User" Field="x => x.NameField" Sortable="true" />
 	<PDColumn Id="Col5" TItem="TestRow" Title="Comments" Field="x => x.StringField" Sortable="false" />
 
 </PDTable>
@@ -48,6 +48,13 @@
 
 	<div>
 		<button class="btn btn-primary" @onclick="async (a) => await _table.RefreshAsync()">Refresh</button>
+	</div>
+
+	<div>
+		<div class="form-group p-1">
+			<label>Events</label>
+			<textarea rows="8" class="form-control">@_events</textarea>
+		</div>
 	</div>
 
 </div>
