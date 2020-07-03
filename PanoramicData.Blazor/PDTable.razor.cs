@@ -71,6 +71,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public int? PageSize { get; set; }
 
 		/// <summary>
+		/// Search text to be passed to IDataProvider when querying for data.
+		/// </summary>
+		[Parameter] public string? SearchText { get; set; }
+
+		/// <summary>
 		/// Allows an application defined configuration to be applied to the available columns
 		/// at runtime.
 		/// </summary>
@@ -137,6 +142,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		protected int? PageCount { get; set; }
 
+
 		protected override void OnInitialized()
 		{
 			if (DataProvider is null)
@@ -165,6 +171,12 @@ namespace PanoramicData.Blazor
 					// Get the requested table parameters from the QueryString
 					var uri = new Uri(NavigationManager.Uri);
 					var query = QueryHelpers.ParseQuery(uri.Query);
+
+					// Search
+					//if (query.TryGetValue("search", out var requestedSearchText))
+					//{
+					//	SearchText = requestedSearchText;
+					//}
 
 					// Sort
 					if (query.TryGetValue("sort", out var requestedSortFields))
@@ -246,7 +258,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Requests data from the data provider using the current settings.
 		/// </summary>
-		public async Task GetDataAsync()
+		protected async Task GetDataAsync()
 		{
 			try
 			{
@@ -256,7 +268,8 @@ namespace PanoramicData.Blazor
 					Skip = 0,
 					ForceUpdate = false,
 					SortFieldExpression = sortColumn?.Field,
-					SortDirection = sortColumn?.SortDirection
+					SortDirection = sortColumn?.SortDirection,
+					SearchText = SearchText
 				};
 
 				// paging
@@ -284,11 +297,17 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Refresh the grid by performing a re-query.
+		/// </summary>
+		public Task RefreshAsync()
+			=> GetDataAsync();
+
+		/// <summary>
 		/// Sort the data by the specified column.
 		/// </summary>
 		/// <param name="column">The column to sort by.</param>
 		/// <remarks>To disable sorting for any given column, set its Sortable property set to false.</remarks>
-		public async Task SortBy(PDColumn<TItem> column)
+		protected async Task SortBy(PDColumn<TItem> column)
 		{
 			if (column.Sortable)
 			{

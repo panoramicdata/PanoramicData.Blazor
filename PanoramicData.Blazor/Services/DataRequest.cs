@@ -39,16 +39,8 @@ namespace PanoramicData.Blazor.Services
 		public bool ForceUpdate { get; set; }
 
 		/// <summary>
-		/// Gets or sets the name of the field to perform a text search on.
+		/// Gets or sets the a text string that defines search criteria to be apply to the query.
 		/// </summary>
-		public string? SearchField { get; set; }
-
-		/// <summary>
-		/// Gets or sets the actual text to be searched for within the defined field.
-		/// </summary>
-		/// <remarks>SearchField must be provided in order for this to work.</remarks>
 		public string? SearchText { get; set; }
-
-
 	}
 }

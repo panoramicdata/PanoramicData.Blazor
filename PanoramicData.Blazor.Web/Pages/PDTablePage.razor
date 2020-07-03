@@ -2,7 +2,18 @@
 @using PanoramicData.Blazor.Web.Data
 <h1>PDTable</h1>
 
-<PDTable TItem="TestRow" DataProvider="DataProvider" PageSize="_pageSize" DefaultSortColumn="Col1" DefaultSortDirection="SortDirection.Descending" ColumnsConfig="_columnsConfig">
+<div class="form-group p-1">
+	<label>Search Text</label>
+	<div class="input-group">
+		<input type="text" class="form-control" @bind="_searchText">
+		<div class="input-group-append">
+			<button class="btn btn-secondary" @onclick="async (a) => await _table.RefreshAsync()">Search</button>
+		</div>
+	</div>
+</div>
+
+<PDTable @ref="_table" TItem="TestRow" DataProvider="DataProvider" PageSize="_pageSize" SearchText="@_searchText"
+		 DefaultSortColumn="Col1" DefaultSortDirection="SortDirection.Descending" ColumnsConfig="_columnsConfig">
 
 	<PDColumn Id="Col1" TItem="TestRow" Title="Id" Field="x => x.IntField" />
 	<PDColumn Id="Col2" TdClass="text-nowrap" TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm" />
@@ -11,24 +22,32 @@
 			@(context.BooleanField ? "Yes" : "")
 		</Template>
 	</PDColumn>
-	<PDColumn Id="Col4" TItem="TestRow" Title="Comments" Field="x => x.StringField" Sortable="false"/>
-	<PDColumn Id="Col5" TItem="TestRow" Title="Notes" Field="x => x.StringField2" Sortable="false" ShowInList="false"/>
+	<PDColumn Id="Col4" TItem="TestRow" Title="User" Field="x => x.NameField" Sortable="false" />
+	<PDColumn Id="Col5" TItem="TestRow" Title="Comments" Field="x => x.StringField" Sortable="false" />
 
 </PDTable>
 
-<div>
-	<div class="form-inline">
+<hr />
 
-		<div class="form-group col-3">
+<div>
+
+	<div class="d-flex">
+
+		<div class="form-group p-1">
 			<label>Page Size</label>
 			<input type="number" class="form-control" @bind="_pageSize">
 		</div>
 
-		<div class="form-group col-3">
+		<div class="form-group p-1">
 			<label>Columns Config - edit and tab out of field to apply changes</label>
 			<textarea rows="8" cols="40" class="form-control" @bind="ColumnsConfigJson">
 			</textarea>
 		</div>
 
 	</div>
+
+	<div>
+		<button class="btn btn-primary" @onclick="async (a) => await _table.RefreshAsync()">Refresh</button>
+	</div>
+
 </div>
