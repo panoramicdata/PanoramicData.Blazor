@@ -2,18 +2,24 @@
 @using PanoramicData.Blazor.Web.Data
 <h1>PDTable</h1>
 
+<div class="d-flex flex-row-reverse">
+	<button class="btn btn-primary" @onclick="async () => await _table!.RefreshAsync()">Refresh</button>
+</div>
+
 <div class="form-group p-1">
 	<label>Search Text</label>
 	<div class="input-group">
 		<input type="text" class="form-control" @bind="_searchText">
 		<div class="input-group-append">
-			<button class="btn btn-secondary" @onclick="async (a) => await _table.RefreshAsync()">Search</button>
+			<button class="btn btn-secondary" @onclick="async () => await SearchAsync()">Search</button>
 		</div>
 	</div>
 </div>
 
-<PDTable @ref="_table" TItem="TestRow" DataProvider="DataProvider" PageSize="_pageSize" SearchText="@_searchText"
-		 OnSortChanged="SortChangeHandler" DefaultSort="_defaultSort" ColumnsConfig="_columnsConfig">
+<PDTable @ref="_table" TItem="TestRow" DataProvider="DataProvider" ColumnsConfig="_columnsConfig"
+		 SearchText="@_searchText"
+		 DefaultPage="_defaultPage" OnPageChanged="PageChangeHandler"
+		 DefaultSort="_defaultSort" OnSortChanged="SortChangeHandler">
 
 	<PDColumn Id="Col1" TItem="TestRow" Title="Id" Field="x => x.IntField" />
 	<PDColumn Id="Col2" TdClass="text-nowrap" TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm" />
@@ -34,20 +40,11 @@
 	<div class="d-flex">
 
 		<div class="form-group p-1">
-			<label>Page Size</label>
-			<input type="number" class="form-control" @bind="_pageSize">
-		</div>
-
-		<div class="form-group p-1">
 			<label>Columns Config - edit and tab out of field to apply changes</label>
 			<textarea rows="8" cols="40" class="form-control" @bind="ColumnsConfigJson">
 			</textarea>
 		</div>
 
-	</div>
-
-	<div>
-		<button class="btn btn-primary" @onclick="async (a) => await _table.RefreshAsync()">Refresh</button>
 	</div>
 
 	<div>

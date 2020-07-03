@@ -5,15 +5,16 @@ using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using PanoramicData.Blazor.Web.Data;
 using PanoramicData.Blazor.Extensions;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
 	public partial class PDTablePage
 	{
-		private int _pageSize = 5;
-		private string _searchText = string.Empty;
 		private string _events = string.Empty;
+		private string _searchText = string.Empty;
 		private PDTable<TestRow>? _table;
+		private PageCriteria _defaultPage = new PageCriteria(1, 5);
 		private SortCriteria _defaultSort = new SortCriteria("Col1", SortDirection.Descending);
 
 		/// <summary>
@@ -61,14 +62,40 @@ namespace PanoramicData.Blazor.Web.Pages
 					_defaultSort = new SortCriteria(sortFieldSpecs[0], sortFieldSpecs[1] == "desc" ? SortDirection.Descending : SortDirection.Ascending);
 				}
 			}
+
+			// Page
+			if (query.TryGetValue("page", out var requestedPage) && query.TryGetValue("pageSize", out var requestedPageSize))
+			{
+				_defaultPage = new PageCriteria(Convert.ToInt32(requestedPage[0]), Convert.ToInt32(requestedPageSize[0]));
+			}
+
+			// Search
+			if (query.TryGetValue("search", out var requestedSearch))
+			{
+				_searchText = requestedSearch;
+			}
+		}
+
+		private async Task SearchAsync()
+		{
+			// Update the URI for bookmarking
+			NavigationManager.SetUri(new Dictionary<string, object> { { "search", $"{_searchText}" } });
+			await _table!.RefreshAsync().ConfigureAwait(true);
 		}
 
 		private void SortChangeHandler(SortCriteria criteria)
 		{
-			_events += $"sort changed: {criteria.Key}, {criteria.Direction}{Environment.NewLine}";
+			_events += $"sort changed: key = {criteria.Key}, dir = {criteria.Direction}{Environment.NewLine}";
 			// Update the URI for bookmarking
 			var direction = criteria.Direction == SortDirection.Ascending ? "asc" : "desc";
 			NavigationManager.SetUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } });
+		}
+
+		private void PageChangeHandler(PageCriteria criteria)
+		{
+			_events += $"page changed: page = {criteria.Page}, page size = {criteria.PageSize}{Environment.NewLine}";
+			// Update the URI for bookmarking
+			NavigationManager.SetUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } });
 		}
 	}
 }

@@ -4,16 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Exceptions;
-using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDTable<TItem> : ISortableComponent
+	public partial class PDTable<TItem> : ISortableComponent, IPageableComponent
 	{
 		/// <summary>
 		/// Injected log service.
@@ -66,9 +64,14 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<SortCriteria> OnSortChanged { get; set; }
 
 		/// <summary>
-		/// When set, turns on paging and specifies the number of displayed items per page.
+		/// Gets or sets the default page criteria.
 		/// </summary>
-		[Parameter] public int? PageSize { get; set; }
+		[Parameter] public PageCriteria? DefaultPage { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever the component changes the currently displayed page.
+		/// </summary>
+		[Parameter] public EventCallback<PageCriteria> OnPageChanged { get; set; }
 
 		/// <summary>
 		/// Search text to be passed to IDataProvider when querying for data.
@@ -85,11 +88,6 @@ namespace PanoramicData.Blazor
 		/// Gets a full list of all columns.
 		/// </summary>
 		public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
-
-		/// <summary>
-		/// When given provides a sub-set of columns to display, along with the ability
-		/// to override column defaults. When not given, all columns will be displayed.
-		/// </summary>
 
 		/// <summary>
 		/// Gets a calculated list of actual columns to be displayed.
@@ -135,13 +133,17 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Current page number, when paging enabled.
 		/// </summary>
-		protected int CurrentPage { get; set; } = 1;
+		protected int Page { get; set; } = 1;
+
+		/// <summary>
+		/// When set, turns on paging and specifies the number of displayed items per page.
+		/// </summary>
+		protected int? PageSize { get; set; }
 
 		/// <summary>
 		/// Total number of pages available.
 		/// </summary>
 		protected int? PageCount { get; set; }
-
 
 		protected override void OnInitialized()
 		{
@@ -159,6 +161,7 @@ namespace PanoramicData.Blazor
 			{
 				try
 				{
+					// default sort
 					if (DefaultSort != null)
 					{
 						var columnToSortBy = Columns.SingleOrDefault(c => c.Id == DefaultSort.Key || c.Title == DefaultSort.Key);
@@ -168,15 +171,11 @@ namespace PanoramicData.Blazor
 						}
 					}
 
-					// Get the requested table parameters from the QueryString
-					var uri = new Uri(NavigationManager.Uri);
-					var query = QueryHelpers.ParseQuery(uri.Query);
-
-					// Paging
-					if (query.TryGetValue("page", out var requestedPage) && query.TryGetValue("pageSize", out var requestedPageSize))
+					// default page
+					if(DefaultPage != null)
 					{
-						PageSize = Convert.ToInt32(requestedPageSize[0]);
-						CurrentPage = Convert.ToInt32(requestedPage[0]);
+						Page = DefaultPage.Page;
+						PageSize = DefaultPage.PageSize;
 					}
 				}
 				catch (Exception ex)
@@ -249,7 +248,7 @@ namespace PanoramicData.Blazor
 				if(PageSize.HasValue)
 				{
 					request.Take = PageSize.Value;
-					request.Skip = (CurrentPage - 1) * PageSize.Value;
+					request.Skip = (Page - 1) * PageSize.Value;
 				}
 
 				// perform query data
@@ -276,9 +275,24 @@ namespace PanoramicData.Blazor
 			=> GetDataAsync();
 
 		/// <summary>
+		/// Instructs the component to show the specified page.
+		/// </summary>
+		/// <param name="criteria">Details of the page to be displayed.</param>
+		public async Task PageAsync(PageCriteria criteria)
+		{
+			if (PageSize.HasValue && criteria.Page > 0 && (!PageCount.HasValue || criteria.Page <= PageCount))
+			{
+				Page = criteria.Page;
+				PageSize = criteria.PageSize;
+				await GetDataAsync().ConfigureAwait(true);
+				await OnPageChanged.InvokeAsync(criteria).ConfigureAwait(true);
+			}
+		}
+
+		/// <summary>
 		/// Sort the displayed items.
 		/// </summary>
-		/// <param name="sortCriteria">Details of the sort operation to be performed.</param>
+		/// <param name="criteria">Details of the sort operation to be performed.</param>
 		public Task SortAsync(SortCriteria criteria)
 		{
 			var column = Columns.SingleOrDefault(c => string.Equals(c.PropertyInfo?.Name, criteria.Key, StringComparison.InvariantCultureIgnoreCase));
@@ -302,15 +316,6 @@ namespace PanoramicData.Blazor
 				await GetDataAsync().ConfigureAwait(true);
 				await OnSortChanged.InvokeAsync(new SortCriteria { Key = column.Id, Direction = direction ?? column.SortDirection }).ConfigureAwait(true);
 			}
-		}
-
-		private async void PageChangeHandler(int newPage)
-		{
-			CurrentPage = newPage;
-			// Update the URI for bookmarking
-			NavigationManager.SetUri(new Dictionary<string, object> { { "pageSize", $"{PageSize}" }, { "page", $"{CurrentPage}" } });
-			await GetDataAsync().ConfigureAwait(true);
-			StateHasChanged();
 		}
 	}
 }

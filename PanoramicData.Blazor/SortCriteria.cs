@@ -32,6 +32,5 @@
 		/// Gets or sets the direction of the sort.
 		/// </summary>
 		public SortDirection Direction { get; set; }
-
 	}
 }

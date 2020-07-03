@@ -10,7 +10,7 @@
 						@if (PageSize.HasValue)
 						{
 							<div class="mr-2">
-								<PDPager CurrentPage="@CurrentPage" PageCount="@PageCount" OnPageChange="PageChangeHandler"></PDPager>
+								<PDPager CurrentPage="@Page" PageCount="@PageCount" OnPageChange="(page) => PageAsync(new PageCriteria(page, PageSize))"></PDPager>
 							</div>
 						}
 					</div>
