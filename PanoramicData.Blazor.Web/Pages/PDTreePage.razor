@@ -1,0 +1,10 @@
+﻿@page "/pdtree"
+@using PanoramicData.Blazor.Web.Data
+
+<h3>PDTreePage</h3>
+
+<PDTree TItem="FileSystemEntry" DataProvider="_dataProvider" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name">
+
+
+
+</PDTree>
