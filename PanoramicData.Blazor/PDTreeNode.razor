@@ -1,0 +1,25 @@
+﻿<div class="pdtreenode">
+	@if (Node.Isleaf)
+	{
+		<div>
+			<i class="far fa-plus-square fa-hidden pdtree_expand_icon"></i>
+			<span class="pl-1">@Node.Text</span>
+		</div>
+	}
+	else
+	{
+		<div class="pd-pointer" @onclick="() => Node.IsExpanded = !Node.IsExpanded">
+			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pdtree_expand_icon"></i>
+			<span class="pl-1">@Node.Text</span>
+		</div>
+		<div class="@(ShowLines ? "pdtree_lines" : null)">
+			@if (Node.Nodes != null && Node.IsExpanded)
+			{
+				foreach (var subNode in Node.Nodes)
+				{
+					<PDTreeNode Node="subNode" ShowLines="ShowLines" />
+				}
+			}
+		</div>
+	}
+</div>

@@ -6,13 +6,12 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Exceptions;
-using System.Text;
 
 namespace PanoramicData.Blazor
 {
     public partial class PDTree<TItem>
     {
-		private TreeNode? _model;
+		private TreeNode _model = new TreeNode { Text = "Root" };
 		private Func<TItem, object>? _compiledKeyFunc;
 		private Func<TItem, object>? _compiledParentKeyFunc;
 		private Func<TItem, object>? _compiledTextFunc;
@@ -27,7 +26,7 @@ namespace PanoramicData.Blazor
 		[Parameter] public IDataProviderService<TItem> DataProvider { get; set; } = null!;
 
 		/// <summary>
-		/// A Linq expression that selects the field that contains th ekey value.
+		/// A Linq expression that selects the field that contains the key value.
 		/// </summary>
 		[Parameter] public Expression<Func<TItem, object>>? KeyField { get; set; }
 
@@ -40,6 +39,16 @@ namespace PanoramicData.Blazor
 		/// A Linq expression that selects the field to display for the item.
 		/// </summary>
 		[Parameter] public Expression<Func<TItem, object>>? TextField { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether expanded nodes should show lines to help identify nested levels.
+		/// </summary>
+		[Parameter] public bool ShowLines { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether the root node is displayed.
+		/// </summary>
+		[Parameter] public bool ShowRoot { get; set; } = true;
 
 		protected async override Task OnInitializedAsync()
 		{
@@ -91,7 +100,8 @@ namespace PanoramicData.Blazor
 				var node = new TreeNode
 				{
 					Key = key,
-					Text = CompiledTextFunc?.Invoke(item)?.ToString() ?? string.Empty
+					Text = CompiledTextFunc?.Invoke(item)?.ToString() ?? string.Empty,
+					IsExpanded = false
 				};
 
 				// get parent key
@@ -118,30 +128,6 @@ namespace PanoramicData.Blazor
 			return root.Nodes?.Count == 1
 				? root.Nodes[0]
 				: root;
-		}
-
-		private MarkupString RenderTree()
-		{
-			if (_model == null) return new MarkupString();
-			var sb = new StringBuilder();
-			RenderNode(_model, sb);
-			return new MarkupString(sb.ToString());
-		}
-
-		private void RenderNode(TreeNode node, StringBuilder builder)
-		{
-			builder.Append("<div class=\"pl-3\">");
-			builder.Append("<div>");
-			builder.Append(node.Text);
-			builder.Append("</div>");
-			if(!node.Isleaf && node.Nodes != null)
-			{
-				foreach(var subNode in node.Nodes)
-				{
-					RenderNode(subNode, builder);
-				}
-			}
-			builder.AppendLine("</div>");
 		}
 	}
 }

@@ -1,10 +1,15 @@
 ﻿@page "/pdtree"
 @using PanoramicData.Blazor.Web.Data
 
-<h3>PDTreePage</h3>
+<h1>PDTree</h1>
 
-<PDTree TItem="FileSystemEntry" DataProvider="_dataProvider" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name">
-
-
-
+<PDTree DataProvider="_dataProvider"
+		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
+		ShowLines="_showLines" ShowRoot="_showRoot">
 </PDTree>
+
+<hr/>
+
+<button class="btn btn-secondary" @onclick="() => _showLines = !_showLines">@(_showLines ? "Hide" : "Show") Lines</button>
+
+<button class="btn btn-secondary" @onclick="() => _showRoot = !_showRoot">@(_showRoot ? "Hide" : "Show") Root</button>

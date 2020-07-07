@@ -6,5 +6,8 @@ namespace PanoramicData.Blazor.Web.Pages
 	public partial class PDTreePage
     {
 		private IDataProviderService<FileSystemEntry> _dataProvider = new TestFileSystemDataProvider();
+
+		private bool _showLines = false;
+		private bool _showRoot = true;
     }
 }

@@ -1,3 +1,15 @@
 ﻿@typeparam TItem
 
-@RenderTree()
+<div class="pdtree">
+	@if (ShowRoot)
+	{
+		<PDTreeNode Node="_model" ShowLines="ShowLines" />
+	}
+	else
+	{
+		foreach(var subNode in _model.Nodes)
+		{
+			<PDTreeNode Node="subNode" ShowLines="ShowLines" />
+		}
+	}
+</div>

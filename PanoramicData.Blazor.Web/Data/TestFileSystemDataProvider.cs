@@ -9,8 +9,7 @@ namespace PanoramicData.Blazor.Web.Data
 {
 	public class TestFileSystemDataProvider : IDataProviderService<FileSystemEntry>
 	{
-		private static readonly List<FileSystemEntry> _testData = new List<FileSystemEntry>();
-		//private static FileSystemTreeNode? _root;
+		private readonly List<FileSystemEntry> _testData = new List<FileSystemEntry>();
 
 		public TestFileSystemDataProvider()
 		{

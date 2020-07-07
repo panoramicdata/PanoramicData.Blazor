@@ -1,0 +1,26 @@
+﻿.pdtree {
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+}
+
+// lines that help show nested levels
+.pdtree_lines {
+	border-left: 1px dashed grey;
+	margin-left: -1px;
+}
+
+// shifts the expand/collapse icons to the left to sit centrally over the lines
+.pdtree_expand_icon {
+	margin-left: -7px;
+}
+
+// indents each tree level
+.pdtreenode {
+	padding-left: 1.2rem;
+}
+
+// negates the indent on the top level nodes
+.pdtree > .pdtreenode {
+	padding-left: 0rem;
+}
