@@ -13,5 +13,11 @@ namespace PanoramicData.Blazor
 		/// Gets or sets whether the node when expanded, should show a line to help identify its boundary.
 		/// </summary>
 		[Parameter] public bool ShowLines { get; set; }
+
+		/// <summary>
+		/// Gets or sets the template to render.
+		/// </summary>
+		[Parameter]
+		public RenderFragment<TreeNode> NodeTemplate { get; set; }
 	}
 }

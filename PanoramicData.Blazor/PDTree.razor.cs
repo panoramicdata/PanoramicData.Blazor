@@ -51,6 +51,12 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool ShowRoot { get; set; } = true;
 
 		/// <summary>
+		/// Gets or sets the template to render for each node.
+		/// </summary>
+		[Parameter]
+		public RenderFragment<TreeNode> NodeTemplate { get; set; }
+
+		/// <summary>
 		/// Expands all the branch nodes in the tree.
 		/// </summary>
 		public void ExpandAll()

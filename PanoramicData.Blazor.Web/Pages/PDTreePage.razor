@@ -6,6 +6,16 @@
 <PDTree @ref="_tree" DataProvider="_dataProvider"
 		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
 		ShowLines="_showLines" ShowRoot="_showRoot">
+	<NodeTemplate>
+		@if (context.Isleaf)
+		{
+			<a href="#">@context.Text</a>
+		}
+		else
+		{
+			<span>@context.Text</span>
+		}
+	</NodeTemplate>
 </PDTree>
 
 <hr/>
