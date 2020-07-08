@@ -3,7 +3,7 @@
 
 <h1>PDTree</h1>
 
-<PDTree DataProvider="_dataProvider"
+<PDTree @ref="_tree" DataProvider="_dataProvider"
 		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
 		ShowLines="_showLines" ShowRoot="_showRoot">
 </PDTree>
@@ -13,3 +13,7 @@
 <button class="btn btn-secondary" @onclick="() => _showLines = !_showLines">@(_showLines ? "Hide" : "Show") Lines</button>
 
 <button class="btn btn-secondary" @onclick="() => _showRoot = !_showRoot">@(_showRoot ? "Hide" : "Show") Root</button>
+
+<button class="btn btn-secondary" @onclick="() => _tree.ExpandAll()">Expand All</button>
+
+<button class="btn btn-secondary" @onclick="() => _tree.CollapseAll()">Collapse All</button>

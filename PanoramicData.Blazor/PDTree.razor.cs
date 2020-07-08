@@ -50,6 +50,56 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public bool ShowRoot { get; set; } = true;
 
+		/// <summary>
+		/// Expands all the branch nodes in the tree.
+		/// </summary>
+		public void ExpandAll()
+		{
+			WalkTree((n) => { n.IsExpanded = !n.Isleaf; return true; });
+		}
+
+		/// <summary>
+		/// Collapses all the branch nodes in the tree.
+		/// </summary>
+		public void CollapseAll()
+		{
+			WalkTree((n) => { n.IsExpanded = false; return true; });
+		}
+
+		/// <summary>
+		/// Function that walks the tree calling the given function at each node until no more nodes
+		/// or the function returns false.
+		/// </summary>
+		/// <param name="fn">Function to be called for each node. Returns false to stop walking.</param>
+		private void WalkTree(Func<TreeNode, bool> fn)
+		{
+			if(_model != null)
+			{
+				walkTree(_model, fn);
+			}
+
+			// local recursive function to actually walk tree
+			// returns true is walking should stop
+			bool walkTree(TreeNode node, Func<TreeNode, bool> fn)
+			{
+				if (!fn(node))
+				{
+					return false;
+				}
+				else if (node.Nodes != null)
+				{
+					foreach (var subNode in node.Nodes)
+					{
+						if(!walkTree(subNode, fn))
+						{
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+		}
+
 		protected async override Task OnInitializedAsync()
 		{
 			await GetDataAsync();
