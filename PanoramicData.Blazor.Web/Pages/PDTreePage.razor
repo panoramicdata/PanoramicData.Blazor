@@ -9,11 +9,17 @@
 	<NodeTemplate>
 		@if (context.Isleaf)
 		{
-			<a href="#">@context.Text</a>
+			<span>
+				<i class="far fa-file"></i>
+				<a href="#">@context.Text</a>
+			</span>
 		}
 		else
 		{
-			<span>@context.Text</span>
+			<span>
+				<i class="far fa-folder"></i>
+				<span>@context.Text</span>
+			</span>
 		}
 	</NodeTemplate>
 </PDTree>
