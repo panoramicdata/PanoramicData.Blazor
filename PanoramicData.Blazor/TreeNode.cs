@@ -28,6 +28,11 @@ namespace PanoramicData.Blazor
 		public virtual bool IsExpanded { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether this node is currently selected.
+		/// </summary>
+		public virtual bool IsSelected { get; set; }
+
+		/// <summary>
 		/// Gets a list of child nodes for this node.
 		/// </summary>
 		/// <Remarks>When IsLeaf is false and this property is null then it is considered unloaded.

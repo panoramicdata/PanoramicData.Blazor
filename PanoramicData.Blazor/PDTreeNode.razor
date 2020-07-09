@@ -1,8 +1,15 @@
 ﻿<div class="pdtreenode">
-	@if (Node.Isleaf)
-	{
-		<div>
-			<i class="far fa-plus-square fa-hidden pdtree_expand_icon"></i>
+
+	<div class="pdtreenode_header">
+		@if (Node.Isleaf)
+		{
+			<i class="far fa-plus-square fa-hidden"></i>
+		}
+		else
+		{
+			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="() => Node.IsExpanded = !Node.IsExpanded"></i>
+		}
+		<div class="pdtreenode_content @(Node.IsSelected ? "selected" : null)" @onclick="() => Node.IsSelected = !Node.IsSelected">
 			@if (NodeTemplate == null)
 			{
 				<span class="pl-1">@Node.Text</span>
@@ -12,21 +19,12 @@
 				@NodeTemplate(Node);
 			}
 		</div>
-	}
-	else
+	</div>
+
+	@if (!Node.Isleaf)
 	{
-		<div class="pd-pointer" @onclick="() => Node.IsExpanded = !Node.IsExpanded">
-			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pdtree_expand_icon"></i>
-			@if (NodeTemplate == null)
-			{
-				<span class="pl-1">@Node.Text</span>
-			}
-			else
-			{
-				@NodeTemplate(Node);
-			}
-		</div>
-		<div class="@(ShowLines ? "pdtree_lines" : null)">
+
+		<div class="pdtreenode_child_content @(ShowLines ? "pdtree_lines" : null)">
 			@if (Node.Nodes != null && Node.IsExpanded)
 			{
 				foreach (var subNode in Node.Nodes)
@@ -45,4 +43,5 @@
 			}
 		</div>
 	}
+
 </div>
