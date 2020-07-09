@@ -1,7 +1,9 @@
-﻿<div class="pdtreenode">
+﻿@typeparam TItem
+
+<div class="pdtreenode">
 
 	<div class="pdtreenode_header">
-		@if (Node.Isleaf)
+		@if (Node?.Isleaf ?? true)
 		{
 			<i class="far fa-plus-square fa-hidden"></i>
 		}
@@ -9,10 +11,10 @@
 		{
 			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="() => Node.IsExpanded = !Node.IsExpanded"></i>
 		}
-		<div class="pdtreenode_content @(Node.IsSelected ? "selected" : null)" @onclick="() => Node.IsSelected = !Node.IsSelected">
+		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" @onclick="OnContentClick">
 			@if (NodeTemplate == null)
 			{
-				<span class="pl-1">@Node.Text</span>
+				<span>@Node?.Text</span>
 			}
 			else
 			{
@@ -23,7 +25,6 @@
 
 	@if (!Node.Isleaf)
 	{
-
 		<div class="pdtreenode_child_content @(ShowLines ? "pdtree_lines" : null)">
 			@if (Node.Nodes != null && Node.IsExpanded)
 			{
@@ -31,11 +32,11 @@
 				{
 					if (NodeTemplate == null)
 					{
-						<PDTreeNode Node="subNode" ShowLines="ShowLines" />
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" />
 					}
 					else
 					{
-						<PDTreeNode Node="subNode" ShowLines="ShowLines">
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines">
 							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 						</PDTreeNode>
 					}

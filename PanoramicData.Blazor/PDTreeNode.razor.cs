@@ -2,12 +2,18 @@
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDTreeNode
+	public partial class PDTreeNode<TItem> where TItem : class
     {
+		/// <summary>
+		/// The parent PDTable instance.
+		/// </summary>
+		[CascadingParameter(Name = "Tree")]
+		public PDTree<TItem> Tree { get; set; } = null!;
+
 		/// <summary>
 		/// Gets or sets the TreeNode to be rendered.
 		/// </summary>
-		[Parameter] public TreeNode Node { get; set; }
+		[Parameter] public TreeNode<TItem>? Node { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether the node when expanded, should show a line to help identify its boundary.
@@ -18,6 +24,14 @@ namespace PanoramicData.Blazor
 		/// Gets or sets the template to render.
 		/// </summary>
 		[Parameter]
-		public RenderFragment<TreeNode>? NodeTemplate { get; set; }
+		public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
+
+		private void OnContentClick()
+		{
+			if(Node != null)
+			{
+				Tree.SelectNode(Node);
+			}
+		}
 	}
 }

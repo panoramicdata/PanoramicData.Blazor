@@ -5,12 +5,12 @@
 
 <PDTree @ref="_tree" DataProvider="_dataProvider"
 		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
-		ShowLines="_showLines" ShowRoot="_showRoot">
+		ShowLines="_showLines" ShowRoot="_showRoot" AllowSelection="true">
 	<NodeTemplate>
 		@if (context.Isleaf)
 		{
 				<i class="far fa-file"></i>
-				<b>@context.Text</b>
+				<b>@context.Data?.Path</b>
 		}
 		else
 		{

@@ -9,12 +9,13 @@ using PanoramicData.Blazor.Exceptions;
 
 namespace PanoramicData.Blazor
 {
-    public partial class PDTree<TItem>
+    public partial class PDTree<TItem> where TItem : class
     {
-		private TreeNode _model = new TreeNode { Text = "Root" };
+		private TreeNode<TItem> _model = new TreeNode<TItem> { Text = "Root" };
 		private Func<TItem, object>? _compiledKeyFunc;
 		private Func<TItem, object>? _compiledParentKeyFunc;
 		private Func<TItem, object>? _compiledTextFunc;
+		private TreeNode<TItem>? _currentSelection;
 
 		private Func<TItem, object>? CompiledKeyFunc => _compiledKeyFunc ??= KeyField?.Compile();
 		private Func<TItem, object>? CompiledParentKeyFunc => _compiledParentKeyFunc ??= ParentKeyField?.Compile();
@@ -51,10 +52,20 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool ShowRoot { get; set; } = true;
 
 		/// <summary>
+		/// Gets or sets whether selection is allowed.
+		/// </summary>
+		[Parameter] public bool AllowSelection { get; set; } = true;
+
+		/// <summary>
 		/// Gets or sets the template to render for each node.
 		/// </summary>
 		[Parameter]
-		public RenderFragment<TreeNode>? NodeTemplate { get; set; }
+		public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
+
+		/// <summary>
+		/// Gets the currently selected item.
+		/// </summary>
+		public TItem? Selection { get => _currentSelection?.Data; }
 
 		/// <summary>
 		/// Expands all the branch nodes in the tree.
@@ -77,7 +88,7 @@ namespace PanoramicData.Blazor
 		/// or the function returns false.
 		/// </summary>
 		/// <param name="fn">Function to be called for each node. Returns false to stop walking.</param>
-		private void WalkTree(Func<TreeNode, bool> fn)
+		private void WalkTree(Func<TreeNode<TItem>, bool> fn)
 		{
 			if(_model != null)
 			{
@@ -86,7 +97,7 @@ namespace PanoramicData.Blazor
 
 			// local recursive function to actually walk tree
 			// returns true is walking should stop
-			bool walkTree(TreeNode node, Func<TreeNode, bool> fn)
+			bool walkTree(TreeNode<TItem> node, Func<TreeNode<TItem>, bool> fn)
 			{
 				if (!fn(node))
 				{
@@ -134,10 +145,24 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private TreeNode BuildModel(IEnumerable<TItem> items)
+		public void SelectNode(TreeNode<TItem> node)
 		{
-			var root = new TreeNode();
-			var dict = new Dictionary<string, TreeNode>();
+			if (AllowSelection && node != _currentSelection)
+			{
+				if (_currentSelection != null)
+				{
+					_currentSelection.IsSelected = false;
+				}
+				_currentSelection = node;
+				_currentSelection.IsSelected = true;
+				StateHasChanged();
+			}
+		}
+
+		private TreeNode<TItem> BuildModel(IEnumerable<TItem> items)
+		{
+			var root = new TreeNode<TItem>();
+			var dict = new Dictionary<string, TreeNode<TItem>>();
 
 			foreach (var item in items)
 			{
@@ -153,11 +178,12 @@ namespace PanoramicData.Blazor
 				}
 
 				// create node
-				var node = new TreeNode
+				var node = new TreeNode<TItem>
 				{
 					Key = key,
 					Text = CompiledTextFunc?.Invoke(item)?.ToString() ?? string.Empty,
-					IsExpanded = false
+					IsExpanded = false,
+					Data = item
 				};
 
 				// get parent key
@@ -165,13 +191,13 @@ namespace PanoramicData.Blazor
 				if (string.IsNullOrWhiteSpace(parentKey))
 				{
 					// root item
-					(root.Nodes ?? (root.Nodes = new List<TreeNode>())).Add(node);
+					(root.Nodes ?? (root.Nodes = new List<TreeNode<TItem>>())).Add(node);
 				}
 				else if (dict.ContainsKey(parentKey))
 				{
 					// child node
 					var parentNode = dict[parentKey];
-					(parentNode.Nodes ?? (parentNode.Nodes = new List<TreeNode>())).Add(node);
+					(parentNode.Nodes ?? (parentNode.Nodes = new List<TreeNode<TItem>>())).Add(node);
 				}
 				else
 				{

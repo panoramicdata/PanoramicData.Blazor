@@ -1,33 +1,37 @@
 ﻿@typeparam TItem
 
-<div class="pdtree">
-	@if (ShowRoot)
-	{
-		@if(NodeTemplate == null)
-		{
-			<PDTreeNode Node="_model" ShowLines="ShowLines" />
-		}
-		else
-		{
-			<PDTreeNode Node="_model" ShowLines="ShowLines">
-				<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
-			</PDTreeNode>
-		}
-	}
-	else
-	{
-		foreach (var subNode in _model.Nodes)
-		{
-			@if (NodeTemplate == null)
+	<CascadingValue Value="(PDTree<TItem>)this" Name="Tree">
+
+		<div class="pdtree">
+			@if (ShowRoot)
 			{
-				<PDTreeNode Node="subNode" ShowLines="ShowLines" />
+				@if (NodeTemplate == null)
+				{
+					<PDTreeNode TItem="TItem" Node="_model" ShowLines="ShowLines" />
+				}
+				else
+				{
+					<PDTreeNode TItem="TItem" Node="_model" ShowLines="ShowLines">
+						<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
+					</PDTreeNode>
+				}
 			}
 			else
 			{
-				<PDTreeNode Node="subNode" ShowLines="ShowLines">
-					<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
-				</PDTreeNode>
+				foreach (var subNode in _model.Nodes)
+				{
+					@if (NodeTemplate == null)
+					{
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" />
+					}
+					else
+					{
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines">
+							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
+						</PDTreeNode>
+					}
+				}
 			}
-		}
-	}
-</div>
+		</div>
+
+	</CascadingValue>
