@@ -65,8 +65,21 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets an event callback raise whenever the selection changes.
 		/// </summary>
-		[ParameterAttribute]
+		[Parameter]
 		public EventCallback<TItem> SelectionChange { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever the user expands a node.
+		/// </summary>
+		[Parameter]
+		public EventCallback<TItem> NodeExpanded { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever the user collapses a node.
+		/// </summary>
+		[Parameter]
+		public EventCallback<TItem> NodeCollapsed { get; set; }
+
 
 		/// <summary>
 		/// Expands all the branch nodes in the tree.
@@ -89,16 +102,16 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		/// <param name="item">The item to find and select.</param>
 		/// <remarks>Items are searched for by their key values.</remarks>
-		public void SelectItem(TItem item)
+		public async Task SelectItemAsync(TItem item)
 		{
-			SelectItem(CompiledKeyFunc!.Invoke(item).ToString());
+			await SelectItemAsync(CompiledKeyFunc!.Invoke(item).ToString()).ConfigureAwait(true);
 		}
 
 		/// <summary>
 		/// Attempts to find and select the given item.
 		/// </summary>
 		/// <param name="key">The key of the item to find and select.</param>
-		public void SelectItem(string key)
+		public async Task SelectItemAsync(string key)
 		{
 			if (AllowSelection)
 			{
@@ -114,7 +127,7 @@ namespace PanoramicData.Blazor
 				});
 				if (node != null)
 				{
-					SelectNode(node);
+					await SelectNode(node).ConfigureAwait(true);
 				}
 			}
 		}
@@ -131,8 +144,7 @@ namespace PanoramicData.Blazor
 				walkTree(_model, fn);
 			}
 
-			// local recursive function to actually walk tree
-			// returns true is walking should stop
+			// local recursive function to actually walk tree, returns false if walking should stop
 			bool walkTree(TreeNode<TItem> node, Func<TreeNode<TItem>, bool> fn)
 			{
 				if (!fn(node))
@@ -235,7 +247,7 @@ namespace PanoramicData.Blazor
 				: root;
 		}
 
-		internal void SelectNode(TreeNode<TItem> node)
+		internal async Task SelectNode(TreeNode<TItem> node)
 		{
 			if (AllowSelection && node != _currentSelection)
 			{
@@ -258,8 +270,22 @@ namespace PanoramicData.Blazor
 				}
 
 				// notify of change
-				SelectionChange.InvokeAsync(_currentSelection.Data);
+				await SelectionChange.InvokeAsync(_currentSelection.Data).ConfigureAwait(true);
 				StateHasChanged();
+			}
+		}
+
+		internal async Task ToggleNodeIsExpandedAsync(TreeNode<TItem> node)
+		{
+			var wasExpanded = node.IsExpanded;
+			node.IsExpanded = !wasExpanded;
+			if(wasExpanded)
+			{
+				await NodeCollapsed.InvokeAsync(node.Data).ConfigureAwait(true);
+			}
+			else
+			{
+				await NodeExpanded.InvokeAsync(node.Data).ConfigureAwait(true);
 			}
 		}
 	}

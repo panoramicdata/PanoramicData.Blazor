@@ -9,9 +9,9 @@
 		}
 		else
 		{
-			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="() => Node.IsExpanded = !Node.IsExpanded"></i>
+			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
 		}
-		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" @onclick="OnContentClick">
+		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" @onclick="OnContentClickAsync">
 			@if (NodeTemplate == null)
 			{
 				<span>@Node?.Text</span>

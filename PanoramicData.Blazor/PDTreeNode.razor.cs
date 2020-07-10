@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
@@ -26,11 +27,19 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
 
-		private void OnContentClick()
+		private async Task OnContentClickAsync()
 		{
 			if(Node != null)
 			{
-				Tree.SelectNode(Node);
+				await Tree.SelectNode(Node).ConfigureAwait(true);
+			}
+		}
+
+		private async Task OnToggleExpandAsync()
+		{
+			if (Node != null)
+			{
+				await Tree.ToggleNodeIsExpandedAsync(Node).ConfigureAwait(true);
 			}
 		}
 	}

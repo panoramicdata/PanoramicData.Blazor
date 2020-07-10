@@ -18,5 +18,15 @@ namespace PanoramicData.Blazor.Web.Pages
 			_selectedEntry = entry;
 			_events += $"selection changed: path = {entry.Path}{Environment.NewLine}";
 		}
+
+		private void NodeExpandedHandler(FileSystemEntry entry)
+		{
+			_events += $"node expanded: path = {entry.Path}{Environment.NewLine}";
+		}
+
+		private void NodeCollapsedHandler(FileSystemEntry entry)
+		{
+			_events += $"node collapsed: path = {entry.Path}{Environment.NewLine}";
+		}
 	}
 }

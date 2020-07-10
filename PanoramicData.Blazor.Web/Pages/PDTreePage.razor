@@ -6,7 +6,7 @@
 <PDTree @ref="_tree" DataProvider="_dataProvider"
 		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
 		ShowLines="_showLines" ShowRoot="_showRoot" AllowSelection="true"
-		SelectionChange="SelectionChangeHandler">
+		SelectionChange="SelectionChangeHandler" NodeExpanded="NodeExpandedHandler" NodeCollapsed="NodeCollapsedHandler" >
 	<NodeTemplate>
 		@if (context.Isleaf)
 		{
@@ -31,7 +31,7 @@
 
 <button class="btn btn-secondary" @onclick="() => _tree.CollapseAll()">Collapse All</button>
 
-<button class="btn btn-secondary" @onclick="@(() => _tree.SelectItem(@"C:\ProgramData\Acme\UserGuide.pdf"))">Select Item</button>
+<button class="btn btn-secondary" @onclick="@(() => _tree.SelectItemAsync(@"C:\ProgramData\Acme\UserGuide.pdf"))">Select Item</button>
 
 <br />
 
