@@ -63,9 +63,10 @@ namespace PanoramicData.Blazor
 		public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
 
 		/// <summary>
-		/// Gets the currently selected item.
+		/// Gets or sets an event callback raise whenever the selection changes.
 		/// </summary>
-		public TItem? Selection { get => _currentSelection?.Data; }
+		[ParameterAttribute]
+		public EventCallback<TItem> SelectionChange { get; set; }
 
 		/// <summary>
 		/// Expands all the branch nodes in the tree.
@@ -155,6 +156,7 @@ namespace PanoramicData.Blazor
 				}
 				_currentSelection = node;
 				_currentSelection.IsSelected = true;
+				SelectionChange.InvokeAsync(_currentSelection.Data);
 				StateHasChanged();
 			}
 		}

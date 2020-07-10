@@ -5,7 +5,8 @@
 
 <PDTree @ref="_tree" DataProvider="_dataProvider"
 		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
-		ShowLines="_showLines" ShowRoot="_showRoot" AllowSelection="true">
+		ShowLines="_showLines" ShowRoot="_showRoot" AllowSelection="true"
+		SelectionChange="OnSelectionChange" >
 	<NodeTemplate>
 		@if (context.Isleaf)
 		{
@@ -29,3 +30,7 @@
 <button class="btn btn-secondary" @onclick="() => _tree.ExpandAll()">Expand All</button>
 
 <button class="btn btn-secondary" @onclick="() => _tree.CollapseAll()">Collapse All</button>
+
+<br/>
+
+<b><span>Selected Item:</span></b><span>@_selectedEntry?.Path</span>
