@@ -6,22 +6,22 @@
 <PDTree @ref="_tree" DataProvider="_dataProvider"
 		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
 		ShowLines="_showLines" ShowRoot="_showRoot" AllowSelection="true"
-		SelectionChange="OnSelectionChange" >
+		SelectionChange="SelectionChangeHandler">
 	<NodeTemplate>
 		@if (context.Isleaf)
 		{
-				<i class="far fa-file"></i>
-				<b>@context.Data?.Path</b>
+			<i class="far fa-file"></i>
+			<b>@context.Data?.Path</b>
 		}
 		else
 		{
-				<i class="far fa-folder"></i>
-				<span>@context.Text</span>
+			<i class="far fa-folder"></i>
+			<span>@context.Text</span>
 		}
 	</NodeTemplate>
 </PDTree>
 
-<hr/>
+<hr />
 
 <button class="btn btn-secondary" @onclick="() => _showLines = !_showLines">@(_showLines ? "Hide" : "Show") Lines</button>
 
@@ -31,6 +31,20 @@
 
 <button class="btn btn-secondary" @onclick="() => _tree.CollapseAll()">Collapse All</button>
 
-<br/>
+<button class="btn btn-secondary" @onclick="@(() => _tree.SelectItem(@"C:\ProgramData\Acme\UserGuide.pdf"))">Select Item</button>
 
-<b><span>Selected Item:</span></b><span>@_selectedEntry?.Path</span>
+<br />
+
+<div>
+	<b>
+		<span>Selected Item:</span>
+	</b>
+	<span>@_selectedEntry?.Path</span>
+</div>
+
+<div>
+	<div class="form-group p-1">
+		<label>Events</label>
+		<textarea rows="8" class="form-control">@_events</textarea>
+	</div>
+</div>

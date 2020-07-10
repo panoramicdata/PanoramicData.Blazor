@@ -85,6 +85,41 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Attempts to find and select the given item.
+		/// </summary>
+		/// <param name="item">The item to find and select.</param>
+		/// <remarks>Items are searched for by their key values.</remarks>
+		public void SelectItem(TItem item)
+		{
+			SelectItem(CompiledKeyFunc!.Invoke(item).ToString());
+		}
+
+		/// <summary>
+		/// Attempts to find and select the given item.
+		/// </summary>
+		/// <param name="key">The key of the item to find and select.</param>
+		public void SelectItem(string key)
+		{
+			if (AllowSelection)
+			{
+				TreeNode<TItem>? node = null;
+				WalkTree((n) =>
+				{
+					if (n.Key == key)
+					{
+						node = n;
+						return false; // stop search
+					}
+					return true;
+				});
+				if (node != null)
+				{
+					SelectNode(node);
+				}
+			}
+		}
+
+		/// <summary>
 		/// Function that walks the tree calling the given function at each node until no more nodes
 		/// or the function returns false.
 		/// </summary>
@@ -146,21 +181,6 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		public void SelectNode(TreeNode<TItem> node)
-		{
-			if (AllowSelection && node != _currentSelection)
-			{
-				if (_currentSelection != null)
-				{
-					_currentSelection.IsSelected = false;
-				}
-				_currentSelection = node;
-				_currentSelection.IsSelected = true;
-				SelectionChange.InvokeAsync(_currentSelection.Data);
-				StateHasChanged();
-			}
-		}
-
 		private TreeNode<TItem> BuildModel(IEnumerable<TItem> items)
 		{
 			var root = new TreeNode<TItem>();
@@ -190,7 +210,7 @@ namespace PanoramicData.Blazor
 
 				// get parent key
 				var parentKey = CompiledParentKeyFunc?.Invoke(item)?.ToString();
-				if (string.IsNullOrWhiteSpace(parentKey))
+				if (parentKey == null || string.IsNullOrWhiteSpace(parentKey))
 				{
 					// root item
 					(root.Nodes ?? (root.Nodes = new List<TreeNode<TItem>>())).Add(node);
@@ -199,6 +219,7 @@ namespace PanoramicData.Blazor
 				{
 					// child node
 					var parentNode = dict[parentKey];
+					node.ParentNode = parentNode;
 					(parentNode.Nodes ?? (parentNode.Nodes = new List<TreeNode<TItem>>())).Add(node);
 				}
 				else
@@ -212,6 +233,34 @@ namespace PanoramicData.Blazor
 			return root.Nodes?.Count == 1
 				? root.Nodes[0]
 				: root;
+		}
+
+		internal void SelectNode(TreeNode<TItem> node)
+		{
+			if (AllowSelection && node != _currentSelection)
+			{
+				// clear current selection
+				if (_currentSelection != null)
+				{
+					_currentSelection.IsSelected = false;
+				}
+
+				// select new node
+				_currentSelection = node;
+				_currentSelection.IsSelected = true;
+
+				// ensure all parent nodes are expanded
+				var parentNode = _currentSelection.ParentNode;
+				while(parentNode != null)
+				{
+					parentNode.IsExpanded = true;
+					parentNode = parentNode.ParentNode;
+				}
+
+				// notify of change
+				SelectionChange.InvokeAsync(_currentSelection.Data);
+				StateHasChanged();
+			}
 		}
 	}
 }
