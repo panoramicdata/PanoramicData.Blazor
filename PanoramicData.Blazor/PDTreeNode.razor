@@ -23,7 +23,7 @@
 		</div>
 	</div>
 
-	@if (!Node.Isleaf)
+	@if (!(Node?.Isleaf ?? true))
 	{
 		<div class="pdtreenode_child_content @(ShowLines ? "pdtree_lines" : null)">
 			@if (Node.Nodes != null && Node.IsExpanded)

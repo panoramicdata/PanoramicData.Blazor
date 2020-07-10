@@ -50,31 +50,12 @@ namespace PanoramicData.Blazor.Web.Data
 				var query = _testData
 					.AsQueryable<FileSystemEntry>();
 
-				// apply search criteria and get a total count of matching items
-				if(!string.IsNullOrWhiteSpace(request.SearchText))
-				{
-					query = query.Where(x => x.Name.Contains(request.SearchText));
-				}
+				// if search text given then take that as the parent path value
+				// and only return direct child items
+				if(request.SearchText != null)
+					query = query.Where(x => x.ParentPath == request.SearchText);
+
 				total = query.Count();
-
-				// apply sort
-				if (request.SortFieldExpression != null)
-				{
-					if (request.SortDirection != null && request.SortDirection == SortDirection.Descending)
-					{
-						query = query.OrderByDescending(request.SortFieldExpression);
-					}
-					else
-					{
-						query = query.OrderBy(request.SortFieldExpression);
-					}
-				}
-
-				// apply paging
-				//if(request.Take > 0)
-				//{
-				//	query = query.Skip(request.Skip).Take(request.Take);
-				//}
 
 				// realize query
 				items = query.ToList();

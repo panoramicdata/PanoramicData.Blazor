@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace PanoramicData.Blazor
 {
 	/// <summary>
 	/// The TreeNode class is used to describe a single node of a hierarchical data structure.
 	/// </summary>
-	public class TreeNode<T>
+	public class TreeNode<T> where T : class
 	{
 		/// <summary>
 		/// Gets or sets the unique identifier for this node.
@@ -21,7 +20,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets the data item associated with this node.
 		/// </summary>
-		public T Data { get; internal set; }
+		public T? Data { get; internal set; }
 
 		/// <summary>
 		/// Gets whether this node is a leaf node, i.e. does not / will not ever contain child nodes.
@@ -31,12 +30,12 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets whether this node is expanded or not. Only applied to branch nodes (non-leaf nodes).
 		/// </summary>
-		public virtual bool IsExpanded { get; set; }
+		public bool IsExpanded { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether this node is currently selected.
 		/// </summary>
-		public virtual bool IsSelected { get; set; }
+		public bool IsSelected { get; set; }
 
 		/// <summary>
 		/// Gets or sets this nodes parent.
@@ -48,6 +47,6 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		/// <Remarks>When IsLeaf is false and this property is null then it is considered unloaded.
 		/// This allows the concept of on-demand / lazy loading of sub-nodes.</Remarks>
-		public List<TreeNode<T>>? Nodes { get; set; } = new List<TreeNode<T>>(); // default is evaluated and no child nodes
+		public List<TreeNode<T>>? Nodes { get; set; }
 	}
 }

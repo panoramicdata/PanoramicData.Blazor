@@ -3,6 +3,8 @@
 
 <h1>PDTree</h1>
 
+<h3>All items loaded up front example</h3>
+
 <PDTree @ref="_tree" DataProvider="_dataProvider"
 		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
 		ShowLines="_showLines" ShowRoot="_showRoot" AllowSelection="true"
@@ -24,13 +26,9 @@
 <hr />
 
 <button class="btn btn-secondary" @onclick="() => _showLines = !_showLines">@(_showLines ? "Hide" : "Show") Lines</button>
-
 <button class="btn btn-secondary" @onclick="() => _showRoot = !_showRoot">@(_showRoot ? "Hide" : "Show") Root</button>
-
 <button class="btn btn-secondary" @onclick="() => _tree.ExpandAll()">Expand All</button>
-
 <button class="btn btn-secondary" @onclick="() => _tree.CollapseAll()">Collapse All</button>
-
 <button class="btn btn-secondary" @onclick="@(() => _tree.SelectItemAsync(@"C:\ProgramData\Acme\UserGuide.pdf"))">Select Item</button>
 
 <br />
@@ -48,3 +46,14 @@
 		<textarea rows="8" class="form-control">@_events</textarea>
 	</div>
 </div>
+
+<br/>
+<hr/>
+
+<h3>Items loaded on demand example</h3>
+<!-- note that the IsLeaf parameter is set so as to help identify the leaf nodes,
+	 this is not required when all data is loaded up front as it can be inferred -->
+<PDTree DataProvider="_dataProviderOnDemand" ShowLines="true"
+		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
+		LoadOnDemand="true" IsLeaf="x => x.EntryType == FileSystemEntryTypes.File" >
+</PDTree>
