@@ -5,6 +5,10 @@
 		{
 			"library": "font-awesome@5.13.1",
 			"destination": "wwwroot/lib/font-awesome/"
+		},
+		{
+			"library": "split.js@1.6.2",
+			"destination": "wwwroot/lib/splitjs/"
 		}
 	]
 }

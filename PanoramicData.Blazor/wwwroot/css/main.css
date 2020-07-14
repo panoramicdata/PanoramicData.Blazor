@@ -57,6 +57,26 @@
 .pdtree > .pdtreenode {
   padding-left: 0rem; }
 
+.pdsplitter {
+  width: 100%;
+  height: 100%;
+  display: flex; }
+
+.pdsplitter.horizontal {
+  flex-direction: row; }
+
+.pdsplitter.vertical {
+  flex-direction: column; }
+
+.gutter {
+  background-color: #eee; }
+
+.gutter-vertical {
+  cursor: row-resize; }
+
+.gutter-horizontal {
+  cursor: col-resize; }
+
 .fa-hidden {
   color: transparent; }
 

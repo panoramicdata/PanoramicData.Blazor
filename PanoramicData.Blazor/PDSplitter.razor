@@ -1,0 +1,12 @@
+﻿<div class="pdsplitter @(Direction == SplitDirection.Horizontal ? "horizontal" : "vertical")">
+	@foreach (var panel in Panels)
+	{
+		<div class="pdsplitpanel" id="@panel.Id">
+			@panel.ChildContent
+		</div>
+	}
+</div>
+
+<CascadingValue Name="Splitter" Value="@this">
+	@ChildContent
+</CascadingValue>
