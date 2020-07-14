@@ -2,7 +2,7 @@
 {
 	public enum SplitDirection
 	{
-		Vertical,
-		Horizontal
+		Horizontal,
+		Vertical
 	}
 }

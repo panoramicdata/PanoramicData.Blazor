@@ -1,0 +1,19 @@
+﻿<div class="pdfileexplorer">
+	<PDSplitter GutterSize="4">
+		<PDSplitPanel Size="1">
+			<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true"
+					KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
+					SelectionChange="OnTreeSelectionChange">
+			</PDTree>
+		</PDSplitPanel>
+		<PDSplitPanel Size="3">
+			<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath">
+				<PDColumn TItem="FileExplorerItem" Field="x => x.Name"></PDColumn>
+				<PDColumn TItem="FileExplorerItem" Field="x => x.EntryType"></PDColumn>
+				<PDColumn TItem="FileExplorerItem" Field="x => x.FileSize"></PDColumn>
+				<PDColumn TItem="FileExplorerItem" Field="x => x.DateCreated"></PDColumn>
+				<PDColumn TItem="FileExplorerItem" Field="x => x.DateModified"></PDColumn>
+			</PDTable>
+		</PDSplitPanel>
+	</PDSplitter>
+</div>

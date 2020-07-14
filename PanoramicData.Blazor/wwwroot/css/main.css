@@ -33,7 +33,9 @@
   -moz-user-select: none;
   /* Firefox */
   -ms-user-select: none;
-  /* IE10+ */ }
+  /* IE10+ */
+  height: 100%;
+  width: 100%; }
 
 .pdtree_lines {
   border-left: 1px dashed grey;
@@ -45,7 +47,7 @@
     background-color: #007bff; }
   .pdtreenode .pdtreenode_header {
     display: flex;
-    align-items: center; }
+    align-items: baseline; }
     .pdtreenode .pdtreenode_header .pdtreenode_content {
       width: 100%;
       padding-left: 3px;
@@ -76,6 +78,13 @@
 
 .gutter-horizontal {
   cursor: col-resize; }
+
+.pdsplitpanel {
+  height: 100%;
+  overflow: auto; }
+
+.pdfileexplorer {
+  height: 100%; }
 
 .fa-hidden {
   color: transparent; }

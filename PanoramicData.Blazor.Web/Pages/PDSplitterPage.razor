@@ -1,7 +1,7 @@
 ﻿@page "/pdsplitter"
 <h1>PDSplitter</h1>
 
-<div style="height: 500px;">
+<div style="height: calc(100vh - 140px);">
 
 	<PDSplitter Direction="SplitDirection.Horizontal" GutterSize="4" ExpandToMin="true">
 
@@ -14,16 +14,15 @@
 		</PDSplitPanel>
 
 		<PDSplitPanel Size="1">
-			<h3>Panel 4</h3>
 
 			<PDSplitter Direction="SplitDirection.Vertical" SnapOffset="0" DragInterval="50">
 
 				<PDSplitPanel Size="1" MinSize="50">
-					<h3>Panel 5</h3>
+					<h3>Panel 4</h3>
 				</PDSplitPanel>
 
 				<PDSplitPanel Size="2" MinSize="200">
-					<h3>Panel 6</h3>
+					<h3>Panel 5</h3>
 				</PDSplitPanel>
 
 			</PDSplitter>

@@ -153,6 +153,11 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		protected async override Task OnParametersSetAsync()
+		{
+			await RefreshAsync().ConfigureAwait(true);
+		}
+
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
 			// If this is the first time we've finished rendering, then all the columns

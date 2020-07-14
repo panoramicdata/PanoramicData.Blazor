@@ -2,20 +2,20 @@
 
 @if (TableInitialised)
 {
-	<div class="pd-table">
+	<div class="pdtable">
 		<table class="table @TableClass">
-			<tr>
-				<td colspan="@ActualColumnsToDisplay.Count()">
-					<div class="d-flex flex-row">
-						@if (PageSize.HasValue)
-						{
-							<div class="mr-2">
-								<PDPager CurrentPage="@Page" PageCount="@PageCount" OnPageChange="(page) => PageAsync(new PageCriteria(page, PageSize))"></PDPager>
-							</div>
-						}
-					</div>
-				</td>
-			</tr>
+			@if (PageSize.HasValue)
+			{
+				<tr>
+					<td colspan="@ActualColumnsToDisplay.Count()">
+						<div class="d-flex flex-row">
+								<div class="mr-2">
+									<PDPager CurrentPage="@Page" PageCount="@PageCount" OnPageChange="(page) => PageAsync(new PageCriteria(page, PageSize))"></PDPager>
+								</div>
+						</div>
+					</td>
+				</tr>
+			}
 			<tr>
 				@foreach (var column in ActualColumnsToDisplay)
 				{
