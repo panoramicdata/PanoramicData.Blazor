@@ -66,5 +66,11 @@ namespace PanoramicData.Blazor
 		{
 			return Name;
 		}
+
+		/// <summary>
+		/// Gets the file extension.
+		/// </summary>
+		public string FileExtension
+			=> string.IsNullOrWhiteSpace(System.IO.Path.GetExtension(Path)) ? "" : System.IO.Path.GetExtension(Path).Substring(1);
 	}
 }

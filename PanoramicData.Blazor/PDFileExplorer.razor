@@ -1,5 +1,7 @@
-﻿<div class="pdfileexplorer">
-	<PDSplitter GutterSize="4">
+﻿@using Humanizer;
+<div class="pdfileexplorer">
+	<PDSplitter GutterSize="5">
+
 		<PDSplitPanel Size="1">
 			<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true"
 					KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
@@ -10,14 +12,46 @@
 				</NodeTemplate>
 			</PDTree>
 		</PDSplitPanel>
+
 		<PDSplitPanel Size="3">
-			<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath">
-				<PDColumn TItem="FileExplorerItem" Field="x => x.Name"></PDColumn>
-				<PDColumn TItem="FileExplorerItem" Field="x => x.EntryType"></PDColumn>
-				<PDColumn TItem="FileExplorerItem" Field="x => x.FileSize"></PDColumn>
-				<PDColumn TItem="FileExplorerItem" Field="x => x.DateCreated"></PDColumn>
-				<PDColumn TItem="FileExplorerItem" Field="x => x.DateModified"></PDColumn>
+			<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig">
+				<PDColumn TItem="FileExplorerItem" Id="Name" Field="x => x.Name">
+					<Template>
+						<span class="text-nowrap">@context.Name</span>
+					</Template>
+				</PDColumn>
+				<PDColumn TItem="FileExplorerItem" Id="Type" Field="x => x.EntryType">
+					<Template>
+						<span class="text-nowrap">
+							@(context.EntryType == FileExplorerItemType.Directory
+								? "File Folder"
+								: ($"{context.FileExtension.ToUpper()} File").Trim() )
+						</span>
+					</Template>
+				</PDColumn>
+				<PDColumn TItem="FileExplorerItem" Id="Size" Field="x => x.FileSize">
+					<Template>
+						<span title="@(context.FileSize.ToString("0,0")) bytes">
+							@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize("#"))
+						</span>
+					</Template>
+				</PDColumn>
+				<PDColumn TItem="FileExplorerItem" Id="Created" Field="x => x.DateCreated">
+					<Template>
+						<span class="nowrap">
+							@context.DateCreated.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+						</span>
+					</Template>
+				</PDColumn>
+				<PDColumn TItem="FileExplorerItem" Id="Modified" Field="x => x.DateModified">
+					<Template>
+						<span class="text-nowrap" title="@(context.DateModified.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
+							@context.DateModified.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+						</span>
+					</Template>
+				</PDColumn>
 			</PDTable>
 		</PDSplitPanel>
+
 	</PDSplitter>
 </div>
