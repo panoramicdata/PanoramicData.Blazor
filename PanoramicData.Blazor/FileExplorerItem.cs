@@ -56,10 +56,4 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public DateTimeOffset DateModified { get; set; }
 	}
-
-	public enum FileSystemEntryTypes
-	{
-		Directory,
-		File
-	}
 }

@@ -47,7 +47,8 @@
     background-color: #007bff; }
   .pdtreenode .pdtreenode_header {
     display: flex;
-    align-items: baseline; }
+    align-items: baseline;
+    white-space: nowrap; }
     .pdtreenode .pdtreenode_header .pdtreenode_content {
       width: 100%;
       padding-left: 3px;

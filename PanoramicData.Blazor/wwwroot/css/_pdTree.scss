@@ -23,6 +23,7 @@
 	.pdtreenode_header {
 		display: flex;
 		align-items: baseline;
+		white-space: nowrap;
 
 		.pdtreenode_content {
 			width: 100%;

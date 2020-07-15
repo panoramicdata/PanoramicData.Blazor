@@ -10,7 +10,7 @@
 		ShowLines="_showLines" ShowRoot="_showRoot" AllowSelection="true"
 		SelectionChange="SelectionChangeHandler" NodeExpanded="NodeExpandedHandler" NodeCollapsed="NodeCollapsedHandler" >
 	<NodeTemplate>
-		@if (context.Isleaf)
+		@if (context.Data?.EntryType == FileSystemEntryTypes.File)
 		{
 			<i class="far fa-file"></i>
 			<b>@context.Data?.Path</b>

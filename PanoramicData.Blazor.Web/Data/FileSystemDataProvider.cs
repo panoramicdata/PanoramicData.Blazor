@@ -1,10 +1,8 @@
-﻿using System.Linq;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using PanoramicData.Blazor.Services;
-using Microsoft.CodeAnalysis.Host;
-using System.IO;
 
 namespace PanoramicData.Blazor.Web.Data
 {

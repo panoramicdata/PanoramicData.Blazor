@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor
 		private PDTree<FileExplorerItem> _tree;
 		private PDTable<FileExplorerItem> _table;
 
-		public string FolderPath = "C:\\";
+		public string FolderPath = "NULL";
 
 		/// <summary>
 		/// Gets or sets the IDataProviderService instance to use to fetch data.
