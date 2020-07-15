@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq.Expressions;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
@@ -12,17 +12,8 @@ namespace PanoramicData.Blazor
     public partial class PDTree<TItem> where TItem : class
     {
 		private TreeNode<TItem> _model = new TreeNode<TItem> { Text = "Root" };
-		private Func<TItem, object>? _compiledKeyFunc;
-		private Func<TItem, object>? _compiledParentKeyFunc;
-		private Func<TItem, object>? _compiledTextFunc;
-		private Func<TItem, bool>? _compiledIsLeafFunc;
 		private TreeNode<TItem>? _currentSelection;
 		private readonly Dictionary<string, TreeNode<TItem>> _items = new Dictionary<string, TreeNode<TItem>>();
-
-		private Func<TItem, object>? CompiledKeyFunc => _compiledKeyFunc ??= KeyField?.Compile();
-		private Func<TItem, object>? CompiledParentKeyFunc => _compiledParentKeyFunc ??= ParentKeyField?.Compile();
-		private Func<TItem, object>? CompiledTextFunc => _compiledTextFunc ??= TextField?.Compile();
-		private Func<TItem, bool>? CompiledIsLeafFunc => _compiledIsLeafFunc ??= IsLeaf?.Compile();
 
 		/// <summary>
 		/// Gets or sets the IDataProviderService instance to use to fetch data.
@@ -32,22 +23,27 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// A Linq expression that selects the field that contains the key value.
 		/// </summary>
-		[Parameter] public Expression<Func<TItem, object>>? KeyField { get; set; }
+		[Parameter] public Func<TItem, object>? KeyField { get; set; }
 
 		/// <summary>
 		/// A Linq expression that selects the field that contains the parent key value.
 		/// </summary>
-		[Parameter] public Expression<Func<TItem, object>>? ParentKeyField { get; set; }
+		[Parameter] public Func<TItem, object>? ParentKeyField { get; set; }
 
 		/// <summary>
 		/// A Linq expression that selects the field to display for the item.
 		/// </summary>
-		[Parameter] public Expression<Func<TItem, object>>? TextField { get; set; }
+		[Parameter] public Func<TItem, object>? TextField { get; set; }
 
 		/// <summary>
 		/// A Linq expression that determines whether the given item is a leaf in the tree.
 		/// </summary>
-		[Parameter] public Expression<Func<TItem, bool>>? IsLeaf { get; set; }
+		[Parameter] public Func<TItem, bool>? IsLeaf { get; set; }
+
+		/// <summary>
+		/// A Linq expression that is used to filter out items returned from the data provider.
+		/// </summary>
+		[Parameter] public Func<TItem, bool>? Filter { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether a non-leaf node will request data where necessary.
@@ -117,7 +113,7 @@ namespace PanoramicData.Blazor
 		/// <remarks>Items are searched for by their key values.</remarks>
 		public async Task SelectItemAsync(TItem item)
 		{
-			await SelectItemAsync(CompiledKeyFunc!.Invoke(item).ToString()).ConfigureAwait(true);
+			await SelectItemAsync(KeyField!(item).ToString()).ConfigureAwait(true);
 		}
 
 		/// <summary>
@@ -145,11 +141,23 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		protected async override Task OnInitializedAsync()
+		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
-			// build model
-			var items = await GetDataAsync();
-			_model = BuildModel(items);
+			if (firstRender)
+			{
+				// build model
+				var items = await GetDataAsync();
+				_model = BuildModel(items);
+				StateHasChanged();
+			}
+		}
+
+		protected override void OnParametersSet()
+		{
+			if (KeyField == null)
+				throw new PDTreeException("KeyField parameter is required.");
+			if (ParentKeyField == null)
+				throw new PDTreeException("ParentKeyField parameter is required.");
 		}
 
 		/// <summary>
@@ -202,7 +210,13 @@ namespace PanoramicData.Blazor
 					.GetDataAsync(request, CancellationToken.None)
 					.ConfigureAwait(true);
 
-				return response.Items;
+				// filter items?
+				var items = response.Items;
+				if(Filter != null)
+				{
+					items = items.Where(Filter);
+				}
+				return items;
 			}
 			finally
 			{
@@ -216,7 +230,7 @@ namespace PanoramicData.Blazor
 			foreach (var item in items)
 			{
 				// get key value and check is given and unique
-				var key = CompiledKeyFunc?.Invoke(item)?.ToString();
+				var key = KeyField!(item)?.ToString();
 				if (key == null)
 				{
 					throw new PDTreeException($"Items must supply a key value.");
@@ -230,18 +244,18 @@ namespace PanoramicData.Blazor
 				var node = new TreeNode<TItem>
 				{
 					Key = key,
-					Text = CompiledTextFunc?.Invoke(item)?.ToString() ?? string.Empty,
+					Text = TextField?.Invoke(item)?.ToString() ?? item.ToString(),
 					IsExpanded = false,
 					Data = item,
 					Nodes = LoadOnDemand ? null : new List<TreeNode<TItem>>()
 				};
-				if(LoadOnDemand && IsLeaf != null && CompiledIsLeafFunc!(item))
+				if(LoadOnDemand && IsLeaf != null && IsLeaf(item))
 				{
 					node.Nodes = new List<TreeNode<TItem>>();
 				}
 
 				// get parent key
-				var parentKey = CompiledParentKeyFunc?.Invoke(item)?.ToString();
+				var parentKey = ParentKeyField?.Invoke(item)?.ToString();
 				if (parentKey == null || string.IsNullOrWhiteSpace(parentKey))
 				{
 					// root item
@@ -304,7 +318,7 @@ namespace PanoramicData.Blazor
 			if(!node.Isleaf && !wasExpanded && node.Nodes == null)
 			{
 				// fetch direct child items
-				var key = CompiledKeyFunc!(node.Data!).ToString();
+				var key = KeyField!(node.Data!).ToString();
 				var items = await GetDataAsync(key);
 
 				// add new nodes to existing node

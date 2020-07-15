@@ -6,11 +6,11 @@
 <h3>All items loaded up front example</h3>
 
 <PDTree @ref="_tree" DataProvider="_dataProvider"
-		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
+		TItem="FileExplorerItem" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath"
 		ShowLines="_showLines" ShowRoot="_showRoot" AllowSelection="true"
 		SelectionChange="SelectionChangeHandler" NodeExpanded="NodeExpandedHandler" NodeCollapsed="NodeCollapsedHandler" >
 	<NodeTemplate>
-		@if (context.Data?.EntryType == FileSystemEntryTypes.File)
+		@if (context.Data?.EntryType == FileExplorerItemType.File)
 		{
 			<i class="far fa-file"></i>
 			<b>@context.Data?.Path</b>
@@ -54,6 +54,6 @@
 <!-- note that the IsLeaf parameter is set so as to help identify the leaf nodes,
 	 this is not required when all data is loaded up front as it can be inferred -->
 <PDTree DataProvider="_dataProviderOnDemand" ShowLines="true"
-		TItem="FileSystemEntry" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
-		LoadOnDemand="true" IsLeaf="x => x.EntryType == FileSystemEntryTypes.File" >
+		TItem="FileExplorerItem" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
+		LoadOnDemand="true" IsLeaf="x => x.EntryType == FileExplorerItemType.File" >
 </PDTree>

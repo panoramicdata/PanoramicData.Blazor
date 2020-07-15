@@ -4,24 +4,27 @@ namespace PanoramicData.Blazor
 {
 	public class FileExplorerItem
 	{
-		//private string? _parentPath;
+		private string? _parentPath;
 
 		/// <summary>
 		/// Gets or sets the absolute path to the item.
 		/// </summary>
 		public string Path { get; set; } = string.Empty;
 
+		/// <summary>
+		/// Gets or sets the full path of the parent item.
+		/// </summary>
+		/// <remarks>If left unset will return the Directory from the Path property.</remarks>
 		public string ParentPath
 		{
 			get
 			{
-				//return _parentPath == null ? System.IO.Path.GetDirectoryName(Path) ?? string.Empty : _parentPath;
-				return System.IO.Path.GetDirectoryName(Path) ?? string.Empty;
+				return _parentPath == null ? System.IO.Path.GetDirectoryName(Path) ?? string.Empty : _parentPath;
 			}
-			//set
-			//{
-			//	_parentPath = value;
-			//}
+			set
+			{
+				_parentPath = value;
+			}
 		}
 
 		/// <summary>
@@ -55,5 +58,13 @@ namespace PanoramicData.Blazor
 		/// Gets or sets the date and time the item was last modified.
 		/// </summary>
 		public DateTimeOffset DateModified { get; set; }
+
+		/// <summary>
+		/// Returns the Name property of this item.
+		/// </summary>
+		public override string ToString()
+		{
+			return Name;
+		}
 	}
 }

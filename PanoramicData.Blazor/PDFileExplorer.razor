@@ -3,7 +3,7 @@
 		<PDSplitPanel Size="1">
 			<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true"
 					KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
-					SelectionChange="OnTreeSelectionChange">
+					Filter="x => x.EntryType == FileExplorerItemType.Directory" SelectionChange="OnTreeSelectionChange">
 				<NodeTemplate>
 					<i class="far @(context.Data?.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
 					<span>@context.Text</span>
