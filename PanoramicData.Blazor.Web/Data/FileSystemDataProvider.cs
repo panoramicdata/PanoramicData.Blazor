@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -36,11 +37,19 @@ namespace PanoramicData.Blazor.Web.Data
 				if (string.IsNullOrWhiteSpace(request.SearchText))
 				{
 					var info = new DirectoryInfo("C:\\");
-					items.Add(new FileExplorerItem { Path = "C:\\", EntryType = FileExplorerItemType.Directory, DateCreated = info.CreationTimeUtc, DateModified = info.LastWriteTimeUtc });
+					items.Add(new FileExplorerItem
+					{
+						Path = "C:\\",
+						EntryType = FileExplorerItemType.Directory,
+						DateCreated = info.CreationTimeUtc,
+						DateModified = info.LastWriteTimeUtc
+					});
 				}
 				else
 				{
 					// request search if set will be full path of parent
+					var folderItems = new List<FileExplorerItem>();
+					var fileItems = new List<FileExplorerItem>();
 					try
 					{
 						if (ShowFolders)
@@ -60,7 +69,7 @@ namespace PanoramicData.Blazor.Web.Data
 								};
 								if ((ShowHidden || !item.IsHidden) && (ShowSystem || !item.IsSystem))
 								{
-									items.Add(item);
+									folderItems.Add(item);
 								}
 							}
 						}
@@ -82,7 +91,7 @@ namespace PanoramicData.Blazor.Web.Data
 								};
 								if ((ShowHidden || !item.IsHidden) && (ShowSystem || !item.IsSystem))
 								{
-									items.Add(item);
+									fileItems.Add(item);
 								}
 							}
 						}
@@ -90,6 +99,31 @@ namespace PanoramicData.Blazor.Web.Data
 					catch
 					{
 					}
+
+					// sort items
+					if(request.SortFieldExpression == null)
+					{
+						items.AddRange(folderItems);
+						items.AddRange(fileItems);
+					}
+					else
+					{
+						if(request.SortDirection == SortDirection.Ascending)
+						{
+							var query = folderItems.AsQueryable<FileExplorerItem>().OrderBy(request.SortFieldExpression).ToArray();
+							items.AddRange(query);
+							query = fileItems.AsQueryable<FileExplorerItem>().OrderBy(request.SortFieldExpression).ToArray();
+							items.AddRange(query);
+						}
+						else
+						{
+							var query = fileItems.AsQueryable<FileExplorerItem>().OrderByDescending(request.SortFieldExpression).ToArray();
+							items.AddRange(query);
+							query = folderItems.AsQueryable<FileExplorerItem>().OrderByDescending(request.SortFieldExpression).ToArray();
+							items.AddRange(query);
+						}
+					}
+
 				}
 
 

@@ -26,10 +26,6 @@ namespace PanoramicData.Blazor
 				new PDColumnConfig { Id = "Modified", Title = "Modified" }
 			};
 
-		protected override void OnInitialized()
-		{
-		}
-
 		public void OnTreeSelectionChange(FileExplorerItem item)
 		{
 			SelectFolder(item.Path);

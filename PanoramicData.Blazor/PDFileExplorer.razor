@@ -3,26 +3,32 @@
 	<PDSplitter GutterSize="5">
 
 		<PDSplitPanel Size="1">
+
 			<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true"
 					KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
 					Filter="x => x.EntryType == FileExplorerItemType.Directory" SelectionChange="OnTreeSelectionChange">
 				<NodeTemplate>
-					<i class="far @(context.Data?.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder") @(context.Data?.IsHidden ?? false ? "text-muted": null)"></i>
-					<span class="@(context.Data?.IsHidden ?? false ? "text-muted": null)">@context.Text</span>
+					<span class="@( $"{(context.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context.Data?.IsSystem ?? false ? "file-system" : "")}") ">
+						<i class="far @(context.Data?.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
+						<span>@context.Text</span>
+					</span>
 				</NodeTemplate>
 			</PDTree>
+
 		</PDSplitPanel>
 
 		<PDSplitPanel Size="3">
-			<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig">
+
+			<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
+					 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")}")">
 				<PDColumn TItem="FileExplorerItem" Id="Icon" Field="x => x.EntryType">
 					<Template>
-						<i class="far @(context.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder") @(context.IsHidden ? "text-muted": null)"></i>
+						<i class="far @(context.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
 					</Template>
 				</PDColumn>
 				<PDColumn TItem="FileExplorerItem" Id="Name" Field="x => x.Name">
 					<Template>
-						<span class="text-nowrap @(context.IsHidden ? "text-muted": null)">@context.Name</span>
+						<span class="text-nowrap">@context.Name</span>
 					</Template>
 				</PDColumn>
 				<PDColumn TItem="FileExplorerItem" Id="Type" Field="x => x.EntryType">
@@ -56,6 +62,7 @@
 					</Template>
 				</PDColumn>
 			</PDTable>
+
 		</PDSplitPanel>
 
 	</PDSplitter>

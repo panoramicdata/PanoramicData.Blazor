@@ -44,6 +44,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string THeadClass { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets or sets a function that calculates and returns CSS Classes for the row (TR element).
+		/// </summary>
+		[Parameter] public Func<TItem, string>? RowClass { get; set; }
+
+		/// <summary>
 		/// Gets or sets the message to be displayed when no data is available.
 		/// </summary>
 		[Parameter] public string NoDataMessage { get; set; } = "No data";

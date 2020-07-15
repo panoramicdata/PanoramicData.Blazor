@@ -38,7 +38,7 @@
 				{
 					foreach (var item in ItemsToDisplay)
 					{
-						<tr>
+						<tr class="@(RowClass?.Invoke(item) ?? null)">
 							@foreach (var column in ActualColumnsToDisplay)
 							{
 								if (column.Template != null)
