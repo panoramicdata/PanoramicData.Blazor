@@ -18,6 +18,7 @@ namespace PanoramicData.Blazor
 
 		public List<PDColumnConfig> ColumnConfig = new List<PDColumnConfig>
 			{
+				new PDColumnConfig { Id = "Icon", Title = "" },
 				new PDColumnConfig { Id = "Name", Title = "Name" },
 				new PDColumnConfig { Id = "Type", Title = "Type" },
 				new PDColumnConfig { Id = "Size", Title = "Size" },

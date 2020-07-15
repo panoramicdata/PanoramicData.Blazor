@@ -7,6 +7,21 @@ namespace PanoramicData.Blazor
 		private string? _parentPath;
 
 		/// <summary>
+		/// Gets or sets whether this item has the Hidden attribute set.
+		/// </summary>
+		public bool IsHidden { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether this item has the System attribute set.
+		/// </summary>
+		public bool IsSystem { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether this item has the ReadOnly attribute set.
+		/// </summary>
+		public bool IsReadOnly { get; set; }
+
+		/// <summary>
 		/// Gets or sets the absolute path to the item.
 		/// </summary>
 		public string Path { get; set; } = string.Empty;

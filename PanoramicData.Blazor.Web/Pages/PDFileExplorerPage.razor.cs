@@ -5,6 +5,6 @@ namespace PanoramicData.Blazor.Web.Pages
 {
 	public partial class PDFileExplorerPage
     {
-		private IDataProviderService<FileExplorerItem> _dataProvider = new FileSystemDataProvider();
+		private IDataProviderService<FileExplorerItem> _dataProvider = new FileSystemDataProvider { ShowHidden = true, ShowSystem = false };
 	}
 }
