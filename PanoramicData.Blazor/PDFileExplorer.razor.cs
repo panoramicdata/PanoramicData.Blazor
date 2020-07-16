@@ -35,6 +35,7 @@ namespace PanoramicData.Blazor
 		{
 			// update table - set the SearchText to the parent path
 			FolderPath = path;
+			_table.Selection.Clear();
 		}
 	}
 }

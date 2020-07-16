@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using PanoramicData.Blazor.Web.Data;
 using PanoramicData.Blazor.Extensions;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
@@ -43,6 +44,8 @@ namespace PanoramicData.Blazor.Web.Pages
 				_columnsConfig = JsonConvert.DeserializeObject<List<PDColumnConfig>>(value);
 			}
 		}
+
+		private TableSelectionMode SelectionMode { get; set; }
 
 		// dummy data provider
 		public TestDataProvider DataProvider { get; }  = new TestDataProvider();
@@ -96,6 +99,12 @@ namespace PanoramicData.Blazor.Web.Pages
 			_events += $"page changed: page = {criteria.Page}, page size = {criteria.PageSize}{Environment.NewLine}";
 			// Update the URI for bookmarking
 			NavigationManager.SetUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } });
+		}
+
+		private void SelectionChangeHandler()
+		{
+			var keys = _table == null ? "" : string.Join(", ", _table.Selection.ToArray());
+			_events += $"selection changed: {keys}{Environment.NewLine}";
 		}
 	}
 }

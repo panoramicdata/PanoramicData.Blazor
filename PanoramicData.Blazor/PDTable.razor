@@ -38,7 +38,7 @@
 				{
 					foreach (var item in ItemsToDisplay)
 					{
-						<tr class="@(RowClass?.Invoke(item) ?? null)">
+						<tr class="pdtablerow @GetDynamicRowClasses(item)" @onclick="@(() => RowClickHandler(item))">
 							@foreach (var column in ActualColumnsToDisplay)
 							{
 								if (column.Template != null)

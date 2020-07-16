@@ -16,8 +16,9 @@
 	</div>
 </div>
 
-<PDTable @ref="_table" TItem="TestRow" DataProvider="DataProvider" ColumnsConfig="_columnsConfig"
-		 SearchText="@_searchText"
+<PDTable @ref="_table" TItem="TestRow" DataProvider="DataProvider" KeyField="x => x.IntField"
+		 ColumnsConfig="_columnsConfig" SearchText="@_searchText"
+		 SelectionMode="@SelectionMode" OnSelectionChanged="SelectionChangeHandler"
 		 DefaultPage="_defaultPage" OnPageChanged="PageChangeHandler"
 		 DefaultSort="_defaultSort" OnSortChanged="SortChangeHandler">
 
@@ -38,6 +39,15 @@
 <div>
 
 	<div class="d-flex">
+
+		<div class="form-group p-1">
+			<label>Selection Mode</label>
+			<select class="form-control" @bind="SelectionMode">
+				<option value="@TableSelectionMode.None">None</option>
+				<option value="@TableSelectionMode.Single">Single</option>
+				<option value="@TableSelectionMode.Multiple">Multiple</option>
+			</select>
+		</div>
 
 		<div class="form-group p-1">
 			<label>Columns Config - edit and tab out of field to apply changes</label>

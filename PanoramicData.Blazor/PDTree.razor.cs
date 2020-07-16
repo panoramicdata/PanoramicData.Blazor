@@ -155,9 +155,9 @@ namespace PanoramicData.Blazor
 		protected override void OnParametersSet()
 		{
 			if (KeyField == null)
-				throw new PDTreeException("KeyField parameter is required.");
+				throw new PDTreeException("KeyField attribute is required.");
 			if (ParentKeyField == null)
-				throw new PDTreeException("ParentKeyField parameter is required.");
+				throw new PDTreeException("ParentKeyField attribute is required.");
 		}
 
 		/// <summary>

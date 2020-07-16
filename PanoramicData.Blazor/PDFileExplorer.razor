@@ -20,6 +20,7 @@
 		<PDSplitPanel Size="3">
 
 			<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
+					 SelectionMode="TableSelectionMode.Single" KeyField="x => x.Path"
 					 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")}")">
 				<PDColumn TItem="FileExplorerItem" Id="Icon" Field="x => x.EntryType">
 					<Template>

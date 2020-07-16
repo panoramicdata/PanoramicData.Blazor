@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Exceptions;
+using System.Text;
 
 namespace PanoramicData.Blazor
 {
@@ -32,6 +33,11 @@ namespace PanoramicData.Blazor
 		/// Gets or sets the IDataProviderService instance to use to fetch data.
 		/// </summary>
 		[Parameter] public IDataProviderService<TItem> DataProvider { get; set; } = null!;
+
+		/// <summary>
+		/// A Linq expression that selects the item field that contains the key value.
+		/// </summary>
+		[Parameter] public Func<TItem, object>? KeyField { get; set; }
 
 		/// <summary>
 		/// Gets or sets the CSS class to apply to the tables container element.
@@ -90,9 +96,24 @@ namespace PanoramicData.Blazor
 		[Parameter] public List<PDColumnConfig>? ColumnsConfig { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether selection is enabled and the method in which it works.
+		/// </summary>
+		[Parameter] public TableSelectionMode SelectionMode { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever the current selection changes.
+		/// </summary>
+		[Parameter] public EventCallback OnSelectionChanged { get; set; }
+
+		/// <summary>
 		/// Gets a full list of all columns.
 		/// </summary>
 		public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
+
+		/// <summary>
+		/// Gets the current selection.
+		/// </summary>
+		public List<string> Selection { get; } = new List<string>();
 
 		/// <summary>
 		/// Gets a calculated list of actual columns to be displayed.
@@ -160,6 +181,12 @@ namespace PanoramicData.Blazor
 
 		protected async override Task OnParametersSetAsync()
 		{
+			// validate parameter constraints
+			if(SelectionMode != TableSelectionMode.None && KeyField == null)
+			{
+				throw new PDTableException("KeyField attribute must be specified when enabling selection.");
+			}
+
 			await RefreshAsync().ConfigureAwait(true);
 		}
 
@@ -238,47 +265,6 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
-		/// Requests data from the data provider using the current settings.
-		/// </summary>
-		protected async Task GetDataAsync()
-		{
-			try
-			{
-				var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
-				var request = new DataRequest<TItem>
-				{
-					Skip = 0,
-					ForceUpdate = false,
-					SortFieldExpression = sortColumn?.Field,
-					SortDirection = sortColumn?.SortDirection,
-					SearchText = SearchText
-				};
-
-				// paging
-				if(PageSize.HasValue)
-				{
-					request.Take = PageSize.Value;
-					request.Skip = (Page - 1) * PageSize.Value;
-				}
-
-				// perform query data
-				var response = await DataProvider
-					.GetDataAsync(request, CancellationToken.None)
-					.ConfigureAwait(true);
-
-				if(PageSize.HasValue)
-				{
-					PageCount = (response.TotalCount / PageSize.Value) + (response.TotalCount % PageSize.Value > 0 ? 1 : 0);
-				}
-
-				ItemsToDisplay = response.Items;
-			}
-			finally
-			{
-			}
-		}
-
-		/// <summary>
 		/// Refresh the grid by performing a re-query.
 		/// </summary>
 		public Task RefreshAsync()
@@ -314,6 +300,47 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Requests data from the data provider using the current settings.
+		/// </summary>
+		protected async Task GetDataAsync()
+		{
+			try
+			{
+				var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
+				var request = new DataRequest<TItem>
+				{
+					Skip = 0,
+					ForceUpdate = false,
+					SortFieldExpression = sortColumn?.Field,
+					SortDirection = sortColumn?.SortDirection,
+					SearchText = SearchText
+				};
+
+				// paging
+				if (PageSize.HasValue)
+				{
+					request.Take = PageSize.Value;
+					request.Skip = (Page - 1) * PageSize.Value;
+				}
+
+				// perform query data
+				var response = await DataProvider
+					.GetDataAsync(request, CancellationToken.None)
+					.ConfigureAwait(true);
+
+				if (PageSize.HasValue)
+				{
+					PageCount = (response.TotalCount / PageSize.Value) + (response.TotalCount % PageSize.Value > 0 ? 1 : 0);
+				}
+
+				ItemsToDisplay = response.Items;
+			}
+			finally
+			{
+			}
+		}
+
+		/// <summary>
 		/// Sort the data by the specified column.
 		/// </summary>
 		/// <param name="column">The column to sort by.</param>
@@ -326,6 +353,52 @@ namespace PanoramicData.Blazor
 				await GetDataAsync().ConfigureAwait(true);
 				await OnSortChanged.InvokeAsync(new SortCriteria { Key = column.Id, Direction = direction ?? column.SortDirection }).ConfigureAwait(true);
 			}
+		}
+
+		private async Task RowClickHandler(TItem item)
+		{
+			if(SelectionMode != TableSelectionMode.None)
+			{
+				var key = KeyField!(item)?.ToString();
+				if (key != null)
+				{
+					if (Selection.Contains(key))
+					{
+						Selection.Remove(key);
+					}
+					else
+					{
+						if(SelectionMode == TableSelectionMode.Single)
+						{
+							Selection.Clear();
+						}
+						Selection.Add(key);
+					}
+					await OnSelectionChanged.InvokeAsync(null);
+				}
+			}
+		}
+
+		private string GetDynamicRowClasses(TItem item)
+		{
+			var sb = new StringBuilder();
+			if(SelectionMode != TableSelectionMode.None)
+			{
+				var key = KeyField!(item).ToString();
+				if(Selection.Contains(key))
+				{
+					sb.Append("selected ");
+				}
+			}
+			if (RowClass != null)
+			{
+				var classes = RowClass(item);
+				if(!string.IsNullOrWhiteSpace(classes))
+				{
+					sb.Append(classes);
+				}
+			}
+			return sb.ToString().Trim();
 		}
 	}
 }
