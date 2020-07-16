@@ -181,4 +181,9 @@ app {
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
+
+	.full-content-size {
+		height: calc(100vh - 150px);
+		width: calc(100vw - 310px);
+	}
 }
