@@ -191,4 +191,8 @@ app {
 		height: calc(100vh - 150px);
 		width: calc(100vw - 310px);
 	}
+
+	.pdfileexplorer .pdtreenode_content:hover, .pdfileexplorer .pdtablerow:hover {
+		background-color: #eee;
+	}
 }
