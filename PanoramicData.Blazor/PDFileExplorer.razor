@@ -1,6 +1,6 @@
 ﻿@using Humanizer;
 <div class="pdfileexplorer">
-	<PDSplitter GutterSize="5">
+	<PDSplitter GutterSize="6">
 
 		<PDSplitPanel Size="1">
 
@@ -8,9 +8,9 @@
 					KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
 					Filter="x => x.EntryType == FileExplorerItemType.Directory" SelectionChange="OnTreeSelectionChange">
 				<NodeTemplate>
-					<span class="@( $"{(context.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context.Data?.IsSystem ?? false ? "file-system" : "")}") ">
-						<i class="far @(context.Data?.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
-						<span>@context.Text</span>
+					<span class="@( $"{(context?.IsHidden ?? false ? "file-hidden" : "")} {(context?.IsSystem ?? false ? "file-system" : "")}") ">
+						<i class="far @(context?.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
+						<span>@context?.Name</span>
 					</span>
 				</NodeTemplate>
 			</PDTree>
@@ -28,7 +28,7 @@
 				</PDColumn>
 				<PDColumn TItem="FileExplorerItem" Id="Name" Field="x => x.Name">
 					<Template>
-						<span class="text-nowrap">@context.Name</span>
+						<span class="">@context.Name</span>
 					</Template>
 				</PDColumn>
 				<PDColumn TItem="FileExplorerItem" Id="Type" Field="x => x.EntryType">

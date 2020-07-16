@@ -10,15 +10,15 @@
 		ShowLines="_showLines" ShowRoot="_showRoot" AllowSelection="true"
 		SelectionChange="SelectionChangeHandler" NodeExpanded="NodeExpandedHandler" NodeCollapsed="NodeCollapsedHandler" >
 	<NodeTemplate>
-		@if (context.Data?.EntryType == FileExplorerItemType.File)
+		@if (context?.EntryType == FileExplorerItemType.File)
 		{
 			<i class="far fa-file"></i>
-			<b>@context.Data?.Path</b>
+			<b>@context?.Path</b>
 		}
 		else
 		{
 			<i class="far fa-folder"></i>
-			<span>@context.Text</span>
+			<span>@context?.Name</span>
 		}
 	</NodeTemplate>
 </PDTree>
@@ -27,9 +27,9 @@
 
 <button class="btn btn-secondary" @onclick="() => _showLines = !_showLines">@(_showLines ? "Hide" : "Show") Lines</button>
 <button class="btn btn-secondary" @onclick="() => _showRoot = !_showRoot">@(_showRoot ? "Hide" : "Show") Root</button>
-<button class="btn btn-secondary" @onclick="() => _tree.ExpandAll()">Expand All</button>
-<button class="btn btn-secondary" @onclick="() => _tree.CollapseAll()">Collapse All</button>
-<button class="btn btn-secondary" @onclick="@(() => _tree.SelectItemAsync(@"C:\ProgramData\Acme\UserGuide.pdf"))">Select Item</button>
+<button class="btn btn-secondary" @onclick="() => _tree?.ExpandAll()">Expand All</button>
+<button class="btn btn-secondary" @onclick="() => _tree?.CollapseAll()">Collapse All</button>
+<button class="btn btn-secondary" @onclick="@(() => _tree?.SelectItemAsync(@"C:\ProgramData\Acme\UserGuide.pdf"))">Select Item</button>
 
 <br />
 

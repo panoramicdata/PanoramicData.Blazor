@@ -69,7 +69,7 @@ namespace PanoramicData.Blazor
 		/// Gets or sets the template to render for each node.
 		/// </summary>
 		[Parameter]
-		public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
+		public RenderFragment<TItem?>? NodeTemplate { get; set; }
 
 		/// <summary>
 		/// Gets or sets an event callback raise whenever the selection changes.

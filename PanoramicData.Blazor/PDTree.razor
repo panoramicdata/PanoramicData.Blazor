@@ -18,17 +18,20 @@
 			}
 			else
 			{
-				foreach (var subNode in _model.Nodes)
+				if (_model.Nodes != null)
 				{
-					@if (NodeTemplate == null)
+					foreach (var subNode in _model.Nodes)
 					{
-						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" />
-					}
-					else
-					{
-						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines">
-							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
-						</PDTreeNode>
+						@if (NodeTemplate == null)
+						{
+							<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" />
+						}
+						else
+						{
+							<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines">
+								<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
+							</PDTreeNode>
+						}
 					}
 				}
 			}
