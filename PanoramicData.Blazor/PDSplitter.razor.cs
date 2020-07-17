@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Exceptions;
 
 namespace PanoramicData.Blazor
 {
@@ -61,6 +62,15 @@ namespace PanoramicData.Blazor
 			StateHasChanged();
 		}
 
+		protected async override Task OnInitializedAsync()
+		{
+			var available = await JSRuntime.InvokeAsync<bool>("hasSplitJs").ConfigureAwait(true);
+			if (!available)
+			{
+				throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the Split.js library");
+			}
+		}
+
 		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
 			if(firstRender)
@@ -79,7 +89,7 @@ namespace PanoramicData.Blazor
 					DragInterval = DragInterval,
 					Cursor = Direction == SplitDirection.Horizontal ? "col-resize" : "row-resize"
 				};
-				await JSRuntime.InvokeVoidAsync("initializeSplitter", ids, options);
+				await JSRuntime.InvokeVoidAsync("initializeSplitter", ids, options).ConfigureAwait(true);
 			}
 		}
 	}
