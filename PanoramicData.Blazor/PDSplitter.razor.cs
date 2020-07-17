@@ -67,7 +67,7 @@ namespace PanoramicData.Blazor
 			var available = await JSRuntime.InvokeAsync<bool>("hasSplitJs").ConfigureAwait(true);
 			if (!available)
 			{
-				throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the Split.js library");
+				throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
 			}
 		}
 

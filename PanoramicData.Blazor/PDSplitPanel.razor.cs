@@ -31,7 +31,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets the unique identifier of this panel.
 		/// </summary>
-		public string Id { get; private set; }
+		public string Id { get; private set; } = string.Empty;
 
 		protected override void OnInitialized()
 		{

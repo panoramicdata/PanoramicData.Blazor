@@ -1,0 +1,11 @@
+﻿<div Id="@Id" class="pdcontextmenu">
+	@foreach (var item in Items)
+	{
+		if (item.IsVisible)
+		{
+			<div class="pdcontextmenuitem @(item.IsDisabled ? "disabled" : "")" @onclick="@(() => ClickHandler(item))">
+				<span>@item.Text</span>
+			</div>
+		}
+	}
+</div>

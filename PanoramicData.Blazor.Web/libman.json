@@ -9,6 +9,10 @@
 		{
 			"library": "split.js@1.6.2",
 			"destination": "wwwroot/lib/splitjs/"
+		},
+		{
+			"library": "popper.js@2.4.4",
+			"destination": "wwwroot/lib/popperjs/"
 		}
 	]
 }
