@@ -38,7 +38,8 @@
 				{
 					foreach (var item in ItemsToDisplay)
 					{
-						<tr class="pdtablerow @GetDynamicRowClasses(item)" @onclick="@(() => RowClickHandler(item))">
+						<tr class="pdtablerow @GetDynamicRowClasses(item)" @onmousedown="@(() => RowClickHandler(item))"
+							@oncontextmenu="@((a) => ContextMenuHandler(a, item))" @oncontextmenu:preventDefault>
 							@foreach (var column in ActualColumnsToDisplay)
 							{
 								if (column.Template != null)

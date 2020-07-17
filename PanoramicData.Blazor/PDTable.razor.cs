@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Exceptions;
-using System.Text;
 
 namespace PanoramicData.Blazor
 {
@@ -399,6 +400,10 @@ namespace PanoramicData.Blazor
 				}
 			}
 			return sb.ToString().Trim();
+		}
+
+		private void ContextMenuHandler(MouseEventArgs args, TItem item)
+		{
 		}
 	}
 }

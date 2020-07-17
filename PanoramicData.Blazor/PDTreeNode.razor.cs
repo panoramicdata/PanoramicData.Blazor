@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor
 {
@@ -41,6 +42,10 @@ namespace PanoramicData.Blazor
 			{
 				await Tree.ToggleNodeIsExpandedAsync(Node).ConfigureAwait(true);
 			}
+		}
+
+		private async Task ContextMenuHandler(MouseEventArgs args)
+		{
 		}
 	}
 }

@@ -11,7 +11,8 @@
 		{
 			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
 		}
-		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" @onclick="OnContentClickAsync">
+		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" @onmousedown="OnContentClickAsync"
+			 @oncontextmenu="@(async (a) => await ContextMenuHandler(a))" @oncontextmenu:preventDefault>
 			@if (NodeTemplate == null)
 			{
 				<span>@Node?.Text</span>
