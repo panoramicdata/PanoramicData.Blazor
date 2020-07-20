@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components.Web;
-using System.Diagnostics;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
@@ -27,7 +27,7 @@ namespace PanoramicData.Blazor.Web.Pages
 			_items.Add(new MenuItem { IsSeparator = true });
 			_items.Add(new MenuItem { Text = "Help", IconCssClass = "fas fa-question-circle" });
 			_items.Add(new MenuItem { Text = "About", IsVisible = false });
-			}
+		}
 
 		public void BeforeShowHandler(CancelEventArgs args)
 		{
@@ -36,6 +36,11 @@ namespace PanoramicData.Blazor.Web.Pages
 			// randomly disable one item
 			_items.ForEach(x => x.IsDisabled = false);
 			_items[_random.Next(2, 8)].IsDisabled = true;
+		}
+
+		public void ItemClickHandler(MenuItem item)
+		{
+			_events += $"item click: {item.Text} {Environment.NewLine}";
 		}
 	}
 }

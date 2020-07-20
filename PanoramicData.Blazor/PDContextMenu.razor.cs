@@ -30,6 +30,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<CancelEventArgs> BeforeShow { get; set; }
 
 		/// <summary>
+		/// Gets or sets an event callback delegate fired when the user selects clicks one of the items.
+		/// </summary>
+		[Parameter] public EventCallback<MenuItem> ItemClick { get; set; }
+
+		/// <summary>
 		/// Gets the unique identifier of this panel.
 		/// </summary>
 		public string Id { get; private set; } = string.Empty;
@@ -49,6 +54,7 @@ namespace PanoramicData.Blazor
 			if(!item.IsDisabled)
 			{
 				await JSRuntime.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
+				await ItemClick.InvokeAsync(item).ConfigureAwait(true);
 			}
 		}
 
