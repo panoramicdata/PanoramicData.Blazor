@@ -1,10 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Exceptions;
-using System.ComponentModel;
 
 namespace PanoramicData.Blazor
 {
