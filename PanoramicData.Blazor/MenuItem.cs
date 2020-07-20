@@ -24,5 +24,10 @@
 		/// Gets or sets CSS classes to display an icon for the menu item.
 		/// </summary>
 		public string IconCssClass { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Gets or sets custom markup to be displayed for the item.
+		/// </summary>
+		public string Content { get; set; } = string.Empty;
 	}
 }

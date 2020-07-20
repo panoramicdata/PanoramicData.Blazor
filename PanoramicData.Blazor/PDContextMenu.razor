@@ -3,13 +3,20 @@
 	{
 		if (item.IsVisible)
 		{
-			<div class="pdcontextmenuitem @(item.IsDisabled ? "disabled" : "")" @onclick="@(() => ClickHandler(item))">
-				@if(!string.IsNullOrWhiteSpace(item.IconCssClass))
-				{
-					<span class="@item.IconCssClass"></span>
-				}
-				<span>@item.Text</span>
-			</div>
+				<div class="pdcontextmenuitem @(item.IsDisabled ? "disabled" : "")" @onclick="@(() => ClickHandler(item))">
+					@if (string.IsNullOrWhiteSpace(item.Content))
+					{
+						@if (!string.IsNullOrWhiteSpace(item.IconCssClass))
+						{
+							<span class="@item.IconCssClass"></span>
+						}
+						<span>@item.Text</span>
+					}
+					else
+					{
+						@((MarkupString)item.Content)
+					}
+				</div>
 		}
 	}
 </div>
