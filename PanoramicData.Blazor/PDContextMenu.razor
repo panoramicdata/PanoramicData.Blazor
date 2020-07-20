@@ -3,6 +3,13 @@
 	{
 		if (item.IsVisible)
 		{
+			@if (item.IsSeparator)
+			{
+				<div class="pdcontextmenuseparator">
+				</div>
+			}
+			else
+			{
 				<div class="pdcontextmenuitem @(item.IsDisabled ? "disabled" : "")" @onclick="@(() => ClickHandler(item))">
 					@if (string.IsNullOrWhiteSpace(item.Content))
 					{
@@ -17,6 +24,7 @@
 						@((MarkupString)item.Content)
 					}
 				</div>
+			}
 		}
 	}
 </div>

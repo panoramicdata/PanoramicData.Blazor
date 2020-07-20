@@ -5,6 +5,7 @@
 	width: fit-content;
 	display: none;
 	flex-direction: column;
+	background-color: #fff;
 }
 
 .pdcontextmenu.show {
@@ -12,11 +13,11 @@
 }
 
 .pdcontextmenuitem {
-	position: relative;
-	display: block;
+//	position: relative;
+//	display: block;
 	padding: .25rem .50rem;
-	margin-bottom: -1px;
-	background-color: #fff;
+	//margin-bottom: -1px;
+//	background-color: #fff;
 	border-left: 1px solid rgba(0,0,0,.125);
 	border-right: 1px solid rgba(0,0,0,.125);
 	cursor: pointer;
@@ -48,3 +49,11 @@
 	background-color: #eee;
 }
 
+.pdcontextmenuseparator {
+	//position: relative;
+	//display: block;
+	//padding: .25rem .50rem;
+	border-bottom: 1px solid rgba(0,0,0,.125);
+	border-left: 1px solid rgba(0,0,0,.125);
+	border-right: 1px solid rgba(0,0,0,.125);
+}

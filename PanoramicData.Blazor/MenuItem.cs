@@ -29,5 +29,10 @@
 		/// Gets or sets custom markup to be displayed for the item.
 		/// </summary>
 		public string Content { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Gets or sets whether this item is rendered as a separator.
+		/// </summary>
+		public bool IsSeparator { get; set; }
 	}
 }

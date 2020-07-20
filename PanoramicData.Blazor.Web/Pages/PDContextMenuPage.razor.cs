@@ -12,11 +12,13 @@ namespace PanoramicData.Blazor.Web.Pages
 		protected override void OnInitialized()
 		{
 			_items.Add(new MenuItem { Content = "<span style=\"font-size:0.8rem; font-weight: bold;color: #ffa500\">Please choose ... </span>", IsDisabled = true });
+			_items.Add(new MenuItem { IsSeparator = true });
 			_items.Add(new MenuItem { Text = "One", IconCssClass = "fas fa-dice-one" });
 			_items.Add(new MenuItem { Text = "Two", IconCssClass = "fas fa-dice-two" });
 			_items.Add(new MenuItem { Text = "Three", IsDisabled = true, IconCssClass = "fas fa-dice-three" });
 			_items.Add(new MenuItem { Text = "Four", IsVisible = false, IconCssClass = "fas fa-dice-four" });
 			_items.Add(new MenuItem { Text = "Five", IconCssClass = "fas fa-dice-five" });
+			_items.Add(new MenuItem { IsSeparator = true });
 			_items.Add(new MenuItem { Text = "Six", IconCssClass = "fas fa-dice-six" });
 		}
 

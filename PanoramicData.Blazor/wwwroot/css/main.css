@@ -115,17 +115,14 @@
   /* IE10+ */
   width: fit-content;
   display: none;
-  flex-direction: column; }
+  flex-direction: column;
+  background-color: #fff; }
 
 .pdcontextmenu.show {
   display: flex; }
 
 .pdcontextmenuitem {
-  position: relative;
-  display: block;
   padding: .25rem .50rem;
-  margin-bottom: -1px;
-  background-color: #fff;
   border-left: 1px solid rgba(0, 0, 0, 0.125);
   border-right: 1px solid rgba(0, 0, 0, 0.125);
   cursor: pointer; }
@@ -150,6 +147,11 @@
 
 .pdcontextmenuitem:hover {
   background-color: #eee; }
+
+.pdcontextmenuseparator {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  border-left: 1px solid rgba(0, 0, 0, 0.125);
+  border-right: 1px solid rgba(0, 0, 0, 0.125); }
 
 .fa-hidden {
   color: transparent; }
