@@ -19,5 +19,10 @@
 		/// Gets or sets whether this item is displayed but disabled.
 		/// </summary>
 		public bool IsDisabled { get; set; }
+
+		/// <summary>
+		/// Gets or sets CSS classes to display an icon for the menu item.
+		/// </summary>
+		public string IconCssClass { get; set; } = string.Empty;
 	}
 }

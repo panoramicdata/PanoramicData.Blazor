@@ -4,6 +4,10 @@
 		if (item.IsVisible)
 		{
 			<div class="pdcontextmenuitem @(item.IsDisabled ? "disabled" : "")" @onclick="@(() => ClickHandler(item))">
+				@if(!string.IsNullOrWhiteSpace(item.IconCssClass))
+				{
+					<span class="@item.IconCssClass"></span>
+				}
 				<span>@item.Text</span>
 			</div>
 		}
