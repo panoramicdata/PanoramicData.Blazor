@@ -14,20 +14,20 @@ namespace PanoramicData.Blazor.Web.Pages
 		private string _events = string.Empty;
 		private FileExplorerItem? _selectedEntry;
 
-		private void SelectionChangeHandler(FileExplorerItem entry)
+		private void SelectionChangeHandler(TreeNode<FileExplorerItem> node)
 		{
-			_selectedEntry = entry;
-			_events += $"selection changed: path = {entry.Path}{Environment.NewLine}";
+			_selectedEntry = node?.Data;
+			_events += $"selection changed: path = {node?.Data?.Path}{Environment.NewLine}";
 		}
 
-		private void NodeExpandedHandler(FileExplorerItem entry)
+		private void NodeExpandedHandler(TreeNode<FileExplorerItem> node)
 		{
-			_events += $"node expanded: path = {entry.Path}{Environment.NewLine}";
+			_events += $"node expanded: path = {node?.Data?.Path}{Environment.NewLine}";
 		}
 
-		private void NodeCollapsedHandler(FileExplorerItem entry)
+		private void NodeCollapsedHandler(TreeNode<FileExplorerItem> node)
 		{
-			_events += $"node collapsed: path = {entry.Path}{Environment.NewLine}";
+			_events += $"node collapsed: path = {node?.Data?.Path}{Environment.NewLine}";
 		}
 	}
 }

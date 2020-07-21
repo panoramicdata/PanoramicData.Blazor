@@ -26,7 +26,7 @@ namespace PanoramicData.Blazor
 		/// Gets or sets the template to render.
 		/// </summary>
 		[Parameter]
-		public RenderFragment<TItem?>? NodeTemplate { get; set; }
+		public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
 
 		private async Task OnContentClickAsync()
 		{

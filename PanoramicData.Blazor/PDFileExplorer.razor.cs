@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 
@@ -11,6 +11,7 @@ namespace PanoramicData.Blazor
     {
 		private PDTree<FileExplorerItem>? _tree;
 		private List<MenuItem> _treeContextItems = new List<MenuItem>();
+		private TreeNode<FileExplorerItem>? _selectedNode;
 		private PDTable<FileExplorerItem>? _table;
 
 		public string FolderPath = ""; // display 'no data' until first selection
@@ -30,19 +31,30 @@ namespace PanoramicData.Blazor
 				new PDColumnConfig { Id = "Modified", Title = "Modified" }
 			};
 
-		protected async override Task OnInitializedAsync()
+		protected override void OnInitialized()
 		{
-			_treeContextItems.Add(new MenuItem { Text = "Open", IconCssClass = "far fa-folder-open" });
 			_treeContextItems.Add(new MenuItem { Text = "Rename", IconCssClass = "fas fa-pencil-alt" });
-			_treeContextItems.Add(new MenuItem { IsSeparator = true });
 			_treeContextItems.Add(new MenuItem { Text = "New Folder", IconCssClass = "fas fa-plus" });
 			_treeContextItems.Add(new MenuItem { IsSeparator = true });
 			_treeContextItems.Add(new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" });
 		}
 
-		public void OnTreeSelectionChange(FileExplorerItem item)
+		private async Task OnTreeItemsLoaded(IEnumerable<FileExplorerItem> items)
 		{
-			SelectFolder(item.Path);
+			if(items.Any() && _selectedNode == null)
+			{
+				await _tree!.SelectItemAsync(items.First());
+				StateHasChanged();
+			}
+		}
+
+		public void OnTreeSelectionChange(TreeNode<FileExplorerItem> node)
+		{
+			_selectedNode = node;
+			if (node != null && node.Data != null)
+			{
+				SelectFolder(node.Data.Path);
+			}
 		}
 
 		public void SelectFolder(string path)
@@ -52,11 +64,16 @@ namespace PanoramicData.Blazor
 			_table!.Selection.Clear();
 		}
 
-		public void TreeBeforeShowHandler(CancelEventArgs args)
+		public void OnTreeBeforeShowContextMenu(CancelEventArgs args)
 		{
+			if (_selectedNode?.Data != null)
+			{
+				_treeContextItems.Single(x => x.Text == "Delete").IsDisabled = _selectedNode.Data.ParentPath == string.Empty;
+				_treeContextItems.Single(x => x.Text == "Rename").IsDisabled = _selectedNode.Data.ParentPath == string.Empty;
+			}
 		}
 
-		public void TreeItemClickHandler(MenuItem item)
+		public void OnTreeContextMenuItemClick(MenuItem item)
 		{
 		}
 	}

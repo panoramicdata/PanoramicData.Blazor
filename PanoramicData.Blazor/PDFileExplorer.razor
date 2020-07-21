@@ -4,15 +4,16 @@
 
 		<PDSplitPanel Size="1">
 
-			<PDContextMenu Items="_treeContextItems" BeforeShow="TreeBeforeShowHandler" ItemClick="TreeItemClickHandler">
+			<PDContextMenu Items="_treeContextItems" BeforeShow="OnTreeBeforeShowContextMenu" ItemClick="OnTreeContextMenuItemClick">
 
-				<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true"
+				<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true"
 						KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
-						Filter="x => x.EntryType == FileExplorerItemType.Directory" SelectionChange="OnTreeSelectionChange">
+						Filter="x => x.EntryType == FileExplorerItemType.Directory" SelectionChange="OnTreeSelectionChange"
+						ItemsLoaded="OnTreeItemsLoaded">
 					<NodeTemplate>
-						<span class="@( $"{(context?.IsHidden ?? false ? "file-hidden" : "")} {(context?.IsSystem ?? false ? "file-system" : "")}") ">
-							<i class="far @(context?.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
-							<span>@context?.Name</span>
+						<span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
+							<i class="far @(context?.IsExpanded ?? false ? "fa-folder-open" : "fa-folder")"></i>
+							<span>@context?.Data?.Name</span>
 						</span>
 					</NodeTemplate>
 				</PDTree>

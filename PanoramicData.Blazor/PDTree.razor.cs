@@ -63,32 +63,37 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets whether selection is allowed.
 		/// </summary>
-		[Parameter] public bool AllowSelection { get; set; } = true;
+		[Parameter] public bool AllowSelection { get; set; } = false;
 
 		/// <summary>
 		/// Gets or sets the template to render for each node.
 		/// </summary>
 		[Parameter]
-		public RenderFragment<TItem?>? NodeTemplate { get; set; }
+		public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
 
 		/// <summary>
 		/// Gets or sets an event callback raise whenever the selection changes.
 		/// </summary>
 		[Parameter]
-		public EventCallback<TItem> SelectionChange { get; set; }
+		public EventCallback<TreeNode<TItem>> SelectionChange { get; set; }
 
 		/// <summary>
 		/// Callback fired whenever the user expands a node.
 		/// </summary>
 		[Parameter]
-		public EventCallback<TItem> NodeExpanded { get; set; }
+		public EventCallback<TreeNode<TItem>> NodeExpanded { get; set; }
 
 		/// <summary>
 		/// Callback fired whenever the user collapses a node.
 		/// </summary>
 		[Parameter]
-		public EventCallback<TItem> NodeCollapsed { get; set; }
+		public EventCallback<TreeNode<TItem>> NodeCollapsed { get; set; }
 
+		/// <summary>
+		/// Callback fired whenever data items are loaded.
+		/// </summary>
+		[Parameter]
+		public EventCallback<IEnumerable<TItem>> ItemsLoaded { get; set; }
 
 		/// <summary>
 		/// Expands all the branch nodes in the tree.
@@ -152,14 +157,10 @@ namespace PanoramicData.Blazor
 		{
 			if (firstRender)
 			{
-				// build model
-				var items = await GetDataAsync();
+				// build initial model and notify listeners
+				var items = await GetDataAsync().ConfigureAwait(true);
 				_model = BuildModel(items);
-				// if allow selection then select root node by default
-				if (AllowSelection)
-				{
-					await SelectItemAsync(_model.Key);
-				}
+				await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
 				StateHasChanged();
 			}
 		}
@@ -228,6 +229,7 @@ namespace PanoramicData.Blazor
 				{
 					items = items.Where(Filter);
 				}
+
 				return items;
 			}
 			finally
@@ -317,7 +319,7 @@ namespace PanoramicData.Blazor
 				}
 
 				// notify of change
-				await SelectionChange.InvokeAsync(_currentSelection.Data!).ConfigureAwait(true);
+				await SelectionChange.InvokeAsync(_currentSelection).ConfigureAwait(true);
 				StateHasChanged();
 			}
 		}
@@ -336,17 +338,20 @@ namespace PanoramicData.Blazor
 				// add new nodes to existing node
 				node.Nodes = new List<TreeNode<TItem>>(); // indicates data fetched, even if no items returned
 				BuildModel(items);
+
+				// notify any listeners that new data fetched
+				await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
 			}
 
 			// expand / collapse and notify
 			node.IsExpanded = !wasExpanded;
 			if(wasExpanded)
 			{
-				await NodeCollapsed.InvokeAsync(node.Data!).ConfigureAwait(true);
+				await NodeCollapsed.InvokeAsync(node).ConfigureAwait(true);
 			}
 			else
 			{
-				await NodeExpanded.InvokeAsync(node.Data!).ConfigureAwait(true);
+				await NodeExpanded.InvokeAsync(node).ConfigureAwait(true);
 			}
 		}
 	}
