@@ -41,11 +41,6 @@ namespace PanoramicData.Blazor
 		[Parameter] public Func<TItem, bool>? IsLeaf { get; set; }
 
 		/// <summary>
-		/// A Linq expression that is used to filter out items returned from the data provider.
-		/// </summary>
-		[Parameter] public Func<TItem, bool>? Filter { get; set; }
-
-		/// <summary>
 		/// Gets or sets whether a non-leaf node will request data where necessary.
 		/// </summary>
 		[Parameter] public bool LoadOnDemand { get; set; }
@@ -92,8 +87,15 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Callback fired whenever data items are loaded.
 		/// </summary>
+		/// <remarks>The callback allows the items to be modified by the calling application.</remarks>
 		[Parameter]
-		public EventCallback<IEnumerable<TItem>> ItemsLoaded { get; set; }
+		public EventCallback<List<TItem>> ItemsLoaded { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever a tree node is updated.
+		/// </summary>
+		[Parameter]
+		public EventCallback<TreeNode<TItem>> NodeUpdated { get; set; }
 
 		/// <summary>
 		/// Expands all the branch nodes in the tree.
@@ -160,7 +162,8 @@ namespace PanoramicData.Blazor
 				// build initial model and notify listeners
 				var items = await GetDataAsync().ConfigureAwait(true);
 				_model = BuildModel(items);
-				await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
+				// notify that node updated
+				await NodeUpdated.InvokeAsync(_model);
 				StateHasChanged();
 			}
 		}
@@ -223,13 +226,9 @@ namespace PanoramicData.Blazor
 					.GetDataAsync(request, CancellationToken.None)
 					.ConfigureAwait(true);
 
-				// filter items?
-				var items = response.Items;
-				if(Filter != null)
-				{
-					items = items.Where(Filter);
-				}
-
+				// allow calling application to filter/add items etc
+				var items = new List<TItem>(response.Items);
+				await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
 				return items;
 			}
 			finally
@@ -324,7 +323,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		internal async Task ToggleNodeIsExpandedAsync(TreeNode<TItem> node)
+		public async Task ToggleNodeIsExpandedAsync(TreeNode<TItem> node)
 		{
 			var wasExpanded = node.IsExpanded;
 
@@ -333,14 +332,12 @@ namespace PanoramicData.Blazor
 			{
 				// fetch direct child items
 				var key = KeyField!(node.Data!).ToString();
-				var items = await GetDataAsync(key);
-
+				var items = await GetDataAsync(key).ConfigureAwait(true);
 				// add new nodes to existing node
 				node.Nodes = new List<TreeNode<TItem>>(); // indicates data fetched, even if no items returned
 				BuildModel(items);
-
 				// notify any listeners that new data fetched
-				await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
+				await NodeUpdated.InvokeAsync(node).ConfigureAwait(true);
 			}
 
 			// expand / collapse and notify

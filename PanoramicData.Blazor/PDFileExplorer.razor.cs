@@ -46,11 +46,16 @@ namespace PanoramicData.Blazor
 			_table!.Selection.Clear();
 		}
 
-		private async Task OnTreeItemsLoaded(IEnumerable<FileExplorerItem> items)
+		private void OnTreeItemsLoaded(List<FileExplorerItem> items)
 		{
-			if(items.Any() && _selectedNode == null)
+			items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
+		}
+
+		private async Task OnTreeNodeUpdated(TreeNode<FileExplorerItem> node)
+		{
+			if (node?.Data != null && node?.ParentNode == null) // root node updated
 			{
-				await _tree!.SelectItemAsync(items.First());
+				await _tree!.SelectItemAsync(node!.Data);
 				StateHasChanged();
 			}
 		}

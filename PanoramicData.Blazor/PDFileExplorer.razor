@@ -8,8 +8,8 @@
 
 				<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true"
 						KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
-						Filter="x => x.EntryType == FileExplorerItemType.Directory" SelectionChange="OnTreeSelectionChange"
-						ItemsLoaded="OnTreeItemsLoaded">
+						SelectionChange="OnTreeSelectionChange"
+						ItemsLoaded="OnTreeItemsLoaded" NodeUpdated="OnTreeNodeUpdated">
 					<NodeTemplate>
 						<span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
 							<i class="far @(context?.IsExpanded ?? false ? "fa-folder-open" : "fa-folder")"></i>
