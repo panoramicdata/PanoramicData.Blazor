@@ -23,6 +23,6 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Callback fired whenever the component changes the current page details.
 		/// </summary>
-		EventCallback<PageCriteria> OnPageChanged { get; set; }
+		EventCallback<PageCriteria> PageChanged { get; set; }
 	}
 }

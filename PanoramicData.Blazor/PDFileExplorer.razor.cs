@@ -39,6 +39,13 @@ namespace PanoramicData.Blazor
 			_treeContextItems.Add(new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" });
 		}
 
+		public void SelectFolder(string path)
+		{
+			// update table - set the SearchText to the parent path
+			FolderPath = path;
+			_table!.Selection.Clear();
+		}
+
 		private async Task OnTreeItemsLoaded(IEnumerable<FileExplorerItem> items)
 		{
 			if(items.Any() && _selectedNode == null)
@@ -48,7 +55,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		public void OnTreeSelectionChange(TreeNode<FileExplorerItem> node)
+		private void OnTreeSelectionChange(TreeNode<FileExplorerItem> node)
 		{
 			_selectedNode = node;
 			if (node != null && node.Data != null)
@@ -57,14 +64,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		public void SelectFolder(string path)
-		{
-			// update table - set the SearchText to the parent path
-			FolderPath = path;
-			_table!.Selection.Clear();
-		}
-
-		public void OnTreeBeforeShowContextMenu(CancelEventArgs args)
+		private void OnTreeBeforeShowContextMenu(CancelEventArgs args)
 		{
 			if (_selectedNode?.Data != null)
 			{
@@ -73,8 +73,21 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		public void OnTreeContextMenuItemClick(MenuItem item)
+		private void OnTreeContextMenuItemClick(MenuItem item)
 		{
+		}
+
+		private async Task OnTableDoubleClick(FileExplorerItem item)
+		{
+			if (item.EntryType == FileExplorerItemType.Directory)
+			{
+				// ensure tree has folder item loaded
+				if(!_selectedNode.IsExpanded)
+				{
+					await _tree.ToggleNodeIsExpandedAsync(_selectedNode);
+				}
+				_tree.SelectItemAsync(item.Path);
+			}
 		}
 	}
 }

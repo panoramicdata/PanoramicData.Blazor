@@ -39,6 +39,7 @@
 					foreach (var item in ItemsToDisplay)
 					{
 						<tr class="pdtablerow @GetDynamicRowClasses(item)" @onmousedown="@(() => RowClickHandler(item))"
+							@onclick="() => Click.InvokeAsync(item)" @ondblclick="() => DoubleClick.InvokeAsync(item)"
 							@oncontextmenu="@((a) => ContextMenuHandler(a, item))" @oncontextmenu:preventDefault>
 							@foreach (var column in ActualColumnsToDisplay)
 							{

@@ -18,9 +18,10 @@
 
 <PDTable @ref="_table" TItem="TestRow" DataProvider="DataProvider" KeyField="x => x.IntField"
 		 ColumnsConfig="_columnsConfig" SearchText="@_searchText"
-		 SelectionMode="@SelectionMode" OnSelectionChanged="SelectionChangeHandler"
-		 DefaultPage="_defaultPage" OnPageChanged="PageChangeHandler"
-		 DefaultSort="_defaultSort" OnSortChanged="SortChangeHandler">
+		 SelectionMode="@SelectionMode" SelectionChanged="OnSelectionChange"
+		 Click="OnClick" DoubleClick="OnDoubleClick"
+		 DefaultPage="_defaultPage" PageChanged="OnPageChange"
+		 DefaultSort="_defaultSort" SortChanged="OnSortChange">
 
 	<PDColumn Id="Col1" TItem="TestRow" Title="Id" Field="x => x.IntField" />
 	<PDColumn Id="Col2" TdClass="text-nowrap" TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm" />

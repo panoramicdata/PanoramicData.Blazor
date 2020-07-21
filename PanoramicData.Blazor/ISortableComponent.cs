@@ -18,6 +18,6 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Callback fired whenever the component changes the current sort criteria.
 		/// </summary>
-		EventCallback<SortCriteria> OnSortChanged { get; set; }
+		EventCallback<SortCriteria> SortChanged { get; set; }
     }
 }

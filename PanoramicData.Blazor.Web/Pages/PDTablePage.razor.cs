@@ -86,7 +86,7 @@ namespace PanoramicData.Blazor.Web.Pages
 			await _table!.RefreshAsync().ConfigureAwait(true);
 		}
 
-		private void SortChangeHandler(SortCriteria criteria)
+		private void OnSortChange(SortCriteria criteria)
 		{
 			_events += $"sort changed: key = {criteria.Key}, dir = {criteria.Direction}{Environment.NewLine}";
 			// Update the URI for bookmarking
@@ -94,17 +94,27 @@ namespace PanoramicData.Blazor.Web.Pages
 			NavigationManager.SetUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } });
 		}
 
-		private void PageChangeHandler(PageCriteria criteria)
+		private void OnPageChange(PageCriteria criteria)
 		{
 			_events += $"page changed: page = {criteria.Page}, page size = {criteria.PageSize}{Environment.NewLine}";
 			// Update the URI for bookmarking
 			NavigationManager.SetUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } });
 		}
 
-		private void SelectionChangeHandler()
+		private void OnSelectionChange()
 		{
 			var keys = _table == null ? "" : string.Join(", ", _table.Selection.ToArray());
 			_events += $"selection changed: {keys}{Environment.NewLine}";
+		}
+
+		private void OnClick(TestRow item)
+		{
+			_events += $"click: {item.IntField}{Environment.NewLine}";
+		}
+
+		private void OnDoubleClick(TestRow item)
+		{
+			_events += $"double-click: {item.IntField}{Environment.NewLine}";
 		}
 	}
 }

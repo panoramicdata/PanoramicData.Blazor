@@ -73,7 +73,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event callback fired whenever the sort criteria has changed.
 		/// </summary>
-		[Parameter] public EventCallback<SortCriteria> OnSortChanged { get; set; }
+		[Parameter] public EventCallback<SortCriteria> SortChanged { get; set; }
 
 		/// <summary>
 		/// Gets or sets the default page criteria.
@@ -83,7 +83,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Callback fired whenever the component changes the currently displayed page.
 		/// </summary>
-		[Parameter] public EventCallback<PageCriteria> OnPageChanged { get; set; }
+		[Parameter] public EventCallback<PageCriteria> PageChanged { get; set; }
 
 		/// <summary>
 		/// Search text to be passed to IDataProvider when querying for data.
@@ -104,7 +104,17 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Callback fired whenever the current selection changes.
 		/// </summary>
-		[Parameter] public EventCallback OnSelectionChanged { get; set; }
+		[Parameter] public EventCallback SelectionChanged { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever the user clicks on a given item.
+		/// </summary>
+		[Parameter] public EventCallback<TItem> Click { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever the user double-clicks on a given item.
+		/// </summary>
+		[Parameter] public EventCallback<TItem> DoubleClick { get; set; }
 
 		/// <summary>
 		/// Gets a full list of all columns.
@@ -282,7 +292,7 @@ namespace PanoramicData.Blazor
 				Page = criteria.Page;
 				PageSize = criteria.PageSize;
 				await GetDataAsync().ConfigureAwait(true);
-				await OnPageChanged.InvokeAsync(criteria).ConfigureAwait(true);
+				await PageChanged.InvokeAsync(criteria).ConfigureAwait(true);
 			}
 		}
 
@@ -352,7 +362,7 @@ namespace PanoramicData.Blazor
 			{
 				await column.SortByAsync(direction).ConfigureAwait(true);
 				await GetDataAsync().ConfigureAwait(true);
-				await OnSortChanged.InvokeAsync(new SortCriteria { Key = column.Id, Direction = direction ?? column.SortDirection }).ConfigureAwait(true);
+				await SortChanged.InvokeAsync(new SortCriteria { Key = column.Id, Direction = direction ?? column.SortDirection }).ConfigureAwait(true);
 			}
 		}
 
@@ -375,7 +385,7 @@ namespace PanoramicData.Blazor
 						}
 						Selection.Add(key);
 					}
-					await OnSelectionChanged.InvokeAsync(null);
+					await SelectionChanged.InvokeAsync(null);
 				}
 			}
 		}
