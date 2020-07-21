@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 
@@ -11,7 +13,7 @@ namespace PanoramicData.Blazor
 		private List<MenuItem> _treeContextItems = new List<MenuItem>();
 		private PDTable<FileExplorerItem>? _table;
 
-		public string FolderPath = "NULL"; // display 'no data' until first selection
+		public string FolderPath = ""; // display 'no data' until first selection
 
 		/// <summary>
 		/// Gets or sets the IDataProviderService instance to use to fetch data.
@@ -28,10 +30,12 @@ namespace PanoramicData.Blazor
 				new PDColumnConfig { Id = "Modified", Title = "Modified" }
 			};
 
-		protected override void OnInitialized()
+		protected async override Task OnInitializedAsync()
 		{
 			_treeContextItems.Add(new MenuItem { Text = "Open", IconCssClass = "far fa-folder-open" });
 			_treeContextItems.Add(new MenuItem { Text = "Rename", IconCssClass = "fas fa-pencil-alt" });
+			_treeContextItems.Add(new MenuItem { IsSeparator = true });
+			_treeContextItems.Add(new MenuItem { Text = "New Folder", IconCssClass = "fas fa-plus" });
 			_treeContextItems.Add(new MenuItem { IsSeparator = true });
 			_treeContextItems.Add(new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" });
 		}

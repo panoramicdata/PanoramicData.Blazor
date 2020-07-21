@@ -125,15 +125,22 @@ namespace PanoramicData.Blazor
 			if (AllowSelection)
 			{
 				TreeNode<TItem>? node = null;
-				WalkTree((n) =>
+				if (string.IsNullOrEmpty(key))
 				{
-					if (n.Key == key)
+					node = _model;
+				}
+				else
+				{
+					WalkTree((n) =>
 					{
-						node = n;
-						return false; // stop search
+						if (n.Key == key)
+						{
+							node = n;
+							return false; // stop search
 					}
-					return true;
-				});
+						return true;
+					});
+				}
 				if (node != null)
 				{
 					await SelectNode(node).ConfigureAwait(true);
@@ -148,6 +155,11 @@ namespace PanoramicData.Blazor
 				// build model
 				var items = await GetDataAsync();
 				_model = BuildModel(items);
+				// if allow selection then select root node by default
+				if (AllowSelection)
+				{
+					await SelectItemAsync(_model.Key);
+				}
 				StateHasChanged();
 			}
 		}
