@@ -117,6 +117,13 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<TItem> DoubleClick { get; set; }
 
 		/// <summary>
+		/// Callback fired whenever data items are loaded.
+		/// </summary>
+		/// <remarks>The callback allows the items to be modified by the calling application.</remarks>
+		[Parameter]
+		public EventCallback<List<TItem>> ItemsLoaded { get; set; }
+
+		/// <summary>
 		/// Gets a full list of all columns.
 		/// </summary>
 		public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
@@ -344,7 +351,11 @@ namespace PanoramicData.Blazor
 					PageCount = (response.TotalCount / PageSize.Value) + (response.TotalCount % PageSize.Value > 0 ? 1 : 0);
 				}
 
-				ItemsToDisplay = response.Items;
+				// allow calling application to filter/add items etc
+				var items = new List<TItem>(response.Items);
+				await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
+
+				ItemsToDisplay = items;
 			}
 			finally
 			{

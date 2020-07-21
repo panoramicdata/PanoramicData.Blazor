@@ -229,6 +229,7 @@ namespace PanoramicData.Blazor
 				// allow calling application to filter/add items etc
 				var items = new List<TItem>(response.Items);
 				await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
+
 				return items;
 			}
 			finally

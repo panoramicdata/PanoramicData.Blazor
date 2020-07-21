@@ -82,16 +82,34 @@ namespace PanoramicData.Blazor
 		{
 		}
 
+		private void OnTableItemsLoaded(List<FileExplorerItem> items)
+		{
+			if (_selectedNode != null && _selectedNode.ParentNode != null && _selectedNode?.Data != null)
+			{
+				items.Insert(0, new FileExplorerItem { Path = "..", ParentPath = _selectedNode!.Data!.Path, EntryType = FileExplorerItemType.Directory });
+			}
+		}
+
 		private async Task OnTableDoubleClick(FileExplorerItem item)
 		{
-			if (item.EntryType == FileExplorerItemType.Directory)
+			if (_selectedNode != null && _tree != null && item.EntryType == FileExplorerItemType.Directory)
 			{
-				// ensure tree has folder item loaded
-				if(!_selectedNode.IsExpanded)
+				if (item.Path == "..")
 				{
-					await _tree.ToggleNodeIsExpandedAsync(_selectedNode);
+					var parentPath = _selectedNode?.ParentNode!.Data?.Path;
+					if (parentPath != null)
+					{
+						await _tree.SelectItemAsync(parentPath);
+					}
 				}
-				_tree.SelectItemAsync(item.Path);
+				else
+				{
+					if (!_selectedNode.IsExpanded)
+					{
+						await _tree!.ToggleNodeIsExpandedAsync(_selectedNode);
+					}
+					await _tree!.SelectItemAsync(item.Path);
+				}
 			}
 		}
 	}

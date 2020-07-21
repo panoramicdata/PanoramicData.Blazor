@@ -8,8 +8,7 @@
 
 				<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true"
 						KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
-						SelectionChange="OnTreeSelectionChange"
-						ItemsLoaded="OnTreeItemsLoaded" NodeUpdated="OnTreeNodeUpdated">
+						SelectionChange="OnTreeSelectionChange" ItemsLoaded="OnTreeItemsLoaded" NodeUpdated="OnTreeNodeUpdated">
 					<NodeTemplate>
 						<span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
 							<i class="far @(context?.IsExpanded ?? false ? "fa-folder-open" : "fa-folder")"></i>
@@ -26,7 +25,7 @@
 
 			<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
 					 SelectionMode="TableSelectionMode.Single" KeyField="x => x.Path"
-					 DoubleClick="OnTableDoubleClick"
+					 DoubleClick="OnTableDoubleClick" ItemsLoaded="OnTableItemsLoaded"
 					 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")}")">
 
 				<PDColumn TItem="FileExplorerItem" Id="Icon" Field="x => x.EntryType">
@@ -57,16 +56,22 @@
 				</PDColumn>
 				<PDColumn TItem="FileExplorerItem" Id="Created" Field="x => x.DateCreated">
 					<Template>
-						<span class="nowrap">
-							@context.DateCreated.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-						</span>
-					</Template>
+						@if (context.DateCreated != DateTime.MinValue)
+						{
+							<span class="nowrap">
+								@context.DateCreated.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+							</span>
+						}
+						</Template>
 				</PDColumn>
 				<PDColumn TItem="FileExplorerItem" Id="Modified" Field="x => x.DateModified">
 					<Template>
-						<span class="text-nowrap" title="@(context.DateModified.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
-							@context.DateModified.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-						</span>
+						@if (context.DateModified != DateTime.MinValue)
+						{
+							<span class="text-nowrap" title="@(context.DateModified.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
+								@context.DateModified.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+							</span>
+						}
 					</Template>
 				</PDColumn>
 
