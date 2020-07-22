@@ -28,9 +28,8 @@ function showMenu(menuId, x, y) {
 		placement: 'bottom-start'
 	};
 	menu.classList.add("show");
-
 	var popper = Popper.createPopper(reference, menu, options);
-	document.addEventListener("click", function (event) {
+	document.addEventListener("mousedown", function (event) {
 		let isClickInside = menu.contains(event.target);
 		if (!isClickInside) {
 			menu.classList.remove("show");

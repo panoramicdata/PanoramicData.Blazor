@@ -11,6 +11,7 @@ namespace PanoramicData.Blazor
     {
 		private PDTree<FileExplorerItem>? _tree;
 		private List<MenuItem> _treeContextItems = new List<MenuItem>();
+		private List<MenuItem> _tableContextItems = new List<MenuItem>();
 		private TreeNode<FileExplorerItem>? _selectedNode;
 		private PDTable<FileExplorerItem>? _table;
 
@@ -37,6 +38,14 @@ namespace PanoramicData.Blazor
 			_treeContextItems.Add(new MenuItem { Text = "New Folder", IconCssClass = "fas fa-plus" });
 			_treeContextItems.Add(new MenuItem { IsSeparator = true });
 			_treeContextItems.Add(new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" });
+
+			_tableContextItems.Add(new MenuItem { Text = "Open", IconCssClass = "fas fa-folder-open" });
+			_tableContextItems.Add(new MenuItem { Text = "Download", IconCssClass = "fas fa-file-download" });
+			_tableContextItems.Add(new MenuItem { IsSeparator = true });
+			_tableContextItems.Add(new MenuItem { Text = "Rename", IconCssClass = "fas fa-pencil-alt" });
+			//_tableContextItems.Add(new MenuItem { Text = "New Folder", IconCssClass = "fas fa-plus" });
+			_tableContextItems.Add(new MenuItem { IsSeparator = true });
+			_tableContextItems.Add(new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" });
 		}
 
 		public void SelectFolder(string path)
@@ -111,6 +120,47 @@ namespace PanoramicData.Blazor
 					await _tree!.SelectItemAsync(item.Path);
 				}
 			}
+		}
+
+		private void OnTableSelectionChange()
+		{
+		}
+
+		private void OnTableBeforeShowContextMenu(CancelEventArgs args)
+		{
+			if(_table!.Selection.Count == 0)
+			{
+				args.Cancel = true;
+				return;
+			}
+			var selectedPath = _table!.Selection[0];
+			if(selectedPath == "..")
+			{
+				_tableContextItems.Single(x => x.Text == "Download").IsVisible = false;
+				_tableContextItems.ForEach(x => x.IsDisabled = x.Text == "Open" ? false : true);
+				return;
+			}
+			var item = _table.ItemsToDisplay.Single(x => x.Path == selectedPath);
+			if(item == null)
+			{
+				args.Cancel = true;
+				return;
+			}
+			_tableContextItems.ForEach(x => x.IsDisabled = false);
+			if(item.EntryType == FileExplorerItemType.Directory)
+			{
+				_tableContextItems.Single(x => x.Text == "Open").IsVisible = true;
+				_tableContextItems.Single(x => x.Text == "Download").IsVisible = false;
+			}
+			else
+			{
+				_tableContextItems.Single(x => x.Text == "Download").IsVisible = true;
+				_tableContextItems.Single(x => x.Text == "Open").IsVisible = false;
+			}
+		}
+
+		private void OnTableContextMenuItemClick(MenuItem item)
+		{
 		}
 	}
 }

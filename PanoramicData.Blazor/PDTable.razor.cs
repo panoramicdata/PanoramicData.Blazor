@@ -167,7 +167,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets the items to be displayed as rows.
 		/// </summary>
-		protected IEnumerable<TItem> ItemsToDisplay { get; private set; } = Enumerable.Empty<TItem>();
+		public IEnumerable<TItem> ItemsToDisplay { get; private set; } = Enumerable.Empty<TItem>();
 
 		/// <summary>
 		/// Has the table been initialized?
