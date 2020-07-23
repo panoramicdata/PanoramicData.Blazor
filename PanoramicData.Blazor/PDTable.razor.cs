@@ -117,11 +117,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<TItem> DoubleClick { get; set; }
 
 		/// <summary>
-		/// Callback fired whenever data items are loaded.
+		/// Action called whenever data items are loaded.
 		/// </summary>
-		/// <remarks>The callback allows the items to be modified by the calling application.</remarks>
+		/// <remarks>The action allows the items to be modified by the calling application.</remarks>
 		[Parameter]
-		public EventCallback<List<TItem>> ItemsLoaded { get; set; }
+		public Action<List<TItem>> ItemsLoaded { get; set; }
 
 		/// <summary>
 		/// Gets a full list of all columns.
@@ -205,8 +205,8 @@ namespace PanoramicData.Blazor
 				throw new PDTableException("KeyField attribute must be specified when enabling selection.");
 			}
 
-			//System.Diagnostics.Debug.WriteLine($"{DateTime.Now:HH:mm:ss} OnParametersSetAsync");
-			//await RefreshAsync().ConfigureAwait(true);
+			System.Diagnostics.Debug.WriteLine($"{DateTime.Now:HH:mm:ss} OnParametersSetAsync");
+			await RefreshAsync().ConfigureAwait(true);
 		}
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -354,8 +354,7 @@ namespace PanoramicData.Blazor
 
 				// allow calling application to filter/add items etc
 				var items = new List<TItem>(response.Items);
-				await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
-
+				ItemsLoaded?.Invoke(items); // must use an action here and not an EventCallaback as that leads to infinite loop and 100% CPU
 				ItemsToDisplay = items;
 			}
 			finally
