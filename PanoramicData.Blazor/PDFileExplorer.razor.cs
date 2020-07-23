@@ -15,8 +15,7 @@ namespace PanoramicData.Blazor
 		private TreeNode<FileExplorerItem>? _selectedNode;
 		private PDTable<FileExplorerItem>? _table;
 		private bool _firstLoad = true;
-
-		public string FolderPath = ""; // display 'no data' until first selection
+		public string FolderPath = "";
 
 		/// <summary>
 		/// Gets or sets the IDataProviderService instance to use to fetch data.
@@ -101,22 +100,25 @@ namespace PanoramicData.Blazor
 
 		private void OnTableItemsLoaded(List<FileExplorerItem> items)
 		{
-			if (_selectedNode != null && _selectedNode.ParentNode != null && _selectedNode?.Data != null)
-			{
-				items.Insert(0, new FileExplorerItem { Path = "..", ParentPath = _selectedNode!.Data!.Path, EntryType = FileExplorerItemType.Directory });
-			}
+			//if (_selectedNode != null && _selectedNode.ParentNode != null && _selectedNode?.Data != null)
+			//{
+			  items.Insert(0, new FileExplorerItem { Path = "..", ParentPath = _selectedNode?.Data?.Path ?? "", EntryType = FileExplorerItemType.Directory });
+			//}
 		}
 
 		private async Task OnTableDoubleClick(FileExplorerItem item)
 		{
-			if (_selectedNode != null && _tree != null && item.EntryType == FileExplorerItemType.Directory)
+			if (item.EntryType == FileExplorerItemType.Directory)
 			{
 				if (item.Path == "..")
 				{
-					var parentPath = _selectedNode?.ParentNode!.Data?.Path;
-					if (parentPath != null)
+					if (_selectedNode?.ParentNode != null)
 					{
-						await _tree.SelectItemAsync(parentPath);
+						var parentPath = _selectedNode?.ParentNode!.Data?.Path;
+						if (parentPath != null)
+						{
+							await _tree!.SelectItemAsync(parentPath);
+						}
 					}
 				}
 				else
@@ -128,10 +130,6 @@ namespace PanoramicData.Blazor
 					await _tree!.SelectItemAsync(item.Path);
 				}
 			}
-		}
-
-		private void OnTableSelectionChange()
-		{
 		}
 
 		private void OnTableBeforeShowContextMenu(CancelEventArgs args)
