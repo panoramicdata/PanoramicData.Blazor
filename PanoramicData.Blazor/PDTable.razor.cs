@@ -200,12 +200,13 @@ namespace PanoramicData.Blazor
 		protected async override Task OnParametersSetAsync()
 		{
 			// validate parameter constraints
-			if(SelectionMode != TableSelectionMode.None && KeyField == null)
+			if (SelectionMode != TableSelectionMode.None && KeyField == null)
 			{
 				throw new PDTableException("KeyField attribute must be specified when enabling selection.");
 			}
 
-			await RefreshAsync().ConfigureAwait(true);
+			//System.Diagnostics.Debug.WriteLine($"{DateTime.Now:HH:mm:ss} OnParametersSetAsync");
+			//await RefreshAsync().ConfigureAwait(true);
 		}
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)

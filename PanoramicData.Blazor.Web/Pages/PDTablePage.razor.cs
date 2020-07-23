@@ -116,5 +116,13 @@ namespace PanoramicData.Blazor.Web.Pages
 		{
 			_events += $"double-click: {item.IntField}{Environment.NewLine}";
 		}
+
+		private void OnTableItemsLoaded(List<TestRow> items)
+		{
+			//if (_selectedNode != null && _selectedNode.ParentNode != null && _selectedNode?.Data != null)
+			//{
+			//	items.Insert(0, new FileExplorerItem { Path = "..", ParentPath = _selectedNode!.Data!.Path, EntryType = FileExplorerItemType.Directory });
+			//}
+		}
 	}
 }

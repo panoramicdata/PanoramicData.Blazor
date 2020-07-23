@@ -14,6 +14,7 @@ namespace PanoramicData.Blazor
 		private List<MenuItem> _tableContextItems = new List<MenuItem>();
 		private TreeNode<FileExplorerItem>? _selectedNode;
 		private PDTable<FileExplorerItem>? _table;
+		private bool _firstLoad = true;
 
 		public string FolderPath = ""; // display 'no data' until first selection
 
@@ -48,16 +49,20 @@ namespace PanoramicData.Blazor
 			_tableContextItems.Add(new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" });
 		}
 
-		public void SelectFolder(string path)
+		private async Task OnTreeItemsLoaded(List<FileExplorerItem> items)
 		{
-			// update table - set the SearchText to the parent path
-			FolderPath = path;
-			_table!.Selection.Clear();
-		}
-
-		private void OnTreeItemsLoaded(List<FileExplorerItem> items)
-		{
-			items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
+		 	items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
+			//
+			if(_firstLoad)
+			{
+				_firstLoad = false;
+				// should be single root item
+				if (items.Count > 0)
+				{
+					FolderPath = items[0].Path;
+					await _table!.RefreshAsync();
+				}
+			}
 		}
 
 		private async Task OnTreeNodeUpdated(TreeNode<FileExplorerItem> node)
@@ -69,12 +74,15 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnTreeSelectionChange(TreeNode<FileExplorerItem> node)
+		private async Task OnTreeSelectionChange(TreeNode<FileExplorerItem> node)
 		{
 			_selectedNode = node;
 			if (node != null && node.Data != null)
 			{
-				SelectFolder(node.Data.Path);
+				//await SelectFolder(node.Data.Path);
+				FolderPath = node.Data.Path;
+				_table!.Selection.Clear();
+				await _table!.RefreshAsync();
 			}
 		}
 
