@@ -106,6 +106,9 @@
 .file-hidden, .file-system {
   color: #ccc; }
 
+.pdcontextmenuhost {
+  height: 100%; }
+
 .pdcontextmenu {
   -webkit-user-select: none;
   /* Chrome/Safari */
@@ -114,9 +117,9 @@
   -ms-user-select: none;
   /* IE10+ */
   width: fit-content;
-  display: none;
   flex-direction: column;
-  background-color: #fff; }
+  background-color: #fff;
+  display: none; }
 
 .pdcontextmenu.show {
   display: flex; }
