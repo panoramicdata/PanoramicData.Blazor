@@ -11,10 +11,16 @@ namespace PanoramicData.Blazor.Web.Data
 	{
 		private readonly List<FileExplorerItem> _testData = new List<FileExplorerItem>();
 
+		/// <summary>
+		/// Gets or sets the root folder. All operations can only be performed under this folder.
+		/// </summary>
+		public string RootFolder { get; set; } = @"C:\";
+
 		public TestFileSystemDataProvider()
 		{
 			// generate test data
 			_testData.Add(new FileExplorerItem { Path = "My Computer" });
+
 			_testData.Add(new FileExplorerItem { Path = @"C:\", ParentPath = "My Computer" });
 			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData", ParentPath = @"C:\" });
 			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\Acme", ParentPath = @"C:\ProgramData" });
@@ -22,10 +28,11 @@ namespace PanoramicData.Blazor.Web.Data
 			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\Acme\UserGuide.pdf", ParentPath = @"C:\ProgramData\Acme", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\stats.txt", ParentPath = @"C:\ProgramData", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"C:\Temp", ParentPath = @"C:\" });
-			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\a53fde.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\b76jba.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\p21wsa.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\a53fde.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
+			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\b76jba.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
+			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\p21wsa.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
 			_testData.Add(new FileExplorerItem { Path = @"C:\Users", ParentPath = @"C:\" });
+
 			_testData.Add(new FileExplorerItem { Path = @"D:\", ParentPath = "My Computer" });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Data", ParentPath = @"D:\" });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup", ParentPath = @"D:\Data" });
@@ -51,14 +58,22 @@ namespace PanoramicData.Blazor.Web.Data
 					.AsQueryable<FileExplorerItem>();
 
 				// if search text given then take that as the parent path value
-				// and only return direct child items
-				if(request.SearchText != null)
+				if (request.SearchText == string.Empty)
+				{
+					query = query.Where(x => x.Path == RootFolder);
+				}
+				else
+				{
 					query = query.Where(x => x.ParentPath == request.SearchText);
+				}
 
 				total = query.Count();
 
 				// realize query
 				items = query.ToList();
+
+				// remove parent path from all root items
+				items.ForEach(x => x.ParentPath = x.Path == RootFolder ? string.Empty : x.ParentPath);
 
 			}).ConfigureAwait(false);
 			return new DataResponse<FileExplorerItem>(items, total);
