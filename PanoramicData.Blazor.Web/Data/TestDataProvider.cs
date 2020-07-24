@@ -74,5 +74,16 @@ namespace PanoramicData.Blazor.Web.Data
 			}).ConfigureAwait(false);
 			return new DataResponse<TestRow>(items, total);
 		}
+
+		/// <summary>
+		/// Requests that the item is deleted.
+		/// </summary>
+		/// <param name="item">The item to be deleted.</param>
+		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
+		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
+		public async Task<OperationResponse> DeleteAsync(TestRow item, CancellationToken cancellationToken)
+		{
+			return new OperationResponse { ErrorMessage = "Operation not supported" };
+		}
 	}
 }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
+using System.Threading;
 
 namespace PanoramicData.Blazor
 {
@@ -81,7 +82,7 @@ namespace PanoramicData.Blazor
 		{
 			if (node?.Data != null && node?.ParentNode == null) // root node updated
 			{
-				await _tree!.SelectItemAsync(node!.Data);
+				await _tree!.SelectNode(node!).ConfigureAwait(true);
 				StateHasChanged();
 			}
 		}
@@ -106,8 +107,19 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnTreeContextMenuItemClick(MenuItem item)
+		private async Task OnTreeContextMenuItemClick(MenuItem item)
 		{
+			if (_tree?.SelectedNode?.Data != null)
+			{
+				if (item.Text == "Delete")
+				{
+					var result = await DataProvider.DeleteAsync(_tree.SelectedNode.Data, CancellationToken.None).ConfigureAwait(true);
+					if(result.Success)
+					{
+						await _tree.RemoveNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
+					}
+				}
+			}
 		}
 
 		private void OnTableItemsLoaded(List<FileExplorerItem> items)
@@ -129,11 +141,7 @@ namespace PanoramicData.Blazor
 			{
 				if (_selectedNode?.ParentNode != null)
 				{
-					var parentPath = _selectedNode?.ParentNode!.Data?.Path;
-					if (parentPath != null)
-					{
-						await _tree!.SelectItemAsync(parentPath).ConfigureAwait(true);
-					}
+					await _tree!.SelectNode(_selectedNode.ParentNode).ConfigureAwait(true);
 				}
 			}
 			else
@@ -142,7 +150,11 @@ namespace PanoramicData.Blazor
 				{
 					await _tree!.ToggleNodeIsExpandedAsync(_selectedNode).ConfigureAwait(true);
 				}
-				await _tree!.SelectItemAsync(path).ConfigureAwait(true);
+				var node = _tree!.FindNode(path);
+				if (node != null)
+				{
+					await _tree!.SelectNode(node).ConfigureAwait(true);
+				}
 			}
 		}
 
@@ -179,13 +191,32 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnTableContextMenuItemClick(MenuItem item)
+		private async Task OnTableContextMenuItemClick(MenuItem menuItem)
 		{
 			if (_table!.Selection.Count == 1)
 			{
-				if (item.Text == "Open")
+				var path = _table!.Selection[0];
+				if (menuItem.Text == "Open")
 				{
-					await OpenFolder(_table!.Selection[0]).ConfigureAwait(true);
+					await OpenFolder(path).ConfigureAwait(true);
+				}
+				else if (menuItem.Text == "Delete")
+				{
+					// selection key is path of item
+					var fileItem = _table.ItemsToDisplay.FirstOrDefault(x => x.Path == path);
+					if (fileItem != null)
+					{
+						var result = await DataProvider.DeleteAsync(fileItem, CancellationToken.None);
+						if(result.Success)
+						{
+							// refresh tree - parent node will already be selected
+							var node = _tree!.FindNode(fileItem.ParentPath);
+							if (node != null)
+							{
+								await _tree!.RefreshNodeAsync(node)!.ConfigureAwait(true);
+							}
+						}
+					}
 				}
 			}
 		}

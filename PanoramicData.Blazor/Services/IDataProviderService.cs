@@ -16,5 +16,13 @@ namespace PanoramicData.Blazor.Services
 		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 		/// <returns>A new DataResponse instance containing the result of the query.</returns>
 		Task<DataResponse<TItem>> GetDataAsync(DataRequest<TItem> request, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Requests that the item is deleted.
+		/// </summary>
+		/// <param name="item">The item to be deleted.</param>
+		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
+		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
+		Task<OperationResponse> DeleteAsync(TItem item, CancellationToken cancellationToken);
 	}
 }

@@ -12,7 +12,6 @@ namespace PanoramicData.Blazor
     public partial class PDTree<TItem> where TItem : class
     {
 		private TreeNode<TItem> _model = new TreeNode<TItem> { Text = "Root" };
-		private TreeNode<TItem>? _currentSelection;
 		private readonly Dictionary<string, TreeNode<TItem>> _items = new Dictionary<string, TreeNode<TItem>>();
 
 		/// <summary>
@@ -98,6 +97,11 @@ namespace PanoramicData.Blazor
 		public EventCallback<TreeNode<TItem>> NodeUpdated { get; set; }
 
 		/// <summary>
+		/// Gets the currently selected tree node.
+		/// </summary>
+		public TreeNode<TItem>? SelectedNode { get; private set; }
+
+		/// <summary>
 		/// Expands all the branch nodes in the tree.
 		/// </summary>
 		public void ExpandAll()
@@ -118,62 +122,134 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		/// <param name="item">The item to find and select.</param>
 		/// <remarks>Items are searched for by their key values.</remarks>
-		public async Task SelectItemAsync(TItem item)
+		public TreeNode<TItem>? FindNode(TItem item)
 		{
-			await SelectItemAsync(KeyField!(item).ToString()).ConfigureAwait(true);
+			if (KeyField != null)
+			{
+				var key = KeyField!(item).ToString();
+				return FindNode(key);
+			}
+			return null;
 		}
 
 		/// <summary>
-		/// Attempts to find and select the given item.
+		/// Attempts to find the node that represents the item with the specified key.
 		/// </summary>
-		/// <param name="key">The key of the item to find and select.</param>
-		public async Task SelectItemAsync(string key)
+		/// <param name="key">Key of the data item whose node to find.</param>
+		/// <returns>If found the TreeNode instance otherwise null.</returns>
+		public TreeNode<TItem>? FindNode(string key)
 		{
-			if (AllowSelection)
+			TreeNode<TItem>? node = null;
+			if (string.IsNullOrEmpty(key))
 			{
-				TreeNode<TItem>? node = null;
-				if (string.IsNullOrEmpty(key))
-				{
-					node = _model;
-				}
-				else
-				{
-					WalkTree((n) =>
-					{
-						if (n.Key == key)
-						{
-							node = n;
-							return false; // stop search
-					}
-						return true;
-					});
-				}
-				if (node != null)
-				{
-					await SelectNode(node).ConfigureAwait(true);
-				}
+				node = _model;
 			}
+			else
+			{
+				WalkTree((n) =>
+				{
+					if (n.Key == key)
+					{
+						node = n;
+						return false; // stop search
+					}
+					return true;
+				});
+			}
+			return node;
 		}
 
-		protected async override Task OnAfterRenderAsync(bool firstRender)
+		/// <summary>
+		/// Selects the given node.
+		/// </summary>
+		/// <param name="node">The node to select.</param>
+		public async Task SelectNode(TreeNode<TItem> node)
 		{
-			if (firstRender)
+			if (AllowSelection && node != SelectedNode)
 			{
-				// build initial model and notify listeners
-				var items = await GetDataAsync().ConfigureAwait(true);
-				_model = BuildModel(items);
-				// notify that node updated
-				await NodeUpdated.InvokeAsync(_model);
+				// clear current selection
+				if (SelectedNode != null)
+				{
+					SelectedNode.IsSelected = false;
+				}
+
+				// select new node
+				SelectedNode = node;
+				SelectedNode.IsSelected = true;
+
+				// ensure all parent nodes are expanded
+				var parentNode = SelectedNode.ParentNode;
+				while (parentNode != null)
+				{
+					parentNode.IsExpanded = true;
+					parentNode = parentNode.ParentNode;
+				}
+
+				// notify of change
+				await SelectionChange.InvokeAsync(SelectedNode).ConfigureAwait(true);
 				StateHasChanged();
 			}
 		}
 
-		protected override void OnParametersSet()
+		/// <summary>
+		/// Toggles the given nodes expanded state.
+		/// </summary>
+		/// <param name="node">The node to be expanded or collapsed.</param>
+		public async Task ToggleNodeIsExpandedAsync(TreeNode<TItem> node)
 		{
-			if (KeyField == null)
-				throw new PDTreeException("KeyField attribute is required.");
-			if (ParentKeyField == null)
-				throw new PDTreeException("ParentKeyField attribute is required.");
+			var wasExpanded = node.IsExpanded;
+
+			// if expanding and Nodes is null then request data
+			if (!node.Isleaf && !wasExpanded && node.Nodes == null)
+			{
+				// fetch direct child items
+				var key = KeyField!(node.Data!).ToString();
+				var items = await GetDataAsync(key).ConfigureAwait(true);
+				// add new nodes to existing node
+				node.Nodes = new List<TreeNode<TItem>>(); // indicates data fetched, even if no items returned
+				BuildModel(items);
+				// notify any listeners that new data fetched
+				await NodeUpdated.InvokeAsync(node).ConfigureAwait(true);
+			}
+
+			// expand / collapse and notify
+			node.IsExpanded = !wasExpanded;
+			if (wasExpanded)
+			{
+				await NodeCollapsed.InvokeAsync(node).ConfigureAwait(true);
+			}
+			else
+			{
+				await NodeExpanded.InvokeAsync(node).ConfigureAwait(true);
+			}
+		}
+
+		/// <summary>
+		/// Refreshes the given node, re-loading sub-nodes if applicable.
+		/// </summary>
+		/// <param name="node">The node to refresh.</param>
+		public async Task RefreshNodeAsync(TreeNode<TItem> node)
+		{
+			if (!node.Isleaf)
+			{
+				node.IsExpanded = false;
+				node.Nodes = null;
+				await ToggleNodeIsExpandedAsync(node).ConfigureAwait(true);
+			}
+		}
+
+		/// <summary>
+		/// Request to remove the specified node.
+		/// </summary>
+		/// <param name="node">The node to be removed.</param>
+		public async Task RemoveNodeAsync(TreeNode<TItem> node)
+		{
+			if (node?.ParentNode?.Nodes != null)
+			{
+				// remove node from parent and select parent
+				node.ParentNode.Nodes.Remove(node);
+				await SelectNode(node.ParentNode).ConfigureAwait(true);
+			}
 		}
 
 		/// <summary>
@@ -181,7 +257,7 @@ namespace PanoramicData.Blazor
 		/// or the function returns false.
 		/// </summary>
 		/// <param name="fn">Function to be called for each node. Returns false to stop walking.</param>
-		private void WalkTree(Func<TreeNode<TItem>, bool> fn)
+		public void WalkTree(Func<TreeNode<TItem>, bool> fn)
 		{
 			if (_model != null)
 			{
@@ -207,6 +283,27 @@ namespace PanoramicData.Blazor
 				}
 				return true;
 			}
+		}
+
+		protected async override Task OnAfterRenderAsync(bool firstRender)
+		{
+			if (firstRender)
+			{
+				// build initial model and notify listeners
+				var items = await GetDataAsync().ConfigureAwait(true);
+				_model = BuildModel(items);
+				// notify that node updated
+				await NodeUpdated.InvokeAsync(_model);
+				StateHasChanged();
+			}
+		}
+
+		protected override void OnParametersSet()
+		{
+			if (KeyField == null)
+				throw new PDTreeException("KeyField attribute is required.");
+			if (ParentKeyField == null)
+				throw new PDTreeException("ParentKeyField attribute is required.");
 		}
 
 		private async Task<IEnumerable<TItem>> GetDataAsync(string? key = null)
@@ -249,10 +346,10 @@ namespace PanoramicData.Blazor
 				{
 					throw new PDTreeException($"Items must supply a key value.");
 				}
-				if (_items.ContainsKey(key))
-				{
-					throw new PDTreeException($"An item with the key value '{key}' has already been added. Key values must be unique.");
-				}
+				//if (_items.ContainsKey(key))
+				//{
+				//	throw new PDTreeException($"An item with the key value '{key}' has already been added. Key values must be unique.");
+				//}
 
 				// create node
 				var node = new TreeNode<TItem>
@@ -288,69 +385,12 @@ namespace PanoramicData.Blazor
 				}
 
 				// store data item
-				_items.Add(key, node);
+				_items[key] = node;
 			}
 
 			return root.Nodes?.Count == 1
 				? root.Nodes[0]
 				: root;
-		}
-
-		internal async Task SelectNode(TreeNode<TItem> node)
-		{
-			if (AllowSelection && node != _currentSelection)
-			{
-				// clear current selection
-				if (_currentSelection != null)
-				{
-					_currentSelection.IsSelected = false;
-				}
-
-				// select new node
-				_currentSelection = node;
-				_currentSelection.IsSelected = true;
-
-				// ensure all parent nodes are expanded
-				var parentNode = _currentSelection.ParentNode;
-				while(parentNode != null)
-				{
-					parentNode.IsExpanded = true;
-					parentNode = parentNode.ParentNode;
-				}
-
-				// notify of change
-				await SelectionChange.InvokeAsync(_currentSelection).ConfigureAwait(true);
-				StateHasChanged();
-			}
-		}
-
-		public async Task ToggleNodeIsExpandedAsync(TreeNode<TItem> node)
-		{
-			var wasExpanded = node.IsExpanded;
-
-			// if expanding and Nodes is null then request data
-			if(!node.Isleaf && !wasExpanded && node.Nodes == null)
-			{
-				// fetch direct child items
-				var key = KeyField!(node.Data!).ToString();
-				var items = await GetDataAsync(key).ConfigureAwait(true);
-				// add new nodes to existing node
-				node.Nodes = new List<TreeNode<TItem>>(); // indicates data fetched, even if no items returned
-				BuildModel(items);
-				// notify any listeners that new data fetched
-				await NodeUpdated.InvokeAsync(node).ConfigureAwait(true);
-			}
-
-			// expand / collapse and notify
-			node.IsExpanded = !wasExpanded;
-			if(wasExpanded)
-			{
-				await NodeCollapsed.InvokeAsync(node).ConfigureAwait(true);
-			}
-			else
-			{
-				await NodeExpanded.InvokeAsync(node).ConfigureAwait(true);
-			}
 		}
 	}
 }
