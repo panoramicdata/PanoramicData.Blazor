@@ -4,7 +4,7 @@
 
 		<PDSplitPanel Size="1">
 
-			<PDContextMenu Items="_treeContextItems" BeforeShow="OnTreeBeforeShowContextMenu" ItemClick="OnTreeContextMenuItemClick">
+			<PDContextMenu Items="TreeContextItems" BeforeShow="OnTreeBeforeShowContextMenu" ItemClick="OnTreeContextMenuItemClick">
 
 				<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true"
 						KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
@@ -23,7 +23,7 @@
 
 		<PDSplitPanel Size="3">
 
-			<PDContextMenu Items="_tableContextItems" BeforeShow="OnTableBeforeShowContextMenu" ItemClick="OnTableContextMenuItemClick">
+			<PDContextMenu Items="TableContextItems" BeforeShow="OnTableBeforeShowContextMenu" ItemClick="OnTableContextMenuItemClick">
 
 				<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
 						 SelectionMode="TableSelectionMode.Single" KeyField="x => x.Path"

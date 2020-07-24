@@ -121,7 +121,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		/// <remarks>The action allows the items to be modified by the calling application.</remarks>
 		[Parameter]
-		public Action<List<TItem>> ItemsLoaded { get; set; }
+		public Action<List<TItem>>? ItemsLoaded { get; set; }
 
 		/// <summary>
 		/// Gets a full list of all columns.
@@ -204,8 +204,6 @@ namespace PanoramicData.Blazor
 			{
 				throw new PDTableException("KeyField attribute must be specified when enabling selection.");
 			}
-
-			System.Diagnostics.Debug.WriteLine($"{DateTime.Now:HH:mm:ss} OnParametersSetAsync");
 			await RefreshAsync().ConfigureAwait(true);
 		}
 

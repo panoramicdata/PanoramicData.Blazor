@@ -10,48 +10,61 @@ namespace PanoramicData.Blazor
 	public partial class PDFileExplorer
     {
 		private PDTree<FileExplorerItem>? _tree;
-		private List<MenuItem> _treeContextItems = new List<MenuItem>();
-		private List<MenuItem> _tableContextItems = new List<MenuItem>();
-		private TreeNode<FileExplorerItem>? _selectedNode;
 		private PDTable<FileExplorerItem>? _table;
+		private TreeNode<FileExplorerItem>? _selectedNode;
 		private bool _firstLoad = true;
 		public string FolderPath = "";
 
 		/// <summary>
-		/// Gets or sets the IDataProviderService instance to use to fetch data.
+		/// Sets the IDataProviderService instance to use to fetch data.
 		/// </summary>
 		[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
-		public List<PDColumnConfig> ColumnConfig = new List<PDColumnConfig>
+		/// <summary>
+		/// Sets the Tree context menu items.
+		/// </summary>
+		[Parameter]
+		public List<MenuItem> TreeContextItems { get; set; } = new List<MenuItem>
+			{
+				new MenuItem { Text = "Rename", IconCssClass = "fas fa-pencil-alt" },
+				new MenuItem { Text = "New Folder", IconCssClass = "fas fa-plus" },
+				new MenuItem { IsSeparator = true },
+				new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" }
+			};
+
+		/// <summary>
+		/// Sets the Table context menu items.
+		/// </summary>
+		[Parameter]
+		public List<MenuItem> TableContextItems { get; set; } = new List<MenuItem>
+			{
+				new MenuItem { Text = "Open", IconCssClass = "fas fa-folder-open" },
+				new MenuItem { Text = "Download", IconCssClass = "fas fa-file-download" },
+				new MenuItem { IsSeparator = true },
+				new MenuItem { Text = "Rename", IconCssClass = "fas fa-pencil-alt" },
+				new MenuItem { IsSeparator = true },
+				new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" }
+			};
+
+		/// <summary>
+		/// Sets the Table column configuration.
+		/// </summary>
+		[Parameter]
+		public List<PDColumnConfig> ColumnConfig { get; set; } = new List<PDColumnConfig>
 			{
 				new PDColumnConfig { Id = "Icon", Title = "" },
 				new PDColumnConfig { Id = "Name", Title = "Name" },
 				new PDColumnConfig { Id = "Type", Title = "Type" },
 				new PDColumnConfig { Id = "Size", Title = "Size" },
-				//new PDColumnConfig { Id = "Created", Title = "Created" },
 				new PDColumnConfig { Id = "Modified", Title = "Modified" }
 			};
 
-		protected override void OnInitialized()
-		{
-			_treeContextItems.Add(new MenuItem { Text = "Rename", IconCssClass = "fas fa-pencil-alt" });
-			_treeContextItems.Add(new MenuItem { Text = "New Folder", IconCssClass = "fas fa-plus" });
-			_treeContextItems.Add(new MenuItem { IsSeparator = true });
-			_treeContextItems.Add(new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" });
-
-			_tableContextItems.Add(new MenuItem { Text = "Open", IconCssClass = "fas fa-folder-open" });
-			_tableContextItems.Add(new MenuItem { Text = "Download", IconCssClass = "fas fa-file-download" });
-			_tableContextItems.Add(new MenuItem { IsSeparator = true });
-			_tableContextItems.Add(new MenuItem { Text = "Rename", IconCssClass = "fas fa-pencil-alt" });
-			//_tableContextItems.Add(new MenuItem { Text = "New Folder", IconCssClass = "fas fa-plus" });
-			_tableContextItems.Add(new MenuItem { IsSeparator = true });
-			_tableContextItems.Add(new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" });
-		}
-
+		/// <summary>
+		/// Filters file items out of tree and shows root items in table on tree first load.
+		/// </summary>
 		private async Task OnTreeItemsLoaded(List<FileExplorerItem> items)
 		{
 		 	items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
-			//
 			if(_firstLoad)
 			{
 				_firstLoad = false;
@@ -78,7 +91,6 @@ namespace PanoramicData.Blazor
 			_selectedNode = node;
 			if (node != null && node.Data != null)
 			{
-				//await SelectFolder(node.Data.Path);
 				FolderPath = node.Data.Path;
 				_table!.Selection.Clear();
 				await _table!.RefreshAsync();
@@ -89,8 +101,8 @@ namespace PanoramicData.Blazor
 		{
 			if (_selectedNode?.Data != null)
 			{
-				_treeContextItems.Single(x => x.Text == "Delete").IsDisabled = _selectedNode.Data.ParentPath == string.Empty;
-				_treeContextItems.Single(x => x.Text == "Rename").IsDisabled = _selectedNode.Data.ParentPath == string.Empty;
+				TreeContextItems.Single(x => x.Text == "Delete").IsDisabled = _selectedNode.Data.ParentPath == string.Empty;
+				TreeContextItems.Single(x => x.Text == "Rename").IsDisabled = _selectedNode.Data.ParentPath == string.Empty;
 			}
 		}
 
@@ -100,35 +112,37 @@ namespace PanoramicData.Blazor
 
 		private void OnTableItemsLoaded(List<FileExplorerItem> items)
 		{
-			//if (_selectedNode != null && _selectedNode.ParentNode != null && _selectedNode?.Data != null)
-			//{
-			  items.Insert(0, new FileExplorerItem { Path = "..", ParentPath = _selectedNode?.Data?.Path ?? "", EntryType = FileExplorerItemType.Directory });
-			//}
+			items.Insert(0, new FileExplorerItem { Path = "..", ParentPath = _selectedNode?.Data?.Path ?? "", EntryType = FileExplorerItemType.Directory });
 		}
 
 		private async Task OnTableDoubleClick(FileExplorerItem item)
 		{
 			if (item.EntryType == FileExplorerItemType.Directory)
 			{
-				if (item.Path == "..")
+				await OpenFolder(item.Path).ConfigureAwait(true);
+			}
+		}
+
+		private async Task OpenFolder(string path)
+		{
+			if (path == "..")
+			{
+				if (_selectedNode?.ParentNode != null)
 				{
-					if (_selectedNode?.ParentNode != null)
+					var parentPath = _selectedNode?.ParentNode!.Data?.Path;
+					if (parentPath != null)
 					{
-						var parentPath = _selectedNode?.ParentNode!.Data?.Path;
-						if (parentPath != null)
-						{
-							await _tree!.SelectItemAsync(parentPath);
-						}
+						await _tree!.SelectItemAsync(parentPath).ConfigureAwait(true);
 					}
 				}
-				else
+			}
+			else
+			{
+				if (_selectedNode?.IsExpanded == false)
 				{
-					if (!_selectedNode.IsExpanded)
-					{
-						await _tree!.ToggleNodeIsExpandedAsync(_selectedNode);
-					}
-					await _tree!.SelectItemAsync(item.Path);
+					await _tree!.ToggleNodeIsExpandedAsync(_selectedNode).ConfigureAwait(true);
 				}
+				await _tree!.SelectItemAsync(path).ConfigureAwait(true);
 			}
 		}
 
@@ -142,8 +156,8 @@ namespace PanoramicData.Blazor
 			var selectedPath = _table!.Selection[0];
 			if(selectedPath == "..")
 			{
-				_tableContextItems.Single(x => x.Text == "Download").IsVisible = false;
-				_tableContextItems.ForEach(x => x.IsDisabled = x.Text == "Open" ? false : true);
+				TableContextItems.Single(x => x.Text == "Download").IsVisible = false;
+				TableContextItems.ForEach(x => x.IsDisabled = x.Text != "Open");
 				return;
 			}
 			var item = _table.ItemsToDisplay.Single(x => x.Path == selectedPath);
@@ -152,21 +166,28 @@ namespace PanoramicData.Blazor
 				args.Cancel = true;
 				return;
 			}
-			_tableContextItems.ForEach(x => x.IsDisabled = false);
+			TableContextItems.ForEach(x => x.IsDisabled = false);
 			if(item.EntryType == FileExplorerItemType.Directory)
 			{
-				_tableContextItems.Single(x => x.Text == "Open").IsVisible = true;
-				_tableContextItems.Single(x => x.Text == "Download").IsVisible = false;
+				TableContextItems.Single(x => x.Text == "Open").IsVisible = true;
+				TableContextItems.Single(x => x.Text == "Download").IsVisible = false;
 			}
 			else
 			{
-				_tableContextItems.Single(x => x.Text == "Download").IsVisible = true;
-				_tableContextItems.Single(x => x.Text == "Open").IsVisible = false;
+				TableContextItems.Single(x => x.Text == "Download").IsVisible = true;
+				TableContextItems.Single(x => x.Text == "Open").IsVisible = false;
 			}
 		}
 
-		private void OnTableContextMenuItemClick(MenuItem item)
+		private async Task OnTableContextMenuItemClick(MenuItem item)
 		{
+			if (_table!.Selection.Count == 1)
+			{
+				if (item.Text == "Open")
+				{
+					await OpenFolder(_table!.Selection[0]).ConfigureAwait(true);
+				}
+			}
 		}
 	}
 }
