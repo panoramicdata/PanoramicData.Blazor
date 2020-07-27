@@ -5,10 +5,11 @@
 
 <h3>All items loaded up front example</h3>
 
-<PDTree @ref="_tree" DataProvider="_dataProvider"
+<PDTree @ref="_tree" DataProvider="_dataProvider" AllowSelection="true" AllowEdit="true"
 		TItem="FileExplorerItem" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath"
-		ShowLines="_showLines" ShowRoot="_showRoot" AllowSelection="true"
-		SelectionChange="SelectionChangeHandler" NodeExpanded="NodeExpandedHandler" NodeCollapsed="NodeCollapsedHandler" >
+		ShowLines="_showLines" ShowRoot="_showRoot"
+		SelectionChange="SelectionChangeHandler" NodeExpanded="NodeExpandedHandler" NodeCollapsed="NodeCollapsedHandler"
+		BeforeEdit="BeforeEditHandler" AfterEdit="AfterEditHandler">
 	<NodeTemplate>
 		@if (context?.Data?.EntryType == FileExplorerItemType.File)
 		{
@@ -29,6 +30,7 @@
 <button class="btn btn-secondary" @onclick="() => _showRoot = !_showRoot">@(_showRoot ? "Hide" : "Show") Root</button>
 <button class="btn btn-secondary" @onclick="() => _tree?.ExpandAll()">Expand All</button>
 <button class="btn btn-secondary" @onclick="() => _tree?.CollapseAll()">Collapse All</button>
+<button class="btn btn-secondary" @onclick="() => _tree?.BeginEdit()">Begin Edit</button>
 
 <br />
 

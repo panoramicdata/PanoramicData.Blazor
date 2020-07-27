@@ -11,15 +11,21 @@
 		{
 			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
 		}
-		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" @onmousedown="OnContentClickAsync"
-			 @oncontextmenu="@(async (a) => await ContextMenuHandler(a))" @oncontextmenu:preventDefault>
-			@if (NodeTemplate == null)
+		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" @onmousedown="OnContentClickAsync">
+			@if (Node?.IsEditing == true)
 			{
-				<span>@Node?.Text</span>
+				<input id="@($"PDTNE{Node.Id}")" type="text" class="form-control" @bind="@Node.EditText" @onblur="OnEditBlur" />
 			}
 			else
 			{
-				@NodeTemplate(Node);
+				@if (NodeTemplate == null)
+				{
+					<span>@Node?.Text</span>
+				}
+				else
+				{
+					@NodeTemplate(Node);
+				}
 			}
 		</div>
 	</div>
@@ -33,11 +39,11 @@
 				{
 					if (NodeTemplate == null)
 					{
-						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" />
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" />
 					}
 					else
 					{
-						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines">
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit">
 							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 						</PDTreeNode>
 					}

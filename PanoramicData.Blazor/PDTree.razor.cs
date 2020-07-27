@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -57,44 +56,53 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets whether selection is allowed.
 		/// </summary>
-		[Parameter] public bool AllowSelection { get; set; } = false;
+		[Parameter] public bool AllowSelection { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether node edit is allowed.
+		/// </summary>
+		[Parameter] public bool AllowEdit { get; set; }
 
 		/// <summary>
 		/// Gets or sets the template to render for each node.
 		/// </summary>
-		[Parameter]
-		public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
+		[Parameter] public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
 
 		/// <summary>
 		/// Gets or sets an event callback raise whenever the selection changes.
 		/// </summary>
-		[Parameter]
-		public EventCallback<TreeNode<TItem>> SelectionChange { get; set; }
+		[Parameter] public EventCallback<TreeNode<TItem>> SelectionChange { get; set; }
 
 		/// <summary>
 		/// Callback fired whenever the user expands a node.
 		/// </summary>
-		[Parameter]
-		public EventCallback<TreeNode<TItem>> NodeExpanded { get; set; }
+		[Parameter] public EventCallback<TreeNode<TItem>> NodeExpanded { get; set; }
 
 		/// <summary>
 		/// Callback fired whenever the user collapses a node.
 		/// </summary>
-		[Parameter]
-		public EventCallback<TreeNode<TItem>> NodeCollapsed { get; set; }
+		[Parameter] public EventCallback<TreeNode<TItem>> NodeCollapsed { get; set; }
 
 		/// <summary>
 		/// Callback fired whenever data items are loaded.
 		/// </summary>
 		/// <remarks>The callback allows the items to be modified by the calling application.</remarks>
-		[Parameter]
-		public EventCallback<List<TItem>> ItemsLoaded { get; set; }
+		[Parameter] public EventCallback<List<TItem>> ItemsLoaded { get; set; }
 
 		/// <summary>
 		/// Callback fired whenever a tree node is updated.
 		/// </summary>
-		[Parameter]
-		public EventCallback<TreeNode<TItem>> NodeUpdated { get; set; }
+		[Parameter] public EventCallback<TreeNode<TItem>> NodeUpdated { get; set; }
+
+		/// <summary>
+		/// Callback fired before a node edit begins.
+		/// </summary>
+		[Parameter] public EventCallback<TreeNodeBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
+
+		/// <summary>
+		/// Callback fired after a node edit ends.
+		/// </summary>
+		[Parameter] public EventCallback<TreeNodeAfterEditEventArgs<TItem>> AfterEdit { get; set; }
 
 		/// <summary>
 		/// Gets the currently selected tree node.
@@ -285,6 +293,27 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		/// <summary>
+		/// Places the currently selected node into edit mode.
+		/// </summary>
+		public async Task BeginEdit()
+		{
+			if (AllowEdit && SelectedNode != null)
+			{
+				// commit any other edits
+				WalkTree((x) => { x.CommitEdit(); return true; });
+
+				// notify and allow cancel
+				var args = new TreeNodeBeforeEditEventArgs<TItem>(SelectedNode);
+				await BeforeEdit.InvokeAsync(args).ConfigureAwait(true);
+				if (!args.Cancel)
+				{
+					SelectedNode.BeginEdit();
+					StateHasChanged();
+				}
+			}
+		}
+
 		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
 			if (firstRender)
@@ -391,6 +420,11 @@ namespace PanoramicData.Blazor
 			return root.Nodes?.Count == 1
 				? root.Nodes[0]
 				: root;
+		}
+
+		private async Task OnAfterEdit(TreeNodeAfterEditEventArgs<TItem> args)
+		{
+			await AfterEdit.InvokeAsync(args).ConfigureAwait(true);
 		}
 	}
 }

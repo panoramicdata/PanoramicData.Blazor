@@ -42,3 +42,31 @@ function hideMenu(menuId) {
 	var menu = document.getElementById(menuId);
 	menu.classList.remove("show");
 }
+
+function focus(id) {
+	var node = document.getElementById(id);
+	if (node && node.focus) {
+		node.focus();
+	}
+}
+
+function selectText(id, start, end) {
+	var node = document.getElementById(id);
+	if (!start) start = 0;
+	if (!end) end = node.value.length;
+	if (node.createTextRange) {
+		var selRange = node.createTextRange();
+		selRange.collapse(true);
+		selRange.moveStart('character', start);
+		selRange.moveEnd('character', end);
+		selRange.select();
+		node.focus();
+	} else if (node.setSelectionRange) {
+		node.focus();
+		node.setSelectionRange(start, end);
+	} else if (typeof node.selectionStart != 'undefined') {
+		node.selectionStart = start;
+		node.selectionEnd = end;
+		node.focus();
+	}
+}

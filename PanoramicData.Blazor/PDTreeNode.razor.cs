@@ -1,11 +1,13 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDTreeNode<TItem> where TItem : class
-    {
+	{
+		[Inject] public IJSRuntime? JSRuntime { get; set; }
+
 		/// <summary>
 		/// The parent PDTable instance.
 		/// </summary>
@@ -25,8 +27,25 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets the template to render.
 		/// </summary>
-		[Parameter]
-		public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
+		[Parameter] public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
+
+		/// <summary>
+		/// Event raised at the end of an edit.
+		/// </summary>
+		[Parameter] public EventCallback<TreeNodeAfterEditEventArgs<TItem>> AfterEdit { get; set; }
+
+		protected async override Task OnAfterRenderAsync(bool firstRender)
+		{
+			if (Node != null)
+			{
+				// focus and select text in edit box after first rendered
+				if (Node.IsEditing && Node.BeginEditEvent.WaitOne(0))
+				{
+					await JSRuntime.InvokeVoidAsync("selectText", $"PDTNE{Node.Id}", 0, Node.Text.Length).ConfigureAwait(true);
+					Node.BeginEditEvent.Reset();
+				}
+			}
+		}
 
 		private async Task OnContentClickAsync()
 		{
@@ -44,8 +63,28 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task ContextMenuHandler(MouseEventArgs args)
+		private async Task OnEditBlur()
 		{
+			if(Node != null)
+			{
+				// notify and allow cancel
+				var args = new TreeNodeAfterEditEventArgs<TItem>(Node, Node.Text, Node.EditText);
+				await AfterEdit.InvokeAsync(args).ConfigureAwait(true);
+				if (args.Cancel)
+				{
+					Node.CancelEdit();
+				}
+				else
+				{
+					Node.EditText = args.NewValue; // application my of altered
+					Node.CommitEdit();
+				}
+			}
+		}
+
+		private async Task OnAfterEdit(TreeNodeAfterEditEventArgs<TItem> args)
+		{
+			await AfterEdit.InvokeAsync(args).ConfigureAwait(true);
 		}
 	}
 }

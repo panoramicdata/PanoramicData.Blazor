@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 
 namespace PanoramicData.Blazor
 {
@@ -7,6 +8,10 @@ namespace PanoramicData.Blazor
 	/// </summary>
 	public class TreeNode<T> where T : class
 	{
+		private static int _idSequence;
+
+		internal int Id { get; }
+
 		/// <summary>
 		/// Gets or sets the unique identifier for this node.
 		/// </summary>
@@ -48,5 +53,52 @@ namespace PanoramicData.Blazor
 		/// <Remarks>When IsLeaf is false and this property is null then it is considered unloaded.
 		/// This allows the concept of on-demand / lazy loading of sub-nodes.</Remarks>
 		public List<TreeNode<T>>? Nodes { get; set; }
+
+		internal string EditText { get; set; } = string.Empty;
+
+		internal ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
+
+		/// <summary>
+		/// Gets whether this node is currently being edited.
+		/// </summary>
+		public bool IsEditing { get; private set; }
+
+		public TreeNode()
+		{
+			Id = ++_idSequence;
+		}
+
+		internal void BeginEdit()
+		{
+			EditText = Text;
+			IsEditing = true;
+			BeginEditEvent.Set();
+		}
+
+		internal void CancelEdit()
+		{
+			if (IsEditing)
+			{
+				EditText = Text;
+				IsEditing = false;
+			}
+		}
+
+		internal void CommitEdit()
+		{
+			if (IsEditing)
+			{
+				// validate new text
+				if (string.IsNullOrWhiteSpace(EditText))
+				{
+					CancelEdit();
+				}
+				else
+				{
+					Text = EditText;
+					IsEditing = false;
+				}
+			}
+		}
 	}
 }
