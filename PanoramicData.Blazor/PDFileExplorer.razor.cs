@@ -61,6 +61,16 @@ namespace PanoramicData.Blazor
 			};
 
 		/// <summary>
+		/// Event raised whenever the user clicks on a context menu item from the tree.
+		/// </summary>
+		[Parameter] public EventCallback<MenuItemEventArgs> TreeContextMenuClick { get; set; }
+
+		/// <summary>
+		/// Event raised whenever the user clicks on a context menu item from the table.
+		/// </summary>
+		[Parameter] public EventCallback<MenuItemEventArgs> TableContextMenuClick { get; set; }
+
+		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
 		/// </summary>
 		private async Task OnTreeItemsLoaded(List<FileExplorerItem> items)
@@ -109,14 +119,20 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTreeContextMenuItemClick(MenuItem item)
 		{
-			if (_tree?.SelectedNode?.Data != null)
+			// notify application and allow cancel
+			var args = new MenuItemEventArgs(item);
+			await TreeContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
+			if (!args.Cancel)
 			{
-				if (item.Text == "Delete")
+				if (_tree?.SelectedNode?.Data != null)
 				{
-					var result = await DataProvider.DeleteAsync(_tree.SelectedNode.Data, CancellationToken.None).ConfigureAwait(true);
-					if(result.Success)
+					if (item.Text == "Delete")
 					{
-						await _tree.RemoveNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
+						var result = await DataProvider.DeleteAsync(_tree.SelectedNode.Data, CancellationToken.None).ConfigureAwait(true);
+						if (result.Success)
+						{
+							await _tree.RemoveNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
+						}
 					}
 				}
 			}
@@ -195,25 +211,31 @@ namespace PanoramicData.Blazor
 		{
 			if (_table!.Selection.Count == 1)
 			{
-				var path = _table!.Selection[0];
-				if (menuItem.Text == "Open")
+				// notify application and allow cancel
+				var args = new MenuItemEventArgs(menuItem);
+				await TableContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
+				if (!args.Cancel)
 				{
-					await OpenFolder(path).ConfigureAwait(true);
-				}
-				else if (menuItem.Text == "Delete")
-				{
-					// selection key is path of item
-					var fileItem = _table.ItemsToDisplay.FirstOrDefault(x => x.Path == path);
-					if (fileItem != null)
+					var path = _table!.Selection[0];
+					if (menuItem.Text == "Open")
 					{
-						var result = await DataProvider.DeleteAsync(fileItem, CancellationToken.None);
-						if(result.Success)
+						await OpenFolder(path).ConfigureAwait(true);
+					}
+					else if (menuItem.Text == "Delete")
+					{
+						// selection key is path of item
+						var fileItem = _table.ItemsToDisplay.FirstOrDefault(x => x.Path == path);
+						if (fileItem != null)
 						{
-							// refresh tree - parent node will already be selected
-							var node = _tree!.FindNode(fileItem.ParentPath);
-							if (node != null)
+							var result = await DataProvider.DeleteAsync(fileItem, CancellationToken.None);
+							if (result.Success)
 							{
-								await _tree!.RefreshNodeAsync(node)!.ConfigureAwait(true);
+								// refresh tree - parent node will already be selected
+								var node = _tree!.FindNode(fileItem.ParentPath);
+								if (node != null)
+								{
+									await _tree!.RefreshNodeAsync(node)!.ConfigureAwait(true);
+								}
 							}
 						}
 					}
