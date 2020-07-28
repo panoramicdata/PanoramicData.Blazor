@@ -85,5 +85,17 @@ namespace PanoramicData.Blazor.Web.Data
 		{
 			return new OperationResponse { ErrorMessage = "Operation not supported" };
 		}
+
+		/// <summary>
+		/// Requests the given item is updated by applying the given delta.
+		/// </summary>
+		/// <param name="item">The original item to be updated.</param>
+		/// <param name="delta">An anonymous object with new property values.</param>
+		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
+		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
+		public async Task<OperationResponse> UpdateAsync(TestRow item, object delta, CancellationToken cancellationToken)
+		{
+			return new OperationResponse { ErrorMessage = "Operation not supported" };
+		}
 	}
 }

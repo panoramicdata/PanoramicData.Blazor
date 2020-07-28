@@ -7,20 +7,20 @@
 			{
 				@if (NodeTemplate == null)
 				{
-					<PDTreeNode TItem="TItem" Node="_model" ShowLines="ShowLines" AfterEdit="OnAfterEdit" />
+					<PDTreeNode TItem="TItem" Node="RootNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" />
 				}
 				else
 				{
-					<PDTreeNode TItem="TItem" Node="_model" ShowLines="ShowLines" AfterEdit="OnAfterEdit">
+					<PDTreeNode TItem="TItem" Node="RootNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit">
 						<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 					</PDTreeNode>
 				}
 			}
 			else
 			{
-				if (_model.Nodes != null)
+				if (RootNode.Nodes != null)
 				{
-					foreach (var subNode in _model.Nodes)
+					foreach (var subNode in RootNode.Nodes)
 					{
 						@if (NodeTemplate == null)
 						{

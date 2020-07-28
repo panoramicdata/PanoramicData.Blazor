@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor.Web.Data
 {
@@ -20,7 +22,6 @@ namespace PanoramicData.Blazor.Web.Data
 		{
 			// generate test data
 			_testData.Add(new FileExplorerItem { Path = "My Computer" });
-
 			_testData.Add(new FileExplorerItem { Path = @"C:\", ParentPath = "My Computer" });
 			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData", ParentPath = @"C:\" });
 			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\Acme", ParentPath = @"C:\ProgramData" });
@@ -32,7 +33,6 @@ namespace PanoramicData.Blazor.Web.Data
 			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\b76jba.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
 			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\p21wsa.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
 			_testData.Add(new FileExplorerItem { Path = @"C:\Users", ParentPath = @"C:\" });
-
 			_testData.Add(new FileExplorerItem { Path = @"D:\", ParentPath = "My Computer" });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Data", ParentPath = @"D:\" });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup", ParentPath = @"D:\Data" });
@@ -110,6 +110,59 @@ namespace PanoramicData.Blazor.Web.Data
 				else
 				{
 					result.ErrorMessage = "Path not found";
+				}
+			}).ConfigureAwait(false);
+			return result;
+		}
+
+		/// <summary>
+		/// Requests the given item is updated by applying the given delta.
+		/// </summary>
+		/// <param name="item">The original item to be updated.</param>
+		/// <param name="delta">An anonymous object with new property values.</param>
+		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
+		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
+		public async Task<OperationResponse> UpdateAsync(FileExplorerItem item, object delta, CancellationToken cancellationToken)
+		{
+			var result = new OperationResponse();
+			await Task.Run(() =>
+			{
+				// find original item
+				var existingItem = _testData.FirstOrDefault(x => x.Path == item.Path);
+				if(existingItem == null)
+				{
+					result.ErrorMessage = "Item not found";
+				}
+				else
+				{
+					// only path updates supported
+					var pathProp = delta.GetType().GetProperty("Path");
+					if(pathProp == null)
+					{
+						result.ErrorMessage = "Only Path property update supported";
+					}
+					else
+					{
+						var newPath = pathProp.GetValue(delta)?.ToString();
+						if(string.IsNullOrWhiteSpace(newPath))
+						{
+							result.ErrorMessage = "Invalid value for Path property";
+						}
+						else
+						{
+							var previousPath = existingItem.Path;
+							existingItem.Path = newPath;
+							if(existingItem.EntryType == FileExplorerItemType.Directory)
+							{
+								_testData.ForEach(x =>
+								{
+									x.Path = x.Path.ReplacePathPrefix(previousPath, newPath);
+									x.ParentPath = x.ParentPath.ReplacePathPrefix(previousPath, newPath);
+								});
+							}
+							result.Success = true;
+						}
+					}
 				}
 			}).ConfigureAwait(false);
 			return result;

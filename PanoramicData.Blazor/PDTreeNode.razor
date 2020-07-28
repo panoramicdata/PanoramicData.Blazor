@@ -14,7 +14,7 @@
 		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" @onmousedown="OnContentClickAsync">
 			@if (Node?.IsEditing == true)
 			{
-				<input id="@($"PDTNE{Node.Id}")" type="text" class="form-control" @bind="@Node.EditText" @onblur="OnEditBlur" />
+				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit form-control" @bind="@Node.EditText" @onblur="OnEditBlur" />
 			}
 			else
 			{

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace PanoramicData.Blazor
@@ -59,14 +60,60 @@ namespace PanoramicData.Blazor
 		internal ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
 		/// <summary>
-		/// Gets whether this node is currently being edited.
+		/// Initializes a new instance of the TreeNode class.
 		/// </summary>
-		public bool IsEditing { get; private set; }
-
 		public TreeNode()
 		{
 			Id = ++_idSequence;
 		}
+
+		/// <summary>
+		/// Attempts to find the node with the specified key.
+		/// </summary>
+		/// <param name="key">Key of the node to find.</param>
+		/// <returns>If found the TreeNode instance otherwise null.</returns>
+		public TreeNode<T>? Find(string key)
+		{
+			TreeNode<T>? node = null;
+			Walk((n) =>
+			{
+				if (n.Key == key)
+				{
+					node = n;
+					return false; // stop search
+				}
+				return true;
+			});
+			return node;
+		}
+
+		/// <summary>
+		/// Function applied to this node and all child nodes or until the function returns false.
+		/// </summary>
+		/// <param name="fn">Function to be called for each node. Returns false to stop walking.</param>
+		public bool Walk(Func<TreeNode<T>, bool> fn)
+		{
+			if (!fn(this))
+			{
+				return false;
+			}
+			else if (Nodes != null)
+			{
+				foreach (var subNode in Nodes)
+				{
+					if (!subNode.Walk(fn))
+					{
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Gets whether this node is currently being edited.
+		/// </summary>
+		public bool IsEditing { get; private set; }
 
 		internal void BeginEdit()
 		{

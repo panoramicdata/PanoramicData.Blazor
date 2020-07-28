@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
+using System.Threading;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
-using System.Threading;
+using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
 {
@@ -50,8 +52,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets the Table column configuration.
 		/// </summary>
-		[Parameter]
-		public List<PDColumnConfig> ColumnConfig { get; set; } = new List<PDColumnConfig>
+		[Parameter] public List<PDColumnConfig> ColumnConfig { get; set; } = new List<PDColumnConfig>
 			{
 				new PDColumnConfig { Id = "Icon", Title = "" },
 				new PDColumnConfig { Id = "Name", Title = "Name" },
@@ -120,7 +121,7 @@ namespace PanoramicData.Blazor
 		private async Task OnTreeContextMenuItemClick(MenuItem item)
 		{
 			// notify application and allow cancel
-			var args = new MenuItemEventArgs(item);
+			var args = new MenuItemEventArgs(_tree!, item);
 			await TreeContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
 			if (!args.Cancel)
 			{
@@ -134,6 +135,45 @@ namespace PanoramicData.Blazor
 							await _tree.RemoveNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
 						}
 					}
+					else if (item.Text == "Rename")
+					{
+						await _tree.BeginEdit().ConfigureAwait(true);
+					}
+				}
+			}
+		}
+
+		private async Task OnTreeAfterEdit(TreeNodeAfterEditEventArgs<FileExplorerItem> args)
+		{
+			if(string.IsNullOrWhiteSpace(args.NewValue))
+			{
+				args.Cancel = true;
+			}
+			else if (_tree?.SelectedNode?.Data != null)
+			{
+				var item = _tree.SelectedNode.Data;
+				var previousPath = item.Path;
+				var newPath = Path.Combine(item.ParentPath, args.NewValue);
+				// inform data provider
+				var result = await DataProvider.UpdateAsync(_tree.SelectedNode.Data, new { Path = newPath }, CancellationToken.None).ConfigureAwait(true);
+				if(result.Success)
+				{
+					// synchronize existing node paths for tree and table
+					_tree.RootNode.Walk((x) => {
+						if (x.Data != null)
+						{
+							x.Key = x.Key.ReplacePathPrefix(previousPath, newPath);
+							x.Data.Path = x.Data.Path.ReplacePathPrefix(previousPath, newPath);
+							x.Data.ParentPath = x.Data.ParentPath.ReplacePathPrefix(previousPath, newPath);
+						}
+						return true;
+					});
+					_table!.ItemsToDisplay.ToList().ForEach(x =>
+					{
+						x.Path = x.Path.ReplacePathPrefix(previousPath, newPath);
+						x.ParentPath = x.ParentPath.ReplacePathPrefix(previousPath, newPath);
+					});
+					await _tree.SelectNode(_tree.SelectedNode);
 				}
 			}
 		}
@@ -166,7 +206,7 @@ namespace PanoramicData.Blazor
 				{
 					await _tree!.ToggleNodeIsExpandedAsync(_selectedNode).ConfigureAwait(true);
 				}
-				var node = _tree!.FindNode(path);
+				var node = _tree!.RootNode.Find(path);
 				if (node != null)
 				{
 					await _tree!.SelectNode(node).ConfigureAwait(true);
@@ -212,7 +252,7 @@ namespace PanoramicData.Blazor
 			if (_table!.Selection.Count == 1)
 			{
 				// notify application and allow cancel
-				var args = new MenuItemEventArgs(menuItem);
+				var args = new MenuItemEventArgs(_table, menuItem);
 				await TableContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
 				if (!args.Cancel)
 				{
@@ -231,7 +271,7 @@ namespace PanoramicData.Blazor
 							if (result.Success)
 							{
 								// refresh tree - parent node will already be selected
-								var node = _tree!.FindNode(fileItem.ParentPath);
+								var node = _tree!.RootNode.Find(fileItem.ParentPath);
 								if (node != null)
 								{
 									await _tree!.RefreshNodeAsync(node)!.ConfigureAwait(true);

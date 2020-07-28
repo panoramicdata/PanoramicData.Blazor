@@ -10,8 +10,10 @@ namespace PanoramicData.Blazor
 {
     public partial class PDTree<TItem> where TItem : class
     {
-		private TreeNode<TItem> _model = new TreeNode<TItem> { Text = "Root" };
-		private readonly Dictionary<string, TreeNode<TItem>> _items = new Dictionary<string, TreeNode<TItem>>();
+		/// <summary>
+		/// Gets or sets the root TreeNode instance.
+		/// </summary>
+		public TreeNode<TItem> RootNode { get; set; } = new TreeNode<TItem> { Text = "Root" };
 
 		/// <summary>
 		/// Gets or sets the IDataProviderService instance to use to fetch data.
@@ -114,7 +116,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public void ExpandAll()
 		{
-			WalkTree((n) => { n.IsExpanded = !n.Isleaf; return true; });
+			RootNode.Walk((n) => { n.IsExpanded = !n.Isleaf; return true; });
 		}
 
 		/// <summary>
@@ -122,49 +124,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public void CollapseAll()
 		{
-			WalkTree((n) => { n.IsExpanded = false; return true; });
-		}
-
-		/// <summary>
-		/// Attempts to find and select the given item.
-		/// </summary>
-		/// <param name="item">The item to find and select.</param>
-		/// <remarks>Items are searched for by their key values.</remarks>
-		public TreeNode<TItem>? FindNode(TItem item)
-		{
-			if (KeyField != null)
-			{
-				var key = KeyField!(item).ToString();
-				return FindNode(key);
-			}
-			return null;
-		}
-
-		/// <summary>
-		/// Attempts to find the node that represents the item with the specified key.
-		/// </summary>
-		/// <param name="key">Key of the data item whose node to find.</param>
-		/// <returns>If found the TreeNode instance otherwise null.</returns>
-		public TreeNode<TItem>? FindNode(string key)
-		{
-			TreeNode<TItem>? node = null;
-			if (string.IsNullOrEmpty(key))
-			{
-				node = _model;
-			}
-			else
-			{
-				WalkTree((n) =>
-				{
-					if (n.Key == key)
-					{
-						node = n;
-						return false; // stop search
-					}
-					return true;
-				});
-			}
-			return node;
+			RootNode.Walk((n) => { n.IsExpanded = false; return true; });
 		}
 
 		/// <summary>
@@ -173,7 +133,7 @@ namespace PanoramicData.Blazor
 		/// <param name="node">The node to select.</param>
 		public async Task SelectNode(TreeNode<TItem> node)
 		{
-			if (AllowSelection && node != SelectedNode)
+			if (AllowSelection)
 			{
 				// clear current selection
 				if (SelectedNode != null)
@@ -261,39 +221,6 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
-		/// Function that walks the tree calling the given function at each node until no more nodes
-		/// or the function returns false.
-		/// </summary>
-		/// <param name="fn">Function to be called for each node. Returns false to stop walking.</param>
-		public void WalkTree(Func<TreeNode<TItem>, bool> fn)
-		{
-			if (_model != null)
-			{
-				walkTree(_model, fn);
-			}
-
-			// local recursive function to actually walk tree, returns false if walking should stop
-			bool walkTree(TreeNode<TItem> node, Func<TreeNode<TItem>, bool> fn)
-			{
-				if (!fn(node))
-				{
-					return false;
-				}
-				else if (node.Nodes != null)
-				{
-					foreach (var subNode in node.Nodes)
-					{
-						if (!walkTree(subNode, fn))
-						{
-							return false;
-						}
-					}
-				}
-				return true;
-			}
-		}
-
-		/// <summary>
 		/// Places the currently selected node into edit mode.
 		/// </summary>
 		public async Task BeginEdit()
@@ -301,7 +228,7 @@ namespace PanoramicData.Blazor
 			if (AllowEdit && SelectedNode != null)
 			{
 				// commit any other edits
-				WalkTree((x) => { x.CommitEdit(); return true; });
+				RootNode.Walk((x) => { x.CommitEdit(); return true; });
 
 				// notify and allow cancel
 				var args = new TreeNodeBeforeEditEventArgs<TItem>(SelectedNode);
@@ -320,9 +247,9 @@ namespace PanoramicData.Blazor
 			{
 				// build initial model and notify listeners
 				var items = await GetDataAsync().ConfigureAwait(true);
-				_model = BuildModel(items);
+				RootNode = BuildModel(items);
 				// notify that node updated
-				await NodeUpdated.InvokeAsync(_model);
+				await NodeUpdated.InvokeAsync(RootNode);
 				StateHasChanged();
 			}
 		}
@@ -375,10 +302,6 @@ namespace PanoramicData.Blazor
 				{
 					throw new PDTreeException($"Items must supply a key value.");
 				}
-				//if (_items.ContainsKey(key))
-				//{
-				//	throw new PDTreeException($"An item with the key value '{key}' has already been added. Key values must be unique.");
-				//}
 
 				// create node
 				var node = new TreeNode<TItem>
@@ -394,27 +317,25 @@ namespace PanoramicData.Blazor
 					node.Nodes = new List<TreeNode<TItem>>();
 				}
 
-				// get parent key
+				// get parent key and find parent if not root item
 				var parentKey = ParentKeyField?.Invoke(item)?.ToString();
 				if (parentKey == null || string.IsNullOrWhiteSpace(parentKey))
 				{
-					// root item
-					(root.Nodes ?? (root.Nodes = new List<TreeNode<TItem>>())).Add(node);
-				}
-				else if (_items.ContainsKey(parentKey))
-				{
-					// child node
-					var parentNode = _items[parentKey];
-					node.ParentNode = parentNode;
-					(parentNode.Nodes ?? (parentNode.Nodes = new List<TreeNode<TItem>>())).Add(node);
+					(root.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
 				}
 				else
 				{
-					throw new PDTreeException($"An item with the parent key value '{parentKey}' was found, but no existing item contains that key.");
+					var parentNode = root.Find(parentKey) ?? RootNode.Find(parentKey);
+					if (parentNode == null)
+					{
+						throw new PDTreeException($"A parent item with key '{parentKey}' could not be found");
+					}
+					else
+					{
+						node.ParentNode = parentNode;
+						(parentNode.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
+					}
 				}
-
-				// store data item
-				_items[key] = node;
 			}
 
 			return root.Nodes?.Count == 1
