@@ -195,4 +195,8 @@ app {
 	.pdfileexplorer .pdtreenode_content:hover, .pdfileexplorer .pdtablerow:hover {
 		background-color: #eee;
 	}
+
+	.pdfileexplorer .pdtreenode_content.selected:hover, .pdfileexplorer .pdtablerow.selected:hover {
+		background-color: #007bff;
+	}
 }

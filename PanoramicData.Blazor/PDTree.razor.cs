@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Exceptions;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor
 {
@@ -346,6 +347,45 @@ namespace PanoramicData.Blazor
 		private async Task OnAfterEdit(TreeNodeAfterEditEventArgs<TItem> args)
 		{
 			await AfterEdit.InvokeAsync(args).ConfigureAwait(true);
+		}
+
+		private async Task OnKeyDown(KeyboardEventArgs args)
+		{
+			switch (args.Code)
+			{
+				case "F2":
+					if (AllowEdit && SelectedNode != null)
+					{
+						SelectedNode.BeginEdit();
+					}
+					break;
+
+				case "Escape":
+					if (SelectedNode?.IsEditing == true)
+					{
+						SelectedNode.CancelEdit();
+					}
+					break;
+
+				case "Enter":
+				case "Return":
+					if (SelectedNode?.IsEditing == true)
+					{
+						// notify and allow cancel
+						var afterEditArgs = new TreeNodeAfterEditEventArgs<TItem>(SelectedNode, SelectedNode.Text, SelectedNode.EditText);
+						await AfterEdit.InvokeAsync(afterEditArgs).ConfigureAwait(true);
+						if (afterEditArgs.Cancel)
+						{
+							SelectedNode.CancelEdit();
+						}
+						else
+						{
+							SelectedNode.EditText = afterEditArgs.NewValue; // application my of altered
+							SelectedNode.CommitEdit();
+						}
+					}
+					break;
+			}
 		}
 	}
 }

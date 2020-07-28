@@ -74,8 +74,10 @@
   padding-left: 0rem; }
 
 .pdtreenode_edit {
-  padding: 0.1rem;
-  height: auto; }
+  width: 100%; }
+
+.pdtreenode_content:focus {
+  outline: none; }
 
 .pdsplitter {
   width: 100%;

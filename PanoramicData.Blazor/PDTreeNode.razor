@@ -11,10 +11,10 @@
 		{
 			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
 		}
-		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" @onmousedown="OnContentClickAsync">
+		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" tabindex="0" @onmousedown="OnContentClickAsync" @onkeydown="OnKeyDown">
 			@if (Node?.IsEditing == true)
 			{
-				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit form-control" @bind="@Node.EditText" @onblur="OnEditBlur" />
+				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit" @bind="@Node.EditText" @bind:event="oninput" @onblur="OnEditBlur"/>
 			}
 			else
 			{
@@ -39,11 +39,11 @@
 				{
 					if (NodeTemplate == null)
 					{
-						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" />
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" KeyDown="OnKeyDown" />
 					}
 					else
 					{
-						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit">
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" KeyDown="OnKeyDown">
 							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 						</PDTreeNode>
 					}

@@ -44,6 +44,13 @@
 }
 
 .pdtreenode_edit {
-	padding: 0.1rem;
-	height: auto;
+	//padding: 0.1rem;
+	//height: auto;
+	width: 100%;
+}
+
+.pdtreenode_content:focus {
+	//background-color: #007bff;
+	outline: none;
+	//outline: solid 1px dashed;
 }

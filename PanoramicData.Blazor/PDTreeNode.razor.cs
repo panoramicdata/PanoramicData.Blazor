@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor
 {
@@ -34,6 +35,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback<TreeNodeAfterEditEventArgs<TItem>> AfterEdit { get; set; }
 
+		/// <summary>
+		/// Event raised whenever a key down event is generated on the tree node.
+		/// </summary>
+		[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
+
 		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
 			if (Node != null)
@@ -53,6 +59,11 @@ namespace PanoramicData.Blazor
 			{
 				await Tree.SelectNode(Node).ConfigureAwait(true);
 			}
+		}
+
+		private async Task OnKeyDown(KeyboardEventArgs args)
+		{
+			await KeyDown.InvokeAsync(args).ConfigureAwait(true);
 		}
 
 		private async Task OnToggleExpandAsync()
