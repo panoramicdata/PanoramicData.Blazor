@@ -457,7 +457,11 @@ namespace PanoramicData.Blazor
 						var prevNode = SelectedNode.GetPrevious();
 						if (prevNode != null)
 						{
-							await SelectNode(prevNode).ConfigureAwait(true);
+							// do not select previous node if that is the hidden root node
+							if (ShowRoot || prevNode.ParentNode != null)
+							{
+								await SelectNode(prevNode).ConfigureAwait(true);
+							}
 						}
 						break;
 				}
