@@ -14,7 +14,8 @@
 		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" tabindex="0" @onmousedown="OnContentClickAsync" @onkeydown="OnKeyDown">
 			@if (Node?.IsEditing == true)
 			{
-				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit" @bind="@Node.EditText" @bind:event="oninput" @onblur="OnEditBlur"/>
+				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit" @bind="@Node.EditText" @bind:event="oninput"
+					   @onblur="OnEndEdit" @onmousedown:stopPropagation @onclick:stopPropagation @oncontextmenu:stopPropagation/>
 			}
 			else
 			{
@@ -39,11 +40,11 @@
 				{
 					if (NodeTemplate == null)
 					{
-						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" KeyDown="OnKeyDown" />
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit" KeyDown="OnKeyDown" />
 					}
 					else
 					{
-						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" KeyDown="OnKeyDown">
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit" KeyDown="OnKeyDown">
 							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 						</PDTreeNode>
 					}

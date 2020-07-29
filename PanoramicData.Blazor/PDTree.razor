@@ -7,11 +7,11 @@
 			{
 				@if (NodeTemplate == null)
 				{
-					<PDTreeNode TItem="TItem" Node="RootNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" KeyDown="OnKeyDown"/>
+					<PDTreeNode TItem="TItem" Node="RootNode" ShowLines="ShowLines" EndEdit="OnEndEdit" KeyDown="OnKeyDown"/>
 				}
 				else
 				{
-					<PDTreeNode TItem="TItem" Node="RootNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" KeyDown="OnKeyDown">
+					<PDTreeNode TItem="TItem" Node="RootNode" ShowLines="ShowLines" EndEdit="OnEndEdit" KeyDown="OnKeyDown">
 						<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 					</PDTreeNode>
 				}
@@ -24,11 +24,11 @@
 					{
 						@if (NodeTemplate == null)
 						{
-							<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" KeyDown="OnKeyDown" />
+							<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit" KeyDown="OnKeyDown" />
 						}
 						else
 						{
-							<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" AfterEdit="OnAfterEdit" KeyDown="OnKeyDown">
+							<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit" KeyDown="OnKeyDown">
 								<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 							</PDTreeNode>
 						}

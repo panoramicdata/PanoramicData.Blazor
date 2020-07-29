@@ -136,9 +136,10 @@ namespace PanoramicData.Blazor
 		{
 			if (AllowSelection)
 			{
-				// clear current selection
+				// end edit mode and clear current selection
 				if (SelectedNode != null)
 				{
+					await CommitEdit().ConfigureAwait(true);
 					SelectedNode.IsSelected = false;
 				}
 
@@ -242,25 +243,37 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		protected async override Task OnAfterRenderAsync(bool firstRender)
+		/// <summary>
+		/// Saves the current edit.
+		/// </summary>
+		public async Task CommitEdit()
 		{
-			if (firstRender)
+			if (SelectedNode?.IsEditing == true)
 			{
-				// build initial model and notify listeners
-				var items = await GetDataAsync().ConfigureAwait(true);
-				RootNode = BuildModel(items);
-				// notify that node updated
-				await NodeUpdated.InvokeAsync(RootNode);
-				StateHasChanged();
+				// notify and allow cancel
+				var afterEditArgs = new TreeNodeAfterEditEventArgs<TItem>(SelectedNode, SelectedNode.Text, SelectedNode.EditText);
+				await AfterEdit.InvokeAsync(afterEditArgs).ConfigureAwait(true);
+				if (afterEditArgs.Cancel)
+				{
+					SelectedNode.CancelEdit();
+				}
+				else
+				{
+					SelectedNode.EditText = afterEditArgs.NewValue; // application my of altered
+					SelectedNode.CommitEdit();
+				}
 			}
 		}
 
-		protected override void OnParametersSet()
+		/// <summary>
+		/// Cancels the current edit.
+		/// </summary>
+		public void CancelEdit()
 		{
-			if (KeyField == null)
-				throw new PDTreeException("KeyField attribute is required.");
-			if (ParentKeyField == null)
-				throw new PDTreeException("ParentKeyField attribute is required.");
+			if (SelectedNode?.IsEditing == true)
+			{
+				SelectedNode.CancelEdit();
+			}
 		}
 
 		private async Task<IEnumerable<TItem>> GetDataAsync(string? key = null)
@@ -313,7 +326,7 @@ namespace PanoramicData.Blazor
 					Data = item,
 					Nodes = LoadOnDemand ? null : new List<TreeNode<TItem>>()
 				};
-				if(LoadOnDemand && IsLeaf != null && IsLeaf(item))
+				if (LoadOnDemand && IsLeaf != null && IsLeaf(item))
 				{
 					node.Nodes = new List<TreeNode<TItem>>();
 				}
@@ -344,9 +357,30 @@ namespace PanoramicData.Blazor
 				: root;
 		}
 
-		private async Task OnAfterEdit(TreeNodeAfterEditEventArgs<TItem> args)
+		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
-			await AfterEdit.InvokeAsync(args).ConfigureAwait(true);
+			if (firstRender)
+			{
+				// build initial model and notify listeners
+				var items = await GetDataAsync().ConfigureAwait(true);
+				RootNode = BuildModel(items);
+				// notify that node updated
+				await NodeUpdated.InvokeAsync(RootNode);
+				StateHasChanged();
+			}
+		}
+
+		protected override void OnParametersSet()
+		{
+			if (KeyField == null)
+				throw new PDTreeException("KeyField attribute is required.");
+			if (ParentKeyField == null)
+				throw new PDTreeException("ParentKeyField attribute is required.");
+		}
+
+		private async Task OnEndEdit()
+		{
+			await CommitEdit().ConfigureAwait(true);
 		}
 
 		private async Task OnKeyDown(KeyboardEventArgs args)
@@ -354,36 +388,16 @@ namespace PanoramicData.Blazor
 			switch (args.Code)
 			{
 				case "F2":
-					if (AllowEdit && SelectedNode != null)
-					{
-						SelectedNode.BeginEdit();
-					}
+					await BeginEdit().ConfigureAwait(true);
 					break;
 
 				case "Escape":
-					if (SelectedNode?.IsEditing == true)
-					{
-						SelectedNode.CancelEdit();
-					}
+					CancelEdit();
 					break;
 
 				case "Enter":
 				case "Return":
-					if (SelectedNode?.IsEditing == true)
-					{
-						// notify and allow cancel
-						var afterEditArgs = new TreeNodeAfterEditEventArgs<TItem>(SelectedNode, SelectedNode.Text, SelectedNode.EditText);
-						await AfterEdit.InvokeAsync(afterEditArgs).ConfigureAwait(true);
-						if (afterEditArgs.Cancel)
-						{
-							SelectedNode.CancelEdit();
-						}
-						else
-						{
-							SelectedNode.EditText = afterEditArgs.NewValue; // application my of altered
-							SelectedNode.CommitEdit();
-						}
-					}
+					await CommitEdit().ConfigureAwait(true);
 					break;
 			}
 		}

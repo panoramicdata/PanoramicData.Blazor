@@ -143,6 +143,14 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private void OnTreeBeforeEdit(TreeNodeBeforeEditEventArgs<FileExplorerItem> args)
+		{
+			if (args.Node.ParentNode == null)
+			{
+				args.Cancel = true;
+			}
+		}
+
 		private async Task OnTreeAfterEdit(TreeNodeAfterEditEventArgs<FileExplorerItem> args)
 		{
 			if(string.IsNullOrWhiteSpace(args.NewValue))
@@ -173,7 +181,7 @@ namespace PanoramicData.Blazor
 						x.Path = x.Path.ReplacePathPrefix(previousPath, newPath);
 						x.ParentPath = x.ParentPath.ReplacePathPrefix(previousPath, newPath);
 					});
-					await _tree.SelectNode(_tree.SelectedNode);
+					await OnTreeSelectionChange(_tree.SelectedNode);
 				}
 			}
 		}

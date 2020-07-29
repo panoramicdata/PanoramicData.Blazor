@@ -33,7 +33,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event raised at the end of an edit.
 		/// </summary>
-		[Parameter] public EventCallback<TreeNodeAfterEditEventArgs<TItem>> AfterEdit { get; set; }
+		[Parameter] public EventCallback EndEdit { get; set; }
 
 		/// <summary>
 		/// Event raised whenever a key down event is generated on the tree node.
@@ -74,28 +74,9 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnEditBlur()
+		private async Task OnEndEdit()
 		{
-			if(Node != null)
-			{
-				// notify and allow cancel
-				var args = new TreeNodeAfterEditEventArgs<TItem>(Node, Node.Text, Node.EditText);
-				await AfterEdit.InvokeAsync(args).ConfigureAwait(true);
-				if (args.Cancel)
-				{
-					Node.CancelEdit();
-				}
-				else
-				{
-					Node.EditText = args.NewValue; // application my of altered
-					Node.CommitEdit();
-				}
-			}
-		}
-
-		private async Task OnAfterEdit(TreeNodeAfterEditEventArgs<TItem> args)
-		{
-			await AfterEdit.InvokeAsync(args).ConfigureAwait(true);
+			await EndEdit.InvokeAsync(null).ConfigureAwait(true);
 		}
 	}
 }

@@ -115,6 +115,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public bool IsEditing { get; private set; }
 
+		public override string ToString()
+		{
+			return $"{Key}";
+		}
+
 		internal void BeginEdit()
 		{
 			EditText = Text;

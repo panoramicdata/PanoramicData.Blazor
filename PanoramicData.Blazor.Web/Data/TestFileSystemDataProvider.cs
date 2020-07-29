@@ -20,21 +20,21 @@ namespace PanoramicData.Blazor.Web.Data
 
 		public TestFileSystemDataProvider()
 		{
-			// generate test data
+			// generate test data - Paths can not edit with trailing slashes
 			_testData.Add(new FileExplorerItem { Path = "My Computer" });
-			_testData.Add(new FileExplorerItem { Path = @"C:\", ParentPath = "My Computer" });
-			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData", ParentPath = @"C:\" });
+			_testData.Add(new FileExplorerItem { Path = @"C:", ParentPath = "My Computer" });
+			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData", ParentPath = @"C:" });
 			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\Acme", ParentPath = @"C:\ProgramData" });
 			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\Acme\Readme.txt", ParentPath = @"C:\ProgramData\Acme", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\Acme\UserGuide.pdf", ParentPath = @"C:\ProgramData\Acme", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\stats.txt", ParentPath = @"C:\ProgramData", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"C:\Temp", ParentPath = @"C:\" });
+			_testData.Add(new FileExplorerItem { Path = @"C:\Temp", ParentPath = @"C:" });
 			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\a53fde.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
 			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\b76jba.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
 			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\p21wsa.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
-			_testData.Add(new FileExplorerItem { Path = @"C:\Users", ParentPath = @"C:\" });
-			_testData.Add(new FileExplorerItem { Path = @"D:\", ParentPath = "My Computer" });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Data", ParentPath = @"D:\" });
+			_testData.Add(new FileExplorerItem { Path = @"C:\Users", ParentPath = @"C:" });
+			_testData.Add(new FileExplorerItem { Path = @"D:", ParentPath = "My Computer" });
+			_testData.Add(new FileExplorerItem { Path = @"D:\Data", ParentPath = @"D:" });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup", ParentPath = @"D:\Data" });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup\20200131_mydb.bak", ParentPath = @"D:\Data\Backup", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup\20200229_mydb.bak", ParentPath = @"D:\Data\Backup", EntryType = FileExplorerItemType.File });
@@ -42,7 +42,7 @@ namespace PanoramicData.Blazor.Web.Data
 			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup\20200430_mydb.bak", ParentPath = @"D:\Data\Backup", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Data\WeeklyStats.json", ParentPath = @"D:\Data", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Data\MonthlyStats.json", ParentPath = @"D:\Data", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Logs", ParentPath = @"D:\" });
+			_testData.Add(new FileExplorerItem { Path = @"D:\Logs", ParentPath = @"D:" });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Logs\20200430_agent.log", ParentPath = @"D:\Logs", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Logs\20200501_agent.log", ParentPath = @"D:\Logs", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"D:\Logs\20200502_agent.log", ParentPath = @"D:\Logs", EntryType = FileExplorerItemType.File });
