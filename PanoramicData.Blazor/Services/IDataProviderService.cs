@@ -33,5 +33,13 @@ namespace PanoramicData.Blazor.Services
 		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
 		Task<OperationResponse> UpdateAsync(TItem item, object delta, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Requests the given item is created.
+		/// </summary>
+		/// <param name="item">New item details.</param>
+		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
+		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
+		Task<OperationResponse> CreateAsync(TItem item, CancellationToken cancellationToken);
 	}
 }

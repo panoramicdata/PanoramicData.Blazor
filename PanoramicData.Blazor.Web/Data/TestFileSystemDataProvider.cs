@@ -21,31 +21,31 @@ namespace PanoramicData.Blazor.Web.Data
 		public TestFileSystemDataProvider()
 		{
 			// generate test data - Paths can not edit with trailing slashes
-			_testData.Add(new FileExplorerItem { Path = "My Computer" });
-			_testData.Add(new FileExplorerItem { Path = @"C:", ParentPath = "My Computer" });
-			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData", ParentPath = @"C:" });
-			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\Acme", ParentPath = @"C:\ProgramData" });
-			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\Acme\Readme.txt", ParentPath = @"C:\ProgramData\Acme", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\Acme\UserGuide.pdf", ParentPath = @"C:\ProgramData\Acme", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"C:\ProgramData\stats.txt", ParentPath = @"C:\ProgramData", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"C:\Temp", ParentPath = @"C:" });
-			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\a53fde.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
-			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\b76jba.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
-			_testData.Add(new FileExplorerItem { Path = @"C:\Temp\p21wsa.tmp", ParentPath = @"C:\Temp", EntryType = FileExplorerItemType.File, IsHidden = true });
-			_testData.Add(new FileExplorerItem { Path = @"C:\Users", ParentPath = @"C:" });
-			_testData.Add(new FileExplorerItem { Path = @"D:", ParentPath = "My Computer" });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Data", ParentPath = @"D:" });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup", ParentPath = @"D:\Data" });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup\20200131_mydb.bak", ParentPath = @"D:\Data\Backup", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup\20200229_mydb.bak", ParentPath = @"D:\Data\Backup", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup\20200331_mydb.bak", ParentPath = @"D:\Data\Backup", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Data\Backup\20200430_mydb.bak", ParentPath = @"D:\Data\Backup", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Data\WeeklyStats.json", ParentPath = @"D:\Data", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Data\MonthlyStats.json", ParentPath = @"D:\Data", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Logs", ParentPath = @"D:" });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Logs\20200430_agent.log", ParentPath = @"D:\Logs", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Logs\20200501_agent.log", ParentPath = @"D:\Logs", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"D:\Logs\20200502_agent.log", ParentPath = @"D:\Logs", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme\Readme.txt", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme\UserGuide.pdf", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\stats.txt", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\a53fde.tmp", EntryType = FileExplorerItemType.File, IsHidden = true });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\b76jba.tmp", EntryType = FileExplorerItemType.File, IsHidden = true });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\p21wsa.tmp", EntryType = FileExplorerItemType.File, IsHidden = true });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Users" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200131_mydb.bak", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200229_mydb.bak", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200331_mydb.bak", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200430_mydb.bak", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\WeeklyStats.json", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\MonthlyStats.json", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200430_agent.log", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200501_agent.log", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200502_agent.log", EntryType = FileExplorerItemType.File });
 		}
 
 		/// <summary>
@@ -84,7 +84,7 @@ namespace PanoramicData.Blazor.Web.Data
 				items = query.ToList();
 
 				// remove parent path from all root items
-				items.ForEach(x => x.ParentPath = x.Path == RootFolder ? string.Empty : x.ParentPath);
+				//items.ForEach(x => x.ParentPath = x.Path == RootFolder ? string.Empty : x.ParentPath);
 
 			}).ConfigureAwait(false);
 			return new DataResponse<FileExplorerItem>(items, total);
@@ -157,7 +157,6 @@ namespace PanoramicData.Blazor.Web.Data
 								_testData.ForEach(x =>
 								{
 									x.Path = x.Path.ReplacePathPrefix(previousPath, newPath);
-									x.ParentPath = x.ParentPath.ReplacePathPrefix(previousPath, newPath);
 								});
 							}
 							result.Success = true;
@@ -165,6 +164,24 @@ namespace PanoramicData.Blazor.Web.Data
 					}
 				}
 			}).ConfigureAwait(false);
+			return result;
+		}
+
+		/// <summary>
+		/// Requests the given item is created.
+		/// </summary>
+		/// <param name="item">New item details.</param>
+		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
+		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
+		public async Task<OperationResponse> CreateAsync(FileExplorerItem item, CancellationToken cancellationToken)
+		{
+			var result = new OperationResponse();
+			await Task.Run(() =>
+			{
+				item.DateCreated = item.DateModified = DateTimeOffset.UtcNow;
+				_testData.Add(item);
+				result.Success = true;
+			});
 			return result;
 		}
 	}

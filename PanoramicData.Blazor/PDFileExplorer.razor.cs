@@ -139,6 +139,23 @@ namespace PanoramicData.Blazor
 					{
 						await _tree.BeginEdit().ConfigureAwait(true);
 					}
+					else if (item.Text == "New Folder")
+					{
+						var newPath = $"{_tree.SelectedNode.Data.Path}{Path.DirectorySeparatorChar}New Folder";
+						var newItem = new FileExplorerItem { EntryType = FileExplorerItemType.Directory, Path = newPath };
+						var result = await DataProvider.CreateAsync(newItem, CancellationToken.None).ConfigureAwait(true);
+						if(result.Success)
+						{
+							// refresh current node, select new node and finally begin edit mode
+							await _tree.RefreshNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
+							var newNode = _tree.RootNode.Find(newItem.Path);
+							if(newNode != null)
+							{
+								await _tree.SelectNode(newNode).ConfigureAwait(true);
+								await _tree.BeginEdit().ConfigureAwait(true);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -161,7 +178,7 @@ namespace PanoramicData.Blazor
 			{
 				var item = _tree.SelectedNode.Data;
 				var previousPath = item.Path;
-				var newPath = Path.Combine(item.ParentPath, args.NewValue);
+				var newPath = $"{item.ParentPath}{Path.DirectorySeparatorChar}{args.NewValue}";
 				// inform data provider
 				var result = await DataProvider.UpdateAsync(_tree.SelectedNode.Data, new { Path = newPath }, CancellationToken.None).ConfigureAwait(true);
 				if(result.Success)
@@ -172,14 +189,12 @@ namespace PanoramicData.Blazor
 						{
 							x.Key = x.Key.ReplacePathPrefix(previousPath, newPath);
 							x.Data.Path = x.Data.Path.ReplacePathPrefix(previousPath, newPath);
-							x.Data.ParentPath = x.Data.ParentPath.ReplacePathPrefix(previousPath, newPath);
 						}
 						return true;
 					});
 					_table!.ItemsToDisplay.ToList().ForEach(x =>
 					{
 						x.Path = x.Path.ReplacePathPrefix(previousPath, newPath);
-						x.ParentPath = x.ParentPath.ReplacePathPrefix(previousPath, newPath);
 					});
 					await OnTreeSelectionChange(_tree.SelectedNode);
 				}
@@ -188,7 +203,7 @@ namespace PanoramicData.Blazor
 
 		private void OnTableItemsLoaded(List<FileExplorerItem> items)
 		{
-			items.Insert(0, new FileExplorerItem { Path = "..", ParentPath = _selectedNode?.Data?.Path ?? "", EntryType = FileExplorerItemType.Directory });
+			items.Insert(0, new FileExplorerItem { Path = Path.Combine(_selectedNode?.Data?.Path ?? "", ".."), EntryType = FileExplorerItemType.Directory });
 		}
 
 		private async Task OnTableDoubleClick(FileExplorerItem item)
@@ -201,7 +216,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OpenFolder(string path)
 		{
-			if (path == "..")
+			if (Path.GetFileName(path) == "..")
 			{
 				if (_selectedNode?.ParentNode != null)
 				{

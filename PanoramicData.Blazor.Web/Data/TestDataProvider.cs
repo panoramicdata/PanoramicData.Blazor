@@ -97,5 +97,16 @@ namespace PanoramicData.Blazor.Web.Data
 		{
 			return new OperationResponse { ErrorMessage = "Operation not supported" };
 		}
+
+		/// <summary>
+		/// Requests the given item is created.
+		/// </summary>
+		/// <param name="item">New item details.</param>
+		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
+		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
+		public async Task<OperationResponse> CreateAsync(TestRow item, CancellationToken cancellationToken)
+		{
+			return new OperationResponse { ErrorMessage = "Operation not supported" };
+		}
 	}
 }

@@ -29,7 +29,9 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets the full path of the parent item.
 		/// </summary>
-		public string ParentPath { get; set; } = string.Empty;
+		//public string ParentPath { get; set; } = string.Empty;
+		public string ParentPath
+			=> System.IO.Path.GetDirectoryName(Path);
 
 		/// <summary>
 		/// Gets or sets the type of item.
