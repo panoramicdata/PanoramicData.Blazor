@@ -261,17 +261,24 @@ namespace PanoramicData.Blazor
 		{
 			if (SelectedNode?.IsEditing == true)
 			{
-				// notify and allow cancel
-				var afterEditArgs = new TreeNodeAfterEditEventArgs<TItem>(SelectedNode, SelectedNode.Text, SelectedNode.EditText);
-				await AfterEdit.InvokeAsync(afterEditArgs).ConfigureAwait(true);
-				if (afterEditArgs.Cancel)
+				if (string.IsNullOrWhiteSpace(SelectedNode.EditText) || SelectedNode.HasSiblingWithText(SelectedNode.EditText))
 				{
 					SelectedNode.CancelEdit();
 				}
 				else
 				{
-					SelectedNode.EditText = afterEditArgs.NewValue; // application my of altered
-					SelectedNode.CommitEdit();
+					// notify and allow cancel
+					var afterEditArgs = new TreeNodeAfterEditEventArgs<TItem>(SelectedNode, SelectedNode.Text, SelectedNode.EditText);
+					await AfterEdit.InvokeAsync(afterEditArgs).ConfigureAwait(true);
+					if (afterEditArgs.Cancel)
+					{
+						SelectedNode.CancelEdit();
+					}
+					else
+					{
+						SelectedNode.EditText = afterEditArgs.NewValue; // application my of altered
+						SelectedNode.CommitEdit();
+					}
 				}
 			}
 		}

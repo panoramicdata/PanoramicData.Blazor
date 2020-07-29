@@ -223,5 +223,30 @@ namespace PanoramicData.Blazor
 			}
 			return null;
 		}
+
+
+		internal bool HasSiblingWithText(string text)
+		{
+			if(ParentNode?.Nodes != null)
+			{
+				return ParentNode.Nodes.Any(x => x.Text == text);
+			}
+			return false;
+		}
+
+		internal string MakeUniqueText(string text)
+		{
+			if (Nodes?.Any(x => x.Text == text) == true)
+			{
+				var index = 2;
+				var newText = $"{text} ({index})";
+				while(Nodes?.Any(x => x.Text == newText) == true)
+				{
+					newText = $"{text} ({++index})";
+				}
+				return newText;
+			}
+			return text;
+		}
 	}
 }

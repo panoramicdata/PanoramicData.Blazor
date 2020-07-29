@@ -141,7 +141,8 @@ namespace PanoramicData.Blazor
 					}
 					else if (item.Text == "New Folder")
 					{
-						var newPath = $"{_tree.SelectedNode.Data.Path}{Path.DirectorySeparatorChar}New Folder";
+						var newFolderName = _tree.SelectedNode.MakeUniqueText("New Folder");
+						var newPath = $"{_tree.SelectedNode.Data.Path}{Path.DirectorySeparatorChar}{newFolderName}";
 						var newItem = new FileExplorerItem { EntryType = FileExplorerItemType.Directory, Path = newPath };
 						var result = await DataProvider.CreateAsync(newItem, CancellationToken.None).ConfigureAwait(true);
 						if(result.Success)
@@ -170,11 +171,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTreeAfterEdit(TreeNodeAfterEditEventArgs<FileExplorerItem> args)
 		{
-			if(string.IsNullOrWhiteSpace(args.NewValue))
-			{
-				args.Cancel = true;
-			}
-			else if (_tree?.SelectedNode?.Data != null)
+			if (_tree?.SelectedNode?.Data != null)
 			{
 				var item = _tree.SelectedNode.Data;
 				var previousPath = item.Path;
