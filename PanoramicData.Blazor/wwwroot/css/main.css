@@ -76,7 +76,7 @@
 .pdtreenode_edit {
   width: 100%; }
 
-.pdtreenode_content:focus {
+.pdtree:focus {
   outline: none; }
 
 .pdsplitter {

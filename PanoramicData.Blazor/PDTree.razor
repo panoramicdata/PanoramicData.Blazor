@@ -2,16 +2,16 @@
 
 	<CascadingValue Value="(PDTree<TItem>)this" Name="Tree">
 
-		<div class="pdtree">
+		<div id="@Id" class="pdtree" tabindex="0" @onkeydown="OnKeyDown">
 			@if (ShowRoot)
 			{
 				@if (NodeTemplate == null)
 				{
-					<PDTreeNode TItem="TItem" Node="RootNode" ShowLines="ShowLines" EndEdit="OnEndEdit" KeyDown="OnKeyDown"/>
+					<PDTreeNode TItem="TItem" Node="RootNode" ShowLines="ShowLines" EndEdit="OnEndEdit" />
 				}
 				else
 				{
-					<PDTreeNode TItem="TItem" Node="RootNode" ShowLines="ShowLines" EndEdit="OnEndEdit" KeyDown="OnKeyDown">
+					<PDTreeNode TItem="TItem" Node="RootNode" ShowLines="ShowLines" EndEdit="OnEndEdit">
 						<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 					</PDTreeNode>
 				}
@@ -24,11 +24,11 @@
 					{
 						@if (NodeTemplate == null)
 						{
-							<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit" KeyDown="OnKeyDown" />
+							<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit" />
 						}
 						else
 						{
-							<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit" KeyDown="OnKeyDown">
+							<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit">
 								<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 							</PDTreeNode>
 						}

@@ -6,11 +6,21 @@ using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Exceptions;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace PanoramicData.Blazor
 {
     public partial class PDTree<TItem> where TItem : class
     {
+		private static int _idSequence;
+
+		[Inject] public IJSRuntime? JSRuntime { get; set; }
+
+		/// <summary>
+		/// Gets the unique identifier of this panel.
+		/// </summary>
+		public string Id { get; private set; } = string.Empty;
+
 		/// <summary>
 		/// Gets or sets the root TreeNode instance.
 		/// </summary>
@@ -357,6 +367,11 @@ namespace PanoramicData.Blazor
 				: root;
 		}
 
+		protected override void OnInitialized()
+		{
+			Id = $"PDT{++_idSequence}";
+		}
+
 		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
 			if (firstRender)
@@ -380,7 +395,10 @@ namespace PanoramicData.Blazor
 
 		private async Task OnEndEdit()
 		{
+			// end any current edit
 			await CommitEdit().ConfigureAwait(true);
+			// re-focus the tree
+			JSRuntime?.InvokeVoidAsync("focus", Id);
 		}
 
 		private async Task OnKeyDown(KeyboardEventArgs args)

@@ -61,11 +61,6 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnKeyDown(KeyboardEventArgs args)
-		{
-			await KeyDown.InvokeAsync(args).ConfigureAwait(true);
-		}
-
 		private async Task OnToggleExpandAsync()
 		{
 			if (Node != null)
