@@ -7,6 +7,7 @@ using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Exceptions;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using System.Linq;
 
 namespace PanoramicData.Blazor
 {
@@ -416,6 +417,48 @@ namespace PanoramicData.Blazor
 				case "Enter":
 				case "Return":
 					await CommitEdit().ConfigureAwait(true);
+					break;
+
+				case "ArrowRight":
+					if(SelectedNode != null)
+					{
+						if(!SelectedNode.IsExpanded)
+						{
+							await ToggleNodeIsExpandedAsync(SelectedNode).ConfigureAwait(true);
+						}
+					}
+					break;
+
+				case "ArrowLeft":
+					if (SelectedNode != null)
+					{
+						if (SelectedNode.IsExpanded)
+						{
+							await ToggleNodeIsExpandedAsync(SelectedNode).ConfigureAwait(true);
+						}
+					}
+					break;
+
+				case "ArrowDown":
+					if (SelectedNode != null)
+					{
+						var nextNode = SelectedNode.GetNext();
+						if (nextNode != null)
+						{
+							await SelectNode(nextNode).ConfigureAwait(true);
+						}
+					}
+					break;
+
+				case "ArrowUp":
+					if (SelectedNode != null)
+					{
+						var prevNode = SelectedNode.GetPrevious();
+						if (prevNode != null)
+						{
+							await SelectNode(prevNode).ConfigureAwait(true);
+						}
+					}
 					break;
 			}
 		}
