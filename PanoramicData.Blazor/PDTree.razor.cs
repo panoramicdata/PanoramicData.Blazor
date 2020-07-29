@@ -406,10 +406,6 @@ namespace PanoramicData.Blazor
 		{
 			switch (args.Code)
 			{
-				case "F2":
-					await BeginEdit().ConfigureAwait(true);
-					break;
-
 				case "Escape":
 					CancelEdit();
 					break;
@@ -418,48 +414,46 @@ namespace PanoramicData.Blazor
 				case "Return":
 					await CommitEdit().ConfigureAwait(true);
 					break;
+			}
 
-				case "ArrowRight":
-					if(SelectedNode != null)
-					{
-						if(!SelectedNode.IsExpanded)
+			if (SelectedNode?.IsEditing == false)
+			{
+				switch (args.Code)
+				{
+					case "F2":
+						await BeginEdit().ConfigureAwait(true);
+						break;
+
+					case "ArrowRight":
+						if (!SelectedNode.IsExpanded)
 						{
 							await ToggleNodeIsExpandedAsync(SelectedNode).ConfigureAwait(true);
 						}
-					}
-					break;
+						break;
 
-				case "ArrowLeft":
-					if (SelectedNode != null)
-					{
+					case "ArrowLeft":
 						if (SelectedNode.IsExpanded)
 						{
 							await ToggleNodeIsExpandedAsync(SelectedNode).ConfigureAwait(true);
 						}
-					}
-					break;
+						break;
 
-				case "ArrowDown":
-					if (SelectedNode != null)
-					{
+					case "ArrowDown":
 						var nextNode = SelectedNode.GetNext();
 						if (nextNode != null)
 						{
 							await SelectNode(nextNode).ConfigureAwait(true);
 						}
-					}
-					break;
+						break;
 
-				case "ArrowUp":
-					if (SelectedNode != null)
-					{
+					case "ArrowUp":
 						var prevNode = SelectedNode.GetPrevious();
 						if (prevNode != null)
 						{
 							await SelectNode(prevNode).ConfigureAwait(true);
 						}
-					}
-					break;
+						break;
+				}
 			}
 		}
 	}
