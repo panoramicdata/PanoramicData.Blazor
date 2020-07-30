@@ -9,7 +9,7 @@ using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDColumn<TItem>
+	public partial class PDColumn<TItem> where TItem: class
 	{
 		private string? _title;
 		private Func<TItem, object>? _compiledFunc;
@@ -128,6 +128,16 @@ namespace PanoramicData.Blazor
 				Type = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
 			}
 			PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
+		}
+
+		/// <summary>
+		/// Gets the column value from the given TItem.
+		/// </summary>
+		/// <param name="item">The TItem for the current row.</param>
+		/// <returns>The columns value.</returns>
+		public object? GetValue(TItem item)
+		{
+			return CompiledFunc?.Invoke(item);
 		}
 
 		/// <summary>

@@ -70,3 +70,7 @@ function selectText(id, start, end) {
 		node.focus();
 	}
 }
+
+function getFocusedElementId() {
+	return document.activeElement.id;
+}

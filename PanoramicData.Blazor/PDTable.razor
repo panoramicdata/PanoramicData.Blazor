@@ -38,23 +38,32 @@
 				{
 					foreach (var item in ItemsToDisplay)
 					{
-						<tr class="pdtablerow @GetDynamicRowClasses(item)"
-							@onmousedown="@((args) => OnRowMouseDown(args, item))"
-							@onclick="() => Click.InvokeAsync(item)"
-							@ondblclick="() => DoubleClick.InvokeAsync(item)"
-							@oncontextmenu="@((a) => ContextMenuHandler(a, item))" @oncontextmenu:preventDefault>
-							@foreach (var column in ActualColumnsToDisplay)
+				<tr class="pdtablerow @GetDynamicRowClasses(item)"
+					@onmousedown="@((args) => OnRowMouseDown(args, item))"
+					@onclick="() => Click.InvokeAsync(item)"
+					@ondblclick="() => DoubleClick.InvokeAsync(item)"
+					@oncontextmenu="@((a) => ContextMenuHandler(a, item))" @oncontextmenu:preventDefault>
+					@foreach (var column in ActualColumnsToDisplay)
+					{
+						if (IsEditing && item == EditItem)
+						{
+							<td class="@column.TdClass">
+								<input id="@($"PDTE-{column.Id}")" type="text" value="@($"{column.GetValue(item)}")" class="pdte form-control" @onblur="OnEndEdit" />
+							</td>
+						}
+						else
+						{
+							if (column.Template == null)
 							{
-								if (column.Template != null)
-								{
-									<td class="@column.TdClass">@column.Template(item)</td>
-								}
-								else
-								{
-									<td class="@column.TdClass">@column.Render(item)</td>
-								}
+								<td class="@column.TdClass">@column.Render(item)</td>
 							}
-						</tr>
+							else
+							{
+								<td class="@column.TdClass">@column.Template(item)</td>
+							}
+						}
+					}
+				</tr>
 					}
 				}
 				else

@@ -45,7 +45,7 @@ namespace PanoramicData.Blazor.Web.Pages
 			}
 		}
 
-		private TableSelectionMode SelectionMode { get; set; }
+		private TableSelectionMode SelectionMode { get; set; } = TableSelectionMode.Single;
 
 		// dummy data provider
 		public TestDataProvider DataProvider { get; }  = new TestDataProvider();

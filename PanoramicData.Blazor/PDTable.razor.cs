@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
@@ -13,8 +14,10 @@ using PanoramicData.Blazor.Exceptions;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDTable<TItem> : ISortableComponent, IPageableComponent
+	public partial class PDTable<TItem> : ISortableComponent, IPageableComponent where TItem: class
 	{
+		private ManualResetEvent _beginEditEvent { get; set; } = new ManualResetEvent(false);
+
 		/// <summary>
 		/// Injected log service.
 		/// </summary>
@@ -24,6 +27,11 @@ namespace PanoramicData.Blazor
 		/// Injected navigation manager.
 		/// </summary>
 		[Inject] protected NavigationManager NavigationManager { get; set; } = null!;
+
+		/// <summary>
+		/// Injected javascript interop object.
+		/// </summary>
+		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		/// <summary>
 		/// Child HTML content.
@@ -128,6 +136,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AllowEdit { get; set; }
 
 		/// <summary>
+		/// Gets the current item being edited.
+		/// </summary>
+		public TItem? EditItem { get; private set; }
+
+		/// <summary>
 		/// Gets a full list of all columns.
 		/// </summary>
 		public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
@@ -193,6 +206,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		protected int? PageCount { get; set; }
 
+		/// <summary>
+		/// Gets whether the table is currently in edit mode.
+		/// </summary>
+		public bool IsEditing { get; private set; }
+
 		protected override void OnInitialized()
 		{
 			if (DataProvider is null)
@@ -255,6 +273,14 @@ namespace PanoramicData.Blazor
 				{
 					await HandleExceptionAsync(ex).ConfigureAwait(true);
 				}
+			}
+
+			// focus first editor after edit mode begins
+			if(_beginEditEvent.WaitOne(0))
+			{
+				var key = "Col1";
+				await JSRuntime.InvokeVoidAsync("selectText", $"PDTE-{key}").ConfigureAwait(true);
+				_beginEditEvent.Reset();
 			}
 		}
 
@@ -379,47 +405,102 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		/// <summary>
+		/// Begins editing of the given item.
+		/// </summary>
+		public void BeginEdit()
+		{
+			if (AllowEdit && !IsEditing && Selection.Count == 1 && KeyField != null)
+			{
+				// find item to edit
+				var item = ItemsToDisplay.FirstOrDefault(x => KeyField(x).ToString() == Selection[0]);
+				if (item != null)
+				{
+					// notify and allow for cancel
+
+					IsEditing = true;
+					EditItem = item;
+					_beginEditEvent.Set();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Commits the current edit.
+		/// </summary>
+		public void CommitEdit()
+		{
+			if (IsEditing)
+			{
+				EditItem = null;
+				IsEditing = false;
+			}
+		}
+
+		/// <summary>
+		/// Cancels the current edit.
+		/// </summary>
+		public void CancelEdit()
+		{
+			if(IsEditing)
+			{
+				EditItem = null;
+				IsEditing = false;
+			}
+		}
+
+		private async Task OnEndEdit()
+		{
+			if (IsEditing)
+			{
+				// if focus has moved to another editor then continue editing
+				var id = await JSRuntime.InvokeAsync<string>("getFocusedElementId").ConfigureAwait(true);
+				if (!id.StartsWith("PDTE-"))
+				{
+					EditItem = null;
+					IsEditing = false;
+				}
+			}
+		}
+
 		private async Task OnRowMouseDown(MouseEventArgs args, TItem item)
 		{
 			var key = KeyField!(item)?.ToString();
-			if (key != null)
+			if (key != null && SelectionMode != TableSelectionMode.None)
 			{
 				var alreadySelected = Selection.Contains(key);
-				if (SelectionMode == TableSelectionMode.Single)
+
+				// begin edit mode?
+				if(AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey)
 				{
-					if(alreadySelected)
-					{
-						// if edit allow and not editing and was already selected then begin edit
-					}
-					else
-					{
-						Selection.Clear();
-						Selection.Add(key);
-						await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
-					}
+					BeginEdit();
 				}
-				else if (SelectionMode == TableSelectionMode.Multiple)
+				else
 				{
-					if(args.CtrlKey)
+					if (SelectionMode == TableSelectionMode.Single)
 					{
-						// toggle current selection
-						if(alreadySelected)
+						if (!alreadySelected)
 						{
-							Selection.Remove(key);
-						}
-						else
-						{
+							Selection.Clear();
 							Selection.Add(key);
+							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 						}
-						await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 					}
-					else
+					else if (SelectionMode == TableSelectionMode.Multiple)
 					{
-						if (alreadySelected)
+						if (args.CtrlKey)
 						{
-							// if edit allow and not editing and was already selected then begin edit
+							if (alreadySelected)
+							{
+								Selection.Remove(key);
+							}
+							else
+							{
+								Selection.Add(key);
+							}
+							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 						}
-						else
+						else if (!alreadySelected)
 						{
 							Selection.Clear();
 							Selection.Add(key);
