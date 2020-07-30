@@ -276,9 +276,9 @@ namespace PanoramicData.Blazor
 			}
 
 			// focus first editor after edit mode begins
-			if(_beginEditEvent.WaitOne(0))
+			if(_beginEditEvent.WaitOne(0) && ColumnsConfig?.Count > 0)
 			{
-				var key = "Col1";
+				var key = ColumnsConfig[0].Id;
 				await JSRuntime.InvokeVoidAsync("selectText", $"PDTE-{key}").ConfigureAwait(true);
 				_beginEditEvent.Reset();
 			}
@@ -511,6 +511,55 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private void OnKeyDown(KeyboardEventArgs args)
+		{
+			if(IsEditing)
+			{
+				switch (args.Code)
+				{
+					case "Escape":
+						CancelEdit();
+						break;
+
+					case "Enter":
+					case "Return":
+						CommitEdit();
+						break;
+				}
+			}
+			else
+			{
+				switch (args.Code)
+				{
+					case "F2":
+						BeginEdit();
+						break;
+
+					case "ArrowUp":
+					case "ArrowDown":
+						if(Selection.Count == 1 && KeyField != null)
+						{
+							var items = ItemsToDisplay.ToList();
+							var item = items.Find(x => KeyField(x).ToString() == Selection[0]);
+							if(item != null)
+							{
+								var idx = items.IndexOf(item);
+								if(args.Code == "ArrowUp" && idx > 0)
+								{
+									Selection.Clear();
+									Selection.Add(KeyField(items[idx - 1]).ToString());
+								}
+								else if (args.Code == "ArrowDown" && idx < items.Count - 1)
+								{
+									Selection.Clear();
+									Selection.Add(KeyField(items[idx + 1]).ToString());
+								}
+							}
+						}
+						break;
+				}
+			}
+		}
 		private string GetDynamicRowClasses(TItem item)
 		{
 			var sb = new StringBuilder();

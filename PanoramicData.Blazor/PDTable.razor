@@ -2,7 +2,7 @@
 
 @if (TableInitialised)
 {
-	<div class="pdtable">
+	<div class="pdtable" tabindex="0" @onkeydown="OnKeyDown">
 		<table class="table @TableClass">
 			@if (PageSize.HasValue)
 			{
@@ -48,7 +48,8 @@
 						if (IsEditing && item == EditItem)
 						{
 							<td class="@column.TdClass">
-								<input id="@($"PDTE-{column.Id}")" type="text" value="@($"{column.GetValue(item)}")" class="pdte form-control" @onblur="OnEndEdit" />
+								<input id="@($"PDTE-{column.Id}")" type="text" value="@($"{column.GetValue(item)}")" class="pdte form-control"
+									   @onblur="OnEndEdit" @onmousedown:stopPropagation @onclick:stopPropagation @oncontextmenu:stopPropagation />
 							</td>
 						}
 						else

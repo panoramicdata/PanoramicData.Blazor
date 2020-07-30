@@ -15,7 +15,7 @@
 			@if (Node?.IsEditing == true)
 			{
 				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit" @bind="@Node.EditText" @bind:event="oninput"
-					   @onblur="OnEndEdit" @onmousedown:stopPropagation @onclick:stopPropagation @oncontextmenu:stopPropagation/>
+					   @onblur="OnEndEdit" @onmousedown:stopPropagation @onclick:stopPropagation @oncontextmenu:stopPropagation />
 			}
 			else
 			{
