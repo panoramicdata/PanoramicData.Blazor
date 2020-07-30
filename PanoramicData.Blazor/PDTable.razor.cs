@@ -120,8 +120,12 @@ namespace PanoramicData.Blazor
 		/// Action called whenever data items are loaded.
 		/// </summary>
 		/// <remarks>The action allows the items to be modified by the calling application.</remarks>
-		[Parameter]
-		public Action<List<TItem>>? ItemsLoaded { get; set; }
+		[Parameter] public Action<List<TItem>>? ItemsLoaded { get; set; }
+
+		/// <summary>
+		/// Gets whether the table allows in-place editing.
+		/// </summary>
+		[Parameter] public bool AllowEdit { get; set; }
 
 		/// <summary>
 		/// Gets a full list of all columns.
@@ -375,26 +379,53 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task RowClickHandler(TItem item)
+		private async Task OnRowMouseDown(MouseEventArgs args, TItem item)
 		{
-			if(SelectionMode != TableSelectionMode.None)
+			var key = KeyField!(item)?.ToString();
+			if (key != null)
 			{
-				var key = KeyField!(item)?.ToString();
-				if (key != null)
+				var alreadySelected = Selection.Contains(key);
+				if (SelectionMode == TableSelectionMode.Single)
 				{
-					if (Selection.Contains(key))
+					if(alreadySelected)
 					{
-						Selection.Remove(key);
+						// if edit allow and not editing and was already selected then begin edit
 					}
 					else
 					{
-						if(SelectionMode == TableSelectionMode.Single)
+						Selection.Clear();
+						Selection.Add(key);
+						await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+					}
+				}
+				else if (SelectionMode == TableSelectionMode.Multiple)
+				{
+					if(args.CtrlKey)
+					{
+						// toggle current selection
+						if(alreadySelected)
+						{
+							Selection.Remove(key);
+						}
+						else
+						{
+							Selection.Add(key);
+						}
+						await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+					}
+					else
+					{
+						if (alreadySelected)
+						{
+							// if edit allow and not editing and was already selected then begin edit
+						}
+						else
 						{
 							Selection.Clear();
+							Selection.Add(key);
+							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 						}
-						Selection.Add(key);
 					}
-					await SelectionChanged.InvokeAsync(null);
 				}
 			}
 		}
