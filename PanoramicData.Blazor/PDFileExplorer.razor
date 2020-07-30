@@ -27,7 +27,7 @@
 			<PDContextMenu Items="TableContextItems" BeforeShow="OnTableBeforeShowContextMenu" ItemClick="OnTableContextMenuItemClick">
 
 				<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
-						 SelectionMode="TableSelectionMode.Single" KeyField="x => x.Path"
+						 SelectionMode="TableSelectionMode.Single" KeyField="x => x.Path" AllowEdit="true"
 						 DoubleClick="OnTableDoubleClick" ItemsLoaded="OnTableItemsLoaded"
 						 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")}")">
 
