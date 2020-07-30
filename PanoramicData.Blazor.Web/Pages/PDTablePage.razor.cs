@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using PanoramicData.Blazor.Web.Data;
 using PanoramicData.Blazor.Extensions;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace PanoramicData.Blazor.Web.Pages
 {

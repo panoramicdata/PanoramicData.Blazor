@@ -16,6 +16,10 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDTable<TItem> : ISortableComponent, IPageableComponent where TItem: class
 	{
+		public const string IdPrefix = "pd-table-";
+		public const string IdEditPrefix = "pd-table-edit-";
+		private static int _idSequence;
+
 		private ManualResetEvent _beginEditEvent { get; set; } = new ManualResetEvent(false);
 
 		/// <summary>
@@ -136,6 +140,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AllowEdit { get; set; }
 
 		/// <summary>
+		/// Gets the unique identifier of this table.
+		/// </summary>
+		public string Id { get; private set; } = string.Empty;
+
+		/// <summary>
 		/// Gets the current item being edited.
 		/// </summary>
 		public TItem? EditItem { get; private set; }
@@ -210,79 +219,6 @@ namespace PanoramicData.Blazor
 		/// Gets whether the table is currently in edit mode.
 		/// </summary>
 		public bool IsEditing { get; private set; }
-
-		protected override void OnInitialized()
-		{
-			if (DataProvider is null)
-			{
-				throw new PDTableException($"{nameof(DataProvider)} must not be null.");
-			}
-		}
-
-		protected async override Task OnParametersSetAsync()
-		{
-			// validate parameter constraints
-			if (SelectionMode != TableSelectionMode.None && KeyField == null)
-			{
-				throw new PDTableException("KeyField attribute must be specified when enabling selection.");
-			}
-			await RefreshAsync().ConfigureAwait(true);
-		}
-
-		protected override async Task OnAfterRenderAsync(bool firstRender)
-		{
-			// If this is the first time we've finished rendering, then all the columns
-			// have been added to the table so we'll go and get the data for the first time
-			if (firstRender)
-			{
-				try
-				{
-					// default sort
-					if (DefaultSort != null)
-					{
-						var columnToSortBy = Columns.SingleOrDefault(c => c.Id == DefaultSort.Key || c.Title == DefaultSort.Key);
-						if (columnToSortBy != null)
-						{
-							await columnToSortBy.SortByAsync(DefaultSort.Direction).ConfigureAwait(true);
-						}
-					}
-
-					// default page
-					if(DefaultPage != null)
-					{
-						Page = DefaultPage.Page;
-						PageSize = DefaultPage.PageSize;
-					}
-				}
-				catch (Exception ex)
-				{
-					await HandleExceptionAsync(ex).ConfigureAwait(true);
-				}
-				finally
-				{
-					TableInitialised = true;
-					StateHasChanged();
-				}
-
-				try
-				{
-					await GetDataAsync().ConfigureAwait(true);
-					StateHasChanged();
-				}
-				catch (Exception ex)
-				{
-					await HandleExceptionAsync(ex).ConfigureAwait(true);
-				}
-			}
-
-			// focus first editor after edit mode begins
-			if(_beginEditEvent.WaitOne(0) && ColumnsConfig?.Count > 0)
-			{
-				var key = ColumnsConfig[0].Id;
-				await JSRuntime.InvokeVoidAsync("selectText", $"PDTE-{key}").ConfigureAwait(true);
-				_beginEditEvent.Reset();
-			}
-		}
 
 		/// <summary>
 		/// Adds the given column to the list of available columns.
@@ -410,7 +346,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public void BeginEdit()
 		{
-			if (AllowEdit && !IsEditing && Selection.Count == 1 && KeyField != null)
+			if (AllowEdit && !IsEditing && SelectionMode != TableSelectionMode.None && Selection.Count == 1 && KeyField != null)
 			{
 				// find item to edit
 				var item = ItemsToDisplay.FirstOrDefault(x => KeyField(x).ToString() == Selection[0]);
@@ -434,6 +370,7 @@ namespace PanoramicData.Blazor
 			{
 				EditItem = null;
 				IsEditing = false;
+				JSRuntime?.InvokeVoidAsync("focus", Id);
 			}
 		}
 
@@ -446,6 +383,81 @@ namespace PanoramicData.Blazor
 			{
 				EditItem = null;
 				IsEditing = false;
+				JSRuntime?.InvokeVoidAsync("focus", Id);
+			}
+		}
+
+		protected override void OnInitialized()
+		{
+			Id = $"{IdPrefix}{++_idSequence}";
+			if (DataProvider is null)
+			{
+				throw new PDTableException($"{nameof(DataProvider)} must not be null.");
+			}
+		}
+
+		protected async override Task OnParametersSetAsync()
+		{
+			// validate parameter constraints
+			if (SelectionMode != TableSelectionMode.None && KeyField == null)
+			{
+				throw new PDTableException("KeyField attribute must be specified when enabling selection.");
+			}
+			await RefreshAsync().ConfigureAwait(true);
+		}
+
+		protected override async Task OnAfterRenderAsync(bool firstRender)
+		{
+			// If this is the first time we've finished rendering, then all the columns
+			// have been added to the table so we'll go and get the data for the first time
+			if (firstRender)
+			{
+				try
+				{
+					// default sort
+					if (DefaultSort != null)
+					{
+						var columnToSortBy = Columns.SingleOrDefault(c => c.Id == DefaultSort.Key || c.Title == DefaultSort.Key);
+						if (columnToSortBy != null)
+						{
+							await columnToSortBy.SortByAsync(DefaultSort.Direction).ConfigureAwait(true);
+						}
+					}
+
+					// default page
+					if (DefaultPage != null)
+					{
+						Page = DefaultPage.Page;
+						PageSize = DefaultPage.PageSize;
+					}
+				}
+				catch (Exception ex)
+				{
+					await HandleExceptionAsync(ex).ConfigureAwait(true);
+				}
+				finally
+				{
+					TableInitialised = true;
+					StateHasChanged();
+				}
+
+				try
+				{
+					await GetDataAsync().ConfigureAwait(true);
+					StateHasChanged();
+				}
+				catch (Exception ex)
+				{
+					await HandleExceptionAsync(ex).ConfigureAwait(true);
+				}
+			}
+
+			// focus first editor after edit mode begins
+			if (_beginEditEvent.WaitOne(0) && ColumnsConfig?.Count > 0)
+			{
+				var key = ColumnsConfig[0].Id;
+				await JSRuntime.InvokeVoidAsync("selectText", $"{IdEditPrefix}{key}").ConfigureAwait(true);
+				_beginEditEvent.Reset();
 			}
 		}
 
@@ -455,10 +467,9 @@ namespace PanoramicData.Blazor
 			{
 				// if focus has moved to another editor then continue editing
 				var id = await JSRuntime.InvokeAsync<string>("getFocusedElementId").ConfigureAwait(true);
-				if (!id.StartsWith("PDTE-"))
+				if (!id.StartsWith(IdEditPrefix))
 				{
-					EditItem = null;
-					IsEditing = false;
+					CommitEdit();
 				}
 			}
 		}

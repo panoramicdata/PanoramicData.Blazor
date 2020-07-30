@@ -40,6 +40,12 @@
 .pdtablerow.selected {
   background-color: #007bff; }
 
+.pdtable:focus {
+  outline: none; }
+
+.pdtable_edit {
+  width: 100%; }
+
 .pdtree {
   -webkit-user-select: none;
   /* Chrome/Safari */

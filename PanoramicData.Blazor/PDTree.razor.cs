@@ -13,12 +13,13 @@ namespace PanoramicData.Blazor
 {
     public partial class PDTree<TItem> where TItem : class
     {
+		private const string IdPrefix = "pd-tree-";
 		private static int _idSequence;
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		/// <summary>
-		/// Gets the unique identifier of this panel.
+		/// Gets the unique identifier of this tree.
 		/// </summary>
 		public string Id { get; private set; } = string.Empty;
 
@@ -377,7 +378,7 @@ namespace PanoramicData.Blazor
 
 		protected override void OnInitialized()
 		{
-			Id = $"PDT{++_idSequence}";
+			Id = $"{IdPrefix}{++_idSequence}";
 		}
 
 		protected async override Task OnAfterRenderAsync(bool firstRender)
