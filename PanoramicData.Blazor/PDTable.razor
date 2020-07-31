@@ -45,24 +45,24 @@
 					@oncontextmenu="@((a) => ContextMenuHandler(a, item))" @oncontextmenu:preventDefault>
 					@foreach (var column in ActualColumnsToDisplay)
 					{
-						if (IsEditing && item == EditItem)
-						{
-							<td class="@column.TdClass">
+						<td class="@column.TdClass">
+							@if (IsEditing && item == EditItem)
+							{
 								<input id="@($"{IdEditPrefix}{column.Id}")" type="text" value="@($"{column.GetValue(item)}")" class="pdtable_edit"
 									   @onblur="OnEndEdit" @onmousedown:stopPropagation @onclick:stopPropagation @oncontextmenu:stopPropagation />
-							</td>
-						}
-						else
-						{
-							if (column.Template == null)
-							{
-								<td class="@column.TdClass">@column.Render(item)</td>
 							}
 							else
 							{
-								<td class="@column.TdClass">@column.Template(item)</td>
+								if (column.Template == null)
+								{
+									@column.Render(item);
+								}
+								else
+								{
+									@column.Template(item);
+								}
 							}
-						}
+						</td>
 					}
 				</tr>
 					}
