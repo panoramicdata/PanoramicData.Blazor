@@ -211,6 +211,11 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private void OnTableBeforeEdit(TableBeforeEditEventArgs<FileExplorerItem> args)
+		{
+			args.Cancel = args.Item.Name == "..";
+		}
+
 		private async Task OpenFolder(string path)
 		{
 			if (Path.GetFileName(path) == "..")
