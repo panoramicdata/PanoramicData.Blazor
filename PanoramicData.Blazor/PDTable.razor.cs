@@ -140,6 +140,16 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AllowEdit { get; set; }
 
 		/// <summary>
+		/// Callback fired before an item edit begins.
+		/// </summary>
+		[Parameter] public EventCallback<TableBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
+
+		/// <summary>
+		/// Callback fired after an item edit ends.
+		/// </summary>
+		[Parameter] public EventCallback<TableAfterEditEventArgs<TItem>> AfterEdit { get; set; }
+
+		/// <summary>
 		/// Gets the unique identifier of this table.
 		/// </summary>
 		public string Id { get; private set; } = string.Empty;
@@ -344,7 +354,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Begins editing of the given item.
 		/// </summary>
-		public void BeginEdit()
+		public async Task BeginEdit()
 		{
 			if (AllowEdit && !IsEditing && SelectionMode != TableSelectionMode.None && Selection.Count == 1 && KeyField != null)
 			{
@@ -353,10 +363,14 @@ namespace PanoramicData.Blazor
 				if (item != null)
 				{
 					// notify and allow for cancel
-
-					IsEditing = true;
 					EditItem = item;
-					_beginEditEvent.Set();
+					var args = new TableBeforeEditEventArgs<TItem>(EditItem);
+					await BeforeEdit.InvokeAsync(args).ConfigureAwait(true);
+					if (!args.Cancel)
+					{
+						IsEditing = true;
+						_beginEditEvent.Set();
+					}
 				}
 			}
 		}

@@ -19,7 +19,8 @@
 <PDTable @ref="_table" TItem="TestRow" DataProvider="DataProvider" KeyField="x => x.IntField"
 		 ColumnsConfig="_columnsConfig" SearchText="@_searchText"
 		 SelectionMode="@SelectionMode" SelectionChanged="OnSelectionChange"
-		 Click="OnClick" DoubleClick="OnDoubleClick" AllowEdit="true"
+		 Click="OnClick" DoubleClick="OnDoubleClick"
+		 AllowEdit="true" BeforeEdit="OnBeforeEdit"
 		 DefaultPage="_defaultPage" PageChanged="OnPageChange"
 		 DefaultSort="_defaultSort" SortChanged="OnSortChange">
 

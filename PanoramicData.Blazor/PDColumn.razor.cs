@@ -16,21 +16,6 @@ namespace PanoramicData.Blazor
 		private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
 
 		/// <summary>
-		/// Gets or sets the attributes of the underlying property.
-		/// </summary>
-		public PropertyInfo? PropertyInfo { get; set; }
-
-		/// <summary>
-		/// Gets or sets this column is currently being sorted on.
-		/// </summary>
-		public bool SortColumn { get; set; }
-
-		/// <summary>
-		/// Gets or sets the current sort direction of this column.
-		/// </summary>
-		public SortDirection SortDirection { get; set; }
-
-		/// <summary>
 		/// The parent PDTable instance.
 		/// </summary>
 		[CascadingParameter(Name = "Table")]
@@ -39,14 +24,12 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// The Id - this should be unique per column in a table
 		/// </summary>
-		[Parameter]
-		public string Id { get; set; } = string.Empty;
+		[Parameter] public string Id { get; set; } = string.Empty;
 
 		/// <summary>
 		/// The data type of the columns field value.
 		/// </summary>
-		[Parameter]
-		public Type? Type { get; set; }
+		[Parameter] public Type? Type { get; set; }
 
 		/// <summary>
 		/// Optional CSS class for the column cell.
@@ -109,26 +92,20 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public RenderFragment<TItem>? Template { get; set; }
 
-		protected override async Task OnInitializedAsync()
-		{
-			if (Table == null)
-			{
-				throw new InvalidOperationException($"Error initializing column {Id}. " +
-					"Table reference is null which implies it did not initialize or that the column " +
-					$"type '{typeof(TItem)}' does not match the table type.");
-			}
-			await Table.AddColumnAsync(this).ConfigureAwait(true);
-		}
+		/// <summary>
+		/// Gets or sets the attributes of the underlying property.
+		/// </summary>
+		public PropertyInfo? PropertyInfo { get; set; }
 
-		protected override void OnParametersSet()
-		{
-			// Validate that enough parameters have been set correctly
-			if (Type == null)
-			{
-				Type = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
-			}
-			PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
-		}
+		/// <summary>
+		/// Gets or sets this column is currently being sorted on.
+		/// </summary>
+		public bool SortColumn { get; set; }
+
+		/// <summary>
+		/// Gets or sets the current sort direction of this column.
+		/// </summary>
+		public SortDirection SortDirection { get; set; }
 
 		/// <summary>
 		/// Gets the column value from the given TItem.
@@ -212,7 +189,7 @@ namespace PanoramicData.Blazor
 					// Unset all other columns
 					Table.Columns.ForEach(c => c.SortColumn = false);
 					SortColumn = true;
-					if(requestedSortDirection.HasValue)
+					if (requestedSortDirection.HasValue)
 						SortDirection = requestedSortDirection.Value;
 				}
 			}
@@ -222,6 +199,25 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		protected override async Task OnInitializedAsync()
+		{
+			if (Table == null)
+			{
+				throw new InvalidOperationException($"Error initializing column {Id}. " +
+					"Table reference is null which implies it did not initialize or that the column " +
+					$"type '{typeof(TItem)}' does not match the table type.");
+			}
+			await Table.AddColumnAsync(this).ConfigureAwait(true);
+		}
 
+		protected override void OnParametersSet()
+		{
+			// Validate that enough parameters have been set correctly
+			if (Type == null)
+			{
+				Type = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
+			}
+			PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
+		}
 	}
 }

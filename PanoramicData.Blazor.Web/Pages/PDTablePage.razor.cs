@@ -116,5 +116,11 @@ namespace PanoramicData.Blazor.Web.Pages
 		{
 			_events += $"double-click: {item.IntField}{Environment.NewLine}";
 		}
+
+		private void OnBeforeEdit(TableBeforeEditEventArgs<TestRow> args)
+		{
+			// example of preventing an edit
+			args.Cancel = args.Item.BooleanField;
+		}
 	}
 }
