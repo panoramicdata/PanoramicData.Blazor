@@ -467,11 +467,26 @@ namespace PanoramicData.Blazor
 			}
 
 			// focus first editor after edit mode begins
-			if (_beginEditEvent.WaitOne(0) && ColumnsConfig?.Count > 0)
+			if (_beginEditEvent.WaitOne(0) && Columns.Count > 0)
 			{
-				var key = ColumnsConfig[0].Id;
-				await JSRuntime.InvokeVoidAsync("selectText", $"{IdEditPrefix}{key}").ConfigureAwait(true);
-				_beginEditEvent.Reset();
+				// find first editable column
+				var key = string.Empty;
+				foreach(var column in Columns)
+				{
+					var editable = column.Editable;
+					// override with dynamic config?
+					var config = ColumnsConfig?.Find(x => x.Id == column.Id);
+					if(config?.Editable ?? editable)
+					{
+						key = column.Id;
+						break;
+					}
+				}
+				if (key != string.Empty)
+				{
+					await JSRuntime.InvokeVoidAsync("selectText", $"{IdEditPrefix}{key}").ConfigureAwait(true);
+					_beginEditEvent.Reset();
+				}
 			}
 		}
 
@@ -496,9 +511,9 @@ namespace PanoramicData.Blazor
 				var alreadySelected = Selection.Contains(key);
 
 				// begin edit mode?
-				if(AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey)
+				if(AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
 				{
-					BeginEdit();
+					await BeginEdit().ConfigureAwait(true);
 				}
 				else
 				{
@@ -585,6 +600,7 @@ namespace PanoramicData.Blazor
 				}
 			}
 		}
+
 		private string GetDynamicRowClasses(TItem item)
 		{
 			var sb = new StringBuilder();
@@ -607,8 +623,17 @@ namespace PanoramicData.Blazor
 			return sb.ToString().Trim();
 		}
 
-		private void ContextMenuHandler(MouseEventArgs args, TItem item)
+		private bool IsColumnInEditMode(PDColumn<TItem> column, TItem item)
 		{
+			// is editing current row?
+			if(IsEditing && item == EditItem)
+			{
+				var editable = column.Editable;
+				// override with dynamic config?
+				var config = ColumnsConfig?.Find(x => x.Id == column.Id);
+				return config?.Editable ?? editable;
+			}
+			return false;
 		}
 	}
 }

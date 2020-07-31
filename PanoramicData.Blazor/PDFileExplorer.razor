@@ -32,7 +32,7 @@
 						 BeforeEdit="OnTableBeforeEdit"
 						 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")}")">
 
-					<PDColumn TItem="FileExplorerItem" Id="Icon" Field="x => x.EntryType">
+					<PDColumn TItem="FileExplorerItem" Id="Icon" Field="x => x.EntryType" Editable="false">
 						<Template>
 							<i class="far @(context.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
 						</Template>
@@ -42,7 +42,7 @@
 							<span class="">@context.Name</span>
 						</Template>
 					</PDColumn>
-					<PDColumn TItem="FileExplorerItem" Id="Type" Field="x => x.EntryType">
+					<PDColumn TItem="FileExplorerItem" Id="Type" Field="x => x.EntryType" Editable="false">
 						<Template>
 							<span class="text-nowrap">
 								@(context.EntryType == FileExplorerItemType.Directory
@@ -51,14 +51,14 @@
 							</span>
 						</Template>
 					</PDColumn>
-					<PDColumn TItem="FileExplorerItem" Id="Size" Field="x => x.FileSize">
+					<PDColumn TItem="FileExplorerItem" Id="Size" Field="x => x.FileSize" Editable="false">
 						<Template>
 							<span title="@(context.FileSize.ToString("0,0")) bytes">
 								@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize("#"))
 							</span>
 						</Template>
 					</PDColumn>
-					<PDColumn TItem="FileExplorerItem" Id="Created" Field="x => x.DateCreated">
+					<PDColumn TItem="FileExplorerItem" Id="Created" Field="x => x.DateCreated" Editable="false">
 						<Template>
 							@if (context.DateCreated != DateTime.MinValue)
 							{
@@ -68,7 +68,7 @@
 							}
 						</Template>
 					</PDColumn>
-					<PDColumn TItem="FileExplorerItem" Id="Modified" Field="x => x.DateModified">
+					<PDColumn TItem="FileExplorerItem" Id="Modified" Field="x => x.DateModified" Editable="false">
 						<Template>
 							@if (context.DateModified != DateTime.MinValue)
 							{

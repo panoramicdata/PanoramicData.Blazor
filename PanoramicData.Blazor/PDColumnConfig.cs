@@ -15,5 +15,10 @@
 		/// Gets or sets an override for the columns default title.
 		/// </summary>
 		public string? Title { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether this columns can be edited when the containing row is in edit mode.
+		/// </summary>
+		public bool? Editable { get; set; }
 	}
 }

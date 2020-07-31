@@ -28,7 +28,7 @@ namespace PanoramicData.Blazor.Web.Pages
 			{
 				new PDColumnConfig { Id = "Col1" },
 				new PDColumnConfig { Id = "Col2", Title = "Date Started" },
-				new PDColumnConfig { Id = "Col3" },
+				new PDColumnConfig { Id = "Col3", Editable = false },
 				new PDColumnConfig { Id = "Col4" },
 				new PDColumnConfig { Id = "Col5" }
 			};
@@ -119,6 +119,7 @@ namespace PanoramicData.Blazor.Web.Pages
 
 		private void OnBeforeEdit(TableBeforeEditEventArgs<TestRow> args)
 		{
+			_events += $"before edit: {args.Item.IntField}{Environment.NewLine}";
 			// example of preventing an edit
 			args.Cancel = args.Item.BooleanField;
 		}

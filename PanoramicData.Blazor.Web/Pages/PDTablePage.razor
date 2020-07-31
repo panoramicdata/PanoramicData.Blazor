@@ -24,7 +24,7 @@
 		 DefaultPage="_defaultPage" PageChanged="OnPageChange"
 		 DefaultSort="_defaultSort" SortChanged="OnSortChange">
 
-	<PDColumn Id="Col1" TItem="TestRow" Title="Id" Field="x => x.IntField" />
+	<PDColumn Id="Col1" Editable="false" TItem="TestRow" Title="Id" Field="x => x.IntField" />
 	<PDColumn Id="Col2" TdClass="text-nowrap" TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm" />
 	<PDColumn Id="Col3" TItem="TestRow" Title="Enabled" Field="x => x.BooleanField">
 		<Template>

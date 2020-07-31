@@ -73,6 +73,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool Visible { get; set; } = true;
 
 		/// <summary>
+		/// Gets or sets whether this column is editable.
+		/// </summary>
+		[Parameter] public bool Editable { get; set; } = true;
+
+		/// <summary>
 		/// If set will override the FieldExpression's name
 		/// </summary>
 		[Parameter]

@@ -42,11 +42,11 @@
 					@onmousedown="@((args) => OnRowMouseDown(args, item))"
 					@onclick="() => Click.InvokeAsync(item)"
 					@ondblclick="() => DoubleClick.InvokeAsync(item)"
-					@oncontextmenu="@((a) => ContextMenuHandler(a, item))" @oncontextmenu:preventDefault>
+					@oncontextmenu:preventDefault>
 					@foreach (var column in ActualColumnsToDisplay)
 					{
 						<td class="@column.TdClass">
-							@if (IsEditing && item == EditItem)
+							@if (IsColumnInEditMode(column, item))
 							{
 								<input id="@($"{IdEditPrefix}{column.Id}")" type="text" value="@($"{column.GetValue(item)}")" class="pdtable_edit"
 									   @onblur="OnEndEdit" @onmousedown:stopPropagation @onclick:stopPropagation @oncontextmenu:stopPropagation />

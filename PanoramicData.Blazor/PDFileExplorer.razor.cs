@@ -205,7 +205,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTableDoubleClick(FileExplorerItem item)
 		{
-			if (item.EntryType == FileExplorerItemType.Directory)
+			if (!_table!.IsEditing && item.EntryType == FileExplorerItemType.Directory)
 			{
 				await OpenFolder(item.Path).ConfigureAwait(true);
 			}
