@@ -57,7 +57,7 @@ namespace PanoramicData.Blazor
 				}
 				else
 				{
-					Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), value);
+					Path = $"{System.IO.Path.GetDirectoryName(Path)}{System.IO.Path.DirectorySeparatorChar}{value}";
 				}
 			}
 		}

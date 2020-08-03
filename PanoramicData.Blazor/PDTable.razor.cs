@@ -262,8 +262,9 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Refresh the grid by performing a re-query.
 		/// </summary>
-		public Task RefreshAsync()
-			=> GetDataAsync();
+		/// <param name="searchText">Optional override for the search text.</param>
+		public Task RefreshAsync(string? searchText = null)
+			=> GetDataAsync(searchText);
 
 		/// <summary>
 		/// Instructs the component to show the specified page.
@@ -297,7 +298,8 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Requests data from the data provider using the current settings.
 		/// </summary>
-		protected async Task GetDataAsync()
+		/// <param name="searchText">Optional override for the search text.</param>
+		protected async Task GetDataAsync(string? searchText = null)
 		{
 			try
 			{
@@ -308,7 +310,7 @@ namespace PanoramicData.Blazor
 					ForceUpdate = false,
 					SortFieldExpression = sortColumn?.Field,
 					SortDirection = sortColumn?.SortDirection,
-					SearchText = SearchText
+					SearchText = searchText == null ? SearchText : searchText
 				};
 
 				// paging
@@ -452,14 +454,13 @@ namespace PanoramicData.Blazor
 			_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
 		}
 
-		protected async override Task OnParametersSetAsync()
+		protected override void OnParametersSet()
 		{
 			// validate parameter constraints
 			if (SelectionMode != TableSelectionMode.None && KeyField == null)
 			{
 				throw new PDTableException("KeyField attribute must be specified when enabling selection.");
 			}
-			await RefreshAsync().ConfigureAwait(true);
 		}
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)

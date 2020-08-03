@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Extensions;
+using System.Runtime.CompilerServices;
 
 namespace PanoramicData.Blazor
 {
@@ -105,7 +106,8 @@ namespace PanoramicData.Blazor
 			{
 				FolderPath = node.Data.Path;
 				_table!.Selection.Clear();
-				await _table!.RefreshAsync();
+				await _table!.RefreshAsync(node.Data.Path); // explicitly state search path else fetch will use previous value as OnParametersSet not yet called
+				StateHasChanged();
 			}
 		}
 
@@ -224,14 +226,29 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnTableAfterEdit(TableAfterEditEventArgs<FileExplorerItem> args)
+		private async Task OnTableAfterEdit(TableAfterEditEventArgs<FileExplorerItem> args)
 		{
 			// cancel is new name is empty
-			if(args.NewValues.ContainsKey("Name"))
+			if (args.NewValues.ContainsKey("Name"))
 			{
-				if(string.IsNullOrWhiteSpace(args.NewValues["Name"]))
+				if (string.IsNullOrWhiteSpace(args.NewValues["Name"]))
 				{
 					args.Cancel = true;
+				}
+				else
+				{
+					var previousPath = args.Item.Path;
+					var newPath = $"{args.Item.ParentPath}{Path.DirectorySeparatorChar}{args.NewValues["Name"]}";
+					// inform data provider
+					var result = await DataProvider.UpdateAsync(args.Item, new { Path = newPath }, CancellationToken.None).ConfigureAwait(true);
+					if (result.Success)
+					{
+						// if folder renamed then update nodes
+						if (args.Item.EntryType == FileExplorerItemType.Directory)
+						{
+							await DirectoryRename(previousPath, newPath).ConfigureAwait(true);
+						}
+					}
 				}
 			}
 		}
@@ -325,6 +342,28 @@ namespace PanoramicData.Blazor
 						}
 					}
 				}
+			}
+		}
+
+		private async Task DirectoryRename(string oldPath, string newPath)
+		{
+			// synchronize existing node paths for tree and table
+			_tree!.RootNode.Walk((x) =>
+			{
+				if (x.Data != null)
+				{
+					x.Key = x.Key.ReplacePathPrefix(oldPath, newPath);
+					x.Data.Path = x.Data.Path.ReplacePathPrefix(oldPath, newPath);
+				}
+				return true;
+			});
+			_table!.ItemsToDisplay.ToList().ForEach(x =>
+			{
+				x.Path = x.Path.ReplacePathPrefix(oldPath, newPath);
+			});
+			if (_tree?.SelectedNode != null)
+			{
+				await OnTreeSelectionChange(_tree.SelectedNode).ConfigureAwait(true);
 			}
 		}
 	}
