@@ -14,11 +14,12 @@ using PanoramicData.Blazor.Exceptions;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDTable<TItem> : ISortableComponent, IPageableComponent where TItem: class
+	public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IDisposable where TItem: class
 	{
 		public const string IdPrefix = "pd-table-";
 		public const string IdEditPrefix = "pd-table-edit-";
 		private static int _idSequence;
+		private Timer? _editTimer;
 
 		private ManualResetEvent _beginEditEvent { get; set; } = new ManualResetEvent(false);
 
@@ -365,11 +366,15 @@ namespace PanoramicData.Blazor
 					// notify and allow for cancel
 					EditItem = item;
 					var args = new TableBeforeEditEventArgs<TItem>(EditItem);
-					await BeforeEdit.InvokeAsync(args).ConfigureAwait(true);
+					await InvokeAsync(async () =>
+					{
+						await BeforeEdit.InvokeAsync(args).ConfigureAwait(true);
+					}).ConfigureAwait(true);
 					if (!args.Cancel)
 					{
 						IsEditing = true;
 						_beginEditEvent.Set();
+						await InvokeAsync(StateHasChanged).ConfigureAwait(true);
 					}
 				}
 			}
@@ -408,6 +413,7 @@ namespace PanoramicData.Blazor
 			{
 				throw new PDTableException($"{nameof(DataProvider)} must not be null.");
 			}
+			_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
 		}
 
 		protected async override Task OnParametersSetAsync()
@@ -513,7 +519,9 @@ namespace PanoramicData.Blazor
 				// begin edit mode?
 				if(AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
 				{
-					await BeginEdit().ConfigureAwait(true);
+					//_editTimer.Start();
+					_editTimer?.Change(500, Timeout.Infinite);
+					//await BeginEdit().ConfigureAwait(true);
 				}
 				else
 				{
@@ -549,6 +557,18 @@ namespace PanoramicData.Blazor
 					}
 				}
 			}
+		}
+
+		private void OnRowClick(MouseEventArgs args, TItem item)
+		{
+			Click.InvokeAsync(item);
+		}
+
+		private void OnRowDoubleClick(MouseEventArgs args, TItem item)
+		{
+			// cancel pending edit mode
+			_editTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+			DoubleClick.InvokeAsync(item);
 		}
 
 		private void OnKeyDown(KeyboardEventArgs args)
@@ -601,6 +621,14 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private void OnEditTimer(object state)
+		{
+			Task.Run(async () =>
+			{
+				await BeginEdit().ConfigureAwait(true);
+			});
+		}
+
 		private string GetDynamicRowClasses(TItem item)
 		{
 			var sb = new StringBuilder();
@@ -634,6 +662,12 @@ namespace PanoramicData.Blazor
 				return config?.Editable ?? editable;
 			}
 			return false;
+		}
+
+		void IDisposable.Dispose()
+		{
+			_editTimer?.Dispose();
+			_editTimer = null;
 		}
 	}
 }

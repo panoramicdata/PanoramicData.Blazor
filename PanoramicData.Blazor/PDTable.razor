@@ -40,8 +40,8 @@
 					{
 				<tr class="pdtablerow @GetDynamicRowClasses(item)"
 					@onmousedown="@((args) => OnRowMouseDown(args, item))"
-					@onclick="() => Click.InvokeAsync(item)"
-					@ondblclick="() => DoubleClick.InvokeAsync(item)"
+					@onclick="@((args) => OnRowClick(args, item))"
+					@ondblclick="@((args) => OnRowDoubleClick(args, item))"
 					@oncontextmenu:preventDefault>
 					@foreach (var column in ActualColumnsToDisplay)
 					{
