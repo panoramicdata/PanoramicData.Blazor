@@ -193,7 +193,7 @@ namespace PanoramicData.Blazor
 					{
 						x.Path = x.Path.ReplacePathPrefix(previousPath, newPath);
 					});
-					await OnTreeSelectionChange(_tree.SelectedNode);
+					await OnTreeSelectionChange(_tree.SelectedNode).ConfigureAwait(true);
 				}
 			}
 		}
@@ -221,6 +221,18 @@ namespace PanoramicData.Blazor
 			{
 				// only want to select the filename portion of the text
 				args.SelectionEnd = Path.GetFileNameWithoutExtension(args.Item.Name).Length;
+			}
+		}
+
+		private void OnTableAfterEdit(TableAfterEditEventArgs<FileExplorerItem> args)
+		{
+			// cancel is new name is empty
+			if(args.NewValues.ContainsKey("Name"))
+			{
+				if(string.IsNullOrWhiteSpace(args.NewValues["Name"]))
+				{
+					args.Cancel = true;
+				}
 			}
 		}
 

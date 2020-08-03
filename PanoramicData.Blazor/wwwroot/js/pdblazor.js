@@ -74,3 +74,10 @@ function selectText(id, start, end) {
 function getFocusedElementId() {
 	return document.activeElement.id;
 }
+
+function getValue(id) {
+	var node = document.getElementById(id);
+	if(node)
+		return node.value;
+	return null;
+}

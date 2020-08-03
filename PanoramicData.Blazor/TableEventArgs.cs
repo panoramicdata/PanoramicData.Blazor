@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor
+﻿using System.Collections.Generic;
+
+namespace PanoramicData.Blazor
 {
 	/// <summary>
 	/// The TableEventArgs class holds details on a node event.
@@ -74,16 +76,14 @@
 		/// Initializes a new instance of the TableBeforeEditEventArgs class.
 		/// </summary>
 		/// <param name="item">The original item values the event relates to.</param>
-		/// <param name="newValues">The new item values.</param>
-		public TableAfterEditEventArgs(TItem item, TItem newValues)
+		public TableAfterEditEventArgs(TItem item)
 			: base(item)
 		{
-			NewValues = newValues;
 		}
 
 		/// <summary>
 		/// Gets or sets the new values.
 		/// </summary>
-		public TItem NewValues { get; set; }
+		public Dictionary<string, string> NewValues { get; set; } = new Dictionary<string, string>();
 	}
 }

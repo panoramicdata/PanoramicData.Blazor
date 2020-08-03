@@ -384,10 +384,45 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Commits the current edit.
 		/// </summary>
-		public void CommitEdit()
+		public async Task CommitEdit()
 		{
-			if (IsEditing)
+			if (IsEditing && EditItem != null)
 			{
+				// build dictionary of edit values
+				var args = new TableAfterEditEventArgs<TItem>(EditItem);
+				foreach (var column in ActualColumnsToDisplay)
+				{
+					if (IsColumnInEditMode(column, EditItem))
+					{
+						var newValue = await JSRuntime.InvokeAsync<string>("getValue", $"{IdEditPrefix}{column.Id}").ConfigureAwait(true);
+						args.NewValues.Add(column.Id, newValue);
+					}
+				}
+
+				// notify and allow cancel
+				await AfterEdit.InvokeAsync(args).ConfigureAwait(true);
+				if (!args.Cancel)
+				{
+					// apply edit value to each column
+					foreach (var column in ActualColumnsToDisplay)
+					{
+						if (IsColumnInEditMode(column, EditItem))
+						{
+							// get new value and attempt to set on edit item
+							var newValue = args.NewValues[column.Id];
+							try
+							{
+								column.SetValue(EditItem, newValue);
+							}
+							catch (Exception ex)
+							{
+								throw new PDTableException($"Failed to assign value {newValue} to column {column.Id}", ex);
+							}
+						}
+					}
+				}
+
+				StateHasChanged();
 				EditItem = null;
 				IsEditing = false;
 				JSRuntime?.InvokeVoidAsync("focus", Id);

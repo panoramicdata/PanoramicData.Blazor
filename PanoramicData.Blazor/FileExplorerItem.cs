@@ -48,6 +48,18 @@ namespace PanoramicData.Blazor
 				var name = System.IO.Path.GetFileName(Path);
 				return string.IsNullOrWhiteSpace(name) ? Path : name;
 			}
+			set
+			{
+				var name = System.IO.Path.GetFileName(Path);
+				if (string.IsNullOrWhiteSpace(name))
+				{
+					Path = value;
+				}
+				else
+				{
+					Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), value);
+				}
+			}
 		}
 
 		/// <summary>

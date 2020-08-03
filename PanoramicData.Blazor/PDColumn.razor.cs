@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
+using System.ComponentModel;
+using PanoramicData.Blazor.Exceptions;
 
 namespace PanoramicData.Blazor
 {
@@ -120,6 +122,42 @@ namespace PanoramicData.Blazor
 		public object? GetValue(TItem item)
 		{
 			return CompiledFunc?.Invoke(item);
+		}
+
+		public void SetValue(TItem item, object? value)
+		{
+			var propInfo = GetPropertyInfo(Field!.Body);
+			if(propInfo == null)
+			{
+				throw new PDTableException("Unable to determine column data type from Field expression");
+			}
+			if(propInfo.PropertyType.IsAssignableFrom(value?.GetType()))
+			{
+				propInfo.SetValue(item, value);
+			}
+			else
+			{
+				var stringValue = value?.ToString();
+				TypeConverter typeConverter = TypeDescriptor.GetConverter(propInfo.PropertyType);
+				object propValue = typeConverter.ConvertFromString(stringValue);
+				propInfo.SetValue(item, propValue);
+			}
+		}
+
+		private PropertyInfo? GetPropertyInfo(object value)
+		{
+			if (value is MemberExpression memberExpr)
+			{
+				if (memberExpr.Member is PropertyInfo propInfo)
+				{
+					return propInfo;
+				}
+			}
+			else if (Field!.Body is UnaryExpression unaryExpr)
+			{
+				return GetPropertyInfo(unaryExpr.Operand);
+			}
+			return null;
 		}
 
 		/// <summary>
