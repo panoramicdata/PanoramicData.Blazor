@@ -53,6 +53,16 @@
 			: base(item)
 		{
 		}
+
+		/// <summary>
+		/// Gets or sets the start of the selected text to be edited.
+		/// </summary>
+		public int SelectionStart { get; set; }
+
+		/// <summary>
+		/// Gets or sets the end of the selected text to be edited.
+		/// </summary>
+		public int SelectionEnd { get; set; }
 	}
 
 	/// <summary>

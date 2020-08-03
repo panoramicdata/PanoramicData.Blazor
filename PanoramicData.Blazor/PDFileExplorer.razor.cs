@@ -213,7 +213,15 @@ namespace PanoramicData.Blazor
 
 		private void OnTableBeforeEdit(TableBeforeEditEventArgs<FileExplorerItem> args)
 		{
-			args.Cancel = args.Item.Name == "..";
+			if(args.Item.Name == "..")
+			{
+				args.Cancel = true;
+			}
+			else
+			{
+				// only want to select the filename portion of the text
+				args.SelectionEnd = Path.GetFileNameWithoutExtension(args.Item.Name).Length;
+			}
 		}
 
 		private async Task OpenFolder(string path)

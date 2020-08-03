@@ -20,6 +20,7 @@ namespace PanoramicData.Blazor
 		public const string IdEditPrefix = "pd-table-edit-";
 		private static int _idSequence;
 		private Timer? _editTimer;
+		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
 
 		private ManualResetEvent _beginEditEvent { get; set; } = new ManualResetEvent(false);
 
@@ -365,12 +366,12 @@ namespace PanoramicData.Blazor
 				{
 					// notify and allow for cancel
 					EditItem = item;
-					var args = new TableBeforeEditEventArgs<TItem>(EditItem);
+					_tableBeforeEditArgs = new TableBeforeEditEventArgs<TItem>(EditItem);
 					await InvokeAsync(async () =>
 					{
-						await BeforeEdit.InvokeAsync(args).ConfigureAwait(true);
+						await BeforeEdit.InvokeAsync(_tableBeforeEditArgs).ConfigureAwait(true);
 					}).ConfigureAwait(true);
-					if (!args.Cancel)
+					if (!_tableBeforeEditArgs.Cancel)
 					{
 						IsEditing = true;
 						_beginEditEvent.Set();
@@ -490,7 +491,7 @@ namespace PanoramicData.Blazor
 				}
 				if (key != string.Empty)
 				{
-					await JSRuntime.InvokeVoidAsync("selectText", $"{IdEditPrefix}{key}").ConfigureAwait(true);
+					await JSRuntime.InvokeVoidAsync("selectText", $"{IdEditPrefix}{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
 					_beginEditEvent.Reset();
 				}
 			}
