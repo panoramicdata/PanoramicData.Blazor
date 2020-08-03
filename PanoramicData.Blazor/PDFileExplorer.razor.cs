@@ -239,14 +239,22 @@ namespace PanoramicData.Blazor
 				{
 					var previousPath = args.Item.Path;
 					var newPath = $"{args.Item.ParentPath}{Path.DirectorySeparatorChar}{args.NewValues["Name"]}";
-					// inform data provider
-					var result = await DataProvider.UpdateAsync(args.Item, new { Path = newPath }, CancellationToken.None).ConfigureAwait(true);
-					if (result.Success)
+					// check for duplicate name
+					if (_table!.ItemsToDisplay.Any(x => x.Path == newPath))
 					{
-						// if folder renamed then update nodes
-						if (args.Item.EntryType == FileExplorerItemType.Directory)
+						args.Cancel = true;
+					}
+					else
+					{
+						// inform data provider
+						var result = await DataProvider.UpdateAsync(args.Item, new { Path = newPath }, CancellationToken.None).ConfigureAwait(true);
+						if (result.Success)
 						{
-							await DirectoryRename(previousPath, newPath).ConfigureAwait(true);
+							// if folder renamed then update nodes
+							if (args.Item.EntryType == FileExplorerItemType.Directory)
+							{
+								await DirectoryRename(previousPath, newPath).ConfigureAwait(true);
+							}
 						}
 					}
 				}
@@ -340,6 +348,10 @@ namespace PanoramicData.Blazor
 								}
 							}
 						}
+					}
+					else if(menuItem.Text == "Rename")
+					{
+						await _table!.BeginEdit().ConfigureAwait(true);
 					}
 				}
 			}
