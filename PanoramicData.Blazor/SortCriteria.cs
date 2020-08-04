@@ -4,7 +4,14 @@
 	/// The SortCriteria class provides details of a sort operation.
 	/// </summary>
 	public class SortCriteria
-    {
+	{
+		/// <summary>
+		/// Initializes a new instance of the SortCriteria class.
+		/// </summary>
+		public SortCriteria()
+		{
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the SortCriteria class.
 		/// </summary>
