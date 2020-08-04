@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Extensions;
 using System.Runtime.CompilerServices;
+using Microsoft.JSInterop;
+using System;
 
 namespace PanoramicData.Blazor
 {
@@ -71,6 +73,11 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever the user clicks on a context menu item from the table.
 		/// </summary>
 		[Parameter] public EventCallback<MenuItemEventArgs> TableContextMenuClick { get; set; }
+
+		/// <summary>
+		/// Event raised whenever the user requests to download a file.
+		/// </summary>
+		[Parameter] public EventCallback<TableEventArgs<FileExplorerItem>> TableDownloadRequest { get; set; }
 
 		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
@@ -352,6 +359,11 @@ namespace PanoramicData.Blazor
 					else if(menuItem.Text == "Rename")
 					{
 						await _table!.BeginEdit().ConfigureAwait(true);
+					}
+					else if(menuItem.Text == "Download")
+					{
+						var item = _table.ItemsToDisplay.FirstOrDefault(x => x.Path == _table!.Selection[0]);
+						await TableDownloadRequest.InvokeAsync(new TableEventArgs<FileExplorerItem>(item)).ConfigureAwait(true);
 					}
 				}
 			}

@@ -49,6 +49,7 @@ namespace PanoramicData.Blazor
 
 			app.UseEndpoints(endpoints =>
 			{
+				endpoints.MapControllers(); // for download and upload endpoints
 				endpoints.MapBlazorHub();
 				endpoints.MapFallbackToPage("/_Host");
 			});

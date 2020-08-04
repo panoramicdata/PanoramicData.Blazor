@@ -81,3 +81,13 @@ function getValue(id) {
 		return node.value;
 	return null;
 }
+
+// 04/08/20 - bytesBase64 limited to 125MB by System.Text.Json writer
+function downloadFile(filename, bytesBase64) {
+	var link = document.createElement('a');
+	link.download = filename;
+	link.href = "data:application/octet-stream;base64," + bytesBase64;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+}
