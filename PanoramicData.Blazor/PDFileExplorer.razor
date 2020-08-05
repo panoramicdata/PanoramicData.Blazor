@@ -1,4 +1,5 @@
 ﻿@using Humanizer;
+@using BlazorInputFile
 <div class="pdfileexplorer">
 	<PDSplitter GutterSize="6">
 
@@ -9,7 +10,7 @@
 				<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true" AllowEdit="true"
 						KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
 						SelectionChange="OnTreeSelectionChange" ItemsLoaded="OnTreeItemsLoaded" NodeUpdated="OnTreeNodeUpdated"
-						BeforeEdit="OnTreeBeforeEdit" AfterEdit="OnTreeAfterEdit" >
+						BeforeEdit="OnTreeBeforeEdit" AfterEdit="OnTreeAfterEdit">
 					<NodeTemplate>
 						<span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
 							<i class="far @(context?.IsExpanded ?? false ? "fa-folder-open" : "fa-folder")"></i>
@@ -23,6 +24,8 @@
 		</PDSplitPanel>
 
 		<PDSplitPanel Size="3">
+
+			<InputFile OnChange="OnInputFileChanged" />
 
 			<PDContextMenu Items="TableContextItems" BeforeShow="OnTableBeforeShowContextMenu" ItemClick="OnTableContextMenuItemClick">
 

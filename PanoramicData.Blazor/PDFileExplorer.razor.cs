@@ -10,6 +10,7 @@ using PanoramicData.Blazor.Extensions;
 using System.Runtime.CompilerServices;
 using Microsoft.JSInterop;
 using System;
+using BlazorInputFile;
 
 namespace PanoramicData.Blazor
 {
@@ -389,6 +390,11 @@ namespace PanoramicData.Blazor
 			{
 				await OnTreeSelectionChange(_tree.SelectedNode).ConfigureAwait(true);
 			}
+		}
+
+		private void OnInputFileChanged(IFileListEntry[] files)
+		{
+			var a = 1;
 		}
 	}
 }
