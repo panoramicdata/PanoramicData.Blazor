@@ -10,7 +10,6 @@
 	<PropertyGroup>
 		<Authors>Panoramic Data Limited</Authors>
 		<Copyright>Copyright © Panoramic Data Limited 2020</Copyright>
-		<PackageLicenseUrl></PackageLicenseUrl>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageIcon>Icon.png</PackageIcon>
 		<PackageTags>blazor components</PackageTags>
@@ -18,7 +17,7 @@
 		<Description>Blazor components</Description>
 		<Summary>A library of components for Blazor projects</Summary>
 		<Company>Panoramic Data Limited</Company>
-		<PackageReleaseNotes>Initial release</PackageReleaseNotes>
+		<PackageReleaseNotes>Added PDTable, PDTree, PDFileExplorer, PDContextMenu, PDPager and PDSplitter components.</PackageReleaseNotes>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor/</RepositoryUrl>
