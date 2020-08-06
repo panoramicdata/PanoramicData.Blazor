@@ -1,7 +1,7 @@
 ﻿<div class="pdsplitter @(Direction == SplitDirection.Horizontal ? "horizontal" : "vertical")">
 	@foreach (var panel in Panels)
 	{
-		<div class="pdsplitpanel" id="@panel.Id">
+		<div class="pdsplitpanel @panel.CssClass" id="@panel.Id">
 			@panel.ChildContent
 		</div>
 	}

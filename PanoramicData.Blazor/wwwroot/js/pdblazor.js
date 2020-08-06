@@ -91,3 +91,93 @@ function downloadFile(filename, bytesBase64) {
 	link.click();
 	document.body.removeChild(link);
 }
+
+function initializeDropZone(id, uploadUrl, dotnetHelper) {
+	var zone = document.getElementById(id);
+	if (zone) {
+		zone.dotnetHelper = dotnetHelper;
+		zone.uploadUrl = uploadUrl;
+		zone.addEventListener('dragenter', onDropZoneDragEnter, false);
+		zone.addEventListener('dragover', onDropZoneDragEnter, false);
+		zone.addEventListener('dragleave', onDropZoneDragLeave, false);
+		zone.addEventListener('drop', onDropZoneDrop, false);
+	}
+}
+
+function onDropZoneDragEnter(e) {
+	var zone = findAncestor(e.target, 'pddropzone');
+	if (zone) {
+		e.preventDefault();
+		e.stopPropagation();
+		zone.classList.add('highlight');
+	}
+}
+
+function onDropZoneDrop(e) {
+	var zone = findAncestor(e.target, 'pddropzone');
+	if (zone) {
+		e.preventDefault();
+		e.stopPropagation();
+		zone.classList.remove('highlight');
+		let files = e.dataTransfer.files
+		if (zone.dotnetHelper) {
+			var dto = [];
+			for (var i = 0; i < files.length; i++)
+				dto.push({ Name: files[i].name, Size: files[i].size });
+			zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', dto)
+				.then(result => {
+					if (result.cancel) {
+						console.warn(result.reason);
+					} else {
+						for (var i = 0; i < files.length; i++)
+							uploadFile(files[i], zone.uploadUrl, result.state);
+					}
+				});
+		}
+	}
+}
+
+function onDropZoneDragLeave(e) {
+	var zone = findAncestor(e.target, 'pddropzone');
+	if (zone) {
+		e.preventDefault();
+		e.stopPropagation();
+		zone.classList.remove('highlight');
+	}
+}
+
+function disposeDropZone(id) {
+	var zone = document.getElementById(id);
+	if (zone) {
+		zone.removeEventListener('dragenter', onDropZoneDragEnter, false);
+		zone.removeEventListener('dragover', onDropZoneDragEnter, false);
+		zone.removeEventListener('dragleave', onDropZoneDragLeave, false);
+		zone.removeEventListener('drop', onDropZoneDrop, false);
+		if (zone.dotnetHelper) {
+			zone.dotnetHelper.dispose();
+		}
+	}
+}
+
+function findAncestor(el, cls) {
+	while ((el = el.parentElement) && !el.classList.contains(cls));
+	return el;
+}
+
+function uploadFile(file, url, path) {
+	var xhr = new XMLHttpRequest();
+	var formData = new FormData()
+	xhr.open('POST', url, true);
+	xhr.addEventListener('readystatechange', function (e) {
+		if (xhr.readyState == 4 && xhr.status == 200) {
+			// done - send upload complete
+		}
+		else if (xhr.readyState == 4 && xhr.status != 200) {
+			// error - send error
+		}
+	});
+	formData.append('path', path);
+	formData.append('file', file);
+	// send upload started
+	xhr.send(formData);
+}

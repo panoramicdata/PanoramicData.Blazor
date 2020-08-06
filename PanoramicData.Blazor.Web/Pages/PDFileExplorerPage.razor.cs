@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Web.Data;
+using System.Linq;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
@@ -45,7 +46,16 @@ namespace PanoramicData.Blazor.Web.Pages
 			//await JSRuntime.InvokeVoidAsync("downloadFile", $"{System.IO.Path.GetFileNameWithoutExtension(args.Item.Name)}.webm", base64).ConfigureAwait(true);
 
 			// Method B: to avoid size limit and conversion to base64 - redirect to controller method
-			NavigationManager.NavigateTo($"/files/Download/DownloadFile?path={args.Item.Path}", true);
+			NavigationManager.NavigateTo($"/files/download?path={args.Item.Path}", true);
+		}
+
+		public async Task OnUploadRequest(DropZoneEventArgs args)
+		{
+			if(args.Files.Any(x => x.Size > 1000000000)) // 1GB
+			{
+				args.Cancel = true;
+				args.CancelReason = "Upload limit is 1GB per file";
+			}
 		}
 	}
 }

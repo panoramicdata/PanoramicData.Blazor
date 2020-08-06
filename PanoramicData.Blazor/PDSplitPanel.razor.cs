@@ -29,6 +29,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public RenderFragment ChildContent { get; set; } = null!;
 
 		/// <summary>
+		/// Sets extra CSS classes to append.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; } = "";
+
+		/// <summary>
 		/// Gets the unique identifier of this panel.
 		/// </summary>
 		public string Id { get; private set; } = string.Empty;

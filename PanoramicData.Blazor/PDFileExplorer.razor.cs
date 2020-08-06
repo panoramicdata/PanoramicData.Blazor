@@ -7,10 +7,6 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Extensions;
-using System.Runtime.CompilerServices;
-using Microsoft.JSInterop;
-using System;
-using BlazorInputFile;
 
 namespace PanoramicData.Blazor
 {
@@ -65,6 +61,8 @@ namespace PanoramicData.Blazor
 				new PDColumnConfig { Id = "Modified", Title = "Modified" }
 			};
 
+		[Parameter] public string? UploadUrl { get; set; }
+
 		/// <summary>
 		/// Event raised whenever the user clicks on a context menu item from the tree.
 		/// </summary>
@@ -79,6 +77,11 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever the user requests to download a file.
 		/// </summary>
 		[Parameter] public EventCallback<TableEventArgs<FileExplorerItem>> TableDownloadRequest { get; set; }
+
+		/// <summary>
+		/// Event raised whenever the user drops one or more files on to the file explorer.
+		/// </summary>
+		[Parameter] public EventCallback<DropZoneEventArgs> UploadRequest { get; set; }
 
 		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
@@ -392,9 +395,16 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnInputFileChanged(IFileListEntry[] files)
+		private async Task OnFilesDropped(DropZoneEventArgs args)
 		{
-			var a = 1;
+			// notify application and allow for cancel
+			await UploadRequest.InvokeAsync(args).ConfigureAwait(true);
+
+			// add current path so it can be passed along with uploads
+			if (_tree?.SelectedNode?.Data != null)
+			{
+				args.State = _tree.SelectedNode.Data.Path;
+			}
 		}
 	}
 }

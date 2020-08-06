@@ -1,0 +1,17 @@
+﻿.pddropzone {
+	height: 100%;
+}
+
+.pddropzone.highlight {
+	background-color: yellow;
+}
+
+.pddropzone input[type=file] {
+	position: absolute;
+/*	width: 100%;
+	height: 100%;
+	opacity: 100%;
+*/
+	display: none;
+	cursor: pointer;
+}

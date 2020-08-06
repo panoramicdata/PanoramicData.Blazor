@@ -7,7 +7,8 @@
 
 	<PDFileExplorer DataProvider="_dataProvider"
 					TreeContextMenuClick="OnTreeContextMenuClick" TableContextMenuClick="OnTableContextMenuClick"
-					TableDownloadRequest="OnTableDownloadRequest">
+					TableDownloadRequest="OnTableDownloadRequest"
+					UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())" UploadRequest="OnUploadRequest">
 	</PDFileExplorer>
 
 </div>
