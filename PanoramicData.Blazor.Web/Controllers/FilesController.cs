@@ -27,9 +27,6 @@ namespace PanoramicData.Blazor.Web.Controllers
 		[RequestFormLimits(MultipartBodyLengthLimit = 1000000000)]
 		public async Task<IActionResult> Upload([FromForm] FileUploadModel uploadInfo)
 		{
-			//long size = files.Sum(f => f.Length);
-			//foreach (var formFile in files)
-			//{
 			if (uploadInfo.File != null)
 			{
 				var filePath = Path.Combine("C:", "Temp", "Uploads", uploadInfo.File.FileName);
@@ -38,10 +35,6 @@ namespace PanoramicData.Blazor.Web.Controllers
 					await uploadInfo.File.CopyToAsync(stream);
 				}
 			}
-			//}
-			//// Process uploaded files
-			//// Don't rely on or trust the FileName property without validation.
-			//return Ok(new { count = files.Count, size });
 
 			return Ok();
 		}

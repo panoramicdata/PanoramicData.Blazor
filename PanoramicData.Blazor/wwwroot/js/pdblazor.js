@@ -130,7 +130,7 @@ function onDropZoneDrop(e) {
 						console.warn(result.reason);
 					} else {
 						for (var i = 0; i < files.length; i++)
-							uploadFile(files[i], zone.uploadUrl, result.state);
+							uploadFile(files[i], zone.uploadUrl, result.state, zone.dotnetHelper);
 					}
 				});
 		}
@@ -164,20 +164,24 @@ function findAncestor(el, cls) {
 	return el;
 }
 
-function uploadFile(file, url, path) {
+function uploadFile(file, url, path, dotnetHelper) {
 	var xhr = new XMLHttpRequest();
 	var formData = new FormData()
 	xhr.open('POST', url, true);
 	xhr.addEventListener('readystatechange', function (e) {
 		if (xhr.readyState == 4 && xhr.status == 200) {
 			// done - send upload complete
+			if (dotnetHelper)
+				dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Name: file.name, Size: file.size, Success: true });
 		}
 		else if (xhr.readyState == 4 && xhr.status != 200) {
 			// error - send error
+			dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Name: file.name, Size: file.size, Success: false, StatusCode: xhr.status });
 		}
 	});
 	formData.append('path', path);
 	formData.append('file', file);
-	// send upload started
+	if (dotnetHelper)
+		dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Name: file.name, Size: file.size });
 	xhr.send(formData);
 }

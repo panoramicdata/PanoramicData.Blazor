@@ -8,4 +8,13 @@
 		public string? Name { get; set; }
 		public long Size { get; set; }
 	}
+
+	/// <summary>
+	/// The DropZoneFileUploadOutcome class holds information about the upload outcome of a single file.
+	/// </summary>
+	public class DropZoneFileUploadOutcome : DropZoneFile
+	{
+		public bool Success { get; set; }
+		public int StatusCode { get; set; }
+	}
 }

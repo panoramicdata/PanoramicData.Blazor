@@ -22,7 +22,10 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback<DropZoneEventArgs> Drop { get; set; }
 
-		[Parameter] public string UploadUrl { get; set; }
+		/// <summary>
+		/// Gets or sets the URL where file uploads should be sent.
+		/// </summary>
+		[Parameter] public string? UploadUrl { get; set; }
 
 		/// <summary>
 		/// Gets the unique identifier of this panel.
@@ -54,6 +57,22 @@ namespace PanoramicData.Blazor
 				reason = args.CancelReason,
 				state = args.State
 			};
+		}
+
+		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadBegin")]
+		public void OnUploadBegin(DropZoneFile file)
+		{
+		}
+
+		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadProgress")]
+		public void OnUploadProgress(DropZoneFile file)
+		{
+		}
+
+		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadEnd")]
+		public void OnUploadEnd(DropZoneFileUploadOutcome outcome)
+		{
+			var a = 1;
 		}
 
 		public void Dispose()
