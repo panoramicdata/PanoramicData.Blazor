@@ -23,6 +23,21 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<DropZoneEventArgs> Drop { get; set; }
 
 		/// <summary>
+		/// Event raised whenever a file upload starts.
+		/// </summary>
+		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadStarted { get; set; }
+
+		/// <summary>
+		/// Event raised periodically during a file upload.
+		/// </summary>
+		[Parameter] public EventCallback<DropZoneUploadProgressEventArgs> UploadProgress { get; set; }
+
+		/// <summary>
+		/// Event raised whenever a file upload completes.
+		/// </summary>
+		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadCompleted { get; set; }
+
+		/// <summary>
 		/// Gets or sets the URL where file uploads should be sent.
 		/// </summary>
 		[Parameter] public string? UploadUrl { get; set; }
@@ -62,17 +77,19 @@ namespace PanoramicData.Blazor
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadBegin")]
 		public void OnUploadBegin(DropZoneFile file)
 		{
+			UploadStarted.InvokeAsync(new DropZoneUploadEventArgs(file.Path, file.Name, file.Size));
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadProgress")]
-		public void OnUploadProgress(DropZoneFile file)
+		public void OnUploadProgress(DropZoneFileUploadProgress file)
 		{
+			UploadProgress.InvokeAsync(new DropZoneUploadProgressEventArgs(file.Path, file.Name, file.Size, file.Progress));
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadEnd")]
-		public void OnUploadEnd(DropZoneFileUploadOutcome outcome)
+		public void OnUploadEnd(DropZoneFileUploadOutcome file)
 		{
-			var a = 1;
+			UploadCompleted.InvokeAsync(new DropZoneUploadEventArgs(file.Path, file.Name, file.Size));
 		}
 
 		public void Dispose()

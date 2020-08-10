@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.ComponentModel;
@@ -82,6 +83,21 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever the user drops one or more files on to the file explorer.
 		/// </summary>
 		[Parameter] public EventCallback<DropZoneEventArgs> UploadRequest { get; set; }
+
+		/// <summary>
+		/// Event raised whenever a file upload starts.
+		/// </summary>
+		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadStarted { get; set; }
+
+		/// <summary>
+		/// Event raised periodically during a file upload.
+		/// </summary>
+		[Parameter] public EventCallback<DropZoneUploadProgressEventArgs> UploadProgress { get; set; }
+
+		/// <summary>
+		/// Event raised whenever a file upload completes.
+		/// </summary>
+		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadCompleted { get; set; }
 
 		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
@@ -226,7 +242,7 @@ namespace PanoramicData.Blazor
 
 		private void OnTableBeforeEdit(TableBeforeEditEventArgs<FileExplorerItem> args)
 		{
-			if(args.Item.Name == "..")
+			if(args.Item.Name == ".." || args.Item.IsUploading)
 			{
 				args.Cancel = true;
 			}
@@ -310,7 +326,7 @@ namespace PanoramicData.Blazor
 				return;
 			}
 			var item = _table.ItemsToDisplay.Single(x => x.Path == selectedPath);
-			if(item == null)
+			if(item == null || item.IsUploading)
 			{
 				args.Cancel = true;
 				return;
@@ -405,6 +421,54 @@ namespace PanoramicData.Blazor
 			{
 				args.State = _tree.SelectedNode.Data.Path;
 			}
+		}
+
+		private void OnUploadStarted(DropZoneUploadEventArgs args)
+		{
+			UploadStarted.InvokeAsync(args);
+		}
+
+		private async Task OnUploadProgress(DropZoneUploadProgressEventArgs args)
+		{
+			// is the upload happening to the current path?
+			if(args.Path == FolderPath)
+			{
+				// add virtual file item
+				var item = _table.ItemsToDisplay.FirstOrDefault(x => x.Name == args.Name);
+				if (item == null)
+				{
+					item = new FileExplorerItem
+					{
+						Path = args.Path,
+						DateCreated = DateTimeOffset.Now,
+						DateModified = DateTimeOffset.Now,
+						EntryType = FileExplorerItemType.File,
+						FileSize = args.Size,
+						Name = args.Name,
+						IsUploading = true
+					};
+					_table.ItemsToDisplay.Add(item);
+				}
+				item.UploadProgress = args.Progress;
+			}
+
+			await UploadProgress.InvokeAsync(args).ConfigureAwait(true);
+		}
+
+		private async Task OnUploadCompleted(DropZoneUploadEventArgs args)
+		{
+			// is the upload happening to the current path?
+			if (args.Path == FolderPath)
+			{
+				// add virtual file item
+				var item = _table.ItemsToDisplay.FirstOrDefault(x => x.Name == args.Name);
+				if(item != null)
+				{
+					item.IsUploading = false;
+				}
+			}
+
+			await UploadCompleted.InvokeAsync(args).ConfigureAwait(true);
 		}
 	}
 }

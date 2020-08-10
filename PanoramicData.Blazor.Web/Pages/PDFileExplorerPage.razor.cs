@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Web.Data;
-using System.Linq;
+using System.Threading;
+using System;
+using System.IO;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
@@ -56,6 +59,19 @@ namespace PanoramicData.Blazor.Web.Pages
 				args.Cancel = true;
 				args.CancelReason = "Upload limit is 1GB per file";
 			}
+		}
+
+		public async Task OnUploadCompleted(DropZoneUploadEventArgs args)
+		{
+			// need to add to data provider as file not really uploaded to physical drive
+			await _dataProvider.CreateAsync(new FileExplorerItem
+			{
+				DateCreated = DateTimeOffset.Now,
+				DateModified = DateTimeOffset.Now,
+				EntryType = FileExplorerItemType.File,
+				FileSize = args.Size,
+				Path = $"{args.Path}{Path.DirectorySeparatorChar}{args.Name}"
+			}, CancellationToken.None).ConfigureAwait(true);
 		}
 	}
 }

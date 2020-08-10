@@ -26,13 +26,13 @@
 
 			<PDContextMenu Items="TableContextItems" BeforeShow="OnTableBeforeShowContextMenu" ItemClick="OnTableContextMenuItemClick">
 
-				<PDDropZone Drop="OnFilesDropped" UploadUrl="@UploadUrl">
+				<PDDropZone UploadUrl="@UploadUrl" Drop="OnFilesDropped" UploadStarted="OnUploadStarted" UploadProgress="OnUploadProgress" UploadCompleted="OnUploadCompleted">
 
 					<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
 							 SelectionMode="TableSelectionMode.Single" KeyField="x => x.Path" AllowEdit="true"
 							 DoubleClick="OnTableDoubleClick" ItemsLoaded="OnTableItemsLoaded"
 							 BeforeEdit="OnTableBeforeEdit" AfterEdit="OnTableAfterEdit"
-							 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")}")">
+							 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
 
 						<PDColumn TItem="FileExplorerItem" Id="Icon" Field="x => x.EntryType" Editable="false">
 							<Template>
@@ -41,7 +41,17 @@
 						</PDColumn>
 						<PDColumn TItem="FileExplorerItem" Id="Name" Field="x => x.Name">
 							<Template>
-								<span class="">@context.Name</span>
+								@if (context.IsUploading)
+								{
+									<div style="width: 100%">
+										<span>@context.Name</span>
+										<div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
+									</div>
+								}
+								else
+								{
+									<span class="">@context.Name</span>
+								}
 							</Template>
 						</PDColumn>
 						<PDColumn TItem="FileExplorerItem" Id="Type" Field="x => x.EntryType" Editable="false">

@@ -115,8 +115,16 @@
 .pdfileexplorer .table td, .pdfileexplorer .table th {
   padding: .25rem; }
 
-.file-hidden, .file-system {
+.pdfileexplorer .file-hidden, .pdfileexplorer .file-system {
   color: #ccc; }
+
+.pdfileexplorer .uploading {
+  color: #666;
+  font-style: italic; }
+
+.upload-progress-bar {
+  height: 5px;
+  background-color: #007bff; }
 
 .pdcontextmenuhost {
   height: 100%; }

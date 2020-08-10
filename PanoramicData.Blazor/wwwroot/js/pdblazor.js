@@ -130,7 +130,7 @@ function onDropZoneDrop(e) {
 						console.warn(result.reason);
 					} else {
 						for (var i = 0; i < files.length; i++)
-							uploadFile(files[i], zone.uploadUrl, result.state, zone.dotnetHelper);
+							uploadFile(files[i], zone.uploadUrl, result.state, zone);
 					}
 				});
 		}
@@ -154,7 +154,9 @@ function disposeDropZone(id) {
 		zone.removeEventListener('dragleave', onDropZoneDragLeave, false);
 		zone.removeEventListener('drop', onDropZoneDrop, false);
 		if (zone.dotnetHelper) {
-			zone.dotnetHelper.dispose();
+			var a = zone.dotnetHelper;
+			zone.dotnetHelper = null;
+			a.dispose();
 		}
 	}
 }
@@ -164,24 +166,32 @@ function findAncestor(el, cls) {
 	return el;
 }
 
-function uploadFile(file, url, path, dotnetHelper) {
+function uploadFile(file, url, path, zone) {
 	var xhr = new XMLHttpRequest();
-	var formData = new FormData()
+	var formData = new FormData();
 	xhr.open('POST', url, true);
+	xhr.upload.addEventListener("progress", function (e) {
+		var progress = e.loaded * 100 / e.total || 100;
+		if (zone.dotnetHelper) {
+			zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadProgress', { Path: path, Name: file.name, Size: file.size, Progress: progress });
+		}
+	})
 	xhr.addEventListener('readystatechange', function (e) {
 		if (xhr.readyState == 4 && xhr.status == 200) {
 			// done - send upload complete
-			if (dotnetHelper)
-				dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Name: file.name, Size: file.size, Success: true });
+			if (zone.dotnetHelper)
+				zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Path: path, Name: file.name, Size: file.size, Success: true });
 		}
 		else if (xhr.readyState == 4 && xhr.status != 200) {
 			// error - send error
-			dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Name: file.name, Size: file.size, Success: false, StatusCode: xhr.status });
+			if (zone.dotnetHelper)
+				zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Path: path, Name: file.name, Size: file.size, Success: false, StatusCode: xhr.status });
 		}
 	});
 	formData.append('path', path);
 	formData.append('file', file);
-	if (dotnetHelper)
-		dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Name: file.name, Size: file.size });
+	if (zone.dotnetHelper)
+		zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Path: path, Name: file.name, Size: file.size });
 	xhr.send(formData);
+	return xhr;
 }

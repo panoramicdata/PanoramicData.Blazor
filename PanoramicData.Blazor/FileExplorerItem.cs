@@ -22,6 +22,16 @@ namespace PanoramicData.Blazor
 		public bool IsReadOnly { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether this item is currently being uploaded.
+		/// </summary>
+		public bool IsUploading { get; set; }
+
+		/// <summary>
+		/// Gets or sets the upload progress.
+		/// </summary>
+		public double UploadProgress { get; set; }
+
+		/// <summary>
 		/// Gets or sets the absolute path to the item.
 		/// </summary>
 		public string Path { get; set; } = string.Empty;
