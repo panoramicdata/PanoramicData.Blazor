@@ -5,6 +5,11 @@ namespace PanoramicData.Blazor
 	public partial class PDToolbarSeparator : IToolbarItem
     {
 		/// <summary>
+		/// Gets or sets the unique identifier.
+		/// </summary>
+		[Parameter] public string Key { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets the tooltip for the toolbar item.
 		/// </summary>
 		[Parameter] public string ToolTip { get; set; } = string.Empty;

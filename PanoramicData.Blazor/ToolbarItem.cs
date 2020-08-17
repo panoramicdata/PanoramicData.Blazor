@@ -1,34 +1,33 @@
 ﻿namespace PanoramicData.Blazor
 {
 	/// <summary>
-	/// The IToolbarItem interface defines properties and methods required by any Toolbar Item.
+	/// The ToolbarItem class is the base class for toolbar items.
 	/// </summary>
-	public interface IToolbarItem
+	public abstract class ToolbarItem : IToolbarItem
 	{
 		/// <summary>
-		/// Gets or sets the unique identifier for the toolbar item.
+		/// Gets or sets the unique identifier of the toolbar item.
 		/// </summary>
-		string Key { get; set; }
-
+		public string Key { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets the tooltip for the toolbar item.
 		/// </summary>
-		string ToolTip { get; set; }
+		public string ToolTip { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets whether the toolbar item is visible.
 		/// </summary>
-		bool IsVisible { get; set; }
+		public bool IsVisible { get; set; } = true;
 
 		/// <summary>
 		/// Gets or sets whether the toolbar item is enabled.
 		/// </summary>
-		bool IsEnabled { get; set; }
+		public bool IsEnabled { get; set; } = true;
 
 		/// <summary>
 		/// Gets or sets whether the toolbar item is positioned further to the right of the previous toolbar item.
 		/// </summary>
-		bool ShiftRight { get; set; }
+		public bool ShiftRight { get; set; }
 	}
 }

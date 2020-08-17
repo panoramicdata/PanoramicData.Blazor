@@ -6,6 +6,11 @@ namespace PanoramicData.Blazor
 	public partial class PDToolbarButton : IToolbarItem
 	{
 		/// <summary>
+		/// Gets or sets the unique identifier.
+		/// </summary>
+		[Parameter] public string Key { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets the text displayed on the button.
 		/// </summary>
 		[Parameter] public string Text { get; set; } = string.Empty;
@@ -38,11 +43,11 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event raised whenever user clicks on the button.
 		/// </summary>
-		[Parameter] public EventCallback Click { get; set; }
+		[Parameter] public EventCallback<string> Click { get; set; }
 
 		private async Task OnClick()
 		{
-			await Click.InvokeAsync(null).ConfigureAwait(true);
+			await Click.InvokeAsync(Key).ConfigureAwait(true);
 		}
 	}
 }

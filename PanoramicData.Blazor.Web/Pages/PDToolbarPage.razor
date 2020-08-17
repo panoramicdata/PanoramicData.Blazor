@@ -1,16 +1,14 @@
 ﻿@page "/pdtoolbar"
 <h1>PDToolbarPage</h1>
 
+<h3>Declarative example of PDToolbar usage</h3>
 <PDToolbar>
-
 	<PDToolbarButton Text="Open" ToolTip="Open something" IconCssClass="fas fa-folder-open" Click="OnOpen" IsVisible="_showButtons" IsEnabled="_enableButtons" />
-	<PDToolbarButton Text="Rename" ToolTip="Rename something" IconCssClass="" Click="OnRename" IsVisible="_showButtons" IsEnabled="_enableButtons"/>
+	<PDToolbarButton Text="Rename" ToolTip="Rename something" IconCssClass="" Click="OnRename" IsVisible="_showButtons" IsEnabled="_enableButtons" />
 	<PDToolbarSeparator IsVisible="_showButtons" />
-	<PDToolbarButton Text="Download" ToolTip="Download something" IconCssClass="fas fa-file-download" Click="OnDownload" IsVisible="_showButtons" IsEnabled="_enableButtons"/>
-
+	<PDToolbarButton Text="Download" ToolTip="Download something" IconCssClass="fas fa-file-download" Click="OnDownload" IsVisible="_showButtons" IsEnabled="_enableButtons" />
 	<PDToolbarButton Text="@(_enableButtons ? "Disable Buttons" : "Enable Buttons")" ToolTip="Enable or disable buttons" Click="() => { _enableButtons = !_enableButtons; }" ShiftRight="true" />
 	<PDToolbarButton Text="@(_showButtons ? "Hide Buttons" : "Show Buttons")" ToolTip="Show or hide buttons" Click="() => { _showButtons = !_showButtons; }" />
-
 </PDToolbar>
 
 <div>
@@ -23,3 +21,9 @@
 	</div>
 
 </div>
+
+<br/>
+<hr/>
+
+<h3>Programmatic example of PDToolbar usage</h3>
+<PDToolbar Items="ToolbarItems" ButtonClick="OnButtonClick" />

@@ -2,4 +2,19 @@
 	<div class="pdtoolbar-left"></div>
 	<div class="pdtoolbar-right"></div>
 	@ChildContent
+	@if(Items != null)
+	{
+		foreach(var item in Items)
+		{
+			if(item is ToolbarButton button)
+			{
+				<PDToolbarButton Key=@button.Key Text="@button.Text" IconCssClass="@button.IconCssClass" IsEnabled="@button.IsEnabled" IsVisible="@button.IsVisible" ShiftRight="@button.ShiftRight"
+								 Click="OnButtonClick" />
+			}
+			else if (item is ToolbarSeparator separator)
+			{
+				<PDToolbarSeparator Key=@separator.Key IsVisible="@separator.IsVisible" ShiftRight="@separator.ShiftRight" />
+			}
+		}
+	}
 </div>
