@@ -5,10 +5,11 @@
 	<div class="pdfe-toolbar">
 
 		<PDToolbar>
-			<PDToolbarButton Text="Open" ToolTip="Open something" IconCssClass="fas fa-folder-open" />
-			<PDToolbarButton Text="Rename" ToolTip="Rename something" />
+			<PDToolbarButton ToolTip="Navigate up to parent folder" IconCssClass="fas fa-arrow-up" IsEnabled="_selectedNode?.ParentNode != null" Click="OnNavigateUpClick" />
+			<PDToolbarButton Text="Create Folder" ToolTip="Create a new folder" IconCssClass="fas fa-folder-open" />
+			<PDToolbarButton Text="Create File" ToolTip="Create a new file" />
 			<PDToolbarSeparator />
-			<PDToolbarButton Text="Download" ToolTip="Download something" IconCssClass="fas fa-file-download" />
+			<PDToolbarButton Text="Delete" ToolTip="Delete selected items" IconCssClass="fas fa-trash-alt" />
 		</PDToolbar>
 	</div>
 

@@ -475,5 +475,13 @@ namespace PanoramicData.Blazor
 
 			await UploadCompleted.InvokeAsync(args).ConfigureAwait(true);
 		}
+
+		private async Task OnNavigateUpClick()
+		{
+			if (_selectedNode?.ParentNode != null)
+			{
+				await _tree!.SelectNode(_selectedNode.ParentNode).ConfigureAwait(true);
+			}
+		}
 	}
 }
