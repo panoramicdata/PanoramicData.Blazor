@@ -1,0 +1,9 @@
+﻿<div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "")">
+	<button class="btn btn-light pdtoolbarbutton" disabled="@(IsEnabled ? null : "true")" title="@ToolTip" @onclick="OnClick">
+		@if (!string.IsNullOrWhiteSpace(IconCssClass))
+		{
+			<span class="@IconCssClass"></span>
+		}
+		<span>@Text</span>
+	</button>
+</div>
