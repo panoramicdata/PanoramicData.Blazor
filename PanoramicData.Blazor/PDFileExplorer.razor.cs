@@ -100,6 +100,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadCompleted { get; set; }
 
 		/// <summary>
+		/// Gets or sets CSS classes to append.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; }
+
+		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
 		/// </summary>
 		private async Task OnTreeItemsLoaded(List<FileExplorerItem> items)

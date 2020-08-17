@@ -3,7 +3,10 @@
 <h1>PDFileExplorer</h1>
 
 <!-- PDSplitter works better when its container has a known size -->
-<div class="full-content-size">
+<!-- 57px = Top Bar -->
+<!-- 10px = Padding -->
+<!-- 56px = Title -->
+<div style="height: calc(100vh - 57px - 10px - 56px)">
 
 	<PDFileExplorer DataProvider="_dataProvider"
 					TreeContextMenuClick="OnTreeContextMenuClick" TableContextMenuClick="OnTableContextMenuClick"

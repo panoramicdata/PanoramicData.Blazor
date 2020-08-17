@@ -1,5 +1,17 @@
 ﻿@using Humanizer;
-<div class="pdfileexplorer">
+
+<div class="pdfileexplorer @CssClass">
+
+	<div class="pdfe-toolbar">
+
+		<PDToolbar>
+			<PDToolbarButton Text="Open" ToolTip="Open something" IconCssClass="fas fa-folder-open" />
+			<PDToolbarButton Text="Rename" ToolTip="Rename something" />
+			<PDToolbarSeparator />
+			<PDToolbarButton Text="Download" ToolTip="Download something" IconCssClass="fas fa-file-download" />
+		</PDToolbar>
+	</div>
+
 	<PDSplitter GutterSize="6">
 
 		<PDSplitPanel Size="1">
@@ -29,10 +41,10 @@
 				<PDDropZone UploadUrl="@UploadUrl" Drop="OnFilesDropped" UploadStarted="OnUploadStarted" UploadProgress="OnUploadProgress" UploadCompleted="OnUploadCompleted">
 
 					<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
-							 SelectionMode="TableSelectionMode.Single" KeyField="x => x.Path" AllowEdit="true"
-							 DoubleClick="OnTableDoubleClick" ItemsLoaded="OnTableItemsLoaded"
-							 BeforeEdit="OnTableBeforeEdit" AfterEdit="OnTableAfterEdit"
-							 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
+								SelectionMode="TableSelectionMode.Single" KeyField="x => x.Path" AllowEdit="true"
+								DoubleClick="OnTableDoubleClick" ItemsLoaded="OnTableItemsLoaded"
+								BeforeEdit="OnTableBeforeEdit" AfterEdit="OnTableAfterEdit"
+								RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
 
 						<PDColumn TItem="FileExplorerItem" Id="Icon" Field="x => x.EntryType" Editable="false">
 							<Template>
@@ -58,8 +70,8 @@
 							<Template>
 								<span class="text-nowrap">
 									@(context.EntryType == FileExplorerItemType.Directory
-								? "File Folder"
-								: ($"{context.FileExtension.ToUpper()} File").Trim() )
+							? "File Folder"
+							: ($"{context.FileExtension.ToUpper()} File").Trim() )
 								</span>
 							</Template>
 						</PDColumn>
@@ -73,11 +85,11 @@
 						<PDColumn TItem="FileExplorerItem" Id="Created" Field="x => x.DateCreated" Editable="false">
 							<Template>
 								@if (context.DateCreated != DateTime.MinValue)
-							{
-								<span class="nowrap">
-									@context.DateCreated.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-								</span>
-							}
+								{
+									<span class="nowrap">
+										@context.DateCreated.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+									</span>
+								}
 							</Template>
 						</PDColumn>
 						<PDColumn TItem="FileExplorerItem" Id="Modified" Field="x => x.DateModified" Editable="false">
@@ -101,3 +113,4 @@
 
 	</PDSplitter>
 </div>
+

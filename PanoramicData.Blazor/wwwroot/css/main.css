@@ -110,7 +110,7 @@
   overflow: auto; }
 
 .pdfileexplorer {
-  height: 100%; }
+  height: calc(100% - 56px); }
 
 .pdfileexplorer .table td, .pdfileexplorer .table th {
   padding: .25rem; }
@@ -217,7 +217,7 @@
   display: flex;
   align-items: center;
   height: 100%; }
-  .pdtoolbarseparator .bar {
+  .pdtoolbarseparator .pdts-bar {
     height: 80%;
     border-left: 2px solid #ddd; }
 
