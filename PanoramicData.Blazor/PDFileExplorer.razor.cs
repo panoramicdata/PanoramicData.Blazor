@@ -114,12 +114,12 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event raised whenever the tree context menu may need updating.
 		/// </summary>
-		[Parameter] public EventCallback UpdateTreeContextState { get; set; }
+		[Parameter] public EventCallback<MenuItemsEventArgs> UpdateTreeContextState { get; set; }
 
 		/// <summary>
 		/// Event raised whenever the table context menu may need updating.
 		/// </summary>
-		[Parameter] public EventCallback UpdateTableContextState { get; set; }
+		[Parameter] public EventCallback<MenuItemsEventArgs> UpdateTableContextState { get; set; }
 
 		/// <summary>
 		/// Event raised whenever the toolbar may need updating.
@@ -174,7 +174,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnTreeContextMenuUpdateState(CancelEventArgs args)
+		private async Task OnTreeContextMenuUpdateState(MenuItemsEventArgs args)
 		{
 			if (_selectedNode?.Data != null)
 			{
@@ -182,7 +182,7 @@ namespace PanoramicData.Blazor
 				TreeContextItems.Single(x => x.Text == "Rename").IsDisabled = _selectedNode.Data.ParentPath == string.Empty;
 
 				// allow application to alter tree context menu state
-				await UpdateTreeContextState.InvokeAsync(null).ConfigureAwait(true);
+				await UpdateTreeContextState.InvokeAsync(args).ConfigureAwait(true);
 			}
 		}
 
@@ -191,6 +191,7 @@ namespace PanoramicData.Blazor
 			// notify application and allow cancel
 			var args = new MenuItemEventArgs(_tree!, item);
 			await TreeContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
+
 			if (!args.Cancel)
 			{
 				if (_tree?.SelectedNode?.Data != null)
@@ -313,13 +314,15 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnTableContextMenuUpdateState(CancelEventArgs args)
+		private async Task OnTableContextMenuUpdateState(MenuItemsEventArgs args)
 		{
 			// reset all states
 			TableContextItems.ForEach(x => { x.IsDisabled = false; x.IsVisible = true; });
 
 			if (_table!.Selection.Count == 0)
 			{
+				TableContextItems.ForEach(x => x.IsDisabled = true);
+				TableContextItems.Single(x => x.Text == "Download").IsVisible = false;
 				args.Cancel = true;
 			}
 			else if (_table!.Selection.Count == 1)
@@ -360,16 +363,17 @@ namespace PanoramicData.Blazor
 			}
 
 			// allow application to alter table context menu state
-			await UpdateTableContextState.InvokeAsync(null).ConfigureAwait(true);
+			await UpdateTableContextState.InvokeAsync(args).ConfigureAwait(true);
 		}
 
 		private async Task OnTableContextMenuItemClick(MenuItem menuItem)
 		{
+			// notify application and allow cancel
+			var args = new MenuItemEventArgs(_table, menuItem);
+			await TableContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
+
 			if (_table!.Selection.Count > 0)
 			{
-				// notify application and allow cancel
-				var args = new MenuItemEventArgs(_table, menuItem);
-				await TableContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
 				if (!args.Cancel)
 				{
 					var path = _table!.Selection[0];
@@ -643,6 +647,17 @@ namespace PanoramicData.Blazor
 
 			// allow application to alter toolbar state
 			await UpdateToolbarState.InvokeAsync(ToolbarItems).ConfigureAwait(true);
+		}
+
+		/// <summary>
+		/// Gets the paths of all currently selected files and folders in the table view.
+		/// </summary>
+		public string[] SelectedFilesAndFolders
+		{
+			get
+			{
+				return _table!.Selection.ToArray();
+			}
 		}
 	}
 }

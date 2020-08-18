@@ -28,7 +28,7 @@ namespace PanoramicData.Blazor
 		/// Gets or sets an event that is raised just prior to the context menu being shown and allowing
 		/// the application to refresh the state of the items.
 		/// </summary>
-		[Parameter] public EventCallback<CancelEventArgs> UpdateState { get; set; }
+		[Parameter] public EventCallback<MenuItemsEventArgs> UpdateState { get; set; }
 
 		/// <summary>
 		/// Gets or sets an event callback delegate fired when the user selects clicks one of the items.
@@ -63,7 +63,7 @@ namespace PanoramicData.Blazor
 		{
 			if (args.Button == 2)
 			{
-				var cancelArgs = new CancelEventArgs();
+				var cancelArgs = new MenuItemsEventArgs(this, Items);
 				await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
 				if (!cancelArgs.Cancel)
 				{

@@ -26,23 +26,6 @@ namespace PanoramicData.Blazor.Web.Pages
 		/// </summary>
 		[Inject] protected NavigationManager NavigationManager { get; set; } = null!;
 
-		public async Task OnTreeContextMenuClick(MenuItemEventArgs args)
-		{
-			//var tree = (PDTree<FileExplorerItem>)args.Sender;
-			if (args.MenuItem.Text == "Delete")
-			{
-				// prompt user to confirm action
-			}
-		}
-
-		public void OnTableContextMenuClick(MenuItemEventArgs args)
-		{
-			if (args.MenuItem.Text == "Delete")
-			{
-				// prompt user to confirm action
-			}
-		}
-
 		public async Task OnTableDownloadRequest(TableEventArgs<FileExplorerItem> args)
 		{
 			// Method A: this method works up to file sizes of 125MB - limit imposed by System.Text.Json (04/08/20)
@@ -91,6 +74,49 @@ namespace PanoramicData.Blazor.Web.Pages
 		{
 			// example of a custom action
 			if(key == "create-file")
+			{
+				await CreateFile().ConfigureAwait(true);
+			}
+		}
+
+		public async Task OnUpdateTableContextMenuState(MenuItemsEventArgs args)
+		{
+			// add custom toolbar button
+			var createFileButton = args.MenuItems.Find(x => x.Key == "create-file");
+			if (createFileButton == null)
+			{
+				// not existing - so create
+				createFileButton = new MenuItem { Key = "create-file", Text = "New File", IconCssClass = "fas fa-file-medical" };
+				args.MenuItems.Insert(2, createFileButton);
+			}
+
+			// update custom item state - enabled only when no selection
+			if(_fileExplorer.SelectedFilesAndFolders.Length == 0)
+			{
+				createFileButton.IsDisabled = false;
+				args.Cancel = false;
+			}
+			else
+			{
+				createFileButton.IsDisabled = true;
+			}
+		}
+
+		public async Task OnTreeContextMenuClick(MenuItemEventArgs args)
+		{
+			if (args.MenuItem.Text == "Delete")
+			{
+				// prompt user to confirm action
+			}
+		}
+
+		public async Task OnTableContextMenuClick(MenuItemEventArgs args)
+		{
+			if (args.MenuItem.Text == "Delete")
+			{
+				// prompt user to confirm action
+			}
+			else if(args.MenuItem.Key == "create-file")
 			{
 				await CreateFile().ConfigureAwait(true);
 			}

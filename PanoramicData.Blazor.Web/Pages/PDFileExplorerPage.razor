@@ -10,7 +10,7 @@
 
 	<PDFileExplorer @ref="_fileExplorer" DataProvider="_dataProvider"
 					TreeContextMenuClick="OnTreeContextMenuClick"
-					TableContextMenuClick="OnTableContextMenuClick" TableDownloadRequest="OnTableDownloadRequest"
+					UpdateTableContextState="OnUpdateTableContextMenuState" TableContextMenuClick="OnTableContextMenuClick" TableDownloadRequest="OnTableDownloadRequest"
 					UpdateToolbarState="OnUpdateToolbarState" ToolbarClick="OnToolbarClick"
 					UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())" UploadRequest="OnUploadRequest" UploadCompleted="OnUploadCompleted">
 	</PDFileExplorer>

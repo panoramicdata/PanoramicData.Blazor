@@ -6,6 +6,11 @@
 	public class MenuItem
 	{
 		/// <summary>
+		/// Gets or sets the unique identifier of the menu item.
+		/// </summary>
+		public string Key { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets the text display on the menu item.
 		/// </summary>
 		public string Text { get; set; } = string.Empty;
