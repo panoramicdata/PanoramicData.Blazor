@@ -1,18 +1,20 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Web.Data;
-using System.Threading;
-using System;
-using System.IO;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
 	public partial class PDFileExplorerPage
     {
 		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider { RootFolder = "My Computer" };
+		private PDFileExplorer _fileExplorer = null!;
 
 		/// <summary>
 		/// Injected javascript interop object.
@@ -72,6 +74,46 @@ namespace PanoramicData.Blazor.Web.Pages
 				FileSize = args.Size,
 				Path = $"{args.Path}{Path.DirectorySeparatorChar}{args.Name}"
 			}, CancellationToken.None).ConfigureAwait(true);
+		}
+
+		public async Task OnUpdateToolbarState(List<ToolbarItem> items)
+		{
+			// add custom toolbar button
+			var createFileButton = items.Find(x => x.Key == "create-file");
+			if(createFileButton == null)
+			{
+				// not existing - so create
+				items.Insert(2, new ToolbarButton { Key = "create-file", Text = "New File", ToolTip = "Create a new file", IconCssClass = "fas fa-file-medical" });
+			}
+		}
+
+		public async Task OnToolbarClick(string key)
+		{
+			// example of a custom action
+			if(key == "create-file")
+			{
+				await CreateFile().ConfigureAwait(true);
+			}
+		}
+
+		private async Task CreateFile()
+		{
+			var newPath = $"{_fileExplorer.FolderPath}{Path.DirectorySeparatorChar}{DateTime.Now.ToString("yyyyMMdd_HHmmss_fff")}.txt";
+
+			var result = await _dataProvider.CreateAsync(new FileExplorerItem
+			{
+				 EntryType = FileExplorerItemType.File,
+				 Path = newPath,
+				 FileSize = 100,
+				 DateCreated = DateTimeOffset.UtcNow,
+				 DateModified = DateTimeOffset.UtcNow
+			}, CancellationToken.None).ConfigureAwait(true);
+
+			if(result.Success)
+			{
+				await _fileExplorer.RefreshTable().ConfigureAwait(true);
+				await _fileExplorer.RefreshToolbar().ConfigureAwait(true);
+			}
 		}
 	}
 }

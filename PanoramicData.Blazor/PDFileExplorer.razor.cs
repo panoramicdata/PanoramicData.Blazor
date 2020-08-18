@@ -124,7 +124,12 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event raised whenever the toolbar may need updating.
 		/// </summary>
-		[Parameter] public EventCallback UpdateToolbarState { get; set; }
+		[Parameter] public EventCallback<List<ToolbarItem>> UpdateToolbarState { get; set; }
+
+		/// <summary>
+		/// Event raised whenever the user clicks on a toolbar button.
+		/// </summary>
+		[Parameter] public EventCallback<string> ToolbarClick { get; set; }
 
 		/// <summary>
 		/// Gets or sets CSS classes to append.
@@ -491,6 +496,10 @@ namespace PanoramicData.Blazor
 				case "delete":
 					await DeleteSelectedFiles().ConfigureAwait(true);
 					break;
+
+				default:
+					await ToolbarClick.InvokeAsync(key).ConfigureAwait(true);
+					break;
 			}
 		}
 
@@ -586,7 +595,10 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task RefreshTree()
+		/// <summary>
+		/// Forces the tree component of the file explorer to be refreshed.
+		/// </summary>
+		public async Task RefreshTree()
 		{
 			// refresh tree - parent node will already be selected
 			var node = _tree?.SelectedNode;
@@ -597,7 +609,10 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task RefreshTable()
+		/// <summary>
+		/// Forces the table component of the file explorer to be refreshed.
+		/// </summary>
+		public async Task RefreshTable()
 		{
 			_table!.Selection.Clear();
 			await _table!.RefreshAsync(FolderPath); // explicitly state search path else fetch will use previous value as OnParametersSet not yet called
@@ -605,7 +620,10 @@ namespace PanoramicData.Blazor
 
 		}
 
-		private async Task RefreshToolbar()
+		/// <summary>
+		/// Forces the toolbar component of the file explorer to be refreshed.
+		/// </summary>
+		public async Task RefreshToolbar()
 		{
 			// up button
 			var upButton = ToolbarItems.Find(x => x.Key == "navigate-up");
@@ -624,7 +642,7 @@ namespace PanoramicData.Blazor
 			}
 
 			// allow application to alter toolbar state
-			await UpdateToolbarState.InvokeAsync(null).ConfigureAwait(true);
+			await UpdateToolbarState.InvokeAsync(ToolbarItems).ConfigureAwait(true);
 		}
 	}
 }
