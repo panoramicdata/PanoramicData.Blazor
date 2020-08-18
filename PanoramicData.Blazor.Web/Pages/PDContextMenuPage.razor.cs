@@ -29,7 +29,7 @@ namespace PanoramicData.Blazor.Web.Pages
 			_items.Add(new MenuItem { Text = "About", IsVisible = false });
 		}
 
-		public void BeforeShowHandler(CancelEventArgs args)
+		public void OnUpdateState(CancelEventArgs args)
 		{
 			args.Cancel = !_enabled;
 			_events += $"before show: {(_enabled ? "show = true" : "show = cancelled")} {Environment.NewLine}";
@@ -38,7 +38,7 @@ namespace PanoramicData.Blazor.Web.Pages
 			_items[_random.Next(2, 8)].IsDisabled = true;
 		}
 
-		public void ItemClickHandler(MenuItem item)
+		public void OnItemClick(MenuItem item)
 		{
 			_events += $"item click: {item.Text} {Environment.NewLine}";
 		}

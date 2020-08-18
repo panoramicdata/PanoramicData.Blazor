@@ -10,7 +10,7 @@
 
 		<PDSplitPanel Size="1">
 
-			<PDContextMenu Items="TreeContextItems" BeforeShow="OnTreeBeforeShowContextMenu" ItemClick="OnTreeContextMenuItemClick">
+			<PDContextMenu Items="TreeContextItems" UpdateState="OnTreeContextMenuUpdateState" ItemClick="OnTreeContextMenuItemClick">
 
 				<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true" AllowEdit="true"
 						KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
@@ -30,7 +30,7 @@
 
 		<PDSplitPanel Size="3">
 
-			<PDContextMenu Items="TableContextItems" BeforeShow="OnTableBeforeShowContextMenu" ItemClick="OnTableContextMenuItemClick">
+			<PDContextMenu Items="TableContextItems" UpdateState="OnTableContextMenuUpdateState" ItemClick="OnTableContextMenuItemClick">
 
 				<PDDropZone UploadUrl="@UploadUrl" Drop="OnFilesDropped" UploadStarted="OnUploadStarted" UploadProgress="OnUploadProgress" UploadCompleted="OnUploadCompleted">
 

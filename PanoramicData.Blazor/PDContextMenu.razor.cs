@@ -25,9 +25,10 @@ namespace PanoramicData.Blazor
 		[Parameter] public RenderFragment? ChildContent { get; set; }
 
 		/// <summary>
-		/// Gets or sets an event callback delegate fired just before the context menu is to be displayed.
+		/// Gets or sets an event that is raised just prior to the context menu being shown and allowing
+		/// the application to refresh the state of the items.
 		/// </summary>
-		[Parameter] public EventCallback<CancelEventArgs> BeforeShow { get; set; }
+		[Parameter] public EventCallback<CancelEventArgs> UpdateState { get; set; }
 
 		/// <summary>
 		/// Gets or sets an event callback delegate fired when the user selects clicks one of the items.
@@ -63,7 +64,7 @@ namespace PanoramicData.Blazor
 			if (args.Button == 2)
 			{
 				var cancelArgs = new CancelEventArgs();
-				await BeforeShow.InvokeAsync(cancelArgs).ConfigureAwait(true);
+				await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
 				if (!cancelArgs.Cancel)
 				{
 					await JSRuntime.InvokeVoidAsync("showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);

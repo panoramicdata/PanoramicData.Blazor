@@ -112,9 +112,19 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadCompleted { get; set; }
 
 		/// <summary>
+		/// Event raised whenever the tree context menu may need updating.
+		/// </summary>
+		[Parameter] public EventCallback UpdateTreeContextState { get; set; }
+
+		/// <summary>
+		/// Event raised whenever the table context menu may need updating.
+		/// </summary>
+		[Parameter] public EventCallback UpdateTableContextState { get; set; }
+
+		/// <summary>
 		/// Event raised whenever the toolbar may need updating.
 		/// </summary>
-		[Parameter] public EventCallback UpdateToolbar { get; set; }
+		[Parameter] public EventCallback UpdateToolbarState { get; set; }
 
 		/// <summary>
 		/// Gets or sets CSS classes to append.
@@ -159,12 +169,15 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnTreeBeforeShowContextMenu(CancelEventArgs args)
+		private async Task OnTreeContextMenuUpdateState(CancelEventArgs args)
 		{
 			if (_selectedNode?.Data != null)
 			{
 				TreeContextItems.Single(x => x.Text == "Delete").IsDisabled = _selectedNode.Data.ParentPath == string.Empty;
 				TreeContextItems.Single(x => x.Text == "Rename").IsDisabled = _selectedNode.Data.ParentPath == string.Empty;
+
+				// allow application to alter tree context menu state
+				await UpdateTreeContextState.InvokeAsync(null).ConfigureAwait(true);
 			}
 		}
 
@@ -295,7 +308,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnTableBeforeShowContextMenu(CancelEventArgs args)
+		private async Task OnTableContextMenuUpdateState(CancelEventArgs args)
 		{
 			// reset all states
 			TableContextItems.ForEach(x => { x.IsDisabled = false; x.IsVisible = true; });
@@ -308,22 +321,16 @@ namespace PanoramicData.Blazor
 			{
 				// if .. selected then only allow open
 				var selectedPath = _table!.Selection[0];
-				if (selectedPath.EndsWith(".."))
+				if (!IsValidSelection())
 				{
 					TableContextItems.Single(x => x.Text == "Download").IsVisible = false;
-					TableContextItems.ForEach(x => x.IsDisabled = x.Text != "Open");
-					return;
-				}
-
-				// if file selected is uploading then cancel
-				var item = _table.ItemsToDisplay.Single(x => x.Path == selectedPath);
-				if (item?.IsUploading != false)
-				{
-					args.Cancel = true;
+					TableContextItems.Single(x => x.Text == "Rename").IsDisabled = true;
+					TableContextItems.Single(x => x.Text == "Delete").IsDisabled = true;
 					return;
 				}
 
 				// update state - disallow open files and download folders
+				var item = _table.ItemsToDisplay.Single(x => x.Path == selectedPath);
 				if (item.EntryType == FileExplorerItemType.Directory)
 				{
 					TableContextItems.Single(x => x.Text == "Download").IsVisible = false;
@@ -341,29 +348,14 @@ namespace PanoramicData.Blazor
 				TableContextItems.Single(x => x.Text == "Rename").IsVisible = false;
 
 				// check can delete all selection?
-				var disable = false;
-				foreach(var path in _table!.Selection)
-				{
-					// disallow if .. selected
-					if(path.EndsWith(".."))
-					{
-						disable = true;
-						break;
-					}
-
-					// disallow delete if uploading
-					var item = _table.ItemsToDisplay.Single(x => x.Path == path);
-					if (item?.IsUploading != false)
-					{
-						disable = true;
-						break;
-					}
-				}
-				if(disable)
+				if(!IsValidSelection())
 				{
 					TableContextItems.Single(x => x.Text == "Delete").IsDisabled = true;
 				}
 			}
+
+			// allow application to alter table context menu state
+			await UpdateTableContextState.InvokeAsync(null).ConfigureAwait(true);
 		}
 
 		private async Task OnTableContextMenuItemClick(MenuItem menuItem)
@@ -502,6 +494,26 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private bool IsValidSelection()
+		{
+			foreach (var path in _table!.Selection)
+			{
+				// disallow if .. selected
+				if (path.EndsWith(".."))
+				{
+					return false;
+				}
+
+				// disallow delete if uploading
+				var item = _table.ItemsToDisplay.Single(x => x.Path == path);
+				if (item?.IsUploading != false)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
 		private async Task NavigateFolder(string path)
 		{
 			if (Path.GetFileName(path) == "..")
@@ -608,12 +620,11 @@ namespace PanoramicData.Blazor
 			var deleteButton = ToolbarItems.Find(x => x.Key == "delete");
 			if (deleteButton != null)
 			{
-				deleteButton.IsEnabled = _table!.Selection.Count > 0;
+				deleteButton.IsEnabled = _table!.Selection.Count > 0 && !_table!.Selection.Any(x => x.EndsWith(".."));
 			}
 
-
 			// allow application to alter toolbar state
-			await UpdateToolbar.InvokeAsync(null).ConfigureAwait(true);
+			await UpdateToolbarState.InvokeAsync(null).ConfigureAwait(true);
 		}
 	}
 }
