@@ -3,14 +3,7 @@
 <div class="pdfileexplorer @CssClass">
 
 	<div class="pdfe-toolbar">
-
-		<PDToolbar>
-			<PDToolbarButton ToolTip="Navigate up to parent folder" IconCssClass="fas fa-arrow-up" IsEnabled="_selectedNode?.ParentNode != null" Click="OnNavigateUpClick" />
-			<PDToolbarButton Text="Create Folder" ToolTip="Create a new folder" IconCssClass="fas fa-folder-open" />
-			<PDToolbarButton Text="Create File" ToolTip="Create a new file" />
-			<PDToolbarSeparator />
-			<PDToolbarButton Text="Delete" ToolTip="Delete selected items" IconCssClass="fas fa-trash-alt" />
-		</PDToolbar>
+		<PDToolbar Items="ToolbarItems" ButtonClick="OnToolbarButtonClick" />
 	</div>
 
 	<PDSplitter GutterSize="6">
@@ -42,9 +35,9 @@
 				<PDDropZone UploadUrl="@UploadUrl" Drop="OnFilesDropped" UploadStarted="OnUploadStarted" UploadProgress="OnUploadProgress" UploadCompleted="OnUploadCompleted">
 
 					<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
-								SelectionMode="TableSelectionMode.Single" KeyField="x => x.Path" AllowEdit="true"
+								SelectionMode="TableSelectionMode.Multiple" KeyField="x => x.Path" AllowEdit="true"
 								DoubleClick="OnTableDoubleClick" ItemsLoaded="OnTableItemsLoaded"
-								BeforeEdit="OnTableBeforeEdit" AfterEdit="OnTableAfterEdit"
+								BeforeEdit="OnTableBeforeEdit" AfterEdit="OnTableAfterEdit" SelectionChanged="OnTableSelectionChanged"
 								RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
 
 						<PDColumn TItem="FileExplorerItem" Id="Icon" Field="x => x.EntryType" Editable="false">
