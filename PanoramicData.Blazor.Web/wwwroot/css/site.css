@@ -199,4 +199,26 @@ app {
 	.pdfileexplorer .pdtreenode_content.selected:hover, .pdfileexplorer .pdtablerow.selected:hover {
 		background-color: #007bff;
 	}
+
+	.drop-zone {
+		color: gray;
+		border: 2px solid gray;
+		border-radius: 10px;
+		height: 100px;
+		display: flex;
+		justify-content: center;
+		align-items:center;
+		background-color: white;
+	}
+
+	.drop-zone.good {
+		color: green;
+		border: 2px solid green;
+		background-color: #e8ffe8
+	}
+
+	.drop-zone.bad {
+		color: red;
+		border: 2px solid red;
+	}
 }

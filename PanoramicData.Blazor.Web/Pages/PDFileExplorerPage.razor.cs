@@ -66,7 +66,7 @@ namespace PanoramicData.Blazor.Web.Pages
 			if(createFileButton == null)
 			{
 				// not existing - so create
-				items.Insert(2, new ToolbarButton { Key = "create-file", Text = "New File", ToolTip = "Create a new file", IconCssClass = "fas fa-file-medical" });
+				items.Insert(2, new ToolbarButton { Key = "create-file", Text = "New File", ToolTip = "Create a new file", IconCssClass = "fas fa-fw fa-file-medical" });
 			}
 		}
 
@@ -86,7 +86,7 @@ namespace PanoramicData.Blazor.Web.Pages
 			if (createFileButton == null)
 			{
 				// not existing - so create
-				createFileButton = new MenuItem { Key = "create-file", Text = "New File", IconCssClass = "fas fa-file-medical" };
+				createFileButton = new MenuItem { Key = "create-file", Text = "New File", IconCssClass = "fas fa-fw fa-file-medical" };
 				args.MenuItems.Insert(2, createFileButton);
 			}
 

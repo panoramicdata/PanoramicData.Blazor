@@ -16,13 +16,14 @@
 	</div>
 </div>
 
-<PDTable @ref="_table" TItem="TestRow" DataProvider="DataProvider" KeyField="x => x.IntField"
-		 ColumnsConfig="_columnsConfig" SearchText="@_searchText"
-		 SelectionMode="@SelectionMode" SelectionChanged="OnSelectionChange"
-		 Click="OnClick" DoubleClick="OnDoubleClick"
-		 AllowEdit="true" BeforeEdit="OnBeforeEdit"
-		 DefaultPage="_defaultPage" PageChanged="OnPageChange"
-		 DefaultSort="_defaultSort" SortChanged="OnSortChange">
+<PDTable @ref="_table" TItem="TestRow" DataProvider="DataProvider" KeyField="x => x.IntField" AllowDrag="_allowDrag" AllowDrop="_allowDrop"
+			ColumnsConfig="_columnsConfig" SearchText="@_searchText"
+			SelectionMode="@SelectionMode" SelectionChanged="OnSelectionChange"
+		    Drop="OnDrop"
+			Click="OnClick" DoubleClick="OnDoubleClick"
+			AllowEdit="true" BeforeEdit="OnBeforeEdit"
+			DefaultPage="_defaultPage" PageChanged="OnPageChange"
+			DefaultSort="_defaultSort" SortChanged="OnSortChange">
 
 	<PDColumn Id="Col1" Editable="false" TItem="TestRow" Title="Id" Field="x => x.IntField" />
 	<PDColumn Id="Col2" TdClass="text-nowrap" TItem="TestRow" Title="Date" Field="x => x.DateField" Format="dd/MM/yyyy HH:mm" />
@@ -37,6 +38,14 @@
 </PDTable>
 
 <hr />
+
+@if (_allowDrag)
+{
+	<div class="drop-zone @_dropZoneCss" @ondragenter="OnDragEnter" @ondragleave="OnDragLeave" @ondrop="OnDragDrop"
+			ondragover="event.preventDefault();">
+		<span>@_dropMessage</span>
+	</div>
+}
 
 <div>
 
@@ -55,6 +64,14 @@
 			<label>Columns Config - edit and tab out of field to apply changes</label>
 			<textarea rows="8" cols="40" class="form-control" @bind="ColumnsConfigJson">
 			</textarea>
+		</div>
+
+		<div class="form-group p-1">
+			<button class="btn btn-secondary" @onclick="() => _allowDrag = !_allowDrag">@(_allowDrag ? "Disable" : "Enable") Drag</button>
+		</div>
+
+		<div class="form-group p-1">
+			<button class="btn btn-secondary" @onclick="() => _allowDrop = !_allowDrop">@(_allowDrop ? "Disable" : "Enable") Drop</button>
 		</div>
 
 	</div>

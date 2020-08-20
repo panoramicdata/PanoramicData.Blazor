@@ -30,10 +30,10 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public List<MenuItem> TreeContextItems { get; set; } = new List<MenuItem>
 			{
-				new MenuItem { Text = "Rename", IconCssClass = "fas fa-pencil-alt" },
-				new MenuItem { Text = "New Folder", IconCssClass = "fas fa-plus" },
+				new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" },
+				new MenuItem { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" },
 				new MenuItem { IsSeparator = true },
-				new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" }
+				new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" }
 			};
 
 		/// <summary>
@@ -42,12 +42,12 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public List<MenuItem> TableContextItems { get; set; } = new List<MenuItem>
 			{
-				new MenuItem { Text = "Open", IconCssClass = "fas fa-folder-open" },
-				new MenuItem { Text = "Download", IconCssClass = "fas fa-file-download" },
+				new MenuItem { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" },
+				new MenuItem { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" },
 				new MenuItem { IsSeparator = true },
-				new MenuItem { Text = "Rename", IconCssClass = "fas fa-pencil-alt" },
+				new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" },
 				new MenuItem { IsSeparator = true },
-				new MenuItem { Text = "Delete", IconCssClass = "fas fa-trash-alt" }
+				new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" }
 			};
 
 		/// <summary>
@@ -56,10 +56,10 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public List<ToolbarItem> ToolbarItems { get; set; } = new List<ToolbarItem>
 			{
-				new ToolbarButton { Key = "navigate-up", ToolTip="Navigate up to parent folder", IconCssClass="fas fa-arrow-up" },
-				new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip="Create a new folder", IconCssClass="fas fa-folder-plus" },
+				new ToolbarButton { Key = "navigate-up", ToolTip="Navigate up to parent folder", IconCssClass="fas fa-fw fa-arrow-up" },
+				new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip="Create a new folder", IconCssClass="fas fa-fw fa-folder-plus" },
 				new ToolbarSeparator(),
-				new ToolbarButton { Key = "delete", Text = "Delete", ToolTip="Delete the selected files and folders", IconCssClass="fas fa-trash-alt" },
+				new ToolbarButton { Key = "delete", Text = "Delete", ToolTip="Delete the selected files and folders", IconCssClass="fas fa-fw fa-trash-alt" },
 			};
 
 		/// <summary>

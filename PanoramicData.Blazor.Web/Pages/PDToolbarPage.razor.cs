@@ -13,10 +13,10 @@ namespace PanoramicData.Blazor.Web.Pages
 		private bool _enableButtons = true;
 		private List<ToolbarItem> ToolbarItems = new List<ToolbarItem>
 		{
-			new ToolbarButton { Key = "tb-open", Text = "Open", IconCssClass = "fas fa-folder-open", ToolTip="Open something" },
+			new ToolbarButton { Key = "tb-open", Text = "Open", IconCssClass = "fas fa-fw fa-folder-open", ToolTip="Open something" },
 			new ToolbarButton { Key = "tb-rename", Text="Rename", ToolTip="Rename something" },
 			new ToolbarSeparator(),
-			new ToolbarButton { Key = "tb-download", Text="Download", IconCssClass="fas fa-file-download", ToolTip="Download something" },
+			new ToolbarButton { Key = "tb-download", Text="Download", IconCssClass="fas fa-fw fa-file-download", ToolTip="Download something" },
 			new ToolbarButton { Key = "tb-enabledisable", Text="Disable Buttons", ToolTip="Enable or disable buttons", ShiftRight = true },
 			new ToolbarButton { Key = "tb-showhide", Text="Hide Buttons", ToolTip="Show or hide buttons" }
 		};

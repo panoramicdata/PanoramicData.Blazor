@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.AspNetCore.Components.Web;
 using Newtonsoft.Json;
 using PanoramicData.Blazor.Web.Data;
 using PanoramicData.Blazor.Extensions;
+using Microsoft.CodeAnalysis.Host;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
@@ -14,6 +16,10 @@ namespace PanoramicData.Blazor.Web.Pages
 	{
 		private string _events = string.Empty;
 		private string _searchText = string.Empty;
+		private bool _allowDrag = false;
+		private bool _allowDrop = false;
+		private string _dropZoneCss = "";
+		private string _dropMessage = "Drop Zone";
 		private PDTable<TestRow>? _table;
 		private PageCriteria _defaultPage = new PageCriteria(1, 5);
 		private SortCriteria _defaultSort = new SortCriteria("Col1", SortDirection.Descending);
@@ -32,6 +38,8 @@ namespace PanoramicData.Blazor.Web.Pages
 				new PDColumnConfig { Id = "Col4" },
 				new PDColumnConfig { Id = "Col5" }
 			};
+
+		[CascadingParameter] PDDragContext? DragContext { get; set; }
 
 		private string ColumnsConfigJson
 		{
@@ -123,5 +131,43 @@ namespace PanoramicData.Blazor.Web.Pages
 			// example of preventing an edit
 			args.Cancel = args.Item.BooleanField;
 		}
+
+		private void OnDrop(DropEventArgs args)
+		{
+			if (args?.Payload != null && args.Target is TestRow row && args.Payload is IEnumerable<TestRow> rows)
+			{
+				_events += $"drop: {string.Join(", ", rows.Select(x => x.NameField))} onto {row.NameField}{Environment.NewLine}";
+			}
+		}
+
+		private void OnDragEnter(DragEventArgs args)
+		{
+			if(DragContext?.Payload == null)
+			{
+				_dropZoneCss = "bad";
+			}
+			else
+			{
+				_dropZoneCss = "good";
+			}
+		}
+
+		private void OnDragLeave(DragEventArgs args)
+		{
+			_dropZoneCss = "";
+		}
+
+		private void OnDragDrop(DragEventArgs args)
+		{
+			// get item that was dragged (TestRow)
+			_dropMessage = "Boom!";
+			if(DragContext?.Payload != null)
+			{
+				var items = (List<TestRow>)DragContext.Payload;
+				_dropMessage = string.Join(", ", items.Select(x => x.NameField));
+			}
+		}
+
+
 	}
 }

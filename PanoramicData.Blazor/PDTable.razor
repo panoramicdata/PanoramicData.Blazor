@@ -38,11 +38,10 @@
 				{
 					foreach (var item in ItemsToDisplay)
 					{
-				<tr class="pdtablerow @GetDynamicRowClasses(item)"
+				<tr class="pdtablerow @GetDynamicRowClasses(item)" @attributes="RowAttributes" @oncontextmenu:preventDefault
 					@onmousedown="@((args) => OnRowMouseDown(args, item))"
-					@onclick="@((args) => OnRowClick(args, item))"
-					@ondblclick="@((args) => OnRowDoubleClick(args, item))"
-					@oncontextmenu:preventDefault>
+					@onclick="@((args) => OnRowClick(args, item))" @ondblclick="@((args) => OnRowDoubleClick(args, item))"
+				    @ondragstart="OnDragStart" @ondragend="OnDragEnd" @ondrop="@((args) => OnDragDrop(item))" >
 					@foreach (var column in ActualColumnsToDisplay)
 					{
 						<td class="@column.TdClass">

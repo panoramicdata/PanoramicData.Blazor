@@ -19,10 +19,15 @@ namespace PanoramicData.Blazor
 		public const string IdPrefix = "pd-table-";
 		public const string IdEditPrefix = "pd-table-edit-";
 		private static int _idSequence;
+		private bool _dragging;
 		private Timer? _editTimer;
 		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
+		private ManualResetEvent _beginEditEvent = new ManualResetEvent(false);
 
-		private ManualResetEvent _beginEditEvent { get; set; } = new ManualResetEvent(false);
+		/// <summary>
+		/// Provides access to the parent DragContext if it exists.
+		/// </summary>
+		[CascadingParameter] public PDDragContext? DragContext { get; set; }
 
 		/// <summary>
 		/// Injected log service.
@@ -142,6 +147,16 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AllowEdit { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether rows may be dragged.
+		/// </summary>
+		[Parameter] public bool AllowDrag { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether items may be dropped onto rows.
+		/// </summary>
+		[Parameter] public bool AllowDrop { get; set; }
+
+		/// <summary>
 		/// Callback fired before an item edit begins.
 		/// </summary>
 		[Parameter] public EventCallback<TableBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
@@ -150,6 +165,11 @@ namespace PanoramicData.Blazor
 		/// Callback fired after an item edit ends.
 		/// </summary>
 		[Parameter] public EventCallback<TableAfterEditEventArgs<TItem>> AfterEdit { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever a drag operation ends on a row within a DragContext.
+		/// </summary>
+		[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
 		/// <summary>
 		/// Gets the unique identifier of this table.
@@ -167,7 +187,7 @@ namespace PanoramicData.Blazor
 		public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
 
 		/// <summary>
-		/// Gets the current selection.
+		/// Gets the keys of all currently selected items.
 		/// </summary>
 		public List<string> Selection { get; } = new List<string>();
 
@@ -444,6 +464,26 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		/// <summary>
+		/// Gets a dictionary of additional attributes to be added to each row.
+		/// </summary>
+		public Dictionary<string, object> RowAttributes
+		{
+			get
+			{
+				var dict = new Dictionary<string, object>();
+				if(AllowDrag)
+				{
+					dict.Add("draggable", "true");
+				}
+				if (AllowDrop)
+				{
+					dict.Add("ondragover", "event.preventDefault();");
+				}
+				return dict;
+			}
+		}
+
 		protected override void OnInitialized()
 		{
 			Id = $"{IdPrefix}{++_idSequence}";
@@ -660,10 +700,13 @@ namespace PanoramicData.Blazor
 
 		private void OnEditTimer(object state)
 		{
-			Task.Run(async () =>
+			if (!_dragging)
 			{
-				await BeginEdit().ConfigureAwait(true);
-			});
+				Task.Run(async () =>
+				{
+					await BeginEdit().ConfigureAwait(true);
+				});
+			}
 		}
 
 		private string GetDynamicRowClasses(TItem item)
@@ -705,6 +748,40 @@ namespace PanoramicData.Blazor
 		{
 			_editTimer?.Dispose();
 			_editTimer = null;
+		}
+
+		private void OnDragStart(DragEventArgs args)
+		{
+			_dragging = true;
+
+			// need to set the data being dragged
+			if (DragContext != null && KeyField != null)
+			{
+				// get all selected items
+				var items = new List<TItem>();
+				foreach(var key in Selection)
+				{
+					var item = ItemsToDisplay.Find(x => KeyField(x).ToString() == key);
+					if(item != null)
+					{
+						items.Add(item);
+					}
+				}
+				DragContext.Payload = items;
+			}
+		}
+
+		private void OnDragEnd(DragEventArgs args)
+		{
+			_dragging = false;
+		}
+
+		private void OnDragDrop(TItem row)
+		{
+			if(DragContext != null)
+			{
+				Drop.InvokeAsync(new DropEventArgs(row, DragContext.Payload));
+			}
 		}
 	}
 }
