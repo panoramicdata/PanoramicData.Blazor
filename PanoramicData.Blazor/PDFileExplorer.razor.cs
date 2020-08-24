@@ -507,6 +507,21 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private async Task OnDrop(DropEventArgs args)
+		{
+			// source and target are file items - and target is folder?
+			if(args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory &&
+			   args.Payload is List<FileExplorerItem> payload)
+			{
+				// check not dropping an item onto itself
+				if(!payload.Any(x => x.Path == target.Path))
+				{
+					// move file or folder into folder
+					MoveOrCopyFiles(payload, target, false);
+				}
+			}
+		}
+
 		private bool IsValidSelection()
 		{
 			foreach (var path in _table!.Selection)
@@ -597,6 +612,11 @@ namespace PanoramicData.Blazor
 				await RefreshTable().ConfigureAwait(true);
 				await RefreshToolbar().ConfigureAwait(true);
 			}
+		}
+
+		private async Task MoveOrCopyFiles(IEnumerable<FileExplorerItem> sources, FileExplorerItem target, bool copy)
+		{
+
 		}
 
 		/// <summary>

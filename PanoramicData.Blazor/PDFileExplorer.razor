@@ -35,6 +35,7 @@
 				<PDDropZone UploadUrl="@UploadUrl" Drop="OnFilesDropped" UploadStarted="OnUploadStarted" UploadProgress="OnUploadProgress" UploadCompleted="OnUploadCompleted">
 
 					<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
+							    AllowDrag="true" AllowDrop="true" Drop="OnDrop"
 								SelectionMode="TableSelectionMode.Multiple" KeyField="x => x.Path" AllowEdit="true"
 								DoubleClick="OnTableDoubleClick" ItemsLoaded="OnTableItemsLoaded"
 								BeforeEdit="OnTableBeforeEdit" AfterEdit="OnTableAfterEdit" SelectionChanged="OnTableSelectionChanged"

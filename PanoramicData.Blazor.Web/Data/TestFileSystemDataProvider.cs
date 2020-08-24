@@ -46,6 +46,7 @@ namespace PanoramicData.Blazor.Web.Data
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200430_agent.log", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200501_agent.log", EntryType = FileExplorerItemType.File });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200502_agent.log", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Readme.txt", EntryType = FileExplorerItemType.File });
 		}
 
 		/// <summary>

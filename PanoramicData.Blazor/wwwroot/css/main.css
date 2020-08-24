@@ -181,7 +181,7 @@
   height: 100%; }
 
 .pddropzone.highlight {
-  background-color: yellow; }
+  background-color: #e8ffe8; }
 
 .pddropzone input[type=file] {
   position: absolute;

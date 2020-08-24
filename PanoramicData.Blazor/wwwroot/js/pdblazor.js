@@ -105,44 +105,50 @@ function initializeDropZone(id, uploadUrl, dotnetHelper) {
 }
 
 function onDropZoneDragEnter(e) {
-	var zone = findAncestor(e.target, 'pddropzone');
-	if (zone) {
-		e.preventDefault();
-		e.stopPropagation();
-		zone.classList.add('highlight');
+	if (e.dataTransfer.types && e.dataTransfer.types[0] == "Files") {
+		var zone = findAncestor(e.target, 'pddropzone');
+		if (zone) {
+			e.preventDefault();
+			e.stopPropagation();
+			zone.classList.add('highlight');
+		}
 	}
 }
 
 function onDropZoneDrop(e) {
-	var zone = findAncestor(e.target, 'pddropzone');
-	if (zone) {
-		e.preventDefault();
-		e.stopPropagation();
-		zone.classList.remove('highlight');
-		let files = e.dataTransfer.files
-		if (zone.dotnetHelper) {
-			var dto = [];
-			for (var i = 0; i < files.length; i++)
-				dto.push({ Name: files[i].name, Size: files[i].size });
-			zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', dto)
-				.then(result => {
-					if (result.cancel) {
-						console.warn(result.reason);
-					} else {
-						for (var i = 0; i < files.length; i++)
-							uploadFile(files[i], zone.uploadUrl, result.state, zone);
-					}
-				});
+	if (e.dataTransfer.types && e.dataTransfer.types[0] == "Files") {
+		var zone = findAncestor(e.target, 'pddropzone');
+		if (zone) {
+			e.preventDefault();
+			e.stopPropagation();
+			zone.classList.remove('highlight');
+			let files = e.dataTransfer.files
+			if (zone.dotnetHelper) {
+				var dto = [];
+				for (var i = 0; i < files.length; i++)
+					dto.push({ Name: files[i].name, Size: files[i].size });
+				zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', dto)
+					.then(result => {
+						if (result.cancel) {
+							console.warn(result.reason);
+						} else {
+							for (var i = 0; i < files.length; i++)
+								uploadFile(files[i], zone.uploadUrl, result.state, zone);
+						}
+					});
+			}
 		}
 	}
 }
 
 function onDropZoneDragLeave(e) {
-	var zone = findAncestor(e.target, 'pddropzone');
-	if (zone) {
-		e.preventDefault();
-		e.stopPropagation();
-		zone.classList.remove('highlight');
+	if (e.dataTransfer.types && e.dataTransfer.types[0] == "Files") {
+		var zone = findAncestor(e.target, 'pddropzone');
+		if (zone) {
+			e.preventDefault();
+			e.stopPropagation();
+			zone.classList.remove('highlight');
+		}
 	}
 }
 
@@ -153,11 +159,7 @@ function disposeDropZone(id) {
 		zone.removeEventListener('dragover', onDropZoneDragEnter, false);
 		zone.removeEventListener('dragleave', onDropZoneDragLeave, false);
 		zone.removeEventListener('drop', onDropZoneDrop, false);
-		if (zone.dotnetHelper) {
-			var a = zone.dotnetHelper;
-			zone.dotnetHelper = null;
-			a.dispose();
-		}
+		// zone.dotnetHelper is disposed of by runtime
 	}
 }
 
