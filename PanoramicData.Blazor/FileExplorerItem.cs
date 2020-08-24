@@ -4,8 +4,6 @@ namespace PanoramicData.Blazor
 {
 	public class FileExplorerItem
 	{
-		private string? _parentPath;
-
 		/// <summary>
 		/// Gets or sets whether this item has the Hidden attribute set.
 		/// </summary>

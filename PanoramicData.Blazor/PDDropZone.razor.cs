@@ -77,28 +77,62 @@ namespace PanoramicData.Blazor
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadBegin")]
 		public void OnUploadBegin(DropZoneFile file)
 		{
+			if (file is null)
+			{
+				throw new ArgumentNullException(nameof(file));
+			}
+			if (file.Path is null)
+			{
+				throw new ArgumentException("file's Path Property should not be null.", nameof(file));
+			}
+			if (file.Name is null)
+			{
+				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
+			}
 			UploadStarted.InvokeAsync(new DropZoneUploadEventArgs(file.Path, file.Name, file.Size));
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadProgress")]
 		public void OnUploadProgress(DropZoneFileUploadProgress file)
 		{
+			if (file is null)
+			{
+				throw new ArgumentNullException(nameof(file));
+			}
+			if (file.Path is null)
+			{
+				throw new ArgumentException("file's Path Property should not be null.", nameof(file));
+			}
+			if (file.Name is null)
+			{
+				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
+			}
 			UploadProgress.InvokeAsync(new DropZoneUploadProgressEventArgs(file.Path, file.Name, file.Size, file.Progress));
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadEnd")]
 		public void OnUploadEnd(DropZoneFileUploadOutcome file)
 		{
+			if (file is null)
+			{
+				throw new ArgumentNullException(nameof(file));
+			}
+			if (file.Path is null)
+			{
+				throw new ArgumentException("file's Path Property should not be null.", nameof(file));
+			}
+			if (file.Name is null)
+			{
+				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
+			}
+
 			UploadCompleted.InvokeAsync(new DropZoneUploadEventArgs(file.Path, file.Name, file.Size));
 		}
 
 		public void Dispose()
 		{
 			JSRuntime.InvokeVoidAsync("disposeDropZone", Id);
-			if (_dotNetReference != null)
-			{
-				_dotNetReference.Dispose();
-			}
+			_dotNetReference?.Dispose();
 		}
 	}
 }
