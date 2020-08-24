@@ -17,11 +17,11 @@
 				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit" @bind="@Node.EditText" @bind:event="oninput"
 					   @onblur="OnEndEdit" @onmousedown:stopPropagation @onclick:stopPropagation @oncontextmenu:stopPropagation />
 			}
-			else
+			else if(Node != null)
 			{
-				@if (NodeTemplate == null)
+				@if (NodeTemplate is null)
 				{
-					<span>@Node?.Text</span>
+					<span>@Node.Text</span>
 				}
 				else
 				{

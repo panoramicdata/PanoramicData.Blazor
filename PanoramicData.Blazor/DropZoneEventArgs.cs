@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace PanoramicData.Blazor
+﻿namespace PanoramicData.Blazor
 {
 	/// <summary>
 	/// The DropZoneEventArgs class provides information for PDDropZone drop events.

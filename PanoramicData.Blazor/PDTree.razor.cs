@@ -7,11 +7,10 @@ using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Exceptions;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using System.Linq;
 
 namespace PanoramicData.Blazor
 {
-    public partial class PDTree<TItem> where TItem : class
+	public partial class PDTree<TItem> where TItem : class
     {
 		private const string IdPrefix = "pd-tree-";
 		private static int _idSequence;

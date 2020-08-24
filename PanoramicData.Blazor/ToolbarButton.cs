@@ -8,11 +8,11 @@
 		/// <summary>
 		/// Gets or sets the CSS class names used to place an icon on the button.
 		/// </summary>
-		public string IconCssClass { get; set; }
+		public string IconCssClass { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets the text displayed on the button.
 		/// </summary>
-		public string Text { get; set; }
+		public string Text { get; set; } = string.Empty;
 	}
 }

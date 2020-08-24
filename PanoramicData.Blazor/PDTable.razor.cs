@@ -16,13 +16,13 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IDisposable where TItem: class
 	{
-		public const string IdPrefix = "pd-table-";
-		public const string IdEditPrefix = "pd-table-edit-";
+		public readonly string IdPrefix = "pd-table-";
+		public readonly string IdEditPrefix = "pd-table-edit-";
 		private static int _idSequence;
 		private Timer? _editTimer;
 		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
 
-		private ManualResetEvent _beginEditEvent { get; set; } = new ManualResetEvent(false);
+		private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
 		/// <summary>
 		/// Injected log service.
@@ -190,7 +190,7 @@ namespace PanoramicData.Blazor
 							var dTColumn = Columns.Single(c => c.Id == columnConfig.Id);
 		   					if (columnConfig.Title != default)
 							{
-								dTColumn.Title = columnConfig.Title;
+								dTColumn.SetTitle(columnConfig.Title);
 							}
 							return dTColumn;
 						})
@@ -310,7 +310,7 @@ namespace PanoramicData.Blazor
 					ForceUpdate = false,
 					SortFieldExpression = sortColumn?.Field,
 					SortDirection = sortColumn?.SortDirection,
-					SearchText = searchText == null ? SearchText : searchText
+					SearchText = searchText ?? SearchText
 				};
 
 				// paging
@@ -363,20 +363,17 @@ namespace PanoramicData.Blazor
 			if (AllowEdit && !IsEditing && SelectionMode != TableSelectionMode.None && Selection.Count == 1 && KeyField != null)
 			{
 				// find item to edit
-				var item = ItemsToDisplay.FirstOrDefault(x => KeyField(x).ToString() == Selection[0]);
+				var item = ItemsToDisplay.Find(x => KeyField(x).ToString() == Selection[0]);
 				if (item != null)
 				{
 					// notify and allow for cancel
 					EditItem = item;
 					_tableBeforeEditArgs = new TableBeforeEditEventArgs<TItem>(EditItem);
-					await InvokeAsync(async () =>
-					{
-						await BeforeEdit.InvokeAsync(_tableBeforeEditArgs).ConfigureAwait(true);
-					}).ConfigureAwait(true);
+					await InvokeAsync(async () => await BeforeEdit.InvokeAsync(_tableBeforeEditArgs).ConfigureAwait(true)).ConfigureAwait(true);
 					if (!_tableBeforeEditArgs.Cancel)
 					{
 						IsEditing = true;
-						_beginEditEvent.Set();
+						BeginEditEvent.Set();
 						await InvokeAsync(StateHasChanged).ConfigureAwait(true);
 					}
 				}
@@ -510,7 +507,7 @@ namespace PanoramicData.Blazor
 			}
 
 			// focus first editor after edit mode begins
-			if (_beginEditEvent.WaitOne(0) && Columns.Count > 0)
+			if (BeginEditEvent.WaitOne(0) && Columns.Count > 0)
 			{
 				// find first editable column
 				var key = string.Empty;
@@ -528,7 +525,7 @@ namespace PanoramicData.Blazor
 				if (key != string.Empty)
 				{
 					await JSRuntime.InvokeVoidAsync("selectText", $"{IdEditPrefix}{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
-					_beginEditEvent.Reset();
+					BeginEditEvent.Reset();
 				}
 			}
 		}
@@ -541,7 +538,7 @@ namespace PanoramicData.Blazor
 				var id = await JSRuntime.InvokeAsync<string>("getFocusedElementId").ConfigureAwait(true);
 				if (!id.StartsWith(IdEditPrefix))
 				{
-					CommitEdit();
+					await CommitEdit().ConfigureAwait(true);
 				}
 			}
 		}
@@ -596,19 +593,19 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnRowClick(MouseEventArgs args, TItem item)
+		private void OnRowClick(MouseEventArgs _, TItem item)
 		{
 			Click.InvokeAsync(item);
 		}
 
-		private void OnRowDoubleClick(MouseEventArgs args, TItem item)
+		private void OnRowDoubleClick(MouseEventArgs _, TItem item)
 		{
 			// cancel pending edit mode
 			_editTimer?.Change(Timeout.Infinite, Timeout.Infinite);
 			DoubleClick.InvokeAsync(item);
 		}
 
-		private void OnKeyDown(KeyboardEventArgs args)
+		private async Task OnKeyDown(KeyboardEventArgs args)
 		{
 			if(IsEditing)
 			{
@@ -620,7 +617,7 @@ namespace PanoramicData.Blazor
 
 					case "Enter":
 					case "Return":
-						CommitEdit();
+						await CommitEdit().ConfigureAwait(true);
 						break;
 				}
 			}
@@ -629,7 +626,7 @@ namespace PanoramicData.Blazor
 				switch (args.Code)
 				{
 					case "F2":
-						BeginEdit();
+						await BeginEdit().ConfigureAwait(true);
 						break;
 
 					case "ArrowUp":
@@ -660,10 +657,7 @@ namespace PanoramicData.Blazor
 
 		private void OnEditTimer(object state)
 		{
-			Task.Run(async () =>
-			{
-				await BeginEdit().ConfigureAwait(true);
-			});
+			Task.Run(async () => await BeginEdit().ConfigureAwait(true));
 		}
 
 		private string GetDynamicRowClasses(TItem item)

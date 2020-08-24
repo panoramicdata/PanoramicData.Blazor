@@ -233,7 +233,9 @@ namespace PanoramicData.Blazor
 					Table.Columns.ForEach(c => c.SortColumn = false);
 					SortColumn = true;
 					if (requestedSortDirection.HasValue)
+					{
 						SortDirection = requestedSortDirection.Value;
+					}
 				}
 			}
 			catch (Exception ex)
@@ -261,6 +263,12 @@ namespace PanoramicData.Blazor
 				Type = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
 			}
 			PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
+		}
+
+		public void SetTitle(string title)
+		{
+			_title = title;
+			StateHasChanged();
 		}
 	}
 }

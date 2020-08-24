@@ -12,7 +12,7 @@
 
 			<PDContextMenu Items="TreeContextItems" UpdateState="OnTreeContextMenuUpdateState" ItemClick="OnTreeContextMenuItemClick">
 
-				<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true" AllowEdit="true"
+				<PDTree @ref="Tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true" AllowEdit="true"
 						KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
 						SelectionChange="OnTreeSelectionChange" ItemsLoaded="OnTreeItemsLoaded" NodeUpdated="OnTreeNodeUpdated"
 						BeforeEdit="OnTreeBeforeEdit" AfterEdit="OnTreeAfterEdit">
@@ -34,7 +34,7 @@
 
 				<PDDropZone UploadUrl="@UploadUrl" Drop="OnFilesDropped" UploadStarted="OnUploadStarted" UploadProgress="OnUploadProgress" UploadCompleted="OnUploadCompleted">
 
-					<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
+					<PDTable @ref="Table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
 								SelectionMode="TableSelectionMode.Multiple" KeyField="x => x.Path" AllowEdit="true"
 								DoubleClick="OnTableDoubleClick" ItemsLoaded="OnTableItemsLoaded"
 								BeforeEdit="OnTableBeforeEdit" AfterEdit="OnTableAfterEdit" SelectionChanged="OnTableSelectionChanged"
