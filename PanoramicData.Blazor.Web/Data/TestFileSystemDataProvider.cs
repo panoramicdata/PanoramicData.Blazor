@@ -25,28 +25,28 @@ namespace PanoramicData.Blazor.Web.Data
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:" });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData" });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme\Readme.txt", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme\UserGuide.pdf", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\stats.txt", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme\Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme\UserGuide.pdf", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\stats.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\a53fde.tmp", EntryType = FileExplorerItemType.File, IsHidden = true });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\b76jba.tmp", EntryType = FileExplorerItemType.File, IsHidden = true });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\p21wsa.tmp", EntryType = FileExplorerItemType.File, IsHidden = true });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\a53fde.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\b76jba.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\p21wsa.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Users" });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:" });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data" });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200131_mydb.bak", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200229_mydb.bak", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200331_mydb.bak", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200430_mydb.bak", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\WeeklyStats.json", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\MonthlyStats.json", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200131_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200229_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200331_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200430_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\WeeklyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\MonthlyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200430_agent.log", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200501_agent.log", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200502_agent.log", EntryType = FileExplorerItemType.File });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Readme.txt", EntryType = FileExplorerItemType.File });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200430_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200501_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200502_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
 		}
 
 		/// <summary>

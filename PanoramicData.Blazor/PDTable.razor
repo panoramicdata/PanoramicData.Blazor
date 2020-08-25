@@ -2,7 +2,7 @@
 
 @if (TableInitialised)
 {
-	<div id="@Id" class="pdtable" tabindex="0" @onkeydown="OnKeyDown">
+	<div id="@Id" class="pdtable @CssClass" tabindex="0" @onkeydown="OnKeyDown">
 		<table class="table @TableClass">
 			@if (PageSize.HasValue)
 			{

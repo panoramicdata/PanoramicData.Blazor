@@ -60,6 +60,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public Func<TItem, object>? KeyField { get; set; }
 
 		/// <summary>
+		/// Gets or sets the CSS class to apply to the container element.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets the CSS class to apply to the tables container element.
 		/// </summary>
 		[Parameter] public string TableClass { get; set; } = string.Empty;
@@ -699,10 +704,7 @@ namespace PanoramicData.Blazor
 		{
 			if (!_dragging)
 			{
-				Task.Run(async () =>
-				{
-					await BeginEdit().ConfigureAwait(true);
-				});
+				Task.Run(async () => await BeginEdit().ConfigureAwait(true));
 			}
 		}
 
@@ -747,7 +749,7 @@ namespace PanoramicData.Blazor
 			_editTimer = null;
 		}
 
-		private void OnDragStart(DragEventArgs args)
+		private void OnDragStart(DragEventArgs _)
 		{
 			_dragging = true;
 
@@ -768,7 +770,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnDragEnd(DragEventArgs args)
+		private void OnDragEnd(DragEventArgs _)
 		{
 			_dragging = false;
 		}

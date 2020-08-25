@@ -624,6 +624,7 @@ namespace PanoramicData.Blazor
 		private async Task MoveOrCopyFiles(IEnumerable<FileExplorerItem> sources, FileExplorerItem target, bool copy)
 		{
 
+			//DataProvider.UpdateAsync()
 		}
 
 		/// <summary>

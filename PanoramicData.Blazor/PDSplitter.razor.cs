@@ -48,6 +48,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public RenderFragment ChildContent { get; set; } = null!;
 
 		/// <summary>
+		/// Provides additional CSS classes for the containing element.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets a collection of child panels.
 		/// </summary>
 		private List<PDSplitPanel> Panels { get; } = new List<PDSplitPanel>();

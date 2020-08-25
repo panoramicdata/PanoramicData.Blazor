@@ -78,12 +78,12 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets the date and time the item was created.
 		/// </summary>
-		public DateTimeOffset DateCreated { get; set; }
+		public DateTimeOffset? DateCreated { get; set; }
 
 		/// <summary>
 		/// Gets or sets the date and time the item was last modified.
 		/// </summary>
-		public DateTimeOffset DateModified { get; set; }
+		public DateTimeOffset? DateModified { get; set; }
 
 		/// <summary>
 		/// Returns the Name property of this item.

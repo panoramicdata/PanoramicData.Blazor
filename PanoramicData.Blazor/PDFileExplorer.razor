@@ -79,22 +79,16 @@
 						</PDColumn>
 						<PDColumn TItem="FileExplorerItem" Id="Created" Field="x => x.DateCreated" Editable="false">
 							<Template>
-								@if (context.DateCreated != DateTime.MinValue)
-								{
-									<span class="nowrap">
-										@context.DateCreated.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-									</span>
-								}
+								<span class="nowrap" title="@(context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
+									@context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+								</span>
 							</Template>
 						</PDColumn>
 						<PDColumn TItem="FileExplorerItem" Id="Modified" Field="x => x.DateModified" Editable="false">
 							<Template>
-								@if (context.DateModified != DateTime.MinValue)
-								{
-									<span class="text-nowrap" title="@(context.DateModified.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
-										@context.DateModified.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-									</span>
-								}
+								<span class="text-nowrap" title="@(context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
+									@context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+								</span>
 							</Template>
 						</PDColumn>
 
