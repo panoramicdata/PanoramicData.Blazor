@@ -24,6 +24,7 @@ namespace PanoramicData.Blazor
 		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
 
 		private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
+
 		/// <summary>
 		/// Provides access to the parent DragContext if it exists.
 		/// </summary>
@@ -775,11 +776,11 @@ namespace PanoramicData.Blazor
 			_dragging = false;
 		}
 
-		private void OnDragDrop(TItem row, bool ctrl)
+		private async Task OnDragDropAsync(TItem row, MouseEventArgs args)
 		{
 			if(DragContext != null)
 			{
-				Drop.InvokeAsync(new DropEventArgs(row, DragContext.Payload, ctrl));
+				await Drop.InvokeAsync(new DropEventArgs(row, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 			}
 		}
 	}

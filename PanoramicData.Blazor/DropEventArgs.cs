@@ -19,9 +19,9 @@
 		}
 
 		/// <summary>
-		/// Gets detail son where the drop occurred.
+		/// Gets or sets details on where the drop occurred.
 		/// </summary>
-		public object? Target { get; }
+		public object? Target { get; set; }
 
 		/// <summary>
 		/// Gets the payload associated with the drop.

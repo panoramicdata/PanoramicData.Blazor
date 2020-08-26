@@ -11,11 +11,18 @@
 		{
 			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
 		}
-		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)" @onmousedown="OnContentClickAsync">
+		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)"
+			 @onmousedown="OnContentClickAsync"
+			 @ondrop="OnDragDrop"
+			 @attributes="NodeAttributes">
 			@if (Node?.IsEditing == true)
 			{
-				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit" @bind="@Node.EditText" @bind:event="oninput"
-					   @onblur="OnEndEdit" @onmousedown:stopPropagation @onclick:stopPropagation @oncontextmenu:stopPropagation />
+				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit"
+					   @bind="@Node.EditText" @bind:event="oninput"
+					   @onblur="OnEndEdit"
+					   @onclick:stopPropagation
+					   @onmousedown:stopPropagation
+					   @oncontextmenu:stopPropagation />
 			}
 			else if(Node != null)
 			{
@@ -40,11 +47,13 @@
 				{
 					if (NodeTemplate == null)
 					{
-						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit" />
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit"
+									AllowDrop="AllowDrop" AllowDrag="AllowDrag" Drop="OnDrop" />
 					}
 					else
 					{
-						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit" >
+						<PDTreeNode TItem="TItem" Node="subNode" ShowLines="ShowLines" EndEdit="OnEndEdit"
+									AllowDrop="AllowDrop" AllowDrag="AllowDrag" Drop="OnDrop" >
 							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 						</PDTreeNode>
 					}

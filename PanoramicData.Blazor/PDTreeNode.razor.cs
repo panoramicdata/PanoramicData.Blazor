@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -14,6 +15,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[CascadingParameter(Name = "Tree")]
 		public PDTree<TItem> Tree { get; set; } = null!;
+
+		/// <summary>
+		/// Provides access to the parent DragContext if it exists.
+		/// </summary>
+		[CascadingParameter] public PDDragContext? DragContext { get; set; }
 
 		/// <summary>
 		/// Gets or sets the TreeNode to be rendered.
@@ -39,6 +45,21 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever a key down event is generated on the tree node.
 		/// </summary>
 		[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether the node may be dragged.
+		/// </summary>
+		[Parameter] public bool AllowDrag { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether items may be dropped onto the node.
+		/// </summary>
+		[Parameter] public bool AllowDrop { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever a drag operation ends on a node within a DragContext.
+		/// </summary>
+		[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
 		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
@@ -72,6 +93,36 @@ namespace PanoramicData.Blazor
 		private async Task OnEndEdit()
 		{
 			await EndEdit.InvokeAsync(null).ConfigureAwait(true);
+		}
+
+		private Dictionary<string, object> NodeAttributes
+		{
+			get
+			{
+				var dict = new Dictionary<string, object>();
+				if (AllowDrag)
+				{
+					dict.Add("draggable", "true");
+				}
+				if (AllowDrop)
+				{
+					dict.Add("ondragover", "event.preventDefault();");
+				}
+				return dict;
+			}
+		}
+
+		private async Task OnDragDrop(MouseEventArgs args)
+		{
+			if (DragContext != null && Node != null)
+			{
+				await Drop.InvokeAsync(new DropEventArgs(Node, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
+			}
+		}
+
+		private async Task OnDrop(DropEventArgs args)
+		{
+			await Drop.InvokeAsync(args).ConfigureAwait(true);
 		}
 	}
 }

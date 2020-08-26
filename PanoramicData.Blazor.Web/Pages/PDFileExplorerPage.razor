@@ -8,11 +8,13 @@
 <!-- 56px = Title -->
 <div style="height: calc(100vh - 57px - 10px - 56px)">
 
-	<PDFileExplorer @ref="_fileExplorer" DataProvider="_dataProvider"
-					TreeContextMenuClick="OnTreeContextMenuClick"
-					UpdateTableContextState="OnUpdateTableContextMenuState" TableContextMenuClick="OnTableContextMenuClick" TableDownloadRequest="OnTableDownloadRequest"
-					UpdateToolbarState="OnUpdateToolbarState" ToolbarClick="OnToolbarClick"
-					UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())" UploadRequest="OnUploadRequest" UploadCompleted="OnUploadCompleted">
-	</PDFileExplorer>
+	<PDDragContext>
+		<PDFileExplorer @ref="_fileExplorer" DataProvider="_dataProvider"
+						TreeContextMenuClick="OnTreeContextMenuClick"
+						UpdateTableContextState="OnUpdateTableContextMenuState" TableContextMenuClick="OnTableContextMenuClick" TableDownloadRequest="OnTableDownloadRequest"
+						UpdateToolbarState="OnUpdateToolbarState" ToolbarClick="OnToolbarClick"
+						UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())" UploadRequest="OnUploadRequest" UploadCompleted="OnUploadCompleted">
+		</PDFileExplorer>
+	</PDDragContext>
 
 </div>

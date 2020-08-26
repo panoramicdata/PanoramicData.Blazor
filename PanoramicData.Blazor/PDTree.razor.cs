@@ -18,6 +18,11 @@ namespace PanoramicData.Blazor
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		/// <summary>
+		/// Provides access to the parent DragContext if it exists.
+		/// </summary>
+		[CascadingParameter] public PDDragContext? DragContext { get; set; }
+
+		/// <summary>
 		/// Gets the unique identifier of this tree.
 		/// </summary>
 		public string Id { get; private set; } = string.Empty;
@@ -117,6 +122,21 @@ namespace PanoramicData.Blazor
 		/// Callback fired after a node edit ends.
 		/// </summary>
 		[Parameter] public EventCallback<TreeNodeAfterEditEventArgs<TItem>> AfterEdit { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether nodes may be dragged.
+		/// </summary>
+		[Parameter] public bool AllowDrag { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether items may be dropped onto nodes.
+		/// </summary>
+		[Parameter] public bool AllowDrop { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever a drag operation ends on a node within the tree.
+		/// </summary>
+		[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
 		/// <summary>
 		/// Gets the currently selected tree node.
@@ -465,6 +485,15 @@ namespace PanoramicData.Blazor
 						}
 						break;
 				}
+			}
+		}
+
+		private async Task OnDrop(DropEventArgs args)
+		{
+			if (args.Target is TreeNode<TItem> node)
+			{
+				await Drop.InvokeAsync(args).ConfigureAwait(true);
+				await RefreshNodeAsync(node).ConfigureAwait(true);
 			}
 		}
 	}

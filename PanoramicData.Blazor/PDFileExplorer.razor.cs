@@ -516,8 +516,14 @@ namespace PanoramicData.Blazor
 
 		private async Task OnDrop(DropEventArgs args)
 		{
+			// unwrap FileExplorerItem
+			if (args.Target is TreeNode<FileExplorerItem> node)
+			{
+				args.Target = node.Data;
+			}
+
 			// source and target are file items - and target is folder?
-			if(args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory &&
+			if (args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory &&
 			   args.Payload is List<FileExplorerItem> payload)
 			{
 				// check not dropping an item onto itself
