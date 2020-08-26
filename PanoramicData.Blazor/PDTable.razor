@@ -41,7 +41,7 @@
 				<tr class="pdtablerow @GetDynamicRowClasses(item)" @attributes="RowAttributes" @oncontextmenu:preventDefault
 					@onmousedown="@((args) => OnRowMouseDown(args, item))"
 					@onclick="@((args) => OnRowClick(args, item))" @ondblclick="@((args) => OnRowDoubleClick(args, item))"
-				    @ondragstart="OnDragStart" @ondragend="OnDragEnd" @ondrop="@((args) => OnDragDrop(item))" >
+				    @ondragstart="OnDragStart" @ondragend="OnDragEnd" @ondrop="@((args) => OnDragDrop(item, args.CtrlKey))" >
 					@foreach (var column in ActualColumnsToDisplay)
 					{
 						<td class="@column.TdClass">

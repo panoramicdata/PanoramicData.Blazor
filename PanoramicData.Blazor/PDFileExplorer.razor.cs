@@ -254,7 +254,7 @@ namespace PanoramicData.Blazor
 
 		private void OnTableItemsLoaded(List<FileExplorerItem> items)
 		{
-			items.Insert(0, new FileExplorerItem { Path = Path.Combine(_selectedNode?.Data?.Path ?? "", ".."), EntryType = FileExplorerItemType.Directory });
+			items.Insert(0, new FileExplorerItem { Path = Path.Combine(_selectedNode?.Data?.Path ?? "", ".."), EntryType = FileExplorerItemType.Directory, CanCopyMove = false });
 		}
 
 		private async Task OnTableDoubleClick(FileExplorerItem item)
@@ -521,10 +521,38 @@ namespace PanoramicData.Blazor
 			   args.Payload is List<FileExplorerItem> payload)
 			{
 				// check not dropping an item onto itself
-				if(!payload.Any(x => x.Path == target.Path))
+				if(payload.Any(x => x.Path == target.Path))
 				{
-					// move file or folder into folder
-					MoveOrCopyFiles(payload, target, false);
+					return;
+				}
+
+				// check can move/copy all items
+				if(payload.Any(x => !x.CanCopyMove))
+				{
+					return;
+				}
+
+				// moving item to parent folder?
+				var targetPath = target.Path;
+				if(target.Name == "..")
+				{
+					targetPath = Path.GetDirectoryName(target.ParentPath);
+				}
+
+				// move file or folder into folder
+				//await MoveOrCopyFiles(payload, target, args.Ctrl).ConfigureAwait(true);
+
+				foreach (var source in payload)
+				{
+					var result = await DataProvider.UpdateAsync(source, new { Path = targetPath, Copy = args.Ctrl }, CancellationToken.None).ConfigureAwait(true);
+				}
+				if (Table != null && !args.Ctrl)
+				{
+					await Table.RefreshAsync().ConfigureAwait(true);
+					if (Tree?.SelectedNode != null)
+					{
+						await Tree.RefreshNodeAsync(Tree.SelectedNode);
+					}
 				}
 			}
 		}
@@ -619,12 +647,6 @@ namespace PanoramicData.Blazor
 				await RefreshTable().ConfigureAwait(true);
 				await RefreshToolbar().ConfigureAwait(true);
 			}
-		}
-
-		private async Task MoveOrCopyFiles(IEnumerable<FileExplorerItem> sources, FileExplorerItem target, bool copy)
-		{
-
-			//DataProvider.UpdateAsync()
 		}
 
 		/// <summary>

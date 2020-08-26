@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Extensions;
+using System.Security.Cryptography.X509Certificates;
 
 namespace PanoramicData.Blazor.Web.Data
 {
@@ -21,8 +22,8 @@ namespace PanoramicData.Blazor.Web.Data
 		public TestFileSystemDataProvider()
 		{
 			// generate test data - Paths can not edit with trailing slashes
-			_testData.Add(new FileExplorerItem { Path = @"My Computer" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer", CanCopyMove = false });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:", CanCopyMove = false });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData" });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme" });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme\Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
@@ -33,7 +34,7 @@ namespace PanoramicData.Blazor.Web.Data
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\b76jba.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\p21wsa.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Users" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:" });
+			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:", CanCopyMove = false });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data" });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup" });
 			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200131_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
@@ -151,14 +152,28 @@ namespace PanoramicData.Blazor.Web.Data
 						}
 						else
 						{
-							var previousPath = existingItem.Path;
-							existingItem.Path = newPath;
-							if(existingItem.EntryType == FileExplorerItemType.Directory)
+							// check for move/copy - is the target a directory?
+							var targetItem = _testData.FirstOrDefault(x => x.Path == newPath);
+							if(targetItem?.EntryType == FileExplorerItemType.Directory)
 							{
-								_testData.ForEach(x =>
+								// move / copy
+								var copyProp = delta.GetType().GetProperty("Copy");
+								var isCopy = copyProp?.GetValue(delta)?.ToString().ToLower() == "true";
+								MoveOrCopyItem(existingItem, newPath, isCopy);
+							}
+							else
+							{
+								// rename
+								var previousPath = existingItem.Path;
+								existingItem.Path = newPath;
+								if (existingItem.EntryType == FileExplorerItemType.Directory)
 								{
-									x.Path = x.Path.ReplacePathPrefix(previousPath, newPath);
-								});
+									// update child paths
+									_testData.ForEach(x =>
+									{
+										x.Path = x.Path.ReplacePathPrefix(previousPath, newPath);
+									});
+								}
 							}
 							result.Success = true;
 						}
@@ -166,6 +181,57 @@ namespace PanoramicData.Blazor.Web.Data
 				}
 			}).ConfigureAwait(false);
 			return result;
+		}
+
+		private void MoveOrCopyItem(FileExplorerItem item, string parentPath, bool isCopy)
+		{
+			if (item.EntryType == FileExplorerItemType.File)
+			{
+				if (isCopy)
+				{
+					_testData.Add(new FileExplorerItem
+					{
+						DateCreated = DateTime.UtcNow,
+						DateModified = item.DateModified,
+						EntryType = FileExplorerItemType.File,
+						FileSize = item.FileSize,
+						IsHidden = item.IsHidden,
+						IsSystem = item.IsSystem,
+						IsReadOnly = item.IsReadOnly,
+						Path = Path.Combine(parentPath, item.Name)
+					});
+				}
+				else
+				{
+					item.Path = Path.Combine(parentPath, item.Name);
+				}
+			}
+			else
+			{
+				// first move / copy folder entry
+				var originalPath = item.Path;
+				if (isCopy)
+				{
+					_testData.Add(new FileExplorerItem
+					{
+						DateCreated = DateTime.UtcNow,
+						DateModified = item.DateModified,
+						EntryType = FileExplorerItemType.Directory,
+						Path = Path.Combine(parentPath, item.Name)
+					});
+				}
+				else
+				{
+					item.Path = Path.Combine(parentPath, item.Name);
+				}
+
+				// move / copy child items
+				var subItems = _testData.Where(x => x.ParentPath == originalPath);
+				foreach(var subItem in subItems)
+				{
+					MoveOrCopyItem(subItem, item.Path, isCopy);
+				}
+			}
 		}
 
 		/// <summary>

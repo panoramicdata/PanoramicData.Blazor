@@ -25,6 +25,11 @@ namespace PanoramicData.Blazor
 		public bool IsUploading { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether this item can be moved or copied.
+		/// </summary>
+		public bool CanCopyMove { get; set; } = true;
+
+		/// <summary>
 		/// Gets or sets the upload progress.
 		/// </summary>
 		public double UploadProgress { get; set; }

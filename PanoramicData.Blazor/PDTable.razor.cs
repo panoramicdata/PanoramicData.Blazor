@@ -775,11 +775,11 @@ namespace PanoramicData.Blazor
 			_dragging = false;
 		}
 
-		private void OnDragDrop(TItem row)
+		private void OnDragDrop(TItem row, bool ctrl)
 		{
 			if(DragContext != null)
 			{
-				Drop.InvokeAsync(new DropEventArgs(row, DragContext.Payload));
+				Drop.InvokeAsync(new DropEventArgs(row, DragContext.Payload, ctrl));
 			}
 		}
 	}
