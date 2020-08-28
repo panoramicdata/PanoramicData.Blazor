@@ -36,7 +36,8 @@ namespace PanoramicData.Blazor.Web.Pages
 				new PDColumnConfig { Id = "Col2", Title = "Date Started" },
 				new PDColumnConfig { Id = "Col3", Editable = false },
 				new PDColumnConfig { Id = "Col4" },
-				new PDColumnConfig { Id = "Col5" }
+				new PDColumnConfig { Id = "Col5" },
+				new PDColumnConfig { Id = "Col6" },
 			};
 
 		[CascadingParameter] PDDragContext? DragContext { get; set; }

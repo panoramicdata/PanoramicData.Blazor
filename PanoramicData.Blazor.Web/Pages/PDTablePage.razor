@@ -34,6 +34,14 @@
 	</PDColumn>
 	<PDColumn Id="Col4" TItem="TestRow" Title="User" Field="x => x.NameField" Sortable="true" />
 	<PDColumn Id="Col5" TItem="TestRow" Title="Comments" Field="x => x.StringField" Sortable="false" />
+	<PDColumn Id="Col6" TItem="TestRow" Title="Calc" Sortable="false">
+		<Template>
+			@{
+				var row = context as TestRow;
+				<span>@(row.IntField * row.IntField)</span>
+			}
+		</Template>
+	</PDColumn>
 
 </PDTable>
 
