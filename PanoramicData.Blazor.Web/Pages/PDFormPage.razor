@@ -1,0 +1,33 @@
+﻿@page "/pdform"
+@using PanoramicData.Blazor.Web.Data
+
+<h1>PDForm</h1>
+
+<h3>Example 1: Standalone Form</h3>
+
+<div>
+	<button class="btn btn-primary" @onclick="(x) => Form1Mode = FormModes.Create">Create</button>
+	<button class="btn btn-primary" @onclick="(x) => Form1Mode = FormModes.Edit">Edit</button>
+	<button class="btn btn-primary" @onclick="(x) => Form1Mode = FormModes.Delete">Delete</button>
+</div>
+
+<br />
+<br />
+
+<PDForm TItem="Person" Mode="Form1Mode" Item="Person1">
+	<PDField TItem="Person" Field="x => x.Id" ShowInDelete="true" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
+	<PDField TItem="Person" Field="x => x.FirstName" Title="First Name" ShowInDelete="true"></PDField>
+	<PDField TItem="Person" Field="x => x.LastName" Title="Last Name" ShowInDelete="true"></PDField>
+	<PDField TItem="Person" Field="x => x.Department"></PDField>
+	<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?" ReadOnlyInCreate="true"></PDField>
+	<PDField TItem="Person" Field="x => x.Target"></PDField>
+	<PDField TItem="Person" Field="x => x.Comments"></PDField>
+	<PDField TItem="Person" Field="x => x.DateCreated" ShowInCreate="false" Title="Created"></PDField>
+	<PDField TItem="Person" Field="x => x.DateModified" ShowInCreate="false" ShowInEdit="false" Title="Modified"></PDField>
+</PDForm>
+
+<br />
+<br />
+
+<h3>Example 2: PDTable linked Form</h3>
+

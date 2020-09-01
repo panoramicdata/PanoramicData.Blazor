@@ -221,6 +221,10 @@
     height: 80%;
     border-left: 2px solid #ddd; }
 
+.disabled {
+  opacity: 1;
+  background-color: #e9ecef; }
+
 .fa-hidden {
   color: transparent; }
 
