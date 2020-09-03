@@ -16,6 +16,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string Text { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets or sets CSS classes for the button.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; } = "btn-light";
+
+		/// <summary>
 		/// Gets or sets CSS classes for an optional icon.
 		/// </summary>
 		[Parameter] public string IconCssClass { get; set; } = string.Empty;

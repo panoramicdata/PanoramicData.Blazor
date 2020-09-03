@@ -5,6 +5,29 @@
 	/// </summary>
 	public class ToolbarButton : ToolbarItem
 	{
+		private string? _key;
+
+		/// <summary>
+		/// Override the original implementation to support omitting Key property
+		/// and simply having key returned as the current Text value.
+		/// </summary>
+		new public string Key
+		{
+			get
+			{
+				return _key ?? Text;
+			}
+			set
+			{
+				_key = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the CSS class names used to style the button.
+		/// </summary>
+		public string CssClass { get; set; } = "btn-light";
+
 		/// <summary>
 		/// Gets or sets the CSS class names used to place an icon on the button.
 		/// </summary>

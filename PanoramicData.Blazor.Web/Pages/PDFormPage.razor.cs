@@ -12,6 +12,7 @@ namespace PanoramicData.Blazor.Web.Pages
     public partial class PDFormPage
     {
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider();
+		private PDForm<Person> Form1 { get; set; } = null!;
 
 		private FormModes Form1Mode { get; set; }
 

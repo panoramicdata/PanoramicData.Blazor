@@ -14,7 +14,9 @@
 <br />
 <br />
 
-<PDForm TItem="Person" Mode="Form1Mode" Item="Person1">
+<PDFormHeader TItem="Person" Form="Form1" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
+
+<PDForm @ref="Form1" TItem="Person" Mode="Form1Mode" Item="Person1">
 	<PDField TItem="Person" Field="x => x.Id" ShowInDelete="true" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
 	<PDField TItem="Person" Field="x => x.FirstName" Title="First Name" ShowInDelete="true"></PDField>
 	<PDField TItem="Person" Field="x => x.LastName" Title="Last Name" ShowInDelete="true"></PDField>
@@ -25,6 +27,8 @@
 	<PDField TItem="Person" Field="x => x.DateCreated" ShowInCreate="false" Title="Created"></PDField>
 	<PDField TItem="Person" Field="x => x.DateModified" ShowInCreate="false" ShowInEdit="false" Title="Modified"></PDField>
 </PDForm>
+
+<PDFormFooter TItem="Person" Form="Form1" />
 
 <br />
 <br />

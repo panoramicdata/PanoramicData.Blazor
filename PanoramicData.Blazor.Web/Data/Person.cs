@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PanoramicData.Blazor.Web.Data
 {
+	//[Display(Name = "Individual")]
 	public class Person
 	{
 		public int Id { get; set; }
@@ -22,8 +23,11 @@ namespace PanoramicData.Blazor.Web.Data
 	public enum Departments
 	{
 		Marketing,
+
 		Operations,
+
 		Sales,
+
 		[Display(Name = "IT Helpdesk")]
 		Support
 	}
