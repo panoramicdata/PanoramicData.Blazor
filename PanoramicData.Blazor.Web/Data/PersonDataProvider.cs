@@ -15,12 +15,12 @@ namespace PanoramicData.Blazor.Web.Data
 		private static Random _random = new Random(Environment.TickCount);
 		private static readonly List<Person> _people = new List<Person>();
 
-		public PersonDataProvider()
+		public PersonDataProvider(int count = 10)
 		{
 			// generate random rows
 			if (_people.Count() == 0)
 			{
-				foreach (var id in Enumerable.Range(1, 55))
+				foreach (var id in Enumerable.Range(1, count))
 				{
 					_people.Add(new Person
 					{
@@ -86,19 +86,50 @@ namespace PanoramicData.Blazor.Web.Data
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
 		public async Task<OperationResponse> DeleteAsync(Person item, CancellationToken cancellationToken)
 		{
-			return new OperationResponse { ErrorMessage = "Operation not supported" };
+			var existingPerson = _people.Find(x => x.Id == item.Id);
+			if(existingPerson == null)
+			{
+				return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
+			}
+			_people.Remove(existingPerson);
+			return new OperationResponse { Success = true };
+
 		}
 
 		/// <summary>
 		/// Requests the given item is updated by applying the given delta.
 		/// </summary>
 		/// <param name="item">The original item to be updated.</param>
-		/// <param name="delta">An anonymous object with new property values.</param>
+		/// <param name="delta">A dictionary with new property values.</param>
 		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-		public async Task<OperationResponse> UpdateAsync(Person item, object delta, CancellationToken cancellationToken)
+		public async Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object> delta, CancellationToken cancellationToken)
 		{
-			return new OperationResponse { ErrorMessage = "Operation not supported" };
+			var existingPerson = _people.Find(x => x.Id == item.Id);
+			if (existingPerson == null)
+			{
+				return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
+			}
+			foreach(var kvp in delta)
+			{
+				var prop = item.GetType().GetProperty(kvp.Key);
+				if (prop == null)
+				{
+					return new OperationResponse { ErrorMessage = $"Person does not contain a property named {kvp.Key}" };
+				}
+				else
+				{
+					try
+					{
+						prop.SetValue(existingPerson, kvp.Value);
+					}
+					catch(Exception ex)
+					{
+						return new OperationResponse { ErrorMessage = $"Failed to update property {kvp.Key} to {kvp.Value}" };
+					}
+				}
+			}
+			return new OperationResponse { Success = true };
 		}
 
 		/// <summary>
@@ -109,7 +140,9 @@ namespace PanoramicData.Blazor.Web.Data
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
 		public async Task<OperationResponse> CreateAsync(Person item, CancellationToken cancellationToken)
 		{
-			return new OperationResponse { ErrorMessage = "Operation not supported" };
+			item.Id = _people.Max(x => x.Id) + 1;
+			_people.Add(item);
+			return new OperationResponse { Success = true };
 		}
 	}
 }

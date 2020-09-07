@@ -9,9 +9,10 @@
 		margin: 0px 5px 5px 5px;
 		cursor: pointer;
 	}
-	.person-list.selected {
-		background-color: lightgray;
-	}
+
+		.person-list.selected {
+			background-color: lightgray;
+		}
 </style>
 
 <h1>PDForm</h1>
@@ -28,7 +29,7 @@
 <div class="d-flex">
 
 	<div>
-		@foreach(var person in People)
+		@foreach (var person in People)
 		{
 			<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="() => { SelectedPerson = person; Form1.SetMode(FormModes.Edit); }">
 				<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
@@ -37,7 +38,8 @@
 	</div>
 
 	<div>
-		<PDForm @ref="Form1" TItem="Person" Item="SelectedPerson">
+		<PDForm @ref="Form1" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider"
+				Error="OnError" Deleted="OnPersonDeleted">
 			<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
 			<PDFormBody TItem="Person">
 				<PDField TItem="Person" Field="x => x.Id" ShowInDelete="true" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
@@ -61,4 +63,14 @@
 <br />
 
 <h3>Example 2: PDTable linked Form</h3>
+
+
+
+
+<div>
+	<div class="form-group p-1">
+		<label>Events</label>
+		<textarea rows="8" class="form-control">@_events</textarea>
+	</div>
+</div>
 

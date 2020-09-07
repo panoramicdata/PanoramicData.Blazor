@@ -41,8 +41,9 @@ else if (Form.Mode != FormModes.Hidden)
 					}
 					else
 					{
-						<input type="@fieldType" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetValue(Form.Item)">
+						<input type="@fieldType" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetValue(Form.Item)" @oninput="(x) => OnInput(field, x.Value)">
 					}
+
 					@if (Form.Mode != FormModes.Delete)
 					{
 						<div class="input-group-append">

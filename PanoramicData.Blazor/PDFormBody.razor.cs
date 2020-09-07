@@ -106,6 +106,11 @@ namespace PanoramicData.Blazor
 			return "text";
 		}
 
+		private void OnInput(PDField<TItem> field, object value)
+		{
+			Form?.FieldChange(field, value);
+		}
+
 		private bool EvaluateAsBool(object? value)
 		{
 			if(value == null)

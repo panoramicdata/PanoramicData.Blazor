@@ -234,7 +234,11 @@ namespace PanoramicData.Blazor
 				var previousPath = item.Path;
 				var newPath = $"{item.ParentPath}{Path.DirectorySeparatorChar}{args.NewValue}";
 				// inform data provider
-				var result = await DataProvider.UpdateAsync(Tree.SelectedNode.Data, new { Path = newPath }, CancellationToken.None).ConfigureAwait(true);
+				var delta = new Dictionary<string, object>
+					{
+						{  "Path", newPath }
+					};
+				var result = await DataProvider.UpdateAsync(Tree.SelectedNode.Data, delta, CancellationToken.None).ConfigureAwait(true);
 				if(result.Success)
 				{
 					// synchronize existing node paths for tree and table
@@ -299,7 +303,11 @@ namespace PanoramicData.Blazor
 					else
 					{
 						// inform data provider
-						var result = await DataProvider.UpdateAsync(args.Item, new { Path = newPath }, CancellationToken.None).ConfigureAwait(true);
+						var delta = new Dictionary<string, object>
+						{
+							{  "Path", newPath }
+						};
+						var result = await DataProvider.UpdateAsync(args.Item, delta, CancellationToken.None).ConfigureAwait(true);
 						if (result.Success)
 						{
 							// if folder renamed then update nodes
@@ -550,14 +558,19 @@ namespace PanoramicData.Blazor
 
 				foreach (var source in payload)
 				{
-					var result = await DataProvider.UpdateAsync(source, new { Path = targetPath, Copy = args.Ctrl }, CancellationToken.None).ConfigureAwait(true);
+					var delta = new Dictionary<string, object>
+					{
+						{  "Path", targetPath },
+						{  "Copy", args.Ctrl }
+					};
+					var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
 				}
 				if (Table != null && !args.Ctrl)
 				{
 					await Table.RefreshAsync().ConfigureAwait(true);
 					if (Tree?.SelectedNode != null)
 					{
-						await Tree.RefreshNodeAsync(Tree.SelectedNode);
+						await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
 					}
 				}
 			}

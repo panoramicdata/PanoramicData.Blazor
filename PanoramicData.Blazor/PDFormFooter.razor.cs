@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 
 namespace PanoramicData.Blazor
@@ -70,21 +71,29 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnButtonClick(string key)
+		private async Task OnButtonClick(string key)
 		{
-			if(Form != null)
+			await Click.InvokeAsync(key).ConfigureAwait(true);
+
+			if (Form != null)
 			{
 				if (key == "Delete")
 				{
-					//Form.CurrentMode = FormModes.Delete;
 					Form.SetMode(FormModes.Delete);
+				}
+				else if (key == "Yes" && Form.DataProvider != null && Form.Item != null)
+				{
+					await Form.DeleteAsync().ConfigureAwait(true);
 				}
 				else if (key == "No")
 				{
 					Form.SetMode(FormModes.Edit);
 				}
+				else if (key == "Save" && Form.DataProvider != null && Form.Item != null)
+				{
+					await Form.SaveAsync().ConfigureAwait(true);
+				}
 			}
-			Click.InvokeAsync(key);
 		}
 	}
 }
