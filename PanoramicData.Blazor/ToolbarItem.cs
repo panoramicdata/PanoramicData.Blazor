@@ -8,7 +8,7 @@
 		/// <summary>
 		/// Gets or sets the unique identifier of the toolbar item.
 		/// </summary>
-		public string Key { get; set; } = string.Empty;
+		public virtual string Key { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets the tooltip for the toolbar item.

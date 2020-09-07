@@ -11,7 +11,7 @@
 		/// Override the original implementation to support omitting Key property
 		/// and simply having key returned as the current Text value.
 		/// </summary>
-		new public string Key
+		public override string Key
 		{
 			get
 			{

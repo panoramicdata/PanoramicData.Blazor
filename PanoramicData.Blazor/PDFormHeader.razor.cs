@@ -1,16 +1,16 @@
-﻿using Microsoft.AspNetCore.Components;
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
 using System.Reflection;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Components;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDFormHeader<TItem> where TItem : class
     {
 		/// <summary>
-		/// Sets a reference to the associated PDForm.
+		/// Form the component belongs to.
 		/// </summary>
-		[Parameter] public PDForm<TItem> Form { get; set; } = null!;
+		[CascadingParameter] public PDForm<TItem>? Form { get; set; }
 
 		/// <summary>
 		/// Gets or sets the custom child content to be displayed in the header.

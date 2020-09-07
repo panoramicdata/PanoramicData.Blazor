@@ -1,17 +1,12 @@
 ﻿@typeparam TItem
-<div class="pd-form-header">
-	@if (ChildContent != null)
-	{
-		@ChildContent
-	}
-	else
-	{
-		// auto generated content
-		if (Form is null)
-		{
-			<span>Edit @GetItemDescription()</span>
-		}
-		else if (Form.Mode == FormModes.Create)
+@if(Form is null)
+{
+	<span>Form parameter has not been set.</span>
+}
+else if (Form.Mode != FormModes.Hidden)
+{
+	<div class="pd-form-header">
+		@if (Form.Mode == FormModes.Create)
 		{
 			<span>Create new @GetClassDescription()</span>
 		}
@@ -23,5 +18,5 @@
 		{
 			<span>Edit '@GetItemDescription()'</span>
 		}
-	}
-</div>
+	</div>
+}

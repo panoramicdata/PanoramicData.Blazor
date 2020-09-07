@@ -15,8 +15,8 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// The parent PDForm instance.
 		/// </summary>
-		[CascadingParameter(Name = "Form")]
-		public PDForm<TItem> Form { get; set; } = null!;
+		[CascadingParameter(Name = "FormBody")]
+		public PDFormBody<TItem> FormBody { get; set; } = null!;
 
 		/// <summary>
 		/// A Linq expression that selects the field to be data bound to.
@@ -65,13 +65,13 @@ namespace PanoramicData.Blazor
 
 		protected override async Task OnInitializedAsync()
 		{
-			if (Form == null)
+			if (FormBody == null)
 			{
 				throw new InvalidOperationException("Error initializing field. " +
-					"Form reference is null which implies it did not initialize or that the field " +
+					"FormBody reference is null which implies it did not initialize or that the field " +
 					$"type '{typeof(TItem)}' does not match the form type.");
 			}
-			await Form.AddFieldAsync(this).ConfigureAwait(true);
+			await FormBody.AddFieldAsync(this).ConfigureAwait(true);
 		}
 
 		public object? GetValue(TItem? item)

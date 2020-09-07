@@ -1,34 +1,61 @@
 ﻿@page "/pdform"
 @using PanoramicData.Blazor.Web.Data
 
+<style>
+	.person-list {
+		border-radius: .3rem;
+		border: 1px solid #ced4da;
+		padding: 3px;
+		margin: 0px 5px 5px 5px;
+		cursor: pointer;
+	}
+	.person-list.selected {
+		background-color: lightgray;
+	}
+</style>
+
 <h1>PDForm</h1>
 
 <h3>Example 1: Standalone Form</h3>
 
 <div>
-	<button class="btn btn-primary" @onclick="(x) => Form1Mode = FormModes.Create">Create</button>
-	<button class="btn btn-primary" @onclick="(x) => Form1Mode = FormModes.Edit">Edit</button>
-	<button class="btn btn-primary" @onclick="(x) => Form1Mode = FormModes.Delete">Delete</button>
+	<button class="btn btn-primary" @onclick="() => { SelectedPerson = new Person(); Form1.SetMode(FormModes.Create); }">Create</button>
 </div>
 
 <br />
 <br />
 
-<PDFormHeader TItem="Person" Form="Form1" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
+<div class="d-flex">
 
-<PDForm @ref="Form1" TItem="Person" Mode="Form1Mode" Item="Person1">
-	<PDField TItem="Person" Field="x => x.Id" ShowInDelete="true" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
-	<PDField TItem="Person" Field="x => x.FirstName" Title="First Name" ShowInDelete="true"></PDField>
-	<PDField TItem="Person" Field="x => x.LastName" Title="Last Name" ShowInDelete="true"></PDField>
-	<PDField TItem="Person" Field="x => x.Department"></PDField>
-	<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?" ReadOnlyInCreate="true"></PDField>
-	<PDField TItem="Person" Field="x => x.Target"></PDField>
-	<PDField TItem="Person" Field="x => x.Comments"></PDField>
-	<PDField TItem="Person" Field="x => x.DateCreated" ShowInCreate="false" Title="Created"></PDField>
-	<PDField TItem="Person" Field="x => x.DateModified" ShowInCreate="false" ShowInEdit="false" Title="Modified"></PDField>
-</PDForm>
+	<div>
+		@foreach(var person in People)
+		{
+			<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="() => { SelectedPerson = person; Form1.SetMode(FormModes.Edit); }">
+				<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
+			</div>
+		}
+	</div>
 
-<PDFormFooter TItem="Person" Form="Form1" />
+	<div>
+		<PDForm @ref="Form1" TItem="Person" Item="SelectedPerson">
+			<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
+			<PDFormBody TItem="Person">
+				<PDField TItem="Person" Field="x => x.Id" ShowInDelete="true" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
+				<PDField TItem="Person" Field="x => x.FirstName" Title="First Name" ShowInDelete="true"></PDField>
+				<PDField TItem="Person" Field="x => x.LastName" Title="Last Name" ShowInDelete="true"></PDField>
+				<PDField TItem="Person" Field="x => x.Department"></PDField>
+				<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?" ReadOnlyInCreate="true"></PDField>
+				<PDField TItem="Person" Field="x => x.Target"></PDField>
+				<PDField TItem="Person" Field="x => x.Comments"></PDField>
+				<PDField TItem="Person" Field="x => x.DateCreated" ShowInCreate="false" Title="Created"></PDField>
+				<PDField TItem="Person" Field="x => x.DateModified" ShowInCreate="false" ShowInEdit="false" Title="Modified"></PDField>
+			</PDFormBody>
+			<PDFormFooter TItem="Person" Click="OnFooterClick" />
+		</PDForm>
+	</div>
+
+</div>
+
 
 <br />
 <br />

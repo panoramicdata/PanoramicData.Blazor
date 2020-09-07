@@ -6,6 +6,10 @@
 	public enum FormModes
 	{
 		/// <summary>
+		/// No form fields are displayed.
+		/// </summary>
+		Hidden,
+		/// <summary>
 		/// The form is being used to define a new entity.
 		/// </summary>
 		Create,

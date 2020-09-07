@@ -12,15 +12,16 @@ namespace PanoramicData.Blazor.Web.Pages
     public partial class PDFormPage
     {
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider();
+
+		// properties for unlinked example
 		private PDForm<Person> Form1 { get; set; } = null!;
-
 		private FormModes Form1Mode { get; set; }
-
-		private Person Person1 { get; set; }
+		private List<Person> People { get; set; } = new List<Person>();
+		private Person SelectedPerson { get; set; }
 
 		public PDFormPage()
 		{
-			var people = PersonDataProvider
+			PersonDataProvider
 				.GetDataAsync(new Services.DataRequest<Person>(), CancellationToken.None)
 				.ContinueWith(PopulatePeopleResult);
 		}
@@ -29,9 +30,18 @@ namespace PanoramicData.Blazor.Web.Pages
 		{
 			if (!resultTask.IsFaulted)
 			{
-				Person1 = resultTask.Result.Items.FirstOrDefault();
+				People.AddRange(resultTask.Result.Items);
+				//Person = resultTask.Result.Items.FirstOrDefault();
 				InvokeAsync(() => StateHasChanged());
 			}
 		}
-    }
+
+		private void OnFooterClick(string key)
+		{
+			if(key == "Cancel")
+			{
+				SelectedPerson = null;
+			}
+		}
+	}
 }
