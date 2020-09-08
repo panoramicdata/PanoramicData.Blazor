@@ -122,15 +122,7 @@ namespace PanoramicData.Blazor
 				}
 				else if(Mode == FormModes.Edit)
 				{
-					// convert delta from dictionary to anonymous object
-					ExpandoObject eo = new ExpandoObject();
-					var eoColl = (ICollection<KeyValuePair<string, object>>)eo;
-					foreach(var kvp in Delta)
-					{
-						eoColl.Add(kvp);
-					}
-
-					var response = await DataProvider.UpdateAsync(Item, eo, CancellationToken.None).ConfigureAwait(true);
+					var response = await DataProvider.UpdateAsync(Item, Delta, CancellationToken.None).ConfigureAwait(true);
 					if (response.Success)
 					{
 						Mode = FormModes.Hidden;
