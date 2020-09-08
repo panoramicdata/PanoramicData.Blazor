@@ -12,12 +12,13 @@
 }
 else if (Form.Mode != FormModes.Hidden)
 {
-	foreach (var field in Fields)
+<div class="pd-form-body">
+	@foreach (var field in Fields)
 	{
 		var fieldType = @GetEditorType(field);
 		if (IsShown(field))
 		{
-			<div class="col-auto">
+			<div>
 				<label class="sr-only">@field.Title</label>
 				<div class="input-group mb-2">
 
@@ -56,6 +57,7 @@ else if (Form.Mode != FormModes.Hidden)
 			</div>
 		}
 	}
+</div>
 }
 
 <CascadingValue Value="(PDFormBody<TItem>)this" Name="FormBody">

@@ -1,0 +1,89 @@
+﻿@page "/pdform2"
+@using PanoramicData.Blazor.Web.Data
+
+<style>
+	.pd-form-header, .pd-form-footer {
+		margin: 0 0 0 0;
+	}
+
+	.person-list {
+		border-radius: .3rem;
+		border: 1px solid #ced4da;
+		padding: 3px;
+		margin: 0px 5px 5px 5px;
+		cursor: pointer;
+	}
+
+	.person-list.selected {
+		background-color: lightgray;
+	}
+</style>
+
+<h1>PDForm</h1>
+
+<h3>Example 2: PDTable linked Form</h3>
+
+<div>
+
+	<div>
+		<button class="btn btn-primary" @onclick="OnCreatePerson">Create</button>
+	</div>
+
+	<br />
+	<br />
+
+	<div class="d-flex">
+		@foreach (var person in People)
+		{
+			<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPerson(person)">
+				<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
+			</div>
+		}
+	</div>
+
+	<PDForm @ref="Form" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider"
+			Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated">
+
+		<div id="exampleModal" class="modal" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+
+						<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
+
+					</div>
+					<div class="modal-body">
+
+						<PDFormBody TItem="Person">
+							<PDField TItem="Person" Field="x => x.Id" ShowInDelete="true" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
+							<PDField TItem="Person" Field="x => x.FirstName" Title="First Name" ShowInDelete="true"></PDField>
+							<PDField TItem="Person" Field="x => x.LastName" Title="Last Name" ShowInDelete="true"></PDField>
+							<PDField TItem="Person" Field="x => x.Department"></PDField>
+							<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?"></PDField>
+							<PDField TItem="Person" Field="x => x.Target"></PDField>
+							<PDField TItem="Person" Field="x => x.Comments"></PDField>
+							<PDField TItem="Person" Field="x => x.DateCreated" Title="Created"></PDField>
+						</PDFormBody>
+
+					</div>
+					<div class="modal-footer">
+
+						<PDFormFooter TItem="Person" Click="OnFooterClick" />
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</PDForm>
+
+</div>
+
+
+<div>
+	<div class="form-group p-1">
+		<label>Events</label>
+		<textarea rows="8" class="form-control">@_events</textarea>
+	</div>
+</div>
+

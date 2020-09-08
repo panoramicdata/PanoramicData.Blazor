@@ -10,9 +10,9 @@
 		cursor: pointer;
 	}
 
-		.person-list.selected {
-			background-color: lightgray;
-		}
+	.person-list.selected {
+		background-color: lightgray;
+	}
 </style>
 
 <h1>PDForm</h1>
@@ -20,7 +20,7 @@
 <h3>Example 1: Standalone Form</h3>
 
 <div>
-	<button class="btn btn-primary" @onclick="() => { SelectedPerson = new Person(); Form1.SetMode(FormModes.Create); }">Create</button>
+	<button class="btn btn-primary" @onclick="OnCreatePerson">Create</button>
 </div>
 
 <br />
@@ -31,15 +31,15 @@
 	<div>
 		@foreach (var person in People)
 		{
-			<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="() => { SelectedPerson = person; Form1.SetMode(FormModes.Edit); }">
+			<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPerson(person)">
 				<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
 			</div>
 		}
 	</div>
 
 	<div>
-		<PDForm @ref="Form1" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider"
-				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated">
+		<PDForm @ref="Form" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider"
+				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonDeleted" Created="OnPersonUpdated">
 			<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
 			<PDFormBody TItem="Person">
 				<PDField TItem="Person" Field="x => x.Id" ShowInDelete="true" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
@@ -56,15 +56,6 @@
 	</div>
 
 </div>
-
-
-<br />
-<br />
-
-<h3>Example 2: PDTable linked Form</h3>
-
-
-
 
 <div>
 	<div class="form-group p-1">

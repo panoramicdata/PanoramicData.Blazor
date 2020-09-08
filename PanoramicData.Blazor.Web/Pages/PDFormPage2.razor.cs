@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using PanoramicData.Blazor.Web.Data;
 using PanoramicData.Blazor.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
-    public partial class PDFormPage
+    public partial class PDFormPage2
     {
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider(5);
 		private string _events = string.Empty;
@@ -19,7 +21,9 @@ namespace PanoramicData.Blazor.Web.Pages
 		private List<Person> People { get; set; } = new List<Person>();
 		private Person SelectedPerson { get; set; }
 
-		public PDFormPage()
+		[Inject] public IJSRuntime? JSRuntime { get; set; }
+
+		public PDFormPage2()
 		{
 			RefreshPeople();
 		}
@@ -30,24 +34,28 @@ namespace PanoramicData.Blazor.Web.Pages
 			if (key == "Cancel")
 			{
 				SelectedPerson = null;
+				HideDialog();
 			}
 		}
 
 		private void OnPersonCreated(Person person)
 		{
 			_events += $"created: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
+			HideDialog();
 			RefreshPeople();
 		}
 
 		private void OnPersonUpdated(Person person)
 		{
 			_events += $"updated: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
+			HideDialog();
 			RefreshPeople();
 		}
 
 		private void OnPersonDeleted(Person person)
 		{
 			_events += $"deleted: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
+			HideDialog();
 			RefreshPeople();
 		}
 
@@ -73,17 +81,24 @@ namespace PanoramicData.Blazor.Web.Pages
 				InvokeAsync(() => StateHasChanged());
 			}
 		}
+
 		private void OnEditPerson(Person person)
 		{
 			SelectedPerson = person;
 			Form.SetMode(FormModes.Edit);
+			JSRuntime.InvokeVoidAsync("showBsDialog", "#exampleModal");
 		}
 
 		private void OnCreatePerson()
 		{
 			SelectedPerson = new Person();
 			Form.SetMode(FormModes.Create);
+			JSRuntime.InvokeVoidAsync("showBsDialog", "#exampleModal");
 		}
 
+		private void HideDialog()
+		{
+			JSRuntime.InvokeVoidAsync("hideBsDialog", "#exampleModal");
+		}
 	}
 }
