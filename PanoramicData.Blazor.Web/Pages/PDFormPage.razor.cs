@@ -59,7 +59,7 @@ namespace PanoramicData.Blazor.Web.Pages
 		private void RefreshPeople()
 		{
 			PersonDataProvider
-				.GetDataAsync(new Services.DataRequest<Person>(), CancellationToken.None)
+				.GetDataAsync(new Services.DataRequest<Person> { Take = 100 }, CancellationToken.None)
 				.ContinueWith(PopulatePeopleResult);
 		}
 
@@ -67,6 +67,7 @@ namespace PanoramicData.Blazor.Web.Pages
 		{
 			if (!resultTask.IsFaulted)
 			{
+				SelectedPerson = null;
 				People.Clear();
 				People.AddRange(resultTask.Result.Items);
 				InvokeAsync(() => StateHasChanged());

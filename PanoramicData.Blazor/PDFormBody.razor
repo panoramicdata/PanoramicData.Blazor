@@ -28,11 +28,11 @@ else if (Form.Mode != FormModes.Hidden)
 					<!-- editor -->
 					@if (fieldType == "checkbox")
 					{
-						<PDFormCheckBox Value="@EvaluateAsBool(field.GetValue(Form.Item))" Disabled="@IsReadOnly(field)" />
+						<PDFormCheckBox Value="@GetBoolValue(field)" Disabled="@IsReadOnly(field)" ValueChanged="(x) => OnInput(field, x)" />
 					}
 					else if (fieldType == "enum")
 					{
-						<select class="form-control">
+						<select class="form-control" @oninput="(x) => OnInput(field, x.Value)">
 							@foreach (var option in GetEnumValues(field))
 							{
 								<option value="@option.Value" selected="@option.IsSelected">@option.Text</option>
@@ -41,7 +41,7 @@ else if (Form.Mode != FormModes.Hidden)
 					}
 					else
 					{
-						<input type="@fieldType" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetValue(Form.Item)" @oninput="(x) => OnInput(field, x.Value)">
+						<input type="@fieldType" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)" @oninput="(x) => OnInput(field, x.Value)">
 					}
 
 					@if (Form.Mode != FormModes.Delete)

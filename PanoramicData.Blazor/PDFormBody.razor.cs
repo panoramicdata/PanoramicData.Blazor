@@ -111,13 +111,19 @@ namespace PanoramicData.Blazor
 			Form?.FieldChange(field, value);
 		}
 
-		private bool EvaluateAsBool(object? value)
+		private bool GetBoolValue(PDField<TItem> field)
 		{
-			if(value == null)
+			var memberInfo = field.Field?.GetPropertyMemberInfo();
+			if (Form != null && memberInfo is PropertyInfo propInfo)
 			{
-				return false;
+				// check and return delta if set
+				if(Form.Delta.ContainsKey(memberInfo.Name))
+				{
+					return (bool)Form.Delta[memberInfo.Name];
+				}
+				return (bool)propInfo.GetValue(Form.Item);
 			}
-			return string.Equals(value.ToString(), "true", StringComparison.OrdinalIgnoreCase);
+			return false;
 		}
 
 		private OptionInfo[] GetEnumValues(PDField<TItem> field)
@@ -138,7 +144,7 @@ namespace PanoramicData.Blazor
 					{
 						Text = displayName,
 						Value = values.GetValue(i).ToString(),
-						IsSelected = field.GetValue(Form?.Item)?.ToString() == values.GetValue(i).ToString()
+						IsSelected = field.GetRenderValue(Form?.Item)?.ToString() == values.GetValue(i).ToString()
 					});
 				}
 			}

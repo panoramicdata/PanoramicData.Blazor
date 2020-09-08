@@ -39,18 +39,17 @@
 
 	<div>
 		<PDForm @ref="Form1" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider"
-				Error="OnError" Deleted="OnPersonDeleted">
+				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated">
 			<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
 			<PDFormBody TItem="Person">
 				<PDField TItem="Person" Field="x => x.Id" ShowInDelete="true" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
 				<PDField TItem="Person" Field="x => x.FirstName" Title="First Name" ShowInDelete="true"></PDField>
 				<PDField TItem="Person" Field="x => x.LastName" Title="Last Name" ShowInDelete="true"></PDField>
 				<PDField TItem="Person" Field="x => x.Department"></PDField>
-				<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?" ReadOnlyInCreate="true"></PDField>
+				<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?" ReadOnlyInCreate="false"></PDField>
 				<PDField TItem="Person" Field="x => x.Target"></PDField>
-				<PDField TItem="Person" Field="x => x.Comments"></PDField>
-				<PDField TItem="Person" Field="x => x.DateCreated" ShowInCreate="false" Title="Created"></PDField>
-				<PDField TItem="Person" Field="x => x.DateModified" ShowInCreate="false" ShowInEdit="false" Title="Modified"></PDField>
+				<PDField TItem="Person" Field="x => x.Comments" ShowInCreate="false"></PDField>
+				<PDField TItem="Person" Field="x => x.DateCreated" Title="Created"></PDField>
 			</PDFormBody>
 			<PDFormFooter TItem="Person" Click="OnFooterClick" />
 		</PDForm>

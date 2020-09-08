@@ -164,7 +164,8 @@ namespace PanoramicData.Blazor
 					{
 						try
 						{
-							propInfo.SetValue(Item, value);
+							object typedValue = value.Cast(propInfo.PropertyType); // .GetValue(Item); // original value
+							propInfo.SetValue(Item, typedValue);
 						}
 						catch (Exception ex)
 						{

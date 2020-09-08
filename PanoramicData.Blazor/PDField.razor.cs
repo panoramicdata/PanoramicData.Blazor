@@ -74,13 +74,32 @@ namespace PanoramicData.Blazor
 			await FormBody.AddFieldAsync(this).ConfigureAwait(true);
 		}
 
-		public object? GetValue(TItem? item)
+		/// <summary>
+		/// Returns the value to be rendered in the user interface.
+		/// </summary>
+		/// <param name="item">The current TItem instance where to obtain the current field value.</param>
+		/// <returns>A value that can be rendered in the user interface.</returns>
+		public object? GetRenderValue(TItem? item)
 		{
 			if(item == null)
 			{
 				return null;
 			}
-			return CompiledFieldFunc?.Invoke(item);
+			var value = CompiledFieldFunc?.Invoke(item);
+			if (value != null)
+			{
+				if (value is DateTimeOffset dto)
+				{
+					// return simple date time string
+					return dto.DateTime.ToString("yyyy-MM-dd");
+				}
+				if (value is DateTime dt)
+				{
+					// return date time string
+					return dt.ToString("yyyy-MM-dd");
+				}
+			}
+			return value;
 		}
 	}
 }

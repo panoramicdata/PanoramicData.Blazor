@@ -10,11 +10,13 @@ namespace PanoramicData.Blazor
 
 		[Parameter] public bool Disabled { get; set; }
 
+		[Parameter] public EventCallback<bool> ValueChanged { get; set; }
+
 		private void OnClick()
 		{
 			if(!Disabled)
 			{
-				Value = !Value;
+				ToggleValue();
 			}
 		}
 
@@ -22,8 +24,14 @@ namespace PanoramicData.Blazor
 		{
 			if (!Disabled && args.Code.In("Space", "Enter"))
 			{
-				Value = !Value;
+				ToggleValue();
 			}
+		}
+
+		private void ToggleValue()
+		{
+			Value = !Value;
+			ValueChanged.InvokeAsync(Value);
 		}
 	}
 }

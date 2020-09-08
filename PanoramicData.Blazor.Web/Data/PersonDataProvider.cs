@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor.Web.Data
 {
@@ -121,7 +122,8 @@ namespace PanoramicData.Blazor.Web.Data
 				{
 					try
 					{
-						prop.SetValue(existingPerson, kvp.Value);
+						var value = kvp.Value.Cast(prop.PropertyType);
+						prop.SetValue(existingPerson, value);
 					}
 					catch(Exception ex)
 					{
