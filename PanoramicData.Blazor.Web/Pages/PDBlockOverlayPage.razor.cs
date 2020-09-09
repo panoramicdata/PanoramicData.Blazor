@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Services;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Services;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
-	public partial class BlockOverlay
+	public partial class PDBlockOverlayPage
 	{
 		[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
 

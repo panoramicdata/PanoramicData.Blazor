@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor
 	/// Users can implement their own one of these and bind to the actions
 	/// on the IBlockOverlayService once it's registers in services.
 	/// </summary>
-	public partial class BlockOverlay
+	public partial class PDBlockOverlay
 	{
 		[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
