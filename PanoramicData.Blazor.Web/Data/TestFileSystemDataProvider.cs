@@ -121,10 +121,10 @@ namespace PanoramicData.Blazor.Web.Data
 		/// Requests the given item is updated by applying the given delta.
 		/// </summary>
 		/// <param name="item">The original item to be updated.</param>
-		/// <param name="delta">An anonymous object with new property values.</param>
+		/// <param name="delta">A dictionary with new property values.</param>
 		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-		public async Task<OperationResponse> UpdateAsync(FileExplorerItem item, object delta, CancellationToken cancellationToken)
+		public async Task<OperationResponse> UpdateAsync(FileExplorerItem item, IDictionary<string, object> delta, CancellationToken cancellationToken)
 		{
 			var result = new OperationResponse();
 			await Task.Run(() =>

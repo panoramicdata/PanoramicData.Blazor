@@ -487,6 +487,15 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		/// <summary>
+		/// Clears the current selection.
+		/// </summary>
+		public void ClearSelection()
+		{
+			Selection.Clear();
+			StateHasChanged();
+		}
+
 		protected override void OnInitialized()
 		{
 			Id = $"{IdPrefix}{++_idSequence}";

@@ -37,7 +37,7 @@
 	<PDColumn Id="Col6" TItem="TestRow" Title="Calc" Sortable="false">
 		<Template>
 			@{
-				var row = context as TestRow;
+				var row = context;
 				<span>@(row.IntField * row.IntField)</span>
 			}
 		</Template>

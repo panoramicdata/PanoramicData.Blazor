@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace PanoramicData.Blazor.Extensions
 {
@@ -19,6 +21,17 @@ namespace PanoramicData.Blazor.Extensions
 				return path.Replace(oldPathPrefix, newPathPrefix);
 			}
 			return path;
+		}
+
+		/// <summary>
+		/// Determines if the current string is contained within the given list of strings.
+		/// </summary>
+		/// <param name="value">The current string to check for.</param>
+		/// <param name="comparisonList">A list of one or more comparison strings.</param>
+		/// <returns>true if the given string is contained within the given list, otherwise false.</returns>
+		public static bool In(this string value, params string[] comparisonList)
+		{
+			return comparisonList.Contains(value);
 		}
 	}
 }
