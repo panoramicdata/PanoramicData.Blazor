@@ -9,8 +9,6 @@ namespace PanoramicData.Blazor
 	public partial class PDField<TItem> where TItem : class
     {
 		private string? _title;
-		private Func<TItem, object>? _compiledFieldFunc;
-		private Func<TItem, object>? CompiledFieldFunc => _compiledFieldFunc ??= Field?.Compile();
 
 		/// <summary>
 		/// The parent PDForm instance.
@@ -72,34 +70,6 @@ namespace PanoramicData.Blazor
 					$"type '{typeof(TItem)}' does not match the form type.");
 			}
 			await FormBody.AddFieldAsync(this).ConfigureAwait(true);
-		}
-
-		/// <summary>
-		/// Returns the value to be rendered in the user interface.
-		/// </summary>
-		/// <param name="item">The current TItem instance where to obtain the current field value.</param>
-		/// <returns>A value that can be rendered in the user interface.</returns>
-		public object? GetRenderValue(TItem? item)
-		{
-			if(item == null)
-			{
-				return null;
-			}
-			var value = CompiledFieldFunc?.Invoke(item);
-			if (value != null)
-			{
-				if (value is DateTimeOffset dto)
-				{
-					// return simple date time string
-					return dto.DateTime.ToString("yyyy-MM-dd");
-				}
-				if (value is DateTime dt)
-				{
-					// return date time string
-					return dt.ToString("yyyy-MM-dd");
-				}
-			}
-			return value;
 		}
 	}
 }

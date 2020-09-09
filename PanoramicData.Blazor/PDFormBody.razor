@@ -13,48 +13,51 @@
 else if (Form.Mode != FormModes.Hidden)
 {
 <div class="pd-form-body">
-	@foreach (var field in Fields)
+	@if (Form.Mode != FormModes.Empty)
 	{
-		var fieldType = @GetEditorType(field);
-		if (IsShown(field))
+		foreach (var field in Fields)
 		{
-			<div>
-				<label class="sr-only">@field.Title</label>
-				<div class="input-group mb-2">
+			var fieldType = @GetEditorType(field);
+			if (IsShown(field))
+			{
+				<div>
+					<label class="sr-only">@field.Title</label>
+					<div class="input-group mb-2">
 
-					<div class="input-group-prepend">
-						<div class="input-group-text title-box">@field.Title</div>
-					</div>
-
-					<!-- editor -->
-					@if (fieldType == "checkbox")
-					{
-						<PDFormCheckBox Value="@GetBoolValue(field)" Disabled="@IsReadOnly(field)" ValueChanged="(x) => OnInput(field, x)" />
-					}
-					else if (fieldType == "enum")
-					{
-						<select class="form-control" @oninput="(x) => OnInput(field, x.Value)">
-							@foreach (var option in GetEnumValues(field))
-							{
-								<option value="@option.Value" selected="@option.IsSelected">@option.Text</option>
-							}
-						</select>
-					}
-					else
-					{
-						<input type="@fieldType" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)" @oninput="(x) => OnInput(field, x.Value)">
-					}
-
-					@if (Form.Mode != FormModes.Delete)
-					{
-						<div class="input-group-append">
-							<span class="input-group-text">
-								<i class="far fa-check-circle"></i>
-							</span>
+						<div class="input-group-prepend">
+							<div class="input-group-text title-box">@field.Title</div>
 						</div>
-					}
+
+						<!-- editor -->
+						@if (fieldType == "checkbox")
+						{
+							<PDFormCheckBox Value="@GetBoolValue(field)" Disabled="@IsReadOnly(field)" ValueChanged="(x) => OnInput(field, x)" />
+						}
+						else if (fieldType == "enum")
+						{
+							<select class="form-control" @oninput="(x) => OnInput(field, x.Value)">
+								@foreach (var option in GetEnumValues(field))
+								{
+									<option value="@option.Value" selected="@option.IsSelected">@option.Text</option>
+								}
+							</select>
+						}
+						else
+						{
+							<input type="@fieldType" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)" @oninput="(x) => OnInput(field, x.Value)">
+						}
+
+						@if (Form.Mode != FormModes.Delete)
+						{
+							<div class="input-group-append">
+								<span class="input-group-text">
+									<i class="far fa-check-circle"></i>
+								</span>
+							</div>
+						}
+					</div>
 				</div>
-			</div>
+			}
 		}
 	}
 </div>

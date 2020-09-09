@@ -70,9 +70,29 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool ShowInList { get; set; } = true;
 
 		/// <summary>
-		/// Gets or sets whether this column is visible.
+		/// Gets or sets whether this field is visible when the form mode is Edit.
 		/// </summary>
-		[Parameter] public bool Visible { get; set; } = true;
+		[Parameter] public bool ShowInEdit { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets whether this field is visible when the form mode is Create.
+		/// </summary>
+		[Parameter] public bool ShowInCreate { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets whether this field is visible when the form mode is Delete.
+		/// </summary>
+		[Parameter] public bool ShowInDelete { get; set; } = false;
+
+		/// <summary>
+		/// Gets or sets whether this field is read-only when in Edit mode.
+		/// </summary>
+		[Parameter] public bool ReadOnlyInEdit { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether this field is read-only when in Create mode.
+		/// </summary>
+		[Parameter] public bool ReadOnlyInCreate { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether this column is editable.

@@ -10,6 +10,10 @@
 		/// </summary>
 		Hidden,
 		/// <summary>
+		/// Displayed but empty.
+		/// </summary>
+		Empty,
+		/// <summary>
 		/// The form is being used to define a new entity.
 		/// </summary>
 		Create,

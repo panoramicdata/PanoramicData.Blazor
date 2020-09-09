@@ -1,0 +1,54 @@
+﻿@page "/pdform3"
+@using PanoramicData.Blazor.Web.Data
+
+<style>
+	.form-div {
+		margin-left: 10px;
+	}
+</style>
+
+<h1>PDForm</h1>
+
+<h3>Example 3: Form linked to Table</h3>
+
+<div>
+	<button class="btn btn-primary" @onclick="OnCreatePerson">Create</button>
+</div>
+
+<br />
+<br />
+
+<div class="d-flex">
+
+	<div>
+		<PDTable @ref="Table" TItem="Person" DataProvider="PersonDataProvider" KeyField="x => x.Id" SelectionMode="TableSelectionMode.Single"
+				SelectionChanged="OnSelectionChanged" >
+			<PDColumn TItem="Person" Field="x => x.Id" ShowInList="false" ShowInCreate="false" ReadOnlyInEdit="true" />
+			<PDColumn TItem="Person" Field="x => x.FirstName" Title="First Name" ShowInDelete="true" />
+			<PDColumn TItem="Person" Field="x => x.LastName" Title="Last Name" ShowInDelete="true" />
+			<PDColumn TItem="Person" Field="x => x.Department" />
+			<PDColumn TItem="Person" Field="x => x.AllowLogin" Title="Login?" ShowInList="false" ReadOnlyInCreate="false" />
+			<PDColumn TItem="Person" Field="x => x.Target" ShowInList="false" />
+			<PDColumn TItem="Person" Field="x => x.Comments" ShowInList="false" ShowInCreate="false" />
+			<PDColumn TItem="Person" Field="x => x.DateCreated" Title="Created" Format="dd/MM/yy" />
+		</PDTable>
+	</div>
+
+	<div class="form-div">
+		<PDForm @ref="Form" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider" DefaultMode="FormModes.Empty"
+				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated">
+			<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
+			<PDFormBody TItem="Person" Table="Table" />
+			<PDFormFooter TItem="Person" Click="OnFooterClick" />
+		</PDForm>
+	</div>
+
+</div>
+
+<div>
+	<div class="form-group p-1">
+		<label>Events</label>
+		<textarea rows="8" class="form-control">@_events</textarea>
+	</div>
+</div>
+

@@ -24,6 +24,11 @@ namespace PanoramicData.Blazor
 		[CascadingParameter] public PDForm<TItem>? Form { get; set; }
 
 		/// <summary>
+		/// Gets or sets a linked PDTable instance that can be used to provide field definitions.
+		/// </summary>
+		[Parameter] public PDTable<TItem>? Table { get; set; }
+
+		/// <summary>
 		/// Child HTML content.
 		/// </summary>
 		[Parameter] public RenderFragment ChildContent { get; set; } = null!;
@@ -39,9 +44,30 @@ namespace PanoramicData.Blazor
 		[Parameter] public int TitleWidth { get; set; } = 200;
 
 		/// <summary>
-		/// Gets a full list of all columns.
+		/// Gets a full list of all fields.
 		/// </summary>
-		public List<PDField<TItem>> Fields { get; } = new List<PDField<TItem>>();
+		public List<FormField<TItem>> Fields { get; } = new List<FormField<TItem>>();
+
+		protected override void OnInitialized()
+		{
+			if (Table != null)
+			{
+				foreach(var column in Table.Columns)
+				{
+					Fields.Add(new FormField<TItem>
+					{
+						Field = column.Field,
+						ReadOnlyInCreate = column.ReadOnlyInCreate,
+						ReadOnlyInEdit = column.ReadOnlyInEdit,
+						ShowInCreate = column.ShowInCreate,
+						ShowInDelete = column.ShowInDelete,
+						ShowInEdit = column.ShowInEdit,
+						Template = column.Template,
+						Title = column.Title
+					});
+				}
+			}
+		}
 
 		/// <summary>
 		/// Adds the given field to the list of available fields.
@@ -51,7 +77,17 @@ namespace PanoramicData.Blazor
 		{
 			try
 			{
-				Fields.Add(field);
+				Fields.Add(new FormField<TItem>
+				{
+					Field = field.Field,
+					ReadOnlyInCreate = field.ReadOnlyInCreate,
+					ReadOnlyInEdit = field.ReadOnlyInEdit,
+					ShowInCreate = field.ShowInCreate,
+					ShowInDelete = field.ShowInDelete,
+					ShowInEdit = field.ShowInEdit,
+					Template = field.Template,
+					Title = field.Title
+				});
 				StateHasChanged();
 			}
 			catch (Exception ex)
@@ -70,17 +106,17 @@ namespace PanoramicData.Blazor
 			await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
 		}
 
-		private bool IsShown(PDField<TItem> field) =>
+		private bool IsShown(FormField<TItem> field) =>
 			(field.ShowInCreate && Form?.Mode == FormModes.Create) ||
 			(field.ShowInEdit && Form?.Mode == FormModes.Edit) ||
 			(field.ShowInDelete && Form?.Mode == FormModes.Delete);
 
-		private bool IsReadOnly(PDField<TItem> field) =>
+		private bool IsReadOnly(FormField<TItem> field) =>
 			(field.ReadOnlyInCreate && Form?.Mode == FormModes.Create) ||
 			(field.ReadOnlyInEdit && Form?.Mode == FormModes.Edit) ||
 			Form?.Mode == FormModes.Delete;
 
-		private string GetEditorType(PDField<TItem> field)
+		private string GetEditorType(FormField<TItem> field)
 		{
 			var memberInfo = field.Field?.GetPropertyMemberInfo();
 			if (memberInfo is PropertyInfo propInfo)
@@ -106,12 +142,12 @@ namespace PanoramicData.Blazor
 			return "text";
 		}
 
-		private void OnInput(PDField<TItem> field, object value)
+		private void OnInput(FormField<TItem> field, object value)
 		{
 			Form?.FieldChange(field, value);
 		}
 
-		private bool GetBoolValue(PDField<TItem> field)
+		private bool GetBoolValue(FormField<TItem> field)
 		{
 			var memberInfo = field.Field?.GetPropertyMemberInfo();
 			if (Form != null && memberInfo is PropertyInfo propInfo)
@@ -121,12 +157,16 @@ namespace PanoramicData.Blazor
 				{
 					return (bool)Form.Delta[memberInfo.Name];
 				}
+				if(Form.Item is null)
+				{
+					return false;
+				}
 				return (bool)propInfo.GetValue(Form.Item);
 			}
 			return false;
 		}
 
-		private OptionInfo[] GetEnumValues(PDField<TItem> field)
+		private OptionInfo[] GetEnumValues(FormField<TItem> field)
 		{
 			var options = new List<OptionInfo>();
 			var memberInfo = field.Field?.GetPropertyMemberInfo();

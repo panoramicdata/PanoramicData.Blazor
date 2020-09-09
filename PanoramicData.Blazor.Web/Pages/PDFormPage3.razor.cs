@@ -9,19 +9,36 @@ using PanoramicData.Blazor.Services;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
-    public partial class PDFormPage
+    public partial class PDFormPage3
     {
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider(5);
 		private string _events = string.Empty;
 
 		// properties for unlinked example
 		private PDForm<Person> Form { get; set; } = null!;
-		private List<Person> People { get; set; } = new List<Person>();
+		private PDTable<Person> Table { get; set; } = null!;
 		private Person SelectedPerson { get; set; }
 
-		public PDFormPage()
+		private async Task OnPersonCreated(Person person)
 		{
-			RefreshPeople();
+			_events += $"created: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
+			await Table.RefreshAsync().ConfigureAwait(true);
+		}
+
+		private void OnPersonUpdated(Person person)
+		{
+			_events += $"updated: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
+		}
+
+		private async Task OnPersonDeleted(Person person)
+		{
+			_events += $"deleted: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
+			await Table.RefreshAsync().ConfigureAwait(true);
+		}
+
+		private void OnError(string message)
+		{
+			_events += $"error: {message}{Environment.NewLine}";
 		}
 
 		private void OnFooterClick(string key)
@@ -30,50 +47,11 @@ namespace PanoramicData.Blazor.Web.Pages
 			if (key == "Cancel")
 			{
 				SelectedPerson = null;
-				Form.SetMode(FormModes.Hidden);
+				Table.ClearSelection();
+				Form.SetMode(FormModes.Empty);
 			}
 		}
 
-		private void OnPersonCreated(Person person)
-		{
-			_events += $"created: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
-			RefreshPeople();
-		}
-
-		private void OnPersonUpdated(Person person)
-		{
-			_events += $"updated: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
-			RefreshPeople();
-		}
-
-		private void OnPersonDeleted(Person person)
-		{
-			_events += $"deleted: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
-			RefreshPeople();
-		}
-
-		private void OnError(string message)
-		{
-			_events += $"error: {message}{Environment.NewLine}";
-		}
-
-		private void RefreshPeople()
-		{
-			PersonDataProvider
-				.GetDataAsync(new Services.DataRequest<Person> { Take = 100 }, CancellationToken.None)
-				.ContinueWith(PopulatePeopleResult);
-		}
-
-		private void PopulatePeopleResult(Task<DataResponse<Person>> resultTask)
-		{
-			if (!resultTask.IsFaulted)
-			{
-				SelectedPerson = null;
-				People.Clear();
-				People.AddRange(resultTask.Result.Items);
-				InvokeAsync(() => StateHasChanged());
-			}
-		}
 		private void OnEditPerson(Person person)
 		{
 			SelectedPerson = person;
@@ -86,5 +64,17 @@ namespace PanoramicData.Blazor.Web.Pages
 			Form.SetMode(FormModes.Create);
 		}
 
+		private void OnSelectionChanged()
+		{
+			if (Table?.Selection.Count > 0)
+			{
+				var id = int.Parse(Table.Selection[0]);
+				SelectedPerson = Table.ItemsToDisplay.Find(x => x.Id == id);
+				if(SelectedPerson != null)
+				{
+					Form.SetMode(FormModes.Edit);
+				}
+			}
+		}
 	}
 }

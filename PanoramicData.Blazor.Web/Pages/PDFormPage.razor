@@ -39,7 +39,7 @@
 
 	<div>
 		<PDForm @ref="Form" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider"
-				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonDeleted" Created="OnPersonUpdated">
+				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated">
 			<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
 			<PDFormBody TItem="Person">
 				<PDField TItem="Person" Field="x => x.Id" ShowInDelete="true" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>

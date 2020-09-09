@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Reflection;
 using System.Threading;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
 {
@@ -48,6 +47,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<string> Error { get; set; }
 
 		/// <summary>
+		/// Sets the default mode of the form.
+		/// </summary>
+		[Parameter] public FormModes DefaultMode { get; set; }
+
+		/// <summary>
 		/// Gets or sets the current form mode.
 		/// </summary>
 		public FormModes Mode { get; private set; }
@@ -57,13 +61,27 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public Dictionary<string, object> Delta { get; } = new Dictionary<string, object>();
 
-		protected override void OnParametersSet()
+		//protected override void OnParametersSet()
+		//{
+		//	if(Item == null)
+		//	{
+		//		Mode = FormModes.Hidden;
+		//		Delta.Clear();
+		//	}
+		//}
+
+		protected override void OnInitialized()
 		{
-			if(Item == null)
-			{
-				Mode = FormModes.Hidden;
-				Delta.Clear();
-			}
+			Mode = DefaultMode;
+		}
+
+		protected override void OnAfterRender(bool firstRender)
+		{
+			//if (firstRender)
+			//{
+			//	Mode = DefaultMode;
+			//	StateHasChanged();
+			//}
 		}
 
 		/// <summary>
@@ -141,7 +159,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		/// <param name="field">The field that has been modified.</param>
 		/// <param name="value">The new value for the field.</param>
-		public void FieldChange(PDField<TItem> field, object value)
+		public void FieldChange(FormField<TItem> field, object value)
 		{
 			//TODO: re-run validation
 
