@@ -226,11 +226,6 @@
   background-color: #e9ecef; }
 
 .pd-form-header {
-  margin: 0 0 15px 0;
-  padding: 10px;
-  background-color: #e9ecef;
-  border-radius: .3rem;
-  border: 1px solid #ced4da;
   font-weight: bold;
   font-size: 1.2rem;
   width: 100%; }
@@ -239,10 +234,6 @@
   width: 100%; }
 
 .pd-form-footer {
-  margin: 15px 0 0 0;
-  padding: 10px;
-  border-radius: .3rem;
-  border: 1px solid #ced4da;
   width: 100%; }
 
 .fa-hidden {
