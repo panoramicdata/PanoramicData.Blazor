@@ -9,9 +9,13 @@
 	width: 100%;
 }
 
-
 .pd-form-body {
 	width: 100%;
+
+	.form-control:disabled {
+		background-color: #f9f9f9;
+		color: #999;
+	}
 }
 
 .pd-form-footer {
