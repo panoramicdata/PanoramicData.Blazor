@@ -1,6 +1,8 @@
 ﻿using System;
-using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
 
@@ -27,7 +29,22 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public string Title
 		{
-			get => _title ??= Field?.GetPropertyMemberInfo()?.Name ?? "";
+			get
+			{
+				if (_title == null)
+				{
+					var memberInfo = Field?.GetPropertyMemberInfo();
+					if (memberInfo is PropertyInfo propInfo)
+					{
+						_title = propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name;
+					}
+					else
+					{
+						_title = memberInfo?.Name;
+					}
+				}
+				return _title ?? "";
+			}
 			set { _title = value; }
 		}
 

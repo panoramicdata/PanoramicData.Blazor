@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
 using System.ComponentModel;
 using PanoramicData.Blazor.Exceptions;
+using System.ComponentModel.DataAnnotations;
 
 namespace PanoramicData.Blazor
 {
@@ -105,7 +106,22 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public string Title
 		{
-			get => _title ??= Field?.GetPropertyMemberInfo()?.Name ?? "";
+			get
+			{
+				if(_title == null)
+				{
+					var memberInfo = Field?.GetPropertyMemberInfo();
+					if (memberInfo is PropertyInfo propInfo)
+					{
+						_title = propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name;
+					}
+					else
+					{
+						_title = memberInfo?.Name;
+					}
+				}
+				return _title ?? "";
+			}
 			set { _title = value; }
 		}
 
@@ -185,7 +201,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		/// <param name="item">The current item.</param>
 		/// <returns>The item fields value, formatted if the Format property is set.</returns>
-		public string Render(TItem item)
+		public string GetRenderValue(TItem item)
 		{
 			// If the item is null or the field is not set then nothing to output
 			if (item is null)
@@ -200,7 +216,17 @@ namespace PanoramicData.Blazor
 				return string.Empty;
 			}
 
-			// Return the string to be rendered
+			// if enumeration value - does it have display attribute?
+			var memberInfo = Field?.GetPropertyMemberInfo();
+			if (memberInfo is PropertyInfo propInfo && propInfo.PropertyType.IsEnum)
+			{
+				value = propInfo.PropertyType.GetMember($"{value}")
+								?.First()
+								.GetCustomAttribute<DisplayAttribute>()
+								?.Name ?? value;
+			}
+
+			// return the string to be rendered
 			return string.IsNullOrEmpty(Format)
 				? value.ToString()
 				: string.Format(CultureInfo.CurrentCulture, "{0:" + Format + "}", value);

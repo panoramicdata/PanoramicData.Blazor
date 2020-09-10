@@ -62,7 +62,8 @@
 							<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?"></PDField>
 							<PDField TItem="Person" Field="x => x.Target"></PDField>
 							<PDField TItem="Person" Field="x => x.Comments"></PDField>
-							<PDField TItem="Person" Field="x => x.DateCreated" Title="Created"></PDField>
+							<PDField TItem="Person" Field="x => x.DateCreated" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
+							<PDField TItem="Person" Field="x => x.DateModified" ShowInCreate="false"></PDField>
 						</PDFormBody>
 
 					</div>

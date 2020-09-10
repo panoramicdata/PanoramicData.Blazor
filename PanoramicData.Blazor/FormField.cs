@@ -7,6 +7,7 @@ namespace PanoramicData.Blazor
 	public class FormField<TItem> where TItem : class
 	{
 		private Func<TItem, object>? _compiledFieldFunc;
+
 		private Func<TItem, object>? CompiledFieldFunc => _compiledFieldFunc ??= Field?.Compile();
 
 		/// <summary>

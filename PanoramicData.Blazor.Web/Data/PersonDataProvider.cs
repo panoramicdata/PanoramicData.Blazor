@@ -27,7 +27,8 @@ namespace PanoramicData.Blazor.Web.Data
 					{
 						Id = id,
 						AllowLogin = _random.Next(0, 2) == 1,
-						DateCreated = DateTimeOffset.Now.AddDays(_random.Next(0, 7)),
+						DateCreated = DateTimeOffset.Now.AddDays(_random.Next(7, 15)),
+						DateModified = DateTimeOffset.Now.AddDays(_random.Next(0, 7)),
 						Department = (Departments)_random.Next(0, 4),
 						FirstName = _firstNames[_random.Next(_firstNames.Length)],
 						LastName = _lastNames[_random.Next(_lastNames.Length)],
@@ -131,6 +132,7 @@ namespace PanoramicData.Blazor.Web.Data
 					}
 				}
 			}
+			existingPerson.DateModified = DateTime.Now;
 			return new OperationResponse { Success = true };
 		}
 
@@ -143,6 +145,7 @@ namespace PanoramicData.Blazor.Web.Data
 		public async Task<OperationResponse> CreateAsync(Person item, CancellationToken cancellationToken)
 		{
 			item.Id = _people.Max(x => x.Id) + 1;
+			item.DateModified = item.DateCreated = DateTime.Now;
 			_people.Add(item);
 			return new OperationResponse { Success = true };
 		}
