@@ -12,11 +12,17 @@ namespace PanoramicData.Blazor.Web.Data
 		public int Id { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
+		[Display(Name = "Date of Birth")]
+		public DateTime Dob { get; set; }
 		public Departments Department { get; set; }
-		public bool AllowLogin { get; set; }
 		public decimal Target { get; set; }
 		public string Comments { get; set; }
+		public bool AllowLogin { get; set; }
+		[Display(Name = "Login Id")]
+		public string LoginId { get; set; }
+		[Display(Name = "Created")]
 		public DateTimeOffset DateCreated { get; set; }
+		[Display(Name = "Modified")]
 		public DateTimeOffset DateModified { get; set; }
 	}
 

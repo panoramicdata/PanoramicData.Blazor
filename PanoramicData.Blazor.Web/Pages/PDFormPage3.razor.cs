@@ -25,9 +25,10 @@ namespace PanoramicData.Blazor.Web.Pages
 			await Table.RefreshAsync().ConfigureAwait(true);
 		}
 
-		private void OnPersonUpdated(Person person)
+		private async Task OnPersonUpdated(Person person)
 		{
 			_events += $"updated: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
+			await Table.RefreshAsync().ConfigureAwait(true);
 		}
 
 		private async Task OnPersonDeleted(Person person)

@@ -4,25 +4,21 @@
 }
 
 .pd-form-header {
-	margin: 0 0 15px 0;
-	padding: 10px;
-	background-color: #e9ecef;
-	border-radius: .3rem;
-	border: 1px solid #ced4da;
 	font-weight: bold;
 	font-size: 1.2rem;
 	width: 100%;
 }
 
-
 .pd-form-body {
 	width: 100%;
+
+	.form-control:disabled,
+	.form-control.disabled {
+		background-color: #f9f9f9;
+		color: #999;
+	}
 }
 
 .pd-form-footer {
-	margin: 15px 0 0 0;
-	padding: 10px;
-	border-radius: .3rem;
-	border: 1px solid #ced4da;
 	width: 100%;
 }

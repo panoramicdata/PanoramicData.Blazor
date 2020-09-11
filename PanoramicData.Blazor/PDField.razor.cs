@@ -1,6 +1,8 @@
 ﻿using System;
-using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
 
@@ -27,34 +29,49 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public string Title
 		{
-			get => _title ??= Field?.GetPropertyMemberInfo()?.Name ?? "";
+			get
+			{
+				if (_title == null)
+				{
+					var memberInfo = Field?.GetPropertyMemberInfo();
+					if (memberInfo is PropertyInfo propInfo)
+					{
+						_title = propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name;
+					}
+					else
+					{
+						_title = memberInfo?.Name;
+					}
+				}
+				return _title ?? "";
+			}
 			set { _title = value; }
 		}
 
 		/// <summary>
-		/// Gets or sets whether this field is visible when the form mode is Edit.
+		/// Gets or sets a function that determines whether this field is visible when the form mode is Edit.
 		/// </summary>
-		[Parameter] public bool ShowInEdit { get; set; } = true;
+		[Parameter] public Func<TItem?, bool> ShowInEdit { get; set; } = new Func<TItem?, bool>((_) => true);
 
 		/// <summary>
-		/// Gets or sets whether this field is visible when the form mode is Create.
+		/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
 		/// </summary>
-		[Parameter] public bool ShowInCreate { get; set; } = true;
+		[Parameter] public Func<TItem?, bool> ShowInCreate { get; set; } = new Func<TItem?, bool>((_) => true);
 
 		/// <summary>
-		/// Gets or sets whether this field is visible when the form mode is Delete.
+		/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
 		/// </summary>
-		[Parameter] public bool ShowInDelete { get; set; } = false;
+		[Parameter] public Func<TItem?, bool> ShowInDelete { get; set; } = new Func<TItem?, bool>((_) => false);
 
 		/// <summary>
-		/// Gets or sets whether this field is read-only when in Edit mode.
+		/// Gets or sets a function that determines whether this field is read-only when the form mode is Edit.
 		/// </summary>
-		[Parameter] public bool ReadOnlyInEdit { get; set; }
+		[Parameter] public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = new Func<TItem?, bool>((_) => false);
 
 		/// <summary>
-		/// Gets or sets whether this field is read-only when in Create mode.
+		/// Gets or sets a function that determines whether this field is read-only when the form mode is Create.
 		/// </summary>
-		[Parameter] public bool ReadOnlyInCreate { get; set; }
+		[Parameter] public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = new Func<TItem?, bool>((_) => false);
 
 		/// <summary>
 		/// Gets or sets an HTML template for the fields editor.

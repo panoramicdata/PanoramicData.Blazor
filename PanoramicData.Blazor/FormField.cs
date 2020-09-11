@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
 {
 	public class FormField<TItem> where TItem : class
 	{
 		private Func<TItem, object>? _compiledFieldFunc;
-		private Func<TItem, object>? CompiledFieldFunc => _compiledFieldFunc ??= Field?.Compile();
+
+		internal Func<TItem, object>? CompiledFieldFunc => _compiledFieldFunc ??= Field?.Compile();
 
 		/// <summary>
 		/// Gets or sets a Linq expression that selects the field to be data bound to.
@@ -20,29 +23,29 @@ namespace PanoramicData.Blazor
 		public string Title { get; set; } = string.Empty;
 
 		/// <summary>
-		/// Gets or sets whether this field is visible when the form mode is Edit.
+		/// Gets or sets a function that determines whether this field is visible when the form mode is Edit.
 		/// </summary>
-		public bool ShowInEdit { get; set; } = true;
+		public Func<TItem?, bool> ShowInEdit { get; set; } = new Func<TItem?, bool>((_) => true);
 
 		/// <summary>
-		/// Gets or sets whether this field is visible when the form mode is Create.
+		/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
 		/// </summary>
-		public bool ShowInCreate { get; set; } = true;
+		public Func<TItem?, bool> ShowInCreate { get; set; } = new Func<TItem?, bool>((_) => true);
 
 		/// <summary>
-		/// Gets or sets whether this field is visible when the form mode is Delete.
+		/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
 		/// </summary>
-		public bool ShowInDelete { get; set; } = false;
+		public Func<TItem?, bool> ShowInDelete { get; set; } = new Func<TItem?, bool>((_) => false);
 
 		/// <summary>
-		/// Gets or sets whether this field is read-only when in Edit mode.
+		/// Gets or sets a function that determines whether this field is read-only when the form mode is Edit.
 		/// </summary>
-		public bool ReadOnlyInEdit { get; set; }
+		public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = new Func<TItem?, bool>((_) => false);
 
 		/// <summary>
-		/// Gets or sets whether this field is read-only when in Create mode.
+		/// Gets or sets a function that determines whether this field is read-only when the form mode is Create.
 		/// </summary>
-		public bool ReadOnlyInCreate { get; set; }
+		public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = new Func<TItem?, bool>((_) => false);
 
 		/// <summary>
 		/// Gets or sets an HTML template for the fields editor.
@@ -76,5 +79,28 @@ namespace PanoramicData.Blazor
 			}
 			return value;
 		}
+
+		/// <summary>
+		/// Returns the field data type.
+		/// </summary>
+		/// <returns></returns>
+		public Type? GetFieldType()
+		{
+			if(Field is null)
+			{
+				return null;
+			}
+			return Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
+		}
+
+		/// <summary>
+		/// Simple function that returns true.
+		/// </summary>
+		public static Func<TItem?, bool> True => new Func<TItem?, bool>((_) => true);
+
+		/// <summary>
+		/// Simple function that returns false.
+		/// </summary>
+		public static Func<TItem?, bool> False => new Func<TItem?, bool>((_) => false);
 	}
 }

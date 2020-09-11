@@ -360,6 +360,9 @@ namespace PanoramicData.Blazor
 				var items = new List<TItem>(response.Items);
 				ItemsLoaded?.Invoke(items); // must use an action here and not an EventCallaback as that leads to infinite loop and 100% CPU
 				ItemsToDisplay = items;
+
+				// clear selection
+				ClearSelection();
 			}
 			finally
 			{
