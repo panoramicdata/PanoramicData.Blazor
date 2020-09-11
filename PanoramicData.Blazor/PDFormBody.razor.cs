@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging.Abstractions;
 using PanoramicData.Blazor.Extensions;
+using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 
 namespace PanoramicData.Blazor
 {
@@ -107,13 +109,125 @@ namespace PanoramicData.Blazor
 		}
 
 		private bool IsShown(FormField<TItem> field) =>
-			(field.ShowInCreate && Form?.Mode == FormModes.Create) ||
-			(field.ShowInEdit && Form?.Mode == FormModes.Edit) ||
-			(field.ShowInDelete && Form?.Mode == FormModes.Delete);
+			(Form?.Mode == FormModes.Create && field.ShowInCreate(GetItem())) ||
+			(Form?.Mode == FormModes.Edit && field.ShowInEdit(GetItem())) ||
+			(Form?.Mode == FormModes.Delete && field.ShowInDelete(GetItem()));
+
+		private TItem? GetItem()
+		{
+			if(Form?.Item is null)
+			{
+				return null;
+			}
+			// in create mode updates are applied directly to the item
+			if(Form.Mode == FormModes.Create)
+			{
+				return Form.Item;
+			}
+			// apply updates
+			var json = System.Text.Json.JsonSerializer.Serialize(Form.Item);
+			var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);
+			foreach(var kvp in Form.Delta)
+			{
+				var propInfo = clone.GetType().GetProperty(kvp.Key);
+				propInfo?.SetValue(clone, kvp.Value);
+			}
+			return clone;
+		}
+
+		private T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
+		{
+			// point to relevant TItem instance
+			if (Form?.Item is null)
+			{
+				return default;
+			}
+
+			// if original value required simply return
+			object? value;
+			var memberInfo = field.Field?.GetPropertyMemberInfo();
+			if (memberInfo is PropertyInfo propInfo)
+			{
+				if (updatedValue && Form.Delta.ContainsKey(memberInfo.Name))
+				{
+					value = Form.Delta[memberInfo.Name];
+				}
+				else
+				{
+					value = propInfo.GetValue(Form.Item);
+				}
+			}
+			else
+			{
+				value = field.CompiledFieldFunc?.Invoke(Form.Item);
+			}
+
+			if(value is null)
+			{
+				return default;
+			}
+			if (value is T t)
+			{
+				return t;
+			}
+			try
+			{
+				return (T)Convert.ChangeType(value, typeof(T));
+			}
+			catch
+			{
+				return default;
+			}
+		}
+
+		private string GetFieldStringValue(FormField<TItem> field, bool updatedValue = true)
+		{
+			// point to relevant TItem instance
+			if (Form?.Item is null)
+			{
+				return string.Empty;
+			}
+
+			// if original value required simply return
+			object? value;
+			var memberInfo = field.Field?.GetPropertyMemberInfo();
+			if (memberInfo is PropertyInfo propInfo)
+			{
+				if (updatedValue && Form.Delta.ContainsKey(memberInfo.Name))
+				{
+					value = Form.Delta[memberInfo.Name];
+				}
+				else
+				{
+					value = propInfo.GetValue(Form.Item);
+				}
+			}
+			else
+			{
+				value = field.CompiledFieldFunc?.Invoke(Form.Item);
+			}
+
+			if (value is null)
+			{
+				return string.Empty;
+			}
+			if (value is DateTimeOffset dto)
+			{
+				// return simple date time string
+				return dto.DateTime.ToString("yyyy-MM-dd");
+			}
+			if (value is DateTime dt)
+			{
+				// return date time string
+				return dt.ToString("yyyy-MM-dd");
+			}
+
+			return value.ToString();
+		}
 
 		private bool IsReadOnly(FormField<TItem> field) =>
-			(field.ReadOnlyInCreate && Form?.Mode == FormModes.Create) ||
-			(field.ReadOnlyInEdit && Form?.Mode == FormModes.Edit) ||
+			(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(GetItem())) ||
+			(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(GetItem())) ||
 			Form?.Mode == FormModes.Delete;
 
 		private string GetEditorType(FormField<TItem> field)
@@ -147,25 +261,6 @@ namespace PanoramicData.Blazor
 			Form?.FieldChange(field, value);
 		}
 
-		private bool GetBoolValue(FormField<TItem> field)
-		{
-			var memberInfo = field.Field?.GetPropertyMemberInfo();
-			if (Form != null && memberInfo is PropertyInfo propInfo)
-			{
-				// check and return delta if set
-				if(Form.Delta.ContainsKey(memberInfo.Name))
-				{
-					return (bool)Form.Delta[memberInfo.Name];
-				}
-				if(Form.Item is null)
-				{
-					return false;
-				}
-				return (bool)propInfo.GetValue(Form.Item);
-			}
-			return false;
-		}
-
 		private OptionInfo[] GetEnumValues(FormField<TItem> field)
 		{
 			var options = new List<OptionInfo>();
@@ -183,8 +278,8 @@ namespace PanoramicData.Blazor
 					options.Add(new OptionInfo
 					{
 						Text = displayName,
-						Value = values.GetValue(i).ToString(),
-						IsSelected = field.GetRenderValue(Form?.Item)?.ToString() == values.GetValue(i).ToString()
+						Value = values.GetValue(i),
+						IsSelected = GetFieldStringValue(field) == values.GetValue(i).ToString()
 					});
 				}
 			}

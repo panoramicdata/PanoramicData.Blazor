@@ -13,7 +13,7 @@
 		/// <summary>
 		/// Gets or sets the value for the option.
 		/// </summary>
-		public string Value { get; set; } = string.Empty;
+		public object? Value { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether the option is displayed.

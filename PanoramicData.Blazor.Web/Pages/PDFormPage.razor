@@ -28,7 +28,6 @@
 </div>
 
 <br />
-<br />
 
 <div class="d-flex">
 
@@ -46,15 +45,16 @@
 				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated">
 			<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
 			<PDFormBody TItem="Person">
-				<PDField TItem="Person" Field="x => x.Id" ShowInDelete="true" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
-				<PDField TItem="Person" Field="x => x.FirstName" Title="First Name" ShowInDelete="true"></PDField>
-				<PDField TItem="Person" Field="x => x.LastName" Title="Last Name" ShowInDelete="true"></PDField>
+				<PDField TItem="Person" Field="x => x.Id" ShowInDelete="FormField<Person>.True" ShowInCreate="(_) => false" ReadOnlyInEdit="(_) => true"></PDField>
+				<PDField TItem="Person" Field="x => x.FirstName" Title="First Name" ShowInDelete="(_) => true"></PDField>
+				<PDField TItem="Person" Field="x => x.LastName" Title="Last Name" ShowInDelete="(_) => true"></PDField>
+				<PDField TItem="Person" Field="x => x.Dob"></PDField>
 				<PDField TItem="Person" Field="x => x.Department"></PDField>
-				<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?" ReadOnlyInCreate="false"></PDField>
+				<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?" ReadOnlyInCreate="(_) => false"></PDField>
 				<PDField TItem="Person" Field="x => x.Target"></PDField>
-				<PDField TItem="Person" Field="x => x.Comments" ShowInCreate="false"></PDField>
-				<PDField TItem="Person" Field="x => x.DateCreated" ShowInCreate="false" ReadOnlyInEdit="true"></PDField>
-				<PDField TItem="Person" Field="x => x.DateModified" ShowInCreate="false"></PDField>
+				<PDField TItem="Person" Field="x => x.Comments" ShowInCreate="(_) => false"></PDField>
+				<PDField TItem="Person" Field="x => x.DateCreated" ShowInCreate="(_) => false" ReadOnlyInEdit="(_) => true"></PDField>
+				<PDField TItem="Person" Field="x => x.DateModified" ShowInEdit="(_) => false" ShowInCreate="(_) => false"></PDField>
 			</PDFormBody>
 			<PDFormFooter TItem="Person" Click="OnFooterClick" />
 		</PDForm>

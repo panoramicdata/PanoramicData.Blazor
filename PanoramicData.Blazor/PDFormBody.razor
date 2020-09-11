@@ -17,7 +17,7 @@ else if (Form.Mode != FormModes.Hidden)
 	{
 		foreach (var field in Fields)
 		{
-			var fieldType = @GetEditorType(field);
+			var fieldType = field.GetFieldType();
 			if (IsShown(field))
 			{
 				<div>
@@ -29,22 +29,38 @@ else if (Form.Mode != FormModes.Hidden)
 						</div>
 
 						<!-- editor -->
-						@if (fieldType == "checkbox")
+						@if (fieldType?.FullName == "System.Boolean")
 						{
-							<PDFormCheckBox Value="@GetBoolValue(field)" Disabled="@IsReadOnly(field)" ValueChanged="(x) => OnInput(field, x)" />
+							<PDFormCheckBox Value="@(GetFieldValue<bool>(field))" Disabled="@IsReadOnly(field)" ValueChanged="(x) => OnInput(field, (bool)x)" />
 						}
-						else if (fieldType == "enum")
+						else if (fieldType?.IsEnum == true)
 						{
-							<select class="form-control" @oninput="(x) => OnInput(field, x.Value)">
+							<select class="form-control" @oninput="(x) => OnInput(field, Enum.Parse(fieldType, x.Value?.ToString()))">
 								@foreach (var option in GetEnumValues(field))
 								{
 									<option value="@option.Value" selected="@option.IsSelected">@option.Text</option>
 								}
 							</select>
 						}
+						else if (fieldType?.FullName == "System.DateTime")
+						{
+							<input type="date" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)"
+								   @oninput="(x) => OnInput(field, DateTime.Parse(x.Value.ToString()))">
+						}
+						else if (fieldType?.FullName == "System.DateTimeOffset")
+						{
+							<input type="date" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)"
+								   @oninput="(x) => OnInput(field, DateTimeOffset.Parse(x.Value.ToString()))">
+						}
+						else if (fieldType?.FullName == "System.String")
+						{
+							<input type="text" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)"
+								   @oninput="(x) => OnInput(field, x.Value)">
+						}
 						else
 						{
-							<input type="@fieldType" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)" @oninput="(x) => OnInput(field, x.Value)">
+							<input type="number" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)"
+								   @oninput="(x) => OnInput(field, Convert.ChangeType(x.Value, field.GetFieldType()))">
 						}
 
 						@if (Form.Mode != FormModes.Delete)
