@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Reflection;
 using System.Globalization;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
-using System.ComponentModel;
 using PanoramicData.Blazor.Exceptions;
-using System.ComponentModel.DataAnnotations;
 
 namespace PanoramicData.Blazor
 {
@@ -136,6 +136,31 @@ namespace PanoramicData.Blazor
 		[Parameter] public RenderFragment<TItem>? Template { get; set; }
 
 		/// <summary>
+		/// Gets a function that returns available value choices.
+		/// </summary>
+		[Parameter] public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
+
+		/// <summary>
+		/// Gets whether this field contains passwords or other sensitive information.
+		/// </summary>
+		[Parameter] public bool IsPassword { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether this field contains longer sections of text.
+		/// </summary>
+		[Parameter] public bool IsTextArea { get; set; }
+
+		/// <summary>
+		/// Gets or sets the number of rows of text displayed by default in a text area.,
+		/// </summary>
+		[Parameter] public int TextAreaRows { get; set; } = 4;
+
+		/// <summary>
+		/// Gets or sets an HTML template for editing.
+		/// </summary>
+		[Parameter] public RenderFragment<TItem?>? EditTemplate { get; set; }
+
+		/// <summary>
 		/// Gets or sets the attributes of the underlying property.
 		/// </summary>
 		public PropertyInfo? PropertyInfo { get; set; }
@@ -214,6 +239,12 @@ namespace PanoramicData.Blazor
 			if (value == null)
 			{
 				return string.Empty;
+			}
+
+			// password / sensitive info?
+			if(IsPassword)
+			{
+				return "".PadRight(value.ToString().Length, '*');
 			}
 
 			// if enumeration value - does it have display attribute?

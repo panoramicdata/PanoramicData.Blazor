@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
 
@@ -11,6 +10,11 @@ namespace PanoramicData.Blazor
 		private Func<TItem, object>? _compiledFieldFunc;
 
 		internal Func<TItem, object>? CompiledFieldFunc => _compiledFieldFunc ??= Field?.Compile();
+
+		/// <summary>
+		/// gets or sets a unique identifier for the field.
+		/// </summary>
+		public string Id { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets a Linq expression that selects the field to be data bound to.
@@ -48,9 +52,29 @@ namespace PanoramicData.Blazor
 		public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = new Func<TItem?, bool>((_) => false);
 
 		/// <summary>
-		/// Gets or sets an HTML template for the fields editor.
+		/// Gets a function that returns available value choices.
 		/// </summary>
-		public RenderFragment<TItem>? Template { get; set; }
+		public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether this field contains passwords or other sensitive information.
+		/// </summary>
+		public bool IsPassword { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether this field contains longer sections of text.
+		/// </summary>
+		public bool IsTextArea { get; set; }
+
+		/// <summary>
+		/// Gets or sets the number of rows of text displayed by default in a text area.,
+		/// </summary>
+		public int TextAreaRows { get; set; } = 4;
+
+		/// <summary>
+		/// Gets or sets an HTML template for editing.
+		/// </summary>
+		public RenderFragment<TItem?>? EditTemplate { get; set; }
 
 		/// <summary>
 		/// Returns the value to be rendered in the user interface.

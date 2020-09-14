@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
@@ -17,6 +18,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[CascadingParameter(Name = "FormBody")]
 		public PDFormBody<TItem> FormBody { get; set; } = null!;
+
+		/// <summary>
+		/// The Id - this should be unique per column in a table
+		/// </summary>
+		[Parameter] public string Id { get; set; } = string.Empty;
 
 		/// <summary>
 		/// A Linq expression that selects the field to be data bound to.
@@ -72,6 +78,31 @@ namespace PanoramicData.Blazor
 		/// Gets or sets a function that determines whether this field is read-only when the form mode is Create.
 		/// </summary>
 		[Parameter] public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = new Func<TItem?, bool>((_) => false);
+
+		/// <summary>
+		/// Gets a function that returns available value choices.
+		/// </summary>
+		[Parameter] public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
+
+		/// <summary>
+		/// Gets whether this field contains passwords or other sensitive information.
+		/// </summary>
+		[Parameter] public bool IsPassword { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether this field contains longer sections of text.
+		/// </summary>
+		[Parameter] public bool IsTextArea { get; set; }
+
+		/// <summary>
+		/// Gets or sets the number of rows of text displayed by default in a text area.,
+		/// </summary>
+		[Parameter] public int TextAreaRows { get; set; } = 4;
+
+		/// <summary>
+		/// Gets or sets an HTML template for editing.
+		/// </summary>
+		[Parameter] public RenderFragment<TItem?>? EditTemplate { get; set; }
 
 		/// <summary>
 		/// Gets or sets an HTML template for the fields editor.

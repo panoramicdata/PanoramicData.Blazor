@@ -8,8 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging.Abstractions;
 using PanoramicData.Blazor.Extensions;
-using System.Linq.Expressions;
-using System.Text.Json.Serialization;
 
 namespace PanoramicData.Blazor
 {
@@ -58,14 +56,19 @@ namespace PanoramicData.Blazor
 				{
 					Fields.Add(new FormField<TItem>
 					{
+						Id = column.Id,
 						Field = column.Field,
 						ReadOnlyInCreate = column.ReadOnlyInCreate,
 						ReadOnlyInEdit = column.ReadOnlyInEdit,
 						ShowInCreate = column.ShowInCreate,
 						ShowInDelete = column.ShowInDelete,
 						ShowInEdit = column.ShowInEdit,
-						Template = column.Template,
-						Title = column.Title
+						EditTemplate = column.EditTemplate,
+						Title = column.Title,
+						Options = column.Options,
+						IsPassword = column.IsPassword,
+						IsTextArea = column.IsTextArea,
+						TextAreaRows = column.TextAreaRows
 					});
 				}
 			}
@@ -81,14 +84,19 @@ namespace PanoramicData.Blazor
 			{
 				Fields.Add(new FormField<TItem>
 				{
+					Id = field.Id,
 					Field = field.Field,
 					ReadOnlyInCreate = field.ReadOnlyInCreate,
 					ReadOnlyInEdit = field.ReadOnlyInEdit,
 					ShowInCreate = field.ShowInCreate,
 					ShowInDelete = field.ShowInDelete,
 					ShowInEdit = field.ShowInEdit,
-					Template = field.Template,
-					Title = field.Title
+					EditTemplate = field.EditTemplate,
+					Title = field.Title,
+					Options = field.Options,
+					IsPassword = field.IsPassword,
+					IsTextArea = field.IsTextArea,
+					TextAreaRows = field.TextAreaRows
 				});
 				StateHasChanged();
 			}
@@ -109,11 +117,11 @@ namespace PanoramicData.Blazor
 		}
 
 		private bool IsShown(FormField<TItem> field) =>
-			(Form?.Mode == FormModes.Create && field.ShowInCreate(GetItem())) ||
-			(Form?.Mode == FormModes.Edit && field.ShowInEdit(GetItem())) ||
-			(Form?.Mode == FormModes.Delete && field.ShowInDelete(GetItem()));
+			(Form?.Mode == FormModes.Create && field.ShowInCreate(GetItemWithUpdates())) ||
+			(Form?.Mode == FormModes.Edit && field.ShowInEdit(GetItemWithUpdates())) ||
+			(Form?.Mode == FormModes.Delete && field.ShowInDelete(GetItemWithUpdates()));
 
-		private TItem? GetItem()
+		private TItem? GetItemWithUpdates()
 		{
 			if(Form?.Item is null)
 			{
@@ -135,7 +143,7 @@ namespace PanoramicData.Blazor
 			return clone;
 		}
 
-		private T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
+		public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
 		{
 			// point to relevant TItem instance
 			if (Form?.Item is null)
@@ -180,7 +188,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private string GetFieldStringValue(FormField<TItem> field, bool updatedValue = true)
+		public string GetFieldStringValue(FormField<TItem> field, bool updatedValue = true)
 		{
 			// point to relevant TItem instance
 			if (Form?.Item is null)
@@ -226,35 +234,9 @@ namespace PanoramicData.Blazor
 		}
 
 		private bool IsReadOnly(FormField<TItem> field) =>
-			(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(GetItem())) ||
-			(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(GetItem())) ||
+			(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(GetItemWithUpdates())) ||
+			(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(GetItemWithUpdates())) ||
 			Form?.Mode == FormModes.Delete;
-
-		private string GetEditorType(FormField<TItem> field)
-		{
-			var memberInfo = field.Field?.GetPropertyMemberInfo();
-			if (memberInfo is PropertyInfo propInfo)
-			{
-				if(propInfo.PropertyType.IsEnum)
-				{
-					return "enum";
-				}
-				if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset")
-				{
-					return "date";
-				}
-				if (propInfo.PropertyType.FullName == "System.Boolean")
-				{
-					return "checkbox";
-				}
-				if (propInfo.PropertyType.FullName.In("System.Byte", "System.SByte", "System.Int16", "System.Int32", "System.Int64", "System.UInt16",
-						"System.UInt32", "System.UInt64", "System.Decimal", "System.Double", "System.Float"))
-				{
-					return "number";
-				}
-			}
-			return "text";
-		}
 
 		private void OnInput(FormField<TItem> field, object value)
 		{

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using PanoramicData.Blazor.Web.Data;
 using PanoramicData.Blazor.Services;
+using Microsoft.AspNetCore.Components;
 
 namespace PanoramicData.Blazor.Web.Pages
 {
@@ -16,6 +17,7 @@ namespace PanoramicData.Blazor.Web.Pages
 
 		// properties for unlinked example
 		private PDForm<Person> Form { get; set; } = null!;
+		private PDFormBody<Person> FormBody { get; set; } = null!;
 		private PDTable<Person> Table { get; set; } = null!;
 		private Person SelectedPerson { get; set; }
 
@@ -76,6 +78,29 @@ namespace PanoramicData.Blazor.Web.Pages
 					Form.SetMode(FormModes.Edit);
 				}
 			}
+		}
+
+		private OptionInfo[] GetLocationOptions(FormField<Person> field, Person item)
+		{
+			var options = new List<OptionInfo>();
+			foreach (var location in PersonDataProvider.Locations)
+			{
+				options.Add(new OptionInfo { Text = location, Value = location, IsSelected = item?.Location == location });
+			}
+			return options.ToArray();
+		}
+
+		private void OnInitialsInput(ChangeEventArgs args)
+		{
+			// custom processing - all chars to have single period separator and uppercase
+			var newValue = args.Value.ToString().Replace(".", "");
+			newValue = String.Join('.', newValue.ToArray()).ToUpper();
+			Form.FieldChange(FormBody.Fields.First(x => x.Id == "InitialsCol"), newValue);
+		}
+
+		private void OnEmailInput(ChangeEventArgs args)
+		{
+			Form.FieldChange(FormBody.Fields.First(x => x.Id == "EmailCol"), args.Value);
 		}
 	}
 }

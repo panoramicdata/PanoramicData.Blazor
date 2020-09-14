@@ -61,27 +61,9 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public Dictionary<string, object> Delta { get; } = new Dictionary<string, object>();
 
-		//protected override void OnParametersSet()
-		//{
-		//	if(Item == null)
-		//	{
-		//		Mode = FormModes.Hidden;
-		//		Delta.Clear();
-		//	}
-		//}
-
 		protected override void OnInitialized()
 		{
 			Mode = DefaultMode;
-		}
-
-		protected override void OnAfterRender(bool firstRender)
-		{
-			//if (firstRender)
-			//{
-			//	Mode = DefaultMode;
-			//	StateHasChanged();
-			//}
 		}
 
 		/// <summary>

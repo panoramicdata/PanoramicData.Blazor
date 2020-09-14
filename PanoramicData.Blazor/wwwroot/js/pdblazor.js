@@ -52,6 +52,7 @@ function focus(id) {
 
 function selectText(id, start, end) {
 	var node = document.getElementById(id);
+	if (!node) return;
 	if (!start) start = 0;
 	if (!end) end = node.value.length;
 	if (node.createTextRange) {
