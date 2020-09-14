@@ -17,6 +17,7 @@ namespace PanoramicData.Blazor.Web.Data
 
 		public int Id { get; set; }
 		public string FirstName { get; set; }
+		public string Initials { get; set; }
 		public string LastName { get; set; }
 		public string Email { get; set; }
 		[Display(Name = "Date of Birth")]

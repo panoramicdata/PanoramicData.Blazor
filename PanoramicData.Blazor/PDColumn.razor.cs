@@ -156,6 +156,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public int TextAreaRows { get; set; } = 4;
 
 		/// <summary>
+		/// Gets or sets an HTML template for editing.
+		/// </summary>
+		[Parameter] public RenderFragment<TItem?>? EditTemplate { get; set; }
+
+		/// <summary>
 		/// Gets or sets the attributes of the underlying property.
 		/// </summary>
 		public PropertyInfo? PropertyInfo { get; set; }

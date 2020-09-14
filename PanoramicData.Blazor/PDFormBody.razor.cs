@@ -56,13 +56,14 @@ namespace PanoramicData.Blazor
 				{
 					Fields.Add(new FormField<TItem>
 					{
+						Id = column.Id,
 						Field = column.Field,
 						ReadOnlyInCreate = column.ReadOnlyInCreate,
 						ReadOnlyInEdit = column.ReadOnlyInEdit,
 						ShowInCreate = column.ShowInCreate,
 						ShowInDelete = column.ShowInDelete,
 						ShowInEdit = column.ShowInEdit,
-						Template = column.Template,
+						EditTemplate = column.EditTemplate,
 						Title = column.Title,
 						Options = column.Options,
 						IsPassword = column.IsPassword,
@@ -83,13 +84,14 @@ namespace PanoramicData.Blazor
 			{
 				Fields.Add(new FormField<TItem>
 				{
+					Id = field.Id,
 					Field = field.Field,
 					ReadOnlyInCreate = field.ReadOnlyInCreate,
 					ReadOnlyInEdit = field.ReadOnlyInEdit,
 					ShowInCreate = field.ShowInCreate,
 					ShowInDelete = field.ShowInDelete,
 					ShowInEdit = field.ShowInEdit,
-					Template = field.Template,
+					EditTemplate = field.EditTemplate,
 					Title = field.Title,
 					Options = field.Options,
 					IsPassword = field.IsPassword,
@@ -141,7 +143,7 @@ namespace PanoramicData.Blazor
 			return clone;
 		}
 
-		private T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
+		public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
 		{
 			// point to relevant TItem instance
 			if (Form?.Item is null)
@@ -186,7 +188,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private string GetFieldStringValue(FormField<TItem> field, bool updatedValue = true)
+		public string GetFieldStringValue(FormField<TItem> field, bool updatedValue = true)
 		{
 			// point to relevant TItem instance
 			if (Form?.Item is null)

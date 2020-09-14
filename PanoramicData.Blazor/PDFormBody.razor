@@ -29,7 +29,11 @@ else if (Form.Mode != FormModes.Hidden)
 						</div>
 
 						<!-- editor -->
-						@if (field.IsPassword)
+						@if(field.EditTemplate != null)
+						{
+							@field.EditTemplate(Form.Item);
+						}
+						else if (field.IsPassword)
 						{
 							<input type="password" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)"
 								   @oninput="(x) => OnInput(field, Convert.ChangeType(x.Value, field.GetFieldType()))">
