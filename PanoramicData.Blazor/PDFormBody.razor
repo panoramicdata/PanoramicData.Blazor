@@ -29,7 +29,12 @@ else if (Form.Mode != FormModes.Hidden)
 						</div>
 
 						<!-- editor -->
-						@if (field.Options != null)
+						@if (field.IsPassword)
+						{
+							<input type="password" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)"
+								   @oninput="(x) => OnInput(field, Convert.ChangeType(x.Value, field.GetFieldType()))">
+						}
+						else if (field.Options != null)
 						{
 							<select class="form-control" @oninput="(x) => OnInput(field, x.Value)">
 								@foreach (var option in field.Options(field, Form.Item))

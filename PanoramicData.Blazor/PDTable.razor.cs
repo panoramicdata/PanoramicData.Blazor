@@ -569,7 +569,7 @@ namespace PanoramicData.Blazor
 			{
 				// find first editable column
 				var key = string.Empty;
-				foreach(var column in Columns)
+				foreach(var column in ActualColumnsToDisplay)
 				{
 					var editable = column.Editable;
 					// override with dynamic config?

@@ -26,19 +26,19 @@
 	<div>
 		<PDTable @ref="Table" TItem="Person" DataProvider="PersonDataProvider" KeyField="x => x.Id" SelectionMode="TableSelectionMode.Single"
 				 SelectionChanged="OnSelectionChanged">
-			<PDColumn TItem="Person" Field="x => x.Id" ShowInList="false" ShowInCreate="(_) => false" ReadOnlyInEdit="(_) => true" />
-			<PDColumn TItem="Person" Field="x => x.FirstName" ShowInList="false" Title="First Name" ShowInDelete="(_) => true" />
-			<PDColumn TItem="Person" Field="x => x.LastName" ShowInList="false" Title="Last Name" ShowInDelete="(_) => true" />
-			<PDColumn TItem="Person" Field="x => x.Email" ShowInDelete="(_) => true" />
-			<PDColumn TItem="Person" Field="x => x.Dob" ShowInList="false" ShowInDelete="@((x) => !x.FirstName.In("Alice", "Carol", "Eve", "Grace", "Heidi", "Judy"))" />
-			<PDColumn TItem="Person" Field="x => x.Department" />
-			<PDColumn TItem="Person" Field="x => x.Location" Options="GetLocationOptions" />
-			<PDColumn TItem="Person" Field="x => x.Target" ShowInList="false" ReadOnlyInEdit="(x) => x.Department != Departments.Sales" />
-			<PDColumn TItem="Person" Field="x => x.AllowLogin" ShowInList="false" />
-			<PDColumn TItem="Person" Field="x => x.Password" ShowInList="false" ShowInCreate="(x) => x.AllowLogin" ShowInEdit="(x) => x.AllowLogin" />
-			<PDColumn TItem="Person" Field="x => x.Comments" ShowInList="false" ShowInCreate="(_) => false" />
-			<PDColumn TItem="Person" Field="x => x.DateCreated" Format="dd/MM/yy" ShowInList="false" ReadOnlyInEdit="(_) => true" />
-			<PDColumn TItem="Person" Field="x => x.DateModified" Format="dd/MM/yy" ShowInEdit="(_) => false" ShowInCreate="(_) => false" />
+			<PDColumn Id="Col1" TItem="Person" Field="x => x.Id" ShowInList="false" ShowInCreate="(_) => false" ReadOnlyInEdit="(_) => true" />
+			<PDColumn Id="Col2" TItem="Person" Field="x => x.FirstName" ShowInList="false" Title="First Name" ShowInDelete="(_) => true" />
+			<PDColumn Id="Col3" TItem="Person" Field="x => x.LastName" ShowInList="false" Title="Last Name" ShowInDelete="(_) => true" />
+			<PDColumn Id="Col4" TItem="Person" Field="x => x.Email" ShowInDelete="(_) => true" />
+			<PDColumn Id="Col5" TItem="Person" Field="x => x.Dob" ShowInList="false" ShowInDelete="@((x) => !x.FirstName.In("Alice", "Carol", "Eve", "Grace", "Heidi", "Judy"))" />
+			<PDColumn Id="Col6" TItem="Person" Field="x => x.Department" />
+			<PDColumn Id="Col7" TItem="Person" Field="x => x.Location" Options="GetLocationOptions" />
+			<PDColumn Id="Col8" TItem="Person" Field="x => x.Target" ShowInList="false" ReadOnlyInEdit="(x) => x.Department != Departments.Sales" />
+			<PDColumn Id="Col9" TItem="Person" Field="x => x.AllowLogin" ShowInList="false" />
+			<PDColumn Id="Col10" TItem="Person" Field="x => x.Password" ShowInList="false" ShowInCreate="(x) => x.AllowLogin" ShowInEdit="(x) => x.AllowLogin" IsPassword="true" />
+			<PDColumn Id="Col11" TItem="Person" Field="x => x.Comments" ShowInList="false" ShowInCreate="(_) => false" />
+			<PDColumn Id="Col12" TItem="Person" Field="x => x.DateCreated" Format="dd/MM/yy" ShowInList="false" ReadOnlyInEdit="(_) => true" />
+			<PDColumn Id="Col13" TItem="Person" Field="x => x.DateModified" Format="dd/MM/yy" ShowInEdit="(_) => false" ShowInCreate="(_) => false" />
 		</PDTable>
 	</div>
 

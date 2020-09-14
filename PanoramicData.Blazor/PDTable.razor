@@ -51,7 +51,7 @@
 							<td class="@column.TdClass">
 								@if (IsColumnInEditMode(column, item))
 								{
-									<input id="@($"{IdEditPrefix}{column.Id}")" type="text" value="@($"{column.GetValue(item)}")" class="pdtable_edit"
+									<input id="@($"{IdEditPrefix}{column.Id}")" type="@(column.IsPassword ? "password" : "text")" value="@($"{column.GetValue(item)}")" class="pdtable_edit"
 										   @onblur="OnEndEdit"
 										   @onmousedown:stopPropagation
 										   @onclick:stopPropagation

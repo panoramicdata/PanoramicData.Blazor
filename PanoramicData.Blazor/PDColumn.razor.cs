@@ -2,15 +2,13 @@
 using System.Linq;
 using System.Reflection;
 using System.Globalization;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
-using System.ComponentModel;
 using PanoramicData.Blazor.Exceptions;
-using System.ComponentModel.DataAnnotations;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace PanoramicData.Blazor
 {
@@ -143,6 +141,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
 
 		/// <summary>
+		/// Gets whether this field contains passwords or other sensitive information.
+		/// </summary>
+		[Parameter] public bool IsPassword { get; set; }
+
+		/// <summary>
 		/// Gets or sets the attributes of the underlying property.
 		/// </summary>
 		public PropertyInfo? PropertyInfo { get; set; }
@@ -221,6 +224,12 @@ namespace PanoramicData.Blazor
 			if (value == null)
 			{
 				return string.Empty;
+			}
+
+			// password / sensitive info?
+			if(IsPassword)
+			{
+				return "".PadRight(value.ToString().Length, '*');
 			}
 
 			// if enumeration value - does it have display attribute?

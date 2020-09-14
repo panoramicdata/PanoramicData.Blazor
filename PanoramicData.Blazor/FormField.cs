@@ -53,6 +53,11 @@ namespace PanoramicData.Blazor
 		public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether this field contains passwords or other sensitive information.
+		/// </summary>
+		public bool IsPassword { get; set; }
+
+		/// <summary>
 		/// Gets or sets an HTML template for the fields editor.
 		/// </summary>
 		public RenderFragment<TItem>? Template { get; set; }

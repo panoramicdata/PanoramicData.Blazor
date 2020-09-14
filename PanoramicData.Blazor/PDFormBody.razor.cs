@@ -8,8 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging.Abstractions;
 using PanoramicData.Blazor.Extensions;
-using System.Linq.Expressions;
-using System.Text.Json.Serialization;
 
 namespace PanoramicData.Blazor
 {
@@ -66,7 +64,8 @@ namespace PanoramicData.Blazor
 						ShowInEdit = column.ShowInEdit,
 						Template = column.Template,
 						Title = column.Title,
-						Options = column.Options
+						Options = column.Options,
+						IsPassword = column.IsPassword
 					});
 				}
 			}
@@ -90,7 +89,8 @@ namespace PanoramicData.Blazor
 					ShowInEdit = field.ShowInEdit,
 					Template = field.Template,
 					Title = field.Title,
-					Options = field.Options
+					Options = field.Options,
+					IsPassword = field.IsPassword
 				});
 				StateHasChanged();
 			}
