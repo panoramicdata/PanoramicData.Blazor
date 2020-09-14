@@ -65,7 +65,9 @@ namespace PanoramicData.Blazor
 						Template = column.Template,
 						Title = column.Title,
 						Options = column.Options,
-						IsPassword = column.IsPassword
+						IsPassword = column.IsPassword,
+						IsTextArea = column.IsTextArea,
+						TextAreaRows = column.TextAreaRows
 					});
 				}
 			}
@@ -90,7 +92,9 @@ namespace PanoramicData.Blazor
 					Template = field.Template,
 					Title = field.Title,
 					Options = field.Options,
-					IsPassword = field.IsPassword
+					IsPassword = field.IsPassword,
+					IsTextArea = field.IsTextArea,
+					TextAreaRows = field.TextAreaRows
 				});
 				StateHasChanged();
 			}

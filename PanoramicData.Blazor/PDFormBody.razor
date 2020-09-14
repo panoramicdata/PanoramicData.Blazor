@@ -43,6 +43,11 @@ else if (Form.Mode != FormModes.Hidden)
 								}
 							</select>
 						}
+						else if (field.IsTextArea)
+						{
+							<textarea disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)" rows="@field.TextAreaRows"
+							  @oninput="(x) => OnInput(field, Convert.ChangeType(x.Value, field.GetFieldType()))"></textarea>
+						}
 						else if (fieldType?.FullName == "System.Boolean")
 						{
 							<PDFormCheckBox Value="@(GetFieldValue<bool>(field))" Disabled="@IsReadOnly(field)" ValueChanged="(x) => OnInput(field, (bool)x)" />

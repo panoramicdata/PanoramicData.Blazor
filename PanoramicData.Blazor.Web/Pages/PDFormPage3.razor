@@ -36,7 +36,7 @@
 			<PDColumn Id="Col8" TItem="Person" Field="x => x.Target" ShowInList="false" ReadOnlyInEdit="(x) => x.Department != Departments.Sales" />
 			<PDColumn Id="Col9" TItem="Person" Field="x => x.AllowLogin" ShowInList="false" />
 			<PDColumn Id="Col10" TItem="Person" Field="x => x.Password" ShowInList="false" ShowInCreate="(x) => x.AllowLogin" ShowInEdit="(x) => x.AllowLogin" IsPassword="true" />
-			<PDColumn Id="Col11" TItem="Person" Field="x => x.Comments" ShowInList="false" ShowInCreate="(_) => false" />
+			<PDColumn Id="Col11" TItem="Person" Field="x => x.Comments" ShowInList="false" ShowInCreate="(_) => false" IsTextArea="true" TextAreaRows="6" />
 			<PDColumn Id="Col12" TItem="Person" Field="x => x.DateCreated" Format="dd/MM/yy" ShowInList="false" ReadOnlyInEdit="(_) => true" />
 			<PDColumn Id="Col13" TItem="Person" Field="x => x.DateModified" Format="dd/MM/yy" ShowInEdit="(_) => false" ShowInCreate="(_) => false" />
 		</PDTable>
