@@ -9,6 +9,8 @@ using PanoramicData.Blazor.Extensions;
 using System.ComponentModel;
 using PanoramicData.Blazor.Exceptions;
 using System.ComponentModel.DataAnnotations;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace PanoramicData.Blazor
 {
@@ -134,6 +136,11 @@ namespace PanoramicData.Blazor
 		/// Gets or sets an HTML template for the fields value.
 		/// </summary>
 		[Parameter] public RenderFragment<TItem>? Template { get; set; }
+
+		/// <summary>
+		/// Gets a function that returns available value choices.
+		/// </summary>
+		[Parameter] public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
 
 		/// <summary>
 		/// Gets or sets the attributes of the underlying property.

@@ -77,5 +77,15 @@ namespace PanoramicData.Blazor.Web.Pages
 				}
 			}
 		}
+
+		private OptionInfo[] GetLocationOptions(FormField<Person> field, Person item)
+		{
+			var options = new List<OptionInfo>();
+			foreach (var location in PersonDataProvider.Locations)
+			{
+				options.Add(new OptionInfo { Text = location, Value = location, IsSelected = item?.Location == location });
+			}
+			return options.ToArray();
+		}
 	}
 }

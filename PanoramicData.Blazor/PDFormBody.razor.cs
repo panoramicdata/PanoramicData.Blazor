@@ -65,7 +65,8 @@ namespace PanoramicData.Blazor
 						ShowInDelete = column.ShowInDelete,
 						ShowInEdit = column.ShowInEdit,
 						Template = column.Template,
-						Title = column.Title
+						Title = column.Title,
+						Options = column.Options
 					});
 				}
 			}
@@ -88,7 +89,8 @@ namespace PanoramicData.Blazor
 					ShowInDelete = field.ShowInDelete,
 					ShowInEdit = field.ShowInEdit,
 					Template = field.Template,
-					Title = field.Title
+					Title = field.Title,
+					Options = field.Options
 				});
 				StateHasChanged();
 			}
@@ -109,11 +111,11 @@ namespace PanoramicData.Blazor
 		}
 
 		private bool IsShown(FormField<TItem> field) =>
-			(Form?.Mode == FormModes.Create && field.ShowInCreate(GetItem())) ||
-			(Form?.Mode == FormModes.Edit && field.ShowInEdit(GetItem())) ||
-			(Form?.Mode == FormModes.Delete && field.ShowInDelete(GetItem()));
+			(Form?.Mode == FormModes.Create && field.ShowInCreate(GetItemWithUpdates())) ||
+			(Form?.Mode == FormModes.Edit && field.ShowInEdit(GetItemWithUpdates())) ||
+			(Form?.Mode == FormModes.Delete && field.ShowInDelete(GetItemWithUpdates()));
 
-		private TItem? GetItem()
+		private TItem? GetItemWithUpdates()
 		{
 			if(Form?.Item is null)
 			{
@@ -226,35 +228,9 @@ namespace PanoramicData.Blazor
 		}
 
 		private bool IsReadOnly(FormField<TItem> field) =>
-			(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(GetItem())) ||
-			(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(GetItem())) ||
+			(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(GetItemWithUpdates())) ||
+			(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(GetItemWithUpdates())) ||
 			Form?.Mode == FormModes.Delete;
-
-		private string GetEditorType(FormField<TItem> field)
-		{
-			var memberInfo = field.Field?.GetPropertyMemberInfo();
-			if (memberInfo is PropertyInfo propInfo)
-			{
-				if(propInfo.PropertyType.IsEnum)
-				{
-					return "enum";
-				}
-				if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset")
-				{
-					return "date";
-				}
-				if (propInfo.PropertyType.FullName == "System.Boolean")
-				{
-					return "checkbox";
-				}
-				if (propInfo.PropertyType.FullName.In("System.Byte", "System.SByte", "System.Int16", "System.Int32", "System.Int64", "System.UInt16",
-						"System.UInt32", "System.UInt64", "System.Decimal", "System.Double", "System.Float"))
-				{
-					return "number";
-				}
-			}
-			return "text";
-		}
 
 		private void OnInput(FormField<TItem> field, object value)
 		{

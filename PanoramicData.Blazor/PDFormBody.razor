@@ -29,7 +29,16 @@ else if (Form.Mode != FormModes.Hidden)
 						</div>
 
 						<!-- editor -->
-						@if (fieldType?.FullName == "System.Boolean")
+						@if (field.Options != null)
+						{
+							<select class="form-control" @oninput="(x) => OnInput(field, x.Value)">
+								@foreach (var option in field.Options(field, Form.Item))
+								{
+									<option value="@option.Value" selected="@option.IsSelected">@option.Text</option>
+								}
+							</select>
+						}
+						else if (fieldType?.FullName == "System.Boolean")
 						{
 							<PDFormCheckBox Value="@(GetFieldValue<bool>(field))" Disabled="@IsReadOnly(field)" ValueChanged="(x) => OnInput(field, (bool)x)" />
 						}

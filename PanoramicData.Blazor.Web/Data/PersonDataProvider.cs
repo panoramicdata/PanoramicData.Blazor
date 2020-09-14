@@ -15,6 +15,7 @@ namespace PanoramicData.Blazor.Web.Data
 		private static string[] _lastNames = new string[] { "Smith", "Cooper", "Watkins", "Jenkins", "Tailor", "Williams", "Jones", "Smithson", "Carter", "Miller", "Baker" };
 		private static Random _random = new Random(Environment.TickCount);
 		private static readonly List<Person> _people = new List<Person>();
+		public static string[] Locations = new string[] { "Paris", "Rome", "Milan", "New York", "Peckham" };
 
 		public PersonDataProvider(int count = 10)
 		{
@@ -23,7 +24,7 @@ namespace PanoramicData.Blazor.Web.Data
 			{
 				foreach (var id in Enumerable.Range(1, count))
 				{
-					_people.Add(new Person
+					var person = new Person
 					{
 						Id = id,
 						AllowLogin = _random.Next(0, 2) == 1,
@@ -32,9 +33,12 @@ namespace PanoramicData.Blazor.Web.Data
 						Department = (Departments)_random.Next(0, 4),
 						FirstName = _firstNames[_random.Next(_firstNames.Length)],
 						LastName = _lastNames[_random.Next(_lastNames.Length)],
+						Location = Locations[_random.Next(Locations.Length)],
 						Dob = DateTime.Today.AddYears(-_random.Next(20, 50)),
 						Comments = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length))
-					});
+					};
+					person.Email = $"{person.FirstName.ToLower()}@acme.com";
+					_people.Add(person);
 				}
 			}
 		}

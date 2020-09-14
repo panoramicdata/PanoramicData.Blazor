@@ -9,17 +9,25 @@ namespace PanoramicData.Blazor.Web.Data
 	//[Display(Name = "Individual")]
 	public class Person
 	{
+		public Person()
+		{
+			Dob = DateTime.Today;
+			DateCreated = DateTimeOffset.Now;
+		}
+
 		public int Id { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
+		public string Email { get; set; }
 		[Display(Name = "Date of Birth")]
 		public DateTime Dob { get; set; }
 		public Departments Department { get; set; }
 		public decimal Target { get; set; }
+		public string Location { get; set; }
 		public string Comments { get; set; }
+		[Display(Name = "Login?")]
 		public bool AllowLogin { get; set; }
-		[Display(Name = "Login Id")]
-		public string LoginId { get; set; }
+		public string Password { get; set; }
 		[Display(Name = "Created")]
 		public DateTimeOffset DateCreated { get; set; }
 		[Display(Name = "Modified")]

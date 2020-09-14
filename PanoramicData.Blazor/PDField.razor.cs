@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
@@ -72,6 +73,11 @@ namespace PanoramicData.Blazor
 		/// Gets or sets a function that determines whether this field is read-only when the form mode is Create.
 		/// </summary>
 		[Parameter] public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = new Func<TItem?, bool>((_) => false);
+
+		/// <summary>
+		/// Gets a function that returns available value choices.
+		/// </summary>
+		[Parameter] public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
 
 		/// <summary>
 		/// Gets or sets an HTML template for the fields editor.
