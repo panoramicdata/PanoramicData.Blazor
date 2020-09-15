@@ -27,7 +27,7 @@
 		<PDTable @ref="Table" TItem="Person" DataProvider="PersonDataProvider" KeyField="x => x.Id" SelectionMode="TableSelectionMode.Single"
 				 SelectionChanged="OnSelectionChanged">
 			<PDColumn TItem="Person" Field="x => x.Id" ShowInList="false" ShowInCreate="(_) => false" ReadOnlyInEdit="(_) => true" />
-			<PDColumn TItem="Person" Field="x => x.FirstName" ShowInList="false" Title="First Name" ShowInDelete="(_) => true" />
+			<PDColumn TItem="Person" Field="x => x.FirstName" ShowInList="false" ShowInDelete="(_) => true" />
 			<PDColumn Id="InitialsCol" TItem="Person" Field="x => x.Initials" ShowInList="false">
 				<EditTemplate>
 					<!-- custom processing alters typed in text - so always fetch latest value -->
@@ -58,7 +58,7 @@
 		<PDForm @ref="Form" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider" DefaultMode="FormModes.Empty"
 				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated">
 			<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
-			<PDFormBody @ref="FormBody" TItem="Person" Table="Table" />
+			<PDFormBody @ref="FormBody" TItem="Person" Table="Table" ShowDescriptions="_showDescriptions" />
 			<PDFormFooter TItem="Person" Click="OnFooterClick" />
 		</PDForm>
 	</div>
@@ -66,6 +66,10 @@
 </div>
 
 <div>
+	<div class="form-group p-1">
+		<button class="btn btn-secondary" @onclick="() => _showDescriptions = !_showDescriptions">@(_showDescriptions ? "Hide" : "Show") Descriptions</button>
+	</div>
+
 	<div class="form-group p-1">
 		<label>Events</label>
 		<textarea rows="8" class="form-control">@_events</textarea>

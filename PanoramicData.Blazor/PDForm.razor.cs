@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Extensions;
+using System.ComponentModel.DataAnnotations;
 
 namespace PanoramicData.Blazor
 {
@@ -136,41 +137,51 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		/// <summary>
-		/// Indicates a fields value has been modified.
-		/// </summary>
-		/// <param name="field">The field that has been modified.</param>
-		/// <param name="value">The new value for the field.</param>
-		public void FieldChange(FormField<TItem> field, object value)
-		{
-			//TODO: re-run validation
+		///// <summary>
+		///// Indicates a fields value has been modified.
+		///// </summary>
+		///// <param name="field">The field that has been modified.</param>
+		///// <param name="value">The new value for the field.</param>
+		//public void FieldChange(FormField<TItem> field, object value)
+		//{
+		//	//
+		//	if (field.Field != null)
+		//	{
+		//		var memberInfo = field.Field.GetPropertyMemberInfo();
+		//		if (memberInfo != null)
+		//		{
+		//			// re-run validation
+		//			if (Item != null)
+		//			{
+		//				var results = new List<ValidationResult>();
+		//				var context = new ValidationContext(Item)
+		//				{
+		//					MemberName = memberInfo.Name
+		//				};
+		//				var isValid = Validator.TryValidateProperty(value, context, results);
 
-			//
-			if (field.Field != null)
-			{
-				var memberInfo = field.Field.GetPropertyMemberInfo();
-				if (memberInfo != null)
-				{
-					// if create then apply change direct to item (as is new and can be discarded)
-					if (Mode == FormModes.Create && memberInfo is PropertyInfo propInfo)
-					{
-						try
-						{
-							object typedValue = value.Cast(propInfo.PropertyType); // .GetValue(Item); // original value
-							propInfo.SetValue(Item, typedValue);
-						}
-						catch (Exception ex)
-						{
-							Error.InvokeAsync($"Failed to update field {memberInfo.Name}: {ex.Message}");
-						}
-					}
-					else if (Mode == FormModes.Edit)
-					{
-						// add / replace value on delta object
-						Delta[memberInfo.Name] = value;
-					}
-				}
-			}
-		}
+		//			}
+
+		//			// if create then apply change direct to item (as is new and can be discarded)
+		//			if (Mode == FormModes.Create && memberInfo is PropertyInfo propInfo)
+		//			{
+		//				try
+		//				{
+		//					object typedValue = value.Cast(propInfo.PropertyType); // .GetValue(Item); // original value
+		//					propInfo.SetValue(Item, typedValue);
+		//				}
+		//				catch (Exception ex)
+		//				{
+		//					Error.InvokeAsync($"Failed to update field {memberInfo.Name}: {ex.Message}");
+		//				}
+		//			}
+		//			else if (Mode == FormModes.Edit)
+		//			{
+		//				// add / replace value on delta object
+		//				Delta[memberInfo.Name] = value;
+		//			}
+		//		}
+		//	}
+		//}
 	}
 }

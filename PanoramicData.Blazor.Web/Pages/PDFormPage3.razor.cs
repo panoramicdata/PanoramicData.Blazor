@@ -14,6 +14,7 @@ namespace PanoramicData.Blazor.Web.Pages
     {
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider(5);
 		private string _events = string.Empty;
+		private bool _showDescriptions = false;
 
 		// properties for unlinked example
 		private PDForm<Person> Form { get; set; } = null!;
@@ -95,12 +96,12 @@ namespace PanoramicData.Blazor.Web.Pages
 			// custom processing - all chars to have single period separator and uppercase
 			var newValue = args.Value.ToString().Replace(".", "");
 			newValue = String.Join('.', newValue.ToArray()).ToUpper();
-			Form.FieldChange(FormBody.Fields.First(x => x.Id == "InitialsCol"), newValue);
+			FormBody.SetFieldValue(FormBody.Fields.First(x => x.Id == "InitialsCol"), newValue);
 		}
 
 		private void OnEmailInput(ChangeEventArgs args)
 		{
-			Form.FieldChange(FormBody.Fields.First(x => x.Id == "EmailCol"), args.Value);
+			FormBody.SetFieldValue(FormBody.Fields.First(x => x.Id == "EmailCol"), args.Value);
 		}
 	}
 }
