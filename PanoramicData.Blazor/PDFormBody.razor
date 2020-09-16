@@ -17,16 +17,17 @@ else if (Form.Mode != FormModes.Hidden)
 	{
 		@foreach (var field in Fields)
 		{
+			var fieldName = field.GetName();
 			var fieldType = field.GetFieldType();
-			var description = field.GetDescription();
+			var fieldDescription = field.GetDescription();
 			if (IsShown(field))
 			{
-				<div>
+				<div class="pd-form-field">
 					<label class="sr-only">@field.Title</label>
-					<div class="input-group">
+					<div class="input-group ">
 
 						<div class="input-group-prepend">
-							<div class="input-group-text title-box" title="@description">@field.Title</div>
+							<div class="input-group-text title-box @(fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true ? "alert-danger" : "")" title="@fieldDescription">@field.Title</div>
 						</div>
 
 						<!-- editor -->
@@ -36,12 +37,12 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 						else if (field.IsPassword)
 						{
-							<input type="password" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)"
+							<input type="password" disabled="@IsReadOnly(field)" class="form-control @GetEditorClass(field)" value="@field.GetRenderValue(Form.Item)"
 									@oninput="(x) => SetFieldValue(field, Convert.ChangeType(x.Value, field.GetFieldType()))">
 						}
 						else if (field.Options != null)
 						{
-							<select class="form-control" @oninput="(x) => SetFieldValue(field, x.Value)">
+							<select class="form-control @GetEditorClass(field)" @oninput="(x) => SetFieldValue(field, x.Value)">
 								@foreach (var option in field.Options(field, Form.Item))
 								{
 									<option value="@option.Value" selected="@option.IsSelected">@option.Text</option>
@@ -50,7 +51,7 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 						else if (field.IsTextArea)
 						{
-							<textarea disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)" rows="@field.TextAreaRows"
+							<textarea disabled="@IsReadOnly(field)" class="form-control @GetEditorClass(field)" value="@field.GetRenderValue(Form.Item)" rows="@field.TextAreaRows"
 								@oninput="(x) => SetFieldValue(field, Convert.ChangeType(x.Value, field.GetFieldType()))"></textarea>
 						}
 						else if (fieldType?.FullName == "System.Boolean")
@@ -59,7 +60,7 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 						else if (fieldType?.IsEnum == true)
 						{
-							<select class="form-control" @oninput="(x) => SetFieldValue(field, Enum.Parse(fieldType, x.Value?.ToString()))">
+							<select class="form-control @GetEditorClass(field)" @oninput="(x) => SetFieldValue(field, Enum.Parse(fieldType, x.Value?.ToString()))">
 								@foreach (var option in GetEnumValues(field))
 								{
 									<option value="@option.Value" selected="@option.IsSelected">@option.Text</option>
@@ -68,7 +69,7 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 						else if (fieldType?.FullName == "System.DateTime")
 						{
-							<input type="date" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)"
+							<input type="date" disabled="@IsReadOnly(field)" class="form-control @GetEditorClass(field)" value="@field.GetRenderValue(Form.Item)"
 									@oninput="(x) => SetFieldValue(field, DateTime.Parse(x.Value.ToString()))">
 						}
 						else if (fieldType?.FullName == "System.DateTimeOffset")
@@ -78,29 +79,45 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 						else if (fieldType?.FullName == "System.String")
 						{
-							<input type="text" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)"
+							<input type="text" disabled="@IsReadOnly(field)" class="form-control @GetEditorClass(field)" value="@field.GetRenderValue(Form.Item)"
 									@oninput="(x) => SetFieldValue(field, x.Value)">
 						}
 						else
 						{
-							<input type="number" disabled="@IsReadOnly(field)" class="form-control" value="@field.GetRenderValue(Form.Item)"
+							<input type="number" disabled="@IsReadOnly(field)" class="form-control @GetEditorClass(field)" value="@field.GetRenderValue(Form.Item)"
 									@oninput="(x) => SetFieldValue(field, Convert.ChangeType(x.Value, field.GetFieldType()))">
 						}
 
 						<!-- field validation indicator-->
-						@if (Form.Mode != FormModes.Delete)
+						@if (Form?.Mode != FormModes.Delete)
 						{
 							<div class="input-group-append">
-								<span class="input-group-text">
-									<i class="far fa-check-circle"></i>
-								</span>
+								@if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
+								{
+									<span class="input-group-text alert-danger">
+										<i class="fas fa-exclamation-circle"></i>
+									</span>
+								}
+								else
+								{
+									<span class="input-group-text alert-success">
+										<i class="fas fa-check-circle"></i>
+									</span>
+								}
 							</div>
 						}
 					</div>
 					<div class="mb-2">
-						@if (ShowDescriptions && !string.IsNullOrWhiteSpace(description))
+						@if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
 						{
-							<span class="small text-muted">@field.GetDescription()</span>
+							foreach (var message in Form.Errors[fieldName])
+							{
+								<div class="small text-danger">@message</div>
+							}
+						}
+						else if (ShowDescriptions && !string.IsNullOrWhiteSpace(fieldDescription))
+						{
+							<div class="small text-muted">@field.GetDescription()</div>
 						}
 					</div>
 				</div>

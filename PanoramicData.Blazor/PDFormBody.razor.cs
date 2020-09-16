@@ -249,7 +249,14 @@ namespace PanoramicData.Blazor
 						{
 							MemberName = memberInfo.Name
 						};
-						var isValid = Validator.TryValidateProperty(value, context, results);
+						if(Validator.TryValidateProperty(value, context, results))
+						{
+							Form.ClearErrors(memberInfo.Name);
+						}
+						else
+						{
+							Form.SetFieldErrors(memberInfo.Name, results.Select(x => x.ErrorMessage).ToArray());
+						}
 					}
 
 					// if create then apply change direct to item (as is new and can be discarded)
@@ -329,6 +336,11 @@ namespace PanoramicData.Blazor
 				}
 			}
 			return options.ToArray();
+		}
+
+		public string GetEditorClass(FormField<TItem> field)
+		{
+			return Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
 		}
 	}
 }

@@ -32,14 +32,20 @@
 				<EditTemplate>
 					<!-- custom processing alters typed in text - so always fetch latest value -->
 					<!-- for struct types use FormBody.GetFieldValue<T> -->
-					<input type="text" class="form-control" value="@(FormBody.GetFieldStringValue(FormBody.Fields.First(x => x.Id == "InitialsCol"), true))" @oninput="OnInitialsInput" />
+					@{
+						var field = FormBody.Fields.First(x => x.Id == "InitialsCol");
+					}
+					<input type="text" class="form-control @FormBody.GetEditorClass(field)" value="@(FormBody.GetFieldStringValue(field, true))" @oninput="OnInitialsInput" />
 				</EditTemplate>
 			</PDColumn>
 			<PDColumn TItem="Person" Field="x => x.LastName" ShowInList="false" Title="Last Name" ShowInDelete="(_) => true" />
 			<PDColumn Id="EmailCol" TItem="Person" Field="x => x.Email" ShowInDelete="(_) => true">
 				<EditTemplate>
 					<!-- no custom processing of input here so no need to get latest value -->
-					<input type="email" class="form-control" value="@context.Email" @oninput="OnEmailInput"/>
+					@{
+						var field = FormBody.Fields.First(x => x.Id == "EmailCol");
+					}
+					<input type="email" class="form-control @FormBody.GetEditorClass(field)" value="@context.Email" @oninput="OnEmailInput" />
 				</EditTemplate>
 			</PDColumn>
 			<PDColumn TItem="Person" Field="x => x.Dob" ShowInList="false" ShowInDelete="@((x) => !x.FirstName.In("Alice", "Carol", "Eve", "Grace", "Heidi", "Judy"))" />

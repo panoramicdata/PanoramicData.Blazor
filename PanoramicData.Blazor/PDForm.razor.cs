@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Threading;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
-using PanoramicData.Blazor.Extensions;
-using System.ComponentModel.DataAnnotations;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDForm<TItem> where TItem : class
     {
+		public event EventHandler? ErrorsChanged;
+
 		/// <summary>
 		/// Gets or sets the child content that the drop zone wraps.
 		/// </summary>
@@ -58,9 +57,14 @@ namespace PanoramicData.Blazor
 		public FormModes Mode { get; private set; }
 
 		/// <summary>
-		/// Gets or sets an object containing all modify
+		/// Gets a dictionary used to track uncommitted changes.
 		/// </summary>
 		public Dictionary<string, object> Delta { get; } = new Dictionary<string, object>();
+
+		/// <summary>
+		/// Gets a dictionary used to track validation errors.
+		/// </summary>
+		public Dictionary<string, string[]> Errors { get; } = new Dictionary<string, string[]>();
 
 		protected override void OnInitialized()
 		{
@@ -73,12 +77,10 @@ namespace PanoramicData.Blazor
 		/// <param name="mode">The new mode for the form.</param>
 		public void SetMode(FormModes mode)
 		{
-			if (mode != Mode)
-			{
-				Mode = mode;
-				Delta.Clear();
-				StateHasChanged();
-			}
+			Mode = mode;
+			Delta.Clear();
+			Errors.Clear();
+			StateHasChanged();
 		}
 
 		/// <summary>
@@ -137,51 +139,38 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		///// <summary>
-		///// Indicates a fields value has been modified.
-		///// </summary>
-		///// <param name="field">The field that has been modified.</param>
-		///// <param name="value">The new value for the field.</param>
-		//public void FieldChange(FormField<TItem> field, object value)
-		//{
-		//	//
-		//	if (field.Field != null)
-		//	{
-		//		var memberInfo = field.Field.GetPropertyMemberInfo();
-		//		if (memberInfo != null)
-		//		{
-		//			// re-run validation
-		//			if (Item != null)
-		//			{
-		//				var results = new List<ValidationResult>();
-		//				var context = new ValidationContext(Item)
-		//				{
-		//					MemberName = memberInfo.Name
-		//				};
-		//				var isValid = Validator.TryValidateProperty(value, context, results);
+		/// <summary>
+		/// Gets whether the form is currently valid.
+		/// </summary>
+		public bool IsValid()
+		{
+			return Errors.Count == 0;
+		}
 
-		//			}
+		/// <summary>
+		/// Adds one or more error messages for the given field.
+		/// </summary>
+		/// <param name="fieldName">Name of the field being validated.</param>
+		/// <param name="messages">One or more error messages.</param>
+		public void SetFieldErrors(string fieldName, params string[] messages)
+		{
+			Errors[fieldName] = messages;
+			OnErrorsChanged(new EventArgs());
+		}
 
-		//			// if create then apply change direct to item (as is new and can be discarded)
-		//			if (Mode == FormModes.Create && memberInfo is PropertyInfo propInfo)
-		//			{
-		//				try
-		//				{
-		//					object typedValue = value.Cast(propInfo.PropertyType); // .GetValue(Item); // original value
-		//					propInfo.SetValue(Item, typedValue);
-		//				}
-		//				catch (Exception ex)
-		//				{
-		//					Error.InvokeAsync($"Failed to update field {memberInfo.Name}: {ex.Message}");
-		//				}
-		//			}
-		//			else if (Mode == FormModes.Edit)
-		//			{
-		//				// add / replace value on delta object
-		//				Delta[memberInfo.Name] = value;
-		//			}
-		//		}
-		//	}
-		//}
+		/// <summary>
+		/// Remove errors for the given field.
+		/// </summary>
+		/// <param name="fieldName">Name of the field.</param>
+		public void ClearErrors(string fieldName)
+		{
+			Errors.Remove(fieldName);
+			OnErrorsChanged(new EventArgs());
+		}
+
+		protected virtual void OnErrorsChanged(EventArgs e)
+		{
+			ErrorsChanged?.Invoke(this, e);
+		}
 	}
 }

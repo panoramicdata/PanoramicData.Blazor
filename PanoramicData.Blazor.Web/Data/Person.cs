@@ -18,6 +18,7 @@ namespace PanoramicData.Blazor.Web.Data
 		[Display(Description = "Persons unique identifier")]
 		public int Id { get; set; }
 		[Required]
+		[MinLength(2, ErrorMessage = "Minimum length is 2 characters")]
 		[Display(Name = "First Name", Description = "Persons first / forename")]
 		public string FirstName { get; set; }
 		[Display(Description = "Optional middle name initials")]

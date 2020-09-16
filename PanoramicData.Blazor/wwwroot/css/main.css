@@ -240,6 +240,13 @@
 .pd-form-footer {
   width: 100%; }
 
+.pd-form-field > .input-group > .form-control.invalid {
+  border-color: #f5c6cb; }
+
+.pd-form-field > .input-group > .form-control.invalid:focus {
+  border-color: #f5c6cb;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); }
+
 .fa-hidden {
   color: transparent; }
 

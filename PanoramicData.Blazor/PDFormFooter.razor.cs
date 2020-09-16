@@ -1,10 +1,13 @@
 ﻿using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
+using System.Linq;
+using Humanizer;
+using System;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDFormFooter<TItem> where TItem : class
+	public partial class PDFormFooter<TItem> : IDisposable where TItem : class
     {
 		private List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>();
 
@@ -33,42 +36,56 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public bool ShowDelete { get; set; } = true;
 
+		protected override void OnInitialized()
+		{
+			base.OnInitialized();
+			if(Form != null)
+			{
+				// listen for error changes
+				Form.ErrorsChanged += Form_ErrorsChanged;
+
+				// create default buttons
+				Buttons.Add(new ToolbarButton { Text = "Yes", CssClass = "btn-danger", ShiftRight = true });
+				Buttons.Add(new ToolbarButton { Text = "No" });
+				Buttons.Add(new ToolbarButton { Text = "Save", CssClass = "btn-primary", ShiftRight = true });
+				Buttons.Add(new ToolbarButton { Text = "Cancel" });
+				Buttons.Add(new ToolbarButton { Text = "Delete", CssClass = "btn-danger" });
+			}
+		}
+
+		private void SetVisibility(ToolbarItem? item, bool shown)
+		{
+			if(item != null)
+			{
+				item.IsVisible = shown;
+			}
+		}
+
 		protected override void OnParametersSet()
 		{
-			// construct full button set
-			if (!(Form is null))
+			// update state of default buttons
+			if (Form != null)
 			{
-				Buttons.Clear();
-				if (Form.Mode == FormModes.Delete)
-				{
-					Buttons.Add(new ToolbarButton { Text = "Yes", CssClass = "btn-danger", ShiftRight = true });
-					Buttons.Add(new ToolbarButton { Text = "No" });
-				}
-				else
-				{
-					if (Form.Mode == FormModes.Edit && ShowDelete)
-					{
-						Buttons.Add(new ToolbarButton { Text = "Delete", CssClass = "btn-danger" });
-					}
-
-					if (ShowSave)
-					{
-						Buttons.Add(new ToolbarButton { Text = "Save", CssClass = "btn-primary" });
-					}
-					if (ShowCancel)
-					{
-						Buttons.Add(new ToolbarButton { Text = "Cancel" });
-					}
-					if (Buttons.Count > 0)
-					{
-						var firstButton = Buttons.Find(x => x.Key != "Delete");
-						if (!(firstButton is null))
-						{
-							firstButton.ShiftRight = true;
-						}
-					}
-				}
+				SetVisibility(Buttons.Find(x => x.Key == "Yes"), Form.Mode == FormModes.Delete);
+				SetVisibility(Buttons.Find(x => x.Key == "No"), Form.Mode == FormModes.Delete);
+				SetVisibility(Buttons.Find(x => x.Key == "Delete"), Form.Mode == FormModes.Edit && ShowDelete);
+				SetVisibility(Buttons.Find(x => x.Key == "Save"), Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit);
+				SetVisibility(Buttons.Find(x => x.Key == "Cancel"), Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit);
 			}
+		}
+
+		private void Form_ErrorsChanged(object sender, EventArgs e)
+		{
+			InvokeAsync(() =>
+			{
+				var saveButton = Buttons.Find(x => x.Key == "Save");
+				if (saveButton != null)
+				{
+					var isValid = Form!.Errors.Count == 0;
+					saveButton.IsEnabled = isValid;
+					StateHasChanged();
+				}
+			}).ConfigureAwait(true);
 		}
 
 		private async Task OnButtonClick(string key)
@@ -93,6 +110,14 @@ namespace PanoramicData.Blazor
 				{
 					await Form.SaveAsync().ConfigureAwait(true);
 				}
+			}
+		}
+
+		public void Dispose()
+		{
+			if(Form != null)
+			{
+				Form.ErrorsChanged -= Form_ErrorsChanged;
 			}
 		}
 	}

@@ -109,10 +109,10 @@ app {
     outline: 1px solid #26b050;
 }
 
-.invalid {
+/*.invalid {
     outline: 1px solid red;
 }
-
+*/
 .validation-message {
     color: red;
 }

@@ -142,5 +142,12 @@ namespace PanoramicData.Blazor
 			return Description ?? (Field?.GetPropertyMemberInfo()?.GetCustomAttribute<DisplayAttribute>()?.Description);
 		}
 
+		/// <summary>
+		/// Gets the fields name.
+		/// </summary>
+		public string? GetName()
+		{
+			return Field?.GetPropertyMemberInfo()?.Name;
+		}
 	}
 }
