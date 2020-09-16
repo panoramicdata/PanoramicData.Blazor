@@ -126,6 +126,11 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Gets or sets a short description of the columns purpose. Overrides DisplayAttribute description if set.
+		/// </summary>
+		[Parameter] public string? Description { get; set; }
+
+		/// <summary>
 		/// A Linq expression that selects the field to be data bound to.
 		/// </summary>
 		[Parameter] public Expression<Func<TItem, object>>? Field { get; set; }

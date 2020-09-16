@@ -44,6 +44,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public int TitleWidth { get; set; } = 200;
 
 		/// <summary>
+		/// Determines whether field descriptions are shown is available.
+		/// </summary>
+		[Parameter] public bool ShowDescriptions { get; set; }
+
+		/// <summary>
 		/// Gets a full list of all fields.
 		/// </summary>
 		public List<FormField<TItem>> Fields { get; } = new List<FormField<TItem>>();
@@ -68,7 +73,8 @@ namespace PanoramicData.Blazor
 						Options = column.Options,
 						IsPassword = column.IsPassword,
 						IsTextArea = column.IsTextArea,
-						TextAreaRows = column.TextAreaRows
+						TextAreaRows = column.TextAreaRows,
+						Description = column.Description
 					});
 				}
 			}
@@ -96,7 +102,8 @@ namespace PanoramicData.Blazor
 					Options = field.Options,
 					IsPassword = field.IsPassword,
 					IsTextArea = field.IsTextArea,
-					TextAreaRows = field.TextAreaRows
+					TextAreaRows = field.TextAreaRows,
+					Description = field.Description
 				});
 				StateHasChanged();
 			}
@@ -116,33 +123,13 @@ namespace PanoramicData.Blazor
 			await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
 		}
 
-		private bool IsShown(FormField<TItem> field) =>
-			(Form?.Mode == FormModes.Create && field.ShowInCreate(GetItemWithUpdates())) ||
-			(Form?.Mode == FormModes.Edit && field.ShowInEdit(GetItemWithUpdates())) ||
-			(Form?.Mode == FormModes.Delete && field.ShowInDelete(GetItemWithUpdates()));
-
-		private TItem? GetItemWithUpdates()
-		{
-			if(Form?.Item is null)
-			{
-				return null;
-			}
-			// in create mode updates are applied directly to the item
-			if(Form.Mode == FormModes.Create)
-			{
-				return Form.Item;
-			}
-			// apply updates
-			var json = System.Text.Json.JsonSerializer.Serialize(Form.Item);
-			var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);
-			foreach(var kvp in Form.Delta)
-			{
-				var propInfo = clone.GetType().GetProperty(kvp.Key);
-				propInfo?.SetValue(clone, kvp.Value);
-			}
-			return clone;
-		}
-
+		/// <summary>
+		/// Attempts to get the requested fields current or original value and cast to the required type.
+		/// </summary>
+		/// <param name="field">The field whose value is to be fetched.</param>
+		/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
+		/// <returns>The current or original field value cat to the appropriate type.</returns>
+		/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
 		public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
 		{
 			// point to relevant TItem instance
@@ -170,7 +157,7 @@ namespace PanoramicData.Blazor
 				value = field.CompiledFieldFunc?.Invoke(Form.Item);
 			}
 
-			if(value is null)
+			if (value is null)
 			{
 				return default;
 			}
@@ -188,6 +175,13 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		/// <summary>
+		/// Attempts to get the requested fields current or original value and cast to the required type.
+		/// </summary>
+		/// <param name="field">The field whose value is to be fetched.</param>
+		/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
+		/// <returns>The current or original field value cat to the appropriate type.</returns>
+		/// <remarks>Use this method for String fields only, use GetFieldValue<T>() for Struct values.</remarks>
 		public string GetFieldStringValue(FormField<TItem> field, bool updatedValue = true)
 		{
 			// point to relevant TItem instance
@@ -233,15 +227,91 @@ namespace PanoramicData.Blazor
 			return value.ToString();
 		}
 
+		/// <summary>
+		/// Updates the current value for the given field.
+		/// </summary>
+		/// <param name="field">The field to be updated.</param>
+		/// <param name="value">The new value for the field.</param>
+		/// <remarks>If valid, the new value is applied direct to the Item when in Create mode,
+		/// otherwise tracked as a delta when in Edit mode.</remarks>
+		public void SetFieldValue(FormField<TItem> field, object value)
+		{
+			if (Form?.Item != null && field.Field != null)
+			{
+				var memberInfo = field.Field.GetPropertyMemberInfo();
+				if (memberInfo != null)
+				{
+					// re-run validation
+					if (Form.Item != null)
+					{
+						var results = new List<ValidationResult>();
+						var context = new ValidationContext(Form.Item)
+						{
+							MemberName = memberInfo.Name
+						};
+						if(Validator.TryValidateProperty(value, context, results))
+						{
+							Form.ClearErrors(memberInfo.Name);
+						}
+						else
+						{
+							Form.SetFieldErrors(memberInfo.Name, results.Select(x => x.ErrorMessage).ToArray());
+						}
+					}
+
+					// if create then apply change direct to item (as is new and can be discarded)
+					if (Form.Mode == FormModes.Create && memberInfo is PropertyInfo propInfo)
+					{
+						try
+						{
+							object typedValue = value.Cast(propInfo.PropertyType); // .GetValue(Item); // original value
+							propInfo.SetValue(Form.Item, typedValue);
+						}
+						catch (Exception ex)
+						{
+							Form.Error.InvokeAsync($"Failed to update field {memberInfo.Name}: {ex.Message}");
+						}
+					}
+					else if (Form.Mode == FormModes.Edit)
+					{
+						// add / replace value on delta object
+						Form.Delta[memberInfo.Name] = value;
+					}
+				}
+			}
+		}
+
+		private bool IsShown(FormField<TItem> field) =>
+			(Form?.Mode == FormModes.Create && field.ShowInCreate(GetItemWithUpdates())) ||
+			(Form?.Mode == FormModes.Edit && field.ShowInEdit(GetItemWithUpdates())) ||
+			(Form?.Mode == FormModes.Delete && field.ShowInDelete(GetItemWithUpdates()));
+
+		private TItem? GetItemWithUpdates()
+		{
+			if(Form?.Item is null)
+			{
+				return null;
+			}
+			// in create mode updates are applied directly to the item
+			if(Form.Mode == FormModes.Create)
+			{
+				return Form.Item;
+			}
+			// apply updates
+			var json = System.Text.Json.JsonSerializer.Serialize(Form.Item);
+			var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);
+			foreach(var kvp in Form.Delta)
+			{
+				var propInfo = clone.GetType().GetProperty(kvp.Key);
+				propInfo?.SetValue(clone, kvp.Value);
+			}
+			return clone;
+		}
+
 		private bool IsReadOnly(FormField<TItem> field) =>
 			(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(GetItemWithUpdates())) ||
 			(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(GetItemWithUpdates())) ||
 			Form?.Mode == FormModes.Delete;
-
-		private void OnInput(FormField<TItem> field, object value)
-		{
-			Form?.FieldChange(field, value);
-		}
 
 		private OptionInfo[] GetEnumValues(FormField<TItem> field)
 		{
@@ -266,6 +336,11 @@ namespace PanoramicData.Blazor
 				}
 			}
 			return options.ToArray();
+		}
+
+		public string GetEditorClass(FormField<TItem> field)
+		{
+			return Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
 		}
 	}
 }

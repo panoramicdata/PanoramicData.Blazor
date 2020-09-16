@@ -109,6 +109,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public RenderFragment<TItem>? Template { get; set; }
 
+		/// <summary>
+		/// Gets or sets a short description of the fields purpose. Overrides DisplayAttribute description if set.
+		/// </summary>
+		[Parameter] public string? Description { get; set; }
+
 		protected override async Task OnInitializedAsync()
 		{
 			if (FormBody == null)

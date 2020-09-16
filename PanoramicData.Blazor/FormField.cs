@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Reflection;
 using System.Linq.Expressions;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
 
@@ -126,5 +128,26 @@ namespace PanoramicData.Blazor
 		/// Simple function that returns false.
 		/// </summary>
 		public static Func<TItem?, bool> False => new Func<TItem?, bool>((_) => false);
+
+		/// <summary>
+		/// Gets or sets a short description of the fields purpose. Overrides DisplayAttribute description if set.
+		/// </summary>
+		public string? Description { get; set; }
+
+		/// <summary>
+		/// Gets the description for the field, if one is either declared or in DisplayAttribute.
+		/// </summary>
+		public string? GetDescription()
+		{
+			return Description ?? (Field?.GetPropertyMemberInfo()?.GetCustomAttribute<DisplayAttribute>()?.Description);
+		}
+
+		/// <summary>
+		/// Gets the fields name.
+		/// </summary>
+		public string? GetName()
+		{
+			return Field?.GetPropertyMemberInfo()?.Name;
+		}
 	}
 }
