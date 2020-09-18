@@ -64,7 +64,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets a dictionary used to track validation errors.
 		/// </summary>
-		public Dictionary<string, string[]> Errors { get; } = new Dictionary<string, string[]>();
+		public Dictionary<string, List<string>> Errors { get; } = new Dictionary<string, List<string>>();
 
 		protected override void OnInitialized()
 		{
@@ -154,8 +154,12 @@ namespace PanoramicData.Blazor
 		/// <param name="messages">One or more error messages.</param>
 		public void SetFieldErrors(string fieldName, params string[] messages)
 		{
-			Errors[fieldName] = messages;
-			OnErrorsChanged(new EventArgs());
+			if(!Errors.ContainsKey(fieldName))
+			{
+				Errors.Add(fieldName, new List<string>());
+			}
+			Errors[fieldName].AddRange(messages);
+			OnErrorsChanged(EventArgs.Empty);
 		}
 
 		/// <summary>

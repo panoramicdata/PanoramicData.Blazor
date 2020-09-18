@@ -96,12 +96,42 @@ namespace PanoramicData.Blazor.Web.Pages
 			// custom processing - all chars to have single period separator and uppercase
 			var newValue = args.Value.ToString().Replace(".", "");
 			newValue = String.Join('.', newValue.ToArray()).ToUpper();
-			FormBody.SetFieldValue(FormBody.Fields.First(x => x.Id == "InitialsCol"), newValue);
+			FormBody.SetFieldValueAsync(FormBody.Fields.First(x => x.Id == "InitialsCol"), newValue);
 		}
 
 		private void OnEmailInput(ChangeEventArgs args)
 		{
-			FormBody.SetFieldValue(FormBody.Fields.First(x => x.Id == "EmailCol"), args.Value);
+			FormBody.SetFieldValueAsync(FormBody.Fields.First(x => x.Id == "EmailCol"), args.Value);
+		}
+
+		private void OnCustomValidate(CustomValidateArgs<Person> args)
+		{
+			if (args.Item != null)
+			{
+				var fieldName = args.Field.GetName();
+				if (fieldName == "Initials")
+				{
+					if (args.Item.Initials == "L.O.L")
+					{
+						args.AddErrorMessages.Add("Initials", "Laugh out loud - really?");
+					}
+				}
+
+				if (fieldName == "Location" || fieldName == "Department")
+				{
+					var errorMessage = "Peckham location only has Sales departments";
+					if (args.Item.Location == "Peckham" && args.Item.Department != Departments.Sales)
+					{
+						args.AddErrorMessages.Add("Location", errorMessage);
+						args.AddErrorMessages.Add("Department", errorMessage);
+					}
+					else
+					{
+						args.RemoveErrorMessages.Add("Location", errorMessage);
+						args.RemoveErrorMessages.Add("Department", errorMessage);
+					}
+				}
+			}
 		}
 	}
 }

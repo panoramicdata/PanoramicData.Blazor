@@ -53,6 +53,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public List<FormField<TItem>> Fields { get; } = new List<FormField<TItem>>();
 
+		/// <summary>
+		/// Gets or sets a delegate to be called for each field validated.
+		/// </summary>
+		[Parameter] public EventCallback<CustomValidateArgs<TItem>> CustomValidate { get; set; }
+
 		protected override void OnInitialized()
 		{
 			if (Table != null)
@@ -234,14 +239,14 @@ namespace PanoramicData.Blazor
 		/// <param name="value">The new value for the field.</param>
 		/// <remarks>If valid, the new value is applied direct to the Item when in Create mode,
 		/// otherwise tracked as a delta when in Edit mode.</remarks>
-		public void SetFieldValue(FormField<TItem> field, object value)
+		public async Task SetFieldValueAsync(FormField<TItem> field, object value)
 		{
 			if (Form?.Item != null && field.Field != null)
 			{
 				var memberInfo = field.Field.GetPropertyMemberInfo();
 				if (memberInfo != null)
 				{
-					// re-run validation
+					// run standard data annotation validation
 					if (Form.Item != null)
 					{
 						var results = new List<ValidationResult>();
@@ -249,7 +254,7 @@ namespace PanoramicData.Blazor
 						{
 							MemberName = memberInfo.Name
 						};
-						if(Validator.TryValidateProperty(value, context, results))
+						if (Validator.TryValidateProperty(value, context, results))
 						{
 							Form.ClearErrors(memberInfo.Name);
 						}
@@ -259,9 +264,10 @@ namespace PanoramicData.Blazor
 						}
 					}
 
-					// if create then apply change direct to item (as is new and can be discarded)
+					// apply value
 					if (Form.Mode == FormModes.Create && memberInfo is PropertyInfo propInfo)
 					{
+						// if create then apply change direct to item (as is new and can be discarded)
 						try
 						{
 							object typedValue = value.Cast(propInfo.PropertyType); // .GetValue(Item); // original value
@@ -269,13 +275,36 @@ namespace PanoramicData.Blazor
 						}
 						catch (Exception ex)
 						{
-							Form.Error.InvokeAsync($"Failed to update field {memberInfo.Name}: {ex.Message}");
+							await Form.Error.InvokeAsync($"Failed to update field {memberInfo.Name}: {ex.Message}").ConfigureAwait(true);
 						}
 					}
 					else if (Form.Mode == FormModes.Edit)
 					{
 						// add / replace value on delta object
 						Form.Delta[memberInfo.Name] = value;
+					}
+
+					// run custom validation
+					if (Form.Item != null)
+					{
+						var args = new CustomValidateArgs<TItem>(field, GetItemWithUpdates());
+						await CustomValidate.InvokeAsync(args).ConfigureAwait(true);
+						foreach (var kvp in args.RemoveErrorMessages)
+						{
+							var entry = Form.Errors.FirstOrDefault(x => x.Key == kvp.Key && x.Value.Contains(kvp.Value));
+							if(entry.Key != null)
+							{
+								Form.Errors[entry.Key].Remove(kvp.Value);
+								if (Form.Errors[entry.Key].Count == 0)
+								{
+									Form.Errors.Remove(entry.Key);
+								}
+							}
+						}
+						foreach (var kvp in args.AddErrorMessages)
+						{
+							Form.SetFieldErrors(kvp.Key, kvp.Value);
+						}
 					}
 				}
 			}
