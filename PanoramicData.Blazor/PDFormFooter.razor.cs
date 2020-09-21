@@ -47,9 +47,9 @@ namespace PanoramicData.Blazor
 				// create default buttons
 				Buttons.Add(new ToolbarButton { Text = "Yes", CssClass = "btn-danger", ShiftRight = true });
 				Buttons.Add(new ToolbarButton { Text = "No" });
+				Buttons.Add(new ToolbarButton { Text = "Delete", CssClass = "btn-danger" });
 				Buttons.Add(new ToolbarButton { Text = "Save", CssClass = "btn-primary", ShiftRight = true });
 				Buttons.Add(new ToolbarButton { Text = "Cancel" });
-				Buttons.Add(new ToolbarButton { Text = "Delete", CssClass = "btn-danger" });
 			}
 		}
 

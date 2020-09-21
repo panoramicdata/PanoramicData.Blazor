@@ -1,22 +1,38 @@
 ﻿@typeparam TItem
-@if(Form is null)
+@if (Form is null)
 {
 	<span>Form parameter has not been set.</span>
 }
 else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 {
 	<div class="pd-form-header">
-		@if (Form.Mode == FormModes.Create)
+		<div class="d-flex justify-content-between">
+			@if (Form.Mode == FormModes.Create)
+			{
+				<span>Create new @GetClassDescription()</span>
+				@if (!string.IsNullOrWhiteSpace(HelpText))
+				{
+					<i class="fas fa-question-circle text-info" @onclick="() => ShowHelp = !ShowHelp"></i>
+				}
+			}
+			else if (Form.Mode == FormModes.Delete)
+			{
+				<span>Are you sure you want to delete '@GetItemDescription()'?</span>
+			}
+			else
+			{
+				<span>Edit '@GetItemDescription()'</span>
+				@if (!string.IsNullOrWhiteSpace(HelpText))
+				{
+					<i class="fas fa-question-circle text-info" @onclick="() => ShowHelp = !ShowHelp"></i>
+				}
+			}
+		</div>
+		@if (!string.IsNullOrWhiteSpace(HelpText) && ShowHelp && (Form.Mode == FormModes.Edit || Form.Mode == FormModes.Create))
 		{
-			<span>Create new @GetClassDescription()</span>
-		}
-		else if (Form.Mode == FormModes.Delete)
-		{
-			<span>Are you sure you want to delete '@GetItemDescription()'?</span>
-		}
-		else
-		{
-			<span>Edit '@GetItemDescription()'</span>
+			<div class="small text-muted">
+				@HelpText
+			</div>
 		}
 	</div>
 }

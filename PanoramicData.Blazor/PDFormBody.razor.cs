@@ -13,6 +13,8 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDFormBody<TItem> where TItem : class
 	{
+		private Dictionary<string, bool> _showDescriptions = new Dictionary<string, bool>();
+
 		/// <summary>
 		/// Injected log service.
 		/// </summary>
@@ -370,6 +372,16 @@ namespace PanoramicData.Blazor
 		public string GetEditorClass(FormField<TItem> field)
 		{
 			return Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
+		}
+
+		private bool ShowDescriptionFor(string fieldName)
+		{
+			return _showDescriptions.ContainsKey(fieldName) && _showDescriptions[fieldName];
+		}
+
+		private void ToggleShowDescriptionFor(string fieldName)
+		{
+			_showDescriptions[fieldName] = _showDescriptions.ContainsKey(fieldName) ? !_showDescriptions[fieldName] : true;
 		}
 	}
 }

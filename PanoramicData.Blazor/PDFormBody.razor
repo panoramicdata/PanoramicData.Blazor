@@ -27,7 +27,13 @@ else if (Form.Mode != FormModes.Hidden)
 					<div class="input-group ">
 
 						<div class="input-group-prepend">
-							<div class="input-group-text title-box @(fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true ? "alert-danger" : "")" title="@fieldDescription">@field.Title</div>
+							<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true ? "alert-danger" : "")" title="@fieldDescription">
+								<span>@field.Title</span>
+								@if (!ShowDescriptions && !string.IsNullOrEmpty(fieldDescription))
+								{
+									<i class="pd-form-help-icon fas fa-question-circle text-info" @onclick="() => ToggleShowDescriptionFor(fieldName)"></i>
+								}
+							</div>
 						</div>
 
 						<!-- editor -->
@@ -100,13 +106,13 @@ else if (Form.Mode != FormModes.Hidden)
 								}
 								else if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
 								{
-									<span class="input-group-text alert-danger">
+									<span class="input-group-text alert-danger align-items-start">
 										<i class="fas fa-exclamation-circle"></i>
 									</span>
 								}
 								else
 								{
-									<span class="input-group-text alert-success">
+									<span class="input-group-text alert-success align-items-start">
 										<i class="fas fa-check-circle"></i>
 									</span>
 								}
@@ -121,7 +127,7 @@ else if (Form.Mode != FormModes.Hidden)
 								<div class="small text-danger">@message</div>
 							}
 						}
-						else if (ShowDescriptions && !string.IsNullOrWhiteSpace(fieldDescription))
+						else if ((ShowDescriptions || ShowDescriptionFor(fieldName))  && !string.IsNullOrWhiteSpace(fieldDescription))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}

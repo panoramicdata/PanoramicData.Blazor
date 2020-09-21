@@ -15,7 +15,8 @@
 			"destination": "wwwroot/lib/splitjs/"
 		},
 		{
-			"library": "popper.js@2.4.4",
+			//"library": "popper.js@2.4.4",
+			"library": "popper.js@1.16.1",
 			"destination": "wwwroot/lib/popperjs/"
 		},
 		{

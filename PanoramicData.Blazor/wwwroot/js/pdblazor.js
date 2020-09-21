@@ -28,7 +28,8 @@ function showMenu(menuId, x, y) {
 		placement: 'bottom-start'
 	};
 	menu.classList.add("show");
-	var popper = Popper.createPopper(reference, menu, options);
+	//var popper = Popper.createPopper(reference, menu, options); // this is popper v2.4.4 syntax
+	var popper = new Popper(reference, menu, options); // this is popper v1.16.1 syntax
 	document.addEventListener("mousedown", function (event) {
 		let isClickInside = menu.contains(event.target);
 		if (!isClickInside) {
@@ -197,4 +198,14 @@ function uploadFile(file, url, path, zone) {
 		zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Path: path, Name: file.name, Size: file.size });
 	xhr.send(formData);
 	return xhr;
+}
+
+function initPopover(el) {
+	$(el).popover({
+		container: 'body'
+	});
+}
+
+function disposePopover(el) {
+	$(el).popover('dispose');
 }
