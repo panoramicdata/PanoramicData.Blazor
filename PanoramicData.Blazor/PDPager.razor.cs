@@ -30,14 +30,5 @@ namespace PanoramicData.Blazor
 		/// Gets whether the current page is the last page.
 		/// </summary>
 		protected bool IsLastPage => CurrentPage == PageCount;
-
-		protected override void OnParametersSet()
-		{
-			if(PageCount.HasValue && CurrentPage > PageCount.Value)
-			{
-				//CurrentPage = PageCount.Value;
-				OnPageChange.InvokeAsync(PageCount.Value);
-			}
-		}
 	}
 }
