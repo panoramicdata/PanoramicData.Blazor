@@ -14,6 +14,7 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDColumn<TItem> where TItem: class
 	{
+		private static int _idSequence = 1;
 		private string? _title;
 		private Func<TItem, object>? _compiledFunc;
 		private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
@@ -27,7 +28,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// The Id - this should be unique per column in a table
 		/// </summary>
-		[Parameter] public string Id { get; set; } = string.Empty;
+		[Parameter] public string Id { get; set; } = $"col-{_idSequence++}";
 
 		/// <summary>
 		/// The data type of the columns field value.
@@ -192,21 +193,25 @@ namespace PanoramicData.Blazor
 
 		public void SetValue(TItem item, object? value)
 		{
-			var propInfo = GetPropertyInfo(Field!.Body);
-			if(propInfo == null)
+			// a null Field represents a calculated / display only column
+			if (Field != null)
 			{
-				throw new PDTableException("Unable to determine column data type from Field expression");
-			}
-			if(propInfo.PropertyType.IsAssignableFrom(value?.GetType()))
-			{
-				propInfo.SetValue(item, value);
-			}
-			else
-			{
-				var stringValue = value?.ToString();
-				TypeConverter typeConverter = TypeDescriptor.GetConverter(propInfo.PropertyType);
-				object propValue = typeConverter.ConvertFromString(stringValue);
-				propInfo.SetValue(item, propValue);
+				var propInfo = GetPropertyInfo(Field!.Body);
+				if (propInfo == null)
+				{
+					throw new PDTableException("Unable to determine column data type from Field expression");
+				}
+				if (propInfo.PropertyType.IsAssignableFrom(value?.GetType()))
+				{
+					propInfo.SetValue(item, value);
+				}
+				else
+				{
+					var stringValue = value?.ToString();
+					TypeConverter typeConverter = TypeDescriptor.GetConverter(propInfo.PropertyType);
+					object propValue = typeConverter.ConvertFromString(stringValue);
+					propInfo.SetValue(item, propValue);
+				}
 			}
 		}
 

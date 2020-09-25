@@ -20,9 +20,11 @@ namespace PanoramicData.Blazor.Web.Pages
 		private bool _allowDrop = false;
 		private string _dropZoneCss = "";
 		private string _dropMessage = "Drop Zone";
-		private PDTable<TestRow>? _table;
+		private PDTable<Person>? _table;
+		private PDDragContext? _dragContext;
 		private PageCriteria _defaultPage = new PageCriteria(1, 5);
 		private SortCriteria _defaultSort = new SortCriteria("Col1", SortDirection.Descending);
+		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider(53);
 
 		/// <summary>
 		/// Injected navigation manager.
@@ -30,34 +32,27 @@ namespace PanoramicData.Blazor.Web.Pages
 		[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
 		// columns config enables config to be defined per user or customer etc.
-		private List<PDColumnConfig>? _columnsConfig = new List<PDColumnConfig>
-			{
-				new PDColumnConfig { Id = "Col1" },
-				new PDColumnConfig { Id = "Col2", Title = "Date Started" },
-				new PDColumnConfig { Id = "Col3", Editable = false },
-				new PDColumnConfig { Id = "Col4" },
-				new PDColumnConfig { Id = "Col5" },
-				new PDColumnConfig { Id = "Col6" },
-			};
+		//private List<PDColumnConfig>? _columnsConfig = new List<PDColumnConfig>
+		//	{
+		//	    new PDColumnConfig { Id = "col-id", Title = "Forename" },
+		//		new PDColumnConfig { Id = "col-first-name", Title = "Forename" },
+		//		new PDColumnConfig { Id = "col-last-name", Title = "Surname", Editable = false },
+		//		new PDColumnConfig { Id = "col-first-name", Title = "Forename" },
+		//	};
 
-		[CascadingParameter] PDDragContext? DragContext { get; set; }
-
-		private string ColumnsConfigJson
-		{
-			get
-			{
-				return JsonConvert.SerializeObject(_columnsConfig, Formatting.Indented);
-			}
-			set
-			{
-				_columnsConfig = JsonConvert.DeserializeObject<List<PDColumnConfig>>(value);
-			}
-		}
+		//private string ColumnsConfigJson
+		//{
+		//	get
+		//	{
+		//		return JsonConvert.SerializeObject(_columnsConfig, Formatting.Indented);
+		//	}
+		//	set
+		//	{
+		//		_columnsConfig = JsonConvert.DeserializeObject<List<PDColumnConfig>>(value);
+		//	}
+		//}
 
 		private TableSelectionMode SelectionMode { get; set; } = TableSelectionMode.Single;
-
-		// dummy data provider
-		public TestDataProvider DataProvider { get; }  = new TestDataProvider();
 
 		protected override void OnInitialized()
 		{
@@ -116,34 +111,34 @@ namespace PanoramicData.Blazor.Web.Pages
 			_events += $"selection changed: {keys}{Environment.NewLine}";
 		}
 
-		private void OnClick(TestRow item)
+		private void OnClick(Person item)
 		{
-			_events += $"click: {item.IntField}{Environment.NewLine}";
+			_events += $"click: {item.Id}{Environment.NewLine}";
 		}
 
-		private void OnDoubleClick(TestRow item)
+		private void OnDoubleClick(Person item)
 		{
-			_events += $"double-click: {item.IntField}{Environment.NewLine}";
+			_events += $"double-click: {item.Id}{Environment.NewLine}";
 		}
 
-		private void OnBeforeEdit(TableBeforeEditEventArgs<TestRow> args)
+		private void OnBeforeEdit(TableBeforeEditEventArgs<Person> args)
 		{
-			_events += $"before edit: {args.Item.IntField}{Environment.NewLine}";
+			_events += $"before edit: {args.Item.Id}{Environment.NewLine}";
 			// example of preventing an edit
-			args.Cancel = args.Item.BooleanField;
+			args.Cancel = args.Item.FirstName == "Alice";
 		}
 
 		private void OnDrop(DropEventArgs args)
 		{
-			if (args?.Payload != null && args.Target is TestRow row && args.Payload is IEnumerable<TestRow> rows)
+			if (args?.Payload != null && args.Target is Person row && args.Payload is IEnumerable<Person> rows)
 			{
-				_events += $"drop: {string.Join(", ", rows.Select(x => x.NameField))} onto {row.NameField}{Environment.NewLine}";
+				_events += $"drop: {string.Join(", ", rows.Select(x => x.FirstName))} onto {row.FirstName}{Environment.NewLine}";
 			}
 		}
 
 		private void OnDragEnter(DragEventArgs args)
 		{
-			if(DragContext?.Payload == null)
+			if(_dragContext?.Payload == null)
 			{
 				_dropZoneCss = "bad";
 			}
@@ -162,13 +157,21 @@ namespace PanoramicData.Blazor.Web.Pages
 		{
 			// get item that was dragged (TestRow)
 			_dropMessage = "Boom!";
-			if(DragContext?.Payload != null)
+			if(_dragContext?.Payload != null)
 			{
-				var items = (List<TestRow>)DragContext.Payload;
-				_dropMessage = string.Join(", ", items.Select(x => x.NameField));
+				var items = (List<Person>)_dragContext.Payload;
+				_dropMessage = string.Join(", ", items.Select(x => x.FirstName));
 			}
 		}
 
-
+		private OptionInfo[] GetLocationOptions(FormField<Person> field, Person item)
+		{
+			var options = new List<OptionInfo>();
+			foreach (var location in PersonDataProvider.Locations)
+			{
+				options.Add(new OptionInfo { Text = location, Value = location, IsSelected = item?.Location == location });
+			}
+			return options.ToArray();
+		}
 	}
 }

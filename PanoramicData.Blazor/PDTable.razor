@@ -49,7 +49,7 @@
 						@foreach (var column in ActualColumnsToDisplay)
 						{
 							<td class="@column.TdClass">
-								@if (IsColumnInEditMode(column, item))
+								@if (IsColumnInEditMode(column, item) && column.Field != null)
 								{
 									<input id="@($"{IdEditPrefix}{column.Id}")" type="@(column.IsPassword ? "password" : "text")" value="@($"{column.GetValue(item)}")" class="pdtable_edit"
 										   @onblur="OnEndEdit"
