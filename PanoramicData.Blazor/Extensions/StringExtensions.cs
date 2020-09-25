@@ -16,7 +16,7 @@ namespace PanoramicData.Blazor.Extensions
 		/// <returns>A new string containing either the new path if modified, otherwise the original path.</returns>
 		public static string ReplacePathPrefix(this string path, string oldPathPrefix, string newPathPrefix)
 		{
-			if (path == oldPathPrefix || path.StartsWith(oldPathPrefix.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar))
+			if (path == oldPathPrefix || path.StartsWith(oldPathPrefix.TrimEnd('/') + '/'))
 			{
 				return path.Replace(oldPathPrefix, newPathPrefix);
 			}

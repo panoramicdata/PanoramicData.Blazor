@@ -232,7 +232,7 @@ namespace PanoramicData.Blazor
 			{
 				var item = Tree.SelectedNode.Data;
 				var previousPath = item.Path;
-				var newPath = $"{item.ParentPath}{Path.DirectorySeparatorChar}{args.NewValue}";
+				var newPath = $"{item.ParentPath}/{args.NewValue}";
 				// inform data provider
 				var delta = new Dictionary<string, object>
 					{
@@ -294,7 +294,7 @@ namespace PanoramicData.Blazor
 				else
 				{
 					var previousPath = args.Item.Path;
-					var newPath = $"{args.Item.ParentPath}{Path.DirectorySeparatorChar}{args.NewValues["Name"]}";
+					var newPath = $"{args.Item.ParentPath}/{args.NewValues["Name"]}";
 					// check for duplicate name
 					if (Table!.ItemsToDisplay.Any(x => x.Path == newPath))
 					{
@@ -629,7 +629,7 @@ namespace PanoramicData.Blazor
 			if (Tree?.SelectedNode?.Data != null)
 			{
 				var newFolderName = Tree.SelectedNode.MakeUniqueText("New Folder");
-				var newPath = $"{Tree.SelectedNode.Data.Path}{Path.DirectorySeparatorChar}{newFolderName}";
+				var newPath = $"{Tree.SelectedNode.Data.Path}/{newFolderName}";
 				var newItem = new FileExplorerItem { EntryType = FileExplorerItemType.Directory, Path = newPath };
 				var result = await DataProvider.CreateAsync(newItem, CancellationToken.None).ConfigureAwait(true);
 				if (result.Success)

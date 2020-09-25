@@ -13,7 +13,7 @@ namespace PanoramicData.Blazor.Web.Pages
 {
 	public partial class PDFileExplorerPage
     {
-		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider { RootFolder = "My Computer" };
+		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 		private PDFileExplorer _fileExplorer = null!;
 
 		/// <summary>

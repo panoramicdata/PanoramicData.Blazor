@@ -42,9 +42,22 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets the full path of the parent item.
 		/// </summary>
-		//public string ParentPath { get; set; } = string.Empty;
 		public string ParentPath
-			=> System.IO.Path.GetDirectoryName(Path);
+		{
+			get
+			{
+				// check GetDirectoryName output as returns black path separator in path and
+				// will return \ for \folder and tree component expects null or empty string
+				// to indicate no parent (root item)
+				var parentPath = System.IO.Path.GetDirectoryName(Path);
+				if(!string.IsNullOrWhiteSpace(parentPath))
+				{
+					// force all paths to use forward slashes as separators
+					parentPath = parentPath.Replace(System.IO.Path.DirectorySeparatorChar, '/');
+				}
+				return parentPath == "/" ? string.Empty : parentPath;
+			}
+		}
 
 		/// <summary>
 		/// Gets or sets the type of item.
@@ -70,7 +83,8 @@ namespace PanoramicData.Blazor
 				}
 				else
 				{
-					Path = $"{System.IO.Path.GetDirectoryName(Path)}{System.IO.Path.DirectorySeparatorChar}{value}";
+
+					Path = $"{ParentPath}/{value}";
 				}
 			}
 		}

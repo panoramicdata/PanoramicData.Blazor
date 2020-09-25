@@ -25,7 +25,8 @@ function showMenu(menuId, x, y) {
 		}
 	};
 	var options = {
-		placement: 'bottom-start'
+		placement: 'bottom-start',
+		positionFixed: true
 	};
 	menu.classList.add("show");
 	//var popper = Popper.createPopper(reference, menu, options); // this is popper v2.4.4 syntax

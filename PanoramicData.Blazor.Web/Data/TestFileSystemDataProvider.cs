@@ -17,37 +17,37 @@ namespace PanoramicData.Blazor.Web.Data
 		/// <summary>
 		/// Gets or sets the root folder. All operations can only be performed under this folder.
 		/// </summary>
-		public string RootFolder { get; set; } = @"My Computer";
+		public string RootFolder { get; set; } = @"/My Computer";
 
 		public TestFileSystemDataProvider()
 		{
 			// generate test data - Paths can not edit with trailing slashes
-			_testData.Add(new FileExplorerItem { Path = @"My Computer", CanCopyMove = false });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:", CanCopyMove = false });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme\Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\Acme\UserGuide.pdf", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\ProgramData\stats.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\a53fde.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\b76jba.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Temp\p21wsa.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\C:\Users" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:", CanCopyMove = false });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200131_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200229_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200331_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\Backup\20200430_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\WeeklyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Data\MonthlyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs" });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200430_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200501_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Logs\20200502_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"My Computer\D:\Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer", CanCopyMove = false });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:", CanCopyMove = false });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/ProgramData" });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/ProgramData/Acme" });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/ProgramData/Acme/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/ProgramData/Acme/UserGuide.pdf", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/ProgramData/stats.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/Temp" });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/Temp/a53fde.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/Temp/b76jba.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/Temp/p21wsa.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/Users" });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:", CanCopyMove = false });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data" });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/Backup" });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/Backup/20200131_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/Backup/20200229_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/Backup/20200331_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/Backup/20200430_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/WeeklyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/MonthlyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Logs" });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Logs/20200430_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Logs/20200501_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Logs/20200502_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
 		}
 
 		/// <summary>
@@ -138,14 +138,14 @@ namespace PanoramicData.Blazor.Web.Data
 				else
 				{
 					// only path updates supported
-					var pathProp = delta.GetType().GetProperty("Path");
+					var pathProp = delta.ContainsKey("Path");
 					if(pathProp == null)
 					{
 						result.ErrorMessage = "Only Path property update supported";
 					}
 					else
 					{
-						var newPath = pathProp.GetValue(delta)?.ToString();
+						var newPath = delta["Path"]?.ToString();
 						if(string.IsNullOrWhiteSpace(newPath))
 						{
 							result.ErrorMessage = "Invalid value for Path property";
