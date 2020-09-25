@@ -17,6 +17,7 @@
 
 <div>
 	<button class="btn btn-primary" @onclick="OnCreatePerson">Create</button>
+	<button class="btn btn-secondary" @onclick="async () => await Table!.RefreshAsync()">Refresh</button>
 </div>
 
 <br />
