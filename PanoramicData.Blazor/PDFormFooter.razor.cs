@@ -45,11 +45,11 @@ namespace PanoramicData.Blazor
 				Form.ErrorsChanged += Form_ErrorsChanged;
 
 				// create default buttons
-				Buttons.Add(new ToolbarButton { Text = "Yes", CssClass = "btn-danger", ShiftRight = true });
-				Buttons.Add(new ToolbarButton { Text = "No" });
-				Buttons.Add(new ToolbarButton { Text = "Delete", CssClass = "btn-danger" });
-				Buttons.Add(new ToolbarButton { Text = "Save", CssClass = "btn-primary", ShiftRight = true });
-				Buttons.Add(new ToolbarButton { Text = "Cancel" });
+				Buttons.Add(new ToolbarButton { Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-check",  ShiftRight = true });
+				Buttons.Add(new ToolbarButton { Text = "No", CssClass="btn-secondary", IconCssClass = "fas fa-times" });
+				Buttons.Add(new ToolbarButton { Text = "Delete", CssClass = "btn-danger", IconCssClass = "fas fa-trash-alt" });
+				Buttons.Add(new ToolbarButton { Text = "Save", CssClass = "btn-primary", IconCssClass = "fas fa-save", ShiftRight = true });
+				Buttons.Add(new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-times" });
 			}
 		}
 

@@ -13,12 +13,12 @@ namespace PanoramicData.Blazor.Web.Pages
 		private bool _enableButtons = true;
 		private List<ToolbarItem> ToolbarItems = new List<ToolbarItem>
 		{
-			new ToolbarButton { Key = "tb-open", Text = "Open", IconCssClass = "fas fa-fw fa-folder-open", ToolTip="Open something" },
-			new ToolbarButton { Key = "tb-rename", Text="Rename", ToolTip="Rename something" },
+			new ToolbarButton { Key = "tb-open", Text = "Open", CssClass="btn-primary", IconCssClass = "fas fa-fw fa-folder-open", ToolTip="Open something" },
+			new ToolbarButton { Key = "tb-rename", Text="Rename", CssClass="btn-secondary", ToolTip="Rename something" },
 			new ToolbarSeparator(),
-			new ToolbarButton { Key = "tb-download", Text="Download", IconCssClass="fas fa-fw fa-file-download", ToolTip="Download something" },
-			new ToolbarButton { Key = "tb-enabledisable", Text="Disable Buttons", ToolTip="Enable or disable buttons", ShiftRight = true },
-			new ToolbarButton { Key = "tb-showhide", Text="Hide Buttons", ToolTip="Show or hide buttons" }
+			new ToolbarButton { Key = "tb-download", Text="Download", CssClass="btn-secondary", IconCssClass="fas fa-fw fa-file-download", ToolTip="Download something" },
+			new ToolbarButton { Key = "tb-enabledisable", Text="Disable Buttons",  CssClass="btn-secondary", ToolTip="Enable or disable buttons", ShiftRight = true },
+			new ToolbarButton { Key = "tb-showhide", Text="Hide Buttons",  CssClass="btn-secondary", ToolTip="Show or hide buttons" }
 		};
 
 		public void OnOpen()

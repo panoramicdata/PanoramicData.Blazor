@@ -3,12 +3,12 @@
 
 <h3>Declarative example of PDToolbar usage</h3>
 <PDToolbar>
-	<PDToolbarButton Text="Open" ToolTip="Open something" IconCssClass="fas fa-fw fa-folder-open" Click="OnOpen" IsVisible="_showButtons" IsEnabled="_enableButtons" />
-	<PDToolbarButton Text="Rename" ToolTip="Rename something" IconCssClass="" Click="OnRename" IsVisible="_showButtons" IsEnabled="_enableButtons" />
+	<PDToolbarButton Text="Open" ToolTip="Open something" CssClass="btn-primary" IconCssClass="fas fa-fw fa-folder-open" Click="OnOpen" IsVisible="_showButtons" IsEnabled="_enableButtons" />
+	<PDToolbarButton Text="Rename" ToolTip="Rename something" CssClass="btn-secondary" IconCssClass="" Click="OnRename" IsVisible="_showButtons" IsEnabled="_enableButtons" />
 	<PDToolbarSeparator IsVisible="_showButtons" />
-	<PDToolbarButton Text="Download" ToolTip="Download something" IconCssClass="fas fa-fw fa-file-download" Click="OnDownload" IsVisible="_showButtons" IsEnabled="_enableButtons" />
-	<PDToolbarButton Text="@(_enableButtons ? "Disable Buttons" : "Enable Buttons")" ToolTip="Enable or disable buttons" Click="() => { _enableButtons = !_enableButtons; }" ShiftRight="true" />
-	<PDToolbarButton Text="@(_showButtons ? "Hide Buttons" : "Show Buttons")" ToolTip="Show or hide buttons" Click="() => { _showButtons = !_showButtons; }" />
+	<PDToolbarButton Text="Download" ToolTip="Download something"  CssClass="btn-secondary" IconCssClass="fas fa-fw fa-file-download" Click="OnDownload" IsVisible="_showButtons" IsEnabled="_enableButtons" />
+	<PDToolbarButton Text="@(_enableButtons ? "Disable Buttons" : "Enable Buttons")" CssClass="btn-secondary" ToolTip="Enable or disable buttons" Click="() => { _enableButtons = !_enableButtons; }" ShiftRight="true" />
+	<PDToolbarButton Text="@(_showButtons ? "Hide Buttons" : "Show Buttons")" CssClass="btn-secondary" ToolTip="Show or hide buttons" Click="() => { _showButtons = !_showButtons; }" />
 </PDToolbar>
 
 <div>

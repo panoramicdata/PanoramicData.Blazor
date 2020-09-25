@@ -55,10 +55,9 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public List<ToolbarItem> ToolbarItems { get; set; } = new List<ToolbarItem>
 			{
-				new ToolbarButton { Key = "navigate-up", ToolTip="Navigate up to parent folder", IconCssClass="fas fa-fw fa-arrow-up" },
-				new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip="Create a new folder", IconCssClass="fas fa-fw fa-folder-plus" },
-				new ToolbarSeparator(),
-				new ToolbarButton { Key = "delete", Text = "Delete", ToolTip="Delete the selected files and folders", IconCssClass="fas fa-fw fa-trash-alt" },
+				new ToolbarButton { Key = "navigate-up", ToolTip="Navigate up to parent folder", IconCssClass="fas fa-fw fa-arrow-up",  CssClass="btn-secondary" },
+				new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip="Create a new folder", IconCssClass="fas fa-fw fa-folder-plus", CssClass="btn-secondary" },
+				new ToolbarButton { Key = "delete", Text = "Delete", ToolTip="Delete the selected files and folders", IconCssClass="fas fa-fw fa-trash-alt", CssClass="btn-danger", ShiftRight = true },
 			};
 
 		/// <summary>
@@ -138,7 +137,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
 		/// </summary>
-		private async Task OnTreeItemsLoaded(List<FileExplorerItem> items)
+		private void OnTreeItemsLoaded(List<FileExplorerItem> items)
 		{
 		 	items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
 		}
