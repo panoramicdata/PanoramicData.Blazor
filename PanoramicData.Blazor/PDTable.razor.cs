@@ -178,6 +178,12 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
 		/// <summary>
+		/// Determines whether items are fetched from the DataProvider when the component is
+		/// first rendered.
+		/// </summary>
+		[Parameter] public bool AutoLoad { get; set; } = true;
+
+		/// <summary>
 		/// Gets the unique identifier of this table.
 		/// </summary>
 		public string Id { get; private set; } = string.Empty;
@@ -555,8 +561,11 @@ namespace PanoramicData.Blazor
 
 				try
 				{
-					await GetDataAsync().ConfigureAwait(true);
-					StateHasChanged();
+					if (AutoLoad)
+					{
+						await GetDataAsync().ConfigureAwait(true);
+						StateHasChanged();
+					}
 				}
 				catch (Exception ex)
 				{

@@ -13,7 +13,6 @@ namespace PanoramicData.Blazor
 	public partial class PDFileExplorer
     {
 		private TreeNode<FileExplorerItem>? _selectedNode;
-		private bool _firstLoad = true;
 		public string FolderPath = string.Empty;
 
 		private PDTree<FileExplorerItem>? Tree { get; set; }
@@ -142,18 +141,6 @@ namespace PanoramicData.Blazor
 		private async Task OnTreeItemsLoaded(List<FileExplorerItem> items)
 		{
 		 	items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
-			if(_firstLoad)
-			{
-				_firstLoad = false;
-				// should be single root item
-				if (items.Count > 0)
-				{
-					FolderPath = items[0].Path;
-					await Table!
-						.RefreshAsync()
-						.ConfigureAwait(true);
-				}
-			}
 		}
 
 		private async Task OnTreeNodeUpdated(TreeNode<FileExplorerItem> node)
