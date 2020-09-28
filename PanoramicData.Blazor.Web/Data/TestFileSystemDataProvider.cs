@@ -14,40 +14,35 @@ namespace PanoramicData.Blazor.Web.Data
 	{
 		private readonly List<FileExplorerItem> _testData = new List<FileExplorerItem>();
 
-		/// <summary>
-		/// Gets or sets the root folder. All operations can only be performed under this folder.
-		/// </summary>
-		public string RootFolder { get; set; } = @"/My Computer";
-
 		public TestFileSystemDataProvider()
 		{
 			// generate test data - Paths can not edit with trailing slashes
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer", CanCopyMove = false });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:", CanCopyMove = false });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/ProgramData" });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/ProgramData/Acme" });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/ProgramData/Acme/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/ProgramData/Acme/UserGuide.pdf", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/ProgramData/stats.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/Temp" });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/Temp/a53fde.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/Temp/b76jba.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/Temp/p21wsa.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/C:/Users" });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:", CanCopyMove = false });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data" });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/Backup" });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/Backup/20200131_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/Backup/20200229_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/Backup/20200331_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/Backup/20200430_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/WeeklyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Data/MonthlyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Logs" });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Logs/20200430_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Logs/20200501_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Logs/20200502_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/My Computer/D:/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/", CanCopyMove = false });
+			_testData.Add(new FileExplorerItem { Path = @"/C:", CanCopyMove = false });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData" });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/Acme" });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/Acme/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/Acme/UserGuide.pdf", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/stats.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp" });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp/a53fde.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp/b76jba.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp/p21wsa.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/Users" });
+			_testData.Add(new FileExplorerItem { Path = @"/D:", CanCopyMove = false });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data" });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup" });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200131_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200229_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200331_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200430_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/WeeklyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/MonthlyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs" });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs/20200430_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs/20200501_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs/20200502_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
 		}
 
 		/// <summary>
@@ -68,22 +63,17 @@ namespace PanoramicData.Blazor.Web.Data
 				// if search text given then take that as the parent path value
 				// if null then return all items (load all example)
 				// if empty string then return root item (load on demand example)
-				if (request.SearchText != null)
+				if (string.IsNullOrWhiteSpace(request.SearchText))
 				{
-					if (request.SearchText == string.Empty)
-					{
-						query = query.Where(x => x.Path == RootFolder);
-					}
-					else
-					{
-						query = query.Where(x => x.ParentPath == request.SearchText);
-					}
+					total = 1;
+					items.Add(new FileExplorerItem { Path = "/" });
 				}
-
-				total = query.Count();
-
-				// realize query
-				items = query.ToList();
+				else
+				{
+					query = query.Where(x => x.ParentPath == request.SearchText);
+					total = query.Count();
+					items = query.ToList();
+				}
 
 				// remove parent path from all root items
 				//items.ForEach(x => x.ParentPath = x.Path == RootFolder ? string.Empty : x.ParentPath);
