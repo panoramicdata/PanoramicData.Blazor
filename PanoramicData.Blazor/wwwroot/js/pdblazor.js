@@ -210,3 +210,7 @@ function initPopover(el) {
 function disposePopover(el) {
 	$(el).popover('dispose');
 }
+
+function openUrl(url, target) {
+	window.open(url, target);
+}

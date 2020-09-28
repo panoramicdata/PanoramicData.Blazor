@@ -49,8 +49,9 @@
 					<input type="email" class="form-control @FormBody.GetEditorClass(field)" value="@context.Email" @oninput="OnEmailInput" />
 				</EditTemplate>
 			</PDColumn>
-			<PDColumn TItem="Person" Field="x => x.Dob" ShowInList="false" ShowInDelete="@((x) => !x.FirstName.In("Alice", "Carol", "Eve", "Grace", "Heidi", "Judy"))" />
-			<PDColumn TItem="Person" Field="x => x.Department" />
+			<PDColumn TItem="Person" Field="x => x.Dob" ShowInList="false" HelpUrl="https://www.dayofbirth.co.uk/"
+					  ShowInDelete="@((x) => !x.FirstName.In("Alice", "Carol", "Eve", "Grace", "Heidi", "Judy"))" />
+			<PDColumn TItem="Person" Field="x => x.Department" HelpUrl="https://www.dictionary.com/browse/department" />
 			<PDColumn TItem="Person" Field="x => x.Location" Options="GetLocationOptions" />
 			<PDColumn TItem="Person" Field="x => x.Target" ShowInList="false" ReadOnlyInEdit="(x) => x.Department != Departments.Sales" />
 			<PDColumn TItem="Person" Field="x => x.AllowLogin" ShowInList="false" />

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.JSInterop;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,6 +14,11 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDFormBody<TItem> where TItem : class
 	{
+		/// <summary>
+		/// Injected javascript interop object.
+		/// </summary>
+		[Inject] public IJSRuntime? JSRuntime { get; set; }
+
 		/// <summary>
 		/// Injected log service.
 		/// </summary>
@@ -381,6 +387,11 @@ namespace PanoramicData.Blazor
 		public string GetEditorClass(FormField<TItem> field)
 		{
 			return Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
+		}
+
+		private void OnHelpUrlClick(FormField<TItem> field)
+		{
+			JSRuntime.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
 		}
 	}
 }
