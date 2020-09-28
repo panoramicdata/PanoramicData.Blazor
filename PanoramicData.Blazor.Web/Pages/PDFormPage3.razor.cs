@@ -84,9 +84,9 @@ namespace PanoramicData.Blazor.Web.Pages
 		private OptionInfo[] GetLocationOptions(FormField<Person> field, Person item)
 		{
 			var options = new List<OptionInfo>();
-			foreach (var location in PersonDataProvider.Locations)
+			for(var i = 0; i  < PersonDataProvider.Locations.Length; i++)
 			{
-				options.Add(new OptionInfo { Text = location, Value = location, IsSelected = item?.Location == location });
+				options.Add(new OptionInfo { Text = PersonDataProvider.Locations[i], Value = i, IsSelected = item?.Location == i });
 			}
 			return options.ToArray();
 		}
@@ -120,7 +120,7 @@ namespace PanoramicData.Blazor.Web.Pages
 				if (fieldName == "Location" || fieldName == "Department")
 				{
 					var errorMessage = "Peckham location only has Sales departments";
-					if (args.Item.Location == "Peckham" && args.Item.Department != Departments.Sales)
+					if (args.Item.Location == PersonDataProvider.Locations.ToList().IndexOf("Peckham") && args.Item.Department != Departments.Sales)
 					{
 						args.AddErrorMessages.Add("Location", errorMessage);
 						args.AddErrorMessages.Add("Department", errorMessage);

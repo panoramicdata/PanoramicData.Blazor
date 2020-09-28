@@ -33,7 +33,8 @@ namespace PanoramicData.Blazor.Web.Data
 						Department = (Departments)_random.Next(0, 4),
 						FirstName = _firstNames[_random.Next(_firstNames.Length)],
 						LastName = _lastNames[_random.Next(_lastNames.Length)],
-						Location = Locations[_random.Next(Locations.Length)],
+						//Location = Locations[_random.Next(Locations.Length)],
+						Location = _random.Next(Locations.Length),
 						Dob = DateTime.Today.AddYears(-_random.Next(20, 50)),
 						Comments = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length))
 					};

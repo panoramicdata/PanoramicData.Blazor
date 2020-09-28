@@ -19,11 +19,11 @@ namespace PanoramicData.Blazor.Web.Data
 		public int Id { get; set; }
 		[Required]
 		[MinLength(2, ErrorMessage = "Minimum length is 2 characters")]
-//		[Display(Name = "First Name", Description = "Persons first / forename")]
+		[Display(Name = "First Name", Description = "Persons first / forename")]
 		public string FirstName { get; set; }
 		[Display(Description = "Optional middle name initials")]
 		public string Initials { get; set; }
-//		[Display(Name = "Last Name", Description = "Persons last / surname")]
+		[Display(Name = "Last Name", Description = "Persons last / surname")]
 		public string LastName { get; set; }
 		[Required]
 		[Display(Name = "Email Address", Description = "Primary email address used to contact the person")]
@@ -35,7 +35,7 @@ namespace PanoramicData.Blazor.Web.Data
 		[Display(Description = "Sales persons monthly sales target")]
 		public decimal Target { get; set; }
 		[Display(Description = "Major city that the person works nearest")]
-		public string Location { get; set; }
+		public int Location { get; set; }
 		[Display(Description = "Free form notes and comments")]
 		public string Comments { get; set; }
 		[Display(Name = "Login?", Description = "Is the person able to access the system?")]

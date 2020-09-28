@@ -26,19 +26,19 @@
 			 AllowEdit="true" BeforeEdit="OnBeforeEdit"
 			 DefaultPage="_defaultPage" PageChanged="OnPageChange"
 			 DefaultSort="_defaultSort" SortChanged="OnSortChange">
-		<PDColumn TItem="Person" Field="x => x.Id" Editable="false" />
-		<PDColumn TItem="Person" Field="x => x.FirstName" />
-		<PDColumn TItem="Person" Field="x => x.LastName" />
-		<PDColumn TItem="Person" Field="x => x.Email" />
-		<PDColumn TItem="Person" Field="x => x.Dob" Title="Date of Birth" Format="dd/MM/yy" />
-		<PDColumn TItem="Person" Field="x => x.Department" />
-		<PDColumn TItem="Person" Field="x => x.Location" Options="GetLocationOptions" />
-		<PDColumn TItem="Person" Field="x => x.Target" ShowInList="false" />
-		<PDColumn TItem="Person" Field="x => x.AllowLogin" ShowInList="false" />
-		<PDColumn TItem="Person" Field="x => x.Password" ShowInList="false" IsPassword="true" />
-		<PDColumn TItem="Person" Field="x => x.Comments" ShowInList="false" IsTextArea="true" TextAreaRows="6" />
-		<PDColumn TItem="Person" Field="x => x.DateCreated" Format="dd/MM/yy" ShowInList="false" />
-		<PDColumn TItem="Person" Field="x => x.DateModified" Format="dd/MM/yy HH:mm" Editable="false" TdClass="text-nowrap" />
+		<PDColumn Id="col-id" TItem="Person" Field="x => x.Id" Editable="false" />
+		<PDColumn Id="col-firstname" TItem="Person" Field="x => x.FirstName" />
+		<PDColumn Id="col-lastname" TItem="Person" Field="x => x.LastName" />
+		<PDColumn Id="col-email" TItem="Person" Field="x => x.Email" />
+		<PDColumn Id="col-dob" TItem="Person" Field="x => x.Dob" Title="Date of Birth" Format="dd/MM/yy" />
+		<PDColumn Id="col-department" TItem="Person" Field="x => x.Department" />
+		<PDColumn Id="col-location" TItem="Person" Field="x => x.Location" Options="GetLocationOptions" />
+		<PDColumn Id="col-target" TItem="Person" Field="x => x.Target" ShowInList="false" />
+		<PDColumn Id="col-allowlogin" TItem="Person" Field="x => x.AllowLogin" ShowInList="false" />
+		<PDColumn Id="col-password" TItem="Person" Field="x => x.Password" ShowInList="false" IsPassword="true" />
+		<PDColumn Id="col-comments" TItem="Person" Field="x => x.Comments" ShowInList="false" IsTextArea="true" TextAreaRows="6" />
+		<PDColumn Id="col-datecreated" TItem="Person" Field="x => x.DateCreated" Format="dd/MM/yy" ShowInList="false" />
+		<PDColumn Id="col-datemodified" TItem="Person" Field="x => x.DateModified" Format="dd/MM/yy HH:mm" Editable="false" TdClass="text-nowrap" />
 	</PDTable>
 
 </PDDragContext>

@@ -246,67 +246,76 @@ namespace PanoramicData.Blazor
 			if (Form?.Item != null && field.Field != null)
 			{
 				var memberInfo = field.Field.GetPropertyMemberInfo();
-				if (memberInfo != null)
+				if (memberInfo != null && memberInfo is PropertyInfo propInfo)
 				{
-					// run standard data annotation validation
-					if (Form.Item != null)
+					try
 					{
-						var results = new List<ValidationResult>();
-						var context = new ValidationContext(Form.Item)
-						{
-							MemberName = memberInfo.Name
-						};
-						if (Validator.TryValidateProperty(value, context, results))
-						{
-							Form.ClearErrors(memberInfo.Name);
-						}
-						else
-						{
-							Form.SetFieldErrors(memberInfo.Name, results.Select(x => x.ErrorMessage).ToArray());
-						}
-					}
+						// cast value
+						object typedValue = value.Cast(propInfo.PropertyType); // .GetValue(Item); // original value
 
-					// apply value
-					if (Form.Mode == FormModes.Create && memberInfo is PropertyInfo propInfo)
-					{
-						// if create then apply change direct to item (as is new and can be discarded)
-						try
+						// run standard data annotation validation
+						if (Form.Item != null)
 						{
-							object typedValue = value.Cast(propInfo.PropertyType); // .GetValue(Item); // original value
-							propInfo.SetValue(Form.Item, typedValue);
-						}
-						catch (Exception ex)
-						{
-							await Form.Error.InvokeAsync($"Failed to update field {memberInfo.Name}: {ex.Message}").ConfigureAwait(true);
-						}
-					}
-					else if (Form.Mode == FormModes.Edit)
-					{
-						// add / replace value on delta object
-						Form.Delta[memberInfo.Name] = value;
-					}
-
-					// run custom validation
-					if (Form.Item != null)
-					{
-						var args = new CustomValidateArgs<TItem>(field, GetItemWithUpdates());
-						await CustomValidate.InvokeAsync(args).ConfigureAwait(true);
-						foreach (var kvp in args.RemoveErrorMessages)
-						{
-							var entry = Form.Errors.FirstOrDefault(x => x.Key == kvp.Key && x.Value.Contains(kvp.Value));
-							if(entry.Key != null)
+							var results = new List<ValidationResult>();
+							var context = new ValidationContext(Form.Item)
 							{
-								Form.Errors[entry.Key].Remove(kvp.Value);
-								if (Form.Errors[entry.Key].Count == 0)
-								{
-									Form.Errors.Remove(entry.Key);
-								}
+								MemberName = memberInfo.Name
+							};
+							if (Validator.TryValidateProperty(typedValue, context, results))
+							{
+								Form.ClearErrors(memberInfo.Name);
+							}
+							else
+							{
+								Form.SetFieldErrors(memberInfo.Name, results.Select(x => x.ErrorMessage).ToArray());
 							}
 						}
-						foreach (var kvp in args.AddErrorMessages)
+
+						// apply value
+						if (Form.Mode == FormModes.Create)
 						{
-							Form.SetFieldErrors(kvp.Key, kvp.Value);
+							// if create then apply change direct to item (as is new and can be discarded)
+							try
+							{
+								propInfo.SetValue(Form.Item, typedValue);
+							}
+							catch (Exception ex)
+							{
+								await Form.Error.InvokeAsync($"Failed to update field {memberInfo.Name}: {ex.Message}").ConfigureAwait(true);
+							}
 						}
+						else if (Form.Mode == FormModes.Edit)
+						{
+							// add / replace value on delta object
+							Form.Delta[memberInfo.Name] = typedValue;
+						}
+
+						// run custom validation
+						if (Form.Item != null)
+						{
+							var args = new CustomValidateArgs<TItem>(field, GetItemWithUpdates());
+							await CustomValidate.InvokeAsync(args).ConfigureAwait(true);
+							foreach (var kvp in args.RemoveErrorMessages)
+							{
+								var entry = Form.Errors.FirstOrDefault(x => x.Key == kvp.Key && x.Value.Contains(kvp.Value));
+								if (entry.Key != null)
+								{
+									Form.Errors[entry.Key].Remove(kvp.Value);
+									if (Form.Errors[entry.Key].Count == 0)
+									{
+										Form.Errors.Remove(entry.Key);
+									}
+								}
+							}
+							foreach (var kvp in args.AddErrorMessages)
+							{
+								Form.SetFieldErrors(kvp.Key, kvp.Value);
+							}
+						}
+					}
+					catch(Exception ex)
+					{
+						Form?.SetFieldErrors(memberInfo.Name, ex.Message);
 					}
 				}
 			}
