@@ -167,6 +167,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public RenderFragment<TItem?>? EditTemplate { get; set; }
 
 		/// <summary>
+		/// Gets or sets a URL to an external context sensitive help page.
+		/// </summary>
+		[Parameter] public string? HelpUrl { get; set; }
+
+		/// <summary>
 		/// Gets or sets the attributes of the underlying property.
 		/// </summary>
 		public PropertyInfo? PropertyInfo { get; set; }

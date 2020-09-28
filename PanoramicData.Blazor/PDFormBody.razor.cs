@@ -13,8 +13,6 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDFormBody<TItem> where TItem : class
 	{
-		private Dictionary<string, bool> _showDescriptions = new Dictionary<string, bool>();
-
 		/// <summary>
 		/// Injected log service.
 		/// </summary>
@@ -48,7 +46,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Determines whether field descriptions are shown is available.
 		/// </summary>
-		[Parameter] public bool ShowDescriptions { get; set; }
+		[Parameter] public bool ShowDescriptions { get; set; } = true;
 
 		/// <summary>
 		/// Gets a full list of all fields.
@@ -81,7 +79,8 @@ namespace PanoramicData.Blazor
 						IsPassword = column.IsPassword,
 						IsTextArea = column.IsTextArea,
 						TextAreaRows = column.TextAreaRows,
-						Description = column.Description
+						Description = column.Description,
+						HelpUrl = column.HelpUrl
 					});
 				}
 			}
@@ -110,7 +109,8 @@ namespace PanoramicData.Blazor
 					IsPassword = field.IsPassword,
 					IsTextArea = field.IsTextArea,
 					TextAreaRows = field.TextAreaRows,
-					Description = field.Description
+					Description = field.Description,
+					HelpUrl = field.HelpUrl
 				});
 				StateHasChanged();
 			}
@@ -381,16 +381,6 @@ namespace PanoramicData.Blazor
 		public string GetEditorClass(FormField<TItem> field)
 		{
 			return Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
-		}
-
-		private bool ShowDescriptionFor(string fieldName)
-		{
-			return _showDescriptions.ContainsKey(fieldName) && _showDescriptions[fieldName];
-		}
-
-		private void ToggleShowDescriptionFor(string fieldName)
-		{
-			_showDescriptions[fieldName] = _showDescriptions.ContainsKey(fieldName) ? !_showDescriptions[fieldName] : true;
 		}
 	}
 }

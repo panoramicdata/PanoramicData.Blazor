@@ -8,7 +8,10 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDFormHeader<TItem> where TItem : class
     {
-		private bool ShowHelp { get; set; }
+		/// <summary>
+		/// Show the Help text toggle button been shown.
+		/// </summary>
+		[Parameter] public bool ShowHelpToggle { get; set; } = true;
 
 		/// <summary>
 		/// Injected javascript interop object.

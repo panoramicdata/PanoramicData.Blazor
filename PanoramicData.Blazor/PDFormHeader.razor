@@ -10,9 +10,9 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 			@if (Form.Mode == FormModes.Create)
 			{
 				<span>Create new @GetClassDescription()</span>
-				@if (!string.IsNullOrWhiteSpace(HelpText))
+				@if (ShowHelpToggle && !string.IsNullOrWhiteSpace(HelpText))
 				{
-					<i class="fas fa-question-circle text-info" @onclick="() => ShowHelp = !ShowHelp"></i>
+					<i class="fas fa-question-circle text-info" @onclick="() => { if (Form != null) { Form.ShowHelp = !Form.ShowHelp; } }"></i>
 				}
 			}
 			else if (Form.Mode == FormModes.Delete)
@@ -22,13 +22,13 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 			else
 			{
 				<span>Edit '@GetItemDescription()'</span>
-				@if (!string.IsNullOrWhiteSpace(HelpText))
+				@if (ShowHelpToggle && !string.IsNullOrWhiteSpace(HelpText))
 				{
-					<i class="fas fa-question-circle text-info" @onclick="() => ShowHelp = !ShowHelp"></i>
+					<i class="fas fa-question-circle text-info" @onclick="() => { if (Form != null) { Form.ShowHelp = !Form.ShowHelp; } }"></i>
 				}
 			}
 		</div>
-		@if (!string.IsNullOrWhiteSpace(HelpText) && ShowHelp && (Form.Mode == FormModes.Edit || Form.Mode == FormModes.Create))
+		@if (!string.IsNullOrWhiteSpace(HelpText) && Form?.ShowHelp == true && (Form.Mode == FormModes.Edit || Form.Mode == FormModes.Create))
 		{
 			<div class="small text-muted">
 				@HelpText

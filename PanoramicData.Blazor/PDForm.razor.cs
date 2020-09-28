@@ -9,6 +9,8 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDForm<TItem> where TItem : class
     {
+		private bool _showHelp;
+
 		public event EventHandler? ErrorsChanged;
 
 		/// <summary>
@@ -69,6 +71,22 @@ namespace PanoramicData.Blazor
 		protected override void OnInitialized()
 		{
 			Mode = DefaultMode;
+		}
+
+		/// <summary>
+		/// Gets or sets whether help text should be displayed.
+		/// </summary>
+		public bool ShowHelp
+		{
+			get { return _showHelp; }
+			set
+			{
+				if (value != _showHelp)
+				{
+					_showHelp = value;
+					StateHasChanged();
+				}
+			}
 		}
 
 		/// <summary>

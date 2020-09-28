@@ -29,9 +29,9 @@ else if (Form.Mode != FormModes.Hidden)
 						<div class="input-group-prepend">
 							<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true ? "alert-danger" : "")" title="@fieldDescription">
 								<span>@field.Title</span>
-								@if (!ShowDescriptions && !string.IsNullOrEmpty(fieldDescription))
+								@if (!string.IsNullOrWhiteSpace(field.HelpUrl))
 								{
-									<i class="pd-form-help-icon fas fa-question-circle text-info" @onclick="() => ToggleShowDescriptionFor(fieldName)"></i>
+									<i class="pd-form-help-icon fas fa-question-circle text-info"></i>
 								}
 							</div>
 						</div>
@@ -120,16 +120,16 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 					</div>
 					<div class="mb-2">
+						@if (Form?.ShowHelp == true && !string.IsNullOrWhiteSpace(fieldDescription))
+						{
+							<div class="small text-muted">@field.GetDescription()</div>
+						}
 						@if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
 						{
 							foreach (var message in Form.Errors[fieldName])
 							{
 								<div class="small text-danger">@message</div>
 							}
-						}
-						else if ((ShowDescriptions || ShowDescriptionFor(fieldName))  && !string.IsNullOrWhiteSpace(fieldDescription))
-						{
-							<div class="small text-muted">@field.GetDescription()</div>
 						}
 					</div>
 				</div>

@@ -79,6 +79,11 @@ namespace PanoramicData.Blazor
 		public RenderFragment<TItem?>? EditTemplate { get; set; }
 
 		/// <summary>
+		/// Gets or sets a URL to an external context sensitive help page.
+		/// </summary>
+		public string? HelpUrl { get; set; }
+
+		/// <summary>
 		/// Returns the value to be rendered in the user interface.
 		/// </summary>
 		/// <param name="item">The current TItem instance where to obtain the current field value.</param>
