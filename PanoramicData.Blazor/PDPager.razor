@@ -12,7 +12,7 @@
 		</li>
 		<li class="page-item disabled">
 			<a class="page-link" href="#">
-				Page&nbsp;@CurrentPage@(PageCount.HasValue ? "/" + PageCount : string.Empty)
+				Page&nbsp;@CurrentPage@(PageCount.HasValue ? "/" + (PageCount == 0 ? 1 : PageCount) : string.Empty)
 			</a>
 		</li>
 		<li class="page-item @(IsLastPage || CurrentPage > PageCount ? "disabled" : "pd-pointer")">
