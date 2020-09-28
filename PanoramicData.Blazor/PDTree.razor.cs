@@ -231,12 +231,9 @@ namespace PanoramicData.Blazor
 		/// <param name="node">The node to refresh.</param>
 		public async Task RefreshNodeAsync(TreeNode<TItem> node)
 		{
-			if (!node.Isleaf)
-			{
-				node.IsExpanded = false;
-				node.Nodes = null;
-				await ToggleNodeIsExpandedAsync(node).ConfigureAwait(true);
-			}
+			node.IsExpanded = false;
+			node.Nodes = null;
+			await ToggleNodeIsExpandedAsync(node).ConfigureAwait(true);
 		}
 
 		/// <summary>

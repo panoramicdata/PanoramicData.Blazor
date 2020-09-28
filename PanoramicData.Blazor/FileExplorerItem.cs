@@ -46,7 +46,7 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-				// check GetDirectoryName output as returns black path separator in path and
+				// check GetDirectoryName output as returns back path separator in path and
 				// will return \ for \folder and tree component expects null or empty string
 				// to indicate no parent (root item)
 				var parentPath = System.IO.Path.GetDirectoryName(Path);
@@ -55,7 +55,7 @@ namespace PanoramicData.Blazor
 					// force all paths to use forward slashes as separators
 					parentPath = parentPath.Replace(System.IO.Path.DirectorySeparatorChar, '/');
 				}
-				return parentPath == "/" ? string.Empty : parentPath;
+				return parentPath;
 			}
 		}
 
