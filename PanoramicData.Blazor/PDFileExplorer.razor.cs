@@ -433,9 +433,9 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnUploadStarted(DropZoneUploadEventArgs args)
+		private async Task OnUploadStarted(DropZoneUploadEventArgs args)
 		{
-			UploadStarted.InvokeAsync(args);
+			await UploadStarted.InvokeAsync(args).ConfigureAwait(false);
 		}
 
 		private async Task OnUploadProgress(DropZoneUploadProgressEventArgs args)

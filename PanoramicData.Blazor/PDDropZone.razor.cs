@@ -75,7 +75,7 @@ namespace PanoramicData.Blazor
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadBegin")]
-		public void OnUploadBegin(DropZoneFile file)
+		public async Task<string[]> OnUploadBeginAsync(DropZoneFile file)
 		{
 			if (file is null)
 			{
@@ -89,7 +89,22 @@ namespace PanoramicData.Blazor
 			{
 				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 			}
-			UploadStarted.InvokeAsync(new DropZoneUploadEventArgs(file.Path, file.Name, file.Size));
+			var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size);
+			await UploadStarted.InvokeAsync(args).ConfigureAwait(true);
+			if(args.FormFields.Count == 0)
+			{
+				return new string[0];
+			}
+			else
+			{
+				var fields = new System.Collections.Generic.List<string>();
+				foreach(var kvp in args.FormFields)
+				{
+					fields.Add($"{kvp.Key}={kvp.Value}");
+				}
+				return fields.ToArray();
+			}
+
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadProgress")]

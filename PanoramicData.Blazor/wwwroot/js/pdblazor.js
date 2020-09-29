@@ -195,10 +195,24 @@ function uploadFile(file, url, path, zone) {
 	});
 	formData.append('path', path);
 	formData.append('file', file);
-	if (zone.dotnetHelper)
-		zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Path: path, Name: file.name, Size: file.size });
-	xhr.send(formData);
-	return xhr;
+	if (zone.dotnetHelper) {
+		zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Path: path, Name: file.name, Size: file.size })
+			.then(data => {
+				if (data.length) {
+					for (var i = 0; i < data.length; i++) {
+						var kvp = data[i].split('=');
+						if (kvp.length && kvp.length == 2) {
+							formData.append(kvp[0], kvp[1]);
+						}
+					}
+				}
+				xhr.send(formData);
+			});
+	}
+	else {
+		xhr.send(formData);
+	}
+	//return xhr;
 }
 
 function initPopover(el) {

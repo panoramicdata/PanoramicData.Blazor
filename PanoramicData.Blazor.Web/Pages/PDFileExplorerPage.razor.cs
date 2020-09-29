@@ -46,6 +46,12 @@ namespace PanoramicData.Blazor.Web.Pages
 			}
 		}
 
+		public async Task OnUploadStarted(DropZoneUploadEventArgs args)
+		{
+			// add example additional field to pass with upload
+			args.FormFields.Add("key", Guid.NewGuid().ToString());
+		}
+
 		public async Task OnUploadCompleted(DropZoneUploadEventArgs args)
 		{
 			// need to add to data provider as file not really uploaded to physical drive

@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor
+﻿using System.Collections.Generic;
+
+namespace PanoramicData.Blazor
 {
 	/// <summary>
 	/// The DropZoneEventArgs class provides information for PDDropZone drop events.
@@ -58,6 +60,7 @@
 			Path = path;
 			Name = name;
 			Size = size;
+			FormFields = new Dictionary<string, string>();
 		}
 
 		/// <summary>
@@ -74,6 +77,11 @@
 		/// Gets or sets the size of the file being uploaded.
 		/// </summary>
 		public long Size { get; set; }
+
+		/// <summary>
+		/// Gets or sets additional form fields to be sent with the upload request.
+		/// </summary>
+		public Dictionary<string, string> FormFields { get; set; }
 	}
 
 	/// <summary>

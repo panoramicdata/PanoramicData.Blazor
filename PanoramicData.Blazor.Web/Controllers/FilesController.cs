@@ -13,7 +13,7 @@ namespace PanoramicData.Blazor.Web.Controllers
 	[Route("[controller]")]
 	public class FilesController : Controller
 	{
-		[HttpGet("[action]")]
+		[HttpGet("download")]
 		public IActionResult Download(string path)
 		{
 			var stream = new FileStream("Download/file_example_WEBM_1920_3_7MB.webm", FileMode.Open);
@@ -22,11 +22,12 @@ namespace PanoramicData.Blazor.Web.Controllers
 			return result;
 		}
 
-		[HttpPost("[action]")]
+		[HttpPost("upload")]
 		[RequestSizeLimit(1000000000)] // 1 GB
 		[RequestFormLimits(MultipartBodyLengthLimit = 1000000000)]
 		public async Task<IActionResult> Upload([FromForm] FileUploadModel uploadInfo)
 		{
+			Console.WriteLine($"Upload: Key = {uploadInfo.Key}");
 			if (uploadInfo.File != null)
 			{
 				var filePath = Path.Combine("C:", "Temp", "Uploads", uploadInfo.File.FileName);
@@ -41,6 +42,7 @@ namespace PanoramicData.Blazor.Web.Controllers
 
 		public class FileUploadModel
 		{
+			public string Key { get; set; }
 			public string Path { get; set; }
 			public IFormFile File { get; set; }
 		}
