@@ -46,16 +46,16 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-				// check GetDirectoryName output as returns back path separator in path and
-				// will return \ for \folder and tree component expects null or empty string
-				// to indicate no parent (root item)
-				var parentPath = System.IO.Path.GetDirectoryName(Path);
-				if(!string.IsNullOrWhiteSpace(parentPath))
+				//   /                         -> ""
+				//   /abc.txt                  => "/"
+				//   /folder1/abc.txt          => "/folder1"
+				//   /folder1/folder2/abc.txt  => "/folder1/folder2"
+				if(Path == "/")
 				{
-					// force all paths to use forward slashes as separators
-					parentPath = parentPath.Replace(System.IO.Path.DirectorySeparatorChar, '/');
+					return "";
 				}
-				return parentPath;
+				var idx = Path.LastIndexOf('/');
+				return (idx == 0) ? "/" : Path.Substring(0, idx);
 			}
 		}
 
@@ -71,21 +71,20 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-				var name = System.IO.Path.GetFileName(Path);
-				return string.IsNullOrWhiteSpace(name) ? Path : name;
+				//   /                         -> "/"
+				//   /abc.txt                  => "abc.txt"
+				//   /folder1/abc.txt          => "abc.txt"
+				//   /folder1/folder2/abc.txt  => "abc.txt"
+				if (Path == "/")
+				{
+					return "/";
+				}
+				return Path.Substring(Path.LastIndexOf('/') + 1);
 			}
 			set
 			{
-				var name = System.IO.Path.GetFileName(Path);
-				if (string.IsNullOrWhiteSpace(name))
-				{
-					Path = value;
-				}
-				else
-				{
-
-					Path = $"{ParentPath}/{value}";
-				}
+				// item is being renamed -> adjust entire path
+				Path = $"{ParentPath}/{value}";
 			}
 		}
 
@@ -109,7 +108,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public override string ToString()
 		{
-			return Name;
+			return Path;
 		}
 
 		/// <summary>

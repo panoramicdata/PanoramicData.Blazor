@@ -135,6 +135,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string CssClass { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Determines where sub-folders show an entry (..) to allow navigation to the parent folder.
+		/// </summary>
+		[Parameter] public bool ShowParentFolder { get; set; } = true;
+
+		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
 		/// </summary>
 		private void OnTreeItemsLoaded(List<FileExplorerItem> items)
@@ -244,7 +249,15 @@ namespace PanoramicData.Blazor
 
 		private void OnTableItemsLoaded(List<FileExplorerItem> items)
 		{
-			items.Insert(0, new FileExplorerItem { Path = Path.Combine(_selectedNode?.Data?.Path ?? "", ".."), EntryType = FileExplorerItemType.Directory, CanCopyMove = false });
+			if (ShowParentFolder && _selectedNode?.Data?.Path != null && _selectedNode.Data.Path != "/")
+			{
+				items.Insert(0, new FileExplorerItem
+				{
+					Path = $"{_selectedNode.Data.Path}/..",
+					EntryType = FileExplorerItemType.Directory,
+					CanCopyMove = false
+				});
+			}
 		}
 
 		private async Task OnTableDoubleClick(FileExplorerItem item)
@@ -343,15 +356,23 @@ namespace PanoramicData.Blazor
 			}
 			else
 			{
-				// multiple selection - only delete is an option
+				// multiple selection - only delete and download are options
 				TableContextItems.Single(x => x.Text == "Open").IsVisible = false;
-				TableContextItems.Single(x => x.Text == "Download").IsVisible = false;
 				TableContextItems.Single(x => x.Text == "Rename").IsVisible = false;
 
 				// check can delete all selection?
-				if(!IsValidSelection())
+				if (IsValidSelection())
+				{
+					// also check for directory
+					if(Table.ItemsToDisplay.Any(x => Table.Selection.Contains(x.Path) && x.EntryType == FileExplorerItemType.Directory))
+					{
+						TableContextItems.Single(x => x.Text == "Download").IsDisabled = true;
+					}
+				}
+				else
 				{
 					TableContextItems.Single(x => x.Text == "Delete").IsDisabled = true;
+					TableContextItems.Single(x => x.Text == "Download").IsDisabled = true;
 				}
 			}
 
@@ -389,8 +410,14 @@ namespace PanoramicData.Blazor
 					}
 					else if(menuItem.Text == "Download")
 					{
-						var item = Table.ItemsToDisplay.Find(x => x.Path == Table!.Selection[0]);
-						await TableDownloadRequest.InvokeAsync(new TableEventArgs<FileExplorerItem>(item)).ConfigureAwait(true);
+						foreach (var selectedPath in Table!.Selection)
+						{
+							var item = Table.ItemsToDisplay.Find(x => x.Path == selectedPath);
+							if (item != null)
+							{
+								await TableDownloadRequest.InvokeAsync(new TableEventArgs<FileExplorerItem>(item)).ConfigureAwait(true);
+							}
+						}
 					}
 				}
 			}
@@ -454,12 +481,11 @@ namespace PanoramicData.Blazor
 				{
 					item = new FileExplorerItem
 					{
-						Path = args.Path,
+						Path = $"{args.Path}/{args.Name}",
 						DateCreated = DateTimeOffset.Now,
 						DateModified = DateTimeOffset.Now,
 						EntryType = FileExplorerItemType.File,
 						FileSize = args.Size,
-						Name = args.Name,
 						IsUploading = true
 					};
 					Table.ItemsToDisplay.Add(item);
