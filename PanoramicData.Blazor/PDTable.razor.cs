@@ -714,6 +714,15 @@ namespace PanoramicData.Blazor
 						await BeginEdit().ConfigureAwait(true);
 						break;
 
+					case "KeyA":
+						if (args.CtrlKey && SelectionMode == TableSelectionMode.Multiple)
+						{
+							ClearSelection();
+							Selection.AddRange(ItemsToDisplay.Select(x => KeyField!(x).ToString()));
+							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+						}
+						break;
+
 					case "ArrowUp":
 					case "ArrowDown":
 						if(Selection.Count == 1 && KeyField != null)
