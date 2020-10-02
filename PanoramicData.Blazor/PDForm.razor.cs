@@ -202,7 +202,14 @@ namespace PanoramicData.Blazor
 			{
 				Errors.Add(fieldName, new List<string>());
 			}
-			Errors[fieldName].AddRange(messages);
+			// avoid duplicate messages
+			foreach (var message in messages)
+			{
+				if (!Errors[fieldName].Contains(message))
+				{
+					Errors[fieldName].Add(message);
+				}
+			}
 			OnErrorsChanged(EventArgs.Empty);
 		}
 
