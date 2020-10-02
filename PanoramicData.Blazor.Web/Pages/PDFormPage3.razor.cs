@@ -133,5 +133,13 @@ namespace PanoramicData.Blazor.Web.Pages
 				}
 			}
 		}
+
+		private string FormStyle
+		{
+			get
+			{
+				return "border-color: red";
+			}
+		}
 	}
 }

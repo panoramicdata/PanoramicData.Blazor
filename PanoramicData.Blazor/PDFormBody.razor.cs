@@ -277,24 +277,8 @@ namespace PanoramicData.Blazor
 							}
 						}
 
-						// apply value
-						if (Form.Mode == FormModes.Create)
-						{
-							// if create then apply change direct to item (as is new and can be discarded)
-							try
-							{
-								propInfo.SetValue(Form.Item, typedValue);
-							}
-							catch (Exception ex)
-							{
-								await Form.Error.InvokeAsync($"Failed to update field {memberInfo.Name}: {ex.Message}").ConfigureAwait(true);
-							}
-						}
-						else if (Form.Mode == FormModes.Edit)
-						{
-							// add / replace value on delta object
-							Form.Delta[memberInfo.Name] = typedValue;
-						}
+						// add / replace value on delta object
+						Form.Delta[memberInfo.Name] = typedValue;
 
 						// run custom validation
 						if (Form.Item != null)
@@ -339,10 +323,10 @@ namespace PanoramicData.Blazor
 				return null;
 			}
 			// in create mode updates are applied directly to the item
-			if(Form.Mode == FormModes.Create)
-			{
-				return Form.Item;
-			}
+			//if(Form.Mode == FormModes.Create)
+			//{
+			//	return Form.Item;
+			//}
 			// apply updates
 			var json = System.Text.Json.JsonSerializer.Serialize(Form.Item);
 			var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);

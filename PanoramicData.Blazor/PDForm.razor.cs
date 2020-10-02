@@ -68,6 +68,17 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public Dictionary<string, List<string>> Errors { get; } = new Dictionary<string, List<string>>();
 
+		/// <summary>
+		/// Gets whether changes have been made.
+		/// </summary>
+		public bool HasChanges
+		{
+			get
+			{
+				return Delta.Count > 0;
+			}
+		}
+
 		protected override void OnInitialized()
 		{
 			Mode = DefaultMode;
@@ -130,6 +141,21 @@ namespace PanoramicData.Blazor
 			{
 				if (Mode == FormModes.Create)
 				{
+					// apply delta to item
+					var itemType = Item.GetType();
+					foreach (var change in Delta)
+					{
+						try
+						{
+							var propInfo = itemType.GetProperty(change.Key);
+							propInfo?.SetValue(Item, change.Value);
+						}
+						catch (Exception ex)
+						{
+							await Error.InvokeAsync($"Error applying delta to {change.Key}: {ex.Message}").ConfigureAwait(true);
+							return;
+						}
+					}
 					var response = await DataProvider.CreateAsync(Item, CancellationToken.None).ConfigureAwait(true);
 					if (response.Success)
 					{
@@ -187,7 +213,7 @@ namespace PanoramicData.Blazor
 		public void ClearErrors(string fieldName)
 		{
 			Errors.Remove(fieldName);
-			OnErrorsChanged(new EventArgs());
+			OnErrorsChanged(EventArgs.Empty);
 		}
 
 		protected virtual void OnErrorsChanged(EventArgs e)

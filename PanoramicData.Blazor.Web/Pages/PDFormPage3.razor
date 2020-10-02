@@ -7,7 +7,10 @@
 		margin-left: 10px;
 	}
 	.pd-form-header {
-		padding-bottom: 10px;
+		padding-bottom: 5px;
+	}
+	.pd-form-header.haschanges {
+		border: 2px solid blue;
 	}
 </style>
 
@@ -53,7 +56,7 @@
 					  ShowInDelete="@((x) => !x.FirstName.In("Alice", "Carol", "Eve", "Grace", "Heidi", "Judy"))" />
 			<PDColumn TItem="Person" Field="x => x.Department" HelpUrl="https://www.dictionary.com/browse/department" />
 			<PDColumn TItem="Person" Field="x => x.Location" Options="GetLocationOptions" />
-			<PDColumn TItem="Person" Field="x => x.Target" ShowInList="false" ReadOnlyInEdit="(x) => x.Department != Departments.Sales" />
+			<PDColumn TItem="Person" Field="x => x.Target" ShowInList="false" ReadOnlyInEdit="(x) => x.Department != Departments.Sales" ReadOnlyInCreate="(x) => x.Department != Departments.Sales" />
 			<PDColumn TItem="Person" Field="x => x.AllowLogin" ShowInList="false" />
 			<PDColumn TItem="Person" Field="x => x.Password" ShowInList="false" ShowInCreate="(x) => x.AllowLogin" ShowInEdit="(x) => x.AllowLogin" IsPassword="true" />
 			<PDColumn TItem="Person" Field="x => x.Comments" ShowInList="false" ShowInCreate="(_) => false" IsTextArea="true" TextAreaRows="6" />
