@@ -505,6 +505,12 @@ namespace PanoramicData.Blazor
 			StateHasChanged();
 		}
 
+		void IDisposable.Dispose()
+		{
+			_editTimer?.Dispose();
+			_editTimer = null;
+		}
+
 		protected override void OnInitialized()
 		{
 			Id = $"{IdPrefix}{++_idSequence}";
@@ -620,9 +626,7 @@ namespace PanoramicData.Blazor
 				// begin edit mode?
 				if(AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
 				{
-					//_editTimer.Start();
 					_editTimer?.Change(500, Timeout.Infinite);
-					//await BeginEdit().ConfigureAwait(true);
 				}
 				else
 				{
@@ -637,7 +641,21 @@ namespace PanoramicData.Blazor
 					}
 					else if (SelectionMode == TableSelectionMode.Multiple)
 					{
-						if (args.CtrlKey)
+						if(args.ShiftKey && Selection.Count > 0) // range selection (from last selected to row clicked on)
+						{
+							Selection.RemoveRange(0, Selection.Count - 1);
+							var idxFrom = ItemsToDisplay.FindIndex(x => KeyField!(x)?.ToString() == Selection[0]);
+							var idxTo = ItemsToDisplay.FindIndex(x => KeyField!(x)?.ToString() == key);
+							if (idxFrom > -1 && idxTo > -1)
+							{
+								Selection.Clear();
+								Selection.AddRange(ItemsToDisplay
+									.GetRange(Math.Min(idxFrom, idxTo), (Math.Max(idxFrom, idxTo) - Math.Min(idxFrom, idxTo)) + 1)
+									.Select(x => KeyField!(x).ToString()));
+								await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+							}
+						}
+						else if (args.CtrlKey) // toggle selection
 						{
 							if (alreadySelected)
 							{
@@ -649,7 +667,7 @@ namespace PanoramicData.Blazor
 							}
 							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 						}
-						else if (!alreadySelected)
+						else if (!alreadySelected) // single selection
 						{
 							Selection.Clear();
 							Selection.Add(key);
@@ -763,12 +781,6 @@ namespace PanoramicData.Blazor
 				return config?.Editable ?? editable;
 			}
 			return false;
-		}
-
-		void IDisposable.Dispose()
-		{
-			_editTimer?.Dispose();
-			_editTimer = null;
 		}
 
 		private void OnDragStart(DragEventArgs _)
