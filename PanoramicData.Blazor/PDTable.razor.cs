@@ -184,6 +184,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AutoLoad { get; set; } = true;
 
 		/// <summary>
+		/// Callback fired whenever the user presses a key down.
+		/// </summary>
+		[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
+
+		/// <summary>
 		/// Gets the unique identifier of this table.
 		/// </summary>
 		public string Id { get; private set; } = string.Empty;
@@ -747,6 +752,8 @@ namespace PanoramicData.Blazor
 						break;
 				}
 			}
+
+			await KeyDown.InvokeAsync(args).ConfigureAwait(true);
 		}
 
 		private void OnEditTimer(object state)

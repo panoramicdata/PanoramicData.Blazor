@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Extensions;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor
 {
@@ -278,6 +279,14 @@ namespace PanoramicData.Blazor
 			{
 				// only want to select the filename portion of the text
 				args.SelectionEnd = Path.GetFileNameWithoutExtension(args.Item.Name).Length;
+			}
+		}
+
+		private async Task OnTableKeyDown(KeyboardEventArgs args)
+		{
+			if(args.Code == "Delete")
+			{
+				await DeleteSelectedFiles().ConfigureAwait(true);
 			}
 		}
 
