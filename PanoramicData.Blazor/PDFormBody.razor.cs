@@ -50,11 +50,6 @@ namespace PanoramicData.Blazor
 		[Parameter] public int TitleWidth { get; set; } = 200;
 
 		/// <summary>
-		/// Determines whether field descriptions are shown is available.
-		/// </summary>
-		[Parameter] public bool ShowDescriptions { get; set; } = true;
-
-		/// <summary>
 		/// Gets a full list of all fields.
 		/// </summary>
 		public List<FormField<TItem>> Fields { get; } = new List<FormField<TItem>>();
@@ -322,12 +317,6 @@ namespace PanoramicData.Blazor
 			{
 				return null;
 			}
-			// in create mode updates are applied directly to the item
-			//if(Form.Mode == FormModes.Create)
-			//{
-			//	return Form.Item;
-			//}
-			// apply updates
 			var json = System.Text.Json.JsonSerializer.Serialize(Form.Item);
 			var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);
 			foreach(var kvp in Form.Delta)

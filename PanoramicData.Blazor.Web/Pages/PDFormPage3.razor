@@ -67,9 +67,9 @@
 
 	<div class="form-div">
 		<PDForm @ref="Form" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider" DefaultMode="FormModes.Empty"
-				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated">
+				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated" HelpTextMode="HelpTextMode.Toggle">
 			<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" HelpText="This is some help text for the entire form" />
-			<PDFormBody @ref="FormBody" TItem="Person" Table="Table" ShowDescriptions="_showDescriptions" CustomValidate="OnCustomValidate" />
+			<PDFormBody @ref="FormBody" TItem="Person" Table="Table" CustomValidate="OnCustomValidate" />
 			<PDFormFooter TItem="Person" Click="OnFooterClick" />
 		</PDForm>
 	</div>

@@ -54,6 +54,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public FormModes DefaultMode { get; set; }
 
 		/// <summary>
+		/// Sets how help text is displayed.
+		/// </summary>
+		[Parameter] public HelpTextMode HelpTextMode { get; set; } = HelpTextMode.Toggle;
+
+		/// <summary>
 		/// Gets or sets the current form mode.
 		/// </summary>
 		public FormModes Mode { get; private set; }

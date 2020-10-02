@@ -120,7 +120,9 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 					</div>
 					<div class="mb-2">
-						@if (Form?.ShowHelp == true && !string.IsNullOrWhiteSpace(fieldDescription))
+						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
+						(Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+						(Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}
