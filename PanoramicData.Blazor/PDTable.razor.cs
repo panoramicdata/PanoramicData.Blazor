@@ -502,6 +502,14 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Returns an array of all currently selected items.
+		/// </summary>
+		public TItem[] GetSelectedItems()
+		{
+			return KeyField == null ? new TItem[0] : ItemsToDisplay.Where(x => Selection.Contains(KeyField(x))).ToArray();
+		}
+
+		/// <summary>
 		/// Clears the current selection.
 		/// </summary>
 		public void ClearSelection()

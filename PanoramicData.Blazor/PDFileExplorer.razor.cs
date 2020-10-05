@@ -5,19 +5,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Extensions;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDFileExplorer
     {
 		private TreeNode<FileExplorerItem>? _selectedNode;
-		public string FolderPath = string.Empty;
-
 		private PDTree<FileExplorerItem>? Tree { get; set; }
 		private PDTable<FileExplorerItem>? Table { get; set; }
+
+		public string FolderPath = string.Empty;
 
 		/// <summary>
 		/// Sets the IDataProviderService instance to use to fetch data.
@@ -141,6 +141,16 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool ShowParentFolder { get; set; } = true;
 
 		/// <summary>
+		/// Gets or sets a delegate to be called if an exception occurs.
+		/// </summary>
+		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
+
+		/// <summary>
+		/// Delete called whenever the user requests to delete one or more items.
+		/// </summary>
+		[Parameter] public EventCallback<FileOperationArgs> DeleteRequest { get; set; }
+
+		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
 		/// </summary>
 		private void OnTreeItemsLoaded(List<FileExplorerItem> items)
@@ -192,11 +202,7 @@ namespace PanoramicData.Blazor
 				{
 					if (item.Text == "Delete")
 					{
-						var result = await DataProvider.DeleteAsync(Tree.SelectedNode.Data, CancellationToken.None).ConfigureAwait(true);
-						if (result.Success)
-						{
-							await Tree.RemoveNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
-						}
+						await DeleteRequest.InvokeAsync(new FileOperationArgs("DeleteFolder", new FileExplorerItem[] { Tree.SelectedNode.Data })).ConfigureAwait(true);
 					}
 					else if (item.Text == "Rename")
 					{
@@ -286,7 +292,7 @@ namespace PanoramicData.Blazor
 		{
 			if(args.Code == "Delete")
 			{
-				await DeleteSelectedFiles().ConfigureAwait(true);
+				await InitiateDeleteFiles().ConfigureAwait(true);
 			}
 		}
 
@@ -411,7 +417,7 @@ namespace PanoramicData.Blazor
 					}
 					else if (menuItem.Text == "Delete")
 					{
-						await DeleteSelectedFiles().ConfigureAwait(true);
+						await InitiateDeleteFiles().ConfigureAwait(true);
 					}
 					else if(menuItem.Text == "Rename")
 					{
@@ -534,7 +540,7 @@ namespace PanoramicData.Blazor
 					break;
 
 				case "delete":
-					await DeleteSelectedFiles().ConfigureAwait(true);
+					await InitiateDeleteFiles().ConfigureAwait(true);
 					break;
 
 				default:
@@ -667,18 +673,41 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task DeleteSelectedFiles()
+		private async Task InitiateDeleteFiles()
 		{
 			// selection key is path of item
 			if (Table?.Selection != null)
 			{
+				// get items to be deleted
+				var items = Table.GetSelectedItems();
+
+				// prompt user to confirm
+				var args = new FileOperationArgs("DeleteFiles", items);
+				await DeleteRequest.InvokeAsync(args).ConfigureAwait(true);
+			}
+		}
+
+		/// <summary>
+		/// Deletes the currently selected files and folders from the right hand panel.
+		/// </summary>
+		public async Task DeleteSelectedFiles()
+		{
+			// selection key is path of item
+			if (Table?.Selection != null)
+			{
+				// get items to be deleted
+				var items = Table.GetSelectedItems();
+
 				// delete all selected items
-				foreach (var path in Table.Selection)
+				foreach (var item in items)
 				{
-					var fileItem = Table!.ItemsToDisplay.Find(x => x.Path == path);
-					if (fileItem != null)
+					try
 					{
-						await DataProvider.DeleteAsync(fileItem, CancellationToken.None).ConfigureAwait(true);
+						await DataProvider.DeleteAsync(item, CancellationToken.None).ConfigureAwait(true);
+					}
+					catch (Exception ex)
+					{
+						await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
 					}
 				}
 
@@ -686,6 +715,25 @@ namespace PanoramicData.Blazor
 				await RefreshTree().ConfigureAwait(true);
 				await RefreshTable().ConfigureAwait(true);
 				await RefreshToolbar().ConfigureAwait(true);
+			}
+		}
+
+		/// <summary>
+		/// Deletes the currently selected folder in the left hand folder.
+		/// </summary>
+		public async Task DeleteSelectedFolder()
+		{
+			if (Tree?.SelectedNode?.Data != null)
+			{
+				try
+				{
+					await DataProvider.DeleteAsync(Tree.SelectedNode.Data, CancellationToken.None).ConfigureAwait(true);
+					await Tree.RemoveNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
+				}
+				catch (Exception ex)
+				{
+					await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+				}
 			}
 		}
 

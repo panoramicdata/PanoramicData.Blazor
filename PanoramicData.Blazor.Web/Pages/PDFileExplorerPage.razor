@@ -9,12 +9,25 @@
 <div style="height: calc(100vh - 57px - 10px - 56px)">
 
 	<PDDragContext>
-		<PDFileExplorer @ref="_fileExplorer" DataProvider="_dataProvider"
-						TreeContextMenuClick="OnTreeContextMenuClick" TableContextMenuClick="OnTableContextMenuClick"
-						UpdateTableContextState="OnUpdateTableContextMenuState" TableDownloadRequest="OnTableDownloadRequest"
-						UpdateToolbarState="OnUpdateToolbarState" ToolbarClick="OnToolbarClick"
-						UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())" UploadRequest="OnUploadRequest" UploadStarted="OnUploadStarted" UploadCompleted="OnUploadCompleted">
+		<PDFileExplorer @ref="_fileExplorer"
+						DataProvider="_dataProvider"
+						UpdateTableContextState="OnUpdateTableContextMenuState"
+						UpdateToolbarState="OnUpdateToolbarState"
+						DeleteRequest="OnDeleteRequest"
+						TableContextMenuClick="OnTableContextMenuClick"
+						TableDownloadRequest="OnTableDownloadRequest"
+						ToolbarClick="OnToolbarClick"
+						UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())"
+						UploadRequest="OnUploadRequest"
+						UploadStarted="OnUploadStarted"
+						UploadCompleted="OnUploadCompleted">
 		</PDFileExplorer>
 	</PDDragContext>
 
 </div>
+
+<PDModal @ref="_modalDialog"
+		 Title="@_modalTitle"
+		 ButtonClick="OnModalButtonClick">
+	<span>@_modalMessage</span>
+</PDModal>
