@@ -228,3 +228,13 @@ function disposePopover(el) {
 function openUrl(url, target) {
 	window.open(url, target);
 }
+
+function showBsDialog(id) {
+	$(id).modal({
+		show: true
+	})
+}
+
+function hideBsDialog(id) {
+	$(id).modal('hide');
+}
