@@ -2,7 +2,7 @@
 
 @if (TableInitialised)
 {
-	<div id="@Id" class="pdtable @CssClass" tabindex="0" @onkeydown="OnKeyDown" @onkeydown:preventDefault>
+	<div id="@Id" class="pdtable @CssClass" tabindex="0" @onkeydown="OnKeyDownAsync" @onkeydown:preventDefault>
 		<table class="table @TableClass">
 			@if (PageSize.HasValue)
 			{
@@ -22,7 +22,7 @@
 					<th scope="col" class="@column.ThClass">
 						@if (column.Sortable)
 						{
-							<div title="@column.HelpText" @onclick="@(async () => await SortBy(column))">
+							<div title="@column.HelpText" @onclick="@(async () => await SortByAsync(column))">
 								<span class="text-nowrap pd-pointer">@column.Title&nbsp;@((MarkupString)column.SortIcon)</span>
 							</div>
 						}
@@ -40,7 +40,7 @@
 					{
 					<tr class="pdtablerow @GetDynamicRowClasses(item)"
 						@attributes="RowAttributes" @oncontextmenu:preventDefault
-						@onmousedown="@((args) => OnRowMouseDown(args, item))"
+						@onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
 						@onclick="@((args) => OnRowClick(args, item))"
 						@ondblclick="@((args) => OnRowDoubleClick(args, item))"
 						@ondragstart="OnDragStart"
@@ -52,7 +52,7 @@
 								@if (IsColumnInEditMode(column, item) && column.Field != null)
 								{
 									<input id="@($"{IdEditPrefix}{column.Id}")" type="@(column.IsPassword ? "password" : "text")" value="@($"{column.GetValue(item)}")" class="pdtable_edit"
-										   @onblur="OnEndEdit"
+										   @onblur="OnEndEditAsync"
 										   @onmousedown:stopPropagation
 										   @onclick:stopPropagation
 										   @oncontextmenu:stopPropagation />

@@ -138,8 +138,8 @@ namespace PanoramicData.Blazor.Web.Pages
 
 			if(result.Success)
 			{
-				await _fileExplorer.RefreshTable().ConfigureAwait(true);
-				await _fileExplorer.RefreshToolbar().ConfigureAwait(true);
+				await _fileExplorer.RefreshTableAsync().ConfigureAwait(true);
+				await _fileExplorer.RefreshToolbarAsync().ConfigureAwait(true);
 			}
 		}
 
@@ -175,11 +175,11 @@ namespace PanoramicData.Blazor.Web.Pages
 			{
 				if(_deleteFiles)
 				{
-					await _fileExplorer.DeleteSelectedFiles().ConfigureAwait(true);
+					await _fileExplorer.DeleteSelectedFilesAsync().ConfigureAwait(true);
 				}
 				else
 				{
-					await _fileExplorer.DeleteSelectedFolder().ConfigureAwait(true);
+					await _fileExplorer.DeleteSelectedFolderAsync().ConfigureAwait(true);
 				}
 			}
 		}

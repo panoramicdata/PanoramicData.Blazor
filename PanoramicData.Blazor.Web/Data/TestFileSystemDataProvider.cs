@@ -147,8 +147,7 @@ namespace PanoramicData.Blazor.Web.Data
 							if(targetItem?.EntryType == FileExplorerItemType.Directory)
 							{
 								// move / copy
-								var copyProp = delta.GetType().GetProperty("Copy");
-								var isCopy = copyProp?.GetValue(delta)?.ToString().ToLower() == "true";
+								var isCopy = delta.ContainsKey("Copy") && delta["Copy"].ToString().ToLower() == "true";
 								MoveOrCopyItem(existingItem, newPath, isCopy);
 							}
 							else
@@ -177,7 +176,17 @@ namespace PanoramicData.Blazor.Web.Data
 		{
 			if (item.EntryType == FileExplorerItemType.File)
 			{
-				if (isCopy)
+				var existingItem = _testData.FirstOrDefault(x => x.Path == $"{parentPath}/{item.Name}");
+				if (existingItem != null)
+				{
+					// item exists - simulate overwrite
+					existingItem.DateModified = DateTime.UtcNow;
+					if(!isCopy)
+					{
+						_testData.Remove(item);
+					}
+				}
+				else if (isCopy)
 				{
 					_testData.Add(new FileExplorerItem
 					{
@@ -188,12 +197,12 @@ namespace PanoramicData.Blazor.Web.Data
 						IsHidden = item.IsHidden,
 						IsSystem = item.IsSystem,
 						IsReadOnly = item.IsReadOnly,
-						Path = Path.Combine(parentPath, item.Name)
+						Path = $"{parentPath}/{item.Name}"
 					});
 				}
 				else
 				{
-					item.Path = Path.Combine(parentPath, item.Name);
+					item.Path = $"{parentPath}/{item.Name}";
 				}
 			}
 			else
@@ -207,7 +216,7 @@ namespace PanoramicData.Blazor.Web.Data
 						DateCreated = DateTime.UtcNow,
 						DateModified = item.DateModified,
 						EntryType = FileExplorerItemType.Directory,
-						Path = Path.Combine(parentPath, item.Name)
+						Path = $"{parentPath}/{item.Name}"
 					});
 				}
 				else

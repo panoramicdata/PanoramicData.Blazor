@@ -51,7 +51,7 @@ namespace PanoramicData.Blazor.Web.Pages
 			if (key == "Cancel")
 			{
 				SelectedPerson = null;
-				Table.ClearSelection();
+				Table.ClearSelectionAsync();
 				Form.SetMode(FormModes.Empty);
 			}
 		}

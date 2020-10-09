@@ -146,9 +146,14 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
 		/// <summary>
-		/// Delete called whenever the user requests to delete one or more items.
+		/// Event called whenever the user requests to delete one or more items.
 		/// </summary>
 		[Parameter] public EventCallback<FileOperationArgs> DeleteRequest { get; set; }
+
+		/// <summary>
+		/// Event called whenever a move or copy operation is subject to conflicts.
+		/// </summary>
+		[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
 
 		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
@@ -158,7 +163,7 @@ namespace PanoramicData.Blazor
 		 	items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
 		}
 
-		private async Task OnTreeNodeUpdated(TreeNode<FileExplorerItem> node)
+		private async Task OnTreeNodeUpdatedAsync(TreeNode<FileExplorerItem> node)
 		{
 			if (node?.Data != null && node?.ParentNode == null) // root node updated
 			{
@@ -167,18 +172,18 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnTreeSelectionChange(TreeNode<FileExplorerItem> node)
+		private async Task OnTreeSelectionChangeAsync(TreeNode<FileExplorerItem> node)
 		{
 			_selectedNode = node;
 			if (node?.Data != null)
 			{
 				FolderPath = node.Data.Path;
-				await RefreshTable().ConfigureAwait(true);
-				await RefreshToolbar().ConfigureAwait(true);
+				await RefreshTableAsync().ConfigureAwait(true);
+				await RefreshToolbarAsync().ConfigureAwait(true);
 			}
 		}
 
-		private async Task OnTreeContextMenuUpdateState(MenuItemsEventArgs args)
+		private async Task OnTreeContextMenuUpdateStateAsync(MenuItemsEventArgs args)
 		{
 			if (_selectedNode?.Data != null)
 			{
@@ -190,7 +195,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnTreeContextMenuItemClick(MenuItem item)
+		private async Task OnTreeContextMenuItemClickAsync(MenuItem item)
 		{
 			// notify application and allow cancel
 			var args = new MenuItemEventArgs(Tree!, item);
@@ -210,7 +215,7 @@ namespace PanoramicData.Blazor
 					}
 					else if (item.Text == "New Folder")
 					{
-						await CreateNewFolder().ConfigureAwait(true);
+						await CreateNewFolderAsync().ConfigureAwait(true);
 					}
 				}
 			}
@@ -224,7 +229,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnTreeAfterEdit(TreeNodeAfterEditEventArgs<FileExplorerItem> args)
+		private async Task OnTreeAfterEditAsync(TreeNodeAfterEditEventArgs<FileExplorerItem> args)
 		{
 			if (Tree?.SelectedNode?.Data != null)
 			{
@@ -249,7 +254,7 @@ namespace PanoramicData.Blazor
 						return true;
 					});
 					Table!.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(previousPath, newPath));
-					await OnTreeSelectionChange(Tree.SelectedNode).ConfigureAwait(true);
+					await OnTreeSelectionChangeAsync(Tree.SelectedNode).ConfigureAwait(true);
 				}
 			}
 		}
@@ -267,11 +272,11 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnTableDoubleClick(FileExplorerItem item)
+		private async Task OnTableDoubleClickAsync(FileExplorerItem item)
 		{
 			if (!Table!.IsEditing && item.EntryType == FileExplorerItemType.Directory)
 			{
-				await NavigateFolder(item.Path).ConfigureAwait(true);
+				await NavigateFolderAsync(item.Path).ConfigureAwait(true);
 			}
 		}
 
@@ -288,15 +293,15 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnTableKeyDown(KeyboardEventArgs args)
+		private async Task OnTableKeyDownAsync(KeyboardEventArgs args)
 		{
 			if(args.Code == "Delete")
 			{
-				await InitiateDeleteFiles().ConfigureAwait(true);
+				await InitiateDeleteFilesAsync().ConfigureAwait(true);
 			}
 		}
 
-		private async Task OnTableAfterEdit(TableAfterEditEventArgs<FileExplorerItem> args)
+		private async Task OnTableAfterEditAsync(TableAfterEditEventArgs<FileExplorerItem> args)
 		{
 			// cancel is new name is empty
 			if (args.NewValues.ContainsKey("Name"))
@@ -327,7 +332,7 @@ namespace PanoramicData.Blazor
 							// if folder renamed then update nodes
 							if (args.Item.EntryType == FileExplorerItemType.Directory)
 							{
-								await DirectoryRename(previousPath, newPath).ConfigureAwait(true);
+								await DirectoryRenameAsync(previousPath, newPath).ConfigureAwait(true);
 							}
 						}
 					}
@@ -335,7 +340,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnTableContextMenuUpdateState(MenuItemsEventArgs args)
+		private async Task OnTableContextMenuUpdateStateAsync(MenuItemsEventArgs args)
 		{
 			// reset all states
 			TableContextItems.ForEach(x => { x.IsDisabled = false; x.IsVisible = true; });
@@ -395,7 +400,7 @@ namespace PanoramicData.Blazor
 			await UpdateTableContextState.InvokeAsync(args).ConfigureAwait(true);
 		}
 
-		private async Task OnTableContextMenuItemClick(MenuItem menuItem)
+		private async Task OnTableContextMenuItemClickAsync(MenuItem menuItem)
 		{
 			if (Table is null)
 			{
@@ -413,15 +418,15 @@ namespace PanoramicData.Blazor
 					var path = Table!.Selection[0];
 					if (menuItem.Text == "Open")
 					{
-						await NavigateFolder(path).ConfigureAwait(true);
+						await NavigateFolderAsync(path).ConfigureAwait(true);
 					}
 					else if (menuItem.Text == "Delete")
 					{
-						await InitiateDeleteFiles().ConfigureAwait(true);
+						await InitiateDeleteFilesAsync().ConfigureAwait(true);
 					}
 					else if(menuItem.Text == "Rename")
 					{
-						await Table!.BeginEdit().ConfigureAwait(true);
+						await Table!.BeginEditAsync().ConfigureAwait(true);
 					}
 					else if(menuItem.Text == "Download")
 					{
@@ -438,13 +443,13 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnTableSelectionChanged()
+		private async Task OnTableSelectionChangedAsync()
 		{
-			await RefreshToolbar()
+			await RefreshToolbarAsync()
 				.ConfigureAwait(true);
 		}
 
-		private async Task DirectoryRename(string oldPath, string newPath)
+		private async Task DirectoryRenameAsync(string oldPath, string newPath)
 		{
 			// synchronize existing node paths for tree and table
 			Tree!.RootNode.Walk((x) =>
@@ -459,11 +464,11 @@ namespace PanoramicData.Blazor
 			Table!.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(oldPath, newPath));
 			if (Tree?.SelectedNode != null)
 			{
-				await OnTreeSelectionChange(Tree.SelectedNode).ConfigureAwait(true);
+				await OnTreeSelectionChangeAsync(Tree.SelectedNode).ConfigureAwait(true);
 			}
 		}
 
-		private async Task OnFilesDropped(DropZoneEventArgs args)
+		private async Task OnFilesDroppedAsync(DropZoneEventArgs args)
 		{
 			// notify application and allow for cancel
 			await UploadRequest.InvokeAsync(args).ConfigureAwait(true);
@@ -475,12 +480,12 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnUploadStarted(DropZoneUploadEventArgs args)
+		private async Task OnUploadStartedAsync(DropZoneUploadEventArgs args)
 		{
 			await UploadStarted.InvokeAsync(args).ConfigureAwait(false);
 		}
 
-		private async Task OnUploadProgress(DropZoneUploadProgressEventArgs args)
+		private async Task OnUploadProgressAsync(DropZoneUploadProgressEventArgs args)
 		{
 			if(Table is null)
 			{
@@ -511,7 +516,7 @@ namespace PanoramicData.Blazor
 			await UploadProgress.InvokeAsync(args).ConfigureAwait(true);
 		}
 
-		private async Task OnUploadCompleted(DropZoneUploadEventArgs args)
+		private async Task OnUploadCompletedAsync(DropZoneUploadEventArgs args)
 		{
 			// is the upload happening to the current path?
 			if (args.Path == FolderPath)
@@ -527,20 +532,20 @@ namespace PanoramicData.Blazor
 			await UploadCompleted.InvokeAsync(args).ConfigureAwait(true);
 		}
 
-		private async Task OnToolbarButtonClick(string key)
+		private async Task OnToolbarButtonClickAsync(string key)
 		{
 			switch(key)
 			{
 				case "navigate-up":
-					await NavigateUp().ConfigureAwait(true);
+					await NavigateUpAsync().ConfigureAwait(true);
 					break;
 
 				case "create-folder":
-					await CreateNewFolder().ConfigureAwait(true);
+					await CreateNewFolderAsync().ConfigureAwait(true);
 					break;
 
 				case "delete":
-					await InitiateDeleteFiles().ConfigureAwait(true);
+					await InitiateDeleteFilesAsync().ConfigureAwait(true);
 					break;
 
 				default:
@@ -549,7 +554,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnDrop(DropEventArgs args)
+		private async Task OnDropAsync(DropEventArgs args)
 		{
 			// unwrap FileExplorerItem
 			if (args.Target is TreeNode<FileExplorerItem> node)
@@ -580,26 +585,8 @@ namespace PanoramicData.Blazor
 					targetPath = Path.GetDirectoryName(target.ParentPath);
 				}
 
-				// move file or folder into folder
-				//await MoveOrCopyFiles(payload, target, args.Ctrl).ConfigureAwait(true);
-
-				foreach (var source in payload)
-				{
-					var delta = new Dictionary<string, object>
-					{
-						{  "Path", targetPath },
-						{  "Copy", args.Ctrl }
-					};
-					var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
-				}
-				if (Table != null && !args.Ctrl)
-				{
-					await Table.RefreshAsync().ConfigureAwait(true);
-					if (Tree?.SelectedNode != null)
-					{
-						await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
-					}
-				}
+				// move items into folder
+				await InitiateMoveCopyFilesAsync(payload, targetPath, args.Ctrl).ConfigureAwait(true);
 			}
 		}
 
@@ -623,7 +610,7 @@ namespace PanoramicData.Blazor
 			return true;
 		}
 
-		private async Task NavigateFolder(string path)
+		private async Task NavigateFolderAsync(string path)
 		{
 			if (Path.GetFileName(path) == "..")
 			{
@@ -646,12 +633,12 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task NavigateUp()
+		private async Task NavigateUpAsync()
 		{
-			await NavigateFolder("..").ConfigureAwait(true);
+			await NavigateFolderAsync("..").ConfigureAwait(true);
 		}
 
-		private async Task CreateNewFolder()
+		private async Task CreateNewFolderAsync()
 		{
 			if (Tree?.SelectedNode?.Data != null)
 			{
@@ -673,7 +660,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task InitiateDeleteFiles()
+		private async Task InitiateDeleteFilesAsync()
 		{
 			// selection key is path of item
 			if (Table?.Selection != null)
@@ -690,7 +677,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Deletes the currently selected files and folders from the right hand panel.
 		/// </summary>
-		public async Task DeleteSelectedFiles()
+		public async Task DeleteSelectedFilesAsync()
 		{
 			// selection key is path of item
 			if (Table?.Selection != null)
@@ -712,16 +699,16 @@ namespace PanoramicData.Blazor
 				}
 
 				// refresh tree, table and toolbar
-				await RefreshTree().ConfigureAwait(true);
-				await RefreshTable().ConfigureAwait(true);
-				await RefreshToolbar().ConfigureAwait(true);
+				await RefreshTreeAsync().ConfigureAwait(true);
+				await RefreshTableAsync().ConfigureAwait(true);
+				await RefreshToolbarAsync().ConfigureAwait(true);
 			}
 		}
 
 		/// <summary>
 		/// Deletes the currently selected folder in the left hand folder.
 		/// </summary>
-		public async Task DeleteSelectedFolder()
+		public async Task DeleteSelectedFolderAsync()
 		{
 			if (Tree?.SelectedNode?.Data != null)
 			{
@@ -737,10 +724,67 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private async Task InitiateMoveCopyFilesAsync(List<FileExplorerItem> payload, string targetPath, bool isCopy)
+		{
+			// check for conflicts - top level only
+			var args = new MoveCopyArgs
+			{
+				Payload = payload,
+				TargetPath = targetPath,
+				IsCopy = isCopy
+			};
+			var request = new DataRequest<FileExplorerItem> { SearchText = targetPath };
+			var response = await DataProvider.GetDataAsync(request, CancellationToken.None).ConfigureAwait(true);
+			foreach(var item in response.Items)
+			{
+				if(payload.Any(x => x.Name == item.Name))
+				{
+					args.Conflicts.Add(item);
+				}
+			}
+			if(args.Conflicts.Count == 0)
+			{
+				// no conflicts - simply complete operation
+				await CompleteMoveCopyFilesAsync(args).ConfigureAwait(true);
+			}
+			else
+			{
+				// inform application as to conflicts
+				await MoveCopyConflict.InvokeAsync(args).ConfigureAwait(true);
+			}
+		}
+
+		public async Task CompleteMoveCopyFilesAsync(MoveCopyArgs args)
+		{
+			if (args.Conflicts.Count == 0 || args.ConflictResolution != MoveCopyArgs.ConflictResolutions.Cancel)
+			{
+				foreach (var source in args.Payload)
+				{
+					if (!args.Conflicts.Any(x => x.Name == source.Name) || args.ConflictResolution == MoveCopyArgs.ConflictResolutions.Overwrite)
+					{
+						var delta = new Dictionary<string, object>
+						{
+							{  "Path", args.TargetPath },
+							{  "Copy", args.IsCopy }
+						};
+						var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
+					}
+				}
+				if (Table != null && !args.IsCopy)
+				{
+					await Table.RefreshAsync().ConfigureAwait(true);
+					if (Tree?.SelectedNode != null)
+					{
+						await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
+					}
+				}
+			}
+		}
+
 		/// <summary>
 		/// Forces the tree component of the file explorer to be refreshed.
 		/// </summary>
-		public async Task RefreshTree()
+		public async Task RefreshTreeAsync()
 		{
 			// refresh tree - parent node will already be selected
 			var node = Tree?.SelectedNode;
@@ -754,7 +798,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Forces the table component of the file explorer to be refreshed.
 		/// </summary>
-		public async Task RefreshTable()
+		public async Task RefreshTableAsync()
 		{
 			if(Table is null)
 			{
@@ -773,7 +817,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Forces the toolbar component of the file explorer to be refreshed.
 		/// </summary>
-		public async Task RefreshToolbar()
+		public async Task RefreshToolbarAsync()
 		{
 			// up button
 			var upButton = ToolbarItems.Find(x => x.Key == "navigate-up");

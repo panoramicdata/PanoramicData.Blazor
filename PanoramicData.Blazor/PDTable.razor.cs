@@ -327,7 +327,7 @@ namespace PanoramicData.Blazor
 			var column = Columns.SingleOrDefault(c => string.Equals(c.PropertyInfo?.Name, criteria.Key, StringComparison.InvariantCultureIgnoreCase));
 			if (column != null)
 			{
-				return SortBy(column, criteria.Direction);
+				return SortByAsync(column, criteria.Direction);
 			}
 			return Task.CompletedTask;
 		}
@@ -373,7 +373,7 @@ namespace PanoramicData.Blazor
 				ItemsToDisplay = items;
 
 				// clear selection
-				ClearSelection();
+				await ClearSelectionAsync().ConfigureAwait(true);
 			}
 			finally
 			{
@@ -385,7 +385,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		/// <param name="column">The column to sort by.</param>
 		/// <remarks>To disable sorting for any given column, set its Sortable property set to false.</remarks>
-		protected async Task SortBy(PDColumn<TItem> column, SortDirection? direction = null)
+		protected async Task SortByAsync(PDColumn<TItem> column, SortDirection? direction = null)
 		{
 			if (column.Sortable)
 			{
@@ -398,7 +398,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Begins editing of the given item.
 		/// </summary>
-		public async Task BeginEdit()
+		public async Task BeginEditAsync()
 		{
 			if (AllowEdit && !IsEditing && SelectionMode != TableSelectionMode.None && Selection.Count == 1 && KeyField != null)
 			{
@@ -423,7 +423,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Commits the current edit.
 		/// </summary>
-		public async Task CommitEdit()
+		public async Task CommitEditAsync()
 		{
 			if (IsEditing && EditItem != null)
 			{
@@ -512,9 +512,10 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Clears the current selection.
 		/// </summary>
-		public void ClearSelection()
+		public async Task ClearSelectionAsync()
 		{
 			Selection.Clear();
+			await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 			StateHasChanged();
 		}
 
@@ -616,7 +617,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnEndEdit()
+		private async Task OnEndEditAsync()
 		{
 			if (IsEditing)
 			{
@@ -624,12 +625,12 @@ namespace PanoramicData.Blazor
 				var id = await JSRuntime.InvokeAsync<string>("getFocusedElementId").ConfigureAwait(true);
 				if (!id.StartsWith(IdEditPrefix))
 				{
-					await CommitEdit().ConfigureAwait(true);
+					await CommitEditAsync().ConfigureAwait(true);
 				}
 			}
 		}
 
-		private async Task OnRowMouseDown(MouseEventArgs args, TItem item)
+		private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
 		{
 			var key = KeyField!(item)?.ToString();
 			if (key != null && SelectionMode != TableSelectionMode.None)
@@ -703,7 +704,7 @@ namespace PanoramicData.Blazor
 			DoubleClick.InvokeAsync(item);
 		}
 
-		private async Task OnKeyDown(KeyboardEventArgs args)
+		private async Task OnKeyDownAsync(KeyboardEventArgs args)
 		{
 			if(IsEditing)
 			{
@@ -715,7 +716,7 @@ namespace PanoramicData.Blazor
 
 					case "Enter":
 					case "Return":
-						await CommitEdit().ConfigureAwait(true);
+						await CommitEditAsync().ConfigureAwait(true);
 						break;
 				}
 			}
@@ -724,13 +725,13 @@ namespace PanoramicData.Blazor
 				switch (args.Code)
 				{
 					case "F2":
-						await BeginEdit().ConfigureAwait(true);
+						await BeginEditAsync().ConfigureAwait(true);
 						break;
 
 					case "KeyA":
 						if (args.CtrlKey && SelectionMode == TableSelectionMode.Multiple)
 						{
-							ClearSelection();
+							await ClearSelectionAsync().ConfigureAwait(true);
 							Selection.AddRange(ItemsToDisplay.Select(x => KeyField!(x).ToString()));
 							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 						}
@@ -768,7 +769,7 @@ namespace PanoramicData.Blazor
 		{
 			if (!_dragging)
 			{
-				Task.Run(async () => await BeginEdit().ConfigureAwait(true));
+				Task.Run(async () => await BeginEditAsync().ConfigureAwait(true));
 			}
 		}
 
