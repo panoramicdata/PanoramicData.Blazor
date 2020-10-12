@@ -1,5 +1,14 @@
 ﻿@using Humanizer;
 
+<PDModal @ref="_deleteDialog" Title="Delete" ButtonClick="OnDeleteDialogButtonClick">
+	<span>@_deleteDialogMessage</span>
+</PDModal>
+
+
+<PDModal @ref="_conflictDialog" Title="Move / Copy Conflict" ButtonClick="OnConflictDialogButtonClick">
+	<span>@_conflictDialogMessage</span>
+</PDModal>
+
 <div class="pdfileexplorer @CssClass">
 
 	<div class="pdfe-toolbar">
@@ -12,7 +21,7 @@
 
 			<PDContextMenu Items="TreeContextItems" UpdateState="OnTreeContextMenuUpdateStateAsync" ItemClick="OnTreeContextMenuItemClickAsync">
 
-				<PDTree @ref="Tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true" AllowEdit="true"
+				<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true" AllowEdit="true"
 						KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
 						SelectionChange="OnTreeSelectionChangeAsync" ItemsLoaded="OnTreeItemsLoaded" NodeUpdated="OnTreeNodeUpdatedAsync"
 						BeforeEdit="OnTreeBeforeEdit" AfterEdit="OnTreeAfterEditAsync"
@@ -35,12 +44,12 @@
 
 				<PDDropZone UploadUrl="@UploadUrl" Drop="OnFilesDroppedAsync" UploadStarted="OnUploadStartedAsync" UploadProgress="OnUploadProgressAsync" UploadCompleted="OnUploadCompletedAsync">
 
-					<PDTable @ref="Table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
-							    AllowEdit="true" AllowDrag="true" AllowDrop="true" Drop="OnDropAsync" AutoLoad="false"
-								SelectionMode="TableSelectionMode.Multiple" SelectionChanged="OnTableSelectionChangedAsync" KeyField="x => x.Path"
-								BeforeEdit="OnTableBeforeEdit" AfterEdit="OnTableAfterEditAsync" KeyDown="OnTableKeyDownAsync"
-								DoubleClick="OnTableDoubleClickAsync" ItemsLoaded="OnTableItemsLoaded"
-								RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
+					<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
+							 AllowEdit="true" AllowDrag="true" AllowDrop="true" Drop="OnDropAsync" AutoLoad="false"
+							 SelectionMode="TableSelectionMode.Multiple" SelectionChanged="OnTableSelectionChangedAsync" KeyField="x => x.Path"
+							 BeforeEdit="OnTableBeforeEdit" AfterEdit="OnTableAfterEditAsync" KeyDown="OnTableKeyDownAsync"
+							 DoubleClick="OnTableDoubleClickAsync" ItemsLoaded="OnTableItemsLoaded"
+							 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
 
 						<PDColumn TItem="FileExplorerItem" Id="Icon" Field="x => x.EntryType" Editable="false">
 							<Template>
@@ -103,4 +112,3 @@
 
 	</PDSplitter>
 </div>
-

@@ -15,10 +15,12 @@ namespace PanoramicData.Blazor.Web.Pages
     {
 		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 		private PDFileExplorer _fileExplorer = null!;
-		private PDModal _modalDialog = null!;
-		private string _modalTitle = "Files";
-		private string _modalMessage = "Are you sure you wish to delete these files?";
-		private bool _deleteFiles;
+		//private PDModal _deleteDialog = null!;
+		//private PDModal _conflictDialog = null!;
+		//private bool _deleteFiles;
+		//private string _deleteDialogMessage = "Are you sure you wish to delete these files?";
+		//private string _conflictDialogMessage = "There are conflicting items, what would you like to do with these conflicting items?";
+		//private MoveCopyArgs _conflictArgs;
 
 		/// <summary>
 		/// Injected javascript interop object.
@@ -122,9 +124,6 @@ namespace PanoramicData.Blazor.Web.Pages
 
 		private async Task CreateFile()
 		{
-			_modalDialog.Show();
-			return;
-
 			var newPath = $"{_fileExplorer.FolderPath}{Path.DirectorySeparatorChar}{DateTime.Now.ToString("yyyyMMdd_HHmmss_fff")}.txt";
 
 			var result = await _dataProvider.CreateAsync(new FileExplorerItem
@@ -140,47 +139,6 @@ namespace PanoramicData.Blazor.Web.Pages
 			{
 				await _fileExplorer.RefreshTableAsync().ConfigureAwait(true);
 				await _fileExplorer.RefreshToolbarAsync().ConfigureAwait(true);
-			}
-		}
-
-		private async Task OnDeleteRequest(FileOperationArgs args)
-		{
-			// prompt user to confirm action
-			((ToolbarButton)_modalDialog.Buttons[0]).CssClass = "btn-danger";
-			_modalTitle = "Delete";
-			if (args.Operation == "DeleteFiles")
-			{
-				_deleteFiles = true;
-				if (args.Items.Length == 1)
-				{
-					_modalMessage = $"Are you sure you wish to delete '{args.Items[0].Name}'?";
-				}
-				else
-				{
-					_modalMessage = $"Are you sure you wish to delete these {args.Items.Length} items?";
-				}
-			}
-			else if (args.Operation == "DeleteFolder")
-			{
-				_deleteFiles = false;
-				_modalMessage = $"Are you sure you wish to delete the folder '{args.Items[0].Name}'?";
-			}
-			_modalDialog.Show();
-		}
-
-		private async Task OnModalButtonClick(string key)
-		{
-			_modalDialog.Hide();
-			if(key == "Yes")
-			{
-				if(_deleteFiles)
-				{
-					await _fileExplorer.DeleteSelectedFilesAsync().ConfigureAwait(true);
-				}
-				else
-				{
-					await _fileExplorer.DeleteSelectedFolderAsync().ConfigureAwait(true);
-				}
 			}
 		}
 	}

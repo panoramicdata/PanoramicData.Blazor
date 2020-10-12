@@ -38,6 +38,10 @@ namespace PanoramicData.Blazor
 		public enum ConflictResolutions
 		{
 			/// <summary>
+			/// Prompt the user for decision.
+			/// </summary>
+			Prompt,
+			/// <summary>
 			/// Cancel the entire operation.
 			/// </summary>
 			Cancel,
