@@ -6,7 +6,14 @@
 
 
 <PDModal @ref="_conflictDialog" Title="Move / Copy Conflict" ButtonClick="OnConflictDialogButtonClick">
-	<span>@_conflictDialogMessage</span>
+	<p>@_conflictDialogMessage</p>
+	<ul class="">
+		@foreach (var item in _conflictDialogList)
+		{
+			<li class="">@item</li>
+		}
+	</ul>
+	<p>What would you like to do with the conflicting items?</p>
 </PDModal>
 
 <div class="pdfileexplorer @CssClass">

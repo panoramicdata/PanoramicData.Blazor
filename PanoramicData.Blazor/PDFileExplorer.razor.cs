@@ -21,6 +21,7 @@ namespace PanoramicData.Blazor
 		private bool _deleteFiles;
 		private string _deleteDialogMessage = "Are you sure you wish to delete these files?";
 		private string _conflictDialogMessage = "There are conflicting items, what would you like to do with these conflicting items?";
+		private string[] _conflictDialogList = new string[0];
 		private DeleteArgs _deleteArgs = new DeleteArgs();
 		private MoveCopyArgs _conflictArgs = new MoveCopyArgs();
 
@@ -854,6 +855,13 @@ namespace PanoramicData.Blazor
 				// apply decision
 				if(_conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Prompt)
 				{
+					var topTenNames = _conflictArgs.Conflicts.Take(5).Select(x => x.Name).ToList();
+					if(_conflictArgs.Conflicts.Count > 5)
+					{
+						topTenNames.Add($"+ {_conflictArgs.Conflicts.Count - 5} other items");
+					}
+					_conflictDialogMessage = $"{_conflictArgs.Conflicts.Count} conflicts found : -";
+					_conflictDialogList = topTenNames.ToArray();
 					_conflictDialog.Show();
 				}
 				else

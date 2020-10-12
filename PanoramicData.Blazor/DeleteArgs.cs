@@ -11,7 +11,7 @@
 		public FileExplorerItem[] Items { get; set; } = new FileExplorerItem[0];
 
 		/// <summary>
-		/// Gets or sets th eoutcome of the delete.
+		/// Gets or sets the outcome of the delete.
 		/// </summary>
 		public DeleteResolutions Resolution { get; set; }
 

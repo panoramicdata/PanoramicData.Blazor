@@ -128,8 +128,7 @@ namespace PanoramicData.Blazor.Web.Data
 				else
 				{
 					// only path updates supported
-					var pathProp = delta.ContainsKey("Path");
-					if(pathProp == null)
+					if(!delta.ContainsKey("Path"))
 					{
 						result.ErrorMessage = "Only Path property update supported";
 					}
@@ -221,7 +220,7 @@ namespace PanoramicData.Blazor.Web.Data
 				}
 				else
 				{
-					item.Path = Path.Combine(parentPath, item.Name);
+					item.Path = $"{parentPath}/{item.Name}";
 				}
 
 				// move / copy child items
