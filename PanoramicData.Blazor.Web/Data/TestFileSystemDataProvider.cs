@@ -145,6 +145,14 @@ namespace PanoramicData.Blazor.Web.Data
 							var targetItem = _testData.FirstOrDefault(x => x.Path == newPath);
 							if(targetItem?.EntryType == FileExplorerItemType.Directory)
 							{
+								// check for conflict
+								targetItem = _testData.FirstOrDefault(x => x.Path == $"{newPath}/{existingItem.Name}");
+								if(targetItem != null)
+								{
+									result.ErrorMessage = "Conflict";
+									return;
+								}
+
 								// move / copy
 								var isCopy = delta.ContainsKey("Copy") && delta["Copy"].ToString().ToLower() == "true";
 								MoveOrCopyItem(existingItem, newPath, isCopy);
@@ -178,9 +186,8 @@ namespace PanoramicData.Blazor.Web.Data
 				var existingItem = _testData.FirstOrDefault(x => x.Path == $"{parentPath}/{item.Name}");
 				if (existingItem != null)
 				{
-					// item exists - simulate overwrite
-					existingItem.DateModified = DateTime.UtcNow;
-					if(!isCopy)
+					existingItem.DateModified = DateTime.UtcNow; // update to indicate written
+					if (!isCopy)
 					{
 						_testData.Remove(item);
 					}
@@ -190,7 +197,7 @@ namespace PanoramicData.Blazor.Web.Data
 					_testData.Add(new FileExplorerItem
 					{
 						DateCreated = DateTime.UtcNow,
-						DateModified = item.DateModified,
+						DateModified = DateTime.UtcNow, // update to indicate written
 						EntryType = FileExplorerItemType.File,
 						FileSize = item.FileSize,
 						IsHidden = item.IsHidden,

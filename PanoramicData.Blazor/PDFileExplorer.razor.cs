@@ -816,6 +816,14 @@ namespace PanoramicData.Blazor
 			{
 				foreach (var source in conflictArgs.Payload)
 				{
+					// delete conflicting target file?
+					if(conflictArgs.Conflicts.Any(x => x.Name == source.Name) && conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Overwrite)
+					{
+						var target = new FileExplorerItem { EntryType = source.EntryType, Path = $"{conflictArgs.TargetPath}/{source.Name}" };
+						var result = await DataProvider.DeleteAsync(target, CancellationToken.None).ConfigureAwait(true);
+					}
+
+					// move or copy entry if no conflict or overwrite chosen
 					if (!conflictArgs.Conflicts.Any(x => x.Name == source.Name) || conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Overwrite)
 					{
 						var delta = new Dictionary<string, object>
@@ -823,6 +831,7 @@ namespace PanoramicData.Blazor
 							{  "Path", conflictArgs.TargetPath },
 							{  "Copy", conflictArgs.IsCopy }
 						};
+
 						var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
 					}
 				}
