@@ -1,11 +1,11 @@
 ﻿@using Humanizer;
 
-<PDModal @ref="_deleteDialog" Title="Delete" ButtonClick="OnDeleteDialogButtonClick">
+<PDModal @ref="_deleteDialog" Title="Delete">
 	<span>@_deleteDialogMessage</span>
 </PDModal>
 
 
-<PDModal @ref="_conflictDialog" Title="Move / Copy Conflict" ButtonClick="OnConflictDialogButtonClick">
+<PDModal @ref="_conflictDialog" Title="Move / Copy Conflict">
 	<p>@_conflictDialogMessage</p>
 	<ul class="">
 		@foreach (var item in _conflictDialogList)

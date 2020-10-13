@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 
@@ -7,6 +8,7 @@ namespace PanoramicData.Blazor
 	public partial class PDModal
     {
 		private static int _sequence;
+		private TaskCompletionSource<string>? _userChoice;
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
@@ -52,17 +54,45 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Displays the Modal Dialog.
 		/// </summary>
-		public void Show()
+		public async Task ShowAsync()
 		{
-			JSRuntime.InvokeVoidAsync("showBsDialog", $"#{Id}");
+			await JSRuntime.InvokeVoidAsync("showBsDialog", $"#{Id}").ConfigureAwait(true);
 		}
 
 		/// <summary>
 		/// Hides the Modal Dialog.
 		/// </summary>
-		public void Hide()
+		public async Task HideAsync()
 		{
-			JSRuntime.InvokeVoidAsync("hideBsDialog", $"#{Id}");
+			await JSRuntime.InvokeVoidAsync("hideBsDialog", $"#{Id}").ConfigureAwait(true);
+		}
+
+		/// <summary>
+		/// Displays the Modal Dialog and awaits the users choice.
+		/// </summary>
+		public async Task<string> ShowAndWaitResultAsync()
+		{
+			// show dialog and await user choice.
+			await ShowAsync().ConfigureAwait(true);
+			_userChoice = new TaskCompletionSource<string>();
+			var result = await _userChoice.Task.ConfigureAwait(true);
+			await HideAsync().ConfigureAwait(true);
+			_userChoice = null;
+			return result;
+		}
+
+		private async Task OnButtonClick(string key)
+		{
+			// are we waiting for using response?
+			if (_userChoice != null)
+			{
+				_userChoice.SetResult(key);
+}
+			else
+			{
+				// forward to calling app
+				await ButtonClick.InvokeAsync(key).ConfigureAwait(true);
+			}
 		}
 	}
 }

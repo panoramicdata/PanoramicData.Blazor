@@ -18,12 +18,9 @@ namespace PanoramicData.Blazor
 		private PDTable<FileExplorerItem>? _table = null!;
 		private PDModal _deleteDialog = null!;
 		private PDModal _conflictDialog = null!;
-		private bool _deleteFiles;
-		private string _deleteDialogMessage = "Are you sure you wish to delete these files?";
-		private string _conflictDialogMessage = "There are conflicting items, what would you like to do with these conflicting items?";
+		private string _deleteDialogMessage = string.Empty;
+		private string _conflictDialogMessage = string.Empty;
 		private string[] _conflictDialogList = new string[0];
-		private DeleteArgs _deleteArgs = new DeleteArgs();
-		private MoveCopyArgs _conflictArgs = new MoveCopyArgs();
 
 		public string FolderPath = string.Empty;
 
@@ -215,7 +212,7 @@ namespace PanoramicData.Blazor
 				{
 					if (item.Text == "Delete")
 					{
-						await InitiateDeleteFolderAsync().ConfigureAwait(true);
+						await DeleteFolderAsync().ConfigureAwait(true);
 					}
 					else if (item.Text == "Rename")
 					{
@@ -305,7 +302,7 @@ namespace PanoramicData.Blazor
 		{
 			if(args.Code == "Delete")
 			{
-				await InitiateDeleteFilesAsync().ConfigureAwait(true);
+				await DeleteFilesAsync().ConfigureAwait(true);
 			}
 		}
 
@@ -430,7 +427,7 @@ namespace PanoramicData.Blazor
 					}
 					else if (menuItem.Text == "Delete")
 					{
-						await InitiateDeleteFilesAsync().ConfigureAwait(true);
+						await DeleteFilesAsync().ConfigureAwait(true);
 					}
 					else if(menuItem.Text == "Rename")
 					{
@@ -478,6 +475,8 @@ namespace PanoramicData.Blazor
 
 		private async Task OnFilesDroppedAsync(DropZoneEventArgs args)
 		{
+			// TODO: check for conflicts
+
 			// notify application and allow for cancel
 			await UploadRequest.InvokeAsync(args).ConfigureAwait(true);
 
@@ -553,7 +552,7 @@ namespace PanoramicData.Blazor
 					break;
 
 				case "delete":
-					await InitiateDeleteFilesAsync().ConfigureAwait(true);
+					await DeleteFilesAsync().ConfigureAwait(true);
 					break;
 
 				default:
@@ -594,24 +593,7 @@ namespace PanoramicData.Blazor
 				}
 
 				// move items into folder
-				await InitiateMoveCopyFilesAsync(payload, targetPath, args.Ctrl).ConfigureAwait(true);
-			}
-		}
-
-		private async Task OnDeleteDialogButtonClick(string key)
-		{
-			_deleteDialog.Hide();
-			if (key == "Yes")
-			{
-				_deleteArgs.Resolution = DeleteArgs.DeleteResolutions.Delete;
-				if (_deleteFiles)
-				{
-					await CompleteDeleteFilesAsync(_deleteArgs).ConfigureAwait(true);
-				}
-				else
-				{
-					await CompleteDeleteFolderAsync(_deleteArgs).ConfigureAwait(true);
-				}
+				await MoveCopyFilesAsync(payload, targetPath, args.Ctrl).ConfigureAwait(true);
 			}
 		}
 
@@ -635,15 +617,6 @@ namespace PanoramicData.Blazor
 					new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
 				});
 			}
-		}
-
-		private async Task OnConflictDialogButtonClick(string key)
-		{
-			_conflictDialog.Hide();
-			_conflictArgs.ConflictResolution = key == "Overwrite" ? MoveCopyArgs.ConflictResolutions.Overwrite
-				: key == "Skip" ? MoveCopyArgs.ConflictResolutions.Skip
-				: MoveCopyArgs.ConflictResolutions.Cancel;
-			await CompleteMoveCopyFilesAsync(_conflictArgs).ConfigureAwait(true);
 		}
 
 		private bool IsValidSelection()
@@ -716,117 +689,92 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task InitiateDeleteFolderAsync()
+		private async Task DeleteFolderAsync()
 		{
 			if (_selectedNode?.Data != null)
 			{
-				_deleteArgs = new DeleteArgs
+				var deleteArgs = new DeleteArgs
 				{
 					Items = new[] { _selectedNode.Data },
 					Resolution = DeleteArgs.DeleteResolutions.Prompt
 				};
 
-				await DeleteRequest.InvokeAsync(_deleteArgs).ConfigureAwait(true);
+				await DeleteRequest.InvokeAsync(deleteArgs).ConfigureAwait(true);
 
-				if (_deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Prompt)
+				if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Prompt)
 				{
-					_deleteFiles = false;
-					_deleteDialogMessage = $"Are you sure you wish to delete '{_deleteArgs.Items[0].Name}'?";
-					_deleteDialog.Show();
+					_deleteDialogMessage = $"Are you sure you wish to delete '{deleteArgs.Items[0].Name}'?";
+					StateHasChanged();
+					var choice = await _deleteDialog.ShowAndWaitResultAsync().ConfigureAwait(true);
+					deleteArgs.Resolution = choice == "Yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
 				}
-				else if (_deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Delete)
-				{
-					await CompleteDeleteFolderAsync(_deleteArgs).ConfigureAwait(true);
-				}
-			}
-		}
 
-		private async Task InitiateDeleteFilesAsync()
-		{
-			// selection key is path of item
-			if (_table?.Selection != null)
-			{
-				// allow app to decide resolution
-				_deleteArgs = new DeleteArgs
-				{
-					Items = _table.GetSelectedItems(),
-					Resolution = DeleteArgs.DeleteResolutions.Prompt
-				};
-
-				await DeleteRequest.InvokeAsync(_deleteArgs).ConfigureAwait(true);
-
-				if (_deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Prompt)
-				{
-					_deleteFiles = true;
-					if (_deleteArgs.Items.Length == 1)
-					{
-						_deleteDialogMessage = $"Are you sure you wish to delete '{_deleteArgs.Items[0].Name}'?";
-					}
-					else
-					{
-						_deleteDialogMessage = $"Are you sure you wish to delete these {_deleteArgs.Items.Length} items?";
-					}
-					_deleteDialog.Show();
-				}
-				else if (_deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Delete)
-				{
-					await CompleteDeleteFilesAsync(_deleteArgs).ConfigureAwait(true);
-				}
-			}
-		}
-
-		/// <summary>
-		/// Deletes the currently selected files and folders from the right hand panel.
-		/// </summary>
-		public async Task CompleteDeleteFilesAsync(DeleteArgs args)
-		{
-			if (args.Resolution == DeleteArgs.DeleteResolutions.Delete)
-			{
-				foreach (var item in args.Items)
+				if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Delete && deleteArgs.Items.Length > 0)
 				{
 					try
 					{
-						await DataProvider.DeleteAsync(item, CancellationToken.None).ConfigureAwait(true);
+						await DataProvider.DeleteAsync(deleteArgs.Items[0], CancellationToken.None).ConfigureAwait(true);
+						if (_tree?.SelectedNode != null)
+						{
+							await _tree.RemoveNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
+						}
 					}
 					catch (Exception ex)
 					{
 						await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
 					}
 				}
-
-				// refresh tree, table and toolbar
-				await RefreshTreeAsync().ConfigureAwait(true);
-				await RefreshTableAsync().ConfigureAwait(true);
-				await RefreshToolbarAsync().ConfigureAwait(true);
 			}
 		}
 
-		/// <summary>
-		/// Deletes the currently selected folder in the left hand folder.
-		/// </summary>
-		public async Task CompleteDeleteFolderAsync(DeleteArgs args)
+		private async Task DeleteFilesAsync()
 		{
-			if (args.Resolution == DeleteArgs.DeleteResolutions.Delete && args.Items.Length > 0)
+			if (_table?.Selection != null)
 			{
-				try
+				var deleteArgs = new DeleteArgs
 				{
-					await DataProvider.DeleteAsync(args.Items[0], CancellationToken.None).ConfigureAwait(true);
-					if (_tree?.SelectedNode != null)
-					{
-						await _tree.RemoveNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
-					}
+					Items = _table.GetSelectedItems(),
+					Resolution = DeleteArgs.DeleteResolutions.Prompt
+				};
+
+				await DeleteRequest.InvokeAsync(deleteArgs).ConfigureAwait(true);
+
+				if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Prompt)
+				{
+					_deleteDialogMessage = deleteArgs.Items.Length == 1
+						? $"Are you sure you wish to delete '{deleteArgs.Items[0].Name}'?"
+						: $"Are you sure you wish to delete these {deleteArgs.Items.Length} items?";
+					StateHasChanged();
+					var choice = await _deleteDialog.ShowAndWaitResultAsync();
+					deleteArgs.Resolution = choice == "Yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
 				}
-				catch (Exception ex)
+
+				if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Delete)
 				{
-					await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+					foreach (var item in deleteArgs.Items)
+					{
+						try
+						{
+							await DataProvider.DeleteAsync(item, CancellationToken.None).ConfigureAwait(true);
+						}
+						catch (Exception ex)
+						{
+							await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+						}
+					}
+
+					// refresh tree, table and toolbar
+					await RefreshTreeAsync().ConfigureAwait(true);
+					await RefreshTableAsync().ConfigureAwait(true);
+					await RefreshToolbarAsync().ConfigureAwait(true);
 				}
 			}
 		}
 
-		private async Task InitiateMoveCopyFilesAsync(List<FileExplorerItem> payload, string targetPath, bool isCopy)
+		private async Task MoveCopyFilesAsync(List<FileExplorerItem> payload, string targetPath, bool isCopy)
 		{
 			// check for conflicts - top level only
-			_conflictArgs = new MoveCopyArgs
+			var conflictArgs = new MoveCopyArgs
 			{
 				Payload = payload,
 				TargetPath = targetPath,
@@ -839,55 +787,46 @@ namespace PanoramicData.Blazor
 			{
 				if(payload.Any(x => x.Name == item.Name))
 				{
-					_conflictArgs.Conflicts.Add(item);
+					conflictArgs.Conflicts.Add(item);
 				}
 			}
-			if(_conflictArgs.Conflicts.Count == 0)
-			{
-				// no conflicts - simply complete operation
-				await CompleteMoveCopyFilesAsync(_conflictArgs).ConfigureAwait(true);
-			}
-			else
+			if(conflictArgs.Conflicts.Count > 0)
 			{
 				// allow application to process conflicts
-				await MoveCopyConflict.InvokeAsync(_conflictArgs).ConfigureAwait(true);
+				await MoveCopyConflict.InvokeAsync(conflictArgs).ConfigureAwait(true);
 
-				// apply decision
-				if(_conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Prompt)
+				if(conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Prompt)
 				{
-					var topTenNames = _conflictArgs.Conflicts.Take(5).Select(x => x.Name).ToList();
-					if(_conflictArgs.Conflicts.Count > 5)
+					var topTenNames = conflictArgs.Conflicts.Take(5).Select(x => x.Name).ToList();
+					if(conflictArgs.Conflicts.Count > 5)
 					{
-						topTenNames.Add($"+ {_conflictArgs.Conflicts.Count - 5} other items");
+						topTenNames.Add($"+ {conflictArgs.Conflicts.Count - 5} other items");
 					}
-					_conflictDialogMessage = $"{_conflictArgs.Conflicts.Count} conflicts found : -";
+					_conflictDialogMessage = $"{conflictArgs.Conflicts.Count} conflicts found : -";
 					_conflictDialogList = topTenNames.ToArray();
-					_conflictDialog.Show();
-				}
-				else
-				{
-					await CompleteMoveCopyFilesAsync(_conflictArgs).ConfigureAwait(true);
+					StateHasChanged();
+					var choice = await _conflictDialog.ShowAndWaitResultAsync();
+					conflictArgs.ConflictResolution = choice == "Overwrite" ? MoveCopyArgs.ConflictResolutions.Overwrite
+						: choice == "Skip" ? MoveCopyArgs.ConflictResolutions.Skip
+						: MoveCopyArgs.ConflictResolutions.Cancel;
 				}
 			}
-		}
 
-		public async Task CompleteMoveCopyFilesAsync(MoveCopyArgs args)
-		{
-			if (args.Conflicts.Count == 0 || args.ConflictResolution != MoveCopyArgs.ConflictResolutions.Cancel)
+			if (conflictArgs.Conflicts.Count == 0 || conflictArgs.ConflictResolution != MoveCopyArgs.ConflictResolutions.Cancel)
 			{
-				foreach (var source in args.Payload)
+				foreach (var source in conflictArgs.Payload)
 				{
-					if (!args.Conflicts.Any(x => x.Name == source.Name) || args.ConflictResolution == MoveCopyArgs.ConflictResolutions.Overwrite)
+					if (!conflictArgs.Conflicts.Any(x => x.Name == source.Name) || conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Overwrite)
 					{
 						var delta = new Dictionary<string, object>
 						{
-							{  "Path", args.TargetPath },
-							{  "Copy", args.IsCopy }
+							{  "Path", conflictArgs.TargetPath },
+							{  "Copy", conflictArgs.IsCopy }
 						};
 						var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
 					}
 				}
-				if (_table != null && !args.IsCopy)
+				if (_table != null && !conflictArgs.IsCopy)
 				{
 					await _table.RefreshAsync().ConfigureAwait(true);
 					if (_tree?.SelectedNode != null)
