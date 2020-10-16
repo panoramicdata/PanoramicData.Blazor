@@ -224,6 +224,10 @@
     height: 80%;
     border-left: 2px solid #ddd; }
 
+.pdtoolbarplaceholder {
+  display: flex;
+  align-items: center; }
+
 .disabled {
   opacity: 1;
   background-color: #e9ecef; }

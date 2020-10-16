@@ -76,7 +76,7 @@ namespace PanoramicData.Blazor.Web.Data
 			}
 
 			// add in some random latency
-			await Task.Delay(_random.Next(500, 4000)).ConfigureAwait(true);
+			await Task.Delay(_random.Next(500, 3000)).ConfigureAwait(true);
 
 			return new DataResponse<FileExplorerItem>(items, total);
 		}

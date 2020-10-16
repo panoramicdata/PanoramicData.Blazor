@@ -32,6 +32,12 @@
 					 IsVisible="_showButtons"
 					 IsEnabled="_enableButtons" />
 
+	<PDToolbarSeparator IsVisible="_showButtons" />
+
+	<PDToolbarPlaceholder>
+		<span>Placeholder</span>
+	</PDToolbarPlaceholder>
+
 	<PDToolbarButton Text="@(_enableButtons ? "Disable Buttons" : "Enable Buttons")"
 					 CssClass="btn-secondary"
 					 Click="() => { _enableButtons = !_enableButtons; }"
