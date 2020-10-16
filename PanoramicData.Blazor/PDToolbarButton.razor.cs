@@ -26,6 +26,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string IconCssClass { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets or sets CSS classes for the text.
+		/// </summary>
+		[Parameter] public string TextCssClass { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets the tooltip for the toolbar item.
 		/// </summary>
 		[Parameter] public string ToolTip { get; set; } = string.Empty;

@@ -13,12 +13,12 @@ namespace PanoramicData.Blazor.Web.Pages
 		private bool _enableButtons = true;
 		private List<ToolbarItem> ToolbarItems = new List<ToolbarItem>
 		{
-			new ToolbarButton { Key = "tb-open", Text = "Open", CssClass="btn-primary", IconCssClass = "fas fa-fw fa-folder-open", ToolTip="Open something" },
-			new ToolbarButton { Key = "tb-rename", Text="Rename", CssClass="btn-secondary", ToolTip="Rename something" },
+			new ToolbarButton { Key = "tb-open", Text = "Open", CssClass="btn-primary", IconCssClass = "fas fa-fw fa-folder-open", TextCssClass="d-none d-sm-none d-md-inline", ToolTip="Open something" },
+			new ToolbarButton { Key = "tb-rename", Text="Rename", CssClass="btn-secondary", IconCssClass = "fas fa-fw fa-edit", TextCssClass="d-none d-sm-none d-md-inline", ToolTip="Rename something" },
 			new ToolbarSeparator(),
-			new ToolbarButton { Key = "tb-download", Text="Download", CssClass="btn-secondary", IconCssClass="fas fa-fw fa-file-download", ToolTip="Download something" },
-			new ToolbarButton { Key = "tb-enabledisable", Text="Disable Buttons",  CssClass="btn-secondary", ToolTip="Enable or disable buttons", ShiftRight = true },
-			new ToolbarButton { Key = "tb-showhide", Text="Hide Buttons",  CssClass="btn-secondary", ToolTip="Show or hide buttons" }
+			new ToolbarButton { Key = "tb-download", Text="Download", CssClass="btn-secondary", IconCssClass="fas fa-fw fa-file-download", TextCssClass="d-none d-sm-none d-md-inline", ToolTip="Download something" },
+			new ToolbarButton { Key = "tb-enabledisable", Text="Disable Buttons",  CssClass="btn-secondary", ShiftRight = true },
+			new ToolbarButton { Key = "tb-showhide", Text="Hide Buttons",  CssClass="btn-secondary" }
 		};
 
 		public void OnOpen()

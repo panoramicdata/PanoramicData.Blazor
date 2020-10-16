@@ -213,6 +213,9 @@
 .pdtoolbaritem.align-right {
   margin-left: auto; }
 
+.pdtoolbarbutton {
+  white-space: nowrap; }
+
 .pdtoolbarseparator {
   display: flex;
   align-items: center;

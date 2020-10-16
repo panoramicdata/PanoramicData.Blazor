@@ -37,5 +37,10 @@
 		/// Gets or sets the text displayed on the button.
 		/// </summary>
 		public string Text { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Gets or sets the CSS class names used to adjust the text.
+		/// </summary>
+		public string TextCssClass { get; set; } = string.Empty;
 	}
 }
