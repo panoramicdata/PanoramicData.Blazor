@@ -228,6 +228,10 @@
   display: flex;
   align-items: center; }
 
+.pdtoolbartextbox {
+  display: flex;
+  align-items: center; }
+
 .disabled {
   opacity: 1;
   background-color: #e9ecef; }

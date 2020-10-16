@@ -2,9 +2,9 @@
 <h1>PDToolbarPage</h1>
 
 <h3>Declarative example of PDToolbar usage</h3>
+
 <PDToolbar>
 	<PDToolbarButton Text="Open"
-					 ToolTip="Open something"
 					 CssClass="btn-primary"
 					 IconCssClass="fas fa-fw fa-folder-open"
 					 TextCssClass="d-none d-sm-none d-md-inline"
@@ -13,7 +13,6 @@
 					 IsEnabled="_enableButtons" />
 
 	<PDToolbarButton Text="Rename"
-					 ToolTip="Rename something"
 					 CssClass="btn-secondary"
 					 IconCssClass="fas fa-fw fa-edit"
 					 TextCssClass="d-none d-sm-none d-md-inline"
@@ -24,7 +23,6 @@
 	<PDToolbarSeparator IsVisible="_showButtons" />
 
 	<PDToolbarButton Text="Download"
-					 ToolTip="Download something"
 					 CssClass="btn-secondary"
 					 IconCssClass="fas fa-fw fa-file-download"
 					 TextCssClass="d-none d-sm-none d-md-inline"
@@ -35,20 +33,28 @@
 	<PDToolbarSeparator IsVisible="_showButtons" />
 
 	<PDToolbarPlaceholder>
-		<span>Placeholder</span>
+		<span>Search</span>
 	</PDToolbarPlaceholder>
 
-	<PDToolbarButton Text="@(_enableButtons ? "Disable Buttons" : "Enable Buttons")"
-					 CssClass="btn-secondary"
+	<PDToolbarTextbox Width="100%" @bind-Value="_searchText" Keypress="OnKeypress" />
+
+	<PDToolbarButton Text="@(_enableButtons ? "Disable" : "Enable")"
+					 ToolTip="Disable or enable buttons"
+					 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
 					 Click="() => { _enableButtons = !_enableButtons; }"
 					 ShiftRight="true" />
 
-	<PDToolbarButton Text="@(_showButtons ? "Hide Buttons" : "Show Buttons")"
-					 CssClass="btn-secondary"
+	<PDToolbarButton Text="@(_showButtons ? "Hide" : "Show")"
+					 ToolTip="Show or hide buttons"
+					 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
 					 Click="() => { _showButtons = !_showButtons; }" />
 </PDToolbar>
 
 <div>
+
+	<div>
+		Search text = "@_searchText"
+	</div>
 
 	<div>
 		<div class="form-group p-1">
