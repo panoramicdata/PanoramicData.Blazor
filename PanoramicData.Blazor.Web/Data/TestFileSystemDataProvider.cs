@@ -13,6 +13,7 @@ namespace PanoramicData.Blazor.Web.Data
 	public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 	{
 		private readonly List<FileExplorerItem> _testData = new List<FileExplorerItem>();
+		private readonly Random _random = new Random(Environment.TickCount);
 
 		public TestFileSystemDataProvider()
 		{
@@ -55,30 +56,28 @@ namespace PanoramicData.Blazor.Web.Data
 		{
 			var total = _testData.Count;
 			var items = new List<FileExplorerItem>();
-			await Task.Run(() =>
+
+			var query = _testData
+				.AsQueryable<FileExplorerItem>();
+
+			// if search text given then take that as the parent path value
+			// if null then return all items (load all example)
+			// if empty string then return root item (load on demand example)
+			if (string.IsNullOrWhiteSpace(request.SearchText))
 			{
-				var query = _testData
-					.AsQueryable<FileExplorerItem>();
+				total = 1;
+				items.Add(new FileExplorerItem { Path = "/" });
+			}
+			else
+			{
+				query = query.Where(x => x.ParentPath == request.SearchText);
+				total = query.Count();
+				items = query.ToList();
+			}
 
-				// if search text given then take that as the parent path value
-				// if null then return all items (load all example)
-				// if empty string then return root item (load on demand example)
-				if (string.IsNullOrWhiteSpace(request.SearchText))
-				{
-					total = 1;
-					items.Add(new FileExplorerItem { Path = "/" });
-				}
-				else
-				{
-					query = query.Where(x => x.ParentPath == request.SearchText);
-					total = query.Count();
-					items = query.ToList();
-				}
+			// add in some random latency
+			await Task.Delay(_random.Next(500, 4000)).ConfigureAwait(true);
 
-				// remove parent path from all root items
-				//items.ForEach(x => x.ParentPath = x.Path == RootFolder ? string.Empty : x.ParentPath);
-
-			}).ConfigureAwait(false);
 			return new DataResponse<FileExplorerItem>(items, total);
 		}
 

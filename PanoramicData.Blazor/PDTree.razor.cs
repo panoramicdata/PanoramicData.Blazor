@@ -2,11 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Exceptions;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 
 namespace PanoramicData.Blazor
 {
@@ -16,6 +16,8 @@ namespace PanoramicData.Blazor
 		private static int _idSequence;
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
+
+		[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
 		/// <summary>
 		/// Provides access to the parent DragContext if it exists.
@@ -315,6 +317,7 @@ namespace PanoramicData.Blazor
 		{
 			try
 			{
+				BlockOverlayService.Show();
 				var request = new DataRequest<TItem>
 				{
 					Skip = 0,
@@ -336,6 +339,7 @@ namespace PanoramicData.Blazor
 			}
 			finally
 			{
+				BlockOverlayService.Hide();
 			}
 		}
 

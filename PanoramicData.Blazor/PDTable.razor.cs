@@ -45,6 +45,8 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
+		[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
+
 		/// <summary>
 		/// Child HTML content.
 		/// </summary>
@@ -340,6 +342,8 @@ namespace PanoramicData.Blazor
 		{
 			try
 			{
+				BlockOverlayService.Show();
+
 				var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 				var request = new DataRequest<TItem>
 				{
@@ -377,6 +381,7 @@ namespace PanoramicData.Blazor
 			}
 			finally
 			{
+				BlockOverlayService.Hide();
 			}
 		}
 
