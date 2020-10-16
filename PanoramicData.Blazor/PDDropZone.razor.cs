@@ -62,15 +62,16 @@ namespace PanoramicData.Blazor
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnDrop")]
-		public object OnDrop(DropZoneFile[] files)
+		public async Task<object> OnDrop(DropZoneFile[] files)
 		{
 			var args = new DropZoneEventArgs(this, files);
-			Drop.InvokeAsync(args);
+			await Drop.InvokeAsync(args).ConfigureAwait(true);
 			return new
 			{
 				cancel = args.Cancel,
 				reason = args.CancelReason,
-				state = args.State
+				state = args.State,
+				files
 			};
 		}
 

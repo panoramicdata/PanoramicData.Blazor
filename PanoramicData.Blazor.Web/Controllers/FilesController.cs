@@ -36,7 +36,6 @@ namespace PanoramicData.Blazor.Web.Controllers
 					await uploadInfo.File.CopyToAsync(stream);
 				}
 			}
-
 			return Ok();
 		}
 

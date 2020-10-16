@@ -129,14 +129,18 @@ function onDropZoneDrop(e) {
 			if (zone.dotnetHelper) {
 				var dto = [];
 				for (var i = 0; i < files.length; i++)
-					dto.push({ Name: files[i].name, Size: files[i].size });
+					dto.push({ Name: files[i].name, Size: files[i].size, Skip: false });
 				zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', dto)
 					.then(result => {
-						if (result.cancel) {
-							console.warn(result.reason);
-						} else {
-							for (var i = 0; i < files.length; i++)
-								uploadFile(files[i], zone.uploadUrl, result.state, zone);
+						if (!result.cancel) {
+							for (var i = 0; i < files.length; i++) {
+								var skip = result.files.reduce(function (pv, cv) {
+									return pv || (cv.name == files[i].name && cv.skip);
+								}, false);
+								if (!skip) {
+									uploadFile(files[i], zone.uploadUrl, result.state, zone);
+								}
+							}
 						}
 					});
 			}

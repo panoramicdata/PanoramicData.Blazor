@@ -67,7 +67,7 @@ namespace PanoramicData.Blazor.Web.Pages
 				DateModified = DateTimeOffset.Now,
 				EntryType = FileExplorerItemType.File,
 				FileSize = args.Size,
-				Path = $"{args.Path}{Path.DirectorySeparatorChar}{args.Name}"
+				Path = $"{args.Path}/{args.Name}"
 			}, CancellationToken.None).ConfigureAwait(true);
 		}
 

@@ -475,15 +475,47 @@ namespace PanoramicData.Blazor
 
 		private async Task OnFilesDroppedAsync(DropZoneEventArgs args)
 		{
-			// TODO: check for conflicts
-
-			// notify application and allow for cancel
-			await UploadRequest.InvokeAsync(args).ConfigureAwait(true);
-
-			// add current path so it can be passed along with uploads
 			if (_tree?.SelectedNode?.Data != null)
 			{
-				args.State = _tree.SelectedNode.Data.Path;
+				// notify application and allow for cancel
+				await UploadRequest.InvokeAsync(args).ConfigureAwait(true);
+
+				// check for conflicts
+				var targetPath = _tree.SelectedNode.Data.Path;
+				var filenames = args.Files.Select(x => x.Name ?? string.Empty).ToArray();
+				var conflicts = await GetConflictsAsync(targetPath, filenames).ConfigureAwait(true);
+				if(conflicts.Count > 0)
+				{
+					var choice = await PromptUserForConflictResolution(conflicts.Select(x => x.Name).ToArray()).ConfigureAwait(true);
+					if (choice == "Cancel")
+					{
+						args.Cancel = true;
+						args.CancelReason = "User canceled";
+						return;
+					}
+					else
+					{
+						foreach (var conflict in conflicts)
+						{
+							if (choice == "Skip")
+							{
+								var item = Array.Find(args.Files, x => x.Name == conflict.Name);
+								if (item != null)
+								{
+									item.Skip = true;
+								}
+							}
+							else
+							{
+								// need to delete from server first to avoid conflict
+								await DataProvider.DeleteAsync(conflict, CancellationToken.None).ConfigureAwait(true);
+							}
+						}
+					}
+				}
+
+				// add current path so it can be passed along with uploads
+				args.State = targetPath;
 			}
 		}
 
@@ -779,17 +811,9 @@ namespace PanoramicData.Blazor
 				Payload = payload,
 				TargetPath = targetPath,
 				IsCopy = isCopy,
-				ConflictResolution = MoveCopyArgs.ConflictResolutions.Prompt
+				ConflictResolution = MoveCopyArgs.ConflictResolutions.Prompt,
+				Conflicts = await GetConflictsAsync(targetPath, payload.Select(x => x.Name).ToArray()).ConfigureAwait(true)
 			};
-			var request = new DataRequest<FileExplorerItem> { SearchText = targetPath };
-			var response = await DataProvider.GetDataAsync(request, CancellationToken.None).ConfigureAwait(true);
-			foreach(var item in response.Items)
-			{
-				if(payload.Any(x => x.Name == item.Name))
-				{
-					conflictArgs.Conflicts.Add(item);
-				}
-			}
 			if(conflictArgs.Conflicts.Count > 0)
 			{
 				// allow application to process conflicts
@@ -797,15 +821,7 @@ namespace PanoramicData.Blazor
 
 				if(conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Prompt)
 				{
-					var topTenNames = conflictArgs.Conflicts.Take(5).Select(x => x.Name).ToList();
-					if(conflictArgs.Conflicts.Count > 5)
-					{
-						topTenNames.Add($"+ {conflictArgs.Conflicts.Count - 5} other items");
-					}
-					_conflictDialogMessage = $"{conflictArgs.Conflicts.Count} conflicts found : -";
-					_conflictDialogList = topTenNames.ToArray();
-					StateHasChanged();
-					var choice = await _conflictDialog.ShowAndWaitResultAsync();
+					var choice = await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => x.Name).ToArray()).ConfigureAwait(true);
 					conflictArgs.ConflictResolution = choice == "Overwrite" ? MoveCopyArgs.ConflictResolutions.Overwrite
 						: choice == "Skip" ? MoveCopyArgs.ConflictResolutions.Skip
 						: MoveCopyArgs.ConflictResolutions.Cancel;
@@ -913,6 +929,34 @@ namespace PanoramicData.Blazor
 			{
 				return _table!.Selection.ToArray();
 			}
+		}
+
+		private async Task<List<FileExplorerItem>> GetConflictsAsync(string targetPath, IEnumerable<string> names)
+		{
+			var conflicts = new List<FileExplorerItem>();
+			var request = new DataRequest<FileExplorerItem> { SearchText = targetPath };
+			var response = await DataProvider.GetDataAsync(request, CancellationToken.None).ConfigureAwait(true);
+			foreach (var item in response.Items)
+			{
+				if (names.Any(x => string.Equals(item.Name, x, StringComparison.OrdinalIgnoreCase)))
+				{
+					conflicts.Add(item);
+				}
+			}
+			return conflicts;
+		}
+
+		private async Task<string> PromptUserForConflictResolution(IEnumerable<string> names)
+		{
+			var namesSummary = names.Take(5).ToList();
+			if (names.Count() > 5)
+			{
+				namesSummary.Add($"+ {names.Count() - 5} other items");
+			}
+			_conflictDialogMessage = $"{names.Count()} conflicts found : -";
+			_conflictDialogList = namesSummary.ToArray();
+			StateHasChanged();
+			return await _conflictDialog.ShowAndWaitResultAsync();
 		}
 	}
 }
