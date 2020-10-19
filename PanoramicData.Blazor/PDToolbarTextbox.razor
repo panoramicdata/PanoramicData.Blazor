@@ -1,5 +1,5 @@
-﻿<div class="pdtoolbaritem" style="@ItemStyle">
+﻿<div class="pdtoolbaritem @(IsVisible ? "" : "d-none") @(ShiftRight ? "align-right" : "")" style="@ItemStyle" >
 	<div class="pdtoolbartextbox @CssClass">
-		<input class="form-control" value="@Value" @oninput="OnInput" @onkeypress="OnKeypress"/>
+		<input class="form-control" value="@Value" readonly="@(!IsEnabled)" @oninput="OnInput" @onkeypress="OnKeypress" />
 	</div>
 </div>

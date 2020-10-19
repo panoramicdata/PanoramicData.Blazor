@@ -4,13 +4,14 @@
 <h3>Declarative example of PDToolbar usage</h3>
 
 <PDToolbar>
-	<PDToolbarButton Text="Open"
-					 CssClass="btn-primary"
-					 IconCssClass="fas fa-fw fa-folder-open"
-					 TextCssClass="d-none d-sm-none d-md-inline"
-					 Click="OnOpen"
-					 IsVisible="_showButtons"
-					 IsEnabled="_enableButtons" />
+
+	<PDToolbarDropdown Text="File"
+					   IconCssClass="fas fa-fw fa-file"
+					   TextCssClass="d-none d-sm-none d-md-inline"
+					   IsVisible="_showButtons"
+					   IsEnabled="_enableButtons"
+					   Items="FileMenuItems"
+					   Click="OnFileMenuClick" />
 
 	<PDToolbarButton Text="Rename"
 					 CssClass="btn-secondary"

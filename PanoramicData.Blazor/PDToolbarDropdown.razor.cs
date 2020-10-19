@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDToolbarButton : IToolbarItem
-	{
+    public partial class PDToolbarDropdown
+    {
 		/// <summary>
 		/// Gets or sets the unique identifier.
 		/// </summary>
@@ -51,13 +53,18 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool ShiftRight { get; set; } = false;
 
 		/// <summary>
+		/// Gets or sets the menu items to be displayed in the context menu.
+		/// </summary>
+		[Parameter] public List<MenuItem> Items { get; set; } = new List<MenuItem>();
+
+		/// <summary>
 		/// Event raised whenever user clicks on the button.
 		/// </summary>
 		[Parameter] public EventCallback<string> Click { get; set; }
 
-		private async Task OnClick()
+		private async Task OnClick(string itemKey)
 		{
-			await Click.InvokeAsync(Key).ConfigureAwait(true);
+			await Click.InvokeAsync(itemKey).ConfigureAwait(true);
 		}
 	}
 }

@@ -22,6 +22,15 @@ namespace PanoramicData.Blazor.Web.Pages
 			new ToolbarButton { Key = "tb-enabledisable", Text="Disable",  CssClass="btn-secondary", ShiftRight = true },
 			new ToolbarButton { Key = "tb-showhide", Text="Hide",  CssClass="btn-secondary" }
 		};
+		private List<MenuItem> FileMenuItems = new List<MenuItem>
+		{
+			new MenuItem { Text="New", IconCssClass="fas fa-fw fa-file-word" },
+			new MenuItem { Key="Open", Text="Open...", IconCssClass="fas fa-fw fa-folder-open" },
+			new MenuItem { IsSeparator=true },
+			new MenuItem { Text="Save", IconCssClass="fas fa-fw fa-save", IsDisabled=true },
+			new MenuItem { Key= "SaveAs", Text="Save As..." },
+			new MenuItem { Text="Exit", IsVisible=false },
+		};
 
 		public void OnOpen()
 		{
@@ -86,6 +95,11 @@ namespace PanoramicData.Blazor.Web.Pages
 		private void OnKeypress(KeyboardEventArgs args)
 		{
 			_events += $"Search textbox key-press: {args.Key} {Environment.NewLine}";
+		}
+
+		private void OnFileMenuClick(string itemKey)
+		{
+			_events += $"File menu click: {itemKey} {Environment.NewLine}";
 		}
 	}
 }

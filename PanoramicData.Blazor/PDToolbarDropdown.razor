@@ -1,0 +1,43 @@
+﻿<div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "")">
+	<div class="dropdown">
+		<button class="btn pdtoolbarbutton @CssClass"
+				disabled="@(IsEnabled ? null : "true")"
+				title="@(string.IsNullOrWhiteSpace(ToolTip) ? Text : ToolTip)"
+				data-toggle="dropdown"
+				aria-haspopup="true"
+				aria-expanded="false">
+			@if (!string.IsNullOrWhiteSpace(IconCssClass))
+			{
+				<span class="@IconCssClass"></span>
+			}
+			<span class="@TextCssClass">@Text</span>
+			<i class="fas fa-fw fa-caret-down"></i>
+		</button>
+		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+			@foreach (var item in Items)
+			{
+				if (item.IsVisible)
+				{
+					@if (item.IsSeparator)
+					{
+						<div class="pddropdownseparator"></div>
+					}
+					else
+					{
+						<div class="pddropdownmenuitem @(item.IsDisabled ? "disabled" : "")" @onclick="() => OnClick(string.IsNullOrWhiteSpace(item.Key) ? item.Text : item.Key)">
+							@if (string.IsNullOrWhiteSpace(item.Content))
+							{
+								<span class="@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa fa-fw" : item.IconCssClass)"></span>
+								<span>@item.Text</span>
+							}
+							else
+							{
+								@((MarkupString)item.Content)
+							}
+						</div>
+					}
+				}
+			}
+		</div>
+	</div>
+</div>
