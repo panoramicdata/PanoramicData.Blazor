@@ -29,7 +29,7 @@ namespace PanoramicData.Blazor.Web.Pages
 			new MenuItem { IsSeparator=true },
 			new MenuItem { Text="Save", IconCssClass="fas fa-fw fa-save", IsDisabled=true },
 			new MenuItem { Key= "SaveAs", Text="Save As..." },
-			new MenuItem { Text="Exit", IsVisible=false },
+			new MenuItem { Text="Exit", IsVisible=false }
 		};
 
 		public void OnOpen()
