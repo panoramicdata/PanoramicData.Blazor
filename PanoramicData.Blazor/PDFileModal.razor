@@ -1,0 +1,18 @@
+﻿<PDModal @ref="_modal"
+		 Title="@_modalTitle"
+		 Buttons="_modalButtons"
+		 Size="ModalSizes.Large">
+
+	<div class="pdfilemodalexplorer">
+		<PDFileExplorer DataProvider="DataProvider"
+						AllowDrag="false"
+						AllowDrop="false"
+						AllowRename="false"
+						ShowToolbar="false"
+						ShowContextMenu="false"
+						SelectionMode="TableSelectionMode.Single"
+						SelectionChanged="OnSelectionChanged"
+						ItemDoubleClick="OnItemDoubleClick" />
+	</div>
+
+</PDModal>

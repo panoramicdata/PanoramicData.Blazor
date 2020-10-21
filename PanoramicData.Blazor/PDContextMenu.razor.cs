@@ -35,6 +35,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<MenuItem> ItemClick { get; set; }
 
 		/// <summary>
+		/// Sets whether the context menu is enabled or disabled.
+		/// </summary>
+		[Parameter] public bool Enabled { get; set; } = true;
+
+		/// <summary>
 		/// Gets the unique identifier of this panel.
 		/// </summary>
 		public string Id { get; private set; } = string.Empty;
@@ -60,7 +65,7 @@ namespace PanoramicData.Blazor
 
 		private async Task ShowMenuHandler(MouseEventArgs args)
 		{
-			if (args.Button == 2)
+			if (Enabled && args.Button == 2)
 			{
 				var cancelArgs = new MenuItemsEventArgs(this, Items);
 				await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);

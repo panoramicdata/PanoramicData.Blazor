@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
+using System.Text;
 
 namespace PanoramicData.Blazor
 {
@@ -21,6 +22,11 @@ namespace PanoramicData.Blazor
 		/// Sets the content displayed in the modal dialog body.
 		/// </summary>
 		[Parameter] public RenderFragment? ChildContent { get; set; }
+
+		/// <summary>
+		/// Sets the size of the modal dialog.
+		/// </summary>
+		[Parameter] public ModalSizes Size { get; set; } = ModalSizes.Medium;
 
 		/// <summary>
 		/// Sets the buttons displayed in the modal dialog footer.
@@ -81,7 +87,7 @@ namespace PanoramicData.Blazor
 			return result;
 		}
 
-		private async Task OnButtonClick(string key)
+		public async Task OnButtonClick(string key)
 		{
 			// are we waiting for using response?
 			if (_userChoice != null)
@@ -92,6 +98,28 @@ namespace PanoramicData.Blazor
 			{
 				// forward to calling app
 				await ButtonClick.InvokeAsync(key).ConfigureAwait(true);
+			}
+		}
+
+		private string ModalCssClass
+		{
+			get
+			{
+
+				var sb = new StringBuilder();
+				if(Size == ModalSizes.Large)
+				{
+					sb.Append("modal-lg ");
+				}
+				else if (Size == ModalSizes.Small)
+				{
+					sb.Append("modal-sm ");
+				}
+				if (CenterVertically)
+				{
+					sb.Append("modal-dialog-centered ");
+				}
+				return sb.ToString().TrimEnd();
 			}
 		}
 	}

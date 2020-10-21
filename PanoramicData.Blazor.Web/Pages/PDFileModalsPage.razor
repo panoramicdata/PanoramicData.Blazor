@@ -1,4 +1,10 @@
 ﻿@page "/pdfilemodals"
 
-<h3>PDFileOpenModalPage</h3>
+<button class="btn btn-primary" @onclick="ShowFileOpenModal">File Open Modal</button>
 
+<span>Open Result: @_openResult</span>
+
+<PDFileModal @ref="_fileModal"
+			 DataProvider="_dataProvider"
+			 OpenButtonText="Select"
+			 OpenTitle="Report Picker" />

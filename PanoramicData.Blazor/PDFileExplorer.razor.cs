@@ -136,14 +136,54 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<string> ToolbarClick { get; set; }
 
 		/// <summary>
+		/// Event raised whenever the user double clicks on a file.
+		/// </summary>
+		[Parameter] public EventCallback<FileExplorerItem> ItemDoubleClick { get; set; }
+
+		/// <summary>
 		/// Gets or sets CSS classes to append.
 		/// </summary>
 		[Parameter] public string CssClass { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Determines whether the user may rename items.
+		/// </summary>
+		[Parameter] public bool AllowRename { get; set; } = true;
+
+		/// <summary>
+		/// Determines whether the user may drag items.
+		/// </summary>
+		[Parameter] public bool AllowDrag { get; set; } = true;
+
+		/// <summary>
+		/// Determines whether the user may drop dragged items onto other items.
+		/// </summary>
+		[Parameter] public bool AllowDrop { get; set; } = true;
+
+		/// <summary>
 		/// Determines where sub-folders show an entry (..) to allow navigation to the parent folder.
 		/// </summary>
 		[Parameter] public bool ShowParentFolder { get; set; } = true;
+
+		/// <summary>
+		/// Determines whether the toolbar is visible.
+		/// </summary>
+		[Parameter] public bool ShowToolbar { get; set; } = true;
+
+		/// <summary>
+		/// Determines whether the context menu is available.
+		/// </summary>
+		[Parameter] public bool ShowContextMenu { get; set; } = true;
+
+		/// <summary>
+		/// Sets the allowed selection modes.
+		/// </summary>
+		[Parameter] public TableSelectionMode SelectionMode { get; set; } = TableSelectionMode.Multiple;
+
+		/// <summary>
+		/// Event raises whenever the selection changes.
+		/// </summary>
+		[Parameter] public EventCallback<FileExplorerItem[]> SelectionChanged { get; set; }
 
 		/// <summary>
 		/// Gets or sets a delegate to be called if an exception occurs.
@@ -228,7 +268,7 @@ namespace PanoramicData.Blazor
 
 		private void OnTreeBeforeEdit(TreeNodeBeforeEditEventArgs<FileExplorerItem> args)
 		{
-			if (args.Node.ParentNode == null)
+			if (!AllowRename || args.Node.ParentNode == null)
 			{
 				args.Cancel = true;
 			}
@@ -279,15 +319,22 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTableDoubleClickAsync(FileExplorerItem item)
 		{
-			if (!_table!.IsEditing && item.EntryType == FileExplorerItemType.Directory)
+			if (!_table!.IsEditing)
 			{
-				await NavigateFolderAsync(item.Path).ConfigureAwait(true);
+				if (item.EntryType == FileExplorerItemType.Directory)
+				{
+					await NavigateFolderAsync(item.Path).ConfigureAwait(true);
+				}
+				else
+				{
+					await ItemDoubleClick.InvokeAsync(item).ConfigureAwait(true);
+				}
 			}
 		}
 
 		private void OnTableBeforeEdit(TableBeforeEditEventArgs<FileExplorerItem> args)
 		{
-			if(args.Item.Name == ".." || args.Item.IsUploading)
+			if(!AllowRename || args.Item.Name == ".." || args.Item.IsUploading)
 			{
 				args.Cancel = true;
 			}
@@ -450,8 +497,9 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTableSelectionChangedAsync()
 		{
-			await RefreshToolbarAsync()
-				.ConfigureAwait(true);
+			await RefreshToolbarAsync().ConfigureAwait(true);
+			var selection = _table?.GetSelectedItems() ?? new FileExplorerItem[0];
+			await SelectionChanged.InvokeAsync(selection).ConfigureAwait(true);
 		}
 
 		private async Task DirectoryRenameAsync(string oldPath, string newPath)

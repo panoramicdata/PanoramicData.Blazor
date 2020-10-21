@@ -18,21 +18,37 @@
 
 <div class="pdfileexplorer @CssClass">
 
-	<div class="pdfe-toolbar">
-		<PDToolbar Items="ToolbarItems" ButtonClick="OnToolbarButtonClickAsync" />
+	<div class="pdfe-toolbar @(ShowToolbar ? "" : "d-none")">
+		<PDToolbar Items="ToolbarItems"
+				   ButtonClick="OnToolbarButtonClickAsync" />
 	</div>
 
 	<PDSplitter GutterSize="6">
 
 		<PDSplitPanel Size="1">
 
-			<PDContextMenu Items="TreeContextItems" UpdateState="OnTreeContextMenuUpdateStateAsync" ItemClick="OnTreeContextMenuItemClickAsync">
+			<PDContextMenu Items="TreeContextItems"
+						   Enabled="ShowContextMenu"
+						   UpdateState="OnTreeContextMenuUpdateStateAsync"
+						   ItemClick="OnTreeContextMenuItemClickAsync">
 
-				<PDTree @ref="_tree" TItem="FileExplorerItem" DataProvider="DataProvider" LoadOnDemand="true" AllowSelection="true" AllowEdit="true"
-						KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name" IsLeaf="x => x.EntryType == FileExplorerItemType.File"
-						SelectionChange="OnTreeSelectionChangeAsync" ItemsLoaded="OnTreeItemsLoaded" NodeUpdated="OnTreeNodeUpdatedAsync"
-						BeforeEdit="OnTreeBeforeEdit" AfterEdit="OnTreeAfterEditAsync"
-						AllowDrop="true" Drop="OnDropAsync">
+				<PDTree @ref="_tree"
+						TItem="FileExplorerItem"
+						DataProvider="DataProvider"
+						KeyField="x => x.Path"
+						ParentKeyField="x => x.ParentPath"
+						TextField="x => x.Name"
+						IsLeaf="x => x.EntryType == FileExplorerItemType.File"
+						LoadOnDemand="true"
+						AllowSelection="true"
+						AllowDrop="AllowDrop"
+						AllowEdit="AllowRename"
+						Drop="OnDropAsync"
+						BeforeEdit="OnTreeBeforeEdit"
+						AfterEdit="OnTreeAfterEditAsync"
+						ItemsLoaded="OnTreeItemsLoaded"
+						NodeUpdated="OnTreeNodeUpdatedAsync"
+						SelectionChange="OnTreeSelectionChangeAsync">
 					<NodeTemplate>
 						<span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
 							<i class="far @(context?.IsExpanded ?? false ? "fa-folder-open" : "fa-folder")"></i>
@@ -47,23 +63,49 @@
 
 		<PDSplitPanel Size="3">
 
-			<PDContextMenu Items="TableContextItems" UpdateState="OnTableContextMenuUpdateStateAsync" ItemClick="OnTableContextMenuItemClickAsync">
+			<PDContextMenu Items="TableContextItems"
+						   Enabled="ShowContextMenu"
+						   UpdateState="OnTableContextMenuUpdateStateAsync"
+						   ItemClick="OnTableContextMenuItemClickAsync">
 
-				<PDDropZone UploadUrl="@UploadUrl" Drop="OnFilesDroppedAsync" UploadStarted="OnUploadStartedAsync" UploadProgress="OnUploadProgressAsync" UploadCompleted="OnUploadCompletedAsync">
+				<PDDropZone UploadUrl="@UploadUrl"
+							Drop="OnFilesDroppedAsync"
+							UploadStarted="OnUploadStartedAsync"
+							UploadProgress="OnUploadProgressAsync"
+							UploadCompleted="OnUploadCompletedAsync">
 
-					<PDTable @ref="_table" TItem="FileExplorerItem" DataProvider="DataProvider" SearchText="@FolderPath" ColumnsConfig="ColumnConfig"
-							 AllowEdit="true" AllowDrag="true" AllowDrop="true" Drop="OnDropAsync" AutoLoad="false"
-							 SelectionMode="TableSelectionMode.Multiple" SelectionChanged="OnTableSelectionChangedAsync" KeyField="x => x.Path"
-							 BeforeEdit="OnTableBeforeEdit" AfterEdit="OnTableAfterEditAsync" KeyDown="OnTableKeyDownAsync"
-							 DoubleClick="OnTableDoubleClickAsync" ItemsLoaded="OnTableItemsLoaded"
+					<PDTable @ref="_table"
+							 TItem="FileExplorerItem"
+							 DataProvider="DataProvider"
+							 KeyField="x => x.Path"
+							 AutoLoad="false"
+							 AllowEdit="AllowRename"
+							 AllowDrag="AllowDrag"
+							 AllowDrop="AllowDrop"
+							 SearchText="@FolderPath"
+							 SelectionMode="SelectionMode"
+							 ColumnsConfig="ColumnConfig"
+							 Drop="OnDropAsync"
+							 KeyDown="OnTableKeyDownAsync"
+							 BeforeEdit="OnTableBeforeEdit"
+							 ItemsLoaded="OnTableItemsLoaded"
+							 AfterEdit="OnTableAfterEditAsync"
+							 DoubleClick="OnTableDoubleClickAsync"
+							 SelectionChanged="OnTableSelectionChangedAsync"
 							 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
 
-						<PDColumn TItem="FileExplorerItem" Id="Icon" Field="x => x.EntryType" Editable="false">
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Icon"
+								  Field="x => x.EntryType"
+								  Editable="false">
 							<Template>
 								<i class="far @(context.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
 							</Template>
 						</PDColumn>
-						<PDColumn TItem="FileExplorerItem" Id="Name" Field="x => x.Name">
+
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Name"
+								  Field="x => x.Name">
 							<Template>
 								@if (context.IsUploading)
 								{
@@ -78,30 +120,46 @@
 								}
 							</Template>
 						</PDColumn>
-						<PDColumn TItem="FileExplorerItem" Id="Type" Field="x => x.EntryType" Editable="false">
+
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Type"
+								  Field="x => x.EntryType"
+								  Editable="false">
 							<Template>
 								<span class="text-nowrap">
 									@(context.EntryType == FileExplorerItemType.Directory
-							? "File Folder"
-							: ($"{context.FileExtension.ToUpper()} File").Trim() )
+										? "File Folder"
+										: ($"{context.FileExtension.ToUpper()} File").Trim() )
 								</span>
 							</Template>
 						</PDColumn>
-						<PDColumn TItem="FileExplorerItem" Id="Size" Field="x => x.FileSize" Editable="false">
+
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Size"
+								  Field="x => x.FileSize"
+								  Editable="false">
 							<Template>
 								<span title="@(context.FileSize.ToString("0,0")) bytes">
 									@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize("#"))
 								</span>
 							</Template>
 						</PDColumn>
-						<PDColumn TItem="FileExplorerItem" Id="Created" Field="x => x.DateCreated" Editable="false">
+
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Created"
+								  Field="x => x.DateCreated"
+								  Editable="false">
 							<Template>
 								<span class="nowrap" title="@(context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
 									@context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
 								</span>
 							</Template>
 						</PDColumn>
-						<PDColumn TItem="FileExplorerItem" Id="Modified" Field="x => x.DateModified" Editable="false">
+
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Modified"
+								  Field="x => x.DateModified"
+								  Editable="false">
 							<Template>
 								<span class="text-nowrap" title="@(context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
 									@context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")

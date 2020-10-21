@@ -31,8 +31,7 @@ namespace PanoramicData.Blazor.Web.Pages
 
 		public void OnUpdateState(CancelEventArgs args)
 		{
-			args.Cancel = !_enabled;
-			_events += $"before show: {(_enabled ? "show = true" : "show = cancelled")} {Environment.NewLine}";
+			_events += $"before show {Environment.NewLine}";
 			// randomly disable one item
 			_items.ForEach(x => x.IsDisabled = false);
 			_items[_random.Next(2, 8)].IsDisabled = true;
