@@ -9,7 +9,7 @@ We needed the following Blazor UI components for several projects, including [Re
 * Pager
 * Tree
 * Splitter
-* File Exploreer
+* File Explorer
 * Context Menu
 * Toolbar
 * Form
