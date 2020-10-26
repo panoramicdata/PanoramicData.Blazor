@@ -25,6 +25,8 @@ namespace PanoramicData.Blazor
 
 		[Parameter] public string OpenTitle { get; set; } = "File Open";
 
+		[Parameter] public ModalSizes Size { get; set; } = ModalSizes.Large;
+
 		public async Task<string> ShowOpenAsync()
 		{
 			// update button state

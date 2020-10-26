@@ -107,7 +107,11 @@ namespace PanoramicData.Blazor
 			{
 
 				var sb = new StringBuilder();
-				if(Size == ModalSizes.Large)
+				if (Size == ModalSizes.ExtraLarge)
+				{
+					sb.Append("modal-xl ");
+				}
+				else if (Size == ModalSizes.Large)
 				{
 					sb.Append("modal-lg ");
 				}

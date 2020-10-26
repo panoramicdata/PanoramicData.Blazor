@@ -7,6 +7,7 @@
 	{
 		Small,
 		Medium,
-		Large
+		Large,
+		ExtraLarge
 	}
 }
