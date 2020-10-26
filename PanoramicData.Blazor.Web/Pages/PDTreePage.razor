@@ -5,11 +5,20 @@
 
 <h3>All items loaded up front example</h3>
 
-<PDTree @ref="_tree" DataProvider="_dataProvider" AllowSelection="true" AllowEdit="true"
-		TItem="FileExplorerItem" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath"
-		ShowLines="_showLines" ShowRoot="_showRoot"
-		SelectionChange="SelectionChangeHandler" NodeExpanded="NodeExpandedHandler" NodeCollapsed="NodeCollapsedHandler"
-		BeforeEdit="BeforeEditHandler" AfterEdit="AfterEditHandler">
+<PDTree @ref="_tree"
+		TItem="FileExplorerItem"
+		DataProvider="_dataProvider"
+		KeyField="x => x.Path"
+		ParentKeyField="x => x.ParentPath"
+		AllowSelection="true"
+		AllowEdit="true"
+		ShowLines="_showLines"
+		ShowRoot="_showRoot"
+		SelectionChange="SelectionChangeHandler"
+		NodeExpanded="NodeExpandedHandler"
+		NodeCollapsed="NodeCollapsedHandler"
+		BeforeEdit="BeforeEditHandler"
+		AfterEdit="AfterEditHandler" >
 	<NodeTemplate>
 		@if (context?.Data?.EntryType == FileExplorerItemType.File)
 		{
@@ -54,7 +63,12 @@
 <h3>Items loaded on demand example</h3>
 <!-- note that the IsLeaf parameter is set so as to help identify the leaf nodes,
 	 this is not required when all data is loaded up front as it can be inferred -->
-<PDTree DataProvider="_dataProviderOnDemand" ShowLines="true"
-		TItem="FileExplorerItem" KeyField="x => x.Path" ParentKeyField="x => x.ParentPath" TextField="x => x.Name"
-		LoadOnDemand="true" IsLeaf="x => x.EntryType == FileExplorerItemType.File" >
+<PDTree DataProvider="_dataProviderOnDemand"
+		TItem="FileExplorerItem"
+		KeyField="x => x.Path"
+		ParentKeyField="x => x.ParentPath"
+		TextField="x => x.Name"
+		LoadOnDemand="true"
+		ShowLines="true"
+		IsLeaf="x => x.EntryType == FileExplorerItemType.File" >
 </PDTree>

@@ -63,7 +63,12 @@ namespace PanoramicData.Blazor.Web.Data
 			// if search text given then take that as the parent path value
 			// if null then return all items (load all example)
 			// if empty string then return root item (load on demand example)
-			if (string.IsNullOrWhiteSpace(request.SearchText))
+			if(request.SearchText is null)
+			{
+				total = query.Count();
+				items = query.ToList();
+			}
+			else if (string.IsNullOrWhiteSpace(request.SearchText))
 			{
 				total = 1;
 				items.Add(new FileExplorerItem { Path = "/" });
