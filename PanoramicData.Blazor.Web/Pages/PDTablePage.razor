@@ -26,7 +26,12 @@
 			 AllowEdit="true" BeforeEdit="OnBeforeEdit"
 			 DefaultPage="_defaultPage" PageChanged="OnPageChange"
 			 DefaultSort="_defaultSort" SortChanged="OnSortChange">
-		<PDColumn Id="col-id" TItem="Person" Field="x => x.Id" Editable="false" />
+		<PDColumn Id="col-icon" TdClass="pl-0 pr-2" ThClass="pl-0 pr-2" TItem="Person" Sortable="false" Editable="false">
+			<Template>
+				<i class="fas fa-user" style="opacity: 0.6"></i>
+			</Template>
+		</PDColumn>
+		<PDColumn Id="col-id" TdClass="pl-0 pr-0" ThClass="pl-0 pr-0" TItem="Person" Field="x => x.Id" Editable="false" />
 		<PDColumn Id="col-firstname" TItem="Person" Field="x => x.FirstName" />
 		<PDColumn Id="col-lastname" TItem="Person" Field="x => x.LastName" />
 		<PDColumn Id="col-email" TItem="Person" Field="x => x.Email" />

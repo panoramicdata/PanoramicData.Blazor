@@ -96,15 +96,18 @@
 
 						<PDColumn TItem="FileExplorerItem"
 								  Id="Icon"
+								  ThClass="pl-1 pr-0"
 								  Field="x => x.EntryType"
-								  Editable="false">
+								  Editable="false"
+								  Sortable="false">
 							<Template>
-								<i class="far @(context.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
+								<i class="far fa-fw @(context.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
 							</Template>
 						</PDColumn>
 
 						<PDColumn TItem="FileExplorerItem"
 								  Id="Name"
+								  ThClass="w-100-pct"
 								  Field="x => x.Name">
 							<Template>
 								@if (context.IsUploading)
@@ -123,6 +126,7 @@
 
 						<PDColumn TItem="FileExplorerItem"
 								  Id="Type"
+								  ThClass="mw-100-px"
 								  Field="x => x.EntryType"
 								  Editable="false">
 							<Template>
@@ -136,6 +140,7 @@
 
 						<PDColumn TItem="FileExplorerItem"
 								  Id="Size"
+								  ThClass="mw-100-px"
 								  Field="x => x.FileSize"
 								  Editable="false">
 							<Template>
@@ -147,6 +152,7 @@
 
 						<PDColumn TItem="FileExplorerItem"
 								  Id="Created"
+								  ThClass="mw-150-px"
 								  Field="x => x.DateCreated"
 								  Editable="false">
 							<Template>
@@ -158,6 +164,7 @@
 
 						<PDColumn TItem="FileExplorerItem"
 								  Id="Modified"
+								  ThClass="mw-150-px"
 								  Field="x => x.DateModified"
 								  Editable="false">
 							<Template>

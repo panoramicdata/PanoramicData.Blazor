@@ -285,13 +285,13 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-				const string Blank = "<i class=\"fas fa-sort-amount-up-alt fa-hidden\"></i>";
+				const string Blank = "<i class=\"ml-1 fas fa-sort-amount-up-alt fa-hidden\"></i>";
 				if (SortColumn)
 				{
 					return SortDirection switch
 					{
-						SortDirection.Ascending => "<i class=\"fas fa-sort-amount-up-alt\"></i>",
-						SortDirection.Descending => "<i class=\"fas fa-sort-amount-down\"></i>",
+						SortDirection.Ascending => "<i class=\"ml-1 fas fa-sort-amount-up-alt\"></i>",
+						SortDirection.Descending => "<i class=\"ml-1 fas fa-sort-amount-down\"></i>",
 						_ => Blank
 					};
 				}

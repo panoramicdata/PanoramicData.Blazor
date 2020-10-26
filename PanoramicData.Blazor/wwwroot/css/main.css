@@ -301,3 +301,24 @@
 .pd-empty-icon {
   height: 16px;
   width: 16px; }
+
+.w-100-pct {
+  width: 100%; }
+
+.w-100-px {
+  width: 100px; }
+
+.w-150-px {
+  width: 150px; }
+
+.w-200-px {
+  width: 200px; }
+
+.mw-100-px {
+  min-width: 100px; }
+
+.mw-150-px {
+  min-width: 150px; }
+
+.mw-200-px {
+  min-width: 200px; }

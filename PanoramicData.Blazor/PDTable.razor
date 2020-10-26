@@ -23,7 +23,11 @@
 						@if (column.Sortable)
 						{
 							<div title="@column.HelpText" @onclick="@(async () => await SortByAsync(column))">
-								<span class="text-nowrap pd-pointer">@column.Title&nbsp;@((MarkupString)column.SortIcon)</span>
+								<span class="text-nowrap pd-pointer">@column.Title</span>
+								@if (column.Sortable)
+								{
+									<span>@((MarkupString)column.SortIcon)</span>
+								}
 							</div>
 						}
 						else
