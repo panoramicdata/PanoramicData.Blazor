@@ -37,7 +37,10 @@
 		<span>Search</span>
 	</PDToolbarPlaceholder>
 
-	<PDToolbarTextbox Width="100%" @bind-Value="_searchText" Keypress="OnKeypress" />
+	<PDToolbarTextbox Width="100%"
+					  @bind-Value="_searchText"
+					  ShowClearButton="true"
+					  Keypress="OnKeypress" />
 
 	<PDToolbarButton Text="@(_enableButtons ? "Disable" : "Enable")"
 					 ToolTip="Disable or enable buttons"

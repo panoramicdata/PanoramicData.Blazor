@@ -1,5 +1,15 @@
 ﻿<div class="pdtoolbaritem @(IsVisible ? "" : "d-none") @(ShiftRight ? "align-right" : "")" style="@ItemStyle" >
 	<div class="pdtoolbartextbox @CssClass">
-		<input class="form-control" value="@Value" readonly="@(!IsEnabled)" @oninput="OnInput" @onkeypress="OnKeypress" />
+		<input class="form-control @InputCssClass"
+			   @bind-value="@_value"
+			   readonly="@(!IsEnabled)"
+			   @oninput="OnInput"
+			   @onkeypress="OnKeypress" />
+		@if (ShowClearButton)
+		{
+			<span class="pd-tbr-clear-btn" @onclick="OnClear">
+				<i class="fas fa-times"></i>
+			</span>
+		}
 	</div>
 </div>

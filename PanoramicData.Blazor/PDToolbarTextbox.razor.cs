@@ -57,9 +57,15 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<KeyboardEventArgs> Keypress { get; set; }
 
 		/// <summary>
-		/// Gets the style for the containing div element.
+		/// Gets or sets whether the clear button is displayed.
 		/// </summary>
+		[Parameter] public bool ShowClearButton { get; set; } = true;
+
 		public string ItemStyle => $"width: {Width}";
+
+		public string InputCssClass => ShowClearButton ? "pr-4" : "";
+
+		private string _value = string.Empty;
 
 		private async Task OnInput(ChangeEventArgs args)
 		{
@@ -69,6 +75,12 @@ namespace PanoramicData.Blazor
 		private async Task OnKeypress(KeyboardEventArgs args)
 		{
 			await Keypress.InvokeAsync(args).ConfigureAwait(true);
+		}
+
+		private async Task OnClear(MouseEventArgs _)
+		{
+			_value = string.Empty;
+			await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
 		}
 	}
 }

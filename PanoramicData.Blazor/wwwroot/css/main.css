@@ -238,6 +238,11 @@
   display: flex;
   align-items: center; }
 
+.pd-tbr-clear-btn {
+  position: relative;
+  left: -20px;
+  cursor: pointer; }
+
 .pddropdownmenuitem {
   background-color: #fff;
   padding: .25rem .50rem;
