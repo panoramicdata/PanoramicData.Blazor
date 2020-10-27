@@ -1,0 +1,25 @@
+﻿@page "/pdfilemodals"
+
+	<div>
+		<button class="btn btn-primary" @onclick="ShowFileOpenModal">File Open Modal</button>
+
+		<span>Open Result: @_openResult</span>
+
+		<PDFileModal @ref="_fileOpenModal"
+					 DataProvider="_dataProvider"
+					 OpenButtonText="Select"
+					 OpenTitle="Report Picker" />
+	</div>
+
+	<br/>
+
+	<div>
+		<button class="btn btn-primary" @onclick="ShowFileSaveAsModal">File SaveAs Modal</button>
+
+		<PDFileModal @ref="_fileSaveAsModal"
+					 DataProvider="_dataProvider"
+					 Size="ModalSizes.ExtraLarge"
+					 OpenButtonText="Save"
+					 OpenTitle="Save Report As" />
+
+	</div>

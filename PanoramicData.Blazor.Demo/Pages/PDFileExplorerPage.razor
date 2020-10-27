@@ -1,0 +1,26 @@
+﻿@page "/pdfileexplorer"
+
+<h1>PDFileExplorer</h1>
+
+<!-- PDSplitter works better when its container has a known size -->
+<!-- 57px = Top Bar -->
+<!-- 10px = Padding -->
+<!-- 56px = Title -->
+<div style="height: calc(100vh - 57px - 10px - 56px)">
+
+	<PDDragContext>
+		<PDFileExplorer @ref="_fileExplorer"
+						DataProvider="_dataProvider"
+						UpdateTableContextState="OnUpdateTableContextMenuState"
+						UpdateToolbarState="OnUpdateToolbarState"
+						TableContextMenuClick="OnTableContextMenuClick"
+						TableDownloadRequest="OnTableDownloadRequest"
+						ToolbarClick="OnToolbarClick"
+						UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())"
+						UploadRequest="OnUploadRequest"
+						UploadStarted="OnUploadStarted"
+						UploadCompleted="OnUploadCompleted">
+		</PDFileExplorer>
+	</PDDragContext>
+
+</div>

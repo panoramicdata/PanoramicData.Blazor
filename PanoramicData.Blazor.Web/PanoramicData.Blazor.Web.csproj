@@ -26,6 +26,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\PanoramicData.Blazor.Demo\PanoramicData.Blazor.Demo.csproj" />
 	  <ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
 	</ItemGroup>
 

@@ -1,0 +1,33 @@
+﻿@page "/pdcontextmenu"
+
+<h1>PDContextMenu</h1>
+
+<span>Right click anywhere in rectangle to show context menu</span>
+
+<PDContextMenu Items="_items"
+			   Enabled="_enabled"
+			   UpdateState="OnUpdateState"
+			   ItemClick="OnItemClick">
+
+	<div style="width: 100%; height: 500px; background-color: #eee;">
+	</div>
+
+</PDContextMenu>
+
+<br/>
+
+<div>
+	<button class="btn btn-secondary" @onclick="() => _enabled = !_enabled">@(_enabled ? "Disable" : "Enable") Menu</button>
+</div>
+
+<div>
+	<div class="form-group p-1">
+		<label>Events</label>
+		<textarea rows="8" class="form-control">@_events</textarea>
+	</div>
+</div>
+
+
+
+
+
