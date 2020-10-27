@@ -7,6 +7,20 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="file_example_WEBM_1920_3_7MB.webm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="file_example_WEBM_1920_3_7MB.webm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="file_example_WEBM_1920_3_7MB.webm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.9" />

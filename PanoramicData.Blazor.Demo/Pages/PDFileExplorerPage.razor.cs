@@ -40,7 +40,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			//await JSRuntime.InvokeVoidAsync("downloadFile", $"{System.IO.Path.GetFileNameWithoutExtension(args.Item.Name)}.webm", base64).ConfigureAwait(true);
 
 			// Method B: to avoid size limit and conversion to base64 - redirect to controller method
-			NavigationManager.NavigateTo($"/files/download?path={args.Item.Path}", true);
+			await JSRuntime.InvokeVoidAsync("openUrl", $"/files/download?path={args.Item.Path}").ConfigureAwait(false);
 		}
 
 		public async Task OnUploadRequest(DropZoneEventArgs args)

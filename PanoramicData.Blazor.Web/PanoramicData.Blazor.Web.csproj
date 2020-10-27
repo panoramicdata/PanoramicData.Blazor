@@ -11,9 +11,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Include="Download\file_example_WEBM_1920_3_7MB.webm">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
+	  <Compile Remove="wwwroot\js\**" />
+	  <Content Remove="wwwroot\js\**" />
+	  <EmbeddedResource Remove="wwwroot\js\**" />
+	  <None Remove="wwwroot\js\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -31,7 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="wwwroot\js\" />
+	  <Folder Include="wwwroot\css\" />
 	</ItemGroup>
 
 </Project>

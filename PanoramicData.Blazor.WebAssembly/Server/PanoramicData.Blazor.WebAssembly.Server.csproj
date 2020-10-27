@@ -5,16 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Download\file_example_WEBM_1920_3_7MB.webm" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Download\file_example_WEBM_1920_3_7MB.webm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.1" />
   </ItemGroup>
 

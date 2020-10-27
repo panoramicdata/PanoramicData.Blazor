@@ -16,7 +16,7 @@ namespace PanoramicData.Blazor.Web.Controllers
 		[HttpGet("download")]
 		public IActionResult Download(string path)
 		{
-			var stream = new FileStream("Download/file_example_WEBM_1920_3_7MB.webm", FileMode.Open);
+			var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.file_example_WEBM_1920_3_7MB.webm");
 			var result = new FileStreamResult(stream, "text/plain");
 			result.FileDownloadName = $"{Path.GetFileNameWithoutExtension(path)}.webm";
 			return result;
