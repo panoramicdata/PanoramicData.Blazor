@@ -92,16 +92,18 @@ namespace PanoramicData.Blazor.Demo.Data
 		/// <param name="item">The item to be deleted.</param>
 		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-		public async Task<OperationResponse> DeleteAsync(Person item, CancellationToken cancellationToken)
+		public Task<OperationResponse> DeleteAsync(Person item, CancellationToken cancellationToken)
 		{
-			var existingPerson = _people.Find(x => x.Id == item.Id);
-			if(existingPerson == null)
+			return Task.Run(() =>
 			{
-				return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
-			}
-			_people.Remove(existingPerson);
-			return new OperationResponse { Success = true };
-
+				var existingPerson = _people.Find(x => x.Id == item.Id);
+				if(existingPerson == null)
+				{
+					return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
+				}
+				_people.Remove(existingPerson);
+				return new OperationResponse { Success = true };
+			});
 		}
 
 		/// <summary>
@@ -111,35 +113,39 @@ namespace PanoramicData.Blazor.Demo.Data
 		/// <param name="delta">A dictionary with new property values.</param>
 		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-		public async Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object> delta, CancellationToken cancellationToken)
+		public Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object> delta, CancellationToken cancellationToken)
 		{
-			var existingPerson = _people.Find(x => x.Id == item.Id);
-			if (existingPerson == null)
+			return Task.Run(() =>
 			{
-				return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
-			}
-			foreach(var kvp in delta)
-			{
-				var prop = item.GetType().GetProperty(kvp.Key);
-				if (prop == null)
+
+				var existingPerson = _people.Find(x => x.Id == item.Id);
+				if (existingPerson == null)
 				{
-					return new OperationResponse { ErrorMessage = $"Person does not contain a property named {kvp.Key}" };
+					return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
 				}
-				else
+				foreach (var kvp in delta)
 				{
-					try
+					var prop = item.GetType().GetProperty(kvp.Key);
+					if (prop == null)
 					{
-						var value = kvp.Value.Cast(prop.PropertyType);
-						prop.SetValue(existingPerson, value);
+						return new OperationResponse { ErrorMessage = $"Person does not contain a property named {kvp.Key}" };
 					}
-					catch(Exception ex)
+					else
 					{
-						return new OperationResponse { ErrorMessage = $"Failed to update property {kvp.Key} to {kvp.Value}" };
+						try
+						{
+							var value = kvp.Value.Cast(prop.PropertyType);
+							prop.SetValue(existingPerson, value);
+						}
+						catch (Exception ex)
+						{
+							return new OperationResponse { ErrorMessage = $"Failed to update property {kvp.Key} to {kvp.Value}: {ex.Message}" };
+						}
 					}
 				}
-			}
-			existingPerson.DateModified = DateTime.Now;
-			return new OperationResponse { Success = true };
+				existingPerson.DateModified = DateTime.Now;
+				return new OperationResponse { Success = true };
+			});
 		}
 
 		/// <summary>
@@ -148,12 +154,15 @@ namespace PanoramicData.Blazor.Demo.Data
 		/// <param name="item">New item details.</param>
 		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-		public async Task<OperationResponse> CreateAsync(Person item, CancellationToken cancellationToken)
+		public Task<OperationResponse> CreateAsync(Person item, CancellationToken cancellationToken)
 		{
-			item.Id = _people.Max(x => x.Id) + 1;
-			item.DateModified = item.DateCreated = DateTime.Now;
-			_people.Add(item);
-			return new OperationResponse { Success = true };
+			return Task.Run(() =>
+			{
+				item.Id = _people.Max(x => x.Id) + 1;
+				item.DateModified = item.DateCreated = DateTime.Now;
+				_people.Add(item);
+				return new OperationResponse { Success = true };
+			});
 		}
 	}
 }

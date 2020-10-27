@@ -81,7 +81,7 @@ namespace PanoramicData.Blazor.Demo.Data
 			}
 
 			// add in some random latency
-			var delayMs = _random.Next(50, 1000);
+			var delayMs = _random.Next(50, 800);
 			await Task.Delay(delayMs).ConfigureAwait(true);
 
 			return new DataResponse<FileExplorerItem>(items, total);
@@ -159,7 +159,7 @@ namespace PanoramicData.Blazor.Demo.Data
 								}
 
 								// move / copy
-								var isCopy = delta.ContainsKey("Copy") && delta["Copy"].ToString().ToLower() == "true";
+								var isCopy = delta.ContainsKey("Copy") && string.Equals(delta["Copy"].ToString(), "true", StringComparison.OrdinalIgnoreCase);
 								MoveOrCopyItem(existingItem, newPath, isCopy);
 							}
 							else

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components.Web;
 
@@ -9,10 +7,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDContextMenuPage
     {
-		private bool _enabled = true;
-		private Random _random = new Random(Environment.TickCount);
+		private readonly Random _random = new Random(Environment.TickCount);
 		private string _events = string.Empty;
 		private List<MenuItem> _items = new List<MenuItem>();
+
+		public bool Enabled { get; set; } = true;
 
 		protected override void OnInitialized()
 		{
@@ -40,6 +39,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 		public void OnItemClick(MenuItem item)
 		{
 			_events += $"item click: {item.Text} {Environment.NewLine}";
+		}
+
+		private void OnClick(MouseEventArgs _)
+		{
+			Enabled = !Enabled;
 		}
 	}
 }

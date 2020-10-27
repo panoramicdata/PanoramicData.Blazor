@@ -5,7 +5,7 @@
 <span>Right click anywhere in rectangle to show context menu</span>
 
 <PDContextMenu Items="_items"
-			   Enabled="_enabled"
+			   Enabled="Enabled"
 			   UpdateState="OnUpdateState"
 			   ItemClick="OnItemClick">
 
@@ -17,7 +17,7 @@
 <br/>
 
 <div>
-	<button class="btn btn-secondary" @onclick="() => _enabled = !_enabled">@(_enabled ? "Disable" : "Enable") Menu</button>
+	<button class="btn btn-secondary" @onclick="OnClick">@(Enabled ? "Disable" : "Enable") Menu</button>
 </div>
 
 <div>

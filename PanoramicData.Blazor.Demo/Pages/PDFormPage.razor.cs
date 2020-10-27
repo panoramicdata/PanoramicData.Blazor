@@ -17,7 +17,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		// properties for unlinked example
 		private PDForm<Person> Form { get; set; } = null!;
 		private List<Person> People { get; set; } = new List<Person>();
-		private Person SelectedPerson { get; set; }
+		private Person? SelectedPerson { get; set; }
 
 		public PDFormPage()
 		{
@@ -74,7 +74,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 				InvokeAsync(() => StateHasChanged());
 			}
 		}
-		private void OnEditPerson(Person person)
+		private void OnEditPerson(Person? person)
 		{
 			SelectedPerson = person;
 			Form.SetMode(FormModes.Edit);

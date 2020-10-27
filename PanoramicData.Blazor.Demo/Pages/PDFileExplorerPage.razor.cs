@@ -43,16 +43,16 @@ namespace PanoramicData.Blazor.Demo.Pages
 			await JSRuntime.InvokeVoidAsync("openUrl", $"/files/download?path={args.Item.Path}").ConfigureAwait(false);
 		}
 
-		public async Task OnUploadRequest(DropZoneEventArgs args)
+		public void OnUploadRequest(DropZoneEventArgs args)
 		{
-			if(args.Files.Any(x => x.Size > 1000000000)) // 1GB
+			if (args.Files.Any(x => x.Size > 1000000000)) // 1GB
 			{
 				args.Cancel = true;
 				args.CancelReason = "Upload limit is 1GB per file";
 			}
 		}
 
-		public async Task OnUploadStarted(DropZoneUploadEventArgs args)
+		public void OnUploadStarted(DropZoneUploadEventArgs args)
 		{
 			// add example additional field to pass with upload
 			args.FormFields.Add("key", Guid.NewGuid().ToString());
@@ -71,7 +71,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}, CancellationToken.None).ConfigureAwait(true);
 		}
 
-		public async Task OnUpdateToolbarState(List<ToolbarItem> items)
+		public void OnUpdateToolbarState(List<ToolbarItem> items)
 		{
 			// add custom toolbar button
 			var createFileButton = items.Find(x => x.Key == "create-file");
@@ -91,7 +91,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
-		public async Task OnUpdateTableContextMenuState(MenuItemsEventArgs args)
+		public void OnUpdateTableContextMenuState(MenuItemsEventArgs args)
 		{
 			// add custom toolbar button
 			var createFileButton = args.MenuItems.Find(x => x.Key == "create-file");

@@ -17,7 +17,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		// properties for unlinked example
 		private PDForm<Person> Form { get; set; } = null!;
 		private List<Person> People { get; set; } = new List<Person>();
-		private Person SelectedPerson { get; set; }
+		private Person? SelectedPerson { get; set; }
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
