@@ -1,0 +1,26 @@
+name: Deploy to GitHub Pages
+on: 
+  push:
+    branches: [ main ]
+jobs:
+  deploy-to-github-pages:
+    runs-on: ubuntu-latest
+    steps:
+    # uses GitHub's checkout action to checkout code form the master branch
+    - uses: actions/checkout@v2
+    # sets up .NET Core SDK 3.1
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    # publishes Blazor project to the release-folder
+    - name: Publish with dotnet
+      run: dotnet publish PanoramicData.Blazor.WebAssembly/Client/PanoramicData.Blazor.WebAssembly.Client.csproj  --configuration Release --output release --nologo
+    - name: Deploy to Github Pages
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BASE_BRANCH: main # The branch the action should deploy from.
+        BRANCH: gh-pages # The branch the action should deploy to.
+        FOLDER: release/wwwroot # The folder the action should deploy.
+        SINGLE_COMMIT: true
