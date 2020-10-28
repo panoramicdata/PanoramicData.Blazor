@@ -3,7 +3,7 @@
 <h1>PDTable</h1>
 
 <div class="d-flex flex-row-reverse">
-	<button class="btn btn-primary" @onclick="async () => await _table!.RefreshAsync()">Refresh</button>
+	<button class="btn btn-primary" @onclick="async () => await Table!.RefreshAsync()">Refresh</button>
 </div>
 
 <div class="form-group p-1">
@@ -16,10 +16,10 @@
 	</div>
 </div>
 
-<PDDragContext @ref="_dragContext">
+<PDDragContext @ref="DragContext">
 
-	<PDTable @ref="_table" TItem="Person" DataProvider="PersonDataProvider" KeyField="x => x.Id"
-			 AllowDrag="_allowDrag" AllowDrop="_allowDrop" SearchText="@_searchText"
+	<PDTable @ref="Table" TItem="Person" DataProvider="PersonDataProvider" KeyField="x => x.Id"
+			 AllowDrag="AllowDrag" AllowDrop="AllowDrop" SearchText="@_searchText"
 			 SelectionMode="@SelectionMode" SelectionChanged="OnSelectionChange"
 			 Drop="OnDrop"
 			 Click="OnClick" DoubleClick="OnDoubleClick"
@@ -50,11 +50,11 @@
 
 	<hr />
 
-	@if (_allowDrag)
+	@if (AllowDrag)
 	{
-		<div class="drop-zone @_dropZoneCss" @ondragenter="OnDragEnter" @ondragleave="OnDragLeave" @ondrop="OnDragDrop"
+		<div class="drop-zone @DropZoneCss" @ondragenter="OnDragEnter" @ondragleave="OnDragLeave" @ondrop="OnDragDrop"
 			 ondragover="event.preventDefault();">
-			<span>@_dropMessage</span>
+			<span>@DropMessage</span>
 		</div>
 	}
 
@@ -78,11 +78,11 @@
 				</div>*@
 
 			<div class="form-group p-1">
-				<button class="btn btn-secondary" @onclick="() => _allowDrag = !_allowDrag">@(_allowDrag ? "Disable" : "Enable") Drag</button>
+				<button class="btn btn-secondary" @onclick="() => AllowDrag = !AllowDrag">@(AllowDrag ? "Disable" : "Enable") Drag</button>
 			</div>
 
 			<div class="form-group p-1">
-				<button class="btn btn-secondary" @onclick="() => _allowDrop = !_allowDrop">@(_allowDrop ? "Disable" : "Enable") Drop</button>
+				<button class="btn btn-secondary" @onclick="() => AllowDrop = !AllowDrop">@(AllowDrop ? "Disable" : "Enable") Drop</button>
 			</div>
 
 		</div>

@@ -2,14 +2,14 @@
 {
 	public partial class PDPagerPage
     {
-		private int _currentPage = 1;
-		private int _pageCount = 5;
-		private string _message = "";
+		private int CurrentPage { get; set; } = 1;
+		private int PageCount { get; set; } = 5;
+		private string Message { get; set; } = string.Empty;
 
 		private void PageChangeHandler(int page)
 		{
-			_message = $"Current page changed to {page}";
-			_currentPage = page;
+			Message = $"Current page changed to {page}";
+			CurrentPage = page;
 		}
 	}
 }

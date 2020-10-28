@@ -5,15 +5,15 @@
 
 <h3>All items loaded up front example</h3>
 
-<PDTree @ref="_tree"
+<PDTree @ref="Tree"
 		TItem="FileExplorerItem"
 		DataProvider="_dataProvider"
 		KeyField="x => x.Path"
 		ParentKeyField="x => x.ParentPath"
 		AllowSelection="true"
 		AllowEdit="true"
-		ShowLines="_showLines"
-		ShowRoot="_showRoot"
+		ShowLines="ShowLines"
+		ShowRoot="ShowRoot"
 		SelectionChange="SelectionChangeHandler"
 		NodeExpanded="NodeExpandedHandler"
 		NodeCollapsed="NodeCollapsedHandler"
@@ -35,11 +35,11 @@
 
 <hr />
 
-<button class="btn btn-secondary" @onclick="() => _showLines = !_showLines">@(_showLines ? "Hide" : "Show") Lines</button>
-<button class="btn btn-secondary" @onclick="() => _showRoot = !_showRoot">@(_showRoot ? "Hide" : "Show") Root</button>
-<button class="btn btn-secondary" @onclick="() => _tree?.ExpandAll()">Expand All</button>
-<button class="btn btn-secondary" @onclick="() => _tree?.CollapseAll()">Collapse All</button>
-<button class="btn btn-secondary" @onclick="() => _tree?.BeginEdit()">Begin Edit</button>
+<button class="btn btn-secondary" @onclick="() => ShowLines = !ShowLines">@(ShowLines ? "Hide" : "Show") Lines</button>
+<button class="btn btn-secondary" @onclick="() => ShowRoot = !ShowRoot">@(ShowRoot ? "Hide" : "Show") Root</button>
+<button class="btn btn-secondary" @onclick="() => Tree?.ExpandAll()">Expand All</button>
+<button class="btn btn-secondary" @onclick="() => Tree?.CollapseAll()">Collapse All</button>
+<button class="btn btn-secondary" @onclick="() => Tree?.BeginEdit()">Begin Edit</button>
 
 <br />
 
@@ -53,7 +53,7 @@
 <div>
 	<div class="form-group p-1">
 		<label>Events</label>
-		<textarea rows="8" class="form-control">@_events</textarea>
+		<textarea rows="8" class="form-control">@Events</textarea>
 	</div>
 </div>
 

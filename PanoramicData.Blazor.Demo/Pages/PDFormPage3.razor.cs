@@ -15,8 +15,8 @@ namespace PanoramicData.Blazor.Demo.Pages
     {
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider(5);
 		private string _events = string.Empty;
-		private bool ShowDescriptions { get; set; }
 
+		private bool ShowDescriptions { get; set; }
 		// properties for unlinked example
 		private PDForm<Person> Form { get; set; } = null!;
 		private PDFormBody<Person> FormBody { get; set; } = null!;

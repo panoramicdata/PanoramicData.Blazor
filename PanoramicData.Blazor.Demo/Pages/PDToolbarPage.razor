@@ -8,8 +8,8 @@
 	<PDToolbarDropdown Text="File"
 					   IconCssClass="fas fa-fw fa-file"
 					   TextCssClass="d-none d-sm-none d-md-inline"
-					   IsVisible="_showButtons"
-					   IsEnabled="_enableButtons"
+					   IsVisible="ShowButtons"
+					   IsEnabled="EnableButtons"
 					   Items="FileMenuItems"
 					   Click="OnFileMenuClick" />
 
@@ -18,20 +18,20 @@
 					 IconCssClass="fas fa-fw fa-edit"
 					 TextCssClass="d-none d-sm-none d-md-inline"
 					 Click="OnRename"
-					 IsVisible="_showButtons"
-					 IsEnabled="_enableButtons" />
+					 IsVisible="ShowButtons"
+					 IsEnabled="EnableButtons" />
 
-	<PDToolbarSeparator IsVisible="_showButtons" />
+	<PDToolbarSeparator IsVisible="ShowButtons" />
 
 	<PDToolbarButton Text="Download"
 					 CssClass="btn-secondary"
 					 IconCssClass="fas fa-fw fa-file-download"
 					 TextCssClass="d-none d-sm-none d-md-inline"
 					 Click="OnDownload"
-					 IsVisible="_showButtons"
-					 IsEnabled="_enableButtons" />
+					 IsVisible="ShowButtons"
+					 IsEnabled="EnableButtons" />
 
-	<PDToolbarSeparator IsVisible="_showButtons" />
+	<PDToolbarSeparator IsVisible="ShowButtons" />
 
 	<PDToolbarPlaceholder>
 		<span>Search</span>
@@ -42,16 +42,16 @@
 					  ShowClearButton="true"
 					  Keypress="OnKeypress" />
 
-	<PDToolbarButton Text="@(_enableButtons ? "Disable" : "Enable")"
+	<PDToolbarButton Text="@(EnableButtons ? "Disable" : "Enable")"
 					 ToolTip="Disable or enable buttons"
 					 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
-					 Click="() => { _enableButtons = !_enableButtons; }"
+					 Click="() => { EnableButtons = !EnableButtons; }"
 					 ShiftRight="true" />
 
-	<PDToolbarButton Text="@(_showButtons ? "Hide" : "Show")"
+	<PDToolbarButton Text="@(ShowButtons ? "Hide" : "Show")"
 					 ToolTip="Show or hide buttons"
 					 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
-					 Click="() => { _showButtons = !_showButtons; }" />
+					 Click="() => { ShowButtons = !ShowButtons; }" />
 </PDToolbar>
 
 <div>

@@ -14,12 +14,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 	{
 		private string _events = string.Empty;
 		private string _searchText = string.Empty;
-		private bool _allowDrag = false;
-		private bool _allowDrop = false;
-		private string _dropZoneCss = "";
-		private string _dropMessage = "Drop Zone";
-		private PDTable<Person>? _table;
-		private PDDragContext? _dragContext;
+		private bool AllowDrag { get; set; }
+		private bool AllowDrop { get; set; }
+		private string DropZoneCss { get; set; } = "";
+		private string DropMessage { get; set; } = "Drop Zone";
+		private PDTable<Person>? Table { get; set; }
+		private PDDragContext? DragContext { get; set; }
 		private PageCriteria _defaultPage = new PageCriteria(1, 5);
 		private SortCriteria _defaultSort = new SortCriteria("Col1", SortDirection.Descending);
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider(53);
@@ -85,7 +85,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			// Update the URI for bookmarking
 			NavigationManager.SetUri(new Dictionary<string, object> { { "search", $"{_searchText}" } });
-			await _table!.RefreshAsync().ConfigureAwait(true);
+			await Table!.RefreshAsync().ConfigureAwait(true);
 		}
 
 		private void OnSortChange(SortCriteria criteria)
@@ -105,7 +105,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void OnSelectionChange()
 		{
-			var keys = _table == null ? "" : string.Join(", ", _table.Selection.ToArray());
+			var keys = Table == null ? "" : string.Join(", ", Table.Selection.ToArray());
 			_events += $"selection changed: {keys}{Environment.NewLine}";
 		}
 
@@ -136,29 +136,29 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void OnDragEnter(DragEventArgs args)
 		{
-			if(_dragContext?.Payload == null)
+			if(DragContext?.Payload == null)
 			{
-				_dropZoneCss = "bad";
+				DropZoneCss = "bad";
 			}
 			else
 			{
-				_dropZoneCss = "good";
+				DropZoneCss = "good";
 			}
 		}
 
 		private void OnDragLeave(DragEventArgs args)
 		{
-			_dropZoneCss = "";
+			DropZoneCss = "";
 		}
 
 		private void OnDragDrop(DragEventArgs args)
 		{
 			// get item that was dragged (TestRow)
-			_dropMessage = "Boom!";
-			if(_dragContext?.Payload != null)
+			DropMessage = "Boom!";
+			if(DragContext?.Payload != null)
 			{
-				var items = (List<Person>)_dragContext.Payload;
-				_dropMessage = string.Join(", ", items.Select(x => x.FirstName));
+				var items = (List<Person>)DragContext.Payload;
+				DropMessage = string.Join(", ", items.Select(x => x.FirstName));
 			}
 		}
 

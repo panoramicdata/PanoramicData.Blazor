@@ -10,8 +10,6 @@ namespace PanoramicData.Blazor.Demo.Pages
     public partial class PDToolbarPage
     {
 		private string _events = string.Empty;
-		private bool _showButtons = true;
-		private bool _enableButtons = true;
 		private string _searchText = string.Empty;
 		private List<ToolbarItem> ToolbarItems = new List<ToolbarItem>
 		{
@@ -31,6 +29,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 			new MenuItem { Key= "SaveAs", Text="Save As..." },
 			new MenuItem { Text="Exit", IsVisible=false }
 		};
+		private bool ShowButtons { get; set; } = true;
+		private bool EnableButtons { get; set; } = true;
 
 		public void OnOpen()
 		{
@@ -56,14 +56,16 @@ namespace PanoramicData.Blazor.Demo.Pages
 						ToolbarItems[0].IsEnabled = !ToolbarItems[0].IsEnabled;
 						ToolbarItems[1].IsEnabled = !ToolbarItems[1].IsEnabled;
 						ToolbarItems[3].IsEnabled = !ToolbarItems[3].IsEnabled;
-						var button = ToolbarItems[4] as ToolbarButton;
-						if (button.Text.StartsWith("Disable"))
+						if (ToolbarItems[4] is ToolbarButton button)
 						{
-							button.Text = "Enable";
-						}
-						else
-						{
-							button.Text = "Disable";
+							if (button.Text.StartsWith("Disable"))
+							{
+								button.Text = "Enable";
+							}
+							else
+							{
+								button.Text = "Disable";
+							}
 						}
 					}
 					break;
@@ -74,14 +76,16 @@ namespace PanoramicData.Blazor.Demo.Pages
 						ToolbarItems[1].IsVisible = !ToolbarItems[1].IsVisible;
 						ToolbarItems[2].IsVisible = !ToolbarItems[2].IsVisible;
 						ToolbarItems[3].IsVisible = !ToolbarItems[3].IsVisible;
-						var button = ToolbarItems[5] as ToolbarButton;
-						if (button.Text.StartsWith("Show"))
+						if (ToolbarItems[5] is ToolbarButton button)
 						{
-							button.Text = "Hide";
-						}
-						else
-						{
-							button.Text = "Show";
+							if (button.Text.StartsWith("Show"))
+							{
+								button.Text = "Hide";
+							}
+							else
+							{
+								button.Text = "Show";
+							}
 						}
 					}
 					break;
