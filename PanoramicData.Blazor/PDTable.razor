@@ -2,7 +2,11 @@
 
 @if (TableInitialised)
 {
-	<div id="@Id" class="pdtable @CssClass" tabindex="0" @onkeydown="OnKeyDownAsync" @onkeydown:preventDefault>
+	<div id="@Id"
+		 class="pdtable @CssClass"
+		 tabindex="0"
+		 @onkeydown="OnKeyDownAsync"
+		 >
 		<table class="table @TableClass">
 			@if (PageSize.HasValue)
 			{
@@ -10,7 +14,9 @@
 					<td colspan="@ActualColumnsToDisplay.Count()">
 						<div class="d-flex flex-row">
 								<div class="mr-2">
-									<PDPager CurrentPage="@Page" PageCount="@PageCount" OnPageChange="(page) => PageAsync(new PageCriteria(page, PageSize))"></PDPager>
+									<PDPager CurrentPage="@Page"
+											 PageCount="@PageCount"
+											 OnPageChange="(page) => PageAsync(new PageCriteria(page, PageSize))" />
 								</div>
 						</div>
 					</td>
@@ -43,7 +49,8 @@
 					foreach (var item in ItemsToDisplay)
 					{
 					<tr class="pdtablerow @GetDynamicRowClasses(item)"
-						@attributes="RowAttributes" @oncontextmenu:preventDefault
+						@attributes="RowAttributes"
+						@oncontextmenu:preventDefault
 						@onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
 						@onclick="@((args) => OnRowClick(args, item))"
 						@ondblclick="@((args) => OnRowDoubleClick(args, item))"
@@ -55,7 +62,10 @@
 							<td class="@column.TdClass">
 								@if (IsColumnInEditMode(column, item) && column.Field != null)
 								{
-									<input id="@($"{IdEditPrefix}{column.Id}")" type="@(column.IsPassword ? "password" : "text")" value="@($"{column.GetValue(item)}")" class="pdtable_edit"
+									<input id="@($"{IdEditPrefix}{column.Id}")"
+										   type="@(column.IsPassword ? "password" : "text")"
+										   value="@($"{column.GetValue(item)}")"
+										   class="pdtable_edit"
 										   @onblur="OnEndEditAsync"
 										   @onmousedown:stopPropagation
 										   @onclick:stopPropagation

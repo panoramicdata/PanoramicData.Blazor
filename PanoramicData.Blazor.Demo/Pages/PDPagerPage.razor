@@ -1,0 +1,27 @@
+﻿@page "/pdpager"
+
+<h1>PDPager</h1>
+
+<div class="form-inline">
+
+	<div class="form-group col-3">
+		<label>Current Page</label>
+		<input type="number" class="form-control" @bind="CurrentPage">
+	</div>
+
+	<div class="form-group col-3">
+		<label>Page Count</label>
+		<input type="number" class="form-control" @bind="PageCount">
+	</div>
+
+</div>
+
+<br/>
+
+<div>
+	<PDPager CurrentPage="@CurrentPage" PageCount="@PageCount" OnPageChange="PageChangeHandler" ></PDPager>
+</div>
+
+<br/>
+
+<span>@Message</span>

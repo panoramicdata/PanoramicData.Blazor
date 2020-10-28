@@ -1,0 +1,89 @@
+﻿@page "/pdform3"
+@using System.Linq
+@using PanoramicData.Blazor.Demo.Data
+@using PanoramicData.Blazor.Extensions
+<style>
+	.form-div {
+		margin-left: 10px;
+	}
+	.pd-form-header {
+		padding-bottom: 5px;
+	}
+	.pd-form-header.haschanges {
+		border: 2px solid blue;
+	}
+</style>
+
+<h1>PDForm</h1>
+
+<h3>Example 3: Form linked to Table</h3>
+
+<div>
+	<button class="btn btn-primary" @onclick="OnCreatePerson">Create</button>
+	<button class="btn btn-secondary" @onclick="async () => await Table!.RefreshAsync()">Refresh</button>
+</div>
+
+<br />
+
+<div class="d-flex">
+
+	<div>
+		<PDTable @ref="Table" TItem="Person" DataProvider="PersonDataProvider" KeyField="x => x.Id" SelectionMode="TableSelectionMode.Single"
+				 SelectionChanged="OnSelectionChanged">
+			<PDColumn TItem="Person" Field="x => x.Id" ShowInList="false" ShowInCreate="(_) => false" ReadOnlyInEdit="(_) => true" />
+			<PDColumn TItem="Person" Field="x => x.FirstName" ShowInList="false" ShowInDelete="(_) => true" />
+			<PDColumn Id="InitialsCol" TItem="Person" Field="x => x.Initials" ShowInList="false">
+				<EditTemplate>
+					<!-- custom processing alters typed in text - so always fetch latest value -->
+					<!-- for struct types use FormBody.GetFieldValue<T> -->
+					@{
+						var field = FormBody.Fields.First(x => x.Id == "InitialsCol");
+					}
+					<input type="text" class="form-control @FormBody.GetEditorClass(field)" value="@(FormBody.GetFieldStringValue(field, true))" @oninput="OnInitialsInput" />
+				</EditTemplate>
+			</PDColumn>
+			<PDColumn TItem="Person" Field="x => x.LastName" ShowInList="false" Title="Last Name" ShowInDelete="(_) => true" />
+			<PDColumn Id="EmailCol" TItem="Person" Field="x => x.Email" ShowInDelete="(_) => true">
+				<EditTemplate>
+					<!-- no custom processing of input here so no need to get latest value -->
+					@{
+						var field = FormBody.Fields.First(x => x.Id == "EmailCol");
+					}
+					<input type="email" class="form-control @FormBody.GetEditorClass(field)" value="@context.Email" @oninput="OnEmailInput" />
+				</EditTemplate>
+			</PDColumn>
+			<PDColumn TItem="Person" Field="x => x.Dob" ShowInList="false" HelpUrl="https://www.dayofbirth.co.uk/"
+					  ShowInDelete="@((x) => !x.FirstName.In("Alice", "Carol", "Eve", "Grace", "Heidi", "Judy"))" />
+			<PDColumn TItem="Person" Field="x => x.Department" HelpUrl="https://www.dictionary.com/browse/department" />
+			<PDColumn TItem="Person" Field="x => x.Location" Options="GetLocationOptions" />
+			<PDColumn TItem="Person" Field="x => x.Target" ShowInList="false" ReadOnlyInEdit="(x) => x.Department != Departments.Sales" ReadOnlyInCreate="(x) => x.Department != Departments.Sales" />
+			<PDColumn TItem="Person" Field="x => x.AllowLogin" ShowInList="false" />
+			<PDColumn TItem="Person" Field="x => x.Password" ShowInList="false" ShowInCreate="(x) => x.AllowLogin" ShowInEdit="(x) => x.AllowLogin" IsPassword="true" />
+			<PDColumn TItem="Person" Field="x => x.Comments" ShowInList="false" ShowInCreate="(_) => false" IsTextArea="true" TextAreaRows="6" />
+			<PDColumn TItem="Person" Field="x => x.DateCreated" Format="dd/MM/yy" ShowInList="false" ShowInEdit="(_) => false" ShowInCreate="(_) => false" />
+			<PDColumn TItem="Person" Field="x => x.DateModified" Format="dd/MM/yy" ShowInEdit="(_) => false" ShowInCreate="(_) => false" />
+		</PDTable>
+	</div>
+
+	<div class="form-div">
+		<PDForm @ref="Form" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider" DefaultMode="FormModes.Empty"
+				Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated" HelpTextMode="HelpTextMode.Toggle">
+			<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" HelpText="This is some help text for the entire form" />
+			<PDFormBody @ref="FormBody" TItem="Person" Table="Table" CustomValidate="OnCustomValidate" />
+			<PDFormFooter TItem="Person" Click="OnFooterClick" />
+		</PDForm>
+	</div>
+
+</div>
+
+<div>
+	<div class="form-group p-1">
+		<button class="btn btn-secondary" @onclick="OnClick">@(ShowDescriptions ? "Hide" : "Show") Descriptions</button>
+	</div>
+
+	<div class="form-group p-1">
+		<label>Events</label>
+		<textarea rows="8" class="form-control">@_events</textarea>
+	</div>
+</div>
+

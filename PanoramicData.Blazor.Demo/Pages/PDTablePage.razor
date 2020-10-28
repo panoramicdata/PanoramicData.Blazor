@@ -1,0 +1,97 @@
+﻿@page "/pdtable"
+@using PanoramicData.Blazor.Demo.Data
+<h1>PDTable</h1>
+
+<div class="d-flex flex-row-reverse">
+	<button class="btn btn-primary" @onclick="async () => await Table!.RefreshAsync()">Refresh</button>
+</div>
+
+<div class="form-group p-1">
+	<label>Search Text</label>
+	<div class="input-group">
+		<input type="text" class="form-control" @bind="_searchText">
+		<div class="input-group-append">
+			<button class="btn btn-secondary" @onclick="async () => await SearchAsync()">Search</button>
+		</div>
+	</div>
+</div>
+
+<PDDragContext @ref="DragContext">
+
+	<PDTable @ref="Table" TItem="Person" DataProvider="PersonDataProvider" KeyField="x => x.Id"
+			 AllowDrag="AllowDrag" AllowDrop="AllowDrop" SearchText="@_searchText"
+			 SelectionMode="@SelectionMode" SelectionChanged="OnSelectionChange"
+			 Drop="OnDrop"
+			 Click="OnClick" DoubleClick="OnDoubleClick"
+			 AllowEdit="true" BeforeEdit="OnBeforeEdit"
+			 DefaultPage="_defaultPage" PageChanged="OnPageChange"
+			 DefaultSort="_defaultSort" SortChanged="OnSortChange">
+		<PDColumn Id="col-icon" TdClass="pl-0 pr-2" ThClass="pl-0 pr-2" TItem="Person" Sortable="false" Editable="false">
+			<Template>
+				<i class="fas fa-user" style="opacity: 0.6"></i>
+			</Template>
+		</PDColumn>
+		<PDColumn Id="col-id" TdClass="pl-0 pr-0" ThClass="pl-0 pr-0" TItem="Person" Field="x => x.Id" Editable="false" />
+		<PDColumn Id="col-firstname" TItem="Person" Field="x => x.FirstName" />
+		<PDColumn Id="col-lastname" TItem="Person" Field="x => x.LastName" />
+		<PDColumn Id="col-email" TItem="Person" Field="x => x.Email" />
+		<PDColumn Id="col-dob" TItem="Person" Field="x => x.Dob" Title="Date of Birth" Format="dd/MM/yy" />
+		<PDColumn Id="col-department" TItem="Person" Field="x => x.Department" />
+		<PDColumn Id="col-location" TItem="Person" Field="x => x.Location" Options="GetLocationOptions" />
+		<PDColumn Id="col-target" TItem="Person" Field="x => x.Target" ShowInList="false" />
+		<PDColumn Id="col-allowlogin" TItem="Person" Field="x => x.AllowLogin" ShowInList="false" />
+		<PDColumn Id="col-password" TItem="Person" Field="x => x.Password" ShowInList="false" IsPassword="true" />
+		<PDColumn Id="col-comments" TItem="Person" Field="x => x.Comments" ShowInList="false" IsTextArea="true" TextAreaRows="6" />
+		<PDColumn Id="col-datecreated" TItem="Person" Field="x => x.DateCreated" Format="dd/MM/yy" ShowInList="false" />
+		<PDColumn Id="col-datemodified" TItem="Person" Field="x => x.DateModified" Format="dd/MM/yy HH:mm" Editable="false" TdClass="text-nowrap" />
+	</PDTable>
+
+</PDDragContext>
+
+	<hr />
+
+	@if (AllowDrag)
+	{
+		<div class="drop-zone @DropZoneCss" @ondragenter="OnDragEnter" @ondragleave="OnDragLeave" @ondrop="OnDragDrop"
+			 ondragover="event.preventDefault();">
+			<span>@DropMessage</span>
+		</div>
+	}
+
+	<div>
+
+		<div class="d-flex">
+
+			<div class="form-group p-1">
+				<label>Selection Mode</label>
+				<select class="form-control" @bind="SelectionMode">
+					<option value="@TableSelectionMode.None">None</option>
+					<option value="@TableSelectionMode.Single" selected>Single</option>
+					<option value="@TableSelectionMode.Multiple">Multiple</option>
+				</select>
+			</div>
+
+			@*<div class="form-group p-1">
+					<label>Columns Config - edit and tab out of field to apply changes</label>
+					<textarea rows="8" cols="40" class="form-control" @bind="ColumnsConfigJson">
+					</textarea>
+				</div>*@
+
+			<div class="form-group p-1">
+				<button class="btn btn-secondary" @onclick="() => AllowDrag = !AllowDrag">@(AllowDrag ? "Disable" : "Enable") Drag</button>
+			</div>
+
+			<div class="form-group p-1">
+				<button class="btn btn-secondary" @onclick="() => AllowDrop = !AllowDrop">@(AllowDrop ? "Disable" : "Enable") Drop</button>
+			</div>
+
+		</div>
+
+		<div>
+			<div class="form-group p-1">
+				<label>Events</label>
+				<textarea rows="8" class="form-control">@_events</textarea>
+			</div>
+		</div>
+
+	</div>

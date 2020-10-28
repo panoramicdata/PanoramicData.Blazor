@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using System.Text;
+using System.Linq;
 
 namespace PanoramicData.Blazor
 {
@@ -80,6 +81,21 @@ namespace PanoramicData.Blazor
 		{
 			// show dialog and await user choice.
 			await ShowAsync().ConfigureAwait(true);
+
+			// focus first button with btn-primary class and key
+			var btn = Buttons.Find(x =>
+			{
+				if(x is ToolbarButton btn)
+				{
+					return !string.IsNullOrWhiteSpace(btn.Key) && btn.CssClass.IndexOf("btn-primary", System.StringComparison.OrdinalIgnoreCase) >= 0;
+				}
+				return false;
+			});
+			if(btn != null)
+			{
+				await JSRuntime.InvokeVoidAsync("focus", $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
+			}
+
 			_userChoice = new TaskCompletionSource<string>();
 			var result = await _userChoice.Task.ConfigureAwait(true);
 			await HideAsync().ConfigureAwait(true);

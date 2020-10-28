@@ -41,9 +41,9 @@ namespace PanoramicData.Blazor.Web.Controllers
 
 		public class FileUploadModel
 		{
-			public string Key { get; set; } = string.Empty;
-			public string Path { get; set; } = string.Empty;
-			public IFormFile? File { get; set; }
+			public string Key { get; set; }
+			public string Path { get; set; }
+			public IFormFile File { get; set; }
 		}
 	}
 }

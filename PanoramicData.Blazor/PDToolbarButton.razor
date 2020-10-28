@@ -1,5 +1,6 @@
 ﻿<div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "")">
-	<button class="btn pdtoolbarbutton @CssClass"
+	<button @attributes="Attributes"
+			class="btn pdtoolbarbutton @CssClass"
 			disabled="@(IsEnabled ? null : "true")"
 			title="@(string.IsNullOrWhiteSpace(ToolTip) ? Text : ToolTip)"
 			@onclick="OnClick">

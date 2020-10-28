@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 
 namespace PanoramicData.Blazor
@@ -54,6 +56,17 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever user clicks on the button.
 		/// </summary>
 		[Parameter] public EventCallback<string> Click { get; set; }
+
+		private Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+
+		protected override void OnParametersSet()
+		{
+			if (!string.IsNullOrEmpty(Key))
+			{
+				Attributes.Clear();
+				Attributes.Add("Id", $"pd-tbr-btn-{Key}");
+			}
+		}
 
 		private async Task OnClick()
 		{

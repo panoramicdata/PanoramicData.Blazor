@@ -684,8 +684,8 @@ namespace PanoramicData.Blazor
 				_deleteDialog.Buttons.Clear();
 				_deleteDialog.Buttons.AddRange(new[]
 				{
-					new ToolbarButton { Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check" },
-					new ToolbarButton { Text = "No", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" },
+					new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check" },
+					new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
 				});
 
 				// add third button needed for conflict resolution
