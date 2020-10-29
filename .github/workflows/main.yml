@@ -29,3 +29,6 @@ jobs:
         BRANCH: gh-pages # The branch the action should deploy to.
         FOLDER: release/wwwroot # The folder the action should deploy.
         SINGLE_COMMIT: true
+    # changes the base-tag in index.html from '/' to '/PanoramicData.Blazor/' to match GitHub Pages repository subdirectory
+    - name: Change base-tag in index.html from / to /PanoramicData.Blazor/
+      run: sed -i 's/<base href="\/" \/>/<base href="\/PanoramicData.Blazor\/" \/>/g' release/wwwroot/index.html
