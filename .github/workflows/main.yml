@@ -24,6 +24,12 @@ jobs:
     # changes the base-tag in index.html from '/' to '/PanoramicData.Blazor/' to match GitHub Pages repository subdirectory
     - name: Change base-tag in index.html from / to /PanoramicData.Blazor/
       run: sed -i 's/<base href="\/" \/>/<base href="\/PanoramicData.Blazor\/" \/>/g' release/wwwroot/index.html      
+    # copy index.html to 404.html to serve the same file when a file is not found
+    - name: copy index.html to 404.html
+      run: cp release/wwwroot/index.html release/wwwroot/404.html      
+    # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
+    - name: Add .nojekyll file
+      run: touch release/wwwroot/.nojekyll
     # deploy to GitHub pages
     - name: Deploy to Github Pages
       uses: JamesIves/github-pages-deploy-action@releases/v3
