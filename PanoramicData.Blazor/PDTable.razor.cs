@@ -369,6 +369,20 @@ namespace PanoramicData.Blazor
 				if (PageSize.HasValue)
 				{
 					PageCount = (response.TotalCount / PageSize.Value) + (response.TotalCount % PageSize.Value > 0 ? 1 : 0);
+
+					if(PageCount == 0)
+					{
+						Page = 1;
+					}
+					// check if page number is valid and if not re-query for last page
+					else if(Page > PageCount)
+					{
+						Page = PageCount ?? 1;
+						request.Skip = (Page - 1) * PageSize.Value;
+						response = await DataProvider
+							.GetDataAsync(request, CancellationToken.None)
+							.ConfigureAwait(true);
+					}
 				}
 
 				// allow calling application to filter/add items etc
