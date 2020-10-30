@@ -31,7 +31,7 @@ else if (Form.Mode != FormModes.Hidden)
 								<span>@field.Title</span>
 								@if (!string.IsNullOrWhiteSpace(field.HelpUrl))
 								{
-									<i class="pd-form-help-icon fas fa-question-circle text-info" @onclick="() => OnHelpUrlClick(field)"></i>
+									<i class="pd-form-help-icon fas fa-external-link-alt text-info" @onclick="() => OnHelpUrlClick(field)"></i>
 								}
 							</div>
 						</div>
