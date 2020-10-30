@@ -157,9 +157,26 @@ app {
 	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 }
 
+.demo-source-view {
+	border: solid 1px silver;
+	border-radius: 10px;
+	padding: 20px;
+}
+
+.demo-source-view pre {
+	font-size: 0.75em;
+}
+
+.source-files-list {
+	background-color: lightgray;
+}
+
+.source-code {
+	background-color: #f7f7f7
+}
 
 @media (max-width: 767.98px) {
-    .main .top-row:not(.auth) {
+	.main .top-row:not(.auth) {
         display: none;
     }
 

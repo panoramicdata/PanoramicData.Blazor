@@ -32,4 +32,16 @@
     <ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Folder Include="wwwroot\src\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Update="Pages\PDBlockOverlayPage.razor.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
 </Project>

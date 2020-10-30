@@ -1,0 +1,24 @@
+﻿<ul class="nav nav-pills p-2">
+	<li class="nav-item @(ActiveTab == "Demo" ? "" : "pd-pointer")" @onclick="@(() => ActiveTab = "Demo")">
+		<span class="nav-link @(ActiveTab == "Demo" ? "active" : "")">Demo</span>
+	</li>
+	<li class="nav-item @(ActiveTab == "Source" ? "" : "pd-pointer")" @onclick="@(() => ActiveTab = "Source")">
+		<span class="nav-link @(ActiveTab == "Source" ? "active" : "")">Source</span>
+	</li>
+</ul>
+<div class="demo-source-view">
+	<div class="@(ActiveTab == "Demo" ? "" : "d-none")">
+		@ChildContent
+	</div>
+	<div class="@(ActiveTab == "Source" ? "" : "d-none")">
+		<ul class="nav p-1 source-files-list">
+			@foreach (var filename in _sourceFiles.Keys)
+			{
+				<li class="small nav-item @(_activeSourceFile == filename ? "font-weight-bold" : "pd-pointer")" @onclick="@(() => _activeSourceFile = filename)">
+					<span class="nav-link">@filename</span>
+				</li>
+			}
+		</ul>
+		<pre class="source-code">@SourceCode</pre>
+	</div>
+</div>
