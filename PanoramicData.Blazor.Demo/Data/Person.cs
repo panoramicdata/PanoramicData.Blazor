@@ -30,6 +30,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		public string LastName { get; set; } = string.Empty;
 
 		[Required]
+		[RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Invalid Email Address")]
 		[Display(Name = "Email Address", Description = "Primary email address used to contact the person")]
 		public string Email { get; set; } = string.Empty;
 
