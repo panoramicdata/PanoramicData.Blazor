@@ -1,26 +1,32 @@
 ﻿@inherits LayoutComponentBase
 
-	<PDBlockOverlay />
+<PDBlockOverlay />
 
-	<div class="sidebar">
-		<NavMenu />
+<div class="sidebar">
+	<NavMenu />
+</div>
+
+<div class="main">
+
+	<div class="top-row px-4">
+		<a class="" href="https://www.panoramicdata.com/" title="Open PanoramicData.Blazor web-site" target="_blank">
+			<img src="_Content/PanoramicData.Blazor.Demo/png/pd-icon.png" height="32" />
+		</a>
+		<a class="" href="https://www.nuget.org/packages/PanoramicData.Blazor/" title="Open PanoramicData.Blazor NuGet package" target="_blank">
+			<img src="_Content/PanoramicData.Blazor.Demo/svg/NuGet-Logo.svg" height="50" />
+		</a>
+		<a class="" href="https://github.com/panoramicdata/PanoramicData.Blazor" title="Open PanoramicData.Blazor GitHuib project" target="_blank">
+			<img src="_Content/PanoramicData.Blazor.Demo/png/GitHub-Mark-32px.png" height="30" />
+		</a>
 	</div>
 
-	<div class="main">
-
-		<div class="top-row px-4">
-			<a class="" href="https://www.panoramicdata.com/" title="Open PanoramicData.Blazor web-site" target="_blank">
-				<img src="_Content/PanoramicData.Blazor.Demo/png/pd-icon.png" height="32" />
-			</a>
-			<a class="" href="https://www.nuget.org/packages/PanoramicData.Blazor/" title="Open PanoramicData.Blazor NuGet package" target="_blank">
-				<img src="_Content/PanoramicData.Blazor.Demo/svg/NuGet-Logo.svg" height="50" />
-			</a>
-			<a class="" href="https://github.com/panoramicdata/PanoramicData.Blazor" title="Open PanoramicData.Blazor GitHuib project" target="_blank">
-				<img src="_Content/PanoramicData.Blazor.Demo/png/GitHub-Mark-32px.png" height="30" />
-			</a>
-		</div>
-
-		<div class="content px-4">
+	<div class="content px-4">
+		<CascadingValue Value="eventManager">
 			@Body
-		</div>
+		</CascadingValue>
 	</div>
+</div>
+
+@code {
+	private Data.EventManager eventManager = new Data.EventManager();
+}

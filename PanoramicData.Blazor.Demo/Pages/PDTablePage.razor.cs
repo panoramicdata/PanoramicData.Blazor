@@ -14,41 +14,19 @@ namespace PanoramicData.Blazor.Demo.Pages
 	{
 		private string _events = string.Empty;
 		private string _searchText = string.Empty;
-		private bool AllowDrag { get; set; }
-		private bool AllowDrop { get; set; }
-		private string DropZoneCss { get; set; } = "";
-		private string DropMessage { get; set; } = "Drop Zone";
-		private PDTable<Person>? Table { get; set; }
-		private PDDragContext? DragContext { get; set; }
 		private PageCriteria _defaultPage = new PageCriteria(1, 5);
 		private SortCriteria _defaultSort = new SortCriteria("Col1", SortDirection.Descending);
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider(53);
+		private bool AllowDrag { get; set; }
+		private bool AllowDrop { get; set; }
+		private string DropZoneCss { get; set; } = "";
+		private PDDragContext? DragContext { get; set; }
+		private string DropMessage { get; set; } = "Drop Zone";
+		private PDTable<Person>? Table { get; set; }
 
-		/// <summary>
-		/// Injected navigation manager.
-		/// </summary>
 		[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
-		// columns config enables config to be defined per user or customer etc.
-		//private List<PDColumnConfig>? _columnsConfig = new List<PDColumnConfig>
-		//	{
-		//	    new PDColumnConfig { Id = "col-id", Title = "Forename" },
-		//		new PDColumnConfig { Id = "col-first-name", Title = "Forename" },
-		//		new PDColumnConfig { Id = "col-last-name", Title = "Surname", Editable = false },
-		//		new PDColumnConfig { Id = "col-first-name", Title = "Forename" },
-		//	};
-
-		//private string ColumnsConfigJson
-		//{
-		//	get
-		//	{
-		//		return JsonConvert.SerializeObject(_columnsConfig, Formatting.Indented);
-		//	}
-		//	set
-		//	{
-		//		_columnsConfig = JsonConvert.DeserializeObject<List<PDColumnConfig>>(value);
-		//	}
-		//}
+		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 		private TableSelectionMode SelectionMode { get; set; } = TableSelectionMode.Single;
 
@@ -90,7 +68,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void OnSortChange(SortCriteria criteria)
 		{
-			_events += $"sort changed: key = {criteria.Key}, dir = {criteria.Direction}{Environment.NewLine}";
+			EventManager?.Add(new Event("SortChange", new EventArgument("Key", criteria.Key), new EventArgument("Direction", criteria.Direction)));
+
 			// Update the URI for bookmarking
 			var direction = criteria.Direction == SortDirection.Ascending ? "asc" : "desc";
 			NavigationManager.SetUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } });
@@ -98,30 +77,32 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void OnPageChange(PageCriteria criteria)
 		{
-			_events += $"page changed: page = {criteria.Page}, page size = {criteria.PageSize}{Environment.NewLine}";
+			EventManager?.Add(new Event("PageChange", new EventArgument("Page", criteria.Page), new EventArgument("PageSize", criteria.PageSize)));
+
 			// Update the URI for bookmarking
 			NavigationManager.SetUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } });
 		}
 
 		private void OnSelectionChange()
 		{
-			var keys = Table == null ? "" : string.Join(", ", Table.Selection.ToArray());
-			_events += $"selection changed: {keys}{Environment.NewLine}";
+			EventManager?.Add(new Event("SelectionChange"));
 		}
 
 		private void OnClick(Person item)
 		{
-			_events += $"click: {item.Id}{Environment.NewLine}";
+			EventManager?.Add(new Event ("Click", new EventArgument("Person", item.FirstName)));
 		}
 
 		private void OnDoubleClick(Person item)
 		{
 			_events += $"double-click: {item.Id}{Environment.NewLine}";
+			EventManager?.Add(new Event("DoubleClick", new EventArgument("Person", item.FirstName)));
 		}
 
 		private void OnBeforeEdit(TableBeforeEditEventArgs<Person> args)
 		{
-			_events += $"before edit: {args.Item.Id}{Environment.NewLine}";
+			EventManager?.Add(new Event("BeforeEdit", new EventArgument("Person", args.Item.FirstName)));
+
 			// example of preventing an edit
 			args.Cancel = args.Item.FirstName == "Alice";
 		}
@@ -130,7 +111,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			if (args?.Payload != null && args.Target is Person row && args.Payload is IEnumerable<Person> rows)
 			{
-				_events += $"drop: {string.Join(", ", rows.Select(x => x.FirstName))} onto {row.FirstName}{Environment.NewLine}";
+				EventManager?.Add(new Event("Drop",
+					new EventArgument("Target", row.FirstName),
+					new EventArgument("Payload", string.Join(", ", rows.Select(x => x.FirstName)))
+				));
 			}
 		}
 
@@ -159,6 +143,25 @@ namespace PanoramicData.Blazor.Demo.Pages
 			{
 				var items = (List<Person>)DragContext.Payload;
 				DropMessage = string.Join(", ", items.Select(x => x.FirstName));
+			}
+		}
+
+		private async Task OnSearchKeyPress(KeyboardEventArgs args)
+		{
+			if (args.Code == "Enter")
+			{
+				await SearchAsync().ConfigureAwait(true);
+			}
+		}
+
+		private async Task OnSearchChanged(string text)
+		{
+			_searchText = text;
+			if (text == string.Empty)
+			{
+				StateHasChanged();
+
+				await SearchAsync().ConfigureAwait(true);
 			}
 		}
 

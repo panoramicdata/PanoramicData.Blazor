@@ -1,5 +1,5 @@
 ﻿<nav aria-label="Pager">
-	<ul class="pagination">
+	<ul class="pagination mb-0">
 		<li class="page-item @(IsFirstPage || CurrentPage < 1 ? "disabled" : "pd-pointer")">
 			<a class="page-link" href="#" @onclick="@(() => OnPageChange.InvokeAsync(1))" @onclick:preventDefault>
 				<i class="fas fa-fast-backward" />

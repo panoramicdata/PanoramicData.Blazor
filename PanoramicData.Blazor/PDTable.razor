@@ -25,7 +25,7 @@
 			<tr>
 				@foreach (var column in ActualColumnsToDisplay)
 				{
-					<th scope="col" class="@column.ThClass">
+					<th scope="col" class="@column.ThClass" style="white-space: nowrap;">
 						@if (column.Sortable)
 						{
 							<div title="@column.HelpText" @onclick="@(async () => await SortByAsync(column))">

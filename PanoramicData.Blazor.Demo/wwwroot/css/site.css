@@ -24,6 +24,7 @@ app {
     height: 3.5rem;
     display: flex;
     align-items: center;
+	z-index: 1000;
 }
 
 .main {
@@ -175,18 +176,30 @@ app {
 	background-color: #f7f7f7
 }
 
+.event-view {
+	background-color: #f9f9f9;
+	border: 1px solid silver;
+	border-radius: 10px;
+	padding: 10px;
+}
+
+.event-view-list {
+	height: 200px;
+	overflow-x: auto;
+}
+
 @media (max-width: 767.98px) {
 	.main .top-row:not(.auth) {
-        display: none;
-    }
+		display: none;
+	}
 
-    .main .top-row.auth {
-        justify-content: space-between;
-    }
+	.main .top-row.auth {
+		justify-content: space-between;
+	}
 
-    .main .top-row a, .main .top-row .btn-link {
-        margin-left: 0;
-    }
+	.main .top-row a, .main .top-row .btn-link {
+		margin-left: 0;
+	}
 
 	.full-content-size {
 		height: calc(100vh - 150px);

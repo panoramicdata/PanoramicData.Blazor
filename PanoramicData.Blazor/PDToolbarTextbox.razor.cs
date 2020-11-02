@@ -61,6 +61,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public bool ShowClearButton { get; set; } = true;
 
+		/// <summary>
+		/// Event raised when the user clicks on the clear button.
+		/// </summary>
+//		[Parameter] public EventCallback Cleared { get; set; }
+
 		public string ItemStyle => $"width: {Width}";
 
 		public string InputCssClass => ShowClearButton ? "pr-4" : "";
@@ -69,7 +74,8 @@ namespace PanoramicData.Blazor
 
 		private async Task OnInput(ChangeEventArgs args)
 		{
-			await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
+			_value = args.Value.ToString();
+			await ValueChanged.InvokeAsync(_value).ConfigureAwait(true);
 		}
 
 		private async Task OnKeypress(KeyboardEventArgs args)
@@ -81,6 +87,7 @@ namespace PanoramicData.Blazor
 		{
 			_value = string.Empty;
 			await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
+//			await Cleared.InvokeAsync(null).ConfigureAwait(true);
 		}
 	}
 }

@@ -1,0 +1,29 @@
+﻿<div>
+	@ChildContent
+</div>
+<div class="mt-3 event-view">
+	<label>Events</label>
+	@if (EventManager != null)
+	{
+		<div class="event-view-list">
+			@foreach (var evt in EventManager.Events)
+			{
+				<div class="pl-2 small">
+					<span>@evt.Name</span>
+					(
+					@foreach(var arg in evt.Arguments)
+					{
+						<span class="text-muted">@arg.Name</span>
+						<span class="text-muted">&nbsp;=&nbsp;</span>
+						<span class="text-info">@arg.Value</span>
+						if (arg != evt.Arguments.Last())
+						{
+							<span class="text-muted">,&nbsp;</span>
+						}
+					}
+					)
+				</div>
+			}
+		</div>
+	}
+</div>

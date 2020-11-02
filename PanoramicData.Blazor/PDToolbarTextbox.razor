@@ -1,7 +1,7 @@
 ﻿<div class="pdtoolbaritem @(IsVisible ? "" : "d-none") @(ShiftRight ? "align-right" : "")" style="@ItemStyle" >
 	<div class="pdtoolbartextbox @CssClass">
 		<input class="form-control @InputCssClass"
-			   @bind-value="@_value"
+			   value="@_value"
 			   readonly="@(!IsEnabled)"
 			   @oninput="OnInput"
 			   @onkeypress="OnKeypress" />
