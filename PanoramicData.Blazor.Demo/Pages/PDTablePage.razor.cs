@@ -12,7 +12,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDTablePage
 	{
-		private string _events = string.Empty;
 		private string _searchText = string.Empty;
 		private PageCriteria _defaultPage = new PageCriteria(1, 5);
 		private SortCriteria _defaultSort = new SortCriteria("Col1", SortDirection.Descending);
@@ -95,7 +94,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void OnDoubleClick(Person item)
 		{
-			_events += $"double-click: {item.Id}{Environment.NewLine}";
 			EventManager?.Add(new Event("DoubleClick", new EventArgument("Person", item.FirstName)));
 		}
 
