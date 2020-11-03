@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Demo.Data;
-using Microsoft.AspNetCore.Components;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {

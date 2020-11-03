@@ -1,54 +1,53 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Services;
-using PanoramicData.Blazor.Demo.Data;
 using Microsoft.AspNetCore.Components.Web;
+using PanoramicData.Blazor.Demo.Data;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
     public partial class PDFormPage3
     {
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider(5);
-		private string _events = string.Empty;
 
 		private bool ShowDescriptions { get; set; }
-		// properties for unlinked example
 		private PDForm<Person> Form { get; set; } = null!;
 		private PDFormBody<Person> FormBody { get; set; } = null!;
 		private PDTable<Person> Table { get; set; } = null!;
 		private Person? SelectedPerson { get; set; }
 
+		[CascadingParameter] protected EventManager? EventManager { get; set; }
+
 		private async Task OnPersonCreated(Person person)
 		{
-			_events += $"created: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
+
+			EventManager?.Add(new Event("PersonCreated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
 			await Table.RefreshAsync().ConfigureAwait(true);
 		}
 
 		private async Task OnPersonUpdated(Person person)
 		{
-			_events += $"updated: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
+			EventManager?.Add(new Event("PersonUpdated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
 			await Table.RefreshAsync().ConfigureAwait(true);
 		}
 
 		private async Task OnPersonDeleted(Person person)
 		{
-			_events += $"deleted: Person {person.FirstName} {person.LastName}{Environment.NewLine}";
+			EventManager?.Add(new Event("PersonDeleted", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
 			await Table.RefreshAsync().ConfigureAwait(true);
 		}
 
 		private void OnError(string message)
 		{
-			_events += $"error: {message}{Environment.NewLine}";
+			EventManager?.Add(new Event("Error", new EventArgument("Message", message)));
 		}
 
 		private async Task OnFooterClick(string key)
 		{
-			_events += $"click: key = {key}{Environment.NewLine}";
+			EventManager?.Add(new Event("FooterClick", new EventArgument("Key", key)));
+
 			if (key == "Cancel")
 			{
 				SelectedPerson = null;
@@ -56,12 +55,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 				Form.SetMode(FormModes.Empty);
 			}
 		}
-
-		//private void OnEditPerson(Person person)
-		//{
-		//	SelectedPerson = person;
-		//	Form.SetMode(FormModes.Edit);
-		//}
 
 		private void OnCreatePerson()
 		{
@@ -105,7 +98,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			await FormBody.SetFieldValueAsync(FormBody.Fields.First(x => x.Id == "EmailCol"), args.Value).ConfigureAwait(true);
 		}
 
-		private void OnClick(MouseEventArgs _)
+		private void OnClick(string _)
 		{
 			ShowDescriptions = !ShowDescriptions;
 		}
