@@ -15,12 +15,6 @@ namespace PanoramicData.Blazor.Demo.Pages
     {
 		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 		private PDFileExplorer _fileExplorer = null!;
-		//private PDModal _deleteDialog = null!;
-		//private PDModal _conflictDialog = null!;
-		//private bool _deleteFiles;
-		//private string _deleteDialogMessage = "Are you sure you wish to delete these files?";
-		//private string _conflictDialogMessage = "There are conflicting items, what would you like to do with these conflicting items?";
-		//private MoveCopyArgs _conflictArgs;
 
 		/// <summary>
 		/// Injected javascript interop object.
@@ -31,6 +25,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 		/// Injected navigation manager.
 		/// </summary>
 		[Inject] protected NavigationManager NavigationManager { get; set; } = null!;
+
+		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 		public async Task OnTableDownloadRequest(TableEventArgs<FileExplorerItem> args)
 		{
@@ -73,11 +69,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		public void OnUpdateToolbarState(List<ToolbarItem> items)
 		{
-			// add custom toolbar button
+			// add custom toolbar button - if not already created
 			var createFileButton = items.Find(x => x.Key == "create-file");
 			if(createFileButton == null)
 			{
-				// not existing - so create
 				items.Insert(2, new ToolbarButton { Key = "create-file", Text = "New File", ToolTip = "Create a new file", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-file-medical" });
 			}
 		}

@@ -2,25 +2,31 @@
 
 <h1>PDFileExplorer</h1>
 
-<!-- PDSplitter works better when its container has a known size -->
-<!-- 57px = Top Bar -->
-<!-- 10px = Padding -->
-<!-- 56px = Title -->
-<div style="height: calc(100vh - 57px - 10px - 56px)">
+<DemoSourceView SourceFiles="PDFileExplorerPage.razor, PDFileExplorerPage.razor.cs">
 
-	<PDDragContext>
-		<PDFileExplorer @ref="_fileExplorer"
-						DataProvider="_dataProvider"
-						UpdateTableContextState="OnUpdateTableContextMenuState"
-						UpdateToolbarState="OnUpdateToolbarState"
-						TableContextMenuClick="OnTableContextMenuClick"
-						TableDownloadRequest="OnTableDownloadRequest"
-						ToolbarClick="OnToolbarClick"
-						UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())"
-						UploadRequest="OnUploadRequest"
-						UploadStarted="OnUploadStarted"
-						UploadCompleted="OnUploadCompleted">
-		</PDFileExplorer>
-	</PDDragContext>
+	<!-- PDSplitter works better when its parent element has a known size -->
+	<!-- 57px = Top Bar -->
+	<!-- 47px = Title -->
+	<!-- 55px = Demo/Source view -->
+	<!-- 50px = combined Padding -->
 
-</div>
+	<div style="height: calc(100vh - 57px - 56px - 10px - 55px - 50px)">
+
+		<PDDragContext>
+			<PDFileExplorer @ref="_fileExplorer"
+							DataProvider="_dataProvider"
+							UpdateTableContextState="OnUpdateTableContextMenuState"
+							UpdateToolbarState="OnUpdateToolbarState"
+							TableContextMenuClick="OnTableContextMenuClick"
+							TableDownloadRequest="OnTableDownloadRequest"
+							ToolbarClick="OnToolbarClick"
+							UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())"
+							UploadRequest="OnUploadRequest"
+							UploadStarted="OnUploadStarted"
+							UploadCompleted="OnUploadCompleted">
+			</PDFileExplorer>
+		</PDDragContext>
+
+	</div>
+
+</DemoSourceView>
