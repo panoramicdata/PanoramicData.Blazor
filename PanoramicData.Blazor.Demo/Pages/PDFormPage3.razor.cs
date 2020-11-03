@@ -68,6 +68,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			{
 				var id = int.Parse(Table.Selection[0]);
 				SelectedPerson = Table.ItemsToDisplay.Find(x => x.Id == id);
+				Form.SetItem(SelectedPerson);
 				if(SelectedPerson != null)
 				{
 					Form.SetMode(FormModes.Edit);
@@ -96,11 +97,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private async Task OnEmailInput(ChangeEventArgs args)
 		{
 			await FormBody.SetFieldValueAsync(FormBody.Fields.First(x => x.Id == "EmailCol"), args.Value).ConfigureAwait(true);
-		}
-
-		private void OnClick(string _)
-		{
-			ShowDescriptions = !ShowDescriptions;
 		}
 
 		private void OnCustomValidate(CustomValidateArgs<Person> args)

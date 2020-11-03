@@ -23,125 +23,123 @@
 						 CssClass="btn-secondary"
 						 Click="async () => await Table!.RefreshAsync()" />
 
-		<PDToolbarButton Text="@(ShowDescriptions ? "Hide Descriptions" : "Show Descriptions")"
-						 CssClass="btn-secondary"
-						 Click="OnClick" />
-
 	</PDToolbar>
 
 	<div class="d-flex">
+		<div>
+			<PDTable @ref="Table"
+					 TItem="Person"
+					 DataProvider="PersonDataProvider"
+					 KeyField="x => x.Id"
+					 SelectionMode="TableSelectionMode.Single"
+					 SelectionChanged="OnSelectionChanged" >
 
-		<PDTable @ref="Table"
-				 TItem="Person"
-				 DataProvider="PersonDataProvider"
-				 KeyField="x => x.Id"
-				 SelectionMode="TableSelectionMode.Single"
-				 SelectionChanged="OnSelectionChanged" >
+				<PDColumn TItem="Person"
+						  Field="x => x.Id"
+						  ShowInList="false"
+						  ShowInCreate="(_) => false"
+						  ReadOnlyInEdit="(_) => true" />
 
-			<PDColumn TItem="Person"
-					  Field="x => x.Id"
-					  ShowInList="false"
-					  ShowInCreate="(_) => false"
-					  ReadOnlyInEdit="(_) => true" />
+				<PDColumn TItem="Person"
+						  Field="x => x.FirstName"
+						  ShowInList="false"
+						  ShowInDelete="(_) => true" />
 
-			<PDColumn TItem="Person"
-					  Field="x => x.FirstName"
-					  ShowInList="false"
-					  ShowInDelete="(_) => true" />
-
-			<PDColumn TItem="Person"
-					  Id="InitialsCol"
-					  Field="x => x.Initials"
-					  ShowInList="false">
-				<EditTemplate>
-					<!-- custom processing alters typed in text - so always fetch latest value -->
-					<!-- for struct types use FormBody.GetFieldValue<T> -->
-					@{
-						var person = context;
-						var field = FormBody.Fields.First(x => x.Id == "InitialsCol");
-					}
-					<input type="text"
-						   class="form-control
+				<PDColumn TItem="Person"
+						  Id="InitialsCol"
+						  Field="x => x.Initials"
+						  ShowInList="false">
+					<EditTemplate>
+						<!-- custom processing alters typed in text - so always fetch latest value -->
+						<!-- for struct types use FormBody.GetFieldValue<T> -->
+						@{
+							var person = context;
+							var field = FormBody.Fields.First(x => x.Id == "InitialsCol");
+						}
+						<input type="text"
+							   class="form-control
 						   @FormBody.GetEditorClass(field)"
-						   value="@(FormBody.GetFieldStringValue(field, true))"
-						   @oninput="OnInitialsInput" />
-				</EditTemplate>
-			</PDColumn>
+							   value="@(FormBody.GetFieldStringValue(field, true))"
+							   @oninput="OnInitialsInput" />
+					</EditTemplate>
+				</PDColumn>
 
-			<PDColumn TItem="Person"
-					  Field="x => x.LastName"
-					  ShowInList="false"
-					  Title="Last Name"
-					  ShowInDelete="(_) => true" />
+				<PDColumn TItem="Person"
+						  Field="x => x.LastName"
+						  ShowInList="false"
+						  Title="Last Name"
+						  ShowInDelete="(_) => true" />
 
-			<PDColumn TItem="Person"
-					  Id="EmailCol"
-					  Field="x => x.Email"
-					  ShowInDelete="(_) => true">
-				<EditTemplate>
-					<!-- no custom processing of input here so no need to get latest value -->
-					@{
-						var field = FormBody.Fields.First(x => x.Id == "EmailCol");
-					}
-					<input type="email"
-						   class="form-control @FormBody.GetEditorClass(field)"
-						   value="@context.Email"
-						   @oninput="OnEmailInput" />
-				</EditTemplate>
-			</PDColumn>
+				<PDColumn TItem="Person"
+						  Id="EmailCol"
+						  Field="x => x.Email"
+						  ShowInDelete="(_) => true">
+					<EditTemplate>
+						<!-- no custom processing of input here so no need to get latest value -->
+						@{
+							var field = FormBody.Fields.First(x => x.Id == "EmailCol");
+						}
+						<input type="email"
+							   class="form-control @FormBody.GetEditorClass(field)"
+							   value="@context.Email"
+							   @oninput="OnEmailInput" />
+					</EditTemplate>
+				</PDColumn>
 
-			<PDColumn TItem="Person"
-					  Field="x => x.Dob"
-					  ShowInList="false"
-					  HelpUrl="https://www.dayofbirth.co.uk/"
-				      ShowInDelete="@((x) => !x.FirstName.In("Alice", "Carol", "Eve", "Grace", "Heidi", "Judy"))" />
 
-			<PDColumn TItem="Person"
-					  Field="x => x.Department"
-					  HelpUrl="https://www.dictionary.com/browse/department" />
+				<PDColumn TItem="Person"
+						  Field="x => x.Dob"
+						  ShowInList="false"
+						  HelpUrl="https://www.dayofbirth.co.uk/"
+						  ShowInDelete="@((x) => !x.FirstName.In("Alice", "Carol", "Eve", "Grace", "Heidi", "Judy"))" />
 
-			<PDColumn TItem="Person"
-					  Field="x => x.Location"
-					  Options="GetLocationOptions" />
+				<PDColumn TItem="Person"
+						  Field="x => x.Department"
+						  HelpUrl="https://www.dictionary.com/browse/department" />
 
-			<PDColumn TItem="Person"
-					  Field="x => x.Target"
-					  ShowInList="false"
-					  ReadOnlyInEdit="(x) => x.Department != Departments.Sales"
-					  ReadOnlyInCreate="(x) => x.Department != Departments.Sales" />
+				<PDColumn TItem="Person"
+						  Field="x => x.Location"
+						  Options="GetLocationOptions" />
 
-			<PDColumn TItem="Person"
-					  Field="x => x.AllowLogin"
-					  ShowInList="false" />
+				<PDColumn TItem="Person"
+						  Field="x => x.Target"
+						  ShowInList="false"
+						  ReadOnlyInEdit="(x) => x.Department != Departments.Sales"
+						  ReadOnlyInCreate="(x) => x.Department != Departments.Sales" />
 
-			<PDColumn TItem="Person"
-					  Field="x => x.Password"
-					  ShowInList="false"
-					  ShowInCreate="(x) => x.AllowLogin"
-					  ShowInEdit="(x) => x.AllowLogin"
-					  IsPassword="true" />
+				<PDColumn TItem="Person"
+						  Field="x => x.AllowLogin"
+						  ShowInList="false" />
 
-			<PDColumn TItem="Person"
-					  Field="x => x.Comments"
-					  ShowInList="false"
-					  ShowInCreate="(_) => false"
-					  IsTextArea="true"
-					  TextAreaRows="6" />
+				<PDColumn TItem="Person"
+						  Field="x => x.Password"
+						  ShowInList="false"
+						  ShowInCreate="(x) => x.AllowLogin"
+						  ShowInEdit="(x) => x.AllowLogin"
+						  IsPassword="true" />
 
-			<PDColumn TItem="Person"
-					  Field="x => x.DateCreated"
-					  Format="dd/MM/yy"
-					  ShowInList="false"
-					  ShowInEdit="(_) => false"
-					  ShowInCreate="(_) => false" />
+				<PDColumn TItem="Person"
+						  Field="x => x.Comments"
+						  ShowInList="false"
+						  ShowInCreate="(_) => false"
+						  IsTextArea="true"
+						  TextAreaRows="6" />
 
-			<PDColumn TItem="Person"
-					  Field="x => x.DateModified"
-					  Format="dd/MM/yy"
-					  ShowInEdit="(_) => false"
-					  ShowInCreate="(_) => false" />
+				<PDColumn TItem="Person"
+						  Field="x => x.DateCreated"
+						  Format="dd/MM/yy"
+						  ShowInList="false"
+						  ShowInEdit="(_) => false"
+						  ShowInCreate="(_) => false" />
 
-		</PDTable>
+				<PDColumn TItem="Person"
+						  Field="x => x.DateModified"
+						  Format="dd/MM/yy"
+						  ShowInEdit="(_) => false"
+						  ShowInCreate="(_) => false" />
+
+			</PDTable>
+		</div>
 
 		<div class="form-div">
 			<PDForm @ref="Form"
@@ -191,7 +189,7 @@
 		padding-bottom: 5px;
 	}
 
-		.pd-form-header.haschanges {
-			border: 2px solid blue;
-		}
+	.pd-form-header.haschanges {
+		border: 2px solid blue;
+	}
 </style>

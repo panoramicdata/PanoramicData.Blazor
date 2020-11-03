@@ -90,6 +90,15 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Sets the current item.
+		/// </summary>
+		/// <param name="item">The current item to be edited.</param>
+		public void SetItem(TItem item)
+		{
+			Item = item;
+		}
+
+		/// <summary>
 		/// Gets or sets whether help text should be displayed.
 		/// </summary>
 		public bool ShowHelp
