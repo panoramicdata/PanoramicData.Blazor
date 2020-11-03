@@ -64,7 +64,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event raised when the user clicks on the clear button.
 		/// </summary>
-//		[Parameter] public EventCallback Cleared { get; set; }
+		[Parameter] public EventCallback Cleared { get; set; }
 
 		public string ItemStyle => $"width: {Width}";
 
@@ -87,7 +87,7 @@ namespace PanoramicData.Blazor
 		{
 			_value = string.Empty;
 			await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
-//			await Cleared.InvokeAsync(null).ConfigureAwait(true);
+			await Cleared.InvokeAsync(null).ConfigureAwait(true);
 		}
 	}
 }

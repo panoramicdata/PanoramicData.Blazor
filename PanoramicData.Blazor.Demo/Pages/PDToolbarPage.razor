@@ -1,76 +1,62 @@
 ﻿@page "/pdtoolbar"
 <h1>PDToolbarPage</h1>
 
-<h3>Declarative example of PDToolbar usage</h3>
+<DemoSourceView SourceFiles="PDToolbarPage.razor, PDToolbarPage.razor.cs">
 
-<PDToolbar>
+	<PDToolbar>
 
-	<PDToolbarDropdown Text="File"
-					   IconCssClass="fas fa-fw fa-file"
-					   TextCssClass="d-none d-sm-none d-md-inline"
-					   IsVisible="ShowButtons"
-					   IsEnabled="EnableButtons"
-					   Items="FileMenuItems"
-					   Click="OnFileMenuClick" />
+		<PDToolbarDropdown Text="File"
+						   IconCssClass="fas fa-fw fa-file"
+						   TextCssClass="d-none d-sm-none d-md-inline"
+						   IsVisible="ShowButtons"
+						   IsEnabled="EnableButtons"
+						   Items="FileMenuItems"
+						   Click="OnFileMenuClick" />
 
-	<PDToolbarButton Text="Rename"
-					 CssClass="btn-secondary"
-					 IconCssClass="fas fa-fw fa-edit"
-					 TextCssClass="d-none d-sm-none d-md-inline"
-					 Click="OnRename"
-					 IsVisible="ShowButtons"
-					 IsEnabled="EnableButtons" />
+		<PDToolbarButton Key="Rename"
+						 Text="Rename"
+						 CssClass="btn-secondary"
+						 IconCssClass="fas fa-fw fa-edit"
+						 TextCssClass="d-none d-sm-none d-md-inline"
+						 Click="OnButtonClick"
+						 IsVisible="ShowButtons"
+						 IsEnabled="EnableButtons" />
 
-	<PDToolbarSeparator IsVisible="ShowButtons" />
+		<PDToolbarSeparator IsVisible="ShowButtons" />
 
-	<PDToolbarButton Text="Download"
-					 CssClass="btn-secondary"
-					 IconCssClass="fas fa-fw fa-file-download"
-					 TextCssClass="d-none d-sm-none d-md-inline"
-					 Click="OnDownload"
-					 IsVisible="ShowButtons"
-					 IsEnabled="EnableButtons" />
+		<PDToolbarButton Key="Download"
+						 Text="Download"
+						 CssClass="btn-secondary"
+						 IconCssClass="fas fa-fw fa-file-download"
+						 TextCssClass="d-none d-sm-none d-md-inline"
+						 Click="OnButtonClick"
+						 IsVisible="ShowButtons"
+						 IsEnabled="EnableButtons" />
 
-	<PDToolbarSeparator IsVisible="ShowButtons" />
+		<PDToolbarSeparator IsVisible="ShowButtons" />
 
-	<PDToolbarPlaceholder>
-		<span>Search</span>
-	</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span>Search</span>
+		</PDToolbarPlaceholder>
 
-	<PDToolbarTextbox Width="100%"
-					  @bind-Value="_searchText"
-					  ShowClearButton="true"
-					  Keypress="OnKeypress" />
+		<PDToolbarTextbox Width="100%"
+						  @bind-Value="_searchText"
+						  ShowClearButton="true"
+						  Keypress="OnKeypress"
+						  Cleared="OnCleared"/>
 
-	<PDToolbarButton Text="@(EnableButtons ? "Disable" : "Enable")"
-					 ToolTip="Disable or enable buttons"
-					 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
-					 Click="() => { EnableButtons = !EnableButtons; }"
-					 ShiftRight="true" />
+		<PDToolbarButton Text="@(EnableButtons ? "Disable" : "Enable")"
+						 ToolTip="Disable or enable buttons"
+						 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
+						 Click="() => { EnableButtons = !EnableButtons; }"
+						 ShiftRight="true" />
 
-	<PDToolbarButton Text="@(ShowButtons ? "Hide" : "Show")"
-					 ToolTip="Show or hide buttons"
-					 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
-					 Click="() => { ShowButtons = !ShowButtons; }" />
-</PDToolbar>
+		<PDToolbarButton Text="@(ShowButtons ? "Hide" : "Show")"
+						 ToolTip="Show or hide buttons"
+						 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
+						 Click="() => { ShowButtons = !ShowButtons; }" />
+	</PDToolbar>
 
-<div>
+	<EventView />
 
-	<div>
-		Search text = "@_searchText"
-	</div>
-
-	<div>
-		<div class="form-group p-1">
-			<label>Events</label>
-			<textarea rows="8" class="form-control">@_events</textarea>
-		</div>
-	</div>
-
-</div>
-
-<br/>
-<hr/>
-
-<h3>Programmatic example of PDToolbar usage</h3>
-<PDToolbar Items="ToolbarItems" ButtonClick="OnButtonClick" />
+</DemoSourceView>
