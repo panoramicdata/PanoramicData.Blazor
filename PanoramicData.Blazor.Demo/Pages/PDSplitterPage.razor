@@ -1,34 +1,62 @@
 ﻿@page "/pdsplitter"
+
 <h1>PDSplitter</h1>
 
-<div class="full-content-size">
+<DemoSourceView SourceFiles="PDSplitterPage.razor">
 
-	<PDSplitter Direction="SplitDirection.Horizontal" GutterSize="4" ExpandToMin="true">
+	<div class="full-content-size">
 
-		<PDSplitPanel Size="1" MinSize="200">
-			<h3>Panel 1</h3>
-		</PDSplitPanel>
+		<PDSplitter Direction="SplitDirection.Horizontal"
+					GutterSize="4"
+					ExpandToMin="true">
 
-		<PDSplitPanel Size="2" MinSize="200">
-			<h3>Panel 2</h3>
-		</PDSplitPanel>
+			<PDSplitPanel Size="1"
+						  MinSize="200">
+				<h3>Panel 1</h3>
+			</PDSplitPanel>
 
-		<PDSplitPanel Size="1">
+			<PDSplitPanel Size="2"
+						  MinSize="200">
+				<h3>Panel 2</h3>
+			</PDSplitPanel>
 
-			<PDSplitter Direction="SplitDirection.Vertical" SnapOffset="0" DragInterval="50">
+			<PDSplitPanel Size="1">
 
-				<PDSplitPanel Size="1" MinSize="50">
-					<h3>Panel 4</h3>
-				</PDSplitPanel>
+				<PDSplitter Direction="SplitDirection.Vertical"
+							SnapOffset="0"
+							DragInterval="50">
 
-				<PDSplitPanel Size="1" MinSize="200">
-					<h3>Panel 5</h3>
-				</PDSplitPanel>
+					<PDSplitPanel Size="1"
+								  MinSize="50">
+						<h3>Panel 4</h3>
+					</PDSplitPanel>
 
-			</PDSplitter>
+					<PDSplitPanel Size="1"
+								  MinSize="200">
+						<h3>Panel 5</h3>
+					</PDSplitPanel>
 
-		</PDSplitPanel>
+				</PDSplitter>
 
-	</PDSplitter>
+			</PDSplitPanel>
 
-</div>
+		</PDSplitter>
+
+	</div>
+
+</DemoSourceView>
+
+<style>
+	@@media (max-width: 767.98px) {
+		.full-content-size {
+			height: calc(100vh - 250px);
+			width: calc(100vw - 100px);
+		}
+	}
+	@@media (min-width: 768px) {
+		.full-content-size {
+			height: calc(100vh - 250px);
+			width: calc(100vw - 350px);
+		}
+	}
+</style>

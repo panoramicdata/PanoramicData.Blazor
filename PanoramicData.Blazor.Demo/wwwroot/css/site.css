@@ -200,11 +200,6 @@ app {
 	.main .top-row a, .main .top-row .btn-link {
 		margin-left: 0;
 	}
-
-	.full-content-size {
-		height: calc(100vh - 150px);
-		width: calc(100vw - 50px);
-	}
 }
 
 @media (min-width: 768px) {
@@ -238,11 +233,6 @@ app {
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
-
-	.full-content-size {
-		height: calc(100vh - 150px);
-		width: calc(100vw - 310px);
-	}
 
 	.pdfileexplorer .pdtreenode_content:hover, .pdfileexplorer .pdtablerow:hover {
 		background-color: #eee;
