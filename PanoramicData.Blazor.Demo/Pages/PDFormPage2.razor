@@ -1,6 +1,120 @@
 ﻿@page "/pdform2"
 @using PanoramicData.Blazor.Demo.Data
 
+<h1>PDForm</h1>
+
+<DemoSourceView SourceFiles="PDFormPage2.razor, PDFormPage2.razor.cs">
+
+	<PDToolbar>
+
+		<PDToolbarPlaceholder>
+			<span>Example 2: Form displayed within Dialog</span>
+		</PDToolbarPlaceholder>
+
+		<PDToolbarButton Text="Create Person"
+						 ShiftRight="true"
+						 CssClass="btn-primary"
+						 Click="OnCreatePerson" />
+
+	</PDToolbar>
+
+	<div>
+
+		<div class="d-flex">
+			@foreach (var person in People)
+			{
+				<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPerson(person)">
+					<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
+				</div>
+			}
+		</div>
+
+		<PDForm @ref="Form"
+				TItem="Person"
+				Item="SelectedPerson"
+				DataProvider="PersonDataProvider"
+				Error="OnError"
+				Deleted="OnPersonDeleted"
+				Updated="OnPersonUpdated"
+				Created="OnPersonCreated">
+
+			<div id="exampleModal" class="modal" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+
+							<PDFormHeader TItem="Person"
+										  ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
+
+						</div>
+						<div class="modal-body">
+
+							<PDFormBody TItem="Person">
+
+								<PDField TItem="Person"
+										 Field="x => x.Id"
+										 ShowInDelete="(_) => true"
+										 ShowInCreate="(_) => false"
+										 ReadOnlyInEdit="(_) => true" />
+
+								<PDField TItem="Person"
+										 Field="x => x.FirstName"
+										 Title="First Name"
+										 ShowInDelete="(_) => true" />
+
+								<PDField TItem="Person"
+										 Field="x => x.LastName"
+										 Title="Last Name"
+										 ShowInDelete="(_) => true" />
+
+								<PDField TItem="Person"
+										 Field="x => x.Dob" />
+
+								<PDField TItem="Person"
+										 Field="x => x.Department" />
+
+								<PDField TItem="Person"
+										 Field="x => x.AllowLogin"
+										 Title="Login?" />
+
+								<PDField TItem="Person"
+										 Field="x => x.Target" />
+
+								<PDField TItem="Person"
+										 Field="x => x.Comments"
+										 IsTextArea="true" />
+
+								<PDField TItem="Person"
+										 Field="x => x.DateCreated"
+										 ShowInCreate="(_) => false"
+										 ReadOnlyInEdit="(_) => true" />
+
+								<PDField TItem="Person"
+										 Field="x => x.DateModified"
+										 ShowInCreate="(_) => false"
+										 ShowInEdit="(_) => false" />
+
+							</PDFormBody>
+
+						</div>
+						<div class="modal-footer">
+
+							<PDFormFooter TItem="Person"
+										  Click="OnFooterClick" />
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</PDForm>
+
+	</div>
+
+	<EventView />
+
+</DemoSourceView>
+
 <style>
 	.pd-form-header, .pd-form-footer {
 		margin: 0 0 0 0;
@@ -14,77 +128,7 @@
 		cursor: pointer;
 	}
 
-	.person-list.selected {
-		background-color: lightgray;
-	}
-</style>
-
-<h1>PDForm</h1>
-
-<h3>Example 2: Form displayed within Dialog</h3>
-
-<div>
-
-	<div>
-		<button class="btn btn-primary" @onclick="OnCreatePerson">Create</button>
-	</div>
-
-	<br />
-
-	<div class="d-flex">
-		@foreach (var person in People)
-		{
-			<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPerson(person)">
-				<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
-			</div>
+		.person-list.selected {
+			background-color: lightgray;
 		}
-	</div>
-
-	<PDForm @ref="Form" TItem="Person" Item="SelectedPerson" DataProvider="PersonDataProvider"
-			Error="OnError" Deleted="OnPersonDeleted" Updated="OnPersonUpdated" Created="OnPersonCreated">
-
-		<div id="exampleModal" class="modal" tabindex="-1">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-
-						<PDFormHeader TItem="Person" ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
-
-					</div>
-					<div class="modal-body">
-
-						<PDFormBody TItem="Person">
-							<PDField TItem="Person" Field="x => x.Id" ShowInDelete="(_) => true" ShowInCreate="(_) => false" ReadOnlyInEdit="(_) => true"></PDField>
-							<PDField TItem="Person" Field="x => x.FirstName" Title="First Name" ShowInDelete="(_) => true"></PDField>
-							<PDField TItem="Person" Field="x => x.LastName" Title="Last Name" ShowInDelete="(_) => true"></PDField>
-							<PDField TItem="Person" Field="x => x.Dob"></PDField>
-							<PDField TItem="Person" Field="x => x.Department"></PDField>
-							<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?"></PDField>
-							<PDField TItem="Person" Field="x => x.Target"></PDField>
-							<PDField TItem="Person" Field="x => x.Comments" IsTextArea="true"></PDField>
-							<PDField TItem="Person" Field="x => x.DateCreated" ShowInCreate="(_) => false" ReadOnlyInEdit="(_) => true"></PDField>
-							<PDField TItem="Person" Field="x => x.DateModified" ShowInCreate="(_) => false" ShowInEdit="(_) => false"></PDField>
-						</PDFormBody>
-
-					</div>
-					<div class="modal-footer">
-
-						<PDFormFooter TItem="Person" Click="OnFooterClick" />
-
-					</div>
-				</div>
-			</div>
-		</div>
-
-	</PDForm>
-
-</div>
-
-
-<div>
-	<div class="form-group p-1">
-		<label>Events</label>
-		<textarea rows="8" class="form-control">@_events</textarea>
-	</div>
-</div>
-
+</style>
