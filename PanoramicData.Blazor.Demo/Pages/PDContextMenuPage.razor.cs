@@ -9,7 +9,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDContextMenuPage
     {
 		private readonly Random _random = new Random(Environment.TickCount);
-		private string _events = string.Empty;
 		private List<MenuItem> _items = new List<MenuItem>();
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
