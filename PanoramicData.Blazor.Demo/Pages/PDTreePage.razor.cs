@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Demo.Data;
 
@@ -8,41 +9,42 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDTreePage
     {
 		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
-		private IDataProviderService<FileExplorerItem> _dataProviderOnDemand = new TestFileSystemDataProvider();
 		private FileExplorerItem? _selectedEntry;
 		private bool ShowLines { get; set; }
 		private bool ShowRoot { get; set; } = true;
 		private string Events { get; set; } = string.Empty;
 		private PDTree<FileExplorerItem>? Tree { get; set; }
 
-		private void SelectionChangeHandler(TreeNode<FileExplorerItem> node)
+		[CascadingParameter] protected EventManager? EventManager { get; set; }
+
+		private void OnSelectionChanged(TreeNode<FileExplorerItem> node)
 		{
 			_selectedEntry = node?.Data;
-			Events += $"selection changed: path = {node?.Data?.Path}{Environment.NewLine}";
+			EventManager?.Add(new Event("SelectionChange", new EventArgument("Path", node?.Data?.Path)));
 		}
 
-		private void NodeExpandedHandler(TreeNode<FileExplorerItem> node)
+		private void OnNodeExpanded(TreeNode<FileExplorerItem> node)
 		{
-			Events += $"node expanded: path = {node?.Data?.Path}{Environment.NewLine}";
+			EventManager?.Add(new Event("NodeExpanded", new EventArgument("Path", node?.Data?.Path)));
 		}
 
-		private void NodeCollapsedHandler(TreeNode<FileExplorerItem> node)
+		private void OnNodeCollapsed(TreeNode<FileExplorerItem> node)
 		{
-			Events += $"node collapsed: path = {node?.Data?.Path}{Environment.NewLine}";
+			EventManager?.Add(new Event("NodeCollapsed", new EventArgument("Path", node?.Data?.Path)));
 		}
 
-		private void BeforeEditHandler(TreeNodeBeforeEditEventArgs<FileExplorerItem> args)
+		private void OnBeforeEdit(TreeNodeBeforeEditEventArgs<FileExplorerItem> args)
 		{
-			Events += $"before edit: path = {args.Node?.Data?.Path}{Environment.NewLine}";
+			EventManager?.Add(new Event("BeforeEdit", new EventArgument("Path", args.Node?.Data?.Path)));
 
 			// disallow edit of root node
 			args.Cancel = args.Node?.ParentNode == null;
 		}
 
-		private void AfterEditHandler(TreeNodeAfterEditEventArgs<FileExplorerItem> args)
+		private void OnAfterEdit(TreeNodeAfterEditEventArgs<FileExplorerItem> args)
 		{
 			var item = args.Node.Data;
-			Events += $"after edit: path = {item?.Path}, new value = {args.NewValue} {Environment.NewLine}";
+			EventManager?.Add(new Event("AfterEdit", new EventArgument("Path", item?.Path), new EventArgument("NewValue", args.NewValue)));
 
 			if (string.IsNullOrWhiteSpace(args.NewValue))
 			{

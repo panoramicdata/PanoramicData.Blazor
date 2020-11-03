@@ -3,72 +3,69 @@
 
 <h1>PDTree</h1>
 
-<h3>All items loaded up front example</h3>
+<DemoSourceView SourceFiles="PDTreePage.razor, PDTreePage.razor.cs">
 
-<PDTree @ref="Tree"
-		TItem="FileExplorerItem"
-		DataProvider="_dataProvider"
-		KeyField="x => x.Path"
-		ParentKeyField="x => x.ParentPath"
-		AllowSelection="true"
-		AllowEdit="true"
-		ShowLines="ShowLines"
-		ShowRoot="ShowRoot"
-		SelectionChange="SelectionChangeHandler"
-		NodeExpanded="NodeExpandedHandler"
-		NodeCollapsed="NodeCollapsedHandler"
-		BeforeEdit="BeforeEditHandler"
-		AfterEdit="AfterEditHandler" >
-	<NodeTemplate>
-		@if (context?.Data?.EntryType == FileExplorerItemType.File)
-		{
-			<i class="far fa-file"></i>
-			<b>@context?.Data?.Path</b>
-		}
-		else
-		{
-			<i class="far fa-folder"></i>
-			<span>@context?.Data?.Name</span>
-		}
-	</NodeTemplate>
-</PDTree>
+	<PDToolbar>
 
-<hr />
+		<PDToolbarPlaceholder>
+			<div>
+				<span class="text-muted">Selected Path:</span>
+				<br />
+				<span><b>@_selectedEntry?.Path</b></span>
+			</div>
+		</PDToolbarPlaceholder>
 
-<button class="btn btn-secondary" @onclick="() => ShowLines = !ShowLines">@(ShowLines ? "Hide" : "Show") Lines</button>
-<button class="btn btn-secondary" @onclick="() => ShowRoot = !ShowRoot">@(ShowRoot ? "Hide" : "Show") Root</button>
-<button class="btn btn-secondary" @onclick="() => Tree?.ExpandAll()">Expand All</button>
-<button class="btn btn-secondary" @onclick="() => Tree?.CollapseAll()">Collapse All</button>
-<button class="btn btn-secondary" @onclick="() => Tree?.BeginEdit()">Begin Edit</button>
+		<PDToolbarButton Text="@(ShowLines ? "Hide Lines" : "Show Lines")"
+						 ShiftRight="true"
+						 CssClass="btn-secondary"
+						 Click="() => ShowLines = !ShowLines" />
 
-<br />
+		<PDToolbarButton Text="@(ShowRoot ? "Hide Root" : "Show Root")"
+						 CssClass="btn-secondary"
+						 Click="() => ShowRoot = !ShowRoot" />
 
-<div>
-	<b>
-		<span>Selected Item:</span>
-	</b>
-	<span>@_selectedEntry?.Path</span>
-</div>
+		<PDToolbarButton Text="Expand All"
+						 CssClass="btn-secondary"
+						 Click="() => Tree?.ExpandAll()" />
 
-<div>
-	<div class="form-group p-1">
-		<label>Events</label>
-		<textarea rows="8" class="form-control">@Events</textarea>
-	</div>
-</div>
+		<PDToolbarButton Text="Collapse All"
+						 CssClass="btn-secondary"
+						 Click="() => Tree?.CollapseAll()" />
 
-<br/>
-<hr/>
+		<PDToolbarButton Text="Begin Edit"
+						 CssClass="btn-secondary"
+						 Click="() => Tree?.BeginEdit()" />
 
-<h3>Items loaded on demand example</h3>
-<!-- note that the IsLeaf parameter is set so as to help identify the leaf nodes,
-	 this is not required when all data is loaded up front as it can be inferred -->
-<PDTree DataProvider="_dataProviderOnDemand"
-		TItem="FileExplorerItem"
-		KeyField="x => x.Path"
-		ParentKeyField="x => x.ParentPath"
-		TextField="x => x.Name"
-		LoadOnDemand="true"
-		ShowLines="true"
-		IsLeaf="x => x.EntryType == FileExplorerItemType.File" >
-</PDTree>
+	</PDToolbar>
+
+	<PDTree @ref="Tree"
+			TItem="FileExplorerItem"
+			DataProvider="_dataProvider"
+			KeyField="x => x.Path"
+			ParentKeyField="x => x.ParentPath"
+			AllowSelection="true"
+			AllowEdit="true"
+			ShowLines="ShowLines"
+			ShowRoot="ShowRoot"
+			SelectionChange="OnSelectionChanged"
+			NodeExpanded="OnNodeExpanded"
+			NodeCollapsed="OnNodeCollapsed"
+			BeforeEdit="OnBeforeEdit"
+			AfterEdit="OnAfterEdit">
+		<NodeTemplate>
+			@if (context?.Data?.EntryType == FileExplorerItemType.File)
+			{
+				<i class="far fa-file"></i>
+				<b>@context?.Data?.Path</b>
+			}
+			else
+			{
+				<i class="far fa-folder"></i>
+				<span>@context?.Data?.Name</span>
+			}
+		</NodeTemplate>
+	</PDTree>
+
+	<EventView />
+
+</DemoSourceView>
