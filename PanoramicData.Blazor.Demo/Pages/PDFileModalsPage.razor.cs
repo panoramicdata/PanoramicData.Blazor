@@ -12,12 +12,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private string _openResult = string.Empty;
 		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 
-		private async Task ShowFileOpenModal(MouseEventArgs args)
+		private async Task ShowFileOpenModal(string _)
 		{
 			_openResult = await _fileOpenModal.ShowOpenAsync();
 		}
 
-		private async Task ShowFileSaveAsModal(MouseEventArgs args)
+		private async Task ShowFileSaveAsModal(string _)
 		{
 			_openResult = await _fileSaveAsModal.ShowOpenAsync();
 		}
