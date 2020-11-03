@@ -2,26 +2,28 @@
 
 <h1>PDPager</h1>
 
-<div class="form-inline">
+<DemoSourceView SourceFiles="PDPagerPage.razor, PDPagerPage.razor.cs">
 
-	<div class="form-group col-3">
-		<label>Current Page</label>
-		<input type="number" class="form-control" @bind="CurrentPage">
-	</div>
+	<PDToolbar>
 
-	<div class="form-group col-3">
-		<label>Page Count</label>
-		<input type="number" class="form-control" @bind="PageCount">
-	</div>
+		<PDToolbarPlaceholder>
+			<span>Current Page</span>
+		</PDToolbarPlaceholder>
 
-</div>
+		<PDToolbarPlaceholder>
+			<input type="number" class="form-control" @bind="CurrentPage">
+		</PDToolbarPlaceholder>
 
-<br/>
+		<PDToolbarPlaceholder>
+			<input type="number" class="form-control" @bind="PageCount">
+		</PDToolbarPlaceholder>
 
-<div>
-	<PDPager CurrentPage="@CurrentPage" PageCount="@PageCount" OnPageChange="PageChangeHandler" ></PDPager>
-</div>
+	</PDToolbar>
 
-<br/>
+	<PDPager PageCount="@PageCount"
+             CurrentPage="@CurrentPage"
+             OnPageChange="OnPageChanged" />
 
-<span>@Message</span>
+	<EventView />
+
+</DemoSourceView>
