@@ -1,7 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Demo.Data;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
@@ -10,6 +11,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private readonly Random _random = new Random(Environment.TickCount);
 		private string _events = string.Empty;
 		private List<MenuItem> _items = new List<MenuItem>();
+
+		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 		public bool Enabled { get; set; } = true;
 
@@ -30,7 +33,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		public void OnUpdateState(CancelEventArgs args)
 		{
-			_events += $"before show {Environment.NewLine}";
+			EventManager?.Add(new Event("UpdateState"));
+
 			// randomly disable one item
 			_items.ForEach(x => x.IsDisabled = false);
 			_items[_random.Next(2, 8)].IsDisabled = true;
@@ -38,10 +42,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		public void OnItemClick(MenuItem item)
 		{
-			_events += $"item click: {item.Text} {Environment.NewLine}";
+			EventManager?.Add(new Event("ItemClick", new EventArgument("Text", item.Text)));
 		}
 
-		private void OnClick(MouseEventArgs _)
+		private void OnClick(string _)
 		{
 			Enabled = !Enabled;
 		}
