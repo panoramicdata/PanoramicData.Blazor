@@ -1,6 +1,6 @@
 # PanoramicData.Blazor
 
-UI components for Blazor (Demo page due for release on 2020-11-01).
+UI components for Blazor.  Try it out on our [Demo page](https://panoramicdata.github.io/PanoramicData.Blazor/)!
 
 We needed the following Blazor UI components for several projects, including [ReportMagic v3.0](https://reportmagic.net):
 
