@@ -23,6 +23,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string CssClass { get; set; } = "btn-secondary";
 
 		/// <summary>
+		/// Gets or sets CSS classes for the toolbar item.
+		/// </summary>
+		[Parameter] public string ItemCssClass { get; set; } = "";
+
+		/// <summary>
 		/// Gets or sets CSS classes for an optional icon.
 		/// </summary>
 		[Parameter] public string IconCssClass { get; set; } = string.Empty;
