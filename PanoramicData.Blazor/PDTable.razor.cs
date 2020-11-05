@@ -526,9 +526,12 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public async Task ClearSelectionAsync()
 		{
-			Selection.Clear();
-			await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
-			StateHasChanged();
+			if (Selection.Count > 0)
+			{
+				Selection.Clear();
+				await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+				StateHasChanged();
+			}
 		}
 
 		void IDisposable.Dispose()
