@@ -22,6 +22,7 @@ namespace PanoramicData.Blazor
 		private bool _dragging;
 		private Timer? _editTimer;
 		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
+		private PDPager? _pager;
 
 		private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
@@ -366,29 +367,21 @@ namespace PanoramicData.Blazor
 					.GetDataAsync(request, CancellationToken.None)
 					.ConfigureAwait(true);
 
-				if (PageSize.HasValue)
-				{
-					PageCount = (response.TotalCount / PageSize.Value) + (response.TotalCount % PageSize.Value > 0 ? 1 : 0);
-
-					if(PageCount == 0)
-					{
-						Page = 1;
-					}
-					// check if page number is valid and if not re-query for last page
-					else if(Page > PageCount)
-					{
-						Page = PageCount ?? 1;
-						request.Skip = (Page - 1) * PageSize.Value;
-						response = await DataProvider
-							.GetDataAsync(request, CancellationToken.None)
-							.ConfigureAwait(true);
-					}
-				}
-
 				// allow calling application to filter/add items etc
 				var items = new List<TItem>(response.Items);
 				ItemsLoaded?.Invoke(items); // must use an action here and not an EventCallaback as that leads to infinite loop and 100% CPU
 				ItemsToDisplay = items;
+
+				// update pager state
+				if (PageSize.HasValue)
+				{
+					var pageCount = ((response.TotalCount ?? 0) / PageSize.Value) + ((response.TotalCount ?? 0) % PageSize.Value > 0 ? 1 : 0);
+					PageCount = pageCount;
+					if (_pager != null)
+					{
+						await _pager.SetPageCountAsync((uint)pageCount).ConfigureAwait(true);
+					}
+				}
 
 				// clear selection
 				await ClearSelectionAsync().ConfigureAwait(true);
@@ -859,6 +852,12 @@ namespace PanoramicData.Blazor
 			{
 				await Drop.InvokeAsync(new DropEventArgs(row, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 			}
+		}
+
+		private async Task OnPageChange(uint page)
+		{
+			Page = (int)page;
+			await GetDataAsync().ConfigureAwait(true);
 		}
 	}
 }

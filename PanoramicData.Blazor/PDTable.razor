@@ -14,9 +14,8 @@
 					<td colspan="@ActualColumnsToDisplay.Count()">
 						<div class="d-flex flex-row">
 								<div class="mr-2">
-									<PDPager CurrentPage="@Page"
-											 PageCount="@PageCount"
-											 OnPageChange="(page) => PageAsync(new PageCriteria(page, PageSize))" />
+									<PDPager @ref="_pager"
+											 PageChange="OnPageChange" />
 								</div>
 						</div>
 					</td>

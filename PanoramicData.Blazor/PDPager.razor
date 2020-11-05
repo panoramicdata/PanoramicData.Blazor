@@ -1,27 +1,27 @@
-﻿<nav aria-label="Pager">
+﻿<nav aria-label="_pager">
 	<ul class="pagination mb-0">
-		<li class="page-item @(IsFirstPage || CurrentPage < 1 ? "disabled" : "pd-pointer")">
-			<a class="page-link" href="#" @onclick="@(() => OnPageChange.InvokeAsync(1))" @onclick:preventDefault>
+		<li class="page-item @(IsFirstPage || _page < 1 ? "disabled" : "pd-pointer")">
+			<a class="page-link" href="#" @onclick="MoveFirst" @onclick:preventDefault>
 				<i class="fas fa-fast-backward" />
 			</a>
 		</li>
-		<li class="page-item @(IsFirstPage || CurrentPage < 1 ? "disabled" : "pd-pointer")">
-			<a class="page-link" href="#" @onclick="@(() => OnPageChange.InvokeAsync(CurrentPage - 1))" @onclick:preventDefault>
+		<li class="page-item @(IsFirstPage || _page < 1 ? "disabled" : "pd-pointer")">
+			<a class="page-link" href="#" @onclick="MovePrevious" @onclick:preventDefault>
 				<i class="fas fa-backward" />
 			</a>
 		</li>
 		<li class="page-item disabled">
 			<a class="page-link" href="#">
-				Page&nbsp;@CurrentPage@(PageCount.HasValue ? "/" + (PageCount == 0 ? 1 : PageCount) : string.Empty)
+				Page &nbsp; @_page &nbsp; / &nbsp; @(_pageCount == 0 ? 1 : _pageCount)
 			</a>
 		</li>
-		<li class="page-item @(IsLastPage || CurrentPage > PageCount ? "disabled" : "pd-pointer")">
-			<a class="page-link" href="#" @onclick="@(() => OnPageChange.InvokeAsync(CurrentPage + 1))" @onclick:preventDefault>
+		<li class="page-item @(IsLastPage || _page > _pageCount ? "disabled" : "pd-pointer")">
+			<a class="page-link" href="#" @onclick="MoveNext" @onclick:preventDefault>
 				<i class="fas fa-forward" />
 			</a>
 		</li>
-		<li class="page-item @(IsLastPage || PageCount == null || CurrentPage > PageCount ? "disabled" : "pd-pointer")">
-			<a class="page-link" href="#" @onclick="@(() => OnPageChange.InvokeAsync(PageCount ?? 1))" @onclick:preventDefault>
+		<li class="page-item @(IsLastPage || _page > _pageCount ? "disabled" : "pd-pointer")">
+			<a class="page-link" href="#" @onclick="MoveLast" @onclick:preventDefault>
 				<i class="fas fa-fast-forward" />
 			</a>
 		</li>

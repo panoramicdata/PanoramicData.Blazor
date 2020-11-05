@@ -6,23 +6,20 @@
 
 	<PDToolbar>
 
-		<PDToolbarPlaceholder>
-			<span>Current Page</span>
-		</PDToolbarPlaceholder>
+		<PDToolbarTextbox @bind-Value="GoToPage" />
+		<PDToolbarButton Text="Goto Page"
+						 Click="OnGotoPage" />
 
-		<PDToolbarPlaceholder>
-			<input type="number" class="form-control" @bind="CurrentPage">
-		</PDToolbarPlaceholder>
-
-		<PDToolbarPlaceholder>
-			<input type="number" class="form-control" @bind="PageCount">
-		</PDToolbarPlaceholder>
+		<PDToolbarTextbox @bind-Value="NewPageCount" />
+		<PDToolbarButton Text="Set Page Count"
+						 Click="OnSetPageCount" />
 
 	</PDToolbar>
 
-	<PDPager PageCount="@PageCount"
-             CurrentPage="@CurrentPage"
-             OnPageChange="OnPageChanged" />
+	<PDPager @ref="_pager"
+			 Page="1"
+			 PageCount="10"
+			 PageChange="OnPageChanged" />
 
 	<EventView />
 
