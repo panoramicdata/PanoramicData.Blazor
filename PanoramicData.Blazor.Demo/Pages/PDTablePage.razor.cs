@@ -62,7 +62,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			// Update the URI for bookmarking
 			NavigationManager.SetUri(new Dictionary<string, object> { { "search", $"{_searchText}" } });
-			await Table!.RefreshAsync().ConfigureAwait(true);
+			await Table!.RefreshAsync(_searchText).ConfigureAwait(true);
 		}
 
 		private void OnSortChange(SortCriteria criteria)
@@ -152,16 +152,22 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
-		private async Task OnSearchChanged(string text)
+		private async Task OnSearchCleared()
 		{
-			_searchText = text;
-			if (text == string.Empty)
-			{
-				StateHasChanged();
-
-				await SearchAsync().ConfigureAwait(true);
-			}
+			//_searchText = string.Empty;
+			await SearchAsync().ConfigureAwait(true);
 		}
+
+		//private async Task OnSearchChanged(string text)
+		//{
+		//	//_searchText = text;
+		//	//if (text == string.Empty)
+		//	//{
+		//	//	StateHasChanged();
+
+		//	//	await SearchAsync().ConfigureAwait(true);
+		//	//}
+		//}
 
 		private OptionInfo[] GetLocationOptions(FormField<Person> field, Person item)
 		{

@@ -12,9 +12,9 @@
 						 Click="async () => await Table!.RefreshAsync()" />
 
 		<PDToolbarTextbox ShowClearButton="true"
-						  Value="_searchText"
+						  @bind-Value="_searchText"
 						  Keypress="OnSearchKeyPress"
-						  ValueChanged="OnSearchChanged" />
+						  Cleared="OnSearchCleared" />
 
 		<PDToolbarButton IconCssClass="fas fa-fw fa-search"
 						 Click="SearchAsync" />
