@@ -12,7 +12,6 @@ namespace PanoramicData.Blazor
 		{
 			Field = field;
 			Item = item;
-
 		}
 
 		/// <summary>
