@@ -1,12 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Extensions;
-using System.Security.Cryptography.X509Certificates;
 
 namespace PanoramicData.Blazor.Demo.Data
 {
@@ -22,28 +20,28 @@ namespace PanoramicData.Blazor.Demo.Data
 			_testData.Add(new FileExplorerItem { Path = @"/C:", CanCopyMove = false });
 			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData" });
 			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/Acme" });
-			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/Acme/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/Acme/UserGuide.pdf", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/stats.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/Acme/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 65833 });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/Acme/UserGuide.pdf", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 10304500 });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/ProgramData/stats.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 60766 });
 			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp" });
-			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp/a53fde.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp/b76jba.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp/p21wsa.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp/a53fde.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow, FileSize = 1024 });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp/b76jba.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow, FileSize = 2048 });
+			_testData.Add(new FileExplorerItem { Path = @"/C:/Temp/p21wsa.tmp", EntryType = FileExplorerItemType.File, IsHidden = true, DateModified = DateTimeOffset.UtcNow, FileSize = 4096 });
 			_testData.Add(new FileExplorerItem { Path = @"/C:/Users" });
 			_testData.Add(new FileExplorerItem { Path = @"/D:", CanCopyMove = false });
 			_testData.Add(new FileExplorerItem { Path = @"/D:/Data" });
 			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup" });
-			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200131_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200229_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200331_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200430_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/WeeklyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/MonthlyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200131_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 234871123 });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200229_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 224342237 });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200331_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 25672653 });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200430_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 8566455 });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/WeeklyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 23500 });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/MonthlyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 104999 });
 			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs" });
-			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs/20200430_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs/20200501_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs/20200502_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
-			_testData.Add(new FileExplorerItem { Path = @"/D:/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs/20200430_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 156654000 });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs/20200501_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 250001000 });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Logs/20200502_agent.log", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 600700 });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 3500 });
 		}
 
 		/// <summary>
@@ -60,10 +58,18 @@ namespace PanoramicData.Blazor.Demo.Data
 			var query = _testData
 				.AsQueryable<FileExplorerItem>();
 
+			// apply sort
+			if (request.SortFieldExpression != null)
+			{
+				query = request.SortDirection == SortDirection.Ascending
+					? query.OrderBy(request.SortFieldExpression)
+					: query.OrderByDescending(request.SortFieldExpression);
+			}
+
 			// if search text given then take that as the parent path value
 			// if null then return all items (load all example)
 			// if empty string then return root item (load on demand example)
-			if(request.SearchText is null)
+			if (request.SearchText is null)
 			{
 				total = query.Count();
 				items = query.ToList();
