@@ -8,7 +8,7 @@
 		 @onkeydown="OnKeyDownAsync"
 		 >
 		<table class="table @TableClass">
-			@if (PageSize.HasValue)
+			@if (PageCriteria != null)
 			{
 				<tr>
 					<td colspan="@ActualColumnsToDisplay.Count()">

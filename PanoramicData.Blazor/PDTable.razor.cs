@@ -258,16 +258,6 @@ namespace PanoramicData.Blazor
 		protected int Page { get; set; } = 1;
 
 		/// <summary>
-		/// When set, turns on paging and specifies the number of displayed items per page.
-		/// </summary>
-		protected int? PageSize { get; set; }
-
-		/// <summary>
-		/// Total number of pages available.
-		/// </summary>
-		protected int? PageCount { get; set; }
-
-		/// <summary>
 		/// Gets whether the table is currently in edit mode.
 		/// </summary>
 		public bool IsEditing { get; private set; }
@@ -312,13 +302,9 @@ namespace PanoramicData.Blazor
 		/// <param name="criteria">Details of the page to be displayed.</param>
 		public async Task PageAsync(PageCriteria criteria)
 		{
-			if (PageSize.HasValue && criteria.Page > 0 && (!PageCount.HasValue || criteria.Page <= PageCount))
-			{
-				Page = criteria.Page;
-				PageSize = criteria.PageSize;
-				await GetDataAsync().ConfigureAwait(true);
-				await PageChanged.InvokeAsync(criteria).ConfigureAwait(true);
-			}
+			SetPageCriteria(criteria);
+			await GetDataAsync().ConfigureAwait(true);
+			await PageChanged.InvokeAsync(criteria).ConfigureAwait(true);
 		}
 
 		/// <summary>
@@ -356,10 +342,10 @@ namespace PanoramicData.Blazor
 				};
 
 				// paging
-				if (PageSize.HasValue)
+				if (PageCriteria != null)
 				{
-					request.Take = PageSize.Value;
-					request.Skip = (Page - 1) * PageSize.Value;
+					request.Take = PageCriteria.PageSize;
+					request.Skip = (Page - 1) * PageCriteria.PageSize;
 				}
 
 				// perform query data
@@ -373,10 +359,9 @@ namespace PanoramicData.Blazor
 				ItemsToDisplay = items;
 
 				// update pager state
-				if (PageSize.HasValue)
+				if (PageCriteria != null)
 				{
-					var pageCount = ((response.TotalCount ?? 0) / PageSize.Value) + ((response.TotalCount ?? 0) % PageSize.Value > 0 ? 1 : 0);
-					PageCount = pageCount;
+					var pageCount = ((response.TotalCount ?? 0) / PageCriteria.PageSize) + ((response.TotalCount ?? 0) % PageCriteria.PageSize > 0 ? 1 : 0);
 					if (_pager != null)
 					{
 						await _pager.SetPageCountAsync((uint)pageCount).ConfigureAwait(true);
@@ -599,7 +584,6 @@ namespace PanoramicData.Blazor
 					if (PageCriteria != null)
 					{
 						Page = PageCriteria.Page;
-						PageSize = PageCriteria.PageSize;
 					}
 				}
 				catch (Exception ex)
