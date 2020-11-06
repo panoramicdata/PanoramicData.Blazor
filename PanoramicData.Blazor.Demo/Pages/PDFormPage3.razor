@@ -6,7 +6,7 @@
 
 <h1>PDForm</h1>
 
-<DemoSourceView SourceFiles="PDFormPage3.razor, PDFormPage3.razor.cs">
+<DemoSourceView SourceFiles="Pages/PDFormPage3.razor, Pages/PDFormPage3.razor.cs, Data/PersonDataProvider.cs">
 
 	<PDToolbar>
 
@@ -31,6 +31,8 @@
 					 TItem="Person"
 					 DataProvider="PersonDataProvider"
 					 KeyField="x => x.Id"
+					 PageCriteria="_pageCriteria"
+					 SortCriteria="_sortCriteria"
 					 SelectionMode="TableSelectionMode.Single"
 					 SelectionChanged="OnSelectionChanged" >
 
@@ -42,7 +44,7 @@
 
 				<PDColumn TItem="Person"
 						  Field="x => x.FirstName"
-						  ShowInList="false"
+						  ShowInList="true"
 						  ShowInDelete="(_) => true" />
 
 				<PDColumn TItem="Person"
@@ -66,13 +68,14 @@
 
 				<PDColumn TItem="Person"
 						  Field="x => x.LastName"
-						  ShowInList="false"
+						  ShowInList="true"
 						  Title="Last Name"
 						  ShowInDelete="(_) => true" />
 
 				<PDColumn TItem="Person"
 						  Id="EmailCol"
 						  Field="x => x.Email"
+						  ShowInList="false"
 						  ShowInDelete="(_) => true">
 					<EditTemplate>
 						<!-- no custom processing of input here so no need to get latest value -->
@@ -81,7 +84,7 @@
 						}
 						<input type="email"
 							   class="form-control @FormBody.GetEditorClass(field)"
-							   value="@context.Email"
+							   value="@FormBody.GetFieldStringValue(field)"
 							   @oninput="OnEmailInput" />
 					</EditTemplate>
 				</PDColumn>
@@ -104,8 +107,8 @@
 				<PDColumn TItem="Person"
 						  Field="x => x.Target"
 						  ShowInList="false"
-						  ReadOnlyInEdit="(x) => x.Department != Departments.Sales"
-						  ReadOnlyInCreate="(x) => x.Department != Departments.Sales" />
+						  ReadOnlyInEdit="(x) => x?.Department != Departments.Sales"
+						  ReadOnlyInCreate="(x) => x?.Department != Departments.Sales" />
 
 				<PDColumn TItem="Person"
 						  Field="x => x.AllowLogin"
@@ -114,8 +117,8 @@
 				<PDColumn TItem="Person"
 						  Field="x => x.Password"
 						  ShowInList="false"
-						  ShowInCreate="(x) => x.AllowLogin"
-						  ShowInEdit="(x) => x.AllowLogin"
+						  ShowInCreate="(x) => x?.AllowLogin == true"
+						  ShowInEdit="(x) => x?.AllowLogin == true"
 						  IsPassword="true" />
 
 				<PDColumn TItem="Person"
@@ -126,6 +129,7 @@
 						  TextAreaRows="6" />
 
 				<PDColumn TItem="Person"
+						  Id="DateCreatedCol"
 						  Field="x => x.DateCreated"
 						  Format="dd/MM/yy"
 						  ShowInList="false"
@@ -135,6 +139,7 @@
 				<PDColumn TItem="Person"
 						  Field="x => x.DateModified"
 						  Format="dd/MM/yy"
+						  ShowInList="false"
 						  ShowInEdit="(_) => false"
 						  ShowInCreate="(_) => false" />
 

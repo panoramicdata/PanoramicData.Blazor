@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 {
     public partial class PDFormPage
     {
-		private readonly PersonDataProvider _personDataProvider = new PersonDataProvider(5);
+		private readonly PersonDataProvider _personDataProvider = new PersonDataProvider();
 		private PDForm<Person> Form { get; set; } = null!;
 		private List<Person> People { get; set; } = new List<Person>();
 		private Person? SelectedPerson { get; set; }
@@ -58,7 +58,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private void RefreshPeople()
 		{
 			_personDataProvider
-				.GetDataAsync(new DataRequest<Person> { Take = 100 }, CancellationToken.None)
+				.GetDataAsync(new DataRequest<Person> {
+					Take = 5,
+					SortFieldExpression = (x) => x.DateCreated,
+					SortDirection = SortDirection.Descending }, CancellationToken.None)
 				.ContinueWith(PopulatePeopleResult);
 		}
 

@@ -3,7 +3,7 @@
 
 <h1>PDTable</h1>
 
-<DemoSourceView SourceFiles="PDTablePage.razor, PDTablePage.razor.cs">
+<DemoSourceView SourceFiles="Pages/PDTablePage.razor, Pages/PDTablePage.razor.cs, Data/PersonDataProvider.cs">
 
 	<PDToolbar>
 
@@ -49,8 +49,8 @@
 				 AllowDrag="AllowDrag"
 				 AllowDrop="AllowDrop"
 				 SearchText="@_searchText"
-				 DefaultPage="_defaultPage"
-				 DefaultSort="_defaultSort"
+				 PageCriteria="_pageCriteria"
+				 SortCriteria="_sortCriteria"
 				 SelectionMode="@SelectionMode"
 				 SelectionChanged="OnSelectionChange"
 				 Drop="OnDrop"
