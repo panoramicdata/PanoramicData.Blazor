@@ -3,14 +3,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Demo.Data;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
     public partial class PDFormPage3
     {
-		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider(5);
+		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider();
+		private PageCriteria _pageCriteria = new PageCriteria(1, 10);
+		private SortCriteria _sortCriteria = new SortCriteria("DateCreatedCol", SortDirection.Descending);
 
 		private bool ShowDescriptions { get; set; }
 		private PDForm<Person> Form { get; set; } = null!;
@@ -126,14 +127,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 						args.RemoveErrorMessages.Add("Department", errorMessage);
 					}
 				}
-			}
-		}
-
-		private string FormStyle
-		{
-			get
-			{
-				return "border-color: red";
 			}
 		}
 	}

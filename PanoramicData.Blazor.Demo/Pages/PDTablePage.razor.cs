@@ -13,9 +13,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDTablePage
 	{
 		private string _searchText = string.Empty;
-		private PageCriteria _defaultPage = new PageCriteria(1, 5);
-		private SortCriteria _defaultSort = new SortCriteria("Col1", SortDirection.Descending);
-		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider(53);
+		private PageCriteria _pageCriteria = new PageCriteria(1, 5);
+		private SortCriteria _sortCriteria = new SortCriteria("Col1", SortDirection.Descending);
+		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider();
 		private bool AllowDrag { get; set; }
 		private bool AllowDrop { get; set; }
 		private string DropZoneCss { get; set; } = "";
@@ -41,14 +41,14 @@ namespace PanoramicData.Blazor.Demo.Pages
 				var sortFieldSpecs = requestedSortFields[0].Split('|');
 				if (sortFieldSpecs.Length == 2)
 				{
-					_defaultSort = new SortCriteria(sortFieldSpecs[0], sortFieldSpecs[1] == "desc" ? SortDirection.Descending : SortDirection.Ascending);
+					_sortCriteria = new SortCriteria(sortFieldSpecs[0], sortFieldSpecs[1] == "desc" ? SortDirection.Descending : SortDirection.Ascending);
 				}
 			}
 
 			// Page
 			if (query.TryGetValue("page", out var requestedPage) && query.TryGetValue("pageSize", out var requestedPageSize))
 			{
-				_defaultPage = new PageCriteria(Convert.ToInt32(requestedPage[0]), Convert.ToInt32(requestedPageSize[0]));
+				_pageCriteria = new PageCriteria(Convert.ToInt32(requestedPage[0]), Convert.ToInt32(requestedPageSize[0]));
 			}
 
 			// Search
@@ -157,17 +157,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 			//_searchText = string.Empty;
 			await SearchAsync().ConfigureAwait(true);
 		}
-
-		//private async Task OnSearchChanged(string text)
-		//{
-		//	//_searchText = text;
-		//	//if (text == string.Empty)
-		//	//{
-		//	//	StateHasChanged();
-
-		//	//	await SearchAsync().ConfigureAwait(true);
-		//	//}
-		//}
 
 		private OptionInfo[] GetLocationOptions(FormField<Person> field, Person item)
 		{

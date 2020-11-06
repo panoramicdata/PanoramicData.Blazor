@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor.Demo.Shared
 	public partial class DemoSourceView
     {
 		private string ActiveTab { get; set; } = "Demo";
-		private const string SourceBaseUrl = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/main/PanoramicData.Blazor.Demo/Pages";
+		private const string SourceBaseUrl = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/main/PanoramicData.Blazor.Demo";
 		private HttpClient _httpClient = new HttpClient();
 		private Dictionary<string, string> _sourceFiles = new Dictionary<string, string>();
 		private string _activeSourceFile = string.Empty;

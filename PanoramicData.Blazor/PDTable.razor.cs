@@ -96,7 +96,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets the default sort criteria.
 		/// </summary>
-		[Parameter] public SortCriteria? DefaultSort { get; set; }
+		[Parameter] public SortCriteria? SortCriteria { get; set; }
 
 		/// <summary>
 		/// Event callback fired whenever the sort criteria has changed.
@@ -106,7 +106,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets the default page criteria.
 		/// </summary>
-		[Parameter] public PageCriteria? DefaultPage { get; set; }
+		[Parameter] public PageCriteria? PageCriteria { get; set; }
 
 		/// <summary>
 		/// Callback fired whenever the component changes the currently displayed page.
@@ -534,6 +534,24 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		/// <summary>
+		/// Updates the paging criteria.
+		/// </summary>
+		/// <param name="criteria">New page criteria.</param>
+		public void SetPageCriteria(PageCriteria criteria)
+		{
+			PageCriteria = criteria;
+		}
+
+		/// <summary>
+		/// Updates the sorting criteria.
+		/// </summary>
+		/// <param name="criteria">New sort criteria.</param>
+		public void SetSortCriteria(SortCriteria criteria)
+		{
+			SortCriteria = criteria;
+		}
+
 		void IDisposable.Dispose()
 		{
 			_editTimer?.Dispose();
@@ -568,20 +586,20 @@ namespace PanoramicData.Blazor
 				try
 				{
 					// default sort
-					if (DefaultSort != null)
+					if (SortCriteria != null)
 					{
-						var columnToSortBy = Columns.SingleOrDefault(c => c.Id == DefaultSort.Key || c.Title == DefaultSort.Key);
+						var columnToSortBy = Columns.SingleOrDefault(c => c.Id == SortCriteria.Key || c.Title == SortCriteria.Key);
 						if (columnToSortBy != null)
 						{
-							await columnToSortBy.SortByAsync(DefaultSort.Direction).ConfigureAwait(true);
+							await columnToSortBy.SortByAsync(SortCriteria.Direction).ConfigureAwait(true);
 						}
 					}
 
 					// default page
-					if (DefaultPage != null)
+					if (PageCriteria != null)
 					{
-						Page = DefaultPage.Page;
-						PageSize = DefaultPage.PageSize;
+						Page = PageCriteria.Page;
+						PageSize = PageCriteria.PageSize;
 					}
 				}
 				catch (Exception ex)

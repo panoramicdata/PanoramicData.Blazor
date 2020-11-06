@@ -17,7 +17,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		private static readonly List<Person> _people = new List<Person>();
 		public static string[] Locations = new string[] { "Paris", "Rome", "Milan", "New York", "Peckham" };
 
-		public PersonDataProvider(int count = 10)
+		public PersonDataProvider(int count = 55)
 		{
 			// generate random rows
 			if (_people.Count() == 0)
@@ -28,12 +28,11 @@ namespace PanoramicData.Blazor.Demo.Data
 					{
 						Id = id,
 						AllowLogin = _random.Next(0, 2) == 1,
-						DateCreated = DateTimeOffset.Now.AddDays(_random.Next(7, 15)),
-						DateModified = DateTimeOffset.Now.AddDays(_random.Next(0, 7)),
+						DateCreated = DateTimeOffset.Now.AddDays(_random.Next(-365, 0)),
+						DateModified = DateTimeOffset.Now.AddDays(_random.Next(-30, 0)),
 						Department = (Departments)_random.Next(0, 4),
 						FirstName = _firstNames[_random.Next(_firstNames.Length)],
 						LastName = _lastNames[_random.Next(_lastNames.Length)],
-						//Location = Locations[_random.Next(Locations.Length)],
 						Location = _random.Next(Locations.Length),
 						Dob = DateTime.Today.AddYears(-_random.Next(20, 50)),
 						Comments = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length))
