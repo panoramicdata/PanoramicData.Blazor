@@ -237,6 +237,9 @@
 .pdtoolbartextbox {
   display: flex;
   align-items: center; }
+  .pdtoolbartextbox label {
+    white-space: nowrap;
+    padding: 0.5rem 0.5rem 0 0; }
 
 .pd-tbr-clear-btn {
   position: relative;

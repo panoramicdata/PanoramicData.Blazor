@@ -201,6 +201,17 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
 
 		/// <summary>
+		/// Gets or sets file items.
+		/// </summary>
+		public FileExplorerItem[]? FileItems
+		{
+			get
+			{
+				return _table?.ItemsToDisplay.ToArray();
+			}
+		}
+
+		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
 		/// </summary>
 		private void OnTreeItemsLoaded(List<FileExplorerItem> items)

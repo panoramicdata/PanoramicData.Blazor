@@ -1,10 +1,11 @@
 ﻿<PDModal @ref="_modal"
 		 Title="@_modalTitle"
-		 Buttons="_modalButtons"
+		 Buttons="_toolbarItems"
 		 Size="Size">
 
 	<div class="pdfilemodalexplorer">
-		<PDFileExplorer DataProvider="DataProvider"
+		<PDFileExplorer @ref="_fileExplorer"
+						DataProvider="DataProvider"
 						AllowDrag="false"
 						AllowDrop="false"
 						AllowRename="false"
@@ -15,4 +16,10 @@
 						ItemDoubleClick="OnItemDoubleClick" />
 	</div>
 
+</PDModal>
+
+<PDModal @ref="_modalConfirm"
+		 Title="Confirm Overwrite"
+		 Buttons="_confirmToolbarItems">
+	<span>Are you sure you wish to overwrite '<b>@_filenameTextbox.Value</b>'?</span>
 </PDModal>

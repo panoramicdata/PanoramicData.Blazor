@@ -12,7 +12,7 @@ namespace PanoramicData.Blazor
 		[Parameter] public string Key { get; set; } = string.Empty;
 
 		/// <summary>
-		/// Gets or sets CSS classes for the button.
+		/// Gets or sets CSS classes for the text box.
 		/// </summary>
 		[Parameter] public string CssClass { get; set; } = "";
 
@@ -71,16 +71,19 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback Cleared { get; set; }
 
+		/// <summary>
+		/// Sets an optional label to be displayed before the textbox.
+		/// </summary>
+		[Parameter] public string Label { get; set; } = string.Empty;
+
 		public string ItemStyle => $"width: {Width}";
 
 		public string InputCssClass => ShowClearButton ? "pr-4" : "";
 
-		private string _value = string.Empty;
-
 		private async Task OnInput(ChangeEventArgs args)
 		{
-			_value = args.Value.ToString();
-			await ValueChanged.InvokeAsync(_value).ConfigureAwait(true);
+			Value = args.Value.ToString();
+			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
 
 		private async Task OnKeypress(KeyboardEventArgs args)
@@ -90,7 +93,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnClear(MouseEventArgs _)
 		{
-			_value = string.Empty;
+			Value = string.Empty;
 			await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
 			await Cleared.InvokeAsync(null).ConfigureAwait(true);
 		}

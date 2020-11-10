@@ -10,25 +10,22 @@
 
 		<PDToolbarButton Text="File SaveAs Modal"
 						 CssClass="btn-secondary"
-						 IsVisible="false"
 						 Click="ShowFileSaveAsModal" />
 
 	</PDToolbar>
 
-	<PDFileModal @ref="_fileOpenModal"
+	<PDFileModal @ref="_fileModal"
 				 DataProvider="_dataProvider"
 				 OpenButtonText="Select"
-				 OpenTitle="Report Picker" />
-
-
-	<PDFileModal @ref="_fileSaveAsModal"
-				 DataProvider="_dataProvider"
-				 Size="ModalSizes.ExtraLarge"
-				 OpenButtonText="Save"
-				 OpenTitle="Save Report As" />
+				 OpenTitle="Report Picker"
+				 SaveTitle="Save Report As" />
 
 	<div>
 		<span>Open Result: @_openResult</span>
+	</div>
+
+	<div>
+		<span>Save As Result: @_saveAsResult</span>
 	</div>
 
 </DemoSourceView>

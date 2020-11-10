@@ -20,6 +20,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback<string> ButtonClick { get; set; }
 
+		/// <summary>
+		/// Gets or sets additional CSS classes for the toolbar.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; } = "";
+
 		private void OnButtonClick(string key)
 		{
 			ButtonClick.InvokeAsync(key);

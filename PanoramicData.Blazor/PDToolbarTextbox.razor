@@ -1,7 +1,11 @@
 ﻿<div class="pdtoolbaritem @(IsVisible ? "" : "d-none") @(ShiftRight ? "align-right" : "") @ItemCssClass" style="@ItemStyle" >
 	<div class="pdtoolbartextbox @CssClass">
+		@if (!string.IsNullOrWhiteSpace(Label))
+		{
+			<label>@Label</label>
+		}
 		<input class="form-control @InputCssClass"
-			   value="@_value"
+			   value="@Value"
 			   readonly="@(!IsEnabled)"
 			   @oninput="OnInput"
 			   @onkeypress="OnKeypress" />

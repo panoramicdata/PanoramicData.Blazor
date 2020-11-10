@@ -1,10 +1,10 @@
-﻿<div class="pdtoolbar">
+﻿<div class="pdtoolbar @CssClass">
 	@ChildContent
-	@if(Items != null)
+	@if (Items != null)
 	{
-		foreach(var item in Items)
+		foreach (var item in Items)
 		{
-			if(item is ToolbarButton button)
+			if (item is ToolbarButton button)
 			{
 				<PDToolbarButton Key=@button.Key
 								 Text="@button.Text"
@@ -16,6 +16,23 @@
 								 IsVisible="@button.IsVisible"
 								 ShiftRight="@button.ShiftRight"
 								 Click="OnButtonClick" />
+			}
+			else if (item is ToolbarTextBox textbox)
+			{
+				<PDToolbarTextbox Key=@textbox.Key
+								  ItemCssClass="@textbox.ItemCssClass"
+								  ShowClearButton="@textbox.ShowClearButton"
+								  Width="@textbox.Width"
+								  Label="@textbox.Label"
+								  Value="@textbox.Value"
+								  CssClass="@textbox.CssClass"
+								  IsEnabled="@textbox.IsEnabled"
+								  ToolTip="@textbox.ToolTip"
+								  IsVisible="@textbox.IsVisible"
+								  ShiftRight="@textbox.ShiftRight"
+								  ValueChanged="@textbox.ValueChanged"
+								  Keypress="@textbox.Keypress"
+								  Cleared="@textbox.Cleared" />
 			}
 			else if (item is ToolbarSeparator separator)
 			{
