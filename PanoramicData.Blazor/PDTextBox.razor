@@ -1,0 +1,18 @@
+﻿<div class="pdtextbox input-group @(IsVisible ? "" : "d-none ") @CssClass">
+
+	<input class="form-control @InputCssClass"
+		   value="@Value"
+		   readonly="@(!IsEnabled)"
+		   @oninput="OnInput"
+		   @onkeypress="OnKeypress" />
+
+	@if (ShowClearButton)
+	{
+		<div class="input-group-append" @onclick="OnClear">
+			<span class="input-group-text btn" tabindex="">
+				<i class="fas fa-times" />
+			</span>
+		</div>
+	}
+
+</div>

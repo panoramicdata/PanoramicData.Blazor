@@ -1,0 +1,31 @@
+﻿@page "/pdtextbox"
+
+<h1>PDTextBoxPage</h1>
+
+<DemoSourceView SourceFiles="Pages/PDTextBoxPage.razor, Pages/PDTextBoxPage.razor.cs">
+
+	<PDToolbar>
+
+		<PDToolbarButton Text="@(Enabled ? "Disable" : "Enable")"
+						 Click="() => Enabled = !Enabled"
+						 CssClass="btn-primary" />
+
+		<PDToolbarButton Text="@(Visible ? "Hide" : "Show")"
+						 Click="() => Visible = !Visible"
+						 CssClass="btn-secondary" />
+
+	</PDToolbar>
+
+	<PDTextBox IsEnabled="Enabled"
+			   IsVisible="Visible"
+			   Value="@Value"
+			   ValueChanged="OnValueChanged"
+			   />
+
+	<div>
+		Value = @Value
+	</div>
+
+	<EventView />
+
+</DemoSourceView>

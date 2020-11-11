@@ -241,7 +241,7 @@
     white-space: nowrap;
     padding: 0.5rem 0.5rem 0 0; }
 
-.pd-tbr-clear-btn {
+.pdttb-clear-btn {
   position: relative;
   left: -20px;
   cursor: pointer; }
@@ -297,6 +297,11 @@
 .pd-form-help-icon {
   font-size: 75%;
   margin-top: 5px; }
+
+.pdtextbox-clear-btn {
+  position: relative;
+  left: -20px;
+  cursor: pointer; }
 
 .fa-hidden {
   color: transparent; }
