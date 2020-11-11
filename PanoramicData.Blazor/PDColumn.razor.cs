@@ -12,7 +12,7 @@ using PanoramicData.Blazor.Exceptions;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDColumn<TItem> where TItem: class
+	public partial class PDColumn<TItem> where TItem : class
 	{
 		private static int _idSequence = 1;
 		private string? _title;
@@ -109,7 +109,7 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-				if(_title == null)
+				if (_title == null)
 				{
 					var memberInfo = Field?.GetPropertyMemberInfo();
 					if (memberInfo is PropertyInfo propInfo)
@@ -176,10 +176,17 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public PropertyInfo? PropertyInfo { get; set; }
 
-		/// <summary>
-		/// Gets or sets this column is currently being sorted on.
-		/// </summary>
-		public bool SortColumn { get; set; }
+		///// <summary>
+		///// Gets or sets this column is currently being sorted on.
+		///// </summary>
+		////public bool SortColumn { get; set; }
+		//public bool SortColumn
+		//{
+		//	get
+		//	{
+		//		return Table?.SortCriteria?.Key == Id;
+		//	}
+		//}
 
 		/// <summary>
 		/// Gets or sets the current sort direction of this column.
@@ -285,54 +292,12 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-				const string Blank = "<i class=\"ml-1 fas fa-sort-amount-up-alt fa-hidden\"></i>";
-				if (SortColumn)
+				return SortDirection switch
 				{
-					return SortDirection switch
-					{
-						SortDirection.Ascending => "<i class=\"ml-1 fas fa-sort-amount-up-alt\"></i>",
-						SortDirection.Descending => "<i class=\"ml-1 fas fa-sort-amount-down\"></i>",
-						_ => Blank
-					};
-				}
-				return Blank;
-			}
-		}
-
-		/// <summary>
-		/// Updates this column to be the sorted on column and calculates direction.
-		/// </summary>
-		/// <param name="requestedSortDirection">Direction to sort by. if omitted then will use the DefaultSortOrder property if
-		/// the column is not currently being sorted on, otherwise reverse the current sort direction.</param>
-		public async Task SortByAsync(SortDirection? requestedSortDirection = null)
-		{
-			try
-			{
-				if (!Sortable)
-				{
-					return;
-				}
-
-				// If we were already sorting by this column
-				// and we've not been requested to change to a particular direction then reverse the direction
-				if (SortColumn && !requestedSortDirection.HasValue)
-				{
-					SortDirection = SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
-				}
-				else
-				{
-					// Unset all other columns
-					Table.Columns.ForEach(c => c.SortColumn = false);
-					SortColumn = true;
-					if (requestedSortDirection.HasValue)
-					{
-						SortDirection = requestedSortDirection.Value;
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				await Table.HandleExceptionAsync(ex).ConfigureAwait(true);
+					SortDirection.Ascending => "<i class=\"ml-1 fas fa-sort-amount-up-alt\"></i>",
+					SortDirection.Descending => "<i class=\"ml-1 fas fa-sort-amount-down\"></i>",
+					_ => "<i class=\"ml-1 fas fa-sort-amount-up-alt fa-hidden\"></i>"
+				};
 			}
 		}
 

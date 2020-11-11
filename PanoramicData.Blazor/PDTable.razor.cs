@@ -96,7 +96,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets the default sort criteria.
 		/// </summary>
-		[Parameter] public SortCriteria? SortCriteria { get; set; }
+		[Parameter] public SortCriteria SortCriteria { get; set; } = new SortCriteria();
 
 		/// <summary>
 		/// Event callback fired whenever the sort criteria has changed.
@@ -248,11 +248,6 @@ namespace PanoramicData.Blazor
 		public List<TItem> ItemsToDisplay { get; private set; } = new List<TItem>();
 
 		/// <summary>
-		/// Has the table been initialized?
-		/// </summary>
-		protected bool TableInitialised { get; set; } = false;
-
-		/// <summary>
 		/// Current page number, when paging enabled.
 		/// </summary>
 		protected int Page { get; set; } = 1;
@@ -271,6 +266,10 @@ namespace PanoramicData.Blazor
 			try
 			{
 				Columns.Add(column);
+				if(column.Id == SortCriteria?.Key)
+				{
+					column.SortDirection = SortCriteria.Direction;
+				}
 				StateHasChanged();
 			}
 			catch (Exception ex)
@@ -331,7 +330,8 @@ namespace PanoramicData.Blazor
 			{
 				BlockOverlayService.Show();
 
-				var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
+				//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
+				var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.Title == SortCriteria?.Key);
 				var request = new DataRequest<TItem>
 				{
 					Skip = 0,
@@ -384,9 +384,34 @@ namespace PanoramicData.Blazor
 		/// <remarks>To disable sorting for any given column, set its Sortable property set to false.</remarks>
 		protected async Task SortByAsync(PDColumn<TItem> column, SortDirection? direction = null)
 		{
-			if (column.Sortable)
+			if (column.Sortable && !string.IsNullOrWhiteSpace(column.Id))
 			{
-				await column.SortByAsync(direction).ConfigureAwait(true);
+				// if direction specified then sort as requested
+				if(direction.HasValue)
+				{
+					column.SortDirection = direction.Value;
+				}
+				else
+				{
+					// if column already sorted then reverse direction
+					if(column.Id == SortCriteria?.Key)
+					{
+						column.SortDirection = column.SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+					}
+					else
+					{
+						var previousCol = Columns.Find(x => x.Id == SortCriteria?.Key);
+						if (previousCol != null)
+						{
+							previousCol.SortDirection = SortDirection.None;
+						}
+						column.SortDirection = SortDirection.Ascending;
+					}
+				}
+
+				SortCriteria.Key = column.Id;
+				SortCriteria.Direction = column.SortDirection;
+
 				await GetDataAsync().ConfigureAwait(true);
 				await SortChanged.InvokeAsync(new SortCriteria { Key = column.Id, Direction = direction ?? column.SortDirection }).ConfigureAwait(true);
 			}
@@ -550,6 +575,10 @@ namespace PanoramicData.Blazor
 			{
 				throw new PDTableException($"{nameof(DataProvider)} must not be null.");
 			}
+			if (PageCriteria != null)
+			{
+				Page = PageCriteria.Page;
+			}
 			_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
 		}
 
@@ -568,34 +597,6 @@ namespace PanoramicData.Blazor
 			// have been added to the table so we'll go and get the data for the first time
 			if (firstRender)
 			{
-				try
-				{
-					// default sort
-					if (SortCriteria != null)
-					{
-						var columnToSortBy = Columns.SingleOrDefault(c => c.Id == SortCriteria.Key || c.Title == SortCriteria.Key);
-						if (columnToSortBy != null)
-						{
-							await columnToSortBy.SortByAsync(SortCriteria.Direction).ConfigureAwait(true);
-						}
-					}
-
-					// default page
-					if (PageCriteria != null)
-					{
-						Page = PageCriteria.Page;
-					}
-				}
-				catch (Exception ex)
-				{
-					await HandleExceptionAsync(ex).ConfigureAwait(true);
-				}
-				finally
-				{
-					TableInitialised = true;
-					StateHasChanged();
-				}
-
 				try
 				{
 					if (AutoLoad)

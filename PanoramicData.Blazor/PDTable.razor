@@ -1,103 +1,100 @@
 ﻿@typeparam TItem
 
-@if (TableInitialised)
-{
-	<div id="@Id"
-		 class="pdtable @CssClass"
-		 tabindex="0"
-		 @onkeydown="OnKeyDownAsync"
-		 >
-		<table class="table @TableClass">
-			@if (PageCriteria != null)
-			{
-				<tr>
-					<td colspan="@ActualColumnsToDisplay.Count()">
-						<div class="d-flex flex-row">
-								<div class="mr-2">
-									<PDPager @ref="_pager"
-											 PageChange="OnPageChange" />
-								</div>
-						</div>
-					</td>
-				</tr>
-			}
+<div id="@Id"
+		class="pdtable @CssClass"
+		tabindex="0"
+		@onkeydown="OnKeyDownAsync"
+		>
+	<table class="table @TableClass">
+		@if (PageCriteria != null)
+		{
 			<tr>
-				@foreach (var column in ActualColumnsToDisplay)
-				{
-					<th scope="col" class="@column.ThClass" style="white-space: nowrap;">
-						@if (column.Sortable)
-						{
-							<div title="@column.HelpText" @onclick="@(async () => await SortByAsync(column))">
-								<span class="text-nowrap pd-pointer">@column.Title</span>
-								@if (column.Sortable)
-								{
-									<span>@((MarkupString)column.SortIcon)</span>
-								}
+				<td colspan="@ActualColumnsToDisplay.Count()">
+					<div class="d-flex flex-row">
+							<div class="mr-2">
+								<PDPager @ref="_pager"
+											PageChange="OnPageChange" />
 							</div>
-						}
-						else
-						{
-							<div title="@column.HelpText">@column.Title</div>
-						}
-					</th>
-				}
+					</div>
+				</td>
 			</tr>
-			<tbody>
-				@if (ItemsToDisplay.Any())
-				{
-					foreach (var item in ItemsToDisplay)
+		}
+		<tr>
+			@foreach (var column in ActualColumnsToDisplay)
+			{
+				<th scope="col" class="@column.ThClass" style="white-space: nowrap;">
+					@if (column.Sortable)
 					{
-					<tr class="pdtablerow @GetDynamicRowClasses(item)"
-						@attributes="RowAttributes"
-						@oncontextmenu:preventDefault
-						@onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
-						@onclick="@((args) => OnRowClick(args, item))"
-						@ondblclick="@((args) => OnRowDoubleClick(args, item))"
-						@ondragstart="OnDragStart"
-						@ondragend="OnDragEnd"
-						@ondrop="@((args) => OnDragDropAsync(item, args))" >
-						@foreach (var column in ActualColumnsToDisplay)
-						{
-							<td class="@column.TdClass">
-								@if (IsColumnInEditMode(column, item) && column.Field != null)
+						<div title="@column.HelpText" @onclick="@(async () => await SortByAsync(column))">
+							<span class="text-nowrap pd-pointer">@column.Title</span>
+							@if (column.Sortable)
+							{
+								<span>@((MarkupString)column.SortIcon)</span>
+							}
+						</div>
+					}
+					else
+					{
+						<div title="@column.HelpText">@column.Title</div>
+					}
+				</th>
+			}
+		</tr>
+		<tbody>
+			@if (ItemsToDisplay.Any())
+			{
+				foreach (var item in ItemsToDisplay)
+				{
+				<tr class="pdtablerow @GetDynamicRowClasses(item)"
+					@attributes="RowAttributes"
+					@oncontextmenu:preventDefault
+					@onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
+					@onclick="@((args) => OnRowClick(args, item))"
+					@ondblclick="@((args) => OnRowDoubleClick(args, item))"
+					@ondragstart="OnDragStart"
+					@ondragend="OnDragEnd"
+					@ondrop="@((args) => OnDragDropAsync(item, args))" >
+					@foreach (var column in ActualColumnsToDisplay)
+					{
+						<td class="@column.TdClass">
+							@if (IsColumnInEditMode(column, item) && column.Field != null)
+							{
+								<input id="@($"{IdEditPrefix}{column.Id}")"
+										type="@(column.IsPassword ? "password" : "text")"
+										value="@($"{column.GetValue(item)}")"
+										class="pdtable_edit"
+										@onblur="OnEndEditAsync"
+										@onmousedown:stopPropagation
+										@onclick:stopPropagation
+										@oncontextmenu:stopPropagation />
+							}
+							else
+							{
+								if (column.Template == null)
 								{
-									<input id="@($"{IdEditPrefix}{column.Id}")"
-										   type="@(column.IsPassword ? "password" : "text")"
-										   value="@($"{column.GetValue(item)}")"
-										   class="pdtable_edit"
-										   @onblur="OnEndEditAsync"
-										   @onmousedown:stopPropagation
-										   @onclick:stopPropagation
-										   @oncontextmenu:stopPropagation />
+									@column.GetRenderValue(item);
 								}
 								else
 								{
-									if (column.Template == null)
-									{
-										@column.GetRenderValue(item);
-									}
-									else
-									{
-										@column.Template(item);
-									}
+									@column.Template(item);
 								}
-							</td>
-						}
-					</tr>
-					}
-				}
-				else
-				{
-					<tr>
-						<td colspan="@ActualColumnsToDisplay.Count()" style="text-align: center;">
-							@NoDataMessage
+							}
 						</td>
-					</tr>
+					}
+				</tr>
 				}
-			</tbody>
-		</table>
-	</div>
-}
+			}
+			else
+			{
+				<tr>
+					<td colspan="@ActualColumnsToDisplay.Count()" style="text-align: center;">
+						@NoDataMessage
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
 
 <CascadingValue Value="(PDTable<TItem>)this" Name="Table">
 	@ChildContent
