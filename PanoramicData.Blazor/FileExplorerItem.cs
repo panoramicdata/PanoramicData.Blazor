@@ -2,7 +2,7 @@
 
 namespace PanoramicData.Blazor
 {
-	public class FileExplorerItem
+	public class FileExplorerItem : IComparable
 	{
 		/// <summary>
 		/// Gets or sets whether this item has the Hidden attribute set.
@@ -109,6 +109,12 @@ namespace PanoramicData.Blazor
 		public override string ToString()
 		{
 			return Path;
+		}
+
+		public int CompareTo(object obj)
+		{
+			FileExplorerItem item = (FileExplorerItem)obj;
+			return Name.CompareTo(item.Name);
 		}
 
 		/// <summary>

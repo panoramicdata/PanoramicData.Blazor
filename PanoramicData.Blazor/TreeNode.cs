@@ -8,7 +8,7 @@ namespace PanoramicData.Blazor
 	/// <summary>
 	/// The TreeNode class is used to describe a single node of a hierarchical data structure.
 	/// </summary>
-	public class TreeNode<T> where T : class
+	public class TreeNode<T> : IComparable where T : class
 	{
 		private static int _idSequence;
 
@@ -247,6 +247,12 @@ namespace PanoramicData.Blazor
 				return newText;
 			}
 			return text;
+		}
+
+		public int CompareTo(object obj)
+		{
+			var item = (TreeNode<T>)obj;
+			return Text.CompareTo(item.Text);
 		}
 	}
 }

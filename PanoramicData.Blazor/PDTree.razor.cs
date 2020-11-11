@@ -346,6 +346,7 @@ namespace PanoramicData.Blazor
 		private TreeNode<TItem> BuildModel(IEnumerable<TItem> items)
 		{
 			var root = new TreeNode<TItem>();
+			var modifiedNodes = new List<TreeNode<TItem>>();
 
 			foreach (var item in items)
 			{
@@ -387,8 +388,16 @@ namespace PanoramicData.Blazor
 					{
 						node.ParentNode = parentNode;
 						(parentNode.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
+						if (!modifiedNodes.Contains(parentNode))
+							modifiedNodes.Add(parentNode);
 					}
 				}
+			}
+
+			// re-apply sorts where necessary
+			foreach(var node in modifiedNodes)
+			{
+				node?.Nodes?.Sort();
 			}
 
 			return root.Nodes?.Count == 1

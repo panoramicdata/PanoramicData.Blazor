@@ -21,6 +21,7 @@ namespace PanoramicData.Blazor
 		private string _deleteDialogMessage = string.Empty;
 		private string _conflictDialogMessage = string.Empty;
 		private string[] _conflictDialogList = new string[0];
+		private SortCriteria _tableSort = new SortCriteria("Name", SortDirection.Ascending);
 
 		public string FolderPath = string.Empty;
 
