@@ -51,7 +51,7 @@
 						SelectionChange="OnTreeSelectionChangeAsync">
 					<NodeTemplate>
 						<span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
-							<i class="far @(context?.IsExpanded ?? false ? "fa-folder-open" : "fa-folder")"></i>
+							<i class="far fa-folder"></i>
 							<span>@context?.Data?.Name</span>
 						</span>
 					</NodeTemplate>
