@@ -2,11 +2,11 @@
 {
 	public static class Version
 	{
-		public static string AssemblyVersion
+		public static string AssemblyFileVersion
 		{
 			get
 			{
-				return ThisAssembly.AssemblyVersion;
+				return ThisAssembly.AssemblyFileVersion;
 			}
 		}
 	}
