@@ -102,7 +102,7 @@
 								  Editable="false"
 								  Sortable="false">
 							<Template>
-								<i class="far fa-fw @(context.EntryType == FileExplorerItemType.File ? "fa-file" : "fa-folder")"></i>
+								<i class="@GetIconCssClass(context)"></i>
 							</Template>
 						</PDColumn>
 

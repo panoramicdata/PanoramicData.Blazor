@@ -39,6 +39,7 @@ namespace PanoramicData.Blazor.Demo.Data
 			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200229_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 224342237 });
 			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200331_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 25672653 });
 			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/20200430_mydb.bak", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 8566455 });
+			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/Backup/ReportBackup.zip", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 127343 });
 			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/WeeklyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 23500 });
 			_testData.Add(new FileExplorerItem { Path = @"/D:/Data/MonthlyStats.json", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 104999 });
 			_testData.Add(new FileExplorerItem { Path = @"/D:/Readme.txt", EntryType = FileExplorerItemType.File, DateModified = DateTimeOffset.UtcNow, FileSize = 3500 });
@@ -266,6 +267,58 @@ namespace PanoramicData.Blazor.Demo.Data
 				result.Success = true;
 			});
 			return result;
+		}
+
+		public static string GetIconClass(FileExplorerItem item)
+		{
+			if(item.EntryType == FileExplorerItemType.Directory)
+			{
+				return "far fa-fw fa-folder";
+			}
+			switch(item.FileExtension.ToLower())
+			{
+				case "doc":
+				case "docx":
+					return "far fa-fw fa-file-word";
+
+				case "xls":
+				case "xlsx":
+					return "far fa-fw fa-file-excel";
+
+				case "zip":
+				case "gzip":
+					return "far fa-fw fa-file-archive";
+
+				case "txt":
+				case "log":
+					return "far fa-fw fa-file-alt";
+
+				case "csv":
+					return "far fa-fw fa-file-csv";
+
+				case "wav":
+				case "mp3":
+					return "far fa-fw fa-file-audio";
+
+				case "png":
+				case "ico":
+				case "gif":
+				case "bmp":
+				case "jpg":
+				case "jpeg":
+					return "far fa-fw fa-file-image";
+
+				case "htm":
+				case "html":
+				case "rmscript":
+					return "far fa-fw fa-file-code";
+
+				case "pdf":
+					return "far fa-fw fa-file-pdf";
+
+				default:
+					return "far fa-fw fa-file";
+			}
 		}
 	}
 }

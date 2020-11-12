@@ -26,21 +26,101 @@ namespace PanoramicData.Blazor
 		public string FolderPath = string.Empty;
 
 		/// <summary>
+		/// Determines whether the user may drag items.
+		/// </summary>
+		[Parameter] public bool AllowDrag { get; set; } = true;
+
+		/// <summary>
+		/// Determines whether the user may drop dragged items onto other items.
+		/// </summary>
+		[Parameter] public bool AllowDrop { get; set; } = true;
+
+		/// <summary>
+		/// Determines whether the user may rename items.
+		/// </summary>
+		[Parameter] public bool AllowRename { get; set; } = true;
+
+		/// <summary>
+		/// Sets the Table column configuration.
+		/// </summary>
+		[Parameter] public List<PDColumnConfig> ColumnConfig { get; set; } = new List<PDColumnConfig>
+			{
+				new PDColumnConfig { Id = "Icon", Title = "" },
+				new PDColumnConfig { Id = "Name", Title = "Name" },
+				new PDColumnConfig { Id = "Type", Title = "Type" },
+				new PDColumnConfig { Id = "Size", Title = "Size" },
+				new PDColumnConfig { Id = "Modified", Title = "Modified" }
+			};
+
+		/// <summary>
+		/// Gets or sets CSS classes to append.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Sets the IDataProviderService instance to use to fetch data.
 		/// </summary>
 		[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
 		/// <summary>
-		/// Sets the Tree context menu items.
+		/// Event called whenever the user requests to delete one or more items.
 		/// </summary>
-		[Parameter]
-		public List<MenuItem> TreeContextItems { get; set; } = new List<MenuItem>
-			{
-				new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" },
-				new MenuItem { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" },
-				new MenuItem { IsSeparator = true },
-				new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" }
-			};
+		[Parameter] public EventCallback<DeleteArgs> DeleteRequest { get; set; }
+
+		/// <summary>
+		/// Gets or sets a delegate to be called if an exception occurs.
+		/// </summary>
+		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
+
+		/// <summary>
+		/// Provides a function that determines the icon CSS class for a given file extension.
+		/// </summary>
+		[Parameter] public Func<FileExplorerItem, string>? GetIconClass { get; set; }
+
+		/// <summary>
+		/// Determines whether folders are always grouped together and shown first.
+		/// </summary>
+		[Parameter] public bool GroupFolders { get; set; } = true;
+
+		/// <summary>
+		/// Event raised whenever the user double clicks on a file.
+		/// </summary>
+		[Parameter] public EventCallback<FileExplorerItem> ItemDoubleClick { get; set; }
+
+		/// <summary>
+		/// Event called whenever a move or copy operation is subject to conflicts.
+		/// </summary>
+		[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
+
+		/// <summary>
+		/// Determines where sub-folders show an entry (..) to allow navigation to the parent folder.
+		/// </summary>
+		[Parameter] public bool ShowParentFolder { get; set; } = true;
+
+		/// <summary>
+		/// Determines whether the toolbar is visible.
+		/// </summary>
+		[Parameter] public bool ShowToolbar { get; set; } = true;
+
+		/// <summary>
+		/// Event raises whenever the selection changes.
+		/// </summary>
+		[Parameter] public EventCallback<FileExplorerItem[]> SelectionChanged { get; set; }
+
+		/// <summary>
+		/// Sets the allowed selection modes.
+		/// </summary>
+		[Parameter] public TableSelectionMode SelectionMode { get; set; } = TableSelectionMode.Multiple;
+
+		/// <summary>
+		/// Determines whether the context menu is available.
+		/// </summary>
+		[Parameter] public bool ShowContextMenu { get; set; } = true;
+
+		/// <summary>
+		/// Event raised whenever the user clicks on a context menu item from the table.
+		/// </summary>
+		[Parameter] public EventCallback<MenuItemEventArgs> TableContextMenuClick { get; set; }
 
 		/// <summary>
 		/// Sets the Table context menu items.
@@ -56,6 +136,17 @@ namespace PanoramicData.Blazor
 				new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" }
 			};
 
+
+		/// <summary>
+		/// Event raised whenever the user requests to download a file.
+		/// </summary>
+		[Parameter] public EventCallback<TableEventArgs<FileExplorerItem>> TableDownloadRequest { get; set; }
+
+		/// <summary>
+		/// Event raised whenever the user clicks on a toolbar button.
+		/// </summary>
+		[Parameter] public EventCallback<string> ToolbarClick { get; set; }
+
 		/// <summary>
 		/// Sets the Table context menu items.
 		/// </summary>
@@ -68,33 +159,31 @@ namespace PanoramicData.Blazor
 			};
 
 		/// <summary>
-		/// Sets the Table column configuration.
-		/// </summary>
-		[Parameter] public List<PDColumnConfig> ColumnConfig { get; set; } = new List<PDColumnConfig>
-			{
-				new PDColumnConfig { Id = "Icon", Title = "" },
-				new PDColumnConfig { Id = "Name", Title = "Name" },
-				new PDColumnConfig { Id = "Type", Title = "Type" },
-				new PDColumnConfig { Id = "Size", Title = "Size" },
-				new PDColumnConfig { Id = "Modified", Title = "Modified" }
-			};
-
-		[Parameter] public string? UploadUrl { get; set; }
-
-		/// <summary>
 		/// Event raised whenever the user clicks on a context menu item from the tree.
 		/// </summary>
 		[Parameter] public EventCallback<MenuItemEventArgs> TreeContextMenuClick { get; set; }
 
 		/// <summary>
-		/// Event raised whenever the user clicks on a context menu item from the table.
+		/// Sets the Tree context menu items.
 		/// </summary>
-		[Parameter] public EventCallback<MenuItemEventArgs> TableContextMenuClick { get; set; }
+		[Parameter]
+		public List<MenuItem> TreeContextItems { get; set; } = new List<MenuItem>
+			{
+				new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" },
+				new MenuItem { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" },
+				new MenuItem { IsSeparator = true },
+				new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" }
+			};
 
 		/// <summary>
-		/// Event raised whenever the user requests to download a file.
+		/// Event raised whenever a file upload completes.
 		/// </summary>
-		[Parameter] public EventCallback<TableEventArgs<FileExplorerItem>> TableDownloadRequest { get; set; }
+		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadCompleted { get; set; }
+
+		/// <summary>
+		/// Event raised periodically during a file upload.
+		/// </summary>
+		[Parameter] public EventCallback<DropZoneUploadProgressEventArgs> UploadProgress { get; set; }
 
 		/// <summary>
 		/// Event raised whenever the user drops one or more files on to the file explorer.
@@ -107,19 +196,9 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadStarted { get; set; }
 
 		/// <summary>
-		/// Event raised periodically during a file upload.
+		/// URL where files are uploaded.
 		/// </summary>
-		[Parameter] public EventCallback<DropZoneUploadProgressEventArgs> UploadProgress { get; set; }
-
-		/// <summary>
-		/// Event raised whenever a file upload completes.
-		/// </summary>
-		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadCompleted { get; set; }
-
-		/// <summary>
-		/// Event raised whenever the tree context menu may need updating.
-		/// </summary>
-		[Parameter] public EventCallback<MenuItemsEventArgs> UpdateTreeContextState { get; set; }
+		[Parameter] public string? UploadUrl { get; set; }
 
 		/// <summary>
 		/// Event raised whenever the table context menu may need updating.
@@ -132,79 +211,9 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<List<ToolbarItem>> UpdateToolbarState { get; set; }
 
 		/// <summary>
-		/// Event raised whenever the user clicks on a toolbar button.
+		/// Event raised whenever the tree context menu may need updating.
 		/// </summary>
-		[Parameter] public EventCallback<string> ToolbarClick { get; set; }
-
-		/// <summary>
-		/// Event raised whenever the user double clicks on a file.
-		/// </summary>
-		[Parameter] public EventCallback<FileExplorerItem> ItemDoubleClick { get; set; }
-
-		/// <summary>
-		/// Gets or sets CSS classes to append.
-		/// </summary>
-		[Parameter] public string CssClass { get; set; } = string.Empty;
-
-		/// <summary>
-		/// Determines whether the user may rename items.
-		/// </summary>
-		[Parameter] public bool AllowRename { get; set; } = true;
-
-		/// <summary>
-		/// Determines whether the user may drag items.
-		/// </summary>
-		[Parameter] public bool AllowDrag { get; set; } = true;
-
-		/// <summary>
-		/// Determines whether the user may drop dragged items onto other items.
-		/// </summary>
-		[Parameter] public bool AllowDrop { get; set; } = true;
-
-		/// <summary>
-		/// Determines where sub-folders show an entry (..) to allow navigation to the parent folder.
-		/// </summary>
-		[Parameter] public bool ShowParentFolder { get; set; } = true;
-
-		/// <summary>
-		/// Determines whether the toolbar is visible.
-		/// </summary>
-		[Parameter] public bool ShowToolbar { get; set; } = true;
-
-		/// <summary>
-		/// Determines whether the context menu is available.
-		/// </summary>
-		[Parameter] public bool ShowContextMenu { get; set; } = true;
-
-		/// <summary>
-		/// Sets the allowed selection modes.
-		/// </summary>
-		[Parameter] public TableSelectionMode SelectionMode { get; set; } = TableSelectionMode.Multiple;
-
-		/// <summary>
-		/// Event raises whenever the selection changes.
-		/// </summary>
-		[Parameter] public EventCallback<FileExplorerItem[]> SelectionChanged { get; set; }
-
-		/// <summary>
-		/// Gets or sets a delegate to be called if an exception occurs.
-		/// </summary>
-		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
-
-		/// <summary>
-		/// Event called whenever the user requests to delete one or more items.
-		/// </summary>
-		[Parameter] public EventCallback<DeleteArgs> DeleteRequest { get; set; }
-
-		/// <summary>
-		/// Event called whenever a move or copy operation is subject to conflicts.
-		/// </summary>
-		[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
-
-		/// <summary>
-		/// Determines whether folders are always grouped together and shown first.
-		/// </summary>
-		[Parameter] public bool GroupFolders { get; set; } = true;
+		[Parameter] public EventCallback<MenuItemsEventArgs> UpdateTreeContextState { get; set; }
 
 		/// <summary>
 		/// Gets or sets file items.
@@ -1031,6 +1040,20 @@ namespace PanoramicData.Blazor
 			_conflictDialogList = namesSummary.ToArray();
 			StateHasChanged();
 			return await _conflictDialog.ShowAndWaitResultAsync();
+		}
+
+		private string GetIconCssClass(FileExplorerItem item)
+		{
+			var cssClass = GetIconClass is null ? null : GetIconClass(item);
+			if (cssClass == null)
+			{
+				cssClass = item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "far fa-fw fa-folder";
+			}
+			else if (cssClass == string.Empty)
+			{
+				cssClass = "far fa-fw fa-hidden fa-file";
+			}
+			return cssClass;
 		}
 	}
 }
