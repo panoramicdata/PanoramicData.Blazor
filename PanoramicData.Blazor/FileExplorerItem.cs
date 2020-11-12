@@ -25,6 +25,11 @@ namespace PanoramicData.Blazor
 		public bool IsUploading { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether it is known that this node has sub-folders?
+		/// </summary>
+		public bool? HasSubFolders { get; set; }
+
+		/// <summary>
 		/// Gets or sets whether this item can be moved or copied.
 		/// </summary>
 		public bool CanCopyMove { get; set; } = true;

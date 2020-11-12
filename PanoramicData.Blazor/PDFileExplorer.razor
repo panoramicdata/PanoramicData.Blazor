@@ -38,7 +38,7 @@
 						KeyField="x => x.Path"
 						ParentKeyField="x => x.ParentPath"
 						TextField="x => x.Name"
-						IsLeaf="x => x.EntryType == FileExplorerItemType.File"
+						IsLeaf="x => x.EntryType == FileExplorerItemType.File || x.HasSubFolders == false"
 						LoadOnDemand="true"
 						AllowSelection="true"
 						AllowDrop="AllowDrop"
