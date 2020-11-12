@@ -202,6 +202,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
 
 		/// <summary>
+		/// Determines whether folders are always grouped together and shown first.
+		/// </summary>
+		[Parameter] public bool GroupFolders { get; set; } = true;
+
+		/// <summary>
 		/// Gets or sets file items.
 		/// </summary>
 		public FileExplorerItem[]? FileItems
@@ -326,6 +331,15 @@ namespace PanoramicData.Blazor
 					EntryType = FileExplorerItemType.Directory,
 					CanCopyMove = false
 				});
+			}
+
+			if(GroupFolders)
+			{
+				var folders = items.Where(x => x.EntryType == FileExplorerItemType.Directory).ToList();
+				var files = items.Where(x => x.EntryType == FileExplorerItemType.File).ToList();
+				items.Clear();
+				items.AddRange(folders);
+				items.AddRange(files);
 			}
 		}
 
