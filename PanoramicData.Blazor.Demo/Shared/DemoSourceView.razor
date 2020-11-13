@@ -12,10 +12,10 @@
 	</div>
 	<div class="@(ActiveTab == "Source" ? "" : "d-none")">
 		<ul class="nav p-1 source-files-list">
-			@foreach (var filename in _sourceFiles.Keys)
+			@foreach (var name in _sourceFiles.Keys)
 			{
-				<li class="small nav-item @(_activeSourceFile == filename ? "font-weight-bold" : "pd-pointer")" @onclick="@(() => _activeSourceFile = filename)">
-					<span class="nav-link">@filename</span>
+				<li class="small nav-item @(_activeSourceFile == name ? "font-weight-bold" : "pd-pointer")" @onclick="@(() => OnFileClick(name))">
+					<span class="nav-link">@name</span>
 				</li>
 			}
 		</ul>
