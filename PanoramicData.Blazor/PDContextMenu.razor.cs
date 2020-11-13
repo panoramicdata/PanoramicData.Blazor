@@ -47,7 +47,7 @@ namespace PanoramicData.Blazor
 		protected async override Task OnInitializedAsync()
 		{
 			Id = $"pdcm{++_idSequence}";
-			var available = await JSRuntime.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
+			var available = await JSRuntime.InvokeAsync<bool>("panoramicData.hasPopperJs").ConfigureAwait(true);
 			if (!available)
 			{
 				throw new PDContextMenuException($"To use the {nameof(PDContextMenu)} component you must include the popper.js library");
@@ -58,7 +58,7 @@ namespace PanoramicData.Blazor
 		{
 			if(!item.IsDisabled)
 			{
-				await JSRuntime.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
+				await JSRuntime.InvokeVoidAsync("panoramicData.hideMenu", Id).ConfigureAwait(true);
 				await ItemClick.InvokeAsync(item).ConfigureAwait(true);
 			}
 		}
@@ -71,7 +71,7 @@ namespace PanoramicData.Blazor
 				await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
 				if (!cancelArgs.Cancel)
 				{
-					await JSRuntime.InvokeVoidAsync("showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
+					await JSRuntime.InvokeVoidAsync("panoramicData.showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
 				}
 			}
 		}

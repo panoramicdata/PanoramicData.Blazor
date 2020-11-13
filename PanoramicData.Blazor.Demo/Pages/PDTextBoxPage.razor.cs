@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Demo.Data;
 
 namespace PanoramicData.Blazor.Demo.Pages
@@ -15,6 +16,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			Value = value;
 			EventManager?.Add(new Event("ValueChanged", new EventArgument("Value", value)));
+		}
+
+		private void OnKeypress(KeyboardEventArgs args)
+		{
+			EventManager?.Add(new Event("Keypress", new EventArgument("Code", args.Code)));
 		}
 
 	}

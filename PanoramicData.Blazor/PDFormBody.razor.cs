@@ -364,7 +364,7 @@ namespace PanoramicData.Blazor
 
 		private void OnHelpUrlClick(FormField<TItem> field)
 		{
-			JSRuntime.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
+			JSRuntime.InvokeVoidAsync("panoramicData.openUrl", field.HelpUrl, "pd-help-page");
 		}
 	}
 }

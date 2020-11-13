@@ -57,7 +57,7 @@ namespace PanoramicData.Blazor
 			if(firstRender)
 			{
 				_dotNetReference = DotNetObjectReference.Create(this);
-				await JSRuntime.InvokeVoidAsync("initializeDropZone", Id, UploadUrl, _dotNetReference);
+				await JSRuntime.InvokeVoidAsync("panoramicData.initializeDropZone", Id, UploadUrl, _dotNetReference);
 			}
 		}
 
@@ -147,7 +147,7 @@ namespace PanoramicData.Blazor
 
 		public void Dispose()
 		{
-			JSRuntime.InvokeVoidAsync("disposeDropZone", Id);
+			JSRuntime.InvokeVoidAsync("panoramicData.disposeDropZone", Id);
 			_dotNetReference?.Dispose();
 		}
 	}

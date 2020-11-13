@@ -63,7 +63,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public async Task ShowAsync()
 		{
-			await JSRuntime.InvokeVoidAsync("showBsDialog", $"#{Id}").ConfigureAwait(true);
+			await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", $"#{Id}").ConfigureAwait(true);
 		}
 
 		/// <summary>
@@ -71,7 +71,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public async Task HideAsync()
 		{
-			await JSRuntime.InvokeVoidAsync("hideBsDialog", $"#{Id}").ConfigureAwait(true);
+			await JSRuntime.InvokeVoidAsync("panoramicData.hideBsDialog", $"#{Id}").ConfigureAwait(true);
 		}
 
 		/// <summary>
@@ -93,7 +93,7 @@ namespace PanoramicData.Blazor
 			});
 			if(btn != null)
 			{
-				await JSRuntime.InvokeVoidAsync("focus", $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
+				await JSRuntime.InvokeVoidAsync("panoramicData.focus", $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
 			}
 
 			_userChoice = new TaskCompletionSource<string>();

@@ -80,7 +80,7 @@ namespace PanoramicData.Blazor
 			if(firstRender && DebounceWait > 0)
 			{
 				_objRef = DotNetObjectReference.Create(this);
-				await JSRuntime.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+				await JSRuntime.InvokeVoidAsync("panoramicData.debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
 			}
 		}
 

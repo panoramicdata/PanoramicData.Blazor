@@ -69,7 +69,7 @@ namespace PanoramicData.Blazor
 
 		protected async override Task OnInitializedAsync()
 		{
-			var available = await JSRuntime.InvokeAsync<bool>("hasSplitJs").ConfigureAwait(true);
+			var available = await JSRuntime.InvokeAsync<bool>("panoramicData.hasSplitJs").ConfigureAwait(true);
 			if (!available)
 			{
 				throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
@@ -94,7 +94,7 @@ namespace PanoramicData.Blazor
 					DragInterval = DragInterval,
 					Cursor = Direction == SplitDirection.Horizontal ? "col-resize" : "row-resize"
 				};
-				await JSRuntime.InvokeVoidAsync("initializeSplitter", ids, options).ConfigureAwait(true);
+				await JSRuntime.InvokeVoidAsync("panoramicData.initializeSplitter", ids, options).ConfigureAwait(true);
 			}
 		}
 	}

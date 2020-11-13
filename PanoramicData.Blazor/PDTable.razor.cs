@@ -455,7 +455,7 @@ namespace PanoramicData.Blazor
 				{
 					if (IsColumnInEditMode(column, EditItem))
 					{
-						var newValue = await JSRuntime.InvokeAsync<string>("getValue", $"{IdEditPrefix}{column.Id}").ConfigureAwait(true);
+						var newValue = await JSRuntime.InvokeAsync<string>("panoramicData.getValue", $"{IdEditPrefix}{column.Id}").ConfigureAwait(true);
 						args.NewValues.Add(column.Id, newValue);
 					}
 				}
@@ -629,7 +629,7 @@ namespace PanoramicData.Blazor
 				}
 				if (key != string.Empty)
 				{
-					await JSRuntime.InvokeVoidAsync("selectText", $"{IdEditPrefix}{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
+					await JSRuntime.InvokeVoidAsync("panoramicData.selectText", $"{IdEditPrefix}{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
 					BeginEditEvent.Reset();
 				}
 			}
@@ -640,7 +640,7 @@ namespace PanoramicData.Blazor
 			if (IsEditing)
 			{
 				// if focus has moved to another editor then continue editing
-				var id = await JSRuntime.InvokeAsync<string>("getFocusedElementId").ConfigureAwait(true);
+				var id = await JSRuntime.InvokeAsync<string>("panoramicData.getFocusedElementId").ConfigureAwait(true);
 				if (!id.StartsWith(IdEditPrefix))
 				{
 					await CommitEditAsync().ConfigureAwait(true);
