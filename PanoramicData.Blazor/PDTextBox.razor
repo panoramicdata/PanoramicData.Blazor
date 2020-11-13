@@ -1,6 +1,7 @@
 ﻿<div class="pdtextbox input-group @(IsVisible ? "" : "d-none ") @CssClass">
 
-	<input class="form-control @InputCssClass"
+	<input id="@Id"
+		   class="form-control @InputCssClass"
 		   value="@Value"
 		   readonly="@(!IsEnabled)"
 		   @oninput="OnInput"

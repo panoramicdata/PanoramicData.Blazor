@@ -242,3 +242,25 @@ function showBsDialog(id) {
 function hideBsDialog(id) {
 	$(id).modal('hide');
 }
+
+function debounceInput(id, wait, objRef) {
+	var el = document.getElementById(id);
+	if (el) {
+		var debouncedFunction = debounce(function (ev) {
+			objRef.invokeMethodAsync('OnDebouncedInput', ev.srcElement.value)
+		}, wait);
+		el.addEventListener('input', debouncedFunction);
+	}
+}
+
+const debounce = (func, wait) => {
+	let timeout;
+	return function executedFunction(...args) {
+		const later = () => {
+			timeout = null;
+			func(...args);
+		};
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
+};

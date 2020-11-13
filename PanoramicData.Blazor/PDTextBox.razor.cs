@@ -1,11 +1,21 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor
 {
-    public partial class PDTextBox
+    public partial class PDTextBox : IDisposable
     {
+		private static int _seq;
+		private DotNetObjectReference<PDTextBox>? _objRef;
+
+		/// <summary>
+		/// Injected javascript interop object.
+		/// </summary>
+		[Inject] public IJSRuntime? JSRuntime { get; set; }
+
 		/// <summary>
 		/// Gets or sets CSS classes for the text box.
 		/// </summary>
@@ -52,15 +62,41 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool ShowClearButton { get; set; } = true;
 
 		/// <summary>
+		/// Sets the debounce wait period in milliseconds.
+		/// </summary>
+		[Parameter] public int DebounceWait { get; set; } = 0;
+
+		/// <summary>
 		/// Event raised when the user clicks on the clear button.
 		/// </summary>
 		[Parameter] public EventCallback Cleared { get; set; }
 
+		public string Id { get; set; } = $"pd-textbox-{++_seq}";
+
 		public string InputCssClass => ShowClearButton ? "pr-4" : "";
+
+		protected override async Task OnAfterRenderAsync(bool firstRender)
+		{
+			if(firstRender && DebounceWait > 0)
+			{
+				_objRef = DotNetObjectReference.Create(this);
+				await JSRuntime.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+			}
+		}
 
 		private async Task OnInput(ChangeEventArgs args)
 		{
-			Value = args.Value.ToString();
+			if (DebounceWait <= 0)
+			{
+				Value = args.Value.ToString();
+				await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
+			}
+		}
+
+		[JSInvokable]
+		public async Task OnDebouncedInput(string value)
+		{
+			Value = value;
 			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
 
@@ -74,6 +110,11 @@ namespace PanoramicData.Blazor
 			Value = string.Empty;
 			await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
 			await Cleared.InvokeAsync(null).ConfigureAwait(true);
+		}
+
+		public void Dispose()
+		{
+			_objRef?.Dispose();
 		}
 	}
 }
