@@ -84,7 +84,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void OnSelectionChange()
 		{
-			EventManager?.Add(new Event("SelectionChange"));
+			var selection = Table?.GetSelectedItems();
+			if (selection != null)
+			{
+				EventManager?.Add(new Event("SelectionChange", new EventArgument("Selection", string.Join(", ", selection.Select(x => x.FirstName)))));
+			}
 		}
 
 		private void OnClick(Person item)

@@ -528,7 +528,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public TItem[] GetSelectedItems()
 		{
-			return KeyField == null ? new TItem[0] : ItemsToDisplay.Where(x => Selection.Contains(KeyField(x))).ToArray();
+			return KeyField == null ? new TItem[0] : ItemsToDisplay.Where(x => Selection.Contains(KeyField(x).ToString())).ToArray();
 		}
 
 		/// <summary>
