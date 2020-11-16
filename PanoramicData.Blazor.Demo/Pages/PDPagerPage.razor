@@ -10,16 +10,13 @@
 		<PDToolbarButton Text="Goto Page"
 						 Click="OnGotoPage" />
 
-		<PDToolbarTextbox @bind-Value="NewPageCount" />
-		<PDToolbarButton Text="Set Page Count"
-						 Click="OnSetPageCount" />
+		<PDToolbarTextbox @bind-Value="TotalCount" />
+		<PDToolbarButton Text="Set Total Count"
+						 Click="OnSetTotalCount" />
 
 	</PDToolbar>
 
-	<PDPager @ref="_pager"
-			 Page="1"
-			 PageCount="10"
-			 PageChange="OnPageChanged" />
+	<PDPager PageCriteria="_pageCriteria" />
 
 	<EventView />
 

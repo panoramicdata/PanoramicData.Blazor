@@ -3,18 +3,15 @@
 <div id="@Id"
 		class="pdtable @CssClass"
 		tabindex="0"
-		@onkeydown="OnKeyDownAsync"
-		>
+		@onkeydown="OnKeyDownAsync">
+
 	<table class="table @TableClass">
-		@if (PageCriteria != null)
+		@if (PageCriteria != null && ShowPager)
 		{
 			<tr>
 				<td colspan="@ActualColumnsToDisplay.Count()">
-					<div class="d-flex flex-row">
-							<div class="mr-2">
-								<PDPager @ref="_pager"
-											PageChange="OnPageChange" />
-							</div>
+					<div class="">
+						<PDPager PageCriteria="PageCriteria" />
 					</div>
 				</td>
 			</tr>

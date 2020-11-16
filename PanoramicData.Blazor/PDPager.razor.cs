@@ -1,109 +1,67 @@
-﻿using System.Threading.Tasks;
+﻿using System;
 using Microsoft.AspNetCore.Components;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDPager
+	public partial class PDPager : IDisposable
     {
-		private uint _page = 1;
-		private uint _pageCount = 0;
+		/// <summary>
+		/// Gets or sets the text to be displayed when no items are available.
+		/// </summary>
+		[Parameter] public string NoItemsText { get; set; } = "No items to display";
 
 		/// <summary>
 		/// Sets the initial page count.
 		/// </summary>
-		[Parameter] public uint Page { get; set; } = 1;
+		[Parameter] public PageCriteria PageCriteria { get; set; } = new PageCriteria(1, 10, 0);
 
 		/// <summary>
-		/// Sets the initial page count.
+		/// Gets or sets the possible page sizes offered to the user.
 		/// </summary>
-		[Parameter] public uint PageCount { get; set; } = 0;
+		[Parameter] public uint[] PageSizeChoices { get; set; } = new uint[] { 10, 25, 50, 100, 250, 500 };
 
 		/// <summary>
-		/// Callback invoked when the current page changes.
+		/// Determines whether the description of the current page items is displayed.
 		/// </summary>
-		[Parameter] public EventCallback<uint> PageChange { get; set; }
+		[Parameter] public bool ShowPageDescription { get; set; } = true;
 
 		/// <summary>
-		/// Gets whether the current page is the first page.
+		/// Determines whether the page size choices are displayed.
 		/// </summary>
-		protected bool IsFirstPage => _page == 1;
-
-		/// <summary>
-		/// Gets whether the current page is the last page.
-		/// </summary>
-		protected bool IsLastPage => _page == _pageCount;
+		[Parameter] public bool ShowPageSizeChoices { get; set; } = true;
 
 		protected override void OnInitialized()
 		{
-			_page = Page;
-			_pageCount = PageCount;
+			PageCriteria.TotalCountChanged += PageCriteria_TotalCountChanged;
+		}
+		public void Dispose()
+		{
+			PageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
 		}
 
-		public async Task MoveLast()
+		private void PageCriteria_TotalCountChanged(object sender, System.EventArgs e)
 		{
-			if (_page < _pageCount)
-			{
-				_page = _pageCount;
-				await PageChange.InvokeAsync(_page).ConfigureAwait(true);
-			}
+			StateHasChanged();
 		}
 
-		public async Task MoveNext()
+		public void MoveLast()
 		{
-			if (_page < _pageCount)
-			{
-				_page++;
-				await PageChange.InvokeAsync(_page).ConfigureAwait(true);
-			}
+			PageCriteria.Page = PageCriteria.PageCount;
 		}
 
-		public async Task MovePrevious()
+		public void MoveNext()
 		{
-			if (_page > 1)
-			{
-				_page--;
-				await PageChange.InvokeAsync(_page).ConfigureAwait(true);
-			}
+			PageCriteria.Page++;
 		}
 
-		public async Task MoveFirst()
+		public void MovePrevious()
 		{
-			if (_page > 1)
-			{
-				_page = 1;
-				await PageChange.InvokeAsync(_page).ConfigureAwait(true);
-			}
+			PageCriteria.Page--;
 		}
 
-		public async Task SetPageAsync(uint page)
+		public void MoveFirst()
 		{
-			if(page > 0 && page <= _pageCount && page != _page)
-			{
-				_page = page;
-				await PageChange.InvokeAsync(_page).ConfigureAwait(true);
-			}
-		}
-
-		public async Task SetPageCountAsync(uint count)
-		{
-			if (count < 1)
-			{
-				_pageCount = 0;
-				if (_page != 1)
-				{
-					_page = 1;
-					await PageChange.InvokeAsync(_page).ConfigureAwait(true);
-				}
-			}
-			else
-			{
-				_pageCount = count;
-				if(_page > _pageCount)
-				{
-					_page = _pageCount;
-					await PageChange.InvokeAsync(_page).ConfigureAwait(true);
-				}
-			}
+			PageCriteria.Page = 1;
 		}
 	}
 }

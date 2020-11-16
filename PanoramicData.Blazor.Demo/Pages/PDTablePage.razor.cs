@@ -13,7 +13,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDTablePage
 	{
 		private string _searchText = string.Empty;
-		private PageCriteria _pageCriteria = new PageCriteria(1, 5);
+		private PageCriteria _pageCriteria = new PageCriteria(1, 10);
 		private SortCriteria _sortCriteria = new SortCriteria("Col1", SortDirection.Descending);
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider();
 		private bool AllowDrag { get; set; }
@@ -48,7 +48,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			// Page
 			if (query.TryGetValue("page", out var requestedPage) && query.TryGetValue("pageSize", out var requestedPageSize))
 			{
-				_pageCriteria = new PageCriteria(Convert.ToInt32(requestedPage[0]), Convert.ToInt32(requestedPageSize[0]));
+				_pageCriteria = new PageCriteria(Convert.ToUInt32(requestedPage[0]), Convert.ToUInt32(requestedPageSize[0]));
 			}
 
 			// Search

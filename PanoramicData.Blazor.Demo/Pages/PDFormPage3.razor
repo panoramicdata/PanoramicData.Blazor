@@ -27,10 +27,14 @@
 
 	<div class="d-flex">
 		<div>
+			<PDPager PageCriteria="_pageCriteria"
+					 ShowPageDescription="false" />
+			<br/>
 			<PDTable @ref="Table"
 					 TItem="Person"
 					 DataProvider="PersonDataProvider"
 					 KeyField="x => x.Id"
+					 ShowPager="false"
 					 PageCriteria="_pageCriteria"
 					 SortCriteria="_sortCriteria"
 					 SelectionMode="TableSelectionMode.Single"
@@ -88,7 +92,6 @@
 							   @oninput="OnEmailInput" />
 					</EditTemplate>
 				</PDColumn>
-
 
 				<PDColumn TItem="Person"
 						  Field="x => x.Dob"

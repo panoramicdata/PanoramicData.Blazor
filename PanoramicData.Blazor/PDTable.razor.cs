@@ -22,7 +22,6 @@ namespace PanoramicData.Blazor
 		private bool _dragging;
 		private Timer? _editTimer;
 		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
-		private PDPager? _pager;
 
 		private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
@@ -92,6 +91,11 @@ namespace PanoramicData.Blazor
 		/// Gets or sets a delegate to be called if an exception occurs.
 		/// </summary>
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether the pager is displayed.
+		/// </summary>
+		[Parameter] public bool ShowPager { get; set; } = true;
 
 		/// <summary>
 		/// Gets or sets the default sort criteria.
@@ -344,8 +348,8 @@ namespace PanoramicData.Blazor
 				// paging
 				if (PageCriteria != null)
 				{
-					request.Take = PageCriteria.PageSize;
-					request.Skip = (Page - 1) * PageCriteria.PageSize;
+					request.Take = (int)PageCriteria.PageSize;
+					request.Skip = (int)PageCriteria.PreviousItems;
 				}
 
 				// perform query data
@@ -361,11 +365,7 @@ namespace PanoramicData.Blazor
 				// update pager state
 				if (PageCriteria != null)
 				{
-					var pageCount = ((response.TotalCount ?? 0) / PageCriteria.PageSize) + ((response.TotalCount ?? 0) % PageCriteria.PageSize > 0 ? 1 : 0);
-					if (_pager != null)
-					{
-						await _pager.SetPageCountAsync((uint)pageCount).ConfigureAwait(true);
-					}
+					PageCriteria.TotalCount = (uint)(response.TotalCount ?? 0);
 				}
 
 				// clear selection
@@ -409,8 +409,11 @@ namespace PanoramicData.Blazor
 					}
 				}
 
-				SortCriteria.Key = column.Id;
-				SortCriteria.Direction = column.SortDirection;
+				if (SortCriteria != null)
+				{
+					SortCriteria.Key = column.Id;
+					SortCriteria.Direction = column.SortDirection;
+				}
 
 				await GetDataAsync().ConfigureAwait(true);
 				await SortChanged.InvokeAsync(new SortCriteria { Key = column.Id, Direction = direction ?? column.SortDirection }).ConfigureAwait(true);
@@ -566,6 +569,11 @@ namespace PanoramicData.Blazor
 		{
 			_editTimer?.Dispose();
 			_editTimer = null;
+			if (PageCriteria != null)
+			{
+				PageCriteria.PageChanged -= PageCriteria_PageChanged;
+				PageCriteria.PageSizeChanged -= PageCriteria_PageSizeChanged;
+			}
 		}
 
 		protected override void OnInitialized()
@@ -577,9 +585,22 @@ namespace PanoramicData.Blazor
 			}
 			if (PageCriteria != null)
 			{
-				Page = PageCriteria.Page;
+				PageCriteria.PageChanged += PageCriteria_PageChanged;
+				PageCriteria.PageSizeChanged += PageCriteria_PageSizeChanged;
 			}
 			_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
+		}
+
+		private async void PageCriteria_PageSizeChanged(object sender, EventArgs e)
+		{
+			await RefreshAsync(SearchText).ConfigureAwait(true);
+			StateHasChanged();
+		}
+
+		private async void PageCriteria_PageChanged(object sender, EventArgs e)
+		{
+			await RefreshAsync(SearchText).ConfigureAwait(true);
+			StateHasChanged();
 		}
 
 		protected override void OnParametersSet()

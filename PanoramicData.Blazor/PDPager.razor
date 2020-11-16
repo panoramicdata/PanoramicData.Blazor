@@ -1,29 +1,63 @@
-﻿<nav aria-label="_pager">
+﻿<nav aria-label="_pager" class="pdpager d-flex justify-content-between align-items-center">
+
 	<ul class="pagination mb-0">
-		<li class="page-item @(IsFirstPage || _page < 1 ? "disabled" : "pd-pointer")">
+		<li class="page-item @(PageCriteria.IsFirstPage || PageCriteria.Page < 1 ? "disabled" : "pd-pointer")">
 			<a class="page-link" href="#" @onclick="MoveFirst" @onclick:preventDefault>
 				<i class="fas fa-fast-backward" />
 			</a>
 		</li>
-		<li class="page-item @(IsFirstPage || _page < 1 ? "disabled" : "pd-pointer")">
+		<li class="page-item @(PageCriteria.IsFirstPage || PageCriteria.Page < 1 ? "disabled" : "pd-pointer")">
 			<a class="page-link" href="#" @onclick="MovePrevious" @onclick:preventDefault>
 				<i class="fas fa-backward" />
 			</a>
 		</li>
 		<li class="page-item disabled">
 			<a class="page-link" href="#">
-				Page &nbsp; @_page &nbsp; / &nbsp; @(_pageCount == 0 ? 1 : _pageCount)
+				Page &nbsp; @PageCriteria.Page &nbsp; / &nbsp; @(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)
 			</a>
 		</li>
-		<li class="page-item @(IsLastPage || _page > _pageCount ? "disabled" : "pd-pointer")">
+		<li class="page-item @(PageCriteria.IsLastPage || PageCriteria.Page > PageCriteria.PageCount ? "disabled" : "pd-pointer")">
 			<a class="page-link" href="#" @onclick="MoveNext" @onclick:preventDefault>
 				<i class="fas fa-forward" />
 			</a>
 		</li>
-		<li class="page-item @(IsLastPage || _page > _pageCount ? "disabled" : "pd-pointer")">
+		<li class="page-item @(PageCriteria.IsLastPage || PageCriteria.Page > PageCriteria.PageCount ? "disabled" : "pd-pointer")">
 			<a class="page-link" href="#" @onclick="MoveLast" @onclick:preventDefault>
 				<i class="fas fa-fast-forward" />
 			</a>
 		</li>
 	</ul>
+
+	@if (ShowPageDescription)
+	{
+		if (PageCriteria.TotalCount == 0)
+		{
+			<div class="text-nowrap">
+				@NoItemsText
+			</div>
+		}
+		else
+		{
+			<div>
+				<span>Showing</span>
+				<span>@PageCriteria.PageRangeStart - @PageCriteria.PageRangeEnd</span>
+				<span>of</span>
+				<span>@PageCriteria.TotalCount</span>
+			</div>
+		}
+	}
+
+	@if (ShowPageSizeChoices)
+	{
+		<div class="d-flex align-items-center" >
+			<div class="text-nowrap pr-2">Page Size:</div>
+			<select class="form-control" @bind="PageCriteria.PageSize">
+				@foreach (var size in PageSizeChoices)
+				{
+					<option value="@size">@size</option>
+				}
+			</select>
+		</div>
+	}
+
 </nav>
