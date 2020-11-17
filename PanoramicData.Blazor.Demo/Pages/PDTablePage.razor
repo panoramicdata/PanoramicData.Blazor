@@ -12,12 +12,12 @@
 						 Click="async () => await Table!.RefreshAsync()" />
 
 		<PDToolbarTextbox ShowClearButton="true"
-						  @bind-Value="_searchText"
+						  Label="Search: "
+						  DebounceWait="250"
+						  Value="@_searchText"
+						  ValueChanged="OnSearchValueChanged"
 						  Keypress="OnSearchKeyPress"
 						  Cleared="OnSearchCleared" />
-
-		<PDToolbarButton IconCssClass="fas fa-fw fa-search"
-						 Click="SearchAsync" />
 
 		<PDToolbarButton Text="@(AllowDrag ? "Disable Drag" : "Enable Drag")"
 						 Click="() => AllowDrag = !AllowDrag" />

@@ -156,6 +156,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
+		private async Task OnSearchValueChanged(string value)
+		{
+			_searchText = value;
+			await SearchAsync().ConfigureAwait(true);
+		}
+
 		private async Task OnSearchCleared()
 		{
 			//_searchText = string.Empty;
