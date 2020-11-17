@@ -10,9 +10,9 @@
 	@if (ShowClearButton)
 	{
 		<div class="input-group-append" @onclick="OnClear">
-			<span class="input-group-text btn" tabindex="">
+			<button class="input-group-text btn" disabled="@(Value == string.Empty)">
 				<i class="fas fa-times" />
-			</span>
+			</button>
 		</div>
 	}
 

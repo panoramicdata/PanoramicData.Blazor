@@ -76,26 +76,29 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public string Label { get; set; } = string.Empty;
 
+		/// <summary>
+		/// Sets the debounce wait period in milliseconds.
+		/// </summary>
+		[Parameter] public int DebounceWait { get; set; } = 0;
+
 		public string ItemStyle => $"width: {Width}";
-
-		public string InputCssClass => ShowClearButton ? "pr-4" : "";
-
-		private async Task OnInput(ChangeEventArgs args)
-		{
-			Value = args.Value.ToString();
-			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
-		}
 
 		private async Task OnKeypress(KeyboardEventArgs args)
 		{
 			await Keypress.InvokeAsync(args).ConfigureAwait(true);
 		}
 
-		private async Task OnClear(MouseEventArgs _)
+		private async Task OnCleared()
 		{
-			Value = string.Empty;
-			await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
+			//Value = string.Empty;
+			//await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
 			await Cleared.InvokeAsync(null).ConfigureAwait(true);
+		}
+
+		private async Task OnValueChanged(string value)
+		{
+			Value = value;
+			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 		}
 	}
 }

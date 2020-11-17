@@ -4,16 +4,14 @@
 		{
 			<label>@Label</label>
 		}
-		<input class="form-control @InputCssClass"
-			   value="@Value"
-			   readonly="@(!IsEnabled)"
-			   @oninput="OnInput"
-			   @onkeypress="OnKeypress" />
-		@if (ShowClearButton)
-		{
-			<span class="pdttb-clear-btn" @onclick="OnClear">
-				<i class="fas fa-times"></i>
-			</span>
-		}
+		<PDTextBox Value="@Value"
+				   CssClass="@CssClass"
+				   IsEnabled="IsEnabled"
+				   IsVisible="IsVisible"
+				   ShowClearButton="ShowClearButton"
+				   DebounceWait="DebounceWait"
+				   Keypress="OnKeypress"
+				   ValueChanged="OnValueChanged"
+				   Cleared="OnCleared"/>
 	</div>
 </div>

@@ -40,8 +40,10 @@
 		</PDToolbarPlaceholder>
 
 		<PDToolbarTextbox Width="100%"
-						  @bind-Value="_searchText"
+						  Value="@_searchText"
+						  DebounceWait="250"
 						  ShowClearButton="true"
+						  ValueChanged="OnValueChanged"
 						  Keypress="OnKeypress"
 						  Cleared="OnCleared"/>
 

@@ -107,9 +107,12 @@ namespace PanoramicData.Blazor
 
 		private async Task OnClear(MouseEventArgs _)
 		{
-			Value = string.Empty;
-			await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
-			await Cleared.InvokeAsync(null).ConfigureAwait(true);
+			if (Value != string.Empty)
+			{
+				Value = string.Empty;
+				await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
+				await Cleared.InvokeAsync(null).ConfigureAwait(true);
+			}
 		}
 
 		public void Dispose()

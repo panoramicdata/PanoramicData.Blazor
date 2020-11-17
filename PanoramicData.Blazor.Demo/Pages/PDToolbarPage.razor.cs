@@ -46,5 +46,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			EventManager?.Add(new Event("Cleared"));
 		}
+
+		private void OnValueChanged(string value)
+		{
+			_searchText = value;
+			EventManager?.Add(new Event("ValueChanged", new EventArgument("Value", value)));
+		}
 	}
 }

@@ -49,5 +49,10 @@ namespace PanoramicData.Blazor
 		/// Gets or sets an optional label to be displayed before the textbox.
 		/// </summary>
 		public string Label { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Gets or sets the debounce wait period in milliseconds.
+		/// </summary>
+		public int DebounceWait { get; set; } = 0;
 	}
 }
