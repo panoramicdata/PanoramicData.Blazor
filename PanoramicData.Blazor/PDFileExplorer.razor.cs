@@ -719,7 +719,7 @@ namespace PanoramicData.Blazor
 				_deleteDialog.Buttons.Clear();
 				_deleteDialog.Buttons.AddRange(new[]
 				{
-					new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check" },
+					new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check", ShiftRight = true },
 					new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
 				});
 
@@ -727,7 +727,7 @@ namespace PanoramicData.Blazor
 				_conflictDialog.Buttons.Clear();
 				_conflictDialog.Buttons.AddRange(new[]
 				{
-					new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save" },
+					new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
 					new ToolbarButton { Text = "Skip", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-forward" },
 					new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
 				});
@@ -821,7 +821,7 @@ namespace PanoramicData.Blazor
 					_deleteDialogMessage = $"Are you sure you wish to delete '{deleteArgs.Items[0].Name}'?";
 					StateHasChanged();
 					var choice = await _deleteDialog.ShowAndWaitResultAsync().ConfigureAwait(true);
-					deleteArgs.Resolution = choice == "Yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
+					deleteArgs.Resolution = choice == "yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
 				}
 
 				if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Delete && deleteArgs.Items.Length > 0)
@@ -861,7 +861,7 @@ namespace PanoramicData.Blazor
 						: $"Are you sure you wish to delete these {deleteArgs.Items.Length} items?";
 					StateHasChanged();
 					var choice = await _deleteDialog.ShowAndWaitResultAsync();
-					deleteArgs.Resolution = choice == "Yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
+					deleteArgs.Resolution = choice == "yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
 				}
 
 				if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Delete)

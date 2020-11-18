@@ -1,9 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Text;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
-using System.Text;
-using System.Linq;
 
 namespace PanoramicData.Blazor
 {
@@ -109,7 +108,7 @@ namespace PanoramicData.Blazor
 			if (_userChoice != null)
 			{
 				_userChoice.SetResult(key);
-}
+			}
 			else
 			{
 				// forward to calling app
