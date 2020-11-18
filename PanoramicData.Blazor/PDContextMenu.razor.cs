@@ -63,7 +63,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task ShowMenuHandler(MouseEventArgs args)
+		private async Task OnMouseDown(MouseEventArgs args)
 		{
 			if (Enabled && args.Button == 2)
 			{

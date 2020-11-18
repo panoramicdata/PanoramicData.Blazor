@@ -1,6 +1,9 @@
 ﻿@implements IDisposable
 
-<div class="@BlockOverlayClass">
+<div class="@BlockOverlayClass"
+	 @oncontextmenu:preventDefault
+	 @oncontextmenu="() => { }">
+
 	@if (Html != null)
 	{
 		<div class="text-container">
@@ -9,4 +12,5 @@
 			</div>
 		</div>
 	}
+
 </div>

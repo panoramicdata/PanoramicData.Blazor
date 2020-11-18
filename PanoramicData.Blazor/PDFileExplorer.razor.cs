@@ -246,7 +246,7 @@ namespace PanoramicData.Blazor
 		private async Task OnTreeSelectionChangeAsync(TreeNode<FileExplorerItem> node)
 		{
 			_selectedNode = node;
-			if (node?.Data != null)
+			if (node?.Data != null && FolderPath != node.Data.Path)
 			{
 				FolderPath = node.Data.Path;
 				await RefreshTableAsync().ConfigureAwait(true);

@@ -169,28 +169,34 @@ namespace PanoramicData.Blazor
 		{
 			if (AllowSelection)
 			{
-				// end edit mode and clear current selection
+				// end edit mode
 				if (SelectedNode != null)
 				{
 					await CommitEdit().ConfigureAwait(true);
-					SelectedNode.IsSelected = false;
 				}
 
 				// select new node
-				SelectedNode = node;
-				SelectedNode.IsSelected = true;
-
-				// ensure all parent nodes are expanded
-				var parentNode = SelectedNode.ParentNode;
-				while (parentNode != null)
+				if (SelectedNode != node)
 				{
-					parentNode.IsExpanded = true;
-					parentNode = parentNode.ParentNode;
-				}
+					if (SelectedNode != null)
+					{
+						SelectedNode.IsSelected = false;
+					}
+					SelectedNode = node;
+					SelectedNode.IsSelected = true;
 
-				// notify of change
-				await SelectionChange.InvokeAsync(SelectedNode).ConfigureAwait(true);
-				StateHasChanged();
+					// ensure all parent nodes are expanded
+					var parentNode = SelectedNode.ParentNode;
+					while (parentNode != null)
+					{
+						parentNode.IsExpanded = true;
+						parentNode = parentNode.ParentNode;
+					}
+
+					// notify of change
+					await SelectionChange.InvokeAsync(SelectedNode).ConfigureAwait(true);
+					StateHasChanged();
+				}
 			}
 		}
 

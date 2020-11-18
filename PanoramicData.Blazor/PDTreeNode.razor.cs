@@ -22,6 +22,11 @@ namespace PanoramicData.Blazor
 		[CascadingParameter] public PDDragContext? DragContext { get; set; }
 
 		/// <summary>
+		/// Provides access to the parent ContextMenu if it exists.
+		/// </summary>
+		[CascadingParameter] public PDContextMenu? ContextMenu { get; set; }
+
+		/// <summary>
 		/// Gets or sets the TreeNode to be rendered.
 		/// </summary>
 		[Parameter] public TreeNode<TItem>? Node { get; set; }
@@ -74,7 +79,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnContentClickAsync()
+		private async Task OnContentMouseDownAsync(MouseEventArgs args)
 		{
 			if(Node != null)
 			{

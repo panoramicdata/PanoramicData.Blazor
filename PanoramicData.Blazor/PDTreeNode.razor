@@ -12,7 +12,11 @@
 			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
 		}
 		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)"
-			 @onmousedown="OnContentClickAsync"
+			 @oncontextmenu:preventDefault
+			 @oncontextmenu="() => { }"
+			 @onmouseup:preventDefault
+			 @onmouseup="() => { }"
+			 @onmousedown="OnContentMouseDownAsync"
 			 @ondrop="OnDragDrop"
 			 @attributes="NodeAttributes">
 			@if (Node?.IsEditing == true)

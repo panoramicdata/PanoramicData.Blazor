@@ -1,8 +1,13 @@
-﻿<div class="pdcontextmenuhost" @oncontextmenu="ShowMenuHandler" @oncontextmenu:preventDefault>
+﻿<div class="pdcontextmenuhost"
+	 @onmousedown="OnMouseDown">
 	@ChildContent
 </div>
 
-<div Id="@Id" class="pdcontextmenu">
+<div Id="@Id"
+	 class="pdcontextmenu"
+	 @oncontextmenu:preventDefault
+	 @oncontextmenu="() => { }">
+
 	@foreach (var item in Items)
 	{
 		if (item.IsVisible)
