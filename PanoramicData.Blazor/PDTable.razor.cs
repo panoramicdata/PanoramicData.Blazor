@@ -93,6 +93,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
 		/// <summary>
+		/// Gets or sets the possible page sizes offered to the user.
+		/// </summary>
+		[Parameter] public uint[] PageSizeChoices { get; set; } = new uint[] { 10, 25, 50, 100, 250, 500 };
+
+		/// <summary>
 		/// Gets or sets whether the pager is displayed.
 		/// </summary>
 		[Parameter] public bool ShowPager { get; set; } = true;
