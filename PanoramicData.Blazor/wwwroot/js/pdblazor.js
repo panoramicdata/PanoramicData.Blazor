@@ -102,15 +102,15 @@
 		if (zone) {
 			zone.dotnetHelper = dotnetHelper;
 			zone.uploadUrl = uploadUrl;
-			zone.addEventListener('dragenter', panoramicData.onDropZoneDragEnter, false);
-			zone.addEventListener('dragover', panoramicData.onDropZoneDragEnter, false);
+			zone.addEventListener('dragenter', panoramicData.onDropZoneDragEnterOver, false);
+			zone.addEventListener('dragover', panoramicData.onDropZoneDragEnterOver, false);
 			zone.addEventListener('dragleave', panoramicData.onDropZoneDragLeave, false);
 			zone.addEventListener('drop', panoramicData.onDropZoneDrop, false);
 		}
 	},
 
-	onDropZoneDragEnter: function(e) {
-		if (e.dataTransfer.types && e.dataTransfer.types[0] == "Files") {
+	onDropZoneDragEnterOver: function (e) {
+		if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.indexOf("Files") > -1) {
 			var zone = panoramicData.findAncestor(e.target, 'pddropzone');
 			if (zone) {
 				e.preventDefault();
@@ -121,7 +121,7 @@
 	},
 
 	onDropZoneDrop: function(e) {
-		if (e.dataTransfer.types && e.dataTransfer.types[0] == "Files") {
+		if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.indexOf("Files") > -1) {
 			var zone = panoramicData.findAncestor(e.target, 'pddropzone');
 			if (zone) {
 				e.preventDefault();
@@ -151,7 +151,7 @@
 	},
 
 	onDropZoneDragLeave: function(e) {
-		if (e.dataTransfer.types && e.dataTransfer.types[0] == "Files") {
+		if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.indexOf("Files") > -1) {
 			var zone = panoramicData.findAncestor(e.target, 'pddropzone');
 			if (zone) {
 				e.preventDefault();
