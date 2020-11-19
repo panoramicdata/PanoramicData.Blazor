@@ -269,5 +269,9 @@
 			clearTimeout(timeout);
 			timeout = setTimeout(later, wait);
 		};
+	},
+
+	alert: function (msg) {
+		alert(msg);
 	}
 }

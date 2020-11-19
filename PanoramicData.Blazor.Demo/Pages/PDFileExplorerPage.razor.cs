@@ -19,7 +19,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		/// <summary>
 		/// Injected javascript interop object.
 		/// </summary>
-		[Inject] public IJSRuntime? JSRuntime { get; set; }
+		[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 		/// <summary>
 		/// Injected navigation manager.
@@ -39,12 +39,13 @@ namespace PanoramicData.Blazor.Demo.Pages
 			await JSRuntime.InvokeVoidAsync("openUrl", $"/files/download?path={args.Item.Path}").ConfigureAwait(false);
 		}
 
-		public void OnUploadRequest(DropZoneEventArgs args)
+		public async Task OnUploadRequest(DropZoneEventArgs args)
 		{
 			if (args.Files.Any(x => x.Size > 1000000000)) // 1GB
 			{
 				args.Cancel = true;
 				args.CancelReason = "Upload limit is 1GB per file";
+				await JSRuntime.InvokeVoidAsync("panoramicData.alert", new[] { "Upload canceled: Limit is 1GB per file" }).ConfigureAwait(true);
 			}
 		}
 
