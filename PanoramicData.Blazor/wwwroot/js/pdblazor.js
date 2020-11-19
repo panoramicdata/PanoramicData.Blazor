@@ -132,19 +132,19 @@
 					var dto = [];
 					for (var i = 0; i < files.length; i++)
 						dto.push({ Name: files[i].name, Size: files[i].size, Skip: false });
-					zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', dto)
-						.then(result => {
-							if (!result.cancel) {
-								for (var i = 0; i < files.length; i++) {
-									var skip = result.files.reduce(function (pv, cv) {
-										return pv || (cv.name == files[i].name && cv.skip);
-									}, false);
-									if (!skip) {
-										panoramicData.uploadFile(files[i], zone.uploadUrl, result.state, zone);
+						zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', dto)
+							.then(result => {
+								if (!result.cancel) {
+									for (var i = 0; i < files.length; i++) {
+										var skip = result.files.reduce(function (pv, cv) {
+											return pv || (cv.name == files[i].name && cv.skip);
+										}, false);
+										if (!skip) {
+											panoramicData.uploadFile(files[i], zone.uploadUrl, result.state, zone);
+										}
 									}
 								}
-							}
-						});
+							});
 				}
 			}
 		}
@@ -177,14 +177,18 @@
 		return el;
 	},
 
-	uploadFile: function(file, url, path, zone) {
+	uploadFile: function (file, url, path, zone) {
+		var pct = 0;
 		var xhr = new XMLHttpRequest();
 		var formData = new FormData();
 		xhr.open('POST', url, true);
 		xhr.upload.addEventListener("progress", function (e) {
-			var progress = e.loaded * 100 / e.total || 100;
-			if (zone.dotnetHelper) {
-				zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadProgress', { Path: path, Name: file.name, Size: file.size, Progress: progress });
+			var progress = Math.round(e.loaded * 100 / e.total || 100);
+			if (progress > pct) {
+				pct = progress;
+				if (zone.dotnetHelper) {
+					zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadProgress', { Path: path, Name: file.name, Size: file.size, Progress: progress });
+				}
 			}
 		})
 		xhr.addEventListener('readystatechange', function (e) {
