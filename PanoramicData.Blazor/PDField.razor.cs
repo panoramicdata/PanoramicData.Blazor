@@ -105,6 +105,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public int? MaxLength { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether the validation result should be shown when displayed.
+		/// </summary>
+		[Parameter] public bool ShowValidationResult { get; set; } = true;
+
+		/// <summary>
 		/// Gets or sets an HTML template for editing.
 		/// </summary>
 		[Parameter] public RenderFragment<TItem?>? EditTemplate { get; set; }

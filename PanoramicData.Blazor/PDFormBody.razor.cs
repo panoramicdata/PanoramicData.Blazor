@@ -81,6 +81,7 @@ namespace PanoramicData.Blazor
 						IsPassword = column.IsPassword,
 						IsTextArea = column.IsTextArea,
 						TextAreaRows = column.TextAreaRows,
+						ShowValidationResult = column.ShowValidationResult,
 						Description = column.Description,
 						HelpUrl = column.HelpUrl
 					});
@@ -108,6 +109,7 @@ namespace PanoramicData.Blazor
 					EditTemplate = field.EditTemplate,
 					Title = field.Title,
 					MaxLength = field.MaxLength,
+					ShowValidationResult = field.ShowValidationResult,
 					Options = field.Options,
 					IsPassword = field.IsPassword,
 					IsTextArea = field.IsTextArea,

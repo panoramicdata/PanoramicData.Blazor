@@ -107,6 +107,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool Editable { get; set; } = true;
 
 		/// <summary>
+		/// Gets or sets whether the validation result should be shown when displayed in a linked form.
+		/// </summary>
+		[Parameter] public bool ShowValidationResult { get; set; } = true;
+
+		/// <summary>
 		/// If set will override the FieldExpression's name
 		/// </summary>
 		[Parameter]

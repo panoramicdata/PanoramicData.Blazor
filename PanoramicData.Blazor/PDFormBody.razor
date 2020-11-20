@@ -125,7 +125,7 @@ else if (Form.Mode != FormModes.Hidden)
 						@if (Form?.Mode != FormModes.Delete)
 						{
 							<div class="input-group-append">
-								@if (IsReadOnly(field))
+								@if (IsReadOnly(field) || !field.ShowValidationResult)
 								{
 									<span class="input-group-text">
 										<i class="pd-empty-icon	"></i>

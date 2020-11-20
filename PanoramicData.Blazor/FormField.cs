@@ -145,6 +145,11 @@ namespace PanoramicData.Blazor
 		public int? MaxLength { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether the validation result should be shown.
+		/// </summary>
+		public bool ShowValidationResult { get; set; } = true;
+
+		/// <summary>
 		/// Gets the description for the field, if one is either declared or in DisplayAttribute.
 		/// </summary>
 		public string? GetDescription()
