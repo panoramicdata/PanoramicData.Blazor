@@ -100,6 +100,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public int TextAreaRows { get; set; } = 4;
 
 		/// <summary>
+		/// Gets or sets the maximum length for entered text.
+		/// </summary>
+		[Parameter] public int? MaxLength { get; set; }
+
+		/// <summary>
 		/// Gets or sets an HTML template for editing.
 		/// </summary>
 		[Parameter] public RenderFragment<TItem?>? EditTemplate { get; set; }

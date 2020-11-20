@@ -72,6 +72,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool ShowInList { get; set; } = true;
 
 		/// <summary>
+		/// Gets or sets the maximum length for entered text.
+		/// </summary>
+		[Parameter] public int? MaxLength { get; set; }
+
+		/// <summary>
 		/// Gets or sets a function that determines whether this field is visible when the linked form mode is Edit.
 		/// </summary>
 		[Parameter] public Func<TItem?, bool> ShowInEdit { get; set; } = new Func<TItem?, bool>((_) => true);

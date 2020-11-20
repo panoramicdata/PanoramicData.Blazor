@@ -20,6 +20,7 @@ namespace PanoramicData.Blazor.Demo.Data
 
 		[Required]
 		[MinLength(2, ErrorMessage = "Minimum length is 2 characters")]
+		[StringLength(10, ErrorMessage = "Maximum length is 10 characters")]
 		[Display(Name = "First Name", Description = "Persons first / forename")]
 		public string FirstName { get; set; } = string.Empty;
 

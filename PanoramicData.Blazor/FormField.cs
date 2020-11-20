@@ -140,6 +140,11 @@ namespace PanoramicData.Blazor
 		public string? Description { get; set; }
 
 		/// <summary>
+		/// Gets or sets the maximum length for entered text.
+		/// </summary>
+		public int? MaxLength { get; set; }
+
+		/// <summary>
 		/// Gets the description for the field, if one is either declared or in DisplayAttribute.
 		/// </summary>
 		public string? GetDescription()
