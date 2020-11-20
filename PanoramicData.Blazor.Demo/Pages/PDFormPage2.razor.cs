@@ -89,19 +89,19 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			SelectedPerson = person;
 			Form.SetMode(FormModes.Edit);
-			JSRuntime.InvokeVoidAsync("showBsDialog", "#exampleModal");
+			JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", "#exampleModal");
 		}
 
 		private void OnCreatePerson()
 		{
 			SelectedPerson = new Person();
 			Form.SetMode(FormModes.Create);
-			JSRuntime.InvokeVoidAsync("showBsDialog", "#exampleModal");
+			JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", "#exampleModal");
 		}
 
 		private void HideDialog()
 		{
-			JSRuntime.InvokeVoidAsync("hideBsDialog", "#exampleModal");
+			JSRuntime.InvokeVoidAsync("panoramicData.hideBsDialog", "#exampleModal");
 		}
 	}
 }
