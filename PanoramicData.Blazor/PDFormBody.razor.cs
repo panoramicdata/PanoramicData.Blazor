@@ -142,12 +142,12 @@ namespace PanoramicData.Blazor
 		/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 		/// <returns>The current or original field value cat to the appropriate type.</returns>
 		/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
-		public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
+		public object? GetFieldValue(FormField<TItem> field, bool updatedValue = true)
 		{
 			// point to relevant TItem instance
 			if (Form?.Item is null)
 			{
-				return default;
+				return null;
 			}
 
 			// if original value required simply return
@@ -169,6 +169,24 @@ namespace PanoramicData.Blazor
 				value = field.CompiledFieldFunc?.Invoke(Form.Item);
 			}
 
+			return value;
+		}
+
+		/// <summary>
+		/// Attempts to get the requested fields current or original value and cast to the required type.
+		/// </summary>
+		/// <param name="field">The field whose value is to be fetched.</param>
+		/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
+		/// <returns>The current or original field value cat to the appropriate type.</returns>
+		/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
+		public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
+		{
+			// point to relevant TItem instance
+			if (Form?.Item is null)
+			{
+				return default;
+			}
+			object? value = GetFieldValue(field, updatedValue);
 			if (value is null)
 			{
 				return default;
