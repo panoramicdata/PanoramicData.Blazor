@@ -256,7 +256,7 @@ namespace PanoramicData.Blazor
 					try
 					{
 						// cast value
-						object typedValue = value.Cast(propInfo.PropertyType); // .GetValue(Item); // original value
+						object typedValue = value.Cast(propInfo.PropertyType);
 
 						// run standard data annotation validation
 						if (Form.Item != null)
