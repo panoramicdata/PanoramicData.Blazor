@@ -239,9 +239,10 @@
 		window.open(url, target);
 	},
 
-	showBsDialog: function(id) {
+	showBsDialog: function(id, backdrop) {
 		$(id).modal({
-			show: true
+			show: true,
+			backdrop: backdrop ? true : 'static'
 		})
 	},
 

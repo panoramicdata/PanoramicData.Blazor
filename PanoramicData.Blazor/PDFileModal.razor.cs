@@ -32,6 +32,8 @@ namespace PanoramicData.Blazor
 
 		[Parameter] public ModalSizes Size { get; set; } = ModalSizes.Large;
 
+		[Parameter] public bool HideOnBackgroundClick { get; set; }
+
 		protected override void OnInitialized()
 		{
 			// create toolbar contents

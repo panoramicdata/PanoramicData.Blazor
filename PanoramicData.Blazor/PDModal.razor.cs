@@ -53,6 +53,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool CenterVertically { get; set; }
 
 		/// <summary>
+		/// Should clicking on the background hide the modal?
+		/// </summary>
+		[Parameter] public bool HideOnBackgroundClick { get; set; }
+
+		/// <summary>
 		/// Gets the unique identifier of the modal.
 		/// </summary>
 		public string Id { get; } = $"pd-modal-{++_sequence}";
@@ -62,7 +67,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public async Task ShowAsync()
 		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", $"#{Id}").ConfigureAwait(true);
+			await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", $"#{Id}", HideOnBackgroundClick).ConfigureAwait(true);
 		}
 
 		/// <summary>
