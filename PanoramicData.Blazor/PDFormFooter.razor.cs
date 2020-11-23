@@ -1,16 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using System.Linq;
-using Humanizer;
-using System;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDFormFooter<TItem> : IDisposable where TItem : class
     {
-		private List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>();
-
 		/// <summary>
 		/// Form the component belongs to.
 		/// </summary>
@@ -36,6 +32,86 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public bool ShowDelete { get; set; } = true;
 
+		/// <summary>
+		/// Sets the text shown on the save button.
+		/// </summary>
+		[Parameter] public string SaveButtonText { get; set; } = "Save";
+
+		/// <summary>
+		/// Sets the icon CSS classes for the save button.
+		/// </summary>
+		[Parameter] public string SaveButtonCssClass { get; set; } = "btn-primary";
+
+		/// <summary>
+		/// Sets the icon CSS classes for the save button icon.
+		/// </summary>
+		[Parameter] public string SaveButtonIconCssClass { get; set; } = "fas fa-save";
+
+		/// <summary>
+		/// Sets the text shown on the cancel button.
+		/// </summary>
+		[Parameter] public string CancelButtonText { get; set; } = "Cancel";
+
+		/// <summary>
+		/// Sets the icon CSS classes for the cancel button.
+		/// </summary>
+		[Parameter] public string CancelButtonCssClass { get; set; } = "btn-secondary";
+
+		/// <summary>
+		/// Sets the icon CSS classes for the cancel button icon.
+		/// </summary>
+		[Parameter] public string CancelButtonIconCssClass { get; set; } = "fas fa-times";
+
+		/// <summary>
+		/// Sets the text shown on the delete button.
+		/// </summary>
+		[Parameter] public string DeleteButtonText { get; set; } = "Delete";
+
+		/// <summary>
+		/// Sets the icon CSS classes for the delete button.
+		/// </summary>
+		[Parameter] public string DeleteButtonCssClass { get; set; } = "btn-danger";
+
+		/// <summary>
+		/// Sets the icon CSS classes for the delete button icon.
+		/// </summary>
+		[Parameter] public string DeleteButtonIconCssClass { get; set; } = "fas fa-trash-alt";
+
+		/// <summary>
+		/// Sets the text shown on the yes button.
+		/// </summary>
+		[Parameter] public string YesButtonText { get; set; } = "Yes";
+
+		/// <summary>
+		/// Sets the icon CSS classes for the yes button.
+		/// </summary>
+		[Parameter] public string YesButtonCssClass { get; set; } = "btn-danger";
+
+		/// <summary>
+		/// Sets the icon CSS classes for the yes button icon.
+		/// </summary>
+		[Parameter] public string YesButtonIconCssClass { get; set; } = "fas fa-check";
+
+		/// <summary>
+		/// Sets the text shown on the no button.
+		/// </summary>
+		[Parameter] public string NoButtonText { get; set; } = "No";
+
+		/// <summary>
+		/// Sets the icon CSS classes for the no button.
+		/// </summary>
+		[Parameter] public string NoButtonCssClass { get; set; } = "btn-secondary";
+
+		/// <summary>
+		/// Sets the icon CSS classes for the no button icon.
+		/// </summary>
+		[Parameter] public string NoButtonIconCssClass { get; set; } = "fas fa-times";
+
+		/// <summary>
+		/// Gets or sets the buttons displayed in the form footer.
+		/// </summary>
+		public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>();
+
 		protected override void OnInitialized()
 		{
 			base.OnInitialized();
@@ -45,11 +121,11 @@ namespace PanoramicData.Blazor
 				Form.ErrorsChanged += Form_ErrorsChanged;
 
 				// create default buttons
-				Buttons.Add(new ToolbarButton { Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-check",  ShiftRight = true });
-				Buttons.Add(new ToolbarButton { Text = "No", CssClass="btn-secondary", IconCssClass = "fas fa-times" });
-				Buttons.Add(new ToolbarButton { Text = "Delete", CssClass = "btn-danger", IconCssClass = "fas fa-trash-alt" });
-				Buttons.Add(new ToolbarButton { Text = "Save", CssClass = "btn-primary", IconCssClass = "fas fa-save", ShiftRight = true });
-				Buttons.Add(new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-times" });
+				Buttons.Add(new ToolbarButton { Key = "Yes", Text = YesButtonText, CssClass = YesButtonCssClass, IconCssClass = YesButtonIconCssClass,  ShiftRight = true });
+				Buttons.Add(new ToolbarButton { Key = "No", Text = NoButtonText, CssClass = NoButtonCssClass, IconCssClass = NoButtonIconCssClass });
+				Buttons.Add(new ToolbarButton { Key = "Delete", Text = DeleteButtonText, CssClass = DeleteButtonCssClass, IconCssClass = DeleteButtonIconCssClass });
+				Buttons.Add(new ToolbarButton { Key = "Save", Text = SaveButtonText, CssClass = SaveButtonCssClass, IconCssClass = SaveButtonIconCssClass, ShiftRight = true });
+				Buttons.Add(new ToolbarButton { Key = "Cancel", Text = CancelButtonText, CssClass = CancelButtonCssClass, IconCssClass = CancelButtonIconCssClass });
 			}
 		}
 

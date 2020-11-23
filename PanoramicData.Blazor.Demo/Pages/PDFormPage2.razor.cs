@@ -13,6 +13,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider();
 
 		private PDForm<Person> Form { get; set; } = null!;
+		private PDFormFooter<Person> Footer { get; set; } = null!;
 		private List<Person> People { get; set; } = new List<Person>();
 		private Person? SelectedPerson { get; set; }
 

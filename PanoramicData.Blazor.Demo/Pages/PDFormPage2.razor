@@ -101,7 +101,12 @@
 						</div>
 						<div class="modal-footer">
 
-							<PDFormFooter TItem="Person"
+							<PDFormFooter @ref="Footer"
+										  SaveButtonText ="Submit"
+										  SaveButtonCssClass="btn-success"
+										  SaveButtonIconCssClass="fas fa-check"
+										  ShowDelete="false"
+										  TItem="Person"
 										  Click="OnFooterClick" />
 
 						</div>
