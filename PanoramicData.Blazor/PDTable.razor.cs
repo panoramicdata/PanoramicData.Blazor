@@ -1,20 +1,20 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.JSInterop;
+using PanoramicData.Blazor.Exceptions;
+using PanoramicData.Blazor.Services;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using PanoramicData.Blazor.Services;
-using PanoramicData.Blazor.Exceptions;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IDisposable where TItem: class
+	public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IDisposable where TItem : class
 	{
 		public readonly string IdPrefix = "pd-table-";
 		public readonly string IdEditPrefix = "pd-table-edit-";
@@ -237,7 +237,7 @@ namespace PanoramicData.Blazor
 						.Select(columnConfig =>
 						{
 							var dTColumn = Columns.Single(c => c.Id == columnConfig.Id);
-		   					if (columnConfig.Title != default)
+							if (columnConfig.Title != default)
 							{
 								dTColumn.SetTitle(columnConfig.Title);
 							}
@@ -275,7 +275,7 @@ namespace PanoramicData.Blazor
 			try
 			{
 				Columns.Add(column);
-				if(column.Id == SortCriteria?.Key)
+				if (column.Id == SortCriteria?.Key)
 				{
 					column.SortDirection = SortCriteria.Direction;
 				}
@@ -392,14 +392,14 @@ namespace PanoramicData.Blazor
 			if (column.Sortable && !string.IsNullOrWhiteSpace(column.Id))
 			{
 				// if direction specified then sort as requested
-				if(direction.HasValue)
+				if (direction.HasValue)
 				{
 					column.SortDirection = direction.Value;
 				}
 				else
 				{
 					// if column already sorted then reverse direction
-					if(column.Id == SortCriteria?.Key)
+					if (column.Id == SortCriteria?.Key)
 					{
 						column.SortDirection = column.SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
 					}
@@ -503,7 +503,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public void CancelEdit()
 		{
-			if(IsEditing)
+			if (IsEditing)
 			{
 				EditItem = null;
 				IsEditing = false;
@@ -519,7 +519,7 @@ namespace PanoramicData.Blazor
 			get
 			{
 				var dict = new Dictionary<string, object>();
-				if(AllowDrag)
+				if (AllowDrag)
 				{
 					dict.Add("draggable", "true");
 				}
@@ -642,12 +642,12 @@ namespace PanoramicData.Blazor
 			{
 				// find first editable column
 				var key = string.Empty;
-				foreach(var column in ActualColumnsToDisplay)
+				foreach (var column in ActualColumnsToDisplay)
 				{
 					var editable = column.Editable;
 					// override with dynamic config?
 					var config = ColumnsConfig?.Find(x => x.Id == column.Id);
-					if(config?.Editable ?? editable)
+					if (config?.Editable ?? editable)
 					{
 						key = column.Id;
 						break;
@@ -676,60 +676,63 @@ namespace PanoramicData.Blazor
 
 		private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
 		{
-			var key = KeyField!(item)?.ToString();
-			if (key != null && SelectionMode != TableSelectionMode.None)
+			if (SelectionMode != TableSelectionMode.None)
 			{
-				var alreadySelected = Selection.Contains(key);
+				var key = KeyField!(item)?.ToString();
+				if (key != null)
+				{
+					var alreadySelected = Selection.Contains(key);
 
-				// begin edit mode?
-				if(AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
-				{
-					_editTimer?.Change(500, Timeout.Infinite);
-				}
-				else
-				{
-					if (SelectionMode == TableSelectionMode.Single)
+					// begin edit mode?
+					if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
 					{
-						if (!alreadySelected)
-						{
-							Selection.Clear();
-							Selection.Add(key);
-							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
-						}
+						_editTimer?.Change(500, Timeout.Infinite);
 					}
-					else if (SelectionMode == TableSelectionMode.Multiple)
+					else
 					{
-						if(args.ShiftKey && Selection.Count > 0) // range selection (from last selected to row clicked on)
+						if (SelectionMode == TableSelectionMode.Single)
 						{
-							Selection.RemoveRange(0, Selection.Count - 1);
-							var idxFrom = ItemsToDisplay.FindIndex(x => KeyField!(x)?.ToString() == Selection[0]);
-							var idxTo = ItemsToDisplay.FindIndex(x => KeyField!(x)?.ToString() == key);
-							if (idxFrom > -1 && idxTo > -1)
+							if (!alreadySelected)
 							{
 								Selection.Clear();
-								Selection.AddRange(ItemsToDisplay
-									.GetRange(Math.Min(idxFrom, idxTo), (Math.Max(idxFrom, idxTo) - Math.Min(idxFrom, idxTo)) + 1)
-									.Select(x => KeyField!(x).ToString()));
+								Selection.Add(key);
 								await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 							}
 						}
-						else if (args.CtrlKey) // toggle selection
+						else if (SelectionMode == TableSelectionMode.Multiple)
 						{
-							if (alreadySelected)
+							if (args.ShiftKey && Selection.Count > 0) // range selection (from last selected to row clicked on)
 							{
-								Selection.Remove(key);
+								Selection.RemoveRange(0, Selection.Count - 1);
+								var idxFrom = ItemsToDisplay.FindIndex(x => KeyField!(x)?.ToString() == Selection[0]);
+								var idxTo = ItemsToDisplay.FindIndex(x => KeyField!(x)?.ToString() == key);
+								if (idxFrom > -1 && idxTo > -1)
+								{
+									Selection.Clear();
+									Selection.AddRange(ItemsToDisplay
+										.GetRange(Math.Min(idxFrom, idxTo), (Math.Max(idxFrom, idxTo) - Math.Min(idxFrom, idxTo)) + 1)
+										.Select(x => KeyField!(x).ToString()));
+									await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+								}
 							}
-							else
+							else if (args.CtrlKey) // toggle selection
 							{
+								if (alreadySelected)
+								{
+									Selection.Remove(key);
+								}
+								else
+								{
+									Selection.Add(key);
+								}
+								await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+							}
+							else if (!alreadySelected) // single selection
+							{
+								Selection.Clear();
 								Selection.Add(key);
+								await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 							}
-							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
-						}
-						else if (!alreadySelected) // single selection
-						{
-							Selection.Clear();
-							Selection.Add(key);
-							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 						}
 					}
 				}
@@ -750,7 +753,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnKeyDownAsync(KeyboardEventArgs args)
 		{
-			if(IsEditing)
+			if (IsEditing)
 			{
 				switch (args.Code)
 				{
@@ -783,14 +786,14 @@ namespace PanoramicData.Blazor
 
 					case "ArrowUp":
 					case "ArrowDown":
-						if(Selection.Count == 1 && KeyField != null)
+						if (Selection.Count == 1 && KeyField != null)
 						{
 							var items = ItemsToDisplay.ToList();
 							var item = items.Find(x => KeyField(x).ToString() == Selection[0]);
-							if(item != null)
+							if (item != null)
 							{
 								var idx = items.IndexOf(item);
-								if(args.Code == "ArrowUp" && idx > 0)
+								if (args.Code == "ArrowUp" && idx > 0)
 								{
 									Selection.Clear();
 									Selection.Add(KeyField(items[idx - 1]).ToString());
@@ -820,10 +823,10 @@ namespace PanoramicData.Blazor
 		private string GetDynamicRowClasses(TItem item)
 		{
 			var sb = new StringBuilder();
-			if(SelectionMode != TableSelectionMode.None)
+			if (SelectionMode != TableSelectionMode.None)
 			{
 				var key = KeyField!(item).ToString();
-				if(Selection.Contains(key))
+				if (Selection.Contains(key))
 				{
 					sb.Append("selected ");
 				}
@@ -831,7 +834,7 @@ namespace PanoramicData.Blazor
 			if (RowClass != null)
 			{
 				var classes = RowClass(item);
-				if(!string.IsNullOrWhiteSpace(classes))
+				if (!string.IsNullOrWhiteSpace(classes))
 				{
 					sb.Append(classes);
 				}
@@ -842,7 +845,7 @@ namespace PanoramicData.Blazor
 		private bool IsColumnInEditMode(PDColumn<TItem> column, TItem item)
 		{
 			// is editing current row?
-			if(IsEditing && item == EditItem)
+			if (IsEditing && item == EditItem)
 			{
 				var editable = column.Editable;
 				// override with dynamic config?
@@ -861,10 +864,10 @@ namespace PanoramicData.Blazor
 			{
 				// get all selected items
 				var items = new List<TItem>();
-				foreach(var key in Selection)
+				foreach (var key in Selection)
 				{
 					var item = ItemsToDisplay.Find(x => KeyField(x).ToString() == key);
-					if(item != null)
+					if (item != null)
 					{
 						items.Add(item);
 					}
@@ -880,7 +883,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnDragDropAsync(TItem row, MouseEventArgs args)
 		{
-			if(DragContext != null)
+			if (DragContext != null)
 			{
 				await Drop.InvokeAsync(new DropEventArgs(row, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 			}
