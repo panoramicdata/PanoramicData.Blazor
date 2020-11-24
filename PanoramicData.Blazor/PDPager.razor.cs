@@ -1,10 +1,10 @@
-﻿using System;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
+using System;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDPager : IDisposable
-    {
+	{
 		/// <summary>
 		/// Gets or sets the text to be displayed when no items are available.
 		/// </summary>

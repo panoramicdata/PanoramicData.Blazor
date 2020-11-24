@@ -1,12 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
+using System;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDDropZone : IDisposable
-    {
+	{
 		private static int _idSequence;
 		private DotNetObjectReference<PDDropZone>? _dotNetReference;
 
@@ -54,7 +54,7 @@ namespace PanoramicData.Blazor
 
 		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
-			if(firstRender)
+			if (firstRender)
 			{
 				_dotNetReference = DotNetObjectReference.Create(this);
 				await JSRuntime.InvokeVoidAsync("panoramicData.initializeDropZone", Id, UploadUrl, _dotNetReference);
@@ -92,14 +92,14 @@ namespace PanoramicData.Blazor
 			}
 			var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size);
 			await UploadStarted.InvokeAsync(args).ConfigureAwait(true);
-			if(args.FormFields.Count == 0)
+			if (args.FormFields.Count == 0)
 			{
 				return new string[0];
 			}
 			else
 			{
 				var fields = new System.Collections.Generic.List<string>();
-				foreach(var kvp in args.FormFields)
+				foreach (var kvp in args.FormFields)
 				{
 					fields.Add($"{kvp.Key}={kvp.Value}");
 				}

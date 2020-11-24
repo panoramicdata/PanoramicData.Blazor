@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
+using System;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {

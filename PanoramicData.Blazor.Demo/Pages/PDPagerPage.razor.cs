@@ -1,6 +1,6 @@
-﻿using System;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
+using System;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {

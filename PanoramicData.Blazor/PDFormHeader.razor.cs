@@ -1,13 +1,13 @@
-﻿using System;
-using System.Reflection;
-using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDFormHeader<TItem> where TItem : class
-    {
+	{
 		/// <summary>
 		/// Injected javascript interop object.
 		/// </summary>

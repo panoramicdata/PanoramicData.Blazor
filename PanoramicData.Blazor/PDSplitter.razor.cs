@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using PanoramicData.Blazor.Exceptions;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Exceptions;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDSplitter
-    {
+	{
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		/// <summary>
@@ -78,7 +78,7 @@ namespace PanoramicData.Blazor
 
 		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
-			if(firstRender)
+			if (firstRender)
 			{
 				var ids = Panels.Select(x => $"#{x.Id}").ToArray();
 				var sizesSum = Convert.ToDouble(Panels.Select(x => x.Size).Sum());

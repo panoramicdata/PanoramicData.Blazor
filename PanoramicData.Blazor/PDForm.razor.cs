@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Services;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Services;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDForm<TItem> where TItem : class
-    {
+	{
 		private bool _showHelp;
 
 		public event EventHandler? ErrorsChanged;
@@ -181,7 +181,7 @@ namespace PanoramicData.Blazor
 						await Error.InvokeAsync(response.ErrorMessage).ConfigureAwait(true);
 					}
 				}
-				else if(Mode == FormModes.Edit)
+				else if (Mode == FormModes.Edit)
 				{
 					var response = await DataProvider.UpdateAsync(Item, Delta, CancellationToken.None).ConfigureAwait(true);
 					if (response.Success)
@@ -212,7 +212,7 @@ namespace PanoramicData.Blazor
 		/// <param name="messages">One or more error messages.</param>
 		public void SetFieldErrors(string fieldName, params string[] messages)
 		{
-			if(!Errors.ContainsKey(fieldName))
+			if (!Errors.ContainsKey(fieldName))
 			{
 				Errors.Add(fieldName, new List<string>());
 			}

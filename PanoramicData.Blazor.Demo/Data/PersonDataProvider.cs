@@ -1,10 +1,10 @@
-﻿using System;
+﻿using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Services;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using PanoramicData.Blazor.Services;
-using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor.Demo.Data
 {
@@ -53,9 +53,9 @@ namespace PanoramicData.Blazor.Demo.Data
 					.AsQueryable<Person>();
 
 				// apply search criteria and get a total count of matching items
-				if(!string.IsNullOrWhiteSpace(request.SearchText))
+				if (!string.IsNullOrWhiteSpace(request.SearchText))
 				{
-					query = query.Where(x => x.FirstName.Contains(request.SearchText) ||x.LastName.Contains(request.SearchText));
+					query = query.Where(x => x.FirstName.Contains(request.SearchText) || x.LastName.Contains(request.SearchText));
 				}
 				total = query.Count();
 
@@ -73,7 +73,7 @@ namespace PanoramicData.Blazor.Demo.Data
 				}
 
 				// apply paging
-				if(request.Take > 0)
+				if (request.Take > 0)
 				{
 					query = query.Skip(request.Skip).Take(request.Take);
 				}
@@ -96,7 +96,7 @@ namespace PanoramicData.Blazor.Demo.Data
 			return Task.Run(() =>
 			{
 				var existingPerson = _people.Find(x => x.Id == item.Id);
-				if(existingPerson == null)
+				if (existingPerson == null)
 				{
 					return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
 				}

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Components;
+using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDFormFooter<TItem> : IDisposable where TItem : class
-    {
+	{
 		/// <summary>
 		/// Form the component belongs to.
 		/// </summary>
@@ -115,13 +115,13 @@ namespace PanoramicData.Blazor
 		protected override void OnInitialized()
 		{
 			base.OnInitialized();
-			if(Form != null)
+			if (Form != null)
 			{
 				// listen for error changes
 				Form.ErrorsChanged += Form_ErrorsChanged;
 
 				// create default buttons
-				Buttons.Add(new ToolbarButton { Key = "Yes", Text = YesButtonText, CssClass = YesButtonCssClass, IconCssClass = YesButtonIconCssClass,  ShiftRight = true });
+				Buttons.Add(new ToolbarButton { Key = "Yes", Text = YesButtonText, CssClass = YesButtonCssClass, IconCssClass = YesButtonIconCssClass, ShiftRight = true });
 				Buttons.Add(new ToolbarButton { Key = "No", Text = NoButtonText, CssClass = NoButtonCssClass, IconCssClass = NoButtonIconCssClass });
 				Buttons.Add(new ToolbarButton { Key = "Delete", Text = DeleteButtonText, CssClass = DeleteButtonCssClass, IconCssClass = DeleteButtonIconCssClass });
 				Buttons.Add(new ToolbarButton { Key = "Save", Text = SaveButtonText, CssClass = SaveButtonCssClass, IconCssClass = SaveButtonIconCssClass, ShiftRight = true });
@@ -131,7 +131,7 @@ namespace PanoramicData.Blazor
 
 		private void SetVisibility(ToolbarItem? item, bool shown)
 		{
-			if(item != null)
+			if (item != null)
 			{
 				item.IsVisible = shown;
 			}
@@ -191,7 +191,7 @@ namespace PanoramicData.Blazor
 
 		public void Dispose()
 		{
-			if(Form != null)
+			if (Form != null)
 			{
 				Form.ErrorsChanged -= Form_ErrorsChanged;
 			}

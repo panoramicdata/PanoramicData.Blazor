@@ -1,12 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.WebUtilities;
 using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
@@ -93,7 +93,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void OnClick(Person item)
 		{
-			EventManager?.Add(new Event ("Click", new EventArgument("Person", item.FirstName)));
+			EventManager?.Add(new Event("Click", new EventArgument("Person", item.FirstName)));
 		}
 
 		private void OnDoubleClick(Person item)
@@ -122,7 +122,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void OnDragEnter(DragEventArgs args)
 		{
-			if(DragContext?.Payload == null)
+			if (DragContext?.Payload == null)
 			{
 				DropZoneCss = "bad";
 			}
@@ -141,7 +141,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			// get item that was dragged (TestRow)
 			DropMessage = "Boom!";
-			if(DragContext?.Payload != null)
+			if (DragContext?.Payload != null)
 			{
 				var items = (List<Person>)DragContext.Payload;
 				DropMessage = string.Join(", ", items.Select(x => x.FirstName));

@@ -1,13 +1,13 @@
-﻿using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDModal
-    {
+	{
 		private static int _sequence;
 		private TaskCompletionSource<string>? _userChoice;
 
@@ -31,7 +31,8 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets the buttons displayed in the modal dialog footer.
 		/// </summary>
-		[Parameter] public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>
+		[Parameter]
+		public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>
 		{
 			new ToolbarButton { Text = "Yes", CssClass = "btn-primary", ShiftRight = true },
 			new ToolbarButton { Text = "No" },
@@ -89,13 +90,13 @@ namespace PanoramicData.Blazor
 			// focus first button with btn-primary class and key
 			var btn = Buttons.Find(x =>
 			{
-				if(x is ToolbarButton btn)
+				if (x is ToolbarButton btn)
 				{
 					return !string.IsNullOrWhiteSpace(btn.Key) && btn.CssClass.IndexOf("btn-primary", System.StringComparison.OrdinalIgnoreCase) >= 0;
 				}
 				return false;
 			});
-			if(btn != null)
+			if (btn != null)
 			{
 				await JSRuntime.InvokeVoidAsync("panoramicData.focus", $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
 			}

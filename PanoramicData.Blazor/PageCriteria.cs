@@ -3,7 +3,7 @@
 namespace PanoramicData.Blazor
 {
 	public class PageCriteria
-    {
+	{
 		private uint _page;
 		private uint _pageSize = 10;
 		private uint _totalCount;
@@ -69,7 +69,7 @@ namespace PanoramicData.Blazor
 			get { return _pageSize; }
 			set
 			{
-				if(value == 0)
+				if (value == 0)
 				{
 					throw new ArgumentOutOfRangeException("PageSize must be greater than 0");
 				}
@@ -99,11 +99,11 @@ namespace PanoramicData.Blazor
 					return;
 				}
 				_totalCount = value;
-				if(_totalCount == 0)
+				if (_totalCount == 0)
 				{
 					Page = 1;
 				}
-				else if(_page > PageCount)
+				else if (_page > PageCount)
 				{
 					Page = PageCount;
 				}

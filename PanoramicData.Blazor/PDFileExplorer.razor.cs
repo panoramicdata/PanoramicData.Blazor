@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Services;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using PanoramicData.Blazor.Services;
-using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDFileExplorer
-    {
+	{
 		private TreeNode<FileExplorerItem>? _selectedNode;
 		private PDTree<FileExplorerItem>? _tree = null!;
 		private PDTable<FileExplorerItem>? _table = null!;
@@ -43,7 +43,8 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets the Table column configuration.
 		/// </summary>
-		[Parameter] public List<PDColumnConfig> ColumnConfig { get; set; } = new List<PDColumnConfig>
+		[Parameter]
+		public List<PDColumnConfig> ColumnConfig { get; set; } = new List<PDColumnConfig>
 			{
 				new PDColumnConfig { Id = "Icon", Title = "" },
 				new PDColumnConfig { Id = "Name", Title = "Name" },
@@ -231,7 +232,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		private void OnTreeItemsLoaded(List<FileExplorerItem> items)
 		{
-		 	items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
+			items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
 		}
 
 		private async Task OnTreeNodeUpdatedAsync(TreeNode<FileExplorerItem> node)
@@ -313,10 +314,11 @@ namespace PanoramicData.Blazor
 						{  "Path", newPath }
 					};
 				var result = await DataProvider.UpdateAsync(_tree.SelectedNode.Data, delta, CancellationToken.None).ConfigureAwait(true);
-				if(result.Success)
+				if (result.Success)
 				{
 					// synchronize existing node paths for tree and table
-					_tree.RootNode.Walk((x) => {
+					_tree.RootNode.Walk((x) =>
+					{
 						if (x.Data != null)
 						{
 							x.Key = x.Key.ReplacePathPrefix(previousPath, newPath);
@@ -342,7 +344,7 @@ namespace PanoramicData.Blazor
 				});
 			}
 
-			if(GroupFolders)
+			if (GroupFolders)
 			{
 				var folders = items.Where(x => x.EntryType == FileExplorerItemType.Directory).ToList();
 				var files = items.Where(x => x.EntryType == FileExplorerItemType.File).ToList();
@@ -369,7 +371,7 @@ namespace PanoramicData.Blazor
 
 		private void OnTableBeforeEdit(TableBeforeEditEventArgs<FileExplorerItem> args)
 		{
-			if(!AllowRename || args.Item.Name == ".." || args.Item.IsUploading)
+			if (!AllowRename || args.Item.Name == ".." || args.Item.IsUploading)
 			{
 				args.Cancel = true;
 			}
@@ -382,7 +384,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTableKeyDownAsync(KeyboardEventArgs args)
 		{
-			if(args.Code == "Delete")
+			if (args.Code == "Delete")
 			{
 				await DeleteFilesAsync().ConfigureAwait(true);
 			}
@@ -471,7 +473,7 @@ namespace PanoramicData.Blazor
 				if (IsValidSelection())
 				{
 					// also check for directory
-					if(_table.ItemsToDisplay.Any(x => _table.Selection.Contains(x.Path) && x.EntryType == FileExplorerItemType.Directory))
+					if (_table.ItemsToDisplay.Any(x => _table.Selection.Contains(x.Path) && x.EntryType == FileExplorerItemType.Directory))
 					{
 						TableContextItems.Single(x => x.Text == "Download").IsDisabled = true;
 					}
@@ -511,11 +513,11 @@ namespace PanoramicData.Blazor
 					{
 						await DeleteFilesAsync().ConfigureAwait(true);
 					}
-					else if(menuItem.Text == "Rename")
+					else if (menuItem.Text == "Rename")
 					{
 						await _table!.BeginEditAsync().ConfigureAwait(true);
 					}
-					else if(menuItem.Text == "Download")
+					else if (menuItem.Text == "Download")
 					{
 						foreach (var selectedPath in _table!.Selection)
 						{
@@ -567,7 +569,7 @@ namespace PanoramicData.Blazor
 				var targetPath = _tree.SelectedNode.Data.Path;
 				var filenames = args.Files.Select(x => x.Name ?? string.Empty).ToArray();
 				var conflicts = await GetConflictsAsync(targetPath, filenames).ConfigureAwait(true);
-				if(conflicts.Count > 0)
+				if (conflicts.Count > 0)
 				{
 					var choice = await PromptUserForConflictResolution(conflicts.Select(x => x.Name).ToArray()).ConfigureAwait(true);
 					if (choice == "Cancel")
@@ -609,13 +611,13 @@ namespace PanoramicData.Blazor
 
 		private async Task OnUploadProgressAsync(DropZoneUploadProgressEventArgs args)
 		{
-			if(_table is null)
+			if (_table is null)
 			{
 				return;
 			}
 
 			// is the upload happening to the current path?
-			if(args.Path == FolderPath)
+			if (args.Path == FolderPath)
 			{
 				// add virtual file item
 				var item = _table.ItemsToDisplay.Find(x => x.Name == args.Name);
@@ -645,7 +647,7 @@ namespace PanoramicData.Blazor
 			{
 				// add virtual file item
 				var item = _table?.ItemsToDisplay.Find(x => x.Name == args.Name);
-				if(item != null)
+				if (item != null)
 				{
 					item.IsUploading = false;
 				}
@@ -656,7 +658,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnToolbarButtonClickAsync(string key)
 		{
-			switch(key)
+			switch (key)
 			{
 				case "navigate-up":
 					await NavigateUpAsync().ConfigureAwait(true);
@@ -689,20 +691,20 @@ namespace PanoramicData.Blazor
 			   args.Payload is List<FileExplorerItem> payload)
 			{
 				// check not dropping an item onto itself
-				if(payload.Any(x => x.Path == target.Path))
+				if (payload.Any(x => x.Path == target.Path))
 				{
 					return;
 				}
 
 				// check can move/copy all items
-				if(payload.Any(x => !x.CanCopyMove))
+				if (payload.Any(x => !x.CanCopyMove))
 				{
 					return;
 				}
 
 				// moving item to parent folder?
 				var targetPath = target.Path;
-				if(target.Name == "..")
+				if (target.Name == "..")
 				{
 					targetPath = Path.GetDirectoryName(target.ParentPath);
 				}
@@ -897,12 +899,12 @@ namespace PanoramicData.Blazor
 				ConflictResolution = MoveCopyArgs.ConflictResolutions.Prompt,
 				Conflicts = await GetConflictsAsync(targetPath, payload.Select(x => x.Name).ToArray()).ConfigureAwait(true)
 			};
-			if(conflictArgs.Conflicts.Count > 0)
+			if (conflictArgs.Conflicts.Count > 0)
 			{
 				// allow application to process conflicts
 				await MoveCopyConflict.InvokeAsync(conflictArgs).ConfigureAwait(true);
 
-				if(conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Prompt)
+				if (conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Prompt)
 				{
 					var choice = await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => x.Name).ToArray()).ConfigureAwait(true);
 					conflictArgs.ConflictResolution = choice == "Overwrite" ? MoveCopyArgs.ConflictResolutions.Overwrite
@@ -916,7 +918,7 @@ namespace PanoramicData.Blazor
 				foreach (var source in conflictArgs.Payload)
 				{
 					// delete conflicting target file?
-					if(conflictArgs.Conflicts.Any(x => x.Name == source.Name) && conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Overwrite)
+					if (conflictArgs.Conflicts.Any(x => x.Name == source.Name) && conflictArgs.ConflictResolution == MoveCopyArgs.ConflictResolutions.Overwrite)
 					{
 						var target = new FileExplorerItem { EntryType = source.EntryType, Path = $"{conflictArgs.TargetPath}/{source.Name}" };
 						var result = await DataProvider.DeleteAsync(target, CancellationToken.None).ConfigureAwait(true);
@@ -964,7 +966,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public async Task RefreshTableAsync()
 		{
-			if(_table is null)
+			if (_table is null)
 			{
 				throw new InvalidOperationException("_table should not be null.");
 			}

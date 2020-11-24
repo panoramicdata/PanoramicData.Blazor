@@ -3,7 +3,7 @@
 namespace PanoramicData.Blazor
 {
 	public partial class PDToolbarSeparator : IToolbarItem
-    {
+	{
 		/// <summary>
 		/// Gets or sets the unique identifier.
 		/// </summary>

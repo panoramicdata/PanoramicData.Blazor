@@ -1,14 +1,14 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Services;
+﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
+using PanoramicData.Blazor.Services;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
-    public partial class PDFormPage
-    {
+	public partial class PDFormPage
+	{
 		private readonly PersonDataProvider _personDataProvider = new PersonDataProvider();
 		private PDForm<Person> Form { get; set; } = null!;
 		private List<Person> People { get; set; } = new List<Person>();
@@ -58,10 +58,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private void RefreshPeople()
 		{
 			_personDataProvider
-				.GetDataAsync(new DataRequest<Person> {
+				.GetDataAsync(new DataRequest<Person>
+				{
 					Take = 5,
 					SortFieldExpression = (x) => x.DateCreated,
-					SortDirection = SortDirection.Descending }, CancellationToken.None)
+					SortDirection = SortDirection.Descending
+				}, CancellationToken.None)
 				.ContinueWith(PopulatePeopleResult);
 		}
 

@@ -1,16 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
+using System.Collections.Generic;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
-    public partial class PDToolbarPage
-    {
+	public partial class PDToolbarPage
+	{
 		private string _searchText = string.Empty;
 
 		private List<MenuItem> FileMenuItems = new List<MenuItem>

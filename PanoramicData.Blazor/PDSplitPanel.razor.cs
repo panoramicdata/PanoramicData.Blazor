@@ -3,7 +3,7 @@
 namespace PanoramicData.Blazor
 {
 	public partial class PDSplitPanel
-    {
+	{
 		private static int _idSequence;
 
 		/// <summary>

@@ -1,13 +1,12 @@
-﻿using System;
-using System.IO;
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Services;
+﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
+using PanoramicData.Blazor.Services;
+using System.IO;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDTreePage
-    {
+	{
 		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 		private FileExplorerItem? _selectedEntry;
 		private bool ShowLines { get; set; }
@@ -50,7 +49,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			{
 				args.Cancel = true;
 			}
-			else if(args.Node?.Data != null)
+			else if (args.Node?.Data != null)
 			{
 				// update the underlying data items path value (as this is what the template displays)
 				args.Node.Data.Path = Path.Combine(item?.ParentPath, args.NewValue);

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Reflection;
-using System.Linq.Expressions;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace PanoramicData.Blazor
 {
@@ -117,7 +117,7 @@ namespace PanoramicData.Blazor
 		/// <returns></returns>
 		public Type? GetFieldType()
 		{
-			if(Field is null)
+			if (Field is null)
 			{
 				return null;
 			}

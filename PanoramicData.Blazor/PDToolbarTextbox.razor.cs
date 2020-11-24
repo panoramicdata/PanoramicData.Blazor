@@ -1,11 +1,11 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
-    public partial class PDToolbarTextbox
-    {
+	public partial class PDToolbarTextbox
+	{
 		/// <summary>
 		/// Gets or sets the unique identifier.
 		/// </summary>

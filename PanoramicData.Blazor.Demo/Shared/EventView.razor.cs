@@ -1,12 +1,12 @@
-﻿using System;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
+using System;
 
 namespace PanoramicData.Blazor.Demo.Shared
 {
 	public partial class EventView : IDisposable
-    {
-    	[Parameter] public RenderFragment? ChildContent { get; set; }
+	{
+		[Parameter] public RenderFragment? ChildContent { get; set; }
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
 

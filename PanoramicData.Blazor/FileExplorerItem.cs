@@ -55,7 +55,7 @@ namespace PanoramicData.Blazor
 				//   /abc.txt                  => "/"
 				//   /folder1/abc.txt          => "/folder1"
 				//   /folder1/folder2/abc.txt  => "/folder1/folder2"
-				if(Path == "/")
+				if (Path == "/")
 				{
 					return "";
 				}

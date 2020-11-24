@@ -1,14 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Globalization;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Linq.Expressions;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Extensions;
+﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Exceptions;
+using PanoramicData.Blazor.Extensions;
+using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
@@ -274,7 +274,7 @@ namespace PanoramicData.Blazor
 			}
 
 			// password / sensitive info?
-			if(IsPassword)
+			if (IsPassword)
 			{
 				return "".PadRight(value.ToString().Length, '*');
 			}

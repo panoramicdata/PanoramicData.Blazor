@@ -1,13 +1,13 @@
-﻿using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDContextMenuPage
-    {
+	{
 		private readonly Random _random = new Random(Environment.TickCount);
 		private List<MenuItem> _items = new List<MenuItem>();
 

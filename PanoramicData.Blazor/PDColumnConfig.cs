@@ -4,7 +4,7 @@
 	/// The PDColumnConfig class allow the ability to change certain column settings at runtime.
 	/// </summary>
 	public class PDColumnConfig
-    {
+	{
 		/// <summary>
 		///  Gets or sets the columns unique Id.
 		/// </summary>

@@ -1,15 +1,15 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Demo.Data;
+using PanoramicData.Blazor.Services;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
-    public partial class PDFormPage2
-    {
+	public partial class PDFormPage2
+	{
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider();
 
 		private PDForm<Person> Form { get; set; } = null!;

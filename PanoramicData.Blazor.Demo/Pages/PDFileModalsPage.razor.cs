@@ -1,11 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Services;
-using PanoramicData.Blazor.Demo.Data;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
-    public partial class PDFileModalsPage
-    {
+	public partial class PDFileModalsPage
+	{
 		private PDFileModal _fileModal = null!;
 		private string _openResult = string.Empty;
 		private string _saveAsResult = string.Empty;

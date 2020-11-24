@@ -3,7 +3,7 @@
 namespace PanoramicData.Blazor
 {
 	public partial class PDDragContext
-    {
+	{
 		[Parameter] public RenderFragment ChildContent { get; set; } = null!;
 
 		/// <summary>

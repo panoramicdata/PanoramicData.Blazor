@@ -1,16 +1,15 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Extensions;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Linq.Expressions;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDField<TItem> where TItem : class
-    {
+	{
 		private string? _title;
 
 		/// <summary>

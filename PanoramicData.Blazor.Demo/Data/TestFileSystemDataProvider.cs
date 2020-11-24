@@ -1,10 +1,10 @@
-﻿using System;
+﻿using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Services;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using PanoramicData.Blazor.Services;
-using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor.Demo.Data
 {
@@ -105,9 +105,9 @@ namespace PanoramicData.Blazor.Demo.Data
 			var result = new OperationResponse();
 			await Task.Run(() =>
 			{
-				if(_testData.RemoveAll(x => item.EntryType == FileExplorerItemType.Directory
-					? x.Path.StartsWith(item.Path)
-					: x.Path == item.Path) > 0)
+				if (_testData.RemoveAll(x => item.EntryType == FileExplorerItemType.Directory
+					 ? x.Path.StartsWith(item.Path)
+					 : x.Path == item.Path) > 0)
 				{
 					result.Success = true;
 				}
@@ -133,21 +133,21 @@ namespace PanoramicData.Blazor.Demo.Data
 			{
 				// find original item
 				var existingItem = _testData.FirstOrDefault(x => x.Path == item.Path);
-				if(existingItem == null)
+				if (existingItem == null)
 				{
 					result.ErrorMessage = "Item not found";
 				}
 				else
 				{
 					// only path updates supported
-					if(!delta.ContainsKey("Path"))
+					if (!delta.ContainsKey("Path"))
 					{
 						result.ErrorMessage = "Only Path property update supported";
 					}
 					else
 					{
 						var newPath = delta["Path"]?.ToString();
-						if(string.IsNullOrWhiteSpace(newPath))
+						if (string.IsNullOrWhiteSpace(newPath))
 						{
 							result.ErrorMessage = "Invalid value for Path property";
 						}
@@ -155,11 +155,11 @@ namespace PanoramicData.Blazor.Demo.Data
 						{
 							// check for move/copy - is the target a directory?
 							var targetItem = _testData.FirstOrDefault(x => x.Path == newPath);
-							if(targetItem?.EntryType == FileExplorerItemType.Directory)
+							if (targetItem?.EntryType == FileExplorerItemType.Directory)
 							{
 								// check for conflict
 								targetItem = _testData.FirstOrDefault(x => x.Path == $"{newPath}/{existingItem.Name}");
-								if(targetItem != null)
+								if (targetItem != null)
 								{
 									result.ErrorMessage = "Conflict";
 									return;
@@ -244,7 +244,7 @@ namespace PanoramicData.Blazor.Demo.Data
 
 				// move / copy child items
 				var subItems = _testData.Where(x => x.ParentPath == originalPath);
-				foreach(var subItem in subItems)
+				foreach (var subItem in subItems)
 				{
 					MoveOrCopyItem(subItem, item.Path, isCopy);
 				}
@@ -271,11 +271,11 @@ namespace PanoramicData.Blazor.Demo.Data
 
 		public static string GetIconClass(FileExplorerItem item)
 		{
-			if(item.EntryType == FileExplorerItemType.Directory)
+			if (item.EntryType == FileExplorerItemType.Directory)
 			{
 				return "far fa-fw fa-folder";
 			}
-			switch(item.FileExtension.ToLower())
+			switch (item.FileExtension.ToLower())
 			{
 				case "doc":
 				case "docx":

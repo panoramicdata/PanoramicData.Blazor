@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
@@ -81,7 +81,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnContentMouseDownAsync(MouseEventArgs args)
 		{
-			if(Node != null)
+			if (Node != null)
 			{
 				await Tree.SelectNode(Node).ConfigureAwait(true);
 			}

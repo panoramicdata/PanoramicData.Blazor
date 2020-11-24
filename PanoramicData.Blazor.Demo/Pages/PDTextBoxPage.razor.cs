@@ -4,8 +4,8 @@ using PanoramicData.Blazor.Demo.Data;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
-    public partial class PDTextBoxPage
-    {
+	public partial class PDTextBoxPage
+	{
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 		private bool Visible { get; set; } = true;

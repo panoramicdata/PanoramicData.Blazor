@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
+using System.Collections.Generic;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDToolbar
-    {
+	{
 		/// <summary>
 		/// Child HTML content.
 		/// </summary>

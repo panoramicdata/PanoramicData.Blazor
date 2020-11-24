@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Demo.Data;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Demo.Data;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
-    public partial class PDFormPage3
-    {
+	public partial class PDFormPage3
+	{
 		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider();
 		private PageCriteria _pageCriteria = new PageCriteria(1, 10);
 		private SortCriteria _sortCriteria = new SortCriteria("DateCreatedCol", SortDirection.Descending);
@@ -70,7 +70,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 				var id = int.Parse(Table.Selection[0]);
 				SelectedPerson = Table.ItemsToDisplay.Find(x => x.Id == id);
 				Form.SetItem(SelectedPerson);
-				if(SelectedPerson != null)
+				if (SelectedPerson != null)
 				{
 					Form.SetMode(FormModes.Edit);
 				}
@@ -80,7 +80,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private OptionInfo[] GetLocationOptions(FormField<Person> field, Person item)
 		{
 			var options = new List<OptionInfo>();
-			for(var i = 0; i  < PersonDataProvider.Locations.Length; i++)
+			for (var i = 0; i < PersonDataProvider.Locations.Length; i++)
 			{
 				options.Add(new OptionInfo { Text = PersonDataProvider.Locations[i], Value = i, IsSelected = item?.Location == i });
 			}

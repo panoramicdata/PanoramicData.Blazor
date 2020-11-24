@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
@@ -8,7 +8,7 @@ namespace PanoramicData.Blazor
 	/// items that may be grouped into pages.
 	/// </summary>
 	public interface IPageableComponent
-    {
+	{
 		/// <summary>
 		/// Gets the current page size.
 		/// </summary>

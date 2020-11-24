@@ -1,13 +1,13 @@
-﻿using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Services;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDFileModal
-    {
+	{
 		private PDModal _modal = null!;
 		private PDModal _modalConfirm = null!;
 		private string _modalTitle = string.Empty;
@@ -37,7 +37,7 @@ namespace PanoramicData.Blazor
 		protected override void OnInitialized()
 		{
 			// create toolbar contents
-			_toolbarItems.AddRange(new ToolbarItem [] {
+			_toolbarItems.AddRange(new ToolbarItem[] {
 				_filenameTextbox,
 				_okButton,
 				_cancelButton
@@ -109,7 +109,7 @@ namespace PanoramicData.Blazor
 				if (existing != null)
 				{
 					var confirmation = await _modalConfirm.ShowAndWaitResultAsync().ConfigureAwait(true);
-					if(confirmation == "Yes")
+					if (confirmation == "Yes")
 					{
 						existing = null;
 					}
@@ -143,7 +143,7 @@ namespace PanoramicData.Blazor
 
 		private void OnFilenameKeypress(KeyboardEventArgs args)
 		{
-			if(args.Code == "Enter" && !string.IsNullOrWhiteSpace(_filenameTextbox.Value))
+			if (args.Code == "Enter" && !string.IsNullOrWhiteSpace(_filenameTextbox.Value))
 			{
 				Task.Run(async () => await _modal.OnButtonClick(_okButton.Key).ConfigureAwait(true)).ConfigureAwait(true);
 			}

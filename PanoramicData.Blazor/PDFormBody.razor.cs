@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.JSInterop;
+using PanoramicData.Blazor.Extensions;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.JSInterop;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging.Abstractions;
-using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor
 {
@@ -63,7 +63,7 @@ namespace PanoramicData.Blazor
 		{
 			if (Table != null)
 			{
-				foreach(var column in Table.Columns)
+				foreach (var column in Table.Columns)
 				{
 					Fields.Add(new FormField<TItem>
 					{
@@ -320,7 +320,7 @@ namespace PanoramicData.Blazor
 							}
 						}
 					}
-					catch(Exception ex)
+					catch (Exception ex)
 					{
 						Form?.SetFieldErrors(memberInfo.Name, ex.Message);
 					}
@@ -335,13 +335,13 @@ namespace PanoramicData.Blazor
 
 		private TItem? GetItemWithUpdates()
 		{
-			if(Form?.Item is null)
+			if (Form?.Item is null)
 			{
 				return null;
 			}
 			var json = System.Text.Json.JsonSerializer.Serialize(Form.Item);
 			var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);
-			foreach(var kvp in Form.Delta)
+			foreach (var kvp in Form.Delta)
 			{
 				var propInfo = clone.GetType().GetProperty(kvp.Key);
 				propInfo?.SetValue(clone, kvp.Value);
@@ -362,7 +362,7 @@ namespace PanoramicData.Blazor
 			{
 				var names = Enum.GetNames(propInfo.PropertyType);
 				var values = Enum.GetValues(propInfo.PropertyType);
-				for(var i = 0; i < values.Length; i++)
+				for (var i = 0; i < values.Length; i++)
 				{
 					var displayName = propInfo.PropertyType.GetMember($"{names[i]}")
 								   ?.First()

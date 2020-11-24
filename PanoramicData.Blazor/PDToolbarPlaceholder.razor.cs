@@ -2,8 +2,8 @@
 
 namespace PanoramicData.Blazor
 {
-    public partial class PDToolbarPlaceholder
-    {
+	public partial class PDToolbarPlaceholder
+	{
 		/// <summary>
 		/// Gets or sets the child content that the drop zone wraps.
 		/// </summary>

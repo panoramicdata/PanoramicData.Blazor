@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Demo.Data;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Demo.Data;
 
 namespace PanoramicData.Blazor.Demo.Shared
 {
 	public partial class DemoSourceView
-    {
+	{
 		private string ActiveTab { get; set; } = "Demo";
 		private const string SourceBaseUrl = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/main/PanoramicData.Blazor.Demo";
 		private HttpClient _httpClient = new HttpClient();
@@ -27,7 +27,7 @@ namespace PanoramicData.Blazor.Demo.Shared
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
-			if(firstRender)
+			if (firstRender)
 			{
 				foreach (var sourceFile in SourceFiles.Split(',', StringSplitOptions.RemoveEmptyEntries))
 				{
@@ -62,7 +62,7 @@ namespace PanoramicData.Blazor.Demo.Shared
 		{
 			get
 			{
-				if(_sourceFiles.ContainsKey(_activeSourceFile))
+				if (_sourceFiles.ContainsKey(_activeSourceFile))
 				{
 					return _sourceFiles[_activeSourceFile].Content;
 				}
@@ -81,7 +81,7 @@ namespace PanoramicData.Blazor.Demo.Shared
 			{
 				return await _httpClient.GetStringAsync(GetUrl(url)).ConfigureAwait(true);
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return $"Failed to load source: {ex.Message}";
 			}
@@ -92,7 +92,7 @@ namespace PanoramicData.Blazor.Demo.Shared
 			if (_sourceFiles.ContainsKey(name))
 			{
 				var sourceFile = _sourceFiles[name];
-				if(string.IsNullOrWhiteSpace(sourceFile.Content))
+				if (string.IsNullOrWhiteSpace(sourceFile.Content))
 				{
 					sourceFile.Content = await LoadSourceAsync(sourceFile.Url).ConfigureAwait(true);
 				}

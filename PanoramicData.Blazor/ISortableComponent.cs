@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
@@ -8,7 +8,7 @@ namespace PanoramicData.Blazor
 	/// items that may be sorted.
 	/// </summary>
 	public interface ISortableComponent
-    {
+	{
 		/// <summary>
 		/// Sort the displayed items.
 		/// </summary>
@@ -19,5 +19,5 @@ namespace PanoramicData.Blazor
 		/// Callback fired whenever the component changes the current sort criteria.
 		/// </summary>
 		EventCallback<SortCriteria> SortChanged { get; set; }
-    }
+	}
 }

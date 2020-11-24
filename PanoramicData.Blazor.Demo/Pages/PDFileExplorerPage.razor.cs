@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using PanoramicData.Blazor.Demo.Data;
+using PanoramicData.Blazor.Services;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Services;
-using PanoramicData.Blazor.Demo.Data;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDFileExplorerPage
-    {
+	{
 		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 		private PDFileExplorer _fileExplorer = null!;
 
@@ -72,7 +72,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			// add custom toolbar button - if not already created
 			var createFileButton = items.Find(x => x.Key == "create-file");
-			if(createFileButton == null)
+			if (createFileButton == null)
 			{
 				items.Insert(2, new ToolbarButton { Key = "create-file", Text = "New File", ToolTip = "Create a new file", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-file-medical" });
 			}
@@ -81,7 +81,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		public async Task OnToolbarClick(string key)
 		{
 			// example of a custom action
-			if(key == "create-file")
+			if (key == "create-file")
 			{
 				await CreateFile().ConfigureAwait(true);
 			}
@@ -99,7 +99,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 
 			// update custom item state - enabled only when no selection
-			if(_fileExplorer.SelectedFilesAndFolders.Length == 0)
+			if (_fileExplorer.SelectedFilesAndFolders.Length == 0)
 			{
 				createFileButton.IsDisabled = false;
 				args.Cancel = false;
@@ -112,7 +112,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		public async Task OnTableContextMenuClick(MenuItemEventArgs args)
 		{
-			if(args.MenuItem.Key == "create-file")
+			if (args.MenuItem.Key == "create-file")
 			{
 				await CreateFile().ConfigureAwait(true);
 			}
@@ -124,14 +124,14 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 			var result = await _dataProvider.CreateAsync(new FileExplorerItem
 			{
-				 EntryType = FileExplorerItemType.File,
-				 Path = newPath,
-				 FileSize = 100,
-				 DateCreated = DateTimeOffset.UtcNow,
-				 DateModified = DateTimeOffset.UtcNow
+				EntryType = FileExplorerItemType.File,
+				Path = newPath,
+				FileSize = 100,
+				DateCreated = DateTimeOffset.UtcNow,
+				DateModified = DateTimeOffset.UtcNow
 			}, CancellationToken.None).ConfigureAwait(true);
 
-			if(result.Success)
+			if (result.Success)
 			{
 				await _fileExplorer.RefreshTableAsync().ConfigureAwait(true);
 				await _fileExplorer.RefreshToolbarAsync().ConfigureAwait(true);

@@ -1,14 +1,14 @@
-﻿using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using PanoramicData.Blazor.Exceptions;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDContextMenu
-    {
+	{
 		private static int _idSequence;
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
@@ -56,7 +56,7 @@ namespace PanoramicData.Blazor
 
 		public async Task ClickHandler(MenuItem item)
 		{
-			if(!item.IsDisabled)
+			if (!item.IsDisabled)
 			{
 				await JSRuntime.InvokeVoidAsync("panoramicData.hideMenu", Id).ConfigureAwait(true);
 				await ItemClick.InvokeAsync(item).ConfigureAwait(true);

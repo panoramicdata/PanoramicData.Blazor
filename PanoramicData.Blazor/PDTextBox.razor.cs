@@ -1,13 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using System;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
-    public partial class PDTextBox : IDisposable
-    {
+	public partial class PDTextBox : IDisposable
+	{
 		private static int _seq;
 		private DotNetObjectReference<PDTextBox>? _objRef;
 
@@ -77,7 +77,7 @@ namespace PanoramicData.Blazor
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
-			if(firstRender && DebounceWait > 0)
+			if (firstRender && DebounceWait > 0)
 			{
 				_objRef = DotNetObjectReference.Create(this);
 				await JSRuntime.InvokeVoidAsync("panoramicData.debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);

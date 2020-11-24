@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using PanoramicData.Blazor.Exceptions;
+using PanoramicData.Blazor.Services;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using PanoramicData.Blazor.Services;
-using PanoramicData.Blazor.Exceptions;
 
 namespace PanoramicData.Blazor
 {
 	public partial class PDTree<TItem> where TItem : class
-    {
+	{
 		private const string IdPrefix = "pd-tree-";
 		private static int _idSequence;
 
@@ -401,7 +401,7 @@ namespace PanoramicData.Blazor
 			}
 
 			// re-apply sorts where necessary
-			foreach(var node in modifiedNodes)
+			foreach (var node in modifiedNodes)
 			{
 				node?.Nodes?.Sort();
 			}

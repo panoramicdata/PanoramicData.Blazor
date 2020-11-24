@@ -211,7 +211,7 @@ namespace PanoramicData.Blazor
 				var i = ParentNode.Nodes.IndexOf(this);
 
 				// if first child then move to parent
-				if(i == 0)
+				if (i == 0)
 				{
 					return ParentNode;
 				}
@@ -227,7 +227,7 @@ namespace PanoramicData.Blazor
 
 		internal bool HasSiblingWithText(string text)
 		{
-			if(ParentNode?.Nodes != null)
+			if (ParentNode?.Nodes != null)
 			{
 				return ParentNode.Nodes.Any(x => x.Text == text);
 			}
@@ -240,7 +240,7 @@ namespace PanoramicData.Blazor
 			{
 				var index = 2;
 				var newText = $"{text} ({index})";
-				while(Nodes?.Any(x => x.Text == newText) == true)
+				while (Nodes?.Any(x => x.Text == newText) == true)
 				{
 					newText = $"{text} ({++index})";
 				}

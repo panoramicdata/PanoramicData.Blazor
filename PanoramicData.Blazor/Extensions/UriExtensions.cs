@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Primitives;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PanoramicData.Blazor.Extensions
 {
