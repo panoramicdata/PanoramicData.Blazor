@@ -92,12 +92,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 			// custom processing - all chars to have single period separator and uppercase
 			var newValue = args.Value.ToString().Replace(".", "");
 			newValue = String.Join(".", newValue.ToArray()).ToUpper();
-			await FormBody.SetFieldValueAsync(FormBody.Fields.First(x => x.Id == "InitialsCol"), newValue).ConfigureAwait(true);
+			await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "InitialsCol"), newValue).ConfigureAwait(true);
 		}
 
 		private async Task OnEmailInput(ChangeEventArgs args)
 		{
-			await FormBody.SetFieldValueAsync(FormBody.Fields.First(x => x.Id == "EmailCol"), args.Value).ConfigureAwait(true);
+			await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "EmailCol"), args.Value).ConfigureAwait(true);
 		}
 
 		private void OnCustomValidate(CustomValidateArgs<Person> args)
@@ -116,7 +116,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 				if (fieldName == "Location" || fieldName == "Department")
 				{
 					var errorMessage = "Peckham location only has Sales departments";
-					if (args.Item.Location == PersonDataProvider.Locations.ToList().IndexOf("Peckham") && args.Item.Department != Departments.Sales)
+					var isPeckham = Form.GetFieldStringValue(Form.Fields.Find(x => x.Id == "location")) == "4";
+					var isSales = Form.GetFieldStringValue(Form.Fields.Find(x => x.Id == "department")) == "Sales";
+					if (isPeckham && !isSales)
 					{
 						args.AddErrorMessages.Add("Location", errorMessage);
 						args.AddErrorMessages.Add("Department", errorMessage);

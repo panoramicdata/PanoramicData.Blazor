@@ -29,7 +29,7 @@
 		<div>
 			<PDPager PageCriteria="_pageCriteria"
 					 ShowPageDescription="false" />
-			<br/>
+			<br />
 			<PDTable @ref="Table"
 					 TItem="Person"
 					 DataProvider="PersonDataProvider"
@@ -38,7 +38,7 @@
 					 PageCriteria="_pageCriteria"
 					 SortCriteria="_sortCriteria"
 					 SelectionMode="TableSelectionMode.Single"
-					 SelectionChanged="OnSelectionChanged" >
+					 SelectionChanged="OnSelectionChanged">
 
 				<PDColumn TItem="Person"
 						  Field="x => x.Id"
@@ -60,12 +60,11 @@
 						<!-- for struct types use FormBody.GetFieldValue<T> -->
 						@{
 							var person = context;
-							var field = FormBody.Fields.First(x => x.Id == "InitialsCol");
+							var field = Form.Fields.First(x => x.Id == "InitialsCol");
 						}
 						<input type="text"
-							   class="form-control
-						   @FormBody.GetEditorClass(field)"
-							   value="@(FormBody.GetFieldStringValue(field, true))"
+							   class="form-control @FormBody.GetEditorClass(field)"
+							   value="@(Form.GetFieldStringValue(field, true))"
 							   @oninput="OnInitialsInput" />
 					</EditTemplate>
 				</PDColumn>
@@ -85,11 +84,11 @@
 					<EditTemplate>
 						<!-- no custom processing of input here so no need to get latest value -->
 						@{
-							var field = FormBody.Fields.First(x => x.Id == "EmailCol");
+							var field = Form.Fields.First(x => x.Id == "EmailCol");
 						}
 						<input type="email"
 							   class="form-control @FormBody.GetEditorClass(field)"
-							   value="@FormBody.GetFieldStringValue(field)"
+							   value="@Form.GetFieldStringValue(field)"
 							   @oninput="OnEmailInput" />
 					</EditTemplate>
 				</PDColumn>
@@ -101,10 +100,12 @@
 						  ShowInDelete="@((x) => !x.FirstName.In("Alice", "Carol", "Eve", "Grace", "Heidi", "Judy"))" />
 
 				<PDColumn TItem="Person"
+						  Id="department"
 						  Field="x => x.Department"
 						  HelpUrl="https://www.dictionary.com/browse/department" />
 
 				<PDColumn TItem="Person"
+						  Id="location"
 						  Field="x => x.Location"
 						  Options="GetLocationOptions" />
 
@@ -155,6 +156,7 @@
 			<PDForm @ref="Form"
 					TItem="Person"
 					Item="SelectedPerson"
+					CustomValidate="OnCustomValidate"
 					DataProvider="PersonDataProvider"
 					DefaultMode="FormModes.Empty"
 					Error="OnError"
@@ -169,8 +171,7 @@
 
 				<PDFormBody @ref="FormBody"
 							TItem="Person"
-							Table="Table"
-							CustomValidate="OnCustomValidate" />
+							Table="Table" />
 
 				<PDFormFooter TItem="Person"
 							  Click="OnFooterClick" />
@@ -199,7 +200,7 @@
 		padding-bottom: 5px;
 	}
 
-	.pd-form-header.haschanges {
-		border: 2px solid blue;
-	}
+		.pd-form-header.haschanges {
+			border: 2px solid blue;
+		}
 </style>

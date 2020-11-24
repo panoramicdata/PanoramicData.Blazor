@@ -130,13 +130,13 @@ namespace PanoramicData.Blazor
 
 		protected override async Task OnInitializedAsync()
 		{
-			if (FormBody == null)
+			if (FormBody is null || FormBody.Form is null)
 			{
 				throw new InvalidOperationException("Error initializing field. " +
 					"FormBody reference is null which implies it did not initialize or that the field " +
 					$"type '{typeof(TItem)}' does not match the form type.");
 			}
-			await FormBody.AddFieldAsync(this).ConfigureAwait(true);
+			await FormBody.Form.AddFieldAsync(this).ConfigureAwait(true);
 		}
 	}
 }
