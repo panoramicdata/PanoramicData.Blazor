@@ -33,6 +33,23 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public string HelpText { get; set; } = string.Empty;
 
+		/// <summary>
+		/// Gets or sets the title for a create form. if omitted then an automatic title is generated.
+		/// </summary>
+		/// <remarks>If present, the placeholder {0} will be substituted by the result of GetItemDescription() </remarks>
+		[Parameter] public string CreateTitle { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Gets or sets the title for an edit form. if omitted then an automatic title is generated.
+		/// </summary>
+		[Parameter] public string EditTitle { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Gets or sets the title for a delete form. if omitted then an automatic title is generated.
+		/// </summary>
+		[Parameter] public string DeleteTitle { get; set; } = string.Empty;
+
+
 		private string GetClassDescription()
 		{
 			// look for Display attribute and use name if provided, else fall-back to using class name.
