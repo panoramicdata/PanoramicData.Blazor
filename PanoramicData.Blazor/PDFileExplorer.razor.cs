@@ -22,6 +22,18 @@ namespace PanoramicData.Blazor
 		private string _conflictDialogMessage = string.Empty;
 		private string[] _conflictDialogList = new string[0];
 		private SortCriteria _tableSort = new SortCriteria("Name", SortDirection.Ascending);
+		private MenuItem _menuOpen = new MenuItem { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
+		private MenuItem _menuDownload = new MenuItem { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
+		private MenuItem _menuSep1 = new MenuItem { IsSeparator = true };
+		private MenuItem _menuRename = new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" };
+		private MenuItem _menuSep2 = new MenuItem { IsSeparator = true };
+		private MenuItem _menuCopy = new MenuItem { Text = "Copy", IconCssClass = "fas fa-fw fa-copy" };
+		private MenuItem _menuCut = new MenuItem { Text = "Cut", IconCssClass = "fas fa-fw fa-cut" };
+		private MenuItem _menuPaste = new MenuItem { Text = "Paste", IconCssClass = "fas fa-fw fa-paste" };
+		private MenuItem _menuSep3 = new MenuItem { IsSeparator = true };
+		private MenuItem _menuDelete = new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
+		private readonly List<FileExplorerItem> _copyPayload = new List<FileExplorerItem>();
+		private bool _moveCopyPayload = false;
 
 		public string FolderPath = string.Empty;
 
@@ -127,16 +139,7 @@ namespace PanoramicData.Blazor
 		/// Sets the Table context menu items.
 		/// </summary>
 		[Parameter]
-		public List<MenuItem> TableContextItems { get; set; } = new List<MenuItem>
-			{
-				new MenuItem { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" },
-				new MenuItem { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" },
-				new MenuItem { IsSeparator = true },
-				new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" },
-				new MenuItem { IsSeparator = true },
-				new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" }
-			};
-
+		public List<MenuItem> TableContextItems { get; set; } = new List<MenuItem>();
 
 		/// <summary>
 		/// Event raised whenever the user requests to download a file.
@@ -215,6 +218,23 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever the tree context menu may need updating.
 		/// </summary>
 		[Parameter] public EventCallback<MenuItemsEventArgs> UpdateTreeContextState { get; set; }
+
+		protected override void OnInitialized()
+		{
+			TableContextItems.AddRange(new[]
+			{
+				_menuOpen,
+				_menuDownload,
+				_menuSep1,
+				_menuRename,
+				_menuSep2,
+				_menuCopy,
+				_menuCut,
+				_menuPaste,
+				_menuSep3,
+				_menuDelete
+			});
+		}
 
 		/// <summary>
 		/// Gets or sets file items.
@@ -429,64 +449,37 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private bool ShowSeparator(MenuItem separator, IEnumerable<MenuItem> items)
+		{
+			var visibleItems = items.Where(x => x.IsVisible).ToList();
+			if (visibleItems.Count == 0 || separator == visibleItems[0] || separator == visibleItems[visibleItems.Count - 1])
+			{
+				return false;
+			}
+			var idx = visibleItems.IndexOf(separator);
+			if (idx > 0 && visibleItems[idx - 1].IsSeparator)
+			{
+				return false;
+			}
+			return true;
+		}
+
 		private async Task OnTableContextMenuUpdateStateAsync(MenuItemsEventArgs args)
 		{
-			// reset all states
-			TableContextItems.ForEach(x => { x.IsDisabled = false; x.IsVisible = true; });
+			var selectedItems = _table!.GetSelectedItems();
+			var validSelection = IsValidSelection();
 
-			if (_table!.Selection.Count == 0)
-			{
-				TableContextItems.ForEach(x => x.IsDisabled = true);
-				TableContextItems.Single(x => x.Text == "Download").IsVisible = false;
-				args.Cancel = true;
-			}
-			else if (_table!.Selection.Count == 1)
-			{
-				// if .. selected then only allow open
-				var selectedPath = _table!.Selection[0];
-				if (!IsValidSelection())
-				{
-					TableContextItems.Single(x => x.Text == "Download").IsVisible = false;
-					TableContextItems.Single(x => x.Text == "Rename").IsDisabled = true;
-					TableContextItems.Single(x => x.Text == "Delete").IsDisabled = true;
-					return;
-				}
-
-				// update state - disallow open files and download folders
-				var item = _table.ItemsToDisplay.Single(x => x.Path == selectedPath);
-				if (item.EntryType == FileExplorerItemType.Directory)
-				{
-					TableContextItems.Single(x => x.Text == "Download").IsVisible = false;
-				}
-				else
-				{
-					TableContextItems.Single(x => x.Text == "Open").IsVisible = false;
-				}
-			}
-			else
-			{
-				// multiple selection - only delete and download are options
-				TableContextItems.Single(x => x.Text == "Open").IsVisible = false;
-				TableContextItems.Single(x => x.Text == "Rename").IsVisible = false;
-
-				// check can delete all selection?
-				if (IsValidSelection())
-				{
-					// also check for directory
-					if (_table.ItemsToDisplay.Any(x => _table.Selection.Contains(x.Path) && x.EntryType == FileExplorerItemType.Directory))
-					{
-						TableContextItems.Single(x => x.Text == "Download").IsDisabled = true;
-					}
-				}
-				else
-				{
-					TableContextItems.Single(x => x.Text == "Delete").IsDisabled = true;
-					TableContextItems.Single(x => x.Text == "Download").IsDisabled = true;
-				}
-			}
-
-			// allow application to alter table context menu state
-			await UpdateTableContextState.InvokeAsync(args).ConfigureAwait(true);
+			_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
+			_menuDownload.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
+			_menuRename.IsVisible = validSelection && selectedItems.Length == 1;
+			_menuDelete.IsVisible = validSelection && selectedItems.Length > 0;
+			_menuCopy.IsVisible = validSelection && selectedItems.Length > 0;
+			_menuCut.IsVisible = validSelection && selectedItems.Length > 0;
+			_menuPaste.IsVisible = validSelection && _copyPayload.Count > 0 && (selectedItems.Length == 0 || (selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory));
+			_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
+			_menuSep3.IsVisible = ShowSeparator(_menuSep3, TableContextItems);
+			_menuSep2.IsVisible = ShowSeparator(_menuSep2, TableContextItems);
+			_menuSep1.IsVisible = ShowSeparator(_menuSep1, TableContextItems);
 		}
 
 		private async Task OnTableContextMenuItemClickAsync(MenuItem menuItem)
@@ -499,35 +492,44 @@ namespace PanoramicData.Blazor
 			// notify application and allow cancel
 			var args = new MenuItemEventArgs(_table, menuItem);
 			await TableContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
+			var selection = _table!.GetSelectedItems();
 
-			if (_table!.Selection.Count > 0)
+			if (!args.Cancel)
 			{
-				if (!args.Cancel)
+				if (menuItem.Text == "Open" && selection.Length == 1)
 				{
-					var path = _table!.Selection[0];
-					if (menuItem.Text == "Open")
+					await NavigateFolderAsync(selection[0].Path).ConfigureAwait(true);
+				}
+				else if (menuItem.Text == "Delete")
+				{
+					await DeleteFilesAsync().ConfigureAwait(true);
+				}
+				else if (menuItem.Text == "Rename")
+				{
+					await _table!.BeginEditAsync().ConfigureAwait(true);
+				}
+				else if (menuItem.Text == "Download")
+				{
+					foreach (var selectedPath in _table!.Selection)
 					{
-						await NavigateFolderAsync(path).ConfigureAwait(true);
-					}
-					else if (menuItem.Text == "Delete")
-					{
-						await DeleteFilesAsync().ConfigureAwait(true);
-					}
-					else if (menuItem.Text == "Rename")
-					{
-						await _table!.BeginEditAsync().ConfigureAwait(true);
-					}
-					else if (menuItem.Text == "Download")
-					{
-						foreach (var selectedPath in _table!.Selection)
+						var item = _table.ItemsToDisplay.Find(x => x.Path == selectedPath);
+						if (item != null)
 						{
-							var item = _table.ItemsToDisplay.Find(x => x.Path == selectedPath);
-							if (item != null)
-							{
-								await TableDownloadRequest.InvokeAsync(new TableEventArgs<FileExplorerItem>(item)).ConfigureAwait(true);
-							}
+							await TableDownloadRequest.InvokeAsync(new TableEventArgs<FileExplorerItem>(item)).ConfigureAwait(true);
 						}
 					}
+				}
+				else if (menuItem.Text == "Copy" || menuItem.Text == "Cut")
+				{
+					_copyPayload.Clear();
+					_copyPayload.AddRange(_table!.GetSelectedItems());
+					_moveCopyPayload = menuItem.Text == "Cut";
+				}
+				else if (menuItem.Text == "Paste")
+				{
+					var targetPath = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
+					await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
+					_copyPayload.Clear();
 				}
 			}
 		}
@@ -936,14 +938,14 @@ namespace PanoramicData.Blazor
 						var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
 					}
 				}
-				if (_table != null && !conflictArgs.IsCopy)
+				//if (_table != null && !conflictArgs.IsCopy)
+				//{
+				await _table.RefreshAsync().ConfigureAwait(true);
+				if (_tree?.SelectedNode != null)
 				{
-					await _table.RefreshAsync().ConfigureAwait(true);
-					if (_tree?.SelectedNode != null)
-					{
-						await _tree.RefreshNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
-					}
+					await _tree.RefreshNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
 				}
+				//}
 			}
 		}
 
