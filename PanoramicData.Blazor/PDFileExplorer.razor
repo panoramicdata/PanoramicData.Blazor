@@ -1,10 +1,10 @@
 ﻿@using Humanizer;
 
-<PDModal @ref="_deleteDialog" Title="Delete">
+<PDModal @ref="DeleteDialog" Title="Delete">
 	<span>@_deleteDialogMessage</span>
 </PDModal>
 
-<PDModal @ref="_conflictDialog" Title="Move / Copy Conflict">
+<PDModal @ref="ConflictDialog" Title="Move / Copy Conflict">
 	<p>@_conflictDialogMessage</p>
 	<ul class="">
 		@foreach (var item in _conflictDialogList)
@@ -31,7 +31,7 @@
 						   UpdateState="OnTreeContextMenuUpdateStateAsync"
 						   ItemClick="OnTreeContextMenuItemClickAsync">
 
-				<PDTree @ref="_tree"
+				<PDTree @ref="Tree"
 						TItem="FileExplorerItem"
 						DataProvider="DataProvider"
 						KeyField="x => x.Path"
@@ -74,7 +74,7 @@
 							UploadProgress="OnUploadProgressAsync"
 							UploadCompleted="OnUploadCompletedAsync">
 
-					<PDTable @ref="_table"
+					<PDTable @ref="Table"
 							 TItem="FileExplorerItem"
 							 DataProvider="DataProvider"
 							 KeyField="x => x.Path"

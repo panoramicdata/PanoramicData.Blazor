@@ -227,9 +227,7 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-				var availableColumnIds = Columns
-									.Select(c => c.Id)
-									.ToList();
+				var availableColumnIds = Columns.ConvertAll(c => c.Id);
 
 				var columns =
 					ColumnsConfig?
@@ -887,12 +885,6 @@ namespace PanoramicData.Blazor
 			{
 				await Drop.InvokeAsync(new DropEventArgs(row, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 			}
-		}
-
-		private async Task OnPageChange(uint page)
-		{
-			Page = (int)page;
-			await GetDataAsync().ConfigureAwait(true);
 		}
 	}
 }

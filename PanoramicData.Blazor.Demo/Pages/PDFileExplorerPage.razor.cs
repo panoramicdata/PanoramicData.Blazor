@@ -12,8 +12,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDFileExplorerPage
 	{
-		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
-		private PDFileExplorer _fileExplorer = null!;
+		private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
+		private PDFileExplorer? FileExplorer { get; set; } = null!;
 
 		/// <summary>
 		/// Injected javascript interop object.
@@ -98,7 +98,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 
 			// update custom item state - enabled only when no selection
-			if (_fileExplorer.SelectedFilesAndFolders.Length == 0)
+			if (FileExplorer?.SelectedFilesAndFolders.Length == 0)
 			{
 				createFileButton.IsDisabled = false;
 				args.Cancel = false;
@@ -119,7 +119,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private async Task CreateFile()
 		{
-			var newPath = $"{_fileExplorer.FolderPath}/{DateTime.Now.ToString("yyyyMMdd_HHmmss_fff")}.txt";
+			var newPath = $"{FileExplorer?.FolderPath}/{DateTime.Now:yyyyMMdd_HHmmss_fff}.txt";
 
 			var result = await _dataProvider.CreateAsync(new FileExplorerItem
 			{
@@ -130,10 +130,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 				DateModified = DateTimeOffset.UtcNow
 			}, CancellationToken.None).ConfigureAwait(true);
 
-			if (result.Success)
+			if (result.Success && FileExplorer != null)
 			{
-				await _fileExplorer.RefreshTableAsync().ConfigureAwait(true);
-				await _fileExplorer.RefreshToolbarAsync().ConfigureAwait(true);
+				await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+				await FileExplorer.RefreshToolbarAsync().ConfigureAwait(true);
 			}
 		}
 	}

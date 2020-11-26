@@ -13,28 +13,29 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDFileExplorer
 	{
-		private TreeNode<FileExplorerItem>? _selectedNode;
-		private PDTree<FileExplorerItem>? _tree = null!;
-		private PDTable<FileExplorerItem>? _table = null!;
-		private PDModal _deleteDialog = null!;
-		private PDModal _conflictDialog = null!;
 		private string _deleteDialogMessage = string.Empty;
 		private string _conflictDialogMessage = string.Empty;
 		private string[] _conflictDialogList = new string[0];
-		private SortCriteria _tableSort = new SortCriteria("Name", SortDirection.Ascending);
-		private MenuItem _menuOpen = new MenuItem { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
-		private MenuItem _menuDownload = new MenuItem { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
-		private MenuItem _menuNewFolder = new MenuItem { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" };
-		private MenuItem _menuSep1 = new MenuItem { IsSeparator = true };
-		private MenuItem _menuRename = new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" };
-		private MenuItem _menuSep2 = new MenuItem { IsSeparator = true };
-		private MenuItem _menuCopy = new MenuItem { Text = "Copy", IconCssClass = "fas fa-fw fa-copy" };
-		private MenuItem _menuCut = new MenuItem { Text = "Cut", IconCssClass = "fas fa-fw fa-cut" };
-		private MenuItem _menuPaste = new MenuItem { Text = "Paste", IconCssClass = "fas fa-fw fa-paste" };
-		private MenuItem _menuSep3 = new MenuItem { IsSeparator = true };
-		private MenuItem _menuDelete = new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
+		private readonly SortCriteria _tableSort = new SortCriteria("Name", SortDirection.Ascending);
+		private readonly MenuItem _menuOpen = new MenuItem { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
+		private readonly MenuItem _menuDownload = new MenuItem { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
+		private readonly MenuItem _menuNewFolder = new MenuItem { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" };
+		private readonly MenuItem _menuSep1 = new MenuItem { IsSeparator = true };
+		private readonly MenuItem _menuRename = new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" };
+		private readonly MenuItem _menuSep2 = new MenuItem { IsSeparator = true };
+		private readonly MenuItem _menuCopy = new MenuItem { Text = "Copy", IconCssClass = "fas fa-fw fa-copy" };
+		private readonly MenuItem _menuCut = new MenuItem { Text = "Cut", IconCssClass = "fas fa-fw fa-cut" };
+		private readonly MenuItem _menuPaste = new MenuItem { Text = "Paste", IconCssClass = "fas fa-fw fa-paste" };
+		private readonly MenuItem _menuSep3 = new MenuItem { IsSeparator = true };
+		private readonly MenuItem _menuDelete = new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
 		private readonly List<FileExplorerItem> _copyPayload = new List<FileExplorerItem>();
 		private bool _moveCopyPayload = false;
+
+		private TreeNode<FileExplorerItem>? _selectedNode;
+		private PDTree<FileExplorerItem>? Tree { get; set; }
+		private PDTable<FileExplorerItem>? Table { get; set; }
+		private PDModal? DeleteDialog { get; set; } = null!;
+		private PDModal? ConflictDialog { get; set; } = null!;
 
 		public string FolderPath = string.Empty;
 
@@ -250,7 +251,7 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-				return _table?.ItemsToDisplay.ToArray();
+				return Table?.ItemsToDisplay.ToArray();
 			}
 		}
 
@@ -266,7 +267,7 @@ namespace PanoramicData.Blazor
 		{
 			if (node?.Data != null && node?.ParentNode == null) // root node updated
 			{
-				await _tree!.SelectNode(node!).ConfigureAwait(true);
+				await Tree!.SelectNode(node!).ConfigureAwait(true);
 				StateHasChanged();
 			}
 		}
@@ -307,12 +308,12 @@ namespace PanoramicData.Blazor
 		private async Task OnTreeContextMenuItemClickAsync(MenuItem item)
 		{
 			// notify application and allow cancel
-			var args = new MenuItemEventArgs(_tree!, item);
+			var args = new MenuItemEventArgs(Tree!, item);
 			await TreeContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
 
 			if (!args.Cancel)
 			{
-				if (_tree?.SelectedNode?.Data != null)
+				if (Tree?.SelectedNode?.Data != null)
 				{
 					if (item.Text == "Delete")
 					{
@@ -320,7 +321,7 @@ namespace PanoramicData.Blazor
 					}
 					else if (item.Text == "Rename")
 					{
-						await _tree.BeginEdit().ConfigureAwait(true);
+						await Tree.BeginEdit().ConfigureAwait(true);
 					}
 					else if (item.Text == "New Folder")
 					{
@@ -329,12 +330,12 @@ namespace PanoramicData.Blazor
 					else if (item.Text == "Copy" || item.Text == "Cut")
 					{
 						_copyPayload.Clear();
-						_copyPayload.Add(_tree.SelectedNode.Data);
+						_copyPayload.Add(Tree.SelectedNode.Data);
 						_moveCopyPayload = item.Text == "Cut";
 					}
 					else if (item.Text == "Paste")
 					{
-						var targetPath = _tree.SelectedNode.Data.Path;
+						var targetPath = Tree.SelectedNode.Data.Path;
 						await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
 						_copyPayload.Clear();
 					}
@@ -348,15 +349,15 @@ namespace PanoramicData.Blazor
 			{
 				await DeleteFolderAsync().ConfigureAwait(true);
 			}
-			else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey && _tree!.SelectedNode?.Data != null)
+			else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey && Tree!.SelectedNode?.Data != null)
 			{
 				_copyPayload.Clear();
-				_copyPayload.Add(_tree!.SelectedNode.Data);
+				_copyPayload.Add(Tree!.SelectedNode.Data);
 				_moveCopyPayload = args.Code == "KeyX";
 			}
-			else if (args.Code == "KeyV" && args.CtrlKey && _tree!.SelectedNode?.Data != null)
+			else if (args.Code == "KeyV" && args.CtrlKey && Tree!.SelectedNode?.Data != null)
 			{
-				var targetPath = _tree.SelectedNode.Data.Path;
+				var targetPath = Tree.SelectedNode.Data.Path;
 				await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
 				_copyPayload.Clear();
 			}
@@ -372,9 +373,9 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTreeAfterEditAsync(TreeNodeAfterEditEventArgs<FileExplorerItem> args)
 		{
-			if (_tree?.SelectedNode?.Data != null)
+			if (Tree?.SelectedNode?.Data != null)
 			{
-				var item = _tree.SelectedNode.Data;
+				var item = Tree.SelectedNode.Data;
 				var previousPath = item.Path;
 				var newPath = $"{item.ParentPath.TrimEnd('/')}/{args.NewValue}";
 				// inform data provider
@@ -382,11 +383,11 @@ namespace PanoramicData.Blazor
 					{
 						{  "Path", newPath }
 					};
-				var result = await DataProvider.UpdateAsync(_tree.SelectedNode.Data, delta, CancellationToken.None).ConfigureAwait(true);
+				var result = await DataProvider.UpdateAsync(Tree.SelectedNode.Data, delta, CancellationToken.None).ConfigureAwait(true);
 				if (result.Success)
 				{
 					// synchronize existing node paths for tree and table
-					_tree.RootNode.Walk((x) =>
+					Tree.RootNode.Walk((x) =>
 					{
 						if (x.Data != null)
 						{
@@ -395,8 +396,8 @@ namespace PanoramicData.Blazor
 						}
 						return true;
 					});
-					_table!.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(previousPath, newPath));
-					await OnTreeSelectionChangeAsync(_tree.SelectedNode).ConfigureAwait(true);
+					Table!.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(previousPath, newPath));
+					await OnTreeSelectionChangeAsync(Tree.SelectedNode).ConfigureAwait(true);
 				}
 			}
 		}
@@ -425,7 +426,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTableDoubleClickAsync(FileExplorerItem item)
 		{
-			if (!_table!.IsEditing)
+			if (!Table!.IsEditing)
 			{
 				if (item.EntryType == FileExplorerItemType.Directory)
 				{
@@ -460,12 +461,12 @@ namespace PanoramicData.Blazor
 			else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey)
 			{
 				_copyPayload.Clear();
-				_copyPayload.AddRange(_table!.GetSelectedItems());
+				_copyPayload.AddRange(Table!.GetSelectedItems());
 				_moveCopyPayload = args.Code == "KeyX";
 			}
 			else if (args.Code == "KeyV" && args.CtrlKey)
 			{
-				var selection = _table!.GetSelectedItems();
+				var selection = Table!.GetSelectedItems();
 				var targetPath = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
 				await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
 				_copyPayload.Clear();
@@ -486,7 +487,7 @@ namespace PanoramicData.Blazor
 					var previousPath = args.Item.Path;
 					var newPath = $"{args.Item.ParentPath}/{args.NewValues["Name"]}";
 					// check for duplicate name
-					if (_table!.ItemsToDisplay.Any(x => x.Path == newPath))
+					if (Table!.ItemsToDisplay.Any(x => x.Path == newPath))
 					{
 						args.Cancel = true;
 					}
@@ -519,16 +520,12 @@ namespace PanoramicData.Blazor
 				return false;
 			}
 			var idx = visibleItems.IndexOf(separator);
-			if (idx > 0 && visibleItems[idx - 1].IsSeparator)
-			{
-				return false;
-			}
-			return true;
+			return idx <= 0 || !visibleItems[idx - 1].IsSeparator;
 		}
 
 		private async Task OnTableContextMenuUpdateStateAsync(MenuItemsEventArgs args)
 		{
-			var selectedItems = _table!.GetSelectedItems();
+			var selectedItems = Table!.GetSelectedItems();
 			var validSelection = IsValidSelection();
 
 			_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
@@ -550,15 +547,15 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTableContextMenuItemClickAsync(MenuItem menuItem)
 		{
-			if (_table is null)
+			if (Table is null)
 			{
 				throw new InvalidOperationException("_table is null");
 			}
 
 			// notify application and allow cancel
-			var args = new MenuItemEventArgs(_table, menuItem);
+			var args = new MenuItemEventArgs(Table, menuItem);
 			await TableContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
-			var selection = _table!.GetSelectedItems();
+			var selection = Table!.GetSelectedItems();
 
 			if (!args.Cancel)
 			{
@@ -572,13 +569,13 @@ namespace PanoramicData.Blazor
 				}
 				else if (menuItem.Text == "Rename")
 				{
-					await _table!.BeginEditAsync().ConfigureAwait(true);
+					await Table!.BeginEditAsync().ConfigureAwait(true);
 				}
 				else if (menuItem.Text == "Download")
 				{
-					foreach (var selectedPath in _table!.Selection)
+					foreach (var selectedPath in Table!.Selection)
 					{
-						var item = _table.ItemsToDisplay.Find(x => x.Path == selectedPath);
+						var item = Table.ItemsToDisplay.Find(x => x.Path == selectedPath);
 						if (item != null)
 						{
 							await TableDownloadRequest.InvokeAsync(new TableEventArgs<FileExplorerItem>(item)).ConfigureAwait(true);
@@ -588,7 +585,7 @@ namespace PanoramicData.Blazor
 				else if (menuItem.Text == "Copy" || menuItem.Text == "Cut")
 				{
 					_copyPayload.Clear();
-					_copyPayload.AddRange(_table!.GetSelectedItems());
+					_copyPayload.AddRange(Table!.GetSelectedItems());
 					_moveCopyPayload = menuItem.Text == "Cut";
 				}
 				else if (menuItem.Text == "Paste")
@@ -607,14 +604,14 @@ namespace PanoramicData.Blazor
 		private async Task OnTableSelectionChangedAsync()
 		{
 			await RefreshToolbarAsync().ConfigureAwait(true);
-			var selection = _table?.GetSelectedItems() ?? new FileExplorerItem[0];
+			var selection = Table?.GetSelectedItems() ?? new FileExplorerItem[0];
 			await SelectionChanged.InvokeAsync(selection).ConfigureAwait(true);
 		}
 
 		private async Task DirectoryRenameAsync(string oldPath, string newPath)
 		{
 			// synchronize existing node paths for tree and table
-			_tree!.RootNode.Walk((x) =>
+			Tree!.RootNode.Walk((x) =>
 			{
 				if (x.Data != null)
 				{
@@ -623,22 +620,22 @@ namespace PanoramicData.Blazor
 				}
 				return true;
 			});
-			_table!.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(oldPath, newPath));
-			if (_tree?.SelectedNode != null)
+			Table!.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(oldPath, newPath));
+			if (Tree?.SelectedNode != null)
 			{
-				await OnTreeSelectionChangeAsync(_tree.SelectedNode).ConfigureAwait(true);
+				await OnTreeSelectionChangeAsync(Tree.SelectedNode).ConfigureAwait(true);
 			}
 		}
 
 		private async Task OnFilesDroppedAsync(DropZoneEventArgs args)
 		{
-			if (_tree?.SelectedNode?.Data != null)
+			if (Tree?.SelectedNode?.Data != null)
 			{
 				// notify application and allow for cancel
 				await UploadRequest.InvokeAsync(args).ConfigureAwait(true);
 
 				// check for conflicts
-				var targetPath = _tree.SelectedNode.Data.Path;
+				var targetPath = Tree.SelectedNode.Data.Path;
 				var filenames = args.Files.Select(x => x.Name ?? string.Empty).ToArray();
 				var conflicts = await GetConflictsAsync(targetPath, filenames).ConfigureAwait(true);
 				if (conflicts.Count > 0)
@@ -683,7 +680,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnUploadProgressAsync(DropZoneUploadProgressEventArgs args)
 		{
-			if (_table is null)
+			if (Table is null)
 			{
 				return;
 			}
@@ -692,7 +689,7 @@ namespace PanoramicData.Blazor
 			if (args.Path == FolderPath)
 			{
 				// add virtual file item
-				var item = _table.ItemsToDisplay.Find(x => x.Name == args.Name);
+				var item = Table.ItemsToDisplay.Find(x => x.Name == args.Name);
 				if (item is null)
 				{
 					item = new FileExplorerItem
@@ -704,7 +701,7 @@ namespace PanoramicData.Blazor
 						FileSize = args.Size,
 						IsUploading = true
 					};
-					_table.ItemsToDisplay.Add(item);
+					Table.ItemsToDisplay.Add(item);
 				}
 				item.UploadProgress = args.Progress;
 			}
@@ -718,7 +715,7 @@ namespace PanoramicData.Blazor
 			if (args.Path == FolderPath)
 			{
 				// add virtual file item
-				var item = _table?.ItemsToDisplay.Find(x => x.Name == args.Name);
+				var item = Table?.ItemsToDisplay.Find(x => x.Name == args.Name);
 				if (item != null)
 				{
 					item.IsUploading = false;
@@ -790,27 +787,33 @@ namespace PanoramicData.Blazor
 		{
 			if (firstRender)
 			{
-				_deleteDialog.Buttons.Clear();
-				_deleteDialog.Buttons.AddRange(new[]
+				if (DeleteDialog != null)
 				{
-					new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check", ShiftRight = true },
-					new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
-				});
+					DeleteDialog.Buttons.Clear();
+					DeleteDialog.Buttons.AddRange(new[]
+					{
+						new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check", ShiftRight = true },
+						new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
+					});
+				}
 
 				// add third button needed for conflict resolution
-				_conflictDialog.Buttons.Clear();
-				_conflictDialog.Buttons.AddRange(new[]
+				if (ConflictDialog != null)
 				{
-					new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
-					new ToolbarButton { Text = "Skip", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-forward" },
-					new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
-				});
+					ConflictDialog.Buttons.Clear();
+					ConflictDialog.Buttons.AddRange(new[]
+					{
+						new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
+						new ToolbarButton { Text = "Skip", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-forward" },
+						new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
+					});
+				}
 			}
 		}
 
 		private bool IsValidSelection()
 		{
-			foreach (var path in _table!.Selection)
+			foreach (var path in Table!.Selection)
 			{
 				// disallow if .. selected
 				if (path.EndsWith(".."))
@@ -819,7 +822,7 @@ namespace PanoramicData.Blazor
 				}
 
 				// disallow delete if uploading
-				var item = _table.ItemsToDisplay.Single(x => x.Path == path);
+				var item = Table.ItemsToDisplay.Single(x => x.Path == path);
 				if (item?.IsUploading != false)
 				{
 					return false;
@@ -834,19 +837,19 @@ namespace PanoramicData.Blazor
 			{
 				if (_selectedNode?.ParentNode != null)
 				{
-					await _tree!.SelectNode(_selectedNode.ParentNode).ConfigureAwait(true);
+					await Tree!.SelectNode(_selectedNode.ParentNode).ConfigureAwait(true);
 				}
 			}
 			else
 			{
 				if (_selectedNode?.IsExpanded == false)
 				{
-					await _tree!.ToggleNodeIsExpandedAsync(_selectedNode).ConfigureAwait(true);
+					await Tree!.ToggleNodeIsExpandedAsync(_selectedNode).ConfigureAwait(true);
 				}
-				var node = _tree!.RootNode.Find(path);
+				var node = Tree!.RootNode.Find(path);
 				if (node != null)
 				{
-					await _tree!.SelectNode(node).ConfigureAwait(true);
+					await Tree!.SelectNode(node).ConfigureAwait(true);
 				}
 			}
 		}
@@ -858,21 +861,21 @@ namespace PanoramicData.Blazor
 
 		private async Task CreateNewFolderAsync()
 		{
-			if (_tree?.SelectedNode?.Data != null)
+			if (Tree?.SelectedNode?.Data != null)
 			{
-				var newFolderName = _tree.SelectedNode.MakeUniqueText("New Folder");
-				var newPath = $"{_tree.SelectedNode.Data.Path.TrimEnd('/')}/{newFolderName}";
+				var newFolderName = Tree.SelectedNode.MakeUniqueText("New Folder");
+				var newPath = $"{Tree.SelectedNode.Data.Path.TrimEnd('/')}/{newFolderName}";
 				var newItem = new FileExplorerItem { EntryType = FileExplorerItemType.Directory, Path = newPath, HasSubFolders = false };
 				var result = await DataProvider.CreateAsync(newItem, CancellationToken.None).ConfigureAwait(true);
 				if (result.Success)
 				{
 					// refresh current node, select new node and finally begin edit mode
-					await _tree.RefreshNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
-					var newNode = _tree.RootNode.Find(newItem.Path);
+					await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
+					var newNode = Tree.RootNode.Find(newItem.Path);
 					if (newNode != null)
 					{
-						await _tree.SelectNode(newNode).ConfigureAwait(true);
-						await _tree.BeginEdit().ConfigureAwait(true);
+						await Tree.SelectNode(newNode).ConfigureAwait(true);
+						await Tree.BeginEdit().ConfigureAwait(true);
 					}
 				}
 			}
@@ -880,7 +883,7 @@ namespace PanoramicData.Blazor
 
 		private async Task DeleteFolderAsync()
 		{
-			if (_selectedNode?.Data != null)
+			if (_selectedNode?.Data != null && DeleteDialog != null)
 			{
 				var deleteArgs = new DeleteArgs
 				{
@@ -894,7 +897,7 @@ namespace PanoramicData.Blazor
 				{
 					_deleteDialogMessage = $"Are you sure you wish to delete '{deleteArgs.Items[0].Name}'?";
 					StateHasChanged();
-					var choice = await _deleteDialog.ShowAndWaitResultAsync().ConfigureAwait(true);
+					var choice = await DeleteDialog.ShowAndWaitResultAsync().ConfigureAwait(true);
 					deleteArgs.Resolution = choice == "yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
 				}
 
@@ -903,9 +906,9 @@ namespace PanoramicData.Blazor
 					try
 					{
 						await DataProvider.DeleteAsync(deleteArgs.Items[0], CancellationToken.None).ConfigureAwait(true);
-						if (_tree?.SelectedNode != null)
+						if (Tree?.SelectedNode != null)
 						{
-							await _tree.RemoveNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
+							await Tree.RemoveNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
 						}
 					}
 					catch (Exception ex)
@@ -918,11 +921,11 @@ namespace PanoramicData.Blazor
 
 		private async Task DeleteFilesAsync()
 		{
-			if (_table?.Selection != null)
+			if (Table?.Selection != null && DeleteDialog != null)
 			{
 				var deleteArgs = new DeleteArgs
 				{
-					Items = _table.GetSelectedItems(),
+					Items = Table.GetSelectedItems(),
 					Resolution = DeleteArgs.DeleteResolutions.Prompt
 				};
 
@@ -934,7 +937,7 @@ namespace PanoramicData.Blazor
 						? $"Are you sure you wish to delete '{deleteArgs.Items[0].Name}'?"
 						: $"Are you sure you wish to delete these {deleteArgs.Items.Length} items?";
 					StateHasChanged();
-					var choice = await _deleteDialog.ShowAndWaitResultAsync();
+					var choice = await DeleteDialog.ShowAndWaitResultAsync().ConfigureAwait(true);
 					deleteArgs.Resolution = choice == "yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
 				}
 
@@ -1021,15 +1024,15 @@ namespace PanoramicData.Blazor
 				}
 
 				// refresh the current table view
-				await _table!.RefreshAsync().ConfigureAwait(true);
+				await Table!.RefreshAsync().ConfigureAwait(true);
 
 				// refresh affected tree nodes
 				foreach (var path in pathsToRefresh)
 				{
-					var node = _tree!.Search((x) => x?.Data?.Path == path);
+					var node = Tree!.Search((x) => x?.Data?.Path == path);
 					if (node != null)
 					{
-						await _tree.RefreshNodeAsync(node).ConfigureAwait(true);
+						await Tree.RefreshNodeAsync(node).ConfigureAwait(true);
 					}
 				}
 			}
@@ -1041,11 +1044,11 @@ namespace PanoramicData.Blazor
 		public async Task RefreshTreeAsync()
 		{
 			// refresh tree - parent node will already be selected
-			var node = _tree?.SelectedNode;
+			var node = Tree?.SelectedNode;
 			if (node != null)
 			{
 				node.Nodes = null;
-				await _tree!.RefreshNodeAsync(node)!.ConfigureAwait(true);
+				await Tree!.RefreshNodeAsync(node)!.ConfigureAwait(true);
 			}
 		}
 
@@ -1054,15 +1057,15 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public async Task RefreshTableAsync()
 		{
-			if (_table is null)
+			if (Table is null)
 			{
 				throw new InvalidOperationException("_table should not be null.");
 			}
 
-			_table.Selection.Clear();
+			Table.Selection.Clear();
 
 			// explicitly state search path else fetch will use previous value as OnParametersSet not yet called
-			await _table
+			await Table
 				.RefreshAsync(FolderPath)
 				.ConfigureAwait(true);
 			StateHasChanged();
@@ -1077,7 +1080,7 @@ namespace PanoramicData.Blazor
 			var upButton = ToolbarItems.Find(x => x.Key == "navigate-up");
 			if (upButton != null)
 			{
-				upButton.IsEnabled = _tree?.SelectedNode?.ParentNode != null;
+				upButton.IsEnabled = Tree?.SelectedNode?.ParentNode != null;
 			}
 
 			// create folder button - always enabled by default
@@ -1086,7 +1089,7 @@ namespace PanoramicData.Blazor
 			var deleteButton = ToolbarItems.Find(x => x.Key == "delete");
 			if (deleteButton != null)
 			{
-				deleteButton.IsEnabled = _table!.Selection.Count > 0 && !_table!.Selection.Any(x => x.EndsWith(".."));
+				deleteButton.IsEnabled = Table!.Selection.Count > 0 && !Table!.Selection.Any(x => x.EndsWith(".."));
 			}
 
 			// allow application to alter toolbar state
@@ -1100,7 +1103,7 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-				return _table!.Selection.ToArray();
+				return Table!.Selection.ToArray();
 			}
 		}
 
@@ -1129,19 +1132,23 @@ namespace PanoramicData.Blazor
 			_conflictDialogMessage = $"{names.Count()} conflicts found : -";
 			_conflictDialogList = namesSummary.ToArray();
 			StateHasChanged();
-			return await _conflictDialog.ShowAndWaitResultAsync();
+			if (ConflictDialog != null)
+			{
+				return await ConflictDialog.ShowAndWaitResultAsync().ConfigureAwait(true);
+			}
+			return string.Empty;
 		}
 
 		private string GetIconCssClass(FileExplorerItem item)
 		{
 			var cssClass = GetIconClass is null ? null : GetIconClass(item);
-			if (cssClass == null)
+			if (cssClass is null)
 			{
-				cssClass = item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "far fa-fw fa-folder";
+				return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "far fa-fw fa-folder";
 			}
-			else if (cssClass == string.Empty)
+			if (cssClass.Length == 0)
 			{
-				cssClass = "far fa-fw fa-hidden fa-file";
+				return "far fa-fw fa-hidden fa-file";
 			}
 			return cssClass;
 		}

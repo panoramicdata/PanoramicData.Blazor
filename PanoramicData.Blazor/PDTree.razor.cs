@@ -12,7 +12,7 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDTree<TItem> where TItem : class
 	{
-		private const string IdPrefix = "pd-tree-";
+		private const string _idPrefix = "pd-tree-";
 		private static int _idSequence;
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
@@ -383,7 +383,7 @@ namespace PanoramicData.Blazor
 				var key = KeyField!(item)?.ToString();
 				if (key == null)
 				{
-					throw new PDTreeException($"Items must supply a key value.");
+					throw new PDTreeException("Items must supply a key value.");
 				}
 
 				// create node
@@ -418,7 +418,9 @@ namespace PanoramicData.Blazor
 						node.ParentNode = parentNode;
 						(parentNode.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
 						if (!modifiedNodes.Contains(parentNode))
+						{
 							modifiedNodes.Add(parentNode);
+						}
 					}
 				}
 			}
@@ -436,7 +438,7 @@ namespace PanoramicData.Blazor
 
 		protected override void OnInitialized()
 		{
-			Id = $"{IdPrefix}{++_idSequence}";
+			Id = $"{_idPrefix}{++_idSequence}";
 		}
 
 		protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -447,7 +449,7 @@ namespace PanoramicData.Blazor
 				var items = await GetDataAsync().ConfigureAwait(true);
 				RootNode = BuildModel(items);
 				// notify that node updated
-				await NodeUpdated.InvokeAsync(RootNode);
+				await NodeUpdated.InvokeAsync(RootNode).ConfigureAwait(true);
 				StateHasChanged();
 			}
 		}
@@ -455,9 +457,13 @@ namespace PanoramicData.Blazor
 		protected override void OnParametersSet()
 		{
 			if (KeyField == null)
+			{
 				throw new PDTreeException("KeyField attribute is required.");
+			}
 			if (ParentKeyField == null)
+			{
 				throw new PDTreeException("ParentKeyField attribute is required.");
+			}
 		}
 
 		private async Task OnEndEdit()
