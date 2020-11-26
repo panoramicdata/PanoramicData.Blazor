@@ -4,7 +4,6 @@ using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -120,7 +119,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private async Task CreateFile()
 		{
-			var newPath = $"{_fileExplorer.FolderPath}{Path.DirectorySeparatorChar}{DateTime.Now.ToString("yyyyMMdd_HHmmss_fff")}.txt";
+			var newPath = $"{_fileExplorer.FolderPath}/{DateTime.Now.ToString("yyyyMMdd_HHmmss_fff")}.txt";
 
 			var result = await _dataProvider.CreateAsync(new FileExplorerItem
 			{

@@ -141,6 +141,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
 		/// <summary>
+		/// Callback fired whenever the user presses a key down.
+		/// </summary>
+		[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
+
+		/// <summary>
 		/// Gets the currently selected tree node.
 		/// </summary>
 		public TreeNode<TItem>? SelectedNode { get; private set; }
@@ -159,6 +164,24 @@ namespace PanoramicData.Blazor
 		public void CollapseAll()
 		{
 			RootNode.Walk((n) => { n.IsExpanded = false; return true; });
+		}
+
+		/// <summary>
+		/// Searches all nodes until the given criteria is first macthed.
+		/// </summary>
+		public TreeNode<TItem>? Search(Predicate<TreeNode<TItem>> predicate)
+		{
+			TreeNode<TItem>? found = null;
+			RootNode.Walk((n) =>
+			{
+				if (predicate(n))
+				{
+					found = n;
+					return false;
+				}
+				return true;
+			});
+			return found;
 		}
 
 		/// <summary>
@@ -502,6 +525,8 @@ namespace PanoramicData.Blazor
 						break;
 				}
 			}
+
+			await KeyDown.InvokeAsync(args).ConfigureAwait(true);
 		}
 
 		private async Task OnDrop(DropEventArgs args)

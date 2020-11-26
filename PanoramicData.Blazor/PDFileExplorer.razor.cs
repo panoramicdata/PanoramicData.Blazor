@@ -24,6 +24,7 @@ namespace PanoramicData.Blazor
 		private SortCriteria _tableSort = new SortCriteria("Name", SortDirection.Ascending);
 		private MenuItem _menuOpen = new MenuItem { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
 		private MenuItem _menuDownload = new MenuItem { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
+		private MenuItem _menuNewFolder = new MenuItem { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" };
 		private MenuItem _menuSep1 = new MenuItem { IsSeparator = true };
 		private MenuItem _menuRename = new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" };
 		private MenuItem _menuSep2 = new MenuItem { IsSeparator = true };
@@ -171,13 +172,7 @@ namespace PanoramicData.Blazor
 		/// Sets the Tree context menu items.
 		/// </summary>
 		[Parameter]
-		public List<MenuItem> TreeContextItems { get; set; } = new List<MenuItem>
-			{
-				new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" },
-				new MenuItem { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" },
-				new MenuItem { IsSeparator = true },
-				new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" }
-			};
+		public List<MenuItem> TreeContextItems { get; set; } = new List<MenuItem>();
 
 		/// <summary>
 		/// Event raised whenever a file upload completes.
@@ -225,8 +220,20 @@ namespace PanoramicData.Blazor
 			{
 				_menuOpen,
 				_menuDownload,
+				_menuNewFolder,
 				_menuSep1,
 				_menuRename,
+				_menuSep2,
+				_menuCopy,
+				_menuCut,
+				_menuPaste,
+				_menuSep3,
+				_menuDelete
+			});
+			TreeContextItems.AddRange(new[]
+			{
+				_menuRename,
+				_menuNewFolder,
 				_menuSep2,
 				_menuCopy,
 				_menuCut,
@@ -277,14 +284,24 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTreeContextMenuUpdateStateAsync(MenuItemsEventArgs args)
 		{
-			if (_selectedNode?.Data != null)
-			{
-				TreeContextItems.Single(x => x.Text == "Delete").IsDisabled = _selectedNode.Data.ParentPath?.Length == 0;
-				TreeContextItems.Single(x => x.Text == "Rename").IsDisabled = _selectedNode.Data.ParentPath?.Length == 0;
+			var parentPath = _selectedNode?.Data?.ParentPath ?? string.Empty;
+			var selectedPath = _selectedNode?.Data?.Path ?? string.Empty;
+			var isRoot = string.IsNullOrEmpty(parentPath);
+			var folderSelected = !string.IsNullOrWhiteSpace(selectedPath);
 
-				// allow application to alter tree context menu state
-				await UpdateTreeContextState.InvokeAsync(args).ConfigureAwait(true);
-			}
+			_menuNewFolder.IsVisible = folderSelected;
+			_menuRename.IsVisible = folderSelected && !isRoot;
+			_menuDelete.IsVisible = folderSelected && !isRoot;
+			_menuCopy.IsVisible = folderSelected && !isRoot;
+			_menuCut.IsVisible = folderSelected && !isRoot;
+			_menuPaste.IsVisible = folderSelected && _copyPayload.Count > 0;
+			_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
+			_menuSep3.IsVisible = ShowSeparator(_menuSep3, TreeContextItems);
+			_menuSep2.IsVisible = ShowSeparator(_menuSep2, TreeContextItems);
+			_menuSep1.IsVisible = ShowSeparator(_menuSep1, TreeContextItems);
+
+			// allow application to alter tree context menu state
+			await UpdateTreeContextState.InvokeAsync(args).ConfigureAwait(true);
 		}
 
 		private async Task OnTreeContextMenuItemClickAsync(MenuItem item)
@@ -309,7 +326,39 @@ namespace PanoramicData.Blazor
 					{
 						await CreateNewFolderAsync().ConfigureAwait(true);
 					}
+					else if (item.Text == "Copy" || item.Text == "Cut")
+					{
+						_copyPayload.Clear();
+						_copyPayload.Add(_tree.SelectedNode.Data);
+						_moveCopyPayload = item.Text == "Cut";
+					}
+					else if (item.Text == "Paste")
+					{
+						var targetPath = _tree.SelectedNode.Data.Path;
+						await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
+						_copyPayload.Clear();
+					}
 				}
+			}
+		}
+
+		private async Task OnTreeKeyDownAsync(KeyboardEventArgs args)
+		{
+			if (args.Code == "Delete")
+			{
+				await DeleteFolderAsync().ConfigureAwait(true);
+			}
+			else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey && _tree!.SelectedNode?.Data != null)
+			{
+				_copyPayload.Clear();
+				_copyPayload.Add(_tree!.SelectedNode.Data);
+				_moveCopyPayload = args.Code == "KeyX";
+			}
+			else if (args.Code == "KeyV" && args.CtrlKey && _tree!.SelectedNode?.Data != null)
+			{
+				var targetPath = _tree.SelectedNode.Data.Path;
+				await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
+				_copyPayload.Clear();
 			}
 		}
 
@@ -408,6 +457,19 @@ namespace PanoramicData.Blazor
 			{
 				await DeleteFilesAsync().ConfigureAwait(true);
 			}
+			else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey)
+			{
+				_copyPayload.Clear();
+				_copyPayload.AddRange(_table!.GetSelectedItems());
+				_moveCopyPayload = args.Code == "KeyX";
+			}
+			else if (args.Code == "KeyV" && args.CtrlKey)
+			{
+				var selection = _table!.GetSelectedItems();
+				var targetPath = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
+				await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
+				_copyPayload.Clear();
+			}
 		}
 
 		private async Task OnTableAfterEditAsync(TableAfterEditEventArgs<FileExplorerItem> args)
@@ -471,6 +533,7 @@ namespace PanoramicData.Blazor
 
 			_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
 			_menuDownload.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
+			_menuNewFolder.IsVisible = false;
 			_menuRename.IsVisible = validSelection && selectedItems.Length == 1;
 			_menuDelete.IsVisible = validSelection && selectedItems.Length > 0;
 			_menuCopy.IsVisible = validSelection && selectedItems.Length > 0;
@@ -480,6 +543,9 @@ namespace PanoramicData.Blazor
 			_menuSep3.IsVisible = ShowSeparator(_menuSep3, TableContextItems);
 			_menuSep2.IsVisible = ShowSeparator(_menuSep2, TableContextItems);
 			_menuSep1.IsVisible = ShowSeparator(_menuSep1, TableContextItems);
+
+			// allow application to alter table context menu state
+			await UpdateTableContextState.InvokeAsync(args).ConfigureAwait(true);
 		}
 
 		private async Task OnTableContextMenuItemClickAsync(MenuItem menuItem)
@@ -530,6 +596,10 @@ namespace PanoramicData.Blazor
 					var targetPath = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
 					await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
 					_copyPayload.Clear();
+				}
+				else if (menuItem.Text == "New Folder")
+				{
+					await CreateNewFolderAsync().ConfigureAwait(true);
 				}
 			}
 		}
@@ -792,7 +862,7 @@ namespace PanoramicData.Blazor
 			{
 				var newFolderName = _tree.SelectedNode.MakeUniqueText("New Folder");
 				var newPath = $"{_tree.SelectedNode.Data.Path.TrimEnd('/')}/{newFolderName}";
-				var newItem = new FileExplorerItem { EntryType = FileExplorerItemType.Directory, Path = newPath };
+				var newItem = new FileExplorerItem { EntryType = FileExplorerItemType.Directory, Path = newPath, HasSubFolders = false };
 				var result = await DataProvider.CreateAsync(newItem, CancellationToken.None).ConfigureAwait(true);
 				if (result.Success)
 				{
@@ -892,6 +962,17 @@ namespace PanoramicData.Blazor
 
 		private async Task MoveCopyFilesAsync(List<FileExplorerItem> payload, string targetPath, bool isCopy)
 		{
+			// store source folders being moved
+			var pathsToRefresh = payload
+									.Where(x => x.EntryType == FileExplorerItemType.Directory && !isCopy)
+									.Select(x => x.ParentPath)
+									.Distinct()
+									.ToList();
+			if (payload.Any(x => x.EntryType == FileExplorerItemType.Directory) && !pathsToRefresh.Contains(targetPath))
+			{
+				pathsToRefresh.Add(targetPath);
+			}
+
 			// check for conflicts - top level only
 			var conflictArgs = new MoveCopyArgs
 			{
@@ -938,14 +1019,19 @@ namespace PanoramicData.Blazor
 						var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
 					}
 				}
-				//if (_table != null && !conflictArgs.IsCopy)
-				//{
-				await _table.RefreshAsync().ConfigureAwait(true);
-				if (_tree?.SelectedNode != null)
+
+				// refresh the current table view
+				await _table!.RefreshAsync().ConfigureAwait(true);
+
+				// refresh affected tree nodes
+				foreach (var path in pathsToRefresh)
 				{
-					await _tree.RefreshNodeAsync(_tree.SelectedNode).ConfigureAwait(true);
+					var node = _tree!.Search((x) => x?.Data?.Path == path);
+					if (node != null)
+					{
+						await _tree.RefreshNodeAsync(node).ConfigureAwait(true);
+					}
 				}
-				//}
 			}
 		}
 

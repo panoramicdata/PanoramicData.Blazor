@@ -227,6 +227,7 @@ namespace PanoramicData.Blazor.Demo.Data
 			{
 				// first move / copy folder entry
 				var originalPath = item.Path;
+				var newPath = $"{parentPath}/{item.Name}";
 				if (isCopy)
 				{
 					_testData.Add(new FileExplorerItem
@@ -234,19 +235,20 @@ namespace PanoramicData.Blazor.Demo.Data
 						DateCreated = DateTime.UtcNow,
 						DateModified = item.DateModified,
 						EntryType = FileExplorerItemType.Directory,
-						Path = $"{parentPath}/{item.Name}"
+						Path = newPath,
+						HasSubFolders = item.HasSubFolders
 					});
 				}
 				else
 				{
-					item.Path = $"{parentPath}/{item.Name}";
+					item.Path = newPath;
 				}
 
 				// move / copy child items
 				var subItems = _testData.Where(x => x.ParentPath == originalPath);
-				foreach (var subItem in subItems)
+				foreach (var subItem in subItems.ToArray())
 				{
-					MoveOrCopyItem(subItem, item.Path, isCopy);
+					MoveOrCopyItem(subItem, newPath, isCopy);
 				}
 			}
 		}
