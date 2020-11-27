@@ -167,7 +167,7 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
-		/// Searches all nodes until the given criteria is first macthed.
+		/// Searches all nodes until the given criteria is first matched.
 		/// </summary>
 		public TreeNode<TItem>? Search(Predicate<TreeNode<TItem>> predicate)
 		{
@@ -537,10 +537,9 @@ namespace PanoramicData.Blazor
 
 		private async Task OnDrop(DropEventArgs args)
 		{
-			if (args.Target is TreeNode<TItem> node)
+			if (args.Target is TreeNode<TItem>)
 			{
 				await Drop.InvokeAsync(args).ConfigureAwait(true);
-				await RefreshNodeAsync(node).ConfigureAwait(true);
 			}
 		}
 	}

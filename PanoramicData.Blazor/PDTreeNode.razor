@@ -18,6 +18,7 @@
 			 @onmouseup="() => { }"
 			 @onmousedown="OnContentMouseDownAsync"
 			 @ondrop="OnDragDrop"
+			 @ondragstart="OnDragStart"
 			 @attributes="NodeAttributes">
 			@if (Node?.IsEditing == true)
 			{
@@ -28,7 +29,7 @@
 					   @onmousedown:stopPropagation
 					   @oncontextmenu:stopPropagation />
 			}
-			else if(Node != null)
+			else if (Node != null)
 			{
 				@if (NodeTemplate is null)
 				{
@@ -67,7 +68,7 @@
 									AllowDrop="AllowDrop"
 									AllowDrag="AllowDrag"
 									EndEdit="OnEndEdit"
-									Drop="OnDrop" >
+									Drop="OnDrop">
 							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 						</PDTreeNode>
 					}

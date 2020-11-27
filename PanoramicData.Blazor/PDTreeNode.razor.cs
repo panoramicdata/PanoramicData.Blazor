@@ -87,6 +87,21 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private void OnDragStart(DragEventArgs _)
+		{
+			// need to set the data being dragged
+			if (DragContext != null && Node?.Data != null)
+			{
+				// get all selected items
+				var items = new List<TItem>
+				{
+					Node.Data
+				};
+				DragContext.Payload = items;
+			}
+		}
+
+
 		private async Task OnToggleExpandAsync()
 		{
 			if (Node != null)

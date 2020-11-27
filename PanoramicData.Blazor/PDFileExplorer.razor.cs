@@ -756,9 +756,18 @@ namespace PanoramicData.Blazor
 			}
 
 			// source and target are file items - and target is folder?
-			if (args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory &&
-			   args.Payload is List<FileExplorerItem> payload)
+			if (args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory)
 			{
+				List<FileExplorerItem> payload = new List<FileExplorerItem>();
+				if (args.Payload is List<FileExplorerItem> mfe)
+				{
+					payload = mfe;
+				}
+				else if (args.Payload is FileExplorerItem sfe)
+				{
+					payload.Add(sfe);
+				}
+
 				// check not dropping an item onto itself
 				if (payload.Any(x => x.Path == target.Path))
 				{
