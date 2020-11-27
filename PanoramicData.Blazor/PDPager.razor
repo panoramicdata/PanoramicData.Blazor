@@ -12,8 +12,8 @@
 			</a>
 		</li>
 		<li class="page-item disabled">
-			<a class="page-link" href="#">
-				Page &nbsp; @PageCriteria.Page &nbsp; / &nbsp; @(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)
+			<a class="page-link text-nowrap" href="#">
+				<span class="d-none d-md-inline">Page &nbsp; </span> @PageCriteria.Page &nbsp; / &nbsp; @(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)
 			</a>
 		</li>
 		<li class="page-item @(PageCriteria.IsLastPage || PageCriteria.Page > PageCriteria.PageCount ? "disabled" : "pd-pointer")">
@@ -32,13 +32,13 @@
 	{
 		if (PageCriteria.TotalCount == 0)
 		{
-			<div class="text-nowrap">
+			<div class="d-none d-lg-block text-nowrap">
 				@NoItemsText
 			</div>
 		}
 		else
 		{
-			<div>
+			<div class="d-none d-lg-block text-nowrap">
 				<span>Showing</span>
 				<span>@PageCriteria.PageRangeStart - @PageCriteria.PageRangeEnd</span>
 				<span>of</span>
@@ -49,8 +49,8 @@
 
 	@if (ShowPageSizeChoices)
 	{
-		<div class="d-flex align-items-center" >
-			<div class="text-nowrap pr-2">Page Size:</div>
+		<div class="d-none d-sm-flex align-items-center">
+			<div class="pr-2 text-nowrap d-none d-lg-block">Page Size:</div>
 			<select class="form-control" @bind="PageCriteria.PageSize">
 				@foreach (var size in PageSizeChoices)
 				{
