@@ -79,7 +79,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnContentMouseDownAsync(MouseEventArgs args)
+		private async Task OnContentMouseDownAsync(MouseEventArgs _)
 		{
 			if (Node != null)
 			{
@@ -100,7 +100,6 @@ namespace PanoramicData.Blazor
 				DragContext.Payload = items;
 			}
 		}
-
 
 		private async Task OnToggleExpandAsync()
 		{
