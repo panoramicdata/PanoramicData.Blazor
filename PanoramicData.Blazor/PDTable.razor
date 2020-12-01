@@ -1,9 +1,9 @@
 ﻿@typeparam TItem
 
 <div id="@Id"
-		class="pdtable @CssClass"
-		tabindex="0"
-		@onkeydown="OnKeyDownAsync">
+	 class="pdtable @CssClass"
+	 tabindex="0"
+	 @onkeydown="OnKeyDownAsync">
 
 	<table class="table @TableClass">
 		@if (PageCriteria != null && ShowPager)
@@ -44,43 +44,43 @@
 			{
 				foreach (var item in ItemsToDisplay)
 				{
-				<tr class="pdtablerow @GetDynamicRowClasses(item)"
-					@attributes="RowAttributes"
-					@oncontextmenu:preventDefault
-					@onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
-					@onclick="@((args) => OnRowClick(args, item))"
-					@ondblclick="@((args) => OnRowDoubleClick(args, item))"
-					@ondragstart="OnDragStart"
-					@ondragend="OnDragEnd"
-					@ondrop="@((args) => OnDragDropAsync(item, args))" >
-					@foreach (var column in ActualColumnsToDisplay)
-					{
-						<td class="@column.TdClass">
-							@if (IsColumnInEditMode(column, item) && column.Field != null)
-							{
-								<input id="@($"{IdEditPrefix}{column.Id}")"
-										type="@(column.IsPassword ? "password" : "text")"
-										value="@($"{column.GetValue(item)}")"
-										class="pdtable_edit"
-										@onblur="OnEndEditAsync"
-										@onmousedown:stopPropagation
-										@onclick:stopPropagation
-										@oncontextmenu:stopPropagation />
-							}
-							else
-							{
-								if (column.Template == null)
+					<tr class="pdtablerow @GetDynamicRowClasses(item)"
+						@attributes="RowAttributes"
+						@oncontextmenu:preventDefault
+						@onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
+						@onclick="@((args) => OnRowClick(args, item))"
+						@ondblclick="@((args) => OnRowDoubleClick(args, item))"
+						@ondragstart="OnDragStart"
+						@ondragend="OnDragEnd"
+						@ondrop="@((args) => OnDragDropAsync(item, args))">
+						@foreach (var column in ActualColumnsToDisplay)
+						{
+							<td class="@column.TdClass">
+								@if (IsColumnInEditMode(column, item) && column.Field != null)
 								{
-									@column.GetRenderValue(item);
+									<input id="@($"{IdEditPrefix}{column.Id}")"
+										   type="@(column.IsPassword ? "password" : "text")"
+										   value="@($"{column.GetValue(item)}")"
+										   class="pdtable_edit"
+										   @onblur="OnEndEditAsync"
+										   @onmousedown:stopPropagation
+										   @onclick:stopPropagation
+										   @oncontextmenu:stopPropagation />
 								}
 								else
 								{
-									@column.Template(item);
+									if (column.Template == null)
+									{
+										@column.GetRenderValue(item);
+									}
+									else
+									{
+										@column.Template(item);
+									}
 								}
-							}
-						</td>
-					}
-				</tr>
+							</td>
+						}
+					</tr>
 				}
 			}
 			else
