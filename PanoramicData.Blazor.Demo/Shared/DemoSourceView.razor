@@ -1,4 +1,14 @@
-﻿<ul class="nav nav-pills p-2">
+﻿<style>
+	.pd-editor {
+		/*min-height: calc(100vh - 250px);*/
+	}
+
+	.monaco-editor-container {
+		height: 500px;
+		border: 1px solid gray;
+	}
+</style>
+<ul class="nav nav-pills p-2">
 	<li class="nav-item @(ActiveTab == "Demo" ? "" : "pd-pointer")" @onclick="@(() => ActiveTab = "Demo")">
 		<span class="nav-link @(ActiveTab == "Demo" ? "active" : "")">Demo</span>
 	</li>
@@ -7,18 +17,27 @@
 	</li>
 </ul>
 <div class="demo-source-view">
-	<div class="@(ActiveTab == "Demo" ? "" : "d-none")">
-		@ChildContent
-	</div>
-	<div class="@(ActiveTab == "Source" ? "" : "d-none")">
-		<ul class="nav p-1 source-files-list">
-			@foreach (var name in _sourceFiles.Keys)
-			{
-				<li class="small nav-item @(_activeSourceFile == name ? "font-weight-bold" : "pd-pointer")" @onclick="@(() => OnFileClick(name))">
-					<span class="nav-link">@name</span>
-				</li>
-			}
-		</ul>
-		<pre class="source-code">@SourceCode</pre>
-	</div>
+	@if (ActiveTab == "Demo")
+	{
+		<div>
+			@ChildContent
+		</div>
+	}
+	else
+	{
+		<div>
+			<ul class="nav p-1 source-files-list">
+				@foreach (var name in _sourceFiles.Keys)
+				{
+					<li class="small nav-item @(_activeSourceFile == name ? "font-weight-bold" : "pd-pointer")" @onclick="@(() => OnFileClick(name))">
+						<span class="nav-link">@name</span>
+					</li>
+				}
+			</ul>
+			<MonacoEditor @ref="Editor"
+						  Id="pd-source-code"
+						  CssClass="pd-editor"
+						  ConstructionOptions="EditorConstructionOptions" />
+		</div>
+	}
 </div>

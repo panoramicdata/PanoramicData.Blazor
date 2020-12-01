@@ -5,6 +5,7 @@
     <RazorLangVersion>3.0</RazorLangVersion>
 		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
+		<UserSecretsId>49933e5c-b6ca-4a76-8b2a-09d0868ee051</UserSecretsId>
 	</PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +24,7 @@
 
 
   <ItemGroup>
+    <PackageReference Include="BlazorMonaco" Version="1.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.9" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.9" />
   </ItemGroup>

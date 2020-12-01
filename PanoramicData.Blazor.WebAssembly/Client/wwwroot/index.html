@@ -10,6 +10,7 @@
     <link href="_content/PanoramicData.Blazor.Demo/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="_content/PanoramicData.Blazor.Demo/css/site.css" rel="stylesheet" />
     <link href="_content/PanoramicData.Blazor/css/main.min.css" rel="stylesheet" />
+    <link href="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css" rel="stylesheet" />
 </head>
 
 <!-- End Single Page Apps for GitHub Pages -->
@@ -61,6 +62,11 @@
     <script src="_content/PanoramicData.Blazor.Demo/lib/jquery/jquery.min.js"></script>
     <script src="_content/PanoramicData.Blazor.Demo/lib/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="_content/PanoramicData.Blazor/js/pdblazor.js"></script>
+
+    <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
+    <script>require.config({ paths: { 'vs': '_content/BlazorMonaco/lib/monaco-editor/min/vs' } });</script>
+    <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+    <script src="_content/BlazorMonaco/jsInterop.js"></script>
 
     <script src="_framework/blazor.webassembly.js"></script>
 

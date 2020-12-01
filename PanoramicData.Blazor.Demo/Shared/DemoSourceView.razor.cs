@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using BlazorMonaco;
+using BlazorMonaco.Bridge;
+using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
 using System;
 using System.Collections.Generic;
@@ -10,10 +12,11 @@ namespace PanoramicData.Blazor.Demo.Shared
 	public partial class DemoSourceView
 	{
 		private string ActiveTab { get; set; } = "Demo";
-		private const string SourceBaseUrl = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/main/PanoramicData.Blazor.Demo";
-		private HttpClient _httpClient = new HttpClient();
-		private Dictionary<string, SourceFile> _sourceFiles = new Dictionary<string, SourceFile>();
+		private const string _sourceBaseUrl = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/main/PanoramicData.Blazor.Demo";
+		private readonly HttpClient _httpClient = new HttpClient();
+		private readonly Dictionary<string, SourceFile> _sourceFiles = new Dictionary<string, SourceFile>();
 		private string _activeSourceFile = string.Empty;
+		private MonacoEditor Editor { get; set; } = null!;
 
 		/// <summary>
 		/// Sets the child content that the drop zone wraps.
@@ -72,7 +75,7 @@ namespace PanoramicData.Blazor.Demo.Shared
 
 		public string GetUrl(string url)
 		{
-			return url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : $"{SourceBaseUrl}/{url}";
+			return url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : $"{_sourceBaseUrl}/{url}";
 		}
 
 		private async Task<string> LoadSourceAsync(string url)
@@ -96,8 +99,41 @@ namespace PanoramicData.Blazor.Demo.Shared
 				{
 					sourceFile.Content = await LoadSourceAsync(sourceFile.Url).ConfigureAwait(true);
 				}
+				var extnChanged = System.IO.Path.GetExtension(name) != System.IO.Path.GetExtension(_activeSourceFile);
 				_activeSourceFile = name;
+
+				await Editor.SetValue(SourceCode).ConfigureAwait(true);
+
+				if (extnChanged)
+				{
+					var model = await Editor.GetModel().ConfigureAwait(true);
+					await MonacoEditor.SetModelLanguage(model, GetLanguageForFile(_activeSourceFile)).ConfigureAwait(true);
+				}
 			}
+		}
+
+		private StandaloneEditorConstructionOptions EditorConstructionOptions(MonacoEditor _)
+		{
+			return new StandaloneEditorConstructionOptions
+			{
+				AutomaticLayout = true,
+				Language = GetLanguageForFile(_activeSourceFile),
+				Value = SourceCode,
+				ReadOnly = true
+			};
+		}
+
+		private string GetLanguageForFile(string filename)
+		{
+			return System.IO.Path.GetExtension(filename) switch
+			{
+				".cs" => "csharp",
+				".css" => "css",
+				".html" => "html",
+				".cshtml" => "razor",
+				".razor" => "razor",
+				_ => "csharp"
+			};
 		}
 	}
 }
