@@ -55,14 +55,16 @@
 						@ondrop="@((args) => OnDragDropAsync(item, args))">
 						@foreach (var column in ActualColumnsToDisplay)
 						{
+							var row = ItemsToDisplay.IndexOf(item);
 							<td class="@column.TdClass">
 								@if (IsColumnInEditMode(column, item) && column.Field != null)
 								{
-									<input id="@($"{IdEditPrefix}{column.Id}")"
+									<input id="@($"{IdEditPrefix}-{row}-{column.Id}")"
 										   type="@(column.IsPassword ? "password" : "text")"
 										   value="@($"{column.GetValue(item)}")"
 										   class="pdtable_edit"
-										   @onblur="OnEndEditAsync"
+										   @oninput="(a) => OnEditInput(column, a.Value == null ? string.Empty : a.Value.ToString())"
+										   @onblur="async () => await OnEditBlurAsync(column).ConfigureAwait(true)"
 										   @onmousedown:stopPropagation
 										   @onclick:stopPropagation
 										   @oncontextmenu:stopPropagation />

@@ -22,6 +22,7 @@ namespace PanoramicData.Blazor
 		private bool _dragging;
 		private Timer? _editTimer;
 		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
+		private readonly Dictionary<string, string> _editValues = new Dictionary<string, string>();
 
 		private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
@@ -440,12 +441,18 @@ namespace PanoramicData.Blazor
 					await InvokeAsync(async () => await BeforeEdit.InvokeAsync(_tableBeforeEditArgs).ConfigureAwait(true)).ConfigureAwait(true);
 					if (!_tableBeforeEditArgs.Cancel)
 					{
+						_editValues.Clear();
 						IsEditing = true;
 						BeginEditEvent.Set();
 						await InvokeAsync(StateHasChanged).ConfigureAwait(true);
 					}
 				}
 			}
+		}
+
+		private void OnEditInput(PDColumn<TItem> column, string value)
+		{
+			_editValues[column.Id] = value;
 		}
 
 		/// <summary>
@@ -459,10 +466,9 @@ namespace PanoramicData.Blazor
 				var args = new TableAfterEditEventArgs<TItem>(EditItem);
 				foreach (var column in ActualColumnsToDisplay)
 				{
-					if (IsColumnInEditMode(column, EditItem))
+					if (_editValues.ContainsKey(column.Id) && IsColumnInEditMode(column, EditItem))
 					{
-						var newValue = await JSRuntime.InvokeAsync<string>("panoramicData.getValue", $"{IdEditPrefix}{column.Id}").ConfigureAwait(true);
-						args.NewValues.Add(column.Id, newValue);
+						args.NewValues.Add(column.Id, _editValues[column.Id]);
 					}
 				}
 
@@ -473,9 +479,9 @@ namespace PanoramicData.Blazor
 					// apply edit value to each column
 					foreach (var column in ActualColumnsToDisplay)
 					{
-						if (IsColumnInEditMode(column, EditItem))
+						if (args.NewValues.ContainsKey(column.Id))
 						{
-							// get new value and attempt to set on edit item
+							// get new value (possible updated by host app) and attempt to set on edit item
 							var newValue = args.NewValues[column.Id];
 							try
 							{
@@ -636,7 +642,7 @@ namespace PanoramicData.Blazor
 			}
 
 			// focus first editor after edit mode begins
-			if (BeginEditEvent.WaitOne(0) && Columns.Count > 0)
+			if (BeginEditEvent.WaitOne(0) && Columns.Count > 0 && EditItem != null)
 			{
 				// find first editable column
 				var key = string.Empty;
@@ -651,19 +657,23 @@ namespace PanoramicData.Blazor
 						break;
 					}
 				}
+				var row = ItemsToDisplay.IndexOf(EditItem);
 				if (key != string.Empty)
 				{
-					await JSRuntime.InvokeVoidAsync("panoramicData.selectText", $"{IdEditPrefix}{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
+					await JSRuntime.InvokeVoidAsync("panoramicData.selectText", $"{IdEditPrefix}-{row}-{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
 					BeginEditEvent.Reset();
 				}
 			}
 		}
 
-		private async Task OnEndEditAsync()
+		private async Task OnEditBlurAsync(PDColumn<TItem> _)
 		{
+			// if focus has moved to another editor then continue editing otherwise end edit
 			if (IsEditing)
 			{
-				// if focus has moved to another editor then continue editing
+				// small delay required for when running in WebAssembly otherwise
+				// the call to getFocusedElementId returns null
+				await Task.Delay(100).ConfigureAwait(true);
 				var id = await JSRuntime.InvokeAsync<string>("panoramicData.getFocusedElementId").ConfigureAwait(true);
 				if (!id.StartsWith(IdEditPrefix))
 				{
