@@ -1,16 +1,12 @@
 ﻿@page "/pdfileexplorer"
 
 <h1>PDFileExplorer</h1>
+<p class="text-muted">The PDFileExplorer component requires inclusion of both the <a href="https://popper.js.org/">popperjs</a> and <a href="https://split.js.org/">splitjs</a> libraries (see source code for _Host.cshtml for example).</p>
 
 <DemoSourceView SourceFiles="Pages/PDFileExplorerPage.razor, Pages/PDFileExplorerPage.razor.cs, Data/TestFileSystemDataProvider.cs">
 
 	<!-- PDSplitter works better when its parent element has a known size -->
-	<!-- 57px = Top Bar -->
-	<!-- 47px = Title -->
-	<!-- 55px = Demo/Source view -->
-	<!-- 50px = combined Padding -->
-
-	<div style="height: calc(100vh - 57px - 56px - 10px - 55px - 50px)">
+	<div style="height: calc(100vh - 286px)">
 
 		<PDDragContext>
 			<PDFileExplorer @ref="FileExplorer"
