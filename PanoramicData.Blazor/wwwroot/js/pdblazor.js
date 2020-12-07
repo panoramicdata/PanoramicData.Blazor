@@ -13,7 +13,7 @@
 	},
 
 	showMenu: function(menuId, x, y) {
-		var menu = document.getElementById(menuId);
+		var menu = window.panoramicData.contextMenuEl = document.getElementById(menuId);
 		var reference = {
 			getBoundingClientRect() {
 				return {
@@ -32,19 +32,31 @@
 		};
 		menu.classList.add("show");
 		//var popper = Popper.createPopper(reference, menu, options); // this is popper v2.4.4 syntax
-		var popper = new Popper(reference, menu, options); // this is popper v1.16.1 syntax
-		document.addEventListener("mousedown", function (event) {
-			let isClickInside = menu.contains(event.target);
-			if (!isClickInside) {
-				menu.classList.remove("show");
-				popper.destroy();
-			}
-		});
+		window.panoramicData.menuPopper = new Popper(reference, menu, options); // this is popper v1.16.1 syntax
+		document.addEventListener("mousedown", window.panoramicData.menuMouseDown);
 	},
 
-	hideMenu: function(menuId) {
-		var menu = document.getElementById(menuId);
-		menu.classList.remove("show");
+	menuMouseDown: function (event) {
+		var menu = window.panoramicData.contextMenuEl;
+		if (menu && window.panoramicData.menuPopper) {
+			let isClickInside = menu.contains(event.target);
+			if (!isClickInside) {
+				window.panoramicData.hideMenu();
+			}
+		}
+	},
+
+	hideMenu: function (menuId) {
+		var menu = window.panoramicData.contextMenuEl;
+		if (menu) {
+			menu.classList.remove("show");
+			document.removeEventListener("mousedown", window.panoramicData.menuMouseDown);
+			window.panoramicData.contextMenuEl = null;
+			if (window.panoramicData.menuPopper) {
+				window.panoramicData.menuPopper.destroy();
+				window.panoramicData.menuPopper = null;
+			}
+		}
 	},
 
 	focus: function(id) {

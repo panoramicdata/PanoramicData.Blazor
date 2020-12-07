@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDContextMenu
+	public partial class PDContextMenu : IDisposable
 	{
 		private static int _idSequence;
 
@@ -74,6 +75,11 @@ namespace PanoramicData.Blazor
 					await JSRuntime.InvokeVoidAsync("panoramicData.showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
 				}
 			}
+		}
+
+		public void Dispose()
+		{
+			JSRuntime.InvokeVoidAsync("panoramicData.hideMenu", Id);
 		}
 	}
 }

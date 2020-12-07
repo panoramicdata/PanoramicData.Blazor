@@ -454,22 +454,25 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTableKeyDownAsync(KeyboardEventArgs args)
 		{
-			if (args.Code == "Delete")
+			if (Table?.IsEditing != true)
 			{
-				await DeleteFilesAsync().ConfigureAwait(true);
-			}
-			else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey)
-			{
-				_copyPayload.Clear();
-				_copyPayload.AddRange(Table!.GetSelectedItems());
-				_moveCopyPayload = args.Code == "KeyX";
-			}
-			else if (args.Code == "KeyV" && args.CtrlKey)
-			{
-				var selection = Table!.GetSelectedItems();
-				var targetPath = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
-				await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
-				_copyPayload.Clear();
+				if (args.Code == "Delete")
+				{
+					await DeleteFilesAsync().ConfigureAwait(true);
+				}
+				else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey)
+				{
+					_copyPayload.Clear();
+					_copyPayload.AddRange(Table!.GetSelectedItems());
+					_moveCopyPayload = args.Code == "KeyX";
+				}
+				else if (args.Code == "KeyV" && args.CtrlKey)
+				{
+					var selection = Table!.GetSelectedItems();
+					var targetPath = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
+					await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
+					_copyPayload.Clear();
+				}
 			}
 		}
 
