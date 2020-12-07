@@ -326,6 +326,7 @@ namespace PanoramicData.Blazor
 					{
 						SelectedNode.EditText = afterEditArgs.NewValue; // application my of altered
 						SelectedNode.CommitEdit();
+						await JSRuntime.InvokeVoidAsync("panoramicData.focus", Id).ConfigureAwait(true);
 					}
 				}
 			}

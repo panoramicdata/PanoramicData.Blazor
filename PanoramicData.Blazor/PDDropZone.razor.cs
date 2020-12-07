@@ -10,7 +10,7 @@ namespace PanoramicData.Blazor
 		private static int _idSequence;
 		private DotNetObjectReference<PDDropZone>? _dotNetReference;
 
-		[Inject] public IJSRuntime? JSRuntime { get; set; }
+		[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 		/// <summary>
 		/// Gets or sets the child content that the drop zone wraps.
@@ -57,7 +57,7 @@ namespace PanoramicData.Blazor
 			if (firstRender)
 			{
 				_dotNetReference = DotNetObjectReference.Create(this);
-				await JSRuntime.InvokeVoidAsync("panoramicData.initializeDropZone", Id, UploadUrl, _dotNetReference);
+				await JSRuntime.InvokeVoidAsync("panoramicData.initializeDropZone", Id, UploadUrl, _dotNetReference).ConfigureAwait(false);
 			}
 		}
 
@@ -105,7 +105,6 @@ namespace PanoramicData.Blazor
 				}
 				return fields.ToArray();
 			}
-
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadProgress")]

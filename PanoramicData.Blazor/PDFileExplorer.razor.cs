@@ -345,21 +345,24 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTreeKeyDownAsync(KeyboardEventArgs args)
 		{
-			if (args.Code == "Delete")
+			if (Tree?.SelectedNode?.IsEditing != true)
 			{
-				await DeleteFolderAsync().ConfigureAwait(true);
-			}
-			else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey && Tree!.SelectedNode?.Data != null)
-			{
-				_copyPayload.Clear();
-				_copyPayload.Add(Tree!.SelectedNode.Data);
-				_moveCopyPayload = args.Code == "KeyX";
-			}
-			else if (args.Code == "KeyV" && args.CtrlKey && Tree!.SelectedNode?.Data != null)
-			{
-				var targetPath = Tree.SelectedNode.Data.Path;
-				await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
-				_copyPayload.Clear();
+				if (args.Code == "Delete")
+				{
+					await DeleteFolderAsync().ConfigureAwait(true);
+				}
+				else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey && Tree!.SelectedNode?.Data != null)
+				{
+					_copyPayload.Clear();
+					_copyPayload.Add(Tree!.SelectedNode.Data);
+					_moveCopyPayload = args.Code == "KeyX";
+				}
+				else if (args.Code == "KeyV" && args.CtrlKey && Tree!.SelectedNode?.Data != null)
+				{
+					var targetPath = Tree.SelectedNode.Data.Path;
+					await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
+					_copyPayload.Clear();
+				}
 			}
 		}
 
@@ -380,9 +383,9 @@ namespace PanoramicData.Blazor
 				var newPath = $"{item.ParentPath.TrimEnd('/')}/{args.NewValue}";
 				// inform data provider
 				var delta = new Dictionary<string, object>
-					{
-						{  "Path", newPath }
-					};
+				{
+					{  "Path", newPath }
+				};
 				var result = await DataProvider.UpdateAsync(Tree.SelectedNode.Data, delta, CancellationToken.None).ConfigureAwait(true);
 				if (result.Success)
 				{
@@ -510,6 +513,10 @@ namespace PanoramicData.Blazor
 								await DirectoryRenameAsync(previousPath, newPath).ConfigureAwait(true);
 							}
 						}
+
+						// replace selection with new path
+						Table.Selection.Clear();
+						Table.Selection.Add(newPath);
 					}
 				}
 			}

@@ -63,7 +63,9 @@
 		var node = document.getElementById(id);
 		if (node && node.focus) {
 			node.focus();
+			return true;
 		}
+		return false;
 	},
 
 	selectText: function(id, start, end) {

@@ -44,7 +44,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Injected javascript interop object.
 		/// </summary>
-		[Inject] public IJSRuntime? JSRuntime { get; set; }
+		[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 		[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
@@ -495,10 +495,10 @@ namespace PanoramicData.Blazor
 					}
 				}
 
-				StateHasChanged();
 				EditItem = null;
 				IsEditing = false;
-				JSRuntime?.InvokeVoidAsync("focus", Id);
+				await JSRuntime.InvokeVoidAsync("panoramicData.focus", Id).ConfigureAwait(true);
+				StateHasChanged();
 			}
 		}
 
