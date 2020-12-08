@@ -1,19 +1,17 @@
-﻿<div class="pdtextbox input-group @(IsVisible ? "" : "d-none ") @CssClass">
+﻿<input id="@Id"
+	   class="form-control @(IsVisible ? "" : "d-none ") @CssClass"
+	   value="@Value"
+	   readonly="@(!IsEnabled)"
+	   @oninput="OnInput"
+	   @onkeypress="OnKeypress" />
 
-	<input id="@Id"
-		   class="form-control @InputCssClass"
-		   value="@Value"
-		   readonly="@(!IsEnabled)"
-		   @oninput="OnInput"
-		   @onkeypress="OnKeypress" />
-
-	@if (ShowClearButton)
-	{
-		<div class="input-group-append" @onclick="OnClear">
-			<button class="input-group-text btn" disabled="@(Value == string.Empty)">
-				<i class="fas fa-times" />
-			</button>
-		</div>
-	}
-
-</div>
+@if (ShowClearButton && IsVisible)
+{
+	<div class="input-group-append">
+		<button class="input-group-text btn"
+				disabled="@(Value == string.Empty || !IsEnabled)"
+				@onclick="OnClear">
+			<i class="fas fa-times" />
+		</button>
+	</div>
+}

@@ -73,8 +73,6 @@ namespace PanoramicData.Blazor
 
 		public string Id { get; set; } = $"pd-textbox-{++_seq}";
 
-		public string InputCssClass => ShowClearButton ? "pr-4" : "";
-
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
 			if (firstRender && DebounceWait > 0)

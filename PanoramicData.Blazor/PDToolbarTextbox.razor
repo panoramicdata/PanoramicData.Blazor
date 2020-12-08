@@ -1,17 +1,19 @@
-﻿<div class="pdtoolbaritem @(IsVisible ? "" : "d-none") @(ShiftRight ? "align-right" : "") @ItemCssClass" style="@ItemStyle" >
+﻿<div class="pdtoolbaritem @(IsVisible ? "" : "d-none") @(ShiftRight ? "align-right" : "") @ItemCssClass" style="@ItemStyle">
 	<div class="pdtoolbartextbox @CssClass">
 		@if (!string.IsNullOrWhiteSpace(Label))
 		{
 			<label>@Label</label>
 		}
-		<PDTextBox Value="@Value"
-				   CssClass="@CssClass"
-				   IsEnabled="IsEnabled"
-				   IsVisible="IsVisible"
-				   ShowClearButton="ShowClearButton"
-				   DebounceWait="DebounceWait"
-				   Keypress="OnKeypress"
-				   ValueChanged="OnValueChanged"
-				   Cleared="OnCleared"/>
+		<div class="input-group">
+			<PDTextBox Value="@Value"
+					   CssClass="@CssClass"
+					   IsEnabled="IsEnabled"
+					   IsVisible="IsVisible"
+					   ShowClearButton="ShowClearButton"
+					   DebounceWait="DebounceWait"
+					   Keypress="OnKeypress"
+					   ValueChanged="OnValueChanged"
+					   Cleared="OnCleared" />
+		</div>
 	</div>
 </div>

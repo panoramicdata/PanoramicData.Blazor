@@ -16,12 +16,14 @@
 
 	</PDToolbar>
 
-	<PDTextBox IsEnabled="Enabled"
-			   IsVisible="Visible"
-			   Value="@Value"
-			   ValueChanged="OnValueChanged"
-			   Keypress="OnKeypress"
-			   DebounceWait="250" />
+	<div class="input-group">
+		<PDTextBox IsEnabled="Enabled"
+				   IsVisible="Visible"
+				   Value="@Value"
+				   ValueChanged="OnValueChanged"
+				   Keypress="OnKeypress"
+				   DebounceWait="250" />
+	</div>
 
 	<div>
 		Value = @Value

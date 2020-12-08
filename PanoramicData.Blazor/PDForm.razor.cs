@@ -417,6 +417,8 @@ namespace PanoramicData.Blazor
 
 					// validate field
 					await ValidateFieldAsync(field, value).ConfigureAwait(true);
+
+					StateHasChanged();
 				}
 			}
 		}

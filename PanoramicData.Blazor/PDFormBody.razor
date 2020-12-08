@@ -109,12 +109,12 @@ else if (Form.Mode != FormModes.Hidden)
 							}
 							else if (fieldType?.FullName == "System.String")
 							{
-								<input type="text"
-									   disabled="@IsReadOnly(field)"
-									   class="form-control @GetEditorClass(field)"
-									   maxlength="@(field.MaxLength ?? -1)"
-									   value="@(Form?.GetFieldStringValue(field))"
-									   @oninput="(x) => Form?.SetFieldValueAsync(field, x.Value)">
+								<PDTextBox CssClass="@GetEditorClass(field)"
+										   ShowClearButton="false"
+										   IsEnabled="!IsReadOnly(field)"
+										   Value="@(Form?.GetFieldStringValue(field))"
+										   ValueChanged="(x) => Form?.SetFieldValueAsync(field, x)"
+										   DebounceWait="300" />
 							}
 							else
 							{
@@ -152,8 +152,8 @@ else if (Form.Mode != FormModes.Hidden)
 						</div>
 						<div class="mb-2">
 							@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-						 (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-						 (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+				(Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+				(Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 							{
 								<div class="small text-muted">@field.GetDescription()</div>
 							}

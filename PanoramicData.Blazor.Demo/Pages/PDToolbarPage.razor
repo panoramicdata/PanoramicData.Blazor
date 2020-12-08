@@ -35,17 +35,18 @@
 
 		<PDToolbarSeparator IsVisible="ShowButtons" />
 
-		<PDToolbarPlaceholder>
+		@*<PDToolbarPlaceholder>
 			<span>Search</span>
-		</PDToolbarPlaceholder>
+		</PDToolbarPlaceholder>*@
 
 		<PDToolbarTextbox Width="100%"
 						  Value="@_searchText"
+						  Label="Search"
 						  DebounceWait="250"
 						  ShowClearButton="true"
 						  ValueChanged="OnValueChanged"
 						  Keypress="OnKeypress"
-						  Cleared="OnCleared"/>
+						  Cleared="OnCleared" />
 
 		<PDToolbarButton Text="@(EnableButtons ? "Disable" : "Enable")"
 						 ToolTip="Disable or enable buttons"
