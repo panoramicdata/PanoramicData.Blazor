@@ -126,7 +126,6 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-
 				var sb = new StringBuilder();
 				if (Size == ModalSizes.ExtraLarge)
 				{

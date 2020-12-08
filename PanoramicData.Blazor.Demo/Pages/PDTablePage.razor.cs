@@ -15,7 +15,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private string _searchText = string.Empty;
 		private PageCriteria _pageCriteria = new PageCriteria(1, 10);
 		private SortCriteria _sortCriteria = new SortCriteria("Col1", SortDirection.Descending);
-		private readonly PersonDataProvider PersonDataProvider = new PersonDataProvider();
+		private readonly PersonDataProvider _personDataProvider = new PersonDataProvider();
 		private bool AllowDrag { get; set; }
 		private bool AllowDrop { get; set; }
 		private string DropZoneCss { get; set; } = "";
@@ -120,7 +120,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
-		private void OnDragEnter(DragEventArgs args)
+		private void OnDragEnter(DragEventArgs _)
 		{
 			if (DragContext?.Payload == null)
 			{
@@ -132,12 +132,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
-		private void OnDragLeave(DragEventArgs args)
+		private void OnDragLeave(DragEventArgs _)
 		{
 			DropZoneCss = "";
 		}
 
-		private void OnDragDrop(DragEventArgs args)
+		private void OnDragDrop(DragEventArgs _)
 		{
 			// get item that was dragged (TestRow)
 			DropMessage = "Boom!";
@@ -168,7 +168,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			await SearchAsync().ConfigureAwait(true);
 		}
 
-		private OptionInfo[] GetLocationOptions(FormField<Person> field, Person item)
+		private OptionInfo[] GetLocationOptions(FormField<Person> _, Person item)
 		{
 			var options = new List<OptionInfo>();
 			for (var i = 0; i < PersonDataProvider.Locations.Length; i++)

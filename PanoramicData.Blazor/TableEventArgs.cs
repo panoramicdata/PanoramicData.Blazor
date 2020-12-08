@@ -86,4 +86,24 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public Dictionary<string, string> NewValues { get; set; } = new Dictionary<string, string>();
 	}
+
+	/// <summary>
+	/// The TableSelectionEventArgs class holds data for an action that is performed on a selection of items.
+	/// </summary>
+	public class TableSelectionEventArgs<TItem> where TItem : class
+	{
+		/// <summary>
+		/// Initializes a new instance of the TableSelectionEventArgs class.
+		/// </summary>
+		/// <param name="items">The items the event relates to.</param>
+		public TableSelectionEventArgs(TItem[] items)
+		{
+			Items = items;
+		}
+
+		/// <summary>
+		/// Gets the items the event relates to.
+		/// </summary>
+		public TItem[] Items { get; }
+	}
 }

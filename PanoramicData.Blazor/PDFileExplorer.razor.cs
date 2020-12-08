@@ -144,9 +144,9 @@ namespace PanoramicData.Blazor
 		public List<MenuItem> TableContextItems { get; set; } = new List<MenuItem>();
 
 		/// <summary>
-		/// Event raised whenever the user requests to download a file.
+		/// Event raised when user requests to download one or more files.
 		/// </summary>
-		[Parameter] public EventCallback<TableEventArgs<FileExplorerItem>> TableDownloadRequest { get; set; }
+		[Parameter] public EventCallback<TableSelectionEventArgs<FileExplorerItem>> TableDownloadRequest { get; set; }
 
 		/// <summary>
 		/// Event raised whenever the user clicks on a toolbar button.
@@ -583,14 +583,8 @@ namespace PanoramicData.Blazor
 				}
 				else if (menuItem.Text == "Download")
 				{
-					foreach (var selectedPath in Table!.Selection)
-					{
-						var item = Table.ItemsToDisplay.Find(x => x.Path == selectedPath);
-						if (item != null)
-						{
-							await TableDownloadRequest.InvokeAsync(new TableEventArgs<FileExplorerItem>(item)).ConfigureAwait(true);
-						}
-					}
+					var downloadArgs = new TableSelectionEventArgs<FileExplorerItem>(Table.GetSelectedItems());
+					await TableDownloadRequest.InvokeAsync(downloadArgs).ConfigureAwait(true);
 				}
 				else if (menuItem.Text == "Copy" || menuItem.Text == "Cut")
 				{

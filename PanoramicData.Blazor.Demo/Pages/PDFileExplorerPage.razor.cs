@@ -27,15 +27,21 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-		public async Task OnTableDownloadRequest(TableEventArgs<FileExplorerItem> args)
+		public async Task OnTableDownloadRequest(TableSelectionEventArgs<FileExplorerItem> args)
 		{
 			// Method A: this method works up to file sizes of 125MB - limit imposed by System.Text.Json (04/08/20)
 			//var bytes = System.IO.File.ReadAllBytes("Download/file_example_WEBM_1920_3_7MB.webm");
 			//var base64 = System.Convert.ToBase64String(bytes);
 			//await JSRuntime.InvokeVoidAsync("downloadFile", $"{System.IO.Path.GetFileNameWithoutExtension(args.Item.Name)}.webm", base64).ConfigureAwait(true);
 
-			// Method B: to avoid size limit and conversion to base64 - redirect to controller method
-			await JSRuntime.InvokeVoidAsync("panoramicData.openUrl", $"/files/download?path={args.Item.Path}").ConfigureAwait(false);
+			// Method B: to avoid size limit and conversion to base64 - use javascript to get from controller method
+
+			// demo downloads the same WEBM file
+			foreach (var item in args.Items)
+			{
+				item.Name = System.IO.Path.ChangeExtension(item.Name, ".webm");
+			}
+			await JSRuntime.InvokeVoidAsync("panoramicDataDemo.downloadFiles", args).ConfigureAwait(false);
 		}
 
 		public async Task OnUploadRequest(DropZoneEventArgs args)

@@ -227,10 +227,9 @@ namespace PanoramicData.Blazor
 			if (DataProvider != null && Item != null)
 			{
 				// validate all fields
-				var errors = await ValidateFormAsync();
+				var errors = await ValidateFormAsync().ConfigureAwait(true);
 				if (errors == 0)
 				{
-
 					if (Mode == FormModes.Create)
 					{
 						// apply delta to item

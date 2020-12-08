@@ -102,13 +102,30 @@
 	},
 
 	// 04/08/20 - bytesBase64 limited to 125MB by System.Text.Json writer
-	downloadFile: function(filename, bytesBase64) {
+	downloadfromBase: function(filename, bytesBase64) {
 		var link = document.createElement('a');
 		link.download = filename;
 		link.href = "data:application/octet-stream;base64," + bytesBase64;
 		document.body.appendChild(link);
 		link.click();
 		document.body.removeChild(link);
+	},
+
+	downloadFromUrl: function (url, fileName) {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", url, true);
+		xhr.responseType = "blob";
+		xhr.onload = function () {
+			var urlCreator = window.URL || window.webkitURL;
+			var imageUrl = urlCreator.createObjectURL(this.response);
+			var tag = document.createElement('a');
+			tag.href = imageUrl;
+			tag.download = fileName;
+			document.body.appendChild(tag);
+			tag.click();
+			document.body.removeChild(tag);
+		}
+		xhr.send();
 	},
 
 	initializeDropZone: function(id, uploadUrl, dotnetHelper) {
