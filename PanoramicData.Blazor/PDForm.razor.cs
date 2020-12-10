@@ -452,7 +452,11 @@ namespace PanoramicData.Blazor
 			Errors.Clear();
 			foreach (var field in Fields)
 			{
-				await ValidateFieldAsync(field).ConfigureAwait(true);
+				if ((Mode == FormModes.Create && field.ShowInCreate(Item)) ||
+					(Mode == FormModes.Edit && field.ShowInEdit(Item)))
+				{
+					await ValidateFieldAsync(field).ConfigureAwait(true);
+				}
 			}
 			return Errors.Count;
 		}
