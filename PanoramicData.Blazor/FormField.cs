@@ -29,6 +29,18 @@ namespace PanoramicData.Blazor
 		public string Title { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets the fields name.
+		/// </summary>
+		public string Name
+		{
+			get
+			{
+				var memberInfo = Field?.GetPropertyMemberInfo();
+				return memberInfo?.Name ?? string.Empty;
+			}
+		}
+
+		/// <summary>
 		/// Gets or sets a function that determines whether this field is visible when the form mode is Edit.
 		/// </summary>
 		public Func<TItem?, bool> ShowInEdit { get; set; } = new Func<TItem?, bool>((_) => true);

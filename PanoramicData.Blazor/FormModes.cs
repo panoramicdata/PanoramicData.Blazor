@@ -24,6 +24,10 @@
 		/// <summary>
 		/// The form is being used confirm deletion of an existing entity.
 		/// </summary>
-		Delete
+		Delete,
+		/// <summary>
+		/// The form has changes and the user is being prompted for confirmation to cancel.
+		/// </summary>
+		Cancel
 	}
 }

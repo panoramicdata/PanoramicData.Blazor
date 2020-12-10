@@ -15,158 +15,164 @@ else if (Form.Mode != FormModes.Hidden)
 	<div class="pd-form-body">
 		@if (Form.Mode != FormModes.Empty)
 		{
-			@foreach (var field in Form.Fields)
+			var fields = new List<FormField<TItem>>();
+			if (Form.Mode == FormModes.Cancel)
+			{
+				fields.AddRange(Form.Fields.Where(x => IsShown(x, Form.PreviousMode) && Form.Delta.ContainsKey(x.Name)));
+			}
+			else
+			{
+				fields.AddRange(Form.Fields.Where(x => IsShown(x)));
+			}
+			@foreach (var field in fields)
 			{
 				var fieldName = field.GetName();
 				var fieldType = field.GetFieldType();
 				var fieldDescription = field.GetDescription();
-				if (IsShown(field))
-				{
-					<div class="pd-form-field">
-						<label class="sr-only">@field.Title</label>
-						<div class="input-group ">
+				<div class="pd-form-field">
+					<label class="sr-only">@field.Title</label>
+					<div class="input-group ">
 
-							<div class="input-group-prepend">
-								<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true ? "alert-danger" : "")" title="@fieldDescription">
-									<span>@field.Title</span>
-									@if (!string.IsNullOrWhiteSpace(field.HelpUrl))
-									{
-										<i class="pd-form-help-icon fas fa-external-link-alt text-info" @onclick="() => OnHelpUrlClick(field)"></i>
-									}
-								</div>
-							</div>
-
-							<!-- editor -->
-							@if (field.EditTemplate != null)
-							{
-								@field.EditTemplate(Form?.Item);
-							}
-							else if (field.IsPassword)
-							{
-								<input type="password"
-									   disabled="@IsReadOnly(field)"
-									   class="form-control @GetEditorClass(field)"
-									   value="@Form?.GetFieldStringValue(field)"
-									   maxlength="@(field.MaxLength ?? -1)"
-									   @oninput="(x) => Form?.SetFieldValueAsync(field, Convert.ChangeType(x.Value, field.GetFieldType()))">
-							}
-							else if (field.Options != null)
-							{
-								<select class="form-control @GetEditorClass(field)"
-										@oninput="(x) => Form?.SetFieldValueAsync(field, x.Value)">
-									@foreach (var option in field.Options(field, Form?.Item))
-									{
-										<option value="@option.Value"
-												selected="@option.IsSelected">
-											@option.Text
-										</option>
-									}
-								</select>
-							}
-							else if (field.IsTextArea)
-							{
-								<textarea disabled="@IsReadOnly(field)"
-										  class="form-control @GetEditorClass(field)"
-										  value="@(Form?.GetFieldStringValue(field))"
-										  rows="@field.TextAreaRows"
-										  maxlength="@(field.MaxLength ?? -1)"
-										  @oninput="(x) => Form?.SetFieldValueAsync(field, Convert.ChangeType(x.Value, field.GetFieldType()))"></textarea>
-							}
-							else if (fieldType?.FullName == "System.Boolean")
-							{
-								<PDFormCheckBox Value="@(Form?.GetFieldValue<bool>(field) ?? false)"
-												Disabled="@IsReadOnly(field)"
-												ValueChanged="(x) => Form?.SetFieldValueAsync(field, (bool)x)" />
-							}
-							else if (fieldType?.IsEnum == true)
-							{
-								<select class="form-control @GetEditorClass(field)"
-										@oninput="(x) => Form?.SetFieldValueAsync(field, Enum.Parse(fieldType, x.Value?.ToString()))">
-									@foreach (var option in GetEnumValues(field))
-									{
-										<option value="@option.Value"
-												selected="@option.IsSelected">
-											@option.Text
-										</option>
-									}
-								</select>
-							}
-							else if (fieldType?.FullName == "System.DateTime")
-							{
-								<input type="date"
-									   disabled="@IsReadOnly(field)"
-									   class="form-control @GetEditorClass(field)"
-									   value="@(Form?.GetFieldStringValue(field))"
-									   @oninput="(x) => Form?.SetFieldValueAsync(field, DateTime.Parse(x.Value.ToString()))">
-							}
-							else if (fieldType?.FullName == "System.DateTimeOffset")
-							{
-								<input type="date"
-									   class="form-control"
-									   disabled="@IsReadOnly(field)"
-									   value="@(Form?.GetFieldStringValue(field))"
-									   @oninput="(x) => Form?.SetFieldValueAsync(field, DateTimeOffset.Parse(x.Value.ToString()))">
-							}
-							else if (fieldType?.FullName == "System.String")
-							{
-								<PDTextBox CssClass="@GetEditorClass(field)"
-										   ShowClearButton="false"
-										   IsEnabled="!IsReadOnly(field)"
-										   Value="@(Form?.GetFieldStringValue(field))"
-										   ValueChanged="(x) => Form?.SetFieldValueAsync(field, x)"
-										   DebounceWait="300" />
-							}
-							else
-							{
-								<input type="number"
-									   disabled="@IsReadOnly(field)"
-									   class="form-control @GetEditorClass(field)"
-									   value="@(Form?.GetFieldValue<double>(field))"
-									   @oninput="(x) => Form?.SetFieldValueAsync(field, Convert.ChangeType(x.Value, field.GetFieldType()))">
-							}
-
-							<!-- field validation indicator-->
-							@if (Form?.Mode != FormModes.Delete)
-							{
-								<div class="input-group-append">
-									@if (IsReadOnly(field) || !field.ShowValidationResult)
-									{
-										<span class="input-group-text">
-											<i class="pd-empty-icon	"></i>
-										</span>
-									}
-									else if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
-									{
-										<span class="input-group-text alert-danger align-items-start">
-											<i class="fas fa-exclamation-circle"></i>
-										</span>
-									}
-									else
-									{
-										<span class="input-group-text alert-success align-items-start">
-											<i class="fas fa-check-circle"></i>
-										</span>
-									}
-								</div>
-							}
-						</div>
-						<div class="mb-2">
-							@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-				(Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-				(Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
-							{
-								<div class="small text-muted">@field.GetDescription()</div>
-							}
-							@if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
-							{
-								foreach (var message in Form.Errors[fieldName])
+						<div class="input-group-prepend">
+							<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true ? "alert-danger" : "")" title="@fieldDescription">
+								<span>@field.Title</span>
+								@if (!string.IsNullOrWhiteSpace(field.HelpUrl))
 								{
-									<div class="small text-danger">@message</div>
+									<i class="pd-form-help-icon fas fa-external-link-alt text-info" @onclick="() => OnHelpUrlClick(field)"></i>
 								}
-							}
+							</div>
 						</div>
+
+						<!-- editor -->
+						@if (field.EditTemplate != null)
+						{
+							@field.EditTemplate(Form?.Item);
+						}
+						else if (field.IsPassword)
+						{
+							<input type="password"
+								   disabled="@IsReadOnly(field)"
+								   class="form-control @GetEditorClass(field)"
+								   value="@Form?.GetFieldStringValue(field)"
+								   maxlength="@(field.MaxLength ?? -1)"
+								   @oninput="(x) => Form?.SetFieldValueAsync(field, Convert.ChangeType(x.Value, field.GetFieldType()))">
+						}
+						else if (field.Options != null)
+						{
+							<select class="form-control @GetEditorClass(field)"
+									@oninput="(x) => Form?.SetFieldValueAsync(field, x.Value)">
+								@foreach (var option in field.Options(field, Form?.Item))
+								{
+									<option value="@option.Value"
+											selected="@option.IsSelected">
+										@option.Text
+									</option>
+								}
+							</select>
+						}
+						else if (field.IsTextArea)
+						{
+							<textarea disabled="@IsReadOnly(field)"
+									  class="form-control @GetEditorClass(field)"
+									  value="@(Form?.GetFieldStringValue(field))"
+									  rows="@field.TextAreaRows"
+									  maxlength="@(field.MaxLength ?? -1)"
+									  @oninput="(x) => Form?.SetFieldValueAsync(field, Convert.ChangeType(x.Value, field.GetFieldType()))"></textarea>
+						}
+						else if (fieldType?.FullName == "System.Boolean")
+						{
+							<PDFormCheckBox Value="@(Form?.GetFieldValue<bool>(field) ?? false)"
+											Disabled="@IsReadOnly(field)"
+											ValueChanged="(x) => Form?.SetFieldValueAsync(field, (bool)x)" />
+						}
+						else if (fieldType?.IsEnum == true)
+						{
+							<select class="form-control @GetEditorClass(field)"
+									@oninput="(x) => Form?.SetFieldValueAsync(field, Enum.Parse(fieldType, x.Value?.ToString()))">
+								@foreach (var option in GetEnumValues(field))
+								{
+									<option value="@option.Value"
+											selected="@option.IsSelected">
+										@option.Text
+									</option>
+								}
+							</select>
+						}
+						else if (fieldType?.FullName == "System.DateTime")
+						{
+							<input type="date"
+								   disabled="@IsReadOnly(field)"
+								   class="form-control @GetEditorClass(field)"
+								   value="@(Form?.GetFieldStringValue(field))"
+								   @oninput="(x) => Form?.SetFieldValueAsync(field, DateTime.Parse(x.Value.ToString()))">
+						}
+						else if (fieldType?.FullName == "System.DateTimeOffset")
+						{
+							<input type="date"
+								   class="form-control"
+								   disabled="@IsReadOnly(field)"
+								   value="@(Form?.GetFieldStringValue(field))"
+								   @oninput="(x) => Form?.SetFieldValueAsync(field, DateTimeOffset.Parse(x.Value.ToString()))">
+						}
+						else if (fieldType?.FullName == "System.String")
+						{
+							<PDTextBox CssClass="@GetEditorClass(field)"
+									   ShowClearButton="false"
+									   IsEnabled="!IsReadOnly(field)"
+									   Value="@(Form?.GetFieldStringValue(field))"
+									   ValueChanged="(x) => Form?.SetFieldValueAsync(field, x)"
+									   DebounceWait="300" />
+						}
+						else
+						{
+							<input type="number"
+								   disabled="@IsReadOnly(field)"
+								   class="form-control @GetEditorClass(field)"
+								   value="@(Form?.GetFieldValue<double>(field))"
+								   @oninput="(x) => Form?.SetFieldValueAsync(field, Convert.ChangeType(x.Value, field.GetFieldType()))">
+						}
+
+						<!-- field validation indicator-->
+						@if (Form?.Mode != FormModes.Delete)
+						{
+							<div class="input-group-append">
+								@if (IsReadOnly(field) || !field.ShowValidationResult)
+								{
+									<span class="input-group-text">
+										<i class="pd-empty-icon	"></i>
+									</span>
+								}
+								else if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
+								{
+									<span class="input-group-text alert-danger align-items-start">
+										<i class="fas fa-exclamation-circle"></i>
+									</span>
+								}
+								else
+								{
+									<span class="input-group-text alert-success align-items-start">
+										<i class="fas fa-check-circle"></i>
+									</span>
+								}
+							</div>
+						}
 					</div>
-				}
+					<div class="mb-2">
+						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
+						 (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+						 (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+						{
+							<div class="small text-muted">@field.GetDescription()</div>
+						}
+						@if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
+						{
+							foreach (var message in Form.Errors[fieldName])
+							{
+								<div class="small text-danger">@message</div>
+							}
+						}
+					</div>
+				</div>
 			}
 		}
 	</div>

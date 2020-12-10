@@ -36,7 +36,6 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public int TitleWidth { get; set; } = 200;
 
-
 		protected override void OnInitialized()
 		{
 			if (Form != null && Table != null)
@@ -67,15 +66,22 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private bool IsShown(FormField<TItem> field) =>
-			(Form?.Mode == FormModes.Create && field.ShowInCreate(Form?.GetItemWithUpdates())) ||
-			(Form?.Mode == FormModes.Edit && field.ShowInEdit(Form?.GetItemWithUpdates())) ||
-			(Form?.Mode == FormModes.Delete && field.ShowInDelete(Form?.GetItemWithUpdates()));
+		private bool IsShown(FormField<TItem> field, FormModes? mode = null)
+		{
+			if (mode == null)
+			{
+				mode = Form?.Mode;
+			}
+			return (mode == FormModes.Create && field.ShowInCreate(Form?.GetItemWithUpdates())) ||
+				(mode == FormModes.Edit && field.ShowInEdit(Form?.GetItemWithUpdates())) ||
+				(mode == FormModes.Delete && field.ShowInDelete(Form?.GetItemWithUpdates()));
+		}
 
 		private bool IsReadOnly(FormField<TItem> field) =>
 			(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(Form?.GetItemWithUpdates())) ||
 			(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(Form?.GetItemWithUpdates())) ||
-			Form?.Mode == FormModes.Delete;
+			Form?.Mode == FormModes.Delete ||
+			Form?.Mode == FormModes.Cancel;
 
 		private OptionInfo[] GetEnumValues(FormField<TItem> field)
 		{

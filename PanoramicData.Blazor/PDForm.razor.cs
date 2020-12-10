@@ -30,6 +30,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public RenderFragment? ChildContent { get; set; }
 
 		/// <summary>
+		/// Should the user be prompted to confirm cancel when changes have been made?
+		/// </summary>
+		[Parameter] public bool ConfirmCancel { get; set; } = true;
+
+		/// <summary>
 		/// Gets or sets the item being created / edited / deleted.
 		/// </summary>
 		[Parameter] public TItem? Item { get; set; }
@@ -109,6 +114,11 @@ namespace PanoramicData.Blazor
 				return Delta.Count > 0;
 			}
 		}
+
+		/// <summary>
+		/// Gets or sets the mode that the form was in before the current mode.
+		/// </summary>
+		public FormModes PreviousMode { get; private set; }
 
 		protected override void OnInitialized()
 		{
@@ -190,12 +200,19 @@ namespace PanoramicData.Blazor
 		/// Sets the current mode of the form.
 		/// </summary>
 		/// <param name="mode">The new mode for the form.</param>
-		public void SetMode(FormModes mode)
+		public void SetMode(FormModes mode, bool resetChanges = true)
 		{
+			PreviousMode = Mode;
 			Mode = mode;
-			Delta.Clear();
-			Errors.Clear();
-			OnErrorsChanged(EventArgs.Empty);
+			if (resetChanges && (Mode == FormModes.Create || Mode == FormModes.Edit))
+			{
+				Delta.Clear();
+			}
+			if (Errors.Count > 0)
+			{
+				Errors.Clear();
+				OnErrorsChanged(EventArgs.Empty);
+			}
 			StateHasChanged();
 		}
 

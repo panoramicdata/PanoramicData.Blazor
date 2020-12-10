@@ -34,6 +34,12 @@ namespace PanoramicData.Blazor
 		[Parameter] public string HelpText { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets or sets the title for when the form is in cancel mode.
+		/// </summary>
+		/// <remarks>If present, the placeholder {0} will be substituted by the result of GetItemDescription() </remarks>
+		[Parameter] public string CancelTitle { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets the title for a create form. if omitted then an automatic title is generated.
 		/// </summary>
 		/// <remarks>If present, the placeholder {0} will be substituted by the result of GetItemDescription() </remarks>
@@ -42,13 +48,14 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets the title for an edit form. if omitted then an automatic title is generated.
 		/// </summary>
+		/// <remarks>If present, the placeholder {0} will be substituted by the result of GetItemDescription() </remarks>
 		[Parameter] public string EditTitle { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets the title for a delete form. if omitted then an automatic title is generated.
 		/// </summary>
+		/// <remarks>If present, the placeholder {0} will be substituted by the result of GetItemDescription() </remarks>
 		[Parameter] public string DeleteTitle { get; set; } = string.Empty;
-
 
 		private string GetClassDescription()
 		{

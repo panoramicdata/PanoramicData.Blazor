@@ -142,8 +142,8 @@ namespace PanoramicData.Blazor
 			// update state of default buttons
 			if (Form != null)
 			{
-				SetVisibility(Buttons.Find(x => x.Key == "Yes"), Form.Mode == FormModes.Delete);
-				SetVisibility(Buttons.Find(x => x.Key == "No"), Form.Mode == FormModes.Delete);
+				SetVisibility(Buttons.Find(x => x.Key == "Yes"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
+				SetVisibility(Buttons.Find(x => x.Key == "No"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
 				SetVisibility(Buttons.Find(x => x.Key == "Delete"), Form.Mode == FormModes.Edit && ShowDelete);
 				SetVisibility(Buttons.Find(x => x.Key == "Save"), Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit);
 				SetVisibility(Buttons.Find(x => x.Key == "Cancel"), Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit);
@@ -166,25 +166,37 @@ namespace PanoramicData.Blazor
 
 		private async Task OnButtonClick(string key)
 		{
-			await Click.InvokeAsync(key).ConfigureAwait(true);
+			if (!(key == "Cancel" && Form?.ConfirmCancel == true && Form.Delta.Count > 0))
+			{
+				await Click.InvokeAsync(key).ConfigureAwait(true);
+			}
 
-			if (Form != null)
+			if (Form?.Item != null)
 			{
 				if (key == "Delete")
 				{
 					Form.SetMode(FormModes.Delete);
 				}
-				else if (key == "Yes" && Form.DataProvider != null && Form.Item != null)
+				else if (key == "Save" && Form.DataProvider != null)
+				{
+					await Form.SaveAsync().ConfigureAwait(true);
+				}
+				else if (key == "Cancel" && Form.ConfirmCancel && Form.Delta.Count > 0)
+				{
+					Form.SetMode(FormModes.Cancel);
+				}
+				else if (key == "Yes" && Form.Mode == FormModes.Delete && Form.DataProvider != null)
 				{
 					await Form.DeleteAsync().ConfigureAwait(true);
 				}
+				else if (key == "Yes" && Form.Mode == FormModes.Cancel)
+				{
+					await Click.InvokeAsync("Cancel").ConfigureAwait(true);
+				}
+				//else if (key == "No" && Form.Mode == FormModes.Delete)
 				else if (key == "No")
 				{
-					Form.SetMode(FormModes.Edit);
-				}
-				else if (key == "Save" && Form.DataProvider != null && Form.Item != null)
-				{
-					await Form.SaveAsync().ConfigureAwait(true);
+					Form.SetMode(Form.PreviousMode, false);
 				}
 			}
 		}
