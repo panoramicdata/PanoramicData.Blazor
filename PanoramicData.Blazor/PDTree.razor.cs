@@ -65,6 +65,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public Func<TItem, int, string>? IconCssClass { get; set; }
 
 		/// <summary>
+		/// A function used to determine sort order of child nodes.
+		/// </summary>
+		[Parameter] public Comparison<TItem>? Sort { get; set; }
+
+		/// <summary>
 		/// Gets or sets whether a non-leaf node will request data where necessary.
 		/// </summary>
 		[Parameter] public bool LoadOnDemand { get; set; }
@@ -331,6 +336,7 @@ namespace PanoramicData.Blazor
 					{
 						SelectedNode.EditText = afterEditArgs.NewValue; // application my of altered
 						SelectedNode.CommitEdit();
+						SelectedNode?.ParentNode?.Nodes?.Sort(NodeSort); // re-sort parent
 						await JSRuntime.InvokeVoidAsync("panoramicData.focus", Id).ConfigureAwait(true);
 					}
 				}
@@ -440,12 +446,24 @@ namespace PanoramicData.Blazor
 			// re-apply sorts where necessary
 			foreach (var node in modifiedNodes)
 			{
-				node?.Nodes?.Sort();
+				node?.Nodes?.Sort(NodeSort);
 			}
 
 			return root.Nodes?.Count == 1
 				? root.Nodes[0]
 				: root;
+		}
+
+		private int NodeSort(TreeNode<TItem> a, TreeNode<TItem> b)
+		{
+			if (Sort is null || a.Data is null || b.Data is null)
+			{
+				return a.Text.CompareTo(b.Text);
+			}
+			else
+			{
+				return Sort(a.Data, b.Data);
+			}
 		}
 
 		protected override void OnInitialized()

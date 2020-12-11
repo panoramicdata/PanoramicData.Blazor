@@ -20,5 +20,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 			};
 			return $"fas fw fa-dice-{levelText}";
 		}
+
+		private int ReverseSort(FileExplorerItem a, FileExplorerItem b)
+		{
+			return a.Path.CompareTo(b.Path) * -1;
+		}
 	}
 }
