@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Services;
-using System.IO;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
@@ -52,7 +51,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			else if (args.Node?.Data != null)
 			{
 				// update the underlying data items path value (as this is what the template displays)
-				args.Node.Data.Path = Path.Combine(item?.ParentPath, args.NewValue);
+				args.Node.Data.Path = $"{item?.ParentPath}/{args.NewValue}";
 			}
 		}
 	}
