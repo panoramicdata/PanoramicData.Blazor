@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDContextMenuPage
 	{
 		private readonly Random _random = new Random(Environment.TickCount);
-		private List<MenuItem> _items = new List<MenuItem>();
+		private readonly List<MenuItem> _items = new List<MenuItem>();
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
@@ -30,7 +30,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			_items.Add(new MenuItem { Text = "About", IsVisible = false });
 		}
 
-		public void OnUpdateState(CancelEventArgs args)
+		public void OnUpdateState(CancelEventArgs _)
 		{
 			EventManager?.Add(new Event("UpdateState"));
 

@@ -6,11 +6,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDTreePage
 	{
-		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
+		private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 		private FileExplorerItem? _selectedEntry;
 		private bool ShowLines { get; set; }
 		private bool ShowRoot { get; set; } = true;
-		private string Events { get; set; } = string.Empty;
 		private PDTree<FileExplorerItem>? Tree { get; set; }
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }

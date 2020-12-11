@@ -234,7 +234,6 @@ namespace PanoramicData.Blazor
 			return null;
 		}
 
-
 		internal bool HasSiblingWithText(string text)
 		{
 			if (ParentNode?.Nodes != null)
