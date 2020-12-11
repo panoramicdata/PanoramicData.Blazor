@@ -40,24 +40,29 @@ namespace PanoramicData.Blazor
 		[Parameter] public IDataProviderService<TItem> DataProvider { get; set; } = null!;
 
 		/// <summary>
-		/// A Linq expression that selects the field that contains the key value.
+		/// A function that selects the field that contains the key value.
 		/// </summary>
 		[Parameter] public Func<TItem, object>? KeyField { get; set; }
 
 		/// <summary>
-		/// A Linq expression that selects the field that contains the parent key value.
+		/// A function that selects the field that contains the parent key value.
 		/// </summary>
 		[Parameter] public Func<TItem, object>? ParentKeyField { get; set; }
 
 		/// <summary>
-		/// A Linq expression that selects the field to display for the item.
+		/// A function that selects the field to display for the item.
 		/// </summary>
 		[Parameter] public Func<TItem, object>? TextField { get; set; }
 
 		/// <summary>
-		/// A Linq expression that determines whether the given item is a leaf in the tree.
+		/// A function that determines whether the given item is a leaf in the tree.
 		/// </summary>
 		[Parameter] public Func<TItem, bool>? IsLeaf { get; set; }
+
+		/// <summary>
+		/// A function that calculates the CSS classes used to show an icon for the given node.
+		/// </summary>
+		[Parameter] public Func<TItem, int, string>? IconCssClass { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether a non-leaf node will request data where necessary.
@@ -405,6 +410,7 @@ namespace PanoramicData.Blazor
 				var parentKey = ParentKeyField?.Invoke(item)?.ToString();
 				if (parentKey == null || string.IsNullOrWhiteSpace(parentKey))
 				{
+					node.Level = 0;
 					(root.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
 				}
 				else
@@ -417,12 +423,17 @@ namespace PanoramicData.Blazor
 					else
 					{
 						node.ParentNode = parentNode;
+						node.Level = parentNode.Level + 1;
 						(parentNode.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
 						if (!modifiedNodes.Contains(parentNode))
 						{
 							modifiedNodes.Add(parentNode);
 						}
 					}
+				}
+				if (IconCssClass != null)
+				{
+					node.IconCssClass = IconCssClass.Invoke(node.Data, node.Level);
 				}
 			}
 

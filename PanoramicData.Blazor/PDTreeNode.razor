@@ -20,6 +20,12 @@
 			 @ondrop="OnDragDrop"
 			 @ondragstart="OnDragStart"
 			 @attributes="NodeAttributes">
+
+			@if (!string.IsNullOrWhiteSpace(Node?.IconCssClass))
+			{
+				<i class="@Node?.IconCssClass"></i>
+			}
+
 			@if (Node?.IsEditing == true)
 			{
 				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit"

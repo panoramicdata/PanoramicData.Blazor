@@ -1,58 +1,24 @@
 ﻿using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Services;
-using System;
-using System.IO;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDTreePage2
 	{
-		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
-		private IDataProviderService<FileExplorerItem> _dataProviderOnDemand = new TestFileSystemDataProvider();
-		private FileExplorerItem? _selectedEntry;
-		private bool ShowLines { get; set; }
-		private bool ShowRoot { get; set; } = true;
-		private string Events { get; set; } = string.Empty;
-		private PDTree<FileExplorerItem>? Tree { get; set; }
+		private readonly IDataProviderService<FileExplorerItem> _dataProviderOnDemand = new TestFileSystemDataProvider();
 
-		private void SelectionChangeHandler(TreeNode<FileExplorerItem> node)
+		private string GetNodeIconCssClass(FileExplorerItem _, int level)
 		{
-			_selectedEntry = node?.Data;
-			Events += $"selection changed: path = {node?.Data?.Path}{Environment.NewLine}";
-		}
-
-		private void NodeExpandedHandler(TreeNode<FileExplorerItem> node)
-		{
-			Events += $"node expanded: path = {node?.Data?.Path}{Environment.NewLine}";
-		}
-
-		private void NodeCollapsedHandler(TreeNode<FileExplorerItem> node)
-		{
-			Events += $"node collapsed: path = {node?.Data?.Path}{Environment.NewLine}";
-		}
-
-		private void BeforeEditHandler(TreeNodeBeforeEditEventArgs<FileExplorerItem> args)
-		{
-			Events += $"before edit: path = {args.Node?.Data?.Path}{Environment.NewLine}";
-
-			// disallow edit of root node
-			args.Cancel = args.Node?.ParentNode == null;
-		}
-
-		private void AfterEditHandler(TreeNodeAfterEditEventArgs<FileExplorerItem> args)
-		{
-			var item = args.Node.Data;
-			Events += $"after edit: path = {item?.Path}, new value = {args.NewValue} {Environment.NewLine}";
-
-			if (string.IsNullOrWhiteSpace(args.NewValue))
+			var levelText = (level + 1) switch
 			{
-				args.Cancel = true;
-			}
-			else if (args.Node?.Data != null)
-			{
-				// update the underlying data items path value (as this is what the template displays)
-				args.Node.Data.Path = Path.Combine(item?.ParentPath, args.NewValue);
-			}
+				1 => "one",
+				2 => "two",
+				3 => "three",
+				4 => "four",
+				5 => "five",
+				_ => "six",
+			};
+			return $"fas fw fa-dice-{levelText}";
 		}
 	}
 }

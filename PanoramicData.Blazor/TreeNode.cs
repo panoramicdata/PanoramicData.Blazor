@@ -24,6 +24,11 @@ namespace PanoramicData.Blazor
 		public string Key { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets or sets one or more CSS classes used to display an icon for the node.
+		/// </summary>
+		public string IconCssClass { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets the display text for this node.
 		/// </summary>
 		public virtual string Text { get; set; } = string.Empty;
@@ -47,6 +52,11 @@ namespace PanoramicData.Blazor
 		/// Gets or sets whether this node is currently selected.
 		/// </summary>
 		public bool IsSelected { get; set; }
+
+		/// <summary>
+		/// Gets the nodes nested level. Root node is level 0.
+		/// </summary>
+		public int Level { get; internal set; }
 
 		/// <summary>
 		/// Gets or sets this nodes parent.
