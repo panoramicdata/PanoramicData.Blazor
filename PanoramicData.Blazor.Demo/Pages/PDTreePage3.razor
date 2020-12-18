@@ -1,0 +1,34 @@
+﻿@page "/pdtree3"
+@using PanoramicData.Blazor.Demo.Data
+
+<h1>PDTree 2</h1>
+<p class="text-muted">Example of tree that can be re-ordered by drag and drop.</p>
+
+<DemoSourceView SourceFiles="Pages/PDTreePage3.razor, Pages/PDTreePage3.razor.cs, Data/TreeDataProvider.cs">
+
+	<PDDragContext>
+
+		<!-- note that the IsLeaf parameter is set so as to help identify the leaf nodes,
+		 this is not required when all data is loaded up front as it can be inferred -->
+		<PDTree @ref="_tree"
+				DataProvider="_treeDataProvider"
+				TItem="TreeItem"
+				KeyField="x => x.Id"
+				ParentKeyField="x => x.ParentId"
+				TextField="x => x.Name"
+				IconCssClass="GetIconCssClass"
+				ShowLines="true"
+				ShowRoot="true"
+				AllowDrag="true"
+				AllowDrop="true"
+				AllowDropInBetween="true"
+				Drop="OnDrop"
+				Sort="(a,b) => a.Order.CompareTo(b.Order)"
+				NodeUpdated="OnTreeNodeUpdated ">
+		</PDTree>
+
+	</PDDragContext>
+
+	<EventView />
+
+</DemoSourceView>

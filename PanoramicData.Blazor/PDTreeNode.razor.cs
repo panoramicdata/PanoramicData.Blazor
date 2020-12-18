@@ -62,6 +62,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AllowDrop { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether nodes can be dropped before or after other nodes.
+		/// </summary>
+		[Parameter] public bool AllowDropInBetween { get; set; }
+
+		/// <summary>
 		/// Callback fired whenever a drag operation ends on a node within a DragContext.
 		/// </summary>
 		[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
@@ -114,7 +119,20 @@ namespace PanoramicData.Blazor
 			await EndEdit.InvokeAsync(null).ConfigureAwait(true);
 		}
 
-		private Dictionary<string, object> NodeAttributes
+		private Dictionary<string, object> TreeAttributes
+		{
+			get
+			{
+				var dict = new Dictionary<string, object>();
+				if (AllowDrop)
+				{
+					dict.Add("ondragover", "event.preventDefault();");
+				}
+				return dict;
+			}
+		}
+
+		private Dictionary<string, object> ContentAttributes
 		{
 			get
 			{
@@ -142,6 +160,12 @@ namespace PanoramicData.Blazor
 		private async Task OnDrop(DropEventArgs args)
 		{
 			await Drop.InvokeAsync(args).ConfigureAwait(true);
+		}
+
+		private async Task OnSeparatorDrop(DropEventArgs args)
+		{
+			var newArgs = new DropEventArgs(Node, args.Payload, args.Ctrl, args.Before);
+			await Drop.InvokeAsync(newArgs).ConfigureAwait(true);
 		}
 	}
 }

@@ -56,7 +56,13 @@ namespace PanoramicData.Blazor.Demo.Shared
 				if (!string.IsNullOrWhiteSpace(_activeSourceFile))
 				{
 					var entry = _sourceFiles[_activeSourceFile];
-					entry.Content = await _httpClient.GetStringAsync(entry.Url).ConfigureAwait(true);
+					try
+					{
+						entry.Content = await _httpClient.GetStringAsync(entry.Url).ConfigureAwait(true);
+					}
+					catch
+					{
+					}
 				}
 			}
 		}

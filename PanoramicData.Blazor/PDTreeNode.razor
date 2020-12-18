@@ -1,6 +1,6 @@
 ﻿@typeparam TItem
 
-<div class="pdtreenode">
+<div class="pdtreenode" @attributes="TreeAttributes">
 
 	<div class="pdtreenode_header">
 		@if (Node?.Isleaf ?? true)
@@ -19,7 +19,13 @@
 			 @onmousedown="OnContentMouseDownAsync"
 			 @ondrop="OnDragDrop"
 			 @ondragstart="OnDragStart"
-			 @attributes="NodeAttributes">
+			 @attributes="ContentAttributes">
+
+			@if (AllowDropInBetween)
+			{
+				<PDDragDropSeparator Before="true"
+									 Drop="OnSeparatorDrop" />
+			}
 
 			@if (!string.IsNullOrWhiteSpace(Node?.IconCssClass))
 			{
@@ -40,12 +46,14 @@
 				@if (NodeTemplate is null)
 				{
 					<span>@Node.Text</span>
+					<span>(@Node.IsLastSibling())</span>
 				}
 				else
 				{
 					@NodeTemplate(Node);
 				}
 			}
+
 		</div>
 	</div>
 
@@ -60,10 +68,11 @@
 					{
 						<PDTreeNode TItem="TItem"
 									Node="subNode"
-									AllowDrop="AllowDrop"
-									AllowDrag="AllowDrag"
 									ShowLines="ShowLines"
 									EndEdit="OnEndEdit"
+									AllowDrag="AllowDrag"
+									AllowDrop="AllowDrop"
+									AllowDropInBetween="AllowDropInBetween"
 									Drop="OnDrop" />
 					}
 					else
@@ -71,9 +80,10 @@
 						<PDTreeNode TItem="TItem"
 									Node="subNode"
 									ShowLines="ShowLines"
-									AllowDrop="AllowDrop"
-									AllowDrag="AllowDrag"
 									EndEdit="OnEndEdit"
+									AllowDrag="AllowDrag"
+									AllowDrop="AllowDrop"
+									AllowDropInBetween="AllowDropInBetween"
 									Drop="OnDrop">
 							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
 						</PDTreeNode>
@@ -81,6 +91,12 @@
 				}
 			}
 		</div>
+	}
+
+	@if (AllowDropInBetween && Node.IsLastSibling())
+	{
+		<PDDragDropSeparator Before="false"
+							 Drop="OnSeparatorDrop" />
 	}
 
 </div>

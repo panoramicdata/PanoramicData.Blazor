@@ -146,6 +146,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AllowDrop { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether nodes can be dropped before or after other nodes.
+		/// </summary>
+		[Parameter] public bool AllowDropInBetween { get; set; }
+
+		/// <summary>
 		/// Callback fired whenever a drag operation ends on a node within the tree.
 		/// </summary>
 		[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
@@ -245,11 +250,13 @@ namespace PanoramicData.Blazor
 			if (!node.Isleaf && !wasExpanded && node.Nodes == null)
 			{
 				// fetch direct child items
-				var key = KeyField!(node.Data!).ToString();
+				var key = node.Data is null ? null : KeyField!(node.Data!).ToString();
 				var items = await GetDataAsync(key).ConfigureAwait(true);
 				// add new nodes to existing node
 				node.Nodes = new List<TreeNode<TItem>>(); // indicates data fetched, even if no items returned
-				BuildModel(items);
+				UpdateModel(items);
+				//BuildModel(items);
+
 				// notify any listeners that new data fetched
 				await NodeUpdated.InvokeAsync(node).ConfigureAwait(true);
 			}
@@ -384,63 +391,63 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private TreeNode<TItem> BuildModel(IEnumerable<TItem> items)
+		private void UpdateModel(IEnumerable<TItem> items)
 		{
-			var root = new TreeNode<TItem>();
 			var modifiedNodes = new List<TreeNode<TItem>>();
+			var dict = new Dictionary<string, TreeNode<TItem>>();
 
 			foreach (var item in items)
 			{
 				// get key value and check is given and unique
 				var key = KeyField!(item)?.ToString();
-				if (key == null)
+				if (key is null || string.IsNullOrEmpty(key))
 				{
 					throw new PDTreeException("Items must supply a key value.");
 				}
 
-				// create node
-				var node = new TreeNode<TItem>
+				// get parent key and find parent node
+				var parentKey = ParentKeyField?.Invoke(item)?.ToString();
+				TreeNode<TItem>? parentNode = null;
+				if (parentKey == null || string.IsNullOrWhiteSpace(parentKey))
 				{
-					Key = key,
-					Text = TextField?.Invoke(item)?.ToString() ?? item.ToString(),
-					IsExpanded = false,
-					Data = item,
-					Nodes = LoadOnDemand ? null : new List<TreeNode<TItem>>()
-				};
+					parentNode = RootNode;
+				}
+				else
+				{
+					parentNode = (dict.ContainsKey(parentKey)) ? parentNode = dict[parentKey] : RootNode.Find(parentKey);
+				}
+				if (parentNode == null)
+				{
+					throw new PDTreeException($"A parent item with key '{parentKey}' could not be found");
+				}
+
+				// does the node already exist?
+				var node = parentNode.Find(key);
+				if (node is null)
+				{
+					node = new TreeNode<TItem>();
+					// add to parent node and mark parent node for re-sort
+					(parentNode.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
+					if (!modifiedNodes.Contains(parentNode))
+					{
+						modifiedNodes.Add(parentNode);
+					}
+				}
+				node.Key = key;
+				node.Text = TextField?.Invoke(item)?.ToString() ?? item.ToString();
+				node.IsExpanded = false;
+				node.Data = item;
+				node.ParentNode = parentNode;
+				node.Level = parentNode.Level + 1;
+				node.IconCssClass = IconCssClass?.Invoke(item, parentNode.Level + 1) ?? string.Empty;
+				node.Nodes = LoadOnDemand ? null : new List<TreeNode<TItem>>();
 				if (LoadOnDemand && IsLeaf != null && IsLeaf(item))
 				{
 					node.Nodes = new List<TreeNode<TItem>>();
 				}
 
-				// get parent key and find parent if not root item
-				var parentKey = ParentKeyField?.Invoke(item)?.ToString();
-				if (parentKey == null || string.IsNullOrWhiteSpace(parentKey))
-				{
-					node.Level = 0;
-					(root.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
-				}
-				else
-				{
-					var parentNode = root.Find(parentKey) ?? RootNode.Find(parentKey);
-					if (parentNode == null)
-					{
-						throw new PDTreeException($"A parent item with key '{parentKey}' could not be found");
-					}
-					else
-					{
-						node.ParentNode = parentNode;
-						node.Level = parentNode.Level + 1;
-						(parentNode.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
-						if (!modifiedNodes.Contains(parentNode))
-						{
-							modifiedNodes.Add(parentNode);
-						}
-					}
-				}
-				if (IconCssClass != null)
-				{
-					node.IconCssClass = IconCssClass.Invoke(node.Data, node.Level);
-				}
+				// cache node for performance
+				dict.Add(key, node);
 			}
 
 			// re-apply sorts where necessary
@@ -448,10 +455,6 @@ namespace PanoramicData.Blazor
 			{
 				node?.Nodes?.Sort(NodeSort);
 			}
-
-			return root.Nodes?.Count == 1
-				? root.Nodes[0]
-				: root;
 		}
 
 		private int NodeSort(TreeNode<TItem> a, TreeNode<TItem> b)
@@ -477,7 +480,8 @@ namespace PanoramicData.Blazor
 			{
 				// build initial model and notify listeners
 				var items = await GetDataAsync().ConfigureAwait(true);
-				RootNode = BuildModel(items);
+				//RootNode = BuildModel(items);
+				UpdateModel(items);
 				// notify that node updated
 				await NodeUpdated.InvokeAsync(RootNode).ConfigureAwait(true);
 				StateHasChanged();

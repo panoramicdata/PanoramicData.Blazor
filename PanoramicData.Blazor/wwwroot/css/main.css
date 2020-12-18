@@ -303,6 +303,9 @@
   left: -20px;
   cursor: pointer; }
 
+.pdseparator.dragover {
+  background-color: silver !important; }
+
 .fa-hidden {
   color: transparent; }
 

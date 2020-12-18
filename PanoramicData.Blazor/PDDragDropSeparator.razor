@@ -1,0 +1,7 @@
+﻿<div style="height: @($"{Height}px")"
+	 class="pdseparator @(Before == true ? "before" : "after") @CssClass @(DragOver ? "dragover" : "")"
+	 @ondragover="OnDragOver"
+	 @ondragleave="OnDragLeave"
+	 @ondrop="OnDropAsync"
+	 @ondrop:stopPropagation>
+</div>

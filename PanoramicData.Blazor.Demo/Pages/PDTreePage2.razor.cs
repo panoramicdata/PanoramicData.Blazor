@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private string GetNodeIconCssClass(FileExplorerItem _, int level)
 		{
-			var levelText = (level + 1) switch
+			var levelText = (level) switch
 			{
 				1 => "one",
 				2 => "two",

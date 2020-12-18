@@ -128,9 +128,8 @@ namespace PanoramicData.Blazor
 
 		public override string ToString()
 		{
-			return $"{Key}";
+			return Data is null ? $"key: {Key}" : $"key: {Key}, data: {Data}";
 		}
-
 		internal void BeginEdit()
 		{
 			EditText = Text;
@@ -239,6 +238,26 @@ namespace PanoramicData.Blazor
 			if (ParentNode?.Nodes != null)
 			{
 				return ParentNode.Nodes.Any(x => x.Text == text);
+			}
+			return false;
+		}
+
+		internal bool IsFirstSibling()
+		{
+			if (ParentNode?.Nodes != null)
+			{
+				var idx = ParentNode.Nodes.IndexOf(this);
+				return idx == 0;
+			}
+			return false;
+		}
+
+		internal bool IsLastSibling()
+		{
+			if (ParentNode?.Nodes != null)
+			{
+				var idx = ParentNode.Nodes.IndexOf(this);
+				return idx == ParentNode.Nodes.Count - 1;
 			}
 			return false;
 		}
