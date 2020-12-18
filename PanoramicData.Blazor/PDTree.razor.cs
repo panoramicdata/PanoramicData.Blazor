@@ -255,7 +255,6 @@ namespace PanoramicData.Blazor
 				// add new nodes to existing node
 				node.Nodes = new List<TreeNode<TItem>>(); // indicates data fetched, even if no items returned
 				UpdateModel(items);
-				//BuildModel(items);
 
 				// notify any listeners that new data fetched
 				await NodeUpdated.InvokeAsync(node).ConfigureAwait(true);
@@ -363,6 +362,10 @@ namespace PanoramicData.Blazor
 
 		private async Task<IEnumerable<TItem>> GetDataAsync(string? key = null)
 		{
+			if (DataProvider is null)
+			{
+				return new TItem[0];
+			}
 			try
 			{
 				BlockOverlayService.Show();

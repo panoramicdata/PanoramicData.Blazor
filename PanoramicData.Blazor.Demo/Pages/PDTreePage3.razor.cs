@@ -7,7 +7,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDTreePage3
 	{
 		private bool _firstNodeUpdate = true;
-		private readonly PDTree<TreeItem> _tree = null!;
+		protected PDTree<TreeItem> Tree { get; set; } = null!;
 		private readonly TreeDataProvider _treeDataProvider = new TreeDataProvider();
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
@@ -18,7 +18,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			if (_firstNodeUpdate)
 			{
 				_firstNodeUpdate = false;
-				_tree.ExpandAll();
+				Tree.ExpandAll();
 				StateHasChanged();
 			}
 		}
@@ -70,8 +70,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 
 			// find source and target nodes
-			var sourceNode = _tree.RootNode.Find(source.Id.ToString());
-			var targetNode = _tree.RootNode.Find(target.Id.ToString());
+			var sourceNode = Tree.RootNode.Find(source.Id.ToString());
+			var targetNode = Tree.RootNode.Find(target.Id.ToString());
 			if (sourceNode?.ParentNode?.Nodes is null || targetNode?.ParentNode?.Nodes is null)
 			{
 				return;
