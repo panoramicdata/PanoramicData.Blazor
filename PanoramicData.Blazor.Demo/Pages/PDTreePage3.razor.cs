@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDTreePage3
 	{
 		private bool _firstNodeUpdate = true;
-		private PDTree<TreeItem> _tree = null!;
+		private readonly PDTree<TreeItem> _tree = null!;
 		private readonly TreeDataProvider _treeDataProvider = new TreeDataProvider();
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
@@ -29,7 +28,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			return item.IsGroup ? "fas fa-fw fa-building" : "fas fa-fw fa-user";
 		}
 
-		private async Task OnDrop(DropEventArgs args)
+		private void OnDrop(DropEventArgs args)
 		{
 			var targetItem = (args.Target as TreeNode<TreeItem>)?.Data;
 			TreeItem? sourceItem = null;
