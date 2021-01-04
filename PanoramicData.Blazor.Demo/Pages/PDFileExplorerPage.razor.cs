@@ -142,5 +142,21 @@ namespace PanoramicData.Blazor.Demo.Pages
 				await FileExplorer.RefreshToolbarAsync().ConfigureAwait(true);
 			}
 		}
+
+		private string GetIconCssClass(FileExplorerItem item)
+		{
+			if (item.EntryType == FileExplorerItemType.Directory)
+			{
+				if (item.Path == "/")
+				{
+					return "fas fa-server";
+				}
+				if (item.ParentPath == "/")
+				{
+					return "fas fa-hdd";
+				}
+			}
+			return TestFileSystemDataProvider.GetIconClass(item);
+		}
 	}
 }
