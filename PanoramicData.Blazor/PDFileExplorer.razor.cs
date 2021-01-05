@@ -172,8 +172,12 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets the Tree context menu items.
 		/// </summary>
-		[Parameter]
-		public List<MenuItem> TreeContextItems { get; set; } = new List<MenuItem>();
+		[Parameter] public List<MenuItem> TreeContextItems { get; set; } = new List<MenuItem>();
+
+		/// <summary>
+		/// Optional sort function to use on sibling tree nodes.
+		/// </summary>
+		[Parameter] public Comparison<FileExplorerItem>? TreeSort { get; set; }
 
 		/// <summary>
 		/// Event raised whenever a file upload completes.
@@ -1164,6 +1168,18 @@ namespace PanoramicData.Blazor
 				return "far fa-fw fa-hidden fa-file";
 			}
 			return cssClass;
+		}
+
+		private int OnTreeSort(FileExplorerItem item1, FileExplorerItem item2)
+		{
+			if (TreeSort is null)
+			{
+				return item1.Name.CompareTo(item2.Name);
+			}
+			else
+			{
+				return TreeSort(item1, item2);
+			}
 		}
 	}
 }
