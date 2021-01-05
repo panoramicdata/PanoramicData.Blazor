@@ -55,6 +55,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AllowRename { get; set; } = true;
 
 		/// <summary>
+		/// Determines whether the first node is automatically expanded on load.
+		/// </summary>
+		[Parameter] public bool AutoExpand { get; set; } = false;
+
+		/// <summary>
 		/// Sets the Table column configuration.
 		/// </summary>
 		[Parameter]
@@ -269,9 +274,12 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTreeNodeUpdatedAsync(TreeNode<FileExplorerItem> node)
 		{
-			if (node?.Data != null && node?.ParentNode == null) // root node updated
+			// auto expand first node?
+			if (AutoExpand && node.Text == "Root" && node.Nodes?.Count == 1)
 			{
-				await Tree!.SelectNode(node!).ConfigureAwait(true);
+				var firstNode = node.Nodes[0];
+				await Tree!.SelectNode(firstNode).ConfigureAwait(true);
+				await Tree.RefreshNodeAsync(firstNode).ConfigureAwait(true);
 				StateHasChanged();
 			}
 		}

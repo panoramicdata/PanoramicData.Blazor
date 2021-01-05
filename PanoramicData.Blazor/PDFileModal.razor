@@ -1,15 +1,16 @@
-﻿<PDModal @ref="_modal"
+﻿<PDModal @ref="Modal"
 		 Title="@_modalTitle"
 		 Buttons="_toolbarItems"
 		 HideOnBackgroundClick="HideOnBackgroundClick"
 		 Size="Size">
 
 	<div class="pdfilemodalexplorer">
-		<PDFileExplorer @ref="_fileExplorer"
+		<PDFileExplorer @ref="FileExplorer"
 						DataProvider="DataProvider"
 						AllowDrag="false"
 						AllowDrop="false"
 						AllowRename="false"
+						AutoExpand="false"
 						ShowToolbar="false"
 						ShowContextMenu="false"
 						SelectionMode="TableSelectionMode.Single"
@@ -19,7 +20,7 @@
 
 </PDModal>
 
-<PDModal @ref="_modalConfirm"
+<PDModal @ref="ModalConfirm"
 		 Title="Confirm Overwrite"
 		 HideOnBackgroundClick="HideOnBackgroundClick"
 		 Buttons="_confirmToolbarItems">

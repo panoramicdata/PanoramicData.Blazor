@@ -8,17 +8,17 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDFileModal
 	{
-		private PDModal _modal = null!;
-		private PDModal _modalConfirm = null!;
+		private PDModal Modal { get; set; } = null!;
+		private PDModal ModalConfirm { get; set; } = null!;
 		private string _modalTitle = string.Empty;
-		private PDFileExplorer _fileExplorer = null!;
-		private List<ToolbarItem> _toolbarItems = new List<ToolbarItem>();
-		private ToolbarTextBox _filenameTextbox = new ToolbarTextBox { Key = "Filename", Label = "File name", Width = "100%" };
-		private ToolbarButton _cancelButton = new ToolbarButton { Key = "Cancel", Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
-		private ToolbarButton _okButton = new ToolbarButton { Key = "OK", Text = "OK", CssClass = "btn-primary", ShiftRight = true, IsEnabled = false };
-		private List<ToolbarItem> _confirmToolbarItems = new List<ToolbarItem>();
-		private ToolbarButton _overwriteButton = new ToolbarButton { Key = "Yes", Text = "Yes - Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true };
-		private ToolbarButton _noButton = new ToolbarButton { Key = "No", Text = "No", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
+		private PDFileExplorer FileExplorer { get; set; } = null!;
+		private readonly List<ToolbarItem> _toolbarItems = new List<ToolbarItem>();
+		private readonly ToolbarTextBox _filenameTextbox = new ToolbarTextBox { Key = "Filename", Label = "File name", Width = "100%" };
+		private readonly ToolbarButton _cancelButton = new ToolbarButton { Key = "Cancel", Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
+		private readonly ToolbarButton _okButton = new ToolbarButton { Key = "OK", Text = "OK", CssClass = "btn-primary", ShiftRight = true, IsEnabled = false };
+		private readonly List<ToolbarItem> _confirmToolbarItems = new List<ToolbarItem>();
+		private readonly ToolbarButton _overwriteButton = new ToolbarButton { Key = "Yes", Text = "Yes - Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true };
+		private readonly ToolbarButton _noButton = new ToolbarButton { Key = "No", Text = "No", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
 
 		[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
@@ -72,8 +72,8 @@ namespace PanoramicData.Blazor
 				StateHasChanged();
 			}
 
-			var userAction = await _modal.ShowAndWaitResultAsync().ConfigureAwait(true);
-			return userAction == "Cancel" ? string.Empty : $"{_fileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
+			var userAction = await Modal.ShowAndWaitResultAsync().ConfigureAwait(true);
+			return userAction == "Cancel" ? string.Empty : $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
 		}
 
 		public async Task<string> ShowSaveAsAsync()
@@ -98,17 +98,17 @@ namespace PanoramicData.Blazor
 			FileExplorerItem? existing = null;
 			do
 			{
-				var userAction = await _modal.ShowAndWaitResultAsync().ConfigureAwait(true);
+				var userAction = await Modal.ShowAndWaitResultAsync().ConfigureAwait(true);
 				if (userAction == "Cancel")
 				{
 					return string.Empty;
 				}
 
 				// check for over write?
-				existing = System.Array.Find(_fileExplorer.FileItems, x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
+				existing = System.Array.Find(FileExplorer.FileItems, x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
 				if (existing != null)
 				{
-					var confirmation = await _modalConfirm.ShowAndWaitResultAsync().ConfigureAwait(true);
+					var confirmation = await ModalConfirm.ShowAndWaitResultAsync().ConfigureAwait(true);
 					if (confirmation == "Yes")
 					{
 						existing = null;
@@ -117,7 +117,7 @@ namespace PanoramicData.Blazor
 
 			} while (existing != null);
 
-			return $"{_fileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
+			return $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
 		}
 
 		private void OnSelectionChanged(FileExplorerItem[] selection)
@@ -131,7 +131,7 @@ namespace PanoramicData.Blazor
 			if (item.EntryType == FileExplorerItemType.File)
 			{
 				_filenameTextbox.Value = item.Name;
-				await _modal.OnButtonClick(_okButton.Key).ConfigureAwait(true);
+				await Modal.OnButtonClick(_okButton.Key).ConfigureAwait(true);
 			}
 		}
 
@@ -145,7 +145,7 @@ namespace PanoramicData.Blazor
 		{
 			if (args.Code == "Enter" && !string.IsNullOrWhiteSpace(_filenameTextbox.Value))
 			{
-				Task.Run(async () => await _modal.OnButtonClick(_okButton.Key).ConfigureAwait(true)).ConfigureAwait(true);
+				Task.Run(async () => await Modal.OnButtonClick(_okButton.Key).ConfigureAwait(true)).ConfigureAwait(true);
 			}
 		}
 	}
