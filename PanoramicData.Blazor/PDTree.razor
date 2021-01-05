@@ -6,31 +6,34 @@
 		@if (RootNode.Nodes != null)
 		{
 			var topLevelNodes = ShowRoot || RootNode.Nodes.Count > 1 ? RootNode.Nodes : RootNode.Nodes[0].Nodes;
-			foreach (var subNode in topLevelNodes)
+			if (topLevelNodes != null)
 			{
-				@if (NodeTemplate == null)
+				foreach (var subNode in topLevelNodes)
 				{
-					<PDTreeNode TItem="TItem"
-								Node="subNode"
-								ShowLines="ShowLines"
-								EndEdit="OnEndEdit"
-								AllowDrag="AllowDrag"
-								AllowDrop="AllowDrop"
-								AllowDropInBetween="AllowDropInBetween"
-								Drop="OnDrop" />
-				}
-				else
-				{
-					<PDTreeNode TItem="TItem"
-								Node="subNode"
-								ShowLines="ShowLines"
-								EndEdit="OnEndEdit"
-								AllowDrag="AllowDrag"
-								AllowDrop="AllowDrop"
-								AllowDropInBetween="AllowDropInBetween"
-								Drop="OnDrop">
-						<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
-					</PDTreeNode>
+					@if (NodeTemplate == null)
+					{
+						<PDTreeNode TItem="TItem"
+									Node="subNode"
+									ShowLines="ShowLines"
+									EndEdit="OnEndEdit"
+									AllowDrag="AllowDrag"
+									AllowDrop="AllowDrop"
+									AllowDropInBetween="AllowDropInBetween"
+									Drop="OnDrop" />
+					}
+					else
+					{
+						<PDTreeNode TItem="TItem"
+									Node="subNode"
+									ShowLines="ShowLines"
+									EndEdit="OnEndEdit"
+									AllowDrag="AllowDrag"
+									AllowDrop="AllowDrop"
+									AllowDropInBetween="AllowDropInBetween"
+									Drop="OnDrop">
+							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
+						</PDTreeNode>
+					}
 				}
 			}
 		}

@@ -92,7 +92,7 @@
 		</div>
 	}
 
-	@if (AllowDropInBetween && Node.IsLastSibling())
+	@if (AllowDropInBetween && Node != null && Node.IsLastSibling())
 	{
 		<PDDragDropSeparator Before="false"
 							 Drop="OnSeparatorDrop" />

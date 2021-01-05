@@ -1156,18 +1156,22 @@ namespace PanoramicData.Blazor
 			return string.Empty;
 		}
 
-		private string GetIconCssClass(FileExplorerItem item)
+		private string GetIconCssClass(FileExplorerItem? item)
 		{
-			var cssClass = GetIconClass is null ? null : GetIconClass(item);
-			if (cssClass is null)
+			if (item != null)
 			{
-				return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "far fa-fw fa-folder";
+				var cssClass = GetIconClass is null ? null : GetIconClass(item);
+				if (cssClass is null)
+				{
+					return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "far fa-fw fa-folder";
+				}
+				if (cssClass.Length == 0)
+				{
+					return "far fa-fw fa-hidden fa-file";
+				}
+				return cssClass;
 			}
-			if (cssClass.Length == 0)
-			{
-				return "far fa-fw fa-hidden fa-file";
-			}
-			return cssClass;
+			return string.Empty;
 		}
 
 		private int OnTreeSort(FileExplorerItem item1, FileExplorerItem item2)
