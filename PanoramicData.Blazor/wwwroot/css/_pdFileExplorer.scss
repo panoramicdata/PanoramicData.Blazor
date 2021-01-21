@@ -19,3 +19,22 @@
 	height: 5px;
 	background-color: #007bff;
 }
+
+.upload-zone {
+	border: 4px dashed darkgray;
+	border-radius: 5px;
+	height: 150px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: lightgray;
+}
+
+.pddropzone.highlight .upload-zone {
+	border-color: #1c7333;
+	background-color: #b9e0b7;
+}
+
+#file-select {
+	display: block;
+}

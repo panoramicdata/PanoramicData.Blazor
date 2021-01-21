@@ -127,6 +127,22 @@
   height: 5px;
   background-color: #007bff; }
 
+.upload-zone {
+  border: 4px dashed darkgray;
+  border-radius: 5px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: lightgray; }
+
+.pddropzone.highlight .upload-zone {
+  border-color: #1c7333;
+  background-color: #b9e0b7; }
+
+#file-select {
+  display: block; }
+
 .pdfilemodalexplorer {
   height: 400px; }
   .pdfilemodalexplorer .pdfileexplorer {
@@ -189,15 +205,15 @@
 .pddropzone.highlight {
   background-color: #e8ffe8; }
 
-.pddropzone input[type=file] {
-  position: absolute;
-  /*	width: 100%;
+/*.pddropzone input[type=file] {
+	position: absolute;*/
+/*	width: 100%;
 	height: 100%;
 	opacity: 100%;
 */
-  display: none;
-  cursor: pointer; }
-
+/*display: none;
+	cursor: pointer;
+}*/
 .pdtoolbar {
   -webkit-user-select: none;
   /* Chrome/Safari */

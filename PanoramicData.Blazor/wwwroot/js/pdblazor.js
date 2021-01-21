@@ -305,5 +305,47 @@
 
 	alert: function (msg) {
 		alert(msg);
-	}
+	},
+
+	initializeFileSelect: function (id, dropZoneId) {
+		const inputEl = document.getElementById(id);
+		const dropzoneEl = document.getElementById(dropZoneId);
+		if (inputEl && dropzoneEl) {
+			inputEl.zoneEl = dropzoneEl;
+			inputEl.addEventListener("change", panoramicData.handleSelectedFiles, false);
+		}
+	},
+
+	handleSelectedFiles: function() {
+		var me = this;
+		var files = this.files;
+		var zone = this.zoneEl;
+		if (zone.dotnetHelper) {
+			var dto = [];
+			for (var i = 0; i < files.length; i++)
+				dto.push({ Name: files[i].name, Size: files[i].size, Skip: false });
+			zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', dto)
+				.then(result => {
+					if (!result.cancel) {
+						for (var i = 0; i < files.length; i++) {
+							var skip = result.files.reduce(function (pv, cv) {
+								return pv || (cv.name == files[i].name && cv.skip);
+							}, false);
+							if (!skip) {
+								panoramicData.uploadFile(files[i], zone.uploadUrl, result.state, zone);
+							}
+						}
+					}
+					me.value = '';
+				});
+		}
+	},
+
+	disposeFileSelect: function (id) {
+		var el = document.getElementById(id);
+		if (el) {
+			delete el.zoneEl;
+			el.removeEventListener('change', panoramicData.handleSelectedFiles, false);
+		}
+	},
 }

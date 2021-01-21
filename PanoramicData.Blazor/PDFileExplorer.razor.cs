@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Services;
 using System;
@@ -11,8 +12,9 @@ using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDFileExplorer
+	public partial class PDFileExplorer : IDisposable
 	{
+		private static int _idSequence;
 		private string _deleteDialogMessage = string.Empty;
 		private string _conflictDialogMessage = string.Empty;
 		private string[] _conflictDialogList = new string[0];
@@ -30,14 +32,16 @@ namespace PanoramicData.Blazor
 		private readonly MenuItem _menuDelete = new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
 		private readonly List<FileExplorerItem> _copyPayload = new List<FileExplorerItem>();
 		private bool _moveCopyPayload = false;
-
 		private TreeNode<FileExplorerItem>? _selectedNode;
 		private PDTree<FileExplorerItem>? Tree { get; set; }
 		private PDTable<FileExplorerItem>? Table { get; set; }
 		private PDModal? DeleteDialog { get; set; } = null!;
 		private PDModal? ConflictDialog { get; set; } = null!;
+		private PDModal UploadDialog { get; set; } = null!;
+		private PDDropZone DialogDropZone { get; set; } = null!;
 
 		public string FolderPath = string.Empty;
+		public string Id { get; private set; } = string.Empty;
 
 		/// <summary>
 		/// Determines whether the user may drag items.
@@ -107,6 +111,8 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback<FileExplorerItem> ItemDoubleClick { get; set; }
 
+		[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
+
 		/// <summary>
 		/// Event called whenever a move or copy operation is subject to conflicts.
 		/// </summary>
@@ -166,7 +172,8 @@ namespace PanoramicData.Blazor
 			{
 				new ToolbarButton { Key = "navigate-up", ToolTip="Navigate up to parent folder", IconCssClass="fas fa-fw fa-arrow-up",  CssClass="btn-secondary" },
 				new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip="Create a new folder", IconCssClass="fas fa-fw fa-folder-plus", CssClass="btn-secondary" },
-				new ToolbarButton { Key = "delete", Text = "Delete", ToolTip="Delete the selected files and folders", IconCssClass="fas fa-fw fa-trash-alt", CssClass="btn-danger", ShiftRight = true },
+				new ToolbarButton { Key = "upload", Text = "Upload", ToolTip="Upload one or more files", IconCssClass="fas fa-fw fa-upload", CssClass="btn-secondary" },
+				new ToolbarButton { Key = "delete", Text = "Delete", ToolTip="Delete the selected files and folders", IconCssClass="fas fa-fw fa-trash-alt", CssClass="btn-danger", ShiftRight = true }
 			};
 
 		/// <summary>
@@ -226,8 +233,9 @@ namespace PanoramicData.Blazor
 
 		protected override void OnInitialized()
 		{
+			Id = $"pdfe{++_idSequence}";
 			TableContextItems.AddRange(new[]
-			{
+				{
 				_menuOpen,
 				_menuDownload,
 				_menuNewFolder,
@@ -645,6 +653,9 @@ namespace PanoramicData.Blazor
 
 		private async Task OnFilesDroppedAsync(DropZoneEventArgs args)
 		{
+			// cancel upload dialog if shown
+			await UploadDialog.HideAsync().ConfigureAwait(true);
+
 			if (Tree?.SelectedNode?.Data != null)
 			{
 				// notify application and allow for cancel
@@ -757,6 +768,10 @@ namespace PanoramicData.Blazor
 					await DeleteFilesAsync().ConfigureAwait(true);
 					break;
 
+				case "upload":
+					await UploadDialog.ShowAsync().ConfigureAwait(true);
+					break;
+
 				default:
 					await ToolbarClick.InvokeAsync(key).ConfigureAwait(true);
 					break;
@@ -808,10 +823,14 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		protected override void OnAfterRender(bool firstRender)
+		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
 			if (firstRender)
 			{
+				// initialize file select
+				//_dotNetReference = DotNetObjectReference.Create(this);
+				await JSRuntime.InvokeVoidAsync("panoramicData.initializeFileSelect", $"{Id}-file-select", DialogDropZone.Id).ConfigureAwait(false);
+
 				if (DeleteDialog != null)
 				{
 					DeleteDialog.Buttons.Clear();
@@ -832,6 +851,18 @@ namespace PanoramicData.Blazor
 						new ToolbarButton { Text = "Skip", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-forward" },
 						new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
 					});
+				}
+
+				// set up buttons on upload dialog
+				if (UploadDialog != null)
+				{
+					UploadDialog!.Buttons.First(x => x.Key == "Yes").IsVisible = false;
+					if (UploadDialog!.Buttons.First(x => x.Key == "No") is ToolbarButton btn)
+					{
+						btn.ShiftRight = true;
+						btn.Text = "Cancel";
+						btn.CssClass = "btn-primary";
+					}
 				}
 			}
 		}
@@ -1192,6 +1223,11 @@ namespace PanoramicData.Blazor
 			{
 				return TreeSort(item1, item2);
 			}
+		}
+
+		public void Dispose()
+		{
+			JSRuntime.InvokeVoidAsync("panoramicData.disposeFileSelect", $"{Id}-file-select");
 		}
 	}
 }

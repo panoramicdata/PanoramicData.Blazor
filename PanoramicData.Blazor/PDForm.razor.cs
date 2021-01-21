@@ -208,7 +208,7 @@ namespace PanoramicData.Blazor
 			{
 				Delta.Clear();
 			}
-			if (Errors.Count > 0)
+			if (Errors.Count > 0)	
 			{
 				Errors.Clear();
 				OnErrorsChanged(EventArgs.Empty);

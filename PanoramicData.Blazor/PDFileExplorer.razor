@@ -15,6 +15,26 @@
 	<p>What would you like to do with the conflicting items?</p>
 </PDModal>
 
+<PDModal @ref="UploadDialog"
+		 ButtonClick="() => UploadDialog.HideAsync()">
+	<PDDropZone @ref="DialogDropZone"
+				UploadUrl="@UploadUrl"
+				Drop="OnFilesDroppedAsync"
+				UploadStarted="OnUploadStartedAsync"
+				UploadProgress="OnUploadProgressAsync"
+				UploadCompleted="OnUploadCompletedAsync">
+		<div class="upload-zone">
+			Drag and drop files here to upload ...
+		</div>
+	</PDDropZone>
+	<div class="mt-2">
+		<label for="file-select">Or select file</label>
+		<input id="@($"{Id}-file-select")"
+			   type="file"
+			   class="form-control-file">
+	</div>
+</PDModal>
+
 <div class="pdfileexplorer @CssClass">
 
 	<div class="pdfe-toolbar @(ShowToolbar ? "" : "d-none")">

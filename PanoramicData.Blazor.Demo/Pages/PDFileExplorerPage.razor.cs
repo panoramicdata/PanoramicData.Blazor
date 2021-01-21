@@ -79,7 +79,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			var createFileButton = items.Find(x => x.Key == "create-file");
 			if (createFileButton == null)
 			{
-				items.Insert(2, new ToolbarButton { Key = "create-file", Text = "New File", ToolTip = "Create a new file", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-file-medical" });
+				items.Insert(3, new ToolbarButton { Key = "create-file", Text = "New File", ToolTip = "Create a new file", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-file-medical" });
 			}
 		}
 
