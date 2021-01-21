@@ -8,7 +8,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	{
 		private bool _firstNodeUpdate = true;
 		protected PDTree<TreeItem> Tree { get; set; } = null!;
-		private readonly TreeDataProvider _treeDataProvider = new TreeDataProvider();
+		private readonly TreeDataProvider _treeDataProvider = new();
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
 

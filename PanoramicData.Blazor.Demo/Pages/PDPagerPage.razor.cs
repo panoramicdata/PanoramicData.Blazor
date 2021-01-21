@@ -7,7 +7,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDPagerPage : IDisposable
 	{
 		//private PDPager? _pager;
-		private readonly PageCriteria _pageCriteria = new PageCriteria(1);
+		private readonly PageCriteria _pageCriteria = new(1);
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
 

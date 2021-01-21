@@ -13,9 +13,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDTablePage
 	{
 		private string _searchText = string.Empty;
-		private PageCriteria _pageCriteria = new PageCriteria(1, 10);
-		private SortCriteria _sortCriteria = new SortCriteria("Col1", SortDirection.Descending);
-		private readonly PersonDataProvider _personDataProvider = new PersonDataProvider();
+		private PageCriteria _pageCriteria = new(1, 10);
+		private SortCriteria _sortCriteria = new("Col1", SortDirection.Descending);
+		private readonly PersonDataProvider _personDataProvider = new();
 		private bool AllowDrag { get; set; }
 		private bool AllowDrop { get; set; }
 		private string DropZoneCss { get; set; } = "";

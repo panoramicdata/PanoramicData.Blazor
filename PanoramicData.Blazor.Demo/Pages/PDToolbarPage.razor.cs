@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	{
 		private string _searchText = string.Empty;
 
-		private readonly List<MenuItem> _fileMenuItems = new List<MenuItem>
+		private readonly List<MenuItem> _fileMenuItems = new()
 		{
 			new MenuItem { Text="New", IconCssClass="fas fa-fw fa-file-word" },
 			new MenuItem { Key="Open", Text="Open...", IconCssClass="fas fa-fw fa-folder-open" },

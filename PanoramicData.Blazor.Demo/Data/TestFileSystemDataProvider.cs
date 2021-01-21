@@ -10,8 +10,8 @@ namespace PanoramicData.Blazor.Demo.Data
 {
 	public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 	{
-		private readonly List<FileExplorerItem> _testData = new List<FileExplorerItem>();
-		private readonly Random _random = new Random(Environment.TickCount);
+		private readonly List<FileExplorerItem> _testData = new();
+		private readonly Random _random = new(Environment.TickCount);
 
 		public TestFileSystemDataProvider()
 		{

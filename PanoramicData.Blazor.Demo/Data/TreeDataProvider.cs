@@ -8,7 +8,7 @@ namespace PanoramicData.Blazor.Demo.Data
 {
 	public class TreeDataProvider : IDataProviderService<TreeItem>
 	{
-		private readonly List<TreeItem> _items = new List<TreeItem>();
+		private readonly List<TreeItem> _items = new();
 
 		public TreeDataProvider()
 		{

@@ -5,7 +5,7 @@ namespace PanoramicData.Blazor.Demo.Data
 {
 	public class EventManager
 	{
-		public List<Event> _events = new List<Event>();
+		public List<Event> _events = new();
 
 		public event Action<Event>? EventAdded;
 

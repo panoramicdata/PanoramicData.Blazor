@@ -9,9 +9,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDFormPage3
 	{
-		private readonly PersonDataProvider _personDataProvider = new PersonDataProvider();
-		private readonly PageCriteria _pageCriteria = new PageCriteria(1, 10);
-		private readonly SortCriteria _sortCriteria = new SortCriteria("DateCreatedCol", SortDirection.Descending);
+		private readonly PersonDataProvider _personDataProvider = new();
+		private readonly PageCriteria _pageCriteria = new(1, 10);
+		private readonly SortCriteria _sortCriteria = new("DateCreatedCol", SortDirection.Descending);
 
 		private bool ShowDescriptions { get; set; }
 		private PDForm<Person> Form { get; set; } = null!;

@@ -13,8 +13,8 @@ namespace PanoramicData.Blazor.Demo.Shared
 	{
 		private string ActiveTab { get; set; } = "Demo";
 		private const string _sourceBaseUrl = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/main/PanoramicData.Blazor.Demo";
-		private readonly HttpClient _httpClient = new HttpClient();
-		private readonly Dictionary<string, SourceFile> _sourceFiles = new Dictionary<string, SourceFile>();
+		private readonly HttpClient _httpClient = new();
+		private readonly Dictionary<string, SourceFile> _sourceFiles = new();
 		private string _activeSourceFile = string.Empty;
 		private MonacoEditor Editor { get; set; } = null!;
 
