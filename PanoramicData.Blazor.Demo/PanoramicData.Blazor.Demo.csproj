@@ -1,52 +1,52 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <RazorLangVersion>3.0</RazorLangVersion>
-		<LangVersion>8.0</LangVersion>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<RazorLangVersion>3.0</RazorLangVersion>
+		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<UserSecretsId>49933e5c-b6ca-4a76-8b2a-09d0868ee051</UserSecretsId>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="file_example_WEBM_1920_3_7MB.webm" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="file_example_WEBM_1920_3_7MB.webm" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="file_example_WEBM_1920_3_7MB.webm" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="file_example_WEBM_1920_3_7MB.webm" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="file_example_WEBM_1920_3_7MB.webm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <PackageReference Include="BlazorMonaco" Version="1.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.9" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.9" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="file_example_WEBM_1920_3_7MB.webm">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Resource>
+	</ItemGroup>
 
 
-  <ItemGroup>
-    <ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BlazorMonaco" Version="1.5.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.9" />
+	</ItemGroup>
 
 
-  <ItemGroup>
-    <Folder Include="wwwroot\src\" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
+	</ItemGroup>
 
 
-  <ItemGroup>
-    <Compile Update="Pages\PDBlockOverlayPage.razor.cs">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Pages\PDTreePage3 - Copy.razor.cs">
-      <DependentUpon>PDTreePage3.razor.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\src\" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<Compile Update="Pages\PDBlockOverlayPage.razor.cs">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Compile>
+		<Compile Update="Pages\PDTreePage3 - Copy.razor.cs">
+			<DependentUpon>PDTreePage3.razor.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
 </Project>
