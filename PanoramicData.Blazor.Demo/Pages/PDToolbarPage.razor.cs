@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	{
 		private string _searchText = string.Empty;
 
-		private List<MenuItem> FileMenuItems = new List<MenuItem>
+		private readonly List<MenuItem> _fileMenuItems = new List<MenuItem>
 		{
 			new MenuItem { Text="New", IconCssClass="fas fa-fw fa-file-word" },
 			new MenuItem { Key="Open", Text="Open...", IconCssClass="fas fa-fw fa-folder-open" },
@@ -18,6 +18,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			new MenuItem { Key="SaveAs", Text="Save As..." },
 			new MenuItem { Text="Exit", IsVisible=false }
 		};
+
 		private bool ShowButtons { get; set; } = true;
 		private bool EnableButtons { get; set; } = true;
 

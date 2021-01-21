@@ -39,7 +39,7 @@ namespace PanoramicData.Blazor
 			PageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
 		}
 
-		private void PageCriteria_TotalCountChanged(object sender, System.EventArgs e)
+		private void PageCriteria_TotalCountChanged(object sender, EventArgs e)
 		{
 			StateHasChanged();
 		}

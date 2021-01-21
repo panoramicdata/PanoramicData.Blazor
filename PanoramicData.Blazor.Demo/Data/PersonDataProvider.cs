@@ -10,10 +10,10 @@ namespace PanoramicData.Blazor.Demo.Data
 {
 	public class PersonDataProvider : IDataProviderService<Person>
 	{
-		private static string _loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce at leo eu risus faucibus facilisis quis in tortor. Phasellus gravida libero sit amet ullamcorper rhoncus. Ut at viverra lectus. Vestibulum mi eros, egestas vel nulla at, lacinia ornare mauris. Morbi a pulvinar lacus. Praesent ut convallis magna. Etiam est sem, feugiat a leo in, viverra scelerisque lectus. Vivamus dictum luctus eros non ultrices. Curabitur enim enim, porta eu lorem ut, varius venenatis sem.";
-		private static string[] _firstNames = new string[] { "Alice", "Bob", "Carol", "David", "Eve", "Frank", "Grace", "Heidi", "Ivan", "Judy", "Mike" };
-		private static string[] _lastNames = new string[] { "Smith", "Cooper", "Watkins", "Jenkins", "Tailor", "Williams", "Jones", "Smithson", "Carter", "Miller", "Baker" };
-		private static Random _random = new Random(Environment.TickCount);
+		private static readonly string _loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce at leo eu risus faucibus facilisis quis in tortor. Phasellus gravida libero sit amet ullamcorper rhoncus. Ut at viverra lectus. Vestibulum mi eros, egestas vel nulla at, lacinia ornare mauris. Morbi a pulvinar lacus. Praesent ut convallis magna. Etiam est sem, feugiat a leo in, viverra scelerisque lectus. Vivamus dictum luctus eros non ultrices. Curabitur enim enim, porta eu lorem ut, varius venenatis sem.";
+		private static readonly string[] _firstNames = new string[] { "Alice", "Bob", "Carol", "David", "Eve", "Frank", "Grace", "Heidi", "Ivan", "Judy", "Mike" };
+		private static readonly string[] _lastNames = new string[] { "Smith", "Cooper", "Watkins", "Jenkins", "Tailor", "Williams", "Jones", "Smithson", "Carter", "Miller", "Baker" };
+		private static readonly Random _random = new Random(Environment.TickCount);
 		private static readonly List<Person> _people = new List<Person>();
 		public static string[] Locations = new string[] { "Paris", "Rome", "Milan", "New York", "Peckham" };
 
@@ -50,7 +50,7 @@ namespace PanoramicData.Blazor.Demo.Data
 			await Task.Run(() =>
 			{
 				var query = _people
-					.AsQueryable<Person>();
+					.AsQueryable();
 
 				// apply search criteria and get a total count of matching items
 				if (!string.IsNullOrWhiteSpace(request.SearchText))

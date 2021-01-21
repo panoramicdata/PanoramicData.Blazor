@@ -32,7 +32,7 @@
 			<br />
 			<PDTable @ref="Table"
 					 TItem="Person"
-					 DataProvider="PersonDataProvider"
+					 DataProvider="_personDataProvider"
 					 KeyField="x => x.Id"
 					 ShowPager="false"
 					 PageCriteria="_pageCriteria"
@@ -157,7 +157,7 @@
 					TItem="Person"
 					Item="SelectedPerson"
 					CustomValidate="OnCustomValidate"
-					DataProvider="PersonDataProvider"
+					DataProvider="_personDataProvider"
 					DefaultMode="FormModes.Empty"
 					Error="OnError"
 					Deleted="OnPersonDeleted"

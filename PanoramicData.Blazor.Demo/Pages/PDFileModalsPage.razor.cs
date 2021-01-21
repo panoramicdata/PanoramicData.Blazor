@@ -6,10 +6,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDFileModalsPage
 	{
-		private PDFileModal _fileModal = null!;
+		private readonly PDFileModal _fileModal = null!;
 		private string _openResult = string.Empty;
 		private string _saveAsResult = string.Empty;
-		private IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
+		private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 
 		private async Task ShowFileOpenModal(string _)
 		{

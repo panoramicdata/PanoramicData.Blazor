@@ -57,7 +57,7 @@ namespace PanoramicData.Blazor.Demo.Data
 			var items = new List<FileExplorerItem>();
 
 			var query = _testData
-				.AsQueryable<FileExplorerItem>();
+				.AsQueryable();
 
 			// apply sort
 			if (request.SortFieldExpression != null)
