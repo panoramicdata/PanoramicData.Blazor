@@ -22,6 +22,7 @@ namespace PanoramicData.Blazor
 		private readonly MenuItem _menuOpen = new MenuItem { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
 		private readonly MenuItem _menuDownload = new MenuItem { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
 		private readonly MenuItem _menuNewFolder = new MenuItem { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" };
+		private readonly MenuItem _menuUploadFiles = new MenuItem { Text = "Upload Files", IconCssClass = "fas fa-fw fa-upload" };
 		private readonly MenuItem _menuSep1 = new MenuItem { IsSeparator = true };
 		private readonly MenuItem _menuRename = new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" };
 		private readonly MenuItem _menuSep2 = new MenuItem { IsSeparator = true };
@@ -252,6 +253,7 @@ namespace PanoramicData.Blazor
 			{
 				_menuRename,
 				_menuNewFolder,
+				_menuUploadFiles,
 				_menuSep2,
 				_menuCopy,
 				_menuCut,
@@ -311,6 +313,7 @@ namespace PanoramicData.Blazor
 			var folderSelected = !string.IsNullOrWhiteSpace(selectedPath);
 
 			_menuNewFolder.IsVisible = folderSelected;
+			_menuUploadFiles.IsVisible = folderSelected;
 			_menuRename.IsVisible = folderSelected && !isRoot;
 			_menuDelete.IsVisible = folderSelected && !isRoot;
 			_menuCopy.IsVisible = folderSelected && !isRoot;
@@ -346,6 +349,10 @@ namespace PanoramicData.Blazor
 					else if (item.Text == "New Folder")
 					{
 						await CreateNewFolderAsync().ConfigureAwait(true);
+					}
+					else if (item.Text == "Upload Files")
+					{
+						await UploadDialog.ShowAsync().ConfigureAwait(true);
 					}
 					else if (item.Text == "Copy" || item.Text == "Cut")
 					{
