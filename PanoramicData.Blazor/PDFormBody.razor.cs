@@ -117,5 +117,47 @@ namespace PanoramicData.Blazor
 		{
 			JSRuntime.InvokeVoidAsync("panoramicData.openUrl", field.HelpUrl, "pd-help-page");
 		}
+
+		private string GetValidationCssClass(FormField<TItem> field)
+		{
+			var fieldName = field.GetName();
+			if (IsReadOnly(field) || !field.ShowValidationResult)
+			{
+				return string.Empty;
+			}
+			else if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
+			{
+				return "alert-danger";
+			}
+			else if (Form != null && field.GetIsRequired() && string.IsNullOrWhiteSpace(Form?.GetFieldValue(field)?.ToString()))
+			{
+				return "alert-warning";
+			}
+			else
+			{
+				return "alert-success";
+			}
+		}
+
+		private string GetValidationIconCssClass(FormField<TItem> field)
+		{
+			var fieldName = field.GetName();
+			if (IsReadOnly(field) || !field.ShowValidationResult)
+			{
+				return "pd-empty-icon";
+			}
+			else if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
+			{
+				return "fas fa-exclamation-circle";
+			}
+			else if (Form != null && field.GetIsRequired() && string.IsNullOrWhiteSpace(Form?.GetFieldValue(field)?.ToString()))
+			{
+				return "fas fa-asterisk";
+			}
+			else
+			{
+				return "fas fa-check-circle";
+			}
+		}
 	}
 }

@@ -170,6 +170,14 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Gets the description for the field, if one is either declared or in DisplayAttribute.
+		/// </summary>
+		public bool GetIsRequired()
+		{
+			return Field?.GetPropertyMemberInfo()?.GetCustomAttribute<RequiredAttribute>() != null;
+		}
+
+		/// <summary>
 		/// Gets the fields name.
 		/// </summary>
 		public string? GetName()
