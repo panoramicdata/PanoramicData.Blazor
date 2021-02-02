@@ -24,6 +24,7 @@ namespace PanoramicData.Blazor
 
 			// PanoramicData.Blazor services
 			services.AddBlockOverlay();
+			services.AddGlobalEventService();
 
 			services.AddServerSideBlazor();
 		}

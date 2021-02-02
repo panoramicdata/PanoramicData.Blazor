@@ -348,4 +348,39 @@
 			el.removeEventListener('change', panoramicData.handleSelectedFiles, false);
 		}
 	},
+
+	initGlobalListener: function (ref) {
+		this.globalListenerReference = ref;
+		window.addEventListener("keydown", this.onKeyDown);
+		window.addEventListener("keyup", this.onKeyUp);
+	},
+
+	destroyGlobalListener: function () {
+		window.removeEventListener("keydown", this.onKeyDown);
+		window.removeEventListener("keyup", this.onKeyUp);
+		delete this.globalListenerReference;
+	},
+
+	onKeyDown: function (e) {
+		if (window.panoramicData.globalListenerReference) {
+			window.panoramicData.globalListenerReference.invokeMethodAsync("OnKeyDown", panoramicData.getKeyArgs(e));
+		}
+	},
+
+	onKeyUp: function (e) {
+		if (window.panoramicData.globalListenerReference) {
+			window.panoramicData.globalListenerReference.invokeMethodAsync("OnKeyUp", panoramicData.getKeyArgs(e));
+		}
+	},
+
+	getKeyArgs: function (e) {
+		var obj = {};
+		obj.Key = e.key;
+		obj.AltKey = e.altKey;
+		obj.CtrlKey = e.ctrlKey;
+		obj.ShiftKey = e.shiftKey;
+		return obj;
+	}
+
+
 }
