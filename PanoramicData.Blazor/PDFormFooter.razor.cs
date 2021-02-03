@@ -144,9 +144,9 @@ namespace PanoramicData.Blazor
 			{
 				SetVisibility(Buttons.Find(x => x.Key == "Yes"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
 				SetVisibility(Buttons.Find(x => x.Key == "No"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
-				SetVisibility(Buttons.Find(x => x.Key == "Delete"), Form.Mode == FormModes.Edit && ShowDelete);
-				SetVisibility(Buttons.Find(x => x.Key == "Save"), Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit);
-				SetVisibility(Buttons.Find(x => x.Key == "Cancel"), Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit);
+				SetVisibility(Buttons.Find(x => x.Key == "Delete"), ShowDelete && Form.Mode == FormModes.Edit);
+				SetVisibility(Buttons.Find(x => x.Key == "Save"), ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit));
+				SetVisibility(Buttons.Find(x => x.Key == "Cancel"), ShowCancel && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit));
 			}
 		}
 
