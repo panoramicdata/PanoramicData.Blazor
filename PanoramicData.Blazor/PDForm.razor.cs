@@ -16,7 +16,6 @@ namespace PanoramicData.Blazor
 	public partial class PDForm<TItem> where TItem : class
 	{
 		private bool _showHelp;
-
 		public event EventHandler? ErrorsChanged;
 
 		/// <summary>
