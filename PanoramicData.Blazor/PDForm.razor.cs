@@ -64,6 +64,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<string> Error { get; set; }
 
 		/// <summary>
+		/// Should the form be hidden after a Save operation?
+		/// </summary>
+		[Parameter] public bool HideForm { get; set; } = true;
+
+		/// <summary>
 		/// Sets the default mode of the form.
 		/// </summary>
 		[Parameter] public FormModes DefaultMode { get; set; }
@@ -87,11 +92,6 @@ namespace PanoramicData.Blazor
 		/// Gets or sets the current form mode.
 		/// </summary>
 		public FormModes Mode { get; private set; }
-
-		/// <summary>
-		/// Should the form be hidden after a Save operation?
-		/// </summary>
-		public bool HideForm { get; set; } = true;
 
 		/// <summary>
 		/// Gets a full list of all fields.
