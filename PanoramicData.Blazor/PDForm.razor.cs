@@ -90,6 +90,11 @@ namespace PanoramicData.Blazor
 		public FormModes Mode { get; private set; }
 
 		/// <summary>
+		/// Should the form be hidden after a Save operation?
+		/// </summary>
+		public bool HideForm { get; set; } = true;
+
+		/// <summary>
 		/// Gets a full list of all fields.
 		/// </summary>
 		public List<FormField<TItem>> Fields { get; } = new List<FormField<TItem>>();
@@ -208,7 +213,7 @@ namespace PanoramicData.Blazor
 			{
 				Delta.Clear();
 			}
-			if (Errors.Count > 0)	
+			if (Errors.Count > 0)
 			{
 				Errors.Clear();
 				OnErrorsChanged(EventArgs.Empty);
@@ -226,7 +231,7 @@ namespace PanoramicData.Blazor
 				var response = await DataProvider.DeleteAsync(Item, CancellationToken.None).ConfigureAwait(true);
 				if (response.Success)
 				{
-					Mode = FormModes.Hidden;
+					Mode = HideForm ? FormModes.Hidden : FormModes.Create;
 					await Deleted.InvokeAsync(Item).ConfigureAwait(true);
 				}
 				else
@@ -267,7 +272,7 @@ namespace PanoramicData.Blazor
 						var response = await DataProvider.CreateAsync(Item, CancellationToken.None).ConfigureAwait(true);
 						if (response.Success)
 						{
-							Mode = FormModes.Hidden;
+							Mode = HideForm ? FormModes.Hidden : FormModes.Edit;
 							await Created.InvokeAsync(Item).ConfigureAwait(true);
 						}
 						else
@@ -280,7 +285,7 @@ namespace PanoramicData.Blazor
 						var response = await DataProvider.UpdateAsync(Item, Delta, CancellationToken.None).ConfigureAwait(true);
 						if (response.Success)
 						{
-							Mode = FormModes.Hidden;
+							Mode = HideForm ? FormModes.Hidden : FormModes.Edit;
 							await Updated.InvokeAsync(Item).ConfigureAwait(true);
 						}
 						else
