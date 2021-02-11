@@ -4,10 +4,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Exceptions;
+using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -164,6 +166,11 @@ namespace PanoramicData.Blazor
 		/// Gets whether the table allows in-place editing.
 		/// </summary>
 		[Parameter] public bool AllowEdit { get; set; }
+
+		/// <summary>
+		/// Gets whether the table will save changes via the DataProvider (if set).
+		/// </summary>
+		[Parameter] public bool SaveChanges { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether rows may be dragged.
@@ -498,6 +505,24 @@ namespace PanoramicData.Blazor
 							}
 						}
 					}
+				}
+
+				// save changes
+				if (SaveChanges && DataProvider != null)
+				{
+					var delta = new Dictionary<string, object>();
+					foreach (var kvp in _editValues)
+					{
+						if (kvp.Value != null)
+						{
+							var col = Columns.Find(x => x.Id == kvp.Key);
+							if (col != null && col.Field?.GetPropertyMemberInfo() is MemberInfo mi)
+							{
+								delta.Add(mi.Name, kvp.Value);
+							}
+						}
+					}
+					await DataProvider.UpdateAsync(EditItem, delta, default).ConfigureAwait(true);
 				}
 
 				EditItem = null;
