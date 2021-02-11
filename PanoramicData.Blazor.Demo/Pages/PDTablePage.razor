@@ -25,6 +25,9 @@
 		<PDToolbarButton Text="@(AllowDrop ? "Disable Drop" : "Enable Drop")"
 						 Click="() => AllowDrop = !AllowDrop" />
 
+		<PDToolbarButton Text="@((Table?.IsEditing ?? false) ? "Stop Edit" : "Start Edit")"
+						 Click="OnEditCommand" />
+
 		<PDToolbarPlaceholder>
 			<span class="pl-2">Selection Mode</span>
 			<div class="pl-2">
@@ -37,7 +40,6 @@
 		</PDToolbarPlaceholder>
 
 	</PDToolbar>
-
 
 	<PDDragContext @ref="DragContext">
 
@@ -95,7 +97,18 @@
 					  TItem="Person"
 					  Field="x => x.Dob"
 					  Title="Date of Birth"
-					  Format="dd/MM/yy" />
+					  Format="dd/MM/yy">
+				<EditTemplate>
+					<input id="pd-table-edit-dob"
+						   type="date"
+						   value="@context.Dob"
+						   @oninput="@((a) => Table.OnEditInput("col-dob", a.Value))"
+						   @onblur="@(async () => await Table.OnEditBlurAsync().ConfigureAwait(true))"
+						   @onmousedown:stopPropagation
+						   @onclick:stopPropagation
+						   @oncontextmenu:stopPropagation />
+				</EditTemplate>
+			</PDColumn>
 
 			<PDColumn Id="col-department"
 					  TItem="Person"

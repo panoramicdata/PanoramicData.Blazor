@@ -177,5 +177,17 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 			return options.ToArray();
 		}
+
+		private async Task OnEditCommand(string _)
+		{
+			if (Table!.IsEditing)
+			{
+				await Table.CommitEditAsync().ConfigureAwait(true);
+			}
+			else
+			{
+				await Table.BeginEditAsync().ConfigureAwait(true);
+			}
+		}
 	}
 }

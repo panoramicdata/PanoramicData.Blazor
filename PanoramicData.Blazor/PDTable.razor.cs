@@ -22,7 +22,7 @@ namespace PanoramicData.Blazor
 		private bool _dragging;
 		private Timer? _editTimer;
 		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
-		private readonly Dictionary<string, string> _editValues = new Dictionary<string, string>();
+		private readonly Dictionary<string, object?> _editValues = new Dictionary<string, object?>();
 
 		private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
@@ -450,9 +450,14 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnEditInput(PDColumn<TItem> column, string value)
+		public void OnEditInput(PDColumn<TItem> column, object? value)
 		{
 			_editValues[column.Id] = value;
+		}
+
+		public void OnEditInput(string columnId, object? value)
+		{
+			_editValues[columnId] = value;
 		}
 
 		/// <summary>
@@ -666,7 +671,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnEditBlurAsync(PDColumn<TItem> _)
+		public async Task OnEditBlurAsync()
 		{
 			// if focus has moved to another editor then continue editing otherwise end edit
 			if (IsEditing)
