@@ -511,7 +511,7 @@ namespace PanoramicData.Blazor
 			// cancel is new name is empty
 			if (args.NewValues.ContainsKey("Name"))
 			{
-				if (string.IsNullOrWhiteSpace(args.NewValues["Name"]))
+				if (string.IsNullOrWhiteSpace(args.NewValues["Name"]?.ToString()))
 				{
 					args.Cancel = true;
 				}

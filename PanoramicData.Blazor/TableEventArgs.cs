@@ -84,7 +84,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets the new values.
 		/// </summary>
-		public Dictionary<string, string> NewValues { get; set; } = new Dictionary<string, string>();
+		public Dictionary<string, object?> NewValues { get; set; } = new Dictionary<string, object?>();
 	}
 
 	/// <summary>

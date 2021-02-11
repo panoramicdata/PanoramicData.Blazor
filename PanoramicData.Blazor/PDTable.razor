@@ -61,15 +61,22 @@
 							<td class="@column.TdClass">
 								@if (IsColumnInEditMode(column, item) && column.Field != null)
 								{
-									<input id="@($"{IdEditPrefix}-{row}-{column.Id}")"
-										   type="@(column.IsPassword ? "password" : "text")"
-										   value="@($"{column.GetValue(item)}")"
-										   class="pdtable_edit"
-										   @oninput="(a) => OnEditInput(column, a.Value == null ? string.Empty : a.Value.ToString())"
-										   @onblur="async () => await OnEditBlurAsync(column).ConfigureAwait(true)"
-										   @onmousedown:stopPropagation
-										   @onclick:stopPropagation
-										   @oncontextmenu:stopPropagation />
+									if (column.EditTemplate == null)
+									{
+										<input id="@($"{IdEditPrefix}-{row}-{column.Id}")"
+											   type="@(column.IsPassword ? "password" : "text")"
+											   value="@($"{column.GetValue(item)}")"
+											   class="pdtable_edit"
+											   @oninput="(a) => OnEditInput(column, a.Value == null ? string.Empty : a.Value.ToString())"
+											   @onblur="async () => await OnEditBlurAsync().ConfigureAwait(true)"
+											   @onmousedown:stopPropagation
+											   @onclick:stopPropagation
+											   @oncontextmenu:stopPropagation />
+									}
+									else
+									{
+										@column.EditTemplate(item);
+									}
 								}
 								else
 								{
