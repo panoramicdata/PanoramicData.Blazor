@@ -507,7 +507,7 @@ namespace PanoramicData.Blazor
 					}
 				}
 
-				// save changes
+				// save changes if configured to do so and data provider is given
 				if (SaveChanges && DataProvider != null)
 				{
 					var delta = new Dictionary<string, object>();
