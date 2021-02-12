@@ -42,6 +42,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string Width { get; set; } = "Auto";
 
 		/// <summary>
+		/// Gets or sets placeholder text for the text box.
+		/// </summary>
+		[Parameter] public string Placeholder { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Sets the initial text value.
 		/// </summary>
 		[Parameter] public string Value { get; set; } = string.Empty;
