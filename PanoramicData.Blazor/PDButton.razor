@@ -1,0 +1,11 @@
+﻿<button @attributes="Attributes"
+		class="pd-button btn @CssClass"
+		disabled="@(IsEnabled ? null : "true")"
+		title="@ToolTipWithShortcutShown"
+		@onclick="Click">
+	@if (!string.IsNullOrWhiteSpace(IconCssClass))
+	{
+		<span class="pr-1 @IconCssClass"></span>
+	}
+	<span class="@TextCssClass">@((MarkupString)TextWithShortcutShown)</span>
+</button>

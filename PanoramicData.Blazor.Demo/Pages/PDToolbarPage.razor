@@ -14,21 +14,23 @@
 						   Click="OnFileMenuClick" />
 
 		<PDToolbarButton Key="Rename"
-						 Text="Rename"
+						 Text="&&Rename"
 						 CssClass="btn-secondary"
 						 IconCssClass="fas fa-fw fa-edit"
 						 TextCssClass="d-none d-sm-none d-md-inline"
 						 Click="OnButtonClick"
+						 ShortcutKey="alt-shift-r"
 						 IsVisible="ShowButtons"
 						 IsEnabled="EnableButtons" />
 
 		<PDToolbarSeparator IsVisible="ShowButtons" />
 
 		<PDToolbarButton Key="Download"
-						 Text="Download"
+						 Text="Down&&load"
 						 CssClass="btn-secondary"
 						 IconCssClass="fas fa-fw fa-file-download"
 						 TextCssClass="d-none d-sm-none d-md-inline"
+						 ShortcutKey="ctrl-alt-l"
 						 Click="OnButtonClick"
 						 IsVisible="ShowButtons"
 						 IsEnabled="EnableButtons" />
@@ -36,8 +38,8 @@
 		<PDToolbarSeparator IsVisible="ShowButtons" />
 
 		@*<PDToolbarPlaceholder>
-			<span>Search</span>
-		</PDToolbarPlaceholder>*@
+				<span>Search</span>
+			</PDToolbarPlaceholder>*@
 
 		<PDToolbarTextbox Width="100%"
 						  Value="@_searchText"

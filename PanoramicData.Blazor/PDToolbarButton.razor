@@ -1,13 +1,11 @@
 ﻿<div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "") @ItemCssClass">
-	<button @attributes="Attributes"
-			class="btn pdtoolbarbutton @CssClass"
-			disabled="@(IsEnabled ? null : "true")"
-			title="@(string.IsNullOrWhiteSpace(ToolTip) ? Text : ToolTip)"
-			@onclick="OnClick">
-		@if (!string.IsNullOrWhiteSpace(IconCssClass))
-		{
-			<span class="pr-1 @IconCssClass"></span>
-		}
-		<span class="@TextCssClass">@Text</span>
-	</button>
+	<PDButton @attributes="Attributes"
+			  CssClass="@($"pdtoolbarbutton {CssClass}")"
+			  IsEnabled="IsEnabled"
+			  Text="@Text"
+			  ShortcutKey="@ShortcutKey"
+			  IconCssClass="@IconCssClass"
+			  ToolTip="@(string.IsNullOrWhiteSpace(ToolTip) ? Text : ToolTip)"
+			  Click="OnClick">
+	</PDButton>
 </div>

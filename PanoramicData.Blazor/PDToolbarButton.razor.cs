@@ -57,6 +57,12 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool ShiftRight { get; set; } = false;
 
 		/// <summary>
+		/// Sets the short cut keys that will perform a click on this button.
+		/// In format: 'ctrl-s', 'alt-ctrl-w' (case in-sensitive)
+		/// </summary>
+		[Parameter] public string ShortcutKey { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Event raised whenever user clicks on the button.
 		/// </summary>
 		[Parameter] public EventCallback<string> Click { get; set; }
