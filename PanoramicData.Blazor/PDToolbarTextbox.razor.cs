@@ -14,12 +14,17 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets CSS classes for the text box.
 		/// </summary>
-		[Parameter] public string CssClass { get; set; } = "";
+		[Parameter] public string CssClass { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets CSS classes for the toolbar item.
 		/// </summary>
-		[Parameter] public string ItemCssClass { get; set; } = "";
+		[Parameter] public string ItemCssClass { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Gets or sets placeholder text for the text box.
+		/// </summary>
+		[Parameter] public string Placeholder { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets the tooltip for the toolbar item.
@@ -39,7 +44,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets whether the toolbar item is positioned further to the right of the previous toolbar item.
 		/// </summary>
-		[Parameter] public bool ShiftRight { get; set; } = false;
+		[Parameter] public bool ShiftRight { get; set; }
 
 		/// <summary>
 		/// Sets the width of the containing div element.

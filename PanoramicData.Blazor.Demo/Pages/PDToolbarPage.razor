@@ -1,4 +1,5 @@
 ﻿@page "/pdtoolbar"
+@using PanoramicData.Blazor.Services;
 <h1>PDToolbarPage</h1>
 
 <DemoSourceView SourceFiles="Pages/PDToolbarPage.razor, Pages/PDToolbarPage.razor.cs">
@@ -14,35 +15,38 @@
 						   Click="OnFileMenuClick" />
 
 		<PDToolbarButton Key="Rename"
-						 Text="Rename"
+						 Text="&&Rename"
 						 CssClass="btn-secondary"
 						 IconCssClass="fas fa-fw fa-edit"
 						 TextCssClass="d-none d-sm-none d-md-inline"
 						 Click="OnButtonClick"
+						 ShortcutKey="@(ShortcutKey.Create("ctrl-r"))"
 						 IsVisible="ShowButtons"
 						 IsEnabled="EnableButtons" />
 
 		<PDToolbarSeparator IsVisible="ShowButtons" />
 
 		<PDToolbarButton Key="Download"
-						 Text="Download"
+						 Text="&&Download"
 						 CssClass="btn-secondary"
 						 IconCssClass="fas fa-fw fa-file-download"
 						 TextCssClass="d-none d-sm-none d-md-inline"
+						 ShortcutKey="@(ShortcutKey.Create("ctrl-d"))"
 						 Click="OnButtonClick"
 						 IsVisible="ShowButtons"
 						 IsEnabled="EnableButtons" />
 
 		<PDToolbarSeparator IsVisible="ShowButtons" />
 
-		@*<PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
 			<span>Search</span>
-		</PDToolbarPlaceholder>*@
+		</PDToolbarPlaceholder>
 
 		<PDToolbarTextbox Width="100%"
 						  Value="@_searchText"
 						  Label="Search"
 						  DebounceWait="250"
+						  Placeholder="search text"
 						  ShowClearButton="true"
 						  ValueChanged="OnValueChanged"
 						  Keypress="OnKeypress"

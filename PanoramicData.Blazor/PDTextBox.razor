@@ -2,6 +2,7 @@
 	   class="form-control @(IsVisible ? "" : "d-none ") @CssClass"
 	   value="@Value"
 	   readonly="@(!IsEnabled)"
+	   placeholder="@Placeholder"
 	   @oninput="OnInput"
 	   @onkeypress="OnKeypress" />
 

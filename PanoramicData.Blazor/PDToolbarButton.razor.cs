@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -55,6 +56,12 @@ namespace PanoramicData.Blazor
 		/// Gets or sets whether the toolbar item is positioned further to the right of the previous toolbar item.
 		/// </summary>
 		[Parameter] public bool ShiftRight { get; set; } = false;
+
+		/// <summary>
+		/// Sets the short cut keys that will perform a click on this button.
+		/// In format: 'ctrl-s', 'alt-ctrl-w' (case in-sensitive)
+		/// </summary>
+		[Parameter] public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
 
 		/// <summary>
 		/// Event raised whenever user clicks on the button.

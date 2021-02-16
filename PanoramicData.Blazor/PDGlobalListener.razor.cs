@@ -2,6 +2,7 @@
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
@@ -16,7 +17,21 @@ namespace PanoramicData.Blazor
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
-		public void Dispose() => JSRuntime!.InvokeVoidAsync("panoramicData.destroyGlobalListener").GetAwaiter().GetResult();
+		public void Dispose()
+		{
+			GlobalEventService.ShortcutsChanged -= GlobalEventService_ShortcutsChanged;
+			JSRuntime!.InvokeVoidAsync("panoramicData.destroyGlobalListener").GetAwaiter().GetResult();
+		}
+
+		protected override void OnInitialized()
+		{
+			GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
+		}
+
+		private void GlobalEventService_ShortcutsChanged(object sender, IEnumerable<ShortcutKey> shortcuts)
+		{
+			JSRuntime!.InvokeVoidAsync("panoramicData.registerShortcutKeys", shortcuts);
+		}
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
@@ -28,9 +43,15 @@ namespace PanoramicData.Blazor
 		}
 
 		[JSInvokable]
-		public void OnKeyDown(KeyboardInfo keyboardInfo) => GlobalEventService?.KeyDown(keyboardInfo);
+		public void OnKeyDown(KeyboardInfo keyboardInfo)
+		{
+			GlobalEventService?.KeyDown(keyboardInfo);
+		}
 
 		[JSInvokable]
-		public void OnKeyUp(KeyboardInfo keyboardInfo) => GlobalEventService?.KeyUp(keyboardInfo);
+		public void OnKeyUp(KeyboardInfo keyboardInfo)
+		{
+			GlobalEventService?.KeyUp(keyboardInfo);
+		}
 	}
 }
