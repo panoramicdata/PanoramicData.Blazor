@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace PanoramicData.Blazor.Services
 {
@@ -19,6 +20,11 @@ namespace PanoramicData.Blazor.Services
 		event EventHandler<KeyboardInfo>? KeyUpEvent;
 
 		/// <summary>
+		/// Event raised whenever the registered shortcuts are changed.
+		/// </summary>
+		event EventHandler<IEnumerable<ShortcutKey>>? ShortcutsChanged;
+
+		/// <summary>
 		/// Fires the KeyDown event with the given parameters.
 		/// </summary>
 		/// <param name="keyboardInfo">Details about the key pressed, along with modifier key states.</param>
@@ -29,5 +35,17 @@ namespace PanoramicData.Blazor.Services
 		/// </summary>
 		/// <param name="keyboardInfo">Details about the key pressed, along with modifier key states.</param>
 		void KeyUp(KeyboardInfo keyboardInfo);
+
+		/// <summary>
+		/// Registers a shortcut key to listen for.
+		/// </summary>
+		/// <param name="shortcut">Details of the shortcut key combination.</param>
+		void RegisterShortcutKey(ShortcutKey shortcut);
+
+		/// <summary>
+		/// Unregisters a shortcut key to listen for.
+		/// </summary>
+		/// <param name="shortcut">Details of the shortcut key combination.</param>
+		void UnregisterShortcutKey(ShortcutKey shortcut);
 	}
 }

@@ -1,4 +1,5 @@
-﻿<div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "") @ItemCssClass">
+﻿@using PanoramicData.Blazor.Extensions
+<div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "") @ItemCssClass">
 	<div class="dropdown">
 		<button class="btn pdtoolbarbutton @CssClass"
 				disabled="@(IsEnabled ? null : "true")"
@@ -14,30 +15,45 @@
 			<i class="fas fa-fw fa-caret-down"></i>
 		</button>
 		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-			@foreach (var item in Items)
-			{
-				if (item.IsVisible)
+			<table>
+				@foreach (var item in Items)
 				{
-					@if (item.IsSeparator)
+					if (item.IsVisible)
 					{
-						<div class="pddropdownseparator"></div>
-					}
-					else
-					{
-						<div class="pddropdownmenuitem @(item.IsDisabled ? "disabled" : "")" @onclick="() => OnClick(string.IsNullOrWhiteSpace(item.Key) ? item.Text : item.Key)">
-							@if (string.IsNullOrWhiteSpace(item.Content))
-							{
-								<span class="@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa fa-fw" : item.IconCssClass)"></span>
-								<span>@item.Text</span>
-							}
-							else
-							{
-								@((MarkupString)item.Content)
-							}
-						</div>
+						@if (item.IsSeparator)
+						{
+							<tr colspan="2" class="pddropdownseparator">
+							</tr>
+						}
+						else
+						{
+							<tr class="pddropdownmenuitem @(item.IsDisabled ? "disabled" : "")"
+								@onclick="() => OnClick(item.GetKeyOrText())">
+
+								@if (string.IsNullOrWhiteSpace(item.Content))
+								{
+									<td class="text-nowrap">
+										<span class="pl-1 @(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa fa-fw" : item.IconCssClass)"></span>
+										<span class="text-nowrap @(item.ShortcutKey.HasValue ? "" : " pr-1")">@item.Text.GetShortcutMarkup()</span>
+									</td>
+									<td class="text-nowrap text-muted small mw-100-px text-right">
+										@if (item.ShortcutKey.HasValue)
+										{
+											<span class="pr-1">@item.ShortcutKey.ToString()</span>
+										}
+									</td>
+								}
+								else
+								{
+									<td colspan="2">
+										@((MarkupString)item.Content)
+									</td>
+								}
+							</tr>
+						}
 					}
 				}
-			}
+			</table>
 		</div>
 	</div>
 </div>

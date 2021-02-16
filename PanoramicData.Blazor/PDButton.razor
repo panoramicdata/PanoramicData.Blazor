@@ -1,11 +1,12 @@
-﻿<button @attributes="Attributes"
+﻿@using PanoramicData.Blazor.Extensions
+<button @attributes="Attributes"
 		class="pd-button btn @CssClass"
 		disabled="@(IsEnabled ? null : "true")"
-		title="@ToolTipWithShortcutShown"
+		title="@ToolTip.AppendShortcut(ShortcutKey)"
 		@onclick="Click">
 	@if (!string.IsNullOrWhiteSpace(IconCssClass))
 	{
 		<span class="pr-1 @IconCssClass"></span>
 	}
-	<span class="@TextCssClass">@((MarkupString)TextWithShortcutShown)</span>
+	<span class="@TextCssClass">@Text.GetShortcutMarkup()</span>
 </button>

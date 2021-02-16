@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -60,7 +61,7 @@ namespace PanoramicData.Blazor
 		/// Sets the short cut keys that will perform a click on this button.
 		/// In format: 'ctrl-s', 'alt-ctrl-w' (case in-sensitive)
 		/// </summary>
-		[Parameter] public string ShortcutKey { get; set; } = string.Empty;
+		[Parameter] public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
 
 		/// <summary>
 		/// Event raised whenever user clicks on the button.

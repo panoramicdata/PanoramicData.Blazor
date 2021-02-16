@@ -6,6 +6,11 @@
 	public class KeyboardInfo
 	{
 		/// <summary>
+		/// Gets or sets the key code that the event relates to.
+		/// </summary>
+		public int KeyCode { get; set; }
+
+		/// <summary>
 		/// Gets or sets the key that the event relates to.
 		/// </summary>
 		public string Key { get; set; } = string.Empty;

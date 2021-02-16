@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor
+﻿using PanoramicData.Blazor.Services;
+
+namespace PanoramicData.Blazor
 {
 	/// <summary>
 	///The MenuItem class is used to hold details of a single menu entry.
@@ -39,5 +41,24 @@
 		/// Gets or sets whether this item is rendered as a separator.
 		/// </summary>
 		public bool IsSeparator { get; set; }
+
+		/// <summary>
+		/// Sets the short cut keys that will perform a click on this button.
+		/// In format: 'ctrl-s', 'alt-ctrl-w' (case in-sensitive)
+		/// </summary>
+		public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
+
+		/// <summary>
+		/// Gets the items Key if specified otherwise returns the items text.
+		/// </summary>
+		/// <returns></returns>
+		public string GetKeyOrText()
+		{
+			if (string.IsNullOrWhiteSpace(Key))
+			{
+				return Text.Replace("&&", "");
+			}
+			return Key;
+		}
 	}
 }

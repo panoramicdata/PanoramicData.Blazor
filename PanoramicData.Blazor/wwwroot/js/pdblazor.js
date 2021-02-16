@@ -1,5 +1,7 @@
 ﻿window.panoramicData = {
 
+	shortcutKeys: [],
+
 	hasSplitJs: function () {
 		return typeof Split !== 'undefined';
 	},
@@ -361,26 +363,49 @@
 		delete this.globalListenerReference;
 	},
 
+	registerShortcutKeys: function (shortcuts) {
+		this.shortcutKeys = shortcuts || [];
+		console.dir(this.shortcutKeys);
+	},
+
+	isShortcutKeyMatch: function (keyInfo) {
+
+		var match = this.shortcutKeys.find((v) => v.altKey == keyInfo.altKey &&
+			v.ctrlKey == keyInfo.ctrlKey &&
+			v.shiftKey == keyInfo.shiftKey &&
+			v.key.toLowerCase() == keyInfo.key.toLowerCase());
+		return match ? true : false;
+	},
+
 	onKeyDown: function (e) {
 		if (window.panoramicData.globalListenerReference) {
-			window.panoramicData.globalListenerReference.invokeMethodAsync("OnKeyDown", panoramicData.getKeyArgs(e));
+			var keyInfo = panoramicData.getKeyArgs(e);
+			if (window.panoramicData.isShortcutKeyMatch(keyInfo)) {
+				e.stopPropagation();
+				e.preventDefault();
+			}
+			window.panoramicData.globalListenerReference.invokeMethodAsync("OnKeyDown", keyInfo);
 		}
 	},
 
 	onKeyUp: function (e) {
 		if (window.panoramicData.globalListenerReference) {
-			window.panoramicData.globalListenerReference.invokeMethodAsync("OnKeyUp", panoramicData.getKeyArgs(e));
+			var keyInfo = panoramicData.getKeyArgs(e);
+			if (window.panoramicData.isShortcutKeyMatch(keyInfo)) {
+				e.stopPropagation();
+				e.preventDefault();
+			}
+			window.panoramicData.globalListenerReference.invokeMethodAsync("OnKeyUp", keyInfo);
 		}
 	},
 
 	getKeyArgs: function (e) {
 		var obj = {};
-		obj.Key = e.key;
-		obj.AltKey = e.altKey;
-		obj.CtrlKey = e.ctrlKey;
-		obj.ShiftKey = e.shiftKey;
+		obj.key = e.key;
+		obj.keyCode = e.keyCode;
+		obj.altKey = e.altKey;
+		obj.ctrlKey = e.ctrlKey;
+		obj.shiftKey = e.shiftKey;
 		return obj;
 	}
-
-
 }

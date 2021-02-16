@@ -1,11 +1,17 @@
 ﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Services;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDToolbarDropdown
+	public partial class PDToolbarDropdown : IDisposable
 	{
+		#region Inject
+		[Inject] IGlobalEventService GlobalEventService { get; set; } = null!;
+		#endregion
+
 		/// <summary>
 		/// Gets or sets the unique identifier.
 		/// </summary>
@@ -65,6 +71,42 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever user clicks on the button.
 		/// </summary>
 		[Parameter] public EventCallback<string> Click { get; set; }
+
+		protected override void OnInitialized()
+		{
+			GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
+			foreach (var item in Items)
+			{
+				if (item.ShortcutKey.HasValue)
+				{
+					GlobalEventService.RegisterShortcutKey(item.ShortcutKey);
+				}
+			}
+		}
+
+		private async void GlobalEventService_KeyUpEvent(object sender, KeyboardInfo e)
+		{
+			foreach (var item in Items)
+			{
+				if (item.ShortcutKey.IsMatch(e.Key, e.AltKey, e.CtrlKey, e.ShiftKey))
+				{
+					await InvokeAsync(async () => await OnClick(item.GetKeyOrText()).ConfigureAwait(true)).ConfigureAwait(true);
+					break;
+				}
+			}
+		}
+
+		public void Dispose()
+		{
+			foreach (var item in Items)
+			{
+				if (item.ShortcutKey.HasValue)
+				{
+					GlobalEventService.UnregisterShortcutKey(item.ShortcutKey);
+				}
+			}
+			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
+		}
 
 		private async Task OnClick(string itemKey)
 		{

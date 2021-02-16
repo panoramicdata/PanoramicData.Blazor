@@ -1,4 +1,8 @@
-﻿using System.Linq;
+﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Services;
+using System;
+using System.Linq;
+using System.Text;
 
 namespace PanoramicData.Blazor.Extensions
 {
@@ -30,6 +34,48 @@ namespace PanoramicData.Blazor.Extensions
 		public static bool In(this string value, params string[] comparisonList)
 		{
 			return comparisonList.Contains(value);
+		}
+
+		/// <summary>
+		/// Appends the shortcut keys to the given text.
+		/// </summary>
+		/// <param name="text">The text to be appended.</param>
+		/// <param name="shortcutKey">The shortcut key combination.</param>
+		/// <returns>A new string contain the given text with the shortcut text appended.</returns>
+		public static string AppendShortcut(this string text, ShortcutKey shortcutKey)
+		{
+			if (string.IsNullOrEmpty(text) || !shortcutKey.HasValue)
+			{
+				return text;
+			}
+			return $"{text.Replace("&&", "")} ({shortcutKey})";
+		}
+
+		/// <summary>
+		/// Returns a markup string that highlight (underline) the shortcut key.
+		/// </summary>
+		/// <param name="text">The text containing a double ampersand (&&) before the character to highlight.</param>
+		/// <returns>A new MarkupString instance containing the markup text.</returns>
+		public static MarkupString GetShortcutMarkup(this string text)
+		{
+			if (string.IsNullOrEmpty(text))
+			{
+				return (MarkupString)text;
+			}
+			var ampIdx = text.IndexOf("&&");
+			if (ampIdx == -1)
+			{
+				return (MarkupString)text;
+			}
+			var sb = new StringBuilder();
+			sb.Append("<span>")
+				.Append(text.Substring(0, ampIdx))
+				.Append("<u>")
+				.Append(text.Substring(ampIdx + 2, 1))
+				.Append("</u>")
+				.Append(text.Substring(ampIdx + 3))
+				.Append("</span>");
+			return (MarkupString)sb.ToString();
 		}
 	}
 }
