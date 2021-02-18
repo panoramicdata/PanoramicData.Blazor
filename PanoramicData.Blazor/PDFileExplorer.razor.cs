@@ -364,7 +364,10 @@ namespace PanoramicData.Blazor
 					{
 						var targetPath = Tree.SelectedNode.Data.Path;
 						await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
-						_copyPayload.Clear();
+						if (_moveCopyPayload) // clear copy payload only if move
+						{
+							_copyPayload.Clear();
+						}
 					}
 				}
 			}
@@ -388,7 +391,10 @@ namespace PanoramicData.Blazor
 				{
 					var targetPath = Tree.SelectedNode.Data.Path;
 					await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
-					_copyPayload.Clear();
+					if (_moveCopyPayload) // clear copy payload only if move
+					{
+						_copyPayload.Clear();
+					}
 				}
 			}
 		}
@@ -501,7 +507,10 @@ namespace PanoramicData.Blazor
 					var selection = Table!.GetSelectedItems();
 					var targetPath = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
 					await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
-					_copyPayload.Clear();
+					if (_moveCopyPayload) // clear copy payload only if move
+					{
+						_copyPayload.Clear();
+					}
 				}
 			}
 		}
@@ -623,7 +632,10 @@ namespace PanoramicData.Blazor
 				{
 					var targetPath = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
 					await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
-					_copyPayload.Clear();
+					if (_moveCopyPayload) // clear copy payload only if move
+					{
+						_copyPayload.Clear();
+					}
 				}
 				else if (menuItem.Text == "New Folder")
 				{
