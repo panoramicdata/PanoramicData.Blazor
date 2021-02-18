@@ -365,7 +365,6 @@
 
 	registerShortcutKeys: function (shortcuts) {
 		this.shortcutKeys = shortcuts || [];
-		console.dir(this.shortcutKeys);
 	},
 
 	isShortcutKeyMatch: function (keyInfo) {
