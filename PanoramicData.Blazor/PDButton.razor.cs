@@ -74,7 +74,7 @@ namespace PanoramicData.Blazor
 
 		private async void GlobalEventService_KeyUpEvent(object sender, KeyboardInfo e)
 		{
-			if (ShortcutKey.IsMatch(e.Key, e.AltKey, e.CtrlKey, e.ShiftKey))
+			if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.AltKey, e.CtrlKey, e.ShiftKey))
 			{
 				await InvokeAsync(async () => await Click.InvokeAsync(new MouseEventArgs()).ConfigureAwait(true)).ConfigureAwait(true);
 			}
@@ -82,7 +82,7 @@ namespace PanoramicData.Blazor
 
 		//private async void GlobalEventService_KeyDownEvent(object sender, KeyboardInfo e)
 		//{
-		//	if (ShortcutKey.IsMatch(e.Key, e.AltKey, e.CtrlKey, e.ShiftKey))
+		//	if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.AltKey, e.CtrlKey, e.ShiftKey))
 		//	{
 		//		await InvokeAsync(async () => await Click.InvokeAsync(new MouseEventArgs()).ConfigureAwait(true)).ConfigureAwait(true);
 		//	}

@@ -6,11 +6,11 @@
 
 	<PDToolbar>
 
-		<PDToolbarTextbox @bind-Value="GoToPage" />
+		<PDToolbarTextbox InitialValue="@GoToPage" ValueChanged="@((v) => GoToPage = v)" />
 		<PDToolbarButton Text="Goto Page"
 						 Click="OnGotoPage" />
 
-		<PDToolbarTextbox @bind-Value="TotalCount" />
+		<PDToolbarTextbox InitialValue="@TotalCount" ValueChanged="@((v) => TotalCount = v)" />
 		<PDToolbarButton Text="Set Total Count"
 						 Click="OnSetTotalCount" />
 
