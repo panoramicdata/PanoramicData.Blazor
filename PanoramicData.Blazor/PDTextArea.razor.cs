@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDTextBox : IDisposable
+	public partial class PDTextArea : IDisposable
 	{
 		private static int _seq;
 		private string _value = string.Empty;
-		private string _lastValue = string.Empty;
-		private DotNetObjectReference<PDTextBox>? _objRef;
+		private DotNetObjectReference<PDTextArea>? _objRef;
 
 		/// <summary>
 		/// Injected javascript interop object.
@@ -46,6 +45,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string Width { get; set; } = "Auto";
 
 		/// <summary>
+		/// Sets the maximum length of the input.
+		/// </summary>
+		[Parameter] public int MaxLength { get; set; } = -1;
+
+		/// <summary>
 		/// Gets or sets placeholder text for the text box.
 		/// </summary>
 		[Parameter] public string Placeholder { get; set; } = string.Empty;
@@ -66,6 +70,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<KeyboardEventArgs> Keypress { get; set; }
 
 		/// <summary>
+		/// Sets the number of rows displayed.
+		/// </summary>
+		[Parameter] public int Rows { get; set; } = 5;
+
+		/// <summary>
 		/// Gets or sets whether the clear button is displayed.
 		/// </summary>
 		[Parameter] public bool ShowClearButton { get; set; } = true;
@@ -80,7 +89,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback Cleared { get; set; }
 
-		public string Id { get; set; } = $"pd-textbox-{++_seq}";
+		public string Id { get; set; } = $"pd-textarea-{++_seq}";
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
@@ -100,7 +109,6 @@ namespace PanoramicData.Blazor
 		{
 			if (DebounceWait <= 0)
 			{
-				_lastValue = args.Value.ToString();
 				await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
 			}
 		}
@@ -108,25 +116,12 @@ namespace PanoramicData.Blazor
 		[JSInvokable]
 		public async Task OnDebouncedInput(string value)
 		{
-			_lastValue = value;
 			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 		}
 
 		private async Task OnKeypress(KeyboardEventArgs args)
 		{
 			await Keypress.InvokeAsync(args).ConfigureAwait(true);
-		}
-
-		private async Task OnClear(MouseEventArgs _)
-		{
-			if (_lastValue != string.Empty)
-			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.setValue", Id, string.Empty).ConfigureAwait(true);
-				_value = string.Empty;
-				_lastValue = string.Empty;
-				await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
-				await Cleared.InvokeAsync(null).ConfigureAwait(true);
-			}
 		}
 
 		public void Dispose()

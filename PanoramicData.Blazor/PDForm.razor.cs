@@ -29,6 +29,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public RenderFragment? ChildContent { get; set; }
 
 		/// <summary>
+		/// CSS classes to be added to the containing DIV element.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Should the user be prompted to confirm cancel when changes have been made?
 		/// </summary>
 		[Parameter] public bool ConfirmCancel { get; set; } = true;
@@ -432,7 +437,7 @@ namespace PanoramicData.Blazor
 				var memberInfo = field.Field.GetPropertyMemberInfo();
 				if (memberInfo != null && memberInfo is PropertyInfo propInfo)
 				{
-					// add / replace value on delta object
+					//	// add / replace value on delta object
 					object typedValue = value.Cast(propInfo.PropertyType);
 					Delta[memberInfo.Name] = typedValue;
 

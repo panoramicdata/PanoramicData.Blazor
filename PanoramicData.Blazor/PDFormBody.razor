@@ -72,12 +72,13 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 						else if (field.IsTextArea)
 						{
-							<textarea disabled="@IsReadOnly(field)"
-									  class="form-control @GetEditorClass(field)"
-									  value="@(Form?.GetFieldStringValue(field))"
-									  rows="@field.TextAreaRows"
-									  maxlength="@(field.MaxLength ?? -1)"
-									  @oninput="(x) => Form?.SetFieldValueAsync(field, Convert.ChangeType(x.Value, field.GetFieldType()))"></textarea>
+							<PDTextArea IsEnabled="@(!IsReadOnly(field))"
+										CssClass="@($"form-control {GetEditorClass(field)}")"
+										InitialValue="@(Form?.GetFieldStringValue(field))"
+										Rows="@field.TextAreaRows"
+										MaxLength="@(field.MaxLength ?? -1)"
+										ValueChanged="(x) => Form?.SetFieldValueAsync(field, x)"
+										DebounceWait="300" />
 						}
 						else if (fieldType?.FullName == "System.Boolean")
 						{
@@ -119,7 +120,7 @@ else if (Form.Mode != FormModes.Hidden)
 							<PDTextBox CssClass="@GetEditorClass(field)"
 									   ShowClearButton="false"
 									   IsEnabled="!IsReadOnly(field)"
-									   Value="@(Form?.GetFieldStringValue(field))"
+									   InitialValue="@(Form?.GetFieldStringValue(field))"
 									   ValueChanged="(x) => Form?.SetFieldValueAsync(field, x)"
 									   DebounceWait="300" />
 						}
@@ -144,8 +145,8 @@ else if (Form.Mode != FormModes.Hidden)
 					</div>
 					<div class="mb-2">
 						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-				 (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-				 (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+			 (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+			 (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}

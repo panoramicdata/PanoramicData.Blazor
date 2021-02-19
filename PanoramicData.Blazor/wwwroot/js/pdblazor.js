@@ -103,6 +103,12 @@
 		return null;
 	},
 
+	setValue: function (id, value) {
+		var node = document.getElementById(id);
+		if (node)
+			node.value = value;
+	},
+
 	// 04/08/20 - bytesBase64 limited to 125MB by System.Text.Json writer
 	downloadfromBase: function(filename, bytesBase64) {
 		var link = document.createElement('a');
