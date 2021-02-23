@@ -45,7 +45,7 @@ namespace PanoramicData.Blazor
 		public string Path { get; set; } = string.Empty;
 
 		/// <summary>
-		/// Gets or sets the full path of the parent item.
+		/// Gets the full path of the parent item.
 		/// </summary>
 		public string ParentPath
 		{
@@ -109,6 +109,19 @@ namespace PanoramicData.Blazor
 		public DateTimeOffset? DateModified { get; set; }
 
 		/// <summary>
+		/// Renames the item.
+		/// </summary>
+		/// <param name="name">The new name of the item.</param>
+		public void Rename(string name)
+		{
+			if (Path != "/")
+			{
+				var idx = Path.LastIndexOf('/') + 1;
+				Path = Path.Substring(0, idx) + name;
+			}
+		}
+
+		/// <summary>
 		/// Returns the Name property of this item.
 		/// </summary>
 		public override string ToString()
@@ -127,5 +140,24 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public string FileExtension
 			=> string.IsNullOrWhiteSpace(System.IO.Path.GetExtension(Path)) ? "" : System.IO.Path.GetExtension(Path).Substring(1);
+
+		public FileExplorerItem Clone()
+		{
+			return new FileExplorerItem
+			{
+				CanCopyMove = CanCopyMove,
+				DateCreated = DateCreated,
+				DateModified = DateModified,
+				EntryType = EntryType,
+				FileSize = FileSize,
+				HasSubFolders = HasSubFolders,
+				IsHidden = IsHidden,
+				IsReadOnly = IsReadOnly,
+				IsSystem = IsSystem,
+				IsUploading = IsUploading,
+				Path = Path,
+				UploadProgress = UploadProgress
+			};
+		}
 	}
 }
