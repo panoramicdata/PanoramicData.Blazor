@@ -18,6 +18,11 @@ namespace PanoramicData.Blazor
 		public string TargetPath { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets or sets a list of items in the target path.
+		/// </summary>
+		public List<FileExplorerItem> TargetItems { get; set; } = new List<FileExplorerItem>();
+
+		/// <summary>
 		/// Gets or sets whether this is a copy operation (true) or move (false).
 		/// </summary>
 		public bool IsCopy { get; set; }
@@ -31,28 +36,5 @@ namespace PanoramicData.Blazor
 		/// Gets or sets how any conflicts should be handled.
 		/// </summary>
 		public ConflictResolutions ConflictResolution { get; set; } = ConflictResolutions.Skip;
-
-		/// <summary>
-		/// Enumeration of possible conflict resolutions.
-		/// </summary>
-		public enum ConflictResolutions
-		{
-			/// <summary>
-			/// Prompt the user for decision.
-			/// </summary>
-			Prompt,
-			/// <summary>
-			/// Cancel the entire operation.
-			/// </summary>
-			Cancel,
-			/// <summary>
-			/// Copy / move all items except the conflicting ones.
-			/// </summary>
-			Skip,
-			/// <summary>
-			/// Copy / move all items, overwriting the conflicting items.
-			/// </summary>
-			Overwrite
-		}
 	}
 }
