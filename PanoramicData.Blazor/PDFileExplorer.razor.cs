@@ -65,6 +65,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AutoExpand { get; set; } = false;
 
 		/// <summary>
+		/// Gets or sets a delegate to be called before an item is renamed.
+		/// </summary>
+		[Parameter] public EventCallback<RenameArgs> BeforeRename { get; set; }
+
+		/// <summary>
 		/// Sets the Table column configuration.
 		/// </summary>
 		[Parameter]
@@ -405,8 +410,14 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnTreeBeforeEdit(TreeNodeBeforeEditEventArgs<FileExplorerItem> args)
+		private async Task OnTreeBeforeEdit(TreeNodeBeforeEditEventArgs<FileExplorerItem> args)
 		{
+			if (args.Node.Data != null)
+			{
+				var renameArgs = new RenameArgs { Item = args.Node.Data };
+				await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
+				args.Cancel = renameArgs.Cancel;
+			}
 			if (!AllowRename || args.Node.ParentNode == null)
 			{
 				args.Cancel = true;
@@ -481,16 +492,21 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnTableBeforeEdit(TableBeforeEditEventArgs<FileExplorerItem> args)
+		private async Task OnTableBeforeEdit(TableBeforeEditEventArgs<FileExplorerItem> args)
 		{
-			if (!AllowRename || args.Item.Name == ".." || args.Item.IsUploading)
+			if (args.Item != null)
 			{
-				args.Cancel = true;
-			}
-			else
-			{
-				// only want to select the filename portion of the text
-				args.SelectionEnd = Path.GetFileNameWithoutExtension(args.Item.Name).Length;
+				var renameArgs = new RenameArgs { Item = args.Item };
+				await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
+				if (renameArgs.Cancel || !AllowRename || args.Item.Name == ".." || args.Item.IsUploading)
+				{
+					args.Cancel = true;
+				}
+				else
+				{
+					// only want to select the filename portion of the text
+					args.SelectionEnd = Path.GetFileNameWithoutExtension(args.Item.Name).Length;
+				}
 			}
 		}
 
