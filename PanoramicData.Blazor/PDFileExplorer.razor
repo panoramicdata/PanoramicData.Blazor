@@ -4,7 +4,8 @@
 	<span>@_deleteDialogMessage</span>
 </PDModal>
 
-<PDModal @ref="ConflictDialog" Title="Move / Copy Conflict">
+<PDModal @ref="ConflictDialog"
+		 Title="Move / Copy Conflict">
 	<p>@_conflictDialogMessage</p>
 	<ul class="">
 		@foreach (var item in _conflictDialogList)

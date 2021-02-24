@@ -238,6 +238,7 @@ namespace PanoramicData.Blazor.Demo.Data
 				if (isCopy)
 				{
 					itemNode = itemNode.Clone();
+					itemNode.DateModified = DateTimeOffset.UtcNow;
 				}
 
 				// target path does not exist - move or rename
@@ -269,6 +270,9 @@ namespace PanoramicData.Blazor.Demo.Data
 					targetNode.Items.Add(itemNode);
 					itemNode.Parent = targetNode;
 				}
+
+				result.Success = true;
+
 			}).ConfigureAwait(false);
 			return result;
 		}

@@ -695,7 +695,7 @@ namespace PanoramicData.Blazor
 				await GetConflictsAsync(moveCopyArgs).ConfigureAwait(true);
 				if (moveCopyArgs.Conflicts.Count > 0)
 				{
-					var choice = await PromptUserForConflictResolution(moveCopyArgs.Conflicts.Select(x => x.Name).ToArray()).ConfigureAwait(true);
+					var choice = await PromptUserForConflictResolution(moveCopyArgs.Conflicts.Select(x => x.Name).ToArray(), true).ConfigureAwait(true);
 					if (choice == ConflictResolutions.Cancel)
 					{
 						args.Cancel = true;
@@ -1076,9 +1076,12 @@ namespace PanoramicData.Blazor
 				// allow application to process conflicts
 				await MoveCopyConflict.InvokeAsync(conflictArgs).ConfigureAwait(true);
 
+				// if any source and target path are the same then user is copy/moving from same folder - so hide overwrite option
+				var showOverwrite = !conflictArgs.Payload.Any(x => conflictArgs.Conflicts.Any(y => y.Path == x.Path));
+
 				if (conflictArgs.ConflictResolution == ConflictResolutions.Prompt)
 				{
-					conflictArgs.ConflictResolution = await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => x.Name).ToArray()).ConfigureAwait(true);
+					conflictArgs.ConflictResolution = await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => x.Name).ToArray(), showOverwrite).ConfigureAwait(true);
 				}
 			}
 
@@ -1100,10 +1103,20 @@ namespace PanoramicData.Blazor
 					else
 					{
 						// delete conflicting target file?
+						var newPath = $"{conflictArgs.TargetPath}/{source.Name}";
 						if (conflictArgs.ConflictResolution == ConflictResolutions.Overwrite && conflictArgs.Conflicts.Any(x => x.Name == source.Name))
 						{
-							var target = new FileExplorerItem { EntryType = source.EntryType, Path = $"{conflictArgs.TargetPath}/{source.Name}" };
-							var result = await DataProvider.DeleteAsync(target, CancellationToken.None).ConfigureAwait(true);
+							// check source and destination are not same file
+							if (newPath == source.Path)
+							{
+								await ExceptionHandler.InvokeAsync(new Exception("Operation Failed: Source and Destination are the same")).ConfigureAwait(true);
+								continue;
+							}
+							else
+							{
+								var target = new FileExplorerItem { EntryType = source.EntryType, Path = newPath };
+								var result = await DataProvider.DeleteAsync(target, CancellationToken.None).ConfigureAwait(true);
+							}
 						}
 
 						// move or copy entry if no conflict or overwrite chosen
@@ -1111,7 +1124,7 @@ namespace PanoramicData.Blazor
 						{
 							var delta = new Dictionary<string, object>
 							{
-								{  "Path", conflictArgs.TargetPath },
+								{  "Path", newPath },
 								{  "Copy", conflictArgs.IsCopy }
 							};
 							var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
@@ -1248,7 +1261,7 @@ namespace PanoramicData.Blazor
 			args.Conflicts = conflicts;
 		}
 
-		private async Task<ConflictResolutions> PromptUserForConflictResolution(IEnumerable<string> names)
+		private async Task<ConflictResolutions> PromptUserForConflictResolution(IEnumerable<string> names, bool showOverwrite)
 		{
 			var namesSummary = names.Take(5).ToList();
 			if (names.Count() > 5)
@@ -1257,6 +1270,7 @@ namespace PanoramicData.Blazor
 			}
 			_conflictDialogMessage = $"{names.Count()} conflicts found : -";
 			_conflictDialogList = namesSummary.ToArray();
+			ConflictDialog!.Buttons.Find(x => x.Key == "Overwrite").IsVisible = showOverwrite;
 			StateHasChanged();
 			if (ConflictDialog != null)
 			{
