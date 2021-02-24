@@ -1153,7 +1153,7 @@ namespace PanoramicData.Blazor
 			var newName = PostFixFilename(source.Name, " Copy");
 			while (targetItems.Any(x => x.Name == newName))
 			{
-				newName = PostFixFilename(source.Name, $" Copy{count++}");
+				newName = PostFixFilename(source.Name, $" Copy {count++}");
 			}
 			return newName;
 		}
