@@ -719,7 +719,7 @@ namespace PanoramicData.Blazor
 					TargetPath = Tree.SelectedNode.Data.Path,
 					Payload = args.Files.Select(x => new FileExplorerItem { Path = x.GetFullPath(args.BaseFolder) }).ToList()
 				};
-				await GetConflictsAsync(moveCopyArgs).ConfigureAwait(true);
+				await GetUploadConflictsAsync(moveCopyArgs).ConfigureAwait(true);
 				if (moveCopyArgs.Conflicts.Count > 0)
 				{
 					foreach (var conflict in moveCopyArgs.Conflicts)
@@ -1117,7 +1117,7 @@ namespace PanoramicData.Blazor
 				IsCopy = isCopy,
 				ConflictResolution = ConflictResolution
 			};
-			await GetConflictsAsync(conflictArgs).ConfigureAwait(true);
+			await GetMoveCopyConflictsAsync(conflictArgs).ConfigureAwait(true);
 
 			if (conflictArgs.Conflicts.Count > 0)
 			{
@@ -1292,7 +1292,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Populates the move copy arguments with conflicting items.
 		/// </summary>
-		private async Task GetConflictsAsync(MoveCopyArgs args)
+		private async Task GetUploadConflictsAsync(MoveCopyArgs args)
 		{
 			var conflicts = new List<FileExplorerItem>();
 			var names = args.Payload.Select(x => x.Name).ToArray();
@@ -1345,6 +1345,26 @@ namespace PanoramicData.Blazor
 							}
 						}
 					}
+				}
+			}
+			args.Conflicts = conflicts;
+		}
+
+		/// <summary>
+		/// Populates the move copy arguments with conflicting items.
+		/// </summary>
+		private async Task GetMoveCopyConflictsAsync(MoveCopyArgs args)
+		{
+			var conflicts = new List<FileExplorerItem>();
+			var names = args.Payload.Select(x => x.Name).ToArray();
+			var request = new DataRequest<FileExplorerItem> { SearchText = args.TargetPath };
+			var response = await DataProvider.GetDataAsync(request, CancellationToken.None).ConfigureAwait(true);
+			args.TargetItems = response.Items.ToList();
+			foreach (var item in response.Items)
+			{
+				if (names.Any(x => string.Equals(item.Name, x, StringComparison.OrdinalIgnoreCase)))
+				{
+					conflicts.Add(item);
 				}
 			}
 			args.Conflicts = conflicts;
