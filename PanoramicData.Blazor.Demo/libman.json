@@ -23,6 +23,11 @@
 			"provider": "unpkg",
 			"library": "bootstrap@4.5.2",
 			"destination": "wwwroot/lib/bootstrap/"
+		},
+		{
+			"provider": "unpkg",
+			"library": "dropzone@5.7.6",
+			"destination": "wwwroot/lib/dropzone/"
 		}
 	]
 }

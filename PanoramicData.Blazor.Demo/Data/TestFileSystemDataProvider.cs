@@ -11,7 +11,7 @@ namespace PanoramicData.Blazor.Demo.Data
 	{
 		private readonly Random _random = new Random(Environment.TickCount);
 		private DirectoryEntry _root = new DirectoryEntry(
-			new DirectoryEntry("C:",
+			new DirectoryEntry("CDrive",
 				new DirectoryEntry("ProgramData",
 					new DirectoryEntry("Acme",
 						new DirectoryEntry("UserGuide.pdf", FileExplorerItemType.File, 10304500),
@@ -27,7 +27,7 @@ namespace PanoramicData.Blazor.Demo.Data
 				new DirectoryEntry("Users")
 			)
 			{ CanCopyMove = false },
-			new DirectoryEntry("D:",
+			new DirectoryEntry("DDrive",
 				new DirectoryEntry("Logs",
 					new DirectoryEntry("20200502_agent.log", FileExplorerItemType.File, 600700),
 					new DirectoryEntry("20200430_agent.log", FileExplorerItemType.File, 156654000),
@@ -60,15 +60,14 @@ namespace PanoramicData.Blazor.Demo.Data
 			var result = new OperationResponse();
 			await Task.Run(() =>
 			{
-				var parentNode = _root.Where(x => x.Path() == item.ParentPath).FirstOrDefault();
-				if (parentNode == null)
+				try
 				{
-					result.ErrorMessage = "Invalid Parent Path";
-				}
-				else
-				{
-					parentNode.Items.Add(new DirectoryEntry(item) { Parent = parentNode });
+					AddFile(item);
 					result.Success = true;
+				}
+				catch (Exception ex)
+				{
+					result.ErrorMessage = ex.Message;
 				}
 			}).ConfigureAwait(true);
 			return result;
@@ -113,7 +112,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		{
 			var total = _root.Count();
 			var items = new List<FileExplorerItem>();
-
+			Console.WriteLine($"GetDataAsync {request.SearchText}");
 			// if search text given then take that as the parent path value
 			// if null then return all items (load all example)
 			// if empty string then return root item (load on demand example)
@@ -275,6 +274,61 @@ namespace PanoramicData.Blazor.Demo.Data
 
 			}).ConfigureAwait(false);
 			return result;
+		}
+
+		/// <summary>
+		///A new file has been added to the virtual file system model.
+		/// </summary>
+		/// <param name="file">Details of the new file.</param>
+		public void AddFile(FileExplorerItem file)
+		{
+			var currentDir = _root;
+
+			// file could be at any virtual sub folder - so descend from root creating folders as necessary
+			var folderPaths = file.ParentPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+			if (folderPaths.Length > 0)
+			{
+				var queue = new Queue<string>(folderPaths);
+				while (queue.Count > 0)
+				{
+					var folderName = queue.Dequeue();
+					var existingItem = currentDir.Items.Find(x => x.Name.Equals(folderName, StringComparison.InvariantCultureIgnoreCase));
+					if (existingItem is null)
+					{
+						var newDir = new DirectoryEntry
+						{
+							Type = FileExplorerItemType.Directory,
+							Name = folderName,
+							Parent = currentDir
+						};
+						currentDir.Items.Add(newDir);
+						currentDir = newDir;
+					}
+					else if (existingItem.Type == FileExplorerItemType.Directory)
+					{
+						currentDir = existingItem;
+					}
+					else
+					{
+						throw new Exception($"Invalid file path: {file.Path}");
+					}
+				}
+			}
+
+			// finally add file
+			currentDir.Items.Add(new DirectoryEntry
+			{
+				Type = FileExplorerItemType.File,
+				Name = file.Name,
+				Size = file.FileSize,
+				CanCopyMove = file.CanCopyMove,
+				DateCreated = file.DateCreated.HasValue ? file.DateCreated.Value : DateTimeOffset.UtcNow,
+				DateModified = file.DateModified.HasValue ? file.DateModified.Value : DateTimeOffset.UtcNow,
+				IsHidden = file.IsHidden,
+				IsReadOnly = file.IsReadOnly,
+				IsSystem = file.IsSystem,
+				Parent = currentDir
+			});
 		}
 	}
 }

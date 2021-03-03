@@ -39,6 +39,11 @@ namespace PanoramicData.Blazor
 		public string CancelReason { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets or sets the base folder.
+		/// </summary>
+		public string BaseFolder { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets application defined state.
 		/// </summary>
 		public object? State { get; set; }
@@ -116,5 +121,48 @@ namespace PanoramicData.Blazor
 		/// Optional string detailing why the operation is to be canceled.
 		/// </summary>
 		public string CancelReason { get; set; } = string.Empty;
+	}
+
+	/// <summary>
+	/// The DropZoneUploadCompletedEventArgs class provides information for PDDropZone upload completed events.
+	/// </summary>
+	public class DropZoneUploadCompletedEventArgs : DropZoneUploadEventArgs
+	{
+		/// <summary>
+		/// Initializes a new instance of the DropZoneUploadCompletedEventArgs class.
+		/// </summary>
+		/// <param name="path">The path where the file is being uploaded.</param>
+		/// <param name="name">The name of the file being uploaded.</param>
+		/// <param name="size">The size of the file being uploaded.</param>
+		/// <param name="size">The size of the file being uploaded.</param>
+		public DropZoneUploadCompletedEventArgs(string path, string name, long size)
+			: base(path, name, size)
+		{
+			Success = true;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the DropZoneUploadCompletedEventArgs class.
+		/// </summary>
+		/// <param name="path">The path where the file is being uploaded.</param>
+		/// <param name="name">The name of the file being uploaded.</param>
+		/// <param name="size">The size of the file being uploaded.</param>
+		/// <param name="size">The size of the file being uploaded.</param>
+		/// <param name="reason">Reason for the upload failure.</param>
+		public DropZoneUploadCompletedEventArgs(string path, string name, long size, string reason)
+			: base(path, name, size)
+		{
+			Reason = reason;
+		}
+
+		/// <summary>
+		/// Gets or sets whether the upload was completed successfully or not.
+		/// </summary>
+		public bool Success { get; set; }
+
+		/// <summary>
+		/// Gets or sets an optional short message as to why the upload failed.
+		/// </summary>
+		public string Reason { get; set; } = string.Empty;
 	}
 }

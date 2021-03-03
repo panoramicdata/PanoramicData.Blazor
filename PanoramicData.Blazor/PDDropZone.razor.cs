@@ -35,12 +35,32 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event raised whenever a file upload completes.
 		/// </summary>
-		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadCompleted { get; set; }
+		[Parameter] public EventCallback<DropZoneUploadCompletedEventArgs> UploadCompleted { get; set; }
+
+		/// <summary>
+		/// Event raised when all uploads have completed.
+		/// </summary>
+		[Parameter] public EventCallback AllUploadsComplete { get; set; }
 
 		/// <summary>
 		/// Gets or sets the URL where file uploads should be sent.
 		/// </summary>
 		[Parameter] public string? UploadUrl { get; set; }
+
+		/// <summary>
+		/// Sets the maximum time in seconds to wait for an upload to complete.
+		/// </summary>
+		[Parameter] public int Timeout { get; set; } = 30000;
+
+		/// <summary>
+		/// Sets the maximum file upload size in MB.
+		/// </summary>
+		[Parameter] public int MaxFileSize { get; set; } = 256;
+
+		/// <summary>
+		/// Sets whether to auto scroll when multiple files uploaded.
+		/// </summary>
+		[Parameter] public bool AutoScroll { get; set; } = true;
 
 		/// <summary>
 		/// Gets the unique identifier of this panel.
@@ -57,7 +77,11 @@ namespace PanoramicData.Blazor
 			if (firstRender)
 			{
 				_dotNetReference = DotNetObjectReference.Create(this);
-				await JSRuntime.InvokeVoidAsync("panoramicData.initializeDropZone", Id, UploadUrl, _dotNetReference).ConfigureAwait(false);
+				var options = new { url = UploadUrl, timeout = Timeout, autoScroll = AutoScroll, maxFilesize = MaxFileSize };
+				if (!string.IsNullOrWhiteSpace(UploadUrl))
+				{
+					await JSRuntime.InvokeVoidAsync("panoramicData.initDropzone", $"#{Id}", options, _dotNetReference).ConfigureAwait(true);
+				}
 			}
 		}
 
@@ -70,6 +94,7 @@ namespace PanoramicData.Blazor
 			{
 				cancel = args.Cancel,
 				reason = args.CancelReason,
+				rootDir = args.BaseFolder,
 				state = args.State,
 				files
 			};
@@ -140,8 +165,20 @@ namespace PanoramicData.Blazor
 			{
 				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 			}
+			if (file.Success)
+			{
+				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size));
+			}
+			else
+			{
+				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Reason));
+			}
+		}
 
-			UploadCompleted.InvokeAsync(new DropZoneUploadEventArgs(file.Path, file.Name, file.Size));
+		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsComplete")]
+		public void OnAllUploadsComplete()
+		{
+			AllUploadsComplete.InvokeAsync(null);
 		}
 
 		public void Dispose()

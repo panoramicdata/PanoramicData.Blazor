@@ -38,3 +38,41 @@
 #file-select {
 	display: block;
 }
+
+.pddropzone {
+	height: 200px !important;
+	overflow-y: auto;
+}
+
+.pdfe-dz-preview.dz-success {
+	color: #28a745;
+}
+
+.pdfe-dz-preview.dz-error {
+	color: #dc3545;
+}
+
+.pdfe-dz-progress {
+	background-color: #007bff;
+	height: 4px;
+}
+
+.pdfe-dz-preview.dz-complete .pdfe-dz-progress {
+	display: none !important;
+}
+
+.pdfe-dz-preview.dz-error .error-mark {
+	display: inline-block !important;
+}
+
+.pdfe-dz-preview.dz-success .success-mark {
+	display: inline-block !important;
+}
+
+.pdfe-z-1100 {
+	z-index: 1100;
+}
+
+.pdfe-z-1200 {
+	z-index: 1200;
+}

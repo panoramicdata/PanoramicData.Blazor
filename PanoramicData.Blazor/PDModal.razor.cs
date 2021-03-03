@@ -14,6 +14,11 @@ namespace PanoramicData.Blazor
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		/// <summary>
+		/// Sets additional CSS classes.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Sets the title shown in the modal dialog header.
 		/// </summary>
 		[Parameter] public string Title { get; set; } = string.Empty;

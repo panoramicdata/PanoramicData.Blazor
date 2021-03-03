@@ -1,10 +1,13 @@
 ﻿.pddropzone {
 	height: 100%;
+	border: 2px dashed rgba(0, 0, 0, 0.1);
+	border-radius: 15px;
 }
 
 .pddropzone.highlight {
 	background-color: #e8ffe8;
 }
+
 
 /*.pddropzone input[type=file] {
 	position: absolute;*/

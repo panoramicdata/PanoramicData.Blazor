@@ -1,10 +1,30 @@
 ﻿@using Humanizer;
 
-<PDModal @ref="DeleteDialog" Title="Delete">
+<template id="file-upload-template">
+	<div class="pdfe-dz-preview small">
+		<div class="pdfe-dz-bar d-flex justify-content-between">
+			<span data-dz-name></span>
+			<div>
+				<div class="d-none success-mark">
+					<i class="far fa-check-circle"></i>
+				</div>
+				<div class="d-none error-mark">
+					<i class="far fa-times-circle"></i>
+				</div>
+			</div>
+		</div>
+		<div style="width: 0px" class="pdfe-dz-progress" data-dz-uploadprogress></div>
+		<div><span data-dz-errormessage></span></div>
+	</div>
+</template>
+
+<PDModal @ref="DeleteDialog"
+		 Title="Delete">
 	<span>@_deleteDialogMessage</span>
 </PDModal>
 
 <PDModal @ref="ConflictDialog"
+		 CssClass="pdfe-z-1200"
 		 Title="Move / Copy Conflict">
 	<p>@_conflictDialogMessage</p>
 	<ul class="">
@@ -17,23 +37,22 @@
 </PDModal>
 
 <PDModal @ref="UploadDialog"
-		 ButtonClick="() => UploadDialog.HideAsync()">
+		 CssClass="pdfe-z-1100"
+		 Size="ModalSizes.Large"
+		 ButtonClick="OnHideUploadDialog">
 	<PDDropZone @ref="DialogDropZone"
 				UploadUrl="@UploadUrl"
 				Drop="OnFilesDroppedAsync"
+				MaxFileSize="MaxUploadSize"
+				AllUploadsComplete="OnAllUploadsComplete"
 				UploadStarted="OnUploadStartedAsync"
 				UploadProgress="OnUploadProgressAsync"
 				UploadCompleted="OnUploadCompletedAsync">
-		<div class="upload-zone">
-			Drag and drop files here to upload ...
-		</div>
 	</PDDropZone>
-	<div class="mt-2">
-		<label for="file-select">Or select file</label>
-		<input id="@($"{Id}-file-select")"
-			   type="file"
-			   class="form-control-file">
-	</div>
+	<button class="mt-1 btn btn-default" @onclick="OnClearUploadFiles">
+		<i class="fas fa-times"></i>
+		<span>Clear</span>
+	</button>
 </PDModal>
 
 <div class="pdfileexplorer @CssClass">
@@ -91,116 +110,117 @@
 						   UpdateState="OnTableContextMenuUpdateStateAsync"
 						   ItemClick="OnTableContextMenuItemClickAsync">
 
-				<PDDropZone UploadUrl="@UploadUrl"
-							Drop="OnFilesDroppedAsync"
-							UploadStarted="OnUploadStartedAsync"
-							UploadProgress="OnUploadProgressAsync"
-							UploadCompleted="OnUploadCompletedAsync">
+				@*<PDDropZone UploadUrl="@UploadUrl"
+					Drop="OnFilesDroppedAsync"
+					MaxFileSize="MaxUploadSize"
+					UploadStarted="OnUploadStartedAsync"
+					UploadProgress="OnUploadProgressAsync"
+					UploadCompleted="OnUploadCompletedAsync">*@
 
-					<PDTable @ref="Table"
-							 TItem="FileExplorerItem"
-							 DataProvider="DataProvider"
-							 KeyField="x => x.Path"
-							 AutoLoad="false"
-							 AllowEdit="AllowRename"
-							 AllowDrag="AllowDrag"
-							 AllowDrop="AllowDrop"
-							 SearchText="@FolderPath"
-							 SelectionMode="SelectionMode"
-							 ColumnsConfig="ColumnConfig"
-							 Drop="OnDropAsync"
-							 SortCriteria="_tableSort"
-							 KeyDown="OnTableKeyDownAsync"
-							 BeforeEdit="OnTableBeforeEdit"
-							 ItemsLoaded="OnTableItemsLoaded"
-							 AfterEdit="OnTableAfterEditAsync"
-							 DoubleClick="OnTableDoubleClickAsync"
-							 SelectionChanged="OnTableSelectionChangedAsync"
-							 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
+				<PDTable @ref="Table"
+						 TItem="FileExplorerItem"
+						 DataProvider="DataProvider"
+						 KeyField="x => x.Path"
+						 AutoLoad="false"
+						 AllowEdit="AllowRename"
+						 AllowDrag="AllowDrag"
+						 AllowDrop="AllowDrop"
+						 SearchText="@FolderPath"
+						 SelectionMode="SelectionMode"
+						 ColumnsConfig="ColumnConfig"
+						 Drop="OnDropAsync"
+						 SortCriteria="_tableSort"
+						 KeyDown="OnTableKeyDownAsync"
+						 BeforeEdit="OnTableBeforeEdit"
+						 ItemsLoaded="OnTableItemsLoaded"
+						 AfterEdit="OnTableAfterEditAsync"
+						 DoubleClick="OnTableDoubleClickAsync"
+						 SelectionChanged="OnTableSelectionChangedAsync"
+						 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
 
-						<PDColumn TItem="FileExplorerItem"
-								  Id="Icon"
-								  ThClass="pl-1 pr-0"
-								  Field="x => x.EntryType"
-								  Editable="false"
-								  Sortable="false">
-							<Template>
-								<i class="@GetIconCssClass(context)"></i>
-							</Template>
-						</PDColumn>
+					<PDColumn TItem="FileExplorerItem"
+							  Id="Icon"
+							  ThClass="pl-1 pr-0"
+							  Field="x => x.EntryType"
+							  Editable="false"
+							  Sortable="false">
+						<Template>
+							<i class="@GetIconCssClass(context)"></i>
+						</Template>
+					</PDColumn>
 
-						<PDColumn TItem="FileExplorerItem"
-								  Id="Name"
-								  ThClass="w-100-pct"
-								  Field="x => x.Name">
-							<Template>
-								@if (context.IsUploading)
-								{
-									<div style="width: 100%">
-										<span>@context.Name</span>
-										<div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
-									</div>
-								}
-								else
-								{
-									<span class="">@context.Name</span>
-								}
-							</Template>
-						</PDColumn>
+					<PDColumn TItem="FileExplorerItem"
+							  Id="Name"
+							  ThClass="w-100-pct"
+							  Field="x => x.Name">
+						<Template>
+							@if (context.IsUploading)
+							{
+								<div style="width: 100%">
+									<span>@context.Name</span>
+									<div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
+								</div>
+							}
+							else
+							{
+								<span class="">@context.Name</span>
+							}
+						</Template>
+					</PDColumn>
 
-						<PDColumn TItem="FileExplorerItem"
-								  Id="Type"
-								  ThClass="mw-100-px"
-								  Field="x => x.EntryType"
-								  Editable="false">
-							<Template>
-								<span class="text-nowrap">
-									@(context.EntryType == FileExplorerItemType.Directory
+					<PDColumn TItem="FileExplorerItem"
+							  Id="Type"
+							  ThClass="mw-100-px"
+							  Field="x => x.EntryType"
+							  Editable="false">
+						<Template>
+							<span class="text-nowrap">
+								@(context.EntryType == FileExplorerItemType.Directory
 										? "File Folder"
 										: ($"{context.FileExtension.ToUpper()} File").Trim() )
-								</span>
-							</Template>
-						</PDColumn>
+							</span>
+						</Template>
+					</PDColumn>
 
-						<PDColumn TItem="FileExplorerItem"
-								  Id="Size"
-								  ThClass="mw-100-px"
-								  Field="x => x.FileSize"
-								  Editable="false">
-							<Template>
-								<span title="@(context.FileSize.ToString("0,0")) bytes">
-									@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize("#"))
-								</span>
-							</Template>
-						</PDColumn>
+					<PDColumn TItem="FileExplorerItem"
+							  Id="Size"
+							  ThClass="mw-100-px"
+							  Field="x => x.FileSize"
+							  Editable="false">
+						<Template>
+							<span title="@(context.FileSize.ToString("0,0")) bytes">
+								@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize("#"))
+							</span>
+						</Template>
+					</PDColumn>
 
-						<PDColumn TItem="FileExplorerItem"
-								  Id="Created"
-								  ThClass="mw-150-px"
-								  Field="x => x.DateCreated"
-								  Editable="false">
-							<Template>
-								<span class="nowrap" title="@(context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
-									@context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-								</span>
-							</Template>
-						</PDColumn>
+					<PDColumn TItem="FileExplorerItem"
+							  Id="Created"
+							  ThClass="mw-150-px"
+							  Field="x => x.DateCreated"
+							  Editable="false">
+						<Template>
+							<span class="nowrap" title="@(context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
+								@context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+							</span>
+						</Template>
+					</PDColumn>
 
-						<PDColumn TItem="FileExplorerItem"
-								  Id="Modified"
-								  ThClass="mw-150-px"
-								  Field="x => x.DateModified"
-								  Editable="false">
-							<Template>
-								<span class="text-nowrap" title="@(context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
-									@context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-								</span>
-							</Template>
-						</PDColumn>
+					<PDColumn TItem="FileExplorerItem"
+							  Id="Modified"
+							  ThClass="mw-150-px"
+							  Field="x => x.DateModified"
+							  Editable="false">
+						<Template>
+							<span class="text-nowrap" title="@(context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
+								@context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+							</span>
+						</Template>
+					</PDColumn>
 
-					</PDTable>
+				</PDTable>
 
-				</PDDropZone>
+				@*</PDDropZone>*@
 
 			</PDContextMenu>
 

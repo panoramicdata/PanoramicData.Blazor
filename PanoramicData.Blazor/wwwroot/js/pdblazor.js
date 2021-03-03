@@ -412,5 +412,73 @@
 		obj.ctrlKey = e.ctrlKey;
 		obj.shiftKey = e.shiftKey;
 		return obj;
+	},
+
+	initDropzone: function (idSelector, opt, dnRef) {
+		const getPath = function (file) {
+			var path = file.targetRootDir || "/";
+			if (file.fullPath && file.fullPath.indexOf("/") > -1) {
+				var idx = file.fullPath.lastIndexOf("/");
+				if (!path.endsWith('/')) path = path + "/";
+				path = path + file.fullPath.slice(0, idx);
+			}
+			return path;
+		};
+		var options = Object.assign({
+			url: "/files/upload",
+			timeout: 30000,
+			maxFilesize: 512,
+			init: function () {
+				this.on("sending", function (file, xhr) {
+					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size });
+				});
+				this.on("uploadprogress", function (file, pct, bytes) {
+					if (options.autoScroll) {
+						file.previewElement.scrollIntoView();
+					}
+					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadProgress', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Progress: pct });
+				});
+				this.on("success", function (file) {
+					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Success: true });
+				});
+				this.on("error", function (file, msg, xhr) {
+					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Success: false, Reason: msg });
+				});
+				this.on("queuecomplete", function () {
+					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnAllUploadsComplete');
+				});
+			},
+			accept: function (file, done) {
+				dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', [{ Path: getPath(file), Name: file.targetName || file.name, Size: file.size }])
+					.then(data => {
+						if (data.cancel || data.reason) {
+							done(data.reason || "Upload canceled");
+						} else {
+							// file renamed?
+							if (data.files[0].newName) {
+								file.targetName = data.files[0].newName;
+							}
+							file.targetRootDir = data.rootDir;
+							done(); // accept file
+						}
+					});
+			},
+			params: function (files, xhr) {
+				return {
+					"Key": "123",
+					"Path": getPath(files[0]),
+					"Name": files[0].targetName || files[0].name
+				};
+			}
+		}, opt);
+		var el = document.querySelector('#file-upload-template');
+		if (el) {
+			options.previewTemplate = el.innerHTML;
+		}
+		this.dropzone = new Dropzone(idSelector, options);
+	},
+
+	clearDropzone: function () {
+		this.dropzone.removeAllFiles();
 	}
 }

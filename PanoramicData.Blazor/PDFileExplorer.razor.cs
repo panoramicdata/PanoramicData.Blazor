@@ -32,13 +32,15 @@ namespace PanoramicData.Blazor
 		private readonly MenuItem _menuSep3 = new MenuItem { IsSeparator = true };
 		private readonly MenuItem _menuDelete = new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
 		private readonly List<FileExplorerItem> _copyPayload = new List<FileExplorerItem>();
+		private readonly Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>> _conflictCache = new Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>>();
+
 		private bool _moveCopyPayload = false;
 		private TreeNode<FileExplorerItem>? _selectedNode;
 		private PDTree<FileExplorerItem>? Tree { get; set; }
 		private PDTable<FileExplorerItem>? Table { get; set; }
 		private PDModal? DeleteDialog { get; set; } = null!;
 		private PDModal? ConflictDialog { get; set; } = null!;
-		private PDModal UploadDialog { get; set; } = null!;
+		private PDModal? UploadDialog { get; set; }
 		private PDDropZone DialogDropZone { get; set; } = null!;
 
 		public string FolderPath = string.Empty;
@@ -126,6 +128,11 @@ namespace PanoramicData.Blazor
 		[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 		/// <summary>
+		/// Gets or sets the maximum file upload size in MB.
+		/// </summary>
+		[Parameter] public int MaxUploadSize { get; set; } = 256;
+
+		/// <summary>
 		/// Event called whenever a move or copy operation is subject to conflicts.
 		/// </summary>
 		[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
@@ -180,13 +187,7 @@ namespace PanoramicData.Blazor
 		/// Sets the Table context menu items.
 		/// </summary>
 		[Parameter]
-		public List<ToolbarItem> ToolbarItems { get; set; } = new List<ToolbarItem>
-			{
-				new ToolbarButton { Key = "navigate-up", ToolTip="Navigate up to parent folder", IconCssClass="fas fa-fw fa-arrow-up",  CssClass="btn-secondary" },
-				new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip="Create a new folder", IconCssClass="fas fa-fw fa-folder-plus", CssClass="btn-secondary" },
-				new ToolbarButton { Key = "upload", Text = "Upload", ToolTip="Upload one or more files", IconCssClass="fas fa-fw fa-upload", CssClass="btn-secondary" },
-				new ToolbarButton { Key = "delete", Text = "Delete", ToolTip="Delete the selected files and folders", IconCssClass="fas fa-fw fa-trash-alt", CssClass="btn-danger", ShiftRight = true }
-			};
+		public List<ToolbarItem> ToolbarItems { get; set; } = new List<ToolbarItem>();
 
 		/// <summary>
 		/// Event raised whenever the user clicks on a context menu item from the tree.
@@ -206,7 +207,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event raised whenever a file upload completes.
 		/// </summary>
-		[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadCompleted { get; set; }
+		[Parameter] public EventCallback<DropZoneUploadCompletedEventArgs> UploadCompleted { get; set; }
 
 		/// <summary>
 		/// Event raised periodically during a file upload.
@@ -264,7 +265,6 @@ namespace PanoramicData.Blazor
 			{
 				_menuRename,
 				_menuNewFolder,
-				_menuUploadFiles,
 				_menuSep2,
 				_menuCopy,
 				_menuCut,
@@ -272,6 +272,14 @@ namespace PanoramicData.Blazor
 				_menuSep3,
 				_menuDelete
 			});
+			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary" });
+			ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary" });
+			ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true });
+			if (!String.IsNullOrWhiteSpace(UploadUrl))
+			{
+				TreeContextItems.Insert(2, _menuUploadFiles);
+				ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary" });
+			}
 		}
 
 		/// <summary>
@@ -363,7 +371,10 @@ namespace PanoramicData.Blazor
 					}
 					else if (item.Text == "Upload Files")
 					{
-						await UploadDialog.ShowAsync().ConfigureAwait(true);
+						if (UploadDialog != null)
+						{
+							await UploadDialog.ShowAsync().ConfigureAwait(true);
+						}
 					}
 					else if (item.Text == "Copy" || item.Text == "Cut")
 					{
@@ -694,11 +705,11 @@ namespace PanoramicData.Blazor
 
 		private async Task OnFilesDroppedAsync(DropZoneEventArgs args)
 		{
-			// cancel upload dialog if shown
-			await UploadDialog.HideAsync().ConfigureAwait(true);
-
 			if (Tree?.SelectedNode?.Data != null)
 			{
+				// set current folder
+				args.BaseFolder = FolderPath;
+
 				// notify application and allow for cancel
 				await UploadRequest.InvokeAsync(args).ConfigureAwait(true);
 
@@ -706,36 +717,15 @@ namespace PanoramicData.Blazor
 				var moveCopyArgs = new MoveCopyArgs
 				{
 					TargetPath = Tree.SelectedNode.Data.Path,
-					Payload = args.Files.Select(x => new FileExplorerItem { Path = x.Path ?? string.Empty }).ToList()
+					Payload = args.Files.Select(x => new FileExplorerItem { Path = x.GetFullPath(args.BaseFolder) }).ToList()
 				};
 				await GetConflictsAsync(moveCopyArgs).ConfigureAwait(true);
 				if (moveCopyArgs.Conflicts.Count > 0)
 				{
-					var choice = await PromptUserForConflictResolution(moveCopyArgs.Conflicts.Select(x => x.Name).ToArray(), true).ConfigureAwait(true);
-					if (choice == ConflictResolutions.Cancel)
+					foreach (var conflict in moveCopyArgs.Conflicts)
 					{
 						args.Cancel = true;
-						args.CancelReason = "User canceled";
-						return;
-					}
-					else
-					{
-						foreach (var conflict in moveCopyArgs.Conflicts)
-						{
-							if (choice == ConflictResolutions.Skip)
-							{
-								var item = Array.Find(args.Files, x => x.Name == conflict.Name);
-								if (item != null)
-								{
-									item.Skip = true;
-								}
-							}
-							else
-							{
-								// need to delete from server first to avoid conflict
-								await DataProvider.DeleteAsync(conflict, CancellationToken.None).ConfigureAwait(true);
-							}
-						}
+						args.CancelReason = "File already exists";
 					}
 				}
 
@@ -756,44 +746,80 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
-			// is the upload happening to the current path?
-			if (args.Path == FolderPath)
+			// fetch / create UI item to provide upload feedback
+			var item = GetVirtualFileItem(args);
+			if (item != null)
 			{
-				// add virtual file item
-				var item = Table.ItemsToDisplay.Find(x => x.Name == args.Name);
-				if (item is null)
-				{
-					item = new FileExplorerItem
-					{
-						Path = $"{args.Path}/{args.Name}",
-						DateCreated = DateTimeOffset.Now,
-						DateModified = DateTimeOffset.Now,
-						EntryType = FileExplorerItemType.File,
-						FileSize = args.Size,
-						IsUploading = true
-					};
-					Table.ItemsToDisplay.Add(item);
-				}
 				item.UploadProgress = args.Progress;
 			}
 
 			await UploadProgress.InvokeAsync(args).ConfigureAwait(true);
 		}
 
-		private async Task OnUploadCompletedAsync(DropZoneUploadEventArgs args)
+		private async Task OnUploadCompletedAsync(DropZoneUploadCompletedEventArgs args)
 		{
-			// is the upload happening to the current path?
-			if (args.Path == FolderPath)
+			// get virtual file item
+			var item = GetVirtualFileItem(args);
+			if (item != null)
 			{
-				// add virtual file item
-				var item = Table?.ItemsToDisplay.Find(x => x.Name == args.Name);
-				if (item != null)
+				item.IsUploading = false;
+			}
+			await UploadCompleted.InvokeAsync(args).ConfigureAwait(true);
+		}
+
+		private async Task OnAllUploadsComplete()
+		{
+			// expire conflict cache
+			_conflictCache.Clear();
+			await RefreshTreeAsync().ConfigureAwait(true);
+			await RefreshTableAsync().ConfigureAwait(true);
+		}
+
+		private FileExplorerItem? GetVirtualFileItem(DropZoneUploadEventArgs args)
+		{
+			// add virtual file item
+			if (Table != null)
+			{
+				if (args.Path == FolderPath) // in target folder so add file
 				{
-					item.IsUploading = false;
+					var item = Table.ItemsToDisplay.Find(x => x.Name == args.Name);
+					if (item is null)
+					{
+						item = new FileExplorerItem
+						{
+							Path = $"{args.Path.TrimEnd('/')}/{args.Name}",
+							DateCreated = DateTimeOffset.Now,
+							DateModified = DateTimeOffset.Now,
+							EntryType = FileExplorerItemType.File,
+							FileSize = args.Size,
+							IsUploading = true
+						};
+						Table.ItemsToDisplay.Add(item);
+					}
+					return item;
+				}
+				else if (args.Path.StartsWith(FolderPath.TrimEnd('/') + "/")) // in higher folder
+				{
+					var relativePath = args.Path.Substring(FolderPath.Length).TrimStart('/');
+					var idx = relativePath.IndexOf('/');
+					var subFolder = idx == -1 ? relativePath : relativePath.Substring(0, idx);
+					var item = Table.ItemsToDisplay.Find(x => x.Name == subFolder);
+					if (item is null)
+					{
+						item = new FileExplorerItem
+						{
+							Path = $"{FolderPath.TrimEnd('/')}/{subFolder}",
+							DateCreated = DateTimeOffset.Now,
+							DateModified = DateTimeOffset.Now,
+							EntryType = FileExplorerItemType.Directory,
+							IsUploading = true
+						};
+						Table.ItemsToDisplay.Add(item);
+					}
+					return item;
 				}
 			}
-
-			await UploadCompleted.InvokeAsync(args).ConfigureAwait(true);
+			return null;
 		}
 
 		private async Task OnToolbarButtonClickAsync(string key)
@@ -813,7 +839,10 @@ namespace PanoramicData.Blazor
 					break;
 
 				case "upload":
-					await UploadDialog.ShowAsync().ConfigureAwait(true);
+					if (UploadDialog != null)
+					{
+						await UploadDialog.ShowAsync().ConfigureAwait(true);
+					}
 					break;
 
 				default:
@@ -871,9 +900,12 @@ namespace PanoramicData.Blazor
 		{
 			if (firstRender)
 			{
+				//var options = new { url = "/files/upload", timeout = 30000, autoScroll = true };
+				//await JSRuntime.InvokeVoidAsync("panoramicData.initDropzone", "#pd-file-explorer-dropzone", options).ConfigureAwait(true);
+
 				// initialize file select
 				//_dotNetReference = DotNetObjectReference.Create(this);
-				await JSRuntime.InvokeVoidAsync("panoramicData.initializeFileSelect", $"{Id}-file-select", DialogDropZone.Id).ConfigureAwait(false);
+				//await JSRuntime.InvokeVoidAsync("panoramicData.initializeFileSelect", $"{Id}-file-select", DialogDropZone.Id).ConfigureAwait(false);
 
 				if (DeleteDialog != null)
 				{
@@ -1264,14 +1296,55 @@ namespace PanoramicData.Blazor
 		{
 			var conflicts = new List<FileExplorerItem>();
 			var names = args.Payload.Select(x => x.Name).ToArray();
-			var request = new DataRequest<FileExplorerItem> { SearchText = args.TargetPath };
-			var response = await DataProvider.GetDataAsync(request, CancellationToken.None).ConfigureAwait(true);
-			args.TargetItems = response.Items.ToList();
-			foreach (var item in response.Items)
+
+			// group files by parent directory
+			var folders = args.Payload.GroupBy(x => x.ParentPath).Select(x => x.Key).ToArray();
+			if (folders != null)
 			{
-				if (names.Any(x => string.Equals(item.Name, x, StringComparison.OrdinalIgnoreCase)))
+				foreach (var folder in folders)
 				{
-					conflicts.Add(item);
+					CachedResult<Task<DataResponse<FileExplorerItem>>>? cachedTask = null;
+					lock (_conflictCache)
+					{
+						if (_conflictCache.ContainsKey(folder) && _conflictCache[folder].HasExpired)
+						{
+							Console.WriteLine("Folder in cache expired (removing): " + folder);
+							_conflictCache.Remove(folder);
+						}
+						if (_conflictCache.ContainsKey(folder))
+						{
+							Console.WriteLine("Folder exists in cache: " + folder);
+							cachedTask = _conflictCache[folder];
+						}
+						else
+						{
+
+							Console.WriteLine("Folder not existing in cache (creating): " + folder);
+							Console.WriteLine($"keys = {string.Join(",", _conflictCache.Keys)}");
+							var task = DataProvider.GetDataAsync(new DataRequest<FileExplorerItem>() { SearchText = folder }, default);
+							cachedTask = new CachedResult<Task<DataResponse<FileExplorerItem>>>(folder, task)
+							{
+								Expiry = DateTimeOffset.UtcNow.AddSeconds(30)
+							};
+							_conflictCache.Add(folder, cachedTask);
+							Console.WriteLine($"keys = {string.Join(",", _conflictCache.Keys)}");
+							Console.WriteLine("Folder not existing in cache (added): " + folder);
+						}
+					}
+					if (cachedTask != null)
+					{
+						// wait for cache to load
+						var result = await cachedTask.Result.ConfigureAwait(true);
+						args.TargetItems = result.Items.ToList();
+						foreach (var item in args.TargetItems)
+						{
+							Console.WriteLine($"Cached item in folder {folder} {item.Name}");
+							if (names.Any(x => string.Equals(item.Name, x, StringComparison.OrdinalIgnoreCase)))
+							{
+								conflicts.Add(item);
+							}
+						}
+					}
 				}
 			}
 			args.Conflicts = conflicts;
@@ -1331,6 +1404,16 @@ namespace PanoramicData.Blazor
 			{
 				return TreeSort(item1, item2);
 			}
+		}
+
+		private async Task OnHideUploadDialog(string _)
+		{
+			await UploadDialog.HideAsync().ConfigureAwait(true);
+		}
+
+		private async Task OnClearUploadFiles()
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicData.clearDropzone").ConfigureAwait(true);
 		}
 
 		public void Dispose()

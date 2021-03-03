@@ -46,11 +46,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		public async Task OnUploadRequest(DropZoneEventArgs args)
 		{
-			if (args.Files.Any(x => x.Size > 1000000000)) // 1GB
+			// example of canceling an upload request
+			if (args.Files.Any(x => System.IO.Path.GetExtension(x.Name) == ".zip"))
 			{
 				args.Cancel = true;
-				args.CancelReason = "Upload limit is 1GB per file";
-				await JSRuntime.InvokeVoidAsync("panoramicData.alert", new[] { "Upload canceled: Limit is 1GB per file" }).ConfigureAwait(true);
+				args.CancelReason = "ZIP Archive files can not be uploaded.";
+				//await JSRuntime.InvokeVoidAsync("panoramicData.alert", new[] { "Upload canceled: Limit is 10MB per file" }).ConfigureAwait(true);
 			}
 		}
 
@@ -60,17 +61,20 @@ namespace PanoramicData.Blazor.Demo.Pages
 			args.FormFields.Add("key", Guid.NewGuid().ToString());
 		}
 
-		public async Task OnUploadCompleted(DropZoneUploadEventArgs args)
+		public async Task OnUploadCompleted(DropZoneUploadCompletedEventArgs args)
 		{
 			// need to add to data provider as file not really uploaded to physical drive
-			await _dataProvider.CreateAsync(new FileExplorerItem
+			if (args.Success)
 			{
-				DateCreated = DateTimeOffset.Now,
-				DateModified = DateTimeOffset.Now,
-				EntryType = FileExplorerItemType.File,
-				FileSize = args.Size,
-				Path = $"{args.Path}/{args.Name}"
-			}, CancellationToken.None).ConfigureAwait(true);
+				await _dataProvider.CreateAsync(new FileExplorerItem
+				{
+					DateCreated = DateTimeOffset.Now,
+					DateModified = DateTimeOffset.Now,
+					EntryType = FileExplorerItemType.File,
+					FileSize = args.Size,
+					Path = $"{args.Path.TrimEnd('/')}/{args.Name}"
+				}, CancellationToken.None).ConfigureAwait(true);
+			}
 		}
 
 		public void OnUpdateToolbarState(List<ToolbarItem> items)
