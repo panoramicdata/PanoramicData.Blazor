@@ -115,7 +115,7 @@ namespace PanoramicData.Blazor
 			{
 				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 			}
-			var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size);
+			var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key ?? string.Empty);
 			await UploadStarted.InvokeAsync(args).ConfigureAwait(true);
 			if (args.FormFields.Count == 0)
 			{
@@ -147,7 +147,7 @@ namespace PanoramicData.Blazor
 			{
 				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 			}
-			UploadProgress.InvokeAsync(new DropZoneUploadProgressEventArgs(file.Path, file.Name, file.Size, file.Progress));
+			UploadProgress.InvokeAsync(new DropZoneUploadProgressEventArgs(file.Path, file.Name, file.Size, file.Key, file.Progress));
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadEnd")]
@@ -167,11 +167,11 @@ namespace PanoramicData.Blazor
 			}
 			if (file.Success)
 			{
-				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size));
+				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key ?? string.Empty));
 			}
 			else
 			{
-				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Reason));
+				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key ?? string.Empty, file.Reason));
 			}
 		}
 

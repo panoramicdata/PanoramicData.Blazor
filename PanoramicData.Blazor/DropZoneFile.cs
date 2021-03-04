@@ -12,6 +12,7 @@ namespace PanoramicData.Blazor
 		public long Size { get; set; }
 		public bool Skip { get; set; }
 		public string? NewName { get; set; }
+		public string? Key { get; set; }
 
 		public string GetFullPath(string? rootDir = null)
 		{
