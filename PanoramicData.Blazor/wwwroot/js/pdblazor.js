@@ -430,7 +430,10 @@
 			maxFilesize: 512,
 			init: function () {
 				this.on('addedfile', function (file) {
-					file.previewElement.querySelector(".pdfe-dz-name").innerHTML = getPath(file).trimEnd('/') + '/' + (file.targetName || file.name);
+					var fullPath = getPath(file);
+					if (!fullPath.endsWith('/')) fullPath = fullPath + "/";
+					fullPath = fullPath + (file.targetName || file.name);
+					file.previewElement.querySelector(".pdfe-dz-name").innerHTML = fullPath;
 				});
 				this.on("sending", function (file, xhr) {
 					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId });
