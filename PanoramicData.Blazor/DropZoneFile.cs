@@ -12,7 +12,8 @@ namespace PanoramicData.Blazor
 		public long Size { get; set; }
 		public bool Skip { get; set; }
 		public string? NewName { get; set; }
-		public string? Key { get; set; }
+		public string Key { get; set; } = string.Empty;
+		public string SessionId { get; set; } = string.Empty;
 
 		public string GetFullPath(string? rootDir = null)
 		{
@@ -20,8 +21,7 @@ namespace PanoramicData.Blazor
 			segs.AddRange(rootDir.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries));
 			segs.AddRange(Path.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries));
 			var folderPath = $"/{string.Join("/", segs)}";
-			var fullPath = $"{folderPath.TrimEnd('/')}/{Name}";
-			return fullPath;
+			return $"{folderPath.TrimEnd('/')}/{Name}";
 		}
 	}
 

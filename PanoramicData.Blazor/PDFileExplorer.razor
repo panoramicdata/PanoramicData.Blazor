@@ -41,9 +41,10 @@
 		 Size="ModalSizes.Large"
 		 ButtonClick="OnHideUploadDialog">
 	<PDDropZone @ref="DialogDropZone"
+				SessionId="@SessionId"
 				UploadUrl="@UploadUrl"
-				Drop="OnFilesDroppedAsync"
 				MaxFileSize="MaxUploadSize"
+				Drop="OnFilesDroppedAsync"
 				AllUploadsComplete="OnAllUploadsComplete"
 				UploadStarted="OnUploadStartedAsync"
 				UploadProgress="OnUploadProgressAsync"
@@ -111,8 +112,11 @@
 						   ItemClick="OnTableContextMenuItemClickAsync">
 
 				@*<PDDropZone UploadUrl="@UploadUrl"
-					Drop="OnFilesDroppedAsync"
+					SessionId="@SessionId"
+					UploadUrl="@UploadUrl"
 					MaxFileSize="MaxUploadSize"
+					Drop="OnFilesDroppedAsync"
+					AllUploadsComplete="OnAllUploadsComplete"
 					UploadStarted="OnUploadStartedAsync"
 					UploadProgress="OnUploadProgressAsync"
 					UploadCompleted="OnUploadCompletedAsync">*@

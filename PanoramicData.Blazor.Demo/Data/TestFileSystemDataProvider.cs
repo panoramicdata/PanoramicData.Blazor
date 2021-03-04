@@ -112,7 +112,6 @@ namespace PanoramicData.Blazor.Demo.Data
 		{
 			var total = _root.Count();
 			var items = new List<FileExplorerItem>();
-			Console.WriteLine($"GetDataAsync {request.SearchText}");
 			// if search text given then take that as the parent path value
 			// if null then return all items (load all example)
 			// if empty string then return root item (load on demand example)

@@ -45,6 +45,7 @@ namespace PanoramicData.Blazor
 
 		public string FolderPath = string.Empty;
 		public string Id { get; private set; } = string.Empty;
+		public string SessionId { get; private set; } = Guid.NewGuid().ToString();
 
 		/// <summary>
 		/// Determines whether the user may drag items.
@@ -900,13 +901,6 @@ namespace PanoramicData.Blazor
 		{
 			if (firstRender)
 			{
-				//var options = new { url = "/files/upload", timeout = 30000, autoScroll = true };
-				//await JSRuntime.InvokeVoidAsync("panoramicData.initDropzone", "#pd-file-explorer-dropzone", options).ConfigureAwait(true);
-
-				// initialize file select
-				//_dotNetReference = DotNetObjectReference.Create(this);
-				//await JSRuntime.InvokeVoidAsync("panoramicData.initializeFileSelect", $"{Id}-file-select", DialogDropZone.Id).ConfigureAwait(false);
-
 				if (DeleteDialog != null)
 				{
 					DeleteDialog.Buttons.Clear();
@@ -1308,27 +1302,21 @@ namespace PanoramicData.Blazor
 					{
 						if (_conflictCache.ContainsKey(folder) && _conflictCache[folder].HasExpired)
 						{
-							Console.WriteLine("Folder in cache expired (removing): " + folder);
 							_conflictCache.Remove(folder);
 						}
 						if (_conflictCache.ContainsKey(folder))
 						{
-							Console.WriteLine("Folder exists in cache: " + folder);
 							cachedTask = _conflictCache[folder];
 						}
 						else
 						{
 
-							Console.WriteLine("Folder not existing in cache (creating): " + folder);
-							Console.WriteLine($"keys = {string.Join(",", _conflictCache.Keys)}");
 							var task = DataProvider.GetDataAsync(new DataRequest<FileExplorerItem>() { SearchText = folder }, default);
 							cachedTask = new CachedResult<Task<DataResponse<FileExplorerItem>>>(folder, task)
 							{
 								Expiry = DateTimeOffset.UtcNow.AddSeconds(30)
 							};
 							_conflictCache.Add(folder, cachedTask);
-							Console.WriteLine($"keys = {string.Join(",", _conflictCache.Keys)}");
-							Console.WriteLine("Folder not existing in cache (added): " + folder);
 						}
 					}
 					if (cachedTask != null)
@@ -1338,7 +1326,6 @@ namespace PanoramicData.Blazor
 						args.TargetItems = result.Items.ToList();
 						foreach (var item in args.TargetItems)
 						{
-							Console.WriteLine($"Cached item in folder {folder} {item.Name}");
 							if (names.Any(x => string.Equals(item.Name, x, StringComparison.OrdinalIgnoreCase)))
 							{
 								conflicts.Add(item);

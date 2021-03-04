@@ -414,7 +414,7 @@
 		return obj;
 	},
 
-	initDropzone: function (idSelector, opt, dnRef) {
+	initDropzone: function (idSelector, opt, sessionId, dnRef) {
 		const getPath = function (file) {
 			var path = file.targetRootDir || "/";
 			if (file.fullPath && file.fullPath.indexOf("/") > -1) {
@@ -430,26 +430,26 @@
 			maxFilesize: 512,
 			init: function () {
 				this.on("sending", function (file, xhr) {
-					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid });
+					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId });
 				});
 				this.on("uploadprogress", function (file, pct, bytes) {
 					if (options.autoScroll) {
 						file.previewElement.scrollIntoView();
 					}
-					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadProgress', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, Progress: pct });
+					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadProgress', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId, Progress: pct });
 				});
 				this.on("success", function (file) {
-					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, Success: true });
+					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId, Success: true });
 				});
 				this.on("error", function (file, msg, xhr) {
-					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, Success: false, Reason: msg });
+					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadEnd', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId, Success: false, Reason: msg });
 				});
 				this.on("queuecomplete", function () {
 					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnAllUploadsComplete');
 				});
 			},
 			accept: function (file, done) {
-				dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', [{ Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid }])
+				dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', [{ Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId }])
 					.then(data => {
 						if (data.cancel || data.reason) {
 							done(data.reason || "Upload canceled");
@@ -464,8 +464,8 @@
 					});
 			},
 			params: function (files, xhr) {
-				//console.dir(files);
 				return {
+					"SessionId": sessionId,
 					"Key": files[0].upload.uuid,
 					"Path": getPath(files[0]),
 					"Name": files[0].targetName || files[0].name

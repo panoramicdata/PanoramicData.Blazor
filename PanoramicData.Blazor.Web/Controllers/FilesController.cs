@@ -29,7 +29,7 @@ namespace PanoramicData.Blazor.Web.Controllers
 		[RequestFormLimits(MultipartBodyLengthLimit = 1000000000)]
 		public async Task<IActionResult> Upload([FromForm] FileUploadModel uploadInfo)
 		{
-			Console.WriteLine($"Upload: Key = {uploadInfo.Key}, Path = {uploadInfo.Path}, Name = {uploadInfo.Name}");
+			Console.WriteLine($"Upload: Key = {uploadInfo.Key}, Path = {uploadInfo.Path}, Name = {uploadInfo.Name}, Session = {uploadInfo.SessionId}");
 
 			// upload to temp folder - maintaining folder structure
 			if (uploadInfo.File != null)
@@ -53,6 +53,7 @@ namespace PanoramicData.Blazor.Web.Controllers
 			public string Key { get; set; } = string.Empty;
 			public string Name { get; set; } = string.Empty;
 			public string Path { get; set; } = string.Empty;
+			public string SessionId { get; set; } = string.Empty;
 			public IFormFile? File { get; set; }
 		}
 	}

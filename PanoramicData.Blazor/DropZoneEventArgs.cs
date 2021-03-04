@@ -60,13 +60,15 @@ namespace PanoramicData.Blazor
 		/// <param name="path">The path where the file is being uploaded.</param>
 		/// <param name="name">The name of the file being uploaded.</param>
 		/// <param name="size">The size of the file being uploaded.</param>
-		/// <param name="key">UNique key for upload.</param>
-		public DropZoneUploadEventArgs(string path, string name, long size, string key)
+		/// <param name="key">Unique key for upload.</param>
+		/// <param name="sessionId">Unique identifier for the session.</param>
+		public DropZoneUploadEventArgs(string path, string name, long size, string key, string sessionId)
 		{
 			Key = key;
 			Path = path;
 			Name = name;
 			Size = size;
+			SessionId = sessionId;
 			FormFields = new Dictionary<string, string>();
 		}
 
@@ -91,6 +93,11 @@ namespace PanoramicData.Blazor
 		public string Key { get; set; }
 
 		/// <summary>
+		/// Gets or sets the unique identifier of the session.
+		/// </summary>
+		public string SessionId { get; set; }
+
+		/// <summary>
 		/// Gets or sets additional form fields to be sent with the upload request.
 		/// </summary>
 		public Dictionary<string, string> FormFields { get; set; }
@@ -107,9 +114,8 @@ namespace PanoramicData.Blazor
 		/// <param name="path">The path where the file is being uploaded.</param>
 		/// <param name="name">The name of the file being uploaded.</param>
 		/// <param name="size">The size of the file being uploaded.</param>
-		/// <param name="size">The size of the file being uploaded.</param>
-		public DropZoneUploadProgressEventArgs(string path, string name, long size, string key, double progress)
-			: base(path, name, size, key)
+		public DropZoneUploadProgressEventArgs(string path, string name, long size, string key, string sessionId, double progress)
+			: base(path, name, size, key, sessionId)
 		{
 			Progress = progress;
 		}
@@ -141,9 +147,8 @@ namespace PanoramicData.Blazor
 		/// <param name="path">The path where the file is being uploaded.</param>
 		/// <param name="name">The name of the file being uploaded.</param>
 		/// <param name="size">The size of the file being uploaded.</param>
-		/// <param name="size">The size of the file being uploaded.</param>
-		public DropZoneUploadCompletedEventArgs(string path, string name, long size, string key)
-			: base(path, name, size, key)
+		public DropZoneUploadCompletedEventArgs(string path, string name, long size, string key, string sessionId)
+			: base(path, name, size, key, sessionId)
 		{
 			Success = true;
 		}
@@ -154,10 +159,9 @@ namespace PanoramicData.Blazor
 		/// <param name="path">The path where the file is being uploaded.</param>
 		/// <param name="name">The name of the file being uploaded.</param>
 		/// <param name="size">The size of the file being uploaded.</param>
-		/// <param name="size">The size of the file being uploaded.</param>
 		/// <param name="reason">Reason for the upload failure.</param>
-		public DropZoneUploadCompletedEventArgs(string path, string name, long size, string key, string reason)
-			: base(path, name, size, key)
+		public DropZoneUploadCompletedEventArgs(string path, string name, long size, string key, string sessionId, string reason)
+			: base(path, name, size, key, sessionId)
 		{
 			Reason = reason;
 		}

@@ -58,7 +58,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		public void OnUploadStarted(DropZoneUploadEventArgs args)
 		{
 			// add example additional field to pass with upload
-			args.FormFields.Add("key", Guid.NewGuid().ToString());
+			args.FormFields.Add("sessionId", FileExplorer.SessionId);
 		}
 
 		public async Task OnUploadCompleted(DropZoneUploadCompletedEventArgs args)

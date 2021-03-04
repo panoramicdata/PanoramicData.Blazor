@@ -48,6 +48,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string? UploadUrl { get; set; }
 
 		/// <summary>
+		/// Gets or sets a unique identifier for the upload session.
+		/// </summary>
+		[Parameter] public string SessionId { get; set; } = Guid.NewGuid().ToString();
+
+		/// <summary>
 		/// Sets the maximum time in seconds to wait for an upload to complete.
 		/// </summary>
 		[Parameter] public int Timeout { get; set; } = 30000;
@@ -80,7 +85,7 @@ namespace PanoramicData.Blazor
 				var options = new { url = UploadUrl, timeout = Timeout, autoScroll = AutoScroll, maxFilesize = MaxFileSize };
 				if (!string.IsNullOrWhiteSpace(UploadUrl))
 				{
-					await JSRuntime.InvokeVoidAsync("panoramicData.initDropzone", $"#{Id}", options, _dotNetReference).ConfigureAwait(true);
+					await JSRuntime.InvokeVoidAsync("panoramicData.initDropzone", $"#{Id}", options, SessionId, _dotNetReference).ConfigureAwait(true);
 				}
 			}
 		}
@@ -115,7 +120,7 @@ namespace PanoramicData.Blazor
 			{
 				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 			}
-			var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key ?? string.Empty);
+			var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId);
 			await UploadStarted.InvokeAsync(args).ConfigureAwait(true);
 			if (args.FormFields.Count == 0)
 			{
@@ -147,7 +152,7 @@ namespace PanoramicData.Blazor
 			{
 				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 			}
-			UploadProgress.InvokeAsync(new DropZoneUploadProgressEventArgs(file.Path, file.Name, file.Size, file.Key, file.Progress));
+			UploadProgress.InvokeAsync(new DropZoneUploadProgressEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId, file.Progress));
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadEnd")]
@@ -167,11 +172,11 @@ namespace PanoramicData.Blazor
 			}
 			if (file.Success)
 			{
-				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key ?? string.Empty));
+				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId));
 			}
 			else
 			{
-				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key ?? string.Empty, file.Reason));
+				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId, file.Reason));
 			}
 		}
 
