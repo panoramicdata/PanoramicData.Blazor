@@ -936,7 +936,7 @@ namespace PanoramicData.Blazor
 					if (UploadDialog!.Buttons.First(x => x.Key == "No") is ToolbarButton btn)
 					{
 						btn.ShiftRight = true;
-						btn.Text = "Cancel";
+						btn.Text = "Close";
 						btn.CssClass = "btn-primary";
 					}
 				}
