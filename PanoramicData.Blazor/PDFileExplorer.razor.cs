@@ -131,7 +131,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets the maximum file upload size in MB.
 		/// </summary>
-		[Parameter] public int MaxUploadSize { get; set; } = 256;
+		[Parameter] public int UploadMaxSize { get; set; } = 256;
 
 		/// <summary>
 		/// Event called whenever a move or copy operation is subject to conflicts.
@@ -229,6 +229,11 @@ namespace PanoramicData.Blazor
 		/// URL where files are uploaded.
 		/// </summary>
 		[Parameter] public string? UploadUrl { get; set; }
+
+		/// <summary>
+		/// Upload timeout in milliseconds.
+		/// </summary>
+		[Parameter] public int UploadTimeout { get; set; } = 30000;
 
 		/// <summary>
 		/// Event raised whenever the table context menu may need updating.

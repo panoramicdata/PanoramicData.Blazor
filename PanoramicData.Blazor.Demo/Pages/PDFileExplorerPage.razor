@@ -11,7 +11,6 @@
 		<PDDragContext>
 			<PDFileExplorer @ref="FileExplorer"
 							AutoExpand="true"
-							MaxUploadSize="256"
 							DataProvider="_dataProvider"
 							GetIconClass="GetIconCssClass"
 							UpdateTableContextState="OnUpdateTableContextMenuState"
@@ -20,6 +19,8 @@
 							TableDownloadRequest="OnTableDownloadRequest"
 							ToolbarClick="OnToolbarClick"
 							UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())"
+							UploadMaxSize="256"
+							UploadTimeout="60000"
 							UploadRequest="OnUploadRequest"
 							UploadStarted="OnUploadStarted"
 							UploadCompleted="OnUploadCompleted">
