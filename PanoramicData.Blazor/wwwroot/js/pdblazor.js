@@ -429,6 +429,11 @@
 			timeout: 30000,
 			maxFilesize: 512,
 			init: function () {
+				this.on('addedfile', function (file) {
+					console.log("added");
+					console.dir(file);
+					file.previewElement.querySelector(".pdfe-dz-name").innerHTML = getPath(file) + (file.targetName || file.name);
+				});
 				this.on("sending", function (file, xhr) {
 					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId });
 				});
