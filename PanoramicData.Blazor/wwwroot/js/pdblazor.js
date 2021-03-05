@@ -109,6 +109,18 @@
 			node.value = value;
 	},
 
+	addClass: function (id, cls) {
+		var el = document.getElementById(id);
+		if (el)
+			el.classList.add(cls);
+	},
+
+	removeClass: function (id, cls) {
+		var el = document.getElementById(id);
+		if (el)
+			el.classList.remove(cls);
+	},
+
 	// 04/08/20 - bytesBase64 limited to 125MB by System.Text.Json writer
 	downloadfromBase: function(filename, bytesBase64) {
 		var link = document.createElement('a');

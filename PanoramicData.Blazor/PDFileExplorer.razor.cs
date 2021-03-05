@@ -713,6 +713,9 @@ namespace PanoramicData.Blazor
 		{
 			if (Tree?.SelectedNode?.Data != null)
 			{
+				// ensure class is added to drop zone dialog to hide message
+				await JSRuntime.InvokeVoidAsync("panoramicData.addClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
+
 				// set current folder
 				args.BaseFolder = FolderPath;
 
@@ -1427,6 +1430,7 @@ namespace PanoramicData.Blazor
 		{
 			await JSRuntime.InvokeVoidAsync("panoramicData.clearDropzone", "#pdfe-drop-zone-1").ConfigureAwait(true);
 			await JSRuntime.InvokeVoidAsync("panoramicData.clearDropzone", "#pdfe-drop-zone-2").ConfigureAwait(true);
+			await JSRuntime.InvokeVoidAsync("panoramicData.removeClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
 		}
 
 		public void Dispose()
