@@ -5,6 +5,7 @@
 		<div class="pdfe-dz-bar d-flex justify-content-between">
 			<span class="pdfe-dz-name" data-dz-name></span>
 			<div>
+				<span data-dz-errormessage></span>
 				<div class="d-none success-mark">
 					<i class="far fa-check-circle"></i>
 				</div>
@@ -14,7 +15,6 @@
 			</div>
 		</div>
 		<div style="width: 0px" class="pdfe-dz-progress" data-dz-uploadprogress></div>
-		<div><span data-dz-errormessage></span></div>
 	</div>
 </template>
 
@@ -37,20 +37,26 @@
 </PDModal>
 
 <PDModal @ref="UploadDialog"
-		 CssClass="pdfe-z-1100"
 		 Size="ModalSizes.Large"
 		 HideOnBackgroundClick="true"
 		 ButtonClick="OnHideUploadDialog">
 	<PDDropZone @ref="DialogDropZone"
+				Id="pdfe-drop-zone-1"
 				SessionId="@SessionId"
+				CssClass="upload-zone"
 				UploadUrl="@UploadUrl"
 				Timeout="@UploadTimeout"
 				MaxFileSize="UploadMaxSize"
+				PreviewTemplate="#file-upload-template"
 				Drop="OnFilesDroppedAsync"
 				AllUploadsComplete="OnAllUploadsComplete"
 				UploadStarted="OnUploadStartedAsync"
 				UploadProgress="OnUploadProgressAsync"
 				UploadCompleted="OnUploadCompletedAsync">
+		<div class="pdfe-drop-zone-msg" onclick="panoramicData.dropzoneClick(this)">
+			<span>Drag and drop files here to upload</span>
+			<span>Click to browse for files to upload </span>
+		</div>
 	</PDDropZone>
 	<button class="mt-1 btn btn-default" @onclick="OnClearUploadFiles">
 		<i class="fas fa-times"></i>
@@ -65,173 +71,177 @@
 				   ButtonClick="OnToolbarButtonClickAsync" />
 	</div>
 
-	<PDSplitter GutterSize="6">
+	<PDDropZone Id="pdfe-drop-zone-2"
+				SessionId="@SessionId"
+				CssClass="h-100-pct"
+				UploadUrl="@UploadUrl"
+				Timeout="@UploadTimeout"
+				MaxFileSize="UploadMaxSize"
+				PreviewContainer="#pdfe-drop-zone-1"
+				PreviewTemplate="#file-upload-template"
+				Drop="OnFilesDroppedAsync"
+				AllUploadsComplete="OnAllUploadsComplete"
+				UploadStarted="OnUploadStartedAsync"
+				UploadProgress="OnUploadProgressAsync"
+				UploadCompleted="OnUploadCompletedAsync">
 
-		<PDSplitPanel Size="1">
+		<PDSplitter GutterSize="6">
 
-			<PDContextMenu Items="TreeContextItems"
-						   Enabled="ShowContextMenu"
-						   UpdateState="OnTreeContextMenuUpdateStateAsync"
-						   ItemClick="OnTreeContextMenuItemClickAsync">
+			<PDSplitPanel Size="1">
 
-				<PDTree @ref="Tree"
-						TItem="FileExplorerItem"
-						DataProvider="DataProvider"
-						KeyField="x => x.Path"
-						ParentKeyField="x => x.ParentPath"
-						TextField="x => x.Name"
-						IsLeaf="x => x.EntryType == FileExplorerItemType.File || x.HasSubFolders == false"
-						LoadOnDemand="true"
-						AllowSelection="true"
-						AllowDrag="true"
-						AllowDrop="AllowDrop"
-						AllowEdit="AllowRename"
-						Sort="OnTreeSort"
-						Drop="OnDropAsync"
-						KeyDown="OnTreeKeyDownAsync"
-						BeforeEdit="OnTreeBeforeEdit"
-						AfterEdit="OnTreeAfterEditAsync"
-						ItemsLoaded="OnTreeItemsLoaded"
-						NodeUpdated="OnTreeNodeUpdatedAsync"
-						SelectionChange="OnTreeSelectionChangeAsync">
-					<NodeTemplate>
-						<span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
-							<i class="@GetIconCssClass(context?.Data)"></i>
-							<span>@context?.Data?.Name</span>
-						</span>
-					</NodeTemplate>
-				</PDTree>
+				<PDContextMenu Items="TreeContextItems"
+							   Enabled="ShowContextMenu"
+							   UpdateState="OnTreeContextMenuUpdateStateAsync"
+							   ItemClick="OnTreeContextMenuItemClickAsync">
 
-			</PDContextMenu>
+					<PDTree @ref="Tree"
+							TItem="FileExplorerItem"
+							DataProvider="DataProvider"
+							KeyField="x => x.Path"
+							ParentKeyField="x => x.ParentPath"
+							TextField="x => x.Name"
+							IsLeaf="x => x.EntryType == FileExplorerItemType.File || x.HasSubFolders == false"
+							LoadOnDemand="true"
+							AllowSelection="true"
+							AllowDrag="true"
+							AllowDrop="AllowDrop"
+							AllowEdit="AllowRename"
+							Sort="OnTreeSort"
+							Drop="OnDropAsync"
+							KeyDown="OnTreeKeyDownAsync"
+							BeforeEdit="OnTreeBeforeEdit"
+							AfterEdit="OnTreeAfterEditAsync"
+							ItemsLoaded="OnTreeItemsLoaded"
+							NodeUpdated="OnTreeNodeUpdatedAsync"
+							SelectionChange="OnTreeSelectionChangeAsync">
+						<NodeTemplate>
+							<span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
+								<i class="@GetIconCssClass(context?.Data)"></i>
+								<span>@context?.Data?.Name</span>
+							</span>
+						</NodeTemplate>
+					</PDTree>
 
-		</PDSplitPanel>
+				</PDContextMenu>
 
-		<PDSplitPanel Size="3">
+			</PDSplitPanel>
 
-			<PDContextMenu Items="TableContextItems"
-						   Enabled="ShowContextMenu"
-						   UpdateState="OnTableContextMenuUpdateStateAsync"
-						   ItemClick="OnTableContextMenuItemClickAsync">
+			<PDSplitPanel Size="3">
 
-				@*<PDDropZone UploadUrl="@UploadUrl"
-					SessionId="@SessionId"
-					UploadUrl="@UploadUrl"
-					Timeout="@UploadTimeout"
-					MaxFileSize="MaxUploadSize"
-					Drop="OnFilesDroppedAsync"
-					AllUploadsComplete="OnAllUploadsComplete"
-					UploadStarted="OnUploadStartedAsync"
-					UploadProgress="OnUploadProgressAsync"
-					UploadCompleted="OnUploadCompletedAsync">*@
+				<PDContextMenu Items="TableContextItems"
+							   Enabled="ShowContextMenu"
+							   UpdateState="OnTableContextMenuUpdateStateAsync"
+							   ItemClick="OnTableContextMenuItemClickAsync">
 
-				<PDTable @ref="Table"
-						 TItem="FileExplorerItem"
-						 DataProvider="DataProvider"
-						 KeyField="x => x.Path"
-						 AutoLoad="false"
-						 AllowEdit="AllowRename"
-						 AllowDrag="AllowDrag"
-						 AllowDrop="AllowDrop"
-						 SearchText="@FolderPath"
-						 SelectionMode="SelectionMode"
-						 ColumnsConfig="ColumnConfig"
-						 Drop="OnDropAsync"
-						 SortCriteria="_tableSort"
-						 KeyDown="OnTableKeyDownAsync"
-						 BeforeEdit="OnTableBeforeEdit"
-						 ItemsLoaded="OnTableItemsLoaded"
-						 AfterEdit="OnTableAfterEditAsync"
-						 DoubleClick="OnTableDoubleClickAsync"
-						 SelectionChanged="OnTableSelectionChangedAsync"
-						 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
+					<PDTable @ref="Table"
+							 TItem="FileExplorerItem"
+							 DataProvider="DataProvider"
+							 KeyField="x => x.Path"
+							 AutoLoad="false"
+							 AllowEdit="AllowRename"
+							 AllowDrag="AllowDrag"
+							 AllowDrop="AllowDrop"
+							 SearchText="@FolderPath"
+							 SelectionMode="SelectionMode"
+							 ColumnsConfig="ColumnConfig"
+							 Drop="OnDropAsync"
+							 SortCriteria="_tableSort"
+							 KeyDown="OnTableKeyDownAsync"
+							 BeforeEdit="OnTableBeforeEdit"
+							 ItemsLoaded="OnTableItemsLoaded"
+							 AfterEdit="OnTableAfterEditAsync"
+							 DoubleClick="OnTableDoubleClickAsync"
+							 SelectionChanged="OnTableSelectionChangedAsync"
+							 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
 
-					<PDColumn TItem="FileExplorerItem"
-							  Id="Icon"
-							  ThClass="pl-1 pr-0"
-							  Field="x => x.EntryType"
-							  Editable="false"
-							  Sortable="false">
-						<Template>
-							<i class="@GetIconCssClass(context)"></i>
-						</Template>
-					</PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Icon"
+								  ThClass="pl-1 pr-0"
+								  Field="x => x.EntryType"
+								  Editable="false"
+								  Sortable="false">
+							<Template>
+								<i class="@GetIconCssClass(context)"></i>
+							</Template>
+						</PDColumn>
 
-					<PDColumn TItem="FileExplorerItem"
-							  Id="Name"
-							  ThClass="w-100-pct"
-							  Field="x => x.Name">
-						<Template>
-							@if (context.IsUploading)
-							{
-								<div style="width: 100%">
-									<span>@context.Name</span>
-									<div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
-								</div>
-							}
-							else
-							{
-								<span class="">@context.Name</span>
-							}
-						</Template>
-					</PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Name"
+								  ThClass="w-100-pct"
+								  Field="x => x.Name">
+							<Template>
+								@if (context.IsUploading)
+								{
+									<div style="width: 100%">
+										<span>@context.Name</span>
+										<div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
+									</div>
+								}
+								else
+								{
+									<span class="">@context.Name</span>
+								}
+							</Template>
+						</PDColumn>
 
-					<PDColumn TItem="FileExplorerItem"
-							  Id="Type"
-							  ThClass="mw-100-px"
-							  Field="x => x.EntryType"
-							  Editable="false">
-						<Template>
-							<span class="text-nowrap">
-								@(context.EntryType == FileExplorerItemType.Directory
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Type"
+								  ThClass="mw-100-px"
+								  Field="x => x.EntryType"
+								  Editable="false">
+							<Template>
+								<span class="text-nowrap">
+									@(context.EntryType == FileExplorerItemType.Directory
 										? "File Folder"
 										: ($"{context.FileExtension.ToUpper()} File").Trim() )
-							</span>
-						</Template>
-					</PDColumn>
+								</span>
+							</Template>
+						</PDColumn>
 
-					<PDColumn TItem="FileExplorerItem"
-							  Id="Size"
-							  ThClass="mw-100-px"
-							  Field="x => x.FileSize"
-							  Editable="false">
-						<Template>
-							<span title="@(context.FileSize.ToString("0,0")) bytes">
-								@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize("#"))
-							</span>
-						</Template>
-					</PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Size"
+								  ThClass="mw-100-px"
+								  Field="x => x.FileSize"
+								  Editable="false">
+							<Template>
+								<span title="@(context.FileSize.ToString("0,0")) bytes">
+									@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize("#"))
+								</span>
+							</Template>
+						</PDColumn>
 
-					<PDColumn TItem="FileExplorerItem"
-							  Id="Created"
-							  ThClass="mw-150-px"
-							  Field="x => x.DateCreated"
-							  Editable="false">
-						<Template>
-							<span class="nowrap" title="@(context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
-								@context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-							</span>
-						</Template>
-					</PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Created"
+								  ThClass="mw-150-px"
+								  Field="x => x.DateCreated"
+								  Editable="false">
+							<Template>
+								<span class="nowrap" title="@(context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
+									@context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+								</span>
+							</Template>
+						</PDColumn>
 
-					<PDColumn TItem="FileExplorerItem"
-							  Id="Modified"
-							  ThClass="mw-150-px"
-							  Field="x => x.DateModified"
-							  Editable="false">
-						<Template>
-							<span class="text-nowrap" title="@(context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
-								@context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-							</span>
-						</Template>
-					</PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Modified"
+								  ThClass="mw-150-px"
+								  Field="x => x.DateModified"
+								  Editable="false">
+							<Template>
+								<span class="text-nowrap" title="@(context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
+									@context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+								</span>
+							</Template>
+						</PDColumn>
 
-				</PDTable>
+					</PDTable>
 
-				@*</PDDropZone>*@
+				</PDContextMenu>
 
-			</PDContextMenu>
+			</PDSplitPanel>
 
-		</PDSplitPanel>
+		</PDSplitter>
 
-	</PDSplitter>
+	</PDDropZone>
+
 </div>

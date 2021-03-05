@@ -13,6 +13,11 @@ namespace PanoramicData.Blazor
 		[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 		/// <summary>
+		/// Sets additional CSS classes.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; }
+
+		/// <summary>
 		/// Gets or sets the child content that the drop zone wraps.
 		/// </summary>
 		[Parameter] public RenderFragment? ChildContent { get; set; }
@@ -68,13 +73,26 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AutoScroll { get; set; } = true;
 
 		/// <summary>
+		/// Optional CSS selector where preview elements are added.
+		/// </summary>
+		[Parameter] public string PreviewContainer { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Optional CSS selector identifying upload item template.
+		/// </summary>
+		[Parameter] public string PreviewTemplate { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets the unique identifier of this panel.
 		/// </summary>
-		public string Id { get; private set; } = string.Empty;
+		[Parameter] public string Id { get; set; } = string.Empty;
 
 		protected override void OnInitialized()
 		{
-			Id = $"pddz{++_idSequence}";
+			if (Id == string.Empty)
+			{
+				Id = $"pddz{++_idSequence}";
+			}
 		}
 
 		protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -82,7 +100,15 @@ namespace PanoramicData.Blazor
 			if (firstRender)
 			{
 				_dotNetReference = DotNetObjectReference.Create(this);
-				var options = new { url = UploadUrl, timeout = Timeout, autoScroll = AutoScroll, maxFilesize = MaxFileSize };
+				var options = new
+				{
+					url = UploadUrl,
+					timeout = Timeout,
+					autoScroll = AutoScroll,
+					maxFilesize = MaxFileSize,
+					previewsContainer = PreviewContainer,
+					previewItemTemplate = PreviewTemplate
+				};
 				if (!string.IsNullOrWhiteSpace(UploadUrl))
 				{
 					await JSRuntime.InvokeVoidAsync("panoramicData.initDropzone", $"#{Id}", options, SessionId, _dotNetReference).ConfigureAwait(true);

@@ -1425,7 +1425,8 @@ namespace PanoramicData.Blazor
 
 		private async Task OnClearUploadFiles()
 		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.clearDropzone").ConfigureAwait(true);
+			await JSRuntime.InvokeVoidAsync("panoramicData.clearDropzone", "#pdfe-drop-zone-1").ConfigureAwait(true);
+			await JSRuntime.InvokeVoidAsync("panoramicData.clearDropzone", "#pdfe-drop-zone-2").ConfigureAwait(true);
 		}
 
 		public void Dispose()

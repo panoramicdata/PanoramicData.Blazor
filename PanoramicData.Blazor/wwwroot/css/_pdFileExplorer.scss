@@ -21,27 +21,24 @@
 }
 
 .upload-zone {
-	border: 4px dashed darkgray;
+	border: 2px dashed silver !important;
 	border-radius: 5px;
-	height: 150px;
+	padding: 5px;
+	max-height: 400px;
+	overflow-y: auto;
+	cursor: pointer;
+}
+
+.pdfe-drop-zone-msg {
 	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	background-color: lightgray;
+	height: 200px;
+	color: silver;
 }
-
-.pddropzone.highlight .upload-zone {
-	border-color: #1c7333;
-	background-color: #b9e0b7;
-}
-
-#file-select {
-	display: block;
-}
-
-.pddropzone {
-	height: 200px !important;
-	overflow-y: auto;
+.dz-started .pdfe-drop-zone-msg {
+	display: none;
 }
 
 .pdfe-dz-preview.dz-success {
@@ -67,12 +64,4 @@
 
 .pdfe-dz-preview.dz-success .success-mark {
 	display: inline-block !important;
-}
-
-.pdfe-z-1100 {
-	z-index: 1100;
-}
-
-.pdfe-z-1200 {
-	z-index: 1200;
 }

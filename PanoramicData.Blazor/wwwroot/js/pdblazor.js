@@ -478,14 +478,29 @@
 				};
 			}
 		}, opt);
-		var el = document.querySelector('#file-upload-template');
-		if (el) {
-			options.previewTemplate = el.innerHTML;
+		if (opt.previewItemTemplate) {
+			var el = document.querySelector(opt.previewItemTemplate);
+			if (el) {
+				options.previewTemplate = el.innerHTML;
+			}
 		}
-		this.dropzone = new Dropzone(idSelector, options);
+		// store drop zone object
+		var dzEl = document.querySelector(idSelector);
+		if (dzEl) {
+			dzEl.dropzone = new Dropzone(idSelector, options);
+		}
 	},
 
-	clearDropzone: function () {
-		this.dropzone.removeAllFiles();
+	dropzoneClick: function (el) {
+		if (el && el.parentElement) {
+			el.parentElement.click();
+		}
+	},
+
+	clearDropzone: function (idSelector) {
+		var el = document.querySelector(idSelector);
+		if (el && el.dropzone) {
+			el.dropzone.removeAllFiles();
+		}
 	}
 }

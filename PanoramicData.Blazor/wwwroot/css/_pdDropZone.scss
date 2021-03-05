@@ -1,20 +1,8 @@
 ﻿.pddropzone {
-	height: 100%;
-	border: 2px dashed rgba(0, 0, 0, 0.1);
-	border-radius: 15px;
+	border: 1px solid transparent;
 }
 
-.pddropzone.highlight {
+.pddropzone.dz-drag-hover {
 	background-color: #e8ffe8;
+	border: 1px dashed rgba(0, 0, 0, 0.1);
 }
-
-
-/*.pddropzone input[type=file] {
-	position: absolute;*/
-/*	width: 100%;
-	height: 100%;
-	opacity: 100%;
-*/
-	/*display: none;
-	cursor: pointer;
-}*/

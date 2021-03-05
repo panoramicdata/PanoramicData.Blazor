@@ -128,24 +128,23 @@
   background-color: #007bff; }
 
 .upload-zone {
-  border: 4px dashed darkgray;
+  border: 2px dashed silver !important;
   border-radius: 5px;
-  height: 150px;
+  padding: 5px;
+  max-height: 400px;
+  overflow-y: auto;
+  cursor: pointer; }
+
+.pdfe-drop-zone-msg {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: lightgray; }
+  height: 200px;
+  color: silver; }
 
-.pddropzone.highlight .upload-zone {
-  border-color: #1c7333;
-  background-color: #b9e0b7; }
-
-#file-select {
-  display: block; }
-
-.pddropzone {
-  height: 200px !important;
-  overflow-y: auto; }
+.dz-started .pdfe-drop-zone-msg {
+  display: none; }
 
 .pdfe-dz-preview.dz-success {
   color: #28a745; }
@@ -165,12 +164,6 @@
 
 .pdfe-dz-preview.dz-success .success-mark {
   display: inline-block !important; }
-
-.pdfe-z-1100 {
-  z-index: 1100; }
-
-.pdfe-z-1200 {
-  z-index: 1200; }
 
 .pdfilemodalexplorer {
   height: 400px; }
@@ -229,22 +222,12 @@
   border-right: 1px solid rgba(0, 0, 0, 0.125); }
 
 .pddropzone {
-  height: 100%;
-  border: 2px dashed rgba(0, 0, 0, 0.1);
-  border-radius: 15px; }
+  border: 1px solid transparent; }
 
-.pddropzone.highlight {
-  background-color: #e8ffe8; }
+.pddropzone.dz-drag-hover {
+  background-color: #e8ffe8;
+  border: 1px dashed rgba(0, 0, 0, 0.1); }
 
-/*.pddropzone input[type=file] {
-	position: absolute;*/
-/*	width: 100%;
-	height: 100%;
-	opacity: 100%;
-*/
-/*display: none;
-	cursor: pointer;
-}*/
 .pdtoolbar {
   -webkit-user-select: none;
   /* Chrome/Safari */
@@ -365,6 +348,9 @@
 .pd-empty-icon {
   height: 16px;
   width: 16px; }
+
+.h-100-pct {
+  height: 100%; }
 
 .w-100-pct {
   width: 100%; }
