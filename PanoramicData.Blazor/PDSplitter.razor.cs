@@ -8,8 +8,12 @@ using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDSplitter
+	public partial class PDSplitter : IDisposable
 	{
+		private static int _idSequence;
+
+		public string Id { get; private set; } = $"pdsplit-{++_idSequence}";
+
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		/// <summary>
@@ -94,8 +98,23 @@ namespace PanoramicData.Blazor
 					DragInterval = DragInterval,
 					Cursor = Direction == SplitDirection.Horizontal ? "col-resize" : "row-resize"
 				};
-				await JSRuntime.InvokeVoidAsync("panoramicData.initializeSplitter", ids, options).ConfigureAwait(true);
+				await JSRuntime.InvokeVoidAsync("panoramicData.initializeSplitter", Id, ids, options).ConfigureAwait(true);
 			}
+		}
+
+		public async Task<double[]> GetSizesAsync()
+		{
+			return await JSRuntime.InvokeAsync<double[]>("panoramicData.splitterGetSizes", Id).ConfigureAwait(true);
+		}
+
+		public async Task SetSizesAsync(double[] sizes)
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicData.splitterSetSizes", Id, sizes).ConfigureAwait(true);
+		}
+
+		public void Dispose()
+		{
+			JSRuntime.InvokeVoidAsync("panoramicData.destroySplitter", Id);
 		}
 	}
 }

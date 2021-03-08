@@ -1,13 +1,32 @@
 ﻿window.panoramicData = {
 
 	shortcutKeys: [],
+	splits: {},
 
 	hasSplitJs: function () {
 		return typeof Split !== 'undefined';
 	},
 
-	initializeSplitter: function (ids, options) {
-		Split(ids, options);
+	initializeSplitter: function (id, ids, options) {
+		this.splits[id] = Split(ids, options);
+	},
+
+	splitterGetSizes: function (id) {
+		if (this.splits[id]) {
+			return this.splits[id].getSizes();
+		}
+	},
+
+	splitterSetSizes: function (id, sizes) {
+		if (this.splits[id]) {
+			this.splits[id].setSizes(sizes);
+		}
+	},
+
+	destroySplitter: function (id) {
+		if (this.splits[id]) {
+			delete this.splits[id];
+		}
 	},
 
 	hasPopperJs: function() {

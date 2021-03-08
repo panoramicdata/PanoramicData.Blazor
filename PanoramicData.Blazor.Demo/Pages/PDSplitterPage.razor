@@ -1,64 +1,69 @@
 ﻿@page "/pdsplitter"
 
-	<style>
-		@@media (max-width: 767.98px) {
-			.full-content-size {
-				height: calc(100vh - 270px);
-				width: calc(100vw - 100px);
-			}
+<style>
+	@@media (max-width: 767.98px) {
+		.full-content-size {
+			height: calc(100vh - 270px);
+			width: calc(100vw - 100px);
 		}
+	}
 
-		@@media (min-width: 768px) {
-			.full-content-size {
-				height: calc(100vh - 270px);
-				width: calc(100vw - 350px);
-			}
+	@@media (min-width: 768px) {
+		.full-content-size {
+			height: calc(100vh - 270px);
+			width: calc(100vw - 350px);
 		}
-	</style>
+	}
+</style>
 
-	<h1>PDSplitter</h1>
-	<p class="text-muted">The PDSplitter component requires inclusion of the <a href="https://split.js.org/">split.js</a> library (see source code for _Host.cshtml for example).</p>
+<h1>PDSplitter</h1>
+<p class="text-muted">The PDSplitter component requires inclusion of the <a href="https://split.js.org/">split.js</a> library (see source code for _Host.cshtml for example).</p>
 
-	<DemoSourceView SourceFiles="Pages/PDSplitterPage.razor">
+<DemoSourceView SourceFiles="Pages/PDSplitterPage.razor">
 
-		<div class="full-content-size">
+	<div class="full-content-size">
 
-			<PDSplitter Direction="SplitDirection.Horizontal"
-						GutterSize="4"
-						ExpandToMin="true">
+		<PDSplitter @ref="_mainSplitter"
+					Direction="SplitDirection.Horizontal"
+					GutterSize="4"
+					ExpandToMin="true">
 
-				<PDSplitPanel Size="1"
-							  MinSize="200">
-					<h3>Panel 1</h3>
-				</PDSplitPanel>
+			<PDSplitPanel Size="1"
+						  MinSize="200">
+				<h3>Panel 1</h3>
+				<button class="btn btn-secondary"
+						@onclick="OnTogglePanel2">
+					@(_isCollapsed ? "Expand" : "Collapse") Panel 2
+				</button>
+			</PDSplitPanel>
 
-				<PDSplitPanel Size="2"
-							  MinSize="200">
-					<h3>Panel 2</h3>
-				</PDSplitPanel>
+			<PDSplitPanel Size="2"
+						  MinSize="0">
+				<h3>Panel 2</h3>
+			</PDSplitPanel>
 
-				<PDSplitPanel Size="1">
+			<PDSplitPanel Size="1">
 
-					<PDSplitter Direction="SplitDirection.Vertical"
-								SnapOffset="0"
-								DragInterval="50">
+				<PDSplitter Direction="SplitDirection.Vertical"
+							SnapOffset="0"
+							DragInterval="50">
 
-						<PDSplitPanel Size="1"
-									  MinSize="50">
-							<h3>Panel 4</h3>
-						</PDSplitPanel>
+					<PDSplitPanel Size="1"
+								  MinSize="50">
+						<h3>Panel 4</h3>
+					</PDSplitPanel>
 
-						<PDSplitPanel Size="1"
-									  MinSize="200">
-							<h3>Panel 5</h3>
-						</PDSplitPanel>
+					<PDSplitPanel Size="1"
+								  MinSize="200">
+						<h3>Panel 5</h3>
+					</PDSplitPanel>
 
-					</PDSplitter>
+				</PDSplitter>
 
-				</PDSplitPanel>
+			</PDSplitPanel>
 
-			</PDSplitter>
+		</PDSplitter>
 
-		</div>
+	</div>
 
-	</DemoSourceView>
+</DemoSourceView>
