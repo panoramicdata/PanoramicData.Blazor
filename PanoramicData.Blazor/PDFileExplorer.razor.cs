@@ -831,9 +831,9 @@ namespace PanoramicData.Blazor
 			return null;
 		}
 
-		private async Task OnToolbarButtonClickAsync(string key)
+		private async Task OnToolbarButtonClickAsync(KeyedEventArgs<MouseEventArgs> args)
 		{
-			switch (key)
+			switch (args.Key)
 			{
 				case "navigate-up":
 					await NavigateUpAsync().ConfigureAwait(true);
@@ -855,7 +855,7 @@ namespace PanoramicData.Blazor
 					break;
 
 				default:
-					await ToolbarClick.InvokeAsync(key).ConfigureAwait(true);
+					await ToolbarClick.InvokeAsync(args.Key).ConfigureAwait(true);
 					break;
 			}
 		}

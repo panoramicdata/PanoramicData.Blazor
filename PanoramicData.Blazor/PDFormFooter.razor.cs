@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -164,8 +165,9 @@ namespace PanoramicData.Blazor
 			}).ConfigureAwait(true);
 		}
 
-		private async Task OnButtonClick(string key)
+		private async Task OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
 		{
+			var key = args.Key;
 			if (!(key == "Cancel" && Form?.ConfirmCancel == true && Form.Delta.Count > 0))
 			{
 				await Click.InvokeAsync(key).ConfigureAwait(true);

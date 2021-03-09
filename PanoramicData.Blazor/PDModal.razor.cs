@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.Collections.Generic;
 using System.Text;
@@ -113,17 +114,17 @@ namespace PanoramicData.Blazor
 			return result;
 		}
 
-		public async Task OnButtonClick(string key)
+		public async Task OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
 		{
 			// are we waiting for using response?
 			if (_userChoice != null)
 			{
-				_userChoice.SetResult(key);
+				_userChoice.SetResult(args.Key);
 			}
 			else
 			{
 				// forward to calling app
-				await ButtonClick.InvokeAsync(key).ConfigureAwait(true);
+				await ButtonClick.InvokeAsync(args.Key).ConfigureAwait(true);
 			}
 		}
 

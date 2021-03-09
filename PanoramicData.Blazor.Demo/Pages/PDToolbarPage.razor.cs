@@ -26,9 +26,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-		public void OnButtonClick(string key)
+		public void OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
 		{
-			EventManager?.Add(new Event("Click", new EventArgument("Key", key)));
+			EventManager?.Add(new Event("Click", new EventArgument("Key", args.Key)));
 		}
 
 		private void OnKeypress(KeyboardEventArgs args)

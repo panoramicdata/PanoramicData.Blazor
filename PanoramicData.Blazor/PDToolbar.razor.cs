@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using System.Collections.Generic;
 
 namespace PanoramicData.Blazor
@@ -18,16 +19,16 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event raised whenever the user clicks on a toolbar button.
 		/// </summary>
-		[Parameter] public EventCallback<string> ButtonClick { get; set; }
+		[Parameter] public EventCallback<KeyedEventArgs<MouseEventArgs>> ButtonClick { get; set; }
 
 		/// <summary>
 		/// Gets or sets additional CSS classes for the toolbar.
 		/// </summary>
 		[Parameter] public string CssClass { get; set; } = "";
 
-		private void OnButtonClick(string key)
+		private void OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
 		{
-			ButtonClick.InvokeAsync(key);
+			ButtonClick.InvokeAsync(args);
 		}
 	}
 }

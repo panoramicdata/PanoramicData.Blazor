@@ -44,7 +44,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			EventManager?.Add(new Event("ItemClick", new EventArgument("Text", item.Text)));
 		}
 
-		private void OnClick(string _)
+		private void OnClick()
 		{
 			Enabled = !Enabled;
 		}

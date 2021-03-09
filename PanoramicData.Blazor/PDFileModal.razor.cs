@@ -131,7 +131,7 @@ namespace PanoramicData.Blazor
 			if (item.EntryType == FileExplorerItemType.File)
 			{
 				_filenameTextbox.Value = item.Name;
-				await Modal.OnButtonClick(_okButton.Key).ConfigureAwait(true);
+				await Modal.OnButtonClick(new KeyedEventArgs<MouseEventArgs>(_okButton.Key)).ConfigureAwait(true);
 			}
 		}
 
@@ -145,7 +145,7 @@ namespace PanoramicData.Blazor
 		{
 			if (args.Code == "Enter" && !string.IsNullOrWhiteSpace(_filenameTextbox.Value))
 			{
-				Task.Run(async () => await Modal.OnButtonClick(_okButton.Key).ConfigureAwait(true)).ConfigureAwait(true);
+				Task.Run(async () => await Modal.OnButtonClick(new KeyedEventArgs<MouseEventArgs>(_okButton.Key)).ConfigureAwait(true)).ConfigureAwait(true);
 			}
 		}
 	}

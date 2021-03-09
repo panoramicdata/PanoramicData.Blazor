@@ -178,7 +178,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			return options.ToArray();
 		}
 
-		private async Task OnEditCommand(string _)
+		private async Task OnEditCommand()
 		{
 			if (Table!.IsEditing)
 			{

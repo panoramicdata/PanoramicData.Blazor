@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -66,7 +67,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event raised whenever user clicks on the button.
 		/// </summary>
-		[Parameter] public EventCallback<string> Click { get; set; }
+		[Parameter] public EventCallback<KeyedEventArgs<MouseEventArgs>> Click { get; set; }
 
 		private Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
@@ -79,9 +80,9 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnClick()
+		private async Task OnClick(MouseEventArgs args)
 		{
-			await Click.InvokeAsync(Key).ConfigureAwait(true);
+			await Click.InvokeAsync(new KeyedEventArgs<MouseEventArgs>(Key, args)).ConfigureAwait(true);
 		}
 	}
 }
