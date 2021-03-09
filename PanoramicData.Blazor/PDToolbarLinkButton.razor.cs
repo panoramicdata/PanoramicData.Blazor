@@ -1,17 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Services;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDToolbarDropdown : IDisposable
+	public partial class PDToolbarLinkButton
 	{
-		#region Inject
-		[Inject] IGlobalEventService GlobalEventService { get; set; } = null!;
-		#endregion
-
 		/// <summary>
 		/// Gets or sets the unique identifier.
 		/// </summary>
@@ -63,54 +57,35 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool ShiftRight { get; set; } = false;
 
 		/// <summary>
-		/// Gets or sets the menu items to be displayed in the context menu.
+		/// Sets the short cut keys that will perform a click on this button.
+		/// In format: 'ctrl-s', 'alt-ctrl-w' (case in-sensitive)
 		/// </summary>
-		[Parameter] public List<MenuItem> Items { get; set; } = new List<MenuItem>();
+		[Parameter] public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
 
 		/// <summary>
-		/// Event raised whenever user clicks on the button.
+		/// Sets where to display the linked URL, as the name for a browsing context (a tab, window, or <iframe>).
+		/// The following keywords have special meanings for where to load the URL:
+		/// _self: the current browsing context. (Default)
+		/// _blank: usually a new tab, but users can configure browsers to open a new window instead.
+		/// _parent: the parent browsing context of the current one. If no parent, behaves as _self.
+		/// _top: the topmost browsing context (the "highest" context that’s an ancestor of the current one). If no ancestors, behaves as _self.
 		/// </summary>
-		[Parameter] public EventCallback<string> Click { get; set; }
+		[Parameter] public string Target { get; set; } = "_self";
 
-		protected override void OnInitialized()
+		/// <summary>
+		/// Sets the destination URL.
+		/// </summary>
+		[Parameter] public string Url { get; set; } = "#";
+
+		private Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+
+		protected override void OnParametersSet()
 		{
-			GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
-			foreach (var item in Items)
+			if (!string.IsNullOrEmpty(Key))
 			{
-				if (item.ShortcutKey.HasValue)
-				{
-					GlobalEventService.RegisterShortcutKey(item.ShortcutKey);
-				}
+				Attributes.Clear();
+				Attributes.Add("Id", $"pd-tbr-btn-{Key}");
 			}
-		}
-
-		private async void GlobalEventService_KeyUpEvent(object sender, KeyboardInfo e)
-		{
-			foreach (var item in Items)
-			{
-				if (item.ShortcutKey.IsMatch(e.Key, e.Code, e.AltKey, e.CtrlKey, e.ShiftKey))
-				{
-					await InvokeAsync(async () => await OnClick(item.GetKeyOrText()).ConfigureAwait(true)).ConfigureAwait(true);
-					break;
-				}
-			}
-		}
-
-		public void Dispose()
-		{
-			foreach (var item in Items)
-			{
-				if (item.ShortcutKey.HasValue)
-				{
-					GlobalEventService.UnregisterShortcutKey(item.ShortcutKey);
-				}
-			}
-			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
-		}
-
-		private async Task OnClick(string itemKey)
-		{
-			await Click.InvokeAsync(itemKey).ConfigureAwait(true);
 		}
 	}
 }

@@ -1,15 +1,18 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using PanoramicData.Blazor.Services;
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDButton : IDisposable
+	public partial class PDLinkButton
 	{
+		private static int _sequence;
+
 		#region Inject
 		[Inject] IGlobalEventService GlobalEventService { get; set; } = null!;
+		[Inject] public IJSRuntime? JSRuntime { get; set; }
 		#endregion
 
 		/// <summary>
@@ -30,7 +33,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Unique identifier for button.
 		/// </summary>
-		[Parameter] public string Id { get; set; } = string.Empty;
+		[Parameter] public string Id { get; set; } = $"pdlb-{++_sequence}";
 
 		/// <summary>
 		/// Determines whether the button is enabled and can be clicked?
@@ -38,15 +41,20 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool IsEnabled { get; set; } = true;
 
 		/// <summary>
-		/// Sets a callback for when user clicks button.
-		/// </summary>
-		[Parameter] public EventCallback<MouseEventArgs> Click { get; set; }
-
-		/// <summary>
 		/// Sets the short cut keys that will perform a click on this button.
 		/// In format: 'ctrl-s', 'alt-ctrl-w' (case in-sensitive)
 		/// </summary>
 		[Parameter] public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
+
+		/// <summary>
+		/// Sets where to display the linked URL, as the name for a browsing context (a tab, window, or <iframe>).
+		/// The following keywords have special meanings for where to load the URL:
+		/// _self: the current browsing context. (Default)
+		/// _blank: usually a new tab, but users can configure browsers to open a new window instead.
+		/// _parent: the parent browsing context of the current one. If no parent, behaves as _self.
+		/// _top: the topmost browsing context (the "highest" context that’s an ancestor of the current one). If no ancestors, behaves as _self.
+		/// </summary>
+		[Parameter] public string Target { get; set; } = "_self";
 
 		/// <summary>
 		/// Sets the text displayed on the button.
@@ -63,6 +71,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public string ToolTip { get; set; } = string.Empty;
 
+		/// <summary>
+		/// Sets the destination URL.
+		/// </summary>
+		[Parameter] public string Url { get; set; } = "#";
+
 		protected override void OnInitialized()
 		{
 			GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
@@ -76,17 +89,14 @@ namespace PanoramicData.Blazor
 		{
 			if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.Code, e.AltKey, e.CtrlKey, e.ShiftKey))
 			{
-				await InvokeAsync(async () => await Click.InvokeAsync(new MouseEventArgs()).ConfigureAwait(true)).ConfigureAwait(true);
+				await ClickAsync().ConfigureAwait(true);
 			}
 		}
 
-		//private async void GlobalEventService_KeyDownEvent(object sender, KeyboardInfo e)
-		//{
-		//	if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.AltKey, e.CtrlKey, e.ShiftKey))
-		//	{
-		//		await InvokeAsync(async () => await Click.InvokeAsync(new MouseEventArgs()).ConfigureAwait(true)).ConfigureAwait(true);
-		//	}
-		//}
+		public async Task ClickAsync()
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicData.click", Id).ConfigureAwait(true);
+		}
 
 		public void Dispose()
 		{

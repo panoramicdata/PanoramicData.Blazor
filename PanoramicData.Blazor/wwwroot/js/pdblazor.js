@@ -89,6 +89,13 @@
 		return false;
 	},
 
+	click: function (id) {
+		var el = document.getElementById(id);
+		if (el && el.click) {
+			el.click();
+		}
+	},
+
 	selectText: function(id, start, end) {
 		var node = document.getElementById(id);
 		if (!node) return;
@@ -405,18 +412,20 @@
 	},
 
 	isShortcutKeyMatch: function (keyInfo) {
-
+		console.dir(this.shortcutKeys);
 		var match = this.shortcutKeys.find((v) => v.altKey == keyInfo.altKey &&
 			v.ctrlKey == keyInfo.ctrlKey &&
 			v.shiftKey == keyInfo.shiftKey &&
-			v.key.toLowerCase() == keyInfo.key.toLowerCase());
+			(v.key.toLowerCase() == keyInfo.key.toLowerCase()) || (v.code.toLowerCase() == keyInfo.code.toLowerCase()));
 		return match ? true : false;
 	},
 
 	onKeyDown: function (e) {
 		if (window.panoramicData.globalListenerReference) {
 			var keyInfo = panoramicData.getKeyArgs(e);
+			console.dir(keyInfo);
 			if (window.panoramicData.isShortcutKeyMatch(keyInfo)) {
+				console.log('key down matched')
 				e.stopPropagation();
 				e.preventDefault();
 			}
@@ -427,7 +436,9 @@
 	onKeyUp: function (e) {
 		if (window.panoramicData.globalListenerReference) {
 			var keyInfo = panoramicData.getKeyArgs(e);
+			console.dir(keyInfo);
 			if (window.panoramicData.isShortcutKeyMatch(keyInfo)) {
+				console.log('key up matched')
 				e.stopPropagation();
 				e.preventDefault();
 			}
@@ -438,6 +449,7 @@
 	getKeyArgs: function (e) {
 		var obj = {};
 		obj.key = e.key;
+		obj.code = e.code;
 		obj.keyCode = e.keyCode;
 		obj.altKey = e.altKey;
 		obj.ctrlKey = e.ctrlKey;

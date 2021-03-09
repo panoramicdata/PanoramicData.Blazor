@@ -1,0 +1,33 @@
+﻿@page "/pdbutton"
+@using PanoramicData.Blazor.Services;
+
+<h1>PDButton</h1>
+
+<DemoSourceView SourceFiles="Pages/PDButtonPage.razor, Pages/PDButtonPage.razor.cs">
+
+	<div>
+		<PDButton Text="Click Me"
+				  IconCssClass="fas fa-fw fa-plus"
+				  CssClass="btn btn-primary"
+				  ShortcutKey="_shortcut1"
+				  ToolTip="@($"Click me or press {_shortcut1} to increment the counter")"
+				  Click="@(() => _clickCounter++)">
+		</PDButton>
+		@if (_clickCounter > 0)
+		{
+			<span class="ml-2">Button clicked @_clickCounter Times</span>
+		}
+	</div>
+
+	<div class="mt-2">
+		<PDLinkButton Text="Click Me"
+					  IconCssClass="fas fa-fw fa-external-link-alt"
+					  CssClass="btn btn-secondary"
+					  ShortcutKey="_shortcut2"
+					  ToolTip="@($"Click me or press {_shortcut2} to navigate to a new page")"
+					  Url="https://www.panoramicdata.com/"
+					  Target="_self">
+		</PDLinkButton>
+	</div>
+
+</DemoSourceView>

@@ -26,15 +26,15 @@
 
 		<PDToolbarSeparator IsVisible="ShowButtons" />
 
-		<PDToolbarButton Key="Download"
-						 Text="&&Download"
-						 CssClass="btn-secondary"
-						 IconCssClass="fas fa-fw fa-file-download"
-						 TextCssClass="d-none d-sm-none d-md-inline"
-						 ShortcutKey="@(ShortcutKey.Create("ctrl-d"))"
-						 Click="OnButtonClick"
-						 IsVisible="ShowButtons"
-						 IsEnabled="EnableButtons" />
+		<PDToolbarLinkButton Key="Launch"
+							 Text="&&Launch"
+							 CssClass="btn-secondary text-nowrap"
+							 IconCssClass="fas fa-fw fa-external-link-alt"
+							 TextCssClass="d-none d-sm-none d-md-inline"
+							 ShortcutKey="@(ShortcutKey.Create("ctrl-l"))"
+							 Url="https://panoramicdata.com"
+							 IsVisible="ShowButtons"
+							 IsEnabled="EnableButtons" />
 
 		<PDToolbarSeparator IsVisible="ShowButtons" />
 

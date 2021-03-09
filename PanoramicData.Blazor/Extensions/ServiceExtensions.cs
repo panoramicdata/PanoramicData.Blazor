@@ -19,6 +19,6 @@ namespace PanoramicData.Blazor.Extensions
 		/// <param name="services">Service collection to add service to.</param>
 		/// <returns>The IServiceCollection for further adds</returns>
 		public static IServiceCollection AddGlobalEventService(this IServiceCollection services)
-			=> services.AddSingleton<IGlobalEventService, GlobalEventService>();
+			=> services.AddScoped<IGlobalEventService, GlobalEventService>();
 	}
 }

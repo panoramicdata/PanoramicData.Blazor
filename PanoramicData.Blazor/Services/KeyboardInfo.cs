@@ -6,13 +6,20 @@
 	public class KeyboardInfo
 	{
 		/// <summary>
-		/// Gets or sets the key code that the event relates to.
+		/// Gets or sets the numeric key code that the event relates to.
 		/// </summary>
 		public int KeyCode { get; set; }
 
 		/// <summary>
+		/// Gets or sets the string key code that the event relates to.
+		/// </summary>
+		public string Code { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets the key that the event relates to.
 		/// </summary>
+		/// <remarks>Note that when shift key is also pressed this will be the actual shift key character
+		/// - which can vary from locale to locale.</remarks>
 		public string Key { get; set; } = string.Empty;
 
 		/// <summary>

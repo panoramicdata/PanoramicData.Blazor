@@ -1,0 +1,12 @@
+﻿<div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "") @ItemCssClass">
+	<PDLinkButton @attributes="Attributes"
+				  CssClass="@($"pdtoolbarlinkbutton {CssClass}")"
+				  IsEnabled="IsEnabled"
+				  Text="@Text"
+				  ShortcutKey="ShortcutKey"
+				  IconCssClass="@IconCssClass"
+				  ToolTip="@(string.IsNullOrWhiteSpace(ToolTip) ? Text : ToolTip)"
+				  Url="@Url"
+				  Target="@Target">
+	</PDLinkButton>
+</div>
