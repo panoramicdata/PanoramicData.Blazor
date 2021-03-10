@@ -10,11 +10,11 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    # sets up .NET Core SDK 3.1
-    #- name: Setup .NET Core SDK
-    #  uses: actions/setup-dotnet@v1
-    #  with:
-    #    dotnet-version: 3.1
+    # sets up .NET Core SDK 5.0.200
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.200
     # restore projects separately
     - name: Restore Projects
       run: dotnet restore PanoramicData.Blazor.WebAssembly/Client/PanoramicData.Blazor.WebAssembly.Client.csproj
