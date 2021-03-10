@@ -1,5 +1,4 @@
 ﻿using BlazorMonaco;
-using BlazorMonaco.Bridge;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
 using System;

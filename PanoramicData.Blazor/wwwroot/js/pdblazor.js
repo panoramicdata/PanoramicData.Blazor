@@ -423,9 +423,7 @@
 	onKeyDown: function (e) {
 		if (window.panoramicData.globalListenerReference) {
 			var keyInfo = panoramicData.getKeyArgs(e);
-			console.dir(keyInfo);
 			if (window.panoramicData.isShortcutKeyMatch(keyInfo)) {
-				console.log('key down matched')
 				e.stopPropagation();
 				e.preventDefault();
 			}
@@ -438,7 +436,6 @@
 			var keyInfo = panoramicData.getKeyArgs(e);
 			console.dir(keyInfo);
 			if (window.panoramicData.isShortcutKeyMatch(keyInfo)) {
-				console.log('key up matched')
 				e.stopPropagation();
 				e.preventDefault();
 			}

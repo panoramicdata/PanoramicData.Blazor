@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.1</TargetFramework>
-		<RazorLangVersion>3.0</RazorLangVersion>
-		<LangVersion>latest</LangVersion>
+		<TargetFramework>net5.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<UserSecretsId>49933e5c-b6ca-4a76-8b2a-09d0868ee051</UserSecretsId>
 	</PropertyGroup>
@@ -24,9 +22,9 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="BlazorMonaco" Version="1.5.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.9" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.9" />
+		<PackageReference Include="BlazorMonaco" Version="2.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.4" />
 	</ItemGroup>
 
 
