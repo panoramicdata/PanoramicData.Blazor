@@ -14,7 +14,7 @@
 		<PDToolbarButton Text="Create Person"
 						 ShiftRight="true"
 						 CssClass="btn-primary"
-						 Click="OnCreatePerson" />
+						 Click="OnCreatePersonAsync" />
 
 	</PDToolbar>
 
@@ -23,7 +23,7 @@
 		<div class="d-flex">
 			@foreach (var person in People)
 			{
-				<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPerson(person)">
+				<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPersonAsync(person)">
 					<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
 				</div>
 			}
@@ -32,12 +32,12 @@
 		<PDForm @ref="Form"
 				TItem="Person"
 				Item="SelectedPerson"
-				DataProvider="PersonDataProvider"
+				DataProvider="_personDataProvider"
 				Error="OnError"
 				ConfirmCancel="false"
-				Deleted="OnPersonDeleted"
-				Updated="OnPersonUpdated"
-				Created="OnPersonCreated">
+				Deleted="OnPersonDeletedAsync"
+				Updated="OnPersonUpdatedAsync"
+				Created="OnPersonCreatedAsync">
 
 			<div id="exampleModal" class="modal" tabindex="-1">
 				<div class="modal-dialog">
@@ -102,8 +102,7 @@
 						</div>
 						<div class="modal-footer">
 
-							<PDFormFooter @ref="Footer"
-										  SaveButtonText="Submit"
+							<PDFormFooter SaveButtonText="Submit"
 										  SaveButtonCssClass="btn-success"
 										  SaveButtonIconCssClass="fas fa-check"
 										  ShowDelete="false"

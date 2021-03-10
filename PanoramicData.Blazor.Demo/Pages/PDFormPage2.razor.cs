@@ -10,10 +10,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDFormPage2
 	{
-		private readonly PersonDataProvider PersonDataProvider = new();
+		private readonly PersonDataProvider _personDataProvider = new();
 
 		private PDForm<Person> Form { get; set; } = null!;
-		private PDFormFooter<Person> Footer { get; set; } = null!;
 		private List<Person> People { get; set; } = new List<Person>();
 		private Person? SelectedPerson { get; set; }
 
@@ -26,35 +25,35 @@ namespace PanoramicData.Blazor.Demo.Pages
 			RefreshPeople();
 		}
 
-		private void OnFooterClick(string key)
+		private async Task OnFooterClick(string key)
 		{
 			EventManager?.Add(new Event("FooterClick", new EventArgument("Key", key)));
 
 			if (key == "Cancel")
 			{
 				SelectedPerson = null;
-				HideDialog();
+				await HideDialogAsync().ConfigureAwait(true);
 			}
 		}
 
-		private void OnPersonCreated(Person person)
+		private async Task OnPersonCreatedAsync(Person person)
 		{
 			EventManager?.Add(new Event("PersonCreated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-			HideDialog();
+			await HideDialogAsync().ConfigureAwait(true);
 			RefreshPeople();
 		}
 
-		private void OnPersonUpdated(Person person)
+		private async Task OnPersonUpdatedAsync(Person person)
 		{
 			EventManager?.Add(new Event("PersonUpdated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-			HideDialog();
+			await HideDialogAsync().ConfigureAwait(true);
 			RefreshPeople();
 		}
 
-		private void OnPersonDeleted(Person person)
+		private async Task OnPersonDeletedAsync(Person person)
 		{
 			EventManager?.Add(new Event("PersonDeleted", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-			HideDialog();
+			await HideDialogAsync().ConfigureAwait(true);
 			RefreshPeople();
 		}
 
@@ -65,7 +64,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void RefreshPeople()
 		{
-			PersonDataProvider
+			_personDataProvider
 				.GetDataAsync(new DataRequest<Person>
 				{
 					Take = 5,
@@ -86,23 +85,32 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
-		private void OnEditPerson(Person person)
+		private async Task OnEditPersonAsync(Person person)
 		{
 			SelectedPerson = person;
 			Form.SetMode(FormModes.Edit);
-			JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", "#exampleModal");
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", "#exampleModal").ConfigureAwait(true);
+			}
 		}
 
-		private void OnCreatePerson()
+		private async Task OnCreatePersonAsync()
 		{
 			SelectedPerson = new Person();
 			Form.SetMode(FormModes.Create);
-			JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", "#exampleModal");
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", "#exampleModal").ConfigureAwait(true);
+			}
 		}
 
-		private void HideDialog()
+		private async Task HideDialogAsync()
 		{
-			JSRuntime.InvokeVoidAsync("panoramicData.hideBsDialog", "#exampleModal");
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.hideBsDialog", "#exampleModal").ConfigureAwait(true);
+			}
 		}
 	}
 }

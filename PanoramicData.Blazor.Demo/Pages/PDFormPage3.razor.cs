@@ -13,7 +13,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private readonly PageCriteria _pageCriteria = new(1, 10);
 		private readonly SortCriteria _sortCriteria = new("DateCreatedCol", SortDirection.Descending);
 
-		private bool ShowDescriptions { get; set; }
+		//private bool ShowDescriptions { get; set; }
 		private PDForm<Person> Form { get; set; } = null!;
 		private PDFormBody<Person> FormBody { get; set; } = null!;
 		private PDTable<Person> Table { get; set; } = null!;
@@ -23,7 +23,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private async Task OnPersonCreated(Person person)
 		{
-
 			EventManager?.Add(new Event("PersonCreated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
 			await Table.RefreshAsync().ConfigureAwait(true);
 		}
@@ -69,15 +68,15 @@ namespace PanoramicData.Blazor.Demo.Pages
 			{
 				var id = int.Parse(Table.Selection[0]);
 				SelectedPerson = Table.ItemsToDisplay.Find(x => x.Id == id);
-				Form.SetItem(SelectedPerson);
 				if (SelectedPerson != null)
 				{
+					Form.SetItem(SelectedPerson);
 					Form.SetMode(FormModes.Edit);
 				}
 			}
 		}
 
-		private OptionInfo[] GetLocationOptions(FormField<Person> field, Person item)
+		private static OptionInfo[] GetLocationOptions(FormField<Person> _, Person item)
 		{
 			var options = new List<OptionInfo>();
 			for (var i = 0; i < PersonDataProvider.Locations.Length; i++)
@@ -90,14 +89,14 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private async Task OnInitialsInput(ChangeEventArgs args)
 		{
 			// custom processing - all chars to have single period separator and uppercase
-			var newValue = args.Value.ToString().Replace(".", "");
-			newValue = String.Join(".", newValue.ToArray()).ToUpper();
+			var newValue = args.Value?.ToString()?.Replace(".", "");
+			newValue = newValue == null ? string.Empty : String.Join(".", newValue.ToArray()).ToUpper();
 			await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "InitialsCol"), newValue).ConfigureAwait(true);
 		}
 
 		private async Task OnEmailInput(ChangeEventArgs args)
 		{
-			await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "EmailCol"), args.Value).ConfigureAwait(true);
+			await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "EmailCol"), args?.Value ?? string.Empty).ConfigureAwait(true);
 		}
 
 		private void OnCustomValidate(CustomValidateArgs<Person> args)
@@ -115,9 +114,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 				if (fieldName == "Location" || fieldName == "Department")
 				{
-					var errorMessage = "Peckham location only has Sales departments";
-					var isPeckham = Form.GetFieldStringValue(Form.Fields.Find(x => x.Id == "location")) == "4";
-					var isSales = Form.GetFieldStringValue(Form.Fields.Find(x => x.Id == "department")) == "Sales";
+					const string? errorMessage = "Peckham location only has Sales departments";
+					var locationField = Form.Fields.Find(x => x.Id == "location");
+					var isPeckham = locationField != null && Form.GetFieldStringValue(locationField) == "4";
+					var departmentField = Form.Fields.Find(x => x.Id == "department");
+					var isSales = departmentField != null && Form.GetFieldStringValue(departmentField) == "Sales";
 					if (isPeckham && !isSales)
 					{
 						args.AddErrorMessages.Add("Location", errorMessage);

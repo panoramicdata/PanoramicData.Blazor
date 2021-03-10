@@ -20,7 +20,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
-		private void GlobalEventService_KeyDownEvent(object sender, KeyboardInfo e)
+		private void GlobalEventService_KeyDownEvent(object? sender, KeyboardInfo e)
 		{
 			EventManager?.Add(new Event("KeyDown", new EventArgument("Key", e.Key),
 						 						 new EventArgument("AltKey", e.AltKey),
@@ -28,7 +28,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 												 new EventArgument("CtrlKey", e.CtrlKey)));
 		}
 
-		private void GlobalEventService_KeyUpEvent(object sender, KeyboardInfo e)
+		private void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e)
 		{
 			EventManager?.Add(new Event("KeyUp", new EventArgument("Key", e.Key),
 						 						 new EventArgument("AltKey", e.AltKey),

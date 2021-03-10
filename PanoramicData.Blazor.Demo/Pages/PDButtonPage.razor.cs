@@ -34,7 +34,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			// code will use the NavigationManager to navigate and therefore no trip to the server occurs
 			// unless the Ctrl key is held in which case a new tab will open and a trip to the server is
 			// required.
-			if (args.CtrlKey)
+			if (args.CtrlKey && JSRuntime != null)
 			{
 				// open target in new tab / browser
 				await JSRuntime.InvokeVoidAsync("panoramicData.openUrl", "/", "_blank").ConfigureAwait(true);

@@ -38,6 +38,5 @@ namespace PanoramicData.Blazor
 		/// Gets the wrapped event arguments.
 		/// </summary>
 		public T Args { get; }
-
 	}
 }

@@ -37,18 +37,23 @@ namespace PanoramicData.Blazor.Demo.Data
 
 		public Task<OperationResponse> CreateAsync(TreeItem item, CancellationToken cancellationToken)
 		{
+#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
 			throw new System.NotImplementedException();
+#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
 		}
 
 		public Task<OperationResponse> DeleteAsync(TreeItem item, CancellationToken cancellationToken)
 		{
+#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
 			throw new System.NotImplementedException();
+#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
 		}
-
 
 		public Task<OperationResponse> UpdateAsync(TreeItem item, IDictionary<string, object> delta, CancellationToken cancellationToken)
 		{
+#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
 			throw new System.NotImplementedException();
+#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
 		}
 
 		public void ReOrder(TreeItem item, TreeItem target, bool? before)
@@ -63,12 +68,15 @@ namespace PanoramicData.Blazor.Demo.Data
 				// can only drag group onto other group
 				var groups = _items.Where(x => x.IsGroup && x.Id > 0).OrderBy(x => x.Order).ToList();
 				var s = groups.Find(x => x.Id == item.Id);
-				groups.Remove(s);
-				var tIdx = groups.IndexOf(target);
-				groups.Insert(before == true ? tIdx : tIdx + 1, s);
-				for (var i = 0; i < groups.Count; i++)
+				if (s != null)
 				{
-					groups[i].Order = i + 1;
+					groups.Remove(s);
+					var tIdx = groups.IndexOf(target);
+					groups.Insert(before == true ? tIdx : tIdx + 1, s);
+					for (var i = 0; i < groups.Count; i++)
+					{
+						groups[i].Order = i + 1;
+					}
 				}
 			}
 			else
@@ -76,7 +84,6 @@ namespace PanoramicData.Blazor.Demo.Data
 				// drag person onto another person or group
 
 			}
-
 		}
 	}
 }

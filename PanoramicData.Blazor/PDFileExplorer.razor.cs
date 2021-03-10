@@ -41,7 +41,6 @@ namespace PanoramicData.Blazor
 		private PDModal? DeleteDialog { get; set; } = null!;
 		private PDModal? ConflictDialog { get; set; } = null!;
 		private PDModal? UploadDialog { get; set; }
-		private PDDropZone DialogDropZone { get; set; } = null!;
 
 		public string FolderPath = string.Empty;
 		public string Id { get; private set; } = string.Empty;
@@ -84,7 +83,6 @@ namespace PanoramicData.Blazor
 				new PDColumnConfig { Id = "Size", Title = "Size" },
 				new PDColumnConfig { Id = "Modified", Title = "Modified" }
 			};
-
 
 		/// <summary>
 		/// Determines the action taken when copying conflicting named items into a folder.
@@ -1318,7 +1316,6 @@ namespace PanoramicData.Blazor
 						}
 						else
 						{
-
 							var task = DataProvider.GetDataAsync(new DataRequest<FileExplorerItem>() { SearchText = folder }, default);
 							cachedTask = new CachedResult<Task<DataResponse<FileExplorerItem>>>(folder, task)
 							{
