@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor
+﻿using System;
+
+namespace PanoramicData.Blazor
 {
 	/// <summary>
 	/// The KeyedEventArgs class wraps another EventArgs class and adds a unique key.
@@ -24,6 +26,7 @@
 		public KeyedEventArgs(string key)
 		{
 			Key = key;
+			Args = Activator.CreateInstance<T>();
 		}
 
 		/// <summary>

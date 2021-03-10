@@ -905,7 +905,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		protected async override Task OnAfterRenderAsync(bool firstRender)
+		protected override void OnAfterRender(bool firstRender)
 		{
 			if (firstRender)
 			{
@@ -1423,7 +1423,10 @@ namespace PanoramicData.Blazor
 
 		private async Task OnHideUploadDialog(string _)
 		{
-			await UploadDialog.HideAsync().ConfigureAwait(true);
+			if (UploadDialog != null)
+			{
+				await UploadDialog.HideAsync().ConfigureAwait(true);
+			}
 		}
 
 		private async Task OnClearUploadFiles()
