@@ -103,7 +103,7 @@
 					<input id="pd-table-edit-dob"
 						   type="date"
 						   value="@context.Dob"
-						   @oninput="@((a) => Table.OnEditInput("col-dob", a.Value))"
+						   @oninput="@((a) => Table?.OnEditInput("col-dob", a.Value))"
 						   @onblur="@(async () => await Table.OnEditBlurAsync().ConfigureAwait(true))"
 						   @onmousedown:stopPropagation
 						   @onclick:stopPropagation

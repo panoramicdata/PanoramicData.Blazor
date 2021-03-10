@@ -15,7 +15,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets additional CSS classes.
 		/// </summary>
-		[Parameter] public string CssClass { get; set; }
+		[Parameter] public string CssClass { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets the child content that the drop zone wraps.
