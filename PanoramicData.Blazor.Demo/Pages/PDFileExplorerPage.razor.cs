@@ -13,7 +13,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDFileExplorerPage
 	{
 		private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
-		private PDFileExplorer? FileExplorer { get; set; } = null!;
+		private PDFileExplorer? FileExplorer { get; set; }
 
 		/// <summary>
 		/// Injected javascript interop object.
@@ -44,21 +44,23 @@ namespace PanoramicData.Blazor.Demo.Pages
 			await JSRuntime.InvokeVoidAsync("panoramicDataDemo.downloadFiles", args).ConfigureAwait(false);
 		}
 
-		public async Task OnUploadRequest(DropZoneEventArgs args)
+		public void OnUploadRequest(DropZoneEventArgs args)
 		{
 			// example of canceling an upload request
 			if (args.Files.Any(x => System.IO.Path.GetExtension(x.Name) == ".zip"))
 			{
 				args.Cancel = true;
 				args.CancelReason = "ZIP Archive files can not be uploaded.";
-				//await JSRuntime.InvokeVoidAsync("panoramicData.alert", new[] { "Upload canceled: Limit is 10MB per file" }).ConfigureAwait(true);
 			}
 		}
 
 		public void OnUploadStarted(DropZoneUploadEventArgs args)
 		{
 			// add example additional field to pass with upload
-			args.FormFields.Add("sessionId", FileExplorer.SessionId);
+			if (FileExplorer != null)
+			{
+				args.FormFields.Add("sessionId", FileExplorer.SessionId);
+			}
 		}
 
 		public async Task OnUploadCompleted(DropZoneUploadCompletedEventArgs args)

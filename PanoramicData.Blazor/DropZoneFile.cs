@@ -18,8 +18,14 @@ namespace PanoramicData.Blazor
 		public string GetFullPath(string? rootDir = null)
 		{
 			var segs = new List<string>();
-			segs.AddRange(rootDir.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries));
-			segs.AddRange(Path.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries));
+			if (rootDir != null)
+			{
+				segs.AddRange(rootDir.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries));
+			}
+			if (Path != null)
+			{
+				segs.AddRange(Path.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries));
+			}
 			var folderPath = $"/{string.Join("/", segs)}";
 			return $"{folderPath.TrimEnd('/')}/{Name}";
 		}

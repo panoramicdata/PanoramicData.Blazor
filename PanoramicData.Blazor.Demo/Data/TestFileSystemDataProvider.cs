@@ -215,7 +215,7 @@ namespace PanoramicData.Blazor.Demo.Data
 					result.ErrorMessage = "Only Path property update supported";
 					return;
 				}
-				var tempItem = new FileExplorerItem { Path = delta["Path"]?.ToString() };
+				var tempItem = new FileExplorerItem { Path = delta["Path"]?.ToString() ?? string.Empty };
 				var targetNode = _root.Where(x => x.Path() == tempItem.Path).FirstOrDefault();
 				var targetParentNode = targetNode is null ? _root.Where(x => x.Path() == tempItem.ParentPath).FirstOrDefault() : targetNode.Parent;
 				if (targetParentNode is null)

@@ -21,7 +21,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private string DropZoneCss { get; set; } = "";
 		private PDDragContext? DragContext { get; set; }
 		private string DropMessage { get; set; } = "Drop Zone";
-		private PDTable<Person>? Table { get; set; }
+		private PDTable<Person> Table { get; set; } = null!;
 
 		[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
