@@ -493,7 +493,7 @@
 				});
 			},
 			accept: function (file, done) {
-				dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', [{ Path: getPath(file), Name: filename, Size: file.size, Key: file.upload.uuid, SessionId: sessionId }])
+				dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', [{ Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId }])
 					.then(data => {
 						if (data.cancel || data.reason) {
 							done(data.reason || "Upload canceled");
