@@ -412,7 +412,6 @@
 	},
 
 	isShortcutKeyMatch: function (keyInfo) {
-		console.dir(this.shortcutKeys);
 		var match = this.shortcutKeys.find((v) => v.altKey == keyInfo.altKey &&
 			v.ctrlKey == keyInfo.ctrlKey &&
 			v.shiftKey == keyInfo.shiftKey &&
@@ -434,7 +433,6 @@
 	onKeyUp: function (e) {
 		if (window.panoramicData.globalListenerReference) {
 			var keyInfo = panoramicData.getKeyArgs(e);
-			console.dir(keyInfo);
 			if (window.panoramicData.isShortcutKeyMatch(keyInfo)) {
 				e.stopPropagation();
 				e.preventDefault();
@@ -495,7 +493,7 @@
 				});
 			},
 			accept: function (file, done) {
-				dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', [{ Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId }])
+				dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', [{ Path: getPath(file), Name: filename, Size: file.size, Key: file.upload.uuid, SessionId: sessionId }])
 					.then(data => {
 						if (data.cancel || data.reason) {
 							done(data.reason || "Upload canceled");
