@@ -726,13 +726,20 @@ namespace PanoramicData.Blazor
 					TargetPath = Tree.SelectedNode.Data.Path,
 					Payload = args.Files.Select(x => new FileExplorerItem { Path = x.GetFullPath(args.BaseFolder) }).ToList()
 				};
+
+				// find and delete conflicts - leading to an overwrite in effect
 				await GetUploadConflictsAsync(moveCopyArgs).ConfigureAwait(true);
 				if (moveCopyArgs.Conflicts.Count > 0)
 				{
 					foreach (var conflict in moveCopyArgs.Conflicts)
 					{
-						args.Cancel = true;
-						args.CancelReason = "File already exists";
+						var item = new FileExplorerItem { Path = conflict.Path };
+						var response = await DataProvider.DeleteAsync(item, default).ConfigureAwait(true);
+						if (!response.Success)
+						{
+							args.Cancel = true;
+							args.CancelReason = "File already exists";
+						}
 					}
 				}
 
