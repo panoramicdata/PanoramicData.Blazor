@@ -886,8 +886,8 @@ namespace PanoramicData.Blazor
 					payload.Add(sfe);
 				}
 
-				// check not dropping an item onto itself
-				if (payload.Any(x => x.Path == target.Path))
+				// check not dropping an item onto itself (or sub folder)
+				if (payload.Any(x => x.Path == target.Path || target.Path.StartsWith(x.Path, StringComparison.InvariantCultureIgnoreCase)))
 				{
 					return;
 				}
