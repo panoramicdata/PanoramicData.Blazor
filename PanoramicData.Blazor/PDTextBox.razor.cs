@@ -9,8 +9,6 @@ namespace PanoramicData.Blazor
 	public partial class PDTextBox : IDisposable
 	{
 		private static int _seq;
-		private string _value = string.Empty;
-		private string _lastValue = string.Empty;
 		private DotNetObjectReference<PDTextBox>? _objRef;
 
 		/// <summary>
@@ -27,8 +25,6 @@ namespace PanoramicData.Blazor
 		/// Gets or sets the tooltip for the toolbar item.
 		/// </summary>
 		[Parameter] public string ToolTip { get; set; } = string.Empty;
-
-		[Parameter] public string InitialValue { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets whether the toolbar item is visible.
@@ -53,7 +49,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets the initial text value.
 		/// </summary>
-		//[Parameter] public string Value { get; set; } = string.Empty;
+		[Parameter] public string Value { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Event raised whenever the text value changes.
@@ -84,11 +80,6 @@ namespace PanoramicData.Blazor
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
-			if (firstRender && _value != InitialValue)
-			{
-				_value = InitialValue;
-				StateHasChanged();
-			}
 			if (firstRender && DebounceWait > 0)
 			{
 				_objRef = DotNetObjectReference.Create(this);
@@ -100,7 +91,7 @@ namespace PanoramicData.Blazor
 		{
 			if (DebounceWait <= 0)
 			{
-				_lastValue = args.Value.ToString();
+				Value = args.Value.ToString();
 				await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
 			}
 		}
@@ -108,7 +99,7 @@ namespace PanoramicData.Blazor
 		[JSInvokable]
 		public async Task OnDebouncedInput(string value)
 		{
-			_lastValue = value;
+			Value = value;
 			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 		}
 
@@ -119,14 +110,10 @@ namespace PanoramicData.Blazor
 
 		private async Task OnClear(MouseEventArgs _)
 		{
-			if (_lastValue != string.Empty)
-			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.setValue", Id, string.Empty).ConfigureAwait(true);
-				_value = string.Empty;
-				_lastValue = string.Empty;
-				await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
-				await Cleared.InvokeAsync(null).ConfigureAwait(true);
-			}
+			await JSRuntime.InvokeVoidAsync("panoramicData.setValue", Id, string.Empty).ConfigureAwait(true);
+			Value = string.Empty;
+			await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
+			await Cleared.InvokeAsync(null).ConfigureAwait(true);
 		}
 
 		public void Dispose()

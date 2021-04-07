@@ -54,7 +54,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets the initial text value.
 		/// </summary>
-		[Parameter] public string InitialValue { get; set; } = string.Empty;
+		[Parameter] public string Value { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Event raised whenever the text value changes.
@@ -95,12 +95,14 @@ namespace PanoramicData.Blazor
 
 		private async Task OnCleared()
 		{
+			Value = string.Empty;
 			await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
 			await Cleared.InvokeAsync(null).ConfigureAwait(true);
 		}
 
 		private async Task OnValueChanged(string value)
 		{
+			Value = value;
 			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 		}
 	}

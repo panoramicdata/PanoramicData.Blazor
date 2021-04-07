@@ -9,7 +9,6 @@ namespace PanoramicData.Blazor
 	public partial class PDTextArea : IDisposable
 	{
 		private static int _seq;
-		private string _value = string.Empty;
 		private DotNetObjectReference<PDTextArea>? _objRef;
 
 		/// <summary>
@@ -26,8 +25,6 @@ namespace PanoramicData.Blazor
 		/// Gets or sets the tooltip for the toolbar item.
 		/// </summary>
 		[Parameter] public string ToolTip { get; set; } = string.Empty;
-
-		[Parameter] public string InitialValue { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets whether the toolbar item is visible.
@@ -57,7 +54,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets the initial text value.
 		/// </summary>
-		//[Parameter] public string Value { get; set; } = string.Empty;
+		[Parameter] public string Value { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Event raised whenever the text value changes.
@@ -93,11 +90,6 @@ namespace PanoramicData.Blazor
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
-			if (firstRender && _value != InitialValue)
-			{
-				_value = InitialValue;
-				StateHasChanged();
-			}
 			if (firstRender && DebounceWait > 0)
 			{
 				_objRef = DotNetObjectReference.Create(this);
@@ -109,6 +101,7 @@ namespace PanoramicData.Blazor
 		{
 			if (DebounceWait <= 0)
 			{
+				Value = args.Value.ToString();
 				await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
 			}
 		}
@@ -116,6 +109,7 @@ namespace PanoramicData.Blazor
 		[JSInvokable]
 		public async Task OnDebouncedInput(string value)
 		{
+			Value = value;
 			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 		}
 

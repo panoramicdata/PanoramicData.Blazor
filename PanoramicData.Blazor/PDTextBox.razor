@@ -1,6 +1,6 @@
 ﻿<input id="@Id"
 	   class="form-control @(IsVisible ? "" : "d-none ") @CssClass"
-	   value="@_value"
+	   value="@Value"
 	   readonly="@(!IsEnabled)"
 	   placeholder="@Placeholder"
 	   @oninput="OnInput"
@@ -10,7 +10,7 @@
 {
 	<div class="input-group-append">
 		<button class="input-group-text btn"
-				disabled="@(_lastValue == string.Empty || !IsEnabled)"
+				disabled="@(Value == string.Empty || !IsEnabled)"
 				@onclick="OnClear">
 			<i class="fas fa-times" />
 		</button>
