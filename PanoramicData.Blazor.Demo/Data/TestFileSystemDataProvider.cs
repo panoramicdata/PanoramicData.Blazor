@@ -24,7 +24,10 @@ namespace PanoramicData.Blazor.Demo.Data
 					new DirectoryEntry("a53fde.tmp", FileExplorerItemType.File, 1024) { IsHidden = true },
 					new DirectoryEntry("b76jba.tmp", FileExplorerItemType.File, 2048) { IsHidden = true }
 				),
-				new DirectoryEntry("Users")
+				new DirectoryEntry("Users",
+					new DirectoryEntry("document.docx", FileExplorerItemType.File, 4096),
+					new DirectoryEntry("spreadsheet.xlsx", FileExplorerItemType.File, 2048)
+				)
 			)
 			{ CanCopyMove = false },
 			new DirectoryEntry("DDrive",
@@ -150,32 +153,32 @@ namespace PanoramicData.Blazor.Demo.Data
 		{
 			if (item.EntryType == FileExplorerItemType.Directory)
 			{
-				return "far fa-fw fa-folder";
+				return "fas fa-fw fa-folder";
 			}
 			switch (item.FileExtension.ToLower())
 			{
 				case "doc":
 				case "docx":
-					return "far fa-fw fa-file-word";
+					return "fas fa-fw fa-file-word";
 
 				case "xls":
 				case "xlsx":
-					return "far fa-fw fa-file-excel";
+					return "fas fa-fw fa-file-excel";
 
 				case "zip":
 				case "gzip":
-					return "far fa-fw fa-file-archive";
+					return "fas fa-fw fa-file-archive";
 
 				case "txt":
 				case "log":
 					return "far fa-fw fa-file-alt";
 
 				case "csv":
-					return "far fa-fw fa-file-csv";
+					return "fas fa-fw fa-file-csv";
 
 				case "wav":
 				case "mp3":
-					return "far fa-fw fa-file-audio";
+					return "fas fa-fw fa-file-audio";
 
 				case "png":
 				case "ico":
@@ -183,15 +186,15 @@ namespace PanoramicData.Blazor.Demo.Data
 				case "bmp":
 				case "jpg":
 				case "jpeg":
-					return "far fa-fw fa-file-image";
+					return "fas fa-fw fa-file-image";
 
 				case "htm":
 				case "html":
 				case "rmscript":
-					return "far fa-fw fa-file-code";
+					return "fas fa-fw fa-file-code";
 
 				case "pdf":
-					return "far fa-fw fa-file-pdf";
+					return "fas fa-fw fa-file-pdf";
 
 				default:
 					return "far fa-fw fa-file";

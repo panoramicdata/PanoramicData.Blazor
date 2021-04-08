@@ -110,9 +110,14 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
 		/// <summary>
-		/// Provides a function that determines the icon CSS class for a given file extension.
+		/// Provides a function that determines the CSS class for a given item.
 		/// </summary>
-		[Parameter] public Func<FileExplorerItem, string>? GetIconClass { get; set; }
+		[Parameter] public Func<FileExplorerItem, string>? GetItemCssClass { get; set; }
+
+		/// <summary>
+		/// Provides a function that determines the icon CSS class for a given item.
+		/// </summary>
+		[Parameter] public Func<FileExplorerItem, string>? GetItemIconCssClass { get; set; }
 
 		/// <summary>
 		/// Determines whether folders are always grouped together and shown first.
@@ -1395,11 +1400,25 @@ namespace PanoramicData.Blazor
 			return ConflictResolutions.Skip;
 		}
 
+		private string GetCssClass(FileExplorerItem? item)
+		{
+			if (item is null)
+			{
+				return string.Empty;
+			}
+			var defaultCss = $"{(item.IsHidden ? "file-hidden" : "")} {(item.IsSystem ? "file-system" : "")} {(item.IsReadOnly ? "file-readonly" : "")}";
+			if (GetItemCssClass != null)
+			{
+				return GetItemCssClass(item) ?? defaultCss;
+			}
+			return defaultCss;
+		}
+
 		private string GetIconCssClass(FileExplorerItem? item)
 		{
 			if (item != null)
 			{
-				var cssClass = GetIconClass is null ? null : GetIconClass(item);
+				var cssClass = GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
 				if (cssClass is null)
 				{
 					return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "far fa-fw fa-folder";

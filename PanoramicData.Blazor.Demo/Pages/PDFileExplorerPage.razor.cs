@@ -149,6 +149,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
+		private string GetCssClass(FileExplorerItem item)
+		{
+			return null;
+		}
+
 		private string GetIconCssClass(FileExplorerItem item)
 		{
 			if (item.EntryType == FileExplorerItemType.Directory)

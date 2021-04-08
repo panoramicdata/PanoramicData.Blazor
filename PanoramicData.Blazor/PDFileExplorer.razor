@@ -151,7 +151,7 @@
 							 AfterEdit="OnTableAfterEditAsync"
 							 DoubleClick="OnTableDoubleClickAsync"
 							 SelectionChanged="OnTableSelectionChangedAsync"
-							 RowClass="@(x => $"{(x.IsHidden ? "file-hidden": "")} {(x.IsSystem ? "file-system" : "")} {(x.IsUploading ? "uploading" : "")}")">
+							 RowClass="@(x => $"{(x.IsUploading ? "uploading" : "")}")">
 
 						<PDColumn TItem="FileExplorerItem"
 								  Id="Icon"
@@ -172,13 +172,13 @@
 								@if (context.IsUploading)
 								{
 									<div style="width: 100%">
-										<span>@context.Name</span>
+										<span class="@(GetCssClass(context))">@context.Name</span>
 										<div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
 									</div>
 								}
 								else
 								{
-									<span class="">@context.Name</span>
+									<span class="@(GetCssClass(context))">@context.Name</span>
 								}
 							</Template>
 						</PDColumn>
@@ -189,7 +189,7 @@
 								  Field="x => x.EntryType"
 								  Editable="false">
 							<Template>
-								<span class="text-nowrap">
+								<span class="@(GetCssClass(context)) text-nowrap">
 									@(context.EntryType == FileExplorerItemType.Directory
 										? "File Folder"
 										: ($"{context.FileExtension.ToUpper()} File").Trim() )
@@ -203,7 +203,8 @@
 								  Field="x => x.FileSize"
 								  Editable="false">
 							<Template>
-								<span title="@(context.FileSize.ToString("0,0")) bytes">
+								<span class="@(GetCssClass(context))"
+									  title="@(context.FileSize.ToString("0,0")) bytes">
 									@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize("#"))
 								</span>
 							</Template>
@@ -215,7 +216,8 @@
 								  Field="x => x.DateCreated"
 								  Editable="false">
 							<Template>
-								<span class="nowrap" title="@(context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
+								<span class="@(GetCssClass(context)) nowrap"
+									  title="@(context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
 									@context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
 								</span>
 							</Template>
@@ -227,7 +229,8 @@
 								  Field="x => x.DateModified"
 								  Editable="false">
 							<Template>
-								<span class="text-nowrap" title="@(context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
+								<span class="@(GetCssClass(context)) text-nowrap"
+									  title="@(context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
 									@context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
 								</span>
 							</Template>

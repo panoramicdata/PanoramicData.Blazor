@@ -172,3 +172,20 @@ a, .btn-link {
 		border: 2px solid red;
 	}
 }
+
+/* file explorer icon colours */
+.fa-folder, .fa-file-archive {
+	color: #f1cc45;
+}
+
+.fa-file-excel {
+	color: #107c41;
+}
+
+.fa-file-word {
+	color: #185abd;
+}
+
+.fa-file-pdf {
+	color: #ce0404;
+}
