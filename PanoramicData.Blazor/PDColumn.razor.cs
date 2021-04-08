@@ -306,7 +306,7 @@ namespace PanoramicData.Blazor
 				{
 					SortDirection.Ascending => "<i class=\"ml-1 fas fa-sort-amount-up-alt\"></i>",
 					SortDirection.Descending => "<i class=\"ml-1 fas fa-sort-amount-down\"></i>",
-					_ => "<i class=\"ml-1 fas fa-sort-amount-up-alt fa-hidden\"></i>"
+					_ => "" //"<i class=\"ml-1 fas fa-sort-amount-up-alt fa-hidden\"></i>"
 				};
 			}
 		}

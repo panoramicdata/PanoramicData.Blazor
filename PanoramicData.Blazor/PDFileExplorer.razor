@@ -199,13 +199,14 @@
 
 						<PDColumn TItem="FileExplorerItem"
 								  Id="Size"
-								  ThClass="mw-100-px"
+								  ThClass="text-right mw-100-px"
+								  TdClass="text-right"
 								  Field="x => x.FileSize"
 								  Editable="false">
 							<Template>
 								<span class="@(GetCssClass(context))"
 									  title="@(context.FileSize.ToString("0,0")) bytes">
-									@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize("#"))
+									@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize(SizeFormat))
 								</span>
 							</Template>
 						</PDColumn>
@@ -217,8 +218,8 @@
 								  Editable="false">
 							<Template>
 								<span class="@(GetCssClass(context)) nowrap"
-									  title="@(context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
-									@context.DateCreated?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+									  title="@(context.DateCreated?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"))">
+									@context.DateCreated?.ToLocalTime().ToString(DateFormat)
 								</span>
 							</Template>
 						</PDColumn>
@@ -230,8 +231,8 @@
 								  Editable="false">
 							<Template>
 								<span class="@(GetCssClass(context)) text-nowrap"
-									  title="@(context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))">
-									@context.DateModified?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+									  title="@(context.DateModified?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"))">
+									@context.DateModified?.ToLocalTime().ToString(DateFormat)
 								</span>
 							</Template>
 						</PDColumn>

@@ -100,6 +100,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
 		/// <summary>
+		/// Sets the date format.
+		/// </summary>
+		[Parameter] public string DateFormat { get; set; } = "yyyy-MM-dd HH:mm";
+
+		/// <summary>
 		/// Event called whenever the user requests to delete one or more items.
 		/// </summary>
 		[Parameter] public EventCallback<DeleteArgs> DeleteRequest { get; set; }
@@ -165,6 +170,11 @@ namespace PanoramicData.Blazor
 		/// Determines whether the context menu is available.
 		/// </summary>
 		[Parameter] public bool ShowContextMenu { get; set; } = true;
+
+		/// <summary>
+		/// Sets the size (humanizer) format.
+		/// </summary>
+		[Parameter] public string SizeFormat { get; set; } = "#,# KB";
 
 		/// <summary>
 		/// Event raised whenever the user clicks on a context menu item from the table.
