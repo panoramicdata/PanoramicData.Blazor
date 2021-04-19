@@ -45,11 +45,30 @@ namespace PanoramicData.Blazor.Demo.Data
 			Items.AddRange(items);
 		}
 
+		public DirectoryEntry(string name, bool readOnly, params DirectoryEntry[] items)
+		{
+			Name = name;
+			IsReadOnly = readOnly;
+			foreach (var item in items)
+			{
+				item.Parent = this;
+			}
+			Items.AddRange(items);
+		}
+
 		public DirectoryEntry(string name, FileExplorerItemType type, int size)
 		{
 			Name = name;
 			Type = type;
 			Size = size;
+		}
+
+		public DirectoryEntry(string name, FileExplorerItemType type, int size, bool readOnly)
+		{
+			Name = name;
+			Type = type;
+			Size = size;
+			IsReadOnly = readOnly;
 		}
 
 		public DirectoryEntry(params DirectoryEntry[] items)

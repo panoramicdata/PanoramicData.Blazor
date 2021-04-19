@@ -11,6 +11,13 @@ namespace PanoramicData.Blazor.Demo.Data
 	{
 		private readonly Random _random = new Random(Environment.TickCount);
 		private DirectoryEntry _root = new DirectoryEntry(
+			new DirectoryEntry("Library", true,
+				new DirectoryEntry("Templates", true,
+					new DirectoryEntry("web_template.html", FileExplorerItemType.File, 13000, true),
+					new DirectoryEntry("excel_template.xlsx", FileExplorerItemType.File, 7500, true),
+					new DirectoryEntry("word_template.docx", FileExplorerItemType.File, 10000, true)
+				)
+			),
 			new DirectoryEntry("CDrive",
 				new DirectoryEntry("ProgramData",
 					new DirectoryEntry("Acme",
@@ -140,6 +147,16 @@ namespace PanoramicData.Blazor.Demo.Data
 					? items.AsQueryable<FileExplorerItem>().OrderBy(request.SortFieldExpression)
 					: items.AsQueryable<FileExplorerItem>().OrderByDescending(request.SortFieldExpression);
 				items = sortedItems.ToList();
+
+				// move Library folder to the top of the list - if displayed
+				if (items.SingleOrDefault(i => i.Path == "/Library") is FileExplorerItem libraryFolder)
+				{
+					// Remove
+					items.RemoveAt(items.IndexOf(libraryFolder));
+
+					// Always insert at the top
+					items.Insert(0, libraryFolder);
+				}
 			}
 
 			// add in some random latency

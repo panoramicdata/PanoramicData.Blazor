@@ -87,6 +87,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 			{
 				items.Insert(3, new ToolbarButton { Key = "create-file", Text = "New File", ToolTip = "Create a new file", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-file-medical" });
 			}
+			else
+			{
+				// update state - can only create file if folder is not read only
+				createFileButton.IsEnabled = !(FileExplorer!.GetTreeSelectedFolder()?.IsReadOnly ?? true);
+			}
 		}
 
 		public async Task OnToolbarClick(string key)
@@ -158,6 +163,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			if (item.EntryType == FileExplorerItemType.Directory)
 			{
+				if (item.Path == "/Library")
+				{
+					return "fas fa-book";
+				}
 				if (item.Path == "/")
 				{
 					return "fas fa-server";
@@ -168,6 +177,20 @@ namespace PanoramicData.Blazor.Demo.Pages
 				}
 			}
 			return TestFileSystemDataProvider.GetIconClass(item);
+		}
+
+		private int OnTreeSort(FileExplorerItem item1, FileExplorerItem item2)
+		{
+			// shift Library folder to top
+			if (item1.Path == "/Library")
+			{
+				return -1;
+			}
+			else if (item2.Path == "/Library")
+			{
+				return 1;
+			}
+			return item1.Name.CompareTo(item2.Name);
 		}
 	}
 }

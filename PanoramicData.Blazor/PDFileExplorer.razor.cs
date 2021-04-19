@@ -347,16 +347,17 @@ namespace PanoramicData.Blazor
 		{
 			var parentPath = _selectedNode?.Data?.ParentPath ?? string.Empty;
 			var selectedPath = _selectedNode?.Data?.Path ?? string.Empty;
+			var isReadOnly = _selectedNode?.Data?.IsReadOnly ?? true;
 			var isRoot = string.IsNullOrEmpty(parentPath);
 			var folderSelected = !string.IsNullOrWhiteSpace(selectedPath);
 
-			_menuNewFolder.IsVisible = folderSelected;
-			_menuUploadFiles.IsVisible = folderSelected;
-			_menuRename.IsVisible = folderSelected && !isRoot;
-			_menuDelete.IsVisible = folderSelected && !isRoot;
+			_menuNewFolder.IsVisible = folderSelected && !isReadOnly;
+			_menuUploadFiles.IsVisible = folderSelected && !isReadOnly;
+			_menuRename.IsVisible = folderSelected && !isRoot && !isReadOnly;
+			_menuDelete.IsVisible = folderSelected && !isRoot && !isReadOnly;
 			_menuCopy.IsVisible = folderSelected && !isRoot;
-			_menuCut.IsVisible = folderSelected && !isRoot;
-			_menuPaste.IsVisible = folderSelected && _copyPayload.Count > 0;
+			_menuCut.IsVisible = folderSelected && !isRoot && !isReadOnly;
+			_menuPaste.IsVisible = folderSelected && !isReadOnly && _copyPayload.Count > 0;
 			_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
 			_menuSep3.IsVisible = ShowSeparator(_menuSep3, TreeContextItems);
 			_menuSep2.IsVisible = ShowSeparator(_menuSep2, TreeContextItems);
@@ -625,15 +626,18 @@ namespace PanoramicData.Blazor
 		{
 			var selectedItems = Table!.GetSelectedItems();
 			var validSelection = IsValidSelection();
+			var selectedFolderIsReadOnly = _selectedNode?.Data?.IsReadOnly ?? true;
 
 			_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
 			_menuDownload.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
 			_menuNewFolder.IsVisible = false;
-			_menuRename.IsVisible = validSelection && selectedItems.Length == 1;
-			_menuDelete.IsVisible = validSelection && selectedItems.Length > 0;
+			_menuRename.IsVisible = validSelection && selectedItems.Length == 1 && !selectedItems[0].IsReadOnly;
+			_menuDelete.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
 			_menuCopy.IsVisible = validSelection && selectedItems.Length > 0;
-			_menuCut.IsVisible = validSelection && selectedItems.Length > 0;
-			_menuPaste.IsVisible = validSelection && _copyPayload.Count > 0 && (selectedItems.Length == 0 || (selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory));
+			_menuCut.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
+			_menuPaste.IsVisible = validSelection && _copyPayload.Count > 0 && (selectedItems.Length == 0 && !selectedFolderIsReadOnly ||
+				// sub-folder highlighted
+				(selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory && !selectedItems[0].IsReadOnly));
 			_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
 			_menuSep3.IsVisible = ShowSeparator(_menuSep3, TableContextItems);
 			_menuSep2.IsVisible = ShowSeparator(_menuSep2, TableContextItems);
@@ -1280,20 +1284,34 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public async Task RefreshToolbarAsync()
 		{
+			var selectedItems = Table!.GetSelectedItems();
+
 			// up button
 			var upButton = ToolbarItems.Find(x => x.Key == "navigate-up");
 			if (upButton != null)
 			{
-				upButton.IsEnabled = Tree?.SelectedNode?.ParentNode != null;
+				upButton.IsEnabled = Tree?.SelectedNode?.ParentNode?.ParentNode != null;
 			}
 
-			// create folder button - always enabled by default
+			// create folder button - acts on selected folder
+			var createFolderButton = ToolbarItems.Find(x => x.Key == "create-folder");
+			if (createFolderButton != null)
+			{
+				createFolderButton.IsEnabled = Tree?.SelectedNode?.Data == null ? false : !Tree.SelectedNode.Data.IsReadOnly;
+			}
+
+			// upload button
+			var uploadButton = ToolbarItems.Find(x => x.Key == "upload");
+			if (uploadButton != null)
+			{
+				uploadButton.IsEnabled = !Tree.SelectedNode.Data.IsReadOnly;
+			}
 
 			// delete button
 			var deleteButton = ToolbarItems.Find(x => x.Key == "delete");
 			if (deleteButton != null)
 			{
-				deleteButton.IsEnabled = Table!.Selection.Count > 0 && !Table!.Selection.Any(x => x.EndsWith(".."));
+				deleteButton.IsEnabled = Table!.Selection.Count > 0 && selectedItems.All(x => !(x.Path.EndsWith("..") || x.IsReadOnly));
 			}
 
 			// allow application to alter toolbar state
@@ -1362,6 +1380,14 @@ namespace PanoramicData.Blazor
 				}
 			}
 			args.Conflicts = conflicts;
+		}
+
+		/// <summary>
+		/// Gets the folder currently selected in the tree view.
+		/// </summary>
+		public FileExplorerItem? GetTreeSelectedFolder()
+		{
+			return Tree?.SelectedNode?.Data;
 		}
 
 		/// <summary>
