@@ -2,7 +2,12 @@
 
 <CascadingValue Value="(PDTree<TItem>)this" Name="Tree">
 
-	<div id="@Id" class="pdtree" tabindex="0" @onkeydown="OnKeyDown">
+	<div id="@Id"
+		 class="pdtree"
+		 tabindex="0"
+		 @oncontextmenu:stopPropagation
+		 @oncontextmenu:preventDefault
+		 @onkeydown="OnKeyDown">
 		@if (RootNode.Nodes != null)
 		{
 			var topLevelNodes = ShowRoot || RootNode.Nodes.Count > 1 ? RootNode.Nodes : RootNode.Nodes[0].Nodes;
