@@ -114,8 +114,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 				args.MenuItems.Insert(2, createFileButton);
 			}
 
-			// update custom item state - enabled only when no selection
-			if (FileExplorer?.SelectedFilesAndFolders.Length == 0)
+			// update custom item state - enabled only when no selection and folder is not read-only
+			var folderItem = FileExplorer.GetTreeSelectedFolder();
+			if (FileExplorer?.SelectedFilesAndFolders.Length == 0 && folderItem?.IsReadOnly == false)
 			{
 				createFileButton.IsDisabled = false;
 				args.Cancel = false;

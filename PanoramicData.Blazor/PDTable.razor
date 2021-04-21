@@ -3,11 +3,13 @@
 <div id="@Id"
 	 class="pdtable @CssClass"
 	 tabindex="0"
-	 @oncontextmenu:preventDefault
+	 @onmousedown="OnDivMouseDown"
+	 @oncontextmenu:stopPropagation
 	 @onkeydown="OnKeyDownAsync">
 
 	@*<input id="focus-receiver" />*@
-	<table class="table @TableClass">
+	<table class="table @TableClass"
+		   @onmousedown="OnTableMouseDown">
 		@if (PageCriteria != null && ShowPager)
 		{
 			<tr>

@@ -24,6 +24,7 @@ namespace PanoramicData.Blazor
 		private bool _dragging;
 		private Timer? _editTimer;
 		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
+		private bool _mouseDownOriginatedFromTable;
 		private readonly Dictionary<string, object?> _editValues = new Dictionary<string, object?>();
 
 		private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
@@ -848,6 +849,22 @@ namespace PanoramicData.Blazor
 			}
 
 			await KeyDown.InvokeAsync(args).ConfigureAwait(true);
+		}
+
+		private void OnDivMouseDown(MouseEventArgs _)
+		{
+			// if mouse down event occurred straight from Div then clear selection
+			if (!_mouseDownOriginatedFromTable)
+			{
+				Selection.Clear();
+			}
+			_mouseDownOriginatedFromTable = false;
+		}
+
+		private void OnTableMouseDown(MouseEventArgs _)
+		{
+			// store fact that mouse down occurred from Table element
+			_mouseDownOriginatedFromTable = true;
 		}
 
 		private void OnEditTimer(object state)
