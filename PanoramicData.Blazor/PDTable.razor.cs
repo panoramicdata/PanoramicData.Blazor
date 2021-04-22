@@ -851,12 +851,13 @@ namespace PanoramicData.Blazor
 			await KeyDown.InvokeAsync(args).ConfigureAwait(true);
 		}
 
-		private void OnDivMouseDown(MouseEventArgs _)
+		private async Task OnDivMouseDown(MouseEventArgs _)
 		{
 			// if mouse down event occurred straight from Div then clear selection
 			if (!_mouseDownOriginatedFromTable)
 			{
 				Selection.Clear();
+				await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 			}
 			_mouseDownOriginatedFromTable = false;
 		}
