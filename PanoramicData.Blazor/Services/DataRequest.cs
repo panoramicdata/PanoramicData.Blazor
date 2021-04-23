@@ -20,7 +20,7 @@ namespace PanoramicData.Blazor.Services
 		/// <summary>
 		/// The maximum number of rows to return.
 		/// </summary>
-		public int Take { get; set; } = 10;
+		public int Take { get; set; }
 
 		/// <summary>
 		/// Gets or sets a Linq expression that defines one or more fields to sort the query results, before returning.
