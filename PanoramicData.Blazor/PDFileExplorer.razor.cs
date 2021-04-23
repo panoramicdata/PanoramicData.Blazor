@@ -1304,7 +1304,7 @@ namespace PanoramicData.Blazor
 			var uploadButton = ToolbarItems.Find(x => x.Key == "upload");
 			if (uploadButton != null)
 			{
-				uploadButton.IsEnabled = !Tree.SelectedNode.Data.IsReadOnly;
+				uploadButton.IsEnabled = Tree?.SelectedNode?.Data?.IsReadOnly == false;
 			}
 
 			// delete button

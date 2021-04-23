@@ -476,12 +476,13 @@ namespace PanoramicData.Blazor
 		public async Task<int> ValidateFormAsync()
 		{
 			Errors.Clear();
+			var updatedItem = GetItemWithUpdates();
 			foreach (var field in Fields)
 			{
-				if ((Mode == FormModes.Create && field.ShowInCreate(Item)) ||
-					(Mode == FormModes.Edit && field.ShowInEdit(Item)))
+				if ((Mode == FormModes.Create && field.ShowInCreate(updatedItem)) ||
+					(Mode == FormModes.Edit && field.ShowInEdit(updatedItem)))
 				{
-					await ValidateFieldAsync(field).ConfigureAwait(true);
+					await ValidateFieldAsync(field, null, updatedItem).ConfigureAwait(true);
 				}
 			}
 			return Errors.Count;
@@ -492,8 +493,9 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		/// <param name="field">The field to be validated.</param>
 		/// <param name="value">The value to be validated, if omitted then will use the latest changed value for the given field.</param>
+		/// <param name="updatedItem">Optional item clone with updates applied, improves performance if supplied.</param>
 		/// <returns>Value converted to appropriate data type, otherwise null if problems casting.</returns>
-		public async Task<object?> ValidateFieldAsync(FormField<TItem> field, object? value = null)
+		public async Task<object?> ValidateFieldAsync(FormField<TItem> field, object? value = null, TItem? updatedItem = null)
 		{
 			if (Item != null && field.Field != null)
 			{
@@ -523,7 +525,7 @@ namespace PanoramicData.Blazor
 						// run custom validation
 						if (Item != null)
 						{
-							var args = new CustomValidateArgs<TItem>(field, GetItemWithUpdates());
+							var args = new CustomValidateArgs<TItem>(field, updatedItem ??= GetItemWithUpdates());
 							await CustomValidate.InvokeAsync(args).ConfigureAwait(true);
 							foreach (var kvp in args.RemoveErrorMessages)
 							{

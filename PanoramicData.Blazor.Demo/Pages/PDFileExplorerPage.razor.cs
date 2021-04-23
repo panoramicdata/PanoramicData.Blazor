@@ -115,7 +115,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 
 			// update custom item state - enabled only when no selection and folder is not read-only
-			var folderItem = FileExplorer.GetTreeSelectedFolder();
+			var folderItem = FileExplorer!.GetTreeSelectedFolder();
 			if (FileExplorer?.SelectedFilesAndFolders.Length == 0 && folderItem?.IsReadOnly == false)
 			{
 				createFileButton.IsDisabled = false;
@@ -157,7 +157,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private string GetCssClass(FileExplorerItem item)
 		{
-			return null;
+			return string.Empty;
 		}
 
 		private string GetIconCssClass(FileExplorerItem item)
