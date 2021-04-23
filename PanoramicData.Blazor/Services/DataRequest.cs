@@ -15,12 +15,12 @@ namespace PanoramicData.Blazor.Services
 		/// <remarks>
 		/// The sort expression must be provided for this to work.
 		/// </remarks>
-		public int Skip { get; set; }
+		public int? Skip { get; set; }
 
 		/// <summary>
 		/// The maximum number of rows to return.
 		/// </summary>
-		public int Take { get; set; }
+		public int? Take { get; set; }
 
 		/// <summary>
 		/// Gets or sets a Linq expression that defines one or more fields to sort the query results, before returning.

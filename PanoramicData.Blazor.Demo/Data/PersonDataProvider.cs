@@ -73,9 +73,13 @@ namespace PanoramicData.Blazor.Demo.Data
 				}
 
 				// apply paging
-				if (request.Take > 0)
+				if (request.Skip.HasValue)
 				{
-					query = query.Skip(request.Skip).Take(request.Take);
+					query = query.Skip(request.Skip.Value);
+				}
+				if (request.Take.HasValue)
+				{
+					query = query.Take(request.Take.Value);
 				}
 
 				// realize query
