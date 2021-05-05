@@ -3,9 +3,11 @@
 <div id="@Id"
 	 class="pdtable @CssClass"
 	 tabindex="0"
+	 @attributes="DivAttributes"
 	 @onmousedown="OnDivMouseDown"
 	 @oncontextmenu:stopPropagation
 	 @oncontextmenu:preventDefault
+	 @ondrop="OnDragDropAsync"
 	 @onkeydown="OnKeyDownAsync">
 
 	@*<input id="focus-receiver" />*@
@@ -57,7 +59,8 @@
 						@ondblclick="@((args) => OnRowDoubleClick(args, item))"
 						@ondragstart="OnDragStart"
 						@ondragend="OnDragEnd"
-						@ondrop="@((args) => OnDragDropAsync(item, args))">
+						@ondrop:stopPropagation
+						@ondrop="@((args) => OnRowDragDropAsync(args, item))">
 						@foreach (var column in ActualColumnsToDisplay)
 						{
 							var row = ItemsToDisplay.IndexOf(item);

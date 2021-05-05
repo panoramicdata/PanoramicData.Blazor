@@ -887,7 +887,11 @@ namespace PanoramicData.Blazor
 		private async Task OnDropAsync(DropEventArgs args)
 		{
 			// unwrap FileExplorerItem
-			if (args.Target is TreeNode<FileExplorerItem> node)
+			if (args.Target is null)
+			{
+				args.Target = _selectedNode?.Data;
+			}
+			else if (args.Target is TreeNode<FileExplorerItem> node)
 			{
 				args.Target = node.Data;
 			}

@@ -547,6 +547,22 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Gets a dictionary of additional attributes to be added to the main div element.
+		/// </summary>
+		public Dictionary<string, object> DivAttributes
+		{
+			get
+			{
+				var dict = new Dictionary<string, object>();
+				if (AllowDrop)
+				{
+					dict.Add("ondragover", "event.preventDefault();");
+				}
+				return dict;
+			}
+		}
+
+		/// <summary>
 		/// Gets a dictionary of additional attributes to be added to each row.
 		/// </summary>
 		public Dictionary<string, object> RowAttributes
@@ -937,12 +953,22 @@ namespace PanoramicData.Blazor
 			_dragging = false;
 		}
 
-		private async Task OnDragDropAsync(TItem row, MouseEventArgs args)
+		private async Task OnRowDragDropAsync(MouseEventArgs args, TItem row)
 		{
 			if (DragContext != null)
 			{
 				await Drop.InvokeAsync(new DropEventArgs(row, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 			}
 		}
+
+		private async Task OnDragDropAsync(DragEventArgs args)
+		{
+			if (DragContext != null)
+			{
+
+				await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
+			}
+		}
+
 	}
 }
