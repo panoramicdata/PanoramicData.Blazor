@@ -84,7 +84,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnContentMouseDownAsync(MouseEventArgs _)
+		private async Task OnContentMouseUpAsync(MouseEventArgs _)
 		{
 			if (Node != null)
 			{
