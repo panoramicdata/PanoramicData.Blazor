@@ -111,7 +111,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			{
 				// not existing - so create
 				createFileButton = new MenuItem { Key = "create-file", Text = "New File", IconCssClass = "fas fa-fw fa-file-medical" };
-				args.MenuItems.Insert(2, createFileButton);
+				args.MenuItems.Insert(3, createFileButton);
 			}
 
 			// update custom item state - enabled only when no selection and folder is not read-only
