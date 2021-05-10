@@ -624,13 +624,13 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTableContextMenuUpdateStateAsync(MenuItemsEventArgs args)
 		{
-			var selectedItems = Table!.GetSelectedItems();
+			var selectedItems = Table!.GetSelectedItems() ?? Array.Empty<FileExplorerItem>();
 			var validSelection = IsValidSelection();
 			var selectedFolderIsReadOnly = _selectedNode?.Data?.IsReadOnly ?? true;
 
 			_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
 			_menuDownload.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
-			_menuNewFolder.IsVisible = selectedItems?.Length == 0;
+			_menuNewFolder.IsDisabled = selectedItems?.Length > 0 || selectedFolderIsReadOnly;
 			_menuRename.IsVisible = validSelection && selectedItems.Length == 1 && !selectedItems[0].IsReadOnly;
 			_menuDelete.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
 			_menuCopy.IsVisible = validSelection && selectedItems.Length > 0;
@@ -1301,7 +1301,7 @@ namespace PanoramicData.Blazor
 			var createFolderButton = ToolbarItems.Find(x => x.Key == "create-folder");
 			if (createFolderButton != null)
 			{
-				createFolderButton.IsEnabled = Tree?.SelectedNode?.Data == null ? false : !Tree.SelectedNode.Data.IsReadOnly;
+				createFolderButton.IsEnabled = (Tree?.SelectedNode?.Data) != null && !Tree.SelectedNode.Data.IsReadOnly;
 			}
 
 			// upload button
