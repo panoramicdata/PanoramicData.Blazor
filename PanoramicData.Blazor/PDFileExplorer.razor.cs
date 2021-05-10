@@ -630,7 +630,7 @@ namespace PanoramicData.Blazor
 
 			_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
 			_menuDownload.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
-			_menuNewFolder.IsVisible = false;
+			_menuNewFolder.IsVisible = selectedItems?.Length == 0;
 			_menuRename.IsVisible = validSelection && selectedItems.Length == 1 && !selectedItems[0].IsReadOnly;
 			_menuDelete.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
 			_menuCopy.IsVisible = validSelection && selectedItems.Length > 0;
@@ -1026,7 +1026,7 @@ namespace PanoramicData.Blazor
 		{
 			if (Tree?.SelectedNode?.Data != null)
 			{
-				var newFolderName = Tree.SelectedNode.MakeUniqueText("New Folder");
+				var newFolderName = Tree.SelectedNode.MakeUniqueText("New Folder") ?? "New Folder";
 				var newPath = $"{Tree.SelectedNode.Data.Path.TrimEnd('/')}/{newFolderName}";
 				var newItem = new FileExplorerItem { EntryType = FileExplorerItemType.Directory, Path = newPath, HasSubFolders = false };
 				var result = await DataProvider.CreateAsync(newItem, CancellationToken.None).ConfigureAwait(true);

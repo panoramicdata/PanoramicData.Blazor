@@ -72,7 +72,7 @@ namespace PanoramicData.Blazor.Demo.Data
 			{
 				try
 				{
-					AddFile(item);
+					AddFileItem(item);
 					result.Success = true;
 				}
 				catch (Exception ex)
@@ -299,7 +299,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		///A new file has been added to the virtual file system model.
 		/// </summary>
 		/// <param name="file">Details of the new file.</param>
-		public void AddFile(FileExplorerItem file)
+		public void AddFileItem(FileExplorerItem file)
 		{
 			var currentDir = _root;
 
@@ -334,20 +334,38 @@ namespace PanoramicData.Blazor.Demo.Data
 				}
 			}
 
-			// finally add file
-			currentDir.Items.Add(new DirectoryEntry
+			// finally add file / folder
+			if (file.EntryType == FileExplorerItemType.Directory)
 			{
-				Type = FileExplorerItemType.File,
-				Name = file.Name,
-				Size = file.FileSize,
-				CanCopyMove = file.CanCopyMove,
-				DateCreated = file.DateCreated.HasValue ? file.DateCreated.Value : DateTimeOffset.UtcNow,
-				DateModified = file.DateModified.HasValue ? file.DateModified.Value : DateTimeOffset.UtcNow,
-				IsHidden = file.IsHidden,
-				IsReadOnly = file.IsReadOnly,
-				IsSystem = file.IsSystem,
-				Parent = currentDir
-			});
+				currentDir.Items.Add(new DirectoryEntry
+				{
+					Type = FileExplorerItemType.Directory,
+					Name = file.Name,
+					CanCopyMove = file.CanCopyMove,
+					DateCreated = file.DateCreated.HasValue ? file.DateCreated.Value : DateTimeOffset.UtcNow,
+					DateModified = file.DateModified.HasValue ? file.DateModified.Value : DateTimeOffset.UtcNow,
+					IsHidden = file.IsHidden,
+					IsReadOnly = file.IsReadOnly,
+					IsSystem = file.IsSystem,
+					Parent = currentDir
+				});
+			}
+			else
+			{
+				currentDir.Items.Add(new DirectoryEntry
+				{
+					Type = FileExplorerItemType.File,
+					Name = file.Name,
+					Size = file.FileSize,
+					CanCopyMove = file.CanCopyMove,
+					DateCreated = file.DateCreated.HasValue ? file.DateCreated.Value : DateTimeOffset.UtcNow,
+					DateModified = file.DateModified.HasValue ? file.DateModified.Value : DateTimeOffset.UtcNow,
+					IsHidden = file.IsHidden,
+					IsReadOnly = file.IsReadOnly,
+					IsSystem = file.IsSystem,
+					Parent = currentDir
+				});
+			}
 		}
 	}
 }
