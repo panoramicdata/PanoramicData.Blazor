@@ -9,15 +9,29 @@ namespace PanoramicData.Blazor.Demo.Data
 {
 	public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 	{
-		private readonly Random _random = new Random(Environment.TickCount);
-		private DirectoryEntry _root = new DirectoryEntry(
+		private readonly Random _random = new(Environment.TickCount);
+		private readonly DirectoryEntry _root = new(
 			new DirectoryEntry("Library", true,
 				new DirectoryEntry("Templates", true,
 					new DirectoryEntry("web_template.html", FileExplorerItemType.File, 13000, true),
 					new DirectoryEntry("excel_template.xlsx", FileExplorerItemType.File, 7500, true),
 					new DirectoryEntry("word_template.docx", FileExplorerItemType.File, 10000, true)
 				)
-			),
+				{ CanAddItems = false }
+			)
+			{ CanAddItems = false },
+			new DirectoryEntry("Users", true,
+				new DirectoryEntry("1", true,
+					new DirectoryEntry("summary.xlsx", FileExplorerItemType.File, 5012, false),
+					new DirectoryEntry("instruction.docx", FileExplorerItemType.File, 4320, false)
+				)
+				{ Alias = "Alice" },
+				new DirectoryEntry("2", true,
+					new DirectoryEntry("notes.docx", FileExplorerItemType.File, 2000, false)
+				)
+				{ Alias = "Bob" }
+			)
+			{ CanAddItems = false },
 			new DirectoryEntry("CDrive",
 				new DirectoryEntry("ProgramData",
 					new DirectoryEntry("Acme",
@@ -31,7 +45,7 @@ namespace PanoramicData.Blazor.Demo.Data
 					new DirectoryEntry("a53fde.tmp", FileExplorerItemType.File, 1024) { IsHidden = true },
 					new DirectoryEntry("b76jba.tmp", FileExplorerItemType.File, 2048) { IsHidden = true }
 				),
-				new DirectoryEntry("Users",
+				new DirectoryEntry("Cache",
 					new DirectoryEntry("document.docx", FileExplorerItemType.File, 4096),
 					new DirectoryEntry("spreadsheet.xlsx", FileExplorerItemType.File, 2048)
 				)
@@ -79,7 +93,7 @@ namespace PanoramicData.Blazor.Demo.Data
 				{
 					result.ErrorMessage = ex.Message;
 				}
-			}).ConfigureAwait(true);
+			}, cancellationToken).ConfigureAwait(true);
 			return result;
 		}
 
@@ -108,7 +122,7 @@ namespace PanoramicData.Blazor.Demo.Data
 						result.Success = true;
 					}
 				}
-			}).ConfigureAwait(false);
+			}, cancellationToken).ConfigureAwait(false);
 			return result;
 		}
 
@@ -151,17 +165,21 @@ namespace PanoramicData.Blazor.Demo.Data
 				// move Library folder to the top of the list - if displayed
 				if (items.SingleOrDefault(i => i.Path == "/Library") is FileExplorerItem libraryFolder)
 				{
-					// Remove
 					items.RemoveAt(items.IndexOf(libraryFolder));
-
-					// Always insert at the top
 					items.Insert(0, libraryFolder);
+				}
+
+				// move Users folder to the top of the list (after library) - if displayed
+				if (items.SingleOrDefault(i => i.Path == "/Users") is FileExplorerItem usersFolder)
+				{
+					items.RemoveAt(items.IndexOf(usersFolder));
+					items.Insert(1, usersFolder);
 				}
 			}
 
 			// add in some random latency
 			var delayMs = _random.Next(50, 800);
-			await Task.Delay(delayMs).ConfigureAwait(true);
+			await Task.Delay(delayMs, cancellationToken).ConfigureAwait(true);
 
 			return new DataResponse<FileExplorerItem>(items, total);
 		}
@@ -172,50 +190,19 @@ namespace PanoramicData.Blazor.Demo.Data
 			{
 				return "fas fa-fw fa-folder";
 			}
-			switch (item.FileExtension.ToLower())
+			return item.FileExtension.ToLower() switch
 			{
-				case "doc":
-				case "docx":
-					return "fas fa-fw fa-file-word";
-
-				case "xls":
-				case "xlsx":
-					return "fas fa-fw fa-file-excel";
-
-				case "zip":
-				case "gzip":
-					return "fas fa-fw fa-file-archive";
-
-				case "txt":
-				case "log":
-					return "far fa-fw fa-file-alt";
-
-				case "csv":
-					return "fas fa-fw fa-file-csv";
-
-				case "wav":
-				case "mp3":
-					return "fas fa-fw fa-file-audio";
-
-				case "png":
-				case "ico":
-				case "gif":
-				case "bmp":
-				case "jpg":
-				case "jpeg":
-					return "fas fa-fw fa-file-image";
-
-				case "htm":
-				case "html":
-				case "rmscript":
-					return "fas fa-fw fa-file-code";
-
-				case "pdf":
-					return "fas fa-fw fa-file-pdf";
-
-				default:
-					return "far fa-fw fa-file";
-			}
+				"doc" or "docx" => "fas fa-fw fa-file-word",
+				"xls" or "xlsx" => "fas fa-fw fa-file-excel",
+				"zip" or "gzip" => "fas fa-fw fa-file-archive",
+				"txt" or "log" => "far fa-fw fa-file-alt",
+				"csv" => "fas fa-fw fa-file-csv",
+				"wav" or "mp3" => "fas fa-fw fa-file-audio",
+				"png" or "ico" or "gif" or "bmp" or "jpg" or "jpeg" => "fas fa-fw fa-file-image",
+				"htm" or "html" or "rmscript" => "fas fa-fw fa-file-code",
+				"pdf" => "fas fa-fw fa-file-pdf",
+				_ => "far fa-fw fa-file",
+			};
 		}
 
 		/// <summary>
@@ -288,10 +275,8 @@ namespace PanoramicData.Blazor.Demo.Data
 					targetNode.Items.Add(itemNode);
 					itemNode.Parent = targetNode;
 				}
-
 				result.Success = true;
-
-			}).ConfigureAwait(false);
+			}, cancellationToken).ConfigureAwait(false);
 			return result;
 		}
 
@@ -342,8 +327,8 @@ namespace PanoramicData.Blazor.Demo.Data
 					Type = FileExplorerItemType.Directory,
 					Name = file.Name,
 					CanCopyMove = file.CanCopyMove,
-					DateCreated = file.DateCreated.HasValue ? file.DateCreated.Value : DateTimeOffset.UtcNow,
-					DateModified = file.DateModified.HasValue ? file.DateModified.Value : DateTimeOffset.UtcNow,
+					DateCreated = file.DateCreated ?? DateTimeOffset.UtcNow,
+					DateModified = file.DateModified ?? DateTimeOffset.UtcNow,
 					IsHidden = file.IsHidden,
 					IsReadOnly = file.IsReadOnly,
 					IsSystem = file.IsSystem,
@@ -358,8 +343,8 @@ namespace PanoramicData.Blazor.Demo.Data
 					Name = file.Name,
 					Size = file.FileSize,
 					CanCopyMove = file.CanCopyMove,
-					DateCreated = file.DateCreated.HasValue ? file.DateCreated.Value : DateTimeOffset.UtcNow,
-					DateModified = file.DateModified.HasValue ? file.DateModified.Value : DateTimeOffset.UtcNow,
+					DateCreated = file.DateCreated ?? DateTimeOffset.UtcNow,
+					DateModified = file.DateModified ?? DateTimeOffset.UtcNow,
 					IsHidden = file.IsHidden,
 					IsReadOnly = file.IsReadOnly,
 					IsSystem = file.IsSystem,

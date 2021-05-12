@@ -30,6 +30,11 @@ namespace PanoramicData.Blazor
 		public bool? HasSubFolders { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether the user may add new files and folders to the folder?
+		/// </summary>
+		public bool CanAddItems { get; set; } = true;
+
+		/// <summary>
 		/// Gets or sets whether this item can be moved or copied.
 		/// </summary>
 		public bool CanCopyMove { get; set; } = true;
@@ -107,6 +112,12 @@ namespace PanoramicData.Blazor
 		/// Gets or sets the date and time the item was last modified.
 		/// </summary>
 		public DateTimeOffset? DateModified { get; set; }
+
+		/// <summary>
+		/// Gets or sets the text to actually be displayed for the item, if set.
+		/// Used to allow a logical name / alias to be displayed separate from the actual path.
+		/// </summary>
+		public string Alias {get; set; } = string.Empty;
 
 		/// <summary>
 		/// Renames the item.

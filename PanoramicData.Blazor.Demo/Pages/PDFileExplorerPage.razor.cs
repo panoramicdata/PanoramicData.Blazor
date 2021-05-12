@@ -13,6 +13,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDFileExplorerPage
 	{
 		private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
+		private readonly string[] _virtualFolders = new string[] { "/Library", "/Users" };
+
 		private PDFileExplorer? FileExplorer { get; set; }
 
 		/// <summary>
@@ -44,7 +46,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			await JSRuntime.InvokeVoidAsync("panoramicDataDemo.downloadFiles", args).ConfigureAwait(false);
 		}
 
-		public void OnUploadRequest(DropZoneEventArgs args)
+		public static void OnUploadRequest(DropZoneEventArgs args)
 		{
 			// example of canceling an upload request
 			if (args.Files.Any(x => System.IO.Path.GetExtension(x.Name) == ".zip"))
@@ -90,7 +92,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			else
 			{
 				// update state - can only create file if folder is not read only
-				createFileButton.IsEnabled = !(FileExplorer!.GetTreeSelectedFolder()?.IsReadOnly ?? true);
+				createFileButton.IsEnabled = FileExplorer!.GetTreeSelectedFolder()?.CanAddItems == true;
 			}
 		}
 
@@ -114,9 +116,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 				args.MenuItems.Insert(3, createFileButton);
 			}
 
-			// update custom item state - enabled only when no selection and folder is not read-only
+			// update custom item state - enabled only when no selection and folder allows items to be added
 			var folderItem = FileExplorer!.GetTreeSelectedFolder();
-			if (FileExplorer?.SelectedFilesAndFolders.Length == 0 && folderItem?.IsReadOnly == false)
+			if (FileExplorer?.SelectedFilesAndFolders.Length == 0 && folderItem?.CanAddItems == true)
 			{
 				createFileButton.IsDisabled = false;
 				args.Cancel = false;
@@ -155,18 +157,22 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
-		private string GetCssClass(FileExplorerItem item)
+		private static string GetCssClass(FileExplorerItem _)
 		{
 			return string.Empty;
 		}
 
-		private string GetIconCssClass(FileExplorerItem item)
+		private static string GetIconCssClass(FileExplorerItem item)
 		{
 			if (item.EntryType == FileExplorerItemType.Directory)
 			{
 				if (item.Path == "/Library")
 				{
 					return "fas fa-book";
+				}
+				if (item.Path == "/Users")
+				{
+					return "fas fa-users";
 				}
 				if (item.Path == "/")
 				{
@@ -183,11 +189,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private int OnTreeSort(FileExplorerItem item1, FileExplorerItem item2)
 		{
 			// shift Library folder to top
-			if (item1.Path == "/Library")
+			if (_virtualFolders.Contains(item1.Path) && !_virtualFolders.Contains(item2.Path))
 			{
 				return -1;
 			}
-			else if (item2.Path == "/Library")
+			else if (!_virtualFolders.Contains(item1.Path) && _virtualFolders.Contains(item2.Path))
 			{
 				return 1;
 			}

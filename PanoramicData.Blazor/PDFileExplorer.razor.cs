@@ -346,24 +346,25 @@ namespace PanoramicData.Blazor
 		private async Task OnTreeContextMenuUpdateStateAsync(MenuItemsEventArgs args)
 		{
 			var parentPath = _selectedNode?.Data?.ParentPath ?? string.Empty;
+			var selectedFolder = _selectedNode?.Data;
 			var selectedPath = _selectedNode?.Data?.Path ?? string.Empty;
-			var isReadOnly = _selectedNode?.Data?.IsReadOnly ?? true;
 			var isRoot = string.IsNullOrEmpty(parentPath);
 			var folderSelected = !string.IsNullOrWhiteSpace(selectedPath);
 
-			_menuNewFolder.IsVisible = folderSelected && !isReadOnly;
-			_menuUploadFiles.IsVisible = folderSelected && !isReadOnly;
-			_menuRename.IsVisible = folderSelected && !isRoot && !isReadOnly;
-			_menuDelete.IsVisible = folderSelected && !isRoot && !isReadOnly;
+			_menuNewFolder.IsVisible = folderSelected && selectedFolder?.CanAddItems == true;
+			_menuUploadFiles.IsVisible = folderSelected && selectedFolder?.CanAddItems == true;
+			_menuRename.IsVisible = folderSelected && !isRoot && selectedFolder?.IsReadOnly == false;
+			_menuDelete.IsVisible = folderSelected && !isRoot && selectedFolder?.IsReadOnly == false;
 			_menuCopy.IsVisible = folderSelected && !isRoot;
-			_menuCut.IsVisible = folderSelected && !isRoot && !isReadOnly;
-			_menuPaste.IsVisible = folderSelected && !isReadOnly && _copyPayload.Count > 0;
+			_menuCut.IsVisible = folderSelected && !isRoot && selectedFolder?.IsReadOnly == false;
+			_menuPaste.IsVisible = folderSelected && selectedFolder?.CanAddItems == true && _copyPayload.Count > 0;
 			_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
 			_menuSep3.IsVisible = ShowSeparator(_menuSep3, TreeContextItems);
 			_menuSep2.IsVisible = ShowSeparator(_menuSep2, TreeContextItems);
 			_menuSep1.IsVisible = ShowSeparator(_menuSep1, TreeContextItems);
 
 			// allow application to alter tree context menu state
+			args.Context = selectedFolder;
 			await UpdateTreeContextState.InvokeAsync(args).ConfigureAwait(true);
 		}
 
@@ -449,7 +450,7 @@ namespace PanoramicData.Blazor
 				await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
 				args.Cancel = renameArgs.Cancel;
 			}
-			if (!AllowRename || args.Node.ParentNode == null)
+			if (!AllowRename || args.Node.ParentNode == null || args?.Node?.Data?.IsReadOnly == true)
 			{
 				args.Cancel = true;
 			}
@@ -529,7 +530,7 @@ namespace PanoramicData.Blazor
 			{
 				var renameArgs = new RenameArgs { Item = args.Item };
 				await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
-				if (renameArgs.Cancel || !AllowRename || args.Item.Name == ".." || args.Item.IsUploading)
+				if (renameArgs.Cancel || !AllowRename || args.Item.Name == ".." || args.Item.IsUploading || args.Item.IsReadOnly)
 				{
 					args.Cancel = true;
 				}
@@ -626,24 +627,26 @@ namespace PanoramicData.Blazor
 		{
 			var selectedItems = Table!.GetSelectedItems() ?? Array.Empty<FileExplorerItem>();
 			var validSelection = IsValidSelection();
-			var selectedFolderIsReadOnly = _selectedNode?.Data?.IsReadOnly ?? true;
+			var selectedFolder = _selectedNode?.Data;
 
 			_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
 			_menuDownload.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
-			_menuNewFolder.IsDisabled = selectedItems?.Length > 0 || selectedFolderIsReadOnly;
-			_menuRename.IsVisible = validSelection && selectedItems.Length == 1 && !selectedItems[0].IsReadOnly;
-			_menuDelete.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
-			_menuCopy.IsVisible = validSelection && selectedItems.Length > 0;
-			_menuCut.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
-			_menuPaste.IsVisible = validSelection && _copyPayload.Count > 0 && (selectedItems.Length == 0 && !selectedFolderIsReadOnly ||
+			_menuNewFolder.IsDisabled = selectedItems?.Length > 0 || selectedFolder?.CanAddItems == false;
+			_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && !selectedItems[0].IsReadOnly;
+			_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
+			_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0;
+			_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
+			_menuPaste.IsVisible = validSelection && _copyPayload.Count > 0 &&
+				((selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true) ||
 				// sub-folder highlighted
-				(selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory && !selectedItems[0].IsReadOnly));
+				(selectedItems?.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory && selectedItems[0].CanAddItems));
 			_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
 			_menuSep3.IsVisible = ShowSeparator(_menuSep3, TableContextItems);
 			_menuSep2.IsVisible = ShowSeparator(_menuSep2, TableContextItems);
 			_menuSep1.IsVisible = ShowSeparator(_menuSep1, TableContextItems);
 
 			// allow application to alter table context menu state
+			args.Context = selectedItems;
 			await UpdateTableContextState.InvokeAsync(args).ConfigureAwait(true);
 		}
 
@@ -1301,14 +1304,14 @@ namespace PanoramicData.Blazor
 			var createFolderButton = ToolbarItems.Find(x => x.Key == "create-folder");
 			if (createFolderButton != null)
 			{
-				createFolderButton.IsEnabled = (Tree?.SelectedNode?.Data) != null && !Tree.SelectedNode.Data.IsReadOnly;
+				createFolderButton.IsEnabled = (Tree?.SelectedNode?.Data) != null && Tree.SelectedNode.Data.CanAddItems;
 			}
 
 			// upload button
 			var uploadButton = ToolbarItems.Find(x => x.Key == "upload");
 			if (uploadButton != null)
 			{
-				uploadButton.IsEnabled = Tree?.SelectedNode?.Data?.IsReadOnly == false;
+				uploadButton.IsEnabled = Tree?.SelectedNode?.Data?.CanAddItems == true;
 			}
 
 			// delete button

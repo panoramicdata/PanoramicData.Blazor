@@ -28,5 +28,10 @@ namespace PanoramicData.Blazor
 		/// Gets the object that raised the event.
 		/// </summary>
 		public object Sender { get; }
+
+		/// <summary>
+		/// Gets or sets an application specific context.
+		/// </summary>
+		public object? Context { get; set; }
 	}
 }

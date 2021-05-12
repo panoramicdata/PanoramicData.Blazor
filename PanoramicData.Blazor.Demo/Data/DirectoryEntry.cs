@@ -17,6 +17,8 @@ namespace PanoramicData.Blazor.Demo.Data
 		public DirectoryEntry? Parent { get; set; }
 		public long Size { get; set; }
 		public FileExplorerItemType Type { get; set; }
+		public string Alias { get; set; } = string.Empty;
+		public bool CanAddItems { get; set; } = true;
 
 		public DirectoryEntry()
 		{
@@ -24,6 +26,7 @@ namespace PanoramicData.Blazor.Demo.Data
 
 		public DirectoryEntry(FileExplorerItem item)
 		{
+			CanAddItems = item.CanAddItems;
 			CanCopyMove = item.CanCopyMove;
 			DateCreated = item.DateCreated ?? DateTimeOffset.UtcNow;
 			DateModified = item.DateModified ?? DateTimeOffset.UtcNow;
@@ -84,6 +87,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		{
 			var clone = new DirectoryEntry
 			{
+				CanAddItems = CanAddItems,
 				CanCopyMove = CanCopyMove,
 				DateCreated = DateCreated,
 				DateModified = DateModified,
@@ -150,6 +154,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		{
 			return new FileExplorerItem
 			{
+				CanAddItems = CanAddItems,
 				CanCopyMove = CanCopyMove,
 				DateCreated = DateCreated,
 				DateModified = DateModified,
@@ -159,6 +164,7 @@ namespace PanoramicData.Blazor.Demo.Data
 				IsHidden = IsHidden,
 				IsReadOnly = IsReadOnly,
 				IsSystem = IsSystem,
+				Alias = Alias,
 				Path = Path(pathSeparator)
 			};
 		}
