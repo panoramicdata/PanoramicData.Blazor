@@ -631,7 +631,7 @@ namespace PanoramicData.Blazor
 
 			_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
 			_menuDownload.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
-			_menuNewFolder.IsDisabled = selectedItems?.Length > 0 || selectedFolder?.CanAddItems == false;
+			_menuNewFolder.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
 			_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && !selectedItems[0].IsReadOnly;
 			_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
 			_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0;

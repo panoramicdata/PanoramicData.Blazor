@@ -91,7 +91,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 			else
 			{
-				// update state - can only create file if folder is not read only
+				// update state - can only create file if folder allows items to be added
 				createFileButton.IsEnabled = FileExplorer!.GetTreeSelectedFolder()?.CanAddItems == true;
 			}
 		}
@@ -120,12 +120,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 			var folderItem = FileExplorer!.GetTreeSelectedFolder();
 			if (FileExplorer?.SelectedFilesAndFolders.Length == 0 && folderItem?.CanAddItems == true)
 			{
-				createFileButton.IsDisabled = false;
+				createFileButton.IsVisible = true;
 				args.Cancel = false;
 			}
 			else
 			{
-				createFileButton.IsDisabled = true;
+				createFileButton.IsVisible = false;
 			}
 		}
 
