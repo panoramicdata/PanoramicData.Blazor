@@ -60,7 +60,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets the maximum time in seconds to wait for an upload to complete.
 		/// </summary>
-		[Parameter] public int Timeout { get; set; } = 30000;
+		[Parameter] public int Timeout { get; set; } = 60;
 
 		/// <summary>
 		/// Sets the maximum file upload size in MB.
@@ -103,7 +103,7 @@ namespace PanoramicData.Blazor
 				var options = new
 				{
 					url = UploadUrl,
-					timeout = Timeout,
+					timeout = Timeout * 1000,
 					autoScroll = AutoScroll,
 					maxFilesize = MaxFileSize,
 					previewsContainer = PreviewContainer,

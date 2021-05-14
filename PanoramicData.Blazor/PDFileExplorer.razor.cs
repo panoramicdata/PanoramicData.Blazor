@@ -244,9 +244,9 @@ namespace PanoramicData.Blazor
 		[Parameter] public string? UploadUrl { get; set; }
 
 		/// <summary>
-		/// Upload timeout in milliseconds.
+		/// Upload timeout in seconds.
 		/// </summary>
-		[Parameter] public int UploadTimeout { get; set; } = 30000;
+		[Parameter] public int UploadTimeout { get; set; } = 60;
 
 		/// <summary>
 		/// Event raised whenever the table context menu may need updating.
