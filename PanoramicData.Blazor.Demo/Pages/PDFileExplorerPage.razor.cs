@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Demo.Data;
+using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
@@ -14,6 +16,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	{
 		private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 		private readonly string[] _virtualFolders = new string[] { "/Library", "/Users" };
+		private string _deepLinkPath;
 
 		private PDFileExplorer? FileExplorer { get; set; }
 
@@ -28,6 +31,27 @@ namespace PanoramicData.Blazor.Demo.Pages
 		[Inject] protected NavigationManager NavigationManager { get; set; } = null!;
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
+
+		protected override void OnInitialized()
+		{
+			var uri = new Uri(NavigationManager.Uri);
+			var query = QueryHelpers.ParseQuery(uri.Query);
+			if (query.TryGetValue("path", out var pathQueryStrings) && pathQueryStrings.Count > 0)
+			{
+				_deepLinkPath = pathQueryStrings[0];
+			}
+		}
+
+		private async Task OnFolderChanged(FileExplorerItem folder)
+		{
+			NavigationManager.SetUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } });
+
+			if (!string.IsNullOrWhiteSpace(_deepLinkPath) && !FileExplorer!.IsNavigating)
+			{
+				await FileExplorer!.NavigateToAsync(_deepLinkPath).ConfigureAwait(true);
+				_deepLinkPath = string.Empty;
+			}
+		}
 
 		public async Task OnTableDownloadRequest(TableSelectionEventArgs<FileExplorerItem> args)
 		{

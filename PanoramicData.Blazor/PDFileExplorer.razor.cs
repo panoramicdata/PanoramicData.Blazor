@@ -44,6 +44,7 @@ namespace PanoramicData.Blazor
 
 		public string FolderPath = string.Empty;
 		public string Id { get; private set; } = string.Empty;
+		public bool IsNavigating { get; private set; }
 		public string SessionId { get; private set; } = Guid.NewGuid().ToString();
 
 		/// <summary>
@@ -318,6 +319,36 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Attempts to navigate down to the given path.
+		/// </summary>
+		/// <param name="path">The relative path from root to the intended folder.</param>
+		public async Task NavigateToAsync(string path)
+		{
+			if (string.IsNullOrWhiteSpace(path))
+			{
+				return;
+			}
+
+			IsNavigating = true;
+
+			// must start from root
+			if (FolderPath != "/")
+			{
+				await NavigateFolderAsync("/").ConfigureAwait(true);
+			}
+
+			// descend folder by folder
+			var parts = path.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+			for (var i = 0; i < parts.Length; i++)
+			{
+				var subPath = "/" + string.Join("/", parts.Take(i + 1));
+				await NavigateFolderAsync(subPath).ConfigureAwait(true);
+			}
+
+			IsNavigating = false;
+		}
+
+		/// <summary>
 		/// Filters file items out of tree and shows root items in table on tree first load.
 		/// </summary>
 		private void OnTreeItemsLoaded(List<FileExplorerItem> items)
@@ -331,8 +362,8 @@ namespace PanoramicData.Blazor
 			if (AutoExpand && node.Text == "Root" && node.Nodes?.Count == 1)
 			{
 				var firstNode = node.Nodes[0];
+				await Tree!.RefreshNodeAsync(firstNode).ConfigureAwait(true);
 				await Tree!.SelectNode(firstNode).ConfigureAwait(true);
-				await Tree.RefreshNodeAsync(firstNode).ConfigureAwait(true);
 				StateHasChanged();
 			}
 		}
