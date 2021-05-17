@@ -115,6 +115,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
 		/// <summary>
+		/// Event raised whenever the current folder changes.
+		/// </summary>
+		[Parameter] public EventCallback<FileExplorerItem> FolderChanged { get; set; }
+
+		/// <summary>
 		/// Provides a function that determines the CSS class for a given item.
 		/// </summary>
 		[Parameter] public Func<FileExplorerItem, string>? GetItemCssClass { get; set; }
@@ -340,6 +345,7 @@ namespace PanoramicData.Blazor
 				FolderPath = node.Data.Path;
 				await RefreshTableAsync().ConfigureAwait(true);
 				await RefreshToolbarAsync().ConfigureAwait(true);
+				await FolderChanged.InvokeAsync(node.Data).ConfigureAwait(true);
 			}
 		}
 
