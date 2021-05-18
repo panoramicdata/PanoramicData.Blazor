@@ -100,6 +100,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
 
 		/// <summary>
+		/// Gets or sets an event callback raised when the component has perform all it initialization.
+		/// </summary>
+		[Parameter] public EventCallback Ready { get; set; }
+
+		/// <summary>
 		/// Gets or sets an event callback raise whenever the selection changes.
 		/// </summary>
 		[Parameter] public EventCallback<TreeNode<TItem>> SelectionChange { get; set; }
@@ -483,10 +488,13 @@ namespace PanoramicData.Blazor
 			{
 				// build initial model and notify listeners
 				var items = await GetDataAsync().ConfigureAwait(true);
-				//RootNode = BuildModel(items);
 				UpdateModel(items);
+
 				// notify that node updated
 				await NodeUpdated.InvokeAsync(RootNode).ConfigureAwait(true);
+
+				// notify that initialization completed
+				await Ready.InvokeAsync(null).ConfigureAwait(true);
 				StateHasChanged();
 			}
 		}

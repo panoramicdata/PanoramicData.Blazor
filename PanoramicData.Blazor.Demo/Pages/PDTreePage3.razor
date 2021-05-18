@@ -11,20 +11,20 @@
 		<!-- note that the IsLeaf parameter is set so as to help identify the leaf nodes,
 		 this is not required when all data is loaded up front as it can be inferred -->
 		<PDTree @ref="Tree"
-				DataProvider="_treeDataProvider"
-				TItem="TreeItem"
-				KeyField="x => x.Id"
-				ParentKeyField="x => x.ParentId"
-				TextField="x => x.Name"
-				IconCssClass="GetIconCssClass"
-				ShowLines="true"
-				ShowRoot="true"
 				AllowDrag="true"
 				AllowDrop="true"
 				AllowDropInBetween="true"
+				DataProvider="_treeDataProvider"
 				Drop="OnDrop"
+				IconCssClass="GetIconCssClass"
+				KeyField="x => x.Id"
+				ParentKeyField="x => x.ParentId"
+				Ready="OnReady"
+				ShowLines="true"
+				ShowRoot="true"
 				Sort="(a,b) => a.Order.CompareTo(b.Order)"
-				NodeUpdated="OnTreeNodeUpdated ">
+				TextField="x => x.Name"
+				TItem="TreeItem">
 		</PDTree>
 
 	</PDDragContext>

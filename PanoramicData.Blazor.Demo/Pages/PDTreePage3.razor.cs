@@ -6,24 +6,17 @@ namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDTreePage3
 	{
-		private bool _firstNodeUpdate = true;
 		protected PDTree<TreeItem> Tree { get; set; } = null!;
 		private readonly TreeDataProvider _treeDataProvider = new();
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-		private void OnTreeNodeUpdated(TreeNode<TreeItem> _)
+		private void OnReady()
 		{
-			// expand the tree on first data fetch
-			if (_firstNodeUpdate)
-			{
-				_firstNodeUpdate = false;
-				Tree.ExpandAll();
-				StateHasChanged();
-			}
+			Tree.ExpandAll();
 		}
 
-		private string GetIconCssClass(TreeItem item, int _)
+		private static string GetIconCssClass(TreeItem item, int _)
 		{
 			return item.IsGroup ? "fas fa-fw fa-building" : "fas fa-fw fa-user";
 		}
@@ -95,7 +88,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
-		private void ReOrderNodes(IEnumerable<TreeNode<TreeItem>>? nodes)
+		private static void ReOrderNodes(IEnumerable<TreeNode<TreeItem>>? nodes)
 		{
 			if (nodes != null)
 			{
