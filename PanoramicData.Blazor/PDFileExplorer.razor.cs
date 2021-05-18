@@ -1113,8 +1113,8 @@ namespace PanoramicData.Blazor
 				{
 					try
 					{
-						await DataProvider.DeleteAsync(deleteArgs.Items[0], CancellationToken.None).ConfigureAwait(true);
-						if (Tree?.SelectedNode != null)
+						var result = await DataProvider.DeleteAsync(deleteArgs.Items[0], CancellationToken.None).ConfigureAwait(true);
+						if (result.Success && Tree?.SelectedNode != null)
 						{
 							await Tree.RemoveNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
 						}
