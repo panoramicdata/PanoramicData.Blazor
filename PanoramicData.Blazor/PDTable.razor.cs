@@ -102,6 +102,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public uint[] PageSizeChoices { get; set; } = new uint[] { 10, 25, 50, 100, 250, 500 };
 
 		/// <summary>
+		/// Gets or sets an event callback raised when the component has perform all it initialization.
+		/// </summary>
+		[Parameter] public EventCallback Ready { get; set; }
+
+		/// <summary>
 		/// Gets or sets whether the pager is displayed.
 		/// </summary>
 		[Parameter] public bool ShowPager { get; set; } = true;
@@ -517,7 +522,7 @@ namespace PanoramicData.Blazor
 						if (kvp.Value != null)
 						{
 							var col = Columns.Find(x => x.Id == kvp.Key);
-							if (col != null && col.Field?.GetPropertyMemberInfo() is MemberInfo mi)
+							if (col?.Field?.GetPropertyMemberInfo() is MemberInfo mi)
 							{
 								delta.Add(mi.Name, kvp.Value);
 							}
@@ -686,6 +691,8 @@ namespace PanoramicData.Blazor
 				{
 					await HandleExceptionAsync(ex).ConfigureAwait(true);
 				}
+
+				await Ready.InvokeAsync(null).ConfigureAwait(true);
 			}
 
 			// focus first editor after edit mode begins
@@ -965,10 +972,8 @@ namespace PanoramicData.Blazor
 		{
 			if (DragContext != null)
 			{
-
 				await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 			}
 		}
-
 	}
 }
