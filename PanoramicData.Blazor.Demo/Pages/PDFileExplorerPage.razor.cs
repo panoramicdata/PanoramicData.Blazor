@@ -16,7 +16,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	{
 		private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 		private readonly string[] _virtualFolders = new string[] { "/Library", "/Users" };
-		private string _deepLinkPath;
+		private string? _deepLinkPath;
 
 		private PDFileExplorer? FileExplorer { get; set; }
 
@@ -42,11 +42,14 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
-		private async Task OnFolderChanged(FileExplorerItem folder)
+		private void OnFolderChanged(FileExplorerItem folder)
 		{
 			NavigationManager.SetUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } });
+		}
 
-			if (!string.IsNullOrWhiteSpace(_deepLinkPath) && !FileExplorer!.IsNavigating)
+		private async Task OnReady()
+		{
+			if (!string.IsNullOrWhiteSpace(_deepLinkPath))
 			{
 				await FileExplorer!.NavigateToAsync(_deepLinkPath).ConfigureAwait(true);
 				_deepLinkPath = string.Empty;

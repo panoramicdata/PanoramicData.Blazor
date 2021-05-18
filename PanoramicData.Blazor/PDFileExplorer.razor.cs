@@ -153,6 +153,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
 
 		/// <summary>
+		/// Gets or sets an event callback raised when the component has perform all it initialization.
+		/// </summary>
+		[Parameter] public EventCallback Ready { get; set; }
+
+		/// <summary>
 		/// Determines where sub-folders show an entry (..) to allow navigation to the parent folder.
 		/// </summary>
 		[Parameter] public bool ShowParentFolder { get; set; } = true;
@@ -356,15 +361,15 @@ namespace PanoramicData.Blazor
 			items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
 		}
 
-		private async Task OnTreeNodeUpdatedAsync(TreeNode<FileExplorerItem> node)
+		private async Task OnTreeReady()
 		{
-			// auto expand first node?
-			if (AutoExpand && node.Text == "Root" && node.Nodes?.Count == 1)
+			if (AutoExpand && Tree?.RootNode?.Nodes?.Count > 0)
 			{
-				var firstNode = node.Nodes[0];
+				// auto expand root node
+				var firstNode = Tree.RootNode.Nodes[0];
 				await Tree!.RefreshNodeAsync(firstNode).ConfigureAwait(true);
 				await Tree!.SelectNode(firstNode).ConfigureAwait(true);
-				StateHasChanged();
+				await Ready.InvokeAsync(null).ConfigureAwait(true);
 			}
 		}
 
