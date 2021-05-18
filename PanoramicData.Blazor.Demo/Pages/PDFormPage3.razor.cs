@@ -81,7 +81,13 @@ namespace PanoramicData.Blazor.Demo.Pages
 			var options = new List<OptionInfo>();
 			for (var i = 0; i < PersonDataProvider.Locations.Length; i++)
 			{
-				options.Add(new OptionInfo { Text = PersonDataProvider.Locations[i], Value = i, IsSelected = item?.Location == i });
+				options.Add(new OptionInfo
+				{
+					Text = PersonDataProvider.Locations[i],
+					Value = i,
+					IsSelected = item?.Location == i,
+					IsDisabled = PersonDataProvider.Locations[i] == "Sydney"
+				});
 			}
 			return options.ToArray();
 		}

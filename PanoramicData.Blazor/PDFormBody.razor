@@ -64,6 +64,7 @@ else if (Form.Mode != FormModes.Hidden)
 								@foreach (var option in field.Options(field, Form?.Item))
 								{
 									<option value="@option.Value"
+											disabled="@option.IsDisabled"
 											selected="@option.IsSelected">
 										@option.Text
 									</option>
@@ -145,8 +146,8 @@ else if (Form.Mode != FormModes.Hidden)
 					</div>
 					<div class="mb-2">
 						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-		 (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-		 (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+		(Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+		(Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}

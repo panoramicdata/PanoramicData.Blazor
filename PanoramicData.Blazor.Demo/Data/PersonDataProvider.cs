@@ -15,7 +15,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		private static readonly string[] _lastNames = new string[] { "Smith", "Cooper", "Watkins", "Jenkins", "Tailor", "Williams", "Jones", "Smithson", "Carter", "Miller", "Baker" };
 		private static readonly Random _random = new(Environment.TickCount);
 		private static readonly List<Person> _people = new();
-		public static string[] Locations = new string[] { "Paris", "Rome", "Milan", "New York", "Peckham" };
+		public static string[] Locations = new string[] { "Paris", "Rome", "Milan", "New York", "Peckham", "Sydney" };
 
 		public PersonDataProvider(int count = 55)
 		{
