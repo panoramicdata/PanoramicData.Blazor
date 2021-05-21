@@ -19,6 +19,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string Text { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Event raised whenever user clicks on the button.
+		/// </summary>
+		[Parameter] public EventCallback<KeyedEventArgs<MouseEventArgs>> Click { get; set; }
+
+		/// <summary>
 		/// Gets or sets CSS classes for the button.
 		/// </summary>
 		[Parameter] public string CssClass { get; set; } = "btn-secondary";
@@ -65,9 +70,14 @@ namespace PanoramicData.Blazor
 		[Parameter] public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
 
 		/// <summary>
-		/// Event raised whenever user clicks on the button.
+		/// Target where URL content should be opened.
 		/// </summary>
-		[Parameter] public EventCallback<KeyedEventArgs<MouseEventArgs>> Click { get; set; }
+		[Parameter] public string Target { get; set; } = "_self";
+
+		/// <summary>
+		/// Target URL. If set forces the button to be rendered as an Anchor element.
+		/// </summary>
+		[Parameter] public string Url { get; set; } = string.Empty;
 
 		private Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 

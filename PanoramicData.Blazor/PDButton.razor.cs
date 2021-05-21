@@ -49,6 +49,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
 
 		/// <summary>
+		/// Target where URL content should be opened.
+		/// </summary>
+		[Parameter] public string Target { get; set; } = "_self";
+
+		/// <summary>
 		/// Sets the text displayed on the button.
 		/// </summary>
 		[Parameter] public string Text { get; set; } = string.Empty;
@@ -62,6 +67,11 @@ namespace PanoramicData.Blazor
 		/// Sets the text displayed on the buttons tooltip.
 		/// </summary>
 		[Parameter] public string ToolTip { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Target URL. If set forces the button to be rendered as an Anchor element.
+		/// </summary>
+		[Parameter] public string Url { get; set; } = string.Empty;
 
 		protected override void OnInitialized()
 		{
