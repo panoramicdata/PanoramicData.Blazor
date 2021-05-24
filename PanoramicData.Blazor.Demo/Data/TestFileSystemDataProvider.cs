@@ -43,7 +43,8 @@ namespace PanoramicData.Blazor.Demo.Data
 				new DirectoryEntry("Temp",
 					new DirectoryEntry("p21wsa.tmp", FileExplorerItemType.File, 4096) { IsHidden = true },
 					new DirectoryEntry("a53fde.tmp", FileExplorerItemType.File, 1024) { IsHidden = true },
-					new DirectoryEntry("b76jba.tmp", FileExplorerItemType.File, 2048) { IsHidden = true }
+					new DirectoryEntry("b76jba.tmp", FileExplorerItemType.File, 2048) { IsHidden = true },
+					new DirectoryEntry("z671hy.tmp", FileExplorerItemType.File, 0) { IsHidden = true }
 				),
 				new DirectoryEntry("Cache",
 					new DirectoryEntry("document.docx", FileExplorerItemType.File, 4096),

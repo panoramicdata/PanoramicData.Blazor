@@ -185,7 +185,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets the size (humanizer) format.
 		/// </summary>
-		[Parameter] public string SizeFormat { get; set; } = "#,# KB";
+		[Parameter] public string SizeFormat { get; set; } = "#,0 KB";
 
 		/// <summary>
 		/// Event raised whenever the user clicks on a context menu item from the table.
