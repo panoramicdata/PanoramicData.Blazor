@@ -116,7 +116,7 @@
 						<NodeTemplate>
 							<span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
 								<i class="@GetIconCssClass(context?.Data)"></i>
-								<span>@(string.IsNullOrWhiteSpace(context?.Data?.Alias) ? context?.Data?.Name : context?.Data?.Alias)</span>
+								<span>@context?.Data?.Name</span>
 							</span>
 						</NodeTemplate>
 					</PDTree>
@@ -172,13 +172,13 @@
 								@if (context.IsUploading)
 								{
 									<div style="width: 100%">
-										<span class="@(GetCssClass(context))">@(string.IsNullOrWhiteSpace(context.Alias) ? context.Name : context.Alias )</span>
+										<span class="@(GetCssClass(context))">@context.Name</span>
 										<div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
 									</div>
 								}
 								else
 								{
-									<span class="@(GetCssClass(context))">@(string.IsNullOrWhiteSpace(context.Alias) ? context.Name : context.Alias )</span>
+									<span class="@(GetCssClass(context))">@context.Name</span>
 								}
 							</Template>
 						</PDColumn>

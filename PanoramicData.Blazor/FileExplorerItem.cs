@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace PanoramicData.Blazor
 {
@@ -77,26 +78,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets the name of the item.
 		/// </summary>
-		public string Name
-		{
-			get
-			{
-				//   /                         -> "/"
-				//   /abc.txt                  => "abc.txt"
-				//   /folder1/abc.txt          => "abc.txt"
-				//   /folder1/folder2/abc.txt  => "abc.txt"
-				if (Path == "/")
-				{
-					return "/";
-				}
-				return Path.Substring(Path.LastIndexOf('/') + 1);
-			}
-			set
-			{
-				// item is being renamed -> adjust entire path
-				Path = $"{ParentPath}/{value}";
-			}
-		}
+		public string Name { get; set; } = string.Empty;
 
 		/// <summary>
 		/// Gets or sets the size in bytes of the item.
@@ -114,12 +96,6 @@ namespace PanoramicData.Blazor
 		public DateTimeOffset? DateModified { get; set; }
 
 		/// <summary>
-		/// Gets or sets the text to actually be displayed for the item, if set.
-		/// Used to allow a logical name / alias to be displayed separate from the actual path.
-		/// </summary>
-		public string Alias {get; set; } = string.Empty;
-
-		/// <summary>
 		/// Renames the item.
 		/// </summary>
 		/// <param name="name">The new name of the item.</param>
@@ -129,6 +105,7 @@ namespace PanoramicData.Blazor
 			{
 				var idx = Path.LastIndexOf('/') + 1;
 				Path = Path.Substring(0, idx) + name;
+				Name = name;
 			}
 		}
 
@@ -169,6 +146,16 @@ namespace PanoramicData.Blazor
 				Path = Path,
 				UploadProgress = UploadProgress
 			};
+		}
+
+		public static string GetNameFromPath(string? path)
+		{
+			if (path == null)
+			{
+				return string.Empty;
+			}
+			var parts = path.Split('/');
+			return parts.Length > 0 ? parts.Last() : string.Empty;
 		}
 	}
 }

@@ -513,18 +513,7 @@ namespace PanoramicData.Blazor
 				var result = await DataProvider.UpdateAsync(Tree.SelectedNode.Data, delta, CancellationToken.None).ConfigureAwait(true);
 				if (result.Success)
 				{
-					// synchronize existing node paths for tree and table
-					Tree.RootNode.Walk((x) =>
-					{
-						if (x.Data != null)
-						{
-							x.Key = x.Key.ReplacePathPrefix(previousPath, newPath);
-							x.Data.Path = x.Data.Path.ReplacePathPrefix(previousPath, newPath);
-						}
-						return true;
-					});
-					Table!.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(previousPath, newPath));
-					await OnTreeSelectionChangeAsync(Tree.SelectedNode).ConfigureAwait(true);
+					await DirectoryRenameAsync(previousPath, newPath).ConfigureAwait(true);
 				}
 			}
 		}
@@ -535,6 +524,7 @@ namespace PanoramicData.Blazor
 			{
 				items.Insert(0, new FileExplorerItem
 				{
+					Name = "..",
 					Path = $"{_selectedNode.Data.Path}/..",
 					EntryType = FileExplorerItemType.Directory,
 					CanCopyMove = false
@@ -624,6 +614,10 @@ namespace PanoramicData.Blazor
 				{
 					var previousPath = args.Item.Path;
 					var newPath = $"{args.Item.ParentPath}/{args.NewValues["Name"]}";
+					if (newPath.StartsWith("//"))
+					{
+						newPath = newPath.Substring(1);
+					}
 					// check for duplicate name
 					if (Table!.ItemsToDisplay.Any(x => x.Path == newPath))
 					{
@@ -759,6 +753,10 @@ namespace PanoramicData.Blazor
 			{
 				if (x.Data != null)
 				{
+					if (x.Data.Path == oldPath)
+					{
+						x.Data.Name = FileExplorerItem.GetNameFromPath(newPath);
+					}
 					x.Key = x.Key.ReplacePathPrefix(oldPath, newPath);
 					x.Data.Path = x.Data.Path.ReplacePathPrefix(oldPath, newPath);
 				}

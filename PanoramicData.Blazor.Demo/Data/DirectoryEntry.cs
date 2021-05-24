@@ -164,7 +164,7 @@ namespace PanoramicData.Blazor.Demo.Data
 				IsHidden = IsHidden,
 				IsReadOnly = IsReadOnly,
 				IsSystem = IsSystem,
-				Alias = Alias,
+				Name = string.IsNullOrWhiteSpace(Alias) ? Name : Alias,
 				Path = Path(pathSeparator)
 			};
 		}

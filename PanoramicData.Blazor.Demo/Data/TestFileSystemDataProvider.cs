@@ -216,6 +216,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		public async Task<OperationResponse> UpdateAsync(FileExplorerItem item, IDictionary<string, object> delta, CancellationToken cancellationToken)
 		{
 			var result = new OperationResponse();
+
 			await Task.Run(() =>
 			{
 				if (!delta.ContainsKey("Path"))
@@ -223,7 +224,8 @@ namespace PanoramicData.Blazor.Demo.Data
 					result.ErrorMessage = "Only Path property update supported";
 					return;
 				}
-				var tempItem = new FileExplorerItem { Path = delta["Path"]?.ToString() ?? string.Empty };
+				var tempPath = delta["Path"]?.ToString() ?? string.Empty;
+				var tempItem = new FileExplorerItem { Path = tempPath ?? string.Empty, Name = FileExplorerItem.GetNameFromPath(tempPath) };
 				var targetNode = _root.Where(x => x.Path() == tempItem.Path).FirstOrDefault();
 				var targetParentNode = targetNode is null ? _root.Where(x => x.Path() == tempItem.ParentPath).FirstOrDefault() : targetNode.Parent;
 				if (targetParentNode is null)
