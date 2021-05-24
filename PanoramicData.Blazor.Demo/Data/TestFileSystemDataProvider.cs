@@ -277,7 +277,7 @@ namespace PanoramicData.Blazor.Demo.Data
 					itemNode.Parent = targetNode;
 				}
 				result.Success = true;
-			}, cancellationToken).ConfigureAwait(false);
+			}, cancellationToken).ConfigureAwait(true);
 			return result;
 		}
 
