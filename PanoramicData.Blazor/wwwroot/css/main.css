@@ -269,7 +269,10 @@
   align-items: center; }
   .pdtoolbartextbox label {
     white-space: nowrap;
-    padding: 0.5rem 0.5rem 0 0; }
+    padding: 0 0.5rem 0 0;
+    margin-bottom: 0px; }
+  .pdtoolbartextbox .input-group {
+    flex-wrap: nowrap; }
 
 .pdttb-clear-btn {
   position: relative;

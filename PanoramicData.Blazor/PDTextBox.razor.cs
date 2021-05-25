@@ -17,6 +17,11 @@ namespace PanoramicData.Blazor
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		/// <summary>
+		/// Gets or sets the textbox sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes? Size { get; set; }
+
+		/// <summary>
 		/// Gets or sets CSS classes for the text box.
 		/// </summary>
 		[Parameter] public string CssClass { get; set; } = "";
@@ -77,6 +82,32 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback Cleared { get; set; }
 
 		public string Id { get; set; } = $"pd-textbox-{++_seq}";
+
+		private string ButtonSizeCssClass
+		{
+			get
+			{
+				return Size switch
+				{
+					ButtonSizes.Small => "btn-sm",
+					ButtonSizes.Large => "btn-lg",
+					_ => string.Empty,
+				};
+			}
+		}
+
+		private string TextSizeCssClass
+		{
+			get
+			{
+				return Size switch
+				{
+					ButtonSizes.Small => "form-control-sm",
+					ButtonSizes.Large => "form-control-lg",
+					_ => string.Empty,
+				};
+			}
+		}
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{

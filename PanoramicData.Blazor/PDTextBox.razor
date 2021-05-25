@@ -1,5 +1,5 @@
 ﻿<input id="@Id"
-	   class="form-control @(IsVisible ? "" : "d-none ") @CssClass"
+	   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
 	   value="@Value"
 	   readonly="@(!IsEnabled)"
 	   placeholder="@Placeholder"
@@ -9,7 +9,7 @@
 @if (ShowClearButton && IsVisible)
 {
 	<div class="input-group-append">
-		<button class="input-group-text btn"
+		<button class="input-group-text btn @ButtonSizeCssClass"
 				disabled="@(Value == string.Empty || !IsEnabled)"
 				@onclick="OnClear">
 			<i class="fas fa-times" />

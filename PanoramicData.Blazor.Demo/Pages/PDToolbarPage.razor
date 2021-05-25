@@ -12,6 +12,7 @@
 						   IsVisible="ShowButtons"
 						   IsEnabled="EnableButtons"
 						   Items="_fileMenuItems"
+						   Size="_size"
 						   Click="OnFileMenuClick" />
 
 		<PDToolbarButton Key="Rename"
@@ -21,6 +22,7 @@
 						 TextCssClass="d-none d-sm-none d-md-inline"
 						 Click="OnButtonClick"
 						 ShortcutKey="@(ShortcutKey.Create("ctrl-r"))"
+						 Size="_size"
 						 IsVisible="ShowButtons"
 						 IsEnabled="EnableButtons" />
 
@@ -32,6 +34,7 @@
 							 IconCssClass="fas fa-fw fa-external-link-alt"
 							 TextCssClass="d-none d-sm-none d-md-inline"
 							 ShortcutKey="@(ShortcutKey.Create("ctrl-l"))"
+							 Size="_size"
 							 Url="https://panoramicdata.com"
 							 IsVisible="ShowButtons"
 							 IsEnabled="EnableButtons" />
@@ -43,6 +46,7 @@
 						  DebounceWait="250"
 						  Placeholder="search text"
 						  ShowClearButton="true"
+						  Size="_size"
 						  Value="@_searchText"
 						  ValueChanged="OnValueChanged"
 						  Keypress="OnKeypress"
@@ -54,12 +58,14 @@
 
 		<PDToolbarButton Text="@(EnableButtons ? "Disable" : "Enable")"
 						 ToolTip="Disable or enable buttons"
+						 Size="_size"
 						 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
 						 Click="() => { EnableButtons = !EnableButtons; }"
 						 ShiftRight="true" />
 
 		<PDToolbarButton Text="@(ShowButtons ? "Hide" : "Show")"
 						 ToolTip="Show or hide buttons"
+						 Size="_size"
 						 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
 						 Click="() => { ShowButtons = !ShowButtons; }" />
 	</PDToolbar>

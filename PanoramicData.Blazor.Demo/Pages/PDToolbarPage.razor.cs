@@ -9,16 +9,17 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDToolbarPage
 	{
 		private string _searchText = string.Empty;
+		private readonly ButtonSizes _size;
 
 		private readonly List<MenuItem> _fileMenuItems = new()
 		{
 			// ctrl-n is reserved by Chrome
-			new MenuItem { Text="&&New", IconCssClass="fas fa-fw fa-file-word", ShortcutKey=(ShortcutKey)"ctrl-alt-n" },
-			new MenuItem { Key="Open", Text="&&Open...", IconCssClass="fas fa-fw fa-folder-open", ShortcutKey=ShortcutKey.Create("ctrl-o") },
-			new MenuItem { IsSeparator=true },
-			new MenuItem { Text="&&Save", IconCssClass="fas fa-fw fa-save", IsDisabled=true, ShortcutKey=new ShortcutKey { Key = "s", CtrlKey = true } },
-			new MenuItem { Key="SaveAs", Text="Save &&As...", ShortcutKey=ShortcutKey.Create("ctrl-a") },
-			new MenuItem { Text="Exit", IsVisible=false }
+			new MenuItem { Text = "&&New", IconCssClass = "fas fa-fw fa-file-word", ShortcutKey = (ShortcutKey)"ctrl-alt-n" },
+			new MenuItem { Key = "Open", Text = "&&Open...", IconCssClass = "fas fa-fw fa-folder-open", ShortcutKey = ShortcutKey.Create("ctrl-o") },
+			new MenuItem { IsSeparator = true },
+			new MenuItem { Text = "&&Save", IconCssClass = "fas fa-fw fa-save", IsDisabled = true, ShortcutKey = new ShortcutKey { Key = "s", CtrlKey = true } },
+			new MenuItem { Key = "SaveAs", Text = "Save &&As...", ShortcutKey = ShortcutKey.Create("ctrl-a") },
+			new MenuItem { Text = "Exit", IsVisible = false }
 		};
 
 		private bool ShowButtons { get; set; } = true;
