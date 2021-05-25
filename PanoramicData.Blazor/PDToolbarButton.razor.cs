@@ -9,6 +9,11 @@ namespace PanoramicData.Blazor
 	public partial class PDToolbarButton : IToolbarItem
 	{
 		/// <summary>
+		/// Gets or sets the button sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes? Size { get; set; }
+
+		/// <summary>
 		/// Gets or sets the unique identifier.
 		/// </summary>
 		[Parameter] public string Key { get; set; } = string.Empty;

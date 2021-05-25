@@ -1,7 +1,7 @@
 ﻿@using PanoramicData.Blazor.Extensions
 <a @attributes="Attributes"
    id="@Id"
-   class="pd-button btn @CssClass"
+   class="pd-button btn @CssClass @ButtonSizeCssClass"
    disabled="@(IsEnabled ? null : "true")"
    title="@ToolTip.AppendShortcut(ShortcutKey)"
    href="@Url"

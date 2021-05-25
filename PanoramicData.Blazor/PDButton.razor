@@ -2,7 +2,7 @@
 @if (string.IsNullOrWhiteSpace(Url))
 {
 	<button @attributes="Attributes"
-			class="pd-button btn @CssClass"
+			class="pd-button btn @CssClass @ButtonSizeCssClass"
 			disabled="@(IsEnabled ? null : "true")"
 			title="@ToolTip.AppendShortcut(ShortcutKey)"
 			@onclick="Click">
@@ -17,7 +17,7 @@ else
 {
 	<a @attributes="Attributes"
 	   href="@Url" target="@Target"
-	   class="pd-button btn @CssClass"
+	   class="pd-button btn @CssClass @ButtonSizeCssClass"
 	   disabled="@(IsEnabled ? null : "true")"
 	   title="@ToolTip.AppendShortcut(ShortcutKey)"
 	   @onclick="Click">

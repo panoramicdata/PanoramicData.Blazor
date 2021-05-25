@@ -113,6 +113,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			// add custom toolbar button - if not already created
 			var createFileButton = items.Find(x => x.Key == "create-file");
 			if (createFileButton == null)
+			{
 				items.Insert(3, new ToolbarButton
 				{
 					Key = "create-file",
@@ -122,6 +123,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 					IconCssClass = "fas fa-fw fa-file-medical",
 					TextCssClass = "d-none d-lg-inline"
 				});
+			}
 			else
 			{
 				// update state - can only create file if folder allows items to be added

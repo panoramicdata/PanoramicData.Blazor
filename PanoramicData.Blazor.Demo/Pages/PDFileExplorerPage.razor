@@ -11,7 +11,8 @@
 		<PDDragContext>
 			<PDFileExplorer @ref="FileExplorer"
 							AutoExpand="true"
-							DataProvider="_dataProvider"
+							ButtonSize="ButtonSizes.Small"
+							DataProvider=" _dataProvider"
 							FolderChanged="OnFolderChanged"
 							GetItemCssClass="GetCssClass"
 							GetItemIconCssClass="GetIconCssClass"
@@ -22,7 +23,7 @@
 							TableDownloadRequest="OnTableDownloadRequest"
 							ToolbarClick="OnToolbarClick"
 							TreeSort="OnTreeSort"
-							UploadUrl="@(NavigationManager.ToAbsoluteUri("/files/Upload").ToString())"
+							UploadUrl="@(NavigationManager.ToAbsoluteUri(" /files/Upload").ToString())"
 							UploadMaxSize="256"
 							UploadTimeout="60"
 							UploadRequest="OnUploadRequest"

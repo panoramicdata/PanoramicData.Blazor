@@ -1,7 +1,7 @@
 ﻿@using PanoramicData.Blazor.Extensions
 <div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "") @ItemCssClass">
 	<div class="dropdown">
-		<button class="btn pdtoolbarbutton @CssClass"
+		<button class="btn pdtoolbarbutton @CssClass @ButtonSizeCssClass"
 				disabled="@(IsEnabled ? null : "true")"
 				title="@(string.IsNullOrWhiteSpace(ToolTip) ? Text : ToolTip)"
 				data-toggle="dropdown"

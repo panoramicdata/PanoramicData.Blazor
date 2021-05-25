@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor
 	public partial class PDButton : IDisposable
 	{
 		#region Inject
-		[Inject] IGlobalEventService GlobalEventService { get; set; } = null!;
+		[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;
 		#endregion
 
 		/// <summary>
@@ -43,6 +43,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<MouseEventArgs> Click { get; set; }
 
 		/// <summary>
+		/// Gets or sets the button sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes? Size { get; set; }
+
+		/// <summary>
 		/// Sets the short cut keys that will perform a click on this button.
 		/// In format: 'ctrl-s', 'alt-ctrl-w' (case in-sensitive)
 		/// </summary>
@@ -72,6 +77,19 @@ namespace PanoramicData.Blazor
 		/// Target URL. If set forces the button to be rendered as an Anchor element.
 		/// </summary>
 		[Parameter] public string Url { get; set; } = string.Empty;
+
+		private string ButtonSizeCssClass
+		{
+			get
+			{
+				return Size switch
+				{
+					ButtonSizes.Small => "btn-sm",
+					ButtonSizes.Large => "btn-lg",
+					_ => string.Empty,
+				};
+			}
+		}
 
 		protected override void OnInitialized()
 		{

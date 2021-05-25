@@ -18,6 +18,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string Key { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets or sets the button sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes? Size { get; set; }
+
+		/// <summary>
 		/// Gets or sets the text displayed on the button.
 		/// </summary>
 		[Parameter] public string Text { get; set; } = string.Empty;
@@ -71,6 +76,19 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever user clicks on the button.
 		/// </summary>
 		[Parameter] public EventCallback<string> Click { get; set; }
+
+		private string ButtonSizeCssClass
+		{
+			get
+			{
+				return Size switch
+				{
+					ButtonSizes.Small => "btn-sm",
+					ButtonSizes.Large => "btn-lg",
+					_ => string.Empty,
+				};
+			}
+		}
 
 		protected override void OnInitialized()
 		{

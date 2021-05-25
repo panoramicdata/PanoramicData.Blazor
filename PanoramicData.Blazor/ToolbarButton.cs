@@ -24,6 +24,11 @@
 		}
 
 		/// <summary>
+		/// Gets or sets the button sizes.
+		/// </summary>
+		public ButtonSizes? Size { get; set; }
+
+		/// <summary>
 		/// Gets or sets the CSS class names used to style the button.
 		/// </summary>
 		public string CssClass { get; set; } = "btn-light";

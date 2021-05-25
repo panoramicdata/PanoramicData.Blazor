@@ -73,6 +73,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<RenameArgs> BeforeRename { get; set; }
 
 		/// <summary>
+		/// Gets or sets the button sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes ButtonSize { get; set; } = ButtonSizes.Medium;
+
+		/// <summary>
 		/// Sets the Table column configuration.
 		/// </summary>
 		[Parameter]
@@ -913,7 +918,7 @@ namespace PanoramicData.Blazor
 
 				case "open":
 					var selectedFolderPath = Table?.Selection[0];
-					if (!string.IsNullOrWhiteSpace(selectedFolderPath))
+					if (selectedFolderPath != null)
 					{
 						await NavigateFolderAsync(selectedFolderPath).ConfigureAwait(true);
 					}

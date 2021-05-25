@@ -15,6 +15,7 @@
 								 ToolTip="@button.ToolTip"
 								 IsVisible="@button.IsVisible"
 								 ShiftRight="@button.ShiftRight"
+								 Size="@(button.Size ?? ButtonSize)"
 								 Click="OnButtonClick" />
 			}
 			else if (item is ToolbarTextBox textbox)

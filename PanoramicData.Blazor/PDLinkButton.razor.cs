@@ -11,9 +11,14 @@ namespace PanoramicData.Blazor
 		private static int _sequence;
 
 		#region Inject
-		[Inject] IGlobalEventService GlobalEventService { get; set; } = null!;
+		[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 		#endregion
+
+		/// <summary>
+		/// Gets or sets the button sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes? Size { get; set; }
 
 		/// <summary>
 		/// Extra attributes to apply to the button.
@@ -75,6 +80,19 @@ namespace PanoramicData.Blazor
 		/// Sets the destination URL.
 		/// </summary>
 		[Parameter] public string Url { get; set; } = "#";
+
+		private string ButtonSizeCssClass
+		{
+			get
+			{
+				return Size switch
+				{
+					ButtonSizes.Small => "btn-sm",
+					ButtonSizes.Large => "btn-lg",
+					_ => string.Empty,
+				};
+			}
+		}
 
 		protected override void OnInitialized()
 		{

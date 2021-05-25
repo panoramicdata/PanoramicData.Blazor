@@ -7,6 +7,11 @@ namespace PanoramicData.Blazor
 	public partial class PDToolbar
 	{
 		/// <summary>
+		/// Gets or sets the button sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes ButtonSize { get; set; } = ButtonSizes.Medium;
+
+		/// <summary>
 		/// Child HTML content.
 		/// </summary>
 		[Parameter] public RenderFragment ChildContent { get; set; } = null!;
