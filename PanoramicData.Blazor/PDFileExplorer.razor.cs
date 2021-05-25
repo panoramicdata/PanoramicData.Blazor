@@ -274,7 +274,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback<MenuItemsEventArgs> UpdateTreeContextState { get; set; }
 
-		protected override void OnInitialized()
+		protected override async Task OnInitializedAsync()
 		{
 			Id = $"pdfe{++_idSequence}";
 			TableContextItems.AddRange(new[]
@@ -302,13 +302,18 @@ namespace PanoramicData.Blazor
 				_menuSep3,
 				_menuDelete
 			});
-			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary" });
-			ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary" });
-			ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true });
+			var isTouchDevice = await JSRuntime.InvokeAsync<bool>("panoramicData.isTouchDevice").ConfigureAwait(true);
+			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			if (isTouchDevice)
+			{
+				ToolbarItems.Add(new ToolbarButton { Key = "open", Text = "Open", ToolTip = "Navigate into folder", IconCssClass = "fas fa-fw fa-folder-open", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			}
+			ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
 			if (!String.IsNullOrWhiteSpace(UploadUrl))
 			{
 				TreeContextItems.Insert(2, _menuUploadFiles);
-				ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary" });
+				ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 			}
 		}
 
@@ -906,6 +911,14 @@ namespace PanoramicData.Blazor
 					await NavigateUpAsync().ConfigureAwait(true);
 					break;
 
+				case "open":
+					var selectedFolderPath = Table?.Selection[0];
+					if (!string.IsNullOrWhiteSpace(selectedFolderPath))
+					{
+						await NavigateFolderAsync(selectedFolderPath).ConfigureAwait(true);
+					}
+					break;
+
 				case "create-folder":
 					await CreateNewFolderAsync().ConfigureAwait(true);
 					break;
@@ -1338,6 +1351,13 @@ namespace PanoramicData.Blazor
 			if (upButton != null)
 			{
 				upButton.IsEnabled = Tree?.SelectedNode?.ParentNode?.ParentNode != null;
+			}
+
+			// open button
+			var openButton = ToolbarItems.Find(x => x.Key == "open");
+			if (openButton != null)
+			{
+				openButton.IsEnabled = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
 			}
 
 			// create folder button - acts on selected folder
