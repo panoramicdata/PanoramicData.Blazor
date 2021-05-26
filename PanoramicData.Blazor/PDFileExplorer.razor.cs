@@ -502,7 +502,7 @@ namespace PanoramicData.Blazor
 				await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
 				args.Cancel = renameArgs.Cancel;
 			}
-			if (!AllowRename || args.Node.ParentNode == null || args?.Node?.Data?.IsReadOnly == true)
+			if (!AllowRename || args.Node.ParentNode == null || args?.Node?.Data?.IsReadOnly == true || string.IsNullOrEmpty(args?.Node?.Data?.ParentPath))
 			{
 				args.Cancel = true;
 			}
@@ -1514,15 +1514,12 @@ namespace PanoramicData.Blazor
 		{
 			if (item != null)
 			{
-				string? cssClass = null;
 				// allow app supplied icon css
-				if (!(item.EntryType == FileExplorerItemType.Directory && item.Name == ".."))
-				{
-					cssClass = GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
-				}
+				var cssClass = GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
+				//}
 				if (cssClass is null)
 				{
-					return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "fas fa-fw fa-folder";
+					return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "fa fa-fw fa-folder";
 				}
 				if (cssClass.Length == 0)
 				{

@@ -72,7 +72,8 @@ namespace PanoramicData.Blazor.Demo.Data
 				new DirectoryEntry("Readme.txt", FileExplorerItemType.File, 3500)
 			)
 			{ CanCopyMove = false }
-		);
+		)
+		{ Alias = "/" };
 
 		/// <summary>
 		/// Requests the given item is created.

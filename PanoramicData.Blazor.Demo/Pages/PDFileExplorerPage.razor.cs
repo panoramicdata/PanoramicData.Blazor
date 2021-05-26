@@ -203,7 +203,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private static string GetIconCssClass(FileExplorerItem item)
 		{
-			if (item.EntryType == FileExplorerItemType.Directory)
+			if (item.EntryType == FileExplorerItemType.Directory && item.Name != "..")
 			{
 				if (item.Path == "/Library")
 				{
