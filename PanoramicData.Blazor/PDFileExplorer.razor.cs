@@ -617,20 +617,21 @@ namespace PanoramicData.Blazor
 			// cancel is new name is empty
 			if (args.NewValues.ContainsKey("Name"))
 			{
-				if (string.IsNullOrWhiteSpace(args.NewValues["Name"]?.ToString()))
+				var newName = args.NewValues["Name"]?.ToString();
+				if (string.IsNullOrWhiteSpace(newName))
 				{
 					args.Cancel = true;
 				}
 				else
 				{
 					var previousPath = args.Item.Path;
-					var newPath = $"{args.Item.ParentPath}/{args.NewValues["Name"]}";
+					var newPath = $"{args.Item.ParentPath}/{newName}";
 					if (newPath.StartsWith("//"))
 					{
 						newPath = newPath.Substring(1);
 					}
 					// check for duplicate name
-					if (Table!.ItemsToDisplay.Any(x => x.Path == newPath))
+					if (Table!.ItemsToDisplay.Any(x => x.Path == newPath) || Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newName, StringComparison.OrdinalIgnoreCase)))
 					{
 						args.Cancel = true;
 					}
@@ -648,6 +649,11 @@ namespace PanoramicData.Blazor
 							if (args.Item.EntryType == FileExplorerItemType.Directory)
 							{
 								await DirectoryRenameAsync(previousPath, newPath).ConfigureAwait(true);
+							}
+							else
+							{
+								args.Item.Name = newName!;
+								args.Item.Path = newPath;
 							}
 						}
 
