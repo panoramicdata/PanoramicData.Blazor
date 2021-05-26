@@ -502,7 +502,7 @@ namespace PanoramicData.Blazor
 				await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
 				args.Cancel = renameArgs.Cancel;
 			}
-			if (!AllowRename || args.Node.ParentNode == null || args?.Node?.Data?.IsReadOnly == true || string.IsNullOrEmpty(args?.Node?.Data?.ParentPath))
+			if (!AllowRename || args.Node.ParentNode == null || args.Node?.Data?.IsReadOnly == true || string.IsNullOrEmpty(args.Node?.Data?.ParentPath))
 			{
 				args.Cancel = true;
 			}
