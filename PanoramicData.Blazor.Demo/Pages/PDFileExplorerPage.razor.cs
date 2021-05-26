@@ -103,6 +103,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 					DateModified = DateTimeOffset.Now,
 					EntryType = FileExplorerItemType.File,
 					FileSize = args.Size,
+					Name = args.Name,
 					Path = $"{args.Path.TrimEnd('/')}/{args.Name}"
 				}, CancellationToken.None).ConfigureAwait(true);
 			}
@@ -114,7 +115,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 			var createFileButton = items.Find(x => x.Key == "create-file");
 			if (createFileButton == null)
 			{
-				items.Insert(3, new ToolbarButton
+				items.Insert(3, new ToolbarSeparator());
+				items.Insert(4, new ToolbarButton
 				{
 					Key = "create-file",
 					Text = "New File",
@@ -174,12 +176,14 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private async Task CreateFile()
 		{
-			var newPath = $"{FileExplorer?.FolderPath}/{DateTime.Now:yyyyMMdd_HHmmss_fff}.txt";
+			var newName = $"{DateTime.Now:yyyyMMdd_HHmmss_fff}.txt";
+			var newPath = $"{FileExplorer?.FolderPath}/{newName}";
 
 			var result = await _dataProvider.CreateAsync(new FileExplorerItem
 			{
-				EntryType = FileExplorerItemType.File,
+				Name = newName,
 				Path = newPath,
+				EntryType = FileExplorerItemType.File,
 				FileSize = 100,
 				DateCreated = DateTimeOffset.UtcNow,
 				DateModified = DateTimeOffset.UtcNow

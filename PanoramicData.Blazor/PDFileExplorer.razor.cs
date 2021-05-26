@@ -530,14 +530,15 @@ namespace PanoramicData.Blazor
 
 		private void OnTableItemsLoaded(List<FileExplorerItem> items)
 		{
-			if (ShowParentFolder && _selectedNode?.Data?.Path != null && _selectedNode.Data.Path != "/")
+			if (_selectedNode != null && ShowParentFolder && _selectedNode.ParentNode?.Data?.Path != null && _selectedNode.Data?.Path != "/")
 			{
 				items.Insert(0, new FileExplorerItem
 				{
 					Name = "..",
-					Path = $"{_selectedNode.Data.Path}/..",
+					Path = $"{_selectedNode.ParentNode.Data.Path}",
 					EntryType = FileExplorerItemType.Directory,
-					CanCopyMove = false
+					CanCopyMove = false,
+					IsReadOnly = true
 				});
 			}
 
@@ -680,8 +681,8 @@ namespace PanoramicData.Blazor
 			_menuNewFolder.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
 			_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && !selectedItems[0].IsReadOnly;
 			_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
-			_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0;
-			_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
+			_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanCopyMove);
+			_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => !x.IsReadOnly && x.CanCopyMove);
 			_menuPaste.IsVisible = validSelection && _copyPayload.Count > 0 &&
 				((selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true) ||
 				// sub-folder highlighted
@@ -873,6 +874,7 @@ namespace PanoramicData.Blazor
 					{
 						item = new FileExplorerItem
 						{
+							Name = args.Name,
 							Path = $"{args.Path.TrimEnd('/')}/{args.Name}",
 							DateCreated = DateTimeOffset.Now,
 							DateModified = DateTimeOffset.Now,
@@ -894,6 +896,7 @@ namespace PanoramicData.Blazor
 					{
 						item = new FileExplorerItem
 						{
+							Name = subFolder,
 							Path = $"{FolderPath.TrimEnd('/')}/{subFolder}",
 							DateCreated = DateTimeOffset.Now,
 							DateModified = DateTimeOffset.Now,
@@ -982,14 +985,8 @@ namespace PanoramicData.Blazor
 					return;
 				}
 
-				// moving item to parent folder?
-				var targetPath = target.Path;
-				if (target.Name == "..")
-				{
-					targetPath = Path.GetDirectoryName(target.ParentPath);
-				}
-
 				// move items into folder
+				var targetPath = target.Path;
 				await MoveCopyFilesAsync(payload, targetPath, args.Ctrl).ConfigureAwait(true);
 			}
 		}
@@ -1039,12 +1036,6 @@ namespace PanoramicData.Blazor
 		{
 			foreach (var path in Table!.Selection)
 			{
-				// disallow if .. selected
-				if (path.EndsWith(".."))
-				{
-					return false;
-				}
-
 				// disallow delete if uploading
 				var item = Table.ItemsToDisplay.Single(x => x.Path == path);
 				if (item?.IsUploading != false)
@@ -1057,24 +1048,14 @@ namespace PanoramicData.Blazor
 
 		private async Task NavigateFolderAsync(string path)
 		{
-			if (Path.GetFileName(path) == "..")
+			if (_selectedNode?.IsExpanded == false)
 			{
-				if (_selectedNode?.ParentNode != null)
-				{
-					await Tree!.SelectNode(_selectedNode.ParentNode).ConfigureAwait(true);
-				}
+				await Tree!.ToggleNodeIsExpandedAsync(_selectedNode).ConfigureAwait(true);
 			}
-			else
+			var node = Tree!.RootNode.Find(path);
+			if (node != null)
 			{
-				if (_selectedNode?.IsExpanded == false)
-				{
-					await Tree!.ToggleNodeIsExpandedAsync(_selectedNode).ConfigureAwait(true);
-				}
-				var node = Tree!.RootNode.Find(path);
-				if (node != null)
-				{
-					await Tree!.SelectNode(node).ConfigureAwait(true);
-				}
+				await Tree!.SelectNode(node).ConfigureAwait(true);
 			}
 		}
 
@@ -1089,7 +1070,13 @@ namespace PanoramicData.Blazor
 			{
 				var newFolderName = Tree.SelectedNode.MakeUniqueText("New Folder") ?? "New Folder";
 				var newPath = $"{Tree.SelectedNode.Data.Path.TrimEnd('/')}/{newFolderName}";
-				var newItem = new FileExplorerItem { EntryType = FileExplorerItemType.Directory, Path = newPath, HasSubFolders = false };
+				var newItem = new FileExplorerItem
+				{
+					EntryType = FileExplorerItemType.Directory,
+					Name = newFolderName,
+					Path = newPath,
+					HasSubFolders = false
+				};
 				var result = await DataProvider.CreateAsync(newItem, CancellationToken.None).ConfigureAwait(true);
 				if (result.Success)
 				{
@@ -1383,7 +1370,8 @@ namespace PanoramicData.Blazor
 			var deleteButton = ToolbarItems.Find(x => x.Key == "delete");
 			if (deleteButton != null)
 			{
-				deleteButton.IsEnabled = Table!.Selection.Count > 0 && selectedItems.All(x => !(x.Path.EndsWith("..") || x.IsReadOnly));
+				//deleteButton.IsEnabled = Table!.Selection.Count > 0 && selectedItems.All(x => !(x.Path.EndsWith("..") || x.IsReadOnly));
+				deleteButton.IsEnabled = Table!.Selection.Count > 0 && selectedItems.All(x => !x.IsReadOnly);
 			}
 
 			// allow application to alter toolbar state
@@ -1526,10 +1514,15 @@ namespace PanoramicData.Blazor
 		{
 			if (item != null)
 			{
-				var cssClass = GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
+				string? cssClass = null;
+				// allow app supplied icon css
+				if (!(item.EntryType == FileExplorerItemType.Directory && item.Name == ".."))
+				{
+					cssClass = GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
+				}
 				if (cssClass is null)
 				{
-					return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "far fa-fw fa-folder";
+					return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "fas fa-fw fa-folder";
 				}
 				if (cssClass.Length == 0)
 				{
