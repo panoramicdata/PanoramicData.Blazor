@@ -96,6 +96,11 @@ namespace PanoramicData.Blazor
 		public DateTimeOffset? DateModified { get; set; }
 
 		/// <summary>
+		/// Gets or sets application state attached to this item.
+		/// </summary>
+		public object? State { get; set; }
+
+		/// <summary>
 		/// Renames the item.
 		/// </summary>
 		/// <param name="name">The new name of the item.</param>
