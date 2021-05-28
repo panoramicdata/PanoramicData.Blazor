@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
@@ -157,6 +158,17 @@ namespace PanoramicData.Blazor
 			else
 			{
 				return "fas fa-check-circle";
+			}
+		}
+
+		private async Task UpdateValueViaCastAsync(ChangeEventArgs args, FormField<TItem> field)
+		{
+			try
+			{
+				await Form!.SetFieldValueAsync(field, Convert.ChangeType(args.Value, field.GetFieldType())).ConfigureAwait(true);
+			}
+			catch
+			{
 			}
 		}
 	}
