@@ -237,7 +237,7 @@ namespace PanoramicData.Blazor
 		{
 			if (ParentNode?.Nodes != null)
 			{
-				return ParentNode.Nodes.Any(x => x.Text == text);
+				return ParentNode.Nodes.Any(x => string.Equals(x.Text, text, StringComparison.OrdinalIgnoreCase));
 			}
 			return false;
 		}
