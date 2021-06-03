@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Services;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDToolbarPage
 	{
-		private string _searchText = string.Empty;
+		private string _searchText;
 		private readonly ButtonSizes _size;
 
 		private readonly List<MenuItem> _fileMenuItems = new()
@@ -21,6 +22,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 			new MenuItem { Key = "SaveAs", Text = "Save &&As...", ShortcutKey = ShortcutKey.Create("ctrl-a") },
 			new MenuItem { Text = "Exit", IsVisible = false }
 		};
+
+		public PDToolbarPage()
+		{
+			_searchText = string.Empty;
+			_size = ButtonSizes.Small;
+		}
 
 		private bool ShowButtons { get; set; } = true;
 		private bool EnableButtons { get; set; } = true;
