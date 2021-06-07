@@ -496,15 +496,18 @@ namespace PanoramicData.Blazor
 
 		private async Task OnTreeBeforeEdit(TreeNodeBeforeEditEventArgs<FileExplorerItem> args)
 		{
-			if (args.Node.Data != null)
+			if (args != null)
 			{
-				var renameArgs = new RenameArgs { Item = args.Node.Data };
-				await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
-				args.Cancel = renameArgs.Cancel;
-			}
-			if (!AllowRename || args.Node.ParentNode == null || args.Node?.Data?.IsReadOnly == true || string.IsNullOrEmpty(args.Node?.Data?.ParentPath))
-			{
-				args.Cancel = true;
+				if (args.Node.Data != null)
+				{
+					var renameArgs = new RenameArgs { Item = args.Node.Data };
+					await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
+					args.Cancel = renameArgs.Cancel;
+				}
+				if (!AllowRename || args.Node.ParentNode == null || args.Node?.Data?.IsReadOnly == true || string.IsNullOrEmpty(args.Node?.Data?.ParentPath))
+				{
+					args.Cancel = true;
+				}
 			}
 		}
 

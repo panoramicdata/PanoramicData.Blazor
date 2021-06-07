@@ -2,21 +2,35 @@
 	<div class="modal-dialog @ModalCssClass @CssClass">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">@Title</h5>
-				@if (ShowClose)
+				@if (Header is null)
 				{
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
+					<h5 class="modal-title">@Title</h5>
+					@if (ShowClose)
+					{
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					}
+				}
+				else
+				{
+					@Header
 				}
 			</div>
 			<div class="modal-body">
 				@ChildContent
 			</div>
 			<div class="modal-footer">
-				<PDToolbar CssClass="w-100-pct"
-						   Items="Buttons"
-						   ButtonClick="OnButtonClick" />
+				@if (Footer is null)
+				{
+					<PDToolbar CssClass="w-100-pct"
+							   Items="Buttons"
+							   ButtonClick="OnButtonClick" />
+				}
+				else
+				{
+					@Footer
+				}
 			</div>
 		</div>
 	</div>
