@@ -20,6 +20,16 @@ namespace PanoramicData.Blazor
 		[Parameter] public string CssClass { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Sets the content displayed in the modal dialog footer.
+		/// </summary>
+		[Parameter] public RenderFragment? Footer { get; set; }
+
+		/// <summary>
+		/// Sets the content displayed in the modal dialog header.
+		/// </summary>
+		[Parameter] public RenderFragment? Header { get; set; }
+
+		/// <summary>
 		/// Sets the title shown in the modal dialog header.
 		/// </summary>
 		[Parameter] public string Title { get; set; } = string.Empty;

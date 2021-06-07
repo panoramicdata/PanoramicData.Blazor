@@ -131,7 +131,7 @@ else if (Form.Mode != FormModes.Hidden)
 								   disabled="@IsReadOnly(field)"
 								   class="form-control @GetEditorClass(field)"
 								   value="@(Form?.GetFieldValue<double>(field))"
-								   @oninput="async (x) => UpdateValueViaCastAsync(x, field).ConfigureAwait(true)">
+								   @oninput="async (x) => await UpdateValueViaCastAsync(x, field).ConfigureAwait(true)">
 						}
 
 						<!-- field validation indicator-->
@@ -146,8 +146,8 @@ else if (Form.Mode != FormModes.Hidden)
 					</div>
 					<div class="mb-2">
 						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-					  (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-					  (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+					 (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+					 (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}
