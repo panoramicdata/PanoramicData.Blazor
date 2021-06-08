@@ -60,6 +60,7 @@ else if (Form.Mode != FormModes.Hidden)
 						else if (field.Options != null)
 						{
 							<select class="form-control @GetEditorClass(field)"
+									disabled="@IsReadOnly(field)"
 									@oninput="(x) => Form?.SetFieldValueAsync(field, x.Value)">
 								@foreach (var option in field.Options(field, Form?.Item))
 								{
@@ -146,8 +147,8 @@ else if (Form.Mode != FormModes.Hidden)
 					</div>
 					<div class="mb-2">
 						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-					 (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-					 (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+					(Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+					(Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}
