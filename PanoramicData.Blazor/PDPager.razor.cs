@@ -30,6 +30,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public bool ShowPageSizeChoices { get; set; } = true;
 
+		/// <summary>
+		/// Gets or sets the button sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes? Size { get; set; }
+
 		protected override void OnInitialized()
 		{
 			PageCriteria.TotalCountChanged += PageCriteria_TotalCountChanged;
@@ -62,6 +67,19 @@ namespace PanoramicData.Blazor
 		public void MoveFirst()
 		{
 			PageCriteria.Page = 1;
+		}
+
+		private string ControlSizeCssClass
+		{
+			get
+			{
+				return Size switch
+				{
+					ButtonSizes.Small => "form-control-sm",
+					ButtonSizes.Large => "form-control-lg",
+					_ => string.Empty,
+				};
+			}
 		}
 	}
 }
