@@ -107,6 +107,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback Ready { get; set; }
 
 		/// <summary>
+		/// Gets or sets the button and form control sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes? Size { get; set; }
+
+		/// <summary>
 		/// Gets or sets whether the pager is displayed.
 		/// </summary>
 		[Parameter] public bool ShowPager { get; set; } = true;
