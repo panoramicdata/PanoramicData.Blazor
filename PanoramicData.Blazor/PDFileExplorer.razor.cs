@@ -1070,7 +1070,11 @@ namespace PanoramicData.Blazor
 
 		private async Task NavigateUpAsync()
 		{
-			await NavigateFolderAsync("..").ConfigureAwait(true);
+			var parentPath = _selectedNode?.Data?.ParentPath;
+			if (parentPath != null)
+			{
+				await NavigateFolderAsync(parentPath).ConfigureAwait(true);
+			}
 		}
 
 		private async Task CreateNewFolderAsync()
