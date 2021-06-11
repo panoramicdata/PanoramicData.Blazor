@@ -137,7 +137,7 @@ namespace PanoramicData.Blazor
 			get
 			{
 				var dict = new Dictionary<string, object>();
-				if (AllowDrag)
+				if (AllowDrag && Node?.IsEditing != true)
 				{
 					dict.Add("draggable", "true");
 				}

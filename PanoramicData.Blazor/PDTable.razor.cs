@@ -580,7 +580,7 @@ namespace PanoramicData.Blazor
 			get
 			{
 				var dict = new Dictionary<string, object>();
-				if (AllowDrag)
+				if (AllowDrag && !IsEditing)
 				{
 					dict.Add("draggable", "true");
 				}
@@ -941,6 +941,11 @@ namespace PanoramicData.Blazor
 
 		private void OnDragStart(DragEventArgs _)
 		{
+			if (IsEditing)
+			{
+				return;
+			}
+
 			_dragging = true;
 
 			// need to set the data being dragged
