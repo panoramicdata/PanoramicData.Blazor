@@ -280,23 +280,17 @@
   cursor: pointer; }
 
 .pddropdownmenuitem {
-  background-color: #fff;
   padding: .25rem .50rem;
   cursor: pointer; }
 
 .pddropdownmenuitem.disabled {
   color: #6c757d;
-  pointer-events: none;
-  background-color: #fff; }
-
-.pddropdownmenuitem.disabled:hover {
-  background-color: #fff; }
+  pointer-events: none; }
 
 .pddropdownmenuitem:hover {
   background-color: #eee; }
 
 .pddropdownseparator {
-  background-color: #fff;
   border-bottom: 1px solid #ddd; }
 
 .disabled {
