@@ -308,11 +308,12 @@ namespace PanoramicData.Blazor
 				_menuDelete
 			});
 			var isTouchDevice = await JSRuntime.InvokeAsync<bool>("panoramicData.isTouchDevice").ConfigureAwait(true);
-			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline" });
 			if (isTouchDevice)
 			{
 				ToolbarItems.Add(new ToolbarButton { Key = "open", Text = "Open", ToolTip = "Navigate into folder", IconCssClass = "fas fa-fw fa-folder-open", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 			}
+			ToolbarItems.Add(new ToolbarButton { Key = "refresh", Text = "Refresh", ToolTip = "Refreshes the current folder", IconCssClass = "fas fa-fw fa-sync-alt", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 			ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 			ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
 			if (!String.IsNullOrWhiteSpace(UploadUrl))
@@ -951,6 +952,10 @@ namespace PanoramicData.Blazor
 					}
 					break;
 
+				case "refresh":
+					await RefreshAllAsync().ConfigureAwait(true);
+					break;
+
 				default:
 					await ToolbarClick.InvokeAsync(args.Key).ConfigureAwait(true);
 					break;
@@ -1323,6 +1328,14 @@ namespace PanoramicData.Blazor
 				node.Nodes = null;
 				await Tree!.RefreshNodeAsync(node)!.ConfigureAwait(true);
 			}
+		}
+
+		/// <summary>
+		/// Refreshes the tree and table panes.
+		/// </summary>
+		private async Task RefreshAllAsync()
+		{
+			await Task.WhenAll(RefreshTreeAsync(), RefreshTableAsync()).ConfigureAwait(true);
 		}
 
 		/// <summary>
