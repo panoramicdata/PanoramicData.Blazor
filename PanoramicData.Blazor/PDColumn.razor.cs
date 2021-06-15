@@ -332,6 +332,12 @@ namespace PanoramicData.Blazor
 			PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
 		}
 
+		public void SetShowInList(bool showInList)
+		{
+			ShowInList = showInList;
+			StateHasChanged();
+		}
+
 		public void SetTitle(string title)
 		{
 			_title = title;
