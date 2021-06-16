@@ -64,6 +64,7 @@
 						}
 						<input type="text"
 							   class="form-control @FormBody.GetEditorClass(field)"
+							   disabled="@(FormBody.IsReadOnly(field))"
 							   value="@(Form.GetFieldStringValue(field, true))"
 							   @oninput="OnInitialsInput" />
 					</EditTemplate>
@@ -88,6 +89,7 @@
 						}
 						<input type="email"
 							   class="form-control @FormBody.GetEditorClass(field)"
+							   disabled="@(FormBody.IsReadOnly(field))"
 							   value="@Form.GetFieldStringValue(field)"
 							   @oninput="OnEmailInput" />
 					</EditTemplate>

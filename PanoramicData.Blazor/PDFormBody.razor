@@ -91,6 +91,7 @@ else if (Form.Mode != FormModes.Hidden)
 						else if (fieldType?.IsEnum == true)
 						{
 							<select class="form-control @GetEditorClass(field)"
+									disabled="@IsReadOnly(field)"
 									@oninput="(x) => Form?.SetFieldValueAsync(field, Enum.Parse(fieldType, x.Value?.ToString()))">
 								@foreach (var option in GetEnumValues(field))
 								{
@@ -147,8 +148,8 @@ else if (Form.Mode != FormModes.Hidden)
 					</div>
 					<div class="mb-2">
 						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-					(Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-					(Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+				   (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+				   (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}
