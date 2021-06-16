@@ -32,6 +32,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string ToolTip { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets or sets whether the content is read only.
+		/// </summary>
+		[Parameter] public bool IsReadOnly { get; set; }
+
+		/// <summary>
 		/// Gets or sets whether the toolbar item is visible.
 		/// </summary>
 		[Parameter] public bool IsVisible { get; set; } = true;

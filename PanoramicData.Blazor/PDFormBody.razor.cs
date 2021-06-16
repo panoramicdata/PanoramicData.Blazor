@@ -33,6 +33,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public RenderFragment ChildContent { get; set; } = null!;
 
 		/// <summary>
+		/// Gets or sets whether the validation indicator should be shown for fields.
+		/// </summary>
+		[Parameter] public bool ShowValidationIndicator { get; set; } = true;
+
+		/// <summary>
 		/// Gets or sets the width, in Pixels, of the Title box.
 		/// </summary>
 		[Parameter] public int TitleWidth { get; set; } = 200;

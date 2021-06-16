@@ -37,6 +37,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool IsEnabled { get; set; } = true;
 
 		/// <summary>
+		/// Gets or sets whether the content is read only.
+		/// </summary>
+		[Parameter] public bool IsReadOnly { get; set; }
+
+		/// <summary>
 		/// Sets the width of the containing div element.
 		/// </summary>
 		[Parameter] public string Width { get; set; } = "Auto";
