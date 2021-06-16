@@ -67,22 +67,23 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private bool IsShown(FormField<TItem> field, FormModes? mode = null)
+		public bool IsShown(FormField<TItem> field, FormModes? mode = null)
 		{
 			if (mode == null)
 			{
 				mode = Form?.Mode;
 			}
 			return (mode == FormModes.Create && field.ShowInCreate(Form?.GetItemWithUpdates())) ||
-				(mode == FormModes.Edit && field.ShowInEdit(Form?.GetItemWithUpdates())) ||
+				((mode == FormModes.Edit || mode == FormModes.ReadOnly) && field.ShowInEdit(Form?.GetItemWithUpdates())) ||
 				(mode == FormModes.Delete && field.ShowInDelete(Form?.GetItemWithUpdates()));
 		}
 
-		private bool IsReadOnly(FormField<TItem> field) =>
+		public bool IsReadOnly(FormField<TItem> field) =>
 			(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(Form?.GetItemWithUpdates())) ||
 			(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(Form?.GetItemWithUpdates())) ||
 			Form?.Mode == FormModes.Delete ||
-			Form?.Mode == FormModes.Cancel;
+			Form?.Mode == FormModes.Cancel ||
+			Form?.Mode == FormModes.ReadOnly;
 
 		private OptionInfo[] GetEnumValues(FormField<TItem> field)
 		{

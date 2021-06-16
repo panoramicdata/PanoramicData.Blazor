@@ -28,6 +28,10 @@
 		/// <summary>
 		/// The form has changes and the user is being prompted for confirmation to cancel.
 		/// </summary>
-		Cancel
+		Cancel,
+		/// <summary>
+		/// The form is displayed but all control are in a read only state.
+		/// </summary>
+		ReadOnly
 	}
 }
