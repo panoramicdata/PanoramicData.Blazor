@@ -137,7 +137,7 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 
 						<!-- field validation indicator-->
-						@if (Form?.Mode != FormModes.Delete)
+						@if (ShowValidationIndicator && Form?.Mode != FormModes.Delete)
 						{
 							<div class="input-group-append">
 								<span class="input-group-text align-items-start @GetValidationCssClass(field)">
@@ -148,8 +148,8 @@ else if (Form.Mode != FormModes.Hidden)
 					</div>
 					<div class="mb-2">
 						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-				   (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-				   (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+				(Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+				(Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}

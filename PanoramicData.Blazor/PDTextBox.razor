@@ -1,7 +1,8 @@
 ﻿<input id="@Id"
 	   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
 	   value="@Value"
-	   readonly="@(!IsEnabled)"
+	   disabled="@(!IsEnabled)"
+	   readonly="@IsReadOnly"
 	   placeholder="@Placeholder"
 	   @oninput="OnInput"
 	   @onkeypress="OnKeypress" />

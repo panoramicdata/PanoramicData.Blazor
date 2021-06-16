@@ -6,6 +6,17 @@
 
 <h1>PDForm</h1>
 
+<style>
+	.table-div {
+		min-width: 500px;
+		width: 50%;
+	}
+
+	.form-div {
+		width: 50%;
+	}
+</style>
+
 <DemoSourceView SourceFiles="Pages/PDFormPage3.razor, Pages/PDFormPage3.razor.cs, Data/PersonDataProvider.cs">
 
 	<PDToolbar>
@@ -25,8 +36,8 @@
 
 	</PDToolbar>
 
-	<div class="d-flex">
-		<div>
+	<div class="d-flex ">
+		<div class="table-div">
 			<PDPager PageCriteria="_pageCriteria"
 					 ShowPageDescription="false" />
 			<br />
@@ -172,6 +183,7 @@
 							  HelpText="This is some help text for the entire form" />
 
 				<PDFormBody @ref="FormBody"
+							ShowValidationIndicator="true"
 							TItem="Person"
 							Table="Table" />
 

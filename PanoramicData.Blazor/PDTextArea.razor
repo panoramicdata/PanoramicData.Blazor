@@ -1,6 +1,7 @@
 ﻿<textarea id="@Id"
 		  class="form-control @(IsVisible ? "" : "d-none ") @CssClass"
-		  readonly="@(!IsEnabled)"
+		  disabled="@(!IsEnabled)"
+		  readonly="@IsReadOnly"
 		  placeholder="@Placeholder"
 		  rows="@Rows"
 		  maxlength="@MaxLength"
