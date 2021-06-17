@@ -32,13 +32,13 @@
 		<PDButton Click="MoveNext"
 				  CssClass="btn-secondary ml-1"
 				  IconCssClass="fas fa-forward"
-				  IsEnabled="@(!PageCriteria.IsLastPage)"
+				  IsEnabled="@(!PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
 				  Size="Size" />
 
 		<PDButton Click="MoveLast"
 				  CssClass="btn-secondary"
 				  IconCssClass="fas fa-fast-forward"
-				  IsEnabled="@(!PageCriteria.IsLastPage)"
+				  IsEnabled="@(!PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
 				  Size="Size" />
 	</div>
 
