@@ -95,6 +95,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AllowEdit { get; set; }
 
 		/// <summary>
+		/// Predicate used to determine whether a node should be expanded when ExpandAll is called.
+		/// </summary>
+		[Parameter] public Predicate<TreeNode<TItem>>? ExpandOnExpandAll { get; set; }
+
+		/// <summary>
 		/// Gets or sets the template to render for each node.
 		/// </summary>
 		[Parameter] public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
@@ -175,7 +180,17 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public void ExpandAll()
 		{
-			RootNode.Walk((n) => { n.IsExpanded = !n.Isleaf; return true; });
+			RootNode.Walk((n) =>
+			{
+				if (!n.IsExpanded && !n.Isleaf)
+				{
+					if (ExpandOnExpandAll == null || ExpandOnExpandAll(n))
+					{
+						ToggleNodeIsExpandedAsync(n).GetAwaiter().GetResult();
+					}
+				}
+				return true;
+			});
 		}
 
 		/// <summary>
