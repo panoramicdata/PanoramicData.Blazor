@@ -180,17 +180,25 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public void ExpandAll()
 		{
-			RootNode.Walk((n) =>
+			RootNode.Walk((n) => { n.IsExpanded = !n.Isleaf; return true; });
+		}
+
+		/// <summary>
+		/// Expands all the branch nodes in the tree.
+		/// </summary>
+		public async Task ExpandAllAsync()
+		{
+			await RootNode.WalkAsync(async (n) =>
 			{
 				if (!n.IsExpanded && !n.Isleaf)
 				{
 					if (ExpandOnExpandAll == null || ExpandOnExpandAll(n))
 					{
-						ToggleNodeIsExpandedAsync(n).GetAwaiter().GetResult();
+						await ToggleNodeIsExpandedAsync(n).ConfigureAwait(true);
 					}
 				}
 				return true;
-			});
+			}).ConfigureAwait(true);
 		}
 
 		/// <summary>

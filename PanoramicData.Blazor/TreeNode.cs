@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
@@ -118,6 +119,29 @@ namespace PanoramicData.Blazor
 				foreach (var subNode in Nodes)
 				{
 					if (!subNode.Walk(fn))
+					{
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Function applied to this node and all child nodes or until the function returns false.
+		/// </summary>
+		/// <param name="fn">Function to be called for each node. Returns false to stop walking.</param>
+		public async Task<bool> WalkAsync(Func<TreeNode<T>, Task<bool>> fn)
+		{
+			if (!(await fn(this).ConfigureAwait(true)))
+			{
+				return false;
+			}
+			else if (Nodes != null)
+			{
+				foreach (var subNode in Nodes)
+				{
+					if (!(await subNode.WalkAsync(fn).ConfigureAwait(true)))
 					{
 						return false;
 					}
