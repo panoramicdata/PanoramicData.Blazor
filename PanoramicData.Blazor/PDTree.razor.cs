@@ -353,7 +353,7 @@ namespace PanoramicData.Blazor
 		{
 			if (SelectedNode?.IsEditing == true)
 			{
-				if (string.IsNullOrWhiteSpace(SelectedNode.EditText) || SelectedNode.HasSiblingWithText(SelectedNode.EditText))
+				if (string.IsNullOrWhiteSpace(SelectedNode.EditText)) 
 				{
 					SelectedNode.CancelEdit();
 				}
