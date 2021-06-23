@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Services;
+using System;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
@@ -13,6 +14,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private PDTree<FileExplorerItem>? Tree { get; set; }
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
+
+		private void OnException(Exception ex)
+		{
+			EventManager?.Add(new Event("Exception", new EventArgument("Message", ex.Message)));
+		}
 
 		private void OnSelectionChanged(TreeNode<FileExplorerItem> node)
 		{

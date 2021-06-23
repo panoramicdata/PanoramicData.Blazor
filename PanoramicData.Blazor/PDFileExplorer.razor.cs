@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Exceptions;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Services;
 using System;
@@ -519,6 +520,15 @@ namespace PanoramicData.Blazor
 				var item = Tree.SelectedNode.Data;
 				var previousPath = item.Path;
 				var newPath = $"{item.ParentPath.TrimEnd('/')}/{args.NewValue}";
+
+				// check for and disallow duplicate folder name
+				if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
+				{
+					args.Cancel = true;
+					await OnException(new PDFileExplorerException($"A Folder named '{args.NewValue}' already exists")).ConfigureAwait(true);
+					return;
+				}
+
 				// inform data provider
 				var delta = new Dictionary<string, object>
 				{
@@ -625,6 +635,7 @@ namespace PanoramicData.Blazor
 				if (string.IsNullOrWhiteSpace(newName))
 				{
 					args.Cancel = true;
+					await ExceptionHandler.InvokeAsync(new PDFileExplorerException("A value is required")).ConfigureAwait(true);
 				}
 				else
 				{
@@ -638,6 +649,7 @@ namespace PanoramicData.Blazor
 					if (Table!.ItemsToDisplay.Any(x => x.Path == newPath) || Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newName, StringComparison.OrdinalIgnoreCase)))
 					{
 						args.Cancel = true;
+						await OnException(new PDFileExplorerException($"An item named '{newName}' already exists")).ConfigureAwait(true);
 					}
 					else
 					{
@@ -1004,6 +1016,10 @@ namespace PanoramicData.Blazor
 				await MoveCopyFilesAsync(payload, targetPath, args.Ctrl).ConfigureAwait(true);
 			}
 		}
+		private async Task OnException(Exception exception)
+		{
+			await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
+		}
 
 		protected override void OnAfterRender(bool firstRender)
 		{
@@ -1142,7 +1158,7 @@ namespace PanoramicData.Blazor
 					}
 					catch (Exception ex)
 					{
-						await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+						await OnException(ex).ConfigureAwait(true);
 					}
 				}
 			}
@@ -1180,7 +1196,7 @@ namespace PanoramicData.Blazor
 						}
 						catch (Exception ex)
 						{
-							await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+							await OnException(ex).ConfigureAwait(true);
 						}
 					}
 
