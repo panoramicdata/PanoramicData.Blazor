@@ -40,6 +40,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public IDataProviderService<TItem> DataProvider { get; set; } = null!;
 
 		/// <summary>
+		/// Gets or sets a delegate to be called if an exception occurs.
+		/// </summary>
+		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
+
+		/// <summary>
 		/// A function that selects the field that contains the key value.
 		/// </summary>
 		[Parameter] public Func<TItem, object>? KeyField { get; set; }
@@ -353,9 +358,10 @@ namespace PanoramicData.Blazor
 		{
 			if (SelectedNode?.IsEditing == true)
 			{
-				if (string.IsNullOrWhiteSpace(SelectedNode.EditText)) 
+				if (string.IsNullOrWhiteSpace(SelectedNode.EditText))
 				{
 					SelectedNode.CancelEdit();
+					await ExceptionHandler.InvokeAsync(new PDTreeException("A value is required")).ConfigureAwait(true);
 				}
 				else
 				{
@@ -368,7 +374,7 @@ namespace PanoramicData.Blazor
 					}
 					else
 					{
-						SelectedNode.EditText = afterEditArgs.NewValue; // application my of altered
+						SelectedNode.EditText = afterEditArgs.NewValue; // application might of altered
 						SelectedNode.CommitEdit();
 						SelectedNode?.ParentNode?.Nodes?.Sort(NodeSort); // re-sort parent
 						await JSRuntime.InvokeVoidAsync("panoramicData.focus", Id).ConfigureAwait(true);
