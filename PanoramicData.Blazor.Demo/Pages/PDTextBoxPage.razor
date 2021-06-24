@@ -17,12 +17,19 @@
 	</PDToolbar>
 
 	<div class="input-group">
-		<PDTextBox IsEnabled="Enabled"
+		<PDTextBox DebounceWait="250"
+				   IsEnabled="Enabled"
 				   IsVisible="Visible"
-				   Value="@Value"
-				   ValueChanged="OnValueChanged"
 				   Keypress="OnKeypress"
-				   DebounceWait="250" />
+				   KeypressEvent="true"
+				   Value="@Value"
+				   ValueChanged="OnValueChanged" />
+
+		<p class="mt-2">
+			<strong>Note</strong>: Enabling Keypress events and / or Debounce (having DebounceWait > 0) can introduce latency issues when running
+			on Blazor Server. This in-turn can lead to typing corruption and will have a negative user experience.
+		</p>
+
 	</div>
 
 	<div>

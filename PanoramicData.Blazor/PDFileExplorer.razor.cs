@@ -299,8 +299,8 @@ namespace PanoramicData.Blazor
 			});
 			TreeContextItems.AddRange(new[]
 			{
-				_menuRename,
 				_menuNewFolder,
+				_menuRename,
 				_menuSep2,
 				_menuCopy,
 				_menuCut,
@@ -319,7 +319,8 @@ namespace PanoramicData.Blazor
 			ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
 			if (!String.IsNullOrWhiteSpace(UploadUrl))
 			{
-				TreeContextItems.Insert(2, _menuUploadFiles);
+				TableContextItems.Insert(1, _menuUploadFiles);
+				TreeContextItems.Insert(0, _menuUploadFiles);
 				ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 			}
 		}
@@ -701,6 +702,7 @@ namespace PanoramicData.Blazor
 			_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
 			_menuDownload.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
 			_menuNewFolder.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
+			_menuUploadFiles.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
 			_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && !selectedItems[0].IsReadOnly;
 			_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
 			_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanCopyMove);
@@ -768,6 +770,13 @@ namespace PanoramicData.Blazor
 				else if (menuItem.Text == "New Folder")
 				{
 					await CreateNewFolderAsync().ConfigureAwait(true);
+				}
+				else if (menuItem.Text == "Upload Files")
+				{
+					if (UploadDialog != null)
+					{
+						await UploadDialog.ShowAsync().ConfigureAwait(true);
+					}
 				}
 			}
 		}

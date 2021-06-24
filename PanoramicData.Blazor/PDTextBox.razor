@@ -1,11 +1,24 @@
-﻿<input id="@Id"
-	   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
-	   value="@Value"
-	   disabled="@(!IsEnabled)"
-	   readonly="@IsReadOnly"
-	   placeholder="@Placeholder"
-	   @oninput="OnInput"
-	   @onkeypress="OnKeypress" />
+﻿@if (KeypressEvent)
+{
+	<input id="@Id"
+		   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
+		   value="@Value"
+		   disabled="@(!IsEnabled)"
+		   readonly="@IsReadOnly"
+		   placeholder="@Placeholder"
+		   @onchange="OnChange"
+		   @onkeydown="OnKeypress" />
+}
+else
+{
+	<input id="@Id"
+		   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
+		   value="@Value"
+		   disabled="@(!IsEnabled)"
+		   readonly="@IsReadOnly"
+		   placeholder="@Placeholder"
+		   @onchange="OnChange" />
+}
 
 @if (ShowClearButton && IsVisible)
 {
