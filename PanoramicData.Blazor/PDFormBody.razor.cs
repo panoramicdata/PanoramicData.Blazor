@@ -18,6 +18,11 @@ namespace PanoramicData.Blazor
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		/// <summary>
+		/// Sets the debounce wait period in milliseconds.
+		/// </summary>
+		[Parameter] public int DebounceWait { get; set; }
+
+		/// <summary>
 		/// Form the component belongs to.
 		/// </summary>
 		[CascadingParameter] public PDForm<TItem>? Form { get; set; }

@@ -80,7 +80,7 @@ else if (Form.Mode != FormModes.Hidden)
 										MaxLength="@(field.MaxLength ?? -1)"
 										Value="@(Form?.GetFieldStringValue(field))"
 										ValueChanged="(x) => Form?.SetFieldValueAsync(field, x)"
-										DebounceWait="300" />
+										DebounceWait="DebounceWait" />
 						}
 						else if (fieldType?.FullName == "System.Boolean")
 						{
@@ -125,7 +125,7 @@ else if (Form.Mode != FormModes.Hidden)
 									   IsEnabled="!IsReadOnly(field)"
 									   Value="@(Form?.GetFieldStringValue(field))"
 									   ValueChanged="(x) => Form?.SetFieldValueAsync(field, x)"
-									   DebounceWait="300" />
+									   DebounceWait="DebounceWait" />
 						}
 						else
 						{
@@ -148,8 +148,8 @@ else if (Form.Mode != FormModes.Hidden)
 					</div>
 					<div class="mb-2">
 						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-				(Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-				(Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+			 (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+			 (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}

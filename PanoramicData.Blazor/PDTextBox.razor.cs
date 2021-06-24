@@ -84,7 +84,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Sets the debounce wait period in milliseconds.
 		/// </summary>
-		[Parameter] public int DebounceWait { get; set; } = 0;
+		[Parameter] public int DebounceWait { get; set; }
 
 		/// <summary>
 		/// Event raised when the user clicks on the clear button.
