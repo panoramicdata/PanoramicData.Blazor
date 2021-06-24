@@ -27,6 +27,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string CssClass { get; set; } = "";
 
 		/// <summary>
+		/// Gets whether Keypress events are raised.
+		/// </summary>
+		[Parameter] public bool KeypressEvent { get; set; }
+
+		/// <summary>
 		/// Gets or sets the tooltip for the toolbar item.
 		/// </summary>
 		[Parameter] public string ToolTip { get; set; } = string.Empty;
@@ -123,13 +128,19 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnInput(ChangeEventArgs args)
+		//private async Task OnInput(ChangeEventArgs args)
+		//{
+		//	if (DebounceWait <= 0)
+		//	{
+		//		Value = args.Value.ToString();
+		//		await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
+		//	}
+		//}
+
+		private async Task OnChange(ChangeEventArgs args)
 		{
-			if (DebounceWait <= 0)
-			{
-				Value = args.Value.ToString();
-				await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
-			}
+			Value = args.Value.ToString();
+			await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
 		}
 
 		[JSInvokable]
