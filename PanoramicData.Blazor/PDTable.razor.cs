@@ -374,6 +374,9 @@ namespace PanoramicData.Blazor
 					request.Skip = (int)PageCriteria.PreviousItems;
 				}
 
+				// clear selection
+				await ClearSelectionAsync().ConfigureAwait(true);
+
 				// perform query data
 				var response = await DataProvider
 					.GetDataAsync(request, CancellationToken.None)
@@ -390,8 +393,6 @@ namespace PanoramicData.Blazor
 					PageCriteria.TotalCount = (uint)(response.TotalCount ?? 0);
 				}
 
-				// clear selection
-				await ClearSelectionAsync().ConfigureAwait(true);
 			}
 			finally
 			{
@@ -757,7 +758,7 @@ namespace PanoramicData.Blazor
 					}
 					else
 					{
-						await SelectItem(key, args.ShiftKey, args.CtrlKey).ConfigureAwait(true);
+						await SelectItemAsync(key, args.ShiftKey, args.CtrlKey).ConfigureAwait(true);
 					}
 				}
 			}
@@ -943,7 +944,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		public async Task SelectItem(string key, bool shiftKey, bool ctrlKey)
+		public async Task SelectItemAsync(string key, bool shiftKey = false, bool ctrlKey = false)
 		{
 			if (string.IsNullOrWhiteSpace(key))
 			{
