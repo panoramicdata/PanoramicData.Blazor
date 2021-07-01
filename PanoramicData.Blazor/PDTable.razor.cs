@@ -757,50 +757,7 @@ namespace PanoramicData.Blazor
 					}
 					else
 					{
-						if (SelectionMode == TableSelectionMode.Single)
-						{
-							if (!alreadySelected)
-							{
-								Selection.Clear();
-								Selection.Add(key);
-								await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
-							}
-						}
-						else if (SelectionMode == TableSelectionMode.Multiple)
-						{
-							if (args.ShiftKey && Selection.Count > 0) // range selection (from last selected to row clicked on)
-							{
-								Selection.RemoveRange(0, Selection.Count - 1);
-								var idxFrom = ItemsToDisplay.FindIndex(x => KeyField!(x)?.ToString() == Selection[0]);
-								var idxTo = ItemsToDisplay.FindIndex(x => KeyField!(x)?.ToString() == key);
-								if (idxFrom > -1 && idxTo > -1)
-								{
-									Selection.Clear();
-									Selection.AddRange(ItemsToDisplay
-										.GetRange(Math.Min(idxFrom, idxTo), (Math.Max(idxFrom, idxTo) - Math.Min(idxFrom, idxTo)) + 1)
-										.Select(x => KeyField!(x).ToString()));
-									await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
-								}
-							}
-							else if (args.CtrlKey) // toggle selection
-							{
-								if (alreadySelected)
-								{
-									Selection.Remove(key);
-								}
-								else
-								{
-									Selection.Add(key);
-								}
-								await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
-							}
-							else if (!alreadySelected) // single selection
-							{
-								Selection.Clear();
-								Selection.Add(key);
-								await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
-							}
-						}
+						await SelectItem(key, args.ShiftKey, args.CtrlKey).ConfigureAwait(true);
 					}
 				}
 			}
@@ -983,6 +940,60 @@ namespace PanoramicData.Blazor
 			if (DragContext != null)
 			{
 				await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
+			}
+		}
+
+		public async Task SelectItem(string key, bool shiftKey, bool ctrlKey)
+		{
+			if (string.IsNullOrWhiteSpace(key))
+			{
+				return;
+			}
+
+			var alreadySelected = Selection.Contains(key);
+			if (SelectionMode == TableSelectionMode.Single)
+			{
+				if (!alreadySelected)
+				{
+					Selection.Clear();
+					Selection.Add(key);
+					await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+				}
+			}
+			else if (SelectionMode == TableSelectionMode.Multiple)
+			{
+				if (shiftKey && Selection.Count > 0) // range selection (from last selected to row clicked on)
+				{
+					Selection.RemoveRange(0, Selection.Count - 1);
+					var idxFrom = ItemsToDisplay.FindIndex(x => KeyField!(x)?.ToString() == Selection[0]);
+					var idxTo = ItemsToDisplay.FindIndex(x => KeyField!(x)?.ToString() == key);
+					if (idxFrom > -1 && idxTo > -1)
+					{
+						Selection.Clear();
+						Selection.AddRange(ItemsToDisplay
+							.GetRange(Math.Min(idxFrom, idxTo), (Math.Max(idxFrom, idxTo) - Math.Min(idxFrom, idxTo)) + 1)
+							.Select(x => KeyField!(x).ToString()));
+						await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+					}
+				}
+				else if (ctrlKey) // toggle selection
+				{
+					if (alreadySelected)
+					{
+						Selection.Remove(key);
+					}
+					else
+					{
+						Selection.Add(key);
+					}
+					await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+				}
+				else if (!alreadySelected) // single selection
+				{
+					Selection.Clear();
+					Selection.Add(key);
+					await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+				}
 			}
 		}
 	}
