@@ -19,6 +19,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<string> Click { get; set; }
 
 		/// <summary>
+		/// Gets or sets the button sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes? Size { get; set; }
+
+		/// <summary>
 		/// Should the Save button be shown?
 		/// </summary>
 		[Parameter] public bool ShowSave { get; set; } = true;
@@ -122,11 +127,11 @@ namespace PanoramicData.Blazor
 				Form.ErrorsChanged += Form_ErrorsChanged;
 
 				// create default buttons
-				Buttons.Add(new ToolbarButton { Key = "Yes", Text = YesButtonText, CssClass = YesButtonCssClass, IconCssClass = YesButtonIconCssClass, ShiftRight = true });
-				Buttons.Add(new ToolbarButton { Key = "No", Text = NoButtonText, CssClass = NoButtonCssClass, IconCssClass = NoButtonIconCssClass });
-				Buttons.Add(new ToolbarButton { Key = "Delete", Text = DeleteButtonText, CssClass = DeleteButtonCssClass, IconCssClass = DeleteButtonIconCssClass });
-				Buttons.Add(new ToolbarButton { Key = "Save", Text = SaveButtonText, CssClass = SaveButtonCssClass, IconCssClass = SaveButtonIconCssClass, ShiftRight = true });
-				Buttons.Add(new ToolbarButton { Key = "Cancel", Text = CancelButtonText, CssClass = CancelButtonCssClass, IconCssClass = CancelButtonIconCssClass });
+				Buttons.Add(new ToolbarButton { Key = "Yes", Text = YesButtonText, CssClass = YesButtonCssClass, IconCssClass = YesButtonIconCssClass, ShiftRight = true, Size = Size });
+				Buttons.Add(new ToolbarButton { Key = "No", Text = NoButtonText, CssClass = NoButtonCssClass, IconCssClass = NoButtonIconCssClass, Size = Size });
+				Buttons.Add(new ToolbarButton { Key = "Delete", Text = DeleteButtonText, CssClass = DeleteButtonCssClass, IconCssClass = DeleteButtonIconCssClass, Size = Size });
+				Buttons.Add(new ToolbarButton { Key = "Save", Text = SaveButtonText, CssClass = SaveButtonCssClass, IconCssClass = SaveButtonIconCssClass, ShiftRight = true, Size = Size });
+				Buttons.Add(new ToolbarButton { Key = "Cancel", Text = CancelButtonText, CssClass = CancelButtonCssClass, IconCssClass = CancelButtonIconCssClass, Size = Size });
 			}
 		}
 
