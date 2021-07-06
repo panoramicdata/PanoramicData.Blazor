@@ -6,7 +6,12 @@ namespace PanoramicData.Blazor.Demo.Data
 {
 	public class DirectoryEntry
 	{
+		public string Alias { get; set; } = string.Empty;
+		public bool CanAddItems => !IsReadOnly;
 		public bool CanCopyMove { get; set; } = true;
+		public bool CanDelete { get; set; } = true;
+		public bool CanRemoveItems => !IsReadOnly;
+		public bool CanRename { get; set; } = true;
 		public DateTimeOffset DateCreated { get; set; } = DateTimeOffset.UtcNow;
 		public DateTimeOffset DateModified { get; set; } = DateTimeOffset.UtcNow;
 		public bool IsHidden { get; set; }
@@ -17,8 +22,6 @@ namespace PanoramicData.Blazor.Demo.Data
 		public DirectoryEntry? Parent { get; set; }
 		public long Size { get; set; }
 		public FileExplorerItemType Type { get; set; }
-		public string Alias { get; set; } = string.Empty;
-		public bool CanAddItems { get; set; } = true;
 
 		public DirectoryEntry()
 		{
@@ -26,8 +29,9 @@ namespace PanoramicData.Blazor.Demo.Data
 
 		public DirectoryEntry(FileExplorerItem item)
 		{
-			CanAddItems = item.CanAddItems;
 			CanCopyMove = item.CanCopyMove;
+			CanDelete = item.CanDelete;
+			CanRename = item.CanRename;
 			DateCreated = item.DateCreated ?? DateTimeOffset.UtcNow;
 			DateModified = item.DateModified ?? DateTimeOffset.UtcNow;
 			IsHidden = item.IsHidden;
@@ -59,6 +63,19 @@ namespace PanoramicData.Blazor.Demo.Data
 			Items.AddRange(items);
 		}
 
+		public DirectoryEntry(string name, bool readOnly, bool canDelete, bool canRename, params DirectoryEntry[] items)
+		{
+			Name = name;
+			CanDelete = canDelete;
+			CanRename = canRename;
+			IsReadOnly = readOnly;
+			foreach (var item in items)
+			{
+				item.Parent = this;
+			}
+			Items.AddRange(items);
+		}
+
 		public DirectoryEntry(string name, FileExplorerItemType type, int size)
 		{
 			Name = name;
@@ -71,6 +88,16 @@ namespace PanoramicData.Blazor.Demo.Data
 			Name = name;
 			Type = type;
 			Size = size;
+			IsReadOnly = readOnly;
+		}
+
+		public DirectoryEntry(string name, FileExplorerItemType type, int size, bool readOnly, bool canDelete, bool canRename)
+		{
+			Name = name;
+			Type = type;
+			Size = size;
+			CanDelete = canDelete;
+			CanRename = canRename;
 			IsReadOnly = readOnly;
 		}
 
@@ -87,8 +114,9 @@ namespace PanoramicData.Blazor.Demo.Data
 		{
 			var clone = new DirectoryEntry
 			{
-				CanAddItems = CanAddItems,
 				CanCopyMove = CanCopyMove,
+				CanDelete = CanDelete,
+				CanRename = CanRename,
 				DateCreated = DateCreated,
 				DateModified = DateModified,
 				IsHidden = IsHidden,
@@ -154,8 +182,9 @@ namespace PanoramicData.Blazor.Demo.Data
 		{
 			return new FileExplorerItem
 			{
-				CanAddItems = CanAddItems,
 				CanCopyMove = CanCopyMove,
+				CanDelete = CanDelete,
+				CanRename = CanRename,
 				DateCreated = DateCreated,
 				DateModified = DateModified,
 				EntryType = Type,
