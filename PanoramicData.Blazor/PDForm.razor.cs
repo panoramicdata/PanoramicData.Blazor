@@ -61,6 +61,11 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Event raised when the current item has been successfully updated.
 		/// </summary>
+		[Parameter] public EventCallback<FieldUpdateArgs<TItem>> FieldUpdated { get; set; }
+
+		/// <summary>
+		/// Event raised when the current item has been successfully updated.
+		/// </summary>
 		[Parameter] public EventCallback<TItem> Updated { get; set; }
 
 		/// <summary>
@@ -437,8 +442,15 @@ namespace PanoramicData.Blazor
 				var memberInfo = field.Field.GetPropertyMemberInfo();
 				if (memberInfo != null && memberInfo is PropertyInfo propInfo)
 				{
-					//	// add / replace value on delta object
+					// add / replace value on delta object
 					object typedValue = value.Cast(propInfo.PropertyType);
+
+					// notify application of change - and allow for override
+					var args = new FieldUpdateArgs<TItem>(field, GetFieldValue(field, false), typedValue);
+					await FieldUpdated.InvokeAsync(args).ConfigureAwait(true);
+					typedValue = args.NewValue;
+
+					// update delta
 					Delta[memberInfo.Name] = typedValue;
 
 					// validate field
