@@ -408,10 +408,10 @@ namespace PanoramicData.Blazor
 
 			_menuNewFolder.IsVisible = folderSelected && selectedFolder?.CanAddItems == true;
 			_menuUploadFiles.IsVisible = folderSelected && selectedFolder?.CanAddItems == true;
-			_menuRename.IsVisible = folderSelected && !isRoot && selectedFolder?.IsReadOnly == false;
-			_menuDelete.IsVisible = folderSelected && !isRoot && selectedFolder?.IsReadOnly == false;
+			_menuRename.IsVisible = folderSelected && !isRoot && selectedFolder?.CanAddItems == true;
+			_menuDelete.IsVisible = folderSelected && !isRoot && selectedFolder?.CanDelete == true;
 			_menuCopy.IsVisible = folderSelected && !isRoot;
-			_menuCut.IsVisible = folderSelected && !isRoot && selectedFolder?.IsReadOnly == false;
+			_menuCut.IsVisible = folderSelected && !isRoot && selectedFolder?.CanDelete == true;
 			_menuPaste.IsVisible = folderSelected && selectedFolder?.CanAddItems == true && _copyPayload.Count > 0;
 			_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
 			_menuSep3.IsVisible = ShowSeparator(_menuSep3, TreeContextItems);
@@ -703,10 +703,10 @@ namespace PanoramicData.Blazor
 			_menuDownload.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
 			_menuNewFolder.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
 			_menuUploadFiles.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
-			_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && !selectedItems[0].IsReadOnly;
-			_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => !x.IsReadOnly);
+			_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && selectedItems[0].CanRename;
+			_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete);
 			_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanCopyMove);
-			_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => !x.IsReadOnly && x.CanCopyMove);
+			_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete);
 			_menuPaste.IsVisible = validSelection && _copyPayload.Count > 0 &&
 				((selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true) ||
 				// sub-folder highlighted
@@ -1421,8 +1421,7 @@ namespace PanoramicData.Blazor
 			var deleteButton = ToolbarItems.Find(x => x.Key == "delete");
 			if (deleteButton != null)
 			{
-				//deleteButton.IsEnabled = Table!.Selection.Count > 0 && selectedItems.All(x => !(x.Path.EndsWith("..") || x.IsReadOnly));
-				deleteButton.IsEnabled = Table!.Selection.Count > 0 && selectedItems.All(x => !x.IsReadOnly);
+				deleteButton.IsEnabled = Table!.Selection.Count > 0 && selectedItems.All(x => x.CanDelete);
 			}
 
 			// allow application to alter toolbar state

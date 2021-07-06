@@ -16,7 +16,7 @@ namespace PanoramicData.Blazor
 		public bool IsSystem { get; set; }
 
 		/// <summary>
-		/// Gets or sets whether this item has the ReadOnly attribute set.
+		/// Indicates whether a file or a folder can be added to a folder.
 		/// </summary>
 		public bool IsReadOnly { get; set; }
 
@@ -33,12 +33,27 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets whether the user may add new files and folders to the folder?
 		/// </summary>
-		public bool CanAddItems { get; set; } = true;
+		public bool CanAddItems => !IsReadOnly;
 
 		/// <summary>
 		/// Gets or sets whether this item can be moved or copied.
 		/// </summary>
 		public bool CanCopyMove { get; set; } = true;
+
+		/// <summary>
+		/// Indicates whether a file or a folder can be deleted.
+		/// </summary>
+		public bool CanDelete { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets whether the user may remove files and folders from the folder?
+		/// </summary>
+		public bool CanRemoveItems => !IsReadOnly;
+
+		/// <summary>
+		/// Indicates whether a file or a folder can be renamed.
+		/// </summary>
+		public bool CanRename { get; set; } = true;
 
 		/// <summary>
 		/// Gets or sets the upload progress.

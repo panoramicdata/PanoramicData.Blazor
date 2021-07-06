@@ -11,27 +11,24 @@ namespace PanoramicData.Blazor.Demo.Data
 	{
 		private readonly Random _random = new(Environment.TickCount);
 		private readonly DirectoryEntry _root = new(
-			new DirectoryEntry("Library", true,
-				new DirectoryEntry("Templates", true,
-					new DirectoryEntry("web_template.html", FileExplorerItemType.File, 13000, true),
-					new DirectoryEntry("excel_template.xlsx", FileExplorerItemType.File, 7500, true),
-					new DirectoryEntry("word_template.docx", FileExplorerItemType.File, 10000, true)
+			new DirectoryEntry("Library", true, false, false,
+				new DirectoryEntry("Templates", true, false, false,
+					new DirectoryEntry("web_template.html", FileExplorerItemType.File, 13000, true, false, false),
+					new DirectoryEntry("excel_template.xlsx", FileExplorerItemType.File, 7500, true, false, false),
+					new DirectoryEntry("word_template.docx", FileExplorerItemType.File, 10000, true, false, false)
 				)
-				{ CanAddItems = false }
-			)
-			{ CanAddItems = false },
-			new DirectoryEntry("Users", true,
-				new DirectoryEntry("1", true,
+			),
+			new DirectoryEntry("Users", true, false, false,
+				new DirectoryEntry("1", false, false, false,
 					new DirectoryEntry("summary.xlsx", FileExplorerItemType.File, 5012, false),
 					new DirectoryEntry("instruction.docx", FileExplorerItemType.File, 4320, false)
 				)
 				{ Alias = "Alice" },
-				new DirectoryEntry("2", true,
+				new DirectoryEntry("2", false, false, false,
 					new DirectoryEntry("notes.docx", FileExplorerItemType.File, 2000, false)
 				)
 				{ Alias = "Bob" }
-			)
-			{ CanAddItems = false },
+			),
 			new DirectoryEntry("CDrive",
 				new DirectoryEntry("ProgramData",
 					new DirectoryEntry("Acme",
