@@ -526,7 +526,12 @@ namespace PanoramicData.Blazor
 				if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
 				{
 					args.Cancel = true;
-					await OnException(new PDFileExplorerException($"A Folder named '{args.NewValue}' already exists")).ConfigureAwait(true);
+
+					// do not warning if is its original name
+					if (!string.Equals(args.NewValue, args.OldValue, StringComparison.OrdinalIgnoreCase))
+					{
+						await OnException(new PDFileExplorerException($"A Folder named '{args.NewValue}' already exists")).ConfigureAwait(true);
+					}
 					return;
 				}
 
