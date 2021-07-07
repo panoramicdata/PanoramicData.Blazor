@@ -8,7 +8,7 @@
 			@onclick="Click">
 		@if (!string.IsNullOrWhiteSpace(IconCssClass))
 		{
-			<span class="pr-1 @IconCssClass"></span>
+			<span class="@(string.IsNullOrWhiteSpace(Text) ? "" : "pr-1") @IconCssClass"></span>
 		}
 		<span class="@TextCssClass">@Text.GetShortcutMarkup()</span>
 	</button>
@@ -23,7 +23,7 @@ else
 	   @onclick="Click">
 		@if (!string.IsNullOrWhiteSpace(IconCssClass))
 		{
-			<span class="pr-1 @IconCssClass"></span>
+			<span class="@(string.IsNullOrWhiteSpace(Text) ? "" : "pr-1") @IconCssClass"></span>
 		}
 		<span class="@TextCssClass">@Text.GetShortcutMarkup()</span>
 	</a>
