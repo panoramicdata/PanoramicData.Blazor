@@ -247,7 +247,11 @@ namespace PanoramicData.Blazor
 				}
 
 				// select new node
-				if (SelectedNode != node)
+				if (SelectedNode == node)
+				{
+					await BeginEdit().ConfigureAwait(true);
+				}
+				else
 				{
 					if (SelectedNode != null)
 					{
