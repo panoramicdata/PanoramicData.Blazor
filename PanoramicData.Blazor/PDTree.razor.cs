@@ -15,24 +15,30 @@ namespace PanoramicData.Blazor
 		private const string _idPrefix = "pd-tree-";
 		private static int _idSequence;
 
+		#region Injected Parameters
+
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
+
+		#endregion
+
+		#region Cascading Parameters
 
 		/// <summary>
 		/// Provides access to the parent DragContext if it exists.
 		/// </summary>
 		[CascadingParameter] public PDDragContext? DragContext { get; set; }
 
-		/// <summary>
-		/// Gets the unique identifier of this tree.
-		/// </summary>
-		public string Id { get; private set; } = string.Empty;
+		#endregion
+
+		#region Parameters
 
 		/// <summary>
-		/// Gets or sets the root TreeNode instance.
+		/// Should a node clear its child content on collapse? Doing so will force a re-load of child nodes
+		/// if it is re-expanded. Only applicable when LoadOnDemand = true.
 		/// </summary>
-		public TreeNode<TItem> RootNode { get; set; } = new TreeNode<TItem> { Text = "Root" };
+		[Parameter] public bool ClearOnCollapse { get; set; }
 
 		/// <summary>
 		/// Gets or sets the IDataProviderService instance to use to fetch data.
@@ -175,6 +181,18 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
 
+		#endregion
+
+		/// <summary>
+		/// Gets the unique identifier of this tree.
+		/// </summary>
+		public string Id { get; private set; } = string.Empty;
+
+		/// <summary>
+		/// Gets or sets the root TreeNode instance.
+		/// </summary>
+		public TreeNode<TItem> RootNode { get; set; } = new TreeNode<TItem> { Text = "Root" };
+
 		/// <summary>
 		/// Gets the currently selected tree node.
 		/// </summary>
@@ -301,6 +319,11 @@ namespace PanoramicData.Blazor
 			node.IsExpanded = !wasExpanded;
 			if (wasExpanded)
 			{
+				if (LoadOnDemand && ClearOnCollapse)
+				{
+					node.Nodes = null;
+				}
+
 				await NodeCollapsed.InvokeAsync(node).ConfigureAwait(true);
 			}
 			else

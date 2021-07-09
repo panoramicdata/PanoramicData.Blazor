@@ -48,6 +48,8 @@ namespace PanoramicData.Blazor
 		public bool IsNavigating { get; private set; }
 		public string SessionId { get; private set; } = Guid.NewGuid().ToString();
 
+		#region Parameters
+
 		/// <summary>
 		/// Determines whether the user may drag items.
 		/// </summary>
@@ -279,6 +281,8 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever the tree context menu may need updating.
 		/// </summary>
 		[Parameter] public EventCallback<MenuItemsEventArgs> UpdateTreeContextState { get; set; }
+
+		#endregion
 
 		protected override async Task OnInitializedAsync()
 		{
