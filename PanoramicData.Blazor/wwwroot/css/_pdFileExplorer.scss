@@ -3,7 +3,7 @@
 }
 
 .pdfileexplorer .table td, .pdfileexplorer .table th {
-	padding: .25rem;
+	padding: 2px 4px 1px 4px;
 }
 
 .pdfileexplorer .file-hidden, .pdfileexplorer .file-system {
@@ -13,6 +13,10 @@
 .pdfileexplorer .uploading {
 	color: #666;
 	font-style: italic;
+}
+
+.pdtreenode .pdtreenode_content {
+	padding: 2px 3px 2px 3px;
 }
 
 .upload-progress-bar {
