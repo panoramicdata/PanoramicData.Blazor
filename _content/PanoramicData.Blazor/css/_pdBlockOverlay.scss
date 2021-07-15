@@ -1,0 +1,34 @@
+﻿.blockoverlay_show {
+	height: 100%;
+	width: 100%;
+	overflow-x: hidden;
+	z-index: 2000; /* in font of modal dialogs (1050)*/
+	background-color: rgba(0,0,0,0.3);
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	text-align: center;
+	cursor: wait;
+
+	.text-container {
+		position: relative;
+		top: 25%;
+
+		.text-box {
+			width: 600px;
+			margin: auto;
+			border-style: solid;
+			border-width: 1px;
+			border-color: black;
+			border-radius: 5px;
+			background-color: #888;
+			padding-top: 13px;
+			padding-bottom: 10px;
+			color: white;
+		}
+	}
+}
+
+.blockoverlay_hide {
+	display: none;
+}

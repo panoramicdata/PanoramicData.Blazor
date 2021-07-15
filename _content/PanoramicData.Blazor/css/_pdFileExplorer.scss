@@ -1,0 +1,71 @@
+﻿.pdfileexplorer {
+	height: calc(100% - 56px);
+}
+
+.pdfileexplorer .table td, .pdfileexplorer .table th {
+	padding: 2px 4px 1px 4px;
+}
+
+.pdfileexplorer .file-hidden, .pdfileexplorer .file-system {
+	color: #ccc;
+}
+
+.pdfileexplorer .uploading {
+	color: #666;
+	font-style: italic;
+}
+
+.pdtreenode .pdtreenode_content {
+	padding: 2px 3px 2px 3px;
+}
+
+.upload-progress-bar {
+	height: 5px;
+	background-color: #007bff;
+}
+
+.upload-zone {
+	border: 2px dashed silver !important;
+	border-radius: 5px;
+	padding: 5px;
+	max-height: 400px;
+	overflow-y: auto;
+	cursor: pointer;
+}
+
+.pdfe-drop-zone-msg {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 200px;
+	color: silver;
+}
+.dz-started .pdfe-drop-zone-msg {
+	display: none;
+}
+
+.pdfe-dz-preview.dz-success {
+	color: #28a745;
+}
+
+.pdfe-dz-preview.dz-error {
+	color: #dc3545;
+}
+
+.pdfe-dz-progress {
+	background-color: #007bff;
+	height: 4px;
+}
+
+.pdfe-dz-preview.dz-complete .pdfe-dz-progress {
+	display: none !important;
+}
+
+.pdfe-dz-preview.dz-error .error-mark {
+	display: inline-block !important;
+}
+
+.pdfe-dz-preview.dz-success .success-mark {
+	display: inline-block !important;
+}

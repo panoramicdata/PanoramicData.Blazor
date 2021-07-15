@@ -1,0 +1,52 @@
+﻿.pdtree {
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	height: 100%;
+	width: 100%;
+}
+
+// lines that help show nested levels
+.pdtree_lines {
+	border-left: 1px dashed grey;
+	padding-left: 0px !important;
+}
+
+// indents each tree level
+.pdtreenode {
+	padding-left: 1.0rem;
+
+	.selected {
+		background-color: #007bff;
+	}
+
+	.pdtreenode_header {
+		display: flex;
+		align-items: baseline;
+		white-space: nowrap;
+
+		.pdtreenode_content {
+			width: 100%;
+			padding-left: 3px;
+			margin-left: 3px;
+		}
+	}
+
+	.pdtreenode_child_content {
+		margin-left: 6px;
+		padding-left: 1px;
+	}
+}
+
+// negates the indent on the top level nodes
+.pdtree > .pdtreenode {
+	padding-left: 0rem;
+}
+
+.pdtreenode_edit {
+	width: 100%;
+}
+
+.pdtree:focus {
+	outline: none;
+}

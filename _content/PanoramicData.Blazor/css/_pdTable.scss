@@ -1,0 +1,19 @@
+﻿.pdtable {
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	height: 100%;
+	width: 100%;
+}
+
+.pdtablerow.selected {
+		background-color: #007bff;
+}
+
+.pdtable:focus {
+	outline: none;
+}
+
+.pdtable_edit {
+	width: 100%;
+}
