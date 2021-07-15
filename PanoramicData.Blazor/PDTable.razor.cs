@@ -305,6 +305,14 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Forces the table to indicate its state has changed.
+		/// </summary>
+		public void SetStateHasChanged()
+		{
+			StateHasChanged();
+		}
+
+		/// <summary>
 		/// Centralized method to process exceptions.
 		/// </summary>
 		/// <param name="ex">Exception that has been raised.</param>
