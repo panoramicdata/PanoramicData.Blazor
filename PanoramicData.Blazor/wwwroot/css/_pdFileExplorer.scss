@@ -15,6 +15,16 @@
 	font-style: italic;
 }
 
+.progress-dialog {
+	.overall-progress {
+		display: flex;
+		justify-content: center;
+	}
+	.file-progress {
+		font-size: 10px;
+	}
+}
+
 .pdtreenode .pdtreenode_content {
 	padding: 2px 3px 2px 3px;
 }
