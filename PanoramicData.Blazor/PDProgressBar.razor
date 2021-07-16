@@ -1,0 +1,9 @@
+﻿<div class="pd-progressbar">
+	<div class="bar"
+		 style="height: @Height; width:@(GetPercentage())%">
+		@if (BarContent != null)
+		{
+			@BarContent(this)
+		}
+	</div>
+</div>

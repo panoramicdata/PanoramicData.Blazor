@@ -36,6 +36,46 @@
 	<p>What would you like to do with the conflicting items?</p>
 </PDModal>
 
+<PDModal @ref="ProgressDialog"
+		 Title="Upload Progress">
+	<ChildContent>
+		<div class="progress-dialog">
+			<div class="overall-progress">
+				<span>Uploading file&nbsp;</span>
+				<span>@_batchProgress</span>
+				<span>&nbsp;of&nbsp;</span>
+				<span>@_batchCount</span>
+			</div>
+			<PDProgressBar DecimalPlaces="0"
+						   Total="@_batchCount"
+						   Value="@_batchProgress">
+				<BarContent Context="progress">
+					@progress.GetPercentage()%
+				</BarContent>
+			</PDProgressBar>
+
+			@foreach (var kvp in _batchFiles)
+			{
+				<div @key="kvp.Key"
+					 class="file-progress mt-2">
+					<div>
+						@kvp.Key
+					</div>
+					<PDProgressBar DecimalPlaces="2"
+								   Height="16px"
+								   Value="@kvp.Value">
+						<BarContent Context="progress">
+							@progress.GetPercentage()%
+						</BarContent>
+					</PDProgressBar>
+				</div>
+			}
+		</div>
+	</ChildContent>
+	<Footer>
+	</Footer>
+</PDModal>
+
 <PDModal @ref="UploadDialog"
 		 Size="ModalSizes.Large"
 		 HideOnBackgroundClick="true"
@@ -48,6 +88,8 @@
 				MaxFileSize="UploadMaxSize"
 				PreviewTemplate="#file-upload-template"
 				Drop="OnFilesDroppedAsync"
+				AllUploadsStarted="OnAllUploadsStarted"
+				AllUploadsProgress="OnAllUploadsProgress"
 				AllUploadsComplete="OnAllUploadsComplete"
 				UploadStarted="OnUploadStartedAsync"
 				UploadProgress="OnUploadProgressAsync"
@@ -80,6 +122,8 @@
 				PreviewContainer="#pdfe-drop-zone-1"
 				PreviewTemplate="#file-upload-template"
 				Drop="OnFilesDroppedAsync"
+				AllUploadsStarted="OnAllUploadsStarted"
+				AllUploadsProgress="OnAllUploadsProgress"
 				AllUploadsComplete="OnAllUploadsComplete"
 				UploadStarted="OnUploadStartedAsync"
 				UploadProgress="OnUploadProgressAsync"

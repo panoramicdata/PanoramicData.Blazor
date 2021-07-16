@@ -123,6 +123,13 @@
   color: #666;
   font-style: italic; }
 
+.progress-dialog .overall-progress {
+  display: flex;
+  justify-content: center; }
+
+.progress-dialog .file-progress {
+  font-size: 10px; }
+
 .pdtreenode .pdtreenode_content {
   padding: 2px 3px 2px 3px; }
 
@@ -333,6 +340,13 @@
 
 .pdseparator.dragover {
   background-color: silver !important; }
+
+.pd-progressbar {
+  border: 1px solid silver; }
+  .pd-progressbar .bar {
+    color: white;
+    background-color: #007bff;
+    text-align: center; }
 
 .fa-hidden {
   color: transparent; }

@@ -9,6 +9,8 @@ namespace PanoramicData.Blazor
 	{
 		private static int _idSequence;
 		private DotNetObjectReference<PDDropZone>? _dotNetReference;
+		private int _batchCount;
+		private int _batchProgress;
 
 		[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -41,6 +43,16 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever a file upload completes.
 		/// </summary>
 		[Parameter] public EventCallback<DropZoneUploadCompletedEventArgs> UploadCompleted { get; set; }
+
+		/// <summary>
+		/// Event raised before uploads have started.
+		/// </summary>
+		[Parameter] public EventCallback<int> AllUploadsStarted { get; set; }
+
+		/// <summary>
+		/// Event raised during batch uploads.
+		/// </summary>
+		[Parameter] public EventCallback<DropZoneAllProgressEventArgs> AllUploadsProgress { get; set; }
 
 		/// <summary>
 		/// Event raised when all uploads have completed.
@@ -147,6 +159,9 @@ namespace PanoramicData.Blazor
 				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 			}
 			var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId);
+			_batchProgress++;
+			args.BatchCount = _batchCount;
+			args.BatchProgress = _batchProgress;
 			await UploadStarted.InvokeAsync(args).ConfigureAwait(true);
 			if (args.FormFields.Count == 0)
 			{
@@ -209,7 +224,27 @@ namespace PanoramicData.Blazor
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsComplete")]
 		public void OnAllUploadsComplete()
 		{
+			_batchCount = 0;
+			_batchProgress = 0;
 			AllUploadsComplete.InvokeAsync(null);
+		}
+
+		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsProgress")]
+		public void OnAllUploadsProgress(double uploadProgress, long totalBytes, long totalBytesSent)
+		{
+			AllUploadsProgress.InvokeAsync(new DropZoneAllProgressEventArgs
+			{
+				TotalBytes = totalBytes,
+				TotalBytesSent = totalBytesSent,
+				UploadProgress = uploadProgress
+			});
+		}
+		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsStarted")]
+		public void OnAllUploadsStarted(int fileCount)
+		{
+			_batchCount = fileCount;
+			_batchProgress = 0;
+			AllUploadsStarted.InvokeAsync(fileCount);
 		}
 
 		public void Dispose()

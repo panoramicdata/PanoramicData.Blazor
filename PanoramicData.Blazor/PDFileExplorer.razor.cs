@@ -34,6 +34,11 @@ namespace PanoramicData.Blazor
 		private readonly MenuItem _menuDelete = new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
 		private readonly List<FileExplorerItem> _copyPayload = new List<FileExplorerItem>();
 		private readonly Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>> _conflictCache = new Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>>();
+		private int _batchCount;
+		private int _batchProgress;
+		private long _batchTotalBytes;
+		private long _batchTotalBytesSent;
+		private readonly Dictionary<string, double> _batchFiles = new Dictionary<string, double>();
 
 		private bool _moveCopyPayload = false;
 		private TreeNode<FileExplorerItem>? _selectedNode;
@@ -41,12 +46,20 @@ namespace PanoramicData.Blazor
 		private PDTable<FileExplorerItem>? Table { get; set; }
 		private PDModal? DeleteDialog { get; set; } = null!;
 		private PDModal? ConflictDialog { get; set; } = null!;
+		private PDModal? ProgressDialog { get; set; } = null!;
 		private PDModal? UploadDialog { get; set; }
 
 		public string FolderPath = string.Empty;
+
 		public string Id { get; private set; } = string.Empty;
 		public bool IsNavigating { get; private set; }
 		public string SessionId { get; private set; } = Guid.NewGuid().ToString();
+
+		#region Inject
+
+		[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
+
+		#endregion
 
 		#region Parameters
 
@@ -148,8 +161,6 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback<FileExplorerItem> ItemDoubleClick { get; set; }
 
-		[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
-
 		/// <summary>
 		/// Gets or sets the maximum file upload size in MB.
 		/// </summary>
@@ -174,6 +185,18 @@ namespace PanoramicData.Blazor
 		/// Determines whether the toolbar is visible.
 		/// </summary>
 		[Parameter] public bool ShowToolbar { get; set; } = true;
+
+		/// <summary>
+		/// Determines whether the upload progress dialog is shown.
+		/// </summary>
+		[Parameter] public bool ShowUploadProgressDialog { get; set; } = true;
+
+		/// <summary>
+		/// Determines when the upload progress dialog is shown.
+		/// </summary>
+		/// <remarks>The dialog is shown when the number of files to upload exceeds the threshold.
+		/// ShowUploadProgressDialog must be set to true.</remarks>
+		[Parameter] public int UploadProgressDialogThreshold { get; set; } = 1;
 
 		/// <summary>
 		/// Event raises whenever the selection changes.
@@ -863,11 +886,20 @@ namespace PanoramicData.Blazor
 
 		private async Task OnUploadStartedAsync(DropZoneUploadEventArgs args)
 		{
+			_batchCount = args.BatchCount;
+			_batchProgress = args.BatchProgress;
+			_batchFiles.Add(args.FullPath, 0);
+
 			await UploadStarted.InvokeAsync(args).ConfigureAwait(false);
 		}
 
 		private async Task OnUploadProgressAsync(DropZoneUploadProgressEventArgs args)
 		{
+			if (_batchFiles.ContainsKey(args.FullPath))
+			{
+				_batchFiles[args.FullPath] = args.Progress;
+			}
+
 			if (Table is null)
 			{
 				return;
@@ -885,6 +917,11 @@ namespace PanoramicData.Blazor
 
 		private async Task OnUploadCompletedAsync(DropZoneUploadCompletedEventArgs args)
 		{
+			if (_batchFiles.ContainsKey(args.FullPath))
+			{
+				_batchFiles.Remove(args.FullPath);
+			}
+
 			// get virtual file item
 			var item = GetVirtualFileItem(args);
 			if (item != null)
@@ -894,8 +931,28 @@ namespace PanoramicData.Blazor
 			await UploadCompleted.InvokeAsync(args).ConfigureAwait(true);
 		}
 
+		private async Task OnAllUploadsStarted(int fileCount)
+		{
+			_batchCount = fileCount;
+			_batchProgress = 0;
+
+			if (ShowUploadProgressDialog && fileCount > UploadProgressDialogThreshold)
+			{
+				await ProgressDialog!.ShowAsync().ConfigureAwait(true);
+			}
+		}
+
+		private void OnAllUploadsProgress(DropZoneAllProgressEventArgs args)
+		{
+			_batchTotalBytes = args.TotalBytes;
+			_batchTotalBytesSent = args.TotalBytesSent;
+		}
+
 		private async Task OnAllUploadsComplete()
 		{
+			// close progress dialog
+			await ProgressDialog!.HideAsync().ConfigureAwait(true);
+
 			// expire conflict cache
 			_conflictCache.Clear();
 			await RefreshTreeAsync().ConfigureAwait(true);

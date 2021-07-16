@@ -211,6 +211,7 @@
 				e.stopPropagation();
 				zone.classList.remove('highlight');
 				let files = e.dataTransfer.files
+				console.log('onDropZoneDrop', e);
 				if (zone.dotnetHelper) {
 					var dto = [];
 					for (var i = 0; i < files.length; i++)
@@ -473,13 +474,24 @@
 			timeout: 30000,
 			maxFilesize: 512,
 			init: function () {
+				// initialize batch variables
+				this.fileCount = 0;
+				this.adding = false;
+				// add event listeners
 				this.on('addedfile', function (file) {
+					this.adding = true;
+					this.fileCount++;
 					var fullPath = getPath(file);
 					if (!fullPath.endsWith('/')) fullPath = fullPath + "/";
 					fullPath = fullPath + (file.targetName || file.name);
 					file.previewElement.querySelector(".pdfe-dz-name").innerHTML = fullPath;
 				});
 				this.on("sending", function (file, xhr) {
+					// sending event occurs after all files have been added - signal batch start
+					if (this.adding) {
+						this.adding = false;
+						dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnAllUploadsStarted', this.fileCount);
+					}
 					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnUploadBegin', { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId });
 				});
 				this.on("uploadprogress", function (file, pct, bytes) {
@@ -496,6 +508,12 @@
 				});
 				this.on("queuecomplete", function () {
 					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnAllUploadsComplete');
+					if (this.fileCount)
+						this.fileCount = 0;
+				});
+				this.on("totaluploadprogress", function (uploadProgress, totalBytes, totalBytesSent) {
+					console.log("totaluploadprogress", uploadProgress, totalBytes, totalBytesSent);
+					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnAllUploadsProgress', uploadProgress, totalBytes, totalBytesSent);
 				});
 			},
 			accept: function (file, done) {
