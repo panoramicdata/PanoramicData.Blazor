@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor
 		public RenderFragment<PDProgressBar>? BarContent { get; set; }
 
 		[Parameter]
-		public ushort DecimalPlaces { get; set; } = 2;
+		public ushort DecimalPlaces { get; set; }
 
 		[Parameter]
 		public string Height { get; set; } = "24px";
