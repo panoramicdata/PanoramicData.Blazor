@@ -37,6 +37,7 @@
 </PDModal>
 
 <PDModal @ref="ProgressDialog"
+		 Id="upload-progress-modal"
 		 Title="Upload Progress">
 	<ChildContent>
 		<div class="progress-dialog">
@@ -73,6 +74,13 @@
 		</div>
 	</ChildContent>
 	<Footer>
+		<div class="progress-dialog-buttons">
+			<button class="btn btn-sm btn-danger"
+					@onclick="OnCancelUploadFiles">
+				<i class="fas fa-times-circle"></i>
+				<span class="ms-1">Cancel</span>
+			</button>
+		</div>
 	</Footer>
 </PDModal>
 
@@ -99,7 +107,7 @@
 			<span>Click to browse for files to upload </span>
 		</div>
 	</PDDropZone>
-	<button class="mt-1 btn btn-default" @onclick="OnClearUploadFiles">
+	<button class="mt-1 btn btn-sm btn-default" @onclick="OnClearUploadFiles">
 		<i class="fas fa-times"></i>
 		<span>Clear</span>
 	</button>

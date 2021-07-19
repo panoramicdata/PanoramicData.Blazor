@@ -77,7 +77,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets the unique identifier of the modal.
 		/// </summary>
-		public string Id { get; } = $"pd-modal-{++_sequence}";
+		[Parameter] public string Id { get; set; } = $"pd-modal-{++_sequence}";
 
 		/// <summary>
 		/// Displays the Modal Dialog.
