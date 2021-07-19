@@ -15,7 +15,14 @@
 	font-style: italic;
 }
 
+#upload-progress-modal {
+	z-index: 1060;
+}
+
 .progress-dialog {
+
+	min-height: 140px;
+
 	.overall-progress {
 		display: flex;
 		justify-content: center;
@@ -23,6 +30,11 @@
 	.file-progress {
 		font-size: 10px;
 	}
+}
+
+.progress-dialog-buttons {
+	display: flex;
+	justify-items: flex-end;
 }
 
 .pdtreenode .pdtreenode_content {

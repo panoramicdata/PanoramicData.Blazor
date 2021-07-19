@@ -211,7 +211,6 @@
 				e.stopPropagation();
 				zone.classList.remove('highlight');
 				let files = e.dataTransfer.files
-				console.log('onDropZoneDrop', e);
 				if (zone.dotnetHelper) {
 					var dto = [];
 					for (var i = 0; i < files.length; i++)
@@ -512,7 +511,6 @@
 						this.fileCount = 0;
 				});
 				this.on("totaluploadprogress", function (uploadProgress, totalBytes, totalBytesSent) {
-					console.log("totaluploadprogress", uploadProgress, totalBytes, totalBytesSent);
 					dnRef.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnAllUploadsProgress', uploadProgress, totalBytes, totalBytesSent);
 				});
 			},
@@ -564,5 +562,13 @@
 		if (el && el.dropzone) {
 			el.dropzone.removeAllFiles();
 		}
+	},
+
+	cancelDropzone: function (idSelector) {
+		var el = document.querySelector(idSelector);
+		if (el && el.dropzone) {
+			el.dropzone.removeAllFiles(true);
+		}
 	}
+
 }

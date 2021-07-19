@@ -123,12 +123,20 @@
   color: #666;
   font-style: italic; }
 
-.progress-dialog .overall-progress {
-  display: flex;
-  justify-content: center; }
+#upload-progress-modal {
+  z-index: 1060; }
 
-.progress-dialog .file-progress {
-  font-size: 10px; }
+.progress-dialog {
+  min-height: 140px; }
+  .progress-dialog .overall-progress {
+    display: flex;
+    justify-content: center; }
+  .progress-dialog .file-progress {
+    font-size: 10px; }
+
+.progress-dialog-buttons {
+  display: flex;
+  justify-items: flex-end; }
 
 .pdtreenode .pdtreenode_content {
   padding: 2px 3px 2px 3px; }

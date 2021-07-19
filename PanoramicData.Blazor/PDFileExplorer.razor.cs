@@ -56,6 +56,7 @@ namespace PanoramicData.Blazor
 		public string SessionId { get; private set; } = Guid.NewGuid().ToString();
 
 		#region Inject
+		[Inject] public IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
 		[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -935,10 +936,10 @@ namespace PanoramicData.Blazor
 		{
 			_batchCount = fileCount;
 			_batchProgress = 0;
-
 			if (ShowUploadProgressDialog && fileCount > UploadProgressDialogThreshold)
 			{
-				await ProgressDialog!.ShowAsync().ConfigureAwait(true);
+				await Task.WhenAll(UploadDialog!.HideAsync(),
+								   ProgressDialog!.ShowAsync()).ConfigureAwait(true);
 			}
 		}
 
@@ -1671,6 +1672,21 @@ namespace PanoramicData.Blazor
 			await JSRuntime.InvokeVoidAsync("panoramicData.clearDropzone", "#pdfe-drop-zone-1").ConfigureAwait(true);
 			await JSRuntime.InvokeVoidAsync("panoramicData.clearDropzone", "#pdfe-drop-zone-2").ConfigureAwait(true);
 			await JSRuntime.InvokeVoidAsync("panoramicData.removeClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
+		}
+
+		private async Task OnCancelUploadFiles()
+		{
+			BlockOverlayService.Show();
+			var tasks = new List<Task>
+			{
+				JSRuntime.InvokeVoidAsync("panoramicData.cancelDropzone", "#pdfe-drop-zone-1").AsTask(),
+				JSRuntime.InvokeVoidAsync("panoramicData.cancelDropzone", "#pdfe-drop-zone-2").AsTask()
+			};
+			//if (ProgressDialog != null)
+			//{
+			//	tasks.Add(ProgressDialog.HideAsync());
+			//}
+			await Task.WhenAll(tasks).ConfigureAwait(true);
 		}
 
 		public void Dispose()
