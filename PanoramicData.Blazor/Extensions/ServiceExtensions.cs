@@ -20,5 +20,17 @@ namespace PanoramicData.Blazor.Extensions
 		/// <returns>The IServiceCollection for further adds</returns>
 		public static IServiceCollection AddGlobalEventService(this IServiceCollection services)
 			=> services.AddScoped<IGlobalEventService, GlobalEventService>();
+
+		/// <summary>
+		/// Adds all the required services from the PanoramicData.Blazor library.
+		/// </summary>
+		/// <param name="services">Service collection to add service to.</param>
+		/// <returns>The IServiceCollection for further adds</returns>
+		public static IServiceCollection AddPanoramicDataBlazor(this IServiceCollection services)
+		{
+			services.AddScoped<IBlockOverlayService, BlockOverlayService>();
+			services.AddScoped<IGlobalEventService, GlobalEventService>();
+			return services;
+		}
 	}
 }

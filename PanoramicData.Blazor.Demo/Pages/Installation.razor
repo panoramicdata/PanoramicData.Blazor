@@ -1,0 +1,101 @@
+﻿@page "/installation"
+
+<div>
+	<h1>Installation</h1>
+
+	<p>
+		<span>First download the package from nuget:</span>
+		<a href="https://www.nuget.org/packages/PanoramicData.Blazor/">
+			<img src="https://img.shields.io/nuget/vpre/PanoramicData.Blazor.svg">
+		</a>
+	</p>
+
+	<h2>Library files</h2>
+	<p>
+		If installing into a Blazor WebAssembly (Client-side Blazor) application then make the following changes to the
+		<strong>wwwroot/index.html</strong> document, and for a Blazor Server (Server-side Blazor) application make the
+		following changes to the <strong>_Host.razor</strong> document.
+	</p>
+	<p>
+		Inside the <strong>&lt;head&gt;</strong> element add:
+	</p>
+	<p class="ml-4">
+		<code>&lt;link href="_content/PanoramicData.Blazor/css/main.min.css" rel="stylesheet" /&gt;</code>
+	</p>
+	<p>
+		At the bottom of the document, just before the <strong>&lt;/body&gt;</strong> element add:
+	</p>
+	<p class="ml-4">
+		<code>&lt;script src="_content/PanoramicData.Blazor/js/pdblazor.js"&gt;&lt;/script&gt;</code>
+	</p>
+
+	<h2>Styling</h2>
+	<p>
+		The library uses <a href="https://getbootstrap.com/">Bootstrap</a> for its default styling and <a href="https://fontawesome.com/">Font-Awesome</a> for its icons.
+		You may use other libraries but you will need to override or replace CSS classes as appropriate. To use these libraries include the following
+		elements (modify paths as needed) inside the <strong>&lt;head&gt;</strong> element:
+	</p>
+	<p>
+		<div class="ml-4"><code>&lt;link href="css/font-awesome-5.all.min.css" rel="stylesheet" /&gt;</code></div>
+		<div class="ml-4"><code>&lt;link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" /&gt;</code></div>
+	</p>
+	<p>
+		At the bottom of the document, just before the <strong>&lt;/body&gt;</strong> element add:
+	</p>
+	<p class="ml-4">
+		<code>&lt;script src="~/lib/bootstrap/dist/js/bootstrap.min.js"&gt;&lt;/script&gt;</code>
+	</p>
+
+	<h2>Optional libraries</h2>
+	<p>
+		Some components in the library require additional third party libraries to support the required functionality.
+		Below is the complete list of those libraries. To include only the ones you actually require, please see the
+		individual component demo page which will list any requirements.
+	</p>
+	<p>
+		At the bottom of the document, just before the <strong>&lt;/body&gt;</strong> element add:
+	</p>
+	<p>
+		<div class="ml-4"><code>&lt;script src="~/lib/splitjs/split.min.js"&gt;&lt;/script&gt;</code></div>
+		<div class="ml-4"><code>&lt;script src="~/lib/popperjs/umd/popper.min.js"&gt;&lt;/script&gt;</code></div>
+		<div class="ml-4"><code>&lt;script src="~/lib/jquery/jquery.min.js"&gt;&lt;/script&gt;</code></div>
+		<div class="ml-4"><code>&lt;script src="~/lib/dropzone/dist/min/dropzone.min.js"&gt;&lt;/script&gt;</code></div>
+	</p>
+
+	<h2>Global Services</h2>
+	<p>The library provides the following Services that may be injected and used from any page / component in your application</p>
+	<strong>Block Overlay Service</strong>
+	<p>
+		This service allows for a overlay to be shown on top of the entire page. It is useful for disabling page functionality whilst
+		waiting for an operation to complete. To make use of the service, first register the Service class with the dependency injection
+		system: Enter the following into either the for Blazor client-side apps
+		or the  function of the <strong>Startup.cs</strong> file.
+	</p>
+	<strong>Global Listener Service</strong>
+	<p>
+		This service allows for a single listening point to be defined for keyboard events. It is ideal for creating application level
+		keyboard short-cuts.
+	</p>
+	<p>Use of any of the Services is optional and you need only include the Services your require.</p>
+	<p>
+		For Blazor WebAssembly applications add the following to the <strong>Main</strong> function of the <strong>Program.cs</strong> file:
+	</p>
+	<p>
+		<div class="ml-4"><code>builder.Services.AddBlockOverlay();</code></div>
+		<div class="ml-4"><code>builder.Services.AddGlobalEventService();</code></div>
+	</p>
+	<p>
+		For Blazor Server applications add the following to the <strong>ConfigureServices</strong> function of the <strong>Startup.cs</strong> file:
+	</p>
+	<p>
+		<div class="ml-4"><code>services.AddBlockOverlay();</code></div>
+		<div class="ml-4"><code>services.AddGlobalEventService();</code></div>
+	</p>
+	<p>Then add a single Component for each Service into the <strong>MainLayout.razor</strong></p>
+	<p>
+		<div class="ml-4"><code>&lt;PDBlockOverlay /&gt;</code></div>
+		<div class="ml-4"><code>&lt;PDGlobalListener /&gt;</code></div>
+	</p>
+
+</div>
+
