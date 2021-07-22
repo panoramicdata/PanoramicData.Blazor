@@ -21,7 +21,7 @@ namespace PanoramicData.Blazor
 
 		[Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
-		[Inject] private INavigationCancelService NavigationService { get; set; } = default!;
+		[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
 
 		/// <summary>
 		/// Injected log service.
@@ -147,7 +147,7 @@ namespace PanoramicData.Blazor
 		protected override void OnInitialized()
 		{
 			Mode = DefaultMode;
-			NavigationService.BeforeNavigate += NavigationService_BeforeNavigate;
+			NavigationCancelService.BeforeNavigate += NavigationService_BeforeNavigate;
 		}
 
 		/// <summary>
@@ -658,7 +658,7 @@ namespace PanoramicData.Blazor
 
 		public void Dispose()
 		{
-			NavigationService.BeforeNavigate -= NavigationService_BeforeNavigate;
+			NavigationCancelService.BeforeNavigate -= NavigationService_BeforeNavigate;
 		}
 	}
 }

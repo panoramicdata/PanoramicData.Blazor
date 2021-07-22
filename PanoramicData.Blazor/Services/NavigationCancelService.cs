@@ -31,7 +31,13 @@ namespace PanoramicData.Blazor.Services
 			if (args.Cancel)
 			{
 				// allow user option to override and perform operation regardless
-				return await _jsRuntime.InvokeAsync<bool>("panoramicData.confirm", "Changes have been made, continue and lose those changes?").ConfigureAwait(true);
+				var proceed = await _jsRuntime.InvokeAsync<bool>("panoramicData.confirm", "Changes have been made, continue and lose those changes?").ConfigureAwait(true);
+				if (proceed)
+				{
+					// remove unload listener
+					await _jsRuntime.InvokeVoidAsync("panoramicData.setUnloadListener", false).ConfigureAwait(true);
+				}
+				return proceed;
 			}
 			return true;
 		}
