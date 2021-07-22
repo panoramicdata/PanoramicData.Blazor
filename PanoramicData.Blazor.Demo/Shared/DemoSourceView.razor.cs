@@ -1,6 +1,7 @@
 ﻿using BlazorMonaco;
 using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
+using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -17,10 +18,17 @@ namespace PanoramicData.Blazor.Demo.Shared
 		private string _activeSourceFile = string.Empty;
 		private MonacoEditor Editor { get; set; } = null!;
 
+		[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
+
 		/// <summary>
 		/// Sets the child content that the drop zone wraps.
 		/// </summary>
 		[Parameter] public RenderFragment? ChildContent { get; set; }
+
+		/// <summary>
+		/// Event called prior to the user changing tabs.
+		/// </summary>
+		[Parameter] public EventCallback<CancelEventArgs> BeforeChangeTab { get; set; }
 
 		/// <summary>
 		/// Sets the source code pages used in the demo.
@@ -63,6 +71,14 @@ namespace PanoramicData.Blazor.Demo.Shared
 					{
 					}
 				}
+			}
+		}
+
+		private async Task OnChangeTab(string tab)
+		{
+			if (await NavigationCancelService.ProceedAsync(tab).ConfigureAwait(true))
+			{
+				ActiveTab = tab;
 			}
 		}
 

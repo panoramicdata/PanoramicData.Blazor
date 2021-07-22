@@ -3,6 +3,10 @@
 	shortcutKeys: [],
 	splits: {},
 
+	confirm: function (msg) {
+		return window.confirm(msg);
+	},
+
 	isTouchDevice: function () {
 		return (('ontouchstart' in window) ||
 				(navigator.maxTouchPoints > 0) ||
@@ -569,6 +573,19 @@
 		if (el && el.dropzone) {
 			el.dropzone.removeAllFiles(true);
 		}
-	}
+	},
+
+	beforeUnloadListener: function (event) {
+		event.preventDefault();
+		return event.returnValue = "Are you sure you want to exit?";
+	},
+
+	setUnloadListener: function (changesMade) {
+		if (changesMade) {
+			addEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
+		} else {
+			removeEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
+		}
+	},
 
 }

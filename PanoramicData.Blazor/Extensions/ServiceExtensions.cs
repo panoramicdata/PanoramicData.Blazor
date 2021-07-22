@@ -22,6 +22,14 @@ namespace PanoramicData.Blazor.Extensions
 			=> services.AddScoped<IGlobalEventService, GlobalEventService>();
 
 		/// <summary>
+		/// Add the NavigationCancelService service to allow injection of the INavigationCancelService
+		/// </summary>
+		/// <param name="services">Service collection to add service to.</param>
+		/// <returns>The IServiceCollection for further adds</returns>
+		public static IServiceCollection AddNavigationCancelService(this IServiceCollection services)
+			=> services.AddScoped<INavigationCancelService, NavigationCancelService>();
+
+		/// <summary>
 		/// Adds all the required services from the PanoramicData.Blazor library.
 		/// </summary>
 		/// <param name="services">Service collection to add service to.</param>
@@ -30,6 +38,7 @@ namespace PanoramicData.Blazor.Extensions
 		{
 			services.AddScoped<IBlockOverlayService, BlockOverlayService>();
 			services.AddScoped<IGlobalEventService, GlobalEventService>();
+			services.AddScoped<INavigationCancelService, NavigationCancelService>();
 			return services;
 		}
 	}

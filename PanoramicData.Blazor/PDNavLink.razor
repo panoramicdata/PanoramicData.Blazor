@@ -1,0 +1,9 @@
+﻿<a @attributes="AdditionalAttributes"
+   class="@CssClass"
+   @onclick="OnClick"
+   @onclick:preventDefault>
+	@if (ChildContent != null)
+	{
+		@ChildContent
+	}
+</a>
