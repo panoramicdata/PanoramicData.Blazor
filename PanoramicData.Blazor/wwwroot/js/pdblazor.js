@@ -2,6 +2,7 @@
 
 	shortcutKeys: [],
 	splits: {},
+	unloadListeners: 0,
 
 	confirm: function (msg) {
 		return window.confirm(msg);
@@ -577,14 +578,21 @@
 
 	beforeUnloadListener: function (event) {
 		event.preventDefault();
-		return event.returnValue = "Are you sure you want to exit?";
+		return event.returnValue = "Exit and lose changes?";
 	},
 
 	setUnloadListener: function (changesMade) {
 		if (changesMade) {
-			addEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
+			if (this.unloadListeners == 0) {
+				addEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
+			}
+			this.unloadListeners++;
 		} else {
-			removeEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
+			this.unloadListeners--;
+			if (this.unloadListeners <= 0) {
+				this.unloadListeners = 0;
+				removeEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
+			}
 		}
 	},
 
