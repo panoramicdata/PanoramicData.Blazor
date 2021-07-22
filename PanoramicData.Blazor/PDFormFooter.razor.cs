@@ -187,6 +187,7 @@ namespace PanoramicData.Blazor
 				else if (key == "Save" && Form.DataProvider != null)
 				{
 					await Form.SaveAsync().ConfigureAwait(true);
+					Form.ResetChanges();
 				}
 				else if (key == "Cancel" && Form.ConfirmCancel && Form.Delta.Count > 0)
 				{
@@ -195,10 +196,12 @@ namespace PanoramicData.Blazor
 				else if (key == "Yes" && Form.Mode == FormModes.Delete && Form.DataProvider != null)
 				{
 					await Form.DeleteAsync().ConfigureAwait(true);
+					Form.ResetChanges();
 				}
 				else if (key == "Yes" && Form.Mode == FormModes.Cancel)
 				{
 					await Click.InvokeAsync("Cancel").ConfigureAwait(true);
+					Form.ResetChanges();
 				}
 				//else if (key == "No" && Form.Mode == FormModes.Delete)
 				else if (key == "No")

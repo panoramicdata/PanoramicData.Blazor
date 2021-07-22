@@ -76,22 +76,34 @@
 		This service allows for a single listening point to be defined for keyboard events. It is ideal for creating application level
 		keyboard short-cuts.
 	</p>
+	<strong>Navigation Cancel Service</strong>
+	<p>
+		This service allows is useful when changes have been made on a page and you would like to alert the user if they try to navigate away
+		to another page of the application. It is used by the PDForm and PDNavLink components and an example can be seen on the PDForm demo page.
+	</p>
+	<br />
 	<p>Use of any of the Services is optional and you need only include the Services your require.</p>
 	<p>
 		For Blazor WebAssembly applications add the following to the <strong>Main</strong> function of the <strong>Program.cs</strong> file:
 	</p>
 	<p>
+		<div class="ml-4"><code>builder.Services.AddPanoramicDataBlazor();</code></div>
+		<div>or</div>
 		<div class="ml-4"><code>builder.Services.AddBlockOverlay();</code></div>
 		<div class="ml-4"><code>builder.Services.AddGlobalEventService();</code></div>
+		<div class="ml-4"><code>builder.Services.AddNavigationCancelService();</code></div>
 	</p>
 	<p>
 		For Blazor Server applications add the following to the <strong>ConfigureServices</strong> function of the <strong>Startup.cs</strong> file:
 	</p>
 	<p>
+		<div class="ml-4"><code>services.AddPanoramicDataBlazor();</code></div>
+		<div>or</div>
 		<div class="ml-4"><code>services.AddBlockOverlay();</code></div>
 		<div class="ml-4"><code>services.AddGlobalEventService();</code></div>
+		<div class="ml-4"><code>services.AddNavigationCancelService();</code></div>
 	</p>
-	<p>Then add a single Component for each Service into the <strong>MainLayout.razor</strong></p>
+	<p>Then add the accompanying Component for the following Services into the <strong>MainLayout.razor</strong></p>
 	<p>
 		<div class="ml-4"><code>&lt;PDBlockOverlay /&gt;</code></div>
 		<div class="ml-4"><code>&lt;PDGlobalListener /&gt;</code></div>

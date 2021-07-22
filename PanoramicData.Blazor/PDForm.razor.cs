@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.JSInterop;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Services;
 using System;
@@ -13,10 +14,14 @@ using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
 {
-	public partial class PDForm<TItem> where TItem : class
+	public partial class PDForm<TItem> : IDisposable where TItem : class
 	{
 		private bool _showHelp;
 		public event EventHandler? ErrorsChanged;
+
+		[Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+
+		[Inject] private INavigationCancelService NavigationService { get; set; } = default!;
 
 		/// <summary>
 		/// Injected log service.
@@ -37,6 +42,11 @@ namespace PanoramicData.Blazor
 		/// Should the user be prompted to confirm cancel when changes have been made?
 		/// </summary>
 		[Parameter] public bool ConfirmCancel { get; set; } = true;
+
+		/// <summary>
+		/// Should the user be prompted to confirm on page unload when changes have been made?
+		/// </summary>
+		[Parameter] public bool ConfirmOnUnload { get; set; } = true;
 
 		/// <summary>
 		/// Gets or sets the item being created / edited / deleted.
@@ -137,6 +147,7 @@ namespace PanoramicData.Blazor
 		protected override void OnInitialized()
 		{
 			Mode = DefaultMode;
+			NavigationService.BeforeNavigate += NavigationService_BeforeNavigate;
 		}
 
 		/// <summary>
@@ -211,6 +222,23 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Reset the current edit changes and errors.
+		/// </summary>
+		public void ResetChanges()
+		{
+			Delta.Clear();
+			if (ConfirmOnUnload)
+			{
+				JSRuntime.InvokeVoidAsync("panoramicData.setUnloadListener", false);
+			}
+			if (Errors.Count > 0)
+			{
+				Errors.Clear();
+				OnErrorsChanged(EventArgs.Empty);
+			}
+		}
+
+		/// <summary>
 		/// Sets the current mode of the form.
 		/// </summary>
 		/// <param name="mode">The new mode for the form.</param>
@@ -220,7 +248,7 @@ namespace PanoramicData.Blazor
 			Mode = mode;
 			if (resetChanges && (Mode == FormModes.Create || Mode == FormModes.Edit))
 			{
-				Delta.Clear();
+				ResetChanges();
 			}
 			if (Errors.Count > 0)
 			{
@@ -437,6 +465,7 @@ namespace PanoramicData.Blazor
 		/// otherwise tracked as a delta when in Edit mode.</remarks>
 		public async Task SetFieldValueAsync(FormField<TItem> field, object value)
 		{
+			var previousChanges = Delta.Count;
 			if (Item != null && field.Field != null)
 			{
 				var memberInfo = field.Field.GetPropertyMemberInfo();
@@ -452,6 +481,12 @@ namespace PanoramicData.Blazor
 
 					// update delta
 					Delta[memberInfo.Name] = typedValue;
+
+					// set on unload flag
+					if (previousChanges == 0 && Delta.Count > 0 && ConfirmOnUnload && JSRuntime != null)
+					{
+						await JSRuntime.InvokeVoidAsync("panoramicData.setUnloadListener", true).ConfigureAwait(true);
+					}
 
 					// validate field
 					await ValidateFieldAsync(field, value).ConfigureAwait(true);
@@ -611,6 +646,19 @@ namespace PanoramicData.Blazor
 		protected virtual void OnErrorsChanged(EventArgs e)
 		{
 			ErrorsChanged?.Invoke(this, e);
+		}
+
+		private void NavigationService_BeforeNavigate(object sender, BeforeNavigateEventArgs e)
+		{
+			if (HasChanges && ConfirmOnUnload)
+			{
+				e.Cancel = true;
+			}
+		}
+
+		public void Dispose()
+		{
+			NavigationService.BeforeNavigate -= NavigationService_BeforeNavigate;
 		}
 	}
 }

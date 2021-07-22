@@ -107,6 +107,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private async Task HideDialogAsync()
 		{
+			Form.ResetChanges();
 			if (JSRuntime != null)
 			{
 				await JSRuntime.InvokeVoidAsync("panoramicData.hideBsDialog", "#exampleModal").ConfigureAwait(true);

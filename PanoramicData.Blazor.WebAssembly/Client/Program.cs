@@ -15,8 +15,7 @@ namespace PanoramicData.Blazor.WebAssembly.Client
 			builder.RootComponents.Add<Demo.App>("#app");
 
 			builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-			builder.Services.AddBlockOverlay();
-			builder.Services.AddGlobalEventService();
+			builder.Services.AddPanoramicDataBlazor();
 
 			await builder.Build().RunAsync().ConfigureAwait(true);
 		}

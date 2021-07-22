@@ -14,6 +14,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private List<Person> People { get; set; } = new List<Person>();
 		private Person? SelectedPerson { get; set; }
 
+		[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
+
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 		public PDFormPage()
@@ -77,16 +79,22 @@ namespace PanoramicData.Blazor.Demo.Pages
 				InvokeAsync(() => StateHasChanged());
 			}
 		}
-		private void OnEditPerson(Person? person)
+		private async Task OnEditPerson(Person? person)
 		{
-			SelectedPerson = person;
-			Form.SetMode(FormModes.Edit);
+			if (await NavigationCancelService.ProceedAsync().ConfigureAwait(true))
+			{
+				SelectedPerson = person;
+				Form.SetMode(FormModes.Edit);
+			}
 		}
 
-		private void OnCreatePerson()
+		private async Task OnCreatePerson()
 		{
-			SelectedPerson = new Person();
-			Form.SetMode(FormModes.Create);
+			if (await NavigationCancelService.ProceedAsync().ConfigureAwait(true))
+			{
+				SelectedPerson = new Person();
+				Form.SetMode(FormModes.Create);
+			}
 		}
 	}
 }

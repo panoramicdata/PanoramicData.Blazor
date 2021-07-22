@@ -23,8 +23,7 @@ namespace PanoramicData.Blazor
 			// 3rd party services
 
 			// PanoramicData.Blazor services
-			services.AddBlockOverlay();
-			services.AddGlobalEventService();
+			services.AddPanoramicDataBlazor();
 			services.AddServerSideBlazor();
 		}
 
