@@ -159,7 +159,7 @@ namespace PanoramicData.Blazor
 				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 			}
 			var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId);
-			_batchProgress++;
+			//			_batchProgress++;
 			args.BatchCount = _batchCount;
 			args.BatchProgress = _batchProgress;
 			await UploadStarted.InvokeAsync(args).ConfigureAwait(true);
@@ -211,13 +211,19 @@ namespace PanoramicData.Blazor
 			{
 				throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 			}
+			var args = new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId)
+			{
+				BatchCount = _batchCount,
+				BatchProgress = ++_batchProgress
+			};
 			if (file.Success)
 			{
-				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId));
+				UploadCompleted.InvokeAsync(args);
 			}
 			else
 			{
-				UploadCompleted.InvokeAsync(new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId, file.Reason));
+				args.Reason = file.Reason;
+				UploadCompleted.InvokeAsync(args);
 			}
 		}
 
