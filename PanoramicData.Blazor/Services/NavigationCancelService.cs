@@ -34,8 +34,8 @@ namespace PanoramicData.Blazor.Services
 				var proceed = await _jsRuntime.InvokeAsync<bool>("panoramicData.confirm", "Changes have been made, continue and lose those changes?").ConfigureAwait(true);
 				if (proceed)
 				{
-					// remove unload listener
-					await _jsRuntime.InvokeVoidAsync("panoramicData.setUnloadListener", false).ConfigureAwait(true);
+					// remove all unload listeners
+					await _jsRuntime.InvokeVoidAsync("panoramicData.removeUnloadListener").ConfigureAwait(true);
 				}
 				return proceed;
 			}

@@ -922,6 +922,7 @@ namespace PanoramicData.Blazor
 			{
 				_batchFiles.Remove(args.FullPath);
 			}
+			_batchProgress = args.BatchProgress;
 
 			// get virtual file item
 			var item = GetVirtualFileItem(args);

@@ -2,7 +2,8 @@
 
 	shortcutKeys: [],
 	splits: {},
-	unloadListeners: 0,
+	unloadListener: false,
+	unloadListenerIds: {},
 
 	confirm: function (msg) {
 		return window.confirm(msg);
@@ -581,19 +582,32 @@
 		return event.returnValue = "Exit and lose changes?";
 	},
 
-	setUnloadListener: function (changesMade) {
-		if (changesMade) {
-			if (this.unloadListeners == 0) {
-				addEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
-			}
-			this.unloadListeners++;
-		} else {
-			this.unloadListeners--;
-			if (this.unloadListeners <= 0) {
-				this.unloadListeners = 0;
-				removeEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
-			}
+	removeUnloadListener: function () {
+		if(this.unloadListener) {
+			removeEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
+			this.unloadListener = false;
 		}
+		this.unloadListenerIds = {};
 	},
 
+	setUnloadListener: function (id, changesMade) {
+
+		// update dictionary
+		if (changesMade) {
+			this.unloadListenerIds[id] = true;
+		} else {
+			delete this.unloadListenerIds[id];
+		}
+
+		// add or remove unload listener
+		listenerCount = Object.keys(this.unloadListenerIds).length;
+		if (listenerCount > 0 && !this.unloadListener) {
+			addEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
+			this.unloadListener = true;
+		}
+		else if (listenerCount == 0 && this.unloadListener) {
+			removeEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
+			this.unloadListener = false;
+		}
+	}
 }
