@@ -16,6 +16,7 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDForm<TItem> : IDisposable where TItem : class
 	{
+		private static int _seq;
 		private bool _showHelp;
 		public event EventHandler? ErrorsChanged;
 
@@ -47,6 +48,11 @@ namespace PanoramicData.Blazor
 		/// Should the user be prompted to confirm on page unload when changes have been made?
 		/// </summary>
 		[Parameter] public bool ConfirmOnUnload { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets the item being created / edited / deleted.
+		/// </summary>
+		[Parameter] public string Id { get; set; } = $"pd-form-{++_seq}";
 
 		/// <summary>
 		/// Gets or sets the item being created / edited / deleted.
@@ -229,7 +235,7 @@ namespace PanoramicData.Blazor
 			Delta.Clear();
 			if (ConfirmOnUnload)
 			{
-				JSRuntime.InvokeVoidAsync("panoramicData.setUnloadListener", false);
+				JSRuntime.InvokeVoidAsync("panoramicData.setUnloadListener", Id, false);
 			}
 			if (Errors.Count > 0)
 			{
@@ -485,7 +491,7 @@ namespace PanoramicData.Blazor
 					// set on unload flag
 					if (previousChanges == 0 && Delta.Count > 0 && ConfirmOnUnload && JSRuntime != null)
 					{
-						await JSRuntime.InvokeVoidAsync("panoramicData.setUnloadListener", true).ConfigureAwait(true);
+						await JSRuntime.InvokeVoidAsync("panoramicData.setUnloadListener", Id, true).ConfigureAwait(true);
 					}
 
 					// validate field
