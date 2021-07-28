@@ -55,7 +55,7 @@ else if (Form.Mode != FormModes.Hidden)
 								   class="form-control @GetEditorClass(field)"
 								   value="@Form?.GetFieldStringValue(field)"
 								   maxlength="@(field.MaxLength ?? -1)"
-								   @oninput="async (x) => await UpdateValueViaCastAsync(x, field).ConfigureAwait(true)">
+								   @onchange="async (x) => await UpdateValueViaCastAsync(x, field).ConfigureAwait(true)">
 						}
 						else if (field.Options != null)
 						{
@@ -108,7 +108,7 @@ else if (Form.Mode != FormModes.Hidden)
 								   disabled="@IsReadOnly(field)"
 								   class="form-control @GetEditorClass(field)"
 								   value="@(Form?.GetFieldStringValue(field))"
-								   @oninput="(x) => Form?.SetFieldValueAsync(field, DateTime.Parse(x.Value.ToString()))">
+								   @onchange="(x) => Form?.SetFieldValueAsync(field, DateTime.Parse(x.Value.ToString()))">
 						}
 						else if (fieldType?.FullName == "System.DateTimeOffset")
 						{
@@ -116,7 +116,7 @@ else if (Form.Mode != FormModes.Hidden)
 								   class="form-control"
 								   disabled="@IsReadOnly(field)"
 								   value="@(Form?.GetFieldStringValue(field))"
-								   @oninput="(x) => Form?.SetFieldValueAsync(field, DateTimeOffset.Parse(x.Value.ToString()))">
+								   @onchange="(x) => Form?.SetFieldValueAsync(field, DateTimeOffset.Parse(x.Value.ToString()))">
 						}
 						else if (fieldType?.FullName == "System.String")
 						{
@@ -133,7 +133,7 @@ else if (Form.Mode != FormModes.Hidden)
 								   disabled="@IsReadOnly(field)"
 								   class="form-control @GetEditorClass(field)"
 								   value="@(Form?.GetFieldValue<double>(field))"
-								   @oninput="async (x) => await UpdateValueViaCastAsync(x, field).ConfigureAwait(true)">
+								   @onchange="async (x) => await UpdateValueViaCastAsync(x, field).ConfigureAwait(true)">
 						}
 
 						<!-- field validation indicator-->
@@ -148,8 +148,8 @@ else if (Form.Mode != FormModes.Hidden)
 					</div>
 					<div class="mb-2">
 						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-			 (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-			 (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+		   (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+		   (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}
