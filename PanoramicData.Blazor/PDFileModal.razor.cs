@@ -72,6 +72,9 @@ namespace PanoramicData.Blazor
 				StateHasChanged();
 			}
 
+			// refresh the current folder contents
+			await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+
 			var userAction = await Modal.ShowAndWaitResultAsync().ConfigureAwait(true);
 			return userAction == "Cancel" ? string.Empty : $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
 		}
@@ -94,6 +97,9 @@ namespace PanoramicData.Blazor
 				_okButton.IconCssClass = "fas fa-fw fa-save";
 				StateHasChanged();
 			}
+
+			// refresh the current folder contents
+			await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
 
 			FileExplorerItem? existing = null;
 			do
