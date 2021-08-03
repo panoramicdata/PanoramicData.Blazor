@@ -836,6 +836,7 @@ namespace PanoramicData.Blazor
 									Selection.Clear();
 									Selection.Add(KeyField(items[idx + 1]).ToString());
 								}
+								await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 							}
 						}
 						break;
