@@ -63,6 +63,7 @@ namespace PanoramicData.Blazor
 						ShowInDelete = column.ShowInDelete,
 						ShowInEdit = column.ShowInEdit,
 						EditTemplate = column.EditTemplate,
+						Helper = column.Helper,
 						MaxLength = column.MaxLength,
 						Title = column.Title,
 						Options = column.Options,
@@ -123,6 +124,26 @@ namespace PanoramicData.Blazor
 		public string GetEditorClass(FormField<TItem> field)
 		{
 			return Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
+		}
+
+		private async Task OnHelperClick(FormField<TItem> field)
+		{
+			if (field != null && Form != null && (field?.Helper?.Click != null || field?.Helper?.ClickAsync != null))
+			{
+				FormFieldResult result = new FormFieldResult { Canceled = true };
+				if (field?.Helper?.Click != null)
+				{
+					result = field.Helper.Click(field);
+				}
+				else if (field?.Helper?.ClickAsync != null)
+				{
+					result = await field.Helper.ClickAsync(field).ConfigureAwait(true);
+				}
+				if (!result.Canceled && result.NewValue != null)
+				{
+					await Form.SetFieldValueAsync(field, result.NewValue).ConfigureAwait(true);
+				}
+			}
 		}
 
 		private void OnHelpUrlClick(FormField<TItem> field)
