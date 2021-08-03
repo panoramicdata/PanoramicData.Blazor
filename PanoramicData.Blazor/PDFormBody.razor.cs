@@ -131,11 +131,11 @@ namespace PanoramicData.Blazor
 			if (field != null && Form != null && (field?.Helper?.Click != null || field?.Helper?.ClickAsync != null))
 			{
 				FormFieldResult result = new FormFieldResult { Canceled = true };
-				if (field?.Helper?.Click != null)
+				if (field.Helper?.Click != null)
 				{
 					result = field.Helper.Click(field);
 				}
-				else if (field?.Helper?.ClickAsync != null)
+				else if (field.Helper?.ClickAsync != null)
 				{
 					result = await field.Helper.ClickAsync(field).ConfigureAwait(true);
 				}
