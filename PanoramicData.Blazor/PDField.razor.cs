@@ -124,6 +124,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string? Description { get; set; }
 
 		/// <summary>
+		/// Gets or sets an optional helper for filling in the field.
+		/// </summary>
+		[Parameter] public FormFieldHelper<TItem>? Helper { get; set; }
+
+		/// <summary>
 		/// Gets or sets a URL to an external context sensitive help page.
 		/// </summary>
 		[Parameter] public string? HelpUrl { get; set; }

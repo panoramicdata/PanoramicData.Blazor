@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Services;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	public partial class PDFormPage
 	{
 		private readonly PersonDataProvider _personDataProvider = new();
+		private readonly FormFieldHelper<Person> _dateHelper = new();
 		private PDForm<Person> Form { get; set; } = null!;
 		private List<Person> People { get; set; } = new List<Person>();
 		private Person? SelectedPerson { get; set; }
@@ -20,6 +22,18 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		public PDFormPage()
 		{
+			// configure the date helper
+			_dateHelper.Click = (_) =>
+			{
+				return new FormFieldResult
+				{
+					Canceled = false,
+					NewValue = DateTime.Now
+				};
+			};
+			_dateHelper.IconCssClass = "fas fa-calendar-day";
+			_dateHelper.ToolTip = "Set the date and time to now";
+
 			RefreshPeople();
 		}
 

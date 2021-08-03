@@ -70,7 +70,8 @@
 						 ShowInDelete="(_) => true" />
 
 				<PDField TItem="Person"
-						 Field="x => x.Dob" />
+						 Field="x => x.Dob"
+						 Helper="_dateHelper" />
 
 				<PDField TItem="Person"
 						 ShowValidationResult="false"
@@ -92,7 +93,8 @@
 				<PDField TItem="Person"
 						 Field="x => x.DateCreated"
 						 ShowInCreate="(_) => false"
-						 ReadOnlyInEdit="(_) => true" />
+						 Helper="_dateHelper"
+						 ReadOnlyInEdit="(_) => false" />
 
 				<PDField TItem="Person"
 						 Field="x => x.DateModified"

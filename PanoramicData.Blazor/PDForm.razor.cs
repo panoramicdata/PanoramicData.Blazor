@@ -168,6 +168,7 @@ namespace PanoramicData.Blazor
 				{
 					Id = field.Id,
 					Field = field.Field,
+					Helper = field.Helper,
 					ReadOnlyInCreate = field.ReadOnlyInCreate,
 					ReadOnlyInEdit = field.ReadOnlyInEdit,
 					ShowInCreate = field.ShowInCreate,

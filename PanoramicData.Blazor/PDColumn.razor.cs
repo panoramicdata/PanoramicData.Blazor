@@ -46,6 +46,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string? ThClass { get; set; }
 
 		/// <summary>
+		/// Gets or sets an optional helper for filling in the field.
+		/// </summary>
+		[Parameter] public FormFieldHelper<TItem>? Helper { get; set; }
+
+		/// <summary>
 		/// Optional text for the alt attribute of the cell.
 		/// </summary>
 		[Parameter] public string? HelpText { get; set; }

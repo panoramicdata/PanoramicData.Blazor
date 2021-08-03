@@ -398,3 +398,6 @@
 
 .mw-200-px {
   min-width: 200px; }
+
+.cursor-pointer {
+  cursor: pointer; }
