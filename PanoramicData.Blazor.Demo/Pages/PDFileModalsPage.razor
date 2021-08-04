@@ -4,16 +4,24 @@
 
 	<PDToolbar>
 
-		<PDToolbarButton Text="File Open Modal"
+		<PDToolbarButton Text="Select any file"
 						 CssClass="btn-primary"
+						 ToolTip="Allow the user to pick any file"
 						 Click="ShowFileOpenModal" />
 
-		<PDToolbarButton Text="Folder Open Modal"
-						 CssClass="btn-primary"
+		<PDToolbarButton Text="Select DOCX or XLSX file"
+						 CssClass="btn-secondary"
+						 ToolTip="Allow the user to pick only DOCX and XLSX files"
+						 Click="ShowFileOpenFilteredModal" />
+
+		<PDToolbarButton Text="Select any folder"
+						 CssClass="btn-secondary"
+						 ToolTip="Allow the user to pick only folders"
 						 Click="ShowFolderOpenModal" />
 
-		<PDToolbarButton Text="File SaveAs Modal"
+		<PDToolbarButton Text="Select Save As filename"
 						 CssClass="btn-secondary"
+						 ToolTip="Allow the user to pick any filename to save as"
 						 Click="ShowFileSaveAsModal" />
 
 	</PDToolbar>

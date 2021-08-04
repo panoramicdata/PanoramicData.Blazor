@@ -138,6 +138,12 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
 		/// <summary>
+		/// Gets or sets an optional semi-colon delimited list of wild card patterns to filter filenames by.
+		/// </summary>
+		/// <remarks>* matches 0 or more characters and ? matches exactly one character.</remarks>
+		[Parameter] public string FilenamePattern { get; set; } = "";
+
+		/// <summary>
 		/// Event raised whenever the current folder changes.
 		/// </summary>
 		[Parameter] public EventCallback<FileExplorerItem> FolderChanged { get; set; }
@@ -583,6 +589,7 @@ namespace PanoramicData.Blazor
 
 		private void OnTableItemsLoaded(List<FileExplorerItem> items)
 		{
+			// insert special .. folder?
 			if (_selectedNode != null && ShowParentFolder && _selectedNode.ParentNode?.Data?.Path != null && _selectedNode.Data?.Path != "/")
 			{
 				items.Insert(0, new FileExplorerItem
@@ -595,6 +602,7 @@ namespace PanoramicData.Blazor
 				});
 			}
 
+			// arrange folders together?
 			if (GroupFolders)
 			{
 				var folders = items.Where(x => x.EntryType == FileExplorerItemType.Directory).ToList();
@@ -604,9 +612,17 @@ namespace PanoramicData.Blazor
 				items.AddRange(files);
 			}
 
-			if (!ShowFiles)
+			// filter files displayed
+			foreach (var item in items.Where(x => x.EntryType == FileExplorerItemType.File).ToArray())
 			{
-				foreach (var item in items.Where(x => x.EntryType == FileExplorerItemType.File).ToArray())
+				if (ShowFiles)
+				{
+					if (!item.IsNameMatch(FilenamePattern))
+					{
+						items.Remove(item);
+					}
+				}
+				else
 				{
 					items.Remove(item);
 				}

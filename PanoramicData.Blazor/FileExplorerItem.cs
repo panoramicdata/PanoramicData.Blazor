@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace PanoramicData.Blazor
 {
@@ -176,6 +177,27 @@ namespace PanoramicData.Blazor
 			}
 			var parts = path.Split('/');
 			return parts.Length > 0 ? parts.Last() : string.Empty;
+		}
+
+		/// <summary>
+		/// Is the file item name a match with any of the given wild card patterns?
+		/// </summary>
+		/// <param name="pattern">A search pattern containing * (match 0 or more chars) and ? (match 1 char).</param>
+		/// <returns>true if the name is a match, otherwise false.</returns>
+		public bool IsNameMatch(string pattern)
+		{
+			if (string.IsNullOrWhiteSpace(pattern))
+			{
+				return true;
+			}
+
+			// get display filename
+			var name = GetNameFromPath(Path);
+
+			// match any provided pattern?
+			return pattern
+				.Split(';')
+				.Any(x => Regex.IsMatch(name, x.Replace("*", ".*").Replace("?", "."), RegexOptions.IgnoreCase));
 		}
 	}
 }
