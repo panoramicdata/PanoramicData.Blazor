@@ -82,7 +82,6 @@ namespace PanoramicData.Blazor
 				StateHasChanged();
 			}
 
-
 			// refresh the current folder contents
 			await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
 
@@ -161,8 +160,6 @@ namespace PanoramicData.Blazor
 				_okButton.IsEnabled = !string.IsNullOrWhiteSpace(_filenameTextbox.Value);
 			}
 		}
-
-
 		private async Task OnItemDoubleClick(FileExplorerItem item)
 		{
 			if (item.EntryType == FileExplorerItemType.File)
