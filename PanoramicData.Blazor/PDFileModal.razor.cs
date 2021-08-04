@@ -9,7 +9,8 @@ namespace PanoramicData.Blazor
 	public partial class PDFileModal
 	{
 		private PDModal Modal { get; set; } = null!;
-		private bool _folderSelect;
+		private bool _showFiles;
+		private string _filenamePattern = string.Empty;
 		private PDModal ModalConfirm { get; set; } = null!;
 		private string _modalTitle = string.Empty;
 		private PDFileExplorer FileExplorer { get; set; } = null!;
@@ -37,7 +38,7 @@ namespace PanoramicData.Blazor
 
 		private void OnFolderChanged(FileExplorerItem _)
 		{
-			if (_folderSelect)
+			if (!_showFiles)
 			{
 				_okButton.IsEnabled = !string.IsNullOrEmpty(FileExplorer.FolderPath);
 			}
@@ -62,25 +63,24 @@ namespace PanoramicData.Blazor
 			_filenameTextbox.Keypress = OnFilenameKeypress;
 		}
 
-		public async Task<string> ShowOpenAsync(bool folderSelect = false)
+		public async Task<string> ShowOpenAsync(bool folderSelect = false, string filenamePattern = "")
 		{
-			_folderSelect = folderSelect;
+			_showFiles = !folderSelect;
+			_filenamePattern = filenamePattern;
 			_modalTitle = OpenTitle;
 			if (_filenameTextbox.IsVisible)
 			{
 				_filenameTextbox.IsVisible = false;
-				StateHasChanged();
 			}
 			if (_okButton.Text != OpenButtonText)
 			{
 				_okButton.Text = OpenButtonText;
-				StateHasChanged();
 			}
 			if (_okButton.IconCssClass != "fas fa-fw fa-folder-open")
 			{
 				_okButton.IconCssClass = "fas fa-fw fa-folder-open";
-				StateHasChanged();
 			}
+			StateHasChanged();
 
 			// refresh the current folder contents
 			await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
@@ -91,7 +91,7 @@ namespace PanoramicData.Blazor
 			{
 				return string.Empty;
 			}
-			if (_folderSelect)
+			if (folderSelect)
 			{
 				return FileExplorer.SelectedFilesAndFolders.Length == 1
 					? FileExplorer.SelectedFilesAndFolders[0]
@@ -150,14 +150,14 @@ namespace PanoramicData.Blazor
 		private void OnSelectionChanged(FileExplorerItem[] selection)
 		{
 			_filenameTextbox.Value = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.File ? selection[0].Name : string.Empty;
-			if (_folderSelect)
+			if (_showFiles)
 			{
-				_okButton.IsEnabled = (!string.IsNullOrEmpty(FileExplorer.FolderPath) && selection.Length == 0) ||
-									  (selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory && selection[0].Name != "..");
+				_okButton.IsEnabled = !string.IsNullOrWhiteSpace(_filenameTextbox.Value);
 			}
 			else
 			{
-				_okButton.IsEnabled = !string.IsNullOrWhiteSpace(_filenameTextbox.Value);
+				_okButton.IsEnabled = (!string.IsNullOrEmpty(FileExplorer.FolderPath) && selection.Length == 0) ||
+									  (selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory && selection[0].Name != "..");
 			}
 		}
 		private async Task OnItemDoubleClick(FileExplorerItem item)
