@@ -16,6 +16,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 			_openResult = await _fileModal.ShowOpenAsync();
 		}
 
+		private async Task ShowFolderOpenModal()
+		{
+			_openResult = await _fileModal.ShowOpenAsync(true);
+		}
+
 		private async Task ShowFileSaveAsModal()
 		{
 			_saveAsResult = await _fileModal.ShowSaveAsAsync();

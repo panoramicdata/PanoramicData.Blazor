@@ -215,6 +215,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool ShowContextMenu { get; set; } = true;
 
 		/// <summary>
+		/// Determines whether file entries should be listed.
+		/// </summary>
+		[Parameter] public bool ShowFiles { get; set; } = true;
+
+		/// <summary>
 		/// Sets the size (humanizer) format.
 		/// </summary>
 		[Parameter] public string SizeFormat { get; set; } = "#,0 KB";
@@ -597,6 +602,14 @@ namespace PanoramicData.Blazor
 				items.Clear();
 				items.AddRange(folders);
 				items.AddRange(files);
+			}
+
+			if (!ShowFiles)
+			{
+				foreach (var item in items.Where(x => x.EntryType == FileExplorerItemType.File).ToArray())
+				{
+					items.Remove(item);
+				}
 			}
 		}
 
