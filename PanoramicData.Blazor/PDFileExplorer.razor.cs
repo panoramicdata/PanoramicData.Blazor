@@ -1347,7 +1347,7 @@ namespace PanoramicData.Blazor
 
 				if (conflictArgs.ConflictResolution == ConflictResolutions.Prompt)
 				{
-					conflictArgs.ConflictResolution = await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => x.Name).ToArray(), showOverwrite).ConfigureAwait(true);
+					conflictArgs.ConflictResolution = await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray(), showOverwrite).ConfigureAwait(true);
 				}
 			}
 
@@ -1416,10 +1416,10 @@ namespace PanoramicData.Blazor
 		private string GetUniqueName(FileExplorerItem source, List<FileExplorerItem> targetItems)
 		{
 			var count = 1;
-			var newName = PostFixFilename(source.Name, " Copy");
-			while (targetItems.Any(x => x.Name == newName))
+			var newName = PostFixFilename(FileExplorerItem.GetNameFromPath(source.Path), " Copy");
+			while (targetItems.Any(x => FileExplorerItem.GetNameFromPath(x.Path) == newName))
 			{
-				newName = PostFixFilename(source.Name, $" Copy {count++}");
+				newName = PostFixFilename(FileExplorerItem.GetNameFromPath(source.Path), $" Copy {count++}");
 			}
 			return newName;
 		}
@@ -1542,43 +1542,43 @@ namespace PanoramicData.Blazor
 		private async Task GetUploadConflictsAsync(MoveCopyArgs args)
 		{
 			var conflicts = new List<FileExplorerItem>();
-			var names = args.Payload.Select(x => x.Name).ToArray();
-
 			// group files by parent directory
-			var folders = args.Payload.GroupBy(x => x.ParentPath).Select(x => x.Key).ToArray();
+			var folders = args.Payload.GroupBy(x => x.ParentPath).ToArray();
 			if (folders != null)
 			{
 				foreach (var folder in folders)
 				{
+					var folderPath = folder.Key;
 					CachedResult<Task<DataResponse<FileExplorerItem>>>? cachedTask = null;
 					lock (_conflictCache)
 					{
-						if (_conflictCache.ContainsKey(folder) && _conflictCache[folder].HasExpired)
+						if (_conflictCache.ContainsKey(folderPath) && _conflictCache[folderPath].HasExpired)
 						{
-							_conflictCache.Remove(folder);
+							_conflictCache.Remove(folderPath);
 						}
-						if (_conflictCache.ContainsKey(folder))
+						if (_conflictCache.ContainsKey(folderPath))
 						{
-							cachedTask = _conflictCache[folder];
+							cachedTask = _conflictCache[folderPath];
 						}
 						else
 						{
-							var task = DataProvider.GetDataAsync(new DataRequest<FileExplorerItem>() { SearchText = folder }, default);
-							cachedTask = new CachedResult<Task<DataResponse<FileExplorerItem>>>(folder, task)
+							var task = DataProvider.GetDataAsync(new DataRequest<FileExplorerItem>() { SearchText = folderPath }, default);
+							cachedTask = new CachedResult<Task<DataResponse<FileExplorerItem>>>(folderPath, task)
 							{
 								Expiry = DateTimeOffset.UtcNow.AddSeconds(30)
 							};
-							_conflictCache.Add(folder, cachedTask);
+							_conflictCache.Add(folderPath, cachedTask);
 						}
 					}
 					if (cachedTask != null)
 					{
 						// wait for cache to load
 						var result = await cachedTask.Result.ConfigureAwait(true);
+						var names = folder.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray();
 						args.TargetItems = result.Items.ToList();
 						foreach (var item in args.TargetItems)
 						{
-							if (names.Any(x => string.Equals(item.Name, x, StringComparison.OrdinalIgnoreCase)))
+							if (names.Any(x => string.Equals(FileExplorerItem.GetNameFromPath(item.Path), x, StringComparison.OrdinalIgnoreCase)))
 							{
 								conflicts.Add(item);
 							}
@@ -1603,7 +1603,7 @@ namespace PanoramicData.Blazor
 		private async Task GetMoveCopyConflictsAsync(MoveCopyArgs args)
 		{
 			var conflicts = new List<FileExplorerItem>();
-			var names = args.Payload.Select(x => x.Name).ToArray();
+			var names = args.Payload.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray();
 			var request = new DataRequest<FileExplorerItem> { SearchText = args.TargetPath };
 			var response = await DataProvider.GetDataAsync(request, CancellationToken.None).ConfigureAwait(true);
 			args.TargetItems = response.Items.ToList();
