@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.JSInterop;
 using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Extensions;
 using System;
@@ -22,6 +23,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private PDDragContext? DragContext { get; set; }
 		private string DropMessage { get; set; } = "Drop Zone";
 		private PDTable<Person> Table { get; set; } = null!;
+
+		[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
 
 		[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
@@ -61,7 +64,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private async Task SearchAsync()
 		{
 			// Update the URI for bookmarking
-			NavigationManager.SetUri(new Dictionary<string, object> { { "search", $"{_searchText}" } });
+			JSRuntime.UpdateUri(new Dictionary<string, object> { { "search", $"{_searchText}" } });
 			await Table!.RefreshAsync(_searchText).ConfigureAwait(true);
 		}
 
@@ -71,7 +74,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 			// Update the URI for bookmarking
 			var direction = criteria.Direction == SortDirection.Ascending ? "asc" : "desc";
-			NavigationManager.SetUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } });
+			JSRuntime.UpdateUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } });
 		}
 
 		private void OnPageChange(PageCriteria criteria)
@@ -79,7 +82,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			EventManager?.Add(new Event("PageChange", new EventArgument("Page", criteria.Page), new EventArgument("PageSize", criteria.PageSize)));
 
 			// Update the URI for bookmarking
-			NavigationManager.SetUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } });
+			JSRuntime.UpdateUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } });
 		}
 
 		private void OnSelectionChange()

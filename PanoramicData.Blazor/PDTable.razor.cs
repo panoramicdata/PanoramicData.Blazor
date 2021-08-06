@@ -675,6 +675,7 @@ namespace PanoramicData.Blazor
 		private async void PageCriteria_PageChanged(object sender, EventArgs e)
 		{
 			await RefreshAsync(SearchText).ConfigureAwait(true);
+			await PageChanged.InvokeAsync(PageCriteria).ConfigureAwait(true);
 			StateHasChanged();
 		}
 
