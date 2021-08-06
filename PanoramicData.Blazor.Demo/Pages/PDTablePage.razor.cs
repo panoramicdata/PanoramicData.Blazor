@@ -64,25 +64,25 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private async Task SearchAsync()
 		{
 			// Update the URI for bookmarking
-			JSRuntime.UpdateUri(new Dictionary<string, object> { { "search", $"{_searchText}" } });
+			await JSRuntime.UpdateUri(new Dictionary<string, object> { { "search", $"{_searchText}" } }).ConfigureAwait(true);
 			await Table!.RefreshAsync(_searchText).ConfigureAwait(true);
 		}
 
-		private void OnSortChange(SortCriteria criteria)
+		private async Task OnSortChange(SortCriteria criteria)
 		{
 			EventManager?.Add(new Event("SortChange", new EventArgument("Key", criteria.Key), new EventArgument("Direction", criteria.Direction)));
 
 			// Update the URI for bookmarking
 			var direction = criteria.Direction == SortDirection.Ascending ? "asc" : "desc";
-			JSRuntime.UpdateUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } });
+			await JSRuntime.UpdateUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } }).ConfigureAwait(true);
 		}
 
-		private void OnPageChange(PageCriteria criteria)
+		private async Task OnPageChange(PageCriteria criteria)
 		{
 			EventManager?.Add(new Event("PageChange", new EventArgument("Page", criteria.Page), new EventArgument("PageSize", criteria.PageSize)));
 
 			// Update the URI for bookmarking
-			JSRuntime.UpdateUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } });
+			await JSRuntime.UpdateUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } }).ConfigureAwait(true);
 		}
 
 		private void OnSelectionChange()
