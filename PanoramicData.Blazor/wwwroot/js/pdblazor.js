@@ -612,7 +612,6 @@
 	},
 
 	getAddress: function () {
-		//window.history.replaceState(null, document.title, url);
 		return window.location.href;
 	},
 

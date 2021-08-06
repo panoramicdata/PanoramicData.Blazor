@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Demo.Data;
-using PanoramicData.Blazor.Services;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,9 +42,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 		}
 
-		private void OnFolderChanged(FileExplorerItem folder)
+		private async Task OnFolderChanged(FileExplorerItem folder)
 		{
-			JSRuntime.UpdateUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } });
+			await JSRuntime.UpdateUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } }).ConfigureAwait(true);
 		}
 
 		private async Task OnReady()
