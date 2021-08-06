@@ -216,15 +216,12 @@ namespace PanoramicData.Blazor
 				BatchCount = _batchCount,
 				BatchProgress = ++_batchProgress
 			};
-			if (file.Success)
-			{
-				UploadCompleted.InvokeAsync(args);
-			}
-			else
+			args.Success = file.Success;
+			if (!args.Success)
 			{
 				args.Reason = file.Reason;
-				UploadCompleted.InvokeAsync(args);
 			}
+			UploadCompleted.InvokeAsync(args);
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsComplete")]
