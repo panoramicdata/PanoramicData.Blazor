@@ -609,5 +609,14 @@
 			removeEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
 			this.unloadListener = false;
 		}
+	},
+
+	getAddress: function () {
+		//window.history.replaceState(null, document.title, url);
+		return window.location.href;
+	},
+
+	updateAddress: function (url) {
+		window.history.replaceState(null, document.title, url);
 	}
 }
