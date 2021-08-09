@@ -514,15 +514,21 @@ namespace PanoramicData.Blazor
 		{
 			if (Tree?.SelectedNode?.IsEditing != true)
 			{
-				if (args.Code == "Delete")
+				if (args.Code == "Delete" && Tree?.SelectedNode?.Data?.CanDelete == true)
 				{
 					await DeleteFolderAsync().ConfigureAwait(true);
 				}
-				else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey && Tree!.SelectedNode?.Data != null)
+				else if (args.Code == "KeyC" && args.CtrlKey && Tree!.SelectedNode?.Data != null)
 				{
 					_copyPayload.Clear();
 					_copyPayload.Add(Tree!.SelectedNode.Data);
-					_moveCopyPayload = args.Code == "KeyX";
+					_moveCopyPayload = false;
+				}
+				else if (args.Code == "KeyX" && args.CtrlKey && Tree!.SelectedNode?.Data != null && Tree!.SelectedNode?.Data?.CanDelete == true)
+				{
+					_copyPayload.Clear();
+					_copyPayload.Add(Tree!.SelectedNode.Data);
+					_moveCopyPayload = true;
 				}
 				else if (args.Code == "KeyV" && args.CtrlKey && Tree!.SelectedNode?.Data != null)
 				{
@@ -546,7 +552,7 @@ namespace PanoramicData.Blazor
 					await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
 					args.Cancel = renameArgs.Cancel;
 				}
-				if (!AllowRename || args.Node.ParentNode == null || args.Node?.Data?.IsReadOnly == true || string.IsNullOrEmpty(args.Node?.Data?.ParentPath))
+				if (!AllowRename || args.Node.ParentNode == null || args.Node?.Data?.CanRename == false || string.IsNullOrEmpty(args.Node?.Data?.ParentPath))
 				{
 					args.Cancel = true;
 				}
