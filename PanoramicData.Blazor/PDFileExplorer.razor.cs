@@ -447,7 +447,7 @@ namespace PanoramicData.Blazor
 
 			_menuNewFolder.IsVisible = folderSelected && selectedFolder?.CanAddItems == true;
 			_menuUploadFiles.IsVisible = folderSelected && selectedFolder?.CanAddItems == true;
-			_menuRename.IsVisible = folderSelected && !isRoot && selectedFolder?.CanAddItems == true;
+			_menuRename.IsVisible = folderSelected && !isRoot && selectedFolder?.CanRename == true;
 			_menuDelete.IsVisible = folderSelected && !isRoot && selectedFolder?.CanDelete == true;
 			_menuCopy.IsVisible = folderSelected && !isRoot;
 			_menuCut.IsVisible = folderSelected && !isRoot && selectedFolder?.CanDelete == true;
