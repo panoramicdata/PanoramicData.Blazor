@@ -100,9 +100,15 @@ namespace PanoramicData.Blazor
 			return $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
 		}
 
-		public async Task<string> ShowSaveAsAsync()
+		public async Task<string> ShowSaveAsAsync(string initialFilename = "", string filenamePattern = "")
 		{
+			_showFiles = true;
+			_filenamePattern = filenamePattern;
 			_modalTitle = SaveTitle;
+			if (string.IsNullOrWhiteSpace(_filenameTextbox.Value) && !string.IsNullOrWhiteSpace(initialFilename))
+			{
+				_filenameTextbox.Value = initialFilename;
+			}
 			if (!_filenameTextbox.IsVisible)
 			{
 				_filenameTextbox.IsVisible = true;
