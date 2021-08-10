@@ -36,8 +36,8 @@ namespace PanoramicData.Blazor
 		private readonly Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>> _conflictCache = new Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>>();
 		private int _batchCount;
 		private int _batchProgress;
-		private long _batchTotalBytes;
-		private long _batchTotalBytesSent;
+		protected long _batchTotalBytes;
+		protected long _batchTotalBytesSent;
 		private readonly Dictionary<string, double> _batchFiles = new Dictionary<string, double>();
 
 		private bool _moveCopyPayload = false;
