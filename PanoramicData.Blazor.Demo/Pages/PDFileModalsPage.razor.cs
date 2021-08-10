@@ -29,7 +29,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private async Task ShowFileSaveAsModal()
 		{
-			_saveAsResult = await _fileModal.ShowSaveAsAsync().ConfigureAwait(true);
+			_saveAsResult = await _fileModal.ShowSaveAsAsync("NewFile.html").ConfigureAwait(true);
 		}
 	}
 }

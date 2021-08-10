@@ -16,6 +16,11 @@ namespace PanoramicData.Blazor
 		public string ItemCssClass { get; set; } = "";
 
 		/// <summary>
+		/// Gets whether Keypress events are raised.
+		/// </summary>
+		public bool KeypressEvent { get; set; }
+
+		/// <summary>
 		/// Sets the width of the containing div element.
 		/// </summary>
 		public string Width { get; set; } = "Auto";

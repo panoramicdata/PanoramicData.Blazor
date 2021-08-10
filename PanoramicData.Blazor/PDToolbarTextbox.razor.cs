@@ -27,6 +27,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string ItemCssClass { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets whether Keypress events are raised.
+		/// </summary>
+		[Parameter] public bool KeypressEvent { get; set; }
+
+		/// <summary>
 		/// Gets or sets placeholder text for the text box.
 		/// </summary>
 		[Parameter] public string Placeholder { get; set; } = string.Empty;
