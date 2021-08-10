@@ -59,6 +59,7 @@ namespace PanoramicData.Blazor
 			});
 
 			// wire up filename events
+			_filenameTextbox.KeypressEvent = true;
 			_filenameTextbox.ValueChanged = OnFilenameChanged;
 			_filenameTextbox.Keypress = OnFilenameKeypress;
 		}

@@ -10,7 +10,7 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDNavLink
 	{
-		private const string DefaultActiveClass = "active";
+		private const string _defaultActiveClass = "active";
 
 		private bool _isActive;
 		private string? _hrefAbsolute;
@@ -96,7 +96,7 @@ namespace PanoramicData.Blazor
 
 		private void UpdateCssClass()
 		{
-			CssClass = _isActive ? CombineWithSpace(_class, ActiveClass ?? DefaultActiveClass) : _class;
+			CssClass = _isActive ? CombineWithSpace(_class, ActiveClass ?? _defaultActiveClass) : _class;
 		}
 
 		private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
@@ -142,7 +142,7 @@ namespace PanoramicData.Blazor
 				return true;
 			}
 
-			if (currentUriAbsolute.Length == _hrefAbsolute.Length - 1)
+			if (_hrefAbsolute?.Length > 0 && currentUriAbsolute.Length == _hrefAbsolute.Length - 1)
 			{
 				// Special case: highlight links to http://host/path/ even if you're
 				// at http://host/path (with no trailing slash)

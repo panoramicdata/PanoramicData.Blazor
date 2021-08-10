@@ -400,7 +400,6 @@ namespace PanoramicData.Blazor
 				{
 					PageCriteria.TotalCount = (uint)(response.TotalCount ?? 0);
 				}
-
 			}
 			finally
 			{
@@ -674,9 +673,12 @@ namespace PanoramicData.Blazor
 
 		private async void PageCriteria_PageChanged(object sender, EventArgs e)
 		{
-			await RefreshAsync(SearchText).ConfigureAwait(true);
-			await PageChanged.InvokeAsync(PageCriteria).ConfigureAwait(true);
-			StateHasChanged();
+			if (PageCriteria != null)
+			{
+				await RefreshAsync(SearchText).ConfigureAwait(true);
+				await PageChanged.InvokeAsync(PageCriteria).ConfigureAwait(true);
+				StateHasChanged();
+			}
 		}
 
 		protected override void OnParametersSet()
