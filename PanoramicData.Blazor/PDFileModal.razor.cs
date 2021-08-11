@@ -8,7 +8,7 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDFileModal
 	{
-		private PDModal Modal { get; set; } = null!;
+		public PDModal Modal { get; private set; } = null!;
 
 		private bool _showOpen;
 		private bool _showFiles = true;
