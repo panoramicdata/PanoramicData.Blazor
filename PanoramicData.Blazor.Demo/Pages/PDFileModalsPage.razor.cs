@@ -10,26 +10,52 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private string _openResult = string.Empty;
 		private string _saveAsResult = string.Empty;
 		private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
+		private bool _showOpen;
+
+		private void OnModalHidden(string result)
+		{
+			// only called when modal NOT shown with a AndWaitResult method
+			if (_showOpen)
+			{
+				_openResult = result;
+			}
+			else
+			{
+				_saveAsResult = result;
+			}
+		}
+
+		private async Task ShowFileOpenModalAndWaitResult()
+		{
+			_openResult = await _fileModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
+		}
+
+		private async Task ShowFileOpenFilteredModalAndWaitResult()
+		{
+			// show DOCX and XLSX files only
+			_openResult = await _fileModal.ShowOpenAndWaitResultAsync(false, "*.docx;*.xlsx").ConfigureAwait(true);
+		}
+
+		private async Task ShowFolderOpenModalAndWaitResult()
+		{
+			_openResult = await _fileModal.ShowOpenAndWaitResultAsync(true).ConfigureAwait(true);
+		}
+
+		private async Task ShowFileSaveAsModalAndWaitResult()
+		{
+			_saveAsResult = await _fileModal.ShowSaveAsAndWaitResultAsync("NewFile.html").ConfigureAwait(true);
+		}
 
 		private async Task ShowFileOpenModal()
 		{
-			_openResult = await _fileModal.ShowOpenAsync().ConfigureAwait(true);
-		}
-
-		private async Task ShowFileOpenFilteredModal()
-		{
-			// show DOCX and XLSX files only
-			_openResult = await _fileModal.ShowOpenAsync(false, "*.docx;*.xlsx").ConfigureAwait(true);
-		}
-
-		private async Task ShowFolderOpenModal()
-		{
-			_openResult = await _fileModal.ShowOpenAsync(true).ConfigureAwait(true);
+			_showOpen = true;
+			await _fileModal.ShowOpenAsync().ConfigureAwait(true);
 		}
 
 		private async Task ShowFileSaveAsModal()
 		{
-			_saveAsResult = await _fileModal.ShowSaveAsAsync("NewFile.html").ConfigureAwait(true);
+			_showOpen = false;
+			await _fileModal.ShowSaveAsAsync().ConfigureAwait(true);
 		}
 	}
 }
