@@ -9,7 +9,10 @@ namespace PanoramicData.Blazor
 	public partial class PDFileModal
 	{
 		private PDModal Modal { get; set; } = null!;
-		private bool _showFiles;
+
+		private bool _showOpen;
+		private bool _showFiles = true;
+		private bool _folderSelect;
 		private string _filenamePattern = string.Empty;
 		private PDModal ModalConfirm { get; set; } = null!;
 		private string _modalTitle = string.Empty;
@@ -35,6 +38,15 @@ namespace PanoramicData.Blazor
 		[Parameter] public ModalSizes Size { get; set; } = ModalSizes.Large;
 
 		[Parameter] public bool HideOnBackgroundClick { get; set; }
+
+		[Parameter] public EventCallback<string> ModalHidden { get; set; }
+
+		private string GetOpenResult()
+		{
+			return _folderSelect
+				? (FileExplorer.SelectedFilesAndFolders.Length == 1 ? FileExplorer.SelectedFilesAndFolders[0] : FileExplorer.FolderPath)
+				: $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
+		}
 
 		private void OnFolderChanged(FileExplorerItem _)
 		{
@@ -64,11 +76,45 @@ namespace PanoramicData.Blazor
 			_filenameTextbox.Keypress = OnFilenameKeypress;
 		}
 
-		public async Task<string> ShowOpenAsync(bool folderSelect = false, string filenamePattern = "")
+		public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "")
 		{
+			_showOpen = true;
 			_showFiles = !folderSelect;
+			_folderSelect = folderSelect;
 			_filenamePattern = filenamePattern;
 			_modalTitle = OpenTitle;
+			_filenameTextbox.Value = "";
+			_okButton.IsEnabled = folderSelect && !string.IsNullOrEmpty(FileExplorer.FolderPath);
+			if (_filenameTextbox.IsVisible)
+			{
+				_filenameTextbox.IsVisible = false;
+			}
+			if (_okButton.Text != OpenButtonText)
+			{
+				_okButton.Text = OpenButtonText;
+			}
+			if (_okButton.IconCssClass != "fas fa-fw fa-folder-open")
+			{
+				_okButton.IconCssClass = "fas fa-fw fa-folder-open";
+			}
+			StateHasChanged();
+
+			// show the modal
+			await Modal.ShowAsync().ConfigureAwait(true);
+
+			// refresh the current folder contents
+			await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		}
+
+		public async Task<string> ShowOpenAndWaitResultAsync(bool folderSelect = false, string filenamePattern = "")
+		{
+			_showOpen = true;
+			_showFiles = !folderSelect;
+			_folderSelect = folderSelect;
+			_filenamePattern = filenamePattern;
+			_modalTitle = OpenTitle;
+			_filenameTextbox.Value = "";
+			_okButton.IsEnabled = folderSelect && !string.IsNullOrEmpty(FileExplorer.FolderPath);
 			if (_filenameTextbox.IsVisible)
 			{
 				_filenameTextbox.IsVisible = false;
@@ -92,17 +138,12 @@ namespace PanoramicData.Blazor
 			{
 				return string.Empty;
 			}
-			if (folderSelect)
-			{
-				return FileExplorer.SelectedFilesAndFolders.Length == 1
-					? FileExplorer.SelectedFilesAndFolders[0]
-					: FileExplorer.FolderPath;
-			}
-			return $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
+			return GetOpenResult();
 		}
 
-		public async Task<string> ShowSaveAsAsync(string initialFilename = "", string filenamePattern = "")
+		public async Task ShowSaveAsAsync(string initialFilename = "", string filenamePattern = "")
 		{
+			_showOpen = false;
 			_showFiles = true;
 			_filenamePattern = filenamePattern;
 			_modalTitle = SaveTitle;
@@ -113,18 +154,46 @@ namespace PanoramicData.Blazor
 			if (!_filenameTextbox.IsVisible)
 			{
 				_filenameTextbox.IsVisible = true;
-				StateHasChanged();
 			}
 			if (_okButton.Text != SaveButtonText)
 			{
 				_okButton.Text = SaveButtonText;
-				StateHasChanged();
 			}
 			if (_okButton.IconCssClass != "fas fa-fw fa-save")
 			{
 				_okButton.IconCssClass = "fas fa-fw fa-save";
-				StateHasChanged();
 			}
+			StateHasChanged();
+
+			await Modal.ShowAsync().ConfigureAwait(true);
+
+			// refresh the current folder contents
+			await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		}
+
+		public async Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename = "", string filenamePattern = "")
+		{
+			_showOpen = false;
+			_showFiles = true;
+			_filenamePattern = filenamePattern;
+			_modalTitle = SaveTitle;
+			if (string.IsNullOrWhiteSpace(_filenameTextbox.Value) && !string.IsNullOrWhiteSpace(initialFilename))
+			{
+				_filenameTextbox.Value = initialFilename;
+			}
+			if (!_filenameTextbox.IsVisible)
+			{
+				_filenameTextbox.IsVisible = true;
+			}
+			if (_okButton.Text != SaveButtonText)
+			{
+				_okButton.Text = SaveButtonText;
+			}
+			if (_okButton.IconCssClass != "fas fa-fw fa-save")
+			{
+				_okButton.IconCssClass = "fas fa-fw fa-save";
+			}
+			StateHasChanged();
 
 			// refresh the current folder contents
 			await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
@@ -154,6 +223,40 @@ namespace PanoramicData.Blazor
 			return $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
 		}
 
+		private async Task OnButtonClick(string text)
+		{
+			var result = string.Empty;
+			if (text != "Cancel")
+			{
+				if (_showOpen)
+				{
+					// open modal
+					result = GetOpenResult();
+				}
+				else
+				{
+					// save as
+					var existing = System.Array.Find(FileExplorer.FileItems, x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
+					if (existing != null)
+					{
+						// prompt user for over write
+						await Modal.HideAsync().ConfigureAwait(true);
+						var confirmation = await ModalConfirm.ShowAndWaitResultAsync().ConfigureAwait(true);
+						if (confirmation == "No")
+						{
+							await Modal.ShowAsync().ConfigureAwait(true);
+							return;
+						}
+					}
+					result = $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
+				}
+			}
+
+			// inform caller of result and hide modal
+			await ModalHidden.InvokeAsync(result).ConfigureAwait(true);
+			await Modal.HideAsync().ConfigureAwait(true);
+		}
+
 		private void OnSelectionChanged(FileExplorerItem[] selection)
 		{
 			_filenameTextbox.Value = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.File ? selection[0].Name : string.Empty;
@@ -167,6 +270,7 @@ namespace PanoramicData.Blazor
 									  (selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory && selection[0].Name != "..");
 			}
 		}
+
 		private async Task OnItemDoubleClick(FileExplorerItem item)
 		{
 			if (item.EntryType == FileExplorerItemType.File)
