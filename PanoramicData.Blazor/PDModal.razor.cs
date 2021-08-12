@@ -60,6 +60,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<string> ButtonClick { get; set; }
 
 		/// <summary>
+		/// Close the modal when the user presses the escape key?
+		/// </summary>
+		[Parameter] public bool CloseOnEscape { get; set; } = true;
+
+		/// <summary>
 		/// Display the close button in the top right of the modal?
 		/// </summary>
 		[Parameter] public bool ShowClose { get; set; }
@@ -84,7 +89,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public async Task ShowAsync()
 		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", $"#{Id}", HideOnBackgroundClick).ConfigureAwait(true);
+			await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", $"#{Id}", HideOnBackgroundClick, CloseOnEscape).ConfigureAwait(true);
 		}
 
 		/// <summary>
