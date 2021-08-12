@@ -328,10 +328,11 @@
 		window.open(url, target);
 	},
 
-	showBsDialog: function(id, backdrop) {
+	showBsDialog: function(id, backdrop, keyboard) {
 		$(id).modal({
 			show: true,
-			backdrop: backdrop ? true : 'static'
+			backdrop: backdrop ? true : 'static',
+			keyboard: keyboard || false
 		})
 	},
 

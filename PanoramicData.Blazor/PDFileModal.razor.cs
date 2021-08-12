@@ -25,6 +25,8 @@ namespace PanoramicData.Blazor
 		private readonly ToolbarButton _overwriteButton = new ToolbarButton { Key = "Yes", Text = "Yes - Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true };
 		private readonly ToolbarButton _noButton = new ToolbarButton { Key = "No", Text = "No", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
 
+		[Parameter] public bool CloseOnEscape { get; set; } = true;
+
 		[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
 		[Parameter] public string OpenButtonText { get; set; } = "Open";
