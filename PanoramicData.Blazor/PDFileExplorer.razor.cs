@@ -133,6 +133,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<DeleteArgs> DeleteRequest { get; set; }
 
 		/// <summary>
+		/// An optional array of paths to be excluded.
+		/// </summary>
+		[Parameter] public string[] ExcludedPaths { get; set; } = System.Array.Empty<string>();
+
+		/// <summary>
 		/// Gets or sets a delegate to be called if an exception occurs.
 		/// </summary>
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
@@ -410,7 +415,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		private void OnTreeItemsLoaded(List<FileExplorerItem> items)
 		{
+			// remove all file entries
 			items.RemoveAll(x => x.EntryType == FileExplorerItemType.File);
+
+			// remove any paths to exclude
+			items.RemoveAll(x => ExcludedPaths.Contains(x.Path));
 		}
 
 		private async Task OnTreeReady()
@@ -607,6 +616,9 @@ namespace PanoramicData.Blazor
 					IsReadOnly = true
 				});
 			}
+
+			// remove any paths to exclude
+			items.RemoveAll(x => ExcludedPaths.Contains(x.Path));
 
 			// arrange folders together?
 			if (GroupFolders)

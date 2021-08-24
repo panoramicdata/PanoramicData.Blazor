@@ -29,6 +29,8 @@ namespace PanoramicData.Blazor
 
 		[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
+		[Parameter] public string[] ExcludedPaths { get; set; } = System.Array.Empty<string>();
+
 		[Parameter] public string OpenButtonText { get; set; } = "Open";
 
 		[Parameter] public string SaveButtonText { get; set; } = "Save";
