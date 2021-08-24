@@ -52,7 +52,7 @@ namespace PanoramicData.Blazor
 				: $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
 		}
 
-		private void OnFolderChanged(FileExplorerItem _)
+		private void OnFolderChanged(FileExplorerItem item)
 		{
 			if (!_showFiles)
 			{
@@ -154,6 +154,7 @@ namespace PanoramicData.Blazor
 			if (string.IsNullOrWhiteSpace(_filenameTextbox.Value) && !string.IsNullOrWhiteSpace(initialFilename))
 			{
 				_filenameTextbox.Value = initialFilename;
+				_okButton.IsEnabled = true;
 			}
 			if (!_filenameTextbox.IsVisible)
 			{
@@ -184,6 +185,7 @@ namespace PanoramicData.Blazor
 			if (string.IsNullOrWhiteSpace(_filenameTextbox.Value) && !string.IsNullOrWhiteSpace(initialFilename))
 			{
 				_filenameTextbox.Value = initialFilename;
+				_okButton.IsEnabled = true;
 			}
 			if (!_filenameTextbox.IsVisible)
 			{
