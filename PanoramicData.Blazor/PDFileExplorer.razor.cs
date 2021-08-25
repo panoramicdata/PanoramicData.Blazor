@@ -189,9 +189,15 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback Ready { get; set; }
 
 		/// <summary>
+		/// Determines whether the navigate up to the parent folder button is visible or not.
+		/// </summary>
+		[Parameter] public bool ShowNavigateUpButton { get; set; } = true;
+
+		/// <summary>
 		/// Determines where sub-folders show an entry (..) to allow navigation to the parent folder.
 		/// </summary>
 		[Parameter] public bool ShowParentFolder { get; set; } = true;
+
 
 		/// <summary>
 		/// Determines whether the toolbar is visible.
@@ -353,7 +359,7 @@ namespace PanoramicData.Blazor
 				_menuDelete
 			});
 			var isTouchDevice = await JSRuntime.InvokeAsync<bool>("panoramicData.isTouchDevice").ConfigureAwait(true);
-			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline" });
+			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline", IsVisible = ShowNavigateUpButton });
 			if (isTouchDevice)
 			{
 				ToolbarItems.Add(new ToolbarButton { Key = "open", Text = "Open", ToolTip = "Navigate into folder", IconCssClass = "fas fa-fw fa-folder-open", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
@@ -1509,6 +1515,7 @@ namespace PanoramicData.Blazor
 			if (upButton != null)
 			{
 				upButton.IsEnabled = Tree?.SelectedNode?.ParentNode?.ParentNode != null;
+				upButton.IsVisible = ShowNavigateUpButton;
 			}
 
 			// open button

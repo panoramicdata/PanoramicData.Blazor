@@ -35,6 +35,8 @@ namespace PanoramicData.Blazor
 
 		[Parameter] public string SaveButtonText { get; set; } = "Save";
 
+		[Parameter] public bool ShowNavigateUpButton { get; set; } = true;
+
 		[Parameter] public string OpenTitle { get; set; } = "File Open";
 
 		[Parameter] public string SaveTitle { get; set; } = "File Save";
