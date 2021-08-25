@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
@@ -15,6 +17,9 @@ namespace PanoramicData.Blazor
 		private bool _isActive;
 		private string? _hrefAbsolute;
 		private string? _class;
+
+		[Inject]
+		private IJSRuntime JSRuntime { get; set; } = default!;
 
 		[Inject]
 		private NavigationManager NavigationManager { get; set; } = default!;
@@ -50,11 +55,19 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public NavLinkMatch Match { get; set; }
 
-		private async Task OnClick()
+		private async Task OnClick(MouseEventArgs args)
 		{
 			if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? "").ConfigureAwait(true))
 			{
-				NavigationManager.NavigateTo(_hrefAbsolute);
+				if (args.CtrlKey)
+				{
+					// use JS to perform navigation in new tab
+					await JSRuntime.InvokeVoidAsync("panoramicData.openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
+				}
+				else
+				{
+					NavigationManager.NavigateTo(_hrefAbsolute);
+				}
 			}
 		}
 
