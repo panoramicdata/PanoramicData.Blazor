@@ -39,8 +39,8 @@ namespace PanoramicData.Blazor
 		protected long _batchTotalBytes;
 		protected long _batchTotalBytesSent;
 		private readonly Dictionary<string, double> _batchFiles = new Dictionary<string, double>();
-
 		private bool _moveCopyPayload = false;
+		private string _pasteTarget = string.Empty;
 		private TreeNode<FileExplorerItem>? _selectedNode;
 		private PDTree<FileExplorerItem>? Tree { get; set; }
 		private PDTable<FileExplorerItem>? Table { get; set; }
@@ -785,18 +785,30 @@ namespace PanoramicData.Blazor
 			var validSelection = IsValidSelection();
 			var selectedFolder = _selectedNode?.Data;
 
-			_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
-			_menuDownload.IsVisible = validSelection && selectedItems.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
+			// determine whether paste is allowed?
+			var canPaste = validSelection &&
+				_copyPayload.Count > 0 &&
+				// white space or sub-folder highlighted
+				((args.SourceElement?.Tag == "TD" && selectedFolder?.CanAddItems == true) ||
+				 (selectedItems?.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory && selectedItems[0].CanAddItems));
+			if (canPaste)
+			{
+				_pasteTarget = args.SourceElement?.Tag == "TD" ? FolderPath : selectedItems![0].Path;
+			}
+			else
+			{
+				_pasteTarget = string.Empty;
+			}
+
+			_menuOpen.IsVisible = selectedItems?.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
+			_menuDownload.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
 			_menuNewFolder.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
 			_menuUploadFiles.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
 			_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && selectedItems[0].CanRename;
 			_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete);
 			_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanCopyMove);
 			_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete);
-			_menuPaste.IsVisible = validSelection && _copyPayload.Count > 0 &&
-				((selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true) ||
-				// sub-folder highlighted
-				(selectedItems?.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory && selectedItems[0].CanAddItems));
+			_menuPaste.IsVisible = canPaste;
 			_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
 			_menuSep3.IsVisible = ShowSeparator(_menuSep3, TableContextItems);
 			_menuSep2.IsVisible = ShowSeparator(_menuSep2, TableContextItems);
@@ -846,8 +858,7 @@ namespace PanoramicData.Blazor
 				}
 				else if (menuItem.Text == "Paste")
 				{
-					var targetPath = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
-					await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
+					await MoveCopyFilesAsync(_copyPayload, _pasteTarget, !_moveCopyPayload).ConfigureAwait(true);
 					if (_moveCopyPayload) // clear copy payload only if move
 					{
 						_copyPayload.Clear();

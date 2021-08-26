@@ -130,6 +130,16 @@
 		}
 	},
 
+	getElementAtPoint: function (x, y) {
+		var el = document.elementFromPoint(x, y);
+		if (el) {
+			return {
+				tag: el.tagName,
+				parentTag: el.parentElement ? el.parentElement.tagName : ""
+			}
+		}
+	},
+
 	getFocusedElementId: function() {
 		return document.activeElement.id;
 	},
