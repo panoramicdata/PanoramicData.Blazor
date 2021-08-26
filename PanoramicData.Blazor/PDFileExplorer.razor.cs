@@ -789,11 +789,11 @@ namespace PanoramicData.Blazor
 			var canPaste = validSelection &&
 				_copyPayload.Count > 0 &&
 				// white space or sub-folder highlighted
-				((args.SourceElement?.Tag == "TD" && selectedFolder?.CanAddItems == true) ||
+				(((args.SourceElement?.Tag == "TD" || args.SourceElement?.Tag == "DIV") && selectedFolder?.CanAddItems == true) ||
 				 (selectedItems?.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory && selectedItems[0].CanAddItems));
 			if (canPaste)
 			{
-				_pasteTarget = args.SourceElement?.Tag == "TD" ? FolderPath : selectedItems![0].Path;
+				_pasteTarget = args.SourceElement?.Tag == "TD" || args.SourceElement?.Tag == "DIV" ? FolderPath : selectedItems![0].Path;
 			}
 			else
 			{
