@@ -68,7 +68,12 @@ namespace PanoramicData.Blazor
 		{
 			if (Enabled && args.Button == 2)
 			{
-				var cancelArgs = new MenuItemsEventArgs(this, Items);
+				var cancelArgs = new MenuItemsEventArgs(this, Items)
+				{
+					// get details of element that was clicked on
+					SourceElement = await JSRuntime.InvokeAsync<ElementInfo>("panoramicData.getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)
+				};
+
 				await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
 				if (!cancelArgs.Cancel)
 				{

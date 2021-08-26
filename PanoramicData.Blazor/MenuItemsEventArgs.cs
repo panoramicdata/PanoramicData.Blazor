@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace PanoramicData.Blazor
 {
@@ -20,6 +19,16 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Gets or sets an application specific context.
+		/// </summary>
+		public object? Context { get; set; }
+
+		/// <summary>
+		/// Gets or sets detail son the DOM element that was clicked on.
+		/// </summary>
+		public ElementInfo? SourceElement { get; set; }
+
+		/// <summary>
 		/// Gets the MenuItem the event relates to.
 		/// </summary>
 		public List<MenuItem> MenuItems { get; }
@@ -28,10 +37,5 @@ namespace PanoramicData.Blazor
 		/// Gets the object that raised the event.
 		/// </summary>
 		public object Sender { get; }
-
-		/// <summary>
-		/// Gets or sets an application specific context.
-		/// </summary>
-		public object? Context { get; set; }
 	}
 }
