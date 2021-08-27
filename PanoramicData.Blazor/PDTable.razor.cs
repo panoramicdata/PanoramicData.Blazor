@@ -234,6 +234,12 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
 
+
+		/// <summary>
+		/// Gets whether right-clicking selects a row versus left-clicking.
+		/// </summary>
+		[Parameter] public bool RightClickSelectsRow { get; set; } = true;
+
 		/// <summary>
 		/// Gets the keys of all currently selected items.
 		/// </summary>
@@ -755,7 +761,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
 		{
-			if (SelectionMode != TableSelectionMode.None)
+			if (SelectionMode != TableSelectionMode.None && (RightClickSelectsRow || args.Button == 0))
 			{
 				var key = KeyField!(item)?.ToString();
 				if (key != null)

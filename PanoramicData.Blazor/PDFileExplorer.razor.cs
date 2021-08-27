@@ -786,14 +786,49 @@ namespace PanoramicData.Blazor
 			var selectedFolder = _selectedNode?.Data;
 
 			// determine whether paste is allowed?
-			var canPaste = validSelection &&
-				_copyPayload.Count > 0 &&
-				// white space or sub-folder highlighted
-				(((args.SourceElement?.Tag == "TD" || args.SourceElement?.Tag == "DIV") && selectedFolder?.CanAddItems == true) ||
-				 (selectedItems?.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory && selectedItems[0].CanAddItems));
+			var canPaste = validSelection && _copyPayload.Count > 0;
+			//&& (((args.SourceElement?.Tag == "TD" || args.SourceElement?.Tag == "DIV") && selectedFolder?.CanAddItems == true));
+			//|| (selectedItems?.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory && selectedItems[0].CanAddItems));
+
+			// if still okay to paste then determine target
 			if (canPaste)
 			{
-				_pasteTarget = args.SourceElement?.Tag == "TD" || args.SourceElement?.Tag == "DIV" ? FolderPath : selectedItems![0].Path;
+				// did user right click in selected row?
+				if (args.SourceElement?.HasAncestor("TR", "selected") == true)
+				{
+					// can only paste if selected item is a folder
+					if (selectedItems![0].EntryType == FileExplorerItemType.Directory)
+					{
+						_pasteTarget = selectedItems![0].Path;
+					}
+					else
+					{
+						canPaste = false;
+					}
+				}
+				else
+				{
+					// if user right clicked in whitespace then use current folder
+					if (args.SourceElement?.Tag == "TD" || args.SourceElement?.Tag == "DIV")
+					{
+						_pasteTarget = FolderPath;
+					}
+					else
+					{
+						// find the row clicked on by using id
+						if (args.SourceElement?.Find("TR") is ElementInfo parentTrElement
+							&& Table.ItemsToDisplay.Find(x => x.Path == parentTrElement.Id) is FileExplorerItem row
+							&& row.EntryType == FileExplorerItemType.Directory)
+						{
+							_pasteTarget = row.Path;
+						}
+						else
+						{
+							// use current folder
+							_pasteTarget = FolderPath;
+						}
+					}
+				}
 			}
 			else
 			{

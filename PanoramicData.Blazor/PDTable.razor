@@ -53,6 +53,7 @@
 				foreach (var item in ItemsToDisplay)
 				{
 					<tr class="pdtablerow @GetDynamicRowClasses(item)"
+						id="@(KeyField is null ? null : KeyField(item)?.ToString())"
 						@attributes="RowAttributes"
 						@oncontextmenu:preventDefault
 						@onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
