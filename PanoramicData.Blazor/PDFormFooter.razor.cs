@@ -173,10 +173,6 @@ namespace PanoramicData.Blazor
 		private async Task OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
 		{
 			var key = args.Key;
-			if (!(key == "Cancel" && Form?.ConfirmCancel == true && Form.Delta.Count > 0))
-			{
-				await Click.InvokeAsync(key).ConfigureAwait(true);
-			}
 
 			if (Form?.Item != null)
 			{
@@ -186,7 +182,11 @@ namespace PanoramicData.Blazor
 				}
 				else if (key == "Save" && Form.DataProvider != null)
 				{
-					await Form.SaveAsync().ConfigureAwait(true);
+					var success = await Form.SaveAsync().ConfigureAwait(true);
+					if (!success)
+					{
+						return;
+					}
 					Form.ResetChanges();
 				}
 				else if (key == "Cancel" && Form.ConfirmCancel && Form.Delta.Count > 0)
@@ -195,7 +195,11 @@ namespace PanoramicData.Blazor
 				}
 				else if (key == "Yes" && Form.Mode == FormModes.Delete && Form.DataProvider != null)
 				{
-					await Form.DeleteAsync().ConfigureAwait(true);
+					var success = await Form.DeleteAsync().ConfigureAwait(true);
+					if (!success)
+					{
+						return;
+					}
 					Form.ResetChanges();
 				}
 				else if (key == "Yes" && Form.Mode == FormModes.Cancel)
@@ -208,6 +212,11 @@ namespace PanoramicData.Blazor
 				{
 					Form.SetMode(Form.PreviousMode, false);
 				}
+			}
+
+			if (!(key == "Cancel" && Form?.ConfirmCancel == true && Form.Delta.Count > 0))
+			{
+				await Click.InvokeAsync(key).ConfigureAwait(true);
 			}
 		}
 
