@@ -20,7 +20,7 @@ namespace PanoramicData.Blazor
 		public void Dispose()
 		{
 			GlobalEventService.ShortcutsChanged -= GlobalEventService_ShortcutsChanged;
-			JSRuntime!.InvokeVoidAsync("panoramicData.destroyGlobalListener").GetAwaiter().GetResult();
+			JSRuntime!.InvokeVoidAsync("panoramicData.destroyGlobalListener");
 		}
 
 		protected override void OnInitialized()
