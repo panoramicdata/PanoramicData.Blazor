@@ -793,7 +793,19 @@ namespace PanoramicData.Blazor
 				 (selectedItems?.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory && selectedItems[0].CanAddItems));
 			if (canPaste)
 			{
-				_pasteTarget = args.SourceElement?.Tag == "TD" || args.SourceElement?.Tag == "DIV" ? FolderPath : selectedItems![0].Path;
+				// if user right clicked anywhere in selected row then target that folder, otherwise use current folder otr selected
+				if (selectedItems?.Length == 1 
+					&& selectedItems[0].EntryType == FileExplorerItemType.Directory 
+					&& args.SourceElement?.Tag == "TD"
+					&& args.SourceElement?.Parent?.Tag == "TR"
+					&& args.SourceElement?.Parent?.ClassList?.Contains("selected") == true)
+				{
+					_pasteTarget = selectedItems![0].Path;
+				}
+				else
+				{
+					_pasteTarget = args.SourceElement?.Tag == "TD" || args.SourceElement?.Tag == "DIV" ? FolderPath : selectedItems![0].Path;
+				}
 			}
 			else
 			{

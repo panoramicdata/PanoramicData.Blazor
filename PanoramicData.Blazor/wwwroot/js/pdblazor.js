@@ -133,11 +133,28 @@
 	getElementAtPoint: function (x, y) {
 		var el = document.elementFromPoint(x, y);
 		if (el) {
-			return {
-				tag: el.tagName,
-				parentTag: el.parentElement ? el.parentElement.tagName : ""
+			var baseInfo = this.getElementInfo(el);
+			var info = baseInfo;
+			el = el.parentElement;
+			while (el) {
+				info.parent = this.getElementInfo(el);
+				info = info.parent;
+				el = el.parentElement;
 			}
+			return baseInfo;
 		}
+		return null;
+	},
+
+	getElementInfo: function(el) {
+		var info = {
+			tag: el.tagName,
+			classList: []
+		}
+		for (var i = 0; i < el.classList.length; i++) {
+			info.classList.push(el.classList[i]);
+		}
+		return info;
 	},
 
 	getFocusedElementId: function() {

@@ -1,9 +1,13 @@
-﻿namespace PanoramicData.Blazor
+﻿using System;
+
+namespace PanoramicData.Blazor
 {
 	public class ElementInfo
 	{
-		public string Tag { get; set; }
+		public string[] ClassList { get; set; } = Array.Empty<string>();
 
-		public string ParentTag { get; set; }
+		public ElementInfo? Parent { get; set; }
+
+		public string Tag { get; set; } = string.Empty;
 	}
 }
