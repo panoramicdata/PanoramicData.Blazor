@@ -148,6 +148,7 @@
 
 	getElementInfo: function(el) {
 		var info = {
+			id: el.id || '',
 			tag: el.tagName,
 			classList: []
 		}
