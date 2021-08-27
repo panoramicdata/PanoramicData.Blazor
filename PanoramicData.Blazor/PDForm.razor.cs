@@ -268,7 +268,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Send request to the DataProvider to delete the item.
 		/// </summary>
-		public async Task DeleteAsync()
+		public async Task<bool> DeleteAsync()
 		{
 			if (DataProvider != null && Item != null)
 			{
@@ -281,14 +281,16 @@ namespace PanoramicData.Blazor
 				else
 				{
 					await Error.InvokeAsync(response.ErrorMessage).ConfigureAwait(true);
+					return false;
 				}
 			}
+			return true;
 		}
 
 		/// <summary>
 		/// Send request to the DataProvider to create or update the item.
 		/// </summary>
-		public async Task SaveAsync()
+		public async Task<bool> SaveAsync()
 		{
 			if (DataProvider != null && Item != null)
 			{
@@ -310,7 +312,7 @@ namespace PanoramicData.Blazor
 							catch (Exception ex)
 							{
 								await Error.InvokeAsync($"Error applying delta to {change.Key}: {ex.Message}").ConfigureAwait(true);
-								return;
+								return false;
 							}
 						}
 						var response = await DataProvider.CreateAsync(Item, CancellationToken.None).ConfigureAwait(true);
@@ -322,6 +324,7 @@ namespace PanoramicData.Blazor
 						else
 						{
 							await Error.InvokeAsync(response.ErrorMessage).ConfigureAwait(true);
+							return false;
 						}
 					}
 					else if (Mode == FormModes.Edit)
@@ -335,10 +338,12 @@ namespace PanoramicData.Blazor
 						else
 						{
 							await Error.InvokeAsync(response.ErrorMessage).ConfigureAwait(true);
+							return false;
 						}
 					}
 				}
 			}
+			return true;
 		}
 
 		/// <summary>
