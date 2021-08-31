@@ -342,6 +342,11 @@ namespace PanoramicData.Blazor
 						}
 					}
 				}
+				else
+				{
+					// 1 or more errors
+					return false;
+				}
 			}
 			return true;
 		}
