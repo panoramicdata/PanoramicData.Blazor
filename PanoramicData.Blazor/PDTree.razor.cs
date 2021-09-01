@@ -14,6 +14,9 @@ namespace PanoramicData.Blazor
 	{
 		private const string _idPrefix = "pd-tree-";
 		private static int _idSequence;
+		private int _clickCount;
+		private Timer? _clickTimer;
+		private TreeNode<TItem>? _clickedNode;
 
 		#region Injected Parameters
 
@@ -250,6 +253,45 @@ namespace PanoramicData.Blazor
 			return found;
 		}
 
+		private void ClickTimerCallback(object state)
+		{
+			_clickTimer?.Dispose();
+			_clickTimer = null;
+
+			InvokeAsync(async () =>
+			{
+				if (_clickedNode != null)
+				{
+					if (_clickCount > 1)
+					{
+						await ToggleNodeIsExpandedAsync(_clickedNode).ConfigureAwait(true);
+					}
+					else
+					{
+						await SelectNode(_clickedNode).ConfigureAwait(true);
+					}
+					StateHasChanged();
+				}
+			});
+
+			_clickCount = 0;
+		}
+
+		public async Task NodeMouseUp(TreeNode<TItem> node)
+		{
+			if (_clickTimer == null || node != _clickedNode)
+			{
+				_clickTimer?.Dispose();
+				_clickedNode = node;
+				_clickCount = 1;
+				_clickTimer = new Timer(ClickTimerCallback, null, 250, Timeout.Infinite);
+			}
+			else
+			{
+				_clickCount++;
+			}
+		}
+
 		/// <summary>
 		/// Selects the given node.
 		/// </summary>
@@ -267,6 +309,7 @@ namespace PanoramicData.Blazor
 				// select new node
 				if (SelectedNode == node)
 				{
+					// if the same node
 					await BeginEdit().ConfigureAwait(true);
 				}
 				else
@@ -300,6 +343,11 @@ namespace PanoramicData.Blazor
 		public async Task ToggleNodeIsExpandedAsync(TreeNode<TItem> node)
 		{
 			var wasExpanded = node.IsExpanded;
+
+			if (node.Isleaf)
+			{
+				return;
+			}
 
 			// if expanding and Nodes is null then request data
 			if (!node.Isleaf && !wasExpanded && node.Nodes == null)
