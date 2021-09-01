@@ -88,7 +88,7 @@ namespace PanoramicData.Blazor
 		{
 			if (Node != null)
 			{
-				await Tree.SelectNode(Node).ConfigureAwait(true);
+				await Tree.NodeMouseUp(Node).ConfigureAwait(true);
 			}
 		}
 
