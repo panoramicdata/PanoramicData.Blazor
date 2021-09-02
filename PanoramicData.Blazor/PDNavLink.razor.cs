@@ -57,17 +57,15 @@ namespace PanoramicData.Blazor
 
 		private async Task OnClick(MouseEventArgs args)
 		{
-			if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? "").ConfigureAwait(true))
+			// if ctrl-key held down then open in new tab therefore no need to prompt
+			if (args.CtrlKey)
 			{
-				if (args.CtrlKey)
-				{
-					// use JS to perform navigation in new tab
-					await JSRuntime.InvokeVoidAsync("panoramicData.openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
-				}
-				else
-				{
-					NavigationManager.NavigateTo(_hrefAbsolute);
-				}
+				// use JS to perform navigation in new tab
+				await JSRuntime.InvokeVoidAsync("panoramicData.openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
+			}
+			else if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? "").ConfigureAwait(true))
+			{
+				NavigationManager.NavigateTo(_hrefAbsolute);
 			}
 		}
 
