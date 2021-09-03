@@ -761,7 +761,24 @@ namespace PanoramicData.Blazor
 
 		private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
 		{
-			if (SelectionMode != TableSelectionMode.None && (RightClickSelectsRow || args.Button == 0))
+			// quit if selection not allowed
+			if(SelectionMode == TableSelectionMode.None)
+			{
+				return;
+			}
+
+			// if right-click on row then only select if clicked on label
+			var selectRow = args.Button == 0;
+			if (args.Button == 2 && RightClickSelectsRow)
+			{
+				var sourceEl = await JSRuntime.InvokeAsync<ElementInfo>("panoramicData.getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
+				if(sourceEl != null)
+				{
+					selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
+				}
+			}
+
+			if (selectRow)
 			{
 				var key = KeyField!(item)?.ToString();
 				if (key != null)

@@ -787,14 +787,13 @@ namespace PanoramicData.Blazor
 
 			// determine whether paste is allowed?
 			var canPaste = validSelection && _copyPayload.Count > 0;
-			//&& (((args.SourceElement?.Tag == "TD" || args.SourceElement?.Tag == "DIV") && selectedFolder?.CanAddItems == true));
-			//|| (selectedItems?.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory && selectedItems[0].CanAddItems));
 
 			// if still okay to paste then determine target
 			if (canPaste)
 			{
 				// did user right click in selected row?
-				if (args.SourceElement?.HasAncestor("TR", "selected") == true)
+				if (args.SourceElement?.HasAncestor("TR", "selected") == true ||
+					 (args.SourceElement?.Find("TR") is ElementInfo trEl && Table.Selection.Contains(trEl.Id)))
 				{
 					// can only paste if selected item is a folder
 					if (selectedItems![0].EntryType == FileExplorerItemType.Directory)
