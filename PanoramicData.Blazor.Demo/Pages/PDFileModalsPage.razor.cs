@@ -12,6 +12,30 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 		private bool _showOpen;
 
+		private static string GetIconCssClass(FileExplorerItem item)
+		{
+			if (item.EntryType == FileExplorerItemType.Directory && item.Name != "..")
+			{
+				if (item.Path == "/Library")
+				{
+					return "fas fa-book";
+				}
+				if (item.Path == "/Users")
+				{
+					return "fas fa-users";
+				}
+				if (item.Path == "/")
+				{
+					return "fas fa-server";
+				}
+				if (item.ParentPath == "/")
+				{
+					return "fas fa-hdd";
+				}
+			}
+			return TestFileSystemDataProvider.GetIconClass(item);
+		}
+
 		private void OnModalHidden(string result)
 		{
 			// only called when modal NOT shown with a AndWaitResult method

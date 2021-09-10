@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Services;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -30,6 +31,8 @@ namespace PanoramicData.Blazor
 		[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
 		[Parameter] public string[] ExcludedPaths { get; set; } = System.Array.Empty<string>();
+
+		[Parameter] public Func<FileExplorerItem, string>? GetItemIconCssClass { get; set; }
 
 		[Parameter] public string OpenButtonText { get; set; } = "Open";
 
@@ -80,6 +83,11 @@ namespace PanoramicData.Blazor
 			_filenameTextbox.KeypressEvent = true;
 			_filenameTextbox.ValueChanged = OnFilenameChanged;
 			_filenameTextbox.Keypress = OnFilenameKeypress;
+		}
+
+		private string? GetItemIconCssClassInternal(FileExplorerItem item)
+		{
+			return GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
 		}
 
 		public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "")
