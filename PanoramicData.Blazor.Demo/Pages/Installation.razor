@@ -29,6 +29,15 @@
 		<code>&lt;script src="_content/PanoramicData.Blazor/js/pdblazor.js"&gt;&lt;/script&gt;</code>
 	</p>
 
+	<h2>Namespaces</h2>
+	<p>Add the following using statements either to each page where you use the components, or for convenience place into the _Imports.razor file :-</p>
+	<p class="ml-4">
+		<code style="white-space: pre-line;">
+			@@using PanoramicData.Blazor
+			@@using PanoramicData.Blazor.Services
+		</code>
+	</p>
+
 	<h2>Styling</h2>
 	<p>
 		The library uses <a href="https://getbootstrap.com/">Bootstrap</a> for its default styling and <a href="https://fontawesome.com/">Font-Awesome</a> for its icons.
@@ -82,28 +91,20 @@
 		to another page of the application. It is used by the PDForm and PDNavLink components and an example can be seen on the PDForm demo page.
 	</p>
 	<br />
-	<p>Use of any of the Services is optional and you need only include the Services your require.</p>
+	<p>To make the services available perform the follow steps:</p>
 	<p>
 		For Blazor WebAssembly applications add the following to the <strong>Main</strong> function of the <strong>Program.cs</strong> file:
 	</p>
 	<p>
 		<div class="ml-4"><code>builder.Services.AddPanoramicDataBlazor();</code></div>
-		<div>or</div>
-		<div class="ml-4"><code>builder.Services.AddBlockOverlay();</code></div>
-		<div class="ml-4"><code>builder.Services.AddGlobalEventService();</code></div>
-		<div class="ml-4"><code>builder.Services.AddNavigationCancelService();</code></div>
 	</p>
 	<p>
 		For Blazor Server applications add the following to the <strong>ConfigureServices</strong> function of the <strong>Startup.cs</strong> file:
 	</p>
 	<p>
 		<div class="ml-4"><code>services.AddPanoramicDataBlazor();</code></div>
-		<div>or</div>
-		<div class="ml-4"><code>services.AddBlockOverlay();</code></div>
-		<div class="ml-4"><code>services.AddGlobalEventService();</code></div>
-		<div class="ml-4"><code>services.AddNavigationCancelService();</code></div>
 	</p>
-	<p>Then add the accompanying Component for the following Services into the <strong>MainLayout.razor</strong></p>
+	<p>Then add the accompanying Components for the services into the <strong>MainLayout.razor</strong></p>
 	<p>
 		<div class="ml-4"><code>&lt;PDBlockOverlay /&gt;</code></div>
 		<div class="ml-4"><code>&lt;PDGlobalListener /&gt;</code></div>
