@@ -1422,7 +1422,7 @@ namespace PanoramicData.Blazor
 
 			if (conflictArgs.Conflicts.Count == 0 || conflictArgs.ConflictResolution != ConflictResolutions.Cancel)
 			{
-				foreach (var source in conflictArgs.Payload)
+				foreach (var source in conflictArgs.Payload.ToArray())
 				{
 					if (conflictArgs.ConflictResolution == ConflictResolutions.Rename)
 					{
