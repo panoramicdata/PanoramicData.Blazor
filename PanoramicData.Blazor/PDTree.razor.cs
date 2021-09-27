@@ -475,32 +475,24 @@ namespace PanoramicData.Blazor
 			{
 				return new TItem[0];
 			}
-			try
+			var request = new DataRequest<TItem>
 			{
-				BlockOverlayService.Show();
-				var request = new DataRequest<TItem>
-				{
-					Skip = 0,
-					ForceUpdate = false,
-					// if load on demand and item key is given then only fetch immediate child items
-					SearchText = LoadOnDemand ? key ?? string.Empty : null
-				};
+				Skip = 0,
+				ForceUpdate = false,
+				// if load on demand and item key is given then only fetch immediate child items
+				SearchText = LoadOnDemand ? key ?? string.Empty : null
+			};
 
-				// perform query data
-				var response = await DataProvider
-					.GetDataAsync(request, CancellationToken.None)
-					.ConfigureAwait(true);
+			// perform query data
+			var response = await DataProvider
+				.GetDataAsync(request, CancellationToken.None)
+				.ConfigureAwait(true);
 
-				// allow calling application to filter/add items etc
-				var items = new List<TItem>(response.Items);
-				await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
+			// allow calling application to filter/add items etc
+			var items = new List<TItem>(response.Items);
+			await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
 
-				return items;
-			}
-			finally
-			{
-				BlockOverlayService.Hide();
-			}
+			return items;
 		}
 
 		private void UpdateModel(IEnumerable<TItem> items)
