@@ -572,8 +572,8 @@ namespace PanoramicData.Blazor
 						object? typedValue = (value ?? GetFieldValue(field, true))?.Cast(propInfo.PropertyType);
 
 						// run standard data annotation validation
-						var results = new List<ValidationResult>();						
-						var context = new ValidationContext(GetItemWithUpdates())
+						var results = new List<ValidationResult>();
+						var context = new ValidationContext(updatedItem ??= GetItemWithUpdates())
 						{
 							MemberName = memberInfo.Name
 						};
