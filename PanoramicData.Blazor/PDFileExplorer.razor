@@ -121,30 +121,30 @@
 				   ButtonClick="OnToolbarButtonClickAsync" />
 	</div>
 
-	<PDDropZone Id="pdfe-drop-zone-2"
-				SessionId="@SessionId"
-				CssClass="h-100-pct"
-				UploadUrl="@UploadUrl"
-				Timeout="@UploadTimeout"
-				MaxFileSize="UploadMaxSize"
-				PreviewContainer="#pdfe-drop-zone-1"
-				PreviewTemplate="#file-upload-template"
-				Drop="OnFilesDroppedAsync"
-				AllUploadsStarted="OnAllUploadsStarted"
-				AllUploadsProgress="OnAllUploadsProgress"
-				AllUploadsComplete="OnAllUploadsComplete"
-				UploadStarted="OnUploadStartedAsync"
-				UploadProgress="OnUploadProgressAsync"
-				UploadCompleted="OnUploadCompletedAsync">
+	<PDSplitter GutterSize="6">
 
-		<PDSplitter GutterSize="6">
+		<PDSplitPanel Size="1">
 
-			<PDSplitPanel Size="1">
+			<PDContextMenu Items="TreeContextItems"
+						   Enabled="ShowContextMenu"
+						   UpdateState="OnTreeContextMenuUpdateStateAsync"
+						   ItemClick="OnTreeContextMenuItemClickAsync">
 
-				<PDContextMenu Items="TreeContextItems"
-							   Enabled="ShowContextMenu"
-							   UpdateState="OnTreeContextMenuUpdateStateAsync"
-							   ItemClick="OnTreeContextMenuItemClickAsync">
+				<PDDropZone Id="pdfe-drop-zone-2"
+							SessionId="@SessionId"
+							CssClass="h-100-pct"
+							UploadUrl="@UploadUrl"
+							Timeout="@UploadTimeout"
+							MaxFileSize="UploadMaxSize"
+							PreviewContainer="#pdfe-drop-zone-1"
+							PreviewTemplate="#file-upload-template"
+							Drop="OnFilesDroppedAsync"
+							AllUploadsStarted="OnAllUploadsStarted"
+							AllUploadsProgress="OnAllUploadsProgress"
+							AllUploadsComplete="OnAllUploadsComplete"
+							UploadStarted="OnUploadStartedAsync"
+							UploadProgress="OnUploadProgressAsync"
+							UploadCompleted="OnUploadCompletedAsync">
 
 					<PDTree @ref="Tree"
 							AfterEdit="OnTreeAfterEditAsync"
@@ -176,16 +176,34 @@
 						</NodeTemplate>
 					</PDTree>
 
-				</PDContextMenu>
+				</PDDropZone>
 
-			</PDSplitPanel>
+			</PDContextMenu>
 
-			<PDSplitPanel Size="3">
+		</PDSplitPanel>
 
-				<PDContextMenu Items="TableContextItems"
-							   Enabled="ShowContextMenu"
-							   UpdateState="OnTableContextMenuUpdateStateAsync"
-							   ItemClick="OnTableContextMenuItemClickAsync">
+		<PDSplitPanel Size="3">
+
+			<PDContextMenu Items="TableContextItems"
+						   Enabled="ShowContextMenu"
+						   UpdateState="OnTableContextMenuUpdateStateAsync"
+						   ItemClick="OnTableContextMenuItemClickAsync">
+
+				<PDDropZone Id="pdfe-drop-zone-3"
+							SessionId="@SessionId"
+							CssClass="h-100-pct"
+							UploadUrl="@UploadUrl"
+							Timeout="@UploadTimeout"
+							MaxFileSize="UploadMaxSize"
+							PreviewContainer="#pdfe-drop-zone-1"
+							PreviewTemplate="#file-upload-template"
+							Drop="OnFilesDroppedAsync"
+							AllUploadsStarted="OnAllUploadsStarted"
+							AllUploadsProgress="OnAllUploadsProgress"
+							AllUploadsComplete="OnAllUploadsComplete"
+							UploadStarted="OnUploadStartedAsync"
+							UploadProgress="OnUploadProgressAsync"
+							UploadCompleted="OnUploadCompletedAsync">
 
 					<PDTable @ref="Table"
 							 AfterEdit="OnTableAfterEditAsync"
@@ -296,12 +314,12 @@
 
 					</PDTable>
 
-				</PDContextMenu>
+				</PDDropZone>
 
-			</PDSplitPanel>
+			</PDContextMenu>
 
-		</PDSplitter>
+		</PDSplitPanel>
 
-	</PDDropZone>
+	</PDSplitter>
 
 </div>
