@@ -441,7 +441,23 @@ namespace PanoramicData.Blazor
 						{
 							previousCol.SortDirection = SortDirection.None;
 						}
-						column.SortDirection = SortDirection.Ascending;
+						if (column.DefaultSortDirection != SortDirection.None)
+						{
+							column.SortDirection = column.DefaultSortDirection;
+						}
+						else
+						{
+							var defaultSortDirection = SortDirection.Ascending;
+							if (column.Field != null)
+							{
+								var info = column.Field.GetPropertyMemberInfo();
+								if (info.GetMemberUnderlyingType().FullName != typeof(string).FullName)
+								{
+									defaultSortDirection = SortDirection.Descending;
+								}
+							}
+							column.SortDirection = defaultSortDirection;
+						}
 					}
 				}
 
@@ -762,7 +778,7 @@ namespace PanoramicData.Blazor
 		private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
 		{
 			// quit if selection not allowed
-			if(SelectionMode == TableSelectionMode.None)
+			if (SelectionMode == TableSelectionMode.None)
 			{
 				return;
 			}
@@ -772,7 +788,7 @@ namespace PanoramicData.Blazor
 			if (args.Button == 2 && RightClickSelectsRow)
 			{
 				var sourceEl = await JSRuntime.InvokeAsync<ElementInfo>("panoramicData.getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
-				if(sourceEl != null)
+				if (sourceEl != null)
 				{
 					selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
 				}
