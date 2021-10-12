@@ -301,20 +301,7 @@ namespace PanoramicData.Blazor
 					if (Mode == FormModes.Create)
 					{
 						// apply delta to item
-						var itemType = Item.GetType();
-						foreach (var change in Delta)
-						{
-							try
-							{
-								var propInfo = itemType.GetProperty(change.Key);
-								propInfo?.SetValue(Item, change.Value);
-							}
-							catch (Exception ex)
-							{
-								await Error.InvokeAsync($"Error applying delta to {change.Key}: {ex.Message}").ConfigureAwait(true);
-								return false;
-							}
-						}
+						await ApplyDelta(Item).ConfigureAwait(true);
 						var response = await DataProvider.CreateAsync(Item, CancellationToken.None).ConfigureAwait(true);
 						if (response.Success)
 						{
@@ -332,6 +319,8 @@ namespace PanoramicData.Blazor
 						var response = await DataProvider.UpdateAsync(Item, Delta, CancellationToken.None).ConfigureAwait(true);
 						if (response.Success)
 						{
+							// update original item with delta
+							await ApplyDelta(Item).ConfigureAwait(true);
 							Mode = HideForm ? FormModes.Hidden : FormModes.Edit;
 							await Updated.InvokeAsync(Item).ConfigureAwait(true);
 						}
@@ -349,6 +338,23 @@ namespace PanoramicData.Blazor
 				}
 			}
 			return true;
+		}
+
+		private async Task ApplyDelta(TItem item)
+		{
+			var itemType = item.GetType();
+			foreach (var change in Delta)
+			{
+				try
+				{
+					var propInfo = itemType.GetProperty(change.Key);
+					propInfo?.SetValue(item, change.Value);
+				}
+				catch (Exception ex)
+				{
+					await Error.InvokeAsync($"Error applying delta to {change.Key}: {ex.Message}").ConfigureAwait(true);
+				}
+			}
 		}
 
 		/// <summary>
@@ -489,7 +495,9 @@ namespace PanoramicData.Blazor
 				if (memberInfo != null && memberInfo is PropertyInfo propInfo)
 				{
 					// add / replace value on delta object
-					object typedValue = value.Cast(propInfo.PropertyType);
+					object typedValue = propInfo.PropertyType == value.GetType()
+						? value
+						: value.Cast(propInfo.PropertyType);
 
 					// notify application of change - and allow for override
 					var args = new FieldUpdateArgs<TItem>(field, GetFieldValue(field, false), typedValue);

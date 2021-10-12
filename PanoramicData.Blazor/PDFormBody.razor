@@ -115,7 +115,7 @@ else if (Form.Mode != FormModes.Hidden)
 								   disabled="@IsReadOnly(field)"
 								   class="form-control @GetEditorClass(field)"
 								   value="@(Form?.GetFieldStringValue(field))"
-								   @onchange="(x) => Form?.SetFieldValueAsync(field, DateTime.Parse(x.Value.ToString()))">
+								   @onchange="(x) => Form?.SetFieldValueAsync(field, DateTime.SpecifyKind(Convert.ToDateTime(x.Value), DateTimeKind.Utc))">
 						}
 						else if (fieldType?.FullName == "System.DateTimeOffset")
 						{
@@ -155,8 +155,8 @@ else if (Form.Mode != FormModes.Hidden)
 					</div>
 					<div class="mb-2">
 						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-	   (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-	   (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+	(Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
+	(Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}
