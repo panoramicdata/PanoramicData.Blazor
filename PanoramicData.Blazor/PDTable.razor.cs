@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Arguments;
 using PanoramicData.Blazor.Exceptions;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Interfaces;
+using PanoramicData.Blazor.Models;
 using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
@@ -451,7 +454,7 @@ namespace PanoramicData.Blazor
 							if (column.Field != null)
 							{
 								var info = column.Field.GetPropertyMemberInfo();
-								if (info.GetMemberUnderlyingType().FullName != typeof(string).FullName)
+								if (info?.GetMemberUnderlyingType()?.FullName != typeof(string).FullName)
 								{
 									defaultSortDirection = SortDirection.Descending;
 								}

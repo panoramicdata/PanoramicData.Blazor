@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using PanoramicData.Blazor.Arguments;
 using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor

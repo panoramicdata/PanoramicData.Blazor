@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Services;
 
 namespace PanoramicData.Blazor.Extensions

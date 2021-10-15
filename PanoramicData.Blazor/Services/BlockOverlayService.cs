@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PanoramicData.Blazor.Interfaces;
+using System;
 
 namespace PanoramicData.Blazor.Services
 {

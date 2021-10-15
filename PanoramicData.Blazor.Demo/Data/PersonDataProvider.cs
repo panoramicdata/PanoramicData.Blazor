@@ -1,4 +1,6 @@
 ﻿using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Interfaces;
+using PanoramicData.Blazor.Models;
 using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;

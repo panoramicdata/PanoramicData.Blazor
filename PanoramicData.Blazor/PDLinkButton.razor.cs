@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Interfaces;
+using PanoramicData.Blazor.Models;
 using PanoramicData.Blazor.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;

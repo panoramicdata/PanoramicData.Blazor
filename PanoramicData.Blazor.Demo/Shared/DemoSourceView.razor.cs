@@ -1,6 +1,8 @@
 ﻿using BlazorMonaco;
 using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Arguments;
 using PanoramicData.Blazor.Demo.Data;
+using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;

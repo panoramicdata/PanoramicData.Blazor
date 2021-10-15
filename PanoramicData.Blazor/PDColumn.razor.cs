@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Exceptions;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Models;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;

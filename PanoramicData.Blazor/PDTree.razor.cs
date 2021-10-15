@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Arguments;
 using PanoramicData.Blazor.Exceptions;
+using PanoramicData.Blazor.Interfaces;
+using PanoramicData.Blazor.Models;
 using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
@@ -277,7 +280,7 @@ namespace PanoramicData.Blazor
 			_clickCount = 0;
 		}
 
-		public async Task NodeMouseUp(TreeNode<TItem> node)
+		public void NodeMouseUp(TreeNode<TItem> node)
 		{
 			if (_clickTimer == null || node != _clickedNode)
 			{

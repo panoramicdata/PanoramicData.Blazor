@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Demo.Data;
+using PanoramicData.Blazor.Models;
 using PanoramicData.Blazor.Services;
 using System.Threading.Tasks;
 

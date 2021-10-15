@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Arguments;
 using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Extensions;
-using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Interfaces;
+using PanoramicData.Blazor.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Services;
 using System;
 using System.Threading.Tasks;

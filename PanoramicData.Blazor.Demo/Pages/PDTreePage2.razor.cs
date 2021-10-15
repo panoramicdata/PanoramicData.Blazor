@@ -1,5 +1,6 @@
 ﻿using PanoramicData.Blazor.Demo.Data;
-using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Interfaces;
+using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {

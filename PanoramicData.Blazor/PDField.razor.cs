@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;

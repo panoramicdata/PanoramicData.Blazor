@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

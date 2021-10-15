@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Arguments;
+using PanoramicData.Blazor.Models;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;

@@ -1,4 +1,6 @@
 ﻿using Microsoft.JSInterop;
+using PanoramicData.Blazor.Arguments;
+using PanoramicData.Blazor.Interfaces;
 using System;
 using System.Threading.Tasks;
 

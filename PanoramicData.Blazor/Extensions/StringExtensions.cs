@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Models;
 using System;
 using System.Linq;
 using System.Text;

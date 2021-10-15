@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using PanoramicData.Blazor.Arguments;
+using PanoramicData.Blazor.Models;
 using System.Collections.Generic;
 
 namespace PanoramicData.Blazor

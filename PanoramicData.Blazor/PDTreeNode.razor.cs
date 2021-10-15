@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Arguments;
+using PanoramicData.Blazor.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -84,11 +86,11 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnContentMouseUpAsync(MouseEventArgs _)
+		private void OnContentMouseUp(MouseEventArgs _)
 		{
 			if (Node != null)
 			{
-				await Tree.NodeMouseUp(Node).ConfigureAwait(true);
+				Tree.NodeMouseUp(Node);
 			}
 		}
 

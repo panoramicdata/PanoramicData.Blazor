@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using PanoramicData.Blazor.Arguments;
 using PanoramicData.Blazor.Demo.Data;
-using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Models;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Interfaces;
 
 namespace PanoramicData.Blazor
 {

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Arguments;
 using PanoramicData.Blazor.Demo.Data;
+using PanoramicData.Blazor.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

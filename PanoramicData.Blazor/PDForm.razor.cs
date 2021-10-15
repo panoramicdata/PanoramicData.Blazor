@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Arguments;
 using PanoramicData.Blazor.Extensions;
-using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Interfaces;
+using PanoramicData.Blazor.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
