@@ -1,0 +1,18 @@
+﻿<div id="@Id" class="pd-zoombar">
+
+	<PDButton Click="() => OnZoomOut()"
+			  CssClass="btn-sm"
+			  IconCssClass="fas fa-search-minus"
+			  IsEnabled="CanZoomOut()" />
+
+	<PDCanvas @ref="_canvas"
+			  Height="@Height"
+			  Id="@CanvasId"
+			  Width="@Width" />
+
+	<PDButton Click="() => OnZoomIn()"
+			  CssClass="btn-sm"
+			  IconCssClass="fas fa-search-plus"
+			  IsEnabled="CanZoomIn()" />
+
+</div>

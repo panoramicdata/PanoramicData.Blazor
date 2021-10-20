@@ -646,5 +646,79 @@
 
 	updateAddress: function (url) {
 		window.history.replaceState(null, document.title, url);
+	},
+
+	zoombar: {
+
+		zoombars: {
+		},
+
+		init: function (id, value, options, ref) {
+			import('./zoombar.js')
+				.then((module) => {
+					this.zoombars[id] = new module.Zoombar(id, value, options, ref);
+				});
+		},
+
+		setValue: function (id, v) {
+			var zb = this.zoombars[id];
+			if (zb) {
+				return zb.setValue(v);
+			}
+			return 0;
+		},
+
+		term: function (id) {
+			var zb = this.zoombars[id];
+			if (zb) {
+				zb.term();
+			}
+		}
+	},
+
+	timeline: {
+
+		timelines: {
+		},
+
+		init: function (id, options, data, ref) {
+			import('./timeline.js')
+				.then((module) => {
+					this.timelines[id] = new module.Timeline(id, options, data, ref);
+				});
+		},
+
+		setData: function (id, data) {
+			var tl = this.timelines[id];
+			if (tl) {
+				tl.setData(data);
+			}
+		},
+
+		term: function (id) {
+			var tl = this.timelines[id];
+			if (tl) {
+				tl.term();
+			}
+		}
+	},
+
+	canvas: {
+
+		setFillStyle: function (id, fillStyle) {
+			var canvas = document.getElementById(id);
+			if (canvas) {
+				var ctx = canvas.getContext("2d");
+				ctx.fillStyle = fillStyle;
+			}
+		},
+
+		drawRect: function (id, x, y, w, h) {
+			var canvas = document.getElementById(id);
+			if (canvas) {
+				var ctx = canvas.getContext("2d");
+				ctx.fillRect(x, y, w, h);
+			}
+		}
 	}
 }

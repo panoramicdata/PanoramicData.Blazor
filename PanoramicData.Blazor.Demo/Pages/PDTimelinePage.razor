@@ -1,0 +1,20 @@
+﻿@page "/pdtimelinegraph"
+
+<h2>Timeline Widget (in progress)</h2>
+<PDTimeline DataProvider="_timelineDataProvder"
+			Height="60"
+			Options="_timelineOptions"
+			Width="800" />
+
+<!-- Ignore this component -->
+<hr />
+<h2>Experimental Component (ignore)</h2>
+<PDZoomBar Options="_zoombarOptions"
+		   Width="300"
+		   @bind-Value="_zoomPan" />
+<div>
+	<span>Zoom = @_zoomPan.Zoom %</span>
+</div>
+<div>
+	<span>Pan = @_zoomPan.Pan %</span>
+</div>

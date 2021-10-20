@@ -356,6 +356,10 @@
     background-color: #007bff;
     text-align: center; }
 
+.pd-zoombar {
+  display: flex;
+  align-items: center; }
+
 .fa-hidden {
   color: transparent; }
 
