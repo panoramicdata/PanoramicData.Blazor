@@ -269,10 +269,7 @@ namespace PanoramicData.Blazor
 					{
 						await ToggleNodeIsExpandedAsync(_clickedNode).ConfigureAwait(true);
 					}
-					else
-					{
-						await SelectNode(_clickedNode).ConfigureAwait(true);
-					}
+					await SelectNode(_clickedNode).ConfigureAwait(true);
 					StateHasChanged();
 				}
 			});
