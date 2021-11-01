@@ -194,6 +194,30 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private async Task UpdateDateTimeValue(ChangeEventArgs args, FormField<TItem> field)
+		{
+			try
+			{
+				await Form!.SetFieldValueAsync(field, DateTime.SpecifyKind(Convert.ToDateTime(args.Value), DateTimeKind.Utc)).ConfigureAwait(true);
+			}
+			catch
+			{
+				Form!.SetFieldErrors(field.GetName() ?? "", "Invalid Date");
+			}
+		}
+
+		private async Task UpdateDateTimeOffsetValue(ChangeEventArgs args, FormField<TItem> field)
+		{
+			try
+			{
+				await Form!.SetFieldValueAsync(field, DateTimeOffset.Parse(args.Value.ToString())).ConfigureAwait(true);
+			}
+			catch
+			{
+				Form!.SetFieldErrors(field.GetName() ?? "", "Invalid Date");
+			}
+		}
+
 		private async Task UpdateValueViaCastAsync(ChangeEventArgs args, FormField<TItem> field)
 		{
 			try
