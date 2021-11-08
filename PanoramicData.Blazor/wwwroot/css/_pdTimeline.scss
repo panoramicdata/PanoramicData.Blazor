@@ -1,0 +1,19 @@
+﻿.pd-timeline {
+	overflow-x: auto;
+	border: 1px solid silver;
+}
+
+/*.svg-viewport {
+	height: 100px;
+	fill: black;
+	font-size: 8pt;
+}*/
+
+.svg-viewport text {
+	user-select: none;
+}
+
+.tl-canvas {
+	height: 150px;
+	width: 100%;
+}

@@ -648,6 +648,10 @@
 		window.history.replaceState(null, document.title, url);
 	},
 
+	getWidth: function (el) {
+		return el.width.animVal.value || 0;
+	},
+
 	zoombar: {
 
 		zoombars: {

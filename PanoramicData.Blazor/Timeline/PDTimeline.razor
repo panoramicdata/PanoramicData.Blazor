@@ -1,0 +1,32 @@
+﻿<div id="@Id"
+	 class="pd-timeline"
+	 @onmousewheel="OnMouseWheel">
+
+	<svg @ref="_svgCanvasElement"
+		 class="tl-canvas"
+		 preserveAspectRatio="none">
+		@{
+			var points = GetViewPortDataPoints();
+			if (points.Length > 0)
+			{
+				var maxYValue = points.Max(x => x?.SeriesValues.Sum() ?? 0);
+				for (var i = 0; i < points.Length; i++)
+				{
+					<PDStackedBar DataPoint="points[i]"
+								  MaxValue="maxYValue"
+								  Options="Options"
+								  X="@(i * Options.Bar.Width)" />
+				}
+			}
+		}
+	</svg>
+</div>
+
+<div>
+	<h4>Data</h4>
+	<p>Periods = @TotalPeriods</p>
+	<p>Width = @_canvasWidth</p>
+	<p>Bar Width = @Options.Bar.Width</p>
+	<p>ViewPort Width (Cols) = @GetViewPortColumnCount()</p>
+	<p>Totals Cols = @CalculateLastColumnIndex()</p>
+</div>

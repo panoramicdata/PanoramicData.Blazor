@@ -1,20 +1,31 @@
 ﻿@page "/pdtimelinegraph"
 
 <h2>Timeline Widget (in progress)</h2>
-<PDTimeline DataProvider="_timelineDataProvder"
-			Height="60"
-			Options="_timelineOptions"
-			Width="800" />
+<div>
+	<div class="toolbar">
+		<EditForm Model="_model">
+			<InputSelect TValue="TimelineScales"
+						 @bind-Value="_model.Scale">
+				<option value="@TimelineScales.Minutes">1 Minute</option>
+				<option value="@TimelineScales.Hours">1 Hour</option>
+				<option value="@TimelineScales.Hours4">4 Hours</option>
+				<option value="@TimelineScales.Hours6">6 Hours</option>
+				<option value="@TimelineScales.Hours8">8 Hours</option>
+				<option value="@TimelineScales.Hours12">12 Hours</option>
+				<option value="@TimelineScales.Days">1 Day</option>
+				<option value="@TimelineScales.Weeks">1 Week</option>
+				<option value="@TimelineScales.Months">1 Month</option>
+				<option value="@TimelineScales.Years">1 Year</option>
+			</InputSelect>
+		</EditForm>
+	</div>
 
-<!-- Ignore this component -->
-<hr />
-<h2>Experimental Component (ignore)</h2>
-<PDZoomBar Options="_zoombarOptions"
-		   Width="300"
-		   @bind-Value="_zoomPan" />
-<div>
-	<span>Zoom = @_zoomPan.Zoom %</span>
-</div>
-<div>
-	<span>Pan = @_zoomPan.Pan %</span>
+	<PDTimeline DataProvider="_timelineDataProvder"
+				DataProvider2="GetTimelineData"
+				MaxDateTime="_data.Max(x => x.DateChanged)"
+				MinDateTime="_data.Min(x => x.DateChanged)"
+				Height="60"
+				Options="_timelineOptions"
+				@bind-Scale="_model.Scale"
+				Width="800" />
 </div>

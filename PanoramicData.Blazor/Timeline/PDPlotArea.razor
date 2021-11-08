@@ -1,0 +1,16 @@
+﻿<svg height="@Height"
+	 preserveAspectRatio="none"
+	 viewBox="@CalculateViewBox()"
+	 width="@(TotalPeriods * Options.Bar.Width)"
+	 x="@X"
+	 y="@Y">
+
+	@for (var i = 0; i < DataPoints.Length; i++)
+	{
+		<PDStackedBar DataPoint="DataPoints[i]"
+					  MaxValue="_maxYValue"
+					  Options="Options"
+					  X="@(DataPoints[i].PeriodIndex * Options.Bar.Width)" />
+	}
+
+</svg>
