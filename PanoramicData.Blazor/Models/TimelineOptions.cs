@@ -20,6 +20,7 @@ namespace PanoramicData.Blazor.Models
 		public string Background { get; set; } = "White";
 		public string Border { get; set; } = "Silver";
 		public string Foreground { get; set; } = "Black";
+		public string HandleBackground { get; set; } = "Silver";
 	}
 
 	public class TimelineSeries

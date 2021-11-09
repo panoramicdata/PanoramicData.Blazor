@@ -20,13 +20,22 @@
 			}
 		}
 	</svg>
+
+	<svg class="tl-pan"
+		 @onmousedown="OnPanMouseDown"
+		 @onmousemove="OnPanMouseMove"
+		 @onmouseup="OnPanMouseUp"
+		 preserveAspectRatio="none">
+		<rect x="@_panHandleX" y="0" width="@_panHandleWidth" height="20" fill="@Options.Colours.HandleBackground" />
+	</svg>
+
 </div>
 
 <div>
 	<h4>Data</h4>
-	<p>Periods = @TotalPeriods</p>
 	<p>Width = @_canvasWidth</p>
 	<p>Bar Width = @Options.Bar.Width</p>
-	<p>ViewPort Width (Cols) = @GetViewPortColumnCount()</p>
-	<p>Totals Cols = @CalculateLastColumnIndex()</p>
+	<p>Columns = @_totalColumns</p>
+	<p>Column Offset = @_columnOffset</p>
+	<p>ViewPort Width (Cols) = @_viewportColumns</p>
 </div>

@@ -652,6 +652,10 @@
 		return el.width.animVal.value || 0;
 	},
 
+	getX: function (el) {
+		return el.x.animVal.value || 0;
+	},
+
 	zoombar: {
 
 		zoombars: {

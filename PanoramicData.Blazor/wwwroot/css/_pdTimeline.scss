@@ -1,6 +1,7 @@
 ﻿.pd-timeline {
 	overflow-x: auto;
 	border: 1px solid silver;
+	line-height: normal;
 }
 
 /*.svg-viewport {
@@ -15,5 +16,11 @@
 
 .tl-canvas {
 	height: 150px;
+	width: 100%;
+}
+
+.tl-pan {
+	border-top: 1px solid silver;
+	height: 20px;
 	width: 100%;
 }

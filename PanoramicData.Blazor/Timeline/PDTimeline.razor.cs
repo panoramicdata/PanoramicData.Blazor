@@ -17,7 +17,14 @@ namespace PanoramicData.Blazor.Timeline
 
 		private static int _seq;
 		private int _canvasWidth;
-		private int _offset;
+		private int _columnOffset;
+		private bool _isDragging;
+		private double _dragOrigin;
+		private double _panHandleWidth;
+		private double _panHandleX;
+		private double _panHandleDragOrigin;
+		private int _totalColumns;
+		private int _viewportColumns;
 		private ElementReference _svgCanvasElement;
 		private DotNetObjectReference<PDTimeline>? _objRef;
 		private TimelineScales _previousScale = TimelineScales.Days;
@@ -55,62 +62,19 @@ namespace PanoramicData.Blazor.Timeline
 		[Parameter]
 		public int Width { get; set; } = 400;
 
-		private DataPoint[] DataPoints { get; set; } = Array.Empty<DataPoint>();
-
-		private int TotalPeriods { get; set; }
-
-		public async Task<DataPoint[]> FetchData()
+		private DataPoint[] GetViewPortDataPoints()
 		{
-			if (DataProvider is null)
+			var cols = _viewportColumns;
+			var points = new DataPoint[cols];
+			for (var i = 0; i < points.Length; i++)
 			{
-				DataPoints = Array.Empty<DataPoint>();
-			}
-			else
-			{
-				// fetch data
-				var request = new DataRequest<TimelineDataPoint>();
-				var response = await DataProvider.GetDataAsync(request, default).ConfigureAwait(true);
-
-				// aggregate according to zoom / scale
-				var index = 0;
-				var buckets = new List<DataPoint>();
-				var groups = response.Items.GroupBy(x => x.DateTime.PeriodStart(Scale)).OrderBy(x => x.Key);
-				DateTime? previousStart = null;
-				foreach (var group in groups)
+				var key = _columnOffset + i;
+				if (_dataPoints.ContainsKey(key))
 				{
-					// increment index
-					index += previousStart.HasValue ? group.Key.TotalPeriodsSince(previousStart.Value, Scale) : 0;
-					var dp = new DataPoint
-					{
-						PeriodIndex = index,
-						StartTime = group.Key
-					};
-					// sum each series for bucket
-					var values = new List<double>();
-					for (var seriesIdx = 0; seriesIdx < Options.Series.Length; seriesIdx++)
-					{
-						var sum = group.Where(x => x.Series == seriesIdx).Sum(x => x.Value);
-						values.Add(sum);
-					}
-					dp.SeriesValues = values.ToArray();
-					buckets.Add(dp);
-					previousStart = dp.StartTime;
-				}
-				DataPoints = buckets.ToArray();
-
-				// calculate max summed values
-				//MaxSeriesSum = DataPoints.Max(x => x.SeriesValues.Sum());
-
-				// calculate period in entire time range
-				TotalPeriods = 0;
-				if (DataPoints.Length > 0)
-				{
-					var start = DataPoints[0].StartTime;
-					var end = DataPoints[DataPoints.Length - 1].StartTime.PeriodEnd(Scale);
-					TotalPeriods = end.TotalPeriodsSince(start, Scale);
+					points[i] = _dataPoints[key];
 				}
 			}
-			return DataPoints;
+			return points.ToArray();
 		}
 
 		protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -120,8 +84,43 @@ namespace PanoramicData.Blazor.Timeline
 				_objRef = DotNetObjectReference.Create(this);
 				await JSRuntime.InvokeVoidAsync("panoramicData.timeline.init", Id, Options, _objRef).ConfigureAwait(true);
 				_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgCanvasElement).ConfigureAwait(true);
+				await SetScale(Scale, true);
+			}
+		}
 
-				await RefreshAsync().ConfigureAwait(true);
+		private void OnPanMouseDown(MouseEventArgs args)
+		{
+			if (!_isDragging)
+			{
+				_isDragging = true;
+				_dragOrigin = args.ClientX;
+				_panHandleDragOrigin = _panHandleX;
+			}
+		}
+
+		private void OnPanMouseMove(MouseEventArgs args)
+		{
+			if (_isDragging)
+			{
+				var delta = args.ClientX - _dragOrigin;
+				_panHandleX = _panHandleDragOrigin + delta;
+				if (_panHandleX < 0)
+				{
+					_panHandleX = 0;
+				}
+				else if (_panHandleX > (_canvasWidth - _panHandleWidth))
+				{
+					_panHandleX = _canvasWidth - _panHandleWidth;
+				}
+				_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
+			}
+		}
+
+		private void OnPanMouseUp(MouseEventArgs args)
+		{
+			if (_isDragging)
+			{
+				_isDragging = false;
 			}
 		}
 
@@ -129,125 +128,98 @@ namespace PanoramicData.Blazor.Timeline
 		{
 			if (args.CtrlKey)
 			{
-				bool scaleChanged = false;
 				if (args.DeltaY < 0)
 				{
 					if (Scale > TimelineScales.Minutes)
 					{
-						Scale--;
-						_previousScale = Scale;
-						scaleChanged = true;
+						await SetScale(Scale - 1).ConfigureAwait(true);
 					}
 				}
 				else
 				{
 					if (Scale < TimelineScales.Years)
 					{
-						Scale++;
-						_previousScale = Scale;
-						scaleChanged = true;
+						await SetScale(Scale + 1).ConfigureAwait(true);
 					}
-				}
-				if (scaleChanged)
-				{
-					_dataPoints.Clear();
-					await ScaleChanged.InvokeAsync(Scale).ConfigureAwait(true);
-					await RefreshAsync().ConfigureAwait(true);
 				}
 			}
 		}
 
 		protected async override Task OnParametersSetAsync()
 		{
-			if (Scale != _previousScale)
-			{
-				_dataPoints.Clear();
-				_previousScale = Scale;
-				await RefreshAsync().ConfigureAwait(true);
-			}
+			await SetScale(Scale).ConfigureAwait(true);
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDTimeline.OnResize")]
 		public async Task OnResize()
 		{
 			_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgCanvasElement).ConfigureAwait(true);
+			await SetScale(Scale, true).ConfigureAwait(true);
 			await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
-		}
-
-		private async Task RefreshViewport()
-		{
-			if (DataProvider2 != null)
-			{
-				var start = MinDateTime;
-				var end = MaxDateTime ?? DateTime.Now;
-				var points = await DataProvider2(start, end, Scale).ConfigureAwait(true);
-				foreach (var point in points)
-				{
-					if (!_dataPoints.ContainsKey(point.PeriodIndex))
-					{
-						_dataPoints.Add(point.PeriodIndex, point);
-					}
-				}
-			}
 		}
 
 		public async Task RefreshAsync()
 		{
 			if (DataProvider != null)
 			{
-				await FetchData().ConfigureAwait(true);
-				await RefreshViewport().ConfigureAwait(true);
+				if (DataProvider2 != null)
+				{
+					var start = MinDateTime;
+					var end = MaxDateTime ?? DateTime.Now;
+					var points = await DataProvider2(start, end, Scale).ConfigureAwait(true);
+					foreach (var point in points)
+					{
+						if (!_dataPoints.ContainsKey(point.PeriodIndex))
+						{
+							_dataPoints.Add(point.PeriodIndex, point);
+						}
+					}
+				}
 				StateHasChanged();
 			}
 		}
 
-		private string CalculateViewBox()
+		public async Task SetScale(TimelineScales scale, bool forceRefresh = false)
 		{
-			var x = 0;
-			var y = 0;
-			var width = TotalPeriods * Options.Bar.Width;
-			var height = 100;
-			return $"{x} {y} {width} {height}";
-		}
-
-		private int GetViewPortColumnCount()
-		{
-			return _canvasWidth / Options.Bar.Width;
-		}
-
-		private DataPoint[] GetViewPortDataPoints()
-		{
-			var cols = GetViewPortColumnCount();
-			var points = new DataPoint[cols];
-			for (var i = 0; i < points.Length; i++)
+			if (scale != _previousScale || forceRefresh)
 			{
-				var key = _offset + i;
-				if (_dataPoints.ContainsKey(key))
+				if (scale != _previousScale)
 				{
-					points[i] = _dataPoints[key];
+					await ScaleChanged.InvokeAsync(scale).ConfigureAwait(true);
 				}
+				_dataPoints.Clear();
+				_previousScale = Scale;
+				Scale = scale;
+				// calculate total number of columns for scale
+				var start = MinDateTime.Date;
+				var end = MaxDateTime?.Date ?? DateTime.Now.Date;
+				var temp = Scale switch
+				{
+					TimelineScales.Minutes => end.Subtract(start).TotalMinutes,
+					TimelineScales.Hours => end.Subtract(start).TotalHours,
+					TimelineScales.Hours4 => end.Subtract(start).TotalHours / 4,
+					TimelineScales.Hours6 => end.Subtract(start).TotalHours / 6,
+					TimelineScales.Hours8 => end.Subtract(start).TotalHours / 8,
+					TimelineScales.Hours12 => end.Subtract(start).TotalHours / 12,
+					TimelineScales.Weeks => end.Subtract(start).TotalDays / 7,
+					TimelineScales.Months => end.TotalMonthsSince(start),
+					TimelineScales.Years => end.TotalYearsSince(start),
+					_ => end.Subtract(start).TotalDays
+				};
+				_totalColumns = (int)Math.Ceiling(temp);
+				// calculate visible columns
+				_viewportColumns = (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width);
+				// calculate pan handle width - min 5 px
+				_panHandleWidth = Math.Min(Math.Max(((double)_viewportColumns / (double)_totalColumns) * _canvasWidth, 5), _canvasWidth);
+				if (_canvasWidth > 0 && (_panHandleX + _panHandleWidth > _canvasWidth))
+				{
+					_panHandleX = _canvasWidth - _panHandleWidth;
+				}
+				_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
+				// refresh data for new scale
+				await RefreshAsync().ConfigureAwait(true);
+				StateHasChanged();
 			}
-			return points.ToArray();
-		}
-
-		private int CalculateLastColumnIndex()
-		{
-			var start = MinDateTime.Date;
-			var end = MaxDateTime?.Date ?? DateTime.Now.Date;
-			var temp = Scale switch
-			{
-				TimelineScales.Minutes => end.Subtract(start).TotalMinutes,
-				TimelineScales.Hours => end.Subtract(start).TotalHours,
-				TimelineScales.Hours4 => end.Subtract(start).TotalHours / 4,
-				TimelineScales.Hours6 => end.Subtract(start).TotalHours / 6,
-				TimelineScales.Hours8 => end.Subtract(start).TotalHours / 8,
-				TimelineScales.Hours12 => end.Subtract(start).TotalHours / 12,
-				TimelineScales.Weeks => end.Subtract(start).TotalDays / 7,
-				TimelineScales.Months => end.TotalMonthsSince(start),
-				TimelineScales.Years => end.TotalYearsSince(start),
-				_ => end.Subtract(start).TotalDays
-			};
-			return (int)Math.Ceiling(temp);
 		}
 
 		public void Dispose()
