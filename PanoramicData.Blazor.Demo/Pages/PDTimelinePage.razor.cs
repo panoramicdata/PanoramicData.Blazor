@@ -15,7 +15,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private List<ConfigChange> _data = new();
 		private PDTimeline _timeline = null!;
 		private TimelinePageModel _model = new TimelinePageModel();
-		//private IDataProviderService<TimelineDataPoint> _timelineDataProvder = null!;
 		private TimelineOptions _timelineOptions = new TimelineOptions
 		{
 			RightAlign = true,

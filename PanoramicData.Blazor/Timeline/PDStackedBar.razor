@@ -6,15 +6,16 @@
 		 width="@Options.Bar.Width"
 		 @onmousedown="OnMouseDown"
 		 @onmouseup="OnMouseUp">
-		@{
-			var y = MaxValue;
-			for (var i = 0; i < DataPoint.SeriesValues.Length; i++)
-			{
-				var value = DataPoint.SeriesValues[i];
-				var colour = Options.Series.Length > 0 && i < Options.Series.Length ? Options.Series[i].Colour : "black";
-				<rect x="@Padding" y="@(y - value)" width="@(Options.Bar.Width - 2 * Padding)" height="@value" stroke="@colour" fill="@colour" />
-				y -= value;
-			}
-		}
+        @{
+            var y = MaxValue;
+            for (var i = 0; i < DataPoint.SeriesValues.Length; i++)
+            {
+                var value = DataPoint.SeriesValues[i];
+                var colour = Options.Series.Length > 0 && i < Options.Series.Length ? Options.Series[i].Colour : "black";
+                <rect x="@Padding" y="@(y - value)" width="@(Options.Bar.Width - 2 * Padding)" height="@value" stroke="@colour" fill="@colour" />
+                y -= value;
+            }
+        }
+        <title>@GetTitle()</title>
 	</svg>
 }

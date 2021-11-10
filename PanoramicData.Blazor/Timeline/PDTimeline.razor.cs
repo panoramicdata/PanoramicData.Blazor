@@ -93,6 +93,14 @@ namespace PanoramicData.Blazor.Timeline
 					Text = dt.ToString("dd/MM/yy")
 				};
 			}
+			else if (Scale == TimelineScales.Hours12)
+			{
+				return new TextInfo
+				{
+					Skip = 2,
+					Text = dt.ToString("dd/MM/yy")
+				};
+			}
 			else if (Scale == TimelineScales.Hours8)
 			{
 				return new TextInfo
@@ -135,6 +143,24 @@ namespace PanoramicData.Blazor.Timeline
 			}
 		}
 
+		private static string GetDateFormat(TimelineScales scale)
+		{
+			return scale switch
+			{
+				TimelineScales.Years => "yyyy",
+				TimelineScales.Months => "MMM yyyy",
+				TimelineScales.Weeks => "dd/MM/yy",
+				TimelineScales.Days => "dd/MM/yy",
+				TimelineScales.Hours12 => "dd/MM/yy HH:00",
+				TimelineScales.Hours8 => "dd/MM/yy HH:00",
+				TimelineScales.Hours6 => "dd/MM/yy HH:00",
+				TimelineScales.Hours4 => "dd/MM/yy HH:00",
+				TimelineScales.Hours => "dd/MM/yy HH:00",
+				TimelineScales.Minutes => "dd/MM/yy HH:mm",
+				_ => "dd/MM/yy"
+			};
+		}
+
 		private DataPoint[] GetViewPortDataPoints()
 		{
 			var cols = _viewportColumns;
@@ -147,13 +173,6 @@ namespace PanoramicData.Blazor.Timeline
 					points[i] = _dataPoints[key];
 				}
 			}
-
-			// right align if within viewport window
-			if(Options.RightAlign)
-			{
-
-			}
-
 			return points.ToArray();
 		}
 

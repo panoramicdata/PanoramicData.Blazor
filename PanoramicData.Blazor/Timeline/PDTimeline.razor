@@ -3,9 +3,9 @@
 	 class="pd-timeline"
 	 @onmousewheel="OnMouseWheel">
 
-     @{
-        var points = GetViewPortDataPoints();
-        var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
+    @{
+       var points = GetViewPortDataPoints();
+       var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
     }
 
 	<svg @ref="_svgCanvasElement"
@@ -17,7 +17,8 @@
 				var maxYValue = points.Max(x => x?.SeriesValues.Sum() ?? 0);
 				for (var i = 0; i < points.Length; i++)
 				{
-					<PDStackedBar DataPoint="points[i]"
+					<PDStackedBar DateFormat="@GetDateFormat(Scale)"
+                                  DataPoint="points[i]"
 								  MaxValue="maxYValue"
 								  Options="Options"
 								  X="@(i * Options.Bar.Width)" />
@@ -27,18 +28,26 @@
 	</svg>
 
 	<svg class="tl-x-axis"
-		preserveAspectRatio="none">
+		 preserveAspectRatio="none">
         @for(var x=0; x < _canvasWidth; x += Options.Bar.Width)
         {
-           <line x1="@x" y1="0" x2="@x" y2="5" stroke="silver" />
+           <line stroke="silver"
+                 x1="@x"
+                 x2="@x"
+                 y1="0"
+                 y2="5" />
         }
         @for (var i = 0; i < points.Length; i++)
         {
             var dt = MinDateTime.AddPeriods(Scale, _columnOffset + i);
             var textInfo = GetTextInfo(dt);
-            <line x1="@(i * Options.Bar.Width)" x2="@(i * Options.Bar.Width)" y2="15" stroke="black" />
+            <line x1="@(i * Options.Bar.Width)" 
+                  x2="@(i * Options.Bar.Width)" 
+                  y2="15" 
+                  stroke="black" />
             <text>
-                <text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)" y="@textInfo.OffsetY">@textInfo.Text</text>
+                <text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)" 
+                      y="@textInfo.OffsetY">@textInfo.Text</text>
             </text>
             i += textInfo.Skip;
         }
@@ -49,7 +58,11 @@
 		 @onmousemove="OnPanMouseMove"
 		 @onmouseup="OnPanMouseUp"
 		 preserveAspectRatio="none">
-		<rect x="@_panHandleX" y="0" width="@_panHandleWidth" height="20" fill="@Options.Colours.HandleBackground" />
+		<rect fill="@Options.Colours.HandleBackground"              
+              height="20"
+              width="@_panHandleWidth" 
+              x="@_panHandleX" 
+              y="0" />
 	</svg>
 
 </div>
