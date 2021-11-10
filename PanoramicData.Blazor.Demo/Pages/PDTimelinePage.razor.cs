@@ -15,9 +15,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private List<ConfigChange> _data = new();
 		private PDTimeline _timeline = null!;
 		private TimelinePageModel _model = new TimelinePageModel();
-		private IDataProviderService<TimelineDataPoint> _timelineDataProvder = null!;
+		//private IDataProviderService<TimelineDataPoint> _timelineDataProvder = null!;
 		private TimelineOptions _timelineOptions = new TimelineOptions
 		{
+			RightAlign = true,
 			Bar = new TimelineBarOptions
 			{
 				Width = 20
@@ -76,7 +77,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		protected override void OnInitialized()
 		{
-			_timelineDataProvder = new DataProvider(_data);
+			//_timelineDataProvder = new DataProvider(_data);
 			GenerateData();
 		}
 
@@ -113,55 +114,55 @@ namespace PanoramicData.Blazor.Demo.Pages
 		}
 	}
 
-	public class DataProvider : IDataProviderService<TimelineDataPoint>
-	{
-		private List<ConfigChange> _data = new();
+	//public class DataProvider : IDataProviderService<TimelineDataPoint>
+	//{
+	//	private List<ConfigChange> _data = new();
 
-		public DateTime StartDate { get; set; } = new DateTime(2018, 1, 1);
-		public DateTime EndDate { get; set; } = DateTime.Now;
-		public TimeSpan DayStart { get; set; } = new TimeSpan(9, 0, 0);
-		public TimeSpan DaySuration { get; set; } = new TimeSpan(8, 0, 0);
+	//	public DateTime StartDate { get; set; } = new DateTime(2018, 1, 1);
+	//	public DateTime EndDate { get; set; } = DateTime.Now;
+	//	public TimeSpan DayStart { get; set; } = new TimeSpan(9, 0, 0);
+	//	public TimeSpan DaySuration { get; set; } = new TimeSpan(8, 0, 0);
 
-		public DataProvider(List<ConfigChange> data)
-		{
-			_data = data;
-		}
+	//	public DataProvider(List<ConfigChange> data)
+	//	{
+	//		_data = data;
+	//	}
 
-		public Task<DataResponse<TimelineDataPoint>> GetDataAsync(DataRequest<TimelineDataPoint> request, CancellationToken cancellationToken)
-		{
-			// TODO: group data
+	//	public Task<DataResponse<TimelineDataPoint>> GetDataAsync(DataRequest<TimelineDataPoint> request, CancellationToken cancellationToken)
+	//	{
+	//		// TODO: group data
 
-			var results = new List<TimelineDataPoint>();
-			foreach (var pt in _data)
-			{
-				results.Add(new TimelineDataPoint(pt.DateChanged, 0, pt.LinesDeleted));
-				results.Add(new TimelineDataPoint(pt.DateChanged, 1, pt.LinesChanged));
-				results.Add(new TimelineDataPoint(pt.DateChanged, 2, pt.LinesAdded));
-			}
+	//		var results = new List<TimelineDataPoint>();
+	//		foreach (var pt in _data)
+	//		{
+	//			results.Add(new TimelineDataPoint(pt.DateChanged, 0, pt.LinesDeleted));
+	//			results.Add(new TimelineDataPoint(pt.DateChanged, 1, pt.LinesChanged));
+	//			results.Add(new TimelineDataPoint(pt.DateChanged, 2, pt.LinesAdded));
+	//		}
 
-			var response = new DataResponse<TimelineDataPoint>(results, results.Count);
-			return Task.FromResult(response);
-		}
+	//		var response = new DataResponse<TimelineDataPoint>(results, results.Count);
+	//		return Task.FromResult(response);
+	//	}
 
-		#region Not Implemented
+	//	#region Not Implemented
 
-		public Task<OperationResponse> DeleteAsync(TimelineDataPoint item, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
+	//	public Task<OperationResponse> DeleteAsync(TimelineDataPoint item, CancellationToken cancellationToken)
+	//	{
+	//		throw new NotImplementedException();
+	//	}
 
-		public Task<OperationResponse> UpdateAsync(TimelineDataPoint item, IDictionary<string, object> delta, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
+	//	public Task<OperationResponse> UpdateAsync(TimelineDataPoint item, IDictionary<string, object> delta, CancellationToken cancellationToken)
+	//	{
+	//		throw new NotImplementedException();
+	//	}
 
-		public Task<OperationResponse> CreateAsync(TimelineDataPoint item, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
+	//	public Task<OperationResponse> CreateAsync(TimelineDataPoint item, CancellationToken cancellationToken)
+	//	{
+	//		throw new NotImplementedException();
+	//	}
 
-		#endregion
-	}
+	//	#endregion
+	//}
 
 	public class ConfigChange
 	{

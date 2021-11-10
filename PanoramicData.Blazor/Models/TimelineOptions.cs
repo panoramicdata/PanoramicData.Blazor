@@ -4,6 +4,7 @@ namespace PanoramicData.Blazor.Models
 {
 	public class TimelineOptions
 	{
+		public bool RightAlign { get; set; }
 		public TimelineBarOptions Bar { get; set; } = new TimelineBarOptions();
 		public TimelineColours Colours { get; set; } = new TimelineColours();
 		public TimelineSeries[] Series { get; set; } = Array.Empty<TimelineSeries>();

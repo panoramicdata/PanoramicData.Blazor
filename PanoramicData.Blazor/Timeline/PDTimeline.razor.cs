@@ -39,10 +39,7 @@ namespace PanoramicData.Blazor.Timeline
 		public EventCallback<TimelineScales> ScaleChanged { get; set; }
 
 		[Parameter]
-		public IDataProviderService<TimelineDataPoint>? DataProvider { get; set; }
-
-		[Parameter]
-		public DataProviderDelegate? DataProvider2 { get; set; }
+		public DataProviderDelegate? DataProvider { get; set; }
 
 		[Parameter]
 		public string Id { get; set; } = $"pd-timeline-{++_seq}";
@@ -62,6 +59,82 @@ namespace PanoramicData.Blazor.Timeline
 		[Parameter]
 		public int Width { get; set; } = 400;
 
+		private TextInfo GetTextInfo(DateTime dt)
+		{
+			if (Scale == TimelineScales.Years)
+			{
+				return new TextInfo
+				{
+					OffsetX = 4,
+					Text = dt.ToString("yy")
+				};
+			}
+			else if (Scale == TimelineScales.Months)
+			{
+				return new TextInfo
+				{
+					Skip = 1,
+					Text = dt.ToString("MMM yy")
+				};
+			}
+			else if (Scale == TimelineScales.Weeks)
+			{
+				return new TextInfo
+				{
+					Skip = 3,
+					Text = dt.ToString("dd/MM/yy")
+				};
+			}
+			else if (Scale == TimelineScales.Days)
+			{
+				return new TextInfo
+				{
+					Skip = 2,
+					Text = dt.ToString("dd/MM/yy")
+				};
+			}
+			else if (Scale == TimelineScales.Hours8)
+			{
+				return new TextInfo
+				{
+					Skip = 2,
+					Text = dt.ToString("dd/MM/yy")
+				};
+			}
+			else if (Scale == TimelineScales.Hours4)
+			{
+				return new TextInfo
+				{
+					Skip = 5,
+					Text = dt.ToString("dd/MM/yy")
+				};
+			}
+			else if (Scale == TimelineScales.Hours)
+			{
+				return new TextInfo
+				{
+					Skip = 3,
+					Text = dt.ToString("dd/MM/yy HH:00")
+				};
+			}
+			else if (Scale == TimelineScales.Minutes)
+			{
+				return new TextInfo
+				{
+					Skip = 3,
+					Text = dt.ToString("dd/MM/yy HH:mm")
+				};
+			}
+			else
+			{
+				return new TextInfo
+				{
+					Skip = 3,
+					Text = dt.ToString("dd/MM/yy")
+				};
+			}
+		}
+
 		private DataPoint[] GetViewPortDataPoints()
 		{
 			var cols = _viewportColumns;
@@ -74,6 +147,13 @@ namespace PanoramicData.Blazor.Timeline
 					points[i] = _dataPoints[key];
 				}
 			}
+
+			// right align if within viewport window
+			if(Options.RightAlign)
+			{
+
+			}
+
 			return points.ToArray();
 		}
 
@@ -162,21 +242,18 @@ namespace PanoramicData.Blazor.Timeline
 		{
 			if (DataProvider != null)
 			{
-				if (DataProvider2 != null)
+				var start = MinDateTime;
+				var end = MaxDateTime ?? DateTime.Now;
+				var points = await DataProvider(start, end, Scale).ConfigureAwait(true);
+				foreach (var point in points)
 				{
-					var start = MinDateTime;
-					var end = MaxDateTime ?? DateTime.Now;
-					var points = await DataProvider2(start, end, Scale).ConfigureAwait(true);
-					foreach (var point in points)
+					if (!_dataPoints.ContainsKey(point.PeriodIndex))
 					{
-						if (!_dataPoints.ContainsKey(point.PeriodIndex))
-						{
-							_dataPoints.Add(point.PeriodIndex, point);
-						}
+						_dataPoints.Add(point.PeriodIndex, point);
 					}
 				}
-				StateHasChanged();
 			}
+			StateHasChanged();
 		}
 
 		public async Task SetScale(TimelineScales scale, bool forceRefresh = false)
@@ -225,6 +302,14 @@ namespace PanoramicData.Blazor.Timeline
 		public void Dispose()
 		{
 			JSRuntime.InvokeVoidAsync("panoramicData.timeline.term", Id);
+		}
+
+		public class TextInfo
+		{
+			public int OffsetX { get; set; } = 3;
+			public int OffsetY { get; set; } = 14;
+			public int Skip { get; set; }
+			public string Text { get; set; } = string.Empty;
 		}
 	}
 }

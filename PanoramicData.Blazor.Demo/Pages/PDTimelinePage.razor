@@ -20,8 +20,7 @@
 		</EditForm>
 	</div>
 
-	<PDTimeline DataProvider="_timelineDataProvder"
-				DataProvider2="GetTimelineData"
+	<PDTimeline DataProvider="GetTimelineData"
 				MaxDateTime="_data.Max(x => x.DateChanged)"
 				MinDateTime="_data.Min(x => x.DateChanged)"
 				Height="60"

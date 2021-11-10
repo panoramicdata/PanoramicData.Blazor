@@ -1,12 +1,17 @@
-﻿<div id="@Id"
+﻿@using PanoramicData.Blazor.Extensions
+<div id="@Id"
 	 class="pd-timeline"
 	 @onmousewheel="OnMouseWheel">
 
+     @{
+        var points = GetViewPortDataPoints();
+        var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
+    }
+
 	<svg @ref="_svgCanvasElement"
-		 class="tl-canvas"
+		 class="tl-plot-area"
 		 preserveAspectRatio="none">
 		@{
-			var points = GetViewPortDataPoints();
 			if (points.Length > 0)
 			{
 				var maxYValue = points.Max(x => x?.SeriesValues.Sum() ?? 0);
@@ -21,6 +26,24 @@
 		}
 	</svg>
 
+	<svg class="tl-x-axis"
+		preserveAspectRatio="none">
+        @for(var x=0; x < _canvasWidth; x += Options.Bar.Width)
+        {
+           <line x1="@x" y1="0" x2="@x" y2="5" stroke="silver" />
+        }
+        @for (var i = 0; i < points.Length; i++)
+        {
+            var dt = MinDateTime.AddPeriods(Scale, _columnOffset + i);
+            var textInfo = GetTextInfo(dt);
+            <line x1="@(i * Options.Bar.Width)" x2="@(i * Options.Bar.Width)" y2="15" stroke="black" />
+            <text>
+                <text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)" y="@textInfo.OffsetY">@textInfo.Text</text>
+            </text>
+            i += textInfo.Skip;
+        }
+    </svg>
+
 	<svg class="tl-pan"
 		 @onmousedown="OnPanMouseDown"
 		 @onmousemove="OnPanMouseMove"
@@ -34,6 +57,7 @@
 <div>
 	<h4>Data</h4>
 	<p>Width = @_canvasWidth</p>
+    <p>Snapped width = @snappedWidth</p>
 	<p>Bar Width = @Options.Bar.Width</p>
 	<p>Columns = @_totalColumns</p>
 	<p>Column Offset = @_columnOffset</p>

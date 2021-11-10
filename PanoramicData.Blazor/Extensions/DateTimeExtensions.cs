@@ -5,6 +5,23 @@ namespace PanoramicData.Blazor.Extensions
 {
 	public static class DateTimeExtensions
 	{
+		public static DateTime AddPeriods(this DateTime dateTime, TimelineScales scale, int periods)
+		{
+			return scale switch
+			{
+				TimelineScales.Minutes => dateTime.AddMinutes(periods),
+				TimelineScales.Hours => dateTime.AddHours(periods),
+				TimelineScales.Hours4 => dateTime.AddHours(periods * 4),
+				TimelineScales.Hours6 => dateTime.AddHours(periods * 6),
+				TimelineScales.Hours8 => dateTime.AddHours(periods * 8),
+				TimelineScales.Hours12 => dateTime.AddHours(periods * 12),
+				TimelineScales.Weeks => dateTime.AddDays(periods * 7),
+				TimelineScales.Months => dateTime.AddMonths(periods),
+				TimelineScales.Years => dateTime.AddYears(periods),
+				_ => dateTime.AddDays(periods)
+			};
+		}
+
 		public static DateTime PeriodStart(this DateTime dateTime, TimelineScales scale)
 		{
 			switch (scale)
@@ -77,24 +94,6 @@ namespace PanoramicData.Blazor.Extensions
 			}
 		}
 
-		public static int TotalPeriodsSince(this DateTime end, DateTime start, TimelineScales scale)
-		{
-			var temp = scale switch
-			{
-				TimelineScales.Minutes => end.Subtract(start).TotalMinutes,
-				TimelineScales.Hours => end.Subtract(start).TotalHours,
-				TimelineScales.Hours4 => end.Subtract(start).TotalHours / 4,
-				TimelineScales.Hours6 => end.Subtract(start).TotalHours / 6,
-				TimelineScales.Hours8 => end.Subtract(start).TotalHours / 8,
-				TimelineScales.Hours12 => end.Subtract(start).TotalHours / 12,
-				TimelineScales.Weeks => end.Subtract(start).TotalDays / 7,
-				TimelineScales.Months => end.TotalMonthsSince(start),
-				TimelineScales.Years => end.TotalYearsSince(start),
-				_ => end.Subtract(start).TotalDays
-			};
-			return (int)Math.Ceiling(temp);
-		}
-
 		public static int TotalMonthsSince(this DateTime end, DateTime start)
 		{
 			// start must be before end
@@ -120,6 +119,24 @@ namespace PanoramicData.Blazor.Extensions
 			{
 				return 0;
 			}
+		}
+
+		public static int TotalPeriodsSince(this DateTime end, DateTime start, TimelineScales scale)
+		{
+			var temp = scale switch
+			{
+				TimelineScales.Minutes => end.Subtract(start).TotalMinutes,
+				TimelineScales.Hours => end.Subtract(start).TotalHours,
+				TimelineScales.Hours4 => end.Subtract(start).TotalHours / 4,
+				TimelineScales.Hours6 => end.Subtract(start).TotalHours / 6,
+				TimelineScales.Hours8 => end.Subtract(start).TotalHours / 8,
+				TimelineScales.Hours12 => end.Subtract(start).TotalHours / 12,
+				TimelineScales.Weeks => end.Subtract(start).TotalDays / 7,
+				TimelineScales.Months => end.TotalMonthsSince(start),
+				TimelineScales.Years => end.TotalYearsSince(start),
+				_ => end.Subtract(start).TotalDays
+			};
+			return (int)Math.Ceiling(temp);
 		}
 
 		public static int TotalYearsSince(this DateTime end, DateTime start)
