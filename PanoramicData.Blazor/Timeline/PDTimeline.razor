@@ -19,7 +19,7 @@
 				{
 					<PDStackedBar DateFormat="@GetDateFormat(Scale)"
                                   DataPoint="points[i]"
-								  MaxValue="maxYValue"
+								  MaxValue="@(Options.YAxis.MaxValue ?? maxYValue)"
 								  Options="Options"
 								  X="@(i * Options.Bar.Width)" />
 				}
@@ -29,9 +29,11 @@
 
 	<svg class="tl-x-axis"
 		 preserveAspectRatio="none">
+        <line stroke="@Options.Colours.MinorTick"
+              x2="@_canvasWidth" />
         @for(var x=0; x < _canvasWidth; x += Options.Bar.Width)
         {
-           <line stroke="silver"
+           <line stroke="@Options.Colours.MinorTick"
                  x1="@x"
                  x2="@x"
                  y1="0"
@@ -44,7 +46,7 @@
             <line x1="@(i * Options.Bar.Width)" 
                   x2="@(i * Options.Bar.Width)" 
                   y2="15" 
-                  stroke="black" />
+                  stroke="@Options.Colours.MajorTick" />
             <text>
                 <text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)" 
                       y="@textInfo.OffsetY">@textInfo.Text</text>
