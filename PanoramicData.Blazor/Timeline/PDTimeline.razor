@@ -3,22 +3,35 @@
 	 class="pd-timeline"
 	 @onmousewheel="OnMouseWheel">
 
-    @{
-       var points = GetViewPortDataPoints();
-       var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
-    }
+	@{
+	   var points = GetViewPortDataPoints();
+	   var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
+	}
 
 	<svg @ref="_svgCanvasElement"
 		 class="tl-plot-area"
+		 @onmousedown="OnChartMouseDown"
+		 @onmousemove="OnChartMouseMove"
+		 @onmouseup="OnChartMouseUp"
 		 preserveAspectRatio="none">
 		@{
+			var maxYValue = points.Length == 0 ? 0 : points.Max(x => x?.SeriesValues.Sum() ?? 0);
+			if(_selectionStartIndex > -1 && _selectionEndIndex > -1)
+			{
+				var startX = (int)((Math.Min(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width);
+				var endX = (int)((Math.Max(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width) + Options.Bar.Width;
+				<rect x="@startX"
+					  fill="@Options.Colours.SelectionBackground"
+					  height="@_canvasHeight"
+					  stroke="@Options.Colours.SelectionBorder"
+					  width="@(endX - startX)"  />
+			}
 			if (points.Length > 0)
 			{
-				var maxYValue = points.Max(x => x?.SeriesValues.Sum() ?? 0);
 				for (var i = 0; i < points.Length; i++)
 				{
-					<PDStackedBar DateFormat="@GetDateFormat(Scale)"
-                                  DataPoint="points[i]"
+					<PDStackedBar DateFormat="@GetTitleDateFormat(Scale)"
+								  DataPoint="points[i]"
 								  MaxValue="@(Options.YAxis.MaxValue ?? maxYValue)"
 								  Options="Options"
 								  X="@(i * Options.Bar.Width)" />
@@ -29,52 +42,54 @@
 
 	<svg class="tl-x-axis"
 		 preserveAspectRatio="none">
-        <line stroke="@Options.Colours.MinorTick"
-              x2="@_canvasWidth" />
-        @for(var x=0; x < _canvasWidth; x += Options.Bar.Width)
-        {
-           <line stroke="@Options.Colours.MinorTick"
-                 x1="@x"
-                 x2="@x"
-                 y1="0"
-                 y2="5" />
-        }
-        @for (var i = 0; i < points.Length; i++)
-        {
-            var dt = MinDateTime.AddPeriods(Scale, _columnOffset + i);
-            var textInfo = GetTextInfo(dt);
-            <line x1="@(i * Options.Bar.Width)" 
-                  x2="@(i * Options.Bar.Width)" 
-                  y2="15" 
-                  stroke="@Options.Colours.MajorTick" />
-            <text>
-                <text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)" 
-                      y="@textInfo.OffsetY">@textInfo.Text</text>
-            </text>
-            i += textInfo.Skip;
-        }
-    </svg>
+		<line stroke="@Options.Colours.MinorTick"
+			  x2="@_canvasWidth" />
+		@for(var x=0; x < _canvasWidth; x += Options.Bar.Width)
+		{
+		   <line stroke="@Options.Colours.MinorTick"
+				 x1="@x"
+				 x2="@x"
+				 y1="0"
+				 y2="5" />
+		}
+		@for (var i = 0; i < points.Length; i++)
+		{
+			var dt = MinDateTime.AddPeriods(Scale, _columnOffset + i);
+			var textInfo = GetTextInfo(dt);
+			<line x1="@(i * Options.Bar.Width)"
+				  x2="@(i * Options.Bar.Width)"
+				  y2="15"
+				  stroke="@Options.Colours.MajorTick" />
+			<text>
+				<text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)"
+					  y="@textInfo.OffsetY">@textInfo.Text</text>
+			</text>
+			i += textInfo.Skip;
+		}
+	</svg>
 
 	<svg class="tl-pan"
 		 @onmousedown="OnPanMouseDown"
 		 @onmousemove="OnPanMouseMove"
 		 @onmouseup="OnPanMouseUp"
 		 preserveAspectRatio="none">
-		<rect fill="@Options.Colours.HandleBackground"              
-              height="20"
-              width="@_panHandleWidth" 
-              x="@_panHandleX" 
-              y="0" />
+		<rect fill="@Options.Colours.HandleBackground"
+			  height="20"
+			  width="@_panHandleWidth"
+			  x="@_panHandleX"
+			  y="0" />
 	</svg>
 
 </div>
 
-<div>
+@*<div>
 	<h4>Data</h4>
+	<p>Selection = @_selectionStartIndex - @_selectionEndIndex</p>
 	<p>Width = @_canvasWidth</p>
-    <p>Snapped width = @snappedWidth</p>
+	<p>X = @_canvasX</p>
+	<p>Snapped width = @snappedWidth</p>
 	<p>Bar Width = @Options.Bar.Width</p>
 	<p>Columns = @_totalColumns</p>
 	<p>Column Offset = @_columnOffset</p>
 	<p>ViewPort Width (Cols) = @_viewportColumns</p>
-</div>
+</div>*@

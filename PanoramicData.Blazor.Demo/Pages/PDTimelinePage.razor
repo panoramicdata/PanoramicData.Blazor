@@ -23,8 +23,14 @@
 	<PDTimeline DataProvider="GetTimelineData"
 				MaxDateTime="_data.Max(x => x.DateChanged)"
 				MinDateTime="_data.Min(x => x.DateChanged)"
-				Height="60"
 				Options="_timelineOptions"
-				@bind-Scale="_model.Scale"
-				Width="800" />
+				SelectionChanged="OnSelectionChanged"
+				@bind-Scale="_model.Scale" />
+
+	<div>
+		Range: @($"{_minDate:g} - {_maxDate:g}"))
+	</div>
+	<div>
+		Selection: @(_selection is null ? "none" : _selection.ToString())
+	</div>
 </div>

@@ -648,12 +648,24 @@
 		window.history.replaceState(null, document.title, url);
 	},
 
+	getHeight: function (el) {
+		var rect = el.getBoundingClientRect();
+		return rect.height || 0;
+	},
+
 	getWidth: function (el) {
-		return el.width.animVal.value || 0;
+		var rect = el.getBoundingClientRect();
+		return rect.width || 0;
 	},
 
 	getX: function (el) {
-		return el.x.animVal.value || 0;
+		var rect = el.getBoundingClientRect();
+		return rect.left || 0;
+	},
+
+	getY: function (el) {
+		var rect = el.getBoundingClientRect();
+		return rect.top || 0;
 	},
 
 	zoombar: {

@@ -42,15 +42,5 @@ namespace PanoramicData.Blazor.Timeline
 			}
 			return sb.ToString();
 		}
-
-		private void OnMouseDown(MouseEventArgs args)
-		{
-			Console.WriteLine($"Mouse Down: {args.ClientX} - {DataPoint.PeriodIndex}");
-		}
-
-		private void OnMouseUp(MouseEventArgs args)
-		{
-			Console.WriteLine($"Mouse Up: {args.ClientX} - {DataPoint.PeriodIndex}");
-		}
 	}
 }

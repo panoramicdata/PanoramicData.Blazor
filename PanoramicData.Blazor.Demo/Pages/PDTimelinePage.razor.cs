@@ -15,6 +15,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private List<ConfigChange> _data = new();
 		private PDTimeline _timeline = null!;
 		private TimelinePageModel _model = new TimelinePageModel();
+		private TimeRange? _selection;
 		private TimelineOptions _timelineOptions = new TimelineOptions
 		{
 			Bar = new TimelineBarOptions
@@ -45,6 +46,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 				}
 			}
 		};
+		private DateTime _minDate;
+		private DateTime _maxDate;
 
 		private void GenerateData()
 		{
@@ -76,6 +79,13 @@ namespace PanoramicData.Blazor.Demo.Pages
 		protected override void OnInitialized()
 		{
 			GenerateData();
+			_minDate = _data.Min(x => x.DateChanged).Date;
+			_maxDate = _data.Max(x => x.DateChanged);
+		}
+
+		private void OnSelectionChanged(TimeRange? range)
+		{
+			_selection = range;
 		}
 
 		private ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScales scale)
@@ -109,7 +119,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			}
 			return ValueTask.FromResult(points.ToArray());
 		}
-	}	
+	}
 
 	public class ConfigChange
 	{

@@ -16,19 +16,28 @@ namespace PanoramicData.Blazor.Timeline
 		public delegate ValueTask<DataPoint[]> DataProviderDelegate(DateTime start, DateTime end, TimelineScales scale);
 
 		private static int _seq;
+
+		private int _canvasHeight;
 		private int _canvasWidth;
+		private int _canvasX;
 		private int _columnOffset;
-		private bool _isDragging;
-		private double _dragOrigin;
-		private double _panHandleWidth;
-		private double _panHandleX;
-		private double _panHandleDragOrigin;
 		private int _totalColumns;
 		private int _viewportColumns;
+
+		private bool _isChartDragging;
+		private double _chartDragOrigin;
+		private int _selectionStartIndex = -1;
+		private int _selectionEndIndex = -1;
+
+		private bool _isPanDragging;
+		private double _panDragOrigin;
+		private double _panHandleWidth;
+		private double _panHandleX;
+
 		private ElementReference _svgCanvasElement;
 		private DotNetObjectReference<PDTimeline>? _objRef;
 		private TimelineScales _previousScale = TimelineScales.Days;
-		private Dictionary<int, DataPoint> _dataPoints = new Dictionary<int, DataPoint>();
+		private readonly Dictionary<int, DataPoint> _dataPoints = new Dictionary<int, DataPoint>();
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
@@ -39,13 +48,13 @@ namespace PanoramicData.Blazor.Timeline
 		public EventCallback<TimelineScales> ScaleChanged { get; set; }
 
 		[Parameter]
+		public EventCallback<TimeRange?> SelectionChanged { get; set; }
+
+		[Parameter]
 		public DataProviderDelegate? DataProvider { get; set; }
 
 		[Parameter]
 		public string Id { get; set; } = $"pd-timeline-{++_seq}";
-
-		[Parameter]
-		public int Height { get; set; } = 100;
 
 		[Parameter]
 		public DateTime? MaxDateTime { get; set; }
@@ -56,8 +65,15 @@ namespace PanoramicData.Blazor.Timeline
 		[Parameter]
 		public TimelineOptions Options { get; set; } = new TimelineOptions();
 
-		[Parameter]
-		public int Width { get; set; } = 400;
+		public async Task ClearSelection()
+		{
+			await SetSelection(-1, -1).ConfigureAwait(true);
+		}
+
+		private int GetColumnIndexAtPoint(double clientX)
+		{
+			return _columnOffset + (int)Math.Floor((clientX - _canvasX) / Options.Bar.Width);
+		}
 
 		private TextInfo GetTextInfo(DateTime dt)
 		{
@@ -97,7 +113,7 @@ namespace PanoramicData.Blazor.Timeline
 			{
 				return new TextInfo
 				{
-					Skip = 2,
+					Skip = 3,
 					Text = dt.ToString("dd/MM/yy")
 				};
 			}
@@ -143,7 +159,7 @@ namespace PanoramicData.Blazor.Timeline
 			}
 		}
 
-		private static string GetDateFormat(TimelineScales scale)
+		private static string GetTitleDateFormat(TimelineScales scale)
 		{
 			return scale switch
 			{
@@ -182,27 +198,64 @@ namespace PanoramicData.Blazor.Timeline
 			{
 				_objRef = DotNetObjectReference.Create(this);
 				await JSRuntime.InvokeVoidAsync("panoramicData.timeline.init", Id, Options, _objRef).ConfigureAwait(true);
+				_canvasHeight = await JSRuntime.InvokeAsync<int>("panoramicData.getHeight", _svgCanvasElement).ConfigureAwait(true);
 				_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgCanvasElement).ConfigureAwait(true);
+				_canvasX = await JSRuntime.InvokeAsync<int>("panoramicData.getX", _svgCanvasElement).ConfigureAwait(true);
 				await SetScale(Scale, true);
+			}
+		}
+
+		private async Task OnChartMouseDown(MouseEventArgs args)
+		{
+			if (!_isChartDragging)
+			{
+				// initialize drag
+				_isChartDragging = true;
+				_chartDragOrigin = args.ClientX;
+
+				// initialize selection
+				var index = GetColumnIndexAtPoint(args.ClientX);
+				await SetSelection(index, index).ConfigureAwait(true);
+			}
+		}
+
+		private async Task OnChartMouseMove(MouseEventArgs args)
+		{
+			if(_isChartDragging)
+			{
+				var delta = args.ClientX - _chartDragOrigin;
+				_chartDragOrigin = args.ClientX;
+
+				// calculate column
+				var index = GetColumnIndexAtPoint(args.ClientX);
+				await SetSelection(_selectionStartIndex, index).ConfigureAwait(true);
+			}
+		}
+
+		private void OnChartMouseUp(MouseEventArgs args)
+		{
+			if (_isChartDragging)
+			{
+				_isChartDragging = false;
 			}
 		}
 
 		private void OnPanMouseDown(MouseEventArgs args)
 		{
-			if (!_isDragging)
+			if (!_isPanDragging)
 			{
-				_isDragging = true;
-				_dragOrigin = args.ClientX;
-				_panHandleDragOrigin = _panHandleX;
+				_isPanDragging = true;
+				_panDragOrigin = args.ClientX;
 			}
 		}
 
 		private void OnPanMouseMove(MouseEventArgs args)
 		{
-			if (_isDragging)
+			if (_isPanDragging)
 			{
-				var delta = args.ClientX - _dragOrigin;
-				_panHandleX = _panHandleDragOrigin + delta;
+				var delta = args.ClientX - _panDragOrigin;
+				_panHandleX += delta;
+				_panDragOrigin = args.ClientX;
 				if (_panHandleX < 0)
 				{
 					_panHandleX = 0;
@@ -217,9 +270,9 @@ namespace PanoramicData.Blazor.Timeline
 
 		private void OnPanMouseUp(MouseEventArgs args)
 		{
-			if (_isDragging)
+			if (_isPanDragging)
 			{
-				_isDragging = false;
+				_isPanDragging = false;
 			}
 		}
 
@@ -312,10 +365,28 @@ namespace PanoramicData.Blazor.Timeline
 					_panHandleX = _canvasWidth - _panHandleWidth;
 				}
 				_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
+				// clear selection
+				await ClearSelection().ConfigureAwait(true);
 				// refresh data for new scale
 				await RefreshAsync().ConfigureAwait(true);
 				StateHasChanged();
 			}
+		}
+
+		private async Task SetSelection(int startIndex, int endIndex)
+		{
+			_selectionStartIndex = startIndex;
+			_selectionEndIndex = endIndex;
+			TimeRange? range = null;
+			if(startIndex > -1 && endIndex > -1)
+			{
+				range = new TimeRange
+				{
+					StartTime = MinDateTime.AddPeriods(Scale, startIndex).PeriodStart(Scale),
+					EndTime = MinDateTime.AddPeriods(Scale, endIndex).PeriodEnd(Scale)
+				};
+			}
+			await SelectionChanged.InvokeAsync(range).ConfigureAwait(true);
 		}
 
 		public void Dispose()
