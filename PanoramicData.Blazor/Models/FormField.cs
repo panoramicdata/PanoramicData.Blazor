@@ -162,6 +162,16 @@ namespace PanoramicData.Blazor.Models
 		public int? MaxLength { get; set; }
 
 		/// <summary>
+		/// Gets or sets the maximum value allowed for numeric fields.
+		/// </summary>
+		public double? MaxValue { get; set; }
+
+		/// <summary>
+		/// Gets or sets the minimum value allowed for numeric fields.
+		/// </summary>
+		public double? MinValue { get; set; }
+
+		/// <summary>
 		/// Gets or sets whether the validation result should be shown.
 		/// </summary>
 		public bool ShowValidationResult { get; set; } = true;

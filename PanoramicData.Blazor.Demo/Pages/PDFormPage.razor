@@ -83,7 +83,9 @@
 						 ReadOnlyInCreate="(_) => false" />
 
 				<PDField TItem="Person"
-						 Field="x => x.Target" />
+						 Field="x => x.Target"
+						 MaxValue="1000000"
+						 MinValue="0" />
 
 				<PDField TItem="Person"
 						 Field="x => x.Comments"

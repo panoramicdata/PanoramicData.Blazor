@@ -136,7 +136,8 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 						else
 						{
-							<input type="number"
+							<input @attributes="GetNumericAttributes(field)"
+								   type="number"
 								   disabled="@IsReadOnly(field)"
 								   class="form-control @GetEditorClass(field)"
 								   value="@(Form?.GetFieldValue<double>(field))"

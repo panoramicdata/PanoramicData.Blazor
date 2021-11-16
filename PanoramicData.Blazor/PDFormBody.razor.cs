@@ -48,6 +48,20 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public int TitleWidth { get; set; } = 200;
 
+		private Dictionary<string, object> GetNumericAttributes(FormField<TItem> field)
+		{
+			var dict = new Dictionary<string, object>();
+			if (field.MaxValue.HasValue)
+			{
+				dict.Add("max", field.MaxValue.Value);
+			}
+			if (field.MinValue.HasValue)
+			{
+				dict.Add("min", field.MinValue.Value);
+			}
+			return dict;
+		}
+
 		protected override void OnInitialized()
 		{
 			if (Form != null && Table != null)

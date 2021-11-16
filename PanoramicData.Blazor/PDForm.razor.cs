@@ -179,6 +179,8 @@ namespace PanoramicData.Blazor
 					EditTemplate = field.EditTemplate,
 					Title = field.Title,
 					MaxLength = field.MaxLength,
+					MaxValue = field.MaxValue,
+					MinValue = field.MinValue,
 					ShowValidationResult = field.ShowValidationResult,
 					Options = field.Options,
 					IsPassword = field.IsPassword,
@@ -594,6 +596,16 @@ namespace PanoramicData.Blazor
 						else
 						{
 							SetFieldErrors(memberInfo.Name, results.Select(x => x.ErrorMessage).ToArray());
+						}
+
+						// validate numeric values
+						if (field.MaxValue.HasValue && Convert.ToDouble(typedValue) > field.MaxValue.Value)
+						{
+							SetFieldErrors(memberInfo.Name, $"Value must be {field.MaxValue.Value} or less.");
+						}
+						if (field.MinValue.HasValue && Convert.ToDouble(typedValue) < field.MinValue.Value)
+						{
+							SetFieldErrors(memberInfo.Name, $"Value must be {field.MinValue.Value} or greater.");
 						}
 
 						// run custom validation
