@@ -330,7 +330,10 @@ namespace PanoramicData.Blazor.Timeline
 
 		protected async override Task OnParametersSetAsync()
 		{
-			await SetScale(Scale).ConfigureAwait(true);
+			if (_canvasWidth > 0)
+			{
+				await SetScale(Scale).ConfigureAwait(true);
+			}
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDTimeline.OnResize")]
@@ -364,12 +367,9 @@ namespace PanoramicData.Blazor.Timeline
 		{
 			if (scale != _previousScale || forceRefresh)
 			{
-				if (scale != _previousScale)
-				{
-					await ScaleChanged.InvokeAsync(scale).ConfigureAwait(true);
-				}
+				_previousScale = scale;
+				await ScaleChanged.InvokeAsync(scale).ConfigureAwait(true);
 				_dataPoints.Clear();
-				_previousScale = Scale;
 				Scale = scale;
 				// calculate total number of columns for scale
 				var start = MinDateTime.Date;

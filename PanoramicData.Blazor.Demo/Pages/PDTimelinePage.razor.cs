@@ -48,6 +48,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		};
 		private DateTime _minDate;
 		private DateTime _maxDate;
+		private string _dataCalls = string.Empty;
 
 		private void GenerateData()
 		{
@@ -83,6 +84,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 			_maxDate = _data.Max(x => x.DateChanged);
 		}
 
+		private void OnScaleChanged(TimelineScales scale)
+		{
+			_model.Scale = scale;
+		}
+
 		private void OnSelectionChanged(TimeRange? range)
 		{
 			_selection = range;
@@ -90,6 +96,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScales scale)
 		{
+			_dataCalls += $"<br/>{start:g} - {end:g}";
+			StateHasChanged();
+
 			// aggregate according to zoom / scale
 			var index = 0;
 			var points = new List<DataPoint>();

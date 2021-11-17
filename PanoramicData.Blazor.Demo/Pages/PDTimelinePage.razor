@@ -25,7 +25,8 @@
 				MinDateTime="_data.Min(x => x.DateChanged)"
 				Options="_timelineOptions"
 				SelectionChanged="OnSelectionChanged"
-				@bind-Scale="_model.Scale" />
+				Scale="_model.Scale"
+				ScaleChanged="OnScaleChanged"/>
 
 	<div>
 		Range: @($"{_minDate:g} - {_maxDate:g}"))
@@ -33,4 +34,8 @@
 	<div>
 		Selection: @(_selection is null ? "none" : _selection.ToString())
 	</div>
+	<div>
+		Data Calls: @(new MarkupString(_dataCalls))
+	</div>
+
 </div>
