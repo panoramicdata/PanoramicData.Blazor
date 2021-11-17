@@ -75,6 +75,37 @@ namespace PanoramicData.Blazor.Timeline
 			return _columnOffset + (int)Math.Floor((clientX - _canvasX) / Options.Bar.Width);
 		}
 
+		private int GetMajorMarkOffsetForViewport()
+		{
+			var dt = MinDateTime.AddPeriods(Scale, _columnOffset).PeriodStart(Scale);
+			var majorTickOffset = 0;
+			if (Scale <= TimelineScales.Minutes)
+			{
+				while (dt.TimeOfDay.Seconds != 0)
+				{
+					majorTickOffset++;
+					dt = dt.AddPeriods(Scale, 1);
+				}
+			}
+			else if (Scale <= TimelineScales.Hours)
+			{
+				while (dt.TimeOfDay.Minutes != 0)
+				{
+					majorTickOffset++;
+					dt = dt.AddPeriods(Scale, 1);
+				}
+			}
+			else if (Scale < TimelineScales.Weeks)
+			{
+				while (dt.TimeOfDay.Hours != 0)
+				{
+					majorTickOffset++;
+					dt = dt.AddPeriods(Scale, 1);
+				}
+			}
+			return majorTickOffset;
+		}
+
 		private TextInfo GetTextInfo(DateTime dt)
 		{
 			if (Scale == TimelineScales.Years)
@@ -198,9 +229,9 @@ namespace PanoramicData.Blazor.Timeline
 			{
 				_objRef = DotNetObjectReference.Create(this);
 				await JSRuntime.InvokeVoidAsync("panoramicData.timeline.init", Id, Options, _objRef).ConfigureAwait(true);
-				_canvasHeight = await JSRuntime.InvokeAsync<int>("panoramicData.getHeight", _svgCanvasElement).ConfigureAwait(true);
-				_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgCanvasElement).ConfigureAwait(true);
-				_canvasX = await JSRuntime.InvokeAsync<int>("panoramicData.getX", _svgCanvasElement).ConfigureAwait(true);
+				_canvasHeight = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getHeight", _svgCanvasElement).ConfigureAwait(true));
+				_canvasWidth = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getWidth", _svgCanvasElement).ConfigureAwait(true));
+				_canvasX = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getX", _svgCanvasElement).ConfigureAwait(true));
 				await SetScale(Scale, true);
 			}
 		}
@@ -314,6 +345,7 @@ namespace PanoramicData.Blazor.Timeline
 		{
 			if (DataProvider != null)
 			{
+				// TODO: just fetch data required for viewport window
 				var start = MinDateTime;
 				var end = MaxDateTime ?? DateTime.Now;
 				var points = await DataProvider(start, end, Scale).ConfigureAwait(true);
@@ -357,14 +389,17 @@ namespace PanoramicData.Blazor.Timeline
 				};
 				_totalColumns = (int)Math.Ceiling(temp);
 				// calculate visible columns
-				_viewportColumns = (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width);
-				// calculate pan handle width - min 5 px
-				_panHandleWidth = Math.Min(Math.Max(((double)_viewportColumns / (double)_totalColumns) * _canvasWidth, 5), _canvasWidth);
-				if (_canvasWidth > 0 && (_panHandleX + _panHandleWidth > _canvasWidth))
+				if (_canvasWidth > 0)
 				{
-					_panHandleX = _canvasWidth - _panHandleWidth;
+					_viewportColumns = (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width);
+					// calculate pan handle width - min 5 px
+					_panHandleWidth = Math.Min(Math.Max(((double)_viewportColumns / (double)_totalColumns) * _canvasWidth, 5), _canvasWidth);
+					if (_canvasWidth > 0 && (_panHandleX + _panHandleWidth > _canvasWidth))
+					{
+						_panHandleX = _canvasWidth - _panHandleWidth;
+					}
+					_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 				}
-				_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 				// clear selection
 				await ClearSelection().ConfigureAwait(true);
 				// refresh data for new scale

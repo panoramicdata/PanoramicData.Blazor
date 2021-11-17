@@ -1,4 +1,5 @@
 ﻿@using PanoramicData.Blazor.Extensions
+
 <div id="@Id"
 	 class="pd-timeline"
 	 @onmousewheel="OnMouseWheel">
@@ -52,7 +53,8 @@
 				 y1="0"
 				 y2="5" />
 		}
-		@for (var i = 0; i < points.Length; i++)
+		<!-- start major tick at first boundary day or hour -->
+		@for (var i = 0 + GetMajorMarkOffsetForViewport(); i < points.Length; i++)
 		{
 			var dt = MinDateTime.AddPeriods(Scale, _columnOffset + i);
 			var textInfo = GetTextInfo(dt);

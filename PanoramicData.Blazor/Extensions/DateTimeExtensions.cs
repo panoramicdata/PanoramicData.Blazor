@@ -7,6 +7,10 @@ namespace PanoramicData.Blazor.Extensions
 	{
 		public static DateTime AddPeriods(this DateTime dateTime, TimelineScales scale, int periods)
 		{
+			if(periods == 0)
+			{
+				return dateTime;
+			}
 			return scale switch
 			{
 				TimelineScales.Minutes => dateTime.AddMinutes(periods),
