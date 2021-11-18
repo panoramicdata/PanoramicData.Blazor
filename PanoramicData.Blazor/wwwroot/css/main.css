@@ -346,6 +346,27 @@
   left: -20px;
   cursor: pointer; }
 
+.pd-timeline {
+  overflow-x: auto;
+  border: 1px solid silver;
+  line-height: normal; }
+
+.tl-pan {
+  border-top: 1px solid silver;
+  height: 20px;
+  width: 100%; }
+
+.tl-plot-area {
+  height: 150px;
+  width: 100%; }
+
+.tl-x-axis {
+  font-size: 10px;
+  height: 20px;
+  width: 100%; }
+  .tl-x-axis text {
+    user-select: none; }
+
 .pdseparator.dragover {
   background-color: silver !important; }
 
@@ -355,6 +376,10 @@
     color: white;
     background-color: #007bff;
     text-align: center; }
+
+.pd-zoombar {
+  display: flex;
+  align-items: center; }
 
 .fa-hidden {
   color: transparent; }

@@ -1,0 +1,24 @@
+﻿<svg viewBox="@($"0 0 {Options.Bar.Width} {MaxValue}")"
+		x="@X"
+		preserveAspectRatio="none"
+		width="@Options.Bar.Width">
+	@{
+		var y = MaxValue;
+		@if(DataPoint is null)
+		{
+@*			var value = MaxValue / 2;
+			<rect x="@Padding" y="@(y - value)" width="@(Options.Bar.Width - 2 * Padding)" height="@value" stroke="@Options.Colours.PendingBackground" fill="#ffffff80" />
+*@		}
+		else
+		{
+			for (var i = 0; i < DataPoint.SeriesValues.Length; i++)
+			{
+				var value = DataPoint.SeriesValues[i];
+				var colour = Options.Series.Length > 0 && i < Options.Series.Length ? Options.Series[i].Colour : "black";
+				<rect x="@Padding" y="@(y - value)" width="@(Options.Bar.Width - 2 * Padding)" height="@value" stroke="@colour" fill="@colour" />
+				y -= value;
+			}
+		}
+	}
+	<title>@GetTitle()</title>
+</svg>
