@@ -1,6 +1,6 @@
-﻿@page "/pdtimelinegraph"
+﻿@page "/pdtimeline"
 
-<h2>Timeline Widget (in progress)</h2>
+<h2>Timeline Widget</h2>
 <div>
 	<div class="toolbar">
 		<EditForm Model="_model">
@@ -21,6 +21,7 @@
 	</div>
 
 	<PDTimeline DataProvider="GetTimelineData"
+				FetchAll="true"
 				MaxDateTime="_data.Max(x => x.DateChanged)"
 				MinDateTime="_data.Min(x => x.DateChanged)"
 				Options="_timelineOptions"

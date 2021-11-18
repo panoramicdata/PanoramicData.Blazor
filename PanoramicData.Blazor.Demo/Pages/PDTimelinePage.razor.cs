@@ -1,7 +1,6 @@
 ﻿using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
-using PanoramicData.Blazor.Timeline;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,8 +54,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 			// generate data
 			_data.Clear();
 			var random = new Random(Environment.TickCount);
-			var points = 200;
-			var startDate = new DateTime(2020, 1, 1);
+			var points = 10000;
+			var startDate = new DateTime(2016, 1, 1);
 			var endDate = new DateTime(2021, 12, 31);
 			var dayStart = new TimeSpan(9, 0, 0);
 			var dayDuration = new TimeSpan(8, 0, 0);
@@ -94,39 +93,42 @@ namespace PanoramicData.Blazor.Demo.Pages
 			_selection = range;
 		}
 
-		private ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScales scale)
+		private async ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScales scale, CancellationToken cancellationToken)
 		{
-			_dataCalls += $"<br/>{start:g} - {end:g}";
-			StateHasChanged();
-
 			// aggregate according to zoom / scale
-			var index = 0;
-			var points = new List<DataPoint>();
-			var groups = _data
-							.Where(x => x.DateChanged >= start && x.DateChanged <= end)
-							.GroupBy(x => x.DateChanged.PeriodStart(scale))
-							.OrderBy(x => x.Key);
-			DateTime? previousStart = null;
-			foreach (var group in groups)
+			try
 			{
-				// increment index
-				index += previousStart.HasValue ? group.Key.TotalPeriodsSince(previousStart.Value, scale) : 0;
-				var dp = new DataPoint
+				var points = new List<DataPoint>();
+				var groups = _data.Where(x => x.DateChanged >= start && x.DateChanged <= end)
+								  .GroupBy(x => x.DateChanged.PeriodStart(scale))
+								  .OrderBy(x => x.Key);
+				foreach (var group in groups)
 				{
-					PeriodIndex = index,
-					StartTime = group.Key,
-					SeriesValues = new[]
+					// sum each series for bucket
+					points.Add(new DataPoint
 					{
-						(double)group.Sum(x=> x.LinesDeleted),
-						(double)group.Sum(x=> x.LinesChanged),
-						(double)group.Sum(x=> x.LinesAdded)
-					}
-				};
-				// sum each series for bucket
-				points.Add(dp);
-				previousStart = dp.StartTime;
+						StartTime = group.Key,
+						SeriesValues = new[]
+						{
+							(double)group.Sum(x=> x.LinesDeleted),
+							(double)group.Sum(x=> x.LinesChanged),
+							(double)group.Sum(x=> x.LinesAdded)
+						}
+					});
+				}
+
+				_dataCalls += $"<br/>{start:g} - {end:g}, count: {points.Count}";
+				StateHasChanged();
+
+				// add some latency
+				await Task.Delay(1000, cancellationToken).ConfigureAwait(true);
+				return points.ToArray();
 			}
-			return ValueTask.FromResult(points.ToArray());
+			catch(Exception ex)
+			{
+				Console.WriteLine($"GetTimelineData: Exception: {ex.Message}");
+				return Array.Empty<DataPoint>();
+			}
 		}
 	}
 

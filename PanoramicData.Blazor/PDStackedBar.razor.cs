@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace PanoramicData.Blazor.Timeline
+namespace PanoramicData.Blazor
 {
 	public partial class PDStackedBar
 	{
@@ -29,6 +29,10 @@ namespace PanoramicData.Blazor.Timeline
 
 		private string GetTitle()
 		{
+			if(DataPoint is null)
+			{
+				return String.Empty;
+			}
 			var sb = new StringBuilder();
 			sb.AppendLine(DataPoint.StartTime.ToString(DateFormat));
 			if (DataPoint != null && DataPoint.SeriesValues.Length > 0)

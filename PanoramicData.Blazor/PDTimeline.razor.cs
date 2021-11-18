@@ -7,13 +7,14 @@ using PanoramicData.Blazor.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace PanoramicData.Blazor.Timeline
+namespace PanoramicData.Blazor
 {
 	public partial class PDTimeline : IDisposable
 	{
-		public delegate ValueTask<DataPoint[]> DataProviderDelegate(DateTime start, DateTime end, TimelineScales scale);
+		public delegate ValueTask<DataPoint[]> DataProviderDelegate(DateTime start, DateTime end, TimelineScales scale, CancellationToken cancellationToken);
 
 		private static int _seq;
 
@@ -37,9 +38,14 @@ namespace PanoramicData.Blazor.Timeline
 		private ElementReference _svgCanvasElement;
 		private DotNetObjectReference<PDTimeline>? _objRef;
 		private TimelineScales _previousScale = TimelineScales.Days;
+		private CancellationTokenSource? _refreshCancellationToken;
+		private bool _loading;
 		private readonly Dictionary<int, DataPoint> _dataPoints = new Dictionary<int, DataPoint>();
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
+
+		[Parameter]
+		public bool FetchAll { get; set; } = true;
 
 		[Parameter]
 		public TimelineScales Scale { get; set; } = TimelineScales.Months;
@@ -210,14 +216,18 @@ namespace PanoramicData.Blazor.Timeline
 
 		private DataPoint[] GetViewPortDataPoints()
 		{
-			var cols = _viewportColumns;
-			var points = new DataPoint[cols];
-			for (var i = 0; i < points.Length; i++)
+			var points = new DataPoint[_viewportColumns];
+			for (var i = 0; i < _viewportColumns; i++)
 			{
 				var key = _columnOffset + i;
 				if (_dataPoints.ContainsKey(key))
 				{
 					points[i] = _dataPoints[key];
+				}
+				else if(!_loading)
+				{
+					Console.WriteLine($"GetViewPortDataPoints {new Random().Next()}");
+					points[i] = new DataPoint { PeriodIndex = key };
 				}
 			}
 			return points.ToArray();
@@ -299,11 +309,15 @@ namespace PanoramicData.Blazor.Timeline
 			}
 		}
 
-		private void OnPanMouseUp(MouseEventArgs args)
+		private async Task OnPanMouseUp(MouseEventArgs args)
 		{
 			if (_isPanDragging)
 			{
 				_isPanDragging = false;
+				if(!FetchAll)
+				{
+					await RefreshAsync().ConfigureAwait(true);
+				}
 			}
 		}
 
@@ -348,17 +362,28 @@ namespace PanoramicData.Blazor.Timeline
 		{
 			if (DataProvider != null)
 			{
-				// TODO: just fetch data required for viewport window
-				var start = MinDateTime;
-				var end = MaxDateTime ?? DateTime.Now;
-				var points = await DataProvider(start, end, Scale).ConfigureAwait(true);
+				// cancel previous query?
+				if(_refreshCancellationToken != null)
+				{
+					_refreshCancellationToken.Cancel();
+					_refreshCancellationToken = null;
+				}
+
+				// either fetch all data points for scale, or just the current viewport
+				_loading = true;
+				var start = FetchAll ? MinDateTime : MinDateTime.AddPeriods(Scale, _columnOffset).PeriodStart(Scale);
+				var end = FetchAll ? MaxDateTime ?? DateTime.Now : MinDateTime.AddPeriods(Scale, _columnOffset + _viewportColumns).PeriodEnd(Scale);
+				_refreshCancellationToken = new CancellationTokenSource();
+				var points = await DataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
 				foreach (var point in points)
 				{
+					point.PeriodIndex =  point.StartTime.TotalPeriodsSince(MinDateTime, Scale);
 					if (!_dataPoints.ContainsKey(point.PeriodIndex))
 					{
 						_dataPoints.Add(point.PeriodIndex, point);
 					}
 				}
+				_loading = false;
 			}
 			StateHasChanged();
 		}

@@ -33,7 +33,7 @@
 				{
 					<PDStackedBar DateFormat="@GetTitleDateFormat(Scale)"
 								  DataPoint="points[i]"
-								  MaxValue="@(Options.YAxis.MaxValue ?? maxYValue)"
+								  MaxValue="@(Options.YAxis.MaxValue ?? (maxYValue == 0 ? 100 : maxYValue))"
 								  Options="Options"
 								  X="@(i * Options.Bar.Width)" />
 				}

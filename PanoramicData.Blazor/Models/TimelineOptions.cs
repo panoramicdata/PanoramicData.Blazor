@@ -29,6 +29,7 @@ namespace PanoramicData.Blazor.Models
 		public string HandleBackground { get; set; } = "Silver";
 		public string MajorTick { get; set; } = "Black";
 		public string MinorTick { get; set; } = "Silver";
+		public string PendingBackground { get; set; } = "#0000002e";
 		public string SelectionBackground { get; set; } = "#04a0b563";
 		public string SelectionBorder { get; set; } = "#04a0b5";
 	}
