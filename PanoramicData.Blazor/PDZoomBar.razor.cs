@@ -17,7 +17,7 @@ namespace PanoramicData.Blazor
 		public IJSRuntime? JSRuntime { get; set; }
 
 		[Parameter]
-		public string Id { get; set; } = $"pd-zoombar-{+_seq}";
+		public string Id { get; set; } = $"pd-zoombar-{++_seq}";
 
 		[Parameter]
 		public ZoomBarOptions Options { get; set; } = new ZoomBarOptions();

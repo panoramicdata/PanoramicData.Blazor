@@ -18,7 +18,7 @@ namespace PanoramicData.Blazor
 		public int Height { get; set; } = 300;
 
 		[Parameter]
-		public string Id { get; set; } = $"pd-canvas-{+_seq}";
+		public string Id { get; set; } = $"pd-canvas-{++_seq}";
 
 		[Parameter]
 		public int Width { get; set; } = 400;
