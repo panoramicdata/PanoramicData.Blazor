@@ -1,7 +1,8 @@
 ﻿.pd-timeline {
-	overflow-x: auto;
 	border: 1px solid silver;
-	line-height: normal;
+	display: inline-grid;
+	overflow-x: auto;
+	width: 100%;
 }
 
 .tl-pan {

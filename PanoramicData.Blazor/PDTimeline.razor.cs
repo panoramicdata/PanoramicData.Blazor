@@ -35,7 +35,8 @@ namespace PanoramicData.Blazor
 		private double _panHandleWidth;
 		private double _panHandleX;
 
-		private ElementReference _svgCanvasElement;
+		private ElementReference _svgPlotElement;
+		private ElementReference _svgPanElement;
 		private DotNetObjectReference<PDTimeline>? _objRef;
 		private TimelineScales _previousScale = TimelineScales.Days;
 		private CancellationTokenSource? _refreshCancellationToken;
@@ -226,7 +227,6 @@ namespace PanoramicData.Blazor
 				}
 				else if(!_loading)
 				{
-					Console.WriteLine($"GetViewPortDataPoints {new Random().Next()}");
 					points[i] = new DataPoint { PeriodIndex = key };
 				}
 			}
@@ -239,14 +239,15 @@ namespace PanoramicData.Blazor
 			{
 				_objRef = DotNetObjectReference.Create(this);
 				await JSRuntime.InvokeVoidAsync("panoramicData.timeline.init", Id, Options, _objRef).ConfigureAwait(true);
-				_canvasHeight = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getHeight", _svgCanvasElement).ConfigureAwait(true));
-				_canvasWidth = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getWidth", _svgCanvasElement).ConfigureAwait(true));
-				_canvasX = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getX", _svgCanvasElement).ConfigureAwait(true));
+				_canvasHeight = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getHeight", _svgPlotElement).ConfigureAwait(true));
+				_canvasWidth = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true));
+				_canvasX = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getX", _svgPlotElement).ConfigureAwait(true));
 				await SetScale(Scale, true);
 			}
 		}
 
-		private async Task OnChartMouseDown(MouseEventArgs args)
+
+		private async Task OnChartPointerDown(PointerEventArgs args)
 		{
 			if (!_isChartDragging)
 			{
@@ -254,13 +255,15 @@ namespace PanoramicData.Blazor
 				_isChartDragging = true;
 				_chartDragOrigin = args.ClientX;
 
+				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
+
 				// initialize selection
 				var index = GetColumnIndexAtPoint(args.ClientX);
 				await SetSelection(index, index).ConfigureAwait(true);
 			}
 		}
 
-		private async Task OnChartMouseMove(MouseEventArgs args)
+		private async Task OnChartPointerMove(PointerEventArgs args)
 		{
 			if(_isChartDragging)
 			{
@@ -273,7 +276,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnChartMouseUp(MouseEventArgs args)
+		private void OnChartPointerUp(PointerEventArgs args)
 		{
 			if (_isChartDragging)
 			{
@@ -281,16 +284,17 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnPanMouseDown(MouseEventArgs args)
+		private async Task OnPanPointerDown(PointerEventArgs args)
 		{
 			if (!_isPanDragging)
 			{
 				_isPanDragging = true;
 				_panDragOrigin = args.ClientX;
+				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPanElement).ConfigureAwait(true);
 			}
 		}
 
-		private void OnPanMouseMove(MouseEventArgs args)
+		private void OnPanPointerMove(PointerEventArgs args)
 		{
 			if (_isPanDragging)
 			{
@@ -309,7 +313,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnPanMouseUp(MouseEventArgs args)
+		private async Task OnPanPointerUp(PointerEventArgs args)
 		{
 			if (_isPanDragging)
 			{
@@ -353,7 +357,7 @@ namespace PanoramicData.Blazor
 		[JSInvokable("PanoramicData.Blazor.PDTimeline.OnResize")]
 		public async Task OnResize()
 		{
-			_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgCanvasElement).ConfigureAwait(true);
+			_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true);
 			await SetScale(Scale, true).ConfigureAwait(true);
 			await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 		}

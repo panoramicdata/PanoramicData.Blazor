@@ -668,6 +668,10 @@
 		return rect.top || 0;
 	},
 
+	setPointerCapture: function (id, el) {
+		el.setPointerCapture(id);
+	},
+
 	zoombar: {
 
 		zoombars: {

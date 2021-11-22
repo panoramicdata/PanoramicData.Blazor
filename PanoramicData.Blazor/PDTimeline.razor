@@ -9,11 +9,11 @@
 	   var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
 	}
 
-	<svg @ref="_svgCanvasElement"
+	<svg @ref="_svgPlotElement"
 		 class="tl-plot-area"
-		 @onmousedown="OnChartMouseDown"
-		 @onmousemove="OnChartMouseMove"
-		 @onmouseup="OnChartMouseUp"
+		 @onpointerdown="OnChartPointerDown"
+		 @onpointermove="OnChartPointerMove"
+		 @onpointerup="OnChartPointerUp"
 		 preserveAspectRatio="none">
 		@{
 			var maxYValue = points.Length == 0 ? 0 : points.Max(x => x?.SeriesValues.Sum() ?? 0);
@@ -70,10 +70,11 @@
 		}
 	</svg>
 
-	<svg class="tl-pan"
-		 @onmousedown="OnPanMouseDown"
-		 @onmousemove="OnPanMouseMove"
-		 @onmouseup="OnPanMouseUp"
+	<svg @ref="_svgPanElement"
+		 @onpointerdown="OnPanPointerDown"
+		 @onpointermove="OnPanPointerMove"
+		 @onpointerup="OnPanPointerUp"
+		 class="tl-pan"
 		 preserveAspectRatio="none">
 		<rect fill="@Options.Colours.HandleBackground"
 			  height="20"
