@@ -39,6 +39,20 @@
 				}
 			}
 		}
+
+		@if(_loading)
+		{
+			var r = _canvasHeight / 4;
+			var cx = (_canvasWidth / 2d);
+			var cy = (_canvasHeight / 2d);
+			<path class="rotate"
+				  d="@(Utilities.DescribeArc(cx, cy, r, 15, 345))"
+				  fill="none"
+				  stroke="@Options.Colours.Spinner"
+				  stroke-width="6"
+				  stroke-linecap="round" />
+		}
+
 	</svg>
 
 	<svg class="tl-x-axis"
@@ -53,7 +67,7 @@
 				 y1="0"
 				 y2="5" />
 		}
-		<!-- start major tick at first boundary day or hour -->
+		@* start major tick at first boundary day or hour *@
 		@for (var i = 0 + GetMajorMarkOffsetForViewport(); i < points.Length; i++)
 		{
 			var dt = MinDateTime.AddPeriods(Scale, _columnOffset + i);
@@ -84,15 +98,3 @@
 	</svg>
 
 </div>
-
-@*<div>
-	<h4>Data</h4>
-	<p>Selection = @_selectionStartIndex - @_selectionEndIndex</p>
-	<p>Width = @_canvasWidth</p>
-	<p>X = @_canvasX</p>
-	<p>Snapped width = @snappedWidth</p>
-	<p>Bar Width = @Options.Bar.Width</p>
-	<p>Columns = @_totalColumns</p>
-	<p>Column Offset = @_columnOffset</p>
-	<p>ViewPort Width (Cols) = @_viewportColumns</p>
-</div>*@

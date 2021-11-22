@@ -466,6 +466,29 @@ namespace PanoramicData.Blazor
 			JSRuntime.InvokeVoidAsync("panoramicData.timeline.term", Id);
 		}
 
+		public static class Utilities
+		{
+			public static string DescribeArc(double x, double y, double radius, double startAngle, double endAngle)
+			{
+				var sp = PolarToCartesian(x, y, radius, endAngle);
+				var ep = PolarToCartesian(x, y, radius, startAngle);
+				var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+				var d = string.Join(" ", new[] {
+				"M", sp.x.ToString("0.00"), sp.y.ToString("0.00"),
+				"A", radius.ToString(), radius.ToString(), "0", arcSweep, "0", ep.x.ToString("0.00"), ep.y.ToString("0.00")
+				});
+				return d;
+			}
+
+			public static (double x, double y) PolarToCartesian(double centerX, double centerY, double radius, double angleInDegrees)
+			{
+				var angleInRadians = angleInDegrees * Math.PI / 180.0;
+				var x = centerX + radius * Math.Cos(angleInRadians);
+				var y = centerY + radius * Math.Sin(angleInRadians);
+				return (x, y);
+			}
+		}
+
 		public class TextInfo
 		{
 			public int OffsetX { get; set; } = 3;

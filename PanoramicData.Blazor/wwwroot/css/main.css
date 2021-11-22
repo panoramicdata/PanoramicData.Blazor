@@ -458,6 +458,20 @@
   user-select: none;
 }
 
+svg .rotate {
+  animation: rotate 1.5s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 .pdseparator.dragover {
   background-color: silver !important;
 }
