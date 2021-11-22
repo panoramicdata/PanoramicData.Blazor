@@ -22,9 +22,6 @@ namespace PanoramicData.Blazor
 		public TimelineOptions Options { get; set; } = new TimelineOptions();
 
 		[Parameter]
-		public double Padding { get; set; } = 1;
-
-		[Parameter]
 		public double X { get; set; }
 
 		private string GetTitle()

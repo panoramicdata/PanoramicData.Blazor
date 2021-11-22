@@ -19,7 +19,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			Bar = new TimelineBarOptions
 			{
-				Width = 20
+				Width = 20,
+				Padding = 2
 			},
 			Colours = new TimelineColours
 			{

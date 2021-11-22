@@ -396,10 +396,15 @@ namespace PanoramicData.Blazor
 		{
 			if (scale != _previousScale || forceRefresh)
 			{
+				var scaleChanged = scale != _previousScale;
+				var refreshData = (scaleChanged) || !FetchAll;
 				_previousScale = scale;
 				await ScaleChanged.InvokeAsync(scale).ConfigureAwait(true);
-				_dataPoints.Clear();
-				Scale = scale;
+				if (scaleChanged)
+				{
+					_dataPoints.Clear();
+					Scale = scale;
+				}
 				// calculate total number of columns for scale
 				var start = MinDateTime.Date;
 				var end = MaxDateTime?.Date ?? DateTime.Now.Date;
@@ -431,8 +436,11 @@ namespace PanoramicData.Blazor
 				}
 				// clear selection
 				await ClearSelection().ConfigureAwait(true);
-				// refresh data for new scale
-				await RefreshAsync().ConfigureAwait(true);
+				// refresh data for new scale?
+				if (refreshData)
+				{
+					await RefreshAsync().ConfigureAwait(true);
+				}
 				StateHasChanged();
 			}
 		}
