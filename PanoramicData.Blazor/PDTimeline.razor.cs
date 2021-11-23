@@ -233,6 +233,20 @@ namespace PanoramicData.Blazor
 			return points.ToArray();
 		}
 
+		private void MovePanHandle(double x)
+		{
+			_panHandleX = x;
+			if (_panHandleX < 0)
+			{
+				_panHandleX = 0;
+			}
+			else if (_panHandleX > (_canvasWidth - _panHandleWidth))
+			{
+				_panHandleX = _canvasWidth - _panHandleWidth;
+			}
+			_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
+		}
+
 		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
 			if (firstRender)
@@ -245,7 +259,6 @@ namespace PanoramicData.Blazor
 				await SetScale(Scale, true);
 			}
 		}
-
 
 		private async Task OnChartPointerDown(PointerEventArgs args)
 		{
@@ -288,40 +301,50 @@ namespace PanoramicData.Blazor
 		{
 			if (!_isPanDragging)
 			{
-				_isPanDragging = true;
 				_panDragOrigin = args.ClientX;
 				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPanElement).ConfigureAwait(true);
 			}
 		}
 
-		private void OnPanPointerMove(PointerEventArgs args)
+		private async Task OnPanPointerMove(PointerEventArgs args)
 		{
+			// initiare a drag operation?
+			if(!_isPanDragging && args.Buttons == 1)
+			{
+				_isPanDragging = true;
+			}
 			if (_isPanDragging)
 			{
-				var delta = args.ClientX - _panDragOrigin;
-				_panHandleX += delta;
+				MovePanHandle(_panHandleX + (args.ClientX - _panDragOrigin));
 				_panDragOrigin = args.ClientX;
-				if (_panHandleX < 0)
-				{
-					_panHandleX = 0;
-				}
-				else if (_panHandleX > (_canvasWidth - _panHandleWidth))
-				{
-					_panHandleX = _canvasWidth - _panHandleWidth;
-				}
-				_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 			}
 		}
 
 		private async Task OnPanPointerUp(PointerEventArgs args)
 		{
+			bool refresh = false;
 			if (_isPanDragging)
 			{
 				_isPanDragging = false;
-				if(!FetchAll)
+				refresh = true;
+			}
+			else
+			{
+				// move entire viewport along?
+				if((args.ClientX - _canvasX) < _panHandleX)
 				{
-					await RefreshAsync().ConfigureAwait(true);
+					MovePanHandle(_panHandleX - _panHandleWidth);
+					refresh = true;
 				}
+				else if ((args.ClientX - _canvasX) > (_panHandleX + _panHandleWidth))
+				{
+					MovePanHandle(_panHandleX + _panHandleWidth);
+					refresh = true;
+				}
+			}
+			if (refresh && !FetchAll)
+			{
+				await RefreshAsync().ConfigureAwait(true);
 			}
 		}
 
