@@ -9,6 +9,7 @@
 	   var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
 	}
 
+	@* PLOT AREA *@
 	<svg @ref="_svgPlotElement"
 		 class="tl-plot-area"
 		 @onpointerdown="OnChartPointerDown"
@@ -17,16 +18,18 @@
 		 preserveAspectRatio="none">
 		@{
 			var maxYValue = points.Length == 0 ? 0 : points.Max(x => x?.SeriesValues.Sum() ?? 0);
-			if(_selectionStartIndex > -1 && _selectionEndIndex > -1)
+
+			@* SELECTION RANGE *@
+			if(Options.Selection.Enabled &&_selectionStartIndex > -1 && _selectionEndIndex > -1)
 			{
-				var startX = (int)((Math.Min(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width);
-				var endX = (int)((Math.Max(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width) + Options.Bar.Width;
-				<rect x="@startX"
-					  fill="@Options.Colours.SelectionBackground"
+				<rect x="@SelectionStartX"
+					  fill="@Options.Selection.BackgroundColour"
 					  height="@_canvasHeight"
-					  stroke="@Options.Colours.SelectionBorder"
-					  width="@(endX - startX)"  />
+					  stroke="@Options.Selection.BorderColour"
+					  width="@(SelectionEndX - SelectionStartX)"  />
 			}
+
+			@* BARS *@
 			if (points.Length > 0)
 			{
 				for (var i = 0; i < points.Length; i++)
@@ -38,8 +41,34 @@
 								  X="@(i * Options.Bar.Width)" />
 				}
 			}
+
+			@* SELECTION HANDLES *@
+			if(Options.Selection.Enabled && _selectionStartIndex > -1 && _selectionEndIndex > -1)
+			{
+				<rect @ref="_svgSelectionHandleStart"
+		              @onpointerdown="OnSelectionStartPointerDown"
+		              @onpointermove="OnSelectionStartPointerMove"
+		              @onpointerup="OnSelectionStartPointerUp"
+					  class="tl-selection-handle"
+					  fill="@Options.Selection.HandleColour"
+					  height="@_canvasHeight"
+					  stroke="@Options.Selection.HandleColour"
+					  width="@Options.Selection.HandleWidth"
+					  x="@SelectionStartX" />
+				<rect @ref="_svgSelectionHandleEnd"
+		              @onpointerdown="OnSelectionEndPointerDown"
+		              @onpointermove="OnSelectionEndPointerMove"
+		              @onpointerup="OnSelectionEndPointerUp"
+					  class="tl-selection-handle"
+					  fill="@Options.Selection.HandleColour"
+					  height="@_canvasHeight"
+					  stroke="@Options.Selection.HandleColour"
+					  width="@Options.Selection.HandleWidth"
+					  x="@(SelectionEndX - Options.Selection.HandleWidth)" />
+			}
 		}
 
+		@* SPINNER *@
 		@if(_loading)
 		{
 			var r = _canvasHeight / 4;
@@ -48,20 +77,21 @@
 			<path class="rotate"
 				  d="@(Utilities.DescribeArc(cx, cy, r, Options.Spinner.ArcStart, Options.Spinner.ArcEnd))"
 				  fill="none"
-				  stroke="@Options.Colours.Spinner"
+				  stroke="@Options.Spinner.Colour"
 				  stroke-width="@Options.Spinner.Width"
 				  stroke-linecap="round" />
 		}
 
 	</svg>
 
+	@* X-AXIS *@
 	<svg class="tl-x-axis"
 		 preserveAspectRatio="none">
-		<line stroke="@Options.Colours.MinorTick"
+		<line stroke="@Options.XAxis.MinorTickColour"
 			  x2="@_canvasWidth" />
 		@for(var x=0; x < _canvasWidth; x += Options.Bar.Width)
 		{
-		   <line stroke="@Options.Colours.MinorTick"
+		   <line stroke="@Options.XAxis.MinorTickColour"
 				 x1="@x"
 				 x2="@x"
 				 y1="0"
@@ -75,7 +105,7 @@
 			<line x1="@(i * Options.Bar.Width)"
 				  x2="@(i * Options.Bar.Width)"
 				  y2="15"
-				  stroke="@Options.Colours.MajorTick" />
+				  stroke="@Options.XAxis.MajorTickColour" />
 			<text>
 				<text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)"
 					  y="@textInfo.OffsetY">@textInfo.Text</text>
@@ -84,14 +114,15 @@
 		}
 	</svg>
 
+	@* PAN *@
 	<svg @ref="_svgPanElement"
 		 @onpointerdown="OnPanPointerDown"
 		 @onpointermove="OnPanPointerMove"
 		 @onpointerup="OnPanPointerUp"
 		 class="tl-pan"
 		 preserveAspectRatio="none">
-		<rect fill="@Options.Colours.HandleBackground"
-			  height="20"
+		<rect fill="@Options.Pan.Colour"
+			  height="@Options.Pan.Height"
 			  width="@_panHandleWidth"
 			  x="@_panHandleX"
 			  y="0" />

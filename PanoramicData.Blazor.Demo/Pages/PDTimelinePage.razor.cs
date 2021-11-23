@@ -22,11 +22,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 				Width = 20,
 				Padding = 2
 			},
-			Colours = new TimelineColours
-			{
-				Background = "White",
-				Border = "Silver"
-			},
 			Series = new[]
 			{
 				new TimelineSeries

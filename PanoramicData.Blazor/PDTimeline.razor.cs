@@ -29,6 +29,10 @@ namespace PanoramicData.Blazor
 		private double _chartDragOrigin;
 		private int _selectionStartIndex = -1;
 		private int _selectionEndIndex = -1;
+		private ElementReference _svgSelectionHandleStart;
+		private ElementReference _svgSelectionHandleEnd;
+		private bool _isSelectionStartDragging;
+		private bool _isSelectionEndDragging;
 
 		private bool _isPanDragging;
 		private double _panDragOrigin;
@@ -262,15 +266,11 @@ namespace PanoramicData.Blazor
 
 		private async Task OnChartPointerDown(PointerEventArgs args)
 		{
-			if (!_isChartDragging)
+			if (Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
 			{
-				// initialize drag
 				_isChartDragging = true;
 				_chartDragOrigin = args.ClientX;
-
 				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
-
-				// initialize selection
 				var index = GetColumnIndexAtPoint(args.ClientX);
 				await SetSelection(index, index).ConfigureAwait(true);
 			}
@@ -280,10 +280,7 @@ namespace PanoramicData.Blazor
 		{
 			if(_isChartDragging)
 			{
-				var delta = args.ClientX - _chartDragOrigin;
 				_chartDragOrigin = args.ClientX;
-
-				// calculate column
 				var index = GetColumnIndexAtPoint(args.ClientX);
 				await SetSelection(_selectionStartIndex, index).ConfigureAwait(true);
 			}
@@ -291,10 +288,7 @@ namespace PanoramicData.Blazor
 
 		private void OnChartPointerUp(PointerEventArgs args)
 		{
-			if (_isChartDragging)
-			{
-				_isChartDragging = false;
-			}
+			_isChartDragging = false;
 		}
 
 		private async Task OnPanPointerDown(PointerEventArgs args)
@@ -306,7 +300,7 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task OnPanPointerMove(PointerEventArgs args)
+		private void OnPanPointerMove(PointerEventArgs args)
 		{
 			// initiare a drag operation?
 			if(!_isPanDragging && args.Buttons == 1)
@@ -346,6 +340,62 @@ namespace PanoramicData.Blazor
 			{
 				await RefreshAsync().ConfigureAwait(true);
 			}
+		}
+
+		private async Task OnSelectionEndPointerDown(PointerEventArgs args)
+		{
+			if (Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
+			{
+				_isSelectionEndDragging = true;
+				_chartDragOrigin = args.ClientX;
+				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgSelectionHandleEnd).ConfigureAwait(true);
+			}
+		}
+
+		private async Task OnSelectionEndPointerMove(PointerEventArgs args)
+		{
+			if (_isSelectionEndDragging)
+			{
+				_chartDragOrigin = args.ClientX;
+				var index = GetColumnIndexAtPoint(args.ClientX);
+				if (index >= _selectionStartIndex)
+				{
+					await SetSelection(_selectionStartIndex, index).ConfigureAwait(true);
+				}
+			}
+		}
+
+		private void OnSelectionEndPointerUp(PointerEventArgs args)
+		{
+			_isSelectionEndDragging = false;
+		}
+
+		private async Task OnSelectionStartPointerDown(PointerEventArgs args)
+		{
+			if (Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
+			{
+				_isSelectionStartDragging = true;
+				_chartDragOrigin = args.ClientX;
+				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgSelectionHandleStart).ConfigureAwait(true);
+			}
+		}
+
+		private async Task OnSelectionStartPointerMove(PointerEventArgs args)
+		{
+			if (_isSelectionStartDragging)
+			{
+				_chartDragOrigin = args.ClientX;
+				var index = GetColumnIndexAtPoint(args.ClientX);
+				if (index <= _selectionEndIndex)
+				{
+					await SetSelection(index, _selectionEndIndex).ConfigureAwait(true);
+				}
+			}
+		}
+
+		private void OnSelectionStartPointerUp(PointerEventArgs args)
+		{
+			_isSelectionStartDragging = false;
 		}
 
 		private async Task OnMouseWheel(WheelEventArgs args)
@@ -415,6 +465,10 @@ namespace PanoramicData.Blazor
 			StateHasChanged();
 		}
 
+		private double SelectionStartX => (Math.Min(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width;
+
+		private double SelectionEndX => ((Math.Max(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width) + Options.Bar.Width;
+
 		public async Task SetScale(TimelineScales scale, bool forceRefresh = false)
 		{
 			if (scale != _previousScale || forceRefresh)
@@ -470,6 +524,8 @@ namespace PanoramicData.Blazor
 
 		private async Task SetSelection(int startIndex, int endIndex)
 		{
+			Console.WriteLine($"SetSelection: {startIndex} - {endIndex}");
+
 			_selectionStartIndex = startIndex;
 			_selectionEndIndex = endIndex;
 			TimeRange? range = null;

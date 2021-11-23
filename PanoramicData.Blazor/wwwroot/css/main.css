@@ -449,6 +449,10 @@
   width: 100%;
 }
 
+.tl-selection-handle {
+  cursor: col-resize;
+}
+
 .tl-x-axis {
   font-size: 10px;
   height: 20px;
