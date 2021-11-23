@@ -44,6 +44,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 					Label = "Lines Added",
 					Colour = "Green"
 				}
+			},
+			Spinner = new TimelineSpinnerOptions
+			{
+				Width = 10,
+				ArcStart = 90,
+				ArcEnd = 360
 			}
 		};
 		private DateTime _minDate;

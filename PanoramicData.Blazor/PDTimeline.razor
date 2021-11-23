@@ -46,10 +46,10 @@
 			var cx = (_canvasWidth / 2d);
 			var cy = (_canvasHeight / 2d);
 			<path class="rotate"
-				  d="@(Utilities.DescribeArc(cx, cy, r, 15, 345))"
+				  d="@(Utilities.DescribeArc(cx, cy, r, Options.Spinner.ArcStart, Options.Spinner.ArcEnd))"
 				  fill="none"
 				  stroke="@Options.Colours.Spinner"
-				  stroke-width="6"
+				  stroke-width="@Options.Spinner.Width"
 				  stroke-linecap="round" />
 		}
 

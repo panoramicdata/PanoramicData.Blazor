@@ -7,6 +7,7 @@ namespace PanoramicData.Blazor.Models
 		public TimelineBarOptions Bar { get; set; } = new TimelineBarOptions();
 		public TimelineColours Colours { get; set; } = new TimelineColours();
 		public TimelineSeries[] Series { get; set; } = Array.Empty<TimelineSeries>();
+		public TimelineSpinnerOptions Spinner { get; set; } = new TimelineSpinnerOptions();
 		public TimelineYAxisOptions YAxis { get; set; } = new TimelineYAxisOptions();
 	}
 
@@ -14,6 +15,13 @@ namespace PanoramicData.Blazor.Models
 	{
 		public int Padding { get; set; } = 2;
 		public int Width { get; set; } = 20;
+	}
+
+	public class TimelineSpinnerOptions
+	{
+		public int ArcStart { get; set; } = 15;
+		public int ArcEnd { get; set; } = 345;
+		public int Width { get; set; } = 6;
 	}
 
 	public class TimelineYAxisOptions
