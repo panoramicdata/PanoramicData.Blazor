@@ -524,8 +524,6 @@ namespace PanoramicData.Blazor
 
 		private async Task SetSelection(int startIndex, int endIndex)
 		{
-			Console.WriteLine($"SetSelection: {startIndex} - {endIndex}");
-
 			_selectionStartIndex = startIndex;
 			_selectionEndIndex = endIndex;
 			TimeRange? range = null;

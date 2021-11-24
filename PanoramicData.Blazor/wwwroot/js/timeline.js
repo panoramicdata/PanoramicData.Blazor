@@ -27,7 +27,7 @@
 	}
 
 	log(data) {
-		console.log(...arguments);
+		//console.log(...arguments);
 	}
 
 	onWheel(ev) {
