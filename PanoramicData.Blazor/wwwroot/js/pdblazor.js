@@ -226,6 +226,22 @@
 		}
 	},
 
+	initializeDropDown: function (id, ref) {
+		var el = $(`#${id}`);
+		if (el) {
+			el.on("shown.bs.dropdown", function () {
+				if (ref) {
+					ref.invokeMethodAsync("OnDropDownShown");
+				}
+			});
+			el.on("hidden.bs.dropdown", function () {
+				if (ref) {
+					ref.invokeMethodAsync("OnDropDownHidden");
+				}
+			});
+		}
+	},
+
 	onDropZoneDragEnterOver: function (e) {
 		if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.indexOf("Files") > -1) {
 			var zone = panoramicData.findAncestor(e.target, 'pddropzone');

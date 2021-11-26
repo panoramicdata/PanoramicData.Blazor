@@ -32,6 +32,11 @@
   display: none;
 }
 
+.pd-dropdown button {
+  align-items: center;
+  display: flex;
+}
+
 .pdtable {
   -webkit-user-select: none;
   /* Chrome/Safari */

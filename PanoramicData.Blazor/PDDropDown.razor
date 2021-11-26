@@ -1,0 +1,29 @@
+﻿<div class="pd-dropdown @ParentCssClasses"
+     id="@Id">
+    <PDButton Attributes="Attributes"
+              IsEnabled="IsEnabled"
+              CssClass="@CssClass"
+              IconCssClass="@IconCssClass"
+              PreventDefault="PreventDefault"
+              Size="Size"
+              StopPropagation="StopPropagation"
+              Text="@Text"
+              TextCssClass="@TextCssClass"
+              ToolTip="@ToolTip">
+
+        <PDLabel Click="Click"
+                 IconCssClass="@IconCssClass"
+                 StopPropagation="true"
+                 Text="@Text"
+                 TextCssClass="@TextCssClass"
+                 ToolTip="@ToolTip">
+        </PDLabel>
+        @if (ShowCaret)
+        {
+            <i class="ml-2 fas @(_shown ? "fa-angle-up" : "fa-angle-down")"></i>
+        }
+    </PDButton>
+    <div class="dropdown-menu">
+        @ChildContent
+    </div>
+</div>

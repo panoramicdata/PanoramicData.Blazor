@@ -1,42 +1,46 @@
 ﻿@page "/pdtimeline"
 
-<h2>Timeline Widget</h2>
-<div>
-	<div class="toolbar">
-		<EditForm Model="_model">
-			<InputSelect TValue="TimelineScales"
-						 @bind-Value="_model.Scale">
-				<option value="@TimelineScales.Minutes">1 Minute</option>
-				<option value="@TimelineScales.Hours">1 Hour</option>
-				<option value="@TimelineScales.Hours4">4 Hours</option>
-				<option value="@TimelineScales.Hours6">6 Hours</option>
-				<option value="@TimelineScales.Hours8">8 Hours</option>
-				<option value="@TimelineScales.Hours12">12 Hours</option>
-				<option value="@TimelineScales.Days">1 Day</option>
-				<option value="@TimelineScales.Weeks">1 Week</option>
-				<option value="@TimelineScales.Months">1 Month</option>
-				<option value="@TimelineScales.Years">1 Year</option>
-			</InputSelect>
-		</EditForm>
-	</div>
+<h1>PDTimeline</h1>
 
-	<PDTimeline DataProvider="GetTimelineData"
-				FetchAll="false"
-				MaxDateTime="_data.Max(x => x.DateChanged)"
-				MinDateTime="_data.Min(x => x.DateChanged)"
-				Options="_timelineOptions"
-				SelectionChanged="OnSelectionChanged"
-				Scale="_model.Scale"
-				ScaleChanged="OnScaleChanged"/>
+<DemoSourceView SourceFiles="Pages/PDTimelinePage.razor, Pages/PDTimelinePage.razor.cs">
 
 	<div>
-		Range: @($"{_minDate:g} - {_maxDate:g}"))
-	</div>
-	<div>
-		Selection: @(_selection is null ? "none" : _selection.ToString())
-	</div>
-	<div>
-		Data Calls: @(new MarkupString(_dataCalls))
+		<div class="toolbar">
+			<EditForm Model="_model">
+				<InputSelect TValue="TimelineScales"
+							 @bind-Value="_model.Scale">
+					<option value="@TimelineScales.Minutes">1 Minute</option>
+					<option value="@TimelineScales.Hours">1 Hour</option>
+					<option value="@TimelineScales.Hours4">4 Hours</option>
+					<option value="@TimelineScales.Hours6">6 Hours</option>
+					<option value="@TimelineScales.Hours8">8 Hours</option>
+					<option value="@TimelineScales.Hours12">12 Hours</option>
+					<option value="@TimelineScales.Days">1 Day</option>
+					<option value="@TimelineScales.Weeks">1 Week</option>
+					<option value="@TimelineScales.Months">1 Month</option>
+					<option value="@TimelineScales.Years">1 Year</option>
+				</InputSelect>
+			</EditForm>
+		</div>
+
+		<PDTimeline DataProvider="GetTimelineData"
+					FetchAll="false"
+					MaxDateTime="_data.Max(x => x.DateChanged)"
+					MinDateTime="_data.Min(x => x.DateChanged)"
+					Options="_timelineOptions"
+					SelectionChanged="OnSelectionChanged"
+					Scale="_model.Scale"
+					ScaleChanged="OnScaleChanged"/>
+
+		<div>
+			Range: @($"{_minDate:g} - {_maxDate:g}"))
+		</div>
+		<div>
+			Selection: @(_selection is null ? "none" : _selection.ToString())
+		</div>
+
 	</div>
 
-</div>
+	<EventView />
+
+</DemoSourceView>

@@ -20,6 +20,12 @@ namespace PanoramicData.Blazor
 		[Parameter] public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
 		/// <summary>
+		/// Custom content to display instead of the standard text and icon.
+		/// </summary>
+		[Parameter]
+		public RenderFragment? ChildContent { get; set; }
+
+		/// <summary>
 		/// CSS Class for button.
 		/// </summary>
 		[Parameter] public string CssClass { get; set; } = string.Empty;
@@ -43,6 +49,12 @@ namespace PanoramicData.Blazor
 		/// Sets a callback for when user clicks button.
 		/// </summary>
 		[Parameter] public EventCallback<MouseEventArgs> Click { get; set; }
+
+		[Parameter]
+		public bool PreventDefault { get; set; }
+
+		[Parameter]
+		public bool StopPropagation { get; set; }
 
 		/// <summary>
 		/// Gets or sets the button sizes.

@@ -1,4 +1,6 @@
-﻿using PanoramicData.Blazor.Extensions;
+﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Demo.Data;
+using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
 using System;
@@ -49,7 +51,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 		};
 		private DateTime _minDate;
 		private DateTime _maxDate;
-		private string _dataCalls = string.Empty;
+
+		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 		private void GenerateData()
 		{
@@ -119,7 +122,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 					});
 				}
 
-				_dataCalls += $"<br/>{start:g} - {end:g}, count: {points.Count}";
+				EventManager?.Add(new Event("GetTimelineData", new EventArgument("start", start), new EventArgument("end", end), new EventArgument("scale", scale)));
 				StateHasChanged();
 
 				// add some latency

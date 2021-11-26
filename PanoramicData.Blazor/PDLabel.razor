@@ -1,0 +1,17 @@
+﻿<div class="pd-label @CssClass"
+     title="@ToolTip">
+    @if (!string.IsNullOrWhiteSpace(IconCssClass))
+    {
+        <i class="@IconCssClass"
+           @onclick="Click"
+           @onclick:preventDefault="PreventDefault"
+           @onclick:stopPropagation="StopPropagation" />
+    }
+    @if (!string.IsNullOrWhiteSpace(Text))
+    {
+        <span class="@(string.IsNullOrWhiteSpace(IconCssClass)? "" : "ms-1") @TextCssClass"
+              @onclick="Click"
+              @onclick:preventDefault="PreventDefault"
+              @onclick:stopPropagation="StopPropagation">@Text</span>
+    }
+</div>
