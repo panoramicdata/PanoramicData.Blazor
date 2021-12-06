@@ -545,7 +545,8 @@ namespace PanoramicData.Blazor
 							}
 							catch (Exception ex)
 							{
-								throw new PDTableException($"Failed to assign value {newValue} to column {column.Id}", ex);
+								await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+								return;
 							}
 						}
 					}
