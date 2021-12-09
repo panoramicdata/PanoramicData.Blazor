@@ -29,6 +29,7 @@ namespace PanoramicData.Blazor
 		private double _chartDragOrigin;
 		private int _selectionStartIndex = -1;
 		private int _selectionEndIndex = -1;
+		private TimeRange? _selectionRange = null;
 		private ElementReference _svgSelectionHandleStart;
 		private ElementReference _svgSelectionHandleEnd;
 		private bool _isSelectionStartDragging;
@@ -448,8 +449,8 @@ namespace PanoramicData.Blazor
 
 				// either fetch all data points for scale, or just the current viewport
 				_loading = true;
-				var start = FetchAll ? MinDateTime : MinDateTime.AddPeriods(Scale, _columnOffset).PeriodStart(Scale);
-				var end = FetchAll ? MaxDateTime ?? DateTime.Now : MinDateTime.AddPeriods(Scale, _columnOffset + _viewportColumns).PeriodEnd(Scale);
+				var start = FetchAll ? MinDateTime.PeriodStart(Scale) : MinDateTime.AddPeriods(Scale, _columnOffset).PeriodStart(Scale);
+				var end = FetchAll ? (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale) : MinDateTime.AddPeriods(Scale, _columnOffset + _viewportColumns).PeriodEnd(Scale);
 				_refreshCancellationToken = new CancellationTokenSource();
 				var points = await DataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
 				foreach (var point in points)
@@ -483,8 +484,8 @@ namespace PanoramicData.Blazor
 					Scale = scale;
 				}
 				// calculate total number of columns for scale
-				var start = MinDateTime.Date;
-				var end = MaxDateTime?.Date ?? DateTime.Now.Date;
+				var start = MinDateTime.Date.PeriodStart(Scale);
+				var end = (MaxDateTime?.Date ?? DateTime.Now.Date).PeriodEnd(Scale);
 				var temp = Scale switch
 				{
 					TimelineScales.Minutes => end.Subtract(start).TotalMinutes,
@@ -511,8 +512,13 @@ namespace PanoramicData.Blazor
 					}
 					_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 				}
+				// re-calc selection in new scale
+				if(_selectionRange != null)
+				{
+					SetSelection(_selectionRange.StartTime, _selectionRange.EndTime);
+				}
 				// clear selection
-				await ClearSelection().ConfigureAwait(true);
+				//await ClearSelection().ConfigureAwait(true);
 				// refresh data for new scale?
 				if (refreshData)
 				{
@@ -522,20 +528,31 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private async Task SetSelection(DateTime start, DateTime end)
+		{
+			// calculate indexes for current scale
+			var startIndex = start.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale);
+			var endIndex = end.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - 1;
+			await SetSelection(startIndex, endIndex).ConfigureAwait(true);
+		}
+
 		private async Task SetSelection(int startIndex, int endIndex)
 		{
 			_selectionStartIndex = startIndex;
 			_selectionEndIndex = endIndex;
-			TimeRange? range = null;
 			if(startIndex > -1 && endIndex > -1)
 			{
-				range = new TimeRange
+				_selectionRange = new TimeRange
 				{
 					StartTime = MinDateTime.AddPeriods(Scale, startIndex).PeriodStart(Scale),
 					EndTime = MinDateTime.AddPeriods(Scale, endIndex).PeriodEnd(Scale)
 				};
 			}
-			await SelectionChanged.InvokeAsync(range).ConfigureAwait(true);
+			else
+			{
+				_selectionRange = null;
+			}
+			await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
 		}
 
 		public void Dispose()
