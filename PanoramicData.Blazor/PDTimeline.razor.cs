@@ -470,10 +470,11 @@ namespace PanoramicData.Blazor
 
 		private double SelectionEndX => ((Math.Max(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width) + Options.Bar.Width;
 
-		public async Task SetScale(TimelineScales scale, bool forceRefresh = false)
+		public async Task SetScale(TimelineScales scale, bool forceRefresh = false, DateTime? centerOn = null)
 		{
 			if (scale != _previousScale || forceRefresh)
 			{
+				var previousCenter = MinDateTime.PeriodStart(_previousScale).AddPeriods(_previousScale, _columnOffset + (_viewportColumns / 2));
 				var scaleChanged = scale != _previousScale;
 				var refreshData = (scaleChanged) || !FetchAll;
 				_previousScale = scale;
@@ -513,26 +514,80 @@ namespace PanoramicData.Blazor
 					_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 				}
 				// re-calc selection in new scale
-				if(_selectionRange != null)
+				if (_selectionRange != null)
 				{
 					SetSelection(_selectionRange.StartTime, _selectionRange.EndTime);
 				}
-				// clear selection
-				//await ClearSelection().ConfigureAwait(true);
+				// re-position viewport?
+				CenterOn(centerOn ?? previousCenter);
 				// refresh data for new scale?
-				if (refreshData)
-				{
-					await RefreshAsync().ConfigureAwait(true);
-				}
+				//if (refreshData)
+				//{
+				await RefreshAsync().ConfigureAwait(true);
+				//}
+				// mark state as changed
 				StateHasChanged();
 			}
 		}
 
+		private void CenterOn(DateTime dateTime)
+		{
+			Console.WriteLine($"Center on {dateTime} - a");
+			if(dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
+			{
+				var totalSeconds = (MaxDateTime ?? DateTime.Now).Subtract(MinDateTime).TotalSeconds;
+				dateTime = MinDateTime.AddSeconds(totalSeconds / 2);
+			}
+			Console.WriteLine($"Center on {dateTime} - b");
+			var maxDate = (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale);
+
+
+			var maxOffset = maxDate.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - _viewportColumns;
+			if(maxOffset <= 0)
+			{
+				_columnOffset = 0;
+			}
+			else
+			{
+				// validate
+				var newOffset = dateTime.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - (_viewportColumns / 2);
+				if (newOffset >= 0 && newOffset <= maxOffset)
+				{
+					Console.WriteLine($"Old Offset = {_columnOffset}, New Offset = {newOffset}, TotalColumns = {_totalColumns}");
+					_columnOffset = newOffset;
+				}
+			}
+
+			// update pan handle x
+			_panHandleX = (_columnOffset / (double)_totalColumns) * (double)_canvasWidth;
+				// (_columnOffset / _totalColumns) * (double)_canvasWidth =  _panHandleX
+				// _columnOffset =  (_panHandleX / (double)_canvasWidth) * _totalColumns
+				//_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
+		}
+
 		private async Task SetSelection(DateTime start, DateTime end)
 		{
-			// calculate indexes for current scale
+			// calculate start index
+			if (start < MinDateTime)
+			{
+				start = MinDateTime.PeriodStart(Scale);
+			}
 			var startIndex = start.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale);
+			if(startIndex < 0)
+			{
+				startIndex = 0;
+			}
+
+			// calculate end index
+			if (end > (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale))
+			{
+				end = (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale);
+			}
 			var endIndex = end.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - 1;
+			if(endIndex >= _totalColumns)
+			{
+				endIndex = _totalColumns - 1;
+			}
 			await SetSelection(startIndex, endIndex).ConfigureAwait(true);
 		}
 
