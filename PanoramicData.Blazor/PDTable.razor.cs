@@ -54,137 +54,12 @@ namespace PanoramicData.Blazor
 
 		[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
-		/// <summary>
-		/// Child HTML content.
-		/// </summary>
-		[Parameter] public RenderFragment ChildContent { get; set; } = null!;
+		#region Parameters
 
 		/// <summary>
-		/// Gets or sets the IDataProviderService instance to use to fetch data.
+		/// Callback fired after an item edit ends.
 		/// </summary>
-		[Parameter] public IDataProviderService<TItem> DataProvider { get; set; } = null!;
-
-		/// <summary>
-		/// A Linq expression that selects the item field that contains the key value.
-		/// </summary>
-		[Parameter] public Func<TItem, object>? KeyField { get; set; }
-
-		/// <summary>
-		/// Gets or sets the CSS class to apply to the container element.
-		/// </summary>
-		[Parameter] public string CssClass { get; set; } = string.Empty;
-
-		/// <summary>
-		/// Gets or sets the CSS class to apply to the tables container element.
-		/// </summary>
-		[Parameter] public string TableClass { get; set; } = string.Empty;
-
-		/// <summary>
-		/// Gets or sets the CSS class to apply to the table header element.
-		/// </summary>
-		[Parameter] public string THeadClass { get; set; } = string.Empty;
-
-		/// <summary>
-		/// Gets or sets a function that calculates and returns CSS Classes for the row (TR element).
-		/// </summary>
-		[Parameter] public Func<TItem, string>? RowClass { get; set; }
-
-		/// <summary>
-		/// Gets or sets the message to be displayed when no data is available.
-		/// </summary>
-		[Parameter] public string NoDataMessage { get; set; } = "No data";
-
-		/// <summary>
-		/// Gets or sets a delegate to be called if an exception occurs.
-		/// </summary>
-		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
-
-		/// <summary>
-		/// Gets or sets the possible page sizes offered to the user.
-		/// </summary>
-		[Parameter] public uint[] PageSizeChoices { get; set; } = new uint[] { 10, 25, 50, 100, 250, 500 };
-
-		/// <summary>
-		/// Gets or sets an event callback raised when the component has perform all it initialization.
-		/// </summary>
-		[Parameter] public EventCallback Ready { get; set; }
-
-		/// <summary>
-		/// Gets or sets the button and form control sizes.
-		/// </summary>
-		[Parameter] public ButtonSizes? Size { get; set; }
-
-		/// <summary>
-		/// Gets or sets whether the pager is displayed.
-		/// </summary>
-		[Parameter] public bool ShowPager { get; set; } = true;
-
-		/// <summary>
-		/// Gets or sets the default sort criteria.
-		/// </summary>
-		[Parameter] public SortCriteria SortCriteria { get; set; } = new SortCriteria();
-
-		/// <summary>
-		/// Event callback fired whenever the sort criteria has changed.
-		/// </summary>
-		[Parameter] public EventCallback<SortCriteria> SortChanged { get; set; }
-
-		/// <summary>
-		/// Gets or sets the default page criteria.
-		/// </summary>
-		[Parameter] public PageCriteria? PageCriteria { get; set; }
-
-		/// <summary>
-		/// Callback fired whenever the component changes the currently displayed page.
-		/// </summary>
-		[Parameter] public EventCallback<PageCriteria> PageChanged { get; set; }
-
-		/// <summary>
-		/// Search text to be passed to IDataProvider when querying for data.
-		/// </summary>
-		[Parameter] public string? SearchText { get; set; }
-
-		/// <summary>
-		/// Allows an application defined configuration to be applied to the available columns
-		/// at runtime.
-		/// </summary>
-		[Parameter] public List<PDColumnConfig>? ColumnsConfig { get; set; }
-
-		/// <summary>
-		/// Gets or sets whether selection is enabled and the method in which it works.
-		/// </summary>
-		[Parameter] public TableSelectionMode SelectionMode { get; set; }
-
-		/// <summary>
-		/// Callback fired whenever the current selection changes.
-		/// </summary>
-		[Parameter] public EventCallback SelectionChanged { get; set; }
-
-		/// <summary>
-		/// Callback fired whenever the user clicks on a given item.
-		/// </summary>
-		[Parameter] public EventCallback<TItem> Click { get; set; }
-
-		/// <summary>
-		/// Callback fired whenever the user double-clicks on a given item.
-		/// </summary>
-		[Parameter] public EventCallback<TItem> DoubleClick { get; set; }
-
-		/// <summary>
-		/// Action called whenever data items are loaded.
-		/// </summary>
-		/// <remarks>The action allows the items to be modified by the calling application.</remarks>
-		[Parameter] public Action<List<TItem>>? ItemsLoaded { get; set; }
-
-		/// <summary>
-		/// Gets whether the table allows in-place editing.
-		/// </summary>
-		[Parameter] public bool AllowEdit { get; set; }
-
-		/// <summary>
-		/// Gets whether the table will save changes via the DataProvider (if set).
-		/// </summary>
-		[Parameter] public bool SaveChanges { get; set; }
+		[Parameter] public EventCallback<TableAfterEditEventArgs<TItem>> AfterEdit { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether rows may be dragged.
@@ -197,19 +72,9 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AllowDrop { get; set; }
 
 		/// <summary>
-		/// Callback fired before an item edit begins.
+		/// Gets whether the table allows in-place editing.
 		/// </summary>
-		[Parameter] public EventCallback<TableBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
-
-		/// <summary>
-		/// Callback fired after an item edit ends.
-		/// </summary>
-		[Parameter] public EventCallback<TableAfterEditEventArgs<TItem>> AfterEdit { get; set; }
-
-		/// <summary>
-		/// Callback fired whenever a drag operation ends on a row within a DragContext.
-		/// </summary>
-		[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
+		[Parameter] public bool AllowEdit { get; set; }
 
 		/// <summary>
 		/// Determines whether items are fetched from the DataProvider when the component is
@@ -218,9 +83,158 @@ namespace PanoramicData.Blazor
 		[Parameter] public bool AutoLoad { get; set; } = true;
 
 		/// <summary>
+		/// Callback fired before an item edit begins.
+		/// </summary>
+		[Parameter] public EventCallback<TableBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
+
+		/// <summary>
+		/// Child HTML content.
+		/// </summary>
+		[Parameter] public RenderFragment ChildContent { get; set; } = null!;
+
+		/// <summary>
+		/// Callback fired whenever the user clicks on a given item.
+		/// </summary>
+		[Parameter] public EventCallback<TItem> Click { get; set; }
+
+		/// <summary>
+		/// Allows an application defined configuration to be applied to the available columns
+		/// at runtime.
+		/// </summary>
+		[Parameter] public List<PDColumnConfig>? ColumnsConfig { get; set; }
+
+		/// <summary>
+		/// Gets or sets the CSS class to apply to the container element.
+		/// </summary>
+		[Parameter] public string CssClass { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Gets or sets the IDataProviderService instance to use to fetch data.
+		/// </summary>
+		[Parameter] public IDataProviderService<TItem> DataProvider { get; set; } = null!;
+
+		/// <summary>
+		/// Callback fired whenever the user double-clicks on a given item.
+		/// </summary>
+		[Parameter] public EventCallback<TItem> DoubleClick { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever a drag operation ends on a row within a DragContext.
+		/// </summary>
+		[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
+
+		/// <summary>
+		/// Gets or sets a delegate to be called if an exception occurs.
+		/// </summary>
+		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
+
+		/// <summary>
+		/// Action called whenever data items are loaded.
+		/// </summary>
+		/// <remarks>The action allows the items to be modified by the calling application.</remarks>
+		[Parameter] public Action<List<TItem>>? ItemsLoaded { get; set; }
+
+		/// <summary>
 		/// Callback fired whenever the user presses a key down.
 		/// </summary>
 		[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
+
+		/// <summary>
+		/// A Linq expression that selects the item field that contains the key value.
+		/// </summary>
+		[Parameter] public Func<TItem, object>? KeyField { get; set; }
+
+		/// <summary>
+		/// Gets or sets the message to be displayed when no data is available.
+		/// </summary>
+		[Parameter] public string NoDataMessage { get; set; } = "No data";
+
+		/// <summary>
+		/// Gets or sets a function that calculates and returns CSS Classes for the row (TR element).
+		/// </summary>
+		[Parameter] public Func<TItem, string>? RowClass { get; set; }
+
+		/// <summary>
+		/// Gets or sets the CSS class to apply to the tables container element.
+		/// </summary>
+		[Parameter] public string TableClass { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Gets or sets the CSS class to apply to the table header element.
+		/// </summary>
+		[Parameter] public string THeadClass { get; set; } = string.Empty;
+
+		/// <summary>
+		/// Callback fired whenever the component changes the currently displayed page.
+		/// </summary>
+		[Parameter] public EventCallback<PageCriteria> PageChanged { get; set; }
+
+		/// <summary>
+		/// Gets or sets the default page criteria.
+		/// </summary>
+		[Parameter] public PageCriteria? PageCriteria { get; set; }
+
+		/// <summary>
+		/// Gets or sets the possible page sizes offered to the user.
+		/// </summary>
+		[Parameter] public uint[] PageSizeChoices { get; set; } = new uint[] { 10, 25, 50, 100, 250, 500 };
+
+		/// <summary>
+		/// Gets or sets an event callback raised when the component has perform all it initialization.
+		/// </summary>
+		[Parameter] public EventCallback Ready { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether the selection is maintained across pages.
+		/// </summary>
+		[Parameter] public bool RetainSelectionOnPage { get; set; }
+
+		/// <summary>
+		/// Gets whether the table will save changes via the DataProvider (if set).
+		/// </summary>
+		[Parameter] public bool SaveChanges { get; set; }
+
+		/// <summary>
+		/// Search text to be passed to IDataProvider when querying for data.
+		/// </summary>
+		[Parameter] public string? SearchText { get; set; }
+
+		/// <summary>
+		/// Callback fired whenever the current selection changes.
+		/// </summary>
+		[Parameter] public EventCallback SelectionChanged { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether selection is enabled and the method in which it works.
+		/// </summary>
+		[Parameter] public TableSelectionMode SelectionMode { get; set; }
+
+		/// <summary>
+		/// Gets or sets whether the checkboxes should be shown for multiple selection.
+		/// </summary>
+		[Parameter] public bool ShowCheckboxes { get; set; } = false;
+
+		/// <summary>
+		/// Gets or sets whether the pager is displayed.
+		/// </summary>
+		[Parameter] public bool ShowPager { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets the button and form control sizes.
+		/// </summary>
+		[Parameter] public ButtonSizes? Size { get; set; }
+
+		/// <summary>
+		/// Event callback fired whenever the sort criteria has changed.
+		/// </summary>
+		[Parameter] public EventCallback<SortCriteria> SortChanged { get; set; }
+
+		/// <summary>
+		/// Gets or sets the default sort criteria.
+		/// </summary>
+		[Parameter] public SortCriteria SortCriteria { get; set; } = new SortCriteria();
+
+		#endregion
 
 		/// <summary>
 		/// Gets the unique identifier of this table.
@@ -392,7 +406,10 @@ namespace PanoramicData.Blazor
 				}
 
 				// clear selection
-				await ClearSelectionAsync().ConfigureAwait(true);
+				if (!RetainSelectionOnPage)
+				{
+					await ClearSelectionAsync().ConfigureAwait(true);
+				}
 
 				// perform query data
 				var response = await DataProvider
@@ -763,6 +780,17 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private async Task OnDivMouseDown(MouseEventArgs _)
+		{
+			// if mouse down event occurred straight from Div then clear selection
+			if (!_mouseDownOriginatedFromTable)
+			{
+				Selection.Clear();
+				await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+			}
+			_mouseDownOriginatedFromTable = false;
+		}
+
 		public async Task OnEditBlurAsync()
 		{
 			// if focus has moved to another editor then continue editing otherwise end edit
@@ -777,57 +805,6 @@ namespace PanoramicData.Blazor
 					await CommitEditAsync().ConfigureAwait(true);
 				}
 			}
-		}
-
-		private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
-		{
-			// quit if selection not allowed
-			if (SelectionMode == TableSelectionMode.None)
-			{
-				return;
-			}
-
-			// if right-click on row then only select if clicked on label
-			var selectRow = args.Button == 0;
-			if (args.Button == 2 && RightClickSelectsRow)
-			{
-				var sourceEl = await JSRuntime.InvokeAsync<ElementInfo>("panoramicData.getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
-				if (sourceEl != null)
-				{
-					selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
-				}
-			}
-
-			if (selectRow)
-			{
-				var key = KeyField!(item)?.ToString();
-				if (key != null)
-				{
-					var alreadySelected = Selection.Contains(key);
-
-					// begin edit mode?
-					if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
-					{
-						_editTimer?.Change(500, Timeout.Infinite);
-					}
-					else
-					{
-						await SelectItemAsync(key, args.ShiftKey, args.CtrlKey).ConfigureAwait(true);
-					}
-				}
-			}
-		}
-
-		private void OnRowClick(MouseEventArgs _, TItem item)
-		{
-			Click.InvokeAsync(item);
-		}
-
-		private void OnRowDoubleClick(MouseEventArgs _, TItem item)
-		{
-			// cancel pending edit mode
-			_editTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-			DoubleClick.InvokeAsync(item);
 		}
 
 		private async Task OnKeyDownAsync(KeyboardEventArgs args)
@@ -892,15 +869,102 @@ namespace PanoramicData.Blazor
 			await KeyDown.InvokeAsync(args).ConfigureAwait(true);
 		}
 
-		private async Task OnDivMouseDown(MouseEventArgs _)
+		private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
 		{
-			// if mouse down event occurred straight from Div then clear selection
-			if (!_mouseDownOriginatedFromTable)
+			// quit if selection not allowed
+			if (SelectionMode == TableSelectionMode.None)
 			{
-				Selection.Clear();
+				return;
+			}
+
+			// if right-click on row then only select if clicked on label
+			var selectRow = args.Button == 0;
+			if (args.Button == 2 && RightClickSelectsRow)
+			{
+				var sourceEl = await JSRuntime.InvokeAsync<ElementInfo>("panoramicData.getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
+				if (sourceEl != null)
+				{
+					selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
+				}
+			}
+
+			if (selectRow)
+			{
+				var key = KeyField!(item)?.ToString();
+				if (key != null)
+				{
+					var alreadySelected = Selection.Contains(key);
+
+					// begin edit mode?
+					if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
+					{
+						_editTimer?.Change(500, Timeout.Infinite);
+					}
+					else
+					{
+						await SelectItemAsync(key, args.ShiftKey, args.CtrlKey).ConfigureAwait(true);
+					}
+				}
+			}
+		}
+
+		private void OnRowClick(MouseEventArgs _, TItem item)
+		{
+			Click.InvokeAsync(item);
+		}
+
+		private void OnRowDoubleClick(MouseEventArgs _, TItem item)
+		{
+			// cancel pending edit mode
+			_editTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+			DoubleClick.InvokeAsync(item);
+		}
+
+		public async Task OnToggleAllSelection(bool on)
+		{
+			if (KeyField != null)
+			{
+				if (on)
+				{
+					foreach (var item in ItemsToDisplay)
+					{
+						var key = KeyField(item).ToString();
+						if (!Selection.Contains(key))
+						{
+							Selection.Add(key);
+						}
+					}
+				}
+				else
+				{
+					foreach (var item in ItemsToDisplay)
+					{
+						var key = KeyField(item).ToString();
+						if (Selection.Contains(key))
+						{
+							Selection.Remove(key);
+						}
+					}
+				}
 				await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 			}
-			_mouseDownOriginatedFromTable = false;
+		}
+
+		public async Task OnToggleSelection(TItem item, bool on)
+		{
+			if (KeyField != null)
+			{
+				var key = KeyField(item).ToString();
+				if (on && !Selection.Contains(key))
+				{
+					Selection.Add(key);
+				}
+				else if (Selection.Contains(key))
+				{
+					Selection.Remove(key);
+				}
+				await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+			}
 		}
 
 		private void OnTableMouseDown(MouseEventArgs _)
@@ -920,13 +984,9 @@ namespace PanoramicData.Blazor
 		private string GetDynamicRowClasses(TItem item)
 		{
 			var sb = new StringBuilder();
-			if (SelectionMode != TableSelectionMode.None)
+			if(IsSelected(item))
 			{
-				var key = KeyField!(item).ToString();
-				if (Selection.Contains(key))
-				{
-					sb.Append("selected ");
-				}
+				sb.Append("selected ");
 			}
 			if (RowClass != null)
 			{
@@ -948,6 +1008,15 @@ namespace PanoramicData.Blazor
 				// override with dynamic config?
 				var config = ColumnsConfig?.Find(x => x.Id == column.Id);
 				return config?.Editable ?? editable;
+			}
+			return false;
+		}
+
+		public bool IsSelected(TItem item)
+		{
+			if (SelectionMode != TableSelectionMode.None && KeyField != null)
+			{
+				return Selection.Contains(KeyField(item).ToString());
 			}
 			return false;
 		}

@@ -60,6 +60,11 @@
   width: 100%;
 }
 
+.pdtable .form-check-input {
+  margin-left: 0px;
+  transform: scale(1.3);
+}
+
 .pdtree {
   -webkit-user-select: none;
   /* Chrome/Safari */

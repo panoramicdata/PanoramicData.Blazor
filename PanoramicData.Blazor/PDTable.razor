@@ -27,6 +27,18 @@
 			</tr>
 		}
 		<tr>
+			@if(ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple)
+			{
+				<th>
+					<input checked="@(ItemsToDisplay.All(x => IsSelected(x)))"
+						   class="form-check-input"
+						   type="checkbox"
+						   @onclick:stopPropagation
+						   @oninput="@((a) => OnToggleAllSelection(Convert.ToBoolean(a.Value)))"
+						   @onmousedown:stopPropagation
+						   @onmouseup:stopPropagation />
+				</th>
+			}
 			@foreach (var column in ActualColumnsToDisplay)
 			{
 				<th scope="col" class="@column.ThClass" style="white-space: nowrap;">
@@ -63,6 +75,20 @@
 						@ondragend="OnDragEnd"
 						@ondrop:stopPropagation
 						@ondrop="@((args) => OnRowDragDropAsync(args, item))">
+
+						@if(ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple)
+						{
+							<td>
+								<input checked="@IsSelected(item)"
+									   class="form-check-input"
+									   type="checkbox"
+									   @onclick:stopPropagation
+									   @oninput="@((a) => OnToggleSelection(item, Convert.ToBoolean(a.Value)))"
+									   @onmousedown:stopPropagation
+									   @onmouseup:stopPropagation />
+							</td>
+						}
+
 						@foreach (var column in ActualColumnsToDisplay)
 						{
 							var row = ItemsToDisplay.IndexOf(item);
