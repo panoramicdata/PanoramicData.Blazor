@@ -5,7 +5,7 @@
 				disabled="@(IsEnabled ? null : "true")"
 				title="@(string.IsNullOrWhiteSpace(ToolTip) ? Text : ToolTip)"
 				data-bs-toggle="dropdown"
-                data-toggle="dropdown"
+				data-toggle="dropdown"
 				aria-haspopup="true"
 				aria-expanded="false">
 			@if (!string.IsNullOrWhiteSpace(IconCssClass))
@@ -59,3 +59,7 @@
 		</div>
 	</div>
 </div>
+
+<CascadingValue Value="(PDToolbarDropdown)this" Name="ToolbarDropdown">
+	@ChildContent
+</CascadingValue>

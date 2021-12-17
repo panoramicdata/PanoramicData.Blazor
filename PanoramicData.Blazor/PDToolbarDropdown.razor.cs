@@ -15,6 +15,11 @@ namespace PanoramicData.Blazor
 		#endregion
 
 		/// <summary>
+		/// Child HTML content.
+		/// </summary>
+		[Parameter] public RenderFragment ChildContent { get; set; } = null!;
+
+		/// <summary>
 		/// Gets or sets the unique identifier.
 		/// </summary>
 		[Parameter] public string Key { get; set; } = string.Empty;
@@ -78,6 +83,22 @@ namespace PanoramicData.Blazor
 		/// Event raised whenever user clicks on the button.
 		/// </summary>
 		[Parameter] public EventCallback<string> Click { get; set; }
+
+		public void AddMenuItem(PDMenuItem item)
+		{
+			Items.Add(new MenuItem
+			{
+				Content = item.Content,
+				IconCssClass = item.IconCssClass,
+				IsDisabled = item.IsDisabled,
+				IsSeparator = item.IsSeparator,
+				IsVisible = item.IsVisible,
+				Key = item.Key,
+				ShortcutKey = item.ShortcutKey,
+				Text = item.Text
+			});
+			StateHasChanged();
+		}
 
 		private string ButtonSizeCssClass
 		{

@@ -39,6 +39,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 			EventManager?.Add(new Event("Click", new EventArgument("Key", args.Key)));
 		}
 
+		private void OnEditMenuClick(string itemKey)
+		{
+			EventManager?.Add(new Event("EditMenuClick", new EventArgument("Key", itemKey)));
+		}
+
 		private void OnKeypress(KeyboardEventArgs args)
 		{
 			EventManager?.Add(new Event("Keypress", new EventArgument("Key", args.Code)));
@@ -46,7 +51,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void OnFileMenuClick(string itemKey)
 		{
-			EventManager?.Add(new Event("MenuClick", new EventArgument("Key", itemKey)));
+			EventManager?.Add(new Event("FileMenuClick", new EventArgument("Key", itemKey)));
 		}
 
 		private void OnCleared()

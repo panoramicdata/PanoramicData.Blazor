@@ -15,6 +15,22 @@
 						   Size="_size"
 						   Click="OnFileMenuClick" />
 
+		<PDToolbarDropdown Click="OnEditMenuClick"
+                           Text="Edit"
+						   IconCssClass="fas fa-fw fa-edit"
+						   TextCssClass="d-none d-sm-none d-md-inline"
+						   IsVisible="ShowButtons"
+						   IsEnabled="EnableButtons"
+						   Size="_size">
+
+			<PDMenuItem Text="Redo"
+						IconCssClass="fas fa-redo" />
+
+			<PDMenuItem Text="Undo"
+						IconCssClass="fas fa-undo" />
+
+		</PDToolbarDropdown>
+
 		<PDToolbarButton Key="Rename"
 						 Text="&&Rename"
 						 CssClass="btn-secondary"
