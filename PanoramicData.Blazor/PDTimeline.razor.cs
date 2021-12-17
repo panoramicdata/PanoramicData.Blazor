@@ -532,13 +532,11 @@ namespace PanoramicData.Blazor
 
 		private void CenterOn(DateTime dateTime)
 		{
-			Console.WriteLine($"Center on {dateTime} - a");
 			if(dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
 			{
 				var totalSeconds = (MaxDateTime ?? DateTime.Now).Subtract(MinDateTime).TotalSeconds;
 				dateTime = MinDateTime.AddSeconds(totalSeconds / 2);
 			}
-			Console.WriteLine($"Center on {dateTime} - b");
 			var maxDate = (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale);
 
 
