@@ -27,7 +27,7 @@
 			</tr>
 		}
 		<tr>
-			@if(ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple)
+			@if(ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple && ItemsToDisplay.Any())
 			{
 				<th>
 					<input checked="@(ItemsToDisplay.All(x => IsSelected(x)))"
