@@ -8,6 +8,25 @@ namespace PanoramicData.Blazor.Models
 	public class MenuItem
 	{
 		/// <summary>
+		/// Initializes a new instance of the MenuItem class.
+		/// </summary>
+		public MenuItem()
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the MenuItem class.
+		/// </summary>
+		public MenuItem(string key, string text, string iconCssClass, bool enabled = true, bool visible = true)
+		{
+			Key = key;
+			Text = text;
+			IconCssClass = iconCssClass;
+			IsDisabled = !enabled;
+			IsVisible = visible;
+		}
+
+		/// <summary>
 		/// Gets or sets the unique identifier of the menu item.
 		/// </summary>
 		public string Key { get; set; } = string.Empty;
