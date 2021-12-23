@@ -19,52 +19,55 @@
 		@{
 			var maxYValue = points.Length == 0 ? 0 : points.Max(x => x?.SeriesValues.Sum() ?? 0);
 
-			@* SELECTION RANGE *@
-			if(Options.Selection.Enabled &&_selectionStartIndex > -1 && _selectionEndIndex > -1)
+			@if(IsEnabled)
 			{
-				<rect x="@SelectionStartX"
-					  fill="@Options.Selection.BackgroundColour"
-					  height="@_canvasHeight"
-					  stroke="@Options.Selection.BorderColour"
-					  width="@(SelectionEndX - SelectionStartX)"  />
-			}
-
-			@* BARS *@
-			if (points.Length > 0)
-			{
-				for (var i = 0; i < points.Length; i++)
+				@* SELECTION RANGE *@
+				if(Options.Selection.Enabled &&_selectionStartIndex > -1 && _selectionEndIndex > -1)
 				{
-					<PDStackedBar DateFormat="@GetTitleDateFormat(Scale)"
-								  DataPoint="points[i]"
-								  MaxValue="@(Options.YAxis.MaxValue ?? (maxYValue == 0 ? 100 : maxYValue))"
-								  Options="Options"
-								  X="@(i * Options.Bar.Width)" />
+					<rect x="@SelectionStartX"
+						  fill="@Options.Selection.BackgroundColour"
+						  height="@_canvasHeight"
+						  stroke="@Options.Selection.BorderColour"
+						  width="@(SelectionEndX - SelectionStartX)"  />
 				}
-			}
 
-			@* SELECTION HANDLES *@
-			if(Options.Selection.Enabled && _selectionStartIndex > -1 && _selectionEndIndex > -1)
-			{
-				<rect @ref="_svgSelectionHandleStart"
-					  @onpointerdown="OnSelectionStartPointerDown"
-					  @onpointermove="OnSelectionStartPointerMove"
-					  @onpointerup="OnSelectionStartPointerUp"
-					  class="tl-selection-handle"
-					  fill="@Options.Selection.HandleColour"
-					  height="@_canvasHeight"
-					  stroke="@Options.Selection.HandleColour"
-					  width="@Options.Selection.HandleWidth"
-					  x="@SelectionStartX" />
-				<rect @ref="_svgSelectionHandleEnd"
-					  @onpointerdown="OnSelectionEndPointerDown"
-					  @onpointermove="OnSelectionEndPointerMove"
-					  @onpointerup="OnSelectionEndPointerUp"
-					  class="tl-selection-handle"
-					  fill="@Options.Selection.HandleColour"
-					  height="@_canvasHeight"
-					  stroke="@Options.Selection.HandleColour"
-					  width="@Options.Selection.HandleWidth"
-					  x="@(SelectionEndX - Options.Selection.HandleWidth)" />
+				@* BARS *@
+				if (points.Length > 0)
+				{
+					for (var i = 0; i < points.Length; i++)
+					{
+						<PDStackedBar DateFormat="@GetTitleDateFormat(Scale)"
+									  DataPoint="points[i]"
+									  MaxValue="@(Options.YAxis.MaxValue ?? (maxYValue == 0 ? 100 : maxYValue))"
+									  Options="Options"
+									  X="@(i * Options.Bar.Width)" />
+					}
+				}
+
+				@* SELECTION HANDLES *@
+				if(Options.Selection.Enabled && _selectionStartIndex > -1 && _selectionEndIndex > -1)
+				{
+					<rect @ref="_svgSelectionHandleStart"
+						  @onpointerdown="OnSelectionStartPointerDown"
+						  @onpointermove="OnSelectionStartPointerMove"
+						  @onpointerup="OnSelectionStartPointerUp"
+						  class="tl-selection-handle"
+						  fill="@Options.Selection.HandleColour"
+						  height="@_canvasHeight"
+						  stroke="@Options.Selection.HandleColour"
+						  width="@Options.Selection.HandleWidth"
+						  x="@SelectionStartX" />
+					<rect @ref="_svgSelectionHandleEnd"
+						  @onpointerdown="OnSelectionEndPointerDown"
+						  @onpointermove="OnSelectionEndPointerMove"
+						  @onpointerup="OnSelectionEndPointerUp"
+						  class="tl-selection-handle"
+						  fill="@Options.Selection.HandleColour"
+						  height="@_canvasHeight"
+						  stroke="@Options.Selection.HandleColour"
+						  width="@Options.Selection.HandleWidth"
+						  x="@(SelectionEndX - Options.Selection.HandleWidth)" />
+				}
 			}
 		}
 
