@@ -17,6 +17,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private PDTimeline _timeline = null!;
 		private TimelinePageModel _model = new TimelinePageModel();
 		private TimeRange? _selection;
+		private bool _isEnabled = true;
 		private TimelineOptions _timelineOptions = new TimelineOptions
 		{
 			Bar = new TimelineBarOptions

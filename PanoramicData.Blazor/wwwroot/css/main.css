@@ -448,6 +448,11 @@
   width: 100%;
 }
 
+.pd-timeline.disabled {
+  background-color: #d3d3d3;
+  color: #dddddd;
+}
+
 .tl-pan {
   border-top: 1px solid silver;
   height: 20px;

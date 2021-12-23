@@ -45,6 +45,7 @@ namespace PanoramicData.Blazor.Models
 
 	public class TimelineXAxisOptions
 	{
+		public string Colour { get; set; } = "Black";
 		public string MajorTickColour { get; set; } = "Black";
 		public string MinorTickColour { get; set; } = "Silver";
 

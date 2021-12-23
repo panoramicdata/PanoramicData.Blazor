@@ -1,7 +1,7 @@
 ﻿@using PanoramicData.Blazor.Extensions
 
 <div id="@Id"
-	 class="pd-timeline"
+	 class="pd-timeline @(IsEnabled ? "" : "disabled")"
 	 @onmousewheel="OnMouseWheel">
 
 	@{
@@ -46,9 +46,9 @@
 			if(Options.Selection.Enabled && _selectionStartIndex > -1 && _selectionEndIndex > -1)
 			{
 				<rect @ref="_svgSelectionHandleStart"
-		              @onpointerdown="OnSelectionStartPointerDown"
-		              @onpointermove="OnSelectionStartPointerMove"
-		              @onpointerup="OnSelectionStartPointerUp"
+					  @onpointerdown="OnSelectionStartPointerDown"
+					  @onpointermove="OnSelectionStartPointerMove"
+					  @onpointerup="OnSelectionStartPointerUp"
 					  class="tl-selection-handle"
 					  fill="@Options.Selection.HandleColour"
 					  height="@_canvasHeight"
@@ -56,9 +56,9 @@
 					  width="@Options.Selection.HandleWidth"
 					  x="@SelectionStartX" />
 				<rect @ref="_svgSelectionHandleEnd"
-		              @onpointerdown="OnSelectionEndPointerDown"
-		              @onpointermove="OnSelectionEndPointerMove"
-		              @onpointerup="OnSelectionEndPointerUp"
+					  @onpointerdown="OnSelectionEndPointerDown"
+					  @onpointermove="OnSelectionEndPointerMove"
+					  @onpointerup="OnSelectionEndPointerUp"
 					  class="tl-selection-handle"
 					  fill="@Options.Selection.HandleColour"
 					  height="@_canvasHeight"
@@ -87,11 +87,11 @@
 	@* X-AXIS *@
 	<svg class="tl-x-axis"
 		 preserveAspectRatio="none">
-		<line stroke="@Options.XAxis.MinorTickColour"
+		<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
 			  x2="@_canvasWidth" />
 		@for(var x=0; x < _canvasWidth; x += Options.Bar.Width)
 		{
-		   <line stroke="@Options.XAxis.MinorTickColour"
+		   <line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
 				 x1="@x"
 				 x2="@x"
 				 y1="0"
@@ -105,27 +105,34 @@
 			<line x1="@(i * Options.Bar.Width)"
 				  x2="@(i * Options.Bar.Width)"
 				  y2="15"
-				  stroke="@Options.XAxis.MajorTickColour" />
-			<text>
-				<text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)"
-					  y="@textInfo.OffsetY">@textInfo.Text</text>
-			</text>
+				  stroke="@(IsEnabled ? Options.XAxis.MajorTickColour : "DarkGray")" />
+			@if (IsEnabled)
+			{
+				<text>
+					<text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)"
+						  y="@textInfo.OffsetY"
+						  stroke="@(IsEnabled ? Options.XAxis.Colour : "DarkGray")">@textInfo.Text</text>
+				</text>
+			}
 			i += textInfo.Skip;
 		}
 	</svg>
 
 	@* PAN *@
 	<svg @ref="_svgPanElement"
-		 @onpointerdown="OnPanPointerDown"
-		 @onpointermove="OnPanPointerMove"
-		 @onpointerup="OnPanPointerUp"
-		 class="tl-pan"
-		 preserveAspectRatio="none">
-		<rect fill="@Options.Pan.Colour"
-			  height="@Options.Pan.Height"
-			  width="@_panHandleWidth"
-			  x="@_panHandleX"
-			  y="0" />
+			@onpointerdown="OnPanPointerDown"
+			@onpointermove="OnPanPointerMove"
+			@onpointerup="OnPanPointerUp"
+			class="tl-pan"
+			preserveAspectRatio="none">
+			@if(IsEnabled)
+			{
+				<rect fill="@Options.Pan.Colour"
+						height="@Options.Pan.Height"
+						width="@_panHandleWidth"
+						x="@_panHandleX"
+						y="0" />
+			}
 	</svg>
 
 </div>

@@ -6,6 +6,13 @@
 
 	<div>
 		<div class="toolbar">
+
+			 <div class="form-check mr-2">
+				<input type="checkbox" class="form-check-input" id="enabledCheck" checked="_isEnabled"
+				@oninput="(a) => _isEnabled = Convert.ToBoolean(a.Value)">
+				<label class="form-check-label" for="enabledCheck">Enabled</label>
+			</div>
+
 			<EditForm Model="_model">
 				<InputSelect TValue="TimelineScales"
 							 @bind-Value="_model.Scale">
@@ -23,8 +30,10 @@
 			</EditForm>
 		</div>
 
-		<PDTimeline DataProvider="GetTimelineData"
+		<PDTimeline @ref="_timeline"
+					DataProvider="GetTimelineData"
 					FetchAll="false"
+					IsEnabled="_isEnabled"
 					MaxDateTime="_data.Max(x => x.DateChanged)"
 					MinDateTime="_data.Min(x => x.DateChanged)"
 					Options="_timelineOptions"

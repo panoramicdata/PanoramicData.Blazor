@@ -24,6 +24,7 @@ namespace PanoramicData.Blazor
 		private int _columnOffset;
 		private int _totalColumns;
 		private int _viewportColumns;
+		private bool _previousIsEnabled = true;
 
 		private bool _isChartDragging;
 		private double _chartDragOrigin;
@@ -54,6 +55,9 @@ namespace PanoramicData.Blazor
 		public bool FetchAll { get; set; } = true;
 
 		[Parameter]
+		public bool IsEnabled { get; set; } = true;
+
+		[Parameter]
 		public TimelineScales Scale { get; set; } = TimelineScales.Months;
 
 		[Parameter]
@@ -76,6 +80,11 @@ namespace PanoramicData.Blazor
 
 		[Parameter]
 		public TimelineOptions Options { get; set; } = new TimelineOptions();
+
+		public void Clear()
+		{
+			_dataPoints.Clear();
+		}
 
 		public async Task ClearSelection()
 		{
@@ -267,7 +276,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnChartPointerDown(PointerEventArgs args)
 		{
-			if (Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
+			if (IsEnabled && Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
 			{
 				_isChartDragging = true;
 				_chartDragOrigin = args.ClientX;
@@ -294,7 +303,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnPanPointerDown(PointerEventArgs args)
 		{
-			if (!_isPanDragging)
+			if (IsEnabled && !_isPanDragging)
 			{
 				_panDragOrigin = args.ClientX;
 				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPanElement).ConfigureAwait(true);
@@ -304,7 +313,7 @@ namespace PanoramicData.Blazor
 		private void OnPanPointerMove(PointerEventArgs args)
 		{
 			// initiare a drag operation?
-			if(!_isPanDragging && args.Buttons == 1)
+			if (IsEnabled && !_isPanDragging && args.Buttons == 1)
 			{
 				_isPanDragging = true;
 			}
@@ -345,7 +354,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnSelectionEndPointerDown(PointerEventArgs args)
 		{
-			if (Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
+			if (IsEnabled && Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
 			{
 				_isSelectionEndDragging = true;
 				_chartDragOrigin = args.ClientX;
@@ -373,7 +382,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnSelectionStartPointerDown(PointerEventArgs args)
 		{
-			if (Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
+			if (IsEnabled && Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
 			{
 				_isSelectionStartDragging = true;
 				_chartDragOrigin = args.ClientX;
@@ -401,7 +410,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnMouseWheel(WheelEventArgs args)
 		{
-			if (args.CtrlKey)
+			if (IsEnabled && args.CtrlKey)
 			{
 				if (args.DeltaY < 0)
 				{
@@ -425,6 +434,19 @@ namespace PanoramicData.Blazor
 			if (_canvasWidth > 0)
 			{
 				await SetScale(Scale).ConfigureAwait(true);
+			}
+
+			if (IsEnabled != _previousIsEnabled)
+			{
+				_previousIsEnabled = IsEnabled;
+				if (IsEnabled)
+				{
+					await RefreshAsync().ConfigureAwait(true);
+				}
+				else
+				{
+					Clear();
+				}
 			}
 		}
 
