@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$dllForVersion = "bin\Release\netstandard2net6.0\Bluefish.Blazor.dll"
+$dllForVersion = "bin\Release\netstandard2net6.0\PanoramicData.Blazor.dll"
 
 # This script will publish to nuget using the api key in nuget-api-key.txt in the same folder.
 # The api key issued by nuget.org should ideally only have permissions to update a single package
