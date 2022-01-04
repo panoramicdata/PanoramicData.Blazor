@@ -585,7 +585,7 @@ namespace PanoramicData.Blazor
 				//_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 		}
 
-		private async Task SetSelection(DateTime start, DateTime end)
+		public async Task SetSelection(DateTime start, DateTime end)
 		{
 			// calculate start index
 			if (start < MinDateTime)

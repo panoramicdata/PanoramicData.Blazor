@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$dllForVersion = "bin\Release\netstandard2.0\PanoramicData.Blazor.dll"
+$dllForVersion = "bin\Release\netstandard2net6.0\Bluefish.Blazor.dll"
 
 # This script will publish to nuget using the api key in nuget-api-key.txt in the same folder.
 # The api key issued by nuget.org should ideally only have permissions to update a single package
@@ -80,39 +80,39 @@ try {
 	if (-not $?) {throw "Error publishing NuGet package"}
 
 	$version = (Get-Command $dllForVersion).FileVersionInfo
-    $major = $version.FileMajorPart
-    $minor = $version.FileMinorPart
-    $build = $version.FileBuildPart
-    $versionString = @($major, $minor, $build) -join "."
-    Write-Host "Finished building version ${versionString}."
+	$major = $version.FileMajorPart
+	$minor = $version.FileMinorPart
+	$build = $version.FileBuildPart
+	$versionString = @($major, $minor, $build) -join "."
+	Write-Host "Finished building version ${versionString}."
 
-    $title = "Create tag."
-    $message = "Do you want to create the tag '${versionString}'?"
-    $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Creates the tag and pushes to origin."
-    $no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Aborts execution."
-    $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
-    $result = $host.ui.PromptForChoice($title, $message, $options, 0)
-    switch ($result)
-    {
-        0 { Write-Host "Proceeding..." }
-        1 { Write-Host "ABORTED."; exit 1; }
-    }
+	$title = "Create tag."
+	$message = "Do you want to create the tag '${versionString}'?"
+	$yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Creates the tag and pushes to origin."
+	$no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Aborts execution."
+	$options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
+	$result = $host.ui.PromptForChoice($title, $message, $options, 0)
+	switch ($result)
+	{
+		0 { Write-Host "Proceeding..." }
+		1 { Write-Host "ABORTED."; exit 1; }
+	}
 
-    # Create the tag
-    Write-Host "Adding tag..."
-    git tag -a "$versionString" -m "Tagging version ${versionString}"
-    if (-not $?) {
-        Write-Error "Tag creation failed..."
-        exit 1;
-    }
+	# Create the tag
+	Write-Host "Adding tag..."
+	git tag -a "$versionString" -m "Tagging version ${versionString}"
+	if (-not $?) {
+		Write-Error "Tag creation failed..."
+		exit 1;
+	}
 
-    # Push the tag
-    Write-Host "Pushing tag to origin..."
-    git push origin "$versionString"
-    if (-not $?) {
-        Write-Error "Tag push failed..."
-        exit 1;
-    }
+	# Push the tag
+	Write-Host "Pushing tag to origin..."
+	git push origin "$versionString"
+	if (-not $?) {
+		Write-Error "Tag push failed..."
+		exit 1;
+	}
 }
 finally
 {
