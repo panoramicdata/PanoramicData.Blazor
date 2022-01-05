@@ -25,6 +25,9 @@
 						  Keypress="OnSearchKeyPress"
 						  Cleared="OnSearchCleared" />
 
+		<PDToolbarButton Text="@(Enabled ? "Disable" : "Enable")"
+						 Click="() => Enabled = !Enabled" />
+
 		<PDToolbarButton Text="@(AllowDrag ? "Disable Drag" : "Enable Drag")"
 						 Click="() => AllowDrag = !AllowDrag" />
 
@@ -56,6 +59,7 @@
 				 AllowEdit="true"
 				 AllowDrag="AllowDrag"
 				 AllowDrop="AllowDrop"
+				 IsEnabled="Enabled"
 				 SaveChanges="true"
 				 SearchText="@_searchText"
 				 PageCriteria="_pageCriteria"

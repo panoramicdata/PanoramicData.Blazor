@@ -128,6 +128,9 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
+		[Parameter]
+		public bool IsEnabled { get; set; } = true;
+
 		/// <summary>
 		/// Action called whenever data items are loaded.
 		/// </summary>
@@ -497,7 +500,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public async Task BeginEditAsync()
 		{
-			if (AllowEdit && !IsEditing && SelectionMode != TableSelectionMode.None && Selection.Count == 1 && KeyField != null)
+			if (IsEnabled && AllowEdit && !IsEditing && SelectionMode != TableSelectionMode.None && Selection.Count == 1 && KeyField != null)
 			{
 				// find item to edit
 				var item = ItemsToDisplay.Find(x => KeyField(x).ToString() == Selection[0]);
@@ -823,7 +826,7 @@ namespace PanoramicData.Blazor
 						break;
 				}
 			}
-			else
+			else if(IsEnabled)
 			{
 				switch (args.Code)
 				{
@@ -872,7 +875,7 @@ namespace PanoramicData.Blazor
 		private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
 		{
 			// quit if selection not allowed
-			if (SelectionMode == TableSelectionMode.None)
+			if (!IsEnabled || SelectionMode == TableSelectionMode.None)
 			{
 				return;
 			}
@@ -910,19 +913,26 @@ namespace PanoramicData.Blazor
 
 		private void OnRowClick(MouseEventArgs _, TItem item)
 		{
-			Click.InvokeAsync(item);
+			if (IsEnabled)
+			{
+				Click.InvokeAsync(item);
+			}
 		}
 
 		private void OnRowDoubleClick(MouseEventArgs _, TItem item)
 		{
 			// cancel pending edit mode
 			_editTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-			DoubleClick.InvokeAsync(item);
+
+			if(IsEnabled)
+			{
+				DoubleClick.InvokeAsync(item);
+			}
 		}
 
 		public async Task OnToggleAllSelection(bool on)
 		{
-			if (KeyField != null)
+			if (IsEnabled && KeyField != null)
 			{
 				if (on)
 				{
@@ -952,7 +962,7 @@ namespace PanoramicData.Blazor
 
 		public async Task OnToggleSelection(TItem item, bool on)
 		{
-			if (KeyField != null)
+			if (IsEnabled && KeyField != null)
 			{
 				var key = KeyField(item).ToString();
 				if (on && !Selection.Contains(key))
@@ -975,7 +985,7 @@ namespace PanoramicData.Blazor
 
 		private void OnEditTimer(object state)
 		{
-			if (!_dragging)
+			if (IsEnabled && !_dragging)
 			{
 				Task.Run(async () => await BeginEditAsync().ConfigureAwait(true));
 			}
@@ -1023,7 +1033,7 @@ namespace PanoramicData.Blazor
 
 		private void OnDragStart(DragEventArgs _)
 		{
-			if (IsEditing)
+			if (!IsEnabled || IsEditing)
 			{
 				return;
 			}
@@ -1054,7 +1064,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnRowDragDropAsync(MouseEventArgs args, TItem row)
 		{
-			if (DragContext != null)
+			if (IsEnabled && DragContext != null)
 			{
 				await Drop.InvokeAsync(new DropEventArgs(row, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 			}
@@ -1062,7 +1072,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnDragDropAsync(DragEventArgs args)
 		{
-			if (DragContext != null)
+			if (IsEnabled && DragContext != null)
 			{
 				await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 			}

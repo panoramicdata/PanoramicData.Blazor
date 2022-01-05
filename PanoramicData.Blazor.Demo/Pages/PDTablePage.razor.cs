@@ -24,6 +24,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private string DropZoneCss { get; set; } = "";
 		private PDDragContext? DragContext { get; set; }
 		private string DropMessage { get; set; } = "Drop Zone";
+		private bool Enabled { get; set; } = true;
 		private PDTable<Person> Table { get; set; } = null!;
 
 		[Inject] private IJSRuntime JSRuntime { get; set; } = null!;

@@ -48,6 +48,12 @@
   width: 100%;
 }
 
+.pdtable.disabled {
+  background-color: #d3d3d3;
+  color: #dddddd;
+  filter: grayscale(1);
+}
+
 .pdtablerow.selected {
   background-color: #007bff;
 }

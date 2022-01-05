@@ -1,7 +1,7 @@
 ﻿@typeparam TItem
 
 <div id="@Id"
-	 class="pdtable @CssClass"
+	 class="pdtable @(IsEnabled ? "" : "disabled") @CssClass"
 	 tabindex="0"
 	 @attributes="DivAttributes"
 	 @onmousedown="OnDivMouseDown"
@@ -32,6 +32,7 @@
 				<th>
 					<input checked="@(ItemsToDisplay.All(x => IsSelected(x)))"
 						   class="form-check-input"
+						   disabled="@(!IsEnabled)"
 						   type="checkbox"
 						   @onclick:stopPropagation
 						   @oninput="@((a) => OnToggleAllSelection(Convert.ToBoolean(a.Value)))"
@@ -81,6 +82,7 @@
 							<td>
 								<input checked="@IsSelected(item)"
 									   class="form-check-input"
+									   disabled="@(!IsEnabled)"
 									   type="checkbox"
 									   @onclick:stopPropagation
 									   @oninput="@((a) => OnToggleSelection(item, Convert.ToBoolean(a.Value)))"
