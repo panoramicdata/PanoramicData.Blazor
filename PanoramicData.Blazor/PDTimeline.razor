@@ -19,55 +19,52 @@
 		@{
 			var maxYValue = points.Length == 0 ? 0 : points.Max(x => x?.SeriesValues.Sum() ?? 0);
 
-			@if(IsEnabled)
+			@* SELECTION RANGE *@
+			if(Options.Selection.Enabled &&_selectionStartIndex > -1 && _selectionEndIndex > -1)
 			{
-				@* SELECTION RANGE *@
-				if(Options.Selection.Enabled &&_selectionStartIndex > -1 && _selectionEndIndex > -1)
-				{
-					<rect x="@SelectionStartX"
-						  fill="@Options.Selection.BackgroundColour"
-						  height="@_canvasHeight"
-						  stroke="@Options.Selection.BorderColour"
-						  width="@(SelectionEndX - SelectionStartX)"  />
-				}
+				<rect x="@SelectionStartX"
+						fill="@Options.Selection.BackgroundColour"
+						height="@_canvasHeight"
+						stroke="@Options.Selection.BorderColour"
+						width="@(SelectionEndX - SelectionStartX)"  />
+			}
 
-				@* BARS *@
-				if (points.Length > 0)
+			@* BARS *@
+			if (points.Length > 0)
+			{
+				for (var i = 0; i < points.Length; i++)
 				{
-					for (var i = 0; i < points.Length; i++)
-					{
-						<PDStackedBar DateFormat="@GetTitleDateFormat(Scale)"
-									  DataPoint="points[i]"
-									  MaxValue="@(Options.YAxis.MaxValue ?? (maxYValue == 0 ? 100 : maxYValue))"
-									  Options="Options"
-									  X="@(i * Options.Bar.Width)" />
-					}
+					<PDStackedBar DateFormat="@GetTitleDateFormat(Scale)"
+									DataPoint="points[i]"
+									MaxValue="@(Options.YAxis.MaxValue ?? (maxYValue == 0 ? 100 : maxYValue))"
+									Options="Options"
+									X="@(i * Options.Bar.Width)" />
 				}
+			}
 
-				@* SELECTION HANDLES *@
-				if(Options.Selection.Enabled && _selectionStartIndex > -1 && _selectionEndIndex > -1)
-				{
-					<rect @ref="_svgSelectionHandleStart"
-						  @onpointerdown="OnSelectionStartPointerDown"
-						  @onpointermove="OnSelectionStartPointerMove"
-						  @onpointerup="OnSelectionStartPointerUp"
-						  class="tl-selection-handle"
-						  fill="@Options.Selection.HandleColour"
-						  height="@_canvasHeight"
-						  stroke="@Options.Selection.HandleColour"
-						  width="@Options.Selection.HandleWidth"
-						  x="@SelectionStartX" />
-					<rect @ref="_svgSelectionHandleEnd"
-						  @onpointerdown="OnSelectionEndPointerDown"
-						  @onpointermove="OnSelectionEndPointerMove"
-						  @onpointerup="OnSelectionEndPointerUp"
-						  class="tl-selection-handle"
-						  fill="@Options.Selection.HandleColour"
-						  height="@_canvasHeight"
-						  stroke="@Options.Selection.HandleColour"
-						  width="@Options.Selection.HandleWidth"
-						  x="@(SelectionEndX - Options.Selection.HandleWidth)" />
-				}
+			@* SELECTION HANDLES *@
+			if(Options.Selection.Enabled && _selectionStartIndex > -1 && _selectionEndIndex > -1)
+			{
+				<rect @ref="_svgSelectionHandleStart"
+						@onpointerdown="OnSelectionStartPointerDown"
+						@onpointermove="OnSelectionStartPointerMove"
+						@onpointerup="OnSelectionStartPointerUp"
+						class="tl-selection-handle"
+						fill="@Options.Selection.HandleColour"
+						height="@_canvasHeight"
+						stroke="@Options.Selection.HandleColour"
+						width="@Options.Selection.HandleWidth"
+						x="@SelectionStartX" />
+				<rect @ref="_svgSelectionHandleEnd"
+						@onpointerdown="OnSelectionEndPointerDown"
+						@onpointermove="OnSelectionEndPointerMove"
+						@onpointerup="OnSelectionEndPointerUp"
+						class="tl-selection-handle"
+						fill="@Options.Selection.HandleColour"
+						height="@_canvasHeight"
+						stroke="@Options.Selection.HandleColour"
+						width="@Options.Selection.HandleWidth"
+						x="@(SelectionEndX - Options.Selection.HandleWidth)" />
 			}
 		}
 
@@ -109,14 +106,11 @@
 				  x2="@(i * Options.Bar.Width)"
 				  y2="15"
 				  stroke="@(IsEnabled ? Options.XAxis.MajorTickColour : "DarkGray")" />
-			@if (IsEnabled)
-			{
-				<text>
-					<text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)"
-						  y="@textInfo.OffsetY"
-						  stroke="@(IsEnabled ? Options.XAxis.Colour : "DarkGray")">@textInfo.Text</text>
-				</text>
-			}
+			<text>
+				<text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)"
+						y="@textInfo.OffsetY"
+						stroke="@(IsEnabled ? Options.XAxis.Colour : "DarkGray")">@textInfo.Text</text>
+			</text>
 			i += textInfo.Skip;
 		}
 	</svg>

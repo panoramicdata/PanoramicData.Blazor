@@ -24,7 +24,6 @@ namespace PanoramicData.Blazor
 		private int _columnOffset;
 		private int _totalColumns;
 		private int _viewportColumns;
-		private bool _previousIsEnabled = true;
 
 		private bool _isChartDragging;
 		private double _chartDragOrigin;
@@ -435,19 +434,6 @@ namespace PanoramicData.Blazor
 			{
 				await SetScale(Scale).ConfigureAwait(true);
 			}
-
-			if (IsEnabled != _previousIsEnabled)
-			{
-				_previousIsEnabled = IsEnabled;
-				if (IsEnabled)
-				{
-					await RefreshAsync().ConfigureAwait(true);
-				}
-				else
-				{
-					Clear();
-				}
-			}
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDTimeline.OnResize")]
@@ -543,10 +529,7 @@ namespace PanoramicData.Blazor
 				// re-position viewport?
 				CenterOn(centerOn ?? previousCenter);
 				// refresh data for new scale?
-				//if (refreshData)
-				//{
 				await RefreshAsync().ConfigureAwait(true);
-				//}
 				// mark state as changed
 				StateHasChanged();
 			}
@@ -580,9 +563,6 @@ namespace PanoramicData.Blazor
 
 			// update pan handle x
 			_panHandleX = (_columnOffset / (double)_totalColumns) * (double)_canvasWidth;
-				// (_columnOffset / _totalColumns) * (double)_canvasWidth =  _panHandleX
-				// _columnOffset =  (_panHandleX / (double)_canvasWidth) * _totalColumns
-				//_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 		}
 
 		public async Task SetSelection(DateTime start, DateTime end)
