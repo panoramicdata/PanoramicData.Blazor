@@ -79,7 +79,7 @@ namespace PanoramicData.Blazor
 		public DateTime? MaxDateTime { get; set; }
 
 		[Parameter]
-		public DateTime MinDateTime { get; set; } = new DateTime(DateTime.Now.Year, 1, 1);
+		public DateTime MinDateTime { get; set; }
 
 		[Parameter]
 		public TimelineOptions Options { get; set; } = new TimelineOptions();
@@ -284,7 +284,9 @@ namespace PanoramicData.Blazor
 
 		private async Task OnChartPointerDown(PointerEventArgs args)
 		{
-			if (IsEnabled && Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
+			if (IsEnabled && Options.Selection.Enabled && !_isChartDragging
+				&& !_isSelectionStartDragging && !_isSelectionEndDragging
+				&& MinDateTime != DateTime.MinValue)
 			{
 				_isChartDragging = true;
 				_chartDragOrigin = args.ClientX;
@@ -307,7 +309,10 @@ namespace PanoramicData.Blazor
 		private async Task OnChartPointerUp(PointerEventArgs args)
 		{
 			_isChartDragging = false;
-			await SelectionChangeEnd.InvokeAsync(null).ConfigureAwait(true);
+			if (MinDateTime != DateTime.MinValue)
+			{
+				await SelectionChangeEnd.InvokeAsync(null).ConfigureAwait(true);
+			}
 		}
 
 		private async Task OnPanPointerDown(PointerEventArgs args)
@@ -450,6 +455,7 @@ namespace PanoramicData.Blazor
 			{
 				_lastMinDateTime = MinDateTime;
 				await Reset().ConfigureAwait(true);
+				await RefreshAsync().ConfigureAwait(true);
 			}
 		}
 
@@ -463,7 +469,7 @@ namespace PanoramicData.Blazor
 
 		public async Task RefreshAsync()
 		{
-			if (DataProvider != null)
+			if (DataProvider != null && MinDateTime != DateTime.MinValue)
 			{
 				// cancel previous query?
 				if(_refreshCancellationToken != null)

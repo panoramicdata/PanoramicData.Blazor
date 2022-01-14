@@ -28,17 +28,27 @@
 					<option value="@TimelineScales.Years">1 Year</option>
 				</InputSelect>
 			</EditForm>
+
+			<PDButton Click="OnSetData"
+				CssClass="btn-secondary ml-2"
+				Size="ButtonSizes.Small"
+				Text="Set Data" />
+
+			<PDButton Click="OnClearData"
+				CssClass="btn-secondary ml-2"
+				Size="ButtonSizes.Small"
+				Text="Clear Data" />
 		</div>
 
 		<PDTimeline @ref="_timeline"
 					DataProvider="GetTimelineData"
 					FetchAll="false"
 					IsEnabled="_isEnabled"
-					MaxDateTime="_data.Max(x => x.DateChanged)"
-					MinDateTime="_data.Min(x => x.DateChanged)"
+					MaxDateTime="_maxDate"
+					MinDateTime="_minDate"
 					Options="_timelineOptions"
 					SelectionChanged="OnSelectionChanged"
-                    SelectionChangeEnd="OnSelectionChangeEnd"
+					SelectionChangeEnd="OnSelectionChangeEnd"
 					Scale="_model.Scale"
 					ScaleChanged="OnScaleChanged"/>
 

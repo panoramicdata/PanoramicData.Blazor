@@ -61,8 +61,9 @@ namespace PanoramicData.Blazor.Demo.Pages
 			_data.Clear();
 			var random = new Random(Environment.TickCount);
 			var points = 10000;
-			var startDate = new DateTime(2016, 1, 1);
-			var endDate = new DateTime(2021, 12, 31);
+			var startYear = random.Next(2000, 2017);
+			var startDate = new DateTime(startYear, 1, 1);
+			var endDate = new DateTime(startYear + 5, 12, 31);
 			var dayStart = new TimeSpan(9, 0, 0);
 			var dayDuration = new TimeSpan(8, 0, 0);
 
@@ -84,9 +85,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		protected override void OnInitialized()
 		{
-			GenerateData();
-			_minDate = _data.Min(x => x.DateChanged).Date;
-			_maxDate = _data.Max(x => x.DateChanged);
 		}
 
 		private void OnScaleChanged(TimelineScales scale)
@@ -102,6 +100,27 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private void OnSelectionChangeEnd()
 		{
 			EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection().StartTime), new EventArgument("end", _timeline.GetSelection().EndTime)));
+		}
+
+		private async Task OnClearData()
+		{
+			// update component parameters
+			_minDate = DateTime.MinValue;
+			_maxDate = DateTime.MinValue;
+			await _timeline.Reset().ConfigureAwait(true);
+			//await _timeline.RefreshAsync().ConfigureAwait(true);
+		}
+
+		private async Task OnSetData()
+		{
+			// generate new data
+			GenerateData();
+
+			// update component parameters
+			_minDate = _data.Min(x => x.DateChanged).Date;
+			_maxDate = _data.Max(x => x.DateChanged);
+
+			await _timeline.RefreshAsync().ConfigureAwait(true);
 		}
 
 		private async ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScales scale, CancellationToken cancellationToken)

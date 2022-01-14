@@ -5,22 +5,22 @@
 	 @onmousewheel="OnMouseWheel">
 
 	@{
-	   var points = GetViewPortDataPoints();
-	   var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
+		var points = GetViewPortDataPoints();
+		var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
 	}
 
 	@* PLOT AREA *@
 	<svg @ref="_svgPlotElement"
-		 class="tl-plot-area"
-		 @onpointerdown="OnChartPointerDown"
-		 @onpointermove="OnChartPointerMove"
-		 @onpointerup="OnChartPointerUp"
-		 preserveAspectRatio="none">
+			class="tl-plot-area"
+			@onpointerdown="OnChartPointerDown"
+			@onpointermove="OnChartPointerMove"
+			@onpointerup="OnChartPointerUp"
+			preserveAspectRatio="none">
 		@{
 			var maxYValue = points.Length == 0 ? 0 : points.Max(x => x?.SeriesValues.Sum() ?? 0);
 
 			@* SELECTION RANGE *@
-			if(Options.Selection.Enabled &&_selectionStartIndex > -1 && _selectionEndIndex > -1)
+			if(Options.Selection.Enabled && _selectionStartIndex > -1 && _selectionEndIndex > -1)
 			{
 				<rect x="@SelectionStartX"
 						fill="@Options.Selection.BackgroundColour"
@@ -75,61 +75,63 @@
 			var cx = (_canvasWidth / 2d);
 			var cy = (_canvasHeight / 2d);
 			<path class="rotate"
-				  d="@(Utilities.DescribeArc(cx, cy, r, Options.Spinner.ArcStart, Options.Spinner.ArcEnd))"
-				  fill="none"
-				  stroke="@Options.Spinner.Colour"
-				  stroke-width="@Options.Spinner.Width"
-				  stroke-linecap="round" />
+					d="@(Utilities.DescribeArc(cx, cy, r, Options.Spinner.ArcStart, Options.Spinner.ArcEnd))"
+					fill="none"
+					stroke="@Options.Spinner.Colour"
+					stroke-width="@Options.Spinner.Width"
+					stroke-linecap="round" />
 		}
 
 	</svg>
 
 	@* X-AXIS *@
-	<svg class="tl-x-axis"
-		 preserveAspectRatio="none">
-		<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
-			  x2="@_canvasWidth" />
-		@for(var x=0; x < _canvasWidth; x += Options.Bar.Width)
+	<svg class="tl-x-axis" preserveAspectRatio="none">
+		@if (MinDateTime != DateTime.MinValue)
 		{
-		   <line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
-				 x1="@x"
-				 x2="@x"
-				 y1="0"
-				 y2="5" />
-		}
-		@* start major tick at first boundary day or hour *@
-		@for (var i = 0 + GetMajorMarkOffsetForViewport(); i < points.Length; i++)
-		{
-			var dt = MinDateTime.AddPeriods(Scale, _columnOffset + i);
-			var textInfo = GetTextInfo(dt);
-			<line x1="@(i * Options.Bar.Width)"
-				  x2="@(i * Options.Bar.Width)"
-				  y2="15"
-				  stroke="@(IsEnabled ? Options.XAxis.MajorTickColour : "DarkGray")" />
-			<text>
-				<text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)"
+			<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
+				x2="@_canvasWidth" />
+			@for (var x = 0; x < _canvasWidth; x += Options.Bar.Width)
+			{
+				<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
+					x1="@x"
+					x2="@x"
+					y1="0"
+					y2="5" />
+			}
+			@* start major tick at first boundary day or hour *@
+			@for (var i = 0 + GetMajorMarkOffsetForViewport(); i < points.Length; i++)
+			{
+				var dt = MinDateTime.AddPeriods(Scale, _columnOffset + i);
+				var textInfo = GetTextInfo(dt);
+				<line x1="@(i * Options.Bar.Width)"
+					x2="@(i * Options.Bar.Width)"
+					y2="15"
+					stroke="@(IsEnabled ? Options.XAxis.MajorTickColour : "DarkGray")" />
+				<text>
+					<text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)"
 						y="@textInfo.OffsetY"
 						stroke="@(IsEnabled ? Options.XAxis.Colour : "DarkGray")">@textInfo.Text</text>
-			</text>
-			i += textInfo.Skip;
+				</text>
+				i += textInfo.Skip;
+			}
 		}
 	</svg>
 
 	@* PAN *@
 	<svg @ref="_svgPanElement"
-			@onpointerdown="OnPanPointerDown"
-			@onpointermove="OnPanPointerMove"
-			@onpointerup="OnPanPointerUp"
-			class="tl-pan"
-			preserveAspectRatio="none">
-			@if(IsEnabled)
-			{
-				<rect fill="@Options.Pan.Colour"
-						height="@Options.Pan.Height"
-						width="@_panHandleWidth"
-						x="@_panHandleX"
-						y="0" />
-			}
+		@onpointerdown="OnPanPointerDown"
+		@onpointermove="OnPanPointerMove"
+		@onpointerup="OnPanPointerUp"
+		class="tl-pan"
+		preserveAspectRatio="none">
+		@if(IsEnabled && MinDateTime != DateTime.MinValue)
+		{
+			<rect fill="@Options.Pan.Colour"
+					height="@Options.Pan.Height"
+					width="@_panHandleWidth"
+					x="@_panHandleX"
+					y="0" />
+		}
 	</svg>
 
 </div>
