@@ -99,6 +99,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 			_selection = range;
 		}
 
+		private void OnSelectionChangeEnd()
+		{
+			EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection().StartTime), new EventArgument("end", _timeline.GetSelection().EndTime)));
+		}
+
 		private async ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScales scale, CancellationToken cancellationToken)
 		{
 			// aggregate according to zoom / scale

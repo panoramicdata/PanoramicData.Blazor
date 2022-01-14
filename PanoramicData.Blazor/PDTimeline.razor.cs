@@ -46,6 +46,7 @@ namespace PanoramicData.Blazor
 		private TimelineScales _previousScale = TimelineScales.Days;
 		private CancellationTokenSource? _refreshCancellationToken;
 		private bool _loading;
+		private DateTime _lastMinDateTime = new DateTime(DateTime.Now.Year, 1, 1);
 		private readonly Dictionary<int, DataPoint> _dataPoints = new Dictionary<int, DataPoint>();
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
@@ -57,13 +58,16 @@ namespace PanoramicData.Blazor
 		public bool IsEnabled { get; set; } = true;
 
 		[Parameter]
-		public TimelineScales Scale { get; set; } = TimelineScales.Months;
+		public TimelineScales Scale { get; set; } = TimelineScales.Days;
 
 		[Parameter]
 		public EventCallback<TimelineScales> ScaleChanged { get; set; }
 
 		[Parameter]
 		public EventCallback<TimeRange?> SelectionChanged { get; set; }
+
+		[Parameter]
+		public EventCallback SelectionChangeEnd { get; set; }
 
 		[Parameter]
 		public DataProviderDelegate? DataProvider { get; set; }
@@ -124,6 +128,11 @@ namespace PanoramicData.Blazor
 				}
 			}
 			return majorTickOffset;
+		}
+
+		public TimeRange? GetSelection()
+		{
+			return _selectionRange;
 		}
 
 		private TextInfo GetTextInfo(DateTime dt)
@@ -295,9 +304,10 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnChartPointerUp(PointerEventArgs args)
+		private async Task OnChartPointerUp(PointerEventArgs args)
 		{
 			_isChartDragging = false;
+			await SelectionChangeEnd.InvokeAsync(null).ConfigureAwait(true);
 		}
 
 		private async Task OnPanPointerDown(PointerEventArgs args)
@@ -434,6 +444,13 @@ namespace PanoramicData.Blazor
 			{
 				await SetScale(Scale).ConfigureAwait(true);
 			}
+
+			// reset if earliest date changes
+			if(MinDateTime != _lastMinDateTime)
+			{
+				_lastMinDateTime = MinDateTime;
+				await Reset().ConfigureAwait(true);
+			}
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDTimeline.OnResize")]
@@ -472,6 +489,12 @@ namespace PanoramicData.Blazor
 				_loading = false;
 			}
 			StateHasChanged();
+		}
+
+		public async Task Reset()
+		{
+			Clear();
+			await ClearSelection().ConfigureAwait(true);
 		}
 
 		private double SelectionStartX => (Math.Min(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width;
@@ -524,7 +547,7 @@ namespace PanoramicData.Blazor
 				// re-calc selection in new scale
 				if (_selectionRange != null)
 				{
-					SetSelection(_selectionRange.StartTime, _selectionRange.EndTime);
+					await SetSelection(_selectionRange.StartTime, _selectionRange.EndTime).ConfigureAwait(true);
 				}
 				// re-position viewport?
 				CenterOn(centerOn ?? previousCenter);
