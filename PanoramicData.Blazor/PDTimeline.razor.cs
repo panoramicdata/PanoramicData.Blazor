@@ -455,6 +455,7 @@ namespace PanoramicData.Blazor
 			{
 				_lastMinDateTime = MinDateTime;
 				await Reset().ConfigureAwait(true);
+				await SetScale(Scale, true).ConfigureAwait(true);
 				await RefreshAsync().ConfigureAwait(true);
 			}
 		}
