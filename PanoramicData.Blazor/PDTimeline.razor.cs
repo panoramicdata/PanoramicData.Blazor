@@ -46,7 +46,7 @@ namespace PanoramicData.Blazor
 		private TimelineScales _previousScale = TimelineScales.Days;
 		private CancellationTokenSource? _refreshCancellationToken;
 		private bool _loading;
-		private DateTime _lastMinDateTime = new DateTime(DateTime.Now.Year, 1, 1);
+		private DateTime _lastMinDateTime;
 		private readonly Dictionary<int, DataPoint> _dataPoints = new Dictionary<int, DataPoint>();
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
