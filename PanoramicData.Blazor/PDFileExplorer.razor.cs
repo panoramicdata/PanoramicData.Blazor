@@ -121,6 +121,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public string CssClass { get; set; } = string.Empty;
 
 		/// <summary>
+		/// Gets or sets callback that allows host app to perform custom move or copy operations.
+		/// </summary>
+		[Parameter] public EventCallback<CustomMoveCopyArgs> CustomMoveCopy { get; set; }
+
+		/// <summary>
 		/// Sets the IDataProviderService instance to use to fetch data.
 		/// </summary>
 		[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
@@ -388,6 +393,11 @@ namespace PanoramicData.Blazor
 				return Table?.ItemsToDisplay.ToArray();
 			}
 		}
+
+		/// <summary>
+		/// Gets the tree root node.
+		/// </summary>
+		public TreeNode<FileExplorerItem>? TreeRootNode => Tree?.RootNode;
 
 		/// <summary>
 		/// Attempts to navigate down to the given path.
@@ -1425,47 +1435,67 @@ namespace PanoramicData.Blazor
 
 			if (conflictArgs.Conflicts.Count == 0 || conflictArgs.ConflictResolution != ConflictResolutions.Cancel)
 			{
-				foreach (var source in conflictArgs.Payload.ToArray())
+				// allow app to perform custom move / copy
+				var performMoveCopy = true;
+				if(CustomMoveCopy.HasDelegate)
 				{
-					if (conflictArgs.ConflictResolution == ConflictResolutions.Rename)
+					var customArgs = new CustomMoveCopyArgs
 					{
-						// get a unique name
-						var newPath = $"{conflictArgs.TargetPath.TrimEnd('/')}/{GetUniqueName(source, conflictArgs.TargetItems)}";
-						var delta = new Dictionary<string, object>
-							{
-								{  "Path", newPath },
-								{  "Copy", conflictArgs.IsCopy }
-							};
-						var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
-					}
-					else
-					{
-						// delete conflicting target file?
-						var newPath = $"{conflictArgs.TargetPath}/{source.Name}";
-						if (conflictArgs.ConflictResolution == ConflictResolutions.Overwrite && conflictArgs.Conflicts.Any(x => x.Name == source.Name))
-						{
-							// check source and destination are not same file
-							if (newPath == source.Path)
-							{
-								await ExceptionHandler.InvokeAsync(new Exception("Operation Failed: Source and Destination are the same")).ConfigureAwait(true);
-								continue;
-							}
-							else
-							{
-								var target = new FileExplorerItem { EntryType = source.EntryType, Path = newPath };
-								var result = await DataProvider.DeleteAsync(target, CancellationToken.None).ConfigureAwait(true);
-							}
-						}
+						ConflictResolution = conflictArgs.ConflictResolution,
+						Payload = conflictArgs.Payload,
+						Conflicts = conflictArgs.Conflicts,
+						IsCopy = isCopy,
+						TargetPath = targetPath
+					};
+					await CustomMoveCopy.InvokeAsync(customArgs).ConfigureAwait(true);
+					performMoveCopy = !customArgs.CancelDefault;
+				}
 
-						// move or copy entry if no conflict or overwrite chosen
-						if (conflictArgs.ConflictResolution == ConflictResolutions.Overwrite || !conflictArgs.Conflicts.Any(x => x.Name == source.Name))
+				// perform default move / copy behaviour?
+				if (performMoveCopy)
+				{
+					foreach (var source in conflictArgs.Payload.ToArray())
+					{
+						if (conflictArgs.ConflictResolution == ConflictResolutions.Rename)
 						{
+							// get a unique name
+							var newPath = $"{conflictArgs.TargetPath.TrimEnd('/')}/{GetUniqueName(source, conflictArgs.TargetItems)}";
 							var delta = new Dictionary<string, object>
 							{
 								{  "Path", newPath },
 								{  "Copy", conflictArgs.IsCopy }
 							};
 							var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
+						}
+						else
+						{
+							// delete conflicting target file?
+							var newPath = $"{conflictArgs.TargetPath}/{source.Name}";
+							if (conflictArgs.ConflictResolution == ConflictResolutions.Overwrite && conflictArgs.Conflicts.Any(x => x.Name == source.Name))
+							{
+								// check source and destination are not same file
+								if (newPath == source.Path)
+								{
+									await ExceptionHandler.InvokeAsync(new Exception("Operation Failed: Source and Destination are the same")).ConfigureAwait(true);
+									continue;
+								}
+								else
+								{
+									var target = new FileExplorerItem { EntryType = source.EntryType, Path = newPath };
+									var result = await DataProvider.DeleteAsync(target, CancellationToken.None).ConfigureAwait(true);
+								}
+							}
+
+							// move or copy entry if no conflict or overwrite chosen
+							if (conflictArgs.ConflictResolution == ConflictResolutions.Overwrite || !conflictArgs.Conflicts.Any(x => x.Name == source.Name))
+							{
+								var delta = new Dictionary<string, object>
+							{
+								{  "Path", newPath },
+								{  "Copy", conflictArgs.IsCopy }
+							};
+								var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
+							}
 						}
 					}
 				}
