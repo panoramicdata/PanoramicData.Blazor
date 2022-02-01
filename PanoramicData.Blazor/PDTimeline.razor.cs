@@ -29,6 +29,8 @@ namespace PanoramicData.Blazor
 		private double _chartDragOrigin;
 		private int _selectionStartIndex = -1;
 		private int _selectionEndIndex = -1;
+		private int _lastSelectionStartIndex;
+		private int _lastSelectionEndIndex;
 		private TimeRange? _selectionRange = null;
 		private ElementReference _svgSelectionHandleStart;
 		private ElementReference _svgSelectionHandleEnd;
@@ -50,6 +52,15 @@ namespace PanoramicData.Blazor
 		private readonly Dictionary<int, DataPoint> _dataPoints = new Dictionary<int, DataPoint>();
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
+
+		[Parameter]
+		public bool AllowDisableSelection { get; set; }
+
+		[Parameter]
+		public DateTime DisableAfter { get; set; }
+
+		[Parameter]
+		public DateTime DisableBefore { get; set; }
 
 		[Parameter]
 		public bool FetchAll { get; set; } = true;
@@ -99,7 +110,8 @@ namespace PanoramicData.Blazor
 
 		private int GetColumnIndexAtPoint(double clientX)
 		{
-			return _columnOffset + (int)Math.Floor((clientX - _canvasX) / Options.Bar.Width);
+			var index =  _columnOffset + (int)Math.Floor((clientX - _canvasX) / Options.Bar.Width);
+			return index< 0 ? 0 : index;
 		}
 
 		private int GetMajorMarkOffsetForViewport()
@@ -252,10 +264,26 @@ namespace PanoramicData.Blazor
 				}
 				else if(!_loading)
 				{
-					points[i] = new DataPoint { PeriodIndex = key };
+					points[i] = new DataPoint
+					{
+						PeriodIndex = key,
+						StartTime = MinDateTime.AddPeriods(Scale, key).PeriodStart(Scale)
+					};
 				}
 			}
 			return points.ToArray();
+		}
+
+		private bool IsPointEnabled(DataPoint point)
+		{
+			if(point is null
+				|| !IsEnabled
+				|| (DisableAfter != DateTime.MinValue && point.StartTime.PeriodEnd(Scale) > DisableAfter)
+				|| (DisableBefore != DateTime.MinValue && point.StartTime < DisableBefore))
+			{
+				return false;
+			}
+			return true;
 		}
 
 		private void MovePanHandle(double x)
@@ -291,10 +319,20 @@ namespace PanoramicData.Blazor
 				&& !_isSelectionStartDragging && !_isSelectionEndDragging
 				&& MinDateTime != DateTime.MinValue)
 			{
+				// check start time is enabled
+				var index = GetColumnIndexAtPoint(args.ClientX);
+				var startTime = MinDateTime.AddPeriods(Scale, index).PeriodStart(Scale);
+				if((DisableBefore != DateTime.MinValue && startTime < DisableBefore)
+					|| (DisableAfter != DateTime.MinValue && startTime > DisableAfter))
+				{
+					return;
+				}
+
 				_isChartDragging = true;
 				_chartDragOrigin = args.ClientX;
 				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
-				var index = GetColumnIndexAtPoint(args.ClientX);
+
+
 				await SetSelection(index, index).ConfigureAwait(true);
 			}
 		}
@@ -305,16 +343,26 @@ namespace PanoramicData.Blazor
 			{
 				_chartDragOrigin = args.ClientX;
 				var index = GetColumnIndexAtPoint(args.ClientX);
+				Console.WriteLine($"OnChartPointerMove: {index}");
 				await SetSelection(_selectionStartIndex, index).ConfigureAwait(true);
 			}
 		}
 
 		private async Task OnChartPointerUp(PointerEventArgs args)
 		{
-			_isChartDragging = false;
-			if (MinDateTime != DateTime.MinValue)
+			if (_isChartDragging)
 			{
-				await SelectionChangeEnd.InvokeAsync(null).ConfigureAwait(true);
+				_isChartDragging = false;
+				if (MinDateTime != DateTime.MinValue)
+				{
+					// suppress event if selection not changed
+					if (_selectionStartIndex != _lastSelectionStartIndex || _selectionEndIndex != _lastSelectionEndIndex)
+					{
+						_lastSelectionStartIndex = _selectionStartIndex;
+						_lastSelectionEndIndex = _selectionEndIndex;
+						await SelectionChangeEnd.InvokeAsync(null).ConfigureAwait(true);
+					}
+				}
 			}
 		}
 
@@ -626,20 +674,60 @@ namespace PanoramicData.Blazor
 
 		private async Task SetSelection(int startIndex, int endIndex)
 		{
+			if(startIndex == _selectionStartIndex && endIndex == _selectionEndIndex)
+			{
+				return;
+			}
+
 			_selectionStartIndex = startIndex;
 			_selectionEndIndex = endIndex;
+
 			if(startIndex > -1 && endIndex > -1)
 			{
-				_selectionRange = new TimeRange
+				// calculate time period and sort into chronological order
+				var startTime = startIndex <= endIndex
+					? MinDateTime.AddPeriods(Scale, startIndex).PeriodStart(Scale)
+					: MinDateTime.AddPeriods(Scale, startIndex).PeriodEnd(Scale);
+				var endTime = startIndex <= endIndex
+					? MinDateTime.AddPeriods(Scale, endIndex).PeriodEnd(Scale)
+					: MinDateTime.AddPeriods(Scale, endIndex).PeriodStart(Scale);
+				if (startTime > endTime)
 				{
-					StartTime = MinDateTime.AddPeriods(Scale, startIndex).PeriodStart(Scale),
-					EndTime = MinDateTime.AddPeriods(Scale, endIndex).PeriodEnd(Scale)
-				};
+					var tmp = startTime;
+					startTime = endTime;
+					endTime = tmp;
+				}
+
+				// limit selection range to enabled range?
+				if (!AllowDisableSelection)
+				{
+					if (DisableAfter != DateTime.MinValue && (endTime > DisableAfter))
+					{
+						endTime = DisableAfter;
+						_selectionEndIndex = endTime.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - 1;
+					}
+					if (DisableBefore != DateTime.MinValue && (startTime < DisableBefore))
+					{
+						startTime = DisableBefore;
+						if (_isChartDragging)
+						{
+							_selectionEndIndex = startTime.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale);
+						}
+						else
+						{
+							_selectionStartIndex = startTime.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale);
+						}
+					}
+				}
+				_selectionRange = new TimeRange { StartTime = startTime, EndTime = endTime };
 			}
 			else
 			{
 				_selectionRange = null;
+				_selectionStartIndex = _selectionEndIndex = -1;
+				StateHasChanged();
 			}
+
 			await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
 		}
 

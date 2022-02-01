@@ -16,6 +16,9 @@ namespace PanoramicData.Blazor
 		public DataPoint DataPoint { get; set; } = new DataPoint();
 
 		[Parameter]
+		public bool IsEnabled { get; set; } = true;
+
+		[Parameter]
 		public double MaxValue { get; set; } = 100;
 
 		[Parameter]

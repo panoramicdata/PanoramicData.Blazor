@@ -13,20 +13,38 @@
 				<label class="form-check-label" for="enabledCheck">Enabled</label>
 			</div>
 
-			<EditForm Model="_model">
-				<InputSelect TValue="TimelineScales"
-							 @bind-Value="_model.Scale">
-					<option value="@TimelineScales.Minutes">1 Minute</option>
-					<option value="@TimelineScales.Hours">1 Hour</option>
-					<option value="@TimelineScales.Hours4">4 Hours</option>
-					<option value="@TimelineScales.Hours6">6 Hours</option>
-					<option value="@TimelineScales.Hours8">8 Hours</option>
-					<option value="@TimelineScales.Hours12">12 Hours</option>
-					<option value="@TimelineScales.Days">1 Day</option>
-					<option value="@TimelineScales.Weeks">1 Week</option>
-					<option value="@TimelineScales.Months">1 Month</option>
-					<option value="@TimelineScales.Years">1 Year</option>
-				</InputSelect>
+			<EditForm class="form-inline" Model="_model">
+
+				<div class="mr-2">
+					<span>Scale / Zoom</span>
+					<InputSelect class="form-control form-control-sm ms-1"
+									TValue="TimelineScales"
+									@bind-Value="_model.Scale">
+						<option value="@TimelineScales.Minutes">1 Minute</option>
+						<option value="@TimelineScales.Hours">1 Hour</option>
+						<option value="@TimelineScales.Hours4">4 Hours</option>
+						<option value="@TimelineScales.Hours6">6 Hours</option>
+						<option value="@TimelineScales.Hours8">8 Hours</option>
+						<option value="@TimelineScales.Hours12">12 Hours</option>
+						<option value="@TimelineScales.Days">1 Day</option>
+						<option value="@TimelineScales.Weeks">1 Week</option>
+						<option value="@TimelineScales.Months">1 Month</option>
+						<option value="@TimelineScales.Years">1 Year</option>
+					</InputSelect>
+				</div>
+
+				<div class="mr-2">
+					<span>Disable Before</span>
+					<InputDate class="form-control form-control-sm"
+							   @bind-Value="_model.DisableBefore" />
+				</div>
+
+				<div class="mr-2">
+					<span>Disable After</span>
+					<InputDate class="form-control form-control-sm"
+							   @bind-Value="_model.DisableAfter" />
+				</div>
+
 			</EditForm>
 
 			<PDButton Click="OnSetData"
@@ -42,6 +60,8 @@
 
 		<PDTimeline @ref="_timeline"
 					DataProvider="GetTimelineData"
+					DisableAfter="_model.DisableAfter"
+					DisableBefore="_model.DisableBefore"
 					FetchAll="false"
 					IsEnabled="_isEnabled"
 					MaxDateTime="_maxDate"

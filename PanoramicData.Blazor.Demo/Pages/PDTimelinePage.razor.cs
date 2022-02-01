@@ -99,7 +99,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		private void OnSelectionChangeEnd()
 		{
-			EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection().StartTime), new EventArgument("end", _timeline.GetSelection().EndTime)));
+			EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection()?.StartTime), new EventArgument("end", _timeline.GetSelection()?.EndTime)));
 		}
 
 		private async Task OnClearData()
@@ -172,6 +172,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 	public class TimelinePageModel
 	{
+
+		public DateTime DisableAfter { get; set; }
+
+		public DateTime DisableBefore { get; set; }
+
 		public TimelineScales Scale { get; set; } = TimelineScales.Months;
 	}
 }

@@ -454,9 +454,8 @@
   width: 100%;
 }
 
-.pd-timeline.disabled {
+.pd-timeline svg.disabled {
   background-color: #d3d3d3;
-  color: #dddddd;
   filter: grayscale(1);
 }
 

@@ -1,7 +1,7 @@
 ﻿@using PanoramicData.Blazor.Extensions
 
 <div id="@Id"
-	 class="pd-timeline @(IsEnabled ? "" : "disabled")"
+	 class="pd-timeline"
 	 @onmousewheel="OnMouseWheel">
 
 	@{
@@ -11,7 +11,7 @@
 
 	@* PLOT AREA *@
 	<svg @ref="_svgPlotElement"
-			class="tl-plot-area"
+			class="tl-plot-area @(IsEnabled ? "" : "disabled")"
 			@onpointerdown="OnChartPointerDown"
 			@onpointermove="OnChartPointerMove"
 			@onpointerup="OnChartPointerUp"
@@ -35,10 +35,11 @@
 				for (var i = 0; i < points.Length; i++)
 				{
 					<PDStackedBar DateFormat="@GetTitleDateFormat(Scale)"
-									DataPoint="points[i]"
-									MaxValue="@(Options.YAxis.MaxValue ?? (maxYValue == 0 ? 100 : maxYValue))"
-									Options="Options"
-									X="@(i * Options.Bar.Width)" />
+								  DataPoint="points[i]"
+                                  IsEnabled="IsPointEnabled(points[i])"
+								  MaxValue="@(Options.YAxis.MaxValue ?? (maxYValue == 0 ? 100 : maxYValue))"
+								  Options="Options"
+								  X="@(i * Options.Bar.Width)" />
 				}
 			}
 

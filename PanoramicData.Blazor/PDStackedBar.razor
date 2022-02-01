@@ -1,7 +1,8 @@
-﻿<svg viewBox="@($"0 0 {Options.Bar.Width} {MaxValue}")"
-		x="@X"
-		preserveAspectRatio="none"
-		width="@Options.Bar.Width">
+﻿<svg class="tl-stacked-bar @(IsEnabled ? "" : "disabled")"
+	 viewBox="@($"0 0 {Options.Bar.Width} {MaxValue}")"
+	 x="@X"
+	 preserveAspectRatio="none"
+	 width="@Options.Bar.Width">
 	@{
 		var y = MaxValue;
 		@if(DataPoint != null)
