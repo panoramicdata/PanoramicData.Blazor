@@ -52,18 +52,16 @@ namespace PanoramicData.Blazor.Demo.Pages
 		};
 		private DateTime _minDate;
 		private DateTime _maxDate;
+		private bool _moreDataAvailable;
 
 		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-		private void GenerateData()
+		private void GenerateData(int startYear = 2015, int endYear = 2020, int points = 5000)
 		{
 			// generate data
-			_data.Clear();
 			var random = new Random(Environment.TickCount);
-			var points = 10000;
-			var startYear = random.Next(2000, 2017);
 			var startDate = new DateTime(startYear, 1, 1);
-			var endDate = new DateTime(startYear + 5, 12, 31);
+			var endDate = new DateTime(endYear, 12, 31);
 			var dayStart = new TimeSpan(9, 0, 0);
 			var dayDuration = new TimeSpan(8, 0, 0);
 
@@ -105,15 +103,16 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private async Task OnClearData()
 		{
 			// update component parameters
+			_data.Clear();
 			_minDate = DateTime.MinValue;
 			_maxDate = DateTime.MinValue;
 			await _timeline.Reset().ConfigureAwait(true);
-			//await _timeline.RefreshAsync().ConfigureAwait(true);
 		}
 
 		private async Task OnSetData()
 		{
 			// generate new data
+			_data.Clear();
 			GenerateData();
 
 			// update component parameters
@@ -160,6 +159,23 @@ namespace PanoramicData.Blazor.Demo.Pages
 				return Array.Empty<DataPoint>();
 			}
 		}
+
+		private void OnUpdateMaxDate()
+		{
+			// generate 1 years more additional data
+			var year = _data.Max(x => x.DateChanged.Year) + 1;
+			GenerateData(year, year, 1000);
+			_maxDate = _data.Max(x => x.DateChanged);
+		}
+
+		private void OnUpdateMinDate()
+		{
+			// generate 1 years more previous data
+			var year = _data.Min(x => x.DateChanged.Year) - 1;
+			GenerateData(year, year, 1000);
+			_minDate = _data.Min(x => x.DateChanged).Date;
+		}
+
 	}
 
 	public class ConfigChange

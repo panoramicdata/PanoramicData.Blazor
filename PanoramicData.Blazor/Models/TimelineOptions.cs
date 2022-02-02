@@ -4,7 +4,10 @@ namespace PanoramicData.Blazor.Models
 {
 	public class TimelineOptions
 	{
+		public const string MAIN_COLOUR = "#404040d1";
+
 		public TimelineBarOptions Bar { get; set; } = new TimelineBarOptions();
+		public TimelineIndicatorOptions Indicator { get; set; } = new TimelineIndicatorOptions();
 		public TimelinePanOptions Pan { get; set; } = new TimelinePanOptions();
 		public TimelineSelectionOptions Selection { get; set; }	= new TimelineSelectionOptions();
 		public TimelineSeries[] Series { get; set; } = Array.Empty<TimelineSeries>();
@@ -16,6 +19,14 @@ namespace PanoramicData.Blazor.Models
 	public class TimelineBarOptions
 	{
 		public int Padding { get; set; } = 2;
+		public int Width { get; set; } = 20;
+	}
+
+	public class TimelineIndicatorOptions
+	{
+		public string BackgroundColour { get; set; } = TimelineOptions.MAIN_COLOUR;
+		public string Colour { get; set; } = "whitesmoke";
+		public int Padding { get; set; } = 5;
 		public int Width { get; set; } = 20;
 	}
 
@@ -33,13 +44,13 @@ namespace PanoramicData.Blazor.Models
 	{
 		public int ArcStart { get; set; } = 15;
 		public int ArcEnd { get; set; } = 345;
-		public string Colour { get; set; } = "DarkGray";
+		public string Colour { get; set; } = TimelineOptions.MAIN_COLOUR;
 		public int Width { get; set; } = 6;
 	}
 
 	public class TimelinePanOptions
 	{
-		public string Colour { get; set; } = "Silver";
+		public string Colour { get; set; } = TimelineOptions.MAIN_COLOUR;
 		public int Height { get; set; } = 20;
 	}
 

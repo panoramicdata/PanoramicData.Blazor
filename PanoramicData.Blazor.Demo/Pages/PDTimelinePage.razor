@@ -56,6 +56,13 @@
 				CssClass="btn-secondary ml-2"
 				Size="ButtonSizes.Small"
 				Text="Clear Data" />
+
+			 <div class="form-check mr-2">
+				<input type="checkbox" class="form-check-input" id="moreDataCheck" checked="@_moreDataAvailable"
+				@oninput="(a) => _moreDataAvailable = Convert.ToBoolean(a.Value)">
+				<label class="form-check-label" for="moreDataCheck">More Data</label>
+			</div>
+
 		</div>
 
 		<PDTimeline @ref="_timeline"
@@ -64,13 +71,17 @@
 					DisableBefore="_model.DisableBefore"
 					FetchAll="false"
 					IsEnabled="_isEnabled"
+					NewMaxDateTimeAvailable="_moreDataAvailable"
+					NewMinDateTimeAvailable="_moreDataAvailable"
 					MaxDateTime="_maxDate"
 					MinDateTime="_minDate"
 					Options="_timelineOptions"
 					SelectionChanged="OnSelectionChanged"
 					SelectionChangeEnd="OnSelectionChangeEnd"
 					Scale="_model.Scale"
-					ScaleChanged="OnScaleChanged"/>
+					ScaleChanged="OnScaleChanged"
+					UpdateMaxDate="OnUpdateMaxDate"
+					UpdateMinDate="OnUpdateMinDate" />
 
 		<div>
 			Range: @($"{_minDate:g} - {_maxDate:g}"))

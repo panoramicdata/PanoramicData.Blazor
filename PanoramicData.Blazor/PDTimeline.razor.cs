@@ -49,6 +49,7 @@ namespace PanoramicData.Blazor
 		private CancellationTokenSource? _refreshCancellationToken;
 		private bool _loading;
 		private DateTime _lastMinDateTime;
+		private DateTime? _lastMaxDateTime;
 		private readonly Dictionary<int, DataPoint> _dataPoints = new Dictionary<int, DataPoint>();
 
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
@@ -90,6 +91,12 @@ namespace PanoramicData.Blazor
 		public string Id { get; set; } = $"pd-timeline-{++_seq}";
 
 		[Parameter]
+		public bool NewMaxDateTimeAvailable { get; set; }
+
+		[Parameter]
+		public bool NewMinDateTimeAvailable { get; set; }
+
+		[Parameter]
 		public DateTime? MaxDateTime { get; set; }
 
 		[Parameter]
@@ -97,6 +104,12 @@ namespace PanoramicData.Blazor
 
 		[Parameter]
 		public TimelineOptions Options { get; set; } = new TimelineOptions();
+
+		[Parameter]
+		public EventCallback UpdateMaxDate { get; set; }
+
+		[Parameter]
+		public EventCallback UpdateMinDate { get; set; }
 
 		public void Clear()
 		{
@@ -366,6 +379,27 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private async Task OnMouseWheel(WheelEventArgs args)
+		{
+			if (IsEnabled && args.CtrlKey)
+			{
+				if (args.DeltaY < 0)
+				{
+					if (Scale > TimelineScales.Minutes)
+					{
+						await SetScale(Scale - 1).ConfigureAwait(true);
+					}
+				}
+				else
+				{
+					if (Scale < TimelineScales.Years)
+					{
+						await SetScale(Scale + 1).ConfigureAwait(true);
+					}
+				}
+			}
+		}
+
 		private async Task OnPanPointerDown(PointerEventArgs args)
 		{
 			if (IsEnabled && !_isPanDragging)
@@ -415,6 +449,38 @@ namespace PanoramicData.Blazor
 			{
 				await RefreshAsync().ConfigureAwait(true);
 			}
+		}
+
+		protected async override Task OnParametersSetAsync()
+		{
+			if (_canvasWidth > 0)
+			{
+				await SetScale(Scale).ConfigureAwait(true);
+			}
+
+			// reset if earliest date changes
+			if (MinDateTime != _lastMinDateTime)
+			{
+				_lastMinDateTime = MinDateTime;
+				await Reset().ConfigureAwait(true);
+				await SetScale(Scale, true).ConfigureAwait(true);
+			}
+
+			// reset if latest date changes
+			if (MaxDateTime != _lastMaxDateTime)
+			{
+				_lastMaxDateTime = MaxDateTime;
+				await Reset().ConfigureAwait(true);
+				await SetScale(Scale, true).ConfigureAwait(true);
+			}
+		}
+
+		[JSInvokable("PanoramicData.Blazor.PDTimeline.OnResize")]
+		public async Task OnResize()
+		{
+			_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true);
+			await SetScale(Scale, true).ConfigureAwait(true);
+			await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 		}
 
 		private async Task OnSelectionEndPointerDown(PointerEventArgs args)
@@ -471,51 +537,6 @@ namespace PanoramicData.Blazor
 		private void OnSelectionStartPointerUp(PointerEventArgs args)
 		{
 			_isSelectionStartDragging = false;
-		}
-
-		private async Task OnMouseWheel(WheelEventArgs args)
-		{
-			if (IsEnabled && args.CtrlKey)
-			{
-				if (args.DeltaY < 0)
-				{
-					if (Scale > TimelineScales.Minutes)
-					{
-						await SetScale(Scale - 1).ConfigureAwait(true);
-					}
-				}
-				else
-				{
-					if (Scale < TimelineScales.Years)
-					{
-						await SetScale(Scale + 1).ConfigureAwait(true);
-					}
-				}
-			}
-		}
-
-		protected async override Task OnParametersSetAsync()
-		{
-			if (_canvasWidth > 0)
-			{
-				await SetScale(Scale).ConfigureAwait(true);
-			}
-
-			// reset if earliest date changes
-			if(MinDateTime != _lastMinDateTime)
-			{
-				_lastMinDateTime = MinDateTime;
-				await Reset().ConfigureAwait(true);
-				await SetScale(Scale, true).ConfigureAwait(true);
-			}
-		}
-
-		[JSInvokable("PanoramicData.Blazor.PDTimeline.OnResize")]
-		public async Task OnResize()
-		{
-			_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true);
-			await SetScale(Scale, true).ConfigureAwait(true);
-			await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 		}
 
 		public async Task RefreshAsync()
@@ -756,6 +777,27 @@ namespace PanoramicData.Blazor
 				var x = centerX + radius * Math.Cos(angleInRadians);
 				var y = centerY + radius * Math.Sin(angleInRadians);
 				return (x, y);
+			}
+
+			public static string ArrowPath(double x, double boundsHeight, double boundsWidth, double padding, bool faceLeft)
+			{
+				var cy = boundsHeight / 2;
+				var w = boundsWidth - (2 * padding);
+				var sb = new System.Text.StringBuilder();
+				if(faceLeft)
+				{
+					sb.Append("M ").Append(x + padding).Append(' ').Append(Math.Round(cy));
+					sb.Append("l ").Append(w).Append(" -").Append(w);
+					sb.Append("l 0 ").Append(2 * w);
+				}
+				else
+				{
+					sb.Append("M ").Append(x + (boundsWidth - padding)).Append(' ').Append(Math.Round(cy));
+					sb.Append("l -").Append(w).Append(" -").Append(w);
+					sb.Append("l 0 ").Append(2 * w);
+				}
+				sb.Append("Z");
+				return sb.ToString();
 			}
 		}
 

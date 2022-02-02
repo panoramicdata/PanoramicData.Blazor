@@ -36,7 +36,7 @@
 				{
 					<PDStackedBar DateFormat="@GetTitleDateFormat(Scale)"
 								  DataPoint="points[i]"
-                                  IsEnabled="IsPointEnabled(points[i])"
+								  IsEnabled="IsPointEnabled(points[i])"
 								  MaxValue="@(Options.YAxis.MaxValue ?? (maxYValue == 0 ? 100 : maxYValue))"
 								  Options="Options"
 								  X="@(i * Options.Bar.Width)" />
@@ -67,6 +67,44 @@
 						width="@Options.Selection.HandleWidth"
 						x="@(SelectionEndX - Options.Selection.HandleWidth)" />
 			}
+		}
+
+		@* New Min Date available *@
+		@if(NewMinDateTimeAvailable)
+		{
+			<svg class="tl-ind-l"
+				@onpointerdown="UpdateMinDate"
+				@onpointerdown:stopPropagation>
+				<rect fill="@Options.Indicator.BackgroundColour"
+					height="@_canvasHeight"
+					stroke="@Options.Indicator.BackgroundColour"
+					width="@Options.Bar.Width"
+					x="0" />
+				<path d="@(Utilities.ArrowPath(0, _canvasHeight, Options.Bar.Width, Options.Indicator.Padding, true))"
+					fill="@Options.Indicator.Colour"
+					stroke="@Options.Indicator.Colour"
+					stroke-width="@Options.Indicator.Padding"
+					stroke-linecap="round" />
+			</svg>
+		}
+
+		@* New Max Date available *@
+		@if(NewMaxDateTimeAvailable)
+		{
+			<svg class="tl-ind-r"
+				@onpointerdown="UpdateMaxDate"
+				@onpointerdown:stopPropagation>>
+				<rect fill="@Options.Indicator.BackgroundColour"
+					height="@_canvasHeight"
+					stroke="@Options.Indicator.BackgroundColour"
+					width="@Options.Bar.Width"
+					x="@(_canvasWidth - Options.Bar.Width)" />
+				<path d="@(Utilities.ArrowPath(_canvasWidth - Options.Bar.Width, _canvasHeight, Options.Bar.Width, Options.Indicator.Padding, false))"
+					fill="@Options.Indicator.Colour"
+					stroke="@Options.Indicator.Colour"
+					stroke-width="@Options.Indicator.Padding"
+					stroke-linecap="round" />
+			</svg>
 		}
 
 		@* SPINNER *@
