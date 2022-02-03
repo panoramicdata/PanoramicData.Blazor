@@ -128,9 +128,18 @@
 		@if (MinDateTime != DateTime.MinValue)
 		{
 			<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
-				x2="@_canvasWidth" />
+				  x2="@_canvasWidth" />
 			@for (var x = 0; x < _canvasWidth; x += Options.Bar.Width)
 			{
+@*				var dt = MinDateTime.AddPeriods(Scale, _columnOffset + (x / Options.Bar.Width));
+				<rect height="20"
+					  width="@Options.Bar.Width"
+					  stroke="transparent"
+					  fill="transparent"
+					  x="@x"
+					  y="0">
+					  <title>@(dt.ToString(GetTitleDateFormat(Scale)))</title>
+				</rect>*@
 				<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
 					x1="@x"
 					x2="@x"
@@ -156,6 +165,19 @@
 						stroke="@(IsEnabled ? Options.XAxis.Colour : "DarkGray")">@textInfo.Text</text>
 				</text>
 				i += textInfo.Skip;
+			}
+			@* create tooltips *@
+			@for (var x = 0; x < _canvasWidth; x += Options.Bar.Width)
+			{
+				var dt = MinDateTime.AddPeriods(Scale, _columnOffset + (x / Options.Bar.Width));
+				<rect height="20"
+					  width="@Options.Bar.Width"
+					  stroke="transparent"
+					  fill="transparent"
+					  x="@x"
+					  y="0">
+					  <title>@(dt.ToString(GetTitleDateFormat(Scale)))</title>
+				</rect>
 			}
 		}
 	</svg>
