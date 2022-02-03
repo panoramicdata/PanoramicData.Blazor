@@ -55,16 +55,10 @@ namespace PanoramicData.Blazor
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		[Parameter]
-		public bool AllowDisableSelection { get; set; }
-
-		[Parameter]
 		public DateTime DisableAfter { get; set; }
 
 		[Parameter]
 		public DateTime DisableBefore { get; set; }
-
-		[Parameter]
-		public bool FetchAll { get; set; } = true;
 
 		[Parameter]
 		public bool IsEnabled { get; set; } = true;
@@ -445,7 +439,7 @@ namespace PanoramicData.Blazor
 					refresh = true;
 				}
 			}
-			if (refresh && !FetchAll)
+			if (refresh && !Options.General.FetchAll)
 			{
 				await RefreshAsync().ConfigureAwait(true);
 			}
@@ -552,8 +546,8 @@ namespace PanoramicData.Blazor
 
 				// either fetch all data points for scale, or just the current viewport
 				_loading = true;
-				var start = FetchAll ? MinDateTime.PeriodStart(Scale) : MinDateTime.AddPeriods(Scale, _columnOffset).PeriodStart(Scale);
-				var end = FetchAll ? (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale) : MinDateTime.AddPeriods(Scale, _columnOffset + _viewportColumns).PeriodEnd(Scale);
+				var start = Options.General.FetchAll ? MinDateTime.PeriodStart(Scale) : MinDateTime.AddPeriods(Scale, _columnOffset).PeriodStart(Scale);
+				var end = Options.General.FetchAll ? (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale) : MinDateTime.AddPeriods(Scale, _columnOffset + _viewportColumns).PeriodEnd(Scale);
 				_refreshCancellationToken = new CancellationTokenSource();
 				var points = await DataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
 				foreach (var point in points)
@@ -586,7 +580,7 @@ namespace PanoramicData.Blazor
 			{
 				var previousCenter = MinDateTime.PeriodStart(_previousScale).AddPeriods(_previousScale, _columnOffset + (_viewportColumns / 2));
 				var scaleChanged = scale != _previousScale;
-				var refreshData = (scaleChanged) || !FetchAll;
+				var refreshData = (scaleChanged) || !Options.General.FetchAll;
 				_previousScale = scale;
 				await ScaleChanged.InvokeAsync(scale).ConfigureAwait(true);
 				if (scaleChanged)
@@ -720,7 +714,7 @@ namespace PanoramicData.Blazor
 				}
 
 				// limit selection range to enabled range?
-				if (!AllowDisableSelection)
+				if (!Options.General.AllowDisableSelection)
 				{
 					if (DisableAfter != DateTime.MinValue && (endTime > DisableAfter))
 					{

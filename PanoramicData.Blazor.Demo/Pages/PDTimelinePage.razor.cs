@@ -113,7 +113,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			// generate new data
 			_data.Clear();
-			GenerateData();
+			GenerateData(2020, 2020, 10);
 
 			// update component parameters
 			_minDate = _data.Min(x => x.DateChanged).Date;

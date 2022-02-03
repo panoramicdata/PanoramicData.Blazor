@@ -7,6 +7,7 @@ namespace PanoramicData.Blazor.Models
 		public const string MAIN_COLOUR = "#404040d1";
 
 		public TimelineBarOptions Bar { get; set; } = new TimelineBarOptions();
+		public TimelineGeneralOptions General { get; set; } = new TimelineGeneralOptions();
 		public TimelineIndicatorOptions Indicator { get; set; } = new TimelineIndicatorOptions();
 		public TimelinePanOptions Pan { get; set; } = new TimelinePanOptions();
 		public TimelineSelectionOptions Selection { get; set; }	= new TimelineSelectionOptions();
@@ -21,6 +22,14 @@ namespace PanoramicData.Blazor.Models
 		public int Padding { get; set; } = 2;
 		public int Width { get; set; } = 20;
 	}
+
+	public class TimelineGeneralOptions
+	{
+		public bool AllowDisableSelection { get; set; }
+
+		public bool FetchAll { get; set; }
+	}
+
 
 	public class TimelineIndicatorOptions
 	{
