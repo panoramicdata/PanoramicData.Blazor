@@ -141,6 +141,10 @@
 			@for (var i = 0 + GetMajorMarkOffsetForViewport(); i < points.Length; i++)
 			{
 				var dt = MinDateTime.AddPeriods(Scale, _columnOffset + i);
+				if (dt > (MaxDateTime ?? DateTime.UtcNow))
+				{
+					break;
+				}
 				var textInfo = GetTextInfo(dt);
 				<line x1="@(i * Options.Bar.Width)"
 					x2="@(i * Options.Bar.Width)"

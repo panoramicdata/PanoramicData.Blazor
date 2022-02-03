@@ -30,7 +30,6 @@ namespace PanoramicData.Blazor.Models
 		public bool FetchAll { get; set; }
 	}
 
-
 	public class TimelineIndicatorOptions
 	{
 		public string BackgroundColour { get; set; } = TimelineOptions.MAIN_COLOUR;
