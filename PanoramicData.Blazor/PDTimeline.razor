@@ -129,17 +129,9 @@
 		{
 			<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
 				  x2="@_canvasWidth" />
+			@* minor ticks *@
 			@for (var x = 0; x < _canvasWidth; x += Options.Bar.Width)
 			{
-@*				var dt = MinDateTime.AddPeriods(Scale, _columnOffset + (x / Options.Bar.Width));
-				<rect height="20"
-					  width="@Options.Bar.Width"
-					  stroke="transparent"
-					  fill="transparent"
-					  x="@x"
-					  y="0">
-					  <title>@(dt.ToString(GetTitleDateFormat(Scale)))</title>
-				</rect>*@
 				<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
 					x1="@x"
 					x2="@x"
@@ -191,11 +183,17 @@
 		preserveAspectRatio="none">
 		@if(IsEnabled && MinDateTime != DateTime.MinValue)
 		{
+			<rect fill="@Options.Pan.BorderColour"
+				height="@Options.Pan.Height"
+				width="@(_panHandleWidth + 2 * Options.Pan.BorderWidth)"
+				x="@(_panHandleX - Options.Pan.BorderWidth)"
+				y="0" />
 			<rect fill="@Options.Pan.Colour"
-					height="@Options.Pan.Height"
-					width="@_panHandleWidth"
-					x="@_panHandleX"
-					y="0" />
+				height="@Options.Pan.Height"
+				width="@(_panHandleWidth)"
+				x="@_panHandleX"
+				y="0" />
+
 		}
 	</svg>
 

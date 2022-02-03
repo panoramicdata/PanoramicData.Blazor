@@ -589,8 +589,10 @@ namespace PanoramicData.Blazor
 					Scale = scale;
 				}
 				// calculate total number of columns for scale
-				var start = MinDateTime.Date.PeriodStart(Scale);
-				var end = (MaxDateTime?.Date ?? DateTime.Now.Date).PeriodEnd(Scale);
+				//var start = MinDateTime.Date.PeriodStart(Scale);
+				//var end = (MaxDateTime?.Date ?? DateTime.Now.Date).PeriodEnd(Scale);
+				var start = MinDateTime.PeriodStart(Scale);
+				var end = (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale);
 				var temp = Scale switch
 				{
 					TimelineScales.Minutes => end.Subtract(start).TotalMinutes,
@@ -610,7 +612,7 @@ namespace PanoramicData.Blazor
 				{
 					_viewportColumns = (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width);
 					// calculate pan handle width - min 5 px
-					_panHandleWidth = Math.Min(Math.Max(((double)_viewportColumns / (double)_totalColumns) * _canvasWidth, 5), _canvasWidth);
+					_panHandleWidth = Math.Min(((double)_viewportColumns / (double)(_totalColumns + 1)) * _canvasWidth, _canvasWidth);
 					if (_canvasWidth > 0 && (_panHandleX + _panHandleWidth > _canvasWidth))
 					{
 						_panHandleX = _canvasWidth - _panHandleWidth;
