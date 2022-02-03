@@ -164,7 +164,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			// generate 1 years more additional data
 			var year = _data.Max(x => x.DateChanged.Year) + 1;
-			GenerateData(year, year, 1000);
+			GenerateData(year, year, 10);
 			_maxDate = _data.Max(x => x.DateChanged);
 		}
 
@@ -172,7 +172,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			// generate 1 years more previous data
 			var year = _data.Min(x => x.DateChanged.Year) - 1;
-			GenerateData(year, year, 1000);
+			GenerateData(year, year, 10);
 			_minDate = _data.Min(x => x.DateChanged).Date;
 		}
 
