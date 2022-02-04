@@ -27,7 +27,16 @@ namespace PanoramicData.Blazor.Models
 	{
 		public bool AllowDisableSelection { get; set; }
 
+		public string DateFormat { get; set; } = "dd/MM/yy";
+
 		public bool FetchAll { get; set; }
+
+		public TimelineScale[] Scales { get; set; } = new[]
+		{
+			TimelineScale.Years,
+			TimelineScale.Months,
+			TimelineScale.Days
+		};
 	}
 
 	public class TimelineIndicatorOptions

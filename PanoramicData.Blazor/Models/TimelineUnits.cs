@@ -1,13 +1,11 @@
 ﻿namespace PanoramicData.Blazor.Models
 {
-	public enum TimelineScales
+	public enum TimelineUnits
 	{
+		Milliseconds,
+		Seconds,
 		Minutes,
 		Hours,
-		Hours4,
-		Hours6,
-		Hours8,
-		Hours12,
 		Days,
 		Weeks,
 		Months,

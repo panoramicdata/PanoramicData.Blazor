@@ -141,7 +141,7 @@
 			@* start major tick at first boundary day or hour *@
 			@for (var i = 0 + GetMajorMarkOffsetForViewport(); i < points.Length; i++)
 			{
-				var dt = MinDateTime.AddPeriods(Scale, _columnOffset + i);
+				var dt = Scale.AddPeriods(MinDateTime, _columnOffset + i);
 				if (dt > (MaxDateTime ?? DateTime.UtcNow))
 				{
 					break;
@@ -161,7 +161,7 @@
 			@* create tooltips *@
 			@for (var x = 0; x < _canvasWidth; x += Options.Bar.Width)
 			{
-				var dt = MinDateTime.AddPeriods(Scale, _columnOffset + (x / Options.Bar.Width));
+				var dt = Scale.AddPeriods(MinDateTime, _columnOffset + (x / Options.Bar.Width));
 				<rect height="20"
 					  width="@Options.Bar.Width"
 					  stroke="transparent"

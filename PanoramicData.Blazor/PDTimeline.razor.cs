@@ -14,7 +14,7 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDTimeline : IDisposable
 	{
-		public delegate ValueTask<DataPoint[]> DataProviderDelegate(DateTime start, DateTime end, TimelineScales scale, CancellationToken cancellationToken);
+		public delegate ValueTask<DataPoint[]> DataProviderDelegate(DateTime start, DateTime end, TimelineScale scale, CancellationToken cancellationToken);
 
 		private static int _seq;
 
@@ -45,7 +45,7 @@ namespace PanoramicData.Blazor
 		private ElementReference _svgPlotElement;
 		private ElementReference _svgPanElement;
 		private DotNetObjectReference<PDTimeline>? _objRef;
-		private TimelineScales _previousScale = TimelineScales.Days;
+		private TimelineScale _previousScale = TimelineScale.Years;
 		private CancellationTokenSource? _refreshCancellationToken;
 		private bool _loading;
 		private DateTime _lastMinDateTime;
@@ -64,10 +64,10 @@ namespace PanoramicData.Blazor
 		public bool IsEnabled { get; set; } = true;
 
 		[Parameter]
-		public TimelineScales Scale { get; set; } = TimelineScales.Days;
+		public TimelineScale Scale { get; set; } = TimelineScale.Years;
 
 		[Parameter]
-		public EventCallback<TimelineScales> ScaleChanged { get; set; }
+		public EventCallback<TimelineScale> ScaleChanged { get; set; }
 
 		[Parameter]
 		public EventCallback Refreshed { get; set; }
@@ -105,6 +105,33 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public EventCallback UpdateMinDate { get; set; }
 
+		private void CenterOn(DateTime dateTime)
+		{
+			if (dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
+			{
+				var totalSeconds = (MaxDateTime ?? DateTime.Now).Subtract(MinDateTime).TotalSeconds;
+				dateTime = MinDateTime.AddSeconds(totalSeconds / 2);
+			}
+			var maxOffset = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime) - _viewportColumns;
+			if (maxOffset <= 0)
+			{
+				_columnOffset = 0;
+			}
+			else
+			{
+				// validate
+				var newOffset = Scale.PeriodsBetween(RoundedMinDateTime, dateTime) - (_viewportColumns / 2);
+				if (newOffset >= 0 && newOffset <= maxOffset)
+				{
+					Console.WriteLine($"Old Offset = {_columnOffset}, New Offset = {newOffset}, TotalColumns = {_totalColumns}");
+					_columnOffset = newOffset;
+				}
+			}
+
+			// update pan handle x
+			_panHandleX = (_columnOffset / (double)_totalColumns) * (double)_canvasWidth;
+		}
+
 		public void Clear()
 		{
 			_dataPoints.Clear();
@@ -115,38 +142,44 @@ namespace PanoramicData.Blazor
 			await SetSelection(-1, -1).ConfigureAwait(true);
 		}
 
+		public void Dispose()
+		{
+			JSRuntime.InvokeVoidAsync("panoramicData.timeline.term", Id);
+		}
+
 		private int GetColumnIndexAtPoint(double clientX)
 		{
 			var index =  _columnOffset + (int)Math.Floor((clientX - _canvasX) / Options.Bar.Width);
 			return index< 0 ? 0 : index;
 		}
 
+		// TODO: refactor into TimelineScale
 		private int GetMajorMarkOffsetForViewport()
 		{
-			var dt = MinDateTime.AddPeriods(Scale, _columnOffset).PeriodStart(Scale);
+			var dt = Scale.PeriodStart(Scale.AddPeriods(MinDateTime, _columnOffset));
 			var majorTickOffset = 0;
-			if (Scale <= TimelineScales.Minutes)
+			if (Scale.UnitType <= TimelineUnits.Minutes)
 			{
 				while (dt.TimeOfDay.Seconds != 0)
 				{
 					majorTickOffset++;
-					dt = dt.AddPeriods(Scale, 1);
+					dt = Scale.AddPeriods(dt, 1);
 				}
 			}
-			else if (Scale <= TimelineScales.Hours)
+			else if (Scale.UnitType <= TimelineUnits.Hours)
 			{
 				while (dt.TimeOfDay.Minutes != 0)
 				{
 					majorTickOffset++;
-					dt = dt.AddPeriods(Scale, 1);
+					dt = Scale.AddPeriods(dt, 1);
 				}
 			}
-			else if (Scale < TimelineScales.Weeks)
+			else if (Scale.UnitType < TimelineUnits.Weeks)
 			{
 				while (dt.TimeOfDay.Hours != 0)
 				{
 					majorTickOffset++;
-					dt = dt.AddPeriods(Scale, 1);
+					dt = Scale.AddPeriods(dt, 1);
 				}
 			}
 			return majorTickOffset;
@@ -157,9 +190,10 @@ namespace PanoramicData.Blazor
 			return _selectionRange;
 		}
 
+		// TODO: refactor into TimelineScale
 		private TextInfo GetTextInfo(DateTime dt)
 		{
-			if (Scale == TimelineScales.Years)
+			if (Scale.UnitType == TimelineUnits.Years)
 			{
 				return new TextInfo
 				{
@@ -167,7 +201,7 @@ namespace PanoramicData.Blazor
 					Text = dt.ToString("yy")
 				};
 			}
-			else if (Scale == TimelineScales.Months)
+			else if (Scale.UnitType == TimelineUnits.Months)
 			{
 				return new TextInfo
 				{
@@ -175,60 +209,60 @@ namespace PanoramicData.Blazor
 					Text = dt.ToString("MMM yy")
 				};
 			}
-			else if (Scale == TimelineScales.Weeks)
+			else if (Scale.UnitType == TimelineUnits.Weeks)
 			{
 				return new TextInfo
 				{
 					Skip = 3,
-					Text = dt.ToString("dd/MM/yy")
+					Text = dt.ToString(Options.General.DateFormat)
 				};
 			}
-			else if (Scale == TimelineScales.Days)
+			else if (Scale.UnitType == TimelineUnits.Days)
 			{
 				return new TextInfo
 				{
 					Skip = 2,
-					Text = dt.ToString("dd/MM/yy")
+					Text = dt.ToString(Options.General.DateFormat)
 				};
 			}
-			else if (Scale == TimelineScales.Hours12)
+			else if (Scale.UnitType == TimelineUnits.Hours && Scale.UnitCount == 12)
 			{
 				return new TextInfo
 				{
 					Skip = 3,
-					Text = dt.ToString("dd/MM/yy")
+					Text = dt.ToString(Options.General.DateFormat)
 				};
 			}
-			else if (Scale == TimelineScales.Hours8)
+			else if (Scale.UnitType == TimelineUnits.Hours && Scale.UnitCount == 8)
 			{
 				return new TextInfo
 				{
 					Skip = 2,
-					Text = dt.ToString("dd/MM/yy")
+					Text = dt.ToString(Options.General.DateFormat)
 				};
 			}
-			else if (Scale == TimelineScales.Hours4)
+			else if (Scale.UnitType == TimelineUnits.Hours && Scale.UnitCount == 4)
 			{
 				return new TextInfo
 				{
 					Skip = 5,
-					Text = dt.ToString("dd/MM/yy")
+					Text = dt.ToString(Options.General.DateFormat)
 				};
 			}
-			else if (Scale == TimelineScales.Hours)
+			else if (Scale.UnitType == TimelineUnits.Hours)
 			{
 				return new TextInfo
 				{
 					Skip = 3,
-					Text = dt.ToString("dd/MM/yy HH:00")
+					Text = dt.ToString($"{Options.General.DateFormat} HH:00")
 				};
 			}
-			else if (Scale == TimelineScales.Minutes)
+			else if (Scale.UnitType == TimelineUnits.Minutes)
 			{
 				return new TextInfo
 				{
 					Skip = 3,
-					Text = dt.ToString("dd/MM/yy HH:mm")
+					Text = dt.ToString($"{Options.General.DateFormat} HH:mm")
 				};
 			}
 			else
@@ -236,28 +270,47 @@ namespace PanoramicData.Blazor
 				return new TextInfo
 				{
 					Skip = 3,
-					Text = dt.ToString("dd/MM/yy")
+					Text = dt.ToString(Options.General.DateFormat)
 				};
 			}
 		}
 
-		private static string GetTitleDateFormat(TimelineScales scale)
+		// TODO: refactor into TimelineScale
+		private static string GetTitleDateFormat(TimelineScale scale)
 		{
-			return scale switch
+			return scale.UnitType switch
 			{
-				TimelineScales.Years => "yyyy",
-				TimelineScales.Months => "MMM yyyy",
-				TimelineScales.Weeks => "dd/MM/yy",
-				TimelineScales.Days => "dd/MM/yy",
-				TimelineScales.Hours12 => "dd/MM/yy HH:00",
-				TimelineScales.Hours8 => "dd/MM/yy HH:00",
-				TimelineScales.Hours6 => "dd/MM/yy HH:00",
-				TimelineScales.Hours4 => "dd/MM/yy HH:00",
-				TimelineScales.Hours => "dd/MM/yy HH:00",
-				TimelineScales.Minutes => "dd/MM/yy HH:mm",
+				TimelineUnits.Years => "yyyy",
+				TimelineUnits.Months => "MMM yyyy",
+				TimelineUnits.Weeks => "dd/MM/yy",
+				TimelineUnits.Days => "dd/MM/yy",
+				TimelineUnits.Hours => "dd/MM/yy HH:00",
+				TimelineUnits.Minutes => "dd/MM/yy HH:mm",
 				_ => "dd/MM/yy"
 			};
 		}
+
+		// TODO: refactor into TimelineScale
+		//public int GetTotalColumns()
+		//{
+		//	return Scale.PeriodsBetween(Scale.PeriodStart(MinDateTime), Scale.PeriodEnd(MaxDateTime ?? DateTime.Now));
+		//	//var start = MinDateTime.PeriodStart(Scale);
+		//	//var end = (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale);
+		//	//var temp = Scale switch
+		//	//{
+		//	//	TimelineScales.Minutes => end.Subtract(start).TotalMinutes,
+		//	//	TimelineScales.Hours => end.Subtract(start).TotalHours,
+		//	//	TimelineScales.Hours4 => end.Subtract(start).TotalHours / 4,
+		//	//	TimelineScales.Hours6 => end.Subtract(start).TotalHours / 6,
+		//	//	TimelineScales.Hours8 => end.Subtract(start).TotalHours / 8,
+		//	//	TimelineScales.Hours12 => end.Subtract(start).TotalHours / 12,
+		//	//	TimelineScales.Weeks => end.Subtract(start).TotalDays / 7,
+		//	//	TimelineScales.Months => end.TotalMonthsSince(start),
+		//	//	TimelineScales.Years => end.TotalYearsSince(start),
+		//	//	_ => end.Subtract(start).TotalDays
+		//	//};
+		//	//return (int)Math.Ceiling(temp);
+		//}
 
 		private DataPoint[] GetViewPortDataPoints()
 		{
@@ -274,7 +327,7 @@ namespace PanoramicData.Blazor
 					points[i] = new DataPoint
 					{
 						PeriodIndex = key,
-						StartTime = MinDateTime.AddPeriods(Scale, key).PeriodStart(Scale)
+						StartTime = Scale.AddPeriods(RoundedMinDateTime, key)
 					};
 				}
 			}
@@ -285,7 +338,7 @@ namespace PanoramicData.Blazor
 		{
 			if(point is null
 				|| !IsEnabled
-				|| (DisableAfter != DateTime.MinValue && point.StartTime.PeriodEnd(Scale) > DisableAfter)
+				|| (DisableAfter != DateTime.MinValue && Scale.PeriodEnd(point.StartTime) > DisableAfter)
 				|| (DisableBefore != DateTime.MinValue && point.StartTime < DisableBefore))
 			{
 				return false;
@@ -328,7 +381,7 @@ namespace PanoramicData.Blazor
 			{
 				// check start time is enabled
 				var index = GetColumnIndexAtPoint(args.ClientX);
-				var startTime = MinDateTime.AddPeriods(Scale, index).PeriodStart(Scale);
+				var startTime = Scale.AddPeriods(RoundedMinDateTime, index);
 				if((DisableBefore != DateTime.MinValue && startTime < DisableBefore)
 					|| (DisableAfter != DateTime.MinValue && startTime > DisableAfter))
 				{
@@ -377,18 +430,21 @@ namespace PanoramicData.Blazor
 		{
 			if (IsEnabled && args.CtrlKey)
 			{
+				var index = Array.FindIndex(Options.General.Scales, x => x.Name == Scale.Name);
 				if (args.DeltaY < 0)
 				{
-					if (Scale > TimelineScales.Minutes)
+					// zoom in
+					if (index > 0)
 					{
-						await SetScale(Scale - 1).ConfigureAwait(true);
+						await SetScale(Options.General.Scales[index - 1]).ConfigureAwait(true);
 					}
 				}
 				else
 				{
-					if (Scale < TimelineScales.Years)
+					// zoom out
+					if (index < Options.General.Scales.Length - 1)
 					{
-						await SetScale(Scale + 1).ConfigureAwait(true);
+						await SetScale(Options.General.Scales[index + 1]).ConfigureAwait(true);
 					}
 				}
 			}
@@ -546,13 +602,14 @@ namespace PanoramicData.Blazor
 
 				// either fetch all data points for scale, or just the current viewport
 				_loading = true;
-				var start = Options.General.FetchAll ? MinDateTime.PeriodStart(Scale) : MinDateTime.AddPeriods(Scale, _columnOffset).PeriodStart(Scale);
-				var end = Options.General.FetchAll ? (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale) : MinDateTime.AddPeriods(Scale, _columnOffset + _viewportColumns).PeriodEnd(Scale);
+				var start = Options.General.FetchAll ? RoundedMinDateTime : Scale.AddPeriods(RoundedMinDateTime, _columnOffset);
+				var end = Options.General.FetchAll ? RoundedMaxDateTime : Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, _columnOffset + _viewportColumns));
 				_refreshCancellationToken = new CancellationTokenSource();
 				var points = await DataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
 				foreach (var point in points)
 				{
-					point.PeriodIndex =  point.StartTime.TotalPeriodsSince(MinDateTime, Scale);
+					//point.PeriodIndex =  point.StartTime.TotalPeriodsSince(MinDateTime, Scale);
+					point.PeriodIndex = Scale.PeriodsBetween(RoundedMinDateTime, point.StartTime);
 					if (!_dataPoints.ContainsKey(point.PeriodIndex))
 					{
 						_dataPoints.Add(point.PeriodIndex, point);
@@ -570,15 +627,19 @@ namespace PanoramicData.Blazor
 			await ClearSelection().ConfigureAwait(true);
 		}
 
+		public DateTime RoundedMaxDateTime => Scale.PeriodEnd(MaxDateTime ?? DateTime.Now);
+
+		public DateTime RoundedMinDateTime => Scale.PeriodStart(MinDateTime);
+
 		private double SelectionStartX => (Math.Min(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width;
 
 		private double SelectionEndX => ((Math.Max(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width) + Options.Bar.Width;
 
-		public async Task SetScale(TimelineScales scale, bool forceRefresh = false, DateTime? centerOn = null)
+		public async Task SetScale(TimelineScale scale, bool forceRefresh = false, DateTime? centerOn = null)
 		{
 			if (scale != _previousScale || forceRefresh)
 			{
-				var previousCenter = MinDateTime.PeriodStart(_previousScale).AddPeriods(_previousScale, _columnOffset + (_viewportColumns / 2));
+				var previousCenter = _previousScale.AddPeriods(_previousScale.PeriodStart(MinDateTime), _columnOffset + (_viewportColumns / 2));
 				var scaleChanged = scale != _previousScale;
 				var refreshData = (scaleChanged) || !Options.General.FetchAll;
 				_previousScale = scale;
@@ -589,24 +650,7 @@ namespace PanoramicData.Blazor
 					Scale = scale;
 				}
 				// calculate total number of columns for scale
-				//var start = MinDateTime.Date.PeriodStart(Scale);
-				//var end = (MaxDateTime?.Date ?? DateTime.Now.Date).PeriodEnd(Scale);
-				var start = MinDateTime.PeriodStart(Scale);
-				var end = (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale);
-				var temp = Scale switch
-				{
-					TimelineScales.Minutes => end.Subtract(start).TotalMinutes,
-					TimelineScales.Hours => end.Subtract(start).TotalHours,
-					TimelineScales.Hours4 => end.Subtract(start).TotalHours / 4,
-					TimelineScales.Hours6 => end.Subtract(start).TotalHours / 6,
-					TimelineScales.Hours8 => end.Subtract(start).TotalHours / 8,
-					TimelineScales.Hours12 => end.Subtract(start).TotalHours / 12,
-					TimelineScales.Weeks => end.Subtract(start).TotalDays / 7,
-					TimelineScales.Months => end.TotalMonthsSince(start),
-					TimelineScales.Years => end.TotalYearsSince(start),
-					_ => end.Subtract(start).TotalDays
-				};
-				_totalColumns = (int)Math.Ceiling(temp);
+				_totalColumns = Scale.PeriodsBetween(Scale.PeriodStart(MinDateTime), Scale.PeriodEnd(MaxDateTime ?? DateTime.Now));
 				// calculate visible columns
 				if (_canvasWidth > 0)
 				{
@@ -633,56 +677,28 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void CenterOn(DateTime dateTime)
-		{
-			if(dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
-			{
-				var totalSeconds = (MaxDateTime ?? DateTime.Now).Subtract(MinDateTime).TotalSeconds;
-				dateTime = MinDateTime.AddSeconds(totalSeconds / 2);
-			}
-			var maxDate = (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale);
-
-
-			var maxOffset = maxDate.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - _viewportColumns;
-			if(maxOffset <= 0)
-			{
-				_columnOffset = 0;
-			}
-			else
-			{
-				// validate
-				var newOffset = dateTime.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - (_viewportColumns / 2);
-				if (newOffset >= 0 && newOffset <= maxOffset)
-				{
-					Console.WriteLine($"Old Offset = {_columnOffset}, New Offset = {newOffset}, TotalColumns = {_totalColumns}");
-					_columnOffset = newOffset;
-				}
-			}
-
-			// update pan handle x
-			_panHandleX = (_columnOffset / (double)_totalColumns) * (double)_canvasWidth;
-		}
-
 		public async Task SetSelection(DateTime start, DateTime end)
 		{
 			// calculate start index
-			if (start < MinDateTime)
+			if (start < RoundedMinDateTime)
 			{
-				start = MinDateTime.PeriodStart(Scale);
+				start = RoundedMaxDateTime;
 			}
-			var startIndex = start.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale);
-			if(startIndex < 0)
+			//var startIndex = start.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale);
+			var startIndex = Scale.PeriodsBetween(RoundedMinDateTime, start);
+			if (startIndex < 0)
 			{
 				startIndex = 0;
 			}
 
 			// calculate end index
-			if (end > (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale))
+			if (end > RoundedMaxDateTime)
 			{
-				end = (MaxDateTime ?? DateTime.Now).PeriodEnd(Scale);
+				end = RoundedMaxDateTime;
 			}
-			var endIndex = end.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - 1;
-			if(endIndex >= _totalColumns)
+			//var endIndex = end.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - 1;
+			var endIndex = Scale.PeriodsBetween(RoundedMinDateTime, end) - 1;
+			if (endIndex >= _totalColumns)
 			{
 				endIndex = _totalColumns - 1;
 			}
@@ -703,11 +719,11 @@ namespace PanoramicData.Blazor
 			{
 				// calculate time period and sort into chronological order
 				var startTime = startIndex <= endIndex
-					? MinDateTime.AddPeriods(Scale, startIndex).PeriodStart(Scale)
-					: MinDateTime.AddPeriods(Scale, startIndex).PeriodEnd(Scale);
+					? Scale.AddPeriods(RoundedMinDateTime, startIndex)
+					: Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, startIndex));
 				var endTime = startIndex <= endIndex
-					? MinDateTime.AddPeriods(Scale, endIndex).PeriodEnd(Scale)
-					: MinDateTime.AddPeriods(Scale, endIndex).PeriodStart(Scale);
+					? Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, endIndex))
+					: Scale.PeriodStart(Scale.AddPeriods(RoundedMinDateTime, endIndex));
 				if (startTime > endTime)
 				{
 					var tmp = startTime;
@@ -721,18 +737,18 @@ namespace PanoramicData.Blazor
 					if (DisableAfter != DateTime.MinValue && (endTime > DisableAfter))
 					{
 						endTime = DisableAfter;
-						_selectionEndIndex = endTime.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - 1;
+						_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, endTime) - 1;
 					}
 					if (DisableBefore != DateTime.MinValue && (startTime < DisableBefore))
 					{
 						startTime = DisableBefore;
 						if (_isChartDragging)
 						{
-							_selectionEndIndex = startTime.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale);
+							_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, startTime);
 						}
 						else
 						{
-							_selectionStartIndex = startTime.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale);
+							_selectionStartIndex = Scale.PeriodsBetween(RoundedMinDateTime, startTime);
 						}
 					}
 				}
@@ -748,10 +764,18 @@ namespace PanoramicData.Blazor
 			await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
 		}
 
-		public void Dispose()
+		public async Task ZoomToEndAsync()
 		{
-			JSRuntime.InvokeVoidAsync("panoramicData.timeline.term", Id);
+			if(_canvasWidth > 0)
+			{
+				// 1 - determine zoom level that will >= canvas width
+
+
+				// 2 - pan to end
+			}
+			await Task.Delay(1).ConfigureAwait(true);
 		}
+
 
 		public static class Utilities
 		{

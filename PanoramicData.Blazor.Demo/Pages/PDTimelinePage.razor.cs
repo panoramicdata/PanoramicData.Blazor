@@ -25,6 +25,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 				Width = 20,
 				Padding = 2
 			},
+			General = new TimelineGeneralOptions
+			{
+				DateFormat = "yyyy-MM-dd"
+			},
 			Series = new[]
 			{
 				new TimelineSeries
@@ -85,7 +89,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 		}
 
-		private void OnScaleChanged(TimelineScales scale)
+		private void OnScaleChanged(TimelineScale scale)
 		{
 			_model.Scale = scale;
 		}
@@ -113,7 +117,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			// generate new data
 			_data.Clear();
-			GenerateData(2020, 2020, 10);
+			GenerateData(2005, 2020, 10);
 
 			// update component parameters
 			_minDate = _data.Min(x => x.DateChanged).Date;
@@ -122,14 +126,14 @@ namespace PanoramicData.Blazor.Demo.Pages
 			await _timeline.RefreshAsync().ConfigureAwait(true);
 		}
 
-		private async ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScales scale, CancellationToken cancellationToken)
+		private async ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScale scale, CancellationToken cancellationToken)
 		{
 			// aggregate according to zoom / scale
 			try
 			{
 				var points = new List<DataPoint>();
 				var groups = _data.Where(x => x.DateChanged >= start && x.DateChanged <= end)
-								  .GroupBy(x => x.DateChanged.PeriodStart(scale))
+								  .GroupBy(x => scale.PeriodStart(x.DateChanged))
 								  .OrderBy(x => x.Key);
 				foreach (var group in groups)
 				{
@@ -176,6 +180,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 			_minDate = _data.Min(x => x.DateChanged).Date;
 		}
 
+		private void OnZoomToEnd()
+		{
+			_timeline.ZoomToEndAsync();
+		}
+
 	}
 
 	public class ConfigChange
@@ -193,6 +202,6 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		public DateTime DisableBefore { get; set; }
 
-		public TimelineScales Scale { get; set; } = TimelineScales.Months;
+		public TimelineScale Scale { get; set; } = TimelineScale.Years;
 	}
 }

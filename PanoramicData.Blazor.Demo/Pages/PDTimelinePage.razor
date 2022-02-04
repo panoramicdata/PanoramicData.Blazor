@@ -18,18 +18,14 @@
 				<div class="mr-2">
 					<span>Scale / Zoom</span>
 					<InputSelect class="form-control form-control-sm ms-1"
-									TValue="TimelineScales"
-									@bind-Value="_model.Scale">
-						<option value="@TimelineScales.Minutes">1 Minute</option>
-						<option value="@TimelineScales.Hours">1 Hour</option>
-						<option value="@TimelineScales.Hours4">4 Hours</option>
-						<option value="@TimelineScales.Hours6">6 Hours</option>
-						<option value="@TimelineScales.Hours8">8 Hours</option>
-						<option value="@TimelineScales.Hours12">12 Hours</option>
-						<option value="@TimelineScales.Days">1 Day</option>
-						<option value="@TimelineScales.Weeks">1 Week</option>
-						<option value="@TimelineScales.Months">1 Month</option>
-						<option value="@TimelineScales.Years">1 Year</option>
+									TValue="string"
+									Value="@_model.Scale.Name"
+									ValueChanged="@((v) => _model.Scale = _timelineOptions.General.Scales.First(x => x.Name == v))"
+									ValueExpression="() => _model.Scale.Name">
+						@foreach(var scale in _timelineOptions.General.Scales)
+						{
+							<option value="@scale.Name">@scale.Name</option>
+						}
 					</InputSelect>
 				</div>
 
@@ -56,6 +52,11 @@
 				CssClass="btn-secondary ml-2"
 				Size="ButtonSizes.Small"
 				Text="Clear Data" />
+
+			<PDButton Click="OnZoomToEnd"
+				CssClass="btn-secondary ml-2"
+				Size="ButtonSizes.Small"
+				Text="Zoom End" />
 
 			 <div class="form-check ml-2">
 				<input type="checkbox" class="form-check-input" id="moreDataCheck" checked="@_moreDataAvailable"
