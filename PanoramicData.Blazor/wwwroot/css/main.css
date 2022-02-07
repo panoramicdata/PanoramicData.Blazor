@@ -450,6 +450,7 @@
 .pd-timeline {
   border: 1px solid silver;
   display: inline-grid;
+  font-family: "Courier, inherit";
   overflow-x: auto;
   user-select: none;
   width: 100%;
@@ -487,6 +488,10 @@
 }
 .tl-x-axis text {
   user-select: none;
+}
+
+.tl-x-axis .minor-tick {
+  font-size: 8px;
 }
 
 svg .rotate {

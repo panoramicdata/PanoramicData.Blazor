@@ -33,9 +33,16 @@ namespace PanoramicData.Blazor.Models
 
 		public TimelineScale[] Scales { get; set; } = new[]
 		{
-			TimelineScale.Years,
+			TimelineScale.Minutes,
+			TimelineScale.Hours4,
+			TimelineScale.Hours6,
+			TimelineScale.Hours8,
+			TimelineScale.Hours12,
+			TimelineScale.Hours,
+			TimelineScale.Days,
+			TimelineScale.Weeks,
 			TimelineScale.Months,
-			TimelineScale.Days
+			TimelineScale.Years
 		};
 	}
 
@@ -76,8 +83,8 @@ namespace PanoramicData.Blazor.Models
 	public class TimelineXAxisOptions
 	{
 		public string Colour { get; set; } = "Black";
-		public string MajorTickColour { get; set; } = "Black";
-		public string MinorTickColour { get; set; } = "Silver";
+		public string MajorTickColour { get; set; } = "#3e3e3e";
+		public string MinorTickColour { get; set; } = "#838383";
 
 	}
 

@@ -18,6 +18,10 @@ namespace PanoramicData.Blazor.Models
 			UnitCount = unitCount;
 		}
 
+		public virtual CalendarWeekRule CalendarWeekRule { get; set; } = CalendarWeekRule.FirstDay;
+
+		public virtual DayOfWeek CalendarDayOfWeek { get; set; } = DayOfWeek.Sunday;
+
 		public string Name { get; private set; }
 
 		public TimelineUnits UnitType { get; private set; }
@@ -43,6 +47,32 @@ namespace PanoramicData.Blazor.Models
 			};
 		}
 
+		public virtual string FormatPattern => UnitType switch
+		{
+			TimelineUnits.Years => "yyyy",
+			TimelineUnits.Months => "MMM yyyy",
+			TimelineUnits.Weeks => "dd/MM/yy",
+			TimelineUnits.Days => "dd/MM/yy",
+			TimelineUnits.Hours => "dd/MM/yy HH:00",
+			TimelineUnits.Minutes => "dd/MM/yy HH:mm",
+			_ => "dd/MM/yy"
+		};
+
+		public virtual bool IsMajorTick(DateTime dateTime)
+		{
+			return UnitType switch
+			{
+				TimelineUnits.Years => dateTime.Year % 2 == 0,
+				TimelineUnits.Months => dateTime.Month == 1,
+				TimelineUnits.Weeks => dateTime.Month == 1 && dateTime.Day <= 7,
+				TimelineUnits.Days => dateTime.Day == 1,
+				TimelineUnits.Hours => UnitCount < 12 ? dateTime.Hour == 0 : dateTime.Hour == 0 && (dateTime.DayOfYear) % 2 == 0,
+				TimelineUnits.Minutes => dateTime.Minute == 0,
+				TimelineUnits.Milliseconds => dateTime.Second == 0,
+				_ => false
+			};
+		}
+
 		public int PeriodsBetween(DateTime start, DateTime end)
 		{
 			var temp = UnitType switch
@@ -59,59 +89,96 @@ namespace PanoramicData.Blazor.Models
 			return (int)Math.Ceiling(temp);
 		}
 
-		public DateTime PeriodEnd(DateTime pointInTime)
+		public DateTime PeriodEnd(DateTime dateTime)
 		{
 			return UnitType switch
 			{
-				TimelineUnits.Milliseconds => _calendar.AddMilliseconds(PeriodStart(pointInTime), UnitCount),
-				TimelineUnits.Seconds => _calendar.AddSeconds(PeriodStart(pointInTime), UnitCount),
-				TimelineUnits.Minutes => _calendar.AddMinutes(PeriodStart(pointInTime), UnitCount),
-				TimelineUnits.Hours => _calendar.AddHours(PeriodStart(pointInTime), UnitCount),
-				TimelineUnits.Days => _calendar.AddDays(PeriodStart(pointInTime), UnitCount),
-				TimelineUnits.Weeks => _calendar.AddWeeks(PeriodStart(pointInTime), UnitCount),
-				TimelineUnits.Months => _calendar.AddMonths(PeriodStart(pointInTime), UnitCount),
-				_ => _calendar.AddYears(PeriodStart(pointInTime), UnitCount),
+				TimelineUnits.Milliseconds => _calendar.AddMilliseconds(PeriodStart(dateTime), UnitCount),
+				TimelineUnits.Seconds => _calendar.AddSeconds(PeriodStart(dateTime), UnitCount),
+				TimelineUnits.Minutes => _calendar.AddMinutes(PeriodStart(dateTime), UnitCount),
+				TimelineUnits.Hours => _calendar.AddHours(PeriodStart(dateTime), UnitCount),
+				TimelineUnits.Days => _calendar.AddDays(PeriodStart(dateTime), UnitCount),
+				TimelineUnits.Weeks => _calendar.AddWeeks(PeriodStart(dateTime), UnitCount),
+				TimelineUnits.Months => _calendar.AddMonths(PeriodStart(dateTime), UnitCount),
+				_ => _calendar.AddYears(PeriodStart(dateTime), UnitCount),
 			};
 		}
 
-		public DateTime PeriodStart(DateTime pointInTime)
+		public DateTime PeriodStart(DateTime dateTime)
 		{
 			return UnitType switch
 			{
-				TimelineUnits.Milliseconds => new DateTime(pointInTime.Year,
-												pointInTime.Month,
-												pointInTime.Day,
-												pointInTime.Hour,
-												pointInTime.Minute,
-												pointInTime.Second,
-												Round((int)_calendar.GetMilliseconds(pointInTime))),
-				TimelineUnits.Seconds => new DateTime(pointInTime.Year,
-												pointInTime.Month,
-												pointInTime.Day,
-												pointInTime.Hour,
-												pointInTime.Minute,
-												Round(_calendar.GetSecond(pointInTime))),
-				TimelineUnits.Minutes => new DateTime(pointInTime.Year,
-												pointInTime.Month,
-												pointInTime.Day,
-												pointInTime.Hour,
-												Round(_calendar.GetMinute(pointInTime)), 0),
-				TimelineUnits.Hours => new DateTime(pointInTime.Year,
-												pointInTime.Month,
-												pointInTime.Day,
-												Round(_calendar.GetHour(pointInTime)), 0, 0),
-				TimelineUnits.Days => new DateTime(pointInTime.Year,
-												pointInTime.Month,
-												Round(_calendar.GetDayOfMonth(pointInTime))),
-				TimelineUnits.Weeks => _calendar.AddWeeks(new DateTime(pointInTime.Year, 1, 1), Round(_calendar.GetWeekOfYear(pointInTime, CalendarWeekRule.FirstDay, DayOfWeek.Sunday))),
-				TimelineUnits.Months => new DateTime(pointInTime.Year, Round(_calendar.GetMonth(pointInTime)), 1),
-				_ => new DateTime(Round(_calendar.GetYear(pointInTime)), 1, 1),
+				TimelineUnits.Milliseconds => new DateTime(dateTime.Year,
+												dateTime.Month,
+												dateTime.Day,
+												dateTime.Hour,
+												dateTime.Minute,
+												dateTime.Second,
+												Round((int)_calendar.GetMilliseconds(dateTime))),
+				TimelineUnits.Seconds => new DateTime(dateTime.Year,
+												dateTime.Month,
+												dateTime.Day,
+												dateTime.Hour,
+												dateTime.Minute,
+												Round(_calendar.GetSecond(dateTime))),
+				TimelineUnits.Minutes => new DateTime(dateTime.Year,
+												dateTime.Month,
+												dateTime.Day,
+												dateTime.Hour,
+												Round(_calendar.GetMinute(dateTime)), 0),
+				TimelineUnits.Hours => new DateTime(dateTime.Year,
+												dateTime.Month,
+												dateTime.Day,
+												Round(_calendar.GetHour(dateTime)), 0, 0),
+				TimelineUnits.Days => new DateTime(dateTime.Year,
+												dateTime.Month,
+												Round(_calendar.GetDayOfMonth(dateTime))),
+				TimelineUnits.Weeks => _calendar.AddWeeks(new DateTime(dateTime.Year, 1, 1), Round(_calendar.GetWeekOfYear(dateTime, CalendarWeekRule, CalendarDayOfWeek))),
+				TimelineUnits.Months => new DateTime(dateTime.Year, Round(_calendar.GetMonth(dateTime)), 1),
+				_ => new DateTime(Round(_calendar.GetYear(dateTime)), 1, 1),
 			};
 		}
 
 		private int Round(int value)
 		{
 			return UnitCount == 1 ? value : (value / UnitCount) * UnitCount;
+		}
+
+		public virtual string TickLabelMajor(DateTime dateTime, string dateFormat = "d")
+		{
+			var pattern = UnitType switch
+			{
+				TimelineUnits.Milliseconds => $"{dateFormat} HH:mm:ss",
+				TimelineUnits.Seconds => $"{dateFormat} HH:mm:ss",
+				TimelineUnits.Minutes => $"{dateFormat} HH:00",
+				TimelineUnits.Hours => dateFormat,
+				TimelineUnits.Days => $"yyyy-MM",
+				TimelineUnits.Weeks => "yyyy",
+				TimelineUnits.Months => "yyyy",
+				TimelineUnits.Years => "yyyy",
+				_ => ""
+			};
+			return dateTime.ToString(pattern);
+		}
+
+		public virtual string TickLabelMinor(DateTime dateTime)
+		{
+			var pattern = UnitType switch
+			{
+				TimelineUnits.Milliseconds => "fff",
+				TimelineUnits.Seconds => "ss",
+				TimelineUnits.Minutes => "mm",
+				TimelineUnits.Hours => "HH",
+				TimelineUnits.Days => "dd",
+				TimelineUnits.Months => "MM",
+				_ => "yy"
+			};
+			if (UnitType == TimelineUnits.Weeks)
+			{
+				var woy = _calendar.GetWeekOfYear(dateTime, CalendarWeekRule, CalendarDayOfWeek);
+				return woy.ToString("00");
+			}
+			return dateTime.ToString(pattern);
 		}
 
 		public override string ToString()

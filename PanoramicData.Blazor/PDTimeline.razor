@@ -34,7 +34,7 @@
 			{
 				for (var i = 0; i < points.Length; i++)
 				{
-					<PDStackedBar DateFormat="@GetTitleDateFormat(Scale)"
+					<PDStackedBar DateFormat="@Scale.FormatPattern"
 								  DataPoint="points[i]"
 								  IsEnabled="IsPointEnabled(points[i])"
 								  MaxValue="@(Options.YAxis.MaxValue ?? (maxYValue == 0 ? 100 : maxYValue))"
@@ -127,49 +127,52 @@
 	<svg class="tl-x-axis" preserveAspectRatio="none">
 		@if (MinDateTime != DateTime.MinValue)
 		{
-			<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
-				  x2="@_canvasWidth" />
+			<line stroke="@(IsEnabled ? Options.XAxis.MajorTickColour : "DarkGray")" x2="@_canvasWidth" />
 			@* minor ticks *@
 			@for (var x = 0; x < _canvasWidth; x += Options.Bar.Width)
 			{
-				<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
-					x1="@x"
-					x2="@x"
-					y1="0"
-					y2="5" />
-			}
-			@* start major tick at first boundary day or hour *@
-			@for (var i = 0 + GetMajorMarkOffsetForViewport(); i < points.Length; i++)
-			{
-				var dt = Scale.AddPeriods(MinDateTime, _columnOffset + i);
-				if (dt > (MaxDateTime ?? DateTime.UtcNow))
+				var dt = Scale.AddPeriods(RoundedMinDateTime, _columnOffset + (x / Options.Bar.Width));
+				@if (dt < RoundedMaxDateTime)
 				{
-					break;
+					if(Scale.IsMajorTick(dt))
+					{
+						<line stroke="@(IsEnabled ? Options.XAxis.MajorTickColour : "DarkGray")"
+							x1="@x"
+							x2="@x"
+							y2="18" />
+						<text>
+							<text x="@(x + 2)"
+								y="18"
+								stroke="@(IsEnabled ? Options.XAxis.MajorTickColour : "DarkGray")">@Scale.TickLabelMajor(dt, Options.General.DateFormat)
+							</text>
+						</text>
+					}
+					else
+					{
+						<line stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")"
+							x1="@x"
+							x2="@x"
+							y1="0"
+							y2="5" />
+					}
+					@* minor tick label *@
+					<text>
+						<text class="minor-tick"
+							x="@(x + 4)"
+							y="8"
+							stroke="@(IsEnabled ? Options.XAxis.MinorTickColour : "Silver")">@Scale.TickLabelMinor(dt)
+						</text>
+					</text>
+					@* tooltip for minor label *@
+					<rect height="20"
+						  width="@Options.Bar.Width"
+						  stroke="transparent"
+						  fill="transparent"
+						  x="@x"
+						  y="0">
+						  <title>@(dt.ToString(Scale.FormatPattern))</title>
+					</rect>
 				}
-				var textInfo = GetTextInfo(dt);
-				<line x1="@(i * Options.Bar.Width)"
-					x2="@(i * Options.Bar.Width)"
-					y2="15"
-					stroke="@(IsEnabled ? Options.XAxis.MajorTickColour : "DarkGray")" />
-				<text>
-					<text x="@((i * Options.Bar.Width) + @textInfo.OffsetX)"
-						y="@textInfo.OffsetY"
-						stroke="@(IsEnabled ? Options.XAxis.Colour : "DarkGray")">@textInfo.Text</text>
-				</text>
-				i += textInfo.Skip;
-			}
-			@* create tooltips *@
-			@for (var x = 0; x < _canvasWidth; x += Options.Bar.Width)
-			{
-				var dt = Scale.AddPeriods(MinDateTime, _columnOffset + (x / Options.Bar.Width));
-				<rect height="20"
-					  width="@Options.Bar.Width"
-					  stroke="transparent"
-					  fill="transparent"
-					  x="@x"
-					  y="0">
-					  <title>@(dt.ToString(GetTitleDateFormat(Scale)))</title>
-				</rect>
 			}
 		}
 	</svg>
