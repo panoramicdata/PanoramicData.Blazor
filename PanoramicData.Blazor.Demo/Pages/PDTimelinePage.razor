@@ -2,6 +2,15 @@
 
 <h1>PDTimeline</h1>
 
+<style>
+	.pd-timeline-toolbar {
+		border-top: 1px solid silver;
+		border-left: 1px solid silver;
+		border-right: 1px solid silver;
+	}
+</style>
+
+
 <DemoSourceView SourceFiles="Pages/PDTimelinePage.razor, Pages/PDTimelinePage.razor.cs">
 
 	<div>
@@ -14,20 +23,6 @@
 			</div>
 
 			<EditForm class="form-inline" Model="_model">
-
-				<div class="mr-2">
-					<span>Scale / Zoom</span>
-					<InputSelect class="form-control form-control-sm ms-1"
-									TValue="string"
-									Value="@_model.Scale.Name"
-									ValueChanged="@((v) => _model.Scale = _timelineOptions.General.Scales.First(x => x.Name == v))"
-									ValueExpression="() => _model.Scale.Name">
-						@foreach(var scale in _timelineOptions.General.Scales)
-						{
-							<option value="@scale.Name">@scale.Name</option>
-						}
-					</InputSelect>
-				</div>
 
 				<div class="mr-2">
 					<span>Disable Before</span>
@@ -58,6 +53,11 @@
 				Size="ButtonSizes.Small"
 				Text="Zoom End" />
 
+@*			<PDButton Click="OnZoomTo24h"
+				CssClass="btn-secondary ml-2"
+				Size="ButtonSizes.Small"
+				Text="Zoom 24H" />
+*@
 			 <div class="form-check ml-2">
 				<input type="checkbox" class="form-check-input" id="moreDataCheck" checked="@_moreDataAvailable"
 				@oninput="(a) => _moreDataAvailable = Convert.ToBoolean(a.Value)">
@@ -66,6 +66,7 @@
 
 		</div>
 
+		<PDTimelineToolbar Timeline="_timeline" />
 		<PDTimeline @ref="_timeline"
 					DataProvider="GetTimelineData"
 					DisableAfter="_model.DisableAfter"

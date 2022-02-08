@@ -7,9 +7,23 @@
 	width: 100%;
 }
 
-.pd-timeline svg.disabled {
+.pd-timeline.disabled {
 	background-color: #d3d3d3;
 	filter: grayscale(1);
+}
+
+.pd-timeline-toolbar {
+	align-items: center;
+	display: flex;
+	font-size: 0.9rem;
+	justify-content: space-between;
+	user-select: none;
+	width: 100%;
+
+	.scale-label {
+		min-width: 60px;
+		text-align: center;
+	}
 }
 
 .tl-ind-l, .tl-ind-r {

@@ -105,31 +105,46 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public EventCallback UpdateMinDate { get; set; }
 
-		private void CenterOn(DateTime dateTime)
+		public bool CanZoomIn()
 		{
-			if (dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
+			if (IsEnabled)
 			{
-				var totalSeconds = (MaxDateTime ?? DateTime.Now).Subtract(MinDateTime).TotalSeconds;
-				dateTime = MinDateTime.AddSeconds(totalSeconds / 2);
-			}
-			var maxOffset = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime) - _viewportColumns;
-			if (maxOffset <= 0)
-			{
-				_columnOffset = 0;
-			}
-			else
-			{
-				// validate
-				var newOffset = Scale.PeriodsBetween(RoundedMinDateTime, dateTime) - (_viewportColumns / 2);
-				if (newOffset >= 0 && newOffset <= maxOffset)
+				var scale = Options.General.Scales.FirstOrDefault(x => x.Name == Scale.Name);
+				if (scale != null)
 				{
-					Console.WriteLine($"Old Offset = {_columnOffset}, New Offset = {newOffset}, TotalColumns = {_totalColumns}");
-					_columnOffset = newOffset;
+					var idx = Options.General.Scales.ToList().IndexOf(scale);
+					if (idx > 0)
+					{
+						return true;
+					}
 				}
 			}
+			return false;
+		}
 
-			// update pan handle x
-			_panHandleX = (_columnOffset / (double)_totalColumns) * (double)_canvasWidth;
+		public bool CanZoomOut()
+		{
+			if (IsEnabled)
+			{
+				var scale = Options.General.Scales.FirstOrDefault(x => x.Name == Scale.Name);
+				if (scale != null)
+				{
+					var idx = Options.General.Scales.ToList().IndexOf(scale);
+					if (idx < Options.General.Scales.Length - 1)
+					{
+						if (!Options.General.RestrictZoomOut)
+						{
+							return true;
+						}
+						// calculate total number of columns for new scale
+						var newScale = Options.General.Scales[idx + 1];
+						var totalColumns = newScale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime);
+						var viewportColumns = _canvasWidth > 0 ? (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width) : 0;
+						return viewportColumns > 0 && viewportColumns <= totalColumns;
+					}
+				}
+			}
+			return false;
 		}
 
 		public void Clear()
@@ -151,6 +166,29 @@ namespace PanoramicData.Blazor
 		{
 			var index =  _columnOffset + (int)Math.Floor((clientX - _canvasX) / Options.Bar.Width);
 			return index< 0 ? 0 : index;
+		}
+
+		public TimelineScale? GetScaleToFit(DateTime? date1 = null, DateTime? date2 = null)
+		{
+			if(date1 is null)
+			{
+				date1 = RoundedMinDateTime;
+			}
+			if (date2 is null)
+			{
+				date2 = RoundedMaxDateTime;
+			}
+			var viewportColumns = _canvasWidth > 0 ? (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width) : 0;
+			for (var i = Options.General.Scales.Length - 1; i >= 0; i--)
+			{
+				var newScale = Options.General.Scales[i];
+				var totalColumns = newScale.PeriodsBetween(date1.Value, date2.Value);
+				if (totalColumns >= viewportColumns)
+				{
+					return newScale;
+				}
+			}
+			return null;
 		}
 
 		public TimeRange? GetSelection()
@@ -435,6 +473,41 @@ namespace PanoramicData.Blazor
 			_isSelectionStartDragging = false;
 		}
 
+		private void PanTo(DateTime dateTime, TimelinePositions position = TimelinePositions.Center)
+		{
+			if (dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
+			{
+				//var totalSeconds = (MaxDateTime ?? DateTime.Now).Subtract(MinDateTime).TotalSeconds;
+				//dateTime = MinDateTime.AddSeconds(totalSeconds / 2);
+				dateTime = MaxDateTime ?? DateTime.Now;
+			}
+			var maxOffset = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime) - _viewportColumns;
+			if (maxOffset <= 0)
+			{
+				_columnOffset = 0;
+			}
+			else
+			{
+				var newOffset = 0;
+				if (position == TimelinePositions.Center)
+				{
+					newOffset = Scale.PeriodsBetween(RoundedMinDateTime, dateTime) - (_viewportColumns / 2);
+				}
+				else if (position == TimelinePositions.End)
+				{
+					newOffset = Scale.PeriodsBetween(RoundedMinDateTime, Scale.PeriodStart(dateTime)) - _viewportColumns;
+				}
+				if (newOffset >= 0 && newOffset <= maxOffset)
+				{
+					//Console.WriteLine($"Old Offset = {_columnOffset}, New Offset = {newOffset}, TotalColumns = {_totalColumns}");
+					_columnOffset = newOffset;
+				}
+			}
+
+			// update pan handle x
+			_panHandleX = (_columnOffset / (double)_totalColumns) * (double)_canvasWidth;
+		}
+
 		public async Task RefreshAsync()
 		{
 			if (DataProvider != null && MinDateTime != DateTime.MinValue)
@@ -481,27 +554,47 @@ namespace PanoramicData.Blazor
 
 		private double SelectionEndX => ((Math.Max(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width) + Options.Bar.Width;
 
-		public async Task SetScale(TimelineScale scale, bool forceRefresh = false, DateTime? centerOn = null)
+		public async Task SetScale(TimelineScale scale, bool forceRefresh = false, DateTime? dateTime = null, TimelinePositions reposition = TimelinePositions.Center)
 		{
 			if (scale != _previousScale || forceRefresh)
 			{
 				var previousCenter = _previousScale.AddPeriods(_previousScale.PeriodStart(MinDateTime), _columnOffset + (_viewportColumns / 2));
 				var scaleChanged = scale != _previousScale;
-				var refreshData = (scaleChanged) || !Options.General.FetchAll;
+				var previousScale = _previousScale;
+
+				// should we restrict zoom out?
+				var restrict = scaleChanged && Options.General.RestrictZoomOut
+					&& (scale.UnitType > _previousScale.UnitType || scale.UnitType == _previousScale.UnitType && scale.UnitCount > _previousScale.UnitCount);
+
+				// change scale
 				_previousScale = scale;
-				await ScaleChanged.InvokeAsync(scale).ConfigureAwait(true);
+				Scale = scale;
+
+				// calculate total number of columns for new scale
+				_totalColumns = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime);
+				_viewportColumns = _canvasWidth > 0 ? (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width) : 0;
+
+				if (restrict)
+				{
+					// do not allow user to zoom out past full window of data
+					if (_viewportColumns == 0 || _totalColumns < _viewportColumns)
+					{
+						Scale = _previousScale = previousScale;
+						return;
+					}
+				}
+
+				// clear display if scale has changed
 				if (scaleChanged)
 				{
+					await ScaleChanged.InvokeAsync(Scale).ConfigureAwait(true);
 					_dataPoints.Clear();
-					Scale = scale;
 				}
-				// calculate total number of columns for scale
-				_totalColumns = Scale.PeriodsBetween(Scale.PeriodStart(MinDateTime), Scale.PeriodEnd(MaxDateTime ?? DateTime.Now));
+
 				// calculate visible columns
 				if (_canvasWidth > 0)
 				{
-					_viewportColumns = (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width);
-					// calculate pan handle width - min 5 px
+					// calculate pan handle width
 					_panHandleWidth = Math.Min(((double)_viewportColumns / (double)(_totalColumns + 1)) * _canvasWidth, _canvasWidth);
 					if (_canvasWidth > 0 && (_panHandleX + _panHandleWidth > _canvasWidth))
 					{
@@ -514,10 +607,13 @@ namespace PanoramicData.Blazor
 				{
 					await SetSelection(_selectionRange.StartTime, _selectionRange.EndTime).ConfigureAwait(true);
 				}
+
 				// re-position viewport?
-				CenterOn(centerOn ?? previousCenter);
+				PanTo(dateTime ?? previousCenter, reposition);
+
 				// refresh data for new scale?
 				await RefreshAsync().ConfigureAwait(true);
+
 				// mark state as changed
 				StateHasChanged();
 			}
@@ -610,18 +706,68 @@ namespace PanoramicData.Blazor
 			await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
 		}
 
+		public async Task ZoomInAsync()
+		{
+			var scale = Options.General.Scales.FirstOrDefault(x => x.Name == Scale.Name);
+			if (scale != null)
+			{
+				var idx = Options.General.Scales.ToList().IndexOf(scale);
+				if (idx > 0)
+				{
+					await SetScale(Options.General.Scales[idx - 1]);
+				}
+			}
+		}
+
+		public async Task ZoomOutAsync()
+		{
+			var scale = Options.General.Scales.FirstOrDefault(x => x.Name == Scale.Name);
+			if (scale != null)
+			{
+				var idx = Options.General.Scales.ToList().IndexOf(scale);
+				if (idx < Options.General.Scales.Length - 1)
+				{
+					await SetScale(Options.General.Scales[idx + 1]);
+				}
+			}
+		}
+
+		public async Task ZoomToAsync(DateTime date1, DateTime date2, TimelinePositions position = TimelinePositions.Center)
+		{
+			if (_canvasWidth > 0)
+			{
+				var scale = GetScaleToFit(date1, date2);
+				if (scale != null)
+				{
+					await SetScale(scale, true, date2, position).ConfigureAwait(true);
+				}
+			}
+		}
+
+
 		public async Task ZoomToEndAsync()
 		{
 			if(_canvasWidth > 0)
 			{
-				// 1 - determine zoom level that will >= canvas width
-
-
-				// 2 - pan to end
+				var scale = GetScaleToFit();
+				if(scale != null)
+				{
+					await SetScale(scale, true, RoundedMaxDateTime, TimelinePositions.End).ConfigureAwait(true);
+				}
 			}
-			await Task.Delay(1).ConfigureAwait(true);
 		}
 
+		public async Task ZoomToStartAsync()
+		{
+			if (_canvasWidth > 0)
+			{
+				var scale = GetScaleToFit();
+				if (scale != null)
+				{
+					await SetScale(scale, true, MinDateTime, TimelinePositions.Start).ConfigureAwait(true);
+				}
+			}
+		}
 
 		public static class Utilities
 		{

@@ -31,6 +31,8 @@ namespace PanoramicData.Blazor.Models
 
 		public bool FetchAll { get; set; }
 
+		public bool RestrictZoomOut { get; set; }
+
 		public TimelineScale[] Scales { get; set; } = new[]
 		{
 			TimelineScale.Minutes,

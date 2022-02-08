@@ -27,7 +27,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 			},
 			General = new TimelineGeneralOptions
 			{
-				DateFormat = "yyyy-MM-dd"
+				DateFormat = "yyyy-MM-dd",
+				RestrictZoomOut = true
 			},
 			Series = new[]
 			{
@@ -120,7 +121,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			GenerateData(2005, 2020, 10);
 
 			// update component parameters
-			_minDate = _data.Min(x => x.DateChanged).Date;
+			_minDate = _data.Min(x => x.DateChanged);
 			_maxDate = _data.Max(x => x.DateChanged);
 
 			await _timeline.RefreshAsync().ConfigureAwait(true);
@@ -180,11 +181,15 @@ namespace PanoramicData.Blazor.Demo.Pages
 			_minDate = _data.Min(x => x.DateChanged).Date;
 		}
 
-		private void OnZoomToEnd()
+		private async Task OnZoomToEnd()
 		{
-			_timeline.ZoomToEndAsync();
+			await _timeline.ZoomToEndAsync().ConfigureAwait(true);
 		}
 
+		private async Task OnZoomTo24h()
+		{
+			await _timeline.ZoomToAsync(DateTime.Now.AddHours(-24), DateTime.Now, TimelinePositions.End).ConfigureAwait(true);
+		}
 	}
 
 	public class ConfigChange

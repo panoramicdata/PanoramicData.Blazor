@@ -47,16 +47,17 @@ namespace PanoramicData.Blazor.Models
 			};
 		}
 
-		public virtual string FormatPattern => UnitType switch
+		public virtual string FormatPattern(string dateFormat = "d")
 		{
-			TimelineUnits.Years => "yyyy",
-			TimelineUnits.Months => "MMM yyyy",
-			TimelineUnits.Weeks => "dd/MM/yy",
-			TimelineUnits.Days => "dd/MM/yy",
-			TimelineUnits.Hours => "dd/MM/yy HH:00",
-			TimelineUnits.Minutes => "dd/MM/yy HH:mm",
-			_ => "dd/MM/yy"
-		};
+			return UnitType switch
+			{
+				TimelineUnits.Years => "yyyy",
+				TimelineUnits.Months => "MMM yyyy",
+				TimelineUnits.Hours => $"{dateFormat} HH:00",
+				TimelineUnits.Minutes => $"{dateFormat} HH:mm",
+				_ => dateFormat
+			};
+		}
 
 		public virtual bool IsMajorTick(DateTime dateTime)
 		{
@@ -188,16 +189,16 @@ namespace PanoramicData.Blazor.Models
 
 		#region Class Members
 
-		public static TimelineScale Years => new TimelineScale("1 Year", TimelineUnits.Years, 1);
-		public static TimelineScale Months => new TimelineScale("1 Month", TimelineUnits.Months, 1);
-		public static TimelineScale Weeks => new TimelineScale("1 Week", TimelineUnits.Weeks, 1);
-		public static TimelineScale Days => new TimelineScale("1 Day", TimelineUnits.Days, 1);
-		public static TimelineScale Hours => new TimelineScale("1 Hour", TimelineUnits.Hours, 1);
+		public static TimelineScale Years => new TimelineScale("Years", TimelineUnits.Years, 1);
+		public static TimelineScale Months => new TimelineScale("Months", TimelineUnits.Months, 1);
+		public static TimelineScale Weeks => new TimelineScale("Weeks", TimelineUnits.Weeks, 1);
+		public static TimelineScale Days => new TimelineScale("Days", TimelineUnits.Days, 1);
+		public static TimelineScale Hours => new TimelineScale("Hours", TimelineUnits.Hours, 1);
 		public static TimelineScale Hours4 => new TimelineScale("4 Hours", TimelineUnits.Hours, 4);
 		public static TimelineScale Hours6 => new TimelineScale("6 Hours", TimelineUnits.Hours, 6);
 		public static TimelineScale Hours8 => new TimelineScale("8 Hours", TimelineUnits.Hours, 8);
 		public static TimelineScale Hours12 => new TimelineScale("12 Hours", TimelineUnits.Hours,12);
-		public static TimelineScale Minutes => new TimelineScale("1 Minute", TimelineUnits.Minutes, 1);
+		public static TimelineScale Minutes => new TimelineScale("Minutes", TimelineUnits.Minutes, 1);
 
 		#endregion
 	}

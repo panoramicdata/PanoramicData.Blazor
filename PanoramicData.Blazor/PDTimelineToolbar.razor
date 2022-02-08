@@ -1,0 +1,38 @@
+﻿<div class="pd-timeline-toolbar">
+
+    <div class="scale-bar">
+        @if(ShowZoomButtons)
+        {
+            <PDButton Click="@(() => Timeline?.ZoomInAsync())"
+                CssClass="ml-1"
+                IconCssClass="fas fa-search-plus"
+                IsEnabled="Timeline?.CanZoomIn() == true"
+                Size="ButtonSizes.Small"
+                ToolTip="Zoom In" />
+        }
+
+        @if (ShowScale)
+        {
+            <span class="scale-label">@Timeline?.Scale.Name</span>
+        }
+
+        @if(ShowZoomButtons)
+        {
+            <PDButton Click="@(() => Timeline?.ZoomOutAsync())"
+                CssClass=""
+                IconCssClass="fas fa-search-minus"
+                IsEnabled="Timeline?.CanZoomOut() == true"
+                Size="ButtonSizes.Small"
+                ToolTip="Zoom Out" />
+        }
+    </div>
+
+    @if (ShowRange && Timeline?.RoundedMinDateTime > DateTime.MinValue)
+    {
+        <div class="range-bar mr-1">
+            <span class="range-min-label">@MinDateTimeDisplay</span>
+            <span>-</span>
+            <span class="range-max-label">@MaxDateTimeDisplay</span>
+        </div>
+    }
+</div>
