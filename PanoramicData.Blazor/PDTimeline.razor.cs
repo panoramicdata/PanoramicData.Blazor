@@ -563,8 +563,8 @@ namespace PanoramicData.Blazor
 				var previousScale = _previousScale;
 
 				// should we restrict zoom out?
-				var restrict = scaleChanged && Options.General.RestrictZoomOut
-					&& (scale.UnitType > _previousScale.UnitType || scale.UnitType == _previousScale.UnitType && scale.UnitCount > _previousScale.UnitCount);
+				var restrictCheck = scaleChanged && Options.General.RestrictZoomOut
+					&& (scale.UnitType > _previousScale.UnitType || (scale.UnitType == _previousScale.UnitType && scale.UnitCount > _previousScale.UnitCount));
 
 				// change scale
 				_previousScale = scale;
@@ -574,14 +574,11 @@ namespace PanoramicData.Blazor
 				_totalColumns = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime);
 				_viewportColumns = _canvasWidth > 0 ? (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width) : 0;
 
-				if (restrict)
+				// do not allow user to zoom out past full window of data
+				if (restrictCheck && (_viewportColumns == 0 || _totalColumns < _viewportColumns))
 				{
-					// do not allow user to zoom out past full window of data
-					if (_viewportColumns == 0 || _totalColumns < _viewportColumns)
-					{
-						Scale = _previousScale = previousScale;
-						return;
-					}
+					Scale = _previousScale = previousScale;
+					return;
 				}
 
 				// clear display if scale has changed

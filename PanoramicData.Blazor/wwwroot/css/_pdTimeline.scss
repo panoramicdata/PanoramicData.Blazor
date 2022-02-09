@@ -12,6 +12,11 @@
 	filter: grayscale(1);
 }
 
+.pd-timeline svg.disabled {
+	background-color: #d3d3d3;
+	filter: grayscale(1);
+}
+
 .pd-timeline-toolbar {
 	align-items: center;
 	display: flex;

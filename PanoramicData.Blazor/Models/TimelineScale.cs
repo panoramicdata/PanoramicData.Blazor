@@ -134,7 +134,7 @@ namespace PanoramicData.Blazor.Models
 				TimelineUnits.Days => new DateTime(dateTime.Year,
 												dateTime.Month,
 												Round(_calendar.GetDayOfMonth(dateTime))),
-				TimelineUnits.Weeks => _calendar.AddWeeks(new DateTime(dateTime.Year, 1, 1), Round(_calendar.GetWeekOfYear(dateTime, CalendarWeekRule, CalendarDayOfWeek))),
+				TimelineUnits.Weeks => dateTime.Date.AddDays(-(int)dateTime.DayOfWeek),
 				TimelineUnits.Months => new DateTime(dateTime.Year, Round(_calendar.GetMonth(dateTime)), 1),
 				_ => new DateTime(Round(_calendar.GetYear(dateTime)), 1, 1),
 			};
