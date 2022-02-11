@@ -147,9 +147,10 @@ namespace PanoramicData.Blazor
 			return false;
 		}
 
-		public void Clear()
+		public async Task Clear()
 		{
 			_dataPoints.Clear();
+			await ClearSelection().ConfigureAwait(true);
 		}
 
 		public async Task ClearSelection()
@@ -253,7 +254,10 @@ namespace PanoramicData.Blazor
 				_canvasHeight = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getHeight", _svgPlotElement).ConfigureAwait(true));
 				_canvasWidth = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true));
 				_canvasX = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getX", _svgPlotElement).ConfigureAwait(true));
-				await SetScale(Scale, true);
+				if (Options.General.AutoRefresh)
+				{
+					await SetScale(Scale, true);
+				}
 			}
 		}
 
@@ -387,25 +391,28 @@ namespace PanoramicData.Blazor
 
 		protected async override Task OnParametersSetAsync()
 		{
-			if (_canvasWidth > 0)
+			if (Options.General.AutoRefresh)
 			{
-				await SetScale(Scale).ConfigureAwait(true);
-			}
+				if (_canvasWidth > 0)
+				{
+					await SetScale(Scale).ConfigureAwait(true);
+				}
 
-			// reset if earliest date changes
-			if (MinDateTime != _lastMinDateTime)
-			{
-				_lastMinDateTime = MinDateTime;
-				await Reset().ConfigureAwait(true);
-				await SetScale(Scale, true).ConfigureAwait(true);
-			}
+				// reset if earliest date changes
+				if (MinDateTime != _lastMinDateTime)
+				{
+					_lastMinDateTime = MinDateTime;
+					await Reset().ConfigureAwait(true);
+					await SetScale(Scale, true).ConfigureAwait(true);
+				}
 
-			// reset if latest date changes
-			if (MaxDateTime != _lastMaxDateTime)
-			{
-				_lastMaxDateTime = MaxDateTime;
-				await Reset().ConfigureAwait(true);
-				await SetScale(Scale, true).ConfigureAwait(true);
+				// reset if latest date changes
+				if (MaxDateTime != _lastMaxDateTime)
+				{
+					_lastMaxDateTime = MaxDateTime;
+					await Reset().ConfigureAwait(true);
+					await SetScale(Scale, true).ConfigureAwait(true);
+				}
 			}
 		}
 
@@ -553,6 +560,12 @@ namespace PanoramicData.Blazor
 		private double SelectionStartX => (Math.Min(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width;
 
 		private double SelectionEndX => ((Math.Max(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width) + Options.Bar.Width;
+
+		public void SetDates(DateTime min, DateTime max)
+		{
+			MinDateTime = min;
+			MaxDateTime = max;
+		}
 
 		public async Task SetScale(TimelineScale scale, bool forceRefresh = false, DateTime? dateTime = null, TimelinePositions reposition = TimelinePositions.Center)
 		{
@@ -746,10 +759,10 @@ namespace PanoramicData.Blazor
 		{
 			if(_canvasWidth > 0)
 			{
-				var scale = GetScaleToFit();
+				var scale = GetScaleToFit(MinDateTime, MaxDateTime ?? DateTime.Now);
 				if(scale != null)
 				{
-					await SetScale(scale, true, RoundedMaxDateTime, TimelinePositions.End).ConfigureAwait(true);
+					await SetScale(scale, true, MaxDateTime, TimelinePositions.End).ConfigureAwait(true);
 				}
 			}
 		}

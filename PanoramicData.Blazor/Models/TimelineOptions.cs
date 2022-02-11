@@ -27,6 +27,8 @@ namespace PanoramicData.Blazor.Models
 	{
 		public bool AllowDisableSelection { get; set; }
 
+		public bool AutoRefresh { get; set; } = true;
+
 		public string DateFormat { get; set; } = "dd/MM/yy";
 
 		public bool FetchAll { get; set; }
