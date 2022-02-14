@@ -291,7 +291,6 @@ namespace PanoramicData.Blazor
 			{
 				_chartDragOrigin = args.ClientX;
 				var index = GetColumnIndexAtPoint(args.ClientX);
-				Console.WriteLine($"OnChartPointerMove: {index}");
 				await SetSelection(_selectionStartIndex, index).ConfigureAwait(true);
 			}
 		}
@@ -549,7 +548,7 @@ namespace PanoramicData.Blazor
 
 		public async Task Reset()
 		{
-			Clear();
+			await Clear().ConfigureAwait(true);
 			await ClearSelection().ConfigureAwait(true);
 		}
 
@@ -612,7 +611,8 @@ namespace PanoramicData.Blazor
 					}
 					_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 				}
-				// re-calc selection in new scale
+
+				// re-calc selection in new scale?
 				if (_selectionRange != null)
 				{
 					await SetSelection(_selectionRange.StartTime, _selectionRange.EndTime).ConfigureAwait(true);
@@ -667,7 +667,7 @@ namespace PanoramicData.Blazor
 			_selectionStartIndex = startIndex;
 			_selectionEndIndex = endIndex;
 
-			if(startIndex > -1 && endIndex > -1)
+			if (startIndex > -1 && endIndex > -1)
 			{
 				// calculate time period and sort into chronological order
 				var startTime = startIndex <= endIndex
@@ -704,6 +704,7 @@ namespace PanoramicData.Blazor
 						}
 					}
 				}
+
 				_selectionRange = new TimeRange { StartTime = startTime, EndTime = endTime };
 			}
 			else

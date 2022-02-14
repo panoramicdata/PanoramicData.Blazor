@@ -21,7 +21,7 @@
 	align-items: center;
 	display: flex;
 	font-size: 0.9rem;
-	justify-content: space-between;
+	justify-content: flex-end;
 	user-select: none;
 	width: 100%;
 
@@ -29,6 +29,11 @@
 		min-width: 60px;
 		text-align: center;
 	}
+}
+
+.range-bar, .selection-bar {
+	border-left: 1px solid silver;
+	padding-left: 0.5rem;
 }
 
 .tl-ind-l, .tl-ind-r {

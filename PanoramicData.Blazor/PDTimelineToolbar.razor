@@ -27,9 +27,27 @@
         }
     </div>
 
+    @{
+        var selection = Timeline?.GetSelection();
+    }
+    @if (ShowSelection && selection?.StartTime > DateTime.MinValue)
+    {
+        <div class="selection-bar mr-2">
+            <PDButton Click="@(() => Timeline?.ZoomToAsync(selection.StartTime, selection.EndTime, TimelinePositions.End))"
+                CssClass=""
+                IconCssClass="fas fa-arrows-alt-h"
+                IsEnabled="true"
+                Size="ButtonSizes.Small"
+                ToolTip="Zoom to selection" />
+            <span class="range-min-label">@SelectionStartTimeDisplay</span>
+            <span>-</span>
+            <span class="range-max-label">@SelectionEndTimeDisplay</span>
+        </div>
+    }
+
     @if (ShowRange && Timeline?.RoundedMinDateTime > DateTime.MinValue)
     {
-        <div class="range-bar mr-1">
+        <div class="range-bar mr-2">
             <span class="range-min-label">@MinDateTimeDisplay</span>
             <span>-</span>
             <span class="range-max-label">@MaxDateTimeDisplay</span>
