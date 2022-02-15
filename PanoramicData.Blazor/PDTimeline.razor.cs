@@ -479,7 +479,7 @@ namespace PanoramicData.Blazor
 			_isSelectionStartDragging = false;
 		}
 
-		private void PanTo(DateTime dateTime, TimelinePositions position = TimelinePositions.Center)
+		public void PanTo(DateTime dateTime, TimelinePositions position = TimelinePositions.Center)
 		{
 			if (dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
 			{
