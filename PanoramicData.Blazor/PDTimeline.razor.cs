@@ -271,7 +271,7 @@ namespace PanoramicData.Blazor
 				var index = GetColumnIndexAtPoint(args.ClientX);
 				var startTime = Scale.AddPeriods(RoundedMinDateTime, index);
 				if((DisableBefore != DateTime.MinValue && startTime < DisableBefore)
-					|| (DisableAfter != DateTime.MinValue && startTime > DisableAfter))
+					|| (DisableAfter != DateTime.MinValue && startTime >= DisableAfter))
 				{
 					return;
 				}
@@ -686,7 +686,7 @@ namespace PanoramicData.Blazor
 				// limit selection range to enabled range?
 				if (!Options.General.AllowDisableSelection)
 				{
-					if (DisableAfter != DateTime.MinValue && (endTime > DisableAfter))
+					if (DisableAfter != DateTime.MinValue && (endTime >= DisableAfter))
 					{
 						endTime = DisableAfter;
 						_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, endTime) - 1;
