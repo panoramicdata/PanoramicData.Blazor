@@ -141,6 +141,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 					// sum each series for bucket
 					points.Add(new DataPoint
 					{
+						Count = group.Count(),
 						StartTime = group.Key,
 						SeriesValues = new[]
 						{

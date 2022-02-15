@@ -44,6 +44,7 @@ namespace PanoramicData.Blazor
 					  .AppendLine(DataPoint.SeriesValues[i].ToString(Options.Series[i].Format));
 				}
 			}
+			sb.Append($"{DataPoint.CountLabel}: ").AppendLine(DataPoint!.Count.ToString());
 			return sb.ToString();
 		}
 	}

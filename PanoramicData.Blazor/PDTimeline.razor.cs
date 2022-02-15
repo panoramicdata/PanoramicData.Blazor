@@ -501,7 +501,7 @@ namespace PanoramicData.Blazor
 				}
 				else if (position == TimelinePositions.End)
 				{
-					newOffset = Scale.PeriodsBetween(RoundedMinDateTime, Scale.PeriodStart(dateTime)) - _viewportColumns;
+					newOffset = Scale.PeriodsBetween(RoundedMinDateTime, Scale.PeriodEnd(dateTime)) - _viewportColumns;
 				}
 				if (newOffset >= 0 && newOffset <= maxOffset)
 				{
