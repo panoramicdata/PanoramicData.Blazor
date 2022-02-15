@@ -425,7 +425,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnSelectionEndPointerDown(PointerEventArgs args)
 		{
-			if (IsEnabled && Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
+			if (IsEnabled && Options.Selection.CanChangeEnd && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
 			{
 				_isSelectionEndDragging = true;
 				_chartDragOrigin = args.ClientX;
@@ -453,7 +453,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnSelectionStartPointerDown(PointerEventArgs args)
 		{
-			if (IsEnabled && Options.Selection.Enabled && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
+			if (IsEnabled && Options.Selection.CanChangeStart && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
 			{
 				_isSelectionStartDragging = true;
 				_chartDragOrigin = args.ClientX;

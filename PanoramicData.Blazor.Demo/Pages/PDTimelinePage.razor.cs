@@ -48,6 +48,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 					Colour = "Green"
 				}
 			},
+			Selection = new TimelineSelectionOptions
+			{
+				Enabled = false,
+				CanChangeEnd = false
+			},
 			Spinner = new TimelineSpinnerOptions
 			{
 				Width = 10,
@@ -190,6 +195,15 @@ namespace PanoramicData.Blazor.Demo.Pages
 		private async Task OnZoomTo24h()
 		{
 			await _timeline.ZoomToAsync(DateTime.Now.AddHours(-24), DateTime.Now, TimelinePositions.End).ConfigureAwait(true);
+		}
+
+		private async Task OnRefreshed()
+		{
+			// select last year
+			if (_timeline.GetSelection() is null)
+			{
+				await _timeline.SetSelection(_maxDate.AddYears(-1), _maxDate).ConfigureAwait(true);
+			}
 		}
 	}
 
