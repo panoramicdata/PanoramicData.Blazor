@@ -302,13 +302,7 @@ namespace PanoramicData.Blazor
 				_isChartDragging = false;
 				if (MinDateTime != DateTime.MinValue)
 				{
-					// suppress event if selection not changed
-					if (_selectionStartIndex != _lastSelectionStartIndex || _selectionEndIndex != _lastSelectionEndIndex)
-					{
-						_lastSelectionStartIndex = _selectionStartIndex;
-						_lastSelectionEndIndex = _selectionEndIndex;
-						await SelectionChangeEnd.InvokeAsync(null).ConfigureAwait(true);
-					}
+					await OnSelectionChangeEnd().ConfigureAwait(true);
 				}
 			}
 		}
@@ -423,11 +417,24 @@ namespace PanoramicData.Blazor
 			await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 		}
 
+		private async Task OnSelectionChangeEnd()
+		{
+			// suppress event if selection not changed
+			if (_selectionStartIndex != _lastSelectionStartIndex || _selectionEndIndex != _lastSelectionEndIndex)
+			{
+				_lastSelectionStartIndex = _selectionStartIndex;
+				_lastSelectionEndIndex = _selectionEndIndex;
+				await SelectionChangeEnd.InvokeAsync(null).ConfigureAwait(true);
+			}
+		}
+
 		private async Task OnSelectionEndPointerDown(PointerEventArgs args)
 		{
 			if (IsEnabled && Options.Selection.CanChangeEnd && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
 			{
 				_isSelectionEndDragging = true;
+				_lastSelectionStartIndex = _selectionStartIndex;
+				_lastSelectionEndIndex = _selectionEndIndex;
 				_chartDragOrigin = args.ClientX;
 				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgSelectionHandleEnd).ConfigureAwait(true);
 			}
@@ -446,9 +453,16 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnSelectionEndPointerUp(PointerEventArgs args)
+		private async Task OnSelectionEndPointerUp(PointerEventArgs args)
 		{
-			_isSelectionEndDragging = false;
+			if (_isSelectionEndDragging)
+			{
+				_isSelectionEndDragging = false;
+				if (MinDateTime != DateTime.MinValue)
+				{
+					await OnSelectionChangeEnd().ConfigureAwait(true);
+				}
+			}
 		}
 
 		private async Task OnSelectionStartPointerDown(PointerEventArgs args)
@@ -456,6 +470,8 @@ namespace PanoramicData.Blazor
 			if (IsEnabled && Options.Selection.CanChangeStart && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
 			{
 				_isSelectionStartDragging = true;
+				_lastSelectionStartIndex = _selectionStartIndex;
+				_lastSelectionEndIndex = _selectionEndIndex;
 				_chartDragOrigin = args.ClientX;
 				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgSelectionHandleStart).ConfigureAwait(true);
 			}
@@ -474,17 +490,22 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private void OnSelectionStartPointerUp(PointerEventArgs args)
+		private async Task OnSelectionStartPointerUp(PointerEventArgs args)
 		{
-			_isSelectionStartDragging = false;
+			if (_isSelectionStartDragging)
+			{
+				_isSelectionStartDragging = false;
+				if (MinDateTime != DateTime.MinValue)
+				{
+					await OnSelectionChangeEnd().ConfigureAwait(true);
+				}
+			}
 		}
 
 		public void PanTo(DateTime dateTime, TimelinePositions position = TimelinePositions.Center)
 		{
 			if (dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
 			{
-				//var totalSeconds = (MaxDateTime ?? DateTime.Now).Subtract(MinDateTime).TotalSeconds;
-				//dateTime = MinDateTime.AddSeconds(totalSeconds / 2);
 				dateTime = MaxDateTime ?? DateTime.Now;
 			}
 			var maxOffset = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime) - _viewportColumns;
