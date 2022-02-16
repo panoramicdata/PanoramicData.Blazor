@@ -28,7 +28,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 			General = new TimelineGeneralOptions
 			{
 				DateFormat = "yyyy-MM-dd",
-				RestrictZoomOut = true
+				RestrictZoomOut = false
 			},
 			Series = new[]
 			{
@@ -50,8 +50,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 			},
 			Selection = new TimelineSelectionOptions
 			{
-				Enabled = false,
-				CanChangeEnd = false
+				Enabled = true,
+				CanChangeEnd = true
 			},
 			Spinner = new TimelineSpinnerOptions
 			{

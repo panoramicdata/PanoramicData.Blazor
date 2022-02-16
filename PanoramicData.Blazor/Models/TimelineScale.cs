@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace PanoramicData.Blazor.Models
 {
-	public class TimelineScale
+	public class TimelineScale : IComparable
 	{
 		private CultureInfo _cultureInfo;
 		private Calendar _calendar;
@@ -74,7 +74,7 @@ namespace PanoramicData.Blazor.Models
 			};
 		}
 
-		public int PeriodsBetween(DateTime start, DateTime end)
+		public int PeriodsBetween(DateTime start, DateTime end, bool roundUp = true)
 		{
 			var temp = UnitType switch
 			{
@@ -87,7 +87,7 @@ namespace PanoramicData.Blazor.Models
 				TimelineUnits.Months => end.TotalMonthsSince(start),
 				_ => end.TotalYearsSince(start)
 			};
-			return (int)Math.Ceiling(temp);
+			return (int)(roundUp ? Math.Ceiling(temp) : Math.Floor(temp));
 		}
 
 		public DateTime PeriodEnd(DateTime dateTime)
@@ -186,6 +186,32 @@ namespace PanoramicData.Blazor.Models
 		{
 			return Name;
 		}
+
+		#region IComparable
+
+		public int CompareTo(object obj)
+		{
+			if(obj is TimelineScale ts)
+			{
+				// check for equality
+				if(UnitType == ts.UnitType && UnitCount == ts.UnitCount)
+				{
+					return 0;
+				}
+
+				// check if current instance preceeds given scale
+				if (UnitType < ts.UnitType || (UnitType == ts.UnitType && UnitCount < ts.UnitCount))
+				{
+					return -1;
+				}
+
+				// current instance must follow given scale
+				return 1;
+			}
+			throw new ArgumentException("Object is not a TimelineScale");
+		}
+
+		#endregion
 
 		#region Class Members
 

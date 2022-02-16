@@ -189,7 +189,7 @@ namespace PanoramicData.Blazor
 					return newScale;
 				}
 			}
-			return null;
+			return Options.General.Scales.FirstOrDefault();
 		}
 
 		public TimeRange? GetSelection()
@@ -594,6 +594,7 @@ namespace PanoramicData.Blazor
 				var previousCenter = _previousScale.AddPeriods(_previousScale.PeriodStart(MinDateTime), _columnOffset + (_viewportColumns / 2));
 				var scaleChanged = scale != _previousScale;
 				var previousScale = _previousScale;
+				var zoomChange = Comparer<TimelineScale>.Default.Compare(scale, previousScale);
 
 				// should we restrict zoom out?
 				var restrictCheck = scaleChanged && Options.General.RestrictZoomOut
@@ -633,10 +634,13 @@ namespace PanoramicData.Blazor
 					_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 				}
 
-				// re-calc selection in new scale?
+				// re-calc selection in new scale - snap to earlier / later
 				if (_selectionRange != null)
 				{
-					await SetSelection(_selectionRange.StartTime, _selectionRange.EndTime).ConfigureAwait(true);
+					var snappedStart = Scale.PeriodStart(_selectionRange.StartTime);
+					var snappedEnd = Scale.PeriodEnd(_selectionRange.EndTime.AddMilliseconds(-1));
+					_selectionStartIndex = Scale.PeriodsBetween(RoundedMinDateTime, snappedStart);
+					_selectionEndIndex = _selectionStartIndex + Scale.PeriodsBetween(snappedStart, snappedEnd) - 1;
 				}
 
 				// re-position viewport?
