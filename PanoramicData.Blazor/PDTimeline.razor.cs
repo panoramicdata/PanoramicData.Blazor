@@ -656,12 +656,17 @@ namespace PanoramicData.Blazor
 
 		public async Task SetSelection(DateTime start, DateTime end)
 		{
+			// quit if no change
+			if(_selectionRange?.StartTime == start && _selectionRange?.EndTime == end)
+			{
+				return;
+			}
+
 			// calculate start index
 			if (start < RoundedMinDateTime)
 			{
 				start = RoundedMaxDateTime;
 			}
-			//var startIndex = start.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale);
 			var startIndex = Scale.PeriodsBetween(RoundedMinDateTime, start);
 			if (startIndex < 0)
 			{
@@ -673,12 +678,12 @@ namespace PanoramicData.Blazor
 			{
 				end = RoundedMaxDateTime;
 			}
-			//var endIndex = end.TotalPeriodsSince(MinDateTime.PeriodStart(Scale), Scale) - 1;
 			var endIndex = Scale.PeriodsBetween(RoundedMinDateTime, end) - 1;
 			if (endIndex >= _totalColumns)
 			{
 				endIndex = _totalColumns - 1;
 			}
+
 			await SetSelection(startIndex, endIndex).ConfigureAwait(true);
 		}
 
