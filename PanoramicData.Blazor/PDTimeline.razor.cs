@@ -155,7 +155,12 @@ namespace PanoramicData.Blazor
 
 		public async Task ClearSelection()
 		{
-			await SetSelection(-1, -1).ConfigureAwait(true);
+			if (_selectionRange != null)
+			{
+				_selectionRange = null;
+				_selectionStartIndex = _selectionEndIndex = -1;
+				await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+			}
 		}
 
 		public void Dispose()
@@ -281,7 +286,7 @@ namespace PanoramicData.Blazor
 				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
 
 
-				await SetSelection(index, index).ConfigureAwait(true);
+				await SetSelectionFromDrag(index, index).ConfigureAwait(true);
 			}
 		}
 
@@ -291,7 +296,7 @@ namespace PanoramicData.Blazor
 			{
 				_chartDragOrigin = args.ClientX;
 				var index = GetColumnIndexAtPoint(args.ClientX);
-				await SetSelection(_selectionStartIndex, index).ConfigureAwait(true);
+				await SetSelectionFromDrag(_selectionStartIndex, index).ConfigureAwait(true);
 			}
 		}
 
@@ -448,7 +453,7 @@ namespace PanoramicData.Blazor
 				var index = GetColumnIndexAtPoint(args.ClientX);
 				if (index >= _selectionStartIndex)
 				{
-					await SetSelection(_selectionStartIndex, index).ConfigureAwait(true);
+					await SetSelectionFromDrag(_selectionStartIndex, index).ConfigureAwait(true);
 				}
 			}
 		}
@@ -485,7 +490,7 @@ namespace PanoramicData.Blazor
 				var index = GetColumnIndexAtPoint(args.ClientX);
 				if (index <= _selectionEndIndex)
 				{
-					await SetSelection(index, _selectionEndIndex).ConfigureAwait(true);
+					await SetSelectionFromDrag(index, _selectionEndIndex).ConfigureAwait(true);
 				}
 			}
 		}
@@ -662,32 +667,48 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
-			// calculate start index
+			// validate range
 			if (start < RoundedMinDateTime)
 			{
 				start = RoundedMaxDateTime;
 			}
-			var startIndex = Scale.PeriodsBetween(RoundedMinDateTime, start);
-			if (startIndex < 0)
-			{
-				startIndex = 0;
-			}
-
-			// calculate end index
 			if (end > RoundedMaxDateTime)
 			{
 				end = RoundedMaxDateTime;
 			}
-			var endIndex = Scale.PeriodsBetween(RoundedMinDateTime, end) - 1;
-			if (endIndex >= _totalColumns)
+			if (!Options.General.AllowDisableSelection)
 			{
-				endIndex = _totalColumns - 1;
+				if (DisableAfter != DateTime.MinValue && (end >= DisableAfter))
+				{
+					end = DisableAfter;
+				}
+				if (DisableBefore != DateTime.MinValue && (start < DisableBefore))
+				{
+					start = DisableBefore;
+				}
 			}
 
-			await SetSelection(startIndex, endIndex).ConfigureAwait(true);
+			// update selection range indexes
+			_selectionStartIndex = Scale.PeriodsBetween(RoundedMinDateTime, start);
+			if (_selectionStartIndex < 0)
+			{
+				_selectionStartIndex = 0;
+			}
+			_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, end) - 1;
+			if (_selectionEndIndex >= _totalColumns)
+			{
+				_selectionEndIndex = _totalColumns - 1;
+			}
+
+			// notify if selection has changed
+			if (_selectionRange is null || start != _selectionRange.StartTime || end != _selectionRange.EndTime)
+			{
+				_selectionRange = new TimeRange { StartTime = start, EndTime = end };
+				await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
+			}
 		}
 
-		private async Task SetSelection(int startIndex, int endIndex)
+		private async Task SetSelectionFromDrag(int startIndex, int endIndex)
 		{
 			if(startIndex == _selectionStartIndex && endIndex == _selectionEndIndex)
 			{
@@ -735,16 +756,20 @@ namespace PanoramicData.Blazor
 					}
 				}
 
-				_selectionRange = new TimeRange { StartTime = startTime, EndTime = endTime };
+				// notify if selection has changed
+				if (_selectionRange is null || startTime != _selectionRange.StartTime || endTime != _selectionRange.EndTime)
+				{
+					_selectionRange = new TimeRange { StartTime = startTime, EndTime = endTime };
+					await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
+				}
 			}
-			else
-			{
-				_selectionRange = null;
-				_selectionStartIndex = _selectionEndIndex = -1;
-				StateHasChanged();
-			}
+			//else
+			//{
+			//	_selectionRange = null;
+			//	_selectionStartIndex = _selectionEndIndex = -1;
+			//	StateHasChanged();
+			//}
 
-			await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
 		}
 
 		public async Task ZoomInAsync()
