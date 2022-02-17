@@ -285,7 +285,6 @@ namespace PanoramicData.Blazor
 				_chartDragOrigin = args.ClientX;
 				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
 
-
 				await SetSelectionFromDrag(index, index).ConfigureAwait(true);
 			}
 		}
@@ -715,6 +714,19 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
+			// if one end of selection is disabled then force selection start/end
+			if (Options.Selection.Enabled)
+			{
+				if (Options.Selection.CanChangeStart && !Options.Selection.CanChangeEnd)
+				{
+					endIndex = _totalColumns - 1;
+				}
+				else if (!Options.Selection.CanChangeStart && Options.Selection.CanChangeEnd)
+				{
+					startIndex = 0;
+				}
+			}
+
 			_selectionStartIndex = startIndex;
 			_selectionEndIndex = endIndex;
 
@@ -762,14 +774,9 @@ namespace PanoramicData.Blazor
 					_selectionRange = new TimeRange { StartTime = startTime, EndTime = endTime };
 					await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
 				}
-			}
-			//else
-			//{
-			//	_selectionRange = null;
-			//	_selectionStartIndex = _selectionEndIndex = -1;
-			//	StateHasChanged();
-			//}
 
+				StateHasChanged();
+			}
 		}
 
 		public async Task ZoomInAsync()
