@@ -128,8 +128,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
-		[Parameter]
-		public bool IsEnabled { get; set; } = true;
+		[Parameter] public bool IsEnabled { get; set; } = true;
 
 		/// <summary>
 		/// Action called whenever data items are loaded.
@@ -156,6 +155,11 @@ namespace PanoramicData.Blazor
 		/// Gets or sets a function that calculates and returns CSS Classes for the row (TR element).
 		/// </summary>
 		[Parameter] public Func<TItem, string>? RowClass { get; set; }
+
+		/// <summary>
+		/// Gets or sets a function that determines whether the given row is enabled or not.
+		/// </summary>
+		[Parameter] public Func<TItem, bool> RowIsEnabled { get; set; } = (_) => true;
 
 		/// <summary>
 		/// Gets or sets the CSS class to apply to the tables container element.
@@ -997,6 +1001,10 @@ namespace PanoramicData.Blazor
 			if(IsSelected(item))
 			{
 				sb.Append("selected ");
+			}
+			if(!RowIsEnabled(item))
+			{
+				sb.Append("disabled ");
 			}
 			if (RowClass != null)
 			{

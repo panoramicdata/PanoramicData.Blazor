@@ -404,8 +404,10 @@
 }
 
 .disabled {
-  opacity: 1;
   background-color: #e9ecef;
+  color: silver;
+  filter: grayscale(1);
+  opacity: 1;
 }
 
 .pd-form-header {
