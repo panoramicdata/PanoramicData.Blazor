@@ -879,7 +879,7 @@ namespace PanoramicData.Blazor
 		private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
 		{
 			// quit if selection not allowed
-			if (!IsEnabled || SelectionMode == TableSelectionMode.None)
+			if (!IsEnabled || SelectionMode == TableSelectionMode.None || !RowIsEnabled(item))
 			{
 				return;
 			}
@@ -943,7 +943,7 @@ namespace PanoramicData.Blazor
 					foreach (var item in ItemsToDisplay)
 					{
 						var key = KeyField(item).ToString();
-						if (!Selection.Contains(key))
+						if (!Selection.Contains(key) && RowIsEnabled(item))
 						{
 							Selection.Add(key);
 						}
@@ -954,7 +954,7 @@ namespace PanoramicData.Blazor
 					foreach (var item in ItemsToDisplay)
 					{
 						var key = KeyField(item).ToString();
-						if (Selection.Contains(key))
+						if (Selection.Contains(key) && RowIsEnabled(item))
 						{
 							Selection.Remove(key);
 						}
@@ -966,7 +966,7 @@ namespace PanoramicData.Blazor
 
 		public async Task OnToggleSelection(TItem item, bool on)
 		{
-			if (IsEnabled && KeyField != null)
+			if (IsEnabled && KeyField != null && RowIsEnabled(item))
 			{
 				var key = KeyField(item).ToString();
 				if (on && !Selection.Contains(key))
