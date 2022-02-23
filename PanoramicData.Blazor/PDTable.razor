@@ -17,7 +17,7 @@
             @if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Bottom)
             {
                 <tr>
-                    <td colspan="@ActualColumnsToDisplay.Count()">
+                    <td colspan="@(ActualColumnsToDisplay.Count() + (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple ? 1 : 0))">
                         <div class="">
                             <PDPager IsEnabled="IsEnabled"
                                      NoItemsText=""
@@ -146,7 +146,7 @@
             @if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Top)
             {
                 <tr>
-                    <td colspan="@ActualColumnsToDisplay.Count()">
+                    <td colspan="@(ActualColumnsToDisplay.Count() + (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple ? 1 : 0))">
                         <div class="">
                             <PDPager IsEnabled="IsEnabled"
                                      NoItemsText=""
