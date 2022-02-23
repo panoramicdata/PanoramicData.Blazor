@@ -18,13 +18,13 @@
 		<PDButton Click="MoveFirst"
 				  CssClass="btn-secondary"
 				  IconCssClass="fas fa-fast-backward"
-				  IsEnabled="@(!PageCriteria.IsFirstPage)"
+				  IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
 				  Size="Size" />
 
 		<PDButton Click="MovePrevious"
 				  CssClass="btn-secondary"
 				  IconCssClass="fas fa-backward"
-				  IsEnabled="@(!PageCriteria.IsFirstPage)"
+				  IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
 				  Size="Size" />
 
 		<span class="d-none d-md-inline ml-1">Page&nbsp;</span> @PageCriteria.Page&nbsp;of&nbsp;@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)
@@ -32,13 +32,13 @@
 		<PDButton Click="MoveNext"
 				  CssClass="btn-secondary ml-1"
 				  IconCssClass="fas fa-forward"
-				  IsEnabled="@(!PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
+				  IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
 				  Size="Size" />
 
 		<PDButton Click="MoveLast"
 				  CssClass="btn-secondary"
 				  IconCssClass="fas fa-fast-forward"
-				  IsEnabled="@(!PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
+				  IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
 				  Size="Size" />
 	</div>
 
@@ -65,7 +65,9 @@
 	{
 		<div class="d-none d-sm-flex align-items-center">
 			<div class="pr-2 text-nowrap d-none d-sm-block">Page Size:</div>
-			<select class="form-control @ControlSizeCssClass" @bind="PageCriteria.PageSize">
+			<select class="form-control @ControlSizeCssClass"
+					disabled="@(!IsEnabled)"
+					@bind="PageCriteria.PageSize">
 				@foreach (var size in PageSizeChoices)
 				{
 					<option value="@size">@size</option>

@@ -182,6 +182,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public PageCriteria? PageCriteria { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether the pager (if shown) is positioned at the top or bottom of the table.
+		/// </summary>
+		[Parameter] public PagerPositions PagerPosition { get; set; }
+
+		/// <summary>
 		/// Gets or sets the possible page sizes offered to the user.
 		/// </summary>
 		[Parameter] public uint[] PageSizeChoices { get; set; } = new uint[] { 10, 25, 50, 100, 250, 500 };

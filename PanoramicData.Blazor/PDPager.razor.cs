@@ -7,6 +7,11 @@ namespace PanoramicData.Blazor
 	public partial class PDPager : IDisposable
 	{
 		/// <summary>
+		/// Determines whether the component is enable dor not.
+		/// </summary>
+		[Parameter] public bool IsEnabled { get; set; } = true;
+
+		/// <summary>
 		/// Gets or sets the text to be displayed when no items are available.
 		/// </summary>
 		[Parameter] public string NoItemsText { get; set; } = "No items to display";
