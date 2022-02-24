@@ -8,7 +8,9 @@
      @oncontextmenu:stopPropagation
      @oncontextmenu:preventDefault
      @ondrop="OnDragDropAsync"
-     @onkeydown="OnKeyDownAsync">
+     @onkeydown="OnKeyDownAsync"
+     @onkeydown:stopPropagation
+     @onkeydown:preventDefault>
 
     @*<input id="focus-receiver" />*@
     <table class="table @TableClass"

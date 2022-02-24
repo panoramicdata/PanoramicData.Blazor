@@ -854,23 +854,47 @@ namespace PanoramicData.Blazor
 
 					case "ArrowUp":
 					case "ArrowDown":
+					case "PageUp":
+					case "PageDown":
+					case "Home":
+					case "End":
 						if (Selection.Count == 1 && KeyField != null)
 						{
+							var stepSize = args.Code.StartsWith("Page") ? 10 : 1;
 							var items = ItemsToDisplay.ToList();
 							var item = items.Find(x => KeyField(x).ToString() == Selection[0]);
 							if (item != null)
 							{
 								var idx = items.IndexOf(item);
-								if (args.Code == "ArrowUp" && idx > 0)
+								if (args.Code == "End" && idx < items.Count - 1)
 								{
+									var id = KeyField(items[items.Count - 1]).ToString();
 									Selection.Clear();
-									Selection.Add(KeyField(items[idx - 1]).ToString());
+									Selection.Add(id);
+									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
 								}
-								else if (args.Code == "ArrowDown" && idx < items.Count - 1)
+								else if (args.Code == "Home" && idx > 0)
 								{
+									var id = KeyField(items[0]).ToString();
 									Selection.Clear();
-									Selection.Add(KeyField(items[idx + 1]).ToString());
+									Selection.Add(id);
+									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
 								}
+								else if (args.Code.EndsWith("Up") && idx >= stepSize)
+								{
+									var id = KeyField(items[idx - stepSize]).ToString();
+									Selection.Clear();
+									Selection.Add(id);
+									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+								}
+								else if (args.Code.EndsWith("Down") && idx < items.Count - stepSize)
+								{
+									var id = KeyField(items[idx + stepSize]).ToString();
+									Selection.Clear();
+									Selection.Add(id);
+									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+								}
+
 								await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 							}
 						}

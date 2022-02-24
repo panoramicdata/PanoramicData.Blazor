@@ -187,6 +187,12 @@
 			el.classList.remove(cls);
 	},
 
+	scrollIntoView: function (id, alignTop) {
+		var el = document.getElementById(id);
+		if (el)
+			el.scrollIntoView(alignTop);
+	},
+
 	// 04/08/20 - bytesBase64 limited to 125MB by System.Text.Json writer
 	downloadfromBase: function(filename, bytesBase64) {
 		var link = document.createElement('a');

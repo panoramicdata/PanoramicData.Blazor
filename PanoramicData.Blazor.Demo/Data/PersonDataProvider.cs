@@ -19,7 +19,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		private static readonly List<Person> _people = new();
 		public static string[] Locations = new string[] { "Paris", "Rome", "Milan", "New York", "Peckham", "Sydney" };
 
-		public PersonDataProvider(int count = 55)
+		public PersonDataProvider(int count = 255)
 		{
 			// generate random rows
 			if (_people.Count() == 0)
