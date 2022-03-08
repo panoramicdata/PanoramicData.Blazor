@@ -141,7 +141,7 @@ namespace PanoramicData.Blazor
 				reason = args.CancelReason,
 				rootDir = args.BaseFolder,
 				state = args.State,
-				files
+				args.Files
 			};
 		}
 

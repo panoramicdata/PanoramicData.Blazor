@@ -971,6 +971,7 @@ namespace PanoramicData.Blazor
 				// check for conflicts
 				var moveCopyArgs = new MoveCopyArgs
 				{
+					ConflictResolution = ConflictResolution,
 					TargetPath = Tree.SelectedNode.Data.Path,
 					Payload = args.Files.Select(x => new FileExplorerItem { Path = x.GetFullPath(args.BaseFolder) }).ToList()
 				};
@@ -979,15 +980,39 @@ namespace PanoramicData.Blazor
 				await GetUploadConflictsAsync(moveCopyArgs).ConfigureAwait(true);
 				if (moveCopyArgs.Conflicts.Count > 0)
 				{
-					foreach (var conflict in moveCopyArgs.Conflicts)
+					if (moveCopyArgs.ConflictResolution == ConflictResolutions.Prompt)
 					{
-						var item = new FileExplorerItem { Path = conflict.Path };
-						var response = await DataProvider.DeleteAsync(item, default).ConfigureAwait(true);
-						if (!response.Success)
+						moveCopyArgs.ConflictResolution = await PromptUserForConflictResolution(moveCopyArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray(), true, false).ConfigureAwait(true);
+					}
+					if (moveCopyArgs.ConflictResolution == ConflictResolutions.Overwrite)
+					{
+						foreach (var conflict in moveCopyArgs.Conflicts)
 						{
-							args.Cancel = true;
-							args.CancelReason = "File already exists";
+							var item = new FileExplorerItem { Path = conflict.Path };
+							var response = await DataProvider.DeleteAsync(item, default).ConfigureAwait(true);
+							if (!response.Success)
+							{
+								args.Cancel = true;
+								args.CancelReason = "File already exists";
+							}
 						}
+					}
+					else if(moveCopyArgs.ConflictResolution == ConflictResolutions.Skip)
+					{
+						var files = new List<DropZoneFile>(args.Files);
+						foreach (var conflict in moveCopyArgs.Conflicts)
+						{
+							var file = files.FirstOrDefault(x => $"{args.BaseFolder.TrimEnd('/')}/{x.GetFullPath().TrimStart('/')}" == conflict.Path);
+							if(file != null)
+							{
+								file.Skip = true;
+							}
+						}
+					}
+					else if(moveCopyArgs.ConflictResolution == ConflictResolutions.Cancel)
+					{
+						args.Cancel = true;
+						args.CancelReason = "Cancelled by user";
 					}
 				}
 
@@ -1720,7 +1745,7 @@ namespace PanoramicData.Blazor
 			args.Conflicts = conflicts;
 		}
 
-		private async Task<ConflictResolutions> PromptUserForConflictResolution(IEnumerable<string> names, bool showOverwrite)
+		private async Task<ConflictResolutions> PromptUserForConflictResolution(IEnumerable<string> names, bool showOverwrite, bool showRename = true)
 		{
 			var namesSummary = names.Take(5).ToList();
 			if (names.Count() > 5)
@@ -1730,6 +1755,7 @@ namespace PanoramicData.Blazor
 			_conflictDialogMessage = $"{names.Count()} conflicts found : -";
 			_conflictDialogList = namesSummary.ToArray();
 			ConflictDialog!.Buttons.Find(x => x.Key == "Overwrite").IsVisible = showOverwrite;
+			ConflictDialog!.Buttons.Find(x => x.Key == "Rename").IsVisible = showRename;
 			StateHasChanged();
 			if (ConflictDialog != null)
 			{

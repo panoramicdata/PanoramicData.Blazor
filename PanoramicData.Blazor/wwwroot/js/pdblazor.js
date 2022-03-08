@@ -435,7 +435,9 @@
 				dto.push({ Name: files[i].name, Size: files[i].size, Skip: false });
 			zone.dotnetHelper.invokeMethodAsync('PanoramicData.Blazor.PDDropZone.OnDrop', dto)
 				.then(result => {
-					if (!result.cancel) {
+					if (result.cancel) {
+						me.files = [];
+					} else {
 						for (var i = 0; i < files.length; i++) {
 							var skip = result.files.reduce(function (pv, cv) {
 								return pv || (cv.name == files[i].name && cv.skip);
@@ -515,6 +517,10 @@
 		return obj;
 	},
 
+	clearFiles: function () {
+		this.files = [];
+	},
+
 	initDropzone: function (idSelector, opt, sessionId, dnRef) {
 		const getPath = function (file) {
 			var path = file.targetRootDir || "/";
@@ -577,6 +583,10 @@
 						if (data.cancel || data.reason) {
 							done(data.reason || "Upload canceled");
 						} else {
+							// file skipped?
+							if (data.files[0].skip) {
+								done("Upload skipped");
+							}
 							// file renamed?
 							if (data.files[0].newName) {
 								file.targetName = data.files[0].newName;
