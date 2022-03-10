@@ -205,6 +205,12 @@ namespace PanoramicData.Blazor.Demo.Pages
 				await _timeline.SetSelection(_maxDate.AddYears(-1), _maxDate).ConfigureAwait(true);
 			}
 		}
+
+		private double MyYValueTransform(double value)
+		{
+			//return value;
+			return Math.Sqrt(value);
+		}
 	}
 
 	public class ConfigChange

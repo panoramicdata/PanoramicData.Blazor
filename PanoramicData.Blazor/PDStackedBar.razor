@@ -9,9 +9,14 @@
 		{
 			for (var i = 0; i < DataPoint.SeriesValues.Length; i++)
 			{
-				var value = DataPoint.SeriesValues[i];
+				var value =  YValueTransform(DataPoint.SeriesValues[i]);
 				var colour = Options.Series.Length > 0 && i < Options.Series.Length ? Options.Series[i].Colour : "black";
-				<rect x="@Options.Bar.Padding" y="@(y - value)" width="@(Options.Bar.Width - 2 * Options.Bar.Padding)" height="@value" stroke="@colour" fill="@colour" />
+				<rect x="@Options.Bar.Padding"
+					  y="@(y - value)"
+					  width="@(Options.Bar.Width - 2 * Options.Bar.Padding)"
+					  height="@value"
+					  stroke="@colour"
+					  fill="@colour" />
 				y -= value;
 			}
 		}

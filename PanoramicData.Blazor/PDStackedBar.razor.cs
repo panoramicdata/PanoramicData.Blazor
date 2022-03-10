@@ -27,6 +27,9 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public double X { get; set; }
 
+		[Parameter]
+		public Func<double, double> YValueTransform { get; set; } = (v) => v;
+
 		private string GetTitle()
 		{
 			if(DataPoint is null)

@@ -105,6 +105,10 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public EventCallback UpdateMinDate { get; set; }
 
+		[Parameter]
+		public Func<double, double> YValueTransform { get; set; } = (v) => v;
+
+
 		public bool CanZoomIn()
 		{
 			if (IsEnabled)
@@ -200,6 +204,19 @@ namespace PanoramicData.Blazor
 		public TimeRange? GetSelection()
 		{
 			return _selectionRange;
+		}
+
+		private double GetMaxValue(DataPoint[] points)
+		{
+			double max = 0;
+
+			var tempArray = points.Where(x => x != null && x.SeriesValues.Length > 0).ToArray();
+			if (tempArray.Any())
+			{
+				max = tempArray.Max(x => x.SeriesValues.Sum(y => YValueTransform(y)));
+			}
+
+			return max;
 		}
 
 		private DataPoint[] GetViewPortDataPoints()

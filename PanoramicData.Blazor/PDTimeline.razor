@@ -5,7 +5,7 @@
 	 @onmousewheel="OnMouseWheel">
 
 	@{
-		var points = GetViewPortDataPoints();
+		DataPoint[] points = GetViewPortDataPoints();
 		var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
 	}
 
@@ -17,7 +17,6 @@
 			@onpointerup="OnChartPointerUp"
 			preserveAspectRatio="none">
 		@{
-			var maxYValue = points.Length == 0 ? 0 : points.Max(x => x?.SeriesValues.Sum() ?? 0);
 
 			@* SELECTION RANGE *@
 			if(_selectionStartIndex > -1 && _selectionEndIndex > -1)
@@ -32,14 +31,16 @@
 			@* BARS *@
 			if (points.Length > 0)
 			{
+				var maxYValue = GetMaxValue(points);
 				for (var i = 0; i < points.Length; i++)
 				{
 					<PDStackedBar DateFormat="@Scale.FormatPattern(Options.General.DateFormat)"
 								  DataPoint="points[i]"
 								  IsEnabled="IsPointEnabled(points[i])"
-								  MaxValue="@(Options.YAxis.MaxValue ?? (maxYValue == 0 ? 100 : maxYValue))"
+								  MaxValue="@(Options.YAxis.MaxValue ?? maxYValue)"
 								  Options="Options"
-								  X="@(i * Options.Bar.Width)" />
+								  X="@(i * Options.Bar.Width)"
+								  YValueTransform="YValueTransform" />
 				}
 			}
 
