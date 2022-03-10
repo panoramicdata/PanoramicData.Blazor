@@ -153,6 +153,12 @@ namespace PanoramicData.Blazor
 		[Parameter] public Expression<Func<TItem, object>>? Field { get; set; }
 
 		/// <summary>
+		/// Gets or sets an HTML template for the header content.
+		/// </summary>
+		[Parameter] public RenderFragment? HeaderTemplate { get; set; }
+
+
+		/// <summary>
 		/// Gets or sets an HTML template for the fields value.
 		/// </summary>
 		[Parameter] public RenderFragment<TItem>? Template { get; set; }
