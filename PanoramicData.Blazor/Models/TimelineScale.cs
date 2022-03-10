@@ -225,6 +225,7 @@ namespace PanoramicData.Blazor.Models
 		public static TimelineScale Hours8 => new TimelineScale("8 Hours", TimelineUnits.Hours, 8);
 		public static TimelineScale Hours12 => new TimelineScale("12 Hours", TimelineUnits.Hours,12);
 		public static TimelineScale Minutes => new TimelineScale("Minutes", TimelineUnits.Minutes, 1);
+		public static TimelineScale Seconds => new TimelineScale("Seconds", TimelineUnits.Seconds, 1);
 
 		#endregion
 	}

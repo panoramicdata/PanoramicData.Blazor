@@ -37,6 +37,7 @@ namespace PanoramicData.Blazor.Models
 
 		public TimelineScale[] Scales { get; set; } = new[]
 		{
+			TimelineScale.Seconds,
 			TimelineScale.Minutes,
 			TimelineScale.Hours,
 			TimelineScale.Hours4,
