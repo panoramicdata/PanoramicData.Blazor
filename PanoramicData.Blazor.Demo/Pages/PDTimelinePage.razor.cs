@@ -28,7 +28,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 			General = new TimelineGeneralOptions
 			{
 				DateFormat = "yyyy-MM-dd",
-				RestrictZoomOut = false
+				RestrictZoomOut = false,
+				RightAlign = true
 			},
 			Series = new[]
 			{
@@ -123,7 +124,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			// generate new data
 			_data.Clear();
-			GenerateData(2005, 2020, 10);
+			GenerateData(2015, 2020, 10);
 
 			// update component parameters
 			_minDate = _data.Min(x => x.DateChanged);

@@ -596,7 +596,15 @@ namespace PanoramicData.Blazor
 
 		public DateTime RoundedMaxDateTime => Scale.PeriodEnd(MaxDateTime ?? DateTime.Now);
 
-		public DateTime RoundedMinDateTime => Scale.PeriodStart(MinDateTime);
+		public DateTime RoundedMinDateTime
+		{
+			get
+			{
+				return _totalColumns < _viewportColumns && Options.General.RightAlign
+					? Scale.AddPeriods(Scale.PeriodStart(MinDateTime), _totalColumns - _viewportColumns)
+					: Scale.PeriodStart(MinDateTime);
+			}
+		}
 
 		private double SelectionStartX => (Math.Min(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width;
 
@@ -612,7 +620,7 @@ namespace PanoramicData.Blazor
 		{
 			if (scale != _previousScale || forceRefresh)
 			{
-				var previousCenter = _previousScale.AddPeriods(_previousScale.PeriodStart(MinDateTime), _columnOffset + (_viewportColumns / 2));
+				var previousCenter = _previousScale.AddPeriods(_previousScale.PeriodStart(RoundedMinDateTime), _columnOffset + (_viewportColumns / 2));
 				var scaleChanged = scale != _previousScale;
 				var previousScale = _previousScale;
 				var zoomChange = Comparer<TimelineScale>.Default.Compare(scale, previousScale);
@@ -626,7 +634,8 @@ namespace PanoramicData.Blazor
 				Scale = scale;
 
 				// calculate total number of columns for new scale
-				_totalColumns = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime);
+				//  note: can't use RoundedMinDateTime as relies on _totalColumns
+				_totalColumns = Scale.PeriodsBetween(Scale.PeriodStart(MinDateTime), RoundedMaxDateTime);
 				_viewportColumns = _canvasWidth > 0 ? (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width) : 0;
 
 				// do not allow user to zoom out past full window of data
@@ -648,6 +657,7 @@ namespace PanoramicData.Blazor
 				{
 					// calculate pan handle width
 					_panHandleWidth = Math.Min(((double)_viewportColumns / (double)(_totalColumns + 1)) * _canvasWidth, _canvasWidth);
+					Console.WriteLine($"_panHandleWidth = {_panHandleWidth}, _viewportColumns = {_viewportColumns}, _totalColumns = {_totalColumns}");
 					if (_canvasWidth > 0 && (_panHandleX + _panHandleWidth > _canvasWidth))
 					{
 						_panHandleX = _canvasWidth - _panHandleWidth;
@@ -711,9 +721,12 @@ namespace PanoramicData.Blazor
 				_selectionStartIndex = 0;
 			}
 			_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, end) - 1;
-			if (_selectionEndIndex >= _totalColumns)
+
+			// ensure selection is not beyond max datetime
+			var maxIndex = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime);
+			if (_selectionEndIndex > maxIndex)
 			{
-				_selectionEndIndex = _totalColumns - 1;
+				_selectionEndIndex = maxIndex;
 			}
 
 			// notify if selection has changed

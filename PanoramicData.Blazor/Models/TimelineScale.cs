@@ -30,7 +30,7 @@ namespace PanoramicData.Blazor.Models
 
 		public DateTime AddPeriods(DateTime dateTime, int periods)
 		{
-			if (periods == 0)
+			if (periods == 0 || dateTime == DateTime.MinValue)
 			{
 				return dateTime;
 			}
