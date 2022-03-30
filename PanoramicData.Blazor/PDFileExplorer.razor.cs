@@ -37,6 +37,7 @@ namespace PanoramicData.Blazor
 		private readonly MenuItem _menuDelete = new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
 		private readonly List<FileExplorerItem> _copyPayload = new List<FileExplorerItem>();
 		private readonly Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>> _conflictCache = new Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>>();
+		private readonly List<FileExplorerItem> _conflicts = new List<FileExplorerItem>();
 		private int _batchCount;
 		private int _batchProgress;
 		protected long _batchTotalBytes;
@@ -965,59 +966,8 @@ namespace PanoramicData.Blazor
 				// set current folder
 				args.BaseFolder = FolderPath;
 
-				// notify application and allow for cancel
-				await UploadRequest.InvokeAsync(args).ConfigureAwait(true);
-
-				// check for conflicts
-				var moveCopyArgs = new MoveCopyArgs
-				{
-					ConflictResolution = ConflictResolution,
-					TargetPath = Tree.SelectedNode.Data.Path,
-					Payload = args.Files.Select(x => new FileExplorerItem { Path = x.GetFullPath(args.BaseFolder) }).ToList()
-				};
-
-				// find and delete conflicts - leading to an overwrite in effect
-				await GetUploadConflictsAsync(moveCopyArgs).ConfigureAwait(true);
-				if (moveCopyArgs.Conflicts.Count > 0)
-				{
-					if (moveCopyArgs.ConflictResolution == ConflictResolutions.Prompt)
-					{
-						moveCopyArgs.ConflictResolution = await PromptUserForConflictResolution(moveCopyArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray(), true, false).ConfigureAwait(true);
-					}
-					if (moveCopyArgs.ConflictResolution == ConflictResolutions.Overwrite)
-					{
-						foreach (var conflict in moveCopyArgs.Conflicts)
-						{
-							var item = new FileExplorerItem { Path = conflict.Path };
-							var response = await DataProvider.DeleteAsync(item, default).ConfigureAwait(true);
-							if (!response.Success)
-							{
-								args.Cancel = true;
-								args.CancelReason = "File already exists";
-							}
-						}
-					}
-					else if(moveCopyArgs.ConflictResolution == ConflictResolutions.Skip)
-					{
-						var files = new List<DropZoneFile>(args.Files);
-						foreach (var conflict in moveCopyArgs.Conflicts)
-						{
-							var file = files.FirstOrDefault(x => $"{args.BaseFolder.TrimEnd('/')}/{x.GetFullPath().TrimStart('/')}" == conflict.Path);
-							if(file != null)
-							{
-								file.Skip = true;
-							}
-						}
-					}
-					else if(moveCopyArgs.ConflictResolution == ConflictResolutions.Cancel)
-					{
-						args.Cancel = true;
-						args.CancelReason = "Cancelled by user";
-					}
-				}
-
 				// add current path so it can be passed along with uploads
-				args.State = moveCopyArgs.TargetPath;
+				args.State = Tree.SelectedNode.Data.Path;
 			}
 		}
 
@@ -1069,14 +1019,49 @@ namespace PanoramicData.Blazor
 			await UploadCompleted.InvokeAsync(args).ConfigureAwait(true);
 		}
 
+		private async Task OnAllUploadsReady(UploadsReadyEventArgs args)
+		{
+			if (Tree!.SelectedNode?.Data != null)
+			{
+				// check for conflicts?
+				var targetRootFolder = Tree!.SelectedNode.Data.Path;
+				var moveCopyArgs = new MoveCopyArgs
+				{
+					ConflictResolution = ConflictResolution,
+					TargetPath = targetRootFolder,
+					Payload = args.Files.Select(x => new FileExplorerItem { State = x.Key, Path = $"{x.Path.TrimEnd('/')}/{x.Name.TrimStart('/')}" }).ToList()
+				};
+				await GetUploadConflictsAsync(moveCopyArgs).ConfigureAwait(true);
+				if (moveCopyArgs.Conflicts.Any())
+				{
+					var result = await PromptUserForConflictResolution(moveCopyArgs.Conflicts.Select(x => x.Path).ToArray(), true, false).ConfigureAwait(true);
+					if(result == ConflictResolutions.Cancel)
+					{
+						args.Cancel = true;
+					}
+					else if(result == ConflictResolutions.Overwrite)
+					{
+						args.Overwrite = true;
+					}
+					else if (result == ConflictResolutions.Skip)
+					{
+						// remove files from queue before proceeding
+						var ids = moveCopyArgs.Conflicts.Select(x => x.State).ToArray();
+						args.FilesToSkip = args.Files.Where(x => ids.Contains(x.Key)).ToArray();
+					}
+				}
+			}
+		}
+
 		private async Task OnAllUploadsStarted(int fileCount)
 		{
 			_batchCount = fileCount;
 			_batchProgress = 0;
+
+			// show progress dialog
 			if (ShowUploadProgressDialog && fileCount > UploadProgressDialogThreshold)
 			{
-				await Task.WhenAll(UploadDialog!.HideAsync(),
-								   ProgressDialog!.ShowAsync()).ConfigureAwait(true);
+				await Task.WhenAll(UploadDialog!.HideAsync(), ProgressDialog!.ShowAsync()).ConfigureAwait(true);
 			}
 		}
 
@@ -1091,8 +1076,9 @@ namespace PanoramicData.Blazor
 			// close progress dialog
 			await ProgressDialog!.HideAsync().ConfigureAwait(true);
 
-			// expire conflict cache
+			// expire conflict caches
 			_conflictCache.Clear();
+			_conflicts.Clear();
 			await RefreshTreeAsync().ConfigureAwait(true);
 			await RefreshTableAsync().ConfigureAwait(true);
 		}
@@ -1254,8 +1240,8 @@ namespace PanoramicData.Blazor
 					ConflictDialog.Buttons.Clear();
 					ConflictDialog.Buttons.AddRange(new[]
 					{
-						new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save" },
-						new ToolbarButton { Text = "Rename", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-pen-square", ShiftRight = true },
+						new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
+						new ToolbarButton { Text = "Rename", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-pen-square" },
 						new ToolbarButton { Text = "Skip", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-forward" },
 						new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
 					});
@@ -1704,17 +1690,18 @@ namespace PanoramicData.Blazor
 						var result = await cachedTask.Result.ConfigureAwait(true);
 						var names = folder.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray();
 						args.TargetItems = result.Items.ToList();
-						foreach (var item in args.TargetItems)
+						foreach (var folderItem in folder)
 						{
-							if (names.Any(x => string.Equals(FileExplorerItem.GetNameFromPath(item.Path), x, StringComparison.OrdinalIgnoreCase)))
+							var match = args.TargetItems.FirstOrDefault(x => FileExplorerItem.GetNameFromPath(x.Path) == FileExplorerItem.GetNameFromPath(folderItem.Path));
+							if(match != null)
 							{
-								conflicts.Add(item);
+								conflicts.Add(folderItem);
 							}
 						}
 					}
 				}
 			}
-			args.Conflicts = conflicts;
+			args.Conflicts = conflicts.OrderBy(x => x.Path).ToList();
 		}
 
 		/// <summary>

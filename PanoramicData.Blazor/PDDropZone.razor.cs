@@ -47,6 +47,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public EventCallback<DropZoneUploadCompletedEventArgs> UploadCompleted { get; set; }
 
 		/// <summary>
+		/// Event raised when all files are ready to be uploaded.
+		/// </summary>
+		[Parameter] public EventCallback<UploadsReadyEventArgs> AllUploadsReady { get; set; }
+
+		/// <summary>
 		/// Event raised before uploads have started.
 		/// </summary>
 		[Parameter] public EventCallback<int> AllUploadsStarted { get; set; }
@@ -117,6 +122,7 @@ namespace PanoramicData.Blazor
 				var options = new
 				{
 					url = UploadUrl,
+					autoProcessQueue = false,
 					timeout = Timeout * 1000,
 					autoScroll = AutoScroll,
 					maxFilesize = MaxFileSize,
@@ -226,12 +232,55 @@ namespace PanoramicData.Blazor
 			UploadCompleted.InvokeAsync(args);
 		}
 
-		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsComplete")]
-		public void OnAllUploadsComplete()
+		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsReady")]
+		public async Task OnAllUploadsReadyAsync(DropZoneFile[] files)
 		{
+			// allow app to check for conflicts and prompt user
+			var args = new UploadsReadyEventArgs
+			{
+				Files = files
+			};
+			await AllUploadsReady.InvokeAsync(args).ConfigureAwait(true);
+
+			if(args.Cancel)
+			{
+				// reset batch vars
+				_batchCount = 0;
+				_batchProgress = 0;
+
+				// clear dropzone queue
+				await JSRuntime.InvokeVoidAsync("panoramicData.cancelDropzone", $"#{Id}").ConfigureAwait(true);
+			}
+			else
+			{
+				// initialize batch
+				_batchCount = args.Files.Length - args.FilesToSkip.Length;
+				_batchProgress = 0;
+				await AllUploadsStarted.InvokeAsync(_batchCount).ConfigureAwait(true);
+
+				// remove skipped files and then proceed
+				foreach (var file in args.FilesToSkip)
+				{
+					await JSRuntime.InvokeVoidAsync("panoramicData.removeDropzoneFile", $"#{Id}", file.Key).ConfigureAwait(true);
+				}
+
+				// begin processing queue
+				await JSRuntime.InvokeVoidAsync("panoramicData.processDropzone", $"#{Id}", args.Overwrite).ConfigureAwait(true);
+			}
+		}
+
+		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsComplete")]
+		public async Task OnAllUploadsComplete()
+		{
+			// reste batch vars
 			_batchCount = 0;
 			_batchProgress = 0;
-			AllUploadsComplete.InvokeAsync(null);
+
+			// clear dropzone queue
+			await JSRuntime.InvokeVoidAsync("panoramicData.cancelDropzone", $"#{Id}").ConfigureAwait(true);
+
+			// notify app
+			await AllUploadsComplete.InvokeAsync(null).ConfigureAwait(true);
 		}
 
 		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsProgress")]
@@ -243,13 +292,6 @@ namespace PanoramicData.Blazor
 				TotalBytesSent = totalBytesSent,
 				UploadProgress = uploadProgress
 			});
-		}
-		[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsStarted")]
-		public void OnAllUploadsStarted(int fileCount)
-		{
-			_batchCount = fileCount;
-			_batchProgress = 0;
-			AllUploadsStarted.InvokeAsync(fileCount);
 		}
 
 		public void Dispose()

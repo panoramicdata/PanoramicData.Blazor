@@ -244,6 +244,10 @@
   display: inline-block !important;
 }
 
+.pdfe-z-1200 {
+  z-index: 1200;
+}
+
 .pdfilemodalexplorer {
   height: 400px;
 }

@@ -657,7 +657,7 @@ namespace PanoramicData.Blazor
 				{
 					// calculate pan handle width
 					_panHandleWidth = Math.Min(((double)_viewportColumns / (double)(_totalColumns + 1)) * _canvasWidth, _canvasWidth);
-					Console.WriteLine($"_panHandleWidth = {_panHandleWidth}, _viewportColumns = {_viewportColumns}, _totalColumns = {_totalColumns}");
+					//Console.WriteLine($"_panHandleWidth = {_panHandleWidth}, _viewportColumns = {_viewportColumns}, _totalColumns = {_totalColumns}");
 					if (_canvasWidth > 0 && (_panHandleX + _panHandleWidth > _canvasWidth))
 					{
 						_panHandleX = _canvasWidth - _panHandleWidth;
