@@ -291,7 +291,7 @@ namespace PanoramicData.Blazor
 			}
 
 			// password / sensitive info?
-			if (IsPassword)
+			if (IsPassword || IsSensitive(item))
 			{
 				return "".PadRight(value.ToString().Length, '*');
 			}

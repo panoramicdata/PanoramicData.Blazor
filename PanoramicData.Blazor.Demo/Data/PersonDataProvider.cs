@@ -37,7 +37,8 @@ namespace PanoramicData.Blazor.Demo.Data
 						LastName = _lastNames[_random.Next(_lastNames.Length)],
 						Location = _random.Next(Locations.Length),
 						Dob = DateTime.Today.AddYears(-_random.Next(20, 50)),
-						Comments = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length))
+						Comments = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length)),
+						Password = "Password"
 					};
 					person.Email = $"{person.FirstName.ToLower()}@acme.com";
 					_people.Add(person);

@@ -6,7 +6,7 @@
 <style>
 	.pdtable {
 		height: 500px;
-        overflow-y: auto;
+		overflow-y: auto;
 	}
 </style>
 
@@ -149,8 +149,8 @@
 			<PDColumn Id="col-password"
 					  TItem="Person"
 					  Field="x => x.Password"
-					  ShowInList="false"
-					  IsPassword="true" />
+					  ShowInList="true"
+					  IsSensitive="@((x) => true)" />
 
 			<PDColumn Id="col-comments"
 					  TItem="Person"
