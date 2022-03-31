@@ -83,6 +83,7 @@ namespace PanoramicData.Blazor
 						Title = column.Title,
 						Options = column.Options,
 						IsPassword = column.IsPassword,
+						IsSensitive = column.IsSensitive,
 						IsTextArea = column.IsTextArea,
 						TextAreaRows = column.TextAreaRows,
 						ShowValidationResult = column.ShowValidationResult,

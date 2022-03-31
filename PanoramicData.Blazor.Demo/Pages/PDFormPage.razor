@@ -83,6 +83,13 @@
 						 ReadOnlyInCreate="(_) => false" />
 
 				<PDField TItem="Person"
+						 Field="x => x.Password"
+						 Title="Password"
+						 ShowInCreate="(x) => x?.AllowLogin == true"
+						 ShowInEdit="(x) => x?.AllowLogin == true"
+						 IsSensitive="@((x) => x?.LastName == "Baker")" />
+
+				<PDField TItem="Person"
 						 Field="x => x.Target"
 						 MaxValue="1000000"
 						 MinValue="0" />

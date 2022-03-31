@@ -184,6 +184,7 @@ namespace PanoramicData.Blazor
 					ShowValidationResult = field.ShowValidationResult,
 					Options = field.Options,
 					IsPassword = field.IsPassword,
+					IsSensitive = field.IsSensitive,
 					IsTextArea = field.IsTextArea,
 					TextAreaRows = field.TextAreaRows,
 					Description = field.Description,

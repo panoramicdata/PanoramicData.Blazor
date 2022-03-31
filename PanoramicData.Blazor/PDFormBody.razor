@@ -55,7 +55,7 @@ else if (Form.Mode != FormModes.Hidden)
 						{
 							@field.EditTemplate(Form?.Item);
 						}
-						else if (field.IsPassword)
+						else if (field.IsPassword || field.IsSensitive(Form?.Item))
 						{
 							<input type="password"
 								   disabled="@IsReadOnly(field)"
