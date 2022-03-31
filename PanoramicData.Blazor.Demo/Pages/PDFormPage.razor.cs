@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using PanoramicData.Blazor.Arguments;
 using PanoramicData.Blazor.Demo.Data;
 using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
@@ -36,6 +37,14 @@ namespace PanoramicData.Blazor.Demo.Pages
 			_dateHelper.ToolTip = "Set the date and time to now";
 
 			RefreshPeople();
+		}
+
+		private void OnFieldUpdated(FieldUpdateArgs<Person> args)
+		{
+			if(args.Field.Name == "AllowLogin")
+			{
+				StateHasChanged();
+			}
 		}
 
 		private void OnFooterClick(string key)

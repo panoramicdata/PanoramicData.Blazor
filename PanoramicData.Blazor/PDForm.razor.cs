@@ -363,6 +363,28 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Attempts to fetch the field with the given name.
+		/// </summary>
+		/// <param name="name">Name of the field to return.</param>
+		/// <returns>A FormField instance if found, otherwise null.</returns>
+		public FormField<TItem> GetField(string name)
+		{
+			return Fields.FirstOrDefault(x => x.Name == name);
+		}
+
+		/// <summary>
+		/// Attempts to get the requested fields current or original value and cast to the required type.
+		/// </summary>
+		/// <param name="fieldName">The name of the field whose value is to be fetched.</param>
+		/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
+		/// <returns>The current or original field value cat to the appropriate type.</returns>
+		/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
+		public object? GetFieldValue(string fieldName, bool updatedValue = true)
+		{
+			return GetFieldValue(GetField(fieldName), updatedValue);
+		}
+
+		/// <summary>
 		/// Attempts to get the requested fields current or original value and cast to the required type.
 		/// </summary>
 		/// <param name="field">The field whose value is to be fetched.</param>
@@ -402,6 +424,19 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Attempts to get the requested fields current or original value and cast to the required type.
 		/// </summary>
+		/// <param name="fieldName">The name of the field whose value is to be fetched.</param>
+		/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
+		/// <returns>The current or original field value cat to the appropriate type.</returns>
+		/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
+		public T GetFieldValue<T>(string fieldName, bool updatedValue = true) where T : struct
+		{
+			var field = GetField(fieldName);
+			return GetFieldValue<T>(field, updatedValue);
+		}
+
+		/// <summary>
+		/// Attempts to get the requested fields current or original value and cast to the required type.
+		/// </summary>
 		/// <param name="field">The field whose value is to be fetched.</param>
 		/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 		/// <returns>The current or original field value cat to the appropriate type.</returns>
@@ -409,7 +444,7 @@ namespace PanoramicData.Blazor
 		public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
 		{
 			// point to relevant TItem instance
-			if (Item is null)
+			if (Item is null || field is null)
 			{
 				return default;
 			}
@@ -430,6 +465,19 @@ namespace PanoramicData.Blazor
 			{
 				return default;
 			}
+		}
+
+		/// <summary>
+		/// Attempts to get the requested fields current or original value and cast to the required type.
+		/// </summary>
+		/// <param name="fieldName">The name of the field whose value is to be fetched.</param>
+		/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
+		/// <returns>The current or original field value cat to the appropriate type.</returns>
+		/// <remarks>Use this method for String fields only, use GetFieldValue<T>() for Struct values.</remarks>
+		public string GetFieldStringValue(string fieldName, bool updatedValue = true)
+		{
+			var field = GetField(fieldName);
+			return field is null ? string.Empty : GetFieldStringValue(field, updatedValue);
 		}
 
 		/// <summary>

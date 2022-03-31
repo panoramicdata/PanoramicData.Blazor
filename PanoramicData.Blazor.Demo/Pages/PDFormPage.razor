@@ -40,6 +40,7 @@
 				Item="SelectedPerson"
 				DataProvider="_personDataProvider"
 				Error="OnError"
+				FieldUpdated="OnFieldUpdated"
 				Deleted="OnPersonDeleted"
 				Updated="OnPersonUpdated"
 				Created="OnPersonCreated">
@@ -85,9 +86,7 @@
 				<PDField TItem="Person"
 						 Field="x => x.Password"
 						 Title="Password"
-						 ShowInCreate="(x) => x?.AllowLogin == true"
-						 ShowInEdit="(x) => x?.AllowLogin == true"
-						 IsSensitive="@((x) => x?.LastName == "Baker")" />
+						 IsSensitive="@((x) => Form.GetFieldValue<bool>("AllowLogin") == true )" />
 
 				<PDField TItem="Person"
 						 Field="x => x.Target"
