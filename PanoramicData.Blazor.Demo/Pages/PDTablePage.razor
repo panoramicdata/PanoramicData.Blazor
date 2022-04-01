@@ -150,7 +150,8 @@
 					  TItem="Person"
 					  Field="x => x.Password"
 					  ShowInList="true"
-					  IsSensitive="@((x) => true)" />
+					  IsSensitive="@((x, __) => true)" />
+
 
 			<PDColumn Id="col-comments"
 					  TItem="Person"

@@ -86,7 +86,7 @@
 				<PDField TItem="Person"
 						 Field="x => x.Password"
 						 Title="Password"
-						 IsSensitive="@((x) => Form.GetFieldValue<bool>("AllowLogin") == true )" />
+						 IsSensitive="@((x, __) => Form.GetFieldValue<bool>("AllowLogin") == true )" />
 
 				<PDField TItem="Person"
 						 Field="x => x.Target"

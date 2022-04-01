@@ -176,7 +176,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Gets or sets a function that determines whether this field contains sensitive values that should not be shown.
 		/// </summary>
-		[Parameter] public Func<TItem?, bool> IsSensitive { get; set; } = new Func<TItem?, bool>((_) => false);
+		[Parameter] public Func<TItem?, PDForm<TItem>?, bool> IsSensitive { get; set; } = new Func<TItem?, PDForm<TItem>?, bool>((_, __) => false);
 
 		/// <summary>
 		/// Gets or sets whether this field contains longer sections of text.
@@ -291,7 +291,7 @@ namespace PanoramicData.Blazor
 			}
 
 			// password / sensitive info?
-			if (IsPassword || IsSensitive(item))
+			if (IsPassword || IsSensitive(item, null))
 			{
 				return "".PadRight(value.ToString().Length, '*');
 			}
