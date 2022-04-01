@@ -1029,7 +1029,7 @@ namespace PanoramicData.Blazor
 				{
 					ConflictResolution = ConflictResolution,
 					TargetPath = targetRootFolder,
-					Payload = args.Files.Select(x => new FileExplorerItem { State = x.Key, Path = $"{x.Path.TrimEnd('/')}/{x.Name.TrimStart('/')}" }).ToList()
+					Payload = args.Files.Select(x => new FileExplorerItem { State = x.Key, Path = $"{x.Path?.TrimEnd('/')}/{x.Name?.TrimStart('/')}" }).ToList()
 				};
 				await GetUploadConflictsAsync(moveCopyArgs).ConfigureAwait(true);
 				if (moveCopyArgs.Conflicts.Any())
