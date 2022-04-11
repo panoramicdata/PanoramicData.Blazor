@@ -1440,7 +1440,11 @@ namespace PanoramicData.Blazor
 
 				if (conflictArgs.ConflictResolution == ConflictResolutions.Prompt)
 				{
-					conflictArgs.ConflictResolution = await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray(), showOverwrite).ConfigureAwait(true);
+					// check if target folder is source folder?
+					var parentPaths = payload.Select(x => x.ParentPath).Distinct().ToArray();
+					conflictArgs.ConflictResolution = parentPaths.Any(x => x == targetPath)
+						? await PromptUserForConflictResolution(Array.Empty<string>(), false, false, "The source and destination filenames are the same.").ConfigureAwait(true)
+						: await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray(), showOverwrite).ConfigureAwait(true);
 				}
 			}
 
@@ -1732,14 +1736,14 @@ namespace PanoramicData.Blazor
 			args.Conflicts = conflicts;
 		}
 
-		private async Task<ConflictResolutions> PromptUserForConflictResolution(IEnumerable<string> names, bool showOverwrite, bool showRename = true)
+		private async Task<ConflictResolutions> PromptUserForConflictResolution(IEnumerable<string> names, bool showOverwrite, bool showRename = true, string? message = null)
 		{
 			var namesSummary = names.Take(5).ToList();
 			if (names.Count() > 5)
 			{
 				namesSummary.Add($"+ {names.Count() - 5} other items");
 			}
-			_conflictDialogMessage = $"{names.Count()} conflicts found : -";
+			_conflictDialogMessage = message ?? $"{names.Count()} conflicts found : -";
 			_conflictDialogList = namesSummary.ToArray();
 			ConflictDialog!.Buttons.Find(x => x.Key == "Overwrite").IsVisible = showOverwrite;
 			ConflictDialog!.Buttons.Find(x => x.Key == "Rename").IsVisible = showRename;
