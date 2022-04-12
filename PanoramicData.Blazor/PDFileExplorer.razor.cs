@@ -1301,7 +1301,13 @@ namespace PanoramicData.Blazor
 		{
 			if (Tree?.SelectedNode?.Data != null)
 			{
-				var newFolderName = Tree.SelectedNode.MakeUniqueText("New Folder") ?? "New Folder";
+				// current logic uses tree node sub-items to create a new folder with a unique name
+				// ensure that the node is expanded so all sub-items are fetched.
+				if(!Tree.SelectedNode.IsExpanded)
+				{
+					await Tree.ToggleNodeIsExpandedAsync(Tree.SelectedNode).ConfigureAwait(true);
+				}
+				var newFolderName = Tree!.SelectedNode.MakeUniqueText("New Folder") ?? "New Folder";
 				var newPath = $"{Tree.SelectedNode.Data.Path.TrimEnd('/')}/{newFolderName}";
 				var newItem = new FileExplorerItem
 				{
