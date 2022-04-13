@@ -70,6 +70,7 @@ namespace PanoramicData.Blazor
 				{
 					Form.Fields.Add(new FormField<TItem>
 					{
+						AutoComplete = column.AutoComplete,
 						Id = column.Id,
 						Field = column.Field,
 						ReadOnlyInCreate = column.ReadOnlyInCreate,

@@ -14,6 +14,11 @@ namespace PanoramicData.Blazor.Models
 		internal Func<TItem, object>? CompiledFieldFunc => _compiledFieldFunc ??= Field?.Compile();
 
 		/// <summary>
+		/// Gets or sets the autocomplete attribute value.
+		/// </summary>
+		public string AutoComplete { get; set; } = string.Empty;
+
+		/// <summary>
 		/// gets or sets a unique identifier for the field.
 		/// </summary>
 		public string Id { get; set; } = string.Empty;

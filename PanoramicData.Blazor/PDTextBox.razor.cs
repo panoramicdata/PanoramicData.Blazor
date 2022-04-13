@@ -18,6 +18,11 @@ namespace PanoramicData.Blazor
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 		/// <summary>
+		/// Gets or sets the autocomplete attribute value.
+		/// </summary>
+		[Parameter] public string AutoComplete { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets the textbox sizes.
 		/// </summary>
 		[Parameter] public ButtonSizes? Size { get; set; }

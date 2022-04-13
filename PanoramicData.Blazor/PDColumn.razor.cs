@@ -21,6 +21,11 @@ namespace PanoramicData.Blazor
 		private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
 
 		/// <summary>
+		/// Gets or sets the autocomplete attribute value.
+		/// </summary>
+		[Parameter] public string AutoComplete { get; set; } = string.Empty;
+
+		/// <summary>
 		/// The parent PDTable instance.
 		/// </summary>
 		[CascadingParameter(Name = "Table")]

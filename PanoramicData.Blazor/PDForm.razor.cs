@@ -168,6 +168,7 @@ namespace PanoramicData.Blazor
 			{
 				Fields.Add(new FormField<TItem>
 				{
+					AutoComplete = field.AutoComplete,
 					Id = field.Id,
 					Field = field.Field,
 					Helper = field.Helper,

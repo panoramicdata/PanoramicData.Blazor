@@ -58,6 +58,7 @@ else if (Form.Mode != FormModes.Hidden)
 						else if (field.IsPassword || field.IsSensitive(Form?.Item, Form))
 						{
 							<input type="password"
+								   autocomplete="@field.AutoComplete"
 								   disabled="@IsReadOnly(field)"
 								   class="form-control @GetEditorClass(field)"
 								   value="@Form?.GetFieldStringValue(field)"
@@ -128,6 +129,7 @@ else if (Form.Mode != FormModes.Hidden)
 						else if (fieldType?.FullName == "System.String")
 						{
 							<PDTextBox CssClass="@GetEditorClass(field)"
+									   AutoComplete="@field.AutoComplete"
 									   ShowClearButton="false"
 									   IsEnabled="!IsReadOnly(field)"
 									   Value="@(Form?.GetFieldStringValue(field))"

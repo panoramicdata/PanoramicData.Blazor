@@ -1,6 +1,7 @@
 ﻿@if (KeypressEvent)
 {
 	<input id="@Id"
+		   autocomplete="@AutoComplete"
 		   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
 		   value="@Value"
 		   disabled="@(!IsEnabled)"
@@ -12,6 +13,7 @@
 else
 {
 	<input id="@Id"
+		   autocomplete="@AutoComplete"
 		   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
 		   value="@Value"
 		   disabled="@(!IsEnabled)"
