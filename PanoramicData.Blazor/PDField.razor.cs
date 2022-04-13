@@ -55,6 +55,11 @@ namespace PanoramicData.Blazor
 		}
 
 		/// <summary>
+		/// Gets or sets the autocomplete attribute value.
+		/// </summary>
+		[Parameter] public string AutoComplete { get; set; } = string.Empty;
+
+		/// <summary>
 		/// Gets or sets a function that determines whether this field is visible when the form mode is Edit.
 		/// </summary>
 		[Parameter] public Func<TItem?, bool> ShowInEdit { get; set; } = new Func<TItem?, bool>((_) => true);

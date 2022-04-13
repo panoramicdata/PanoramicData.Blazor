@@ -58,6 +58,9 @@ namespace PanoramicData.Blazor.Demo.Data
 
 		[Display(Name = "Modified", Description = "Date and time the record was last modified")]
 		public DateTimeOffset DateModified { get; set; }
+
+		[Display(Name = "Username", Description = "Login username")]
+		public string Username { get; set; }
 	}
 
 	public enum Departments

@@ -1,0 +1,105 @@
+﻿@page "/pdform4"
+@using PanoramicData.Blazor.Demo.Data
+
+<h1>PDForm</h1>
+
+<DemoSourceView SourceFiles="Pages/PDFormPage4.razor, Pages/PDFormPage4.razor.cs, Data/PersonDataProvider.cs">
+
+	<PDToolbar>
+
+		<PDToolbarPlaceholder>
+			<div>
+				<span>Example 1: Standalone Form</span>
+				<br />
+				<span class="text-muted"
+					  style="font-size: 0.8rem;">Uses INavigationCancelService to avoid navigating away when changes have been made</span>
+			</div>
+		</PDToolbarPlaceholder>
+
+		<PDToolbarButton Text="Create Person"
+						 ShiftRight="true"
+						 CssClass="btn-primary"
+						 Click="OnCreatePerson" />
+
+	</PDToolbar>
+
+	<div class="d-flex">
+
+		<div class="pr-4">
+			@foreach (var person in People)
+			{
+				<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPerson(person)">
+					<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
+				</div>
+			}
+		</div>
+
+		<PDForm @ref="Form"
+				CssClass="w-100"
+				TItem="Person"
+				Item="SelectedPerson"
+				DataProvider="_personDataProvider"
+				Error="OnError"
+				FieldUpdated="OnFieldUpdated"
+				Deleted="OnPersonDeleted"
+				Updated="OnPersonUpdated"
+				Created="OnPersonCreated">
+
+			<PDFormHeader TItem="Person"
+						  CreateTitle="Create New Person"
+						  EditTitle="Edit Person - {0}"
+						  DeleteTitle="Delete Person - {0}"
+						  ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
+
+			<PDFormBody TItem="Person">
+
+				<PDField TItem="Person"
+						 Field="x => x.FirstName"
+						 Title="First Name"
+						 ShowInDelete="(_) => true" />
+
+				<PDField TItem="Person"
+						 Field="x => x.LastName"
+						 MaxLength="20"
+						 Title="Last Name"
+						 ShowInDelete="(_) => true" />
+
+				<PDField TItem="Person"
+						 AutoComplete="on"
+						 Field="x => x.Username" />
+
+				<PDField TItem="Person"
+						 Field="x => x.Password"
+						 Title="Password"
+						 AutoComplete="on"
+						 IsPassword="true" />
+
+			</PDFormBody>
+
+			<PDFormFooter TItem="Person"
+						  Click="OnFooterClick" />
+		</PDForm>
+
+	</div>
+
+	<EventView />
+
+</DemoSourceView>
+
+<style>
+	.person-list {
+		border-radius: .3rem;
+		border: 1px solid #ced4da;
+		padding: 3px;
+		margin: 0px 5px 5px 5px;
+		cursor: pointer;
+	}
+
+		.person-list.selected {
+			background-color: lightgray;
+		}
+
+	.pd-form-header {
+		padding-bottom: 10px;
+	}
+</style>
