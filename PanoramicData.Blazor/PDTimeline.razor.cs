@@ -749,7 +749,7 @@ namespace PanoramicData.Blazor
 			{
 				if (Options.Selection.CanChangeStart && !Options.Selection.CanChangeEnd)
 				{
-					endIndex = _totalColumns - 1;
+					endIndex = (Options.General.RightAlign ? _viewportColumns : _totalColumns) - 1;
 				}
 				else if (!Options.Selection.CanChangeStart && Options.Selection.CanChangeEnd)
 				{
