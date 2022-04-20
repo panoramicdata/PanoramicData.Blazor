@@ -1521,8 +1521,22 @@ namespace PanoramicData.Blazor
 					}
 				}
 
-				// refresh the current table view
-				await Table!.RefreshAsync().ConfigureAwait(true);
+				// RM-12291 - API: moving a folder between a Sharepoint filesystem and a ReportMagic filesystem(when target folder is expanded) shows an API error(but succeeds)
+				// determine whether to refresh the table or select the target node
+				var selectedItem = Tree?.SelectedNode?.Data;
+				if (isCopy || (selectedItem != null && !payload.Contains(selectedItem)))
+				{
+					await Table!.RefreshAsync().ConfigureAwait(true);
+				}
+				else
+				{
+					// switch to target path
+					var node = Tree?.Search(x => x.Data?.Path == targetPath);
+					if(Tree != null && node != null)
+					{
+						await Tree.SelectNode(node).ConfigureAwait(true);
+					}
+				}
 
 				// refresh affected tree nodes
 				foreach (var path in pathsToRefresh)
