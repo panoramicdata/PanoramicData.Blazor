@@ -5,6 +5,9 @@ namespace PanoramicData.Blazor
 	public partial class PDBusyOverlay
 	{
 		[Parameter]
+		public string CssClass { get; set; } = string.Empty;
+
+		[Parameter]
 		public bool IsBusy { get; set; }
 
 		[Parameter]
