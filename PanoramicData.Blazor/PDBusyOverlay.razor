@@ -1,4 +1,4 @@
-﻿<div class="@GetCssClass()">
+﻿<div class="@($"pd-busy-overlay {(IsBusy ? "show" : "hide")}")">
     @if(IsBusy)
     {
         <div class="overlay-content">
