@@ -15,7 +15,5 @@ namespace PanoramicData.Blazor
 
 		[Parameter]
 		public RenderFragment? OverlayContent { get; set; }
-
-		private string GetCssClass() => $"pd-busy-overlay {(IsBusy ? "show" : "hide")}";
 	}
 }
