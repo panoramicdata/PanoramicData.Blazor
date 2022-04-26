@@ -11,7 +11,8 @@ namespace PanoramicData.Blazor
 	public partial class PDButton : IDisposable
 	{
 		#region Inject
-		[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;
+		[Inject]
+		private IGlobalEventService GlobalEventService { get; set; } = null!;
 		#endregion
 
 		/// <summary>
