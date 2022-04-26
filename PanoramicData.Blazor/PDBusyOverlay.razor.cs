@@ -10,6 +10,12 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public RenderFragment? ChildContent { get; set; }
 
-		private string GetCssClass() => $"busy-overlay {(IsBusy ? "show" : "hide")}";
+		[Parameter]
+		public string OverlayCssClass { get; set; } = "fas fa-4x fa-spin fa-circle-notch";
+
+		[Parameter]
+		public RenderFragment? OverlayContent { get; set; }
+
+		private string GetCssClass() => $"pd-busy-overlay {(IsBusy ? "show" : "hide")}";
 	}
 }

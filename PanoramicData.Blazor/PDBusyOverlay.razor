@@ -1,3 +1,16 @@
 ﻿<div class="@GetCssClass()">
-	@ChildContent
+    @if(IsBusy)
+    {
+        <div class="overlay-content">
+            @if(OverlayContent is null)
+            {
+                <i class="@OverlayCssClass"></i>
+            }
+            else
+            {
+                @OverlayContent
+            }
+        </div>
+    }
+    @ChildContent
 </div>
