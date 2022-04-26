@@ -10,4 +10,9 @@
 	<p>
 		<button class="btn btn-primary" @onclick="@ShowFor3SecondsAsync">Show BlockOverlay with HTML for 3 seconds</button>
 	</p>
+
+	<PDBusyOverlay IsBusy="_isBusyLocal" OverlayCssClass="fas fa-2x fa-spin fa-spinner">
+		<button class="btn btn-primary" @onclick="@ShowLocalOverlayAsync">Show BusyOverlay for 5 seconds</button>
+	</PDBusyOverlay>
+
 </DemoSourceView>

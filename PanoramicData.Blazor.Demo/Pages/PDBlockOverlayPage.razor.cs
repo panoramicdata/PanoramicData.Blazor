@@ -8,7 +8,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 {
 	public partial class PDBlockOverlayPage
 	{
-		[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
+		private bool _isBusyLocal;
+
+		[Inject]
+		protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
 		protected async Task ShowFor1SecondAsync()
 		{
@@ -35,6 +38,19 @@ namespace PanoramicData.Blazor.Demo.Pages
 			finally
 			{
 				BlockOverlayService.Hide();
+			}
+		}
+
+		protected async Task ShowLocalOverlayAsync()
+		{
+			try
+			{
+				_isBusyLocal = true;
+				await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(true);
+			}
+			finally
+			{
+				_isBusyLocal = false;
 			}
 		}
 	}
