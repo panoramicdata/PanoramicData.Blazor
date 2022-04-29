@@ -64,7 +64,40 @@ namespace PanoramicData.Blazor
 
 		protected override void OnInitialized()
 		{
-			if (Form != null && Table != null)
+			//if (Form != null && Table != null)
+			//{
+			//	foreach (var column in Table.Columns)
+			//	{
+			//		Form.Fields.Add(new FormField<TItem>
+			//		{
+			//			AutoComplete = column.AutoComplete,
+			//			Id = column.Id,
+			//			Field = column.Field,
+			//			ReadOnlyInCreate = column.ReadOnlyInCreate,
+			//			ReadOnlyInEdit = column.ReadOnlyInEdit,
+			//			ShowInCreate = column.ShowInCreate,
+			//			ShowInDelete = column.ShowInDelete,
+			//			ShowInEdit = column.ShowInEdit,
+			//			EditTemplate = column.EditTemplate,
+			//			Helper = column.Helper,
+			//			MaxLength = column.MaxLength,
+			//			Title = column.Title,
+			//			Options = column.Options,
+			//			IsPassword = column.IsPassword,
+			//			IsSensitive = column.IsSensitive,
+			//			IsTextArea = column.IsTextArea,
+			//			TextAreaRows = column.TextAreaRows,
+			//			ShowValidationResult = column.ShowValidationResult,
+			//			Description = column.Description,
+			//			HelpUrl = column.HelpUrl
+			//		});
+			//	}
+			//}
+		}
+
+		protected override void OnParametersSet()
+		{
+			if (Table != null && Form != null && Form.Fields.Count == 0)
 			{
 				foreach (var column in Table.Columns)
 				{
