@@ -10,6 +10,8 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	{
+		private bool _formSet;
+
 		/// <summary>
 		/// Form the component belongs to.
 		/// </summary>
@@ -120,23 +122,6 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>();
 
-		protected override void OnInitialized()
-		{
-			base.OnInitialized();
-			if (Form != null)
-			{
-				// listen for error changes
-				Form.ErrorsChanged += Form_ErrorsChanged;
-
-				// create default buttons
-				Buttons.Add(new ToolbarButton { Key = "Yes", Text = YesButtonText, CssClass = YesButtonCssClass, IconCssClass = YesButtonIconCssClass, ShiftRight = true, Size = Size });
-				Buttons.Add(new ToolbarButton { Key = "No", Text = NoButtonText, CssClass = NoButtonCssClass, IconCssClass = NoButtonIconCssClass, Size = Size });
-				Buttons.Add(new ToolbarButton { Key = "Delete", Text = DeleteButtonText, CssClass = DeleteButtonCssClass, IconCssClass = DeleteButtonIconCssClass, Size = Size });
-				Buttons.Add(new ToolbarButton { Key = "Save", Text = SaveButtonText, CssClass = SaveButtonCssClass, IconCssClass = SaveButtonIconCssClass, ShiftRight = true, Size = Size });
-				Buttons.Add(new ToolbarButton { Key = "Cancel", Text = CancelButtonText, CssClass = CancelButtonCssClass, IconCssClass = CancelButtonIconCssClass, Size = Size });
-			}
-		}
-
 		private void SetVisibility(ToolbarItem? item, bool shown)
 		{
 			if (item != null)
@@ -150,6 +135,21 @@ namespace PanoramicData.Blazor
 			// update state of default buttons
 			if (Form != null)
 			{
+				if (!_formSet)
+				{
+					_formSet = true;
+
+					// listen for error changes
+					Form.ErrorsChanged += Form_ErrorsChanged;
+
+					// create default buttons
+					Buttons.Add(new ToolbarButton { Key = "Yes", Text = YesButtonText, CssClass = YesButtonCssClass, IconCssClass = YesButtonIconCssClass, ShiftRight = true, Size = Size });
+					Buttons.Add(new ToolbarButton { Key = "No", Text = NoButtonText, CssClass = NoButtonCssClass, IconCssClass = NoButtonIconCssClass, Size = Size });
+					Buttons.Add(new ToolbarButton { Key = "Delete", Text = DeleteButtonText, CssClass = DeleteButtonCssClass, IconCssClass = DeleteButtonIconCssClass, Size = Size });
+					Buttons.Add(new ToolbarButton { Key = "Save", Text = SaveButtonText, CssClass = SaveButtonCssClass, IconCssClass = SaveButtonIconCssClass, ShiftRight = true, Size = Size });
+					Buttons.Add(new ToolbarButton { Key = "Cancel", Text = CancelButtonText, CssClass = CancelButtonCssClass, IconCssClass = CancelButtonIconCssClass, Size = Size });
+				}
+
 				SetVisibility(Buttons.Find(x => x.Key == "Yes"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
 				SetVisibility(Buttons.Find(x => x.Key == "No"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
 				SetVisibility(Buttons.Find(x => x.Key == "Delete"), ShowDelete && Form.Mode == FormModes.Edit);
