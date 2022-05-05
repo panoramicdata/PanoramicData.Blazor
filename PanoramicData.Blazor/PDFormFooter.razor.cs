@@ -130,6 +130,16 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		protected override void OnAfterRender(bool firstRender)
+		{
+			base.OnAfterRender(firstRender);
+		}
+
+		protected override void OnInitialized()
+		{
+			base.OnInitialized();
+		}
+
 		protected override void OnParametersSet()
 		{
 			// update state of default buttons

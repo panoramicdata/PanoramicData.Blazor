@@ -16,6 +16,10 @@ namespace PanoramicData.Blazor.Extensions
 			{
 				return Enum.Parse(type, value.ToString());
 			}
+			else if (type.FullName == "System.Guid")
+			{
+				return Guid.Parse(value.ToString());
+			}
 			else if (type.FullName == "System.DateTime")
 			{
 				return DateTime.Parse(value.ToString());
