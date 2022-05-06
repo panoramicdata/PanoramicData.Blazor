@@ -17,7 +17,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 	{
 		private string _searchText = string.Empty;
 		private PageCriteria _pageCriteria = new(1, 100);
-		private SortCriteria _sortCriteria = new("Col1", SortDirection.Descending);
+		private SortCriteria _sortCriteria = new("Last Name", SortDirection.Descending);
 		private readonly PersonDataProvider _personDataProvider = new();
 		private bool AllowDrag { get; set; }
 		private bool AllowDrop { get; set; }

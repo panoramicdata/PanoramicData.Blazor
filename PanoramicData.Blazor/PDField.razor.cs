@@ -90,6 +90,11 @@ namespace PanoramicData.Blazor
 		[Parameter] public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
 
 		/// <summary>
+		/// Gets an asynchronous function that returns available value choices.
+		/// </summary>
+		[Parameter] public Func<FormField<TItem>, TItem?, Task<OptionInfo[]>>? OptionsAsync { get; set; }
+
+		/// <summary>
 		/// Gets whether this field contains passwords or other sensitive information.
 		/// </summary>
 		[Parameter] public bool IsPassword { get; set; }
