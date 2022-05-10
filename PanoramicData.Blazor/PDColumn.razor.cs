@@ -45,10 +45,10 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public RenderFragment<TItem?>? EditTemplate { get; set; }
 
-		///// <summary>
-		///// Gets or sets whether this column can be filtered.
-		///// </summary>
-		//[Parameter] public bool Filterable { get; set; }
+		/// <summary>
+		/// Gets or sets whether this column can be filtered.
+		/// </summary>
+		[Parameter] public bool Filterable { get; set; }
 
 		/// <summary>
 		/// Optional format string for displaying the field value.
@@ -75,6 +75,11 @@ namespace PanoramicData.Blazor
 			}
 			return null;
 		}
+
+		[Parameter]
+		public string FilterIcon { get; set; } = "fas fa-filter";
+
+		public Filter Filter { get; set; } = new Filter();
 
 		/// <summary>
 		/// Renders the field value for this column and the given item.
@@ -349,6 +354,12 @@ namespace PanoramicData.Blazor
 				Type = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
 			}
 			PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
+
+			// update filter key
+			if(Id != Filter.Key)
+			{
+				Filter.Key = Id;
+			}
 		}
 
 		public void SetShowInList(bool showInList)

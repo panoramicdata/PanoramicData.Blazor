@@ -1,0 +1,7 @@
+﻿.pd-filter, .pd-filter:hover {
+	color: whitesmoke;
+}
+
+.pd-filter.filtered, .pd-filter:hover.filtered {
+	color: var(--primary);
+}

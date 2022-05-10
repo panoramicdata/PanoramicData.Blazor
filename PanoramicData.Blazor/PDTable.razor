@@ -45,19 +45,15 @@
                     <th scope="col" class="@column.ThClass" style="white-space: nowrap;">
                         @if(column.HeaderTemplate is null)
                         {
-                            if (column.Sortable)
+                            @if (column.Filterable)
                             {
-                                <div title="@column.HelpText" @onclick="@(async () => await SortByAsync(column))">
-                                    <span class="text-nowrap pd-pointer">@column.Title</span>
-                                    @if (column.Sortable)
-                                    {
-                                        <span>@((MarkupString)column.SortIcon)</span>
-                                    }
-                                </div>
+                                <PDFilter Filter="column.Filter"
+                                          FilterChanged="OnFilterChanged" />
                             }
-                            else
+                            <span class="text-nowrap" title="@column.HelpText">@column.Title</span>
+                            @if (column.Sortable)
                             {
-                                <div title="@column.HelpText">@column.Title</div>
+                                <span class="pd-pointer" @onclick="@(async () => await SortByAsync(column))">@((MarkupString)column.SortIcon)</span>
                             }
                         }
                         else

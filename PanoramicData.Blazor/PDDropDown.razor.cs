@@ -41,6 +41,10 @@ namespace PanoramicData.Blazor
 		public Directions DropdownDirection { get; set; } = Directions.Down;
 
 		[Parameter]
+		public EventCallback DropDownShown { get; set; }
+
+
+		[Parameter]
 		public bool IsEnabled { get; set; } = true;
 
 		[Parameter]
@@ -110,9 +114,10 @@ namespace PanoramicData.Blazor
 		}
 
 		[JSInvokable]
-		public void OnDropDownShown()
+		public async Task OnDropDownShown()
 		{
 			_shown = true;
+			await DropDownShown.InvokeAsync(null).ConfigureAwait(true);
 			StateHasChanged();
 		}
 

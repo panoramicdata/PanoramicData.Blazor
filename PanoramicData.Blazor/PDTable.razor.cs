@@ -21,13 +21,14 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IDisposable where TItem : class
 	{
-		public readonly string IdPrefix = "pd-table-";
-		public readonly string IdEditPrefix = "pd-table-edit-";
-		private static int _idSequence;
 		private bool _dragging;
 		private Timer? _editTimer;
-		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
+		private static int _idSequence;
 		private bool _mouseDownOriginatedFromTable;
+		public readonly string IdPrefix = "pd-table-";
+		public readonly string IdEditPrefix = "pd-table-edit-";
+		private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
+		private string? _lastSearchText;
 		private readonly Dictionary<string, object?> _editValues = new Dictionary<string, object?>();
 
 		private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
@@ -210,6 +211,11 @@ namespace PanoramicData.Blazor
 		/// Search text to be passed to IDataProvider when querying for data.
 		/// </summary>
 		[Parameter] public string? SearchText { get; set; }
+
+		/// <summary>
+		/// Event callback for when search text has changed.
+		/// </summary>
+		[Parameter] public EventCallback<string?> SearchTextChanged { get; set; }
 
 		/// <summary>
 		/// Callback fired whenever the current selection changes.
@@ -399,6 +405,8 @@ namespace PanoramicData.Blazor
 			{
 				BlockOverlayService.Show();
 
+
+
 				//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 				var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.Title == SortCriteria?.Key);
 				var request = new DataRequest<TItem>
@@ -538,6 +546,23 @@ namespace PanoramicData.Blazor
 		public void OnEditInput(string columnId, object? value)
 		{
 			_editValues[columnId] = value;
+		}
+
+		private async Task OnFilterChanged(Filter filter)
+		{
+			var sb = new StringBuilder();
+			foreach(var col in ActualColumnsToDisplay)
+			{
+				if (col.Filterable)
+				{
+					if (col.Filter.FilterType != FilterTypes.NoFilter)
+					{
+						sb.Append(' ').Append(col.Filter.ToString());
+					}
+				}
+			}
+			SearchText = sb.ToString().Trim();
+			await SearchTextChanged.InvokeAsync(SearchText).ConfigureAwait(true);
 		}
 
 		/// <summary>
@@ -738,6 +763,28 @@ namespace PanoramicData.Blazor
 
 		protected override void OnParametersSet()
 		{
+			// has search text changed?
+			if (SearchText != _lastSearchText)
+			{
+				Console.WriteLine($"OnParametersSet: SearchText = {SearchText}");
+				_lastSearchText = SearchText;
+				foreach (var column in ActualColumnsToDisplay)
+				{
+					if (column.Filterable)
+					{
+						if (string.IsNullOrWhiteSpace(SearchText))
+						{
+							column.Filter.FilterType = FilterTypes.NoFilter;
+							column.Filter.Value = string.Empty;
+						}
+						else
+						{
+							column.Filter.UpdateFrom(SearchText ?? string.Empty);
+						}
+					}
+				}
+			}
+
 			// validate parameter constraints
 			if (SelectionMode != TableSelectionMode.None && KeyField == null)
 			{
