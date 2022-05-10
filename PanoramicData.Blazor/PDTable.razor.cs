@@ -327,7 +327,7 @@ namespace PanoramicData.Blazor
 			try
 			{
 				Columns.Add(column);
-				if (column.Id == SortCriteria?.Key)
+				if (column.Id == SortCriteria?.Key || column.Title == SortCriteria?.Key)
 				{
 					column.SortDirection = SortCriteria.Direction;
 				}
@@ -462,7 +462,7 @@ namespace PanoramicData.Blazor
 				else
 				{
 					// if column already sorted then reverse direction
-					if (column.Id == SortCriteria?.Key)
+					if (column.Id == SortCriteria?.Key || column.Title == SortCriteria?.Key)
 					{
 						column.SortDirection = column.SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
 					}
