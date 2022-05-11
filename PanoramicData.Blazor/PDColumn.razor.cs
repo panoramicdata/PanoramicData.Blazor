@@ -79,7 +79,7 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public string FilterIcon { get; set; } = "fas fa-filter";
 
-		public Filter Filter { get; set; } = new Filter();
+		public Filter Filter { get; private set; } = new Filter();
 
 		/// <summary>
 		/// Renders the field value for this column and the given item.
@@ -354,12 +354,6 @@ namespace PanoramicData.Blazor
 				Type = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
 			}
 			PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
-
-			// update filter key
-			if(Id != Filter.Key)
-			{
-				Filter.Key = Id;
-			}
 		}
 
 		public void SetShowInList(bool showInList)

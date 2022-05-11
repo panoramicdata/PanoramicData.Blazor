@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 
 namespace PanoramicData.Blazor.Models
@@ -88,6 +90,8 @@ namespace PanoramicData.Blazor.Models
 			}
 		}
 
+		#region Class Members
+
 		public static Filter Parse(string token)
 		{
 			var key = string.Empty;
@@ -141,5 +145,7 @@ namespace PanoramicData.Blazor.Models
 			}
 			return filters;
 		}
+
+		#endregion
 	}
 }

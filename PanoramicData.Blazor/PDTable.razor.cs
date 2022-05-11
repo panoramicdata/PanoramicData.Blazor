@@ -8,10 +8,10 @@ using PanoramicData.Blazor.Exceptions;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
-using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -337,6 +337,33 @@ namespace PanoramicData.Blazor
 				{
 					column.SortDirection = SortCriteria.Direction;
 				}
+
+				if (column.Filterable)
+				{
+					// update filter key and automatically set property name from Field
+					column.Filter.Key = column.Id;
+					if (DataProvider is IKeyedCollection<string> collection && column.Field != null)
+					{
+						var body = column.Field.Body.ToString();
+						if (column.Field.Body is MemberExpression)
+						{
+							var path = body.Contains(".") ? string.Join(".", body.Split('.').Skip(1)) : body;
+							collection.Add(column.Id, path);
+						}
+						else
+						{
+							var idx1 = body.IndexOf("Convert(");
+							var idx2 = body.IndexOf(",");
+							if (idx1 > -1 && idx2 > idx1)
+							{
+								body = body.Substring(idx1 + 8, idx2 - (idx1 + 8));
+								var path = body.Contains(".") ? string.Join(".", body.Split('.').Skip(1)) : body;
+								collection.Add(column.Id, path);
+							}
+						}
+					}
+				}
+
 				StateHasChanged();
 			}
 			catch (Exception ex)
