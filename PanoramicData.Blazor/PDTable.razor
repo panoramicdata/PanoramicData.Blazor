@@ -45,20 +45,21 @@
                     <th scope="col" class="@column.ThClass" style="white-space: nowrap;">
                         @if(column.HeaderTemplate is null)
                         {
-                            @if (column.Filterable)
-                            {
-                                <PDFilter Filter="column.Filter"
-                                          FilterChanged="OnFilterChanged" />
-                            }
                             <span class="text-nowrap" title="@column.HelpText">@column.Title</span>
-                            @if (column.Sortable)
-                            {
-                                <span class="pd-pointer" @onclick="@(async () => await SortByAsync(column))">@((MarkupString)column.SortIcon)</span>
-                            }
                         }
                         else
                         {
                             @column.HeaderTemplate;
+                        }
+                        @if (column.Filterable)
+                        {
+                            <PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column))"
+                                        Filter="column.Filter"
+                                        FilterChanged="OnFilterChanged" />
+                        }
+                        @if (column.Sortable)
+                        {
+                            <span class="pd-pointer" @onclick="@(async () => await SortByAsync(column))">@((MarkupString)column.SortIcon)</span>
                         }
                     </th>
                 }

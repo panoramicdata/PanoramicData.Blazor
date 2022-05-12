@@ -786,6 +786,34 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		private async Task<string[]> OnFetchFilterValuesAsync(PDColumn<TItem> column)
+		{
+			if(column.Field is null)
+			{
+				return Array.Empty<string>();
+			}
+
+			// TODO: cache values for period of time?
+
+			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.Title == SortCriteria?.Key);
+			var request = new DataRequest<TItem>
+			{
+				Take = 50,
+				ForceUpdate = false,
+				SortFieldExpression = sortColumn?.Field,
+				SortDirection = sortColumn?.SortDirection,
+				SearchText = SearchText
+			};
+
+			var response = await DataProvider.GetDataAsync(request, default);
+			return response.Items
+				.Where(x => column.GetValue(x) != null)
+				.Select(x => column.GetValue(x)!.ToString())
+				.Distinct()
+				.OrderBy(x => x)
+				.ToArray();
+		}
+
 		protected override void OnParametersSet()
 		{
 			// has search text changed?

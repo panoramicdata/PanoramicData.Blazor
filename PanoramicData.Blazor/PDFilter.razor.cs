@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Models;
 using System;
 using System.Threading.Tasks;
@@ -9,12 +8,16 @@ namespace PanoramicData.Blazor
 	public partial class PDFilter
 	{
 		private PDDropDown _dropDown = null!;
+		private string[] _values = Array.Empty<string>();
 
 		[Parameter]
 		public Filter Filter { get; set; } = new Filter();
 
 		[Parameter]
 		public EventCallback<Filter> FilterChanged { get; set; }
+
+		[Parameter]
+		public Func<Filter, Task<string[]>>? FetchValuesAsync { get; set; }
 
 		[Parameter]
 		public string IconCssClass { get; set; } = "fas fa-filter";
@@ -25,8 +28,7 @@ namespace PanoramicData.Blazor
 
 		private Task OnDropDownShown()
 		{
-			// TODO: Fetch / cache values
-			return Task.CompletedTask;
+			return RefreshValues();
 		}
 
 		private async Task OnDropDownKeyPress(int keyCode)
@@ -47,6 +49,25 @@ namespace PanoramicData.Blazor
 		{
 			Filter.FilterType = (FilterTypes)Enum.Parse(typeof(FilterTypes), args.Value.ToString());
 			await FilterChanged.InvokeAsync(Filter).ConfigureAwait(true);
+			if(Filter.FilterType == FilterTypes.NoFilter)
+			{
+				await RefreshValues().ConfigureAwait(true);
+			}
+		}
+
+		private async Task OnValueClicked(string value)
+		{
+			Filter.FilterType = FilterTypes.Equals;
+			Filter.Value = value;
+			await FilterChanged.InvokeAsync(Filter).ConfigureAwait(true);
+		}
+
+		private async Task RefreshValues()
+		{
+			if (FetchValuesAsync != null)
+			{
+				_values = await FetchValuesAsync.Invoke(Filter).ConfigureAwait(true);
+			}
 		}
 	}
 }

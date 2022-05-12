@@ -25,4 +25,17 @@
                onclick="event.stopPropagation()" />
     </div>
 
+    @if (_values.Length > 0)
+    {
+        <div class="filter-values">
+            <ul>
+                @foreach(var value in _values)
+                {
+                    <li class="pd-pointer"
+                        @onclick="@(() => OnValueClicked(value))">@value</li>
+                }
+            </ul>
+        </div>
+    }
+
 </PDDropDown>

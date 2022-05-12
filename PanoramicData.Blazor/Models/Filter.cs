@@ -24,6 +24,8 @@ namespace PanoramicData.Blazor.Models
 
 		public string Value { get; set; } = string.Empty;
 
+		public KeyValuePair<string, object> Values { get; set; }
+
 		public void Clear()
 		{
 			FilterType = FilterTypes.NoFilter;

@@ -236,7 +236,7 @@
 		var el = $(`#${id}`);
 		if (el) {
 			el.on('keypress', function (ev) {
-				console.log('keypress', arguments);
+				//console.log('keypress', arguments);
 				if (ev.keyCode == 13 && ref) {
 					ref.invokeMethodAsync("OnKeyPressed", 13);
 				}
