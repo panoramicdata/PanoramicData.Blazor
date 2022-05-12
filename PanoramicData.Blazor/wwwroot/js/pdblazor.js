@@ -235,6 +235,12 @@
 	initializeDropDown: function (id, ref) {
 		var el = $(`#${id}`);
 		if (el) {
+			el.on('keypress', function (ev) {
+				console.log('keypress', arguments);
+				if (ev.keyCode == 13 && ref) {
+					ref.invokeMethodAsync("OnKeyPressed", 13);
+				}
+			});
 			el.on("shown.bs.dropdown", function () {
 				if (ref) {
 					ref.invokeMethodAsync("OnDropDownShown");
@@ -245,6 +251,13 @@
 					ref.invokeMethodAsync("OnDropDownHidden");
 				}
 			});
+		}
+	},
+
+	toggleDropDown: function (id) {
+		var el = $(`#${id}`);
+		if (el) {
+			el.dropdown('toggle');
 		}
 	},
 

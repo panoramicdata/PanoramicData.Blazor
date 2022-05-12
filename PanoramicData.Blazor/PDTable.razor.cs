@@ -432,8 +432,6 @@ namespace PanoramicData.Blazor
 			{
 				BlockOverlayService.Show();
 
-
-
 				//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 				var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.Title == SortCriteria?.Key);
 				var request = new DataRequest<TItem>
@@ -578,18 +576,18 @@ namespace PanoramicData.Blazor
 		private async Task OnFilterChanged(Filter filter)
 		{
 			var sb = new StringBuilder();
-			foreach(var col in ActualColumnsToDisplay)
+			foreach(var col in ActualColumnsToDisplay.Where(x => x.Filterable && x.Filter.IsValid))
 			{
-				if (col.Filterable)
-				{
-					if (col.Filter.FilterType != FilterTypes.NoFilter)
-					{
-						sb.Append(' ').Append(col.Filter.ToString());
-					}
-				}
+				sb.Append(' ').Append(col.Filter.ToString());
 			}
 			SearchText = sb.ToString().Trim();
 			await SearchTextChanged.InvokeAsync(SearchText).ConfigureAwait(true);
+
+			if(SearchText != _lastSearchText)
+			{
+				_lastSearchText = SearchText;
+				await RefreshAsync(SearchText).ConfigureAwait(true);
+			}
 		}
 
 		/// <summary>
@@ -793,23 +791,20 @@ namespace PanoramicData.Blazor
 			// has search text changed?
 			if (SearchText != _lastSearchText)
 			{
-				Console.WriteLine($"OnParametersSet: SearchText = {SearchText}");
+				//Console.WriteLine($"OnParametersSet: SearchText = {SearchText}");
 				_lastSearchText = SearchText;
-				foreach (var column in ActualColumnsToDisplay)
+				foreach (var column in ActualColumnsToDisplay.Where(x => x.Filterable))
 				{
-					if (column.Filterable)
+					if (string.IsNullOrWhiteSpace(SearchText))
 					{
-						if (string.IsNullOrWhiteSpace(SearchText))
-						{
-							column.Filter.FilterType = FilterTypes.NoFilter;
-							column.Filter.Value = string.Empty;
-						}
-						else
-						{
-							column.Filter.UpdateFrom(SearchText ?? string.Empty);
-						}
+						column.Filter.Clear();
+					}
+					else
+					{
+						column.Filter.UpdateFrom(SearchText ?? string.Empty);
 					}
 				}
+				StateHasChanged();
 			}
 
 			// validate parameter constraints

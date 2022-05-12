@@ -1,6 +1,9 @@
-﻿<PDDropDown IconCssClass="@IconCssClass"
+﻿<PDDropDown @ref="_dropDown"
+    IconCssClass="@IconCssClass"
     CssClass="@CssClass"
+    CloseOption="PDDropDown.CloseOptions.Outside"
     DropDownShown="OnDropDownShown"
+    KeyPress="OnDropDownKeyPress"
     ShowCaret="false">
 
     <div class="form-inline"
@@ -18,7 +21,8 @@
         </select>
         <input class="form-control form-control-sm mx-1"
                value="@Filter.Value"
-               @onchange="OnFilterTextChange" />
+               @onchange="OnFilterTextChange"
+               onclick="event.stopPropagation()" />
     </div>
 
 </PDDropDown>

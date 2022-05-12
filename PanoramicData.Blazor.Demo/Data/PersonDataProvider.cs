@@ -59,8 +59,8 @@ namespace PanoramicData.Blazor.Demo.Data
 				// apply search criteria and get a total count of matching items
 				if (!string.IsNullOrWhiteSpace(request.SearchText))
 				{
-					var filters = Filter.ParseMany(request.SearchText);
-					if (filters.Count == 0)
+					var filters = Filter.ParseMany(request.SearchText).ToArray();
+					if (filters.Length == 0)
 					{
 						// basic filtering
 						query = query.Where(x => x.FirstName.Contains(request.SearchText) || x.LastName.Contains(request.SearchText));

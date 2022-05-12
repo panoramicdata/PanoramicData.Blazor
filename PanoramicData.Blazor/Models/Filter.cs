@@ -24,6 +24,14 @@ namespace PanoramicData.Blazor.Models
 
 		public string Value { get; set; } = string.Empty;
 
+		public void Clear()
+		{
+			FilterType = FilterTypes.NoFilter;
+			Value = string.Empty;
+		}
+
+		public bool IsValid => FilterType != FilterTypes.NoFilter && !string.IsNullOrWhiteSpace(Value);
+
 		public override string ToString()
 		{
 			switch (FilterType)
@@ -61,31 +69,23 @@ namespace PanoramicData.Blazor.Models
 			else
 			{
 				var idx = text.IndexOf($"{Key}:");
-				if (idx > -1)
+				if (idx == -1)
+				{
+					Clear();
+				}
+				else
 				{
 					// read until next un-quoted whitespace
-					var sb = new StringBuilder();
-					var quoted = false;
-					var rht = text.Substring(idx + Key.Length + 1);
-					if (rht.StartsWith("\""))
+					var filter = ParseMany(text.Substring(idx)).FirstOrDefault();
+					if(filter is null)
 					{
-						rht = rht.Substring(1);
-						quoted = true;
+						Clear();
 					}
-					foreach (var ch in rht)
+					else
 					{
-						if((quoted && ch == '"') || (!quoted && char.IsWhiteSpace(ch)))
-						{
-							break;
-						}
-						else
-						{
-							sb.Append(ch);
-						}
+						FilterType = filter.FilterType;
+						Value = filter.Value;
 					}
-					var filter = Parse(sb.ToString());
-					FilterType = filter.FilterType;
-					Value = filter.Value;
 				}
 			}
 		}
@@ -95,6 +95,8 @@ namespace PanoramicData.Blazor.Models
 		public static Filter Parse(string token)
 		{
 			var key = string.Empty;
+			var value = string.Empty;
+			var filterType = FilterTypes.NoFilter;
 			var encodedValue = string.Empty;
 
 			if (token.Contains(":"))
@@ -104,46 +106,102 @@ namespace PanoramicData.Blazor.Models
 			}
 			else
 			{
-				encodedValue = token;
+				return new Filter();
 			}
 
 			if (encodedValue.StartsWith("!*") && encodedValue.EndsWith("*") && encodedValue.Length > 2)
 			{
-				return new Filter(FilterTypes.DoesNotContain, key, encodedValue.Substring(2, encodedValue.Length - 3));
+				value = encodedValue.Substring(2, encodedValue.Length - 3);
+				filterType = FilterTypes.DoesNotContain;
 			}
-			if (encodedValue.StartsWith("*") && encodedValue.EndsWith("*") && encodedValue.Length > 1)
+			else if (encodedValue.StartsWith("*") && encodedValue.EndsWith("*") && encodedValue.Length > 1)
 			{
-				return new Filter(FilterTypes.Contains, key, encodedValue.Substring(1, encodedValue.Length - 2));
+				value = encodedValue.Substring(1, encodedValue.Length - 2);
+				filterType = FilterTypes.Contains;
 			}
-			if (encodedValue.EndsWith("*"))
+			else if (encodedValue.EndsWith("*"))
 			{
-				return new Filter(FilterTypes.StartsWith, key, encodedValue.Substring(0, encodedValue.Length - 1));
+				value = encodedValue.Substring(0, encodedValue.Length - 1);
+				filterType = FilterTypes.StartsWith;
 			}
-			if (encodedValue.StartsWith("*"))
+			else if (encodedValue.StartsWith("*"))
 			{
-				return new Filter(FilterTypes.EndsWith, key, encodedValue.Substring(1, encodedValue.Length - 1));
+				value = encodedValue.Substring(1, encodedValue.Length - 1);
+				filterType = FilterTypes.EndsWith;
 			}
 			else if (encodedValue.StartsWith("!"))
 			{
-				return new Filter(FilterTypes.DoesNotEqual, key, encodedValue.Substring(1, encodedValue.Length - 1));
+				value = encodedValue.Substring(1, encodedValue.Length - 1);
+				filterType = FilterTypes.DoesNotEqual;
+			}
+			else
+			{
+				value = encodedValue;
+				filterType = FilterTypes.Equals;
 			}
 
-			return new Filter(FilterTypes.Equals, key, encodedValue);
+			// strip quotes
+			if(value.StartsWith("\"") && value.EndsWith("\""))
+			{
+				value = value.Substring(1, value.Length - 2);
+			}
+
+			return new Filter(filterType, key, value);
 		}
 
-		public static List<Filter> ParseMany(string text)
+		public static IEnumerable<Filter> ParseMany(string text)
 		{
-			var filters = new List<Filter>();
-			var tokens = text.Split(new char[] { ' ', '\t', '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
-			foreach(var token in tokens)
+			if(string.IsNullOrWhiteSpace(text) || !text.Contains(':'))
 			{
-				var filter = Filter.Parse(token);
-				if(filter != null)
+				yield break;
+			}
+
+			bool token = false;
+			bool quoted = false;
+			var  sb = new StringBuilder();
+
+			// read next token
+			foreach(var ch in text)
+			{
+				if(token)
 				{
-					filters.Add(filter);
+					if (char.IsWhiteSpace(ch) && !quoted)
+					{
+						// not within quotes so end of next token
+						yield return Parse(sb.ToString());
+						sb.Clear();
+						token = false;
+					}
+					else
+					{
+						if (ch == '"')
+						{
+							quoted = !quoted;
+						}
+						sb.Append(ch);
+					}
+				}
+				else
+				{
+					// consume leading whitespace
+					if (char.IsWhiteSpace(ch))
+					{
+						continue;
+					}
+					token = true;
+					sb.Append(ch);
 				}
 			}
-			return filters;
+
+			// possible end of string while still quoted
+			if(token)
+			{
+				if (quoted)
+				{
+					sb.Append('"');
+				}
+				yield return Parse(sb.ToString());
+			}
 		}
 
 		#endregion

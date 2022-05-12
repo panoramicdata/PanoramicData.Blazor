@@ -69,7 +69,7 @@ namespace PanoramicData.Blazor.Models
 			{
 				if (!exclude.Contains(filter.Key))
 				{
-					output = ApplyFilter(query, filter);
+					output = ApplyFilter(output, filter);
 				}
 			}
 			return output;

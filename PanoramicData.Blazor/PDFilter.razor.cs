@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Models;
 using System;
 using System.Threading.Tasks;
@@ -7,6 +8,8 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDFilter
 	{
+		private PDDropDown _dropDown = null!;
+
 		[Parameter]
 		public Filter Filter { get; set; } = new Filter();
 
@@ -25,6 +28,15 @@ namespace PanoramicData.Blazor
 			// TODO: Fetch / cache values
 			return Task.CompletedTask;
 		}
+
+		private async Task OnDropDownKeyPress(int keyCode)
+		{
+			if(keyCode == 13)
+			{
+				await _dropDown.ToggleAsync().ConfigureAwait(true);
+			}
+		}
+
 		private async Task OnFilterTextChange(ChangeEventArgs args)
 		{
 			Filter.Value = args.Value.ToString();
