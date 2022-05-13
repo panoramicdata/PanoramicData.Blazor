@@ -3,12 +3,13 @@ using PanoramicData.Blazor.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Models
 {
-	public abstract class DataProviderBase<T> : IDataProviderService<T>, IKeyedCollection<string>
+	public abstract class DataProviderBase<T> : IDataProviderService<T>, IKeyedCollection<string>, IFilterProviderService<T>
 	{
 		#region IDataProviderService<T> Members
 
@@ -30,6 +31,23 @@ namespace PanoramicData.Blazor.Models
 		public virtual Task<OperationResponse> UpdateAsync(T item, IDictionary<string, object> delta, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region IFilterProviderService<T> Members
+
+		public virtual async Task<string[]> GetDistinctValuesAsync(DataRequest<T> request, Expression<Func<T, object>> field)
+		{
+			// use main data provider - take has to be applied on base query
+			var response = await GetDataAsync(request, default);
+			var fn = field.Compile();
+			return response.Items
+				.Where(x => fn(x) != null)
+				.Select(x => fn(x).ToString())
+				.Distinct()
+				.OrderBy(x => x)
+				.ToArray();
 		}
 
 		#endregion

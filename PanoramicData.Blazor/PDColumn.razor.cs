@@ -368,5 +368,26 @@ namespace PanoramicData.Blazor
 			_title = title;
 			StateHasChanged();
 		}
+
+		public FilterDataTypes GetFilterDataType()
+		{
+			var memberInfo = Field?.GetPropertyMemberInfo();
+			if (memberInfo is PropertyInfo propInfo)
+			{
+				if(propInfo.PropertyType.IsEnum)
+				{
+					return FilterDataTypes.Enum;
+				}
+				if (propInfo.PropertyType.FullName == "System.String")
+				{
+					return FilterDataTypes.Text;
+				}
+				if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset")
+				{
+					return FilterDataTypes.Date;
+				}
+			}
+			return FilterDataTypes.Numeric;
+		}
 	}
 }

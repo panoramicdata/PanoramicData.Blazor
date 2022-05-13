@@ -11,13 +11,17 @@
         <select class="form-control form-control-sm ml-1"
                 onclick="event.stopPropagation()"
                 @onchange="OnFilterTypeChanged">
+
             <option value="@FilterTypes.NoFilter" selected="@(Filter.FilterType == FilterTypes.NoFilter)">No Filter</option>
             <option value="@FilterTypes.Equals" selected="@(Filter.FilterType == FilterTypes.Equals)">Equals</option>
             <option value="@FilterTypes.DoesNotEqual" selected="@(Filter.FilterType == FilterTypes.DoesNotEqual)">Does Not Equal</option>
-            <option value="@FilterTypes.StartsWith" selected="@(Filter.FilterType == FilterTypes.StartsWith)">Starts With</option>
-            <option value="@FilterTypes.EndsWith" selected="@(Filter.FilterType == FilterTypes.EndsWith)">Ends With</option>
-            <option value="@FilterTypes.Contains" selected="@(Filter.FilterType == FilterTypes.Contains)">Contains</option>
-            <option value="@FilterTypes.DoesNotContain" selected="@(Filter.FilterType == FilterTypes.DoesNotContain)">Does Not Contain</option>
+            @if(DataType == FilterDataTypes.Text)
+            {
+                <option value="@FilterTypes.StartsWith" selected="@(Filter.FilterType == FilterTypes.StartsWith)">Starts With</option>
+                <option value="@FilterTypes.EndsWith" selected="@(Filter.FilterType == FilterTypes.EndsWith)">Ends With</option>
+                <option value="@FilterTypes.Contains" selected="@(Filter.FilterType == FilterTypes.Contains)">Contains</option>
+                <option value="@FilterTypes.DoesNotContain" selected="@(Filter.FilterType == FilterTypes.DoesNotContain)">Does Not Contain</option>
+            }
         </select>
         <input class="form-control form-control-sm mx-1"
                value="@Filter.Value"

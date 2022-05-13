@@ -55,7 +55,8 @@
                         {
                             <PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column))"
                                       Filter="column.Filter"
-                                      FilterChanged="OnFilterChanged" />
+                                      FilterChanged="OnFilterChanged"
+                                      DataType="@column.GetFilterDataType()" />
                         }
                         @if (column.Sortable)
                         {

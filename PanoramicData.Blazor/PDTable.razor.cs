@@ -788,13 +788,14 @@ namespace PanoramicData.Blazor
 
 		private async Task<string[]> OnFetchFilterValuesAsync(PDColumn<TItem> column)
 		{
-			if(column.Field is null)
+			if (column.Field is null)
 			{
 				return Array.Empty<string>();
 			}
 
 			// TODO: cache values for period of time?
 
+			// base request on current filter and sort
 			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.Title == SortCriteria?.Key);
 			var request = new DataRequest<TItem>
 			{
@@ -805,13 +806,22 @@ namespace PanoramicData.Blazor
 				SearchText = SearchText
 			};
 
-			var response = await DataProvider.GetDataAsync(request, default);
-			return response.Items
-				.Where(x => column.GetValue(x) != null)
-				.Select(x => column.GetValue(x)!.ToString())
-				.Distinct()
-				.OrderBy(x => x)
-				.ToArray();
+			// use more efficient service provider?
+			if (DataProvider is IFilterProviderService<TItem> filterService && column.Field != null)
+			{
+				return await filterService.GetDistinctValuesAsync(request, column.Field).ConfigureAwait(true);
+			}
+			else
+			{
+				// use main data provider - take has to be applied on base query
+				var response = await DataProvider.GetDataAsync(request, default);
+				return response.Items
+					.Where(x => column.GetValue(x) != null)
+					.Select(x => column.GetValue(x)!.ToString())
+					.Distinct()
+					.OrderBy(x => x)
+					.ToArray();
+			}
 		}
 
 		protected override void OnParametersSet()

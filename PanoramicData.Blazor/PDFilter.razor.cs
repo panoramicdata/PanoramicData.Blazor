@@ -22,6 +22,9 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public string IconCssClass { get; set; } = "fas fa-filter";
 
+		[Parameter]
+		public FilterDataTypes DataType { get; set; }
+
 		private string CssClass => $"p-0 pd-filter {(HasFilter ? "filtered" : "")}";
 
 		private bool HasFilter => !string.IsNullOrWhiteSpace(Filter.Value);

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,8 +54,7 @@ namespace PanoramicData.Blazor.Demo.Data
 			var items = new List<Person>();
 			await Task.Run(() =>
 			{
-				var query = _people
-					.AsQueryable();
+				var query = _people.AsQueryable();
 
 				// apply search criteria and get a total count of matching items
 				if (!string.IsNullOrWhiteSpace(request.SearchText))
@@ -106,6 +106,20 @@ namespace PanoramicData.Blazor.Demo.Data
 			}).ConfigureAwait(false);
 			return new DataResponse<Person>(items, total);
 		}
+
+		//public override async Task<string[]> GetDistinctValuesAsync(DataRequest<Person> request, Expression<Func<Person, object>> field)
+		//{
+		//	var values = new List<string>();
+		//	var c = field.Compile();
+		//	await Task.Run(() =>
+		//	{
+
+		//		var values = _people.AsQueryable().Select(x => c.Invoke(x).ToString()).Distinct().Take(take).ToArray();
+		//		values.AddRange(values);
+
+		//	}).ConfigureAwait(true);
+		//	return values.ToArray();
+		//}
 
 		/// <summary>
 		/// Requests that the item is deleted.
