@@ -54,12 +54,12 @@
                         @if (column.Filterable)
                         {
                             <PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column))"
-                                        Filter="column.Filter"
-                                        FilterChanged="OnFilterChanged" />
+                                      Filter="column.Filter"
+                                      FilterChanged="OnFilterChanged" />
                         }
                         @if (column.Sortable)
                         {
-                            <span class="pd-pointer" @onclick="@(async () => await SortByAsync(column))">@((MarkupString)column.SortIcon)</span>
+                            <span class="pd-pointer pd-sort" @onclick="@(async () => await SortByAsync(column))">@((MarkupString)column.SortIcon)</span>
                         }
                     </th>
                 }

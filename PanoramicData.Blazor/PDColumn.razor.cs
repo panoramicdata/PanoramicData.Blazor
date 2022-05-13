@@ -270,12 +270,13 @@ namespace PanoramicData.Blazor
 		{
 			get
 			{
-				return SortDirection switch
+				var html = SortDirection switch
 				{
-					SortDirection.Ascending => "<i class=\"ml-1 fas fa-sort-amount-up-alt\"></i>",
-					SortDirection.Descending => "<i class=\"ml-1 fas fa-sort-amount-down\"></i>",
-					_ => "" //"<i class=\"ml-1 fas fa-sort-amount-up-alt fa-hidden\"></i>"
+					SortDirection.Ascending => "<i class=\"ml-1 pd-sort fas fa-sort-up fa-stack-1x\"></i>",
+					SortDirection.Descending => "<i class=\"ml-1 pd-sort fas fa-sort-down fa-stack-1x\"></i>",
+					_ => ""
 				};
+				return $"<span class=\"fa-stack\"><i class=\"ml-1 pd-sort fas fa-sort fa-stack-1x\"></i>{html}</span>";
 			}
 		}
 

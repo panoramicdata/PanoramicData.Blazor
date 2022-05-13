@@ -1,4 +1,16 @@
-﻿.pdtable {
+﻿.pd-sort, .pd-sort:hover {
+	color: var(--primary);
+}
+
+.pd-sort .fa-stack {
+	width: unset;
+}
+
+.pd-sort.fa-sort, .pd-sort.fa-sort:hover {
+	color: whitesmoke;
+}
+
+.pdtable {
 	-webkit-user-select: none; /* Chrome/Safari */
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+ */

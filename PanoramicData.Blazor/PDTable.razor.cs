@@ -501,7 +501,7 @@ namespace PanoramicData.Blazor
 					}
 					else
 					{
-						var previousCol = Columns.Find(x => x.Id == SortCriteria?.Key);
+						var previousCol = Columns.FirstOrDefault(x => x.Id == SortCriteria?.Key || x.Title == SortCriteria?.Key);
 						if (previousCol != null)
 						{
 							previousCol.SortDirection = SortDirection.None;
