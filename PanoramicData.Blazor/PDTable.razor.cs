@@ -129,6 +129,11 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
+		/// <summary>
+		/// Gets or sets the maximum number of possible filter values to show.
+		/// </summary>
+		[Parameter] public int FilterMaxValues { get; set; } = 50;
+
 		[Parameter] public bool IsEnabled { get; set; } = true;
 
 		/// <summary>
@@ -576,14 +581,15 @@ namespace PanoramicData.Blazor
 		private async Task OnFilterChanged(Filter filter)
 		{
 			var sb = new StringBuilder();
-			foreach(var col in ActualColumnsToDisplay.Where(x => x.Filterable && x.Filter.IsValid))
+			foreach (var col in ActualColumnsToDisplay.Where(x => x.Filterable && x.Filter.IsValid))
 			{
 				sb.Append(' ').Append(col.Filter.ToString());
 			}
 			SearchText = sb.ToString().Trim();
 			await SearchTextChanged.InvokeAsync(SearchText).ConfigureAwait(true);
 
-			if(SearchText != _lastSearchText)
+			Console.WriteLine($"FilterChanged: SearchText = {SearchText} (old = {_lastSearchText})");
+			if (SearchText != _lastSearchText)
 			{
 				_lastSearchText = SearchText;
 				await RefreshAsync(SearchText).ConfigureAwait(true);
@@ -786,42 +792,65 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		private async Task<string[]> OnFetchFilterValuesAsync(PDColumn<TItem> column)
+		private async Task<string[]> OnFetchFilterValuesAsync(PDColumn<TItem> column, Filter filter)
 		{
+			var result = Array.Empty<string>();
+
 			if (column.Field is null)
 			{
-				return Array.Empty<string>();
+				return result;
 			}
 
 			// TODO: cache values for period of time?
+
+			// build up search text from filters
+			var searchText = new StringBuilder();
+			foreach (var col in ActualColumnsToDisplay)
+			{
+				if (col.Filterable)
+				{
+					if (col == column)
+					{
+						searchText.Append(filter.ToString());
+					}
+					else if (col.Filter.IsValid)
+					{
+						searchText.Append(col.Filter.ToString());
+					}
+				}
+			}
 
 			// base request on current filter and sort
 			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.Title == SortCriteria?.Key);
 			var request = new DataRequest<TItem>
 			{
-				Take = 50,
+				Take = 1000,
 				ForceUpdate = false,
 				SortFieldExpression = sortColumn?.Field,
 				SortDirection = sortColumn?.SortDirection,
-				SearchText = SearchText
+				SearchText = searchText.ToString()
 			};
 
 			// use more efficient service provider?
+
 			if (DataProvider is IFilterProviderService<TItem> filterService && column.Field != null)
 			{
-				return await filterService.GetDistinctValuesAsync(request, column.Field).ConfigureAwait(true);
+				result = await filterService.GetDistinctValuesAsync(request, column.Field).ConfigureAwait(true);
 			}
 			else
 			{
 				// use main data provider - take has to be applied on base query
 				var response = await DataProvider.GetDataAsync(request, default);
-				return response.Items
+				result = response.Items
 					.Where(x => column.GetValue(x) != null)
 					.Select(x => column.GetValue(x)!.ToString())
 					.Distinct()
 					.OrderBy(x => x)
 					.ToArray();
 			}
+
+			// limit to first N
+			return result.Take(FilterMaxValues).ToArray();
 		}
 
 		protected override void OnParametersSet()
@@ -829,7 +858,7 @@ namespace PanoramicData.Blazor
 			// has search text changed?
 			if (SearchText != _lastSearchText)
 			{
-				//Console.WriteLine($"OnParametersSet: SearchText = {SearchText}");
+				Console.WriteLine($"OnParametersSet: SearchText = {SearchText}");
 				_lastSearchText = SearchText;
 				foreach (var column in ActualColumnsToDisplay.Where(x => x.Filterable))
 				{
@@ -842,7 +871,6 @@ namespace PanoramicData.Blazor
 						column.Filter.UpdateFrom(SearchText ?? string.Empty);
 					}
 				}
-				StateHasChanged();
 			}
 
 			// validate parameter constraints
@@ -942,7 +970,7 @@ namespace PanoramicData.Blazor
 						break;
 				}
 			}
-			else if(IsEnabled)
+			else if (IsEnabled)
 			{
 				switch (args.Code)
 				{
@@ -1064,7 +1092,7 @@ namespace PanoramicData.Blazor
 			// cancel pending edit mode
 			_editTimer?.Change(Timeout.Infinite, Timeout.Infinite);
 
-			if(IsEnabled)
+			if (IsEnabled)
 			{
 				DoubleClick.InvokeAsync(item);
 			}
@@ -1134,11 +1162,11 @@ namespace PanoramicData.Blazor
 		private string GetDynamicRowClasses(TItem item)
 		{
 			var sb = new StringBuilder();
-			if(IsSelected(item))
+			if (IsSelected(item))
 			{
 				sb.Append("selected ");
 			}
-			if(!RowIsEnabled(item))
+			if (!RowIsEnabled(item))
 			{
 				sb.Append("disabled ");
 			}

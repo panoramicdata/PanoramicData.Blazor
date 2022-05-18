@@ -6,40 +6,66 @@
     KeyPress="OnDropDownKeyPress"
     ShowCaret="false">
 
-    <div class="form-inline"
-         style="width: max-content;">
-        <select class="form-control form-control-sm ml-1"
-                onclick="event.stopPropagation()"
-                @onchange="OnFilterTypeChanged">
+    <div class="filter-body"
+         onclick="event.stopPropagation()">
+        <div class="mb-1">
+            <select class="form-control form-control-sm"
+                    @onchange="OnFilterTypeChanged">
+                <option value="@FilterTypes.Equals" selected="@(_filterType == FilterTypes.Equals)">Equals</option>
+                <option value="@FilterTypes.DoesNotEqual" selected="@(_filterType == FilterTypes.DoesNotEqual)">Does Not Equal</option>
+                <option value="@FilterTypes.In" selected="@(_filterType == FilterTypes.In)">In List</option>
+                @if(DataType == FilterDataTypes.Text)
+                {
+                    <option value="@FilterTypes.StartsWith" selected="@(_filterType == FilterTypes.StartsWith)">Starts With</option>
+                    <option value="@FilterTypes.EndsWith" selected="@(_filterType == FilterTypes.EndsWith)">Ends With</option>
+                    <option value="@FilterTypes.Contains" selected="@(_filterType == FilterTypes.Contains)">Contains</option>
+                    <option value="@FilterTypes.DoesNotContain" selected="@(_filterType == FilterTypes.DoesNotContain)">Does Not Contain</option>
+                }
+            </select>
+        </div>
+        <div class="mb-1">
+            <PDTextBox CssClass="form-control-sm"
+                       ShowClearButton=false
+                       Value="@_value1"
+                       ValueChanged="OnValue1TextChange" />
+        </div>
 
-            <option value="@FilterTypes.NoFilter" selected="@(Filter.FilterType == FilterTypes.NoFilter)">No Filter</option>
-            <option value="@FilterTypes.Equals" selected="@(Filter.FilterType == FilterTypes.Equals)">Equals</option>
-            <option value="@FilterTypes.DoesNotEqual" selected="@(Filter.FilterType == FilterTypes.DoesNotEqual)">Does Not Equal</option>
-            @if(DataType == FilterDataTypes.Text)
-            {
-                <option value="@FilterTypes.StartsWith" selected="@(Filter.FilterType == FilterTypes.StartsWith)">Starts With</option>
-                <option value="@FilterTypes.EndsWith" selected="@(Filter.FilterType == FilterTypes.EndsWith)">Ends With</option>
-                <option value="@FilterTypes.Contains" selected="@(Filter.FilterType == FilterTypes.Contains)">Contains</option>
-                <option value="@FilterTypes.DoesNotContain" selected="@(Filter.FilterType == FilterTypes.DoesNotContain)">Does Not Contain</option>
-            }
-        </select>
-        <input class="form-control form-control-sm mx-1"
-               value="@Filter.Value"
-               @onchange="OnFilterTextChange"
-               onclick="event.stopPropagation()" />
+        @if (ShowValues)
+        {
+            <div class="filter-values">
+                <div class="values-filter">
+                    <PDTextBox CssClass="form-control-sm"
+                               DebounceWait="500"
+                               ShowClearButton=false
+                               Placeholder="Search"
+                               Value="@_valuesFilter"
+                               ValueChanged="OnValuesFilterTextChange" />
+                </div>
+                <div class="values-list">
+                    @foreach(var value in _values)
+                    {
+                        <PDLabel CssClass="pd-pointer"
+                                    MouseDown="@(() => OnValueClicked(value))"
+                                    IconCssClass="@(_selectedValues.Contains(value) ? "fas fa-check-square" : "far fa-square")"
+                                    Text="@value" />
+                    }
+                </div>
+            </div>
+        }
     </div>
 
-    @if (_values.Length > 0)
-    {
-        <div class="filter-values">
-            <ul>
-                @foreach(var value in _values)
-                {
-                    <li class="pd-pointer"
-                        @onclick="@(() => OnValueClicked(value))">@value</li>
-                }
-            </ul>
-        </div>
-    }
+    <div class="filter-toolbar">
+        <PDButton Click="OnFilter"
+                  CssClass="btn-primary"
+                  IconCssClass="@IconCssClass"
+                  Id="@_id"
+                  Size="Size"
+                  Text="Filter"/>
+        <PDButton Click="OnClear"
+                  CssClass="btn-secondary"
+                  IconCssClass="fas fa-times text-danger"
+                  Size="Size"
+                  Text="Clear Filter"/>
+    </div>
 
 </PDDropDown>

@@ -28,11 +28,11 @@ namespace PanoramicData.Blazor.Models
 
 		public void Clear()
 		{
-			FilterType = FilterTypes.NoFilter;
+			FilterType = FilterTypes.Equals;
 			Value = string.Empty;
 		}
 
-		public bool IsValid => FilterType != FilterTypes.NoFilter && !string.IsNullOrWhiteSpace(Value);
+		public bool IsValid => !string.IsNullOrWhiteSpace(Value);
 
 		public override string ToString()
 		{
@@ -56,6 +56,9 @@ namespace PanoramicData.Blazor.Models
 				case FilterTypes.DoesNotContain:
 					return $"{Key}:!*{Value}*";
 
+				case FilterTypes.In:
+					return $"{Key}:In({Value})";
+
 				default:
 					return string.Empty;
 			}
@@ -65,7 +68,7 @@ namespace PanoramicData.Blazor.Models
 		{
 			if (string.IsNullOrWhiteSpace(text))
 			{
-				FilterType = FilterTypes.NoFilter;
+				FilterType = FilterTypes.Equals;
 				Value = string.Empty;
 			}
 			else
@@ -79,7 +82,7 @@ namespace PanoramicData.Blazor.Models
 				{
 					// read until next un-quoted whitespace
 					var filter = ParseMany(text.Substring(idx)).FirstOrDefault();
-					if(filter is null)
+					if (filter is null)
 					{
 						Clear();
 					}
@@ -98,7 +101,7 @@ namespace PanoramicData.Blazor.Models
 		{
 			var key = string.Empty;
 			var value = string.Empty;
-			var filterType = FilterTypes.NoFilter;
+			var filterType = FilterTypes.Equals;
 			var encodedValue = string.Empty;
 
 			if (token.Contains(":"))
@@ -111,7 +114,12 @@ namespace PanoramicData.Blazor.Models
 				return new Filter();
 			}
 
-			if (encodedValue.StartsWith("!*") && encodedValue.EndsWith("*") && encodedValue.Length > 2)
+			if (encodedValue.ToLower().StartsWith("in(") && encodedValue.EndsWith(")") && encodedValue.Length > 3)
+			{
+				value = encodedValue.Substring(3, encodedValue.Length - 4);
+				filterType = FilterTypes.In;
+			}
+			else if (encodedValue.StartsWith("!*") && encodedValue.EndsWith("*") && encodedValue.Length > 2)
 			{
 				value = encodedValue.Substring(2, encodedValue.Length - 3);
 				filterType = FilterTypes.DoesNotContain;
@@ -143,7 +151,7 @@ namespace PanoramicData.Blazor.Models
 			}
 
 			// strip quotes
-			if(value.StartsWith("\"") && value.EndsWith("\""))
+			if (value.StartsWith("\"") && value.EndsWith("\""))
 			{
 				value = value.Substring(1, value.Length - 2);
 			}
@@ -153,19 +161,19 @@ namespace PanoramicData.Blazor.Models
 
 		public static IEnumerable<Filter> ParseMany(string text)
 		{
-			if(string.IsNullOrWhiteSpace(text) || !text.Contains(':'))
+			if (string.IsNullOrWhiteSpace(text) || !text.Contains(':'))
 			{
 				yield break;
 			}
 
 			bool token = false;
 			bool quoted = false;
-			var  sb = new StringBuilder();
+			var sb = new StringBuilder();
 
 			// read next token
-			foreach(var ch in text)
+			foreach (var ch in text)
 			{
-				if(token)
+				if (token)
 				{
 					if (char.IsWhiteSpace(ch) && !quoted)
 					{
@@ -196,7 +204,7 @@ namespace PanoramicData.Blazor.Models
 			}
 
 			// possible end of string while still quoted
-			if(token)
+			if (token)
 			{
 				if (quoted)
 				{

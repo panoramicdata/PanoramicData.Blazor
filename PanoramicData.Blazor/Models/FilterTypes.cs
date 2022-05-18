@@ -4,8 +4,6 @@ namespace PanoramicData.Blazor.Models
 {
 	public enum FilterTypes
 	{
-		[Display(Name = "No Filter")]
-		NoFilter,
 		[Display(Name = "Equals")]
 		Equals,
 		[Display(Name = "Does Not Equal")]
@@ -17,6 +15,8 @@ namespace PanoramicData.Blazor.Models
 		[Display(Name = "Contains")]
 		Contains,
 		[Display(Name = "Does Not Contain")]
-		DoesNotContain
+		DoesNotContain,
+		[Display(Name = "In")]
+		In
 	}
 }

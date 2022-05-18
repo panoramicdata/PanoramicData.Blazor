@@ -8,7 +8,10 @@
 			title="@ToolTip.AppendShortcut(ShortcutKey)"
 			@onclick="Click"
 			@onclick:preventDefault="PreventDefault"
-			@onclick:stopPropagation="StopPropagation">
+			@onclick:stopPropagation="StopPropagation"
+			@onmousedown="MouseDown"
+			@onmousedown:preventDefault="PreventDefault"
+			@onmousedown:stopPropagation="StopPropagation">
 		@if (ChildContent is null)
 		{
 				@if (!string.IsNullOrWhiteSpace(IconCssClass))
@@ -33,7 +36,10 @@ else
 	   title="@ToolTip.AppendShortcut(ShortcutKey)"
 	   @onclick="Click"
 	   @onclick:preventDefault="PreventDefault"
-	   @onclick:stopPropagation="StopPropagation">
+	   @onclick:stopPropagation="StopPropagation"
+	   @onmousedown="MouseDown"
+	   @onmousedown:preventDefault="PreventDefault"
+	   @onmousedown:stopPropagation="StopPropagation">
 		@if (ChildContent is null)
 		{
 			@if (!string.IsNullOrWhiteSpace(IconCssClass))

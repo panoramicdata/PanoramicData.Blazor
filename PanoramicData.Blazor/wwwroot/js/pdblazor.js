@@ -236,7 +236,6 @@
 		var el = $(`#${id}`);
 		if (el) {
 			el.on('keypress', function (ev) {
-				//console.log('keypress', arguments);
 				if (ev.keyCode == 13 && ref) {
 					ref.invokeMethodAsync("OnKeyPressed", 13);
 				}
@@ -251,6 +250,11 @@
 					ref.invokeMethodAsync("OnDropDownHidden");
 				}
 			});
+		//	el.on("hide.bs.dropdown", function (e) {
+		//		if (e.clickEvent && $.contains(e.relatedTarget.parentNode, e.clickEvent.target)) {
+		//			e.preventDefault()
+		//		}
+		//	});
 		}
 	},
 

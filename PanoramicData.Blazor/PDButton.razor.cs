@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
-using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
 
@@ -50,6 +49,9 @@ namespace PanoramicData.Blazor
 		/// Sets a callback for when user clicks button.
 		/// </summary>
 		[Parameter] public EventCallback<MouseEventArgs> Click { get; set; }
+
+		[Parameter]
+		public EventCallback<MouseEventArgs> MouseDown { get; set; }
 
 		[Parameter]
 		public bool PreventDefault { get; set; }

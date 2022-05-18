@@ -14,9 +14,24 @@ namespace PanoramicData.Blazor.Extensions
 				var property = keyProperties is null
 					? filter.Key
 					: keyProperties.Get(filter.Key, filter.Key);
-
 				if (!string.IsNullOrWhiteSpace(property))
 				{
+					var parameters = filter.FilterType switch
+					{
+						FilterTypes.In => filter.Value.Split(new[] { "|" }, System.StringSplitOptions.RemoveEmptyEntries),
+						_ => new object[] { filter.Value }
+					};
+
+					//switch (filter.FilterType)
+					//{
+					//	case FilterTypes.In:
+					//		parameters.AddRange(filter.Value.Split(new[] { "|" }, System.StringSplitOptions.RemoveEmptyEntries));
+					//		break;
+
+					//	default:
+					//		parameters.Add(filter.Value);
+					//		break;
+					//}
 					var predicate = filter.FilterType switch
 					{
 						FilterTypes.Contains => $"({property}).Contains(@0)",
@@ -25,9 +40,10 @@ namespace PanoramicData.Blazor.Extensions
 						FilterTypes.EndsWith => $"({property}).EndsWith(@0)",
 						FilterTypes.Equals => $"{property} == @0",
 						FilterTypes.StartsWith => $"({property}).StartsWith(@0)",
+						FilterTypes.In => string.Join(" || ", parameters.Select((x, i) => $"{property} == @{i}").ToArray()),
 						_ => ""
 					};
-					return string.IsNullOrWhiteSpace(predicate) ? query : query.Where(predicate, filter.Value);
+					return string.IsNullOrWhiteSpace(predicate) ? query : query.Where(predicate, parameters);
 				}
 			}
 			catch

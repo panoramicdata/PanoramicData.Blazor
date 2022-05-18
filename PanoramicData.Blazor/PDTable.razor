@@ -53,7 +53,7 @@
                         }
                         @if (column.Filterable)
                         {
-                            <PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column))"
+                            <PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column, f))"
                                       Filter="column.Filter"
                                       FilterChanged="OnFilterChanged"
                                       DataType="@column.GetFilterDataType()" />

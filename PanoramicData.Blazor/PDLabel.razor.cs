@@ -15,6 +15,9 @@ namespace PanoramicData.Blazor
 		public string IconCssClass { get; set; } = string.Empty;
 
 		[Parameter]
+		public EventCallback<MouseEventArgs> MouseDown { get; set; }
+
+		[Parameter]
 		public bool PreventDefault { get; set; }
 
 		[Parameter]
