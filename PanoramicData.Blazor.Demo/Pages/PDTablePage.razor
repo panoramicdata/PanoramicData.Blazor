@@ -119,7 +119,7 @@
 					  Field="x => x.Dob"
 					  Title="Date of Birth"
 					  Filterable="true"
-					  Format="dd/MM/yy">
+					  Format="yyyy-MM-dd">
 				<EditTemplate>
 					<input id="pd-table-edit-dob"
 						   type="date"
@@ -171,13 +171,13 @@
 			<PDColumn Id="created"
 					  TItem="Person"
 					  Field="x => x.DateCreated"
-					  Format="dd/MM/yy"
+					  Format="yyyy-MM-dd"
 					  ShowInList="false" />
 
 			<PDColumn Id="modified"
 					  TItem="Person"
 					  Field="x => x.DateModified"
-					  Format="dd/MM/yy HH:mm"
+					  Format="yyyy-MM-dd HH:mm"
 					  Editable="false"
 					  TdClass="text-nowrap" />
 		</PDTable>
