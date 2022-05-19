@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Models
 {
@@ -74,6 +75,11 @@ namespace PanoramicData.Blazor.Models
 		/// Gets a function that returns available value choices.
 		/// </summary>
 		public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
+
+		/// <summary>
+		/// Gets an asynchronous function that returns available value choices.
+		/// </summary>
+		public Func<FormField<TItem>, TItem?, Task<OptionInfo[]>>? OptionsAsync { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether this field contains passwords or other sensitive information.

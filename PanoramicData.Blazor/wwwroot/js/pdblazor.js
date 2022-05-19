@@ -235,6 +235,11 @@
 	initializeDropDown: function (id, ref) {
 		var el = $(`#${id}`);
 		if (el) {
+			el.on('keypress', function (ev) {
+				if (ev.keyCode == 13 && ref) {
+					ref.invokeMethodAsync("OnKeyPressed", 13);
+				}
+			});
 			el.on("shown.bs.dropdown", function () {
 				if (ref) {
 					ref.invokeMethodAsync("OnDropDownShown");
@@ -245,6 +250,18 @@
 					ref.invokeMethodAsync("OnDropDownHidden");
 				}
 			});
+		//	el.on("hide.bs.dropdown", function (e) {
+		//		if (e.clickEvent && $.contains(e.relatedTarget.parentNode, e.clickEvent.target)) {
+		//			e.preventDefault()
+		//		}
+		//	});
+		}
+	},
+
+	toggleDropDown: function (id) {
+		var el = $(`#${id}`);
+		if (el) {
+			el.dropdown('toggle');
 		}
 	},
 

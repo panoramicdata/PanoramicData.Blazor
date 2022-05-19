@@ -41,6 +41,10 @@ namespace PanoramicData.Blazor
 		public Directions DropdownDirection { get; set; } = Directions.Down;
 
 		[Parameter]
+		public EventCallback DropDownShown { get; set; }
+
+
+		[Parameter]
 		public bool IsEnabled { get; set; } = true;
 
 		[Parameter]
@@ -48,6 +52,9 @@ namespace PanoramicData.Blazor
 
 		[Parameter]
 		public string Id { get; set; } = $"pd-dropdown-{++_sequence}";
+
+		[Parameter]
+		public EventCallback<int> KeyPress { get; set; }
 
 		[Parameter]
 		public bool PreventDefault { get; set; }
@@ -110,9 +117,10 @@ namespace PanoramicData.Blazor
 		}
 
 		[JSInvokable]
-		public void OnDropDownShown()
+		public async Task OnDropDownShown()
 		{
 			_shown = true;
+			await DropDownShown.InvokeAsync(null).ConfigureAwait(true);
 			StateHasChanged();
 		}
 
@@ -121,6 +129,12 @@ namespace PanoramicData.Blazor
 		{
 			_shown = false;
 			StateHasChanged();
+		}
+
+		[JSInvokable]
+		public async Task OnKeyPressed(int keyCode)
+		{
+			await KeyPress.InvokeAsync(keyCode).ConfigureAwait(true);
 		}
 
 		private string ParentCssClasses
@@ -137,6 +151,11 @@ namespace PanoramicData.Blazor
 				};
 				return $"{dropdownPosition} {(Visible ? "" : "d-none")}";
 			}
+		}
+
+		public async Task ToggleAsync()
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicData.toggleDropDown", Id).ConfigureAwait(true);
 		}
 	}
 }

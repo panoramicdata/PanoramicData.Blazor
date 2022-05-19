@@ -5,12 +5,14 @@ using PanoramicData.Blazor.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Demo.Data
 {
-	public class PersonDataProvider : IDataProviderService<Person>
+	public class PersonDataProvider : DataProviderBase<Person>
 	{
 		private static readonly string _loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce at leo eu risus faucibus facilisis quis in tortor. Phasellus gravida libero sit amet ullamcorper rhoncus. Ut at viverra lectus. Vestibulum mi eros, egestas vel nulla at, lacinia ornare mauris. Morbi a pulvinar lacus. Praesent ut convallis magna. Etiam est sem, feugiat a leo in, viverra scelerisque lectus. Vivamus dictum luctus eros non ultrices. Curabitur enim enim, porta eu lorem ut, varius venenatis sem.";
 		private static readonly string[] _firstNames = new string[] { "Alice", "Bob", "Carol", "David", "Eve", "Frank", "Grace", "Heidi", "Ivan", "Judy", "Mike" };
@@ -46,19 +48,32 @@ namespace PanoramicData.Blazor.Demo.Data
 			}
 		}
 
-		public async Task<DataResponse<Person>> GetDataAsync(DataRequest<Person> request, CancellationToken cancellationToken)
+		public override async Task<DataResponse<Person>> GetDataAsync(DataRequest<Person> request, CancellationToken cancellationToken)
 		{
 			var total = _people.Count;
 			var items = new List<Person>();
 			await Task.Run(() =>
 			{
-				var query = _people
-					.AsQueryable();
+				var query = _people.AsQueryable();
 
 				// apply search criteria and get a total count of matching items
 				if (!string.IsNullOrWhiteSpace(request.SearchText))
 				{
-					query = query.Where(x => x.FirstName.Contains(request.SearchText) || x.LastName.Contains(request.SearchText));
+					var filters = Filter.ParseMany(request.SearchText).ToArray();
+					if (filters.Length == 0)
+					{
+						// basic filtering
+						query = query.Where(x => x.FirstName.Contains(request.SearchText) || x.LastName.Contains(request.SearchText));
+					}
+					else
+					{
+						// column filtering
+						// example: 'last:Smith*' -> will search LastName property for values starting with Smith
+						// note: As derived from DataProviderBase all columns
+						// have their Id mapped to the Field name so we need to prevent user
+						// from being able to type a search term that will query the Password field
+						query = ApplyFilters(query, filters, "password");
+					}
 				}
 				total = query.Count();
 
@@ -92,13 +107,27 @@ namespace PanoramicData.Blazor.Demo.Data
 			return new DataResponse<Person>(items, total);
 		}
 
+		//public override async Task<string[]> GetDistinctValuesAsync(DataRequest<Person> request, Expression<Func<Person, object>> field)
+		//{
+		//	var values = new List<string>();
+		//	var c = field.Compile();
+		//	await Task.Run(() =>
+		//	{
+
+		//		var values = _people.AsQueryable().Select(x => c.Invoke(x).ToString()).Distinct().Take(take).ToArray();
+		//		values.AddRange(values);
+
+		//	}).ConfigureAwait(true);
+		//	return values.ToArray();
+		//}
+
 		/// <summary>
 		/// Requests that the item is deleted.
 		/// </summary>
 		/// <param name="item">The item to be deleted.</param>
 		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-		public Task<OperationResponse> DeleteAsync(Person item, CancellationToken cancellationToken)
+		public override Task<OperationResponse> DeleteAsync(Person item, CancellationToken cancellationToken)
 		{
 			return Task.Run(() =>
 			{
@@ -119,7 +148,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		/// <param name="delta">A dictionary with new property values.</param>
 		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-		public Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object> delta, CancellationToken cancellationToken)
+		public override Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object> delta, CancellationToken cancellationToken)
 		{
 			return Task.Run(() =>
 			{
@@ -160,7 +189,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		/// <param name="item">New item details.</param>
 		/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 		/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-		public Task<OperationResponse> CreateAsync(Person item, CancellationToken cancellationToken)
+		public override Task<OperationResponse> CreateAsync(Person item, CancellationToken cancellationToken)
 		{
 			return Task.Run(() =>
 			{

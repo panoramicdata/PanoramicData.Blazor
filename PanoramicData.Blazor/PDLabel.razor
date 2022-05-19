@@ -1,17 +1,17 @@
 ﻿<div class="pd-label @CssClass"
-     title="@ToolTip">
+     title="@ToolTip"
+     @onclick="Click"
+     @onclick:preventDefault="PreventDefault"
+     @onclick:stopPropagation="StopPropagation"
+     @onmousedown="MouseDown"
+     @onmousedown:preventDefault="PreventDefault"
+     @onmousedown:stopPropagation="StopPropagation">
     @if (!string.IsNullOrWhiteSpace(IconCssClass))
     {
-        <i class="@IconCssClass"
-           @onclick="Click"
-           @onclick:preventDefault="PreventDefault"
-           @onclick:stopPropagation="StopPropagation" />
+        <i class="@IconCssClass" />
     }
     @if (!string.IsNullOrWhiteSpace(Text))
     {
-        <span class="@(string.IsNullOrWhiteSpace(IconCssClass)? "" : "ms-1") @TextCssClass"
-              @onclick="Click"
-              @onclick:preventDefault="PreventDefault"
-              @onclick:stopPropagation="StopPropagation">@Text</span>
+        <span class="@(string.IsNullOrWhiteSpace(IconCssClass)? "" : "ms-1") @TextCssClass">@Text</span>
     }
 </div>

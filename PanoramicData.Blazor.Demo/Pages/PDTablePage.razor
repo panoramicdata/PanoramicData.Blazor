@@ -20,7 +20,7 @@
 
 		<PDToolbarTextbox ShowClearButton="true"
 						  Label="Search: "
-						  DebounceWait="250"
+						  DebounceWait="1000"
 						  Value="@_searchText"
 						  ValueChanged="OnSearchValueChanged"
 						  Keypress="OnSearchKeyPress"
@@ -61,8 +61,9 @@
 				 AllowDrag="AllowDrag"
 				 AllowDrop="AllowDrop"
 				 IsEnabled="Enabled"
+				 FilterMaxValues="50"
 				 SaveChanges="true"
-				 SearchText="@_searchText"
+				 @bind-SearchText="@_searchText"
 				 PageCriteria="_pageCriteria"
 				 PagerPosition="PagerPositions.Top"
 				 RetainSelectionOnPage="true"
@@ -78,7 +79,7 @@
 				 PageChanged="OnPageChange"
 				 SortChanged="OnSortChange">
 
-			<PDColumn Id="col-icon"
+			<PDColumn Id="icon"
 					  TdClass="pl-0 pr-2"
 					  ThClass="pl-0 pr-2"
 					  TItem="Person"
@@ -90,31 +91,35 @@
 				</Template>
 			</PDColumn>
 
-			<PDColumn Id="col-id"
+			<PDColumn Id="id"
 					  TdClass="pl-0 pr-0"
 					  ThClass="pl-0 pr-0"
 					  TItem="Person"
 					  Field="x => x.Id"
 					  Editable="false" />
 
-			<PDColumn Id="col-firstname"
+			<PDColumn Id="first"
 					  DefaultSortDirection="SortDirection.Descending"
 					  TItem="Person"
-					  Field="x => x.FirstName" />
+					  Field="x => x.FirstName"
+					  Filterable="true" />
 
-			<PDColumn Id="col-lastname"
+			<PDColumn Id="last"
 					  TItem="Person"
-					  Field="x => x.LastName" />
+					  Field="x => x.LastName"
+					  Filterable="true" />
 
-			<PDColumn Id="col-email"
+			<PDColumn Id="email"
 					  TItem="Person"
-					  Field="x => x.Email" />
+					  Field="x => x.Email"
+					  Filterable="true" />
 
-			<PDColumn Id="col-dob"
+			<PDColumn Id="dob"
 					  TItem="Person"
 					  Field="x => x.Dob"
 					  Title="Date of Birth"
-					  Format="dd/MM/yy">
+					  Filterable="true"
+					  Format="yyyy-MM-dd">
 				<EditTemplate>
 					<input id="pd-table-edit-dob"
 						   type="date"
@@ -127,49 +132,52 @@
 				</EditTemplate>
 			</PDColumn>
 
-			<PDColumn Id="col-department"
+			<PDColumn Id="dept"
 					  TItem="Person"
-					  Field="x => x.Department" />
+					  Field="x => x.Department"
+					  Filterable="true" />
 
-			<PDColumn Id="col-location"
+			<PDColumn Id="loc"
 					  TItem="Person"
 					  Field="x => x.Location"
-					  Options="GetLocationOptions" />
+					  Options="GetLocationOptions"
+					  Filterable="true" />
 
-			<PDColumn Id="col-target"
+			<PDColumn Id="tgt"
 					  TItem="Person"
 					  Field="x => x.Target"
-					  ShowInList="false" />
+					  ShowInList="false"
+					  Filterable="true" />
 
-			<PDColumn Id="col-allowlogin"
+			<PDColumn Id="login"
 					  TItem="Person"
 					  Field="x => x.AllowLogin"
-					  ShowInList="false" />
+					  ShowInList="false"
+					  Filterable="true" />
 
-			<PDColumn Id="col-password"
+			<PDColumn Id="password"
 					  TItem="Person"
 					  Field="x => x.Password"
 					  ShowInList="true"
 					  IsSensitive="@((x, __) => true)" />
 
-
-			<PDColumn Id="col-comments"
+			<PDColumn Id="comments"
 					  TItem="Person"
 					  Field="x => x.Comments"
 					  ShowInList="false"
 					  IsTextArea="true"
 					  TextAreaRows="6" />
 
-			<PDColumn Id="col-datecreated"
+			<PDColumn Id="created"
 					  TItem="Person"
 					  Field="x => x.DateCreated"
-					  Format="dd/MM/yy"
+					  Format="yyyy-MM-dd"
 					  ShowInList="false" />
 
-			<PDColumn Id="col-datemodified"
+			<PDColumn Id="modified"
 					  TItem="Person"
 					  Field="x => x.DateModified"
-					  Format="dd/MM/yy HH:mm"
+					  Format="yyyy-MM-dd HH:mm"
 					  Editable="false"
 					  TdClass="text-nowrap" />
 		</PDTable>

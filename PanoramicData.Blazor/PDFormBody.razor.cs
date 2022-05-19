@@ -116,6 +116,7 @@ namespace PanoramicData.Blazor
 						MaxLength = column.MaxLength,
 						Title = column.Title,
 						Options = column.Options,
+						OptionsAsync = column.OptionsAsync,
 						IsPassword = column.IsPassword,
 						IsSensitive = column.IsSensitive,
 						IsTextArea = column.IsTextArea,

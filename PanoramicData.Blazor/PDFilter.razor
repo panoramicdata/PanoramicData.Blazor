@@ -1,0 +1,93 @@
+﻿<PDDropDown @ref="_dropDown"
+			IconCssClass="@IconCssClass"
+			CssClass="@CssClass"
+			CloseOption="PDDropDown.CloseOptions.Outside"
+			DropDownShown="OnDropDownShown"
+			KeyPress="OnDropDownKeyPress"
+			ShowCaret="false">
+
+	<div class="filter-body"
+		 onclick="event.stopPropagation()">
+		<div class="mb-1">
+			<select class="form-control form-control-sm"
+					@onchange="OnFilterTypeChanged">
+				<option value="@FilterTypes.Equals" selected="@(_filterType == FilterTypes.Equals)">Equals</option>
+				<option value="@FilterTypes.DoesNotEqual" selected="@(_filterType == FilterTypes.DoesNotEqual)">Does not equal</option>
+				<option value="@FilterTypes.In" selected="@(_filterType == FilterTypes.In)">In list</option>
+				@if (DataType != FilterDataTypes.Enum)
+				{
+					<option value="@FilterTypes.GreaterThan" selected="@(_filterType == FilterTypes.GreaterThan)">Greater than</option>
+					<option value="@FilterTypes.GreaterThanOrEqual" selected="@(_filterType == FilterTypes.GreaterThanOrEqual)">Greater than or equal</option>
+					<option value="@FilterTypes.LessThan" selected="@(_filterType == FilterTypes.LessThan)">Less than</option>
+					<option value="@FilterTypes.LessThanOrEqual" selected="@(_filterType == FilterTypes.LessThanOrEqual)">Less than or equal</option>
+					<option value="@FilterTypes.Range" selected="@(_filterType == FilterTypes.Range)">In range</option>
+				}
+				@if (DataType == FilterDataTypes.Text)
+				{
+					<option value="@FilterTypes.StartsWith" selected="@(_filterType == FilterTypes.StartsWith)">Starts with</option>
+					<option value="@FilterTypes.EndsWith" selected="@(_filterType == FilterTypes.EndsWith)">Ends with</option>
+					<option value="@FilterTypes.Contains" selected="@(_filterType == FilterTypes.Contains)">Contains</option>
+					<option value="@FilterTypes.DoesNotContain" selected="@(_filterType == FilterTypes.DoesNotContain)">Does not contain</option>
+				}
+			</select>
+		</div>
+		<div class="mb-1">
+			<PDTextBox CssClass="form-control-sm"
+					   Placeholder="@(_filterType == FilterTypes.Range ? "from" : "")"
+					   ShowClearButton=false
+					   Value="@_value1"
+					   ValueChanged="OnValue1TextChange" />
+		</div>
+		@if (_filterType == FilterTypes.Range)
+		{
+			<div class="mb-1">
+				<PDTextBox CssClass="form-control-sm"
+						   Placeholder="@(_filterType == FilterTypes.Range ? "to" : "")"
+						   ShowClearButton=false
+						   Value="@_value2"
+						   ValueChanged="OnValue2TextChange" />
+			</div>
+		}
+
+		@if (ShowValues)
+		{
+			<div class="filter-values">
+				@if (DataType == FilterDataTypes.Text)
+				{
+					<div class="values-filter">
+						<PDTextBox CssClass="form-control-sm"
+								   DebounceWait="500"
+								   ShowClearButton=false
+								   Placeholder="search"
+								   Value="@_valuesFilter"
+								   ValueChanged="OnValuesFilterTextChange" />
+					</div>
+				}
+				<div class="values-list">
+					@foreach (var value in _values)
+					{
+						<PDLabel CssClass="pd-pointer"
+								 MouseDown="@(() => OnValueClicked(value))"
+								 IconCssClass="@(_selectedValues.Contains(value) ? "fas fa-check-square" : "far fa-square")"
+								 Text="@value" />
+					}
+				</div>
+			</div>
+		}
+	</div>
+
+	<div class="filter-toolbar">
+		<PDButton Click="OnFilter"
+				  CssClass="btn-primary"
+				  IconCssClass="@IconCssClass"
+				  Id="@_id"
+				  Size="Size"
+				  Text="Filter" />
+		<PDButton Click="OnClear"
+				  CssClass="btn-secondary"
+				  IconCssClass="fas fa-times text-danger"
+				  Size="Size"
+				  Text="Clear Filter" />
+	</div>
+
+</PDDropDown>
