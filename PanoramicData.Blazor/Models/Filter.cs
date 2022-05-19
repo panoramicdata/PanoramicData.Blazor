@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
@@ -59,6 +60,18 @@ namespace PanoramicData.Blazor.Models
 				case FilterTypes.In:
 					return $"{Key}:In({Value})";
 
+				case FilterTypes.GreaterThan:
+					return $"{Key}:>{Value}";
+
+				case FilterTypes.GreaterThanOrEqual:
+					return $"{Key}:>={Value}";
+
+				case FilterTypes.LessThan:
+					return $"{Key}:<{Value}";
+
+				case FilterTypes.LessThanOrEqual:
+					return $"{Key}:<={Value}";
+
 				default:
 					return string.Empty;
 			}
@@ -80,7 +93,7 @@ namespace PanoramicData.Blazor.Models
 				}
 				else
 				{
-					// read until next un-quoted whitespace
+					// read until next unquoted whitespace
 					var filter = ParseMany(text.Substring(idx)).FirstOrDefault();
 					if (filter is null)
 					{
@@ -96,6 +109,27 @@ namespace PanoramicData.Blazor.Models
 		}
 
 		#region Class Members
+
+		public static string Format(object value)
+		{
+			if (value is null)
+			{
+				return "";
+			}
+			if (value is DateTime dt)
+			{
+				return dt.TimeOfDay == TimeSpan.Zero
+					? $"{dt:yyyy-MM-dd}"
+					: $"#{dt:yyyy-MM-dd HH:mm:ss}#";
+			}
+			else if (value is DateTimeOffset dto)
+			{
+				return dto.UtcDateTime.TimeOfDay == TimeSpan.Zero
+					? $"{dto.UtcDateTime:yyyy-MM-dd}"
+					: $"#{dto.UtcDateTime:yyyy-MM-dd HH:mm:ss}#";
+			}
+			return value.ToString();
+		}
 
 		public static Filter Parse(string token)
 		{
@@ -114,7 +148,7 @@ namespace PanoramicData.Blazor.Models
 				return new Filter();
 			}
 
-			if (encodedValue.ToLower().StartsWith("in(") && encodedValue.EndsWith(")") && encodedValue.Length > 3)
+			if (encodedValue.StartsWith("in(", System.StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")") && encodedValue.Length > 3)
 			{
 				value = encodedValue.Substring(3, encodedValue.Length - 4);
 				filterType = FilterTypes.In;
@@ -144,6 +178,26 @@ namespace PanoramicData.Blazor.Models
 				value = encodedValue.Substring(1, encodedValue.Length - 1);
 				filterType = FilterTypes.DoesNotEqual;
 			}
+			else if (encodedValue.StartsWith(">="))
+			{
+				value = encodedValue.Substring(2, encodedValue.Length - 2);
+				filterType = FilterTypes.GreaterThanOrEqual;
+			}
+			else if (encodedValue.StartsWith("<="))
+			{
+				value = encodedValue.Substring(2, encodedValue.Length - 2);
+				filterType = FilterTypes.LessThanOrEqual;
+			}
+			else if (encodedValue.StartsWith(">"))
+			{
+				value = encodedValue.Substring(1, encodedValue.Length - 1);
+				filterType = FilterTypes.GreaterThan;
+			}
+			else if (encodedValue.StartsWith("<"))
+			{
+				value = encodedValue.Substring(1, encodedValue.Length - 1);
+				filterType = FilterTypes.LessThan;
+			}
 			else
 			{
 				value = encodedValue;
@@ -168,6 +222,7 @@ namespace PanoramicData.Blazor.Models
 
 			bool token = false;
 			bool quoted = false;
+			bool hashed = false;
 			var sb = new StringBuilder();
 
 			// read next token
@@ -175,9 +230,9 @@ namespace PanoramicData.Blazor.Models
 			{
 				if (token)
 				{
-					if (char.IsWhiteSpace(ch) && !quoted)
+					if (char.IsWhiteSpace(ch) && !quoted && !hashed)
 					{
-						// not within quotes so end of next token
+						// not within quotes or hashes so end of next token
 						yield return Parse(sb.ToString());
 						sb.Clear();
 						token = false;
@@ -187,6 +242,10 @@ namespace PanoramicData.Blazor.Models
 						if (ch == '"')
 						{
 							quoted = !quoted;
+						}
+						else if (ch == '#' && !quoted)
+						{
+							hashed = !hashed;
 						}
 						sb.Append(ch);
 					}
@@ -209,6 +268,10 @@ namespace PanoramicData.Blazor.Models
 				if (quoted)
 				{
 					sb.Append('"');
+				}
+				else if (hashed)
+				{
+					sb.Append('#');
 				}
 				yield return Parse(sb.ToString());
 			}

@@ -832,16 +832,16 @@ namespace PanoramicData.Blazor
 			};
 
 			// use more efficient service provider?
-
+			var objectValues = Array.Empty<object>();
 			if (DataProvider is IFilterProviderService<TItem> filterService && column.Field != null)
 			{
-				result = await filterService.GetDistinctValuesAsync(request, column.Field).ConfigureAwait(true);
+				objectValues = await filterService.GetDistinctValuesAsync(request, column.Field).ConfigureAwait(true);
 			}
 			else
 			{
 				// use main data provider - take has to be applied on base query
 				var response = await DataProvider.GetDataAsync(request, default);
-				result = response.Items
+				objectValues = response.Items
 					.Where(x => column.GetValue(x) != null)
 					.Select(x => column.GetValue(x)!.ToString())
 					.Distinct()
@@ -850,7 +850,10 @@ namespace PanoramicData.Blazor
 			}
 
 			// limit to first N
-			return result.Take(FilterMaxValues).ToArray();
+			objectValues = objectValues.Take(FilterMaxValues).ToArray();
+
+			// cast to string
+			return objectValues.Select(x => Filter.Format(x)).ToArray();
 		}
 
 		protected override void OnParametersSet()

@@ -6,17 +6,25 @@ namespace PanoramicData.Blazor.Models
 	{
 		[Display(Name = "Equals")]
 		Equals,
-		[Display(Name = "Does Not Equal")]
+		[Display(Name = "Does not equal")]
 		DoesNotEqual,
-		[Display(Name = "Starts With")]
+		[Display(Name = "Starts with")]
 		StartsWith,
-		[Display(Name = "Ends With")]
+		[Display(Name = "Ends with")]
 		EndsWith,
 		[Display(Name = "Contains")]
 		Contains,
-		[Display(Name = "Does Not Contain")]
+		[Display(Name = "Does not contain")]
 		DoesNotContain,
-		[Display(Name = "In")]
-		In
+		[Display(Name = "In list")]
+		In,
+		[Display(Name = "Greater than")]
+		GreaterThan,
+		[Display(Name = "Greater than or equal")]
+		GreaterThanOrEqual,
+		[Display(Name = "Less than")]
+		LessThan,
+		[Display(Name = "Less than or equal")]
+		LessThanOrEqual
 	}
 }

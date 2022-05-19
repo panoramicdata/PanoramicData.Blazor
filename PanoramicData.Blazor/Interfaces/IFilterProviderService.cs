@@ -7,6 +7,6 @@ namespace PanoramicData.Blazor.Interfaces
 {
 	public interface IFilterProviderService<TItem>
 	{
-		Task<string[]> GetDistinctValuesAsync(DataRequest<TItem> request, Expression<Func<TItem, object>> field);
+		Task<object[]> GetDistinctValuesAsync(DataRequest<TItem> request, Expression<Func<TItem, object>> field);
 	}
 }

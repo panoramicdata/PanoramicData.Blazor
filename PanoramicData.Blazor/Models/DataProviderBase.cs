@@ -37,14 +37,14 @@ namespace PanoramicData.Blazor.Models
 
 		#region IFilterProviderService<T> Members
 
-		public virtual async Task<string[]> GetDistinctValuesAsync(DataRequest<T> request, Expression<Func<T, object>> field)
+		public virtual async Task<object[]> GetDistinctValuesAsync(DataRequest<T> request, Expression<Func<T, object>> field)
 		{
 			// use main data provider - take has to be applied on base query
 			var response = await GetDataAsync(request, default);
 			var fn = field.Compile();
 			return response.Items
 				.Where(x => fn(x) != null)
-				.Select(x => fn(x).ToString())
+				.Select(x => fn(x))
 				.Distinct()
 				.OrderBy(x => x)
 				.ToArray();
@@ -83,7 +83,7 @@ namespace PanoramicData.Blazor.Models
 		public virtual IQueryable<T> ApplyFilters(IQueryable<T> query, IEnumerable<Filter> filters, params string[] exclude)
 		{
 			var output = query;
-			foreach(var filter in filters)
+			foreach (var filter in filters)
 			{
 				if (!exclude.Contains(filter.Key))
 				{

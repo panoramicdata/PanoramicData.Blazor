@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using PanoramicData.Blazor.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor
@@ -85,7 +86,7 @@ namespace PanoramicData.Blazor
 			await FilterChanged.InvokeAsync(Filter).ConfigureAwait(true);
 		}
 
-		private async Task OnValue1TextChange(string value)
+		private void OnValue1TextChange(string value)
 		{
 			_value1 = value;
 			if (_filterType == FilterTypes.In)
@@ -117,7 +118,7 @@ namespace PanoramicData.Blazor
 				_selectedValues.Add(value);
 			}
 			_filterType = FilterTypes.In;
-			_value1 = String.Join("|", _selectedValues);
+			_value1 = String.Join("|", _selectedValues.Select(x => x).ToArray());
 		}
 
 		private async Task RefreshValues()

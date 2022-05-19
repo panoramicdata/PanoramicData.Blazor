@@ -21,17 +21,6 @@ namespace PanoramicData.Blazor.Extensions
 						FilterTypes.In => filter.Value.Split(new[] { "|" }, System.StringSplitOptions.RemoveEmptyEntries),
 						_ => new object[] { filter.Value }
 					};
-
-					//switch (filter.FilterType)
-					//{
-					//	case FilterTypes.In:
-					//		parameters.AddRange(filter.Value.Split(new[] { "|" }, System.StringSplitOptions.RemoveEmptyEntries));
-					//		break;
-
-					//	default:
-					//		parameters.Add(filter.Value);
-					//		break;
-					//}
 					var predicate = filter.FilterType switch
 					{
 						FilterTypes.Contains => $"({property}).Contains(@0)",
@@ -41,6 +30,10 @@ namespace PanoramicData.Blazor.Extensions
 						FilterTypes.Equals => $"{property} == @0",
 						FilterTypes.StartsWith => $"({property}).StartsWith(@0)",
 						FilterTypes.In => string.Join(" || ", parameters.Select((x, i) => $"{property} == @{i}").ToArray()),
+						FilterTypes.GreaterThan => $"{property} > @0",
+						FilterTypes.GreaterThanOrEqual => $"{property} >= @0",
+						FilterTypes.LessThanOrEqual => $"{property} <= @0",
+						FilterTypes.LessThan => $"{property} < @0",
 						_ => ""
 					};
 					return string.IsNullOrWhiteSpace(predicate) ? query : query.Where(predicate, parameters);

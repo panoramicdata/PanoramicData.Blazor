@@ -60,7 +60,7 @@ namespace PanoramicData.Blazor.Demo.Data
 		public DateTimeOffset DateModified { get; set; }
 
 		[Display(Name = "Username", Description = "Login username")]
-		public string Username { get; set; }
+		public string Username { get; set; } = string.Empty;
 	}
 
 	public enum Departments
