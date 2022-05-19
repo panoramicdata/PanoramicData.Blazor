@@ -25,6 +25,8 @@ namespace PanoramicData.Blazor.Models
 		[Display(Name = "Less than")]
 		LessThan,
 		[Display(Name = "Less than or equal")]
-		LessThanOrEqual
+		LessThanOrEqual,
+		[Display(Name = "Range")]
+		Range
 	}
 }

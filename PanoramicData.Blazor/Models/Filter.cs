@@ -19,11 +19,22 @@ namespace PanoramicData.Blazor.Models
 			Value = value;
 		}
 
+
+		public Filter(FilterTypes filterType, string key, string value, string value2)
+		{
+			FilterType = filterType;
+			Key = key;
+			Value = value;
+			Value2 = value2;
+		}
+
 		public FilterTypes FilterType { get; set; }
 
 		public string Key { get; set; } = string.Empty;
 
 		public string Value { get; set; } = string.Empty;
+
+		public string Value2 { get; set; } = string.Empty;
 
 		public KeyValuePair<string, object> Values { get; set; }
 
@@ -33,7 +44,9 @@ namespace PanoramicData.Blazor.Models
 			Value = string.Empty;
 		}
 
-		public bool IsValid => !string.IsNullOrWhiteSpace(Value);
+		public bool IsValid => FilterType == FilterTypes.Range
+			? !string.IsNullOrWhiteSpace(Value) && !string.IsNullOrWhiteSpace(Value2)
+			: !string.IsNullOrWhiteSpace(Value);
 
 		public override string ToString()
 		{
@@ -71,6 +84,9 @@ namespace PanoramicData.Blazor.Models
 
 				case FilterTypes.LessThanOrEqual:
 					return $"{Key}:<={Value}";
+
+				case FilterTypes.Range:
+					return $"{Key}:>{Value}|{Value2}<";
 
 				default:
 					return string.Empty;
@@ -135,6 +151,7 @@ namespace PanoramicData.Blazor.Models
 		{
 			var key = string.Empty;
 			var value = string.Empty;
+			var value2 = string.Empty;
 			var filterType = FilterTypes.Equals;
 			var encodedValue = string.Empty;
 
@@ -162,6 +179,14 @@ namespace PanoramicData.Blazor.Models
 			{
 				value = encodedValue.Substring(1, encodedValue.Length - 2);
 				filterType = FilterTypes.Contains;
+			}
+			else if (encodedValue.StartsWith(">") && encodedValue.EndsWith("<") && encodedValue.Contains("|") && encodedValue.Length > 1)
+			{
+				value = encodedValue.Substring(1, encodedValue.Length - 2);
+				var idx = value.IndexOf("|");
+				value2 = value.Substring(idx + 1);
+				value = value.Substring(0, idx);
+				filterType = FilterTypes.Range;
 			}
 			else if (encodedValue.EndsWith("*"))
 			{
@@ -210,7 +235,7 @@ namespace PanoramicData.Blazor.Models
 				value = value.Substring(1, value.Length - 2);
 			}
 
-			return new Filter(filterType, key, value);
+			return new Filter(filterType, key, value, value2);
 		}
 
 		public static IEnumerable<Filter> ParseMany(string text)

@@ -811,7 +811,10 @@ namespace PanoramicData.Blazor
 				{
 					if (col == column)
 					{
-						searchText.Append(filter.ToString());
+						if (filter.IsValid)
+						{
+							searchText.Append(filter.ToString());
+						}
 					}
 					else if (col.Filter.IsValid)
 					{

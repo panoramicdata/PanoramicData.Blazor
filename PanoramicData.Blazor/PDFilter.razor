@@ -20,6 +20,7 @@
 					<option value="@FilterTypes.GreaterThanOrEqual" selected="@(_filterType == FilterTypes.GreaterThanOrEqual)">Greater than or equal</option>
 					<option value="@FilterTypes.LessThan" selected="@(_filterType == FilterTypes.LessThan)">Less than</option>
 					<option value="@FilterTypes.LessThanOrEqual" selected="@(_filterType == FilterTypes.LessThanOrEqual)">Less than or equal</option>
+					<option value="@FilterTypes.Range" selected="@(_filterType == FilterTypes.Range)">In range</option>
 				}
 				@if (DataType == FilterDataTypes.Text)
 				{
@@ -32,10 +33,21 @@
 		</div>
 		<div class="mb-1">
 			<PDTextBox CssClass="form-control-sm"
+					   Placeholder="@(_filterType == FilterTypes.Range ? "from" : "")"
 					   ShowClearButton=false
 					   Value="@_value1"
 					   ValueChanged="OnValue1TextChange" />
 		</div>
+		@if (_filterType == FilterTypes.Range)
+		{
+			<div class="mb-1">
+				<PDTextBox CssClass="form-control-sm"
+						   Placeholder="@(_filterType == FilterTypes.Range ? "to" : "")"
+						   ShowClearButton=false
+						   Value="@_value2"
+						   ValueChanged="OnValue2TextChange" />
+			</div>
+		}
 
 		@if (ShowValues)
 		{
@@ -46,7 +58,7 @@
 						<PDTextBox CssClass="form-control-sm"
 								   DebounceWait="500"
 								   ShowClearButton=false
-								   Placeholder="Search"
+								   Placeholder="search"
 								   Value="@_valuesFilter"
 								   ValueChanged="OnValuesFilterTextChange" />
 					</div>
