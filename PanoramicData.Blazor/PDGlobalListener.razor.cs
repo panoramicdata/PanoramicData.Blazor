@@ -1,59 +1,49 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using PanoramicData.Blazor.Interfaces;
-using PanoramicData.Blazor.Models;
-using PanoramicData.Blazor.Services;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿namespace PanoramicData.Blazor;
 
-namespace PanoramicData.Blazor
+public partial class PDGlobalListener : IDisposable
 {
-	public partial class PDGlobalListener : IDisposable
+	private DotNetObjectReference<PDGlobalListener>? _dotNetObjectReference;
+
+	[Parameter] public RenderFragment? ChildContent { get; set; }
+
+	[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;
+
+	[Inject] public IJSRuntime? JSRuntime { get; set; }
+
+	public void Dispose()
 	{
-		private DotNetObjectReference<PDGlobalListener>? _dotNetObjectReference;
+		GlobalEventService.ShortcutsChanged -= GlobalEventService_ShortcutsChanged;
+		JSRuntime!.InvokeVoidAsync("panoramicData.destroyGlobalListener");
+	}
 
-		[Parameter] public RenderFragment? ChildContent { get; set; }
+	protected override void OnInitialized()
+	{
+		GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
+	}
 
-		[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;
+	private void GlobalEventService_ShortcutsChanged(object sender, IEnumerable<ShortcutKey> shortcuts)
+	{
+		JSRuntime!.InvokeVoidAsync("panoramicData.registerShortcutKeys", shortcuts);
+	}
 
-		[Inject] public IJSRuntime? JSRuntime { get; set; }
-
-		public void Dispose()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && JSRuntime != null)
 		{
-			GlobalEventService.ShortcutsChanged -= GlobalEventService_ShortcutsChanged;
-			JSRuntime!.InvokeVoidAsync("panoramicData.destroyGlobalListener");
+			_dotNetObjectReference = DotNetObjectReference.Create<PDGlobalListener>(this);
+			await JSRuntime.InvokeVoidAsync("panoramicData.initGlobalListener", _dotNetObjectReference).ConfigureAwait(true);
 		}
+	}
 
-		protected override void OnInitialized()
-		{
-			GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
-		}
+	[JSInvokable]
+	public void OnKeyDown(KeyboardInfo keyboardInfo)
+	{
+		GlobalEventService?.KeyDown(keyboardInfo);
+	}
 
-		private void GlobalEventService_ShortcutsChanged(object sender, IEnumerable<ShortcutKey> shortcuts)
-		{
-			JSRuntime!.InvokeVoidAsync("panoramicData.registerShortcutKeys", shortcuts);
-		}
-
-		protected override async Task OnAfterRenderAsync(bool firstRender)
-		{
-			if (firstRender && JSRuntime != null)
-			{
-				_dotNetObjectReference = DotNetObjectReference.Create<PDGlobalListener>(this);
-				await JSRuntime.InvokeVoidAsync("panoramicData.initGlobalListener", _dotNetObjectReference).ConfigureAwait(true);
-			}
-		}
-
-		[JSInvokable]
-		public void OnKeyDown(KeyboardInfo keyboardInfo)
-		{
-			GlobalEventService?.KeyDown(keyboardInfo);
-		}
-
-		[JSInvokable]
-		public void OnKeyUp(KeyboardInfo keyboardInfo)
-		{
-			GlobalEventService?.KeyUp(keyboardInfo);
-		}
+	[JSInvokable]
+	public void OnKeyUp(KeyboardInfo keyboardInfo)
+	{
+		GlobalEventService?.KeyUp(keyboardInfo);
 	}
 }

@@ -1,9 +1,8 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+public enum TableSelectionMode
 {
-	public enum TableSelectionMode
-	{
-		None,
-		Single,
-		Multiple
-	}
+	None,
+	Single,
+	Multiple
 }

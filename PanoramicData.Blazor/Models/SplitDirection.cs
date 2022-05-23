@@ -1,8 +1,7 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+public enum SplitDirection
 {
-	public enum SplitDirection
-	{
-		Horizontal,
-		Vertical
-	}
+	Horizontal,
+	Vertical
 }

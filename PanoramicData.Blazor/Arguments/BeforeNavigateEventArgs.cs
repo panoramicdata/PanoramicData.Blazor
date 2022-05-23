@@ -1,13 +1,12 @@
-﻿namespace PanoramicData.Blazor.Arguments
+﻿namespace PanoramicData.Blazor.Arguments;
+
+/// <summary>
+/// The BeforeNavigateEventArgs class holds details about an impending navigation.
+/// </summary>
+public class BeforeNavigateEventArgs : CancelEventArgs
 {
 	/// <summary>
-	/// The BeforeNavigateEventArgs class holds details about an impending navigation.
+	/// Gets or sets the target navigation path.
 	/// </summary>
-	public class BeforeNavigateEventArgs : CancelEventArgs
-	{
-		/// <summary>
-		/// Gets or sets the target navigation path.
-		/// </summary>
-		public string Target { get; set; } = string.Empty;
-	}
+	public string Target { get; set; } = string.Empty;
 }

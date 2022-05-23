@@ -1,10 +1,9 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+public enum FilterDataTypes
 {
-	public enum FilterDataTypes
-	{
-		Text,
-		Numeric,
-		Date,
-		Enum
-	}
+	Text,
+	Numeric,
+	Date,
+	Enum
 }

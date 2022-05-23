@@ -1,9 +1,8 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+public enum ButtonSizes
 {
-	public enum ButtonSizes
-	{
-		Small,
-		Medium,
-		Large
-	}
+	Small,
+	Medium,
+	Large
 }

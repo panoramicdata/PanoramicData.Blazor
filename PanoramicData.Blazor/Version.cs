@@ -1,13 +1,12 @@
-﻿namespace PanoramicData.Blazor
+﻿namespace PanoramicData.Blazor;
+
+public static class Version
 {
-	public static class Version
+	public static string AssemblyFileVersion
 	{
-		public static string AssemblyFileVersion
+		get
 		{
-			get
-			{
-				return ThisAssembly.AssemblyFileVersion;
-			}
+			return ThisAssembly.AssemblyFileVersion;
 		}
 	}
 }

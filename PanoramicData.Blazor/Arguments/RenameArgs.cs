@@ -1,20 +1,17 @@
-﻿using PanoramicData.Blazor.Models;
+﻿namespace PanoramicData.Blazor.Arguments;
 
-namespace PanoramicData.Blazor.Arguments
+/// <summary>
+/// The RenameArgs class provides arguments for a rename operation.
+/// </summary>
+public class RenameArgs
 {
 	/// <summary>
-	/// The RenameArgs class provides arguments for a rename operation.
+	/// Gets the file item to be renamed.
 	/// </summary>
-	public class RenameArgs
-	{
-		/// <summary>
-		/// Gets the file item to be renamed.
-		/// </summary>
-		public FileExplorerItem? Item { get; set; }
+	public FileExplorerItem? Item { get; set; }
 
-		/// <summary>
-		/// Gets or sets whether the rename should be canceled.
-		/// </summary>
-		public bool Cancel { get; set; }
-	}
+	/// <summary>
+	/// Gets or sets whether the rename should be canceled.
+	/// </summary>
+	public bool Cancel { get; set; }
 }

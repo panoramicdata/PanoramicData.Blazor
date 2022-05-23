@@ -1,18 +1,17 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+/// <summary>
+/// The FormFieldResult class provides the result of a form field operation.
+/// </summary>
+public class FormFieldResult
 {
 	/// <summary>
-	/// The FormFieldResult class provides the result of a form field operation.
+	/// Gets or sets if the operation was canceled.
 	/// </summary>
-	public class FormFieldResult
-	{
-		/// <summary>
-		/// Gets or sets if the operation was canceled.
-		/// </summary>
-		public bool Canceled { get; set; }
+	public bool Canceled { get; set; }
 
-		/// <summary>
-		/// Gets or sets new field value.
-		/// </summary>
-		public object? NewValue { get; set; }
-	}
+	/// <summary>
+	/// Gets or sets new field value.
+	/// </summary>
+	public object? NewValue { get; set; }
 }

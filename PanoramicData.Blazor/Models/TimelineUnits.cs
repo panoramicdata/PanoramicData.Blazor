@@ -1,14 +1,13 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+public enum TimelineUnits
 {
-	public enum TimelineUnits
-	{
-		Milliseconds,
-		Seconds,
-		Minutes,
-		Hours,
-		Days,
-		Weeks,
-		Months,
-		Years
-	}
+	Milliseconds,
+	Seconds,
+	Minutes,
+	Hours,
+	Days,
+	Weeks,
+	Months,
+	Years
 }

@@ -1,9 +1,8 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+public enum TimelinePositions
 {
-	public enum TimelinePositions
-	{
-		Start,
-		Center,
-		End
-	}
+	Start,
+	Center,
+	End
 }
