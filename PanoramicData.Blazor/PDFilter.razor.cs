@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Models;
 using System;
 using System.Collections.Generic;
@@ -67,7 +68,7 @@ namespace PanoramicData.Blazor
 			await RefreshValues().ConfigureAwait(true);
 			if (_filterType == FilterTypes.In)
 			{
-				_selectedValues.AddRange(_value1.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries));
+				_selectedValues.AddRange(_value1.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
 			}
 		}
 
@@ -96,7 +97,7 @@ namespace PanoramicData.Blazor
 			if (_filterType == FilterTypes.In)
 			{
 				_selectedValues.Clear();
-				_selectedValues.AddRange(_value1.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries));
+				_selectedValues.AddRange(_value1.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
 			}
 		}
 
@@ -127,7 +128,7 @@ namespace PanoramicData.Blazor
 				_selectedValues.Add(value);
 			}
 			_filterType = FilterTypes.In;
-			_value1 = String.Join("|", _selectedValues.Select(x => x).ToArray());
+			_value1 = String.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
 		}
 
 		private async Task RefreshValues()

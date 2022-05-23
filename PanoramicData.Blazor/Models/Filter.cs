@@ -230,10 +230,10 @@ namespace PanoramicData.Blazor.Models
 			}
 
 			// strip quotes
-			if (value.StartsWith("\"") && value.EndsWith("\""))
-			{
-				value = value.Substring(1, value.Length - 2);
-			}
+			//if (value.StartsWith("\"") && value.EndsWith("\""))
+			//{
+			//	value = value.Substring(1, value.Length - 2);
+			//}
 
 			return new Filter(filterType, key, value, value2);
 		}

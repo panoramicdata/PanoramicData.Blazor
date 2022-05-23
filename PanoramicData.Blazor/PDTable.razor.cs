@@ -585,15 +585,12 @@ namespace PanoramicData.Blazor
 			{
 				sb.Append(' ').Append(col.Filter.ToString());
 			}
+
 			SearchText = sb.ToString().Trim();
 			await SearchTextChanged.InvokeAsync(SearchText).ConfigureAwait(true);
+			_lastSearchText = SearchText;
 
-			Console.WriteLine($"FilterChanged: SearchText = {SearchText} (old = {_lastSearchText})");
-			if (SearchText != _lastSearchText)
-			{
-				_lastSearchText = SearchText;
-				await RefreshAsync(SearchText).ConfigureAwait(true);
-			}
+			await RefreshAsync(SearchText).ConfigureAwait(true);
 		}
 
 		/// <summary>
