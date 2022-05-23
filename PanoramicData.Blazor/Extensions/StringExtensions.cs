@@ -77,5 +77,29 @@ namespace PanoramicData.Blazor.Extensions
 				.Append("</span>");
 			return (MarkupString)sb.ToString();
 		}
+
+		public static string QuoteIfContainsWhitespace(this string text)
+		{
+			if (text.Length > 0)
+			{
+				if (!(text.StartsWith("\"") && text.StartsWith("\"")))
+				{
+					if (text.Contains(' ') || text.Contains('\t') || text.Contains('\r') || text.Contains('\n'))
+					{
+						return $"\"{text}\"";
+					}
+				}
+			}
+			return text;
+		}
+
+		public static string RemoveQuotes(this string text)
+		{
+			if (text.StartsWith("\"") && text.EndsWith("\""))
+			{
+				return text.Substring(1, text.Length - 2);
+			}
+			return text;
+		}
 	}
 }
