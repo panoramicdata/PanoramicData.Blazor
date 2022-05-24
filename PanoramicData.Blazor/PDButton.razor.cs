@@ -110,7 +110,7 @@ public partial class PDButton : IDisposable
 		}
 	}
 
-	private async void GlobalEventService_KeyUpEvent(object sender, KeyboardInfo e)
+	private async void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e)
 	{
 		if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.Code, e.AltKey, e.CtrlKey, e.ShiftKey))
 		{

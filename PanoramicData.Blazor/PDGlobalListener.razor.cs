@@ -21,7 +21,7 @@ public partial class PDGlobalListener : IDisposable
 		GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
 	}
 
-	private void GlobalEventService_ShortcutsChanged(object sender, IEnumerable<ShortcutKey> shortcuts)
+	private void GlobalEventService_ShortcutsChanged(object? sender, IEnumerable<ShortcutKey> shortcuts)
 	{
 		JSRuntime!.InvokeVoidAsync("panoramicData.registerShortcutKeys", shortcuts);
 	}

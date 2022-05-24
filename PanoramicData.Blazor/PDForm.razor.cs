@@ -354,7 +354,7 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 	/// <returns>A FormField instance if found, otherwise null.</returns>
 	public FormField<TItem> GetField(string name)
 	{
-		return Fields.FirstOrDefault(x => x.Name == name);
+		return Fields.First(x => x.Name == name);
 	}
 
 	/// <summary>
@@ -514,7 +514,7 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 			return dt.ToString("yyyy-MM-dd");
 		}
 
-		return value.ToString();
+		return value.ToString() ?? String.Empty;
 	}
 
 	/// <summary>
@@ -571,10 +571,13 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 		}
 		var json = System.Text.Json.JsonSerializer.Serialize(Item);
 		var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);
-		foreach (var kvp in Delta)
+		if (clone != null)
 		{
-			var propInfo = clone.GetType().GetProperty(kvp.Key);
-			propInfo?.SetValue(clone, kvp.Value);
+			foreach (var kvp in Delta)
+			{
+				var propInfo = clone.GetType().GetProperty(kvp.Key);
+				propInfo?.SetValue(clone, kvp.Value);
+			}
 		}
 		return clone;
 	}
@@ -619,7 +622,12 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 
 					// run standard data annotation validation
 					var results = new List<ValidationResult>();
-					var context = new ValidationContext(updatedItem ??= GetItemWithUpdates())
+					var itemWithUpdates = GetItemWithUpdates();
+					if (itemWithUpdates is null)
+					{
+						throw new ArgumentException("Failed to get updated item instance");
+					}
+					var context = new ValidationContext(updatedItem ??= itemWithUpdates)
 					{
 						MemberName = memberInfo.Name
 					};
@@ -629,7 +637,7 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 					}
 					else
 					{
-						SetFieldErrors(memberInfo.Name, results.Select(x => x.ErrorMessage).ToArray());
+						SetFieldErrors(memberInfo.Name, results.Where(x => x?.ErrorMessage != null).Select(x => x.ErrorMessage!).ToArray());
 					}
 
 					// validate numeric values
@@ -721,7 +729,7 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 		ErrorsChanged?.Invoke(this, e);
 	}
 
-	private void NavigationService_BeforeNavigate(object sender, BeforeNavigateEventArgs e)
+	private void NavigationService_BeforeNavigate(object? sender, BeforeNavigateEventArgs e)
 	{
 		if (HasChanges && ConfirmOnUnload)
 		{

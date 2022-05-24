@@ -97,7 +97,7 @@ public partial class PDLinkButton
 		}
 	}
 
-	private async void GlobalEventService_KeyUpEvent(object sender, KeyboardInfo e)
+	private async void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e)
 	{
 		if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.Code, e.AltKey, e.CtrlKey, e.ShiftKey))
 		{
@@ -107,7 +107,10 @@ public partial class PDLinkButton
 
 	public async Task ClickAsync()
 	{
-		await JSRuntime.InvokeVoidAsync("panoramicData.click", Id).ConfigureAwait(true);
+		if (JSRuntime != null)
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicData.click", Id).ConfigureAwait(true);
+		}
 	}
 
 	public void Dispose()

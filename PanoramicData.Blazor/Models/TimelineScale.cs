@@ -185,7 +185,7 @@ public class TimelineScale : IComparable
 
 	#region IComparable
 
-	public int CompareTo(object obj)
+	public int CompareTo(object? obj)
 	{
 		if (obj is TimelineScale ts)
 		{

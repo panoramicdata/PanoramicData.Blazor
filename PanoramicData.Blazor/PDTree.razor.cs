@@ -243,7 +243,7 @@ public partial class PDTree<TItem> where TItem : class
 		return found;
 	}
 
-	private void ClickTimerCallback(object state)
+	private void ClickTimerCallback(object? state)
 	{
 		_clickTimer?.Dispose();
 		_clickTimer = null;
@@ -439,7 +439,10 @@ public partial class PDTree<TItem> where TItem : class
 					SelectedNode.EditText = afterEditArgs.NewValue; // application might of altered
 					SelectedNode.CommitEdit();
 					SelectedNode?.ParentNode?.Nodes?.Sort(NodeSort); // re-sort parent
-					await JSRuntime.InvokeVoidAsync("panoramicData.focus", Id).ConfigureAwait(true);
+					if (JSRuntime != null)
+					{
+						await JSRuntime.InvokeVoidAsync("panoramicData.focus", Id).ConfigureAwait(true);
+					}
 				}
 			}
 		}
@@ -525,14 +528,18 @@ public partial class PDTree<TItem> where TItem : class
 				}
 			}
 			node.Key = key;
-			node.Text = TextField?.Invoke(item)?.ToString() ?? item.ToString();
+			node.Text = TextField is null
+				? item?.ToString() ?? String.Empty
+				: TextField.Invoke(item).ToString() ?? item.ToString() ?? String.Empty;
 			node.IsExpanded = false;
 			node.Data = item;
 			node.ParentNode = parentNode;
 			node.Level = parentNode.Level + 1;
-			node.IconCssClass = IconCssClass?.Invoke(item, parentNode.Level + 1) ?? string.Empty;
+			node.IconCssClass = IconCssClass is null || item is null
+				? string.Empty
+				: IconCssClass.Invoke(item, parentNode.Level + 1);
 			node.Nodes = LoadOnDemand ? null : new List<TreeNode<TItem>>();
-			if (LoadOnDemand && IsLeaf != null && IsLeaf(item))
+			if (LoadOnDemand && IsLeaf != null && item != null && IsLeaf(item))
 			{
 				node.Nodes = new List<TreeNode<TItem>>();
 			}

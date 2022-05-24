@@ -46,7 +46,7 @@ public partial class PDPager : IDisposable
 		PageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
 	}
 
-	private void PageCriteria_TotalCountChanged(object sender, EventArgs e)
+	private void PageCriteria_TotalCountChanged(object? sender, EventArgs e)
 	{
 		StateHasChanged();
 	}

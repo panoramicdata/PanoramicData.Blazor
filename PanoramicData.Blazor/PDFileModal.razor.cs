@@ -217,7 +217,7 @@ public partial class PDFileModal
 			}
 
 			// check for over write?
-			existing = System.Array.Find(FileExplorer.FileItems, x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
+			existing = Array.Find(FileExplorer.FileItems ?? Array.Empty<FileExplorerItem>(), x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
 			if (existing != null)
 			{
 				var confirmation = await ModalConfirm.ShowAndWaitResultAsync().ConfigureAwait(true);
@@ -245,7 +245,7 @@ public partial class PDFileModal
 			else
 			{
 				// save as
-				var existing = System.Array.Find(FileExplorer.FileItems, x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
+				var existing = System.Array.Find(FileExplorer.FileItems ?? Array.Empty<FileExplorerItem>(), x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
 				if (existing != null)
 				{
 					// prompt user for over write

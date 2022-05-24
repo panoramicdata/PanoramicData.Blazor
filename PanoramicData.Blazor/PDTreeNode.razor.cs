@@ -72,7 +72,10 @@ public partial class PDTreeNode<TItem> where TItem : class
 			// focus and select text in edit box after first rendered
 			if (Node.IsEditing && Node.BeginEditEvent.WaitOne(0))
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.selectText", $"PDTNE{Node.Id}", 0, Node.Text.Length).ConfigureAwait(true);
+				if (JSRuntime != null)
+				{
+					await JSRuntime.InvokeVoidAsync("panoramicData.selectText", $"PDTNE{Node.Id}", 0, Node.Text.Length).ConfigureAwait(true);
+				}
 				Node.BeginEditEvent.Reset();
 			}
 		}

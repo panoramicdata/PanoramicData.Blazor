@@ -134,10 +134,14 @@ public class FileExplorerItem : IComparable
 		return Path;
 	}
 
-	public int CompareTo(object obj)
+	public int CompareTo(object? obj)
 	{
+		if (obj is null)
+		{
+			throw new InvalidOperationException();
+		}
 		FileExplorerItem item = (FileExplorerItem)obj;
-		return Name.CompareTo(item.Name);
+		return Name.CompareTo(item?.Name);
 	}
 
 	/// <summary>

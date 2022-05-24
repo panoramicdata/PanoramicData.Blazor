@@ -37,6 +37,8 @@ public partial class PDFormBody<TItem> where TItem : class
 	/// </summary>
 	[Parameter] public int TitleWidth { get; set; } = 200;
 
+	private MarkupString WidthCssMarkup => new MarkupString($".title-box {{ width: {TitleWidth}px }}");
+
 	private Dictionary<string, object> GetNumericAttributes(FormField<TItem> field)
 	{
 		var dict = new Dictionary<string, object>();
@@ -142,8 +144,8 @@ public partial class PDFormBody<TItem> where TItem : class
 		var memberInfo = field.Field?.GetPropertyMemberInfo();
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			var names = Enum.GetNames(propInfo.PropertyType);
-			var values = Enum.GetValues(propInfo.PropertyType);
+			string[] names = Enum.GetNames(propInfo.PropertyType);
+			Array values = Enum.GetValues(propInfo.PropertyType);
 			for (var i = 0; i < values.Length; i++)
 			{
 				var displayName = propInfo.PropertyType.GetMember($"{names[i]}")
@@ -154,7 +156,7 @@ public partial class PDFormBody<TItem> where TItem : class
 				{
 					Text = displayName,
 					Value = values.GetValue(i),
-					IsSelected = Form?.GetFieldStringValue(field) == values.GetValue(i).ToString()
+					IsSelected = Form?.GetFieldStringValue(field) == values.GetValue(i)?.ToString()
 				});
 			}
 		}
@@ -188,7 +190,10 @@ public partial class PDFormBody<TItem> where TItem : class
 
 	private void OnHelpUrlClick(FormField<TItem> field)
 	{
-		JSRuntime.InvokeVoidAsync("panoramicData.openUrl", field.HelpUrl, "pd-help-page");
+		if (JSRuntime != null)
+		{
+			JSRuntime.InvokeVoidAsync("panoramicData.openUrl", field.HelpUrl, "pd-help-page");
+		}
 	}
 
 	private string GetValidationCssClass(FormField<TItem> field)
@@ -249,7 +254,7 @@ public partial class PDFormBody<TItem> where TItem : class
 	{
 		try
 		{
-			await Form!.SetFieldValueAsync(field, DateTimeOffset.Parse(args.Value.ToString())).ConfigureAwait(true);
+			await Form!.SetFieldValueAsync(field, DateTimeOffset.Parse(args.Value?.ToString() ?? String.Empty)).ConfigureAwait(true);
 		}
 		catch
 		{
@@ -261,7 +266,11 @@ public partial class PDFormBody<TItem> where TItem : class
 	{
 		try
 		{
-			await Form!.SetFieldValueAsync(field, Convert.ChangeType(args.Value, field.GetFieldType())).ConfigureAwait(true);
+			var fieldType = field.GetFieldType();
+			if (fieldType != null)
+			{
+				await Form!.SetFieldValueAsync(field, Convert.ChangeType(args.Value ?? string.Empty, fieldType)).ConfigureAwait(true);
+			}
 		}
 		catch
 		{

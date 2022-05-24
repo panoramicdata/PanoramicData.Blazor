@@ -21,20 +21,20 @@
 			else if (item is ToolbarTextBox textbox)
 			{
 				<PDToolbarTextbox Key=@textbox.Key
-								  Cleared="@textbox.Cleared"
+								  Cleared="@(() => textbox.Cleared?.Invoke())"
 								  CssClass="@textbox.CssClass"
 								  DebounceWait="@textbox.DebounceWait"
 								  IsEnabled="@textbox.IsEnabled"
 								  IsVisible="@textbox.IsVisible"
 								  ItemCssClass="@textbox.ItemCssClass"
-								  Keypress="@textbox.Keypress"
+								  Keypress="@((a) => textbox.Keypress?.Invoke(a))"
 								  KeypressEvent="@textbox.KeypressEvent"
 								  Label="@textbox.Label"
 								  ShiftRight="@textbox.ShiftRight"
 								  ShowClearButton="@textbox.ShowClearButton"
 								  ToolTip="@textbox.ToolTip"
 								  Value="@textbox.Value"
-								  ValueChanged="@textbox.ValueChanged"
+								  ValueChanged="@((a) => textbox.ValueChanged?.Invoke(a))"
 								  Width="@textbox.Width" />
 			}
 			else if (item is ToolbarSeparator separator)

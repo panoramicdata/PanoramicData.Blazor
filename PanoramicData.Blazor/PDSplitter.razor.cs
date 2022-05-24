@@ -65,10 +65,13 @@ public partial class PDSplitter : IDisposable
 
 	protected async override Task OnInitializedAsync()
 	{
-		var available = await JSRuntime.InvokeAsync<bool>("panoramicData.hasSplitJs").ConfigureAwait(true);
-		if (!available)
+		if (JSRuntime != null)
 		{
-			throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
+			var available = await JSRuntime.InvokeAsync<bool>("panoramicData.hasSplitJs").ConfigureAwait(true);
+			if (!available)
+			{
+				throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
+			}
 		}
 	}
 
@@ -90,22 +93,35 @@ public partial class PDSplitter : IDisposable
 				DragInterval = DragInterval,
 				Cursor = Direction == SplitDirection.Horizontal ? "col-resize" : "row-resize"
 			};
-			await JSRuntime.InvokeVoidAsync("panoramicData.initializeSplitter", Id, ids, options).ConfigureAwait(true);
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.initializeSplitter", Id, ids, options).ConfigureAwait(true);
+			}
 		}
 	}
 
 	public async Task<double[]> GetSizesAsync()
 	{
-		return await JSRuntime.InvokeAsync<double[]>("panoramicData.splitterGetSizes", Id).ConfigureAwait(true);
+		if (JSRuntime != null)
+		{
+			return await JSRuntime.InvokeAsync<double[]>("panoramicData.splitterGetSizes", Id).ConfigureAwait(true);
+		}
+		return Array.Empty<double>();
 	}
 
 	public async Task SetSizesAsync(double[] sizes)
 	{
-		await JSRuntime.InvokeVoidAsync("panoramicData.splitterSetSizes", Id, sizes).ConfigureAwait(true);
+		if (JSRuntime != null)
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicData.splitterSetSizes", Id, sizes).ConfigureAwait(true);
+		}
 	}
 
 	public void Dispose()
 	{
-		JSRuntime.InvokeVoidAsync("panoramicData.destroySplitter", Id);
+		if (JSRuntime != null)
+		{
+			JSRuntime.InvokeVoidAsync("panoramicData.destroySplitter", Id);
+		}
 	}
 }

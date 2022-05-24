@@ -1749,8 +1749,8 @@ public partial class PDFileExplorer : IDisposable
 		}
 		_conflictDialogMessage = message ?? $"{names.Count()} conflicts found : -";
 		_conflictDialogList = namesSummary.ToArray();
-		ConflictDialog!.Buttons.Find(x => x.Key == "Overwrite").IsVisible = showOverwrite;
-		ConflictDialog!.Buttons.Find(x => x.Key == "Rename").IsVisible = showRename;
+		ConflictDialog!.Buttons.First(x => x.Key == "Overwrite").IsVisible = showOverwrite;
+		ConflictDialog!.Buttons.First(x => x.Key == "Rename").IsVisible = showRename;
 		StateHasChanged();
 		if (ConflictDialog != null)
 		{

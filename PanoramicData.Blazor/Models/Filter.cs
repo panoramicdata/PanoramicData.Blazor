@@ -138,7 +138,7 @@ public class Filter
 				? $"{dto.UtcDateTime:yyyy-MM-dd}"
 				: $"#{dto.UtcDateTime:yyyy-MM-dd HH:mm:ss}#";
 		}
-		return value.ToString();
+		return value.ToString() ?? String.Empty;
 	}
 
 	public static Filter Parse(string token)

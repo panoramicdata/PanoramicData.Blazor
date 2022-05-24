@@ -117,7 +117,7 @@ public partial class PDToolbarDropdown : IDisposable
 		}
 	}
 
-	private async void GlobalEventService_KeyUpEvent(object sender, KeyboardInfo e)
+	private async void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e)
 	{
 		foreach (var item in Items)
 		{

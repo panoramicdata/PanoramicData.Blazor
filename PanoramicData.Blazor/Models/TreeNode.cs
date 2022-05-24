@@ -295,8 +295,12 @@ public class TreeNode<T> : IComparable where T : class
 		return text;
 	}
 
-	public int CompareTo(object obj)
+	public int CompareTo(object? obj)
 	{
+		if (obj is null)
+		{
+			throw new InvalidOperationException();
+		}
 		var item = (TreeNode<T>)obj;
 		return Text.CompareTo(item.Text);
 	}

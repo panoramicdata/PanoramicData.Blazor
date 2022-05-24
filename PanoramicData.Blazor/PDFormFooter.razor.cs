@@ -160,7 +160,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	private void Form_ErrorsChanged(object sender, EventArgs e)
+	private void Form_ErrorsChanged(object? sender, EventArgs e)
 	{
 		InvokeAsync(() =>
 		{

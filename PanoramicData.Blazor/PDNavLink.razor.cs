@@ -53,9 +53,9 @@ public partial class PDNavLink
 			// use JS to perform navigation in new tab
 			await JSRuntime.InvokeVoidAsync("panoramicData.openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
 		}
-		else if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? "").ConfigureAwait(true))
+		else if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? String.Empty).ConfigureAwait(true))
 		{
-			NavigationManager.NavigateTo(_hrefAbsolute);
+			NavigationManager.NavigateTo(_hrefAbsolute ?? String.Empty);
 		}
 	}
 

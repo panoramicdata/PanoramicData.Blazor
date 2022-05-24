@@ -694,7 +694,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 	/// </summary>
 	public TItem[] GetSelectedItems()
 	{
-		return KeyField == null ? new TItem[0] : ItemsToDisplay.Where(x => Selection.Contains(KeyField(x).ToString())).ToArray();
+		return KeyField is null
+			? Array.Empty<TItem>()
+			: ItemsToDisplay.Where(x => Selection.Contains(KeyField(x).ToString() ?? String.Empty)).ToArray();
 	}
 
 	/// <summary>
@@ -754,13 +756,13 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 		_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
 	}
 
-	private async void PageCriteria_PageSizeChanged(object sender, EventArgs e)
+	private async void PageCriteria_PageSizeChanged(object? sender, EventArgs e)
 	{
 		await RefreshAsync(SearchText).ConfigureAwait(true);
 		StateHasChanged();
 	}
 
-	private async void PageCriteria_PageChanged(object sender, EventArgs e)
+	private async void PageCriteria_PageChanged(object? sender, EventArgs e)
 	{
 		if (PageCriteria != null)
 		{
@@ -824,7 +826,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 			var response = await DataProvider.GetDataAsync(request, default);
 			objectValues = response.Items
 				.Where(x => column.GetValue(x) != null)
-				.Select(x => column.GetValue(x)!.ToString())
+				.Select(x => column.GetValue(x)!.ToString() ?? String.Empty)
 				.Distinct()
 				.OrderBy(x => x)
 				.ToArray();
@@ -966,7 +968,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 					if (args.CtrlKey && SelectionMode == TableSelectionMode.Multiple)
 					{
 						await ClearSelectionAsync().ConfigureAwait(true);
-						Selection.AddRange(ItemsToDisplay.Select(x => KeyField!(x).ToString()));
+						Selection.AddRange(ItemsToDisplay.Select(x => KeyField!(x).ToString() ?? String.Empty));
 						await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 					}
 					break;
@@ -989,29 +991,41 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 							{
 								var id = KeyField(items[items.Count - 1]).ToString();
 								Selection.Clear();
-								Selection.Add(id);
-								await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+								if (!string.IsNullOrWhiteSpace(id))
+								{
+									Selection.Add(id);
+									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+								}
 							}
 							else if (args.Code == "Home" && idx > 0)
 							{
 								var id = KeyField(items[0]).ToString();
 								Selection.Clear();
-								Selection.Add(id);
-								await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+								if (!string.IsNullOrWhiteSpace(id))
+								{
+									Selection.Add(id);
+									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+								}
 							}
 							else if (args.Code.EndsWith("Up") && idx >= stepSize)
 							{
 								var id = KeyField(items[idx - stepSize]).ToString();
 								Selection.Clear();
-								Selection.Add(id);
-								await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+								if (!string.IsNullOrWhiteSpace(id))
+								{
+									Selection.Add(id);
+									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+								}
 							}
 							else if (args.Code.EndsWith("Down") && idx < items.Count - stepSize)
 							{
 								var id = KeyField(items[idx + stepSize]).ToString();
 								Selection.Clear();
-								Selection.Add(id);
-								await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+								if (!string.IsNullOrWhiteSpace(id))
+								{
+									Selection.Add(id);
+									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+								}
 							}
 
 							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
@@ -1091,7 +1105,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 				foreach (var item in ItemsToDisplay)
 				{
 					var key = KeyField(item).ToString();
-					if (!Selection.Contains(key) && RowIsEnabled(item))
+					if (key != null && !Selection.Contains(key) && RowIsEnabled(item))
 					{
 						Selection.Add(key);
 					}
@@ -1102,7 +1116,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 				foreach (var item in ItemsToDisplay)
 				{
 					var key = KeyField(item).ToString();
-					if (Selection.Contains(key) && RowIsEnabled(item))
+					if (key != null && Selection.Contains(key) && RowIsEnabled(item))
 					{
 						Selection.Remove(key);
 					}
@@ -1117,11 +1131,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 		if (IsEnabled && KeyField != null && RowIsEnabled(item))
 		{
 			var key = KeyField(item).ToString();
-			if (on && !Selection.Contains(key))
+			if (on && key != null && !Selection.Contains(key))
 			{
 				Selection.Add(key);
 			}
-			else if (Selection.Contains(key))
+			else if (key != null && Selection.Contains(key))
 			{
 				Selection.Remove(key);
 			}
@@ -1135,7 +1149,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 		_mouseDownOriginatedFromTable = true;
 	}
 
-	private void OnEditTimer(object state)
+	private void OnEditTimer(object? state)
 	{
 		if (IsEnabled && !_dragging)
 		{
@@ -1182,7 +1196,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 	{
 		if (SelectionMode != TableSelectionMode.None && KeyField != null)
 		{
-			return Selection.Contains(KeyField(item).ToString());
+			return Selection.Contains(KeyField(item)?.ToString() ?? String.Empty);
 		}
 		return false;
 	}
@@ -1263,7 +1277,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 					Selection.Clear();
 					Selection.AddRange(ItemsToDisplay
 						.GetRange(Math.Min(idxFrom, idxTo), (Math.Max(idxFrom, idxTo) - Math.Min(idxFrom, idxTo)) + 1)
-						.Select(x => KeyField!(x).ToString()));
+						.Select(x => KeyField!(x).ToString() ?? String.Empty));
 					await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 				}
 			}

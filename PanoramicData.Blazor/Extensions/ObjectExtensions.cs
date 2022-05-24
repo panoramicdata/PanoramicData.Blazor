@@ -12,19 +12,19 @@ public static class ObjectExtensions
 	{
 		if (type.IsEnum)
 		{
-			return Enum.Parse(type, value.ToString());
+			return Enum.Parse(type, value?.ToString() ?? String.Empty);
 		}
 		else if (type.FullName == "System.Guid")
 		{
-			return Guid.Parse(value.ToString());
+			return Guid.Parse(value.ToString() ?? String.Empty);
 		}
 		else if (type.FullName == "System.DateTime")
 		{
-			return DateTime.Parse(value.ToString());
+			return DateTime.Parse(value.ToString() ?? String.Empty);
 		}
 		else if (type.FullName == "System.DateTimeOffset")
 		{
-			return DateTimeOffset.Parse(value.ToString());
+			return DateTimeOffset.Parse(value.ToString() ?? String.Empty);
 		}
 		return Convert.ChangeType(value, type);
 	}

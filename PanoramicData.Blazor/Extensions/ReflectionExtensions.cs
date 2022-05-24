@@ -30,13 +30,27 @@ public static class ReflectionExtensions
 	/// <param name="member">MemberInfo instance describing the member.</param>
 	/// <returns>The data type of the underlying Field, Property or Event.</returns>
 	public static Type GetMemberUnderlyingType(this MemberInfo member)
-		=> member.MemberType switch
+	{
+
+		switch (member.MemberType)
 		{
-			MemberTypes.Field => ((FieldInfo)member).FieldType,
-			MemberTypes.Property => ((PropertyInfo)member).PropertyType,
-			MemberTypes.Event => ((EventInfo)member).EventHandlerType,
-			_ => throw new ArgumentException("MemberInfo must be if type FieldInfo, PropertyInfo or EventInfo", nameof(member)),
+			case MemberTypes.Field:
+				return ((FieldInfo)member).FieldType;
+
+			case MemberTypes.Property:
+				return ((PropertyInfo)member).PropertyType;
+
+			case MemberTypes.Event:
+				if (((EventInfo)member).EventHandlerType is null)
+				{
+					throw new ArgumentException("MemberInfo is EventInfo however EventHandlerType is null", nameof(member));
+				}
+				return ((EventInfo)member).EventHandlerType!;
+
+			default:
+				throw new ArgumentException("MemberInfo must be if type FieldInfo, PropertyInfo or EventInfo", nameof(member));
 		};
+	}
 
 	/// <summary>
 	/// Returns the underlying data type for the given non nullable data type or regular data type.

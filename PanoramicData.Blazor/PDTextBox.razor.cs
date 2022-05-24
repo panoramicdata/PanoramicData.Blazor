@@ -123,7 +123,10 @@ public partial class PDTextBox : IDisposable
 		if (firstRender && DebounceWait > 0)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			await JSRuntime.InvokeVoidAsync("panoramicData.debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+			}
 		}
 	}
 
@@ -138,8 +141,8 @@ public partial class PDTextBox : IDisposable
 
 	private async Task OnChange(ChangeEventArgs args)
 	{
-		Value = args.Value.ToString();
-		await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
+		Value = args.Value?.ToString() ?? string.Empty;
+		await ValueChanged.InvokeAsync(args.Value?.ToString() ?? String.Empty).ConfigureAwait(true);
 	}
 
 	[JSInvokable]
@@ -156,7 +159,10 @@ public partial class PDTextBox : IDisposable
 
 	private async Task OnClear(MouseEventArgs _)
 	{
-		await JSRuntime.InvokeVoidAsync("panoramicData.setValue", Id, string.Empty).ConfigureAwait(true);
+		if (JSRuntime != null)
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicData.setValue", Id, string.Empty).ConfigureAwait(true);
+		}
 		Value = string.Empty;
 		await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
 		await Cleared.InvokeAsync(null).ConfigureAwait(true);

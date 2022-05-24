@@ -83,7 +83,7 @@ public partial class PDColumn<TItem> where TItem : class
 
 		// Get the value using the compiled and cached function
 		var value = CompiledFunc?.Invoke(item);
-		if (value == null)
+		if (value is null)
 		{
 			return string.Empty;
 		}
@@ -91,7 +91,7 @@ public partial class PDColumn<TItem> where TItem : class
 		// password / sensitive info?
 		if (IsPassword || IsSensitive(item, null))
 		{
-			return "".PadRight(value.ToString().Length, '*');
+			return "".PadRight((value.ToString() ?? String.Empty).Length, '*');
 		}
 
 		// if enumeration value - does it have display attribute?
@@ -106,7 +106,7 @@ public partial class PDColumn<TItem> where TItem : class
 
 		// return the string to be rendered
 		return string.IsNullOrEmpty(Format)
-			? value.ToString()
+			? value.ToString() ?? String.Empty
 			: string.Format(CultureInfo.CurrentCulture, "{0:" + Format + "}", value);
 	}
 
@@ -232,9 +232,9 @@ public partial class PDColumn<TItem> where TItem : class
 			}
 			else
 			{
-				var stringValue = value?.ToString();
+				var stringValue = value?.ToString() ?? String.Empty;
 				TypeConverter typeConverter = TypeDescriptor.GetConverter(propInfo.PropertyType);
-				object propValue = typeConverter.ConvertFromString(stringValue);
+				object? propValue = typeConverter.ConvertFromString(stringValue);
 				propInfo.SetValue(item, propValue);
 			}
 		}

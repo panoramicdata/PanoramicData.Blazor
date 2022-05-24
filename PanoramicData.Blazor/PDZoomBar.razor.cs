@@ -43,7 +43,7 @@ public partial class PDZoomBar : IDisposable
 		if (firstRender)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			await JSRuntime.InvokeVoidAsync("panoramicData.zoombar.init", CanvasId, Value, Options, _objRef).ConfigureAwait(true);
+			await JSRuntime!.InvokeVoidAsync("panoramicData.zoombar.init", CanvasId, Value, Options, _objRef).ConfigureAwait(true);
 		}
 	}
 
@@ -53,7 +53,10 @@ public partial class PDZoomBar : IDisposable
 		if (idx > 0)
 		{
 			Value.Zoom = Options.ZoomSteps[idx - 1];
-			await JSRuntime.InvokeVoidAsync("panoramicData.zoombar.setValue", CanvasId, Value).ConfigureAwait(true);
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.zoombar.setValue", CanvasId, Value).ConfigureAwait(true);
+			}
 			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
 	}
@@ -64,7 +67,10 @@ public partial class PDZoomBar : IDisposable
 		if (idx < Options.ZoomSteps.Length - 1)
 		{
 			Value.Zoom = Options.ZoomSteps[idx + 1];
-			await JSRuntime.InvokeVoidAsync("panoramicData.zoombar.setValue", CanvasId, Value).ConfigureAwait(true);
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.zoombar.setValue", CanvasId, Value).ConfigureAwait(true);
+			}
 			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
 	}
@@ -78,6 +84,9 @@ public partial class PDZoomBar : IDisposable
 
 	public void Dispose()
 	{
-		JSRuntime.InvokeVoidAsync("panoramicData.zoombar.term", CanvasId);
+		if (JSRuntime != null)
+		{
+			JSRuntime.InvokeVoidAsync("panoramicData.zoombar.term", CanvasId);
+		}
 	}
 }

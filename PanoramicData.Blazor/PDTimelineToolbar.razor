@@ -3,7 +3,7 @@
     <div class="scale-bar">
         @if(ShowZoomButtons)
         {
-            <PDButton Click="@(() => Timeline?.ZoomInAsync())"
+            <PDButton Click="@(() => Timeline?.ZoomInAsync() ?? Task.CompletedTask)"
                 CssClass="ml-1"
                 IconCssClass="fas fa-search-plus"
                 IsEnabled="Timeline?.CanZoomIn() == true"
@@ -18,7 +18,7 @@
 
         @if(ShowZoomButtons)
         {
-            <PDButton Click="@(() => Timeline?.ZoomOutAsync())"
+            <PDButton Click="@(() => Timeline?.ZoomOutAsync() ?? Task.CompletedTask)"
                 CssClass=""
                 IconCssClass="fas fa-search-minus"
                 IsEnabled="Timeline?.CanZoomOut() == true"
@@ -33,7 +33,7 @@
     @if (ShowSelection && selection?.StartTime > DateTime.MinValue)
     {
         <div class="selection-bar mr-2">
-            <PDButton Click="@(() => Timeline?.ZoomToAsync(selection.StartTime, selection.EndTime, TimelinePositions.End))"
+            <PDButton Click="@(() => Timeline?.ZoomToAsync(selection.StartTime, selection.EndTime, TimelinePositions.End) ?? Task.CompletedTask)"
                 CssClass=""
                 IconCssClass="fas fa-arrows-alt-h"
                 IsEnabled="true"

@@ -92,7 +92,10 @@ public partial class PDTextArea : IDisposable
 		if (firstRender && DebounceWait > 0)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			await JSRuntime.InvokeVoidAsync("panoramicData.debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+			}
 		}
 	}
 
@@ -100,8 +103,8 @@ public partial class PDTextArea : IDisposable
 	{
 		if (DebounceWait <= 0)
 		{
-			Value = args.Value.ToString();
-			await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
+			Value = args.Value?.ToString() ?? String.Empty;
+			await ValueChanged.InvokeAsync(args.Value?.ToString() ?? String.Empty).ConfigureAwait(true);
 		}
 	}
 

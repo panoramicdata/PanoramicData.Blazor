@@ -40,10 +40,13 @@ public partial class PDContextMenu : IDisposable
 	protected async override Task OnInitializedAsync()
 	{
 		Id = $"pdcm{++_idSequence}";
-		var available = await JSRuntime.InvokeAsync<bool>("panoramicData.hasPopperJs").ConfigureAwait(true);
-		if (!available)
+		if (JSRuntime != null)
 		{
-			throw new PDContextMenuException($"To use the {nameof(PDContextMenu)} component you must include the popper.js library");
+			var available = await JSRuntime.InvokeAsync<bool>("panoramicData.hasPopperJs").ConfigureAwait(true);
+			if (!available)
+			{
+				throw new PDContextMenuException($"To use the {nameof(PDContextMenu)} component you must include the popper.js library");
+			}
 		}
 	}
 
@@ -51,7 +54,10 @@ public partial class PDContextMenu : IDisposable
 	{
 		if (!item.IsDisabled)
 		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.hideMenu", Id).ConfigureAwait(true);
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.hideMenu", Id).ConfigureAwait(true);
+			}
 			await ItemClick.InvokeAsync(item).ConfigureAwait(true);
 		}
 	}
@@ -63,11 +69,11 @@ public partial class PDContextMenu : IDisposable
 			var cancelArgs = new MenuItemsEventArgs(this, Items)
 			{
 				// get details of element that was clicked on
-				SourceElement = await JSRuntime.InvokeAsync<ElementInfo>("panoramicData.getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)
+				SourceElement = JSRuntime != null ? (await JSRuntime.InvokeAsync<ElementInfo>("panoramicData.getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)) : null
 			};
 
 			await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
-			if (!cancelArgs.Cancel)
+			if (!cancelArgs.Cancel && JSRuntime != null)
 			{
 				await JSRuntime.InvokeVoidAsync("panoramicData.showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
 			}
@@ -76,6 +82,9 @@ public partial class PDContextMenu : IDisposable
 
 	public void Dispose()
 	{
-		JSRuntime.InvokeVoidAsync("panoramicData.hideMenu", Id);
+		if (JSRuntime != null)
+		{
+			JSRuntime.InvokeVoidAsync("panoramicData.hideMenu", Id);
+		}
 	}
 }

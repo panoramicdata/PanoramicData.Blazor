@@ -124,8 +124,8 @@ public class ShortcutKey
 			AltKey = codes.Any(x => string.Equals(x, "alt", StringComparison.OrdinalIgnoreCase)),
 			CtrlKey = codes.Any(x => string.Equals(x, "ctrl", StringComparison.OrdinalIgnoreCase)),
 			ShiftKey = codes.Any(x => string.Equals(x, "shift", StringComparison.OrdinalIgnoreCase)),
-			Code = lastCode.Length > 1 ? lastCode : string.Empty,   // KeyA or Digit1 or Quote etc
-			Key = lastCode.Length == 1 ? lastCode : string.Empty       // a or b etc
+			Code = lastCode?.Length > 1 ? lastCode : string.Empty,   // KeyA or Digit1 or Quote etc
+			Key = lastCode?.Length == 1 ? lastCode : string.Empty       // a or b etc
 		};
 	}
 

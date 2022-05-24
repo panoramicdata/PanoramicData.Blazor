@@ -157,7 +157,10 @@ public partial class PDTimeline : IDisposable
 
 	public void Dispose()
 	{
-		JSRuntime.InvokeVoidAsync("panoramicData.timeline.term", Id);
+		if (JSRuntime != null)
+		{
+			JSRuntime.InvokeVoidAsync("panoramicData.timeline.term", Id);
+		}
 	}
 
 	private int GetColumnIndexAtPoint(double clientX)
@@ -260,10 +263,13 @@ public partial class PDTimeline : IDisposable
 		if (firstRender)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			await JSRuntime.InvokeVoidAsync("panoramicData.timeline.init", Id, Options, _objRef).ConfigureAwait(true);
-			_canvasHeight = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getHeight", _svgPlotElement).ConfigureAwait(true));
-			_canvasWidth = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true));
-			_canvasX = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getX", _svgPlotElement).ConfigureAwait(true));
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.timeline.init", Id, Options, _objRef).ConfigureAwait(true);
+				_canvasHeight = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getHeight", _svgPlotElement).ConfigureAwait(true));
+				_canvasWidth = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true));
+				_canvasX = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getX", _svgPlotElement).ConfigureAwait(true));
+			}
 			if (Options.General.AutoRefresh)
 			{
 				await SetScale(Scale, true);
@@ -288,8 +294,10 @@ public partial class PDTimeline : IDisposable
 
 			_isChartDragging = true;
 			_chartDragOrigin = args.ClientX;
-			await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
-
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
+			}
 			await SetSelectionFromDrag(index, index).ConfigureAwait(true);
 		}
 	}
@@ -345,7 +353,10 @@ public partial class PDTimeline : IDisposable
 		if (IsEnabled && !_isPanDragging)
 		{
 			_panDragOrigin = args.ClientX;
-			await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPanElement).ConfigureAwait(true);
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPanElement).ConfigureAwait(true);
+			}
 		}
 	}
 
@@ -421,7 +432,10 @@ public partial class PDTimeline : IDisposable
 	[JSInvokable("PanoramicData.Blazor.PDTimeline.OnResize")]
 	public async Task OnResize()
 	{
-		_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true);
+		if (JSRuntime != null)
+		{
+			_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true);
+		}
 		await SetScale(Scale, true).ConfigureAwait(true);
 		await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 	}
@@ -445,7 +459,10 @@ public partial class PDTimeline : IDisposable
 			_lastSelectionStartIndex = _selectionStartIndex;
 			_lastSelectionEndIndex = _selectionEndIndex;
 			_chartDragOrigin = args.ClientX;
-			await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgSelectionHandleEnd).ConfigureAwait(true);
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgSelectionHandleEnd).ConfigureAwait(true);
+			}
 		}
 	}
 
@@ -482,7 +499,10 @@ public partial class PDTimeline : IDisposable
 			_lastSelectionStartIndex = _selectionStartIndex;
 			_lastSelectionEndIndex = _selectionEndIndex;
 			_chartDragOrigin = args.ClientX;
-			await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgSelectionHandleStart).ConfigureAwait(true);
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgSelectionHandleStart).ConfigureAwait(true);
+			}
 		}
 	}
 

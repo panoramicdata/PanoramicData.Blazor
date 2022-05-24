@@ -1,86 +1,80 @@
-﻿using PanoramicData.Blazor.Demo.Data;
-using PanoramicData.Blazor.Interfaces;
-using PanoramicData.Blazor.Models;
-using System.Threading.Tasks;
+﻿namespace PanoramicData.Blazor.Demo.Pages;
 
-namespace PanoramicData.Blazor.Demo.Pages
+public partial class PDFileModalsPage
 {
-	public partial class PDFileModalsPage
+	private PDFileModal _fileModal = null!;
+	private string _openResult = string.Empty;
+	private string _saveAsResult = string.Empty;
+	private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
+	private bool _showOpen;
+
+	private static string GetIconCssClass(FileExplorerItem item)
 	{
-		private PDFileModal _fileModal = null!;
-		private string _openResult = string.Empty;
-		private string _saveAsResult = string.Empty;
-		private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
-		private bool _showOpen;
-
-		private static string GetIconCssClass(FileExplorerItem item)
+		if (item.EntryType == FileExplorerItemType.Directory && item.Name != "..")
 		{
-			if (item.EntryType == FileExplorerItemType.Directory && item.Name != "..")
+			if (item.Path == "/Library")
 			{
-				if (item.Path == "/Library")
-				{
-					return "fas fa-book";
-				}
-				if (item.Path == "/Users")
-				{
-					return "fas fa-users";
-				}
-				if (item.Path == "/")
-				{
-					return "fas fa-server";
-				}
-				if (item.ParentPath == "/")
-				{
-					return "fas fa-hdd";
-				}
+				return "fas fa-book";
 			}
-			return TestFileSystemDataProvider.GetIconClass(item);
-		}
-
-		private void OnModalHidden(string result)
-		{
-			// only called when modal NOT shown with a AndWaitResult method
-			if (_showOpen)
+			if (item.Path == "/Users")
 			{
-				_openResult = result;
+				return "fas fa-users";
 			}
-			else
+			if (item.Path == "/")
 			{
-				_saveAsResult = result;
+				return "fas fa-server";
+			}
+			if (item.ParentPath == "/")
+			{
+				return "fas fa-hdd";
 			}
 		}
+		return TestFileSystemDataProvider.GetIconClass(item);
+	}
 
-		private async Task ShowFileOpenModalAndWaitResult()
+	private void OnModalHidden(string result)
+	{
+		// only called when modal NOT shown with a AndWaitResult method
+		if (_showOpen)
 		{
-			_openResult = await _fileModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
+			_openResult = result;
 		}
+		else
+		{
+			_saveAsResult = result;
+		}
+	}
 
-		private async Task ShowFileOpenFilteredModalAndWaitResult()
-		{
-			// show DOCX and XLSX files only
-			_openResult = await _fileModal.ShowOpenAndWaitResultAsync(false, "*.docx;*.xlsx").ConfigureAwait(true);
-		}
+	private async Task ShowFileOpenModalAndWaitResult()
+	{
+		_openResult = await _fileModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
+	}
 
-		private async Task ShowFolderOpenModalAndWaitResult()
-		{
-			_openResult = await _fileModal.ShowOpenAndWaitResultAsync(true).ConfigureAwait(true);
-		}
+	private async Task ShowFileOpenFilteredModalAndWaitResult()
+	{
+		// show DOCX and XLSX files only
+		_openResult = await _fileModal.ShowOpenAndWaitResultAsync(false, "*.docx;*.xlsx").ConfigureAwait(true);
+	}
 
-		private async Task ShowFileSaveAsModalAndWaitResult()
-		{
-			_saveAsResult = await _fileModal.ShowSaveAsAndWaitResultAsync("NewFile.html").ConfigureAwait(true);
-		}
+	private async Task ShowFolderOpenModalAndWaitResult()
+	{
+		_openResult = await _fileModal.ShowOpenAndWaitResultAsync(true).ConfigureAwait(true);
+	}
 
-		private async Task ShowFileOpenModal()
-		{
-			_showOpen = true;
-			await _fileModal.ShowOpenAsync().ConfigureAwait(true);
-		}
+	private async Task ShowFileSaveAsModalAndWaitResult()
+	{
+		_saveAsResult = await _fileModal.ShowSaveAsAndWaitResultAsync("NewFile.html").ConfigureAwait(true);
+	}
 
-		private async Task ShowFileSaveAsModal()
-		{
-			_showOpen = false;
-			await _fileModal.ShowSaveAsAsync().ConfigureAwait(true);
-		}
+	private async Task ShowFileOpenModal()
+	{
+		_showOpen = true;
+		await _fileModal.ShowOpenAsync().ConfigureAwait(true);
+	}
+
+	private async Task ShowFileSaveAsModal()
+	{
+		_showOpen = false;
+		await _fileModal.ShowSaveAsAsync().ConfigureAwait(true);
 	}
 }

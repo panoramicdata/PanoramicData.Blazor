@@ -105,7 +105,7 @@ public partial class PDFilter
 
 	private void OnFilterTypeChanged(ChangeEventArgs args)
 	{
-		_filterType = (FilterTypes)Enum.Parse(typeof(FilterTypes), args.Value.ToString());
+		_filterType = (FilterTypes)Enum.Parse(typeof(FilterTypes), args.Value?.ToString() ?? String.Empty);
 	}
 
 	private void OnValueClicked(string value)

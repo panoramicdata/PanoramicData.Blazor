@@ -82,7 +82,10 @@ public partial class PDModal
 	/// </summary>
 	public async Task ShowAsync()
 	{
-		await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", $"#{Id}", HideOnBackgroundClick, CloseOnEscape).ConfigureAwait(true);
+		if (JSRuntime != null)
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", $"#{Id}", HideOnBackgroundClick, CloseOnEscape).ConfigureAwait(true);
+		}
 	}
 
 	/// <summary>
@@ -90,7 +93,10 @@ public partial class PDModal
 	/// </summary>
 	public async Task HideAsync()
 	{
-		await JSRuntime.InvokeVoidAsync("panoramicData.hideBsDialog", $"#{Id}").ConfigureAwait(true);
+		if (JSRuntime != null)
+		{
+			await JSRuntime.InvokeVoidAsync("panoramicData.hideBsDialog", $"#{Id}").ConfigureAwait(true);
+		}
 	}
 
 	/// <summary>
@@ -112,7 +118,10 @@ public partial class PDModal
 		});
 		if (btn != null)
 		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.focus", $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
+			if (JSRuntime != null)
+			{
+				await JSRuntime.InvokeVoidAsync("panoramicData.focus", $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
+			}
 		}
 
 		_userChoice = new TaskCompletionSource<string>();

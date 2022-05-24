@@ -78,12 +78,13 @@ public static class PredicateBuilderService
 
 		protected override Expression VisitParameter(ParameterExpression p)
 		{
-			ParameterExpression replacement;
 
-			if (map.TryGetValue(p, out replacement))
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+			if (map.TryGetValue(p, out ParameterExpression replacement))
 			{
 				p = replacement;
 			}
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
 			return base.VisitParameter(p);
 		}
