@@ -1,8 +1,9 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDContextMenu : IDisposable
+public partial class PDContextMenu : IAsyncDisposable
 {
 	private static int _idSequence;
+	private IJSObjectReference? _module;
 
 	[Inject] public IJSRuntime? JSRuntime { get; set; }
 
@@ -42,7 +43,8 @@ public partial class PDContextMenu : IDisposable
 		Id = $"pdcm{++_idSequence}";
 		if (JSRuntime != null)
 		{
-			var available = await JSRuntime.InvokeAsync<bool>("panoramicData.hasPopperJs").ConfigureAwait(true);
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDContextMenu.razor.js");
+			var available = await _module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
 			if (!available)
 			{
 				throw new PDContextMenuException($"To use the {nameof(PDContextMenu)} component you must include the popper.js library");
@@ -54,9 +56,9 @@ public partial class PDContextMenu : IDisposable
 	{
 		if (!item.IsDisabled)
 		{
-			if (JSRuntime != null)
+			if (_module != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.hideMenu", Id).ConfigureAwait(true);
+				await _module.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
 			}
 			await ItemClick.InvokeAsync(item).ConfigureAwait(true);
 		}
@@ -69,22 +71,23 @@ public partial class PDContextMenu : IDisposable
 			var cancelArgs = new MenuItemsEventArgs(this, Items)
 			{
 				// get details of element that was clicked on
-				SourceElement = JSRuntime != null ? (await JSRuntime.InvokeAsync<ElementInfo>("panoramicData.getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)) : null
+				SourceElement = _module != null ? (await _module.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)) : null
 			};
 
 			await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
-			if (!cancelArgs.Cancel && JSRuntime != null)
+			if (!cancelArgs.Cancel && _module != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
+				await _module.InvokeVoidAsync("showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
 			}
 		}
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (JSRuntime != null)
+		if (_module != null)
 		{
-			JSRuntime.InvokeVoidAsync("panoramicData.hideMenu", Id);
+			await _module.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
+			await _module.DisposeAsync().ConfigureAwait(true);
 		}
 	}
 }

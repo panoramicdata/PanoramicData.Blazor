@@ -41,56 +41,56 @@
 		}
 	},
 
-	hasPopperJs: function() {
-		return typeof Popper !== 'undefined';
-	},
+	//hasPopperJs: function() {
+	//	return typeof Popper !== 'undefined';
+	//},
 
-	showMenu: function(menuId, x, y) {
-		var menu = window.panoramicData.contextMenuEl = document.getElementById(menuId);
-		var reference = {
-			getBoundingClientRect() {
-				return {
-					width: 0,
-					height: 0,
-					top: y,
-					bottom: y,
-					left: x,
-					right: x
-				};
-			}
-		};
-		var options = {
-			placement: 'bottom-start',
-			positionFixed: true
-		};
-		menu.classList.add("show");
-		//var popper = Popper.createPopper(reference, menu, options); // this is popper v2.4.4 syntax
-		window.panoramicData.menuPopper = new Popper(reference, menu, options); // this is popper v1.16.1 syntax
-		document.addEventListener("mousedown", window.panoramicData.menuMouseDown);
-	},
+	//showMenu: function(menuId, x, y) {
+	//	var menu = window.panoramicData.contextMenuEl = document.getElementById(menuId);
+	//	var reference = {
+	//		getBoundingClientRect() {
+	//			return {
+	//				width: 0,
+	//				height: 0,
+	//				top: y,
+	//				bottom: y,
+	//				left: x,
+	//				right: x
+	//			};
+	//		}
+	//	};
+	//	var options = {
+	//		placement: 'bottom-start',
+	//		positionFixed: true
+	//	};
+	//	menu.classList.add("show");
+	//	//var popper = Popper.createPopper(reference, menu, options); // this is popper v2.4.4 syntax
+	//	window.panoramicData.menuPopper = new Popper(reference, menu, options); // this is popper v1.16.1 syntax
+	//	document.addEventListener("mousedown", window.panoramicData.menuMouseDown);
+	//},
 
-	menuMouseDown: function (event) {
-		var menu = window.panoramicData.contextMenuEl;
-		if (menu && window.panoramicData.menuPopper) {
-			let isClickInside = menu.contains(event.target);
-			if (!isClickInside) {
-				window.panoramicData.hideMenu();
-			}
-		}
-	},
+	//menuMouseDown: function (event) {
+	//	var menu = window.panoramicData.contextMenuEl;
+	//	if (menu && window.panoramicData.menuPopper) {
+	//		let isClickInside = menu.contains(event.target);
+	//		if (!isClickInside) {
+	//			window.panoramicData.hideMenu();
+	//		}
+	//	}
+	//},
 
-	hideMenu: function (menuId) {
-		var menu = window.panoramicData.contextMenuEl;
-		if (menu) {
-			menu.classList.remove("show");
-			document.removeEventListener("mousedown", window.panoramicData.menuMouseDown);
-			window.panoramicData.contextMenuEl = null;
-			if (window.panoramicData.menuPopper) {
-				window.panoramicData.menuPopper.destroy();
-				window.panoramicData.menuPopper = null;
-			}
-		}
-	},
+	//hideMenu: function (menuId) {
+	//	var menu = window.panoramicData.contextMenuEl;
+	//	if (menu) {
+	//		menu.classList.remove("show");
+	//		document.removeEventListener("mousedown", window.panoramicData.menuMouseDown);
+	//		window.panoramicData.contextMenuEl = null;
+	//		if (window.panoramicData.menuPopper) {
+	//			window.panoramicData.menuPopper.destroy();
+	//			window.panoramicData.menuPopper = null;
+	//		}
+	//	}
+	//},
 
 	focus: function(id) {
 		var node = document.getElementById(id);

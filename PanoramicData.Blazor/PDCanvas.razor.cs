@@ -4,9 +4,6 @@ public partial class PDCanvas
 {
 	private static int _seq;
 
-	[Inject]
-	public IJSRuntime JSRuntime { get; set; } = null!;
-
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
