@@ -13,7 +13,13 @@ public partial class PDGlobalListener : IDisposable
 	public void Dispose()
 	{
 		GlobalEventService.ShortcutsChanged -= GlobalEventService_ShortcutsChanged;
-		JSRuntime!.InvokeVoidAsync("panoramicData.destroyGlobalListener");
+		try
+		{
+			JSRuntime!.InvokeVoidAsync("panoramicData.destroyGlobalListener");
+		}
+		catch
+		{
+		}
 	}
 
 	protected override void OnInitialized()
