@@ -4,7 +4,7 @@
 
 <DemoSourceView SourceFiles="Pages/PDDropDownPage.razor, Pages/PDDropDownPage.razor.cs">
 
-	<PDDropDown Text="Click Me">
+	<PDDropDown @ref="_dropdown" Text="Click Me">
 		<div>
 			<ul>
 				<li>
@@ -35,6 +35,14 @@
 		</div>
 	</PDDropDown>
 
+	<PDButton Click="@(() => _dropdown.ToggleAsync())" Text="Toggle" />
+
+	<PDButton Click="@(() => _dropdown.HideAsync())" Text="Hide" />
+
+	<PDButton Click="@(() => _dropdown.ShowAsync())" Text="Show" />
+
 	<EventView />
+
+
 
 </DemoSourceView>

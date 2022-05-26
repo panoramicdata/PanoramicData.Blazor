@@ -1,12 +1,12 @@
-﻿.pd-sort, .pd-sort:hover {
+﻿::deep .pd-sort, .pd-sort:hover {
 	color: var(--primary);
 }
 
-.pd-sort .fa-stack {
+::deep .pd-sort .fa-stack {
 	width: unset;
 }
 
-.pd-sort.fa-sort, .pd-sort.fa-sort:hover {
+::deep .pd-sort.fa-sort, .pd-sort.fa-sort:hover {
 	color: whitesmoke;
 }
 
@@ -25,7 +25,7 @@
 }
 
 .pdtablerow.selected {
-		background-color: #007bff;
+	background-color: #007bff;
 }
 
 .pdtable:focus {

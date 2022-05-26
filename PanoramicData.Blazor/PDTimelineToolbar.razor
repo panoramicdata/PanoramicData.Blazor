@@ -4,7 +4,7 @@
         @if(ShowZoomButtons)
         {
             <PDButton Click="@(() => Timeline?.ZoomInAsync() ?? Task.CompletedTask)"
-                CssClass="ml-1"
+                CssClass="ms-1"
                 IconCssClass="fas fa-search-plus"
                 IsEnabled="Timeline?.CanZoomIn() == true"
                 Size="ButtonSizes.Small"
@@ -32,7 +32,7 @@
     }
     @if (ShowSelection && selection?.StartTime > DateTime.MinValue)
     {
-        <div class="selection-bar mr-2">
+        <div class="selection-bar me-2">
             <PDButton Click="@(() => Timeline?.ZoomToAsync(selection.StartTime, selection.EndTime, TimelinePositions.End) ?? Task.CompletedTask)"
                 CssClass=""
                 IconCssClass="fas fa-arrows-alt-h"
@@ -47,7 +47,7 @@
 
     @if (ShowRange && Timeline?.RoundedMinDateTime > DateTime.MinValue)
     {
-        <div class="range-bar mr-2">
+        <div class="range-bar me-2">
             <span class="range-min-label">@MinDateTimeDisplay</span>
             <span>-</span>
             <span class="range-max-label">@MaxDateTimeDisplay</span>

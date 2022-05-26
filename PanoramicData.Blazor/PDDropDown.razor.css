@@ -1,0 +1,12 @@
+﻿.pd-dropdown {
+	display: inline-block;
+}
+
+.pd-dropdown button {
+	align-items: center;
+	display: flex;
+}
+
+::deep .toggle {
+	padding: 0px;
+}

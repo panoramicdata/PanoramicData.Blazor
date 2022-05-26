@@ -4,6 +4,7 @@ public partial class PDContextMenu : IAsyncDisposable
 {
 	private static int _idSequence;
 	private IJSObjectReference? _module;
+	private IJSObjectReference? _commonModule;
 
 	[Inject] public IJSRuntime? JSRuntime { get; set; }
 
@@ -44,6 +45,7 @@ public partial class PDContextMenu : IAsyncDisposable
 		if (JSRuntime != null)
 		{
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDContextMenu.razor.js");
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 			var available = await _module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
 			if (!available)
 			{
@@ -71,7 +73,7 @@ public partial class PDContextMenu : IAsyncDisposable
 			var cancelArgs = new MenuItemsEventArgs(this, Items)
 			{
 				// get details of element that was clicked on
-				SourceElement = _module != null ? (await _module.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)) : null
+				SourceElement = _commonModule != null ? (await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)) : null
 			};
 
 			await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);

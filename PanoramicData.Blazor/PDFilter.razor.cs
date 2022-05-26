@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDFilter
+public partial class PDFilter : IDisposable
 {
 	private static int _sequence = 0;
 	private string _id = $"filter-button-{(++_sequence)}";
@@ -11,9 +11,13 @@ public partial class PDFilter
 	private FilterTypes _filterType = FilterTypes.Equals;
 	private string _valuesFilter = String.Empty;
 	private List<string> _selectedValues = new List<string>();
+	private IJSObjectReference? _commonModule;
 
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
+
+	[Parameter]
+	public string CssClass { get; set; } = "p-0 ms-1";
 
 	[Parameter]
 	public Filter Filter { get; set; } = new Filter();
@@ -36,9 +40,23 @@ public partial class PDFilter
 	[Parameter]
 	public ButtonSizes Size { get; set; } = ButtonSizes.Small;
 
-	private string CssClass => $"p-0 pd-filter {(HasFilter ? "filtered" : "")}";
+	public void Dispose()
+	{
+		if (_commonModule != null)
+		{
+			_commonModule.DisposeAsync();
+		}
+	}
 
 	private bool HasFilter => !string.IsNullOrWhiteSpace(Filter.Value);
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+		}
+	}
 
 	private async Task OnClear()
 	{
@@ -47,6 +65,7 @@ public partial class PDFilter
 		_value2 = String.Empty;
 		_selectedValues.Clear();
 		Filter.Clear();
+		await _dropDown.HideAsync().ConfigureAwait(true);
 		await FilterChanged.InvokeAsync(Filter).ConfigureAwait(true);
 	}
 
@@ -65,12 +84,12 @@ public partial class PDFilter
 
 	private async Task OnDropDownKeyPress(int keyCode)
 	{
-		if (keyCode == 13)
+		if (keyCode == 13 && _commonModule != null)
 		{
 			// can happen before lost focus and hence text value not updated
 			// so force focus to filter button and perform click
-			await JSRuntime.InvokeVoidAsync("panoramicData.focus", _id).ConfigureAwait(true);
-			await JSRuntime.InvokeVoidAsync("panoramicData.click", _id).ConfigureAwait(true);
+			await _commonModule.InvokeVoidAsync("focus", _id).ConfigureAwait(true);
+			await _commonModule.InvokeVoidAsync("click", _id).ConfigureAwait(true);
 		}
 	}
 
@@ -79,6 +98,7 @@ public partial class PDFilter
 		Filter.FilterType = _filterType;
 		Filter.Value = _value1;
 		Filter.Value2 = _value2;
+		await _dropDown.HideAsync().ConfigureAwait(true);
 		await FilterChanged.InvokeAsync(Filter).ConfigureAwait(true);
 	}
 

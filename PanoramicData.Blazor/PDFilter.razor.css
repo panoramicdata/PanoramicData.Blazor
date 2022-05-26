@@ -1,9 +1,13 @@
-﻿.pd-filter, .pd-filter:hover {
-	color: whitesmoke;
+﻿.pd-filter {
+	display: inline-block;
 }
 
-.pd-filter.filtered, .pd-filter:hover.filtered {
-	color: var(--primary);
+.pd-filter ::deep .filter-icon {
+	color: whitesmoke !important;
+}
+
+.pd-filter.filtered ::deep .filter-icon {
+	color: var(--primary) !important;
 }
 
 .filter-body {

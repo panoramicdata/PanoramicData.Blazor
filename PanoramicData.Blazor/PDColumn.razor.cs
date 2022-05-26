@@ -259,11 +259,11 @@ public partial class PDColumn<TItem> where TItem : class
 		{
 			var html = SortDirection switch
 			{
-				SortDirection.Ascending => "<i class=\"ml-1 pd-sort fas fa-sort-up fa-stack-1x\"></i>",
-				SortDirection.Descending => "<i class=\"ml-1 pd-sort fas fa-sort-down fa-stack-1x\"></i>",
+				SortDirection.Ascending => "<i class=\"ms-1 pd-sort fas fa-sort-up fa-stack-1x\"></i>",
+				SortDirection.Descending => "<i class=\"ms-1 pd-sort fas fa-sort-down fa-stack-1x\"></i>",
 				_ => ""
 			};
-			return $"<span class=\"fa-stack\"><i class=\"ml-1 pd-sort fas fa-sort fa-stack-1x\"></i>{html}</span>";
+			return $"<span class=\"fa-stack\"><i class=\"ms-1 pd-sort fas fa-sort fa-stack-1x\"></i>{html}</span>";
 		}
 	}
 

@@ -4,6 +4,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 {
 	private bool _dragging;
 	private Timer? _editTimer;
+	private IJSObjectReference? _commonModule;
 	private static int _idSequence;
 	private bool _mouseDownOriginatedFromTable;
 	public readonly string IdPrefix = "pd-table-";
@@ -635,7 +636,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 
 			EditItem = null;
 			IsEditing = false;
-			await JSRuntime.InvokeVoidAsync("panoramicData.focus", Id).ConfigureAwait(true);
+			if (_commonModule != null)
+			{
+				await _commonModule.InvokeVoidAsync("focus", Id).ConfigureAwait(true);
+			}
 			StateHasChanged();
 		}
 	}
@@ -643,13 +647,16 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 	/// <summary>
 	/// Cancels the current edit.
 	/// </summary>
-	public void CancelEdit()
+	public async Task CancelEdit()
 	{
 		if (IsEditing)
 		{
 			EditItem = null;
 			IsEditing = false;
-			JSRuntime?.InvokeVoidAsync("focus", Id);
+			if (_commonModule != null)
+			{
+				await _commonModule.InvokeVoidAsync("focus", Id).ConfigureAwait(true);
+			}
 		}
 	}
 
@@ -739,9 +746,13 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 			PageCriteria.PageChanged -= PageCriteria_PageChanged;
 			PageCriteria.PageSizeChanged -= PageCriteria_PageSizeChanged;
 		}
+		if (_commonModule != null)
+		{
+			_commonModule.DisposeAsync();
+		}
 	}
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
 		Id = $"{IdPrefix}{++_idSequence}";
 		if (DataProvider is null)
@@ -754,6 +765,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 			PageCriteria.PageSizeChanged += PageCriteria_PageSizeChanged;
 		}
 		_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
+
+		// load common javascript
+		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 	}
 
 	private async void PageCriteria_PageSizeChanged(object? sender, EventArgs e)
@@ -907,7 +921,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 			var row = ItemsToDisplay.IndexOf(EditItem);
 			if (key != string.Empty)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.selectText", $"{IdEditPrefix}-{row}-{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
+				if (_commonModule != null)
+				{
+					await _commonModule.InvokeVoidAsync("selectText", $"{IdEditPrefix}-{row}-{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
+				}
 				BeginEditEvent.Reset();
 			}
 		}
@@ -932,10 +949,13 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 			// small delay required for when running in WebAssembly otherwise
 			// the call to getFocusedElementId returns null
 			await Task.Delay(100).ConfigureAwait(true);
-			var id = await JSRuntime.InvokeAsync<string>("panoramicData.getFocusedElementId").ConfigureAwait(true);
-			if (!id.StartsWith(IdEditPrefix))
+			if (_commonModule != null)
 			{
-				await CommitEditAsync().ConfigureAwait(true);
+				var id = await _commonModule.InvokeAsync<string>("getFocusedElementId").ConfigureAwait(true);
+				if (!id.StartsWith(IdEditPrefix))
+				{
+					await CommitEditAsync().ConfigureAwait(true);
+				}
 			}
 		}
 	}
@@ -947,7 +967,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 			switch (args.Code)
 			{
 				case "Escape":
-					CancelEdit();
+					await CancelEdit().ConfigureAwait(true);
 					break;
 
 				case "Enter":
@@ -994,7 +1014,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 								if (!string.IsNullOrWhiteSpace(id))
 								{
 									Selection.Add(id);
-									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+									if (_commonModule != null)
+									{
+										await _commonModule.InvokeVoidAsync("scrollIntoView", id, false).ConfigureAwait(true);
+									}
 								}
 							}
 							else if (args.Code == "Home" && idx > 0)
@@ -1004,7 +1027,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 								if (!string.IsNullOrWhiteSpace(id))
 								{
 									Selection.Add(id);
-									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+									if (_commonModule != null)
+									{
+										await _commonModule.InvokeVoidAsync("scrollIntoView", id, false).ConfigureAwait(true);
+									}
 								}
 							}
 							else if (args.Code.EndsWith("Up") && idx >= stepSize)
@@ -1014,7 +1040,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 								if (!string.IsNullOrWhiteSpace(id))
 								{
 									Selection.Add(id);
-									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+									if (_commonModule != null)
+									{
+										await _commonModule.InvokeVoidAsync("scrollIntoView", id, false).ConfigureAwait(true);
+									}
 								}
 							}
 							else if (args.Code.EndsWith("Down") && idx < items.Count - stepSize)
@@ -1024,7 +1053,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 								if (!string.IsNullOrWhiteSpace(id))
 								{
 									Selection.Add(id);
-									await JSRuntime.InvokeVoidAsync("panoramicData.scrollIntoView", id, false).ConfigureAwait(true);
+									if (_commonModule != null)
+									{
+										await _commonModule.InvokeVoidAsync("scrollIntoView", id, false).ConfigureAwait(true);
+									}
 								}
 							}
 
@@ -1048,9 +1080,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 
 		// if right-click on row then only select if clicked on label
 		var selectRow = args.Button == 0;
-		if (args.Button == 2 && RightClickSelectsRow)
+		if (args.Button == 2 && RightClickSelectsRow && _commonModule != null)
 		{
-			var sourceEl = await JSRuntime.InvokeAsync<ElementInfo>("panoramicData.getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
+			var sourceEl = await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
 			if (sourceEl != null)
 			{
 				selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";

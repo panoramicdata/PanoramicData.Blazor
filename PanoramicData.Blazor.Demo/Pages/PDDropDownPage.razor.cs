@@ -2,4 +2,5 @@
 
 public partial class PDDropDownPage
 {
+	private PDDropDown _dropdown = null!;
 }

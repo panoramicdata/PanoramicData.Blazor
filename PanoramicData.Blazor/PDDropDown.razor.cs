@@ -4,7 +4,9 @@ public partial class PDDropDown : IDisposable
 {
 	private static int _sequence;
 	private bool _shown;
-	private DotNetObjectReference<PDDropDown> _objRef = null!;
+	private DotNetObjectReference<PDDropDown>? _objRef;
+	private IJSObjectReference? _module;
+	private IJSObjectReference? _dropdownObj;
 
 	public enum CloseOptions
 	{
@@ -78,15 +80,7 @@ public partial class PDDropDown : IDisposable
 		{
 			return new Dictionary<string, object>
 			{
-				{ "data-toggle", "dropdown" },
-				{ "data-bs-toggle", "dropdown" },
-				{ "data-bs-auto-close", CloseOption switch
-				{
-					CloseOptions.Inside  => "inside",
-					CloseOptions.Outside  => "outside",
-					CloseOptions.InsideOrOutside  => "true",
-					_ => "false"
-				} }
+				{ "data-bs-toggle", "dropdown" }
 			};
 		}
 	}
@@ -96,6 +90,25 @@ public partial class PDDropDown : IDisposable
 		if (_objRef != null)
 		{
 			_objRef.Dispose();
+			_objRef = null;
+		}
+		if (_dropdownObj != null)
+		{
+			_dropdownObj.DisposeAsync();
+			_dropdownObj = null;
+		}
+		if (_module != null)
+		{
+			_module.DisposeAsync();
+			_module = null;
+		}
+	}
+
+	public async Task HideAsync()
+	{
+		if (_dropdownObj != null)
+		{
+			await _dropdownObj.InvokeVoidAsync("hide").ConfigureAwait(true);
 		}
 	}
 
@@ -104,7 +117,20 @@ public partial class PDDropDown : IDisposable
 		if (firstRender)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			await JSRuntime.InvokeVoidAsync("panoramicData.initializeDropDown", Id, _objRef).ConfigureAwait(true);
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropDown.razor.js").ConfigureAwait(true);
+			if (_module != null)
+			{
+				_dropdownObj = await _module.InvokeAsync<IJSObjectReference>("initialize", ToggleId, _objRef, new
+				{
+					autoClose = CloseOption switch
+					{
+						CloseOptions.Inside => (object)"inside",
+						CloseOptions.InsideOrOutside => true,
+						CloseOptions.Manual => false,
+						_ => "outside"
+					}
+				}).ConfigureAwait(true);
+			}
 		}
 	}
 
@@ -129,24 +155,22 @@ public partial class PDDropDown : IDisposable
 		await KeyPress.InvokeAsync(keyCode).ConfigureAwait(true);
 	}
 
-	private string ParentCssClasses
+	public async Task ShowAsync()
 	{
-		get
+		if (_dropdownObj != null)
 		{
-			var dropdownPosition = DropdownDirection switch
-			{
-
-				Directions.Up => "dropup",
-				Directions.Left => "dropstart",
-				Directions.Right => "dropend",
-				_ => "dropdown"
-			};
-			return $"{dropdownPosition} {(Visible ? "" : "d-none")}";
+			await _dropdownObj.InvokeVoidAsync("show").ConfigureAwait(true);
 		}
 	}
 
+
 	public async Task ToggleAsync()
 	{
-		await JSRuntime.InvokeVoidAsync("panoramicData.toggleDropDown", Id).ConfigureAwait(true);
+		if (_dropdownObj != null)
+		{
+			await _dropdownObj.InvokeVoidAsync("toggle").ConfigureAwait(true);
+		}
 	}
+
+	public string ToggleId => $"{Id}-toggle";
 }

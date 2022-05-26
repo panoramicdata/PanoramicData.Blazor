@@ -39,34 +39,6 @@ export function documentMouseDown(event) {
 	}
 }
 
-export function getElementAtPoint(x, y) {
-	var el = document.elementFromPoint(x, y);
-	if (el) {
-		var baseInfo = getElementInfo(el);
-		var info = baseInfo;
-		el = el.parentElement;
-		while (el) {
-			info.parent = getElementInfo(el);
-			info = info.parent;
-			el = el.parentElement;
-		}
-		return baseInfo;
-	}
-	return null;
-}
-
-function getElementInfo(el) {
-	var info = {
-		id: el.id || '',
-		tag: el.tagName,
-		classList: []
-	}
-	for (var i = 0; i < el.classList.length; i++) {
-		info.classList.push(el.classList[i]);
-	}
-	return info;
-}
-
 export function hideMenu() {
 	if (menuEl) {
 		menuEl.classList.remove("show");
