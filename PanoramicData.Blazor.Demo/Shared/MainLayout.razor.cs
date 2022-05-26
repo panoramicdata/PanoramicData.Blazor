@@ -1,7 +1,6 @@
-﻿namespace PanoramicData.Blazor.Demo.Shared
+﻿namespace PanoramicData.Blazor.Demo.Shared;
+
+public partial class MainLayout
 {
-	public partial class MainLayout
-	{
-		private Data.EventManager _eventManager = new Data.EventManager();
-	}
+	private Data.EventManager _eventManager = new Data.EventManager();
 }

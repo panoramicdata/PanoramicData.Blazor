@@ -1,6 +1,5 @@
-﻿namespace PanoramicData.Blazor
+﻿namespace PanoramicData.Blazor;
+
+public partial class PDToolbarItem
 {
-    public partial class PDToolbarItem
-    {
-    }
 }

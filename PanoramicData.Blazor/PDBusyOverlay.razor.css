@@ -1,2 +1,18 @@
-﻿. pd-busy-overlay {
+﻿.pd-busy-overlay {
+	position: relative;
+	display: inline-block;
+}
+
+.pd-busy-overlay.show .overlay-content {
+	background-color: rgba(0,0,0,0.25);
+	cursor: wait;
+	height: 100%;
+	left: 0px;
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 0px;
+	width: 100%;
+	z-index: 2000;
 }

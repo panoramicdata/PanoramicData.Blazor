@@ -1,12 +1,11 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+/// <summary>
+/// An enumeration of possible Help Text display nodes.
+/// </summary>
+public enum HelpTextMode
 {
-	/// <summary>
-	/// An enumeration of possible Help Text display nodes.
-	/// </summary>
-	public enum HelpTextMode
-	{
-		Hidden,
-		Shown,
-		Toggle
-	}
+	Hidden,
+	Shown,
+	Toggle
 }

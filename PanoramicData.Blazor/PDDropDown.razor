@@ -1,6 +1,6 @@
-﻿<div class="pd-dropdown @ParentCssClasses"
-     id="@Id">
+﻿<div class="pd-dropdown dropdown @(Visible ? "" : "d-none")" id="@Id">
     <PDButton Attributes="Attributes"
+              Id="@ToggleId"
               IsEnabled="IsEnabled"
               CssClass="@CssClass"
               IconCssClass="@IconCssClass"
@@ -19,7 +19,7 @@
         </PDLabel>
         @if (ShowCaret)
         {
-            <i class="ml-2 fas @(_shown ? "fa-angle-up" : "fa-angle-down")"></i>
+            <i class="ms-2 fas @(_shown ? "fa-angle-up" : "fa-angle-down")"></i>
         }
     </PDButton>
     <div class="dropdown-menu">

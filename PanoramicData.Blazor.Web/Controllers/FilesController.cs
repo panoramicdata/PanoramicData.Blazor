@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.Web.Controllers
@@ -14,6 +15,10 @@ namespace PanoramicData.Blazor.Web.Controllers
 		public IActionResult Download(string path)
 		{
 			var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.file_example_WEBM_1920_3_7MB.webm");
+			if (stream is null)
+			{
+				return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+			}
 			var result = new FileStreamResult(stream, "text/plain")
 			{
 				FileDownloadName = $"{Path.GetFileNameWithoutExtension(path)}.webm"

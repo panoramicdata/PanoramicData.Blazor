@@ -1,9 +1,7 @@
 ﻿@typeparam TItem
 
 <style>
-	.title-box {
-		width: @($"{TitleWidth}px");
-	}
+	@WidthCssMarkup
 </style>
 
 @if (Form is null)
@@ -69,7 +67,7 @@ else if (Form.Mode != FormModes.Hidden)
 						{
 							<select class="form-control @GetEditorClass(field)"
 									disabled="@IsReadOnly(field)"
-									@oninput="(x) => Form?.SetFieldValueAsync(field, x.Value)">
+									@oninput="(x) => Form?.SetFieldValueAsync(field, x.Value) ?? Task.CompletedTask">
 								@foreach (var option in field.Options(field, Form?.Item))
 								{
 									<option value="@option.Value"
@@ -87,20 +85,20 @@ else if (Form.Mode != FormModes.Hidden)
 										Rows="@field.TextAreaRows"
 										MaxLength="@(field.MaxLength ?? -1)"
 										Value="@(Form?.GetFieldStringValue(field))"
-										ValueChanged="(x) => Form?.SetFieldValueAsync(field, x)"
+										ValueChanged="(x) => Form?.SetFieldValueAsync(field, x) ?? Task.CompletedTask"
 										DebounceWait="DebounceWait" />
 						}
 						else if (fieldType?.FullName == "System.Boolean")
 						{
 							<PDFormCheckBox Value="@(Form?.GetFieldValue<bool>(field) ?? false)"
 											Disabled="@IsReadOnly(field)"
-											ValueChanged="(x) => Form?.SetFieldValueAsync(field, (bool)x)" />
+											ValueChanged="(x) => Form?.SetFieldValueAsync(field, (bool)x) ?? Task.CompletedTask" />
 						}
 						else if (fieldType?.IsEnum == true)
 						{
 							<select class="form-control @GetEditorClass(field)"
 									disabled="@IsReadOnly(field)"
-									@oninput="(x) => Form?.SetFieldValueAsync(field, Enum.Parse(fieldType, x.Value?.ToString()))">
+									@oninput="(x) => Form?.SetFieldValueAsync(field, Enum.Parse(fieldType, x.Value?.ToString() ?? string.Empty)) ?? Task.CompletedTask">
 								@foreach (var option in GetEnumValues(field))
 								{
 									<option value="@option.Value"
@@ -133,7 +131,7 @@ else if (Form.Mode != FormModes.Hidden)
 									   ShowClearButton="false"
 									   IsEnabled="!IsReadOnly(field)"
 									   Value="@(Form?.GetFieldStringValue(field))"
-									   ValueChanged="(x) => Form?.SetFieldValueAsync(field, x)"
+									   ValueChanged="(x) => Form?.SetFieldValueAsync(field, x) ?? Task.CompletedTask"
 									   DebounceWait="DebounceWait" />
 						}
 						else

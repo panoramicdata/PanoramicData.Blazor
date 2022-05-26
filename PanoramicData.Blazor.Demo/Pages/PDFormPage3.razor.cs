@@ -1,142 +1,132 @@
-﻿using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Arguments;
-using PanoramicData.Blazor.Demo.Data;
-using PanoramicData.Blazor.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿namespace PanoramicData.Blazor.Demo.Pages;
 
-namespace PanoramicData.Blazor.Demo.Pages
+public partial class PDFormPage3
 {
-	public partial class PDFormPage3
+	private readonly PersonDataProvider _personDataProvider = new();
+	private readonly PageCriteria _pageCriteria = new(1, 10);
+	private readonly SortCriteria _sortCriteria = new("DateCreatedCol", SortDirection.Descending);
+
+	//private bool ShowDescriptions { get; set; }
+	private PDForm<Person> Form { get; set; } = null!;
+	private PDFormBody<Person> FormBody { get; set; } = null!;
+	private PDTable<Person> Table { get; set; } = null!;
+	private Person? SelectedPerson { get; set; }
+
+	[CascadingParameter] protected EventManager? EventManager { get; set; }
+
+	private async Task OnPersonCreated(Person person)
 	{
-		private readonly PersonDataProvider _personDataProvider = new();
-		private readonly PageCriteria _pageCriteria = new(1, 10);
-		private readonly SortCriteria _sortCriteria = new("DateCreatedCol", SortDirection.Descending);
+		EventManager?.Add(new Event("PersonCreated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
+		await Table.RefreshAsync().ConfigureAwait(true);
+	}
 
-		//private bool ShowDescriptions { get; set; }
-		private PDForm<Person> Form { get; set; } = null!;
-		private PDFormBody<Person> FormBody { get; set; } = null!;
-		private PDTable<Person> Table { get; set; } = null!;
-		private Person? SelectedPerson { get; set; }
+	private async Task OnPersonUpdated(Person person)
+	{
+		EventManager?.Add(new Event("PersonUpdated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
+		await Table.RefreshAsync().ConfigureAwait(true);
+	}
 
-		[CascadingParameter] protected EventManager? EventManager { get; set; }
+	private async Task OnPersonDeleted(Person person)
+	{
+		EventManager?.Add(new Event("PersonDeleted", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
+		await Table.RefreshAsync().ConfigureAwait(true);
+	}
 
-		private async Task OnPersonCreated(Person person)
+	private void OnError(string message)
+	{
+		EventManager?.Add(new Event("Error", new EventArgument("Message", message)));
+	}
+
+	private async Task OnFooterClick(string key)
+	{
+		EventManager?.Add(new Event("FooterClick", new EventArgument("Key", key)));
+
+		if (key == "Cancel")
 		{
-			EventManager?.Add(new Event("PersonCreated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-			await Table.RefreshAsync().ConfigureAwait(true);
+			SelectedPerson = null;
+			await Table.ClearSelectionAsync().ConfigureAwait(true);
+			Form.SetMode(FormModes.Empty);
 		}
+	}
 
-		private async Task OnPersonUpdated(Person person)
+	private void OnCreatePerson()
+	{
+		SelectedPerson = new Person();
+		Form.SetMode(FormModes.Create);
+	}
+
+	private void OnSelectionChanged()
+	{
+		if (Table?.Selection.Count > 0)
 		{
-			EventManager?.Add(new Event("PersonUpdated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-			await Table.RefreshAsync().ConfigureAwait(true);
-		}
-
-		private async Task OnPersonDeleted(Person person)
-		{
-			EventManager?.Add(new Event("PersonDeleted", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-			await Table.RefreshAsync().ConfigureAwait(true);
-		}
-
-		private void OnError(string message)
-		{
-			EventManager?.Add(new Event("Error", new EventArgument("Message", message)));
-		}
-
-		private async Task OnFooterClick(string key)
-		{
-			EventManager?.Add(new Event("FooterClick", new EventArgument("Key", key)));
-
-			if (key == "Cancel")
+			var id = int.Parse(Table.Selection[0]);
+			SelectedPerson = Table.ItemsToDisplay.Find(x => x.Id == id);
+			if (SelectedPerson != null)
 			{
-				SelectedPerson = null;
-				await Table.ClearSelectionAsync().ConfigureAwait(true);
-				Form.SetMode(FormModes.Empty);
+				Form.SetItem(SelectedPerson);
+				Form.SetMode(FormModes.Edit);
 			}
 		}
+	}
 
-		private void OnCreatePerson()
+	private static OptionInfo[] GetLocationOptions(FormField<Person> _, Person item)
+	{
+		var options = new List<OptionInfo>();
+		for (var i = 0; i < PersonDataProvider.Locations.Length; i++)
 		{
-			SelectedPerson = new Person();
-			Form.SetMode(FormModes.Create);
-		}
-
-		private void OnSelectionChanged()
-		{
-			if (Table?.Selection.Count > 0)
+			options.Add(new OptionInfo
 			{
-				var id = int.Parse(Table.Selection[0]);
-				SelectedPerson = Table.ItemsToDisplay.Find(x => x.Id == id);
-				if (SelectedPerson != null)
+				Text = PersonDataProvider.Locations[i],
+				Value = i,
+				IsSelected = item?.Location == i,
+				IsDisabled = PersonDataProvider.Locations[i] == "Sydney"
+			});
+		}
+		return options.ToArray();
+	}
+
+	private async Task OnInitialsInput(ChangeEventArgs args)
+	{
+		// custom processing - all chars to have single period separator and uppercase
+		var newValue = args.Value?.ToString()?.Replace(".", "");
+		newValue = newValue == null ? string.Empty : String.Join(".", newValue.ToArray()).ToUpper();
+		await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "InitialsCol"), newValue).ConfigureAwait(true);
+	}
+
+	private async Task OnEmailInput(ChangeEventArgs args)
+	{
+		await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "EmailCol"), args?.Value ?? string.Empty).ConfigureAwait(true);
+	}
+
+	private void OnCustomValidate(CustomValidateArgs<Person> args)
+	{
+		if (args.Item != null)
+		{
+			var fieldName = args.Field.GetName();
+			if (fieldName == "Initials")
+			{
+				if (args.Item.Initials == "L.O.L")
 				{
-					Form.SetItem(SelectedPerson);
-					Form.SetMode(FormModes.Edit);
+					args.AddErrorMessages.Add("Initials", "Laugh out loud - really?");
 				}
 			}
-		}
 
-		private static OptionInfo[] GetLocationOptions(FormField<Person> _, Person item)
-		{
-			var options = new List<OptionInfo>();
-			for (var i = 0; i < PersonDataProvider.Locations.Length; i++)
+			if (fieldName == "Location" || fieldName == "Department")
 			{
-				options.Add(new OptionInfo
+				const string? errorMessage = "Peckham location only has Sales departments";
+				var locationField = Form.Fields.Find(x => x.Id == "location");
+				var isPeckham = locationField != null && Form.GetFieldStringValue(locationField) == "4";
+				var departmentField = Form.Fields.Find(x => x.Id == "department");
+				var isSales = departmentField != null && Form.GetFieldStringValue(departmentField) == "Sales";
+				if (isPeckham && !isSales)
 				{
-					Text = PersonDataProvider.Locations[i],
-					Value = i,
-					IsSelected = item?.Location == i,
-					IsDisabled = PersonDataProvider.Locations[i] == "Sydney"
-				});
-			}
-			return options.ToArray();
-		}
-
-		private async Task OnInitialsInput(ChangeEventArgs args)
-		{
-			// custom processing - all chars to have single period separator and uppercase
-			var newValue = args.Value?.ToString()?.Replace(".", "");
-			newValue = newValue == null ? string.Empty : String.Join(".", newValue.ToArray()).ToUpper();
-			await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "InitialsCol"), newValue).ConfigureAwait(true);
-		}
-
-		private async Task OnEmailInput(ChangeEventArgs args)
-		{
-			await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "EmailCol"), args?.Value ?? string.Empty).ConfigureAwait(true);
-		}
-
-		private void OnCustomValidate(CustomValidateArgs<Person> args)
-		{
-			if (args.Item != null)
-			{
-				var fieldName = args.Field.GetName();
-				if (fieldName == "Initials")
-				{
-					if (args.Item.Initials == "L.O.L")
-					{
-						args.AddErrorMessages.Add("Initials", "Laugh out loud - really?");
-					}
+					args.AddErrorMessages.Add("Location", errorMessage);
+					args.AddErrorMessages.Add("Department", errorMessage);
 				}
-
-				if (fieldName == "Location" || fieldName == "Department")
+				else
 				{
-					const string? errorMessage = "Peckham location only has Sales departments";
-					var locationField = Form.Fields.Find(x => x.Id == "location");
-					var isPeckham = locationField != null && Form.GetFieldStringValue(locationField) == "4";
-					var departmentField = Form.Fields.Find(x => x.Id == "department");
-					var isSales = departmentField != null && Form.GetFieldStringValue(departmentField) == "Sales";
-					if (isPeckham && !isSales)
-					{
-						args.AddErrorMessages.Add("Location", errorMessage);
-						args.AddErrorMessages.Add("Department", errorMessage);
-					}
-					else
-					{
-						args.RemoveErrorMessages.Add("Location", errorMessage);
-						args.RemoveErrorMessages.Add("Department", errorMessage);
-					}
+					args.RemoveErrorMessages.Add("Location", errorMessage);
+					args.RemoveErrorMessages.Add("Department", errorMessage);
 				}
 			}
 		}

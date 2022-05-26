@@ -1,9 +1,8 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+public enum SortDirection
 {
-	public enum SortDirection
-	{
-		None,
-		Ascending,
-		Descending
-	}
+	None,
+	Ascending,
+	Descending
 }

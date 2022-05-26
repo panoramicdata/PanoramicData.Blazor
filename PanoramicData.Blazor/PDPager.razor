@@ -27,10 +27,10 @@
 				  IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
 				  Size="Size" />
 
-		<span class="d-none d-md-inline ml-1">Page&nbsp;</span> @PageCriteria.Page&nbsp;of&nbsp;@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)
+		<span class="d-none d-md-inline ms-1">Page&nbsp;</span> @PageCriteria.Page&nbsp;of&nbsp;@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)
 
 		<PDButton Click="MoveNext"
-				  CssClass="btn-secondary ml-1"
+				  CssClass="btn-secondary ms-1"
 				  IconCssClass="fas fa-forward"
 				  IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
 				  Size="Size" />

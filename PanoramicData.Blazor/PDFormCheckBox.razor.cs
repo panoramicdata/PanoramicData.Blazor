@@ -1,37 +1,32 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using PanoramicData.Blazor.Extensions;
+﻿namespace PanoramicData.Blazor;
 
-namespace PanoramicData.Blazor
+public partial class PDFormCheckBox
 {
-	public partial class PDFormCheckBox
+	[Parameter] public bool Value { get; set; }
+
+	[Parameter] public bool Disabled { get; set; }
+
+	[Parameter] public EventCallback<bool> ValueChanged { get; set; }
+
+	private void OnClick()
 	{
-		[Parameter] public bool Value { get; set; }
-
-		[Parameter] public bool Disabled { get; set; }
-
-		[Parameter] public EventCallback<bool> ValueChanged { get; set; }
-
-		private void OnClick()
+		if (!Disabled)
 		{
-			if (!Disabled)
-			{
-				ToggleValue();
-			}
+			ToggleValue();
 		}
+	}
 
-		private void OnKeyPress(KeyboardEventArgs args)
+	private void OnKeyPress(KeyboardEventArgs args)
+	{
+		if (!Disabled && args.Code.In("Space", "Enter"))
 		{
-			if (!Disabled && args.Code.In("Space", "Enter"))
-			{
-				ToggleValue();
-			}
+			ToggleValue();
 		}
+	}
 
-		private void ToggleValue()
-		{
-			Value = !Value;
-			ValueChanged.InvokeAsync(Value);
-		}
+	private void ToggleValue()
+	{
+		Value = !Value;
+		ValueChanged.InvokeAsync(Value);
 	}
 }

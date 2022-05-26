@@ -1,8 +1,7 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+public enum FileExplorerItemType
 {
-	public enum FileExplorerItemType
-	{
-		Directory,
-		File
-	}
+	Directory,
+	File
 }

@@ -3,8 +3,8 @@
     <div class="scale-bar">
         @if(ShowZoomButtons)
         {
-            <PDButton Click="@(() => Timeline?.ZoomInAsync())"
-                CssClass="ml-1"
+            <PDButton Click="@(() => Timeline?.ZoomInAsync() ?? Task.CompletedTask)"
+                CssClass="ms-1"
                 IconCssClass="fas fa-search-plus"
                 IsEnabled="Timeline?.CanZoomIn() == true"
                 Size="ButtonSizes.Small"
@@ -18,7 +18,7 @@
 
         @if(ShowZoomButtons)
         {
-            <PDButton Click="@(() => Timeline?.ZoomOutAsync())"
+            <PDButton Click="@(() => Timeline?.ZoomOutAsync() ?? Task.CompletedTask)"
                 CssClass=""
                 IconCssClass="fas fa-search-minus"
                 IsEnabled="Timeline?.CanZoomOut() == true"
@@ -32,8 +32,8 @@
     }
     @if (ShowSelection && selection?.StartTime > DateTime.MinValue)
     {
-        <div class="selection-bar mr-2">
-            <PDButton Click="@(() => Timeline?.ZoomToAsync(selection.StartTime, selection.EndTime, TimelinePositions.End))"
+        <div class="selection-bar me-2">
+            <PDButton Click="@(() => Timeline?.ZoomToAsync(selection.StartTime, selection.EndTime, TimelinePositions.End) ?? Task.CompletedTask)"
                 CssClass=""
                 IconCssClass="fas fa-arrows-alt-h"
                 IsEnabled="true"
@@ -47,7 +47,7 @@
 
     @if (ShowRange && Timeline?.RoundedMinDateTime > DateTime.MinValue)
     {
-        <div class="range-bar mr-2">
+        <div class="range-bar me-2">
             <span class="range-min-label">@MinDateTimeDisplay</span>
             <span>-</span>
             <span class="range-max-label">@MaxDateTimeDisplay</span>

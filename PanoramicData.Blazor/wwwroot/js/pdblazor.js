@@ -5,6 +5,59 @@
 	unloadListener: false,
 	unloadListenerIds: {},
 
+	// -----------------------------------------------------------------------------------
+	//
+	// MOVED To common.js
+	//
+	// -----------------------------------------------------------------------------------
+
+	focus: function (id) {
+		var node = document.getElementById(id);
+		if (node && node.focus) {
+			node.focus();
+			return true;
+		}
+		return false;
+	},
+
+	click: function (id) {
+		var el = document.getElementById(id);
+		if (el && el.click) {
+			el.click();
+		}
+	},
+
+	scrollIntoView: function (id, alignTop) {
+		var el = document.getElementById(id);
+		if (el)
+			el.scrollIntoView(alignTop);
+	},
+
+	selectText: function (id, start, end) {
+		var node = document.getElementById(id);
+		if (!node) return;
+		if (!start) start = 0;
+		if (!end) end = node.value.length;
+		if (node.createTextRange) {
+			var selRange = node.createTextRange();
+			selRange.collapse(true);
+			selRange.moveStart('character', start);
+			selRange.moveEnd('character', end);
+			selRange.select();
+			node.focus();
+		} else if (node.setSelectionRange) {
+			node.focus();
+			node.setSelectionRange(start, end);
+		} else if (typeof node.selectionStart != 'undefined') {
+			node.selectionStart = start;
+			node.selectionEnd = end;
+			node.focus();
+		}
+	},
+
+	// -----------------------------------------------------------------------------------
+
+
 	confirm: function (msg) {
 		return window.confirm(msg);
 	},
@@ -41,127 +94,6 @@
 		}
 	},
 
-	hasPopperJs: function() {
-		return typeof Popper !== 'undefined';
-	},
-
-	showMenu: function(menuId, x, y) {
-		var menu = window.panoramicData.contextMenuEl = document.getElementById(menuId);
-		var reference = {
-			getBoundingClientRect() {
-				return {
-					width: 0,
-					height: 0,
-					top: y,
-					bottom: y,
-					left: x,
-					right: x
-				};
-			}
-		};
-		var options = {
-			placement: 'bottom-start',
-			positionFixed: true
-		};
-		menu.classList.add("show");
-		//var popper = Popper.createPopper(reference, menu, options); // this is popper v2.4.4 syntax
-		window.panoramicData.menuPopper = new Popper(reference, menu, options); // this is popper v1.16.1 syntax
-		document.addEventListener("mousedown", window.panoramicData.menuMouseDown);
-	},
-
-	menuMouseDown: function (event) {
-		var menu = window.panoramicData.contextMenuEl;
-		if (menu && window.panoramicData.menuPopper) {
-			let isClickInside = menu.contains(event.target);
-			if (!isClickInside) {
-				window.panoramicData.hideMenu();
-			}
-		}
-	},
-
-	hideMenu: function (menuId) {
-		var menu = window.panoramicData.contextMenuEl;
-		if (menu) {
-			menu.classList.remove("show");
-			document.removeEventListener("mousedown", window.panoramicData.menuMouseDown);
-			window.panoramicData.contextMenuEl = null;
-			if (window.panoramicData.menuPopper) {
-				window.panoramicData.menuPopper.destroy();
-				window.panoramicData.menuPopper = null;
-			}
-		}
-	},
-
-	focus: function(id) {
-		var node = document.getElementById(id);
-		if (node && node.focus) {
-			node.focus();
-			return true;
-		}
-		return false;
-	},
-
-	click: function (id) {
-		var el = document.getElementById(id);
-		if (el && el.click) {
-			el.click();
-		}
-	},
-
-	selectText: function(id, start, end) {
-		var node = document.getElementById(id);
-		if (!node) return;
-		if (!start) start = 0;
-		if (!end) end = node.value.length;
-		if (node.createTextRange) {
-			var selRange = node.createTextRange();
-			selRange.collapse(true);
-			selRange.moveStart('character', start);
-			selRange.moveEnd('character', end);
-			selRange.select();
-			node.focus();
-		} else if (node.setSelectionRange) {
-			node.focus();
-			node.setSelectionRange(start, end);
-		} else if (typeof node.selectionStart != 'undefined') {
-			node.selectionStart = start;
-			node.selectionEnd = end;
-			node.focus();
-		}
-	},
-
-	getElementAtPoint: function (x, y) {
-		var el = document.elementFromPoint(x, y);
-		if (el) {
-			var baseInfo = this.getElementInfo(el);
-			var info = baseInfo;
-			el = el.parentElement;
-			while (el) {
-				info.parent = this.getElementInfo(el);
-				info = info.parent;
-				el = el.parentElement;
-			}
-			return baseInfo;
-		}
-		return null;
-	},
-
-	getElementInfo: function(el) {
-		var info = {
-			id: el.id || '',
-			tag: el.tagName,
-			classList: []
-		}
-		for (var i = 0; i < el.classList.length; i++) {
-			info.classList.push(el.classList[i]);
-		}
-		return info;
-	},
-
-	getFocusedElementId: function() {
-		return document.activeElement.id;
-	},
-
 	getValue: function(id) {
 		var node = document.getElementById(id);
 		if(node)
@@ -185,12 +117,6 @@
 		var el = document.getElementById(id);
 		if (el)
 			el.classList.remove(cls);
-	},
-
-	scrollIntoView: function (id, alignTop) {
-		var el = document.getElementById(id);
-		if (el)
-			el.scrollIntoView(alignTop);
 	},
 
 	// 04/08/20 - bytesBase64 limited to 125MB by System.Text.Json writer
@@ -229,39 +155,6 @@
 			zone.addEventListener('dragover', panoramicData.onDropZoneDragEnterOver, false);
 			zone.addEventListener('dragleave', panoramicData.onDropZoneDragLeave, false);
 			zone.addEventListener('drop', panoramicData.onDropZoneDrop, false);
-		}
-	},
-
-	initializeDropDown: function (id, ref) {
-		var el = $(`#${id}`);
-		if (el) {
-			el.on('keypress', function (ev) {
-				if (ev.keyCode == 13 && ref) {
-					ref.invokeMethodAsync("OnKeyPressed", 13);
-				}
-			});
-			el.on("shown.bs.dropdown", function () {
-				if (ref) {
-					ref.invokeMethodAsync("OnDropDownShown");
-				}
-			});
-			el.on("hidden.bs.dropdown", function () {
-				if (ref) {
-					ref.invokeMethodAsync("OnDropDownHidden");
-				}
-			});
-		//	el.on("hide.bs.dropdown", function (e) {
-		//		if (e.clickEvent && $.contains(e.relatedTarget.parentNode, e.clickEvent.target)) {
-		//			e.preventDefault()
-		//		}
-		//	});
-		}
-	},
-
-	toggleDropDown: function (id) {
-		var el = $(`#${id}`);
-		if (el) {
-			el.dropdown('toggle');
 		}
 	},
 

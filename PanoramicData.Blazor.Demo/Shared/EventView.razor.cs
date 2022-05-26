@@ -1,34 +1,29 @@
-﻿using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Demo.Data;
-using System;
+﻿namespace PanoramicData.Blazor.Demo.Shared;
 
-namespace PanoramicData.Blazor.Demo.Shared
+public partial class EventView : IDisposable
 {
-	public partial class EventView : IDisposable
+	[Parameter] public RenderFragment? ChildContent { get; set; }
+
+	[CascadingParameter] protected EventManager? EventManager { get; set; }
+
+	protected override void OnInitialized()
 	{
-		[Parameter] public RenderFragment? ChildContent { get; set; }
-
-		[CascadingParameter] protected EventManager? EventManager { get; set; }
-
-		protected override void OnInitialized()
+		if (EventManager != null)
 		{
-			if (EventManager != null)
-			{
-				EventManager.EventAdded += OnEventAdded;
-			}
+			EventManager.EventAdded += OnEventAdded;
 		}
+	}
 
-		private void OnEventAdded(Event evt)
-		{
-			StateHasChanged();
-		}
+	private void OnEventAdded(Event evt)
+	{
+		StateHasChanged();
+	}
 
-		public void Dispose()
+	public void Dispose()
+	{
+		if (EventManager != null)
 		{
-			if (EventManager != null)
-			{
-				EventManager.EventAdded -= OnEventAdded;
-			}
+			EventManager.EventAdded -= OnEventAdded;
 		}
 	}
 }

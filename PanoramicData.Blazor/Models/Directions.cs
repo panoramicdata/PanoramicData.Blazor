@@ -1,10 +1,9 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+public enum Directions
 {
-	public enum Directions
-	{
-		Up,
-		Down,
-		Left,
-		Right
-	}
+	Up,
+	Down,
+	Left,
+	Right
 }

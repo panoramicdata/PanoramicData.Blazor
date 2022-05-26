@@ -63,120 +63,6 @@
   font-size: 0.5rem;
 }
 
-.blockoverlay_show {
-  height: 100%;
-  width: 100%;
-  overflow-x: hidden;
-  z-index: 2000;
-  /* in font of modal dialogs (1050)*/
-  background-color: rgba(0, 0, 0, 0.3);
-  position: fixed;
-  left: 0px;
-  top: 0px;
-  text-align: center;
-  cursor: wait;
-}
-.blockoverlay_show .text-container {
-  position: relative;
-  top: 25%;
-}
-.blockoverlay_show .text-container .text-box {
-  width: 600px;
-  margin: auto;
-  border-style: solid;
-  border-width: 1px;
-  border-color: black;
-  border-radius: 5px;
-  background-color: #888;
-  padding-top: 13px;
-  padding-bottom: 10px;
-  color: white;
-}
-
-.blockoverlay_hide {
-  display: none;
-}
-
-.pd-busy-overlay {
-  position: relative;
-  display: inline-block;
-}
-
-.pd-busy-overlay.show .overlay-content {
-  background-color: rgba(0, 0, 0, 0.25);
-  cursor: wait;
-  height: 100%;
-  left: 0px;
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  top: 0px;
-  width: 100%;
-  z-index: 2000;
-}
-
-.pdcontextmenuhost {
-  height: 100%;
-}
-
-.pdcontextmenu {
-  -webkit-user-select: none;
-  /* Chrome/Safari */
-  -moz-user-select: none;
-  /* Firefox */
-  -ms-user-select: none;
-  /* IE10+ */
-  width: fit-content;
-  flex-direction: column;
-  display: none;
-}
-
-.pdcontextmenu.show {
-  display: flex;
-}
-
-.pdcontextmenuitem {
-  background-color: #fff;
-  padding: 0.25rem 0.5rem;
-  border-left: 1px solid rgba(0, 0, 0, 0.125);
-  border-right: 1px solid rgba(0, 0, 0, 0.125);
-  cursor: pointer;
-}
-
-.pdcontextmenuitem.disabled {
-  color: #6c757d;
-  pointer-events: none;
-  background-color: #fff;
-}
-
-.pdcontextmenu.disabled:hover {
-  background-color: #fff;
-}
-
-.pdcontextmenuitem:first-child {
-  border-top: 1px solid rgba(0, 0, 0, 0.125);
-  border-top-left-radius: 0.25rem;
-  border-top-right-radius: 0.25rem;
-}
-
-.pdcontextmenuitem:last-child {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-  border-bottom-left-radius: 0.25rem;
-  border-bottom-right-radius: 0.25rem;
-}
-
-.pdcontextmenuitem:hover {
-  background-color: #eee;
-}
-
-.pdcontextmenuseparator {
-  background-color: #fff;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-  border-left: 1px solid rgba(0, 0, 0, 0.125);
-  border-right: 1px solid rgba(0, 0, 0, 0.125);
-}
-
 .pdseparator.dragover {
   background-color: silver !important;
 }
@@ -188,14 +74,6 @@
   color: white;
   background-color: #007bff;
   text-align: center;
-}
-
-.pd-dropdown {
-  display: inline-block;
-}
-.pd-dropdown button {
-  align-items: center;
-  display: flex;
 }
 
 .pddropzone {
@@ -311,47 +189,6 @@
   height: 100%;
 }
 
-.pd-filter, .pd-filter:hover {
-  color: whitesmoke;
-}
-
-.pd-filter.filtered, .pd-filter:hover.filtered {
-  color: var(--primary);
-}
-
-.filter-body {
-  font-weight: normal;
-  padding: 0px 5px;
-  width: 200px;
-}
-
-.filter-toolbar {
-  display: flex;
-  justify-content: space-evenly;
-  margin-top: 5px;
-}
-
-.filter-values {
-  background-color: #f5f5f585;
-  font-size: 0.9rem;
-  padding: 5px;
-}
-
-.values-filter {
-  margin-bottom: 5px;
-}
-
-.values-list {
-  max-height: 110px;
-  overflow: auto;
-}
-
-.values-listitem {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
 .disabled {
   background-color: #e9ecef;
   color: silver;
@@ -421,52 +258,6 @@
 .pdsplitpanel {
   height: 100%;
   overflow: auto;
-}
-
-.pd-sort, .pd-sort:hover {
-  color: var(--primary);
-}
-
-.pd-sort .fa-stack {
-  width: unset;
-}
-
-.pd-sort.fa-sort, .pd-sort.fa-sort:hover {
-  color: whitesmoke;
-}
-
-.pdtable {
-  -webkit-user-select: none;
-  /* Chrome/Safari */
-  -moz-user-select: none;
-  /* Firefox */
-  -ms-user-select: none;
-  /* IE10+ */
-  height: 100%;
-  width: 100%;
-}
-
-.pdtable.disabled {
-  background-color: #d3d3d3;
-  color: #dddddd;
-  filter: grayscale(1);
-}
-
-.pdtablerow.selected {
-  background-color: #007bff;
-}
-
-.pdtable:focus {
-  outline: none;
-}
-
-.pdtable_edit {
-  width: 100%;
-}
-
-.pdtable .form-check-input {
-  margin-left: 0px;
-  transform: scale(1.3);
 }
 
 .pdtextbox-clear-btn {
