@@ -24,8 +24,8 @@ else
 
 @if (ShowClearButton && IsVisible)
 {
-	<div class="input-group-append">
-		<button class="input-group-text btn @ButtonSizeCssClass"
+	<div class="input-group-text">
+		<button class=" btn @ButtonSizeCssClass"
 				disabled="@(Value == string.Empty || !IsEnabled)"
 				@onclick="OnClear">
 			<i class="fas fa-times" />

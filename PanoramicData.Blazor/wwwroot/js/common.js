@@ -23,6 +23,16 @@ export function debounce (func, wait) {
 	};
 }
 
+export function debounceInput (id, wait, objRef) {
+	var el = document.getElementById(id);
+	if (el) {
+		var debouncedFunction = debounce(function (ev) {
+			objRef.invokeMethodAsync('OnDebouncedInput', ev.srcElement.value)
+		}, wait);
+		el.addEventListener('input', debouncedFunction);
+	}
+}
+
 export function focus(id) {
 	var node = document.getElementById(id);
 	if (node && node.focus) {
@@ -64,10 +74,21 @@ export function getFocusedElementId() {
 	return document.activeElement.id;
 }
 
+export function getValue(id) {
+	var node = document.getElementById(id);
+	if (node)
+		return node.value;
+	return null;
+}
+
 export function isTouchDevice () {
 	return (('ontouchstart' in window) ||
 		(navigator.maxTouchPoints > 0) ||
 		(navigator.msMaxTouchPoints > 0));
+}
+
+export function openUrl(url, target) {
+	window.open(url, target);
 }
 
 export function removeClass(id, cls) {
@@ -102,4 +123,10 @@ export function selectText(id, start, end) {
 		node.selectionEnd = end;
 		node.focus();
 	}
+}
+
+export function setValue (id, value) {
+	var node = document.getElementById(id);
+	if (node)
+		node.value = value;
 }

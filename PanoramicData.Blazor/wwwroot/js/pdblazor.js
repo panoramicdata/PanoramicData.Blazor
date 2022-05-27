@@ -6,6 +6,20 @@
 	//
 	// -----------------------------------------------------------------------------------
 
+	openUrl: function (url, target) {
+		window.open(url, target);
+	},
+
+	debounceInput: function (id, wait, objRef) {
+		var el = document.getElementById(id);
+		if (el) {
+			var debouncedFunction = panoramicData.debounce(function (ev) {
+				objRef.invokeMethodAsync('OnDebouncedInput', ev.srcElement.value)
+			}, wait);
+			el.addEventListener('input', debouncedFunction);
+		}
+	},
+
 	addClass: function (id, cls) {
 		var el = document.getElementById(id);
 		if (el)
@@ -80,16 +94,10 @@
 		}
 	},
 
-	// -----------------------------------------------------------------------------------
 
-
-	confirm: function (msg) {
-		return window.confirm(msg);
-	},
-
-	getValue: function(id) {
+	getValue: function (id) {
 		var node = document.getElementById(id);
-		if(node)
+		if (node)
 			return node.value;
 		return null;
 	},
@@ -98,6 +106,13 @@
 		var node = document.getElementById(id);
 		if (node)
 			node.value = value;
+	},
+
+	// -----------------------------------------------------------------------------------
+
+
+	confirm: function (msg) {
+		return window.confirm(msg);
 	},
 
 	// 04/08/20 - bytesBase64 limited to 125MB by System.Text.Json writer
@@ -252,20 +267,6 @@
 
 	disposePopover: function(el) {
 		$(el).popover('dispose');
-	},
-
-	openUrl: function(url, target) {
-		window.open(url, target);
-	},
-
-	debounceInput: function(id, wait, objRef) {
-		var el = document.getElementById(id);
-		if (el) {
-			var debouncedFunction = panoramicData.debounce(function (ev) {
-				objRef.invokeMethodAsync('OnDebouncedInput', ev.srcElement.value)
-			}, wait);
-			el.addEventListener('input', debouncedFunction);
-		}
 	},
 
 	alert: function (msg) {

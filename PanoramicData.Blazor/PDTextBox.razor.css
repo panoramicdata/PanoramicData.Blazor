@@ -6,3 +6,7 @@
 	left: -20px;
 	cursor: pointer;
 }
+
+.input-group-text {
+	padding: 0px;
+}

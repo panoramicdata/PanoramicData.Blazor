@@ -63,12 +63,6 @@
   font-size: 0.5rem;
 }
 
-.pdtextbox-clear-btn {
-  position: relative;
-  left: -20px;
-  cursor: pointer;
-}
-
 .pd-timeline {
   border: 1px solid silver;
   display: inline-grid;
