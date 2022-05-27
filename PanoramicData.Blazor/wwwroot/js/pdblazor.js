@@ -1,6 +1,5 @@
 ﻿window.panoramicData = {
 
-	splits: {},
 	unloadListener: false,
 	unloadListenerIds: {},
 
@@ -89,32 +88,6 @@
 
 	confirm: function (msg) {
 		return window.confirm(msg);
-	},
-
-	hasSplitJs: function () {
-		return typeof Split !== 'undefined';
-	},
-
-	initializeSplitter: function (id, ids, options) {
-		this.splits[id] = Split(ids, options);
-	},
-
-	splitterGetSizes: function (id) {
-		if (this.splits[id]) {
-			return this.splits[id].getSizes();
-		}
-	},
-
-	splitterSetSizes: function (id, sizes) {
-		if (this.splits[id]) {
-			this.splits[id].setSizes(sizes);
-		}
-	},
-
-	destroySplitter: function (id) {
-		if (this.splits[id]) {
-			delete this.splits[id];
-		}
 	},
 
 	getValue: function(id) {

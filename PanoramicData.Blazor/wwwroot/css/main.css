@@ -63,15 +63,6 @@
   font-size: 0.5rem;
 }
 
-.pd-progressbar {
-  border: 1px solid silver;
-}
-.pd-progressbar .bar {
-  color: white;
-  background-color: #007bff;
-  text-align: center;
-}
-
 .disabled {
   background-color: #e9ecef;
   color: silver;
@@ -110,37 +101,6 @@
 .pd-form-help-icon {
   font-size: 75%;
   margin-top: 5px;
-}
-
-.pdsplitter {
-  width: 100%;
-  height: 100%;
-  display: flex;
-}
-
-.pdsplitter.horizontal {
-  flex-direction: row;
-}
-
-.pdsplitter.vertical {
-  flex-direction: column;
-}
-
-.gutter {
-  background-color: #eee;
-}
-
-.gutter-vertical {
-  cursor: row-resize;
-}
-
-.gutter-horizontal {
-  cursor: col-resize;
-}
-
-.pdsplitpanel {
-  height: 100%;
-  overflow: auto;
 }
 
 .pdtextbox-clear-btn {

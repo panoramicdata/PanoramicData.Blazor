@@ -12,15 +12,15 @@
 	flex-direction: column;
 }
 
-.gutter {
+::deep .gutter {
 	background-color: #eee;
 }
 
-.gutter-vertical {
+::deep .gutter-vertical {
 	cursor: row-resize;
 }
 
-.gutter-horizontal {
+::deep .gutter-horizontal {
 	cursor: col-resize;
 }
 

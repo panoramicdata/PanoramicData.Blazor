@@ -3,10 +3,11 @@
 public partial class PDSplitter : IDisposable
 {
 	private static int _idSequence;
+	private IJSObjectReference? _module;
 
 	public string Id { get; private set; } = $"pdsplit-{++_idSequence}";
 
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
 	/// Gets or sets the direction to split the contained panels.
@@ -63,18 +64,6 @@ public partial class PDSplitter : IDisposable
 		StateHasChanged();
 	}
 
-	protected async override Task OnInitializedAsync()
-	{
-		if (JSRuntime != null)
-		{
-			var available = await JSRuntime.InvokeAsync<bool>("panoramicData.hasSplitJs").ConfigureAwait(true);
-			if (!available)
-			{
-				throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
-			}
-		}
-	}
-
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -93,35 +82,42 @@ public partial class PDSplitter : IDisposable
 				DragInterval = DragInterval,
 				Cursor = Direction == SplitDirection.Horizontal ? "col-resize" : "row-resize"
 			};
-			if (JSRuntime != null)
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDSplitter.razor.js").ConfigureAwait(true);
+			if (_module != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.initializeSplitter", Id, ids, options).ConfigureAwait(true);
+				var available = await _module.InvokeAsync<bool>("hasSplitJs").ConfigureAwait(true);
+				if (!available)
+				{
+					throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
+				}
+				await _module.InvokeVoidAsync("initialize", Id, ids, options).ConfigureAwait(true);
 			}
 		}
 	}
 
 	public async Task<double[]> GetSizesAsync()
 	{
-		if (JSRuntime != null)
+		if (_module != null)
 		{
-			return await JSRuntime.InvokeAsync<double[]>("panoramicData.splitterGetSizes", Id).ConfigureAwait(true);
+			return await _module.InvokeAsync<double[]>("getSizes", Id).ConfigureAwait(true);
 		}
 		return Array.Empty<double>();
 	}
 
 	public async Task SetSizesAsync(double[] sizes)
 	{
-		if (JSRuntime != null)
+		if (_module != null)
 		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.splitterSetSizes", Id, sizes).ConfigureAwait(true);
+			await _module.InvokeVoidAsync("setSizes", Id, sizes).ConfigureAwait(true);
 		}
 	}
 
 	public void Dispose()
 	{
-		if (JSRuntime != null)
+		if (_module != null)
 		{
-			JSRuntime.InvokeVoidAsync("panoramicData.destroySplitter", Id);
+			_module.InvokeVoidAsync("destroy", Id);
+			_module.DisposeAsync();
 		}
 	}
 }

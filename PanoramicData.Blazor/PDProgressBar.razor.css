@@ -1,0 +1,9 @@
+﻿.pd-progressbar {
+	border: 1px solid silver;
+}
+
+.pd-progressbar .bar {
+	color: white;
+	background-color: #007bff;
+	text-align: center;
+}
