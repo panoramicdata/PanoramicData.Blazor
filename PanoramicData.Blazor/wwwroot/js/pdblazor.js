@@ -1,6 +1,5 @@
 ﻿window.panoramicData = {
 
-	shortcutKeys: [],
 	splits: {},
 	unloadListener: false,
 	unloadListenerIds: {},
@@ -347,70 +346,9 @@
 		}
 	},
 
-	initGlobalListener: function (ref) {
-		this.globalListenerReference = ref;
-		window.addEventListener("keydown", this.onKeyDown);
-		window.addEventListener("keyup", this.onKeyUp);
-	},
-
-	destroyGlobalListener: function () {
-		window.removeEventListener("keydown", this.onKeyDown);
-		window.removeEventListener("keyup", this.onKeyUp);
-		delete this.globalListenerReference;
-	},
-
-	registerShortcutKeys: function (shortcuts) {
-		this.shortcutKeys = shortcuts || [];
-	},
-
-	isShortcutKeyMatch: function (keyInfo) {
-		var match = this.shortcutKeys.find((v) => v.altKey == keyInfo.altKey &&
-			v.ctrlKey == keyInfo.ctrlKey &&
-			v.shiftKey == keyInfo.shiftKey &&
-			(v.key.toLowerCase() == keyInfo.key.toLowerCase()) || (v.code.toLowerCase() == keyInfo.code.toLowerCase()));
-		return match ? true : false;
-	},
-
-	onKeyDown: function (e) {
-		if (window.panoramicData.globalListenerReference) {
-			var keyInfo = panoramicData.getKeyArgs(e);
-			if (window.panoramicData.isShortcutKeyMatch(keyInfo)) {
-				e.stopPropagation();
-				e.preventDefault();
-			}
-			window.panoramicData.globalListenerReference.invokeMethodAsync("OnKeyDown", keyInfo);
-		}
-	},
-
-	onKeyUp: function (e) {
-		if (window.panoramicData.globalListenerReference) {
-			var keyInfo = panoramicData.getKeyArgs(e);
-			if (window.panoramicData.isShortcutKeyMatch(keyInfo)) {
-				e.stopPropagation();
-				e.preventDefault();
-			}
-			window.panoramicData.globalListenerReference.invokeMethodAsync("OnKeyUp", keyInfo);
-		}
-	},
-
-	getKeyArgs: function (e) {
-		var obj = {};
-		obj.key = e.key;
-		obj.code = e.code;
-		obj.keyCode = e.keyCode;
-		obj.altKey = e.altKey;
-		obj.ctrlKey = e.ctrlKey;
-		obj.shiftKey = e.shiftKey;
-		return obj;
-	},
-
 	clearFiles: function () {
 		this.files = [];
 	},
-
-
-
-
 
 	beforeUnloadListener: function (event) {
 		event.preventDefault();

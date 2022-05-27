@@ -72,13 +72,6 @@
   text-align: center;
 }
 
-.pdfilemodalexplorer {
-  height: 400px;
-}
-.pdfilemodalexplorer .pdfileexplorer {
-  height: 100%;
-}
-
 .disabled {
   background-color: #e9ecef;
   color: silver;
