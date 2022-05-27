@@ -63,10 +63,6 @@
   font-size: 0.5rem;
 }
 
-.pdseparator.dragover {
-  background-color: silver !important;
-}
-
 .pd-progressbar {
   border: 1px solid silver;
 }
@@ -74,112 +70,6 @@
   color: white;
   background-color: #007bff;
   text-align: center;
-}
-
-.pddropzone {
-  border: 1px solid transparent;
-}
-
-.pddropzone.dz-drag-hover {
-  background-color: #e8ffe8;
-  border: 1px dashed rgba(0, 0, 0, 0.1);
-}
-
-.pdfileexplorer {
-  height: calc(100% - 56px);
-}
-
-.pdfileexplorer .table td, .pdfileexplorer .table th {
-  padding: 2px 4px 1px 4px;
-}
-
-.pdfileexplorer .file-hidden, .pdfileexplorer .file-system {
-  color: #ccc;
-}
-
-.pdfileexplorer .uploading {
-  color: #666;
-  font-style: italic;
-}
-
-#upload-progress-modal {
-  z-index: 1060;
-}
-
-.progress-dialog {
-  min-height: 140px;
-}
-.progress-dialog .overall-progress {
-  display: flex;
-  justify-content: center;
-}
-.progress-dialog .file-progress {
-  font-size: 10px;
-}
-
-.progress-dialog-buttons {
-  display: flex;
-  justify-items: flex-end;
-}
-
-.pdtreenode .pdtreenode_content {
-  padding: 2px 3px 2px 3px;
-}
-
-.upload-progress-bar {
-  height: 5px;
-  background-color: #007bff;
-}
-
-.upload-zone {
-  border: 2px dashed silver !important;
-  border-radius: 5px;
-  padding: 5px;
-  max-height: 400px;
-  overflow-y: auto;
-  cursor: pointer;
-}
-
-.pdfe-drop-zone-msg {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  color: silver;
-}
-
-.dz-started .pdfe-drop-zone-msg {
-  display: none;
-}
-
-.pdfe-dz-preview.dz-success {
-  color: #28a745;
-}
-
-.pdfe-dz-preview.dz-error {
-  color: #dc3545;
-}
-
-.pdfe-dz-progress {
-  background-color: #007bff;
-  height: 4px;
-}
-
-.pdfe-dz-preview.dz-complete .pdfe-dz-progress {
-  display: none !important;
-}
-
-.pdfe-dz-preview.dz-error .error-mark {
-  display: inline-block !important;
-}
-
-.pdfe-dz-preview.dz-success .success-mark {
-  display: inline-block !important;
-}
-
-.pdfe-z-1200 {
-  z-index: 1200;
 }
 
 .pdfilemodalexplorer {

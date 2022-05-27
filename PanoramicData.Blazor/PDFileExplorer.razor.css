@@ -20,16 +20,18 @@
 }
 
 .progress-dialog {
-
 	min-height: 140px;
+	.overall-progress
 
-	.overall-progress {
-		display: flex;
-		justify-content: center;
-	}
-	.file-progress {
-		font-size: 10px;
-	}
+{
+	display: flex;
+	justify-content: center;
+}
+
+.file-progress {
+	font-size: 10px;
+}
+
 }
 
 .progress-dialog-buttons {
@@ -63,6 +65,7 @@
 	height: 200px;
 	color: silver;
 }
+
 .dz-started .pdfe-drop-zone-msg {
 	display: none;
 }

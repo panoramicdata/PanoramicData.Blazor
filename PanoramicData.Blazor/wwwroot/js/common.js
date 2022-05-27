@@ -1,8 +1,26 @@
+export function addClass (id, cls) {
+	var el = document.getElementById(id);
+	if (el)
+		el.classList.add(cls);
+}
+
 export function click(id) {
 	var el = document.getElementById(id);
 	if (el && el.click) {
 		el.click();
 	}
+}
+
+export function debounce (func, wait) {
+	let timeout;
+	return function executedFunction(...args) {
+		const later = () => {
+			timeout = null;
+			func(...args);
+		};
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
 }
 
 export function focus(id) {
@@ -44,6 +62,18 @@ export function getElementInfo(el) {
 
 export function getFocusedElementId() {
 	return document.activeElement.id;
+}
+
+export function isTouchDevice () {
+	return (('ontouchstart' in window) ||
+		(navigator.maxTouchPoints > 0) ||
+		(navigator.msMaxTouchPoints > 0));
+}
+
+export function removeClass(id, cls) {
+	var el = document.getElementById(id);
+	if (el)
+		el.classList.remove(cls);
 }
 
 export function scrollIntoView(id, alignTop) {

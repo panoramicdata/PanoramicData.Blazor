@@ -20,7 +20,6 @@
 			}
 		});
 
-		// passing in options does not seem to work
 		return new bootstrap.Dropdown(el, opt);
 	}
 }

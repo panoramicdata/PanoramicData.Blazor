@@ -88,7 +88,8 @@
 		 Size="ModalSizes.Large"
 		 HideOnBackgroundClick="true"
 		 ButtonClick="OnHideUploadDialog">
-	<PDDropZone Id="pdfe-drop-zone-1"
+	<PDDropZone @ref="_dropZone1"
+				Id="pdfe-drop-zone-1"
 				SessionId="@SessionId"
 				CssClass="upload-zone"
 				UploadUrl="@UploadUrl"
@@ -131,7 +132,8 @@
 						   UpdateState="OnTreeContextMenuUpdateStateAsync"
 						   ItemClick="OnTreeContextMenuItemClickAsync">
 
-				<PDDropZone Id="pdfe-drop-zone-2"
+				<PDDropZone @ref="_dropZone2"
+							Id="pdfe-drop-zone-2"
 							SessionId="@SessionId"
 							CssClass="h-100-pct"
 							UploadUrl="@UploadUrl"

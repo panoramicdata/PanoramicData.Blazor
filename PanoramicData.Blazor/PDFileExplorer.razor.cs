@@ -36,8 +36,10 @@ public partial class PDFileExplorer : IDisposable
 	private PDModal? ConflictDialog { get; set; } = null!;
 	private PDModal? ProgressDialog { get; set; } = null!;
 	private PDModal? UploadDialog { get; set; }
-
+	private PDDropZone _dropZone1 = null!;
+	private PDDropZone _dropZone2 = null!;
 	public string FolderPath = string.Empty;
+	private IJSObjectReference? _commonModule;
 
 	public string Id { get; private set; } = string.Empty;
 	public bool IsNavigating { get; private set; }
@@ -351,7 +353,10 @@ public partial class PDFileExplorer : IDisposable
 			_menuSep3,
 			_menuDelete
 		});
-		var isTouchDevice = await JSRuntime.InvokeAsync<bool>("panoramicData.isTouchDevice").ConfigureAwait(true);
+
+		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+		var isTouchDevice = _commonModule != null && await _commonModule.InvokeAsync<bool>("isTouchDevice").ConfigureAwait(true);
+
 		ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline", IsVisible = ShowNavigateUpButton });
 		if (isTouchDevice)
 		{
@@ -945,7 +950,10 @@ public partial class PDFileExplorer : IDisposable
 		if (Tree?.SelectedNode?.Data != null)
 		{
 			// ensure class is added to drop zone dialog to hide message
-			await JSRuntime.InvokeVoidAsync("panoramicData.addClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
+			if (_commonModule != null)
+			{
+				await _commonModule.InvokeVoidAsync("addClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
+			}
 
 			// set current folder
 			args.BaseFolder = FolderPath;
@@ -1823,9 +1831,16 @@ public partial class PDFileExplorer : IDisposable
 
 	private async Task OnClearUploadFiles()
 	{
-		await JSRuntime.InvokeVoidAsync("panoramicData.clearDropzone", "#pdfe-drop-zone-1").ConfigureAwait(true);
-		await JSRuntime.InvokeVoidAsync("panoramicData.clearDropzone", "#pdfe-drop-zone-2").ConfigureAwait(true);
-		await JSRuntime.InvokeVoidAsync("panoramicData.removeClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
+		if (_commonModule != null)
+		{
+			await _commonModule.InvokeVoidAsync("removeClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
+		}
+		var tasks = new List<Task>
+		{
+			_dropZone1.ClearAsync(),
+			_dropZone2.ClearAsync()
+		};
+		await Task.WhenAll(tasks).ConfigureAwait(true);
 	}
 
 	private async Task OnCancelUploadFiles()
@@ -1833,18 +1848,18 @@ public partial class PDFileExplorer : IDisposable
 		BlockOverlayService.Show();
 		var tasks = new List<Task>
 		{
-			JSRuntime.InvokeVoidAsync("panoramicData.cancelDropzone", "#pdfe-drop-zone-1").AsTask(),
-			JSRuntime.InvokeVoidAsync("panoramicData.cancelDropzone", "#pdfe-drop-zone-2").AsTask()
+			_dropZone1.CancelAsync(),
+			_dropZone2.CancelAsync()
 		};
-		//if (ProgressDialog != null)
-		//{
-		//	tasks.Add(ProgressDialog.HideAsync());
-		//}
 		await Task.WhenAll(tasks).ConfigureAwait(true);
 	}
 
 	public void Dispose()
 	{
-		JSRuntime.InvokeVoidAsync("panoramicData.disposeFileSelect", $"{Id}-file-select");
+		if (_commonModule != null)
+		{
+			_commonModule.DisposeAsync();
+		}
+		//JSRuntime.InvokeVoidAsync("panoramicData.disposeFileSelect", $"{Id}-file-select");
 	}
 }
