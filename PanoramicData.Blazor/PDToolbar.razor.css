@@ -1,0 +1,22 @@
+﻿.pdtoolbar {
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	display: flex;
+}
+
+::deep .pdtoolbaritem {
+	padding: 5px;
+}
+
+::deep .pdtoolbaritem:first-child {
+	padding-left: 0px;
+}
+
+::deep .pdtoolbaritem:last-child {
+	padding-right: 0px;
+}
+
+::deep .pdtoolbaritem.align-right {
+	margin-left: auto;
+}
