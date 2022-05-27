@@ -63,46 +63,6 @@
   font-size: 0.5rem;
 }
 
-.disabled {
-  background-color: #e9ecef;
-  color: silver;
-  filter: grayscale(1);
-  opacity: 1;
-}
-
-.pd-form-header {
-  font-weight: bold;
-  font-size: 1.2rem;
-  width: 100%;
-}
-
-.pd-form-body {
-  width: 100%;
-}
-.pd-form-body .form-control:disabled,
-.pd-form-body .form-control.disabled {
-  background-color: #f9f9f9;
-  color: #999;
-}
-
-.pd-form-footer {
-  width: 100%;
-}
-
-.pd-form-field > .input-group > .form-control.invalid {
-  border-color: #f5c6cb;
-}
-
-.pd-form-field > .input-group > .form-control.invalid:focus {
-  border-color: #f5c6cb;
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-}
-
-.pd-form-help-icon {
-  font-size: 75%;
-  margin-top: 5px;
-}
-
 .pdtextbox-clear-btn {
   position: relative;
   left: -20px;

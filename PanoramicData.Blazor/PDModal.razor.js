@@ -1,4 +1,4 @@
-﻿export function initialize(id, ref, opt) {
+﻿export function initialize(id, opt, ref) {
 	var el = document.getElementById(id);
 	if (el) {
 

@@ -1,8 +1,5 @@
 ﻿window.panoramicData = {
 
-	unloadListener: false,
-	unloadListenerIds: {},
-
 	// -----------------------------------------------------------------------------------
 	//
 	// MOVED To common.js
@@ -321,40 +318,6 @@
 
 	clearFiles: function () {
 		this.files = [];
-	},
-
-	beforeUnloadListener: function (event) {
-		event.preventDefault();
-		return event.returnValue = "Exit and lose changes?";
-	},
-
-	removeUnloadListener: function () {
-		if(this.unloadListener) {
-			removeEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
-			this.unloadListener = false;
-		}
-		this.unloadListenerIds = {};
-	},
-
-	setUnloadListener: function (id, changesMade) {
-
-		// update dictionary
-		if (changesMade) {
-			this.unloadListenerIds[id] = true;
-		} else {
-			delete this.unloadListenerIds[id];
-		}
-
-		// add or remove unload listener
-		listenerCount = Object.keys(this.unloadListenerIds).length;
-		if (listenerCount > 0 && !this.unloadListener) {
-			addEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
-			this.unloadListener = true;
-		}
-		else if (listenerCount == 0 && this.unloadListener) {
-			removeEventListener("beforeunload", panoramicData.beforeUnloadListener, { capture: true });
-			this.unloadListener = false;
-		}
 	},
 
 	getAddress: function () {

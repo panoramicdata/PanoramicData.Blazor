@@ -1,11 +1,13 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDFormBody<TItem> where TItem : class
+public partial class PDFormBody<TItem> : IDisposable where TItem : class
 {
+	private IJSObjectReference? _commonModule;
+
 	/// <summary>
 	/// Injected javascript interop object.
 	/// </summary>
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
 	/// Sets the debounce wait period in milliseconds.
@@ -39,6 +41,14 @@ public partial class PDFormBody<TItem> where TItem : class
 
 	private MarkupString WidthCssMarkup => new MarkupString($".title-box {{ width: {TitleWidth}px }}");
 
+	public void Dispose()
+	{
+		if (_commonModule != null)
+		{
+			_commonModule.DisposeAsync();
+		}
+	}
+
 	private Dictionary<string, object> GetNumericAttributes(FormField<TItem> field)
 	{
 		var dict = new Dictionary<string, object>();
@@ -53,37 +63,9 @@ public partial class PDFormBody<TItem> where TItem : class
 		return dict;
 	}
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
-		//if (Form != null && Table != null)
-		//{
-		//	foreach (var column in Table.Columns)
-		//	{
-		//		Form.Fields.Add(new FormField<TItem>
-		//		{
-		//			AutoComplete = column.AutoComplete,
-		//			Id = column.Id,
-		//			Field = column.Field,
-		//			ReadOnlyInCreate = column.ReadOnlyInCreate,
-		//			ReadOnlyInEdit = column.ReadOnlyInEdit,
-		//			ShowInCreate = column.ShowInCreate,
-		//			ShowInDelete = column.ShowInDelete,
-		//			ShowInEdit = column.ShowInEdit,
-		//			EditTemplate = column.EditTemplate,
-		//			Helper = column.Helper,
-		//			MaxLength = column.MaxLength,
-		//			Title = column.Title,
-		//			Options = column.Options,
-		//			IsPassword = column.IsPassword,
-		//			IsSensitive = column.IsSensitive,
-		//			IsTextArea = column.IsTextArea,
-		//			TextAreaRows = column.TextAreaRows,
-		//			ShowValidationResult = column.ShowValidationResult,
-		//			Description = column.Description,
-		//			HelpUrl = column.HelpUrl
-		//		});
-		//	}
-		//}
+		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 	}
 
 	protected override void OnParametersSet()
@@ -190,9 +172,9 @@ public partial class PDFormBody<TItem> where TItem : class
 
 	private void OnHelpUrlClick(FormField<TItem> field)
 	{
-		if (JSRuntime != null)
+		if (_commonModule != null)
 		{
-			JSRuntime.InvokeVoidAsync("panoramicData.openUrl", field.HelpUrl, "pd-help-page");
+			_commonModule.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
 		}
 	}
 
