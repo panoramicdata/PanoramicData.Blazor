@@ -147,55 +147,6 @@ svg .rotate {
     transform: rotate(360deg);
   }
 }
-.pdtree {
-  -webkit-user-select: none;
-  /* Chrome/Safari */
-  -moz-user-select: none;
-  /* Firefox */
-  -ms-user-select: none;
-  /* IE10+ */
-  height: 100%;
-  width: 100%;
-}
-
-.pdtree_lines {
-  border-left: 1px dashed grey;
-  padding-left: 0px !important;
-}
-
-.pdtreenode {
-  padding-left: 1rem;
-}
-.pdtreenode .selected {
-  background-color: #007bff;
-}
-.pdtreenode .pdtreenode_header {
-  display: flex;
-  align-items: baseline;
-  white-space: nowrap;
-}
-.pdtreenode .pdtreenode_header .pdtreenode_content {
-  width: 100%;
-  padding-left: 3px;
-  margin-left: 3px;
-}
-.pdtreenode .pdtreenode_child_content {
-  margin-left: 6px;
-  padding-left: 1px;
-}
-
-.pdtree > .pdtreenode {
-  padding-left: 0rem;
-}
-
-.pdtreenode_edit {
-  width: 100%;
-}
-
-.pdtree:focus {
-  outline: none;
-}
-
 .cursor-pointer {
   cursor: pointer;
 }

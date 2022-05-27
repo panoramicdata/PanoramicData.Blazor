@@ -15,7 +15,7 @@ public partial class PDTreePage2
 			5 => "five",
 			_ => "six",
 		};
-		return $"fas fw fa-dice-{levelText}";
+		return $"fas fa-fw fa-dice-{levelText}";
 	}
 
 	private int ReverseSort(FileExplorerItem a, FileExplorerItem b)

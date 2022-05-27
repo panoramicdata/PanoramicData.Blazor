@@ -57,12 +57,12 @@
 		<NodeTemplate>
 			@if (context?.Data?.EntryType == FileExplorerItemType.File)
 			{
-				<i class="far fa-file"></i>
+				<i class="far fa-fw fa-file"></i>
 				<b>@context?.Data?.Path</b>
 			}
 			else
 			{
-				<i class="far fa-folder"></i>
+				<i class="far fa-fw fa-folder"></i>
 				<span>@context?.Data?.Name</span>
 			}
 		</NodeTemplate>

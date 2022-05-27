@@ -3,6 +3,7 @@
 public partial class PDTree<TItem> where TItem : class
 {
 	private const string _idPrefix = "pd-tree-";
+	private IJSObjectReference? _commonModule;
 	private static int _idSequence;
 	private int _clickCount;
 	private Timer? _clickTimer;
@@ -10,7 +11,7 @@ public partial class PDTree<TItem> where TItem : class
 
 	#region Injected Parameters
 
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
@@ -439,9 +440,9 @@ public partial class PDTree<TItem> where TItem : class
 					SelectedNode.EditText = afterEditArgs.NewValue; // application might of altered
 					SelectedNode.CommitEdit();
 					SelectedNode?.ParentNode?.Nodes?.Sort(NodeSort); // re-sort parent
-					if (JSRuntime != null)
+					if (_commonModule != null)
 					{
-						await JSRuntime.InvokeVoidAsync("panoramicData.focus", Id).ConfigureAwait(true);
+						await _commonModule.InvokeVoidAsync("focus", Id).ConfigureAwait(true);
 					}
 				}
 			}
@@ -567,9 +568,10 @@ public partial class PDTree<TItem> where TItem : class
 		}
 	}
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
 		Id = $"{_idPrefix}{++_idSequence}";
+		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 	}
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -606,7 +608,10 @@ public partial class PDTree<TItem> where TItem : class
 		// end any current edit
 		await CommitEdit().ConfigureAwait(true);
 		// re-focus the tree
-		JSRuntime?.InvokeVoidAsync("focus", Id);
+		if (_commonModule != null)
+		{
+			await _commonModule.InvokeVoidAsync("focus", Id).ConfigureAwait(true);
+		}
 	}
 
 	private async Task OnKeyDown(KeyboardEventArgs args)
