@@ -1,4 +1,6 @@
-﻿class Zoombar {
+﻿var zoombars = {};
+
+class Zoombar {
 
 	data = [];
 	options = {
@@ -47,7 +49,7 @@
 		//console.log(...arguments);
 	}
 
-	onMouseDown (ev) {
+	onMouseDown(ev) {
 		if (!this.dragging) {
 			// mouse down on handle?
 			if (this.value.zoom < 100 && this.handleBounds.contains(ev.offsetX, ev.offsetY)) {
@@ -79,7 +81,7 @@
 		this.onMouseUp(ev);
 	}
 
-	onMouseUp (ev) {
+	onMouseUp(ev) {
 		if (this.dragging) {
 			this.dragging = false;
 			var dx = ev.offsetX - this.dragOriginX;
@@ -185,4 +187,21 @@ class Rect {
 	}
 }
 
-export { Zoombar };
+export function init (id, value, options, ref) {
+	zoombars[id] = new Zoombar(id, value, options, ref);
+}
+
+export function setValue (id, v) {
+	var zb = zoombars[id];
+	if (zb) {
+		return zb.setValue(v);
+	}
+	return 0;
+}
+
+export function dispose (id) {
+	var zb = zoombars[id];
+	if (zb) {
+		zb.term();
+	}
+}

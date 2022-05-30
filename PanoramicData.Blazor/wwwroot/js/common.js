@@ -1,4 +1,4 @@
-export function addClass (id, cls) {
+export function addClass(id, cls) {
 	var el = document.getElementById(id);
 	if (el)
 		el.classList.add(cls);
@@ -74,11 +74,31 @@ export function getFocusedElementId() {
 	return document.activeElement.id;
 }
 
+export function getHeight(el) {
+	var rect = el.getBoundingClientRect();
+	return rect.height || 0;
+}
+
 export function getValue(id) {
 	var node = document.getElementById(id);
 	if (node)
 		return node.value;
 	return null;
+}
+
+export function getWidth(el) {
+	var rect = el.getBoundingClientRect();
+	return rect.width || 0;
+}
+
+export function getX(el) {
+	var rect = el.getBoundingClientRect();
+	return rect.left || 0;
+}
+
+export function getY(el) {
+	var rect = el.getBoundingClientRect();
+	return rect.top || 0;
 }
 
 export function isTouchDevice () {
@@ -123,6 +143,10 @@ export function selectText(id, start, end) {
 		node.selectionEnd = end;
 		node.focus();
 	}
+}
+
+export function setPointerCapture(id, el) {
+	el.setPointerCapture(id);
 }
 
 export function setValue (id, value) {

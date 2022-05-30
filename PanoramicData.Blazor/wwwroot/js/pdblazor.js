@@ -6,107 +6,132 @@
 	//
 	// -----------------------------------------------------------------------------------
 
-	openUrl: function (url, target) {
-		window.open(url, target);
-	},
+	//openUrl: function (url, target) {
+	//	window.open(url, target);
+	//},
 
-	debounceInput: function (id, wait, objRef) {
-		var el = document.getElementById(id);
-		if (el) {
-			var debouncedFunction = panoramicData.debounce(function (ev) {
-				objRef.invokeMethodAsync('OnDebouncedInput', ev.srcElement.value)
-			}, wait);
-			el.addEventListener('input', debouncedFunction);
-		}
-	},
+	//debounceInput: function (id, wait, objRef) {
+	//	var el = document.getElementById(id);
+	//	if (el) {
+	//		var debouncedFunction = panoramicData.debounce(function (ev) {
+	//			objRef.invokeMethodAsync('OnDebouncedInput', ev.srcElement.value)
+	//		}, wait);
+	//		el.addEventListener('input', debouncedFunction);
+	//	}
+	//},
 
-	addClass: function (id, cls) {
-		var el = document.getElementById(id);
-		if (el)
-			el.classList.add(cls);
-	},
+	//addClass: function (id, cls) {
+	//	var el = document.getElementById(id);
+	//	if (el)
+	//		el.classList.add(cls);
+	//},
 
-	removeClass: function (id, cls) {
-		var el = document.getElementById(id);
-		if (el)
-			el.classList.remove(cls);
-	},
+	//removeClass: function (id, cls) {
+	//	var el = document.getElementById(id);
+	//	if (el)
+	//		el.classList.remove(cls);
+	//},
 
-	focus: function (id) {
-		var node = document.getElementById(id);
-		if (node && node.focus) {
-			node.focus();
-			return true;
-		}
-		return false;
-	},
+	//focus: function (id) {
+	//	var node = document.getElementById(id);
+	//	if (node && node.focus) {
+	//		node.focus();
+	//		return true;
+	//	}
+	//	return false;
+	//},
 
-	debounce: function (func, wait) {
-		let timeout;
-		return function executedFunction(...args) {
-			const later = () => {
-				timeout = null;
-				func(...args);
-			};
-			clearTimeout(timeout);
-			timeout = setTimeout(later, wait);
-		};
-	},
+	//debounce: function (func, wait) {
+	//	let timeout;
+	//	return function executedFunction(...args) {
+	//		const later = () => {
+	//			timeout = null;
+	//			func(...args);
+	//		};
+	//		clearTimeout(timeout);
+	//		timeout = setTimeout(later, wait);
+	//	};
+	//},
 
-	click: function (id) {
-		var el = document.getElementById(id);
-		if (el && el.click) {
-			el.click();
-		}
-	},
+	//click: function (id) {
+	//	var el = document.getElementById(id);
+	//	if (el && el.click) {
+	//		el.click();
+	//	}
+	//},
 
-	isTouchDevice: function () {
-		return (('ontouchstart' in window) ||
-			(navigator.maxTouchPoints > 0) ||
-			(navigator.msMaxTouchPoints > 0));
-	},
+	//isTouchDevice: function () {
+	//	return (('ontouchstart' in window) ||
+	//		(navigator.maxTouchPoints > 0) ||
+	//		(navigator.msMaxTouchPoints > 0));
+	//},
 
-	scrollIntoView: function (id, alignTop) {
-		var el = document.getElementById(id);
-		if (el)
-			el.scrollIntoView(alignTop);
-	},
+	//scrollIntoView: function (id, alignTop) {
+	//	var el = document.getElementById(id);
+	//	if (el)
+	//		el.scrollIntoView(alignTop);
+	//},
 
-	selectText: function (id, start, end) {
-		var node = document.getElementById(id);
-		if (!node) return;
-		if (!start) start = 0;
-		if (!end) end = node.value.length;
-		if (node.createTextRange) {
-			var selRange = node.createTextRange();
-			selRange.collapse(true);
-			selRange.moveStart('character', start);
-			selRange.moveEnd('character', end);
-			selRange.select();
-			node.focus();
-		} else if (node.setSelectionRange) {
-			node.focus();
-			node.setSelectionRange(start, end);
-		} else if (typeof node.selectionStart != 'undefined') {
-			node.selectionStart = start;
-			node.selectionEnd = end;
-			node.focus();
-		}
-	},
+	//selectText: function (id, start, end) {
+	//	var node = document.getElementById(id);
+	//	if (!node) return;
+	//	if (!start) start = 0;
+	//	if (!end) end = node.value.length;
+	//	if (node.createTextRange) {
+	//		var selRange = node.createTextRange();
+	//		selRange.collapse(true);
+	//		selRange.moveStart('character', start);
+	//		selRange.moveEnd('character', end);
+	//		selRange.select();
+	//		node.focus();
+	//	} else if (node.setSelectionRange) {
+	//		node.focus();
+	//		node.setSelectionRange(start, end);
+	//	} else if (typeof node.selectionStart != 'undefined') {
+	//		node.selectionStart = start;
+	//		node.selectionEnd = end;
+	//		node.focus();
+	//	}
+	//},
 
 
-	getValue: function (id) {
-		var node = document.getElementById(id);
-		if (node)
-			return node.value;
-		return null;
-	},
+	//getValue: function (id) {
+	//	var node = document.getElementById(id);
+	//	if (node)
+	//		return node.value;
+	//	return null;
+	//},
 
-	setValue: function (id, value) {
-		var node = document.getElementById(id);
-		if (node)
-			node.value = value;
-	},
+	//setValue: function (id, value) {
+	//	var node = document.getElementById(id);
+	//	if (node)
+	//		node.value = value;
+	//},
+
+
+	//getHeight: function (el) {
+	//	var rect = el.getBoundingClientRect();
+	//	return rect.height || 0;
+	//},
+
+	//getWidth: function (el) {
+	//	var rect = el.getBoundingClientRect();
+	//	return rect.width || 0;
+	//},
+
+	//getX: function (el) {
+	//	var rect = el.getBoundingClientRect();
+	//	return rect.left || 0;
+	//},
+
+	//getY: function (el) {
+	//	var rect = el.getBoundingClientRect();
+	//	return rect.top || 0;
+	//},
+
+	//setPointerCapture: function (id, el) {
+	//	el.setPointerCapture(id);
+	//},
 
 	// -----------------------------------------------------------------------------------
 
@@ -327,85 +352,6 @@
 
 	updateAddress: function (url) {
 		window.history.replaceState(null, document.title, url);
-	},
-
-	getHeight: function (el) {
-		var rect = el.getBoundingClientRect();
-		return rect.height || 0;
-	},
-
-	getWidth: function (el) {
-		var rect = el.getBoundingClientRect();
-		return rect.width || 0;
-	},
-
-	getX: function (el) {
-		var rect = el.getBoundingClientRect();
-		return rect.left || 0;
-	},
-
-	getY: function (el) {
-		var rect = el.getBoundingClientRect();
-		return rect.top || 0;
-	},
-
-	setPointerCapture: function (id, el) {
-		el.setPointerCapture(id);
-	},
-
-	zoombar: {
-
-		zoombars: {
-		},
-
-		init: function (id, value, options, ref) {
-			import('./zoombar.js')
-				.then((module) => {
-					this.zoombars[id] = new module.Zoombar(id, value, options, ref);
-				});
-		},
-
-		setValue: function (id, v) {
-			var zb = this.zoombars[id];
-			if (zb) {
-				return zb.setValue(v);
-			}
-			return 0;
-		},
-
-		term: function (id) {
-			var zb = this.zoombars[id];
-			if (zb) {
-				zb.term();
-			}
-		}
-	},
-
-	timeline: {
-
-		timelines: {
-		},
-
-		init: function (id, options, data, ref) {
-			import('./timeline.js')
-				.then((module) => {
-					this.timelines[id] = new module.Timeline(id, options, data, ref);
-				});
-		},
-
-		setData: function (id, data) {
-			var tl = this.timelines[id];
-			if (tl) {
-				tl.setData(data);
-			}
-		},
-
-		term: function (id) {
-			var tl = this.timelines[id];
-			if (tl) {
-				tl.term();
-			}
-		}
 	},
 
 	canvas: {

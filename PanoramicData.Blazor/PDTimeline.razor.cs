@@ -30,6 +30,7 @@ public partial class PDTimeline : IDisposable
 	private double _panHandleWidth;
 	private double _panHandleX;
 
+	private IJSObjectReference? _module;
 	private ElementReference _svgPlotElement;
 	private ElementReference _svgPanElement;
 	private DotNetObjectReference<PDTimeline>? _objRef;
@@ -38,9 +39,10 @@ public partial class PDTimeline : IDisposable
 	private bool _loading;
 	private DateTime _lastMinDateTime;
 	private DateTime? _lastMaxDateTime;
+	private IJSObjectReference? _commonModule;
 	private readonly Dictionary<int, DataPoint> _dataPoints = new Dictionary<int, DataPoint>();
 
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	[Parameter]
 	public DateTime DisableAfter { get; set; }
@@ -157,9 +159,10 @@ public partial class PDTimeline : IDisposable
 
 	public void Dispose()
 	{
-		if (JSRuntime != null)
+		if (_module != null)
 		{
-			JSRuntime.InvokeVoidAsync("panoramicData.timeline.term", Id);
+			_module.InvokeVoidAsync("dispose", Id);
+			_module.DisposeAsync();
 		}
 	}
 
@@ -263,12 +266,17 @@ public partial class PDTimeline : IDisposable
 		if (firstRender)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			if (JSRuntime != null)
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTimeline.razor.js").ConfigureAwait(true);
+			if (_module != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.timeline.init", Id, Options, _objRef).ConfigureAwait(true);
-				_canvasHeight = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getHeight", _svgPlotElement).ConfigureAwait(true));
-				_canvasWidth = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true));
-				_canvasX = (int)(await JSRuntime.InvokeAsync<double>("panoramicData.getX", _svgPlotElement).ConfigureAwait(true));
+				await _module.InvokeVoidAsync("initialize", Id, Options, _objRef).ConfigureAwait(true);
+			}
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			if (_commonModule != null)
+			{
+				_canvasHeight = (int)(await _commonModule.InvokeAsync<double>("getHeight", _svgPlotElement).ConfigureAwait(true));
+				_canvasWidth = (int)(await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true));
+				_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true));
 			}
 			if (Options.General.AutoRefresh)
 			{
@@ -294,9 +302,9 @@ public partial class PDTimeline : IDisposable
 
 			_isChartDragging = true;
 			_chartDragOrigin = args.ClientX;
-			if (JSRuntime != null)
+			if (_commonModule != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
 			}
 			await SetSelectionFromDrag(index, index).ConfigureAwait(true);
 		}
@@ -353,9 +361,9 @@ public partial class PDTimeline : IDisposable
 		if (IsEnabled && !_isPanDragging)
 		{
 			_panDragOrigin = args.ClientX;
-			if (JSRuntime != null)
+			if (_commonModule != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgPanElement).ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgPanElement).ConfigureAwait(true);
 			}
 		}
 	}
@@ -432,9 +440,9 @@ public partial class PDTimeline : IDisposable
 	[JSInvokable("PanoramicData.Blazor.PDTimeline.OnResize")]
 	public async Task OnResize()
 	{
-		if (JSRuntime != null)
+		if (_commonModule != null)
 		{
-			_canvasWidth = await JSRuntime.InvokeAsync<int>("panoramicData.getWidth", _svgPlotElement).ConfigureAwait(true);
+			_canvasWidth = await _commonModule.InvokeAsync<int>("getWidth", _svgPlotElement).ConfigureAwait(true);
 		}
 		await SetScale(Scale, true).ConfigureAwait(true);
 		await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
@@ -459,9 +467,9 @@ public partial class PDTimeline : IDisposable
 			_lastSelectionStartIndex = _selectionStartIndex;
 			_lastSelectionEndIndex = _selectionEndIndex;
 			_chartDragOrigin = args.ClientX;
-			if (JSRuntime != null)
+			if (_commonModule != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgSelectionHandleEnd).ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgSelectionHandleEnd).ConfigureAwait(true);
 			}
 		}
 	}
@@ -499,9 +507,9 @@ public partial class PDTimeline : IDisposable
 			_lastSelectionStartIndex = _selectionStartIndex;
 			_lastSelectionEndIndex = _selectionEndIndex;
 			_chartDragOrigin = args.ClientX;
-			if (JSRuntime != null)
+			if (_commonModule != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.setPointerCapture", args.PointerId, _svgSelectionHandleStart).ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgSelectionHandleStart).ConfigureAwait(true);
 			}
 		}
 	}

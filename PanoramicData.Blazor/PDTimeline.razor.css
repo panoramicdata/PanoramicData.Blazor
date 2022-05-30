@@ -17,25 +17,6 @@
 	filter: grayscale(1);
 }
 
-.pd-timeline-toolbar {
-	align-items: center;
-	display: flex;
-	font-size: 0.9rem;
-	justify-content: flex-end;
-	user-select: none;
-	width: 100%;
-
-	.scale-label {
-		min-width: 60px;
-		text-align: center;
-	}
-}
-
-.range-bar, .selection-bar {
-	border-left: 1px solid silver;
-	padding-left: 0.5rem;
-}
-
 .tl-ind-l, .tl-ind-r {
 	cursor: pointer;
 }
@@ -60,9 +41,10 @@
 	font-size: 10px;
 	height: 20px;
 	width: 100%;
-	text {
-		user-select: none;
-	}
+}
+
+.tl-x-axis text {
+	user-select: none;
 }
 
 .tl-x-axis .minor-tick {

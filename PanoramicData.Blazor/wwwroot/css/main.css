@@ -1,4 +1,8 @@
-﻿.fa-hidden {
+﻿.cursor-pointer {
+  cursor: pointer;
+}
+
+.fa-hidden {
   color: transparent;
 }
 
@@ -61,92 +65,4 @@
 
 .text-tiny {
   font-size: 0.5rem;
-}
-
-.pd-timeline {
-  border: 1px solid silver;
-  display: inline-grid;
-  font-family: "Courier, inherit";
-  overflow-x: auto;
-  user-select: none;
-  width: 100%;
-}
-
-.pd-timeline.disabled {
-  background-color: #d3d3d3;
-  filter: grayscale(1);
-}
-
-.pd-timeline svg.disabled {
-  background-color: #d3d3d3;
-  filter: grayscale(1);
-}
-
-.pd-timeline-toolbar {
-  align-items: center;
-  display: flex;
-  font-size: 0.9rem;
-  justify-content: flex-end;
-  user-select: none;
-  width: 100%;
-}
-.pd-timeline-toolbar .scale-label {
-  min-width: 60px;
-  text-align: center;
-}
-
-.range-bar, .selection-bar {
-  border-left: 1px solid silver;
-  padding-left: 0.5rem;
-}
-
-.tl-ind-l, .tl-ind-r {
-  cursor: pointer;
-}
-
-.tl-pan {
-  border-top: 1px solid silver;
-  cursor: ew-resize;
-  height: 20px;
-  width: 100%;
-}
-
-.tl-plot-area {
-  height: 150px;
-  width: 100%;
-}
-
-.tl-selection-handle {
-  cursor: col-resize;
-}
-
-.tl-x-axis {
-  font-size: 10px;
-  height: 20px;
-  width: 100%;
-}
-.tl-x-axis text {
-  user-select: none;
-}
-
-.tl-x-axis .minor-tick {
-  font-size: 8px;
-}
-
-svg .rotate {
-  animation: rotate 1.5s linear infinite;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-.cursor-pointer {
-  cursor: pointer;
 }

@@ -30,9 +30,9 @@ public partial class PDFileExplorerPage
 		}
 	}
 
-	private async Task OnFolderChanged(FileExplorerItem folder)
+	private void OnFolderChanged(FileExplorerItem folder)
 	{
-		await JSRuntime.UpdateUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } }).ConfigureAwait(true);
+		NavigationManager.SetUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } });
 	}
 
 	private async Task OnReady()

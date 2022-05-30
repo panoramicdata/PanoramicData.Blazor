@@ -16,21 +16,21 @@
 	<div>
 		<div class="toolbar">
 
-			 <div class="form-check mr-2">
+			 <div class="form-check me-2">
 				<input type="checkbox" class="form-check-input" id="enabledCheck" checked="_isEnabled"
 				@oninput="(a) => _isEnabled = Convert.ToBoolean(a.Value)">
 				<label class="form-check-label" for="enabledCheck">Enabled</label>
 			</div>
 
-			<EditForm class="form-inline" Model="_model">
+			<EditForm class="d-flex" Model="_model">
 
-				<div class="mr-2">
+				<div class="me-2">
 					<span>Disable Before</span>
 					<InputDate class="form-control form-control-sm"
 							   @bind-Value="_model.DisableBefore" />
 				</div>
 
-				<div class="mr-2">
+				<div class="me-2">
 					<span>Disable After</span>
 					<InputDate class="form-control form-control-sm"
 							   @bind-Value="_model.DisableAfter" />
@@ -39,17 +39,17 @@
 			</EditForm>
 
 			<PDButton Click="OnSetData"
-				CssClass="btn-secondary ml-2"
+				CssClass="btn-secondary ms-2"
 				Size="ButtonSizes.Small"
 				Text="Set Data" />
 
 			<PDButton Click="OnClearData"
-				CssClass="btn-secondary ml-2"
+				CssClass="btn-secondary ms-2"
 				Size="ButtonSizes.Small"
 				Text="Clear Data" />
 
 			<PDButton Click="OnZoomToEnd"
-				CssClass="btn-secondary ml-2"
+				CssClass="btn-secondary ms-2"
 				Size="ButtonSizes.Small"
 				Text="Zoom End" />
 
@@ -58,7 +58,7 @@
 				Size="ButtonSizes.Small"
 				Text="Zoom 24H" />
 *@
-			 <div class="form-check ml-2">
+			 <div class="form-check ms-2">
 				<input type="checkbox" class="form-check-input" id="moreDataCheck" checked="@_moreDataAvailable"
 				@oninput="(a) => _moreDataAvailable = Convert.ToBoolean(a.Value)">
 				<label class="form-check-label" for="moreDataCheck">More Data</label>
