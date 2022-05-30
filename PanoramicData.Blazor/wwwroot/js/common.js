@@ -11,6 +11,10 @@ export function click(id) {
 	}
 }
 
+export function confirm (msg) {
+	return window.confirm(msg);
+}
+
 export function debounce (func, wait) {
 	let timeout;
 	return function executedFunction(...args) {

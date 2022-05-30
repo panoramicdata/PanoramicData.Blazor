@@ -59,10 +59,10 @@ public partial class PDNavLink : IDisposable
 	private async Task OnClick(MouseEventArgs args)
 	{
 		// if ctrl-key held down then open in new tab therefore no need to prompt
-		if (args.CtrlKey)
+		if (args.CtrlKey && _commonModule != null)
 		{
 			// use JS to perform navigation in new tab
-			await JSRuntime.InvokeVoidAsync("panoramicData.openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
+			await _commonModule.InvokeVoidAsync("openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
 		}
 		else if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? String.Empty).ConfigureAwait(true))
 		{

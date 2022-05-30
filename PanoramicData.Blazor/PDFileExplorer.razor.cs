@@ -1860,6 +1860,5 @@ public partial class PDFileExplorer : IDisposable
 		{
 			_commonModule.DisposeAsync();
 		}
-		//JSRuntime.InvokeVoidAsync("panoramicData.disposeFileSelect", $"{Id}-file-select");
 	}
 }

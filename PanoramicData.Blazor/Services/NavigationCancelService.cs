@@ -3,10 +3,12 @@
 public class NavigationCancelService : INavigationCancelService
 {
 	private readonly IJSRuntime _jsRuntime;
+	private ValueTask<IJSObjectReference>? _loadCommonJsTask;
 
 	public NavigationCancelService(IJSRuntime jsRuntime)
 	{
 		_jsRuntime = jsRuntime;
+		_loadCommonJsTask = jsRuntime.InvokeAsync<IJSObjectReference>("import", "/_content/PanoramicData.Blazor/js/common.js");
 	}
 
 	/// <summary>
@@ -24,16 +26,14 @@ public class NavigationCancelService : INavigationCancelService
 		// ask listening code if operation should be canceled
 		var args = new BeforeNavigateEventArgs { Target = target };
 		BeforeNavigate?.Invoke(this, args);
-		if (args.Cancel)
+		if (args.Cancel && _loadCommonJsTask != null)
 		{
 			// allow user option to override and perform operation regardless
-			var proceed = await _jsRuntime.InvokeAsync<bool>("panoramicData.confirm", "Changes have been made, continue and lose those changes?").ConfigureAwait(true);
-			if (proceed)
+			var commonModule = await _loadCommonJsTask.GetValueOrDefault().ConfigureAwait(true);
+			if (commonModule != null)
 			{
-				// remove all unload listeners
-				await _jsRuntime.InvokeVoidAsync("panoramicData.removeUnloadListener").ConfigureAwait(true);
+				return await commonModule.InvokeAsync<bool>("confirm", "Changes have been made, continue and lose those changes?").ConfigureAwait(true);
 			}
-			return proceed;
 		}
 		return true;
 	}

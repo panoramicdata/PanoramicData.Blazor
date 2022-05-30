@@ -5,9 +5,10 @@ public partial class PDZoomBar : IDisposable
 	private static int _seq;
 	private PDCanvas _canvas = null!;
 	private DotNetObjectReference<PDZoomBar>? _objRef;
+	private IJSObjectReference? _module;
 
 	[Inject]
-	public IJSRuntime? JSRuntime { get; set; }
+	public IJSRuntime JSRuntime { get; set; } = null!;
 
 	[Parameter]
 	public string Id { get; set; } = $"pd-zoombar-{++_seq}";
@@ -43,7 +44,11 @@ public partial class PDZoomBar : IDisposable
 		if (firstRender)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			await JSRuntime!.InvokeVoidAsync("panoramicData.zoombar.init", CanvasId, Value, Options, _objRef).ConfigureAwait(true);
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDZoomBar.razor.js");
+			if (_module != null)
+			{
+				await _module.InvokeVoidAsync("initialize", CanvasId, Value, Options, _objRef).ConfigureAwait(true);
+			}
 		}
 	}
 
@@ -53,9 +58,9 @@ public partial class PDZoomBar : IDisposable
 		if (idx > 0)
 		{
 			Value.Zoom = Options.ZoomSteps[idx - 1];
-			if (JSRuntime != null)
+			if (_module != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.zoombar.setValue", CanvasId, Value).ConfigureAwait(true);
+				await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
 			}
 			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
@@ -67,9 +72,9 @@ public partial class PDZoomBar : IDisposable
 		if (idx < Options.ZoomSteps.Length - 1)
 		{
 			Value.Zoom = Options.ZoomSteps[idx + 1];
-			if (JSRuntime != null)
+			if (_module != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.zoombar.setValue", CanvasId, Value).ConfigureAwait(true);
+				await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
 			}
 			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
@@ -84,9 +89,11 @@ public partial class PDZoomBar : IDisposable
 
 	public void Dispose()
 	{
-		if (JSRuntime != null)
+		if (_module != null)
 		{
-			JSRuntime.InvokeVoidAsync("panoramicData.zoombar.term", CanvasId);
+			_module.InvokeVoidAsync("dispose", CanvasId);
+			_module.DisposeAsync();
 		}
+		_objRef?.Dispose();
 	}
 }

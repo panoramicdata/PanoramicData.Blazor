@@ -91,13 +91,4 @@ public partial class PDFormPage2
 		Form.SetMode(FormModes.Create);
 		await Modal.ShowAsync().ConfigureAwait(true);
 	}
-
-	//private async Task HideDialogAsync()
-	//{
-	//	Form.ResetChanges();
-	//	if (JSRuntime != null)
-	//	{
-	//		await JSRuntime.InvokeVoidAsync("panoramicData.hideBsDialog", "#exampleModal").ConfigureAwait(true);
-	//	}
-	//}
 }

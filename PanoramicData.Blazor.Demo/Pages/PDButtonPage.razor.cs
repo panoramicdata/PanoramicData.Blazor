@@ -1,17 +1,24 @@
 ﻿namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDButtonPage
+public partial class PDButtonPage : IDisposable
 {
 	private readonly ShortcutKey _shortcut1 = ShortcutKey.Create("Shift-Ctrl-Digit1");
 	private readonly ShortcutKey _shortcut2 = ShortcutKey.Create("Shift-Ctrl-Digit2");
 	private readonly ShortcutKey _shortcut3 = ShortcutKey.Create("Shift-Ctrl-Digit3");
+	private IJSObjectReference? _commonModule;
+
 	private int Counter { get; set; }
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
+
+	protected override async Task OnInitializedAsync()
+	{
+		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+	}
 
 	private void OnButton1Click(MouseEventArgs args)
 	{
@@ -27,15 +34,24 @@ public partial class PDButtonPage
 		// code will use the NavigationManager to navigate and therefore no trip to the server occurs
 		// unless the Ctrl key is held in which case a new tab will open and a trip to the server is
 		// required.
-		if (args.CtrlKey && JSRuntime != null)
+		if (args.CtrlKey && _commonModule != null)
 		{
 			// open target in new tab / browser
-			await JSRuntime.InvokeVoidAsync("panoramicData.openUrl", "/", "_blank").ConfigureAwait(true);
+			await _commonModule.InvokeVoidAsync("openUrl", "/", "_blank").ConfigureAwait(true);
 		}
 		else
 		{
 			// simply navigate to page
 			NavigationManager.NavigateTo("/");
+		}
+	}
+
+	public void Dispose()
+	{
+		if (_commonModule != null)
+		{
+			_commonModule.DisposeAsync();
+			_commonModule = null;
 		}
 	}
 }

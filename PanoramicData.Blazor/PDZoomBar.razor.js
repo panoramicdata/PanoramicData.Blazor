@@ -187,7 +187,7 @@ class Rect {
 	}
 }
 
-export function init (id, value, options, ref) {
+export function initialize (id, value, options, ref) {
 	zoombars[id] = new Zoombar(id, value, options, ref);
 }
 
