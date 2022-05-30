@@ -1,11 +1,15 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDModal
+public partial class PDModal : IDisposable
 {
 	private static int _sequence;
 	private TaskCompletionSource<string>? _userChoice;
+	private IJSObjectReference? _module;
+	private IJSObjectReference? _modalObj;
+	private IJSObjectReference? _commonModule;
+	private DotNetObjectReference<PDModal>? _dotNetReference;
 
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
 	/// Sets additional CSS classes.
@@ -22,6 +26,8 @@ public partial class PDModal
 	/// </summary>
 	[Parameter] public RenderFragment? Header { get; set; }
 
+	[Parameter] public EventCallback Hidden { get; set; }
+
 	/// <summary>
 	/// Sets the title shown in the modal dialog header.
 	/// </summary>
@@ -31,6 +37,8 @@ public partial class PDModal
 	/// Sets the content displayed in the modal dialog body.
 	/// </summary>
 	[Parameter] public RenderFragment? ChildContent { get; set; }
+
+	[Parameter] public EventCallback Shown { get; set; }
 
 	/// <summary>
 	/// Sets the size of the modal dialog.
@@ -78,24 +86,73 @@ public partial class PDModal
 	[Parameter] public string Id { get; set; } = $"pd-modal-{++_sequence}";
 
 	/// <summary>
-	/// Displays the Modal Dialog.
-	/// </summary>
-	public async Task ShowAsync()
-	{
-		if (JSRuntime != null)
-		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", $"#{Id}", HideOnBackgroundClick, CloseOnEscape).ConfigureAwait(true);
-		}
-	}
-
-	/// <summary>
 	/// Hides the Modal Dialog.
 	/// </summary>
 	public async Task HideAsync()
 	{
-		if (JSRuntime != null)
+		if (_modalObj != null)
 		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.hideBsDialog", $"#{Id}").ConfigureAwait(true);
+			await _modalObj.InvokeVoidAsync("hide").ConfigureAwait(true);
+		}
+	}
+
+	public async Task OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
+	{
+		// are we waiting for using response?
+		if (_userChoice != null)
+		{
+			_userChoice.SetResult(args.Key);
+		}
+		else
+		{
+			// forward to calling app
+			await ButtonClick.InvokeAsync(args.Key).ConfigureAwait(true);
+		}
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_dotNetReference = DotNetObjectReference.Create(this);
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDModal.razor.js").ConfigureAwait(true);
+			if (_module != null)
+			{
+				_modalObj = await _module.InvokeAsync<IJSObjectReference>("initialize", Id, new
+				{
+					Backdrop = HideOnBackgroundClick ? (object)true : "static",
+					Focus = true,
+					Keyboard = CloseOnEscape
+				}, _dotNetReference).ConfigureAwait(true);
+			}
+		}
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+	}
+
+	[JSInvokable]
+	public async Task OnModalShown()
+	{
+		await Shown.InvokeAsync(null).ConfigureAwait(true);
+	}
+
+	[JSInvokable]
+	public async Task OnModalHidden()
+	{
+		await Hidden.InvokeAsync(null).ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Displays the Modal Dialog.
+	/// </summary>
+	public async Task ShowAsync()
+	{
+		if (_modalObj != null)
+		{
+			await _modalObj.InvokeVoidAsync("show").ConfigureAwait(true);
 		}
 	}
 
@@ -118,9 +175,9 @@ public partial class PDModal
 		});
 		if (btn != null)
 		{
-			if (JSRuntime != null)
+			if (_commonModule != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.focus", $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("focus", $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
 			}
 		}
 
@@ -131,17 +188,19 @@ public partial class PDModal
 		return result;
 	}
 
-	public async Task OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
+	public void Dispose()
 	{
-		// are we waiting for using response?
-		if (_userChoice != null)
+		if (_commonModule != null)
 		{
-			_userChoice.SetResult(args.Key);
+			_commonModule.DisposeAsync();
 		}
-		else
+		if (_module != null)
 		{
-			// forward to calling app
-			await ButtonClick.InvokeAsync(args.Key).ConfigureAwait(true);
+			_module.DisposeAsync();
+		}
+		if (_modalObj != null)
+		{
+			_modalObj.DisposeAsync();
 		}
 	}
 

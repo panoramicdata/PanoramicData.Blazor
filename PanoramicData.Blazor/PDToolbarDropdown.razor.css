@@ -1,0 +1,23 @@
+﻿::deep .pdtoolbarbutton {
+	white-space: nowrap;
+}
+.pddropdownmenuitem {
+	padding: .25rem .50rem;
+	cursor: pointer;
+}
+
+.pddropdownmenuitem.disabled {
+	color: #6c757d;
+	pointer-events: none;
+}
+
+.pddropdownmenuitem.disabled:hover {
+}
+
+.pddropdownmenuitem:hover {
+	background-color: #eee;
+}
+
+.pddropdownseparator {
+	border-bottom: 1px solid #ddd;
+}

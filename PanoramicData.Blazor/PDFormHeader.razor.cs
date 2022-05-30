@@ -3,11 +3,6 @@
 public partial class PDFormHeader<TItem> where TItem : class
 {
 	/// <summary>
-	/// Injected javascript interop object.
-	/// </summary>
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
-
-	/// <summary>
 	/// Form the component belongs to.
 	/// </summary>
 	[CascadingParameter] public PDForm<TItem>? Form { get; set; }

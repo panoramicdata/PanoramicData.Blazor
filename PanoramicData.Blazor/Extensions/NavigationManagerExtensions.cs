@@ -11,7 +11,7 @@ public static class NavigationManagerExtensions
 	{
 		var uri = new Uri(navigationManager.Uri);
 		var newUriString = uri.GetQueryString(paramStringValues);
-		navigationManager.NavigateTo(newUriString);
+		navigationManager.NavigateTo(newUriString, false, true);
 	}
 
 	/// <summary>
@@ -23,6 +23,6 @@ public static class NavigationManagerExtensions
 	{
 		var uri = new Uri(navigationManager.Uri);
 		var newUriString = uri.GetQueryString(paramStringValues.ToDictionary(e => e.Key, e => new StringValues(e.Value.ToString())));
-		navigationManager.NavigateTo(newUriString);
+		navigationManager.NavigateTo(newUriString, false, true);
 	}
 }

@@ -1,12 +1,13 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDNavLink
+public partial class PDNavLink : IDisposable
 {
 	private const string _defaultActiveClass = "active";
 
 	private bool _isActive;
-	private string? _hrefAbsolute;
 	private string? _class;
+	private string? _hrefAbsolute;
+	private IJSObjectReference? _commonModule;
 
 	[Inject]
 	private IJSRuntime JSRuntime { get; set; } = default!;
@@ -45,13 +46,23 @@ public partial class PDNavLink
 	[Parameter]
 	public NavLinkMatch Match { get; set; }
 
+	public void Dispose()
+	{
+		// To avoid leaking memory, it's important to detach any event handlers in Dispose()
+		NavigationManager.LocationChanged -= OnLocationChanged;
+		if (_commonModule != null)
+		{
+			_commonModule.DisposeAsync();
+		}
+	}
+
 	private async Task OnClick(MouseEventArgs args)
 	{
 		// if ctrl-key held down then open in new tab therefore no need to prompt
-		if (args.CtrlKey)
+		if (args.CtrlKey && _commonModule != null)
 		{
 			// use JS to perform navigation in new tab
-			await JSRuntime.InvokeVoidAsync("panoramicData.openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
+			await _commonModule.InvokeVoidAsync("openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
 		}
 		else if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? String.Empty).ConfigureAwait(true))
 		{
@@ -59,11 +70,11 @@ public partial class PDNavLink
 		}
 	}
 
-	/// <inheritdoc />
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
 		// We'll consider re-rendering on each location change
 		NavigationManager.LocationChanged += OnLocationChanged;
+		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 	}
 
 	/// <inheritdoc />
@@ -86,13 +97,6 @@ public partial class PDNavLink
 		}
 
 		UpdateCssClass();
-	}
-
-	/// <inheritdoc />
-	public void Dispose()
-	{
-		// To avoid leaking memory, it's important to detach any event handlers in Dispose()
-		NavigationManager.LocationChanged -= OnLocationChanged;
 	}
 
 	private void UpdateCssClass()

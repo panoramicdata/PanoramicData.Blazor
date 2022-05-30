@@ -1,0 +1,15 @@
+﻿.pdtoolbaritem {
+	padding: 5px;
+}
+
+.pdtoolbaritem:first-child {
+	padding-left: 0px;
+}
+
+.pdtoolbaritem:last-child {
+	padding-right: 0px;
+}
+
+.pdtoolbaritem.align-right {
+	margin-left: auto;
+}

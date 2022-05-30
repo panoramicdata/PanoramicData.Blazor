@@ -4,6 +4,8 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 {
 	private static int _seq;
 	private bool _showHelp;
+	private IJSObjectReference? _module;
+
 	public event EventHandler? ErrorsChanged;
 
 	[Inject] private IJSRuntime JSRuntime { get; set; } = default!;
@@ -136,10 +138,11 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 	/// </summary>
 	public FormModes PreviousMode { get; private set; }
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
 		Mode = DefaultMode;
 		NavigationCancelService.BeforeNavigate += NavigationService_BeforeNavigate;
+		_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDForm.razor.js").ConfigureAwait(true);
 	}
 
 	/// <summary>
@@ -224,9 +227,9 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 	public void ResetChanges()
 	{
 		Delta.Clear();
-		if (ConfirmOnUnload)
+		if (ConfirmOnUnload && _module != null)
 		{
-			JSRuntime.InvokeVoidAsync("panoramicData.setUnloadListener", Id, false);
+			_module.InvokeVoidAsync("setUnloadListener", Id, false);
 		}
 		if (Errors.Count > 0)
 		{
@@ -546,9 +549,9 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 				Delta[memberInfo.Name] = typedValue;
 
 				// set on unload flag
-				if (previousChanges == 0 && Delta.Count > 0 && ConfirmOnUnload && JSRuntime != null)
+				if (previousChanges == 0 && Delta.Count > 0 && ConfirmOnUnload && _module != null)
 				{
-					await JSRuntime.InvokeVoidAsync("panoramicData.setUnloadListener", Id, true).ConfigureAwait(true);
+					await _module.InvokeVoidAsync("setUnloadListener", Id, true).ConfigureAwait(true);
 				}
 
 				// validate field
@@ -740,5 +743,9 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 	public void Dispose()
 	{
 		NavigationCancelService.BeforeNavigate -= NavigationService_BeforeNavigate;
+		if (_module != null)
+		{
+			_module.DisposeAsync();
+		}
 	}
 }

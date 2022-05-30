@@ -1,17 +1,68 @@
-﻿@import "_common.scss";
-@import "_pdDragDropSeparator.scss";
-@import "_pdProgressBar.scss";
-@import "_pdDropZone.scss";
-@import "_pdFileExplorer.scss";
-@import "_pdFileModal.scss";
-@import "_pdForm.scss";
-@import "_pdSplitter.scss";
-@import "_pdTextBox.scss";
-@import "_pdTimeline.scss";
-@import "_pdToolbar.scss";
-@import "_pdTree.scss";
-@import "_pdZoombar.scss";
-
-.cursor-pointer {
+﻿.cursor-pointer {
 	cursor: pointer;
+}
+
+.fa-hidden {
+	color: transparent;
+}
+
+.pd-pointer {
+	cursor: pointer;
+}
+
+.pd-hidden {
+	display: none;
+}
+
+.pd-empty-icon {
+	height: 16px;
+	width: 16px;
+}
+
+.h-100-pct {
+	height: 100%;
+}
+
+.w-100-pct {
+	width: 100%;
+}
+
+.w-100-px {
+	width: 100px;
+}
+
+.w-125-px {
+	width: 125px;
+}
+
+.w-150-px {
+	width: 150px;
+}
+
+.w-200-px {
+	width: 200px;
+}
+
+.mw-100-px {
+	min-width: 100px;
+}
+
+.mw-125-px {
+	min-width: 125px;
+}
+
+.mw-150-px {
+	min-width: 150px;
+}
+
+.mw-200-px {
+	min-width: 200px;
+}
+
+.text-small {
+	font-size: 0.75rem;
+}
+
+.text-tiny {
+	font-size: 0.5rem;
 }

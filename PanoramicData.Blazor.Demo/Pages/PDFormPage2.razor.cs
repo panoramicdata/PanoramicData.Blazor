@@ -4,6 +4,7 @@ public partial class PDFormPage2
 {
 	private readonly PersonDataProvider _personDataProvider = new();
 
+	private PDModal Modal { get; set; } = null!;
 	private PDForm<Person> Form { get; set; } = null!;
 	private List<Person> People { get; set; } = new List<Person>();
 	private Person? SelectedPerson { get; set; }
@@ -24,28 +25,28 @@ public partial class PDFormPage2
 		if (key == "Cancel")
 		{
 			SelectedPerson = null;
-			await HideDialogAsync().ConfigureAwait(true);
+			await Modal.HideAsync().ConfigureAwait(true);
 		}
 	}
 
 	private async Task OnPersonCreatedAsync(Person person)
 	{
 		EventManager?.Add(new Event("PersonCreated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-		await HideDialogAsync().ConfigureAwait(true);
+		await Modal.HideAsync().ConfigureAwait(true);
 		RefreshPeople();
 	}
 
 	private async Task OnPersonUpdatedAsync(Person person)
 	{
 		EventManager?.Add(new Event("PersonUpdated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-		await HideDialogAsync().ConfigureAwait(true);
+		await Modal.HideAsync().ConfigureAwait(true);
 		RefreshPeople();
 	}
 
 	private async Task OnPersonDeletedAsync(Person person)
 	{
 		EventManager?.Add(new Event("PersonDeleted", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-		await HideDialogAsync().ConfigureAwait(true);
+		await Modal.HideAsync().ConfigureAwait(true);
 		RefreshPeople();
 	}
 
@@ -81,28 +82,13 @@ public partial class PDFormPage2
 	{
 		SelectedPerson = person;
 		Form.SetMode(FormModes.Edit);
-		if (JSRuntime != null)
-		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", "#exampleModal").ConfigureAwait(true);
-		}
+		await Modal.ShowAsync().ConfigureAwait(true);
 	}
 
 	private async Task OnCreatePersonAsync()
 	{
 		SelectedPerson = new Person();
 		Form.SetMode(FormModes.Create);
-		if (JSRuntime != null)
-		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.showBsDialog", "#exampleModal").ConfigureAwait(true);
-		}
-	}
-
-	private async Task HideDialogAsync()
-	{
-		Form.ResetChanges();
-		if (JSRuntime != null)
-		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.hideBsDialog", "#exampleModal").ConfigureAwait(true);
-		}
+		await Modal.ShowAsync().ConfigureAwait(true);
 	}
 }

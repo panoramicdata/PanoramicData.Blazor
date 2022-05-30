@@ -1,0 +1,16 @@
+﻿.pdtree {
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	height: 100%;
+	width: 100%;
+}
+
+/* negates the indent on the top level nodes */
+.pdtree > .pdtreenode {
+	padding-left: 0rem;
+}
+
+.pdtree:focus {
+	outline: none;
+}

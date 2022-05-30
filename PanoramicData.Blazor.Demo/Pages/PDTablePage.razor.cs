@@ -54,25 +54,25 @@ public partial class PDTablePage
 	private async Task SearchAsync()
 	{
 		// Update the URI for bookmarking
-		await JSRuntime.UpdateUri(new Dictionary<string, object> { { "search", $"{_searchText}" } }).ConfigureAwait(true);
+		NavigationManager.SetUri(new Dictionary<string, object> { { "search", $"{_searchText}" } });
 		await Table!.RefreshAsync(_searchText).ConfigureAwait(true);
 	}
 
-	private async Task OnSortChange(SortCriteria criteria)
+	private void OnSortChange(SortCriteria criteria)
 	{
 		EventManager?.Add(new Event("SortChange", new EventArgument("Key", criteria.Key), new EventArgument("Direction", criteria.Direction)));
 
 		// Update the URI for bookmarking
 		var direction = criteria.Direction == SortDirection.Ascending ? "asc" : "desc";
-		await JSRuntime.UpdateUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } }).ConfigureAwait(true);
+		NavigationManager.SetUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } });
 	}
 
-	private async Task OnPageChange(PageCriteria criteria)
+	private void OnPageChange(PageCriteria criteria)
 	{
 		EventManager?.Add(new Event("PageChange", new EventArgument("Page", criteria.Page), new EventArgument("PageSize", criteria.PageSize)));
 
 		// Update the URI for bookmarking
-		await JSRuntime.UpdateUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } }).ConfigureAwait(true);
+		NavigationManager.SetUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } });
 	}
 
 	private void OnSelectionChange()

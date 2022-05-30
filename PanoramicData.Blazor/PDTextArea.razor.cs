@@ -4,11 +4,12 @@ public partial class PDTextArea : IDisposable
 {
 	private static int _seq;
 	private DotNetObjectReference<PDTextArea>? _objRef;
+	private IJSObjectReference? _commonModule;
 
 	/// <summary>
 	/// Injected javascript interop object.
 	/// </summary>
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
 	/// Gets or sets CSS classes for the text box.
@@ -92,9 +93,10 @@ public partial class PDTextArea : IDisposable
 		if (firstRender && DebounceWait > 0)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			if (JSRuntime != null)
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			if (_commonModule != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
 			}
 		}
 	}
@@ -122,6 +124,10 @@ public partial class PDTextArea : IDisposable
 
 	public void Dispose()
 	{
+		if (_commonModule != null)
+		{
+			_commonModule.DisposeAsync();
+		}
 		_objRef?.Dispose();
 	}
 }

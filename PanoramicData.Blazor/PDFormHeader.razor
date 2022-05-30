@@ -63,7 +63,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 					}
 					@if (Form.HasChanges)
 					{
-						<span class="changes-made-flag font-italic text-muted small">(changes made)</span>
+						<span class="changes-made-flag ms-1 font-italic text-muted small">(changes made)</span>
 					}
 				</span>
 				@if (Form.HelpTextMode == HelpTextMode.Toggle)
@@ -72,8 +72,8 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 				}
 			}
 		</div>
-		@if (!string.IsNullOrWhiteSpace(HelpText) && (Form.Mode == FormModes.Edit || Form.Mode == FormModes.Create) &&
-(Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form?.ShowHelp == true)))
+		@if (!string.IsNullOrWhiteSpace(HelpText) && (Form.Mode == FormModes.Edit || Form.Mode == FormModes.Create)
+			&& (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form?.ShowHelp == true)))
 		{
 			<div class="small text-muted">
 				@HelpText

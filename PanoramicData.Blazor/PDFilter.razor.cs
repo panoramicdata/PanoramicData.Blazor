@@ -50,12 +50,9 @@ public partial class PDFilter : IDisposable
 
 	private bool HasFilter => !string.IsNullOrWhiteSpace(Filter.Value);
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
+	protected override async Task OnInitializedAsync()
 	{
-		if (firstRender)
-		{
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
-		}
+		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
 	}
 
 	private async Task OnClear()

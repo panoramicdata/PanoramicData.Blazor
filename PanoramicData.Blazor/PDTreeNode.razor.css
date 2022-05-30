@@ -1,0 +1,35 @@
+﻿/* indents each tree level  */
+.pdtreenode {
+	padding-left: 1.0rem;
+}
+
+.pdtreenode .selected {
+	background-color: #007bff;
+}
+
+.pdtreenode .pdtreenode_child_content {
+	margin-left: 6px;
+	padding-left: 1px;
+}
+
+.pdtreenode .pdtreenode_header {
+	display: flex;
+	align-items: baseline;
+	white-space: nowrap;
+}
+
+.pdtreenode .pdtreenode_header .pdtreenode_content {
+	width: 100%;
+	padding-left: 3px;
+	margin-left: 3px;
+}
+
+.pdtreenode_edit {
+	width: 100%;
+}
+
+/* lines that help show nested levels */
+.pdtree_lines {
+	border-left: 1px dashed grey;
+	padding-left: 0px !important;
+}

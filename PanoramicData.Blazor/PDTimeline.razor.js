@@ -1,4 +1,6 @@
-﻿class Timeline {
+﻿var timelines = {};
+
+class Timeline {
 
 	el = null;
 	options = {
@@ -51,4 +53,22 @@
 	}
 }
 
-export { Timeline };
+//export { Timeline };
+
+export function dispose(id) {
+	var tl = timelines[id];
+	if (tl) {
+		tl.term();
+	}
+}
+
+export function initialize(id, options, data, ref) {
+	timelines[id] = new Timeline(id, options, data, ref);
+}
+
+export function setData(id, data) {
+	var tl = timelines[id];
+	if (tl) {
+		tl.setData(data);
+	}
+}

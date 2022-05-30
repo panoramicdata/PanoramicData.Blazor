@@ -6,6 +6,7 @@ public partial class PDDropZone : IDisposable
 	private DotNetObjectReference<PDDropZone>? _dotNetReference;
 	private int _batchCount;
 	private int _batchProgress;
+	private IJSObjectReference? _module;
 
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -99,6 +100,22 @@ public partial class PDDropZone : IDisposable
 	/// </summary>
 	[Parameter] public string Id { get; set; } = string.Empty;
 
+	public async Task CancelAsync()
+	{
+		if (_module != null)
+		{
+			await _module.InvokeVoidAsync("cancel", Id).ConfigureAwait(true);
+		}
+	}
+
+	public async Task ClearAsync()
+	{
+		if (_module != null)
+		{
+			await _module.InvokeVoidAsync("clear", Id).ConfigureAwait(true);
+		}
+	}
+
 	protected override void OnInitialized()
 	{
 		if (Id == string.Empty)
@@ -124,7 +141,11 @@ public partial class PDDropZone : IDisposable
 			};
 			if (!string.IsNullOrWhiteSpace(UploadUrl))
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.initDropzone", $"#{Id}", options, SessionId, _dotNetReference).ConfigureAwait(true);
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropZone.razor.js").ConfigureAwait(true);
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync("initialize", $"#{Id}", options, SessionId, _dotNetReference).ConfigureAwait(true);
+				}
 			}
 		}
 	}
@@ -242,7 +263,10 @@ public partial class PDDropZone : IDisposable
 			_batchProgress = 0;
 
 			// clear dropzone queue
-			await JSRuntime.InvokeVoidAsync("panoramicData.cancelDropzone", $"#{Id}").ConfigureAwait(true);
+			if (_module != null)
+			{
+				await _module.InvokeVoidAsync("cancel", $"#{Id}").ConfigureAwait(true);
+			}
 		}
 		else
 		{
@@ -251,14 +275,17 @@ public partial class PDDropZone : IDisposable
 			_batchProgress = 0;
 			await AllUploadsStarted.InvokeAsync(_batchCount).ConfigureAwait(true);
 
-			// remove skipped files and then proceed
-			foreach (var file in args.FilesToSkip)
+			if (_module != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.removeDropzoneFile", $"#{Id}", file.Key).ConfigureAwait(true);
-			}
+				// remove skipped files and then proceed
+				foreach (var file in args.FilesToSkip)
+				{
+					await _module.InvokeVoidAsync("removeFile", $"#{Id}", file.Key).ConfigureAwait(true);
+				}
 
-			// begin processing queue
-			await JSRuntime.InvokeVoidAsync("panoramicData.processDropzone", $"#{Id}", args.Overwrite).ConfigureAwait(true);
+				// begin processing queue
+				await _module.InvokeVoidAsync("process", $"#{Id}", args.Overwrite).ConfigureAwait(true);
+			}
 		}
 	}
 
@@ -270,7 +297,10 @@ public partial class PDDropZone : IDisposable
 		_batchProgress = 0;
 
 		// clear dropzone queue
-		await JSRuntime.InvokeVoidAsync("panoramicData.cancelDropzone", $"#{Id}").ConfigureAwait(true);
+		if (_module != null)
+		{
+			await _module.InvokeVoidAsync("cancel", $"#{Id}").ConfigureAwait(true);
+		}
 
 		// notify app
 		await AllUploadsComplete.InvokeAsync(null).ConfigureAwait(true);
@@ -289,7 +319,11 @@ public partial class PDDropZone : IDisposable
 
 	public void Dispose()
 	{
-		JSRuntime.InvokeVoidAsync("panoramicData.disposeDropZone", Id);
+		if (_module != null)
+		{
+			_module.InvokeVoidAsync("dispose", Id);
+			_module.DisposeAsync();
+		}
 		_dotNetReference?.Dispose();
 	}
 }

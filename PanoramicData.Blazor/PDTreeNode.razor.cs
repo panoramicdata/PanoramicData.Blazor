@@ -2,7 +2,9 @@
 
 public partial class PDTreeNode<TItem> where TItem : class
 {
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
+	private IJSObjectReference? _commonModule;
+
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
 	/// The parent PDTable instance.
@@ -67,14 +69,19 @@ public partial class PDTreeNode<TItem> where TItem : class
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
+		if (firstRender)
+		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+		}
+
 		if (Node != null)
 		{
 			// focus and select text in edit box after first rendered
 			if (Node.IsEditing && Node.BeginEditEvent.WaitOne(0))
 			{
-				if (JSRuntime != null)
+				if (_commonModule != null)
 				{
-					await JSRuntime.InvokeVoidAsync("panoramicData.selectText", $"PDTNE{Node.Id}", 0, Node.Text.Length).ConfigureAwait(true);
+					await _commonModule.InvokeVoidAsync("selectText", $"PDTNE{Node.Id}", 0, Node.Text.Length).ConfigureAwait(true);
 				}
 				Node.BeginEditEvent.Reset();
 			}

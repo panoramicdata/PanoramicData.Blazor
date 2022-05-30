@@ -31,21 +31,19 @@ else if (Form.Mode != FormModes.Hidden)
 					<label class="sr-only">@field.Title</label>
 					<div class="input-group ">
 
-						<div class="input-group-prepend">
-							<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true ? "alert-danger" : "")" title="@fieldDescription">
-								<span>@field.Title</span>
-								@if (!string.IsNullOrWhiteSpace(field.HelpUrl))
-								{
-									<i class="pd-form-help-icon fas fa-external-link-alt text-info cursor-pointer"
-									   @onclick="() => OnHelpUrlClick(field)"></i>
-								}
-								@if (field.Helper != null)
-								{
-									<i class="pd-form-help-icon text-info cursor-pointer @field.Helper.IconCssClass"
-									   @onclick="async () => await OnHelperClick(field).ConfigureAwait(true)"
-									   title="@field.Helper.ToolTip"></i>
-								}
-							</div>
+						<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true ? "alert-danger" : "")" title="@fieldDescription">
+							<span>@field.Title</span>
+							@if (!string.IsNullOrWhiteSpace(field.HelpUrl))
+							{
+								<i class="pd-form-help-icon fas fa-external-link-alt text-info cursor-pointer"
+									@onclick="() => OnHelpUrlClick(field)"></i>
+							}
+							@if (field.Helper != null)
+							{
+								<i class="pd-form-help-icon text-info cursor-pointer pt-1 @field.Helper.IconCssClass"
+									@onclick="async () => await OnHelperClick(field).ConfigureAwait(true)"
+									title="@field.Helper.ToolTip"></i>
+							}
 						</div>
 
 						<!-- editor -->
@@ -147,17 +145,15 @@ else if (Form.Mode != FormModes.Hidden)
 						<!-- field validation indicator-->
 						@if (ShowValidationIndicator && Form?.Mode != FormModes.Delete)
 						{
-							<div class="input-group-append">
-								<span class="input-group-text align-items-start @GetValidationCssClass(field)">
-									<i class="@GetValidationIconCssClass(field)"></i>
-								</span>
-							</div>
+							<span class="input-group-text align-items-start @GetValidationCssClass(field)">
+								<i class="@GetValidationIconCssClass(field)"></i>
+							</span>
 						}
 					</div>
 					<div class="mb-2">
-						@if (!string.IsNullOrWhiteSpace(fieldDescription) &&
-  (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit) &&
-  (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+						@if (!string.IsNullOrWhiteSpace(fieldDescription)
+							&& (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit)
+							&& (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@field.GetDescription()</div>
 						}

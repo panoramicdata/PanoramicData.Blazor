@@ -22,12 +22,15 @@
 	<p class="ml-4">
 		<code>&lt;link href="_content/PanoramicData.Blazor/css/main.min.css" rel="stylesheet" /&gt;</code>
 	</p>
-	<p>
-		At the bottom of the document, just before the <strong>&lt;/body&gt;</strong> element add:
-	</p>
-	<p class="ml-4">
-		<code>&lt;script src="_content/PanoramicData.Blazor/js/pdblazor.js"&gt;&lt;/script&gt;</code>
-	</p>
+	<div class="deprecated mb-3">
+		<p><b>Only required when using PanoramicData.Blazor prior to 2.1.x</b></p>
+		<p>
+			At the bottom of the document, just before the <strong>&lt;/body&gt;</strong> element add:
+		</p>
+		<p class="ml-4">
+			<code>&lt;script src="_content/PanoramicData.Blazor/js/pdblazor.js"&gt;&lt;/script&gt;</code>
+		</p>
+	</div>
 
 	<h2>Namespaces</h2>
 	<p>Add the following using statements either to each page where you use the components, or for convenience place into the _Imports.razor file :-</p>
@@ -40,7 +43,7 @@
 
 	<h2>Styling</h2>
 	<p>
-		The library uses <a href="https://getbootstrap.com/">Bootstrap</a> for its default styling and <a href="https://fontawesome.com/">Font-Awesome</a> for its icons.
+		The library uses <a href="https://getbootstrap.com/">Bootstrap 5</a> for its default styling and <a href="https://fontawesome.com/">Font-Awesome</a> for its icons.
 		You may use other libraries but you will need to override or replace CSS classes as appropriate. To use these libraries include the following
 		elements (modify paths as needed) inside the <strong>&lt;head&gt;</strong> element:
 	</p>

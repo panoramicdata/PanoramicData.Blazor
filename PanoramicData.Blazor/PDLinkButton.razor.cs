@@ -1,12 +1,14 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDLinkButton
+public partial class PDLinkButton : IDisposable
 {
 	private static int _sequence;
+	private IJSObjectReference? _commonModule;
 
 	#region Inject
 	[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
+
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 	#endregion
 
 	/// <summary>
@@ -88,13 +90,27 @@ public partial class PDLinkButton
 		}
 	}
 
-	protected override void OnInitialized()
+	public void Dispose()
+	{
+		if (ShortcutKey.HasValue)
+		{
+			GlobalEventService.UnregisterShortcutKey(ShortcutKey);
+		}
+		GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
+		if (_commonModule != null)
+		{
+			_commonModule.DisposeAsync();
+		}
+	}
+
+	protected override async Task OnInitializedAsync()
 	{
 		GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
 		if (ShortcutKey.HasValue)
 		{
 			GlobalEventService.RegisterShortcutKey(ShortcutKey);
 		}
+		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 	}
 
 	private async void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e)
@@ -107,18 +123,9 @@ public partial class PDLinkButton
 
 	public async Task ClickAsync()
 	{
-		if (JSRuntime != null)
+		if (_commonModule != null)
 		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.click", Id).ConfigureAwait(true);
+			await _commonModule.InvokeVoidAsync("click", Id).ConfigureAwait(true);
 		}
-	}
-
-	public void Dispose()
-	{
-		if (ShortcutKey.HasValue)
-		{
-			GlobalEventService.UnregisterShortcutKey(ShortcutKey);
-		}
-		GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
 	}
 }

@@ -4,11 +4,12 @@ public partial class PDTextBox : IDisposable
 {
 	private static int _seq;
 	private DotNetObjectReference<PDTextBox>? _objRef;
+	private IJSObjectReference? _commonModule;
 
 	/// <summary>
 	/// Injected javascript interop object.
 	/// </summary>
-	[Inject] public IJSRuntime? JSRuntime { get; set; }
+	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
 	/// Gets or sets the autocomplete attribute value.
@@ -123,9 +124,10 @@ public partial class PDTextBox : IDisposable
 		if (firstRender && DebounceWait > 0)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			if (JSRuntime != null)
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			if (_commonModule != null)
 			{
-				await JSRuntime.InvokeVoidAsync("panoramicData.debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
 			}
 		}
 	}
@@ -159,9 +161,9 @@ public partial class PDTextBox : IDisposable
 
 	private async Task OnClear(MouseEventArgs _)
 	{
-		if (JSRuntime != null)
+		if (_commonModule != null)
 		{
-			await JSRuntime.InvokeVoidAsync("panoramicData.setValue", Id, string.Empty).ConfigureAwait(true);
+			await _commonModule.InvokeVoidAsync("setValue", Id, string.Empty).ConfigureAwait(true);
 		}
 		Value = string.Empty;
 		await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
@@ -170,6 +172,10 @@ public partial class PDTextBox : IDisposable
 
 	public void Dispose()
 	{
+		if (_commonModule != null)
+		{
+			_commonModule.DisposeAsync();
+		}
 		_objRef?.Dispose();
 	}
 }
