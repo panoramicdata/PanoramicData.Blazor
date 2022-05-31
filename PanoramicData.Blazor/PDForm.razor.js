@@ -1,4 +1,4 @@
-﻿import * as common from "/_content/PanoramicData.Blazor/js/common.js";
+﻿import * as common from "./js/common.js";
 
 var unloadListener = false;
 var unloadListenerIds = {};
