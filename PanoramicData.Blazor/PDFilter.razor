@@ -29,16 +29,27 @@
 						<option value="@FilterTypes.EndsWith" selected="@(_filterType == FilterTypes.EndsWith)">Ends with</option>
 						<option value="@FilterTypes.Contains" selected="@(_filterType == FilterTypes.Contains)">Contains</option>
 						<option value="@FilterTypes.DoesNotContain" selected="@(_filterType == FilterTypes.DoesNotContain)">Does not contain</option>
+						<option value="@FilterTypes.IsEmpty" selected="@(_filterType == FilterTypes.IsEmpty)">Is Empty</option>
+						<option value="@FilterTypes.IsNotEmpty" selected="@(_filterType == FilterTypes.IsNotEmpty)">Is Not Empty</option>
+					}
+					@if(Nullable)
+					{
+						<option value="@FilterTypes.IsNull" selected="@(_filterType == FilterTypes.IsNull)">Is Null</option>
+						<option value="@FilterTypes.IsNotNull" selected="@(_filterType == FilterTypes.IsNotNull)">Is Not Null</option>
 					}
 				</select>
 			</div>
-			<div class="mb-1">
-				<PDTextBox CssClass="form-control-sm"
-						   Placeholder="@(_filterType == FilterTypes.Range ? "from" : "")"
-						   ShowClearButton=false
-						   Value="@_value1"
-						   ValueChanged="OnValue1TextChange" />
-			</div>
+			@if (_filterType != FilterTypes.IsNull && _filterType != FilterTypes.IsNotNull
+				&& _filterType != FilterTypes.IsEmpty && _filterType != FilterTypes.IsNotEmpty)
+			{
+				<div class="mb-1">
+					<PDTextBox CssClass="form-control-sm"
+							   Placeholder="@(_filterType == FilterTypes.Range ? "from" : "")"
+							   ShowClearButton=false
+							   Value="@_value1"
+							   ValueChanged="OnValue1TextChange" />
+				</div>
+			}
 			@if (_filterType == FilterTypes.Range)
 			{
 				<div class="mb-1">

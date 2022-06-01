@@ -25,5 +25,13 @@ public enum FilterTypes
 	[Display(Name = "Less than or equal")]
 	LessThanOrEqual,
 	[Display(Name = "Range")]
-	Range
+	Range,
+	[Display(Name = "Is Null")]
+	IsNull,
+	[Display(Name = "Is Not Null")]
+	IsNotNull,
+	[Display(Name = "Is Empty")]
+	IsEmpty,
+	[Display(Name = "Is Not Empty")]
+	IsNotEmpty
 }

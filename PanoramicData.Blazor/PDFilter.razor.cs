@@ -35,6 +35,9 @@ public partial class PDFilter : IDisposable
 	public FilterDataTypes DataType { get; set; }
 
 	[Parameter]
+	public bool Nullable { get; set; }
+
+	[Parameter]
 	public bool ShowValues { get; set; } = true;
 
 	[Parameter]
@@ -48,7 +51,14 @@ public partial class PDFilter : IDisposable
 		}
 	}
 
-	private bool HasFilter => !string.IsNullOrWhiteSpace(Filter.Value);
+	private bool HasFilter => Filter.FilterType switch
+	{
+		FilterTypes.IsNull => true,
+		FilterTypes.IsNotNull => true,
+		FilterTypes.IsEmpty => true,
+		FilterTypes.IsNotEmpty => true,
+		_ => !string.IsNullOrWhiteSpace(Filter.Value)
+	};
 
 	protected override async Task OnInitializedAsync()
 	{

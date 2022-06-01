@@ -16,7 +16,7 @@ public class Person
 	[MinLength(2, ErrorMessage = "Minimum length is 2 characters")]
 	[StringLength(10, ErrorMessage = "Maximum length is 10 characters")]
 	[Display(Name = "First Name", Description = "Persons first / forename")]
-	public string FirstName { get; set; } = string.Empty;
+	public string? FirstName { get; set; } = string.Empty;
 
 	[Display(Description = "Optional middle name initials")]
 	public string Initials { get; set; } = string.Empty;
@@ -54,7 +54,7 @@ public class Person
 	public DateTimeOffset DateCreated { get; set; }
 
 	[Display(Name = "Modified", Description = "Date and time the record was last modified")]
-	public DateTimeOffset DateModified { get; set; }
+	public DateTimeOffset? DateModified { get; set; }
 
 	[Display(Name = "Username", Description = "Login username")]
 	public string Username { get; set; } = string.Empty;

@@ -76,7 +76,7 @@ public static class StringExtensions
 	{
 		if (text.Length > 0)
 		{
-			if (!(text.StartsWith("\"") && text.StartsWith("\"")))
+			if (!(text.StartsWith("\"") && text.StartsWith("\"")) && !(text.StartsWith("#") && text.StartsWith("#")))
 			{
 				if (text.Contains(' ') || text.Contains('\t') || text.Contains('\r') || text.Contains('\n'))
 				{

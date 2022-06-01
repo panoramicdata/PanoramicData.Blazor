@@ -32,15 +32,23 @@ public class Filter
 
 	public KeyValuePair<string, object> Values { get; set; }
 
+	public bool UnspecifiedDateTimesAreUtc { get; set; } = true;
+
 	public void Clear()
 	{
 		FilterType = FilterTypes.Equals;
 		Value = string.Empty;
 	}
 
-	public bool IsValid => FilterType == FilterTypes.Range
-		? !string.IsNullOrWhiteSpace(Value) && !string.IsNullOrWhiteSpace(Value2)
-		: !string.IsNullOrWhiteSpace(Value);
+	public bool IsValid => FilterType switch
+	{
+		FilterTypes.Range => !string.IsNullOrWhiteSpace(Value) && !string.IsNullOrWhiteSpace(Value2),
+		FilterTypes.IsNull => true,
+		FilterTypes.IsNotNull => true,
+		FilterTypes.IsEmpty => true,
+		FilterTypes.IsNotEmpty => true,
+		_ => !string.IsNullOrWhiteSpace(Value)
+	};
 
 	public override string ToString()
 	{
@@ -82,6 +90,18 @@ public class Filter
 			case FilterTypes.Range:
 				return $"{Key}:>{Value}|{Value2}<";
 
+			case FilterTypes.IsNull:
+				return $"{Key}:(null)";
+
+			case FilterTypes.IsNotNull:
+				return $"{Key}:!(null)";
+
+			case FilterTypes.IsEmpty:
+				return $"{Key}:(empty)";
+
+			case FilterTypes.IsNotEmpty:
+				return $"{Key}:!(empty)";
+
 			default:
 				return string.Empty;
 		}
@@ -120,7 +140,7 @@ public class Filter
 
 	#region Class Members
 
-	public static string Format(object value)
+	public static string Format(object value, bool unspecifiedDateTimesAreUtc = false)
 	{
 		if (value is null)
 		{
@@ -128,15 +148,13 @@ public class Filter
 		}
 		if (value is DateTime dt)
 		{
-			return dt.TimeOfDay == TimeSpan.Zero
-				? $"{dt:yyyy-MM-dd}"
-				: $"#{dt:yyyy-MM-dd HH:mm:ss}#";
+			return dt.Kind == DateTimeKind.Utc || (dt.Kind == DateTimeKind.Unspecified && unspecifiedDateTimesAreUtc)
+				? $"{dt:yyyy-MM-dd}T{dt:HH:mm:ss}Z"
+				: $"{dt.ToUniversalTime():yyyy-MM-dd}T{dt.ToUniversalTime():HH:mm:ss}Z";
 		}
 		else if (value is DateTimeOffset dto)
 		{
-			return dto.UtcDateTime.TimeOfDay == TimeSpan.Zero
-				? $"{dto.UtcDateTime:yyyy-MM-dd}"
-				: $"#{dto.UtcDateTime:yyyy-MM-dd HH:mm:ss}#";
+			return $"{dto.ToUniversalTime():yyyy-MM-dd}T{dto.ToUniversalTime():HH:mm:ss}Z";
 		}
 		return value.ToString() ?? String.Empty;
 	}
@@ -159,7 +177,27 @@ public class Filter
 			return new Filter();
 		}
 
-		if (encodedValue.StartsWith("in(", System.StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")") && encodedValue.Length > 3)
+		if (encodedValue == "!(empty)")
+		{
+			value = String.Empty;
+			filterType = FilterTypes.IsNotEmpty;
+		}
+		else if (encodedValue == "(empty)")
+		{
+			value = String.Empty;
+			filterType = FilterTypes.IsEmpty;
+		}
+		else if (encodedValue == "!(null)")
+		{
+			value = String.Empty;
+			filterType = FilterTypes.IsNotNull;
+		}
+		else if (encodedValue == "(null)")
+		{
+			value = String.Empty;
+			filterType = FilterTypes.IsNull;
+		}
+		else if (encodedValue.StartsWith("in(", System.StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")") && encodedValue.Length > 3)
 		{
 			value = encodedValue.Substring(3, encodedValue.Length - 4);
 			filterType = FilterTypes.In;

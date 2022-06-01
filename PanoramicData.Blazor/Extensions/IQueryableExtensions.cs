@@ -31,6 +31,10 @@ public static class IQueryableExtensions
 					FilterTypes.LessThanOrEqual => $"{property} <= @0",
 					FilterTypes.LessThan => $"{property} < @0",
 					FilterTypes.Range => $"{property} >= @0 and {property} <= @1",
+					FilterTypes.IsNull => $"{property} == null",
+					FilterTypes.IsNotNull => $"{property} != null",
+					FilterTypes.IsEmpty => $"{property} == \"\"",
+					FilterTypes.IsNotEmpty => $"{property} != \"\"",
 					_ => ""
 				};
 				return string.IsNullOrWhiteSpace(predicate) ? query : query.Where(predicate, parameters);

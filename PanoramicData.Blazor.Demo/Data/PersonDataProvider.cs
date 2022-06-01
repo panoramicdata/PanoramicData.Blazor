@@ -21,16 +21,18 @@ public class PersonDataProvider : DataProviderBase<Person>
 					Id = id,
 					AllowLogin = _random.Next(0, 2) == 1,
 					DateCreated = DateTimeOffset.Now.AddDays(_random.Next(-365, 0)),
-					DateModified = DateTimeOffset.Now.AddDays(_random.Next(-30, 0)),
+					DateModified = _random.Next(10) < 3 ? null : DateTimeOffset.Now.AddDays(_random.Next(-30, 0)),
 					Department = (Departments)_random.Next(0, 4),
-					FirstName = _firstNames[_random.Next(_firstNames.Length)],
+					FirstName = _random.Next(10) < 3 ? null : _firstNames[_random.Next(_firstNames.Length)],
 					LastName = _lastNames[_random.Next(_lastNames.Length)],
 					Location = _random.Next(Locations.Length),
 					Dob = DateTime.Today.AddYears(-_random.Next(20, 50)),
 					Comments = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length)),
 					Password = "Password"
 				};
-				person.Email = $"{person.FirstName.ToLower()}@acme.com";
+				person.Email = _random.Next(10) < 2
+					? string.Empty
+					: $"{person.FirstName?.ToLower() ?? _firstNames[_random.Next(_firstNames.Length)].ToLower()}.{person.LastName.ToLower()}@acme.com";
 				_people.Add(person);
 			}
 		}
