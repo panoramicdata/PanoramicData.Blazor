@@ -847,10 +847,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 		}
 
 		// limit to first N
-		objectValues = objectValues.Take(FilterMaxValues).ToArray();
+		objectValues = objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(FilterMaxValues).ToArray();
 
 		// cast to string
-		return objectValues.Select(x => Filter.Format(x)).ToArray();
+		return objectValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
 	}
 
 	protected override void OnParametersSet()

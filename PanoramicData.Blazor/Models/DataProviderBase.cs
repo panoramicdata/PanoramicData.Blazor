@@ -95,10 +95,12 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IKeyedColle
 			? Get(filter.Key, filter.Key)
 			: filter.Key;
 
-		var parameters = filter.FilterType switch
+		object[] parameters = filter.FilterType switch
 		{
 			FilterTypes.In => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
 			FilterTypes.Range => new[] { filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes() },
+			FilterTypes.IsEmpty => new[] { string.Empty },
+			FilterTypes.IsNotEmpty => new[] { string.Empty },
 			_ => new object[] { filter.Value.RemoveQuotes() }
 		};
 
@@ -112,6 +114,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IKeyedColle
 				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"!{property}.Contains(@0)", parameters);
 				break;
 
+			case FilterTypes.IsNotEmpty:
 			case FilterTypes.DoesNotEqual:
 				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} != @0", parameters);
 				break;
@@ -145,9 +148,21 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IKeyedColle
 				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} <= @1", parameters);
 				break;
 
-
 			case FilterTypes.StartsWith:
 				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property}.StartsWith(@0)", parameters);
+				break;
+
+			case FilterTypes.IsNull:
+				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} == null");
+				break;
+
+			case FilterTypes.IsNotNull:
+				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} != null");
+				break;
+
+			case FilterTypes.IsEmpty:
+			case FilterTypes.Equals:
+				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} == @0", parameters);
 				break;
 
 			default:

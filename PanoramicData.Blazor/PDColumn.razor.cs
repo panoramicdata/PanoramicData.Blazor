@@ -376,4 +376,19 @@ public partial class PDColumn<TItem> where TItem : class
 		}
 		return FilterDataTypes.Numeric;
 	}
+
+	public bool GetFilterIsNullable()
+	{
+		var memberInfo = Field?.GetPropertyMemberInfo();
+		if (memberInfo is PropertyInfo propInfo)
+		{
+			if (propInfo.PropertyType.FullName == "System.String")
+			{
+				return true;
+			}
+			return Nullable.GetUnderlyingType(propInfo.PropertyType) != null;
+		}
+		return false;
+	}
+
 }
