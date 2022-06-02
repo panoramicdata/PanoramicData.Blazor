@@ -16,11 +16,11 @@
                  Text="@Text"
                  TextCssClass="@TextCssClass"
                  ToolTip="@ToolTip">
+            @if (ShowCaret)
+            {
+                <i class="ms-2 fas @(_shown ? "fa-angle-up" : "fa-angle-down")"></i>
+            }
         </PDLabel>
-        @if (ShowCaret)
-        {
-            <i class="ms-2 fas @(_shown ? "fa-angle-up" : "fa-angle-down")"></i>
-        }
     </PDButton>
     <div class="dropdown-menu">
         @ChildContent

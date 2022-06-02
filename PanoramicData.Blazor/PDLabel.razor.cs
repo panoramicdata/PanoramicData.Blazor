@@ -6,6 +6,9 @@ public partial class PDLabel
 	public EventCallback<MouseEventArgs> Click { get; set; }
 
 	[Parameter]
+	public RenderFragment? ChildContent { get; set; }
+
+	[Parameter]
 	public string CssClass { get; set; } = string.Empty;
 
 	[Parameter]
