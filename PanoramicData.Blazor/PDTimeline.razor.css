@@ -12,7 +12,7 @@
 	filter: grayscale(1);
 }
 
-.pd-timeline svg.disabled {
+.pd-timeline ::deep svg.disabled {
 	background-color: #d3d3d3;
 	filter: grayscale(1);
 }
