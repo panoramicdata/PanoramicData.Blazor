@@ -14,4 +14,8 @@
     {
         <span class="@(string.IsNullOrWhiteSpace(IconCssClass)? "" : "ms-1") @TextCssClass">@Text</span>
     }
+    @if(ChildContent != null)
+    {
+        @ChildContent
+    }
 </div>
