@@ -82,32 +82,40 @@ public partial class PDColumn<TItem> where TItem : class
 		}
 
 		// Get the value using the compiled and cached function
-		var value = CompiledFunc?.Invoke(item);
-		if (value is null)
+		try
 		{
+			var value = CompiledFunc?.Invoke(item);
+			if (value is null)
+			{
+				return string.Empty;
+			}
+
+			// password / sensitive info?
+			if (IsPassword || IsSensitive(item, null))
+			{
+				return "".PadRight((value.ToString() ?? String.Empty).Length, '*');
+			}
+
+			// if enumeration value - does it have display attribute?
+			var memberInfo = Field?.GetPropertyMemberInfo();
+			if (memberInfo is PropertyInfo propInfo && propInfo.PropertyType.IsEnum)
+			{
+				value = propInfo.PropertyType.GetMember($"{value}")
+								?.First()
+								.GetCustomAttribute<DisplayAttribute>()
+								?.Name ?? value;
+			}
+
+			// return the string to be rendered
+			return string.IsNullOrEmpty(Format)
+				? value.ToString() ?? String.Empty
+				: string.Format(CultureInfo.CurrentCulture, "{0:" + Format + "}", value);
+		}
+		catch
+		{
+			// if field expression is nested member then parent object may be nullable
 			return string.Empty;
 		}
-
-		// password / sensitive info?
-		if (IsPassword || IsSensitive(item, null))
-		{
-			return "".PadRight((value.ToString() ?? String.Empty).Length, '*');
-		}
-
-		// if enumeration value - does it have display attribute?
-		var memberInfo = Field?.GetPropertyMemberInfo();
-		if (memberInfo is PropertyInfo propInfo && propInfo.PropertyType.IsEnum)
-		{
-			value = propInfo.PropertyType.GetMember($"{value}")
-							?.First()
-							.GetCustomAttribute<DisplayAttribute>()
-							?.Name ?? value;
-		}
-
-		// return the string to be rendered
-		return string.IsNullOrEmpty(Format)
-			? value.ToString() ?? String.Empty
-			: string.Format(CultureInfo.CurrentCulture, "{0:" + Format + "}", value);
 	}
 
 	/// <summary>
