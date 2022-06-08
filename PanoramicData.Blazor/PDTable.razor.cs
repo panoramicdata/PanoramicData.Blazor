@@ -855,8 +855,8 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 
 	protected override void OnParametersSet()
 	{
-		// has search text changed?
-		if (SearchText != _lastSearchText)
+		// has search text changed - only interept when columns available to indicate state
+		if (ActualColumnsToDisplay.Count > 0 && SearchText != _lastSearchText)
 		{
 			Console.WriteLine($"OnParametersSet: SearchText = {SearchText}");
 			_lastSearchText = SearchText;
