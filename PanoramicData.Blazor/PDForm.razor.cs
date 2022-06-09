@@ -674,6 +674,10 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 						{
 							SetFieldErrors(kvp.Key, kvp.Value);
 						}
+						if (args.RemoveErrorMessages.Count > 0 && args.AddErrorMessages.Count == 0)
+						{
+							OnErrorsChanged(EventArgs.Empty);
+						}
 					}
 
 					return typedValue;
