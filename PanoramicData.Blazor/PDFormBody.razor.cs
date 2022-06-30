@@ -258,4 +258,22 @@ public partial class PDFormBody<TItem> : IDisposable where TItem : class
 		{
 		}
 	}
+
+	public string GetFieldOptionsDebug(FormField<TItem> field)
+	{
+		if (field.Options is null)
+		{
+			return String.Empty;
+		}
+		var opts = field.Options(field, null);
+		return String.Join(',', opts.Select(x => x.Text + (x.IsSelected ? " x" : "")).ToArray());
+	}
+
+	public async Task OnSelectInputChanged(ChangeEventArgs args, FormField<TItem> field)
+	{
+		if (Form != null && args.Value != null)
+		{
+			await Form.SetFieldValueAsync(field, args.Value).ConfigureAwait(true);
+		}
+	}
 }
