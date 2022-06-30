@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor.Extensions;
+﻿using PanoramicData.Blazor.Attributes;
+
+namespace PanoramicData.Blazor.Extensions;
 
 public static class IQueryableExtensions
 {
@@ -6,10 +8,14 @@ public static class IQueryableExtensions
 	{
 		try
 		{
-			var property = keyProperties is null
-				? filter.Key
-				: keyProperties.Get(filter.Key, filter.Key);
-			if (!string.IsNullOrWhiteSpace(property))
+			// lookup property name for given filter key
+			var properties = typeof(T).GetProperties();
+			var propertyName = properties.SingleOrDefault(p => FilterKeyAttribute.Get(p) == filter.Key)?.Name
+					?? (keyProperties is null
+						? filter.Key
+						: keyProperties.Get(filter.Key, filter.Key));
+
+			if (!string.IsNullOrWhiteSpace(propertyName))
 			{
 				var parameters = filter.FilterType switch
 				{
@@ -19,22 +25,22 @@ public static class IQueryableExtensions
 				};
 				var predicate = filter.FilterType switch
 				{
-					FilterTypes.Contains => $"({property}).Contains(@0)",
-					FilterTypes.DoesNotContain => $"!({property}).Contains(@0)",
-					FilterTypes.DoesNotEqual => $"{property} != @0",
-					FilterTypes.EndsWith => $"({property}).EndsWith(@0)",
-					FilterTypes.Equals => $"{property} == @0",
-					FilterTypes.StartsWith => $"({property}).StartsWith(@0)",
-					FilterTypes.In => string.Join(" || ", parameters.Select((x, i) => $"{property} == @{i}").ToArray()),
-					FilterTypes.GreaterThan => $"{property} > @0",
-					FilterTypes.GreaterThanOrEqual => $"{property} >= @0",
-					FilterTypes.LessThanOrEqual => $"{property} <= @0",
-					FilterTypes.LessThan => $"{property} < @0",
-					FilterTypes.Range => $"{property} >= @0 and {property} <= @1",
-					FilterTypes.IsNull => $"{property} == null",
-					FilterTypes.IsNotNull => $"{property} != null",
-					FilterTypes.IsEmpty => $"{property} == \"\"",
-					FilterTypes.IsNotEmpty => $"{property} != \"\"",
+					FilterTypes.Contains => $"({propertyName}).Contains(@0)",
+					FilterTypes.DoesNotContain => $"!({propertyName}).Contains(@0)",
+					FilterTypes.DoesNotEqual => $"{propertyName} != @0",
+					FilterTypes.EndsWith => $"({propertyName}).EndsWith(@0)",
+					FilterTypes.Equals => $"{propertyName} == @0",
+					FilterTypes.StartsWith => $"({propertyName}).StartsWith(@0)",
+					FilterTypes.In => string.Join(" || ", parameters.Select((x, i) => $"{propertyName} == @{i}").ToArray()),
+					FilterTypes.GreaterThan => $"{propertyName} > @0",
+					FilterTypes.GreaterThanOrEqual => $"{propertyName} >= @0",
+					FilterTypes.LessThanOrEqual => $"{propertyName} <= @0",
+					FilterTypes.LessThan => $"{propertyName} < @0",
+					FilterTypes.Range => $"{propertyName} >= @0 and {propertyName} <= @1",
+					FilterTypes.IsNull => $"{propertyName} == null",
+					FilterTypes.IsNotNull => $"{propertyName} != null",
+					FilterTypes.IsEmpty => $"{propertyName} == \"\"",
+					FilterTypes.IsNotEmpty => $"{propertyName} != \"\"",
 					_ => ""
 				};
 				return string.IsNullOrWhiteSpace(predicate) ? query : query.Where(predicate, parameters);
@@ -46,4 +52,9 @@ public static class IQueryableExtensions
 		}
 		return query;
 	}
+
+	//public static IQueryable<T> ApplyFilters<T>(this IQueryable<T> query, IEnumerable<Filter> filters, IKeyedCollection<string>? keyProperties = null)
+	//{
+
+	//}
 }

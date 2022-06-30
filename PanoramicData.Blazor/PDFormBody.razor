@@ -63,16 +63,20 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 						else if (field.Options != null)
 						{
+							Console.WriteLine($"Render - {field.Id} - {GetFieldOptionsDebug(field)}");
 							<select class="form-control @GetEditorClass(field)"
 									disabled="@IsReadOnly(field)"
-									@oninput="(x) => Form?.SetFieldValueAsync(field, x.Value) ?? Task.CompletedTask">
+									@oninput="(x) => OnSelectInputChanged(x, field)">
 								@foreach (var option in field.Options(field, Form?.Item))
 								{
-									<option value="@option.Value"
-											disabled="@option.IsDisabled"
-											selected="@option.IsSelected">
-										@option.Text
-									</option>
+									if(option.IsSelected)
+									{
+										<option value="@option.Value" disabled="@option.IsDisabled" selected>@option.Text</option>
+									}
+									else
+									{
+										<option value="@option.Value" disabled="@option.IsDisabled">@option.Text</option>
+									}
 								}
 							</select>
 						}

@@ -4,199 +4,199 @@
 <h1>PDTable</h1>
 
 <style>
-	.pdtable {
-		height: 500px;
-		overflow-y: auto;
-	}
+    .pdtable {
+        height: 500px;
+        overflow-y: auto;
+    }
 </style>
 
 <DemoSourceView SourceFiles="Pages/PDTablePage.razor, Pages/PDTablePage.razor.cs, Data/PersonDataProvider.cs">
 
-	<PDToolbar>
+    <PDToolbar>
 
-		<PDToolbarButton Text="Refresh"
-						 CssClass="btn-primary"
-						 Click="async () => await Table!.RefreshAsync()" />
+        <PDToolbarButton Text="Refresh"
+                         CssClass="btn-primary"
+                         Click="async () => await Table!.RefreshAsync()" />
 
-		<PDToolbarTextbox ShowClearButton="true"
-						  Label="Search: "
-						  DebounceWait="1000"
-						  Value="@_searchText"
-						  ValueChanged="OnSearchValueChanged"
-						  Keypress="OnSearchKeyPress"
-						  Cleared="OnSearchCleared" />
+        <PDToolbarTextbox ShowClearButton="true"
+                          Label="Search: "
+                          DebounceWait="1000"
+                          Value="@_searchText"
+                          ValueChanged="OnSearchValueChanged"
+                          Keypress="OnSearchKeyPress"
+                          Cleared="OnSearchCleared" />
 
-		<PDToolbarButton Text="@(Enabled ? "Disable" : "Enable")"
-						 Click="() => Enabled = !Enabled" />
+        <PDToolbarButton Text="@(Enabled ? "Disable" : "Enable")"
+                         Click="() => Enabled = !Enabled" />
 
-		<PDToolbarButton Text="@(AllowDrag ? "Disable Drag" : "Enable Drag")"
-						 Click="() => AllowDrag = !AllowDrag" />
+        <PDToolbarButton Text="@(AllowDrag ? "Disable Drag" : "Enable Drag")"
+                         Click="() => AllowDrag = !AllowDrag" />
 
-		<PDToolbarButton Text="@(AllowDrop ? "Disable Drop" : "Enable Drop")"
-						 Click="() => AllowDrop = !AllowDrop" />
+        <PDToolbarButton Text="@(AllowDrop ? "Disable Drop" : "Enable Drop")"
+                         Click="() => AllowDrop = !AllowDrop" />
 
-		<PDToolbarButton Text="@((Table?.IsEditing ?? false) ? "Stop Edit" : "Start Edit")"
-						 Click="OnEditCommand" />
+        <PDToolbarButton Text="@((Table?.IsEditing ?? false) ? "Stop Edit" : "Start Edit")"
+                         Click="OnEditCommand" />
 
-		<PDToolbarPlaceholder>
-			<span class="pl-2">Selection Mode</span>
-			<div class="pl-2">
-				<select class="form-control" @bind="SelectionMode">
-					<option value="@TableSelectionMode.None">None</option>
-					<option value="@TableSelectionMode.Single" selected>Single</option>
-					<option value="@TableSelectionMode.Multiple">Multiple</option>
-				</select>
-			</div>
-		</PDToolbarPlaceholder>
+        <PDToolbarPlaceholder>
+            <span class="pl-2">Selection Mode</span>
+            <div class="pl-2">
+                <select class="form-control" @bind="SelectionMode">
+                    <option value="@TableSelectionMode.None">None</option>
+                    <option value="@TableSelectionMode.Single" selected>Single</option>
+                    <option value="@TableSelectionMode.Multiple">Multiple</option>
+                </select>
+            </div>
+        </PDToolbarPlaceholder>
 
-	</PDToolbar>
+    </PDToolbar>
 
-	<PDDragContext @ref="DragContext">
+    <PDDragContext @ref="DragContext">
 
-		<PDTable @ref="Table"
-				 TItem="Person"
-				 DataProvider="_personDataProvider"
-				 KeyField="x => x.Id"
-				 AllowEdit="true"
-				 AllowDrag="AllowDrag"
-				 AllowDrop="AllowDrop"
-				 IsEnabled="Enabled"
-				 FilterMaxValues="50"
-				 SaveChanges="true"
-				 @bind-SearchText="@_searchText"
-				 PageCriteria="_pageCriteria"
-				 PagerPosition="PagerPositions.Top"
-				 RetainSelectionOnPage="true"
-				 SortCriteria="_sortCriteria"
-				 PageSizeChoices="new uint[] { 5, 10, 20, 30, 50, 100 }"
-				 SelectionMode="@SelectionMode"
-				 SelectionChanged="OnSelectionChange"
-				 ShowCheckboxes="true"
-				 Drop="OnDrop"
-				 Click="OnClick"
-				 DoubleClick="OnDoubleClick"
-				 BeforeEdit="OnBeforeEdit"
-				 PageChanged="OnPageChange"
-				 SortChanged="OnSortChange">
+        <PDTable @ref="Table"
+                 TItem="Person"
+                 DataProvider="_personDataProvider"
+                 KeyField="x => x.Id"
+                 AllowEdit="true"
+                 AllowDrag="AllowDrag"
+                 AllowDrop="AllowDrop"
+                 IsEnabled="Enabled"
+                 FilterMaxValues="50"
+                 SaveChanges="true"
+                 @bind-SearchText="@_searchText"
+                 PageCriteria="_pageCriteria"
+                 PagerPosition="PagerPositions.Top"
+                 RetainSelectionOnPage="true"
+                 SortCriteria="_sortCriteria"
+                 PageSizeChoices="new uint[] { 5, 10, 20, 30, 50, 100 }"
+                 SelectionMode="@SelectionMode"
+                 SelectionChanged="OnSelectionChange"
+                 ShowCheckboxes="true"
+                 Drop="OnDrop"
+                 Click="OnClick"
+                 DoubleClick="OnDoubleClick"
+                 BeforeEdit="OnBeforeEdit"
+                 PageChanged="OnPageChange"
+                 SortChanged="OnSortChange">
 
-			<PDColumn Id="icon"
-					  TdClass="pl-0 pr-2"
-					  ThClass="pl-0 pr-2"
-					  TItem="Person"
-					  Title=" "
-					  Sortable="false"
-					  Editable="false">
-				<Template>
-					<i class="fas fa-user"></i>
-				</Template>
-			</PDColumn>
+            <PDColumn Id="icon"
+                      TdClass="pl-0 pr-2"
+                      ThClass="pl-0 pr-2"
+                      TItem="Person"
+                      Title=" "
+                      Sortable="false"
+                      Editable="false">
+                <Template>
+                    <i class="fas fa-user"></i>
+                </Template>
+            </PDColumn>
 
-			<PDColumn Id="id"
-					  TdClass="pl-0 pr-0"
-					  ThClass="pl-0 pr-0"
-					  TItem="Person"
-					  Field="x => x.Id"
-					  Editable="false" />
+            <PDColumn Id="id"
+                      TdClass="pl-0 pr-0"
+                      ThClass="pl-0 pr-0"
+                      TItem="Person"
+                      Field="x => x.Id"
+                      Editable="false" />
 
-			<PDColumn Id="first"
-					  DefaultSortDirection="SortDirection.Descending"
-					  TItem="Person"
-					  Field="x => x.FirstName"
-					  Filterable="true" />
+            <PDColumn Id="first"
+                      DefaultSortDirection="SortDirection.Descending"
+                      TItem="Person"
+                      Field="x => x.FirstName"
+                      Filterable="true" />
 
-			<PDColumn Id="last"
-					  TItem="Person"
-					  Field="x => x.LastName"
-					  Filterable="true" />
+            <PDColumn Id="last"
+                      TItem="Person"
+                      Field="x => x.LastName"
+                      Filterable="true" />
 
-			<PDColumn Id="email"
-					  TItem="Person"
-					  Field="x => x.Email"
-					  Filterable="true" />
+            <PDColumn Id="email"
+                      TItem="Person"
+                      Field="x => x.Email"
+                      Filterable="true" />
 
-			<PDColumn Id="dob"
-					  TItem="Person"
-					  Field="x => x.Dob"
-					  Title="Date of Birth"
-					  Filterable="true"
-					  Format="yyyy-MM-dd">
-				<EditTemplate>
-					<input id="pd-table-edit-dob"
-						   type="date"
-						   value="@context.Dob"
-						   @oninput="@((a) => Table?.OnEditInput("col-dob", a.Value))"
-						   @onblur="@(async () => await Table.OnEditBlurAsync().ConfigureAwait(true))"
-						   @onmousedown:stopPropagation
-						   @onclick:stopPropagation
-						   @oncontextmenu:stopPropagation />
-				</EditTemplate>
-			</PDColumn>
+            <PDColumn Id="dob"
+                      TItem="Person"
+                      Field="x => x.Dob"
+                      Title="Date of Birth"
+                      Filterable="true"
+                      Format="yyyy-MM-dd">
+                <EditTemplate>
+                    <input id="pd-table-edit-dob"
+                           type="date"
+                           value="@context.Dob"
+                           @oninput="@((a) => Table?.OnEditInput("col-dob", a.Value))"
+                           @onblur="@(async () => await Table.OnEditBlurAsync().ConfigureAwait(true))"
+                           @onmousedown:stopPropagation
+                           @onclick:stopPropagation
+                           @oncontextmenu:stopPropagation />
+                </EditTemplate>
+            </PDColumn>
 
-			<PDColumn Id="dept"
-					  TItem="Person"
-					  Field="x => x.Department"
-					  Filterable="true" />
+            <PDColumn Id="dept"
+                      TItem="Person"
+                      Field="x => x.Department"
+                      Filterable="true" />
 
-			<PDColumn Id="loc"
-					  TItem="Person"
-					  Field="x => x.Location"
-					  Options="GetLocationOptions"
-					  Filterable="true" />
+            <PDColumn Id="loc"
+                      TItem="Person"
+                      Field="x => x.Location"
+                      Options="GetLocationOptions"
+                      Filterable="true" />
 
-			<PDColumn Id="tgt"
-					  TItem="Person"
-					  Field="x => x.Target"
-					  ShowInList="false"
-					  Filterable="true" />
+            <PDColumn Id="tgt"
+                      TItem="Person"
+                      Field="x => x.Target"
+                      ShowInList="false"
+                      Filterable="true" />
 
-			<PDColumn Id="login"
-					  TItem="Person"
-					  Field="x => x.AllowLogin"
-					  ShowInList="false"
-					  Filterable="true" />
+            <PDColumn Id="login"
+                      TItem="Person"
+                      Field="x => x.AllowLogin"
+                      ShowInList="false"
+                      Filterable="true" />
 
-			<PDColumn Id="password"
-					  TItem="Person"
-					  Field="x => x.Password"
-					  ShowInList="true"
-					  IsSensitive="@((x, __) => true)" />
+            <PDColumn Id="password"
+                      TItem="Person"
+                      Field="x => x.Password"
+                      ShowInList="true"
+                      IsSensitive="@((x, __) => true)" />
 
-			<PDColumn Id="comments"
-					  TItem="Person"
-					  Field="x => x.Comments"
-					  ShowInList="false"
-					  IsTextArea="true"
-					  TextAreaRows="6" />
+            <PDColumn Id="comments"
+                      TItem="Person"
+                      Field="x => x.Comments"
+                      ShowInList="false"
+                      IsTextArea="true"
+                      TextAreaRows="6" />
 
-			<PDColumn Id="created"
-					  TItem="Person"
-					  Field="x => x.DateCreated"
-					  Filterable="true"
-					  Format="yyyy-MM-dd"
-					  ShowInList="false" />
+            <PDColumn Id="created"
+                      TItem="Person"
+                      Field="x => x.DateCreated"
+                      Filterable="true"
+                      Format="yyyy-MM-dd"
+                      ShowInList="false" />
 
-			<PDColumn Id="modified"
-					  TItem="Person"
-					  Field="x => x.DateModified"
-					  Filterable="true"
-					  Format="yyyy-MM-dd HH:mm"
-					  Editable="false"
-					  TdClass="text-nowrap" />
-		</PDTable>
+            <PDColumn Id="modified"
+                      TItem="Person"
+                      Field="x => x.DateModified"
+                      Filterable="true"
+                      Format="yyyy-MM-dd HH:mm"
+                      Editable="false"
+                      TdClass="text-nowrap" />
+        </PDTable>
 
-	</PDDragContext>
+    </PDDragContext>
 
-	@if (AllowDrag)
-	{
-		<div class="mt-3 drop-zone @DropZoneCss"
-			 @ondragenter="OnDragEnter"
-			 @ondragleave="OnDragLeave"
-			 @ondrop="OnDragDrop"
-			 ondragover="event.preventDefault();">
-			<span>@DropMessage</span>
-		</div>
-	}
+    @if (AllowDrag)
+    {
+        <div class="mt-3 drop-zone @DropZoneCss"
+         @ondragenter="OnDragEnter"
+         @ondragleave="OnDragLeave"
+         @ondrop="OnDragDrop"
+         ondragover="event.preventDefault();">
+            <span>@DropMessage</span>
+        </div>
+    }
 
-	<EventView />
+    <EventView />
 
 </DemoSourceView>
