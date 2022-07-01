@@ -1,7 +1,9 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
-public abstract class DataProviderBase<T> : IDataProviderService<T>, IKeyedCollection<string>, IFilterProviderService<T>
+public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProviderService<T>
 {
+	private readonly Dictionary<string, string> _keyMappings = new();
+
 	#region IDataProviderService<T> Members
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("General", "RCS1079:Throwing of new NotImplementedException.", Justification = "<Pending>")]
@@ -32,6 +34,8 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IKeyedColle
 
 	#region IFilterProviderService<T> Members
 
+	public IDictionary<string, string> KeyPropertyMappings => _keyMappings;
+
 	public virtual async Task<object[]> GetDistinctValuesAsync(DataRequest<T> request, Expression<Func<T, object>> field)
 	{
 		// use main data provider - take has to be applied on base query
@@ -47,32 +51,6 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IKeyedColle
 
 	#endregion
 
-	#region IKeyedCollection<string> Members
-
-	private IDictionary<string, string> _keyProperties = new Dictionary<string, string>();
-
-	public void Add(string key, string value)
-	{
-		if (!_keyProperties.ContainsKey(key))
-		{
-			_keyProperties.Add(key, value);
-		}
-	}
-
-	public bool ContainsKey(string key) => _keyProperties.ContainsKey(key);
-
-	public string Get(string key)
-	{
-		return _keyProperties.ContainsKey(key) ? _keyProperties[key] : String.Empty;
-	}
-
-	public string Get(string key, string defaultValue)
-	{
-		return _keyProperties.ContainsKey(key) ? _keyProperties[key] : defaultValue;
-	}
-
-	#endregion
-
 	public virtual IQueryable<T> ApplyFilter(IQueryable<T> query, Filter filter)
 	{
 		if (!filter.IsValid)
@@ -80,7 +58,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IKeyedColle
 			throw new InvalidOperationException($"Filter is not valid: {filter.Key}");
 		}
 
-		return query.ApplyFilter(filter, this);
+		return query.ApplyFilter(filter, null);
 	}
 
 	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T, bool>>? existingPredicate, Filter filter)
@@ -91,9 +69,8 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IKeyedColle
 		}
 
 		Expression<Func<T, bool>> newPredicate = x => true;
-		var property = ContainsKey(filter.Key)
-			? Get(filter.Key, filter.Key)
-			: filter.Key;
+
+		var property = filter.PropertyName;
 
 		object[] parameters = filter.FilterType switch
 		{

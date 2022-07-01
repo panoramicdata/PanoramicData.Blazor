@@ -98,6 +98,13 @@
                       Field="x => x.Id"
                       Editable="false" />
 
+            <PDColumn Id="boss"
+                      TItem="Person"
+                      Field="x => x.Manager.FirstName"
+                      Filterable="true"
+                      FilterKey="boss"
+                      Title="Manager" />
+
             <PDColumn Id="first"
                       DefaultSortDirection="SortDirection.Descending"
                       TItem="Person"

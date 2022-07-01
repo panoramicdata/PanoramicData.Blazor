@@ -26,6 +26,8 @@ public class Filter
 
 	public string Key { get; set; } = string.Empty;
 
+	public string PropertyName { get; set; } = string.Empty;
+
 	public string Value { get; set; } = string.Empty;
 
 	public string Value2 { get; set; } = string.Empty;
@@ -159,11 +161,12 @@ public class Filter
 		return value.ToString() ?? String.Empty;
 	}
 
-	public static Filter Parse(string token)
+	public static Filter Parse(string token, IDictionary<string, string>? keyMappings = null)
 	{
 		var key = string.Empty;
 		var value = string.Empty;
 		var value2 = string.Empty;
+		var propertyName = string.Empty;
 		var filterType = FilterTypes.Equals;
 		var encodedValue = string.Empty;
 
@@ -171,6 +174,12 @@ public class Filter
 		{
 			key = token.Substring(0, token.IndexOf(':'));
 			encodedValue = token.Substring(token.IndexOf(':') + 1);
+
+			// lookup property name?
+			if (keyMappings?.ContainsKey(key) == true)
+			{
+				propertyName = keyMappings[key];
+			}
 		}
 		else
 		{
@@ -267,10 +276,10 @@ public class Filter
 		//	value = value.Substring(1, value.Length - 2);
 		//}
 
-		return new Filter(filterType, key, value, value2);
+		return new Filter(filterType, key, value, value2) { PropertyName = propertyName };
 	}
 
-	public static IEnumerable<Filter> ParseMany(string text)
+	public static IEnumerable<Filter> ParseMany(string text, IDictionary<string, string>? keyMappings = null)
 	{
 		if (string.IsNullOrWhiteSpace(text) || !text.Contains(':'))
 		{
@@ -290,7 +299,7 @@ public class Filter
 				if (char.IsWhiteSpace(ch) && !quoted && !hashed)
 				{
 					// not within quotes or hashes so end of next token
-					yield return Parse(sb.ToString());
+					yield return Parse(sb.ToString(), keyMappings);
 					sb.Clear();
 					token = false;
 				}
@@ -330,7 +339,7 @@ public class Filter
 			{
 				sb.Append('#');
 			}
-			yield return Parse(sb.ToString());
+			yield return Parse(sb.ToString(), keyMappings);
 		}
 	}
 

@@ -22,8 +22,7 @@ public class Person
 	[Display(Description = "Optional middle name initials")]
 	public string Initials { get; set; } = string.Empty;
 
-	[Display(Name = "Last Name", Description = "Persons last / surname")]
-	[FilterKey("ln")]
+	[Display(Name = "Last Name", Description = "Persons last / surname", ShortName = "ln")]
 	public string LastName { get; set; } = string.Empty;
 
 	[Display(Name = "Email Address", Description = "Primary email address used to contact the person")]
@@ -68,6 +67,9 @@ public class Person
 	[Display(Name = "Username", Description = "Login username")]
 	[FilterKey("user")]
 	public string Username { get; set; } = string.Empty;
+
+	[FilterKey("boss")]
+	public Person Manager { get; set; }
 }
 
 public enum Departments

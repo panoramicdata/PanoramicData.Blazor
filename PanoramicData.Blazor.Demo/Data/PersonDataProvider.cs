@@ -16,6 +16,16 @@ public class PersonDataProvider : DataProviderBase<Person>
 		{
 			foreach (var id in Enumerable.Range(1, count))
 			{
+				var boss1 = new Person
+				{
+					FirstName = "Peter",
+					LastName = "Simmons"
+				};
+				var boss2 = new Person
+				{
+					FirstName = "Lucy",
+					LastName = "Waterman"
+				};
 				var person = new Person
 				{
 					Id = id,
@@ -30,6 +40,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 					Comments = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length)),
 					Password = "Password"
 				};
+				person.Manager = _random.Next(0, 2) == 1 ? boss1 : boss2;
 				person.Email = _random.Next(10) < 2
 					? string.Empty
 					: $"{person.FirstName?.ToLower() ?? _firstNames[_random.Next(_firstNames.Length)].ToLower()}.{person.LastName.ToLower()}@acme.com";
@@ -49,11 +60,11 @@ public class PersonDataProvider : DataProviderBase<Person>
 			// apply search criteria and get a total count of matching items
 			if (!string.IsNullOrWhiteSpace(request.SearchText))
 			{
-				var filters = Filter.ParseMany(request.SearchText).ToArray();
+				var filters = Filter.ParseMany(request.SearchText, KeyPropertyMappings).ToArray();
 				if (filters.Length == 0)
 				{
 					// basic filtering
-					query = query.Where(x => x.FirstName.Contains(request.SearchText) || x.LastName.Contains(request.SearchText));
+					query = query.Where(x => (x.FirstName != null && x.FirstName.Contains(request.SearchText)) || x.LastName.Contains(request.SearchText));
 				}
 				else
 				{

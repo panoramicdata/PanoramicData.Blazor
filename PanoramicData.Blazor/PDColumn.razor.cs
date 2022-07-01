@@ -68,6 +68,9 @@ public partial class PDColumn<TItem> where TItem : class
 
 	public Filter Filter { get; private set; } = new Filter();
 
+	[Parameter]
+	public string FilterKey { get; set; } = String.Empty;
+
 	/// <summary>
 	/// Renders the field value for this column and the given item.
 	/// </summary>
@@ -399,4 +402,54 @@ public partial class PDColumn<TItem> where TItem : class
 		return false;
 	}
 
+	public string GetFilterKey()
+	{
+		if (Field != null)
+		{
+			return FilterKeyVisitor.GetFilterKey(Field);
+		}
+		return Id;
+	}
+
+	private class FilterKeyVisitor : ExpressionVisitor
+	{
+		private readonly Expression param;
+
+		public string FilterKey { get; private set; } = String.Empty;
+
+		public FilterKeyVisitor(Expression parameter) => param = parameter;
+
+		public override Expression? Visit(Expression? node)
+		{
+			if (node != null)
+			{
+				var chain = node.MemberClauses().ToList();
+				if (chain.Any() && chain.First().Expression == param)
+				{
+					FilterKey = string.Join(".", chain.Select(
+						mexpr => mexpr.Member.GetCustomAttribute<FilterKeyAttribute>()?.Value
+								?? mexpr.Member.GetCustomAttribute<DisplayAttribute>()?.ShortName
+								?? mexpr.Member.Name.LowerFirstChar()
+					));
+					//var last = chain.LastOrDefault();
+					//if (last != null)
+					//{
+					//	FilterKey = last.Member.GetCustomAttribute<FilterKeyAttribute>()?.Value
+					//			?? last.Member.GetCustomAttribute<DisplayAttribute>()?.ShortName
+					//			?? last.Member.Name;
+					//}
+					return node;
+				}
+			}
+			return base.Visit(node);
+		}
+
+		public static string GetFilterKey(Expression<Func<TItem, object>> expr)
+		{
+			var visitor = new FilterKeyVisitor(expr.Parameters[0]);
+			visitor.Visit(expr);
+			return visitor.FilterKey;
+		}
+
+	}
 }
