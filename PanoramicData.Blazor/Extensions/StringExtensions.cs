@@ -72,6 +72,14 @@ public static class StringExtensions
 		return (MarkupString)sb.ToString();
 	}
 
+	public static string LowerFirstChar(this string text) => string.IsNullOrWhiteSpace(text)
+		? text
+		: text[0].ToString().ToLower() + text[1..];
+
+	public static string UpperFirstChar(this string text) => string.IsNullOrWhiteSpace(text)
+		? text
+		: text[0].ToString().ToUpper() + text[1..];
+
 	public static string QuoteIfContainsWhitespace(this string text)
 	{
 		if (text.Length > 0)

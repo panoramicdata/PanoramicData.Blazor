@@ -11,7 +11,8 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 	public readonly string IdEditPrefix = "pd-table-edit-";
 	private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
 	private string? _lastSearchText;
-	private readonly Dictionary<string, object?> _editValues = new Dictionary<string, object?>();
+	private readonly Dictionary<string, object?> _editValues = new();
+	private readonly Dictionary<string, string> _keyProperties = new();
 
 	private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
@@ -325,30 +326,35 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 				column.SortDirection = SortCriteria.Direction;
 			}
 
-			if (column.Filterable)
+			if (column.Filterable && column.Field != null)
 			{
-				// update filter key and automatically set property name from Field
-				column.Filter.Key = column.Id;
-				if (DataProvider is IKeyedCollection<string> collection && column.Field != null)
+				// obtain filter key
+				column.Filter.Key = String.IsNullOrWhiteSpace(column.FilterKey) ? column.GetFilterKey() : column.FilterKey;
+
+				// determine property name
+				var body = column.Field.Body.ToString();
+				if (column.Field.Body is MemberExpression)
 				{
-					var body = column.Field.Body.ToString();
-					if (column.Field.Body is MemberExpression)
+					column.Filter.PropertyName = body.Contains('.') ? string.Join(".", body.Split('.').Skip(1)) : body;
+				}
+				else
+				{
+					var idx1 = body.IndexOf("Convert(");
+					var idx2 = body.IndexOf(",");
+					if (idx1 > -1 && idx2 > idx1)
 					{
-						var path = body.Contains(".") ? string.Join(".", body.Split('.').Skip(1)) : body;
-						collection.Add(column.Id, path);
-					}
-					else
-					{
-						var idx1 = body.IndexOf("Convert(");
-						var idx2 = body.IndexOf(",");
-						if (idx1 > -1 && idx2 > idx1)
-						{
-							body = body.Substring(idx1 + 8, idx2 - (idx1 + 8));
-							var path = body.Contains(".") ? string.Join(".", body.Split('.').Skip(1)) : body;
-							collection.Add(column.Id, path);
-						}
+						body = body[(idx1 + 8)..idx2];
+						var path = body.Contains('.') ? string.Join(".", body.Split('.').Skip(1)) : body;
+						column.Filter.PropertyName = path;
 					}
 				}
+
+				// update mapping
+				if (DataProvider is IFilterProviderService<TItem> fs)
+				{
+					fs.KeyPropertyMappings.Add(column.Filter.Key, column.Filter.PropertyName);
+				}
+
 			}
 
 			StateHasChanged();
@@ -858,7 +864,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 		// has search text changed - only interept when columns available to indicate state
 		if (ActualColumnsToDisplay.Count > 0 && SearchText != _lastSearchText)
 		{
-			Console.WriteLine($"OnParametersSet: SearchText = {SearchText}");
+			//Console.WriteLine($"OnParametersSet: SearchText = {SearchText}");
 			_lastSearchText = SearchText;
 			foreach (var column in ActualColumnsToDisplay.Where(x => x.Filterable))
 			{

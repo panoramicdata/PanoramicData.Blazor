@@ -9,6 +9,7 @@ global using Microsoft.Extensions.Logging.Abstractions;
 global using Microsoft.Extensions.Primitives;
 global using Microsoft.JSInterop;
 global using PanoramicData.Blazor.Arguments;
+global using PanoramicData.Blazor.Attributes;
 global using PanoramicData.Blazor.Exceptions;
 global using PanoramicData.Blazor.Extensions;
 global using PanoramicData.Blazor.Interfaces;
