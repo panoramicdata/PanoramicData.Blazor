@@ -49,7 +49,8 @@ else if (Form.Mode != FormModes.Hidden)
 						<!-- editor -->
 						@if (field.EditTemplate != null)
 						{
-							@field.EditTemplate(Form?.Item);
+							@field.EditTemplate(Form?.Item)
+							;
 						}
 						else if (field.IsPassword || field.IsSensitive(Form?.Item, Form))
 						{
@@ -69,7 +70,7 @@ else if (Form.Mode != FormModes.Hidden)
 									@oninput="(x) => OnSelectInputChanged(x, field)">
 								@foreach (var option in field.Options(field, Form?.Item))
 								{
-									if(option.IsSelected)
+									if (option.IsSelected)
 									{
 										<option value="@option.Value" disabled="@option.IsDisabled" selected>@option.Text</option>
 									}
@@ -127,6 +128,16 @@ else if (Form.Mode != FormModes.Hidden)
 								   @onchange="(x) => UpdateDateTimeOffsetValue(x, field)">
 						}
 						else if (fieldType?.FullName == "System.String")
+						{
+							<PDTextBox CssClass="@GetEditorClass(field)"
+									   AutoComplete="@field.AutoComplete"
+									   ShowClearButton="false"
+									   IsEnabled="!IsReadOnly(field)"
+									   Value="@(Form?.GetFieldStringValue(field))"
+									   ValueChanged="(x) => Form?.SetFieldValueAsync(field, x) ?? Task.CompletedTask"
+									   DebounceWait="DebounceWait" />
+						}
+						else if (fieldType?.FullName == "System.Guid")
 						{
 							<PDTextBox CssClass="@GetEditorClass(field)"
 									   AutoComplete="@field.AutoComplete"

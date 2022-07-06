@@ -3,11 +3,13 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<AnalysisLevel>latest-recommended</AnalysisLevel>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<Authors>Panoramic Data Limited</Authors>
-		<Copyright>Copyright © Panoramic Data Limited 2020</Copyright>
+		<Copyright>Copyright © Panoramic Data Limited 2020-2022</Copyright>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageIcon>Icon.png</PackageIcon>
 		<PackageTags>blazor components</PackageTags>
@@ -15,13 +17,14 @@
 		<Description>Blazor components</Description>
 		<Summary>A library of components for Blazor projects</Summary>
 		<Company>Panoramic Data Limited</Company>
-		<PackageReleaseNotes>Added PDTable, PDTree, PDFileExplorer, PDContextMenu, PDPager and PDSplitter components.</PackageReleaseNotes>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor/</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+		<PackageReleaseNotes>Updated PDForm to support rendering GUID instead of 0.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
