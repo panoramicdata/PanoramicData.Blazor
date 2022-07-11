@@ -4,10 +4,10 @@ public static class PropertyInfoExtensions
 {
 	public static string? GetDisplayShortName(this PropertyInfo propertyInfo) => propertyInfo.GetCustomAttributes()
 		.OfType<DisplayAttribute>()
-		.SingleOrDefault()?.ShortName;
+		.SingleOrDefault()?.ShortName?.LowerFirstChar();
 
 	public static string? GetFilterKey(this PropertyInfo propertyInfo) => propertyInfo.GetCustomAttributes()
 		.OfType<FilterKeyAttribute>()
-		.SingleOrDefault()?.Value;
+		.SingleOrDefault()?.Value?.LowerFirstChar();
 
 }
