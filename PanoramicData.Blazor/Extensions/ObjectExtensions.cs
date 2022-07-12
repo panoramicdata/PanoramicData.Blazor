@@ -8,9 +8,13 @@ public static class ObjectExtensions
 	/// <param name="value">The object value being cast.</param>
 	/// <param name="type">The data type to be cast to.</param>
 	/// <returns></returns>
-	public static object Cast(this object value, Type type)
+	public static object? Cast(this object value, Type type)
 	{
-		if (type.IsEnum)
+		if (value is null)
+		{
+			return null;
+		}
+		else if (type.IsEnum)
 		{
 			return Enum.Parse(type, value?.ToString() ?? String.Empty);
 		}
@@ -18,14 +22,26 @@ public static class ObjectExtensions
 		{
 			return Guid.Parse(value.ToString() ?? String.Empty);
 		}
+		else if (type.FullName?.StartsWith("System.Nullable`1[[System.Guid", StringComparison.InvariantCultureIgnoreCase) == true)
+		{
+			return (Guid?)Guid.Parse(value.ToString() ?? String.Empty);
+		}
 		else if (type.FullName == "System.DateTime")
 		{
-			return DateTime.Parse(value.ToString() ?? String.Empty);
+			return DateTime.Parse(value.ToString() ?? String.Empty, CultureInfo.CurrentCulture);
+		}
+		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTime", StringComparison.InvariantCultureIgnoreCase) == true)
+		{
+			return (DateTime?)DateTime.Parse(value.ToString() ?? String.Empty, CultureInfo.CurrentCulture);
 		}
 		else if (type.FullName == "System.DateTimeOffset")
 		{
-			return DateTimeOffset.Parse(value.ToString() ?? String.Empty);
+			return DateTimeOffset.Parse(value.ToString() ?? String.Empty, CultureInfo.CurrentCulture);
 		}
-		return Convert.ChangeType(value, type);
+		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTimeOffset", StringComparison.InvariantCultureIgnoreCase) == true)
+		{
+			return (DateTimeOffset?)DateTimeOffset.Parse(value.ToString() ?? String.Empty, CultureInfo.CurrentCulture);
+		}
+		return Convert.ChangeType(value, type, CultureInfo.CurrentCulture);
 	}
 }
