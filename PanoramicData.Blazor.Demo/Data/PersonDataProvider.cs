@@ -40,7 +40,8 @@ public class PersonDataProvider : DataProviderBase<Person>
 					Comments = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length)),
 					Password = "Password"
 				};
-				person.Manager = _random.Next(0, 2) == 1 ? boss1 : boss2;
+				var managers = new List<Person?>() { boss1, boss2, null };
+				person.Manager = managers[_random.Next(0, 3)]!;
 				person.Email = _random.Next(10) < 2
 					? string.Empty
 					: $"{person.FirstName?.ToLower() ?? _firstNames[_random.Next(_firstNames.Length)].ToLower()}.{person.LastName.ToLower()}@acme.com";

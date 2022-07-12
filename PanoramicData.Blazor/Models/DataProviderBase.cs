@@ -42,11 +42,32 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		var response = await GetDataAsync(request, default);
 		var fn = field.Compile();
 		return response.Items
-			.Where(x => fn(x) != null)
+			.Where(x => NonNullExpressionResult(fn, x))
 			.Select(x => fn(x))
 			.Distinct()
 			.OrderBy(x => x)
 			.ToArray();
+	}
+
+	/// <summary>
+	/// Perform expression evaluation followed by a null check, with handling of exceptions
+	/// </summary>
+	/// <param name="expression">The expression to be evaluated</param>
+	/// <param name="target">The target against which to execute the expression</param>
+	/// <returns>Boolean true if the evaluation of an expression results in a non-null result, otherwise false</returns>
+	private static bool NonNullExpressionResult(Func<T, object>? expression, T target)
+	{
+		if (target is null) return false;
+		if (expression is null) return false;
+
+		try
+		{
+			return expression(target) != null;
+		}
+		catch
+		{
+			return false;
+		}
 	}
 
 	#endregion
@@ -61,7 +82,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		return query.ApplyFilter(filter, null);
 	}
 
-	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T, bool>>? existingPredicate, Filter filter, IDictionary<string, string>? keyProperyMappings = null)
+	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T, bool>>? existingPredicate, Filter filter, IDictionary<string, string>? keyPropertyMappings = null)
 	{
 		if (!filter.IsValid)
 		{
@@ -73,9 +94,9 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		// determine property name to use in query
 		if (string.IsNullOrEmpty(filter.PropertyName))
 		{
-			if (keyProperyMappings != null && keyProperyMappings.ContainsKey(filter.Key))
+			if (keyPropertyMappings != null && keyPropertyMappings.ContainsKey(filter.Key))
 			{
-				filter.PropertyName = keyProperyMappings[filter.Key];
+				filter.PropertyName = keyPropertyMappings[filter.Key];
 			}
 			else
 			{
