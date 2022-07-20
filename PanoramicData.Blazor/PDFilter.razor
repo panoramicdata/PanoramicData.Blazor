@@ -10,7 +10,7 @@
 		<div class="filter-body"
 			 onclick="event.stopPropagation()">
 			<div class="mb-1">
-				<select class="form-control form-control-sm"
+				<select class="form-select form-control-sm"
 						@onchange="OnFilterTypeChanged">
 					<option value="@FilterTypes.Equals" selected="@(_filterType == FilterTypes.Equals)">Equals</option>
 					<option value="@FilterTypes.DoesNotEqual" selected="@(_filterType == FilterTypes.DoesNotEqual)">Does not equal</option>

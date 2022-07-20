@@ -34,6 +34,23 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 	#region IFilterProviderService<T> Members
 
+	protected virtual void ApplyDelta(T item, IDictionary<string, object> delta)
+	{
+		var itemType = typeof(T);
+		foreach (var kvp in delta)
+		{
+			try
+			{
+				var propInfo = itemType.GetProperty(kvp.Key);
+				propInfo?.SetValue(item, kvp.Value);
+			}
+			catch (Exception ex)
+			{
+				throw new ArgumentException($"Error applying delta to {kvp.Key}: {ex.Message}", ex);
+			}
+		}
+	}
+
 	public IDictionary<string, string> KeyPropertyMappings => _keyMappings;
 
 	public virtual async Task<object[]> GetDistinctValuesAsync(DataRequest<T> request, Expression<Func<T, object>> field)
