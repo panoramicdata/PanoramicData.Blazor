@@ -65,7 +65,7 @@
 	{
 		<div class="d-none d-sm-flex align-items-center">
 			<div class="pr-2 text-nowrap d-none d-sm-block">Page Size:</div>
-			<select class="form-control @ControlSizeCssClass"
+			<select class="form-select @ControlSizeCssClass"
 					disabled="@(!IsEnabled)"
 					@bind="PageCriteria.PageSize">
 				@foreach (var size in PageSizeChoices)

@@ -65,7 +65,7 @@ else if (Form.Mode != FormModes.Hidden)
 						else if (field.Options != null)
 						{
 							Console.WriteLine($"Render - {field.Id} - {GetFieldOptionsDebug(field)}");
-							<select class="form-control @GetEditorClass(field)"
+							<select class="form-select @GetEditorClass(field)"
 									disabled="@IsReadOnly(field)"
 									@oninput="(x) => OnSelectInputChanged(x, field)">
 								@foreach (var option in field.Options(field, Form?.Item))
@@ -99,7 +99,7 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 						else if (fieldType?.IsEnum == true)
 						{
-							<select class="form-control @GetEditorClass(field)"
+							<select class="form-select @GetEditorClass(field)"
 									disabled="@IsReadOnly(field)"
 									@oninput="(x) => Form?.SetFieldValueAsync(field, Enum.Parse(fieldType, x.Value?.ToString() ?? string.Empty)) ?? Task.CompletedTask">
 								@foreach (var option in GetEnumValues(field))
