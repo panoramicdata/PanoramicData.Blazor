@@ -51,6 +51,9 @@ public partial class PDTimeline : IDisposable
 	public DateTime DisableBefore { get; set; }
 
 	[Parameter]
+	public EventCallback Initialized { get; set; }
+
+	[Parameter]
 	public bool IsEnabled { get; set; } = true;
 
 	[Parameter]
@@ -183,11 +186,11 @@ public partial class PDTimeline : IDisposable
 			date2 = RoundedMaxDateTime;
 		}
 		var viewportColumns = _canvasWidth > 0 ? (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width) : 0;
-		for (var i = Options.General.Scales.Length - 1; i >= 0; i--)
+		for (var i = 0; i < Options.General.Scales.Length - 1; i++)
 		{
 			var newScale = Options.General.Scales[i];
 			var totalColumns = newScale.PeriodsBetween(date1.Value, date2.Value);
-			if (totalColumns >= viewportColumns)
+			if (totalColumns > 0 && totalColumns <= viewportColumns)
 			{
 				return newScale;
 			}
@@ -282,6 +285,8 @@ public partial class PDTimeline : IDisposable
 			{
 				await SetScale(Scale, true);
 			}
+			// notify app
+			await Initialized.InvokeAsync().ConfigureAwait(true);
 		}
 	}
 
@@ -879,6 +884,18 @@ public partial class PDTimeline : IDisposable
 			if (scale != null)
 			{
 				await SetScale(scale, true, MaxDateTime, TimelinePositions.End).ConfigureAwait(true);
+			}
+		}
+	}
+
+	public async Task ZoomToSelectionAsync()
+	{
+		if (_canvasWidth > 0 && _selectionRange != null)
+		{
+			var scale = GetScaleToFit(_selectionRange.StartTime, _selectionRange.EndTime);
+			if (scale != null)
+			{
+				await SetScale(scale, false, _selectionRange.EndTime, TimelinePositions.End).ConfigureAwait(true);
 			}
 		}
 	}
