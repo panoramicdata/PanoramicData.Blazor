@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor.Demo.Shared;
+﻿using System.IO;
+
+namespace PanoramicData.Blazor.Demo.Shared;
 
 public partial class DemoSourceView
 {
@@ -7,7 +9,7 @@ public partial class DemoSourceView
 	private readonly HttpClient _httpClient = new();
 	private readonly Dictionary<string, SourceFile> _sourceFiles = new();
 	private string _activeSourceFile = string.Empty;
-	private MonacoEditor Editor { get; set; } = null!;
+	private MonacoEditor? Editor { get; set; }
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
 
@@ -19,7 +21,7 @@ public partial class DemoSourceView
 	/// <summary>
 	/// Event called prior to the user changing tabs.
 	/// </summary>
-	[Parameter] public EventCallback<Arguments.CancelEventArgs> BeforeChangeTab { get; set; }
+	[Parameter] public EventCallback<CancelEventArgs> BeforeChangeTab { get; set; }
 
 	/// <summary>
 	/// Sets the source code pages used in the demo.
@@ -81,11 +83,12 @@ public partial class DemoSourceView
 			{
 				return _sourceFiles[_activeSourceFile].Content;
 			}
+
 			return "";
 		}
 	}
 
-	public string GetUrl(string url)
+	public static string GetUrl(string url)
 	{
 		return url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : $"{_sourceBaseUrl}/{url}";
 	}
@@ -111,15 +114,16 @@ public partial class DemoSourceView
 			{
 				sourceFile.Content = await LoadSourceAsync(sourceFile.Url).ConfigureAwait(true);
 			}
-			var extnChanged = System.IO.Path.GetExtension(name) != System.IO.Path.GetExtension(_activeSourceFile);
+
+			var extnChanged = Path.GetExtension(name) != Path.GetExtension(_activeSourceFile);
 			_activeSourceFile = name;
 
-			await Editor.SetValue(SourceCode).ConfigureAwait(true);
+			await Editor!.SetValue(SourceCode).ConfigureAwait(true);
 
 			if (extnChanged)
 			{
 				var model = await Editor.GetModel().ConfigureAwait(true);
-				await MonacoEditor.SetModelLanguage(model, GetLanguageForFile(_activeSourceFile)).ConfigureAwait(true);
+				await MonacoEditorBase.SetModelLanguage(model, GetLanguageForFile(_activeSourceFile)).ConfigureAwait(true);
 			}
 		}
 	}
@@ -135,9 +139,9 @@ public partial class DemoSourceView
 		};
 	}
 
-	private string GetLanguageForFile(string filename)
+	private static string GetLanguageForFile(string filename)
 	{
-		return System.IO.Path.GetExtension(filename) switch
+		return Path.GetExtension(filename) switch
 		{
 			".cs" => "csharp",
 			".css" => "css",
