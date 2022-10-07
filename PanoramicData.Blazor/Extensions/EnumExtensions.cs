@@ -8,6 +8,12 @@ public static class EnumExtensions
 			?.GetCustomAttribute<DisplayAttribute>()
 			?.Name;
 
+	public static string? GetEnumDisplayDescription(this Enum enumValue)
+		=> enumValue.GetType().GetMember(enumValue.ToString())
+			?.FirstOrDefault()
+			?.GetCustomAttribute<DisplayAttribute>()
+			?.Description;
+
 	public static string? GetEnumDescription(this Enum enumValue)
 		=> enumValue.GetType().GetMember(enumValue.ToString())
 			?.FirstOrDefault()
