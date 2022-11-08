@@ -69,7 +69,7 @@ public class Person
 	public string Username { get; set; } = string.Empty;
 
 	[FilterKey("boss")]
-	public Person Manager { get; set; }
+	public Person? Manager { get; set; }
 }
 
 public enum Departments
