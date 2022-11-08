@@ -1,65 +1,65 @@
 ﻿@using PanoramicData.Blazor.Extensions
 <div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "") @ItemCssClass">
-	<div class="dropdown">
-		<button class="btn pdtoolbarbutton @CssClass @ButtonSizeCssClass"
-				disabled="@(IsEnabled ? null : "true")"
-				title="@(string.IsNullOrWhiteSpace(ToolTip) ? Text : ToolTip)"
-				data-bs-toggle="dropdown"
-				data-toggle="dropdown"
-				aria-haspopup="true"
-				aria-expanded="false">
-			@if (!string.IsNullOrWhiteSpace(IconCssClass))
-			{
-				<span class="@IconCssClass"></span>
-			}
-			<span class="@TextCssClass">@Text</span>
-			<i class="fas fa-fw fa-caret-down"></i>
-		</button>
-		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-			<table>
-				@foreach (var item in Items)
-				{
-					if (item.IsVisible)
-					{
-						@if (item.IsSeparator)
-						{
-							<tr class="pddropdownseparator">
-								<td colspan="2"></td>
-							</tr>
-						}
-						else
-						{
-							<tr class="pddropdownmenuitem @(item.IsDisabled ? "disabled" : "")"
-								@onclick="() => OnClick(item.GetKeyOrText())">
+    <div class="dropdown">
+        <button class="btn pdtoolbarbutton @CssClass @ButtonSizeCssClass"
+                disabled="@(IsEnabled ? null : "true")"
+                title="@(string.IsNullOrWhiteSpace(ToolTip) ? Text : ToolTip)"
+                data-bs-toggle="dropdown"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false">
+            @if (!string.IsNullOrWhiteSpace(IconCssClass))
+            {
+                <span class="@IconCssClass"></span>
+            }
+            <span class="@TextCssClass">@Text</span>
+            <i class="fas fa-fw fa-caret-down"></i>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <table>
+                @foreach (var item in Items)
+                {
+                    if (item.IsVisible)
+                    {
+                        @if (item.IsSeparator)
+                        {
+                            <tr class="pddropdownseparator">
+                                <td colspan="2"></td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr class="pddropdownmenuitem @(item.IsDisabled ? "disabled" : "")"
+                    @onclick="() => OnClick(item.GetKeyOrText())">
 
-								@if (string.IsNullOrWhiteSpace(item.Content))
-								{
-									<td class="text-nowrap">
-										<span class="pl-1 @(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa fa-fw" : item.IconCssClass)"></span>
-										<span class="text-nowrap @(item.ShortcutKey.HasValue ? "" : " pr-1")">@item.Text.GetShortcutMarkup()</span>
-									</td>
-									<td class="text-nowrap text-muted small mw-100-px text-right">
-										@if (item.ShortcutKey.HasValue)
-										{
-											<span class="pr-1">@item.ShortcutKey.ToString()</span>
-										}
-									</td>
-								}
-								else
-								{
-									<td colspan="2">
-										@((MarkupString)item.Content)
-									</td>
-								}
-							</tr>
-						}
-					}
-				}
-			</table>
-		</div>
-	</div>
+                                @if (string.IsNullOrWhiteSpace(item.Content))
+                                {
+                                    <td class="text-nowrap">
+                                        <span class="ps-1 @(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa fa-fw" : item.IconCssClass)"></span>
+                                        <span class="text-nowrap @(item.ShortcutKey.HasValue ? "" : " pe-1")">@item.Text.GetShortcutMarkup()</span>
+                                    </td>
+                                    <td class="text-nowrap text-muted small mw-100-px text-right">
+                                        @if (item.ShortcutKey.HasValue)
+                                        {
+                                            <span class="pe-1">@item.ShortcutKey.ToString()</span>
+                                        }
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td colspan="2">
+                                        @((MarkupString)item.Content)
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    }
+                }
+            </table>
+        </div>
+    </div>
 </div>
 
 <CascadingValue Value="(PDToolbarDropdown)this" Name="ToolbarDropdown">
-	@ChildContent
+    @ChildContent
 </CascadingValue>

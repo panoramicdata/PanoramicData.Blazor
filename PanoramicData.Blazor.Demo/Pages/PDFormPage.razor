@@ -5,136 +5,136 @@
 
 <DemoSourceView SourceFiles="Pages/PDFormPage.razor, Pages/PDFormPage.razor.cs, Data/PersonDataProvider.cs">
 
-	<PDToolbar>
+    <PDToolbar>
 
-		<PDToolbarPlaceholder>
-			<div>
-				<span>Example 1: Standalone Form</span>
-				<br />
-				<span class="text-muted"
-					  style="font-size: 0.8rem;">Uses INavigationCancelService to avoid navigating away when changes have been made</span>
-			</div>
-		</PDToolbarPlaceholder>
+        <PDToolbarPlaceholder>
+            <div>
+                <span>Example 1: Standalone Form</span>
+                <br />
+                <span class="text-muted"
+                      style="font-size: 0.8rem;">Uses INavigationCancelService to avoid navigating away when changes have been made</span>
+            </div>
+        </PDToolbarPlaceholder>
 
-		<PDToolbarButton Text="Create Person"
-						 ShiftRight="true"
-						 CssClass="btn-primary"
-						 Click="OnCreatePerson" />
+        <PDToolbarButton Text="Create Person"
+                         ShiftRight="true"
+                         CssClass="btn-primary"
+                         Click="OnCreatePerson" />
 
-	</PDToolbar>
+    </PDToolbar>
 
-	<div class="d-flex">
+    <div class="d-flex">
 
-		<div class="pr-4">
-			@foreach (var person in People)
-			{
-				<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPerson(person)">
-					<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
-				</div>
-			}
-		</div>
+        <div class="pe-4">
+            @foreach (var person in People)
+            {
+                <div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPerson(person)">
+                    <span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
+                </div>
+            }
+        </div>
 
-		<PDForm @ref="Form"
-				CssClass="w-100"
-				TItem="Person"
-				Item="SelectedPerson"
-				DataProvider="_personDataProvider"
-				Error="OnError"
-				FieldUpdated="OnFieldUpdated"
-				Deleted="OnPersonDeleted"
-				Updated="OnPersonUpdated"
-				Created="OnPersonCreated">
+        <PDForm @ref="Form"
+                CssClass="w-100"
+                TItem="Person"
+                Item="SelectedPerson"
+                DataProvider="_personDataProvider"
+                Error="OnError"
+                FieldUpdated="OnFieldUpdated"
+                Deleted="OnPersonDeleted"
+                Updated="OnPersonUpdated"
+                Created="OnPersonCreated">
 
-			<PDFormHeader TItem="Person"
-						  CreateTitle="Create New Person"
-						  EditTitle="Edit Person - {0}"
-						  DeleteTitle="Delete Person - {0}"
-						  ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
+            <PDFormHeader TItem="Person"
+                          CreateTitle="Create New Person"
+                          EditTitle="Edit Person - {0}"
+                          DeleteTitle="Delete Person - {0}"
+                          ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
 
-			<PDFormBody TItem="Person">
+            <PDFormBody TItem="Person">
 
-				<PDField TItem="Person"
-						 Field="x => x.Id"
-						 ShowInDelete="FormField<Person>.True"
-						 ShowInCreate="(_) => false"
-						 ReadOnlyInEdit="(_) => true" />
+                <PDField TItem="Person"
+                         Field="x => x.Id"
+                         ShowInDelete="FormField<Person>.True"
+                         ShowInCreate="(_) => false"
+                         ReadOnlyInEdit="(_) => true" />
 
-				<PDField TItem="Person"
-						 Field="x => x.FirstName"
-						 Title="First Name"
-						 ShowInDelete="(_) => true" />
+                <PDField TItem="Person"
+                         Field="x => x.FirstName"
+                         Title="First Name"
+                         ShowInDelete="(_) => true" />
 
-				<PDField TItem="Person"
-						 Field="x => x.LastName"
-						 MaxLength="20"
-						 Title="Last Name"
-						 ShowInDelete="(_) => true" />
+                <PDField TItem="Person"
+                         Field="x => x.LastName"
+                         MaxLength="20"
+                         Title="Last Name"
+                         ShowInDelete="(_) => true" />
 
-				<PDField TItem="Person"
-						 Field="x => x.Dob"
-						 Helper="_dateHelper" />
+                <PDField TItem="Person"
+                         Field="x => x.Dob"
+                         Helper="_dateHelper" />
 
-				<PDField TItem="Person"
-						 ShowValidationResult="false"
-						 Field="x => x.Department" />
+                <PDField TItem="Person"
+                         ShowValidationResult="false"
+                         Field="x => x.Department" />
 
-				<PDField TItem="Person"
-						 Field="x => x.AllowLogin"
-						 Title="Login?"
-						 ReadOnlyInCreate="(_) => false" />
+                <PDField TItem="Person"
+                         Field="x => x.AllowLogin"
+                         Title="Login?"
+                         ReadOnlyInCreate="(_) => false" />
 
-				<PDField TItem="Person"
-						 Field="x => x.Password"
-						 Title="Password"
-						 IsSensitive="@((x, __) => Form.GetFieldValue<bool>("AllowLogin") == true )" />
+                <PDField TItem="Person"
+                         Field="x => x.Password"
+                         Title="Password"
+                         IsSensitive="@((x, __) => Form.GetFieldValue<bool>("AllowLogin") == true )" />
 
-				<PDField TItem="Person"
-						 Field="x => x.Target"
-						 MaxValue="1000000"
-						 MinValue="0" />
+                <PDField TItem="Person"
+                         Field="x => x.Target"
+                         MaxValue="1000000"
+                         MinValue="0" />
 
-				<PDField TItem="Person"
-						 Field="x => x.Comments"
-						 ShowInCreate="(_) => false"
-						 IsTextArea="true" />
+                <PDField TItem="Person"
+                         Field="x => x.Comments"
+                         ShowInCreate="(_) => false"
+                         IsTextArea="true" />
 
-				<PDField TItem="Person"
-						 Field="x => x.DateCreated"
-						 ShowInCreate="(_) => false"
-						 Helper="_dateHelper"
-						 ReadOnlyInEdit="(_) => false" />
+                <PDField TItem="Person"
+                         Field="x => x.DateCreated"
+                         ShowInCreate="(_) => false"
+                         Helper="_dateHelper"
+                         ReadOnlyInEdit="(_) => false" />
 
-				<PDField TItem="Person"
-						 Field="x => x.DateModified"
-						 ShowInEdit="(_) => false"
-						 ShowInCreate="(_) => false" />
+                <PDField TItem="Person"
+                         Field="x => x.DateModified"
+                         ShowInEdit="(_) => false"
+                         ShowInCreate="(_) => false" />
 
-			</PDFormBody>
+            </PDFormBody>
 
-			<PDFormFooter TItem="Person"
-						  Click="OnFooterClick" />
-		</PDForm>
+            <PDFormFooter TItem="Person"
+                          Click="OnFooterClick" />
+        </PDForm>
 
-	</div>
+    </div>
 
-	<EventView />
+    <EventView />
 
 </DemoSourceView>
 
 <style>
-	.person-list {
-		border-radius: .3rem;
-		border: 1px solid #ced4da;
-		padding: 3px;
-		margin: 0px 5px 5px 5px;
-		cursor: pointer;
-	}
+    .person-list {
+        border-radius: .3rem;
+        border: 1px solid #ced4da;
+        padding: 3px;
+        margin: 0px 5px 5px 5px;
+        cursor: pointer;
+    }
 
-		.person-list.selected {
-			background-color: lightgray;
-		}
+        .person-list.selected {
+            background-color: lightgray;
+        }
 
-	.pd-form-header {
-		padding-bottom: 10px;
-	}
+    .pd-form-header {
+        padding-bottom: 10px;
+    }
 </style>

@@ -5,60 +5,60 @@
 
 <DemoSourceView SourceFiles="Pages/PDButtonPage.razor, Pages/PDButtonPage.razor.cs">
 
-	<div>
-		<PDButton Text="Click Me"
-				  IconCssClass="fas fa-fw fa-plus"
-				  CssClass="btn btn-primary"
-				  ShortcutKey="_shortcut1"
-				  ToolTip="@($"Click me or press {_shortcut1} to increment the counter")"
-				  Click="OnButton1Click">
-		</PDButton>
-		@if (Counter > 0)
-		{
-			<span class="ml-2">Button clicked @Counter Times</span>
-		}
-	</div>
+    <div>
+        <PDButton Text="Click Me"
+                  IconCssClass="fas fa-fw fa-plus"
+                  CssClass="btn btn-primary"
+                  ShortcutKey="_shortcut1"
+                  ToolTip="@($"Click me or press {_shortcut1} to increment the counter")"
+                  Click="OnButton1Click">
+        </PDButton>
+        @if (Counter > 0)
+        {
+            <span class="ms-2">Button clicked @Counter Times</span>
+        }
+    </div>
 
-	<div class="mt-2">
-		<PDLinkButton Text="Launch 1"
-					  IconCssClass="fas fa-fw fa-external-link-alt"
-					  CssClass="btn btn-secondary"
-					  ShortcutKey="_shortcut2"
-					  ToolTip="@($"Click me or press {_shortcut2} to navigate to a new page")"
-					  Url="https://www.panoramicdata.com/"
-					  Target="_self">
-		</PDLinkButton>
-	</div>
+    <div class="mt-2">
+        <PDLinkButton Text="Launch 1"
+                      IconCssClass="fas fa-fw fa-external-link-alt"
+                      CssClass="btn btn-secondary"
+                      ShortcutKey="_shortcut2"
+                      ToolTip="@($"Click me or press {_shortcut2} to navigate to a new page")"
+                      Url="https://www.panoramicdata.com/"
+                      Target="_self">
+        </PDLinkButton>
+    </div>
 
-	<div class="mt-2">
-		<PDButton Text="Launch 2"
-				  IconCssClass="fas fa-fw fa-external-link-alt"
-				  CssClass="btn btn-secondary"
-				  ShortcutKey="_shortcut3"
-				  ToolTip="@($"Click me or press {_shortcut3} to navigate to a new page")"
-				  Click="OnButton3Click">
-		</PDButton>
-	</div>
+    <div class="mt-2">
+        <PDButton Text="Launch 2"
+                  IconCssClass="fas fa-fw fa-external-link-alt"
+                  CssClass="btn btn-secondary"
+                  ShortcutKey="_shortcut3"
+                  ToolTip="@($"Click me or press {_shortcut3} to navigate to a new page")"
+                  Click="OnButton3Click">
+        </PDButton>
+    </div>
 
-	<div class="mt-2">
-		<PDButton Text="Launch 3"
-				  IconCssClass="fas fa-fw fa-external-link-alt"
-				  Url="/pdtoolbar"
-				  CssClass="btn btn-secondary"
-				  ToolTip="@($"Click me to navigate to a new page (this tab)")">
-		</PDButton>
-	</div>
+    <div class="mt-2">
+        <PDButton Text="Launch 3"
+                  IconCssClass="fas fa-fw fa-external-link-alt"
+                  Url="/pdtoolbar"
+                  CssClass="btn btn-secondary"
+                  ToolTip="@($"Click me to navigate to a new page (this tab)")">
+        </PDButton>
+    </div>
 
-	<div class="mt-2">
-		<PDButton Text="Launch 4"
-				  IconCssClass="fas fa-fw fa-external-link-alt"
-				  Url="/pdtoolbar"
-				  Target="_blank"
-				  CssClass="btn btn-secondary"
-				  ToolTip="@($"Click me to navigate to a new page (new tab)")">
-		</PDButton>
-	</div>
+    <div class="mt-2">
+        <PDButton Text="Launch 4"
+                  IconCssClass="fas fa-fw fa-external-link-alt"
+                  Url="/pdtoolbar"
+                  Target="_blank"
+                  CssClass="btn btn-secondary"
+                  ToolTip="@($"Click me to navigate to a new page (new tab)")">
+        </PDButton>
+    </div>
 
-	<EventView />
+    <EventView />
 
 </DemoSourceView>

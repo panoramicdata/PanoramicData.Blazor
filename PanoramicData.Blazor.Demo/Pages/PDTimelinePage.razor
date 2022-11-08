@@ -3,100 +3,99 @@
 <h1>PDTimeline</h1>
 
 <style>
-	.pd-timeline-toolbar {
-		border-top: 1px solid silver;
-		border-left: 1px solid silver;
-		border-right: 1px solid silver;
-	}
+    .pd-timeline-toolbar {
+        border-top: 1px solid silver;
+        border-left: 1px solid silver;
+        border-right: 1px solid silver;
+    }
 </style>
 
 
 <DemoSourceView SourceFiles="Pages/PDTimelinePage.razor, Pages/PDTimelinePage.razor.cs">
 
-	<div>
-		<div class="toolbar">
+    <div>
+        <div class="toolbar">
 
-			 <div class="form-check me-2">
-				<input type="checkbox" class="form-check-input" id="enabledCheck" checked="_isEnabled"
-				@oninput="(a) => _isEnabled = Convert.ToBoolean(a.Value)">
-				<label class="form-check-label" for="enabledCheck">Enabled</label>
-			</div>
+            <div class="form-check me-2">
+                <input type="checkbox" class="form-check-input" id="enabledCheck" checked="_isEnabled"
+                       @oninput="(a) => _isEnabled = Convert.ToBoolean(a.Value)">
+                <label class="form-check-label" for="enabledCheck">Enabled</label>
+            </div>
 
-			<EditForm class="d-flex" Model="_model">
+            <EditForm class="d-flex" Model="_model">
 
-				<div class="me-2">
-					<span>Disable Before</span>
-					<InputDate class="form-control form-control-sm"
-							   @bind-Value="_model.DisableBefore" />
-				</div>
+                <div class="me-2">
+                    <span>Disable Before</span>
+                    <InputDate class="form-control form-control-sm"
+                               @bind-Value="_model.DisableBefore" />
+                </div>
 
-				<div class="me-2">
-					<span>Disable After</span>
-					<InputDate class="form-control form-control-sm"
-							   @bind-Value="_model.DisableAfter" />
-				</div>
+                <div class="me-2">
+                    <span>Disable After</span>
+                    <InputDate class="form-control form-control-sm"
+                               @bind-Value="_model.DisableAfter" />
+                </div>
 
-			</EditForm>
+            </EditForm>
 
-			<PDButton Click="OnSetData"
-				CssClass="btn-secondary ms-2"
-				Size="ButtonSizes.Small"
-				Text="Set Data" />
+            <PDButton Click="OnSetData"
+                      CssClass="btn-secondary ms-2"
+                      Size="ButtonSizes.Small"
+                      Text="Set Data" />
 
-			<PDButton Click="OnClearData"
-				CssClass="btn-secondary ms-2"
-				Size="ButtonSizes.Small"
-				Text="Clear Data" />
+            <PDButton Click="OnClearData"
+                      CssClass="btn-secondary ms-2"
+                      Size="ButtonSizes.Small"
+                      Text="Clear Data" />
 
-			<PDButton Click="OnZoomToEnd"
-				CssClass="btn-secondary ms-2"
-				Size="ButtonSizes.Small"
-				Text="Zoom End" />
+            <PDButton Click="OnZoomToEnd"
+                      CssClass="btn-secondary ms-2"
+                      Size="ButtonSizes.Small"
+                      Text="Zoom End" />
 
-@*			<PDButton Click="OnZoomTo24h"
-				CssClass="btn-secondary ml-2"
-				Size="ButtonSizes.Small"
-				Text="Zoom 24H" />
-*@
-			 <div class="form-check ms-2">
-				<input type="checkbox" class="form-check-input" id="moreDataCheck" checked="@_moreDataAvailable"
-				@oninput="(a) => _moreDataAvailable = Convert.ToBoolean(a.Value)">
-				<label class="form-check-label" for="moreDataCheck">More Data</label>
-			</div>
+            @*			<PDButton Click="OnZoomTo24h"
+            CssClass="btn-secondary ms-2"
+            Size="ButtonSizes.Small"
+            Text="Zoom 24H" />
+            *@
+            <div class="form-check ms-2">
+                <input type="checkbox" class="form-check-input" id="moreDataCheck" checked="@_moreDataAvailable"
+                       @oninput="(a) => _moreDataAvailable = Convert.ToBoolean(a.Value)">
+                <label class="form-check-label" for="moreDataCheck">More Data</label>
+            </div>
 
-		</div>
+        </div>
 
-		<PDTimelineToolbar
-			ShowRange="false"
-			Timeline="_timeline" />
-		<PDTimeline @ref="_timeline"
-					DataProvider="GetTimelineData"
-					DisableAfter="_model.DisableAfter"
-					DisableBefore="_model.DisableBefore"
-					IsEnabled="_isEnabled"
-					NewMaxDateTimeAvailable="_moreDataAvailable"
-					NewMinDateTimeAvailable="_moreDataAvailable"
-					MaxDateTime="_maxDate"
-					MinDateTime="_minDate"
-					Options="_timelineOptions"
-					Refreshed="OnRefreshed"
-					SelectionChanged="OnSelectionChanged"
-					SelectionChangeEnd="OnSelectionChangeEnd"
-					Scale="_model.Scale"
-					ScaleChanged="OnScaleChanged"
-					UpdateMaxDate="OnUpdateMaxDate"
-					UpdateMinDate="OnUpdateMinDate"
-					YValueTransform="MyYValueTransform" />
+        <PDTimelineToolbar ShowRange="false"
+                           Timeline="_timeline" />
+        <PDTimeline @ref="_timeline"
+                    DataProvider="GetTimelineData"
+                    DisableAfter="_model.DisableAfter"
+                    DisableBefore="_model.DisableBefore"
+                    IsEnabled="_isEnabled"
+                    NewMaxDateTimeAvailable="_moreDataAvailable"
+                    NewMinDateTimeAvailable="_moreDataAvailable"
+                    MaxDateTime="_maxDate"
+                    MinDateTime="_minDate"
+                    Options="_timelineOptions"
+                    Refreshed="OnRefreshed"
+                    SelectionChanged="OnSelectionChanged"
+                    SelectionChangeEnd="OnSelectionChangeEnd"
+                    Scale="_model.Scale"
+                    ScaleChanged="OnScaleChanged"
+                    UpdateMaxDate="OnUpdateMaxDate"
+                    UpdateMinDate="OnUpdateMinDate"
+                    YValueTransform="MyYValueTransform" />
 
-		<div>
-			Range: @($"{_minDate:g} - {_maxDate:g}"))
-		</div>
-		<div>
-			Selection: @(_selection is null ? "none" : _selection.ToString())
-		</div>
+        <div>
+            Range: @($"{_minDate:g} - {_maxDate:g}"))
+        </div>
+        <div>
+            Selection: @(_selection is null ? "none" : _selection.ToString())
+        </div>
 
-	</div>
+    </div>
 
-	<EventView />
+    <EventView />
 
 </DemoSourceView>
