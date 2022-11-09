@@ -14,7 +14,7 @@ export function dispose() {
 }
 
 export function registerShortcutKeys(shortcuts) {
-	this.shortcutKeys = shortcuts || [];
+	shortcutKeys = shortcuts || [];
 }
 
 export function isShortcutKeyMatch(keyInfo) {
