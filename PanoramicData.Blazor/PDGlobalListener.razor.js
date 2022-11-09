@@ -7,7 +7,7 @@ export function initialize(ref) {
 	window.addEventListener("keyup", onKeyUp);
 }
 
-export function dispose () {
+export function dispose() {
 	window.removeEventListener("keydown", onKeyDown);
 	window.removeEventListener("keyup", onKeyUp);
 	globalListenerReference = null;
@@ -17,7 +17,7 @@ export function registerShortcutKeys(shortcuts) {
 	this.shortcutKeys = shortcuts || [];
 }
 
-function isShortcutKeyMatch (keyInfo) {
+export function isShortcutKeyMatch(keyInfo) {
 	var match = shortcutKeys.find((v) => v.altKey == keyInfo.altKey &&
 		v.ctrlKey == keyInfo.ctrlKey &&
 		v.shiftKey == keyInfo.shiftKey &&
@@ -47,7 +47,7 @@ function onKeyUp(e) {
 	}
 }
 
-function getKeyArgs(e) {
+export function getKeyArgs(e) {
 	var obj = {};
 	obj.key = e.key;
 	obj.code = e.code;
