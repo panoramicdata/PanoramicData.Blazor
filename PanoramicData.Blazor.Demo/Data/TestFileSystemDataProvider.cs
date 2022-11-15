@@ -65,6 +65,20 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 	)
 	{ Alias = "/" };
 
+	public TestFileSystemDataProvider()
+	{
+		var itemNode = _root.Where(x => x.Path() == "/CDrive/Temp").FirstOrDefault();
+		if (itemNode != null)
+		{
+			for (var i = 0; i < 50; i++)
+			{
+				var childItem = new DirectoryEntry($"datafile-{i + 1:00}.dat", FileExplorerItemType.File, _random.Next(100000));
+				childItem.Parent = itemNode;
+				itemNode.Items.Add(childItem);
+			}
+		}
+	}
+
 	/// <summary>
 	/// Requests the given item is created.
 	/// </summary>

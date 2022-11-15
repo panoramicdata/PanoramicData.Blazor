@@ -1,19 +1,28 @@
 ﻿.pdfileexplorer {
-	height: calc(100% - 56px);
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: space-evenly;
+	padding-bottom: 5px;
 }
 
-.pdfileexplorer .table td, .pdfileexplorer .table th {
-	padding: 2px 4px 1px 4px;
-}
+	.pdfileexplorer .table td, .pdfileexplorer .table th {
+		padding: 2px 4px 1px 4px;
+	}
 
-.pdfileexplorer .file-hidden, .pdfileexplorer .file-system {
-	color: #ccc;
-}
+	.pdfileexplorer .file-hidden, .pdfileexplorer .file-system {
+		color: #ccc;
+	}
 
-.pdfileexplorer .uploading {
-	color: #666;
-	font-style: italic;
-}
+	.pdfileexplorer .uploading {
+		color: #666;
+		font-style: italic;
+	}
+
+	.pdfileexplorer .pdfe-toolbar {
+		height: 41px;
+	}
 
 #upload-progress-modal {
 	z-index: 1060;
