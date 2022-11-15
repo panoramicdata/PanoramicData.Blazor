@@ -15,6 +15,10 @@
 		height: 0px;
 	}
 
+	.pdfileexplorer ::deep .pdtree {
+		height: 0px;
+	}
+
 	.pdfileexplorer .file-hidden, .pdfileexplorer .file-system {
 		color: #ccc;
 	}
