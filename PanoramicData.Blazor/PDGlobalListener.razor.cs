@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDGlobalListener : IDisposable
+public partial class PDGlobalListener : IAsyncDisposable
 {
 	private DotNetObjectReference<PDGlobalListener>? _dotNetObjectReference;
 	private IJSObjectReference? _module;
@@ -11,15 +11,16 @@ public partial class PDGlobalListener : IDisposable
 
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		GlobalEventService.ShortcutsChanged -= GlobalEventService_ShortcutsChanged;
 		try
 		{
+			GlobalEventService.ShortcutsChanged -= GlobalEventService_ShortcutsChanged;
+			GC.SuppressFinalize(this);
 			if (_module != null)
 			{
-				_module!.InvokeVoidAsync("dispose");
-				_module.DisposeAsync();
+				await _module!.InvokeVoidAsync("dispose").ConfigureAwait(true);
+				await _module.DisposeAsync().ConfigureAwait(true);
 			}
 		}
 		catch

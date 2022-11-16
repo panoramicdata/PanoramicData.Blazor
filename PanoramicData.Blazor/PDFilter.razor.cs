@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDFilter : IDisposable
+public partial class PDFilter : IAsyncDisposable
 {
 	private static int _sequence = 0;
 	private string _id = $"filter-button-{(++_sequence)}";
@@ -43,11 +43,18 @@ public partial class PDFilter : IDisposable
 	[Parameter]
 	public ButtonSizes Size { get; set; } = ButtonSizes.Small;
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_commonModule != null)
+		try
 		{
-			_commonModule.DisposeAsync();
+			GC.SuppressFinalize(this);
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
+		}
+		catch
+		{
 		}
 	}
 

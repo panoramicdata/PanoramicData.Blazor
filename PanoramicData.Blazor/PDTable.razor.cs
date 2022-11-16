@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IDisposable where TItem : class
+public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IAsyncDisposable where TItem : class
 {
 	private bool _dragging;
 	private Timer? _editTimer;
@@ -743,18 +743,25 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, ID
 		SortCriteria = criteria;
 	}
 
-	void IDisposable.Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		_editTimer?.Dispose();
-		_editTimer = null;
-		if (PageCriteria != null)
+		try
 		{
-			PageCriteria.PageChanged -= PageCriteria_PageChanged;
-			PageCriteria.PageSizeChanged -= PageCriteria_PageSizeChanged;
+			GC.SuppressFinalize(this);
+			_editTimer?.Dispose();
+			_editTimer = null;
+			if (PageCriteria != null)
+			{
+				PageCriteria.PageChanged -= PageCriteria_PageChanged;
+				PageCriteria.PageSizeChanged -= PageCriteria_PageSizeChanged;
+			}
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
 		}
-		if (_commonModule != null)
+		catch
 		{
-			_commonModule.DisposeAsync();
 		}
 	}
 

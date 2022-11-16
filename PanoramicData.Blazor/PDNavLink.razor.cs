@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDNavLink : IDisposable
+public partial class PDNavLink : IAsyncDisposable
 {
 	private const string _defaultActiveClass = "active";
 
@@ -46,13 +46,20 @@ public partial class PDNavLink : IDisposable
 	[Parameter]
 	public NavLinkMatch Match { get; set; }
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		// To avoid leaking memory, it's important to detach any event handlers in Dispose()
-		NavigationManager.LocationChanged -= OnLocationChanged;
-		if (_commonModule != null)
+		try
 		{
-			_commonModule.DisposeAsync();
+			GC.SuppressFinalize(this);
+			// To avoid leaking memory, it's important to detach any event handlers in Dispose()
+			NavigationManager.LocationChanged -= OnLocationChanged;
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
+		}
+		catch
+		{
 		}
 	}
 

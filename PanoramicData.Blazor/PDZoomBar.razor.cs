@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDZoomBar : IDisposable
+public partial class PDZoomBar : IAsyncDisposable
 {
 	private static int _seq;
 	private PDCanvas _canvas = null!;
@@ -87,13 +87,20 @@ public partial class PDZoomBar : IDisposable
 		await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_module != null)
+		try
 		{
-			_module.InvokeVoidAsync("dispose", CanvasId);
-			_module.DisposeAsync();
+			GC.SuppressFinalize(this);
+			if (_module != null)
+			{
+				await _module.InvokeVoidAsync("dispose", CanvasId).ConfigureAwait(true);
+				await _module.DisposeAsync().ConfigureAwait(true);
+			}
+			_objRef?.Dispose();
 		}
-		_objRef?.Dispose();
+		catch
+		{
+		}
 	}
 }

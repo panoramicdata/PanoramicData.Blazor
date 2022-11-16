@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDTextArea : IDisposable
+public partial class PDTextArea : IAsyncDisposable
 {
 	private static int _seq;
 	private DotNetObjectReference<PDTextArea>? _objRef;
@@ -122,12 +122,19 @@ public partial class PDTextArea : IDisposable
 		await Keypress.InvokeAsync(args).ConfigureAwait(true);
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_commonModule != null)
+		try
 		{
-			_commonModule.DisposeAsync();
+			GC.SuppressFinalize(this);
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
+			_objRef?.Dispose();
 		}
-		_objRef?.Dispose();
+		catch
+		{
+		}
 	}
 }

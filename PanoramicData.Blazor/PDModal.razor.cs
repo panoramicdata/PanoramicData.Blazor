@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDModal : IDisposable
+public partial class PDModal : IAsyncDisposable
 {
 	private static int _sequence;
 	private TaskCompletionSource<string>? _userChoice;
@@ -188,19 +188,27 @@ public partial class PDModal : IDisposable
 		return result;
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_commonModule != null)
+		try
 		{
-			_commonModule.DisposeAsync();
+			GC.SuppressFinalize(this);
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
+			if (_module != null)
+			{
+				await _module.DisposeAsync().ConfigureAwait(true); ;
+			}
+			if (_modalObj != null)
+			{
+				await _modalObj.DisposeAsync().ConfigureAwait(true); ;
+			}
+
 		}
-		if (_module != null)
+		catch
 		{
-			_module.DisposeAsync();
-		}
-		if (_modalObj != null)
-		{
-			_modalObj.DisposeAsync();
 		}
 	}
 

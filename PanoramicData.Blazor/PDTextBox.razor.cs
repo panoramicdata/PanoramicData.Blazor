@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDTextBox : IDisposable
+public partial class PDTextBox : IAsyncDisposable
 {
 	private static int _seq;
 	private DotNetObjectReference<PDTextBox>? _objRef;
@@ -170,12 +170,19 @@ public partial class PDTextBox : IDisposable
 		await Cleared.InvokeAsync(null).ConfigureAwait(true);
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_commonModule != null)
+		try
 		{
-			_commonModule.DisposeAsync();
+			GC.SuppressFinalize(this);
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
+			_objRef?.Dispose();
 		}
-		_objRef?.Dispose();
+		catch
+		{
+		}
 	}
 }

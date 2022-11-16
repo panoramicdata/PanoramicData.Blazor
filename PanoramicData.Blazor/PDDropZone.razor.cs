@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDDropZone : IDisposable
+public partial class PDDropZone : IAsyncDisposable
 {
 	private static int _idSequence;
 	private DotNetObjectReference<PDDropZone>? _dotNetReference;
@@ -317,13 +317,20 @@ public partial class PDDropZone : IDisposable
 		});
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_module != null)
+		try
 		{
-			_module.InvokeVoidAsync("dispose", Id);
-			_module.DisposeAsync();
+			GC.SuppressFinalize(this);
+			if (_module != null)
+			{
+				await _module.InvokeVoidAsync("dispose", Id).ConfigureAwait(true);
+				await _module.DisposeAsync().ConfigureAwait(true);
+			}
+			_dotNetReference?.Dispose();
 		}
-		_dotNetReference?.Dispose();
+		catch
+		{
+		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDSplitter : IDisposable
+public partial class PDSplitter : IAsyncDisposable
 {
 	private static int _idSequence;
 	private IJSObjectReference? _module;
@@ -112,12 +112,19 @@ public partial class PDSplitter : IDisposable
 		}
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_module != null)
+		try
 		{
-			_module.InvokeVoidAsync("destroy", Id);
-			_module.DisposeAsync();
+			GC.SuppressFinalize(this);
+			if (_module != null)
+			{
+				await _module.InvokeVoidAsync("destroy", Id).ConfigureAwait(true);
+				await _module.DisposeAsync().ConfigureAwait(true);
+			}
+		}
+		catch
+		{
 		}
 	}
 }

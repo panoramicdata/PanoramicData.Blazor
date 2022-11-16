@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDFileExplorer : IDisposable
+public partial class PDFileExplorer : IAsyncDisposable
 {
 	private static int _idSequence;
 	private string _deleteDialogMessage = string.Empty;
@@ -1854,11 +1854,18 @@ public partial class PDFileExplorer : IDisposable
 		await Task.WhenAll(tasks).ConfigureAwait(true);
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_commonModule != null)
+		try
 		{
-			_commonModule.DisposeAsync();
+			GC.SuppressFinalize(this);
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
+		}
+		catch
+		{
 		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDButtonPage : IDisposable
+public partial class PDButtonPage : IAsyncDisposable
 {
 	private readonly ShortcutKey _shortcut1 = ShortcutKey.Create("Shift-Ctrl-Digit1");
 	private readonly ShortcutKey _shortcut2 = ShortcutKey.Create("Shift-Ctrl-Digit2");
@@ -46,12 +46,18 @@ public partial class PDButtonPage : IDisposable
 		}
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_commonModule != null)
+		try
 		{
-			_commonModule.DisposeAsync();
-			_commonModule = null;
+			GC.SuppressFinalize(this);
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
+		}
+		catch
+		{
 		}
 	}
 }

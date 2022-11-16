@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDDropDown : IDisposable
+public partial class PDDropDown : IAsyncDisposable
 {
 	private static int _sequence;
 	private bool _shown;
@@ -85,22 +85,32 @@ public partial class PDDropDown : IDisposable
 		}
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_objRef != null)
+		try
 		{
-			_objRef.Dispose();
-			_objRef = null;
+			GC.SuppressFinalize(this);
+			if (_module != null)
+			{
+				if (_objRef != null)
+				{
+					_objRef.Dispose();
+					_objRef = null;
+				}
+				if (_dropdownObj != null)
+				{
+					await _dropdownObj.DisposeAsync().ConfigureAwait(true);
+					_dropdownObj = null;
+				}
+				if (_module != null)
+				{
+					await _module.DisposeAsync().ConfigureAwait(true);
+					_module = null;
+				}
+			}
 		}
-		if (_dropdownObj != null)
+		catch
 		{
-			_dropdownObj.DisposeAsync();
-			_dropdownObj = null;
-		}
-		if (_module != null)
-		{
-			_module.DisposeAsync();
-			_module = null;
 		}
 	}
 

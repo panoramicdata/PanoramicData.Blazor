@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDLinkButton : IDisposable
+public partial class PDLinkButton : IAsyncDisposable
 {
 	private static int _sequence;
 	private IJSObjectReference? _commonModule;
@@ -90,16 +90,23 @@ public partial class PDLinkButton : IDisposable
 		}
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (ShortcutKey.HasValue)
+		try
 		{
-			GlobalEventService.UnregisterShortcutKey(ShortcutKey);
+			GC.SuppressFinalize(this);
+			if (ShortcutKey.HasValue)
+			{
+				GlobalEventService.UnregisterShortcutKey(ShortcutKey);
+			}
+			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
 		}
-		GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
-		if (_commonModule != null)
+		catch
 		{
-			_commonModule.DisposeAsync();
 		}
 	}
 

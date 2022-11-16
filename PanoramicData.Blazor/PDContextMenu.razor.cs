@@ -86,10 +86,17 @@ public partial class PDContextMenu : IAsyncDisposable
 
 	public async ValueTask DisposeAsync()
 	{
-		if (_module != null)
+		try
 		{
-			await _module.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
-			await _module.DisposeAsync().ConfigureAwait(true);
+			GC.SuppressFinalize(this);
+			if (_module != null)
+			{
+				await _module.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
+				await _module.DisposeAsync().ConfigureAwait(true);
+			}
+		}
+		catch
+		{
 		}
 	}
 }

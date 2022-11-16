@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDForm<TItem> : IDisposable where TItem : class
+public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 {
 	private static int _seq;
 	private bool _showHelp;
@@ -744,12 +744,20 @@ public partial class PDForm<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	public void Dispose()
+
+	public async ValueTask DisposeAsync()
 	{
-		NavigationCancelService.BeforeNavigate -= NavigationService_BeforeNavigate;
-		if (_module != null)
+		try
 		{
-			_module.DisposeAsync();
+			GC.SuppressFinalize(this);
+			NavigationCancelService.BeforeNavigate -= NavigationService_BeforeNavigate;
+			if (_module != null)
+			{
+				await _module.DisposeAsync().ConfigureAwait(true);
+			}
+		}
+		catch
+		{
 		}
 	}
 }

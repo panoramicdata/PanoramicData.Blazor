@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDFormBody<TItem> : IDisposable where TItem : class
+public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 {
 	private IJSObjectReference? _commonModule;
 
@@ -41,11 +41,18 @@ public partial class PDFormBody<TItem> : IDisposable where TItem : class
 
 	private MarkupString WidthCssMarkup => new MarkupString($".title-box {{ width: {TitleWidth}px }}");
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		if (_commonModule != null)
+		try
 		{
-			_commonModule.DisposeAsync();
+			GC.SuppressFinalize(this);
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
+		}
+		catch
+		{
 		}
 	}
 
