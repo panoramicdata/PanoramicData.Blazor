@@ -14,19 +14,10 @@ export function clear(id) {
 	}
 }
 
-//export function click(el) {
-//	if (el && el.parentElement) {
-//		el.parentElement.click();
-//	}
-//}
-
 export function dispose(id) {
 	var zone = document.getElementById(id);
-	if (zone) {
-		zone.removeEventListener('dragenter', panoramicData.onDropZoneDragEnter, false);
-		zone.removeEventListener('dragover', panoramicData.onDropZoneDragEnter, false);
-		zone.removeEventListener('dragleave', panoramicData.onDropZoneDragLeave, false);
-		zone.removeEventListener('drop', panoramicData.onDropZoneDrop, false);
+	if (zone?.dropzone) {
+		zone.dropzone.destroy();
 		// zone.dotnetHelper is disposed of by runtime
 	}
 }
@@ -157,7 +148,7 @@ export function process(id, overwriteAll) {
 	}
 }
 
-export function removeFile (id, fileId) {
+export function removeFile(id, fileId) {
 	var el = document.querySelector(id);
 	if (el && el.dropzone) {
 		var file = el.dropzone.files.find(x => x.upload.uuid == fileId);

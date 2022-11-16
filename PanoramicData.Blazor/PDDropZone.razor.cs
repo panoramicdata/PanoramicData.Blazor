@@ -187,7 +187,7 @@ public partial class PDDropZone : IAsyncDisposable
 		await UploadStarted.InvokeAsync(args).ConfigureAwait(true);
 		if (args.FormFields.Count == 0)
 		{
-			return new string[0];
+			return Array.Empty<string>();
 		}
 		else
 		{
@@ -236,9 +236,9 @@ public partial class PDDropZone : IAsyncDisposable
 		var args = new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId)
 		{
 			BatchCount = _batchCount,
-			BatchProgress = ++_batchProgress
+			BatchProgress = ++_batchProgress,
+			Success = file.Success
 		};
-		args.Success = file.Success;
 		if (!args.Success)
 		{
 			args.Reason = file.Reason;

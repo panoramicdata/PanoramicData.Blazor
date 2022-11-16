@@ -104,7 +104,7 @@
                 UploadStarted="OnUploadStartedAsync"
                 UploadProgress="OnUploadProgressAsync"
                 UploadCompleted="OnUploadCompletedAsync">
-        <div class="pdfe-drop-zone-msg" onclick="panoramicData.dropzoneClick(this)">
+        <div class="pdfe-drop-zone-msg" onclick="this?.parentElement?.click()">
             <span>Drag and drop files here to upload</span>
             <span>Click to browse for files to upload </span>
         </div>
