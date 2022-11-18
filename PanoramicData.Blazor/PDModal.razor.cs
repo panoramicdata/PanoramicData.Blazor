@@ -199,11 +199,11 @@ public partial class PDModal : IAsyncDisposable
 			}
 			if (_module != null)
 			{
-				await _module.DisposeAsync().ConfigureAwait(true); ;
+				await _module.DisposeAsync().ConfigureAwait(true);
 			}
 			if (_modalObj != null)
 			{
-				await _modalObj.DisposeAsync().ConfigureAwait(true); ;
+				await _modalObj.DisposeAsync().ConfigureAwait(true);
 			}
 
 		}
