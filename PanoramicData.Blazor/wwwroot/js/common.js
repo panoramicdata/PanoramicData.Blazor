@@ -1,7 +1,8 @@
 export function addClass(id, cls) {
 	var el = document.getElementById(id);
-	if (el)
+	if (el) {
 		el.classList.add(cls);
+	}
 }
 
 export function click(id) {
@@ -31,9 +32,9 @@ export function debounceInput (id, wait, objRef) {
 	var el = document.getElementById(id);
 	if (el) {
 		var debouncedFunction = debounce(function (ev) {
-			objRef.invokeMethodAsync('OnDebouncedInput', ev.srcElement.value)
+			objRef.invokeMethodAsync("OnDebouncedInput", ev.srcElement.value)
 		}, wait);
-		el.addEventListener('input', debouncedFunction);
+		el.addEventListener("input", debouncedFunction);
 	}
 }
 
@@ -64,7 +65,7 @@ export function getElementAtPoint (x, y) {
 
 export function getElementInfo(el) {
 	var info = {
-		id: el.id || '',
+		id: el.id || "",
 		tag: el.tagName,
 		classList: []
 	}
@@ -85,8 +86,9 @@ export function getHeight(el) {
 
 export function getValue(id) {
 	var node = document.getElementById(id);
-	if (node)
+	if (node) {
 		return node.value;
+	}
 	return null;
 }
 
@@ -106,7 +108,7 @@ export function getY(el) {
 }
 
 export function isTouchDevice () {
-	return (('ontouchstart' in window) ||
+	return (("ontouchstart" in window) ||
 		(navigator.maxTouchPoints > 0) ||
 		(navigator.msMaxTouchPoints > 0));
 }
@@ -117,32 +119,40 @@ export function openUrl(url, target) {
 
 export function removeClass(id, cls) {
 	var el = document.getElementById(id);
-	if (el)
+	if (el) {
 		el.classList.remove(cls);
+	}
 }
 
 export function scrollIntoView(id, alignTop) {
 	var el = document.getElementById(id);
-	if (el)
+	if (el) {
 		el.scrollIntoView(alignTop);
+	}
 }
 
 export function selectText(id, start, end) {
 	var node = document.getElementById(id);
-	if (!node) return;
-	if (!start) start = 0;
-	if (!end) end = node.value.length;
+	if (!node) {
+		return;
+	}
+	if (!start) {
+		start = 0;
+	}
+	if (!end) {
+		end = node.value.length;
+	}
 	if (node.createTextRange) {
 		var selRange = node.createTextRange();
 		selRange.collapse(true);
-		selRange.moveStart('character', start);
-		selRange.moveEnd('character', end);
+		selRange.moveStart("character", start);
+		selRange.moveEnd("character", end);
 		selRange.select();
 		node.focus();
 	} else if (node.setSelectionRange) {
 		node.focus();
 		node.setSelectionRange(start, end);
-	} else if (typeof node.selectionStart != 'undefined') {
+	} else if (typeof node.selectionStart != "undefined") {
 		node.selectionStart = start;
 		node.selectionEnd = end;
 		node.focus();
@@ -155,6 +165,7 @@ export function setPointerCapture(id, el) {
 
 export function setValue (id, value) {
 	var node = document.getElementById(id);
-	if (node)
+	if (node) {
 		node.value = value;
+	}
 }

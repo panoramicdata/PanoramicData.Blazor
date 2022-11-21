@@ -70,7 +70,7 @@ class Zoombar {
 			} else if ((newX + this.handleBounds.w) > this.canvas.width) {
 				newX = this.canvas.width - this.handleBounds.w;
 			}
-			if (this.handleBounds.x != newX) {
+			if (this.handleBounds.x !== newX) {
 				this.handleBounds.x = newX;
 				this.redraw();
 			}

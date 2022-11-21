@@ -31,7 +31,7 @@ export function setUnloadListener (id, changesMade) {
 		addEventListener("beforeunload", common.beforeUnloadListener, { capture: true });
 		unloadListener = true;
 	}
-	else if (listenerCount == 0 && unloadListener) {
+	else if (listenerCount === 0 && unloadListener) {
 		removeEventListener("beforeunload", common.beforeUnloadListener, { capture: true });
 		unloadListener = false;
 	}

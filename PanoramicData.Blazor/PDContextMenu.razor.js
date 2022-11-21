@@ -2,7 +2,7 @@
 var popper = null;
 
 export function hasPopperJs() {
-	return typeof Popper !== 'undefined';
+	return typeof Popper !== "undefined";
 }
 
 export function showMenu(menuId, x, y) {
@@ -30,21 +30,21 @@ export function showMenu(menuId, x, y) {
 	}
 }
 
-export function documentMouseDown(event) {
-	if (menuEl && popper) {
-		let isClickInside = menuEl.contains(event.target);
-		if (!isClickInside) {
-			hideMenu();
-		}
-	}
-}
-
 export function hideMenu() {
 	if (menuEl) {
 		menuEl.classList.remove("show");
 		document.removeEventListener("mousedown", documentMouseDown);
 		if (popper) {
 			popper.destroy();
+		}
+	}
+}
+
+export function documentMouseDown(event) {
+	if (menuEl && popper) {
+		let isClickInside = menuEl.contains(event.target);
+		if (!isClickInside) {
+			hideMenu();
 		}
 	}
 }

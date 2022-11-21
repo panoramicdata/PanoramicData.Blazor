@@ -2,8 +2,8 @@
 	var el = document.getElementById(id);
 	if (el) {
 
-		el.parentElement.addEventListener('keypress', function (ev) {
-			if (ev.keyCode == 13 && ref) {
+		el.parentElement.addEventListener("keypress", function (ev) {
+			if (ev.keyCode === 13 && ref) {
 				ref.invokeMethodAsync("OnKeyPressed", 13);
 			}
 		});

@@ -1,7 +1,7 @@
 ﻿var splits = {};
 
 export function hasSplitJs() {
-	return typeof Split !== 'undefined';
+	return typeof Split !== "undefined";
 }
 
 export function initialize (id, ids, options) {

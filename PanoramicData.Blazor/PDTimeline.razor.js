@@ -24,7 +24,7 @@ class Timeline {
 			this.options = options || this.options;
 			this.log("init timeline: ", arguments);
 			el.addEventListener('wheel', this.onWheel, { passive: false });
-			window.addEventListener('resize', this.onResize.bind(this), { passive: false });
+			window.addEventListener("resize", this.onResize.bind(this), { passive: false });
 		}
 	}
 
@@ -40,7 +40,7 @@ class Timeline {
 
 	onResize() {
 		if (this.ref) {
-			this.ref.invokeMethodAsync('PanoramicData.Blazor.PDTimeline.OnResize');
+			this.ref.invokeMethodAsync("PanoramicData.Blazor.PDTimeline.OnResize");
 		}
 	}
 
