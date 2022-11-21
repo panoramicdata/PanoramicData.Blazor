@@ -10,15 +10,21 @@ public partial class PDDropZone : IAsyncDisposable
 
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
-	/// <summary>
-	/// Sets additional CSS classes.
-	/// </summary>
-	[Parameter] public string CssClass { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets or sets the child content that the drop zone wraps.
 	/// </summary>
 	[Parameter] public RenderFragment? ChildContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the user can click to initiate an upload.
+	/// </summary>
+	[Parameter] public bool Clickable { get; set; } = true;
+
+	/// <summary>
+	/// Sets additional CSS classes.
+	/// </summary>
+	[Parameter] public string CssClass { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Event raised whenever the user drops files onto the drop zone.
@@ -131,6 +137,7 @@ public partial class PDDropZone : IAsyncDisposable
 			_dotNetReference = DotNetObjectReference.Create(this);
 			var options = new
 			{
+				clickable = Clickable,
 				url = UploadUrl,
 				autoProcessQueue = false,
 				timeout = Timeout * 1000,
@@ -221,6 +228,7 @@ public partial class PDDropZone : IAsyncDisposable
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadEnd")]
 	public void OnUploadEnd(DropZoneFileUploadOutcome file)
 	{
+
 		if (file is null)
 		{
 			throw new ArgumentNullException(nameof(file));
