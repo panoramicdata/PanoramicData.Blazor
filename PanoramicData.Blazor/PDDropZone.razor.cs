@@ -198,7 +198,7 @@ public partial class PDDropZone : IAsyncDisposable
 		}
 		else
 		{
-			var fields = new System.Collections.Generic.List<string>();
+			var fields = new List<string>();
 			foreach (var kvp in args.FormFields)
 			{
 				fields.Add($"{kvp.Key}={kvp.Value}");
