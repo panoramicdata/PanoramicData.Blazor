@@ -1572,13 +1572,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// </summary>
 	public async Task RefreshTreeAsync()
 	{
-		// refresh tree - parent node will already be selected
-		var node = Tree?.SelectedNode;
-		if (node != null)
-		{
-			node.Nodes = null;
-			await Tree!.RefreshNodeAsync(node)!.ConfigureAwait(true);
-		}
+		await Tree!.RefreshAsync().ConfigureAwait(true);
 	}
 
 	/// <summary>
@@ -1586,7 +1580,8 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// </summary>
 	private async Task RefreshAllAsync()
 	{
-		await Task.WhenAll(RefreshTreeAsync(), RefreshTableAsync()).ConfigureAwait(true);
+		await RefreshTreeAsync().ConfigureAwait(true);
+		await RefreshTableAsync().ConfigureAwait(true);
 	}
 
 	/// <summary>

@@ -338,7 +338,7 @@ public partial class PDTree<TItem> where TItem : class
 		}
 
 		// if expanding and Nodes is null then request data
-		if (!node.Isleaf && !wasExpanded && node.Nodes == null)
+		if (!wasExpanded && node.Nodes == null)
 		{
 			// fetch direct child items
 			var key = node.Data is null ? null : KeyField!(node.Data!).ToString();
@@ -365,6 +365,62 @@ public partial class PDTree<TItem> where TItem : class
 		else
 		{
 			await NodeExpanded.InvokeAsync(node).ConfigureAwait(true);
+		}
+	}
+
+	/// <summary>
+	/// Refreshes the entire tree.
+	/// </summary>
+	/// <remarks>Refreshes all expanded nodes, from top down. Will try to maintain selected node.</remarks>
+	public async Task RefreshAsync()
+	{
+		// find selected node path
+		var path = new Stack<string>();
+		var node = SelectedNode;
+		while (node != null && node != RootNode)
+		{
+			path.Push(node.Key);
+			node = node.ParentNode;
+		}
+
+		// node should now be root node
+		if (node == RootNode)
+		{
+			// refresh from top down
+			while (path.Count > 0)
+			{
+				// find previous selected node
+				var key = path.Pop();
+				var nextNode = node.Nodes?.FirstOrDefault(x => x.Key == key);
+				if (nextNode is null)
+				{
+					break;
+				}
+				node = nextNode;
+
+				// refresh node
+				await RefreshNodeAsync(node).ConfigureAwait(true);
+			}
+
+			// re-select last refreshed node
+			await SelectNode(node).ConfigureAwait(true);
+		}
+	}
+
+	private async Task RefreshRecurse(TreeNode<TItem> node)
+	{
+		// refresh each expanded child node
+		if (node?.Nodes != null)
+		{
+			foreach (var childNode in node.Nodes.Where(x => !x.Isleaf && x.IsExpanded))
+			{
+				// collaspe, refresh node and re-expand
+				await RefreshNodeAsync(childNode).ConfigureAwait(true);
+				childNode.IsExpanded = true;
+
+				// recurse down tree
+				await RefreshRecurse(childNode).ConfigureAwait(true);
+			}
 		}
 	}
 
