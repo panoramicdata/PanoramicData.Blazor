@@ -114,7 +114,7 @@ public class DropZoneUploadEventArgs
 	{
 		get
 		{
-			return Path + Name;
+			return $"{Path.TrimEnd('/')}/{Name.TrimStart('/')}";
 		}
 	}
 }
