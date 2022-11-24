@@ -3,7 +3,7 @@
 }
 
 	.pd-filter ::deep .filter-icon {
-		color: lightgrey !important;
+		opacity: 0.3;
 	}
 
 .pd-filter.filtered ::deep .filter-icon {

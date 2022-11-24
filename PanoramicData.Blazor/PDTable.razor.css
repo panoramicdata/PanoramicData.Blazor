@@ -7,7 +7,7 @@
 	}
 
 	::deep .pd-sort.fa-sort, .pd-sort.fa-sort:hover {
-		color: lightgrey;
+		opacity: 0.3;
 	}
 
 .pdtable {
