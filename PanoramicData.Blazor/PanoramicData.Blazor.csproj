@@ -23,12 +23,14 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<PackageReleaseNotes>Updated PDForm to support rendering GUID instead of 0.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Remove="compilerconfig.json" />
+		<None Include="..\README.md" Pack="true" PackagePath="\"/>
+		<Content Remove="compilerconfig.json" />
 	</ItemGroup>
 
 	<ItemGroup>
