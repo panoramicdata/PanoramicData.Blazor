@@ -2,9 +2,9 @@
 	display: inline-block;
 }
 
-.pd-filter ::deep .filter-icon {
-	color: whitesmoke !important;
-}
+	.pd-filter ::deep .filter-icon {
+		color: lightgrey !important;
+	}
 
 .pd-filter.filtered ::deep .filter-icon {
 	color: var(--primary) !important;
