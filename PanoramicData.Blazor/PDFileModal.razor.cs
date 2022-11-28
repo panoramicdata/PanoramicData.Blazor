@@ -154,9 +154,9 @@ public partial class PDFileModal
 		_showFiles = true;
 		_filenamePattern = filenamePattern;
 		_modalTitle = SaveTitle;
-		if (string.IsNullOrWhiteSpace(_filenameTextbox.Value) && !string.IsNullOrWhiteSpace(initialFilename))
+		if (!string.IsNullOrWhiteSpace(initialFilename))
 		{
-			_filenameTextbox.Value = initialFilename;
+			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
 			_okButton.IsEnabled = true;
 		}
 		if (!_filenameTextbox.IsVisible)
@@ -195,9 +195,9 @@ public partial class PDFileModal
 		_showFiles = true;
 		_filenamePattern = filenamePattern;
 		_modalTitle = SaveTitle;
-		if (string.IsNullOrWhiteSpace(_filenameTextbox.Value) && !string.IsNullOrWhiteSpace(initialFilename))
+		if (!string.IsNullOrWhiteSpace(initialFilename))
 		{
-			_filenameTextbox.Value = initialFilename;
+			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
 			_okButton.IsEnabled = true;
 		}
 		if (!_filenameTextbox.IsVisible)
