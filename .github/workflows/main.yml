@@ -1,5 +1,5 @@
 name: Deploy to GitHub Pages
-on: 
+on:
   push:
     branches: [ main ]
 jobs:
@@ -10,11 +10,11 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    # sets up .NET Core SDK 6.0.300
+    # sets up .NET Core SDK 7.0.100
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.300
+        dotnet-version: 7.0.100
     # restore projects separately
     - name: Restore Projects
       run: dotnet restore PanoramicData.Blazor.WebAssembly/Client/PanoramicData.Blazor.WebAssembly.Client.csproj
@@ -23,10 +23,10 @@ jobs:
       run: dotnet publish PanoramicData.Blazor.WebAssembly/Client/PanoramicData.Blazor.WebAssembly.Client.csproj  --configuration Release --output release --nologo
     # changes the base-tag in index.html from '/' to '/PanoramicData.Blazor/' to match GitHub Pages repository subdirectory
     - name: Change base-tag in index.html from / to /PanoramicData.Blazor/
-      run: sed -i 's/<base href="\/" \/>/<base href="\/PanoramicData.Blazor\/" \/>/g' release/wwwroot/index.html      
+      run: sed -i 's/<base href="\/" \/>/<base href="\/PanoramicData.Blazor\/" \/>/g' release/wwwroot/index.html
     # copy index.html to 404.html to serve the same file when a file is not found
     - name: copy index.html to 404.html
-      run: cp release/wwwroot/index.html release/wwwroot/404.html      
+      run: cp release/wwwroot/index.html release/wwwroot/404.html
     # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
     - name: Add .nojekyll file
       run: touch release/wwwroot/.nojekyll
