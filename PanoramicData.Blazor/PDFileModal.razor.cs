@@ -175,8 +175,18 @@ public partial class PDFileModal
 
 		await Modal.ShowAsync().ConfigureAwait(true);
 
-		// refresh the current folder contents
-		await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		// default folder?
+		if (!string.IsNullOrWhiteSpace(initialFilename))
+		{
+			// default to current initial files location
+			await FileExplorer.NavigateToAsync(initialFilename).ConfigureAwait(true);
+		}
+		else
+		{
+			// default to root
+			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
+			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		}
 	}
 
 	public async Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename = "", string filenamePattern = "")
@@ -204,8 +214,18 @@ public partial class PDFileModal
 		}
 		StateHasChanged();
 
-		// refresh the current folder contents
-		await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		// default folder?
+		if (!string.IsNullOrWhiteSpace(initialFilename))
+		{
+			// default to current initial files location
+			await FileExplorer.NavigateToAsync(initialFilename).ConfigureAwait(true);
+		}
+		else
+		{
+			// default to root
+			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
+			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		}
 
 		FileExplorerItem? existing = null;
 		do
