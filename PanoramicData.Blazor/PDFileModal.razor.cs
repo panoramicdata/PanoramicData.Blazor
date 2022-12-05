@@ -83,7 +83,7 @@ public partial class PDFileModal
 		return GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
 	}
 
-	public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "")
+	public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "", string initialFolder = "")
 	{
 		_showOpen = true;
 		_showFiles = !folderSelect;
@@ -109,8 +109,18 @@ public partial class PDFileModal
 		// show the modal
 		await Modal.ShowAsync().ConfigureAwait(true);
 
-		// refresh the current folder contents
-		await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		// default folder?
+		if (!string.IsNullOrWhiteSpace(initialFolder))
+		{
+			// default to given folder
+			await FileExplorer.NavigateToAsync(initialFolder).ConfigureAwait(true);
+		}
+		else
+		{
+			// default to root
+			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
+			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		}
 	}
 
 	public async Task<string> ShowOpenAndWaitResultAsync(bool folderSelect = false, string filenamePattern = "")
