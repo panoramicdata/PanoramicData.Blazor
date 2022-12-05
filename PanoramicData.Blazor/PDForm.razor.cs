@@ -527,7 +527,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="value">The new value for the field.</param>
 	/// <remarks>If valid, the new value is applied direct to the Item when in Create mode,
 	/// otherwise tracked as a delta when in Edit mode.</remarks>
-	public async Task SetFieldValueAsync(FormField<TItem> field, object value)
+	public async Task SetFieldValueAsync(FormField<TItem> field, object? value)
 	{
 		var previousChanges = Delta.Count;
 		if (Item != null && field.Field != null)
@@ -536,9 +536,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			if (memberInfo != null && memberInfo is PropertyInfo propInfo)
 			{
 				// add / replace value on delta object
-				object typedValue = propInfo.PropertyType == value.GetType()
-					? value
-					: value.Cast(propInfo.PropertyType);
+				object typedValue = value is null ? null
+					: (propInfo.PropertyType == value.GetType() ? value : value.Cast(propInfo.PropertyType));
 
 				// notify application of change - and allow for override
 				var args = new FieldUpdateArgs<TItem>(field, GetFieldValue(field, false), typedValue);
