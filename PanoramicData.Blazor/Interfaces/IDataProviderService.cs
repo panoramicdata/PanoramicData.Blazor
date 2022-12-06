@@ -38,7 +38,7 @@ public interface IDataProviderService<TItem>
 	/// <param name="delta">A dictionary with new property values.</param>
 	/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 	/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-	Task<OperationResponse> UpdateAsync(TItem item, IDictionary<string, object> delta, CancellationToken cancellationToken);
+	Task<OperationResponse> UpdateAsync(TItem item, IDictionary<string, object?> delta, CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Requests the given item is created.

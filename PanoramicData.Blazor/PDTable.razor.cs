@@ -323,7 +323,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			Columns.Add(column);
 			if (column.Id == SortCriteria?.Key || column.Title == SortCriteria?.Key)
 			{
-				column.SortDirection = SortCriteria.Direction;
+				column.SortDirection = SortCriteria!.Direction;
 			}
 
 			if (column.Filterable && column.Field != null)
@@ -625,7 +625,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			// save changes if configured to do so and data provider is given
 			if (SaveChanges && DataProvider != null)
 			{
-				var delta = new Dictionary<string, object>();
+				var delta = new Dictionary<string, object?>();
 				foreach (var kvp in _editValues)
 				{
 					if (kvp.Value != null)

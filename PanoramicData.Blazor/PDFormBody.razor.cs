@@ -77,6 +77,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 
 	protected override void OnParametersSet()
 	{
+		// set fields from table columns
 		if (Table != null && Form != null && Form.Fields.Count == 0)
 		{
 			foreach (var column in Table.Columns)
@@ -94,7 +95,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					EditTemplate = column.EditTemplate,
 					Helper = column.Helper,
 					MaxLength = column.MaxLength,
-					Title = column.Title,
+					Title = column.GetTitle(),
 					Options = column.Options,
 					OptionsAsync = column.OptionsAsync,
 					IsPassword = column.IsPassword,
@@ -106,6 +107,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					HelpUrl = column.HelpUrl
 				});
 			}
+
 		}
 	}
 
@@ -192,7 +194,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		{
 			return string.Empty;
 		}
-		else if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
+		else if (fieldName != null && !field.SuppressErrors && Form?.Errors?.ContainsKey(fieldName) == true)
 		{
 			return "alert-danger";
 		}
@@ -213,7 +215,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		{
 			return "pd-empty-icon";
 		}
-		else if (fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
+		else if (fieldName != null && !field.SuppressErrors && Form?.Errors?.ContainsKey(fieldName) == true)
 		{
 			return "fas fa-exclamation-circle";
 		}

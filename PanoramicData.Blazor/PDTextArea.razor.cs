@@ -11,6 +11,8 @@ public partial class PDTextArea : IAsyncDisposable
 	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
+	[Parameter] public EventCallback Blur { get; set; }
+
 	/// <summary>
 	/// Gets or sets CSS classes for the text box.
 	/// </summary>
@@ -99,6 +101,11 @@ public partial class PDTextArea : IAsyncDisposable
 				await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
 			}
 		}
+	}
+
+	private async Task OnBlur(FocusEventArgs args)
+	{
+		await Blur.InvokeAsync().ConfigureAwait(true);
 	}
 
 	private async Task OnInput(ChangeEventArgs args)

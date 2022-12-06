@@ -2,8 +2,6 @@
 
 public partial class PDField<TItem> where TItem : class
 {
-	private string? _title;
-
 	/// <summary>
 	/// The parent PDForm instance.
 	/// </summary>
@@ -24,26 +22,7 @@ public partial class PDField<TItem> where TItem : class
 	/// If set will override the Field's name
 	/// </summary>
 	[Parameter]
-	public string Title
-	{
-		get
-		{
-			if (_title == null)
-			{
-				var memberInfo = Field?.GetPropertyMemberInfo();
-				if (memberInfo is PropertyInfo propInfo)
-				{
-					_title = propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name;
-				}
-				else
-				{
-					_title = memberInfo?.Name;
-				}
-			}
-			return _title ?? "";
-		}
-		set { _title = value; }
-	}
+	public string? Title { get; set; }
 
 	/// <summary>
 	/// Gets or sets the autocomplete attribute value.
@@ -149,6 +128,18 @@ public partial class PDField<TItem> where TItem : class
 	/// Gets or sets a URL to an external context sensitive help page.
 	/// </summary>
 	[Parameter] public string? HelpUrl { get; set; }
+
+	public string GetTitle()
+	{
+		if (Title != null)
+		{
+			return Title;
+		}
+		var memberInfo = Field?.GetPropertyMemberInfo();
+		return memberInfo is PropertyInfo propInfo
+			? propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name
+			: memberInfo?.Name ?? string.Empty;
+	}
 
 	protected override async Task OnInitializedAsync()
 	{

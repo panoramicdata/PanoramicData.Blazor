@@ -22,6 +22,13 @@ public class FormField<TItem> where TItem : class
 	public Expression<Func<TItem, object>>? Field { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether errors for this field should be suppressed?
+	/// </summary>
+	/// <remarks>Useful when initially showing a field and allowing the user to enter valid
+	/// data before showing an error message.</remarks>
+	public bool SuppressErrors { get; set; }
+
+	/// <summary>
 	/// Gets or sets the field title.
 	/// </summary>
 	public string Title { get; set; } = string.Empty;

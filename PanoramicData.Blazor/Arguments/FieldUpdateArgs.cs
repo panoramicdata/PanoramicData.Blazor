@@ -2,7 +2,7 @@
 
 public class FieldUpdateArgs<TItem> where TItem : class
 {
-	public FieldUpdateArgs(FormField<TItem> field, object? oldValue, object newValue)
+	public FieldUpdateArgs(FormField<TItem> field, object? oldValue, object? newValue)
 	{
 		Field = field;
 		OldValue = oldValue;
@@ -13,5 +13,5 @@ public class FieldUpdateArgs<TItem> where TItem : class
 
 	public object? OldValue { get; }
 
-	public object NewValue { get; set; }
+	public object? NewValue { get; set; }
 }
