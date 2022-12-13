@@ -85,7 +85,7 @@ else if (Form.Mode != FormModes.Hidden)
 						else if (field.IsTextArea)
 						{
 							<PDTextArea IsEnabled="@(!IsReadOnly(field))"
-                                        Blur="() => field.SuppressErrors = false"
+										Blur="() => field.SuppressErrors = false"
 										CssClass="@($"form-control {GetEditorClass(field)}")"
 										Rows="@field.TextAreaRows"
 										MaxLength="@(field.MaxLength ?? -1)"

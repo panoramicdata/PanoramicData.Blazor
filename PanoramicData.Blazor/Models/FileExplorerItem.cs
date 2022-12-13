@@ -85,6 +85,7 @@ public class FileExplorerItem : IComparable
 	/// <summary>
 	/// Gets or sets the type of item.
 	/// </summary>
+	[Display(Name = "Entry Type")]
 	public FileExplorerItemType EntryType { get; set; }
 
 	/// <summary>
@@ -95,16 +96,19 @@ public class FileExplorerItem : IComparable
 	/// <summary>
 	/// Gets or sets the size in bytes of the item.
 	/// </summary>
+	[Display(Name = "Size")]
 	public long FileSize { get; set; }
 
 	/// <summary>
 	/// Gets or sets the date and time the item was created.
 	/// </summary>
+	[Display(Name = "Created")]
 	public DateTimeOffset? DateCreated { get; set; }
 
 	/// <summary>
 	/// Gets or sets the date and time the item was last modified.
 	/// </summary>
+	[Display(Name = "Modified")]
 	public DateTimeOffset? DateModified { get; set; }
 
 	/// <summary>
@@ -147,6 +151,7 @@ public class FileExplorerItem : IComparable
 	/// <summary>
 	/// Gets the file extension.
 	/// </summary>
+	[Display(Name = "Type")]
 	public string FileExtension
 		=> string.IsNullOrWhiteSpace(System.IO.Path.GetExtension(Path)) ? "" : System.IO.Path.GetExtension(Path).Substring(1);
 

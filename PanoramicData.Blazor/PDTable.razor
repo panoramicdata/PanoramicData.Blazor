@@ -47,12 +47,11 @@
                         <div class="hdr">
                             @if (column.HeaderTemplate is null)
                             {
-                                <span class="text-nowrap" title="@column.HelpText">@column.Title</span>
+                                <span class="text-nowrap" title="@column.HelpText">@column.GetTitle()</span>
                             }
                             else
                             {
                                 @column.HeaderTemplate
-                                ;
                             }
                             @if (column.Filterable)
                             {

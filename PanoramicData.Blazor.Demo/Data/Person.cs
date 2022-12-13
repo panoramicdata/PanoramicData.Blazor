@@ -1,7 +1,7 @@
 ﻿namespace PanoramicData.Blazor.Demo.Data;
 
 //[Display(Name = "Individual")]
-public class Person
+public class Person : IComparable
 {
 	public Person()
 	{
@@ -70,6 +70,17 @@ public class Person
 
 	[FilterKey("boss")]
 	public Person? Manager { get; set; }
+
+	public int CompareTo(object? obj)
+	{
+		if (obj is Person other)
+		{
+			return string.Compare(LastName, other.LastName);
+		}
+		return 1;
+	}
+
+	public override string ToString() => LastName;
 }
 
 public enum Departments

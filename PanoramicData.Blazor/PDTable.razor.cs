@@ -321,7 +321,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		try
 		{
 			Columns.Add(column);
-			if (column.Id == SortCriteria?.Key || column.Title == SortCriteria?.Key)
+			if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
 			{
 				column.SortDirection = SortCriteria!.Direction;
 			}
@@ -426,7 +426,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			BlockOverlayService.Show();
 
 			//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
-			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.Title == SortCriteria?.Key);
+			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
 			var request = new DataRequest<TItem>
 			{
 				Skip = 0,
@@ -488,13 +488,13 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			else
 			{
 				// if column already sorted then reverse direction
-				if (column.Id == SortCriteria?.Key || column.Title == SortCriteria?.Key)
+				if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
 				{
 					column.SortDirection = column.SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
 				}
 				else
 				{
-					var previousCol = Columns.FirstOrDefault(x => x.Id == SortCriteria?.Key || x.Title == SortCriteria?.Key);
+					var previousCol = Columns.FirstOrDefault(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
 					if (previousCol != null)
 					{
 						previousCol.SortDirection = SortDirection.None;
@@ -831,7 +831,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 
 		// base request on current filter and sort
-		var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.Title == SortCriteria?.Key);
+		var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
 		var request = new DataRequest<TItem>
 		{
 			Take = 1000,
