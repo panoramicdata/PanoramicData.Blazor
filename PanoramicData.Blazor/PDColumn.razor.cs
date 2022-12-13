@@ -202,6 +202,11 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = new Func<TItem?, bool>((_) => false);
 
 	/// <summary>
+	/// Gets or sets whether a 'copy to clipboard' button is displayed for the field.
+	/// </summary>
+	[Parameter] public Func<TItem?, bool> ShowCopyButton { get; set; } = new Func<TItem?, bool>((_) => false);
+
+	/// <summary>
 	/// This sets whether something CAN be shown in the list, use DTTable ColumnsToDisplay to dynamically
 	/// change which to display from those that CAN be shown in the list
 	/// </summary>

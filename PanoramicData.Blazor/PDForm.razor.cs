@@ -166,6 +166,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				Helper = field.Helper,
 				ReadOnlyInCreate = field.ReadOnlyInCreate,
 				ReadOnlyInEdit = field.ReadOnlyInEdit,
+				ShowCopyButton = field.ShowCopyButton,
 				ShowInCreate = field.ShowInCreate,
 				ShowInDelete = field.ShowInDelete,
 				ShowInEdit = field.ShowInEdit,

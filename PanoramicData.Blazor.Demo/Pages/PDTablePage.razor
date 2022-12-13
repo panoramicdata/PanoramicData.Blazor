@@ -110,24 +110,29 @@
                       DefaultSortDirection="SortDirection.Descending"
                       TItem="Person"
                       Field="x => x.FirstName"
-                      Filterable="true" />
+                      Filterable="true"
+                      ShowCopyButton="(_) => true" />
 
             <PDColumn Id="last"
                       TItem="Person"
                       Field="x => x.LastName"
-                      Filterable="true" />
+                      Filterable="true"
+                      ShowCopyButton="(_) => true" />
 
             <PDColumn Id="email"
                       TItem="Person"
                       Field="x => x.Email"
-                      Filterable="true" />
+                      Filterable="true"
+                      ShowCopyButton="(_) => true"
+                      TdClass="text-nowrap" />
 
             <PDColumn Id="dob"
                       TItem="Person"
                       Field="x => x.Dob"
                       Title="Date of Birth"
                       Filterable="true"
-                      Format="yyyy-MM-dd">
+                      Format="yyyy-MM-dd"
+                      ShowCopyButton="(_) => true">
                 <EditTemplate>
                     <input id="pd-table-edit-dob"
                            type="date"

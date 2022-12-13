@@ -122,20 +122,21 @@
                                     else
                                     {
                                         @column.EditTemplate(item)
-                                        ;
                                     }
                                 }
                                 else
                                 {
+                                    if (column.ShowCopyButton(item) && !string.IsNullOrWhiteSpace(column.GetRenderValue(item)))
+                                    {
+                                        <PDClipboard CssClass="me-1" Text="@(column.GetRenderValue(item))" />
+                                    }
                                     if (column.Template == null)
                                     {
                                         @column.GetRenderValue(item)
-                                        ;
                                     }
                                     else
                                     {
                                         @column.Template(item)
-                                        ;
                                     }
                                 }
                             </td>

@@ -30,6 +30,11 @@ public partial class PDField<TItem> where TItem : class
 	[Parameter] public string AutoComplete { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Gets or sets whether a 'copy to clipboard' button is displayed for the field.
+	/// </summary>
+	[Parameter] public Func<TItem?, bool> ShowCopyButton { get; set; } = new Func<TItem?, bool>((_) => false);
+
+	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the form mode is Edit.
 	/// </summary>
 	[Parameter] public Func<TItem?, bool> ShowInEdit { get; set; } = new Func<TItem?, bool>((_) => true);

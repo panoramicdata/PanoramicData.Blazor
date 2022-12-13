@@ -89,6 +89,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					Field = column.Field,
 					ReadOnlyInCreate = column.ReadOnlyInCreate,
 					ReadOnlyInEdit = column.ReadOnlyInEdit,
+					ShowCopyButton = column.ShowCopyButton,
 					ShowInCreate = column.ShowInCreate,
 					ShowInDelete = column.ShowInDelete,
 					ShowInEdit = column.ShowInEdit,

@@ -61,18 +61,21 @@
 
                 <PDField TItem="Person"
                          Field="x => x.FirstName"
-                         Title="First Name"
-                         ShowInDelete="(_) => true" />
+                         ShowCopyButton="(_) => true"
+                         ShowInDelete="(_) => true"
+                         Title="First Name" />
 
                 <PDField TItem="Person"
                          Field="x => x.LastName"
                          MaxLength="20"
-                         Title="Last Name"
-                         ShowInDelete="(_) => true" />
+                         ShowCopyButton="(_) => true"
+                         ShowInDelete="(_) => true"
+                         Title="Last Name" />
 
                 <PDField TItem="Person"
                          Field="x => x.Dob"
-                         Helper="_dateHelper" />
+                         Helper="_dateHelper"
+                         ShowCopyButton="(_) => true" />
 
                 <PDField TItem="Person"
                          ShowValidationResult="false"
@@ -95,6 +98,7 @@
 
                 <PDField TItem="Person"
                          Field="x => x.Comments"
+                         ShowCopyButton="(_) => true"
                          ShowInCreate="(_) => false"
                          IsTextArea="true" />
 
