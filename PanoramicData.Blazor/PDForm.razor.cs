@@ -766,7 +766,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="mode">Display mode of edit.</param>
 	/// <param name="resetChanges">Should any current changes be reset?</param>
 	/// <param name="validate">Should the item be validated? Null value will lead to Validation being called only when mode is set to Create.</param>
-	public async Task EditItemAsync(TItem item, FormModes mode, bool resetChanges = true, bool? validate = null)
+	public async Task EditItemAsync(TItem? item, FormModes mode, bool resetChanges = true, bool? validate = null)
 	{
 		Item = item;
 		PreviousMode = Mode;

@@ -31,7 +31,7 @@ public partial class PDTablePage
 		// Sort
 		if (query.TryGetValue("sort", out var requestedSortFields))
 		{
-			var sortFieldSpecs = requestedSortFields[0].Split('|');
+			var sortFieldSpecs = requestedSortFields[0]?.Split('|') ?? Array.Empty<string>();
 			if (sortFieldSpecs.Length == 2)
 			{
 				_sortCriteria = new SortCriteria(sortFieldSpecs[0], sortFieldSpecs[1] == "desc" ? SortDirection.Descending : SortDirection.Ascending);
@@ -45,9 +45,9 @@ public partial class PDTablePage
 		}
 
 		// Search
-		if (query.TryGetValue("search", out var requestedSearch))
+		if (query?.TryGetValue("search", out var requestedSearch) ?? false)
 		{
-			_searchText = requestedSearch;
+			_searchText = requestedSearch.ToString();
 		}
 	}
 

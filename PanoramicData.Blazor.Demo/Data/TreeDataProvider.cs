@@ -43,7 +43,7 @@ public class TreeDataProvider : IDataProviderService<TreeItem>
 #pragma warning restore RCS1079 // Throwing of new NotImplementedException.
 	}
 
-	public Task<OperationResponse> UpdateAsync(TreeItem item, IDictionary<string, object> delta, CancellationToken cancellationToken)
+	public Task<OperationResponse> UpdateAsync(TreeItem item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
 	{
 #pragma warning disable RCS1079 // Throwing of new NotImplementedException.
 		throw new System.NotImplementedException();
