@@ -35,7 +35,7 @@ export function initialize(id, opt, sessionId, dnRef) {
 	var me = this;
 	// create a debounced function to call when all files to upload determined
 	var filesAddedFunction = common.debounce((dz) => {
-		console.log("addedfile - completed", dz.files);
+		//console.log("addedfile - completed", dz.files);
 		var files = dz.files.map(file => { return { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId } });
 		dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnAllUploadsReady", files);
 	}, 500);
@@ -51,12 +51,16 @@ export function initialize(id, opt, sessionId, dnRef) {
 				this.fileCount = 0;
 			});
 			this.on("addedfile", function (file) {
-				this.fileCount++;
-				var fullPath = getPath(file);
-				if (!fullPath.endsWith("/")) fullPath = fullPath + "/";
-				fullPath = fullPath + (file.targetName || file.name);
-				file.previewElement.querySelector(".pdfe-dz-name").innerHTML = fullPath;
-				filesAddedFunction(this);
+				if (file.size > 0) {
+					this.fileCount++;
+					var fullPath = getPath(file);
+					if (!fullPath.endsWith("/")) fullPath = fullPath + "/";
+					fullPath = fullPath + (file.targetName || file.name);
+					file.previewElement.querySelector(".pdfe-dz-name").innerHTML = fullPath;
+					filesAddedFunction(this);
+				} else {
+					this.removeFile(file);
+				}
 			});
 			this.on("sending", function (file, xhr) {
 				dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnUploadBegin", { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId });
@@ -68,35 +72,35 @@ export function initialize(id, opt, sessionId, dnRef) {
 				dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnUploadProgress", { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId, Progress: pct });
 			});
 			this.on("success", function (file) {
-				console.log("success", file);
+				//console.log("success", file);
 				dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnUploadEnd", { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId, Success: true });
 				if (this.getQueuedFiles().length > 0) {
 					this.processQueue();
 				}
 			});
 			this.on("error", function (file, msg, xhr) {
-				console.log("error", file);
+				//console.log("error", file);
 				dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnUploadEnd", { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId, Success: false, Reason: msg });
 				if (this.getQueuedFiles().length > 0) {
 					this.processQueue();
 				}
 			});
 			this.on("queuecomplete", function () {
-				console.log("queuecomplete");
+				//console.log("queuecomplete");
 				dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnAllUploadsComplete");
 				if (this.fileCount)
 					this.fileCount = 0;
 				this.removeAllFiles(true);
 			});
 			this.on("totaluploadprogress", function (uploadProgress, totalBytes, totalBytesSent) {
-				console.log("totaluploadprogress", uploadProgress, totalBytes, totalBytesSent);
+				//console.log("totaluploadprogress", uploadProgress, totalBytes, totalBytesSent);
 				dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnAllUploadsProgress", uploadProgress, totalBytes, totalBytesSent);
 			});
 		},
 		accept: function (file, done) {
 			dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnDrop", [{ Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId }])
 				.then(data => {
-					console.log("accept", data);
+					//console.log("accept", data);
 					if (data.cancel || data.reason) {
 						done(data.reason || "Upload canceled");
 					} else {
