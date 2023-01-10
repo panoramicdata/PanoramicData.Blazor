@@ -257,6 +257,12 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 			// target path does not exist - move or rename
 			if (targetNode == null)
 			{
+				// simulate rename/move error
+				if (tempItem.Name.Contains(".."))
+				{
+					result.ErrorMessage = "Failed to move: Invalid name";
+					return;
+				}
 				if (itemNode.Parent != null)
 				{
 					itemNode.Parent.Items.Remove(itemNode);

@@ -762,6 +762,10 @@ public partial class PDFileExplorer : IAsyncDisposable
 							args.Item.Path = newPath;
 						}
 					}
+					else
+					{
+						args.Cancel = true;
+					}
 
 					// replace selection with new path
 					Table.Selection.Clear();
