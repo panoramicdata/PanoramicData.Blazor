@@ -45,17 +45,17 @@ public partial class PDFormPage3
 		{
 			SelectedPerson = null;
 			await Table.ClearSelectionAsync().ConfigureAwait(true);
-			Form.SetMode(FormModes.Empty);
+			await Form.EditItemAsync(null, FormModes.Empty).ConfigureAwait(true);
 		}
 	}
 
-	private void OnCreatePerson()
+	private async Task OnCreatePerson()
 	{
 		SelectedPerson = new Person();
-		Form.SetMode(FormModes.Create);
+		await Form.EditItemAsync(SelectedPerson, FormModes.Create).ConfigureAwait(true);
 	}
 
-	private void OnSelectionChanged()
+	private async Task OnSelectionChanged()
 	{
 		if (Table?.Selection.Count > 0)
 		{
@@ -63,8 +63,7 @@ public partial class PDFormPage3
 			SelectedPerson = Table.ItemsToDisplay.Find(x => x.Id == id);
 			if (SelectedPerson != null)
 			{
-				Form.SetItem(SelectedPerson);
-				Form.SetMode(FormModes.Edit);
+				await Form.EditItemAsync(SelectedPerson, FormModes.Edit).ConfigureAwait(true);
 			}
 		}
 	}

@@ -37,14 +37,14 @@ public partial class PDFormPage
 		}
 	}
 
-	private void OnFooterClick(string key)
+	private async Task OnFooterClick(string key)
 	{
 		EventManager?.Add(new Event("FooterClick", new EventArgument("Key", key)));
 
 		if (key == "Cancel")
 		{
 			SelectedPerson = null;
-			Form.SetMode(FormModes.Hidden);
+			await Form.EditItemAsync(null, FormModes.Hidden).ConfigureAwait(true);
 		}
 	}
 
@@ -98,7 +98,7 @@ public partial class PDFormPage
 		if (await NavigationCancelService.ProceedAsync().ConfigureAwait(true))
 		{
 			SelectedPerson = person;
-			Form.SetMode(FormModes.Edit);
+			await Form.EditItemAsync(SelectedPerson, FormModes.Edit).ConfigureAwait(true);
 		}
 	}
 
@@ -107,7 +107,7 @@ public partial class PDFormPage
 		if (await NavigationCancelService.ProceedAsync().ConfigureAwait(true))
 		{
 			SelectedPerson = new Person();
-			Form.SetMode(FormModes.Create);
+			await Form.EditItemAsync(SelectedPerson, FormModes.Create).ConfigureAwait(true);
 		}
 	}
 }

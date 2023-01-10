@@ -150,7 +150,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 	/// <param name="delta">A dictionary with new property values.</param>
 	/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 	/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-	public override Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object> delta, CancellationToken cancellationToken)
+	public override Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
 	{
 		return Task.Run(() =>
 		{

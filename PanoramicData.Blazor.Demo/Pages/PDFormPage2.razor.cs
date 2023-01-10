@@ -81,14 +81,14 @@ public partial class PDFormPage2
 	private async Task OnEditPersonAsync(Person person)
 	{
 		SelectedPerson = person;
-		Form.SetMode(FormModes.Edit);
+		await Form.EditItemAsync(SelectedPerson, FormModes.Edit).ConfigureAwait(true);
 		await Modal.ShowAsync().ConfigureAwait(true);
 	}
 
 	private async Task OnCreatePersonAsync()
 	{
 		SelectedPerson = new Person();
-		Form.SetMode(FormModes.Create);
+		await Form.EditItemAsync(SelectedPerson, FormModes.Create).ConfigureAwait(true);
 		await Modal.ShowAsync().ConfigureAwait(true);
 	}
 }

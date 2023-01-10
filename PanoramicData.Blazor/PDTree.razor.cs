@@ -265,7 +265,7 @@ public partial class PDTree<TItem> where TItem : class
 		_clickCount = 0;
 	}
 
-	public void NodeMouseUp(TreeNode<TItem> node)
+	public void NodeMouseDown(TreeNode<TItem> node)
 	{
 		if (_clickTimer == null || node != _clickedNode)
 		{

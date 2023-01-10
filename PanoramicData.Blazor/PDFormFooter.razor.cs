@@ -122,16 +122,6 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	protected override void OnAfterRender(bool firstRender)
-	{
-		base.OnAfterRender(firstRender);
-	}
-
-	protected override void OnInitialized()
-	{
-		base.OnInitialized();
-	}
-
 	protected override void OnParametersSet()
 	{
 		// update state of default buttons
@@ -182,7 +172,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		{
 			if (key == "Delete")
 			{
-				Form.SetMode(FormModes.Delete);
+				await Form.EditItemAsync(Form.Item, FormModes.Delete).ConfigureAwait(true);
 			}
 			else if (key == "Save" && Form.DataProvider != null)
 			{
@@ -195,7 +185,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 			}
 			else if (key == "Cancel" && Form.ConfirmCancel && Form.Delta.Count > 0)
 			{
-				Form.SetMode(FormModes.Cancel);
+				await Form.EditItemAsync(Form.Item, FormModes.Cancel).ConfigureAwait(true);
 			}
 			else if (key == "Yes" && Form.Mode == FormModes.Delete && Form.DataProvider != null)
 			{
@@ -214,7 +204,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 			//else if (key == "No" && Form.Mode == FormModes.Delete)
 			else if (key == "No")
 			{
-				Form.SetMode(Form.PreviousMode, false);
+				await Form.EditItemAsync(Form.Item, Form.PreviousMode, false).ConfigureAwait(true);
 			}
 		}
 

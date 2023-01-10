@@ -75,6 +75,6 @@ public partial class PDFileModalsPage
 	private async Task ShowFileSaveAsModal()
 	{
 		_showOpen = false;
-		await _fileModal.ShowSaveAsAsync().ConfigureAwait(true);
+		await _fileModal.ShowSaveAsAsync(_openResult).ConfigureAwait(true);
 	}
 }

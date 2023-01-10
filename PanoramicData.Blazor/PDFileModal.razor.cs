@@ -83,7 +83,7 @@ public partial class PDFileModal
 		return GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
 	}
 
-	public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "")
+	public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "", string initialFolder = "")
 	{
 		_showOpen = true;
 		_showFiles = !folderSelect;
@@ -109,8 +109,18 @@ public partial class PDFileModal
 		// show the modal
 		await Modal.ShowAsync().ConfigureAwait(true);
 
-		// refresh the current folder contents
-		await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		// default folder?
+		if (!string.IsNullOrWhiteSpace(initialFolder))
+		{
+			// default to given folder
+			await FileExplorer.NavigateToAsync(initialFolder).ConfigureAwait(true);
+		}
+		else
+		{
+			// default to root
+			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
+			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		}
 	}
 
 	public async Task<string> ShowOpenAndWaitResultAsync(bool folderSelect = false, string filenamePattern = "")
@@ -154,9 +164,9 @@ public partial class PDFileModal
 		_showFiles = true;
 		_filenamePattern = filenamePattern;
 		_modalTitle = SaveTitle;
-		if (string.IsNullOrWhiteSpace(_filenameTextbox.Value) && !string.IsNullOrWhiteSpace(initialFilename))
+		if (!string.IsNullOrWhiteSpace(initialFilename))
 		{
-			_filenameTextbox.Value = initialFilename;
+			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
 			_okButton.IsEnabled = true;
 		}
 		if (!_filenameTextbox.IsVisible)
@@ -175,8 +185,18 @@ public partial class PDFileModal
 
 		await Modal.ShowAsync().ConfigureAwait(true);
 
-		// refresh the current folder contents
-		await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		// default folder?
+		if (!string.IsNullOrWhiteSpace(initialFilename))
+		{
+			// default to current initial files location
+			await FileExplorer.NavigateToAsync(initialFilename).ConfigureAwait(true);
+		}
+		else
+		{
+			// default to root
+			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
+			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		}
 	}
 
 	public async Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename = "", string filenamePattern = "")
@@ -185,9 +205,9 @@ public partial class PDFileModal
 		_showFiles = true;
 		_filenamePattern = filenamePattern;
 		_modalTitle = SaveTitle;
-		if (string.IsNullOrWhiteSpace(_filenameTextbox.Value) && !string.IsNullOrWhiteSpace(initialFilename))
+		if (!string.IsNullOrWhiteSpace(initialFilename))
 		{
-			_filenameTextbox.Value = initialFilename;
+			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
 			_okButton.IsEnabled = true;
 		}
 		if (!_filenameTextbox.IsVisible)
@@ -204,8 +224,18 @@ public partial class PDFileModal
 		}
 		StateHasChanged();
 
-		// refresh the current folder contents
-		await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		// default folder?
+		if (!string.IsNullOrWhiteSpace(initialFilename))
+		{
+			// default to current initial files location
+			await FileExplorer.NavigateToAsync(initialFilename).ConfigureAwait(true);
+		}
+		else
+		{
+			// default to root
+			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
+			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+		}
 
 		FileExplorerItem? existing = null;
 		do

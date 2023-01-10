@@ -47,12 +47,11 @@
                         <div class="hdr">
                             @if (column.HeaderTemplate is null)
                             {
-                                <span class="text-nowrap" title="@column.HelpText">@column.Title</span>
+                                <span class="text-nowrap" title="@column.HelpText">@column.GetTitle()</span>
                             }
                             else
                             {
                                 @column.HeaderTemplate
-                                ;
                             }
                             @if (column.Filterable)
                             {
@@ -123,20 +122,21 @@
                                     else
                                     {
                                         @column.EditTemplate(item)
-                                        ;
                                     }
                                 }
                                 else
                                 {
+                                    if (column.ShowCopyButton(item) && !string.IsNullOrWhiteSpace(column.GetRenderValue(item)))
+                                    {
+                                        <PDClipboard CssClass="me-1" Text="@(column.GetRenderValue(item))" />
+                                    }
                                     if (column.Template == null)
                                     {
                                         @column.GetRenderValue(item)
-                                        ;
                                     }
                                     else
                                     {
                                         @column.Template(item)
-                                        ;
                                     }
                                 }
                             </td>

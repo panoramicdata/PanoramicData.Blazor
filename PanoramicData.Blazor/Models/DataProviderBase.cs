@@ -25,7 +25,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("General", "RCS1079:Throwing of new NotImplementedException.", Justification = "<Pending>")]
-	public virtual Task<OperationResponse> UpdateAsync(T item, IDictionary<string, object> delta, CancellationToken cancellationToken)
+	public virtual Task<OperationResponse> UpdateAsync(T item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
 	{
 		throw new NotImplementedException();
 	}

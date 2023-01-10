@@ -1,34 +1,36 @@
 ﻿@if (KeypressEvent)
 {
-	<input id="@Id"
-		   autocomplete="@AutoComplete"
-		   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
-		   value="@Value"
-		   disabled="@(!IsEnabled)"
-		   readonly="@IsReadOnly"
-		   placeholder="@Placeholder"
-		   @onchange="OnChange"
-		   @onkeydown="OnKeypress" />
+    <input id="@Id"
+       autocomplete="@AutoComplete"
+       @onblur="OnBlur"
+       class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
+       value="@Value"
+       disabled="@(!IsEnabled)"
+       readonly="@IsReadOnly"
+       placeholder="@Placeholder"
+       @onchange="OnChange"
+       @onkeydown="OnKeypress" />
 }
 else
 {
-	<input id="@Id"
-		   autocomplete="@AutoComplete"
-		   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
-		   value="@Value"
-		   disabled="@(!IsEnabled)"
-		   readonly="@IsReadOnly"
-		   placeholder="@Placeholder"
-		   @onchange="OnChange" />
+    <input id="@Id"
+       autocomplete="@AutoComplete"
+       @onblur="OnBlur"
+       class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
+       value="@Value"
+       disabled="@(!IsEnabled)"
+       readonly="@IsReadOnly"
+       placeholder="@Placeholder"
+       @onchange="OnChange" />
 }
 
 @if (ShowClearButton && IsVisible)
 {
-	<div class="input-group-text">
-		<button class=" btn @ButtonSizeCssClass"
-				disabled="@(Value == string.Empty || !IsEnabled)"
-				@onclick="OnClear">
-			<i class="fas fa-times" />
-		</button>
-	</div>
+    <div class="input-group-text">
+        <button class=" btn @ButtonSizeCssClass"
+            disabled="@(Value == string.Empty || !IsEnabled)"
+            @onclick="OnClear">
+            <i class="fas fa-times" />
+        </button>
+    </div>
 }

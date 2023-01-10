@@ -599,7 +599,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			}
 
 			// inform data provider
-			var delta = new Dictionary<string, object>
+			var delta = new Dictionary<string, object?>
 			{
 				{  "Path", newPath }
 			};
@@ -744,7 +744,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				else
 				{
 					// inform data provider
-					var delta = new Dictionary<string, object>
+					var delta = new Dictionary<string, object?>
 					{
 						{  "Path", newPath }
 					};
@@ -761,6 +761,10 @@ public partial class PDFileExplorer : IAsyncDisposable
 							args.Item.Name = newName!;
 							args.Item.Path = newPath;
 						}
+					}
+					else
+					{
+						args.Cancel = true;
 					}
 
 					// replace selection with new path
@@ -1473,7 +1477,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 					{
 						// get a unique name
 						var newPath = $"{conflictArgs.TargetPath.TrimEnd('/')}/{GetUniqueName(source, conflictArgs.TargetItems)}";
-						var delta = new Dictionary<string, object>
+						var delta = new Dictionary<string, object?>
 						{
 							{  "Path", newPath },
 							{  "Copy", conflictArgs.IsCopy }
@@ -1502,7 +1506,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 						// move or copy entry if no conflict or overwrite chosen
 						if (conflictArgs.ConflictResolution == ConflictResolutions.Overwrite || !conflictArgs.Conflicts.Any(x => x.Name == source.Name))
 						{
-							var delta = new Dictionary<string, object>
+							var delta = new Dictionary<string, object?>
 						{
 							{  "Path", newPath },
 							{  "Copy", conflictArgs.IsCopy }

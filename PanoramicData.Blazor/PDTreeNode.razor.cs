@@ -88,11 +88,11 @@ public partial class PDTreeNode<TItem> where TItem : class
 		}
 	}
 
-	private void OnContentMouseUp(MouseEventArgs _)
+	private void OnContentMouseDown(MouseEventArgs _)
 	{
 		if (Node != null)
 		{
-			Tree.NodeMouseUp(Node);
+			Tree.NodeMouseDown(Node);
 		}
 	}
 

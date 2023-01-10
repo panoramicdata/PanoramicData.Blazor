@@ -4,7 +4,7 @@ public class DelegatedDataProvider<TItem> : IDataProviderService<TItem>
 {
 	public Func<TItem, CancellationToken, Task<OperationResponse>>? CreateAsync { get; set; }
 	public Func<TItem, CancellationToken, Task<OperationResponse>>? DeleteAsync { get; set; }
-	public Func<TItem, IDictionary<string, object>, CancellationToken, Task<OperationResponse>>? UpdateAsync { get; set; }
+	public Func<TItem, IDictionary<string, object?>, CancellationToken, Task<OperationResponse>>? UpdateAsync { get; set; }
 	public Func<DataRequest<TItem>, CancellationToken, Task<DataResponse<TItem>>>? GetDataAsync { get; set; }
 
 	#region IDataProviderService<TItem> members
@@ -36,7 +36,7 @@ public class DelegatedDataProvider<TItem> : IDataProviderService<TItem>
 		throw new NotImplementedException();
 	}
 
-	async Task<OperationResponse> IDataProviderService<TItem>.UpdateAsync(TItem item, IDictionary<string, object> delta, CancellationToken cancellationToken)
+	async Task<OperationResponse> IDataProviderService<TItem>.UpdateAsync(TItem item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
 	{
 		if (UpdateAsync != null)
 		{

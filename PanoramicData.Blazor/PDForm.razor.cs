@@ -103,6 +103,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
 	/// <summary>
+	/// Should any errors (i.e mandatory fields) be suppressed until the first edit occurs?
+	/// </summary>
+	[Parameter] public bool SuppressInitialErrors { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets the current form mode.
 	/// </summary>
 	public FormModes Mode { get; private set; }
@@ -115,7 +120,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <summary>
 	/// Gets a dictionary used to track uncommitted changes.
 	/// </summary>
-	public Dictionary<string, object> Delta { get; } = new Dictionary<string, object>();
+	public Dictionary<string, object?> Delta { get; } = new Dictionary<string, object?>();
 
 	/// <summary>
 	/// Gets a dictionary used to track validation errors.
@@ -161,11 +166,12 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				Helper = field.Helper,
 				ReadOnlyInCreate = field.ReadOnlyInCreate,
 				ReadOnlyInEdit = field.ReadOnlyInEdit,
+				ShowCopyButton = field.ShowCopyButton,
 				ShowInCreate = field.ShowInCreate,
 				ShowInDelete = field.ShowInDelete,
 				ShowInEdit = field.ShowInEdit,
 				EditTemplate = field.EditTemplate,
-				Title = field.Title,
+				Title = field.GetTitle(),
 				MaxLength = field.MaxLength,
 				MaxValue = field.MaxValue,
 				MinValue = field.MinValue,
@@ -200,6 +206,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Sets the current item.
 	/// </summary>
 	/// <param name="item">The current item to be edited.</param>
+	[Obsolete("SetItem is deprecated, please use EditItemAsync instead.")]
 	public void SetItem(TItem item)
 	{
 		Item = item;
@@ -242,6 +249,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Sets the current mode of the form.
 	/// </summary>
 	/// <param name="mode">The new mode for the form.</param>
+	[Obsolete("SetMode is deprecated, please use EditItemAsync instead.")]
 	public void SetMode(FormModes mode, bool resetChanges = true)
 	{
 		PreviousMode = Mode;
@@ -255,6 +263,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			Errors.Clear();
 			OnErrorsChanged(EventArgs.Empty);
 		}
+		foreach (var field in Fields)
+		{
+			field.SuppressErrors = SuppressInitialErrors;
+		}
+
 		StateHasChanged();
 	}
 
@@ -527,18 +540,20 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="value">The new value for the field.</param>
 	/// <remarks>If valid, the new value is applied direct to the Item when in Create mode,
 	/// otherwise tracked as a delta when in Edit mode.</remarks>
-	public async Task SetFieldValueAsync(FormField<TItem> field, object value)
+	public async Task SetFieldValueAsync(FormField<TItem> field, object? value)
 	{
 		var previousChanges = Delta.Count;
 		if (Item != null && field.Field != null)
 		{
+			// stop suppressing errors after editing
+			field.SuppressErrors = false;
+
 			var memberInfo = field.Field.GetPropertyMemberInfo();
 			if (memberInfo != null && memberInfo is PropertyInfo propInfo)
 			{
 				// add / replace value on delta object
-				object typedValue = propInfo.PropertyType == value.GetType()
-					? value
-					: value.Cast(propInfo.PropertyType);
+				object? typedValue = value is null ? null
+					: (propInfo.PropertyType == value.GetType() ? value : value.Cast(propInfo.PropertyType));
 
 				// notify application of change - and allow for override
 				var args = new FieldUpdateArgs<TItem>(field, GetFieldValue(field, false), typedValue);
@@ -556,6 +571,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 				// validate field
 				await ValidateFieldAsync(field, value).ConfigureAwait(true);
+
 
 				StateHasChanged();
 			}
@@ -744,6 +760,41 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Sets the current edit item and display mode.
+	/// </summary>
+	/// <param name="item">Item to edit.</param>
+	/// <param name="mode">Display mode of edit.</param>
+	/// <param name="resetChanges">Should any current changes be reset?</param>
+	/// <param name="validate">Should the item be validated? Null value will lead to Validation being called only when mode is set to Create.</param>
+	public async Task EditItemAsync(TItem? item, FormModes mode, bool resetChanges = true, bool? validate = null)
+	{
+		Item = item;
+		PreviousMode = Mode;
+		Mode = mode;
+		if (resetChanges && (Mode == FormModes.Create || Mode == FormModes.Edit))
+		{
+			ResetChanges();
+		}
+		if (Errors.Count > 0)
+		{
+			Errors.Clear();
+			OnErrorsChanged(EventArgs.Empty);
+		}
+		foreach (var field in Fields)
+		{
+			field.SuppressErrors = SuppressInitialErrors;
+		}
+		if (validate is null)
+		{
+			validate = mode == FormModes.Create;
+		}
+		if (validate == true)
+		{
+			await ValidateFormAsync().ConfigureAwait(true);
+		}
+		StateHasChanged();
+	}
 
 	public async ValueTask DisposeAsync()
 	{

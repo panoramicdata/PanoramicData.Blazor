@@ -16,6 +16,8 @@ public partial class PDTextBox : IAsyncDisposable
 	/// </summary>
 	[Parameter] public string AutoComplete { get; set; } = string.Empty;
 
+	[Parameter] public EventCallback Blur { get; set; }
+
 	/// <summary>
 	/// Gets or sets the textbox sizes.
 	/// </summary>
@@ -140,6 +142,11 @@ public partial class PDTextBox : IAsyncDisposable
 	//		await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
 	//	}
 	//}
+
+	private async Task OnBlur(FocusEventArgs args)
+	{
+		await Blur.InvokeAsync().ConfigureAwait(true);
+	}
 
 	private async Task OnChange(ChangeEventArgs args)
 	{

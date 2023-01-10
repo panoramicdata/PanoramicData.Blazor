@@ -218,7 +218,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 	/// <param name="delta">A dictionary with new property values.</param>
 	/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 	/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-	public async Task<OperationResponse> UpdateAsync(FileExplorerItem item, IDictionary<string, object> delta, CancellationToken cancellationToken)
+	public async Task<OperationResponse> UpdateAsync(FileExplorerItem item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
 	{
 		var result = new OperationResponse();
 
@@ -247,7 +247,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 			}
 
 			// if copy then create a deep clone of the copied item
-			var isCopy = delta.ContainsKey("Copy") && string.Equals(delta["Copy"].ToString(), "true", StringComparison.OrdinalIgnoreCase);
+			var isCopy = delta.ContainsKey("Copy") && string.Equals(delta["Copy"]?.ToString(), "true", StringComparison.OrdinalIgnoreCase);
 			if (isCopy)
 			{
 				itemNode = itemNode.Clone();
@@ -257,6 +257,12 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 			// target path does not exist - move or rename
 			if (targetNode == null)
 			{
+				// simulate rename/move error
+				if (tempItem.Name.Contains(".."))
+				{
+					result.ErrorMessage = "Failed to move: Invalid name";
+					return;
+				}
 				if (itemNode.Parent != null)
 				{
 					itemNode.Parent.Items.Remove(itemNode);

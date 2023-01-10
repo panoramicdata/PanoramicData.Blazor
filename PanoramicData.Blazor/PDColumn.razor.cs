@@ -202,6 +202,11 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = new Func<TItem?, bool>((_) => false);
 
 	/// <summary>
+	/// Gets or sets whether a 'copy to clipboard' button is displayed for the field.
+	/// </summary>
+	[Parameter] public Func<TItem?, bool> ShowCopyButton { get; set; } = new Func<TItem?, bool>((_) => false);
+
+	/// <summary>
 	/// This sets whether something CAN be shown in the list, use DTTable ColumnsToDisplay to dynamically
 	/// change which to display from those that CAN be shown in the list
 	/// </summary>
@@ -298,26 +303,7 @@ public partial class PDColumn<TItem> where TItem : class
 	/// If set will override the FieldExpression's name
 	/// </summary>
 	[Parameter]
-	public string Title
-	{
-		get
-		{
-			if (_title == null)
-			{
-				var memberInfo = Field?.GetPropertyMemberInfo();
-				if (memberInfo is PropertyInfo propInfo)
-				{
-					_title = propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name;
-				}
-				else
-				{
-					_title = memberInfo?.Name;
-				}
-			}
-			return _title ?? "";
-		}
-		set { _title = value; }
-	}
+	public string? Title { get; set; }
 
 	/// <summary>
 	/// Gets or sets an HTML template for the fields value.
@@ -333,6 +319,18 @@ public partial class PDColumn<TItem> where TItem : class
 	/// The data type of the columns field value.
 	/// </summary>
 	[Parameter] public Type? Type { get; set; }
+
+	public string GetTitle()
+	{
+		if (Title != null)
+		{
+			return Title;
+		}
+		var memberInfo = Field?.GetPropertyMemberInfo();
+		return memberInfo is PropertyInfo propInfo
+			? propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name
+			: memberInfo?.Name ?? string.Empty;
+	}
 
 	protected override async Task OnInitializedAsync()
 	{
