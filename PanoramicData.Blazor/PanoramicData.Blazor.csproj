@@ -11,7 +11,7 @@
 		<Authors>Panoramic Data Limited</Authors>
 		<Copyright>Copyright © Panoramic Data Limited 2020-2022</Copyright>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<PackageIcon>Icon.png</PackageIcon>
+		<PackageIcon>Panoramic Data.png</PackageIcon>
 		<PackageTags>blazor components</PackageTags>
 		<Title>PanoramicData.Blazor</Title>
 		<Description>Blazor components</Description>
@@ -48,10 +48,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Remove="Icon.png" />
+		<None Remove="Panoramic Data.png" />
 		<!--<_ContentIncludedByDefault Remove="wwwroot\css\main.css" />-->
 		<None Include="compilerconfig.json" />
-		<None Include="Icon.png" Pack="true" PackagePath="" />
+		<None Include="Panoramic Data.png" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup>
