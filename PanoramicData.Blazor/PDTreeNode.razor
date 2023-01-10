@@ -2,100 +2,101 @@
 
 <div class="pdtreenode" @attributes="TreeAttributes">
 
-	<div class="pdtreenode_header">
-		@if (Node?.Isleaf ?? true)
-		{
-			<i class="far fa-plus-square fa-hidden"></i>
-		}
-		else
-		{
-			<i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
-		}
-		<div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)"
-			 @oncontextmenu:preventDefault
-			 @oncontextmenu="() => { }"
-			 @onmouseup:preventDefault
-			 @onmouseup="OnContentMouseUp"
-			 @ondrop="OnDragDrop"
-			 @ondragstart="OnDragStart"
-			 @attributes="ContentAttributes">
+    <div class="pdtreenode_header">
+        @if (Node?.Isleaf ?? true)
+        {
+            <i class="far fa-plus-square fa-hidden"></i>
+        }
+        else
+        {
+            <i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
+        }
+        <div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)"
+             @oncontextmenu:preventDefault
+             @oncontextmenu="() => { }"
+             @onmousedown:preventDefault
+             @onmousedown="OnContentMouseDown"
+             @ondrop="OnDragDrop"
+             @ondragstart="OnDragStart"
+             @attributes="ContentAttributes">
 
-			@if (AllowDropInBetween)
-			{
-				<PDDragDropSeparator Before="true"
-									 Drop="OnSeparatorDrop" />
-			}
+            @if (AllowDropInBetween)
+            {
+                <PDDragDropSeparator Before="true"
+                                 Drop="OnSeparatorDrop" />
+            }
 
-			@if (!string.IsNullOrWhiteSpace(Node?.IconCssClass))
-			{
-				<i class="@Node?.IconCssClass"></i>
-			}
+            @if (!string.IsNullOrWhiteSpace(Node?.IconCssClass))
+            {
+                <i class="@Node?.IconCssClass"></i>
+            }
 
-			@if (Node?.IsEditing == true)
-			{
-				<input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit"
-					   @bind="@Node.EditText" @bind:event="oninput"
-					   @onblur="OnEndEdit"
-					   @onclick:stopPropagation
-					   @onmousedown:stopPropagation
-					   @onmouseup:stopPropagation
-					   @oncontextmenu:stopPropagation />
-			}
-			else if (Node != null)
-			{
-				@if (NodeTemplate is null)
-				{
-					<span>@Node.Text</span>
-				}
-				else
-				{
-					@NodeTemplate(Node);
-				}
-			}
+            @if (Node?.IsEditing == true)
+            {
+                <input id="@($"PDTNE{Node.Id}")" type="text" class="pdtreenode_edit"
+                   @bind="@Node.EditText" @bind:event="oninput"
+                   @onblur="OnEndEdit"
+                   @onclick:stopPropagation
+                   @onmousedown:stopPropagation
+                   @onmouseup:stopPropagation
+                   @oncontextmenu:stopPropagation />
+            }
+            else if (Node != null)
+            {
+                @if (NodeTemplate is null)
+                {
+                    <span>@Node.Text</span>
+                }
+                else
+                {
+                    @NodeTemplate(Node)
+                    ;
+                }
+            }
 
-		</div>
-	</div>
+        </div>
+    </div>
 
-	@if (!(Node?.Isleaf ?? true))
-	{
-		<div class="pdtreenode_child_content @(ShowLines ? "pdtree_lines" : null)">
-			@if (Node.Nodes != null && Node.IsExpanded)
-			{
-				foreach (var subNode in Node.Nodes)
-				{
-					if (NodeTemplate == null)
-					{
-						<PDTreeNode TItem="TItem"
-									Node="subNode"
-									ShowLines="ShowLines"
-									EndEdit="OnEndEdit"
-									AllowDrag="AllowDrag"
-									AllowDrop="AllowDrop"
-									AllowDropInBetween="AllowDropInBetween"
-									Drop="OnDrop" />
-					}
-					else
-					{
-						<PDTreeNode TItem="TItem"
-									Node="subNode"
-									ShowLines="ShowLines"
-									EndEdit="OnEndEdit"
-									AllowDrag="AllowDrag"
-									AllowDrop="AllowDrop"
-									AllowDropInBetween="AllowDropInBetween"
-									Drop="OnDrop">
-							<NodeTemplate>@NodeTemplate(context)</NodeTemplate>
-						</PDTreeNode>
-					}
-				}
-			}
-		</div>
-	}
+    @if (!(Node?.Isleaf ?? true))
+    {
+        <div class="pdtreenode_child_content @(ShowLines ? "pdtree_lines" : null)">
+            @if (Node.Nodes != null && Node.IsExpanded)
+            {
+                foreach (var subNode in Node.Nodes)
+                {
+                    if (NodeTemplate == null)
+                    {
+                        <PDTreeNode TItem="TItem"
+                    Node="subNode"
+                    ShowLines="ShowLines"
+                    EndEdit="OnEndEdit"
+                    AllowDrag="AllowDrag"
+                    AllowDrop="AllowDrop"
+                    AllowDropInBetween="AllowDropInBetween"
+                    Drop="OnDrop" />
+                    }
+                    else
+                    {
+                        <PDTreeNode TItem="TItem"
+                    Node="subNode"
+                    ShowLines="ShowLines"
+                    EndEdit="OnEndEdit"
+                    AllowDrag="AllowDrag"
+                    AllowDrop="AllowDrop"
+                    AllowDropInBetween="AllowDropInBetween"
+                    Drop="OnDrop">
+                            <NodeTemplate>@NodeTemplate(context)</NodeTemplate>
+                        </PDTreeNode>
+                    }
+                }
+            }
+        </div>
+    }
 
-	@if (AllowDropInBetween && Node != null && Node.IsLastSibling())
-	{
-		<PDDragDropSeparator Before="false"
-							 Drop="OnSeparatorDrop" />
-	}
+    @if (AllowDropInBetween && Node != null && Node.IsLastSibling())
+    {
+        <PDDragDropSeparator Before="false"
+                         Drop="OnSeparatorDrop" />
+    }
 
 </div>
