@@ -88,11 +88,19 @@ public partial class PDTreeNode<TItem> where TItem : class
 		}
 	}
 
-	private void OnContentMouseDown(MouseEventArgs _)
+	//private async Task OnContentDblClick(MouseEventArgs args)
+	//{
+	//	if (Node != null)
+	//	{
+	//		await Tree.NodeDoubleClick(Node, args).ConfigureAwait(true);
+	//	}
+	//}
+
+	private void OnContentMouseDown(MouseEventArgs args)
 	{
 		if (Node != null)
 		{
-			Tree.NodeMouseDown(Node);
+			Tree.NodeMouseDown(Node, args);
 		}
 	}
 
