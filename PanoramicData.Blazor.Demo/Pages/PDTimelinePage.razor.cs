@@ -7,7 +7,7 @@ public partial class PDTimelinePage
 	private TimelinePageModel _model = new TimelinePageModel();
 	private TimeRange? _selection;
 	private bool _isEnabled = true;
-	private TimelineOptions _timelineOptions = new TimelineOptions
+	private readonly TimelineOptions _timelineOptions = new TimelineOptions
 	{
 		Bar = new TimelineBarOptions
 		{
@@ -97,6 +97,11 @@ public partial class PDTimelinePage
 
 	private void OnSelectionChangeEnd()
 	{
+		if (_timeline is null)
+		{
+			return;
+		}
+
 		EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection()?.StartTime), new EventArgument("end", _timeline.GetSelection()?.EndTime)));
 	}
 
