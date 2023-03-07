@@ -1,6 +1,7 @@
 {
 	"version": "2.1",
 	"publicReleaseRefSpec": [
-		"^refs/heads/main$"
+		"^refs/heads/main$",
+		"^refs/heads/release/*"
 	]
 }
