@@ -1,0 +1,19 @@
+﻿@inherits PDModalBase
+
+<PDModal @ref="Modal"
+         Buttons=Buttons
+         CenterVertically=CenterVertically
+         CloseOnEscape=CloseOnEscape
+         HideOnBackgroundClick=HideOnBackgroundClick
+         ShowClose=ShowClose
+         Size=Size
+         Title=@Title>
+    @if(ChildContent is null)
+    {
+        <div class="confirm-message">@Message</div>
+    }
+    else
+    {
+        @ChildContent
+    }
+</PDModal>
