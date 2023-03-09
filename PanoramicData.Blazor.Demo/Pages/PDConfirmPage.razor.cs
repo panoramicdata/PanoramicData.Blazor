@@ -6,27 +6,27 @@ public partial class PDConfirmPage
 {
 	[AllowNull]
 	private PDConfirm _confirmModal1 = null!;
-	private PDConfirm.ConfirmOutcomes? _result1;
+	private PDConfirm.Outcomes? _result1;
 
 	[AllowNull]
 	private PDConfirm _confirmModal2 = null!;
-	private PDConfirm.ConfirmOutcomes? _result2;
+	private PDConfirm.Outcomes? _result2;
 	private CancellationTokenSource _cancellationToken2 = new();
 
 	[AllowNull]
 	private PDConfirm _confirmModal3 = null!;
-	private PDConfirm.ConfirmOutcomes? _result3;
+	private PDConfirm.Outcomes? _result3;
 
 	[AllowNull]
 	private PDConfirm _confirmModal4 = null!;
-	private PDConfirm.ConfirmOutcomes? _result4;
+	private PDConfirm.Outcomes? _result4;
 
 	private async Task OnAction1ClickAsync()
 	{
 		_result1 = await _confirmModal1!
 			.ShowAndWaitResultAsync()
 			.ConfigureAwait(true);
-		if (_result1 == PDConfirm.ConfirmOutcomes.Yes)
+		if (_result1 == PDConfirm.Outcomes.Yes)
 		{
 			// DO ACTION 1!!!
 		}
@@ -38,7 +38,7 @@ public partial class PDConfirmPage
 		_result2 = await _confirmModal2!
 			.ShowAndWaitResultAsync(_cancellationToken2.Token)
 			.ConfigureAwait(true);
-		if (_result2 == PDConfirm.ConfirmOutcomes.Yes)
+		if (_result2 == PDConfirm.Outcomes.Yes)
 		{
 			// DO ACTION 2!!!
 		}
@@ -49,7 +49,7 @@ public partial class PDConfirmPage
 		_result3 = await _confirmModal3!
 			.ShowAndWaitResultAsync("Do you want to do action 3?", "Action 3")
 			.ConfigureAwait(true);
-		if (_result3 == PDConfirm.ConfirmOutcomes.Yes)
+		if (_result3 == PDConfirm.Outcomes.Yes)
 		{
 			// DO ACTION 3!!!
 		}
@@ -60,7 +60,7 @@ public partial class PDConfirmPage
 		_result3 = await _confirmModal3!
 			.ShowAndWaitResultAsync("Do you want to do action 4?", "Action 4")
 			.ConfigureAwait(true);
-		if (_result3 == PDConfirm.ConfirmOutcomes.Yes)
+		if (_result3 == PDConfirm.Outcomes.Yes)
 		{
 			// DO ACTION 4!!!
 		}
@@ -71,7 +71,7 @@ public partial class PDConfirmPage
 		_result4 = await _confirmModal4!
 			.ShowAndWaitResultAsync()
 			.ConfigureAwait(true);
-		if (_result4 == PDConfirm.ConfirmOutcomes.Yes)
+		if (_result4 == PDConfirm.Outcomes.Yes)
 		{
 			// DO ACTION 5!!!
 		}
