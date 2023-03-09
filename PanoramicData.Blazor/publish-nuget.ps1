@@ -1,5 +1,6 @@
 $ErrorActionPreference = "Stop"
 
+$releaseBranch = "release/2.x"
 $dllForVersion = "bin\Release\net7.0\PanoramicData.Blazor.dll"
 
 # This script will publish to nuget using the api key in nuget-api-key.txt in the same folder.
@@ -13,45 +14,45 @@ if(-not (Test-Path($apiKeyFilename))){
 }
 $apiKey = Get-Content $apiKeyFilename;
 
-# Getting changes into main branch
+# Getting changes into release/2.x branch
 Write-Host "Fetching latest commits..."
 &git fetch
 
 $branch= &git rev-parse --abbrev-ref HEAD
-if ($branch -ne "main") {
-	$title = "Not on main branch - confirm that you want to merge the current branch into main and release."
+if ($branch -ne $releaseBranch) {
+	$title = "Not on $releaseBranch branch - confirm that you want to merge the current branch into $releaseBranch and release."
 	$message = "Do you want to merge and publish?"
-	$yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Merges current branch to main and publishes."
+	$yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Merges current branch to $releaseBranch and publishes."
 	$no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Aborts execution."
 	$options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
 	$result = $host.ui.PromptForChoice($title, $message, $options, 0)
 	switch ($result)
-   {
+    {
 		0 { Write-Host "Proceeding..." }
 		1 { Write-Host "ABORTED."; exit 1; }
 	}
 
 	try {
-		Write-Host "Checking out main..."
-		&git checkout main
+		Write-Host "Checking out $releaseBranch..."
+		&git checkout $releaseBranch
 		if (-not $?) {throw "Error with git checkout"}
 
 		Write-Host "Pulling..."
 		&git pull
 		if (-not $?) {throw "Error with git pull"}
 
-		Write-Host "Merging $branch into main..."
+		Write-Host "Merging $branch into $releaseBranch..."
 		&git merge $branch --no-edit
 		if (-not $?) {throw "Error with git merge"}
 
-		Write-Host "Pushing main..."
+		Write-Host "Pushing $releaseBranch..."
 		&git push
 		if (-not $?) {throw "Error with git push"}
 	}
 	catch
 	{
-		# If there was a problem and we were not on main then switch back
-		if ($branch -ne "main") {
+		# If there was a problem and we were not on $releaseBranch then switch back
+		if ($branch -ne $releaseBranch) {
 			Write-Host "Switching back to $branch branch"
 			&git checkout $branch
 		}
@@ -116,8 +117,8 @@ try {
 }
 finally
 {
-	# If we were not on main then switch back
-	if ($branch -ne "main") {
+	# If we were not on $releaseBranch then switch back
+	if ($branch -ne $releaseBranch) {
 		Write-Host "Switching back to $branch branch"
 		&git checkout $branch
 	}
