@@ -62,10 +62,12 @@
 
     <hr />
     <div>
-        <p>Example 4: Display the basic confirm dialog and alter the text for Yes and No buttons</p>
+        <p>Example 4: Display the Cancel button and alter the text all buttons</p>
         <PDConfirm @ref="_confirmModal4"
+                   CancelText="Cancel Operation"
                    Message="Are you sure you want to proceed?"
                    NoText="No thanks"
+                   ShowCancel=true
                    Title="Do Some Action 5"
                    YesText="Yes please" />
         <p>
