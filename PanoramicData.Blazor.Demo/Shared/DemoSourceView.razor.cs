@@ -50,7 +50,7 @@ public partial class DemoSourceView
 			_sourceFiles.Add("_Host.cshtml", new SourceFile
 			{
 				Name = "_Host.cshtml",
-				Url = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/main/PanoramicData.Blazor.Web/Pages/_Host.cshtml"
+				Url = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/release/2.x/PanoramicData.Blazor.Web/Pages/_Host.cshtml"
 			});
 			// load first source file
 			if (!string.IsNullOrWhiteSpace(_activeSourceFile))
