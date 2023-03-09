@@ -1,0 +1,80 @@
+﻿@page "/pdconfirm"
+
+<DemoSourceView SourceFiles="Pages/PDConfirmPage.razor, Pages/PDConfirmPage.razor.cs">
+
+    <div>
+        <p>Example 1: Display the basic confirm dialog using the Message and Title attributes</p>
+        <PDConfirm @ref="_confirmModal1"
+            Message="Are you sure you want to proceed?"
+            Title="Do Some Action" />
+        <p>
+            <PDButton Text="Do Some Action"
+                CssClass="btn-primary"
+                ToolTip="Show modal dialog and await user confirmation of action"
+                      Click="OnAction1ClickAsync" />
+        </p>
+        <p>Result: @_result1</p>
+    </div>
+
+    <hr/>
+
+    <div>
+        <p>Example 2: Display the confirm dialog showing custom content and allowing manual cancellation of the CancellationToken</p>
+        <PDConfirm @ref="_confirmModal2"
+                   Title="Do Some Action 2">
+            <p>Are you sure you want to proceed?</p>
+            <p>Click the button below to manually signal the CancellationToken used in the async ShowAndWaitResultAsync call</p>
+            <p>
+                <PDButton Text="Cancel Token"
+                          CssClass="btn-secondary"
+                          ToolTip="Cancels the CancellationToken used in the Show async method"
+                          Click="OnCancelTokenClick" />
+            </p>
+        </PDConfirm>
+        <p>
+            <PDButton Text="Do Some Action"
+                      CssClass="btn-primary"
+                      ToolTip="Show modal dialog and await user confirmation of action"
+                      Click="OnAction2ClickAsync" />
+
+        </p>
+        <p>Result: @_result2</p>
+    </div>
+
+    <hr />
+
+    <div>
+        <p>Example 3: Display the confirm dialog and pass in title and message options - this allows one element reference to be easily re-used</p>
+        <PDConfirm @ref="_confirmModal3" />
+        <p>
+            <PDButton Text="Do Some Action 3"
+                      CssClass="btn-primary"
+                      ToolTip="Show modal dialog and await user confirmation of action"
+                      Click="OnAction3ClickAsync" />
+
+            <PDButton Text="Do Some Action 4"
+                      CssClass="btn-primary"
+                      ToolTip="Show modal dialog and await user confirmation of action"
+                      Click="OnAction4ClickAsync" />
+        </p>
+        <p>Result: @_result3</p>
+    </div>
+
+    <hr />
+    <div>
+        <p>Example 4: Display the basic confirm dialog and alter the text for Yes and No buttons</p>
+        <PDConfirm @ref="_confirmModal4"
+                   Message="Are you sure you want to proceed?"
+                   NoText="No thanks"
+                   Title="Do Some Action 5"
+                   YesText="Yes please" />
+        <p>
+            <PDButton Text="Do Some Action"
+                      CssClass="btn-primary"
+                      ToolTip="Show modal dialog and await user confirmation of action"
+                      Click="OnAction5ClickAsync" />
+        </p>
+        <p>Result: @_result4</p>
+    </div>
+
+</DemoSourceView>
