@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$releaseBranch = "release/2.x"
+$releaseBranch = "main"
 $dllForVersion = "bin\Release\net7.0\PanoramicData.Blazor.dll"
 
 # This script will publish to nuget using the api key in nuget-api-key.txt in the same folder.
