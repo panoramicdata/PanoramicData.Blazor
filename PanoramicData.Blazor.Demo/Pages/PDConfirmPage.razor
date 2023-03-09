@@ -11,7 +11,7 @@
             <PDButton Text="Do Some Action"
                 CssClass="btn-primary"
                 ToolTip="Show modal dialog and await user confirmation of action"
-                Click="async () => { _result1 = await _confirmModal1!.ShowAndWaitResultAsync().ConfigureAwait(true); }" />
+                      Click="OnAction1ClickAsync" />
         </p>
         <p>Result: @_result1</p>
     </div>
@@ -28,14 +28,14 @@
                 <PDButton Text="Cancel Token"
                           CssClass="btn-secondary"
                           ToolTip="Cancels the CancellationToken used in the Show async method"
-                          Click="async () => { _cancellationToken2.Cancel(); }" />
+                          Click="OnCancelTokenClick" />
             </p>
         </PDConfirm>
         <p>
             <PDButton Text="Do Some Action"
                       CssClass="btn-primary"
                       ToolTip="Show modal dialog and await user confirmation of action"
-                      Click="async () => { _cancellationToken2 = new (); _result2 = await _confirmModal2!.ShowAndWaitResultAsync(_cancellationToken2.Token).ConfigureAwait(true); }" />
+                      Click="OnAction2ClickAsync" />
 
         </p>
         <p>Result: @_result2</p>
@@ -50,12 +50,12 @@
             <PDButton Text="Do Some Action 3"
                       CssClass="btn-primary"
                       ToolTip="Show modal dialog and await user confirmation of action"
-                      Click="async () => { _result3 = await _confirmModal3!.ShowAndWaitResultAsync().ConfigureAwait(true); }" />
+                      Click="OnAction3ClickAsync" />
 
             <PDButton Text="Do Some Action 4"
                       CssClass="btn-primary"
                       ToolTip="Show modal dialog and await user confirmation of action"
-                      Click="async () => { _result3 = await _confirmModal3!.ShowAndWaitResultAsync().ConfigureAwait(true); }" />
+                      Click="OnAction4ClickAsync" />
         </p>
         <p>Result: @_result3</p>
     </div>
@@ -72,7 +72,7 @@
             <PDButton Text="Do Some Action"
                       CssClass="btn-primary"
                       ToolTip="Show modal dialog and await user confirmation of action"
-                      Click="async () => { _result4 = await _confirmModal4!.ShowAndWaitResultAsync().ConfigureAwait(true); }" />
+                      Click="OnAction5ClickAsync" />
         </p>
         <p>Result: @_result4</p>
     </div>

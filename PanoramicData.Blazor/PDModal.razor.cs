@@ -51,8 +51,8 @@ public partial class PDModal : IAsyncDisposable
 	[Parameter]
 	public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>
 	{
-		new ToolbarButton { Text = "Yes", CssClass = "btn-primary", ShiftRight = true },
-		new ToolbarButton { Text = "No" },
+		new ToolbarButton { Key = ModalResults.YES, Text = "Yes", CssClass = "btn-primary", ShiftRight = true },
+		new ToolbarButton { Key = ModalResults.NO, Text = "No" },
 	};
 
 	/// <summary>

@@ -2,8 +2,8 @@
 
 public partial class PDConfirm : PDModalBase
 {
-	private ToolbarButton _noButton = new() { Text = "No" };
-	private ToolbarButton _yesButton = new() { Text = "Yes", CssClass = "btn-primary", ShiftRight = true };
+	private ToolbarButton _noButton = new() { Key = ModalResults.NO, Text = "No" };
+	private ToolbarButton _yesButton = new() { Key = ModalResults.YES, Text = "Yes", CssClass = "btn-primary", ShiftRight = true };
 
 	public PDConfirm()
 	{
@@ -48,5 +48,36 @@ public partial class PDConfirm : PDModalBase
 		// update Yes and No text?
 		_yesButton.Text = YesText;
 		_noButton.Text = NoText;
+	}
+
+	/// <summary>
+	/// Displays the Modal Dialog and awaits the users choice.
+	/// </summary>
+	public Task<string> ShowAndWaitResultAsync(string message) => ShowAndWaitResultAsync(message, CancellationToken.None);
+
+	/// <summary>
+	/// Displays the Modal Dialog and awaits the users choice.
+	/// </summary>
+	public Task<string> ShowAndWaitResultAsync(string message, CancellationToken cancellationToken)
+	{
+		Message = message;
+		StateHasChanged();
+		return Modal.ShowAndWaitResultAsync(cancellationToken);
+	}
+
+	/// <summary>
+	/// Displays the Modal Dialog and awaits the users choice.
+	/// </summary>
+	public Task<string> ShowAndWaitResultAsync(string message, string title) => ShowAndWaitResultAsync(message, title, default);
+
+	/// <summary>
+	/// Displays the Modal Dialog and awaits the users choice.
+	/// </summary>
+	public Task<string> ShowAndWaitResultAsync(string message, string title, CancellationToken cancellationToken)
+	{
+		Message = message;
+		Title = title;
+		StateHasChanged();
+		return Modal.ShowAndWaitResultAsync(cancellationToken);
 	}
 }
