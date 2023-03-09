@@ -69,66 +69,66 @@ public partial class PDConfirm : PDModalBase
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public new Task<ConfirmOutcomes> ShowAndWaitResultAsync() => ShowAndWaitResultAsync(CancellationToken.None);
+	public new Task<Outcomes> ShowAndWaitResultAsync() => ShowAndWaitResultAsync(CancellationToken.None);
 
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public new async Task<ConfirmOutcomes> ShowAndWaitResultAsync(CancellationToken cancellationToken)
+	public new async Task<Outcomes> ShowAndWaitResultAsync(CancellationToken cancellationToken)
 	{
 		return await Modal.ShowAndWaitResultAsync(cancellationToken) switch
 		{
-			ModalResults.YES => ConfirmOutcomes.Yes,
-			ModalResults.NO => ConfirmOutcomes.No,
-			_ => ConfirmOutcomes.Cancel
+			ModalResults.YES => Outcomes.Yes,
+			ModalResults.NO => Outcomes.No,
+			_ => Outcomes.Cancel
 		};
 	}
 
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public Task<ConfirmOutcomes> ShowAndWaitResultAsync(string message) => ShowAndWaitResultAsync(message, CancellationToken.None);
+	public Task<Outcomes> ShowAndWaitResultAsync(string message) => ShowAndWaitResultAsync(message, CancellationToken.None);
 
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public async Task<ConfirmOutcomes> ShowAndWaitResultAsync(string message, CancellationToken cancellationToken)
+	public async Task<Outcomes> ShowAndWaitResultAsync(string message, CancellationToken cancellationToken)
 	{
 		Message = message;
 		StateHasChanged();
 		return await Modal.ShowAndWaitResultAsync(cancellationToken) switch
 		{
-			ModalResults.YES => ConfirmOutcomes.Yes,
-			ModalResults.NO => ConfirmOutcomes.No,
-			_ => ConfirmOutcomes.Cancel
+			ModalResults.YES => Outcomes.Yes,
+			ModalResults.NO => Outcomes.No,
+			_ => Outcomes.Cancel
 		};
 	}
 
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public Task<ConfirmOutcomes> ShowAndWaitResultAsync(string message, string title) => ShowAndWaitResultAsync(message, title, default);
+	public Task<Outcomes> ShowAndWaitResultAsync(string message, string title) => ShowAndWaitResultAsync(message, title, default);
 
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public async Task<ConfirmOutcomes> ShowAndWaitResultAsync(string message, string title, CancellationToken cancellationToken)
+	public async Task<Outcomes> ShowAndWaitResultAsync(string message, string title, CancellationToken cancellationToken)
 	{
 		Message = message;
 		Title = title;
 		StateHasChanged();
 		return await Modal.ShowAndWaitResultAsync(cancellationToken) switch
 		{
-			ModalResults.YES => ConfirmOutcomes.Yes,
-			ModalResults.NO => ConfirmOutcomes.No,
-			_ => ConfirmOutcomes.Cancel
+			ModalResults.YES => Outcomes.Yes,
+			ModalResults.NO => Outcomes.No,
+			_ => Outcomes.Cancel
 		};
 	}
 
 	/// <summary>
 	/// Enumeration of possible Confirm dialog outcomes.
 	/// </summary>
-	public enum ConfirmOutcomes
+	public enum Outcomes
 	{
 		Yes,
 		No,
