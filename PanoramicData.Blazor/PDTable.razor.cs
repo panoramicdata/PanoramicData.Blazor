@@ -1202,6 +1202,18 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 	}
 
+	private static string GetDynamicCellClasses(PDColumn<TItem> col, TItem _)
+	{
+		var sb = new StringBuilder();
+		sb.Append(col.TdClass);
+		sb.Append(' ');
+		if (!col.UserSelectable)
+		{
+			sb.Append("noselect ");
+		}
+		return sb.ToString().Trim();
+	}
+
 	private string GetDynamicRowClasses(TItem item)
 	{
 		var sb = new StringBuilder();

@@ -320,6 +320,11 @@ public partial class PDColumn<TItem> where TItem : class
 	/// </summary>
 	[Parameter] public Type? Type { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the contents of this cell are user selectable.
+	/// </summary>
+	[Parameter] public bool UserSelectable { get; set; }
+
 	public string GetTitle()
 	{
 		if (Title != null)

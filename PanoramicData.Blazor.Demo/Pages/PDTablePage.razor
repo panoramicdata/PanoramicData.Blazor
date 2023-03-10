@@ -117,14 +117,16 @@
                       TItem="Person"
                       Field="x => x.LastName"
                       Filterable="true"
-                      ShowCopyButton="(_) => true" />
+                      ShowCopyButton="(_) => true"
+                      UserSelectable="true" />
 
             <PDColumn Id="email"
                       TItem="Person"
                       Field="x => x.Email"
                       Filterable="true"
                       ShowCopyButton="(_) => true"
-                      TdClass="text-nowrap" />
+                      TdClass="text-nowrap"
+                      UserSelectable="true" />
 
             <PDColumn Id="dob"
                       TItem="Person"
