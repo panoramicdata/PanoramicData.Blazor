@@ -1,0 +1,12 @@
+.pdtoggleswitch {
+	user-select: none;
+	display:inline-block;
+}
+
+.enabled svg {
+	cursor: pointer;
+}
+
+.disabled {
+	opacity: 0.5;
+}

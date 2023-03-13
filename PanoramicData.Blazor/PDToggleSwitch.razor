@@ -1,0 +1,14 @@
+@inherits PDComponentBase
+
+<div class="pdtoggleswitch @(IsEnabled ? "enabled" : "disabled")">
+    <svg version="1.1"
+         width="@Width" height="@Height"
+         xmlns="http://www.w3.org/2000/svg"
+         @onclick="OnClickAsync">
+
+        <rect @attributes="GetBackgroundAttributes()" />
+        <text @attributes="GetTextAttributes()">@(Value ? OnText : OffText)</text>
+        <rect @attributes="GetToggleAttributes()" />
+
+    </svg>
+</div>
