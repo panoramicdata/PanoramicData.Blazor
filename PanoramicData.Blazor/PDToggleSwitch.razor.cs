@@ -1,104 +1,111 @@
-﻿namespace PanoramicData.Blazor;
+﻿using PanoramicData.Blazor.Options;
 
-public partial class PDToggleSwitch
+namespace PanoramicData.Blazor;
+
+public partial class PDToggleSwitch : IAsyncDisposable
 {
-	/// <summary>
-	/// Sets the colour of the border.
-	/// </summary>
-	[Parameter] public string BorderColour { get; set; } = "#1b6ec2";
+	private static int _sequence;
 
-	/// <summary>
-	/// Sets the width of the border.
-	/// </summary>
-	[Parameter] public int BorderWidth { get; set; } = 2;
+	private double _textWidth;
+	private IJSObjectReference? _module;
+	private string _textCache = string.Empty;
 
-	/// <summary>
-	/// Sets the height of the component.
-	/// </summary>
-	[Parameter] public int Height { get; set; } = 20;
+	[Inject]
+	public IJSRuntime JSRuntime { get; set; } = null!;
 
-	/// <summary>
-	/// Sets the background colour of the inner non-toggle area when the switch is off.
-	/// </summary>
-	[Parameter] public string OffBackgroundColour { get; set; } = "silver";
+	[Parameter] public string? BorderColour { get; set; }
 
-	/// <summary>
-	/// Sets the foreground colour of the inner non-toggle area when the switch is off.
-	/// </summary>
-	/// <remarks>Leave blank to use toggle colour.</remarks>
-	[Parameter] public string OffForegroundColour { get; set; } = string.Empty;
+	[Parameter] public int? BorderWidth { get; set; }
 
-	/// <summary>
-	/// Sets the text displayed when the switch is off.
-	/// </summary>
-	[Parameter] public string OffText { get; set; } = "OFF";
+	[Parameter] public int? Height { get; set; }
 
-	/// <summary>
-	/// Sets the background colour of the inner non-toggle area when the switch is on.
-	/// </summary>
-	/// <remarks>Leave blank to use border colour.</remarks>
-	[Parameter] public string OnBackgroundColour { get; set; } = string.Empty;
+	[Parameter] public string Id { get; set; } = $"pd-toggleswitch-{++_sequence}";
 
-	/// <summary>
-	/// Sets the foreground colour of the inner non-toggle area when the switch is on.
-	/// </summary>
-	/// <remarks>Leave blank to use toggle colour.</remarks>
-	[Parameter] public string OnForegroundColour { get; set; } = string.Empty;
+	[Parameter] public string? OffBackgroundColour { get; set; }
 
-	/// <summary>
-	/// Sets the text displayed when the switch is on.
-	/// </summary>
-	[Parameter] public string OnText { get; set; } = "ON";
+	[Parameter] public string? OffForegroundColour { get; set; }
 
-	/// <summary>
-	/// Gets or sets whether the toggle switch has rounded ends.
-	/// </summary>
-	[Parameter] public bool Rounded { get; set; }
+	[Parameter] public string? OffText { get; set; }
 
-	/// <summary>
-	/// Sets the colour of the toggle switch.
-	/// </summary>
-	[Parameter] public string ToggleColour { get; set; } = "white";
+	[Parameter] public string? OnBackgroundColour { get; set; }
 
-	/// <summary>
-	/// Sets the value.
-	/// </summary>
+	[Parameter] public string? OnForegroundColour { get; set; }
+
+	[Parameter] public string? OnText { get; set; }
+
+	[Parameter] public PDToggleSwitchOptions Options { get; set; } = new();
+
+	[Parameter] public bool? Rounded { get; set; }
+
+	[Parameter] public string? ToggleColour { get; set; }
+
 	[Parameter] public bool Value { get; set; }
 
-	/// <summary>
-	/// Event callback raised whenever the value changes.
-	/// </summary>
 	[Parameter] public EventCallback<bool> ValueChanged { get; set; }
 
-	/// <summary>
-	/// Sets the width of the component.
-	/// </summary>
-	[Parameter] public int Width { get; set; } = 50;
+	[Parameter] public int? Width { get; set; }
 
 	#region Helper Properties
 
+	private double CalculatedHeight => Height ?? Options.Height ?? Size switch
+	{
+		ButtonSizes.Small => 16,
+		ButtonSizes.Large => 32,
+		_ => 24
+	};
+
+	private double CalculatedWidth => Width ?? Options.Width ?? Size switch
+	{
+		ButtonSizes.Small => 32,
+		ButtonSizes.Large => 64,
+		_ => 48
+	};
+
 	private string InnerColour => Value
-		? (string.IsNullOrWhiteSpace(OnBackgroundColour) ? BorderColour : OnBackgroundColour)
-		: OffBackgroundColour;
-	private double InnerHeight => Height - 2 - BorderWidth * 2;
+		? (string.IsNullOrWhiteSpace(OnBackgroundColour ?? Options.OnBackgroundColour)
+			? BorderColour ?? Options.BorderColour
+			: OnBackgroundColour ?? Options.OnBackgroundColour)
+		: OffBackgroundColour ?? Options.OffBackgroundColour;
+
+	private double InnerHeight => CalculatedHeight - 2 - (BorderWidth ?? Options.BorderWidth) * 2;
 
 	private string TextColour => Value
-		? (string.IsNullOrWhiteSpace(OnForegroundColour) ? ToggleColour : OnForegroundColour)
-		: (string.IsNullOrWhiteSpace(OffForegroundColour) ? ToggleColour : OffForegroundColour);
+		? (string.IsNullOrWhiteSpace(OnForegroundColour ?? Options.OnForegroundColour)
+			? ToggleColour ?? Options.ToggleColour
+			: OnForegroundColour ?? Options.OnForegroundColour!)
+		: (string.IsNullOrWhiteSpace(OffForegroundColour ?? Options.OffForegroundColour)
+			? ToggleColour ?? Options.ToggleColour
+			: OffForegroundColour ?? Options.OffForegroundColour!);
 
 	#endregion
+
+	public async ValueTask DisposeAsync()
+	{
+		try
+		{
+			GC.SuppressFinalize(this);
+			if (_module != null)
+			{
+				await _module.DisposeAsync().ConfigureAwait(true);
+				_module = null;
+			}
+		}
+		catch
+		{
+		}
+	}
 
 	public IDictionary<string, object> GetBackgroundAttributes()
 	{
 		return new Dictionary<string, object>
 		{
-			{ "height", Height - BorderWidth},
-			{ "style", $"fill: {InnerColour}; stroke: {BorderColour}; stroke-width: {BorderWidth}" },
-			{ "width", Width - BorderWidth },
-			{ "x", BorderWidth / 2 },
-			{ "y", BorderWidth / 2 },
-			{ "rx", Rounded ? Height / 2 : 0 },
-			{ "ry", Rounded ? Height / 2 : 0 }
+			{ "height", CalculatedHeight - (BorderWidth ?? Options.BorderWidth)},
+			{ "style", $"fill: {InnerColour}; stroke: {BorderColour ?? Options.BorderColour}; stroke-width: {BorderWidth ?? Options.BorderWidth}" },
+			{ "width", CalculatedWidth - (BorderWidth ?? Options.BorderWidth) },
+			{ "x", (BorderWidth ?? Options.BorderWidth) / 2 },
+			{ "y", (BorderWidth ?? Options.BorderWidth) / 2 },
+			{ "rx", (Rounded ?? Options.Rounded) ? CalculatedHeight / 2 : 0 },
+			{ "ry", (Rounded ?? Options.Rounded) ? CalculatedHeight / 2 : 0 }
 		};
 	}
 
@@ -108,8 +115,8 @@ public partial class PDToggleSwitch
 		{
 			{ "style", $"font-size: {InnerHeight / 1.5}px; stroke: {TextColour}; fill: {TextColour}" },
 			{ "text-anchor",  Value ? "start" : "end" },
-			{ "x", Value ? BorderWidth * 3 : Width - BorderWidth * 3 },
-			{ "y", InnerHeight / 1.6 + (InnerHeight / 3) }
+			{ "x", Value ? (BorderWidth ?? Options.BorderWidth) * 5 : CalculatedWidth - (BorderWidth ?? Options.BorderWidth) * 5 },
+			{ "y", InnerHeight / 2 + (InnerHeight / 3) }
 		};
 	}
 
@@ -118,18 +125,47 @@ public partial class PDToggleSwitch
 		return new Dictionary<string, object>
 		{
 			{ "height", InnerHeight},
-			{ "style", $"fill: {ToggleColour}; stroke: {ToggleColour}" },
-			{ "width", Height - BorderWidth - 2},
-			{ "x", Value ? Width - Height + BorderWidth - 1 : BorderWidth + 1 },
-			{ "y", BorderWidth + 1 },
-			{ "rx", Rounded ? Height / 2 : 0 },
-			{ "ry", Rounded ? Height / 2 : 0 }
+			{ "style", $"fill: {ToggleColour ?? Options.ToggleColour}; stroke: {ToggleColour ?? Options.ToggleColour}" },
+			{ "width", CalculatedHeight - (BorderWidth ?? Options.BorderWidth) - 2},
+			{ "x", Value ? CalculatedWidth - CalculatedHeight + (BorderWidth ?? Options.BorderWidth) - 1 : (BorderWidth ?? Options.BorderWidth) + 1 },
+			{ "y", (BorderWidth ?? Options.BorderWidth) + 1 },
+			{ "rx", Rounded ?? Options.Rounded ? CalculatedHeight / 2 : 0 },
+			{ "ry", Rounded ?? Options.Rounded ? CalculatedHeight / 2 : 0 }
 		};
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDToggleSwitch.razor.js").ConfigureAwait(true);
+			await RefreshTextWidthAsync().ConfigureAwait(true);
+		}
+	}
+
+	protected override Task OnParametersSetAsync()
+	{
+		return RefreshTextWidthAsync();
 	}
 
 	private async Task OnClickAsync()
 	{
-		Value = !Value;
-		await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
+		if (IsEnabled)
+		{
+			Value = !Value;
+			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
+		}
+	}
+
+	protected Task RefreshTextWidthAsync()
+	{
+		var text = OnText + OffText;
+		if (_module != null && _textCache != text)
+		{
+			_textWidth = 30;
+			//_textWidth = await _module.InvokeAsync<double>("measureText", Id, OnText, OffText).ConfigureAwait(true);
+			_textCache = text;
+		}
+		return Task.CompletedTask;
 	}
 }

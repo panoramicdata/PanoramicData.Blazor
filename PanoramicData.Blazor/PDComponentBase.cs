@@ -5,7 +5,7 @@ public class PDComponentBase : ComponentBase
 	/// <summary>
 	/// Gets or sets CSS classes for the component.
 	/// </summary>
-	[Parameter] public string CssClass { get; set; } = "";
+	[Parameter] public string? CssClass { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether the component is enabled.
@@ -15,7 +15,7 @@ public class PDComponentBase : ComponentBase
 	/// <summary>
 	/// Gets or sets the component size.
 	/// </summary>
-	//[Parameter] public ButtonSizes? Size { get; set; }
+	[Parameter] public ButtonSizes? Size { get; set; }
 
 	/// <summary>
 	/// Gets or sets the tooltip for the component.

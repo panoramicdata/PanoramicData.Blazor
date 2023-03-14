@@ -1,0 +1,47 @@
+﻿@page "/pdtoggleswitch"
+
+<DemoSourceView SourceFiles="Pages/PDToggleSwitchPage.razor, Pages/PDToggleSwitchPage.razor.cs">
+
+    <div>
+        <p>Example 1: A basic toggle switch</p>
+        <PDToggleSwitch @bind-Value="_toggle1" />
+        <p class="mt-3">Value: @_toggle1</p>
+    </div>
+
+    <div>
+        <p>Example 2: Display toggle switches that have text, are rounded and coloured - all using a single shared Options instance</p>
+        <div>
+            <PDToggleSwitch Options="_options1" BorderColour="red" />
+            <PDToggleSwitch Options="_options1" BorderColour="chocolate" />
+            <PDToggleSwitch Options="_options1" BorderColour="goldenrod" />
+            <PDToggleSwitch Options="_options1" BorderColour="limegreen" />
+            <PDToggleSwitch Options="_options1" BorderColour="steelblue" />
+            <PDToggleSwitch Options="_options1" BorderColour="purple" />
+            <PDToggleSwitch Options="_options1" BorderColour="black"/>
+        </div>
+        <p></p>
+    </div>
+
+    <div>
+        <p>Example 3: Disabled small, medium and large toggle switches</p>
+        <PDToggleSwitch IsEnabled="false" Size="ButtonSizes.Small" />
+        <PDToggleSwitch IsEnabled="false" Size="ButtonSizes.Medium" />
+        <PDToggleSwitch IsEnabled="false" Size="ButtonSizes.Large" />
+        <p></p>
+    </div>
+
+    <div>
+        <p>Example 4: Toggle switches stacked vertically with a fixed width</p>
+        <div>
+            <PDToggleSwitch Options="_options2" BorderColour="red" />
+            <PDToggleSwitch Options="_options2" BorderColour="chocolate" />
+            <PDToggleSwitch Options="_options2" BorderColour="goldenrod" />
+            <PDToggleSwitch Options="_options2" BorderColour="limegreen" />
+            <PDToggleSwitch Options="_options2" BorderColour="steelblue" />
+            <PDToggleSwitch Options="_options2" BorderColour="purple" />
+            <PDToggleSwitch Options="_options2" BorderColour="black" />
+        </div>
+        <p></p>
+    </div>
+
+</DemoSourceView>
