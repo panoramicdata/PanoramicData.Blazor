@@ -1,31 +1,25 @@
-export function measureText(id, onText, offText, className) {
-	if ((!onText || onText.length === 0) && (!offtext || offText.length == 0)) {
-		return 0;
+export function measureText(pText, pFontSize, pStyle) {
+	var lDiv = document.createElement('div');
+
+	document.body.appendChild(lDiv);
+
+	if (pStyle != null) {
+		lDiv.style = pStyle;
 	}
-	return 0;
-	var el = document.getElementById(id);
-	if (el) {
-		var svgEl = document.createElement('svg');
-		if (className) {
-			svgEl.attr('class', className);
-		}
+	lDiv.style.fontSize = "" + pFontSize;
+	lDiv.style.position = "absolute";
+	lDiv.style.left = -1000;
+	lDiv.style.top = -1000;
 
-		var textEl = document.createElement('text', { x: -1000, y: -1000, text: onText});
+	lDiv.textContent = pText;
 
-		//textEl.attr({ x: -1000, y: -1000 }).text(onText);
-		//document.getElementById('yourTextId').getComputedTextLength();
+	var lResult = {
+		width: lDiv.clientWidth,
+		height: lDiv.clientHeight
+	};
 
-		svgEl.appendChild(textEl);
-		el.appendChild(svgEl);
-		var len1 = textEl.getComputedTextLength();
+	document.body.removeChild(lDiv);
+	lDiv = null;
 
-		textEl.text(offText);
-		var len2 = textEl.getComputedTextLength();
-
-		textEl.remove();
-		svgEl.remove();
-
-		return Math.max(len1, len2);
-	}
-	return 0;
+	return lResult.width;
 }

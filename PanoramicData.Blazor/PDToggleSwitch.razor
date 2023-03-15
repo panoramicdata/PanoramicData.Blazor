@@ -1,8 +1,8 @@
 @inherits PDComponentBase
 
-<div class="pdtoggleswitch @(CssClass ?? Options.CssClass) @(IsEnabled ? "enabled" : "disabled")" id="@Id">
+<div class="pdtoggleswitch @(CssClass ?? Options.CssClass) @(SizeCssClass) @(IsEnabled ? "" : "disabled")" id="@Id">
     <svg version="1.1"
-         width="@(Width ?? CalculatedWidth)" height="@(Height ?? CalculatedHeight)"
+         width="@CalculatedWidth" height="@CalculatedHeight"
          xmlns="http://www.w3.org/2000/svg"
          @onclick="OnClickAsync">
 

@@ -1,0 +1,82 @@
+.horz-switches {
+	display: flex;
+}
+
+.vert-switches
+{
+	display: flex;
+	flex-direction: column;
+}
+
+.vert-switches .pdtoggleswitch {
+	width: 500px;
+}
+
+::deep .pdtoggleswitch.sw-1 .switch {
+	stroke: red !important;
+}
+
+::deep .pdtoggleswitch.sw-1 .switch.on {
+	fill: red !important;
+}
+
+::deep .pdtoggleswitch.sw-2 .switch {
+	stroke: orange !important;
+}
+
+::deep .pdtoggleswitch.sw-2 .switch.on {
+	fill: orange !important;
+}
+
+::deep .pdtoggleswitch.sw-3 .switch {
+	stroke: goldenrod !important;
+}
+
+::deep .pdtoggleswitch.sw-3 .switch.on {
+	fill: goldenrod !important;
+}
+
+::deep .pdtoggleswitch.sw-4 .switch {
+	stroke: limegreen !important;
+}
+
+::deep .pdtoggleswitch.sw-4 .switch.on {
+	fill: limegreen !important;
+}
+
+::deep .pdtoggleswitch.sw-5 .switch {
+	stroke: steelblue !important;
+}
+
+::deep .pdtoggleswitch.sw-5 .switch.on {
+	fill: steelblue !important;
+}
+
+::deep .pdtoggleswitch.sw-6 .switch {
+	stroke: purple !important;
+}
+
+::deep .pdtoggleswitch.sw-6 .switch.on {
+	fill: purple !important;
+}
+
+::deep .pdtoggleswitch.sw-7 .switch {
+	stroke: black !important;
+}
+
+::deep .pdtoggleswitch.sw-7 .switch.on {
+	fill: black !important;
+}
+
+::deep .pdtoggleswitch.sw-power .switch {
+	stroke: silver;
+	stroke-width: 1;
+}
+
+::deep .pdtoggleswitch.sw-power .switch.on {
+	fill: green;
+}
+
+::deep .pdtoggleswitch.sw-power .switch.off {
+	fill: red;
+}

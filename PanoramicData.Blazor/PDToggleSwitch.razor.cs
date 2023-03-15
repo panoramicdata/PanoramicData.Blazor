@@ -47,35 +47,35 @@ public partial class PDToggleSwitch : IAsyncDisposable
 
 	#region Helper Properties
 
-	private double CalculatedHeight => Height ?? Options.Height ?? Size switch
+	private double CalculatedHeight => Height ?? Options.Height ?? (Size ?? Options.Size) switch
 	{
 		ButtonSizes.Small => 16,
 		ButtonSizes.Large => 32,
 		_ => 24
 	};
 
-	private double CalculatedWidth => Width ?? Options.Width ?? Size switch
+	private double CalculatedWidth => Width ?? Options.Width ?? (Size ?? Options.Size) switch
 	{
-		ButtonSizes.Small => 32,
-		ButtonSizes.Large => 64,
-		_ => 48
+		ButtonSizes.Small => 32 + (_textWidth > 8 ? _textWidth - 8 : _textWidth),
+		ButtonSizes.Large => 64 + (_textWidth > 24 ? _textWidth - 24 : _textWidth),
+		_ => 48 + (_textWidth > 16 ? _textWidth - 16 : _textWidth),
 	};
-
-	private string InnerColour => Value
-		? (string.IsNullOrWhiteSpace(OnBackgroundColour ?? Options.OnBackgroundColour)
-			? BorderColour ?? Options.BorderColour
-			: OnBackgroundColour ?? Options.OnBackgroundColour)
-		: OffBackgroundColour ?? Options.OffBackgroundColour;
 
 	private double InnerHeight => CalculatedHeight - 2 - (BorderWidth ?? Options.BorderWidth) * 2;
 
-	private string TextColour => Value
-		? (string.IsNullOrWhiteSpace(OnForegroundColour ?? Options.OnForegroundColour)
-			? ToggleColour ?? Options.ToggleColour
-			: OnForegroundColour ?? Options.OnForegroundColour!)
-		: (string.IsNullOrWhiteSpace(OffForegroundColour ?? Options.OffForegroundColour)
-			? ToggleColour ?? Options.ToggleColour
-			: OffForegroundColour ?? Options.OffForegroundColour!);
+	private string SizeCssClass => (Size ?? Options.Size) switch
+	{
+		ButtonSizes.Small => "sm",
+		ButtonSizes.Large => "lg",
+		_ => "md"
+	};
+
+	private int TextYOffset => (Size ?? Options.Size) switch
+	{
+		ButtonSizes.Small => 1,
+		ButtonSizes.Large => -1,
+		_ => 0
+	};
 
 	#endregion
 
@@ -99,8 +99,8 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	{
 		return new Dictionary<string, object>
 		{
+			{ "class", $"switch {(Value ? "on" : "off")}"},
 			{ "height", CalculatedHeight - (BorderWidth ?? Options.BorderWidth)},
-			{ "style", $"fill: {InnerColour}; stroke: {BorderColour ?? Options.BorderColour}; stroke-width: {BorderWidth ?? Options.BorderWidth}" },
 			{ "width", CalculatedWidth - (BorderWidth ?? Options.BorderWidth) },
 			{ "x", (BorderWidth ?? Options.BorderWidth) / 2 },
 			{ "y", (BorderWidth ?? Options.BorderWidth) / 2 },
@@ -113,10 +113,10 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	{
 		return new Dictionary<string, object>
 		{
-			{ "style", $"font-size: {InnerHeight / 1.5}px; stroke: {TextColour}; fill: {TextColour}" },
+			{ "class", $"text {(Value ? "on" : "off")}"},
 			{ "text-anchor",  Value ? "start" : "end" },
-			{ "x", Value ? (BorderWidth ?? Options.BorderWidth) * 5 : CalculatedWidth - (BorderWidth ?? Options.BorderWidth) * 5 },
-			{ "y", InnerHeight / 2 + (InnerHeight / 3) }
+			{ "x", Value ? (BorderWidth ?? Options.BorderWidth) * 3 : CalculatedWidth - (BorderWidth ?? Options.BorderWidth) * 3 },
+			{ "y", InnerHeight / 2 + (InnerHeight / 2) + TextYOffset }
 		};
 	}
 
@@ -124,8 +124,8 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	{
 		return new Dictionary<string, object>
 		{
+			{ "class", $"toggle {(Value ? "on" : "off")}"},
 			{ "height", InnerHeight},
-			{ "style", $"fill: {ToggleColour ?? Options.ToggleColour}; stroke: {ToggleColour ?? Options.ToggleColour}" },
 			{ "width", CalculatedHeight - (BorderWidth ?? Options.BorderWidth) - 2},
 			{ "x", Value ? CalculatedWidth - CalculatedHeight + (BorderWidth ?? Options.BorderWidth) - 1 : (BorderWidth ?? Options.BorderWidth) + 1 },
 			{ "y", (BorderWidth ?? Options.BorderWidth) + 1 },
@@ -143,9 +143,9 @@ public partial class PDToggleSwitch : IAsyncDisposable
 		}
 	}
 
-	protected override Task OnParametersSetAsync()
+	protected override async Task OnParametersSetAsync()
 	{
-		return RefreshTextWidthAsync();
+		await RefreshTextWidthAsync().ConfigureAwait(true);
 	}
 
 	private async Task OnClickAsync()
@@ -157,15 +157,26 @@ public partial class PDToggleSwitch : IAsyncDisposable
 		}
 	}
 
-	protected Task RefreshTextWidthAsync()
+	protected async Task RefreshTextWidthAsync()
 	{
-		var text = OnText + OffText;
-		if (_module != null && _textCache != text)
+		if (_module != null)
 		{
-			_textWidth = 30;
-			//_textWidth = await _module.InvokeAsync<double>("measureText", Id, OnText, OffText).ConfigureAwait(true);
-			_textCache = text;
+			var fontSize = (Size ?? Options.Size) switch
+			{
+				ButtonSizes.Small => "0.5rem",
+				ButtonSizes.Large => "1.5rem",
+				_ => "1rem"
+			};
+			var onText = OnText ?? Options.OnText;
+			var offText = OffText ?? Options.OffText;
+			var onWidth = string.IsNullOrEmpty(onText) ? 0 : await _module.InvokeAsync<double>("measureText", onText, fontSize).ConfigureAwait(true);
+			var offWidth = string.IsNullOrEmpty(offText) ? 0 : await _module.InvokeAsync<double>("measureText", offText, fontSize).ConfigureAwait(true);
+			var newWidth = Math.Max(onWidth, offWidth);
+			if (newWidth > _textWidth)
+			{
+				_textWidth = newWidth;
+				StateHasChanged();
+			}
 		}
-		return Task.CompletedTask;
 	}
 }
