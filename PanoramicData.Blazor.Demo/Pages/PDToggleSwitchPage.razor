@@ -1,0 +1,59 @@
+﻿@page "/pdtoggleswitch"
+
+<DemoSourceView SourceFiles="Pages/PDToggleSwitchPage.razor, Pages/PDToggleSwitchPage.razor.cs, Pages/PDToggleSwitchPage.razor.css">
+
+    <div>
+        The PDToggleSwitch component is used to display and control a boolean value.<br />
+        Font, colour and layout is controlled by CSS styles.<br />
+        Height, width, text and rounded corders are controlled by parameters / options.<br />
+        Parameters override the corresponding Option property.<br />
+    </div>
+
+    <div class="mt-4">
+        <p>Example 1: A basic toggle switch data-bound to a field</p>
+        <PDToggleSwitch @bind-Value="_toggle1" />
+        <p class="mt-3">Value: @_toggle1</p>
+    </div>
+
+    <div>
+        <p>Example 2: Display toggle switches that have text and are rounded - auto/default width</p>
+        <div class="horz-switches">
+            <PDToggleSwitch CssClass="sw-1 me-1" Options="_options1" OnText="Red" />
+            <PDToggleSwitch CssClass="sw-2 me-1" Options="_options1" OnText="Orange" />
+            <PDToggleSwitch CssClass="sw-3 me-1" Options="_options1" OnText="Goldenrod" />
+            <PDToggleSwitch CssClass="sw-4 me-1" Options="_options1" OnText="Limegreen" />
+            <PDToggleSwitch CssClass="sw-5 me-1" Options="_options1" OnText="Steelblue" />
+            <PDToggleSwitch CssClass="sw-6 me-1" Options="_options1" OnText="Purple" />
+            <PDToggleSwitch CssClass="sw-7 me-1" Options="_options1" OnText="Black" />
+        </div>
+        <p></p>
+    </div>
+
+    <div>
+        <p>Example 3: Small, medium and large toggle switches</p>
+        <PDToggleSwitch OnText="On" OffText="Off" Size="ButtonSizes.Small" />
+        <PDToggleSwitch OnText="On" OffText="Off" Size="ButtonSizes.Medium" />
+        <PDToggleSwitch OnText="On" OffText="Off" Size="ButtonSizes.Large" />
+        <p></p>
+    </div>
+
+    <div>
+        <p>Example 4: Toggle switches stacked vertically with fixed width and different 'On' text (colour and layout via CSS)</p>
+        <div class="vert-switches">
+            <PDToggleSwitch CssClass="sw-1 d-block mb-1" Options="_options2" OnText="Red" />
+            <PDToggleSwitch CssClass="sw-2 d-block mb-1" Options="_options2" OnText="Orange" />
+            <PDToggleSwitch CssClass="sw-3 d-block mb-1" Options="_options2" OnText="Goldenrod" />
+            <PDToggleSwitch CssClass="sw-4 d-block mb-1" Options="_options2" OnText="Limegreen" />
+            <PDToggleSwitch CssClass="sw-5 d-block mb-1" Options="_options2" OnText="Steelblue" />
+            <PDToggleSwitch CssClass="sw-6 d-block mb-1" Options="_options2" OnText="Purple" />
+            <PDToggleSwitch CssClass="sw-7 d-block mb-1" Options="_options2" OnText="Black" />
+        </div>
+        <p></p>
+    </div>
+
+    <div>
+        <p>Example 5: Power button styled by CSS</p>
+        <PDToggleSwitch CssClass="sw-power" OffText="OFF" OnText="ON" Width="65" />
+    </div>
+
+</DemoSourceView>

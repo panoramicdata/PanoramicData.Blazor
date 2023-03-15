@@ -1,0 +1,44 @@
+.pdtoggleswitch {
+	user-select: none;
+	display:inline-block;
+}
+
+.pdtoggleswitch.sm text {
+	font-size: 0.5rem;
+}
+
+.pdtoggleswitch.lg text {
+	font-size: 1.5rem;
+}
+
+.pdtoggleswitch svg {
+	cursor: pointer;
+}
+
+.pdtoggleswitch .switch {
+	stroke: #1b6ec2;
+	stroke-width: 2;
+}
+
+.pdtoggleswitch text {
+	stroke-width: 0;
+	fill: white;
+}
+
+.pdtoggleswitch .toggle {
+	fill: white;
+}
+
+.pdtoggleswitch .switch.on {
+	fill: #1b6ec2;
+}
+
+.pdtoggleswitch .switch.off {
+	fill: silver;
+}
+
+
+.pdtoggleswitch.disabled svg {
+	opacity: 0.5;
+	cursor: default;
+}

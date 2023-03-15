@@ -9,6 +9,7 @@ global using PanoramicData.Blazor.Demo.Data;
 global using PanoramicData.Blazor.Extensions;
 global using PanoramicData.Blazor.Interfaces;
 global using PanoramicData.Blazor.Models;
+global using PanoramicData.Blazor.Options;
 global using System;
 global using System.Collections.Generic;
 global using System.ComponentModel.DataAnnotations;
