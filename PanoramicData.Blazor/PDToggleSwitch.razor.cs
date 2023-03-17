@@ -159,24 +159,31 @@ public partial class PDToggleSwitch : IAsyncDisposable
 
 	protected async Task RefreshTextWidthAsync()
 	{
-		if (_module != null)
+		try
 		{
-			var fontSize = (Size ?? Options.Size) switch
+			if (_module != null)
 			{
-				ButtonSizes.Small => "0.5rem",
-				ButtonSizes.Large => "1.5rem",
-				_ => "1rem"
-			};
-			var onText = OnText ?? Options.OnText;
-			var offText = OffText ?? Options.OffText;
-			var onWidth = string.IsNullOrEmpty(onText) ? 0 : await _module.InvokeAsync<double>("measureText", onText, fontSize).ConfigureAwait(true);
-			var offWidth = string.IsNullOrEmpty(offText) ? 0 : await _module.InvokeAsync<double>("measureText", offText, fontSize).ConfigureAwait(true);
-			var newWidth = Math.Max(onWidth, offWidth);
-			if (newWidth > _textWidth)
-			{
-				_textWidth = newWidth;
-				StateHasChanged();
+				var fontSize = (Size ?? Options.Size) switch
+				{
+					ButtonSizes.Small => "0.5rem",
+					ButtonSizes.Large => "1.5rem",
+					_ => "1rem"
+				};
+				var onText = OnText ?? Options.OnText;
+				var offText = OffText ?? Options.OffText;
+				var onWidth = string.IsNullOrEmpty(onText) ? 0 : await _module.InvokeAsync<double>("measureText", onText, fontSize).ConfigureAwait(true);
+				var offWidth = string.IsNullOrEmpty(offText) ? 0 : await _module.InvokeAsync<double>("measureText", offText, fontSize).ConfigureAwait(true);
+				var newWidth = Math.Max(onWidth, offWidth);
+				if (newWidth > _textWidth)
+				{
+					_textWidth = newWidth;
+					StateHasChanged();
+				}
 			}
+		}
+		catch (ObjectDisposedException)
+		{
+			// ignore object disposed exception
 		}
 	}
 }
