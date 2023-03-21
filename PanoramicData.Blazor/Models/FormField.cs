@@ -22,9 +22,9 @@ public class FormField<TItem> where TItem : class
 	public Expression<Func<TItem, object>>? Field { get; set; }
 
 	/// <summary>
-	/// Gets or sets grouping information for the field.
+	/// Gets or sets name of the group the field belongs to.
 	/// </summary>
-	public FieldGrouping? Grouping { get; set; }
+	public string Group { get; set; } = string.Empty;
 
 	/// <summary>
 	/// gets or sets a unique identifier for the field.

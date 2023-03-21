@@ -62,14 +62,14 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		var dict = new Dictionary<string, FieldGroup<TItem>>();
 		foreach (var field in fields)
 		{
-			if (field.Grouping is null)
+			if (string.IsNullOrWhiteSpace(field.Group))
 			{
 				// create separate group for single field
 				groups.Add(new FieldGroup<TItem>() { Fields = new() { field } });
 			}
 			else
 			{
-				if (dict.TryGetValue(field.Grouping.GroupName, out var group))
+				if (dict.TryGetValue(field.Group, out var group))
 				{
 					group.Fields.Add(field);
 				}
@@ -78,7 +78,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					// create new group
 					var g = new FieldGroup<TItem>() { Fields = new() { field } };
 					// add to dict for lookup / grouping by id
-					dict.Add(field.Grouping.GroupName, g);
+					dict.Add(field.Group, g);
 					// add to results - provides ordering
 					groups.Add(g);
 				}

@@ -31,22 +31,22 @@
 
                 <PDField TItem="RegisterModel"
                          Field="x => x.FirstName"
-                         Grouping="@(new FieldGrouping("Name"))"
+                         Group="Name"
                          Label="First Name"
                          ShowCopyButton="(_) => true" />
 
                 <PDField TItem="RegisterModel"
                          Field="x => x.LastName"
-                         Grouping="@(new FieldGrouping("Name"))"
+                         Group="Name"
                          Label="Last Name" />
 
                 <PDField TItem="RegisterModel"
-                         Grouping="@(new FieldGrouping("Reporting"))"
+                         Group="Reporting"
                          Field="x => x.Report" />
 
                 <PDField TItem="RegisterModel"
                          DisplayOptions="@(new FieldDisplayOptions() { CssClass = "fg-3 fix-margin-18" })"
-                         Grouping="@(new FieldGrouping("Reporting"))"
+                         Group="Reporting"
                          Field="x => x.ReportEmailAddress"
                          Label="Email Address"
                          ReadOnlyInCreate="(x) => !x.Report" />
@@ -55,7 +55,7 @@
                 <PDField TItem="RegisterModel"
                          Field="x => x.ReportFormatDocx"
                          DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control docx" })"
-                         Grouping="@(new FieldGrouping("Report Format"))"
+                         Group="Report Format"
                          Label="DOCX"
                          ReadOnlyInCreate="(x) => !x.Report"
                          ShowCopyButton="(_) => true" />
@@ -63,34 +63,34 @@
                 <PDField TItem="RegisterModel"
                          DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control html" })"
                          Field="x => x.ReportFormatHtml"
-                         Grouping="@(new FieldGrouping("Report Format"))"
+                         Group="Report Format"
                          Label="HTML"
                          ReadOnlyInCreate="(x) => !x.Report" />
 
                 <PDField TItem="RegisterModel"
                          DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control pdf" })"
                          Field="x => x.ReportFormatPdf"
-                         Grouping="@(new FieldGrouping("Report Format"))"
+                         Group="Report Format"
                          Label="PDF"
                          ReadOnlyInCreate="(x) => !x.Report" />
 
                 <PDField TItem="RegisterModel"
                          DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control xlsx" })"
                          Field="x => x.ReportFormatXlsx"
-                         Grouping="@(new FieldGrouping("Report Format"))"
+                         Group="Report Format"
                          Label="XLSX"
                          ReadOnlyInCreate="(x) => !x.Report" />
 
                 <PDField TItem="RegisterModel"
                          Field="x => x.ReportFrequencyUnit"
-                         Grouping="@(new FieldGrouping("Frequency"))"
+                         Group="Frequency"
                          ReadOnlyInCreate="(x) => !x.Report" />
 
                 <!-- use fg-3 style to stretch field (fg-1 thru fg-9 are available) -->
                 <PDField TItem="RegisterModel"
                          DisplayOptions="@(new FieldDisplayOptions() { CssClass = "fg-3 fix-margin-10" })"
                          Field="x => x.ReportFrequencyPeriod"
-                         Grouping="@(new FieldGrouping("Frequency"))"
+                         Group="Frequency"
                          ReadOnlyInCreate="(x) => !x.Report" />
 
             </PDFormBody>

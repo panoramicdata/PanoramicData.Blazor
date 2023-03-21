@@ -35,9 +35,9 @@ public partial class PDField<TItem> where TItem : class
 	[Parameter] public FieldDisplayOptions DisplayOptions { get; set; } = new FieldDisplayOptions();
 
 	/// <summary>
-	/// Gets or sets grouping information for the field.
+	/// Gets or sets name of the group the field belongs to.
 	/// </summary>
-	[Parameter] public FieldGrouping? Grouping { get; set; }
+	[Parameter] public string Group { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets or sets text that is displayed in various ways depending on the control type. For example
