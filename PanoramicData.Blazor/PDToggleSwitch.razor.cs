@@ -13,31 +13,23 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
-	[Parameter] public string? BorderColour { get; set; }
-
 	[Parameter] public int? BorderWidth { get; set; }
 
 	[Parameter] public int? Height { get; set; }
 
 	[Parameter] public string Id { get; set; } = $"pd-toggleswitch-{++_sequence}";
 
-	[Parameter] public string? OffBackgroundColour { get; set; }
+	[Parameter] public string Label { get; set; } = string.Empty;
 
-	[Parameter] public string? OffForegroundColour { get; set; }
+	[Parameter] public bool? LabelBefore { get; set; }
 
 	[Parameter] public string? OffText { get; set; }
-
-	[Parameter] public string? OnBackgroundColour { get; set; }
-
-	[Parameter] public string? OnForegroundColour { get; set; }
 
 	[Parameter] public string? OnText { get; set; }
 
 	[Parameter] public PDToggleSwitchOptions Options { get; set; } = new();
 
 	[Parameter] public bool? Rounded { get; set; }
-
-	[Parameter] public string? ToggleColour { get; set; }
 
 	[Parameter] public bool Value { get; set; }
 

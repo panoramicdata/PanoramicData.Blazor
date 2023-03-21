@@ -56,18 +56,35 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
-	private Dictionary<string, object> GetNumericAttributes(FormField<TItem> field)
+	public List<FieldGroup<TItem>> Group(IEnumerable<FormField<TItem>> fields)
 	{
-		var dict = new Dictionary<string, object>();
-		if (field.MaxValue.HasValue)
+		var groups = new List<FieldGroup<TItem>>();
+		var dict = new Dictionary<string, FieldGroup<TItem>>();
+		foreach (var field in fields)
 		{
-			dict.Add("max", field.MaxValue.Value);
+			if (field.Grouping is null)
+			{
+				// create separate group for single field
+				groups.Add(new FieldGroup<TItem>() { Fields = new() { field } });
+			}
+			else
+			{
+				if (dict.TryGetValue(field.Grouping.GroupName, out var group))
+				{
+					group.Fields.Add(field);
+				}
+				else
+				{
+					// create new group
+					var g = new FieldGroup<TItem>() { Fields = new() { field } };
+					// add to dict for lookup / grouping by id
+					dict.Add(field.Grouping.GroupName, g);
+					// add to results - provides ordering
+					groups.Add(g);
+				}
+			}
 		}
-		if (field.MinValue.HasValue)
-		{
-			dict.Add("min", field.MinValue.Value);
-		}
-		return dict;
+		return groups;
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -130,31 +147,6 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		Form?.Mode == FormModes.Cancel ||
 		Form?.Mode == FormModes.ReadOnly;
 
-	private OptionInfo[] GetEnumValues(FormField<TItem> field)
-	{
-		var options = new List<OptionInfo>();
-		var memberInfo = field.Field?.GetPropertyMemberInfo();
-		if (memberInfo is PropertyInfo propInfo)
-		{
-			string[] names = Enum.GetNames(propInfo.PropertyType);
-			Array values = Enum.GetValues(propInfo.PropertyType);
-			for (var i = 0; i < values.Length; i++)
-			{
-				var displayName = propInfo.PropertyType.GetMember($"{names[i]}")
-							   ?.First()
-							   .GetCustomAttribute<DisplayAttribute>()
-							   ?.Name ?? names[i];
-				options.Add(new OptionInfo
-				{
-					Text = displayName,
-					Value = values.GetValue(i),
-					IsSelected = Form?.GetFieldStringValue(field) == values.GetValue(i)?.ToString()
-				});
-			}
-		}
-		return options.ToArray();
-	}
-
 	public string GetEditorClass(FormField<TItem> field)
 	{
 		return Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
@@ -209,81 +201,30 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
-	private string GetValidationIconCssClass(FormField<TItem> field)
+	private string GetValidationCssClass(IEnumerable<FormField<TItem>> fields)
 	{
-		var fieldName = field.GetName();
-		if (IsReadOnly(field) || !field.ShowValidationResult)
+		var classes = new List<string>();
+		foreach (var field in fields)
 		{
-			return "pd-empty-icon";
-		}
-		else if (fieldName != null && !field.SuppressErrors && Form?.Errors?.ContainsKey(fieldName) == true)
-		{
-			return "fas fa-exclamation-circle";
-		}
-		else if (Form != null && field.GetIsRequired() && string.IsNullOrWhiteSpace(Form?.GetFieldValue(field)?.ToString()))
-		{
-			return "fas fa-asterisk";
-		}
-		else
-		{
-			return "fas fa-check-circle";
-		}
-	}
-
-	private async Task UpdateDateTimeValue(ChangeEventArgs args, FormField<TItem> field)
-	{
-		try
-		{
-			await Form!.SetFieldValueAsync(field, DateTime.SpecifyKind(Convert.ToDateTime(args.Value), DateTimeKind.Utc)).ConfigureAwait(true);
-		}
-		catch
-		{
-			Form!.SetFieldErrors(field.GetName() ?? "", "Invalid Date");
-		}
-	}
-
-	private async Task UpdateDateTimeOffsetValue(ChangeEventArgs args, FormField<TItem> field)
-	{
-		try
-		{
-			await Form!.SetFieldValueAsync(field, DateTimeOffset.Parse(args.Value?.ToString() ?? String.Empty)).ConfigureAwait(true);
-		}
-		catch
-		{
-			Form!.SetFieldErrors(field.GetName() ?? "", "Invalid Date");
-		}
-	}
-
-	private async Task UpdateValueViaCastAsync(ChangeEventArgs args, FormField<TItem> field)
-	{
-		try
-		{
-			var fieldType = field.GetFieldType();
-			if (fieldType != null)
+			var key = GetValidationCssClass(field!);
+			if (key == "alert-danger")
 			{
-				await Form!.SetFieldValueAsync(field, Convert.ChangeType(args.Value ?? string.Empty, fieldType)).ConfigureAwait(true);
+				return "alert-danger";
 			}
+			classes.Add(key);
 		}
-		catch
+		if (classes.Contains("alert-warning"))
 		{
+			return "alert-warning";
 		}
+		return classes.Contains("alert-success") ? "alert-success" : string.Empty;
 	}
 
-	public string GetFieldOptionsDebug(FormField<TItem> field)
+	private static string GetValidationIconForCssClass(string cssClass) => cssClass switch
 	{
-		if (field.Options is null)
-		{
-			return String.Empty;
-		}
-		var opts = field.Options(field, null);
-		return String.Join(',', opts.Select(x => x.Text + (x.IsSelected ? " x" : "")).ToArray());
-	}
-
-	public async Task OnSelectInputChanged(ChangeEventArgs args, FormField<TItem> field)
-	{
-		if (Form != null && args.Value != null)
-		{
-			await Form.SetFieldValueAsync(field, args.Value).ConfigureAwait(true);
-		}
-	}
+		"alert-danger" => "fas fa-exclamation-circle",
+		"alert-warning" => "fas fa-asterisk",
+		"alert-success" => "fas fa-check-circle",
+		_ => "pd-empty-icon"
+	};
 }

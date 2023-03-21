@@ -30,6 +30,22 @@ public partial class PDField<TItem> where TItem : class
 	[Parameter] public string AutoComplete { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Gets or sets optional display options.
+	/// </summary>
+	[Parameter] public FieldDisplayOptions DisplayOptions { get; set; } = new FieldDisplayOptions();
+
+	/// <summary>
+	/// Gets or sets grouping information for the field.
+	/// </summary>
+	[Parameter] public FieldGrouping? Grouping { get; set; }
+
+	/// <summary>
+	/// Gets or sets text that is displayed in various ways depending on the control type. For example
+	/// in a textbox will be displayed when no text has been entered as a place holder.
+	/// </summary>
+	[Parameter] public string Label { get; set; } = string.Empty;
+
+	/// <summary>
 	/// Gets or sets whether a 'copy to clipboard' button is displayed for the field.
 	/// </summary>
 	[Parameter] public Func<TItem?, bool> ShowCopyButton { get; set; } = new Func<TItem?, bool>((_) => false);

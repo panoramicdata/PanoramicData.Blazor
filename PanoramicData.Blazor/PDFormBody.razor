@@ -22,6 +22,82 @@ else if (Form.Mode != FormModes.Hidden)
 			{
 				fields.AddRange(Form.Fields.Where(x => IsShown(x)));
 			}
+
+            @* display groups *@
+            var fieldGroups = Group(fields);
+            @foreach(var fieldGroup in fieldGroups)
+            {
+                var firstField = fieldGroup.Fields.First();
+				var fieldName = firstField.GetName();
+				var fieldDescription = firstField.GetDescription();
+                <div class="pd-form-field">
+                    <label class="sr-only">@fieldGroup.Title</label>
+                    <div class="input-group ">
+                        @* label *@
+						<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldGroup.HasErrors(Form) ? "alert-danger" : "")" title="@fieldDescription">
+							<span>@fieldGroup.Title</span>
+							<div class="helpers">
+								@if (!string.IsNullOrWhiteSpace(firstField.HelpUrl))
+								{
+									<i class="pd-form-help-icon fas fa-external-link-alt text-info cursor-pointer"
+										@onclick="() => OnHelpUrlClick(firstField)"></i>
+								}
+								@if (firstField.Helper != null)
+								{
+									<i class="pd-form-help-icon text-info cursor-pointer pt-1 ms-1 @firstField.Helper.IconCssClass"
+										@onclick="async () => await OnHelperClick(firstField).ConfigureAwait(true)"
+										title="@firstField.Helper.ToolTip"></i>
+								}
+								@if (firstField.ShowCopyButton(Form?.Item))
+								{
+									<PDClipboard CssClass="ms-1 text-info" Text="@(Form?.GetFieldStringValue(fieldGroup.Fields))" />
+								}
+							</div>
+						</div>
+
+                        @* editors *@
+                        @foreach(var field in fieldGroup.Fields)
+                        {
+                            <PDFormFieldEditor DebounceWait="DebounceWait"
+                                Field="field"
+                                Form="Form" />
+                        }
+
+                        @* validation indicator *@
+						@if (ShowValidationIndicator && Form?.Mode != FormModes.Delete)
+						{
+                            var cssCls = GetValidationCssClass(fieldGroup.Fields);
+							<span class="input-group-text align-items-start @cssCls">
+								<i class="@GetValidationIconForCssClass(cssCls)"></i>
+							</span>
+						}
+                    </div>
+                    <div class="mb-2">
+                        @* validation messages *@
+						@if (!string.IsNullOrWhiteSpace(fieldDescription)
+							&& (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit)
+							&& (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+						{
+							<div class="small text-muted">@fieldDescription</div>
+						}
+						@if (Form != null && !firstField.SuppressErrors && fieldName != null && fieldGroup.HasErrors(Form) == true)
+						{
+                            foreach (var field in fieldGroup.Fields)
+                            {
+                                var fn = field.GetName();
+                                if(!string.IsNullOrWhiteSpace(fn) && Form.Errors.ContainsKey(fn))
+                                {
+                                    foreach (var message in Form.Errors[fn])
+                                    {
+                                        <div class="small text-danger">@message</div>
+                                    }
+                                }
+                            }
+						}
+                    </div>
+                </div>
+            }
+@*
 			@foreach (var field in fields)
 			{
 				var fieldName = field.GetName();
@@ -31,6 +107,7 @@ else if (Form.Mode != FormModes.Hidden)
 					<label class="sr-only">@field.Title</label>
 					<div class="input-group ">
 
+                        // label
 						<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true ? "alert-danger" : "")" title="@fieldDescription">
 							<span>@field.Title</span>
 							<div class="helpers">
@@ -52,130 +129,17 @@ else if (Form.Mode != FormModes.Hidden)
 							</div>
 						</div>
 
-						<!-- editor -->
-						@if (field.EditTemplate != null)
-						{
-							@field.EditTemplate(Form?.Item);
-						}
-						else if (field.IsPassword || field.IsSensitive(Form?.Item, Form))
-						{
-							<input type="password"
-								   autocomplete="@field.AutoComplete"
-								   @onblur="() => field.SuppressErrors = false"
-								   disabled="@IsReadOnly(field)"
-								   class="form-control @GetEditorClass(field)"
-								   value="@Form?.GetFieldStringValue(field)"
-								   maxlength="@(field.MaxLength ?? -1)"
-								   @onchange="async (x) => await UpdateValueViaCastAsync(x, field).ConfigureAwait(true)">
-						}
-						else if (field.Options != null)
-						{
-							Console.WriteLine($"Render - {field.Id} - {GetFieldOptionsDebug(field)}");
-							<select @onblur="() => field.SuppressErrors = false"
-									class="form-select @GetEditorClass(field)"
-									disabled="@IsReadOnly(field)"
-									@oninput="(x) => OnSelectInputChanged(x, field)">
-								@foreach (var option in field.Options(field, Form?.Item))
-								{
-									if (option.IsSelected)
-									{
-										<option value="@option.Value" disabled="@option.IsDisabled" selected>@option.Text</option>
-									}
-									else
-									{
-										<option value="@option.Value" disabled="@option.IsDisabled">@option.Text</option>
-									}
-								}
-							</select>
-						}
-						else if (field.IsTextArea)
-						{
-							<PDTextArea IsEnabled="@(!IsReadOnly(field))"
-										Blur="() => field.SuppressErrors = false"
-										CssClass="@($"form-control {GetEditorClass(field)}")"
-										Rows="@field.TextAreaRows"
-										MaxLength="@(field.MaxLength ?? -1)"
-										Value="@(Form?.GetFieldStringValue(field))"
-										ValueChanged="(x) => Form?.SetFieldValueAsync(field, x) ?? Task.CompletedTask"
-										DebounceWait="DebounceWait" />
-						}
-						else if (fieldType?.FullName == "System.Boolean")
-						{
-							<PDFormCheckBox Value="@(Form?.GetFieldValue<bool>(field) ?? false)"
-											Disabled="@IsReadOnly(field)"
-											ValueChanged="(x) => Form?.SetFieldValueAsync(field, (bool)x) ?? Task.CompletedTask" />
-						}
-						else if (fieldType?.IsEnum == true)
-						{
-							<select @onblur="() => field.SuppressErrors = false"
-									class="form-select @GetEditorClass(field)"
-									disabled="@IsReadOnly(field)"
-									@oninput="(x) => Form?.SetFieldValueAsync(field, Enum.Parse(fieldType, x.Value?.ToString() ?? string.Empty)) ?? Task.CompletedTask">
-								@foreach (var option in GetEnumValues(field))
-								{
-									<option value="@option.Value"
-											selected="@option.IsSelected">
-										@option.Text
-									</option>
-								}
-							</select>
-						}
-						else if (fieldType?.FullName == "System.DateTime")
-						{
-							<input type="date"
-								   @onblur="() => field.SuppressErrors = false"
-								   disabled="@IsReadOnly(field)"
-								   class="form-control @GetEditorClass(field)"
-								   value="@(Form?.GetFieldStringValue(field))"
-								   @onchange="(x) => UpdateDateTimeValue(x, field)">
-						}
-						else if (fieldType?.FullName == "System.DateTimeOffset")
-						{
-							<input type="date"
-								   @onblur="() => field.SuppressErrors = false"
-								   class="form-control"
-								   disabled="@IsReadOnly(field)"
-								   value="@(Form?.GetFieldStringValue(field))"
-								   @onchange="(x) => UpdateDateTimeOffsetValue(x, field)">
-						}
-						else if (fieldType?.FullName == "System.String")
-						{
-							<PDTextBox CssClass="@GetEditorClass(field)"
-									   AutoComplete="@field.AutoComplete"
-									   Blur="() => field.SuppressErrors = false"
-									   ShowClearButton="false"
-									   IsEnabled="!IsReadOnly(field)"
-									   Value="@(Form?.GetFieldStringValue(field))"
-									   ValueChanged="(x) => Form?.SetFieldValueAsync(field, x) ?? Task.CompletedTask"
-									   DebounceWait="DebounceWait" />
-						}
-						else if (fieldType?.FullName == "System.Guid")
-						{
-							<PDTextBox CssClass="@GetEditorClass(field)"
-									   AutoComplete="@field.AutoComplete"
-									   Blur="() => field.SuppressErrors = false"
-									   ShowClearButton="false"
-									   IsEnabled="!IsReadOnly(field)"
-									   Value="@(Form?.GetFieldStringValue(field))"
-									   ValueChanged="(x) => Form?.SetFieldValueAsync(field, x) ?? Task.CompletedTask"
-									   DebounceWait="DebounceWait" />
-						}
-						else
-						{
-							<input @attributes="GetNumericAttributes(field)"
-								   @onblur="() => field.SuppressErrors = false"
-								   type="number"
-								   disabled="@IsReadOnly(field)"
-								   class="form-control @GetEditorClass(field)"
-								   value="@(Form?.GetFieldValue<double>(field))"
-								   @onchange="async (x) => await UpdateValueViaCastAsync(x, field).ConfigureAwait(true)">
-						}
+						// editors
+                        <PDFormFieldEditor DebounceWait="DebounceWait"
+                            Field="field"
+                            Form="Form" />
 
-						<!-- field validation indicator-->
+						// field validation indicator
 						@if (ShowValidationIndicator && Form?.Mode != FormModes.Delete)
 						{
-							<span class="input-group-text align-items-start @GetValidationCssClass(field)">
-								<i class="@GetValidationIconCssClass(field)"></i>
+                            var cssCls = GetValidationCssClass(field);
+							<span class="input-group-text align-items-start @cssCls">
+								<i class="@GetValidationIconForCssClass(cssCls)"></i>
 							</span>
 						}
 					</div>
@@ -195,7 +159,7 @@ else if (Form.Mode != FormModes.Hidden)
 						}
 					</div>
 				</div>
-			}
+			} *@
 		}
 	</div>
 }

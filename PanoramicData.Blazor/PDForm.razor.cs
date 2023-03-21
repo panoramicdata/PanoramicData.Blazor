@@ -163,6 +163,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				AutoComplete = field.AutoComplete,
 				Id = field.Id,
 				Field = field.Field,
+				DisplayOptions = field.DisplayOptions,
+				Grouping = field.Grouping,
 				Helper = field.Helper,
 				ReadOnlyInCreate = field.ReadOnlyInCreate,
 				ReadOnlyInEdit = field.ReadOnlyInEdit,
@@ -175,6 +177,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				MaxLength = field.MaxLength,
 				MaxValue = field.MaxValue,
 				MinValue = field.MinValue,
+				Label = field.Label,
 				ShowValidationResult = field.ShowValidationResult,
 				Options = field.Options,
 				IsPassword = field.IsPassword,
@@ -479,6 +482,20 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	{
 		var field = GetField(fieldName);
 		return field is null ? string.Empty : GetFieldStringValue(field, updatedValue);
+	}
+
+	public string GetFieldStringValue(IEnumerable<FormField<TItem>> fields, bool updatedValue = true)
+	{
+		var sb = new StringBuilder();
+		foreach (var field in fields)
+		{
+			if (sb.Length > 0)
+			{
+				sb.Append('\t');
+			}
+			sb.Append(GetFieldStringValue(field, updatedValue));
+		}
+		return sb.ToString();
 	}
 
 	/// <summary>

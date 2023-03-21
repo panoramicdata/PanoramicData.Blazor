@@ -1,0 +1,39 @@
+::deep .pdtoggleswitch.docx .switch {
+	stroke: DodgerBlue;
+}
+
+::deep .pdtoggleswitch.docx .switch.on {
+	fill: DodgerBlue;
+}
+
+::deep .pdtoggleswitch.html .switch {
+	stroke: red;
+}
+
+::deep .pdtoggleswitch.html .switch.on {
+	fill: red;
+}
+
+::deep .pdtoggleswitch.pdf .switch {
+	stroke: purple;
+}
+
+::deep .pdtoggleswitch.pdf .switch.on {
+	fill: purple;
+}
+
+::deep .pdtoggleswitch.xlsx .switch {
+	stroke: limegreen;
+}
+
+::deep .pdtoggleswitch.xlsx .switch.on {
+	fill: limegreen;
+}
+
+::deep .fix-margin-10 {
+	margin-left: -10px !important;
+}
+
+::deep .fix-margin-18 {
+	margin-left: -18px !important;
+}

@@ -3,103 +3,107 @@
 
 <h1>PDForm</h1>
 
-<DemoSourceView SourceFiles="Pages/PDFormPage4.razor, Pages/PDFormPage4.razor.cs, Data/PersonDataProvider.cs">
+<DemoSourceView SourceFiles="Pages/PDFormPage4.razor, Pages/PDFormPage4.razor.cs, Pages/PDFormPage4.razor.css, Data/PersonDataProvider.cs">
 
     <PDToolbar>
 
         <PDToolbarPlaceholder>
             <div>
-                <span>Example 1: Standalone Form</span>
+                <span>Form - Field Grouping</span>
                 <br />
                 <span class="text-muted"
-                      style="font-size: 0.8rem;">Uses INavigationCancelService to avoid navigating away when changes have been made</span>
+                      style="font-size: 0.8rem;">Grouping multiple fields onto a single row</span>
             </div>
         </PDToolbarPlaceholder>
-
-        <PDToolbarButton Text="Create Person"
-                         ShiftRight="true"
-                         CssClass="btn-primary"
-                         Click="OnCreatePerson" />
 
     </PDToolbar>
 
     <div class="d-flex">
 
-        <div class="pe-4">
-            @foreach (var person in People)
-            {
-                <div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPerson(person)">
-                    <span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
-                </div>
-            }
-        </div>
-
-        <PDForm @ref="Form"
+        <PDForm @ref="_registerForm"
                 CssClass="w-100"
-                TItem="Person"
-                Item="SelectedPerson"
-                DataProvider="_personDataProvider"
-                Error="OnError"
-                FieldUpdated="OnFieldUpdated"
-                Deleted="OnPersonDeleted"
-                Updated="OnPersonUpdated"
-                Created="OnPersonCreated">
+                TItem="RegisterModel"
+                Item="_model"
+                DefaultMode="FormModes.Create"
+                DataProvider="_dataProvider">
 
-            <PDFormHeader TItem="Person"
-                          CreateTitle="Create New Person"
-                          EditTitle="Edit Person - {0}"
-                          DeleteTitle="Delete Person - {0}"
-                          ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
+            <PDFormBody TItem="RegisterModel">
 
-            <PDFormBody TItem="Person">
-
-                <PDField TItem="Person"
+                <PDField TItem="RegisterModel"
                          Field="x => x.FirstName"
-                         Title="First Name"
-                         ShowInDelete="(_) => true" />
+                         Grouping="@(new FieldGrouping("Name"))"
+                         Label="First Name"
+                         ShowCopyButton="(_) => true" />
 
-                <PDField TItem="Person"
+                <PDField TItem="RegisterModel"
                          Field="x => x.LastName"
-                         MaxLength="20"
-                         Title="Last Name"
-                         ShowInDelete="(_) => true" />
+                         Grouping="@(new FieldGrouping("Name"))"
+                         Label="Last Name" />
 
-                <PDField TItem="Person"
-                         AutoComplete="on"
-                         Field="x => x.Username" />
+                <PDField TItem="RegisterModel"
+                         Grouping="@(new FieldGrouping("Reporting"))"
+                         Field="x => x.Report" />
 
-                <PDField TItem="Person"
-                         Field="x => x.Password"
-                         Title="Password"
-                         AutoComplete="on"
-                         IsPassword="true" />
+                <PDField TItem="RegisterModel"
+                         DisplayOptions="@(new FieldDisplayOptions() { CssClass = "fg-3 fix-margin-18" })"
+                         Grouping="@(new FieldGrouping("Reporting"))"
+                         Field="x => x.ReportEmailAddress"
+                         Label="Email Address"
+                         ReadOnlyInCreate="(x) => !x.Report" />
+
+                <!-- form-control class is used to provide consistant look and feel for toggle switch containers -->
+                <PDField TItem="RegisterModel"
+                         Field="x => x.ReportFormatDocx"
+                         DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control docx" })"
+                         Grouping="@(new FieldGrouping("Report Format"))"
+                         Label="DOCX"
+                         ReadOnlyInCreate="(x) => !x.Report"
+                         ShowCopyButton="(_) => true" />
+
+                <PDField TItem="RegisterModel"
+                         DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control html" })"
+                         Field="x => x.ReportFormatHtml"
+                         Grouping="@(new FieldGrouping("Report Format"))"
+                         Label="HTML"
+                         ReadOnlyInCreate="(x) => !x.Report" />
+
+                <PDField TItem="RegisterModel"
+                         DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control pdf" })"
+                         Field="x => x.ReportFormatPdf"
+                         Grouping="@(new FieldGrouping("Report Format"))"
+                         Label="PDF"
+                         ReadOnlyInCreate="(x) => !x.Report" />
+
+                <PDField TItem="RegisterModel"
+                         DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control xlsx" })"
+                         Field="x => x.ReportFormatXlsx"
+                         Grouping="@(new FieldGrouping("Report Format"))"
+                         Label="XLSX"
+                         ReadOnlyInCreate="(x) => !x.Report" />
+
+                <PDField TItem="RegisterModel"
+                         Field="x => x.ReportFrequencyUnit"
+                         Grouping="@(new FieldGrouping("Frequency"))"
+                         ReadOnlyInCreate="(x) => !x.Report" />
+
+                <!-- use fg-3 style to stretch field (fg-1 thru fg-9 are available) -->
+                <PDField TItem="RegisterModel"
+                         DisplayOptions="@(new FieldDisplayOptions() { CssClass = "fg-3 fix-margin-10" })"
+                         Field="x => x.ReportFrequencyPeriod"
+                         Grouping="@(new FieldGrouping("Frequency"))"
+                         ReadOnlyInCreate="(x) => !x.Report" />
 
             </PDFormBody>
 
-            <PDFormFooter TItem="Person"
-                          Click="OnFooterClick" />
+            <PDFormFooter TItem="RegisterModel"
+                SaveButtonText="Register Now"
+                ShowCancel="false" />
         </PDForm>
 
     </div>
 
-    <EventView />
-
 </DemoSourceView>
 
 <style>
-    .person-list {
-        border-radius: .3rem;
-        border: 1px solid #ced4da;
-        padding: 3px;
-        margin: 0px 5px 5px 5px;
-        cursor: pointer;
-    }
 
-        .person-list.selected {
-            background-color: lightgray;
-        }
-
-    .pd-form-header {
-        padding-bottom: 10px;
-    }
 </style>
