@@ -2,6 +2,8 @@
 
 public partial class PDFormCheckBox
 {
+	[Parameter] public string CssClass { get; set; } = string.Empty;
+
 	[Parameter] public bool Disabled { get; set; }
 
 	[Parameter] public string Label { get; set; } = string.Empty;

@@ -15,7 +15,7 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 
 	public string GetEditorClass(FormField<TItem> field)
 	{
-		return $"{(Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "")} {field.DisplayOptions.CssClass}";
+		return $"{(Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "")} {field.DisplayOptions?.CssClass}";
 	}
 
 	private OptionInfo[] GetEnumValues(FormField<TItem> field)
