@@ -3,6 +3,23 @@
 	display:inline-block;
 }
 
+.pdtoggleswitch svg:focus {
+	outline: 0;
+	box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+}
+
+.pdtoggleswitch.sm.rd svg:focus {
+	border-radius: 8px;
+}
+
+.pdtoggleswitch.md.rd svg:focus {
+	border-radius: 12px;
+}
+
+.pdtoggleswitch.lg.rd svg:focus {
+	border-radius: 16px;
+}
+
 .pdtoggleswitch.sm text {
 	font-size: 0.5rem;
 }

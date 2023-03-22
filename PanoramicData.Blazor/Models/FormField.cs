@@ -12,14 +12,29 @@ public class FormField<TItem> where TItem : class
 	public string AutoComplete { get; set; } = string.Empty;
 
 	/// <summary>
-	/// gets or sets a unique identifier for the field.
+	/// Gets or sets optional display options.
 	/// </summary>
-	public string Id { get; set; } = string.Empty;
+	public FieldDisplayOptions? DisplayOptions { get; set; }
 
 	/// <summary>
 	/// Gets or sets a Linq expression that selects the field to be data bound to.
 	/// </summary>
 	public Expression<Func<TItem, object>>? Field { get; set; }
+
+	/// <summary>
+	/// Gets or sets name of the group the field belongs to.
+	/// </summary>
+	public string Group { get; set; } = string.Empty;
+
+	/// <summary>
+	/// gets or sets a unique identifier for the field.
+	/// </summary>
+	public string Id { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Gets or sets a short label.
+	/// </summary>
+	public string Label { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets or sets whether errors for this field should be suppressed?

@@ -6,3 +6,43 @@
 	background-color: #f9f9f9;
 	color: #999;
 }
+
+::deep .pdtoggleswitch.disabled {
+	background-color: #e9ecef;
+}
+
+::deep .fg-1 {
+	flex-grow: 1;
+}
+
+::deep .fg-2 {
+	flex-grow: 2;
+}
+
+::deep .fg-3 {
+	flex-grow: 3;
+}
+
+::deep .fg-4 {
+	flex-grow: 4;
+}
+
+::deep .fg-5 {
+	flex-grow: 5;
+}
+
+::deep .fg-6 {
+	flex-grow: 6;
+}
+
+::deep .fg-7 {
+	flex-grow: 7;
+}
+
+::deep .fg-8 {
+	flex-grow: 8;
+}
+
+::deep .fg-9 {
+	flex-grow: 9;
+}

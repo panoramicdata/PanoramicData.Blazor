@@ -18,6 +18,11 @@ public class PDToggleSwitchOptions
 	public int? Height { get; set; }
 
 	/// <summary>
+	/// Gets or sets whther the label should be displayed before the toggle switch.
+	/// </summary>
+	public bool LabelBefore { get; set; }
+
+	/// <summary>
 	/// Sets the text displayed when the switch is off.
 	/// </summary>
 	public string OffText { get; set; } = string.Empty;

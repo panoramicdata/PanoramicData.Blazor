@@ -1,14 +1,25 @@
 @inherits PDComponentBase
 
-<div class="pdtoggleswitch @(CssClass ?? Options.CssClass) @(SizeCssClass) @(IsEnabled ? "" : "disabled")" id="@Id">
+<div class="pdtoggleswitch @(CssClass ?? Options.CssClass) @(SizeCssClass) @(IsEnabled ? "" : "disabled") @(Rounded ?? Options.Rounded ? "rd" : "")" id="@Id">
+    @if (!string.IsNullOrWhiteSpace(Label) && (LabelBefore ?? Options.LabelBefore))
+    {
+        <span class="label align-middle me-1">@Label</span>
+    }
     <svg version="1.1"
          width="@CalculatedWidth" height="@CalculatedHeight"
          xmlns="http://www.w3.org/2000/svg"
-         @onclick="OnClickAsync">
+         tabindex="0"
+         @onclick="OnClickAsync"
+         @onkeypress="OnKeyPressAsync"
+         @onkeypress:preventDefault>
 
         <rect @attributes="GetBackgroundAttributes()" />
         <text @attributes="GetTextAttributes()">@(Value ? (OnText ?? Options.OnText) : (OffText ?? Options.OffText))</text>
         <rect @attributes="GetToggleAttributes()" />
 
     </svg>
+    @if (!string.IsNullOrWhiteSpace(Label) && !(LabelBefore ?? Options.LabelBefore))
+    {
+        <span class="label align-middle ms-1">@Label</span>
+    }
 </div>

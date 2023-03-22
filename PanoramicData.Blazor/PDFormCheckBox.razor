@@ -1,3 +1,11 @@
-﻿<div class="form-control @(Disabled ? "disabled" : "")" tabindex="@(Disabled ? null : "0")" @onkeypress="OnKeyPress">
+﻿<div class="pdformcheckbox form-control @(Disabled ? "disabled" : "")" tabindex="@(Disabled ? null : "0")" @onkeypress="OnKeyPress">
+    @if (!string.IsNullOrWhiteSpace(Label) && LabelBefore)
+    {
+        <span class="label me-1">@Label</span>
+    }
 	<i class="far @(Value ? "fa-check-square" : "fa-square")" @onclick="OnClick" ></i>
+    @if (!string.IsNullOrWhiteSpace(Label) && !LabelBefore)
+    {
+        <span class="ms-1 label">@Label</span>
+    }
 </div>
