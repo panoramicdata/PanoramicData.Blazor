@@ -149,6 +149,15 @@ public partial class PDToggleSwitch : IAsyncDisposable
 		}
 	}
 
+	private async Task OnKeyPressAsync(KeyboardEventArgs args)
+	{
+		if (IsEnabled && (args.Code == "Space" || args.Code == "Enter"))
+		{
+			Value = !Value;
+			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
+		}
+	}
+
 	protected async Task RefreshTextWidthAsync()
 	{
 		try
