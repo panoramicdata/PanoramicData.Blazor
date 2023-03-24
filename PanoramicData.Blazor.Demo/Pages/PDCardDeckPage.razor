@@ -1,0 +1,18 @@
+﻿@page "/pdcarddeck"
+
+<DemoSourceView SourceFiles="Pages/PDCardDeckPage.razor, Pages/PDCardDeckPage.razor.cs">
+
+    <div>
+        <p>Example 1: Basic Card Deck</p>
+    </div>
+
+    <PDCardDeck Items="_todoList">
+        <CardTemplate Context="todo">
+            <span>@todo.Title</span>
+        </CardTemplate>
+    </PDCardDeck>
+
+
+    <EventView />
+
+</DemoSourceView>

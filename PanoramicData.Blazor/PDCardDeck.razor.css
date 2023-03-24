@@ -1,0 +1,13 @@
+.pdcarddeck {
+	background-color: #f4f5f7;
+	display: flex;
+	flex-direction: column;
+	padding: 5px 5px 0 5px;
+}
+
+.pdcarddeck .card {
+	margin-bottom: 5px;
+	border-left: 5px solid silver;
+	padding: 5px;
+	user-select: none;
+}

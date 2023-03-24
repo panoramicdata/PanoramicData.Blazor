@@ -1,0 +1,16 @@
+﻿@inherits PDComponentBase
+@typeparam TItem
+
+<div class="pdcarddeck @CssClass @(IsEnabled ? "" : "disabled") @SizeCssClass" id="@Id">
+
+    @foreach(var item in Items)
+    {
+        <div class="card">
+            @if (CardTemplate != null)
+            {
+                @CardTemplate(item)
+            }
+        </div>
+    }
+
+</div>
