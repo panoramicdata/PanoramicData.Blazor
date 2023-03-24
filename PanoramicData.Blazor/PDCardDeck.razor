@@ -5,7 +5,8 @@
 
     @foreach(var item in Items)
     {
-        <div class="card">
+        <div class="card @(_selection.Contains(item) ? "selected" : "")"
+            @onmouseup="(args) => OnItemMouseUpAsync(item, args)">
             @if (CardTemplate != null)
             {
                 @CardTemplate(item)

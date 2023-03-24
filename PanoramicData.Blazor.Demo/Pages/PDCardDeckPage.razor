@@ -6,13 +6,26 @@
         <p>Example 1: Basic Card Deck</p>
     </div>
 
-    <PDCardDeck Items="_todoList">
+    <PDCardDeck Items="_todoList1">
+        <CardTemplate Context="todo">
+            <span>@todo.Title</span>
+        </CardTemplate>
+    </PDCardDeck>
+
+    <hr />
+
+    <div>
+        <p>Example 2: Multiple Select</p>
+    </div>
+
+    <PDCardDeck Items="_todoList2"
+        MultipleSelection="true">
         <CardTemplate Context="todo">
             <span>@todo.Title</span>
         </CardTemplate>
     </PDCardDeck>
 
 
-    <EventView />
+    @*<EventView />*@
 
 </DemoSourceView>

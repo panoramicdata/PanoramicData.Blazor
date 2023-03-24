@@ -11,3 +11,7 @@
 	padding: 5px;
 	user-select: none;
 }
+
+.pdcarddeck .card.selected {
+	background-color: rgba(13,110,253,.25);
+}
