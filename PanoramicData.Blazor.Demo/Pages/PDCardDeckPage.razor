@@ -6,11 +6,7 @@
         <p>Example 1: Basic Card Deck</p>
     </div>
 
-    <PDCardDeck Items="_todoList1">
-        <CardTemplate Context="todo">
-            <span>@todo.Title</span>
-        </CardTemplate>
-    </PDCardDeck>
+    <PDCardDeck Items="_todoList1" />
 
     <hr />
 
@@ -20,6 +16,18 @@
 
     <PDCardDeck Items="_todoList2"
         MultipleSelection="true">
+        <CardTemplate Context="todo">
+            <span ondragover="event.preventDefault();">@todo.Title</span>
+        </CardTemplate>
+    </PDCardDeck>
+
+    <hr />
+
+    <div>
+        <p>Example 3: Disabled Card Deck</p>
+    </div>
+
+    <PDCardDeck Items="_todoList3" IsEnabled="false">
         <CardTemplate Context="todo">
             <span>@todo.Title</span>
         </CardTemplate>

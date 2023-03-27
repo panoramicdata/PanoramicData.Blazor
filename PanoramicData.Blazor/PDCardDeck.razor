@@ -1,17 +1,36 @@
 ﻿@inherits PDComponentBase
 @typeparam TItem
 
-<div class="pdcarddeck @CssClass @(IsEnabled ? "" : "disabled") @SizeCssClass" id="@Id">
-
+<div @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
     @foreach(var item in Items)
     {
-        <div class="card @(_selection.Contains(item) ? "selected" : "")"
-            @onmouseup="(args) => OnItemMouseUpAsync(item, args)">
-            @if (CardTemplate != null)
+        @if (_dragTarget?.Equals(item) == true && _dropAbove)
+        {
+            <div @attributes="GetDropAreaAttributes()">
+                @if (DropAreaTemplate != null)
+                {
+                    @DropAreaTemplate
+                }
+            </div>
+        }
+        <div @attributes="GetCardAttributes(item)">
+            @if (CardTemplate is null)
+            {
+                <span>@(item!.ToString())</span>
+            }
+            else
             {
                 @CardTemplate(item)
             }
         </div>
+        @if (_dragTarget?.Equals(item) == true && !_dropAbove)
+        {
+            <div @attributes="GetDropAreaAttributes()">
+                @if (DropAreaTemplate != null)
+                {
+                    @DropAreaTemplate
+                }
+            </div>
+        }
     }
-
 </div>

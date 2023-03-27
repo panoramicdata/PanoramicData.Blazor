@@ -15,5 +15,5 @@ public class Todo
 
 	public string Title { get; set; } = string.Empty;
 
-	public override string ToString() => $"{Title} ({Id.ToString()[1..8]})";
+	public override string ToString() => Title;
 }
