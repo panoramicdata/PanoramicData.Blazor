@@ -1,15 +1,14 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDCardDeck<TItem>
+public partial class PDCardDeck<TCard> where TCard : ICard
 {
 	private bool _dropAbove;
-	private TItem? _dragTarget;
-	private TItem? _draggedItem;
+	private TCard? _dragTarget;
+	private TCard? _draggedCard;
 	private static int _sequence;
-	private readonly List<TItem> _selection = new();
-
-	[Parameter]
-	public EventCallback<IEnumerable<TItem>> AddItems { get; set; }
+	private readonly List<TCard> _selection = new();
+	private List<TCard> _cards = new();
+	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
 	[Parameter]
 	public string Id { get; set; } = $"pd-toggleswitch-{++_sequence}";
@@ -18,37 +17,31 @@ public partial class PDCardDeck<TItem>
 	public int CardHeight { get; set; } = 32;
 
 	[Parameter]
-	public RenderFragment<TItem>? CardTemplate { get; set; }
+	public RenderFragment<TCard>? CardTemplate { get; set; }
+
+	[EditorRequired]
+	[Parameter]
+	public IDataProviderService<TCard> DataProvider { get; set; } = new EmptyDataProviderService<TCard>();
 
 	[Parameter]
 	public RenderFragment? DropAreaTemplate { get; set; }
 
-	[EditorRequired]
-	[Parameter]
-	public IList<TItem> Items { get; set; } = new List<TItem>();
-
-	[Parameter]
-	public EventCallback<IEnumerable<TItem>> ItemsAdded { get; set; }
-
-	[Parameter]
-	public EventCallback<IEnumerable<TItem>> ItemsRemoved { get; set; }
-
 	[Parameter]
 	public bool MultipleSelection { get; set; }
 
-	public IEnumerable<TItem> GetSelection() => _selection;
+	public IEnumerable<TCard> GetSelection() => _selection;
 
-	private IDictionary<string, object?> GetCardAttributes(TItem item)
+	private IDictionary<string, object?> GetCardAttributes(TCard card)
 	{
 		var dict = new Dictionary<string, object?>
 		{
-			{ "class", $"card {(_selection.Contains(item) ? "selected" : "")} {(_draggedItem?.Equals(item) == true ? "dragging" : "")}" },
-			{ "ondragend", (DragEventArgs e)=> OnDragEnd(e, item) },
-			{ "ondragenter", (DragEventArgs e)=> OnDragEnter(e, item) },
-			{ "ondragover", (DragEventArgs e) => OnDragOver(e, item) },
-			{ "ondragstart", (DragEventArgs e) => OnDragStart(e, item) },
+			{ "class", $"card {(_selection.Contains(card) ? "selected" : "")} {(_draggedCard?.Equals(card) == true ? "dragging" : "")}" },
+			{ "ondragend", (DragEventArgs e)=> OnDragEnd(e, card) },
+			{ "ondragenter", (DragEventArgs e)=> OnDragEnter(e, card) },
+			{ "ondragover", (DragEventArgs e) => OnDragOver(e, card) },
+			{ "ondragstart", (DragEventArgs e) => OnDragStart(e, card) },
 			{ "ondrop", (DragEventArgs e) => OnDropAsync(e) },
-			{ "onmousedown", (MouseEventArgs e) => OnItemMouseDownAsync(item, e) }
+			{ "onmousedown", (MouseEventArgs e) => OnItemMouseDownAsync(card, e) }
 		};
 		if (IsEnabled)
 		{
@@ -76,21 +69,21 @@ public partial class PDCardDeck<TItem>
 		};
 	}
 
-	private void OnDragEnd(DragEventArgs args, TItem item)
+	private void OnDragEnd(DragEventArgs args, TCard card)
 	{
-		_draggedItem = default;
+		_draggedCard = default;
 		_dragTarget = default;
 		StateHasChanged();
 	}
 
-	private void OnDragEnter(DragEventArgs args, TItem item)
+	private void OnDragEnter(DragEventArgs args, TCard card)
 	{
-		_dragTarget = item;
+		_dragTarget = card;
 		_dropAbove = args.OffsetY <= (CardHeight / 2d);
 		StateHasChanged();
 	}
 
-	private void OnDragOver(DragEventArgs args, TItem item)
+	private void OnDragOver(DragEventArgs args, TCard card)
 	{
 		var newDropAbove = args.OffsetY <= (CardHeight / 2d);
 		if (newDropAbove != _dropAbove)
@@ -100,11 +93,11 @@ public partial class PDCardDeck<TItem>
 		}
 	}
 
-	private void OnDragStart(DragEventArgs args, TItem item)
+	private void OnDragStart(DragEventArgs args, TCard card)
 	{
 		// ensure dragged item is selected
-		_draggedItem = item;
-		_dragTarget = item;
+		_draggedCard = card;
+		_dragTarget = card;
 		_dropAbove = args.OffsetY <= (CardHeight / 2d);
 		StateHasChanged();
 	}
@@ -112,51 +105,56 @@ public partial class PDCardDeck<TItem>
 	private async Task OnDropAsync(DragEventArgs args)
 	{
 		// default action is to re-order
-		if (_draggedItem != null && _dragTarget != null)
+		if (_draggedCard != null && _dragTarget != null)
 		{
-			var list = Items.ToList();
-
 			// index to insert at
-			var idx = list.IndexOf(_dragTarget);
+			var idx = _cards.IndexOf(_dragTarget);
 
 			// remove selection
-			foreach (var item in _selection)
+			foreach (var card in _selection)
 			{
-				list.Remove(item);
-				Items.Remove(item);
+				_cards.Remove(card);
 			}
 
-			// notify app
-			await ItemsRemoved.InvokeAsync(_selection).ConfigureAwait(true);
-
 			// validate bounds
-			if (idx > list.Count - 1)
+			if (idx > _cards.Count - 1)
 			{
-				idx = list.Count;
+				idx = _cards.Count;
 			}
 			if (idx < 0)
 			{
 				idx = 0;
 			}
 
-			foreach (var item in _selection.Reverse<TItem>())
+			foreach (var card in _selection.Reverse<TCard>())
 			{
-				Items.Insert(idx, item);
+				_cards.Insert(idx, card);
 			}
 
-			// notify app to add items from source
-			await ItemsAdded.InvokeAsync(_selection).ConfigureAwait(true);
+			// TODO: notify app to add items from source
 		}
 	}
 
-	private Task OnItemMouseDownAsync(TItem item, MouseEventArgs args)
+	private Task OnItemMouseDownAsync(TCard card, MouseEventArgs args)
 	{
-		UpdateSelection(item, args.CtrlKey, args.ShiftKey);
+		UpdateSelection(card, args.CtrlKey, args.ShiftKey);
 		StateHasChanged();
 		return Task.CompletedTask;
 	}
 
-	private void UpdateSelection(TItem item, bool ctrl, bool shift)
+	protected override async Task OnParametersSetAsync()
+	{
+		if (DataProvider != _dataProviderService)
+		{
+			_dataProviderService = DataProvider;
+			var request = new DataRequest<TCard>();
+			var cards = await _dataProviderService.GetDataAsync(request, default).ConfigureAwait(true);
+			_cards.Clear();
+			_cards.AddRange(cards.Items);
+		}
+	}
+
+	private void UpdateSelection(TCard card, bool ctrl, bool shift)
 	{
 		if (IsEnabled)
 		{
@@ -164,35 +162,34 @@ public partial class PDCardDeck<TItem>
 			{
 				if (ctrl) // add/remove single
 				{
-					if (_selection.Contains(item))
+					if (_selection.Contains(card))
 					{
-						_selection.Remove(item);
+						_selection.Remove(card);
 					}
 					else
 					{
-						_selection.Add(item);
+						_selection.Add(card);
 					}
 				}
 				else if (shift && _selection.Count > 0) // add range
 				{
-					var list = Items.ToList();
-					var sIdx = list.IndexOf(_selection.First());
-					var eIdx = list.IndexOf(item);
+					var sIdx = _cards.IndexOf(_selection.First());
+					var eIdx = _cards.IndexOf(card);
 					var s = Math.Min(sIdx, eIdx);
 					var e = Math.Max(sIdx, eIdx);
 					_selection.Clear();
-					_selection.AddRange(list.GetRange(s, e - s + 1));
+					_selection.AddRange(_cards.GetRange(s, e - s + 1));
 				}
 				else
 				{
 					_selection.Clear();
-					_selection.Add(item);
+					_selection.Add(card);
 				}
 			}
 			else
 			{
 				_selection.Clear();
-				_selection.Add(item);
+				_selection.Add(card);
 			}
 		}
 	}

@@ -1,10 +1,10 @@
 ﻿@inherits PDComponentBase
-@typeparam TItem
+@typeparam TCard
 
 <div @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
-    @foreach(var item in Items)
+    @foreach (var card in _cards)
     {
-        @if (_dragTarget?.Equals(item) == true && _dropAbove)
+        @if (_dragTarget?.Equals(card) == true && _dropAbove)
         {
             <div @attributes="GetDropAreaAttributes()">
                 @if (DropAreaTemplate != null)
@@ -13,17 +13,17 @@
                 }
             </div>
         }
-        <div @attributes="GetCardAttributes(item)">
+        <div @attributes="GetCardAttributes(card)">
             @if (CardTemplate is null)
             {
-                <span>@(item!.ToString())</span>
+                <span>@(card!.ToString())</span>
             }
             else
             {
-                @CardTemplate(item)
+                @CardTemplate(card)
             }
         </div>
-        @if (_dragTarget?.Equals(item) == true && !_dropAbove)
+        @if (_dragTarget?.Equals(card) == true && !_dropAbove)
         {
             <div @attributes="GetDropAreaAttributes()">
                 @if (DropAreaTemplate != null)

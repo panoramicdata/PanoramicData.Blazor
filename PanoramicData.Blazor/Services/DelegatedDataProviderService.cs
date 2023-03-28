@@ -1,7 +1,6 @@
-﻿namespace PanoramicData.Blazor.Models;
+﻿namespace PanoramicData.Blazor.Services;
 
-[Obsolete("DelegatedDataProvider is obsolete. Please use PanoramicData.Blazor.Services.DelegatedDataProviderService instead.")]
-public class DelegatedDataProvider<TItem> : IDataProviderService<TItem>
+public class DelegatedDataProviderService<TItem> : IDataProviderService<TItem>
 {
 	public Func<TItem, CancellationToken, Task<OperationResponse>>? CreateAsync { get; set; }
 	public Func<TItem, CancellationToken, Task<OperationResponse>>? DeleteAsync { get; set; }

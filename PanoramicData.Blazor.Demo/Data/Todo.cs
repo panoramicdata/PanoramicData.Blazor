@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor.Demo.Data;
 
-public class Todo
+public class Todo : ICard
 {
 	public Todo()
 	{
@@ -16,4 +16,6 @@ public class Todo
 	public string Title { get; set; } = string.Empty;
 
 	public override string ToString() => Title;
+
+	public int CardSequence { get; set; }
 }
