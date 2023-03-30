@@ -12,6 +12,17 @@ public class FormField<TItem> where TItem : class
 	public string AutoComplete { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Gets or sets a short description of the fields purpose. Overrides DisplayAttribute description if set.
+	/// </summary>
+	public string? Description { get; set; }
+
+	/// <summary>
+	/// Gets or sets a function that returns the description for the field.
+	/// </summary>
+	/// <remarks>Defaults to Description property if set, otherwise looks for Display attribute.</remarks>
+	public Func<FormField<TItem>, PDForm<TItem>?, string> DescriptionFunc { get; set; } = Constants.Functions.FormFieldDescription;
+
+	/// <summary>
 	/// Gets or sets optional display options.
 	/// </summary>
 	public FieldDisplayOptions? DisplayOptions { get; set; }
@@ -63,32 +74,31 @@ public class FormField<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets whether a 'copy to clipboard' button is displayed for the field.
 	/// </summary>
-	public Func<TItem?, bool> ShowCopyButton { get; set; } = new Func<TItem?, bool>((_) => false);
+	public Func<TItem?, bool> ShowCopyButton { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the form mode is Edit.
 	/// </summary>
-	public Func<TItem?, bool> ShowInEdit { get; set; } = new Func<TItem?, bool>((_) => true);
+	public Func<TItem?, bool> ShowInEdit { get; set; } = Constants.Functions.True;
+	/// <summary>
+	/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
+	/// </summary>
+	public Func<TItem?, bool> ShowInCreate { get; set; } = Constants.Functions.True;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
 	/// </summary>
-	public Func<TItem?, bool> ShowInCreate { get; set; } = new Func<TItem?, bool>((_) => true);
-
-	/// <summary>
-	/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
-	/// </summary>
-	public Func<TItem?, bool> ShowInDelete { get; set; } = new Func<TItem?, bool>((_) => false);
+	public Func<TItem?, bool> ShowInDelete { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is read-only when the form mode is Edit.
 	/// </summary>
-	public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = new Func<TItem?, bool>((_) => false);
+	public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is read-only when the form mode is Create.
 	/// </summary>
-	public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = new Func<TItem?, bool>((_) => false);
+	public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets a function that returns available value choices.
@@ -108,7 +118,7 @@ public class FormField<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets a function that determines whether this field contains sensitive values that should not be shown.
 	/// </summary>
-	public Func<TItem?, PDForm<TItem>?, bool> IsSensitive { get; set; } = new Func<TItem?, PDForm<TItem>?, bool>((_, __) => false);
+	public Func<TItem?, PDForm<TItem>?, bool> IsSensitive { get; set; } = Constants.Functions.FormFieldIsSensitive;
 
 	/// <summary>
 	/// Gets or sets whether this field contains longer sections of text.
@@ -179,17 +189,14 @@ public class FormField<TItem> where TItem : class
 	/// <summary>
 	/// Simple function that returns true.
 	/// </summary>
-	public static Func<TItem?, bool> True => new Func<TItem?, bool>((_) => true);
+	[Obsolete("Please use Contstants.Functions.True")]
+	public static Func<TItem?, bool> True => Constants.Functions.True;
 
 	/// <summary>
 	/// Simple function that returns false.
 	/// </summary>
-	public static Func<TItem?, bool> False => new Func<TItem?, bool>((_) => false);
-
-	/// <summary>
-	/// Gets or sets a short description of the fields purpose. Overrides DisplayAttribute description if set.
-	/// </summary>
-	public string? Description { get; set; }
+	[Obsolete("Please use Contstants.Functions.False")]
+	public static Func<TItem?, bool> False => Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets the maximum length for entered text.
@@ -210,14 +217,6 @@ public class FormField<TItem> where TItem : class
 	/// Gets or sets whether the validation result should be shown.
 	/// </summary>
 	public bool ShowValidationResult { get; set; } = true;
-
-	/// <summary>
-	/// Gets the description for the field, if one is either declared or in DisplayAttribute.
-	/// </summary>
-	public string? GetDescription()
-	{
-		return Description ?? (Field?.GetPropertyMemberInfo()?.GetCustomAttribute<DisplayAttribute>()?.Description);
-	}
 
 	/// <summary>
 	/// Gets the description for the field, if one is either declared or in DisplayAttribute.

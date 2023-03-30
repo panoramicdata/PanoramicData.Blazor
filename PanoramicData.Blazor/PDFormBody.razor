@@ -29,7 +29,7 @@ else if (Form.Mode != FormModes.Hidden)
             {
                 var firstField = fieldGroup.Fields.First();
 				var fieldName = firstField.GetName();
-				var fieldDescription = firstField.GetDescription();
+				var fieldDescription = firstField.DescriptionFunc(firstField, Form);
                 <div class="pd-form-field">
                     <label class="sr-only">@fieldGroup.Title</label>
                     <div class="input-group ">
