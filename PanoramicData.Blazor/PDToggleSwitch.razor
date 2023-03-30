@@ -8,7 +8,7 @@
     <svg version="1.1"
          width="@CalculatedWidth" height="@CalculatedHeight"
          xmlns="http://www.w3.org/2000/svg"
-         tabindex="0"
+         tabindex="@(IsEnabled ? "0" : null)"
          @onclick="OnClickAsync"
          @onkeypress="OnKeyPressAsync"
          @onkeypress:preventDefault>

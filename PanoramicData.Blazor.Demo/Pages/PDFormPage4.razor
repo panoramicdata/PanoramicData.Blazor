@@ -48,6 +48,7 @@
                          DisplayOptions="@(new FieldDisplayOptions() { CssClass = "fg-3 fix-margin-18" })"
                          Group="Reporting"
                          Field="x => x.ReportEmailAddress"
+                         HelpUrl="https://generator.email/"
                          Label="Email Address"
                          ReadOnlyInCreate="(x) => !x.Report" />
 
@@ -55,29 +56,32 @@
                 <PDField TItem="RegisterModel"
                          Field="x => x.ReportFormatDocx"
                          DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control docx" })"
-                         Group="Report Format"
+                         Group="Formats"
+                         Helper="_docxHelper"
                          Label="DOCX"
-                         ReadOnlyInCreate="(x) => !x.Report"
-                         ShowCopyButton="(_) => true" />
+                         ReadOnlyInCreate="(x) => !x.Report" />
 
                 <PDField TItem="RegisterModel"
                          DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control html" })"
                          Field="x => x.ReportFormatHtml"
-                         Group="Report Format"
+                         Group="Formats"
+                         Helper="_htmlHelper"
                          Label="HTML"
                          ReadOnlyInCreate="(x) => !x.Report" />
 
                 <PDField TItem="RegisterModel"
                          DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control pdf" })"
                          Field="x => x.ReportFormatPdf"
-                         Group="Report Format"
+                         Group="Formats"
+                         Helper="_pdfHelper"
                          Label="PDF"
                          ReadOnlyInCreate="(x) => !x.Report" />
 
                 <PDField TItem="RegisterModel"
                          DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control xlsx" })"
                          Field="x => x.ReportFormatXlsx"
-                         Group="Report Format"
+                         Group="Formats"
+                         Helper="_xlsxHelper"
                          Label="XLSX"
                          ReadOnlyInCreate="(x) => !x.Report" />
 

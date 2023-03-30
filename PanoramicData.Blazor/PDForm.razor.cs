@@ -162,8 +162,10 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			{
 				AutoComplete = field.AutoComplete,
 				Id = field.Id,
-				Field = field.Field,
+				Description = field.Description,
+				DescriptionFunc = field.DescriptionFunc,
 				DisplayOptions = field.DisplayOptions,
+				Field = field.Field,
 				Group = field.Group,
 				Helper = field.Helper,
 				ReadOnlyInCreate = field.ReadOnlyInCreate,
@@ -184,7 +186,6 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				IsSensitive = field.IsSensitive,
 				IsTextArea = field.IsTextArea,
 				TextAreaRows = field.TextAreaRows,
-				Description = field.Description,
 				HelpUrl = field.HelpUrl
 			});
 			StateHasChanged();

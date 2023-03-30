@@ -102,8 +102,10 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 				Form.Fields.Add(new FormField<TItem>
 				{
 					AutoComplete = column.AutoComplete,
-					Id = column.Id,
+					Description = column.Description,
+					DescriptionFunc = column.DescriptionFunc,
 					Field = column.Field,
+					Id = column.Id,
 					ReadOnlyInCreate = column.ReadOnlyInCreate,
 					ReadOnlyInEdit = column.ReadOnlyInEdit,
 					ShowCopyButton = column.ShowCopyButton,
@@ -121,7 +123,6 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					IsTextArea = column.IsTextArea,
 					TextAreaRows = column.TextAreaRows,
 					ShowValidationResult = column.ShowValidationResult,
-					Description = column.Description,
 					HelpUrl = column.HelpUrl
 				});
 			}

@@ -66,7 +66,8 @@ else if (fieldType?.FullName == "System.Boolean")
         }
         else
         {
-            <PDFormCheckBox Disabled="@IsReadOnly(Field)"
+            <PDFormCheckBox CssClass="@boolOpt.CssClass"
+                Disabled="@IsReadOnly(Field)"
                 Label="@Field.Label"
                 LabelBefore="@boolOpt.LabelBefore"
                 Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
@@ -75,7 +76,8 @@ else if (fieldType?.FullName == "System.Boolean")
     }
     else
     {
-        <PDFormCheckBox Disabled="@IsReadOnly(Field)"
+        <PDFormCheckBox CssClass="@(Field.DisplayOptions?.CssClass)"
+                    Disabled="@IsReadOnly(Field)"
                     Label="@Field.Label"
                     Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
                     ValueChanged="(x) => Form?.SetFieldValueAsync(Field, (bool)x) ?? Task.CompletedTask" />
