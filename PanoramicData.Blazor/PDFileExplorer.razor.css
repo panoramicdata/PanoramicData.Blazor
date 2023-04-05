@@ -12,7 +12,8 @@
 	}
 
 	.pdfileexplorer ::deep .pdtable {
-		height: 0px;
+		/* RM-14062 MG */
+		/*height: 0px;*/
 	}
 
 	.pdfileexplorer ::deep .pdtree {
