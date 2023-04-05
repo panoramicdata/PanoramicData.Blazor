@@ -70,6 +70,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public bool AllowRename { get; set; } = true;
 
 	/// <summary>
+	/// Determines whether the to rename items when conflicting with existing items.
+	/// </summary>
+	[Parameter] public bool AllowRenameConflicts { get; set; } = false;
+
+	/// <summary>
 	/// Determines whether the first node is automatically expanded on load.
 	/// </summary>
 	[Parameter] public bool AutoExpand { get; set; } = false;
@@ -1445,7 +1450,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				// check if target folder is source folder?
 				var parentPaths = payload.Select(x => x.ParentPath).Distinct().ToArray();
 				conflictArgs.ConflictResolution = parentPaths.Any(x => x == targetPath)
-					? await PromptUserForConflictResolution(Array.Empty<string>(), false, false, "The source and destination filenames are the same.").ConfigureAwait(true)
+					? await PromptUserForConflictResolution(Array.Empty<string>(), false, AllowRenameConflicts, "The source and destination filenames are the same.").ConfigureAwait(true)
 					: await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray(), showOverwrite).ConfigureAwait(true);
 			}
 		}
@@ -1756,8 +1761,15 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 		_conflictDialogMessage = message ?? $"{names.Count()} conflicts found : -";
 		_conflictDialogList = namesSummary.ToArray();
-		ConflictDialog!.Buttons.First(x => x.Key == "Overwrite").IsVisible = showOverwrite;
-		ConflictDialog!.Buttons.First(x => x.Key == "Rename").IsVisible = showRename;
+		var buttons = ConflictDialog!.Buttons;
+		buttons.First(x => x.Key == "Overwrite").IsVisible = showOverwrite;
+		buttons.First(x => x.Key == "Rename").IsVisible = showRename;
+		// shift first button right
+		foreach (var btn in buttons)
+		{
+			btn.ShiftRight = buttons.FirstOrDefault(x => x.IsVisible) == btn;
+		}
+
 		StateHasChanged();
 		if (ConflictDialog != null)
 		{
