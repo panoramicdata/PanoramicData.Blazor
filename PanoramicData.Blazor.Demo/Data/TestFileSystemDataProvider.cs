@@ -59,7 +59,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				new DirectoryEntry("WeeklyStats.json", FileExplorerItemType.File, 23500),
 				new DirectoryEntry("MonthlyStats.json", FileExplorerItemType.File, 104999)
 			),
-			new DirectoryEntry("Empty",
+			new DirectoryEntry("Folders",
 				new DirectoryEntry("Folder01"),
 				new DirectoryEntry("Folder02"),
 				new DirectoryEntry("Folder03"),
