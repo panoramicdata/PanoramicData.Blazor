@@ -191,6 +191,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public bool RetainSelectionOnPage { get; set; }
 
 	/// <summary>
+	/// Funtion that calculates and returns the download url attribuet for each row.
+	/// </summary>
+	[Parameter] public Func<TItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
+
+	/// <summary>
 	/// Gets whether the table will save changes via the DataProvider (if set).
 	/// </summary>
 	[Parameter] public bool SaveChanges { get; set; }
@@ -685,21 +690,23 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <summary>
 	/// Gets a dictionary of additional attributes to be added to each row.
 	/// </summary>
-	public Dictionary<string, object> RowAttributes
+	public Dictionary<string, object> GetRowAttributes(TItem? item)
 	{
-		get
+		var dict = new Dictionary<string, object>();
+		if (AllowDrag && !IsEditing)
 		{
-			var dict = new Dictionary<string, object>();
-			if (AllowDrag && !IsEditing)
+			dict.Add("draggable", "true");
+			var downloadUrl = item is null ? null : DownloadUrlFunc(item);
+			if (!string.IsNullOrWhiteSpace(downloadUrl))
 			{
-				dict.Add("draggable", "true");
+				dict.Add("data-downloadurl", downloadUrl);
 			}
-			if (AllowDrop)
-			{
-				dict.Add("ondragover", "event.preventDefault();");
-			}
-			return dict;
 		}
+		if (AllowDrop)
+		{
+			dict.Add("ondragover", "event.preventDefault();");
+		}
+		return dict;
 	}
 
 	/// <summary>
@@ -913,6 +920,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			}
 
 			await Ready.InvokeAsync(null).ConfigureAwait(true);
+
+			if (_commonModule != null)
+			{
+				await _commonModule.InvokeVoidAsync("onTableDragStart", Id);
+			}
 		}
 
 		// focus first editor after edit mode begins
@@ -1258,7 +1270,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		return false;
 	}
 
-	private void OnDragStart(DragEventArgs _)
+	private void OnRowDragStart(DragEventArgs args, TItem? rowItem)
 	{
 		if (!IsEnabled || IsEditing)
 		{

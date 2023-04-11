@@ -133,6 +133,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public EventCallback<DeleteArgs> DeleteRequest { get; set; }
 
 	/// <summary>
+	/// Funtion that calculates and returns the download url for the given item.
+	/// </summary>
+	[Parameter] public Func<FileExplorerItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
+
+	/// <summary>
 	/// An optional array of paths to be excluded.
 	/// </summary>
 	[Parameter] public string[] ExcludedPaths { get; set; } = System.Array.Empty<string>();
@@ -1232,7 +1237,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
 	}
 
-	protected override void OnAfterRender(bool firstRender)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{

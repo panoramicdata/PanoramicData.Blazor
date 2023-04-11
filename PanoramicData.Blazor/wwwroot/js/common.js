@@ -169,3 +169,17 @@ export function setValue (id, value) {
 		node.value = value;
 	}
 }
+
+export function onTableDragStart(id) {
+	var node = document.getElementById(id);
+	if (node) {
+		node.addEventListener("dragstart", onDragStart);
+	}
+}
+
+function onDragStart(evt) {
+	var url = evt.target.getAttribute('data-downloadurl');
+	if (url) {
+		evt.dataTransfer.setData("DownloadURL", url);
+	}
+}
