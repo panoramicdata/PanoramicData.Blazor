@@ -1373,7 +1373,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				}
 				await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 			}
-			else if (!alreadySelected) // single selection
+			else // single selection
 			{
 				Selection.Clear();
 				Selection.Add(key);
