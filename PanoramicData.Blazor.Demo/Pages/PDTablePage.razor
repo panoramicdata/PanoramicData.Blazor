@@ -54,6 +54,7 @@
     <PDDragContext @ref="DragContext">
 
         <PDTable @ref="Table"
+                 @bind-SearchText="@_searchText"
                  TItem="Person"
                  DataProvider="_personDataProvider"
                  KeyField="x => x.Id"
@@ -63,12 +64,12 @@
                  IsEnabled="Enabled"
                  FilterMaxValues="50"
                  SaveChanges="true"
-                 @bind-SearchText="@_searchText"
                  PageCriteria="_pageCriteria"
                  PagerPosition="PagerPositions.Top"
                  RetainSelectionOnPage="true"
                  SortCriteria="_sortCriteria"
                  PageSizeChoices="new uint[] { 5, 10, 20, 30, 50, 100 }"
+                 ShowOverlay="false"
                  SelectionMode="@SelectionMode"
                  SelectionChanged="OnSelectionChange"
                  ShowCheckboxes="true"

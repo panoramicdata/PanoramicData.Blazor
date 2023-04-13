@@ -226,6 +226,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public bool ShowCheckboxes { get; set; } = false;
 
 	/// <summary>
+	/// Gets or sets whether the Overlay Service is used when fetching data.
+	/// </summary>
+	[Parameter] public bool ShowOverlay { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets whether the pager is displayed.
 	/// </summary>
 	[Parameter] public bool ShowPager { get; set; } = true;
@@ -428,7 +433,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		try
 		{
-			BlockOverlayService.Show();
+			if (ShowOverlay)
+			{
+				BlockOverlayService.Show();
+			}
 
 			//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
@@ -472,7 +480,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 		finally
 		{
-			BlockOverlayService.Hide();
+			if (ShowOverlay)
+			{
+				BlockOverlayService.Hide();
+			}
 		}
 	}
 
