@@ -18,5 +18,4 @@ public partial class PDTextBoxPage
 	{
 		EventManager?.Add(new Event("Keypress", new EventArgument("Code", args.Code)));
 	}
-
 }

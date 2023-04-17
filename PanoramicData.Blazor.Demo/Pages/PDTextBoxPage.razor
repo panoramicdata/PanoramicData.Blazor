@@ -16,12 +16,14 @@
 
 	</PDToolbar>
 
+    <label>Text Box 1</label>
 	<div class="input-group">
 		<PDTextBox DebounceWait="250"
 				   IsEnabled="Enabled"
 				   IsVisible="Visible"
 				   Keypress="OnKeypress"
 				   KeypressEvent="true"
+                   ShowSpeechButton="true"
 				   Value="@Value"
 				   ValueChanged="OnValueChanged" />
 
@@ -35,6 +37,15 @@
 	<div>
 		Value = @Value
 	</div>
+
+    <hr/>
+
+    <label>Text Box 2</label>
+    <div class="input-group">
+        <PDTextBox DebounceWait="250"
+                   ShowSpeechButton="true" />
+    </div>
+
 
 	<EventView />
 
