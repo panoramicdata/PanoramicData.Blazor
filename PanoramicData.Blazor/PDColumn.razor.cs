@@ -77,6 +77,12 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter]
 	public string FilterKey { get; set; } = String.Empty;
 
+	[Parameter]
+	public bool FilterValues { get; set; } = true;
+
+	[Parameter]
+	public int? FilterMaxValues { get; set; }
+
 	/// <summary>
 	/// Renders the field value for this column and the given item.
 	/// </summary>

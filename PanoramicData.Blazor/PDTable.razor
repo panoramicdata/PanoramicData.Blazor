@@ -58,6 +58,7 @@
                                 <PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column, f))"
                                   Filter="column.Filter"
                                   FilterChanged="OnFilterChanged"
+                                  ShowValues="@column.FilterValues"
                                   DataType="@column.GetFilterDataType()"
                                   Nullable="@column.GetFilterIsNullable()" />
                             }

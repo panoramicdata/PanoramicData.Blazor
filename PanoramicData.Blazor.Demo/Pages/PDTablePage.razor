@@ -105,6 +105,7 @@
                       Field="x => x.Manager"
                       Filterable="true"
                       FilterKey="boss"
+                      FilterMaxValues="5"
                       Title="Manager" />
 
             <PDColumn Id="first"
@@ -134,6 +135,7 @@
                       Field="x => x.Dob"
                       Title="Date of Birth"
                       Filterable="true"
+                      FilterMaxValues="5"
                       Format="yyyy-MM-dd"
                       ShowCopyButton="(_) => true">
                 <EditTemplate>
@@ -188,6 +190,7 @@
                       TItem="Person"
                       Field="x => x.DateCreated"
                       Filterable="true"
+                      FilterValues="false"
                       Format="yyyy-MM-dd"
                       ShowInList="false" />
 
@@ -195,6 +198,7 @@
                       TItem="Person"
                       Field="x => x.DateModified"
                       Filterable="true"
+                      FilterValues="false"
                       Format="yyyy-MM-dd HH:mm"
                       Editable="false"
                       TdClass="text-nowrap" />
