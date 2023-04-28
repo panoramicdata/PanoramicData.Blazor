@@ -133,6 +133,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public EventCallback<DeleteArgs> DeleteRequest { get; set; }
 
 	/// <summary>
+	/// Funtion that calculates and returns the download url for the given item.
+	/// </summary>
+	[Parameter] public Func<FileExplorerItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
+
+	/// <summary>
 	/// An optional array of paths to be excluded.
 	/// </summary>
 	[Parameter] public string[] ExcludedPaths { get; set; } = System.Array.Empty<string>();
@@ -591,7 +596,13 @@ public partial class PDFileExplorer : IAsyncDisposable
 			var newPath = $"{item.ParentPath.TrimEnd('/')}/{args.NewValue}";
 
 			// check for and disallow duplicate folder name
-			if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
+			if (args.NewValue.StartsWith('.'))
+			{
+				args.Cancel = true;
+				await OnException(new PDFileExplorerException($"Names may not begin with a period (.)")).ConfigureAwait(true);
+				return;
+			}
+			else if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
 			{
 				args.Cancel = true;
 
@@ -731,6 +742,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				args.Cancel = true;
 				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("A value is required")).ConfigureAwait(true);
+			}
+			else if (newName.StartsWith('.'))
+			{
+				args.Cancel = true;
+				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("Names may not begin with a period (.)")).ConfigureAwait(true);
 			}
 			else
 			{
@@ -1221,7 +1237,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
 	}
 
-	protected override void OnAfterRender(bool firstRender)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{

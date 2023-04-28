@@ -158,7 +158,7 @@ public partial class PDFilter : IAsyncDisposable
 
 	private async Task RefreshValues()
 	{
-		if (FetchValuesAsync != null)
+		if (ShowValues && FetchValuesAsync != null)
 		{
 			var filter = new Filter
 			{

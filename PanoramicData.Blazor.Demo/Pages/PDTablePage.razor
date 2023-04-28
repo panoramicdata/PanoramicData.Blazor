@@ -54,6 +54,7 @@
     <PDDragContext @ref="DragContext">
 
         <PDTable @ref="Table"
+                 @bind-SearchText="@_searchText"
                  TItem="Person"
                  DataProvider="_personDataProvider"
                  KeyField="x => x.Id"
@@ -63,12 +64,12 @@
                  IsEnabled="Enabled"
                  FilterMaxValues="50"
                  SaveChanges="true"
-                 @bind-SearchText="@_searchText"
                  PageCriteria="_pageCriteria"
                  PagerPosition="PagerPositions.Top"
                  RetainSelectionOnPage="true"
                  SortCriteria="_sortCriteria"
                  PageSizeChoices="new uint[] { 5, 10, 20, 30, 50, 100 }"
+                 ShowOverlay="false"
                  SelectionMode="@SelectionMode"
                  SelectionChanged="OnSelectionChange"
                  ShowCheckboxes="true"
@@ -104,6 +105,7 @@
                       Field="x => x.Manager"
                       Filterable="true"
                       FilterKey="boss"
+                      FilterMaxValues="5"
                       Title="Manager" />
 
             <PDColumn Id="first"
@@ -133,6 +135,7 @@
                       Field="x => x.Dob"
                       Title="Date of Birth"
                       Filterable="true"
+                      FilterMaxValues="5"
                       Format="yyyy-MM-dd"
                       ShowCopyButton="(_) => true">
                 <EditTemplate>
@@ -187,6 +190,7 @@
                       TItem="Person"
                       Field="x => x.DateCreated"
                       Filterable="true"
+                      FilterValues="false"
                       Format="yyyy-MM-dd"
                       ShowInList="false" />
 
@@ -194,6 +198,7 @@
                       TItem="Person"
                       Field="x => x.DateModified"
                       Filterable="true"
+                      FilterValues="false"
                       Format="yyyy-MM-dd HH:mm"
                       Editable="false"
                       TdClass="text-nowrap" />
