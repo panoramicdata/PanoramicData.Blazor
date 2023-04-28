@@ -7,7 +7,7 @@
 	}
 
 .pd-filter.filtered ::deep .filter-icon {
-	color: var(--primary) !important;
+	color: var(--bs-primary) !important;
 }
 
 .filter-body {

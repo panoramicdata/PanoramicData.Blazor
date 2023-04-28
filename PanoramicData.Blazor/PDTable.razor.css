@@ -1,5 +1,5 @@
 ﻿::deep .pd-sort, .pd-sort:hover {
-	color: var(--primary);
+	color: var(--bs-primary);
 }
 
 ::deep .pd-sort .fa-stack {
