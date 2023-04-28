@@ -2,11 +2,11 @@
 	display: inline-block;
 }
 
-	.pd-filter ::deep .filter-icon {
-		opacity: 0.3;
-	}
+.pd-filter:not(.filtered) ::deep .filter-icon {
+	opacity: 0.3;
+}
 
-.pd-filter.filtered ::deep .filter-icon {
+.pd-filter ::deep .filter-icon {
 	color: var(--bs-primary) !important;
 }
 
