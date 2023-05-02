@@ -826,6 +826,12 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			return result;
 		}
 
+		// allow app to specify suggested values
+		if (column.FilterSuggestedValues.Any())
+		{
+			return column.FilterSuggestedValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
+		}
+
 		// TODO: cache values for period of time?
 
 		// build up search text from filters
