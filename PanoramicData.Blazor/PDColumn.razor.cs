@@ -78,7 +78,7 @@ public partial class PDColumn<TItem> where TItem : class
 	public string FilterKey { get; set; } = String.Empty;
 
 	[Parameter]
-	public bool FilterValues { get; set; } = true;
+	public bool FilterShowSuggestedValues { get; set; } = true;
 
 	[Parameter]
 	public int? FilterMaxValues { get; set; }
