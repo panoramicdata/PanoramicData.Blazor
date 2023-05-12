@@ -14,7 +14,6 @@
         <div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)"
              @oncontextmenu:preventDefault
              @oncontextmenu="() => { }"
-             @onmousedown:preventDefault
              @onmousedown="OnContentMouseDown"
              @ondrop="OnDragDrop"
              @ondragstart="OnDragStart"

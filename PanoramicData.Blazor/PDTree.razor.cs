@@ -533,28 +533,36 @@ public partial class PDTree<TItem> where TItem : class
 
 	private async Task<IEnumerable<TItem>> GetDataAsync(string? key = null)
 	{
-		if (DataProvider is null)
+		try
 		{
-			return new TItem[0];
+			if (DataProvider is null)
+			{
+				return Array.Empty<TItem>();
+			}
+			var request = new DataRequest<TItem>
+			{
+				Skip = 0,
+				ForceUpdate = false,
+				// if load on demand and item key is given then only fetch immediate child items
+				SearchText = LoadOnDemand ? key ?? string.Empty : null
+			};
+
+			// perform query data
+			var response = await DataProvider
+				.GetDataAsync(request, CancellationToken.None)
+				.ConfigureAwait(true);
+
+			// allow calling application to filter/add items etc
+			var items = new List<TItem>(response.Items);
+			await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
+
+			return items;
 		}
-		var request = new DataRequest<TItem>
+		catch (Exception ex)
 		{
-			Skip = 0,
-			ForceUpdate = false,
-			// if load on demand and item key is given then only fetch immediate child items
-			SearchText = LoadOnDemand ? key ?? string.Empty : null
-		};
-
-		// perform query data
-		var response = await DataProvider
-			.GetDataAsync(request, CancellationToken.None)
-			.ConfigureAwait(true);
-
-		// allow calling application to filter/add items etc
-		var items = new List<TItem>(response.Items);
-		await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
-
-		return items;
+			await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+			return Array.Empty<TItem>();
+		}
 	}
 
 	private void UpdateModel(IEnumerable<TItem> items)

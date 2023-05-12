@@ -478,6 +478,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				PageCriteria.TotalCount = (uint)(response.TotalCount ?? 0);
 			}
 		}
+		catch (Exception ex)
+		{
+			await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+		}
 		finally
 		{
 			if (ShowOverlay)
