@@ -1,3 +1,7 @@
 .pdformcheckbox {
 	user-select: none;
 }
+
+.pdformcheckbox.disabled {
+	background-color: #e9ecef;
+}
