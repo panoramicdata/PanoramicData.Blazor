@@ -338,7 +338,8 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets whether the contents of this cell are user selectable.
 	/// </summary>
-	[Parameter] public bool UserSelectable { get; set; }
+	/// <remarks>When set to a null (default) will use Table property value.</remarks>
+	[Parameter] public bool? UserSelectable { get; set; }
 
 	public string GetTitle()
 	{

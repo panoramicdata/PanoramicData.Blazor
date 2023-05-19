@@ -103,6 +103,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public EventCallback<TItem> DoubleClick { get; set; }
 
 	/// <summary>
+	/// Funtion that calculates and returns the download url attribuet for each row.
+	/// </summary>
+	[Parameter] public Func<TItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
+
+	/// <summary>
 	/// Callback fired whenever a drag operation ends on a row within a DragContext.
 	/// </summary>
 	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
@@ -191,9 +196,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public bool RetainSelectionOnPage { get; set; }
 
 	/// <summary>
-	/// Funtion that calculates and returns the download url attribuet for each row.
+	/// Gets whether right-clicking selects a row versus left-clicking.
 	/// </summary>
-	[Parameter] public Func<TItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
+	[Parameter] public bool RightClickSelectsRow { get; set; } = true;
 
 	/// <summary>
 	/// Gets whether the table will save changes via the DataProvider (if set).
@@ -250,6 +255,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// </summary>
 	[Parameter] public SortCriteria SortCriteria { get; set; } = new SortCriteria();
 
+	/// <summary>
+	/// Gets or sets whether the contents of all cells are user selectable by default.
+	/// </summary>
+	[Parameter] public bool UserSelectable { get; set; }
+
 	#endregion
 
 	/// <summary>
@@ -268,10 +278,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
 
 
-	/// <summary>
-	/// Gets whether right-clicking selects a row versus left-clicking.
-	/// </summary>
-	[Parameter] public bool RightClickSelectsRow { get; set; } = true;
+
 
 	/// <summary>
 	/// Gets the keys of all currently selected items.
@@ -1235,12 +1242,12 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 	}
 
-	private static string GetDynamicCellClasses(PDColumn<TItem> col, TItem _)
+	private string GetDynamicCellClasses(PDColumn<TItem> col, TItem _)
 	{
 		var sb = new StringBuilder();
 		sb.Append(col.TdClass);
 		sb.Append(' ');
-		if (!col.UserSelectable)
+		if ((col.UserSelectable ?? UserSelectable) == false)
 		{
 			sb.Append("noselect ");
 		}
