@@ -131,6 +131,12 @@ public class FormField<TItem> where TItem : class
 	public int TextAreaRows { get; set; } = 4;
 
 	/// <summary>
+	/// Gets or sets whether this field contains an image
+	/// If the field is a string, then the string is treated as the image URL
+	/// </summary>
+	public bool IsImage { get; set; }
+
+	/// <summary>
 	/// Gets or sets an HTML template for editing.
 	/// </summary>
 	public RenderFragment<TItem?>? EditTemplate { get; set; }

@@ -121,6 +121,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					IsPassword = column.IsPassword,
 					IsSensitive = column.IsSensitive,
 					IsTextArea = column.IsTextArea,
+					IsImage = column.IsImage,
 					TextAreaRows = column.TextAreaRows,
 					ShowValidationResult = column.ShowValidationResult,
 					HelpUrl = column.HelpUrl

@@ -112,6 +112,12 @@ public partial class PDField<TItem> where TItem : class
 	[Parameter] public bool IsTextArea { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether this field contains an image
+	/// If the field is a string, then the string is treated as the image URL
+	/// </summary>
+	[Parameter] public bool IsImage { get; set; }
+
+	/// <summary>
 	/// Gets or sets the number of rows of text displayed by default in a text area.,
 	/// </summary>
 	[Parameter] public int TextAreaRows { get; set; } = 4;

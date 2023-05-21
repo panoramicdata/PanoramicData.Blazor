@@ -184,6 +184,12 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public bool IsTextArea { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether this field contains an image
+	/// If the field is a string, then the string is treated as the image URL
+	/// </summary>
+	[Parameter] public bool IsImage { get; set; }
+
+	/// <summary>
 	/// Gets or sets the maximum length for entered text.
 	/// </summary>
 	[Parameter] public int? MaxLength { get; set; }

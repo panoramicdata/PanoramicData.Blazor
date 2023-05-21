@@ -48,6 +48,10 @@ else if (Field.IsTextArea)
             ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
             DebounceWait="DebounceWait" />
 }
+else if (Field.IsImage)
+{
+	<img src="@(Form?.GetFieldStringValue(Field))" />
+}
 else if (fieldType?.FullName == "System.Boolean")
 {
     if(Field.DisplayOptions is FieldBooleanOptions boolOpt)

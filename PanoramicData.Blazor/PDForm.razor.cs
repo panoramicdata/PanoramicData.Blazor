@@ -185,6 +185,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				IsPassword = field.IsPassword,
 				IsSensitive = field.IsSensitive,
 				IsTextArea = field.IsTextArea,
+				IsImage = field.IsImage,
 				TextAreaRows = field.TextAreaRows,
 				HelpUrl = field.HelpUrl
 			});
