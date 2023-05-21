@@ -138,6 +138,7 @@ public partial class PDToolbarDropdown : IDisposable
 				GlobalEventService.UnregisterShortcutKey(item.ShortcutKey);
 			}
 		}
+
 		GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
 	}
 

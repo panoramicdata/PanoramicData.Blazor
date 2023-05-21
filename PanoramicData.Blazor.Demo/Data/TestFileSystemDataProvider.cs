@@ -59,37 +59,6 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				new DirectoryEntry("WeeklyStats.json", FileExplorerItemType.File, 23500),
 				new DirectoryEntry("MonthlyStats.json", FileExplorerItemType.File, 104999)
 			),
-			new DirectoryEntry("Folders",
-				new DirectoryEntry("Folder01"),
-				new DirectoryEntry("Folder02"),
-				new DirectoryEntry("Folder03"),
-				new DirectoryEntry("Folder04"),
-				new DirectoryEntry("Folder05"),
-				new DirectoryEntry("Folder06"),
-				new DirectoryEntry("Folder07"),
-				new DirectoryEntry("Folder08"),
-				new DirectoryEntry("Folder09"),
-				new DirectoryEntry("Folder10"),
-				new DirectoryEntry("Folder11"),
-				new DirectoryEntry("Folder12"),
-				new DirectoryEntry("Folder13"),
-				new DirectoryEntry("Folder14"),
-				new DirectoryEntry("Folder15"),
-				new DirectoryEntry("Folder16"),
-				new DirectoryEntry("Folder17"),
-				new DirectoryEntry("Folder18"),
-				new DirectoryEntry("Folder19"),
-				new DirectoryEntry("Folder20"),
-				new DirectoryEntry("Folder21"),
-				new DirectoryEntry("Folder22"),
-				new DirectoryEntry("Folder23"),
-				new DirectoryEntry("Folder24"),
-				new DirectoryEntry("Folder25"),
-				new DirectoryEntry("Folder26"),
-				new DirectoryEntry("Folder27"),
-				new DirectoryEntry("Folder28"),
-				new DirectoryEntry("Folder29")
-			),
 			new DirectoryEntry("Readme.txt", FileExplorerItemType.File, 3500)
 		)
 		{ CanCopyMove = false }
@@ -227,6 +196,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 		{
 			return "fas fa-fw fa-folder";
 		}
+
 		return item.FileExtension.ToLower() switch
 		{
 			"doc" or "docx" => "fas fa-fw fa-file-word",
@@ -260,6 +230,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				result.ErrorMessage = "Only Path property update supported";
 				return;
 			}
+
 			var tempPath = delta["Path"]?.ToString() ?? string.Empty;
 			var tempItem = new FileExplorerItem { Path = tempPath ?? string.Empty, Name = FileExplorerItem.GetNameFromPath(tempPath) };
 			var targetNode = _root.Where(x => x.Path() == tempItem.Path).FirstOrDefault();
@@ -294,10 +265,12 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 					result.ErrorMessage = "Failed to move: Invalid name";
 					return;
 				}
+
 				if (itemNode.Parent != null)
 				{
 					itemNode.Parent.Items.Remove(itemNode);
 				}
+
 				targetParentNode.Items.Add(itemNode);
 				itemNode.Parent = targetParentNode;
 				itemNode.Name = tempItem.Name;
@@ -317,9 +290,11 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				{
 					itemNode.Parent.Items.Remove(itemNode);
 				}
+
 				targetNode.Items.Add(itemNode);
 				itemNode.Parent = targetNode;
 			}
+
 			result.Success = true;
 		}, cancellationToken).ConfigureAwait(true);
 		return result;

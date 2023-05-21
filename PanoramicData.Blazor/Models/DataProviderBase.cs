@@ -220,6 +220,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		{
 			output = ApplyFilter(output, filter);
 		}
+
 		return output;
 	}
 
@@ -230,10 +231,12 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		{
 			predicate = ApplyFilter(predicate, filter);
 		}
+
 		if (predicate is null)
 		{
 			return x => true;
 		}
+
 		return predicate ?? PredicateBuilderService.True<T>();
 	}
 }

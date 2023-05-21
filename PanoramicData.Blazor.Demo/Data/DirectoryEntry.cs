@@ -45,6 +45,7 @@ public class DirectoryEntry
 		{
 			item.Parent = this;
 		}
+
 		Items.AddRange(items);
 	}
 
@@ -56,6 +57,7 @@ public class DirectoryEntry
 		{
 			item.Parent = this;
 		}
+
 		Items.AddRange(items);
 	}
 
@@ -69,6 +71,7 @@ public class DirectoryEntry
 		{
 			item.Parent = this;
 		}
+
 		Items.AddRange(items);
 	}
 
@@ -103,6 +106,7 @@ public class DirectoryEntry
 		{
 			item.Parent = this;
 		}
+
 		Items.AddRange(items);
 	}
 
@@ -131,6 +135,7 @@ public class DirectoryEntry
 				clone.Items.Add(clonedItem);
 			}
 		}
+
 		return clone;
 	}
 
@@ -158,8 +163,10 @@ public class DirectoryEntry
 			{
 				stack.Push(node.Name);
 			}
+
 			node = node.Parent;
 		}
+
 		var path = string.Join(separator, stack.ToArray());
 		return $"{separator}{path}";
 	}
@@ -171,6 +178,7 @@ public class DirectoryEntry
 		{
 			value = item.Reduce(func, value);
 		}
+
 		return value;
 	}
 

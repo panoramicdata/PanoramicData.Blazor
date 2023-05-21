@@ -8,10 +8,12 @@ public static class ExpressionExtensions
 		{
 			yield break;
 		}
+
 		foreach (var item in MemberClauses(mexpr.Expression))
 		{
 			yield return item;
 		}
+
 		yield return mexpr;
 	}
 }

@@ -90,6 +90,7 @@ public partial class PDSplitter : IAsyncDisposable
 				{
 					throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
 				}
+
 				await _module.InvokeVoidAsync("initialize", Id, ids, options).ConfigureAwait(true);
 			}
 		}
@@ -101,6 +102,7 @@ public partial class PDSplitter : IAsyncDisposable
 		{
 			return await _module.InvokeAsync<double[]>("getSizes", Id).ConfigureAwait(true);
 		}
+
 		return Array.Empty<double>();
 	}
 

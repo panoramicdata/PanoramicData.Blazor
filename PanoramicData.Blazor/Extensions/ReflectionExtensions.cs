@@ -45,6 +45,7 @@ public static class ReflectionExtensions
 				{
 					throw new ArgumentException("MemberInfo is EventInfo however EventHandlerType is null", nameof(member));
 				}
+
 				return ((EventInfo)member).EventHandlerType!;
 
 			default:

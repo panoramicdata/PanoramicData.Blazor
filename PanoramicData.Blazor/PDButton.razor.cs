@@ -132,6 +132,7 @@ public partial class PDButton : IDisposable
 		{
 			GlobalEventService.UnregisterShortcutKey(ShortcutKey);
 		}
+
 		GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
 	}
 }

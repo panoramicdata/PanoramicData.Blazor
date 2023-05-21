@@ -93,6 +93,7 @@ public class TreeNode<T> : IComparable where T : class
 				node = n;
 				return false; // stop search
 			}
+
 			return true;
 		});
 		return node;
@@ -118,6 +119,7 @@ public class TreeNode<T> : IComparable where T : class
 				}
 			}
 		}
+
 		return true;
 	}
 
@@ -141,6 +143,7 @@ public class TreeNode<T> : IComparable where T : class
 				}
 			}
 		}
+
 		return true;
 	}
 
@@ -229,6 +232,7 @@ public class TreeNode<T> : IComparable where T : class
 			{
 				return Descend(node.Nodes[node.Nodes.Count - 1]);
 			}
+
 			return node;
 		}
 
@@ -242,12 +246,14 @@ public class TreeNode<T> : IComparable where T : class
 			{
 				return ParentNode;
 			}
+
 			if (i > 0)
 			{
 				// descend sibling as far as possible
 				return Descend(ParentNode.Nodes[i - 1]);
 			}
 		}
+
 		return null;
 	}
 
@@ -257,6 +263,7 @@ public class TreeNode<T> : IComparable where T : class
 		{
 			return ParentNode.Nodes.Any(x => string.Equals(x.Text, text, StringComparison.OrdinalIgnoreCase));
 		}
+
 		return false;
 	}
 
@@ -267,6 +274,7 @@ public class TreeNode<T> : IComparable where T : class
 			var idx = ParentNode.Nodes.IndexOf(this);
 			return idx == 0;
 		}
+
 		return false;
 	}
 
@@ -277,6 +285,7 @@ public class TreeNode<T> : IComparable where T : class
 			var idx = ParentNode.Nodes.IndexOf(this);
 			return idx == ParentNode.Nodes.Count - 1;
 		}
+
 		return false;
 	}
 
@@ -290,8 +299,10 @@ public class TreeNode<T> : IComparable where T : class
 			{
 				newText = $"{text} ({++index})";
 			}
+
 			return newText;
 		}
+
 		return text;
 	}
 
@@ -301,6 +312,7 @@ public class TreeNode<T> : IComparable where T : class
 		{
 			throw new InvalidOperationException();
 		}
+
 		var item = (TreeNode<T>)obj;
 		return Text.CompareTo(item.Text);
 	}

@@ -30,6 +30,7 @@ public class TimelineScale : IComparable
 		{
 			return dateTime;
 		}
+
 		return UnitType switch
 		{
 			TimelineUnits.Milliseconds => _calendar.AddMilliseconds(dateTime, periods * UnitCount),
@@ -175,6 +176,7 @@ public class TimelineScale : IComparable
 			var woy = _calendar.GetWeekOfYear(dateTime, CalendarWeekRule, CalendarDayOfWeek);
 			return woy.ToString("00");
 		}
+
 		return dateTime.ToString(pattern);
 	}
 
@@ -204,6 +206,7 @@ public class TimelineScale : IComparable
 			// current instance must follow given scale
 			return 1;
 		}
+
 		throw new ArgumentException("Object is not a TimelineScale");
 	}
 

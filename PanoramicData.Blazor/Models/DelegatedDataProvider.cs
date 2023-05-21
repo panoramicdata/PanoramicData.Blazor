@@ -15,6 +15,7 @@ public class DelegatedDataProvider<TItem> : IDataProviderService<TItem>
 		{
 			return await CreateAsync(item, cancellationToken);
 		}
+
 		throw new NotImplementedException();
 	}
 
@@ -24,6 +25,7 @@ public class DelegatedDataProvider<TItem> : IDataProviderService<TItem>
 		{
 			return await DeleteAsync(item, cancellationToken);
 		}
+
 		throw new NotImplementedException();
 	}
 
@@ -33,6 +35,7 @@ public class DelegatedDataProvider<TItem> : IDataProviderService<TItem>
 		{
 			return await GetDataAsync(request, cancellationToken);
 		}
+
 		throw new NotImplementedException();
 	}
 
@@ -42,6 +45,7 @@ public class DelegatedDataProvider<TItem> : IDataProviderService<TItem>
 		{
 			return await UpdateAsync(item, delta, cancellationToken);
 		}
+
 		throw new NotImplementedException();
 	}
 

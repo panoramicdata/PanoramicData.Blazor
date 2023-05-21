@@ -25,8 +25,10 @@ public class ElementInfo
 			{
 				return el;
 			}
+
 			el = el.Parent;
 		}
+
 		return null;
 	}
 

@@ -51,8 +51,8 @@ public partial class PDModal : IAsyncDisposable
 	[Parameter]
 	public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>
 	{
-		new ToolbarButton { Key = ModalResults.YES, Text = "Yes", CssClass = "btn-primary", ShiftRight = true },
-		new ToolbarButton { Key = ModalResults.NO, Text = "No" },
+		new ToolbarButton { Text = "Yes", CssClass = "btn-primary", ShiftRight = true },
+		new ToolbarButton { Text = "No" },
 	};
 
 	/// <summary>
@@ -88,16 +88,11 @@ public partial class PDModal : IAsyncDisposable
 	/// <summary>
 	/// Hides the Modal Dialog.
 	/// </summary>
-	public Task HideAsync() => HideAsync(default);
-
-	/// <summary>
-	/// Hides the Modal Dialog.
-	/// </summary>
-	public async Task HideAsync(CancellationToken cancellationToken)
+	public async Task HideAsync()
 	{
 		if (_modalObj != null)
 		{
-			await _modalObj.InvokeVoidAsync("hide", cancellationToken).ConfigureAwait(true);
+			await _modalObj.InvokeVoidAsync("hide").ConfigureAwait(true);
 		}
 	}
 
@@ -153,62 +148,43 @@ public partial class PDModal : IAsyncDisposable
 	/// <summary>
 	/// Displays the Modal Dialog.
 	/// </summary>
-	public Task ShowAsync() => ShowAsync(default);
-
-	/// <summary>
-	/// Displays the Modal Dialog.
-	/// </summary>
-	public async Task ShowAsync(CancellationToken cancellationToken)
+	public async Task ShowAsync()
 	{
 		if (_modalObj != null)
 		{
-			await _modalObj.InvokeVoidAsync("show", cancellationToken).ConfigureAwait(true);
+			await _modalObj.InvokeVoidAsync("show").ConfigureAwait(true);
 		}
 	}
 
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public Task<string> ShowAndWaitResultAsync() => ShowAndWaitResultAsync(default);
-
-	/// <summary>
-	/// Displays the Modal Dialog and awaits the users choice.
-	/// </summary>
-	/// <param name="cancellationToken">Token used to cancel the async operation.</param>
-	public async Task<string> ShowAndWaitResultAsync(CancellationToken cancellationToken)
+	public async Task<string> ShowAndWaitResultAsync()
 	{
 		// show dialog and await user choice.
-		await ShowAsync(cancellationToken).ConfigureAwait(true);
+		await ShowAsync().ConfigureAwait(true);
 
 		// focus first button with btn-primary class and key
 		var btn = Buttons.Find(x =>
 		{
 			if (x is ToolbarButton btn)
 			{
-				return !string.IsNullOrWhiteSpace(btn.Key) && btn.CssClass.Contains("btn-primary", StringComparison.OrdinalIgnoreCase);
+				return !string.IsNullOrWhiteSpace(btn.Key) && btn.CssClass.IndexOf("btn-primary", System.StringComparison.OrdinalIgnoreCase) >= 0;
 			}
+
 			return false;
 		});
 		if (btn != null)
 		{
 			if (_commonModule != null)
 			{
-				await _commonModule.InvokeVoidAsync("focus", cancellationToken, $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("focus", $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
 			}
 		}
 
 		_userChoice = new TaskCompletionSource<string>();
-		var result = string.Empty;
-		try
-		{
-			result = await _userChoice.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
-		}
-		catch
-		{
-			// probably task cancelled exception - but capture any exception
-		}
-
-		await HideAsync(CancellationToken.None).ConfigureAwait(true);
+		var result = await _userChoice.Task.ConfigureAwait(true);
+		await HideAsync().ConfigureAwait(true);
 		_userChoice = null;
 		return result;
 	}
@@ -222,14 +198,17 @@ public partial class PDModal : IAsyncDisposable
 			{
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
 			}
+
 			if (_module != null)
 			{
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
+
 			if (_modalObj != null)
 			{
 				await _modalObj.DisposeAsync().ConfigureAwait(true);
 			}
+
 		}
 		catch
 		{
@@ -253,10 +232,12 @@ public partial class PDModal : IAsyncDisposable
 			{
 				sb.Append("modal-sm ");
 			}
+
 			if (CenterVertically)
 			{
 				sb.Append("modal-dialog-centered ");
 			}
+
 			return sb.ToString().TrimEnd();
 		}
 	}

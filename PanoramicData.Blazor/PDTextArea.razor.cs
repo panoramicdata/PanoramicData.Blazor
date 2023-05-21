@@ -138,6 +138,7 @@ public partial class PDTextArea : IAsyncDisposable
 			{
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
 			}
+
 			_objRef?.Dispose();
 		}
 		catch

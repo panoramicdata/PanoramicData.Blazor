@@ -179,14 +179,17 @@ public partial class PDDropZone : IAsyncDisposable
 		{
 			throw new ArgumentNullException(nameof(file));
 		}
+
 		if (file.Path is null)
 		{
 			throw new ArgumentException("file's Path Property should not be null.", nameof(file));
 		}
+
 		if (file.Name is null)
 		{
 			throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 		}
+
 		var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId);
 		//			_batchProgress++;
 		args.BatchCount = _batchCount;
@@ -203,6 +206,7 @@ public partial class PDDropZone : IAsyncDisposable
 			{
 				fields.Add($"{kvp.Key}={kvp.Value}");
 			}
+
 			return fields.ToArray();
 		}
 	}
@@ -214,14 +218,17 @@ public partial class PDDropZone : IAsyncDisposable
 		{
 			throw new ArgumentNullException(nameof(file));
 		}
+
 		if (file.Path is null)
 		{
 			throw new ArgumentException("file's Path Property should not be null.", nameof(file));
 		}
+
 		if (file.Name is null)
 		{
 			throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 		}
+
 		UploadProgress.InvokeAsync(new DropZoneUploadProgressEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId, file.Progress));
 	}
 
@@ -233,14 +240,17 @@ public partial class PDDropZone : IAsyncDisposable
 		{
 			throw new ArgumentNullException(nameof(file));
 		}
+
 		if (file.Path is null)
 		{
 			throw new ArgumentException("file's Path Property should not be null.", nameof(file));
 		}
+
 		if (file.Name is null)
 		{
 			throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 		}
+
 		var args = new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId)
 		{
 			BatchCount = _batchCount,
@@ -251,6 +261,7 @@ public partial class PDDropZone : IAsyncDisposable
 		{
 			args.Reason = file.Reason;
 		}
+
 		UploadCompleted.InvokeAsync(args);
 	}
 
@@ -335,6 +346,7 @@ public partial class PDDropZone : IAsyncDisposable
 				await _module.InvokeVoidAsync("dispose", Id).ConfigureAwait(true);
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
+
 			_dotNetReference?.Dispose();
 		}
 		catch

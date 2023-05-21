@@ -152,13 +152,14 @@ public partial class PDFilter : IAsyncDisposable
 		{
 			_selectedValues.Add(value);
 		}
+
 		_filterType = FilterTypes.In;
 		_value1 = String.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
 	}
 
 	private async Task RefreshValues()
 	{
-		if (ShowValues && FetchValuesAsync != null)
+		if (FetchValuesAsync != null)
 		{
 			var filter = new Filter
 			{

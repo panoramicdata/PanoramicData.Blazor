@@ -3,7 +3,7 @@
 public partial class PDColumn<TItem> where TItem : class
 {
 	private static int _idSequence = 1;
-	private string? _title;
+
 	private Func<TItem, object>? _compiledFunc;
 	private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
 
@@ -66,6 +66,7 @@ public partial class PDColumn<TItem> where TItem : class
 		{
 			return GetPropertyInfo(unaryExpr.Operand);
 		}
+
 		return null;
 	}
 
@@ -255,11 +256,9 @@ public partial class PDColumn<TItem> where TItem : class
 		// a null Field represents a calculated / display only column
 		if (Field != null)
 		{
-			var propInfo = GetPropertyInfo(Field!.Body);
-			if (propInfo == null)
-			{
-				throw new PDTableException("Unable to determine column data type from Field expression");
-			}
+			var propInfo = GetPropertyInfo(Field!.Body)
+				?? throw new PDTableException("Unable to determine column data type from Field expression");
+
 			if (propInfo.PropertyType.IsAssignableFrom(value?.GetType()))
 			{
 				propInfo.SetValue(item, value);
@@ -349,6 +348,7 @@ public partial class PDColumn<TItem> where TItem : class
 		{
 			return Title;
 		}
+
 		var memberInfo = Field?.GetPropertyMemberInfo();
 		return memberInfo is PropertyInfo propInfo
 			? propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name
@@ -363,6 +363,7 @@ public partial class PDColumn<TItem> where TItem : class
 				"Table reference is null which implies it did not initialize or that the column " +
 				$"type '{typeof(TItem)}' does not match the table type.");
 		}
+
 		await Table.AddColumnAsync(this).ConfigureAwait(true);
 	}
 
@@ -373,6 +374,7 @@ public partial class PDColumn<TItem> where TItem : class
 		{
 			Type = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
 		}
+
 		PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
 	}
 
@@ -397,15 +399,18 @@ public partial class PDColumn<TItem> where TItem : class
 			{
 				return FilterDataTypes.Enum;
 			}
+
 			if (propInfo.PropertyType.FullName == "System.String")
 			{
 				return FilterDataTypes.Text;
 			}
+
 			if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset")
 			{
 				return FilterDataTypes.Date;
 			}
 		}
+
 		return FilterDataTypes.Numeric;
 	}
 
@@ -418,8 +423,10 @@ public partial class PDColumn<TItem> where TItem : class
 			{
 				return true;
 			}
+
 			return Nullable.GetUnderlyingType(propInfo.PropertyType) != null;
 		}
+
 		return false;
 	}
 
@@ -429,23 +436,24 @@ public partial class PDColumn<TItem> where TItem : class
 		{
 			return FilterKeyVisitor.GetFilterKey(Field);
 		}
+
 		return Id;
 	}
 
 	private class FilterKeyVisitor : ExpressionVisitor
 	{
-		private readonly Expression param;
+		private readonly Expression _param;
 
 		public string FilterKey { get; private set; } = String.Empty;
 
-		public FilterKeyVisitor(Expression parameter) => param = parameter;
+		public FilterKeyVisitor(Expression parameter) => _param = parameter;
 
 		public override Expression? Visit(Expression? node)
 		{
 			if (node != null)
 			{
 				var chain = node.MemberClauses().ToList();
-				if (chain.Any() && chain.First().Expression == param)
+				if (chain.Any() && chain.First().Expression == _param)
 				{
 					FilterKey = string.Join(".", chain.Select(
 						mexpr => mexpr.Member.GetCustomAttribute<FilterKeyAttribute>()?.Value
@@ -462,6 +470,7 @@ public partial class PDColumn<TItem> where TItem : class
 					return node;
 				}
 			}
+
 			return base.Visit(node);
 		}
 

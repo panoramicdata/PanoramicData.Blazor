@@ -97,11 +97,13 @@ public partial class PDDropDown : IAsyncDisposable
 					_objRef.Dispose();
 					_objRef = null;
 				}
+
 				if (_dropdownObj != null)
 				{
 					await _dropdownObj.DisposeAsync().ConfigureAwait(true);
 					_dropdownObj = null;
 				}
+
 				if (_module != null)
 				{
 					await _module.DisposeAsync().ConfigureAwait(true);

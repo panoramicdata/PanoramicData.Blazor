@@ -54,6 +54,7 @@ public class PageCriteria
 			{
 				return;
 			}
+
 			_page = value;
 			OnPageChanged();
 		}
@@ -71,15 +72,18 @@ public class PageCriteria
 			{
 				throw new ArgumentOutOfRangeException("PageSize must be greater than 0");
 			}
+
 			if (_pageSize == value)
 			{
 				return;
 			}
+
 			_pageSize = value;
 			if (_page > PageCount)
 			{
 				Page = PageCount;
 			}
+
 			OnPageSizeChanged();
 		}
 	}
@@ -96,6 +100,7 @@ public class PageCriteria
 			{
 				return;
 			}
+
 			_totalCount = value;
 			if (_totalCount == 0)
 			{
@@ -105,6 +110,7 @@ public class PageCriteria
 			{
 				Page = PageCount;
 			}
+
 			OnTotalCountChanged();
 		}
 	}

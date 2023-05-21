@@ -168,6 +168,7 @@ public partial class PDTablePage
 		{
 			options.Add(new OptionInfo { Text = PersonDataProvider.Locations[i], Value = i, IsSelected = item?.Location == i });
 		}
+
 		return options.ToArray();
 	}
 

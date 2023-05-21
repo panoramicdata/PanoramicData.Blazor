@@ -214,6 +214,7 @@ public partial class PDTree<TItem> where TItem : class
 					await ToggleNodeIsExpandedAsync(n).ConfigureAwait(true);
 				}
 			}
+
 			return true;
 		}).ConfigureAwait(true);
 	}
@@ -239,6 +240,7 @@ public partial class PDTree<TItem> where TItem : class
 				found = n;
 				return false;
 			}
+
 			return true;
 		});
 		return found;
@@ -255,14 +257,10 @@ public partial class PDTree<TItem> where TItem : class
 			{
 				if (_clickCount > 1)
 				{
-					await SelectNode(_clickedNode, false).ConfigureAwait(true);
 					await ToggleNodeIsExpandedAsync(_clickedNode).ConfigureAwait(true);
 				}
-				else
-				{
-					var autoEdit = state is MouseEventArgs args && args.Button == 0;
-					await SelectNode(_clickedNode, autoEdit).ConfigureAwait(true);
-				}
+
+				await SelectNode(_clickedNode).ConfigureAwait(true);
 				StateHasChanged();
 			}
 		});
@@ -270,20 +268,14 @@ public partial class PDTree<TItem> where TItem : class
 		_clickCount = 0;
 	}
 
-	public async Task NodeDoubleClick(TreeNode<TItem> node, MouseEventArgs args)
-	{
-		await SelectNode(node, false).ConfigureAwait(true);
-		await ToggleNodeIsExpandedAsync(node).ConfigureAwait(true);
-	}
-
-	public void NodeMouseDown(TreeNode<TItem> node, MouseEventArgs args)
+	public void NodeMouseDown(TreeNode<TItem> node)
 	{
 		if (_clickTimer == null || node != _clickedNode)
 		{
 			_clickTimer?.Dispose();
 			_clickedNode = node;
 			_clickCount = 1;
-			_clickTimer = new Timer(ClickTimerCallback, args, 250, Timeout.Infinite);
+			_clickTimer = new Timer(ClickTimerCallback, null, 250, Timeout.Infinite);
 		}
 		else
 		{
@@ -295,8 +287,7 @@ public partial class PDTree<TItem> where TItem : class
 	/// Selects the given node.
 	/// </summary>
 	/// <param name="node">The node to select.</param>
-	/// <param name="autoEdit">If the same node is selected twice should it go into edit mode?</param>
-	public async Task SelectNode(TreeNode<TItem> node, bool autoEdit = true)
+	public async Task SelectNode(TreeNode<TItem> node)
 	{
 		if (AllowSelection)
 		{
@@ -310,10 +301,7 @@ public partial class PDTree<TItem> where TItem : class
 			if (SelectedNode == node)
 			{
 				// if the same node
-				if (AllowEdit && autoEdit)
-				{
-					await BeginEdit().ConfigureAwait(true);
-				}
+				await BeginEdit().ConfigureAwait(true);
 			}
 			else
 			{
@@ -321,6 +309,7 @@ public partial class PDTree<TItem> where TItem : class
 				{
 					SelectedNode.IsSelected = false;
 				}
+
 				SelectedNode = node;
 				SelectedNode.IsSelected = true;
 
@@ -411,6 +400,7 @@ public partial class PDTree<TItem> where TItem : class
 				{
 					break;
 				}
+
 				node = nextNode;
 
 				// refresh node
@@ -537,6 +527,7 @@ public partial class PDTree<TItem> where TItem : class
 		{
 			return new TItem[0];
 		}
+
 		var request = new DataRequest<TItem>
 		{
 			Skip = 0,
@@ -582,6 +573,7 @@ public partial class PDTree<TItem> where TItem : class
 			{
 				parentNode = (dict.ContainsKey(parentKey)) ? parentNode = dict[parentKey] : RootNode.Find(parentKey);
 			}
+
 			if (parentNode == null)
 			{
 				throw new PDTreeException($"A parent item with key '{parentKey}' could not be found");
@@ -599,6 +591,7 @@ public partial class PDTree<TItem> where TItem : class
 					modifiedNodes.Add(parentNode);
 				}
 			}
+
 			node.Key = key;
 			node.Text = TextField is null
 				? item?.ToString() ?? String.Empty
@@ -668,6 +661,7 @@ public partial class PDTree<TItem> where TItem : class
 		{
 			throw new PDTreeException("KeyField attribute is required.");
 		}
+
 		if (ParentKeyField == null)
 		{
 			throw new PDTreeException("ParentKeyField attribute is required.");
@@ -712,6 +706,7 @@ public partial class PDTree<TItem> where TItem : class
 					{
 						await ToggleNodeIsExpandedAsync(SelectedNode).ConfigureAwait(true);
 					}
+
 					break;
 
 				case "ArrowLeft":
@@ -719,6 +714,7 @@ public partial class PDTree<TItem> where TItem : class
 					{
 						await ToggleNodeIsExpandedAsync(SelectedNode).ConfigureAwait(true);
 					}
+
 					break;
 
 				case "ArrowDown":
@@ -727,6 +723,7 @@ public partial class PDTree<TItem> where TItem : class
 					{
 						await SelectNode(nextNode).ConfigureAwait(true);
 					}
+
 					break;
 
 				case "ArrowUp":
@@ -739,6 +736,7 @@ public partial class PDTree<TItem> where TItem : class
 							await SelectNode(prevNode).ConfigureAwait(true);
 						}
 					}
+
 					break;
 			}
 		}

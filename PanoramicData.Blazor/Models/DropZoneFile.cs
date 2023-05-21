@@ -20,10 +20,12 @@ public class DropZoneFile
 		{
 			segs.AddRange(rootDir.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries));
 		}
+
 		if (Path != null)
 		{
 			segs.AddRange(Path.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries));
 		}
+
 		var folderPath = $"/{string.Join("/", segs)}";
 		return $"{folderPath.TrimEnd('/')}/{Name}";
 	}

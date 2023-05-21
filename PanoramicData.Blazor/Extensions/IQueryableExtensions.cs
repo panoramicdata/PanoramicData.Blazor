@@ -75,6 +75,7 @@ public static class IQueryableExtensions
 		{
 			// invalid property
 		}
+
 		return query;
 	}
 
@@ -84,6 +85,7 @@ public static class IQueryableExtensions
 		{
 			query = query.ApplyFilter(filter, keyProperties);
 		}
+
 		return query;
 	}
 }

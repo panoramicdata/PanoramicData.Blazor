@@ -46,6 +46,7 @@ public static class ObjectExtensions
 		{
 			return (DateTimeOffset?)DateTimeOffset.Parse(value.ToString() ?? String.Empty, CultureInfo.CurrentCulture);
 		}
+
 		return Convert.ChangeType(value, type, CultureInfo.CurrentCulture);
 	}
 }

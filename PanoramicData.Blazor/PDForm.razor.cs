@@ -243,6 +243,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		{
 			_module.InvokeVoidAsync("setUnloadListener", Id, false);
 		}
+
 		if (Errors.Count > 0)
 		{
 			Errors.Clear();
@@ -263,11 +264,13 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		{
 			ResetChanges();
 		}
+
 		if (Errors.Count > 0)
 		{
 			Errors.Clear();
 			OnErrorsChanged(EventArgs.Empty);
 		}
+
 		foreach (var field in Fields)
 		{
 			field.SuppressErrors = SuppressInitialErrors;
@@ -295,6 +298,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -348,6 +352,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -454,15 +459,18 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		{
 			return default;
 		}
+
 		object? value = GetFieldValue(field, updatedValue);
 		if (value is null)
 		{
 			return default;
 		}
+
 		if (value is T t)
 		{
 			return t;
 		}
+
 		try
 		{
 			return (T)Convert.ChangeType(value, typeof(T));
@@ -495,8 +503,10 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			{
 				sb.Append('\t');
 			}
+
 			sb.Append(GetFieldStringValue(field, updatedValue));
 		}
+
 		return sb.ToString();
 	}
 
@@ -538,11 +548,13 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		{
 			return string.Empty;
 		}
+
 		if (value is DateTimeOffset dto)
 		{
 			// return simple date time string
 			return dto.DateTime.ToString("yyyy-MM-dd");
 		}
+
 		if (value is DateTime dt)
 		{
 			// return date time string
@@ -607,6 +619,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		{
 			return null;
 		}
+
 		var json = System.Text.Json.JsonSerializer.Serialize(Item);
 		var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);
 		if (clone != null)
@@ -617,6 +630,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				propInfo?.SetValue(clone, kvp.Value);
 			}
 		}
+
 		return clone;
 	}
 
@@ -636,6 +650,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				await ValidateFieldAsync(field, null, updatedItem).ConfigureAwait(true);
 			}
 		}
+
 		return Errors.Count;
 	}
 
@@ -665,6 +680,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 					{
 						throw new ArgumentException("Failed to get updated item instance");
 					}
+
 					var context = new ValidationContext(updatedItem ??= itemWithUpdates)
 					{
 						MemberName = memberInfo.Name
@@ -683,6 +699,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 					{
 						SetFieldErrors(memberInfo.Name, $"Value must be {field.MaxValue.Value} or less.");
 					}
+
 					if (field.MinValue.HasValue && Convert.ToDouble(typedValue) < field.MinValue.Value)
 					{
 						SetFieldErrors(memberInfo.Name, $"Value must be {field.MinValue.Value} or greater.");
@@ -705,10 +722,12 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 								}
 							}
 						}
+
 						foreach (var kvp in args.AddErrorMessages)
 						{
 							SetFieldErrors(kvp.Key, kvp.Value);
 						}
+
 						if (args.RemoveErrorMessages.Count > 0 && args.AddErrorMessages.Count == 0)
 						{
 							OnErrorsChanged(EventArgs.Empty);
@@ -723,6 +742,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				}
 			}
 		}
+
 		return null;
 	}
 
@@ -753,6 +773,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				Errors[fieldName].Add(message);
 			}
 		}
+
 		OnErrorsChanged(EventArgs.Empty);
 	}
 
@@ -795,23 +816,28 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		{
 			ResetChanges();
 		}
+
 		if (Errors.Count > 0)
 		{
 			Errors.Clear();
 			OnErrorsChanged(EventArgs.Empty);
 		}
+
 		foreach (var field in Fields)
 		{
 			field.SuppressErrors = SuppressInitialErrors;
 		}
+
 		if (validate is null)
 		{
 			validate = mode == FormModes.Create;
 		}
+
 		if (validate == true)
 		{
 			await ValidateFormAsync().ConfigureAwait(true);
 		}
+
 		StateHasChanged();
 	}
 

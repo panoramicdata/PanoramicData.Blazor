@@ -70,11 +70,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public bool AllowRename { get; set; } = true;
 
 	/// <summary>
-	/// Determines whether the to rename items when conflicting with existing items.
-	/// </summary>
-	[Parameter] public bool AllowRenameConflicts { get; set; } = false;
-
-	/// <summary>
 	/// Determines whether the first node is automatically expanded on load.
 	/// </summary>
 	[Parameter] public bool AutoExpand { get; set; } = false;
@@ -131,11 +126,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Event called whenever the user requests to delete one or more items.
 	/// </summary>
 	[Parameter] public EventCallback<DeleteArgs> DeleteRequest { get; set; }
-
-	/// <summary>
-	/// Funtion that calculates and returns the download url for the given item.
-	/// </summary>
-	[Parameter] public Func<FileExplorerItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
 
 	/// <summary>
 	/// An optional array of paths to be excluded.
@@ -372,6 +362,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			ToolbarItems.Add(new ToolbarButton { Key = "open", Text = "Open", ToolTip = "Navigate into folder", IconCssClass = "fas fa-fw fa-folder-open", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 		}
+
 		ToolbarItems.Add(new ToolbarButton { Key = "refresh", Text = "Refresh", ToolTip = "Refreshes the current folder", IconCssClass = "fas fa-fw fa-sync-alt", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 		ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 		ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
@@ -580,6 +571,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
 				args.Cancel = renameArgs.Cancel;
 			}
+
 			if (!AllowRename || args.Node.ParentNode == null || args.Node?.Data?.CanRename == false || string.IsNullOrEmpty(args.Node?.Data?.ParentPath))
 			{
 				args.Cancel = true;
@@ -596,13 +588,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			var newPath = $"{item.ParentPath.TrimEnd('/')}/{args.NewValue}";
 
 			// check for and disallow duplicate folder name
-			if (args.NewValue.StartsWith('.'))
-			{
-				args.Cancel = true;
-				await OnException(new PDFileExplorerException($"Names may not begin with a period (.)")).ConfigureAwait(true);
-				return;
-			}
-			else if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
+			if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
 			{
 				args.Cancel = true;
 
@@ -611,6 +597,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					await OnException(new PDFileExplorerException($"A Folder named '{args.NewValue}' already exists")).ConfigureAwait(true);
 				}
+
 				return;
 			}
 
@@ -743,11 +730,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 				args.Cancel = true;
 				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("A value is required")).ConfigureAwait(true);
 			}
-			else if (newName.StartsWith('.'))
-			{
-				args.Cancel = true;
-				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("Names may not begin with a period (.)")).ConfigureAwait(true);
-			}
 			else
 			{
 				var previousPath = args.Item.Path;
@@ -803,6 +785,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			return false;
 		}
+
 		var idx = visibleItems.IndexOf(separator);
 		return idx <= 0 || !visibleItems[idx - 1].IsSeparator;
 	}
@@ -958,9 +941,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					x.Data.Name = FileExplorerItem.GetNameFromPath(newPath);
 				}
+
 				x.Key = x.Key.ReplacePathPrefix(oldPath, newPath);
 				x.Data.Path = x.Data.Path.ReplacePathPrefix(oldPath, newPath);
 			}
+
 			return true;
 		});
 		Table!.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(oldPath, newPath));
@@ -1025,6 +1010,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			_batchFiles.Remove(args.FullPath);
 		}
+
 		_batchProgress = args.BatchProgress;
 
 		// get virtual file item
@@ -1033,6 +1019,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			item.IsUploading = false;
 		}
+
 		await UploadCompleted.InvokeAsync(args).ConfigureAwait(true);
 	}
 
@@ -1122,6 +1109,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 					};
 					Table.ItemsToDisplay.Add(item);
 				}
+
 				return item;
 			}
 			else if (args.Path.StartsWith(FolderPath.TrimEnd('/') + "/")) // in higher folder
@@ -1143,9 +1131,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 					};
 					Table.ItemsToDisplay.Add(item);
 				}
+
 				return item;
 			}
 		}
+
 		return null;
 	}
 
@@ -1163,6 +1153,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					await NavigateFolderAsync(selectedFolderPath).ConfigureAwait(true);
 				}
+
 				break;
 
 			case "create-folder":
@@ -1178,6 +1169,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					await UploadDialog.ShowAsync().ConfigureAwait(true);
 				}
+
 				break;
 
 			case "refresh":
@@ -1237,7 +1229,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
 	}
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
+	protected override void OnAfterRender(bool firstRender)
 	{
 		if (firstRender)
 		{
@@ -1289,6 +1281,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -1298,6 +1291,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			await Tree!.ToggleNodeIsExpandedAsync(_selectedNode).ConfigureAwait(true);
 		}
+
 		var node = Tree!.RootNode.Find(path);
 		if (node != null)
 		{
@@ -1324,6 +1318,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				await Tree.ToggleNodeIsExpandedAsync(Tree.SelectedNode).ConfigureAwait(true);
 			}
+
 			var newFolderName = Tree!.SelectedNode.MakeUniqueText("New Folder") ?? "New Folder";
 			var newPath = $"{Tree.SelectedNode.Data.Path.TrimEnd('/')}/{newFolderName}";
 			var newItem = new FileExplorerItem
@@ -1466,7 +1461,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				// check if target folder is source folder?
 				var parentPaths = payload.Select(x => x.ParentPath).Distinct().ToArray();
 				conflictArgs.ConflictResolution = parentPaths.Any(x => x == targetPath)
-					? await PromptUserForConflictResolution(Array.Empty<string>(), false, AllowRenameConflicts, "The source and destination filenames are the same.").ConfigureAwait(true)
+					? await PromptUserForConflictResolution(Array.Empty<string>(), false, false, "The source and destination filenames are the same.").ConfigureAwait(true)
 					: await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray(), showOverwrite).ConfigureAwait(true);
 			}
 		}
@@ -1575,6 +1570,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			newName = PostFixFilename(FileExplorerItem.GetNameFromPath(source.Path), $" Copy {count++}");
 		}
+
 		return newName;
 	}
 
@@ -1584,11 +1580,13 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			return postfix.Trim();
 		}
+
 		var idx = filename.IndexOf('.');
 		if (idx == -1)
 		{
 			return $"{filename}{postfix}";
 		}
+
 		return $"{filename.Substring(0, idx)}{postfix}{filename.Substring(idx)}";
 	}
 
@@ -1706,6 +1704,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 					{
 						_conflictCache.Remove(folderPath);
 					}
+
 					if (_conflictCache.ContainsKey(folderPath))
 					{
 						cachedTask = _conflictCache[folderPath];
@@ -1720,6 +1719,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 						_conflictCache.Add(folderPath, cachedTask);
 					}
 				}
+
 				if (cachedTask != null)
 				{
 					// wait for cache to load
@@ -1737,6 +1737,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				}
 			}
 		}
+
 		args.Conflicts = conflicts.OrderBy(x => x.Path).ToList();
 	}
 
@@ -1765,6 +1766,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				conflicts.Add(item);
 			}
 		}
+
 		args.Conflicts = conflicts;
 	}
 
@@ -1775,17 +1777,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			namesSummary.Add($"+ {names.Count() - 5} other items");
 		}
+
 		_conflictDialogMessage = message ?? $"{names.Count()} conflicts found : -";
 		_conflictDialogList = namesSummary.ToArray();
-		var buttons = ConflictDialog!.Buttons;
-		buttons.First(x => x.Key == "Overwrite").IsVisible = showOverwrite;
-		buttons.First(x => x.Key == "Rename").IsVisible = showRename;
-		// shift first button right
-		foreach (var btn in buttons)
-		{
-			btn.ShiftRight = buttons.FirstOrDefault(x => x.IsVisible) == btn;
-		}
-
+		ConflictDialog!.Buttons.First(x => x.Key == "Overwrite").IsVisible = showOverwrite;
+		ConflictDialog!.Buttons.First(x => x.Key == "Rename").IsVisible = showRename;
 		StateHasChanged();
 		if (ConflictDialog != null)
 		{
@@ -1799,6 +1795,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				_ => ConflictResolutions.Skip
 			};
 		}
+
 		return ConflictResolutions.Skip;
 	}
 
@@ -1808,11 +1805,13 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			return string.Empty;
 		}
+
 		var defaultCss = $"{(item.IsHidden ? "file-hidden" : "")} {(item.IsSystem ? "file-system" : "")} {(item.IsReadOnly ? "file-readonly" : "")}";
 		if (GetItemCssClass != null)
 		{
 			return GetItemCssClass(item) ?? defaultCss;
 		}
+
 		return defaultCss;
 	}
 
@@ -1827,12 +1826,15 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "fa fa-fw fa-folder";
 			}
+
 			if (cssClass.Length == 0)
 			{
 				return "far fa-fw fa-hidden fa-file";
 			}
+
 			return cssClass;
 		}
+
 		return string.Empty;
 	}
 
@@ -1862,6 +1864,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			await _commonModule.InvokeVoidAsync("removeClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
 		}
+
 		var tasks = new List<Task>
 		{
 			_dropZone1.ClearAsync(),

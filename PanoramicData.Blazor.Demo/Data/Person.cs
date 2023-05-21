@@ -77,6 +77,7 @@ public class Person : IComparable
 		{
 			return string.Compare(LastName, other.LastName);
 		}
+
 		return 1;
 	}
 

@@ -16,6 +16,7 @@ public static class StringExtensions
 		{
 			return path.Replace(oldPathPrefix, newPathPrefix);
 		}
+
 		return path;
 	}
 
@@ -42,6 +43,7 @@ public static class StringExtensions
 		{
 			return text;
 		}
+
 		return $"{text.Replace("&&", "")} ({shortcutKey})";
 	}
 
@@ -56,11 +58,13 @@ public static class StringExtensions
 		{
 			return (MarkupString)text;
 		}
+
 		var ampIdx = text.IndexOf("&&");
 		if (ampIdx == -1)
 		{
 			return (MarkupString)text;
 		}
+
 		var sb = new StringBuilder();
 		sb.Append("<span>")
 			.Append(text.Substring(0, ampIdx))
@@ -92,6 +96,7 @@ public static class StringExtensions
 				}
 			}
 		}
+
 		return text;
 	}
 
@@ -101,6 +106,7 @@ public static class StringExtensions
 		{
 			return text.Substring(1, text.Length - 2);
 		}
+
 		return text;
 	}
 }

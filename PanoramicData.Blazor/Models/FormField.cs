@@ -162,6 +162,7 @@ public class FormField<TItem> where TItem : class
 		{
 			return null;
 		}
+
 		var value = CompiledFieldFunc?.Invoke(item);
 		if (value != null)
 		{
@@ -170,12 +171,14 @@ public class FormField<TItem> where TItem : class
 				// return simple date time string
 				return dto.DateTime.ToString("yyyy-MM-dd");
 			}
+
 			if (value is DateTime dt)
 			{
 				// return date time string
 				return dt.ToString("yyyy-MM-dd");
 			}
 		}
+
 		return value;
 	}
 
@@ -189,6 +192,7 @@ public class FormField<TItem> where TItem : class
 		{
 			return null;
 		}
+
 		return Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
 	}
 

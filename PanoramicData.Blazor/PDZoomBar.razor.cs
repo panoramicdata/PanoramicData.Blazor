@@ -62,6 +62,7 @@ public partial class PDZoomBar : IAsyncDisposable
 			{
 				await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
 			}
+
 			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
 	}
@@ -76,6 +77,7 @@ public partial class PDZoomBar : IAsyncDisposable
 			{
 				await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
 			}
+
 			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
 	}
@@ -97,6 +99,7 @@ public partial class PDZoomBar : IAsyncDisposable
 				await _module.InvokeVoidAsync("dispose", CanvasId).ConfigureAwait(true);
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
+
 			_objRef?.Dispose();
 		}
 		catch

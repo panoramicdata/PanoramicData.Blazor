@@ -40,6 +40,7 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 				});
 			}
 		}
+
 		return options.ToArray();
 	}
 
@@ -50,10 +51,12 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		{
 			dict.Add("max", field.MaxValue.Value);
 		}
+
 		if (field.MinValue.HasValue)
 		{
 			dict.Add("min", field.MinValue.Value);
 		}
+
 		return dict;
 	}
 

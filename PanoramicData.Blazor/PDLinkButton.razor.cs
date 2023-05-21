@@ -99,6 +99,7 @@ public partial class PDLinkButton : IAsyncDisposable
 			{
 				GlobalEventService.UnregisterShortcutKey(ShortcutKey);
 			}
+
 			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
 			if (_commonModule != null)
 			{
@@ -117,6 +118,7 @@ public partial class PDLinkButton : IAsyncDisposable
 		{
 			GlobalEventService.RegisterShortcutKey(ShortcutKey);
 		}
+
 		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 	}
 

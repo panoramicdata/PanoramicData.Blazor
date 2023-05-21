@@ -16,19 +16,23 @@ public partial class PDFileModalsPage
 			{
 				return "fas fa-book";
 			}
+
 			if (item.Path == "/Users")
 			{
 				return "fas fa-users";
 			}
+
 			if (item.Path == "/")
 			{
 				return "fas fa-server";
 			}
+
 			if (item.ParentPath == "/")
 			{
 				return "fas fa-hdd";
 			}
 		}
+
 		return TestFileSystemDataProvider.GetIconClass(item);
 	}
 

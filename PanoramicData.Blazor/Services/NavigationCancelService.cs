@@ -35,6 +35,7 @@ public class NavigationCancelService : INavigationCancelService
 				return await commonModule.InvokeAsync<bool>("confirm", "Changes have been made, continue and lose those changes?").ConfigureAwait(true);
 			}
 		}
+
 		return true;
 	}
 }

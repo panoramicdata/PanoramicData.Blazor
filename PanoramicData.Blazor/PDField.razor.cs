@@ -168,6 +168,7 @@ public partial class PDField<TItem> where TItem : class
 		{
 			return Title;
 		}
+
 		var memberInfo = Field?.GetPropertyMemberInfo();
 		return memberInfo is PropertyInfo propInfo
 			? propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name
@@ -182,6 +183,7 @@ public partial class PDField<TItem> where TItem : class
 				"FormBody reference is null which implies it did not initialize or that the field " +
 				$"type '{typeof(TItem)}' does not match the form type.");
 		}
+
 		await FormBody.Form.AddFieldAsync(this).ConfigureAwait(true);
 	}
 }

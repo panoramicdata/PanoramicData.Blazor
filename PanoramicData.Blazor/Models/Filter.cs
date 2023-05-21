@@ -148,6 +148,7 @@ public class Filter
 		{
 			return "";
 		}
+
 		if (value is DateTime dt)
 		{
 			return dt.Kind == DateTimeKind.Utc || (dt.Kind == DateTimeKind.Unspecified && unspecifiedDateTimesAreUtc)
@@ -158,6 +159,7 @@ public class Filter
 		{
 			return $"{dto.ToUniversalTime():yyyy-MM-dd}T{dto.ToUniversalTime():HH:mm:ss}Z";
 		}
+
 		return value.ToString() ?? String.Empty;
 	}
 
@@ -313,6 +315,7 @@ public class Filter
 					{
 						hashed = !hashed;
 					}
+
 					sb.Append(ch);
 				}
 			}
@@ -323,6 +326,7 @@ public class Filter
 				{
 					continue;
 				}
+
 				token = true;
 				sb.Append(ch);
 			}
@@ -339,6 +343,7 @@ public class Filter
 			{
 				sb.Append('#');
 			}
+
 			yield return Parse(sb.ToString(), keyMappings);
 		}
 	}

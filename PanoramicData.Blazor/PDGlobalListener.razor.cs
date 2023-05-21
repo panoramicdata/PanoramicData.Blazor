@@ -36,6 +36,7 @@ public partial class PDGlobalListener : IAsyncDisposable
 		{
 			await _module.InvokeVoidAsync("initialize", _dotNetObjectReference).ConfigureAwait(true);
 		}
+
 		GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
 	}
 

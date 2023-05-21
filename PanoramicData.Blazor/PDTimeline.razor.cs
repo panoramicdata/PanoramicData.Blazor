@@ -116,6 +116,7 @@ public partial class PDTimeline : IAsyncDisposable
 				}
 			}
 		}
+
 		return false;
 	}
 
@@ -141,6 +142,7 @@ public partial class PDTimeline : IAsyncDisposable
 				}
 			}
 		}
+
 		return false;
 	}
 
@@ -170,6 +172,7 @@ public partial class PDTimeline : IAsyncDisposable
 				await _module.InvokeVoidAsync("dispose", Id).ConfigureAwait(true);
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
+
 			_objRef?.Dispose();
 		}
 		catch
@@ -189,10 +192,12 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			date1 = RoundedMinDateTime;
 		}
+
 		if (date2 is null)
 		{
 			date2 = RoundedMaxDateTime;
 		}
+
 		var viewportColumns = _canvasWidth > 0 ? (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width) : 0;
 		for (var i = 0; i < Options.General.Scales.Length - 1; i++)
 		{
@@ -203,6 +208,7 @@ public partial class PDTimeline : IAsyncDisposable
 				return newScale;
 			}
 		}
+
 		return Options.General.Scales.FirstOrDefault();
 	}
 
@@ -243,6 +249,7 @@ public partial class PDTimeline : IAsyncDisposable
 				};
 			}
 		}
+
 		return points.ToArray();
 	}
 
@@ -255,6 +262,7 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			return false;
 		}
+
 		return true;
 	}
 
@@ -269,6 +277,7 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			_panHandleX = _canvasWidth - _panHandleWidth;
 		}
+
 		_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 	}
 
@@ -282,6 +291,7 @@ public partial class PDTimeline : IAsyncDisposable
 			{
 				await _module.InvokeVoidAsync("initialize", Id, Options, _objRef).ConfigureAwait(true);
 			}
+
 			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 			if (_commonModule != null)
 			{
@@ -289,6 +299,7 @@ public partial class PDTimeline : IAsyncDisposable
 				_canvasWidth = (int)(await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true));
 				_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true));
 			}
+
 			if (Options.General.AutoRefresh)
 			{
 				await SetScale(Scale, true);
@@ -319,6 +330,7 @@ public partial class PDTimeline : IAsyncDisposable
 			{
 				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
 			}
+
 			await SetSelectionFromDrag(index, index).ConfigureAwait(true);
 		}
 	}
@@ -388,6 +400,7 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			_isPanDragging = true;
 		}
+
 		if (_isPanDragging)
 		{
 			MovePanHandle(_panHandleX + (args.ClientX - _panDragOrigin));
@@ -417,6 +430,7 @@ public partial class PDTimeline : IAsyncDisposable
 				refresh = true;
 			}
 		}
+
 		if (refresh && !Options.General.FetchAll)
 		{
 			await RefreshAsync().ConfigureAwait(true);
@@ -455,8 +469,9 @@ public partial class PDTimeline : IAsyncDisposable
 	{
 		if (_commonModule != null)
 		{
-			_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true);
+			_canvasWidth = await _commonModule.InvokeAsync<int>("getWidth", _svgPlotElement).ConfigureAwait(true);
 		}
+
 		await SetScale(Scale, true).ConfigureAwait(true);
 		await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 	}
@@ -558,6 +573,7 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			dateTime = MaxDateTime ?? DateTime.Now;
 		}
+
 		var maxOffset = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime) - _viewportColumns;
 		if (maxOffset <= 0)
 		{
@@ -574,6 +590,7 @@ public partial class PDTimeline : IAsyncDisposable
 			{
 				newOffset = Scale.PeriodsBetween(RoundedMinDateTime, Scale.PeriodEnd(dateTime)) - _viewportColumns;
 			}
+
 			if (newOffset >= 0 && newOffset <= maxOffset)
 			{
 				//Console.WriteLine($"Old Offset = {_columnOffset}, New Offset = {newOffset}, TotalColumns = {_totalColumns}");
@@ -611,9 +628,11 @@ public partial class PDTimeline : IAsyncDisposable
 					_dataPoints.Add(point.PeriodIndex, point);
 				}
 			}
+
 			_loading = false;
 			await Refreshed.InvokeAsync(null).ConfigureAwait(true);
 		}
+
 		StateHasChanged();
 	}
 
@@ -691,6 +710,7 @@ public partial class PDTimeline : IAsyncDisposable
 				{
 					_panHandleX = _canvasWidth - _panHandleWidth;
 				}
+
 				_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 			}
 
@@ -727,16 +747,19 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			start = RoundedMaxDateTime;
 		}
+
 		if (end > RoundedMaxDateTime)
 		{
 			end = RoundedMaxDateTime;
 		}
+
 		if (!Options.General.AllowDisableSelection)
 		{
 			if (DisableAfter != DateTime.MinValue && (end >= DisableAfter))
 			{
 				end = DisableAfter;
 			}
+
 			if (DisableBefore != DateTime.MinValue && (start < DisableBefore))
 			{
 				start = DisableBefore;
@@ -749,6 +772,7 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			_selectionStartIndex = 0;
 		}
+
 		_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, end) - 1;
 
 		// ensure selection is not beyond max datetime
@@ -820,6 +844,7 @@ public partial class PDTimeline : IAsyncDisposable
 					endTime = DisableAfter;
 					_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, endTime) - 1;
 				}
+
 				if (DisableBefore != DateTime.MinValue && (startTime < DisableBefore))
 				{
 					startTime = DisableBefore;
@@ -959,6 +984,7 @@ public partial class PDTimeline : IAsyncDisposable
 				sb.Append("l -").Append(w).Append(" -").Append(w);
 				sb.Append("l 0 ").Append(2 * w);
 			}
+
 			sb.Append("Z");
 			return sb.ToString();
 		}

@@ -77,6 +77,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 					query = ApplyFilters(query, filters, "password");
 				}
 			}
+
 			total = query.Count();
 
 			// apply sort
@@ -97,6 +98,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 			{
 				query = query.Skip(request.Skip.Value);
 			}
+
 			if (request.Take.HasValue)
 			{
 				query = query.Take(request.Take.Value);
@@ -138,6 +140,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 			{
 				return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
 			}
+
 			_people.Remove(existingPerson);
 			return new OperationResponse { Success = true };
 		});
@@ -160,6 +163,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 			{
 				return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
 			}
+
 			foreach (var kvp in delta)
 			{
 				var prop = item.GetType().GetProperty(kvp.Key);
@@ -180,6 +184,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 					}
 				}
 			}
+
 			existingPerson.DateModified = DateTime.Now;
 			return new OperationResponse { Success = true };
 		});

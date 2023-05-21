@@ -27,6 +27,7 @@ public class FieldGroup<TItem> where TItem : class
 				}
 			}
 		}
+
 		return false;
 	}
 }

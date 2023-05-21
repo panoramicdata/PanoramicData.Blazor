@@ -191,11 +191,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public bool RetainSelectionOnPage { get; set; }
 
 	/// <summary>
-	/// Funtion that calculates and returns the download url attribuet for each row.
-	/// </summary>
-	[Parameter] public Func<TItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
-
-	/// <summary>
 	/// Gets whether the table will save changes via the DataProvider (if set).
 	/// </summary>
 	[Parameter] public bool SaveChanges { get; set; }
@@ -224,11 +219,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// Gets or sets whether the checkboxes should be shown for multiple selection.
 	/// </summary>
 	[Parameter] public bool ShowCheckboxes { get; set; } = false;
-
-	/// <summary>
-	/// Gets or sets whether the Overlay Service is used when fetching data.
-	/// </summary>
-	[Parameter] public bool ShowOverlay { get; set; } = true;
 
 	/// <summary>
 	/// Gets or sets whether the pager is displayed.
@@ -297,6 +287,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 						{
 							dTColumn.SetTitle(columnConfig.Title);
 						}
+
 						return dTColumn;
 					})
 				?? Columns;
@@ -422,6 +413,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		{
 			return SortByAsync(column, criteria.Direction);
 		}
+
 		return Task.CompletedTask;
 	}
 
@@ -433,10 +425,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		try
 		{
-			if (ShowOverlay)
-			{
-				BlockOverlayService.Show();
-			}
+			BlockOverlayService.Show();
 
 			//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
@@ -480,10 +469,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 		finally
 		{
-			if (ShowOverlay)
-			{
-				BlockOverlayService.Hide();
-			}
+			BlockOverlayService.Hide();
 		}
 	}
 
@@ -515,6 +501,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 					{
 						previousCol.SortDirection = SortDirection.None;
 					}
+
 					if (column.DefaultSortDirection != SortDirection.None)
 					{
 						column.SortDirection = column.DefaultSortDirection;
@@ -530,6 +517,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 								defaultSortDirection = SortDirection.Descending;
 							}
 						}
+
 						column.SortDirection = defaultSortDirection;
 					}
 				}
@@ -653,6 +641,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 						}
 					}
 				}
+
 				await DataProvider.UpdateAsync(EditItem, delta, default).ConfigureAwait(true);
 			}
 
@@ -662,6 +651,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			{
 				await _commonModule.InvokeVoidAsync("focus", Id).ConfigureAwait(true);
 			}
+
 			StateHasChanged();
 		}
 	}
@@ -694,6 +684,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			{
 				dict.Add("ondragover", "event.preventDefault();");
 			}
+
 			return dict;
 		}
 	}
@@ -701,23 +692,23 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <summary>
 	/// Gets a dictionary of additional attributes to be added to each row.
 	/// </summary>
-	public Dictionary<string, object> GetRowAttributes(TItem? item)
+	public Dictionary<string, object> RowAttributes
 	{
-		var dict = new Dictionary<string, object>();
-		if (AllowDrag && !IsEditing)
+		get
 		{
-			dict.Add("draggable", "true");
-			var downloadUrl = item is null ? null : DownloadUrlFunc(item);
-			if (!string.IsNullOrWhiteSpace(downloadUrl))
+			var dict = new Dictionary<string, object>();
+			if (AllowDrag && !IsEditing)
 			{
-				dict.Add("data-downloadurl", downloadUrl);
+				dict.Add("draggable", "true");
 			}
+
+			if (AllowDrop)
+			{
+				dict.Add("ondragover", "event.preventDefault();");
+			}
+
+			return dict;
 		}
-		if (AllowDrop)
-		{
-			dict.Add("ondragover", "event.preventDefault();");
-		}
-		return dict;
 	}
 
 	/// <summary>
@@ -773,6 +764,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				PageCriteria.PageChanged -= PageCriteria_PageChanged;
 				PageCriteria.PageSizeChanged -= PageCriteria_PageSizeChanged;
 			}
+
 			if (_commonModule != null)
 			{
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
@@ -790,11 +782,13 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		{
 			throw new PDTableException($"{nameof(DataProvider)} must not be null.");
 		}
+
 		if (PageCriteria != null)
 		{
 			PageCriteria.PageChanged += PageCriteria_PageChanged;
 			PageCriteria.PageSizeChanged += PageCriteria_PageSizeChanged;
 		}
+
 		_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
 
 		// load common javascript
@@ -878,7 +872,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 
 		// limit to first N
-		objectValues = objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(column.FilterMaxValues ?? FilterMaxValues).ToArray();
+		objectValues = objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(FilterMaxValues).ToArray();
 
 		// cast to string
 		return objectValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
@@ -931,11 +925,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			}
 
 			await Ready.InvokeAsync(null).ConfigureAwait(true);
-
-			if (_commonModule != null)
-			{
-				await _commonModule.InvokeVoidAsync("onTableDragStart", Id);
-			}
 		}
 
 		// focus first editor after edit mode begins
@@ -954,6 +943,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 					break;
 				}
 			}
+
 			var row = ItemsToDisplay.IndexOf(EditItem);
 			if (key != string.Empty)
 			{
@@ -961,6 +951,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				{
 					await _commonModule.InvokeVoidAsync("selectText", $"{IdEditPrefix}-{row}-{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
 				}
+
 				BeginEditEvent.Reset();
 			}
 		}
@@ -974,6 +965,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			Selection.Clear();
 			await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 		}
+
 		_mouseDownOriginatedFromTable = false;
 	}
 
@@ -1027,6 +1019,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 						Selection.AddRange(ItemsToDisplay.Select(x => KeyField!(x).ToString() ?? String.Empty));
 						await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 					}
+
 					break;
 
 				case "ArrowUp":
@@ -1099,6 +1092,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 							await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 						}
 					}
+
 					break;
 			}
 		}
@@ -1190,6 +1184,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 					}
 				}
 			}
+
 			await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 		}
 	}
@@ -1207,6 +1202,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			{
 				Selection.Remove(key);
 			}
+
 			await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 		}
 	}
@@ -1225,18 +1221,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 	}
 
-	private static string GetDynamicCellClasses(PDColumn<TItem> col, TItem _)
-	{
-		var sb = new StringBuilder();
-		sb.Append(col.TdClass);
-		sb.Append(' ');
-		if (!col.UserSelectable)
-		{
-			sb.Append("noselect ");
-		}
-		return sb.ToString().Trim();
-	}
-
 	private string GetDynamicRowClasses(TItem item)
 	{
 		var sb = new StringBuilder();
@@ -1244,10 +1228,12 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		{
 			sb.Append("selected ");
 		}
+
 		if (!RowIsEnabled(item))
 		{
 			sb.Append("disabled ");
 		}
+
 		if (RowClass != null)
 		{
 			var classes = RowClass(item);
@@ -1256,6 +1242,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				sb.Append(classes);
 			}
 		}
+
 		return sb.ToString().Trim();
 	}
 
@@ -1269,6 +1256,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			var config = ColumnsConfig?.Find(x => x.Id == column.Id);
 			return config?.Editable ?? editable;
 		}
+
 		return false;
 	}
 
@@ -1278,10 +1266,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		{
 			return Selection.Contains(KeyField(item)?.ToString() ?? String.Empty);
 		}
+
 		return false;
 	}
 
-	private void OnRowDragStart(DragEventArgs args, TItem? rowItem)
+	private void OnDragStart(DragEventArgs _)
 	{
 		if (!IsEnabled || IsEditing)
 		{
@@ -1303,6 +1292,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 					items.Add(item);
 				}
 			}
+
 			DragContext.Payload = items;
 		}
 	}
@@ -1371,9 +1361,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				{
 					Selection.Add(key);
 				}
+
 				await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 			}
-			else // single selection
+			else if (!alreadySelected) // single selection
 			{
 				Selection.Clear();
 				Selection.Add(key);

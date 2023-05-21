@@ -77,6 +77,7 @@ public class FileExplorerItem : IComparable
 			{
 				return "";
 			}
+
 			var idx = Path.LastIndexOf('/');
 			return (idx == 0) ? "/" : Path.Substring(0, idx);
 		}
@@ -144,6 +145,7 @@ public class FileExplorerItem : IComparable
 		{
 			throw new InvalidOperationException();
 		}
+
 		FileExplorerItem item = (FileExplorerItem)obj;
 		return Name.CompareTo(item?.Name);
 	}
@@ -180,6 +182,7 @@ public class FileExplorerItem : IComparable
 		{
 			return string.Empty;
 		}
+
 		var parts = path.Split('/');
 		return parts.Length > 0 ? parts.Last() : string.Empty;
 	}

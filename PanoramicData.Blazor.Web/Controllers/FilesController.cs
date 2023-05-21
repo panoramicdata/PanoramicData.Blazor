@@ -19,6 +19,7 @@ namespace PanoramicData.Blazor.Web.Controllers
 			{
 				return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
 			}
+
 			var result = new FileStreamResult(stream, "text/plain")
 			{
 				FileDownloadName = $"{Path.GetFileNameWithoutExtension(path)}.webm"
@@ -43,10 +44,12 @@ namespace PanoramicData.Blazor.Web.Controllers
 				{
 					Directory.CreateDirectory(folderPath);
 				}
+
 				var filePath = Path.Combine(folderPath, uploadInfo.Name);
 				using var stream = System.IO.File.Create(filePath);
 				await uploadInfo.File.CopyToAsync(stream);
 			}
+
 			return Ok();
 		}
 

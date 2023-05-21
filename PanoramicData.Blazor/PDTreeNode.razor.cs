@@ -83,24 +83,17 @@ public partial class PDTreeNode<TItem> where TItem : class
 				{
 					await _commonModule.InvokeVoidAsync("selectText", $"PDTNE{Node.Id}", 0, Node.Text.Length).ConfigureAwait(true);
 				}
+
 				Node.BeginEditEvent.Reset();
 			}
 		}
 	}
 
-	//private async Task OnContentDblClick(MouseEventArgs args)
-	//{
-	//	if (Node != null)
-	//	{
-	//		await Tree.NodeDoubleClick(Node, args).ConfigureAwait(true);
-	//	}
-	//}
-
-	private void OnContentMouseDown(MouseEventArgs args)
+	private void OnContentMouseDown(MouseEventArgs _)
 	{
 		if (Node != null)
 		{
-			Tree.NodeMouseDown(Node, args);
+			Tree.NodeMouseDown(Node);
 		}
 	}
 
@@ -140,6 +133,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 			{
 				dict.Add("ondragover", "event.preventDefault();");
 			}
+
 			return dict;
 		}
 	}
@@ -153,10 +147,12 @@ public partial class PDTreeNode<TItem> where TItem : class
 			{
 				dict.Add("draggable", "true");
 			}
+
 			if (AllowDrop)
 			{
 				dict.Add("ondragover", "event.preventDefault();");
 			}
+
 			return dict;
 		}
 	}

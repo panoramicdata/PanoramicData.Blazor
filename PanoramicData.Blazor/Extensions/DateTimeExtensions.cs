@@ -21,6 +21,7 @@ public static class DateTimeExtensions
 				d = d.AddMonths(1);
 				months++;
 			}
+
 			return months;
 		}
 		else
@@ -48,6 +49,7 @@ public static class DateTimeExtensions
 				d = d.AddYears(1);
 				years++;
 			}
+
 			return years;
 		}
 		else

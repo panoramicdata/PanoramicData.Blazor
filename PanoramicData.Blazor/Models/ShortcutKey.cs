@@ -37,19 +37,23 @@ public class ShortcutKey
 		{
 			return string.Empty;
 		}
+
 		var sb = new StringBuilder();
 		if (CtrlKey)
 		{
 			sb.Append("Ctrl-");
 		}
+
 		if (ShiftKey)
 		{
 			sb.Append("Shift-");
 		}
+
 		if (AltKey)
 		{
 			sb.Append("Alt-");
 		}
+
 		if (Code.Length > 0 && Code.StartsWith("key", StringComparison.OrdinalIgnoreCase))
 		{
 			sb.Append(Code.Substring(3).ToUpper());
@@ -117,6 +121,7 @@ public class ShortcutKey
 		{
 			return new ShortcutKey();
 		}
+
 		var codes = shortcutKey.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
 		var lastCode = codes.LastOrDefault();
 		return new ShortcutKey

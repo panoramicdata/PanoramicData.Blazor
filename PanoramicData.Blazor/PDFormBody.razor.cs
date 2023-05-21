@@ -84,6 +84,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 				}
 			}
 		}
+
 		return groups;
 	}
 
@@ -137,6 +138,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		{
 			mode = Form?.Mode;
 		}
+
 		return (mode == FormModes.Create && field.ShowInCreate(Form?.GetItemWithUpdates())) ||
 			((mode == FormModes.Edit || mode == FormModes.ReadOnly) && field.ShowInEdit(Form?.GetItemWithUpdates())) ||
 			(mode == FormModes.Delete && field.ShowInDelete(Form?.GetItemWithUpdates()));
@@ -167,6 +169,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 			{
 				result = await field.Helper.ClickAsync(field).ConfigureAwait(true);
 			}
+
 			if (!result.Canceled && result.NewValue != null)
 			{
 				await Form.SetFieldValueAsync(field, result.NewValue).ConfigureAwait(true);
@@ -175,12 +178,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 	}
 
 	private void OnHelpUrlClick(FormField<TItem> field)
-	{
-		if (_commonModule != null)
-		{
-			_commonModule.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
-		}
-	}
+		=> _commonModule?.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
 
 	private string GetValidationCssClass(FormField<TItem> field)
 	{
@@ -213,12 +211,15 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 			{
 				return "alert-danger";
 			}
+
 			classes.Add(key);
 		}
+
 		if (classes.Contains("alert-warning"))
 		{
 			return "alert-warning";
 		}
+
 		return classes.Contains("alert-success") ? "alert-success" : string.Empty;
 	}
 

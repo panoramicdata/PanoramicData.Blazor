@@ -29,6 +29,7 @@ public partial class PDStackedBar
 		{
 			return String.Empty;
 		}
+
 		var sb = new StringBuilder();
 		sb.AppendLine(DataPoint.StartTime.ToString(DateFormat));
 		if (DataPoint != null && DataPoint.SeriesValues.Length > 0)
@@ -40,6 +41,7 @@ public partial class PDStackedBar
 				  .AppendLine(DataPoint.SeriesValues[i].ToString(Options.Series[i].Format));
 			}
 		}
+
 		sb.Append($"{DataPoint.CountLabel}: ").AppendLine(DataPoint!.Count.ToString());
 		return sb.ToString();
 	}

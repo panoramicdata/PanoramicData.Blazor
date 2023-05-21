@@ -30,11 +30,8 @@ public partial class PDFileModal
 	[Parameter] public string OpenButtonText { get; set; } = "Open";
 
 	[Parameter] public string SaveButtonText { get; set; } = "Save";
-	[Parameter] public bool ShowContextMenu { get; set; }
 
 	[Parameter] public bool ShowNavigateUpButton { get; set; } = true;
-
-	[Parameter] public bool ShowToolbar { get; set; }
 
 	[Parameter] public string OpenTitle { get; set; } = "File Open";
 
@@ -99,14 +96,17 @@ public partial class PDFileModal
 		{
 			_filenameTextbox.IsVisible = false;
 		}
+
 		if (_okButton.Text != OpenButtonText)
 		{
 			_okButton.Text = OpenButtonText;
 		}
+
 		if (_okButton.IconCssClass != "fas fa-fw fa-folder-open")
 		{
 			_okButton.IconCssClass = "fas fa-fw fa-folder-open";
 		}
+
 		StateHasChanged();
 
 		// show the modal
@@ -139,14 +139,17 @@ public partial class PDFileModal
 		{
 			_filenameTextbox.IsVisible = false;
 		}
+
 		if (_okButton.Text != OpenButtonText)
 		{
 			_okButton.Text = OpenButtonText;
 		}
+
 		if (_okButton.IconCssClass != "fas fa-fw fa-folder-open")
 		{
 			_okButton.IconCssClass = "fas fa-fw fa-folder-open";
 		}
+
 		StateHasChanged();
 
 		// refresh the current folder contents
@@ -158,6 +161,7 @@ public partial class PDFileModal
 		{
 			return string.Empty;
 		}
+
 		return GetOpenResult();
 	}
 
@@ -172,18 +176,22 @@ public partial class PDFileModal
 			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
 			_okButton.IsEnabled = true;
 		}
+
 		if (!_filenameTextbox.IsVisible)
 		{
 			_filenameTextbox.IsVisible = true;
 		}
+
 		if (_okButton.Text != SaveButtonText)
 		{
 			_okButton.Text = SaveButtonText;
 		}
+
 		if (_okButton.IconCssClass != "fas fa-fw fa-save")
 		{
 			_okButton.IconCssClass = "fas fa-fw fa-save";
 		}
+
 		StateHasChanged();
 
 		await Modal.ShowAsync().ConfigureAwait(true);
@@ -213,18 +221,22 @@ public partial class PDFileModal
 			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
 			_okButton.IsEnabled = true;
 		}
+
 		if (!_filenameTextbox.IsVisible)
 		{
 			_filenameTextbox.IsVisible = true;
 		}
+
 		if (_okButton.Text != SaveButtonText)
 		{
 			_okButton.Text = SaveButtonText;
 		}
+
 		if (_okButton.IconCssClass != "fas fa-fw fa-save")
 		{
 			_okButton.IconCssClass = "fas fa-fw fa-save";
 		}
+
 		StateHasChanged();
 
 		// default folder?
@@ -290,6 +302,7 @@ public partial class PDFileModal
 						return;
 					}
 				}
+
 				result = $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
 			}
 		}

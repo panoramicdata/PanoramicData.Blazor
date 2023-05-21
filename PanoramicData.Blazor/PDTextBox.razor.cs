@@ -143,6 +143,7 @@ public partial class PDTextBox : IAsyncDisposable
 			{
 				await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
 			}
+
 			if (ShowSpeechButton)
 			{
 				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTextBox.razor.js").ConfigureAwait(true);
@@ -180,6 +181,7 @@ public partial class PDTextBox : IAsyncDisposable
 		{
 			await _commonModule.InvokeVoidAsync("setValue", Id, string.Empty).ConfigureAwait(true);
 		}
+
 		Value = string.Empty;
 		await ValueChanged.InvokeAsync(string.Empty).ConfigureAwait(true);
 		await Cleared.InvokeAsync(null).ConfigureAwait(true);
@@ -247,11 +249,13 @@ public partial class PDTextBox : IAsyncDisposable
 			{
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
 			}
+
 			if (_module != null)
 			{
 				await _module.InvokeVoidAsync("termSpeech").ConfigureAwait(true);
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
+
 			_objRef?.Dispose();
 		}
 		catch

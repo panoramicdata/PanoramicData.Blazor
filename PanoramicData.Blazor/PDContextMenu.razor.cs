@@ -62,6 +62,7 @@ public partial class PDContextMenu : IAsyncDisposable
 			{
 				await _module.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
 			}
+
 			await ItemClick.InvokeAsync(item).ConfigureAwait(true);
 		}
 	}
