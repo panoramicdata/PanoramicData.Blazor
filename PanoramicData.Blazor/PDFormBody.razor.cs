@@ -39,7 +39,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	[Parameter] public int TitleWidth { get; set; } = 200;
 
-	private MarkupString WidthCssMarkup => new MarkupString($".title-box {{ width: {TitleWidth}px }}");
+	private MarkupString WidthCssMarkup => new($".title-box {{ width: {TitleWidth}px }}");
 
 	public async ValueTask DisposeAsync()
 	{
@@ -134,10 +134,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 
 	public bool IsShown(FormField<TItem> field, FormModes? mode = null)
 	{
-		if (mode == null)
-		{
-			mode = Form?.Mode;
-		}
+		mode ??= Form?.Mode;
 
 		return (mode == FormModes.Create && field.ShowInCreate(Form?.GetItemWithUpdates())) ||
 			((mode == FormModes.Edit || mode == FormModes.ReadOnly) && field.ShowInEdit(Form?.GetItemWithUpdates())) ||
@@ -160,7 +157,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 	{
 		if (field != null && Form != null && (field?.Helper?.Click != null || field?.Helper?.ClickAsync != null))
 		{
-			FormFieldResult result = new FormFieldResult { Canceled = true };
+			FormFieldResult result = new() { Canceled = true };
 			if (field.Helper?.Click != null)
 			{
 				result = field.Helper.Click(field);

@@ -675,11 +675,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 					// run standard data annotation validation
 					var results = new List<ValidationResult>();
-					var itemWithUpdates = GetItemWithUpdates();
-					if (itemWithUpdates is null)
-					{
-						throw new ArgumentException("Failed to get updated item instance");
-					}
+					var itemWithUpdates = GetItemWithUpdates()
+						?? throw new ArgumentException("Failed to get updated item instance");
 
 					var context = new ValidationContext(updatedItem ??= itemWithUpdates)
 					{
@@ -828,10 +825,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			field.SuppressErrors = SuppressInitialErrors;
 		}
 
-		if (validate is null)
-		{
-			validate = mode == FormModes.Create;
-		}
+		validate ??= mode == FormModes.Create;
 
 		if (validate == true)
 		{
