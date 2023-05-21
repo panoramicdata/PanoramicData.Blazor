@@ -4,6 +4,8 @@ public partial class PDColumn<TItem> where TItem : class
 {
 	private static int _idSequence = 1;
 
+	private string _title = string.Empty;
+
 	private Func<TItem, object>? _compiledFunc;
 	private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
 

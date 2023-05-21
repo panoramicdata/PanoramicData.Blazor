@@ -3,11 +3,11 @@
 public partial class PDTimelinePage
 {
 	private List<ConfigChange> _data = new();
-	private PDTimeline? _timeline = null!;
-	private TimelinePageModel _model = new TimelinePageModel();
+	private PDTimeline _timeline = null!;
+	private TimelinePageModel _model = new();
 	private TimeRange? _selection;
 	private bool _isEnabled = true;
-	private readonly TimelineOptions _timelineOptions = new TimelineOptions
+	private TimelineOptions _timelineOptions = new()
 	{
 		Bar = new TimelineBarOptions
 		{
@@ -97,11 +97,6 @@ public partial class PDTimelinePage
 
 	private void OnSelectionChangeEnd()
 	{
-		if (_timeline is null)
-		{
-			return;
-		}
-
 		EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection()?.StartTime), new EventArgument("end", _timeline.GetSelection()?.EndTime)));
 	}
 
@@ -111,10 +106,7 @@ public partial class PDTimelinePage
 		_data.Clear();
 		_minDate = DateTime.MinValue;
 		_maxDate = DateTime.MinValue;
-		if (_timeline is not null)
-		{
-			await _timeline.Reset().ConfigureAwait(true);
-		}
+		await _timeline.Reset().ConfigureAwait(true);
 	}
 
 	private async Task OnSetData()
@@ -127,10 +119,7 @@ public partial class PDTimelinePage
 		_minDate = _data.Min(x => x.DateChanged);
 		_maxDate = _data.Max(x => x.DateChanged);
 
-		if (_timeline is not null)
-		{
-			await _timeline.RefreshAsync().ConfigureAwait(true);
-		}
+		await _timeline.RefreshAsync().ConfigureAwait(true);
 	}
 
 	private async ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScale scale, CancellationToken cancellationToken)
@@ -190,35 +179,20 @@ public partial class PDTimelinePage
 
 	private async Task OnZoomToEnd()
 	{
-		if (_timeline is null)
-		{
-			return;
-		}
-
 		await _timeline.ZoomToEndAsync().ConfigureAwait(true);
 	}
 
 	private async Task OnZoomTo24h()
 	{
-		if (_timeline is null)
-		{
-			return;
-		}
-
 		await _timeline.ZoomToAsync(DateTime.Now.AddHours(-24), DateTime.Now, TimelinePositions.End).ConfigureAwait(true);
 	}
 
 	private async Task OnRefreshed()
 	{
-		if (_timeline is null)
-		{
-			return;
-		}
-
 		// select last year
 		if (_timeline.GetSelection() is null)
 		{
-			await _timeline.SetSelection(_maxDate.AddYears(-2), _maxDate).ConfigureAwait(true);
+			await _timeline.SetSelection(_maxDate.AddYears(-1), _maxDate).ConfigureAwait(true);
 		}
 	}
 
@@ -240,9 +214,9 @@ public class ConfigChange
 public class TimelinePageModel
 {
 
-	public DateTime DisableAfter { get; set; } = new DateTime(2019, 11, 01);
+	public DateTime DisableAfter { get; set; }
 
-	public DateTime DisableBefore { get; set; } = new DateTime(2016, 11, 01);
+	public DateTime DisableBefore { get; set; }
 
-	public TimelineScale Scale { get; set; } = TimelineScale.Months;
+	public TimelineScale Scale { get; set; } = TimelineScale.Years;
 }

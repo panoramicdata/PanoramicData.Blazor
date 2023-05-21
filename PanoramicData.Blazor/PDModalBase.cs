@@ -39,30 +39,15 @@ public abstract class PDModalBase : ComponentBase
 	/// <summary>
 	/// Hides the Modal Dialog.
 	/// </summary>
-	public Task HideAsync() => HideAsync(default);
-
-	/// <summary>
-	/// Hides the Modal Dialog.
-	/// </summary>
-	public Task HideAsync(CancellationToken cancellationToken) => Modal.HideAsync(cancellationToken);
+	public Task HideAsync() => Modal.HideAsync();
 
 	/// <summary>
 	/// Displays the Modal Dialog.
 	/// </summary>
-	public Task ShowAsync() => Modal.ShowAsync(default);
-
-	/// <summary>
-	/// Displays the Modal Dialog.
-	/// </summary>
-	public Task ShowAsync(CancellationToken cancellationToken) => Modal.ShowAsync(cancellationToken);
+	public Task ShowAsync() => Modal.ShowAsync();
 
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public Task<string> ShowAndWaitResultAsync() => ShowAndWaitResultAsync(default);
-
-	/// <summary>
-	/// Displays the Modal Dialog and awaits the users choice.
-	/// </summary>
-	public Task<string> ShowAndWaitResultAsync(CancellationToken cancellationToken) => Modal.ShowAndWaitResultAsync(cancellationToken);
+	public Task<string> ShowAndWaitResultAsync() => Modal.ShowAndWaitResultAsync();
 }

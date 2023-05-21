@@ -36,7 +36,7 @@ public partial class PDConfirmPage
 	{
 		_cancellationToken2 = new();
 		_result2 = await _confirmModal2!
-			.ShowAndWaitResultAsync(_cancellationToken2.Token)
+			.ShowAndWaitResultAsync()
 			.ConfigureAwait(true);
 		if (_result2 == PDConfirm.Outcomes.Yes)
 		{

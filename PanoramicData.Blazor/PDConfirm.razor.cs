@@ -69,14 +69,9 @@ public partial class PDConfirm : PDModalBase
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public new Task<Outcomes> ShowAndWaitResultAsync() => ShowAndWaitResultAsync(CancellationToken.None);
-
-	/// <summary>
-	/// Displays the Modal Dialog and awaits the users choice.
-	/// </summary>
-	public new async Task<Outcomes> ShowAndWaitResultAsync(CancellationToken cancellationToken)
+	public new async Task<Outcomes> ShowAndWaitResultAsync()
 	{
-		return await Modal.ShowAndWaitResultAsync(cancellationToken) switch
+		return await Modal.ShowAndWaitResultAsync() switch
 		{
 			ModalResults.YES => Outcomes.Yes,
 			ModalResults.NO => Outcomes.No,
@@ -87,16 +82,11 @@ public partial class PDConfirm : PDModalBase
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public Task<Outcomes> ShowAndWaitResultAsync(string message) => ShowAndWaitResultAsync(message, CancellationToken.None);
-
-	/// <summary>
-	/// Displays the Modal Dialog and awaits the users choice.
-	/// </summary>
-	public async Task<Outcomes> ShowAndWaitResultAsync(string message, CancellationToken cancellationToken)
+	public async Task<Outcomes> ShowAndWaitResultAsync(string message)
 	{
 		Message = message;
 		StateHasChanged();
-		return await Modal.ShowAndWaitResultAsync(cancellationToken) switch
+		return await Modal.ShowAndWaitResultAsync() switch
 		{
 			ModalResults.YES => Outcomes.Yes,
 			ModalResults.NO => Outcomes.No,
@@ -107,17 +97,12 @@ public partial class PDConfirm : PDModalBase
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public Task<Outcomes> ShowAndWaitResultAsync(string message, string title) => ShowAndWaitResultAsync(message, title, default);
-
-	/// <summary>
-	/// Displays the Modal Dialog and awaits the users choice.
-	/// </summary>
-	public async Task<Outcomes> ShowAndWaitResultAsync(string message, string title, CancellationToken cancellationToken)
+	public async Task<Outcomes> ShowAndWaitResultAsync(string message, string title)
 	{
 		Message = message;
 		Title = title;
 		StateHasChanged();
-		return await Modal.ShowAndWaitResultAsync(cancellationToken) switch
+		return await Modal.ShowAndWaitResultAsync() switch
 		{
 			ModalResults.YES => Outcomes.Yes,
 			ModalResults.NO => Outcomes.No,

@@ -6,27 +6,27 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private string _deleteDialogMessage = string.Empty;
 	private string _conflictDialogMessage = string.Empty;
 	private string[] _conflictDialogList = new string[0];
-	private readonly SortCriteria _tableSort = new SortCriteria("Name", SortDirection.Ascending);
-	private readonly MenuItem _menuOpen = new MenuItem { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
-	private readonly MenuItem _menuDownload = new MenuItem { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
-	private readonly MenuItem _menuNewFolder = new MenuItem { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" };
-	private readonly MenuItem _menuUploadFiles = new MenuItem { Text = "Upload Files", IconCssClass = "fas fa-fw fa-upload" };
-	private readonly MenuItem _menuSep1 = new MenuItem { IsSeparator = true };
-	private readonly MenuItem _menuRename = new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" };
-	private readonly MenuItem _menuSep2 = new MenuItem { IsSeparator = true };
-	private readonly MenuItem _menuCopy = new MenuItem { Text = "Copy", IconCssClass = "fas fa-fw fa-copy" };
-	private readonly MenuItem _menuCut = new MenuItem { Text = "Cut", IconCssClass = "fas fa-fw fa-cut" };
-	private readonly MenuItem _menuPaste = new MenuItem { Text = "Paste", IconCssClass = "fas fa-fw fa-paste" };
-	private readonly MenuItem _menuSep3 = new MenuItem { IsSeparator = true };
-	private readonly MenuItem _menuDelete = new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
-	private readonly List<FileExplorerItem> _copyPayload = new List<FileExplorerItem>();
-	private readonly Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>> _conflictCache = new Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>>();
-	private readonly List<FileExplorerItem> _conflicts = new List<FileExplorerItem>();
+	private readonly SortCriteria _tableSort = new("Name", SortDirection.Ascending);
+	private readonly MenuItem _menuOpen = new() { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
+	private readonly MenuItem _menuDownload = new() { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
+	private readonly MenuItem _menuNewFolder = new() { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" };
+	private readonly MenuItem _menuUploadFiles = new() { Text = "Upload Files", IconCssClass = "fas fa-fw fa-upload" };
+	private readonly MenuItem _menuSep1 = new() { IsSeparator = true };
+	private readonly MenuItem _menuRename = new() { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" };
+	private readonly MenuItem _menuSep2 = new() { IsSeparator = true };
+	private readonly MenuItem _menuCopy = new() { Text = "Copy", IconCssClass = "fas fa-fw fa-copy" };
+	private readonly MenuItem _menuCut = new() { Text = "Cut", IconCssClass = "fas fa-fw fa-cut" };
+	private readonly MenuItem _menuPaste = new() { Text = "Paste", IconCssClass = "fas fa-fw fa-paste" };
+	private readonly MenuItem _menuSep3 = new() { IsSeparator = true };
+	private readonly MenuItem _menuDelete = new() { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
+	private readonly List<FileExplorerItem> _copyPayload = new();
+	private readonly Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>> _conflictCache = new();
+	private readonly List<FileExplorerItem> _conflicts = new();
 	private int _batchCount;
 	private int _batchProgress;
 	protected long _batchTotalBytes;
 	protected long _batchTotalBytesSent;
-	private readonly Dictionary<string, double> _batchFiles = new Dictionary<string, double>();
+	private readonly Dictionary<string, double> _batchFiles = new();
 	private bool _moveCopyPayload = false;
 	private string _pasteTarget = string.Empty;
 	private TreeNode<FileExplorerItem>? _selectedNode;
@@ -736,7 +736,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				var newPath = $"{args.Item.ParentPath}/{newName}";
 				if (newPath.StartsWith("//"))
 				{
-					newPath = newPath.Substring(1);
+					newPath = newPath[1..];
 				}
 				// check for duplicate name
 				if (Table!.ItemsToDisplay.Any(x => x.Path == newPath) || Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newName, StringComparison.OrdinalIgnoreCase)))
@@ -781,7 +781,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private bool ShowSeparator(MenuItem separator, IEnumerable<MenuItem> items)
 	{
 		var visibleItems = items.Where(x => x.IsVisible).ToList();
-		if (visibleItems.Count == 0 || separator == visibleItems[0] || separator == visibleItems[visibleItems.Count - 1])
+		if (visibleItems.Count == 0 || separator == visibleItems[0] || separator == visibleItems[^1])
 		{
 			return false;
 		}
@@ -1114,9 +1114,9 @@ public partial class PDFileExplorer : IAsyncDisposable
 			}
 			else if (args.Path.StartsWith(FolderPath.TrimEnd('/') + "/")) // in higher folder
 			{
-				var relativePath = args.Path.Substring(FolderPath.Length).TrimStart('/');
+				var relativePath = args.Path[FolderPath.Length..].TrimStart('/');
 				var idx = relativePath.IndexOf('/');
-				var subFolder = idx == -1 ? relativePath : relativePath.Substring(0, idx);
+				var subFolder = idx == -1 ? relativePath : relativePath[..idx];
 				var item = Table.ItemsToDisplay.Find(x => x.Name == subFolder);
 				if (item is null)
 				{
@@ -1197,7 +1197,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		// source and target are file items - and target is folder?
 		if (args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory)
 		{
-			List<FileExplorerItem> payload = new List<FileExplorerItem>();
+			List<FileExplorerItem> payload = new();
 			if (args.Payload is List<FileExplorerItem> mfe)
 			{
 				payload = mfe;
@@ -1587,7 +1587,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			return $"{filename}{postfix}";
 		}
 
-		return $"{filename.Substring(0, idx)}{postfix}{filename.Substring(idx)}";
+		return $"{filename[..idx]}{postfix}{filename[idx..]}";
 	}
 
 	/// <summary>

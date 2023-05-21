@@ -214,17 +214,17 @@ public class TimelineScale : IComparable
 
 	#region Class Members
 
-	public static TimelineScale Years => new TimelineScale("Years", TimelineUnits.Years, 1);
-	public static TimelineScale Months => new TimelineScale("Months", TimelineUnits.Months, 1);
-	public static TimelineScale Weeks => new TimelineScale("Weeks", TimelineUnits.Weeks, 1);
-	public static TimelineScale Days => new TimelineScale("Days", TimelineUnits.Days, 1);
-	public static TimelineScale Hours => new TimelineScale("Hours", TimelineUnits.Hours, 1);
-	public static TimelineScale Hours4 => new TimelineScale("4 Hours", TimelineUnits.Hours, 4);
-	public static TimelineScale Hours6 => new TimelineScale("6 Hours", TimelineUnits.Hours, 6);
-	public static TimelineScale Hours8 => new TimelineScale("8 Hours", TimelineUnits.Hours, 8);
-	public static TimelineScale Hours12 => new TimelineScale("12 Hours", TimelineUnits.Hours, 12);
-	public static TimelineScale Minutes => new TimelineScale("Minutes", TimelineUnits.Minutes, 1);
-	public static TimelineScale Seconds => new TimelineScale("Seconds", TimelineUnits.Seconds, 1);
+	public static TimelineScale Years => new("Years", TimelineUnits.Years, 1);
+	public static TimelineScale Months => new("Months", TimelineUnits.Months, 1);
+	public static TimelineScale Weeks => new("Weeks", TimelineUnits.Weeks, 1);
+	public static TimelineScale Days => new("Days", TimelineUnits.Days, 1);
+	public static TimelineScale Hours => new("Hours", TimelineUnits.Hours, 1);
+	public static TimelineScale Hours4 => new("4 Hours", TimelineUnits.Hours, 4);
+	public static TimelineScale Hours6 => new("6 Hours", TimelineUnits.Hours, 6);
+	public static TimelineScale Hours8 => new("8 Hours", TimelineUnits.Hours, 8);
+	public static TimelineScale Hours12 => new("12 Hours", TimelineUnits.Hours, 12);
+	public static TimelineScale Minutes => new("Minutes", TimelineUnits.Minutes, 1);
+	public static TimelineScale Seconds => new("Seconds", TimelineUnits.Seconds, 1);
 
 	#endregion
 }

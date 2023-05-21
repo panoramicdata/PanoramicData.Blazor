@@ -10,7 +10,7 @@ public partial class PDFilter : IAsyncDisposable
 	private string _value2 = String.Empty;
 	private FilterTypes _filterType = FilterTypes.Equals;
 	private string _valuesFilter = String.Empty;
-	private List<string> _selectedValues = new List<string>();
+	private List<string> _selectedValues = new();
 	private IJSObjectReference? _commonModule;
 
 	[Inject]
