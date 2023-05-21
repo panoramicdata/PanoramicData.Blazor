@@ -48,20 +48,20 @@
 						<PDFormBody TItem="Person">
 							<PDField TItem="Person"
 									 Field="x => x.Id"
-									 ShowInDelete="(_) => true"
-									 ShowInCreate="(_) => false"
-									 ReadOnlyInEdit="(_) => true" />
+									 ShowInDelete="_ => true"
+									 ShowInCreate="_ => false"
+									 ReadOnlyInEdit="_ => true" />
 
 							<PDField TItem="Person"
 									 Field="x => x.FirstName"
 									 Title="First Name"
-									 ShowInDelete="(_) => true" />
+									 ShowInDelete="_ => true" />
 
 							<PDField TItem="Person"
 									 Field="x => x.LastName"
 									 Title="Last Name"
 									 MaxLength="20"
-									 ShowInDelete="(_) => true" />
+									 ShowInDelete="_ => true" />
 
 							<PDField TItem="Person"
 									 Field="x => x.Dob" />
@@ -83,13 +83,13 @@
 
 							<PDField TItem="Person"
 									 Field="x => x.DateCreated"
-									 ShowInCreate="(_) => false"
-									 ReadOnlyInEdit="(_) => true" />
+									 ShowInCreate="_ => false"
+									 ReadOnlyInEdit="_ => true" />
 
 							<PDField TItem="Person"
 									 Field="x => x.DateModified"
-									 ShowInCreate="(_) => false"
-									 ShowInEdit="(_) => false" />
+									 ShowInCreate="_ => false"
+									 ShowInEdit="_ => false" />
 						</PDFormBody>
 					</ChildContent>
 					<Footer>

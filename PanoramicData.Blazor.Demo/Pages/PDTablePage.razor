@@ -112,20 +112,20 @@
                       TItem="Person"
                       Field="x => x.FirstName"
                       Filterable="true"
-                      ShowCopyButton="(_) => true" />
+                      ShowCopyButton="_ => true" />
 
             <PDColumn Id="last"
                       TItem="Person"
                       Field="x => x.LastName"
                       Filterable="true"
-                      ShowCopyButton="(_) => true"
+                      ShowCopyButton="_ => true"
                       UserSelectable="true" />
 
             <PDColumn Id="email"
                       TItem="Person"
                       Field="x => x.Email"
                       Filterable="true"
-                      ShowCopyButton="(_) => true"
+                      ShowCopyButton="_ => true"
                       TdClass="text-nowrap"
                       UserSelectable="true" />
 
@@ -136,7 +136,7 @@
                       Filterable="true"
                       FilterMaxValues="5"
                       Format="yyyy-MM-dd"
-                      ShowCopyButton="(_) => true">
+                      ShowCopyButton="_ => true">
                 <EditTemplate>
                     <input id="pd-table-edit-dob"
                            type="date"

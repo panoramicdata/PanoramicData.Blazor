@@ -55,27 +55,27 @@
 
                 <PDField TItem="Person"
                          Field="x => x.Id"
-                         ShowInDelete="FormField<Person>.True"
-                         ShowInCreate="(_) => false"
-                         ReadOnlyInEdit="(_) => true" />
+                         ShowInDelete="_ => true"
+                         ShowInCreate="_ => false"
+                         ReadOnlyInEdit="_ => true" />
 
                 <PDField TItem="Person"
                          Field="x => x.FirstName"
-                         ShowCopyButton="(_) => true"
-                         ShowInDelete="(_) => true"
+                         ShowCopyButton="_ => true"
+                         ShowInDelete="_ => true"
                          Title="First Name" />
 
                 <PDField TItem="Person"
                          Field="x => x.LastName"
                          MaxLength="20"
-                         ShowCopyButton="(_) => true"
-                         ShowInDelete="(_) => true"
+                         ShowCopyButton="_ => true"
+                         ShowInDelete="_ => true"
                          Title="Last Name" />
 
                 <PDField TItem="Person"
                          Field="x => x.Dob"
                          Helper="_dateHelper"
-                         ShowCopyButton="(_) => true" />
+                         ShowCopyButton="_ => true" />
 
                 <PDField TItem="Person"
                          ShowValidationResult="false"
@@ -84,7 +84,7 @@
                 <PDField TItem="Person"
                          Field="x => x.AllowLogin"
                          Title="Login?"
-                         ReadOnlyInCreate="(_) => false" />
+                         ReadOnlyInCreate="_ => false" />
 
                 <PDField TItem="Person"
                          Field="x => x.Password"
@@ -98,20 +98,20 @@
 
                 <PDField TItem="Person"
                          Field="x => x.Comments"
-                         ShowCopyButton="(_) => true"
-                         ShowInCreate="(_) => false"
+                         ShowCopyButton="_ => true"
+                         ShowInCreate="_ => false"
                          IsTextArea="true" />
 
                 <PDField TItem="Person"
                          Field="x => x.DateCreated"
-                         ShowInCreate="(_) => false"
+                         ShowInCreate="_ => false"
                          Helper="_dateHelper"
-                         ReadOnlyInEdit="(_) => false" />
+                         ReadOnlyInEdit="_ => false" />
 
                 <PDField TItem="Person"
                          Field="x => x.DateModified"
-                         ShowInEdit="(_) => false"
-                         ShowInCreate="(_) => false" />
+                         ShowInEdit="_ => false"
+                         ShowInCreate="_ => false" />
 
             </PDFormBody>
 
