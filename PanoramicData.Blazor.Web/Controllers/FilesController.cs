@@ -39,7 +39,7 @@ namespace PanoramicData.Blazor.Web.Controllers
 			{
 				var folderPath = string.IsNullOrWhiteSpace(uploadInfo.Path.TrimStart('/'))
 					? "C:\\Temp\\Uploads"
-					: Path.Combine("C:\\Temp\\Uploads", uploadInfo.Path.TrimStart('/').Replace('/', System.IO.Path.DirectorySeparatorChar));
+					: Path.Combine("C:\\Temp\\Uploads", uploadInfo.Path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
 				if (!Directory.Exists(folderPath))
 				{
 					Directory.CreateDirectory(folderPath);

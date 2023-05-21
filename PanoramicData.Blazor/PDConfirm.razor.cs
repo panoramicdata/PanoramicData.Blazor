@@ -69,15 +69,12 @@ public partial class PDConfirm : PDModalBase
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public new async Task<Outcomes> ShowAndWaitResultAsync()
+	public new async Task<Outcomes> ShowAndWaitResultAsync() => await Modal.ShowAndWaitResultAsync() switch
 	{
-		return await Modal.ShowAndWaitResultAsync() switch
-		{
-			ModalResults.YES => Outcomes.Yes,
-			ModalResults.NO => Outcomes.No,
-			_ => Outcomes.Cancel
-		};
-	}
+		ModalResults.YES => Outcomes.Yes,
+		ModalResults.NO => Outcomes.No,
+		_ => Outcomes.Cancel
+	};
 
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.

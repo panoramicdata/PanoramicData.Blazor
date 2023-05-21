@@ -15,10 +15,7 @@ public partial class PDButtonPage : IAsyncDisposable
 
 	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
-	protected override async Task OnInitializedAsync()
-	{
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
-	}
+	protected override async Task OnInitializedAsync() => _commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
 
 	private void OnButton1Click(MouseEventArgs args)
 	{

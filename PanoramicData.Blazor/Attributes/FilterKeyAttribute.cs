@@ -12,5 +12,5 @@ public class FilterKeyAttribute : Attribute
 
 	public static string Get(PropertyInfo propertyInfo) => propertyInfo.GetCustomAttributes()
 			.OfType<FilterKeyAttribute>()
-			.SingleOrDefault()?.Value ?? propertyInfo.Name[0].ToString().ToLower() + propertyInfo.Name[1..];
+			.SingleOrDefault()?.Value ?? propertyInfo.Name[0].ToString().ToLowerInvariant() + propertyInfo.Name[1..];
 }

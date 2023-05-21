@@ -128,22 +128,13 @@ public partial class PDModal : IAsyncDisposable
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
-	{
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
-	}
+	protected override async Task OnInitializedAsync() => _commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
 
 	[JSInvokable]
-	public async Task OnModalShown()
-	{
-		await Shown.InvokeAsync(null).ConfigureAwait(true);
-	}
+	public async Task OnModalShown() => await Shown.InvokeAsync(null).ConfigureAwait(true);
 
 	[JSInvokable]
-	public async Task OnModalHidden()
-	{
-		await Hidden.InvokeAsync(null).ConfigureAwait(true);
-	}
+	public async Task OnModalHidden() => await Hidden.InvokeAsync(null).ConfigureAwait(true);
 
 	/// <summary>
 	/// Displays the Modal Dialog.
@@ -169,7 +160,7 @@ public partial class PDModal : IAsyncDisposable
 		{
 			if (x is ToolbarButton btn)
 			{
-				return !string.IsNullOrWhiteSpace(btn.Key) && btn.CssClass.IndexOf("btn-primary", System.StringComparison.OrdinalIgnoreCase) >= 0;
+				return !string.IsNullOrWhiteSpace(btn.Key) && btn.CssClass.IndexOf("btn-primary", StringComparison.OrdinalIgnoreCase) >= 0;
 			}
 
 			return false;

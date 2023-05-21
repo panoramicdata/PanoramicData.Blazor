@@ -89,8 +89,5 @@ public partial class PDToolbarButton : IToolbarItem
 		}
 	}
 
-	private async Task OnClick(MouseEventArgs args)
-	{
-		await Click.InvokeAsync(new KeyedEventArgs<MouseEventArgs>(Key, args)).ConfigureAwait(true);
-	}
+	private async Task OnClick(MouseEventArgs args) => await Click.InvokeAsync(new KeyedEventArgs<MouseEventArgs>(Key, args)).ConfigureAwait(true);
 }

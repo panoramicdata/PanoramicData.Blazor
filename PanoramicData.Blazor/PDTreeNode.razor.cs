@@ -119,10 +119,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 		}
 	}
 
-	private async Task OnEndEdit()
-	{
-		await EndEdit.InvokeAsync(null).ConfigureAwait(true);
-	}
+	private async Task OnEndEdit() => await EndEdit.InvokeAsync(null).ConfigureAwait(true);
 
 	private Dictionary<string, object> TreeAttributes
 	{
@@ -165,10 +162,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 		}
 	}
 
-	private async Task OnDrop(DropEventArgs args)
-	{
-		await Drop.InvokeAsync(args).ConfigureAwait(true);
-	}
+	private async Task OnDrop(DropEventArgs args) => await Drop.InvokeAsync(args).ConfigureAwait(true);
 
 	private async Task OnSeparatorDrop(DropEventArgs args)
 	{

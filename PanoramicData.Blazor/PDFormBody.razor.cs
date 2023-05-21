@@ -88,10 +88,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		return groups;
 	}
 
-	protected override async Task OnInitializedAsync()
-	{
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-	}
+	protected override async Task OnInitializedAsync() => _commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 
 	protected override void OnParametersSet()
 	{
@@ -148,10 +145,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		Form?.Mode == FormModes.Cancel ||
 		Form?.Mode == FormModes.ReadOnly;
 
-	public string GetEditorClass(FormField<TItem> field)
-	{
-		return Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
-	}
+	public string GetEditorClass(FormField<TItem> field) => Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
 
 	private async Task OnHelperClick(FormField<TItem> field)
 	{

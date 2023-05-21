@@ -14,10 +14,7 @@ public partial class EventView : IDisposable
 		}
 	}
 
-	private void OnEventAdded(Event evt)
-	{
-		StateHasChanged();
-	}
+	private void OnEventAdded(Event evt) => StateHasChanged();
 
 	public void Dispose()
 	{

@@ -25,20 +25,11 @@ public partial class PDPagerPage : IDisposable
 		_pageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
 	}
 
-	private void PageCriteria_TotalCountChanged(object? sender, EventArgs e)
-	{
-		EventManager?.Add(new Event("TotalCountChanged", new EventArgument("TotalCount", _pageCriteria.TotalCount)));
-	}
+	private void PageCriteria_TotalCountChanged(object? sender, EventArgs e) => EventManager?.Add(new Event("TotalCountChanged", new EventArgument("TotalCount", _pageCriteria.TotalCount)));
 
-	private void PageCriteria_PageSizeChanged(object? sender, EventArgs e)
-	{
-		EventManager?.Add(new Event("PageSizeChanged", new EventArgument("PageSize", _pageCriteria.PageSize)));
-	}
+	private void PageCriteria_PageSizeChanged(object? sender, EventArgs e) => EventManager?.Add(new Event("PageSizeChanged", new EventArgument("PageSize", _pageCriteria.PageSize)));
 
-	private void PageCriteria_PageChanged(object? sender, EventArgs e)
-	{
-		EventManager?.Add(new Event("PageChanged", new EventArgument("Page", _pageCriteria.Page)));
-	}
+	private void PageCriteria_PageChanged(object? sender, EventArgs e) => EventManager?.Add(new Event("PageChanged", new EventArgument("Page", _pageCriteria.Page)));
 
 	private void OnGotoPage()
 	{

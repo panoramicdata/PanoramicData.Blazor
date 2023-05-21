@@ -73,7 +73,7 @@ public partial class PDSplitter : IAsyncDisposable
 			var pcts = Panels.Select(x => (int)Math.Round((x.Size / sizesSum) * 100)).ToArray();
 			var options = new SplitOptions
 			{
-				Direction = Direction.ToString().ToLower(),
+				Direction = Direction.ToString().ToLowerInvariant(),
 				MinSize = Panels.Select(x => x.MinSize).ToArray(),
 				ExpandToMin = ExpandToMin,
 				Sizes = pcts,

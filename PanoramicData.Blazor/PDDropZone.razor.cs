@@ -190,10 +190,12 @@ public partial class PDDropZone : IAsyncDisposable
 			throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 		}
 
-		var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId);
-		//			_batchProgress++;
-		args.BatchCount = _batchCount;
-		args.BatchProgress = _batchProgress;
+		var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId)
+		{
+			//_batchProgress++;
+			BatchCount = _batchCount,
+			BatchProgress = _batchProgress
+		};
 		await UploadStarted.InvokeAsync(args).ConfigureAwait(true);
 		if (args.FormFields.Count == 0)
 		{
@@ -326,15 +328,12 @@ public partial class PDDropZone : IAsyncDisposable
 	}
 
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsProgress")]
-	public void OnAllUploadsProgress(double uploadProgress, long totalBytes, long totalBytesSent)
+	public void OnAllUploadsProgress(double uploadProgress, long totalBytes, long totalBytesSent) => AllUploadsProgress.InvokeAsync(new DropZoneAllProgressEventArgs
 	{
-		AllUploadsProgress.InvokeAsync(new DropZoneAllProgressEventArgs
-		{
-			TotalBytes = totalBytes,
-			TotalBytesSent = totalBytesSent,
-			UploadProgress = uploadProgress
-		});
-	}
+		TotalBytes = totalBytes,
+		TotalBytesSent = totalBytesSent,
+		UploadProgress = uploadProgress
+	});
 
 	public async ValueTask DisposeAsync()
 	{

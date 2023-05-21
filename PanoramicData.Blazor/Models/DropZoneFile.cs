@@ -18,12 +18,12 @@ public class DropZoneFile
 		var segs = new List<string>();
 		if (rootDir != null)
 		{
-			segs.AddRange(rootDir.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries));
+			segs.AddRange(rootDir.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries));
 		}
 
 		if (Path != null)
 		{
-			segs.AddRange(Path.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries));
+			segs.AddRange(Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries));
 		}
 
 		var folderPath = $"/{string.Join("/", segs)}";

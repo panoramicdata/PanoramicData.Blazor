@@ -49,26 +49,15 @@ public partial class PDFileModalsPage
 		}
 	}
 
-	private async Task ShowFileOpenModalAndWaitResult()
-	{
-		_openResult = await _fileModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
-	}
+	private async Task ShowFileOpenModalAndWaitResult() => _openResult = await _fileModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
 
-	private async Task ShowFileOpenFilteredModalAndWaitResult()
-	{
+	private async Task ShowFileOpenFilteredModalAndWaitResult() =>
 		// show DOCX and XLSX files only
 		_openResult = await _fileModal.ShowOpenAndWaitResultAsync(false, "*.docx;*.xlsx").ConfigureAwait(true);
-	}
 
-	private async Task ShowFolderOpenModalAndWaitResult()
-	{
-		_openResult = await _fileModal.ShowOpenAndWaitResultAsync(true).ConfigureAwait(true);
-	}
+	private async Task ShowFolderOpenModalAndWaitResult() => _openResult = await _fileModal.ShowOpenAndWaitResultAsync(true).ConfigureAwait(true);
 
-	private async Task ShowFileSaveAsModalAndWaitResult()
-	{
-		_saveAsResult = await _fileModal.ShowSaveAsAndWaitResultAsync("NewFile.html").ConfigureAwait(true);
-	}
+	private async Task ShowFileSaveAsModalAndWaitResult() => _saveAsResult = await _fileModal.ShowSaveAsAndWaitResultAsync("NewFile.html").ConfigureAwait(true);
 
 	private async Task ShowFileOpenModal()
 	{

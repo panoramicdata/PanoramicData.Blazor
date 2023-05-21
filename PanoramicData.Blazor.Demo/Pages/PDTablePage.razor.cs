@@ -84,15 +84,9 @@ public partial class PDTablePage
 		}
 	}
 
-	private void OnClick(Person item)
-	{
-		EventManager?.Add(new Event("Click", new EventArgument("Person", item.FirstName)));
-	}
+	private void OnClick(Person item) => EventManager?.Add(new Event("Click", new EventArgument("Person", item.FirstName)));
 
-	private void OnDoubleClick(Person item)
-	{
-		EventManager?.Add(new Event("DoubleClick", new EventArgument("Person", item.FirstName)));
-	}
+	private void OnDoubleClick(Person item) => EventManager?.Add(new Event("DoubleClick", new EventArgument("Person", item.FirstName)));
 
 	private void OnBeforeEdit(TableBeforeEditEventArgs<Person> args)
 	{
@@ -125,10 +119,7 @@ public partial class PDTablePage
 		}
 	}
 
-	private void OnDragLeave(DragEventArgs _)
-	{
-		DropZoneCss = "";
-	}
+	private void OnDragLeave(DragEventArgs _) => DropZoneCss = "";
 
 	private void OnDragDrop(DragEventArgs _)
 	{
@@ -155,13 +146,11 @@ public partial class PDTablePage
 		await SearchAsync().ConfigureAwait(true);
 	}
 
-	private async Task OnSearchCleared()
-	{
+	private async Task OnSearchCleared() =>
 		//_searchText = string.Empty;
 		await SearchAsync().ConfigureAwait(true);
-	}
 
-	private OptionInfo[] GetLocationOptions(FormField<Person> _, Person item)
+	private static OptionInfo[] GetLocationOptions(FormField<Person> _, Person item)
 	{
 		var options = new List<OptionInfo>();
 		for (var i = 0; i < PersonDataProvider.Locations.Length; i++)

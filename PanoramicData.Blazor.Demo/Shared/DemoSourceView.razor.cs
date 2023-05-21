@@ -76,23 +76,10 @@ public partial class DemoSourceView
 		}
 	}
 
-	private string SourceCode
-	{
-		get
-		{
-			if (_sourceFiles.ContainsKey(_activeSourceFile))
-			{
-				return _sourceFiles[_activeSourceFile].Content;
-			}
+	private string SourceCode =>
+		_sourceFiles.TryGetValue(_activeSourceFile, out var value) ? value.Content : string.Empty;
 
-			return "";
-		}
-	}
-
-	public static string GetUrl(string url)
-	{
-		return url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : $"{_sourceBaseUrl}/{url}";
-	}
+	public static string GetUrl(string url) => url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : $"{_sourceBaseUrl}/{url}";
 
 	private async Task<string> LoadSourceAsync(string url)
 	{
@@ -129,27 +116,21 @@ public partial class DemoSourceView
 		}
 	}
 
-	private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor _)
+	private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor _) => new()
 	{
-		return new StandaloneEditorConstructionOptions
-		{
-			AutomaticLayout = true,
-			Language = GetLanguageForFile(_activeSourceFile),
-			Value = SourceCode,
-			ReadOnly = true
-		};
-	}
+		AutomaticLayout = true,
+		Language = GetLanguageForFile(_activeSourceFile),
+		Value = SourceCode,
+		ReadOnly = true
+	};
 
-	private static string GetLanguageForFile(string filename)
+	private static string GetLanguageForFile(string filename) => Path.GetExtension(filename) switch
 	{
-		return Path.GetExtension(filename) switch
-		{
-			".cs" => "csharp",
-			".css" => "css",
-			".html" => "html",
-			".cshtml" => "razor",
-			".razor" => "razor",
-			_ => "csharp"
-		};
-	}
+		".cs" => "csharp",
+		".css" => "css",
+		".html" => "html",
+		".cshtml" => "razor",
+		".razor" => "razor",
+		_ => "csharp"
+	};
 }

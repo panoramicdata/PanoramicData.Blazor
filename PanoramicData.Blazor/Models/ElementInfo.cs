@@ -21,7 +21,7 @@ public class ElementInfo
 		var el = this.Parent;
 		while (el != null)
 		{
-			if (el.Tag == tag && classes.Except(el.ClassList).Count() == 0)
+			if (el.Tag == tag && !classes.Except(el.ClassList).Any())
 			{
 				return el;
 			}
@@ -38,8 +38,5 @@ public class ElementInfo
 	/// <param name="tag">The HTML Tag name to search for.</param>
 	/// <param name="classes">Zero or more classes to match.</param>
 	/// <returns>true if any ancestor matches, otherwise false.</returns>
-	public bool HasAncestor(string tag, params string[] classes)
-	{
-		return Find(tag, classes) != null;
-	}
+	public bool HasAncestor(string tag, params string[] classes) => Find(tag, classes) != null;
 }

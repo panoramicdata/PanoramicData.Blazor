@@ -56,18 +56,20 @@ public class ShortcutKey
 
 		if (Code.Length > 0 && Code.StartsWith("key", StringComparison.OrdinalIgnoreCase))
 		{
-			sb.Append(Code.Substring(3).ToUpper());
+			sb.Append(Code[3..].ToUpperInvariant());
 		}
 		else if (Code.Length > 0 && Code.StartsWith("digit", StringComparison.OrdinalIgnoreCase))
 		{
-			sb.Append(Code.Substring(5).ToUpper());
+			sb.Append(Code[5..].ToUpperInvariant());
 		}
 		else if (Code.Length > 0)
 		{
-			sb.Append(Code.ToUpper());
+			sb.Append(Code.ToUpperInvariant());
 		}
 		else
-			sb.Append(Key.ToUpper());
+		{
+			sb.Append(Key.ToUpperInvariant());
+		}
 
 		return sb.ToString();
 	}
@@ -81,28 +83,22 @@ public class ShortcutKey
 	/// <param name="ctrlKey">Whether the control key was also pressed.</param>
 	/// <param name="shiftKey">Whether the shift key was also pressed.</param>
 	/// <returns>true if it is a match, otherwise false.</returns>
-	public bool IsMatch(string key, string code, bool altKey, bool ctrlKey, bool shiftKey)
-	{
-		return AltKey == altKey &&
+	public bool IsMatch(string key, string code, bool altKey, bool ctrlKey, bool shiftKey) => AltKey == altKey &&
 			CtrlKey == ctrlKey &&
 			ShiftKey == shiftKey &&
 			(string.Equals(Key, key, StringComparison.OrdinalIgnoreCase) ||
 			 string.Equals(Code, code, StringComparison.OrdinalIgnoreCase));
-	}
 
 	/// <summary>
 	/// Determines whether this shortcut key is a match with the given shortcut key.
 	/// </summary>
 	/// <param name="shortcutKey">ShortcutKey instance to match with.</param>
 	/// <returns>true if it is a match, otherwise false.</returns>
-	public bool IsMatch(ShortcutKey shortcutKey)
-	{
-		return AltKey == shortcutKey.AltKey &&
+	public bool IsMatch(ShortcutKey shortcutKey) => AltKey == shortcutKey.AltKey &&
 			CtrlKey == shortcutKey.CtrlKey &&
 			ShiftKey == shortcutKey.ShiftKey &&
 			(string.Equals(Key, shortcutKey.Key, StringComparison.OrdinalIgnoreCase) ||
 			 string.Equals(Code, shortcutKey.Code, StringComparison.OrdinalIgnoreCase));
-	}
 
 	/// <summary>
 	/// Returns whether this instance represents a valid shortcut key.

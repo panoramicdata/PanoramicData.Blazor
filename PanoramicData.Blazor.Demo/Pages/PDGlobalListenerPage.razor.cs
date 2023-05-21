@@ -15,21 +15,15 @@ public partial class PDGlobalListenerPage : IDisposable
 		}
 	}
 
-	private void GlobalEventService_KeyDownEvent(object? sender, KeyboardInfo e)
-	{
-		EventManager?.Add(new Event("KeyDown", new EventArgument("Key", e.Key),
+	private void GlobalEventService_KeyDownEvent(object? sender, KeyboardInfo e) => EventManager?.Add(new Event("KeyDown", new EventArgument("Key", e.Key),
 					 						 new EventArgument("AltKey", e.AltKey),
 					 						 new EventArgument("ShiftKey", e.ShiftKey),
 											 new EventArgument("CtrlKey", e.CtrlKey)));
-	}
 
-	private void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e)
-	{
-		EventManager?.Add(new Event("KeyUp", new EventArgument("Key", e.Key),
+	private void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e) => EventManager?.Add(new Event("KeyUp", new EventArgument("Key", e.Key),
 					 						 new EventArgument("AltKey", e.AltKey),
 					 						 new EventArgument("ShiftKey", e.ShiftKey),
 											 new EventArgument("CtrlKey", e.CtrlKey)));
-	}
 
 	public void Dispose()
 	{

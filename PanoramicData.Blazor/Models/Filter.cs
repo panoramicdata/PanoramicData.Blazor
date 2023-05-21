@@ -54,59 +54,26 @@ public class Filter
 
 	public override string ToString()
 	{
-		switch (FilterType)
+		return FilterType switch
 		{
-			case FilterTypes.Equals:
-				return $"{Key}:{Value}";
-
-			case FilterTypes.DoesNotEqual:
-				return $"{Key}:!{Value}";
-
-			case FilterTypes.StartsWith:
-				return $"{Key}:{Value}*";
-
-			case FilterTypes.EndsWith:
-				return $"{Key}:*{Value}";
-
-			case FilterTypes.Contains:
-				return $"{Key}:*{Value}*";
-
-			case FilterTypes.DoesNotContain:
-				return $"{Key}:!*{Value}*";
-
-			case FilterTypes.In:
-				return $"{Key}:In({Value})";
-
-			case FilterTypes.GreaterThan:
-				return $"{Key}:>{Value}";
-
-			case FilterTypes.GreaterThanOrEqual:
-				return $"{Key}:>={Value}";
-
-			case FilterTypes.LessThan:
-				return $"{Key}:<{Value}";
-
-			case FilterTypes.LessThanOrEqual:
-				return $"{Key}:<={Value}";
-
-			case FilterTypes.Range:
-				return $"{Key}:>{Value}|{Value2}<";
-
-			case FilterTypes.IsNull:
-				return $"{Key}:(null)";
-
-			case FilterTypes.IsNotNull:
-				return $"{Key}:!(null)";
-
-			case FilterTypes.IsEmpty:
-				return $"{Key}:(empty)";
-
-			case FilterTypes.IsNotEmpty:
-				return $"{Key}:!(empty)";
-
-			default:
-				return string.Empty;
-		}
+			FilterTypes.Equals => $"{Key}:{Value}",
+			FilterTypes.DoesNotEqual => $"{Key}:!{Value}",
+			FilterTypes.StartsWith => $"{Key}:{Value}*",
+			FilterTypes.EndsWith => $"{Key}:*{Value}",
+			FilterTypes.Contains => $"{Key}:*{Value}*",
+			FilterTypes.DoesNotContain => $"{Key}:!*{Value}*",
+			FilterTypes.In => $"{Key}:In({Value})",
+			FilterTypes.GreaterThan => $"{Key}:>{Value}",
+			FilterTypes.GreaterThanOrEqual => $"{Key}:>={Value}",
+			FilterTypes.LessThan => $"{Key}:<{Value}",
+			FilterTypes.LessThanOrEqual => $"{Key}:<={Value}",
+			FilterTypes.Range => $"{Key}:>{Value}|{Value2}<",
+			FilterTypes.IsNull => $"{Key}:(null)",
+			FilterTypes.IsNotNull => $"{Key}:!(null)",
+			FilterTypes.IsEmpty => $"{Key}:(empty)",
+			FilterTypes.IsNotEmpty => $"{Key}:!(empty)",
+			_ => string.Empty,
+		};
 	}
 
 	public void UpdateFrom(string text)
@@ -118,7 +85,7 @@ public class Filter
 		}
 		else
 		{
-			var idx = text.IndexOf($"{Key}:");
+			var idx = text.IndexOf($"{Key}:", StringComparison.Ordinal);
 			if (idx == -1)
 			{
 				Clear();
@@ -126,7 +93,7 @@ public class Filter
 			else
 			{
 				// read until next unquoted whitespace
-				var filter = ParseMany(text.Substring(idx)).FirstOrDefault();
+				var filter = ParseMany(text[idx..]).FirstOrDefault();
 				if (filter is null)
 				{
 					Clear();
@@ -160,22 +127,19 @@ public class Filter
 			return $"{dto.ToUniversalTime():yyyy-MM-dd}T{dto.ToUniversalTime():HH:mm:ss}Z";
 		}
 
-		return value.ToString() ?? String.Empty;
+		return value.ToString() ?? string.Empty;
 	}
 
 	public static Filter Parse(string token, IDictionary<string, string>? keyMappings = null)
 	{
-		var key = string.Empty;
-		var value = string.Empty;
 		var value2 = string.Empty;
 		var propertyName = string.Empty;
-		var filterType = FilterTypes.Equals;
-		var encodedValue = string.Empty;
-
-		if (token.Contains(":"))
+		string? key;
+		string? encodedValue;
+		if (token.Contains(':', StringComparison.Ordinal))
 		{
-			key = token.Substring(0, token.IndexOf(':'));
-			encodedValue = token.Substring(token.IndexOf(':') + 1);
+			key = token[..token.IndexOf(':')];
+			encodedValue = token[(token.IndexOf(':') + 1)..];
 
 			// lookup property name?
 			if (keyMappings?.ContainsKey(key) == true)
@@ -188,82 +152,84 @@ public class Filter
 			return new Filter();
 		}
 
+		string? value;
+		FilterTypes filterType;
 		if (encodedValue == "!(empty)")
 		{
-			value = String.Empty;
+			value = string.Empty;
 			filterType = FilterTypes.IsNotEmpty;
 		}
 		else if (encodedValue == "(empty)")
 		{
-			value = String.Empty;
+			value = string.Empty;
 			filterType = FilterTypes.IsEmpty;
 		}
 		else if (encodedValue == "!(null)")
 		{
-			value = String.Empty;
+			value = string.Empty;
 			filterType = FilterTypes.IsNotNull;
 		}
 		else if (encodedValue == "(null)")
 		{
-			value = String.Empty;
+			value = string.Empty;
 			filterType = FilterTypes.IsNull;
 		}
-		else if (encodedValue.StartsWith("in(", System.StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")") && encodedValue.Length > 3)
+		else if (encodedValue.StartsWith("in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")", StringComparison.Ordinal) && encodedValue.Length > 3)
 		{
-			value = encodedValue.Substring(3, encodedValue.Length - 4);
+			value = encodedValue[3..^1];
 			filterType = FilterTypes.In;
 		}
-		else if (encodedValue.StartsWith("!*") && encodedValue.EndsWith("*") && encodedValue.Length > 2)
+		else if (encodedValue.StartsWith("!*", StringComparison.Ordinal) && encodedValue.EndsWith("*", StringComparison.Ordinal) && encodedValue.Length > 2)
 		{
-			value = encodedValue.Substring(2, encodedValue.Length - 3);
+			value = encodedValue[2..^1];
 			filterType = FilterTypes.DoesNotContain;
 		}
-		else if (encodedValue.StartsWith("*") && encodedValue.EndsWith("*") && encodedValue.Length > 1)
+		else if (encodedValue.StartsWith("*", StringComparison.Ordinal) && encodedValue.EndsWith("*", StringComparison.Ordinal) && encodedValue.Length > 1)
 		{
-			value = encodedValue.Substring(1, encodedValue.Length - 2);
+			value = encodedValue[1..^1];
 			filterType = FilterTypes.Contains;
 		}
-		else if (encodedValue.StartsWith(">") && encodedValue.EndsWith("<") && encodedValue.Contains("|") && encodedValue.Length > 1)
+		else if (encodedValue.StartsWith(">", StringComparison.Ordinal) && encodedValue.EndsWith("<", StringComparison.Ordinal) && encodedValue.Contains('|', StringComparison.Ordinal) && encodedValue.Length > 1)
 		{
-			value = encodedValue.Substring(1, encodedValue.Length - 2);
-			var idx = value.IndexOf("|");
-			value2 = value.Substring(idx + 1);
-			value = value.Substring(0, idx);
+			value = encodedValue[1..^1];
+			var idx = value.IndexOf('|');
+			value2 = value[(idx + 1)..];
+			value = value[..idx];
 			filterType = FilterTypes.Range;
 		}
-		else if (encodedValue.EndsWith("*"))
+		else if (encodedValue.EndsWith("*", StringComparison.Ordinal))
 		{
-			value = encodedValue.Substring(0, encodedValue.Length - 1);
+			value = encodedValue[..^1];
 			filterType = FilterTypes.StartsWith;
 		}
-		else if (encodedValue.StartsWith("*"))
+		else if (encodedValue.StartsWith("*", StringComparison.Ordinal))
 		{
-			value = encodedValue.Substring(1, encodedValue.Length - 1);
+			value = encodedValue[1..];
 			filterType = FilterTypes.EndsWith;
 		}
-		else if (encodedValue.StartsWith("!"))
+		else if (encodedValue.StartsWith("!", StringComparison.Ordinal))
 		{
-			value = encodedValue.Substring(1, encodedValue.Length - 1);
+			value = encodedValue[1..];
 			filterType = FilterTypes.DoesNotEqual;
 		}
-		else if (encodedValue.StartsWith(">="))
+		else if (encodedValue.StartsWith(">=", StringComparison.Ordinal))
 		{
-			value = encodedValue.Substring(2, encodedValue.Length - 2);
+			value = encodedValue[2..];
 			filterType = FilterTypes.GreaterThanOrEqual;
 		}
-		else if (encodedValue.StartsWith("<="))
+		else if (encodedValue.StartsWith("<=", StringComparison.Ordinal))
 		{
-			value = encodedValue.Substring(2, encodedValue.Length - 2);
+			value = encodedValue[2..];
 			filterType = FilterTypes.LessThanOrEqual;
 		}
-		else if (encodedValue.StartsWith(">"))
+		else if (encodedValue.StartsWith(">", StringComparison.Ordinal))
 		{
-			value = encodedValue.Substring(1, encodedValue.Length - 1);
+			value = encodedValue[1..];
 			filterType = FilterTypes.GreaterThan;
 		}
-		else if (encodedValue.StartsWith("<"))
+		else if (encodedValue.StartsWith("<", StringComparison.Ordinal))
 		{
-			value = encodedValue.Substring(1, encodedValue.Length - 1);
+			value = encodedValue[1..];
 			filterType = FilterTypes.LessThan;
 		}
 		else

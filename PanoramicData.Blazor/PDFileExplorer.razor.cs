@@ -5,7 +5,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private static int _idSequence;
 	private string _deleteDialogMessage = string.Empty;
 	private string _conflictDialogMessage = string.Empty;
-	private string[] _conflictDialogList = new string[0];
+	private string[] _conflictDialogList = Array.Empty<string>();
 	private readonly SortCriteria _tableSort = new("Name", SortDirection.Ascending);
 	private readonly MenuItem _menuOpen = new() { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
 	private readonly MenuItem _menuDownload = new() { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
@@ -27,7 +27,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	protected long _batchTotalBytes;
 	protected long _batchTotalBytesSent;
 	private readonly Dictionary<string, double> _batchFiles = new();
-	private bool _moveCopyPayload = false;
+	private bool _moveCopyPayload;
 	private string _pasteTarget = string.Empty;
 	private TreeNode<FileExplorerItem>? _selectedNode;
 	private PDTree<FileExplorerItem>? Tree { get; set; }
@@ -130,7 +130,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <summary>
 	/// An optional array of paths to be excluded.
 	/// </summary>
-	[Parameter] public string[] ExcludedPaths { get; set; } = System.Array.Empty<string>();
+	[Parameter] public string[] ExcludedPaths { get; set; } = Array.Empty<string>();
 
 	/// <summary>
 	/// Gets or sets a delegate to be called if an exception occurs.
@@ -366,7 +366,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		ToolbarItems.Add(new ToolbarButton { Key = "refresh", Text = "Refresh", ToolTip = "Refreshes the current folder", IconCssClass = "fas fa-fw fa-sync-alt", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 		ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 		ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
-		if (!String.IsNullOrWhiteSpace(UploadUrl))
+		if (!string.IsNullOrWhiteSpace(UploadUrl))
 		{
 			TableContextItems.Insert(1, _menuUploadFiles);
 			TreeContextItems.Insert(0, _menuUploadFiles);
@@ -734,7 +734,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				var previousPath = args.Item.Path;
 				var newPath = $"{args.Item.ParentPath}/{newName}";
-				if (newPath.StartsWith("//"))
+				if (newPath.StartsWith("//", StringComparison.Ordinal))
 				{
 					newPath = newPath[1..];
 				}
@@ -778,7 +778,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 	}
 
-	private bool ShowSeparator(MenuItem separator, IEnumerable<MenuItem> items)
+	private static bool ShowSeparator(MenuItem separator, IEnumerable<MenuItem> items)
 	{
 		var visibleItems = items.Where(x => x.IsVisible).ToList();
 		if (visibleItems.Count == 0 || separator == visibleItems[0] || separator == visibleItems[^1])
@@ -926,7 +926,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private async Task OnTableSelectionChangedAsync()
 	{
 		await RefreshToolbarAsync().ConfigureAwait(true);
-		var selection = Table?.GetSelectedItems() ?? new FileExplorerItem[0];
+		var selection = Table?.GetSelectedItems() ?? Array.Empty<FileExplorerItem>();
 		await SelectionChanged.InvokeAsync(selection).ConfigureAwait(true);
 	}
 
@@ -1112,7 +1112,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 				return item;
 			}
-			else if (args.Path.StartsWith(FolderPath.TrimEnd('/') + "/")) // in higher folder
+			else if (args.Path.StartsWith(FolderPath.TrimEnd('/') + "/", StringComparison.Ordinal)) // in higher folder
 			{
 				var relativePath = args.Path[FolderPath.Length..].TrimStart('/');
 				var idx = relativePath.IndexOf('/');
@@ -1224,10 +1224,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			await MoveCopyFilesAsync(payload, targetPath, args.Ctrl).ConfigureAwait(true);
 		}
 	}
-	private async Task OnException(Exception exception)
-	{
-		await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
-	}
+	private async Task OnException(Exception exception) => await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
 
 	protected override void OnAfterRender(bool firstRender)
 	{
@@ -1574,7 +1571,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		return newName;
 	}
 
-	private string PostFixFilename(string filename, string postfix)
+	private static string PostFixFilename(string filename, string postfix)
 	{
 		if (string.IsNullOrWhiteSpace(filename))
 		{
@@ -1593,10 +1590,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <summary>
 	/// Forces the tree component of the file explorer to be refreshed.
 	/// </summary>
-	public async Task RefreshTreeAsync()
-	{
-		await Tree!.RefreshAsync().ConfigureAwait(true);
-	}
+	public async Task RefreshTreeAsync() => await Tree!.RefreshAsync().ConfigureAwait(true);
 
 	/// <summary>
 	/// Refreshes the tree and table panes.
@@ -1744,10 +1738,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <summary>
 	/// Gets the folder currently selected in the tree view.
 	/// </summary>
-	public FileExplorerItem? GetTreeSelectedFolder()
-	{
-		return Tree?.SelectedNode?.Data;
-	}
+	public FileExplorerItem? GetTreeSelectedFolder() => Tree?.SelectedNode?.Data;
 
 	/// <summary>
 	/// Populates the move copy arguments with conflicting items.

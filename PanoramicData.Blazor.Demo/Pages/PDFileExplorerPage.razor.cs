@@ -30,10 +30,7 @@ public partial class PDFileExplorerPage
 		}
 	}
 
-	private void OnFolderChanged(FileExplorerItem folder)
-	{
-		NavigationManager.SetUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } });
-	}
+	private void OnFolderChanged(FileExplorerItem folder) => NavigationManager.SetUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } });
 
 	private async Task OnReady()
 	{
@@ -185,10 +182,7 @@ public partial class PDFileExplorerPage
 		}
 	}
 
-	private static string GetCssClass(FileExplorerItem _)
-	{
-		return string.Empty;
-	}
+	private static string GetCssClass(FileExplorerItem _) => string.Empty;
 
 	private static string GetIconCssClass(FileExplorerItem item)
 	{

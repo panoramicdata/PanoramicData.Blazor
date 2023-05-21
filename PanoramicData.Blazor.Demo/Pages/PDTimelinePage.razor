@@ -53,11 +53,6 @@
                       Size="ButtonSizes.Small"
                       Text="Zoom End" />
 
-            @*			<PDButton Click="OnZoomTo24h"
-            CssClass="btn-secondary ms-2"
-            Size="ButtonSizes.Small"
-            Text="Zoom 24H" />
-            *@
             <div class="form-check ms-2">
                 <input type="checkbox" class="form-check-input" id="moreDataCheck" checked="@_moreDataAvailable"
                        @oninput="(a) => _moreDataAvailable = Convert.ToBoolean(a.Value)">

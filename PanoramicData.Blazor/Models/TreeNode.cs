@@ -147,10 +147,7 @@ public class TreeNode<T> : IComparable where T : class
 		return true;
 	}
 
-	public override string ToString()
-	{
-		return Data is null ? $"key: {Key}" : $"key: {Key}, data: {Data}";
-	}
+	public override string ToString() => Data is null ? $"key: {Key}" : $"key: {Key}, data: {Data}";
 	internal void BeginEdit()
 	{
 		EditText = Text;
@@ -230,7 +227,7 @@ public class TreeNode<T> : IComparable where T : class
 		{
 			if (node.IsExpanded && node.Nodes?.Count > 0)
 			{
-				return Descend(node.Nodes[node.Nodes.Count - 1]);
+				return Descend(node.Nodes[^1]);
 			}
 
 			return node;

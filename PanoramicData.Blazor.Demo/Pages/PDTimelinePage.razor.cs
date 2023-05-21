@@ -2,12 +2,12 @@
 
 public partial class PDTimelinePage
 {
-	private List<ConfigChange> _data = new();
+	private readonly List<ConfigChange> _data = new();
 	private PDTimeline _timeline = null!;
-	private TimelinePageModel _model = new();
+	private readonly TimelinePageModel _model = new();
 	private TimeRange? _selection;
 	private bool _isEnabled = true;
-	private TimelineOptions _timelineOptions = new()
+	private readonly TimelineOptions _timelineOptions = new()
 	{
 		Bar = new TimelineBarOptions
 		{
@@ -85,20 +85,11 @@ public partial class PDTimelinePage
 	{
 	}
 
-	private void OnScaleChanged(TimelineScale scale)
-	{
-		_model.Scale = scale;
-	}
+	private void OnScaleChanged(TimelineScale scale) => _model.Scale = scale;
 
-	private void OnSelectionChanged(TimeRange? range)
-	{
-		_selection = range;
-	}
+	private void OnSelectionChanged(TimeRange? range) => _selection = range;
 
-	private void OnSelectionChangeEnd()
-	{
-		EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection()?.StartTime), new EventArgument("end", _timeline.GetSelection()?.EndTime)));
-	}
+	private void OnSelectionChangeEnd() => EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection()?.StartTime), new EventArgument("end", _timeline.GetSelection()?.EndTime)));
 
 	private async Task OnClearData()
 	{
@@ -177,15 +168,7 @@ public partial class PDTimelinePage
 		_minDate = _data.Min(x => x.DateChanged).Date;
 	}
 
-	private async Task OnZoomToEnd()
-	{
-		await _timeline.ZoomToEndAsync().ConfigureAwait(true);
-	}
-
-	private async Task OnZoomTo24h()
-	{
-		await _timeline.ZoomToAsync(DateTime.Now.AddHours(-24), DateTime.Now, TimelinePositions.End).ConfigureAwait(true);
-	}
+	private async Task OnZoomToEnd() => await _timeline.ZoomToEndAsync().ConfigureAwait(true);
 
 	private async Task OnRefreshed()
 	{
@@ -196,11 +179,9 @@ public partial class PDTimelinePage
 		}
 	}
 
-	private double MyYValueTransform(double value)
-	{
+	private static double MyYValueTransform(double value) =>
 		//return value;
-		return Math.Sqrt(value);
-	}
+		Math.Sqrt(value);
 }
 
 public class ConfigChange
@@ -213,7 +194,6 @@ public class ConfigChange
 
 public class TimelinePageModel
 {
-
 	public DateTime DisableAfter { get; set; }
 
 	public DateTime DisableBefore { get; set; }

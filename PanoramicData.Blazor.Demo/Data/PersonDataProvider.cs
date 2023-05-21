@@ -7,12 +7,12 @@ public class PersonDataProvider : DataProviderBase<Person>
 	private static readonly string[] _lastNames = new string[] { "Smith", "Cooper", "Watkins", "Jenkins", "Tailor", "Williams", "Jones", "Smithson", "Carter", "Miller", "Baker" };
 	private static readonly Random _random = new(System.Environment.TickCount);
 	private static readonly List<Person> _people = new();
-	public static string[] Locations = new string[] { "Paris", "Rome", "Milan", "New York", "Peckham", "Sydney" };
+	public static readonly string[] Locations = new string[] { "Paris", "Rome", "Milan", "New York", "Peckham", "Sydney" };
 
 	public PersonDataProvider(int count = 255)
 	{
 		// generate random rows
-		if (_people.Count() == 0)
+		if (_people.Count == 0)
 		{
 			foreach (var id in Enumerable.Range(1, count))
 			{
@@ -37,14 +37,14 @@ public class PersonDataProvider : DataProviderBase<Person>
 					LastName = _lastNames[_random.Next(_lastNames.Length)],
 					Location = _random.Next(Locations.Length),
 					Dob = DateTime.Today.AddYears(-_random.Next(20, 50)),
-					Comments = _loremIpsum.Substring(0, _random.Next(0, _loremIpsum.Length)),
+					Comments = _loremIpsum[.._random.Next(0, _loremIpsum.Length)],
 					Password = "Password"
 				};
 				var managers = new List<Person?>() { boss1, boss2, null };
 				person.Manager = managers[_random.Next(0, 3)]!;
 				person.Email = _random.Next(10) < 2
 					? string.Empty
-					: $"{person.FirstName?.ToLower() ?? _firstNames[_random.Next(_firstNames.Length)].ToLower()}.{person.LastName.ToLower()}@acme.com";
+					: $"{person.FirstName?.ToLowerInvariant() ?? _firstNames[_random.Next(_firstNames.Length)].ToLowerInvariant()}.{person.LastName.ToLowerInvariant()}@acme.com";
 				_people.Add(person);
 			}
 		}
@@ -107,7 +107,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 			// realize query
 			items = query.ToList();
 
-		}).ConfigureAwait(false);
+		}, cancellationToken).ConfigureAwait(false);
 		return new DataResponse<Person>(items, total);
 	}
 
@@ -131,20 +131,17 @@ public class PersonDataProvider : DataProviderBase<Person>
 	/// <param name="item">The item to be deleted.</param>
 	/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 	/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-	public override Task<OperationResponse> DeleteAsync(Person item, CancellationToken cancellationToken)
-	{
-		return Task.Run(() =>
-		{
-			var existingPerson = _people.Find(x => x.Id == item.Id);
-			if (existingPerson == null)
-			{
-				return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
-			}
+	public override Task<OperationResponse> DeleteAsync(Person item, CancellationToken cancellationToken) => Task.Run(() =>
+																												  {
+																													  var existingPerson = _people.Find(x => x.Id == item.Id);
+																													  if (existingPerson == null)
+																													  {
+																														  return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
+																													  }
 
-			_people.Remove(existingPerson);
-			return new OperationResponse { Success = true };
-		});
-	}
+																													  _people.Remove(existingPerson);
+																													  return new OperationResponse { Success = true };
+																												  });
 
 	/// <summary>
 	/// Requests the given item is updated by applying the given delta.
@@ -153,42 +150,39 @@ public class PersonDataProvider : DataProviderBase<Person>
 	/// <param name="delta">A dictionary with new property values.</param>
 	/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 	/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-	public override Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
-	{
-		return Task.Run(() =>
-		{
+	public override Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object?> delta, CancellationToken cancellationToken) => Task.Run(() =>
+																																					  {
 
-			var existingPerson = _people.Find(x => x.Id == item.Id);
-			if (existingPerson == null)
-			{
-				return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
-			}
+																																						  var existingPerson = _people.Find(x => x.Id == item.Id);
+																																						  if (existingPerson == null)
+																																						  {
+																																							  return new OperationResponse { ErrorMessage = $"Person not found (id {item.Id})" };
+																																						  }
 
-			foreach (var kvp in delta)
-			{
-				var prop = item.GetType().GetProperty(kvp.Key);
-				if (prop == null)
-				{
-					return new OperationResponse { ErrorMessage = $"Person does not contain a property named {kvp.Key}" };
-				}
-				else
-				{
-					try
-					{
-						var value = kvp.Value.Cast(prop.PropertyType);
-						prop.SetValue(existingPerson, value);
-					}
-					catch (Exception ex)
-					{
-						return new OperationResponse { ErrorMessage = $"Failed to update property {kvp.Key} to {kvp.Value}: {ex.Message}" };
-					}
-				}
-			}
+																																						  foreach (var kvp in delta)
+																																						  {
+																																							  var prop = item.GetType().GetProperty(kvp.Key);
+																																							  if (prop == null)
+																																							  {
+																																								  return new OperationResponse { ErrorMessage = $"Person does not contain a property named {kvp.Key}" };
+																																							  }
+																																							  else
+																																							  {
+																																								  try
+																																								  {
+																																									  var value = kvp.Value.Cast(prop.PropertyType);
+																																									  prop.SetValue(existingPerson, value);
+																																								  }
+																																								  catch (Exception ex)
+																																								  {
+																																									  return new OperationResponse { ErrorMessage = $"Failed to update property {kvp.Key} to {kvp.Value}: {ex.Message}" };
+																																								  }
+																																							  }
+																																						  }
 
-			existingPerson.DateModified = DateTime.Now;
-			return new OperationResponse { Success = true };
-		});
-	}
+																																						  existingPerson.DateModified = DateTime.Now;
+																																						  return new OperationResponse { Success = true };
+																																					  });
 
 	/// <summary>
 	/// Requests the given item is created.
@@ -196,14 +190,11 @@ public class PersonDataProvider : DataProviderBase<Person>
 	/// <param name="item">New item details.</param>
 	/// <param name="cancellationToken">A cancellation token for the async operation.</param>
 	/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
-	public override Task<OperationResponse> CreateAsync(Person item, CancellationToken cancellationToken)
-	{
-		return Task.Run(() =>
-		{
-			item.Id = _people.Max(x => x.Id) + 1;
-			item.DateModified = item.DateCreated = DateTime.Now;
-			_people.Add(item);
-			return new OperationResponse { Success = true };
-		});
-	}
+	public override Task<OperationResponse> CreateAsync(Person item, CancellationToken cancellationToken) => Task.Run(() =>
+																												  {
+																													  item.Id = _people.Max(x => x.Id) + 1;
+																													  item.DateModified = item.DateCreated = DateTime.Now;
+																													  _people.Add(item);
+																													  return new OperationResponse { Success = true };
+																												  });
 }

@@ -8,7 +8,7 @@ public class DeleteArgs
 	/// <summary>
 	/// Gets the file items to be deleted.
 	/// </summary>
-	public FileExplorerItem[] Items { get; set; } = new FileExplorerItem[0];
+	public FileExplorerItem[] Items { get; set; } = Array.Empty<FileExplorerItem>();
 
 	/// <summary>
 	/// Gets or sets the outcome of the delete.

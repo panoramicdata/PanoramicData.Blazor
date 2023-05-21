@@ -6,29 +6,17 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 	#region IDataProviderService<T> Members
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("General", "RCS1079:Throwing of new NotImplementedException.", Justification = "<Pending>")]
 	public virtual Task<OperationResponse> CreateAsync(T item, CancellationToken cancellationToken)
-	{
-		throw new NotImplementedException();
-	}
+		=> throw new NotImplementedException();
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("General", "RCS1079:Throwing of new NotImplementedException.", Justification = "<Pending>")]
 	public virtual Task<OperationResponse> DeleteAsync(T item, CancellationToken cancellationToken)
-	{
-		throw new NotImplementedException();
-	}
+		=> throw new NotImplementedException();
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("General", "RCS1079:Throwing of new NotImplementedException.", Justification = "<Pending>")]
 	public virtual Task<DataResponse<T>> GetDataAsync(DataRequest<T> request, CancellationToken cancellationToken)
-	{
-		throw new NotImplementedException();
-	}
+		=> throw new NotImplementedException();
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("General", "RCS1079:Throwing of new NotImplementedException.", Justification = "<Pending>")]
 	public virtual Task<OperationResponse> UpdateAsync(T item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
-	{
-		throw new NotImplementedException();
-	}
+		=> throw new NotImplementedException();
 
 	#endregion
 
@@ -74,8 +62,15 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 	/// <returns>Boolean true if the evaluation of an expression results in a non-null result, otherwise false</returns>
 	private static bool NonNullExpressionResult(Func<T, object>? expression, T target)
 	{
-		if (target is null) return false;
-		if (expression is null) return false;
+		if (target is null)
+		{
+			return false;
+		}
+
+		if (expression is null)
+		{
+			return false;
+		}
 
 		try
 		{

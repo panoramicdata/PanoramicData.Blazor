@@ -71,9 +71,9 @@ public partial class PDNavLink : IAsyncDisposable
 			// use JS to perform navigation in new tab
 			await _commonModule.InvokeVoidAsync("openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
 		}
-		else if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? String.Empty).ConfigureAwait(true))
+		else if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? string.Empty).ConfigureAwait(true))
 		{
-			NavigationManager.NavigateTo(_hrefAbsolute ?? String.Empty);
+			NavigationManager.NavigateTo(_hrefAbsolute ?? string.Empty);
 		}
 	}
 
@@ -106,10 +106,7 @@ public partial class PDNavLink : IAsyncDisposable
 		UpdateCssClass();
 	}
 
-	private void UpdateCssClass()
-	{
-		CssClass = _isActive ? CombineWithSpace(_class, ActiveClass ?? _defaultActiveClass) : _class;
-	}
+	private void UpdateCssClass() => CssClass = _isActive ? CombineWithSpace(_class, ActiveClass ?? _defaultActiveClass) : _class;
 
 	private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
 	{
@@ -174,7 +171,7 @@ public partial class PDNavLink : IAsyncDisposable
 		return false;
 	}
 
-	private string? CombineWithSpace(string? str1, string str2)
+	private static string? CombineWithSpace(string? str1, string str2)
 		=> str1 == null ? str2 : $"{str1} {str2}";
 
 	private static bool IsStrictlyPrefixWithSeparator(string value, string prefix)

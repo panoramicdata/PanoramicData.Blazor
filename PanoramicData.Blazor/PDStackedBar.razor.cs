@@ -27,22 +27,22 @@ public partial class PDStackedBar
 	{
 		if (DataPoint is null)
 		{
-			return String.Empty;
+			return string.Empty;
 		}
 
 		var sb = new StringBuilder();
-		sb.AppendLine(DataPoint.StartTime.ToString(DateFormat));
+		sb.AppendLine(DataPoint.StartTime.ToString(DateFormat, CultureInfo.InvariantCulture));
 		if (DataPoint != null && DataPoint.SeriesValues.Length > 0)
 		{
 			for (var i = 0; i < Options.Series.Length; i++)
 			{
 				sb.Append(Options.Series[i].Label)
 				  .Append(": ")
-				  .AppendLine(DataPoint.SeriesValues[i].ToString(Options.Series[i].Format));
+				  .AppendLine(DataPoint.SeriesValues[i].ToString(Options.Series[i].Format, CultureInfo.InvariantCulture));
 			}
 		}
 
-		sb.Append($"{DataPoint.CountLabel}: ").AppendLine(DataPoint!.Count.ToString());
+		sb.Append($"{DataPoint.CountLabel}: ").AppendLine(DataPoint!.Count.ToString(CultureInfo.InvariantCulture));
 		return sb.ToString();
 	}
 }

@@ -4,6 +4,8 @@ root = true
 [*.*]
 indent_style = tab
 
+spelling_exclusion_path = .\exclusion.dic
+
 # C# files
 [*.cs]
 #### Core EditorConfig Options ####

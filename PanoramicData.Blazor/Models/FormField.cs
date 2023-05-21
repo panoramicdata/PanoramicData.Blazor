@@ -169,13 +169,13 @@ public class FormField<TItem> where TItem : class
 			if (value is DateTimeOffset dto)
 			{
 				// return simple date time string
-				return dto.DateTime.ToString("yyyy-MM-dd");
+				return dto.DateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 			}
 
 			if (value is DateTime dt)
 			{
 				// return date time string
-				return dt.ToString("yyyy-MM-dd");
+				return dt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 			}
 		}
 
@@ -231,16 +231,10 @@ public class FormField<TItem> where TItem : class
 	/// <summary>
 	/// Gets the description for the field, if one is either declared or in DisplayAttribute.
 	/// </summary>
-	public bool GetIsRequired()
-	{
-		return Field?.GetPropertyMemberInfo()?.GetCustomAttribute<RequiredAttribute>() != null;
-	}
+	public bool GetIsRequired() => Field?.GetPropertyMemberInfo()?.GetCustomAttribute<RequiredAttribute>() != null;
 
 	/// <summary>
 	/// Gets the fields name.
 	/// </summary>
-	public string? GetName()
-	{
-		return Field?.GetPropertyMemberInfo()?.Name;
-	}
+	public string? GetName() => Field?.GetPropertyMemberInfo()?.Name;
 }

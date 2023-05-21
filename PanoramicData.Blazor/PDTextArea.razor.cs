@@ -103,17 +103,14 @@ public partial class PDTextArea : IAsyncDisposable
 		}
 	}
 
-	private async Task OnBlur(FocusEventArgs args)
-	{
-		await Blur.InvokeAsync().ConfigureAwait(true);
-	}
+	private async Task OnBlur(FocusEventArgs args) => await Blur.InvokeAsync().ConfigureAwait(true);
 
 	private async Task OnInput(ChangeEventArgs args)
 	{
 		if (DebounceWait <= 0)
 		{
-			Value = args.Value?.ToString() ?? String.Empty;
-			await ValueChanged.InvokeAsync(args.Value?.ToString() ?? String.Empty).ConfigureAwait(true);
+			Value = args.Value?.ToString() ?? string.Empty;
+			await ValueChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty).ConfigureAwait(true);
 		}
 	}
 
@@ -124,10 +121,7 @@ public partial class PDTextArea : IAsyncDisposable
 		await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 	}
 
-	private async Task OnKeypress(KeyboardEventArgs args)
-	{
-		await Keypress.InvokeAsync(args).ConfigureAwait(true);
-	}
+	private async Task OnKeypress(KeyboardEventArgs args) => await Keypress.InvokeAsync(args).ConfigureAwait(true);
 
 	public async ValueTask DisposeAsync()
 	{

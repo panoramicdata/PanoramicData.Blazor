@@ -27,8 +27,5 @@ public partial class PDToolbar
 	/// </summary>
 	[Parameter] public string CssClass { get; set; } = "";
 
-	private void OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
-	{
-		ButtonClick.InvokeAsync(args);
-	}
+	private void OnButtonClick(KeyedEventArgs<MouseEventArgs> args) => ButtonClick.InvokeAsync(args);
 }

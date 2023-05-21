@@ -74,7 +74,7 @@ public partial class PDDropDown : IAsyncDisposable
 	[Parameter]
 	public bool Visible { get; set; } = true;
 
-	private Dictionary<string, object> Attributes
+	private static Dictionary<string, object> Attributes
 	{
 		get
 		{
@@ -162,10 +162,7 @@ public partial class PDDropDown : IAsyncDisposable
 	}
 
 	[JSInvokable]
-	public async Task OnKeyPressed(int keyCode)
-	{
-		await KeyPress.InvokeAsync(keyCode).ConfigureAwait(true);
-	}
+	public async Task OnKeyPressed(int keyCode) => await KeyPress.InvokeAsync(keyCode).ConfigureAwait(true);
 
 	public async Task ShowAsync()
 	{

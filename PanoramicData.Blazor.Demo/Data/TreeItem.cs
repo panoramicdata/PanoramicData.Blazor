@@ -9,8 +9,5 @@ public class TreeItem
 	public string IconCssClass { get; set; } = string.Empty;
 	public bool IsGroup { get; set; }
 
-	public override string ToString()
-	{
-		return $"{Id} - {Name} (order {Order})";
-	}
+	public override string ToString() => $"{Id} - {Name} (order {Order})";
 }

@@ -2,8 +2,8 @@
 
 public class TimelineScale : IComparable
 {
-	private CultureInfo _cultureInfo;
-	private Calendar _calendar;
+	private readonly CultureInfo _cultureInfo;
+	private readonly Calendar _calendar;
 
 	public TimelineScale(string name, TimelineUnits unitType, int unitCount)
 	{
@@ -44,32 +44,26 @@ public class TimelineScale : IComparable
 		};
 	}
 
-	public virtual string FormatPattern(string dateFormat = "d")
+	public virtual string FormatPattern(string dateFormat = "d") => UnitType switch
 	{
-		return UnitType switch
-		{
-			TimelineUnits.Years => "yyyy",
-			TimelineUnits.Months => "MMM yyyy",
-			TimelineUnits.Hours => $"{dateFormat} HH:00",
-			TimelineUnits.Minutes => $"{dateFormat} HH:mm",
-			_ => dateFormat
-		};
-	}
+		TimelineUnits.Years => "yyyy",
+		TimelineUnits.Months => "MMM yyyy",
+		TimelineUnits.Hours => $"{dateFormat} HH:00",
+		TimelineUnits.Minutes => $"{dateFormat} HH:mm",
+		_ => dateFormat
+	};
 
-	public virtual bool IsMajorTick(DateTime dateTime)
+	public virtual bool IsMajorTick(DateTime dateTime) => UnitType switch
 	{
-		return UnitType switch
-		{
-			TimelineUnits.Years => dateTime.Year % 2 == 0,
-			TimelineUnits.Months => dateTime.Month == 1,
-			TimelineUnits.Weeks => dateTime.Month == 1 && dateTime.Day <= 7,
-			TimelineUnits.Days => dateTime.Day == 1,
-			TimelineUnits.Hours => UnitCount < 12 ? dateTime.Hour == 0 : dateTime.Hour == 0 && (dateTime.DayOfYear) % 2 == 0,
-			TimelineUnits.Minutes => dateTime.Minute == 0,
-			TimelineUnits.Milliseconds => dateTime.Second == 0,
-			_ => false
-		};
-	}
+		TimelineUnits.Years => dateTime.Year % 2 == 0,
+		TimelineUnits.Months => dateTime.Month == 1,
+		TimelineUnits.Weeks => dateTime.Month == 1 && dateTime.Day <= 7,
+		TimelineUnits.Days => dateTime.Day == 1,
+		TimelineUnits.Hours => UnitCount < 12 ? dateTime.Hour == 0 : dateTime.Hour == 0 && (dateTime.DayOfYear) % 2 == 0,
+		TimelineUnits.Minutes => dateTime.Minute == 0,
+		TimelineUnits.Milliseconds => dateTime.Second == 0,
+		_ => false
+	};
 
 	public int PeriodsBetween(DateTime start, DateTime end, bool roundUp = true)
 	{
@@ -87,60 +81,51 @@ public class TimelineScale : IComparable
 		return (int)(roundUp ? Math.Ceiling(temp) : Math.Floor(temp));
 	}
 
-	public DateTime PeriodEnd(DateTime dateTime)
+	public DateTime PeriodEnd(DateTime dateTime) => UnitType switch
 	{
-		return UnitType switch
-		{
-			TimelineUnits.Milliseconds => _calendar.AddMilliseconds(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Seconds => _calendar.AddSeconds(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Minutes => _calendar.AddMinutes(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Hours => _calendar.AddHours(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Days => _calendar.AddDays(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Weeks => _calendar.AddWeeks(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Months => _calendar.AddMonths(PeriodStart(dateTime), UnitCount),
-			_ => _calendar.AddYears(PeriodStart(dateTime), UnitCount),
-		};
-	}
+		TimelineUnits.Milliseconds => _calendar.AddMilliseconds(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Seconds => _calendar.AddSeconds(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Minutes => _calendar.AddMinutes(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Hours => _calendar.AddHours(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Days => _calendar.AddDays(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Weeks => _calendar.AddWeeks(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Months => _calendar.AddMonths(PeriodStart(dateTime), UnitCount),
+		_ => _calendar.AddYears(PeriodStart(dateTime), UnitCount),
+	};
 
-	public DateTime PeriodStart(DateTime dateTime)
+	public DateTime PeriodStart(DateTime dateTime) => UnitType switch
 	{
-		return UnitType switch
-		{
-			TimelineUnits.Milliseconds => new DateTime(dateTime.Year,
-											dateTime.Month,
-											dateTime.Day,
-											dateTime.Hour,
-											dateTime.Minute,
-											dateTime.Second,
-											Round((int)_calendar.GetMilliseconds(dateTime))),
-			TimelineUnits.Seconds => new DateTime(dateTime.Year,
-											dateTime.Month,
-											dateTime.Day,
-											dateTime.Hour,
-											dateTime.Minute,
-											Round(_calendar.GetSecond(dateTime))),
-			TimelineUnits.Minutes => new DateTime(dateTime.Year,
-											dateTime.Month,
-											dateTime.Day,
-											dateTime.Hour,
-											Round(_calendar.GetMinute(dateTime)), 0),
-			TimelineUnits.Hours => new DateTime(dateTime.Year,
-											dateTime.Month,
-											dateTime.Day,
-											Round(_calendar.GetHour(dateTime)), 0, 0),
-			TimelineUnits.Days => new DateTime(dateTime.Year,
-											dateTime.Month,
-											Round(_calendar.GetDayOfMonth(dateTime))),
-			TimelineUnits.Weeks => dateTime.Date.AddDays(-(int)dateTime.DayOfWeek),
-			TimelineUnits.Months => new DateTime(dateTime.Year, Round(_calendar.GetMonth(dateTime)), 1),
-			_ => new DateTime(Round(_calendar.GetYear(dateTime)), 1, 1),
-		};
-	}
+		TimelineUnits.Milliseconds => new DateTime(dateTime.Year,
+										dateTime.Month,
+										dateTime.Day,
+										dateTime.Hour,
+										dateTime.Minute,
+										dateTime.Second,
+										Round((int)_calendar.GetMilliseconds(dateTime))),
+		TimelineUnits.Seconds => new DateTime(dateTime.Year,
+										dateTime.Month,
+										dateTime.Day,
+										dateTime.Hour,
+										dateTime.Minute,
+										Round(_calendar.GetSecond(dateTime))),
+		TimelineUnits.Minutes => new DateTime(dateTime.Year,
+										dateTime.Month,
+										dateTime.Day,
+										dateTime.Hour,
+										Round(_calendar.GetMinute(dateTime)), 0),
+		TimelineUnits.Hours => new DateTime(dateTime.Year,
+										dateTime.Month,
+										dateTime.Day,
+										Round(_calendar.GetHour(dateTime)), 0, 0),
+		TimelineUnits.Days => new DateTime(dateTime.Year,
+										dateTime.Month,
+										Round(_calendar.GetDayOfMonth(dateTime))),
+		TimelineUnits.Weeks => dateTime.Date.AddDays(-(int)dateTime.DayOfWeek),
+		TimelineUnits.Months => new DateTime(dateTime.Year, Round(_calendar.GetMonth(dateTime)), 1),
+		_ => new DateTime(Round(_calendar.GetYear(dateTime)), 1, 1),
+	};
 
-	private int Round(int value)
-	{
-		return UnitCount == 1 ? value : (value / UnitCount) * UnitCount;
-	}
+	private int Round(int value) => UnitCount == 1 ? value : (value / UnitCount) * UnitCount;
 
 	public virtual string TickLabelMajor(DateTime dateTime, string dateFormat = "d")
 	{
@@ -156,7 +141,7 @@ public class TimelineScale : IComparable
 			TimelineUnits.Years => "yyyy",
 			_ => ""
 		};
-		return dateTime.ToString(pattern);
+		return dateTime.ToString(pattern, CultureInfo.InvariantCulture);
 	}
 
 	public virtual string TickLabelMinor(DateTime dateTime)
@@ -174,16 +159,13 @@ public class TimelineScale : IComparable
 		if (UnitType == TimelineUnits.Weeks)
 		{
 			var woy = _calendar.GetWeekOfYear(dateTime, CalendarWeekRule, CalendarDayOfWeek);
-			return woy.ToString("00");
+			return woy.ToString("00", CultureInfo.InvariantCulture);
 		}
 
-		return dateTime.ToString(pattern);
+		return dateTime.ToString(pattern, CultureInfo.InvariantCulture);
 	}
 
-	public override string ToString()
-	{
-		return Name;
-	}
+	public override string ToString() => Name;
 
 	#region IComparable
 
@@ -197,7 +179,7 @@ public class TimelineScale : IComparable
 				return 0;
 			}
 
-			// check if current instance preceeds given scale
+			// check if current instance precedes given scale
 			if (UnitType < ts.UnitType || (UnitType == ts.UnitType && UnitCount < ts.UnitCount))
 			{
 				return -1;

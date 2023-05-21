@@ -139,10 +139,7 @@ public class DirectoryEntry
 		return clone;
 	}
 
-	public int Count()
-	{
-		return Reduce((_, pv) => pv + 1, 0);
-	}
+	public int Count() => Reduce((_, pv) => pv + 1, 0);
 
 	public void ForEach(Action<DirectoryEntry> action)
 	{
@@ -182,30 +179,24 @@ public class DirectoryEntry
 		return value;
 	}
 
-	public FileExplorerItem ToFileExploreritem(string pathSeparator = "/")
+	public FileExplorerItem ToFileExploreritem(string pathSeparator = "/") => new()
 	{
-		return new FileExplorerItem
-		{
-			CanCopyMove = CanCopyMove,
-			CanDelete = CanDelete,
-			CanRename = CanRename,
-			DateCreated = DateCreated,
-			DateModified = DateModified,
-			EntryType = Type,
-			FileSize = Size,
-			HasSubFolders = Items.Any(x => x.Type == FileExplorerItemType.Directory),
-			IsHidden = IsHidden,
-			IsReadOnly = IsReadOnly,
-			IsSystem = IsSystem,
-			Name = string.IsNullOrWhiteSpace(Alias) ? Name : Alias,
-			Path = Path(pathSeparator)
-		};
-	}
+		CanCopyMove = CanCopyMove,
+		CanDelete = CanDelete,
+		CanRename = CanRename,
+		DateCreated = DateCreated,
+		DateModified = DateModified,
+		EntryType = Type,
+		FileSize = Size,
+		HasSubFolders = Items.Any(x => x.Type == FileExplorerItemType.Directory),
+		IsHidden = IsHidden,
+		IsReadOnly = IsReadOnly,
+		IsSystem = IsSystem,
+		Name = string.IsNullOrWhiteSpace(Alias) ? Name : Alias,
+		Path = Path(pathSeparator)
+	};
 
-	public override string ToString()
-	{
-		return Path();
-	}
+	public override string ToString() => Path();
 
 	public IEnumerable<DirectoryEntry> Where(Predicate<DirectoryEntry> predicate)
 	{

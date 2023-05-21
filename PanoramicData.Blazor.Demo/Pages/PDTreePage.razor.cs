@@ -10,10 +10,7 @@ public partial class PDTreePage
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	private void OnException(Exception ex)
-	{
-		EventManager?.Add(new Event("Exception", new EventArgument("Message", ex.Message)));
-	}
+	private void OnException(Exception ex) => EventManager?.Add(new Event("Exception", new EventArgument("Message", ex.Message)));
 
 	private void OnSelectionChanged(TreeNode<FileExplorerItem> node)
 	{
@@ -21,15 +18,9 @@ public partial class PDTreePage
 		EventManager?.Add(new Event("SelectionChange", new EventArgument("Path", node?.Data?.Path)));
 	}
 
-	private void OnNodeExpanded(TreeNode<FileExplorerItem> node)
-	{
-		EventManager?.Add(new Event("NodeExpanded", new EventArgument("Path", node?.Data?.Path)));
-	}
+	private void OnNodeExpanded(TreeNode<FileExplorerItem> node) => EventManager?.Add(new Event("NodeExpanded", new EventArgument("Path", node?.Data?.Path)));
 
-	private void OnNodeCollapsed(TreeNode<FileExplorerItem> node)
-	{
-		EventManager?.Add(new Event("NodeCollapsed", new EventArgument("Path", node?.Data?.Path)));
-	}
+	private void OnNodeCollapsed(TreeNode<FileExplorerItem> node) => EventManager?.Add(new Event("NodeCollapsed", new EventArgument("Path", node?.Data?.Path)));
 
 	private void OnBeforeEdit(TreeNodeBeforeEditEventArgs<FileExplorerItem> args)
 	{

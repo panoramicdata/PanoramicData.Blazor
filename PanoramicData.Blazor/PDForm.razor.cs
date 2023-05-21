@@ -212,10 +212,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	/// <param name="item">The current item to be edited.</param>
 	[Obsolete("SetItem is deprecated, please use EditItemAsync instead.")]
-	public void SetItem(TItem item)
-	{
-		Item = item;
-	}
+	public void SetItem(TItem item) => Item = item;
 
 	/// <summary>
 	/// Gets or sets whether help text should be displayed.
@@ -378,10 +375,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	/// <param name="name">Name of the field to return.</param>
 	/// <returns>A FormField instance if found, otherwise null.</returns>
-	public FormField<TItem> GetField(string name)
-	{
-		return Fields.First(x => x.Name == name);
-	}
+	public FormField<TItem> GetField(string name) => Fields.First(x => x.Name == name);
 
 	/// <summary>
 	/// Attempts to get the requested fields current or original value and cast to the required type.
@@ -390,10 +384,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
-	public object? GetFieldValue(string fieldName, bool updatedValue = true)
-	{
-		return GetFieldValue(GetField(fieldName), updatedValue);
-	}
+	public object? GetFieldValue(string fieldName, bool updatedValue = true) => GetFieldValue(GetField(fieldName), updatedValue);
 
 	/// <summary>
 	/// Attempts to get the requested fields current or original value and cast to the required type.
@@ -473,7 +464,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 		try
 		{
-			return (T)Convert.ChangeType(value, typeof(T));
+			return (T)Convert.ChangeType(value, typeof(T), CultureInfo.InvariantCulture);
 		}
 		catch
 		{
@@ -552,16 +543,16 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		if (value is DateTimeOffset dto)
 		{
 			// return simple date time string
-			return dto.DateTime.ToString("yyyy-MM-dd");
+			return dto.DateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 		}
 
 		if (value is DateTime dt)
 		{
 			// return date time string
-			return dt.ToString("yyyy-MM-dd");
+			return dt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 		}
 
-		return value.ToString() ?? String.Empty;
+		return value.ToString() ?? string.Empty;
 	}
 
 	/// <summary>
@@ -692,12 +683,12 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 					}
 
 					// validate numeric values
-					if (field.MaxValue.HasValue && Convert.ToDouble(typedValue) > field.MaxValue.Value)
+					if (field.MaxValue.HasValue && Convert.ToDouble(typedValue, CultureInfo.InvariantCulture) > field.MaxValue.Value)
 					{
 						SetFieldErrors(memberInfo.Name, $"Value must be {field.MaxValue.Value} or less.");
 					}
 
-					if (field.MinValue.HasValue && Convert.ToDouble(typedValue) < field.MinValue.Value)
+					if (field.MinValue.HasValue && Convert.ToDouble(typedValue, CultureInfo.InvariantCulture) < field.MinValue.Value)
 					{
 						SetFieldErrors(memberInfo.Name, $"Value must be {field.MinValue.Value} or greater.");
 					}
@@ -746,10 +737,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <summary>
 	/// Gets whether the form is currently valid.
 	/// </summary>
-	public bool IsValid()
-	{
-		return Errors.Count == 0;
-	}
+	public bool IsValid() => Errors.Count == 0;
 
 	/// <summary>
 	/// Adds one or more error messages for the given field.
@@ -784,10 +772,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		OnErrorsChanged(EventArgs.Empty);
 	}
 
-	protected virtual void OnErrorsChanged(EventArgs e)
-	{
-		ErrorsChanged?.Invoke(this, e);
-	}
+	protected virtual void OnErrorsChanged(EventArgs e) => ErrorsChanged?.Invoke(this, e);
 
 	private void NavigationService_BeforeNavigate(object? sender, BeforeNavigateEventArgs e)
 	{

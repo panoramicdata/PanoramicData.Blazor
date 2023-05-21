@@ -27,17 +27,11 @@ public partial class PDZoomBar : IAsyncDisposable
 
 	private string CanvasId => $"{Id}-canvas";
 
-	private int Height => 20;
+	private static int Height => 20;
 
-	private bool CanZoomIn()
-	{
-		return Options.ZoomSteps.Length > 0 && Value.Zoom != Options.ZoomSteps[0];
-	}
+	private bool CanZoomIn() => Options.ZoomSteps.Length > 0 && Value.Zoom != Options.ZoomSteps[0];
 
-	private bool CanZoomOut()
-	{
-		return Options.ZoomSteps.Length > 0 && Value.Zoom != Options.ZoomSteps.Last();
-	}
+	private bool CanZoomOut() => Options.ZoomSteps.Length > 0 && Value.Zoom != Options.ZoomSteps.Last();
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{

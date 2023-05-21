@@ -27,30 +27,15 @@ public partial class PDToolbarPage
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	public void OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
-	{
-		EventManager?.Add(new Event("Click", new EventArgument("Key", args.Key)));
-	}
+	public void OnButtonClick(KeyedEventArgs<MouseEventArgs> args) => EventManager?.Add(new Event("Click", new EventArgument("Key", args.Key)));
 
-	private void OnEditMenuClick(string itemKey)
-	{
-		EventManager?.Add(new Event("EditMenuClick", new EventArgument("Key", itemKey)));
-	}
+	private void OnEditMenuClick(string itemKey) => EventManager?.Add(new Event("EditMenuClick", new EventArgument("Key", itemKey)));
 
-	private void OnKeypress(KeyboardEventArgs args)
-	{
-		EventManager?.Add(new Event("Keypress", new EventArgument("Key", args.Code)));
-	}
+	private void OnKeypress(KeyboardEventArgs args) => EventManager?.Add(new Event("Keypress", new EventArgument("Key", args.Code)));
 
-	private void OnFileMenuClick(string itemKey)
-	{
-		EventManager?.Add(new Event("FileMenuClick", new EventArgument("Key", itemKey)));
-	}
+	private void OnFileMenuClick(string itemKey) => EventManager?.Add(new Event("FileMenuClick", new EventArgument("Key", itemKey)));
 
-	private void OnCleared()
-	{
-		EventManager?.Add(new Event("Cleared"));
-	}
+	private void OnCleared() => EventManager?.Add(new Event("Cleared"));
 
 	private void OnValueChanged(string value)
 	{

@@ -24,31 +24,19 @@ public class TreeDataProvider : IDataProviderService<TreeItem>
 		_items.Add(new TreeItem { Id = 20, Name = "Janet", ParentId = 4, Order = 4 });
 	}
 
-	public async Task<DataResponse<TreeItem>> GetDataAsync(DataRequest<TreeItem> request, CancellationToken cancellationToken)
-	{
-		return await Task.Run(() => new DataResponse<TreeItem>(_items, _items.Count)).ConfigureAwait(false);
-	}
+	public async Task<DataResponse<TreeItem>> GetDataAsync(DataRequest<TreeItem> request, CancellationToken cancellationToken) => await Task.Run(() => new DataResponse<TreeItem>(_items, _items.Count)).ConfigureAwait(false);
 
-	public Task<OperationResponse> CreateAsync(TreeItem item, CancellationToken cancellationToken)
-	{
-#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
-		throw new System.NotImplementedException();
-#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
-	}
+	public Task<OperationResponse> CreateAsync(TreeItem item, CancellationToken cancellationToken) =>
+		throw new NotImplementedException();
 
-	public Task<OperationResponse> DeleteAsync(TreeItem item, CancellationToken cancellationToken)
-	{
-#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
-		throw new System.NotImplementedException();
-#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
-	}
 
-	public Task<OperationResponse> UpdateAsync(TreeItem item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
-	{
-#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
-		throw new System.NotImplementedException();
-#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
-	}
+	public Task<OperationResponse> DeleteAsync(TreeItem item, CancellationToken cancellationToken) =>
+		throw new NotImplementedException();
+
+
+	public Task<OperationResponse> UpdateAsync(TreeItem item, IDictionary<string, object?> delta, CancellationToken cancellationToken) =>
+		throw new NotImplementedException();
+
 
 	public void ReOrder(TreeItem item, TreeItem target, bool? before)
 	{

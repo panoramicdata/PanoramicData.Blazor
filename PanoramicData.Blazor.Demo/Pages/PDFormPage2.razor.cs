@@ -50,14 +50,9 @@ public partial class PDFormPage2
 		RefreshPeople();
 	}
 
-	private void OnError(string message)
-	{
-		EventManager?.Add(new Event("Error", new EventArgument("Message", message)));
-	}
+	private void OnError(string message) => EventManager?.Add(new Event("Error", new EventArgument("Message", message)));
 
-	private void RefreshPeople()
-	{
-		_personDataProvider
+	private void RefreshPeople() => _personDataProvider
 			.GetDataAsync(new DataRequest<Person>
 			{
 				Take = 5,
@@ -65,7 +60,6 @@ public partial class PDFormPage2
 				SortDirection = SortDirection.Descending
 			}, CancellationToken.None)
 			.ContinueWith(PopulatePeopleResult);
-	}
 
 	private void PopulatePeopleResult(Task<DataResponse<Person>> resultTask)
 	{

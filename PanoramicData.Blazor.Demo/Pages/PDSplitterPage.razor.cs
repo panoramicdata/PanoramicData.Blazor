@@ -3,7 +3,7 @@
 public partial class PDSplitterPage
 {
 	private PDSplitter _mainSplitter = null!;
-	private double[] _lastSizes = new double[0];
+	private double[] _lastSizes = Array.Empty<double>();
 	private bool _isCollapsed;
 
 	private async Task OnTogglePanel2()

@@ -4,7 +4,7 @@ public partial class PDTreePage2
 {
 	private readonly IDataProviderService<FileExplorerItem> _dataProviderOnDemand = new TestFileSystemDataProvider();
 
-	private string GetNodeIconCssClass(FileExplorerItem _, int level)
+	private static string GetNodeIconCssClass(FileExplorerItem _, int level)
 	{
 		var levelText = (level) switch
 		{
@@ -18,8 +18,5 @@ public partial class PDTreePage2
 		return $"fas fa-fw fa-dice-{levelText}";
 	}
 
-	private int ReverseSort(FileExplorerItem a, FileExplorerItem b)
-	{
-		return a.Path.CompareTo(b.Path) * -1;
-	}
+	private static int ReverseSort(FileExplorerItem a, FileExplorerItem b) => a.Path.CompareTo(b.Path) * -1;
 }

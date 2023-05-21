@@ -8,7 +8,7 @@ public partial class PDToggleSwitch : IAsyncDisposable
 
 	private double _textWidth;
 	private IJSObjectReference? _module;
-	private string _textCache = string.Empty;
+	private readonly string _textCache = string.Empty;
 
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
@@ -87,9 +87,7 @@ public partial class PDToggleSwitch : IAsyncDisposable
 		}
 	}
 
-	public IDictionary<string, object> GetBackgroundAttributes()
-	{
-		return new Dictionary<string, object>
+	public IDictionary<string, object> GetBackgroundAttributes() => new Dictionary<string, object>
 		{
 			{ "class", $"switch {(Value ? "on" : "off")}"},
 			{ "height", CalculatedHeight - (BorderWidth ?? Options.BorderWidth)},
@@ -99,22 +97,16 @@ public partial class PDToggleSwitch : IAsyncDisposable
 			{ "rx", (Rounded ?? Options.Rounded) ? CalculatedHeight / 2 : 0 },
 			{ "ry", (Rounded ?? Options.Rounded) ? CalculatedHeight / 2 : 0 }
 		};
-	}
 
-	public IDictionary<string, object> GetTextAttributes()
-	{
-		return new Dictionary<string, object>
+	public IDictionary<string, object> GetTextAttributes() => new Dictionary<string, object>
 		{
 			{ "class", $"text {(Value ? "on" : "off")}"},
 			{ "text-anchor",  Value ? "start" : "end" },
 			{ "x", Value ? (BorderWidth ?? Options.BorderWidth) * 3 : CalculatedWidth - (BorderWidth ?? Options.BorderWidth) * 3 },
 			{ "y", InnerHeight / 2 + (InnerHeight / 2) + TextYOffset }
 		};
-	}
 
-	public IDictionary<string, object> GetToggleAttributes()
-	{
-		return new Dictionary<string, object>
+	public IDictionary<string, object> GetToggleAttributes() => new Dictionary<string, object>
 		{
 			{ "class", $"toggle {(Value ? "on" : "off")}"},
 			{ "height", InnerHeight},
@@ -124,7 +116,6 @@ public partial class PDToggleSwitch : IAsyncDisposable
 			{ "rx", Rounded ?? Options.Rounded ? CalculatedHeight / 2 : 0 },
 			{ "ry", Rounded ?? Options.Rounded ? CalculatedHeight / 2 : 0 }
 		};
-	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -135,10 +126,7 @@ public partial class PDToggleSwitch : IAsyncDisposable
 		}
 	}
 
-	protected override async Task OnParametersSetAsync()
-	{
-		await RefreshTextWidthAsync().ConfigureAwait(true);
-	}
+	protected override async Task OnParametersSetAsync() => await RefreshTextWidthAsync().ConfigureAwait(true);
 
 	private async Task OnClickAsync()
 	{

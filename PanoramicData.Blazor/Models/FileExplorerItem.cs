@@ -79,7 +79,7 @@ public class FileExplorerItem : IComparable
 			}
 
 			var idx = Path.LastIndexOf('/');
-			return (idx == 0) ? "/" : Path.Substring(0, idx);
+			return (idx == 0) ? "/" : Path[..idx];
 		}
 	}
 
@@ -126,7 +126,7 @@ public class FileExplorerItem : IComparable
 		if (Path != "/")
 		{
 			var idx = Path.LastIndexOf('/') + 1;
-			Path = Path.Substring(0, idx) + name;
+			Path = Path[..idx] + name;
 			Name = name;
 		}
 	}
@@ -134,10 +134,7 @@ public class FileExplorerItem : IComparable
 	/// <summary>
 	/// Returns the Name property of this item.
 	/// </summary>
-	public override string ToString()
-	{
-		return Path;
-	}
+	public override string ToString() => Path;
 
 	public int CompareTo(object? obj)
 	{
@@ -155,26 +152,23 @@ public class FileExplorerItem : IComparable
 	/// </summary>
 	[Display(Name = "Type")]
 	public string FileExtension
-		=> string.IsNullOrWhiteSpace(System.IO.Path.GetExtension(Path)) ? "" : System.IO.Path.GetExtension(Path).Substring(1);
+		=> string.IsNullOrWhiteSpace(System.IO.Path.GetExtension(Path)) ? "" : System.IO.Path.GetExtension(Path)[1..];
 
-	public FileExplorerItem Clone()
+	public FileExplorerItem Clone() => new()
 	{
-		return new FileExplorerItem
-		{
-			CanCopyMove = CanCopyMove,
-			DateCreated = DateCreated,
-			DateModified = DateModified,
-			EntryType = EntryType,
-			FileSize = FileSize,
-			HasSubFolders = HasSubFolders,
-			IsHidden = IsHidden,
-			IsReadOnly = IsReadOnly,
-			IsSystem = IsSystem,
-			IsUploading = IsUploading,
-			Path = Path,
-			UploadProgress = UploadProgress
-		};
-	}
+		CanCopyMove = CanCopyMove,
+		DateCreated = DateCreated,
+		DateModified = DateModified,
+		EntryType = EntryType,
+		FileSize = FileSize,
+		HasSubFolders = HasSubFolders,
+		IsHidden = IsHidden,
+		IsReadOnly = IsReadOnly,
+		IsSystem = IsSystem,
+		IsUploading = IsUploading,
+		Path = Path,
+		UploadProgress = UploadProgress
+	};
 
 	public static string GetNameFromPath(string? path)
 	{

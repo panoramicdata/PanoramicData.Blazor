@@ -195,37 +195,28 @@ public partial class PDTree<TItem> where TItem : class
 	/// <summary>
 	/// Expands all the branch nodes in the tree.
 	/// </summary>
-	public void ExpandAll()
-	{
-		RootNode.Walk((n) => { n.IsExpanded = !n.Isleaf; return true; });
-	}
+	public void ExpandAll() => RootNode.Walk((n) => { n.IsExpanded = !n.Isleaf; return true; });
 
 	/// <summary>
 	/// Expands all the branch nodes in the tree.
 	/// </summary>
-	public async Task ExpandAllAsync()
-	{
-		await RootNode.WalkAsync(async (n) =>
-		{
-			if (!n.IsExpanded && !n.Isleaf)
-			{
-				if (ExpandOnExpandAll == null || ExpandOnExpandAll(n))
-				{
-					await ToggleNodeIsExpandedAsync(n).ConfigureAwait(true);
-				}
-			}
+	public async Task ExpandAllAsync() => await RootNode.WalkAsync(async (n) =>
+											   {
+												   if (!n.IsExpanded && !n.Isleaf)
+												   {
+													   if (ExpandOnExpandAll == null || ExpandOnExpandAll(n))
+													   {
+														   await ToggleNodeIsExpandedAsync(n).ConfigureAwait(true);
+													   }
+												   }
 
-			return true;
-		}).ConfigureAwait(true);
-	}
+												   return true;
+											   }).ConfigureAwait(true);
 
 	/// <summary>
 	/// Collapses all the branch nodes in the tree.
 	/// </summary>
-	public void CollapseAll()
-	{
-		RootNode.Walk((n) => { n.IsExpanded = false; return true; });
-	}
+	public void CollapseAll() => RootNode.Walk((n) => { n.IsExpanded = false; return true; });
 
 	/// <summary>
 	/// Searches all nodes until the given criteria is first matched.
@@ -525,7 +516,7 @@ public partial class PDTree<TItem> where TItem : class
 	{
 		if (DataProvider is null)
 		{
-			return new TItem[0];
+			return Array.Empty<TItem>();
 		}
 
 		var request = new DataRequest<TItem>
@@ -594,8 +585,8 @@ public partial class PDTree<TItem> where TItem : class
 
 			node.Key = key;
 			node.Text = TextField is null
-				? item?.ToString() ?? String.Empty
-				: TextField.Invoke(item).ToString() ?? item.ToString() ?? String.Empty;
+				? item?.ToString() ?? string.Empty
+				: TextField.Invoke(item).ToString() ?? item.ToString() ?? string.Empty;
 			node.IsExpanded = false;
 			node.Data = item;
 			node.ParentNode = parentNode;

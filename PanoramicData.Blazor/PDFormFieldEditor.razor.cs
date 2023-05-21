@@ -13,10 +13,7 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 	[Parameter]
 	public PDForm<TItem> Form { get; set; } = null!;
 
-	public string GetEditorClass(FormField<TItem> field)
-	{
-		return $"{(Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "")} {field.DisplayOptions?.CssClass}";
-	}
+	public string GetEditorClass(FormField<TItem> field) => $"{(Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "")} {field.DisplayOptions?.CssClass}";
 
 	private OptionInfo[] GetEnumValues(FormField<TItem> field)
 	{
@@ -91,7 +88,7 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 	{
 		try
 		{
-			await Form!.SetFieldValueAsync(field, DateTimeOffset.Parse(args.Value?.ToString() ?? String.Empty)).ConfigureAwait(true);
+			await Form!.SetFieldValueAsync(field, DateTimeOffset.Parse(args.Value?.ToString() ?? string.Empty)).ConfigureAwait(true);
 		}
 		catch
 		{

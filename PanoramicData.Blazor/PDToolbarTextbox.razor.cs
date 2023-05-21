@@ -94,10 +94,7 @@ public partial class PDToolbarTextbox
 
 	public string ItemStyle => $"width: {Width}";
 
-	private async Task OnKeypress(KeyboardEventArgs args)
-	{
-		await Keypress.InvokeAsync(args).ConfigureAwait(true);
-	}
+	private async Task OnKeypress(KeyboardEventArgs args) => await Keypress.InvokeAsync(args).ConfigureAwait(true);
 
 	private async Task OnCleared()
 	{

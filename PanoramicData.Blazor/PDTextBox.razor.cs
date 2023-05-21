@@ -164,15 +164,12 @@ public partial class PDTextBox : IAsyncDisposable
 	//	}
 	//}
 
-	private async Task OnBlur(FocusEventArgs args)
-	{
-		await Blur.InvokeAsync().ConfigureAwait(true);
-	}
+	private async Task OnBlur(FocusEventArgs args) => await Blur.InvokeAsync().ConfigureAwait(true);
 
 	private async Task OnChange(ChangeEventArgs args)
 	{
 		Value = args.Value?.ToString() ?? string.Empty;
-		await ValueChanged.InvokeAsync(args.Value?.ToString() ?? String.Empty).ConfigureAwait(true);
+		await ValueChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty).ConfigureAwait(true);
 	}
 
 	private async Task OnClear(MouseEventArgs _)
@@ -194,10 +191,7 @@ public partial class PDTextBox : IAsyncDisposable
 		await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 	}
 
-	private async Task OnKeypress(KeyboardEventArgs args)
-	{
-		await Keypress.InvokeAsync(args).ConfigureAwait(true);
-	}
+	private async Task OnKeypress(KeyboardEventArgs args) => await Keypress.InvokeAsync(args).ConfigureAwait(true);
 
 	private async Task OnListenForSpeech()
 	{
@@ -228,10 +222,7 @@ public partial class PDTextBox : IAsyncDisposable
 	}
 
 	[JSInvokable]
-	public void OnListeningStarted()
-	{
-		StateHasChanged();
-	}
+	public void OnListeningStarted() => StateHasChanged();
 
 	[JSInvokable]
 	public void OnListeningStopped()

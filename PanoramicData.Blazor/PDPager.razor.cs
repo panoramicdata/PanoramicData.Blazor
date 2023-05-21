@@ -37,39 +37,18 @@ public partial class PDPager : IDisposable
 	/// </summary>
 	[Parameter] public ButtonSizes? Size { get; set; }
 
-	protected override void OnInitialized()
-	{
-		PageCriteria.TotalCountChanged += PageCriteria_TotalCountChanged;
-	}
-	public void Dispose()
-	{
-		PageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
-	}
+	protected override void OnInitialized() => PageCriteria.TotalCountChanged += PageCriteria_TotalCountChanged;
+	public void Dispose() => PageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
 
-	private void PageCriteria_TotalCountChanged(object? sender, EventArgs e)
-	{
-		StateHasChanged();
-	}
+	private void PageCriteria_TotalCountChanged(object? sender, EventArgs e) => StateHasChanged();
 
-	public void MoveLast()
-	{
-		PageCriteria.Page = PageCriteria.PageCount;
-	}
+	public void MoveLast() => PageCriteria.Page = PageCriteria.PageCount;
 
-	public void MoveNext()
-	{
-		PageCriteria.Page++;
-	}
+	public void MoveNext() => PageCriteria.Page++;
 
-	public void MovePrevious()
-	{
-		PageCriteria.Page--;
-	}
+	public void MovePrevious() => PageCriteria.Page--;
 
-	public void MoveFirst()
-	{
-		PageCriteria.Page = 1;
-	}
+	public void MoveFirst() => PageCriteria.Page = 1;
 
 	private string ControlSizeCssClass
 	{

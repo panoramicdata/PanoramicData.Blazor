@@ -2,5 +2,5 @@
 
 public partial class MainLayout
 {
-	private Data.EventManager _eventManager = new();
+	private readonly EventManager _eventManager = new();
 }

@@ -19,7 +19,7 @@ public partial class PDTimeline : IAsyncDisposable
 	private int _selectionEndIndex = -1;
 	private int _lastSelectionStartIndex;
 	private int _lastSelectionEndIndex;
-	private TimeRange? _selectionRange = null;
+	private TimeRange? _selectionRange;
 	private ElementReference _svgSelectionHandleStart;
 	private ElementReference _svgSelectionHandleEnd;
 	private bool _isSelectionStartDragging;
@@ -188,15 +188,8 @@ public partial class PDTimeline : IAsyncDisposable
 
 	public TimelineScale? GetScaleToFit(DateTime? date1 = null, DateTime? date2 = null)
 	{
-		if (date1 is null)
-		{
-			date1 = RoundedMinDateTime;
-		}
-
-		if (date2 is null)
-		{
-			date2 = RoundedMaxDateTime;
-		}
+		date1 ??= RoundedMinDateTime;
+		date2 ??= RoundedMaxDateTime;
 
 		var viewportColumns = _canvasWidth > 0 ? (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width) : 0;
 		for (var i = 0; i < Options.General.Scales.Length - 1; i++)
@@ -212,10 +205,7 @@ public partial class PDTimeline : IAsyncDisposable
 		return Options.General.Scales.FirstOrDefault();
 	}
 
-	public TimeRange? GetSelection()
-	{
-		return _selectionRange;
-	}
+	public TimeRange? GetSelection() => _selectionRange;
 
 	private double GetMaxValue(DataPoint[] points)
 	{
@@ -671,7 +661,7 @@ public partial class PDTimeline : IAsyncDisposable
 			var previousCenter = _previousScale.AddPeriods(_previousScale.PeriodStart(RoundedMinDateTime), _columnOffset + (_viewportColumns / 2));
 			var scaleChanged = scale != _previousScale;
 			var previousScale = _previousScale;
-			var zoomChange = Comparer<TimelineScale>.Default.Compare(scale, previousScale);
+			//var zoomChange = Comparer<TimelineScale>.Default.Compare(scale, previousScale);
 
 			// should we restrict zoom out?
 			var restrictCheck = scaleChanged && Options.General.RestrictZoomOut
@@ -831,9 +821,7 @@ public partial class PDTimeline : IAsyncDisposable
 				: Scale.PeriodStart(Scale.AddPeriods(RoundedMinDateTime, endIndex));
 			if (startTime > endTime)
 			{
-				var tmp = startTime;
-				startTime = endTime;
-				endTime = tmp;
+				(endTime, startTime) = (startTime, endTime);
 			}
 
 			// limit selection range to enabled range?
@@ -953,8 +941,17 @@ public partial class PDTimeline : IAsyncDisposable
 			var ep = PolarToCartesian(x, y, radius, startAngle);
 			var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
 			var d = string.Join(" ", new[] {
-			"M", sp.x.ToString("0.00"), sp.y.ToString("0.00"),
-			"A", radius.ToString(), radius.ToString(), "0", arcSweep, "0", ep.x.ToString("0.00"), ep.y.ToString("0.00")
+				"M",
+				sp.x.ToString("0.00", CultureInfo.InvariantCulture),
+				sp.y.ToString("0.00", CultureInfo.InvariantCulture),
+				"A",
+				radius.ToString(CultureInfo.InvariantCulture),
+				radius.ToString(CultureInfo.InvariantCulture),
+				"0",
+				arcSweep,
+				"0",
+				ep.x.ToString("0.00", CultureInfo.InvariantCulture),
+				ep.y.ToString("0.00", CultureInfo.InvariantCulture)
 			});
 			return d;
 		}
@@ -971,7 +968,7 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			var cy = boundsHeight / 2;
 			var w = boundsWidth - (2 * padding);
-			var sb = new System.Text.StringBuilder();
+			var sb = new StringBuilder();
 			if (faceLeft)
 			{
 				sb.Append("M ").Append(x + padding).Append(' ').Append(Math.Round(cy));
@@ -985,7 +982,7 @@ public partial class PDTimeline : IAsyncDisposable
 				sb.Append("l 0 ").Append(2 * w);
 			}
 
-			sb.Append("Z");
+			sb.Append('Z');
 			return sb.ToString();
 		}
 	}

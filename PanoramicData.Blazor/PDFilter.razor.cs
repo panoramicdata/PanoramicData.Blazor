@@ -2,15 +2,15 @@
 
 public partial class PDFilter : IAsyncDisposable
 {
-	private static int _sequence = 0;
-	private string _id = $"filter-button-{(++_sequence)}";
+	private static int _sequence;
+	private readonly string _id = $"filter-button-{(++_sequence)}";
 	private PDDropDown _dropDown = null!;
 	private string[] _values = Array.Empty<string>();
-	private string _value1 = String.Empty;
-	private string _value2 = String.Empty;
+	private string _value1 = string.Empty;
+	private string _value2 = string.Empty;
 	private FilterTypes _filterType = FilterTypes.Equals;
-	private string _valuesFilter = String.Empty;
-	private List<string> _selectedValues = new();
+	private string _valuesFilter = string.Empty;
+	private readonly List<string> _selectedValues = new();
 	private IJSObjectReference? _commonModule;
 
 	[Inject]
@@ -67,16 +67,13 @@ public partial class PDFilter : IAsyncDisposable
 		_ => !string.IsNullOrWhiteSpace(Filter.Value)
 	};
 
-	protected override async Task OnInitializedAsync()
-	{
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
-	}
+	protected override async Task OnInitializedAsync() => _commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
 
 	private async Task OnClear()
 	{
 		_filterType = FilterTypes.Equals;
-		_value1 = String.Empty;
-		_value2 = String.Empty;
+		_value1 = string.Empty;
+		_value2 = string.Empty;
 		_selectedValues.Clear();
 		Filter.Clear();
 		await _dropDown.HideAsync().ConfigureAwait(true);
@@ -126,10 +123,7 @@ public partial class PDFilter : IAsyncDisposable
 		}
 	}
 
-	private void OnValue2TextChange(string value)
-	{
-		_value2 = value;
-	}
+	private void OnValue2TextChange(string value) => _value2 = value;
 
 	private async Task OnValuesFilterTextChange(string value)
 	{
@@ -137,10 +131,7 @@ public partial class PDFilter : IAsyncDisposable
 		await RefreshValues().ConfigureAwait(true);
 	}
 
-	private void OnFilterTypeChanged(ChangeEventArgs args)
-	{
-		_filterType = (FilterTypes)Enum.Parse(typeof(FilterTypes), args.Value?.ToString() ?? String.Empty);
-	}
+	private void OnFilterTypeChanged(ChangeEventArgs args) => _filterType = (FilterTypes)Enum.Parse(typeof(FilterTypes), args.Value?.ToString() ?? string.Empty);
 
 	private void OnValueClicked(string value)
 	{
@@ -154,7 +145,7 @@ public partial class PDFilter : IAsyncDisposable
 		}
 
 		_filterType = FilterTypes.In;
-		_value1 = String.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
+		_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
 	}
 
 	private async Task RefreshValues()

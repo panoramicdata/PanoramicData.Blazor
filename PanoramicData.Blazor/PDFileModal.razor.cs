@@ -23,7 +23,7 @@ public partial class PDFileModal
 
 	[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
-	[Parameter] public string[] ExcludedPaths { get; set; } = System.Array.Empty<string>();
+	[Parameter] public string[] ExcludedPaths { get; set; } = Array.Empty<string>();
 
 	[Parameter] public Func<FileExplorerItem, string>? GetItemIconCssClass { get; set; }
 
@@ -43,12 +43,9 @@ public partial class PDFileModal
 
 	[Parameter] public EventCallback<string> ModalHidden { get; set; }
 
-	private string GetOpenResult()
-	{
-		return _folderSelect
+	private string GetOpenResult() => _folderSelect
 			? (FileExplorer.SelectedFilesAndFolders.Length == 1 ? FileExplorer.SelectedFilesAndFolders[0] : FileExplorer.FolderPath)
 			: $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
-	}
 
 	private void OnFolderChanged(FileExplorerItem item)
 	{
@@ -78,10 +75,7 @@ public partial class PDFileModal
 		_filenameTextbox.Keypress = OnFilenameKeypress;
 	}
 
-	private string? GetItemIconCssClassInternal(FileExplorerItem item)
-	{
-		return GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
-	}
+	private string? GetItemIconCssClassInternal(FileExplorerItem item) => GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
 
 	public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "", string initialFolder = "")
 	{
@@ -290,7 +284,7 @@ public partial class PDFileModal
 			else
 			{
 				// save as
-				var existing = System.Array.Find(FileExplorer.FileItems ?? Array.Empty<FileExplorerItem>(), x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
+				var existing = Array.Find(FileExplorer.FileItems ?? Array.Empty<FileExplorerItem>(), x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
 				if (existing != null)
 				{
 					// prompt user for over write

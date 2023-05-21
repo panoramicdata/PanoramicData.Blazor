@@ -164,18 +164,9 @@ public class PageCriteria
 	/// </summary>
 	public uint PreviousItems => (_page - 1) * _pageSize;
 
-	protected void OnPageChanged()
-	{
-		PageChanged?.Invoke(this, EventArgs.Empty);
-	}
+	protected void OnPageChanged() => PageChanged?.Invoke(this, EventArgs.Empty);
 
-	protected void OnPageSizeChanged()
-	{
-		PageSizeChanged?.Invoke(this, EventArgs.Empty);
-	}
+	protected void OnPageSizeChanged() => PageSizeChanged?.Invoke(this, EventArgs.Empty);
 
-	protected void OnTotalCountChanged()
-	{
-		TotalCountChanged?.Invoke(this, EventArgs.Empty);
-	}
+	protected void OnTotalCountChanged() => TotalCountChanged?.Invoke(this, EventArgs.Empty);
 }

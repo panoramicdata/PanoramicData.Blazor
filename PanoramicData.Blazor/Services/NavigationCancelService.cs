@@ -3,7 +3,7 @@
 public class NavigationCancelService : INavigationCancelService
 {
 	private readonly IJSRuntime _jsRuntime;
-	private ValueTask<IJSObjectReference>? _loadCommonJsTask;
+	private readonly ValueTask<IJSObjectReference>? _loadCommonJsTask;
 
 	public NavigationCancelService(IJSRuntime jsRuntime)
 	{

@@ -78,7 +78,7 @@ public partial class PDColumn<TItem> where TItem : class
 	public Filter Filter { get; private set; } = new Filter();
 
 	[Parameter]
-	public string FilterKey { get; set; } = String.Empty;
+	public string FilterKey { get; set; } = string.Empty;
 
 	[Parameter]
 	public bool FilterValues { get; set; } = true;
@@ -111,7 +111,7 @@ public partial class PDColumn<TItem> where TItem : class
 			// password / sensitive info?
 			if (IsPassword || IsSensitive(item, null))
 			{
-				return "".PadRight((value.ToString() ?? String.Empty).Length, '*');
+				return "".PadRight((value.ToString() ?? string.Empty).Length, '*');
 			}
 
 			// if enumeration value - does it have display attribute?
@@ -126,7 +126,7 @@ public partial class PDColumn<TItem> where TItem : class
 
 			// return the string to be rendered
 			return string.IsNullOrEmpty(Format)
-				? value.ToString() ?? String.Empty
+				? value.ToString() ?? string.Empty
 				: string.Format(CultureInfo.CurrentCulture, "{0:" + Format + "}", value);
 		}
 		catch
@@ -141,10 +141,7 @@ public partial class PDColumn<TItem> where TItem : class
 	/// </summary>
 	/// <param name="item">The TItem for the current row.</param>
 	/// <returns>The columns value.</returns>
-	public object? GetValue(TItem item)
-	{
-		return CompiledFunc?.Invoke(item);
-	}
+	public object? GetValue(TItem item) => CompiledFunc?.Invoke(item);
 
 	/// <summary>
 	/// Gets or sets an HTML template for the header content.
@@ -267,7 +264,7 @@ public partial class PDColumn<TItem> where TItem : class
 			}
 			else
 			{
-				var stringValue = value?.ToString() ?? String.Empty;
+				var stringValue = value?.ToString() ?? string.Empty;
 				TypeConverter typeConverter = TypeDescriptor.GetConverter(propInfo.PropertyType);
 				object? propValue = typeConverter.ConvertFromString(stringValue);
 				propInfo.SetValue(item, propValue);
@@ -446,7 +443,7 @@ public partial class PDColumn<TItem> where TItem : class
 	{
 		private readonly Expression _param;
 
-		public string FilterKey { get; private set; } = String.Empty;
+		public string FilterKey { get; private set; } = string.Empty;
 
 		public FilterKeyVisitor(Expression parameter) => _param = parameter;
 

@@ -11,10 +11,7 @@ public static class Constants
 		/// <param name="field">The FormField instance.</param>
 		/// <param name="form">The Form instance that gives access to the original Item as well as the current changes via the Delta property.</param>
 		/// <returns>The fields description.</returns>
-		public static string FormFieldDescription<T>(FormField<T> field, PDForm<T>? form) where T : class
-		{
-			return field.Description ?? (field.Field?.GetPropertyMemberInfo()?.GetCustomAttribute<DisplayAttribute>()?.Description) ?? string.Empty;
-		}
+		public static string FormFieldDescription<T>(FormField<T> field, PDForm<T>? form) where T : class => field.Description ?? (field.Field?.GetPropertyMemberInfo()?.GetCustomAttribute<DisplayAttribute>()?.Description) ?? string.Empty;
 
 		/// <summary>
 		/// Function that determines whether the field contains sensitive information.
@@ -23,10 +20,7 @@ public static class Constants
 		/// <param name="item">The instance.</param>
 		/// <param name="form">The Form instance that gives access to current changes via the Delta property.</param>
 		/// <returns>false</returns>
-		public static bool FormFieldIsSensitive<T>(T? item, PDForm<T>? form) where T : class
-		{
-			return false;
-		}
+		public static bool FormFieldIsSensitive<T>(T? item, PDForm<T>? form) where T : class => false;
 
 		/// <summary>
 		/// Function that returns true.

@@ -72,8 +72,10 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 		{
 			for (var i = 0; i < 50; i++)
 			{
-				var childItem = new DirectoryEntry($"datafile-{i + 1:00}.dat", FileExplorerItemType.File, _random.Next(100000));
-				childItem.Parent = itemNode;
+				var childItem = new DirectoryEntry($"datafile-{i + 1:00}.dat", FileExplorerItemType.File, _random.Next(100000))
+				{
+					Parent = itemNode
+				};
 				itemNode.Items.Add(childItem);
 			}
 		}
@@ -164,8 +166,8 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 		if (request.SortFieldExpression != null)
 		{
 			var sortedItems = request.SortDirection == SortDirection.Ascending
-				? items.AsQueryable<FileExplorerItem>().OrderBy(request.SortFieldExpression)
-				: items.AsQueryable<FileExplorerItem>().OrderByDescending(request.SortFieldExpression);
+				? items.AsQueryable().OrderBy(request.SortFieldExpression)
+				: items.AsQueryable().OrderByDescending(request.SortFieldExpression);
 			items = sortedItems.ToList();
 
 			// move Library folder to the top of the list - if displayed
@@ -197,7 +199,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 			return "fas fa-fw fa-folder";
 		}
 
-		return item.FileExtension.ToLower() switch
+		return item.FileExtension.ToLowerInvariant() switch
 		{
 			"doc" or "docx" => "fas fa-fw fa-file-word",
 			"xls" or "xlsx" => "fas fa-fw fa-file-excel",
@@ -266,10 +268,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 					return;
 				}
 
-				if (itemNode.Parent != null)
-				{
-					itemNode.Parent.Items.Remove(itemNode);
-				}
+				itemNode.Parent?.Items.Remove(itemNode);
 
 				targetParentNode.Items.Add(itemNode);
 				itemNode.Parent = targetParentNode;
@@ -286,10 +285,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				}
 
 				// target is folder - so move item into
-				if (itemNode.Parent != null)
-				{
-					itemNode.Parent.Items.Remove(itemNode);
-				}
+				itemNode.Parent?.Items.Remove(itemNode);
 
 				targetNode.Items.Add(itemNode);
 				itemNode.Parent = targetNode;

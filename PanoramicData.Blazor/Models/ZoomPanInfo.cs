@@ -3,7 +3,7 @@
 public class ZoombarValue
 {
 	private const int DECIMAL_PLACES = 2;
-	private double _pan = 0;
+	private double _pan;
 	private double _zoom = 100;
 
 	/// <summary>

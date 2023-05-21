@@ -30,7 +30,7 @@ public partial class PDGlobalListener : IAsyncDisposable
 
 	protected override async Task OnInitializedAsync()
 	{
-		_dotNetObjectReference = DotNetObjectReference.Create<PDGlobalListener>(this);
+		_dotNetObjectReference = DotNetObjectReference.Create(this);
 		_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDGlobalListener.razor.js").ConfigureAwait(true);
 		if (_module != null)
 		{
@@ -42,21 +42,12 @@ public partial class PDGlobalListener : IAsyncDisposable
 
 	private void GlobalEventService_ShortcutsChanged(object? sender, IEnumerable<ShortcutKey> shortcuts)
 	{
-		if (_module != null)
-		{
-			_module.InvokeVoidAsync("registerShortcutKeys", shortcuts);
-		}
+		_module?.InvokeVoidAsync("registerShortcutKeys", shortcuts);
 	}
 
 	[JSInvokable]
-	public void OnKeyDown(KeyboardInfo keyboardInfo)
-	{
-		GlobalEventService?.KeyDown(keyboardInfo);
-	}
+	public void OnKeyDown(KeyboardInfo keyboardInfo) => GlobalEventService?.KeyDown(keyboardInfo);
 
 	[JSInvokable]
-	public void OnKeyUp(KeyboardInfo keyboardInfo)
-	{
-		GlobalEventService?.KeyUp(keyboardInfo);
-	}
+	public void OnKeyUp(KeyboardInfo keyboardInfo) => GlobalEventService?.KeyUp(keyboardInfo);
 }

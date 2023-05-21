@@ -114,7 +114,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// </summary>
 	public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>();
 
-	private void SetVisibility(ToolbarItem? item, bool shown)
+	private static void SetVisibility(ToolbarItem? item, bool shown)
 	{
 		if (item != null)
 		{
@@ -142,27 +142,24 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 				Buttons.Add(new ToolbarButton { Key = "Cancel", Text = CancelButtonText, CssClass = CancelButtonCssClass, IconCssClass = CancelButtonIconCssClass, Size = Size });
 			}
 
-			SetVisibility(Buttons.Find(x => x.Key == "Yes"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
-			SetVisibility(Buttons.Find(x => x.Key == "No"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
-			SetVisibility(Buttons.Find(x => x.Key == "Delete"), ShowDelete && Form.Mode == FormModes.Edit);
-			SetVisibility(Buttons.Find(x => x.Key == "Save"), ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit));
-			SetVisibility(Buttons.Find(x => x.Key == "Cancel"), ShowCancel && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit));
+			PDFormFooter<TItem>.SetVisibility(Buttons.Find(x => x.Key == "Yes"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
+			PDFormFooter<TItem>.SetVisibility(Buttons.Find(x => x.Key == "No"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
+			PDFormFooter<TItem>.SetVisibility(Buttons.Find(x => x.Key == "Delete"), ShowDelete && Form.Mode == FormModes.Edit);
+			PDFormFooter<TItem>.SetVisibility(Buttons.Find(x => x.Key == "Save"), ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit));
+			PDFormFooter<TItem>.SetVisibility(Buttons.Find(x => x.Key == "Cancel"), ShowCancel && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit));
 		}
 	}
 
-	private void Form_ErrorsChanged(object? sender, EventArgs e)
-	{
-		InvokeAsync(() =>
-		{
-			var saveButton = Buttons.Find(x => x.Key == "Save");
-			if (saveButton != null)
-			{
-				var isValid = Form!.Errors.Count == 0;
-				saveButton.IsEnabled = isValid;
-				StateHasChanged();
-			}
-		}).ConfigureAwait(true);
-	}
+	private void Form_ErrorsChanged(object? sender, EventArgs e) => InvokeAsync(() =>
+																		 {
+																			 var saveButton = Buttons.Find(x => x.Key == "Save");
+																			 if (saveButton != null)
+																			 {
+																				 var isValid = Form!.Errors.Count == 0;
+																				 saveButton.IsEnabled = isValid;
+																				 StateHasChanged();
+																			 }
+																		 }).ConfigureAwait(true);
 
 	private async Task OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
 	{

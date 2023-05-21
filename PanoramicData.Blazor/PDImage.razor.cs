@@ -32,8 +32,5 @@ public partial class PDImage
 	/// </summary>
 	[Parameter] public string Value { get; set; } = string.Empty;
 
-	private async Task OnChange(ChangeEventArgs args)
-	{
-		Value = args.Value?.ToString() ?? string.Empty;
-	}
+	private async Task OnChange(ChangeEventArgs args) => Value = args.Value?.ToString() ?? string.Empty;
 }

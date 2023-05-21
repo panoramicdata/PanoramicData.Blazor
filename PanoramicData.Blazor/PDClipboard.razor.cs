@@ -31,10 +31,7 @@
 
 		private string _buttonClass = string.Empty;
 
-		protected override void OnInitialized()
-		{
-			_buttonClass = ReadyToCopyCssClass;
-		}
+		protected override void OnInitialized() => _buttonClass = ReadyToCopyCssClass;
 
 		private async Task CopyTextToClipboardAsync()
 		{
