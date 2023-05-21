@@ -2,7 +2,7 @@
 
 public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 {
-	private readonly Random _random = new(Environment.TickCount);
+	private readonly Random _random = new(System.Environment.TickCount);
 	private readonly DirectoryEntry _root = new(
 		new DirectoryEntry("Library", true, false, false,
 			new DirectoryEntry("Templates", true, false, false,

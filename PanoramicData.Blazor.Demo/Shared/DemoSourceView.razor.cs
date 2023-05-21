@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using BlazorMonaco.Editor;
+using System.IO;
 
 namespace PanoramicData.Blazor.Demo.Shared;
 
@@ -9,7 +10,7 @@ public partial class DemoSourceView
 	private readonly HttpClient _httpClient = new();
 	private readonly Dictionary<string, SourceFile> _sourceFiles = new();
 	private string _activeSourceFile = string.Empty;
-	private MonacoEditor? Editor { get; set; }
+	private StandaloneCodeEditor? Editor { get; set; }
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
 
@@ -123,12 +124,12 @@ public partial class DemoSourceView
 			if (extnChanged)
 			{
 				var model = await Editor.GetModel().ConfigureAwait(true);
-				await MonacoEditorBase.SetModelLanguage(model, GetLanguageForFile(_activeSourceFile)).ConfigureAwait(true);
+				await Global.SetModelLanguage(model, GetLanguageForFile(_activeSourceFile)).ConfigureAwait(true);
 			}
 		}
 	}
 
-	private StandaloneEditorConstructionOptions EditorConstructionOptions(MonacoEditor _)
+	private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor _)
 	{
 		return new StandaloneEditorConstructionOptions
 		{

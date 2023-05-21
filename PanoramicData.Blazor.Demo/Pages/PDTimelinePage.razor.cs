@@ -59,7 +59,7 @@ public partial class PDTimelinePage
 	private void GenerateData(int startYear = 2015, int endYear = 2020, int points = 5000)
 	{
 		// generate data
-		var random = new Random(Environment.TickCount);
+		var random = new Random(System.Environment.TickCount);
 		var startDate = new DateTime(startYear, 1, 1);
 		var endDate = new DateTime(endYear, 12, 31);
 		var dayStart = new TimeSpan(9, 0, 0);
