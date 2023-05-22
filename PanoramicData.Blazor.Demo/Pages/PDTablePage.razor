@@ -152,7 +152,8 @@
             <PDColumn Id="dept"
                       TItem="Person"
                       Field="x => x.Department"
-                      Filterable="true" />
+                      Filterable="true"
+                      FilterSuggestedValues="new object[] { Departments.Marketing, Departments.Sales }"/>
 
             <PDColumn Id="loc"
                       TItem="Person"
@@ -189,7 +190,7 @@
                       TItem="Person"
                       Field="x => x.DateCreated"
                       Filterable="true"
-                      FilterValues="false"
+                      FilterShowSuggestedValues="false"
                       Format="yyyy-MM-dd"
                       ShowInList="false" />
 
@@ -197,7 +198,7 @@
                       TItem="Person"
                       Field="x => x.DateModified"
                       Filterable="true"
-                      FilterValues="false"
+                      FilterShowSuggestedValues="false"
                       Format="yyyy-MM-dd HH:mm"
                       Editable="false"
                       TdClass="text-nowrap" />

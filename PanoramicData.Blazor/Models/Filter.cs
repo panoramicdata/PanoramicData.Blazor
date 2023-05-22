@@ -102,6 +102,8 @@ public class Filter
 				{
 					FilterType = filter.FilterType;
 					Value = filter.Value;
+					Value2 = filter.Value2;
+					Values = filter.Values;
 				}
 			}
 		}

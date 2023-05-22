@@ -103,6 +103,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public EventCallback<TItem> DoubleClick { get; set; }
 
 	/// <summary>
+	/// Funtion that calculates and returns the download url attribuet for each row.
+	/// </summary>
+	[Parameter] public Func<TItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
+
+	/// <summary>
 	/// Callback fired whenever a drag operation ends on a row within a DragContext.
 	/// </summary>
 	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
@@ -191,6 +196,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public bool RetainSelectionOnPage { get; set; }
 
 	/// <summary>
+	/// Gets whether right-clicking selects a row versus left-clicking.
+	/// </summary>
+	[Parameter] public bool RightClickSelectsRow { get; set; } = true;
+
+	/// <summary>
 	/// Gets whether the table will save changes via the DataProvider (if set).
 	/// </summary>
 	[Parameter] public bool SaveChanges { get; set; }
@@ -240,6 +250,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// </summary>
 	[Parameter] public SortCriteria SortCriteria { get; set; } = new SortCriteria();
 
+	/// <summary>
+	/// Gets or sets whether the contents of all cells are user selectable by default.
+	/// </summary>
+	[Parameter] public bool UserSelectable { get; set; }
+
 	#endregion
 
 	/// <summary>
@@ -258,10 +273,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
 
 
-	/// <summary>
-	/// Gets whether right-clicking selects a row versus left-clicking.
-	/// </summary>
-	[Parameter] public bool RightClickSelectsRow { get; set; } = true;
+
 
 	/// <summary>
 	/// Gets the keys of all currently selected items.
@@ -463,6 +475,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			{
 				PageCriteria.TotalCount = (uint)(response.TotalCount ?? 0);
 			}
+		}
+		catch (Exception ex)
+		{
+			await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
 		}
 		finally
 		{
@@ -800,6 +816,12 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		if (column.Field is null)
 		{
 			return result;
+		}
+
+		// allow app to specify suggested values
+		if (column.FilterSuggestedValues.Any())
+		{
+			return column.FilterSuggestedValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
 		}
 
 		// TODO: cache values for period of time?
@@ -1200,6 +1222,18 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		{
 			Task.Run(async () => await BeginEditAsync().ConfigureAwait(true));
 		}
+	}
+
+	private string GetDynamicCellClasses(PDColumn<TItem> col, TItem _)
+	{
+		var sb = new StringBuilder();
+		sb.Append(col.TdClass);
+		sb.Append(' ');
+		if ((col.UserSelectable ?? UserSelectable) == false)
+		{
+			sb.Append("noselect ");
+		}
+		return sb.ToString().Trim();
 	}
 
 	private string GetDynamicRowClasses(TItem item)

@@ -81,7 +81,10 @@ public partial class PDColumn<TItem> where TItem : class
 	public string FilterKey { get; set; } = string.Empty;
 
 	[Parameter]
-	public bool FilterValues { get; set; } = true;
+	public bool FilterShowSuggestedValues { get; set; } = true;
+
+	[Parameter]
+	public IEnumerable<object> FilterSuggestedValues { get; set; } = Array.Empty<object>();
 
 	[Parameter]
 	public int? FilterMaxValues { get; set; }
@@ -339,7 +342,8 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets whether the contents of this cell are user selectable.
 	/// </summary>
-	[Parameter] public bool UserSelectable { get; set; }
+	/// <remarks>When set to a null (default) will use Table property value.</remarks>
+	[Parameter] public bool? UserSelectable { get; set; }
 
 	public string GetTitle()
 	{
