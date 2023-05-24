@@ -128,20 +128,30 @@ public partial class PDDropDown : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_objRef = DotNetObjectReference.Create(this);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropDown.razor.js").ConfigureAwait(true);
-			if (_module != null)
+			try
 			{
-				_dropdownObj = await _module.InvokeAsync<IJSObjectReference>("initialize", ToggleId, _objRef, new
+				_objRef = DotNetObjectReference.Create(this);
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropDown.razor.js").ConfigureAwait(true);
+				if (_module != null)
 				{
-					autoClose = CloseOption switch
+					_dropdownObj = await _module.InvokeAsync<IJSObjectReference>("initialize", ToggleId, _objRef, new
 					{
-						CloseOptions.Inside => (object)"inside",
-						CloseOptions.InsideOrOutside => true,
-						CloseOptions.Manual => false,
-						_ => "outside"
-					}
-				}).ConfigureAwait(true);
+						autoClose = CloseOption switch
+						{
+							CloseOptions.Inside => (object)"inside",
+							CloseOptions.InsideOrOutside => true,
+							CloseOptions.Manual => false,
+							_ => "outside"
+						}
+					}).ConfigureAwait(true);
+				}
+			}
+			catch (ObjectDisposedException)
+			{
+			}
+			catch (Exception)
+			{
+				// TODO: Use logger to output error message?
 			}
 		}
 	}
