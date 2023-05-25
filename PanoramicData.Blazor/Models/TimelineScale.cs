@@ -7,6 +7,12 @@ public class TimelineScale : IComparable
 
 	public TimelineScale(string name, TimelineUnits unitType, int unitCount)
 	{
+		// validate
+		if (unitType > TimelineUnits.Hours && unitCount > 1)
+		{
+			throw new ArgumentOutOfRangeException(nameof(unitCount), "Unit Count can only be 1 when Unit Type is greater than hours");
+		}
+
 		_cultureInfo = CultureInfo.CurrentUICulture;
 		_calendar = _cultureInfo.Calendar;
 		Name = name;
@@ -72,12 +78,13 @@ public class TimelineScale : IComparable
 			TimelineUnits.Milliseconds => end.Subtract(start).TotalMilliseconds,
 			TimelineUnits.Seconds => end.Subtract(start).TotalSeconds,
 			TimelineUnits.Minutes => end.Subtract(start).TotalMinutes,
-			TimelineUnits.Hours => end.Subtract(start).TotalHours / UnitCount,
+			TimelineUnits.Hours => end.Subtract(start).TotalHours,
 			TimelineUnits.Days => end.Subtract(start).TotalDays,
 			TimelineUnits.Weeks => end.Subtract(start).TotalDays / 7,
 			TimelineUnits.Months => end.TotalMonthsSince(start),
 			_ => end.TotalYearsSince(start)
 		};
+		temp /= UnitCount;
 		return (int)(roundUp ? Math.Ceiling(temp) : Math.Floor(temp));
 	}
 
@@ -93,37 +100,41 @@ public class TimelineScale : IComparable
 		_ => _calendar.AddYears(PeriodStart(dateTime), UnitCount),
 	};
 
-	public DateTime PeriodStart(DateTime dateTime) => UnitType switch
+	public DateTime PeriodStart(DateTime dateTime)
 	{
-		TimelineUnits.Milliseconds => new DateTime(dateTime.Year,
-										dateTime.Month,
-										dateTime.Day,
-										dateTime.Hour,
-										dateTime.Minute,
-										dateTime.Second,
-										Round((int)_calendar.GetMilliseconds(dateTime))),
-		TimelineUnits.Seconds => new DateTime(dateTime.Year,
-										dateTime.Month,
-										dateTime.Day,
-										dateTime.Hour,
-										dateTime.Minute,
-										Round(_calendar.GetSecond(dateTime))),
-		TimelineUnits.Minutes => new DateTime(dateTime.Year,
-										dateTime.Month,
-										dateTime.Day,
-										dateTime.Hour,
-										Round(_calendar.GetMinute(dateTime)), 0),
-		TimelineUnits.Hours => new DateTime(dateTime.Year,
-										dateTime.Month,
-										dateTime.Day,
-										Round(_calendar.GetHour(dateTime)), 0, 0),
-		TimelineUnits.Days => new DateTime(dateTime.Year,
-										dateTime.Month,
-										Round(_calendar.GetDayOfMonth(dateTime))),
-		TimelineUnits.Weeks => dateTime.Date.AddDays(-(int)dateTime.DayOfWeek),
-		TimelineUnits.Months => new DateTime(dateTime.Year, Round(_calendar.GetMonth(dateTime)), 1),
-		_ => new DateTime(Round(_calendar.GetYear(dateTime)), 1, 1),
-	};
+		return UnitType switch
+		{
+			TimelineUnits.Milliseconds => new DateTime(dateTime.Year,
+											dateTime.Month,
+											dateTime.Day,
+											dateTime.Hour,
+											dateTime.Minute,
+											dateTime.Second,
+											Round((int)_calendar.GetMilliseconds(dateTime))),
+			TimelineUnits.Seconds => new DateTime(dateTime.Year,
+											dateTime.Month,
+											dateTime.Day,
+											dateTime.Hour,
+											dateTime.Minute,
+											Round(_calendar.GetSecond(dateTime))),
+			TimelineUnits.Minutes => new DateTime(dateTime.Year,
+											dateTime.Month,
+											dateTime.Day,
+											dateTime.Hour,
+											Round(_calendar.GetMinute(dateTime)), 0),
+			TimelineUnits.Hours => new DateTime(dateTime.Year,
+											dateTime.Month,
+											dateTime.Day,
+											Round(_calendar.GetHour(dateTime)), 0, 0),
+			TimelineUnits.Days => new DateTime(dateTime.Year,
+											dateTime.Month,
+											Round(_calendar.GetDayOfMonth(dateTime))),
+			TimelineUnits.Weeks => dateTime.Date.AddDays(-(int)dateTime.DayOfWeek),
+			TimelineUnits.Months => new DateTime(dateTime.Year, Round(_calendar.GetMonth(dateTime)), 1),
+			_ => new DateTime(Round(_calendar.GetYear(dateTime)), 1, 1),
+		};
+	}
+
 
 	private int Round(int value) => UnitCount == 1 ? value : (value / UnitCount) * UnitCount;
 
@@ -206,6 +217,9 @@ public class TimelineScale : IComparable
 	public static TimelineScale Hours8 => new("8 Hours", TimelineUnits.Hours, 8);
 	public static TimelineScale Hours12 => new("12 Hours", TimelineUnits.Hours, 12);
 	public static TimelineScale Minutes => new("Minutes", TimelineUnits.Minutes, 1);
+	public static TimelineScale Minutes5 => new("5 Minutes", TimelineUnits.Minutes, 5);
+	public static TimelineScale Minutes10 => new("10 Minutes", TimelineUnits.Minutes, 10);
+	public static TimelineScale Minutes15 => new("15 Minutes", TimelineUnits.Minutes, 15);
 	public static TimelineScale Seconds => new("Seconds", TimelineUnits.Seconds, 1);
 
 	#endregion

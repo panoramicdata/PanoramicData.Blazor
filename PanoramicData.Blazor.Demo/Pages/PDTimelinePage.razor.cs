@@ -18,7 +18,23 @@ public partial class PDTimelinePage
 		{
 			DateFormat = "yyyy-MM-dd",
 			RestrictZoomOut = false,
-			RightAlign = true
+			RightAlign = true,
+			Scales = new[]
+			{
+				TimelineScale.Seconds,
+				TimelineScale.Minutes,
+				TimelineScale.Minutes5,
+				new TimelineScale("10 Minutes", TimelineUnits.Minutes, 10),
+				TimelineScale.Hours,
+				TimelineScale.Hours4,
+				TimelineScale.Hours6,
+				TimelineScale.Hours8,
+				TimelineScale.Hours12,
+				TimelineScale.Days,
+				TimelineScale.Weeks,
+				TimelineScale.Months,
+				TimelineScale.Years
+			}
 		},
 		Series = new[]
 		{
@@ -56,7 +72,7 @@ public partial class PDTimelinePage
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	private void GenerateData(int startYear = 2015, int endYear = 2020, int points = 5000)
+	private void GenerateData(int startYear = 2015, int endYear = 2020, int points = 10000)
 	{
 		// generate data
 		var random = new Random(System.Environment.TickCount);
@@ -104,7 +120,7 @@ public partial class PDTimelinePage
 	{
 		// generate new data
 		_data.Clear();
-		GenerateData(2015, 2020, 10);
+		GenerateData(2018, 2020, 10000);
 
 		// update component parameters
 		_minDate = _data.Min(x => x.DateChanged);
@@ -198,5 +214,5 @@ public class TimelinePageModel
 
 	public DateTime DisableBefore { get; set; }
 
-	public TimelineScale Scale { get; set; } = TimelineScale.Years;
+	public TimelineScale Scale { get; set; } = TimelineScale.Hours;
 }
