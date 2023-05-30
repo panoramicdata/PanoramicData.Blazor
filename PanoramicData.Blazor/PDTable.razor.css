@@ -49,3 +49,19 @@
 	display: flex;
 	min-height: 2em;
 }
+
+.text-right {
+	text-align: right;
+}
+
+th.text-right .hdr {
+	justify-content: flex-end;
+}
+
+.text-left {
+	text-align: left;
+}
+
+th.text-left .hdr {
+	justify-content: flex-start;
+}

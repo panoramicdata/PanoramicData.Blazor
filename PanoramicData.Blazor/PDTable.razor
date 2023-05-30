@@ -43,7 +43,7 @@
                 }
                 @foreach (var column in ActualColumnsToDisplay)
                 {
-                    <th scope="col" class="@column.ThClass @((column.UserSelectable ?? UserSelectable) == false ? "noselect" : "")" style="white-space: nowrap;">
+                    <th class="@column.ThClass @((column.UserSelectable ?? UserSelectable) == false ? "noselect" : "")" style="white-space: nowrap;">
                         <div class="hdr">
                             @if (column.HeaderTemplate is null)
                             {
@@ -103,7 +103,7 @@
                         @foreach (var column in ActualColumnsToDisplay)
                         {
                             var row = ItemsToDisplay.IndexOf(item);
-                            <td>
+                            <td class="@column.TdClass">
                                 @if (IsColumnInEditMode(column, item) && column.Field != null)
                                 {
                                     if (column.EditTemplate == null)
