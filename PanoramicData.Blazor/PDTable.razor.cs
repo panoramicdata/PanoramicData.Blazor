@@ -828,21 +828,18 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 		// build up search text from filters
 		var searchText = new StringBuilder();
-		foreach (var col in ActualColumnsToDisplay)
+		foreach (var col in ActualColumnsToDisplay.Where(c => c.Filterable))
 		{
-			if (col.Filterable)
+			if (col == column)
 			{
-				if (col == column)
+				if (filter.IsValid)
 				{
-					if (filter.IsValid)
-					{
-						searchText.Append(filter.ToString());
-					}
+					_ = searchText.Append(filter.ToString()).Append(' ');
 				}
-				else if (col.Filter.IsValid)
-				{
-					searchText.Append(col.Filter.ToString());
-				}
+			}
+			else if (col.Filter.IsValid)
+			{
+				_ = searchText.Append(col.Filter.ToString()).Append(' ');
 			}
 		}
 
@@ -854,7 +851,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			ForceUpdate = false,
 			SortFieldExpression = sortColumn?.Field,
 			SortDirection = sortColumn?.SortDirection,
-			SearchText = searchText.ToString()
+			SearchText = searchText.ToString().Trim()
 		};
 
 		// use more efficient service provider?
