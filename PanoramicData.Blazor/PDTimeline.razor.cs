@@ -661,7 +661,6 @@ public partial class PDTimeline : IAsyncDisposable
 			var previousCenter = _previousScale.AddPeriods(_previousScale.PeriodStart(RoundedMinDateTime), _columnOffset + (_viewportColumns / 2));
 			var scaleChanged = scale != _previousScale;
 			var previousScale = _previousScale;
-			//var zoomChange = Comparer<TimelineScale>.Default.Compare(scale, previousScale);
 
 			// should we restrict zoom out?
 			var restrictCheck = scaleChanged && Options.General.RestrictZoomOut
