@@ -397,7 +397,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// Refresh the grid by performing a re-query.
 	/// </summary>
 	/// <param name="searchText">Optional override for the search text.</param>
-	public Task RefreshAsync(string? searchText = null)
+	public Task RefreshAsync() => RefreshAsync(null);
+
+	public Task RefreshAsync(string? searchText)
 		=> GetDataAsync(searchText);
 
 	/// <summary>

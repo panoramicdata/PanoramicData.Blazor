@@ -384,7 +384,17 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
-	public object? GetFieldValue(string fieldName, bool updatedValue = true) => GetFieldValue(GetField(fieldName), updatedValue);
+
+	public object? GetFieldValue(string fieldName)
+	{
+		return GetFieldValue(fieldName, true);
+	}
+
+	public object? GetFieldValue(string fieldName, bool updatedValue)
+	{
+		return GetFieldValue(GetField(fieldName), updatedValue);
+	}
+
 
 	/// <summary>
 	/// Attempts to get the requested fields current or original value and cast to the required type.
