@@ -7,8 +7,8 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	private IJSObjectReference? _commonModule;
 	private static int _idSequence;
 	private bool _mouseDownOriginatedFromTable;
-	public readonly string IdPrefix = "pd-table-";
-	public readonly string IdEditPrefix = "pd-table-edit-";
+	private readonly string IdPrefix = "pd-table-";
+	private readonly string IdEditPrefix = "pd-table-edit-";
 	private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
 	private string? _lastSearchText;
 	private readonly Dictionary<string, object?> _editValues = new();

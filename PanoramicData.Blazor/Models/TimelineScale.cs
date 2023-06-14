@@ -50,14 +50,28 @@ public class TimelineScale : IComparable
 		};
 	}
 
-	public virtual string FormatPattern(string dateFormat = "d") => UnitType switch
+	public virtual string FormatPattern()
 	{
-		TimelineUnits.Years => "yyyy",
-		TimelineUnits.Months => "MMM yyyy",
-		TimelineUnits.Hours => $"{dateFormat} HH:00",
-		TimelineUnits.Minutes => $"{dateFormat} HH:mm",
-		_ => dateFormat
-	};
+		return FormatPattern("d");
+	}
+
+	public virtual string FormatPattern(string dateFormat)
+	{
+		switch (UnitType)
+		{
+			case TimelineUnits.Years:
+				return "yyyy";
+			case TimelineUnits.Months:
+				return "MMM yyyy";
+			case TimelineUnits.Hours:
+				return $"{dateFormat} HH:00";
+			case TimelineUnits.Minutes:
+				return $"{dateFormat} HH:mm";
+			default:
+				return dateFormat;
+		}
+	}
+
 
 	public virtual bool IsMajorTick(DateTime dateTime) => UnitType switch
 	{

@@ -17,7 +17,13 @@ public class SortCriteria
 	/// </summary>
 	/// <param name="key">Identifier of the field the sort operation is performed upon</param>
 	/// <param name="direction">Direction of the sort.</param>
-	public SortCriteria(string key, SortDirection direction = SortDirection.Ascending)
+	public SortCriteria(string key)
+	{
+		Key = key;
+		Direction = SortDirection.Ascending;
+	}
+
+	public SortCriteria(string key, SortDirection direction)
 	{
 		Key = key;
 		Direction = direction;
