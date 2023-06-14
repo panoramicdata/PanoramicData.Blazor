@@ -228,7 +228,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <summary>
 	/// Gets or sets whether the checkboxes should be shown for multiple selection.
 	/// </summary>
-	[Parameter] public bool ShowCheckboxes { get; set; } = false;
+	[Parameter] public bool ShowCheckboxes { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether the pager is displayed.

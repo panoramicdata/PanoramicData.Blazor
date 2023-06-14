@@ -72,7 +72,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <summary>
 	/// Determines whether the first node is automatically expanded on load.
 	/// </summary>
-	[Parameter] public bool AutoExpand { get; set; } = false;
+	[Parameter] public bool AutoExpand { get; set; }
 
 	/// <summary>
 	/// Gets or sets a delegate to be called before an item is renamed.

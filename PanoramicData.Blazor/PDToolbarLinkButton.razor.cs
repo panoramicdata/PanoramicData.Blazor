@@ -55,7 +55,7 @@ public partial class PDToolbarLinkButton
 	/// <summary>
 	/// Gets or sets whether the toolbar item is positioned further to the right of the previous toolbar item.
 	/// </summary>
-	[Parameter] public bool ShiftRight { get; set; } = false;
+	[Parameter] public bool ShiftRight { get; set; }
 
 	/// <summary>
 	/// Sets the short cut keys that will perform a click on this button.

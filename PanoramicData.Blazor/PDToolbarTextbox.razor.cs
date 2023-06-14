@@ -90,7 +90,7 @@ public partial class PDToolbarTextbox
 	/// <summary>
 	/// Sets the debounce wait period in milliseconds.
 	/// </summary>
-	[Parameter] public int DebounceWait { get; set; } = 0;
+	[Parameter] public int DebounceWait { get; set; }
 
 	public string ItemStyle => $"width: {Width}";
 
