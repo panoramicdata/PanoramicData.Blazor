@@ -78,10 +78,12 @@
                 {
                     <tr class="pdtablerow @GetDynamicRowClasses(item)"
                         id="@(KeyField is null ? null : KeyField(item)?.ToString())"
+                        @attributes="GetRowAttributes(item)"
                         @oncontextmenu:preventDefault
                         @onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
                         @onclick="@((args) => OnRowClick(args, item))"
                         @ondblclick="@((args) => OnRowDoubleClick(args, item))"
+                        @ondragstart="@((args) => OnRowDragStart(args, item))"
                         @ondragend="OnDragEnd"
                         @ondrop:stopPropagation
                         @ondrop="@((args) => OnRowDragDropAsync(args, item))">
@@ -103,7 +105,7 @@
                         @foreach (var column in ActualColumnsToDisplay)
                         {
                             var row = ItemsToDisplay.IndexOf(item);
-                            <td class="@column.TdClass">
+                            <td class="@GetDynamicCellClasses(column, item)">
                                 @if (IsColumnInEditMode(column, item) && column.Field != null)
                                 {
                                     if (column.EditTemplate == null)

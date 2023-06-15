@@ -113,7 +113,10 @@ public partial class PDTimelinePage
 		_data.Clear();
 		_minDate = DateTime.MinValue;
 		_maxDate = DateTime.MinValue;
-		await _timeline.Reset().ConfigureAwait(true);
+		if (_timeline is not null)
+		{
+			await _timeline.Reset().ConfigureAwait(true);
+		}
 	}
 
 	private async Task OnSetData()
@@ -126,7 +129,10 @@ public partial class PDTimelinePage
 		_minDate = _data.Min(x => x.DateChanged);
 		_maxDate = _data.Max(x => x.DateChanged);
 
-		await _timeline.RefreshAsync().ConfigureAwait(true);
+		if (_timeline is not null)
+		{
+			await _timeline.RefreshAsync().ConfigureAwait(true);
+		}
 	}
 
 	private async ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScale scale, CancellationToken cancellationToken)
@@ -184,14 +190,37 @@ public partial class PDTimelinePage
 		_minDate = _data.Min(x => x.DateChanged).Date;
 	}
 
-	private async Task OnZoomToEnd() => await _timeline.ZoomToEndAsync().ConfigureAwait(true);
+	private async Task OnZoomToEnd()
+	{
+		if (_timeline is null)
+		{
+			return;
+		}
+
+		await _timeline.ZoomToEndAsync().ConfigureAwait(true);
+	}
+
+	private async Task OnZoomTo24h()
+	{
+		if (_timeline is null)
+		{
+			return;
+		}
+
+		await _timeline.ZoomToAsync(DateTime.Now.AddHours(-24), DateTime.Now, TimelinePositions.End).ConfigureAwait(true);
+	}
 
 	private async Task OnRefreshed()
 	{
+		if (_timeline is null)
+		{
+			return;
+		}
+
 		// select last year
 		if (_timeline.GetSelection() is null)
 		{
-			await _timeline.SetSelection(_maxDate.AddYears(-1), _maxDate).ConfigureAwait(true);
+			await _timeline.SetSelection(_maxDate.AddYears(-2), _maxDate).ConfigureAwait(true);
 		}
 	}
 
@@ -210,9 +239,10 @@ public class ConfigChange
 
 public class TimelinePageModel
 {
-	public DateTime DisableAfter { get; set; }
 
-	public DateTime DisableBefore { get; set; }
+	public DateTime DisableAfter { get; set; } = new DateTime(2019, 11, 01);
 
-	public TimelineScale Scale { get; set; } = TimelineScale.Hours;
+	public DateTime DisableBefore { get; set; } = new DateTime(2016, 11, 01);
+
+	public TimelineScale Scale { get; set; } = TimelineScale.Months;
 }
