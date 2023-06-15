@@ -248,10 +248,14 @@ public partial class PDTree<TItem> where TItem : class
 			{
 				if (_clickCount > 1)
 				{
+					await SelectNode(_clickedNode, false).ConfigureAwait(true);
 					await ToggleNodeIsExpandedAsync(_clickedNode).ConfigureAwait(true);
 				}
-
-				await SelectNode(_clickedNode).ConfigureAwait(true);
+				else
+				{
+					var autoEdit = state is MouseEventArgs args && args.Button == 0;
+					await SelectNode(_clickedNode, autoEdit).ConfigureAwait(true);
+				}
 				StateHasChanged();
 			}
 		});
@@ -259,14 +263,20 @@ public partial class PDTree<TItem> where TItem : class
 		_clickCount = 0;
 	}
 
-	public void NodeMouseDown(TreeNode<TItem> node)
+	public async Task NodeDoubleClick(TreeNode<TItem> node, MouseEventArgs args)
+	{
+		await SelectNode(node, false).ConfigureAwait(true);
+		await ToggleNodeIsExpandedAsync(node).ConfigureAwait(true);
+	}
+
+	public void NodeMouseDown(TreeNode<TItem> node, MouseEventArgs args)
 	{
 		if (_clickTimer == null || node != _clickedNode)
 		{
 			_clickTimer?.Dispose();
 			_clickedNode = node;
 			_clickCount = 1;
-			_clickTimer = new Timer(ClickTimerCallback, null, 250, Timeout.Infinite);
+			_clickTimer = new Timer(ClickTimerCallback, args, 250, Timeout.Infinite);
 		}
 		else
 		{
@@ -278,7 +288,8 @@ public partial class PDTree<TItem> where TItem : class
 	/// Selects the given node.
 	/// </summary>
 	/// <param name="node">The node to select.</param>
-	public async Task SelectNode(TreeNode<TItem> node)
+	/// <param name="autoEdit">If the same node is selected twice should it go into edit mode?</param>
+	public async Task SelectNode(TreeNode<TItem> node, bool autoEdit = true)
 	{
 		if (AllowSelection)
 		{
@@ -292,7 +303,10 @@ public partial class PDTree<TItem> where TItem : class
 			if (SelectedNode == node)
 			{
 				// if the same node
-				await BeginEdit().ConfigureAwait(true);
+				if (AllowEdit && autoEdit)
+				{
+					await BeginEdit().ConfigureAwait(true);
+				}
 			}
 			else
 			{

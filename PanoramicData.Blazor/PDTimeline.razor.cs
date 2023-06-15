@@ -459,7 +459,7 @@ public partial class PDTimeline : IAsyncDisposable
 	{
 		if (_commonModule != null)
 		{
-			_canvasWidth = await _commonModule.InvokeAsync<int>("getWidth", _svgPlotElement).ConfigureAwait(true);
+			_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true);
 		}
 
 		await SetScale(Scale, true).ConfigureAwait(true);
