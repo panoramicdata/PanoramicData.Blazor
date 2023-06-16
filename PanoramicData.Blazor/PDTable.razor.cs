@@ -1161,6 +1161,45 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 	}
 
+	private async Task OnRowMouseUpAsync(MouseEventArgs args, TItem item)
+	{
+		// quit if selection not allowed
+		if (!IsEnabled || SelectionMode == TableSelectionMode.None || !RowIsEnabled(item))
+		{
+			return;
+		}
+
+		// if right-click on row then only select if clicked on label
+		var selectRow = args.Button == 0;
+		if (args.Button == 2 && RightClickSelectsRow && _commonModule != null)
+		{
+			var sourceEl = await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
+			if (sourceEl != null)
+			{
+				selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
+			}
+		}
+
+		if (selectRow)
+		{
+			var key = KeyField!(item)?.ToString();
+			if (key != null)
+			{
+				var alreadySelected = Selection.Contains(key);
+
+				// begin edit mode?
+				if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
+				{
+					_editTimer?.Change(500, Timeout.Infinite);
+				}
+				else
+				{
+					await SelectItemAsync(key, args.ShiftKey, args.CtrlKey).ConfigureAwait(true);
+				}
+			}
+		}
+	}
+
 	private void OnRowClick(MouseEventArgs _, TItem item)
 	{
 		if (IsEnabled)

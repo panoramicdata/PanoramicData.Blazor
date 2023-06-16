@@ -80,7 +80,7 @@
                         id="@(KeyField is null ? null : KeyField(item)?.ToString())"
                         @attributes="GetRowAttributes(item)"
                         @oncontextmenu:preventDefault
-                        @onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
+                        @onmouseup="@((args) => OnRowMouseUpAsync(args, item))"
                         @onclick="@((args) => OnRowClick(args, item))"
                         @ondblclick="@((args) => OnRowDoubleClick(args, item))"
                         @ondragstart="@((args) => OnRowDragStart(args, item))"
