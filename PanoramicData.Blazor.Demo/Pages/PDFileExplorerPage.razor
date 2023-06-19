@@ -10,10 +10,11 @@
 
 		<PDDragContext>
 			<PDFileExplorer @ref="FileExplorer"
-							AllowRename="true"
+                            AllowRenameConflicts="true"
 							AutoExpand="true"
 							ButtonSize="ButtonSizes.Small"
 							DataProvider=" _dataProvider"
+                            DownloadUrlFunc="GetDownloadUrl"
 							FolderChanged="OnFolderChanged"
 							GetItemCssClass="GetCssClass"
 							GetItemIconCssClass="GetIconCssClass"

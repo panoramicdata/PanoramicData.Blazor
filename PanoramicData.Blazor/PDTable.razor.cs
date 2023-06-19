@@ -231,6 +231,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public bool ShowCheckboxes { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether the Overlay Service is used when fetching data.
+	/// </summary>
+	[Parameter] public bool ShowOverlay { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets whether the pager is displayed.
 	/// </summary>
 	[Parameter] public bool ShowPager { get; set; } = true;
@@ -436,7 +441,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		try
 		{
-			BlockOverlayService.Show();
+			if (ShowOverlay)
+			{
+				BlockOverlayService.Show();
+			}
 
 			//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
@@ -484,7 +492,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 		finally
 		{
-			BlockOverlayService.Hide();
+			if (ShowOverlay)
+			{
+				BlockOverlayService.Hide();
+			}
 		}
 	}
 
@@ -701,23 +712,25 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <summary>
 	/// Gets a dictionary of additional attributes to be added to each row.
 	/// </summary>
-	public Dictionary<string, object> RowAttributes
+	public Dictionary<string, object> GetRowAttributes(TItem? item)
 	{
-		get
+		var dict = new Dictionary<string, object>();
+		if (AllowDrag && !IsEditing)
 		{
-			var dict = new Dictionary<string, object>();
-			if (AllowDrag && !IsEditing)
+			dict.Add("draggable", "true");
+			var downloadUrl = item is null ? null : DownloadUrlFunc(item);
+			if (!string.IsNullOrWhiteSpace(downloadUrl))
 			{
-				dict.Add("draggable", "true");
+				dict.Add("data-downloadurl", downloadUrl);
 			}
-
-			if (AllowDrop)
-			{
-				dict.Add("ondragover", "event.preventDefault();");
-			}
-
-			return dict;
 		}
+
+		if (AllowDrop)
+		{
+			dict.Add("ondragover", "event.preventDefault();");
+		}
+
+		return dict;
 	}
 
 	/// <summary>
@@ -875,7 +888,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 
 		// limit to first N
-		objectValues = objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(FilterMaxValues).ToArray();
+		objectValues = objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(column.FilterMaxValues ?? FilterMaxValues).ToArray();
 
 		// cast to string
 		return objectValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
@@ -929,6 +942,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			}
 
 			await Ready.InvokeAsync(null).ConfigureAwait(true);
+
+			if (_commonModule != null)
+			{
+				await _commonModule.InvokeVoidAsync("onTableDragStart", Id);
+			}
 		}
 
 		// focus first editor after edit mode begins
@@ -1143,6 +1161,45 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 	}
 
+	private async Task OnRowMouseUpAsync(MouseEventArgs args, TItem item)
+	{
+		// quit if selection not allowed
+		if (!IsEnabled || SelectionMode == TableSelectionMode.None || !RowIsEnabled(item))
+		{
+			return;
+		}
+
+		// if right-click on row then only select if clicked on label
+		var selectRow = args.Button == 0;
+		if (args.Button == 2 && RightClickSelectsRow && _commonModule != null)
+		{
+			var sourceEl = await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
+			if (sourceEl != null)
+			{
+				selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
+			}
+		}
+
+		if (selectRow)
+		{
+			var key = KeyField!(item)?.ToString();
+			if (key != null)
+			{
+				var alreadySelected = Selection.Contains(key);
+
+				// begin edit mode?
+				if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
+				{
+					_editTimer?.Change(500, Timeout.Infinite);
+				}
+				else
+				{
+					await SelectItemAsync(key, args.ShiftKey, args.CtrlKey).ConfigureAwait(true);
+				}
+			}
+		}
+	}
+
 	private void OnRowClick(MouseEventArgs _, TItem item)
 	{
 		if (IsEnabled)
@@ -1284,7 +1341,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		return false;
 	}
 
-	private void OnDragStart(DragEventArgs _)
+	private void OnRowDragStart(DragEventArgs args, TItem? rowItem)
 	{
 		if (!IsEnabled || IsEditing)
 		{
@@ -1375,7 +1432,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 				await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 			}
-			else if (!alreadySelected) // single selection
+			else // single selection
 			{
 				Selection.Clear();
 				Selection.Add(key);

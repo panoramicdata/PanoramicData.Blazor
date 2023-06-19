@@ -13,6 +13,16 @@ public partial class PDFormPage3
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
+	private string GetIdDescription(FormField<Person> field, PDForm<Person> form)
+	{
+		if (form?.Item is null)
+		{
+			return string.Empty;
+		}
+
+		return $"{form?.Item?.Id} ({(form?.Item?.Id % 2 == 0 ? "even" : "odd")})";
+	}
+
 	private async Task OnPersonCreated(Person person)
 	{
 		EventManager?.Add(new Event("PersonCreated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));

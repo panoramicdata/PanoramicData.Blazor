@@ -30,8 +30,11 @@ public partial class PDFileModal
 	[Parameter] public string OpenButtonText { get; set; } = "Open";
 
 	[Parameter] public string SaveButtonText { get; set; } = "Save";
+	[Parameter] public bool ShowContextMenu { get; set; }
 
 	[Parameter] public bool ShowNavigateUpButton { get; set; } = true;
+
+	[Parameter] public bool ShowToolbar { get; set; }
 
 	[Parameter] public string OpenTitle { get; set; } = "File Open";
 
