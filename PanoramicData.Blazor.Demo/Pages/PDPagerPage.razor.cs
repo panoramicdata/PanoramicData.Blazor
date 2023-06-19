@@ -2,7 +2,6 @@
 
 public partial class PDPagerPage : IDisposable
 {
-	//private PDPager? _pager;
 	private readonly PageCriteria _pageCriteria = new(1);
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }

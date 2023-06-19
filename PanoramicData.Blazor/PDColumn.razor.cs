@@ -463,13 +463,6 @@ public partial class PDColumn<TItem> where TItem : class
 								?? mexpr.Member.GetCustomAttribute<DisplayAttribute>()?.ShortName
 								?? mexpr.Member.Name.LowerFirstChar()
 					));
-					//var last = chain.LastOrDefault();
-					//if (last != null)
-					//{
-					//	FilterKey = last.Member.GetCustomAttribute<FilterKeyAttribute>()?.Value
-					//			?? last.Member.GetCustomAttribute<DisplayAttribute>()?.ShortName
-					//			?? last.Member.Name;
-					//}
 					return node;
 				}
 			}

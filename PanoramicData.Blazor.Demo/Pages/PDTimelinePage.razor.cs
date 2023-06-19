@@ -196,7 +196,6 @@ public partial class PDTimelinePage
 	}
 
 	private static double MyYValueTransform(double value) =>
-		//return value;
 		Math.Sqrt(value);
 }
 

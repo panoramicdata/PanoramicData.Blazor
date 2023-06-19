@@ -6,7 +6,6 @@ public partial class PDFormPage3
 	private readonly PageCriteria _pageCriteria = new(1, 10);
 	private readonly SortCriteria _sortCriteria = new("DateCreatedCol", SortDirection.Descending);
 
-	//private bool ShowDescriptions { get; set; }
 	private PDForm<Person> Form { get; set; } = null!;
 	private PDFormBody<Person> FormBody { get; set; } = null!;
 	private PDTable<Person> Table { get; set; } = null!;

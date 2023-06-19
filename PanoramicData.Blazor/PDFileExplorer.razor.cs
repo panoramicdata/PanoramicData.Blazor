@@ -1812,7 +1812,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			// allow app supplied icon css
 			var cssClass = GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
-			//}
+
 			if (cssClass is null)
 			{
 				return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "fa fa-fw fa-folder";
