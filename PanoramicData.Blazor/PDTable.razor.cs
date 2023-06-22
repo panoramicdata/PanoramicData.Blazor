@@ -1341,7 +1341,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		return false;
 	}
 
-	private void OnRowDragStart(DragEventArgs args, TItem? rowItem)
+	private async Task OnRowDragStart(DragEventArgs args, TItem? rowItem)
 	{
 		if (!IsEnabled || IsEditing)
 		{
@@ -1353,8 +1353,20 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		// need to set the data being dragged
 		if (DragContext != null && KeyField != null)
 		{
-			// get all selected items
+			// get all items to be dragged
 			var items = new List<TItem>();
+
+			// if item that initiated drag is in selection then drag entire selection
+			// otherwise change selection to single item and drga that
+			if (KeyField != null && rowItem != null)
+			{
+				string key = KeyField(rowItem).ToString() ?? string.Empty;
+				if (!Selection.Contains(key))
+				{
+					await SelectItemAsync(KeyField(rowItem).ToString() ?? string.Empty, args.ShiftKey, args.CtrlKey);
+				}
+			}
+
 			foreach (var key in Selection)
 			{
 				var item = ItemsToDisplay.Find(x => KeyField(x).ToString() == key);
