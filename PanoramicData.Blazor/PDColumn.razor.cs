@@ -193,9 +193,19 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public bool IsImage { get; set; }
 
 	/// <summary>
+	/// Gets or sets the minimum value for numeric values.
+	/// </summary>
+	[Parameter] public double? MinValue { get; set; }
+
+	/// <summary>
 	/// Gets or sets the maximum length for entered text.
 	/// </summary>
 	[Parameter] public int? MaxLength { get; set; }
+
+	/// <summary>
+	/// Gets or sets the maximum value for numeric values.
+	/// </summary>
+	[Parameter] public double? MaxValue { get; set; }
 
 	/// <summary>
 	/// Gets a function that returns available value choices.

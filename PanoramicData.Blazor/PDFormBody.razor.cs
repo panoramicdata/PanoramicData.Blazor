@@ -113,6 +113,8 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					EditTemplate = column.EditTemplate,
 					Helper = column.Helper,
 					MaxLength = column.MaxLength,
+					MinValue = column.MinValue,
+					MaxValue = column.MaxValue,
 					Title = column.GetTitle(),
 					Options = column.Options,
 					OptionsAsync = column.OptionsAsync,
