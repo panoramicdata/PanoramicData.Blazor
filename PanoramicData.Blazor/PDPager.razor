@@ -14,33 +14,39 @@
 
 <nav aria-label="_pager" class="pdpager d-flex justify-content-between align-items-center">
 
-    <div class="direction-buttons">
-        <PDButton Click="MoveFirst"
-                  CssClass="btn-secondary"
-                  IconCssClass="fas fa-fast-backward"
-                  IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
-                  Size="Size" />
+    @if (ShowPageChangeButtons)
+    {
+        <div class="direction-buttons">
+            <PDButton Click="MoveFirst"
+                CssClass="btn-secondary"
+                IconCssClass="fas fa-fast-backward"
+                IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
+                Size="Size" />
 
-        <PDButton Click="MovePrevious"
-                  CssClass="btn-secondary"
-                  IconCssClass="fas fa-backward"
-                  IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
-                  Size="Size" />
+            <PDButton Click="MovePrevious"
+                CssClass="btn-secondary"
+                IconCssClass="fas fa-backward"
+                IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
+                Size="Size" />
 
-        <span class="d-none d-md-inline ms-1">Page&nbsp;</span> @PageCriteria.Page&nbsp;of&nbsp;@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)
+            <span class="d-none d-md-inline ms-1">Page</span>
+            <span>@PageCriteria.Page</span>
+            <span>of</span>
+            <span>@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)</span>
 
-        <PDButton Click="MoveNext"
-                  CssClass="btn-secondary ms-1"
-                  IconCssClass="fas fa-forward"
-                  IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
-                  Size="Size" />
+            <PDButton Click="MoveNext"
+                CssClass="btn-secondary ms-1"
+                IconCssClass="fas fa-forward"
+                IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
+                Size="Size" />
 
-        <PDButton Click="MoveLast"
-                  CssClass="btn-secondary"
-                  IconCssClass="fas fa-fast-forward"
-                  IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
-                  Size="Size" />
-    </div>
+            <PDButton Click="MoveLast"
+                CssClass="btn-secondary"
+                IconCssClass="fas fa-fast-forward"
+                IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
+                Size="Size" />
+        </div>
+    }
 
     @if (ShowPageDescription)
     {

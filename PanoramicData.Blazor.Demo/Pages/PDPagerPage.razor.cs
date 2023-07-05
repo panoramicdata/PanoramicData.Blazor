@@ -10,6 +10,12 @@ public partial class PDPagerPage : IDisposable
 
 	private string TotalCount { get; set; } = "125";
 
+	private bool ShowPageChangeButtons { get; set; } = true;
+
+	private bool ShowPageDescription { get; set; } = true;
+
+	private bool ShowPageSizeChoices { get; set; } = true;
+
 	protected override void OnInitialized()
 	{
 		_pageCriteria.PageChanged += PageCriteria_PageChanged;
