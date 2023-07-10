@@ -1,0 +1,42 @@
+﻿@typeparam TItem
+
+<div class="pd-dragpanel">
+
+    @foreach(var item in DisplayItems)
+    {
+
+        <div @attributes="GetItemAttributes(item)"
+            @key="item?.GetHashCode().ToString()"
+            @onmousedown="(args) => OnMouseDown(args, item)"
+            @ondragstart="(args) => OnDragStartAsync(args, item)"
+            @ondragenter="(args) => OnDragEnter(args, item)"
+            @ondragend="(args) => OnDragEnd(args, item)"
+            ondragover="event.preventDefault();">
+            <div class="pd-dp-content">
+                @if (item == Container?.Payload)
+                {
+                    if (PlaceholderTemplate != null)
+                    {
+                        @PlaceholderTemplate(item)
+                    }
+                    else
+                    {
+                        <span>&nbsp;</span>
+                    }
+                }
+                else
+                {
+                    if (Template is null)
+                    {
+                        @item?.ToString();
+                    }
+                    else
+                    {
+                        @Template(item)
+                    }
+                }
+            </div>
+        </div>
+    }
+
+</div>

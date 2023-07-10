@@ -8,8 +8,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D3737FCC-0546-4199-8D0A-4B670EAAA2D4}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		global.json = global.json
 		exclusion.dic = exclusion.dic
+		global.json = global.json
 		.github\workflows\main.yml = .github\workflows\main.yml
 		PanoramicData.Blazor\publish-nuget.ps1 = PanoramicData.Blazor\publish-nuget.ps1
 		README.md = README.md

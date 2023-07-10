@@ -1,0 +1,22 @@
+.pd-dragpanel {
+	border: 1px solid silver;
+	padding: 0px 2px;
+}
+
+.pd-dragitem {
+	border: 1px solid silver;
+	padding: 2px;
+}
+
+.pd-dp-content {
+	min-height: 10px;
+}
+
+.pd-dp-insert-bar {
+	height: 2px;
+	padding: 2px;
+}
+
+.pd-dp-insert-bar.show {
+	background: red;
+}

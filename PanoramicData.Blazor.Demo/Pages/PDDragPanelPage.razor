@@ -1,0 +1,44 @@
+﻿@page "/pddragpanel"
+@using PanoramicData.Blazor.Services;
+
+<h1>PDDragPanel</h1>
+
+<DemoSourceView SourceFiles="Pages/PDDragPanelPage.razor, Pages/PDDragPanelPage.razor.cs">
+
+    <div>
+
+@*        <JobsContainer Jobs="_jobs" OnStatusUpdated="HandleStatusUpdated">
+
+            <JobList ListStatus="JobStatuses.Todo" AllowedStatuses="new [] { JobStatuses.Started }" />
+
+            <JobList ListStatus="JobStatuses.Started" AllowedStatuses="new [] { JobStatuses.Todo, JobStatuses.Completed }" />
+
+            <JobList ListStatus="JobStatuses.Completed" AllowedStatuses="new [] { JobStatuses.Started }" />
+
+        </JobsContainer>
+*@
+        <PDDragContainer TItem="Job"
+                         ItemReOrdered="OnItemReOrdered"
+                         Items="_items">
+
+            <PDDragPanel>
+
+                <Template>
+
+                    <div class="big-block">
+                        <input type="checkbox" class="me-1" />
+                        <span>@context?.ToString()</span>
+                    </div>
+
+                </Template>
+
+            </PDDragPanel>
+
+        </PDDragContainer>
+
+
+    </div>
+
+    <EventView />
+
+</DemoSourceView>

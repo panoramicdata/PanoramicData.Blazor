@@ -1,0 +1,30 @@
+::deep .can-drop {
+	border: 1px solid green;
+}
+
+::deep .no-drop {
+	border: 1px solid red;
+}
+
+::deep li {
+	border: 1px solid silver;
+	background-color: whitesmoke;
+	padding: 5px;
+	margin-bottom: 3px;
+	list-style: none;
+}
+
+::deep .pd-dragpanel {
+	background-color: whitesmoke;
+}
+
+::deep .pd-dragitem {
+	background-color: white;
+	margin: 2px;
+}
+
+	::deep .pd-dragitem.dragging {
+		background-color: inherit;
+		border: 1px solid whitesmoke;
+	}
+
