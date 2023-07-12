@@ -4,13 +4,19 @@ public partial class PDDragPanel<TItem> where TItem : class
 {
 	private IJSObjectReference? _module;
 	private List<TItem> _localItems = new();
-	private double _lastY = 0;
+	private double _lastY;
 
 	[Inject]
 	private IJSRuntime? JSRuntime { get; set; }
 
+	[Parameter]
+	public bool CanChangeOrder { get; set; } = true;
+
 	[CascadingParameter]
 	public PDDragContainer<TItem>? Container { get; set; }
+
+	[Parameter]
+	public EventCallback<DragOrderChangeArgs<TItem>> ItemOrderChanged { get; set; }
 
 	[Parameter]
 	public RenderFragment<TItem>? Template { get; set; }
@@ -48,11 +54,6 @@ public partial class PDDragPanel<TItem> where TItem : class
 		}
 	}
 
-	private void OnMouseDown(MouseEventArgs args, TItem? item)
-	{
-
-	}
-
 	protected override void OnParametersSet()
 	{
 		if (Container != null)
@@ -61,7 +62,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 		}
 	}
 
-	private async Task OnDragStartAsync(DragEventArgs args, TItem? item)
+	private void OnDragStart(DragEventArgs args, TItem? item)
 	{
 		if (Container != null && ((item is IDragItem dragItem && dragItem.CanDrag) || true))
 		{
@@ -74,41 +75,34 @@ public partial class PDDragPanel<TItem> where TItem : class
 	{
 		if (item != null && Container?.Payload != null)
 		{
-			if (Container.Payload != item)
+			// re-order?
+			if (CanChangeOrder && Container.Payload != item)
 			{
-				Console.WriteLine($"dragging {Container.Payload} over: {item} ({args.ClientY})");
-
-				// re-order
+				// new location depends on whether dragging up or down?
 				_localItems.Remove(Container.Payload);
-
-				// dragging up or down?
-				if (args.ClientY > _lastY)
-				{
-					_localItems.Insert(_localItems.IndexOf(item) + 1, Container.Payload);
-				}
-				else
-				{
-					_localItems.Insert(_localItems.IndexOf(item), Container.Payload);
-				}
-
+				_localItems.Insert(_localItems.IndexOf(item) + (args.ClientY > _lastY ? 1 : 0), Container.Payload);
 				_lastY = args.ClientY;
 			}
 		}
 	}
 
-	private async Task OnDragEnd(DragEventArgs args, TItem? item)
+	private async Task OnDragEndAsync(DragEventArgs args, TItem? item)
 	{
-		Console.WriteLine($"drag ended");
-
-		if (Container != null)
+		if (Container?.Payload != null)
 		{
-			Container.Payload = null;
-			if (item != null)
+			// has order changed?
+			if (CanChangeOrder)
 			{
-				await Container.ItemReOrderedAsync(item);
+				var originalOrder = Container.Items.ToArray();
+				if (!originalOrder.SequenceEqual(_localItems.ToArray()))
+				{
+					await ItemOrderChanged.InvokeAsync(new DragOrderChangeArgs<TItem>(_localItems, Container.Payload));
+				}
 			}
-		}
 
+			// reset
+			Container.Payload = null;
+		}
 	}
 
 }

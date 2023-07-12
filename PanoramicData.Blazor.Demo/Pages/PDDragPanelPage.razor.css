@@ -6,25 +6,17 @@
 	border: 1px solid red;
 }
 
-::deep li {
-	border: 1px solid silver;
-	background-color: whitesmoke;
-	padding: 5px;
-	margin-bottom: 3px;
-	list-style: none;
-}
-
 ::deep .pd-dragpanel {
 	background-color: whitesmoke;
 }
 
 ::deep .pd-dragitem {
 	background-color: white;
-	margin: 2px;
+	margin: 4px;
 }
 
-	::deep .pd-dragitem.dragging {
-		background-color: inherit;
-		border: 1px solid whitesmoke;
-	}
+::deep .pd-dragitem.dragging {
+	background-color: inherit;
+	border: 1px solid whitesmoke;
+}
 

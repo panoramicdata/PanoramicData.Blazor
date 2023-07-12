@@ -1,11 +1,11 @@
 .pd-dragpanel {
 	border: 1px solid silver;
-	padding: 0px 2px;
+	margin: 4px;
 }
 
 .pd-dragitem {
 	border: 1px solid silver;
-	padding: 2px;
+	padding: 4px;
 }
 
 .pd-dp-content {
