@@ -2,6 +2,7 @@
 
 public partial class PDTablePage
 {
+	private List<SelectableItem> _columns = new();
 	private string _searchText = string.Empty;
 	private PageCriteria _pageCriteria = new(1, 100);
 	private SortCriteria _sortCriteria = new("Last Name", SortDirection.Descending);
@@ -24,6 +25,26 @@ public partial class PDTablePage
 
 	protected override void OnInitialized()
 	{
+		// initialize available columns
+		_columns = new()
+		{
+			new ("icon", "Icon"),
+			new ("id", "Id"),
+			new ("boss", "Manager"),
+			new ("first", "First Name"),
+			new ("last", "Last Name"),
+			new ("email", "Email"),
+			new ("dob", "Date of Birth"),
+			new ("dept", "Department"),
+			new ("loc", "Location"),
+			new ("tgt", "Target"),
+			new ("login", "Allow Login"),
+			new ("password", "Password"),
+			new ("comments", "Comments"),
+			new ("created", "Date Created"),
+			new ("modified", "Date Modified")
+		};
+
 		// Get the requested table parameters from the QueryString
 		var uri = new Uri(NavigationManager.Uri);
 		var query = QueryHelpers.ParseQuery(uri.Query);

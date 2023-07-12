@@ -2,8 +2,7 @@
 
 public partial class PDDragPanelPage
 {
-	private readonly List<Job> _jobs = new();
-	private readonly List<Job> _jobs2 = new();
+	private List<Job> _jobs = new();
 
 	[CascadingParameter]
 	protected EventManager? EventManager { get; set; }
@@ -11,23 +10,14 @@ public partial class PDDragPanelPage
 	protected override void OnInitialized()
 	{
 		// create items - physically order by description
-		_jobs.AddRange(new[]
+		_jobs = new()
 		{
-			new Job { Id = 1, Description = "Job A" },
-			new Job { Id = 2, Description = "Job Z" },
-			new Job { Id = 3, Description = "Job C" },
-			new Job { Id = 4, Description = "Job B" },
-			new Job { Id = 5, Description = "Job X" }
-		}.OrderBy(x => x.Description));
-
-		_jobs2.AddRange(new[]
-		{
-			new Job { Id = 4, Description = "Job 4" },
-			new Job { Id = 1, Description = "Job 1" },
-			new Job { Id = 5, Description = "Job 5" },
-			new Job { Id = 3, Description = "Job 3" },
-			new Job { Id = 2, Description = "Job 2" }
-		});
+			new ("a", "Job A"),
+			new ("b", "Job B"),
+			new ("c", "Job C"),
+			new ("x", "Job X"),
+			new ("z", "Job Z")
+		};
 	}
 
 
@@ -38,18 +28,32 @@ public partial class PDDragPanelPage
 		_jobs.AddRange(args.Items);
 
 		// log event
-		var jobString = string.Join(", ", args.Items.Select(x => x.Description).ToArray());
-		EventManager?.Add(new Event("ItemOrderChanged", new EventArgument("Item", jobString)));
+		var jobString = string.Join(", ", args.Items.Select(x => x.Text).ToArray());
+		EventManager?.Add(new Event("ItemOrderChanged", new EventArgument("New Order", jobString)));
+	}
+
+	public void OnSelectionChanged(IEnumerable<Job> selection)
+	{
+		// log event
+		var jobString = string.Join(", ", selection.Select(x => x.Text).ToArray());
+		EventManager?.Add(new Event("SelectionChanged", new EventArgument("Selection", jobString)));
 	}
 }
 
-public class Job
+public class Job : SelectableItem
 {
-	public int Id { get; set; }
+	public Job(string id)
+		: base(id)
+	{
+	}
 
-	public bool Selected { get; set; }
+	public Job(string id, string text)
+		: base(id, text)
+	{
+	}
+
 	public Job.Statuses Status { get; set; }
-	public string Description { get; set; } = string.Empty;
+
 	public DateTime LastUpdated { get; set; }
 
 	public enum Statuses
@@ -57,10 +61,5 @@ public class Job
 		Todo,
 		Started,
 		Completed
-	}
-
-	public override string ToString()
-	{
-		return Description;
 	}
 }

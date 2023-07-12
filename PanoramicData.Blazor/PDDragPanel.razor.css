@@ -4,19 +4,14 @@
 }
 
 .pd-dragitem {
+	background-color: white;
 	border: 1px solid silver;
-	padding: 4px;
-}
-
-.pd-dp-content {
+	margin: 2px;
 	min-height: 10px;
+	padding: 4px;
+	white-space: nowrap;
 }
 
-.pd-dp-insert-bar {
-	height: 2px;
-	padding: 2px;
-}
-
-.pd-dp-insert-bar.show {
-	background: red;
+.pd-dragitem.dragging {
+	border-color: transparent;
 }

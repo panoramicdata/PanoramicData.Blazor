@@ -4,37 +4,35 @@
 
     @foreach(var item in DisplayItems)
     {
-
         <div @attributes="GetItemAttributes(item)"
-            @key="item?.GetHashCode().ToString()"
-            @ondragstart="(args) => OnDragStart(args, item)"
-            @ondragenter="(args) => OnDragEnter(args, item)"
-            @ondragend="(args) => OnDragEndAsync(args, item)"
-            ondragover="event.preventDefault();">
-            <div class="pd-dp-content">
-                @if (item == Container?.Payload)
+                @key="item?.GetHashCode().ToString()"
+                @ondragstart="(args) => OnDragStart(args, item)"
+                @ondragenter="(args) => OnDragEnter(args, item)"
+                @ondragend="(args) => OnDragEndAsync(args, item)"
+                ondragover="event.preventDefault();">
+            @if (item == Container?.Payload)
+            {
+                if (PlaceholderTemplate != null)
                 {
-                    if (PlaceholderTemplate != null)
-                    {
-                        @PlaceholderTemplate(item)
-                    }
-                    else
-                    {
-                        <span>&nbsp;</span>
-                    }
+                    @PlaceholderTemplate(item)
                 }
                 else
                 {
-                    if (Template is null)
-                    {
-                        @item?.ToString();
-                    }
-                    else
-                    {
-                        @Template(item)
-                    }
+                    <span>&nbsp;</span>
                 }
-            </div>
+            }
+            else
+            {
+                if (Template is null)
+                {
+                    <PDLabel DataItem="item"
+                             SelectedChanged="OnSelectionChanged" />
+                }
+                else
+                {
+                    @Template(item)
+                }
+            }
         </div>
     }
 

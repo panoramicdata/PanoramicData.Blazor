@@ -9,22 +9,12 @@
 
         <h2>Re-orderable List</h2>
 
-        <PDDragContainer TItem="Job"
-                         Items="_jobs">
+        <PDDragContainer Items="_jobs"
+                         TItem="Job"
+                         SelectionChanged="OnSelectionChanged">
 
             <PDDragPanel TItem="Job"
-                ItemOrderChanged="OnItemOrderChanged">
-
-                <Template Context="job">
-
-                    <EditForm Model="@job">
-                        <InputCheckbox @bind-Value="job.Selected" />
-                        <span>@job.Description</span>
-                    </EditForm>
-
-                </Template>
-
-            </PDDragPanel>
+                ItemOrderChanged="OnItemOrderChanged" />
 
         </PDDragContainer>
 

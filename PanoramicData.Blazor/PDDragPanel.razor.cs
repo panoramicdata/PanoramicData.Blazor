@@ -2,12 +2,8 @@ namespace PanoramicData.Blazor;
 
 public partial class PDDragPanel<TItem> where TItem : class
 {
-	private IJSObjectReference? _module;
-	private List<TItem> _localItems = new();
 	private double _lastY;
-
-	[Inject]
-	private IJSRuntime? JSRuntime { get; set; }
+	private List<TItem> _localItems = new();
 
 	[Parameter]
 	public bool CanChangeOrder { get; set; } = true;
@@ -38,21 +34,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 		return dict;
 	}
 
-	private IEnumerable<TItem> DisplayItems
-	{
-		get
-		{
-			return _localItems;
-		}
-	}
-
-	protected async override Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender && JSRuntime != null)
-		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDragPanel.razor.js").ConfigureAwait(true);
-		}
-	}
+	private IEnumerable<TItem> DisplayItems => _localItems;
 
 	protected override void OnParametersSet()
 	{
@@ -105,4 +87,12 @@ public partial class PDDragPanel<TItem> where TItem : class
 		}
 	}
 
+
+	private async Task OnSelectionChanged(ISelectable _)
+	{
+		if (Container != null)
+		{
+			await Container.OnSelectionChangedAsync();
+		}
+	}
 }

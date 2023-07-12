@@ -8,6 +8,15 @@
         height: 500px;
         overflow-y: auto;
     }
+
+    .columns-dropdown .dropdown-menu {
+        background-color: whitesmoke;
+    }
+
+    .pd-dragpanel {
+        width: 100%;
+        border: none !important;
+    }
 </style>
 
 <DemoSourceView SourceFiles="Pages/PDTablePage.razor, Pages/PDTablePage.razor.cs, Data/PersonDataProvider.cs">
@@ -49,6 +58,18 @@
             </div>
         </PDToolbarPlaceholder>
 
+        <PDDropDown CssClass="columns-dropdown"
+                    IconCssClass="fas fa-columns"
+                    Text="Columns">
+
+            <PDDragContainer Items="_columns">
+
+                <PDDragPanel />
+
+            </PDDragContainer>
+
+        </PDDropDown>
+
     </PDToolbar>
 
     <PDDragContext @ref="DragContext">
@@ -88,7 +109,7 @@
                       Sortable="false"
                       Editable="false">
                 <Template>
-                    <i class="fas fa-user"></i>
+                    <PDLabel IconCssClass="fas fa-user" />
                 </Template>
             </PDColumn>
 
