@@ -9,10 +9,17 @@ public partial class PDColumn<TItem> where TItem : class
 	private Func<TItem, object>? _compiledFunc;
 	private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
 
+	internal ColumnState State { get; set; } = new();
+
 	/// <summary>
 	/// Gets or sets the autocomplete attribute value.
 	/// </summary>
 	[Parameter] public string AutoComplete { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Gets or sets whether this column can be shown or hidden by the user.
+	/// </summary>
+	[Parameter] public bool CanToggleVisible { get; set; } = true;
 
 	/// <summary>
 	/// Gets or sets the default sort direction for this column.
@@ -187,6 +194,12 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public bool IsTextArea { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether the colum is visible or not.
+	/// </summary>
+	/// <remarks>To be visible both this parameter and ShowInList must equal true.</remarks>
+	[Parameter] public bool IsVisible { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets whether this field contains an image
 	/// If the field is a string, then the string is treated as the image URL
 	/// </summary>
@@ -208,6 +221,12 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public double? MaxValue { get; set; }
 
 	/// <summary>
+	/// Gets or sets an optional name for the column. Useful for calculated columns that
+	/// have no header text / title.
+	/// </summary>
+	[Parameter] public string Name { get; set; } = string.Empty;
+
+	/// <summary>
 	/// Gets a function that returns available value choices.
 	/// </summary>
 	[Parameter] public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
@@ -216,6 +235,12 @@ public partial class PDColumn<TItem> where TItem : class
 	/// Gets an asynchronous function that returns available value choices.
 	/// </summary>
 	[Parameter] public Func<FormField<TItem>, TItem?, Task<OptionInfo[]>>? OptionsAsync { get; set; }
+
+	/// <summary>
+	/// Gets or sets the preferred ordinal position of the column (from left to right).
+	/// </summary>
+	/// <remarks>The default is 1000 for all columns, columns of equal ordinality will remain in their defined order.</remarks>
+	[Parameter] public int Ordinal { get; set; } = 1000;
 
 	/// <summary>
 	/// Gets or sets the attributes of the underlying property.
@@ -377,6 +402,11 @@ public partial class PDColumn<TItem> where TItem : class
 				$"type '{typeof(TItem)}' does not match the table type.");
 		}
 
+		// default state
+		State.Visible = IsVisible;
+		State.Ordinal = Ordinal;
+
+		// register with table
 		await Table.AddColumnAsync(this).ConfigureAwait(true);
 	}
 
@@ -391,6 +421,12 @@ public partial class PDColumn<TItem> where TItem : class
 		PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
 	}
 
+	public void SetOrdinal(int ordinal)
+	{
+		State.Ordinal = ordinal;
+		StateHasChanged();
+	}
+
 	public void SetShowInList(bool showInList)
 	{
 		ShowInList = showInList;
@@ -400,6 +436,12 @@ public partial class PDColumn<TItem> where TItem : class
 	public void SetTitle(string title)
 	{
 		_title = title;
+		StateHasChanged();
+	}
+
+	public void SetVisible(bool isVisible)
+	{
+		State.Visible = isVisible;
 		StateHasChanged();
 	}
 

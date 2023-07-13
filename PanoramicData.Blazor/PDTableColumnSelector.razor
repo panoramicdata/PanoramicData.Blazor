@@ -1,0 +1,15 @@
+﻿@typeparam TItem
+
+<div class="pd-column-selector">
+
+    <PDDragContainer TItem="IDisplayItem"
+        Items="_columns"
+        SelectionChanged="@((s) => OnSelectionChanged(s))">
+
+        <PDDragPanel TItem="IDisplayItem"
+            CanDrag="CanChangeOrder"
+            ItemOrderChanged="@((a) => OnOrderChanged(a))" />
+
+    </PDDragContainer>
+
+</div>

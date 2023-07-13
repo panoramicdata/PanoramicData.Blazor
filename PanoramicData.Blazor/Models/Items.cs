@@ -44,5 +44,7 @@ public class SelectableItem : BasicItem, ISelectable
 	{
 	}
 
+	public bool IsEnabled { set; get; } = true;
+
 	public bool IsSelected { set; get; }
 }

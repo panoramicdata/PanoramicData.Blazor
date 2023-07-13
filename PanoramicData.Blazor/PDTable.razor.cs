@@ -310,7 +310,8 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				?? Columns;
 
 			return columns
-				.Where(c => c.ShowInList)
+				.Where(c => c.ShowInList && c.State.Visible)
+				.OrderBy(c => c.State.Ordinal)
 				.ToList();
 		}
 	}

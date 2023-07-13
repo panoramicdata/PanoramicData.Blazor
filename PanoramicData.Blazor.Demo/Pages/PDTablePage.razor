@@ -62,11 +62,10 @@
                     IconCssClass="fas fa-columns"
                     Text="Columns">
 
-            <PDDragContainer Items="_columns">
-
-                <PDDragPanel />
-
-            </PDDragContainer>
+            <PDTableColumnSelector TItem="Person"
+                                   CanChangeOrder="true"
+                                   CanChangeVisible="true"
+                                   Table="Table" />
 
         </PDDropDown>
 
@@ -101,7 +100,9 @@
                  PageChanged="OnPageChange"
                  SortChanged="OnSortChange">
 
-            <PDColumn Id="icon"
+            <PDColumn CanToggleVisible="false"
+                      Id="icon"
+                      Name="Icon"
                       TdClass="ps-0 pe-2"
                       ThClass="ps-0 pe-2"
                       TItem="Person"
@@ -119,6 +120,7 @@
                       TItem="Person"
                       Field="x => x.Id"
                       Editable="false"
+                      IsVisible="false"
                       Sortable="false" />
 
             <PDColumn Id="boss"
@@ -199,7 +201,8 @@
                       TItem="Person"
                       Field="x => x.Password"
                       ShowInList="true"
-                      IsSensitive="@((x, __) => true)" />
+                      IsSensitive="@((x, __) => true)"
+                      IsVisible="false" />
 
             <PDColumn Id="comments"
                       TItem="Person"
@@ -223,6 +226,7 @@
                       FilterShowSuggestedValues="false"
                       Format="yyyy-MM-dd HH:mm"
                       Editable="false"
+                      IsVisible="false"
                       TdClass="text-nowrap" />
         </PDTable>
 

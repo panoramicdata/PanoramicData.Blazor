@@ -8,6 +8,9 @@ public partial class PDDragPanel<TItem> where TItem : class
 	[Parameter]
 	public bool CanChangeOrder { get; set; } = true;
 
+	[Parameter]
+	public bool CanDrag { get; set; } = true;
+
 	[CascadingParameter]
 	public PDDragContainer<TItem>? Container { get; set; }
 
@@ -26,7 +29,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 		{
 			{ "class", $"pd-dragitem {(item == Container?.Payload ? "dragging" : "")}" }
 		};
-		if ((item is IDragItem dragItem && dragItem.CanDrag) || true)
+		if (CanDrag && ((item is IDragItem dragItem && dragItem.CanDrag) || true))
 		{
 			dict.Add("draggable", "true");
 			dict.Add("style", "cursor: move;");
