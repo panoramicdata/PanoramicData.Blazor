@@ -1,9 +1,16 @@
 namespace PanoramicData.Blazor;
 
-public partial class PDDragPanel<TItem> where TItem : class
+public partial class PDDragPanel<TItem> : IAsyncDisposable where TItem : class
 {
+	private static int _sequence;
+
 	private double _lastY;
 	private List<TItem> _localItems = new();
+	private IJSObjectReference? _module;
+	private bool _disposedValue;
+
+	[Inject]
+	public IJSRuntime JSRuntime { get; set; } = null!;
 
 	[Parameter]
 	public bool CanChangeOrder { get; set; } = true;
@@ -13,6 +20,9 @@ public partial class PDDragPanel<TItem> where TItem : class
 
 	[CascadingParameter]
 	public PDDragContainer<TItem>? Container { get; set; }
+
+	[Parameter]
+	public string Id { get; set; } = $"pd-dragpanel-{++_sequence}";
 
 	[Parameter]
 	public EventCallback<DragOrderChangeArgs<TItem>> ItemOrderChanged { get; set; }
@@ -38,6 +48,18 @@ public partial class PDDragPanel<TItem> where TItem : class
 	}
 
 	private IEnumerable<TItem> DisplayItems => _localItems;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDragPanel.razor.js").ConfigureAwait(true);
+			if (_module != null)
+			{
+				await _module.InvokeVoidAsync("init", Id);
+			}
+		}
+	}
 
 	protected override void OnParametersSet()
 	{
@@ -98,4 +120,17 @@ public partial class PDDragPanel<TItem> where TItem : class
 			await Container.OnSelectionChangedAsync();
 		}
 	}
+
+	#region IDisposable
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_module != null)
+		{
+			await _module.DisposeAsync();
+		}
+		GC.SuppressFinalize(this);
+	}
+
+	#endregion
 }

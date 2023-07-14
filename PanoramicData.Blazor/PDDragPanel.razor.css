@@ -13,5 +13,6 @@
 }
 
 .pd-dragitem.dragging {
+	background-color: transparent;
 	border-color: transparent;
 }
