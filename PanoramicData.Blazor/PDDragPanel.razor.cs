@@ -127,7 +127,13 @@ public partial class PDDragPanel<TItem> : IAsyncDisposable where TItem : class
 	{
 		if (_module != null)
 		{
-			await _module.DisposeAsync();
+			try
+			{
+				await _module.DisposeAsync();
+			}
+			catch
+			{
+			}
 		}
 		GC.SuppressFinalize(this);
 	}
