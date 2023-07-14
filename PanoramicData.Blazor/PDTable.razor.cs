@@ -122,6 +122,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// </summary>
 	[Parameter] public int FilterMaxValues { get; set; } = 50;
 
+	/// <summary>
+	/// Gets the unique identifier of this table.
+	/// </summary>
+	[Parameter] public string Id { get; set; } = $"pd-table-{++_idSequence}";
+
 	[Parameter] public bool IsEnabled { get; set; } = true;
 
 	/// <summary>
@@ -255,17 +260,14 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// </summary>
 	[Parameter] public SortCriteria SortCriteria { get; set; } = new SortCriteria();
 
+	[Parameter] public IAsyncStateManager? StateManager { get; set; }
+
 	/// <summary>
 	/// Gets or sets whether the contents of all cells are user selectable by default.
 	/// </summary>
 	[Parameter] public bool UserSelectable { get; set; }
 
 	#endregion
-
-	/// <summary>
-	/// Gets the unique identifier of this table.
-	/// </summary>
-	public string Id { get; private set; } = string.Empty;
 
 	/// <summary>
 	/// Gets the current item being edited.
@@ -276,9 +278,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// Gets a full list of all columns.
 	/// </summary>
 	public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
-
-
-
 
 	/// <summary>
 	/// Gets the keys of all currently selected items.
@@ -791,7 +790,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 	protected override async Task OnInitializedAsync()
 	{
-		Id = $"{IdPrefix}{++_idSequence}";
 		if (DataProvider is null)
 		{
 			throw new PDTableException($"{nameof(DataProvider)} must not be null.");
@@ -807,6 +805,8 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 		// load common javascript
 		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+
+		await LoadStateAsync();
 	}
 
 	private async void PageCriteria_PageSizeChanged(object? sender, EventArgs e)
@@ -1453,4 +1453,43 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			}
 		}
 	}
+
+	#region State Management
+
+	private async Task LoadStateAsync()
+	{
+		// load state
+		if (StateManager != null)
+		{
+			await StateManager.InitializeAsync();
+			var state = await StateManager.LoadStateAsync<TableState>(Id);
+			if (state != null)
+			{
+				foreach (var kvp in state.Columns)
+				{
+					var col = Columns.FirstOrDefault(x => x.Id == kvp.Key);
+					if (col != null)
+					{
+						col.State = kvp.Value;
+					}
+				}
+			}
+		}
+	}
+
+	public async Task SaveStateAsync()
+	{
+		// table must have id
+		if (!string.IsNullOrEmpty(Id) && StateManager != null)
+		{
+			// individual column state - must have id
+			var state = new TableState
+			{
+				Columns = Columns.Where(x => !string.IsNullOrWhiteSpace(x.Id)).ToDictionary(x => x.Id, y => y.State)
+			};
+			await StateManager.SaveStateAsync(Id, state);
+		}
+	}
+
+	#endregion
 }

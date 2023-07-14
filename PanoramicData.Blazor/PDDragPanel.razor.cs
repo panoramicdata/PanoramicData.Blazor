@@ -1,13 +1,13 @@
 namespace PanoramicData.Blazor;
 
-public partial class PDDragPanel<TItem> : IAsyncDisposable where TItem : class
+public partial class PDDragPanel<TItem> where TItem : class
 {
 	private static int _sequence;
 
 	private double _lastY;
 	private List<TItem> _localItems = new();
-	private IJSObjectReference? _module;
-	private bool _disposedValue;
+	//private IJSObjectReference? _module;
+	//private bool _disposedValue;
 
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
@@ -49,17 +49,17 @@ public partial class PDDragPanel<TItem> : IAsyncDisposable where TItem : class
 
 	private IEnumerable<TItem> DisplayItems => _localItems;
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDragPanel.razor.js").ConfigureAwait(true);
-			if (_module != null)
-			{
-				await _module.InvokeVoidAsync("init", Id);
-			}
-		}
-	}
+	//protected override async Task OnAfterRenderAsync(bool firstRender)
+	//{
+	//	if (firstRender)
+	//	{
+	//		_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDragPanel.razor.js").ConfigureAwait(true);
+	//		if (_module != null)
+	//		{
+	//			await _module.InvokeVoidAsync("init", Id);
+	//		}
+	//	}
+	//}
 
 	protected override void OnParametersSet()
 	{
@@ -121,22 +121,22 @@ public partial class PDDragPanel<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
-	#region IDisposable
+	//#region IDisposable
 
-	public async ValueTask DisposeAsync()
-	{
-		if (_module != null)
-		{
-			try
-			{
-				await _module.DisposeAsync();
-			}
-			catch
-			{
-			}
-		}
-		GC.SuppressFinalize(this);
-	}
+	//public async ValueTask DisposeAsync()
+	//{
+	//	if (_module != null)
+	//	{
+	//		try
+	//		{
+	//			await _module.DisposeAsync();
+	//		}
+	//		catch
+	//		{
+	//		}
+	//	}
+	//	GC.SuppressFinalize(this);
+	//}
 
-	#endregion
+	//#endregion
 }

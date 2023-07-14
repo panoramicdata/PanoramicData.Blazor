@@ -21,6 +21,8 @@
 
 <DemoSourceView SourceFiles="Pages/PDTablePage.razor, Pages/PDTablePage.razor.cs, Data/PersonDataProvider.cs">
 
+    <PDLocalStorageStateManager @ref="_stateManager" />
+
     <PDToolbar>
 
         <PDToolbarButton Text="Refresh"
@@ -77,6 +79,7 @@
                  @bind-SearchText="@_searchText"
                  TItem="Person"
                  DataProvider="_personDataProvider"
+                 Id="Table1"
                  KeyField="x => x.Id"
                  AllowEdit="true"
                  AllowDrag="AllowDrag"
@@ -84,6 +87,7 @@
                  IsEnabled="Enabled"
                  FilterMaxValues="50"
                  SaveChanges="true"
+                 StateManager="_stateManager"
                  PageCriteria="_pageCriteria"
                  PagerPosition="PagerPositions.Top"
                  RetainSelectionOnPage="true"

@@ -14,7 +14,7 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 	[Parameter]
 	public bool CanChangeVisible { get; set; } = true;
 
-	public void OnOrderChanged(DragOrderChangeArgs<IDisplayItem> args)
+	public async Task OnOrderChanged(DragOrderChangeArgs<IDisplayItem> args)
 	{
 		// commit ordering change
 		_columns.Clear();
@@ -36,7 +36,9 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 					column.SetOrdinal(newOrdinal);
 				}
 			}
+
 			// at least 1 change made else callback event would not fire
+			await Table.SaveStateAsync();
 			Table.SetStateHasChanged();
 		}
 	}
@@ -46,14 +48,14 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 		if (Table != null && _columns.Count == 0)
 		{
 			// initialize to all shown columns
-			foreach (var column in Table.Columns.Where(x => x.ShowInList))
+			foreach (var column in Table.Columns.Where(x => x.ShowInList).OrderBy(x => x.State.Ordinal))
 			{
 				var text = string.IsNullOrWhiteSpace(column.Name) ? column.GetTitle() ?? string.Empty : column.Name;
 				if (CanChangeVisible)
 				{
 					_columns.Add(new SelectableItem(column.Id, text)
 					{
-						IsSelected = column.IsVisible,
+						IsSelected = column.State.Visible,
 						IsEnabled = CanChangeVisible && column.CanToggleVisible
 					});
 				}
@@ -65,7 +67,7 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 		}
 	}
 
-	public void OnSelectionChanged(IEnumerable<IDisplayItem> selection)
+	public async Task OnSelectionChanged(IEnumerable<IDisplayItem> selection)
 	{
 		// update column visibilities
 		if (Table != null)
@@ -82,9 +84,9 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 			}
 			if (changes > 0)
 			{
+				await Table.SaveStateAsync();
 				Table.SetStateHasChanged();
 			}
 		}
-
 	}
 }
