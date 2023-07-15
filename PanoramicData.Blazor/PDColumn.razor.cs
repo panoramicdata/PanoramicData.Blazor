@@ -288,6 +288,11 @@ public partial class PDColumn<TItem> where TItem : class
 	/// </summary>
 	[Parameter] public bool ShowValidationResult { get; set; } = true;
 
+	public void SetId(string id)
+	{
+		Id = id;
+	}
+
 	public void SetValue(TItem item, object? value)
 	{
 		// a null Field represents a calculated / display only column

@@ -793,9 +793,25 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 		_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
 
-
 		// load common javascript
 		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+
+		// improve on default column ids - this will improve state persistence
+		foreach (var column in Columns)
+		{
+			if (Regex.IsMatch(column.Id, @"^col-\d+$"))
+			{
+				var name = string.IsNullOrEmpty(column.Name) ? column.GetTitle() : column.Name;
+				if (!string.IsNullOrWhiteSpace(name))
+				{
+					var simpleName = name.ExtractAlphanumericChars().ToLower(CultureInfo.InvariantCulture);
+					if (!string.IsNullOrWhiteSpace(simpleName))
+					{
+						column.SetId($"col-{simpleName}");
+					}
+				}
+			}
+		}
 
 		// load previously saved state
 		if (StateManager != null)
