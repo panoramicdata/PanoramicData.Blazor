@@ -2,7 +2,7 @@ namespace PanoramicData.Blazor;
 
 public partial class PDTableColumnSelector<TItem> where TItem : class
 {
-	private readonly List<IDisplayItem> _columns = new();
+	private readonly List<IDisplayItem> _items = new();
 
 	[Parameter]
 	[EditorRequired]
@@ -17,12 +17,14 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 	public async Task OnOrderChanged(DragOrderChangeArgs<IDisplayItem> args)
 	{
 		// commit ordering change
-		_columns.Clear();
-		_columns.AddRange(args.Items);
+		_items.Clear();
+		_items.AddRange(args.Items);
 
 		// update column ordinals
 		if (Table != null)
 		{
+			//RefreshColumnIds();
+
 			var newOrder = args.Items.ToList();
 			foreach (var column in Table.Columns.Where(x => x.ShowInList))
 			{
@@ -45,23 +47,30 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 
 	protected override void OnParametersSet()
 	{
-		if (Table != null && _columns.Count == 0)
+		if (Table != null)
 		{
 			// initialize to all shown columns
+			_items.Clear();
 			foreach (var column in Table.Columns.Where(x => x.ShowInList).OrderBy(x => x.State.Ordinal))
 			{
 				var text = string.IsNullOrWhiteSpace(column.Name) ? column.GetTitle() ?? string.Empty : column.Name;
 				if (CanChangeVisible)
 				{
-					_columns.Add(new SelectableItem(column.Id, text)
+					_items.Add(new SelectableItem
 					{
+						Id = column.Id,
 						IsSelected = column.State.Visible,
-						IsEnabled = CanChangeVisible && column.CanToggleVisible
+						IsEnabled = CanChangeVisible && column.CanToggleVisible,
+						Text = text
 					});
 				}
 				else
 				{
-					_columns.Add(new BasicItem(column.Id, text));
+					_items.Add(new BasicItem
+					{
+						Id = column.Id,
+						Text = text
+					});
 				}
 			}
 		}
@@ -72,21 +81,13 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 		// update column visibilities
 		if (Table != null)
 		{
-			int changes = 0;
 			foreach (var column in Table.Columns.Where(x => x.CanToggleVisible))
 			{
 				var isVisible = selection.Any(x => x.Id == column.Id);
-				if (isVisible != column.State.Visible)
-				{
-					column.SetVisible(isVisible);
-					changes++;
-				}
+				column.SetVisible(isVisible);
 			}
-			if (changes > 0)
-			{
-				await Table.SaveStateAsync();
-				Table.SetStateHasChanged();
-			}
+			await Table.SaveStateAsync();
+			Table.SetStateHasChanged();
 		}
 	}
 }

@@ -12,11 +12,11 @@ public partial class PDDragPanelPage
 		// create items - physically order by description
 		_jobs = new()
 		{
-			new ("a", "Job A"),
-			new ("b", "Job B"),
-			new ("c", "Job C"),
-			new ("x", "Job X"),
-			new ("z", "Job Z")
+			new Job { Id = "a", Text = "Job A" },
+			new Job { Id = "b", Text = "Job B" },
+			new Job { Id = "c", Text = "Job C" },
+			new Job { Id = "x", Text = "Job X" },
+			new Job { Id = "z", Text = "Job Z" }
 		};
 	}
 
@@ -42,16 +42,6 @@ public partial class PDDragPanelPage
 
 public class Job : SelectableItem
 {
-	public Job(string id)
-		: base(id)
-	{
-	}
-
-	public Job(string id, string text)
-		: base(id, text)
-	{
-	}
-
 	public Job.Statuses Status { get; set; }
 
 	public DateTime LastUpdated { get; set; }

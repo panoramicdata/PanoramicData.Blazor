@@ -6,7 +6,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 {
 	private bool _dragging;
 	private Timer? _editTimer;
-	private bool _stateLoaded;
 	private static int _idSequence;
 	private string? _lastSearchText;
 	private IJSObjectReference? _commonModule;
