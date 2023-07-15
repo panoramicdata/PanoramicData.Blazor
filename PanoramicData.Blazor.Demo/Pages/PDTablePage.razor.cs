@@ -6,7 +6,6 @@ public partial class PDTablePage
 	private PageCriteria _pageCriteria = new(1, 100);
 	private SortCriteria _sortCriteria = new("Last Name", SortDirection.Descending);
 	private readonly PersonDataProvider _personDataProvider = new();
-	private PDLocalStorageStateManager? _stateManager;
 	private bool AllowDrag { get; set; }
 	private bool AllowDrop { get; set; }
 	private string DropZoneCss { get; set; } = "";
@@ -14,8 +13,6 @@ public partial class PDTablePage
 	private string DropMessage { get; set; } = "Drop Zone";
 	private bool Enabled { get; set; } = true;
 	private PDTable<Person> Table { get; set; } = null!;
-
-	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
 
 	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 

@@ -3,23 +3,22 @@ namespace PanoramicData.Blazor;
 public partial class PDLocalStorageStateManager : IAsyncStateManager
 {
 	private IJSObjectReference? _module;
-	private TaskCompletionSource<bool> _initializationTaskCompletionSource = new();
 
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
+	[Parameter]
+	public RenderFragment? ChildContent { get; set; }
+
+	#region IAsyncStateManager
+
+	public async Task InitializeAsync()
 	{
 		if (_module is null && JSRuntime != null)
 		{
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDLocalStorageStateManager.razor.js").ConfigureAwait(true);
-			_initializationTaskCompletionSource.SetResult(true);
 		}
 	}
-
-	#region IAsyncStateManager
-
-	public Task InitializeAsync() => _initializationTaskCompletionSource.Task;
 
 	public async Task<T?> LoadStateAsync<T>(string key)
 	{

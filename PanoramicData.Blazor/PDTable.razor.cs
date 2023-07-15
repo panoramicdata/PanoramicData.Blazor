@@ -1,42 +1,34 @@
-﻿namespace PanoramicData.Blazor;
+﻿using System.Reflection.Metadata;
+
+namespace PanoramicData.Blazor;
 
 public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IAsyncDisposable where TItem : class
 {
 	private bool _dragging;
 	private Timer? _editTimer;
-	private IJSObjectReference? _commonModule;
+	private bool _stateLoaded;
 	private static int _idSequence;
+	private string? _lastSearchText;
+	private IJSObjectReference? _commonModule;
 	private bool _mouseDownOriginatedFromTable;
-	private readonly string IdPrefix = "pd-table-";
 	private readonly string IdEditPrefix = "pd-table-edit-";
 	private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
-	private string? _lastSearchText;
 	private readonly Dictionary<string, object?> _editValues = new();
-	private readonly Dictionary<string, string> _keyProperties = new();
+	//private readonly Dictionary<string, string> _keyProperties = new();
 
 	private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
-	/// <summary>
-	/// Provides access to the parent DragContext if it exists.
-	/// </summary>
-	[CascadingParameter] public PDDragContext? DragContext { get; set; }
-
-	/// <summary>
-	/// Injected log service.
-	/// </summary>
 	[Inject] protected ILogger<PDTable<TItem>> Logger { get; set; } = new NullLogger<PDTable<TItem>>();
 
-	/// <summary>
-	/// Injected navigation manager.
-	/// </summary>
 	[Inject] protected NavigationManager NavigationManager { get; set; } = null!;
 
-	/// <summary>
-	/// Injected javascript interop object.
-	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
+
+	[CascadingParameter] public PDDragContext? DragContext { get; set; }
+
+	[CascadingParameter] public IAsyncStateManager? StateManager { get; set; }
 
 	#region Parameters
 
@@ -259,8 +251,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// Gets or sets the default sort criteria.
 	/// </summary>
 	[Parameter] public SortCriteria SortCriteria { get; set; } = new SortCriteria();
-
-	[Parameter] public IAsyncStateManager? StateManager { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether the contents of all cells are user selectable by default.
@@ -803,10 +793,15 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 		_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
 
+
 		// load common javascript
 		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 
-		await LoadStateAsync();
+		// load previously saved state
+		if (StateManager != null)
+		{
+			await LoadStateAsync();
+		}
 	}
 
 	private async void PageCriteria_PageSizeChanged(object? sender, EventArgs e)
