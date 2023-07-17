@@ -19,6 +19,18 @@ public static class ReflectionExtensions
 		{
 			return body?.Member;
 		}
+		else if (expression.Body is ConditionalExpression ce)
+		{
+			if (ce.IfTrue is MemberExpression tme)
+			{
+				return tme.Member;
+			}
+			else if (ce.IfFalse is MemberExpression fme)
+			{
+				return fme.Member;
+			}
+
+		}
 		// TODO - Use pattern matching
 		UnaryExpression ubody = (UnaryExpression)expression.Body;
 		return (ubody.Operand as MemberExpression)?.Member;

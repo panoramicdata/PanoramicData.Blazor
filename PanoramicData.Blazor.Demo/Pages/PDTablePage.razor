@@ -125,7 +125,7 @@
                           Sortable="false" />
 
                 <PDColumn TItem="Person"
-                          Field="x => x.Manager"
+                          Field="@((x) => x.Manager == null ? null : x.Manager.LastName)"
                           Filterable="true"
                           FilterKey="boss"
                           FilterMaxValues="5"
