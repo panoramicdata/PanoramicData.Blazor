@@ -344,6 +344,14 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				{
 					column.Filter.PropertyName = body.Contains('.') ? string.Join(".", body.Split('.').Skip(1)) : body;
 				}
+				else if (column.Field.Body is ConditionalExpression ce1 && ce1.IfTrue is MemberExpression tme)
+				{
+					column.Filter.PropertyName = tme.ToString().Contains('.') ? string.Join(".", tme.ToString().Split('.').Skip(1)) : tme.ToString();
+				}
+				else if (column.Field.Body is ConditionalExpression ce2 && ce2.IfFalse is MemberExpression fme)
+				{
+					column.Filter.PropertyName = fme.ToString().Contains('.') ? string.Join(".", fme.ToString().Split('.').Skip(1)) : fme.ToString();
+				}
 				else
 				{
 					var idx1 = body.IndexOf("Convert(", StringComparison.Ordinal);
