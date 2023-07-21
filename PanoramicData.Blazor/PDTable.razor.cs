@@ -327,6 +327,20 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		try
 		{
+			// improve on default column id - this will improve state persistence
+			if (Regex.IsMatch(column.Id, @"^col-\d+$"))
+			{
+				var name = string.IsNullOrEmpty(column.Name) ? column.GetTitle() : column.Name;
+				if (!string.IsNullOrWhiteSpace(name))
+				{
+					var simpleName = name.ExtractAlphanumericChars().ToLower(CultureInfo.InvariantCulture);
+					if (!string.IsNullOrWhiteSpace(simpleName))
+					{
+						column.SetId($"col-{simpleName}");
+					}
+				}
+			}
+
 			Columns.Add(column);
 			if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
 			{
@@ -803,22 +817,22 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		// load common javascript
 		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 
-		// improve on default column ids - this will improve state persistence
-		foreach (var column in Columns)
-		{
-			if (Regex.IsMatch(column.Id, @"^col-\d+$"))
-			{
-				var name = string.IsNullOrEmpty(column.Name) ? column.GetTitle() : column.Name;
-				if (!string.IsNullOrWhiteSpace(name))
-				{
-					var simpleName = name.ExtractAlphanumericChars().ToLower(CultureInfo.InvariantCulture);
-					if (!string.IsNullOrWhiteSpace(simpleName))
-					{
-						column.SetId($"col-{simpleName}");
-					}
-				}
-			}
-		}
+		//// improve on default column ids - this will improve state persistence
+		//foreach (var column in Columns)
+		//{
+		//	if (Regex.IsMatch(column.Id, @"^col-\d+$"))
+		//	{
+		//		var name = string.IsNullOrEmpty(column.Name) ? column.GetTitle() : column.Name;
+		//		if (!string.IsNullOrWhiteSpace(name))
+		//		{
+		//			var simpleName = name.ExtractAlphanumericChars().ToLower(CultureInfo.InvariantCulture);
+		//			if (!string.IsNullOrWhiteSpace(simpleName))
+		//			{
+		//				column.SetId($"col-{simpleName}");
+		//			}
+		//		}
+		//	}
+		//}
 
 		// load previously saved state
 		if (StateManager != null)

@@ -13,6 +13,13 @@ public class Filter
 		Value = value;
 	}
 
+	public Filter(FilterTypes filterType, string key, object value)
+	{
+		FilterType = filterType;
+		Key = key;
+		Value = value?.ToString() ?? string.Empty;
+	}
+
 
 	public Filter(FilterTypes filterType, string key, string value, string value2)
 	{
