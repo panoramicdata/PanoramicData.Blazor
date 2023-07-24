@@ -26,8 +26,6 @@ public partial class PDFileExplorerPage
 	{
 		if (item.EntryType == FileExplorerItemType.File)
 		{
-			// in real world scenarios  you would calculate the download url as <mime>:<filename>:<url>
-			//return $"application/octet-stream:{item.Name}:" + NavigationManager.ToAbsoluteUri($"/files/Download?path={item.Path}").ToString();
 
 			// in this demo the content is always a webm reference file
 			return $"application/octet-stream:{Path.ChangeExtension(item.Name, ".webm")}:" + NavigationManager.ToAbsoluteUri($"/files/Download?path={item.Path}").ToString();

@@ -23,7 +23,6 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 		// update column ordinals
 		if (Table != null)
 		{
-			//RefreshColumnIds();
 
 			var newOrder = args.Items.ToList();
 			foreach (var column in Table.Columns.Where(x => x.ShowInList))

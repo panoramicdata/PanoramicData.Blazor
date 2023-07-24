@@ -583,7 +583,6 @@ public partial class PDTimeline : IAsyncDisposable
 
 			if (newOffset >= 0 && newOffset <= maxOffset)
 			{
-				//Console.WriteLine($"Old Offset = {_columnOffset}, New Offset = {newOffset}, TotalColumns = {_totalColumns}");
 				_columnOffset = newOffset;
 			}
 		}
@@ -611,7 +610,6 @@ public partial class PDTimeline : IAsyncDisposable
 			var points = await DataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
 			foreach (var point in points)
 			{
-				//point.PeriodIndex =  point.StartTime.TotalPeriodsSince(MinDateTime, Scale);
 				point.PeriodIndex = Scale.PeriodsBetween(RoundedMinDateTime, point.StartTime);
 				if (!_dataPoints.ContainsKey(point.PeriodIndex))
 				{
@@ -694,7 +692,6 @@ public partial class PDTimeline : IAsyncDisposable
 			{
 				// calculate pan handle width
 				_panHandleWidth = Math.Min(((double)_viewportColumns / (double)(_totalColumns + 1)) * _canvasWidth, _canvasWidth);
-				//Console.WriteLine($"_panHandleWidth = {_panHandleWidth}, _viewportColumns = {_viewportColumns}, _totalColumns = {_totalColumns}");
 				if (_canvasWidth > 0 && (_panHandleX + _panHandleWidth > _canvasWidth))
 				{
 					_panHandleX = _canvasWidth - _panHandleWidth;

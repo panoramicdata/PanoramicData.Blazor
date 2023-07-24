@@ -119,7 +119,6 @@ public partial class PDFileModal
 		{
 			// default to root
 			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
-			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
 		}
 	}
 
@@ -203,7 +202,6 @@ public partial class PDFileModal
 		{
 			// default to root
 			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
-			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
 		}
 	}
 
@@ -246,7 +244,6 @@ public partial class PDFileModal
 		{
 			// default to root
 			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
-			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
 		}
 
 		FileExplorerItem? existing = null;

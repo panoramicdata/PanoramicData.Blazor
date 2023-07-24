@@ -164,15 +164,6 @@ public partial class PDTextBox : IAsyncDisposable
 		}
 	}
 
-	//private async Task OnInput(ChangeEventArgs args)
-	//{
-	//	if (DebounceWait <= 0)
-	//	{
-	//		Value = args.Value.ToString();
-	//		await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
-	//	}
-	//}
-
 	private async Task OnBlur(FocusEventArgs args) => await Blur.InvokeAsync().ConfigureAwait(true);
 
 	private async Task OnChange(ChangeEventArgs args)

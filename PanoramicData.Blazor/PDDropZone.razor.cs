@@ -192,7 +192,6 @@ public partial class PDDropZone : IAsyncDisposable
 
 		var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId)
 		{
-			//_batchProgress++;
 			BatchCount = _batchCount,
 			BatchProgress = _batchProgress
 		};

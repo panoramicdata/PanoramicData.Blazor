@@ -13,7 +13,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	private readonly string IdEditPrefix = "pd-table-edit-";
 	private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
 	private readonly Dictionary<string, object?> _editValues = new();
-	//private readonly Dictionary<string, string> _keyProperties = new();
 
 	private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
@@ -457,7 +456,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				BlockOverlayService.Show();
 			}
 
-			//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
 			var request = new DataRequest<TItem>
 			{
@@ -816,23 +814,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 		// load common javascript
 		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-
-		//// improve on default column ids - this will improve state persistence
-		//foreach (var column in Columns)
-		//{
-		//	if (Regex.IsMatch(column.Id, @"^col-\d+$"))
-		//	{
-		//		var name = string.IsNullOrEmpty(column.Name) ? column.GetTitle() : column.Name;
-		//		if (!string.IsNullOrWhiteSpace(name))
-		//		{
-		//			var simpleName = name.ExtractAlphanumericChars().ToLower(CultureInfo.InvariantCulture);
-		//			if (!string.IsNullOrWhiteSpace(simpleName))
-		//			{
-		//				column.SetId($"col-{simpleName}");
-		//			}
-		//		}
-		//	}
-		//}
 
 		// load previously saved state
 		if (StateManager != null)
