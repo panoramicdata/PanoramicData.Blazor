@@ -908,14 +908,14 @@ public partial class PDTimeline : IAsyncDisposable
 		}
 	}
 
-	public async Task ZoomToSelectionAsync()
+	public async Task ZoomToSelectionAsync(bool forceRefresh = false)
 	{
 		if (_canvasWidth > 0 && _selectionRange != null)
 		{
 			var scale = GetScaleToFit(_selectionRange.StartTime, _selectionRange.EndTime);
 			if (scale != null)
 			{
-				await SetScale(scale, false, _selectionRange.EndTime, TimelinePositions.End).ConfigureAwait(true);
+				await SetScale(scale, forceRefresh, _selectionRange.EndTime, TimelinePositions.End).ConfigureAwait(true);
 			}
 		}
 	}
