@@ -1,0 +1,22 @@
+.plot-area {
+	background-color: transparent;
+}
+
+.handle {
+	fill: darkslategray;
+	stroke: black;
+	rx: 0;
+	ry: 0;
+}
+
+.track-inner {
+	fill: green;
+}
+
+.track-outer {
+	fill: silver;
+}
+
+.disabled {
+	opacity: 0.5;
+}

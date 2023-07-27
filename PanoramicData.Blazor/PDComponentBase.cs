@@ -5,25 +5,48 @@ public class PDComponentBase : ComponentBase
 	/// <summary>
 	/// Gets or sets CSS classes for the component.
 	/// </summary>
-	[Parameter] public string? CssClass { get; set; }
+	[Parameter]
+	public string? CssClass { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether the component is enabled.
 	/// </summary>
-	[Parameter] public bool IsEnabled { get; set; } = true;
+	[Parameter]
+	public bool IsEnabled { get; set; } = true;
 
 	/// <summary>
 	/// Gets or sets the component size.
 	/// </summary>
-	[Parameter] public ButtonSizes? Size { get; set; }
+	[Parameter]
+	public ButtonSizes? Size { get; set; }
 
 	/// <summary>
 	/// Gets or sets the tooltip for the component.
 	/// </summary>
-	[Parameter] public string ToolTip { get; set; } = string.Empty;
+	[Parameter]
+	public string ToolTip { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets or sets whether the component is visible.
 	/// </summary>
-	[Parameter] public bool IsVisible { get; set; } = true;
+	[Parameter]
+	public bool IsVisible { get; set; } = true;
+
+	#region Validation
+
+	protected Dictionary<string, string> ParameterValidationErrors { get; } = new();
+
+	protected bool ParametersAreValid => ParameterValidationErrors.Count == 0;
+
+	protected virtual void Validate()
+	{
+		ParameterValidationErrors.Clear();
+	}
+
+	#endregion
+
+	protected override void OnParametersSet()
+	{
+		Validate();
+	}
 }

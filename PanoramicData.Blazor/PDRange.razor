@@ -1,0 +1,33 @@
+﻿@inherits PDComponentBase
+
+<h3>PDRange</h3>
+
+<div class="pd-range @(IsEnabled ? "" : "disabled")">
+
+    @if (ParametersAreValid)
+    {
+        <svg @ref="_svgPlotElement"
+	        class="plot-area"
+            height="@Height"
+            width="@Width">
+
+            @* outer (excluded) range *@
+            <rect class="@(Invert ? "track-inner" : "track-outer")" x="0" y="@QuarterHeight" height="@HalfHeight" width="@Width" />
+
+            @* inner (included) range *@
+            <rect class="@(Invert ? "track-outer" : "track-inner")" x="@StartHandleX" y="@QuarterHeight" height="@HalfHeight" width="@(EndHandleX - StartHandleX)" />
+
+            @* range start marker *@
+            <rect class="handle start" x="@StartHandleX" y="0" height="@Height" width="@HandleWidth" />
+
+            @* range end marker *@
+            <rect class="handle end" x="@EndHandleX" y="0" height="@Height" width="@HandleWidth" />
+
+        </svg>
+    }
+    else
+    {
+        <PDValidationSummary Errors="ParameterValidationErrors" />
+    }
+
+</div>

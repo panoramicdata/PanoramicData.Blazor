@@ -1,0 +1,54 @@
+﻿@page "/pdrange"
+
+<h1>PDRange</h1>
+
+<DemoSourceView SourceFiles="Pages/PDRangePage.razor, Pages/PDRangePage.razor.cs">
+
+    <div>
+        <div class="toolbar">
+
+            <EditForm Model="this">
+
+                <div class="">
+                    <label class="form-check-label">Enabled</label>
+                    <InputCheckbox @bind-Value="_isEnabled" />
+                </div>
+
+                <div class="">
+                    <label class="form-check-label">Invert</label>
+                    <InputCheckbox @bind-Value="_invert" />
+                </div>
+
+                <div class="">
+                    <label class="form-label" >Start</label>
+                    <InputNumber @bind-Value="_range1.Start" />
+                </div>
+
+                <div class="">
+                    <label class="form-label">End</label>
+                    <InputNumber @bind-Value="_range1.End" />
+                </div>
+
+            </EditForm>
+
+        </div>
+
+        <PDRange @bind-Range="_range1"
+            IsEnabled="_isEnabled"
+            Invert="_invert"
+            Min="0"
+            Max="100"
+            Step="10" />
+
+        <div>
+            Range: @($"{_range1?.Start} - {_range1?.End}")
+        </div>
+        <div>
+            Selection: @*@(_selection is null ? "none" : _selection.ToString())*@
+        </div>
+
+    </div>
+
+    <EventView />
+
+</DemoSourceView>
