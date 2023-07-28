@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor;
+﻿using FluentValidation;
+
+namespace PanoramicData.Blazor;
 
 public class PDComponentBase : ComponentBase
 {
@@ -34,13 +36,53 @@ public class PDComponentBase : ComponentBase
 
 	#region Validation
 
-	protected Dictionary<string, string> ParameterValidationErrors { get; } = new();
+	protected Dictionary<string, string> ValidationErrors { get; } = new();
 
-	protected bool ParametersAreValid => ParameterValidationErrors.Count == 0;
+	protected bool IsValid => ValidationErrors.Count == 0;
+
+	protected void SetValidationErrors(IEnumerable<ValidationResult> results)
+	{
+		foreach (var result in results)
+		{
+			var propertyNames = string.Join(", ", result.MemberNames.ToArray());
+			if (!ValidationErrors.ContainsKey(propertyNames))
+			{
+				ValidationErrors.Add(propertyNames, result.ErrorMessage ?? string.Empty);
+			}
+		}
+	}
+
+	protected void SetValidationErrors(FluentValidation.Results.ValidationResult result)
+	{
+		foreach (var failure in result.Errors)
+		{
+			if (!ValidationErrors.ContainsKey(failure.PropertyName))
+			{
+				ValidationErrors.Add(failure.PropertyName, failure.ErrorMessage);
+			}
+		}
+	}
 
 	protected virtual void Validate()
 	{
-		ParameterValidationErrors.Clear();
+		ValidationErrors.Clear();
+
+		// default using DataAnnotations validation
+		var validationContext = new ValidationContext(this, null, null);
+		var validationResults = new List<ValidationResult>();
+		if (!Validator.TryValidateObject(this, validationContext, validationResults, true))
+		{
+			SetValidationErrors(validationResults);
+		}
+	}
+
+	protected virtual void FluentValidate<T>(IValidator<T> validator, T obj)
+	{
+		var result = validator.Validate(obj);
+		if (!result.IsValid)
+		{
+			SetValidationErrors(result);
+		}
 	}
 
 	#endregion

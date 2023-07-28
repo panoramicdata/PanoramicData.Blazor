@@ -4,30 +4,52 @@
 
 <div class="pd-range @(IsEnabled ? "" : "disabled")">
 
-    @if (ParametersAreValid)
+    @if (IsValid)
     {
-        <svg @ref="_svgPlotElement"
-	        class="plot-area"
+        <svg class="plot-area"
             height="@Height"
             width="@Width">
 
-            @* outer (excluded) range *@
-            <rect class="@(Invert ? "track-inner" : "track-outer")" x="0" y="@QuarterHeight" height="@HalfHeight" width="@Width" />
+            @* outer track *@
+            <rect class="track outer @(Invert ? "invert" : "")"
+                  height="@CalcTrackHeight"
+                  width="@Width"
+                  x="0"
+                  y="@CalcTrackY" />
 
-            @* inner (included) range *@
-            <rect class="@(Invert ? "track-outer" : "track-inner")" x="@StartHandleX" y="@QuarterHeight" height="@HalfHeight" width="@(EndHandleX - StartHandleX)" />
+            @* inner track *@
+            <rect class="track inner @(Invert ? "invert" : "")"
+                  height="@CalcTrackHeight"
+                  width="@(CalcEndHandleX - CalcStartHandleX + HandleWidth)"
+                  x="@CalcStartHandleX"
+                  y="@CalcTrackY" />
 
-            @* range start marker *@
-            <rect class="handle start" x="@StartHandleX" y="0" height="@Height" width="@HandleWidth" />
+            @* range start handle *@
+            <rect @ref="_svgRangeHandleStart"
+                @onpointerdown="OnRangeStartPointerDown"
+                @onpointermove="OnRangeStartPointerMove"
+                @onpointerup="OnRangeStartPointerUp"
+                class="handle start"
+                height="@Height"
+                width="@HandleWidth"
+                x="@CalcStartHandleX"
+                y="0" />
 
-            @* range end marker *@
-            <rect class="handle end" x="@EndHandleX" y="0" height="@Height" width="@HandleWidth" />
+            @* range end handle *@
+            <rect @ref="_svgRangeHandleEnd"
+                class="handle end"
+                height="@Height"
+                width="@HandleWidth"
+                x="@CalcEndHandleX"
+                y="0" />
 
         </svg>
+
+        <div>@_dragOrigin</div>
     }
     else
     {
-        <PDValidationSummary Errors="ParameterValidationErrors" />
+        <PDValidationSummary Errors="ValidationErrors" />
     }
 
 </div>

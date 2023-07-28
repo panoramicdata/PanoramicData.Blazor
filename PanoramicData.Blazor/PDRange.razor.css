@@ -4,17 +4,28 @@
 
 .handle {
 	fill: darkslategray;
-	stroke: black;
-	rx: 0;
-	ry: 0;
+	stroke: silver;
+	opacity: 0.8;
 }
 
-.track-inner {
+.pd-range:not(.disabled) .handle {
+	cursor: col-resize;
+}
+
+.track.inner {
 	fill: green;
 }
 
-.track-outer {
+.track.inner.invert {
 	fill: silver;
+}
+
+.track.outer {
+	fill: silver;
+}
+
+.track.outer.invert {
+	fill: green;
 }
 
 .disabled {
