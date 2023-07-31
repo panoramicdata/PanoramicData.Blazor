@@ -5,7 +5,9 @@ public partial class PDRange : IAsyncDisposable
 	private const double HandleWidth = 10;
 
 	private bool _isDragging;
-	private double _dragOrigin;
+	private double _dragX;
+	private double _dragPixelOrigin;
+	private double _dragRangeOrigin;
 	private IJSObjectReference? _commonModule;
 	private ElementReference _svgRangeHandleStart;
 	private ElementReference _svgRangeHandleEnd;
@@ -33,16 +35,19 @@ public partial class PDRange : IAsyncDisposable
 	public NumericRange Range { get; set; } = new();
 
 	[Parameter]
-	public double Max { get; set; } = default;
+	public double Max { get; set; }
 
 	[Parameter]
-	public double Min { get; set; } = default;
+	public double Min { get; set; }
+
+	[Parameter]
+	public double MinGap { get; set; }
 
 	[Parameter]
 	public EventCallback<NumericRange> RangeChanged { get; set; }
 
 	[Parameter]
-	public double Step { get; set; } = default;
+	public double Step { get; set; }
 
 	[Parameter]
 	public double TrackHeight { get; set; } = 0.5;
@@ -68,31 +73,72 @@ public partial class PDRange : IAsyncDisposable
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (_commonModule == null && JSRuntime != null)
 		{
-			//_objRef = DotNetObjectReference.Create(this);
-			//_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTimeline.razor.js").ConfigureAwait(true);
-			//if (_module != null)
-			//{
-			//	await _module.InvokeVoidAsync("initialize", Id, Options, _objRef).ConfigureAwait(true);
-			//}
-
 			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-			//if (_commonModule != null)
-			//{
-			//	_canvasHeight = (int)(await _commonModule.InvokeAsync<double>("getHeight", _svgPlotElement).ConfigureAwait(true));
-			//	_canvasWidth = (int)(await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true));
-			//	_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true));
-			//}
 		}
 	}
-
-	private async Task OnRangeStartPointerDown(PointerEventArgs args)
+	private async Task OnEndHandlePointerDown(PointerEventArgs args)
 	{
 		if (IsEnabled && !_isDragging)
 		{
 			_isDragging = true;
-			_dragOrigin = args.OffsetX; //args.ClientX;
+			_dragPixelOrigin = _dragX = args.OffsetX;
+			_dragRangeOrigin = Range.End;
+			if (_commonModule != null)
+			{
+				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgRangeHandleEnd).ConfigureAwait(true);
+			}
+		}
+	}
+
+	private Task OnEndHandlePointerMove(PointerEventArgs args)
+	{
+		if (_isDragging)
+		{
+			// update Range.Start
+			_dragX = args.OffsetX;
+			var delta = _dragX - _dragPixelOrigin;
+			var rangeDelta = delta * ((Max - Min) / CalcTrackWidth);
+			var newEnd = _dragRangeOrigin + rangeDelta;
+
+			// constrain to Range.Start - Max
+			if (newEnd < Range.Start)
+			{
+				newEnd = Range.Start;
+			}
+			if (newEnd > Max)
+			{
+				newEnd = Max;
+			}
+
+			// constrain to MinGap
+			if (MinGap > 0 && newEnd - Range.Start < MinGap)
+			{
+				newEnd = Range.Start + MinGap;
+			}
+
+			// snap to step?
+			if (Step > 0)
+			{
+				newEnd = Math.Round(newEnd / Step) * Step;
+			}
+
+			// update Range
+			return UpdateRange(null, newEnd);
+		}
+
+		return Task.CompletedTask;
+	}
+
+
+	private async Task OnStartHandlePointerDown(PointerEventArgs args)
+	{
+		if (IsEnabled && !_isDragging)
+		{
+			_isDragging = true;
+			_dragPixelOrigin = _dragX = args.OffsetX;
+			_dragRangeOrigin = Range.Start;
 			if (_commonModule != null)
 			{
 				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgRangeHandleStart).ConfigureAwait(true);
@@ -100,17 +146,46 @@ public partial class PDRange : IAsyncDisposable
 		}
 	}
 
-	private async Task OnRangeStartPointerMove(PointerEventArgs args)
+	private Task OnStartHandlePointerMove(PointerEventArgs args)
 	{
 		if (_isDragging)
 		{
-			_dragOrigin = args.OffsetX; //args.ClientX;
-										// calculate position as a percentage
+			// update Range.Start
+			_dragX = args.OffsetX;
+			var delta = _dragX - _dragPixelOrigin;
+			var rangeDelta = delta * ((Max - Min) / CalcTrackWidth);
+			var newStart = _dragRangeOrigin + rangeDelta;
 
+			// constrain to Min - Range.End
+			if (newStart < Min)
+			{
+				newStart = Min;
+			}
+			if (newStart > Range.End)
+			{
+				newStart = Range.End;
+			}
+
+			// constrain to MinGap
+			if (MinGap > 0 && Range.End - newStart < MinGap)
+			{
+				newStart = Range.End - MinGap;
+			}
+
+			// snap to step?
+			if (Step > 0)
+			{
+				newStart = Math.Round(newStart / Step) * Step;
+			}
+
+			// update Range
+			return UpdateRange(newStart, null);
 		}
+
+		return Task.CompletedTask;
 	}
 
-	private async Task OnRangeStartPointerUp(PointerEventArgs args)
+	private void OnHandlePointerUp(PointerEventArgs args)
 	{
 		if (_isDragging)
 		{
@@ -118,8 +193,64 @@ public partial class PDRange : IAsyncDisposable
 		}
 	}
 
+	private async Task UpdateRange(double? start, double? end)
+	{
+		if (start.HasValue)
+		{
+			Range.Start = start.Value;
+		}
+		if (end.HasValue)
+		{
+			Range.End = end.Value;
+		}
+		if (start.HasValue || end.HasValue)
+		{
+			await RangeChanged.InvokeAsync(Range).ConfigureAwait(true);
+		}
+	}
+
 	protected override void Validate()
 	{
+		// snap to step size?
+		if (Step > 0)
+		{
+			Range.Start = Math.Round(Range.Start / Step) * Step;
+			Range.End = Math.Round(Range.End / Step) * Step;
+		}
+
+		// constrain start
+		if (Range.Start < Min)
+		{
+			Range.Start = Min;
+		}
+		if (Range.Start > Range.End)
+		{
+			Range.Start = Range.End;
+		}
+
+		// constrain to end
+		if (Range.End < Range.Start)
+		{
+			Range.End = Range.Start;
+		}
+		if (Range.End > Max)
+		{
+			Range.End = Max;
+		}
+
+		// constrain to MinGap
+		if (MinGap > 0 && Range.End - Range.Start < MinGap)
+		{
+			if (Range.End - MinGap >= Min)
+			{
+				Range.Start = Range.End - MinGap;
+			}
+			else
+			{
+				Range.End = Range.Start + MinGap;
+			}
+		}
+
 		base.Validate();
 		base.FluentValidate(new PDRangeValidator(), this);
 	}

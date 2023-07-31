@@ -26,9 +26,9 @@
 
             @* range start handle *@
             <rect @ref="_svgRangeHandleStart"
-                @onpointerdown="OnRangeStartPointerDown"
-                @onpointermove="OnRangeStartPointerMove"
-                @onpointerup="OnRangeStartPointerUp"
+                @onpointerdown="OnStartHandlePointerDown"
+                @onpointermove="OnStartHandlePointerMove"
+                @onpointerup="OnHandlePointerUp"
                 class="handle start"
                 height="@Height"
                 width="@HandleWidth"
@@ -37,6 +37,9 @@
 
             @* range end handle *@
             <rect @ref="_svgRangeHandleEnd"
+                @onpointerdown="OnEndHandlePointerDown"
+                @onpointermove="OnEndHandlePointerMove"
+                @onpointerup="OnHandlePointerUp"
                 class="handle end"
                 height="@Height"
                 width="@HandleWidth"
@@ -44,8 +47,6 @@
                 y="0" />
 
         </svg>
-
-        <div>@_dragOrigin</div>
     }
     else
     {

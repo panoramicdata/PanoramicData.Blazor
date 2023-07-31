@@ -21,12 +21,12 @@
 
                 <div class="">
                     <label class="form-label" >Start</label>
-                    <InputNumber @bind-Value="_range1.Start" />
+                    <InputNumber @bind-Value="_range1.Start" step="5" />
                 </div>
 
                 <div class="">
                     <label class="form-label">End</label>
-                    <InputNumber @bind-Value="_range1.End" />
+                    <InputNumber @bind-Value="_range1.End" step="5" />
                 </div>
 
             </EditForm>
@@ -37,8 +37,9 @@
             IsEnabled="_isEnabled"
             Invert="_invert"
             Min="0"
+            MinGap="10"
             Max="100"
-            Step="10"
+            Step="5"
             TrackHeight="0.75" />
 
         <div>
