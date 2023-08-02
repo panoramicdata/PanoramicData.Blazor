@@ -3,6 +3,8 @@ namespace PanoramicData.Blazor;
 public partial class PDRange : IAsyncDisposable
 {
 	private const double HandleWidth = 10;
+	private const double LabelSplit = 0.333;
+	private const double TrackSplit = 0.666;
 
 	private bool _isDragging;
 	private double _dragX;
@@ -58,7 +60,7 @@ public partial class PDRange : IAsyncDisposable
 	public double Step { get; set; }
 
 	[Parameter]
-	public double TrackHeight { get; set; } = 0.8;
+	public double TrackHeight { get; set; } = 0.75;
 
 	[Parameter]
 	public double Width { get; set; } = 400;
@@ -71,16 +73,20 @@ public partial class PDRange : IAsyncDisposable
 
 	private double CalcEndHandleX => 1 + Math.Round((Range.End / Max) * CalcTrackWidth, 2);
 
-	private double CalcTrackHeight => (ShowLabels ? 0.66 * TrackHeight : TrackHeight) * Height;
+	private double CalcHandleHeight => ShowLabels ? Height * TrackSplit : Height;
 
-	private double CalcTrackStart => 1 + HandleWidth / 2;
+	private double CalcHandleY => ShowLabels ? Height * LabelSplit : 0;
+
+	private double CalcTrackHeight => (ShowLabels ? TrackSplit * TrackHeight : TrackHeight) * Height;
+
+	private static double CalcTrackStart => 1 + HandleWidth / 2;
 
 	private double CalcRangePixels => (CalcTrackWidth / (Max - Min));
 
 	private double CalcTrackWidth => Width - HandleWidth - 2;
 
 	private double CalcTrackY => ShowLabels
-		? (((Height * 0.66) / 2) - (CalcTrackHeight / 2)) + (Height * 0.33)
+		? (((Height * TrackSplit) / 2) - (CalcTrackHeight / 2)) + (Height * LabelSplit)
 		: (Height / 2) - (CalcTrackHeight / 2);
 
 	#endregion
