@@ -32,7 +32,7 @@
                     @if (ShowLabels)
                     {
                         <text>
-                            <text class="tick-label major"
+                            <text class="label tick-major"
                                 x="@(x + HandleWidth / 2)"
                                 y="10"
                                 stroke="Black">
@@ -49,11 +49,11 @@
                 @onpointermove="OnStartHandlePointerMove"
                 @onpointerup="OnHandlePointerUp"
                 class="handle start"
-                height="@Height"
+                height="@CalcHandleHeight"
                 width="@HandleWidth"
                 title="@Range.Start"
                 x="@CalcStartHandleX"
-                y="0" />
+                y="@CalcHandleY" />
 
             @* range end handle *@
             <rect @ref="_svgRangeHandleEnd"
@@ -61,10 +61,10 @@
                 @onpointermove="OnEndHandlePointerMove"
                 @onpointerup="OnHandlePointerUp"
                 class="handle end"
-                height="@Height"
+                height="@CalcHandleHeight"
                 width="@HandleWidth"
                 x="@CalcEndHandleX"
-                y="0" />
+                y="@CalcHandleY" />
 
         </svg>
     }

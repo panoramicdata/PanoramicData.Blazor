@@ -34,15 +34,14 @@
         <PDRange @bind-Range="_range1"
             IsEnabled="_isEnabled"
             Invert="_invert"
-            Height="30"
+            Height="20"
             Min="0"
             MinGap="10"
             Max="100"
-            ShowLabels="true"
             Step="5"
             TickMajor="25"
             TickMajorLabelFn="@((v) => $"{v:00}")"
-            TrackHeight="0.8" />
+            TrackHeight="0.6" />
 
         <div>
             Range: @($"{_range1?.Start} - {_range1?.End}")

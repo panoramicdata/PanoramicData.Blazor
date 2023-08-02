@@ -16,7 +16,7 @@
 	stroke: black;
 }
 
-.tick-label.major {
+.label.tick-major {
 	fill: black;
 	font-size: 0.6rem;
 	font-weight: 500;
