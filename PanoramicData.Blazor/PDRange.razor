@@ -1,7 +1,5 @@
 ﻿@inherits PDComponentBase
 
-<h3>PDRange</h3>
-
 <div class="pd-range @(IsEnabled ? "" : "disabled")">
 
     @if (IsValid)
@@ -13,8 +11,8 @@
             @* outer track *@
             <rect class="track outer @(Invert ? "invert" : "")"
                   height="@CalcTrackHeight"
-                  width="@Width"
-                  x="0"
+                  width="@CalcTrackWidth"
+                  x="@CalcTrackStart"
                   y="@CalcTrackY" />
 
             @* inner track *@
@@ -24,6 +22,27 @@
                   x="@CalcStartHandleX"
                   y="@CalcTrackY" />
 
+            @* major tick lines *@
+            @if(TickMajor > 0)
+            {
+                @for (var v = Min; v <= Max; v += TickMajor)
+                {
+                    var x = CalcTrackStart + CalcRangePixels * v;
+                    <line class="tick major" x1="@x" x2="@x" y1="0" y2="@Height" />
+                    @if (ShowLabels)
+                    {
+                        <text>
+                            <text class="tick-label major"
+                                x="@(x + HandleWidth / 2)"
+                                y="10"
+                                stroke="Black">
+                            @(TickMajorLabelFn?.Invoke(v) ?? v.ToString("0"))
+                            </text>
+                        </text>
+                    }
+                }
+            }
+
             @* range start handle *@
             <rect @ref="_svgRangeHandleStart"
                 @onpointerdown="OnStartHandlePointerDown"
@@ -32,6 +51,7 @@
                 class="handle start"
                 height="@Height"
                 width="@HandleWidth"
+                title="@Range.Start"
                 x="@CalcStartHandleX"
                 y="0" />
 

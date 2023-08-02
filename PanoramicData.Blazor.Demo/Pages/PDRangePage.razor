@@ -2,12 +2,11 @@
 
 <h1>PDRange</h1>
 
-<DemoSourceView SourceFiles="Pages/PDRangePage.razor, Pages/PDRangePage.razor.cs">
+<DemoSourceView SourceFiles="Pages/PDRangePage.razor, Pages/PDRangePage.razor.cs, Pages/PDRangePage.razor.css">
 
     <div>
-        <div class="toolbar">
-
-            <EditForm Model="this">
+        <div>
+            <EditForm Model="this" class="toolbar">
 
                 <div class="">
                     <label class="form-check-label">Enabled</label>
@@ -30,23 +29,38 @@
                 </div>
 
             </EditForm>
-
         </div>
 
         <PDRange @bind-Range="_range1"
             IsEnabled="_isEnabled"
             Invert="_invert"
+            Height="30"
             Min="0"
             MinGap="10"
             Max="100"
+            ShowLabels="true"
             Step="5"
-            TrackHeight="0.75" />
+            TickMajor="25"
+            TickMajorLabelFn="@((v) => $"{v:00}")"
+            TrackHeight="0.8" />
 
         <div>
             Range: @($"{_range1?.Start} - {_range1?.End}")
         </div>
+
+        <hr/>
+
+        <PDRange @bind-Range="_range2"
+                 Height="30"
+                 MinGap="1"
+                 Max="23"
+                 ShowLabels="true"
+                 Step="1"
+                 TickMajor="4"
+                 TickMajorLabelFn="@((v) => $"{v:00}:00")" />
+
         <div>
-            Selection: @*@(_selection is null ? "none" : _selection.ToString())*@
+            Timer on: @($"{_range2?.Start:00}:00 to {_range2?.End:00}:00")
         </div>
 
     </div>

@@ -11,7 +11,6 @@ public partial class PDRange : IAsyncDisposable
 	private IJSObjectReference? _commonModule;
 	private ElementReference _svgRangeHandleStart;
 	private ElementReference _svgRangeHandleEnd;
-	private bool _disposedValue;
 
 	#region Injected
 
@@ -23,7 +22,7 @@ public partial class PDRange : IAsyncDisposable
 	#region Parameters
 
 	[Parameter]
-	public double Height { get; set; } = 20;
+	public double Height { get; set; } = 30;
 
 	[Parameter]
 	public bool Invert { get; set; }
@@ -35,7 +34,16 @@ public partial class PDRange : IAsyncDisposable
 	public NumericRange Range { get; set; } = new();
 
 	[Parameter]
-	public double Max { get; set; }
+	public bool ShowLabels { get; set; }
+
+	[Parameter]
+	public double TickMajor { get; set; }
+
+	[Parameter]
+	public Func<double, string>? TickMajorLabelFn { get; set; }
+
+	[Parameter]
+	public double Max { get; set; } = 100;
 
 	[Parameter]
 	public double Min { get; set; }
@@ -50,7 +58,7 @@ public partial class PDRange : IAsyncDisposable
 	public double Step { get; set; }
 
 	[Parameter]
-	public double TrackHeight { get; set; } = 0.5;
+	public double TrackHeight { get; set; } = 0.8;
 
 	[Parameter]
 	public double Width { get; set; } = 400;
@@ -63,11 +71,17 @@ public partial class PDRange : IAsyncDisposable
 
 	private double CalcEndHandleX => 1 + Math.Round((Range.End / Max) * CalcTrackWidth, 2);
 
-	private double CalcTrackHeight => TrackHeight * Height;
+	private double CalcTrackHeight => (ShowLabels ? 0.66 * TrackHeight : TrackHeight) * Height;
+
+	private double CalcTrackStart => 1 + HandleWidth / 2;
+
+	private double CalcRangePixels => (CalcTrackWidth / (Max - Min));
 
 	private double CalcTrackWidth => Width - HandleWidth - 2;
 
-	private double CalcTrackY => (Height / 2) - (CalcTrackHeight / 2);
+	private double CalcTrackY => ShowLabels
+		? (((Height * 0.66) / 2) - (CalcTrackHeight / 2)) + (Height * 0.33)
+		: (Height / 2) - (CalcTrackHeight / 2);
 
 	#endregion
 

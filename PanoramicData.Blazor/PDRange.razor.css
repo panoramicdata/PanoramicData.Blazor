@@ -12,6 +12,18 @@
 	cursor: col-resize;
 }
 
+.tick.major {
+	stroke: black;
+}
+
+.tick-label.major {
+	fill: black;
+	font-size: 0.6rem;
+	font-weight: 500;
+	stroke: none;
+	user-select: none;
+}
+
 .track.inner {
 	fill: green;
 }
