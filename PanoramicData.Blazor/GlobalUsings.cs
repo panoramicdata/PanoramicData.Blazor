@@ -15,6 +15,7 @@ global using PanoramicData.Blazor.Extensions;
 global using PanoramicData.Blazor.Interfaces;
 global using PanoramicData.Blazor.Models;
 global using PanoramicData.Blazor.Services;
+global using PanoramicData.Blazor.Validators;
 global using System;
 global using System.Collections.Generic;
 global using System.ComponentModel;

@@ -48,4 +48,14 @@
 		</Compile>
 	</ItemGroup>
 
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Pages\PDRangePage.razor" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="Pages\PDRangePage.razor" />
+	</ItemGroup>
+
 </Project>
