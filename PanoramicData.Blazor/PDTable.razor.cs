@@ -1197,25 +1197,33 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	private async Task OnRowMouseUpAsync(MouseEventArgs args, TItem item)
 	{
 		// quit if selection not allowed
-		if (!IsEnabled || SelectionMode == TableSelectionMode.None || !RowIsEnabled(item))
+		if (item is null || !IsEnabled || SelectionMode == TableSelectionMode.None || !RowIsEnabled(item))
 		{
 			return;
 		}
+
+		var key = KeyField!(item)?.ToString() ?? string.Empty;
 
 		// if right-click on row then only select if clicked on label
 		var selectRow = args.Button == 0;
 		if (args.Button == 2 && RightClickSelectsRow && _commonModule != null)
 		{
-			var sourceEl = await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
-			if (sourceEl != null)
+			// if row is not already selected - de-select all and select only this item
+			if (!Selection.Contains(key))
 			{
-				selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
+				selectRow = true;
 			}
+
+			//var sourceEl = await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
+			//if (sourceEl != null)
+			//{
+			//	selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
+			//}
 		}
 
 		if (selectRow)
 		{
-			var key = KeyField!(item)?.ToString();
+
 			if (key != null)
 			{
 				var alreadySelected = Selection.Contains(key);
