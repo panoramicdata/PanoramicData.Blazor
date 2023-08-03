@@ -35,6 +35,11 @@ public partial class PDContextMenu : IAsyncDisposable
 	[Parameter] public bool Enabled { get; set; } = true;
 
 	/// <summary>
+	/// Gets or sets wether the menu is displayed on the mouse up event instead of the default mouse down event.
+	/// </summary>
+	[Parameter] public bool ShowOnMouseUp { get; set; }
+
+	/// <summary>
 	/// Gets the unique identifier of this panel.
 	/// </summary>
 	public string Id { get; private set; } = string.Empty;
@@ -67,21 +72,36 @@ public partial class PDContextMenu : IAsyncDisposable
 		}
 	}
 
-	private async Task OnMouseDown(MouseEventArgs args)
+	private Task OnMouseDownAsync(MouseEventArgs args)
 	{
-		if (Enabled && args.Button == 2)
+		if (Enabled && args.Button == 2 && !ShowOnMouseUp)
 		{
-			var cancelArgs = new MenuItemsEventArgs(this, Items)
-			{
-				// get details of element that was clicked on
-				SourceElement = _commonModule != null ? (await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)) : null
-			};
+			return ShowMenuAsync(args);
+		}
+		return Task.CompletedTask;
+	}
 
-			await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
-			if (!cancelArgs.Cancel && _module != null)
-			{
-				await _module.InvokeVoidAsync("showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
-			}
+	private Task OnMouseUpAsync(MouseEventArgs args)
+	{
+		if (Enabled && args.Button == 2 && ShowOnMouseUp)
+		{
+			return ShowMenuAsync(args);
+		}
+		return Task.CompletedTask;
+	}
+
+	private async Task ShowMenuAsync(MouseEventArgs args)
+	{
+		var cancelArgs = new MenuItemsEventArgs(this, Items)
+		{
+			// get details of element that was clicked on
+			SourceElement = _commonModule != null ? (await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)) : null
+		};
+
+		await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
+		if (!cancelArgs.Cancel && _module != null)
+		{
+			await _module.InvokeVoidAsync("showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
 		}
 	}
 
