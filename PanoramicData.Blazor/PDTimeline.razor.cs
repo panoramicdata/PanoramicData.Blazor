@@ -146,10 +146,13 @@ public partial class PDTimeline : IAsyncDisposable
 		return false;
 	}
 
-	public async Task Clear()
+	public async Task Clear(bool clearSelection = true)
 	{
 		_dataPoints.Clear();
-		await ClearSelection().ConfigureAwait(true);
+		if (clearSelection)
+		{
+			await ClearSelection().ConfigureAwait(true);
+		}
 	}
 
 	public async Task ClearSelection()
