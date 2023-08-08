@@ -1,0 +1,21 @@
+﻿@inherits PDComponentBase
+@typeparam TItem
+
+<div @attributes="Attributes">
+    <ul>
+        @foreach(var item in _items)
+        {
+            <li>
+                @(_compiledTextExpression is null ? item.ToString() : _compiledTextExpression(item))
+            </li>
+        }
+    </ul>
+    @if(PageInfo != null && ShowPager)
+    {
+        <hr />
+        <PDPager PageCriteria="PageInfo"
+                 ShowPageDescription="false"
+                 ShowPageSizeChoices="false"
+                 Size="Size" />
+    }
+</div>

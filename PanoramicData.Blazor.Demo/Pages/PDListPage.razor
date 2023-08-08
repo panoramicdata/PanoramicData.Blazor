@@ -1,0 +1,43 @@
+﻿@page "/pdlist"
+
+<h1>PDList</h1>
+
+<DemoSourceView SourceFiles="Pages/PDListPage.razor, Pages/PDListPage.razor.cs">
+
+    <div class="">
+        <EditForm Model="this" class="toolbar">
+
+@*            <div class="">
+                <label class="form-check-label">Enabled</label>
+                <InputCheckbox @bind-Value="_isEnabled" />
+            </div>
+
+            <div class="">
+                <label class="form-check-label">Invert</label>
+                <InputCheckbox @bind-Value="_invert" />
+            </div>
+
+            <div class="">
+                <label class="form-label">Start</label>
+                <InputNumber @bind-Value="_range1.Start" step="5" />
+            </div>
+
+            <div class="">
+                <label class="form-label">End</label>
+                <InputNumber @bind-Value="_range1.End" step="5" />
+            </div>
+*@
+        </EditForm>
+
+        <PDList DataProvider="_dataProvider"
+            PageInfo="new PageCriteria()"
+            ShowPager="true"
+            SortDirection="SortDirection.Ascending"
+            TextExpression="@((c) => $"{c.Make} {c.Model} ({c.FromYear}-{(c.ToYear.HasValue ? c.ToYear : "Present")})")" />
+
+    </div>
+
+
+    <EventView />
+
+</DemoSourceView>
