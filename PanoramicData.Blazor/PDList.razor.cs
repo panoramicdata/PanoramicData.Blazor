@@ -2,7 +2,9 @@ namespace PanoramicData.Blazor;
 
 public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 {
-	private IEnumerable<TItem> _items = Array.Empty<TItem>();
+	private TItem? _lastSelectedItem;
+	private List<TItem> _selectedItems = new();
+	private IEnumerable<TItem> _displayedItems = Array.Empty<TItem>();
 	private Func<TItem, string>? _compiledTextExpression;
 	private PageCriteria? _pageInfo;
 
@@ -11,7 +13,16 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	public IDataProviderService<TItem>? DataProvider { get; set; }
 
 	[Parameter]
+	public RenderFragment<TItem>? ItemTemplate { get; set; }
+
+	[Parameter]
 	public PageCriteria? PageInfo { get; set; }
+
+	[Parameter]
+	public EventCallback<SelectionArgs<TItem>> SelectionChanged { get; set; }
+
+	[Parameter]
+	public TableSelectionMode SelectionMode { get; set; }
 
 	[Parameter]
 	public bool ShowPager { get; set; }
@@ -26,17 +37,22 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	[Parameter]
 	public Expression<Func<TItem, string>>? TextExpression { get; set; }
 
-	public Dictionary<string, object> Attributes
+	public Dictionary<string, object> ItemAttributes(TItem item)
 	{
-		get
+		var dict = new Dictionary<string, object>()
 		{
-			var dict = new Dictionary<string, object>()
-			{
-				{ "class", $"pd-list {CssClass}{(IsVisible ? "" : " d-none")}{(IsEnabled ? "" : " disabled")}" },
-				{ "title", ToolTip }
-			};
-			return dict;
-		}
+			{ "class", $"list-item {(SelectionMode == TableSelectionMode.None ? "" : "cursor-pointer")} {(_selectedItems.Contains(item) ? "selected" : "")}" }
+		};
+		return dict;
+	}
+	public Dictionary<string, object> ListAttributes()
+	{
+		var dict = new Dictionary<string, object>()
+		{
+			{ "class", $"pd-list {CssClass}{(IsVisible ? "" : " d-none")}{(IsEnabled ? "" : " disabled")}" },
+			{ "title", ToolTip }
+		};
+		return dict;
 	}
 
 	protected override Task OnParametersSetAsync()
@@ -95,8 +111,82 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 			}
 
 			// store items to render
-			_items = response.Items;
+			_displayedItems = response.Items;
 		}
+	}
+
+	private async Task UpdateSelectionAsync(MouseEventArgs args, TItem item)
+	{
+		if (SelectionMode == TableSelectionMode.None)
+		{
+			return;
+		}
+
+		if (SelectionMode == TableSelectionMode.Single)
+		{
+			// ignore if currently selected
+			if (_selectedItems.Any(x => x == item))
+			{
+				return;
+			}
+
+			// simply clear current selection
+			_selectedItems.Clear();
+			_selectedItems.Add(item);
+		}
+
+		if (SelectionMode == TableSelectionMode.Multiple)
+		{
+			if (args.CtrlKey)
+			{
+				// toggle selection
+				if (_selectedItems.Contains(item))
+				{
+					_selectedItems.Remove(item);
+				}
+				else
+				{
+					_selectedItems.Add(item);
+				}
+			}
+			else if (args.ShiftKey && _lastSelectedItem != null)
+			{
+				// range selection
+				var list = _displayedItems.ToList();
+				var idx1 = list.IndexOf(_lastSelectedItem);
+				var idx2 = list.IndexOf(item);
+				if (idx2 < idx1)
+				{
+					var idxT = idx1;
+					idx1 = idx2;
+					idx2 = idxT;
+				}
+				_selectedItems.Clear();
+				for (var i = idx1; i <= idx2; i++)
+				{
+					_selectedItems.Add(list[i]);
+				}
+			}
+			else
+			{
+				// ignore if currently selected
+				if (_selectedItems.Contains(item) && _selectedItems.Count == 1)
+				{
+					return;
+				}
+
+				// clear previous selection and select single item
+				_selectedItems.Clear();
+				_selectedItems.Add(item);
+			}
+		}
+
+		// remember this item for range selection
+		_lastSelectedItem = item;
+
+		// selection has been updated
+		var ea = new SelectionArgs<TItem> { SelectedItems = _selectedItems };
+		await SelectionChanged.InvokeAsync(ea).ConfigureAwait(true);
 	}
 
 	#region IAsyncDisposable

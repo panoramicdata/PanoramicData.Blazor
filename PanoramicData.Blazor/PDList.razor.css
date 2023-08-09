@@ -1,3 +1,22 @@
 .pd-list {
-	width: fit-content;
+	/*width: fit-content;*/
+	margin: 0px 5px;
+	user-select: none;
+}
+
+hr {
+	margin: 0.5rem;
+}
+
+li {
+	list-style: none;
+}
+
+li.selected {
+	background-color: var(--bs-primary);
+}
+
+ul {
+	padding-left: 0px;
+	margin-bottom: 0px;
 }

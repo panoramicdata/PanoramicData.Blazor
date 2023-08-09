@@ -29,15 +29,63 @@
 *@
         </EditForm>
 
-        <PDList DataProvider="_dataProvider"
-            PageInfo="new PageCriteria()"
-            ShowPager="true"
-            SortDirection="SortDirection.Ascending"
-            TextExpression="@((c) => $"{c.Make} {c.Model} ({c.FromYear}-{(c.ToYear.HasValue ? c.ToYear : "Present")})")" />
+        <h3>Basic List</h3>
+        <span class="text-muted small">Constrained in height by surrounding div and CSS</span>
+
+        <div class="list1">
+            <PDList DataProvider="_dataProvider" />
+        </div>
+
+        <hr/>
+        <h3>Sorted and Paged</h3>
+        <span class="text-muted small">With TextExpression used to set text</span>
+
+        <div class="list2">
+            <PDList DataProvider="_dataProvider"
+                PageInfo="new PageCriteria()"
+                ShowPager="true"
+                Size="ButtonSizes.Small"
+                SortDirection="SortDirection.Ascending"
+                SortExpression="(c) => c.ToString()"
+                TextExpression="@((c) => $"{c.Make} {c.Model} ({c.FromYear}-{(c.ToYear.HasValue ? c.ToYear : "Present")})")" />
+        </div>
+
+        <hr />
+        <h3>Item Template</h3>
+        <span class="text-muted small">With simple single selection</span>
+
+        <div class="list3">
+            <PDList DataProvider="_dataProvider"
+                    SelectionChanged="OnSelectionChanged"
+                    SelectionMode="TableSelectionMode.Single"
+                    SortDirection="SortDirection.Ascending"
+                    TItem="Car">
+                    <ItemTemplate Context="car">
+                        <div class="d-flex justify-content-between">
+                            <span>@car.Make @car.Model</span>
+                            <span class="small">@car.FromYear - @(car.ToYear.HasValue ? car.ToYear : "Present")</span>
+                        </div>
+                    </ItemTemplate>
+            </PDList>
+        </div>
+
+
+        <hr />
+        <h3>Multiple Selection</h3>
+        <span class="text-muted small">With check boxes</span>
+
+        <div class="list4">
+            <PDList DataProvider="_dataProvider"
+                    SelectionChanged="OnSelectionChanged"
+                    SelectionMode="TableSelectionMode.Multiple"
+                    SortDirection="SortDirection.Ascending"
+                    TItem="Car" />
+        </div>
 
     </div>
 
-
-    <EventView />
+    <div class="mt-4">
+        <EventView />
+    </div>
 
 </DemoSourceView>
