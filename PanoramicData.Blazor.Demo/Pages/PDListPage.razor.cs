@@ -9,6 +9,6 @@ public partial class PDListPage
 
 	private void OnSelectionChanged(SelectionArgs<Car> args)
 	{
-		EventManager?.Add(new Event("SelectionChanged", new EventArgument("Items", args.ToString())));
+		EventManager?.Add(new Event("SelectionChanged", new EventArgument("All", args.Selection.AllSelected), new EventArgument("Items", string.Join(", ", args.Selection.Items))));
 	}
 }

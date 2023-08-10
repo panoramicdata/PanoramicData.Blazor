@@ -61,7 +61,7 @@
                     SortDirection="SortDirection.Ascending"
                     TItem="Car">
                     <ItemTemplate Context="car">
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between w-100-pct">
                             <span>@car.Make @car.Model</span>
                             <span class="small">@car.FromYear - @(car.ToYear.HasValue ? car.ToYear : "Present")</span>
                         </div>
@@ -72,7 +72,7 @@
 
         <hr />
         <h3>Multiple Selection</h3>
-        <span class="text-muted small">With check boxes</span>
+        <span class="text-muted small">Supports Ctrl key (to toggle) and Shift key (to select range from last selected)</span>
 
         <div class="list4">
             <PDList DataProvider="_dataProvider"
@@ -80,6 +80,28 @@
                     SelectionMode="TableSelectionMode.Multiple"
                     SortDirection="SortDirection.Ascending"
                     TItem="Car" />
+        </div>
+
+        <hr />
+        <h3>Multiple Selection</h3>
+        <span class="text-muted small">With check boxes, item template and displays 'All' checkbox</span>
+
+        <div class="list5">
+            <PDList AllCheckBoxWhenPartial="SelectionBehaviours.SelectAll"
+                    DataProvider="_dataProvider"
+                    SelectionChanged="OnSelectionChanged"
+                    SelectionMode="TableSelectionMode.Multiple"
+                    ShowAllCheckBox="true"
+                    ShowCheckBoxes="true"
+                    SortDirection="SortDirection.Ascending"
+                    TItem="Car">
+                    <ItemTemplate Context="car">
+                        <div class="d-flex justify-content-between w-100-pct">
+                            <span>@car.Make @car.Model</span>
+                            <span class="small">@car.FromYear - @(car.ToYear.HasValue ? car.ToYear : "Present")</span>
+                        </div>
+                    </ItemTemplate>
+            </PDList>
         </div>
 
     </div>

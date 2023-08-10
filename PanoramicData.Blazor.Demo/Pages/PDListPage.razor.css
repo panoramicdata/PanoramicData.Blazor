@@ -19,6 +19,16 @@
 	overflow-y: auto;
 }
 
+.list5 {
+	max-height: 150px;
+	overflow-y: auto;
+}
+
+.list5 ::deep li:nth-child(2n+1) {
+	background-color: whitesmoke;
+}
+
+
 h2, h3 {
 	margin: 0px;
 }

@@ -11,10 +11,25 @@
         <hr />
     }
     <ul>
+        @if (ShowCheckBoxes && ShowAllCheckBox)
+        {
+            <li @attributes="ItemAttributes(null)"
+                @onclick="OnAllCheckBoxClicked">
+                <i class="far @AllCheckBoxIconCls me-2" />
+                <span>(All)</span>
+            </li>
+        }
         @foreach(var item in _displayedItems)
         {
             <li @attributes="ItemAttributes(item)"
                 @onclick="@((a) => UpdateSelectionAsync(a, item))">
+
+                @if(ShowCheckBoxes && SelectionMode != TableSelectionMode.None)
+                {
+                    <i @attributes="CheckBoxAttributes(item)" />
+                    @*<input @attributes="CheckBoxAttributes(item)" type="checkbox" />*@
+                }
+
                 @if(ItemTemplate is null)
                 {
                     @(_compiledTextExpression is null ? item.ToString() : _compiledTextExpression(item))
@@ -23,6 +38,7 @@
                 {
                     @ItemTemplate(item)
                 }
+
             </li>
         }
     </ul>
