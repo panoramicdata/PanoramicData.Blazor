@@ -3,11 +3,10 @@ namespace PanoramicData.Blazor;
 public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 {
 	private TItem? _lastSelectedItem;
-	private Selection<TItem> _selection = new();
-	private IEnumerable<TItem> _allItems = Array.Empty<TItem>();
-	private IEnumerable<TItem> _filteredItems = Array.Empty<TItem>();
-	private Func<TItem, string>? _compiledTextExpression;
 	private string _filterText = string.Empty;
+	private Selection<TItem> _selection = new();
+	private Func<TItem, string>? _compiledTextExpression;
+	private IEnumerable<TItem> _allItems = Array.Empty<TItem>();
 
 	[Parameter]
 	public SelectionBehaviours AllCheckBoxWhenPartial { get; set; }
@@ -29,7 +28,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	public RenderFragment<TItem>? ItemTemplate { get; set; }
 
 	[Parameter]
-	public Func<TItem, string, bool>? FilterIncludeFn { get; set; }
+	public Func<TItem, string, bool>? FilterIncludeFunction { get; set; }
 
 	[Parameter]
 	public EventCallback<Selection<TItem>> SelectionChanged { get; set; }
@@ -50,11 +49,10 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	public bool ShowFilter { get; set; }
 
 	[Parameter]
-	public SortDirection SortDirection { get; set; }
+	public SortDirection SortDirection { get; set; } = SortDirection.Ascending;
 
 	[Parameter]
-	public Expression<Func<TItem, object>> SortExpression { get; set; }
-		= (x) => x == null || x.ToString() == null ? string.Empty : x.ToString()!;
+	public Expression<Func<TItem, object>>? SortExpression { get; set; }
 
 	[Parameter]
 	public Expression<Func<TItem, string>>? TextExpression { get; set; }
@@ -85,17 +83,23 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 	public bool ItemVisible(TItem item)
 	{
-		if (FilterIncludeFn != null)
+		if (string.IsNullOrWhiteSpace(_filterText))
 		{
-			return FilterIncludeFn(item, _filterText);
+			return true;
+		}
+
+		// user supplied logic?
+		if (FilterIncludeFunction != null)
+		{
+			return FilterIncludeFunction(item, _filterText);
 		}
 
 		// default implementation
-		return string.IsNullOrWhiteSpace(_filterText)
-			? true
-			: (item.ToString() ?? string.Empty)
-					.ToLower(CultureInfo.InvariantCulture)
-					.Contains(_filterText.ToLower(CultureInfo.InvariantCulture));
+		var text = _compiledTextExpression is null
+			? (item.ToString() ?? string.Empty)
+			: _compiledTextExpression.Invoke(item);
+		return text.ToLower(CultureInfo.InvariantCulture)
+				   .Contains(_filterText.ToLower(CultureInfo.InvariantCulture));
 	}
 
 	public Selection<TItem> Selection => _selection;

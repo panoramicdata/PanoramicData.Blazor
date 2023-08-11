@@ -15,7 +15,7 @@
         </div>
     }
     <ul>
-        @if (ShowCheckBoxes && ShowAllCheckBox && string.IsNullOrWhiteSpace(_filterText))
+        @if (ShowCheckBoxes && ShowAllCheckBox && SelectionMode != TableSelectionMode.None && string.IsNullOrWhiteSpace(_filterText))
         {
             <li @attributes="ItemAttributes(null)"
                 @onclick="@((a) => OnCheckBoxClickedAsync(a, null))">
@@ -31,7 +31,6 @@
                 @if(ShowCheckBoxes && SelectionMode != TableSelectionMode.None)
                 {
                     <i @attributes="CheckBoxAttributes(item)" />
-                    @*<input @attributes="CheckBoxAttributes(item)" type="checkbox" />*@
                 }
 
                 @if(ItemTemplate is null)
