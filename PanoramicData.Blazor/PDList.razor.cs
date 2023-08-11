@@ -91,23 +91,35 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 	public Selection<TItem> Selection => _selection;
 
-	private void OnAllCheckBoxClicked()
+	private async Task OnCheckBoxClickedAsync(MouseEventArgs args, TItem? item)
 	{
-		if (_selection.AllSelected)
+		if (IsEnabled)
 		{
-			ClearAllAsync();
-		}
-		else if (_selection.Items.Count == 0)
-		{
-			SelectAllAsync();
-		}
-		else if (AllCheckBoxWhenPartial == SelectionBehaviours.SelectAll)
-		{
-			SelectAllAsync();
-		}
-		else
-		{
-			ClearAllAsync();
+			if (item is null)
+			{
+				// 'All' checkbox
+				if (_selection.AllSelected)
+				{
+					await ClearAllAsync();
+				}
+				else if (_selection.Items.Count == 0)
+				{
+					await SelectAllAsync();
+				}
+				else if (AllCheckBoxWhenPartial == SelectionBehaviours.SelectAll)
+				{
+					await SelectAllAsync();
+				}
+				else
+				{
+					await ClearAllAsync();
+				}
+			}
+			else
+			{
+				// item checkbox
+				await UpdateSelectionAsync(args, item);
+			}
 		}
 	}
 
@@ -304,7 +316,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		var selectedCss = item is null ? false : !ShowCheckBoxes && (_selection.AllSelected || _selection.Items.Contains(item));
 		var dict = new Dictionary<string, object>()
 		{
-			{ "class", $"list-item d-flex align-items-center {(SelectionMode == TableSelectionMode.None ? "" : "cursor-pointer")} {(selectedCss ? "selected" : "")}" }
+			{ "class", $"list-item d-flex align-items-center {(SelectionMode == TableSelectionMode.None || !IsEnabled ? "" : "cursor-pointer")} {(selectedCss ? "selected" : "")}" }
 		};
 		return dict;
 	}

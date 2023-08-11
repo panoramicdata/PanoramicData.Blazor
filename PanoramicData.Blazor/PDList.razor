@@ -18,7 +18,7 @@
         @if (ShowCheckBoxes && ShowAllCheckBox && string.IsNullOrWhiteSpace(_filterText))
         {
             <li @attributes="ItemAttributes(null)"
-                @onclick="OnAllCheckBoxClicked">
+                @onclick="@((a) => OnCheckBoxClickedAsync(a, null))">
                 <i class="far @AllCheckBoxIconCls me-2" />
                 <span>(All)</span>
             </li>
@@ -26,7 +26,7 @@
         @foreach (var item in _allItems.Where(x => ItemVisible(x)))
         {
             <li @attributes="ItemAttributes(item)"
-                @onclick="@((a) => UpdateSelectionAsync(a, item))">
+                @onclick="@((a) => OnCheckBoxClickedAsync(a, item))">
 
                 @if(ShowCheckBoxes && SelectionMode != TableSelectionMode.None)
                 {

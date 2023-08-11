@@ -5,29 +5,6 @@
 <DemoSourceView SourceFiles="Pages/PDListPage.razor, Pages/PDListPage.razor.cs">
 
     <div class="">
-        <EditForm Model="this" class="toolbar">
-
-@*            <div class="">
-                <label class="form-check-label">Enabled</label>
-                <InputCheckbox @bind-Value="_isEnabled" />
-            </div>
-
-            <div class="">
-                <label class="form-check-label">Invert</label>
-                <InputCheckbox @bind-Value="_invert" />
-            </div>
-
-            <div class="">
-                <label class="form-label">Start</label>
-                <InputNumber @bind-Value="_range1.Start" step="5" />
-            </div>
-
-            <div class="">
-                <label class="form-label">End</label>
-                <InputNumber @bind-Value="_range1.End" step="5" />
-            </div>
-*@
-        </EditForm>
 
         <h3>Basic List</h3>
         <span class="text-muted small">Constrained in height by surrounding div and CSS</span>
@@ -71,6 +48,14 @@
         <hr />
         <h3>Multiple Selection</h3>
         <span class="text-muted small">With check boxes, item template and displays 'All' checkbox</span>
+        <div>
+            <EditForm Model="this" class="toolbar">
+                <div class="">
+                    <label class="form-check-label">Enabled</label>
+                    <InputCheckbox @bind-Value="_isEnabled" />
+                </div>
+            </EditForm>
+        </div>
 
         <div class="list5">
             <PDList AllCheckBoxWhenPartial="SelectionBehaviours.SelectAll"
@@ -80,6 +65,7 @@
                     ShowAllCheckBox="true"
                     ShowCheckBoxes="true"
                     ShowFilter="true"
+                    IsEnabled="_isEnabled"
                     SortDirection="SortDirection.Ascending"
                     TItem="Car">
                     <ItemTemplate Context="car">

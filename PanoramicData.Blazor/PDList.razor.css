@@ -25,6 +25,10 @@
 	user-select: none;
 }
 
+.pd-list.disabled {
+	opacity: 0.5;
+}
+
 hr {
 	margin: 0.5rem;
 }

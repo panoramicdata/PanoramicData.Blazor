@@ -3,6 +3,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 public partial class PDListPage
 {
 	private CarDataProvider _dataProvider = new();
+	private bool _isEnabled = true;
 
 	[CascadingParameter]
 	protected EventManager? EventManager { get; set; }
