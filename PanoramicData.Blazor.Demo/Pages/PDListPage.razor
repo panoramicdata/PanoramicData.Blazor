@@ -36,23 +36,9 @@
             <PDList DataProvider="_dataProvider" />
         </div>
 
-        <hr/>
-        <h3>Sorted and Paged</h3>
-        <span class="text-muted small">With TextExpression used to set text</span>
-
-        <div class="list2">
-            <PDList DataProvider="_dataProvider"
-                PageInfo="new PageCriteria()"
-                ShowPager="true"
-                Size="ButtonSizes.Small"
-                SortDirection="SortDirection.Ascending"
-                SortExpression="(c) => c.ToString()"
-                TextExpression="@((c) => $"{c.Make} {c.Model} ({c.FromYear}-{(c.ToYear.HasValue ? c.ToYear : "Present")})")" />
-        </div>
-
         <hr />
         <h3>Item Template</h3>
-        <span class="text-muted small">With simple single selection</span>
+        <span class="text-muted small">Sorted with single selection</span>
 
         <div class="list3">
             <PDList DataProvider="_dataProvider"
@@ -93,6 +79,7 @@
                     SelectionMode="TableSelectionMode.Multiple"
                     ShowAllCheckBox="true"
                     ShowCheckBoxes="true"
+                    ShowFilter="true"
                     SortDirection="SortDirection.Ascending"
                     TItem="Car">
                     <ItemTemplate Context="car">

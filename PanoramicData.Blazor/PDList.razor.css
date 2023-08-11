@@ -1,5 +1,26 @@
+.filter {
+	display: flex;
+}
+
+	.filter ::deep input {
+		border-top-right-radius: 0px !important;
+		border-bottom-right-radius: 0px !important;
+	}
+
+	.filter ::deep .input-group-text {
+		border-top-left-radius: 0px !important;
+		border-bottom-left-radius: 0px !important;
+	}
+
+.header {
+	background-color: white;
+	border-bottom: 1px solid silver;
+	padding: 5px 0px;
+	position: sticky;
+	top: 0px;
+}
+
 .pd-list {
-	/*width: fit-content;*/
 	margin: 0px 5px;
 	user-select: none;
 }
