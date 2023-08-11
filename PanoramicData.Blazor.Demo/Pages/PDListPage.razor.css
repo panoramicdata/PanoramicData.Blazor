@@ -1,31 +1,30 @@
 .list1 {
 	margin-top: 0.5rem;
-	max-height: 100px;
-	overflow-y:auto;
+}
+
+.list1 ::deep ul {
+	height: 100px;
 }
 
 .list2 {
-	margin-top: 0.5rem;
 }
 
 .list3 {
 	max-height: 150px;
 	overflow-y: auto;
-	width: 100%;
 }
 
-.list4 {
-	max-height: 150px;
-	overflow-y: auto;
-}
 
-.list5 {
-	max-height: 200px;
-	overflow-y: auto;
-}
-
-.list5 ::deep li:nth-child(2n+1) {
+.list4 ::deep li:nth-child(2n+1) {
 	background-color: whitesmoke;
+}
+
+.list5 ::deep .dropdown-menu {
+	width: 250px;
+}
+
+.list5 ::deep ul{
+	height: 250px;
 }
 
 

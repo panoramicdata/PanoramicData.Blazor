@@ -12,12 +12,16 @@
 		border-bottom-left-radius: 0px !important;
 	}
 
+.footer {
+	border-top: 1px solid silver;
+	display: flex;
+	justify-content: flex-end;
+	padding: 5px 0px;
+}
+
 .header {
-	background-color: white;
 	border-bottom: 1px solid silver;
 	padding: 5px 0px;
-	position: sticky;
-	top: 0px;
 }
 
 .pd-list {
@@ -35,6 +39,7 @@ hr {
 
 li {
 	list-style: none;
+	padding: 0px 2px;
 }
 
 li.selected {
@@ -42,6 +47,8 @@ li.selected {
 }
 
 ul {
+	height: 150px;
 	padding-left: 0px;
 	margin-bottom: 0px;
+	overflow-y: auto;
 }

@@ -46,4 +46,16 @@
             </li>
         }
     </ul>
+    @if(ShowApplyCancelButtons)
+    {
+        <div class="footer">
+            @if (SelectionMode != TableSelectionMode.None)
+            {
+                <button @onclick="OnApplyAsync"
+                    class="btn btn-sm btn-primary me-1">Apply</button>
+            }
+            <button @onclick="OnCancelAsync"
+                class="btn btn-sm btn-secondary">Cancel</button>
+        </div>
+    }
 </div>

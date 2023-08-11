@@ -13,6 +13,12 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	public SelectionBehaviours AllCheckBoxWhenPartial { get; set; }
 
 	[Parameter]
+	public EventCallback<Selection<TItem>> Apply { get; set; }
+
+	[Parameter]
+	public EventCallback Cancel { get; set; }
+
+	[Parameter]
 	public bool ClearSelectionOnFilter { get; set; } = true;
 
 	[Parameter]
@@ -26,13 +32,16 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	public Func<TItem, string, bool>? FilterIncludeFn { get; set; }
 
 	[Parameter]
-	public EventCallback<SelectionArgs<TItem>> SelectionChanged { get; set; }
+	public EventCallback<Selection<TItem>> SelectionChanged { get; set; }
 
 	[Parameter]
 	public TableSelectionMode SelectionMode { get; set; }
 
 	[Parameter]
 	public bool ShowAllCheckBox { get; set; }
+
+	[Parameter]
+	public bool ShowApplyCancelButtons { get; set; }
 
 	[Parameter]
 	public bool ShowCheckBoxes { get; set; }
@@ -90,6 +99,10 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	}
 
 	public Selection<TItem> Selection => _selection;
+
+	private Task OnApplyAsync() => Apply.InvokeAsync(Selection);
+
+	private Task OnCancelAsync() => Cancel.InvokeAsync();
 
 	private async Task OnCheckBoxClickedAsync(MouseEventArgs args, TItem? item)
 	{
@@ -292,8 +305,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	private async Task OnSelectionUpdated()
 	{
 		// selection has been updated
-		var ea = new SelectionArgs<TItem> { Selection = Selection };
-		await SelectionChanged.InvokeAsync(ea).ConfigureAwait(true);
+		await SelectionChanged.InvokeAsync(Selection).ConfigureAwait(true);
 	}
 
 
