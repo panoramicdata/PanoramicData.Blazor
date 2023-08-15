@@ -25,10 +25,14 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	public IDataProviderService<TItem>? DataProvider { get; set; }
 
 	[Parameter]
+	public bool DefaultToSelectAll { get; set; }
+
+	[Parameter]
 	public RenderFragment<TItem>? ItemTemplate { get; set; }
 
 	[Parameter]
 	public Func<TItem, string, bool>? FilterIncludeFunction { get; set; }
+
 
 	[Parameter]
 	public EventCallback<Selection<TItem>> SelectionChanged { get; set; }
@@ -150,6 +154,11 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 				await ClearAllAsync().ConfigureAwait(true);
 			}
 		}
+	}
+
+	protected override void OnInitialized()
+	{
+		_selection.AllSelected = DefaultToSelectAll;
 	}
 
 	protected override Task OnParametersSetAsync()
