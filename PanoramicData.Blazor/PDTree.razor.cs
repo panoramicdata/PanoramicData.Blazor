@@ -289,7 +289,12 @@ public partial class PDTree<TItem> where TItem : class
 	/// </summary>
 	/// <param name="node">The node to select.</param>
 	/// <param name="autoEdit">If the same node is selected twice should it go into edit mode?</param>
-	public async Task SelectNode(TreeNode<TItem> node, bool autoEdit = true)
+
+
+	public async Task SelectNode(TreeNode<TItem> node)
+		=> await SelectNode(node, true);
+
+	public async Task SelectNode(TreeNode<TItem> node, bool autoEdit)
 	{
 		if (AllowSelection)
 		{

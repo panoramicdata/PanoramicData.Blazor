@@ -150,7 +150,9 @@ public class DirectoryEntry
 		}
 	}
 
-	public string Path(string separator = "/")
+	public string Path() => Path("/");
+
+	public string Path(string separator)
 	{
 		var stack = new Stack<string>();
 		var node = this;

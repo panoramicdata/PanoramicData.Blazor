@@ -85,7 +85,10 @@ public class TimelineScale : IComparable
 		_ => false
 	};
 
-	public int PeriodsBetween(DateTime start, DateTime end, bool roundUp = true)
+	public int PeriodsBetween(DateTime start, DateTime end)
+		=> PeriodsBetween(start, end, true);
+
+	public int PeriodsBetween(DateTime start, DateTime end, bool roundUp)
 	{
 		var temp = UnitType switch
 		{
@@ -152,7 +155,10 @@ public class TimelineScale : IComparable
 
 	private int Round(int value) => UnitCount == 1 ? value : (value / UnitCount) * UnitCount;
 
-	public virtual string TickLabelMajor(DateTime dateTime, string dateFormat = "d")
+	public virtual string TickLabelMajor(DateTime dateTime)
+		=> TickLabelMajor(dateTime, "d");
+
+	public virtual string TickLabelMajor(DateTime dateTime, string dateFormat)
 	{
 		var pattern = UnitType switch
 		{

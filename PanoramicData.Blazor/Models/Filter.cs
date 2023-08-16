@@ -141,7 +141,9 @@ public class Filter
 		return value.ToString() ?? string.Empty;
 	}
 
-	public static Filter Parse(string token, IDictionary<string, string>? keyMappings = null)
+	public static Filter Parse(string token) => Parse(token, null);
+
+	public static Filter Parse(string token, IDictionary<string, string>? keyMappings)
 	{
 		var value2 = string.Empty;
 		var propertyName = string.Empty;
