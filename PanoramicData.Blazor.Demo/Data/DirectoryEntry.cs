@@ -179,7 +179,9 @@ public class DirectoryEntry
 		return value;
 	}
 
-	public FileExplorerItem ToFileExploreritem(string pathSeparator = "/") => new()
+	public FileExplorerItem ToFileExploreritem() => ToFileExploreritem("/");
+
+	public FileExplorerItem ToFileExploreritem(string pathSeparator) => new()
 	{
 		CanCopyMove = CanCopyMove,
 		CanDelete = CanDelete,

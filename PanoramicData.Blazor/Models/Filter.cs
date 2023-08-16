@@ -118,7 +118,9 @@ public class Filter
 
 	#region Class Members
 
-	public static string Format(object value, bool unspecifiedDateTimesAreUtc = false)
+	public static string Format(object value) => Format(value, false);
+
+	public static string Format(object value, bool unspecifiedDateTimesAreUtc)
 	{
 		if (value is null)
 		{
