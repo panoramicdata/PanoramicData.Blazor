@@ -64,6 +64,9 @@ public class Person : IComparable
 	[FilterKey("modified")]
 	public DateTimeOffset? DateModified { get; set; }
 
+	[Display(Name = "First Aider?", Description = "Is the person a qualified first aider?")]
+	public bool? IsFirstAider { get; set; }
+
 	[Display(Name = "Username", Description = "Login username")]
 	[FilterKey("user")]
 	public string Username { get; set; } = string.Empty;

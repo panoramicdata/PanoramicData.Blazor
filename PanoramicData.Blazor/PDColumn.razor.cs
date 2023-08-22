@@ -453,11 +453,31 @@ public partial class PDColumn<TItem> where TItem : class
 	public FilterDataTypes GetFilterDataType()
 	{
 		var memberInfo = Field?.GetPropertyMemberInfo();
+
+		if (Field is MemberExpression me)
+		{
+			if (Nullable.GetUnderlyingType(me.Type) != null)
+			{
+				// If the member expression type is nullable, return its underlying type
+				var t = Nullable.GetUnderlyingType(me.Type);
+
+			}
+		}
+
+
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			if (propInfo.PropertyType.IsEnum)
+			// nullable?
+			var ut = Nullable.GetUnderlyingType(propInfo.PropertyType);
+
+			if (propInfo.PropertyType.IsEnum || ut?.IsEnum == true)
 			{
 				return FilterDataTypes.Enum;
+			}
+
+			if (propInfo.PropertyType.FullName == "System.Boolean" || ut?.FullName == "System.Boolean")
+			{
+				return FilterDataTypes.Bool;
 			}
 
 			if (propInfo.PropertyType.FullName == "System.String")
@@ -465,7 +485,8 @@ public partial class PDColumn<TItem> where TItem : class
 				return FilterDataTypes.Text;
 			}
 
-			if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset")
+			if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset"
+				 || ut?.FullName == "System.DateTime" || ut?.FullName == "System.DateTimeOffset")
 			{
 				return FilterDataTypes.Date;
 			}
