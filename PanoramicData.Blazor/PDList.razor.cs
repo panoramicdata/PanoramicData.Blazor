@@ -4,9 +4,11 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 {
 	private TItem? _lastSelectedItem;
 	private string _filterText = string.Empty;
-	private Selection<TItem> _selection = new();
 	private Func<TItem, string>? _compiledTextExpression;
 	private IEnumerable<TItem> _allItems = Array.Empty<TItem>();
+
+	[CascadingParameter]
+	public IAsyncStateManager? StateManager { get; set; }
 
 	[Parameter]
 	public SelectionBehaviours AllCheckBoxWhenPartial { get; set; }
@@ -28,11 +30,22 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	public bool DefaultToSelectAll { get; set; }
 
 	[Parameter]
+	public Func<TItem, string, bool>? FilterIncludeFunction { get; set; }
+
+	/// <remarks>
+	/// Example: Overriding default Id.
+	/// </remarks>
+	[Parameter]
+	public override string Id { get; set; } = $"pd-list-{++Sequence}";
+
+	[Parameter]
+	public Func<TItem, object>? ItemKeyFunction { get; set; }
+
+	[Parameter]
 	public RenderFragment<TItem>? ItemTemplate { get; set; }
 
 	[Parameter]
-	public Func<TItem, string, bool>? FilterIncludeFunction { get; set; }
-
+	public Selection<TItem> Selection { get; set; } = new();
 
 	[Parameter]
 	public EventCallback<Selection<TItem>> SelectionChanged { get; set; }
@@ -61,9 +74,9 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	[Parameter]
 	public Expression<Func<TItem, string>>? TextExpression { get; set; }
 
-	private string AllCheckBoxIconCls => _selection.AllSelected
+	private string AllCheckBoxIconCls => Selection.AllSelected
 		? "fa-check-square"
-		: _selection.Items.Count == 0
+		: Selection.Items.Count == 0
 			? "fa-square"
 			: "fa-minus-square";
 
@@ -80,9 +93,9 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 	public Task ClearAllAsync()
 	{
-		_selection.Items.Clear();
-		_selection.AllSelected = false;
-		return OnSelectionUpdated();
+		Selection.Items.Clear();
+		Selection.AllSelected = false;
+		return OnSelectionUpdatedAsync();
 	}
 
 	public bool ItemVisible(TItem item)
@@ -106,7 +119,36 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 				   .Contains(_filterText.ToLower(CultureInfo.InvariantCulture));
 	}
 
-	public Selection<TItem> Selection => _selection;
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		// load previous state?
+		if (firstRender && StateManager != null)
+		{
+			var state = await StateManager.LoadStateAsync<string>(Id).ConfigureAwait(true);
+			if (state != null && state != string.Empty && state != Constants.TokenNone)
+			{
+				if (state == Constants.TokenAll)
+				{
+					Selection.AllSelected = true;
+				}
+				else
+				{
+					var ids = state.Split(',', StringSplitOptions.RemoveEmptyEntries);
+					foreach (var item in _allItems.Where(x => ItemVisible(x)))
+					{
+						var itemKey = ItemKeyFunction is null
+							? item.ToString() ?? string.Empty
+							: ItemKeyFunction(item).ToString();
+						if (ids.Contains(itemKey))
+						{
+							Selection.Items.Add(item);
+						}
+					}
+				}
+				StateHasChanged();
+			}
+		}
+	}
 
 	private Task OnApplyAsync() => Apply.InvokeAsync(Selection);
 
@@ -119,11 +161,11 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 			if (item is null)
 			{
 				// 'All' checkbox
-				if (_selection.AllSelected)
+				if (Selection.AllSelected)
 				{
 					await ClearAllAsync();
 				}
-				else if (_selection.Items.Count == 0)
+				else if (Selection.Items.Count == 0)
 				{
 					await SelectAllAsync();
 				}
@@ -158,7 +200,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 	protected override void OnInitialized()
 	{
-		_selection.AllSelected = DefaultToSelectAll;
+		Selection.AllSelected = DefaultToSelectAll;
 	}
 
 	protected override Task OnParametersSetAsync()
@@ -169,6 +211,26 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		}
 
 		return RefreshAsync(default);
+	}
+
+	private async Task OnSelectionUpdatedAsync()
+	{
+		// persist selection?
+		if (StateManager != null)
+		{
+			// save (All) token or individual ids
+			var state = Selection.AllSelected ? Constants.TokenAll : string.Empty;
+			if (!Selection.AllSelected && Selection.Items.Any())
+			{
+				state = ItemKeyFunction != null
+					? string.Join(",", Selection.Items.Select(x => ItemKeyFunction(x).ToString()).ToArray())
+					: Selection.ToString();
+			}
+			await StateManager.SaveStateAsync(Id, state).ConfigureAwait(true);
+		}
+
+		// selection has been updated
+		await SelectionChanged.InvokeAsync(Selection).ConfigureAwait(true);
 	}
 
 	private async void PageInfo_PageChanged(object? sender, EventArgs e)
@@ -192,17 +254,17 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 	public Task SelectAllAsync()
 	{
-		_selection.Items.Clear();
-		_selection.AllSelected = true;
-		return OnSelectionUpdated();
+		Selection.Items.Clear();
+		Selection.AllSelected = true;
+		return OnSelectionUpdatedAsync();
 	}
 
 	private async Task UpdateSelectionAsync(MouseEventArgs args, TItem item)
 	{
 		if (SelectionMode == TableSelectionMode.None)
 		{
-			_selection.Items.Clear();
-			_selection.AllSelected = false;
+			Selection.Items.Clear();
+			Selection.AllSelected = false;
 			return;
 		}
 
@@ -210,7 +272,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		if (SelectionMode == TableSelectionMode.Single)
 		{
 			var addItem = true;
-			if (_selection.Items.Any(x => x == item))
+			if (Selection.Items.Any(x => x == item))
 			{
 				if (ShowCheckBoxes)
 				{
@@ -225,12 +287,12 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 			}
 
 			// update selection
-			_selection.Items.Clear();
+			Selection.Items.Clear();
 			if (addItem)
 			{
-				_selection.Items.Add(item);
+				Selection.Items.Add(item);
 			}
-			_selection.AllSelected = false; // can never be true with single selection
+			Selection.AllSelected = false; // can never be true with single selection
 		}
 
 		if (SelectionMode == TableSelectionMode.Multiple)
@@ -247,61 +309,61 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 					idx1 = idx2;
 					idx2 = idxT;
 				}
-				_selection.Items.Clear();
+				Selection.Items.Clear();
 				for (var i = idx1; i <= idx2; i++)
 				{
-					_selection.Items.Add(list[i]);
+					Selection.Items.Add(list[i]);
 				}
 				updateLastSelected = false;
 
 				// update all selected?
-				_selection.AllSelected = _selection.Items.Count == _allItems.Count();
-				if (_selection.AllSelected)
+				Selection.AllSelected = Selection.Items.Count == _allItems.Count();
+				if (Selection.AllSelected)
 				{
-					_selection.Items.Clear();
+					Selection.Items.Clear();
 				}
 			}
 			else if (args.CtrlKey || ShowCheckBoxes)
 			{
 				// toggle selection
-				if (_selection.AllSelected)
+				if (Selection.AllSelected)
 				{
 					// re-populate selection with all items
 					var request = BuildRequest(false);
 					var response = await DataProvider!.GetDataAsync(request, default).ConfigureAwait(true);
-					_selection.Items.Clear();
-					_selection.Items.AddRange(response.Items);
+					Selection.Items.Clear();
+					Selection.Items.AddRange(response.Items);
 				}
 
 				// TItem might need to override Equals operator
-				if (_selection.Items.Contains(item))
+				if (Selection.Items.Contains(item))
 				{
-					_selection.Items.Remove(item);
+					Selection.Items.Remove(item);
 				}
 				else
 				{
-					_selection.Items.Add(item);
+					Selection.Items.Add(item);
 				}
 
 				// update all selected?
-				_selection.AllSelected = _selection.Items.Count == _allItems.Count();
-				if (_selection.AllSelected)
+				Selection.AllSelected = Selection.Items.Count == _allItems.Count();
+				if (Selection.AllSelected)
 				{
-					_selection.Items.Clear();
+					Selection.Items.Clear();
 				}
 			}
 			else
 			{
 				// ignore if currently selected
-				if (_selection.Items.Contains(item) && _selection.Items.Count == 1)
+				if (Selection.Items.Contains(item) && Selection.Items.Count == 1)
 				{
 					return;
 				}
 
 				// clear previous selection and select single item
-				_selection.Items.Clear();
-				_selection.Items.Add(item);
-				_selection.AllSelected = false;
+				Selection.Items.Clear();
+				Selection.Items.Add(item);
+				Selection.AllSelected = false;
 			}
 		}
 
@@ -312,21 +374,14 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		}
 
 		// selection has been updated
-		await OnSelectionUpdated().ConfigureAwait(true);
+		await OnSelectionUpdatedAsync().ConfigureAwait(true);
 	}
-
-	private async Task OnSelectionUpdated()
-	{
-		// selection has been updated
-		await SelectionChanged.InvokeAsync(Selection).ConfigureAwait(true);
-	}
-
 
 	#region Attributes
 
 	public Dictionary<string, object> CheckBoxAttributes(TItem item)
 	{
-		var iconCls = _selection.AllSelected || _selection.Items.Contains(item)
+		var iconCls = Selection.AllSelected || Selection.Items.Contains(item)
 			? "far fa-check-square"
 			: "far fa-square";
 		var dict = new Dictionary<string, object>()
@@ -338,7 +393,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 	public Dictionary<string, object> ItemAttributes(TItem? item)
 	{
-		var selectedCss = item is null ? false : !ShowCheckBoxes && (_selection.AllSelected || _selection.Items.Contains(item));
+		var selectedCss = item is null ? false : !ShowCheckBoxes && (Selection.AllSelected || Selection.Items.Contains(item));
 		var dict = new Dictionary<string, object>()
 		{
 			{ "class", $"list-item d-flex align-items-center {(SelectionMode == TableSelectionMode.None || !IsEnabled ? "" : "cursor-pointer")} {(selectedCss ? "selected" : "")}" }
@@ -351,6 +406,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		var dict = new Dictionary<string, object>()
 		{
 			{ "class", $"pd-list {CssClass}{(IsVisible ? "" : " d-none")}{(IsEnabled ? "" : " disabled")}" },
+			{ "id", Id },
 			{ "title", ToolTip }
 		};
 		return dict;

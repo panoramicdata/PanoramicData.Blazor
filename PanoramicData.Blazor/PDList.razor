@@ -20,7 +20,7 @@
             <li @attributes="ItemAttributes(null)"
                 @onclick="@((a) => OnCheckBoxClickedAsync(a, null))">
                 <i class="far @AllCheckBoxIconCls me-2" />
-                <span>(All)</span>
+                <span>@Constants.TokenAll</span>
             </li>
         }
         @foreach (var item in _allItems.Where(x => ItemVisible(x)))

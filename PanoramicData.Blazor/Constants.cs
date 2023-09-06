@@ -2,6 +2,11 @@
 
 public static class Constants
 {
+
+	public const string TokenAll = "(All)";
+
+	public const string TokenNone = "(None)";
+
 	public static class Functions
 	{
 		/// <summary>

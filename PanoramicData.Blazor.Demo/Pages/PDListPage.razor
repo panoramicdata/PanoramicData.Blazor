@@ -52,7 +52,7 @@
 
         <hr />
         <h3>Multiple Selection</h3>
-        <span class="text-muted small">With check boxes, item template and displays 'All' checkbox</span>
+        <span class="text-muted small">With check boxes, item template, includes 'All' checkbox and persists selection</span>
         <div>
             <EditForm Model="this" class="toolbar">
                 <div class="">
@@ -63,29 +63,34 @@
         </div>
 
         <div class="list4">
-            <PDList AllCheckBoxWhenPartial="SelectionBehaviours.SelectAll"
-                    DataProvider="_dataProvider"
-                    SelectionChanged="OnSelectionChanged"
-                    SelectionMode="TableSelectionMode.Multiple"
-                    ShowAllCheckBox="true"
-                    ShowCheckBoxes="true"
-                    ShowFilter="true"
-                    IsEnabled="_isEnabled"
-                    SortDirection="SortDirection.Ascending"
-                    SortExpression="_sortExpression"
-                    TItem="Car">
-                    <ItemTemplate Context="car">
-                        <div class="d-flex justify-content-between w-100-pct">
-                            <span>@car.Make @car.Model</span>
-                            <span class="small">@car.FromYear - @(car.ToYear.HasValue ? car.ToYear : "Present")</span>
-                        </div>
-                    </ItemTemplate>
-            </PDList>
+            <PDLocalStorageStateManager>
+                @* Must provide constant Id when using StateManager *@
+                <PDList AllCheckBoxWhenPartial="SelectionBehaviours.SelectAll"
+                        DataProvider="_dataProvider"
+                        Id="demo-pdlist-4"
+                        SelectionChanged="OnSelectionChanged"
+                        SelectionMode="TableSelectionMode.Multiple"
+                        ShowAllCheckBox="true"
+                        ShowCheckBoxes="true"
+                        ShowFilter="true"
+                        IsEnabled="_isEnabled"
+                        ItemKeyFunction="c => c.Id"
+                        SortDirection="SortDirection.Ascending"
+                        SortExpression="_sortExpression"
+                        TItem="Car">
+                        <ItemTemplate Context="car">
+                            <div class="d-flex justify-content-between w-100-pct">
+                                <span>@car.Make @car.Model</span>
+                                <span class="small">@car.FromYear - @(car.ToYear.HasValue ? car.ToYear : "Present")</span>
+                            </div>
+                        </ItemTemplate>
+                </PDList>
+            </PDLocalStorageStateManager>
         </div>
 
         <hr />
         <h3>Drop Down List</h3>
-        <span class="text-muted small">Example of how to create a drop down list, with width and height set by CSS</span>
+        <span class="text-muted small">Example of how to create a drop down list, with width and height set by CSS and has a default selection</span>
 
         <div class="list5">
             <PDDropDown @ref="_dropdown"
@@ -94,6 +99,7 @@
                 <PDList Apply="OnDropDownApplyAsync"
                         Cancel="OnDropDownCancelAsync"
                         DataProvider="_dataProvider"
+                        Selection="_list5Selection"
                         SelectionChanged="OnSelectionChanged"
                         SelectionMode="TableSelectionMode.Multiple"
                         ShowAllCheckBox="true"

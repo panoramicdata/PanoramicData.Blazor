@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor;
 
-public partial class PDLocalStorageStateManager : IAsyncStateManager
+public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisposable
 {
 	private IJSObjectReference? _module;
 
@@ -19,6 +19,8 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDLocalStorageStateManager.razor.js").ConfigureAwait(true);
 		}
 	}
+
+	protected override Task OnInitializedAsync() => InitializeAsync();
 
 	public async Task<T?> LoadStateAsync<T>(string key)
 	{
@@ -72,6 +74,19 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager
 		{
 			throw new StateException("Failed to save state: see inner exception for more information", e);
 		}
+	}
+
+	#endregion
+
+	#region IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_module != null)
+		{
+			await _module.DisposeAsync();
+		}
+		GC.SuppressFinalize(this);
 	}
 
 	#endregion

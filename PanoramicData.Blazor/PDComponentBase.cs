@@ -4,11 +4,16 @@ namespace PanoramicData.Blazor;
 
 public class PDComponentBase : ComponentBase
 {
+	protected static int Sequence { get; set; }
+
 	/// <summary>
 	/// Gets or sets CSS classes for the component.
 	/// </summary>
 	[Parameter]
 	public string? CssClass { get; set; }
+
+	[Parameter]
+	public virtual string Id { get; set; } = $"pd-component-{++Sequence}";
 
 	/// <summary>
 	/// Gets or sets whether the component is enabled.
