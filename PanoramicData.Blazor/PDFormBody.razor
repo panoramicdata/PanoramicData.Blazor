@@ -80,7 +80,7 @@ else if (Form.Mode != FormModes.Hidden)
 						{
 							<div class="small text-muted">@fieldDescription</div>
 						}
-						@if (Form != null && !firstField.SuppressErrors && fieldName != null && fieldGroup.HasErrors(Form) == true)
+						@if (Form != null && fieldGroup.Fields.Any(x => !x.SuppressErrors) && fieldName != null && fieldGroup.HasErrors(Form) == true)
 						{
                             foreach (var field in fieldGroup.Fields)
                             {
