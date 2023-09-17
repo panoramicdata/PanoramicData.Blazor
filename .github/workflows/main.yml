@@ -6,31 +6,39 @@ jobs:
   deploy-to-github-pages:
     runs-on: ubuntu-latest
     steps:
-    # uses GitHub's checkout action to checkout code form the master branch
+
+    # Uses GitHub's checkout action to checkout code form the main branch
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    # sets up .NET Core SDK 7.0.100
+
+    # Sets up .NET Core SDK 7.x
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 7.0.100
-    # restore projects separately
+        dotnet-version: 7.x
+
+    # Restore projects separately
     - name: Restore Projects
       run: dotnet restore PanoramicData.Blazor.WebAssembly/Client/PanoramicData.Blazor.WebAssembly.Client.csproj
-    # publishes Blazor project to the release-folder
+
+    # Publishes Blazor project to the release-folder
     - name: Publish with dotnet
       run: dotnet publish PanoramicData.Blazor.WebAssembly/Client/PanoramicData.Blazor.WebAssembly.Client.csproj  --configuration Release --output release --nologo
-    # changes the base-tag in index.html from '/' to '/PanoramicData.Blazor/' to match GitHub Pages repository subdirectory
+
+    # Changes the base-tag in index.html from '/' to '/PanoramicData.Blazor/' to match GitHub Pages repository subdirectory
     - name: Change base-tag in index.html from / to /PanoramicData.Blazor/
       run: sed -i 's/<base href="\/" \/>/<base href="\/PanoramicData.Blazor\/" \/>/g' release/wwwroot/index.html
-    # copy index.html to 404.html to serve the same file when a file is not found
+
+    # Copy index.html to 404.html to serve the same file when a file is not found
     - name: copy index.html to 404.html
       run: cp release/wwwroot/index.html release/wwwroot/404.html
-    # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
+
+    # Add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
     - name: Add .nojekyll file
       run: touch release/wwwroot/.nojekyll
-    # deploy to GitHub pages
+
+    # Deploy to GitHub pages
     - name: Deploy to Github Pages
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
