@@ -6,16 +6,47 @@
      @onmousedown="MouseDown"
      @onmousedown:preventDefault="PreventDefault"
      @onmousedown:stopPropagation="StopPropagation">
-    @if (!string.IsNullOrWhiteSpace(IconCssClass))
+
+    @if(DataItem != null)
     {
-        <i class="@IconCssClass" />
+        <span class="d-flex align-items-center">
+            @if(DataItem is ISelectable si)
+            {
+                <input @attributes="@GetCheckboxAttributes(si)"
+                       @oninput="OnSelectedChanged" />
+            }
+
+            @if (DataItem is IDisplayItem di)
+            {
+                if (!string.IsNullOrWhiteSpace(di.IconCssClass))
+                {
+                    <i class="@di.IconCssClass me-1" />
+                }
+
+                <span class="@TextCssClass">@di.Text</span>
+            }
+            else
+            {
+                <span class="@TextCssClass">@DataItem.ToString()</span>
+            }
+        </span>
     }
-    @if (!string.IsNullOrWhiteSpace(Text))
+    else
     {
-        <span class="@(string.IsNullOrWhiteSpace(IconCssClass)? "" : "ms-1") @TextCssClass">@Text</span>
+        if (!string.IsNullOrWhiteSpace(IconCssClass))
+        {
+            <i class="@IconCssClass" />
+        }
+
+        if (!string.IsNullOrWhiteSpace(Text))
+        {
+            <span class="@(string.IsNullOrWhiteSpace(IconCssClass)? "" : "ms-1") @TextCssClass">@Text</span>
+        }
+
+        if(ChildContent != null)
+        {
+            @ChildContent
+        }
     }
-    @if(ChildContent != null)
-    {
-        @ChildContent
-    }
+
 </div>

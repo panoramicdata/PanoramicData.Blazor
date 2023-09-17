@@ -14,8 +14,6 @@ public partial class PDTablePage
 	private bool Enabled { get; set; } = true;
 	private PDTable<Person> Table { get; set; } = null!;
 
-	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
-
 	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }

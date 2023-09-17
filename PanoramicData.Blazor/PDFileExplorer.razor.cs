@@ -70,9 +70,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public bool AllowRename { get; set; } = true;
 
 	/// <summary>
+	/// Determines whether the to rename items when conflicting with existing items.
+	/// </summary>
+	[Parameter] public bool AllowRenameConflicts { get; set; } = false;
+
+	/// <summary>
 	/// Determines whether the first node is automatically expanded on load.
 	/// </summary>
-	[Parameter] public bool AutoExpand { get; set; } = false;
+	[Parameter] public bool AutoExpand { get; set; }
 
 	/// <summary>
 	/// Gets or sets a delegate to be called before an item is renamed.
@@ -126,6 +131,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Event called whenever the user requests to delete one or more items.
 	/// </summary>
 	[Parameter] public EventCallback<DeleteArgs> DeleteRequest { get; set; }
+
+	/// <summary>
+	/// Function that calculates and returns the download url for the given item.
+	/// </summary>
+	[Parameter] public Func<FileExplorerItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
 
 	/// <summary>
 	/// An optional array of paths to be excluded.
@@ -588,7 +598,13 @@ public partial class PDFileExplorer : IAsyncDisposable
 			var newPath = $"{item.ParentPath.TrimEnd('/')}/{args.NewValue}";
 
 			// check for and disallow duplicate folder name
-			if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
+			if (args.NewValue.StartsWith('.'))
+			{
+				args.Cancel = true;
+				await OnException(new PDFileExplorerException($"Names may not begin with a period (.)")).ConfigureAwait(true);
+				return;
+			}
+			else if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
 			{
 				args.Cancel = true;
 
@@ -729,6 +745,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				args.Cancel = true;
 				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("A value is required")).ConfigureAwait(true);
+			}
+			else if (newName.StartsWith('.'))
+			{
+				args.Cancel = true;
+				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("Names may not begin with a period (.)")).ConfigureAwait(true);
 			}
 			else
 			{
@@ -1458,7 +1479,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				// check if target folder is source folder?
 				var parentPaths = payload.Select(x => x.ParentPath).Distinct().ToArray();
 				conflictArgs.ConflictResolution = parentPaths.Any(x => x == targetPath)
-					? await PromptUserForConflictResolution(Array.Empty<string>(), false, false, "The source and destination filenames are the same.").ConfigureAwait(true)
+					? await PromptUserForConflictResolution(Array.Empty<string>(), false, AllowRenameConflicts, "The source and destination filenames are the same.").ConfigureAwait(true)
 					: await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray(), showOverwrite).ConfigureAwait(true);
 			}
 		}
@@ -1771,8 +1792,15 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 		_conflictDialogMessage = message ?? $"{names.Count()} conflicts found : -";
 		_conflictDialogList = namesSummary.ToArray();
-		ConflictDialog!.Buttons.First(x => x.Key == "Overwrite").IsVisible = showOverwrite;
-		ConflictDialog!.Buttons.First(x => x.Key == "Rename").IsVisible = showRename;
+		var buttons = ConflictDialog!.Buttons;
+		buttons.First(x => x.Key == "Overwrite").IsVisible = showOverwrite;
+		buttons.First(x => x.Key == "Rename").IsVisible = showRename;
+		// shift first button right
+		foreach (var btn in buttons)
+		{
+			btn.ShiftRight = buttons.FirstOrDefault(x => x.IsVisible) == btn;
+		}
+
 		StateHasChanged();
 		if (ConflictDialog != null)
 		{
@@ -1812,7 +1840,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			// allow app supplied icon css
 			var cssClass = GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
-			//}
+
 			if (cssClass is null)
 			{
 				return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "fa fa-fw fa-folder";

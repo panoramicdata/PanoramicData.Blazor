@@ -146,10 +146,13 @@ public partial class PDTimeline : IAsyncDisposable
 		return false;
 	}
 
-	public async Task Clear()
+	public async Task Clear(bool clearSelection = true)
 	{
 		_dataPoints.Clear();
-		await ClearSelection().ConfigureAwait(true);
+		if (clearSelection)
+		{
+			await ClearSelection().ConfigureAwait(true);
+		}
 	}
 
 	public async Task ClearSelection()
@@ -459,7 +462,7 @@ public partial class PDTimeline : IAsyncDisposable
 	{
 		if (_commonModule != null)
 		{
-			_canvasWidth = await _commonModule.InvokeAsync<int>("getWidth", _svgPlotElement).ConfigureAwait(true);
+			_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true);
 		}
 
 		await SetScale(Scale, true).ConfigureAwait(true);
@@ -661,7 +664,6 @@ public partial class PDTimeline : IAsyncDisposable
 			var previousCenter = _previousScale.AddPeriods(_previousScale.PeriodStart(RoundedMinDateTime), _columnOffset + (_viewportColumns / 2));
 			var scaleChanged = scale != _previousScale;
 			var previousScale = _previousScale;
-			//var zoomChange = Comparer<TimelineScale>.Default.Compare(scale, previousScale);
 
 			// should we restrict zoom out?
 			var restrictCheck = scaleChanged && Options.General.RestrictZoomOut
@@ -909,14 +911,14 @@ public partial class PDTimeline : IAsyncDisposable
 		}
 	}
 
-	public async Task ZoomToSelectionAsync()
+	public async Task ZoomToSelectionAsync(bool forceRefresh = false)
 	{
 		if (_canvasWidth > 0 && _selectionRange != null)
 		{
 			var scale = GetScaleToFit(_selectionRange.StartTime, _selectionRange.EndTime);
 			if (scale != null)
 			{
-				await SetScale(scale, false, _selectionRange.EndTime, TimelinePositions.End).ConfigureAwait(true);
+				await SetScale(scale, forceRefresh, _selectionRange.EndTime, TimelinePositions.End).ConfigureAwait(true);
 			}
 		}
 	}

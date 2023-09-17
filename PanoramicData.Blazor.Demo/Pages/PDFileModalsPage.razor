@@ -45,13 +45,15 @@
     </div>
 
     <PDFileModal @ref="_fileModal"
-                 CloseOnEscape="true"
+                 CloseOnEscape="false"
                  DataProvider="_dataProvider"
                  GetItemIconCssClass="GetIconCssClass"
                  ModalHidden="OnModalHidden"
                  OpenButtonText="Select"
                  OpenTitle="Report Picker"
-                 SaveTitle="Save Report As" />
+                 SaveTitle="Save Report As"
+                 ShowContextMenu="true"
+                 ShowToolbar="true" />
 
     <div class="mt-4">
         <div>

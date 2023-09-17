@@ -17,7 +17,7 @@ public partial class PDToggleSwitch : IAsyncDisposable
 
 	[Parameter] public int? Height { get; set; }
 
-	[Parameter] public string Id { get; set; } = $"pd-toggleswitch-{++_sequence}";
+	[Parameter] public override string Id { get; set; } = $"pd-toggleswitch-{++_sequence}";
 
 	[Parameter] public string Label { get; set; } = string.Empty;
 

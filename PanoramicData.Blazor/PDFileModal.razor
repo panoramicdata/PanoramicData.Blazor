@@ -11,7 +11,7 @@
                         DataProvider="DataProvider"
                         AllowDrag="false"
                         AllowDrop="false"
-                        AllowRename="true"
+                        AllowRename="@(ShowToolbar || ShowContextMenu)"
                         AutoExpand="true"
                         ExcludedPaths="ExcludedPaths"
                         FilenamePattern="@_filenamePattern"
@@ -20,8 +20,8 @@
                         ItemDoubleClick="OnItemDoubleClick"
                         ShowFiles="_showFiles"
                         ShowNavigateUpButton="ShowNavigateUpButton"
-                        ShowToolbar="true"
-                        ShowContextMenu="true"
+                        ShowToolbar="@ShowToolbar"
+                        ShowContextMenu="@ShowContextMenu"
                         SelectionMode="TableSelectionMode.Single"
                         SelectionChanged="OnSelectionChanged" />
     </div>

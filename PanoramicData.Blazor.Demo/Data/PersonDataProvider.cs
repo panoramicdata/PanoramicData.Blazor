@@ -38,7 +38,8 @@ public class PersonDataProvider : DataProviderBase<Person>
 					Location = _random.Next(Locations.Length),
 					Dob = DateTime.Today.AddYears(-_random.Next(20, 50)),
 					Comments = _loremIpsum[.._random.Next(0, _loremIpsum.Length)],
-					Password = "Password"
+					Password = "Password",
+					IsFirstAider = _random.Next(0, 4) switch { 0 => true, 1 => false, _ => null },
 				};
 				var managers = new List<Person?>() { boss1, boss2, null };
 				person.Manager = managers[_random.Next(0, 3)]!;

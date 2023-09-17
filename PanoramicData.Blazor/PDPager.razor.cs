@@ -23,6 +23,11 @@ public partial class PDPager : IDisposable
 	[Parameter] public uint[] PageSizeChoices { get; set; } = new uint[] { 10, 25, 50, 100, 250, 500 };
 
 	/// <summary>
+	/// Determines whether the navigation buttons are displayed.
+	/// </summary>
+	[Parameter] public bool ShowPageChangeButtons { get; set; } = true;
+
+	/// <summary>
 	/// Determines whether the description of the current page items is displayed.
 	/// </summary>
 	[Parameter] public bool ShowPageDescription { get; set; } = true;

@@ -5,5 +5,6 @@ public enum FilterDataTypes
 	Text,
 	Numeric,
 	Date,
-	Enum
+	Enum,
+	Bool
 }

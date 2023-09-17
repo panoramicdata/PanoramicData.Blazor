@@ -43,7 +43,7 @@
                 }
                 @foreach (var column in ActualColumnsToDisplay)
                 {
-                    <th scope="col" class="@column.ThClass" style="white-space: nowrap;">
+                    <th class="@column.ThClass @((column.UserSelectable ?? UserSelectable) == false ? "noselect" : "")" style="white-space: nowrap;">
                         <div class="hdr">
                             @if (column.HeaderTemplate is null)
                             {
@@ -58,7 +58,7 @@
                                 <PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column, f))"
                                   Filter="column.Filter"
                                   FilterChanged="OnFilterChanged"
-                                  ShowValues="@column.FilterValues"
+                                  ShowValues="@column.FilterShowSuggestedValues"
                                   DataType="@column.GetFilterDataType()"
                                   Nullable="@column.GetFilterIsNullable()" />
                             }
@@ -78,10 +78,12 @@
                 {
                     <tr class="pdtablerow @GetDynamicRowClasses(item)"
                         id="@(KeyField is null ? null : KeyField(item)?.ToString())"
+                        @attributes="GetRowAttributes(item)"
                         @oncontextmenu:preventDefault
-                        @onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
+                        @onmouseup="@((args) => OnRowMouseUpAsync(args, item))"
                         @onclick="@((args) => OnRowClick(args, item))"
                         @ondblclick="@((args) => OnRowDoubleClick(args, item))"
+                        @ondragstart="@((args) => OnRowDragStart(args, item))"
                         @ondragend="OnDragEnd"
                         @ondrop:stopPropagation
                         @ondrop="@((args) => OnRowDragDropAsync(args, item))">
@@ -103,7 +105,7 @@
                         @foreach (var column in ActualColumnsToDisplay)
                         {
                             var row = ItemsToDisplay.IndexOf(item);
-                            <td>
+                            <td class="@GetDynamicCellClasses(column, item)">
                                 @if (IsColumnInEditMode(column, item) && column.Field != null)
                                 {
                                     if (column.EditTemplate == null)

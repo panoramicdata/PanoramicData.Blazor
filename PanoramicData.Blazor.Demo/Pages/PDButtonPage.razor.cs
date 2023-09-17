@@ -22,6 +22,11 @@ public partial class PDButtonPage : IAsyncDisposable
 		EventManager?.Add(new Event("Button 1 Click", new EventArgument("Ctrl", args.CtrlKey)));
 		Counter++;
 	}
+
+	private void OnButton2Click(MouseEventArgs args)
+	{
+		EventManager?.Add(new Event("Button 2 Click", new EventArgument("Ctrl", args.CtrlKey)));
+	}
 	private async Task OnButton3Click(MouseEventArgs args)
 	{
 		EventManager?.Add(new Event("Button 3 Click", new EventArgument("Ctrl", args.CtrlKey)));

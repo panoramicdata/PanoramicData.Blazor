@@ -1,0 +1,76 @@
+﻿@inherits PDComponentBase
+
+<div class="pd-range @(IsEnabled ? "" : "disabled")">
+
+    @if (IsValid)
+    {
+        <svg class="plot-area"
+            height="@Height"
+            width="@Width">
+
+            @* outer track *@
+            <rect class="track outer @(Invert ? "invert" : "")"
+                  height="@CalcTrackHeight"
+                  width="@CalcTrackWidth"
+                  x="@CalcTrackStart"
+                  y="@CalcTrackY" />
+
+            @* inner track *@
+            <rect class="track inner @(Invert ? "invert" : "")"
+                  height="@CalcTrackHeight"
+                  width="@(CalcEndHandleX - CalcStartHandleX + HandleWidth)"
+                  x="@CalcStartHandleX"
+                  y="@CalcTrackY" />
+
+            @* major tick lines *@
+            @if(TickMajor > 0)
+            {
+                @for (var v = Min; v <= Max; v += TickMajor)
+                {
+                    var x = CalcTrackStart + CalcRangePixels * v;
+                    <line class="tick major" x1="@x" x2="@x" y1="0" y2="@Height" />
+                    @if (ShowLabels)
+                    {
+                        <text>
+                            <text class="label tick-major"
+                                x="@(x + HandleWidth / 2)"
+                                y="10"
+                                stroke="Black">
+                            @(TickMajorLabelFn?.Invoke(v) ?? v.ToString("0"))
+                            </text>
+                        </text>
+                    }
+                }
+            }
+
+            @* range start handle *@
+            <rect @ref="_svgRangeHandleStart"
+                @onpointerdown="OnStartHandlePointerDown"
+                @onpointermove="OnStartHandlePointerMove"
+                @onpointerup="OnHandlePointerUp"
+                class="handle start"
+                height="@CalcHandleHeight"
+                width="@HandleWidth"
+                title="@Range.Start"
+                x="@CalcStartHandleX"
+                y="@CalcHandleY" />
+
+            @* range end handle *@
+            <rect @ref="_svgRangeHandleEnd"
+                @onpointerdown="OnEndHandlePointerDown"
+                @onpointermove="OnEndHandlePointerMove"
+                @onpointerup="OnHandlePointerUp"
+                class="handle end"
+                height="@CalcHandleHeight"
+                width="@HandleWidth"
+                x="@CalcEndHandleX"
+                y="@CalcHandleY" />
+
+        </svg>
+    }
+    else
+    {
+        <PDValidationSummary Errors="ValidationErrors" />
+    }
+
+</div>

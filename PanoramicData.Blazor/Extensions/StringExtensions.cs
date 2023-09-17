@@ -106,4 +106,22 @@ public static class StringExtensions
 
 		return text;
 	}
+
+	public static string ExtractAlphanumericChars(this string text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return text;
+		}
+
+		var sb = new StringBuilder();
+		foreach (char ch in text)
+		{
+			if (char.IsLetter(ch) || char.IsDigit(ch))
+			{
+				sb.Append(ch);
+			}
+		}
+		return sb.ToString();
+	}
 }

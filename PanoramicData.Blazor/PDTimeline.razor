@@ -2,7 +2,8 @@
 
 <div id="@Id"
 	 class="pd-timeline @(IsEnabled ? "" : "disabled")"
-	 @onmousewheel="OnMouseWheel">
+	 @onmousewheel="OnMouseWheel"
+     @onwheel="OnMouseWheel">
 
 	@{
 		DataPoint[] points = GetViewPortDataPoints();

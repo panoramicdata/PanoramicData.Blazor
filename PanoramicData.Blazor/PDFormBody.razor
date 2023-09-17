@@ -80,7 +80,7 @@ else if (Form.Mode != FormModes.Hidden)
 						{
 							<div class="small text-muted">@fieldDescription</div>
 						}
-						@if (Form != null && !firstField.SuppressErrors && fieldName != null && fieldGroup.HasErrors(Form) == true)
+						@if (Form != null && fieldGroup.Fields.Any(x => !x.SuppressErrors) && fieldName != null && fieldGroup.HasErrors(Form) == true)
 						{
                             foreach (var field in fieldGroup.Fields)
                             {
@@ -97,69 +97,6 @@ else if (Form.Mode != FormModes.Hidden)
                     </div>
                 </div>
             }
-@*
-			@foreach (var field in fields)
-			{
-				var fieldName = field.GetName();
-				var fieldType = field.GetFieldType();
-				var fieldDescription = field.GetDescription();
-				<div class="pd-form-field">
-					<label class="sr-only">@field.Title</label>
-					<div class="input-group ">
-
-                        // label
-						<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true ? "alert-danger" : "")" title="@fieldDescription">
-							<span>@field.Title</span>
-							<div class="helpers">
-								@if (!string.IsNullOrWhiteSpace(field.HelpUrl))
-								{
-									<i class="pd-form-help-icon fas fa-external-link-alt text-info cursor-pointer"
-										@onclick="() => OnHelpUrlClick(field)"></i>
-								}
-								@if (field.Helper != null)
-								{
-									<i class="pd-form-help-icon text-info cursor-pointer pt-1 ms-1 @field.Helper.IconCssClass"
-										@onclick="async () => await OnHelperClick(field).ConfigureAwait(true)"
-										title="@field.Helper.ToolTip"></i>
-								}
-								@if (field.ShowCopyButton(Form?.Item))
-								{
-									<PDClipboard CssClass="ms-1 text-info" Text="@(Form?.GetFieldStringValue(field))" />
-								}
-							</div>
-						</div>
-
-						// editors
-                        <PDFormFieldEditor DebounceWait="DebounceWait"
-                            Field="field"
-                            Form="Form" />
-
-						// field validation indicator
-						@if (ShowValidationIndicator && Form?.Mode != FormModes.Delete)
-						{
-                            var cssCls = GetValidationCssClass(field);
-							<span class="input-group-text align-items-start @cssCls">
-								<i class="@GetValidationIconForCssClass(cssCls)"></i>
-							</span>
-						}
-					</div>
-					<div class="mb-2">
-						@if (!string.IsNullOrWhiteSpace(fieldDescription)
-							&& (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit)
-							&& (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
-						{
-							<div class="small text-muted">@field.GetDescription()</div>
-						}
-						@if (!field.SuppressErrors && fieldName != null && Form?.Errors?.ContainsKey(fieldName) == true)
-						{
-							foreach (var message in Form.Errors[fieldName])
-							{
-								<div class="small text-danger">@message</div>
-							}
-						}
-					</div>
-				</div>
-			} *@
 		}
 	</div>
 }

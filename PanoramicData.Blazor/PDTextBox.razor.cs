@@ -137,20 +137,29 @@ public partial class PDTextBox : IAsyncDisposable
 	{
 		if (firstRender && DebounceWait > 0)
 		{
-			_objRef = DotNetObjectReference.Create(this);
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-			if (_commonModule != null)
+			try
 			{
-				await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
-			}
-
-			if (ShowSpeechButton)
-			{
-				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTextBox.razor.js").ConfigureAwait(true);
-				if (_module != null)
+				_objRef = DotNetObjectReference.Create(this);
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				if (_commonModule != null)
 				{
-					await _module.InvokeVoidAsync("initSpeech", SpeechLang).ConfigureAwait(true);
+					await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
 				}
+				if (ShowSpeechButton)
+				{
+					_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTextBox.razor.js").ConfigureAwait(true);
+					if (_module != null)
+					{
+						await _module.InvokeVoidAsync("initSpeech", SpeechLang).ConfigureAwait(true);
+					}
+				}
+			}
+			catch (ObjectDisposedException)
+			{
+			}
+			catch (Exception)
+			{
+				// TODO: Use logger to output error message?
 			}
 		}
 	}

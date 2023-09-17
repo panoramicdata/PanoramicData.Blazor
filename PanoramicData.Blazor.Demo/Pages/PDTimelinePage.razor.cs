@@ -18,7 +18,23 @@ public partial class PDTimelinePage
 		{
 			DateFormat = "yyyy-MM-dd",
 			RestrictZoomOut = false,
-			RightAlign = true
+			RightAlign = true,
+			Scales = new[]
+			{
+				TimelineScale.Seconds,
+				TimelineScale.Minutes,
+				TimelineScale.Minutes5,
+				new TimelineScale("10 Minutes", TimelineUnits.Minutes, 10),
+				TimelineScale.Hours,
+				TimelineScale.Hours4,
+				TimelineScale.Hours6,
+				TimelineScale.Hours8,
+				TimelineScale.Hours12,
+				TimelineScale.Days,
+				TimelineScale.Weeks,
+				TimelineScale.Months,
+				TimelineScale.Years
+			}
 		},
 		Series = new[]
 		{
@@ -56,7 +72,7 @@ public partial class PDTimelinePage
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	private void GenerateData(int startYear = 2015, int endYear = 2020, int points = 5000)
+	private void GenerateData(int startYear = 2015, int endYear = 2020, int points = 10000)
 	{
 		// generate data
 		var random = new Random(System.Environment.TickCount);
@@ -97,20 +113,26 @@ public partial class PDTimelinePage
 		_data.Clear();
 		_minDate = DateTime.MinValue;
 		_maxDate = DateTime.MinValue;
-		await _timeline.Reset().ConfigureAwait(true);
+		if (_timeline is not null)
+		{
+			await _timeline.Reset().ConfigureAwait(true);
+		}
 	}
 
 	private async Task OnSetData()
 	{
 		// generate new data
 		_data.Clear();
-		GenerateData(2015, 2020, 10);
+		GenerateData(2018, 2020, 10000);
 
 		// update component parameters
 		_minDate = _data.Min(x => x.DateChanged);
 		_maxDate = _data.Max(x => x.DateChanged);
 
-		await _timeline.RefreshAsync().ConfigureAwait(true);
+		if (_timeline is not null)
+		{
+			await _timeline.RefreshAsync().ConfigureAwait(true);
+		}
 	}
 
 	private async ValueTask<DataPoint[]> GetTimelineData(DateTime start, DateTime end, TimelineScale scale, CancellationToken cancellationToken)
@@ -168,19 +190,41 @@ public partial class PDTimelinePage
 		_minDate = _data.Min(x => x.DateChanged).Date;
 	}
 
-	private async Task OnZoomToEnd() => await _timeline.ZoomToEndAsync().ConfigureAwait(true);
+	private async Task OnZoomToEnd()
+	{
+		if (_timeline is null)
+		{
+			return;
+		}
+
+		await _timeline.ZoomToEndAsync().ConfigureAwait(true);
+	}
+
+	private async Task OnZoomTo24h()
+	{
+		if (_timeline is null)
+		{
+			return;
+		}
+
+		await _timeline.ZoomToAsync(DateTime.Now.AddHours(-24), DateTime.Now, TimelinePositions.End).ConfigureAwait(true);
+	}
 
 	private async Task OnRefreshed()
 	{
+		if (_timeline is null)
+		{
+			return;
+		}
+
 		// select last year
 		if (_timeline.GetSelection() is null)
 		{
-			await _timeline.SetSelection(_maxDate.AddYears(-1), _maxDate).ConfigureAwait(true);
+			await _timeline.SetSelection(_maxDate.AddYears(-2), _maxDate).ConfigureAwait(true);
 		}
 	}
 
 	private static double MyYValueTransform(double value) =>
-		//return value;
 		Math.Sqrt(value);
 }
 
@@ -194,9 +238,10 @@ public class ConfigChange
 
 public class TimelinePageModel
 {
-	public DateTime DisableAfter { get; set; }
 
-	public DateTime DisableBefore { get; set; }
+	public DateTime DisableAfter { get; set; } = new DateTime(2019, 11, 01);
 
-	public TimelineScale Scale { get; set; } = TimelineScale.Years;
+	public DateTime DisableBefore { get; set; } = new DateTime(2016, 11, 01);
+
+	public TimelineScale Scale { get; set; } = TimelineScale.Months;
 }

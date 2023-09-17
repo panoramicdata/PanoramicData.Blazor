@@ -51,16 +51,12 @@ export function initialize(id, opt, sessionId, dnRef) {
 				this.fileCount = 0;
 			});
 			this.on("addedfile", function (file) {
-				if (file.size > 0) {
-					this.fileCount++;
-					var fullPath = getPath(file);
-					if (!fullPath.endsWith("/")) fullPath = fullPath + "/";
-					fullPath = fullPath + (file.targetName || file.name);
-					file.previewElement.querySelector(".pdfe-dz-name").innerHTML = fullPath;
-					filesAddedFunction(this);
-				} else {
-					this.removeFile(file);
-				}
+				this.fileCount++;
+				var fullPath = getPath(file);
+				if (!fullPath.endsWith("/")) fullPath = fullPath + "/";
+				fullPath = fullPath + (file.targetName || file.name);
+				file.previewElement.querySelector(".pdfe-dz-name").innerHTML = fullPath;
+				filesAddedFunction(this);
 			});
 			this.on("sending", function (file, xhr) {
 				dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnUploadBegin", { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId });

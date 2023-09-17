@@ -91,7 +91,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 			throw new InvalidOperationException($"Filter is not valid: {filter.Key}");
 		}
 
-		return query.ApplyFilter(filter, null);
+		return query.ApplyFilter(filter, _keyMappings);
 	}
 
 	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T, bool>>? existingPredicate, Filter filter, IDictionary<string, string>? keyPropertyMappings = null)

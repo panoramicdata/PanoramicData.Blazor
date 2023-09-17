@@ -1,42 +1,33 @@
-﻿namespace PanoramicData.Blazor;
+﻿using System.Reflection.Metadata;
+
+namespace PanoramicData.Blazor;
 
 public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IAsyncDisposable where TItem : class
 {
 	private bool _dragging;
 	private Timer? _editTimer;
-	private IJSObjectReference? _commonModule;
 	private static int _idSequence;
-	private bool _mouseDownOriginatedFromTable;
-	public readonly string IdPrefix = "pd-table-";
-	public readonly string IdEditPrefix = "pd-table-edit-";
-	private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
 	private string? _lastSearchText;
+	private IJSObjectReference? _commonModule;
+	private bool _mouseDownOriginatedFromTable;
+	private readonly string IdEditPrefix = "pd-table-edit-";
+	private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
 	private readonly Dictionary<string, object?> _editValues = new();
-	private readonly Dictionary<string, string> _keyProperties = new();
+	//private readonly Dictionary<string, string> _keyProperties = new();
 
 	private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
-	/// <summary>
-	/// Provides access to the parent DragContext if it exists.
-	/// </summary>
-	[CascadingParameter] public PDDragContext? DragContext { get; set; }
-
-	/// <summary>
-	/// Injected log service.
-	/// </summary>
 	[Inject] protected ILogger<PDTable<TItem>> Logger { get; set; } = new NullLogger<PDTable<TItem>>();
 
-	/// <summary>
-	/// Injected navigation manager.
-	/// </summary>
 	[Inject] protected NavigationManager NavigationManager { get; set; } = null!;
 
-	/// <summary>
-	/// Injected javascript interop object.
-	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
+
+	[CascadingParameter] public PDDragContext? DragContext { get; set; }
+
+	[CascadingParameter] public IAsyncStateManager? StateManager { get; set; }
 
 	#region Parameters
 
@@ -103,6 +94,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public EventCallback<TItem> DoubleClick { get; set; }
 
 	/// <summary>
+	/// Funtion that calculates and returns the download url attribuet for each row.
+	/// </summary>
+	[Parameter] public Func<TItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
+
+	/// <summary>
 	/// Callback fired whenever a drag operation ends on a row within a DragContext.
 	/// </summary>
 	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
@@ -116,6 +112,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// Gets or sets the maximum number of possible filter values to show.
 	/// </summary>
 	[Parameter] public int FilterMaxValues { get; set; } = 50;
+
+	/// <summary>
+	/// Gets the unique identifier of this table.
+	/// </summary>
+	[Parameter] public string Id { get; set; } = $"pd-table-{++_idSequence}";
 
 	[Parameter] public bool IsEnabled { get; set; } = true;
 
@@ -191,6 +192,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public bool RetainSelectionOnPage { get; set; }
 
 	/// <summary>
+	/// Gets whether right-clicking selects a row versus left-clicking.
+	/// </summary>
+	[Parameter] public bool RightClickSelectsRow { get; set; } = true;
+
+	/// <summary>
 	/// Gets whether the table will save changes via the DataProvider (if set).
 	/// </summary>
 	[Parameter] public bool SaveChanges { get; set; }
@@ -218,7 +224,12 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <summary>
 	/// Gets or sets whether the checkboxes should be shown for multiple selection.
 	/// </summary>
-	[Parameter] public bool ShowCheckboxes { get; set; } = false;
+	[Parameter] public bool ShowCheckboxes { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the Overlay Service is used when fetching data.
+	/// </summary>
+	[Parameter] public bool ShowOverlay { get; set; } = true;
 
 	/// <summary>
 	/// Gets or sets whether the pager is displayed.
@@ -240,12 +251,12 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// </summary>
 	[Parameter] public SortCriteria SortCriteria { get; set; } = new SortCriteria();
 
-	#endregion
-
 	/// <summary>
-	/// Gets the unique identifier of this table.
+	/// Gets or sets whether the contents of all cells are user selectable by default.
 	/// </summary>
-	public string Id { get; private set; } = string.Empty;
+	[Parameter] public bool UserSelectable { get; set; }
+
+	#endregion
 
 	/// <summary>
 	/// Gets the current item being edited.
@@ -256,12 +267,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// Gets a full list of all columns.
 	/// </summary>
 	public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
-
-
-	/// <summary>
-	/// Gets whether right-clicking selects a row versus left-clicking.
-	/// </summary>
-	[Parameter] public bool RightClickSelectsRow { get; set; } = true;
 
 	/// <summary>
 	/// Gets the keys of all currently selected items.
@@ -293,7 +298,8 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				?? Columns;
 
 			return columns
-				.Where(c => c.ShowInList)
+				.Where(c => c.ShowInList && c.State.Visible)
+				.OrderBy(c => c.State.Ordinal)
 				.ToList();
 		}
 	}
@@ -321,6 +327,20 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		try
 		{
+			// improve on default column id - this will improve state persistence
+			if (Regex.IsMatch(column.Id, @"^col-\d+$"))
+			{
+				var name = string.IsNullOrEmpty(column.Name) ? column.GetTitle() : column.Name;
+				if (!string.IsNullOrWhiteSpace(name))
+				{
+					var simpleName = name.ExtractAlphanumericChars().ToLower(CultureInfo.InvariantCulture);
+					if (!string.IsNullOrWhiteSpace(simpleName))
+					{
+						column.SetId($"col-{simpleName}");
+					}
+				}
+			}
+
 			Columns.Add(column);
 			if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
 			{
@@ -337,6 +357,14 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				if (column.Field.Body is MemberExpression)
 				{
 					column.Filter.PropertyName = body.Contains('.') ? string.Join(".", body.Split('.').Skip(1)) : body;
+				}
+				else if (column.Field.Body is ConditionalExpression ce1 && ce1.IfTrue is MemberExpression tme)
+				{
+					column.Filter.PropertyName = tme.ToString().Contains('.') ? string.Join(".", tme.ToString().Split('.').Skip(1)) : tme.ToString();
+				}
+				else if (column.Field.Body is ConditionalExpression ce2 && ce2.IfFalse is MemberExpression fme)
+				{
+					column.Filter.PropertyName = fme.ToString().Contains('.') ? string.Join(".", fme.ToString().Split('.').Skip(1)) : fme.ToString();
 				}
 				else
 				{
@@ -385,7 +413,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// Refresh the grid by performing a re-query.
 	/// </summary>
 	/// <param name="searchText">Optional override for the search text.</param>
-	public Task RefreshAsync(string? searchText = null)
+	public Task RefreshAsync() => RefreshAsync(null);
+
+	public Task RefreshAsync(string? searchText)
 		=> GetDataAsync(searchText);
 
 	/// <summary>
@@ -422,7 +452,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		try
 		{
-			BlockOverlayService.Show();
+			if (ShowOverlay)
+			{
+				BlockOverlayService.Show();
+			}
 
 			//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
@@ -464,9 +497,16 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				PageCriteria.TotalCount = (uint)(response.TotalCount ?? 0);
 			}
 		}
+		catch (Exception ex)
+		{
+			await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+		}
 		finally
 		{
-			BlockOverlayService.Hide();
+			if (ShowOverlay)
+			{
+				BlockOverlayService.Hide();
+			}
 		}
 	}
 
@@ -683,23 +723,25 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <summary>
 	/// Gets a dictionary of additional attributes to be added to each row.
 	/// </summary>
-	public Dictionary<string, object> RowAttributes
+	public Dictionary<string, object> GetRowAttributes(TItem? item)
 	{
-		get
+		var dict = new Dictionary<string, object>();
+		if (AllowDrag && !IsEditing)
 		{
-			var dict = new Dictionary<string, object>();
-			if (AllowDrag && !IsEditing)
+			dict.Add("draggable", "true");
+			var downloadUrl = item is null ? null : DownloadUrlFunc(item);
+			if (!string.IsNullOrWhiteSpace(downloadUrl))
 			{
-				dict.Add("draggable", "true");
+				dict.Add("data-downloadurl", downloadUrl);
 			}
-
-			if (AllowDrop)
-			{
-				dict.Add("ondragover", "event.preventDefault();");
-			}
-
-			return dict;
 		}
+
+		if (AllowDrop)
+		{
+			dict.Add("ondragover", "event.preventDefault();");
+		}
+
+		return dict;
 	}
 
 	/// <summary>
@@ -759,7 +801,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 	protected override async Task OnInitializedAsync()
 	{
-		Id = $"{IdPrefix}{++_idSequence}";
 		if (DataProvider is null)
 		{
 			throw new PDTableException($"{nameof(DataProvider)} must not be null.");
@@ -775,6 +816,29 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 		// load common javascript
 		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+
+		//// improve on default column ids - this will improve state persistence
+		//foreach (var column in Columns)
+		//{
+		//	if (Regex.IsMatch(column.Id, @"^col-\d+$"))
+		//	{
+		//		var name = string.IsNullOrEmpty(column.Name) ? column.GetTitle() : column.Name;
+		//		if (!string.IsNullOrWhiteSpace(name))
+		//		{
+		//			var simpleName = name.ExtractAlphanumericChars().ToLower(CultureInfo.InvariantCulture);
+		//			if (!string.IsNullOrWhiteSpace(simpleName))
+		//			{
+		//				column.SetId($"col-{simpleName}");
+		//			}
+		//		}
+		//	}
+		//}
+
+		// load previously saved state
+		if (StateManager != null)
+		{
+			await LoadStateAsync();
+		}
 	}
 
 	private async void PageCriteria_PageSizeChanged(object? sender, EventArgs e)
@@ -802,25 +866,28 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			return result;
 		}
 
+		// allow app to specify suggested values
+		if (column.FilterSuggestedValues.Any())
+		{
+			return column.FilterSuggestedValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
+		}
+
 		// TODO: cache values for period of time?
 
 		// build up search text from filters
 		var searchText = new StringBuilder();
-		foreach (var col in ActualColumnsToDisplay)
+		foreach (var col in ActualColumnsToDisplay.Where(c => c.Filterable))
 		{
-			if (col.Filterable)
+			if (col == column)
 			{
-				if (col == column)
+				if (filter.IsValid)
 				{
-					if (filter.IsValid)
-					{
-						searchText.Append(filter.ToString());
-					}
+					_ = searchText.Append(filter.ToString()).Append(' ');
 				}
-				else if (col.Filter.IsValid)
-				{
-					searchText.Append(col.Filter.ToString());
-				}
+			}
+			else if (col.Filter.IsValid)
+			{
+				_ = searchText.Append(col.Filter.ToString()).Append(' ');
 			}
 		}
 
@@ -832,7 +899,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			ForceUpdate = false,
 			SortFieldExpression = sortColumn?.Field,
 			SortDirection = sortColumn?.SortDirection,
-			SearchText = searchText.ToString()
+			SearchText = searchText.ToString().Trim()
 		};
 
 		// use more efficient service provider?
@@ -854,7 +921,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 
 		// limit to first N
-		objectValues = objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(FilterMaxValues).ToArray();
+		objectValues = objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(column.FilterMaxValues ?? FilterMaxValues).ToArray();
 
 		// cast to string
 		return objectValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
@@ -908,6 +975,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			}
 
 			await Ready.InvokeAsync(null).ConfigureAwait(true);
+
+			if (_commonModule != null)
+			{
+				await _commonModule.InvokeVoidAsync("onTableDragStart", Id);
+			}
 		}
 
 		// focus first editor after edit mode begins
@@ -1122,6 +1194,53 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 	}
 
+	private async Task OnRowMouseUpAsync(MouseEventArgs args, TItem item)
+	{
+		// quit if selection not allowed
+		if (item is null || !IsEnabled || SelectionMode == TableSelectionMode.None || !RowIsEnabled(item))
+		{
+			return;
+		}
+
+		var key = KeyField!(item)?.ToString() ?? string.Empty;
+
+		// if right-click on row then only select if clicked on label
+		var selectRow = args.Button == 0;
+		if (args.Button == 2 && RightClickSelectsRow && _commonModule != null)
+		{
+			// if row is not already selected - de-select all and select only this item
+			if (!Selection.Contains(key))
+			{
+				selectRow = true;
+			}
+
+			//var sourceEl = await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
+			//if (sourceEl != null)
+			//{
+			//	selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
+			//}
+		}
+
+		if (selectRow)
+		{
+
+			if (key != null)
+			{
+				var alreadySelected = Selection.Contains(key);
+
+				// begin edit mode?
+				if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
+				{
+					_editTimer?.Change(500, Timeout.Infinite);
+				}
+				else
+				{
+					await SelectItemAsync(key, args.ShiftKey, args.CtrlKey).ConfigureAwait(true);
+				}
+			}
+		}
+	}
+
 	private void OnRowClick(MouseEventArgs _, TItem item)
 	{
 		if (IsEnabled)
@@ -1202,6 +1321,18 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 	}
 
+	private string GetDynamicCellClasses(PDColumn<TItem> col, TItem _)
+	{
+		var sb = new StringBuilder();
+		sb.Append(col.TdClass);
+		sb.Append(' ');
+		if ((col.UserSelectable ?? UserSelectable) == false)
+		{
+			sb.Append("noselect ");
+		}
+		return sb.ToString().Trim();
+	}
+
 	private string GetDynamicRowClasses(TItem item)
 	{
 		var sb = new StringBuilder();
@@ -1251,7 +1382,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		return false;
 	}
 
-	private void OnDragStart(DragEventArgs _)
+	private async Task OnRowDragStart(DragEventArgs args, TItem? rowItem)
 	{
 		if (!IsEnabled || IsEditing)
 		{
@@ -1263,8 +1394,20 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		// need to set the data being dragged
 		if (DragContext != null && KeyField != null)
 		{
-			// get all selected items
+			// get all items to be dragged
 			var items = new List<TItem>();
+
+			// if item that initiated drag is in selection then drag entire selection
+			// otherwise change selection to single item and drga that
+			if (KeyField != null && rowItem != null)
+			{
+				string key = KeyField(rowItem).ToString() ?? string.Empty;
+				if (!Selection.Contains(key))
+				{
+					await SelectItemAsync(KeyField(rowItem).ToString() ?? string.Empty, args.ShiftKey, args.CtrlKey);
+				}
+			}
+
 			foreach (var key in Selection)
 			{
 				var item = ItemsToDisplay.Find(x => KeyField(x).ToString() == key);
@@ -1342,7 +1485,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 				await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
 			}
-			else if (!alreadySelected) // single selection
+			else // single selection
 			{
 				Selection.Clear();
 				Selection.Add(key);
@@ -1350,4 +1493,43 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			}
 		}
 	}
+
+	#region State Management
+
+	private async Task LoadStateAsync()
+	{
+		// load state
+		if (StateManager != null)
+		{
+			await StateManager.InitializeAsync();
+			var state = await StateManager.LoadStateAsync<TableState>(Id);
+			if (state != null)
+			{
+				foreach (var kvp in state.Columns)
+				{
+					var col = Columns.FirstOrDefault(x => x.Id == kvp.Key);
+					if (col != null)
+					{
+						col.State = kvp.Value;
+					}
+				}
+			}
+		}
+	}
+
+	public async Task SaveStateAsync()
+	{
+		// table must have id
+		if (!string.IsNullOrEmpty(Id) && StateManager != null)
+		{
+			// individual column state - must have id
+			var state = new TableState
+			{
+				Columns = Columns.Where(x => !string.IsNullOrWhiteSpace(x.Id)).ToDictionary(x => x.Id, y => y.State)
+			};
+			await StateManager.SaveStateAsync(Id, state);
+		}
+	}
+
+	#endregion
 }

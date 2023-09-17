@@ -113,6 +113,8 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					EditTemplate = column.EditTemplate,
 					Helper = column.Helper,
 					MaxLength = column.MaxLength,
+					MinValue = column.MinValue,
+					MaxValue = column.MaxValue,
 					Title = column.GetTitle(),
 					Options = column.Options,
 					OptionsAsync = column.OptionsAsync,
@@ -182,10 +184,15 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		{
 			return "alert-danger";
 		}
-		else if (Form != null && field.GetIsRequired() && string.IsNullOrWhiteSpace(Form?.GetFieldValue(field)?.ToString()))
+		else if (fieldName != null && field.SuppressErrors && Form?.Errors?.ContainsKey(fieldName) == true)
 		{
 			return "alert-warning";
 		}
+		// check if field is required
+		//		else if (Form != null && field.GetIsRequired() && string.IsNullOrWhiteSpace(Form?.GetFieldValue(field)?.ToString()))
+		//		{
+		//			return "alert-warning";
+		//		}
 		else
 		{
 			return "alert-success";

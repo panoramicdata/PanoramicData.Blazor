@@ -6,13 +6,22 @@ public partial class PDFormPage3
 	private readonly PageCriteria _pageCriteria = new(1, 10);
 	private readonly SortCriteria _sortCriteria = new("DateCreatedCol", SortDirection.Descending);
 
-	//private bool ShowDescriptions { get; set; }
 	private PDForm<Person> Form { get; set; } = null!;
 	private PDFormBody<Person> FormBody { get; set; } = null!;
 	private PDTable<Person> Table { get; set; } = null!;
 	private Person? SelectedPerson { get; set; }
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
+
+	private string GetIdDescription(FormField<Person> field, PDForm<Person> form)
+	{
+		if (form?.Item is null)
+		{
+			return string.Empty;
+		}
+
+		return $"{form?.Item?.Id} ({(form?.Item?.Id % 2 == 0 ? "even" : "odd")})";
+	}
 
 	private async Task OnPersonCreated(Person person)
 	{

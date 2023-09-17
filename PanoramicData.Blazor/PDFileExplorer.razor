@@ -192,6 +192,7 @@
 
             <PDContextMenu Items="TableContextItems"
                            Enabled="ShowContextMenu"
+                           ShowOnMouseUp="true"
                            UpdateState="OnTableContextMenuUpdateStateAsync"
                            ItemClick="OnTableContextMenuItemClickAsync">
 
@@ -223,6 +224,7 @@
                              ColumnsConfig="ColumnConfig"
                              DataProvider="DataProvider"
                              DoubleClick="OnTableDoubleClickAsync"
+                             DownloadUrlFunc="DownloadUrlFunc"
                              Drop="OnDropAsync"
                              ExceptionHandler="OnException"
                              ItemsLoaded="OnTableItemsLoaded"

@@ -14,9 +14,22 @@
 		<PDToolbarButton Text="Set Total Count"
 						 Click="OnSetTotalCount" />
 
+        <PDToolbarButton Text="@(ShowPageChangeButtons ? "Hide Buttons" : "Show Buttons")"
+                         Click="@(() => ShowPageChangeButtons = !ShowPageChangeButtons)" />
+
+        <PDToolbarButton Text="@(ShowPageDescription ? "Hide Description" : "Show Description")"
+                         Click="@(() => ShowPageDescription = !ShowPageDescription)" />
+
+        <PDToolbarButton Text="@(ShowPageSizeChoices ? "Hide Page Sizes" : "Show Page Sizes")"
+                         Click="@(() => ShowPageSizeChoices = !ShowPageSizeChoices)" />
+
 	</PDToolbar>
 
-	<PDPager PageCriteria="_pageCriteria" Size="ButtonSizes.Small" />
+	<PDPager PageCriteria="_pageCriteria"
+        ShowPageChangeButtons="ShowPageChangeButtons"
+        ShowPageDescription="ShowPageDescription"
+        ShowPageSizeChoices="ShowPageSizeChoices"
+        Size="ButtonSizes.Small" />
 
 	<EventView />
 

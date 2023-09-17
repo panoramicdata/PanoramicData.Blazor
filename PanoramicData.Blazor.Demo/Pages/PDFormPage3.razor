@@ -52,6 +52,7 @@
                      SelectionChanged="OnSelectionChanged">
 
                 <PDColumn TItem="Person"
+                          DescriptionFunc="GetIdDescription"
                           Field="x => x.Id"
                           ShowInList="false"
                           ShowInCreate="_ => false"

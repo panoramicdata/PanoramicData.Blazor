@@ -2,7 +2,6 @@
 
 public partial class PDPagerPage : IDisposable
 {
-	//private PDPager? _pager;
 	private readonly PageCriteria _pageCriteria = new(1);
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
@@ -10,6 +9,12 @@ public partial class PDPagerPage : IDisposable
 	private string GoToPage { get; set; } = "1";
 
 	private string TotalCount { get; set; } = "125";
+
+	private bool ShowPageChangeButtons { get; set; } = true;
+
+	private bool ShowPageDescription { get; set; } = true;
+
+	private bool ShowPageSizeChoices { get; set; } = true;
 
 	protected override void OnInitialized()
 	{

@@ -16,9 +16,9 @@
 		{
 				@if (!string.IsNullOrWhiteSpace(IconCssClass))
 				{
-					<span class="@(string.IsNullOrWhiteSpace(Text) ? "" : "pe-1") @IconCssClass"></span>
+					<span class="@IconCssClass"></span>
 				}
-			<span class="@TextCssClass">@Text.GetShortcutMarkup()</span>
+            <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
 		}
 		else
 		{
@@ -42,11 +42,11 @@ else
 	   @onmousedown:stopPropagation="StopPropagation">
 		@if (ChildContent is null)
 		{
-			@if (!string.IsNullOrWhiteSpace(IconCssClass))
-			{
-				<span class="@(string.IsNullOrWhiteSpace(Text) ? "" : "pe-1") @IconCssClass"></span>
-			}
-			<span class="@TextCssClass">@Text.GetShortcutMarkup()</span>
+            @if (!string.IsNullOrWhiteSpace(IconCssClass))
+            {
+                <span class="@IconCssClass"></span>
+            }
+            <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
 		}
 		else
 		{

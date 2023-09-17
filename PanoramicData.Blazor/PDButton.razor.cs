@@ -118,14 +118,6 @@ public partial class PDButton : IDisposable
 		}
 	}
 
-	//private async void GlobalEventService_KeyDownEvent(object sender, KeyboardInfo e)
-	//{
-	//	if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.AltKey, e.CtrlKey, e.ShiftKey))
-	//	{
-	//		await InvokeAsync(async () => await Click.InvokeAsync(new MouseEventArgs()).ConfigureAwait(true)).ConfigureAwait(true);
-	//	}
-	//}
-
 	public void Dispose()
 	{
 		if (ShortcutKey.HasValue)

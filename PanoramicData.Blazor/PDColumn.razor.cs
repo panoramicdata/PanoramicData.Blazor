@@ -9,10 +9,17 @@ public partial class PDColumn<TItem> where TItem : class
 	private Func<TItem, object>? _compiledFunc;
 	private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
 
+	internal ColumnState State { get; set; } = new();
+
 	/// <summary>
 	/// Gets or sets the autocomplete attribute value.
 	/// </summary>
 	[Parameter] public string AutoComplete { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Gets or sets whether this column can be shown or hidden by the user.
+	/// </summary>
+	[Parameter] public bool CanToggleVisible { get; set; } = true;
 
 	/// <summary>
 	/// Gets or sets the default sort direction for this column.
@@ -81,7 +88,10 @@ public partial class PDColumn<TItem> where TItem : class
 	public string FilterKey { get; set; } = string.Empty;
 
 	[Parameter]
-	public bool FilterValues { get; set; } = true;
+	public bool FilterShowSuggestedValues { get; set; } = true;
+
+	[Parameter]
+	public IEnumerable<object> FilterSuggestedValues { get; set; } = Array.Empty<object>();
 
 	[Parameter]
 	public int? FilterMaxValues { get; set; }
@@ -184,15 +194,37 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public bool IsTextArea { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether the colum is visible or not.
+	/// </summary>
+	/// <remarks>To be visible both this parameter and ShowInList must equal true.</remarks>
+	[Parameter] public bool IsVisible { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets whether this field contains an image
 	/// If the field is a string, then the string is treated as the image URL
 	/// </summary>
 	[Parameter] public bool IsImage { get; set; }
 
 	/// <summary>
+	/// Gets or sets the minimum value for numeric values.
+	/// </summary>
+	[Parameter] public double? MinValue { get; set; }
+
+	/// <summary>
 	/// Gets or sets the maximum length for entered text.
 	/// </summary>
 	[Parameter] public int? MaxLength { get; set; }
+
+	/// <summary>
+	/// Gets or sets the maximum value for numeric values.
+	/// </summary>
+	[Parameter] public double? MaxValue { get; set; }
+
+	/// <summary>
+	/// Gets or sets an optional name for the column. Useful for calculated columns that
+	/// have no header text / title.
+	/// </summary>
+	[Parameter] public string Name { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets a function that returns available value choices.
@@ -203,6 +235,12 @@ public partial class PDColumn<TItem> where TItem : class
 	/// Gets an asynchronous function that returns available value choices.
 	/// </summary>
 	[Parameter] public Func<FormField<TItem>, TItem?, Task<OptionInfo[]>>? OptionsAsync { get; set; }
+
+	/// <summary>
+	/// Gets or sets the preferred ordinal position of the column (from left to right).
+	/// </summary>
+	/// <remarks>The default is 1000 for all columns, columns of equal ordinality will remain in their defined order.</remarks>
+	[Parameter] public int Ordinal { get; set; } = 1000;
 
 	/// <summary>
 	/// Gets or sets the attributes of the underlying property.
@@ -249,6 +287,11 @@ public partial class PDColumn<TItem> where TItem : class
 	/// Gets or sets whether the validation result should be shown when displayed in a linked form.
 	/// </summary>
 	[Parameter] public bool ShowValidationResult { get; set; } = true;
+
+	public void SetId(string id)
+	{
+		Id = id;
+	}
 
 	public void SetValue(TItem item, object? value)
 	{
@@ -339,7 +382,8 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets whether the contents of this cell are user selectable.
 	/// </summary>
-	[Parameter] public bool UserSelectable { get; set; }
+	/// <remarks>When set to a null (default) will use Table property value.</remarks>
+	[Parameter] public bool? UserSelectable { get; set; }
 
 	public string GetTitle()
 	{
@@ -363,6 +407,11 @@ public partial class PDColumn<TItem> where TItem : class
 				$"type '{typeof(TItem)}' does not match the table type.");
 		}
 
+		// default state
+		State.Visible = IsVisible;
+		State.Ordinal = Ordinal;
+
+		// register with table
 		await Table.AddColumnAsync(this).ConfigureAwait(true);
 	}
 
@@ -377,6 +426,12 @@ public partial class PDColumn<TItem> where TItem : class
 		PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
 	}
 
+	public void SetOrdinal(int ordinal)
+	{
+		State.Ordinal = ordinal;
+		StateHasChanged();
+	}
+
 	public void SetShowInList(bool showInList)
 	{
 		ShowInList = showInList;
@@ -389,14 +444,40 @@ public partial class PDColumn<TItem> where TItem : class
 		StateHasChanged();
 	}
 
+	public void SetVisible(bool isVisible)
+	{
+		State.Visible = isVisible;
+		StateHasChanged();
+	}
+
 	public FilterDataTypes GetFilterDataType()
 	{
 		var memberInfo = Field?.GetPropertyMemberInfo();
+
+		if (Field is MemberExpression me)
+		{
+			if (Nullable.GetUnderlyingType(me.Type) != null)
+			{
+				// If the member expression type is nullable, return its underlying type
+				var t = Nullable.GetUnderlyingType(me.Type);
+
+			}
+		}
+
+
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			if (propInfo.PropertyType.IsEnum)
+			// nullable?
+			var ut = Nullable.GetUnderlyingType(propInfo.PropertyType);
+
+			if (propInfo.PropertyType.IsEnum || ut?.IsEnum == true)
 			{
 				return FilterDataTypes.Enum;
+			}
+
+			if (propInfo.PropertyType.FullName == "System.Boolean" || ut?.FullName == "System.Boolean")
+			{
+				return FilterDataTypes.Bool;
 			}
 
 			if (propInfo.PropertyType.FullName == "System.String")
@@ -404,7 +485,8 @@ public partial class PDColumn<TItem> where TItem : class
 				return FilterDataTypes.Text;
 			}
 
-			if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset")
+			if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset"
+				 || ut?.FullName == "System.DateTime" || ut?.FullName == "System.DateTimeOffset")
 			{
 				return FilterDataTypes.Date;
 			}
@@ -459,13 +541,6 @@ public partial class PDColumn<TItem> where TItem : class
 								?? mexpr.Member.GetCustomAttribute<DisplayAttribute>()?.ShortName
 								?? mexpr.Member.Name.LowerFirstChar()
 					));
-					//var last = chain.LastOrDefault();
-					//if (last != null)
-					//{
-					//	FilterKey = last.Member.GetCustomAttribute<FilterKeyAttribute>()?.Value
-					//			?? last.Member.GetCustomAttribute<DisplayAttribute>()?.ShortName
-					//			?? last.Member.Name;
-					//}
 					return node;
 				}
 			}

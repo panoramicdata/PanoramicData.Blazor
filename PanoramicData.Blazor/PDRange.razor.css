@@ -1,0 +1,45 @@
+.plot-area {
+	background-color: transparent;
+}
+
+.handle {
+	fill: darkslategray;
+	stroke: silver;
+	opacity: 0.8;
+}
+
+.pd-range:not(.disabled) .handle {
+	cursor: col-resize;
+}
+
+.tick.major {
+	stroke: black;
+}
+
+.label.tick-major {
+	fill: black;
+	font-size: 0.6rem;
+	font-weight: 500;
+	stroke: none;
+	user-select: none;
+}
+
+.track.inner {
+	fill: green;
+}
+
+.track.inner.invert {
+	fill: silver;
+}
+
+.track.outer {
+	fill: silver;
+}
+
+.track.outer.invert {
+	fill: green;
+}
+
+.disabled {
+	opacity: 0.5;
+}
