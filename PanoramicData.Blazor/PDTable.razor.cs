@@ -1012,10 +1012,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 	}
 
-	private async Task OnDivMouseDown(MouseEventArgs _)
+	private async Task OnDivMouseDown(MouseEventArgs args)
 	{
 		// if mouse down event occurred straight from Div then clear selection
-		if (!_mouseDownOriginatedFromTable)
+		if (!_mouseDownOriginatedFromTable && (args.Button != 2 || RightClickSelectsRow))
 		{
 			Selection.Clear();
 			await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);

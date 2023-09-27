@@ -175,6 +175,11 @@ public partial class PDTree<TItem> where TItem : class
 	/// </summary>
 	[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether right clicking on an item selects it?
+	/// </summary>
+	[Parameter] public bool RightClickSelectsItem { get; set; } = true;
+
 	#endregion
 
 	/// <summary>
@@ -271,6 +276,12 @@ public partial class PDTree<TItem> where TItem : class
 
 	public void NodeMouseDown(TreeNode<TItem> node, MouseEventArgs args)
 	{
+		// ignore right button?
+		if (args.Button == 2 && !RightClickSelectsItem)
+		{
+			return;
+		}
+
 		if (_clickTimer == null || node != _clickedNode)
 		{
 			_clickTimer?.Dispose();

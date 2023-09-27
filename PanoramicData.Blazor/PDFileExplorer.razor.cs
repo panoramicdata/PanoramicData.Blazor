@@ -194,6 +194,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public EventCallback Ready { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether right clicking on an item selects it?
+	/// </summary>
+	[Parameter] public bool RightClickSelectsItem { get; set; } = true;
+
+	/// <summary>
 	/// Determines whether the navigate up to the parent folder button is visible or not.
 	/// </summary>
 	[Parameter] public bool ShowNavigateUpButton { get; set; } = true;
@@ -737,7 +742,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	private async Task OnTableAfterEditAsync(TableAfterEditEventArgs<FileExplorerItem> args)
 	{
-		// cancel is new name is empty
+		// cancel if new name is empty
 		if (args.NewValues.ContainsKey("Name"))
 		{
 			var newName = args.NewValues["Name"]?.ToString();
@@ -932,7 +937,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			}
 			else if (menuItem.Text == "New Folder")
 			{
-				await CreateNewFolderAsync().ConfigureAwait(true);
+				await CreateNewFolderAsync(false).ConfigureAwait(true);
 			}
 			else if (menuItem.Text == "Upload Files")
 			{
@@ -953,26 +958,32 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	private async Task DirectoryRenameAsync(string oldPath, string newPath)
 	{
-		// synchronize existing node paths for tree and table
-		Tree!.RootNode.Walk((x) =>
+		if (Tree != null && Table != null)
 		{
-			if (x.Data != null)
+			// synchronize existing node paths for tree and table
+			Tree.RootNode.Walk((x) =>
 			{
-				if (x.Data.Path == oldPath)
+				if (x.Data != null)
 				{
-					x.Data.Name = FileExplorerItem.GetNameFromPath(newPath);
+					if (x.Data.Path == oldPath)
+					{
+						x.Data.Name = FileExplorerItem.GetNameFromPath(newPath);
+					}
+
+					x.Key = x.Key.ReplacePathPrefix(oldPath, newPath);
+					x.Data.Path = x.Data.Path.ReplacePathPrefix(oldPath, newPath);
 				}
 
-				x.Key = x.Key.ReplacePathPrefix(oldPath, newPath);
-				x.Data.Path = x.Data.Path.ReplacePathPrefix(oldPath, newPath);
+				return true;
+			});
+			Table.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(oldPath, newPath));
+			// re-apply sort to tree and table
+			if (Tree.SelectedNode != null)
+			{
+				await OnTreeSelectionChangeAsync(Tree.SelectedNode).ConfigureAwait(true);
+				await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
 			}
-
-			return true;
-		});
-		Table!.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(oldPath, newPath));
-		if (Tree?.SelectedNode != null)
-		{
-			await OnTreeSelectionChangeAsync(Tree.SelectedNode).ConfigureAwait(true);
+			await Table.SortAsync(Table.SortCriteria);
 		}
 	}
 
@@ -1178,7 +1189,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				break;
 
 			case "create-folder":
-				await CreateNewFolderAsync().ConfigureAwait(true);
+				await CreateNewFolderAsync(false).ConfigureAwait(true);
 				break;
 
 			case "delete":
@@ -1326,18 +1337,31 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 	}
 
-	private async Task CreateNewFolderAsync()
+	private async Task CreateNewFolderAsync(bool createInTree = true)
 	{
 		if (Tree?.SelectedNode?.Data != null)
 		{
-			// current logic uses tree node sub-items to create a new folder with a unique name
-			// ensure that the node is expanded so all sub-items are fetched.
-			if (!Tree.SelectedNode.IsExpanded)
+			// determine default name
+			var newFolderName = "New Folder";
+			if (createInTree)
 			{
-				await Tree.ToggleNodeIsExpandedAsync(Tree.SelectedNode).ConfigureAwait(true);
+				// current logic uses tree node sub-items to create a new folder with a unique name
+				// ensure that the node is expanded so all sub-items are fetched.
+				if (!Tree.SelectedNode.IsExpanded)
+				{
+					await Tree.ToggleNodeIsExpandedAsync(Tree.SelectedNode).ConfigureAwait(true);
+				}
+				newFolderName = Tree!.SelectedNode.MakeUniqueText("New Folder") ?? "New Folder";
+			}
+			else
+			{
+				for (var count = 2; Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newFolderName, StringComparison.OrdinalIgnoreCase)); count++)
+				{
+					newFolderName = $"New Folder ({count})";
+				}
 			}
 
-			var newFolderName = Tree!.SelectedNode.MakeUniqueText("New Folder") ?? "New Folder";
+			// create new folder via api
 			var newPath = $"{Tree.SelectedNode.Data.Path.TrimEnd('/')}/{newFolderName}";
 			var newItem = new FileExplorerItem
 			{
@@ -1351,11 +1375,26 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				// refresh current node, select new node and finally begin edit mode
 				await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
-				var newNode = Tree.RootNode.Find(newItem.Path);
-				if (newNode != null)
+
+				if (createInTree)
 				{
-					await Tree.SelectNode(newNode).ConfigureAwait(true);
-					await Tree.BeginEdit().ConfigureAwait(true);
+					var newNode = Tree.RootNode.Find(newItem.Path);
+					if (newNode != null)
+					{
+						await Tree.SelectNode(newNode).ConfigureAwait(true);
+						await Tree.BeginEdit().ConfigureAwait(true);
+					}
+				}
+				else
+				{
+					// refresh table, select new folder row and begin edit
+					await Table!.RefreshAsync().ConfigureAwait(true);
+					var row = Table!.ItemsToDisplay.FirstOrDefault(x => x.Name == newFolderName);
+					if (row != null && Table!.KeyField!(row)?.ToString() is string key)
+					{
+						await Table!.SelectItemAsync(key).ConfigureAwait(true);
+						await Table!.BeginEditAsync().ConfigureAwait(true);
+					}
 				}
 			}
 		}
