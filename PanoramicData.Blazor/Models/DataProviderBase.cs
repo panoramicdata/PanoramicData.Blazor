@@ -142,6 +142,9 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		switch (filter.FilterType)
 		{
 			case FilterTypes.Contains:
+				// TODO: allow for case insensitivity
+				//var lowerParams = parameters.Where(x => x != null).Select(x => x.ToString()!.ToLowerInvariant()).ToArray();
+				//newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"({property}.ToLower()).Contains(@0)", lowerParams);
 				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"({property}).Contains(@0)", parameters);
 				break;
 

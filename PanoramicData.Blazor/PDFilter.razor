@@ -15,7 +15,7 @@
 					<option value="@FilterTypes.Equals" selected="@(_filterType == FilterTypes.Equals)">Equals</option>
 					<option value="@FilterTypes.DoesNotEqual" selected="@(_filterType == FilterTypes.DoesNotEqual)">Does not equal</option>
 					<option value="@FilterTypes.In" selected="@(_filterType == FilterTypes.In)">In list</option>
-					@if (DataType != FilterDataTypes.Enum && DataType != FilterDataTypes.Bool)
+					@if (DataType != FilterDataTypes.Enum && DataType != FilterDataTypes.Text && DataType != FilterDataTypes.Bool)
 					{
 						<option value="@FilterTypes.GreaterThan" selected="@(_filterType == FilterTypes.GreaterThan)">Greater than</option>
 						<option value="@FilterTypes.GreaterThanOrEqual" selected="@(_filterType == FilterTypes.GreaterThanOrEqual)">Greater than or equal</option>
