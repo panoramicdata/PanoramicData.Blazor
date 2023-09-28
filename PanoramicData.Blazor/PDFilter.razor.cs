@@ -144,8 +144,23 @@ public partial class PDFilter : IAsyncDisposable
 			_selectedValues.Add(value);
 		}
 
-		_filterType = FilterTypes.In;
-		_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
+		// if single selection and compatible operator - simple copy value
+		var ops = new[] { FilterTypes.Equals, FilterTypes.DoesNotEqual, FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual, FilterTypes.Range };
+		if (_selectedValues.Count == 1 && ops.Contains(_filterType))
+		{
+			_value1 = _selectedValues[0];
+		}
+		else if (_selectedValues.Count == 2 && _filterType == FilterTypes.Range)
+		{
+			_value1 = _selectedValues[0];
+			_value2 = _selectedValues[1];
+		}
+		else
+		{
+			_filterType = FilterTypes.In;
+			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
+		}
+
 	}
 
 	private async Task RefreshValues()
