@@ -46,6 +46,7 @@ public static class IQueryableExtensions
 				object[] parameters = filter.FilterType switch
 				{
 					FilterTypes.In => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
+					FilterTypes.NotIn => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
 					FilterTypes.Range => new[] { filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes() },
 					FilterTypes.IsEmpty => new[] { string.Empty },
 					FilterTypes.IsNotEmpty => new[] { string.Empty },
@@ -70,6 +71,7 @@ public static class IQueryableExtensions
 					FilterTypes.Equals => $"{propertyName} == @0",
 					FilterTypes.StartsWith => $"{propertyName} != null and ({propertyName}).StartsWith(@0)",
 					FilterTypes.In => string.Join(" || ", parameters.Select((x, i) => $"{propertyName} == @{i}").ToArray()),
+					FilterTypes.NotIn => string.Join(" && ", parameters.Select((x, i) => $"{propertyName} != @{i}").ToArray()),
 					FilterTypes.GreaterThan => $"{propertyName} > @0",
 					FilterTypes.GreaterThanOrEqual => $"{propertyName} >= @0",
 					FilterTypes.LessThanOrEqual => $"{propertyName} <= @0",

@@ -133,6 +133,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		object[] parameters = filter.FilterType switch
 		{
 			FilterTypes.In => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
+			FilterTypes.NotIn => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
 			FilterTypes.Range => new[] { filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes() },
 			FilterTypes.IsEmpty => new[] { string.Empty },
 			FilterTypes.IsNotEmpty => new[] { string.Empty },
@@ -170,8 +171,17 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 				break;
 
 			case FilterTypes.In:
-				var query = string.Join(" || ", parameters.Select((x, i) => $"it.{property} == @{i}").ToArray());
-				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, parameters);
+				{
+					var query = string.Join(" || ", parameters.Select((x, i) => $"it.{property} == @{i}").ToArray());
+					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, parameters);
+				}
+				break;
+
+			case FilterTypes.NotIn:
+				{
+					var query = string.Join(" && ", parameters.Select((x, i) => $"it.{property} != @{i}").ToArray());
+					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, parameters);
+				}
 				break;
 
 			case FilterTypes.LessThan:

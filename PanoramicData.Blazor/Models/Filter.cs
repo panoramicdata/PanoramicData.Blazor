@@ -70,6 +70,7 @@ public class Filter
 			FilterTypes.Contains => $"{Key}:*{Value}*",
 			FilterTypes.DoesNotContain => $"{Key}:!*{Value}*",
 			FilterTypes.In => $"{Key}:In({Value})",
+			FilterTypes.NotIn => $"{Key}:!In({Value})",
 			FilterTypes.GreaterThan => $"{Key}:>{Value}",
 			FilterTypes.GreaterThanOrEqual => $"{Key}:>={Value}",
 			FilterTypes.LessThan => $"{Key}:<{Value}",
@@ -182,6 +183,11 @@ public class Filter
 		{
 			value = string.Empty;
 			filterType = FilterTypes.IsNull;
+		}
+		else if (encodedValue.StartsWith("!in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")", StringComparison.Ordinal) && encodedValue.Length > 3)
+		{
+			value = encodedValue[4..^1];
+			filterType = FilterTypes.NotIn;
 		}
 		else if (encodedValue.StartsWith("in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")", StringComparison.Ordinal) && encodedValue.Length > 3)
 		{
