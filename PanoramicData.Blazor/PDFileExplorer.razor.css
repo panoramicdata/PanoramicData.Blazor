@@ -3,7 +3,6 @@
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
-	justify-content: space-evenly;
 	padding-bottom: 5px;
 }
 
@@ -13,7 +12,7 @@
 
 	.pdfileexplorer ::deep .pdtable {
 		/* RM-14062 MG */
-		/*height: 0px;*/
+		height: 0px !important;
 	}
 
 	.pdfileexplorer ::deep .pdtree {
