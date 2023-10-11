@@ -96,6 +96,9 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter]
 	public int? FilterMaxValues { get; set; }
 
+	public string GetPropertyName()
+		=> Field != null ? Field.GetPropertyName() : string.Empty;
+
 	/// <summary>
 	/// Renders the field value for this column and the given item.
 	/// </summary>
