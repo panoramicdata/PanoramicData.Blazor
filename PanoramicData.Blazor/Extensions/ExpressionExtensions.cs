@@ -22,15 +22,15 @@ public static class ExpressionExtensions
 		if (expr != null)
 		{
 			var body = expr.Body.ToString();
-			if (expr is MemberExpression)
+			if (expr.Body is MemberExpression)
 			{
 				return body.Contains('.') ? string.Join(".", body.Split('.').Skip(1)) : body;
 			}
-			else if (expr is ConditionalExpression ce1 && ce1.IfTrue is MemberExpression tme)
+			else if (expr.Body is ConditionalExpression ce1 && ce1.IfTrue is MemberExpression tme)
 			{
 				return tme.ToString().Contains('.') ? string.Join(".", tme.ToString().Split('.').Skip(1)) : tme.ToString();
 			}
-			else if (expr is ConditionalExpression ce2 && ce2.IfFalse is MemberExpression fme)
+			else if (expr.Body is ConditionalExpression ce2 && ce2.IfFalse is MemberExpression fme)
 			{
 				return fme.ToString().Contains('.') ? string.Join(".", fme.ToString().Split('.').Skip(1)) : fme.ToString();
 			}
