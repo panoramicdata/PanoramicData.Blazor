@@ -148,12 +148,12 @@ public partial class PDFilter : IAsyncDisposable
 		var ops = new[] { FilterTypes.Equals, FilterTypes.DoesNotEqual, FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual, FilterTypes.Range };
 		if (_selectedValues.Count == 1 && ops.Contains(_filterType))
 		{
-			_value1 = _selectedValues[0];
+			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();
 		}
 		else if (_selectedValues.Count == 2 && _filterType == FilterTypes.Range)
 		{
-			_value1 = _selectedValues[0];
-			_value2 = _selectedValues[1];
+			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();
+			_value2 = _selectedValues[1].QuoteIfContainsWhitespace();
 		}
 		else
 		{
