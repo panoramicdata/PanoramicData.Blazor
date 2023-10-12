@@ -16,17 +16,20 @@ else if (Field.IsPassword || Field.IsSensitive(Form?.Item, Form))
            class="form-control @GetEditorClass(Field)"
            value="@Form?.GetFieldStringValue(Field)"
            maxlength="@(Field.MaxLength ?? -1)"
-           @onchange="async (x) => await UpdateValueViaCastAsync(x, Field).ConfigureAwait(true)">
+    @onchange="async (x) => await UpdateValueViaCastAsync(x, Field).ConfigureAwait(true)">
 }
 else if (Field.Options != null)
 {
     <select @onblur="() => Field.SuppressErrors = false"
-            class="form-select @GetEditorClass(Field)"
+    class="form-select @GetEditorClass(Field)"
             disabled="@IsReadOnly(Field)"
             @oninput="(x) => OnSelectInputChanged(x, Field)">
+            @{
+                var currentValue = Form!.GetFieldValue(Field, true);
+            }
         @foreach (var option in Field.Options(Field, Form?.Item))
         {
-            if (option.IsSelected)
+            if ((option.Value == null && currentValue == null) || (option.Value!.Equals(currentValue)))
             {
                 <option value="@option.Value" disabled="@option.IsDisabled" selected>@option.Text</option>
             }
