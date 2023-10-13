@@ -276,7 +276,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <summary>
 	/// Gets a calculated list of actual columns to be displayed.
 	/// </summary>
-	protected List<PDColumn<TItem>> ActualColumnsToDisplay
+	public List<PDColumn<TItem>> ActualColumnsToDisplay
 	{
 		get
 		{
