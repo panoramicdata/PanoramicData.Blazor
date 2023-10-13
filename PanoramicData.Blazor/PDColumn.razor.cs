@@ -9,7 +9,7 @@ public partial class PDColumn<TItem> where TItem : class
 	private Func<TItem, object>? _compiledFunc;
 	private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
 
-	internal ColumnState State { get; set; } = new();
+	public ColumnState State { get; internal set; } = new();
 
 	/// <summary>
 	/// Gets or sets the autocomplete attribute value.
