@@ -32,6 +32,15 @@
 		/*height: 41px;*/
 	}
 
+	.pdfileexplorer .preview-header {
+		background-color: silver;
+		height: 20px;
+	}
+
+	.pdfileexplorer .preview-content {
+		height: calc(100% - 20px);
+	}
+
 #upload-progress-modal {
 	z-index: 1060;
 }

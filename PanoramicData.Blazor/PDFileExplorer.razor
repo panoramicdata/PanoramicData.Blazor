@@ -124,7 +124,7 @@
                    ButtonClick="OnToolbarButtonClickAsync" />
     </div>
 
-    <PDSplitter GutterSize="6">
+    <PDSplitter @ref="_splitter" GutterSize="6">
 
         <PDSplitPanel Size="1">
 
@@ -331,6 +331,13 @@
             </PDContextMenu>
 
         </PDSplitPanel>
+
+        @if (PreviewPanel != FilePreviewModes.Off)
+        {
+            <PDSplitPanel Size="InitialPreviewSize" MinSize="0">
+                <div></div>
+            </PDSplitPanel>
+        }
 
     </PDSplitter>
 

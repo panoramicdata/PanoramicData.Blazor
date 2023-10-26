@@ -38,11 +38,21 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private PDModal? UploadDialog { get; set; }
 	private PDDropZone _dropZone1 = null!;
 	private PDDropZone _dropZone2 = null!;
-	public string FolderPath = string.Empty;
+	private string _folderPath = string.Empty;
 	private IJSObjectReference? _commonModule;
+	private ToolbarButton? _previewPanelButton;
+	private PDSplitter? _splitter;
+	private bool _previewPanelVisible = true;
+	private double[] _lastSplitSizes = new double[] { 20, 60, 20 };
+
+	public string FolderPath { get => _folderPath; set => _folderPath = value; }
+
+	private int InitialPreviewSize => PreviewPanel == FilePreviewModes.OptionalOff ? 0 : 1;
 
 	public string Id { get; private set; } = string.Empty;
+
 	public bool IsNavigating { get; private set; }
+
 	public string SessionId { get; private set; } = Guid.NewGuid().ToString();
 
 	#region Inject
@@ -189,6 +199,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
 
 	/// <summary>
+	/// Preview Panel mode.
+	/// </summary>
+	[Parameter] public FilePreviewModes PreviewPanel { get; set; } = FilePreviewModes.Off;
+
+	/// <summary>
 	/// Gets or sets an event callback raised when the component has perform all it initialization.
 	/// </summary>
 	[Parameter] public EventCallback Ready { get; set; }
@@ -207,7 +222,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Determines where sub-folders show an entry (..) to allow navigation to the parent folder.
 	/// </summary>
 	[Parameter] public bool ShowParentFolder { get; set; } = true;
-
 
 	/// <summary>
 	/// Determines whether the toolbar is visible.
@@ -379,6 +393,13 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 
 		ToolbarItems.Add(new ToolbarButton { Key = "refresh", Text = "Refresh", ToolTip = "Refreshes the current folder", IconCssClass = "fas fa-fw fa-sync-alt", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+
+		if (PreviewPanel == FilePreviewModes.OptionalOff || PreviewPanel == FilePreviewModes.OptionalOn)
+		{
+			_previewPanelButton = new ToolbarButton { Key = "preview", Text = "Preview", ToolTip = "Toggles display of the Preview panel", IconCssClass = "fas fa-fw fa-eye", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" };
+			ToolbarItems.Add(_previewPanelButton);
+		}
+
 		ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 		ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
 		if (!string.IsNullOrWhiteSpace(UploadUrl))
@@ -386,6 +407,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 			TableContextItems.Insert(1, _menuUploadFiles);
 			TreeContextItems.Insert(0, _menuUploadFiles);
 			ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+		}
+
+		if (PreviewPanel == FilePreviewModes.OptionalOff)
+		{
+			_previewPanelVisible = false;
 		}
 	}
 
@@ -1171,6 +1197,28 @@ public partial class PDFileExplorer : IAsyncDisposable
 		return null;
 	}
 
+	private async Task OnTogglePreviewPanelAsync()
+	{
+		if (_splitter != null)
+		{
+			if (_previewPanelVisible)
+			{
+				_lastSplitSizes = await _splitter.GetSizesAsync().ConfigureAwait(true);
+				if (_lastSplitSizes.Length > 2)
+				{
+					await _splitter.SetSizesAsync(new double[] { _lastSplitSizes[0], _lastSplitSizes[1] + _lastSplitSizes[2], 0 }).ConfigureAwait(true);
+				}
+			}
+			else
+			{
+				await _splitter.SetSizesAsync(_lastSplitSizes).ConfigureAwait(true);
+			}
+			_previewPanelVisible = !_previewPanelVisible;
+
+			await RefreshToolbarAsync();
+		}
+	}
+
 	private async Task OnToolbarButtonClickAsync(KeyedEventArgs<MouseEventArgs> args)
 	{
 		switch (args.Key)
@@ -1201,11 +1249,17 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					await UploadDialog.ShowAsync().ConfigureAwait(true);
 				}
-
 				break;
 
 			case "refresh":
 				await RefreshAllAsync().ConfigureAwait(true);
+				break;
+
+			case "preview":
+				if (PreviewPanel == FilePreviewModes.OptionalOff || PreviewPanel == FilePreviewModes.OptionalOn)
+				{
+					await OnTogglePreviewPanelAsync().ConfigureAwait(true);
+				}
 				break;
 
 			default:
@@ -1721,6 +1775,12 @@ public partial class PDFileExplorer : IAsyncDisposable
 		if (deleteButton != null)
 		{
 			deleteButton.IsEnabled = Table!.Selection.Count > 0 && selectedItems.All(x => x.CanDelete);
+		}
+
+		// preview button
+		if (_previewPanelButton != null)
+		{
+			_previewPanelButton.IconCssClass = _previewPanelVisible ? "fas fa-fw fa-eye-slash" : "fas fa-fw fa-eye";
 		}
 
 		// allow application to alter toolbar state

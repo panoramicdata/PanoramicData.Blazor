@@ -21,10 +21,6 @@ public class FieldGroup<TItem> where TItem : class
 		{
 			foreach (var field in Fields)
 			{
-				if (field.Name == "StopOn")
-				{
-					var a = 9;
-				}
 				if (form?.Errors?.ContainsKey(field.GetName() ?? string.Empty) == true)
 				{
 					return true;
