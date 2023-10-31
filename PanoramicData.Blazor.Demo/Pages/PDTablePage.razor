@@ -81,9 +81,12 @@
                      DataProvider="_personDataProvider"
                      Id="Table1"
                      KeyField="x => x.Id"
+                     AfterEdit="OnAfterEdit"
+                     AfterEditCommitted="OnAfterEditCommitted"
                      AllowEdit="true"
                      AllowDrag="AllowDrag"
                      AllowDrop="AllowDrop"
+                     BeforeEdit="OnBeforeEdit"
                      IsEnabled="Enabled"
                      FilterMaxValues="50"
                      SaveChanges="true"
@@ -99,7 +102,6 @@
                      Drop="OnDrop"
                      Click="OnClick"
                      DoubleClick="OnDoubleClick"
-                     BeforeEdit="OnBeforeEdit"
                      PageChanged="OnPageChange"
                      SortChanged="OnSortChange">
 

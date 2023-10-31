@@ -65,6 +65,25 @@ public partial class PDTablePage
 		NavigationManager.SetUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } });
 	}
 
+	private void OnAfterEdit(TableAfterEditEventArgs<Person> args)
+	{
+		EventManager?.Add(new Event("AfterEdit", new EventArgument("Person", args.Item.FirstName), new EventArgument("Cancel", args.Cancel), new EventArgument("NewValues", args.ToString())));
+	}
+
+
+	private void OnAfterEditCommitted(TableAfterEditCommittedEventArgs<Person> args)
+	{
+		EventManager?.Add(new Event("AfterEditCommitted", new EventArgument("Person", args.Item.FirstName), new EventArgument("NewValues", args.ToString())));
+	}
+
+	private void OnBeforeEdit(TableBeforeEditEventArgs<Person> args)
+	{
+		EventManager?.Add(new Event("BeforeEdit", new EventArgument("Person", args.Item.FirstName), new EventArgument("SelectionStart", args.SelectionStart), new EventArgument("SelectionEnd", args.SelectionEnd)));
+
+		// example of preventing an edit
+		args.Cancel = args.Item.FirstName == "Alice";
+	}
+
 	private void OnPageChange(PageCriteria criteria)
 	{
 		EventManager?.Add(new Event("PageChange", new EventArgument("Page", criteria.Page), new EventArgument("PageSize", criteria.PageSize)));
@@ -85,14 +104,6 @@ public partial class PDTablePage
 	private void OnClick(Person item) => EventManager?.Add(new Event("Click", new EventArgument("Person", item.FirstName)));
 
 	private void OnDoubleClick(Person item) => EventManager?.Add(new Event("DoubleClick", new EventArgument("Person", item.FirstName)));
-
-	private void OnBeforeEdit(TableBeforeEditEventArgs<Person> args)
-	{
-		EventManager?.Add(new Event("BeforeEdit", new EventArgument("Person", args.Item.FirstName)));
-
-		// example of preventing an edit
-		args.Cancel = args.Item.FirstName == "Alice";
-	}
 
 	private void OnDrop(DropEventArgs args)
 	{
