@@ -83,6 +83,56 @@ public class TableAfterEditEventArgs<TItem> : TableCancelEventArgs<TItem> where 
 	/// Gets or sets the new values.
 	/// </summary>
 	public Dictionary<string, object?> NewValues { get; set; } = new Dictionary<string, object?>();
+
+	public override string ToString()
+	{
+		var sb = new StringBuilder();
+		foreach (var kvp in NewValues)
+		{
+			if (sb.Length > 0)
+			{
+				sb.Append(", ");
+			}
+			string valueStr = kvp.Value?.ToString() ?? "(null)";
+			sb.Append(kvp.Key).Append(" = ").Append(valueStr);
+		}
+		return sb.ToString();
+	}
+}
+
+/// <summary>
+/// The TableAfterEditEventArgs class provides details of a completed edit and allows for cancellation.
+/// </summary>
+public class TableAfterEditCommittedEventArgs<TItem> : TableEventArgs<TItem> where TItem : class
+{
+	/// <summary>
+	/// Initializes a new instance of the TableBeforeEditEventArgs class.
+	/// </summary>
+	/// <param name="item">The original item values the event relates to.</param>
+	public TableAfterEditCommittedEventArgs(TItem item)
+		: base(item)
+	{
+	}
+
+	/// <summary>
+	/// Gets or sets the new values.
+	/// </summary>
+	public Dictionary<string, object?> NewValues { get; set; } = new Dictionary<string, object?>();
+
+	public override string ToString()
+	{
+		var sb = new StringBuilder();
+		foreach (var kvp in NewValues)
+		{
+			if (sb.Length > 0)
+			{
+				sb.Append(", ");
+			}
+			string valueStr = kvp.Value?.ToString() ?? "(null)";
+			sb.Append(kvp.Key).Append(" = ").Append(valueStr);
+		}
+		return sb.ToString();
+	}
 }
 
 /// <summary>

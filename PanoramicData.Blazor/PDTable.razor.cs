@@ -37,6 +37,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public EventCallback<TableAfterEditEventArgs<TItem>> AfterEdit { get; set; }
 
 	/// <summary>
+	/// Callback fired after an item edit ends and has been successfully saved.
+	/// </summary>
+	[Parameter] public EventCallback<TableAfterEditCommittedEventArgs<TItem>> AfterEditCommitted { get; set; }
+
+	/// <summary>
 	/// Gets or sets whether rows may be dragged.
 	/// </summary>
 	[Parameter] public bool AllowDrag { get; set; }
@@ -598,6 +603,8 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// </summary>
 	public async Task CommitEditAsync()
 	{
+		var delta = new Dictionary<string, object?>();
+
 		if (IsEditing && EditItem != null)
 		{
 			// build dictionary of edit values
@@ -637,7 +644,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			// save changes if configured to do so and data provider is given
 			if (SaveChanges && DataProvider != null)
 			{
-				var delta = new Dictionary<string, object?>();
 				foreach (var kvp in _editValues)
 				{
 					if (kvp.Value != null)
@@ -653,8 +659,20 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				await DataProvider.UpdateAsync(EditItem, delta, default).ConfigureAwait(true);
 			}
 
-			EditItem = null;
 			IsEditing = false;
+
+			// notify app of successful update
+			if (EditItem != null)
+			{
+				var committedArgs = new TableAfterEditCommittedEventArgs<TItem>(EditItem)
+				{
+					NewValues = delta
+				};
+				await AfterEditCommitted.InvokeAsync(committedArgs).ConfigureAwait(true);
+			}
+
+			EditItem = null;
+
 			if (_commonModule != null)
 			{
 				await _commonModule.InvokeVoidAsync("focus", Id).ConfigureAwait(true);
