@@ -1,0 +1,68 @@
+.image-container {
+	cursor: pointer;
+	transition: transform 0.3s ease;
+}
+
+	.image-container:hover {
+		transform: scale(1.01);
+	}
+
+@media (hover: hover) {
+	.image-container:hover {
+		transform: scale(1.01);
+	}
+}
+
+@media (hover: none) {
+	.image-container {
+		transform: none;
+	}
+}
+
+.fullscreen-dialog {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.8);
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 10px;
+}
+
+	.fullscreen-dialog img {
+		max-width: 100%;
+		max-height: 80vh;
+	}
+
+.close-btn {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	background-color: transparent;
+	color: #fff;
+	border: none;
+	font-size: 28px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+	.close-btn span {
+		line-height: 1;
+	}
+
+@media (max-width: 768px) {
+	.close-btn {
+		font-size: 36px;
+		top: 10px;
+		right: 10px;
+	}
+}
