@@ -25,7 +25,7 @@ public class NavigationCancelService : INavigationCancelService
 	public async Task<bool> ProceedAsync()
 		=> await ProceedAsync(string.Empty);
 
-	public async Task<bool> ProceedAsync(string target = "")
+	public async Task<bool> ProceedAsync(string target)
 	{
 		// ask listening code if operation should be canceled
 		var args = new BeforeNavigateEventArgs { Target = target };
