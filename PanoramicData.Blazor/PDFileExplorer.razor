@@ -335,7 +335,7 @@
         @if (PreviewPanel != FilePreviewModes.Off)
         {
             <PDSplitPanel Size="InitialPreviewSize" MinSize="0">
-                <div></div>
+                <PDFilePreview Item="_previewItem" PreviewProvider="PreviewProvider" />
             </PDSplitPanel>
         }
 

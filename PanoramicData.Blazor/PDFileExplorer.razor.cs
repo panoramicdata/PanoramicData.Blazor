@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor;
+﻿using PanoramicData.Blazor.PreviewProviders;
+
+namespace PanoramicData.Blazor;
 
 public partial class PDFileExplorer : IAsyncDisposable
 {
@@ -43,6 +45,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private ToolbarButton? _previewPanelButton;
 	private PDSplitter? _splitter;
 	private bool _previewPanelVisible = true;
+	private FileExplorerItem? _previewItem;
 	private double[] _lastSplitSizes = new double[] { 20, 60, 20 };
 
 	public string FolderPath { get => _folderPath; set => _folderPath = value; }
@@ -197,6 +200,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Event called whenever a move or copy operation is subject to conflicts.
 	/// </summary>
 	[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
+
+	/// <summary>
+	/// Gets or sets an optional File Preview provider.
+	/// </summary>
+	[Parameter] public IPreviewProvider PreviewProvider { get; set; } = new DefaultPreviewProvider();
 
 	/// <summary>
 	/// Preview Panel mode.
@@ -357,6 +365,12 @@ public partial class PDFileExplorer : IAsyncDisposable
 	protected override async Task OnInitializedAsync()
 	{
 		Id = $"pdfe{++_idSequence}";
+
+		PreviewProvider = new FileExplorerPreviewProvider()
+		{
+			FileExplorer = this
+		};
+
 		TableContextItems.AddRange(new[]
 			{
 			_menuOpen,
@@ -980,6 +994,9 @@ public partial class PDFileExplorer : IAsyncDisposable
 		await RefreshToolbarAsync().ConfigureAwait(true);
 		var selection = Table?.GetSelectedItems() ?? Array.Empty<FileExplorerItem>();
 		await SelectionChanged.InvokeAsync(selection).ConfigureAwait(true);
+
+		// preview content?
+		_previewItem = selection.Length == 1 ? selection.First() : null;
 	}
 
 	private async Task DirectoryRenameAsync(string oldPath, string newPath)
@@ -1933,7 +1950,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		return defaultCss;
 	}
 
-	private string GetIconCssClass(FileExplorerItem? item)
+	public string GetIconCssClass(FileExplorerItem? item)
 	{
 		if (item != null)
 		{

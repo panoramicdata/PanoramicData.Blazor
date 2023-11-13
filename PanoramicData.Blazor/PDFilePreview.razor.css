@@ -1,0 +1,23 @@
+.pdfilepreview {
+	height: 100%;
+	overflow: auto;
+	width: 100%;
+	align-items: center;
+	display: flex;
+	justify-content: center;
+}
+
+::deep .stacked {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+}
+
+::deep .stacked span {
+	margin-top: 4px;
+}
+
+::deep .h1, ::deep h2, ::deep h3, ::deep .h4 {
+	margin: 0px !important;
+	padding: 0px !important;
+}
