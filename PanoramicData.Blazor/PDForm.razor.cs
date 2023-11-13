@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor;
+﻿using System.Security.Policy;
+
+namespace PanoramicData.Blazor;
 
 public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 {
@@ -403,7 +405,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
-	public object? GetFieldValue(FormField<TItem> field, bool updatedValue = true)
+	///
+
+	public object? GetFieldValue(FormField<TItem> field)
+		=> GetFieldValue(field, true);
+	public object? GetFieldValue(FormField<TItem> field, bool updatedValue)
 	{
 		// point to relevant TItem instance
 		if (Item is null)
@@ -440,7 +446,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
-	public T GetFieldValue<T>(string fieldName, bool updatedValue = true) where T : struct
+
+	public T GetFieldValue<T>(string fieldName) where T: struct
+		=> GetFieldValue<T>(fieldName, true);
+
+	public T GetFieldValue<T>(string fieldName, bool updatedValue) where T : struct
 	{
 		var field = GetField(fieldName);
 		return GetFieldValue<T>(field, updatedValue);
@@ -453,7 +463,10 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
-	public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
+
+	public T GetFieldValue<T>(FormField<TItem> field) where T : struct
+		=> GetFieldValue<T>(field, true);
+	public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue) where T : struct
 	{
 		// point to relevant TItem instance
 		if (Item is null || field is null)
@@ -489,13 +502,20 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for String fields only, use GetFieldValue<T>() for Struct values.</remarks>
-	public string GetFieldStringValue(string fieldName, bool updatedValue = true)
+
+	public string GetFieldStringValue(string fieldName)
+		=> GetFieldStringValue(fieldName, true);
+
+	public string GetFieldStringValue(string fieldName, bool updatedValue)
 	{
 		var field = GetField(fieldName);
 		return field is null ? string.Empty : GetFieldStringValue(field, updatedValue);
 	}
 
-	public string GetFieldStringValue(IEnumerable<FormField<TItem>> fields, bool updatedValue = true)
+	public string GetFieldStringValue(IEnumerable<FormField<TItem>> fields)
+		=> GetFieldStringValue(fields, true);
+
+	public string GetFieldStringValue(IEnumerable<FormField<TItem>> fields, bool updatedValue)
 	{
 		var sb = new StringBuilder();
 		foreach (var field in fields)
@@ -518,7 +538,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for String fields only, use GetFieldValue<T>() for Struct values.</remarks>
-	public string GetFieldStringValue(FormField<TItem> field, bool updatedValue = true)
+
+	public string GetFieldStringValue(FormField<TItem> field)
+		=> GetFieldStringValue(field, true);
+
+	public string GetFieldStringValue(FormField<TItem> field, bool updatedValue)
 	{
 		// point to relevant TItem instance
 		if (Item is null)

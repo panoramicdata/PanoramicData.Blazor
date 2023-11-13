@@ -131,7 +131,9 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
-	public bool IsShown(FormField<TItem> field, FormModes? mode = null)
+	public bool IsShown(FormField<TItem> field) => IsShown(field, null);
+
+	public bool IsShown(FormField<TItem> field, FormModes? mode)
 	{
 		mode ??= Form?.Mode;
 
