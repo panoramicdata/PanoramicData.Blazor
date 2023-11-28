@@ -173,12 +173,12 @@
                             RightClickSelectsItem="RightClickSelectsItem"
                             SelectionChange="OnTreeSelectionChangeAsync"
                             Sort="OnTreeSort"
-                            TextField="x => x.Name"
+                            TextField="x => GetItemDisplayName(x)"
                             TItem="FileExplorerItem">
                         <NodeTemplate>
                             <span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
                                 <i class="@GetIconCssClass(context?.Data)"></i>
-                                <span>@context?.Data?.Name</span>
+                                <span>@GetItemDisplayName(context?.Data)</span>
                             </span>
                         </NodeTemplate>
                     </PDTree>
@@ -259,13 +259,13 @@
                                 @if (context.IsUploading)
                                 {
                                     <div style="width: 100%">
-                                        <span class="@(GetCssClass(context))">@context.Name</span>
+                                        <span class="@(GetCssClass(context))">@GetItemDisplayName(context)</span>
                                         <div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
                                     </div>
                                 }
                                 else
                                 {
-                                    <span class="@(GetCssClass(context))">@context.Name</span>
+                                    <span class="@(GetCssClass(context))">@GetItemDisplayName(context)</span>
                                 }
                             </Template>
                         </PDColumn>

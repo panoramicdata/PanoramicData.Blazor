@@ -45,6 +45,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	public bool IsNavigating { get; private set; }
 	public string SessionId { get; private set; } = Guid.NewGuid().ToString();
 
+	public string GetItemDisplayName(FileExplorerItem? item) =>
+		item is null
+			? string.Empty
+			: $"{item.Name} {(item.Name != ".." && item.IsReadOnly ? $" {ReadOnlyPostfix}" : string.Empty)}".Trim();
+
 	#region Inject
 	[Inject] public IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
@@ -187,6 +192,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Event called whenever a move or copy operation is subject to conflicts.
 	/// </summary>
 	[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
+
+	/// <summary>
+	/// Gets or sets string to append after a Read-Only items name.
+	/// </summary>
+	[Parameter] public string ReadOnlyPostfix { get; set; } = "(ro)";
 
 	/// <summary>
 	/// Gets or sets an event callback raised when the component has perform all it initialization.
