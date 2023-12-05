@@ -22,7 +22,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 	#region IFilterProviderService<T> Members
 
-	protected virtual void ApplyDelta(T item, IDictionary<string, object> delta)
+	protected virtual void ApplyDelta(T item, IDictionary<string, object?> delta)
 	{
 		var itemType = typeof(T);
 		foreach (var kvp in delta)
