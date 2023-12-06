@@ -74,6 +74,9 @@ public class Person : IComparable
 	[FilterKey("boss")]
 	public Person? Manager { get; set; }
 
+	[FilterKey("dep")]
+	public int? Dependents { get; set; }
+
 	public int CompareTo(object? obj)
 	{
 		if (obj is Person other)
