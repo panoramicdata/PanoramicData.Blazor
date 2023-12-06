@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<UserSecretsId>49933e5c-b6ca-4a76-8b2a-09d0868ee051</UserSecretsId>
 	</PropertyGroup>
@@ -22,9 +22,9 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="BlazorMonaco" Version="3.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="7.0.5" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.5" />
+		<PackageReference Include="BlazorMonaco" Version="3.1.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
 	</ItemGroup>
 
 
