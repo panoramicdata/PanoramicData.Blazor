@@ -200,7 +200,10 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 	protected override void OnInitialized()
 	{
-		Selection.AllSelected = DefaultToSelectAll;
+		if (DefaultToSelectAll)
+		{
+			Selection.AllSelected = true;
+		}
 	}
 
 	protected override Task OnParametersSetAsync()
