@@ -93,7 +93,7 @@ public partial class PDRange : IAsyncDisposable
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (_commonModule == null && JSRuntime != null)
+		if (firstRender && JSRuntime is not null)
 		{
 			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 		}

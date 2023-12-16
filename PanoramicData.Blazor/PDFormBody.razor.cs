@@ -88,7 +88,13 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		return groups;
 	}
 
-	protected override async Task OnInitializedAsync() => _commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && JSRuntime is not null)
+		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+		}
+	}
 
 	protected override void OnParametersSet()
 	{

@@ -81,7 +81,14 @@ public partial class PDNavLink : IAsyncDisposable
 	{
 		// We'll consider re-rendering on each location change
 		NavigationManager.LocationChanged += OnLocationChanged;
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && JSRuntime is not null)
+		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+		}
 	}
 
 	/// <inheritdoc />

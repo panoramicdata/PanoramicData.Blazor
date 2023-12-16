@@ -794,45 +794,101 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (DataProvider is null)
+		if (firstRender && JSRuntime is not null)
 		{
-			throw new PDTableException($"{nameof(DataProvider)} must not be null.");
+			if (DataProvider is null)
+			{
+				throw new PDTableException($"{nameof(DataProvider)} must not be null.");
+			}
+
+			if (PageCriteria != null)
+			{
+				PageCriteria.PageChanged += PageCriteria_PageChanged;
+				PageCriteria.PageSizeChanged += PageCriteria_PageSizeChanged;
+			}
+
+			_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
+
+			// load common javascript
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			//// improve on default column ids - this will improve state persistence
+			//foreach (var column in Columns)
+			//{
+			//	if (Regex.IsMatch(column.Id, @"^col-\d+$"))
+			//	{
+			//		var name = string.IsNullOrEmpty(column.Name) ? column.GetTitle() : column.Name;
+			//		if (!string.IsNullOrWhiteSpace(name))
+			//		{
+			//			var simpleName = name.ExtractAlphanumericChars().ToLower(CultureInfo.InvariantCulture);
+			//			if (!string.IsNullOrWhiteSpace(simpleName))
+			//			{
+			//				column.SetId($"col-{simpleName}");
+			//			}
+			//		}
+			//	}
+			//}
 		}
-
-		if (PageCriteria != null)
-		{
-			PageCriteria.PageChanged += PageCriteria_PageChanged;
-			PageCriteria.PageSizeChanged += PageCriteria_PageSizeChanged;
-		}
-
-		_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
-
-		// load common javascript
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-
-		//// improve on default column ids - this will improve state persistence
-		//foreach (var column in Columns)
-		//{
-		//	if (Regex.IsMatch(column.Id, @"^col-\d+$"))
-		//	{
-		//		var name = string.IsNullOrEmpty(column.Name) ? column.GetTitle() : column.Name;
-		//		if (!string.IsNullOrWhiteSpace(name))
-		//		{
-		//			var simpleName = name.ExtractAlphanumericChars().ToLower(CultureInfo.InvariantCulture);
-		//			if (!string.IsNullOrWhiteSpace(simpleName))
-		//			{
-		//				column.SetId($"col-{simpleName}");
-		//			}
-		//		}
-		//	}
-		//}
 
 		// load previously saved state
 		if (StateManager != null)
 		{
 			await LoadStateAsync();
+		}
+
+		// If this is the first time we've finished rendering, then all the columns
+		// have been added to the table so we'll go and get the data for the first time
+		if (firstRender)
+		{
+			try
+			{
+				if (AutoLoad)
+				{
+					await GetDataAsync().ConfigureAwait(true);
+					StateHasChanged();
+				}
+			}
+			catch (Exception ex)
+			{
+				await HandleExceptionAsync(ex).ConfigureAwait(true);
+			}
+
+			await Ready.InvokeAsync(null).ConfigureAwait(true);
+
+			if (_commonModule != null)
+			{
+				await _commonModule.InvokeVoidAsync("onTableDragStart", Id);
+			}
+		}
+
+		// focus first editor after edit mode begins
+		if (BeginEditEvent.WaitOne(0) && Columns.Count > 0 && EditItem != null)
+		{
+			// find first editable column
+			var key = string.Empty;
+			foreach (var column in ActualColumnsToDisplay)
+			{
+				var editable = column.Editable;
+				// override with dynamic config?
+				var config = ColumnsConfig?.Find(x => x.Id == column.Id);
+				if (config?.Editable ?? editable)
+				{
+					key = column.Id;
+					break;
+				}
+			}
+
+			var row = ItemsToDisplay.IndexOf(EditItem);
+			if (key != string.Empty)
+			{
+				if (_commonModule != null)
+				{
+					await _commonModule.InvokeVoidAsync("selectText", $"{IdEditPrefix}-{row}-{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
+				}
+
+				BeginEditEvent.Reset();
+			}
 		}
 	}
 
@@ -947,63 +1003,6 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		if (SelectionMode != TableSelectionMode.None && KeyField == null)
 		{
 			throw new PDTableException("KeyField attribute must be specified when enabling selection.");
-		}
-	}
-
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		// If this is the first time we've finished rendering, then all the columns
-		// have been added to the table so we'll go and get the data for the first time
-		if (firstRender)
-		{
-			try
-			{
-				if (AutoLoad)
-				{
-					await GetDataAsync().ConfigureAwait(true);
-					StateHasChanged();
-				}
-			}
-			catch (Exception ex)
-			{
-				await HandleExceptionAsync(ex).ConfigureAwait(true);
-			}
-
-			await Ready.InvokeAsync(null).ConfigureAwait(true);
-
-			if (_commonModule != null)
-			{
-				await _commonModule.InvokeVoidAsync("onTableDragStart", Id);
-			}
-		}
-
-		// focus first editor after edit mode begins
-		if (BeginEditEvent.WaitOne(0) && Columns.Count > 0 && EditItem != null)
-		{
-			// find first editable column
-			var key = string.Empty;
-			foreach (var column in ActualColumnsToDisplay)
-			{
-				var editable = column.Editable;
-				// override with dynamic config?
-				var config = ColumnsConfig?.Find(x => x.Id == column.Id);
-				if (config?.Editable ?? editable)
-				{
-					key = column.Id;
-					break;
-				}
-			}
-
-			var row = ItemsToDisplay.IndexOf(EditItem);
-			if (key != string.Empty)
-			{
-				if (_commonModule != null)
-				{
-					await _commonModule.InvokeVoidAsync("selectText", $"{IdEditPrefix}-{row}-{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
-				}
-
-				BeginEditEvent.Reset();
-			}
 		}
 	}
 

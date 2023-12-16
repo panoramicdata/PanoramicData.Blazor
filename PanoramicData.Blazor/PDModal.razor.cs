@@ -117,9 +117,10 @@ public partial class PDModal : IAsyncDisposable
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (firstRender && JSRuntime is not null)
 		{
 			_dotNetReference = DotNetObjectReference.Create(this);
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDModal.razor.js").ConfigureAwait(true);
 			if (_module != null)
 			{
@@ -132,8 +133,6 @@ public partial class PDModal : IAsyncDisposable
 			}
 		}
 	}
-
-	protected override async Task OnInitializedAsync() => _commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
 
 	[JSInvokable]
 	public async Task OnModalShown() => await Shown.InvokeAsync(null).ConfigureAwait(true);
