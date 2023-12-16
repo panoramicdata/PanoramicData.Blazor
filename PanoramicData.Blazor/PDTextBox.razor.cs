@@ -135,7 +135,7 @@ public partial class PDTextBox : IAsyncDisposable
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender && DebounceWait > 0)
+		if (firstRender && JSRuntime is not null && DebounceWait > 0)
 		{
 			try
 			{

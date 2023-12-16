@@ -796,7 +796,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (firstRender && JSRuntime is not null)
 		{
 			if (DataProvider is null)
 			{
