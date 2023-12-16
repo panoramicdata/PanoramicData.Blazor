@@ -25,6 +25,7 @@ public class FieldGroup<TItem> where TItem : class
 				{
 					var a = 9;
 				}
+
 				if (form?.Errors?.ContainsKey(field.GetName() ?? string.Empty) == true)
 				{
 					return true;

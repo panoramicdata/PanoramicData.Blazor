@@ -169,6 +169,7 @@ public partial class PDFilter : IAsyncDisposable
 			{
 				_filterType = FilterTypes.In;
 			}
+
 			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
 		}
 

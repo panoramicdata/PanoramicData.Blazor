@@ -1324,6 +1324,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		{
 			sb.Append("noselect ");
 		}
+
 		return sb.ToString().Trim();
 	}
 

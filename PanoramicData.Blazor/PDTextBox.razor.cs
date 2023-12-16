@@ -145,6 +145,7 @@ public partial class PDTextBox : IAsyncDisposable
 				{
 					await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
 				}
+
 				if (ShowSpeechButton)
 				{
 					_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTextBox.razor.js").ConfigureAwait(true);

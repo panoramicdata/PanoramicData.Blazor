@@ -44,6 +44,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 			dict.Add("draggable", "true");
 			dict.Add("style", "cursor: move;");
 		}
+
 		return dict;
 	}
 

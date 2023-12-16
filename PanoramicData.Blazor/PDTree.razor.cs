@@ -261,6 +261,7 @@ public partial class PDTree<TItem> where TItem : class
 					var autoEdit = state is MouseEventArgs args && args.Button == 0;
 					await SelectNode(_clickedNode, autoEdit).ConfigureAwait(true);
 				}
+
 				StateHasChanged();
 			}
 		});
@@ -545,6 +546,7 @@ public partial class PDTree<TItem> where TItem : class
 			{
 				return Array.Empty<TItem>();
 			}
+
 			var request = new DataRequest<TItem>
 			{
 				Skip = 0,

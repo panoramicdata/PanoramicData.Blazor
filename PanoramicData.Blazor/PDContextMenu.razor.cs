@@ -81,6 +81,7 @@ public partial class PDContextMenu : IAsyncDisposable
 		{
 			return ShowMenuAsync(args);
 		}
+
 		return Task.CompletedTask;
 	}
 
@@ -90,6 +91,7 @@ public partial class PDContextMenu : IAsyncDisposable
 		{
 			return ShowMenuAsync(args);
 		}
+
 		return Task.CompletedTask;
 	}
 

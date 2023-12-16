@@ -32,6 +32,7 @@ public partial class PDFileExplorerPage
 			// in this demo the content is always a webm reference file
 			return $"application/octet-stream:{Path.ChangeExtension(item.Name, ".webm")}:" + NavigationManager.ToAbsoluteUri($"/files/Download?path={item.Path}").ToString();
 		}
+
 		return string.Empty;
 	}
 

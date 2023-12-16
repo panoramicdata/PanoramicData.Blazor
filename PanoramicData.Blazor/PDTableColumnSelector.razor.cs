@@ -33,6 +33,7 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 				{
 					newOrdinal = 1000;
 				}
+
 				if (column.Ordinal != newOrdinal)
 				{
 					column.SetOrdinal(newOrdinal);
@@ -86,6 +87,7 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 				var isVisible = selection.Any(x => x.Id == column.Id);
 				column.SetVisible(isVisible);
 			}
+
 			await Table.SaveStateAsync();
 			Table.SetStateHasChanged();
 		}
