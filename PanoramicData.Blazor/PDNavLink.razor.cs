@@ -168,7 +168,7 @@ public partial class PDNavLink : IAsyncDisposable
 			// which in turn is because it's common for servers to return the same page
 			// for http://host/vdir as they do for host://host/vdir/ as it's no
 			// good to display a blank page in that case.
-			if (_hrefAbsolute[_hrefAbsolute.Length - 1] == '/'
+			if (_hrefAbsolute[^1] == '/'
 				&& _hrefAbsolute.StartsWith(currentUriAbsolute, StringComparison.OrdinalIgnoreCase))
 			{
 				return true;
