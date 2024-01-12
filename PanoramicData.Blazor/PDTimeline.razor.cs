@@ -42,6 +42,10 @@ public partial class PDTimeline : IAsyncDisposable
 	private IJSObjectReference? _commonModule;
 	private readonly Dictionary<int, DataPoint> _dataPoints = new();
 
+	private DateTime _lastQueryEnd = DateTime.MinValue;
+	private DateTime _lastQueryStart = DateTime.MinValue;
+	private TimelineScale _lastQueryScale = TimelineScale.Years;
+
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	[Parameter]
@@ -599,31 +603,33 @@ public partial class PDTimeline : IAsyncDisposable
 	{
 		if (DataProvider != null && MinDateTime != DateTime.MinValue)
 		{
-			// cancel previous query?
-			if (_refreshCancellationToken != null)
-			{
-				_refreshCancellationToken.Cancel();
-				_refreshCancellationToken = null;
-			}
-
-			// either fetch all data points for scale, or just the current viewport
-			_loading = true;
 			var start = Options.General.FetchAll ? RoundedMinDateTime : Scale.AddPeriods(RoundedMinDateTime, _columnOffset);
 			var end = Options.General.FetchAll ? RoundedMaxDateTime : Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, _columnOffset + _viewportColumns));
-			_refreshCancellationToken = new CancellationTokenSource();
-			var points = await DataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
-			foreach (var point in points)
-			{
-				//point.PeriodIndex =  point.StartTime.TotalPeriodsSince(MinDateTime, Scale);
-				point.PeriodIndex = Scale.PeriodsBetween(RoundedMinDateTime, point.StartTime);
-				if (!_dataPoints.ContainsKey(point.PeriodIndex))
-				{
-					_dataPoints.Add(point.PeriodIndex, point);
-				}
-			}
 
-			_loading = false;
-			await Refreshed.InvokeAsync(null).ConfigureAwait(true);
+			// only proceed if query is different to last one
+			if (start != _lastQueryStart || end != _lastQueryEnd || Scale != _lastQueryScale)
+			{
+				// cancel previous query?
+				if (_refreshCancellationToken != null)
+				{
+					_refreshCancellationToken.Cancel();
+					_refreshCancellationToken = null;
+				}
+
+				// either fetch all data points for scale, or just the current viewport
+				_loading = true;
+				_refreshCancellationToken = new CancellationTokenSource();
+				var points = await DataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
+				foreach (var point in points)
+				{
+					//point.PeriodIndex =  point.StartTime.TotalPeriodsSince(MinDateTime, Scale);
+					point.PeriodIndex = Scale.PeriodsBetween(RoundedMinDateTime, point.StartTime);
+					_dataPoints.TryAdd(point.PeriodIndex, point);
+				}
+
+				_loading = false;
+				await Refreshed.InvokeAsync(null).ConfigureAwait(true);
+			}
 		}
 
 		StateHasChanged();
