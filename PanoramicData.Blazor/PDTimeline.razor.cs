@@ -609,6 +609,10 @@ public partial class PDTimeline : IAsyncDisposable
 			// only proceed if query is different to last one
 			if (start != _lastQueryStart || end != _lastQueryEnd || Scale != _lastQueryScale)
 			{
+				_lastQueryEnd = end;
+				_lastQueryStart = start;
+				_lastQueryScale = Scale;
+
 				// cancel previous query?
 				if (_refreshCancellationToken != null)
 				{
