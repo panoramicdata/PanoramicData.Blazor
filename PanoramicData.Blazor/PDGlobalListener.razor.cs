@@ -28,13 +28,16 @@ public partial class PDGlobalListener : IAsyncDisposable
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		_dotNetObjectReference = DotNetObjectReference.Create(this);
-		_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDGlobalListener.razor.js").ConfigureAwait(true);
-		if (_module != null)
+		if (firstRender && JSRuntime is not null)
 		{
-			await _module.InvokeVoidAsync("initialize", _dotNetObjectReference).ConfigureAwait(true);
+			_dotNetObjectReference = DotNetObjectReference.Create(this);
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDGlobalListener.razor.js").ConfigureAwait(true);
+			if (_module != null)
+			{
+				await _module.InvokeVoidAsync("initialize", _dotNetObjectReference).ConfigureAwait(true);
+			}
 		}
 
 		GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;

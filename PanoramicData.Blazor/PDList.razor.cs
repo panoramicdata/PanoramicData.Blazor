@@ -88,6 +88,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 			request.SortDirection = SortDirection;
 			request.SortFieldExpression = SortExpression;
 		}
+
 		return request;
 	}
 
@@ -145,6 +146,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 						}
 					}
 				}
+
 				StateHasChanged();
 			}
 		}
@@ -229,6 +231,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 					? string.Join(",", Selection.Items.Select(x => ItemKeyFunction(x).ToString()).ToArray())
 					: Selection.ToString();
 			}
+
 			await StateManager.SaveStateAsync(Id, state).ConfigureAwait(true);
 		}
 
@@ -295,6 +298,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 			{
 				Selection.Items.Add(item);
 			}
+
 			Selection.AllSelected = false; // can never be true with single selection
 		}
 
@@ -312,11 +316,13 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 					idx1 = idx2;
 					idx2 = idxT;
 				}
+
 				Selection.Items.Clear();
 				for (var i = idx1; i <= idx2; i++)
 				{
 					Selection.Items.Add(list[i]);
 				}
+
 				updateLastSelected = false;
 
 				// update all selected?
@@ -429,6 +435,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		catch
 		{
 		}
+
 		return ValueTask.CompletedTask;
 	}
 

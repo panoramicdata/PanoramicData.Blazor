@@ -30,11 +30,13 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 			{
 				throw new InvalidOperationException("Javascript runtime is not available");
 			}
+
 			var data = await _module.InvokeAsync<string>("getItem", key);
 			if (data == null)
 			{
 				return default;
 			}
+
 			return System.Text.Json.JsonSerializer.Deserialize<T>(data);
 		}
 		catch (Exception e)
@@ -51,6 +53,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 			{
 				throw new InvalidOperationException("Javascript runtime is not available");
 			}
+
 			await _module.InvokeVoidAsync("removeItem", key);
 		}
 		catch (Exception e)
@@ -67,6 +70,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 			{
 				throw new InvalidOperationException("Javascript runtime is not available");
 			}
+
 			var data = System.Text.Json.JsonSerializer.Serialize(state);
 			await _module.InvokeVoidAsync("setItem", key, data);
 		}
@@ -86,6 +90,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		{
 			await _module.DisposeAsync();
 		}
+
 		GC.SuppressFinalize(this);
 	}
 

@@ -67,7 +67,15 @@ public partial class PDFilter : IAsyncDisposable
 		_ => !string.IsNullOrWhiteSpace(Filter.Value)
 	};
 
-	protected override async Task OnInitializedAsync() => _commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && JSRuntime is not null)
+		{
+			_commonModule = await JSRuntime
+				.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js")
+				.ConfigureAwait(true);
+		}
+	}
 
 	private async Task OnClear()
 	{
@@ -161,6 +169,7 @@ public partial class PDFilter : IAsyncDisposable
 			{
 				_filterType = FilterTypes.In;
 			}
+
 			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
 		}
 

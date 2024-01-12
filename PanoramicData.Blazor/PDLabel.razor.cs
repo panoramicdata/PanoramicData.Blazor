@@ -49,10 +49,12 @@ public partial class PDLabel
 		{
 			dict.Add("checked", true);
 		}
+
 		if (!item.IsEnabled)
 		{
 			dict.Add("disabled", true);
 		}
+
 		return dict;
 	}
 

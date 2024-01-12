@@ -93,7 +93,7 @@ public partial class PDRange : IAsyncDisposable
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (_commonModule == null && JSRuntime != null)
+		if (firstRender && JSRuntime is not null)
 		{
 			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 		}
@@ -127,6 +127,7 @@ public partial class PDRange : IAsyncDisposable
 			{
 				newEnd = Range.Start;
 			}
+
 			if (newEnd > Max)
 			{
 				newEnd = Max;
@@ -181,6 +182,7 @@ public partial class PDRange : IAsyncDisposable
 			{
 				newStart = Min;
 			}
+
 			if (newStart > Range.End)
 			{
 				newStart = Range.End;
@@ -219,10 +221,12 @@ public partial class PDRange : IAsyncDisposable
 		{
 			Range.Start = start.Value;
 		}
+
 		if (end.HasValue)
 		{
 			Range.End = end.Value;
 		}
+
 		if (start.HasValue || end.HasValue)
 		{
 			await RangeChanged.InvokeAsync(Range).ConfigureAwait(true);
@@ -243,6 +247,7 @@ public partial class PDRange : IAsyncDisposable
 		{
 			Range.Start = Min;
 		}
+
 		if (Range.Start > Range.End)
 		{
 			Range.Start = Range.End;
@@ -253,6 +258,7 @@ public partial class PDRange : IAsyncDisposable
 		{
 			Range.End = Range.Start;
 		}
+
 		if (Range.End > Max)
 		{
 			Range.End = Max;

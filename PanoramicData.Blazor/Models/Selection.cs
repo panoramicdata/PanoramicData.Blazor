@@ -12,10 +12,12 @@ public class Selection<TItem>
 		{
 			return "(All)";
 		}
+
 		if (Items.Any())
 		{
 			return string.Join(", ", Items.Select(x => x?.ToString() ?? "").ToArray());
 		}
+
 		return "(None)";
 	}
 }
