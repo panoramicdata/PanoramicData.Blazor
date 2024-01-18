@@ -10,15 +10,15 @@
                 Size="Size" />
 
             <PDButton Click="MovePrevious"
-                CssClass="btn-secondary"
+                CssClass="btn-secondary ms-1"
                 IconCssClass="fas fa-backward"
                 IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
                 Size="Size" />
 
             <span class="d-none d-md-inline ms-1">Page</span>
-            <span>@PageCriteria.Page</span>
-            <span>of</span>
-            <span>@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)</span>
+            <span class="ms-1">@PageCriteria.Page</span>
+            <span class="ms-1">of</span>
+            <span class="ms-1">@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)</span>
 
             <PDButton Click="MoveNext"
                 CssClass="btn-secondary ms-1"
@@ -27,7 +27,7 @@
                 Size="Size" />
 
             <PDButton Click="MoveLast"
-                CssClass="btn-secondary"
+                CssClass="btn-secondary ms-1"
                 IconCssClass="fas fa-fast-forward"
                 IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
                 Size="Size" />
