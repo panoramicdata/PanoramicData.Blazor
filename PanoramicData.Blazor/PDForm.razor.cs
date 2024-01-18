@@ -143,12 +143,16 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	public FormModes PreviousMode { get; private set; }
 
+	protected override void OnInitialized()
+	{
+		Mode = DefaultMode;
+		NavigationCancelService.BeforeNavigate += NavigationService_BeforeNavigate;
+	}
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
-			Mode = DefaultMode;
-			NavigationCancelService.BeforeNavigate += NavigationService_BeforeNavigate;
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDForm.razor.js").ConfigureAwait(true);
 		}
 	}
