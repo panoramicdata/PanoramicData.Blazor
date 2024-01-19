@@ -58,6 +58,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	public string SessionId { get; private set; } = Guid.NewGuid().ToString();
 
+	public string GetItemDisplayName(FileExplorerItem? item) =>
+		item is null
+			? string.Empty
+			: $"{item.Name} {(item.Name != ".." && item.IsReadOnly ? $" {ReadOnlyPostfix}" : string.Empty)}".Trim();
+
 	#region Inject
 	[Inject] public IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
@@ -210,6 +215,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Preview Panel mode.
 	/// </summary>
 	[Parameter] public FilePreviewModes PreviewPanel { get; set; } = FilePreviewModes.Off;
+
+	/// <summary>
+	/// Gets or sets string to append after a Read-Only items name.
+	/// </summary>
+	[Parameter] public string ReadOnlyPostfix { get; set; } = "(ro)";
 
 	/// <summary>
 	/// Gets or sets an event callback raised when the component has perform all it initialization.

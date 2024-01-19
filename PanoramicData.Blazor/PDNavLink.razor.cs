@@ -81,7 +81,14 @@ public partial class PDNavLink : IAsyncDisposable
 	{
 		// We'll consider re-rendering on each location change
 		NavigationManager.LocationChanged += OnLocationChanged;
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && JSRuntime is not null)
+		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+		}
 	}
 
 	/// <inheritdoc />
@@ -161,7 +168,7 @@ public partial class PDNavLink : IAsyncDisposable
 			// which in turn is because it's common for servers to return the same page
 			// for http://host/vdir as they do for host://host/vdir/ as it's no
 			// good to display a blank page in that case.
-			if (_hrefAbsolute[_hrefAbsolute.Length - 1] == '/'
+			if (_hrefAbsolute[^1] == '/'
 				&& _hrefAbsolute.StartsWith(currentUriAbsolute, StringComparison.OrdinalIgnoreCase))
 			{
 				return true;

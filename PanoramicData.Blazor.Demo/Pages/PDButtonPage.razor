@@ -29,6 +29,24 @@
     </div>
 
     <div class="mt-2">
+        <div class="d-flex">
+            <PDButton CssClass="btn btn-secondary"
+                      IconCssClass="@($"fas fa-fw fa-random")"
+                      Text="Toggle button state >"
+                      ToolTip="@($"Click me to enable/disable adjacent button")"
+                      Click="@(() => _buttonEnabled = !_buttonEnabled)">
+            </PDButton>
+            <PDButton CssClass="btn btn-secondary ms-2"
+                      IconCssClass="@($"fas fa-fw {(_buttonEnabled ? "fa-toggle-on" : "fa-toggle-off")}")"
+                      IsEnabled="_buttonEnabled"
+                      Text="@(_buttonEnabled ? "Enabled" : "Disabled")"
+                      ToolTip="@($"This button does nothing")">
+            </PDButton>
+        </div>
+    </div>
+
+
+    <div class="mt-2">
         <PDLinkButton Text="Launch 1"
                       IconCssClass="fas fa-fw fa-external-link-alt"
                       CssClass="btn btn-secondary"

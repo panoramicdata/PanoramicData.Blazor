@@ -103,7 +103,32 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 			var fieldType = field.GetFieldType();
 			if (fieldType != null)
 			{
-				await Form!.SetFieldValueAsync(field, Convert.ChangeType(args.Value ?? string.Empty, fieldType, CultureInfo.InvariantCulture)).ConfigureAwait(true);
+				// handle nullable types
+				object? newValue = null;
+				if (Nullable.GetUnderlyingType(fieldType) is Type ut)
+				{
+					if (args.Value is null)
+					{
+						newValue = null;
+					}
+					else if (ut.Name == "System.String")
+					{
+						newValue = args.Value.ToString();
+					}
+					else if (args.Value.ToString() == string.Empty)
+					{
+						newValue = null;
+					}
+					else
+					{
+						newValue = Convert.ChangeType(args.Value, ut, CultureInfo.InvariantCulture);
+					}
+				}
+				else
+				{
+					newValue = Convert.ChangeType(args.Value ?? string.Empty, fieldType, CultureInfo.InvariantCulture);
+				}
+				await Form!.SetFieldValueAsync(field, newValue).ConfigureAwait(true);
 			}
 		}
 		catch

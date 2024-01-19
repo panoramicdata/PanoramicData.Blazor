@@ -122,6 +122,7 @@ public static class StringExtensions
 				sb.Append(ch);
 			}
 		}
+
 		return sb.ToString();
 	}
 }

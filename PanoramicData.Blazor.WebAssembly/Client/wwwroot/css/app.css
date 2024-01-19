@@ -1,5 +1,10 @@
-﻿html, body {
-	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+﻿@font-face {
+	font-family: 'Tenorite';
+	src: url('/fonts/Tenorite.ttf');
+}
+
+html, body {
+	font-family: 'Tenorite', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 a, .btn-link {

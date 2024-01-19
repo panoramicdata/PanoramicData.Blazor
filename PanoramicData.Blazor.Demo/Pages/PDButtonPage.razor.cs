@@ -6,7 +6,7 @@ public partial class PDButtonPage : IAsyncDisposable
 	private readonly ShortcutKey _shortcut2 = ShortcutKey.Create("Shift-Ctrl-Digit2");
 	private readonly ShortcutKey _shortcut3 = ShortcutKey.Create("Shift-Ctrl-Digit3");
 	private IJSObjectReference? _commonModule;
-
+	private bool _buttonEnabled = true;
 	private int Counter { get; set; }
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }

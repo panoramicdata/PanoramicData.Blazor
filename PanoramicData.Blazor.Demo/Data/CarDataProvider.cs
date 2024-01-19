@@ -54,6 +54,7 @@ public class CarDataProvider : DataProviderBase<Car>
 		{
 			query = query.Skip(request.Skip.Value);
 		}
+
 		if (request?.Take > 0)
 		{
 			query = query.Take(request.Take.Value);

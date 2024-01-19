@@ -202,6 +202,11 @@
                           Filterable="true" />
 
                 <PDColumn TItem="Person"
+                          Field="x => x.Dependents"
+                          Filterable="true"
+                          ShowInList="false" />
+
+                <PDColumn TItem="Person"
                           Field="x => x.Comments"
                           ShowInList="false"
                           IsTextArea="true"

@@ -1,0 +1,13 @@
+@if (_isFullScreen)
+{
+    <div class="fullscreen-dialog">
+        <img src="@ImageSource" alt="@Alt" title="@Title" class="@CssStyles" />
+        <button class="close-btn" @onclick="CloseFullScreen" @onclick:stopPropagation="true">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<div class="image-container" @onclick="OpenFullScreen">
+    <img src="@ImageSource" alt="@Alt" title="@Title" class="@CssStyles" />
+</div>

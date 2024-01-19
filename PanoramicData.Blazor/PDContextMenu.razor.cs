@@ -44,17 +44,20 @@ public partial class PDContextMenu : IAsyncDisposable
 	/// </summary>
 	public string Id { get; private set; } = string.Empty;
 
-	protected async override Task OnInitializedAsync()
+	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		Id = $"pdcm{++_idSequence}";
-		if (JSRuntime != null)
+		if (firstRender && JSRuntime is not null)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDContextMenu.razor.js");
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-			var available = await _module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
-			if (!available)
+			Id = $"pdcm{++_idSequence}";
+			if (JSRuntime != null)
 			{
-				throw new PDContextMenuException($"To use the {nameof(PDContextMenu)} component you must include the popper.js library");
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDContextMenu.razor.js");
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				var available = await _module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
+				if (!available)
+				{
+					throw new PDContextMenuException($"To use the {nameof(PDContextMenu)} component you must include the popper.js library");
+				}
 			}
 		}
 	}
@@ -78,6 +81,7 @@ public partial class PDContextMenu : IAsyncDisposable
 		{
 			return ShowMenuAsync(args);
 		}
+
 		return Task.CompletedTask;
 	}
 
@@ -87,6 +91,7 @@ public partial class PDContextMenu : IAsyncDisposable
 		{
 			return ShowMenuAsync(args);
 		}
+
 		return Task.CompletedTask;
 	}
 

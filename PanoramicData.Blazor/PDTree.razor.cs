@@ -261,6 +261,7 @@ public partial class PDTree<TItem> where TItem : class
 					var autoEdit = state is MouseEventArgs args && args.Button == 0;
 					await SelectNode(_clickedNode, autoEdit).ConfigureAwait(true);
 				}
+
 				StateHasChanged();
 			}
 		});
@@ -545,6 +546,7 @@ public partial class PDTree<TItem> where TItem : class
 			{
 				return Array.Empty<TItem>();
 			}
+
 			var request = new DataRequest<TItem>
 			{
 				Skip = 0,
@@ -658,13 +660,14 @@ public partial class PDTree<TItem> where TItem : class
 	protected override async Task OnInitializedAsync()
 	{
 		Id = $"{_idPrefix}{++_idSequence}";
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 	}
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (firstRender && JSRuntime is not null)
 		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+
 			// build initial model and notify listeners
 			var items = await GetDataAsync().ConfigureAwait(true);
 			UpdateModel(items);

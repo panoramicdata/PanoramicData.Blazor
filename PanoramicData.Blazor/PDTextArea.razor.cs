@@ -92,7 +92,7 @@ public partial class PDTextArea : IAsyncDisposable
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender && DebounceWait > 0)
+		if (firstRender && JSRuntime is not null && DebounceWait > 0)
 		{
 			_objRef = DotNetObjectReference.Create(this);
 			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
