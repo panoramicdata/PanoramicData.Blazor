@@ -14,17 +14,32 @@ namespace PanoramicData.Blazor.Web.Controllers
 		[HttpGet("download")]
 		public IActionResult Download(string path)
 		{
-			var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.file_example_WEBM_1920_3_7MB.webm");
-			if (stream is null)
+			// markdown file?
+			if (Path.GetExtension(path) == ".md")
 			{
-				return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+				var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.TestMarkdown.md");
+				if (stream is null)
+				{
+					return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+				}
+				return new FileStreamResult(stream, "text/markdown")
+				{
+					FileDownloadName = Path.GetFileName(path)
+				};
 			}
-
-			var result = new FileStreamResult(stream, "text/plain")
+			else
 			{
-				FileDownloadName = $"{Path.GetFileNameWithoutExtension(path)}.webm"
-			};
-			return result;
+				var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.file_example_WEBM_1920_3_7MB.webm");
+				if (stream is null)
+				{
+					return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+				}
+				var result = new FileStreamResult(stream, "text/plain")
+				{
+					FileDownloadName = $"{Path.GetFileNameWithoutExtension(path)}.webm"
+				};
+				return result;
+			}
 		}
 
 		[HttpPost("upload")]

@@ -14,7 +14,8 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 		new DirectoryEntry("Users", true, false, false,
 			new DirectoryEntry("1", false, false, false,
 				new DirectoryEntry("summary.xlsx", FileExplorerItemType.File, 5012, false),
-				new DirectoryEntry("instruction.docx", FileExplorerItemType.File, 4320, false)
+				new DirectoryEntry("instruction.docx", FileExplorerItemType.File, 4320, false),
+				new DirectoryEntry("example.md", FileExplorerItemType.File, 2647, false)
 			)
 			{ Alias = "Alice" },
 			new DirectoryEntry("2", false, false, false,

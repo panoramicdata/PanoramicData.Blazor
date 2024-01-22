@@ -1,10 +1,12 @@
-﻿namespace PanoramicData.Blazor.PreviewProviders;
+﻿using Markdig;
+
+namespace PanoramicData.Blazor.PreviewProviders;
 
 public class DefaultPreviewProvider : IPreviewProvider
 {
 	public string DateTimeFormat { get; set; } = "dd/MM/yy HH:mm:ss";
 
-	public Task<PreviewInfo> GetPreviewInfoAsync(FileExplorerItem? item)
+	public virtual async Task<PreviewInfo> GetPreviewInfoAsync(FileExplorerItem? item)
 	{
 		var info = new PreviewInfo();
 
@@ -12,7 +14,21 @@ public class DefaultPreviewProvider : IPreviewProvider
 		{
 			info.HtmlContent = new MarkupString("<span>No Preview</span>");
 		}
-		else
+		else if (item.FileExtension == "md")
+		{
+			// download content and convert markdown to html
+			var contentBytes = await DownloadContentAsync(item);
+			if (contentBytes.Length > 0)
+			{
+				string contentString = Encoding.UTF8.GetString(contentBytes);
+				var result = Markdown.ToHtml(contentString);
+				info.HtmlContent = new MarkupString(result);
+			}
+			// convert markdown to html
+		}
+
+		// default is to show basic details
+		if (string.IsNullOrEmpty(info.HtmlContent.Value))
 		{
 			var sb = new StringBuilder();
 			sb.Append("<div class=\"stacked\">");
@@ -24,7 +40,13 @@ public class DefaultPreviewProvider : IPreviewProvider
 			info.HtmlContent = new MarkupString(sb.ToString());
 		}
 
-		return Task.FromResult(info);
+		return info;
+	}
+
+	protected virtual Task<byte[]> DownloadContentAsync(FileExplorerItem item)
+	{
+		// default assumes path is full path
+		return Task.FromResult(Array.Empty<byte>());
 	}
 
 	protected virtual List<string> GetFileDetails(FileExplorerItem item)

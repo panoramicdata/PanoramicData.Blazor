@@ -8,10 +8,12 @@
 
 	<ItemGroup>
 		<None Remove="file_example_WEBM_1920_3_7MB.webm" />
+		<None Remove="TestMarkdown.md" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="file_example_WEBM_1920_3_7MB.webm" />
+		<EmbeddedResource Include="TestMarkdown.md" />
 	</ItemGroup>
 
 	<ItemGroup>

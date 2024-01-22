@@ -29,7 +29,12 @@ public partial class PDFileExplorerPage
 			// in real world scenarios  you would calculate the download url as <mime>:<filename>:<url>
 			//return $"application/octet-stream:{item.Name}:" + NavigationManager.ToAbsoluteUri($"/files/Download?path={item.Path}").ToString();
 
-			// in this demo the content is always a webm reference file
+			// in this demo the content is either a webm or markdown reference file
+			if (Path.GetExtension(item.Path) == ".md")
+			{
+				return $"text/markdown:{item.Path}:" + NavigationManager.ToAbsoluteUri($"/files/Download?path={item.Path}").ToString();
+			}
+
 			return $"application/octet-stream:{Path.ChangeExtension(item.Name, ".webm")}:" + NavigationManager.ToAbsoluteUri($"/files/Download?path={item.Path}").ToString();
 		}
 
@@ -66,10 +71,13 @@ public partial class PDFileExplorerPage
 
 		// Method B: to avoid size limit and conversion to base64 - use javascript to get from controller method
 
-		// demo downloads the same WEBM file
+		// demo downloads the either MD or WEBM file
 		foreach (var item in args.Items)
 		{
-			item.Name = System.IO.Path.ChangeExtension(item.Name, ".webm");
+			if (Path.GetExtension(item.Path) != ".md")
+			{
+				item.Name = Path.ChangeExtension(item.Name, ".webm");
+			}
 		}
 
 		await JSRuntime.InvokeVoidAsync("panoramicDataDemo.downloadFiles", args).ConfigureAwait(false);

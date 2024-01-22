@@ -1,10 +1,33 @@
 ﻿using Humanizer;
+using System.Net.Http;
 
 namespace PanoramicData.Blazor.PreviewProviders;
 
 public class FileExplorerPreviewProvider : DefaultPreviewProvider
 {
 	public PDFileExplorer? FileExplorer { get; set; }
+	protected override async Task<byte[]> DownloadContentAsync(FileExplorerItem item)
+	{
+		if (FileExplorer == null)
+		{
+			return await base.DownloadContentAsync(item);
+		}
+
+		// simple download of content
+		var url = FileExplorer.DownloadUrlFunc(item);
+		if (url?.Contains(':') == true)
+		{
+			int index = url
+				.Select((c, i) => new { Character = c, Index = i })
+				.Where(x => x.Character == ':')
+				.Select(x => x.Index)
+				.ElementAtOrDefault(1);
+			url = url[++index..];
+		}
+		using var httpClient = new HttpClient();
+		var bytes = await httpClient.GetByteArrayAsync(url);
+		return bytes;
+	}
 
 	protected override List<string> GetFileDetails(FileExplorerItem item)
 	{
