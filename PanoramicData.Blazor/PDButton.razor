@@ -1,58 +1,56 @@
 ﻿@using PanoramicData.Blazor.Extensions
-<div title="@ToolTip.AppendShortcut(ShortcutKey)">
-    @if (string.IsNullOrWhiteSpace(Url))
-    {
-	    <button @attributes="Attributes"
-			    class="pd-button btn @CssClass @ButtonSizeCssClass"
-			    disabled="@(IsEnabled ? null : "true")"
-			    id="@Id"
-			    title="@ToolTip.AppendShortcut(ShortcutKey)"
-			    @onclick="Click"
-			    @onclick:preventDefault="PreventDefault"
-			    @onclick:stopPropagation="StopPropagation"
-			    @onmousedown="MouseDown"
-			    @onmousedown:preventDefault="PreventDefault"
-			    @onmousedown:stopPropagation="StopPropagation">
-		    @if (ChildContent is null)
-		    {
-				    @if (!string.IsNullOrWhiteSpace(IconCssClass))
-				    {
-					    <span class="@IconCssClass"></span>
-				    }
-                <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
-		    }
-		    else
-		    {
-			    @ChildContent
-		    }
-	    </button>
-    }
-    else
-    {
-	    <a @attributes="Attributes"
-	       href="@Url" target="@Target"
-	       class="pd-button btn @CssClass @ButtonSizeCssClass"
-	       disabled="@(IsEnabled ? null : "true")"
-	       id="@Id"
-	       title="@ToolTip.AppendShortcut(ShortcutKey)"
-	       @onclick="Click"
-	       @onclick:preventDefault="PreventDefault"
-	       @onclick:stopPropagation="StopPropagation"
-	       @onmousedown="MouseDown"
-	       @onmousedown:preventDefault="PreventDefault"
-	       @onmousedown:stopPropagation="StopPropagation">
-		    @if (ChildContent is null)
-		    {
-                @if (!string.IsNullOrWhiteSpace(IconCssClass))
-                {
-                    <span class="@IconCssClass"></span>
-                }
-                <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
-		    }
-		    else
-		    {
-			    @ChildContent
-		    }
-	    </a>
-    }
-</div>
+@if (string.IsNullOrWhiteSpace(Url))
+{
+	<button @attributes="Attributes"
+			class="pd-button btn @CssClass @ButtonSizeCssClass"
+			disabled="@(IsEnabled ? null : "true")"
+			id="@Id"
+			title="@ToolTip.AppendShortcut(ShortcutKey)"
+			@onclick="Click"
+			@onclick:preventDefault="PreventDefault"
+			@onclick:stopPropagation="StopPropagation"
+			@onmousedown="MouseDown"
+			@onmousedown:preventDefault="PreventDefault"
+			@onmousedown:stopPropagation="StopPropagation">
+		@if (ChildContent is null)
+		{
+				@if (!string.IsNullOrWhiteSpace(IconCssClass))
+				{
+					<span class="@IconCssClass"></span>
+				}
+            <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
+		}
+		else
+		{
+			@ChildContent
+		}
+	</button>
+}
+else
+{
+	<a @attributes="Attributes"
+	    href="@Url" target="@Target"
+	    class="pd-button btn @CssClass @ButtonSizeCssClass"
+	    disabled="@(IsEnabled ? null : "true")"
+	    id="@Id"
+	    title="@ToolTip.AppendShortcut(ShortcutKey)"
+	    @onclick="Click"
+	    @onclick:preventDefault="PreventDefault"
+	    @onclick:stopPropagation="StopPropagation"
+	    @onmousedown="MouseDown"
+	    @onmousedown:preventDefault="PreventDefault"
+	    @onmousedown:stopPropagation="StopPropagation">
+		@if (ChildContent is null)
+		{
+            @if (!string.IsNullOrWhiteSpace(IconCssClass))
+            {
+                <span class="@IconCssClass"></span>
+            }
+            <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
+		}
+		else
+		{
+			@ChildContent
+		}
+	</a>
+}

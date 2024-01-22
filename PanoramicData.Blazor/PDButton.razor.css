@@ -1,0 +1,3 @@
+.btn.disabled, .btn:disabled {
+	pointer-events: auto;
+}
