@@ -1,5 +1,4 @@
-﻿## Headings
-
+﻿
 # Heading level 1
 
 ## Heading level 2
@@ -94,7 +93,7 @@ To add another element in a list while preserving the continuity of the list, in
 1. Open the file containing the Linux mascot.
 2. Marvel at its beauty.
 
-    ![Tux, the Linux mascot](/png/GitHub-Mark-32px.png)
+    ![Tux, the Linux mascot](/_content/PanoramicData.Blazor.Demo/png/GitHub-Mark-32px.png)
 
 3. Close the file.
 

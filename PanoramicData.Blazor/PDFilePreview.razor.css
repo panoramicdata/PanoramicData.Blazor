@@ -2,10 +2,16 @@
 	height: 100%;
 	overflow: auto;
 	width: 100%;
-	align-items: center;
-	display: flex;
-	justify-content: center;
 }
+
+	.pdfilepreview.basic {
+		align-items: center;
+		display: flex;
+		justify-content: center;
+	}
+
+	.pdfilepreview.md {
+	}
 
 ::deep .stacked {
 	align-items: center;

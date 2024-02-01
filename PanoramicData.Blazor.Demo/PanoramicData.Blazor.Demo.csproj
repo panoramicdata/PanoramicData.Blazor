@@ -7,17 +7,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="file_example_WEBM_1920_3_7MB.webm" />
 		<None Remove="TestMarkdown.md" />
+		<None Remove="TestText.txt" />
+		<None Remove="TestVideo.webm" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="file_example_WEBM_1920_3_7MB.webm" />
+		<EmbeddedResource Include="TestText.txt" />
+		<EmbeddedResource Include="TestVideo.webm" />
 		<EmbeddedResource Include="TestMarkdown.md" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Resource Include="file_example_WEBM_1920_3_7MB.webm">
+		<Resource Include="TestVideo.webm">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Resource>
 	</ItemGroup>

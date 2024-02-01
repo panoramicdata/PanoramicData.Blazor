@@ -29,7 +29,11 @@
 	}
 
 	.pdfileexplorer .pdfe-toolbar {
-		/*height: 41px;*/
+		height: 42px;
+	}
+
+	.pdfileexplorer ::deep .pdsplitter.horizontal {
+		height: calc(100% - 42px);
 	}
 
 	.pdfileexplorer .preview-header {

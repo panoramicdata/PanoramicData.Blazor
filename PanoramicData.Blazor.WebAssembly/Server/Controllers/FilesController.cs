@@ -24,7 +24,7 @@ public class FilesController : Controller
 		}
 		else
 		{
-			var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.file_example_WEBM_1920_3_7MB.webm");
+			var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.TestVideo.webm");
 			if (stream is null)
 			{
 				return new StatusCodeResult((int)HttpStatusCode.InternalServerError);

@@ -65,7 +65,7 @@ public partial class PDFileExplorerPage
 	public async Task OnTableDownloadRequest(TableSelectionEventArgs<FileExplorerItem> args)
 	{
 		// Method A: this method works up to file sizes of 125MB - limit imposed by System.Text.Json (04/08/20)
-		//var bytes = System.IO.File.ReadAllBytes("Download/file_example_WEBM_1920_3_7MB.webm");
+		//var bytes = System.IO.File.ReadAllBytes("Download/TestVideo.webm");
 		//var base64 = System.Convert.ToBase64String(bytes);
 		//await JSRuntime.InvokeVoidAsync("downloadFile", $"{System.IO.Path.GetFileNameWithoutExtension(args.Item.Name)}.webm", base64).ConfigureAwait(true);
 

@@ -13,6 +13,7 @@ public class DefaultPreviewProvider : IPreviewProvider
 		if (item == null || item.EntryType == FileExplorerItemType.Directory)
 		{
 			info.HtmlContent = new MarkupString("<span>No Preview</span>");
+			info.CssClass = "basic";
 		}
 		else if (item.FileExtension == "md")
 		{
@@ -23,8 +24,20 @@ public class DefaultPreviewProvider : IPreviewProvider
 				string contentString = Encoding.UTF8.GetString(contentBytes);
 				var result = Markdown.ToHtml(contentString);
 				info.HtmlContent = new MarkupString(result);
+				info.CssClass = "md";
 			}
-			// convert markdown to html
+		}
+		else if (item.FileExtension == "txt")
+		{
+			// download content and convert markdown to html
+			var contentBytes = await DownloadContentAsync(item);
+			if (contentBytes.Length > 0)
+			{
+				string contentString = Encoding.UTF8.GetString(contentBytes);
+				var result = contentString;
+				info.HtmlContent = new MarkupString(result);
+				info.CssClass = "txt";
+			}
 		}
 
 		// default is to show basic details
@@ -38,6 +51,7 @@ public class DefaultPreviewProvider : IPreviewProvider
 			}
 			sb.Append("</div>");
 			info.HtmlContent = new MarkupString(sb.ToString());
+			info.CssClass = "basic";
 		}
 
 		return info;
