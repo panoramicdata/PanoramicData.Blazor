@@ -17,6 +17,11 @@
 		white-space: pre-wrap;
 	}
 
+	.pdfilepreview.web {
+		width: 100%;
+		height: 100%;
+	}
+
 ::deep .stacked {
 	align-items: center;
 	display: flex;

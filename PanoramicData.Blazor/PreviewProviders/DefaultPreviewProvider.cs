@@ -15,6 +15,17 @@ public class DefaultPreviewProvider : IPreviewProvider
 			info.HtmlContent = new MarkupString("<span>No Preview</span>");
 			info.CssClass = "basic";
 		}
+		else if (item.FileExtension == "html")
+		{
+			// download content and convert markdown to html
+			var contentBytes = await DownloadContentAsync(item);
+			if (contentBytes.Length > 0)
+			{
+				var contentString = Encoding.UTF8.GetString(contentBytes);
+				info.HtmlContent = new MarkupString(contentString);
+				info.CssClass = "html";
+			}
+		}
 		else if (item.FileExtension == "md")
 		{
 			// download content and convert markdown to html

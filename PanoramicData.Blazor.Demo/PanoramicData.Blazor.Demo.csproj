@@ -10,12 +10,14 @@
 		<None Remove="TestMarkdown.md" />
 		<None Remove="TestText.txt" />
 		<None Remove="TestVideo.webm" />
+		<None Remove="TestWeb.html" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="TestText.txt" />
 		<EmbeddedResource Include="TestVideo.webm" />
 		<EmbeddedResource Include="TestMarkdown.md" />
+		<EmbeddedResource Include="TestWeb.html" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -60,6 +62,11 @@
 
 	<ItemGroup>
 	  <_ContentIncludedByDefault Remove="Pages\PDRangePage.razor" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <None Include="wwwroot\html\TestWeb.html" />
 	</ItemGroup>
 
 </Project>

@@ -15,7 +15,19 @@ namespace PanoramicData.Blazor.Web.Controllers
 		public IActionResult Download(string path)
 		{
 			// markdown file?
-			if (Path.GetExtension(path) == ".md")
+			if (Path.GetExtension(path) == ".html" || Path.GetExtension(path) == ".htm")
+			{
+				var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.TestWeb.html");
+				if (stream is null)
+				{
+					return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+				}
+				return new FileStreamResult(stream, "text/html")
+				{
+					FileDownloadName = Path.GetFileName(path)
+				};
+			}
+			else if (Path.GetExtension(path) == ".md")
 			{
 				var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.TestMarkdown.md");
 				if (stream is null)
