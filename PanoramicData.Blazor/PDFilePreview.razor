@@ -1,10 +1,14 @@
-﻿@if(!string.IsNullOrWhiteSpace(_previewInfo?.Url))
-{
-    <iframe class="web" src="@_previewInfo.Url" />
-}
-else
-{
-    <div class="pdfilepreview @(_previewInfo?.CssClass)">
+﻿<div class="pdfilepreview @(_previewInfo?.CssClass)">
+    @if(!string.IsNullOrWhiteSpace(_previewInfo?.Url))
+    {
+        <iframe src="@_previewInfo?.Url" />
+    }
+    else if(_previewInfo?.CssClass == "html")
+    {
+        <iframe class="web" srcdoc="@_previewInfo?.HtmlContent" />
+    }
+    else
+    {
         @_previewInfo?.HtmlContent
-    </div>
-}
+    }
+</div>

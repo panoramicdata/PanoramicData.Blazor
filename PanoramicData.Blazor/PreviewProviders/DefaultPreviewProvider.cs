@@ -14,19 +14,38 @@ public class DefaultPreviewProvider : IPreviewProvider
 		{
 			info.HtmlContent = new MarkupString("<span>No Preview</span>");
 			info.CssClass = "basic";
+			return info;
 		}
-		else if (item.FileExtension == "html")
+
+		if (item.FileExtension == "html" || item.FileExtension == "htm")
 		{
-			// download content and convert markdown to html
 			var contentBytes = await DownloadContentAsync(item);
 			if (contentBytes.Length > 0)
 			{
 				var contentString = Encoding.UTF8.GetString(contentBytes);
 				info.HtmlContent = new MarkupString(contentString);
 				info.CssClass = "html";
+				return info;
 			}
 		}
-		else if (item.FileExtension == "md")
+
+		if (item.FileExtension == "url")
+		{
+			var contentBytes = await DownloadContentAsync(item);
+			if (contentBytes.Length > 0)
+			{
+				var contentString = Encoding.UTF8.GetString(contentBytes);
+				var match = Regex.Match(contentString, "URL=(.+)\r?");
+				if (match.Success && match.Groups.Count > 1)
+				{
+					info.Url = match.Groups[1].Value;
+					info.CssClass = "url";
+					return info;
+				}
+			}
+		}
+
+		if (item.FileExtension == "md")
 		{
 			// download content and convert markdown to html
 			var contentBytes = await DownloadContentAsync(item);
@@ -36,9 +55,11 @@ public class DefaultPreviewProvider : IPreviewProvider
 				var result = Markdown.ToHtml(contentString);
 				info.HtmlContent = new MarkupString(result);
 				info.CssClass = "md";
+				return info;
 			}
 		}
-		else if (item.FileExtension == "txt")
+
+		if (item.FileExtension == "txt")
 		{
 			// download content and convert markdown to html
 			var contentBytes = await DownloadContentAsync(item);
@@ -48,23 +69,20 @@ public class DefaultPreviewProvider : IPreviewProvider
 				var result = contentString;
 				info.HtmlContent = new MarkupString(result);
 				info.CssClass = "txt";
+				return info;
 			}
 		}
 
 		// default is to show basic details
-		if (string.IsNullOrEmpty(info.HtmlContent.Value))
+		var sb = new StringBuilder();
+		sb.Append("<div class=\"stacked\">");
+		foreach (var detail in GetFileDetails(item))
 		{
-			var sb = new StringBuilder();
-			sb.Append("<div class=\"stacked\">");
-			foreach (var detail in GetFileDetails(item))
-			{
-				sb.Append(detail);
-			}
-			sb.Append("</div>");
-			info.HtmlContent = new MarkupString(sb.ToString());
-			info.CssClass = "basic";
+			sb.Append(detail);
 		}
-
+		sb.Append("</div>");
+		info.HtmlContent = new MarkupString(sb.ToString());
+		info.CssClass = "basic";
 		return info;
 	}
 

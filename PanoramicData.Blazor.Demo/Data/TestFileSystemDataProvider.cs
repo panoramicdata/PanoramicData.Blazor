@@ -17,7 +17,8 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				new DirectoryEntry("instruction.docx", FileExplorerItemType.File, 4320, false),
 				new DirectoryEntry("example.md", FileExplorerItemType.File, 2647, false),
 				new DirectoryEntry("lorem_ipsum.txt", FileExplorerItemType.File, 1424, false),
-				new DirectoryEntry("simple_example.html", FileExplorerItemType.File, 21155, false)
+				new DirectoryEntry("simple_example.html", FileExplorerItemType.File, 21155, false),
+				new DirectoryEntry("web_shortcut.url", FileExplorerItemType.File, 55, false)
 			)
 			{ Alias = "Alice" },
 			new DirectoryEntry("2", false, false, false,

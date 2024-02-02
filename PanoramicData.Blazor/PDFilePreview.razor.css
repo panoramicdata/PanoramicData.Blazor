@@ -4,6 +4,10 @@
 	width: 100%;
 }
 
+	.pdfilepreview.html, .pdfilepreview.url {
+		overflow: clip;
+	}
+
 	.pdfilepreview.basic {
 		align-items: center;
 		display: flex;
@@ -17,9 +21,14 @@
 		white-space: pre-wrap;
 	}
 
-	.pdfilepreview.web {
+	.pdfilepreview {
 		width: 100%;
 		height: 100%;
+	}
+
+	iframe {
+		width: 100%;
+		height: calc(100% - 0px);
 	}
 
 ::deep .stacked {

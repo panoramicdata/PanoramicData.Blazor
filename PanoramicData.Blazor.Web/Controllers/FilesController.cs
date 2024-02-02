@@ -14,57 +14,40 @@ namespace PanoramicData.Blazor.Web.Controllers
 		[HttpGet("download")]
 		public IActionResult Download(string path)
 		{
-			// markdown file?
 			if (Path.GetExtension(path) == ".html" || Path.GetExtension(path) == ".htm")
 			{
-				var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.TestWeb.html");
-				if (stream is null)
-				{
-					return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
-				}
-				return new FileStreamResult(stream, "text/html")
-				{
-					FileDownloadName = Path.GetFileName(path)
-				};
+				return GetResourceStream("PanoramicData.Blazor.Demo.TestWeb.html", "text/html");
 			}
-			else if (Path.GetExtension(path) == ".md")
+
+			if (Path.GetExtension(path) == ".md")
 			{
-				var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.TestMarkdown.md");
-				if (stream is null)
-				{
-					return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
-				}
-				return new FileStreamResult(stream, "text/markdown")
-				{
-					FileDownloadName = Path.GetFileName(path)
-				};
+				return GetResourceStream("PanoramicData.Blazor.Demo.TestMarkdown.md", "text/markdown");
 			}
-			else if (Path.GetExtension(path) == ".txt")
+
+			if (Path.GetExtension(path) == ".txt")
 			{
-				// text file
-				var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.TestText.txt");
-				if (stream is null)
-				{
-					return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
-				}
-				return new FileStreamResult(stream, "text/plain")
-				{
-					FileDownloadName = Path.GetFileName(path)
-				};
+				return GetResourceStream("PanoramicData.Blazor.Demo.TestText.txt");
 			}
-			else
+
+			if (Path.GetExtension(path) == ".url" || Path.GetExtension(path) == ".url")
 			{
-				var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.TestVideo.webm");
-				if (stream is null)
-				{
-					return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
-				}
-				var result = new FileStreamResult(stream, "text/plain")
-				{
-					FileDownloadName = $"{Path.GetFileNameWithoutExtension(path)}.webm"
-				};
-				return result;
+				return GetResourceStream("PanoramicData.Blazor.Demo.TestWeb.url");
 			}
+
+			return GetResourceStream("PanoramicData.Blazor.Demo.TestVideo.webm");
+		}
+
+		private IActionResult GetResourceStream(string path, string mimetype = "text/plain")
+		{
+			var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream(path);
+			if (stream is null)
+			{
+				return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+			}
+			return new FileStreamResult(stream, mimetype)
+			{
+				FileDownloadName = Path.GetFileName(path)
+			};
 		}
 
 		[HttpPost("upload")]
