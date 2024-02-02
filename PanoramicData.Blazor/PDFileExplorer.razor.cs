@@ -1753,6 +1753,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 
 		Table.Selection.Clear();
+		_previewItem = null;
 
 		// explicitly state search path else fetch will use previous value as OnParametersSet not yet called
 		await Table
