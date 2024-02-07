@@ -4,11 +4,22 @@ namespace PanoramicData.Blazor.PreviewProviders;
 
 public class DefaultPreviewProvider : IPreviewProvider
 {
+	private string? _lastPreviewPath;
+	private PreviewInfo? _lastPreviewInfo;
+
 	public string DateTimeFormat { get; set; } = "dd/MM/yy HH:mm:ss";
 
 	public virtual async Task<PreviewInfo> GetPreviewInfoAsync(FileExplorerItem? item)
 	{
+		// cache last preview by path
+		if (_lastPreviewInfo != null && item?.Path == _lastPreviewPath)
+		{
+			return _lastPreviewInfo;
+		}
+
 		var info = new PreviewInfo();
+		_lastPreviewPath = item?.Path;
+		_lastPreviewInfo = info;
 
 		if (item == null || item.EntryType == FileExplorerItemType.Directory)
 		{
