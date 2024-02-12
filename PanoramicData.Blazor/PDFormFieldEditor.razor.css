@@ -1,0 +1,18 @@
+.editor {
+	align-items: center;
+	border-bottom: 1px solid #ced4da;
+	border-top: 1px solid #ced4da;
+	display: flex;
+	flex: 1 1;
+	padding: 0px 2px;
+	vertical-align: central;
+	z-index: 0;
+}
+
+.editor ::deep .form-control,.form-select {
+	border: none;
+}
+
+::deep .ms-nullable {
+	margin-left: 12px;
+}

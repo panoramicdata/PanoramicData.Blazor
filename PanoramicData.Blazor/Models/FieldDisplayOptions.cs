@@ -2,6 +2,8 @@
 
 public record FieldDisplayOptions
 {
+	public bool AllowNulls { get; set; } = false;
+
 	public string CssClass { get; init; } = string.Empty;
 
 	public int WidthWeight { get; init; } = 1;

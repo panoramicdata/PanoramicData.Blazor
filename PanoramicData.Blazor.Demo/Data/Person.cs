@@ -32,7 +32,7 @@ public class Person : IComparable
 
 	[Display(Name = "Date of Birth", Description = "Persons date of birth")]
 	[FilterKey("dob")]
-	public DateTime Dob { get; set; }
+	public DateTime? Dob { get; set; }
 
 	[Display(Description = "Department person is currently working within")]
 	[FilterKey("dept")]

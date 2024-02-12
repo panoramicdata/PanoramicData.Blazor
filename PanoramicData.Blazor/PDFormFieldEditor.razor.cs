@@ -2,6 +2,8 @@
 
 public partial class PDFormFieldEditor<TItem> where TItem : class
 {
+	private bool _hasValue = true;
+
 	[Parameter]
 	public int DebounceWait { get; set; }
 
@@ -13,7 +15,18 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 	[Parameter]
 	public PDForm<TItem> Form { get; set; } = null!;
 
-	public string GetEditorClass(FormField<TItem> field) => $"{(Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "")} {field.DisplayOptions?.CssClass}";
+	private Dictionary<string, object> GetNullEditorAttributes()
+	{
+		return new Dictionary<string, object>
+		{
+			{ "class", "form-check-input ms-nullable me-1 mb-2" },
+			{ "type", "checkbox" },
+			{ "checked", _hasValue }
+		};
+	}
+
+	public string GetEditorClass(FormField<TItem> field)
+		=> $"{(Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "")} {field.DisplayOptions?.CssClass}";
 
 	private OptionInfo[] GetEnumValues(FormField<TItem> field)
 	{
@@ -58,11 +71,45 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 	}
 
 	public bool IsReadOnly(FormField<TItem> field) =>
+		!_hasValue ||
 		(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(Form?.GetItemWithUpdates())) ||
 		(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(Form?.GetItemWithUpdates())) ||
 		Form?.Mode == FormModes.Delete ||
 		Form?.Mode == FormModes.Cancel ||
 		Form?.Mode == FormModes.ReadOnly;
+
+	protected override void OnParametersSet()
+	{
+		_hasValue = !Field.GetFieldIsNullable() || Form.GetFieldValue(Field, true) != null;
+	}
+
+	private async Task OnHasNullValueChanged(ChangeEventArgs args)
+	{
+		if (Field != null)
+		{
+			_hasValue = (bool)(args?.Value ?? false);
+			if (!_hasValue && Field.GetFieldIsNullable())
+			{
+				await Form.SetFieldValueAsync(Field, null).ConfigureAwait(true);
+			}
+			else
+			{
+				if (Field.GetFieldType() is Type dt)
+				{
+					object defaultValue = dt.FullName switch
+					{
+						"System.String" => string.Empty,
+						"System.Boolean" => false,
+						"System.DateTime" => DateTime.Today,
+						"System.DateTimeOffset" => DateTime.Today,
+						"System.Guid" => Guid.Empty,
+						_ => 0
+					};
+					await Form.SetFieldValueAsync(Field, defaultValue).ConfigureAwait(true);
+				}
+			}
+		}
+	}
 
 	public async Task OnSelectInputChanged(ChangeEventArgs args, FormField<TItem> field)
 	{
