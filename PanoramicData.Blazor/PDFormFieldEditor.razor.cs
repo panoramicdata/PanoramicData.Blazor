@@ -87,11 +87,11 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		_hasValue = !Field.GetFieldIsNullable() || Form.GetFieldValue(Field, true) != null;
 	}
 
-	private async Task OnHasNullValueChanged(ChangeEventArgs args)
+	private async Task OnHasNullValueChanged(bool hasValue)
 	{
 		if (Field != null)
 		{
-			_hasValue = (bool)(args?.Value ?? false);
+			_hasValue = hasValue;
 			if (!_hasValue && Field.GetFieldIsNullable())
 			{
 				await Form.SetFieldValueAsync(Field, null).ConfigureAwait(true);

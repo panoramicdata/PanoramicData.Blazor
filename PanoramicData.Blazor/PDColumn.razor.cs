@@ -38,6 +38,11 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public Func<FormField<TItem>, PDForm<TItem>?, string> DescriptionFunc { get; set; } = Constants.Functions.FormFieldDescription;
 
 	/// <summary>
+	/// Gets or sets optional display options.
+	/// </summary>
+	[Parameter] public FieldDisplayOptions DisplayOptions { get; set; } = new FieldDisplayOptions();
+
+	/// <summary>
 	/// Gets or sets whether this column is editable.
 	/// </summary>
 	[Parameter] public bool Editable { get; set; } = true;

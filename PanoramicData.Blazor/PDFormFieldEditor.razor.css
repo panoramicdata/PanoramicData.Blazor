@@ -14,5 +14,9 @@
 }
 
 ::deep .ms-nullable {
-	margin-left: 12px;
+	margin: 0 4px 2px 12px;
+	line-height: 0.5rem;
+	vertical-align: central;
+	padding: 0px;
+	width: 16px;
 }

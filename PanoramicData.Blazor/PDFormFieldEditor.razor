@@ -7,9 +7,12 @@
 
     @if(Field.GetFieldIsNullable() && Field.DisplayOptions?.AllowNulls == true)
     {
-        <input @attributes ="GetNullEditorAttributes()"
+@*         <input @attributes ="GetNullEditorAttributes()"
                @oninput="OnHasNullValueChanged"
-               type="checkbox"  />
+               type="checkbox"  /> *@
+        <PDFormCheckBox CssClass="ms-nullable"
+                    Value="_hasValue"
+                    ValueChanged="OnHasNullValueChanged"/>
     }
 
 
@@ -85,29 +88,17 @@
     }
     else if (fieldType?.FullName == "System.Boolean")
     {
-        if(Field.DisplayOptions is FieldBooleanOptions boolOpt)
+        if(Field.DisplayOptions is FieldBooleanOptions boolOpt && boolOpt.Style == FieldBooleanOptions.DisplayComponent.ToggleSwitch)
         {
-            if(boolOpt.Style == FieldBooleanOptions.DisplayComponent.ToggleSwitch)
-            {
-                <PDToggleSwitch CssClass="@boolOpt.CssClass"
-                    IsEnabled="@(!IsReadOnly(Field))"
-                    Rounded="boolOpt.Rounded"
-                    Label="@Field.Label"
-                    LabelBefore="@boolOpt.LabelBefore"
-                    OffText="@boolOpt.OffText"
-                    OnText="@boolOpt.OnText"
-                    Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
-                    ValueChanged="(x) => Form?.SetFieldValueAsync(Field, (bool)x) ?? Task.CompletedTask" />
-            }
-            else
-            {
-                <PDFormCheckBox CssClass="@boolOpt.CssClass"
-                    Disabled="@IsReadOnly(Field)"
-                    Label="@Field.Label"
-                    LabelBefore="@boolOpt.LabelBefore"
-                    Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
-                    ValueChanged="(x) => Form?.SetFieldValueAsync(Field, (bool)x) ?? Task.CompletedTask" />
-            }
+            <PDToggleSwitch CssClass="@boolOpt.CssClass"
+                IsEnabled="@(!IsReadOnly(Field))"
+                Rounded="boolOpt.Rounded"
+                Label="@Field.Label"
+                LabelBefore="@boolOpt.LabelBefore"
+                OffText="@boolOpt.OffText"
+                OnText="@boolOpt.OnText"
+                Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
+                ValueChanged="(x) => Form?.SetFieldValueAsync(Field, (bool)x) ?? Task.CompletedTask" />
         }
         else
         {
@@ -115,7 +106,7 @@
                         Disabled="@IsReadOnly(Field)"
                         Label="@Field.Label"
                         Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
-                        ValueChanged="(x) => Form?.SetFieldValueAsync(Field, (bool)x) ?? Task.CompletedTask" />
+                        ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x)" />
         }
     }
     else if (fieldType?.IsEnum == true)

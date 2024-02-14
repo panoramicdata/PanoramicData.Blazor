@@ -5,8 +5,7 @@
     {
         <span class="label me-1">@Label</span>
     }
-    <input class="form-check-input mb-2" type="checkbox" checked="@Value" />
-	@* <i class="far @(Value ? "fa-check-square" : "fa-square")" @onclick="OnClick" ></i> *@
+	<i class="far @(Value ? "fa-check-square" : "fa-square")" @onclick="OnClick" ></i>
     @if (!string.IsNullOrWhiteSpace(Label) && !LabelBefore)
     {
         <span class="ms-1 label">@Label</span>
