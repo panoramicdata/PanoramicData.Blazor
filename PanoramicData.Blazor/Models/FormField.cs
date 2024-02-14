@@ -193,7 +193,11 @@ public class FormField<TItem> where TItem : class
 			return null;
 		}
 		var dataType = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
-		return GetFieldIsNullable() && dataType != null ? Nullable.GetUnderlyingType(dataType) : dataType;
+		if (dataType != null)
+		{
+			return Nullable.GetUnderlyingType(dataType) ?? dataType;
+		}
+		return dataType;
 	}
 
 	public bool GetFieldIsNullable()
@@ -201,10 +205,10 @@ public class FormField<TItem> where TItem : class
 		var memberInfo = Field?.GetPropertyMemberInfo();
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			//if (propInfo.PropertyType.FullName == "System.String")
-			//{
-			//	return true;
-			//}
+			if (propInfo.PropertyType.FullName == "System.String")
+			{
+				return true;
+			}
 			return Nullable.GetUnderlyingType(propInfo.PropertyType) != null;
 		}
 		return false;

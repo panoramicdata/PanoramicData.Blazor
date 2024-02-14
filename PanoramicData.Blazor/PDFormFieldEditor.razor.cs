@@ -31,23 +31,27 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 	private OptionInfo[] GetEnumValues(FormField<TItem> field)
 	{
 		var options = new List<OptionInfo>();
-		var memberInfo = field.Field?.GetPropertyMemberInfo();
-		if (memberInfo is PropertyInfo propInfo)
+		if (field.Field?.GetPropertyMemberInfo() is PropertyInfo propInfo)
 		{
-			string[] names = Enum.GetNames(propInfo.PropertyType);
-			Array values = Enum.GetValues(propInfo.PropertyType);
-			for (var i = 0; i < values.Length; i++)
+			var enumType = field.GetFieldType();
+			if (enumType != null)
 			{
-				var displayName = propInfo.PropertyType.GetMember($"{names[i]}")
-							   ?.First()
-							   .GetCustomAttribute<DisplayAttribute>()
-							   ?.Name ?? names[i];
-				options.Add(new OptionInfo
+				string[] names = Enum.GetNames(enumType);
+				Array values = Enum.GetValues(enumType);
+				for (var i = 0; i < values.Length; i++)
 				{
-					Text = displayName,
-					Value = values.GetValue(i),
-					IsSelected = Form?.GetFieldStringValue(field) == values.GetValue(i)?.ToString()
-				});
+
+					var displayName = enumType.GetMember($"{names[i]}")
+								   ?.First()
+								   .GetCustomAttribute<DisplayAttribute>()
+								   ?.Name ?? names[i];
+					options.Add(new OptionInfo
+					{
+						Text = displayName,
+						Value = values.GetValue(i),
+						IsSelected = Form?.GetFieldStringValue(field) == values.GetValue(i)?.ToString()
+					});
+				}
 			}
 		}
 

@@ -14,11 +14,14 @@ public static class ObjectExtensions
 		{
 			return null;
 		}
-		else if (type.IsEnum)
+
+		var actualType = Nullable.GetUnderlyingType(type) ?? type;
+
+		if (actualType.IsEnum)
 		{
-			return Enum.Parse(type, value?.ToString() ?? string.Empty);
+			return Enum.Parse(actualType, value?.ToString() ?? string.Empty);
 		}
-		else if (type.FullName == "System.Guid")
+		else if (actualType.FullName == "System.Guid")
 		{
 			return Guid.Parse(value.ToString() ?? string.Empty);
 		}
@@ -30,7 +33,7 @@ public static class ObjectExtensions
 		{
 			return (Guid?)Guid.Parse(value.ToString() ?? string.Empty);
 		}
-		else if (type.FullName == "System.DateTime")
+		else if (actualType.FullName == "System.DateTime")
 		{
 			return DateTime.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
@@ -38,7 +41,7 @@ public static class ObjectExtensions
 		{
 			return (DateTime?)DateTime.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
-		else if (type.FullName == "System.DateTimeOffset")
+		else if (actualType.FullName == "System.DateTimeOffset")
 		{
 			return DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
@@ -47,6 +50,6 @@ public static class ObjectExtensions
 			return (DateTimeOffset?)DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
 
-		return Convert.ChangeType(value, type, CultureInfo.CurrentCulture);
+		return Convert.ChangeType(value, actualType, CultureInfo.CurrentCulture);
 	}
 }
