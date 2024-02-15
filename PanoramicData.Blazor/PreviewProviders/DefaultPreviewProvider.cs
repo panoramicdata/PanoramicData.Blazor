@@ -66,7 +66,6 @@ public class DefaultPreviewProvider : IPreviewProvider
 		else if (item.FileExtension == "txt")
 		{
 			// download content and convert markdown to html
-			throw new Exception("Aaaaargh crash!!!!");
 			var contentBytes = await DownloadContentAsync(item);
 			if (contentBytes.Length > 0)
 			{
