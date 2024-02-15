@@ -4,7 +4,12 @@ namespace PanoramicData.Blazor;
 
 public partial class PDFilePreview
 {
+	private string? _lastPreviewPath;
+	private PreviewInfo? _lastPreviewInfo;
 	private PreviewInfo _previewInfo = new();
+
+	[Parameter]
+	public EventCallback<Exception> ExceptionHandler { get; set; }
 
 	[Parameter]
 	public FileExplorerItem? Item { get; set; }
@@ -14,6 +19,21 @@ public partial class PDFilePreview
 
 	protected override async Task OnParametersSetAsync()
 	{
-		_previewInfo = await PreviewProvider.GetPreviewInfoAsync(Item);
+		// cache last preview by path
+		if (Item?.Path == _lastPreviewPath)
+		{
+			return;
+		}
+		_lastPreviewPath = Item?.Path;
+
+		try
+		{
+			_previewInfo = await PreviewProvider.GetPreviewInfoAsync(Item);
+		}
+		catch (Exception ex)
+		{
+			_previewInfo = await PreviewProvider.GetBasicPreviewInfoAsync(Item);
+			await ExceptionHandler.InvokeAsync(ex);
+		}
 	}
 }

@@ -5,7 +5,7 @@
 	display: flex;
 	flex: 1 1;
 	padding: 0px 2px;
-	vertical-align: central;
+	vertical-align: middle;
 	z-index: 0;
 }
 
@@ -16,7 +16,7 @@
 ::deep .ms-nullable {
 	margin: 0 4px 2px 12px;
 	line-height: 0.5rem;
-	vertical-align: central;
+	vertical-align: middle;
 	padding: 0px;
 	width: 16px;
 }
