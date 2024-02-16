@@ -11,6 +11,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	private IJSObjectReference? _commonModule;
 	private bool _mouseDownOriginatedFromTable;
 	private readonly string IdEditPrefix = "pd-table-edit-";
+	private CancellationTokenSource? _cancellationTokenSource;
 	private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
 	private readonly Dictionary<string, object?> _editValues = new();
 	//private readonly Dictionary<string, string> _keyProperties = new();
@@ -320,6 +321,16 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	protected int Page { get; set; } = 1;
 
 	/// <summary>
+	/// Gets whether the component is currently busy.
+	/// </summary>
+	public bool IsBusy => _cancellationTokenSource != null;
+
+	/// <summary>
+	/// Gets whether the component is has been cancelled.
+	/// </summary>
+	public bool IsCancelled => _cancellationTokenSource?.IsCancellationRequested == true;
+
+	/// <summary>
 	/// Gets whether the table is currently in edit mode.
 	/// </summary>
 	public bool IsEditing { get; private set; }
@@ -373,6 +384,17 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		catch (Exception ex)
 		{
 			await HandleExceptionAsync(ex).ConfigureAwait(false);
+		}
+	}
+
+	/// <summary>
+	/// Cancels the current operation.
+	/// </summary>
+	public async Task CancelAsync()
+	{
+		if (_cancellationTokenSource?.IsCancellationRequested == false)
+		{
+			await _cancellationTokenSource.CancelAsync();
 		}
 	}
 
@@ -439,6 +461,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				BlockOverlayService.Show();
 			}
 
+			// provide a means to cancel the refresh
+			_cancellationTokenSource = new CancellationTokenSource();
+
 			//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
 			var request = new DataRequest<TItem>
@@ -465,7 +490,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 			// perform query data
 			var response = await DataProvider
-				.GetDataAsync(request, CancellationToken.None)
+				.GetDataAsync(request, _cancellationTokenSource.Token)
 				.ConfigureAwait(true);
 
 			// allow calling application to filter/add items etc
@@ -485,6 +510,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 		finally
 		{
+			_cancellationTokenSource.Dispose();
+			_cancellationTokenSource = null;
+
 			if (ShowOverlay)
 			{
 				BlockOverlayService.Hide();

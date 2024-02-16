@@ -37,8 +37,19 @@
                               Keypress="OnSearchKeyPress"
                               Cleared="OnSearchCleared" />
 
-            <PDToolbarButton Text="@(Enabled ? "Disable" : "Enable")"
-                             Click="() => Enabled = !Enabled" />
+            @if (_personDataProvider.SlowSearch && Table.IsBusy)
+            {
+                <PDToolbarButton Click="() => Table.CancelAsync()"
+                                 CssClass="btn-danger"
+                                 IsEnabled="!Table.IsCancelled"
+                                 IconCssClass="fas fa-times-circle"
+                                 Text="CANCEL" />
+            }
+            else
+            {
+                <PDToolbarButton Text="@(Enabled ? "Disable" : "Enable")"
+                                 Click="() => Enabled = !Enabled" />
+            }
 
             <PDToolbarButton Text="@(AllowDrag ? "Disable Drag" : "Enable Drag")"
                              Click="() => AllowDrag = !AllowDrag" />
@@ -70,6 +81,8 @@
                                        Table="Table" />
 
             </PDDropDown>
+
+            <PDToggleSwitch @bind-Value="_personDataProvider.SlowSearch" Label="Slow Search" />
 
         </PDToolbar>
 

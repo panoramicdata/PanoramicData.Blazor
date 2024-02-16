@@ -105,7 +105,10 @@ public partial class PDToolbarTextbox
 
 	private async Task OnValueChanged(string value)
 	{
-		Value = value;
-		await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
+		if (value != Value)
+		{
+			Value = value;
+			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
+		}
 	}
 }

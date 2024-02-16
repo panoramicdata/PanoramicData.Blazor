@@ -52,10 +52,25 @@ public class PersonDataProvider : DataProviderBase<Person>
 		}
 	}
 
+	public bool SlowSearch { get; set; }
+
 	public override async Task<DataResponse<Person>> GetDataAsync(DataRequest<Person> request, CancellationToken cancellationToken)
 	{
 		var total = _people.Count;
 		var items = new List<Person>();
+
+		if (SlowSearch)
+		{
+			try
+			{
+				await Task.Delay(10000, cancellationToken).ConfigureAwait(false);
+			}
+			catch (TaskCanceledException)
+			{
+				var a = 1;
+			}
+		}
+
 		await Task.Run(() =>
 		{
 			var query = _people.AsQueryable();
