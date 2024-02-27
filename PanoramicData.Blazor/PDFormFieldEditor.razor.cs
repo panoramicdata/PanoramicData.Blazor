@@ -84,7 +84,11 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 
 	protected override void OnParametersSet()
 	{
-		_hasValue = !Field.GetFieldIsNullable() || Form.GetFieldValue(Field, true) != null;
+		// mark as having value (writable) - unless is nullable type, nulls are allowed and value is null
+		_hasValue = Field == null ||
+					Field.DisplayOptions?.AllowNulls == false ||
+					Field.GetFieldIsNullable() == false ||
+					Form.GetFieldValue(Field, true) != null;
 	}
 
 	private async Task OnHasNullValueChanged(bool hasValue)

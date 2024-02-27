@@ -69,7 +69,7 @@ public class Person : IComparable
 
 	[Display(Name = "Username", Description = "Login username")]
 	[FilterKey("user")]
-	public string Username { get; set; } = string.Empty;
+	public string Username { get; set; } = null;
 
 	[FilterKey("boss")]
 	public Person? Manager { get; set; }
