@@ -24,8 +24,7 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-
-		<PackageReleaseNotes>Updated PDForm to support rendering GUID instead of 0.</PackageReleaseNotes>
+		<PackageReleaseNotes>PDFormFieldEditor - Fixed regression where nullable fields that have a default value of null are read-only (unless DisplayOptions.AllowNulls set to true)</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
