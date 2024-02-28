@@ -466,15 +466,15 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		try
 		{
+			// provide a means to cancel the refresh
+			_cancellationTokenSource = new CancellationTokenSource();
+
 			if (ShowOverlay)
 			{
 				BlockOverlayService.Show();
 			}
 
 			await BeforeFetch.InvokeAsync();
-
-			// provide a means to cancel the refresh
-			_cancellationTokenSource = new CancellationTokenSource();
 
 			//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
 			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
