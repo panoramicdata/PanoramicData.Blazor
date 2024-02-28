@@ -43,6 +43,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	[Parameter] public EventCallback<TableAfterEditCommittedEventArgs<TItem>> AfterEditCommitted { get; set; }
 
 	/// <summary>
+	/// Callback fired after a fetch has completed
+	/// </summary>
+	[Parameter] public EventCallback AfterFetch { get; set; }
+
+	/// <summary>
 	/// Gets or sets whether rows may be dragged.
 	/// </summary>
 	[Parameter] public bool AllowDrag { get; set; }
@@ -67,6 +72,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// Callback fired before an item edit begins.
 	/// </summary>
 	[Parameter] public EventCallback<TableBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
+
+	/// <summary>
+	/// Callback fired before a fetch is started
+	/// </summary>
+	[Parameter] public EventCallback BeforeFetch { get; set; }
 
 	/// <summary>
 	/// Child HTML content.
@@ -461,6 +471,8 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				BlockOverlayService.Show();
 			}
 
+			await BeforeFetch.InvokeAsync();
+
 			// provide a means to cancel the refresh
 			_cancellationTokenSource = new CancellationTokenSource();
 
@@ -510,13 +522,15 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 		finally
 		{
-			_cancellationTokenSource.Dispose();
+			_cancellationTokenSource?.Dispose();
 			_cancellationTokenSource = null;
 
 			if (ShowOverlay)
 			{
 				BlockOverlayService.Hide();
 			}
+
+			await AfterFetch.InvokeAsync();
 		}
 	}
 
