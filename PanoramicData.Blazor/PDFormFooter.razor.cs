@@ -19,7 +19,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// <summary>
 	/// Error count message: placeholders => {0} = count {1} = ''/'s' {2} = field titles
 	/// </summary>
-	[Parameter] public string ErrorCountMessage { get; set; } = "Invalid: {2}";
+	[Parameter] public string ErrorCountMessage { get; set; } = "Please correct the highlighted fields";
 
 	/// <summary>
 	/// Gets or sets the button sizes.
