@@ -37,6 +37,10 @@ public static class ObjectExtensions
 		{
 			return DateTime.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
+		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTimeOffset", StringComparison.InvariantCultureIgnoreCase) == true)
+		{
+			return (DateTimeOffset?)DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
+		}
 		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTime", StringComparison.InvariantCultureIgnoreCase) == true)
 		{
 			return (DateTime?)DateTime.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);

@@ -1,3 +1,6 @@
-﻿<div class="pdtoolbaritem pdtoolbarplaceholder @ItemCssClass">
-	@ChildContent
+﻿<div class="pdtoolbaritem pdtoolbarplaceholder @(ShiftRight ? "align-right" : "") @ItemCssClass">
+    @if(IsVisible)
+    {
+        @ChildContent
+    }
 </div>

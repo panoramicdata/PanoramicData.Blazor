@@ -83,13 +83,23 @@
 
 							<PDField TItem="Person"
 									 Field="x => x.DateCreated"
-									 ShowInCreate="_ => false"
+									 ReadOnlyInCreate="_ => true"
 									 ReadOnlyInEdit="_ => true" />
 
 							<PDField TItem="Person"
 									 Field="x => x.DateModified"
 									 ShowInCreate="_ => false"
-									 ShowInEdit="_ => false" />
+									 ReadOnlyInEdit="_ => true" />
+
+							<PDField TItem="Person"
+									 Field="x => x.HomeTel" />
+
+							<PDField TItem="Person"
+									 Field="x => x.MobileTel" />
+
+							<PDField TItem="Person"
+									 Field="x => x.WorkTel" />
+
 						</PDFormBody>
 					</ChildContent>
 					<Footer>

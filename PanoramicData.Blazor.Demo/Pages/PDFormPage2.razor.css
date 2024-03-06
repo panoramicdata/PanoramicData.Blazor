@@ -1,0 +1,4 @@
+::deep .modal-body {
+	max-height: calc(100vh - 260px);
+	overflow: auto;
+}

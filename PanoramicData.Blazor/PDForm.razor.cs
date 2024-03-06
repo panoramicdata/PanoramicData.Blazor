@@ -822,12 +822,15 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			OnErrorsChanged(EventArgs.Empty);
 		}
 
-		foreach (var field in Fields)
+		if (Mode == FormModes.Create)
 		{
-			field.SuppressErrors = SuppressInitialErrors;
+			foreach (var field in Fields)
+			{
+				field.SuppressErrors = SuppressInitialErrors;
+			}
 		}
 
-		validate ??= mode == FormModes.Create;
+		validate ??= mode == FormModes.Create || mode == FormModes.Edit;
 
 		if (validate == true)
 		{

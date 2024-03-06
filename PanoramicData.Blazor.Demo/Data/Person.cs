@@ -69,13 +69,27 @@ public class Person : IComparable
 
 	[Display(Name = "Username", Description = "Login username")]
 	[FilterKey("user")]
-	public string Username { get; set; } = null;
+	public string? Username { get; set; }
 
 	[FilterKey("boss")]
 	public Person? Manager { get; set; }
 
 	[FilterKey("dep")]
 	public int? Dependents { get; set; }
+
+	[Display(Name = "Home Telephone")]
+	[FilterKey("home")]
+	public string? HomeTel { get; set; }
+
+	[Required]
+	[Display(Name = "Mobile Telephone")]
+	[FilterKey("mob")]
+	public string? MobileTel { get; set; }
+
+	[Display(Name = "Work Telephone")]
+	[FilterKey("work")]
+	public string? WorkTel { get; set; }
+
 
 	public int CompareTo(object? obj)
 	{

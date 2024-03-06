@@ -2,6 +2,8 @@
 
 public class FieldGroup<TItem> where TItem : class
 {
+	public string Id { get; set; } = string.Empty;
+
 	public List<FormField<TItem>> Fields { get; set; } = new();
 
 	public string Title

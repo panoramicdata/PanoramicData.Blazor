@@ -3,6 +3,8 @@
 public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 {
 	private bool _formSet;
+	private int _errorCount;
+	private string _errorFieldNames = string.Empty;
 
 	/// <summary>
 	/// Form the component belongs to.
@@ -13,6 +15,11 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// Event raised whenever the user clicks on a button.
 	/// </summary>
 	[Parameter] public EventCallback<string> Click { get; set; }
+
+	/// <summary>
+	/// Error count message: placeholders => {0} = count {1} = ''/'s' {2} = field titles
+	/// </summary>
+	[Parameter] public string ErrorCountMessage { get; set; } = "Invalid: {2}";
 
 	/// <summary>
 	/// Gets or sets the button sizes.
@@ -33,6 +40,11 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// Should the Delete button be shown (only applicable when in Edit mode)?
 	/// </summary>
 	[Parameter] public bool ShowDelete { get; set; } = true;
+
+	/// <summary>
+	/// Should the number of errors be shown (when > 0).
+	/// </summary>
+	[Parameter] public bool ShowErrorCount { get; set; } = true;
 
 	/// <summary>
 	/// Sets the text shown on the save button.
@@ -109,17 +121,28 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// </summary>
 	[Parameter] public string NoButtonIconCssClass { get; set; } = "fas fa-times";
 
-	/// <summary>
-	/// Gets or sets the buttons displayed in the form footer.
-	/// </summary>
-	public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>();
-
-	private static void SetVisibility(ToolbarItem? item, bool shown)
+	public void Dispose()
 	{
-		if (item != null)
+		if (Form != null)
 		{
-			item.IsVisible = shown;
+			Form.ErrorsChanged -= Form_ErrorsChanged;
 		}
+		GC.SuppressFinalize(this);
+	}
+
+	private void Form_ErrorsChanged(object? sender, EventArgs e)
+	{
+		_errorCount = Form!.Errors.Sum(x => x.Value.Count);
+		var names = new List<string>();
+		foreach (var kvp in Form.Errors)
+		{
+			if (Form.Fields.FirstOrDefault(x => x.Name == kvp.Key) is FormField<TItem> field)
+			{
+				names.Add(field.Title);
+			}
+		}
+		_errorFieldNames = string.Join(", ", names);
+		InvokeAsync(() => { StateHasChanged(); }).ConfigureAwait(true);
 	}
 
 	protected override void OnParametersSet()
@@ -133,33 +156,9 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 
 				// listen for error changes
 				Form.ErrorsChanged += Form_ErrorsChanged;
-
-				// create default buttons
-				Buttons.Add(new ToolbarButton { Key = "Yes", Text = YesButtonText, CssClass = YesButtonCssClass, IconCssClass = YesButtonIconCssClass, ShiftRight = true, Size = Size });
-				Buttons.Add(new ToolbarButton { Key = "No", Text = NoButtonText, CssClass = NoButtonCssClass, IconCssClass = NoButtonIconCssClass, Size = Size });
-				Buttons.Add(new ToolbarButton { Key = "Delete", Text = DeleteButtonText, CssClass = DeleteButtonCssClass, IconCssClass = DeleteButtonIconCssClass, Size = Size });
-				Buttons.Add(new ToolbarButton { Key = "Save", Text = SaveButtonText, CssClass = SaveButtonCssClass, IconCssClass = SaveButtonIconCssClass, ShiftRight = true, Size = Size });
-				Buttons.Add(new ToolbarButton { Key = "Cancel", Text = CancelButtonText, CssClass = CancelButtonCssClass, IconCssClass = CancelButtonIconCssClass, Size = Size });
 			}
-
-			PDFormFooter<TItem>.SetVisibility(Buttons.Find(x => x.Key == "Yes"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
-			PDFormFooter<TItem>.SetVisibility(Buttons.Find(x => x.Key == "No"), Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel);
-			PDFormFooter<TItem>.SetVisibility(Buttons.Find(x => x.Key == "Delete"), ShowDelete && Form.Mode == FormModes.Edit);
-			PDFormFooter<TItem>.SetVisibility(Buttons.Find(x => x.Key == "Save"), ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit));
-			PDFormFooter<TItem>.SetVisibility(Buttons.Find(x => x.Key == "Cancel"), ShowCancel && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit));
 		}
 	}
-
-	private void Form_ErrorsChanged(object? sender, EventArgs e) => InvokeAsync(() =>
-																		 {
-																			 var saveButton = Buttons.Find(x => x.Key == "Save");
-																			 if (saveButton != null)
-																			 {
-																				 var isValid = Form!.Errors.Count == 0;
-																				 saveButton.IsEnabled = isValid;
-																				 StateHasChanged();
-																			 }
-																		 }).ConfigureAwait(true);
 
 	private async Task OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
 	{
@@ -200,7 +199,6 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 				await Click.InvokeAsync("Cancel").ConfigureAwait(true);
 				Form.ResetChanges();
 			}
-			//else if (key == "No" && Form.Mode == FormModes.Delete)
 			else if (key == "No")
 			{
 				await Form.EditItemAsync(Form.Item, Form.PreviousMode, false).ConfigureAwait(true);
@@ -210,14 +208,6 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		if (!(key == "Cancel" && Form?.ConfirmCancel == true && Form.Delta.Count > 0))
 		{
 			await Click.InvokeAsync(key).ConfigureAwait(true);
-		}
-	}
-
-	public void Dispose()
-	{
-		if (Form != null)
-		{
-			Form.ErrorsChanged -= Form_ErrorsChanged;
 		}
 	}
 }

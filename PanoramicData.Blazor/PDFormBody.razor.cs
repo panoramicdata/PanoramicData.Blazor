@@ -58,6 +58,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 
 	public List<FieldGroup<TItem>> Group(IEnumerable<FormField<TItem>> fields)
 	{
+		var index = 0;
 		var groups = new List<FieldGroup<TItem>>();
 		var dict = new Dictionary<string, FieldGroup<TItem>>();
 		foreach (var field in fields)
@@ -65,7 +66,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 			if (string.IsNullOrWhiteSpace(field.Group))
 			{
 				// create separate group for single field
-				groups.Add(new FieldGroup<TItem>() { Fields = new() { field } });
+				groups.Add(new FieldGroup<TItem>() { Id = $"group-{++index}", Fields = new() { field } });
 			}
 			else
 			{
@@ -76,7 +77,11 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 				else
 				{
 					// create new group
-					var g = new FieldGroup<TItem>() { Fields = new() { field } };
+					var g = new FieldGroup<TItem>()
+					{
+						Id = $"group-{++index}",
+						Fields = new() { field }
+					};
 					// add to dict for lookup / grouping by id
 					dict.Add(field.Group, g);
 					// add to results - provides ordering
@@ -134,7 +139,6 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					HelpUrl = column.HelpUrl
 				});
 			}
-
 		}
 	}
 
@@ -177,8 +181,13 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
-	private void OnHelpUrlClick(FormField<TItem> field)
-		=> _commonModule?.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
+	private async Task OnHelpUrlClick(FormField<TItem> field)
+	{
+		if (_commonModule != null)
+		{
+			await _commonModule.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
+		}
+	}
 
 	private string GetValidationCssClass(FormField<TItem> field)
 	{
