@@ -515,9 +515,10 @@ public partial class PDFileExplorer : IAsyncDisposable
 		if (node?.Data != null && FolderPath != node.Data.Path)
 		{
 			FolderPath = node.Data.Path;
-			await RefreshTableAsync().ConfigureAwait(true);
+			await RefreshTableAsync().ConfigureAwait(true); // will clear selection and preview
 			await RefreshToolbarAsync().ConfigureAwait(true);
 			await FolderChanged.InvokeAsync(node.Data).ConfigureAwait(true);
+			_previewItem = node.Data;
 		}
 	}
 
@@ -1004,8 +1005,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 		await RefreshToolbarAsync().ConfigureAwait(true);
 		var selection = Table?.GetSelectedItems() ?? Array.Empty<FileExplorerItem>();
 		await SelectionChanged.InvokeAsync(selection).ConfigureAwait(true);
-
-		// preview content?
 		_previewItem = selection.Length == 1 ? selection.First() : null;
 	}
 

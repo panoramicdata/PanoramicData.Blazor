@@ -10,7 +10,7 @@ public class DefaultPreviewProvider : IPreviewProvider
 	{
 		PreviewInfo? info = null;
 
-		if (item == null || item.EntryType == FileExplorerItemType.Directory)
+		if (item == null || (item.EntryType == FileExplorerItemType.Directory && item.Name == ".."))
 		{
 			info = new PreviewInfo
 			{
@@ -18,63 +18,66 @@ public class DefaultPreviewProvider : IPreviewProvider
 				CssClass = "basic"
 			};
 		}
-		else if (item.FileExtension == "html" || item.FileExtension == "htm")
+		else if (item.EntryType == FileExplorerItemType.File)
 		{
-			var contentBytes = await DownloadContentAsync(item);
-			if (contentBytes.Length > 0)
+			if (item.FileExtension == "html" || item.FileExtension == "htm")
 			{
-				var contentString = Encoding.UTF8.GetString(contentBytes);
-				info = new PreviewInfo
+				var contentBytes = await DownloadContentAsync(item);
+				if (contentBytes.Length > 0)
 				{
-					HtmlContent = new MarkupString(contentString),
-					CssClass = "html"
-				};
-			}
-		}
-		else if (item.FileExtension == "url")
-		{
-			var contentBytes = await DownloadContentAsync(item);
-			if (contentBytes.Length > 0)
-			{
-				var contentString = Encoding.UTF8.GetString(contentBytes);
-				var match = Regex.Match(contentString, "URL=(.+)\r?");
-				if (match.Success && match.Groups.Count > 1)
-				{
+					var contentString = Encoding.UTF8.GetString(contentBytes);
 					info = new PreviewInfo
 					{
-						Url = match.Groups[1].Value,
-						CssClass = "url"
+						HtmlContent = new MarkupString(contentString),
+						CssClass = "html"
 					};
 				}
 			}
-		}
-		else if (item.FileExtension == "md")
-		{
-			// download content and convert markdown to html
-			var contentBytes = await DownloadContentAsync(item);
-			if (contentBytes.Length > 0)
+			else if (item.FileExtension == "url")
 			{
-				string contentString = Encoding.UTF8.GetString(contentBytes);
-				var result = Markdown.ToHtml(contentString);
-				info = new PreviewInfo
+				var contentBytes = await DownloadContentAsync(item);
+				if (contentBytes.Length > 0)
 				{
-					HtmlContent = new MarkupString(result),
-					CssClass = "md"
-				};
+					var contentString = Encoding.UTF8.GetString(contentBytes);
+					var match = Regex.Match(contentString, "URL=(.+)\r?");
+					if (match.Success && match.Groups.Count > 1)
+					{
+						info = new PreviewInfo
+						{
+							Url = match.Groups[1].Value,
+							CssClass = "url"
+						};
+					}
+				}
 			}
-		}
-		else if (item.FileExtension == "txt")
-		{
-			// download content and convert markdown to html
-			var contentBytes = await DownloadContentAsync(item);
-			if (contentBytes.Length > 0)
+			else if (item.FileExtension == "md")
 			{
-				string contentString = Encoding.UTF8.GetString(contentBytes);
-				info = new PreviewInfo
+				// download content and convert markdown to html
+				var contentBytes = await DownloadContentAsync(item);
+				if (contentBytes.Length > 0)
 				{
-					HtmlContent = new MarkupString(contentString),
-					CssClass = "txt"
-				};
+					string contentString = Encoding.UTF8.GetString(contentBytes);
+					var result = Markdown.ToHtml(contentString);
+					info = new PreviewInfo
+					{
+						HtmlContent = new MarkupString(result),
+						CssClass = "md"
+					};
+				}
+			}
+			else if (item.FileExtension == "txt")
+			{
+				// download content and convert markdown to html
+				var contentBytes = await DownloadContentAsync(item);
+				if (contentBytes.Length > 0)
+				{
+					string contentString = Encoding.UTF8.GetString(contentBytes);
+					info = new PreviewInfo
+					{
+						HtmlContent = new MarkupString(contentString),
+						CssClass = "txt"
+					};
+				}
 			}
 		}
 
@@ -110,6 +113,16 @@ public class DefaultPreviewProvider : IPreviewProvider
 
 	protected virtual List<string> GetFileDetails(FileExplorerItem item)
 	{
+		if (item.EntryType == FileExplorerItemType.Directory)
+		{
+			return new List<string>
+			{
+				$"<span class=\"h1\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",
+				"<span class=\"h4\">Folder</span>",
+				$"<span class=\"text-small text-muted\">Created: {item.DateCreated?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
+				$"<span class=\"text-small text-muted\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>"
+			};
+		}
 		return new List<string>
 		{
 			$"<span class=\"h1\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",
