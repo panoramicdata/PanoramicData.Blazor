@@ -52,6 +52,8 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	private int InitialPreviewSize => PreviewPanel == FilePreviewModes.OptionalOff ? 0 : 1;
 
+	private bool IsParentDirectoryItem(FileExplorerItem item) => item.EntryType == FileExplorerItemType.Directory && item.Name == "..";
+
 	public string Id { get; private set; } = string.Empty;
 
 	public bool IsNavigating { get; private set; }
@@ -62,6 +64,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		item is null
 			? string.Empty
 			: $"{item.Name} {(item.Name != ".." && item.IsReadOnly ? $" {ReadOnlyPostfix}" : string.Empty)}".Trim();
+
 
 	#region Inject
 	[Inject] public IBlockOverlayService BlockOverlayService { get; set; } = null!;
@@ -926,10 +929,10 @@ public partial class PDFileExplorer : IAsyncDisposable
 		_menuDownload.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
 		_menuNewFolder.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
 		_menuUploadFiles.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
-		_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && selectedItems[0].CanRename;
-		_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete);
-		_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanCopyMove);
-		_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete);
+		_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && selectedItems[0].CanRename && !IsParentDirectoryItem(selectedItems[0]);
+		_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete) && !selectedItems.Any(x => IsParentDirectoryItem(x));
+		_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanCopyMove) && !selectedItems.Any(x => IsParentDirectoryItem(x));
+		_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete) && !selectedItems.Any(x => IsParentDirectoryItem(x));
 		_menuPaste.IsVisible = canPaste;
 		_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
 		_menuSep3.IsVisible = ShowSeparator(_menuSep3, TableContextItems);
@@ -1801,7 +1804,9 @@ public partial class PDFileExplorer : IAsyncDisposable
 		var deleteButton = ToolbarItems.Find(x => x.Key == "delete");
 		if (deleteButton != null)
 		{
-			deleteButton.IsEnabled = Table!.Selection.Count > 0 && selectedItems.All(x => x.CanDelete);
+			deleteButton.IsEnabled = Table!.Selection.Count > 0
+				&& selectedItems.All(x => x.CanDelete)
+				&& !selectedItems.Any(x => IsParentDirectoryItem(x));
 		}
 
 		// preview button
