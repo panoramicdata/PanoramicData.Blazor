@@ -24,7 +24,7 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes>PDTable - Fixed IsBusy returning false when fetch already started</PackageReleaseNotes>
+		<PackageReleaseNotes>PDFileExplorer - Added Preview support for Folders</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
