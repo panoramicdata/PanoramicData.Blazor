@@ -4,6 +4,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 {
 	private readonly Random _random = new(System.Environment.TickCount);
 	private readonly DirectoryEntry _root = new(
+
 		new DirectoryEntry("Library", true, false, false,
 			new DirectoryEntry("Templates", true, false, false,
 				new DirectoryEntry("web_template.html", FileExplorerItemType.File, 13000, true, false, false),
@@ -96,7 +97,14 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 			),
 			new DirectoryEntry("Readme.txt", FileExplorerItemType.File, 3500)
 		)
-		{ CanCopyMove = false }
+		{ CanCopyMove = false },
+		new DirectoryEntry("Sharepoint", true, false, false,
+			new DirectoryEntry("Public", true, false, false,
+				new DirectoryEntry("web_template.html", FileExplorerItemType.File, 13000, true, false, false),
+				new DirectoryEntry("excel_template.xlsx", FileExplorerItemType.File, 7500, true, false, false),
+				new DirectoryEntry("word_template.docx", FileExplorerItemType.File, 10000, true, false, false)
+			)
+		)
 	)
 	{ Alias = "/" };
 

@@ -1,0 +1,18 @@
+.pddatetime {
+	display: flex;
+	flex-wrap: wrap;
+	/*justify-content: space-between;*/
+}
+
+.form-control {
+	padding: 6px 3px !important;
+	width: 110px;
+}
+
+.invalid {
+	color: var(--bs-danger);
+}
+
+input::-webkit-calendar-picker-indicator {
+	margin-bottom: 4px;
+}

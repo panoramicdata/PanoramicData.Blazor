@@ -2,7 +2,7 @@
 
 public record FieldDisplayOptions
 {
-	public bool AllowNulls { get; set; } = false;
+	public bool AllowNulls { get; set; }
 
 	public string CssClass { get; init; } = string.Empty;
 
@@ -26,4 +26,11 @@ public record FieldBooleanOptions : FieldDisplayOptions
 	public string OnText { get; init; } = string.Empty;
 
 	public string OffText { get; init; } = string.Empty;
+}
+
+public record FieldDateTimeOptions : FieldDisplayOptions
+{
+	public bool ShowTime { get; init; }
+
+	public int TimeStepSecs { get; init; } = 1;
 }

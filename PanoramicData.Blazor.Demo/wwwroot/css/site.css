@@ -21,6 +21,14 @@ a, .btn-link {
 	padding-top: 10px;
 }
 
+.icon-sharepoint {
+	background: url("/_content/PanoramicData.Blazor.Demo/svg/sharepoint.svg");
+	background-size: 18px;
+	background-repeat: no-repeat;
+	transform: translate(2px, 2px);
+	height: 18px;
+}
+
 .navbar-toggler {
 	background-color: rgba(255, 255, 255, 0.1);
 }

@@ -33,19 +33,20 @@
     }
     else if (fieldType?.FullName == "System.DateTime")
     {
-        <input @onblur="() => Field.SuppressErrors = false"
-               @onchange="(x) => UpdateDateTimeValue(x, Field)"
-               class="form-control @GetEditorClass(Field)"
-               disabled="@IsReadOnly(Field)"
-               type="date"
-               value="@(Form?.GetFieldStringValue(Field))">
+        <PDDateTime Blur="() => Field.SuppressErrors = false"
+                    CssClass="@(GetEditorClass(Field))"
+                    IsEnabled="@(!IsReadOnly(Field))"
+                    ShowTime="@(Field.DisplayOptions is FieldDateTimeOptions opt ? opt.ShowTime : false)"
+                    TimeStepSecs="@(Field.DisplayOptions is FieldDateTimeOptions opt2 ? opt2.TimeStepSecs : 1)"
+                    Value="@(Form!.GetFieldValue<DateTime>(Field))"
+                    ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask" />
     }
     else if (fieldType?.FullName == "System.DateTimeOffset")
     {
         <input @onblur="() => Field.SuppressErrors = false"
                @onchange="(x) => UpdateDateTimeOffsetValue(x, Field)"
-               disabled="@IsReadOnly(Field)"
                class="form-control"
+               disabled="@IsReadOnly(Field)"
                type="date"
                value="@(Form?.GetFieldStringValue(Field))">
     }

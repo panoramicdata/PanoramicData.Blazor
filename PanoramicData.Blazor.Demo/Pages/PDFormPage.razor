@@ -75,7 +75,7 @@
                 <PDField TItem="Person"
                          Field="x => x.Dob"
                          Helper="_dateHelper"
-                         DisplayOptions="new FieldDisplayOptions { AllowNulls = true }"
+                         DisplayOptions="new FieldDateTimeOptions { AllowNulls = true, ShowTime = true, TimeStepSecs=15 }"
                          ShowCopyButton="_ => true" />
 
                 <PDField TItem="Person"

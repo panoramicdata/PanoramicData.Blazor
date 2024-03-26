@@ -212,6 +212,11 @@ public partial class PDFileExplorerPage
 	{
 		if (item.EntryType == FileExplorerItemType.Directory && item.Name != "..")
 		{
+			if (item.Path == "/Sharepoint")
+			{
+				return "fas fa-fw icon-sharepoint";
+			}
+
 			if (item.Path == "/Library")
 			{
 				return "fas fa-book";
@@ -231,6 +236,7 @@ public partial class PDFileExplorerPage
 			{
 				return "fas fa-hdd";
 			}
+
 		}
 
 		return TestFileSystemDataProvider.GetIconClass(item);
