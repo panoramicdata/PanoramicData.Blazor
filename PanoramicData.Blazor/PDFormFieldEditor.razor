@@ -36,19 +36,21 @@
         <PDDateTime Blur="() => Field.SuppressErrors = false"
                     CssClass="@(GetEditorClass(Field))"
                     IsEnabled="@(!IsReadOnly(Field))"
-                    ShowTime="@(Field.DisplayOptions is FieldDateTimeOptions opt ? opt.ShowTime : false)"
+                    ShowTime="@(Field.DisplayOptions is FieldDateTimeOptions opt1 ? opt1.ShowTime : false)"
                     TimeStepSecs="@(Field.DisplayOptions is FieldDateTimeOptions opt2 ? opt2.TimeStepSecs : 1)"
                     Value="@(Form!.GetFieldValue<DateTime>(Field))"
                     ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask" />
     }
     else if (fieldType?.FullName == "System.DateTimeOffset")
     {
-        <input @onblur="() => Field.SuppressErrors = false"
-               @onchange="(x) => UpdateDateTimeOffsetValue(x, Field)"
-               class="form-control"
-               disabled="@IsReadOnly(Field)"
-               type="date"
-               value="@(Form?.GetFieldStringValue(Field))">
+        <PDDateTimeOffset Blur="() => Field.SuppressErrors = false"
+                          CssClass="@(GetEditorClass(Field))"
+                          IsEnabled="@(!IsReadOnly(Field))"
+                          ShowOffset="@(Field.DisplayOptions is FieldDateTimeOptions opt1 ? opt1.ShowOffset : false)"
+                          ShowTime="@(Field.DisplayOptions is FieldDateTimeOptions opt2 ? opt2.ShowTime : false)"
+                          TimeStepSecs="@(Field.DisplayOptions is FieldDateTimeOptions opt3 ? opt3.TimeStepSecs : 1)"
+                          Value="@(Form!.GetFieldValue<DateTimeOffset>(Field))"
+                          ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask" />
     }
     else if (Field.Options != null)
     {

@@ -30,6 +30,8 @@ public record FieldBooleanOptions : FieldDisplayOptions
 
 public record FieldDateTimeOptions : FieldDisplayOptions
 {
+	public bool ShowOffset { get; init; }
+
 	public bool ShowTime { get; init; }
 
 	public int TimeStepSecs { get; init; } = 1;

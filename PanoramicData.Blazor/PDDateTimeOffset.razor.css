@@ -1,4 +1,4 @@
-.pddatetime {
+.pddatetimeoffset {
 	display: flex;
 	flex-wrap: wrap;
 }
@@ -7,6 +7,12 @@
 	padding: 6px 3px !important;
 	width: 115px;
 }
+
+.form-select {
+	/*padding: 6px 3px !important;*/
+	width: 100px;
+}
+
 
 .invalid {
 	color: var(--bs-danger);

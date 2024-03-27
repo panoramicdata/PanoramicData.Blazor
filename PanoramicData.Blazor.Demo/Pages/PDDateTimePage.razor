@@ -1,16 +1,63 @@
 ﻿@page "/pddatetime"
 
-<h1>PDDateTime</h1>
+<div>
 
-<DemoSourceView SourceFiles="Pages/PDDateTimePage.razor, Pages/PDDateTimePage.razor.cs">
+    <h1>PDDateTime</h1>
 
-	<PDToolbar>
+    <DemoSourceView SourceFiles="Pages/PDDateTimePage.razor, Pages/PDDateTimePage.razor.cs">
 
-    </PDToolbar>
+	    <PDToolbar>
 
-    <PDDateTime Value="_value1"
-                ValueChanged="OnValue1Changed" />
+        </PDToolbar>
 
-	<EventView />
+        <p>
+            <div>DateTime picker - Date only</div>
+            <PDDateTime Value="_value1"
+                        ValueChanged="OnValue1Changed" />
+        </p>
 
-</DemoSourceView>
+        <p>
+            <div>DateTime picker - Date and Time (hours, minutes and seconds)</div>
+            <PDDateTime ShowTime="true"
+                        Value="_value2"
+                        ValueChanged="OnValue2Changed" />
+        </p>
+
+        <p>
+            <div>DateTime picker - Date and Time (hours and minutes only)</div>
+            <div class="text-muted">backing DateTime variable MUST have 0 seconds if wishing to show only hours and minutes</div>
+            <PDDateTime ShowTime="true"
+                        TimeStepSecs="60"
+                        Value="_value3"
+                        ValueChanged="OnValue3Changed" />
+        </p>
+
+        <p>
+            <div>DateTime picker - Date and Time (hours only)</div>
+            <div class="text-muted">backing DateTime variable MUST have 0 seconds and 0 minutes if wishing to show only hours</div>
+            <PDDateTime ShowTime="true"
+                        TimeStepSecs="3600"
+                        Value="_value4"
+                        ValueChanged="OnValue4Changed" />
+        </p>
+
+        <p>
+            <div>DateTimeOffset picker - Date and Time</div>
+            <PDDateTimeOffset ShowTime="true"
+                        Value="_value5"
+                        ValueChanged="OnValue5Changed" />
+        </p>
+
+        <p>
+            <div>DateTimeOffset picker - Date, Time and Offset</div>
+            <PDDateTimeOffset ShowOffset="true"
+                              ShowTime="true"
+                              Value="_value6"
+                              ValueChanged="OnValue6Changed" />
+        </p>
+
+	    <EventView />
+
+    </DemoSourceView>
+
+</div>
