@@ -25,8 +25,15 @@ a, .btn-link {
 	background: url("/_content/PanoramicData.Blazor.Demo/svg/sharepoint.svg");
 	background-size: 18px;
 	background-repeat: no-repeat;
+	display: inline-block;
 	transform: translate(2px, 2px);
 	height: 18px;
+	width: 18px;
+}
+
+.icon-sharepoint.fa-4x {
+	transform: scale(4) translate(0, -5px);
+	margin-top: 50px;
 }
 
 .navbar-toggler {

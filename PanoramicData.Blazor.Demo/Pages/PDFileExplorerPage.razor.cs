@@ -214,7 +214,7 @@ public partial class PDFileExplorerPage
 		{
 			if (item.Path == "/Sharepoint")
 			{
-				return "fas fa-fw icon-sharepoint";
+				return "icon-sharepoint";
 			}
 
 			if (item.Path == "/Library")
