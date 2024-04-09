@@ -797,10 +797,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private async Task OnTableAfterEditAsync(TableAfterEditEventArgs<FileExplorerItem> args)
 	{
 		// cancel if new name is empty
-		if (args.NewValues.ContainsKey("Name"))
+		if (args.NewValues.TryGetValue("Name", out object? value))
 		{
-			var newName = args.NewValues["Name"]?.ToString();
-			if (string.IsNullOrWhiteSpace(newName))
+			var newName = value?.ToString();
+			if (newName == args.Item.Name)
+			{
+				args.Cancel = true;
+			}
+			else if (string.IsNullOrWhiteSpace(newName))
 			{
 				args.Cancel = true;
 				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("A value is required")).ConfigureAwait(true);

@@ -24,7 +24,7 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes>PDFileExplorer - Preview iFrame now has sandbox attribute. Fixed button and context states for when .. entry selected.</PackageReleaseNotes>
+		<PackageReleaseNotes>PDFileExplorer - Renaming a file to its original name now cancels edit with no effect.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
