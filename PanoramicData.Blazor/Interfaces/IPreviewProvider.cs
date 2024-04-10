@@ -2,7 +2,13 @@
 
 public interface IPreviewProvider
 {
-	Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item);
+	string DateTimeFormat { get; set; }
+
+	int SpinnerTriggerMs { get; set; }
+
+	int SpinnerMinDisplayMs { get; set; }
+
+	Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item, bool spinner = false);
 
 	Task<PreviewInfo> GetPreviewInfoAsync(FileExplorerItem? item);
 }

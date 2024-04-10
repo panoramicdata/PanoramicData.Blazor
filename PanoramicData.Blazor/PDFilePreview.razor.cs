@@ -28,7 +28,21 @@ public partial class PDFilePreview
 
 		try
 		{
-			_previewInfo = await PreviewProvider.GetPreviewInfoAsync(Item);
+			//if (PreviewProvider.IsDelayedPreview(Item))
+			//{
+
+			// only show basic info with spinner is download takes more than N ms
+			var minTimeTask = Task.Delay(PreviewProvider.SpinnerTriggerMs);
+			var previewTask = PreviewProvider.GetPreviewInfoAsync(Item);
+			var firstToComplete = await Task.WhenAny(minTimeTask, previewTask);
+			if (firstToComplete == minTimeTask)
+			{
+				_previewInfo = await PreviewProvider.GetBasicPreviewInfoAsync(Item, true);
+				var delayTask = Task.Delay(PreviewProvider.SpinnerMinDisplayMs);
+				StateHasChanged();
+				await Task.WhenAll(delayTask, previewTask);
+			}
+			_previewInfo = await previewTask;
 		}
 		catch (Exception ex)
 		{
