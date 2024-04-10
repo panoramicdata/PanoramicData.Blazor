@@ -4,15 +4,21 @@ namespace PanoramicData.Blazor.PreviewProviders;
 
 public class DefaultPreviewProvider : IPreviewProvider
 {
+	private static string[] _downloadableFileTypes = new[] { "html", "htm", "url", "md", "txt" };
+
 	public string DateTimeFormat { get; set; } = "dd/MM/yy HH:mm:ss";
+
+	public int SpinnerTriggerMs { get; set; } = 500;
+
+	public int SpinnerMinDisplayMs { get; set; } = 1000;
+
+	#region IPreviewProvider
 
 	public virtual async Task<PreviewInfo> GetPreviewInfoAsync(FileExplorerItem? item)
 	{
-		PreviewInfo? info = null;
-
 		if (item == null || (item.EntryType == FileExplorerItemType.Directory && item.Name == ".."))
 		{
-			info = new PreviewInfo
+			return new PreviewInfo
 			{
 				HtmlContent = new MarkupString("<span>No Preview</span>"),
 				CssClass = "basic"
@@ -20,74 +26,60 @@ public class DefaultPreviewProvider : IPreviewProvider
 		}
 		else if (item.EntryType == FileExplorerItemType.File)
 		{
-			if (item.FileExtension == "html" || item.FileExtension == "htm")
+			// download content for better preview?
+			if (_downloadableFileTypes.Contains(item.FileExtension))
 			{
+				// download bytes
 				var contentBytes = await DownloadContentAsync(item);
 				if (contentBytes.Length > 0)
 				{
+					// convert to string and process
 					var contentString = Encoding.UTF8.GetString(contentBytes);
-					info = new PreviewInfo
+					if (item.FileExtension == "html" || item.FileExtension == "htm")
 					{
-						HtmlContent = new MarkupString(contentString),
-						CssClass = "html"
-					};
-				}
-			}
-			else if (item.FileExtension == "url")
-			{
-				var contentBytes = await DownloadContentAsync(item);
-				if (contentBytes.Length > 0)
-				{
-					var contentString = Encoding.UTF8.GetString(contentBytes);
-					var match = Regex.Match(contentString, "URL=(.+)\r?");
-					if (match.Success && match.Groups.Count > 1)
-					{
-						info = new PreviewInfo
+						return new PreviewInfo
 						{
-							Url = match.Groups[1].Value,
-							CssClass = "url"
+							HtmlContent = new MarkupString(contentString),
+							CssClass = "html"
 						};
 					}
-				}
-			}
-			else if (item.FileExtension == "md")
-			{
-				// download content and convert markdown to html
-				var contentBytes = await DownloadContentAsync(item);
-				if (contentBytes.Length > 0)
-				{
-					string contentString = Encoding.UTF8.GetString(contentBytes);
-					var result = Markdown.ToHtml(contentString);
-					info = new PreviewInfo
+					else if (item.FileExtension == "url")
 					{
-						HtmlContent = new MarkupString(result),
-						CssClass = "md"
-					};
-				}
-			}
-			else if (item.FileExtension == "txt")
-			{
-				// download content and convert markdown to html
-				var contentBytes = await DownloadContentAsync(item);
-				if (contentBytes.Length > 0)
-				{
-					string contentString = Encoding.UTF8.GetString(contentBytes);
-					info = new PreviewInfo
+						var match = Regex.Match(contentString, "URL=(.+)\r?");
+						if (match.Success && match.Groups.Count > 1)
+						{
+							return new PreviewInfo
+							{
+								Url = match.Groups[1].Value,
+								CssClass = "url"
+							};
+						}
+					}
+					else if (item.FileExtension == "md")
 					{
-						HtmlContent = new MarkupString(contentString),
-						CssClass = "txt"
-					};
+						return new PreviewInfo
+						{
+							HtmlContent = new MarkupString(Markdown.ToHtml(contentString)),
+							CssClass = "md"
+						};
+					}
+					else if (item.FileExtension == "txt")
+					{
+						return new PreviewInfo
+						{
+							HtmlContent = new MarkupString(contentString),
+							CssClass = "txt"
+						};
+					}
 				}
 			}
 		}
 
 		// fallback to basic info
-		info ??= await GetBasicPreviewInfoAsync(item);
-
-		return info;
+		return await GetBasicPreviewInfoAsync(item);
 	}
 
-	public virtual Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item)
+	public virtual Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item, bool spinner = false)
 	{
 		var info = new PreviewInfo();
 		var sb = new StringBuilder();
@@ -99,11 +91,22 @@ public class DefaultPreviewProvider : IPreviewProvider
 				sb.Append(detail);
 			}
 		}
+		if (spinner)
+		{
+			sb.Append(GetSpinnerHtml());
+		}
 		sb.Append("</div>");
 		info.HtmlContent = new MarkupString(sb.ToString());
 		info.CssClass = "basic";
 		return Task.FromResult(info);
 	}
+
+	public virtual string GetSpinnerHtml()
+	{
+		return "<i class=\"mt-2 fas fa-2x fa-fw fa-spin fa-spinner \" />";
+	}
+
+	#endregion
 
 	protected virtual Task<byte[]> DownloadContentAsync(FileExplorerItem item)
 	{

@@ -24,7 +24,7 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes>PDFileExplorer - Preview iFrame now has sandbox attribute. Fixed button and context states for when .. entry selected.</PackageReleaseNotes>
+		<PackageReleaseNotes>PDFileExplorer - Preview now include mechanism to show basic details along with spinner when content fetch takes a while.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

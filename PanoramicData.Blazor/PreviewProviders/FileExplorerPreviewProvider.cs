@@ -6,6 +6,7 @@ namespace PanoramicData.Blazor.PreviewProviders;
 public class FileExplorerPreviewProvider : DefaultPreviewProvider
 {
 	public PDFileExplorer? FileExplorer { get; set; }
+
 	protected override async Task<byte[]> DownloadContentAsync(FileExplorerItem item)
 	{
 		if (FileExplorer == null)
