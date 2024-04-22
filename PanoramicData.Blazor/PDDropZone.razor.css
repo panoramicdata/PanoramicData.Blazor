@@ -2,6 +2,10 @@
 	border: 1px solid transparent;
 }
 
+.pddropzone:focus-visible {
+	outline: none;
+}
+
 .pddropzone.dz-drag-hover {
 	background-color: #e8ffe8;
 	border: 1px dashed rgba(0, 0, 0, 0.1);

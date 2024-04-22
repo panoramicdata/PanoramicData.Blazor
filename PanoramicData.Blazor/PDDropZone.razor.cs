@@ -32,6 +32,11 @@ public partial class PDDropZone : IAsyncDisposable
 	[Parameter] public EventCallback<DropZoneEventArgs> Drop { get; set; }
 
 	/// <summary>
+	/// Event raised whenever the user finished pressing a key.
+	/// </summary>
+	[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
+
+	/// <summary>
 	/// Event raised whenever a file upload starts.
 	/// </summary>
 	[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadStarted { get; set; }
@@ -172,13 +177,15 @@ public partial class PDDropZone : IAsyncDisposable
 		};
 	}
 
+	private Task OnKeyDown(KeyboardEventArgs args)
+	{
+		return KeyDown.InvokeAsync(args);
+	}
+
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadBegin")]
 	public async Task<string[]> OnUploadBeginAsync(DropZoneFile file)
 	{
-		if (file is null)
-		{
-			throw new ArgumentNullException(nameof(file));
-		}
+		ArgumentNullException.ThrowIfNull(file);
 
 		if (file.Path is null)
 		{

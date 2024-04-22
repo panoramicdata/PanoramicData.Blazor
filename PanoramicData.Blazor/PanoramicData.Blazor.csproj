@@ -25,8 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDFileExplorer - Preview now include mechanism to show basic details along with spinner when content fetch takes a while.
-			PDFileExplorer - Renaming a file to its original name now cancels edit with no effect.
+			PDFileExplorer - Modified Table bottom whitespace area to accept and process Ctrl-V to paste.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
