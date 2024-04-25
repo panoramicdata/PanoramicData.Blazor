@@ -12,6 +12,7 @@ public partial class PDFilter : IAsyncDisposable
 	private string _valuesFilter = string.Empty;
 	private readonly List<string> _selectedValues = new();
 	private IJSObjectReference? _commonModule;
+	private static readonly char[] _separator = ['|'];
 
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
@@ -42,6 +43,7 @@ public partial class PDFilter : IAsyncDisposable
 
 	[Parameter]
 	public ButtonSizes Size { get; set; } = ButtonSizes.Small;
+
 
 	public async ValueTask DisposeAsync()
 	{
@@ -97,7 +99,7 @@ public partial class PDFilter : IAsyncDisposable
 		await RefreshValues().ConfigureAwait(true);
 		if (_filterType == FilterTypes.In)
 		{
-			_selectedValues.AddRange(_value1.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
+			_selectedValues.AddRange(_value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
 		}
 	}
 
@@ -127,7 +129,11 @@ public partial class PDFilter : IAsyncDisposable
 		if (_filterType == FilterTypes.In)
 		{
 			_selectedValues.Clear();
-			_selectedValues.AddRange(_value1.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
+			_selectedValues.AddRange(_value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
+		}
+		else if (_filterType == FilterTypes.Equals)
+		{
+			_value1 = _value1.QuoteIfContainsWhitespace();
 		}
 	}
 
@@ -143,11 +149,8 @@ public partial class PDFilter : IAsyncDisposable
 
 	private void OnValueClicked(string value)
 	{
-		if (_selectedValues.Contains(value))
-		{
-			_selectedValues.Remove(value);
-		}
-		else
+		// toggle clicked value from selected items
+		if (!_selectedValues.Remove(value))
 		{
 			_selectedValues.Add(value);
 		}
