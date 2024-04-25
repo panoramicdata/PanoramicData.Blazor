@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDFileExplorer - Modified Table bottom whitespace area to accept and process Ctrl-V to paste.
+			PDFilter - Single text value is now quoted if it contains spaces.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
