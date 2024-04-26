@@ -248,7 +248,13 @@
                                   Sortable="false"
                                   Title="">
                             <Template>
-                                <i class="@GetIconCssClass(context)"></i>
+                                <div class="item-icon">
+                                    <i class="@GetIconCssClass(context)"></i>
+                                    @if(true)
+                                    {
+                                        <i class="x-badge fas fa-fw fa-ban"></i>
+                                    }
+                                </div>
                             </Template>
                         </PDColumn>
 
