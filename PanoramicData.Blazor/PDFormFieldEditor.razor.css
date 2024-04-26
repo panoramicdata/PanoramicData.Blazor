@@ -20,3 +20,11 @@
 	padding: 0px;
 	width: 16px;
 }
+
+.editor ::deep .pddatetime input {
+	flex-grow: 1;
+}
+
+.editor ::deep .pddatetimeoffset input {
+	flex-grow: 1;
+}
