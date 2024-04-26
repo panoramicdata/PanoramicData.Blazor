@@ -25,7 +25,8 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDFilter - Single text value is now quoted if it contains spaces.
+			PDFormFooter - Corrected to show Cancel button in ReadOnly mode.
+			Button Icon centered and DateTime controls in Forms now grow to fill space.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

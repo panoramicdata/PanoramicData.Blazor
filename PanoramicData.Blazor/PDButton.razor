@@ -16,7 +16,7 @@
 		{
 				@if (!string.IsNullOrWhiteSpace(IconCssClass))
 				{
-					<span class="@IconCssClass"></span>
+					<span class="icon @IconCssClass"></span>
 				}
             <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
 		}
@@ -44,7 +44,7 @@ else
 		{
             @if (!string.IsNullOrWhiteSpace(IconCssClass))
             {
-                <span class="@IconCssClass"></span>
+                <span class="icon @IconCssClass"></span>
             }
             <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
 		}

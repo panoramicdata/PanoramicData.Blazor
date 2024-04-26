@@ -53,7 +53,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
             <PDToolbarButton Click="OnButtonClick"
                              CssClass="@CancelButtonCssClass"
                              IconCssClass="@CancelButtonIconCssClass"
-                             IsVisible="ShowCancel && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit)"
+                             IsVisible="ShowCancel && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit || Form.Mode == FormModes.ReadOnly)"
                              Key="Cancel"
                              Size="Size"
                              Text="@CancelButtonText" />

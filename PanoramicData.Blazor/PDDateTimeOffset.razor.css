@@ -3,13 +3,15 @@
 	flex-wrap: wrap;
 }
 
-.form-control {
-	padding: 6px 3px !important;
-	width: 115px;
+.form-control.date {
+	width: 124px;
+}
+
+.form-control.time {
+	width: 120px;
 }
 
 .form-select {
-	/*padding: 6px 3px !important;*/
 	width: 100px;
 }
 
