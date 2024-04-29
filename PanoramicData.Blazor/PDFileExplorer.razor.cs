@@ -1725,7 +1725,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			return postfix.Trim();
 		}
 
-		var idx = filename.IndexOf('.');
+		var idx = filename.LastIndexOf('.');
 		if (idx == -1)
 		{
 			return $"{filename}{postfix}";
