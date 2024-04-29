@@ -25,8 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDFormFooter - Corrected to show Cancel button in ReadOnly mode.
-			Button Icon centered and DateTime controls in Forms now grow to fill space.
+			PDFileExplorer - Now correctly renames a copied file when filename contains periods.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
