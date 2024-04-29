@@ -14,6 +14,12 @@ public class FileExplorerPreviewProvider : DefaultPreviewProvider
 			return await base.DownloadContentAsync(item);
 		}
 
+		// skip if preview panel is not shown
+		if (!FileExplorer.PreviewPanelVisible)
+		{
+			return Array.Empty<byte>();
+		}
+
 		// simple download of content
 		var url = FileExplorer.DownloadUrlFunc(item);
 		if (url?.Contains(':') == true)

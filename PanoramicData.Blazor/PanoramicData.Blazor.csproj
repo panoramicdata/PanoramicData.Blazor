@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDFileExplorer - Now correctly renames a copied file when filename contains periods.
+			PDFileExplorer - No longer downloads file content if preview panel hidden.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

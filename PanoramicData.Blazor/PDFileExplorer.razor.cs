@@ -44,7 +44,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private IJSObjectReference? _commonModule;
 	private ToolbarButton? _previewPanelButton;
 	private PDSplitter? _splitter;
-	private bool _previewPanelVisible = true;
 	private FileExplorerItem? _previewItem;
 	private double[] _lastSplitSizes = new double[] { 20, 60, 20 };
 
@@ -57,6 +56,8 @@ public partial class PDFileExplorer : IAsyncDisposable
 	public string Id { get; private set; } = string.Empty;
 
 	public bool IsNavigating { get; private set; }
+
+	public bool PreviewPanelVisible { get; private set; } = true;
 
 	public string SessionId { get; private set; } = Guid.NewGuid().ToString();
 
@@ -438,7 +439,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 		if (PreviewPanel == FilePreviewModes.OptionalOff)
 		{
-			_previewPanelVisible = false;
+			PreviewPanelVisible = false;
 		}
 	}
 
@@ -1234,7 +1235,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	{
 		if (_splitter != null)
 		{
-			if (_previewPanelVisible)
+			if (PreviewPanelVisible)
 			{
 				_lastSplitSizes = await _splitter.GetSizesAsync().ConfigureAwait(true);
 				if (_lastSplitSizes.Length > 2)
@@ -1246,7 +1247,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				await _splitter.SetSizesAsync(_lastSplitSizes).ConfigureAwait(true);
 			}
-			_previewPanelVisible = !_previewPanelVisible;
+			PreviewPanelVisible = !PreviewPanelVisible;
 
 			await RefreshToolbarAsync();
 		}
@@ -1816,7 +1817,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		// preview button
 		if (_previewPanelButton != null)
 		{
-			_previewPanelButton.IconCssClass = _previewPanelVisible ? "fas fa-fw fa-eye-slash" : "fas fa-fw fa-eye";
+			_previewPanelButton.IconCssClass = PreviewPanelVisible ? "fas fa-fw fa-eye-slash" : "fas fa-fw fa-eye";
 		}
 
 		// allow application to alter toolbar state
