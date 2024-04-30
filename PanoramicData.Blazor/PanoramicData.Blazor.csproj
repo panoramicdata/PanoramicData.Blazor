@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDFileExplorer - No longer downloads file content if preview panel hidden.
+			PDTimeline - Added new optional parameter 'force' to RefreshAsync method.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

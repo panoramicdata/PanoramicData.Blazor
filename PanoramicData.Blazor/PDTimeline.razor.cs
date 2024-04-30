@@ -599,7 +599,7 @@ public partial class PDTimeline : IAsyncDisposable
 		_panHandleX = (_columnOffset / (double)_totalColumns) * (double)_canvasWidth;
 	}
 
-	public async Task RefreshAsync()
+	public async Task RefreshAsync(bool force = false)
 	{
 		if (DataProvider != null && MinDateTime != DateTime.MinValue)
 		{
@@ -607,7 +607,7 @@ public partial class PDTimeline : IAsyncDisposable
 			var end = Options.General.FetchAll ? RoundedMaxDateTime : Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, _columnOffset + _viewportColumns));
 
 			// only proceed if query is different to last one
-			if (start != _lastQueryStart || end != _lastQueryEnd || Scale != _lastQueryScale)
+			if (force || start != _lastQueryStart || end != _lastQueryEnd || Scale != _lastQueryScale)
 			{
 				_lastQueryEnd = end;
 				_lastQueryStart = start;
