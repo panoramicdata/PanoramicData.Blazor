@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTimeline - Added new optional parameter 'force' to RefreshAsync method.
+			PDTree - Added ToolTip parameter that accepts a function used to generate a tooltip for each node.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
