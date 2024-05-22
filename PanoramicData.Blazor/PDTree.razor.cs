@@ -29,123 +29,6 @@ public partial class PDTree<TItem> where TItem : class
 	#region Parameters
 
 	/// <summary>
-	/// Should a node clear its child content on collapse? Doing so will force a re-load of child nodes
-	/// if it is re-expanded. Only applicable when LoadOnDemand = true.
-	/// </summary>
-	[Parameter] public bool ClearOnCollapse { get; set; }
-
-	/// <summary>
-	/// Gets or sets the IDataProviderService instance to use to fetch data.
-	/// </summary>
-	[Parameter] public IDataProviderService<TItem> DataProvider { get; set; } = null!;
-
-	/// <summary>
-	/// Gets or sets a delegate to be called if an exception occurs.
-	/// </summary>
-	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
-
-	/// <summary>
-	/// A function that selects the field that contains the key value.
-	/// </summary>
-	[Parameter] public Func<TItem, object>? KeyField { get; set; }
-
-	/// <summary>
-	/// A function that selects the field that contains the parent key value.
-	/// </summary>
-	[Parameter] public Func<TItem, object>? ParentKeyField { get; set; }
-
-	/// <summary>
-	/// A function that selects the field to display for the item.
-	/// </summary>
-	[Parameter] public Func<TItem, object>? TextField { get; set; }
-
-	/// <summary>
-	/// A function that determines whether the given item is a leaf in the tree.
-	/// </summary>
-	[Parameter] public Func<TItem, bool>? IsLeaf { get; set; }
-
-	/// <summary>
-	/// A function that calculates the CSS classes used to show an icon for the given node.
-	/// </summary>
-	[Parameter] public Func<TItem, int, string>? IconCssClass { get; set; }
-
-	/// <summary>
-	/// A function used to determine sort order of child nodes.
-	/// </summary>
-	[Parameter] public Comparison<TItem>? Sort { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether a non-leaf node will request data where necessary.
-	/// </summary>
-	[Parameter] public bool LoadOnDemand { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether expanded nodes should show lines to help identify nested levels.
-	/// </summary>
-	[Parameter] public bool ShowLines { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether the root node is displayed.
-	/// </summary>
-	[Parameter] public bool ShowRoot { get; set; } = true;
-
-	/// <summary>
-	/// Gets or sets whether selection is allowed.
-	/// </summary>
-	[Parameter] public bool AllowSelection { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether node edit is allowed.
-	/// </summary>
-	[Parameter] public bool AllowEdit { get; set; }
-
-	/// <summary>
-	/// Predicate used to determine whether a node should be expanded when ExpandAll is called.
-	/// </summary>
-	[Parameter] public Predicate<TreeNode<TItem>>? ExpandOnExpandAll { get; set; }
-
-	/// <summary>
-	/// Gets or sets the template to render for each node.
-	/// </summary>
-	[Parameter] public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
-
-	/// <summary>
-	/// Gets or sets an event callback raised when the component has perform all it initialization.
-	/// </summary>
-	[Parameter] public EventCallback Ready { get; set; }
-
-	/// <summary>
-	/// Gets or sets an event callback raise whenever the selection changes.
-	/// </summary>
-	[Parameter] public EventCallback<TreeNode<TItem>> SelectionChange { get; set; }
-
-	/// <summary>
-	/// Callback fired whenever the user expands a node.
-	/// </summary>
-	[Parameter] public EventCallback<TreeNode<TItem>> NodeExpanded { get; set; }
-
-	/// <summary>
-	/// Callback fired whenever the user collapses a node.
-	/// </summary>
-	[Parameter] public EventCallback<TreeNode<TItem>> NodeCollapsed { get; set; }
-
-	/// <summary>
-	/// Callback fired whenever data items are loaded.
-	/// </summary>
-	/// <remarks>The callback allows the items to be modified by the calling application.</remarks>
-	[Parameter] public EventCallback<List<TItem>> ItemsLoaded { get; set; }
-
-	/// <summary>
-	/// Callback fired whenever a tree node is updated.
-	/// </summary>
-	[Parameter] public EventCallback<TreeNode<TItem>> NodeUpdated { get; set; }
-
-	/// <summary>
-	/// Callback fired before a node edit begins.
-	/// </summary>
-	[Parameter] public EventCallback<TreeNodeBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
-
-	/// <summary>
 	/// Callback fired after a node edit ends.
 	/// </summary>
 	[Parameter] public EventCallback<TreeNodeAfterEditEventArgs<TItem>> AfterEdit { get; set; }
@@ -166,9 +49,61 @@ public partial class PDTree<TItem> where TItem : class
 	[Parameter] public bool AllowDropInBetween { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether node edit is allowed.
+	/// </summary>
+	[Parameter] public bool AllowEdit { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether selection is allowed.
+	/// </summary>
+	[Parameter] public bool AllowSelection { get; set; }
+
+	/// <summary>
+	/// Callback fired before a node edit begins.
+	/// </summary>
+	[Parameter] public EventCallback<TreeNodeBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
+
+	/// <summary>
+	/// Should a node clear its child content on collapse? Doing so will force a re-load of child nodes
+	/// if it is re-expanded. Only applicable when LoadOnDemand = true.
+	/// </summary>
+	[Parameter] public bool ClearOnCollapse { get; set; }
+
+	/// <summary>
+	/// Gets or sets the IDataProviderService instance to use to fetch data.
+	/// </summary>
+	[Parameter] public IDataProviderService<TItem> DataProvider { get; set; } = null!;
+
+	/// <summary>
 	/// Callback fired whenever a drag operation ends on a node within the tree.
 	/// </summary>
 	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
+
+	/// <summary>
+	/// Gets or sets a delegate to be called if an exception occurs.
+	/// </summary>
+	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
+
+	/// <summary>
+	/// Predicate used to determine whether a node should be expanded when ExpandAll is called.
+	/// </summary>
+	[Parameter] public Predicate<TreeNode<TItem>>? ExpandOnExpandAll { get; set; }
+
+	/// <summary>
+	/// A function that calculates the CSS classes used to show an icon for the given node.
+	/// </summary>
+	[Parameter] public Func<TItem, int, string>? IconCssClass { get; set; }
+
+	/// <summary>
+	/// A function that determines whether the given item is a leaf in the tree.
+	/// </summary>
+	[Parameter] public Func<TItem, bool>? IsLeaf { get; set; }
+
+	/// <summary>
+	/// Callback fired whenever data items are loaded.
+	/// </summary>
+	/// <remarks>The callback allows the items to be modified by the calling application.</remarks>
+	[Parameter] public EventCallback<List<TItem>> ItemsLoaded { get; set; }
 
 	/// <summary>
 	/// Callback fired whenever the user presses a key down.
@@ -176,9 +111,80 @@ public partial class PDTree<TItem> where TItem : class
 	[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
 
 	/// <summary>
+	/// A function that selects the field that contains the key value.
+	/// </summary>
+	[Parameter] public Func<TItem, object>? KeyField { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether a non-leaf node will request data where necessary.
+	/// </summary>
+	[Parameter] public bool LoadOnDemand { get; set; }
+
+	/// <summary>
+	/// Callback fired whenever the user collapses a node.
+	/// </summary>
+	[Parameter] public EventCallback<TreeNode<TItem>> NodeCollapsed { get; set; }
+
+	/// <summary>
+	/// Callback fired whenever the user expands a node.
+	/// </summary>
+	[Parameter] public EventCallback<TreeNode<TItem>> NodeExpanded { get; set; }
+
+	/// <summary>
+	/// Gets or sets the template to render for each node.
+	/// </summary>
+	[Parameter] public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
+
+	/// <summary>
+	/// Callback fired whenever a tree node is updated.
+	/// </summary>
+	[Parameter] public EventCallback<TreeNode<TItem>> NodeUpdated { get; set; }
+
+	/// <summary>
+	/// A function that selects the field that contains the parent key value.
+	/// </summary>
+	[Parameter] public Func<TItem, object>? ParentKeyField { get; set; }
+
+
+	/// <summary>
+	/// Gets or sets an event callback raised when the component has perform all it initialization.
+	/// </summary>
+	[Parameter] public EventCallback Ready { get; set; }
+
+	/// <summary>
 	/// Gets or sets whether right clicking on an item selects it?
 	/// </summary>
 	[Parameter] public bool RightClickSelectsItem { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets an event callback raise whenever the selection changes.
+	/// </summary>
+	[Parameter] public EventCallback<TreeNode<TItem>> SelectionChange { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether expanded nodes should show lines to help identify nested levels.
+	/// </summary>
+	[Parameter] public bool ShowLines { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the root node is displayed.
+	/// </summary>
+	[Parameter] public bool ShowRoot { get; set; } = true;
+
+	/// <summary>
+	/// A function used to determine sort order of child nodes.
+	/// </summary>
+	[Parameter] public Comparison<TItem>? Sort { get; set; }
+
+	/// <summary>
+	/// A function that selects the field to display for the item.
+	/// </summary>
+	[Parameter] public Func<TItem, object>? TextField { get; set; }
+
+	/// <summary>
+	/// A function that returns the tool tip text for a node.
+	/// </summary>
+	[Parameter] public Func<TItem, string>? ToolTip { get; set; }
 
 	#endregion
 

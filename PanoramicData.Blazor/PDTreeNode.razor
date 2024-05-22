@@ -44,12 +44,11 @@
             {
                 @if (NodeTemplate is null)
                 {
-                    <span>@Node.Text</span>
+                    <span title="@(Node?.Data != null && Tree?.ToolTip != null ? Tree.ToolTip.Invoke(Node.Data) : null)">@Node!.Text</span>
                 }
                 else
                 {
                     @NodeTemplate(Node)
-                    ;
                 }
             }
 
