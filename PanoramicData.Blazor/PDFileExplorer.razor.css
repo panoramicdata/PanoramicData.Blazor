@@ -71,9 +71,18 @@
 	padding: 2px 3px 2px 3px;
 }
 
+::deep .pdtreenode span.item-text {
+	margin-top: 2px;
+}
+
+::deep .pdtreenode span.item-icon {
+	height: 20px;
+	min-width: 30px;
+}
+
 .upload-progress-bar {
-	height: 5px;
 	background-color: #007bff;
+	height: 5px;
 }
 
 .upload-zone {
@@ -127,7 +136,7 @@
 	display: flex;
 }
 
-.x-badge {
+.pd-badge {
 	background-color: white;
 	border-radius: 11px;
 	color: black;

@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTree - Added ToolTip parameter that accepts a function used to generate a tooltip for each node.
+			PDFileExplorer - Added GetItemBadgeCssClass parameter that accepts a function used to generate an optional badge icon and tooltip for tree and table items.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

@@ -183,7 +183,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <summary>
 	/// Provides an optional function that allows a bagde icon CSS class to be provided for items.
 	/// </summary>
-	[Parameter] public Func<FileExplorerItem, string>? GetItemBadgeCssClass { get; set; }
+	[Parameter] public Func<FileExplorerItem, IconInfo?>? GetItemBadgeCssClass { get; set; }
 
 	/// <summary>
 	/// Provides a function that determines the CSS class for a given item.
