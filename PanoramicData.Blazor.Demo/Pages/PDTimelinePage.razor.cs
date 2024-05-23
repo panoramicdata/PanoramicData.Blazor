@@ -123,7 +123,7 @@ public partial class PDTimelinePage
 	{
 		// generate new data
 		_data.Clear();
-		GenerateData(2018, 2020, 10000);
+		GenerateData(2015, 2020, 10000);
 
 		// update component parameters
 		_minDate = _data.Min(x => x.DateChanged);
@@ -166,6 +166,10 @@ public partial class PDTimelinePage
 			// add some latency
 			await Task.Delay(1000, cancellationToken).ConfigureAwait(true);
 			return points.ToArray();
+		}
+		catch (TaskCanceledException)
+		{
+			return Array.Empty<DataPoint>();
 		}
 		catch (Exception ex)
 		{

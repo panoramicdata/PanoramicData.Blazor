@@ -466,6 +466,7 @@ public partial class PDTimeline : IAsyncDisposable
 	{
 		if (_commonModule != null)
 		{
+			_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true));
 			_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true);
 		}
 
@@ -695,11 +696,14 @@ public partial class PDTimeline : IAsyncDisposable
 				return;
 			}
 
-			// clear display if scale has changed
+			if (scaleChanged || forceRefresh)
+			{
+				_dataPoints.Clear();
+			}
+
 			if (scaleChanged)
 			{
 				await ScaleChanged.InvokeAsync(Scale).ConfigureAwait(true);
-				_dataPoints.Clear();
 			}
 
 			// calculate visible columns
@@ -729,7 +733,7 @@ public partial class PDTimeline : IAsyncDisposable
 			PanTo(dateTime ?? previousCenter, reposition);
 
 			// refresh data for new scale?
-			await RefreshAsync().ConfigureAwait(true);
+			await RefreshAsync(forceRefresh).ConfigureAwait(true);
 
 			// mark state as changed
 			StateHasChanged();
