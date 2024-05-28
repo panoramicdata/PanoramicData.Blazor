@@ -37,6 +37,11 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	[Parameter] public bool ShowCancel { get; set; } = true;
 
 	/// <summary>
+	/// Should the Cancel button be shown when in Read-Only mode?
+	/// </summary>
+	[Parameter] public bool ShowCancelWhenReadOnly { get; set; } = true;
+
+	/// <summary>
 	/// Should the Delete button be shown (only applicable when in Edit mode)?
 	/// </summary>
 	[Parameter] public bool ShowDelete { get; set; } = true;

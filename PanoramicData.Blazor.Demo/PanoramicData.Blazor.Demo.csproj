@@ -30,7 +30,7 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="BlazorMonaco" Version="3.1.0" />
+		<PackageReference Include="BlazorMonaco" Version="3.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
 	</ItemGroup>

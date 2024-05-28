@@ -1,4 +1,5 @@
-﻿global using Microsoft.AspNetCore.Components;
+﻿global using BlazorMonaco.Editor;
+global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Routing;
 global using Microsoft.AspNetCore.Components.Web;
 global using Microsoft.AspNetCore.WebUtilities;
@@ -25,7 +26,6 @@ global using System.Linq;
 global using System.Linq.Dynamic.Core;
 global using System.Linq.Expressions;
 global using System.Reflection;
-global using System.Runtime.Serialization;
 global using System.Text;
 global using System.Text.RegularExpressions;
 global using System.Threading;

@@ -28,3 +28,22 @@
 .editor ::deep .pddatetimeoffset input {
 	flex-grow: 1;
 }
+
+.editor ::deep .no-resize {
+	resize: none;
+}
+
+
+.editor.readonly ::deep .view-lines {
+	background-color: #e9ecef;
+}
+
+.editor.readonly ::deep .margin {
+	background-color: #e9ecef;
+}
+
+.editor.readonly ::deep .minimap canvas {
+	background-color: #e9ecef;
+}
+
+

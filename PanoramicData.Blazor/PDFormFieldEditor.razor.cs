@@ -3,6 +3,7 @@
 public partial class PDFormFieldEditor<TItem> where TItem : class
 {
 	private bool _hasValue = true;
+	private StandaloneCodeEditor? _monacoEditor;
 
 	[Parameter]
 	public int DebounceWait { get; set; }
@@ -56,6 +57,13 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		}
 
 		return options.ToArray();
+	}
+
+	private static StandaloneEditorConstructionOptions GetMonacoOptionsReadOnly(FieldStringOptions fso, StandaloneCodeEditor editor)
+	{
+		var opt = fso.MonacoOptions(editor);
+		opt.ReadOnly = true;
+		return opt;
 	}
 
 	private static Dictionary<string, object> GetNumericAttributes(FormField<TItem> field)
@@ -116,6 +124,26 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 					await Form.SetFieldValueAsync(Field, defaultValue).ConfigureAwait(true);
 				}
 			}
+		}
+	}
+
+	private async Task OnMonacoEditorBlurAsync()
+	{
+		if (_monacoEditor != null && Form != null && Field != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			var value = await model.GetValue(EndOfLinePreference.CRLF, true);
+			await Form.SetFieldValueAsync(Field, value);
+		}
+	}
+
+	private async Task OnMonacoInitAsync()
+	{
+		if (_monacoEditor != null && Form != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			var value = Form.GetFieldStringValue(Field);
+			await model.SetValue(value);
 		}
 	}
 
@@ -190,5 +218,4 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		{
 		}
 	}
-
 }
