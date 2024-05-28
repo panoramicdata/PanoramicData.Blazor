@@ -1,10 +1,10 @@
 ﻿using BlazorMonaco.Editor;
-using System.Diagnostics.CodeAnalysis;
 
 namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDFormPage5
 {
+	private PDForm<DatabaseQueryModel>? _queryForm;
 	private readonly DelegatedDataProvider<DatabaseQueryModel> _dataProvider = new()
 	{
 		UpdateAsync = (model, delta, cancellationToken) =>
@@ -13,14 +13,11 @@ public partial class PDFormPage5
 
 		}
 	};
-
-	private readonly DatabaseQueryModel _model = new DatabaseQueryModel
+	private readonly DatabaseQueryModel _model = new()
 	{
-		SqlQuery = "SELECT * \r\n  FROM [Customers]\r\n WHERE [Type] = 123"
+		SqlQuery = "SELECT *\r\n  FROM [Customers]\r\n WHERE [Type] = 123"
 	};
 
-	[AllowNull]
-	private PDForm<DatabaseQueryModel> _queryForm;
 	private FieldStringOptions QueryEditorOptions
 	{
 		get
@@ -38,13 +35,12 @@ public partial class PDFormPage5
 		}
 	}
 
-	public PDFormPage5()
-	{
-	}
-
 	private async Task OnBeginEditAsync()
 	{
-		await _queryForm.EditItemAsync(_model, FormModes.Edit);
+		if (_queryForm != null)
+		{
+			await _queryForm.EditItemAsync(_model, FormModes.Edit);
+		}
 	}
 
 
