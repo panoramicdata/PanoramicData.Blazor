@@ -52,8 +52,9 @@ public partial class PDFormPage5
 	{
 		if (_queryForm != null)
 		{
-			if (key == "Save")
+			if (key == "No")
 			{
+				return;
 			}
 			await _queryForm.EditItemAsync(null, FormModes.ReadOnly).ConfigureAwait(true);
 		}
