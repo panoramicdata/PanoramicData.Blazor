@@ -2,9 +2,12 @@
 
 public partial class PDTextBoxPage
 {
-	private string _textArea = string.Empty;
 	private PDTextArea? _textArea1;
 	private PDTextArea? _textArea2;
+	private string _textArea = string.Empty;
+	private string _textBox2 = string.Empty;
+	private string _textBox3 = string.Empty;
+	private string _textBox4 = string.Empty;
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 

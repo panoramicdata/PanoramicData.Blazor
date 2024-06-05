@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTextArea - Added SetValue methods to force displayed value refresh
+			PDTextBox - Modified so value updated on each keypress when KeypressEvent is set to true
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

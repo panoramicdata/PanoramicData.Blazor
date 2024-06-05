@@ -40,15 +40,40 @@
 
     <hr/>
 
-    <label>Text Box 2</label>
+    <label>Text Box 2 - Example using debounced input</label>
     <div class="input-group">
-        <PDTextBox DebounceWait="250"
+        <PDTextBox @bind-Value="_textBox2"
+                   DebounceWait="250"
                    ShowSpeechButton="true" />
+    </div>
+    <div>
+        Text Box 2 Value: <b>@_textBox2</b>
     </div>
 
     <hr />
 
-    <label>Example binding two PDTextAreas to a single backing field</label>
+    <label>Text Box 3 - Example showing update on keypress</label>
+    <div class="input-group">
+        <PDTextBox @bind-Value="_textBox3"
+                   KeypressEvent="true" />
+    </div>
+    <div>
+        Text Box 3 Value: <b>@_textBox3</b>
+    </div>
+
+    <hr />
+
+    <label>Text Box 4 - Example showing update on lost focus (blur)</label>
+    <div class="input-group">
+        <PDTextBox @bind-Value="_textBox4" />
+    </div>
+    <div>
+        Text Box 4 Value: <b>@_textBox4</b>
+    </div>
+
+    <hr />
+
+    <label>Text Area 1 - Example binding two PDTextAreas to a single backing field</label>
     <div class="input-group">
         <PDTextArea @ref="_textArea1"
                     Value="@_textArea"

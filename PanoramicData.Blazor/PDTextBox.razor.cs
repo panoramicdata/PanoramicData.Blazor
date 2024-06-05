@@ -80,6 +80,9 @@ public partial class PDTextBox : IAsyncDisposable
 	/// </summary>
 	[Parameter] public EventCallback<string> ValueChanged { get; set; }
 
+
+	[Parameter] public string BindEvent { get; set; } = "oninput";
+
 	/// <summary>
 	/// Event raised whenever a key is pressed.
 	/// </summary>
