@@ -92,7 +92,7 @@ public partial class PDTextArea : IAsyncDisposable
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender && JSRuntime is not null && DebounceWait > 0)
+		if (firstRender && JSRuntime is not null)
 		{
 			_objRef = DotNetObjectReference.Create(this);
 			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
@@ -137,6 +137,14 @@ public partial class PDTextArea : IAsyncDisposable
 		}
 		catch
 		{
+		}
+	}
+
+	public async Task SetValueAsync(string value)
+	{
+		if (_commonModule != null)
+		{
+			await _commonModule.InvokeVoidAsync("setValue", Id, value);
 		}
 	}
 }

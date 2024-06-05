@@ -46,6 +46,21 @@
                    ShowSpeechButton="true" />
     </div>
 
+    <hr />
+
+    <label>Example binding two PDTextAreas to a single backing field</label>
+    <div class="input-group">
+        <PDTextArea @ref="_textArea1"
+                    Value="@_textArea"
+                    ValueChanged="OnTextAreaChanged" />
+        <PDTextArea @ref="_textArea2"
+                    Value="@_textArea"
+                    ValueChanged="OnTextAreaChanged" />
+    </div>
+    <div>
+        Text Area Value: <b>@_textArea</b>
+    </div>
+
 
 	<EventView />
 
