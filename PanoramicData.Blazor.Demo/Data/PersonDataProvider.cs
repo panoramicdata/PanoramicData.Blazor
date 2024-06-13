@@ -9,7 +9,9 @@ public class PersonDataProvider : DataProviderBase<Person>
 	private static readonly List<Person> _people = new();
 	public static readonly string[] Locations = new string[] { "Paris", "Rome", "Milan", "New York", "Peckham", "Sydney" };
 
-	public PersonDataProvider(int count = 255)
+	public PersonDataProvider() : this(255){}
+
+	public PersonDataProvider(int count)
 	{
 		// generate random rows
 		if (_people.Count == 0)

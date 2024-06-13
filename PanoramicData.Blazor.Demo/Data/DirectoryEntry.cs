@@ -150,7 +150,9 @@ public class DirectoryEntry
 		}
 	}
 
-	public string Path(string separator = "/")
+	public string Path() => Path("/");
+
+	public string Path(string separator)
 	{
 		var stack = new Stack<string>();
 		var node = this;
@@ -179,7 +181,9 @@ public class DirectoryEntry
 		return value;
 	}
 
-	public FileExplorerItem ToFileExploreritem(string pathSeparator = "/") => new()
+	public FileExplorerItem ToFileExploreritem() => ToFileExploreritem("/");
+
+	public FileExplorerItem ToFileExploreritem(string pathSeparator) => new()
 	{
 		CanCopyMove = CanCopyMove,
 		CanDelete = CanDelete,

@@ -565,7 +565,10 @@ public partial class PDTimeline : IAsyncDisposable
 		}
 	}
 
-	public void PanTo(DateTime dateTime, TimelinePositions position = TimelinePositions.Center)
+	public void PanTo(DateTime dateTime)
+		=> PanTo(dateTime, TimelinePositions.Center);
+
+	public void PanTo(DateTime dateTime, TimelinePositions position)
 	{
 		if (dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
 		{
@@ -900,7 +903,10 @@ public partial class PDTimeline : IAsyncDisposable
 		}
 	}
 
-	public async Task ZoomToAsync(DateTime date1, DateTime date2, TimelinePositions position = TimelinePositions.Center)
+	public async Task ZoomToAsync(DateTime date1, DateTime date2)
+		=> await ZoomToAsync(date1, date2, TimelinePositions.Center);
+
+	public async Task ZoomToAsync(DateTime date1, DateTime date2, TimelinePositions position)
 	{
 		if (_canvasWidth > 0)
 		{
