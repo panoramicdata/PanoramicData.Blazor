@@ -24,13 +24,15 @@ public partial class PDFormPage5
 		{
 			return new FieldStringOptions
 			{
-				CssClass = "h-300",
+				CssClass = "",
 				Editor = FieldStringOptions.Editors.Monaco,
 				MonacoOptions = (_) => new StandaloneEditorConstructionOptions
 				{
 					AutomaticLayout = true,
 					Language = "sql"
-				}
+				},
+				Resize = true,
+				ResizeCssCls = "mh-200-px"
 			};
 		}
 	}

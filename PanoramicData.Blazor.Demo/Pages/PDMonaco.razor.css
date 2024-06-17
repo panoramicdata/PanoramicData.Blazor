@@ -1,0 +1,17 @@
+.host {
+	display: grid;
+	grid-template-columns: minmax(0px, auto);
+	height: 100%;
+/*	flex: 1;
+	min-width: 0;*/
+}
+
+::deep .monaco-editor-container {
+	height: 400px;
+}
+
+.host2 {
+	width :100px;
+	height: 100px;
+	background-color: yellow;
+}

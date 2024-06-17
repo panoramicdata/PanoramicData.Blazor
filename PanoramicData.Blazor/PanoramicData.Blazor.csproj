@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTextBox - Modified so value updated on each keypress when KeypressEvent is set to true
+			PDFormFieldEditor - Added support for vertical resizing of Text Area and Monaco Editor via DisplayOptions
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

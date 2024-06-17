@@ -82,6 +82,15 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		return dict;
 	}
 
+	private string GetResizeableCssCls()
+	{
+		if (Field?.DisplayOptions is FieldStringOptions fso && fso.Resize)
+		{
+			return $"resize-h {fso.ResizeCssCls}";
+		}
+		return string.Empty;
+	}
+
 	public bool IsReadOnly(FormField<TItem> field) =>
 		!_hasValue ||
 		(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(Form?.GetItemWithUpdates())) ||

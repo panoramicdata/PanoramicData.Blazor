@@ -63,12 +63,18 @@
 
 
 	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="Pages\PDMonaco.razor" />
 	  <_ContentIncludedByDefault Remove="Pages\PDRangePage.razor" />
 	</ItemGroup>
 
 
 	<ItemGroup>
 	  <None Include="wwwroot\html\TestWeb.html" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Pages\PDMonaco.razor" />
 	</ItemGroup>
 
 </Project>

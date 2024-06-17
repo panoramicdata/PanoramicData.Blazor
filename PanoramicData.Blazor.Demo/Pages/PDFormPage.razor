@@ -104,7 +104,11 @@
                          Field="x => x.Comments"
                          ShowCopyButton="_ => true"
                          ShowInCreate="_ => false"
-                         IsTextArea="true" />
+                         DisplayOptions="@(new FieldStringOptions {
+                            Editor = FieldStringOptions.Editors.TextArea,
+        				    Resize = true,
+				            ResizeCssCls = "mh-150-px"
+                         })" />
 
                 <PDField TItem="Person"
                          Field="x => x.DateCreated"

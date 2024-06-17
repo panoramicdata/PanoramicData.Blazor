@@ -48,7 +48,7 @@ public record FieldStringOptions : FieldDisplayOptions
 
 	public FieldStringOptions()
 	{
-		CssClass = "h-100";
+		CssClass = "";
 	}
 
 	public string CodeLanguage { get; init; } = string.Empty;
@@ -56,6 +56,8 @@ public record FieldStringOptions : FieldDisplayOptions
 	public Editors Editor { get; init; }
 
 	public bool Resize { get; init; }
+
+	public string ResizeCssCls { get; init; } = string.Empty;
 
 	public int Rows { get; init; } = 4;
 

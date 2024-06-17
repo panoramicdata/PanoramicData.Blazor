@@ -3,7 +3,7 @@
 @{
     var fieldType = Field.GetFieldType();
 }
-<div class="editor @(Form?.Mode == FormModes.ReadOnly ? "readonly" : "")">
+<div class="editor @(GetResizeableCssCls()) @(Form?.Mode == FormModes.ReadOnly ? "readonly" : "")">
 
     @if(Field.GetFieldIsNullable() && Field.DisplayOptions?.AllowNulls == true)
     {
@@ -131,7 +131,7 @@
             {
                 <PDTextArea IsEnabled="@(!IsReadOnly(Field))"
                             Blur="() => Field.SuppressErrors = false"
-                            CssClass="@($"form-control {GetEditorClass(Field)} {(fso.Resize ? "" : "no-resize")}")"
+                            CssClass="@($"form-control {GetEditorClass(Field)} h-100-pct no-resize")"
                             Rows="@fso.Rows"
                             MaxLength="@(Field.MaxLength ?? -1)"
                             Value="@(Form?.GetFieldStringValue(Field))"

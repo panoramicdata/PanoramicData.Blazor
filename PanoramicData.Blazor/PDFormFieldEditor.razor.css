@@ -9,7 +9,14 @@
 	z-index: 0;
 }
 
-.editor ::deep .form-control,.form-select {
+/* this is required to allow monaco editor to shrink when user resizes page */
+::deep .monaco-editor-container {
+	display: grid;
+	height: 100%;
+	grid-template-columns: minmax(0px, auto);
+}
+
+.editor ::deep .form-control, .form-select {
 	border: none;
 }
 

@@ -1,0 +1,14 @@
+﻿@page "/pdmonaco"
+@using PanoramicData.Blazor.Demo.Data
+
+<h1>Monaco Editor</h1>
+
+<div class="host">
+
+    <StandaloneCodeEditor @ref="_monacoEditor"
+                          Id="my-editor"
+                          OnDidInit="OnMonacoInitAsync"
+                          OnDidBlurEditorText="OnMonacoEditorBlurAsync"
+                          CssClass="resizable"
+                          ConstructionOptions="GetOptions" />
+</div>
