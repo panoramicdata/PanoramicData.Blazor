@@ -5,10 +5,46 @@
 
 <div class="host">
 
-    <StandaloneCodeEditor @ref="_monacoEditor"
-                          Id="my-editor"
+    <PDToolbar>
+        <PDToolbarButton Click="@(() => OnSetLanguage("sql"))"
+                         CssClass="@(_language == "sql" ? "btn-primary" : "btn-secondary")"
+                         Size="ButtonSizes.Small"
+                         Text="SQL" />
+
+        <PDToolbarButton Click="@(() => OnSetLanguage("javascript"))"
+                         CssClass="@(_language == "javascript" ? "btn-primary" : "btn-secondary")"
+                         Size="ButtonSizes.Small"
+                         Text="Javascript" />
+
+        <PDToolbarButton Click="@(() => OnSetLanguage("rmscript"))"
+                         CssClass="@(_language == "rmscript" ? "btn-primary" : "btn-secondary")"
+                         Size="ButtonSizes.Small"
+                         Text="RMScript" />
+
+        <PDToolbarButton Click="@(() => OnSetLanguage("ncalc"))"
+                         CssClass="@(_language == "ncalc" ? "btn-primary" : "btn-secondary")"
+                         Size="ButtonSizes.Small"
+                         Text="NCalc" />
+
+        <PDToolbarSeparator />
+
+        <PDToolbarButton Click="@(() => OnSetThemeAsync("light"))"
+                         CssClass="@(_themePreference == "light" ? "btn-primary" : "btn-secondary")"
+                         Size="ButtonSizes.Small"
+                         Text="Light" />
+
+        <PDToolbarButton Click="@(() => OnSetThemeAsync("dark"))"
+                         CssClass="@(_themePreference == "dark" ? "btn-primary" : "btn-secondary")"
+                         Size="ButtonSizes.Small"
+                         Text="Dark" />
+    </PDToolbar>
+
+    <StandaloneCodeEditor @key="@_language"
+                          @ref="_monacoEditor"
+                          Id="my-editor-1"
                           OnDidInit="OnMonacoInitAsync"
                           OnDidBlurEditorText="OnMonacoEditorBlurAsync"
                           CssClass="resizable"
                           ConstructionOptions="GetOptions" />
+
 </div>
