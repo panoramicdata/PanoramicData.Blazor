@@ -144,15 +144,16 @@
                 @if(Form?.Mode == FormModes.ReadOnly)
                 {
                     <StandaloneCodeEditor @ref="_monacoEditor"
-                                            Id="my-editor"
-                                            OnDidInit="OnMonacoInitAsync"
-                                            CssClass="@($"w-100 {fso.CssClass}")"
-                                            ConstructionOptions="(ed) => PDFormFieldEditor<TItem>.GetMonacoOptionsReadOnly(fso, ed)" />
+                                          Id="@Id"
+                                          OnDidInit="OnMonacoInitAsync"
+                                          CssClass="@($"w-100 {fso.CssClass}")"
+                                          ConstructionOptions="(ed) => PDFormFieldEditor<TItem>.GetMonacoOptionsReadOnly(fso, ed)" />
                 }
                 else
                 {
                     <StandaloneCodeEditor @ref="_monacoEditor"
-                                          Id="my-editor"
+                                          @key="@Id"
+                                          Id="@Id"
                                           OnDidInit="OnMonacoInitAsync"
                                           OnDidBlurEditorText="OnMonacoEditorBlurAsync"
                                           CssClass="@($"w-100 {fso.CssClass}")"

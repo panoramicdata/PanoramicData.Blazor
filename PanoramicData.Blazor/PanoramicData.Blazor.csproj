@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDFormFieldEditor - Added support for vertical resizing of Text Area and Monaco Editor via DisplayOptions
+			PDTextArea - Canceling edit now restore original value.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

@@ -1,7 +1,9 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDFormFieldEditor<TItem> where TItem : class
+public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 {
+	private static int _idSeq;
+	private bool _disposedValue;
 	private bool _hasValue = true;
 	private StandaloneCodeEditor? _monacoEditor;
 
@@ -15,6 +17,9 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 	[EditorRequired]
 	[Parameter]
 	public PDForm<TItem> Form { get; set; } = null!;
+
+	[Parameter]
+	public string Id { get; set; } = $"field-editor-{++_idSeq}";
 
 	private Dictionary<string, object> GetNullEditorAttributes()
 	{
@@ -136,6 +141,23 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		}
 	}
 
+	protected override void OnInitialized()
+	{
+		// listen for resets
+		Form.ResetRequested += Form_ResetRequested;
+	}
+
+	private async void Form_ResetRequested(object? sender, EventArgs e)
+	{
+		// reset data to any Monaco editors
+		if (_monacoEditor != null && Form != null && Field != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			var value = Form.GetFieldStringValue(Field);
+			await model.SetValue(value);
+		}
+	}
+
 	private async Task OnMonacoEditorBlurAsync()
 	{
 		if (_monacoEditor != null && Form != null && Field != null)
@@ -227,4 +249,37 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		{
 		}
 	}
+
+	#region IDisposable
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!_disposedValue)
+		{
+			if (disposing)
+			{
+				Form.ResetRequested -= Form_ResetRequested;
+			}
+
+			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
+			// TODO: set large fields to null
+			_disposedValue = true;
+		}
+	}
+
+	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+	// ~PDFormFieldEditor()
+	// {
+	//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+	//     Dispose(disposing: false);
+	// }
+
+	public void Dispose()
+	{
+		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
+	}
+
+	#endregion
 }

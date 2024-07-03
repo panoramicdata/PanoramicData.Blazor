@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor.Demo.Pages;
+﻿using BlazorMonaco.Editor;
+
+namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDFormPage
 {
@@ -11,6 +13,32 @@ public partial class PDFormPage
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
+
+	//private FieldStringOptions TextEditorOptions => new FieldStringOptions
+	//{
+	//	Editor = FieldStringOptions.Editors.TextArea,
+	//	Resize = true,
+	//	ResizeCssCls = "mh-150-px"
+	//};
+
+	private FieldStringOptions TextEditorOptions
+	{
+		get
+		{
+			return new FieldStringOptions
+			{
+				CssClass = "",
+				Editor = FieldStringOptions.Editors.Monaco,
+				MonacoOptions = (_) => new StandaloneEditorConstructionOptions
+				{
+					AutomaticLayout = true,
+					Language = "sql"
+				},
+				Resize = true,
+				ResizeCssCls = "mh-200-px"
+			};
+		}
+	}
 
 	public PDFormPage()
 	{

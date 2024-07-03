@@ -183,7 +183,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 					return;
 				}
 
-				Form.ResetChanges();
+				await Form.ResetChanges();
 			}
 			else if (key == "Cancel" && Form.ConfirmCancel && Form.Delta.Count > 0)
 			{
@@ -197,12 +197,12 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 					return;
 				}
 
-				Form.ResetChanges();
+				await Form.ResetChanges();
 			}
 			else if (key == "Yes" && Form.Mode == FormModes.Cancel)
 			{
 				await Click.InvokeAsync("Cancel").ConfigureAwait(true);
-				Form.ResetChanges();
+				await Form.ResetChanges();
 			}
 			else if (key == "No")
 			{

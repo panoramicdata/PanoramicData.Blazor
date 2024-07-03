@@ -8,6 +8,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 	public event EventHandler? ErrorsChanged;
 
+	public event EventHandler? ResetRequested;
+
 	[Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
@@ -240,12 +242,15 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <summary>
 	/// Reset the current edit changes and errors.
 	/// </summary>
-	public void ResetChanges()
+	public async Task ResetChanges()
 	{
 		Delta.Clear();
+
+		OnResetRequested(EventArgs.Empty);
+
 		if (ConfirmOnUnload && _module != null)
 		{
-			_module.InvokeVoidAsync("setUnloadListener", Id, false);
+			await _module.InvokeVoidAsync("setUnloadListener", Id, false);
 		}
 
 		if (Errors.Count > 0)
@@ -266,7 +271,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		Mode = mode;
 		if (resetChanges && (Mode == FormModes.Create || Mode == FormModes.Edit))
 		{
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 			ResetChanges();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 		}
 
 		if (Errors.Count > 0)
@@ -791,6 +798,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 	protected virtual void OnErrorsChanged(EventArgs e) => ErrorsChanged?.Invoke(this, e);
 
+	protected virtual void OnResetRequested(EventArgs e) => ResetRequested?.Invoke(this, e);
+
 	private void NavigationService_BeforeNavigate(object? sender, BeforeNavigateEventArgs e)
 	{
 		if (HasChanges && ConfirmOnUnload)
@@ -813,7 +822,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		Mode = mode;
 		if (resetChanges && (Mode == FormModes.Create || Mode == FormModes.Edit))
 		{
-			ResetChanges();
+			await ResetChanges();
 		}
 
 		if (Errors.Count > 0)
