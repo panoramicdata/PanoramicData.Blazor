@@ -68,30 +68,37 @@ public partial class PDSplitter : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			var ids = Panels.Select(x => $"#{x.Id}").ToArray();
-			var sizesSum = Convert.ToDouble(Panels.Select(x => x.Size).Sum());
-			var pcts = Panels.Select(x => (int)Math.Round((x.Size / sizesSum) * 100)).ToArray();
-			var options = new SplitOptions
+			try
 			{
-				Direction = Direction.ToString().ToLowerInvariant(),
-				MinSize = Panels.Select(x => x.MinSize).ToArray(),
-				ExpandToMin = ExpandToMin,
-				Sizes = pcts,
-				GutterSize = GutterSize,
-				SnapOffset = SnapOffset,
-				DragInterval = DragInterval,
-				Cursor = Direction == SplitDirection.Horizontal ? "col-resize" : "row-resize"
-			};
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDSplitter.razor.js").ConfigureAwait(true);
-			if (_module != null)
-			{
-				var available = await _module.InvokeAsync<bool>("hasSplitJs").ConfigureAwait(true);
-				if (!available)
+				var ids = Panels.Select(x => $"#{x.Id}").ToArray();
+				var sizesSum = Convert.ToDouble(Panels.Select(x => x.Size).Sum());
+				var pcts = Panels.Select(x => (int)Math.Round((x.Size / sizesSum) * 100)).ToArray();
+				var options = new SplitOptions
 				{
-					throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
-				}
+					Direction = Direction.ToString().ToLowerInvariant(),
+					MinSize = Panels.Select(x => x.MinSize).ToArray(),
+					ExpandToMin = ExpandToMin,
+					Sizes = pcts,
+					GutterSize = GutterSize,
+					SnapOffset = SnapOffset,
+					DragInterval = DragInterval,
+					Cursor = Direction == SplitDirection.Horizontal ? "col-resize" : "row-resize"
+				};
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDSplitter.razor.js").ConfigureAwait(true);
+				if (_module != null)
+				{
+					var available = await _module.InvokeAsync<bool>("hasSplitJs").ConfigureAwait(true);
+					if (!available)
+					{
+						throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
+					}
 
-				await _module.InvokeVoidAsync("initialize", Id, ids, options).ConfigureAwait(true);
+					await _module.InvokeVoidAsync("initialize", Id, ids, options).ConfigureAwait(true);
+				}
+			}
+			catch
+			{
+
 			}
 		}
 	}
