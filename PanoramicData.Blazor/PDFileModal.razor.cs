@@ -216,6 +216,7 @@ public partial class PDFileModal : IAsyncDisposable
 	public async Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename = "", string filenamePattern = "")
 	{
 		ArgumentNullException.ThrowIfNull(Modal);
+		ArgumentNullException.ThrowIfNull(ModalConfirm);
 
 		_showOpen = false;
 		_showFiles = true;
