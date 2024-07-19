@@ -1,15 +1,16 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDFileModal
+public partial class PDFileModal : IAsyncDisposable
 {
-	public PDModal Modal { get; private set; } = null!;
+	public PDModal? Modal { get; private set; } = null!;
 
 	private bool _showOpen;
 	private bool _showFiles = true;
 	private bool _folderSelect;
 	private string _filenamePattern = string.Empty;
-	private PDModal ModalConfirm { get; set; } = null!;
+	private PDModal? ModalConfirm { get; set; } = null!;
 	private string _modalTitle = string.Empty;
+
 	private PDFileExplorer FileExplorer { get; set; } = null!;
 	private readonly List<ToolbarItem> _toolbarItems = new();
 	private readonly ToolbarTextBox _filenameTextbox = new() { Key = "Filename", Label = "File name", Width = "100%" };
@@ -82,6 +83,7 @@ public partial class PDFileModal
 
 	public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "", string initialFolder = "")
 	{
+		ArgumentNullException.ThrowIfNull(Modal);
 		_showOpen = true;
 		_showFiles = !folderSelect;
 		_folderSelect = folderSelect;
@@ -125,6 +127,8 @@ public partial class PDFileModal
 
 	public async Task<string> ShowOpenAndWaitResultAsync(bool folderSelect = false, string filenamePattern = "")
 	{
+		ArgumentNullException.ThrowIfNull(Modal);
+
 		_showOpen = true;
 		_showFiles = !folderSelect;
 		_folderSelect = folderSelect;
@@ -164,6 +168,8 @@ public partial class PDFileModal
 
 	public async Task ShowSaveAsAsync(string initialFilename = "", string filenamePattern = "")
 	{
+		ArgumentNullException.ThrowIfNull(Modal);
+
 		_showOpen = false;
 		_showFiles = true;
 		_filenamePattern = filenamePattern;
@@ -209,6 +215,8 @@ public partial class PDFileModal
 
 	public async Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename = "", string filenamePattern = "")
 	{
+		ArgumentNullException.ThrowIfNull(Modal);
+
 		_showOpen = false;
 		_showFiles = true;
 		_filenamePattern = filenamePattern;
@@ -276,6 +284,9 @@ public partial class PDFileModal
 
 	private async Task OnButtonClick(string text)
 	{
+		ArgumentNullException.ThrowIfNull(Modal);
+		ArgumentNullException.ThrowIfNull(ModalConfirm);
+
 		var result = string.Empty;
 		if (text != "Cancel")
 		{
@@ -325,6 +336,8 @@ public partial class PDFileModal
 
 	private async Task OnItemDoubleClick(FileExplorerItem item)
 	{
+		ArgumentNullException.ThrowIfNull(Modal);
+
 		if (item.EntryType == FileExplorerItemType.File)
 		{
 			_filenameTextbox.Value = item.Name;
@@ -340,9 +353,33 @@ public partial class PDFileModal
 
 	private void OnFilenameKeypress(KeyboardEventArgs args)
 	{
+		ArgumentNullException.ThrowIfNull(Modal);
+
 		if (args.Code == "Enter" && !string.IsNullOrWhiteSpace(_filenameTextbox.Value))
 		{
 			Task.Run(async () => await Modal.OnButtonClick(new KeyedEventArgs<MouseEventArgs>(_okButton.Key)).ConfigureAwait(true)).ConfigureAwait(true);
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		GC.SuppressFinalize(this);
+
+		try
+		{
+			if (Modal is not null)
+			{
+				await Modal.DisposeAsync().ConfigureAwait(true);
+				Modal = null;
+			}
+			if (ModalConfirm is not null)
+			{
+				await ModalConfirm.DisposeAsync().ConfigureAwait(true);
+				ModalConfirm = null;
+			}
+		}
+		catch
+		{
 		}
 	}
 }
