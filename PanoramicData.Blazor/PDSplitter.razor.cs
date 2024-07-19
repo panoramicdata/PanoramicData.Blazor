@@ -123,6 +123,7 @@ public partial class PDSplitter : IAsyncDisposable
 			{
 				await _module.InvokeVoidAsync("destroy", Id).ConfigureAwait(true);
 				await _module.DisposeAsync().ConfigureAwait(true);
+				_module = null;
 			}
 		}
 		catch

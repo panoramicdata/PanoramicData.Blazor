@@ -2052,6 +2052,12 @@ public partial class PDFileExplorer : IAsyncDisposable
 			if (_commonModule != null)
 			{
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
+				_commonModule = null;
+			}
+			if (_splitter != null)
+			{
+				await _splitter.DisposeAsync().ConfigureAwait(true);
+				_splitter = null;
 			}
 		}
 		catch
