@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTextArea - Canceling edit now restore original value.
+			PDMonaco - Added NCalc monaco language.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

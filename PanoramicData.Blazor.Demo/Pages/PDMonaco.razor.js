@@ -1,46 +1,165 @@
 export function configureMonaco() {
 
 	// check and quit if rmscript already registered
-	if (monaco.languages.getEncodedLanguageId('rmscript') != 0) {
-		return;
+	if (monaco.languages.getEncodedLanguageId('rmscript') == 0) {
+
+		// register themes
+		monaco.editor.defineTheme('rm-light', {
+			base: 'vs',
+			inherit: true,
+			rules: [
+				{ token: 'macro-name', foreground: '1000ff' },
+				{ token: 'variable', foreground: '043775' },
+				{ token: 'comment', foreground: '808080', background: 'ffffff' },
+				{ token: 'parameter-name', foreground: '008600' },
+				{ token: 'variable-assignment', foreground: 'ff00bf' },
+				{ token: 'trailing-white', background: 'ffffe6' }
+			],
+			colors: {
+			}
+		});
+
+		monaco.editor.defineTheme('rm-dark', {
+			base: 'vs-dark',
+			inherit: true,
+			rules: [
+				{ token: 'macro-name', foreground: '3dc9b0' },
+				{ token: 'variable', foreground: 'f3a81e' },
+				{ token: 'comment', foreground: '808080', background: 'ffffff' },
+				{ token: 'parameter-name', foreground: '008600' },
+				{ token: 'variable-assignment', foreground: 'ff00bf' },
+				{ token: 'trailing-white', background: 'ffffe6' }
+			],
+			colors: {
+			}
+		});
+
+		// Register language
+		monaco.languages.register({ id: 'rmscript' });
+
+		// Register a tokens provider for the language
+		monaco.languages.setMonarchTokensProvider('rmscript', getRMScriptLanguage());
 	}
 
-	// register themes
-	monaco.editor.defineTheme('rm-light', {
-		base: 'vs',
-		inherit: true,
-		rules: [
-			{ token: 'macro-name', foreground: '1000ff' },
-			{ token: 'variable', foreground: '043775' },
-			{ token: 'comment', foreground: '808080', background: 'ffffff' },
-			{ token: 'parameter-name', foreground: '008600' },
-			{ token: 'variable-assignment', foreground: 'ff00bf' },
-			{ token: 'trailing-white', background: 'ffffe6' }
+	// check and quit if rmscript already registered
+	if (monaco.languages.getEncodedLanguageId('ncalc') == 0) {
+
+		// register themes
+		monaco.editor.defineTheme('ncalc-light', {
+			base: 'vs',
+			inherit: true,
+			rules: [
+				{ token: 'date', foreground: 'd99c13' },
+			],
+			colors: {
+			}
+		});
+
+		monaco.editor.defineTheme('ncalc-dark', {
+			base: 'vs-dark',
+			inherit: true,
+			rules: [
+				{ token: 'date', foreground: 'd99c13' },
+			],
+			colors: {
+			}
+		});
+
+		// Register language
+		monaco.languages.register({ id: 'ncalc' });
+
+		// Register a tokens provider for the languages
+		monaco.languages.setMonarchTokensProvider('ncalc', getNCalcLanguage());
+	}
+
+
+}
+
+function getNCalcLanguage() {
+	return {
+		// Set defaultToken to invalid to see what you do not tokenize yet
+		defaultToken: 'invalid',
+
+		keywords: [
+			'true', 'false'
 		],
-		colors: {
-		}
-	});
 
-	monaco.editor.defineTheme('rm-dark', {
-		base: 'vs-dark',
-		inherit: true,
-		rules: [
-			{ token: 'macro-name', foreground: '3dc9b0' },
-			{ token: 'variable', foreground: 'f3a81e' },
-			{ token: 'comment', foreground: '808080', background: 'ffffff' },
-			{ token: 'parameter-name', foreground: '008600' },
-			{ token: 'variable-assignment', foreground: 'ff00bf' },
-			{ token: 'trailing-white', background: 'ffffe6' }
+		operators: [
+			'and', '&&', 'or', '||', '=', '==', '!=', '<>', '<', '<=', '>', '>=', 'in', 'not in', '+', '-', '*', '/', '%', '&', '|', '^', '<<', '>>', '!', 'not', '~', '**'
 		],
-		colors: {
+
+		// we include these common regular expressions
+		symbols: /[=><!~?:&|+\-*\/\^%]+/,
+
+		// C# style strings
+		escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+
+		brackets: [
+			{ open: '(', close: ')', token: 'delimiter.parenthesis' }
+		],
+
+		// The main tokenizer for our languages
+		tokenizer: {
+			root: [
+				// identifiers and keywords
+				[/[a-zA-Z]\w*/, {
+					cases: {
+						'@keywords': 'keyword',
+						'@default': 'identifier'
+					}
+				}],
+				[/\[\w+\]/, 'variable'],
+
+				// whitespace
+				{ include: '@whitespace' },
+
+				// delimiters and operators
+				[/[()]/, '@brackets'],
+				[/@symbols/, {
+					cases: {
+						'@operators': 'operator',
+						'@default': ''
+					}
+				}],
+
+				// dates
+				[/#.*#/, 'date'],
+
+				// numbers
+				[/[\-+]?\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+				[/0[xX][0-9a-fA-F]+/, 'number.hex'],
+				[/\d+/, 'number'],
+
+				// delimiter: after number because of .\d floats
+				[/[;,.]/, 'delimiter'],
+
+				// strings
+				[/'([^'\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
+				[/'/, 'string', '@string_single']
+
+			],
+
+			comment: [
+				[/[^\/*]+/, 'comment'],
+				[/\/\*/, 'comment', '@push'],    // nested comment
+				["\\*/", 'comment', '@pop'],
+				[/[\/*]/, 'comment']
+			],
+
+			string_single: [
+				[/[^\\']+/, 'string'],
+				[/@escapes/, 'string.escape'],
+				[/\\./, 'string.escape.invalid'],
+				[/'/, { token: 'string.quote', bracket: '@close', next: '@pop' }]
+			],
+
+			whitespace: [
+				[/[ \t\r\n]+/, 'white'],
+				[/\/\*/, 'comment', '@comment'],
+				[/\/\/.*$/, 'comment'],
+			],
 		}
-	});
-
-	// Register a new language
-	monaco.languages.register({ id: 'rmscript' });
-
-	// Register a tokens provider for the language
-	monaco.languages.setMonarchTokensProvider('rmscript', getRMScriptLanguage());
+	}
 }
 
 function getRMScriptLanguage() {

@@ -58,7 +58,7 @@ public partial class PDMonaco : IAsyncDisposable
 			var model = await _monacoEditor.GetModel();
 			var value = _language switch
 			{
-				"ncalc" => "10 * 10",
+				"ncalc" => "10 * -3.14 + Sqrt(9) + FormatDate(#27/08/2010#, 'yyyy-MM-dd') + Round(Pow([Pi], 2) + Pow([Pi2], 2) + [X], 2)",
 				"rmscript" => "[DateTime: value={QueryEndDate}, addmonths=-12, format=yyyy-MM-15, storeAsHidden=QueryStartDate]",
 				"javascript" => "if(Math.PI() > 3) {\n   this.setError(\"Invalid Function\");\n}",
 				_ => "SELECT 10 * 10\n  FROM [Temp]"
@@ -80,6 +80,7 @@ public partial class PDMonaco : IAsyncDisposable
 			_theme = _language switch
 			{
 				"rmscript" => themePreference == "light" ? "rm-light" : "rm-dark",
+				"ncalc" => themePreference == "light" ? "ncalc-light" : "ncalc-dark",
 				_ => themePreference == "light" ? "vs" : "vs-dark"
 			};
 			_themePreference = themePreference;
