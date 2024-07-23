@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDMonaco - Added NCalc monaco language.
+			All Components - Added exception handler to all OnAfterRender methods - fixes issue with fast page switching on Blazor Server apps.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

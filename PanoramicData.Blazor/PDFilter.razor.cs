@@ -73,9 +73,16 @@ public partial class PDFilter : IAsyncDisposable
 	{
 		if (firstRender && JSRuntime is not null)
 		{
-			_commonModule = await JSRuntime
-				.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js")
-				.ConfigureAwait(true);
+			try
+			{
+				_commonModule = await JSRuntime
+					.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js")
+					.ConfigureAwait(true);
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
 		}
 	}
 

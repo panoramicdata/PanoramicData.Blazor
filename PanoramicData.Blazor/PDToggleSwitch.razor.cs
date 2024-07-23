@@ -121,8 +121,15 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDToggleSwitch.razor.js").ConfigureAwait(true);
-			await RefreshTextWidthAsync().ConfigureAwait(true);
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDToggleSwitch.razor.js").ConfigureAwait(true);
+				await RefreshTextWidthAsync().ConfigureAwait(true);
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
 		}
 	}
 

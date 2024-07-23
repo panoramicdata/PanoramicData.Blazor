@@ -94,11 +94,18 @@ public partial class PDTextArea : IAsyncDisposable
 	{
 		if (firstRender && JSRuntime is not null)
 		{
-			_objRef = DotNetObjectReference.Create(this);
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-			if (_commonModule != null)
+			try
 			{
-				await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+				_objRef = DotNetObjectReference.Create(this);
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				if (_commonModule != null)
+				{
+					await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}

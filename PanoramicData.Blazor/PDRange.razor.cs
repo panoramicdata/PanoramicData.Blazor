@@ -95,7 +95,14 @@ public partial class PDRange : IAsyncDisposable
 	{
 		if (firstRender && JSRuntime is not null)
 		{
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
 		}
 	}
 	private async Task OnEndHandlePointerDown(PointerEventArgs args)

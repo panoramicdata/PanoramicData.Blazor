@@ -672,18 +672,25 @@ public partial class PDTree<TItem> where TItem : class
 	{
 		if (firstRender && JSRuntime is not null)
 		{
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 
-			// build initial model and notify listeners
-			var items = await GetDataAsync().ConfigureAwait(true);
-			UpdateModel(items);
+				// build initial model and notify listeners
+				var items = await GetDataAsync().ConfigureAwait(true);
+				UpdateModel(items);
 
-			// notify that node updated
-			await NodeUpdated.InvokeAsync(RootNode).ConfigureAwait(true);
+				// notify that node updated
+				await NodeUpdated.InvokeAsync(RootNode).ConfigureAwait(true);
 
-			// notify that initialization completed
-			await Ready.InvokeAsync(null).ConfigureAwait(true);
-			StateHasChanged();
+				// notify that initialization completed
+				await Ready.InvokeAsync(null).ConfigureAwait(true);
+				StateHasChanged();
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
 		}
 	}
 

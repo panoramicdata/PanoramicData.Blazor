@@ -71,7 +71,14 @@ public partial class PDTreeNode<TItem> where TItem : class
 	{
 		if (firstRender && JSRuntime is not null)
 		{
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
 		}
 
 		if (Node != null)
