@@ -35,9 +35,11 @@
         </div>
 
         <PDForm @ref="Form"
+                AutoApplyDelta="true"
                 CssClass="w-100"
                 TItem="Person"
                 Item="SelectedPerson"
+                ConfirmOnUnload="false"
                 DataProvider="_personDataProvider"
                 Error="OnError"
                 FieldUpdated="OnFieldUpdated"
@@ -51,7 +53,7 @@
                           DeleteTitle="Delete Person - {0}"
                           ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
 
-            <PDFormBody TItem="Person">
+            <PDFormBody TItem="Person" DebounceWait="3000">
 
                 <PDField TItem="Person"
                          Field="x => x.Id"

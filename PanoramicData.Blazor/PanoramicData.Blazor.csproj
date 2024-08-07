@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			All Components - Added exception handler to all OnAfterRender methods - fixes issue with fast page switching on Blazor Server apps.
+			PDTextArea PDTextBox - Now applies current edit on lost focus when using debouced input
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

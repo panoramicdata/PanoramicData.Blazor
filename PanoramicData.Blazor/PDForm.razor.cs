@@ -20,6 +20,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	[Inject] protected ILogger<PDForm<TItem>> Logger { get; set; } = new NullLogger<PDForm<TItem>>();
 
 	/// <summary>
+	/// Should edit deltas be automatically applied to the model?
+	/// </summary>
+	[Parameter] public bool AutoApplyDelta { get; set; }
+
+	/// <summary>
 	/// Gets or sets the child content that the drop zone wraps.
 	/// </summary>
 	[Parameter] public RenderFragment? ChildContent { get; set; }
@@ -625,6 +630,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				// validate field
 				await ValidateFieldAsync(field, value).ConfigureAwait(true);
 
+				// auto save value if valid?
+				if (Mode == FormModes.Edit && AutoApplyDelta)
+				{
+					await ApplyDelta(Item).ConfigureAwait(true);
+				}
 
 				StateHasChanged();
 			}
