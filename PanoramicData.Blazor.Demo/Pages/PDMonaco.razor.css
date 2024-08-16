@@ -1,17 +1,10 @@
-.host {
-	display: grid;
-	grid-template-columns: minmax(0px, auto);
-	height: 100%;
-/*	flex: 1;
-	min-width: 0;*/
-}
-
 ::deep .monaco-editor-container {
-	height: 400px;
+	height: 400px !important;
 }
 
-.host2 {
-	width :100px;
-	height: 100px;
-	background-color: yellow;
+.output {
+	border: 1px solid silver;
+	font-family: 'Courier New';
+	margin-top: 20px;
+	white-space: break-spaces;
 }

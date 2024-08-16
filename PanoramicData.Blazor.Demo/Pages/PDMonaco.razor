@@ -28,23 +28,25 @@
 
         <PDToolbarSeparator />
 
-        <PDToolbarButton Click="@(() => OnSetThemeAsync("light"))"
+        <PDToolbarButton Click="@(() => OnSetTheme("light"))"
                          CssClass="@(_themePreference == "light" ? "btn-primary" : "btn-secondary")"
                          Size="ButtonSizes.Small"
                          Text="Light" />
 
-        <PDToolbarButton Click="@(() => OnSetThemeAsync("dark"))"
+        <PDToolbarButton Click="@(() => OnSetTheme("dark"))"
                          CssClass="@(_themePreference == "dark" ? "btn-primary" : "btn-secondary")"
                          Size="ButtonSizes.Small"
                          Text="Dark" />
     </PDToolbar>
 
-    <StandaloneCodeEditor @key="@_language"
-                          @ref="_monacoEditor"
-                          Id="my-editor-1"
-                          OnDidInit="OnMonacoInitAsync"
-                          OnDidBlurEditorText="OnMonacoEditorBlurAsync"
-                          CssClass="resizable"
-                          ConstructionOptions="GetOptions" />
+    @* @key is ONLY required if the Language parameter is to change*@
+    @*    - it forces a new instance of the component when the Language parameter changes *@
+    <PDMonacoEditor @bind-Value="@_value"
+                    @key="@_language"
+                    AddMethods="AddMethods"
+                    Theme="@_theme"
+                    Language="@_language" />
+
+    <div class="output">@_value</div>
 
 </div>

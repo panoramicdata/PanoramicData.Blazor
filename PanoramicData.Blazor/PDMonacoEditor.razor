@@ -1,0 +1,8 @@
+﻿ <div class="pd-monacoeditor">
+    <StandaloneCodeEditor @ref="_monacoEditor"
+                          CssClass="resizable"
+                          ConstructionOptions="GetOptions"
+                          Id="@Id"
+                          OnDidBlurEditorText="OnMonacoEditorBlurAsync"
+                          OnKeyUp="OnMonacoEditorKeyUpAsync" />
+</div>

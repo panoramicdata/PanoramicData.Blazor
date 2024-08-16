@@ -1,0 +1,10 @@
+::deep .monaco-editor-container {
+	height: 100px;
+}
+
+.pd-monacoeditor {
+	border: 1px solid silver;
+	display: grid;
+	grid-template-columns: minmax(0px, auto);
+	height: 100%;
+}
