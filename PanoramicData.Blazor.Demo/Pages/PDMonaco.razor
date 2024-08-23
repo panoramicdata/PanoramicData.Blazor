@@ -43,7 +43,7 @@
     @*    - it forces a new instance of the component when the Language parameter changes *@
     <PDMonacoEditor @bind-Value="@_value"
                     @key="@_language"
-                    AddMethods="AddMethods"
+                    InitializeCache="InitializeCache"
                     Theme="@_theme"
                     Language="@_language" />
 

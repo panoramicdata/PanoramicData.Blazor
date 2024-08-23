@@ -2,6 +2,54 @@
 
 public static class ReflectionExtensions
 {
+	public static string GetDescription(this MethodInfo methodInfo)
+	{
+		// look for Display attribute
+		var description = methodInfo.GetCustomAttributes().OfType<DisplayAttribute>().SingleOrDefault()?.Description;
+		if (string.IsNullOrEmpty(description))
+		{
+			// look for Description attribute
+			description = methodInfo.GetCustomAttributes().OfType<DescriptionAttribute>().SingleOrDefault()?.Description;
+		}
+		return description ?? string.Empty;
+	}
+
+	public static string GetDescription(this ParameterInfo parameterInfo)
+	{
+		// look for Display attribute
+		var description = parameterInfo.GetCustomAttributes().OfType<DisplayAttribute>().SingleOrDefault()?.Description;
+		if (string.IsNullOrEmpty(description))
+		{
+			// look for Description attribute
+			description = parameterInfo.GetCustomAttributes().OfType<DescriptionAttribute>().SingleOrDefault()?.Description;
+		}
+		return description ?? string.Empty;
+	}
+
+	public static string GetName(this MethodInfo methodInfo)
+	{
+		// look for Display attribute
+		var name = methodInfo.GetCustomAttributes().OfType<DisplayAttribute>().SingleOrDefault()?.Name;
+		if (string.IsNullOrEmpty(name))
+		{
+			// look for Description attribute
+			name = methodInfo.GetCustomAttributes().OfType<DisplayNameAttribute>().SingleOrDefault()?.DisplayName;
+		}
+		return name ?? methodInfo.Name;
+	}
+
+	public static string GetName(this ParameterInfo parameterInfo)
+	{
+		// look for Display attribute
+		var name = parameterInfo.GetCustomAttributes().OfType<DisplayAttribute>().SingleOrDefault()?.Name;
+		if (string.IsNullOrEmpty(name))
+		{
+			// look for Description attribute
+			name = parameterInfo.GetCustomAttributes().OfType<DisplayNameAttribute>().SingleOrDefault()?.DisplayName;
+		}
+		return name ?? parameterInfo.Name;
+	}
+
 	/// <summary>
 	/// Returns the MemberInfo for the given expression.
 	/// </summary>
@@ -72,4 +120,39 @@ public static class ReflectionExtensions
 	/// <returns>If a non nullable data type was given then returns the underlying data type, otherwise the given data type is returned.</returns>
 	public static Type GetNonNullableType(this Type type)
 		=> Nullable.GetUnderlyingType(type) ?? type;
+
+	public static string GetFriendlyTypeName(this Type type)
+	{
+		if (type.IsGenericType)
+		{
+			// get the name of the generic type without the arity suffix (e.g., `List` instead of `List`1`)
+			string genericTypeName = type.Name.Substring(0, type.Name.IndexOf('`'));
+
+			// get the names of the generic type arguments
+			string[] genericArguments = Array.ConvertAll(type.GetGenericArguments(), t => t.GetFriendlyTypeName());
+
+			// combine the generic type name with the argument names
+			return $"{genericTypeName}<{string.Join(", ", genericArguments)}>";
+		}
+		return type switch
+		{
+			Type t when t.IsGenericType => "",
+			Type t when t == typeof(int) => "int",
+			Type t when t == typeof(short) => "short",
+			Type t when t == typeof(long) => "long",
+			Type t when t == typeof(uint) => "uint",
+			Type t when t == typeof(ushort) => "ushort",
+			Type t when t == typeof(ulong) => "ulong",
+			Type t when t == typeof(bool) => "bool",
+			Type t when t == typeof(string) => "string",
+			Type t when t == typeof(decimal) => "decimal",
+			Type t when t == typeof(float) => "float",
+			Type t when t == typeof(double) => "double",
+			Type t when t == typeof(byte) => "byte",
+			Type t when t == typeof(sbyte) => "sbyte",
+			Type t when t == typeof(object) => "object",
+			Type t when t == typeof(object[]) => "object[]",
+			_ => type.Name
+		};
+	}
 }

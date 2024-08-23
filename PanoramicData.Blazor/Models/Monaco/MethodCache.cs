@@ -15,6 +15,13 @@ public class MethodCache
 	{
 	}
 
+	public class MethodCacheOptions
+	{
+		public bool IncludeMethodTypeName { get; set; }
+
+		public Func<Type, string> TypeNameFn { get; set; } = (type) => type.GetFriendlyTypeName();
+	}
+
 	public class Method
 	{
 		public string Description { get; set; } = string.Empty;
@@ -31,11 +38,34 @@ public class MethodCache
 
 		public string Fullname => $"{Namespace}.{TypeName}.{MethodName}";
 
-		public override string ToString()
+		public override string ToString() => ToString(new());
+
+		public string ToString(MethodCacheOptions options)
 		{
-			var parameters = new StringBuilder();
-			Parameters.ForEach(p => parameters.Append(p.Position > 0 ? ", " : "").Append(p.ToString()));
-			return $"{ReturnType?.Name ?? "void"} {MethodName}({parameters})";
+			var signature = new StringBuilder();
+			if (ReturnType is null)
+			{
+				signature.Append("void ");
+			}
+			else
+			{
+				signature.Append(options.TypeNameFn(ReturnType)).Append(' ');
+			}
+			if (options.IncludeMethodTypeName)
+			{
+				signature.Append(TypeName).Append('.');
+			}
+			signature.Append(MethodName).Append('(');
+			foreach (var parameter in Parameters)
+			{
+				if (parameter.Position > 0)
+				{
+					signature.Append(", ");
+				}
+				signature.Append(parameter.ToString(options));
+			}
+			signature.Append(')');
+			return signature.ToString();
 		}
 	}
 
@@ -51,11 +81,33 @@ public class MethodCache
 
 		public bool IsParams { get; set; }
 
+		public bool IsGeneric { get; set; }
+
 		public Type? Type { get; set; }
 
-		public override string ToString()
+		public override string ToString() => ToString(new());
+
+		public string ToString(MethodCacheOptions options)
 		{
-			return Type is null ? Name : $"{Type.Name} {Name}";
+			var signature = new StringBuilder();
+			if (IsOptional)
+			{
+				signature.Append('[');
+			}
+			if (IsParams)
+			{
+				signature.Append("params ");
+			}
+			if (Type is not null)
+			{
+				signature.Append(options.TypeNameFn(Type)).Append(' ');
+			}
+			signature.Append(Name);
+			if (IsOptional)
+			{
+				signature.Append(']');
+			}
+			return signature.ToString();
 		}
 	}
 
@@ -78,12 +130,14 @@ public class MethodCache
 		}
 	}
 
-	public int AddPublicStaticMethods(string language, Type type, IDescriptionProvider? descriptionProvider = null)
+	public int AddTypeMethods(string language, Type type, BindingFlags? flags = null, IDescriptionProvider? descriptionProvider = null)
 	{
 		var count = 0;
 
-		// get all public static methods
-		var methodInfos = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
+		// filter methods?
+		var methodInfos = flags.HasValue ? type.GetMethods(flags.Value) : type.GetMethods();
+
+		var typeNameFn = (string name) => name;
 
 		// iterate over each method
 		foreach (MethodInfo methodInfo in methodInfos)
@@ -93,8 +147,8 @@ public class MethodCache
 			{
 				Namespace = type.Namespace ?? string.Empty,
 				TypeName = type.Name,
-				MethodName = methodInfo.Name,
-				Description = methodInfo.GetCustomAttributes().OfType<DisplayAttribute>().SingleOrDefault()?.Description ?? string.Empty,
+				MethodName = methodInfo.GetName(),
+				Description = methodInfo.GetDescription(),
 				ReturnType = methodInfo.ReturnType
 			};
 			count++;
@@ -104,21 +158,18 @@ public class MethodCache
 			{
 				var parameter = new Parameter
 				{
-					Name = parameterInfo.Name ?? string.Empty,
-					Description = parameterInfo.GetCustomAttributes().OfType<DisplayAttribute>().SingleOrDefault()?.Description ?? string.Empty,
+					Name = parameterInfo.GetName(),
+					Description = parameterInfo.GetDescription(),
 					Type = parameterInfo.ParameterType,
 					IsOptional = parameterInfo.IsOptional,
+					IsParams = parameterInfo.IsDefined(typeof(ParamArrayAttribute), false),
 					Position = parameterInfo.Position
 				};
-				if (string.IsNullOrEmpty(parameter.Description))
-				{
-
-				}
 				method.Parameters.Add(parameter);
 			}
 
 			// enhance method signature with descriptions?
-			if (string.IsNullOrEmpty(method.Description) && descriptionProvider != null)
+			if (descriptionProvider != null)
 			{
 				descriptionProvider.AddDescriptions(method);
 			}
@@ -128,6 +179,9 @@ public class MethodCache
 
 		return count;
 	}
+
+	public int AddPublicStaticTypeMethods(string language, Type type, IDescriptionProvider? descriptionProvider = null)
+		=> AddTypeMethods(language, type, BindingFlags.Public | BindingFlags.Static, descriptionProvider);
 
 	public void Clear()
 	{
@@ -148,18 +202,7 @@ public class MethodCache
 				{
 					// build signature from first overload
 					var documentation = new StringBuilder();
-					documentation.Append(method.ReturnType is null ? "void" : method.ReturnType.Name);
-					documentation.Append(' ').Append(method.TypeName).Append('.').Append(method.MethodName).Append('(');
-					foreach (var parameter in method.Parameters)
-					{
-						documentation.Append(parameter.Position > 0 ? ", " : "");
-						if (parameter.Type != null)
-						{
-							documentation.Append(parameter.Type.Name).Append(' ');
-						}
-						documentation.Append(parameter.Name);
-					}
-					documentation.Append(')');
+					documentation.Append(method.ToString(Options));
 					var signature = documentation.ToString();
 
 					// overloads?
@@ -241,4 +284,6 @@ public class MethodCache
 		}
 		return signatures;
 	}
+
+	public MethodCacheOptions Options { get; private set; } = new();
 }

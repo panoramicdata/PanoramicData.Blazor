@@ -37,7 +37,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	public bool UpdateValueOnBlur { get; set; }
 
 	[Parameter]
-	public Action<MethodCache>? AddMethods { get; set; }
+	public Action<MethodCache>? InitializeCache { get; set; }
 
 	[JSInvokable]
 	public CompletionItem[] GetCompletions(BlazorMonaco.Range range)
@@ -73,9 +73,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 			}
 
 			// cache language methods
-			if (AddMethods != null)
+			if (InitializeCache != null)
 			{
-				AddMethods(_methodCache);
+				InitializeCache(_methodCache);
 			}
 		}
 	}
