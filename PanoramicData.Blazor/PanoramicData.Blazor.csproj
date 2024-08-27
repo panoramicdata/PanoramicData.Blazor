@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDForm - Fixed bug where updating a Monaco field value from within another field update was not reflected in UI.
+			PDMonacoEditor - New component added.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
