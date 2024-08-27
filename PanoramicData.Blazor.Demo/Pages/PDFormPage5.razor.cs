@@ -45,6 +45,18 @@ public partial class PDFormPage5
 		}
 	}
 
+	private async Task OnFieldUpdatedAsync(FieldUpdateArgs<DatabaseQueryModel> args)
+	{
+		if (_queryForm != null && args.Field.Name == "EmailAddress")
+		{
+			var field = _queryForm.Fields.FirstOrDefault(x => x.GetName() == "SqlQuery");
+			if (field != null)
+			{
+				await _queryForm.SetFieldValueAsync(field, $"SELECT *\r\n  FROM [Customers]\r\n WHERE [EmailAddress] = '{args.NewValue}'");
+			}
+		}
+	}
+
 
 	private async Task OnFooterClick(string key)
 	{

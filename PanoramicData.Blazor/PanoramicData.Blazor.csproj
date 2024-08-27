@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTextArea PDTextBox - Now applies current edit on lost focus when using debouced input
+			PDForm - Fixed bug where updating a Monaco field value from within another field update was not reflected in UI.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

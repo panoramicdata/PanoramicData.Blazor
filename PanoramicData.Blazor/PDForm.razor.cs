@@ -630,6 +630,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				// validate field
 				await ValidateFieldAsync(field, value).ConfigureAwait(true);
 
+				field.OnValueChanged(value);
+
 				// auto save value if valid?
 				if (Mode == FormModes.Edit && AutoApplyDelta)
 				{

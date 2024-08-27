@@ -145,6 +145,17 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		// listen for resets
 		Form.ResetRequested += Form_ResetRequested;
+		Field.ValueChanged += Field_ValueChanged;
+	}
+
+	private async void Field_ValueChanged(object? sender, object? value)
+	{
+		// for most editors the value will be reflected in the UI immediately due to
+		// data binding - however the Monaco Editor requires a manual update
+		if (_monacoEditor != null && Field.DisplayOptions is FieldStringOptions fso && fso.Editor == FieldStringOptions.Editors.Monaco)
+		{
+			await SetMonacoValueAsync(value?.ToString() ?? string.Empty);
+		}
 	}
 
 	private async void Form_ResetRequested(object? sender, EventArgs e)
@@ -172,9 +183,8 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		if (_monacoEditor != null && Form != null)
 		{
-			var model = await _monacoEditor.GetModel();
 			var value = Form.GetFieldStringValue(Field);
-			await model.SetValue(value);
+			await SetMonacoValueAsync(value);
 		}
 	}
 
@@ -183,6 +193,15 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		if (Form != null && args.Value != null)
 		{
 			await Form.SetFieldValueAsync(field, args.Value).ConfigureAwait(true);
+		}
+	}
+
+	private async Task SetMonacoValueAsync(string value)
+	{
+		if (_monacoEditor != null && Form != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			await model.SetValue(value);
 		}
 	}
 
@@ -258,6 +277,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		{
 			if (disposing)
 			{
+				Field.ValueChanged -= Field_ValueChanged;
 				Form.ResetRequested -= Form_ResetRequested;
 			}
 
