@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDMonacoEditor - New component added.
+			PDFormFieldEditor - Fixed bug where Monaco Editor throws js error when switching Form modes.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

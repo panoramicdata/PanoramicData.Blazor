@@ -3,7 +3,7 @@
 @{
     var fieldType = Field.GetFieldType();
 }
-<div class="editor @(GetResizeableCssCls()) @(Form?.Mode == FormModes.ReadOnly ? "readonly" : "")">
+<div class="editor @(GetResizeableCssCls()) @(Form?.Mode == FormModes.ReadOnly || Form?.Mode == FormModes.Cancel ? "readonly" : "")">
 
     @if(Field.GetFieldIsNullable() && Field.DisplayOptions?.AllowNulls == true)
     {
@@ -141,7 +141,7 @@
             else if(fso.Editor == FieldStringOptions.Editors.Monaco)
             {
                 @* to toggle read-only we need to destroy and re-create entire editor *@
-                @if(Form?.Mode == FormModes.ReadOnly)
+                @if(Form?.Mode == FormModes.ReadOnly || Form?.Mode == FormModes.Cancel)
                 {
                     <StandaloneCodeEditor @ref="_monacoEditor"
                                           Id="@Id"
