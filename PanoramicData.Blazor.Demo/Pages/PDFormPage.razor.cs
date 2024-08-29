@@ -12,33 +12,33 @@ public partial class PDFormPage
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	private FieldStringOptions TextEditorOptions => new FieldStringOptions
-	{
-		Editor = FieldStringOptions.Editors.TextArea,
-		Resize = true,
-		ResizeCssCls = "mh-150-px"
-	};
+	//private FieldStringOptions TextEditorOptions => new FieldStringOptions
+	//{
+	//	Editor = FieldStringOptions.Editors.TextArea,
+	//	Resize = true,
+	//	ResizeCssCls = "mh-150-px"
+	//};
 
 	// MONACO editor example
 
-	//private FieldStringOptions TextEditorOptions
-	//{
-	//	get
-	//	{
-	//		return new FieldStringOptions
-	//		{
-	//			CssClass = "",
-	//			Editor = FieldStringOptions.Editors.Monaco,
-	//			MonacoOptions = (_) => new StandaloneEditorConstructionOptions
-	//			{
-	//				AutomaticLayout = true,
-	//				Language = "sql"
-	//			},
-	//			Resize = true,
-	//			ResizeCssCls = "mh-200-px"
-	//		};
-	//	}
-	//}
+	private FieldStringOptions TextEditorOptions
+	{
+		get
+		{
+			return new FieldStringOptions
+			{
+				CssClass = "",
+				Editor = FieldStringOptions.Editors.Monaco,
+				MonacoOptions = (_) => new BlazorMonaco.Editor.StandaloneEditorConstructionOptions
+				{
+					AutomaticLayout = true,
+					Language = "sql"
+				},
+				Resize = true,
+				ResizeCssCls = "mh-200-px"
+			};
+		}
+	}
 
 	public PDFormPage()
 	{

@@ -41,7 +41,7 @@ public partial class PDFormPage5
 	{
 		if (_queryForm != null)
 		{
-			await _queryForm.EditItemAsync(_model, FormModes.Edit);
+			await _queryForm.EditItemAsync(_model, FormModes.Edit, false);
 		}
 	}
 

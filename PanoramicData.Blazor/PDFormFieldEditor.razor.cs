@@ -143,7 +143,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 
 	protected override void OnInitialized()
 	{
-		//Form.ResetRequested += Form_ResetRequested;
+		Form.ResetRequested += Form_ResetRequested;
 		Field.ValueChanged += Field_ValueChanged;
 	}
 
@@ -157,18 +157,18 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	//private async void Form_ResetRequested(object? sender, EventArgs e)
-	//{
-	//	// reset data to any Monaco editors
-	//	if (_monacoEditor != null && Form != null && Field != null)
-	//	{
-	//		var value = Form.GetFieldStringValue(Field);
-	//		var model = await _monacoEditor.GetModel();
-	//		// when switch from read-only mode to edit mode throws exception at javascript level in Blazor.Monaco library
-	//		// as attempting to update value of previous model
-	//		//await model.SetValue(value);
-	//	}
-	//}
+	private async void Form_ResetRequested(object? sender, EventArgs e)
+	{
+		// reset data to any Monaco editors
+		if (_monacoEditor != null && Form != null && Field != null)
+		{
+			var value = Form.GetFieldStringValue(Field);
+			var model = await _monacoEditor.GetModel();
+			// when re-creating Monaco Editor (i.e toggling to/from ReadOnly)
+			// this can cause an crash - do NOT ResetChanges on Form.SetEditItem
+			await model.SetValue(value);
+		}
+	}
 
 	private async Task OnMonacoEditorBlurAsync()
 	{
@@ -279,7 +279,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 			if (disposing)
 			{
 				Field.ValueChanged -= Field_ValueChanged;
-				//Form.ResetRequested -= Form_ResetRequested;
+				Form.ResetRequested -= Form_ResetRequested;
 			}
 
 			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
