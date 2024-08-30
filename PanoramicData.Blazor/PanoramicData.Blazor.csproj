@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDFormFieldEditor - Reinstated ResetChanges to change Monaco Editor value.
+			PDLocalStorageStateManager - Added synchronizing logic around initializaton and now will ensure initialization completed before LoadState, SaveState and RemoveState operations are attempted.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
