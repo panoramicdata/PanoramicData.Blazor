@@ -39,9 +39,27 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	[Parameter]
 	public Action<MethodCache>? InitializeCache { get; set; }
 
+	public async Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits, List<Selection>? endCursorState = null)
+	{
+		if (_monacoEditor != null)
+		{
+			await _monacoEditor.ExecuteEdits(source, edits, endCursorState ?? []).ConfigureAwait(true);
+		}
+	}
+
 	[JSInvokable]
 	public CompletionItem[] GetCompletions(BlazorMonaco.Range range)
 		=> _methodCache.GetCompletionItems(Language).ToArray();
+
+	public async Task<Selection?> GetSelection()
+	{
+		if (_monacoEditor != null)
+		{
+			return await _monacoEditor.GetSelection().ConfigureAwait(true);
+		}
+		return null;
+	}
+
 
 	[JSInvokable]
 	public SignatureInformation[] GetSignatures(string functionName)
@@ -109,6 +127,14 @@ public partial class PDMonacoEditor : IAsyncDisposable
 				_theme = Theme;
 				await _monacoEditor.UpdateOptions(new EditorUpdateOptions { Theme = _theme });
 			}
+		}
+	}
+
+	public async Task UpdateOptions(EditorUpdateOptions options)
+	{
+		if (_monacoEditor != null)
+		{
+			await _monacoEditor.UpdateOptions(options).ConfigureAwait(true);
 		}
 	}
 

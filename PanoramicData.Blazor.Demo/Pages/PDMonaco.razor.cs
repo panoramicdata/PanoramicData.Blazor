@@ -22,7 +22,6 @@ public partial class PDMonaco
 		_value = _language switch
 		{
 			"ncalc" => "10 * -3.14 + Sqrt(9)",
-			"rmscript" => "[DateTime: value={QueryEndDate}, addmonths=-12, format=yyyy-MM-15, storeAsHidden=QueryStartDate]",
 			"javascript" => "if(Math.PI() > 3) {\n   this.setError(\"Invalid Function\");\n}",
 			_ => "SELECT 10 * 10\n  FROM [Temp]"
 		};
@@ -33,7 +32,6 @@ public partial class PDMonaco
 	{
 		_theme = _language switch
 		{
-			"rmscript" => themePreference == "light" ? "rm-light" : "rm-dark",
 			"ncalc" => themePreference == "light" ? "ncalc-light" : "ncalc-dark",
 			_ => themePreference == "light" ? "vs" : "vs-dark"
 		};
