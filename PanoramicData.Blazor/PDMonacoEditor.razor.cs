@@ -39,6 +39,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	[Parameter]
 	public Action<MethodCache>? InitializeCache { get; set; }
 
+	[Parameter]
+	public Action<StandaloneEditorConstructionOptions>? InitializeOptions { get; set; }
+
 	public async Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits, List<Selection>? endCursorState = null)
 	{
 		if (_monacoEditor != null)
@@ -67,13 +70,18 @@ public partial class PDMonacoEditor : IAsyncDisposable
 
 	private StandaloneEditorConstructionOptions GetOptions(StandaloneCodeEditor editor)
 	{
-		return new StandaloneEditorConstructionOptions
+		var options = new StandaloneEditorConstructionOptions
 		{
 			AutomaticLayout = true,
 			Language = Language,
 			Theme = Theme,
 			Value = Value
 		};
+		if (InitializeOptions != null)
+		{
+			InitializeOptions(options);
+		}
+		return options;
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)

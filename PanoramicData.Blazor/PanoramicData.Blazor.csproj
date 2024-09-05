@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDMonacoEditor - Added GetSelection, ExecuteEdits and UpdateOptions public methods.
+			PDMonacoEditor - Added InitializeOptions parameter
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

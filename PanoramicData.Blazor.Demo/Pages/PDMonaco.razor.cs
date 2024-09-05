@@ -1,3 +1,4 @@
+using BlazorMonaco.Editor;
 using PanoramicData.Blazor.Models.Monaco;
 
 namespace PanoramicData.Blazor.Demo.Pages;
@@ -14,6 +15,11 @@ public partial class PDMonaco
 		//cache.Options.IncludeMethodTypeName = true;
 		cache.AddPublicStaticTypeMethods("ncalc", typeof(Math), new DefaultDescriptionProvider());
 		cache.AddTypeMethods("ncalc", typeof(NCalcExtensions.Extensions.IFunctionPrototypes));
+	}
+
+	private void InitializeOptions(StandaloneEditorConstructionOptions options)
+	{
+		options.LineNumbers = "on";
 	}
 
 	private void OnSetLanguage(string language)
