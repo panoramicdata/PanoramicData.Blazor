@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDMonacoEditor - Added InitializeOptions parameter
+			PDMonacoEditor - Added RegisterLanguages and InitializeLanguageAsync parameters - Allows custom languages to be added.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

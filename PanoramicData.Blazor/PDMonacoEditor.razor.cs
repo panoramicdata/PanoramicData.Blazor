@@ -42,6 +42,13 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	[Parameter]
 	public Action<StandaloneEditorConstructionOptions>? InitializeOptions { get; set; }
 
+	[Parameter]
+	public Func<Language, Task>? InitializeLanguageAsync { get; set; }
+
+	[Parameter]
+	public Action<List<Language>>? RegisterLanguages { get; set; }
+
+
 	public async Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits, List<Selection>? endCursorState = null)
 	{
 		if (_monacoEditor != null)
@@ -86,22 +93,26 @@ public partial class PDMonacoEditor : IAsyncDisposable
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (firstRender && JSRuntime != null)
 		{
-			if (JSRuntime != null)
+			_objRef = DotNetObjectReference.Create(this);
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDMonacoEditor.razor.js").ConfigureAwait(true); ;
+			if (_module != null)
 			{
-				_objRef = DotNetObjectReference.Create(this);
-				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDMonacoEditor.razor.js").ConfigureAwait(true); ;
-				if (_module != null)
-				{
-					await _module.InvokeVoidAsync("configureMonaco", _objRef);
-				}
-			}
+				await _module.InvokeVoidAsync("initialize", _objRef);
 
-			// cache language methods
-			if (InitializeCache != null)
-			{
-				InitializeCache(_methodCache);
+				// allow custom languages to be registered
+				var languages = new List<Language>();
+				RegisterLanguages?.Invoke(languages);
+				foreach (var language in languages)
+				{
+					await _module.InvokeVoidAsync("registerLanguage", language.Id, language.ShowCompletions, language.SignatureHelpTriggers);
+					if (InitializeLanguageAsync != null)
+					{
+						await InitializeLanguageAsync(language);
+					}
+				}
+				InitializeCache?.Invoke(_methodCache);
 			}
 		}
 	}
