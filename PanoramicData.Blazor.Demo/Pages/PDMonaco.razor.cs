@@ -61,14 +61,6 @@ public partial class PDMonaco : IAsyncDisposable
 		}
 	}
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender && JSRuntime != null)
-		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor.Demo/Pages/PDMonaco.razor.js").ConfigureAwait(true); ;
-		}
-	}
-
 	private void OnSetLanguage(string language)
 	{
 		_language = language;
