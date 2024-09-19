@@ -106,8 +106,8 @@ public partial class PDMonacoEditor : IAsyncDisposable
 				RegisterLanguages?.Invoke(languages);
 				foreach (var language in languages)
 				{
-					await _module.InvokeVoidAsync("registerLanguage", language.Id, language.ShowCompletions, language.SignatureHelpTriggers);
-					if (InitializeLanguageAsync != null)
+					var registered = await _module.InvokeAsync<bool>("registerLanguage", language.Id, language.ShowCompletions, language.SignatureHelpTriggers);
+					if (registered && InitializeLanguageAsync != null)
 					{
 						await InitializeLanguageAsync(language);
 					}

@@ -8,6 +8,13 @@ export function initialize(objRef) {
 
 export function registerLanguage(id, completions, triggerChars) {
 	if (monaco) {
+
+		// does language already exist?
+		var languages = monaco.languages.getLanguages();
+		const exists = languages.some(obj => obj.id === id);
+		if (exists) {
+			return false;
+		}
 		monaco.languages.register({ id: id });
 		if (completions) {
 			monaco.languages.registerCompletionItemProvider(id, {
@@ -20,6 +27,7 @@ export function registerLanguage(id, completions, triggerChars) {
 				});
 			}
 		}
+		return true;
 	}
 }
 
