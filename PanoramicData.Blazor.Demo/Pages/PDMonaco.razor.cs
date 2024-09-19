@@ -36,8 +36,11 @@ public partial class PDMonaco : IAsyncDisposable
 	private void InitializeCache(MethodCache cache)
 	{
 		// this method allows  method signatures to be registered for a language
-		cache.AddPublicStaticTypeMethods("ncalc", typeof(Math), new DefaultDescriptionProvider());
-		cache.AddTypeMethods("ncalc", typeof(NCalcExtensions.Extensions.IFunctionPrototypes));
+		if (!cache.Contains("ncalc"))
+		{
+			cache.AddPublicStaticTypeMethods("ncalc", typeof(Math), new DefaultDescriptionProvider());
+			cache.AddTypeMethods("ncalc", typeof(NCalcExtensions.Extensions.IFunctionPrototypes));
+		}
 	}
 
 	private void InitializeOptions(StandaloneEditorConstructionOptions options)

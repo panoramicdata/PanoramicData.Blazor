@@ -188,6 +188,8 @@ public class MethodCache
 		_languageDict.Clear();
 	}
 
+	public bool Contains(string language) => _languageDict.ContainsKey(language);
+
 	public IEnumerable<CompletionItem> GetCompletionItems(string language)
 	{
 		var items = new List<CompletionItem>();

@@ -12,8 +12,8 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	private string _theme = string.Empty;
 	private string _language = "javascript";
 	private StandaloneCodeEditor? _monacoEditor;
-	private readonly MethodCache _methodCache = new();
 	private DotNetObjectReference<PDMonacoEditor>? _objRef;
+	private static readonly MethodCache _methodCache = new();
 
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
