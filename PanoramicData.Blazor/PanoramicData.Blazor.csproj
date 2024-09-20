@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDMonacoEditor - Changed MethodCache to be static so methods need only be loaded once.
+			PDMonacoEditor - Added async and non-async alternatives for some initialization parameters.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

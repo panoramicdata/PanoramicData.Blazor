@@ -40,7 +40,13 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	public Action<MethodCache>? InitializeCache { get; set; }
 
 	[Parameter]
+	public Func<MethodCache, Task>? InitializeCacheAsync { get; set; }
+
+	[Parameter]
 	public Action<StandaloneEditorConstructionOptions>? InitializeOptions { get; set; }
+
+	[Parameter]
+	public Action<Language>? InitializeLanguage { get; set; }
 
 	[Parameter]
 	public Func<Language, Task>? InitializeLanguageAsync { get; set; }
@@ -107,12 +113,26 @@ public partial class PDMonacoEditor : IAsyncDisposable
 				foreach (var language in languages)
 				{
 					var registered = await _module.InvokeAsync<bool>("registerLanguage", language.Id, language.ShowCompletions, language.SignatureHelpTriggers);
-					if (registered && InitializeLanguageAsync != null)
+					if (registered)
 					{
-						await InitializeLanguageAsync(language);
+						if (InitializeLanguage != null)
+						{
+							InitializeLanguage(language);
+						}
+						if (InitializeLanguageAsync != null)
+						{
+							await InitializeLanguageAsync(language).ConfigureAwait(true);
+						}
 					}
 				}
-				InitializeCache?.Invoke(_methodCache);
+				if (InitializeCache != null)
+				{
+					InitializeCache(_methodCache);
+				}
+				if (InitializeCacheAsync != null)
+				{
+					await InitializeCacheAsync(_methodCache).ConfigureAwait(true);
+				}
 			}
 		}
 	}
