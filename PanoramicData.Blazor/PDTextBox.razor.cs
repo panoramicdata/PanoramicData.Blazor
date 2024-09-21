@@ -31,6 +31,17 @@ public partial class PDTextBox : IAsyncDisposable
 	[Parameter] public string CssClass { get; set; } = "";
 
 	/// <summary>
+	/// The input type
+	/// </summary>
+	[Parameter] public PDInputType Type { get; set; } = PDInputType.Text;
+
+	private string TypeString => Type switch
+	{
+		PDInputType.DateTimeLocal => "datetime-local",
+		_ => Type.ToString().ToLowerInvariant(),
+	};
+
+	/// <summary>
 	/// Gets whether Keypress events are raised.
 	/// </summary>
 	[Parameter] public bool KeypressEvent { get; set; }
