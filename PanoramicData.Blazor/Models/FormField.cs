@@ -6,6 +6,13 @@ public class FormField<TItem> where TItem : class
 
 	internal Func<TItem, object>? CompiledFieldFunc => _compiledFieldFunc ??= Field?.Compile();
 
+	public event EventHandler<object?>? ValueChanged;
+
+	public void OnValueChanged(object? value)
+	{
+		ValueChanged?.Invoke(this, value);
+	}
+
 	/// <summary>
 	/// Gets or sets the autocomplete attribute value.
 	/// </summary>

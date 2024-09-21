@@ -15,6 +15,7 @@ class Timeline {
 		series: []
 	};
 	ref = null;
+	debouncedResizeHandler = null;
 
 	constructor(id, options, ref) {
 		var el = document.getElementById(id);
@@ -22,10 +23,23 @@ class Timeline {
 			this.el = el;
 			this.ref = ref;
 			this.options = options || this.options;
+			this.debouncedResizeHandler = this.debounce(() => this.onResize(), 500);
 			this.log("init timeline: ", arguments);
 			el.addEventListener('wheel', this.onWheel, { passive: false });
-			window.addEventListener("resize", this.onResize.bind(this), { passive: false });
+			window.addEventListener("resize", this.debouncedResizeHandler, { passive: false });
 		}
+	}
+
+	debounce(func, wait) {
+		let timeout;
+		return function executedFunction(...args) {
+			const later = () => {
+				timeout = null;
+				func(...args);
+			};
+			clearTimeout(timeout);
+			timeout = setTimeout(later, wait);
+		};
 	}
 
 	log(data) {
@@ -47,13 +61,25 @@ class Timeline {
 	term() {
 		if (this.el) {
 			this.el.removeEventListener("wheel", this.onWheel);
-			window.removeEventListener("resize", this.onResize);
+			window.removeEventListener("resize", this.debouncedResizeHandler);
 			this.log("term timeline: ", this.canvasId);
 		}
 	}
 }
 
 //export { Timeline };
+
+function debounce(func, wait) {
+	let timeout;
+	return function executedFunction(...args) {
+		const later = () => {
+			timeout = null;
+			func(...args);
+		};
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
+}
 
 export function dispose(id) {
 	var tl = timelines[id];

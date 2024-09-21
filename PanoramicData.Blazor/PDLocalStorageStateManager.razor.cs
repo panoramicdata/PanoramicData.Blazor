@@ -3,6 +3,8 @@ namespace PanoramicData.Blazor;
 public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisposable
 {
 	private IJSObjectReference? _module;
+	private bool _isInitialized = false;
+	private readonly SemaphoreSlim _initializationSemaphore = new SemaphoreSlim(1, 1);
 
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
@@ -14,23 +16,50 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 
 	public async Task InitializeAsync()
 	{
-		if (_module is null && JSRuntime != null)
+		if (!_isInitialized)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDLocalStorageStateManager.razor.js").ConfigureAwait(true);
+			if (_module is null && JSRuntime != null)
+			{
+				await _initializationSemaphore.WaitAsync();
+				try
+				{
+					if (!_isInitialized) // Double-check locking
+					{
+						_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDLocalStorageStateManager.razor.js").ConfigureAwait(true);
+						_isInitialized = true;
+					}
+					else
+					{
+					}
+				}
+				finally
+				{
+					_initializationSemaphore.Release();
+				}
+			}
 		}
 	}
 
-	protected override Task OnInitializedAsync() => InitializeAsync();
+	protected override async Task OnInitializedAsync()
+	{
+		if (!_isInitialized)
+		{
+			await InitializeAsync();
+		}
+	}
 
 	public async Task<T?> LoadStateAsync<T>(string key)
 	{
 		try
 		{
-			if (JSRuntime is null || _module is null)
+			if (!_isInitialized)
 			{
-				throw new InvalidOperationException("Javascript runtime is not available");
+				await InitializeAsync();
 			}
-
+			if (_module is null)
+			{
+				throw new InvalidOperationException("Javascript Module has not been loaded");
+			}
 			var data = await _module.InvokeAsync<string>("getItem", key);
 			if (data == null)
 			{
@@ -49,9 +78,13 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		try
 		{
-			if (JSRuntime is null || _module is null)
+			if (!_isInitialized)
 			{
-				throw new InvalidOperationException("Javascript runtime is not available");
+				await InitializeAsync();
+			}
+			if (_module is null)
+			{
+				throw new InvalidOperationException("Javascript Module has not been loaded");
 			}
 
 			await _module.InvokeVoidAsync("removeItem", key);
@@ -66,9 +99,13 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		try
 		{
-			if (JSRuntime is null || _module is null)
+			if (!_isInitialized)
 			{
-				throw new InvalidOperationException("Javascript runtime is not available");
+				await InitializeAsync();
+			}
+			if (_module is null)
+			{
+				throw new InvalidOperationException("Javascript Module has not been loaded");
 			}
 
 			var data = System.Text.Json.JsonSerializer.Serialize(state);

@@ -119,17 +119,24 @@ public partial class PDModal : IAsyncDisposable
 	{
 		if (firstRender && JSRuntime is not null)
 		{
-			_dotNetReference = DotNetObjectReference.Create(this);
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDModal.razor.js").ConfigureAwait(true);
-			if (_module != null)
+			try
 			{
-				_modalObj = await _module.InvokeAsync<IJSObjectReference>("initialize", Id, new
+				_dotNetReference = DotNetObjectReference.Create(this);
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDModal.razor.js").ConfigureAwait(true);
+				if (_module != null)
 				{
-					Backdrop = HideOnBackgroundClick ? (object)true : "static",
-					Focus = true,
-					Keyboard = CloseOnEscape
-				}, _dotNetReference).ConfigureAwait(true);
+					_modalObj = await _module.InvokeAsync<IJSObjectReference>("initialize", Id, new
+					{
+						Backdrop = HideOnBackgroundClick ? (object)true : "static",
+						Focus = true,
+						Keyboard = CloseOnEscape
+					}, _dotNetReference).ConfigureAwait(true);
+				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}

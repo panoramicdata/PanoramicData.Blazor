@@ -176,9 +176,15 @@
                             TextField="x => GetItemDisplayName(x)"
                             TItem="FileExplorerItem">
                         <NodeTemplate>
-                            <span class="@( $"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}") ">
-                                <i class="@GetIconCssClass(context?.Data)"></i>
-                                <span>@GetItemDisplayName(context?.Data)</span>
+                            <span class="d-flex align-items-center @($"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}")">
+                                <span class="item-icon">
+                                    <i class="@GetIconCssClass(context?.Data)"></i>
+                                    @if (context?.Data != null && GetItemBadgeCssClass != null && GetItemBadgeCssClass(context.Data) is IconInfo info && !string.IsNullOrWhiteSpace(info.CssCls))
+                                    {
+                                        <i class="pd-badge @info.CssCls" title="@info.ToolTip"></i>
+                                    }
+                                </span>
+                                <span class="item-text">@GetItemDisplayName(context?.Data)</span>
                             </span>
                         </NodeTemplate>
                     </PDTree>
@@ -242,13 +248,20 @@
 
                         <PDColumn TItem="FileExplorerItem"
                                   Id="Icon"
+                                  TdClass="align-content-center"
                                   ThClass="ps-1 pe-0"
                                   Field="x => x.EntryType"
                                   Editable="false"
                                   Sortable="false"
                                   Title="">
                             <Template>
-                                <i class="@GetIconCssClass(context)"></i>
+                                <div class="item-icon">
+                                    <i class="@GetIconCssClass(context)"></i>
+                                    @if (GetItemBadgeCssClass != null && GetItemBadgeCssClass(context) is IconInfo info && !string.IsNullOrWhiteSpace(info.CssCls))
+                                    {
+                                        <i class="pd-badge @(info.CssCls)" title="@(info.ToolTip)"></i>
+                                    }
+                                </div>
                             </Template>
                         </PDColumn>
 

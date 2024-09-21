@@ -5,6 +5,7 @@ public partial class PDTextArea : IAsyncDisposable
 	private static int _seq;
 	private DotNetObjectReference<PDTextArea>? _objRef;
 	private IJSObjectReference? _commonModule;
+	private bool _cancelDebounce;
 
 	/// <summary>
 	/// Injected javascript interop object.
@@ -92,18 +93,39 @@ public partial class PDTextArea : IAsyncDisposable
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender && JSRuntime is not null && DebounceWait > 0)
+		if (firstRender && JSRuntime is not null)
 		{
-			_objRef = DotNetObjectReference.Create(this);
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-			if (_commonModule != null)
+			try
 			{
-				await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+				_objRef = DotNetObjectReference.Create(this);
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				if (_commonModule != null)
+				{
+					await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}
 
-	private async Task OnBlur(FocusEventArgs args) => await Blur.InvokeAsync().ConfigureAwait(true);
+	private async Task OnBlur(FocusEventArgs args)
+	{
+		if (DebounceWait > 0 && _commonModule != null)
+		{
+			// ignore next debounced blur
+			_cancelDebounce = true;
+
+			// TODO: if running within a PDForm then need to block from
+			// switching to another Item until completes
+			var val = await _commonModule.InvokeAsync<string>("getValue", Id);
+			await ValueChanged.InvokeAsync(val).ConfigureAwait(true);
+
+		}
+		await Blur.InvokeAsync().ConfigureAwait(true);
+	}
 
 	private async Task OnInput(ChangeEventArgs args)
 	{
@@ -117,8 +139,12 @@ public partial class PDTextArea : IAsyncDisposable
 	[JSInvokable]
 	public async Task OnDebouncedInput(string value)
 	{
-		Value = value;
-		await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
+		if (DebounceWait > 0 && !_cancelDebounce)
+		{
+			Value = value;
+			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
+		}
+		_cancelDebounce = false;
 	}
 
 	private async Task OnKeypress(KeyboardEventArgs args) => await Keypress.InvokeAsync(args).ConfigureAwait(true);
@@ -137,6 +163,14 @@ public partial class PDTextArea : IAsyncDisposable
 		}
 		catch
 		{
+		}
+	}
+
+	public async Task SetValueAsync(string value)
+	{
+		if (_commonModule != null)
+		{
+			await _commonModule.InvokeVoidAsync("setValue", Id, value);
 		}
 	}
 }

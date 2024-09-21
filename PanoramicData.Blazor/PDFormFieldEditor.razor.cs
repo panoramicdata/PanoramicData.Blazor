@@ -1,8 +1,11 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDFormFieldEditor<TItem> where TItem : class
+public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 {
+	private static int _idSeq;
+	private bool _disposedValue;
 	private bool _hasValue = true;
+	private StandaloneCodeEditor? _monacoEditor;
 
 	[Parameter]
 	public int DebounceWait { get; set; }
@@ -14,6 +17,9 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 	[EditorRequired]
 	[Parameter]
 	public PDForm<TItem> Form { get; set; } = null!;
+
+	[Parameter]
+	public string Id { get; set; } = $"field-editor-{++_idSeq}";
 
 	private Dictionary<string, object> GetNullEditorAttributes()
 	{
@@ -58,6 +64,13 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		return options.ToArray();
 	}
 
+	private static StandaloneEditorConstructionOptions GetMonacoOptionsReadOnly(FieldStringOptions fso, StandaloneCodeEditor editor)
+	{
+		var opt = fso.MonacoOptions(editor);
+		opt.ReadOnly = true;
+		return opt;
+	}
+
 	private static Dictionary<string, object> GetNumericAttributes(FormField<TItem> field)
 	{
 		var dict = new Dictionary<string, object>();
@@ -72,6 +85,15 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		}
 
 		return dict;
+	}
+
+	private string GetResizeableCssCls()
+	{
+		if (Field?.DisplayOptions is FieldStringOptions fso && fso.Resize)
+		{
+			return $"resize-h {fso.ResizeCssCls}";
+		}
+		return string.Empty;
 	}
 
 	public bool IsReadOnly(FormField<TItem> field) =>
@@ -119,11 +141,68 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		}
 	}
 
+	protected override void OnInitialized()
+	{
+		Form.ResetRequested += Form_ResetRequested;
+		Field.ValueChanged += Field_ValueChanged;
+	}
+
+	private async void Field_ValueChanged(object? sender, object? value)
+	{
+		// for most editors the value will be reflected in the UI immediately due to
+		// data binding - however the Monaco Editor requires a manual update
+		if (_monacoEditor != null && Field.DisplayOptions is FieldStringOptions fso && fso.Editor == FieldStringOptions.Editors.Monaco)
+		{
+			await SetMonacoValueAsync(value?.ToString() ?? string.Empty);
+		}
+	}
+
+	private async void Form_ResetRequested(object? sender, EventArgs e)
+	{
+		// reset data to any Monaco editors
+		if (_monacoEditor != null && Form != null && Field != null)
+		{
+			var value = Form.GetFieldStringValue(Field);
+			var model = await _monacoEditor.GetModel();
+			// when re-creating Monaco Editor (i.e toggling to/from ReadOnly)
+			// this can cause an crash - do NOT ResetChanges on Form.SetEditItem
+			await model.SetValue(value);
+		}
+	}
+
+	private async Task OnMonacoEditorBlurAsync()
+	{
+		if (_monacoEditor != null && Form != null && Field != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			var value = await model.GetValue(EndOfLinePreference.CRLF, true);
+			await Form.SetFieldValueAsync(Field, value);
+		}
+	}
+
+	private async Task OnMonacoInitAsync()
+	{
+		if (_monacoEditor != null && Form != null)
+		{
+			var value = Form.GetFieldStringValue(Field);
+			await SetMonacoValueAsync(value);
+		}
+	}
+
 	public async Task OnSelectInputChanged(ChangeEventArgs args, FormField<TItem> field)
 	{
 		if (Form != null && args.Value != null)
 		{
 			await Form.SetFieldValueAsync(field, args.Value).ConfigureAwait(true);
+		}
+	}
+
+	private async Task SetMonacoValueAsync(string value)
+	{
+		if (_monacoEditor != null && Form != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			await model.SetValue(value);
 		}
 	}
 
@@ -191,4 +270,37 @@ public partial class PDFormFieldEditor<TItem> where TItem : class
 		}
 	}
 
+	#region IDisposable
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!_disposedValue)
+		{
+			if (disposing)
+			{
+				Field.ValueChanged -= Field_ValueChanged;
+				Form.ResetRequested -= Form_ResetRequested;
+			}
+
+			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
+			// TODO: set large fields to null
+			_disposedValue = true;
+		}
+	}
+
+	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+	// ~PDFormFieldEditor()
+	// {
+	//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+	//     Dispose(disposing: false);
+	// }
+
+	public void Dispose()
+	{
+		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
+	}
+
+	#endregion
 }

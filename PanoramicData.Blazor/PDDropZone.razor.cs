@@ -139,25 +139,32 @@ public partial class PDDropZone : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_dotNetReference = DotNetObjectReference.Create(this);
-			var options = new
+			try
 			{
-				clickable = Clickable,
-				url = UploadUrl,
-				autoProcessQueue = false,
-				timeout = Timeout * 1000,
-				autoScroll = AutoScroll,
-				maxFilesize = MaxFileSize,
-				previewsContainer = PreviewContainer,
-				previewItemTemplate = PreviewTemplate
-			};
-			if (!string.IsNullOrWhiteSpace(UploadUrl))
-			{
-				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropZone.razor.js").ConfigureAwait(true);
-				if (_module != null)
+				_dotNetReference = DotNetObjectReference.Create(this);
+				var options = new
 				{
-					await _module.InvokeVoidAsync("initialize", $"#{Id}", options, SessionId, _dotNetReference).ConfigureAwait(true);
+					clickable = Clickable,
+					url = UploadUrl,
+					autoProcessQueue = false,
+					timeout = Timeout * 1000,
+					autoScroll = AutoScroll,
+					maxFilesize = MaxFileSize,
+					previewsContainer = PreviewContainer,
+					previewItemTemplate = PreviewTemplate
+				};
+				if (!string.IsNullOrWhiteSpace(UploadUrl))
+				{
+					_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropZone.razor.js").ConfigureAwait(true);
+					if (_module != null)
+					{
+						await _module.InvokeVoidAsync("initialize", $"#{Id}", options, SessionId, _dotNetReference).ConfigureAwait(true);
+					}
 				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}

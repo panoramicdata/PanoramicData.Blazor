@@ -8,6 +8,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 	public event EventHandler? ErrorsChanged;
 
+	public event EventHandler? ResetRequested;
+
 	[Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
@@ -16,6 +18,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Injected log service.
 	/// </summary>
 	[Inject] protected ILogger<PDForm<TItem>> Logger { get; set; } = new NullLogger<PDForm<TItem>>();
+
+	/// <summary>
+	/// Should edit deltas be automatically applied to the model?
+	/// </summary>
+	[Parameter] public bool AutoApplyDelta { get; set; }
 
 	/// <summary>
 	/// Gets or sets the child content that the drop zone wraps.
@@ -153,7 +160,14 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	{
 		if (firstRender)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDForm.razor.js").ConfigureAwait(true);
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDForm.razor.js").ConfigureAwait(true);
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
 		}
 	}
 
@@ -240,12 +254,15 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <summary>
 	/// Reset the current edit changes and errors.
 	/// </summary>
-	public void ResetChanges()
+	public async Task ResetChanges()
 	{
 		Delta.Clear();
+
+		OnResetRequested(EventArgs.Empty);
+
 		if (ConfirmOnUnload && _module != null)
 		{
-			_module.InvokeVoidAsync("setUnloadListener", Id, false);
+			await _module.InvokeVoidAsync("setUnloadListener", Id, false);
 		}
 
 		if (Errors.Count > 0)
@@ -266,7 +283,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		Mode = mode;
 		if (resetChanges && (Mode == FormModes.Create || Mode == FormModes.Edit))
 		{
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 			ResetChanges();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 		}
 
 		if (Errors.Count > 0)
@@ -611,6 +630,13 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				// validate field
 				await ValidateFieldAsync(field, value).ConfigureAwait(true);
 
+				field.OnValueChanged(value);
+
+				// auto save value if valid?
+				if (Mode == FormModes.Edit && AutoApplyDelta)
+				{
+					await ApplyDelta(Item).ConfigureAwait(true);
+				}
 
 				StateHasChanged();
 			}
@@ -791,6 +817,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 	protected virtual void OnErrorsChanged(EventArgs e) => ErrorsChanged?.Invoke(this, e);
 
+	protected virtual void OnResetRequested(EventArgs e) => ResetRequested?.Invoke(this, e);
+
 	private void NavigationService_BeforeNavigate(object? sender, BeforeNavigateEventArgs e)
 	{
 		if (HasChanges && ConfirmOnUnload)
@@ -813,7 +841,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		Mode = mode;
 		if (resetChanges && (Mode == FormModes.Create || Mode == FormModes.Edit))
 		{
-			ResetChanges();
+			await ResetChanges();
 		}
 
 		if (Errors.Count > 0)

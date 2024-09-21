@@ -36,3 +36,31 @@ public record FieldDateTimeOptions : FieldDisplayOptions
 
 	public int TimeStepSecs { get; init; } = 1;
 }
+
+public record FieldStringOptions : FieldDisplayOptions
+{
+	public enum Editors
+	{
+		TextBox,
+		TextArea,
+		Monaco
+	}
+
+	public FieldStringOptions()
+	{
+		CssClass = "";
+	}
+
+	public string CodeLanguage { get; init; } = string.Empty;
+
+	public Editors Editor { get; init; }
+
+	public bool Resize { get; init; }
+
+	public string ResizeCssCls { get; init; } = string.Empty;
+
+	public int Rows { get; init; } = 4;
+
+	public Func<StandaloneCodeEditor, StandaloneEditorConstructionOptions> MonacoOptions { get; init; } = (_)
+		=> new StandaloneEditorConstructionOptions { ReadOnly = true };
+}

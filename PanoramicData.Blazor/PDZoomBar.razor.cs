@@ -37,11 +37,18 @@ public partial class PDZoomBar : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_objRef = DotNetObjectReference.Create(this);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDZoomBar.razor.js");
-			if (_module != null)
+			try
 			{
-				await _module.InvokeVoidAsync("initialize", CanvasId, Value, Options, _objRef).ConfigureAwait(true);
+				_objRef = DotNetObjectReference.Create(this);
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDZoomBar.razor.js");
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync("initialize", CanvasId, Value, Options, _objRef).ConfigureAwait(true);
+				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}

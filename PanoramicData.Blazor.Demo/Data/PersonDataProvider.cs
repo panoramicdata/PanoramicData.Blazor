@@ -33,7 +33,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 					DateCreated = DateTimeOffset.Now.AddDays(_random.Next(-365, 0)),
 					DateModified = _random.Next(10) < 3 ? null : DateTimeOffset.Now.AddDays(_random.Next(-30, 0)),
 					Department = (Departments)_random.Next(0, 4),
-					FirstName = _random.Next(10) < 3 ? null : _firstNames[_random.Next(_firstNames.Length)],
+					FirstName = _random.Next(10) < 2 ? null : _firstNames[_random.Next(_firstNames.Length)],
 					LastName = _lastNames[_random.Next(_lastNames.Length)],
 					Location = _random.Next(Locations.Length),
 					Dob = DateTime.Today.AddYears(-_random.Next(20, 50)),

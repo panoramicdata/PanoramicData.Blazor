@@ -48,16 +48,23 @@ public partial class PDContextMenu : IAsyncDisposable
 	{
 		if (firstRender && JSRuntime is not null)
 		{
-			Id = $"pdcm{++_idSequence}";
-			if (JSRuntime != null)
+			try
 			{
-				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDContextMenu.razor.js");
-				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-				var available = await _module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
-				if (!available)
+				Id = $"pdcm{++_idSequence}";
+				if (JSRuntime != null)
 				{
-					throw new PDContextMenuException($"To use the {nameof(PDContextMenu)} component you must include the popper.js library");
+					_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDContextMenu.razor.js");
+					_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+					var available = await _module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
+					if (!available)
+					{
+						throw new PDContextMenuException($"To use the {nameof(PDContextMenu)} component you must include the popper.js library");
+					}
 				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}

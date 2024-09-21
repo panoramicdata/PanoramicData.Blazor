@@ -840,24 +840,31 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		if (firstRender && JSRuntime is not null)
 		{
-			if (DataProvider is null)
+			try
 			{
-				throw new PDTableException($"{nameof(DataProvider)} must not be null.");
+				if (DataProvider is null)
+				{
+					throw new PDTableException($"{nameof(DataProvider)} must not be null.");
+				}
+
+				if (PageCriteria != null)
+				{
+					PageCriteria.PageChanged += PageCriteria_PageChanged;
+					PageCriteria.PageSizeChanged += PageCriteria_PageSizeChanged;
+				}
+
+				_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
+
+				// load common javascript
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				if (_commonModule != null)
+				{
+					await _commonModule.InvokeVoidAsync("onTableDragStart", Id);
+				}
 			}
-
-			if (PageCriteria != null)
+			catch
 			{
-				PageCriteria.PageChanged += PageCriteria_PageChanged;
-				PageCriteria.PageSizeChanged += PageCriteria_PageSizeChanged;
-			}
-
-			_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
-
-			// load common javascript
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-			if (_commonModule != null)
-			{
-				await _commonModule.InvokeVoidAsync("onTableDragStart", Id);
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 

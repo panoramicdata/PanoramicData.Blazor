@@ -71,9 +71,18 @@
 	padding: 2px 3px 2px 3px;
 }
 
+::deep .pdtreenode span.item-text {
+	margin-top: 2px;
+}
+
+::deep .pdtreenode span.item-icon {
+	height: 20px;
+	min-width: 30px;
+}
+
 .upload-progress-bar {
-	height: 5px;
 	background-color: #007bff;
+	height: 5px;
 }
 
 .upload-zone {
@@ -121,4 +130,21 @@
 
 .pdfe-dz-preview.dz-success .success-mark {
 	display: inline-block !important;
+}
+
+.item-icon {
+	display: flex;
+}
+
+.pd-badge {
+	background-color: white;
+	border-radius: 11px;
+	color: black;
+	height: 22px;
+	margin-left: -12px;
+	margin-top: 4px;
+	padding-left: 2px;
+	padding-top: 3px;
+	transform: scale(0.7);
+	width: 22px;
 }

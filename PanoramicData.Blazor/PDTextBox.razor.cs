@@ -91,6 +91,9 @@ public partial class PDTextBox : IAsyncDisposable
 	/// </summary>
 	[Parameter] public EventCallback<string> ValueChanged { get; set; }
 
+
+	[Parameter] public string BindEvent { get; set; } = "oninput";
+
 	/// <summary>
 	/// Event raised whenever a key is pressed.
 	/// </summary>
@@ -166,12 +169,9 @@ public partial class PDTextBox : IAsyncDisposable
 					}
 				}
 			}
-			catch (ObjectDisposedException)
+			catch
 			{
-			}
-			catch (Exception)
-			{
-				// TODO: Use logger to output error message?
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}

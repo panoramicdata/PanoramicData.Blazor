@@ -282,27 +282,34 @@ public partial class PDTimeline : IAsyncDisposable
 	{
 		if (firstRender && JSRuntime is not null)
 		{
-			_objRef = DotNetObjectReference.Create(this);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTimeline.razor.js").ConfigureAwait(true);
-			if (_module != null)
+			try
 			{
-				await _module.InvokeVoidAsync("initialize", Id, Options, _objRef).ConfigureAwait(true);
-			}
+				_objRef = DotNetObjectReference.Create(this);
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTimeline.razor.js").ConfigureAwait(true);
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync("initialize", Id, Options, _objRef).ConfigureAwait(true);
+				}
 
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-			if (_commonModule != null)
-			{
-				_canvasHeight = (int)(await _commonModule.InvokeAsync<double>("getHeight", _svgPlotElement).ConfigureAwait(true));
-				_canvasWidth = (int)(await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true));
-				_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true));
-			}
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				if (_commonModule != null)
+				{
+					_canvasHeight = (int)(await _commonModule.InvokeAsync<double>("getHeight", _svgPlotElement).ConfigureAwait(true));
+					_canvasWidth = (int)(await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true));
+					_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true));
+				}
 
-			if (Options.General.AutoRefresh)
-			{
-				await SetScale(Scale, true);
+				if (Options.General.AutoRefresh)
+				{
+					await SetScale(Scale, true);
+				}
+				// notify app
+				await Initialized.InvokeAsync().ConfigureAwait(true);
 			}
-			// notify app
-			await Initialized.InvokeAsync().ConfigureAwait(true);
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
 		}
 	}
 
@@ -466,6 +473,7 @@ public partial class PDTimeline : IAsyncDisposable
 	{
 		if (_commonModule != null)
 		{
+			_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true));
 			_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true);
 		}
 
@@ -695,11 +703,14 @@ public partial class PDTimeline : IAsyncDisposable
 				return;
 			}
 
-			// clear display if scale has changed
+			if (scaleChanged || forceRefresh)
+			{
+				_dataPoints.Clear();
+			}
+
 			if (scaleChanged)
 			{
 				await ScaleChanged.InvokeAsync(Scale).ConfigureAwait(true);
-				_dataPoints.Clear();
 			}
 
 			// calculate visible columns
@@ -729,7 +740,7 @@ public partial class PDTimeline : IAsyncDisposable
 			PanTo(dateTime ?? previousCenter, reposition);
 
 			// refresh data for new scale?
-			await RefreshAsync().ConfigureAwait(true);
+			await RefreshAsync(forceRefresh).ConfigureAwait(true);
 
 			// mark state as changed
 			StateHasChanged();

@@ -30,9 +30,10 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="BlazorMonaco" Version="3.1.0" />
+		<PackageReference Include="BlazorMonaco" Version="3.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
+		<PackageReference Include="PanoramicData.NCalcExtensions" Version="3.1.10" />
 	</ItemGroup>
 
 
@@ -63,12 +64,18 @@
 
 
 	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="Pages\PDMonaco.razor" />
 	  <_ContentIncludedByDefault Remove="Pages\PDRangePage.razor" />
 	</ItemGroup>
 
 
 	<ItemGroup>
 	  <None Include="wwwroot\html\TestWeb.html" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Pages\PDMonaco.razor" />
 	</ItemGroup>
 
 </Project>

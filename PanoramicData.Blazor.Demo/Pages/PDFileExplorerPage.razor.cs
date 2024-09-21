@@ -215,6 +215,13 @@ public partial class PDFileExplorerPage
 		}
 	}
 
+	private static IconInfo? GetBadgeIconCssClass(FileExplorerItem item)
+	{
+		return item.IsReadOnly
+			? new IconInfo { CssCls = "fas fa-fw fa-ban text-danger", ToolTip = "Read Only" }
+			: null;
+	}
+
 	private static string GetCssClass(FileExplorerItem _) => string.Empty;
 
 	private static string GetIconCssClass(FileExplorerItem item)

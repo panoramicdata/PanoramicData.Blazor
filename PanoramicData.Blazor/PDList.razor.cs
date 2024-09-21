@@ -125,29 +125,36 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		// load previous state?
 		if (firstRender && StateManager != null)
 		{
-			var state = await StateManager.LoadStateAsync<string>(Id).ConfigureAwait(true);
-			if (state != null && state != string.Empty && state != Constants.TokenNone)
+			try
 			{
-				if (state == Constants.TokenAll)
+				var state = await StateManager.LoadStateAsync<string>(Id).ConfigureAwait(true);
+				if (state != null && state != string.Empty && state != Constants.TokenNone)
 				{
-					Selection.AllSelected = true;
-				}
-				else
-				{
-					var ids = state.Split(',', StringSplitOptions.RemoveEmptyEntries);
-					foreach (var item in _allItems.Where(x => ItemVisible(x)))
+					if (state == Constants.TokenAll)
 					{
-						var itemKey = ItemKeyFunction is null
-							? item.ToString() ?? string.Empty
-							: ItemKeyFunction(item).ToString();
-						if (ids.Contains(itemKey))
+						Selection.AllSelected = true;
+					}
+					else
+					{
+						var ids = state.Split(',', StringSplitOptions.RemoveEmptyEntries);
+						foreach (var item in _allItems.Where(x => ItemVisible(x)))
 						{
-							Selection.Items.Add(item);
+							var itemKey = ItemKeyFunction is null
+								? item.ToString() ?? string.Empty
+								: ItemKeyFunction(item).ToString();
+							if (ids.Contains(itemKey))
+							{
+								Selection.Items.Add(item);
+							}
 						}
 					}
-				}
 
-				StateHasChanged();
+					StateHasChanged();
+				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}
