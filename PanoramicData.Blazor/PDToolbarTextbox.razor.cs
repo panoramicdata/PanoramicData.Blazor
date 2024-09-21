@@ -3,6 +3,11 @@
 public partial class PDToolbarTextbox
 {
 	/// <summary>
+	/// Gets or sets the textbox input type
+	/// </summary>
+	[Parameter] public PDInputType Type { get; set; } = PDInputType.Text;
+
+	/// <summary>
 	/// Gets or sets the textbox sizes.
 	/// </summary>
 	[Parameter] public ButtonSizes? Size { get; set; }
