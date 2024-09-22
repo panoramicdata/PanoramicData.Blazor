@@ -1,0 +1,23 @@
+<h2>
+	<svg height="36" width="36">
+		<circle cx="18" cy="18" r="16" stroke="black" stroke-width="2" fill="@(_worstLogLevel switch {
+LogLevel.Trace => "gray",
+LogLevel.Debug => "lightblue",
+LogLevel.Information => "green",
+LogLevel.Warning => "orange",
+_ => "red" })" />
+	</svg> Logs
+</h2>
+
+<div>
+	<PDTextArea @bind-Value="_result"
+				Rows="35"
+				IsReadOnly="true"
+				CssClass="meraki-webhook-manager-output" />
+</div>
+<link href="https://fonts.cdnfonts.com/css/consola-mono" rel="stylesheet">
+<style>
+	.meraki-webhook-manager-output {
+		font-family: 'Consola Mono', Courier, monospace
+	}
+</style>
