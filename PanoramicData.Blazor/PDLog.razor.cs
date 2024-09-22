@@ -37,7 +37,7 @@ public partial class PDLog : ILogger
 			LogLevel.Information => "• ",
 			_ => "  "
 		};
-		_result += formatter.ToString() + "\n";
+		_result += formatter(state, exception) + Environment.NewLine;
 
 		StateHasChanged();
 	}
