@@ -5,8 +5,8 @@ public partial class PDLog : ILogger
 	[Parameter]
 	public LogLevel LogLevel { get; set; } = LogLevel.Information;
 
-	string _result = string.Empty;
-	LogLevel _worstLogLevel = LogLevel.None;
+	private string _result = string.Empty;
+	private LogLevel _worstLogLevel = LogLevel.None;
 
 	public void Clear()
 	{
@@ -34,7 +34,7 @@ public partial class PDLog : ILogger
 		{
 			LogLevel.Error => "☒ ",
 			LogLevel.Warning => "⚠ ",
-			LogLevel.Information => "• ",
+			LogLevel.Information => "ⓘ ",
 			_ => "  "
 		};
 		_result += formatter(state, exception) + Environment.NewLine;
