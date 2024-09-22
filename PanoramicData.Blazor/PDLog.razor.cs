@@ -8,7 +8,7 @@ public partial class PDLog : ILogger
 	string _result = string.Empty;
 	LogLevel _worstLogLevel = LogLevel.None;
 
-	internal void Clear()
+	public void Clear()
 	{
 		_result = string.Empty;
 		_worstLogLevel = LogLevel.None;

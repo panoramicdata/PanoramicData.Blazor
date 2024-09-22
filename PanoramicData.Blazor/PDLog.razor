@@ -1,6 +1,7 @@
 <h2>
 	<svg height="36" width="36">
 		<circle cx="18" cy="18" r="16" stroke="black" stroke-width="2" fill="@(_worstLogLevel switch {
+LogLevel.None => "transparent",
 LogLevel.Trace => "gray",
 LogLevel.Debug => "lightblue",
 LogLevel.Information => "green",
