@@ -1,0 +1,39 @@
+﻿@page "/pdlog"
+@using Microsoft.Extensions.Logging
+@using PanoramicData.Blazor.Demo.Data
+
+<h1>PDLog</h1>
+
+<DemoSourceView SourceFiles="Pages/PDLogPage.razor, Pages/PDLogPage.razor.cs">
+
+	<PDToolbar>
+		<PDToolbarButton Text="Log Trace"
+						 Click="() => Log(LogLevel.Trace)" />
+		<PDToolbarButton Text="Log Debug"
+						 Click="() => Log(LogLevel.Debug)" />
+		<PDToolbarButton Text="Log Info"
+						 Click="() => Log(LogLevel.Information)" />
+		<PDToolbarButton Text="Log Warning"
+						 Click="() => Log(LogLevel.Warning)" />
+		<PDToolbarButton Text="Log Error"
+						 Click="() => Log(LogLevel.Error)" />
+		<PDToolbarButton Text="Log Critical"
+						 Click="() => Log(LogLevel.Critical)" />
+		<PDToolbarButton Text="Add row"
+						 Click="() => AddRow(1)" />
+		<PDToolbarButton Text="Remove row"
+						 Click="() => AddRow(-1)" />
+		<PDLabel Text="Timestamp" />
+		<PDToggleSwitch @bind-Value="_logTimestamp" />
+		<PDToolbarTextbox Label="Format"
+						  @bind-Value="@_logTimestampFormat" />
+		<PDToolbarButton Text="Clear"
+						 Click="Clear" />
+	</PDToolbar>
+
+	<PDLog @ref="_log"
+		   Rows="_rows"
+		   UtcTimestamp="@_logTimestamp"
+		   UtcTimestampFormat="@_logTimestampFormat" />
+
+</DemoSourceView>

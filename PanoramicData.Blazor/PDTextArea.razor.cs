@@ -80,7 +80,7 @@ public partial class PDTextArea : IAsyncDisposable
 	[Parameter] public bool ShowClearButton { get; set; } = true;
 
 	/// <summary>
-	/// Sets the debounce wait period in milliseconds.
+	/// Sets the de-bounce wait period in milliseconds.
 	/// </summary>
 	[Parameter] public int DebounceWait { get; set; }
 
@@ -124,6 +124,7 @@ public partial class PDTextArea : IAsyncDisposable
 			await ValueChanged.InvokeAsync(val).ConfigureAwait(true);
 
 		}
+
 		await Blur.InvokeAsync().ConfigureAwait(true);
 	}
 
@@ -144,6 +145,7 @@ public partial class PDTextArea : IAsyncDisposable
 			Value = value;
 			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 		}
+
 		_cancelDebounce = false;
 	}
 
@@ -171,6 +173,14 @@ public partial class PDTextArea : IAsyncDisposable
 		if (_commonModule != null)
 		{
 			await _commonModule.InvokeVoidAsync("setValue", Id, value);
+		}
+	}
+
+	public async Task ScrollToEndAsync()
+	{
+		if (_commonModule != null)
+		{
+			await _commonModule.InvokeVoidAsync("scrollToEnd", Id);
 		}
 	}
 }

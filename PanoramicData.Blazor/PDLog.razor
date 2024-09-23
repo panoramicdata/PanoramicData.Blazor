@@ -1,18 +1,13 @@
 <h2>
 	<svg height="36" width="36">
-		<circle cx="18" cy="18" r="16" stroke="black" stroke-width="2" fill="@(_worstLogLevel switch {
-LogLevel.None => "transparent",
-LogLevel.Trace => "gray",
-LogLevel.Debug => "lightblue",
-LogLevel.Information => "green",
-LogLevel.Warning => "orange",
-_ => "red" })" />
+		<circle cx="18" cy="18" r="16" stroke="black" stroke-width="2" fill="@Fill" />
 	</svg> Logs
 </h2>
 
 <div>
-	<PDTextArea @bind-Value="_result"
-				Rows="35"
+	<PDTextArea @ref="_textArea"
+				@bind-Value="_result"
+				Rows="Rows"
 				IsReadOnly="true"
 				CssClass="meraki-webhook-manager-output" />
 </div>

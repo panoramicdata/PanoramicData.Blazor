@@ -1,4 +1,7 @@
-﻿<textarea id="@Id"
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<textarea id="@Id"
           @onblur="OnBlur"
           class="form-control @(IsVisible ? "" : "d-none ") @CssClass"
           disabled="@(!IsEnabled)"

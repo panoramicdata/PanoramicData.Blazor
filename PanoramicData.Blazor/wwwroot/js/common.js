@@ -177,6 +177,11 @@ export function onTableDragStart(id) {
 	}
 }
 
+export function scrollToEnd(id) {
+	var node = document.getElementById(id);
+	node.scrollTop = node.scrollHeight;
+}
+
 function onDragStart(evt) {
 	var url = evt.target.getAttribute('data-downloadurl');
 	if (url) {
