@@ -17,16 +17,19 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 
 	public async Task InitializeAsync()
 	{
+		Console.WriteLine("PDLocalStorageStateManager.InitializeAsync");
 		if (!_isInitialized && !_isInitializing)
 		{
 			_isInitializing = true;
 			if (_module is null && JSRuntime != null)
 			{
+				Console.WriteLine("PDLocalStorageStateManager.InitializeAsync: Importing module");
 				await _initializationSemaphore.WaitAsync();
 				try
 				{
 					if (!_isInitialized) // Double-check locking
 					{
+						Console.WriteLine("PDLocalStorageStateManager.InitializeAsync: Importing module (inner)");
 						_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDLocalStorageStateManager.razor.js").ConfigureAwait(true);
 						_isInitialized = true;
 					}
@@ -44,6 +47,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		if (firstRender && !_isInitialized)
 		{
+			Console.WriteLine("PDLocalStorageStateManager.OnAfterRenderAsync: Initializing");
 			await InitializeAsync();
 		}
 	}
@@ -52,12 +56,15 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		try
 		{
+			Console.WriteLine($"PDLocalStorageStateManager.LoadStateAsync: key={key}");
 			if (!_isInitialized)
 			{
+				Console.WriteLine("PDLocalStorageStateManager.LoadStateAsync: Initializing");
 				await InitializeAsync();
 			}
 			if (_module is null)
 			{
+				Console.WriteLine("PDLocalStorageStateManager.LoadStateAsync: Javascript Module has not been loaded");
 				throw new InvalidOperationException("Javascript Module has not been loaded");
 			}
 			var data = await _module.InvokeAsync<string>("getItem", key);
@@ -65,7 +72,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 			{
 				return default;
 			}
-
+			Console.WriteLine($"PDLocalStorageStateManager.LoadStateAsync: data={data}");
 			return System.Text.Json.JsonSerializer.Deserialize<T>(data);
 		}
 		catch (Exception e)
