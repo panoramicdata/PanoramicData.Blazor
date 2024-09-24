@@ -4,6 +4,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 {
 	private IJSObjectReference? _module;
 	private bool _isInitialized = false;
+	private bool _isInitializing = false;
 	private readonly SemaphoreSlim _initializationSemaphore = new SemaphoreSlim(1, 1);
 
 	[Inject]
@@ -16,8 +17,9 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 
 	public async Task InitializeAsync()
 	{
-		if (!_isInitialized)
+		if (!_isInitialized && !_isInitializing)
 		{
+			_isInitializing = true;
 			if (_module is null && JSRuntime != null)
 			{
 				await _initializationSemaphore.WaitAsync();
@@ -28,21 +30,19 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 						_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDLocalStorageStateManager.razor.js").ConfigureAwait(true);
 						_isInitialized = true;
 					}
-					else
-					{
-					}
 				}
 				finally
 				{
 					_initializationSemaphore.Release();
+					_isInitializing = false;
 				}
 			}
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (!_isInitialized)
+		if (firstRender && !_isInitialized)
 		{
 			await InitializeAsync();
 		}
