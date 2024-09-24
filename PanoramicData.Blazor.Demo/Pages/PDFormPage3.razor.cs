@@ -88,7 +88,7 @@ public partial class PDFormPage3
 			});
 		}
 
-		return options.ToArray();
+		return [.. options];
 	}
 
 	private async Task OnInitialsInput(ChangeEventArgs args)

@@ -5,7 +5,7 @@ public partial class PDFilter : IAsyncDisposable
 	private static int _sequence;
 	private readonly string _id = $"filter-button-{(++_sequence)}";
 	private PDDropDown _dropDown = null!;
-	private string[] _values = Array.Empty<string>();
+	private string[] _values = [];
 	private string _value1 = string.Empty;
 	private string _value2 = string.Empty;
 	private FilterTypes _filterType = FilterTypes.Equals;

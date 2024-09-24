@@ -4,7 +4,7 @@ namespace PanoramicData.Blazor.PreviewProviders;
 
 public class DefaultPreviewProvider : IPreviewProvider
 {
-	private static string[] _downloadableFileTypes = new[] { "html", "htm", "url", "md", "txt" };
+	private static string[] _downloadableFileTypes = ["html", "htm", "url", "md", "txt"];
 
 	public string DateTimeFormat { get; set; } = "dd/MM/yy HH:mm:ss";
 

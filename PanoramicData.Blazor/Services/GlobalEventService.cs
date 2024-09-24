@@ -43,7 +43,7 @@ public class GlobalEventService : IGlobalEventService
 		if (!_registeredShortcuts.ContainsKey(shortcut.ToString()))
 		{
 			_registeredShortcuts.Add(shortcut.ToString(), shortcut);
-			ShortcutsChanged?.Invoke(this, _registeredShortcuts.Values.ToArray());
+			ShortcutsChanged?.Invoke(this, [.. _registeredShortcuts.Values]);
 		}
 	}
 
@@ -56,7 +56,7 @@ public class GlobalEventService : IGlobalEventService
 		if (_registeredShortcuts.ContainsKey(shortcut.ToString()))
 		{
 			_registeredShortcuts.Remove(shortcut.ToString());
-			ShortcutsChanged?.Invoke(this, _registeredShortcuts.Values.ToArray());
+			ShortcutsChanged?.Invoke(this, [.. _registeredShortcuts.Values]);
 		}
 	}
 }

@@ -550,7 +550,7 @@ public partial class PDTree<TItem> where TItem : class
 		{
 			if (DataProvider is null)
 			{
-				return Array.Empty<TItem>();
+				return [];
 			}
 
 			var request = new DataRequest<TItem>
@@ -575,7 +575,7 @@ public partial class PDTree<TItem> where TItem : class
 		catch (Exception ex)
 		{
 			await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
-			return Array.Empty<TItem>();
+			return [];
 		}
 	}
 

@@ -164,7 +164,7 @@ public class DirectoryEntry
 			node = node.Parent;
 		}
 
-		var path = string.Join(separator, stack.ToArray());
+		var path = string.Join(separator, [.. stack]);
 		return $"{separator}{path}";
 	}
 

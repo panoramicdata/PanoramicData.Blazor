@@ -12,5 +12,5 @@ public class EventManager
 		EventAdded?.Invoke(evt);
 	}
 
-	public Event[] Events => _events.ToArray();
+	public Event[] Events => [.. _events];
 }

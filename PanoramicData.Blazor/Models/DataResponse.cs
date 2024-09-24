@@ -19,7 +19,7 @@ public class DataResponse<TItem>
 	/// <summary>
 	/// Gets or sets the data rows returned in this response.
 	/// </summary>
-	public IEnumerable<TItem> Items { get; set; } = Enumerable.Empty<TItem>();
+	public IEnumerable<TItem> Items { get; set; } = [];
 
 	/// <summary>
 	/// Initializes a new instance of the DataResponse class.

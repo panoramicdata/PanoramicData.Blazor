@@ -110,7 +110,7 @@ public partial class PDSplitter : IAsyncDisposable
 			return await _module.InvokeAsync<double[]>("getSizes", Id).ConfigureAwait(true);
 		}
 
-		return Array.Empty<double>();
+		return [];
 	}
 
 	public async Task SetSizesAsync(double[] sizes)

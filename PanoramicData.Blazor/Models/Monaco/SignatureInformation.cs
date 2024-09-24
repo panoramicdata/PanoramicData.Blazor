@@ -8,7 +8,7 @@ public class SignatureInformation
 
 	public string Label { get; set; } = string.Empty;
 
-	public ParameterInformation[] Parameters { get; set; } = Array.Empty<ParameterInformation>();
+	public ParameterInformation[] Parameters { get; set; } = [];
 }
 
 

@@ -6,7 +6,7 @@ public partial class PDDragContainer<TItem> where TItem : class
 	public RenderFragment ChildContent { get; set; } = null!;
 
 	[Parameter]
-	public IEnumerable<TItem> Items { get; set; } = Array.Empty<TItem>();
+	public IEnumerable<TItem> Items { get; set; } = [];
 
 	[Parameter]
 	public EventCallback<IEnumerable<TItem>> SelectionChanged { get; set; }

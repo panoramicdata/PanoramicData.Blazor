@@ -195,7 +195,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <summary>
 	/// Gets or sets the possible page sizes offered to the user.
 	/// </summary>
-	[Parameter] public uint[] PageSizeChoices { get; set; } = new uint[] { 10, 25, 50, 100, 250, 500 };
+	[Parameter] public uint[] PageSizeChoices { get; set; } = [10, 25, 50, 100, 250, 500];
 
 	/// <summary>
 	/// Gets or sets an event callback raised when the component has perform all it initialization.
@@ -313,10 +313,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 					})
 				?? Columns;
 
-			return columns
+			return [.. columns
 				.Where(c => c.ShowInList && c.State.Visible)
-				.OrderBy(c => c.State.Ordinal)
-				.ToList();
+				.OrderBy(c => c.State.Ordinal)];
 		}
 	}
 
@@ -785,7 +784,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// Returns an array of all currently selected items.
 	/// </summary>
 	public TItem[] GetSelectedItems() => KeyField is null
-			? Array.Empty<TItem>()
+			? []
 			: ItemsToDisplay.Where(x => Selection.Contains(KeyField(x).ToString() ?? string.Empty)).ToArray();
 
 	/// <summary>
@@ -995,12 +994,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		{
 			// use main data provider - take has to be applied on base query
 			var response = await DataProvider.GetDataAsync(request, default);
-			objectValues = response.Items
+			objectValues = [.. response.Items
 				.Where(x => column.GetValue(x) != null)
 				.Select(x => column.GetValue(x)!.ToString() ?? string.Empty)
 				.Distinct()
-				.OrderBy(x => x)
-				.ToArray();
+				.OrderBy(x => x)];
 		}
 
 		// limit to first N

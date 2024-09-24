@@ -102,7 +102,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 			if (CanChangeOrder)
 			{
 				var originalOrder = Container.Items.ToArray();
-				if (!originalOrder.SequenceEqual(_localItems.ToArray()))
+				if (!originalOrder.SequenceEqual([.. _localItems]))
 				{
 					await ItemOrderChanged.InvokeAsync(new DragOrderChangeArgs<TItem>(_localItems, Container.Payload));
 				}

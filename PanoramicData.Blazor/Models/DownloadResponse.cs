@@ -23,5 +23,5 @@ public class DownloadResponse
 	/// <summary>
 	/// Gets or sets the file contents.
 	/// </summary>
-	public byte[] Content { get; set; } = Array.Empty<byte>();
+	public byte[] Content { get; set; } = [];
 }
