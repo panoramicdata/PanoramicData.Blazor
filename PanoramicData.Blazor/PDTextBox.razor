@@ -1,49 +1,51 @@
 ﻿@if (KeypressEvent)
 {
-    <input id="@Id"
-       autocomplete="@AutoComplete"
-       @onblur="OnBlur"
-       class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
-       value="@Value"
-       disabled="@(!IsEnabled)"
-       readonly="@IsReadOnly"
-       placeholder="@Placeholder"
-       @oninput="OnChange"
-       @onkeydown="OnKeypress" />
+	<input id="@Id"
+		   type="@TypeString"
+		   autocomplete="@AutoComplete"
+		   @onblur="OnBlur"
+		   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
+		   value="@Value"
+		   disabled="@(!IsEnabled)"
+		   readonly="@IsReadOnly"
+		   placeholder="@Placeholder"
+		   @oninput="OnChange"
+		   @onkeydown="OnKeypress" />
 }
 else
 {
-    <input id="@Id"
-       autocomplete="@AutoComplete"
-       @onblur="OnBlur"
-       class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
-       value="@Value"
-       disabled="@(!IsEnabled)"
-       readonly="@IsReadOnly"
-       placeholder="@Placeholder"
-       @onchange="OnChange" />
+	<input id="@Id"
+		   type="@TypeString"
+		   autocomplete="@AutoComplete"
+		   @onblur="OnBlur"
+		   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
+		   value="@Value"
+		   disabled="@(!IsEnabled)"
+		   readonly="@IsReadOnly"
+		   placeholder="@Placeholder"
+		   @onchange="OnChange" />
 }
-@if(IsVisible)
+@if (IsVisible)
 {
-    @if (ShowClearButton)
-    {
-        <div class="input-group-text">
-            <button class=" btn @ButtonSizeCssClass"
-                disabled="@(Value == string.Empty || !IsEnabled)"
-                @onclick="OnClear">
-                <i class="fas fa-times" />
-            </button>
-        </div>
-    }
-    @if (ShowSpeechButton)
-    {
-        <div class="input-group-text">
-            <button class=" btn @ButtonSizeCssClass @(_activeListener == Id ? "flash" : "")"
-                    disabled="@(!IsEnabled)"
-                    @onclick="OnListenForSpeech">
-                <i class="fas fa-microphone" />
-            </button>
-        </div>
-    }
+	@if (ShowClearButton)
+	{
+		<div class="input-group-text">
+			<button class=" btn @ButtonSizeCssClass"
+					disabled="@(Value == string.Empty || !IsEnabled)"
+					@onclick="OnClear">
+				<i class="fas fa-times" />
+			</button>
+		</div>
+	}
+	@if (ShowSpeechButton)
+	{
+		<div class="input-group-text">
+			<button class=" btn @ButtonSizeCssClass @(_activeListener == Id ? "flash" : "")"
+					disabled="@(!IsEnabled)"
+					@onclick="OnListenForSpeech">
+				<i class="fas fa-microphone" />
+			</button>
+		</div>
+	}
 }
 

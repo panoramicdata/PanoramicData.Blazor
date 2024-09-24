@@ -1,0 +1,19 @@
+<h2>
+	<svg height="36" width="36">
+		<circle cx="18" cy="18" r="16" stroke="black" stroke-width="2" fill="@Fill" />
+	</svg> Logs
+</h2>
+
+<div>
+	<PDTextArea @ref="_textArea"
+				@bind-Value="_result"
+				Rows="Rows"
+				IsReadOnly="true"
+				CssClass="meraki-webhook-manager-output" />
+</div>
+<link href="https://fonts.cdnfonts.com/css/consola-mono" rel="stylesheet">
+<style>
+	.meraki-webhook-manager-output {
+		font-family: 'Consola Mono', Courier, monospace
+	}
+</style>

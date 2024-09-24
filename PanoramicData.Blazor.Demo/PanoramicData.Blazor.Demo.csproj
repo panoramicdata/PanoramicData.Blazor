@@ -78,4 +78,11 @@
 	  <UpToDateCheckInput Remove="Pages\PDMonaco.razor" />
 	</ItemGroup>
 
+
+	<ItemGroup>
+	  <Content Update="Pages\PDLogPage.razor">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </Content>
+	</ItemGroup>
+
 </Project>
