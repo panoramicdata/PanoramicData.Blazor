@@ -1,19 +1,32 @@
-<h2>
-	<svg height="36" width="36">
-		<circle cx="18" cy="18" r="16" stroke="black" stroke-width="2" fill="@Fill" />
-	</svg> Logs
-</h2>
-
-<div>
-	<PDTextArea @ref="_textArea"
-				@bind-Value="_result"
-				Rows="Rows"
-				IsReadOnly="true"
-				CssClass="meraki-webhook-manager-output" />
-</div>
-<link href="https://fonts.cdnfonts.com/css/consola-mono" rel="stylesheet">
-<style>
-	.meraki-webhook-manager-output {
-		font-family: 'Consola Mono', Courier, monospace
+<div class="log-container" style="height: @($"{Rows * 2.5}em"); overflow-y: auto;" @ref="logContainer">
+	@foreach (var entry in OrderedEntries)
+	{
+		<div class="log-entry" style="white-space: @(WordWrap ? "normal" : "nowrap");">
+			@if (ShowTimestamp && entry.Timestamp != null)
+			{
+				 <span class="log-timestamp @entry.TimestampClass">@((MarkupString)GetTimestamp(entry.Timestamp))</span>
+			}
+			@if (ShowIcon)
+			{
+				<i class="@entry.Icon"></i>
+			}
+			<div class="log-messages">
+				@foreach(var messageLine in entry.Message.Split('\n').Select(line => line.Trim()))
+				{
+					<span class="log-message">@((MarkupString)messageLine)</span>
+				}
+				@if(ShowException && entry.Exception is not null)
+				{
+					<hr/>
+					<span class="log-message log-exception-type">@((MarkupString)entry.Exception.GetType().FullName)</span>
+					<span class="log-message log-exception-message">@((MarkupString)entry.Exception.Message)</span>
+					@if(entry.Exception.StackTrace is not null)
+					{
+						<span class="log-message log-exception-stack">@((MarkupString)entry.Exception.StackTrace)</span>
+					}
+				}
+			</div>
+		</div>
+		<hr/>
 	}
-</style>
+</div>

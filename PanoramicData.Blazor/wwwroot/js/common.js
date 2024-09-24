@@ -177,9 +177,8 @@ export function onTableDragStart(id) {
 	}
 }
 
-export function scrollToEnd(id) {
-	var node = document.getElementById(id);
-	node.scrollTop = node.scrollHeight;
+function scrollToBottom(element) {
+	element.scrollTop = element.scrollHeight;
 }
 
 function onDragStart(evt) {
@@ -188,3 +187,4 @@ function onDragStart(evt) {
 		evt.dataTransfer.setData("DownloadURL", url);
 	}
 }
+
