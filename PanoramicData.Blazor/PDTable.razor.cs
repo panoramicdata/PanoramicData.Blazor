@@ -871,12 +871,17 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		// load previously saved state
 		if (StateManager != null)
 		{
-			await LoadStateAsync();
-		}
+			try { 
+				await LoadStateAsync();
+		
+			}
+			catch(Exception ex)
+			{
+			}
 
-		// If this is the first time we've finished rendering, then all the columns
-		// have been added to the table so we'll go and get the data for the first time
-		if (firstRender)
+			// If this is the first time we've finished rendering, then all the columns
+			// have been added to the table so we'll go and get the data for the first time
+			if (firstRender)
 		{
 			try
 			{

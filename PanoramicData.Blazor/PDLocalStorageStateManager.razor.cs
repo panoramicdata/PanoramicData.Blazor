@@ -70,7 +70,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		}
 		catch (Exception e)
 		{
-			throw new StateException("Failed to save state: see inner exception for more information", e);
+			throw new StateException("Failed to load state: see inner exception for more information", e);
 		}
 	}
 
@@ -91,7 +91,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		}
 		catch (Exception e)
 		{
-			throw new StateException("Failed to save state: see inner exception for more information", e);
+			throw new StateException("Failed to remove state: see inner exception for more information", e);
 		}
 	}
 
