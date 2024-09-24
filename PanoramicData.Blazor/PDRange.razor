@@ -18,7 +18,7 @@
             @* inner track *@
             <rect class="track inner @(Invert ? "invert" : "")"
                   height="@CalcTrackHeight"
-                  width="@(CalcEndHandleX - CalcStartHandleX + HandleWidth)"
+                  width="@(CalcEndHandleX - CalcStartHandleX + _handleWidth)"
                   x="@CalcStartHandleX"
                   y="@CalcTrackY" />
 
@@ -33,7 +33,7 @@
                     {
                         <text>
                             <text class="label tick-major"
-                                x="@(x + HandleWidth / 2)"
+                                x="@(x + _handleWidth / 2)"
                                 y="10"
                                 stroke="Black">
                             @(TickMajorLabelFn?.Invoke(v) ?? v.ToString("0"))
@@ -50,7 +50,7 @@
                 @onpointerup="OnHandlePointerUp"
                 class="handle start"
                 height="@CalcHandleHeight"
-                width="@HandleWidth"
+                width="@_handleWidth"
                 title="@Range.Start"
                 x="@CalcStartHandleX"
                 y="@CalcHandleY" />
@@ -62,7 +62,7 @@
                 @onpointerup="OnHandlePointerUp"
                 class="handle end"
                 height="@CalcHandleHeight"
-                width="@HandleWidth"
+                width="@_handleWidth"
                 x="@CalcEndHandleX"
                 y="@CalcHandleY" />
 

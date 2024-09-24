@@ -6,7 +6,7 @@ public partial class PDLog : ILogger
 {
 	private readonly List<LogEntry> _logEntries = [];
 
-	private ElementReference logContainer;
+	private ElementReference _logContainer;
 
 	[Inject] public IJSRuntime? JSRuntime { get; set; }
 	private IJSObjectReference? _commonModule;
@@ -159,6 +159,6 @@ public partial class PDLog : ILogger
 		}
 
 		// TODO - Get this working
-		await _commonModule.InvokeVoidAsync("scrollToBottom", logContainer);
+		await _commonModule.InvokeVoidAsync("scrollToBottom", _logContainer);
 	}
 }
