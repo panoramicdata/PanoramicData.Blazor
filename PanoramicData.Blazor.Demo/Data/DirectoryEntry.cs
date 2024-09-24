@@ -13,7 +13,7 @@ public class DirectoryEntry
 	public bool IsHidden { get; set; }
 	public bool IsSystem { get; set; }
 	public bool IsReadOnly { get; set; }
-	public List<DirectoryEntry> Items { get; } = new List<DirectoryEntry>();
+	public List<DirectoryEntry> Items { get; } = [];
 	public string Name { get; set; } = string.Empty;
 	public DirectoryEntry? Parent { get; set; }
 	public long Size { get; set; }

@@ -66,7 +66,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 			if (string.IsNullOrWhiteSpace(field.Group))
 			{
 				// create separate group for single field
-				groups.Add(new FieldGroup<TItem>() { Id = $"group-{++index}", Fields = new() { field } });
+				groups.Add(new FieldGroup<TItem>() { Id = $"group-{++index}", Fields = [field] });
 			}
 			else
 			{
@@ -80,7 +80,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					var g = new FieldGroup<TItem>()
 					{
 						Id = $"group-{++index}",
-						Fields = new() { field }
+						Fields = [field]
 					};
 					// add to dict for lookup / grouping by id
 					dict.Add(field.Group, g);

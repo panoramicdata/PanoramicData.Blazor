@@ -2,7 +2,7 @@
 
 public class EventManager
 {
-	public List<Event> _events = new();
+	public List<Event> _events = [];
 
 	public event Action<Event>? EventAdded;
 

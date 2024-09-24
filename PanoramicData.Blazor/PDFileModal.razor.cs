@@ -11,11 +11,11 @@ public partial class PDFileModal
 	private PDModal ModalConfirm { get; set; } = null!;
 	private string _modalTitle = string.Empty;
 	private PDFileExplorer FileExplorer { get; set; } = null!;
-	private readonly List<ToolbarItem> _toolbarItems = new();
+	private readonly List<ToolbarItem> _toolbarItems = [];
 	private readonly ToolbarTextBox _filenameTextbox = new() { Key = "Filename", Label = "File name", Width = "100%" };
 	private readonly ToolbarButton _cancelButton = new() { Key = "Cancel", Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
 	private readonly ToolbarButton _okButton = new() { Key = "OK", Text = "OK", CssClass = "btn-primary", ShiftRight = true, IsEnabled = false };
-	private readonly List<ToolbarItem> _confirmToolbarItems = new();
+	private readonly List<ToolbarItem> _confirmToolbarItems = [];
 	private readonly ToolbarButton _overwriteButton = new() { Key = "Yes", Text = "Yes - Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true };
 	private readonly ToolbarButton _noButton = new() { Key = "No", Text = "No", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
 

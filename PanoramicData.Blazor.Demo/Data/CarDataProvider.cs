@@ -2,12 +2,12 @@
 
 public class CarDataProvider : DataProviderBase<Car>
 {
-	private List<Car> _cars = new();
+	private List<Car> _cars = [];
 
 	public CarDataProvider()
 	{
-		_cars = new()
-		{
+		_cars =
+		[
 			new Car { Id = 1, Make = "Ford", Model = "Model T", FromYear = 1908, ToYear = 1927 },
 			new Car { Id = 2, Make = "Ford", Model = "GT40", FromYear = 1964, ToYear = 1969 },
 			new Car { Id = 3, Make = "Ford", Model = "Mustang", FromYear = 1965 },
@@ -34,7 +34,7 @@ public class CarDataProvider : DataProviderBase<Car>
 			new Car { Id = 24, Make = "Lamborghini", Model = "Gallardo", FromYear = 2003, ToYear = 2013 },
 			new Car { Id = 25, Make = "Lamborghini", Model = "Diablo", FromYear = 1990, ToYear = 2001 },
 			new Car { Id = 26, Make = "McLaren", Model = "F1", FromYear = 1992, ToYear = 1998 }
-		};
+		];
 	}
 
 	public override Task<DataResponse<Car>> GetDataAsync(DataRequest<Car> request, CancellationToken cancellationToken)

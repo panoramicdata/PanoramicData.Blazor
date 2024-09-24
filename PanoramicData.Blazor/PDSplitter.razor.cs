@@ -52,7 +52,7 @@ public partial class PDSplitter : IAsyncDisposable
 	/// <summary>
 	/// Gets a collection of child panels.
 	/// </summary>
-	private List<PDSplitPanel> Panels { get; } = new List<PDSplitPanel>();
+	private List<PDSplitPanel> Panels { get; } = [];
 
 	/// <summary>
 	/// Adds the given panel to the list of available panels.

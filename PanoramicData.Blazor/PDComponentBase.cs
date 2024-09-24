@@ -41,7 +41,7 @@ public class PDComponentBase : ComponentBase
 
 	#region Validation
 
-	protected Dictionary<string, string> ValidationErrors { get; } = new();
+	protected Dictionary<string, string> ValidationErrors { get; } = [];
 
 	protected bool IsValid => ValidationErrors.Count == 0;
 

@@ -5,7 +5,7 @@
 /// </summary>
 public class GlobalEventService : IGlobalEventService
 {
-	private readonly Dictionary<string, ShortcutKey> _registeredShortcuts = new();
+	private readonly Dictionary<string, ShortcutKey> _registeredShortcuts = [];
 
 	/// <summary>
 	/// Event raised whenever the KeyDown event occurs.

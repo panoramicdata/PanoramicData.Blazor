@@ -40,7 +40,7 @@ public partial class PDTimeline : IAsyncDisposable
 	private DateTime _lastMinDateTime;
 	private DateTime? _lastMaxDateTime;
 	private IJSObjectReference? _commonModule;
-	private readonly Dictionary<int, DataPoint> _dataPoints = new();
+	private readonly Dictionary<int, DataPoint> _dataPoints = [];
 
 	private DateTime _lastQueryEnd = DateTime.MinValue;
 	private DateTime _lastQueryStart = DateTime.MinValue;

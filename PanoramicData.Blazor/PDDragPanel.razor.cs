@@ -5,7 +5,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 	private static int _sequence;
 
 	private double _lastY;
-	private List<TItem> _localItems = new();
+	private List<TItem> _localItems = [];
 	//private IJSObjectReference? _module;
 	//private bool _disposedValue;
 

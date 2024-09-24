@@ -14,5 +14,5 @@ public class Event
 
 	public string Name { get; set; } = string.Empty;
 
-	public List<EventArgument> Arguments { get; } = new List<EventArgument>();
+	public List<EventArgument> Arguments { get; } = [];
 }

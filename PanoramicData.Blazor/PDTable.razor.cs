@@ -13,7 +13,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	private readonly string IdEditPrefix = "pd-table-edit-";
 	private CancellationTokenSource? _cancellationTokenSource;
 	private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
-	private readonly Dictionary<string, object?> _editValues = new();
+	private readonly Dictionary<string, object?> _editValues = [];
 	//private readonly Dictionary<string, string> _keyProperties = new();
 
 	private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
@@ -282,12 +282,12 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <summary>
 	/// Gets a full list of all columns.
 	/// </summary>
-	public List<PDColumn<TItem>> Columns { get; } = new List<PDColumn<TItem>>();
+	public List<PDColumn<TItem>> Columns { get; } = [];
 
 	/// <summary>
 	/// Gets the keys of all currently selected items.
 	/// </summary>
-	public List<string> Selection { get; } = new List<string>();
+	public List<string> Selection { get; } = [];
 
 	/// <summary>
 	/// Gets a calculated list of actual columns to be displayed.
@@ -323,7 +323,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <summary>
 	/// Gets the items to be displayed as rows.
 	/// </summary>
-	public List<TItem> ItemsToDisplay { get; private set; } = new List<TItem>();
+	public List<TItem> ItemsToDisplay { get; private set; } = [];
 
 	/// <summary>
 	/// Current page number, when paging enabled.

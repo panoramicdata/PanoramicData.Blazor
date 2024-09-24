@@ -69,7 +69,7 @@ public partial class PDToolbarDropdown : IDisposable
 	/// <summary>
 	/// Gets or sets the menu items to be displayed in the context menu.
 	/// </summary>
-	[Parameter] public List<MenuItem> Items { get; set; } = new List<MenuItem>();
+	[Parameter] public List<MenuItem> Items { get; set; } = [];
 
 	/// <summary>
 	/// Event raised whenever user clicks on the button.

@@ -2,7 +2,7 @@
 
 public partial class PDTimelinePage
 {
-	private readonly List<ConfigChange> _data = new();
+	private readonly List<ConfigChange> _data = [];
 	private PDTimeline _timeline = null!;
 	private readonly TimelinePageModel _model = new();
 	private TimeRange? _selection;

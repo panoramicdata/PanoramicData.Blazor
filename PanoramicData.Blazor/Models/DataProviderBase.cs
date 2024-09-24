@@ -2,7 +2,7 @@
 
 public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProviderService<T>
 {
-	private readonly Dictionary<string, string> _keyMappings = new();
+	private readonly Dictionary<string, string> _keyMappings = [];
 
 	#region IDataProviderService<T> Members
 

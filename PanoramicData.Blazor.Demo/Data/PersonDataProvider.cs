@@ -6,7 +6,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 	private static readonly string[] _firstNames = new string[] { "Alice", "Bob", "Carol", "David", "Eve", "Frank", "Grace", "Heidi", "Ivan", "Judy", "Mike" };
 	private static readonly string[] _lastNames = new string[] { "Smith", "Cooper", "Watkins", "Jenkins", "Van Holden", "Williams", "Jones", "Smithson", "Carter", "Miller", "Baker" };
 	private static readonly Random _random = new(System.Environment.TickCount);
-	private static readonly List<Person> _people = new();
+	private static readonly List<Person> _people = [];
 	public static readonly string[] Locations = new string[] { "Paris", "Rome", "Milan", "New York", "Peckham", "Sydney" };
 
 	public PersonDataProvider(int count = 255)

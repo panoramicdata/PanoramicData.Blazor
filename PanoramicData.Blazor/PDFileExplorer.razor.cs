@@ -21,14 +21,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private readonly MenuItem _menuPaste = new() { Text = "Paste", IconCssClass = "fas fa-fw fa-paste" };
 	private readonly MenuItem _menuSep3 = new() { IsSeparator = true };
 	private readonly MenuItem _menuDelete = new() { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
-	private readonly List<FileExplorerItem> _copyPayload = new();
-	private readonly Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>> _conflictCache = new();
-	private readonly List<FileExplorerItem> _conflicts = new();
+	private readonly List<FileExplorerItem> _copyPayload = [];
+	private readonly Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>> _conflictCache = [];
+	private readonly List<FileExplorerItem> _conflicts = [];
 	private int _batchCount;
 	private int _batchProgress;
 	protected long _batchTotalBytes;
 	protected long _batchTotalBytesSent;
-	private readonly Dictionary<string, double> _batchFiles = new();
+	private readonly Dictionary<string, double> _batchFiles = [];
 	private bool _moveCopyPayload;
 	private string _pasteTarget = string.Empty;
 	private TreeNode<FileExplorerItem>? _selectedNode;
@@ -115,14 +115,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Sets the Table column configuration.
 	/// </summary>
 	[Parameter]
-	public List<PDColumnConfig> ColumnConfig { get; set; } = new List<PDColumnConfig>
-		{
+	public List<PDColumnConfig> ColumnConfig { get; set; } =
+		[
 			new PDColumnConfig { Id = "Icon", Title = "" },
 			new PDColumnConfig { Id = "Name", Title = "Name" },
 			new PDColumnConfig { Id = "Type", Title = "Type" },
 			new PDColumnConfig { Id = "Size", Title = "Size" },
 			new PDColumnConfig { Id = "Modified", Title = "Modified" }
-		};
+		];
 
 	/// <summary>
 	/// Determines the action taken when copying conflicting named items into a folder.
@@ -301,7 +301,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Sets the Table context menu items.
 	/// </summary>
 	[Parameter]
-	public List<MenuItem> TableContextItems { get; set; } = new List<MenuItem>();
+	public List<MenuItem> TableContextItems { get; set; } = [];
 
 	/// <summary>
 	/// Event raised when user requests to download one or more files.
@@ -317,7 +317,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Sets the Table context menu items.
 	/// </summary>
 	[Parameter]
-	public List<ToolbarItem> ToolbarItems { get; set; } = new List<ToolbarItem>();
+	public List<ToolbarItem> ToolbarItems { get; set; } = [];
 
 	/// <summary>
 	/// Event raised whenever the user clicks on a context menu item from the tree.
@@ -327,7 +327,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <summary>
 	/// Sets the Tree context menu items.
 	/// </summary>
-	[Parameter] public List<MenuItem> TreeContextItems { get; set; } = new List<MenuItem>();
+	[Parameter] public List<MenuItem> TreeContextItems { get; set; } = [];
 
 	/// <summary>
 	/// Optional sort function to use on sibling tree nodes.
@@ -1322,7 +1322,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		// source and target are file items - and target is folder?
 		if (args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory)
 		{
-			List<FileExplorerItem> payload = new();
+			List<FileExplorerItem> payload = [];
 			if (args.Payload is List<FileExplorerItem> mfe)
 			{
 				payload = mfe;

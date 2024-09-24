@@ -2,7 +2,7 @@
 
 public partial class PDDragPanelPage
 {
-	private List<Job> _jobs = new();
+	private List<Job> _jobs = [];
 
 	[CascadingParameter]
 	protected EventManager? EventManager { get; set; }
@@ -10,14 +10,14 @@ public partial class PDDragPanelPage
 	protected override void OnInitialized()
 	{
 		// create items - physically order by description
-		_jobs = new()
-		{
+		_jobs =
+		[
 			new Job { Id = "a", Text = "Job A" },
 			new Job { Id = "b", Text = "Job B" },
 			new Job { Id = "c", Text = "Job C" },
 			new Job { Id = "x", Text = "Job X" },
 			new Job { Id = "z", Text = "Job Z" }
-		};
+		];
 	}
 
 
