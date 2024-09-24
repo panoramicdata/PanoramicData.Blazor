@@ -1,4 +1,6 @@
 var _objRef = null;
+var languageOptions = {
+};
 
 export function initialize(objRef) {
 	if (objRef) {
@@ -6,7 +8,7 @@ export function initialize(objRef) {
 	}
 }
 
-export function registerLanguage(id, completions, triggerChars) {
+export function registerLanguage(id, language) {
 	if (monaco) {
 
 		// does language already exist?
@@ -16,30 +18,67 @@ export function registerLanguage(id, completions, triggerChars) {
 			return false;
 		}
 		monaco.languages.register({ id: id });
-		if (completions) {
+		if (language.showCompletions) {
 			monaco.languages.registerCompletionItemProvider(id, {
 				provideCompletionItems: getCompletions
 			});
-			if (triggerChars) {
+			if (language.signatureHelpTriggers) {
 				monaco.languages.registerSignatureHelpProvider(id, {
 					provideSignatureHelp: getSignatureHelp,
-					signatureHelpTriggerCharacters: triggerChars
+					signatureHelpTriggerCharacters: language.signatureHelpTriggers
 				});
 			}
 		}
+
+		languageOptions[id] = language;
 		return true;
 	}
 }
 
-function getActiveParameter(model, position) {
+function findParameter(functionsArray, property, value) {
+	for (const func of functionsArray) {
+		const match = func.parameters.find(param => param[property] === value || param[property] === '[' + value + ']');
+		if (match) {
+			return match;
+		}
+	}
+	return null; // No match found
+}
+
+function findParameterWithIndex(functionsArray, property, value) {
+	for (let i = 0; i < functionsArray.length; i++) {
+		const func = functionsArray[i];
+		const index = func.parameters.findIndex(param => param[property] === value || param[property] === '[' + value + ']');
+		if (index !== -1) {  // If a matching parameter is found
+			return { parameter: func.parameters[index], index: index };
+		}
+	}
+	return null; // No match found
+}
+
+function getActiveParameter(model, position, language, signatures) {
 	const textUntilPosition = model.getValueInRange({
 		startLineNumber: position.lineNumber,
 		startColumn: 1,
 		endLineNumber: position.lineNumber,
 		endColumn: position.column
 	});
-	// basic counting of commas since opening parenthesis
-	const openParenthesisIndex = textUntilPosition.lastIndexOf('(');
+
+	// optional parameter? value= or value:
+	var optionalPostfix = languageOptions[language].optionalParameterPostfix;
+	if (optionalPostfix && signatures.length > 0) {
+		var paramName = getLastWordBeforeCharSinceComma(textUntilPosition, optionalPostfix);
+		if (paramName) {
+			var result = findParameterWithIndex(signatures, 'label', paramName);
+			if (result) {
+				return result.index;
+			}
+		}
+	}
+
+	// basic counting of commas since opening delimiter
+	var delimiter = languageOptions[language].functionDelimiter;
+	const openParenthesisIndex = textUntilPosition.lastIndexOf(delimiter);
 	if (openParenthesisIndex === -1) {
 		return 0;
 	}
@@ -57,9 +96,13 @@ function getActiveSignature(signatures, activeParameter) {
 	return 0; // unknown - return first
 }
 
-function getLastFunctionName(text) {
-	// regular expression to match function names followed by an opening parenthesis
-	const functionRegex = /([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/g;
+function getLastFunctionName(text, language) {
+	// regular expression to match function names followed by an opening delimiter
+	var delimiter = languageOptions[language].functionDelimiter;
+	var regexString = (needsEscaping(delimiter)) ? "([a-zA-Z_$][0-9a-zA-Z_$]*)\\s*\\" + delimiter : "([a-zA-Z_$][0-9a-zA-Z_$]*)\\s*" + delimiter;
+	const functionRegex = new RegExp(regexString, 'g');
+	//	const functionRegex = /([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/g;
+
 	let match;
 	let lastFunctionName = null;
 	// iterate over all matches and store the last one
@@ -68,7 +111,6 @@ function getLastFunctionName(text) {
 	}
 	return lastFunctionName;
 }
-
 
 async function getCompletions(model, position) {
 
@@ -100,6 +142,8 @@ async function getCompletions(model, position) {
 
 async function getSignatureHelp(model, position, token, context) {
 
+	var language = model.getLanguageId();
+
 	// determine current function
 	var textUntilPosition = model.getValueInRange({
 		startLineNumber: 1,
@@ -107,10 +151,7 @@ async function getSignatureHelp(model, position, token, context) {
 		endLineNumber: position.lineNumber,
 		endColumn: position.column,
 	});
-	var functionName = getLastFunctionName(textUntilPosition);
-
-	// determine active parameter
-	var activeParameter = getActiveParameter(model, position);
+	var functionName = getLastFunctionName(textUntilPosition, language);
 
 	// call out to C# to fetch signatures
 	var signatures = [];
@@ -118,8 +159,14 @@ async function getSignatureHelp(model, position, token, context) {
 		signatures = await _objRef.invokeMethodAsync("GetSignatures", functionName);
 	}
 
-	// determine active signature
-	var activeSignature = getActiveSignature(signatures, activeParameter);
+	if (signatures.length > 0) {
+
+		// determine active parameter
+		var activeParameter = getActiveParameter(model, position, language, signatures);
+
+		// determine active signature
+		var activeSignature = getActiveSignature(signatures, activeParameter);
+	}
 
 	// return result
 	return {
@@ -131,4 +178,40 @@ async function getSignatureHelp(model, position, token, context) {
 		dispose: function () {
 		}
 	};
+}
+
+function getFirstWordBeforeChar(text, char) {
+	const regex = new RegExp(`\\b(\\w+)\\s*\\${char}`);
+	const match = text.match(regex);
+	return match ? match[1] : null;
+}
+function getLastWordBeforeChar(text, char) {
+	const regex = new RegExp(`(\\b\\w+)\\s*(?=${char})`, 'g');
+	const matches = text.match(regex);
+	return matches ? matches[matches.length - 1] : null;
+}
+
+function getLastWordBeforeCharSinceComma(text, char) {
+	// Find the position of the last comma before the target character
+	const lastCommaIndex = text.lastIndexOf(',', text.indexOf(char));
+
+	// If there's no comma, consider the entire string before the character
+	const relevantText = lastCommaIndex !== -1
+		? text.slice(lastCommaIndex + 1, text.indexOf(char))
+		: text.slice(0, text.indexOf(char));
+
+	// Use a regular expression to get the last word in the relevant portion
+	const regex = /(\b\w+)\s*$/;
+	const match = relevantText.match(regex);
+
+	return match ? match[1] : null;
+}
+
+function needsEscaping(char) {
+	const specialChars = /[.*+?^${}()|[\]\\]/;
+	return specialChars.test(char);
+}
+
+function stripNonWordChars(str) {
+	return str.replace(/^\W+|\W+$/g, '');
 }
