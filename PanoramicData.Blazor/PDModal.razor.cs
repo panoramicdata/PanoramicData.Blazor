@@ -49,11 +49,11 @@ public partial class PDModal : IAsyncDisposable
 	/// Sets the buttons displayed in the modal dialog footer.
 	/// </summary>
 	[Parameter]
-	public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>
-	{
+	public List<ToolbarItem> Buttons { get; set; } =
+	[
 		new ToolbarButton { Key = ModalResults.YES, Text = "Yes", CssClass = "btn-primary", ShiftRight = true },
 		new ToolbarButton { Key = ModalResults.NO, Text = "No" },
-	};
+	];
 
 	/// <summary>
 	/// Event triggered whenever the user clicks on a button.

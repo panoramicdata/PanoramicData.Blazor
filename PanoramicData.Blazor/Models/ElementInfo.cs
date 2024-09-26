@@ -2,7 +2,7 @@
 
 public class ElementInfo
 {
-	public string[] ClassList { get; set; } = Array.Empty<string>();
+	public string[] ClassList { get; set; } = [];
 
 	public string Id { get; set; } = string.Empty;
 

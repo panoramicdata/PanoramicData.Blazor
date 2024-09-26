@@ -2,7 +2,7 @@
 
 public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProviderService<T>
 {
-	private readonly Dictionary<string, string> _keyMappings = new();
+	private readonly Dictionary<string, string> _keyMappings = [];
 
 	#region IDataProviderService<T> Members
 
@@ -46,12 +46,11 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		// use main data provider - take has to be applied on base query
 		var response = await GetDataAsync(request, default);
 		var fn = field.Compile();
-		return response.Items
+		return [.. response.Items
 			.Where(x => NonNullExpressionResult(fn, x))
 			.Select(x => fn(x))
 			.Distinct()
-			.OrderBy(x => x)
-			.ToArray();
+			.OrderBy(x => x)];
 	}
 
 	/// <summary>
@@ -134,9 +133,9 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		{
 			FilterTypes.In => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
 			FilterTypes.NotIn => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
-			FilterTypes.Range => new[] { filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes() },
-			FilterTypes.IsEmpty => new[] { string.Empty },
-			FilterTypes.IsNotEmpty => new[] { string.Empty },
+			FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
+			FilterTypes.IsEmpty => [string.Empty],
+			FilterTypes.IsNotEmpty => [string.Empty],
 			_ => new object[] { filter.Value.RemoveQuotes() }
 		};
 

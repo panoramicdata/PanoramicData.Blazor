@@ -2,7 +2,7 @@
 
 public class TreeDataProvider : IDataProviderService<TreeItem>
 {
-	private readonly List<TreeItem> _items = new();
+	private readonly List<TreeItem> _items = [];
 
 	public TreeDataProvider()
 	{

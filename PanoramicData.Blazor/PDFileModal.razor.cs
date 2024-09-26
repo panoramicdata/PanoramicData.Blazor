@@ -11,11 +11,11 @@ public partial class PDFileModal
 	private PDModal ModalConfirm { get; set; } = null!;
 	private string _modalTitle = string.Empty;
 	private PDFileExplorer FileExplorer { get; set; } = null!;
-	private readonly List<ToolbarItem> _toolbarItems = new();
+	private readonly List<ToolbarItem> _toolbarItems = [];
 	private readonly ToolbarTextBox _filenameTextbox = new() { Key = "Filename", Label = "File name", Width = "100%" };
 	private readonly ToolbarButton _cancelButton = new() { Key = "Cancel", Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
 	private readonly ToolbarButton _okButton = new() { Key = "OK", Text = "OK", CssClass = "btn-primary", ShiftRight = true, IsEnabled = false };
-	private readonly List<ToolbarItem> _confirmToolbarItems = new();
+	private readonly List<ToolbarItem> _confirmToolbarItems = [];
 	private readonly ToolbarButton _overwriteButton = new() { Key = "Yes", Text = "Yes - Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true };
 	private readonly ToolbarButton _noButton = new() { Key = "No", Text = "No", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
 
@@ -23,7 +23,7 @@ public partial class PDFileModal
 
 	[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
-	[Parameter] public string[] ExcludedPaths { get; set; } = Array.Empty<string>();
+	[Parameter] public string[] ExcludedPaths { get; set; } = [];
 
 	[Parameter] public Func<FileExplorerItem, string>? GetItemIconCssClass { get; set; }
 
@@ -61,16 +61,16 @@ public partial class PDFileModal
 	protected override void OnInitialized()
 	{
 		// create toolbar contents
-		_toolbarItems.AddRange(new ToolbarItem[] {
+		_toolbarItems.AddRange([
 			_filenameTextbox,
 			_okButton,
 			_cancelButton
-		});
+		]);
 
-		_confirmToolbarItems.AddRange(new ToolbarItem[] {
+		_confirmToolbarItems.AddRange([
 			_overwriteButton,
 			_noButton
-		});
+		]);
 
 		// wire up filename events
 		_filenameTextbox.KeypressEvent = true;
@@ -259,7 +259,7 @@ public partial class PDFileModal
 			}
 
 			// check for over write?
-			existing = Array.Find(FileExplorer.FileItems ?? Array.Empty<FileExplorerItem>(), x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
+			existing = Array.Find(FileExplorer.FileItems ?? [], x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
 			if (existing != null)
 			{
 				var confirmation = await ModalConfirm.ShowAndWaitResultAsync().ConfigureAwait(true);
@@ -287,7 +287,7 @@ public partial class PDFileModal
 			else
 			{
 				// save as
-				var existing = Array.Find(FileExplorer.FileItems ?? Array.Empty<FileExplorerItem>(), x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
+				var existing = Array.Find(FileExplorer.FileItems ?? [], x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
 				if (existing != null)
 				{
 					// prompt user for over write

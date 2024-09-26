@@ -96,7 +96,7 @@ public partial class PDColumn<TItem> where TItem : class
 	public bool FilterShowSuggestedValues { get; set; } = true;
 
 	[Parameter]
-	public IEnumerable<object> FilterSuggestedValues { get; set; } = Array.Empty<object>();
+	public IEnumerable<object> FilterSuggestedValues { get; set; } = [];
 
 	[Parameter]
 	public int? FilterMaxValues { get; set; }

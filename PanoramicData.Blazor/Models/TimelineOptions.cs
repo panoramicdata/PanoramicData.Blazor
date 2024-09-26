@@ -9,7 +9,7 @@ public class TimelineOptions
 	public TimelineIndicatorOptions Indicator { get; set; } = new TimelineIndicatorOptions();
 	public TimelinePanOptions Pan { get; set; } = new TimelinePanOptions();
 	public TimelineSelectionOptions Selection { get; set; } = new TimelineSelectionOptions();
-	public TimelineSeries[] Series { get; set; } = Array.Empty<TimelineSeries>();
+	public TimelineSeries[] Series { get; set; } = [];
 	public TimelineSpinnerOptions Spinner { get; set; } = new TimelineSpinnerOptions();
 	public TimelineXAxisOptions XAxis { get; set; } = new TimelineXAxisOptions();
 	public TimelineYAxisOptions YAxis { get; set; } = new TimelineYAxisOptions();

@@ -78,7 +78,7 @@ public partial class PDToolbarButton : IToolbarItem
 	/// </summary>
 	[Parameter] public string Url { get; set; } = string.Empty;
 
-	private Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+	private Dictionary<string, object> Attributes { get; set; } = [];
 
 	protected override void OnParametersSet()
 	{

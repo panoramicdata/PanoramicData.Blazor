@@ -40,7 +40,7 @@ public partial class PDTimeline : IAsyncDisposable
 	private DateTime _lastMinDateTime;
 	private DateTime? _lastMaxDateTime;
 	private IJSObjectReference? _commonModule;
-	private readonly Dictionary<int, DataPoint> _dataPoints = new();
+	private readonly Dictionary<int, DataPoint> _dataPoints = [];
 
 	private DateTime _lastQueryEnd = DateTime.MinValue;
 	private DateTime _lastQueryStart = DateTime.MinValue;
@@ -247,7 +247,7 @@ public partial class PDTimeline : IAsyncDisposable
 			}
 		}
 
-		return points.ToArray();
+		return [.. points];
 	}
 
 	private bool IsPointEnabled(DataPoint point)
@@ -963,7 +963,7 @@ public partial class PDTimeline : IAsyncDisposable
 			var sp = PolarToCartesian(x, y, radius, endAngle);
 			var ep = PolarToCartesian(x, y, radius, startAngle);
 			var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
-			var d = string.Join(" ", new[] {
+			var d = string.Join(" ", [
 				"M",
 				sp.x.ToString("0.00", CultureInfo.InvariantCulture),
 				sp.y.ToString("0.00", CultureInfo.InvariantCulture),
@@ -975,7 +975,7 @@ public partial class PDTimeline : IAsyncDisposable
 				"0",
 				ep.x.ToString("0.00", CultureInfo.InvariantCulture),
 				ep.y.ToString("0.00", CultureInfo.InvariantCulture)
-			});
+			]);
 			return d;
 		}
 

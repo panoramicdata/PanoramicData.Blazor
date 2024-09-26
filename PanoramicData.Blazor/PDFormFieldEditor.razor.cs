@@ -61,7 +61,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 			}
 		}
 
-		return options.ToArray();
+		return [.. options];
 	}
 
 	private static StandaloneEditorConstructionOptions GetMonacoOptionsReadOnly(FieldStringOptions fso, StandaloneCodeEditor editor)

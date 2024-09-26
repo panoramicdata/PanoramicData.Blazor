@@ -25,10 +25,10 @@ public class CustomValidateArgs<TItem> where TItem : class
 	/// <summary>
 	/// Gets one or more error messages keyed by field name, to be added.
 	/// </summary>
-	public Dictionary<string, string> AddErrorMessages { get; } = new Dictionary<string, string>();
+	public Dictionary<string, string> AddErrorMessages { get; } = [];
 
 	/// <summary>
 	/// Gets one or more error messages keyed by field name to be cleared.
 	/// </summary>
-	public Dictionary<string, string> RemoveErrorMessages { get; } = new Dictionary<string, string>();
+	public Dictionary<string, string> RemoveErrorMessages { get; } = [];
 }

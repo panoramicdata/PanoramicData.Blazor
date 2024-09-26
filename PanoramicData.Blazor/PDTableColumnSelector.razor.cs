@@ -2,7 +2,7 @@ namespace PanoramicData.Blazor;
 
 public partial class PDTableColumnSelector<TItem> where TItem : class
 {
-	private readonly List<IDisplayItem> _items = new();
+	private readonly List<IDisplayItem> _items = [];
 
 	[Parameter]
 	[EditorRequired]

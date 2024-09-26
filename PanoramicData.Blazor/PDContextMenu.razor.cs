@@ -11,7 +11,7 @@ public partial class PDContextMenu : IAsyncDisposable
 	/// <summary>
 	/// Gets or sets the menu items to be displayed in the context menu.
 	/// </summary>
-	[Parameter] public List<MenuItem> Items { get; set; } = new List<MenuItem>();
+	[Parameter] public List<MenuItem> Items { get; set; } = [];
 
 	/// <summary>
 	/// Gets or sets the child content that the COntextMenu wraps.

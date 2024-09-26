@@ -82,7 +82,7 @@ public class TableAfterEditEventArgs<TItem> : TableCancelEventArgs<TItem> where 
 	/// <summary>
 	/// Gets or sets the new values.
 	/// </summary>
-	public Dictionary<string, object?> NewValues { get; set; } = new Dictionary<string, object?>();
+	public Dictionary<string, object?> NewValues { get; set; } = [];
 
 	public override string ToString()
 	{
@@ -117,7 +117,7 @@ public class TableAfterEditCommittedEventArgs<TItem> : TableEventArgs<TItem> whe
 	/// <summary>
 	/// Gets or sets the new values.
 	/// </summary>
-	public Dictionary<string, object?> NewValues { get; set; } = new Dictionary<string, object?>();
+	public Dictionary<string, object?> NewValues { get; set; } = [];
 
 	public override string ToString()
 	{

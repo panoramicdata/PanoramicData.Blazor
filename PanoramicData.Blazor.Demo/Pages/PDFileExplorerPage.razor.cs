@@ -5,7 +5,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 public partial class PDFileExplorerPage
 {
 	private string? _deepLinkPath;
-	private readonly string[] _virtualFolders = new string[] { "/Library", "/Users" };
+	private readonly string[] _virtualFolders = ["/Library", "/Users"];
 	private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 	private IPreviewProvider? _previewProvider;
 

@@ -2,7 +2,7 @@
 
 public partial class PDTimelinePage
 {
-	private readonly List<ConfigChange> _data = new();
+	private readonly List<ConfigChange> _data = [];
 	private PDTimeline _timeline = null!;
 	private readonly TimelinePageModel _model = new();
 	private TimeRange? _selection;
@@ -19,8 +19,8 @@ public partial class PDTimelinePage
 			DateFormat = "yyyy-MM-dd",
 			RestrictZoomOut = false,
 			RightAlign = true,
-			Scales = new[]
-			{
+			Scales =
+			[
 				TimelineScale.Seconds,
 				TimelineScale.Minutes,
 				TimelineScale.Minutes5,
@@ -34,10 +34,10 @@ public partial class PDTimelinePage
 				TimelineScale.Weeks,
 				TimelineScale.Months,
 				TimelineScale.Years
-			}
+			]
 		},
-		Series = new[]
-		{
+		Series =
+		[
 			new TimelineSeries
 			{
 				Label = "Lines Deleted",
@@ -53,7 +53,7 @@ public partial class PDTimelinePage
 				Label = "Lines Added",
 				Colour = "Green"
 			}
-		},
+		],
 		Selection = new TimelineSelectionOptions
 		{
 			Enabled = true,
@@ -151,12 +151,12 @@ public partial class PDTimelinePage
 				{
 					Count = group.Count(),
 					StartTime = group.Key,
-					SeriesValues = new[]
-					{
+					SeriesValues =
+					[
 						(double)group.Sum(x=> x.LinesDeleted),
 						(double)group.Sum(x=> x.LinesChanged),
 						(double)group.Sum(x=> x.LinesAdded)
-					}
+					]
 				});
 			}
 
@@ -165,16 +165,16 @@ public partial class PDTimelinePage
 
 			// add some latency
 			await Task.Delay(1000, cancellationToken).ConfigureAwait(true);
-			return points.ToArray();
+			return [.. points];
 		}
 		catch (TaskCanceledException)
 		{
-			return Array.Empty<DataPoint>();
+			return [];
 		}
 		catch (Exception ex)
 		{
 			Console.WriteLine($"GetTimelineData: Exception: {ex.Message}");
-			return Array.Empty<DataPoint>();
+			return [];
 		}
 	}
 

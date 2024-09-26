@@ -13,12 +13,12 @@ public partial class PDConfirm : PDModalBase
 		HideOnBackgroundClick = false;
 		ShowClose = false;
 		Title = "Confirm Action";
-		Buttons = new List<ToolbarItem>
-		{
+		Buttons =
+		[
 			_yesButton,
 			_noButton,
 			_cancelButton
-		};
+		];
 	}
 
 	/// <summary>

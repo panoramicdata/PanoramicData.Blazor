@@ -20,7 +20,7 @@ public partial class PDPager : IDisposable
 	/// <summary>
 	/// Gets or sets the possible page sizes offered to the user.
 	/// </summary>
-	[Parameter] public uint[] PageSizeChoices { get; set; } = new uint[] { 10, 25, 50, 100, 250, 500 };
+	[Parameter] public uint[] PageSizeChoices { get; set; } = [10, 25, 50, 100, 250, 500];
 
 	/// <summary>
 	/// Determines whether the navigation buttons are displayed.

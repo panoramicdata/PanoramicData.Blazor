@@ -10,7 +10,6 @@ public partial class PDMonaco : IAsyncDisposable
 	private string _language = "sql";
 	private string _value = "SELECT 10 * 10\n  FROM [Temp]";
 	private IJSObjectReference? _module;
-	private MethodCache _methodCache;
 
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
@@ -220,11 +219,9 @@ public partial class PDMonaco : IAsyncDisposable
 		_value = _language switch
 		{
 			"ncalc" => "10 * -3.14 + Sqrt(9)",
-			"rmscript" => "[Color: value='#1a1a1a', intensifyColor='#ffffff', intensifyPercent=50,  storeAs='MyVar']",
 			"javascript" => "if(Math.PI() > 3) {\n   this.setError(\"Invalid Function\");\n}",
 			_ => "SELECT 10 * 10\n  FROM [Temp]"
 		};
-		_methodCache.Options.HideDataTypes = language == "rmscript";
 		StateHasChanged();
 	}
 
@@ -233,7 +230,6 @@ public partial class PDMonaco : IAsyncDisposable
 		_theme = _language switch
 		{
 			"ncalc" => themePreference == "light" ? "ncalc-light" : "ncalc-dark",
-			"rmscript" => themePreference == "light" ? "rm-light" : "rm-dark",
 			_ => themePreference == "light" ? "vs" : "vs-dark"
 		};
 		_themePreference = themePreference;
@@ -246,15 +242,7 @@ public partial class PDMonaco : IAsyncDisposable
 		{
 			Id = "ncalc",
 			ShowCompletions = true,
-			SignatureHelpTriggers = new[] { '(', ',' }
-		});
-		languages.Add(new Language
-		{
-			Id = "rmscript",
-			ShowCompletions = true,
-			FunctionDelimiter = ':',
-			OptionalParameterPostfix = '=',
-			SignatureHelpTriggers = new[] { ':', ',' }
+			SignatureHelpTriggers = ['(', ',']
 		});
 	}
 }

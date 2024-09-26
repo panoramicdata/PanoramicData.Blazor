@@ -4,7 +4,7 @@ public class DataPoint
 {
 	public int Count { get; set; }
 	internal int PeriodIndex { get; set; }
-	public double[] SeriesValues { get; set; } = Array.Empty<double>();
+	public double[] SeriesValues { get; set; } = [];
 	public DateTime StartTime { get; set; }
 
 	#region Class members

@@ -47,9 +47,9 @@ public static class IQueryableExtensions
 				{
 					FilterTypes.In => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
 					FilterTypes.NotIn => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
-					FilterTypes.Range => new[] { filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes() },
-					FilterTypes.IsEmpty => new[] { string.Empty },
-					FilterTypes.IsNotEmpty => new[] { string.Empty },
+					FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
+					FilterTypes.IsEmpty => [string.Empty],
+					FilterTypes.IsNotEmpty => [string.Empty],
 					_ => new object[] { filter.Value.RemoveQuotes() }
 				};
 
