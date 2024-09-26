@@ -4,7 +4,7 @@ namespace PanoramicData.Blazor.Models.Monaco;
 
 public class MethodCache
 {
-	private readonly Dictionary<string, MethodDictionary> _languageDict = [];
+	private readonly Dictionary<string, MethodDictionary> _languageDict = new();
 
 	public interface IDescriptionProvider
 	{
@@ -32,7 +32,7 @@ public class MethodCache
 
 		public string Namespace { get; set; } = string.Empty;
 
-		public List<Parameter> Parameters { get; set; } = [];
+		public List<Parameter> Parameters { get; set; } = new();
 
 		public Type? ReturnType { get; set; }
 
@@ -122,7 +122,7 @@ public class MethodCache
 	{
 		if (!_languageDict.ContainsKey(language))
 		{
-			_languageDict.Add(language, []);
+			_languageDict.Add(language, new MethodDictionary());
 		}
 		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
 		{
@@ -131,7 +131,7 @@ public class MethodCache
 
 			if (!methodDict.ContainsKey(method.Fullname))
 			{
-				methodDict.Add(method.Fullname, []);
+				methodDict.Add(method.Fullname, new List<Method>());
 			}
 			if (methodDict.TryGetValue(method.Fullname, out List<Method>? value))
 			{
