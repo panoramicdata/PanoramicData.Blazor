@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDMonacoEditor: Enhanced MethodCache with additional options for Languages and Cache. Also now supports optional parameters in completion helper.
+			PDMonacoEditor: Added support for lazy loading of method parameters.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

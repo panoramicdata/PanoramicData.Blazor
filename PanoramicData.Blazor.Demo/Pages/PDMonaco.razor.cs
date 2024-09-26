@@ -36,9 +36,15 @@ public partial class PDMonaco : IAsyncDisposable
 
 	private void InitializeCache(MethodCache cache)
 	{
+		// this method allows  method signatures to be registered for a language
+		// this example show suporting two diffewrent language, the first is NCalc
+		// and uses helper methods to derive methods info using reflection, the
+		// second is rmscript which is an example of a propriety language where
+		// the parameters of the methods has to be fetch asynchronously
+
+		// store reference to cache as when switch language need to change options
 		_methodCache = cache;
 
-		// this method allows  method signatures to be registered for a language
 		if (!cache.Contains("ncalc"))
 		{
 			cache.AddPublicStaticTypeMethods("ncalc", typeof(Math), new DefaultDescriptionProvider());
@@ -47,38 +53,100 @@ public partial class PDMonaco : IAsyncDisposable
 
 		if (!cache.Contains("rmscript"))
 		{
-			var colorMethod = new MethodCache.Method
+			cache.AddMethod("rmscript", new MethodCache.Method
 			{
 				MethodName = "Color",
 				Description = "Outputs a hex-encoded colour string based on the percentage difference and specified intensity of an input colour. " +
-								"Input colours can be specified by name (e.g. white) or hex-encoded (e.g. #FFFFFF, also white)",
-				Parameters = new List<MethodCache.Parameter>
-				{
-					new MethodCache.Parameter {
-						Name = "value",
-						Description = "The colour to use to increase intensity of the input colour.",
-						Type = typeof(string),
-					},
-					new MethodCache.Parameter {
-						Name = "intensifyColor",
-						Description = "The colour to use to increase intensity of the input colour.",
-						Type = typeof(string),
-					},
-					new MethodCache.Parameter {
-						Name = "intensifyPercent",
-						Description = "The percentage intensity to apply.",
-						Type = typeof(double),
-					},
-				}
-			};
-			AddRmscriptMacroParameters(colorMethod);
-			cache.AddMethod("rmscript", colorMethod);
+								"Input colours can be specified by name (e.g. white) or hex-encoded (e.g. #FFFFFF, also white)"
+			});
+			cache.AddMethod("rmscript", new MethodCache.Method
+			{
+				MethodName = "String",
+				Description = "Constructs a string."
+			});
 		}
+	}
+
+	private Task UpdateCacheAsync(MethodCache methodCache, string language, string methodName)
+	{
+		// use this function to fetch parameter information for the given method
+		// useful when thousands of parameters in total and to load upfront
+		// along with methods would be too expensive
+		if (language == "rmscript")
+		{
+			// add parameters to method - if not already fetched
+			var method = methodCache.FindMethod(language, methodName).FirstOrDefault();
+			if (method != null && method.State is null)
+			{
+				AddRmscriptMacroParameters(method);
+				method.State = true;  // use the state property to fetch only once
+			}
+		}
+		return Task.CompletedTask;
 	}
 
 	private void AddRmscriptMacroParameters(MethodCache.Method method)
 	{
-		method.Parameters.AddRange(new[]
+		if (method.MethodName == "Color")
+		{
+			// use this static method to add parameters - ensures unspecified positions are calculated
+			MethodCache.AddMethodParameters(method, new[]
+			{
+				new MethodCache.Parameter {
+					Name = "value",
+					Description = "The colour to use to increase intensity of the input colour.",
+					Type = typeof(string),
+				},
+				new MethodCache.Parameter {
+					Name = "intensifyColor",
+					Description = "The colour to use to increase intensity of the input colour.",
+					Type = typeof(string),
+				},
+				new MethodCache.Parameter {
+					Name = "intensifyPercent",
+					Description = "The percentage intensity to apply.",
+					Type = typeof(double),
+				}
+			});
+		}
+
+		if (method.MethodName == "String")
+		{
+			// use this static method to add parameters - ensures unspecified positions are calculated
+			MethodCache.AddMethodParameters(method, new[]
+			{
+				new MethodCache.Parameter {
+					Name = "value",
+					Description = "The string value.",
+					Type = typeof(string),
+				},
+				new MethodCache.Parameter {
+					Name = "selectDistinct",
+					Description = "Whether to select distinct values in a string list.",
+					IsOptional = true
+				},
+				new MethodCache.Parameter {
+					Name = "find",
+					Description = "The string value(s) to find in the value."
+				},
+				new MethodCache.Parameter {
+					Name = "replaceWith",
+					Description = "The string value(s) to use to replace the string specified in the find parameter."
+				},
+				new MethodCache.Parameter {
+					Name = "regexFind",
+					Description = "The Regex pattern(s) to find in the value."
+				},
+				new MethodCache.Parameter {
+					Name = "regexReplaceWith",
+					Description = "The Regex string value(s) to use to replace the string specified in the regexFind parameter."
+				}
+			});
+		}
+
+		// common parameters
+		// use this static method to add parameters - ensures unspecified positions are calculated
+		MethodCache.AddMethodParameters(method, new[]
 		{
 			new MethodCache.Parameter {
 				Name = "comment",
