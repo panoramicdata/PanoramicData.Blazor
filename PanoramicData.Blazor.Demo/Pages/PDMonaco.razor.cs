@@ -64,6 +64,12 @@ public partial class PDMonaco : IAsyncDisposable
 				MethodName = "String",
 				Description = "Constructs a string."
 			});
+			cache.AddMethod("rmscript", new MethodCache.Method
+			{
+				MethodName = "List.Add",
+				Description = "Adds an item to a list."
+			});
+
 		}
 	}
 
@@ -87,6 +93,26 @@ public partial class PDMonaco : IAsyncDisposable
 
 	private void AddRmscriptMacroParameters(MethodCache.Method method)
 	{
+		if (method.MethodName == "List.Add")
+		{
+			// use this static method to add parameters - ensures unspecified positions are calculated
+			MethodCache.AddMethodParameters(method, new[]
+			{
+				new MethodCache.Parameter {
+					Name = "concat",
+					Description = "When adding lists to a list, this will add each individual item onto the end of the list, rather than adding the list itself onto the existing list."
+				},
+				new MethodCache.Parameter {
+					Name = "listDelimiter",
+					Description = "In Legacy Mode only, the delimiter to use between multiple items in the output."
+				},
+				new MethodCache.Parameter {
+					Name = "value",
+					Description = "The value to add."
+				}
+			});
+		}
+
 		if (method.MethodName == "Color")
 		{
 			// use this static method to add parameters - ensures unspecified positions are calculated
@@ -181,6 +207,12 @@ public partial class PDMonaco : IAsyncDisposable
 			new MethodCache.Parameter {
 				Name = "errorOnOverflow",
 				Description = "Should NCalc expression evaluation throw error on Overflow.",
+				IsOptional = true,
+				Type = typeof(bool),
+			},
+			new MethodCache.Parameter {
+				Name = "storeAs",
+				Description = "Name of variable to store value in.",
 				IsOptional = true,
 				Type = typeof(bool),
 			},

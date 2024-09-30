@@ -136,10 +136,8 @@ function getFirstWordBeforeChar(text, char) {
 function getLastFunctionName(text, language) {
 	// regular expression to match function names followed by an opening delimiter
 	var delimiter = languageOptions[language].functionDelimiter;
-	var regexString = (needsEscaping(delimiter)) ? "([a-zA-Z_$][0-9a-zA-Z_$]*)\\s*\\" + delimiter : "([a-zA-Z_$][0-9a-zA-Z_$]*)\\s*" + delimiter;
+	var regexString = (needsEscaping(delimiter)) ? "([a-zA-Z_$][0-9a-zA-Z_\\.$]*)\\s*\\" + delimiter : "([a-zA-Z_$][0-9a-zA-Z_\\.$]*)\\s*" + delimiter;
 	const functionRegex = new RegExp(regexString, 'g');
-	//	const functionRegex = /([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/g;
-
 	let match;
 	let lastFunctionName = null;
 	// iterate over all matches and store the last one

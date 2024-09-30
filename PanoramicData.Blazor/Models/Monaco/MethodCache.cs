@@ -42,6 +42,14 @@ public class MethodCache
 
 		public string Fullname => $"{Namespace}.{TypeName}.{MethodName}".TrimStart('.');
 
+		public bool IsMatch(string name)
+		{
+			var shortName = $"{TypeName}.{MethodName}".TrimStart('.');
+			return name.Equals(Fullname, StringComparison.OrdinalIgnoreCase)
+				|| name.Equals(shortName, StringComparison.OrdinalIgnoreCase)
+				|| name.Equals(MethodName, StringComparison.OrdinalIgnoreCase);
+		}
+
 		public override string ToString() => ToString(new());
 
 		public string ToString(MethodCacheOptions options)
@@ -284,49 +292,22 @@ public class MethodCache
 	public IEnumerable<SignatureInformation> GetSignatures(string language, string name)
 	{
 		var signatures = new List<SignatureInformation>();
-		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
+		if (!string.IsNullOrWhiteSpace(name))
 		{
-			// filter methods
-			if (!string.IsNullOrWhiteSpace(name))
+			if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
 			{
-				var nameParts = name.Split('.');
-				if (nameParts.Length > 0)
+				var methods = methodDict.Values.SelectMany(overloads => overloads.Where(method => method.IsMatch(name))).ToArray();
+				foreach (var method in methods)
 				{
-					// name maybe in format: [[namespace.]type.]method
-					var ns = "";
-					var typeName = "";
-					if (nameParts.Length > 2)
+					signatures.Add(new SignatureInformation
 					{
-						ns = string.Join('.', nameParts[..^3]);
-					}
-					if (nameParts.Length > 1)
-					{
-						typeName = nameParts[^2];
-					}
-					var methodName = nameParts[^1];
-
-					// find matching methods
-					var methods = string.IsNullOrEmpty(typeName)
-						? methodDict.Values.SelectMany(overloads => overloads.Where(method => method.MethodName.Equals(methodName, StringComparison.OrdinalIgnoreCase)))
-						: string.IsNullOrEmpty(ns)
-							? methodDict.Values.SelectMany(overloads => overloads.Where(method => method.MethodName.Equals(methodName, StringComparison.OrdinalIgnoreCase)
-								&& method.TypeName.Equals(typeName, StringComparison.OrdinalIgnoreCase)))
-							: methodDict.Values.SelectMany(overloads => overloads.Where(method => method.MethodName.Equals(methodName, StringComparison.OrdinalIgnoreCase)
-								&& method.TypeName.Equals(typeName, StringComparison.OrdinalIgnoreCase)
-								&& method.Namespace.Equals(ns, StringComparison.OrdinalIgnoreCase)));
-
-					foreach (var method in methods)
-					{
-						signatures.Add(new SignatureInformation
+						Label = method.ToString(Options),
+						Parameters = method.Parameters.Select(p => new ParameterInformation
 						{
-							Label = method.ToString(Options),
-							Parameters = method.Parameters.Select(p => new ParameterInformation
-							{
-								Label = p.ToString(Options),
-								Documentation = p.Description
-							}).ToArray()
-						});
-					}
+							Label = p.ToString(Options),
+							Documentation = p.Description
+						}).ToArray()
+					});
 				}
 			}
 		}
