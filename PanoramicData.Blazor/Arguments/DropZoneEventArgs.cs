@@ -67,7 +67,7 @@ public class DropZoneUploadEventArgs
 		Name = name;
 		Size = size;
 		SessionId = sessionId;
-		FormFields = new Dictionary<string, string>();
+		FormFields = [];
 	}
 
 	/// <summary>

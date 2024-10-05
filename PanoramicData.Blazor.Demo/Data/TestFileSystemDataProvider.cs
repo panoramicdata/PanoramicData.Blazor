@@ -211,7 +211,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 			var sortedItems = request.SortDirection == SortDirection.Ascending
 				? items.AsQueryable().OrderBy(request.SortFieldExpression)
 				: items.AsQueryable().OrderByDescending(request.SortFieldExpression);
-			items = sortedItems.ToList();
+			items = [.. sortedItems];
 
 			// move Library folder to the top of the list - if displayed
 			if (items.SingleOrDefault(i => i.Path == "/Library") is FileExplorerItem libraryFolder)

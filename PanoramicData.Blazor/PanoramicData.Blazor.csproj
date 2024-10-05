@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDMonacoEditor - Added async and non-async alternatives for some initialization parameters.
+			PDMonacoEditor: Added support for lazy loading of method parameters.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

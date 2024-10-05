@@ -5,7 +5,7 @@ public partial class PDFormPage
 	private readonly PersonDataProvider _personDataProvider = new();
 	private readonly FormFieldHelper<Person> _dateHelper = new();
 	private PDForm<Person> Form { get; set; } = null!;
-	private List<Person> People { get; set; } = new List<Person>();
+	private List<Person> People { get; set; } = [];
 	private Person? SelectedPerson { get; set; }
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;

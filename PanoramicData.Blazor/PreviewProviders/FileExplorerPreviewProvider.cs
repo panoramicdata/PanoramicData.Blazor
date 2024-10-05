@@ -17,7 +17,7 @@ public class FileExplorerPreviewProvider : DefaultPreviewProvider
 		// skip if preview panel is not shown
 		if (!FileExplorer.PreviewPanelVisible)
 		{
-			return Array.Empty<byte>();
+			return [];
 		}
 
 		// simple download of content

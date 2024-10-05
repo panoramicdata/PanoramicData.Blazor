@@ -122,17 +122,17 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <summary>
 	/// Gets a full list of all fields.
 	/// </summary>
-	public List<FormField<TItem>> Fields { get; } = new List<FormField<TItem>>();
+	public List<FormField<TItem>> Fields { get; } = [];
 
 	/// <summary>
 	/// Gets a dictionary used to track uncommitted changes.
 	/// </summary>
-	public Dictionary<string, object?> Delta { get; } = new Dictionary<string, object?>();
+	public Dictionary<string, object?> Delta { get; } = [];
 
 	/// <summary>
 	/// Gets a dictionary used to track validation errors.
 	/// </summary>
-	public Dictionary<string, List<string>> Errors { get; } = new Dictionary<string, List<string>>();
+	public Dictionary<string, List<string>> Errors { get; } = [];
 
 	/// <summary>
 	/// Gets whether changes have been made.
@@ -791,7 +791,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	{
 		if (!Errors.ContainsKey(fieldName))
 		{
-			Errors.Add(fieldName, new List<string>());
+			Errors.Add(fieldName, []);
 		}
 		// avoid duplicate messages
 		foreach (var message in messages)

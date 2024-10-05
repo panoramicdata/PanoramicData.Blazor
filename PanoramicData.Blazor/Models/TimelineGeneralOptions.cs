@@ -14,8 +14,8 @@ public class TimelineGeneralOptions
 
 	public bool RightAlign { get; set; }
 
-	public TimelineScale[] Scales { get; set; } = new[]
-	{
+	public TimelineScale[] Scales { get; set; } =
+	[
 		TimelineScale.Seconds,
 		TimelineScale.Minutes,
 		TimelineScale.Hours,
@@ -27,5 +27,5 @@ public class TimelineGeneralOptions
 		TimelineScale.Weeks,
 		TimelineScale.Months,
 		TimelineScale.Years
-	};
+	];
 }

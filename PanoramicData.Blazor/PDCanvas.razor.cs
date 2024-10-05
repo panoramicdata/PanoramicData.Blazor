@@ -5,7 +5,7 @@ public partial class PDCanvas
 	private static int _seq;
 
 	[Parameter(CaptureUnmatchedValues = true)]
-	public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+	public Dictionary<string, object> Attributes { get; set; } = [];
 
 	[Parameter]
 	public int Height { get; set; } = 300;

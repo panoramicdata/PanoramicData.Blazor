@@ -8,12 +8,12 @@ public abstract class PDModalBase : ComponentBase
 	protected PDModal Modal { get; set; }
 
 	[Parameter]
-	public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>
-	{
+	public List<ToolbarItem> Buttons { get; set; } =
+	[
 		new ToolbarButton { Key = ModalResults.YES, Text = "Yes", CssClass = "btn-primary", ShiftRight = true },
 		new ToolbarButton { Key = ModalResults.NO, Text = "No" },
 		new ToolbarButton { Key = ModalResults.CANCEL, Text = "Cancel" }
-	};
+	];
 
 	[Parameter]
 	public bool CenterVertically { get; set; }

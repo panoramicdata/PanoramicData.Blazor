@@ -21,6 +21,11 @@
                          Size="ButtonSizes.Small"
                          Text="NCalc" />
 
+        <PDToolbarButton Click="@(() => OnSetLanguage("rmscript"))"
+                         CssClass="@(_language == "rmscript" ? "btn-primary" : "btn-secondary")"
+                         Size="ButtonSizes.Small"
+                         Text="RMScript" />
+
         <PDToolbarSeparator />
 
         <PDToolbarButton Click="@(() => OnSetTheme("light"))"
@@ -43,6 +48,7 @@
                     InitializeLanguageAsync="InitializeLanguageAsync"
                     Language="@_language"
                     RegisterLanguages="RegisterLanguages"
+                    UpdateCacheAsync="UpdateCacheAsync"
                     Theme="@_theme" />
 
     <div class="output">@_value</div>

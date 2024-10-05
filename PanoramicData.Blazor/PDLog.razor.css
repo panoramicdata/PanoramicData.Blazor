@@ -1,0 +1,59 @@
+.log-container {
+	border: 1px solid #ccc;
+	padding: 10px;
+	overflow-y: scroll;
+	overflow-x: auto;
+	font-family: monospace;
+	border-radius: 5px;
+	max-width: 100%;
+	resize: vertical; /* Enable vertical resizing */
+}
+
+	.log-container hr {
+		margin-top: 1px;
+		margin-bottom: 1px;
+	}
+
+.log-entry {
+	display: flex;
+	align-items: flex-start;
+	padding: 5px 0;
+}
+
+	.log-entry i {
+		margin-right: 2px;
+		vertical-align: middle; /* Align the icon vertically in the middle */
+		line-height: 1.5; /* Adjust line height for better alignment with text */
+	}
+
+.log-timestamp {
+	margin-right: 10px;
+	white-space: nowrap; /* Prevent wrapping on spaces */
+	word-break: keep-all; /* Prevent breaking on hyphens */
+}
+
+.log-messages {
+	display: block; /* Ensure message lines stack vertically */
+	margin-left: 10px; /* Add margin for indentation */
+}
+
+.log-message {
+	display: block; /* Ensures each message line appears on a new line */
+}
+
+	.log-message b {
+		color: yellow;
+	}
+
+.log-exception-type {
+	font-weight: bold;
+	color: #844;
+}
+
+.log-exception-message {
+	color: #484;
+}
+
+.log-exception-stack {
+	color: #448;
+}

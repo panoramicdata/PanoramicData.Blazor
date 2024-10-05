@@ -19,6 +19,8 @@ public class MethodCache
 	{
 		public bool IncludeMethodTypeName { get; set; }
 
+		public bool HideDataTypes { get; set; }
+
 		public Func<Type, string> TypeNameFn { get; set; } = (type) => type.GetFriendlyTypeName();
 	}
 
@@ -34,16 +36,21 @@ public class MethodCache
 
 		public Type? ReturnType { get; set; }
 
+		public object? State { get; set; }
+
 		public string TypeName { get; set; } = string.Empty;
 
-		public string Fullname => $"{Namespace}.{TypeName}.{MethodName}";
+		public string Fullname => $"{Namespace}.{TypeName}.{MethodName}".TrimStart('.');
 
 		public override string ToString() => ToString(new());
 
 		public string ToString(MethodCacheOptions options)
 		{
 			var signature = new StringBuilder();
-			if (ReturnType is null)
+			if (options.HideDataTypes)
+			{
+			}
+			else if (ReturnType is null)
 			{
 				signature.Append("void ");
 			}
@@ -98,7 +105,7 @@ public class MethodCache
 			{
 				signature.Append("params ");
 			}
-			if (Type is not null)
+			if (Type is not null && !options.HideDataTypes)
 			{
 				signature.Append(options.TypeNameFn(Type)).Append(' ');
 			}
@@ -119,6 +126,9 @@ public class MethodCache
 		}
 		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
 		{
+			// ensure parameters have position / ordinals
+			UpdateParameterPositions(method);
+
 			if (!methodDict.ContainsKey(method.Fullname))
 			{
 				methodDict.Add(method.Fullname, new List<Method>());
@@ -128,6 +138,12 @@ public class MethodCache
 				value.Add(method);
 			}
 		}
+	}
+
+	public static void AddMethodParameters(Method method, IEnumerable<Parameter> parameters)
+	{
+		method.Parameters.AddRange(parameters);
+		UpdateParameterPositions(method);
 	}
 
 	public int AddTypeMethods(string language, Type type, BindingFlags? flags = null, IDescriptionProvider? descriptionProvider = null)
@@ -190,7 +206,17 @@ public class MethodCache
 
 	public bool Contains(string language) => _languageDict.ContainsKey(language);
 
-	public IEnumerable<CompletionItem> GetCompletionItems(string language)
+	public IEnumerable<Method> FindMethod(string language, string name)
+	{
+		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict)
+			&& methodDict.TryGetValue(name, out List<Method>? value))
+		{
+			return value;
+		}
+		return Array.Empty<Method>();
+	}
+
+	public IEnumerable<CompletionItem> GetCompletionItems(string language, string functionName)
 	{
 		var items = new List<CompletionItem>();
 		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
@@ -229,6 +255,26 @@ public class MethodCache
 					});
 
 					functions.Add(kvp.Key);
+
+					// add parameters?
+					if (!string.IsNullOrWhiteSpace(functionName) && functionName == kvp.Key)
+					{
+						if (kvp.Value.Count == 0)
+						{
+							// Todo: fetch parameters?
+						}
+						var m = kvp.Value.First();
+						foreach (var p in m.Parameters)
+						{
+							items.Add(new CompletionItem
+							{
+								LabelAsString = p.Name,
+								DocumentationAsString = p.Description,
+								Kind = CompletionItemKind.Property,
+								InsertText = p.Name
+							});
+						}
+					}
 				}
 			}
 		}
@@ -273,10 +319,10 @@ public class MethodCache
 					{
 						signatures.Add(new SignatureInformation
 						{
-							Label = method.ToString(),
+							Label = method.ToString(Options),
 							Parameters = method.Parameters.Select(p => new ParameterInformation
 							{
-								Label = p.ToString(),
+								Label = p.ToString(Options),
 								Documentation = p.Description
 							}).ToArray()
 						});
@@ -288,4 +334,15 @@ public class MethodCache
 	}
 
 	public MethodCacheOptions Options { get; private set; } = new();
+
+	private static void UpdateParameterPositions(Method method)
+	{
+		var allParamsBarFirst = method.Parameters.Where(x => x.Position == 0).OrderBy(x => x.Position).Skip(1).ToList();
+		if (allParamsBarFirst.Count > 0)
+		{
+			var position = allParamsBarFirst.Max(p => p.Position);
+			allParamsBarFirst.ForEach(p => p.Position = p.Position == 0 ? ++position : p.Position);
+		}
+	}
+
 }

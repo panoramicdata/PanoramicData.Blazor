@@ -29,7 +29,7 @@ public partial class PDTablePage
 		// Sort
 		if (query.TryGetValue("sort", out var requestedSortFields))
 		{
-			var sortFieldSpecs = requestedSortFields[0]?.Split('|') ?? Array.Empty<string>();
+			var sortFieldSpecs = requestedSortFields[0]?.Split('|') ?? [];
 			if (sortFieldSpecs.Length == 2)
 			{
 				_sortCriteria = new SortCriteria(sortFieldSpecs[0], sortFieldSpecs[1] == "desc" ? SortDirection.Descending : SortDirection.Ascending);
@@ -167,7 +167,7 @@ public partial class PDTablePage
 			options.Add(new OptionInfo { Text = PersonDataProvider.Locations[i], Value = i, IsSelected = item?.Location == i });
 		}
 
-		return options.ToArray();
+		return [.. options];
 	}
 
 	private async Task OnEditCommand()

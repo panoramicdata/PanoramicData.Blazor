@@ -5,7 +5,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	private TItem? _lastSelectedItem;
 	private string _filterText = string.Empty;
 	private Func<TItem, string>? _compiledTextExpression;
-	private IEnumerable<TItem> _allItems = Array.Empty<TItem>();
+	private IEnumerable<TItem> _allItems = [];
 
 	[CascadingParameter]
 	public IAsyncStateManager? StateManager { get; set; }

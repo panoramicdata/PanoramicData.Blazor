@@ -4,7 +4,7 @@ public class Selection<TItem>
 {
 	public bool AllSelected { get; set; }
 
-	public List<TItem> Items { get; set; } = new();
+	public List<TItem> Items { get; set; } = [];
 
 	public override string ToString()
 	{

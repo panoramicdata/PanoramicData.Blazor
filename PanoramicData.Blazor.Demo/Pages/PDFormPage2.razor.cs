@@ -6,7 +6,7 @@ public partial class PDFormPage2
 
 	private PDModal Modal { get; set; } = null!;
 	private PDForm<Person> Form { get; set; } = null!;
-	private List<Person> People { get; set; } = new List<Person>();
+	private List<Person> People { get; set; } = [];
 	private Person? SelectedPerson { get; set; }
 
 	[Inject] public IJSRuntime? JSRuntime { get; set; }

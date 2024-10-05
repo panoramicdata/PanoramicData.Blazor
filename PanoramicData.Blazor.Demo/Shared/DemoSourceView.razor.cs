@@ -8,7 +8,7 @@ public partial class DemoSourceView
 	private string ActiveTab { get; set; } = "Demo";
 	private const string _sourceBaseUrl = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/main/PanoramicData.Blazor.Demo";
 	private readonly HttpClient _httpClient = new();
-	private readonly Dictionary<string, SourceFile> _sourceFiles = new();
+	private readonly Dictionary<string, SourceFile> _sourceFiles = [];
 	private string _activeSourceFile = string.Empty;
 	private StandaloneCodeEditor? Editor { get; set; }
 

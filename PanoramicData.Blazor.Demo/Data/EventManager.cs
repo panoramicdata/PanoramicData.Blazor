@@ -2,7 +2,7 @@
 
 public class EventManager
 {
-	public List<Event> _events = new();
+	public List<Event> _events = [];
 
 	public event Action<Event>? EventAdded;
 
@@ -12,5 +12,5 @@ public class EventManager
 		EventAdded?.Invoke(evt);
 	}
 
-	public Event[] Events => _events.ToArray();
+	public Event[] Events => [.. _events];
 }

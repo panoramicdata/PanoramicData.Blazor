@@ -11,7 +11,7 @@ public class DragOrderChangeArgs<TItem>
 	/// <summary>
 	/// Gets the items in the new order.
 	/// </summary>
-	public IEnumerable<TItem> Items { get; private set; } = Enumerable.Empty<TItem>();
+	public IEnumerable<TItem> Items { get; private set; } = [];
 
 	/// <summary>
 	/// Gets the item that was moved.

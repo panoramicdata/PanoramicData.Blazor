@@ -19,7 +19,7 @@ public partial class PDLinkButton : IAsyncDisposable
 	/// <summary>
 	/// Extra attributes to apply to the button.
 	/// </summary>
-	[Parameter] public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+	[Parameter] public Dictionary<string, object> Attributes { get; set; } = [];
 
 	/// <summary>
 	/// CSS Class for button.

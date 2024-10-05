@@ -62,7 +62,7 @@ public static class PredicateBuilderService
 
 		ParameterRebinder(Dictionary<ParameterExpression, ParameterExpression> map)
 		{
-			this.map = map ?? new Dictionary<ParameterExpression, ParameterExpression>();
+			this.map = map ?? [];
 		}
 
 		public static Expression ReplaceParameters(Dictionary<ParameterExpression, ParameterExpression> map, Expression exp) => new ParameterRebinder(map).Visit(exp);

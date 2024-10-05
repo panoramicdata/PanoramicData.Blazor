@@ -371,7 +371,7 @@ public partial class PDTree<TItem> where TItem : class
 			var key = node.Data is null ? null : KeyField!(node.Data!).ToString();
 			var items = await GetDataAsync(key).ConfigureAwait(true);
 			// add new nodes to existing node
-			node.Nodes = new List<TreeNode<TItem>>(); // indicates data fetched, even if no items returned
+			node.Nodes = []; // indicates data fetched, even if no items returned
 			UpdateModel(items);
 
 			// notify any listeners that new data fetched
@@ -550,7 +550,7 @@ public partial class PDTree<TItem> where TItem : class
 		{
 			if (DataProvider is null)
 			{
-				return Array.Empty<TItem>();
+				return [];
 			}
 
 			var request = new DataRequest<TItem>
@@ -575,7 +575,7 @@ public partial class PDTree<TItem> where TItem : class
 		catch (Exception ex)
 		{
 			await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
-			return Array.Empty<TItem>();
+			return [];
 		}
 	}
 
@@ -616,7 +616,7 @@ public partial class PDTree<TItem> where TItem : class
 			{
 				node = new TreeNode<TItem>();
 				// add to parent node and mark parent node for re-sort
-				(parentNode.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
+				(parentNode.Nodes ??= []).Add(node);
 				if (!modifiedNodes.Contains(parentNode))
 				{
 					modifiedNodes.Add(parentNode);
@@ -634,10 +634,10 @@ public partial class PDTree<TItem> where TItem : class
 			node.IconCssClass = IconCssClass is null || item is null
 				? string.Empty
 				: IconCssClass.Invoke(item, parentNode.Level + 1);
-			node.Nodes = LoadOnDemand ? null : new List<TreeNode<TItem>>();
+			node.Nodes = LoadOnDemand ? null : [];
 			if (LoadOnDemand && IsLeaf != null && item != null && IsLeaf(item))
 			{
-				node.Nodes = new List<TreeNode<TItem>>();
+				node.Nodes = [];
 			}
 
 			// cache node for performance

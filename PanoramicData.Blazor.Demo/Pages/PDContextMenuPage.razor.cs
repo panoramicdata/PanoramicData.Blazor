@@ -3,7 +3,7 @@
 public partial class PDContextMenuPage
 {
 	private readonly Random _random = new(System.Environment.TickCount);
-	private readonly List<MenuItem> _items = new();
+	private readonly List<MenuItem> _items = [];
 	private bool _showOnMouseUp;
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }

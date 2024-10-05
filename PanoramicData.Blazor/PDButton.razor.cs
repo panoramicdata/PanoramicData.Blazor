@@ -10,7 +10,7 @@ public partial class PDButton : IDisposable
 	/// <summary>
 	/// Extra attributes to apply to the button.
 	/// </summary>
-	[Parameter] public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+	[Parameter] public Dictionary<string, object> Attributes { get; set; } = [];
 
 	/// <summary>
 	/// Custom content to display instead of the standard text and icon.

@@ -5,7 +5,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 	private static int _sequence;
 
 	private double _lastY;
-	private List<TItem> _localItems = new();
+	private List<TItem> _localItems = [];
 	//private IJSObjectReference? _module;
 	//private bool _disposedValue;
 
@@ -102,7 +102,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 			if (CanChangeOrder)
 			{
 				var originalOrder = Container.Items.ToArray();
-				if (!originalOrder.SequenceEqual(_localItems.ToArray()))
+				if (!originalOrder.SequenceEqual([.. _localItems]))
 				{
 					await ItemOrderChanged.InvokeAsync(new DragOrderChangeArgs<TItem>(_localItems, Container.Payload));
 				}

@@ -213,7 +213,7 @@ public partial class PDDropZone : IAsyncDisposable
 		await UploadStarted.InvokeAsync(args).ConfigureAwait(true);
 		if (args.FormFields.Count == 0)
 		{
-			return Array.Empty<string>();
+			return [];
 		}
 		else
 		{
@@ -223,7 +223,7 @@ public partial class PDDropZone : IAsyncDisposable
 				fields.Add($"{kvp.Key}={kvp.Value}");
 			}
 
-			return fields.ToArray();
+			return [.. fields];
 		}
 	}
 
