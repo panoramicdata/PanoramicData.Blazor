@@ -13,7 +13,9 @@ public class DropZoneFile
 	public string Key { get; set; } = string.Empty;
 	public string SessionId { get; set; } = string.Empty;
 
-	public string GetFullPath(string? rootDir = null)
+	public string GetFullPath() => GetFullPath(null);
+
+	public string GetFullPath(string? rootDir)
 	{
 		var segs = new List<string>();
 		if (rootDir != null)

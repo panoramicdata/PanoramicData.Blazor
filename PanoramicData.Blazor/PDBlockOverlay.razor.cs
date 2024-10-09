@@ -24,7 +24,9 @@ public partial class PDBlockOverlay
 		BlockOverlayService.OnHide += Hide;
 	}
 
-	public void Show(string? html = null)
+	public void Show() => Show(null);
+
+	public void Show(string? html)
 	{
 		// Set the Html and then make it visible
 		Html = html;
