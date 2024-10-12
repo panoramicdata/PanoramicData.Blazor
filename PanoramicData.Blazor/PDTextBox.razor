@@ -5,12 +5,10 @@
 		   autocomplete="@AutoComplete"
 		   @onblur="OnBlur"
 		   class="form-control @TextSizeCssClass @(IsVisible ? "" : "d-none ") @CssClass"
-		   value="@Value"
 		   disabled="@(!IsEnabled)"
 		   readonly="@IsReadOnly"
 		   placeholder="@Placeholder"
-		   @oninput="OnChange"
-		   @onkeydown="OnKeypress" />
+           @bind="Value" @bind:event="oninput" @onkeyup="OnKeypress" />
 }
 else
 {
