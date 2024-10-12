@@ -882,9 +882,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			{
 				await LoadStateAsync();
 			}
-			catch (Exception ex)
+			catch
 			{
-				Console.WriteLine("PDTable.OnAfterRenderAsync: Failed Loading State");
+				// Loading state too early can cause issues
 			}
 		}
 

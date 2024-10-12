@@ -20,13 +20,10 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		}
 	}
 
-	//protected override Task OnInitializedAsync() => InitializeAsync();
-
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
-			Console.WriteLine("PDLocalStorageStateManager.OnAfterRenderAsync: Initializing");
 			await InitializeAsync();
 		}
 	}
@@ -35,7 +32,6 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		try
 		{
-			Console.WriteLine($"PDLocalStorageStateManager.LoadStateAsync: key={key}");
 			if (JSRuntime is null || _module is null)
 			{
 				throw new InvalidOperationException("Javascript runtime is not available");
@@ -46,7 +42,6 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 			{
 				return default;
 			}
-			Console.WriteLine($"PDLocalStorageStateManager.LoadStateAsync: data={data}");
 			return System.Text.Json.JsonSerializer.Deserialize<T>(data);
 		}
 		catch (Exception e)
