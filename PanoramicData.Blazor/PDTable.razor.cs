@@ -878,7 +878,14 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		// load previously saved state
 		if (StateManager != null)
 		{
-			await LoadStateAsync();
+			try
+			{
+				await LoadStateAsync();
+			}
+			catch
+			{
+				// Loading state too early can cause issues
+			}
 		}
 
 		// If this is the first time we've finished rendering, then all the columns
