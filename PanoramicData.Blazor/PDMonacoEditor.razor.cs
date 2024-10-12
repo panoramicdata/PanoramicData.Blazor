@@ -188,6 +188,15 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
+	public async Task SetMonacoValueAsync(string value)
+	{
+		if (_monacoEditor != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			await model.SetValue(value);
+		}
+	}
+
 	#region IAsyncDisposable
 
 	public async ValueTask DisposeAsync()
