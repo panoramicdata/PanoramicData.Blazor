@@ -9,6 +9,6 @@
           placeholder="@Placeholder"
           rows="@Rows"
           maxlength="@MaxLength"
-          value="@Value"
-          @oninput="OnInput"
-          @onkeypress="OnKeypress">@Value</textarea>
+          @bind:after="OnAfter"
+          @bind:event="oninput"
+          @bind="Value" @onkeypress="OnKeypress">@Value</textarea>
