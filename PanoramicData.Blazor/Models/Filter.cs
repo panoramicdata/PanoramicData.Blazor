@@ -119,7 +119,9 @@ public class Filter
 
 	#region Class Members
 
-	public static string Format(object value, bool unspecifiedDateTimesAreUtc = false)
+	public static string Format(object value) => Format(value, false);
+
+	public static string Format(object value, bool unspecifiedDateTimesAreUtc)
 	{
 		if (value is null)
 		{
@@ -140,7 +142,9 @@ public class Filter
 		return value.ToString() ?? string.Empty;
 	}
 
-	public static Filter Parse(string token, IDictionary<string, string>? keyMappings = null)
+	public static Filter Parse(string token) => Parse(token, null);
+
+	public static Filter Parse(string token, IDictionary<string, string>? keyMappings)
 	{
 		var value2 = string.Empty;
 		var propertyName = string.Empty;

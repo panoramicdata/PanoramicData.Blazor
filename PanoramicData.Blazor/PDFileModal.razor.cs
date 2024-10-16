@@ -305,7 +305,13 @@ public partial class PDFileModal
 		}
 
 		// inform caller of result and hide modal
-		await ModalHidden.InvokeAsync(result).ConfigureAwait(true);
+		try
+		{
+			await this.InvokeAsync(async () => await ModalHidden.InvokeAsync(result).ConfigureAwait(true));		
+		}
+		catch (Exception ex)
+		{
+		}
 		await Modal.HideAsync().ConfigureAwait(true);
 	}
 
@@ -342,7 +348,7 @@ public partial class PDFileModal
 	{
 		if (args.Code == "Enter" && !string.IsNullOrWhiteSpace(_filenameTextbox.Value))
 		{
-			Task.Run(async () => await Modal.OnButtonClick(new KeyedEventArgs<MouseEventArgs>(_okButton.Key)).ConfigureAwait(true)).ConfigureAwait(true);
+			Task.Run(async () => await this.InvokeAsync(async () => await Modal.OnButtonClick(new KeyedEventArgs<MouseEventArgs>(_okButton.Key)).ConfigureAwait(true)).ConfigureAwait(true)).ConfigureAwait(true);
 		}
 	}
 }

@@ -3,9 +3,7 @@ namespace PanoramicData.Blazor;
 public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisposable
 {
 	private IJSObjectReference? _module;
-	private bool _isInitialized = false;
-	private readonly SemaphoreSlim _initializationSemaphore = new SemaphoreSlim(1, 1);
-
+	
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
 
@@ -16,33 +14,15 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 
 	public async Task InitializeAsync()
 	{
-		if (!_isInitialized)
+		if (_module is null && JSRuntime != null)
 		{
-			if (_module is null && JSRuntime != null)
-			{
-				await _initializationSemaphore.WaitAsync();
-				try
-				{
-					if (!_isInitialized) // Double-check locking
-					{
-						_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDLocalStorageStateManager.razor.js").ConfigureAwait(true);
-						_isInitialized = true;
-					}
-					else
-					{
-					}
-				}
-				finally
-				{
-					_initializationSemaphore.Release();
-				}
-			}
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDLocalStorageStateManager.razor.js").ConfigureAwait(true);
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (!_isInitialized)
+		if (firstRender)
 		{
 			await InitializeAsync();
 		}
@@ -52,25 +32,21 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		try
 		{
-			if (!_isInitialized)
+			if (JSRuntime is null || _module is null)
 			{
-				await InitializeAsync();
+				throw new InvalidOperationException("Javascript runtime is not available");
 			}
-			if (_module is null)
-			{
-				throw new InvalidOperationException("Javascript Module has not been loaded");
-			}
+			
 			var data = await _module.InvokeAsync<string>("getItem", key);
 			if (data == null)
 			{
 				return default;
 			}
-
 			return System.Text.Json.JsonSerializer.Deserialize<T>(data);
 		}
 		catch (Exception e)
 		{
-			throw new StateException("Failed to save state: see inner exception for more information", e);
+			throw new StateException("Failed to load state: see inner exception for more information", e);
 		}
 	}
 
@@ -78,20 +54,16 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		try
 		{
-			if (!_isInitialized)
+			if (JSRuntime is null || _module is null)
 			{
-				await InitializeAsync();
-			}
-			if (_module is null)
-			{
-				throw new InvalidOperationException("Javascript Module has not been loaded");
+				throw new InvalidOperationException("Javascript runtime is not available");
 			}
 
 			await _module.InvokeVoidAsync("removeItem", key);
 		}
 		catch (Exception e)
 		{
-			throw new StateException("Failed to save state: see inner exception for more information", e);
+			throw new StateException("Failed to remove state: see inner exception for more information", e);
 		}
 	}
 
@@ -99,13 +71,9 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		try
 		{
-			if (!_isInitialized)
+			if (JSRuntime is null || _module is null)
 			{
-				await InitializeAsync();
-			}
-			if (_module is null)
-			{
-				throw new InvalidOperationException("Javascript Module has not been loaded");
+				throw new InvalidOperationException("Javascript runtime is not available");
 			}
 
 			var data = System.Text.Json.JsonSerializer.Serialize(state);

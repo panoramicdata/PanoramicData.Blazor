@@ -93,7 +93,10 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		return query.ApplyFilter(filter, _keyMappings);
 	}
 
-	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T, bool>>? existingPredicate, Filter filter, IDictionary<string, string>? keyPropertyMappings = null)
+	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T,bool>>? existingPredicate, Filter filter)
+		=> ApplyFilter(existingPredicate, filter, null);
+
+	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T, bool>>? existingPredicate, Filter filter, IDictionary<string, string>? keyPropertyMappings)
 	{
 		if (!filter.IsValid)
 		{
@@ -112,7 +115,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 			else
 			{
 				// search entity properties for matching key attribute
-				// Note - currently this does NOT perform a nested serach
+				// Note - currently this does NOT perform a nested search
 				var entityProperties = typeof(T).GetProperties();
 				var propertyInfo = entityProperties.SingleOrDefault(x => x.GetFilterKey() == filter.Key || x.GetDisplayShortName() == filter.Key);
 				if (propertyInfo != null)
