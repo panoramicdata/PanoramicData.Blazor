@@ -246,11 +246,11 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		return classes.Contains("alert-success") ? "alert-success" : string.Empty;
 	}
 
-	private static string GetValidationIconForCssClass(string cssClass) => cssClass switch
+	private static string GetValidationIconForCssClass(string cssClass) => "d-table-cell pt-1 fas fa-fw " + cssClass switch
 	{
-		"alert-danger" => "fas fa-exclamation-circle",
-		"alert-warning" => "fas fa-asterisk",
-		"alert-success" => "fas fa-check-circle",
-		_ => "pd-empty-icon"
+		"alert-danger" => "fa-exclamation-circle",
+		"alert-warning" => "fa-asterisk",
+		"alert-success" => "fa-check-circle",
+		_ => ""
 	};
 }

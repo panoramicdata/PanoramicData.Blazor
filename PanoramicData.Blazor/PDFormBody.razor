@@ -67,7 +67,7 @@ else if (Form.Mode != FormModes.Hidden)
 						@if (ShowValidationIndicator && Form?.Mode != FormModes.Delete)
 						{
                             var cssCls = GetValidationCssClass(fieldGroup.Fields);
-							<span class="input-group-text align-items-start @cssCls">
+							<span class="d-table input-group-text align-items-start @cssCls">
 								<i class="@GetValidationIconForCssClass(cssCls)"></i>
 							</span>
 						}

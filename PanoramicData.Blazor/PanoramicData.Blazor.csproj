@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDMonacoEditor: Modified to support method names containing a period char.
+			PDFormBody - Modified validation icon CSS to fix heigth and width of icons.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
