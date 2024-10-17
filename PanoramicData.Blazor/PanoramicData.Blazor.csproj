@@ -26,6 +26,8 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
 			PDFormBody - Modified validation icon CSS to fix heigth and width of icons.
+			PDButton - Added Operation and OperationIconCssClass parameters.
+			PDFormFooter - Upgraded to use new Operation feature of PDButtons.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

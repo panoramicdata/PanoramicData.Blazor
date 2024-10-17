@@ -58,6 +58,16 @@ public partial class PDToolbarButton : IToolbarItem
 	[Parameter] public bool IsEnabled { get; set; } = true;
 
 	/// <summary>
+	/// Async function to be called when button is clicked.
+	/// </summary>
+	[Parameter] public Func<MouseEventArgs, Task>? Operation { get; set; }
+
+	/// <summary>
+	/// CSS Class for icon to be displayed on button when Operation is running.
+	/// </summary>
+	[Parameter] public string OperationIconCssClass { get; set; } = string.Empty;
+
+	/// <summary>
 	/// Gets or sets whether the toolbar item is positioned further to the right of the previous toolbar item.
 	/// </summary>
 	[Parameter] public bool ShiftRight { get; set; }

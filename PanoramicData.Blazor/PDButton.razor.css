@@ -1,5 +1,6 @@
 .btn.disabled, .btn:disabled {
 	pointer-events: auto;
+	cursor: default;
 }
 
 .pd-button .icon {

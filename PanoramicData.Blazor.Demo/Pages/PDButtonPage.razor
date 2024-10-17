@@ -6,7 +6,7 @@
 <DemoSourceView SourceFiles="Pages/PDButtonPage.razor, Pages/PDButtonPage.razor.cs">
 
     <div>
-        <PDButton Text="Click Me"
+        <PDButton Text="Counter++"
                   IconCssClass="fas fa-fw fa-plus"
                   CssClass="btn btn-primary"
                   ShortcutKey="_shortcut1"
@@ -20,11 +20,12 @@
     </div>
 
     <div class="mt-2">
-        <PDButton Text="Click Me 2"
-                  IconCssClass="fas fa-fw fa-cog fa-spin"
+        <PDButton Text="Long running operation"
+                  IconCssClass="fas fa-fw fa-cog"
                   CssClass="btn btn-secondary"
-                  ToolTip="@($"Click me to see the event update")"
-                  Click="OnButton2Click">
+                  ToolTip="@($"Click me to start long running operation")"
+                  Operation="DoLongRunningOperation"
+                  OperationIconCssClass="fas fa-fw fa-cog fa-spin">
         </PDButton>
     </div>
 

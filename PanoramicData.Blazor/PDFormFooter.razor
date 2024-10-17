@@ -8,28 +8,29 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 	<div class="pd-form-footer">
         <PDToolbar>
 
-            <PDToolbarButton Click="OnButtonClick"
-                             CssClass="btn-danger"
+            <PDToolbarButton CssClass="btn-danger"
                              IconCssClass="@DeleteButtonIconCssClass"
                              IsVisible="ShowDelete && Form.Mode == FormModes.Edit"
                              Key="Delete"
+                             Operation="OnDeleteAsync"
                              Size="Size"
                              Text="@DeleteButtonText" />
 
-            <PDToolbarButton Click="OnButtonClick"
-                             CssClass="@YesButtonCssClass"
+            <PDToolbarButton CssClass="@YesButtonCssClass"
                              IconCssClass="@YesButtonIconCssClass"
                              IsVisible="Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel"
                              Key="Yes"
+                             Operation="OnYesAsync"
+                             OperationIconCssClass="fas fa-fw fa-circle-notch fa-spin"
                              ShiftRight="true"
                              Size="Size"
                              Text="@YesButtonText" />
 
-            <PDToolbarButton Click="OnButtonClick"
-                             CssClass="@NoButtonCssClass"
+            <PDToolbarButton CssClass="@NoButtonCssClass"
                              IconCssClass="@NoButtonIconCssClass"
                              IsVisible="Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel"
                              Key="No"
+                             Operation="OnNoAsync"
                              Size="Size"
                              Text="@NoButtonText" />
 
@@ -41,20 +42,21 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
                 </div>
             </PDToolbarPlaceholder>
 
-            <PDToolbarButton Click="OnButtonClick"
-                             CssClass="@SaveButtonCssClass"
+            <PDToolbarButton CssClass="@SaveButtonCssClass"
                              IconCssClass="@SaveButtonIconCssClass"
                              IsEnabled="_errorCount == 0"
                              IsVisible="ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit)"
                              Key="Save"
+                             Operation="OnSaveAsync"
+                             OperationIconCssClass="fas fa-fw fa-circle-notch fa-spin"
                              Size="Size"
                              Text="@SaveButtonText" />
 
-            <PDToolbarButton Click="OnButtonClick"
-                             CssClass="@CancelButtonCssClass"
+            <PDToolbarButton CssClass="@CancelButtonCssClass"
                              IconCssClass="@CancelButtonIconCssClass"
                              IsVisible="ShowCancel && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit || (Form.Mode == FormModes.ReadOnly && ShowCancelWhenReadOnly))"
                              Key="Cancel"
+                             Operation="OnCancelAsync"
                              Size="Size"
                              Text="@CancelButtonText" />
         </PDToolbar>

@@ -64,7 +64,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// <summary>
 	/// Sets the icon CSS classes for the save button icon.
 	/// </summary>
-	[Parameter] public string SaveButtonIconCssClass { get; set; } = "fas fa-save";
+	[Parameter] public string SaveButtonIconCssClass { get; set; } = "fas fa-fw fa-save";
 
 	/// <summary>
 	/// Sets the text shown on the cancel button.
@@ -79,7 +79,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// <summary>
 	/// Sets the icon CSS classes for the cancel button icon.
 	/// </summary>
-	[Parameter] public string CancelButtonIconCssClass { get; set; } = "fas fa-times";
+	[Parameter] public string CancelButtonIconCssClass { get; set; } = "fas fa-fw fa-times";
 
 	/// <summary>
 	/// Sets the text shown on the delete button.
@@ -94,7 +94,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// <summary>
 	/// Sets the icon CSS classes for the delete button icon.
 	/// </summary>
-	[Parameter] public string DeleteButtonIconCssClass { get; set; } = "fas fa-trash-alt";
+	[Parameter] public string DeleteButtonIconCssClass { get; set; } = "fas fa-fw fa-trash-alt";
 
 	/// <summary>
 	/// Sets the text shown on the yes button.
@@ -109,7 +109,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// <summary>
 	/// Sets the icon CSS classes for the yes button icon.
 	/// </summary>
-	[Parameter] public string YesButtonIconCssClass { get; set; } = "fas fa-check";
+	[Parameter] public string YesButtonIconCssClass { get; set; } = "fas fa-fw fa-check";
 
 	/// <summary>
 	/// Sets the text shown on the no button.
@@ -124,7 +124,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// <summary>
 	/// Sets the icon CSS classes for the no button icon.
 	/// </summary>
-	[Parameter] public string NoButtonIconCssClass { get; set; } = "fas fa-times";
+	[Parameter] public string NoButtonIconCssClass { get; set; } = "fas fa-fw fa-times";
 
 	public void Dispose()
 	{
@@ -165,54 +165,74 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	private async Task OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
+	private async Task OnCancelAsync(MouseEventArgs args)
 	{
-		var key = args.Key;
-
 		if (Form?.Item != null)
 		{
-			if (key == "Delete")
-			{
-				await Form.EditItemAsync(Form.Item, FormModes.Delete).ConfigureAwait(true);
-			}
-			else if (key == "Save" && Form.DataProvider != null)
-			{
-				var success = await Form.SaveAsync().ConfigureAwait(true);
-				if (!success)
-				{
-					return;
-				}
-
-				await Form.ResetChanges();
-			}
-			else if (key == "Cancel" && Form.ConfirmCancel && Form.Delta.Count > 0)
+			if (Form.ConfirmCancel && Form.Delta.Count > 0)
 			{
 				await Form.EditItemAsync(Form.Item, FormModes.Cancel).ConfigureAwait(true);
 			}
-			else if (key == "Yes" && Form.Mode == FormModes.Delete && Form.DataProvider != null)
+			else
 			{
-				var success = await Form.DeleteAsync().ConfigureAwait(true);
-				if (!success)
-				{
-					return;
-				}
-
 				await Form.ResetChanges();
-			}
-			else if (key == "Yes" && Form.Mode == FormModes.Cancel)
-			{
 				await Click.InvokeAsync("Cancel").ConfigureAwait(true);
-				await Form.ResetChanges();
-			}
-			else if (key == "No")
-			{
-				await Form.EditItemAsync(Form.Item, Form.PreviousMode, false).ConfigureAwait(true);
 			}
 		}
+	}
 
-		if (!(key == "Cancel" && Form?.ConfirmCancel == true && Form.Delta.Count > 0))
+	private async Task OnDeleteAsync(MouseEventArgs args)
+	{
+		if (Form?.Item != null)
 		{
-			await Click.InvokeAsync(key).ConfigureAwait(true);
+			await Form.EditItemAsync(Form.Item, FormModes.Delete).ConfigureAwait(true);
+		}
+	}
+
+	private async Task OnNoAsync(MouseEventArgs args)
+	{
+		if (Form?.Item != null)
+		{
+			await Form.EditItemAsync(Form.Item, Form.PreviousMode, false).ConfigureAwait(true);
+		}
+	}
+
+	private async Task OnSaveAsync(MouseEventArgs args)
+	{
+		if (Form?.Item != null && Form.DataProvider != null)
+		{
+			var success = await Form.SaveAsync().ConfigureAwait(true);
+			if (!success)
+			{
+				return;
+			}
+			await Form.ResetChanges();
+		}
+		await Click.InvokeAsync("Save").ConfigureAwait(true);
+	}
+
+	private async Task OnYesAsync(MouseEventArgs args)
+	{
+		if (Form?.Item != null)
+		{
+			if (Form.Mode == FormModes.Delete)
+			{
+				if (Form.DataProvider != null)
+				{
+					var success = await Form.DeleteAsync().ConfigureAwait(true);
+					if (!success)
+					{
+						return;
+					}
+					await Form.ResetChanges();
+				}
+				await Click.InvokeAsync("Delete").ConfigureAwait(true);
+			}
+			else if (Form.Mode == FormModes.Cancel)
+			{
+				await Form.ResetChanges();
+				await Click.InvokeAsync("Cancel").ConfigureAwait(true);
+			}
 		}
 	}
 }
