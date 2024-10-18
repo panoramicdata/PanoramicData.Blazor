@@ -1,9 +1,11 @@
+using System.Text.Json;
+
 namespace PanoramicData.Blazor;
 
 public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisposable
 {
 	private IJSObjectReference? _module;
-	
+
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
 
@@ -36,13 +38,14 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 			{
 				throw new InvalidOperationException("Javascript runtime is not available");
 			}
-			
+
 			var data = await _module.InvokeAsync<string>("getItem", key);
 			if (data == null)
 			{
 				return default;
 			}
-			return System.Text.Json.JsonSerializer.Deserialize<T>(data);
+
+			return JsonSerializer.Deserialize<T>(data);
 		}
 		catch (Exception e)
 		{

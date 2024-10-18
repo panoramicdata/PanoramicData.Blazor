@@ -4,7 +4,7 @@ namespace PanoramicData.Blazor.Models.Monaco;
 
 public class MethodCache
 {
-	private readonly Dictionary<string, MethodDictionary> _languageDict = new();
+	private readonly Dictionary<string, MethodDictionary> _languageDict = [];
 
 	public interface IDescriptionProvider
 	{
@@ -32,7 +32,7 @@ public class MethodCache
 
 		public string Namespace { get; set; } = string.Empty;
 
-		public List<Parameter> Parameters { get; set; } = new();
+		public List<Parameter> Parameters { get; set; } = [];
 
 		public Type? ReturnType { get; set; }
 
@@ -138,7 +138,7 @@ public class MethodCache
 	{
 		if (!_languageDict.ContainsKey(language))
 		{
-			_languageDict.Add(language, new MethodDictionary());
+			_languageDict.Add(language, []);
 		}
 
 		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
@@ -148,7 +148,7 @@ public class MethodCache
 
 			if (!methodDict.ContainsKey(method.Fullname))
 			{
-				methodDict.Add(method.Fullname, new List<Method>());
+				methodDict.Add(method.Fullname, []);
 			}
 
 			if (methodDict.TryGetValue(method.Fullname, out List<Method>? value))
@@ -203,10 +203,7 @@ public class MethodCache
 			}
 
 			// enhance method signature with descriptions?
-			if (descriptionProvider != null)
-			{
-				descriptionProvider.AddDescriptions(method);
-			}
+			descriptionProvider?.AddDescriptions(method);
 
 			AddMethod(language, method);
 		}
@@ -231,7 +228,8 @@ public class MethodCache
 		{
 			return value;
 		}
-		return Array.Empty<Method>();
+
+		return [];
 	}
 
 	public IEnumerable<CompletionItem> GetCompletionItems(string language, string functionName)
@@ -281,6 +279,7 @@ public class MethodCache
 						{
 							// Todo: fetch parameters?
 						}
+
 						var m = kvp.Value.First();
 						foreach (var p in m.Parameters)
 						{
@@ -296,6 +295,7 @@ public class MethodCache
 				}
 			}
 		}
+
 		return items;
 	}
 
@@ -321,6 +321,7 @@ public class MethodCache
 				}
 			}
 		}
+
 		return signatures;
 	}
 

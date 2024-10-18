@@ -88,6 +88,7 @@ public partial class PDMonaco : IAsyncDisposable
 				method.State = true;  // use the state property to fetch only once
 			}
 		}
+
 		return Task.CompletedTask;
 	}
 
@@ -96,8 +97,8 @@ public partial class PDMonaco : IAsyncDisposable
 		if (method.MethodName == "List.Add")
 		{
 			// use this static method to add parameters - ensures unspecified positions are calculated
-			MethodCache.AddMethodParameters(method, new[]
-			{
+			MethodCache.AddMethodParameters(method,
+			[
 				new MethodCache.Parameter {
 					Name = "concat",
 					Description = "When adding lists to a list, this will add each individual item onto the end of the list, rather than adding the list itself onto the existing list."
@@ -110,14 +111,14 @@ public partial class PDMonaco : IAsyncDisposable
 					Name = "value",
 					Description = "The value to add."
 				}
-			});
+			]);
 		}
 
 		if (method.MethodName == "Color")
 		{
 			// use this static method to add parameters - ensures unspecified positions are calculated
-			MethodCache.AddMethodParameters(method, new[]
-			{
+			MethodCache.AddMethodParameters(method,
+			[
 				new MethodCache.Parameter {
 					Name = "value",
 					Description = "The colour to use to increase intensity of the input colour.",
@@ -133,14 +134,14 @@ public partial class PDMonaco : IAsyncDisposable
 					Description = "The percentage intensity to apply.",
 					Type = typeof(double),
 				}
-			});
+			]);
 		}
 
 		if (method.MethodName == "String")
 		{
 			// use this static method to add parameters - ensures unspecified positions are calculated
-			MethodCache.AddMethodParameters(method, new[]
-			{
+			MethodCache.AddMethodParameters(method,
+			[
 				new MethodCache.Parameter {
 					Name = "value",
 					Description = "The string value.",
@@ -167,13 +168,13 @@ public partial class PDMonaco : IAsyncDisposable
 					Name = "regexReplaceWith",
 					Description = "The Regex string value(s) to use to replace the string specified in the regexFind parameter."
 				}
-			});
+			]);
 		}
 
 		// common parameters
 		// use this static method to add parameters - ensures unspecified positions are calculated
-		MethodCache.AddMethodParameters(method, new[]
-		{
+		MethodCache.AddMethodParameters(method,
+		[
 			new MethodCache.Parameter {
 				Name = "comment",
 				Description = "Add a comment to make your document template more readable. The comment is discarded in the output document",
@@ -222,7 +223,7 @@ public partial class PDMonaco : IAsyncDisposable
 				IsOptional = true,
 				Type = typeof(bool),
 			}
-		});
+		]);
 	}
 
 	private void InitializeOptions(StandaloneEditorConstructionOptions options)
@@ -279,7 +280,7 @@ public partial class PDMonaco : IAsyncDisposable
 		{
 			Id = "ncalc",
 			ShowCompletions = true,
-			SignatureHelpTriggers = new[] { '(', ',' }
+			SignatureHelpTriggers = ['(', ',']
 		});
 		languages.Add(new Language
 		{
@@ -287,7 +288,7 @@ public partial class PDMonaco : IAsyncDisposable
 			ShowCompletions = true,
 			FunctionDelimiter = ':',
 			OptionalParameterPostfix = '=',
-			SignatureHelpTriggers = new[] { ':', ',' }
+			SignatureHelpTriggers = [':', ',']
 		});
 	}
 }
