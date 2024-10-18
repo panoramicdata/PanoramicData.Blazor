@@ -174,6 +174,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 					var query = string.Join(" || ", parameters.Select((x, i) => $"it.{property} == @{i}").ToArray());
 					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, parameters);
 				}
+
 				break;
 
 			case FilterTypes.NotIn:
@@ -181,6 +182,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 					var query = string.Join(" && ", parameters.Select((x, i) => $"it.{property} != @{i}").ToArray());
 					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, parameters);
 				}
+
 				break;
 
 			case FilterTypes.LessThan:

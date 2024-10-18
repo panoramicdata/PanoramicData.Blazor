@@ -58,11 +58,11 @@ public static class PredicateBuilderService
 
 	class ParameterRebinder : ExpressionVisitor
 	{
-		readonly Dictionary<ParameterExpression, ParameterExpression> map;
+		readonly Dictionary<ParameterExpression, ParameterExpression> _map;
 
 		ParameterRebinder(Dictionary<ParameterExpression, ParameterExpression> map)
 		{
-			this.map = map ?? [];
+			_map = map ?? [];
 		}
 
 		public static Expression ReplaceParameters(Dictionary<ParameterExpression, ParameterExpression> map, Expression exp) => new ParameterRebinder(map).Visit(exp);
@@ -71,7 +71,7 @@ public static class PredicateBuilderService
 		{
 
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-			if (map.TryGetValue(p, out ParameterExpression replacement))
+			if (_map.TryGetValue(p, out ParameterExpression replacement))
 			{
 				p = replacement;
 			}

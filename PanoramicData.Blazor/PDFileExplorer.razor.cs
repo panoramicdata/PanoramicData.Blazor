@@ -1048,6 +1048,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				await OnTreeSelectionChangeAsync(Tree.SelectedNode).ConfigureAwait(true);
 				await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
 			}
+
 			await Table.SortAsync(Table.SortCriteria);
 		}
 	}
@@ -1252,6 +1253,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				await _splitter.SetSizesAsync(_lastSplitSizes).ConfigureAwait(true);
 			}
+
 			PreviewPanelVisible = !PreviewPanelVisible;
 
 			await RefreshToolbarAsync();
@@ -1288,6 +1290,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					await UploadDialog.ShowAsync().ConfigureAwait(true);
 				}
+
 				break;
 
 			case "refresh":
@@ -1299,6 +1302,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					await OnTogglePreviewPanelAsync().ConfigureAwait(true);
 				}
+
 				break;
 
 			default:
@@ -1444,6 +1448,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					await Tree.ToggleNodeIsExpandedAsync(Tree.SelectedNode).ConfigureAwait(true);
 				}
+
 				newFolderName = Tree!.SelectedNode.MakeUniqueText("New Folder") ?? "New Folder";
 			}
 			else

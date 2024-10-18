@@ -31,6 +31,7 @@ public class FileExplorerPreviewProvider : DefaultPreviewProvider
 				.ElementAtOrDefault(1);
 			url = url[++index..];
 		}
+
 		using var httpClient = new HttpClient();
 		var bytes = await httpClient.GetByteArrayAsync(url);
 		return bytes;
@@ -61,6 +62,7 @@ public class FileExplorerPreviewProvider : DefaultPreviewProvider
 				details.Add($"<span class=\"h4\">{Path.GetExtension(item.Name)[1..].ToUpperInvariant()} File</span>");
 				details.Add($"<span title=\"{item.FileSize:N0} bytes\">{item.FileSize.Bytes().Humanize(FileExplorer.SizeFormat, CultureInfo.InvariantCulture)}</span>");
 			}
+
 			details.Add($"<span title=\"{item.DateCreated}\" class=\"text-small text-muted\">Created: {dc}</span>");
 			details.Add($"<span title=\"{item.DateModified}\" class=\"text-small text-muted\">Modified: {dm}</span>");
 			return details;

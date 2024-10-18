@@ -93,6 +93,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		{
 			return $"resize-h {fso.ResizeCssCls}";
 		}
+
 		return string.Empty;
 	}
 
@@ -262,6 +263,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 				{
 					newValue = Convert.ChangeType(args.Value ?? string.Empty, fieldType, CultureInfo.InvariantCulture);
 				}
+
 				await Form!.SetFieldValueAsync(field, newValue).ConfigureAwait(true);
 			}
 		}

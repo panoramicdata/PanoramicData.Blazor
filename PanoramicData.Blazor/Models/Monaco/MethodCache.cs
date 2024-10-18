@@ -56,10 +56,12 @@ public class MethodCache
 			{
 				signature.Append(options.TypeNameFn(ReturnType)).Append(' ');
 			}
+
 			if (options.IncludeMethodTypeName)
 			{
 				signature.Append(TypeName).Append('.');
 			}
+
 			signature.Append(MethodName).Append('(');
 			foreach (var parameter in Parameters)
 			{
@@ -67,8 +69,10 @@ public class MethodCache
 				{
 					signature.Append(", ");
 				}
+
 				signature.Append(parameter.ToString(options));
 			}
+
 			signature.Append(')');
 			return signature.ToString();
 		}
@@ -99,19 +103,23 @@ public class MethodCache
 			{
 				signature.Append('[');
 			}
+
 			if (IsParams)
 			{
 				signature.Append("params ");
 			}
+
 			if (Type is not null && !options.HideDataTypes)
 			{
 				signature.Append(options.TypeNameFn(Type)).Append(' ');
 			}
+
 			signature.Append(Name);
 			if (IsOptional)
 			{
 				signature.Append(']');
 			}
+
 			return signature.ToString();
 		}
 	}
@@ -122,6 +130,7 @@ public class MethodCache
 		{
 			_languageDict.Add(language, []);
 		}
+
 		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
 		{
 			// ensure parameters have position / ordinals
@@ -136,6 +145,7 @@ public class MethodCache
 			{
 				methodDict.Add(method.Fullname, []);
 			}
+
 			if (methodDict.TryGetValue(method.Fullname, out List<Method>? value))
 			{
 				value.Add(method);
@@ -245,6 +255,7 @@ public class MethodCache
 				}
 			}
 		}
+
 		return items;
 	}
 
@@ -266,10 +277,12 @@ public class MethodCache
 					{
 						ns = string.Join('.', nameParts[..^3]);
 					}
+
 					if (nameParts.Length > 1)
 					{
 						typeName = nameParts[^2];
 					}
+
 					var methodName = nameParts[^1];
 
 					// find matching methods
@@ -297,6 +310,7 @@ public class MethodCache
 				}
 			}
 		}
+
 		return signatures;
 	}
 

@@ -2,7 +2,7 @@
 
 public class ZoombarValue
 {
-	private const int DECIMAL_PLACES = 2;
+	private const int _decimalPlaces = 2;
 	private double _pan;
 	private double _zoom = 100;
 
@@ -15,7 +15,7 @@ public class ZoombarValue
 		set
 		{
 			// restrict zoom percentage to N decimal places
-			_zoom = Math.Round(value, DECIMAL_PLACES);
+			_zoom = Math.Round(value, _decimalPlaces);
 		}
 	}
 
@@ -28,7 +28,7 @@ public class ZoombarValue
 		set
 		{
 			// restrict pan percentage to N decimal places
-			_pan = Math.Round(value, DECIMAL_PLACES);
+			_pan = Math.Round(value, _decimalPlaces);
 		}
 	}
 }

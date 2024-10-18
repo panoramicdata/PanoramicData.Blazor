@@ -4,7 +4,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 {
 	private IJSObjectReference? _module;
 	private bool _isInitialized = false;
-	private readonly SemaphoreSlim _initializationSemaphore = new SemaphoreSlim(1, 1);
+	private readonly SemaphoreSlim _initializationSemaphore = new(1, 1);
 
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
@@ -56,10 +56,12 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 			{
 				await InitializeAsync();
 			}
+
 			if (_module is null)
 			{
 				throw new InvalidOperationException("Javascript Module has not been loaded");
 			}
+
 			var data = await _module.InvokeAsync<string>("getItem", key);
 			if (data == null)
 			{
@@ -82,6 +84,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 			{
 				await InitializeAsync();
 			}
+
 			if (_module is null)
 			{
 				throw new InvalidOperationException("Javascript Module has not been loaded");
@@ -103,6 +106,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 			{
 				await InitializeAsync();
 			}
+
 			if (_module is null)
 			{
 				throw new InvalidOperationException("Javascript Module has not been loaded");

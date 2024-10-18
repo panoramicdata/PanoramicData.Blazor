@@ -55,22 +55,14 @@ public class TimelineScale : IComparable
 		return FormatPattern("d");
 	}
 
-	public virtual string FormatPattern(string dateFormat)
+	public virtual string FormatPattern(string dateFormat) => UnitType switch
 	{
-		switch (UnitType)
-		{
-			case TimelineUnits.Years:
-				return "yyyy";
-			case TimelineUnits.Months:
-				return "MMM yyyy";
-			case TimelineUnits.Hours:
-				return $"{dateFormat} HH:00";
-			case TimelineUnits.Minutes:
-				return $"{dateFormat} HH:mm";
-			default:
-				return dateFormat;
-		}
-	}
+		TimelineUnits.Years => "yyyy",
+		TimelineUnits.Months => "MMM yyyy",
+		TimelineUnits.Hours => $"{dateFormat} HH:00",
+		TimelineUnits.Minutes => $"{dateFormat} HH:mm",
+		_ => dateFormat,
+	};
 
 
 	public virtual bool IsMajorTick(DateTime dateTime) => UnitType switch

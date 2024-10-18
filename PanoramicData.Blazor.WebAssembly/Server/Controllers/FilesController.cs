@@ -17,6 +17,7 @@ public class FilesController : Controller
 			{
 				return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
 			}
+
 			return new FileStreamResult(stream, "text/markdown")
 			{
 				FileDownloadName = Path.GetFileName(path)
@@ -29,6 +30,7 @@ public class FilesController : Controller
 			{
 				return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
 			}
+
 			return new FileStreamResult(stream, "text/plain")
 			{
 				FileDownloadName = $"{Path.GetFileNameWithoutExtension(path)}.webm"

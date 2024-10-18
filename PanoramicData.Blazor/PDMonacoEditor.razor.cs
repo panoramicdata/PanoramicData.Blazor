@@ -10,7 +10,6 @@ public partial class PDMonacoEditor : IAsyncDisposable
 
 	private IJSObjectReference? _module;
 	private string _theme = string.Empty;
-	private string _language = "javascript";
 	private StandaloneCodeEditor? _monacoEditor;
 	private DotNetObjectReference<PDMonacoEditor>? _objRef;
 	private static readonly MethodCache _methodCache = new();
@@ -73,6 +72,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		{
 			return await _monacoEditor.GetSelection().ConfigureAwait(true);
 		}
+
 		return null;
 	}
 
@@ -90,10 +90,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 			Theme = Theme,
 			Value = Value
 		};
-		if (InitializeOptions != null)
-		{
-			InitializeOptions(options);
-		}
+
+		InitializeOptions?.Invoke(options);
+
 		return options;
 	}
 
@@ -115,20 +114,17 @@ public partial class PDMonacoEditor : IAsyncDisposable
 					var registered = await _module.InvokeAsync<bool>("registerLanguage", language.Id, language);
 					if (registered)
 					{
-						if (InitializeLanguage != null)
-						{
-							InitializeLanguage(language);
-						}
+						InitializeLanguage?.Invoke(language);
+
 						if (InitializeLanguageAsync != null)
 						{
 							await InitializeLanguageAsync(language).ConfigureAwait(true);
 						}
 					}
 				}
-				if (InitializeCache != null)
-				{
-					InitializeCache(_methodCache);
-				}
+
+				InitializeCache?.Invoke(_methodCache);
+
 				if (InitializeCacheAsync != null)
 				{
 					await InitializeCacheAsync(_methodCache).ConfigureAwait(true);
@@ -184,10 +180,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		try
 		{
 			GC.SuppressFinalize(this);
-			if (_objRef != null)
-			{
-				_objRef.Dispose();
-			}
+
+			_objRef?.Dispose();
+
 			if (_module != null)
 			{
 				await _module.DisposeAsync().ConfigureAwait(true);

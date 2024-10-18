@@ -10,10 +10,12 @@ public class DemoPreviewProvider : FileExplorerPreviewProvider
 		{
 			await Task.Delay(1000);
 		}
+
 		if (item is null)
 		{
 			return [];
 		}
+
 		return await base.DownloadContentAsync(item);
 	}
 }

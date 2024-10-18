@@ -58,6 +58,7 @@ public partial class PDMonaco : IAsyncDisposable
 		{
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor.Demo/Pages/PDMonaco.razor.js").ConfigureAwait(true); ;
 		}
+
 		if (_module != null)
 		{
 			await _module.InvokeVoidAsync("configureMonaco");
