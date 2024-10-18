@@ -53,6 +53,8 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	[Parameter]
 	public Action<List<Language>>? RegisterLanguages { get; set; }
 
+	[Parameter]
+	public Func<MethodCache, string, string, Task>? UpdateCacheAsync { get; set; }
 
 	public async Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits, List<Selection>? endCursorState = null)
 	{
@@ -63,8 +65,17 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	}
 
 	[JSInvokable]
-	public CompletionItem[] GetCompletions(BlazorMonaco.Range range)
-		=> _methodCache.GetCompletionItems(Language).ToArray();
+	public CompletionItem[] GetCompletions(BlazorMonaco.Range range, string functionName)
+		=> _methodCache.GetCompletionItems(Language, functionName).ToArray();
+
+	[JSInvokable]
+	public async Task ResolveCompletionAsync(string methodName)
+	{
+		if (UpdateCacheAsync != null)
+		{
+			await UpdateCacheAsync.Invoke(_methodCache, Language, methodName);
+		}
+	}
 
 	public async Task<Selection?> GetSelection()
 	{
@@ -170,6 +181,15 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		if (_monacoEditor != null)
 		{
 			await _monacoEditor.UpdateOptions(options).ConfigureAwait(true);
+		}
+	}
+
+	public async Task SetMonacoValueAsync(string value)
+	{
+		if (_monacoEditor != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			await model.SetValue(value);
 		}
 	}
 

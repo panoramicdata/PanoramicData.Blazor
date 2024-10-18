@@ -3,10 +3,10 @@
 {
 	<button @attributes="Attributes"
 			class="pd-button btn @CssClass @ButtonSizeCssClass"
-			disabled="@(IsEnabled ? null : "true")"
+			disabled="@(ActualEnabledState ? null : "true")"
 			id="@Id"
 			title="@ToolTip.AppendShortcut(ShortcutKey)"
-			@onclick="Click"
+			@onclick="OnClickAsync"
 			@onclick:preventDefault="PreventDefault"
 			@onclick:stopPropagation="StopPropagation"
 			@onmousedown="MouseDown"
@@ -16,7 +16,7 @@
 		{
 				@if (!string.IsNullOrWhiteSpace(IconCssClass))
 				{
-					<span class="icon @IconCssClass"></span>
+                <span class="icon @GetIconCssClass()"></span>
 				}
             <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
 		}
@@ -31,10 +31,10 @@ else
 	<a @attributes="Attributes"
 	    href="@Url" target="@Target"
 	    class="pd-button btn @CssClass @ButtonSizeCssClass"
-	    disabled="@(IsEnabled ? null : "true")"
+       disabled="@(ActualEnabledState ? null : "true")"
 	    id="@Id"
 	    title="@ToolTip.AppendShortcut(ShortcutKey)"
-	    @onclick="Click"
+        @onclick="OnClickAsync"
 	    @onclick:preventDefault="PreventDefault"
 	    @onclick:stopPropagation="StopPropagation"
 	    @onmousedown="MouseDown"
@@ -44,7 +44,7 @@ else
 		{
             @if (!string.IsNullOrWhiteSpace(IconCssClass))
             {
-                <span class="icon @IconCssClass"></span>
+                <span class="icon @GetIconCssClass()"></span>
             }
             <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
 		}

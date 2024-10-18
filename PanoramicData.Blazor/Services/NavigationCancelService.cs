@@ -14,7 +14,11 @@ public class NavigationCancelService(IJSRuntime jsRuntime) : INavigationCancelSe
 	/// </summary>
 	/// <param name="target">Optional data for intended operation. May be a target URL or operation name etc.</param>
 	/// <returns>true if the operation should proceed otherwise false.</returns>
-	public async Task<bool> ProceedAsync(string target = "")
+
+	public async Task<bool> ProceedAsync()
+		=> await ProceedAsync(string.Empty);
+
+	public async Task<bool> ProceedAsync(string target)
 	{
 		// ask listening code if operation should be canceled
 		var args = new BeforeNavigateEventArgs { Target = target };

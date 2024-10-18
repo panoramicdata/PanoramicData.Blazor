@@ -461,7 +461,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// Requests data from the data provider using the current settings.
 	/// </summary>
 	/// <param name="searchText">Optional override for the search text.</param>
-	protected async Task GetDataAsync(string? searchText = null)
+
+	protected async Task GetDataAsync()
+		=> await GetDataAsync(null);
+
+	protected async Task GetDataAsync(string? searchText)
 	{
 		try
 		{
@@ -538,7 +542,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// </summary>
 	/// <param name="column">The column to sort by.</param>
 	/// <remarks>To disable sorting for any given column, set its Sortable property set to false.</remarks>
-	protected async Task SortByAsync(PDColumn<TItem> column, SortDirection? direction = null)
+
+	protected async Task SortByAsync(PDColumn<TItem> column)
+		=> await SortByAsync(column, null);
+
+	protected async Task SortByAsync(PDColumn<TItem> column, SortDirection? direction)
 	{
 		if (column.Sortable && !string.IsNullOrWhiteSpace(column.Id))
 		{
@@ -870,7 +878,14 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		// load previously saved state
 		if (StateManager != null)
 		{
-			await LoadStateAsync();
+			try
+			{
+				await LoadStateAsync();
+			}
+			catch
+			{
+				// Loading state too early can cause issues
+			}
 		}
 
 		// If this is the first time we've finished rendering, then all the columns

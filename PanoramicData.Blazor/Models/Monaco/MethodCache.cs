@@ -4,7 +4,7 @@ namespace PanoramicData.Blazor.Models.Monaco;
 
 public class MethodCache
 {
-	private readonly Dictionary<string, MethodDictionary> _languageDict = [];
+	private readonly Dictionary<string, MethodDictionary> _languageDict = new();
 
 	public interface IDescriptionProvider
 	{
@@ -32,13 +32,23 @@ public class MethodCache
 
 		public string Namespace { get; set; } = string.Empty;
 
-		public List<Parameter> Parameters { get; set; } = [];
+		public List<Parameter> Parameters { get; set; } = new();
 
 		public Type? ReturnType { get; set; }
 
+		public object? State { get; set; }
+
 		public string TypeName { get; set; } = string.Empty;
 
-		public string Fullname => $"{Namespace}.{TypeName}.{MethodName}";
+		public string Fullname => $"{Namespace}.{TypeName}.{MethodName}".TrimStart('.');
+
+		public bool IsMatch(string name)
+		{
+			var shortName = $"{TypeName}.{MethodName}".TrimStart('.');
+			return name.Equals(Fullname, StringComparison.OrdinalIgnoreCase)
+				|| name.Equals(shortName, StringComparison.OrdinalIgnoreCase)
+				|| name.Equals(MethodName, StringComparison.OrdinalIgnoreCase);
+		}
 
 		public override string ToString() => ToString(new());
 
@@ -128,22 +138,17 @@ public class MethodCache
 	{
 		if (!_languageDict.ContainsKey(language))
 		{
-			_languageDict.Add(language, []);
+			_languageDict.Add(language, new MethodDictionary());
 		}
 
 		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
 		{
 			// ensure parameters have position / ordinals
-			var allParamsBarFirst = method.Parameters.Where(x => x.Position == 0).OrderBy(x => x.Position).Skip(1).ToList();
-			if (allParamsBarFirst.Count > 0)
-			{
-				var position = allParamsBarFirst.Max(p => p.Position);
-				allParamsBarFirst.ForEach(p => p.Position = p.Position == 0 ? ++position : p.Position);
-			}
+			UpdateParameterPositions(method);
 
 			if (!methodDict.ContainsKey(method.Fullname))
 			{
-				methodDict.Add(method.Fullname, []);
+				methodDict.Add(method.Fullname, new List<Method>());
 			}
 
 			if (methodDict.TryGetValue(method.Fullname, out List<Method>? value))
@@ -151,6 +156,12 @@ public class MethodCache
 				value.Add(method);
 			}
 		}
+	}
+
+	public static void AddMethodParameters(Method method, IEnumerable<Parameter> parameters)
+	{
+		method.Parameters.AddRange(parameters);
+		UpdateParameterPositions(method);
 	}
 
 	public int AddTypeMethods(string language, Type type, BindingFlags? flags = null, IDescriptionProvider? descriptionProvider = null)
@@ -213,7 +224,17 @@ public class MethodCache
 
 	public bool Contains(string language) => _languageDict.ContainsKey(language);
 
-	public IEnumerable<CompletionItem> GetCompletionItems(string language)
+	public IEnumerable<Method> FindMethod(string language, string name)
+	{
+		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict)
+			&& methodDict.TryGetValue(name, out List<Method>? value))
+		{
+			return value;
+		}
+		return Array.Empty<Method>();
+	}
+
+	public IEnumerable<CompletionItem> GetCompletionItems(string language, string functionName)
 	{
 		var items = new List<CompletionItem>();
 		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
@@ -252,67 +273,67 @@ public class MethodCache
 					});
 
 					functions.Add(kvp.Key);
+
+					// add parameters?
+					if (!string.IsNullOrWhiteSpace(functionName) && functionName == kvp.Key)
+					{
+						if (kvp.Value.Count == 0)
+						{
+							// Todo: fetch parameters?
+						}
+						var m = kvp.Value.First();
+						foreach (var p in m.Parameters)
+						{
+							items.Add(new CompletionItem
+							{
+								LabelAsString = p.Name,
+								DocumentationAsString = p.Description,
+								Kind = CompletionItemKind.Property,
+								InsertText = p.Name
+							});
+						}
+					}
 				}
 			}
 		}
-
 		return items;
 	}
 
 	public IEnumerable<SignatureInformation> GetSignatures(string language, string name)
 	{
 		var signatures = new List<SignatureInformation>();
-		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
+		if (!string.IsNullOrWhiteSpace(name))
 		{
-			// filter methods
-			if (!string.IsNullOrWhiteSpace(name))
+			if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
 			{
-				var nameParts = name.Split('.');
-				if (nameParts.Length > 0)
+				var methods = methodDict.Values.SelectMany(overloads => overloads.Where(method => method.IsMatch(name))).ToArray();
+				foreach (var method in methods)
 				{
-					// name maybe in format: [[namespace.]type.]method
-					var ns = "";
-					var typeName = "";
-					if (nameParts.Length > 2)
+					signatures.Add(new SignatureInformation
 					{
-						ns = string.Join('.', nameParts[..^3]);
-					}
-
-					if (nameParts.Length > 1)
-					{
-						typeName = nameParts[^2];
-					}
-
-					var methodName = nameParts[^1];
-
-					// find matching methods
-					var methods = string.IsNullOrEmpty(typeName)
-						? methodDict.Values.SelectMany(overloads => overloads.Where(method => method.MethodName.Equals(methodName, StringComparison.OrdinalIgnoreCase)))
-						: string.IsNullOrEmpty(ns)
-							? methodDict.Values.SelectMany(overloads => overloads.Where(method => method.MethodName.Equals(methodName, StringComparison.OrdinalIgnoreCase)
-								&& method.TypeName.Equals(typeName, StringComparison.OrdinalIgnoreCase)))
-							: methodDict.Values.SelectMany(overloads => overloads.Where(method => method.MethodName.Equals(methodName, StringComparison.OrdinalIgnoreCase)
-								&& method.TypeName.Equals(typeName, StringComparison.OrdinalIgnoreCase)
-								&& method.Namespace.Equals(ns, StringComparison.OrdinalIgnoreCase)));
-
-					foreach (var method in methods)
-					{
-						signatures.Add(new SignatureInformation
+						Label = method.ToString(Options),
+						Parameters = method.Parameters.Select(p => new ParameterInformation
 						{
-							Label = method.ToString(Options),
-							Parameters = method.Parameters.Select(p => new ParameterInformation
-							{
-								Label = p.ToString(Options),
-								Documentation = p.Description
-							}).ToArray()
-						});
-					}
+							Label = p.ToString(Options),
+							Documentation = p.Description
+						}).ToArray()
+					});
 				}
 			}
 		}
-
 		return signatures;
 	}
 
 	public MethodCacheOptions Options { get; private set; } = new();
+
+	private static void UpdateParameterPositions(Method method)
+	{
+		var allParamsBarFirst = method.Parameters.Where(x => x.Position == 0).OrderBy(x => x.Position).Skip(1).ToList();
+		if (allParamsBarFirst.Count > 0)
+		{
+			var position = allParamsBarFirst.Max(p => p.Position);
+			allParamsBarFirst.ForEach(p => p.Position = p.Position == 0 ? ++position : p.Position);
+		}
+	}
+
 }

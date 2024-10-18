@@ -69,6 +69,11 @@ public partial class PDFormPage
 	{
 		EventManager?.Add(new Event("FooterClick", new EventArgument("Key", key)));
 
+		if (key == "Save")
+		{
+			await Task.Delay(5000);
+		}
+
 		if (key == "Cancel")
 		{
 			SelectedPerson = null;

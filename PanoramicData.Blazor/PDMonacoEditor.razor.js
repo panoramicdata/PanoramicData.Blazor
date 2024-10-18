@@ -20,12 +20,13 @@ export function registerLanguage(id, language) {
 		monaco.languages.register({ id: id });
 		if (language.showCompletions) {
 			monaco.languages.registerCompletionItemProvider(id, {
-				provideCompletionItems: getCompletions
+				provideCompletionItems: getCompletions,
+				resolveCompletionItem: resolveCompletionItem
 			});
 			if (language.signatureHelpTriggers) {
 				monaco.languages.registerSignatureHelpProvider(id, {
 					provideSignatureHelp: getSignatureHelp,
-					signatureHelpTriggerCharacters: language.signatureHelpTriggers
+					signatureHelpTriggerCharacters: language.signatureHelpTriggers,
 				});
 			}
 		}
@@ -96,22 +97,6 @@ function getActiveSignature(signatures, activeParameter) {
 	return 0; // unknown - return first
 }
 
-function getLastFunctionName(text, language) {
-	// regular expression to match function names followed by an opening delimiter
-	var delimiter = languageOptions[language].functionDelimiter;
-	var regexString = (needsEscaping(delimiter)) ? "([a-zA-Z_$][0-9a-zA-Z_$]*)\\s*\\" + delimiter : "([a-zA-Z_$][0-9a-zA-Z_$]*)\\s*" + delimiter;
-	const functionRegex = new RegExp(regexString, 'g');
-	//	const functionRegex = /([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/g;
-
-	let match;
-	let lastFunctionName = null;
-	// iterate over all matches and store the last one
-	while ((match = functionRegex.exec(text)) !== null) {
-		lastFunctionName = match[1];
-	}
-	return lastFunctionName;
-}
-
 async function getCompletions(model, position) {
 
 	var textUntilPosition = model.getValueInRange({
@@ -121,8 +106,10 @@ async function getCompletions(model, position) {
 		endColumn: position.column,
 	});
 
-	var word = model.getWordUntilPosition(position);
+	var language = model.getLanguageId();
+	var functionName = getLastFunctionName(textUntilPosition, language);
 
+	var word = model.getWordUntilPosition(position);
 	var range = {
 		startLineNumber: position.lineNumber,
 		endLineNumber: position.lineNumber,
@@ -133,11 +120,62 @@ async function getCompletions(model, position) {
 	// call out to C# to fetch completion items
 	var items = [];
 	if (_objRef) {
-		items = await _objRef.invokeMethodAsync("GetCompletions", range);
+		items = await _objRef.invokeMethodAsync("GetCompletions", range, functionName);
 	}
 
 	// return result
 	return { suggestions: items };
+}
+
+function getFirstWordBeforeChar(text, char) {
+	const regex = new RegExp(`\\b(\\w+)\\s*\\${char}`);
+	const match = text.match(regex);
+	return match ? match[1] : null;
+}
+
+function getLastFunctionName(text, language) {
+	// regular expression to match function names followed by an opening delimiter
+	var delimiter = languageOptions[language].functionDelimiter;
+	var regexString = (needsEscaping(delimiter)) ? "([a-zA-Z_$][0-9a-zA-Z_\\.$]*)\\s*\\" + delimiter : "([a-zA-Z_$][0-9a-zA-Z_\\.$]*)\\s*" + delimiter;
+	const functionRegex = new RegExp(regexString, 'g');
+	let match;
+	let lastFunctionName = null;
+	// iterate over all matches and store the last one
+	while ((match = functionRegex.exec(text)) !== null) {
+		lastFunctionName = match[1];
+	}
+	return lastFunctionName;
+}
+
+function getLastWordBeforeChar(text, char) {
+	const regex = new RegExp(`(\\b\\w+)\\s*(?=${char})`, 'g');
+	const matches = text.match(regex);
+	return matches ? matches[matches.length - 1] : null;
+}
+
+function getLastWordBeforeCharSinceComma(text, postfix) {
+	// Find the index of the last comma in the string
+	const lastCommaIndex = text.lastIndexOf(',');
+
+	// Find the index of the last postfix character in the string
+	const lastPostfixIndex = text.lastIndexOf(postfix);
+
+	// If no postfix or no comma is found, return null
+	if (lastPostfixIndex === -1) {
+		return null; // No postfix character found
+	}
+
+	// Slice the string from the last comma (or start of string if no comma)
+	const relevantText = lastCommaIndex !== -1
+		? text.slice(lastCommaIndex + 1, lastPostfixIndex)
+		: text.slice(0, lastPostfixIndex);
+
+	// Find the last word in the relevant portion of the string
+	const regex = /(\b\w+)\s*$/;
+	const match = relevantText.match(regex);
+
+	// Return the last word if found, otherwise return null
+	return match ? match[1] : null;
 }
 
 async function getSignatureHelp(model, position, token, context) {
@@ -180,36 +218,15 @@ async function getSignatureHelp(model, position, token, context) {
 	};
 }
 
-function getFirstWordBeforeChar(text, char) {
-	const regex = new RegExp(`\\b(\\w+)\\s*\\${char}`);
-	const match = text.match(regex);
-	return match ? match[1] : null;
-}
-function getLastWordBeforeChar(text, char) {
-	const regex = new RegExp(`(\\b\\w+)\\s*(?=${char})`, 'g');
-	const matches = text.match(regex);
-	return matches ? matches[matches.length - 1] : null;
-}
-
-function getLastWordBeforeCharSinceComma(text, char) {
-	// Find the position of the last comma before the target character
-	const lastCommaIndex = text.lastIndexOf(',', text.indexOf(char));
-
-	// If there's no comma, consider the entire string before the character
-	const relevantText = lastCommaIndex !== -1
-		? text.slice(lastCommaIndex + 1, text.indexOf(char))
-		: text.slice(0, text.indexOf(char));
-
-	// Use a regular expression to get the last word in the relevant portion
-	const regex = /(\b\w+)\s*$/;
-	const match = relevantText.match(regex);
-
-	return match ? match[1] : null;
-}
-
 function needsEscaping(char) {
 	const specialChars = /[.*+?^${}()|[\]\\]/;
 	return specialChars.test(char);
+}
+
+async function resolveCompletionItem(item, token) {
+	if (_objRef) {
+		await _objRef.invokeMethodAsync("ResolveCompletionAsync", item.label);
+	}
 }
 
 function stripNonWordChars(str) {

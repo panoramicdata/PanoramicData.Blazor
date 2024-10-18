@@ -99,7 +99,7 @@ public partial class PDTextArea : IAsyncDisposable
 			{
 				_objRef = DotNetObjectReference.Create(this);
 				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-				if (_commonModule != null)
+				if (_commonModule != null && DebounceWait > 0)
 				{
 					await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
 				}
@@ -149,7 +149,18 @@ public partial class PDTextArea : IAsyncDisposable
 		_cancelDebounce = false;
 	}
 
-	private async Task OnKeypress(KeyboardEventArgs args) => await Keypress.InvokeAsync(args).ConfigureAwait(true);
+	private async Task OnKeypress(KeyboardEventArgs args)
+	{
+		await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
+		await Keypress.InvokeAsync(args).ConfigureAwait(true);
+	}
+
+	private Task OnAfter()
+	{
+		// // invoke the event
+		ValueChanged.InvokeAsync(Value);
+		return Task.CompletedTask;
+	}
 
 	public async ValueTask DisposeAsync()
 	{

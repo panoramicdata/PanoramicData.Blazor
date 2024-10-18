@@ -149,13 +149,13 @@ public partial class PDTextBox : IAsyncDisposable
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender && JSRuntime is not null && DebounceWait > 0)
+		if (firstRender && JSRuntime is not null)
 		{
 			try
 			{
 				_objRef = DotNetObjectReference.Create(this);
 				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-				if (_commonModule != null)
+				if (_commonModule != null && DebounceWait > 0)
 				{
 					await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
 				}
@@ -189,8 +189,11 @@ public partial class PDTextBox : IAsyncDisposable
 
 	private async Task OnChange(ChangeEventArgs args)
 	{
-		Value = args.Value?.ToString() ?? string.Empty;
-		await ValueChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty).ConfigureAwait(true);
+		if (DebounceWait <= 0)
+		{
+			Value = args.Value?.ToString() ?? string.Empty;
+			await ValueChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty).ConfigureAwait(true);
+		}
 	}
 
 	private async Task OnClear(MouseEventArgs _)
@@ -212,7 +215,12 @@ public partial class PDTextBox : IAsyncDisposable
 		await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 	}
 
-	private async Task OnKeypress(KeyboardEventArgs args) => await Keypress.InvokeAsync(args).ConfigureAwait(true);
+	private async Task OnKeypress(KeyboardEventArgs args)
+	{
+		await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
+
+		await Keypress.InvokeAsync(args).ConfigureAwait(true);
+	}
 
 	private async Task OnListenForSpeech()
 	{

@@ -39,16 +39,17 @@
 						 Text="Dark" />
 	</PDToolbar>
 
-	@* @key is ONLY required if the Language parameter is to change*@
-	@*    - it forces a new instance of the component when the Language parameter changes *@
-	<PDMonacoEditor @bind-Value="@_value"
-					@key="@_language"
-					InitializeCache="InitializeCache"
-					InitializeOptions="InitializeOptions"
-					InitializeLanguageAsync="InitializeLanguageAsync"
-					Language="@_language"
-					RegisterLanguages="RegisterLanguages"
-					Theme="@_theme" />
+    @* @key is ONLY required if the Language parameter is to change*@
+    @*    - it forces a new instance of the component when the Language parameter changes *@
+    <PDMonacoEditor @bind-Value="@_value"
+                    @key="@_language"
+                    InitializeCache="InitializeCache"
+                    InitializeOptions="InitializeOptions"
+                    InitializeLanguageAsync="InitializeLanguageAsync"
+                    Language="@_language"
+                    RegisterLanguages="RegisterLanguages"
+                    UpdateCacheAsync="UpdateCacheAsync"
+                    Theme="@_theme" />
 
 	<div class="output">@_value</div>
 

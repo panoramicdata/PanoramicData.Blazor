@@ -2,6 +2,8 @@
 
 public partial class PDButton : IDisposable
 {
+	private bool _operationInProgress;
+
 	#region Inject
 	[Inject]
 	private IGlobalEventService GlobalEventService { get; set; } = null!;
@@ -46,6 +48,18 @@ public partial class PDButton : IDisposable
 	[Parameter]
 	public EventCallback<MouseEventArgs> MouseDown { get; set; }
 
+	/// <summary>
+	/// Async function to be called when button is clicked.
+	/// </summary>
+	[Parameter]
+	public Func<MouseEventArgs, Task>? Operation { get; set; }
+
+	/// <summary>
+	/// CSS Class for icon to be displayed on button when Operation is running.
+	/// </summary>
+	[Parameter] public string OperationIconCssClass { get; set; } = string.Empty;
+
+
 	[Parameter]
 	public bool PreventDefault { get; set; }
 
@@ -88,6 +102,8 @@ public partial class PDButton : IDisposable
 	/// </summary>
 	[Parameter] public string Url { get; set; } = string.Empty;
 
+	private bool ActualEnabledState => IsEnabled && (Operation is null || !_operationInProgress);
+
 	private string ButtonSizeCssClass
 	{
 		get
@@ -98,6 +114,27 @@ public partial class PDButton : IDisposable
 				ButtonSizes.Large => "btn-lg",
 				_ => string.Empty,
 			};
+		}
+	}
+
+	private string GetIconCssClass()
+	{
+		return Operation != null && _operationInProgress && !string.IsNullOrWhiteSpace(OperationIconCssClass)
+			? OperationIconCssClass
+			: IconCssClass;
+	}
+
+	private async Task OnClickAsync(MouseEventArgs args)
+	{
+		if (Operation is null)
+		{
+			await Click.InvokeAsync(args);
+		}
+		else
+		{
+			_operationInProgress = true;
+			await Operation.Invoke(args);
+			_operationInProgress = false;
 		}
 	}
 
