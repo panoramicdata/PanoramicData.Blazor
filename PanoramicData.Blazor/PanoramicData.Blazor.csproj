@@ -25,9 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDFormBody - Modified validation icon CSS to fix heigth and width of icons.
-			PDButton - Added Operation and OperationIconCssClass parameters.
-			PDFormFooter - Upgraded to use new Operation feature of PDButtons.
+			PDTree - Added new BeforeSelectionChange event callback
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

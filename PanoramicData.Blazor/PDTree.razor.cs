@@ -64,6 +64,11 @@ public partial class PDTree<TItem> where TItem : class
 	[Parameter] public EventCallback<TreeNodeBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
 
 	/// <summary>
+	/// Gets or sets an event callback raised just before the selection changes.
+	/// </summary>
+	[Parameter] public EventCallback<TreeBeforeSelectionChangeEventArgs<TItem>> BeforeSelectionChange { get; set; }
+
+	/// <summary>
 	/// Should a node clear its child content on collapse? Doing so will force a re-load of child nodes
 	/// if it is re-expanded. Only applicable when LoadOnDemand = true.
 	/// </summary>
@@ -144,7 +149,6 @@ public partial class PDTree<TItem> where TItem : class
 	/// A function that selects the field that contains the parent key value.
 	/// </summary>
 	[Parameter] public Func<TItem, object>? ParentKeyField { get; set; }
-
 
 	/// <summary>
 	/// Gets or sets an event callback raised when the component has perform all it initialization.
@@ -333,6 +337,14 @@ public partial class PDTree<TItem> where TItem : class
 			}
 			else
 			{
+				// allow app to pre-process or cancel change
+				var beforeEventArgs = new TreeBeforeSelectionChangeEventArgs<TItem>(node, SelectedNode);
+				await BeforeSelectionChange.InvokeAsync(beforeEventArgs).ConfigureAwait(true);
+				if (beforeEventArgs.Cancel)
+				{
+					return;
+				}
+
 				if (SelectedNode != null)
 				{
 					SelectedNode.IsSelected = false;
@@ -668,7 +680,7 @@ public partial class PDTree<TItem> where TItem : class
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		Id = $"{_idPrefix}{++_idSequence}";
 	}

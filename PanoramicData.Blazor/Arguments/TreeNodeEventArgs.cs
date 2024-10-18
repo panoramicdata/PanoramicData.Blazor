@@ -3,7 +3,7 @@
 /// <summary>
 /// The TreeNodeEventArgs class holds details on a node event.
 /// </summary>
-public class TreeNodeEventArgs<TItem> where TItem : class
+public class TreeNodeEventArgs<TItem> : EventArgs where TItem : class
 {
 	/// <summary>
 	/// Initializes a new instance of the TreeNodeEventArgs class.
@@ -80,4 +80,32 @@ public class TreeNodeAfterEditEventArgs<TItem> : TreeNodeCancelEventArgs<TItem> 
 	/// Gets or sets the new value.
 	/// </summary>
 	public string NewValue { get; set; }
+}
+
+/// <summary>
+/// The TreeNodeBeforeEditEventArgs class allows a pending edit to be canceled.
+/// </summary>
+public class TreeBeforeSelectionChangeEventArgs<TItem> : CancelEventArgs where TItem : class
+{
+	/// <summary>
+	/// Initializes a new instance of the TreeBeforeSelectionChangeEventArgs class.
+	/// </summary>
+	/// <param name="newNode">The new node that will be selected.</param>
+	/// <param name="oldNode">The old node that was previously selected.</param>
+	public TreeBeforeSelectionChangeEventArgs(TreeNode<TItem>? newNode, TreeNode<TItem>? oldNode)
+	{
+		NewNode = newNode;
+		OldNode = oldNode;
+	}
+
+	/// <summary>
+	/// Gets the old node that was previously selected.
+	/// </summary>
+	public TreeNode<TItem>? OldNode { get; }
+
+	/// <summary>
+	/// Gets the new node that will be selected.
+	/// </summary>
+	public TreeNode<TItem>? NewNode { get; }
+
 }
