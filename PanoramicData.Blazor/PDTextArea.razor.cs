@@ -3,9 +3,11 @@
 public partial class PDTextArea : IAsyncDisposable
 {
 	private static int _seq;
-	private DotNetObjectReference<PDTextArea>? _objRef;
-	private IJSObjectReference? _commonModule;
 	private bool _cancelDebounce;
+	private IJSObjectReference? _module;
+	private IJSObjectReference? _commonModule;
+	private TextAreaSelection _selection = new();
+	private DotNetObjectReference<PDTextArea>? _objRef;
 
 	/// <summary>
 	/// Injected javascript interop object.
@@ -55,6 +57,11 @@ public partial class PDTextArea : IAsyncDisposable
 	[Parameter] public string Placeholder { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Event raised whenever the text value changes.
+	/// </summary>
+	[Parameter] public EventCallback<TextAreaSelection> SelectionChanged { get; set; }
+
+	/// <summary>
 	/// Sets the initial text value.
 	/// </summary>
 	[Parameter] public string Value { get; set; } = string.Empty;
@@ -91,6 +98,36 @@ public partial class PDTextArea : IAsyncDisposable
 
 	public string Id { get; set; } = $"pd-textarea-{++_seq}";
 
+	public async ValueTask DisposeAsync()
+	{
+		try
+		{
+			GC.SuppressFinalize(this);
+			if (_commonModule != null)
+			{
+				await _commonModule.DisposeAsync().ConfigureAwait(true);
+			}
+			if (_module != null)
+			{
+				await _module.InvokeVoidAsync("termTextArea", Id).ConfigureAwait(true);
+				await _module.DisposeAsync().ConfigureAwait(true);
+			}
+			_objRef?.Dispose();
+		}
+		catch
+		{
+		}
+	}
+
+	public TextAreaSelection GetSelection() => _selection;
+
+	private Task OnAfter()
+	{
+		// invoke the event
+		ValueChanged.InvokeAsync(Value);
+		return Task.CompletedTask;
+	}
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -102,6 +139,11 @@ public partial class PDTextArea : IAsyncDisposable
 				if (_commonModule != null && DebounceWait > 0)
 				{
 					await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
+				}
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTextArea.razor.js").ConfigureAwait(true);
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync("initTextArea", Id, _objRef).ConfigureAwait(true);
 				}
 			}
 			catch
@@ -128,15 +170,6 @@ public partial class PDTextArea : IAsyncDisposable
 		await Blur.InvokeAsync().ConfigureAwait(true);
 	}
 
-	private async Task OnInput(ChangeEventArgs args)
-	{
-		if (DebounceWait <= 0)
-		{
-			Value = args.Value?.ToString() ?? string.Empty;
-			await ValueChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty).ConfigureAwait(true);
-		}
-	}
-
 	[JSInvokable]
 	public async Task OnDebouncedInput(string value)
 	{
@@ -149,33 +182,43 @@ public partial class PDTextArea : IAsyncDisposable
 		_cancelDebounce = false;
 	}
 
+
+	private async Task OnInput(ChangeEventArgs args)
+	{
+		if (DebounceWait <= 0)
+		{
+			Value = args.Value?.ToString() ?? string.Empty;
+			await ValueChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty).ConfigureAwait(true);
+		}
+	}
+
+
 	private async Task OnKeypress(KeyboardEventArgs args)
 	{
 		await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		await Keypress.InvokeAsync(args).ConfigureAwait(true);
 	}
 
-	private Task OnAfter()
+	[JSInvokable]
+	public async Task OnSelectionChanged(int start, int end, string value)
 	{
-		// // invoke the event
-		ValueChanged.InvokeAsync(Value);
-		return Task.CompletedTask;
+		if (start != _selection.Start || end != _selection.End)
+		{
+			_selection = new TextAreaSelection
+			{
+				Start = start,
+				End = end,
+				Value = value
+			};
+			await SelectionChanged.InvokeAsync(_selection);
+		}
 	}
 
-	public async ValueTask DisposeAsync()
+	public async Task SetSelectionAsync(int start, int end)
 	{
-		try
+		if (_module != null)
 		{
-			GC.SuppressFinalize(this);
-			if (_commonModule != null)
-			{
-				await _commonModule.DisposeAsync().ConfigureAwait(true);
-			}
-
-			_objRef?.Dispose();
-		}
-		catch
-		{
+			await _module.InvokeVoidAsync("setSelection", Id, start, end);
 		}
 	}
 

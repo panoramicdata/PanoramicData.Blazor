@@ -86,6 +86,20 @@
         Text Area Value: <b>@_textArea</b>
     </div>
 
+    <hr />
+
+    <label>Text Area 2 - Selection</label>
+    <div class="toolbar mb-1">
+        <button class="btn btn-sm btn-secondary" @onclick="OnGetTextAreaSelection">Get</button>
+        <button class="btn btn-sm btn-secondary ms-1" @onclick="OnSetTextAreaSelection">Set</button>
+        Text Area Selection: @_textSelection
+    </div>
+    <div class="input-group">
+        <PDTextArea @ref="_textArea3" @bind-Value="@_text3" SelectionChanged="OnTextAreaSelectionChanged" />
+    </div>
+    <div>
+    </div>
+
 
 	<EventView />
 
