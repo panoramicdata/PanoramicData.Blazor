@@ -11,7 +11,6 @@ public partial class PDMonacoEditor : IAsyncDisposable
 
 	private IJSObjectReference? _module;
 	private string _theme = string.Empty;
-	private string _language = "javascript";
 	private StandaloneCodeEditor? _monacoEditor;
 	private DotNetObjectReference<PDMonacoEditor>? _objRef;
 	private static readonly MethodCache _methodCache = new();
@@ -117,12 +116,28 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		{
 			return await _monacoEditor.GetSelection().ConfigureAwait(true);
 		}
+
 		return null;
 	}
 
 	[JSInvokable]
 	public SignatureInformation[] GetSignatures(string functionName)
 		=> _methodCache.GetSignatures(Language, functionName).ToArray();
+
+	private StandaloneEditorConstructionOptions GetOptions(StandaloneCodeEditor editor)
+	{
+		var options = new StandaloneEditorConstructionOptions
+		{
+			AutomaticLayout = true,
+			Language = Language,
+			Theme = Theme,
+			Value = Value
+		};
+
+		InitializeOptions?.Invoke(options);
+
+		return options;
+	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -142,20 +157,17 @@ public partial class PDMonacoEditor : IAsyncDisposable
 					var registered = await _module.InvokeAsync<bool>("registerLanguage", language.Id, language);
 					if (registered)
 					{
-						if (InitializeLanguage != null)
-						{
-							InitializeLanguage(language);
-						}
+						InitializeLanguage?.Invoke(language);
+
 						if (InitializeLanguageAsync != null)
 						{
 							await InitializeLanguageAsync(language).ConfigureAwait(true);
 						}
 					}
 				}
-				if (InitializeCache != null)
-				{
-					InitializeCache(_methodCache);
-				}
+
+				InitializeCache?.Invoke(_methodCache);
+
 				if (InitializeCacheAsync != null)
 				{
 					await InitializeCacheAsync(_methodCache).ConfigureAwait(true);
@@ -243,10 +255,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		try
 		{
 			GC.SuppressFinalize(this);
-			if (_objRef != null)
-			{
-				_objRef.Dispose();
-			}
+
+			_objRef?.Dispose();
+
 			if (_module != null)
 			{
 				await _module.DisposeAsync().ConfigureAwait(true);

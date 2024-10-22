@@ -44,12 +44,14 @@ public partial class PDDateTimeOffset
 				_dateCssClass = string.Empty;
 				return ValueChanged.InvokeAsync(Value);
 			}
+
 			_dateCssClass = "invalid";
 		}
 		catch
 		{
 			_dateCssClass = "invalid";
 		}
+
 		return Task.CompletedTask;
 	}
 
@@ -64,12 +66,14 @@ public partial class PDDateTimeOffset
 				_timeCssClass = string.Empty;
 				return ValueChanged.InvokeAsync(Value);
 			}
+
 			_timeCssClass = "invalid";
 		}
 		catch
 		{
 			_timeCssClass = "invalid";
 		}
+
 		return Task.CompletedTask;
 	}
 
@@ -88,6 +92,7 @@ public partial class PDDateTimeOffset
 		catch
 		{
 		}
+
 		return Task.CompletedTask;
 	}
 }

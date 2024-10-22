@@ -4,7 +4,7 @@ namespace PanoramicData.Blazor.PreviewProviders;
 
 public class DefaultPreviewProvider : IPreviewProvider
 {
-	private static string[] _downloadableFileTypes = ["html", "htm", "url", "md", "txt"];
+	private static readonly string[] _downloadableFileTypes = ["html", "htm", "url", "md", "txt"];
 
 	public string DateTimeFormat { get; set; } = "dd/MM/yy HH:mm:ss";
 
@@ -91,10 +91,12 @@ public class DefaultPreviewProvider : IPreviewProvider
 				sb.Append(detail);
 			}
 		}
+
 		if (spinner)
 		{
 			sb.Append(GetSpinnerHtml());
 		}
+
 		sb.Append("</div>");
 		info.HtmlContent = new MarkupString(sb.ToString());
 		info.CssClass = "basic";
@@ -126,6 +128,7 @@ public class DefaultPreviewProvider : IPreviewProvider
 				$"<span class=\"text-small text-muted\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>"
 			];
 		}
+
 		return
 		[
 			$"<span class=\"h1\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",

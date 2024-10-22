@@ -3,28 +3,23 @@
 /// <summary>
 /// The DropZoneEventArgs class provides information for PDDropZone drop events.
 /// </summary>
-public class DropZoneEventArgs
+/// <remarks>
+/// Initializes a new instance of the MenuItemEventArgs class.
+/// </remarks>
+/// <param name="sender">The object that raised the event.</param>
+/// <param name="files">Files dropped onto the zone.</param>
+public class DropZoneEventArgs(object sender, DropZoneFile[] files)
 {
-	/// <summary>
-	/// Initializes a new instance of the MenuItemEventArgs class.
-	/// </summary>
-	/// <param name="sender">The object that raised the event.</param>
-	/// <param name="files">Files dropped onto the zone.</param>
-	public DropZoneEventArgs(object sender, DropZoneFile[] files)
-	{
-		Sender = sender;
-		Files = files;
-	}
 
 	/// <summary>
 	/// Gets the object that raised the event.
 	/// </summary>
-	public object Sender { get; }
+	public object Sender { get; } = sender;
 
 	/// <summary>
 	/// Gets the files dropped onto the zone.
 	/// </summary>
-	public DropZoneFile[] Files { get; }
+	public DropZoneFile[] Files { get; } = files;
 
 	/// <summary>
 	/// Gets or sets whether the operation should be canceled.
@@ -50,55 +45,46 @@ public class DropZoneEventArgs
 /// <summary>
 /// The DropZoneUploadEventArgs class provides information for PDDropZone upload events.
 /// </summary>
-public class DropZoneUploadEventArgs
+/// <remarks>
+/// Initializes a new instance of the DropZoneUploadEventArgs class.
+/// </remarks>
+/// <param name="path">The path where the file is being uploaded.</param>
+/// <param name="name">The name of the file being uploaded.</param>
+/// <param name="size">The size of the file being uploaded.</param>
+/// <param name="key">Unique key for upload.</param>
+/// <param name="sessionId">Unique identifier for the session.</param>
+public class DropZoneUploadEventArgs(string path, string name, long size, string key, string sessionId)
 {
-	/// <summary>
-	/// Initializes a new instance of the DropZoneUploadEventArgs class.
-	/// </summary>
-	/// <param name="path">The path where the file is being uploaded.</param>
-	/// <param name="name">The name of the file being uploaded.</param>
-	/// <param name="size">The size of the file being uploaded.</param>
-	/// <param name="key">Unique key for upload.</param>
-	/// <param name="sessionId">Unique identifier for the session.</param>
-	public DropZoneUploadEventArgs(string path, string name, long size, string key, string sessionId)
-	{
-		Key = key;
-		Path = path;
-		Name = name;
-		Size = size;
-		SessionId = sessionId;
-		FormFields = [];
-	}
 
 	/// <summary>
 	/// Gets or sets the path where the file is being uploaded to.
 	/// </summary>
-	public string Path { get; set; }
+	public string Path { get; set; } = path;
 
 	/// <summary>
 	/// Gets or sets the name of the file being uploaded.
 	/// </summary>
-	public string Name { get; set; }
+	public string Name { get; set; } = name;
 
 	/// <summary>
 	/// Gets or sets the size of the file being uploaded.
 	/// </summary>
-	public long Size { get; set; }
+	public long Size { get; set; } = size;
 
 	/// <summary>
 	/// Gets or sets the unique identifier of the file being uploaded.
 	/// </summary>
-	public string Key { get; set; }
+	public string Key { get; set; } = key;
 
 	/// <summary>
 	/// Gets or sets the unique identifier of the session.
 	/// </summary>
-	public string SessionId { get; set; }
+	public string SessionId { get; set; } = sessionId;
 
 	/// <summary>
 	/// Gets or sets additional form fields to be sent with the upload request.
 	/// </summary>
-	public Dictionary<string, string> FormFields { get; set; }
+	public Dictionary<string, string> FormFields { get; set; } = [];
 
 	/// <summary>
 	/// Gets or sets the total number of files in the batch.
@@ -122,24 +108,19 @@ public class DropZoneUploadEventArgs
 /// <summary>
 /// The DropZoneUploadProgressEventArgs class provides information for PDDropZone upload events.
 /// </summary>
-public class DropZoneUploadProgressEventArgs : DropZoneUploadEventArgs
+/// <remarks>
+/// Initializes a new instance of the DropZoneUploadEventArgs class.
+/// </remarks>
+/// <param name="path">The path where the file is being uploaded.</param>
+/// <param name="name">The name of the file being uploaded.</param>
+/// <param name="size">The size of the file being uploaded.</param>
+public class DropZoneUploadProgressEventArgs(string path, string name, long size, string key, string sessionId, double progress) : DropZoneUploadEventArgs(path, name, size, key, sessionId)
 {
-	/// <summary>
-	/// Initializes a new instance of the DropZoneUploadEventArgs class.
-	/// </summary>
-	/// <param name="path">The path where the file is being uploaded.</param>
-	/// <param name="name">The name of the file being uploaded.</param>
-	/// <param name="size">The size of the file being uploaded.</param>
-	public DropZoneUploadProgressEventArgs(string path, string name, long size, string key, string sessionId, double progress)
-		: base(path, name, size, key, sessionId)
-	{
-		Progress = progress;
-	}
 
 	/// <summary>
 	/// Gets or sets the
 	/// </summary>
-	public double Progress { get; set; }
+	public double Progress { get; set; } = progress;
 
 	/// <summary>
 	/// Gets or sets whether the operation should be canceled.

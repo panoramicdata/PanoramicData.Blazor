@@ -319,9 +319,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 				var idx2 = list.IndexOf(item);
 				if (idx2 < idx1)
 				{
-					var idxT = idx1;
-					idx1 = idx2;
-					idx2 = idxT;
+					(idx2, idx1) = (idx1, idx2);
 				}
 
 				Selection.Items.Clear();
@@ -409,7 +407,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 	public Dictionary<string, object> ItemAttributes(TItem? item)
 	{
-		var selectedCss = item is null ? false : !ShowCheckBoxes && (Selection.AllSelected || Selection.Items.Contains(item));
+		var selectedCss = item is not null && !ShowCheckBoxes && (Selection.AllSelected || Selection.Items.Contains(item));
 		var dict = new Dictionary<string, object>()
 		{
 			{ "class", $"list-item d-flex align-items-center {(SelectionMode == TableSelectionMode.None || !IsEnabled ? "" : "cursor-pointer")} {(selectedCss ? "selected" : "")}" }

@@ -6,7 +6,8 @@ public partial class PDFileExplorerPage
 {
 	private string? _deepLinkPath;
 	private readonly string[] _virtualFolders = ["/Library", "/Users"];
-	private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
+	private static readonly TestFileSystemDataProvider _testFileSystemDataProvider = new();
+	private readonly TestFileSystemDataProvider _dataProvider = _testFileSystemDataProvider;
 	private IPreviewProvider? _previewProvider;
 
 	private PDFileExplorer? FileExplorer { get; set; }

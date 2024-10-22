@@ -16,6 +16,7 @@ public static class UriExtensions
 		{
 			query[entry.Key] = entry.Value;
 		}
+
 		return QueryHelpers.AddQueryString(uri.AbsolutePath, query);
 	}
 }

@@ -4,23 +4,17 @@
 /// The CustomValidateArgs class holds details on a field to be validated and allows collection
 /// of one or more error messages.
 /// </summary>
-public class CustomValidateArgs<TItem> where TItem : class
+public class CustomValidateArgs<TItem>(FormField<TItem> field, TItem? item) where TItem : class
 {
-	public CustomValidateArgs(FormField<TItem> field, TItem? item)
-	{
-		Field = field;
-		Item = item;
-	}
-
 	/// <summary>
 	/// Gets the field being validated.
 	/// </summary>
-	public FormField<TItem> Field { get; }
+	public FormField<TItem> Field { get; } = field;
 
 	/// <summary>
 	/// Gets the TItem being validated.
 	/// </summary>
-	public TItem? Item { get; }
+	public TItem? Item { get; } = item;
 
 	/// <summary>
 	/// Gets one or more error messages keyed by field name, to be added.

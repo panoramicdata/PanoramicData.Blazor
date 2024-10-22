@@ -529,20 +529,16 @@ public partial class PDColumn<TItem> where TItem : class
 		return Id;
 	}
 
-	private class FilterKeyVisitor : ExpressionVisitor
+	private class FilterKeyVisitor(Expression parameter) : ExpressionVisitor
 	{
-		private readonly Expression _param;
-
 		public string FilterKey { get; private set; } = string.Empty;
-
-		public FilterKeyVisitor(Expression parameter) => _param = parameter;
 
 		public override Expression? Visit(Expression? node)
 		{
 			if (node != null)
 			{
 				var chain = node.MemberClauses().ToList();
-				if (chain.Any() && chain.First().Expression == _param)
+				if (chain.Any() && chain.First().Expression == parameter)
 				{
 					FilterKey = string.Join(".", chain.Select(
 						mexpr => mexpr.Member.GetCustomAttribute<FilterKeyAttribute>()?.Value

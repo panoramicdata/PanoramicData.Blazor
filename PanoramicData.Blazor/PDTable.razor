@@ -110,7 +110,7 @@
 								{
 									if (column.EditTemplate == null)
 									{
-										<input id="@($"{IdEditPrefix}-{row}-{column.Id}")"
+										<input id="@($"{_idEditPrefix}-{row}-{column.Id}")"
 											   type="@(column.IsPassword || column.IsSensitive(item, null) ? "password" : "text")"
 											   value="@($"{column.GetValue(item)}")"
 											   class="pdtable_edit"

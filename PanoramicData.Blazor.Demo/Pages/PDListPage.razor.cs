@@ -6,9 +6,9 @@ public partial class PDListPage
 {
 	private PDDropDown? _dropdown;
 	private bool _isEnabled = true;
-	private CarDataProvider _dataProvider = new();
-	private Expression<Func<Car, object>> _sortExpression = (x) => x == null || x.ToString() == null ? string.Empty : x.ToString()!;
-	private Selection<Car> _list5Selection = new();
+	private readonly CarDataProvider _dataProvider = new();
+	private readonly Expression<Func<Car, object>> _sortExpression = (x) => x == null || x.ToString() == null ? string.Empty : x.ToString()!;
+	private readonly Selection<Car> _list5Selection = new();
 
 	[CascadingParameter]
 	protected EventManager? EventManager { get; set; }

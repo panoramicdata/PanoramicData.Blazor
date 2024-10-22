@@ -11,6 +11,7 @@ public static class ReflectionExtensions
 			// look for Description attribute
 			description = methodInfo.GetCustomAttributes().OfType<DescriptionAttribute>().SingleOrDefault()?.Description;
 		}
+
 		return description ?? string.Empty;
 	}
 
@@ -23,6 +24,7 @@ public static class ReflectionExtensions
 			// look for Description attribute
 			description = parameterInfo.GetCustomAttributes().OfType<DescriptionAttribute>().SingleOrDefault()?.Description;
 		}
+
 		return description ?? string.Empty;
 	}
 
@@ -35,6 +37,7 @@ public static class ReflectionExtensions
 			// look for Description attribute
 			name = methodInfo.GetCustomAttributes().OfType<DisplayNameAttribute>().SingleOrDefault()?.DisplayName;
 		}
+
 		return name ?? methodInfo.Name;
 	}
 
@@ -47,6 +50,7 @@ public static class ReflectionExtensions
 			// look for Description attribute
 			name = parameterInfo.GetCustomAttributes().OfType<DisplayNameAttribute>().SingleOrDefault()?.DisplayName;
 		}
+
 		return name ?? parameterInfo.Name;
 	}
 
@@ -126,7 +130,7 @@ public static class ReflectionExtensions
 		if (type.IsGenericType)
 		{
 			// get the name of the generic type without the arity suffix (e.g., `List` instead of `List`1`)
-			string genericTypeName = type.Name.Substring(0, type.Name.IndexOf('`'));
+			string genericTypeName = type.Name[..type.Name.IndexOf('`')];
 
 			// get the names of the generic type arguments
 			string[] genericArguments = Array.ConvertAll(type.GetGenericArguments(), t => t.GetFriendlyTypeName());
@@ -134,6 +138,7 @@ public static class ReflectionExtensions
 			// combine the generic type name with the argument names
 			return $"{genericTypeName}<{string.Join(", ", genericArguments)}>";
 		}
+
 		return type switch
 		{
 			Type t when t.IsGenericType => "",

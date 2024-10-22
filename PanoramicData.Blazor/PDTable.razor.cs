@@ -10,7 +10,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	private string? _lastSearchText;
 	private IJSObjectReference? _commonModule;
 	private bool _mouseDownOriginatedFromTable;
-	private readonly string IdEditPrefix = "pd-table-edit-";
+	private readonly string _idEditPrefix = "pd-table-edit-";
 	private CancellationTokenSource? _cancellationTokenSource;
 	private TableBeforeEditEventArgs<TItem>? _tableBeforeEditArgs;
 	private readonly Dictionary<string, object?> _editValues = [];
@@ -930,7 +930,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			{
 				if (_commonModule != null)
 				{
-					await _commonModule.InvokeVoidAsync("selectText", $"{IdEditPrefix}-{row}-{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
+					await _commonModule.InvokeVoidAsync("selectText", $"{_idEditPrefix}-{row}-{key}", _tableBeforeEditArgs!.SelectionStart, _tableBeforeEditArgs!.SelectionEnd).ConfigureAwait(true);
 				}
 
 				BeginEditEvent.Reset();
@@ -1074,7 +1074,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			if (_commonModule != null)
 			{
 				var id = await _commonModule.InvokeAsync<string>("getFocusedElementId").ConfigureAwait(true);
-				if (!id.StartsWith(IdEditPrefix, StringComparison.Ordinal))
+				if (!id.StartsWith(_idEditPrefix, StringComparison.Ordinal))
 				{
 					await CommitEditAsync().ConfigureAwait(true);
 				}

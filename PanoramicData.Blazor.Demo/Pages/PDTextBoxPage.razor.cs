@@ -53,6 +53,7 @@ public partial class PDTextBoxPage
 		{
 			await _textArea1.SetValueAsync(value);
 		}
+
 		if (_textArea2 != null)
 		{
 			await _textArea2.SetValueAsync(value);

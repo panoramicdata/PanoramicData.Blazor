@@ -4,8 +4,9 @@ namespace PanoramicData.Blazor;
 
 public partial class PDFilePreview
 {
+	private readonly PreviewInfo? _lastPreviewInfo;
+
 	private string? _lastPreviewPath;
-	private PreviewInfo? _lastPreviewInfo;
 	private PreviewInfo _previewInfo = new();
 
 	[Parameter]
@@ -24,6 +25,7 @@ public partial class PDFilePreview
 		{
 			return;
 		}
+
 		_lastPreviewPath = Item?.Path;
 
 		try
@@ -42,6 +44,7 @@ public partial class PDFilePreview
 				StateHasChanged();
 				await Task.WhenAll(delayTask, previewTask);
 			}
+
 			_previewInfo = await previewTask;
 		}
 		catch (Exception ex)

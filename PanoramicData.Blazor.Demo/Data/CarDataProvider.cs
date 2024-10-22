@@ -2,7 +2,7 @@
 
 public class CarDataProvider : DataProviderBase<Car>
 {
-	private List<Car> _cars = [];
+	private readonly List<Car> _cars = [];
 
 	public CarDataProvider()
 	{

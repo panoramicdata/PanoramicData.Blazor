@@ -1,17 +1,10 @@
 ﻿namespace PanoramicData.Blazor.Arguments;
 
-public class FieldUpdateArgs<TItem> where TItem : class
+public class FieldUpdateArgs<TItem>(FormField<TItem> field, object? oldValue, object? newValue) where TItem : class
 {
-	public FieldUpdateArgs(FormField<TItem> field, object? oldValue, object? newValue)
-	{
-		Field = field;
-		OldValue = oldValue;
-		NewValue = newValue;
-	}
+	public FormField<TItem> Field { get; } = field;
 
-	public FormField<TItem> Field { get; }
+	public object? OldValue { get; } = oldValue;
 
-	public object? OldValue { get; }
-
-	public object? NewValue { get; set; }
+	public object? NewValue { get; set; } = newValue;
 }

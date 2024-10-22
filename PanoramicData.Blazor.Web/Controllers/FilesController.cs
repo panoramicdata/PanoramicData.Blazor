@@ -44,6 +44,7 @@ public class FilesController : Controller
 		{
 			return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
 		}
+
 		return new FileStreamResult(stream, mimetype)
 		{
 			FileDownloadName = Path.GetFileName(path)

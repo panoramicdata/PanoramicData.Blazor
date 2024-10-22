@@ -132,6 +132,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		{
 			Form.ErrorsChanged -= Form_ErrorsChanged;
 		}
+
 		GC.SuppressFinalize(this);
 	}
 
@@ -146,6 +147,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 				names.Add(field.Title);
 			}
 		}
+
 		_errorFieldNames = string.Join(", ", names);
 		InvokeAsync(() => { StateHasChanged(); }).ConfigureAwait(true);
 	}

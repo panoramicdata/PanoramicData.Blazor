@@ -1,15 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Services;
 
-public class NavigationCancelService : INavigationCancelService
+public class NavigationCancelService(IJSRuntime jsRuntime) : INavigationCancelService
 {
-	private readonly IJSRuntime _jsRuntime;
-	private readonly ValueTask<IJSObjectReference>? _loadCommonJsTask;
-
-	public NavigationCancelService(IJSRuntime jsRuntime)
-	{
-		_jsRuntime = jsRuntime;
-		_loadCommonJsTask = jsRuntime.InvokeAsync<IJSObjectReference>("import", "/_content/PanoramicData.Blazor/js/common.js");
-	}
+	private readonly ValueTask<IJSObjectReference>? _loadCommonJsTask = jsRuntime.InvokeAsync<IJSObjectReference>("import", "/_content/PanoramicData.Blazor/js/common.js");
 
 	/// <summary>
 	/// Event raised before a navigation occurs.

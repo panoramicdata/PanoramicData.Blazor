@@ -199,11 +199,13 @@ public class FormField<TItem> where TItem : class
 		{
 			return null;
 		}
+
 		var dataType = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
 		if (dataType != null)
 		{
 			return Nullable.GetUnderlyingType(dataType) ?? dataType;
 		}
+
 		return dataType;
 	}
 
@@ -216,8 +218,10 @@ public class FormField<TItem> where TItem : class
 			{
 				return true;
 			}
+
 			return Nullable.GetUnderlyingType(propInfo.PropertyType) != null;
 		}
+
 		return false;
 	}
 
