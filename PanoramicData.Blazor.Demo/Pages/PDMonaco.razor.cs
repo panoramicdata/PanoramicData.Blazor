@@ -6,14 +6,19 @@ namespace PanoramicData.Blazor.Demo.Pages;
 public partial class PDMonaco : IAsyncDisposable
 {
 	private string _theme = "vs";
-	private string _themePreference = "light";
+	private PDMonacoEditor? _editor;
 	private string _language = "sql";
-	private string _value = "SELECT 10 * 10\n  FROM [Temp]";
+	private MethodCache? _methodCache;
 	private IJSObjectReference? _module;
-	private MethodCache _methodCache;
+	private string _themePreference = "light";
+	private string _selectionText = string.Empty;
+	private string _value = "SELECT 10 * 10\n  FROM [Temp]";
 
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
+
+	[CascadingParameter]
+	protected EventManager? EventManager { get; set; }
 
 	#region IAsyncDisposable
 
@@ -246,6 +251,48 @@ public partial class PDMonaco : IAsyncDisposable
 		}
 	}
 
+	private async Task OnGetSelection()
+	{
+		_selectionText = string.Empty;
+		if (_editor != null)
+		{
+			var s = await _editor.GetSelection();
+			if (s != null)
+			{
+				var r = new BlazorMonaco.Range(s.StartLineNumber, s.StartColumn, s.EndLineNumber, s.EndColumn);
+				if (r != null)
+				{
+					var v = await _editor.GetMonacoValueAsync(r, EndOfLinePreference.TextDefined);
+					_selectionText = $"{v} ({s.StartLineNumber},{s.StartColumn} - {s.EndLineNumber},{s.EndColumn})";
+				}
+			}
+		}
+	}
+
+	private void OnSelectionChanged(Selection selection)
+	{
+		EventManager?.Add(new Event("SelectionChanged",
+			new EventArgument("Start Line", selection.StartLineNumber),
+			new EventArgument("Start Column", selection.StartColumn),
+			new EventArgument("End Line", selection.EndLineNumber),
+			new EventArgument("End Column", selection.EndColumn)));
+	}
+
+	private async Task OnSetSelection()
+	{
+		if (_editor != null)
+		{
+			var selection = new Selection
+			{
+				SelectionStartLineNumber = 2,
+				SelectionStartColumn = 8,
+				PositionColumn = 14,
+				PositionLineNumber = 2,
+			};
+			await _editor.SetSelectionAsync(selection);
+		}
+	}
+
 	private void OnSetLanguage(string language)
 	{
 		_language = language;
@@ -256,7 +303,10 @@ public partial class PDMonaco : IAsyncDisposable
 			"javascript" => "if(Math.PI() > 3) {\n   this.setError(\"Invalid Function\");\n}",
 			_ => "SELECT 10 * 10\n  FROM [Temp]"
 		};
-		_methodCache.Options.HideDataTypes = language == "rmscript";
+		if (_methodCache != null)
+		{
+			_methodCache.Options.HideDataTypes = language == "rmscript";
+		}
 		StateHasChanged();
 	}
 

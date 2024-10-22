@@ -26,7 +26,7 @@ public partial class PDTextBoxPage
 		if (_textArea3 != null)
 		{
 			var selection = _textArea3.GetSelection();
-			_textSelection = $"({selection.Start} - {selection.End}) {selection.Value})";
+			_textSelection = $"{selection.Value} ({selection.Start} - {selection.End})";
 		}
 	}
 

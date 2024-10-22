@@ -1,6 +1,7 @@
 using BlazorMonaco;
 using BlazorMonaco.Languages;
 using PanoramicData.Blazor.Models.Monaco;
+using Range = BlazorMonaco.Range;
 
 namespace PanoramicData.Blazor;
 
@@ -57,6 +58,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	[Parameter]
 	public Func<MethodCache, string, string, Task>? UpdateCacheAsync { get; set; }
 
+	[Parameter]
+	public EventCallback<Selection> SelectionChanged { get; set; }
+
 	public async Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits, List<Selection>? endCursorState = null)
 	{
 		if (_monacoEditor != null)
@@ -68,29 +72,6 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	[JSInvokable]
 	public CompletionItem[] GetCompletions(BlazorMonaco.Range range, string functionName)
 		=> _methodCache.GetCompletionItems(Language, functionName).ToArray();
-
-	[JSInvokable]
-	public async Task ResolveCompletionAsync(string methodName)
-	{
-		if (UpdateCacheAsync != null)
-		{
-			await UpdateCacheAsync.Invoke(_methodCache, Language, methodName);
-		}
-	}
-
-	public async Task<Selection?> GetSelection()
-	{
-		if (_monacoEditor != null)
-		{
-			return await _monacoEditor.GetSelection().ConfigureAwait(true);
-		}
-		return null;
-	}
-
-
-	[JSInvokable]
-	public SignatureInformation[] GetSignatures(string functionName)
-		=> _methodCache.GetSignatures(Language, functionName).ToArray();
 
 	private StandaloneEditorConstructionOptions GetOptions(StandaloneCodeEditor editor)
 	{
@@ -107,6 +88,41 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 		return options;
 	}
+
+	public async Task<string> GetMonacoValueAsync(EndOfLinePreference eol, bool preserveBOM)
+	{
+		if (_monacoEditor != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			var value = await model.GetValue(eol, preserveBOM);
+			return value;
+		}
+		return string.Empty;
+	}
+
+	public async Task<string> GetMonacoValueAsync(Range range, EndOfLinePreference eol)
+	{
+		if (_monacoEditor != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			var value = await model.GetValueInRange(range, eol);
+			return value;
+		}
+		return string.Empty;
+	}
+
+	public async Task<Selection?> GetSelection()
+	{
+		if (_monacoEditor != null)
+		{
+			return await _monacoEditor.GetSelection().ConfigureAwait(true);
+		}
+		return null;
+	}
+
+	[JSInvokable]
+	public SignatureInformation[] GetSignatures(string functionName)
+		=> _methodCache.GetSignatures(Language, functionName).ToArray();
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -168,6 +184,11 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
+	private Task OnMonacoEditorSelectionChangeAsync(CursorSelectionChangedEvent evt)
+	{
+		return SelectionChanged.InvokeAsync(evt.Selection);
+	}
+
 	protected override async Task OnParametersSetAsync()
 	{
 		if (_monacoEditor != null)
@@ -180,11 +201,12 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
-	public async Task UpdateOptions(EditorUpdateOptions options)
+	[JSInvokable]
+	public async Task ResolveCompletionAsync(string methodName)
 	{
-		if (_monacoEditor != null)
+		if (UpdateCacheAsync != null)
 		{
-			await _monacoEditor.UpdateOptions(options).ConfigureAwait(true);
+			await UpdateCacheAsync.Invoke(_methodCache, Language, methodName);
 		}
 	}
 
@@ -194,6 +216,23 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		{
 			var model = await _monacoEditor.GetModel();
 			await model.SetValue(value);
+		}
+	}
+
+	public async Task SetSelectionAsync(Selection selection, string source = "")
+	{
+		if (_monacoEditor != null)
+		{
+			await _monacoEditor.SetSelection(selection, source);
+		}
+	}
+
+
+	public async Task UpdateOptions(EditorUpdateOptions options)
+	{
+		if (_monacoEditor != null)
+		{
+			await _monacoEditor.UpdateOptions(options).ConfigureAwait(true);
 		}
 	}
 

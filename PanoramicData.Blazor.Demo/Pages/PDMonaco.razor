@@ -3,54 +3,82 @@
 
 <h1>Monaco Editor</h1>
 
-<div class="host">
+<DemoSourceView SourceFiles="Pages/PDMonaco.razor, Pages/PDMonaco.razor.cs">
 
-    <PDToolbar>
-        <PDToolbarButton Click="@(() => OnSetLanguage("sql"))"
-                         CssClass="@(_language == "sql" ? "btn-primary" : "btn-secondary")"
-                         Size="ButtonSizes.Small"
-                         Text="SQL" />
+    <div class="host">
 
-        <PDToolbarButton Click="@(() => OnSetLanguage("javascript"))"
-                         CssClass="@(_language == "javascript" ? "btn-primary" : "btn-secondary")"
-                         Size="ButtonSizes.Small"
-                         Text="Javascript" />
+        <PDToolbar>
+            <PDToolbarButton Click="@(() => OnSetLanguage("sql"))"
+                             CssClass="@(_language == "sql" ? "btn-primary" : "btn-secondary")"
+                             Size="ButtonSizes.Small"
+                             Text="SQL" />
 
-        <PDToolbarButton Click="@(() => OnSetLanguage("ncalc"))"
-                         CssClass="@(_language == "ncalc" ? "btn-primary" : "btn-secondary")"
-                         Size="ButtonSizes.Small"
-                         Text="NCalc" />
+            <PDToolbarButton Click="@(() => OnSetLanguage("javascript"))"
+                             CssClass="@(_language == "javascript" ? "btn-primary" : "btn-secondary")"
+                             Size="ButtonSizes.Small"
+                             Text="Javascript" />
 
-        <PDToolbarButton Click="@(() => OnSetLanguage("rmscript"))"
-                         CssClass="@(_language == "rmscript" ? "btn-primary" : "btn-secondary")"
-                         Size="ButtonSizes.Small"
-                         Text="RMScript" />
+            <PDToolbarButton Click="@(() => OnSetLanguage("ncalc"))"
+                             CssClass="@(_language == "ncalc" ? "btn-primary" : "btn-secondary")"
+                             Size="ButtonSizes.Small"
+                             Text="NCalc" />
 
-        <PDToolbarSeparator />
+            <PDToolbarButton Click="@(() => OnSetLanguage("rmscript"))"
+                             CssClass="@(_language == "rmscript" ? "btn-primary" : "btn-secondary")"
+                             Size="ButtonSizes.Small"
+                             Text="RMScript" />
 
-        <PDToolbarButton Click="@(() => OnSetTheme("light"))"
-                         CssClass="@(_themePreference == "light" ? "btn-primary" : "btn-secondary")"
-                         Size="ButtonSizes.Small"
-                         Text="Light" />
+            <PDToolbarSeparator />
 
-        <PDToolbarButton Click="@(() => OnSetTheme("dark"))"
-                         CssClass="@(_themePreference == "dark" ? "btn-primary" : "btn-secondary")"
-                         Size="ButtonSizes.Small"
-                         Text="Dark" />
-    </PDToolbar>
+            <PDToolbarButton Click="@(() => OnSetTheme("light"))"
+                             CssClass="@(_themePreference == "light" ? "btn-primary" : "btn-secondary")"
+                             Size="ButtonSizes.Small"
+                             Text="Light" />
 
-    @* @key is ONLY required if the Language parameter is to change*@
-    @*    - it forces a new instance of the component when the Language parameter changes *@
-    <PDMonacoEditor @bind-Value="@_value"
-                    @key="@_language"
-                    InitializeCache="InitializeCache"
-                    InitializeOptions="InitializeOptions"
-                    InitializeLanguageAsync="InitializeLanguageAsync"
-                    Language="@_language"
-                    RegisterLanguages="RegisterLanguages"
-                    UpdateCacheAsync="UpdateCacheAsync"
-                    Theme="@_theme" />
+            <PDToolbarButton Click="@(() => OnSetTheme("dark"))"
+                             CssClass="@(_themePreference == "dark" ? "btn-primary" : "btn-secondary")"
+                             Size="ButtonSizes.Small"
+                             Text="Dark" />
 
-    <div class="output">@_value</div>
+            <PDToolbarPlaceholder ShiftRight="true">
+                <span>Selection</span>
+            </PDToolbarPlaceholder>
 
-</div>
+            <PDToolbarButton Click="@(() => OnGetSelection())"
+                             CssClass="btn-secondary"
+                             Size="ButtonSizes.Small"
+                             Text="Get" />
+
+            <PDToolbarButton Click="@(() => OnSetSelection())"
+                             CssClass="btn-secondary"
+                             Size="ButtonSizes.Small"
+                             Text="Set" />
+
+            <PDToolbarPlaceholder>
+                <span>Text: @_selectionText</span>
+            </PDToolbarPlaceholder>
+
+
+        </PDToolbar>
+
+        @* @key is ONLY required if the Language parameter is to change*@
+        @*    - it forces a new instance of the component when the Language parameter changes *@
+        <PDMonacoEditor @bind-Value="@_value"
+                        @key="@_language"
+                        @ref="_editor"
+                        InitializeCache="InitializeCache"
+                        InitializeOptions="InitializeOptions"
+                        InitializeLanguageAsync="InitializeLanguageAsync"
+                        Language="@_language"
+                        RegisterLanguages="RegisterLanguages"
+                        SelectionChanged="OnSelectionChanged"
+                        Theme="@_theme"
+                        UpdateCacheAsync="UpdateCacheAsync" />
+
+        <div class="output">@_value</div>
+
+    </div>
+
+    <EventView />
+
+</DemoSourceView>
