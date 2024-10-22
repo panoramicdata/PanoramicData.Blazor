@@ -25,7 +25,8 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTree - Added new BeforeSelectionChange event callback
+			PDTextArea added GetSelection, SetSelection and SelectionChanged event callback
+			PDMonaco added GetSelection, SetSelection and SelectionChanged event callback
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
