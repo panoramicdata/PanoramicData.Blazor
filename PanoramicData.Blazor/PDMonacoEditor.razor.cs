@@ -81,10 +81,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 			Theme = Theme,
 			Value = Value
 		};
-		if (InitializeOptions != null)
-		{
-			InitializeOptions(options);
-		}
+		InitializeOptions?.Invoke(options);
 		return options;
 	}
 
@@ -123,21 +120,6 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	[JSInvokable]
 	public SignatureInformation[] GetSignatures(string functionName)
 		=> _methodCache.GetSignatures(Language, functionName).ToArray();
-
-	private StandaloneEditorConstructionOptions GetOptions(StandaloneCodeEditor editor)
-	{
-		var options = new StandaloneEditorConstructionOptions
-		{
-			AutomaticLayout = true,
-			Language = Language,
-			Theme = Theme,
-			Value = Value
-		};
-
-		InitializeOptions?.Invoke(options);
-
-		return options;
-	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
