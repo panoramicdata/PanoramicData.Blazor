@@ -48,6 +48,9 @@ public partial class PDButton : IDisposable
 	[Parameter]
 	public EventCallback<MouseEventArgs> MouseDown { get; set; }
 
+	[Parameter]
+	public EventCallback<MouseEventArgs> MouseEnter { get; set; }
+
 	/// <summary>
 	/// Async function to be called when button is clicked.
 	/// </summary>

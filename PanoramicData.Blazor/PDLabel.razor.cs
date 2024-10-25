@@ -21,6 +21,9 @@ public partial class PDLabel
 	public EventCallback<MouseEventArgs> MouseDown { get; set; }
 
 	[Parameter]
+	public EventCallback<MouseEventArgs> MouseEnter { get; set; }
+
+	[Parameter]
 	public bool PreventDefault { get; set; }
 
 	[Parameter]

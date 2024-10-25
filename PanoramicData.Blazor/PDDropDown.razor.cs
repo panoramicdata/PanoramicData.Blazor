@@ -35,8 +35,10 @@ public partial class PDDropDown : IAsyncDisposable
 	public Directions DropdownDirection { get; set; } = Directions.Down;
 
 	[Parameter]
-	public EventCallback DropDownShown { get; set; }
+	public EventCallback DropDownHidden { get; set; }
 
+	[Parameter]
+	public EventCallback DropDownShown { get; set; }
 
 	[Parameter]
 	public bool IsEnabled { get; set; } = true;
@@ -55,6 +57,9 @@ public partial class PDDropDown : IAsyncDisposable
 
 	[Parameter]
 	public bool ShowCaret { get; set; } = true;
+
+	[Parameter]
+	public bool ShowOnMouseEnter { get; set; }
 
 	[Parameter]
 	public ButtonSizes Size { get; set; } = ButtonSizes.Medium;
@@ -162,9 +167,10 @@ public partial class PDDropDown : IAsyncDisposable
 	}
 
 	[JSInvokable]
-	public void OnDropDownHidden()
+	public async Task OnDropDownHidden()
 	{
 		_shown = false;
+		await DropDownHidden.InvokeAsync(null).ConfigureAwait(true);
 		StateHasChanged();
 	}
 
@@ -179,6 +185,8 @@ public partial class PDDropDown : IAsyncDisposable
 		}
 	}
 
+	private Task OnMouseDown(MouseEventArgs args)
+		=> IsEnabled && ShowOnMouseEnter ? ShowAsync() : Task.CompletedTask;
 
 	public async Task ToggleAsync()
 	{

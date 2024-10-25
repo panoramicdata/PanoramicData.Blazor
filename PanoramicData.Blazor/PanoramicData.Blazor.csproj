@@ -25,8 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTextArea added GetSelection, SetSelection and SelectionChanged event callback
-			PDMonaco added GetSelection, SetSelection and SelectionChanged event callback
+			PDDropDown - Added ShowOnMouseEnter and DropDownHidden parameters
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
