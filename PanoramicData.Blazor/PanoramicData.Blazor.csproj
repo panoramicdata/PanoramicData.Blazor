@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDDropDown - Added ShowOnMouseEnter and DropDownHidden parameters
+			PDToolbarDropDown - Upgraded to use PDDropDown internally and added ShowOnMouseEnter parameter
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

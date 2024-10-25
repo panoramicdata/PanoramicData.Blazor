@@ -2,11 +2,11 @@
 
 public partial class PDDropDown : IAsyncDisposable
 {
-	private static int _sequence;
 	private bool _shown;
-	private DotNetObjectReference<PDDropDown>? _objRef;
+	private static int _sequence;
 	private IJSObjectReference? _module;
 	private IJSObjectReference? _dropdownObj;
+	private DotNetObjectReference<PDDropDown>? _objRef;
 
 	public enum CloseOptions
 	{
@@ -185,7 +185,7 @@ public partial class PDDropDown : IAsyncDisposable
 		}
 	}
 
-	private Task OnMouseDown(MouseEventArgs args)
+	private Task OnMouseEnter(MouseEventArgs args)
 		=> IsEnabled && ShowOnMouseEnter ? ShowAsync() : Task.CompletedTask;
 
 	public async Task ToggleAsync()
