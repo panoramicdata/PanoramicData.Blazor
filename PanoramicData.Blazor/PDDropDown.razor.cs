@@ -85,7 +85,8 @@ public partial class PDDropDown : IAsyncDisposable
 		{
 			return new Dictionary<string, object>
 			{
-				{ "data-bs-toggle", "dropdown" }
+				{ "data-bs-toggle", "dropdown" },
+				{ "data-bs-offset", "0,-3" } // required to leave no gap between toggle button and dropdown
 			};
 		}
 	}
@@ -121,6 +122,8 @@ public partial class PDDropDown : IAsyncDisposable
 		}
 	}
 
+	public string DropdownId => $"{Id}-dropdown";
+
 	public async Task HideAsync()
 	{
 		if (_dropdownObj != null)
@@ -139,7 +142,7 @@ public partial class PDDropDown : IAsyncDisposable
 				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropDown.razor.js").ConfigureAwait(true);
 				if (_module != null)
 				{
-					_dropdownObj = await _module.InvokeAsync<IJSObjectReference>("initialize", ToggleId, _objRef, new
+					_dropdownObj = await _module.InvokeAsync<IJSObjectReference>("initialize", Id, ToggleId, DropdownId, _objRef, new
 					{
 						autoClose = CloseOption switch
 						{
@@ -187,6 +190,10 @@ public partial class PDDropDown : IAsyncDisposable
 
 	private Task OnMouseEnter(MouseEventArgs args)
 		=> IsEnabled && ShowOnMouseEnter ? ShowAsync() : Task.CompletedTask;
+
+	[JSInvokable]
+	public Task OnMouseLeave()
+		=> IsEnabled && ShowOnMouseEnter ? HideAsync() : Task.CompletedTask;
 
 	public async Task ToggleAsync()
 	{

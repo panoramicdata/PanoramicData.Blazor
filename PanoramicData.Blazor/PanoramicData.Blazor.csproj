@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDToolbarDropDown - Upgraded to use PDDropDown internally and added ShowOnMouseEnter parameter
+			PDDropDown - If ShowOnMouseEnter is true now closes dropdown menu on MouseLeave event
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
