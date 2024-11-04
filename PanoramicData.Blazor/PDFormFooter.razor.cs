@@ -142,7 +142,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		var names = new List<string>();
 		foreach (var kvp in Form.Errors)
 		{
-			if (Form.Fields.FirstOrDefault(x => x.Name == kvp.Key) is FormField<TItem> field)
+			if (Form.Fields.Find(x => x.Name == kvp.Key) is FormField<TItem> field)
 			{
 				names.Add(field.Title);
 			}
@@ -229,7 +229,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 					}
 					await Form.ResetChanges();
 				}
-				await Click.InvokeAsync("Delete").ConfigureAwait(true);
+				await Click.InvokeAsync("Yes").ConfigureAwait(true);
 			}
 			else if (Form.Mode == FormModes.Cancel)
 			{
