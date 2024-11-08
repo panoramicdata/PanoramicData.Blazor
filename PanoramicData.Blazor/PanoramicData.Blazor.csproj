@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDFormFooter - Fixed issue where event for 'No' button was not being raised.
+			PDMonacoEditor - Added ShowSuggestions (defaults to true)
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

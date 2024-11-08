@@ -25,6 +25,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	public string Language { get; set; } = "javascript";
 
 	[Parameter]
+	public bool ShowSuggestions { get; set; } = true;
+
+	[Parameter]
 	public string Theme { get; set; } = string.Empty;
 
 	[Parameter]
@@ -70,7 +73,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 
 	[JSInvokable]
 	public CompletionItem[] GetCompletions(BlazorMonaco.Range range, string functionName)
-		=> _methodCache.GetCompletionItems(Language, functionName).ToArray();
+		=> ShowSuggestions ? _methodCache.GetCompletionItems(Language, functionName).ToArray() : Array.Empty<CompletionItem>();
 
 	private StandaloneEditorConstructionOptions GetOptions(StandaloneCodeEditor editor)
 	{
@@ -119,7 +122,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 
 	[JSInvokable]
 	public SignatureInformation[] GetSignatures(string functionName)
-		=> _methodCache.GetSignatures(Language, functionName).ToArray();
+		=> ShowSuggestions ? _methodCache.GetSignatures(Language, functionName).ToArray() : Array.Empty<SignatureInformation>();
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{

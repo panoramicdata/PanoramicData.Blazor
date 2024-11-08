@@ -10,6 +10,7 @@ public partial class PDMonaco : IAsyncDisposable
 	private string _language = "sql";
 	private MethodCache? _methodCache;
 	private IJSObjectReference? _module;
+	private bool _showSuggestions = true;
 	private string _themePreference = "light";
 	private string _selectionText = string.Empty;
 	private string _value = "SELECT 10 * 10\n  FROM [Temp]";
@@ -236,6 +237,10 @@ public partial class PDMonaco : IAsyncDisposable
 		// this method is called by the PDMonacoEditor when initialized to allow for default options to be applied
 		// Language and Theme are already set from the supplied Parameters
 		options.LineNumbers = "on";
+		options.Suggest = new SuggestOptions
+		{
+			ShowWords = false
+		};
 	}
 
 	public async Task InitializeLanguageAsync(Language language)

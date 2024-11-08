@@ -40,6 +40,13 @@
                              Size="ButtonSizes.Small"
                              Text="Dark" />
 
+            <PDToolbarPlaceholder>
+                <PDToggleSwitch @bind-Value="_showSuggestions"
+                                Label="Show Suggestions"
+                                LabelBefore="true"
+                                Rounded="true" />
+            </PDToolbarPlaceholder>
+
             <PDToolbarPlaceholder ShiftRight="true">
                 <span>Selection</span>
             </PDToolbarPlaceholder>
@@ -66,6 +73,7 @@
         <PDMonacoEditor @bind-Value="@_value"
                         @key="@_language"
                         @ref="_editor"
+                        ShowSuggestions="_showSuggestions"
                         InitializeCache="InitializeCache"
                         InitializeOptions="InitializeOptions"
                         InitializeLanguageAsync="InitializeLanguageAsync"
