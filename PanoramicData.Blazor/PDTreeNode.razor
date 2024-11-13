@@ -42,7 +42,13 @@
             }
             else if (Node != null)
             {
-                @if (NodeTemplate is null)
+                @if (Node.Data is IWebLink webLink && !string.IsNullOrWhiteSpace(webLink.Url))
+                {
+                    <a href="@webLink.Url"
+                       target="@webLink.Target"
+                       title="@(Node?.Data != null && Tree?.ToolTip != null ? Tree.ToolTip.Invoke(Node.Data) : null)">@Node!.Text</a>
+                }
+                else if (NodeTemplate is null)
                 {
                     <span title="@(Node?.Data != null && Tree?.ToolTip != null ? Tree.ToolTip.Invoke(Node.Data) : null)">@Node!.Text</span>
                 }
