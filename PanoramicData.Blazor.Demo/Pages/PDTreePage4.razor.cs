@@ -57,7 +57,7 @@ public partial class PDTreePage4
 						ParentId = 1,
 						IconCssClass="fas fa-fw fa-external-link-alt me-1",
 						Target = "_blank",
-						Url = "//https://presearch.com/"
+						Url = "https://presearch.com/"
 					},
 					new ()
 					{
