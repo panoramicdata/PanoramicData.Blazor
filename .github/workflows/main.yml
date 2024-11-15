@@ -12,11 +12,11 @@ jobs:
       with:
         fetch-depth: 0
 
-    # Sets up .NET Core SDK 7.x
+    # Sets up .NET Core SDK 9.x
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v4.0.0
       with:
-        dotnet-version: 8.x
+        dotnet-version: 9.x
 
     # Restore projects separately
     - name: Restore Projects

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<UserSecretsId>49933e5c-b6ca-4a76-8b2a-09d0868ee051</UserSecretsId>
 	</PropertyGroup>
@@ -31,9 +31,9 @@
 
 	<ItemGroup>
 		<PackageReference Include="BlazorMonaco" Version="3.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
-		<PackageReference Include="PanoramicData.NCalcExtensions" Version="3.1.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
+		<PackageReference Include="PanoramicData.NCalcExtensions" Version="3.1.19" />
 	</ItemGroup>
 
 
