@@ -1,24 +1,27 @@
 ﻿<svg class="tl-stacked-bar @(IsEnabled ? "" : "disabled")"
-	 viewBox="@($"0 0 {Options.Bar.Width} {MaxValue}")"
-	 x="@X"
-	 preserveAspectRatio="none"
-	 width="@Options.Bar.Width">
-	@{
-		var y = MaxValue;
-		@if(DataPoint != null)
-		{
-			for (var i = 0; i < DataPoint.SeriesValues.Length; i++)
-			{
-				var value =  YValueTransform(DataPoint.SeriesValues[i]);
-				var colour = Options.Series.Length > 0 && i < Options.Series.Length ? Options.Series[i].Colour : "black";
-				<rect x="@Options.Bar.Padding"
-					  y="@(y - value)"
-					  width="@(Options.Bar.Width - 2 * Options.Bar.Padding)"
-					  height="@value"
-					  stroke="@colour"
-					  fill="@colour" />
-				y -= value;
-			}
+     height="@Height"
+     preserveAspectRatio="none"
+     width="@Options.Bar.Width"
+     x="@X">
+    @{
+        var y = Height;
+        @if(DataPoint != null)
+        {
+            for (var i = 0; i < DataPoint.SeriesValues.Length; i++)
+            {
+                var value = (YValueTransform(DataPoint.SeriesValues[i]) / MaxValue) * Height;
+                var colour = Options.Series.Length > 0 && i < Options.Series.Length ? Options.Series[i].Colour : "black";
+                @if (value > 0)
+                {
+                    <rect x="@Options.Bar.Padding"
+                        y="@(y - value)"
+                        width="@(Options.Bar.Width - 2 * Options.Bar.Padding)"
+                        height="@(value)"
+                        stroke="@colour"
+                        fill="@colour" />
+                    y -= value;
+                }
+            }
 		}
 	}
 	<title>@GetTitle()</title>

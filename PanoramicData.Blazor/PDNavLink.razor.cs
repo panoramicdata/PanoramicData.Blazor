@@ -77,7 +77,7 @@ public partial class PDNavLink : IAsyncDisposable
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		// We'll consider re-rendering on each location change
 		NavigationManager.LocationChanged += OnLocationChanged;

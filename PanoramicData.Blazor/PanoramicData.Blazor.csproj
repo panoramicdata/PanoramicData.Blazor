@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTree - Added support for IWebLink on nodes (renders as Anchor tags)
+			PDTimeline - Fixed bug with bar rendering not proportionally
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
