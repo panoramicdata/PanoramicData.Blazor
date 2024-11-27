@@ -307,9 +307,9 @@ public partial class PDFileModal
 		// inform caller of result and hide modal
 		try
 		{
-			await this.InvokeAsync(async () => await ModalHidden.InvokeAsync(result).ConfigureAwait(true));		
+			await this.InvokeAsync(async () => await ModalHidden.InvokeAsync(result).ConfigureAwait(true));
 		}
-		catch (Exception ex)
+		catch
 		{
 		}
 		await Modal.HideAsync().ConfigureAwait(true);

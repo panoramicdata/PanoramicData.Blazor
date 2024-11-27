@@ -9,6 +9,9 @@ public partial class PDStackedBar
 	public DataPoint DataPoint { get; set; } = new DataPoint();
 
 	[Parameter]
+	public double Height { get; set; }
+
+	[Parameter]
 	public bool IsEnabled { get; set; } = true;
 
 	[Parameter]

@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Upgraded to .Net 9
+			PDTimeline - Fixed bug with bar rendering not proportionally
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

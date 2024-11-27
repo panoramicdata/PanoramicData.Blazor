@@ -111,7 +111,7 @@ public partial class PDLinkButton : IAsyncDisposable
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
 		if (ShortcutKey.HasValue)
