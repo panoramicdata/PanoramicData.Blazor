@@ -220,4 +220,18 @@ public class PersonDataProvider : DataProviderBase<Person>
 		_people.Add(item);
 		return new OperationResponse { Success = true };
 	}
+
+	public override IQueryable<Person> ApplyFilter(IQueryable<Person> query, Filter filter)
+	{
+		if (filter.Key == "age")
+		{
+			// example of applying a custom / calculated filter on the dataset
+			var birthYear = DateTime.Now.Date.Year - int.Parse(filter.Value);
+			return query.Where(x => x.Dob!.Value.Year == birthYear);
+		}
+		else
+		{
+			return base.ApplyFilter(query, filter);
+		}
+	}
 }

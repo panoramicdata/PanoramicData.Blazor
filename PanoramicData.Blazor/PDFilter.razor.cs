@@ -39,6 +39,9 @@ public partial class PDFilter : IAsyncDisposable
 	public bool Nullable { get; set; }
 
 	[Parameter]
+	public FilterOptions Options { get; set; } = new();
+
+	[Parameter]
 	public bool ShowValues { get; set; } = true;
 
 	[Parameter]
@@ -156,6 +159,15 @@ public partial class PDFilter : IAsyncDisposable
 
 	private void OnValueClicked(string value)
 	{
+		// if single value then clear other selections
+		if (!Options.AllowIn)
+		{
+			_selectedValues.Clear();
+			_selectedValues.Add(value);
+			_value1 = value;
+			return;
+		}
+
 		// toggle clicked value from selected items
 		if (!_selectedValues.Remove(value))
 		{

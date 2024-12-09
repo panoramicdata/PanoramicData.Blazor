@@ -6,6 +6,7 @@ public partial class PDTablePage
 	private PageCriteria _pageCriteria = new(1, 100);
 	private SortCriteria _sortCriteria = new("Last Name", SortDirection.Descending);
 	private readonly PersonDataProvider _personDataProvider = new();
+	private object[] _ages = Array.Empty<object>();
 	private bool AllowDrag { get; set; }
 	private bool AllowDrop { get; set; }
 	private string DropZoneCss { get; set; } = "";
@@ -47,6 +48,13 @@ public partial class PDTablePage
 		{
 			_searchText = requestedSearch.ToString();
 		}
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		// determine unique birth years
+		var years = await _personDataProvider.GetDistinctValuesAsync(new(), x => x.Dob!.Value.Year);
+		_ages = years.Select(x => (DateTime.Now.Date.Year - Convert.ToInt32(x)) as object).OrderBy(x => x).ToArray();
 	}
 
 	private async Task SearchAsync()

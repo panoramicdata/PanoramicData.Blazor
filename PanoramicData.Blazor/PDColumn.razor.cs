@@ -93,6 +93,9 @@ public partial class PDColumn<TItem> where TItem : class
 	public string FilterKey { get; set; } = string.Empty;
 
 	[Parameter]
+	public FilterOptions FilterOptions { get; set; } = new();
+
+	[Parameter]
 	public bool FilterShowSuggestedValues { get; set; } = true;
 
 	[Parameter]

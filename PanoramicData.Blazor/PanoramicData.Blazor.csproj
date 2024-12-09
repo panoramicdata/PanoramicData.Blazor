@@ -25,7 +25,8 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTimeline - Fixed bug with bar rendering not proportionally
+			PDColumn - Added FilterOptions parameter
+			PDTable - Updated to use column FilterOptions
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
