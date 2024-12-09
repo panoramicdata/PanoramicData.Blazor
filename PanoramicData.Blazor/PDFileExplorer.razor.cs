@@ -810,6 +810,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				args.Cancel = true;
 			}
+			else if (string.Equals(args.Item.Name, newName, StringComparison.OrdinalIgnoreCase))
+			{
+				// allow file name to change case
+				return;
+			}
 			else if (string.IsNullOrWhiteSpace(newName))
 			{
 				args.Cancel = true;
