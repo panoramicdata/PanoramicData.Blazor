@@ -167,6 +167,21 @@
 
                 <PDColumn TItem="Person"
                           Field="x => x.Dob"
+                          Filterable="true"
+                          FilterKey="age"
+                          FilterOptions="FilterOptions.SingleValue()"
+                          FilterSuggestedValues="_ages"
+                          Title="Age">
+                    <Template Context="Person">
+                        @if(Person.Dob.HasValue)
+                        {
+                            <span>@(DateTime.Now.Year - Person.Dob.Value.Year)</span>
+                        }
+                    </Template>
+                </PDColumn>
+
+                <PDColumn TItem="Person"
+                          Field="x => x.Dob"
                           Title="Date of Birth"
                           Filterable="true"
                           FilterMaxValues="5"

@@ -93,7 +93,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		return query.ApplyFilter(filter, _keyMappings);
 	}
 
-	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T,bool>>? existingPredicate, Filter filter)
+	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T, bool>>? existingPredicate, Filter filter)
 		=> ApplyFilter(existingPredicate, filter, null);
 
 	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T, bool>>? existingPredicate, Filter filter, IDictionary<string, string>? keyPropertyMappings)
