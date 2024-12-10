@@ -810,11 +810,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				args.Cancel = true;
 			}
-			else if (string.Equals(args.Item.Name, newName, StringComparison.OrdinalIgnoreCase))
-			{
-				// allow file name to change case
-				return;
-			}
 			else if (string.IsNullOrWhiteSpace(newName))
 			{
 				args.Cancel = true;
@@ -833,8 +828,12 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					newPath = newPath[1..];
 				}
-				// check for duplicate name
-				if (Table!.ItemsToDisplay.Any(x => x.Path == newPath) || Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newName, StringComparison.OrdinalIgnoreCase)))
+
+				// check for duplicate name, ignoring case for renaming same file changing case
+				var justChangingCase = string.Equals(args.Item.Name, newName, StringComparison.OrdinalIgnoreCase);
+				var hasSameFullPath = Table!.ItemsToDisplay.Any(x => x.Path == newPath);
+				var hasExistingNameIgnoringCase = Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newName, StringComparison.OrdinalIgnoreCase));
+				if (!justChangingCase && (hasSameFullPath || hasExistingNameIgnoringCase))
 				{
 					args.Cancel = true;
 					await OnException(new PDFileExplorerException($"An item named '{newName}' already exists")).ConfigureAwait(true);
