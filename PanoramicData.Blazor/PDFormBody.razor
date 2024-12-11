@@ -6,47 +6,52 @@
 
 @if (Form is null)
 {
-	<span>Form parameter has not been set.</span>
+    <span>Form parameter has not been set.</span>
 }
 else if (Form.Mode != FormModes.Hidden)
 {
-	<div class="pd-form-body">
-		@if (Form.Mode != FormModes.Empty)
-		{
-			var fields = new List<FormField<TItem>>();
-			if (Form.Mode == FormModes.Cancel)
-			{
-				fields.AddRange(Form.Fields.Where(x => IsShown(x, Form.PreviousMode) && Form.Delta.ContainsKey(x.Name)));
-			}
-			else
-			{
-				fields.AddRange(Form.Fields.Where(x => IsShown(x)));
-			}
+    <div class="pd-form-body">
+        @if (Form.Mode != FormModes.Empty)
+        {
+            var fields = new List<FormField<TItem>>();
+            if (Form.Mode == FormModes.Cancel)
+            {
+                fields.AddRange(Form.Fields.Where(x => IsShown(x, Form.PreviousMode) && Form.Delta.ContainsKey(x.Name)));
+            }
+            else
+            {
+                fields.AddRange(Form.Fields.Where(x => IsShown(x)));
+            }
 
             @* display groups *@
             var fieldGroups = Group(fields);
             @foreach(var fieldGroup in fieldGroups)
             {
                 var firstField = fieldGroup.Fields.First();
-				var fieldName = firstField.GetName();
-				var fieldDescription = firstField.DescriptionFunc(firstField, Form);
+                var fieldName = firstField.GetName();
+                var fieldDescription = firstField.DescriptionFunc(firstField, Form);
                 <div class="pd-form-field" id="@fieldGroup.Id">
                     <label class="sr-only">@fieldGroup.Title</label>
                     <div class="input-group">
                         @* label *@
-						<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldGroup.HasErrors(Form) ? "alert-danger" : "")" title="@fieldDescription">
-							<span>@fieldGroup.Title</span>
-							<div class="helpers">
-								@foreach (var f in fieldGroup.Fields.Where(x => !string.IsNullOrWhiteSpace(x.HelpUrl)))
-								{
-									<i class="pd-form-help-icon fas fa-external-link-alt text-info cursor-pointer"
-										@onclick="() => OnHelpUrlClick(f)"></i>
-								}
+                        <div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldGroup.HasErrors(Form) ? "alert-danger" : "")" title="@fieldDescription">
+                            <span>@fieldGroup.Title</span>
+                            <div class="helpers">
+                                @foreach (var f in fieldGroup.Fields.Where(x => !string.IsNullOrWhiteSpace(x.HelpUrl)))
+                                {
+                                    <i class="pd-form-help-icon fas fa-external-link-alt text-info cursor-pointer"
+                                    @onclick="() => OnHelpUrlClick(f)"></i>
+                                }
                                 @foreach (var f in fieldGroup.Fields.Where(x => x.Helper != null))
-								{
-									<i class="pd-form-help-icon text-info cursor-pointer pt-1 ms-1 @f.Helper!.IconCssClass"
+                                {
+                                    var iconCssCls = Form?.Item is null || f.Helper!.IconCssClass2 is null
+                                        ? f.Helper!.IconCssClass
+                                        : f.Helper!.IconCssClass2(Form.Item);
+                                    var css = $"{(f.Helper.Click == null ? "" : "cursor-pointer")}";
+                                    var tooltip = Form?.Item is null || f.Helper.ToolTip2 is null ? f.Helper.ToolTip : f.Helper.ToolTip2(Form.Item);
+                                    <i class="pd-form-help-icon text-info pt-1 ms-1 @iconCssCls @css"
 										@onclick="async () => await OnHelperClick(f).ConfigureAwait(true)"
-										title="@f.Helper.ToolTip"></i>
+                                       title="@tooltip"></i>
 								}
 								@if (fieldGroup.Fields.Any(x => x.ShowCopyButton(Form?.Item)))
 								{
