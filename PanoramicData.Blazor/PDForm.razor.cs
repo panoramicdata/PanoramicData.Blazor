@@ -1,6 +1,4 @@
-﻿using System.Security.Policy;
-
-namespace PanoramicData.Blazor;
+﻿namespace PanoramicData.Blazor;
 
 public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 {
@@ -473,7 +471,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
 
-	public T GetFieldValue<T>(string fieldName) where T: struct
+	public T GetFieldValue<T>(string fieldName) where T : struct
 		=> GetFieldValue<T>(fieldName, true);
 
 	public T GetFieldValue<T>(string fieldName, bool updatedValue) where T : struct

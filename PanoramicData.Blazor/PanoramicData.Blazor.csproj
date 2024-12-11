@@ -25,8 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDColumn - Added FilterOptions parameter
-			PDTable - Updated to use column FilterOptions
+			PDForm - Fields can now display helper Icons and Tooltips based on the item under edit.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
