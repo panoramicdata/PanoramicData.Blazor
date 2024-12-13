@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDForm - Fields can now display helper Icons and Tooltips based on the item under edit.
+			PDTable - Added  @onkeydown:stopPropagation to consume keyboard event.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
