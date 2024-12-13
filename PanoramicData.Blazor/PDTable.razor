@@ -9,7 +9,8 @@
 	 @oncontextmenu:stopPropagation
 	 @oncontextmenu:preventDefault
 	 @ondrop="OnDragDropAsync"
-	 @onkeydown="OnKeyDownAsync">
+	 @onkeydown="OnKeyDownAsync"
+     @onkeydown:stopPropagation>
 	<table class="table @TableClass"
 		   @onmousedown="OnTableMouseDown">
 		<thead>
