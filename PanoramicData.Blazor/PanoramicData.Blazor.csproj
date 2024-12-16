@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTable - Added  @onkeydown:stopPropagation to consume keyboard event.
+			PDDropDown - Fixed bug where filter textbox loses focus to non-client window (F12 dev tools or browser auto-suggestion etc)
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
