@@ -25,7 +25,7 @@
 		var dropdownEl = document.getElementById(dropdownId);
 		if (dropdownEl) {
 			dropdownEl.addEventListener("mouseleave", function (ev) {
-				if (ev.relatedTarget.parentElement.id != id) {
+				if (!ev.relatedTarget || ev.relatedTarget.parentElement.id != id) {
 					ref.invokeMethodAsync("OnMouseLeave");
 				}
 			});
