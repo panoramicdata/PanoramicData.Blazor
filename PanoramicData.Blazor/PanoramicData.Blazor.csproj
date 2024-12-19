@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDDropDown - Fixed bug where filter textbox loses focus to non-client window (F12 dev tools or browser auto-suggestion etc)
+			PDForm - Updated to use DeepClone library to replace serialization based cloning with reflection. Fixes linker trimming issue.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
@@ -37,6 +37,7 @@
 	<ItemGroup>
 		<PackageReference Include="BlazorMonaco" Version="3.2.0" />
 		<PackageReference Include="FluentValidation" Version="11.10.0" />
+		<PackageReference Include="DeepCloner" Version="0.10.4" />
 		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
 		<PackageReference Include="Markdig" Version="0.38.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.0" />
