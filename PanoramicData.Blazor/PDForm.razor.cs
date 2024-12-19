@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor;
+﻿using Force.DeepCloner;
+
+namespace PanoramicData.Blazor;
 
 public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 {
@@ -671,23 +673,26 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <returns>A new TItem instance with changes applied.</returns>
 	public TItem? GetItemWithUpdates()
 	{
-		if (Item is null)
+		if (Item != null)
 		{
-			return null;
-		}
-
-		var json = System.Text.Json.JsonSerializer.Serialize(Item);
-		var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);
-		if (clone != null)
-		{
-			foreach (var kvp in Delta)
+			try
 			{
-				var propInfo = clone.GetType().GetProperty(kvp.Key);
-				propInfo?.SetValue(clone, kvp.Value);
+				var clone = Item.DeepClone();
+				if (clone != null)
+				{
+					foreach (var kvp in Delta)
+					{
+						var propInfo = clone.GetType().GetProperty(kvp.Key);
+						propInfo?.SetValue(clone, kvp.Value);
+					}
+				}
+				return clone;
+			}
+			catch
+			{
 			}
 		}
-
-		return clone;
+		return null;
 	}
 
 	/// <summary>
