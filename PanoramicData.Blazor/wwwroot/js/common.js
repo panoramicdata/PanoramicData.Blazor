@@ -131,6 +131,17 @@ export function scrollIntoView(id, alignTop) {
 	}
 }
 
+export function scrollIntoViewEx(selector, behaviour, block, inline) {
+	const el = document.querySelector(selector);
+	if (el) {
+		el.scrollIntoView({
+			behavior: 'smooth', // or 'auto' for immediate scrolling
+			block: 'nearest',   // aligns vertically (not usually needed for columns)
+			inline: 'center'    // aligns horizontally
+		});
+	}
+}
+
 export function selectText(id, start, end) {
 	var node = document.getElementById(id);
 	if (!node) {

@@ -544,7 +544,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <remarks>To disable sorting for any given column, set its Sortable property set to false.</remarks>
 
 	protected async Task SortByAsync(PDColumn<TItem> column)
-		=> await SortByAsync(column, null);
+	{
+		await SortByAsync(column, null);
+	}
 
 	protected async Task SortByAsync(PDColumn<TItem> column, SortDirection? direction)
 	{
@@ -599,6 +601,13 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 			await GetDataAsync().ConfigureAwait(true);
 			await SortChanged.InvokeAsync(new SortCriteria { Key = column.Id, Direction = direction ?? column.SortDirection }).ConfigureAwait(true);
+
+			// ensure column sorted on is still in view
+			if (_commonModule != null)
+			{
+				// using query selector that allows column names to be non-unique - i.e default col ids are col-1, col-2 etc
+				await _commonModule.InvokeVoidAsync("scrollIntoViewEx", $"#{Id} #{column.Id}", "smooth", "nearest", "center");
+			}
 		}
 	}
 
@@ -869,7 +878,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 					await _commonModule.InvokeVoidAsync("onTableDragStart", Id);
 				}
 			}
-			catch
+			catch (Exception ex)
 			{
 				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
