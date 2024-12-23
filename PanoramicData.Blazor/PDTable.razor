@@ -43,7 +43,7 @@
 				}
 				@foreach (var column in ActualColumnsToDisplay)
 				{
-					<th class="@column.ThClass @((column.UserSelectable ?? UserSelectable) == false ? "noselect" : "")" style="white-space: nowrap;">
+					<th id="@column.Id" class="@column.ThClass @((column.UserSelectable ?? UserSelectable) == false ? "noselect" : "")" style="white-space: nowrap;">
 						<div class="hdr">
 							@if (column.HeaderTemplate is null)
 							{
