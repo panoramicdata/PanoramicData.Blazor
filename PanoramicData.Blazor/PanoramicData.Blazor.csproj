@@ -36,19 +36,19 @@
 
 	<ItemGroup>
 		<PackageReference Include="BlazorMonaco" Version="3.2.0" />
-		<PackageReference Include="FluentValidation" Version="11.10.0" />
+		<PackageReference Include="FluentValidation" Version="11.11.0" />
 		<PackageReference Include="DeepCloner" Version="0.10.4" />
 		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
-		<PackageReference Include="Markdig" Version="0.38.0" />
+		<PackageReference Include="Markdig" Version="0.39.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.6.146">
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.7.112">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.8" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.5.1" />
 	</ItemGroup>
 
 	<ItemGroup>
