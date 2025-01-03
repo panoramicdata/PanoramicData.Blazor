@@ -6,7 +6,7 @@ public partial class PDTablePage
 	private PageCriteria _pageCriteria = new(1, 100);
 	private SortCriteria _sortCriteria = new("Last Name", SortDirection.Descending);
 	private readonly PersonDataProvider _personDataProvider = new();
-	private object[] _ages = Array.Empty<object>();
+	private object[] _ages = [];
 	private bool AllowDrag { get; set; }
 	private bool AllowDrop { get; set; }
 	private string DropZoneCss { get; set; } = "";

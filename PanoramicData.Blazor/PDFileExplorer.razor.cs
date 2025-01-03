@@ -1870,9 +1870,9 @@ public partial class PDFileExplorer : IAsyncDisposable
 						_conflictCache.Remove(folderPath);
 					}
 
-					if (_conflictCache.TryGetValue(folderPath, out CachedResult<Task<DataResponse<FileExplorerItem>>>? value))
+					if (_conflictCache.TryGetValue(folderPath, out CachedResult<Task<DataResponse<FileExplorerItem>>>? value2))
 					{
-						cachedTask = value;
+						cachedTask = value2;
 					}
 					else
 					{
