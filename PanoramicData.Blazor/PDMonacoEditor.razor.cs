@@ -72,7 +72,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	}
 
 	[JSInvokable]
-	public CompletionItem[] GetCompletions(BlazorMonaco.Range range, string functionName)
+	public CompletionItem[] GetCompletions(Range range, string functionName)
 		=> ShowSuggestions ? _methodCache.GetCompletionItems(Language, functionName).ToArray() : Array.Empty<CompletionItem>();
 
 	private StandaloneEditorConstructionOptions GetOptions(StandaloneCodeEditor editor)
