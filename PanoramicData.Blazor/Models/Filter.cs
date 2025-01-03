@@ -188,27 +188,27 @@ public class Filter
 			value = string.Empty;
 			filterType = FilterTypes.IsNull;
 		}
-		else if (encodedValue.StartsWith("!in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")", StringComparison.Ordinal) && encodedValue.Length > 3)
+		else if (encodedValue.StartsWith("!in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(')') && encodedValue.Length > 3)
 		{
 			value = encodedValue[4..^1];
 			filterType = FilterTypes.NotIn;
 		}
-		else if (encodedValue.StartsWith("in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")", StringComparison.Ordinal) && encodedValue.Length > 3)
+		else if (encodedValue.StartsWith("in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(')') && encodedValue.Length > 3)
 		{
 			value = encodedValue[3..^1];
 			filterType = FilterTypes.In;
 		}
-		else if (encodedValue.StartsWith("!*", StringComparison.Ordinal) && encodedValue.EndsWith("*", StringComparison.Ordinal) && encodedValue.Length > 2)
+		else if (encodedValue.StartsWith("!*", StringComparison.Ordinal) && encodedValue.EndsWith('*') && encodedValue.Length > 2)
 		{
 			value = encodedValue[2..^1];
 			filterType = FilterTypes.DoesNotContain;
 		}
-		else if (encodedValue.StartsWith("*", StringComparison.Ordinal) && encodedValue.EndsWith("*", StringComparison.Ordinal) && encodedValue.Length > 1)
+		else if (encodedValue.StartsWith('*') && encodedValue.EndsWith('*') && encodedValue.Length > 1)
 		{
 			value = encodedValue[1..^1];
 			filterType = FilterTypes.Contains;
 		}
-		else if (encodedValue.StartsWith(">", StringComparison.Ordinal) && encodedValue.EndsWith("<", StringComparison.Ordinal) && encodedValue.Contains('|', StringComparison.Ordinal) && encodedValue.Length > 1)
+		else if (encodedValue.StartsWith('>') && encodedValue.EndsWith('<') && encodedValue.Contains('|', StringComparison.Ordinal) && encodedValue.Length > 1)
 		{
 			value = encodedValue[1..^1];
 			var idx = value.IndexOf('|');
@@ -216,17 +216,17 @@ public class Filter
 			value = value[..idx];
 			filterType = FilterTypes.Range;
 		}
-		else if (encodedValue.EndsWith("*", StringComparison.Ordinal))
+		else if (encodedValue.EndsWith('*'))
 		{
 			value = encodedValue[..^1];
 			filterType = FilterTypes.StartsWith;
 		}
-		else if (encodedValue.StartsWith("*", StringComparison.Ordinal))
+		else if (encodedValue.StartsWith('*'))
 		{
 			value = encodedValue[1..];
 			filterType = FilterTypes.EndsWith;
 		}
-		else if (encodedValue.StartsWith("!", StringComparison.Ordinal))
+		else if (encodedValue.StartsWith('!'))
 		{
 			value = encodedValue[1..];
 			filterType = FilterTypes.DoesNotEqual;
@@ -241,12 +241,12 @@ public class Filter
 			value = encodedValue[2..];
 			filterType = FilterTypes.LessThanOrEqual;
 		}
-		else if (encodedValue.StartsWith(">", StringComparison.Ordinal))
+		else if (encodedValue.StartsWith('>'))
 		{
 			value = encodedValue[1..];
 			filterType = FilterTypes.GreaterThan;
 		}
-		else if (encodedValue.StartsWith("<", StringComparison.Ordinal))
+		else if (encodedValue.StartsWith('<'))
 		{
 			value = encodedValue[1..];
 			filterType = FilterTypes.LessThan;
