@@ -13,7 +13,7 @@ public class Selection<TItem>
 			return "(All)";
 		}
 
-		if (Items.Any())
+		if (Items.Count != 0)
 		{
 			return string.Join(", ", Items.Select(x => x?.ToString() ?? "").ToArray());
 		}

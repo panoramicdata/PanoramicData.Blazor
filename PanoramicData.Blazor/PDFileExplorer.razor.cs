@@ -1138,7 +1138,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				Payload = args.Files.Select(x => new FileExplorerItem { State = x.Key, Path = $"{x.Path?.TrimEnd('/')}/{x.Name?.TrimStart('/')}" }).ToList()
 			};
 			await GetUploadConflictsAsync(moveCopyArgs).ConfigureAwait(true);
-			if (moveCopyArgs.Conflicts.Any())
+			if (moveCopyArgs.Conflicts.Count != 0)
 			{
 				var result = await PromptUserForConflictResolution(moveCopyArgs.Conflicts.Select(x => x.Path).ToArray(), true, false).ConfigureAwait(true);
 				if (result == ConflictResolutions.Cancel)

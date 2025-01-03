@@ -232,7 +232,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		{
 			// save (All) token or individual ids
 			var state = Selection.AllSelected ? Constants.TokenAll : string.Empty;
-			if (!Selection.AllSelected && Selection.Items.Any())
+			if (!Selection.AllSelected && Selection.Items.Count != 0)
 			{
 				state = ItemKeyFunction != null
 					? string.Join(",", Selection.Items.Select(x => ItemKeyFunction(x).ToString()).ToArray())
