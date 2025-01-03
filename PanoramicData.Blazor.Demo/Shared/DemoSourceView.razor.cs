@@ -95,9 +95,8 @@ public partial class DemoSourceView
 
 	private async Task OnFileClick(string name)
 	{
-		if (_sourceFiles.ContainsKey(name))
+		if (_sourceFiles.TryGetValue(name, out SourceFile? sourceFile))
 		{
-			var sourceFile = _sourceFiles[name];
 			if (string.IsNullOrWhiteSpace(sourceFile.Content))
 			{
 				sourceFile.Content = await LoadSourceAsync(sourceFile.Url).ConfigureAwait(true);

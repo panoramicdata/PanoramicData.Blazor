@@ -17,9 +17,9 @@ public static class IQueryableExtensions
 			// determine property name to use in query
 			if (string.IsNullOrEmpty(filter.PropertyName))
 			{
-				if (keyProperyMappings != null && keyProperyMappings.ContainsKey(filter.Key))
+				if (keyProperyMappings != null && keyProperyMappings.TryGetValue(filter.Key, out string? value))
 				{
-					filter.PropertyName = keyProperyMappings[filter.Key];
+					filter.PropertyName = value;
 				}
 				else
 				{

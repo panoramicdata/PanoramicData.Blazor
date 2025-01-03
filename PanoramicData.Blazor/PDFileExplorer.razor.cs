@@ -1865,14 +1865,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 				CachedResult<Task<DataResponse<FileExplorerItem>>>? cachedTask = null;
 				lock (_conflictCache)
 				{
-					if (_conflictCache.ContainsKey(folderPath) && _conflictCache[folderPath].HasExpired)
+					if (_conflictCache.TryGetValue(folderPath, out CachedResult<Task<DataResponse<FileExplorerItem>>>? value) && value.HasExpired)
 					{
 						_conflictCache.Remove(folderPath);
 					}
 
-					if (_conflictCache.ContainsKey(folderPath))
+					if (_conflictCache.TryGetValue(folderPath, out CachedResult<Task<DataResponse<FileExplorerItem>>>? value))
 					{
-						cachedTask = _conflictCache[folderPath];
+						cachedTask = value;
 					}
 					else
 					{

@@ -108,9 +108,9 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		// determine property name to use in query
 		if (string.IsNullOrEmpty(filter.PropertyName))
 		{
-			if (keyPropertyMappings != null && keyPropertyMappings.ContainsKey(filter.Key))
+			if (keyPropertyMappings != null && keyPropertyMappings.TryGetValue(filter.Key, out string? value))
 			{
-				filter.PropertyName = keyPropertyMappings[filter.Key];
+				filter.PropertyName = value;
 			}
 			else
 			{

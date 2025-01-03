@@ -448,9 +448,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		var memberInfo = field.Field?.GetPropertyMemberInfo();
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			if (updatedValue && Delta.ContainsKey(memberInfo.Name))
+			if (updatedValue && Delta.TryGetValue(memberInfo.Name, out object? value))
 			{
-				value = Delta[memberInfo.Name];
+				value = value;
 			}
 			else
 			{
@@ -581,9 +581,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		var memberInfo = field.Field?.GetPropertyMemberInfo();
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			if (updatedValue && Delta.ContainsKey(memberInfo.Name))
+			if (updatedValue && Delta.TryGetValue(memberInfo.Name, out object? value))
 			{
-				value = Delta[memberInfo.Name];
+				value = value;
 			}
 			else
 			{

@@ -619,7 +619,7 @@ public partial class PDTree<TItem> where TItem : class
 			}
 			else
 			{
-				parentNode = (dict.ContainsKey(parentKey)) ? parentNode = dict[parentKey] : RootNode.Find(parentKey);
+				parentNode = (dict.TryGetValue(parentKey, out TreeNode<TItem>? value)) ? parentNode = value : RootNode.Find(parentKey);
 			}
 
 			if (parentNode == null)

@@ -270,13 +270,13 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 
 		await Task.Run(() =>
 		{
-			if (!delta.ContainsKey("Path"))
+			if (!delta.TryGetValue("Path", out object? value))
 			{
 				result.ErrorMessage = "Only Path property update supported";
 				return;
 			}
 
-			var tempPath = delta["Path"]?.ToString() ?? string.Empty;
+			var tempPath = value?.ToString() ?? string.Empty;
 			var tempItem = new FileExplorerItem { Path = tempPath ?? string.Empty, Name = FileExplorerItem.GetNameFromPath(tempPath) };
 			var targetNode = _root.Where(x => x.Path() == tempItem.Path).FirstOrDefault();
 			var targetParentNode = targetNode is null ? _root.Where(x => x.Path() == tempItem.ParentPath).FirstOrDefault() : targetNode.Parent;

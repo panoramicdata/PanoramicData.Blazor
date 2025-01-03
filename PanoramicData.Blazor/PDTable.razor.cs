@@ -669,9 +669,9 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			var args = new TableAfterEditEventArgs<TItem>(EditItem);
 			foreach (var column in ActualColumnsToDisplay)
 			{
-				if (_editValues.ContainsKey(column.Id) && IsColumnInEditMode(column, EditItem))
+				if (_editValues.TryGetValue(column.Id, out object? value) && IsColumnInEditMode(column, EditItem))
 				{
-					args.NewValues.Add(column.Id, _editValues[column.Id]);
+					args.NewValues.Add(column.Id, value);
 				}
 			}
 
@@ -682,10 +682,8 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				// apply edit value to each column
 				foreach (var column in ActualColumnsToDisplay)
 				{
-					if (args.NewValues.ContainsKey(column.Id))
+					if (args.NewValues.TryGetValue(column.Id, out object? newValue))
 					{
-						// get new value (possible updated by host app) and attempt to set on edit item
-						var newValue = args.NewValues[column.Id];
 						try
 						{
 							column.SetValue(EditItem, newValue);
