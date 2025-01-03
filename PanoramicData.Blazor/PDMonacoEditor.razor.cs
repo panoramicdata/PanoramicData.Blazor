@@ -73,7 +73,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 
 	[JSInvokable]
 	public CompletionItem[] GetCompletions(Range range, string functionName)
-		=> ShowSuggestions ? _methodCache.GetCompletionItems(Language, functionName).ToArray() : Array.Empty<CompletionItem>();
+		=> ShowSuggestions ? _methodCache.GetCompletionItems(Language, functionName).ToArray() : [];
 
 	private StandaloneEditorConstructionOptions GetOptions(StandaloneCodeEditor editor)
 	{
@@ -124,7 +124,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 
 	[JSInvokable]
 	public SignatureInformation[] GetSignatures(string functionName)
-		=> ShowSuggestions ? _methodCache.GetSignatures(Language, functionName).ToArray() : Array.Empty<SignatureInformation>();
+		=> ShowSuggestions ? _methodCache.GetSignatures(Language, functionName).ToArray() : [];
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
