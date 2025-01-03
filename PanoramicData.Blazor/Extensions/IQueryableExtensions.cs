@@ -43,10 +43,11 @@ public static class IQueryableExtensions
 			// apply query only if property name is known
 			if (!string.IsNullOrWhiteSpace(filter.PropertyName))
 			{
+				string[] separatorArray = ["|"];
 				object[] parameters = filter.FilterType switch
 				{
-					FilterTypes.In => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
-					FilterTypes.NotIn => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
+					FilterTypes.In => filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
+					FilterTypes.NotIn => filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
 					FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
 					FilterTypes.IsEmpty => [string.Empty],
 					FilterTypes.IsNotEmpty => [string.Empty],
