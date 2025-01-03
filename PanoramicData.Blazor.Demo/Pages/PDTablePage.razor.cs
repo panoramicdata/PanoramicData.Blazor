@@ -54,7 +54,7 @@ public partial class PDTablePage
 	{
 		// determine unique birth years
 		var years = await _personDataProvider.GetDistinctValuesAsync(new(), x => x.Dob!.Value.Year);
-		_ages = years.Select(x => (DateTime.Now.Date.Year - Convert.ToInt32(x)) as object).OrderBy(x => x).ToArray();
+		_ages = [.. years.Select(x => (DateTime.Now.Date.Year - Convert.ToInt32(x)) as object).OrderBy(x => x)];
 	}
 
 	private async Task SearchAsync()
