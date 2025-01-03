@@ -37,7 +37,6 @@
 	<ItemGroup>
 		<PackageReference Include="BlazorMonaco" Version="3.2.0" />
 		<PackageReference Include="FluentValidation" Version="11.11.0" />
-		<PackageReference Include="DeepCloner" Version="0.10.4" />
 		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
 		<PackageReference Include="Markdig" Version="0.39.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.0" />
@@ -48,6 +47,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="PanoramicData.DeepCloner" Version="1.0.1" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.5.1" />
 	</ItemGroup>
 

@@ -1,4 +1,4 @@
-﻿using Force.DeepCloner;
+﻿using PanoramicData.DeepCloner;
 
 namespace PanoramicData.Blazor;
 
