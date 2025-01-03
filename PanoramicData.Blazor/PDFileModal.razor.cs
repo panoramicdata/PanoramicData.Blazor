@@ -312,6 +312,7 @@ public partial class PDFileModal
 		catch
 		{
 		}
+
 		await Modal.HideAsync().ConfigureAwait(true);
 	}
 

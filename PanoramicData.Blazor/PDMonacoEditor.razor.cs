@@ -96,6 +96,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 			var value = await model.GetValue(eol, preserveBOM);
 			return value;
 		}
+
 		return string.Empty;
 	}
 
@@ -107,6 +108,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 			var value = await model.GetValueInRange(range, eol);
 			return value;
 		}
+
 		return string.Empty;
 	}
 

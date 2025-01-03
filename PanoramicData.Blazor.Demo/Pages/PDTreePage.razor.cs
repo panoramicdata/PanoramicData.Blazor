@@ -21,6 +21,7 @@ public partial class PDTreePage
 			args.Cancel = true;
 			return;
 		}
+
 		EventManager?.Add(new Event("BeforeSelectionChange", new EventArgument("NewPath", args.NewNode?.Data?.Path), new EventArgument("OldPath", args.OldNode?.Data?.Path)));
 	}
 

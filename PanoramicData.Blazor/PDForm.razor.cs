@@ -686,12 +686,14 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 						propInfo?.SetValue(clone, kvp.Value);
 					}
 				}
+
 				return clone;
 			}
 			catch
 			{
 			}
 		}
+
 		return null;
 	}
 
