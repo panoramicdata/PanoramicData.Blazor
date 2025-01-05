@@ -418,7 +418,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	/// <param name="ex">Exception that has been raised.</param>
 	public async Task HandleExceptionAsync(Exception ex)
 	{
-		Logger.LogError(ex, ex.Message);
+		Logger.LogError(ex, "{Message}", ex.Message);
 		await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
 	}
 
@@ -469,7 +469,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		try
 		{
-			// provide a means to cancel the refresh
+			// Provide a means to cancel the refresh
 			_cancellationTokenSource = new CancellationTokenSource();
 
 			if (ShowOverlay)
@@ -490,30 +490,30 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				SearchText = searchText ?? SearchText
 			};
 
-			// paging
+			// Paging
 			if (PageCriteria != null)
 			{
 				request.Take = (int)PageCriteria.PageSize;
 				request.Skip = (int)PageCriteria.PreviousItems;
 			}
 
-			// clear selection
+			// Clear selection
 			if (!RetainSelectionOnPage)
 			{
 				await ClearSelectionAsync().ConfigureAwait(true);
 			}
 
-			// perform query data
+			// Perform query data
 			var response = await DataProvider
 				.GetDataAsync(request, _cancellationTokenSource.Token)
 				.ConfigureAwait(true);
 
-			// allow calling application to filter/add items etc
+			// Allow calling application to filter/add items etc
 			var items = new List<TItem>(response.Items);
 			ItemsLoaded?.Invoke(items); // must use an action here and not an EventCallaback as that leads to infinite loop and 100% CPU
 			ItemsToDisplay = items;
 
-			// update pager state
+			// Update pager state
 			if (PageCriteria != null)
 			{
 				PageCriteria.TotalCount = (uint)(response.TotalCount ?? 0);
@@ -552,14 +552,14 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		if (column.Sortable && !string.IsNullOrWhiteSpace(column.Id))
 		{
-			// if direction specified then sort as requested
+			// If direction specified then sort as requested
 			if (direction.HasValue)
 			{
 				column.SortDirection = direction.Value;
 			}
 			else
 			{
-				// if column already sorted then reverse direction
+				// If column already sorted then reverse direction
 				if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
 				{
 					column.SortDirection = column.SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
@@ -602,10 +602,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			await GetDataAsync().ConfigureAwait(true);
 			await SortChanged.InvokeAsync(new SortCriteria { Key = column.Id, Direction = direction ?? column.SortDirection }).ConfigureAwait(true);
 
-			// ensure column sorted on is still in view
+			// Ensure column sorted on is still in view
 			if (_commonModule != null)
 			{
-				// using query selector that allows column names to be non-unique - i.e default col ids are col-1, col-2 etc
+				// Using query selector that allows column names to be non-unique - i.e default col ids are col-1, col-2 etc
 				await _commonModule.InvokeVoidAsync("scrollIntoViewEx", $"#{Id} #{column.Id}", "smooth", "nearest", "center");
 			}
 		}
@@ -618,11 +618,11 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 	{
 		if (IsEnabled && AllowEdit && !IsEditing && SelectionMode != TableSelectionMode.None && Selection.Count == 1 && KeyField != null)
 		{
-			// find item to edit
+			// Find item to edit
 			var item = ItemsToDisplay.Find(x => KeyField(x).ToString() == Selection[0]);
 			if (item != null)
 			{
-				// notify and allow for cancel
+				// Notify and allow for cancel
 				EditItem = item;
 				_tableBeforeEditArgs = new TableBeforeEditEventArgs<TItem>(EditItem);
 				await InvokeAsync(async () => await BeforeEdit.InvokeAsync(_tableBeforeEditArgs).ConfigureAwait(true)).ConfigureAwait(true);
@@ -665,7 +665,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 		if (IsEditing && EditItem != null)
 		{
-			// build dictionary of edit values
+			// Build dictionary of edit values
 			var args = new TableAfterEditEventArgs<TItem>(EditItem);
 			foreach (var column in ActualColumnsToDisplay)
 			{
@@ -675,7 +675,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				}
 			}
 
-			// notify and allow cancel
+			// Notify and allow cancel
 			await AfterEdit.InvokeAsync(args).ConfigureAwait(true);
 			if (!args.Cancel)
 			{
@@ -869,20 +869,20 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 
 				_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
 
-				// load common javascript
+				// Load common JavaScript
 				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 				if (_commonModule != null)
 				{
 					await _commonModule.InvokeVoidAsync("onTableDragStart", Id);
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 
-		// load previously saved state
+		// Load previously saved state
 		if (StateManager != null)
 		{
 			try
@@ -915,7 +915,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			await Ready.InvokeAsync(null).ConfigureAwait(true);
 		}
 
-		// focus first editor after edit mode begins
+		// Focus first editor after edit mode begins
 		if (BeginEditEvent.WaitOne(0) && Columns.Count > 0 && EditItem != null)
 		{
 			// find first editable column
@@ -923,7 +923,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			foreach (var column in ActualColumnsToDisplay)
 			{
 				var editable = column.Editable;
-				// override with dynamic config?
+				// Override with dynamic config?
 				var config = ColumnsConfig?.Find(x => x.Id == column.Id);
 				if (config?.Editable ?? editable)
 				{
@@ -970,7 +970,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			return result;
 		}
 
-		// allow app to specify suggested values
+		// Allow app to specify suggested values
 		if (column.FilterSuggestedValues.Any())
 		{
 			return column.FilterSuggestedValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
@@ -995,7 +995,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			}
 		}
 
-		// base request on current filter and sort
+		// Base request on current filter and sort
 		var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
 		var request = new DataRequest<TItem>
 		{
@@ -1006,7 +1006,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			SearchText = searchText.ToString().Trim()
 		};
 
-		// use more efficient service provider?
+		// Use more efficient service provider?
 		var objectValues = Array.Empty<object>();
 		if (DataProvider is IFilterProviderService<TItem> filterService && column.Field != null)
 		{
@@ -1014,7 +1014,7 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 		}
 		else
 		{
-			// use main data provider - take has to be applied on base query
+			// Use main data provider - take has to be applied on base query
 			var response = await DataProvider.GetDataAsync(request, default);
 			objectValues = [.. response.Items
 				.Where(x => column.GetValue(x) != null)
@@ -1023,10 +1023,10 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 				.OrderBy(x => x)];
 		}
 
-		// limit to first N
+		// Limit to first N
 		objectValues = objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(column.FilterMaxValues ?? FilterMaxValues).ToArray();
 
-		// cast to string
+		// Cast to string
 		return objectValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
 	}
 

@@ -88,24 +88,24 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		return options;
 	}
 
-	public async Task<string> GetMonacoValueAsync(EndOfLinePreference eol, bool preserveBOM)
+	public async Task<string> GetMonacoValueAsync(EndOfLinePreference endOfLinePreference, bool preserveBOM)
 	{
 		if (_monacoEditor != null)
 		{
 			var model = await _monacoEditor.GetModel();
-			var value = await model.GetValue(eol, preserveBOM);
+			var value = await model.GetValue(endOfLinePreference, preserveBOM);
 			return value;
 		}
 
 		return string.Empty;
 	}
 
-	public async Task<string> GetMonacoValueAsync(Range range, EndOfLinePreference eol)
+	public async Task<string> GetMonacoValueAsync(Range range, EndOfLinePreference endOfLinePreference)
 	{
 		if (_monacoEditor != null)
 		{
 			var model = await _monacoEditor.GetModel();
-			var value = await model.GetValueInRange(range, eol);
+			var value = await model.GetValueInRange(range, endOfLinePreference);
 			return value;
 		}
 
