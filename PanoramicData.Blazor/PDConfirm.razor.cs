@@ -34,7 +34,7 @@ public partial class PDConfirm : PDModalBase
 	public RenderFragment? ChildContent { get; set; }
 
 	/// <summary>
-	/// Gets the message to be displayed if the ChildContent not suupplied.
+	/// Gets the message to be displayed if the ChildContent not supplied.
 	/// </summary>
 	[Parameter]
 	public string Message { get; set; } = "Are you sure?";

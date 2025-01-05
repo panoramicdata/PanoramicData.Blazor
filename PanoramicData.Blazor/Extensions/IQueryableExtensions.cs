@@ -2,9 +2,9 @@
 
 public static class IQueryableExtensions
 {
-	public static IQueryable<T> ApplyFilter<T>(this IQueryable<T> query, Filter filter, IDictionary<string, string>? keyProperyMappings = null)
+	public static IQueryable<T> ApplyFilter<T>(this IQueryable<T> query, Filter filter, IDictionary<string, string>? keyPropertyMappings = null)
 	{
-		// uses dynamic linq to build queries : https://dynamic-linq.net/advanced-null-propagation
+		// uses dynamic LINQ to build queries : https://dynamic-linq.net/advanced-null-propagation
 
 		try
 		{
@@ -17,14 +17,14 @@ public static class IQueryableExtensions
 			// determine property name to use in query
 			if (string.IsNullOrEmpty(filter.PropertyName))
 			{
-				if (keyProperyMappings != null && keyProperyMappings.TryGetValue(filter.Key, out string? value))
+				if (keyPropertyMappings != null && keyPropertyMappings.TryGetValue(filter.Key, out string? value))
 				{
 					filter.PropertyName = value;
 				}
 				else
 				{
 					// search entity properties for matching key attribute
-					// Note - currently this does NOT perform a nested serach
+					// Note - currently this does NOT perform a nested search
 					var entityProperties = typeof(T).GetProperties();
 					var propertyInfo = entityProperties.SingleOrDefault(x => x.GetFilterKey() == filter.Key || x.GetDisplayShortName() == filter.Key);
 					if (propertyInfo != null)

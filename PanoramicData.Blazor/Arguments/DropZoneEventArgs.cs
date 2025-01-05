@@ -22,12 +22,12 @@ public class DropZoneEventArgs(object sender, DropZoneFile[] files)
 	public DropZoneFile[] Files { get; } = files;
 
 	/// <summary>
-	/// Gets or sets whether the operation should be canceled.
+	/// Gets or sets whether the operation should be cancelled.
 	/// </summary>
 	public bool Cancel { get; set; }
 
 	/// <summary>
-	/// Optional string detailing why the operation is to be canceled.
+	/// Optional string detailing why the operation is to be cancelled.
 	/// </summary>
 	public string CancelReason { get; set; } = string.Empty;
 
@@ -123,12 +123,12 @@ public class DropZoneUploadProgressEventArgs(string path, string name, long size
 	public double Progress { get; set; } = progress;
 
 	/// <summary>
-	/// Gets or sets whether the operation should be canceled.
+	/// Gets or sets whether the operation should be cancelled.
 	/// </summary>
 	public bool Cancel { get; set; }
 
 	/// <summary>
-	/// Optional string detailing why the operation is to be canceled.
+	/// Optional string detailing why the operation is to be cancelled.
 	/// </summary>
 	public string CancelReason { get; set; } = string.Empty;
 }

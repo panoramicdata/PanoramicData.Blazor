@@ -100,7 +100,7 @@ public class Filter
 			}
 			else
 			{
-				// read until next unquoted whitespace
+				// read until next unquoted white space
 				var filter = ParseMany(text[idx..]).FirstOrDefault();
 				if (filter is null)
 				{
@@ -306,7 +306,7 @@ public class Filter
 			}
 			else
 			{
-				// consume leading whitespace
+				// consume leading white space
 				if (char.IsWhiteSpace(ch))
 				{
 					continue;
