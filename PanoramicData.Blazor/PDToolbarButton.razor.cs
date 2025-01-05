@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDToolbarButton : IToolbarItem
+public partial class PDToolbarButton : IToolbarItem, IEnablable
 {
 	/// <summary>
 	/// Gets or sets the button sizes.
@@ -100,4 +100,22 @@ public partial class PDToolbarButton : IToolbarItem
 	}
 
 	private async Task OnClick(MouseEventArgs args) => await Click.InvokeAsync(new KeyedEventArgs<MouseEventArgs>(Key, args)).ConfigureAwait(true);
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
+	}
 }

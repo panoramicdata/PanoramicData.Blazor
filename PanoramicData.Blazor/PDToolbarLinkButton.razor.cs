@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDToolbarLinkButton
+public partial class PDToolbarLinkButton : IEnablable
 {
 	/// <summary>
 	/// Gets or sets the button sizes.
@@ -87,5 +87,22 @@ public partial class PDToolbarLinkButton
 			Attributes.Clear();
 			Attributes.Add("Id", $"pd-tbr-btn-{Key}");
 		}
+	}
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 }

@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDButton : IDisposable
+public partial class PDButton : IEnablable, IDisposable
 {
 	private bool _operationInProgress;
 
@@ -156,6 +156,24 @@ public partial class PDButton : IDisposable
 		{
 			await InvokeAsync(async () => await Click.InvokeAsync(new MouseEventArgs()).ConfigureAwait(true)).ConfigureAwait(true);
 		}
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 
 	public void Dispose()

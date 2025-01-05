@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDTextArea : IAsyncDisposable
+public partial class PDTextArea : IAsyncDisposable, IEnablable
 {
 	private static int _seq;
 	private bool _cancelDebounce;
@@ -239,5 +239,23 @@ public partial class PDTextArea : IAsyncDisposable
 		{
 			await _commonModule.InvokeVoidAsync("scrollToEnd", Id);
 		}
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 }

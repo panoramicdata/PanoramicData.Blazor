@@ -2,7 +2,7 @@
 
 namespace PanoramicData.Blazor;
 
-public class PDComponentBase : ComponentBase
+public class PDComponentBase : ComponentBase, IEnablable
 {
 	protected static int Sequence { get; set; }
 
@@ -95,5 +95,23 @@ public class PDComponentBase : ComponentBase
 	protected override void OnParametersSet()
 	{
 		Validate();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 }

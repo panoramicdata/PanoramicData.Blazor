@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDDropDown : IAsyncDisposable
+public partial class PDDropDown : IAsyncDisposable, IEnablable
 {
 	private bool _shown;
 	private static int _sequence;
@@ -201,6 +201,24 @@ public partial class PDDropDown : IAsyncDisposable
 		{
 			await _dropdownObj.InvokeVoidAsync("toggle").ConfigureAwait(true);
 		}
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 
 	public string ToggleId => $"{Id}-toggle";

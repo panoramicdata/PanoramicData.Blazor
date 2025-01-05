@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDTimeline : IAsyncDisposable
+public partial class PDTimeline : IAsyncDisposable, IEnablable
 {
 	public delegate ValueTask<DataPoint[]> DataProviderDelegate(DateTime start, DateTime end, TimelineScale scale, CancellationToken cancellationToken);
 
@@ -963,6 +963,24 @@ public partial class PDTimeline : IAsyncDisposable
 				await SetScale(scale, true, MinDateTime, TimelinePositions.Start).ConfigureAwait(true);
 			}
 		}
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 
 	public static class Utilities

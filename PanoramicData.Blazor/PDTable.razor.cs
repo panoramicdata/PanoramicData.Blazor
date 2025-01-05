@@ -2,7 +2,12 @@
 
 namespace PanoramicData.Blazor;
 
-public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IAsyncDisposable where TItem : class
+public partial class PDTable<TItem> :
+	ISortableComponent,
+	IPageableComponent,
+	IAsyncDisposable,
+	IEnablable
+	where TItem : class
 {
 	private bool _dragging;
 	private Timer? _editTimer;
@@ -1576,6 +1581,24 @@ public partial class PDTable<TItem> : ISortableComponent, IPageableComponent, IA
 			};
 			await StateManager.SaveStateAsync(Id, state);
 		}
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 
 	#endregion

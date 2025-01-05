@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDStackedBar
+public partial class PDStackedBar : IEnablable
 {
 	[Parameter]
 	public string DateFormat { get; set; } = "dd/MM/yy HH:mm";
@@ -25,6 +25,24 @@ public partial class PDStackedBar
 
 	[Parameter]
 	public Func<double, double> YValueTransform { get; set; } = (v) => v;
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
+	}
 
 	private string GetTitle()
 	{
