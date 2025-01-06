@@ -2,59 +2,63 @@
 @typeparam TItem
 
 <div @attributes="ListAttributes()">
-    @if (ShowFilter)
-    {
-        <div class="header">
-            <div class="filter">
-                <PDTextBox CssClass="form-control-sm"
-                    IsEnabled="IsEnabled"
-                    DebounceWait="500"
-                    Value="@_filterText"
-                    ValueChanged="OnFilterTextChangedAsync"/>
-            </div>
-        </div>
-    }
-    <ul>
-        @if (ShowCheckBoxes && ShowAllCheckBox && SelectionMode != TableSelectionMode.None && string.IsNullOrWhiteSpace(_filterText))
-        {
-            <li @attributes="ItemAttributes(null)"
-                @onclick="@((a) => OnCheckBoxClickedAsync(a, null))">
-                <i class="far @AllCheckBoxIconCls me-2" />
-                <span>@Constants.TokenAll</span>
-            </li>
-        }
-        @foreach (var item in _allItems.Where(x => ItemVisible(x)))
-        {
-            <li @attributes="ItemAttributes(item)"
-                @onclick="@((a) => OnCheckBoxClickedAsync(a, item))">
+	@if (ShowFilter)
+	{
+		<div class="header">
+			<div class="filter">
+				<PDTextBox CssClass="form-control-sm"
+						   IsEnabled="IsEnabled"
+						   DebounceWait="500"
+						   Value="@_filterText"
+						   ValueChanged="OnFilterTextChangedAsync" />
+			</div>
+		</div>
+	}
+	<ul>
+		@if (ShowCheckBoxes && ShowAllCheckBox && SelectionMode != TableSelectionMode.None && string.IsNullOrWhiteSpace(_filterText))
+		{
+			<li @attributes="ItemAttributes(null)"
+				@onclick="@((a) => OnCheckBoxClickedAsync(a, null))">
+				<i class="far @AllCheckBoxIconCls me-2" />
+				<span>@Constants.TokenAll</span>
+			</li>
+		}
+		@foreach (var item in _allItems.Where(x => ItemVisible(x)))
+		{
+			<li @attributes="ItemAttributes(item)"
+				@onclick="@((a) => OnCheckBoxClickedAsync(a, item))">
 
-                @if(ShowCheckBoxes && SelectionMode != TableSelectionMode.None)
-                {
-                    <i @attributes="CheckBoxAttributes(item)" />
-                }
+				@if (ShowCheckBoxes && SelectionMode != TableSelectionMode.None)
+				{
+					<i @attributes="CheckBoxAttributes(item)" />
+				}
 
-                @if(ItemTemplate is null)
-                {
-                    @(_compiledTextExpression is null ? item.ToString() : _compiledTextExpression(item))
-                }
-                else
-                {
-                    @ItemTemplate(item)
-                }
+				@if (ItemTemplate is null)
+				{
+					@(_compiledTextExpression is null ? item.ToString() : _compiledTextExpression(item))
+				}
+				else
+				{
+					@ItemTemplate(item)
+				}
 
-            </li>
-        }
-    </ul>
-    @if(ShowApplyCancelButtons)
-    {
-        <div class="footer">
-            @if (SelectionMode != TableSelectionMode.None)
-            {
-                <button @onclick="OnApplyAsync"
-                    class="btn btn-sm btn-primary me-1">Apply</button>
-            }
-            <button @onclick="OnCancelAsync"
-                class="btn btn-sm btn-secondary">Cancel</button>
-        </div>
-    }
+			</li>
+		}
+	</ul>
+	@if (ShowApplyCancelButtons)
+	{
+		<div class="footer">
+			@if (SelectionMode != TableSelectionMode.None)
+			{
+				<button @onclick="OnApplyAsync"
+						class="btn btn-sm btn-primary me-1">
+					Apply
+				</button>
+			}
+			<button @onclick="OnCancelAsync"
+					class="btn btn-sm btn-secondary">
+				Cancel
+			</button>
+		</div>
+	}
 </div>

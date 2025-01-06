@@ -4,118 +4,118 @@
 
 <DemoSourceView SourceFiles="Pages/PDListPage.razor, Pages/PDListPage.razor.cs">
 
-    <div class="">
+	<div class="">
 
-        <h3>Basic List</h3>
-        <span class="text-muted small">Height set by CSS</span>
+		<h3>Basic List</h3>
+		<span class="text-muted small">Height set by CSS</span>
 
-        <div class="list1">
-            <PDList DataProvider="_dataProvider" />
-        </div>
+		<div class="list1">
+			<PDList DataProvider="_dataProvider" />
+		</div>
 
-        <hr />
-        <h3>Item Template</h3>
-        <span class="text-muted small">Sorted with single selection and Apply/Cancel buttons</span>
+		<hr />
+		<h3>Item Template</h3>
+		<span class="text-muted small">Sorted with single selection and Apply/Cancel buttons</span>
 
-        <div class="list2">
-            <PDList Apply="OnApply"
-                    Cancel="OnCancel"
-                    DataProvider="_dataProvider"
-                    SelectionChanged="OnSelectionChanged"
-                    SelectionMode="TableSelectionMode.Single"
-                    ShowApplyCancelButtons="true"
-                    SortDirection="SortDirection.Ascending"
-                    SortExpression="_sortExpression"
-                    TItem="Car">
-                    <ItemTemplate Context="car">
-                        <div class="d-flex justify-content-between w-100-pct">
-                            <span>@car.Make @car.Model</span>
-                            <span class="small">@car.FromYear - @(car.ToYear.HasValue ? car.ToYear : "Present")</span>
-                        </div>
-                    </ItemTemplate>
-            </PDList>
-        </div>
+		<div class="list2">
+			<PDList Apply="OnApply"
+					Cancel="OnCancel"
+					DataProvider="_dataProvider"
+					SelectionChanged="OnSelectionChanged"
+					SelectionMode="TableSelectionMode.Single"
+					ShowApplyCancelButtons="true"
+					SortDirection="SortDirection.Ascending"
+					SortExpression="_sortExpression"
+					TItem="Car">
+				<ItemTemplate Context="car">
+					<div class="d-flex justify-content-between w-100-pct">
+						<span>@car.Make @car.Model</span>
+						<span class="small">@car.FromYear - @(car.ToYear.HasValue ? car.ToYear : "Present")</span>
+					</div>
+				</ItemTemplate>
+			</PDList>
+		</div>
 
 
-        <hr />
-        <h3>Multiple Selection</h3>
-        <span class="text-muted small">Supports Ctrl key (to toggle) and Shift key (to select range from last selected)</span>
+		<hr />
+		<h3>Multiple Selection</h3>
+		<span class="text-muted small">Supports Ctrl key (to toggle) and Shift key (to select range from last selected)</span>
 
-        <div class="list3">
-            <PDList DataProvider="_dataProvider"
-                    SelectionChanged="OnSelectionChanged"
-                    SelectionMode="TableSelectionMode.Multiple"
-                    SortDirection="SortDirection.Ascending"
-                    SortExpression="_sortExpression"
-                    TItem="Car" />
-        </div>
+		<div class="list3">
+			<PDList DataProvider="_dataProvider"
+					SelectionChanged="OnSelectionChanged"
+					SelectionMode="TableSelectionMode.Multiple"
+					SortDirection="SortDirection.Ascending"
+					SortExpression="_sortExpression"
+					TItem="Car" />
+		</div>
 
-        <hr />
-        <h3>Multiple Selection</h3>
-        <span class="text-muted small">With check boxes, item template, includes 'All' checkbox and persists selection</span>
-        <div>
-            <EditForm Model="this" class="toolbar">
-                <div class="">
-                    <label class="form-check-label">Enabled</label>
-                    <InputCheckbox @bind-Value="_isEnabled" />
-                </div>
-            </EditForm>
-        </div>
+		<hr />
+		<h3>Multiple Selection</h3>
+		<span class="text-muted small">With check boxes, item template, includes 'All' checkbox and persists selection</span>
+		<div>
+			<EditForm Model="this" class="toolbar">
+				<div class="">
+					<label class="form-check-label">Enabled</label>
+					<InputCheckbox @bind-Value="_isEnabled" />
+				</div>
+			</EditForm>
+		</div>
 
-        <div class="list4">
-            <PDLocalStorageStateManager>
-                @* Must provide constant Id when using StateManager *@
-                <PDList AllCheckBoxWhenPartial="SelectionBehaviours.SelectAll"
-                        DataProvider="_dataProvider"
-                        Id="demo-pdlist-4"
-                        SelectionChanged="OnSelectionChanged"
-                        SelectionMode="TableSelectionMode.Multiple"
-                        ShowAllCheckBox="true"
-                        ShowCheckBoxes="true"
-                        ShowFilter="true"
-                        IsEnabled="_isEnabled"
-                        ItemKeyFunction="c => c.Id"
-                        SortDirection="SortDirection.Ascending"
-                        SortExpression="_sortExpression"
-                        TItem="Car">
-                        <ItemTemplate Context="car">
-                            <div class="d-flex justify-content-between w-100-pct">
-                                <span>@car.Make @car.Model</span>
-                                <span class="small">@car.FromYear - @(car.ToYear.HasValue ? car.ToYear : "Present")</span>
-                            </div>
-                        </ItemTemplate>
-                </PDList>
-            </PDLocalStorageStateManager>
-        </div>
+		<div class="list4">
+			<PDLocalStorageStateManager>
+				@* Must provide constant Id when using StateManager *@
+				<PDList AllCheckBoxWhenPartial="SelectionBehaviours.SelectAll"
+						DataProvider="_dataProvider"
+						Id="demo-pdlist-4"
+						SelectionChanged="OnSelectionChanged"
+						SelectionMode="TableSelectionMode.Multiple"
+						ShowAllCheckBox="true"
+						ShowCheckBoxes="true"
+						ShowFilter="true"
+						IsEnabled="_isEnabled"
+						ItemKeyFunction="c => c.Id"
+						SortDirection="SortDirection.Ascending"
+						SortExpression="_sortExpression"
+						TItem="Car">
+					<ItemTemplate Context="car">
+						<div class="d-flex justify-content-between w-100-pct">
+							<span>@car.Make @car.Model</span>
+							<span class="small">@car.FromYear - @(car.ToYear.HasValue ? car.ToYear : "Present")</span>
+						</div>
+					</ItemTemplate>
+				</PDList>
+			</PDLocalStorageStateManager>
+		</div>
 
-        <hr />
-        <h3>Drop Down List</h3>
-        <span class="text-muted small">Example of how to create a drop down list, with width and height set by CSS and has a default selection</span>
+		<hr />
+		<h3>Drop Down List</h3>
+		<span class="text-muted small">Example of how to create a drop down list, with width and height set by CSS and has a default selection</span>
 
-        <div class="list5">
-            <PDDropDown @ref="_dropdown"
-                        CssClass="btn btn-primary"
-                        Text="Cars...">
-                <PDList Apply="OnDropDownApplyAsync"
-                        Cancel="OnDropDownCancelAsync"
-                        DataProvider="_dataProvider"
-                        Selection="_list5Selection"
-                        SelectionChanged="OnSelectionChanged"
-                        SelectionMode="TableSelectionMode.Multiple"
-                        ShowAllCheckBox="true"
-                        ShowApplyCancelButtons="true"
-                        ShowCheckBoxes="true"
-                        ShowFilter="true"
-                        SortDirection="SortDirection.Ascending"
-                        SortExpression="_sortExpression"
-                        TItem="Car" />
-            </PDDropDown>
-        </div>
+		<div class="list5">
+			<PDDropDown @ref="_dropdown"
+						CssClass="btn btn-primary"
+						Text="Cars...">
+				<PDList Apply="OnDropDownApplyAsync"
+						Cancel="OnDropDownCancelAsync"
+						DataProvider="_dataProvider"
+						Selection="_list5Selection"
+						SelectionChanged="OnSelectionChanged"
+						SelectionMode="TableSelectionMode.Multiple"
+						ShowAllCheckBox="true"
+						ShowApplyCancelButtons="true"
+						ShowCheckBoxes="true"
+						ShowFilter="true"
+						SortDirection="SortDirection.Ascending"
+						SortExpression="_sortExpression"
+						TItem="Car" />
+			</PDDropDown>
+		</div>
 
-    </div>
+	</div>
 
-    <div class="mt-4">
-        <EventView />
-    </div>
+	<div class="mt-4">
+		<EventView />
+	</div>
 
 </DemoSourceView>

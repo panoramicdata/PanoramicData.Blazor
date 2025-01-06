@@ -1,362 +1,362 @@
 ﻿@using Humanizer;
 
 <template id="file-upload-template">
-    <div class="pdfe-dz-preview small">
-        <div class="pdfe-dz-bar d-flex justify-content-between">
-            <span class="pdfe-dz-name" data-dz-name></span>
-            <div>
-                <span data-dz-errormessage></span>
-                <div class="d-none success-mark">
-                    <i class="far fa-check-circle"></i>
-                </div>
-                <div class="d-none error-mark">
-                    <i class="far fa-times-circle"></i>
-                </div>
-            </div>
-        </div>
-        <div style="width: 0px" class="pdfe-dz-progress" data-dz-uploadprogress></div>
-    </div>
+	<div class="pdfe-dz-preview small">
+		<div class="pdfe-dz-bar d-flex justify-content-between">
+			<span class="pdfe-dz-name" data-dz-name></span>
+			<div>
+				<span data-dz-errormessage></span>
+				<div class="d-none success-mark">
+					<i class="far fa-check-circle"></i>
+				</div>
+				<div class="d-none error-mark">
+					<i class="far fa-times-circle"></i>
+				</div>
+			</div>
+		</div>
+		<div style="width: 0px" class="pdfe-dz-progress" data-dz-uploadprogress></div>
+	</div>
 </template>
 
 <PDModal @ref="DeleteDialog"
-         Title="Delete">
-    <span>@_deleteDialogMessage</span>
+		 Title="Delete">
+	<span>@_deleteDialogMessage</span>
 </PDModal>
 
 <PDModal @ref="ConflictDialog"
-         CssClass="z-1200"
-         Title="Move / Copy Conflict">
-    <p>@_conflictDialogMessage</p>
-    <ul class="">
-        @foreach (var item in _conflictDialogList)
-        {
-            <li class="">@item</li>
-        }
-    </ul>
-    @*<p>What would you like to do with the conflicting items?</p>*@
+		 CssClass="z-1200"
+		 Title="Move / Copy Conflict">
+	<p>@_conflictDialogMessage</p>
+	<ul class="">
+		@foreach (var item in _conflictDialogList)
+		{
+			<li class="">@item</li>
+		}
+	</ul>
+	@*<p>What would you like to do with the conflicting items?</p>*@
 </PDModal>
 
 <PDModal @ref="ProgressDialog"
-         Id="upload-progress-modal"
-         Title="Upload Progress">
-    <ChildContent>
-        <div class="progress-dialog">
-            <div class="overall-progress">
-                <span>Uploaded&nbsp;</span>
-                <span>@_batchProgress</span>
-                <span>&nbsp;of&nbsp;</span>
-                <span>@_batchCount</span>
-            </div>
-            <PDProgressBar DecimalPlaces="0"
-                           Total="@_batchCount"
-                           Value="@_batchProgress">
-                <BarContent Context="progress">
-                    @progress.GetPercentage()%
-                </BarContent>
-            </PDProgressBar>
+		 Id="upload-progress-modal"
+		 Title="Upload Progress">
+	<ChildContent>
+		<div class="progress-dialog">
+			<div class="overall-progress">
+				<span>Uploaded&nbsp;</span>
+				<span>@_batchProgress</span>
+				<span>&nbsp;of&nbsp;</span>
+				<span>@_batchCount</span>
+			</div>
+			<PDProgressBar DecimalPlaces="0"
+						   Total="@_batchCount"
+						   Value="@_batchProgress">
+				<BarContent Context="progress">
+					@progress.GetPercentage()%
+				</BarContent>
+			</PDProgressBar>
 
-            @foreach (var kvp in _batchFiles)
-            {
-                <div @key="kvp.Key"
-                 class="file-progress mt-2">
-                    <div>
-                        @kvp.Key
-                    </div>
-                    <PDProgressBar DecimalPlaces="0"
-                               Height="16px"
-                               Value="@kvp.Value">
-                        <BarContent Context="progress">
-                            @progress.GetPercentage()%
-                        </BarContent>
-                    </PDProgressBar>
-                </div>
-            }
-        </div>
-    </ChildContent>
-    <Footer>
-        <div class="progress-dialog-buttons">
-            <button class="btn btn-sm btn-danger"
-                    @onclick="OnCancelUploadFiles">
-                <i class="fas fa-times-circle"></i>
-                <span class="ms-1">Cancel</span>
-            </button>
-        </div>
-    </Footer>
+			@foreach (var kvp in _batchFiles)
+			{
+				<div @key="kvp.Key"
+					 class="file-progress mt-2">
+					<div>
+						@kvp.Key
+					</div>
+					<PDProgressBar DecimalPlaces="0"
+								   Height="16px"
+								   Value="@kvp.Value">
+						<BarContent Context="progress">
+							@progress.GetPercentage()%
+						</BarContent>
+					</PDProgressBar>
+				</div>
+			}
+		</div>
+	</ChildContent>
+	<Footer>
+		<div class="progress-dialog-buttons">
+			<button class="btn btn-sm btn-danger"
+					@onclick="OnCancelUploadFiles">
+				<i class="fas fa-times-circle"></i>
+				<span class="ms-1">Cancel</span>
+			</button>
+		</div>
+	</Footer>
 </PDModal>
 
 <PDModal @ref="UploadDialog"
-         Size="ModalSizes.Large"
-         HideOnBackgroundClick="true"
-         ButtonClick="OnHideUploadDialog">
-    <PDDropZone @ref="_dropZone1"
-                AllUploadsComplete="OnAllUploadsComplete"
-                AllUploadsProgress="OnAllUploadsProgress"
-                AllUploadsReady="OnAllUploadsReady"
-                AllUploadsStarted="OnAllUploadsStarted"
-                Drop="OnFilesDroppedAsync"
-                Id="pdfe-drop-zone-1"
-                Clickable="true"
-                CssClass="upload-zone"
-                MaxFileSize="UploadMaxSize"
-                PreviewTemplate="#file-upload-template"
-                SessionId="@SessionId"
-                Timeout="@UploadTimeout"
-                UploadCompleted="OnUploadCompletedAsync"
-                UploadProgress="OnUploadProgressAsync"
-                UploadStarted="OnUploadStartedAsync"
-                UploadUrl="@UploadUrl">
-        <div class="pdfe-drop-zone-msg" onclick="this?.parentElement?.click()">
-            <span>Drag and drop files here to upload</span>
-            <span>Click to browse for files to upload </span>
-        </div>
-    </PDDropZone>
-    <button class="mt-1 btn btn-sm btn-default" @onclick="OnClearUploadFiles">
-        <i class="fas fa-times"></i>
-        <span>Clear</span>
-    </button>
+		 Size="ModalSizes.Large"
+		 HideOnBackgroundClick="true"
+		 ButtonClick="OnHideUploadDialog">
+	<PDDropZone @ref="_dropZone1"
+				AllUploadsComplete="OnAllUploadsComplete"
+				AllUploadsProgress="OnAllUploadsProgress"
+				AllUploadsReady="OnAllUploadsReady"
+				AllUploadsStarted="OnAllUploadsStarted"
+				Drop="OnFilesDroppedAsync"
+				Id="pdfe-drop-zone-1"
+				Clickable="true"
+				CssClass="upload-zone"
+				MaxFileSize="UploadMaxSize"
+				PreviewTemplate="#file-upload-template"
+				SessionId="@SessionId"
+				Timeout="@UploadTimeout"
+				UploadCompleted="OnUploadCompletedAsync"
+				UploadProgress="OnUploadProgressAsync"
+				UploadStarted="OnUploadStartedAsync"
+				UploadUrl="@UploadUrl">
+		<div class="pdfe-drop-zone-msg" onclick="this?.parentElement?.click()">
+			<span>Drag and drop files here to upload</span>
+			<span>Click to browse for files to upload </span>
+		</div>
+	</PDDropZone>
+	<button class="mt-1 btn btn-sm btn-default" @onclick="OnClearUploadFiles">
+		<i class="fas fa-times"></i>
+		<span>Clear</span>
+	</button>
 </PDModal>
 
 <div class="pdfileexplorer @CssClass">
 
-    <div class="pdfe-toolbar @(ShowToolbar ? "" : "d-none")">
-        <PDToolbar Items="ToolbarItems"
-                   ButtonSize="ButtonSize"
-                   ButtonClick="OnToolbarButtonClickAsync" />
-    </div>
+	<div class="pdfe-toolbar @(ShowToolbar ? "" : "d-none")">
+		<PDToolbar Items="ToolbarItems"
+				   ButtonSize="ButtonSize"
+				   ButtonClick="OnToolbarButtonClickAsync" />
+	</div>
 
-    <PDSplitter @ref="_splitter" GutterSize="6">
+	<PDSplitter @ref="_splitter" GutterSize="6">
 
-        <PDSplitPanel Size="1">
+		<PDSplitPanel Size="1">
 
-            <PDContextMenu Items="TreeContextItems"
-                           Enabled="ShowContextMenu"
-                           UpdateState="OnTreeContextMenuUpdateStateAsync"
-                           ItemClick="OnTreeContextMenuItemClickAsync">
+			<PDContextMenu Items="TreeContextItems"
+						   Enabled="ShowContextMenu"
+						   UpdateState="OnTreeContextMenuUpdateStateAsync"
+						   ItemClick="OnTreeContextMenuItemClickAsync">
 
-                <PDDropZone @ref="_dropZone2"
-                            AllUploadsComplete="OnAllUploadsComplete"
-                            AllUploadsProgress="OnAllUploadsProgress"
-                            AllUploadsReady="OnAllUploadsReady"
-                            AllUploadsStarted="OnAllUploadsStarted"
-                            Id="pdfe-drop-zone-2"
-                            Clickable="false"
-                            CssClass="h-100-pct"
-                            Drop="OnFilesDroppedAsync"
-                            MaxFileSize="UploadMaxSize"
-                            PreviewContainer="#pdfe-drop-zone-1"
-                            PreviewTemplate="#file-upload-template"
-                            SessionId="@SessionId"
-                            Timeout="@UploadTimeout"
-                            UploadCompleted="OnUploadCompletedAsync"
-                            UploadProgress="OnUploadProgressAsync"
-                            UploadStarted="OnUploadStartedAsync"
-                            UploadUrl="@UploadUrl">
+				<PDDropZone @ref="_dropZone2"
+							AllUploadsComplete="OnAllUploadsComplete"
+							AllUploadsProgress="OnAllUploadsProgress"
+							AllUploadsReady="OnAllUploadsReady"
+							AllUploadsStarted="OnAllUploadsStarted"
+							Id="pdfe-drop-zone-2"
+							Clickable="false"
+							CssClass="h-100-pct"
+							Drop="OnFilesDroppedAsync"
+							MaxFileSize="UploadMaxSize"
+							PreviewContainer="#pdfe-drop-zone-1"
+							PreviewTemplate="#file-upload-template"
+							SessionId="@SessionId"
+							Timeout="@UploadTimeout"
+							UploadCompleted="OnUploadCompletedAsync"
+							UploadProgress="OnUploadProgressAsync"
+							UploadStarted="OnUploadStartedAsync"
+							UploadUrl="@UploadUrl">
 
-                    <PDTree @ref="Tree"
-                            AfterEdit="OnTreeAfterEditAsync"
-                            AllowDrag="true"
-                            AllowDrop="AllowDrop"
-                            AllowEdit="AllowRename"
-                            AllowSelection="true"
-                            BeforeEdit="OnTreeBeforeEdit"
-                            ClearOnCollapse="true"
-                            DataProvider="DataProvider"
-                            Drop="OnDropAsync"
-                            ExceptionHandler="OnException"
-                            IsLeaf="x => x.EntryType == FileExplorerItemType.File || x.HasSubFolders == false"
-                            ItemsLoaded="OnTreeItemsLoaded"
-                            KeyDown="OnTreeKeyDownAsync"
-                            KeyField="x => x.Path"
-                            LoadOnDemand="true"
-                            ParentKeyField="x => x.ParentPath"
-                            Ready="OnTreeReady"
-                            RightClickSelectsItem="RightClickSelectsItem"
-                            SelectionChange="OnTreeSelectionChangeAsync"
-                            Sort="OnTreeSort"
-                            TextField="x => GetItemDisplayName(x)"
-                            TItem="FileExplorerItem">
-                        <NodeTemplate>
-                            <span class="d-flex align-items-center @($"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}")">
-                                <span class="item-icon">
-                                    <i class="@GetIconCssClass(context?.Data)"></i>
-                                    @if (context?.Data != null && GetItemBadgeCssClass != null && GetItemBadgeCssClass(context.Data) is IconInfo info && !string.IsNullOrWhiteSpace(info.CssCls))
-                                    {
-                                        <i class="pd-badge @info.CssCls" title="@info.ToolTip"></i>
-                                    }
-                                </span>
-                                <span class="item-text">@GetItemDisplayName(context?.Data)</span>
-                            </span>
-                        </NodeTemplate>
-                    </PDTree>
+					<PDTree @ref="Tree"
+							AfterEdit="OnTreeAfterEditAsync"
+							AllowDrag="true"
+							AllowDrop="AllowDrop"
+							AllowEdit="AllowRename"
+							AllowSelection="true"
+							BeforeEdit="OnTreeBeforeEdit"
+							ClearOnCollapse="true"
+							DataProvider="DataProvider"
+							Drop="OnDropAsync"
+							ExceptionHandler="OnException"
+							IsLeaf="x => x.EntryType == FileExplorerItemType.File || x.HasSubFolders == false"
+							ItemsLoaded="OnTreeItemsLoaded"
+							KeyDown="OnTreeKeyDownAsync"
+							KeyField="x => x.Path"
+							LoadOnDemand="true"
+							ParentKeyField="x => x.ParentPath"
+							Ready="OnTreeReady"
+							RightClickSelectsItem="RightClickSelectsItem"
+							SelectionChange="OnTreeSelectionChangeAsync"
+							Sort="OnTreeSort"
+							TextField="x => GetItemDisplayName(x)"
+							TItem="FileExplorerItem">
+						<NodeTemplate>
+							<span class="d-flex align-items-center @($"{(context?.Data?.IsHidden ?? false ? "file-hidden" : "")} {(context?.Data?.IsSystem ?? false ? "file-system" : "")}")">
+								<span class="item-icon">
+									<i class="@GetIconCssClass(context?.Data)"></i>
+									@if (context?.Data != null && GetItemBadgeCssClass != null && GetItemBadgeCssClass(context.Data) is IconInfo info && !string.IsNullOrWhiteSpace(info.CssCls))
+									{
+										<i class="pd-badge @info.CssCls" title="@info.ToolTip"></i>
+									}
+								</span>
+								<span class="item-text">@GetItemDisplayName(context?.Data)</span>
+							</span>
+						</NodeTemplate>
+					</PDTree>
 
-                </PDDropZone>
+				</PDDropZone>
 
-            </PDContextMenu>
+			</PDContextMenu>
 
-        </PDSplitPanel>
+		</PDSplitPanel>
 
-        <PDSplitPanel Size="3">
+		<PDSplitPanel Size="3">
 
-            <PDContextMenu Items="TableContextItems"
-                           Enabled="ShowContextMenu"
-                           ShowOnMouseUp="true"
-                           UpdateState="OnTableContextMenuUpdateStateAsync"
-                           ItemClick="OnTableContextMenuItemClickAsync">
+			<PDContextMenu Items="TableContextItems"
+						   Enabled="ShowContextMenu"
+						   ShowOnMouseUp="true"
+						   UpdateState="OnTableContextMenuUpdateStateAsync"
+						   ItemClick="OnTableContextMenuItemClickAsync">
 
-                <PDDropZone AllUploadsComplete="OnAllUploadsComplete"
-                            AllUploadsProgress="OnAllUploadsProgress"
-                            AllUploadsReady="OnAllUploadsReady"
-                            AllUploadsStarted="OnAllUploadsStarted"
-                            Clickable="false"
-                            CssClass="h-100-pct"
-                            Drop="OnFilesDroppedAsync"
-                            Id="pdfe-drop-zone-3"
-                            KeyDown="OnTableKeyDownAsync"
-                            MaxFileSize="UploadMaxSize"
-                            PreviewContainer="#pdfe-drop-zone-1"
-                            PreviewTemplate="#file-upload-template"
-                            SessionId="@SessionId"
-                            Timeout="@UploadTimeout"
-                            UploadCompleted="OnUploadCompletedAsync"
-                            UploadProgress="OnUploadProgressAsync"
-                            UploadStarted="OnUploadStartedAsync"
-                            UploadUrl="@UploadUrl">
+				<PDDropZone AllUploadsComplete="OnAllUploadsComplete"
+							AllUploadsProgress="OnAllUploadsProgress"
+							AllUploadsReady="OnAllUploadsReady"
+							AllUploadsStarted="OnAllUploadsStarted"
+							Clickable="false"
+							CssClass="h-100-pct"
+							Drop="OnFilesDroppedAsync"
+							Id="pdfe-drop-zone-3"
+							KeyDown="OnTableKeyDownAsync"
+							MaxFileSize="UploadMaxSize"
+							PreviewContainer="#pdfe-drop-zone-1"
+							PreviewTemplate="#file-upload-template"
+							SessionId="@SessionId"
+							Timeout="@UploadTimeout"
+							UploadCompleted="OnUploadCompletedAsync"
+							UploadProgress="OnUploadProgressAsync"
+							UploadStarted="OnUploadStartedAsync"
+							UploadUrl="@UploadUrl">
 
-                    <PDTable @ref="Table"
-                             AfterEdit="OnTableAfterEditAsync"
-                             AllowDrag="AllowDrag"
-                             AllowDrop="AllowDrop"
-                             AllowEdit="AllowRename"
-                             AutoLoad="false"
-                             BeforeEdit="OnTableBeforeEdit"
-                             ColumnsConfig="ColumnConfig"
-                             DataProvider="DataProvider"
-                             DoubleClick="OnTableDoubleClickAsync"
-                             DownloadUrlFunc="DownloadUrlFunc"
-                             Drop="OnDropAsync"
-                             ExceptionHandler="OnException"
-                             ItemsLoaded="OnTableItemsLoaded"
-                             KeyDown="OnTableKeyDownAsync"
-                             KeyField="x => x.Path"
-                             RightClickSelectsRow="RightClickSelectsItem"
-                             RowClass="@(x => $"{(x.IsUploading ? "uploading" : "")}")"
-                             SearchText="@FolderPath"
-                             SelectionMode="SelectionMode"
-                             SortCriteria="_tableSort"
-                             SelectionChanged="OnTableSelectionChangedAsync"
-                             TItem="FileExplorerItem">
+					<PDTable @ref="Table"
+							 AfterEdit="OnTableAfterEditAsync"
+							 AllowDrag="AllowDrag"
+							 AllowDrop="AllowDrop"
+							 AllowEdit="AllowRename"
+							 AutoLoad="false"
+							 BeforeEdit="OnTableBeforeEdit"
+							 ColumnsConfig="ColumnConfig"
+							 DataProvider="DataProvider"
+							 DoubleClick="OnTableDoubleClickAsync"
+							 DownloadUrlFunc="DownloadUrlFunc"
+							 Drop="OnDropAsync"
+							 ExceptionHandler="OnException"
+							 ItemsLoaded="OnTableItemsLoaded"
+							 KeyDown="OnTableKeyDownAsync"
+							 KeyField="x => x.Path"
+							 RightClickSelectsRow="RightClickSelectsItem"
+							 RowClass="@(x => $"{(x.IsUploading ? "uploading" : "")}")"
+							 SearchText="@FolderPath"
+							 SelectionMode="SelectionMode"
+							 SortCriteria="_tableSort"
+							 SelectionChanged="OnTableSelectionChangedAsync"
+							 TItem="FileExplorerItem">
 
-                        <PDColumn TItem="FileExplorerItem"
-                                  Id="Icon"
-                                  TdClass="align-content-center"
-                                  ThClass="ps-1 pe-0"
-                                  Field="x => x.EntryType"
-                                  Editable="false"
-                                  Sortable="false"
-                                  Title="">
-                            <Template>
-                                <div class="item-icon">
-                                    <i class="@GetIconCssClass(context)"></i>
-                                    @if (GetItemBadgeCssClass != null && GetItemBadgeCssClass(context) is IconInfo info && !string.IsNullOrWhiteSpace(info.CssCls))
-                                    {
-                                        <i class="pd-badge @(info.CssCls)" title="@(info.ToolTip)"></i>
-                                    }
-                                </div>
-                            </Template>
-                        </PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Icon"
+								  TdClass="align-content-center"
+								  ThClass="ps-1 pe-0"
+								  Field="x => x.EntryType"
+								  Editable="false"
+								  Sortable="false"
+								  Title="">
+							<Template>
+								<div class="item-icon">
+									<i class="@GetIconCssClass(context)"></i>
+									@if (GetItemBadgeCssClass != null && GetItemBadgeCssClass(context) is IconInfo info && !string.IsNullOrWhiteSpace(info.CssCls))
+									{
+										<i class="pd-badge @(info.CssCls)" title="@(info.ToolTip)"></i>
+									}
+								</div>
+							</Template>
+						</PDColumn>
 
-                        <PDColumn TItem="FileExplorerItem"
-                                  Id="Name"
-                                  ThClass="w-100-pct"
-                                  Field="x => x.Name">
-                            <Template>
-                                @if (context.IsUploading)
-                                {
-                                    <div style="width: 100%">
-                                        <span class="@(GetCssClass(context))">@GetItemDisplayName(context)</span>
-                                        <div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="@(GetCssClass(context))">@GetItemDisplayName(context)</span>
-                                }
-                            </Template>
-                        </PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Name"
+								  ThClass="w-100-pct"
+								  Field="x => x.Name">
+							<Template>
+								@if (context.IsUploading)
+								{
+									<div style="width: 100%">
+										<span class="@(GetCssClass(context))">@GetItemDisplayName(context)</span>
+										<div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
+									</div>
+								}
+								else
+								{
+									<span class="@(GetCssClass(context))">@GetItemDisplayName(context)</span>
+								}
+							</Template>
+						</PDColumn>
 
-                        <PDColumn TItem="FileExplorerItem"
-                                  Id="Type"
-                                  ThClass="mw-100-px"
-                                  Field="x => x.FileExtension"
-                                  Editable="false">
-                            <Template>
-                                <span class="@(GetCssClass(context)) text-nowrap">
-                                    @(context.EntryType == FileExplorerItemType.Directory
-                                        ? "File Folder"
-                                        : ($"{context.FileExtension.ToUpper()} File").Trim())
-                                </span>
-                            </Template>
-                        </PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Type"
+								  ThClass="mw-100-px"
+								  Field="x => x.FileExtension"
+								  Editable="false">
+							<Template>
+								<span class="@(GetCssClass(context)) text-nowrap">
+									@(context.EntryType == FileExplorerItemType.Directory
+																			? "File Folder"
+																			: ($"{context.FileExtension.ToUpper()} File").Trim())
+								</span>
+							</Template>
+						</PDColumn>
 
-                        <PDColumn TItem="FileExplorerItem"
-                                  Id="Size"
-                                  ThClass="text-right mw-100-px"
-                                  TdClass="text-right"
-                                  Field="x => x.FileSize"
-                                  Editable="false">
-                            <Template>
-                                <span class="@(GetCssClass(context))"
-                                      title="@(context.FileSize.ToString("0,0")) bytes">
-                                    @(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize(SizeFormat))
-                                </span>
-                            </Template>
-                        </PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Size"
+								  ThClass="text-right mw-100-px"
+								  TdClass="text-right"
+								  Field="x => x.FileSize"
+								  Editable="false">
+							<Template>
+								<span class="@(GetCssClass(context))"
+									  title="@(context.FileSize.ToString("0,0")) bytes">
+									@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize(SizeFormat))
+								</span>
+							</Template>
+						</PDColumn>
 
-                        <PDColumn TItem="FileExplorerItem"
-                                  Id="Created"
-                                  ThClass="mw-150-px"
-                                  Field="x => x.DateCreated"
-                                  Editable="false">
-                            <Template>
-                                <span class="@(GetCssClass(context)) nowrap"
-                                      title="@(context.DateCreated?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"))">
-                                    @context.DateCreated?.ToLocalTime().ToString(DateFormat)
-                                </span>
-                            </Template>
-                        </PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Created"
+								  ThClass="mw-150-px"
+								  Field="x => x.DateCreated"
+								  Editable="false">
+							<Template>
+								<span class="@(GetCssClass(context)) nowrap"
+									  title="@(context.DateCreated?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"))">
+									@context.DateCreated?.ToLocalTime().ToString(DateFormat)
+								</span>
+							</Template>
+						</PDColumn>
 
-                        <PDColumn TItem="FileExplorerItem"
-                                  Id="Modified"
-                                  ThClass="mw-150-px"
-                                  Field="x => x.DateModified"
-                                  Editable="false">
-                            <Template>
-                                <span class="@(GetCssClass(context)) text-nowrap"
-                                      title="@(context.DateModified?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"))">
-                                    @context.DateModified?.ToLocalTime().ToString(DateFormat)
-                                </span>
-                            </Template>
-                        </PDColumn>
+						<PDColumn TItem="FileExplorerItem"
+								  Id="Modified"
+								  ThClass="mw-150-px"
+								  Field="x => x.DateModified"
+								  Editable="false">
+							<Template>
+								<span class="@(GetCssClass(context)) text-nowrap"
+									  title="@(context.DateModified?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"))">
+									@context.DateModified?.ToLocalTime().ToString(DateFormat)
+								</span>
+							</Template>
+						</PDColumn>
 
-                    </PDTable>
+					</PDTable>
 
-                </PDDropZone>
+				</PDDropZone>
 
-            </PDContextMenu>
+			</PDContextMenu>
 
-        </PDSplitPanel>
+		</PDSplitPanel>
 
-        @if (PreviewPanel != FilePreviewModes.Off)
-        {
-            <PDSplitPanel Size="InitialPreviewSize" MinSize="0">
+		@if (PreviewPanel != FilePreviewModes.Off)
+		{
+			<PDSplitPanel Size="InitialPreviewSize" MinSize="0">
 
-                <PDFilePreview Item="_previewItem"
-                               ExceptionHandler="ExceptionHandler"
-                               PreviewProvider="PreviewProvider" />
+				<PDFilePreview Item="_previewItem"
+							   ExceptionHandler="ExceptionHandler"
+							   PreviewProvider="PreviewProvider" />
 
-            </PDSplitPanel>
-        }
+			</PDSplitPanel>
+		}
 
-    </PDSplitter>
+	</PDSplitter>
 
 </div>

@@ -4,8 +4,6 @@ namespace PanoramicData.Blazor;
 
 public partial class PDFilePreview
 {
-	private readonly PreviewInfo? _lastPreviewInfo;
-
 	private string? _lastPreviewPath;
 	private PreviewInfo _previewInfo = new();
 

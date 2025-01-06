@@ -2,66 +2,66 @@
 
 <DemoSourceView SourceFiles="Pages/PDFileModalsPage.razor, Pages/PDFileModalsPage.razor.cs">
 
-    <div>
-        <p>The following buttons will display the Modal using Async methods that will wait for, and return a result.</p>
-        <PDToolbar>
+	<div>
+		<p>The following buttons will display the Modal using Async methods that will wait for, and return a result.</p>
+		<PDToolbar>
 
-            <PDToolbarButton Text="Select any file"
-                             CssClass="btn-primary"
-                             ToolTip="Allow the user to pick any file"
-                             Click="ShowFileOpenModalAndWaitResult" />
+			<PDToolbarButton Text="Select any file"
+							 CssClass="btn-primary"
+							 ToolTip="Allow the user to pick any file"
+							 Click="ShowFileOpenModalAndWaitResult" />
 
-            <PDToolbarButton Text="Select DOCX or XLSX file"
-                             CssClass="btn-secondary"
-                             ToolTip="Allow the user to pick only DOCX and XLSX files"
-                             Click="ShowFileOpenFilteredModalAndWaitResult" />
+			<PDToolbarButton Text="Select DOCX or XLSX file"
+							 CssClass="btn-secondary"
+							 ToolTip="Allow the user to pick only DOCX and XLSX files"
+							 Click="ShowFileOpenFilteredModalAndWaitResult" />
 
-            <PDToolbarButton Text="Select any folder"
-                             CssClass="btn-secondary"
-                             ToolTip="Allow the user to pick only folders"
-                             Click="ShowFolderOpenModalAndWaitResult" />
+			<PDToolbarButton Text="Select any folder"
+							 CssClass="btn-secondary"
+							 ToolTip="Allow the user to pick only folders"
+							 Click="ShowFolderOpenModalAndWaitResult" />
 
-            <PDToolbarButton Text="Select Save As filename"
-                             CssClass="btn-secondary"
-                             ToolTip="Allow the user to pick any filename to save as"
-                             Click="ShowFileSaveAsModalAndWaitResult" />
-        </PDToolbar>
-    </div>
+			<PDToolbarButton Text="Select Save As filename"
+							 CssClass="btn-secondary"
+							 ToolTip="Allow the user to pick any filename to save as"
+							 Click="ShowFileSaveAsModalAndWaitResult" />
+		</PDToolbar>
+	</div>
 
-    <div class="mt-2">
-        <p>The following buttons will display the Modal using Async methods that simply setup and display the Modal. Results are retrieved by hooking into the ModalHidden event callback.</p>
-        <PDToolbar>
+	<div class="mt-2">
+		<p>The following buttons will display the Modal using Async methods that simply setup and display the Modal. Results are retrieved by hooking into the ModalHidden event callback.</p>
+		<PDToolbar>
 
-            <PDToolbarButton Text="Show Open Dialog"
-                             CssClass="btn-secondary"
-                             ToolTip="Hide the File Open dialog"
-                             Click="ShowFileOpenModal" />
+			<PDToolbarButton Text="Show Open Dialog"
+							 CssClass="btn-secondary"
+							 ToolTip="Hide the File Open dialog"
+							 Click="ShowFileOpenModal" />
 
-            <PDToolbarButton Text="Show Save As Dialog"
-                             CssClass="btn-secondary"
-                             ToolTip="Hide the File Open dialog"
-                             Click="ShowFileSaveAsModal" />
-        </PDToolbar>
-    </div>
+			<PDToolbarButton Text="Show Save As Dialog"
+							 CssClass="btn-secondary"
+							 ToolTip="Hide the File Open dialog"
+							 Click="ShowFileSaveAsModal" />
+		</PDToolbar>
+	</div>
 
-    <PDFileModal @ref="_fileModal"
-                 CloseOnEscape="false"
-                 DataProvider="_dataProvider"
-                 GetItemIconCssClass="GetIconCssClass"
-                 ModalHidden="OnModalHidden"
-                 OpenButtonText="Select"
-                 OpenTitle="Report Picker"
-                 SaveTitle="Save Report As"
-                 ShowContextMenu="true"
-                 ShowToolbar="true" />
+	<PDFileModal @ref="_fileModal"
+				 CloseOnEscape="false"
+				 DataProvider="_dataProvider"
+				 GetItemIconCssClass="GetIconCssClass"
+				 ModalHidden="OnModalHidden"
+				 OpenButtonText="Select"
+				 OpenTitle="Report Picker"
+				 SaveTitle="Save Report As"
+				 ShowContextMenu="true"
+				 ShowToolbar="true" />
 
-    <div class="mt-4">
-        <div>
-            <span>Open Result: @_openResult</span>
-        </div>
-        <div>
-            <span>Save As Result: @_saveAsResult</span>
-        </div>
-    </div>
+	<div class="mt-4">
+		<div>
+			<span>Open Result: @_openResult</span>
+		</div>
+		<div>
+			<span>Save As Result: @_saveAsResult</span>
+		</div>
+	</div>
 
 </DemoSourceView>

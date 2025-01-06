@@ -10,16 +10,16 @@
 			@onclick:preventDefault="PreventDefault"
 			@onclick:stopPropagation="StopPropagation"
 			@onmousedown="MouseDown"
-            @onmouseenter="MouseEnter"
+			@onmouseenter="MouseEnter"
 			@onmousedown:preventDefault="PreventDefault"
 			@onmousedown:stopPropagation="StopPropagation">
 		@if (ChildContent is null)
 		{
-				@if (!string.IsNullOrWhiteSpace(IconCssClass))
-				{
-                <span class="icon @GetIconCssClass()"></span>
-				}
-            <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
+			@if (!string.IsNullOrWhiteSpace(IconCssClass))
+			{
+				<span class="icon @GetIconCssClass()"></span>
+			}
+			<span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
 		}
 		else
 		{
@@ -30,24 +30,24 @@
 else
 {
 	<a @attributes="Attributes"
-	    href="@Url" target="@Target"
-	    class="pd-button btn @CssClass @ButtonSizeCssClass"
-       disabled="@(ActualEnabledState ? null : "true")"
-	    id="@Id"
-	    title="@ToolTip.AppendShortcut(ShortcutKey)"
-        @onclick="OnClickAsync"
-	    @onclick:preventDefault="PreventDefault"
-	    @onclick:stopPropagation="StopPropagation"
-	    @onmousedown="MouseDown"
-	    @onmousedown:preventDefault="PreventDefault"
-	    @onmousedown:stopPropagation="StopPropagation">
+	   href="@Url" target="@Target"
+	   class="pd-button btn @CssClass @ButtonSizeCssClass"
+	   disabled="@(ActualEnabledState ? null : "true")"
+	   id="@Id"
+	   title="@ToolTip.AppendShortcut(ShortcutKey)"
+	   @onclick="OnClickAsync"
+	   @onclick:preventDefault="PreventDefault"
+	   @onclick:stopPropagation="StopPropagation"
+	   @onmousedown="MouseDown"
+	   @onmousedown:preventDefault="PreventDefault"
+	   @onmousedown:stopPropagation="StopPropagation">
 		@if (ChildContent is null)
 		{
-            @if (!string.IsNullOrWhiteSpace(IconCssClass))
-            {
-                <span class="icon @GetIconCssClass()"></span>
-            }
-            <span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
+			@if (!string.IsNullOrWhiteSpace(IconCssClass))
+			{
+				<span class="icon @GetIconCssClass()"></span>
+			}
+			<span class="@(string.IsNullOrWhiteSpace(IconCssClass) ? "" : "ps-1") @TextCssClass">@Text.GetShortcutMarkup()</span>
 		}
 		else
 		{

@@ -18,7 +18,7 @@
 						 CssClass="btn-primary" />
 		<PDToolbarButton Text="Long Info"
 						 Click="() => Log(LogLevel.Information, true)"
-						CssClass="btn-primary" />
+						 CssClass="btn-primary" />
 		<PDToolbarButton Text="Log Warning"
 						 Click="() => Log(LogLevel.Warning)"
 						 CssClass="btn-warning" />
@@ -30,7 +30,7 @@
 						 CssClass="btn-danger" />
 		<PDToolbarButton Text="Exception"
 						 Click="() => Log(LogLevel.Error, true, true)"
-						CssClass="btn-danger" />
+						 CssClass="btn-danger" />
 	</PDToolbar>
 	<PDToolbar>
 		<PDLabel Text="Word Wrap" />
@@ -52,18 +52,15 @@
 		<PDToolbarButton Text="Clear"
 						 Click="Clear" />
 		<PDLabel Text="Rows" />
-		<PDToolbarTextbox
-			Type="PDInputType.Number"
-			@bind-Value="_rows" />
+		<PDToolbarTextbox Type="PDInputType.Number"
+						  @bind-Value="_rows" />
 		<PDLabel Text="Capacity" />
-		<PDToolbarTextbox
-			Type="PDInputType.Number"
-			@bind-Value="_capacity" />
+		<PDToolbarTextbox Type="PDInputType.Number"
+						  @bind-Value="_capacity" />
 		<PDLabel Text="Log Level" />
-		<PDToolbarDropdown
-			Text="@_logLevel.ToString()"
-			Items="LogLevelMenuItems"
-			Click="OnLogLevelClick" />
+		<PDToolbarDropdown Text="@_logLevel.ToString()"
+						   Items="LogLevelMenuItems"
+						   Click="OnLogLevelClick" />
 	</PDToolbar>
 
 	<PDLog @ref="_log"

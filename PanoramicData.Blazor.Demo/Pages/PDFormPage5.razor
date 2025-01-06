@@ -3,59 +3,59 @@
 
 <h1>PDForm</h1>
 
- <DemoSourceView SourceFiles="Pages/PDFormPage5.razor, Pages/PDFormPage5.razor.cs, Pages/PDFormPage5.razor.css">
+<DemoSourceView SourceFiles="Pages/PDFormPage5.razor, Pages/PDFormPage5.razor.cs, Pages/PDFormPage5.razor.css">
 
-    <PDToolbar>
-        <PDToolbarButton Click="OnBeginEditAsync"
-                         CssClass="btn-primary"
-                         IsEnabled="_queryForm?.Mode == FormModes.ReadOnly"
-                         Text="Edit" />
-    </PDToolbar>
+	<PDToolbar>
+		<PDToolbarButton Click="OnBeginEditAsync"
+						 CssClass="btn-primary"
+						 IsEnabled="_queryForm?.Mode == FormModes.ReadOnly"
+						 Text="Edit" />
+	</PDToolbar>
 
-    <div class="d-flex">
+	<div class="d-flex">
 
-        <PDForm @ref="_queryForm"
-                CssClass="w-100"
-                TItem="DatabaseQueryModel"
-                Item="_model"
-                FieldUpdated="OnFieldUpdatedAsync"
-                DefaultMode="FormModes.ReadOnly"
-                DataProvider="_dataProvider">
+		<PDForm @ref="_queryForm"
+				CssClass="w-100"
+				TItem="DatabaseQueryModel"
+				Item="_model"
+				FieldUpdated="OnFieldUpdatedAsync"
+				DefaultMode="FormModes.ReadOnly"
+				DataProvider="_dataProvider">
 
-            <PDFormHeader TItem="DatabaseQueryModel"
-                          EditTitle="Edit Query" />
+			<PDFormHeader TItem="DatabaseQueryModel"
+						  EditTitle="Edit Query" />
 
-            <PDFormBody TItem="DatabaseQueryModel">
+			<PDFormBody TItem="DatabaseQueryModel">
 
-                <PDField TItem="DatabaseQueryModel"
-                         Field="x => x.EmailAddress"
-                         Group="Email"
-                         Label="Email Address" />
+				<PDField TItem="DatabaseQueryModel"
+						 Field="x => x.EmailAddress"
+						 Group="Email"
+						 Label="Email Address" />
 
-                <PDField TItem="DatabaseQueryModel"
-                         Field="x => x.FrequencyUnit"
-                         Group="Frequency" />
+				<PDField TItem="DatabaseQueryModel"
+						 Field="x => x.FrequencyUnit"
+						 Group="Frequency" />
 
-                <PDField TItem="DatabaseQueryModel"
-                         Field="x => x.FrequencyPeriod"
-                         Group="Frequency" />
+				<PDField TItem="DatabaseQueryModel"
+						 Field="x => x.FrequencyPeriod"
+						 Group="Frequency" />
 
-                <PDField TItem="DatabaseQueryModel"
-                         DisplayOptions="QueryEditorOptions"
-                         Field="x => x.SqlQuery"
-                         ShowCopyButton="_ => true" />
+				<PDField TItem="DatabaseQueryModel"
+						 DisplayOptions="QueryEditorOptions"
+						 Field="x => x.SqlQuery"
+						 ShowCopyButton="_ => true" />
 
-            </PDFormBody>
+			</PDFormBody>
 
-            <PDFormFooter TItem="DatabaseQueryModel"
-                Click="OnFooterClick"
-                SaveButtonText="Save"
-                ShowCancelWhenReadOnly="false"
-                ShowDelete="false" />
+			<PDFormFooter TItem="DatabaseQueryModel"
+						  Click="OnFooterClick"
+						  SaveButtonText="Save"
+						  ShowCancelWhenReadOnly="false"
+						  ShowDelete="false" />
 
-        </PDForm>
+		</PDForm>
 
-    </div>
+	</div>
 
 </DemoSourceView>
 
