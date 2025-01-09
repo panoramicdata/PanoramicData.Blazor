@@ -232,7 +232,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 					await Form.ResetChanges();
 				}
 
-				await Click.InvokeAsync("Delete").ConfigureAwait(true);
+				await Click.InvokeAsync("Yes").ConfigureAwait(true);
 			}
 			else if (Form.Mode == FormModes.Cancel)
 			{
