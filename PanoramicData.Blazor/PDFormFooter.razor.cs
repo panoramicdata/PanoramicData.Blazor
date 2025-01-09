@@ -196,6 +196,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		if (Form?.Item != null)
 		{
 			await Form.EditItemAsync(Form.Item, Form.PreviousMode, false).ConfigureAwait(true);
+			await Click.InvokeAsync("No").ConfigureAwait(true);
 		}
 	}
 
