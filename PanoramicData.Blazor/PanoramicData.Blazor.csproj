@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDTable - When column is sorted on it is now scrolled back into view after the refresh, if needed.
+			The OnYesAsync method in PDFormFooter.cs now invokes "Yes" instead of "Delete"
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
