@@ -11,6 +11,11 @@ public class PersonDataProvider : DataProviderBase<Person>
 
 	public PersonDataProvider() : this(255) { }
 
+	/// <summary>
+	/// Add a small delay to simulate network latency.
+	/// </summary>
+	public bool AddDelay { get; set; } = false;
+
 	public PersonDataProvider(int count)
 	{
 		// generate random rows
@@ -65,7 +70,10 @@ public class PersonDataProvider : DataProviderBase<Person>
 		{
 			try
 			{
-				await Task.Delay(10000, cancellationToken).ConfigureAwait(false);
+				if (AddDelay)
+				{
+					await Task.Delay(10000, cancellationToken).ConfigureAwait(false);
+				}
 			}
 			catch (TaskCanceledException)
 			{
@@ -152,7 +160,10 @@ public class PersonDataProvider : DataProviderBase<Person>
 	/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
 	public override async Task<OperationResponse> DeleteAsync(Person item, CancellationToken cancellationToken)
 	{
-		await Task.Delay(1000);
+		if (AddDelay)
+		{
+			await Task.Delay(1000);
+		}
 
 		var existingPerson = _people.Find(x => x.Id == item.Id);
 		if (existingPerson == null)
@@ -173,7 +184,11 @@ public class PersonDataProvider : DataProviderBase<Person>
 	/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
 	public override async Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
 	{
-		await Task.Delay(1000);
+		if (AddDelay)
+		{
+			await Task.Delay(1000);
+		}
+
 
 		var existingPerson = _people.Find(x => x.Id == item.Id);
 		if (existingPerson == null)
@@ -214,7 +229,11 @@ public class PersonDataProvider : DataProviderBase<Person>
 	/// <returns>A new OperationResponse instance that contains the results of the operation.</returns>
 	public override async Task<OperationResponse> CreateAsync(Person item, CancellationToken cancellationToken)
 	{
-		await Task.Delay(1000);
+		if (AddDelay)
+		{
+			await Task.Delay(1000);
+		}
+
 		item.Id = _people.Max(x => x.Id) + 1;
 		item.DateModified = item.DateCreated = DateTime.Now;
 		_people.Add(item);

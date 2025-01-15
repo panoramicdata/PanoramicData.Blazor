@@ -25,7 +25,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			The OnNoAsync method in PDFormFooter.cs now invokes the "No" callback
+			PDTable - Added EditOnDoubleClick parameter
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
