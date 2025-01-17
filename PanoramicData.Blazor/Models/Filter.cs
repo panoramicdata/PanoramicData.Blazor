@@ -190,27 +190,27 @@ public class Filter
 		}
 		else if (encodedValue.StartsWith("!in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(')') && encodedValue.Length > 3)
 		{
-			value = encodedValue[4..^1];
+			value = Fix(encodedValue[4..^1]);
 			filterType = FilterTypes.NotIn;
 		}
 		else if (encodedValue.StartsWith("in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(')') && encodedValue.Length > 3)
 		{
-			value = encodedValue[3..^1];
+			value = Fix(encodedValue[3..^1]);
 			filterType = FilterTypes.In;
 		}
 		else if (encodedValue.StartsWith("!*", StringComparison.Ordinal) && encodedValue.EndsWith('*') && encodedValue.Length > 2)
 		{
-			value = encodedValue[2..^1];
+			value = Fix(encodedValue[2..^1]);
 			filterType = FilterTypes.DoesNotContain;
 		}
 		else if (encodedValue.StartsWith('*') && encodedValue.EndsWith('*') && encodedValue.Length > 1)
 		{
-			value = encodedValue[1..^1];
+			value = Fix(encodedValue[1..^1]);
 			filterType = FilterTypes.Contains;
 		}
 		else if (encodedValue.StartsWith('>') && encodedValue.EndsWith('<') && encodedValue.Contains('|', StringComparison.Ordinal) && encodedValue.Length > 1)
 		{
-			value = encodedValue[1..^1];
+			value = Fix(encodedValue[1..^1]);
 			var idx = value.IndexOf('|');
 			value2 = value[(idx + 1)..];
 			value = value[..idx];
@@ -218,42 +218,42 @@ public class Filter
 		}
 		else if (encodedValue.EndsWith('*'))
 		{
-			value = encodedValue[..^1];
+			value = Fix(encodedValue[..^1]);
 			filterType = FilterTypes.StartsWith;
 		}
 		else if (encodedValue.StartsWith('*'))
 		{
-			value = encodedValue[1..];
+			value = Fix(encodedValue[1..]);
 			filterType = FilterTypes.EndsWith;
 		}
 		else if (encodedValue.StartsWith('!'))
 		{
-			value = encodedValue[1..];
+			value = Fix(encodedValue[1..]);
 			filterType = FilterTypes.DoesNotEqual;
 		}
 		else if (encodedValue.StartsWith(">=", StringComparison.Ordinal))
 		{
-			value = encodedValue[2..];
+			value = Fix(encodedValue[2..]);
 			filterType = FilterTypes.GreaterThanOrEqual;
 		}
 		else if (encodedValue.StartsWith("<=", StringComparison.Ordinal))
 		{
-			value = encodedValue[2..];
+			value = Fix(encodedValue[2..]);
 			filterType = FilterTypes.LessThanOrEqual;
 		}
 		else if (encodedValue.StartsWith('>'))
 		{
-			value = encodedValue[1..];
+			value = Fix(encodedValue[1..]);
 			filterType = FilterTypes.GreaterThan;
 		}
 		else if (encodedValue.StartsWith('<'))
 		{
-			value = encodedValue[1..];
+			value = Fix(encodedValue[1..]);
 			filterType = FilterTypes.LessThan;
 		}
 		else
 		{
-			value = encodedValue;
+			value = Fix(encodedValue);
 			filterType = FilterTypes.Equals;
 		}
 
@@ -264,6 +264,27 @@ public class Filter
 		//}
 
 		return new Filter(filterType, key, value, value2) { PropertyName = propertyName };
+	}
+
+	private static string? Fix(string value)
+	{
+		// Datetime
+		var trimmedValue = value.Trim('"');
+
+		if (
+			DateTimeOffset.TryParse(trimmedValue, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDateTimeOffset)
+			|| DateTimeOffset.TryParse(trimmedValue, CultureInfo.GetCultureInfo("en-GB"), DateTimeStyles.AssumeUniversal, out parsedDateTimeOffset)
+			|| DateTimeOffset.TryParse(trimmedValue, CultureInfo.GetCultureInfo("en-US"), DateTimeStyles.AssumeUniversal, out parsedDateTimeOffset)
+			|| DateTimeOffset.TryParseExact(trimmedValue, "dd/MM/yyyy HH:mm:ss ZZZ", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out parsedDateTimeOffset)
+		)
+		{
+			var returnValue = parsedDateTimeOffset.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+			return value == trimmedValue
+				? returnValue
+				: $"\"{returnValue}\"";
+		}
+
+		return value;
 	}
 
 	public static IEnumerable<Filter> ParseMany(string text, IDictionary<string, string>? keyMappings = null)
