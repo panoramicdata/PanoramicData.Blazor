@@ -125,6 +125,11 @@ public partial class PDTable<TItem> :
 	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
 	/// <summary>
+	/// Should edit begin on double click? if not then single click will begin edit mode.
+	/// </summary>
+	[Parameter] public bool EditOnDoubleClick { get; set; }
+
+	/// <summary>
 	/// Gets or sets a delegate to be called if an exception occurs.
 	/// </summary>
 	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
@@ -1233,9 +1238,9 @@ public partial class PDTable<TItem> :
 				var alreadySelected = Selection.Contains(key);
 
 				// begin edit mode?
-				if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
+				if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0 && !EditOnDoubleClick)
 				{
-					_editTimer?.Change(500, Timeout.Infinite);
+					_editTimer?.Change(100, Timeout.Infinite);
 				}
 				else
 				{
@@ -1280,9 +1285,9 @@ public partial class PDTable<TItem> :
 				var alreadySelected = Selection.Contains(key);
 
 				// begin edit mode?
-				if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0)
+				if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0 && !EditOnDoubleClick)
 				{
-					_editTimer?.Change(500, Timeout.Infinite);
+					_editTimer?.Change(100, Timeout.Infinite);
 				}
 				else
 				{
@@ -1300,14 +1305,19 @@ public partial class PDTable<TItem> :
 		}
 	}
 
-	private void OnRowDoubleClick(MouseEventArgs _, TItem item)
+	private async Task OnRowDoubleClick(MouseEventArgs _, TItem item)
 	{
 		// cancel pending edit mode
 		_editTimer?.Change(Timeout.Infinite, Timeout.Infinite);
 
+		if (EditOnDoubleClick)
+		{
+			await BeginEditAsync();
+		}
+
 		if (IsEnabled)
 		{
-			DoubleClick.InvokeAsync(item);
+			await DoubleClick.InvokeAsync(item);
 		}
 	}
 

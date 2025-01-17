@@ -196,6 +196,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		if (Form?.Item != null)
 		{
 			await Form.EditItemAsync(Form.Item, Form.PreviousMode, false).ConfigureAwait(true);
+			await Click.InvokeAsync("No").ConfigureAwait(true);
 		}
 	}
 
@@ -232,7 +233,8 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 					await Form.ResetChanges();
 				}
 
-				await Click.InvokeAsync("Delete").ConfigureAwait(true);
+				// DO NOT change this to "Delete" as it means that there is a non-closable modal after deletion (or cancellation of a delete) !!!
+				await Click.InvokeAsync("Yes").ConfigureAwait(true);
 			}
 			else if (Form.Mode == FormModes.Cancel)
 			{
