@@ -35,7 +35,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="BlazorMonaco" Version="3.2.0" />
+		<PackageReference Include="BlazorMonaco" Version="3.3.0" />
 		<PackageReference Include="FluentValidation" Version="11.11.0" />
 		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
 		<PackageReference Include="Markdig" Version="0.40.0" />
@@ -48,7 +48,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="PanoramicData.DeepCloner" Version="1.0.1" />
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.5.1" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0-preview-01" />
 	</ItemGroup>
 
 	<ItemGroup>
