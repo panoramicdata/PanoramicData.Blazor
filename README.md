@@ -23,3 +23,7 @@ More will follow, as *we* need them.  However, we are much more excited to see:
 * your Pull Requests
 
 Please do contribute!
+
+## Dependencies
+
+- Bootstrap (*a default Library in a new blazor project*) >= **5.1.3**
