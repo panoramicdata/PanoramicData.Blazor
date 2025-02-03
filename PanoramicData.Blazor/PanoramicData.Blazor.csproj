@@ -19,6 +19,7 @@
 		<Company>Panoramic Data Limited</Company>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<RepositoryType>git</RepositoryType>
+		<PackageProjectUrl>https://github.com/panoramicdata/PanoramicData.Blazor</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor/</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<IncludeSymbols>true</IncludeSymbols>
