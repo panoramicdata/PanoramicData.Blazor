@@ -31,9 +31,9 @@
 
 	<ItemGroup>
 		<PackageReference Include="BlazorMonaco" Version="3.3.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.1" />
-		<PackageReference Include="PanoramicData.NCalcExtensions" Version="3.1.36" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.2" />
+		<PackageReference Include="PanoramicData.NCalcExtensions" Version="3.1.37" />
 	</ItemGroup>
 
 
