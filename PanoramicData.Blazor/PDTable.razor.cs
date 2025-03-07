@@ -115,7 +115,7 @@ public partial class PDTable<TItem> :
 	[Parameter] public EventCallback<TItem> DoubleClick { get; set; }
 
 	/// <summary>
-	/// Funtion that calculates and returns the download url attribuet for each row.
+	/// Function that calculates and returns the download url attribute for each row.
 	/// </summary>
 	[Parameter] public Func<TItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
 
@@ -158,7 +158,7 @@ public partial class PDTable<TItem> :
 	[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
 
 	/// <summary>
-	/// A Linq expression that selects the item field that contains the key value.
+	/// A LINQ expression that selects the item field that contains the key value.
 	/// </summary>
 	[Parameter] public Func<TItem, object>? KeyField { get; set; }
 
@@ -518,7 +518,7 @@ public partial class PDTable<TItem> :
 				.GetDataAsync(request, _cancellationTokenSource.Token)
 				.ConfigureAwait(true);
 
-			// Allow calling application to filter/add items etc
+			// Allow calling application to filter/add items etc.
 			var items = new List<TItem>(response.Items);
 			ItemsLoaded?.Invoke(items); // must use an action here and not an EventCallaback as that leads to infinite loop and 100% CPU
 			ItemsToDisplay = items;
@@ -615,7 +615,7 @@ public partial class PDTable<TItem> :
 			// Ensure column sorted on is still in view
 			if (_commonModule != null)
 			{
-				// Using query selector that allows column names to be non-unique - i.e default col ids are col-1, col-2 etc
+				// Using query selector that allows column names to be non-unique - i.e default col ids are col-1, col-2 etc.
 				await _commonModule.InvokeVoidAsync("scrollIntoViewEx", $"#{Id} #{column.Id}", "smooth", "nearest", "center");
 			}
 		}
@@ -1460,7 +1460,7 @@ public partial class PDTable<TItem> :
 			var items = new List<TItem>();
 
 			// if item that initiated drag is in selection then drag entire selection
-			// otherwise change selection to single item and drga that
+			// otherwise change selection to single item and drag that
 			if (KeyField != null && rowItem != null)
 			{
 				string key = KeyField(rowItem).ToString() ?? string.Empty;
