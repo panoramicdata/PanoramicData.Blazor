@@ -2,6 +2,96 @@
 
 public class Filter
 {
+	private static readonly string[] _formatsWithTimeZone =
+	[
+		"yyyy'-'MM'-'dd HH:m zzz",
+		"yyyy'-'MM'-'dd HH:mm zzz",
+		"yyyy'-'MM'-'dd HH:mm:ss zzz",
+		"yyyy'-'MM'-'dd zzz",
+		"yyyy'-'MM'-'dd HH:mm:ss K",
+
+		"yyyy'-'MM'-'dd HH:m.fff zzz",
+		"yyyy'-'MM'-'dd HH:mm.fff zzz",
+		"yyyy'-'MM'-'dd HH:mm:ss.fff zzz",
+		"yyyy'-'MM'-'dd zzz",
+		"yyyy'-'MM'-'dd HH:mm:ss.fff K",
+
+		"dd'/'MM'/'yyyy HH:m zzz",
+		"dd'/'MM'/'yyyy HH:mm zzz",
+		"dd'/'MM'/'yyyy HH:mm:ss zzz",
+		"dd'/'MM'/'yyyy zzz",
+		"dd'/'MM'/'yyyy HH:mm:ss K",
+
+		"dd'-'MM'-'yyyy HH:m zzz",
+		"dd'-'MM'-'yyyy HH:mm zzz",
+		"dd'-'MM'-'yyyy HH:mm:ss zzz",
+		"dd'-'MM'-'yyyy zzz",
+		"dd'-'MM'-'yyyy HH:mm:ss K",
+
+		"dd'/'MM'/'yyyy HH:m.fff zzz",
+		"dd'/'MM'/'yyyy HH:mm.fff zzz",
+		"dd'/'MM'/'yyyy HH:mm:ss.fff zzz",
+		"dd'/'MM'/'yyyy zzz",
+		"dd'/'MM'/'yyyy HH:mm:ss.fff K",
+
+		"MM'/'dd'/'yyyy HH:m zzz",
+		"MM'/'dd'/'yyyy HH:mm zzz",
+		"MM'/'dd'/'yyyy HH:mm:ss zzz",
+		"MM'/'dd'/'yyyy zzz",
+		"MM'/'dd'/'yyyy HH:mm:ss K",
+
+		"MM'/'dd'/'yyyy HH:m.fff zzz",
+		"MM'/'dd'/'yyyy HH:mm.fff zzz",
+		"MM'/'dd'/'yyyy HH:mm:ss.fff zzz",
+		"MM'/'dd'/'yyyy zzz",
+		"MM'/'dd'/'yyyy HH:mm:ss.fff K"
+	];
+
+	private static readonly string[] _formatsWithoutTimeZone =
+	[
+		"yyyy'-'MM'-'dd HH:m",
+		"yyyy'-'MM'-'dd HH:mm",
+		"yyyy'-'MM'-'dd HH:mm:ss",
+		"yyyy'-'MM'-'dd",
+		"yyyy'-'MM'-'dd HH:mm:ss K",
+
+		"yyyy'-'MM'-'dd HH:m.fff",
+		"yyyy'-'MM'-'dd HH:mm.fff",
+		"yyyy'-'MM'-'dd HH:mm:ss.fff",
+		"yyyy'-'MM'-'dd",
+		"yyyy'-'MM'-'dd HH:mm:ss.fff K",
+
+		"dd'/'MM'/'yyyy HH:m",
+		"dd'/'MM'/'yyyy HH:mm",
+		"dd'/'MM'/'yyyy HH:mm:ss",
+		"dd'/'MM'/'yyyy HH:mm:ss K",
+		"dd'/'MM'/'yyyy",
+
+		"dd'-'MM'-'yyyy HH:m",
+		"dd'-'MM'-'yyyy HH:mm",
+		"dd'-'MM'-'yyyy HH:mm:ss",
+		"dd'-'MM'-'yyyy HH:mm:ss K",
+		"dd'-'MM'-'yyyy",
+
+		"dd'/'MM'/'yyyy HH:m.fff",
+		"dd'/'MM'/'yyyy HH:mm.fff",
+		"dd'/'MM'/'yyyy HH:mm:ss.fff",
+		"dd'/'MM'/'yyyy HH:mm:ss.fff K",
+		"dd'/'MM'/'yyyy",
+
+		"MM'/'yy'/'yyyy HH:m",
+		"MM'/'yy'/'yyyy HH:mm",
+		"MM'/'yy'/'yyyy HH:mm:ss",
+		"MM'/'yy'/'yyyy HH:mm:ss K",
+		"MM'/'yy'/'yyyy",
+
+		"MM'/'yy'/'yyyy HH:m.fff",
+		"MM'/'yy'/'yyyy HH:mm.fff",
+		"MM'/'yy'/'yyyy HH:mm:ss.fff",
+		"MM'/'yy'/'yyyy HH:mm:ss.fff K",
+		"MM'/'yy'/'yyyy",
+	];
+
 	public Filter()
 	{
 	}
@@ -268,15 +358,11 @@ public class Filter
 
 	private static string? Fix(string value)
 	{
-		// Datetime
+		// DateTime
 		var trimmedValue = value.Trim('"');
 
-		if (
-			DateTimeOffset.TryParse(trimmedValue, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDateTimeOffset)
-			|| DateTimeOffset.TryParse(trimmedValue, CultureInfo.GetCultureInfo("en-GB"), DateTimeStyles.AssumeUniversal, out parsedDateTimeOffset)
-			|| DateTimeOffset.TryParse(trimmedValue, CultureInfo.GetCultureInfo("en-US"), DateTimeStyles.AssumeUniversal, out parsedDateTimeOffset)
-			|| DateTimeOffset.TryParseExact(trimmedValue, "dd/MM/yyyy HH:mm:ss ZZZ", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out parsedDateTimeOffset)
-		)
+		if (DateTimeOffset.TryParseExact(trimmedValue, _formatsWithTimeZone, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out var parsedDateTimeOffset) ||
+			DateTimeOffset.TryParseExact(trimmedValue, _formatsWithoutTimeZone, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.AssumeUniversal, out parsedDateTimeOffset))
 		{
 			var returnValue = parsedDateTimeOffset.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
 			return value == trimmedValue

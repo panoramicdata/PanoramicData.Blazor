@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Updated nuget packages.
+			Updated column filtering logic to avoid issues incorrectly converting non-DateTimes (e.g. double values) into DateTimes.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
