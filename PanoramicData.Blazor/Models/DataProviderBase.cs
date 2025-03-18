@@ -157,7 +157,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 			case FilterTypes.IsNotEmpty:
 			case FilterTypes.DoesNotEqual:
-				if (IsDateTime(filter, out var from))
+				if (Filter.IsDateTime(filter.Value, out var from))
 				{
 					var to = Filter.Format(from.AddSeconds(1));
 					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 || {property} < @1", to, from);
@@ -173,7 +173,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 				break;
 
 			case FilterTypes.GreaterThan:
-				if (IsDateTime(filter, out var gtDateTime))
+				if (Filter.IsDateTime(filter.Value, out var gtDateTime))
 				{
 					var addedASecond = Filter.Format(gtDateTime.AddSeconds(1));
 					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", addedASecond);
@@ -190,7 +190,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 			case FilterTypes.In:
 				{
-					var allDateTimes = Array.TrueForAll(parameters, p => DateTimeOffset.TryParseExact(p.ToString(), Filter.DateTimeFormats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out _));
+					var allDateTimes = Array.TrueForAll(parameters, p => Filter.IsDateTime(p.ToString(), out _));
 					if (allDateTimes)
 					{
 						var dateTimeParameters = parameters.Select(p =>
@@ -213,7 +213,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 			case FilterTypes.NotIn:
 				{
-					var allDateTimes = Array.TrueForAll(parameters, p => DateTime.TryParseExact(p.ToString(), Filter.DateTimeFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out _));
+					var allDateTimes = Array.TrueForAll(parameters, p => Filter.IsDateTime(p.ToString(), out _));
 					if (allDateTimes)
 					{
 						var dateTimeParameters = parameters.Select(p =>
@@ -239,7 +239,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 				break;
 
 			case FilterTypes.LessThanOrEqual:
-				if (IsDateTime(filter, out var ltDateTime))
+				if (Filter.IsDateTime(filter.Value, out var ltDateTime))
 				{
 					var addedASecond = Filter.Format(ltDateTime.AddSeconds(1));
 					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} < @0", addedASecond);
@@ -251,8 +251,8 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 				break;
 
 			case FilterTypes.Range:
-				if (DateTime.TryParseExact(filter.Value, Filter.DateTimeFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var rangeFrom) &&
-						DateTime.TryParseExact(filter.Value2, Filter.DateTimeFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var rangeTo))
+				if (Filter.IsDateTime(filter.Value, out var rangeFrom) &&
+						Filter.IsDateTime(filter.Value2, out var rangeTo))
 				{
 					if (rangeFrom > rangeTo)
 					{
@@ -281,7 +281,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 			case FilterTypes.IsEmpty:
 			case FilterTypes.Equals:
-				if (IsDateTime(filter, out var equalsFrom))
+				if (Filter.IsDateTime(filter.Value, out var equalsFrom))
 				{
 					var equalsTo = Filter.Format(equalsFrom.AddSeconds(1));
 					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} < @1", equalsFrom, equalsTo);
@@ -299,10 +299,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 		return existingPredicate is null ? newPredicate : PredicateBuilderService.And(existingPredicate, newPredicate);
 
-		static bool IsDateTime(Filter filter, out DateTimeOffset from)
-		{
-			return (DateTimeOffset.TryParseExact(filter.Value, Filter.DateTimeFormats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out from));
-		}
+		
 	}
 
 	public virtual IQueryable<T> ApplyFilters(IQueryable<T> query, IEnumerable<Filter> filters, params string[] exclude)

@@ -2,8 +2,6 @@
 
 public class Filter
 {
-	public static readonly string[] DateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).ToArray();
-
 	private static readonly string[] _formatsWithTimeZone =
 	[
 		"yyyy'-'MM'-'dd HH:m zzz",
@@ -440,6 +438,12 @@ public class Filter
 
 			yield return Parse(sb.ToString(), keyMappings);
 		}
+	}
+
+	public static bool IsDateTime(string? dateTime, out DateTimeOffset from)
+	{
+		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).ToArray();
+		return (DateTimeOffset.TryParseExact(dateTime, dateTimeFormats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out from));
 	}
 
 	#endregion
