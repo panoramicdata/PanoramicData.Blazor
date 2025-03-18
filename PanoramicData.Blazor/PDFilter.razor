@@ -10,8 +10,7 @@
         <div class="filter-body"
         onclick="event.stopPropagation()">
             <div class="mb-1">
-                <select class="form-select form-control-sm"
-                @onchange="OnFilterTypeChanged">
+                <select @bind="_filterType" @bind:after="OnFilterTypeBindAfter" class="form-select form-control-sm">
                     @if(Options.AllowEquals)
                     {
                         <option value="@FilterTypes.Equals" selected="@(_filterType == FilterTypes.Equals)">Equals</option>

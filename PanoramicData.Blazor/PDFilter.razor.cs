@@ -107,7 +107,12 @@ public partial class PDFilter : IAsyncDisposable
 		_value1 = Filter.Value;
 		_value2 = Filter.Value2;
 		await RefreshValues().ConfigureAwait(true);
-		if (_filterType == FilterTypes.In)
+		// Add selected values for NotIn, Equals and NotEquals
+		if (_filterType is FilterTypes.In 
+			or FilterTypes.NotIn 
+			or FilterTypes.Equals 
+			or FilterTypes.DoesNotEqual
+			or FilterTypes.GreaterThan)
 		{
 			_selectedValues.AddRange(_value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
 		}
@@ -155,7 +160,79 @@ public partial class PDFilter : IAsyncDisposable
 		await RefreshValues().ConfigureAwait(true);
 	}
 
-	private void OnFilterTypeChanged(ChangeEventArgs args) => _filterType = (FilterTypes)Enum.Parse(typeof(FilterTypes), args.Value?.ToString() ?? string.Empty);
+	private void OnFilterTypeBindAfter()
+	{
+		// if single selection and compatible operator - simple copy value
+		var singleOptions = new[] { FilterTypes.Equals, FilterTypes.DoesNotEqual, FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual, FilterTypes.Range };
+		var doubleOptions = new[] { FilterTypes.Range };
+
+		string? tempValue1 = null;
+		string? tempValue2 = null;
+		
+		if(_filterType == FilterTypes.Range)
+		{
+			// ranges should be in order
+			_selectedValues.Sort();
+		}
+
+		// store the temp values
+		if (_selectedValues.Count > 0)
+		{
+			tempValue1 = _selectedValues[0].QuoteIfContainsWhitespace();
+		}
+		if (_selectedValues.Count > 1)
+		{
+			tempValue2 = _selectedValues[1].QuoteIfContainsWhitespace();
+		}
+
+		if (singleOptions.Contains(_filterType) && tempValue1 != null)
+		{
+			_selectedValues.Clear();
+			_selectedValues.Add(tempValue1);
+			_value1 = tempValue1;
+		}
+		if (doubleOptions.Contains(_filterType))
+		{
+			if (tempValue2 != null)
+			{
+				_selectedValues.Add(tempValue2);
+				_value2 = tempValue2;
+			}
+		}
+		if(_filterType is FilterTypes.NotIn or FilterTypes.In)
+		{
+			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
+			_value2 = string.Empty;
+		}
+	}
+	private void OnFilterTypeChanged(ChangeEventArgs args)
+	{
+		_filterType = (FilterTypes)Enum.Parse(typeof(FilterTypes), args.Value?.ToString() ?? string.Empty);
+		// if single selection and compatible operator - simple copy value
+		var singleOptions = new[] { FilterTypes.Equals, FilterTypes.DoesNotEqual, FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual, FilterTypes.Range };
+		var doubleOptions = new[] { FilterTypes.Range};
+		
+
+		if (singleOptions.Contains(_filterType))
+		{
+			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();
+			_selectedValues.Clear();
+			_selectedValues.Add(_value1);
+		}
+		else if (doubleOptions.Contains(_filterType))
+		{
+			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();
+			_value2 = _selectedValues[1].QuoteIfContainsWhitespace();
+			_selectedValues.Clear();
+			_selectedValues.Add(_value1);
+			_selectedValues.Add(_value2);
+		}
+		else
+		{
+			_value1 = string.Empty;
+			_value2 = string.Empty;
+		}
+	}
 
 	private void OnValueClicked(string value)
 	{
@@ -168,33 +245,44 @@ public partial class PDFilter : IAsyncDisposable
 			return;
 		}
 
+		// if single selection and compatible operator - simple copy value
+		var ops = new[] { FilterTypes.Equals, FilterTypes.DoesNotEqual, FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual, FilterTypes.Range };
+		var singleOnlyOps = new[] { FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual };
+
 		// toggle clicked value from selected items
 		if (!_selectedValues.Remove(value))
 		{
+			// Clear existing if not auto change to multi
+			if(singleOnlyOps.Contains(_filterType))  
+			{
+				_selectedValues.Clear();
+			}
 			_selectedValues.Add(value);
 		}
-
-		// if single selection and compatible operator - simple copy value
-		var ops = new[] { FilterTypes.Equals, FilterTypes.DoesNotEqual, FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual, FilterTypes.Range };
 		if (_selectedValues.Count == 1 && ops.Contains(_filterType))
 		{
 			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();
+			_value2 = string.Empty;
 		}
 		else if (_selectedValues.Count == 2 && _filterType == FilterTypes.Range)
 		{
+			_selectedValues.Sort();
 			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();
 			_value2 = _selectedValues[1].QuoteIfContainsWhitespace();
 		}
+		else if (_selectedValues.Count == 0)
+		{// do nothing if unselected the last one
+			_value1 = string.Empty;
+		} 
 		else
 		{
 			if (_filterType != FilterTypes.NotIn)
 			{
-				_filterType = FilterTypes.In;
+				_filterType = _filterType == FilterTypes.DoesNotEqual ? FilterTypes.NotIn : FilterTypes.In;
 			}
 
 			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
 		}
-
 	}
 
 	private async Task RefreshValues()
