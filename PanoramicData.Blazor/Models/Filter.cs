@@ -442,7 +442,7 @@ public class Filter
 
 	public static bool IsDateTime(string? dateTime, out DateTimeOffset from)
 	{
-		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).ToArray();
+		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).Concat(["yyyy-MM-ddTHH:mm:ssZ"]).ToArray();
 		return (DateTimeOffset.TryParseExact(dateTime, dateTimeFormats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out from));
 	}
 

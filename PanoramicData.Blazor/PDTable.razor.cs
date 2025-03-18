@@ -1038,6 +1038,9 @@ public partial class PDTable<TItem> :
 
 		// Cast to string
 		return objectValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
+		return objectValues.Select(x => string.IsNullOrEmpty(column.Format)
+				? x.ToString() ?? string.Empty
+				: string.Format(CultureInfo.CurrentCulture, "{0:" + column.Format + "}", x)).ToArray();
 	}
 
 	protected override void OnParametersSet()
