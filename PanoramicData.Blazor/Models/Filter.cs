@@ -2,6 +2,8 @@
 
 public class Filter
 {
+	public static readonly string[] DateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).ToArray();
+
 	private static readonly string[] _formatsWithTimeZone =
 	[
 		"yyyy'-'MM'-'dd HH:m zzz",
