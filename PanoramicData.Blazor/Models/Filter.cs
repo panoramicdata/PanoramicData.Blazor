@@ -133,6 +133,8 @@ public class Filter
 
 	public bool UnspecifiedDateTimesAreUtc { get; set; } = true;
 
+	public DatePrecision DatePrecision { get; set; } = DatePrecision.Second;
+
 	public void Clear()
 	{
 		FilterType = FilterTypes.Equals;
@@ -449,4 +451,14 @@ public class Filter
 	}
 
 	#endregion
+}
+
+public enum DatePrecision
+{
+	Year,
+	Month,
+	Day,
+	Hour,
+	Minute,
+	Second
 }

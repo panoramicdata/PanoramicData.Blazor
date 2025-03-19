@@ -283,8 +283,12 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 			case FilterTypes.Equals:
 				if (Filter.IsDateTime(filter.Value, out var equalsFrom))
 				{
-					var equalsTo = Filter.Format(equalsFrom.AddSeconds(1));
+					//var equalsTo = Filter.Format(equalsFrom.AddSeconds(1));
+					equalsFrom = ZeroOutDateParts(equalsFrom, filter.DatePrecision);
+					var equalsTo = GetDateRangeEnd(equalsFrom, filter.DatePrecision);
 					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} < @1", equalsFrom, equalsTo);
+
+					//newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} < @1", equalsFrom, equalsTo);
 				}
 				else
 				{
@@ -328,4 +332,34 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 		return predicate ?? PredicateBuilderService.True<T>();
 	}
+
+	private static DateTime ZeroOutDateParts(DateTime date, DatePrecision precision)
+	{
+		return precision switch
+		{
+			DatePrecision.Year => new DateTime(date.Year, 1, 1),
+			DatePrecision.Month => new DateTime(date.Year, date.Month, 1),
+			DatePrecision.Day => new DateTime(date.Year, date.Month, date.Day),
+			DatePrecision.Hour => new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0),
+			DatePrecision.Minute => new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, 0),
+			DatePrecision.Second => new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second),
+			_ => date
+		};
+	}
+
+	private static DateTime GetDateRangeEnd(DateTime date, DatePrecision precision)
+	{
+		date = ZeroOutDateParts(date, precision);
+		return precision switch
+		{
+			DatePrecision.Year => date.AddYears(1),
+			DatePrecision.Month => date.AddMonths(1),
+			DatePrecision.Day => date.AddDays(1),
+			DatePrecision.Hour => date.AddHours(1),
+			DatePrecision.Minute => date.AddMinutes(1),
+			DatePrecision.Second => date.AddSeconds(1),
+			_ => date.AddSeconds(1)
+		};
+	}
+
 }
