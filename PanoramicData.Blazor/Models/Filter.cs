@@ -369,7 +369,9 @@ public class Filter
 		//	value = value.Substring(1, value.Length - 2);
 		//}
 
-		return new Filter(filterType, key, value, value2) { PropertyName = propertyName, DatePrecision = datePrecision };
+		var filter = new Filter(filterType, key, value, value2) { PropertyName = propertyName, DatePrecision = datePrecision };
+		filter.DatePrecision = DetermineDatePrecision(value);
+		return filter;
 	}
 
 	private static string? Fix(string value)
@@ -462,6 +464,45 @@ public class Filter
 	{
 		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).Concat(["yyyy-MM-ddTHH:mm:ssZ"]).ToArray();
 		return (DateTime.TryParseExact(dateTime?.RemoveQuotes(), dateTimeFormats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out from));
+	}
+
+	private static DatePrecision DetermineDatePrecision(string dateTimeString)
+	{
+		foreach (var format in _formatsWithTimeZone.Concat(_formatsWithoutTimeZone))
+		{
+			if (DateTime.TryParseExact(dateTimeString, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+			{
+				if (format.Contains("fff"))
+				{
+					return DatePrecision.Second;
+				}
+				if (format.Contains("ss"))
+				{
+					return DatePrecision.Second;
+				}
+				if (format.Contains("mm"))
+				{
+					return DatePrecision.Minute;
+				}
+				if (format.Contains("HH"))
+				{
+					return DatePrecision.Hour;
+				}
+				if (format.Contains("dd"))
+				{
+					return DatePrecision.Day;
+				}
+				if (format.Contains("MM"))
+				{
+					return DatePrecision.Month;
+				}
+				if (format.Contains("yyyy"))
+				{
+					return DatePrecision.Year;
+				}
+			}
+		}
+		return DatePrecision.Second;
 	}
 
 	#endregion
