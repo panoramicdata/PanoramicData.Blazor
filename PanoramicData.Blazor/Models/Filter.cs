@@ -480,7 +480,7 @@ public class Filter
 				{
 					return DatePrecision.Second;
 				}
-				if (format.Contains("mm"))
+				if (format.Contains("m"))
 				{
 					return DatePrecision.Minute;
 				}
