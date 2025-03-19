@@ -466,11 +466,11 @@ public class Filter
 		return (DateTime.TryParseExact(dateTime?.RemoveQuotes(), dateTimeFormats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out from));
 	}
 
-	private static DatePrecision DetermineDatePrecision(string dateTimeString)
+	public static DatePrecision DetermineDatePrecision(string dateTimeString)
 	{
 		foreach (var format in _formatsWithTimeZone.Concat(_formatsWithoutTimeZone))
 		{
-			if (DateTime.TryParseExact(dateTimeString, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+			if (DateTime.TryParseExact(dateTimeString.RemoveQuotes(), format, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
 			{
 				if (format.Contains("fff"))
 				{
