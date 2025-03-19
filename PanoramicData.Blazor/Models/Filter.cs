@@ -151,9 +151,11 @@ public class Filter
 		_ => !string.IsNullOrWhiteSpace(Value)
 	};
 
+	private static readonly string[] _datePrecisionSeparator = ["::"];
+
 	public override string ToString()
 	{
-		return FilterType switch
+		var filterString = FilterType switch
 		{
 			FilterTypes.Equals => $"{Key}:{Value}",
 			FilterTypes.DoesNotEqual => $"{Key}:!{Value}",
@@ -174,6 +176,8 @@ public class Filter
 			FilterTypes.IsNotEmpty => $"{Key}:!(empty)",
 			_ => string.Empty,
 		};
+
+		return DatePrecision != DatePrecision.Second ? $"{filterString}::{DatePrecision}" : filterString;
 	}
 
 	public void UpdateFrom(string text)
@@ -238,14 +242,24 @@ public class Filter
 
 	public static Filter Parse(string token, IDictionary<string, string>? keyMappings)
 	{
+		// BC-58 - Handle date precision
+		var parts = token.Split(_datePrecisionSeparator, StringSplitOptions.RemoveEmptyEntries);
+		var filterPart = parts[0];
+
+		DatePrecision datePrecision = DatePrecision.Second;
+		if (parts.Length > 1 && Enum.TryParse(parts[1], true, out DatePrecision parsedPrecision))
+		{
+			datePrecision = parsedPrecision;
+		}
+
 		var value2 = string.Empty;
 		var propertyName = string.Empty;
 		string? key;
 		string? encodedValue;
-		if (token.Contains(':', StringComparison.Ordinal))
+		if (filterPart.Contains(':', StringComparison.Ordinal))
 		{
-			key = token[..token.IndexOf(':')];
-			encodedValue = token[(token.IndexOf(':') + 1)..];
+			key = filterPart[..filterPart.IndexOf(':')];
+			encodedValue = filterPart[(filterPart.IndexOf(':') + 1)..];
 
 			// lookup property name?
 			if (keyMappings?.ContainsKey(key) == true)
@@ -355,7 +369,7 @@ public class Filter
 		//	value = value.Substring(1, value.Length - 2);
 		//}
 
-		return new Filter(filterType, key, value, value2) { PropertyName = propertyName };
+		return new Filter(filterType, key, value, value2) { PropertyName = propertyName, DatePrecision = datePrecision };
 	}
 
 	private static string? Fix(string value)
