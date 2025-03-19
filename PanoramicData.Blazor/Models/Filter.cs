@@ -358,6 +358,8 @@ public class Filter
 
 	private static string? Fix(string value)
 	{
+		return value;
+
 		// DateTime
 		var trimmedValue = value.Trim('"');
 
