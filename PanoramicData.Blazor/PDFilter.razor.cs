@@ -116,6 +116,11 @@ public partial class PDFilter : IAsyncDisposable
 		{
 			_selectedValues.AddRange(_value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
 		}
+		if (_filterType == FilterTypes.Range)
+		{
+			_selectedValues.AddRange(_value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
+			_selectedValues.AddRange(_value2.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
+		}
 	}
 
 	private async Task OnDropDownKeyPress(int keyCode)
