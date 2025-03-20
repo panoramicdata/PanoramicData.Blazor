@@ -358,7 +358,12 @@ public class Filter
 
 	private static string? Fix(string value)
 	{
-		// DateTime
+		return value;
+		// Don't do this, it's not needed and it breaks the parsing of dates
+		// The formatting into a DateTime format is done in the Format method when applying the filter
+		// This allows a more readable format to be used in the filter UI using the Format specified
+		// as a component parameter
+
 		var trimmedValue = value.Trim('"');
 
 		if (DateTimeOffset.TryParseExact(trimmedValue, _formatsWithTimeZone, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out var parsedDateTimeOffset) ||
@@ -440,5 +445,69 @@ public class Filter
 		}
 	}
 
+	public static bool IsDateTime(string? dateTimeString, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
+	{
+		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).Concat(["yyyy-MM-ddTHH:mm:ssZ"]).ToArray();
+	
+		foreach (var format in dateTimeFormats)
+		{
+			if (DateTime.TryParseExact(dateTimeString?.RemoveQuotes(), format, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+			{
+				if (format.Contains("fff"))
+				{
+					datePrecision = DatePrecision.Millisecond;
+				}
+				else if (format.Contains("ss"))
+				{
+					datePrecision = DatePrecision.Second;
+				}
+				else if (format.Contains("m"))
+				{
+					datePrecision = DatePrecision.Minute;
+				}
+				else if (format.Contains("HH"))
+				{
+					datePrecision = DatePrecision.Hour;
+				}
+				else if (format.Contains("dd"))
+				{
+					datePrecision = DatePrecision.Day;
+				}
+				else if (format.Contains("MM"))
+				{
+					datePrecision = DatePrecision.Month;
+				}
+				else if (format.Contains("yyyy"))
+				{
+					datePrecision = DatePrecision.Year;
+				}
+				else
+				{
+					// default to second
+					datePrecision = DatePrecision.Second;
+				}
+				// format found
+				formatFound = format;
+				return true;
+			}
+		}
+		// format not found
+		datePrecision = DatePrecision.Second;
+		formatFound = string.Empty;
+		dateTime = DateTime.MinValue;
+		return false;
+	}
+
 	#endregion
+}
+
+public enum DatePrecision
+{
+	Year,
+	Month,
+	Day,
+	Hour,
+	Minute,
+	Second,
+	Millisecond
 }

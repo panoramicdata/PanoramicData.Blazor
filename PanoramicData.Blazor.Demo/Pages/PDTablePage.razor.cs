@@ -189,4 +189,17 @@ public partial class PDTablePage
 			await Table.BeginEditAsync().ConfigureAwait(true);
 		}
 	}
+
+	private static object[] GetFormattedDobOptions()
+	{
+		var dobOptions = new List<object>();
+		foreach (var person in PersonDataProvider.GetAllPersons())
+		{
+			if (person.Dob.HasValue)
+			{
+				dobOptions.Add(person.Dob.Value.ToString("MM/dd/yyyy"));
+			}
+		}
+		return dobOptions.Distinct().Order().ToArray();
+	}
 }

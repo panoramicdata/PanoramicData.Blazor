@@ -16,6 +16,11 @@ public class PersonDataProvider : DataProviderBase<Person>
 	/// </summary>
 	public bool AddDelay { get; set; } = false;
 
+	public static List<Person> GetAllPersons()
+	{
+		return _people;
+	}
+
 	public PersonDataProvider(int count)
 	{
 		// generate random rows

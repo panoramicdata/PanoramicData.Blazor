@@ -1037,7 +1037,9 @@ public partial class PDTable<TItem> :
 		objectValues = objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(column.FilterMaxValues ?? FilterMaxValues).ToArray();
 
 		// Cast to string
-		return objectValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
+		return [.. objectValues.Select(x => string.IsNullOrEmpty(column.Format)
+				? x.ToString() ?? string.Empty
+				: string.Format(CultureInfo.CurrentCulture, "{0:" + column.Format + "}", x)).Distinct()];
 	}
 
 	protected override void OnParametersSet()
