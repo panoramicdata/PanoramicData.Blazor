@@ -193,7 +193,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 			case FilterTypes.GreaterThanOrEqual:
 				{
 					if (Filter.IsDateTime(filter.Value, out var gteqDateTime, out var formatFound, out var datePrecision))
-					{ // TODO:  this is the same
+					{
 						var addedASecond = Filter.Format(gteqDateTime, true);
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", addedASecond);
 					}
@@ -201,7 +201,6 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 					{
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", parameters);
 					}
-					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", parameters);
 					break;
 				}
 			case FilterTypes.In:
