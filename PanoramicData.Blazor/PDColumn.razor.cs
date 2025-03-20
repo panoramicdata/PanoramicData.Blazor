@@ -104,9 +104,6 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter]
 	public int? FilterMaxValues { get; set; }
 
-	[Parameter]
-	public DatePrecision DatePrecision { get; set; } = DatePrecision.Second;
-
 	public string GetPropertyName()
 		=> Field != null ? Field.GetPropertyName() : string.Empty;
 
@@ -438,9 +435,6 @@ public partial class PDColumn<TItem> where TItem : class
 		}
 
 		PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
-
-		// Set the DatePrecision in the filter
-		Filter.DatePrecision = DatePrecision;
 	}
 
 	public void SetOrdinal(int ordinal)

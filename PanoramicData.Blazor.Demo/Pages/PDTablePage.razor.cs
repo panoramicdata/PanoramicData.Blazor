@@ -200,6 +200,6 @@ public partial class PDTablePage
 				dobOptions.Add(person.Dob.Value.ToString("MM/dd/yyyy"));
 			}
 		}
-		return dobOptions.Distinct().ToArray();
+		return dobOptions.Distinct().Order().ToArray();
 	}
 }

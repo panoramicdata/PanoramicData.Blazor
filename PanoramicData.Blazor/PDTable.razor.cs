@@ -390,8 +390,6 @@ public partial class PDTable<TItem> :
 				// determine property name
 				column.Filter.PropertyName = column.GetPropertyName();
 
-				column.Filter.DatePrecision = column.DatePrecision;
-
 				// update mapping
 				if (DataProvider is IFilterProviderService<TItem> fs)
 				{

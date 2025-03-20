@@ -133,8 +133,6 @@ public class Filter
 
 	public bool UnspecifiedDateTimesAreUtc { get; set; } = true;
 
-	public DatePrecision DatePrecision { get; set; } = DatePrecision.Second;
-
 	public void Clear()
 	{
 		FilterType = FilterTypes.Equals;
@@ -151,11 +149,9 @@ public class Filter
 		_ => !string.IsNullOrWhiteSpace(Value)
 	};
 
-	private static readonly string[] _datePrecisionSeparator = ["::"];
-
 	public override string ToString()
 	{
-		var filterString = FilterType switch
+		return FilterType switch
 		{
 			FilterTypes.Equals => $"{Key}:{Value}",
 			FilterTypes.DoesNotEqual => $"{Key}:!{Value}",
@@ -176,8 +172,6 @@ public class Filter
 			FilterTypes.IsNotEmpty => $"{Key}:!(empty)",
 			_ => string.Empty,
 		};
-
-		return DatePrecision != DatePrecision.Second ? $"{filterString}::{DatePrecision}" : filterString;
 	}
 
 	public void UpdateFrom(string text)
@@ -242,24 +236,14 @@ public class Filter
 
 	public static Filter Parse(string token, IDictionary<string, string>? keyMappings)
 	{
-		// BC-58 - Handle date precision
-		var parts = token.Split(_datePrecisionSeparator, StringSplitOptions.RemoveEmptyEntries);
-		var filterPart = parts[0];
-
-		DatePrecision datePrecision = DatePrecision.Second;
-		if (parts.Length > 1 && Enum.TryParse(parts[1], true, out DatePrecision parsedPrecision))
-		{
-			datePrecision = parsedPrecision;
-		}
-
 		var value2 = string.Empty;
 		var propertyName = string.Empty;
 		string? key;
 		string? encodedValue;
-		if (filterPart.Contains(':', StringComparison.Ordinal))
+		if (token.Contains(':', StringComparison.Ordinal))
 		{
-			key = filterPart[..filterPart.IndexOf(':')];
-			encodedValue = filterPart[(filterPart.IndexOf(':') + 1)..];
+			key = token[..token.IndexOf(':')];
+			encodedValue = token[(token.IndexOf(':') + 1)..];
 
 			// lookup property name?
 			if (keyMappings?.ContainsKey(key) == true)
@@ -369,9 +353,7 @@ public class Filter
 		//	value = value.Substring(1, value.Length - 2);
 		//}
 
-		var filter = new Filter(filterType, key, value, value2) { PropertyName = propertyName, DatePrecision = datePrecision };
-		//filter.DatePrecision = DetermineDatePrecision(value);
-		return filter;
+		return new Filter(filterType, key, value, value2) { PropertyName = propertyName };
 	}
 
 	private static string? Fix(string value)
@@ -463,7 +445,6 @@ public class Filter
 	public static bool IsDateTime(string? dateTimeString, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
 	{
 		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).Concat(["yyyy-MM-ddTHH:mm:ssZ"]).ToArray();
-		//return (DateTime.TryParseExact(dateTime?.RemoveQuotes(), dateTimeFormats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out from));
 	
 		foreach (var format in dateTimeFormats)
 		{
