@@ -370,7 +370,7 @@ public class Filter
 		//}
 
 		var filter = new Filter(filterType, key, value, value2) { PropertyName = propertyName, DatePrecision = datePrecision };
-		filter.DatePrecision = DetermineDatePrecision(value);
+		//filter.DatePrecision = DetermineDatePrecision(value);
 		return filter;
 	}
 
@@ -460,49 +460,58 @@ public class Filter
 		}
 	}
 
-	public static bool IsDateTime(string? dateTime, out DateTime from)
+	public static bool IsDateTime(string? dateTimeString, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
 	{
 		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).Concat(["yyyy-MM-ddTHH:mm:ssZ"]).ToArray();
-		return (DateTime.TryParseExact(dateTime?.RemoveQuotes(), dateTimeFormats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out from));
-	}
-
-	public static DatePrecision DetermineDatePrecision(string dateTimeString)
-	{
-		foreach (var format in _formatsWithTimeZone.Concat(_formatsWithoutTimeZone))
+		//return (DateTime.TryParseExact(dateTime?.RemoveQuotes(), dateTimeFormats, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out from));
+	
+		foreach (var format in dateTimeFormats)
 		{
-			if (DateTime.TryParseExact(dateTimeString.RemoveQuotes(), format, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+			if (DateTime.TryParseExact(dateTimeString?.RemoveQuotes(), format, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
 			{
 				if (format.Contains("fff"))
 				{
-					return DatePrecision.Second;
+					datePrecision = DatePrecision.Millisecond;
 				}
-				if (format.Contains("ss"))
+				else if (format.Contains("ss"))
 				{
-					return DatePrecision.Second;
+					datePrecision = DatePrecision.Second;
 				}
-				if (format.Contains("m"))
+				else if (format.Contains("m"))
 				{
-					return DatePrecision.Minute;
+					datePrecision = DatePrecision.Minute;
 				}
-				if (format.Contains("HH"))
+				else if (format.Contains("HH"))
 				{
-					return DatePrecision.Hour;
+					datePrecision = DatePrecision.Hour;
 				}
-				if (format.Contains("dd"))
+				else if (format.Contains("dd"))
 				{
-					return DatePrecision.Day;
+					datePrecision = DatePrecision.Day;
 				}
-				if (format.Contains("MM"))
+				else if (format.Contains("MM"))
 				{
-					return DatePrecision.Month;
+					datePrecision = DatePrecision.Month;
 				}
-				if (format.Contains("yyyy"))
+				else if (format.Contains("yyyy"))
 				{
-					return DatePrecision.Year;
+					datePrecision = DatePrecision.Year;
 				}
+				else
+				{
+					// default to second
+					datePrecision = DatePrecision.Second;
+				}
+				// format found
+				formatFound = format;
+				return true;
 			}
 		}
-		return DatePrecision.Second;
+		// format not found
+		datePrecision = DatePrecision.Second;
+		formatFound = string.Empty;
+		dateTime = DateTime.MinValue;
+		return false;
 	}
 
 	#endregion
@@ -515,5 +524,6 @@ public enum DatePrecision
 	Day,
 	Hour,
 	Minute,
-	Second
+	Second,
+	Millisecond
 }
