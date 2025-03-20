@@ -378,9 +378,9 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 			DatePrecision.Year => new DateTime(date.Year, 1, 1),
 			DatePrecision.Month => new DateTime(date.Year, date.Month, 1),
 			DatePrecision.Day => new DateTime(date.Year, date.Month, date.Day),
-			DatePrecision.Hour => new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0),
-			DatePrecision.Minute => new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, 0),
-			DatePrecision.Second => new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second),
+			DatePrecision.Hour => new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0, date.Kind),
+			DatePrecision.Minute => new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, 0, date.Kind),
+			DatePrecision.Second => new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind),
 			_ => date
 		};
 	}
