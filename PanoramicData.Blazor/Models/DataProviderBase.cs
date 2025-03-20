@@ -160,8 +160,11 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 				{
 					if (Filter.IsDateTime(filter.Value, out var from, out var format, out var datePrecision))
 					{
-						var to = Filter.Format(from.AddSeconds(1));
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 || {property} < @1", to, from);
+						from = ZeroOutDateParts(from, datePrecision);
+						var equalsToUTC = Filter.Format(GetDateRangeEnd(from, datePrecision), true);
+						var equalsFromUTC = Filter.Format(from, true);
+						//var to = Filter.Format(from.AddSeconds(1), true);
+						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 || {property} < @1", equalsToUTC, equalsFromUTC);
 					}
 					else
 					{
@@ -177,7 +180,8 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 				{
 					if (Filter.IsDateTime(filter.Value, out var gtDateTime, out var format, out var datePrecision))
 					{
-						var addedASecond = Filter.Format(gtDateTime.AddSeconds(1));
+						gtDateTime = GetDateRangeEnd(gtDateTime, datePrecision);
+						var addedASecond = Filter.Format(gtDateTime, true);
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", addedASecond);
 					}
 					else
@@ -187,18 +191,30 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 					break;
 				}
 			case FilterTypes.GreaterThanOrEqual:
-				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", parameters);
-				break;
-
+				{
+					if (Filter.IsDateTime(filter.Value, out var gteqDateTime, out var formatFound, out var datePrecision))
+					{ // TODO:  this is the same
+						var addedASecond = Filter.Format(gteqDateTime, true);
+						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", addedASecond);
+					}
+					else
+					{
+						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", parameters);
+					}
+					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", parameters);
+					break;
+				}
 			case FilterTypes.In:
 				{
-					var allDateTimes = Array.TrueForAll(parameters, p => Filter.IsDateTime(p.ToString(), out _, out var format, out var datePrecision));
+					var allDateTimes = Array.TrueForAll(parameters, p => Filter.IsDateTime(p.ToString(), out _, out var _, out var _));
 					if (allDateTimes)
 					{
 						var dateTimeParameters = parameters.Select(p =>
 						{
-							DateTime.TryParse(p.ToString(), CultureInfo.InvariantCulture, out var dt);
-							return new { Start = Filter.Format(dt), End = Filter.Format(dt.AddSeconds(1)) };
+							Filter.IsDateTime(p.ToString(), out var dt, out var formatFound, out var datePrecision);
+							dt = ZeroOutDateParts(dt, datePrecision);
+							var dtTo = GetDateRangeEnd(dt, datePrecision);
+							return new { Start = Filter.Format(dt, true), End = Filter.Format(dtTo, true) };
 						}).ToArray();
 
 						var query = string.Join(" || ", dateTimeParameters.Select((p, i) => $"(it.{property} >= @{i * 2} && it.{property} < @{i * 2 + 1})").ToArray());
@@ -215,13 +231,15 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 			case FilterTypes.NotIn:
 				{
-					var allDateTimes = Array.TrueForAll(parameters, p => Filter.IsDateTime(p.ToString(), out _, out var format, out var datePrecision));
+					var allDateTimes = Array.TrueForAll(parameters, p => Filter.IsDateTime(p.ToString(), out _, out var _, out var _));
 					if (allDateTimes)
 					{
 						var dateTimeParameters = parameters.Select(p =>
 						{
-							DateTime.TryParse(p.ToString(), CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt);
-							return new { Start = Filter.Format(dt), End = Filter.Format(dt.AddSeconds(1)) };
+							Filter.IsDateTime(p.ToString(), out var dt, out var format, out var datePrecision);
+							dt = ZeroOutDateParts(dt, datePrecision);
+							var dtTo = GetDateRangeEnd(dt, datePrecision);
+							return new { Start = Filter.Format(dt, true), End = Filter.Format(dtTo, true) };
 						}).ToArray();
 
 						var query = string.Join(" && ", dateTimeParameters.Select((p, i) => $"!(it.{property} >= @{i * 2} && it.{property} < @{i * 2 + 1})").ToArray());
@@ -237,15 +255,27 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 				break;
 
 			case FilterTypes.LessThan:
-				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} < @0", parameters);
-				break;
-
-			case FilterTypes.LessThanOrEqual:
 				{
 					if (Filter.IsDateTime(filter.Value, out var ltDateTime, out var format, out var datePrecision))
 					{
-						var addedASecond = Filter.Format(ltDateTime.AddSeconds(1));
+						ltDateTime = ZeroOutDateParts(ltDateTime, datePrecision);
+						var addedASecond = Filter.Format(ltDateTime, true);
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} < @0", addedASecond);
+					}
+					else
+					{
+						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} < @0", parameters);
+					}
+					break;
+				}
+			case FilterTypes.LessThanOrEqual:
+				{
+					if (Filter.IsDateTime(filter.Value, out var lteqDateTime, out var formatFound, out var datePrecision))
+					{
+						lteqDateTime = ZeroOutDateParts(lteqDateTime, datePrecision);
+						lteqDateTime = GetDateRangeEnd(lteqDateTime, datePrecision);
+						var addedASecondUTC = Filter.Format(lteqDateTime, true);
+						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} < @0", addedASecondUTC);
 					}
 					else
 					{
@@ -262,7 +292,12 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 						(rangeTo, rangeFrom) = (rangeFrom, rangeTo);
 					}
 
-					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} < @1", rangeFrom, rangeTo.AddSeconds(1));
+					rangeFrom = ZeroOutDateParts(rangeFrom, fromDatePrecision);
+					rangeTo = GetDateRangeEnd(rangeTo, toDatePrecision);
+					var equalsToUTC = Filter.Format(rangeTo, true);
+					var equalsFromUTC = Filter.Format(rangeFrom, true);
+
+					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} < @1", equalsFromUTC, equalsToUTC);
 				}
 				else
 				{
@@ -285,14 +320,13 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 			case FilterTypes.IsEmpty:
 			case FilterTypes.Equals:
 				{
-					if (Filter.IsDateTime(filter.Value, out var equalsFrom, out var format, out var datePrecision))
+					if (Filter.IsDateTime(filter.Value, out var equalsFrom, out var formatFound, out var datePrecision))
 					{
-						//var equalsTo = Filter.Format(equalsFrom.AddSeconds(1));
 						equalsFrom = ZeroOutDateParts(equalsFrom, datePrecision);
 						var equalsTo = GetDateRangeEnd(equalsFrom, datePrecision);
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} < @1", equalsFrom, equalsTo);
-
-						//newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} < @1", equalsFrom, equalsTo);
+						var equalsToUTC = Filter.Format(equalsTo, true);
+						var equalsFromUTC = Filter.Format(equalsFrom, true);
+						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} < @1", equalsFromUTC, equalsToUTC);
 					}
 					else
 					{
