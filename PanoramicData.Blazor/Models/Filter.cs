@@ -218,6 +218,7 @@ public class Filter
 			return "";
 		}
 
+
 		if (value is DateTime dt)
 		{
 			return dt.Kind == DateTimeKind.Utc || (dt.Kind == DateTimeKind.Unspecified && unspecifiedDateTimesAreUtc)
