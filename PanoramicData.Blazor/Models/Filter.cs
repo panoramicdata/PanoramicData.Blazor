@@ -360,8 +360,11 @@ public class Filter
 	private static string? Fix(string value)
 	{
 		return value;
+		// Don't do this, it's not needed and it breaks the parsing of dates
+		// The formatting into a DateTime format is done in the Format method when applying the filter
+		// This allows a more readable format to be used in the filter UI using the Format specified
+		// as a component parameter
 
-		// DateTime
 		var trimmedValue = value.Trim('"');
 
 		if (DateTimeOffset.TryParseExact(trimmedValue, _formatsWithTimeZone, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out var parsedDateTimeOffset) ||

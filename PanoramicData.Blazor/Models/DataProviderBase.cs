@@ -163,7 +163,6 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 						from = ZeroOutDateParts(from, datePrecision);
 						var equalsToUTC = Filter.Format(GetDateRangeEnd(from, datePrecision), true);
 						var equalsFromUTC = Filter.Format(from, true);
-						//var to = Filter.Format(from.AddSeconds(1), true);
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 || {property} < @1", equalsToUTC, equalsFromUTC);
 					}
 					else
@@ -339,8 +338,6 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		}
 
 		return existingPredicate is null ? newPredicate : PredicateBuilderService.And(existingPredicate, newPredicate);
-
-		
 	}
 
 	public virtual IQueryable<T> ApplyFilters(IQueryable<T> query, IEnumerable<Filter> filters, params string[] exclude)
@@ -398,5 +395,4 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 			_ => date
 		};
 	}
-
 }

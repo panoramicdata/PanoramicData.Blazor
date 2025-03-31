@@ -213,34 +213,6 @@ public partial class PDFilter : IAsyncDisposable
 			_value2 = string.Empty;
 		}
 	}
-	private void OnFilterTypeChanged(ChangeEventArgs args)
-	{
-		_filterType = (FilterTypes)Enum.Parse(typeof(FilterTypes), args.Value?.ToString() ?? string.Empty);
-		// if single selection and compatible operator - simple copy value
-		var singleOptions = new[] { FilterTypes.Equals, FilterTypes.DoesNotEqual, FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual, FilterTypes.Range };
-		var doubleOptions = new[] { FilterTypes.Range};
-		
-
-		if (singleOptions.Contains(_filterType))
-		{
-			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();
-			_selectedValues.Clear();
-			_selectedValues.Add(_value1);
-		}
-		else if (doubleOptions.Contains(_filterType))
-		{
-			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();
-			_value2 = _selectedValues[1].QuoteIfContainsWhitespace();
-			_selectedValues.Clear();
-			_selectedValues.Add(_value1);
-			_selectedValues.Add(_value2);
-		}
-		else
-		{
-			_value1 = string.Empty;
-			_value2 = string.Empty;
-		}
-	}
 
 	private void OnValueClicked(string value)
 	{
