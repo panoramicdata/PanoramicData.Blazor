@@ -1,0 +1,17 @@
+﻿@page "/pdquestvisualizer"
+@using PanoramicData.Blazor.Services;
+
+<h1>PDQuestVisualizer</h1>
+
+<DemoSourceView SourceFiles="Pages/QuestVisualizerPage.razor, Pages/QuestVisualizerPage.razor.cs">
+
+    <div>
+		<PDQuestVisualizer
+			Quests="_quests"
+			QuestActions="_questActions"
+			/>
+    </div>
+
+    <EventView />
+
+</DemoSourceView>

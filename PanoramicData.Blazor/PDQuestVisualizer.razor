@@ -1,0 +1,76 @@
+﻿@namespace PanoramicData.Blazor
+
+<svg width="100%" height="@SvgHeight" class="pd-questvisualizer">
+	<defs>
+		<marker id="arrowhead_" markerWidth="10" markerHeight="7"
+		referenceX="10"
+		refY="3.5"
+		orient="auto"
+		markerUnits="strokeWidth">
+			<polygon points="0 0, 7 3.5, 0 7" fill="currentColor" />
+		</marker>
+	</defs>
+
+	@foreach (var quest in Quests)
+	{
+		<defs>
+			<marker id="arrowhead_@(quest.Id)" markerWidth="10" markerHeight="7"
+			referenceX="10"
+			refY="3.5"
+			orient="auto"
+			markerUnits="strokeWidth">
+				<polygon points="0 0, 7 3.5, 0 7" fill="@quest.ThemeColorHex" />
+			</marker>
+		</defs>
+
+		var questY = GetQuestY(quest.Id);
+		var questTextY = questY + QuestHeight / 2 + QuestActionRadius + 12;
+
+		<g>
+		<rect transform="translate(0, @questY)" width="2000" height="@QuestHeight" fill="@quest.ThemeColorHex" opacity="0.1" />
+			<text transform="translate(0, @questY)" x="10" y="20" fill="@quest.ThemeColorHex" style="font-weight:bold">@quest.Name</text>
+
+			@foreach (var positioned in PositionedActions.Where(a => a.Action.QuestId == quest.Id))
+			{
+				var action = positioned.Action;
+				var actionX = GetX(action);
+				var actionY = questY + QuestHeight / 2;
+				var isComplete = action.IsComplete;
+				var actionOpacity = action.IsComplete ? "1.0" : "0.3";
+
+				<circle transform="translate(@actionX, @actionY)"
+						r="@QuestActionRadius"
+						fill="@(isComplete ? "green" : "white")"
+						stroke="@quest.ThemeColorHex"
+						stroke-opacity="@actionOpacity"
+						stroke-width="2"
+						/>
+
+				<text><text transform="translate(@actionX, @questTextY)" text-anchor="middle" fill="black">@action.Name</text></text>
+
+				@foreach (var prevId in action.PreviousQuestActionIds)
+				{
+					var prev = PositionedActions.FirstOrDefault(p => p.Action.Id == prevId);
+					if (prev != null)
+					{
+						var midY = questY + QuestHeight / 2;
+						var prevX = GetX(prev.Action) + QuestActionRadius;
+						var prevY = GetQuestY(prev.Action.QuestId) + QuestHeight / 2;
+						var ctrlX = (actionX + prevX) / 2 - QuestActionRadius;
+						var ctrlY1 = prevY;
+						var ctrlY2 = midY;
+						var opacity = action.IsComplete && prev.Action.IsComplete ? "1.0" : "0.3";
+
+						<path d="M @prevX @prevY C @ctrlX @ctrlY1, @ctrlX @ctrlY2, @(actionX - 2* QuestActionRadius) @midY"
+							stroke="@quest.ThemeColorHex"
+							stroke-width="2"
+							fill="none"
+							stroke-opacity="@opacity"
+							marker-end="url(#arrowhead_@(quest.Id))"
+							/>
+					}
+				}
+			}
+		</g>
+	}
+</svg>
