@@ -1,0 +1,13 @@
+﻿.special-offers {
+	background-color: #0d6efd;
+	border-radius: 0.25em;
+	color: #fff;
+	border:none;
+	padding: 0.25em;
+
+	transition: background-color linear 0.2s;
+}
+
+	.special-offers:hover {
+		background-color: #0d2ffd;
+	}
