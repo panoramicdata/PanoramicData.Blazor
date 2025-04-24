@@ -29,6 +29,7 @@ else
 	{
 		<div class="input-group-text">
 			<button class=" btn @ButtonSizeCssClass"
+					style="square-left-border-radius"
 					disabled="@(Value == string.Empty || !IsEnabled)"
 					@onclick="OnClear">
 				<i class="fas fa-times" />
@@ -39,6 +40,7 @@ else
 	{
 		<div class="input-group-text">
 			<button class=" btn @ButtonSizeCssClass @(_activeListener == Id ? "flash" : "")"
+					style="square-left-border-radius"
 					disabled="@(!IsEnabled)"
 					@onclick="OnListenForSpeech">
 				<i class="fas fa-microphone" />
