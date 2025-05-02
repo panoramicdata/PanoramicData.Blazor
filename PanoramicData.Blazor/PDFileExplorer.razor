@@ -307,7 +307,7 @@
 							<Template>
 								<span class="@(GetCssClass(context))"
 									  title="@(context.FileSize.ToString("0,0")) bytes">
-									@(context.EntryType == FileExplorerItemType.Directory ? null : context.FileSize.Bytes().Humanize(SizeFormat))
+									@(context.EntryType == FileExplorerItemType.Directory ? null : (context.FileSize > 0 && context.FileSize < 1000) ? 1000.Bytes().Humanize(SizeFormat) : context.FileSize.Bytes().Humanize(SizeFormat))
 								</span>
 							</Template>
 						</PDColumn>
