@@ -200,10 +200,17 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 
 	private async Task SetMonacoValueAsync(string value)
 	{
-		if (_monacoEditor != null && Form != null)
+		try
 		{
-			var model = await _monacoEditor.GetModel();
-			await model.SetValue(value);
+			if (_monacoEditor != null && Form != null)
+			{
+				var model = await _monacoEditor.GetModel();
+				await model.SetValue(value);
+			}
+		}
+		catch
+		{
+			// Do nothing
 		}
 	}
 
