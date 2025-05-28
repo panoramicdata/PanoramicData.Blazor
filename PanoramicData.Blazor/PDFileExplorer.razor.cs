@@ -415,36 +415,43 @@ public partial class PDFileExplorer : IAsyncDisposable
 			_menuSep3,
 			_menuDelete
 		]);
+	}
 
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
-		var isTouchDevice = _commonModule != null && await _commonModule.InvokeAsync<bool>("isTouchDevice").ConfigureAwait(true);
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
 
-		ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline", IsVisible = ShowNavigateUpButton });
-		if (isTouchDevice)
+		if (firstRender)
 		{
-			ToolbarItems.Add(new ToolbarButton { Key = "open", Text = "Open", ToolTip = "Navigate into folder", IconCssClass = "fas fa-fw fa-folder-open", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
-		}
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+			var isTouchDevice = _commonModule != null && await _commonModule.InvokeAsync<bool>("isTouchDevice").ConfigureAwait(true);
 
-		ToolbarItems.Add(new ToolbarButton { Key = "refresh", Text = "Refresh", ToolTip = "Refreshes the current folder", IconCssClass = "fas fa-fw fa-sync-alt", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline", IsVisible = ShowNavigateUpButton });
+			if (isTouchDevice)
+			{
+				ToolbarItems.Add(new ToolbarButton { Key = "open", Text = "Open", ToolTip = "Navigate into folder", IconCssClass = "fas fa-fw fa-folder-open", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			}
 
-		if (PreviewPanel == FilePreviewModes.OptionalOff || PreviewPanel == FilePreviewModes.OptionalOn)
-		{
-			_previewPanelButton = new ToolbarButton { Key = "preview", Text = "Preview", ToolTip = "Toggles display of the Preview panel", IconCssClass = "fas fa-fw fa-eye", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" };
-			ToolbarItems.Add(_previewPanelButton);
-		}
+			ToolbarItems.Add(new ToolbarButton { Key = "refresh", Text = "Refresh", ToolTip = "Refreshes the current folder", IconCssClass = "fas fa-fw fa-sync-alt", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 
-		ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
-		ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
-		if (!string.IsNullOrWhiteSpace(UploadUrl))
-		{
-			TableContextItems.Insert(1, _menuUploadFiles);
-			TreeContextItems.Insert(0, _menuUploadFiles);
-			ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
-		}
+			if (PreviewPanel == FilePreviewModes.OptionalOff || PreviewPanel == FilePreviewModes.OptionalOn)
+			{
+				_previewPanelButton = new ToolbarButton { Key = "preview", Text = "Preview", ToolTip = "Toggles display of the Preview panel", IconCssClass = "fas fa-fw fa-eye", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" };
+				ToolbarItems.Add(_previewPanelButton);
+			}
 
-		if (PreviewPanel == FilePreviewModes.OptionalOff)
-		{
-			PreviewPanelVisible = false;
+			ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
+			if (!string.IsNullOrWhiteSpace(UploadUrl))
+			{
+				TableContextItems.Insert(1, _menuUploadFiles);
+				TreeContextItems.Insert(0, _menuUploadFiles);
+				ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			}
+
+			if (PreviewPanel == FilePreviewModes.OptionalOff)
+			{
+				PreviewPanelVisible = false;
+			}
 		}
 	}
 
