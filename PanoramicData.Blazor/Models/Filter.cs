@@ -356,7 +356,7 @@ public class Filter
 		return new Filter(filterType, key, value, value2) { PropertyName = propertyName };
 	}
 
-	private static string? Fix(string value)
+	private static string Fix(string value)
 	{
 		return value;
 		// Don't do this, it's not needed and it breaks the parsing of dates
@@ -364,18 +364,18 @@ public class Filter
 		// This allows a more readable format to be used in the filter UI using the Format specified
 		// as a component parameter
 
-		var trimmedValue = value.Trim('"');
+		//var trimmedValue = value.Trim('"');
 
-		if (DateTimeOffset.TryParseExact(trimmedValue, _formatsWithTimeZone, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out var parsedDateTimeOffset) ||
-			DateTimeOffset.TryParseExact(trimmedValue, _formatsWithoutTimeZone, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.AssumeUniversal, out parsedDateTimeOffset))
-		{
-			var returnValue = parsedDateTimeOffset.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
-			return value == trimmedValue
-				? returnValue
-				: $"\"{returnValue}\"";
-		}
+		//if (DateTimeOffset.TryParseExact(trimmedValue, _formatsWithTimeZone, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out var parsedDateTimeOffset) ||
+		//	DateTimeOffset.TryParseExact(trimmedValue, _formatsWithoutTimeZone, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.AssumeUniversal, out parsedDateTimeOffset))
+		//{
+		//	var returnValue = parsedDateTimeOffset.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+		//	return value == trimmedValue
+		//		? returnValue
+		//		: $"\"{returnValue}\"";
+		//}
 
-		return value;
+		//return value;
 	}
 
 	public static IEnumerable<Filter> ParseMany(string text, IDictionary<string, string>? keyMappings = null)

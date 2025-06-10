@@ -26,8 +26,8 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private readonly List<FileExplorerItem> _conflicts = [];
 	private int _batchCount;
 	private int _batchProgress;
-	protected long _batchTotalBytes;
-	protected long _batchTotalBytesSent;
+	private long _batchTotalBytes;
+	private long _batchTotalBytesSent;
 	private readonly Dictionary<string, double> _batchFiles = [];
 	private bool _moveCopyPayload;
 	private string _pasteTarget = string.Empty;
@@ -1677,7 +1677,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 							// check source and destination are not same file
 							if (newPath == source.Path)
 							{
-								await ExceptionHandler.InvokeAsync(new Exception("Operation Failed: Source and Destination are the same")).ConfigureAwait(true);
+								await ExceptionHandler.InvokeAsync(new InvalidOperationException("Operation Failed: Source and Destination are the same")).ConfigureAwait(true);
 								continue;
 							}
 							else
