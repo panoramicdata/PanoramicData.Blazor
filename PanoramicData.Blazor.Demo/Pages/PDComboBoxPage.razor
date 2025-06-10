@@ -1,0 +1,19 @@
+﻿@page "/pdcombobox"
+
+<h1>PDComboBox</h1>
+
+<DemoSourceView SourceFiles="Pages/PDComboBoxPage.razor, Pages/PDComboBoxPage.razor.cs">
+
+	<p>ComboBox 1 : Example showing normal and programmatic behaviour</p>
+
+	<PDComboBox Items="_items"
+				ItemToString="@(item => $"{item.Continent}: {item.Name}")"
+				SelectedItem="_selectedItem"
+				MaxResults="5"
+				Placeholder="Select a country..."
+				OrderBy="@(item => $"{item.Continent} {item.Name}")"
+				SelectedItemChanged="@((item) => OnLogEvent($"Selected Item Changed: {item}"))" />
+
+	<EventView />
+
+</DemoSourceView>

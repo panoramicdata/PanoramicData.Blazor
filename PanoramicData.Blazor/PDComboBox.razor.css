@@ -1,0 +1,133 @@
+/* Define color variables for light mode */
+:root {
+	--pdcb-bg: #fff;
+	--pdcb-border: #ccc;
+	--pdcb-border-focus: #007bff;
+	--pdcb-shadow-focus: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+	--pdcb-dropdown-bg: #fff;
+	--pdcb-dropdown-border: #ccc;
+	--pdcb-dropdown-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	--pdcb-item-hover-bg: #f0f0f0;
+	--pdcb-item-active-bg: #007bff;
+	--pdcb-item-active-color: #fff;
+	--pdcb-no-results-color: #888;
+	--pdcb-clear-color: #888;
+	--pdcb-clear-color-focus: #333;
+	--pdcb-input-color: #222;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--pdcb-bg: #23272f;
+		--pdcb-border: #444b58;
+		--pdcb-border-focus: #339cff;
+		--pdcb-shadow-focus: 0 0 0 0.2rem rgba(51, 156, 255, 0.25);
+		--pdcb-dropdown-bg: #23272f;
+		--pdcb-dropdown-border: #444b58;
+		--pdcb-dropdown-shadow: 0 4px 16px rgba(0,0,0,0.5);
+		--pdcb-item-hover-bg: #2d323c;
+		--pdcb-item-active-bg: #339cff;
+		--pdcb-item-active-color: #fff;
+		--pdcb-no-results-color: #aaa;
+		--pdcb-clear-color: #aaa;
+		--pdcb-clear-color-focus: #fff;
+		--pdcb-input-color: #f3f3f3;
+	}
+}
+
+/* Base styles for the combobox container */
+.pd-combobox {
+	position: relative;
+	display: inline-block; /* Or block, depending on desired layout */
+	width: 100%; /* Adjust as needed */
+}
+
+	/* Styles for the input field */
+	.pd-combobox .combo-input {
+		width: 100%;
+		padding: 8px 12px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		font-size: 16px;
+		box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+		outline: none; /* Remove default focus outline */
+		padding-right: 2em; /* Space for the clear button */
+	}
+
+		.pd-combobox .combo-input:focus {
+			border-color: #007bff; /* Highlight border on focus */
+			box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Add a subtle shadow on focus */
+		}
+
+	/* Styles for the dropdown list */
+	.pd-combobox .combo-dropdown {
+		position: absolute;
+		top: 100%; /* Position below the input field */
+		left: 0;
+		z-index: 1000; /* Ensure the dropdown appears above other content */
+		width: 100%;
+		max-height: 200px; /* Limit height and add scrollbar if needed */
+		overflow-y: auto;
+		border: 1px solid #ccc;
+		border-top: none; /* No top border as it connects to the input */
+		border-radius: 0 0 4px 4px; /* Rounded corners only at the bottom */
+		background-color: #fff;
+		list-style: none; /* Remove bullet points */
+		padding: 0;
+		margin: 0;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+	}
+
+		/* Styles for individual dropdown items */
+		.pd-combobox .combo-dropdown li {
+			padding: 10px 12px;
+			cursor: pointer;
+			white-space: nowrap; /* Prevent text wrapping */
+			overflow: hidden; /* Hide overflowing text */
+			text-overflow: ellipsis; /* Add ellipsis for hidden text */
+		}
+
+			.pd-combobox .combo-dropdown li:hover {
+				background-color: #f0f0f0; /* Highlight on hover */
+			}
+
+			.pd-combobox .combo-dropdown li:active {
+				background-color: #007bff;
+				color: #fff;
+			}
+
+	/* Optional: Add a class for when the dropdown is visible (can be controlled by JavaScript/Blazor state) */
+	.pd-combobox.show-dropdown .combo-dropdown {
+		display: block;
+	}
+
+/* Optional: Styles for when there are no items to display (if you want to show a message) */
+/* This would typically be handled by rendering a different element in your Blazor component */
+/*
+.pd-combobox .no-results {
+    padding: 10px 12px;
+    color: #888;
+    text-align: center;
+}
+*/
+
+.combo-clear {
+	position: absolute;
+	right: 0.5em;
+	top: 50%;
+	transform: translateY(-50%);
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	font-size: 1.2em;
+	color: #888;
+	padding: 0;
+	line-height: 1;
+	z-index: 2;
+}
+
+.combo-clear:focus {
+	outline: none;
+	color: #333;
+}
