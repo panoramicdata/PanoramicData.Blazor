@@ -46,8 +46,8 @@ public static class IQueryableExtensions
 				string[] separatorArray = ["|"];
 				object[] parameters = filter.FilterType switch
 				{
-					FilterTypes.In => filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
-					FilterTypes.NotIn => filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
+					FilterTypes.In => [.. filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
+					FilterTypes.NotIn => [.. filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
 					FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
 					FilterTypes.IsEmpty => [string.Empty],
 					FilterTypes.IsNotEmpty => [string.Empty],

@@ -221,7 +221,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	{
 		double max = 0;
 
-		DataPoint[] tempArray = points.Where(x => x != null && x.SeriesValues.Length > 0).ToArray();
+		DataPoint[] tempArray = [.. points.Where(x => x != null && x.SeriesValues.Length > 0)];
 		if (tempArray.Length != 0)
 		{
 			max = tempArray.Max(x => x.SeriesValues.Sum(y => YValueTransform(y)));

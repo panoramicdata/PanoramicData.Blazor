@@ -137,6 +137,7 @@ public partial class PDComboBox<TItem>
 					SelectItem(_filteredItems[_activeIndex]);
 					shouldUpdate = true;
 				}
+
 				break;
 		}
 

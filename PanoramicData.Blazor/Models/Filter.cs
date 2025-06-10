@@ -448,7 +448,7 @@ public class Filter
 	public static bool IsDateTime(string? dateTimeString, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
 	{
 		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).Concat(["yyyy-MM-ddTHH:mm:ssZ"]).ToArray();
-	
+
 		foreach (var format in dateTimeFormats)
 		{
 			if (DateTime.TryParseExact(dateTimeString?.RemoveQuotes(), format, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
@@ -461,7 +461,7 @@ public class Filter
 				{
 					datePrecision = DatePrecision.Second;
 				}
-				else if (format.Contains("m"))
+				else if (format.Contains('m'))
 				{
 					datePrecision = DatePrecision.Minute;
 				}

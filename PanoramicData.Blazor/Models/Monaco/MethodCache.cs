@@ -312,11 +312,11 @@ public class MethodCache
 					signatures.Add(new SignatureInformation
 					{
 						Label = method.ToString(Options),
-						Parameters = method.Parameters.Select(p => new ParameterInformation
+						Parameters = [.. method.Parameters.Select(p => new ParameterInformation
 						{
 							Label = p.ToString(Options),
 							Documentation = p.Description
-						}).ToArray()
+						})]
 					});
 				}
 			}

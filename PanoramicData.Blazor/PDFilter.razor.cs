@@ -117,12 +117,12 @@ public partial class PDFilter : IAsyncDisposable
 			or FilterTypes.LessThan
 			or FilterTypes.LessThanOrEqual)
 		{
-			_selectedValues.AddRange(_value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
+			_selectedValues.AddRange([.. _value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())]);
 		}
 		if (_filterType == FilterTypes.Range)
 		{
-			_selectedValues.AddRange(_value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
-			_selectedValues.AddRange(_value2.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
+			_selectedValues.AddRange([.. _value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())]);
+			_selectedValues.AddRange([.. _value2.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())]);
 		}
 	}
 
@@ -152,7 +152,7 @@ public partial class PDFilter : IAsyncDisposable
 		if (_filterType == FilterTypes.In)
 		{
 			_selectedValues.Clear();
-			_selectedValues.AddRange(_value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray());
+			_selectedValues.AddRange([.. _value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())]);
 		}
 		else if (_filterType == FilterTypes.Equals)
 		{

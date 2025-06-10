@@ -751,7 +751,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 					}
 					else
 					{
-						SetFieldErrors(memberInfo.Name, results.Where(x => x?.ErrorMessage != null).Select(x => x.ErrorMessage!).ToArray());
+						SetFieldErrors(memberInfo.Name, [.. results.Where(x => x?.ErrorMessage != null).Select(x => x.ErrorMessage!)]);
 					}
 
 					// validate numeric values

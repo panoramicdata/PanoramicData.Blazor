@@ -118,7 +118,7 @@ public class ShortcutKey
 			return new ShortcutKey();
 		}
 
-		var codes = shortcutKey.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+		var codes = shortcutKey.Split(['-'], StringSplitOptions.RemoveEmptyEntries);
 		var lastCode = codes.LastOrDefault();
 		return new ShortcutKey
 		{

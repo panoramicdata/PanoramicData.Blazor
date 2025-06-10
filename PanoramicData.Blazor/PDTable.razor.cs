@@ -810,7 +810,7 @@ public partial class PDTable<TItem> :
 	/// </summary>
 	public TItem[] GetSelectedItems() => KeyField is null
 			? []
-			: ItemsToDisplay.Where(x => Selection.Contains(KeyField(x).ToString() ?? string.Empty)).ToArray();
+			: [.. ItemsToDisplay.Where(x => Selection.Contains(KeyField(x).ToString() ?? string.Empty))];
 
 	/// <summary>
 	/// Clears the current selection.
@@ -983,7 +983,7 @@ public partial class PDTable<TItem> :
 		// Allow app to specify suggested values
 		if (column.FilterSuggestedValues.Any())
 		{
-			return column.FilterSuggestedValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc)).ToArray();
+			return [.. column.FilterSuggestedValues.Select(x => Filter.Format(x, filter.UnspecifiedDateTimesAreUtc))];
 		}
 
 		// TODO: cache values for period of time?
@@ -1034,7 +1034,7 @@ public partial class PDTable<TItem> :
 		}
 
 		// Limit to first N
-		objectValues = objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(column.FilterMaxValues ?? FilterMaxValues).ToArray();
+		objectValues = [.. objectValues.Where(x => x != null && x.ToString() != string.Empty).Take(column.FilterMaxValues ?? FilterMaxValues)];
 
 		// Cast to string
 		return [.. objectValues.Select(x => string.IsNullOrEmpty(column.Format)

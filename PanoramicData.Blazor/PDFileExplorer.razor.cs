@@ -51,7 +51,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	private int InitialPreviewSize => PreviewPanel == FilePreviewModes.OptionalOff ? 0 : 1;
 
-	private bool IsParentDirectoryItem(FileExplorerItem item) => item.EntryType == FileExplorerItemType.Directory && item.Name == "..";
+	private static bool IsParentDirectoryItem(FileExplorerItem item) => item.EntryType == FileExplorerItemType.Directory && item.Name == "..";
 
 	public string Id { get; private set; } = string.Empty;
 
@@ -381,7 +381,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	#endregion
 
-	protected override async Task OnInitializedAsync()
+	protected override Task OnInitializedAsync()
 	{
 		Id = $"pdfe{++_idSequence}";
 
@@ -415,6 +415,8 @@ public partial class PDFileExplorer : IAsyncDisposable
 			_menuSep3,
 			_menuDelete
 		]);
+
+		return Task.CompletedTask;
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -491,7 +493,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 
 		// descend folder by folder
-		var parts = path.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+		var parts = path.Split(["/"], StringSplitOptions.RemoveEmptyEntries);
 		for (var i = 0; i < parts.Length; i++)
 		{
 			var subPath = "/" + string.Join("/", parts.Take(i + 1));
@@ -1142,12 +1144,12 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				ConflictResolution = ConflictResolution,
 				TargetPath = targetRootFolder,
-				Payload = args.Files.Select(x => new FileExplorerItem { State = x.Key, Path = $"{x.Path?.TrimEnd('/')}/{x.Name?.TrimStart('/')}" }).ToList()
+				Payload = [.. args.Files.Select(x => new FileExplorerItem { State = x.Key, Path = $"{x.Path?.TrimEnd('/')}/{x.Name?.TrimStart('/')}" })]
 			};
 			await GetUploadConflictsAsync(moveCopyArgs).ConfigureAwait(true);
 			if (moveCopyArgs.Conflicts.Count != 0)
 			{
-				var result = await PromptUserForConflictResolution(moveCopyArgs.Conflicts.Select(x => x.Path).ToArray(), true, false).ConfigureAwait(true);
+				var result = await PromptUserForConflictResolution([.. moveCopyArgs.Conflicts.Select(x => x.Path)], true, false).ConfigureAwait(true);
 				if (result == ConflictResolutions.Cancel)
 				{
 					args.Cancel = true;
@@ -1160,7 +1162,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					// remove files from queue before proceeding
 					var ids = moveCopyArgs.Conflicts.Select(x => x.State).ToArray();
-					args.FilesToSkip = args.Files.Where(x => ids.Contains(x.Key)).ToArray();
+					args.FilesToSkip = [.. args.Files.Where(x => ids.Contains(x.Key))];
 				}
 			}
 		}
@@ -1628,7 +1630,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				var parentPaths = payload.Select(x => x.ParentPath).Distinct().ToArray();
 				conflictArgs.ConflictResolution = parentPaths.Any(x => x == targetPath)
 					? await PromptUserForConflictResolution([], false, AllowRenameConflicts, "The source and destination filenames are the same.").ConfigureAwait(true)
-					: await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray(), showOverwrite).ConfigureAwait(true);
+					: await PromptUserForConflictResolution([.. conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path))], showOverwrite).ConfigureAwait(true);
 			}
 		}
 
@@ -1728,7 +1730,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 	}
 
-	private string GetUniqueName(FileExplorerItem source, List<FileExplorerItem> targetItems)
+	private static string GetUniqueName(FileExplorerItem source, List<FileExplorerItem> targetItems)
 	{
 		var count = 1;
 		var newName = PostFixFilename(FileExplorerItem.GetNameFromPath(source.Path), " Copy");
@@ -1897,7 +1899,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 					// wait for cache to load
 					var result = await cachedTask.Result.ConfigureAwait(true);
 					var names = folder.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray();
-					args.TargetItems = result.Items.ToList();
+					args.TargetItems = [.. result.Items];
 					foreach (var folderItem in folder)
 					{
 						var match = args.TargetItems.FirstOrDefault(x => FileExplorerItem.GetNameFromPath(x.Path) == FileExplorerItem.GetNameFromPath(folderItem.Path));
@@ -1927,7 +1929,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		var names = args.Payload.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray();
 		var request = new DataRequest<FileExplorerItem> { SearchText = args.TargetPath };
 		var response = await DataProvider.GetDataAsync(request, CancellationToken.None).ConfigureAwait(true);
-		args.TargetItems = response.Items.ToList();
+		args.TargetItems = [.. response.Items];
 		foreach (var item in response.Items)
 		{
 			if (names.Any(x => string.Equals(item.Name, x, StringComparison.OrdinalIgnoreCase)))
@@ -2018,7 +2020,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	{
 		if (TreeSort is null)
 		{
-			return item1.Name.CompareTo(item2.Name);
+			return string.Compare(item1.Name, item2.Name, StringComparison.Ordinal);
 		}
 		else
 		{
