@@ -79,13 +79,9 @@ public partial class PDComboBox<TItem>
 	private async Task BlurInputAsync()
 	{
 		if (_jsModule is not null)
+		{
 			await _jsModule.InvokeVoidAsync("blurInput", _inputRef);
-	}
-
-	private async Task ScrollActiveItemIntoViewAsync(ElementReference element)
-	{
-		if (_jsModule is not null)
-			await _jsModule.InvokeVoidAsync("scrollIntoView", element);
+		}
 	}
 
 	private void FilterItems(ChangeEventArgs e)
