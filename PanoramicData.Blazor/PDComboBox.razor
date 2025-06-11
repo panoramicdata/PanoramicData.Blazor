@@ -4,13 +4,14 @@
 	<div class="combo-input-wrapper">
 		<input type="text" class="combo-input"
 			   @bind-value="_searchText"
-			   @onfocus="ShowDropdown"
+			   @onfocus="OnInputFocus"
 			   @onblur="HideDropdownWithDelay"
 			   placeholder="@Placeholder"
 			   @oninput="FilterItems"
 			   @onkeydown="OnInputKeyDown"
 			   disabled="@IsDisabled"
-			   readonly="@IsReadOnly" />
+			   readonly="@IsReadOnly"
+			   @ref="_inputRef" />
 		@if (!string.IsNullOrEmpty(_searchText) && !IsReadOnly && !IsDisabled)
 		{
 			<button type="button" class="combo-clear" @onclick="ClearInput" tabindex="-1" aria-label="Clear">&times;</button>
@@ -36,6 +37,10 @@
 						else
 						{
 							@ItemToString(item)
+						}
+						@if (i == _activeIndex)
+						{
+							<text> *</text>
 						}
 					</li>
 				}

@@ -1,17 +1,48 @@
 namespace PanoramicData.Blazor;
+
 public partial class PDComboBox<TItem>
 {
-	[Parameter] required public List<TItem> Items { get; set; }
-	[Parameter] required public Func<TItem, string> ItemToString { get; set; }
-	[Parameter] public EventCallback SelectedItemChanged { get; set; }
-	[Parameter] required public TItem SelectedItem { get; set; }
-	[Parameter] public string Placeholder { get; set; } = "Type to search...";
-	[Parameter] public Func<TItem, object>? OrderBy { get; set; }
-	[Parameter] public int MaxResults { get; set; } = 5;
-	[Parameter] public bool IsDisabled { get; set; }
-	[Parameter] public bool IsReadOnly { get; set; }
-	[Parameter] public string NoResultsText { get; set; } = "No results found";
-	[Parameter] public RenderFragment<TItem>? ItemTemplate { get; set; }
+	// Mandatory parameters
+	[Parameter]
+	[EditorRequired]
+	public required List<TItem> Items { get; set; }
+
+	// Optional parameters
+	[Parameter]
+	public required EventCallback SelectedItemChanged { get; set; }
+
+	[Parameter]
+	public Func<TItem, string> ItemToString { get; set; } = item => item?.ToString() ?? string.Empty;
+
+	[Parameter]
+	public required Func<TItem, string> ItemToId { get; set; } = item => item?.ToString() ?? string.Empty;
+
+	[Parameter]
+	public required Func<TItem, string, bool> Filter { get; set; } = (item, searchText) => item?.ToString()?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false;
+
+	[Parameter]
+	public TItem? SelectedItem { get; set; }
+
+	[Parameter]
+	public string Placeholder { get; set; } = "Type to search...";
+
+	[Parameter]
+	public Func<TItem, object>? OrderBy { get; set; }
+
+	[Parameter]
+	public int MaxResults { get; set; } = 5;
+
+	[Parameter]
+	public bool IsDisabled { get; set; }
+
+	[Parameter]
+	public bool IsReadOnly { get; set; }
+
+	[Parameter]
+	public string NoResultsText { get; set; } = "No results found";
+
+	[Parameter]
+	public RenderFragment<TItem>? ItemTemplate { get; set; }
 
 	private string _searchText = "";
 	private List<TItem> _filteredItems = [];
@@ -19,8 +50,43 @@ public partial class PDComboBox<TItem>
 	private CancellationTokenSource? _blurToken;
 	private int _activeIndex = -1;
 	private bool _suppressOnInput;
+	private ElementReference _inputRef;
 
 	public string CssClass { get; set; } = "default-combobox";
+
+	private IJSObjectReference? _jsModule;
+
+	[Inject] private IJSRuntime JS { get; set; } = default!;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_jsModule = await JS.InvokeAsync<IJSObjectReference>(
+				"import", "./_content/PanoramicData.Blazor/PDComboBox.razor.js");
+		}
+	}
+
+	protected override void OnParametersSet()
+	{
+		// Only set _searchText if it's empty and SelectedItem is set
+		if (string.IsNullOrEmpty(_searchText) && SelectedItem is not null)
+		{
+			_searchText = ItemToString(SelectedItem);
+		}
+	}
+
+	private async Task BlurInputAsync()
+	{
+		if (_jsModule is not null)
+			await _jsModule.InvokeVoidAsync("blurInput", _inputRef);
+	}
+
+	private async Task ScrollActiveItemIntoViewAsync(ElementReference element)
+	{
+		if (_jsModule is not null)
+			await _jsModule.InvokeVoidAsync("scrollIntoView", element);
+	}
 
 	private void FilterItems(ChangeEventArgs e)
 	{
@@ -32,8 +98,7 @@ public partial class PDComboBox<TItem>
 		_searchText = e.Value?.ToString() ?? string.Empty;
 		_searchText = _searchText.Trim();
 
-		var query = Items
-			.Where(i => ItemToString(i).Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+		var query = Items.Where(Items => Filter(Items, _searchText));
 
 		if (OrderBy is not null)
 		{
@@ -89,7 +154,7 @@ public partial class PDComboBox<TItem>
 		SelectedItemChanged.InvokeAsync(SelectedItem);
 	}
 
-	private void OnInputKeyDown(KeyboardEventArgs e)
+	private async void OnInputKeyDown(KeyboardEventArgs e)
 	{
 		// Always handle Escape to close the dropdown and revert to selected item
 		if (e.Key == "Escape")
@@ -124,19 +189,22 @@ public partial class PDComboBox<TItem>
 		switch (e.Key)
 		{
 			case "ArrowDown":
-				_activeIndex = Math.Min(_activeIndex + 1, _filteredItems.Count - 1);
+				_activeIndex = Math.Min(++_activeIndex, _filteredItems.Count - 1);
 				shouldUpdate = true;
 				break;
 			case "ArrowUp":
-				_activeIndex = Math.Max(_activeIndex - 1, 0);
+				_activeIndex = Math.Max(--_activeIndex, 0);
 				shouldUpdate = true;
 				break;
 			case "Enter":
-				if (_activeIndex >= 0 && _activeIndex < _filteredItems.Count)
+				if (_activeIndex < 0 || _activeIndex >= _filteredItems.Count)
 				{
-					SelectItem(_filteredItems[_activeIndex]);
-					shouldUpdate = true;
+					break;
 				}
+
+				SelectItem(_filteredItems[_activeIndex]);
+				await BlurInputAsync();
+				shouldUpdate = true;
 
 				break;
 		}
@@ -144,6 +212,15 @@ public partial class PDComboBox<TItem>
 		if (shouldUpdate)
 		{
 			StateHasChanged();
+		}
+	}
+
+	private async Task OnInputFocus(FocusEventArgs e)
+	{
+		ShowDropdown();
+		if (_jsModule is not null && !string.IsNullOrEmpty(_searchText))
+		{
+			await _jsModule.InvokeVoidAsync("selectInputText", _inputRef);
 		}
 	}
 }
