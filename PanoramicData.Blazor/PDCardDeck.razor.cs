@@ -149,6 +149,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			_dataProviderService = DataProvider;
 			var request = new DataRequest<TCard>();
 			var cards = await _dataProviderService.GetDataAsync(request, default).ConfigureAwait(true);
+
 			_cards.Clear();
 			_cards.AddRange(cards.Items);
 		}
@@ -160,27 +161,27 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		{
 			if (MultipleSelection)
 			{
-				if (ctrl) // add/remove single
+				if (ctrl) // add/remove single card to current selection
 				{
-					if (_selection.Contains(card))
-					{
-						_selection.Remove(card);
-					}
-					else
+					// If not in selection, add
+					if (!_selection.Remove(card))
 					{
 						_selection.Add(card);
 					}
 				}
 				else if (shift && _selection.Count > 0) // add range
 				{
-					var sIdx = _cards.IndexOf(_selection.First());
-					var eIdx = _cards.IndexOf(card);
-					var s = Math.Min(sIdx, eIdx);
-					var e = Math.Max(sIdx, eIdx);
+					// Get selected cards
+					var firstCardIndex = _cards.IndexOf(_selection.First());
+					var lastCardIndex = _cards.IndexOf(card);
+
+					var start = Math.Min(firstCardIndex, lastCardIndex);
+					var end = Math.Max(firstCardIndex, lastCardIndex);
+
 					_selection.Clear();
-					_selection.AddRange(_cards.GetRange(s, e - s + 1));
+					_selection.AddRange(_cards.GetRange(start, end - start + 1));
 				}
-				else
+				else // Single selection
 				{
 					_selection.Clear();
 					_selection.Add(card);
