@@ -1,0 +1,20 @@
+.direction-buttons {
+	align-items: baseline;
+	display: flex;
+}
+
+::deep .direction-buttons button:nth-child(1) {
+	border-radius: .25rem 0px 0px .25rem;
+}
+
+::deep .direction-buttons button:nth-child(2) {
+	border-radius: 0px;
+}
+
+::deep .direction-buttons button:nth-child(7) {
+	border-radius: 0px;
+}
+
+::deep .direction-buttons button:nth-child(8) {
+	border-radius: 0px .25rem .25rem 0px;
+}

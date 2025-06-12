@@ -52,7 +52,7 @@ public partial class PDSplitter : IAsyncDisposable
 	/// <summary>
 	/// Gets a collection of child panels.
 	/// </summary>
-	private List<PDSplitPanel> Panels { get; } = new List<PDSplitPanel>();
+	private List<PDSplitPanel> Panels { get; } = [];
 
 	/// <summary>
 	/// Adds the given panel to the list of available panels.
@@ -68,29 +68,37 @@ public partial class PDSplitter : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			var ids = Panels.Select(x => $"#{x.Id}").ToArray();
-			var sizesSum = Convert.ToDouble(Panels.Select(x => x.Size).Sum());
-			var pcts = Panels.Select(x => (int)Math.Round((x.Size / sizesSum) * 100)).ToArray();
-			var options = new SplitOptions
+			try
 			{
-				Direction = Direction.ToString().ToLower(),
-				MinSize = Panels.Select(x => x.MinSize).ToArray(),
-				ExpandToMin = ExpandToMin,
-				Sizes = pcts,
-				GutterSize = GutterSize,
-				SnapOffset = SnapOffset,
-				DragInterval = DragInterval,
-				Cursor = Direction == SplitDirection.Horizontal ? "col-resize" : "row-resize"
-			};
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDSplitter.razor.js").ConfigureAwait(true);
-			if (_module != null)
-			{
-				var available = await _module.InvokeAsync<bool>("hasSplitJs").ConfigureAwait(true);
-				if (!available)
+				var ids = Panels.Select(x => $"#{x.Id}").ToArray();
+				var sizesSum = Convert.ToDouble(Panels.Select(x => x.Size).Sum());
+				var pcts = Panels.Select(x => (int)Math.Round((x.Size / sizesSum) * 100)).ToArray();
+				var options = new SplitOptions
 				{
-					throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
+					Direction = Direction.ToString().ToLowerInvariant(),
+					MinSize = [.. Panels.Select(x => x.MinSize)],
+					ExpandToMin = ExpandToMin,
+					Sizes = pcts,
+					GutterSize = GutterSize,
+					SnapOffset = SnapOffset,
+					DragInterval = DragInterval,
+					Cursor = Direction == SplitDirection.Horizontal ? "col-resize" : "row-resize"
+				};
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDSplitter.razor.js").ConfigureAwait(true);
+				if (_module != null)
+				{
+					var available = await _module.InvokeAsync<bool>("hasSplitJs").ConfigureAwait(true);
+					if (!available)
+					{
+						throw new PDSplitterException($"To use the {nameof(PDSplitter)} component you must include the split.js library");
+					}
+
+					await _module.InvokeVoidAsync("initialize", Id, ids, options).ConfigureAwait(true);
 				}
-				await _module.InvokeVoidAsync("initialize", Id, ids, options).ConfigureAwait(true);
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}
@@ -101,7 +109,8 @@ public partial class PDSplitter : IAsyncDisposable
 		{
 			return await _module.InvokeAsync<double[]>("getSizes", Id).ConfigureAwait(true);
 		}
-		return Array.Empty<double>();
+
+		return [];
 	}
 
 	public async Task SetSizesAsync(double[] sizes)

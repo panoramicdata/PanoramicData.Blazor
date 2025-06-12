@@ -1,12 +1,12 @@
 ﻿namespace PanoramicData.Blazor.Arguments;
 
 /// <summary>
-/// The CancelEventArgs class models event arguments for an action that can be canceled.
+/// The CancelEventArgs class models event arguments for an action that can be cancelled.
 /// </summary>
-public class CancelEventArgs
+public class CancelEventArgs : EventArgs
 {
 	/// <summary>
-	/// Gets or sets whether the navigation should be canceled.
+	/// Gets or sets whether the navigation should be cancelled.
 	/// </summary>
 	public bool Cancel { get; set; }
 }

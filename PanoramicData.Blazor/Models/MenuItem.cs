@@ -75,6 +75,7 @@ public class MenuItem
 		{
 			return Text.Replace("&&", "");
 		}
+
 		return Key;
 	}
 }

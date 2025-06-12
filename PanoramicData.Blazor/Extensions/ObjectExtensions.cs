@@ -14,38 +14,46 @@ public static class ObjectExtensions
 		{
 			return null;
 		}
-		else if (type.IsEnum)
+
+		var actualType = Nullable.GetUnderlyingType(type) ?? type;
+
+		if (actualType.IsEnum)
 		{
-			return Enum.Parse(type, value?.ToString() ?? String.Empty);
+			return Enum.Parse(actualType, value?.ToString() ?? string.Empty);
 		}
-		else if (type.FullName == "System.Guid")
+		else if (actualType.FullName == "System.Guid")
 		{
-			return Guid.Parse(value.ToString() ?? String.Empty);
+			return Guid.Parse(value.ToString() ?? string.Empty);
 		}
 		else if (type.FullName?.StartsWith("System.Nullable`1[[System.Int32", StringComparison.InvariantCultureIgnoreCase) == true)
 		{
-			return (Int32?)Int32.Parse(value.ToString() ?? String.Empty);
+			return (int?)int.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
 		else if (type.FullName?.StartsWith("System.Nullable`1[[System.Guid", StringComparison.InvariantCultureIgnoreCase) == true)
 		{
-			return (Guid?)Guid.Parse(value.ToString() ?? String.Empty);
+			return (Guid?)Guid.Parse(value.ToString() ?? string.Empty);
 		}
-		else if (type.FullName == "System.DateTime")
+		else if (actualType.FullName == "System.DateTime")
 		{
-			return DateTime.Parse(value.ToString() ?? String.Empty, CultureInfo.CurrentCulture);
-		}
-		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTime", StringComparison.InvariantCultureIgnoreCase) == true)
-		{
-			return (DateTime?)DateTime.Parse(value.ToString() ?? String.Empty, CultureInfo.CurrentCulture);
-		}
-		else if (type.FullName == "System.DateTimeOffset")
-		{
-			return DateTimeOffset.Parse(value.ToString() ?? String.Empty, CultureInfo.CurrentCulture);
+			return DateTime.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
 		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTimeOffset", StringComparison.InvariantCultureIgnoreCase) == true)
 		{
-			return (DateTimeOffset?)DateTimeOffset.Parse(value.ToString() ?? String.Empty, CultureInfo.CurrentCulture);
+			return (DateTimeOffset?)DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
-		return Convert.ChangeType(value, type, CultureInfo.CurrentCulture);
+		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTime", StringComparison.InvariantCultureIgnoreCase) == true)
+		{
+			return (DateTime?)DateTime.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
+		}
+		else if (actualType.FullName == "System.DateTimeOffset")
+		{
+			return DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
+		}
+		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTimeOffset", StringComparison.InvariantCultureIgnoreCase) == true)
+		{
+			return (DateTimeOffset?)DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
+		}
+
+		return Convert.ChangeType(value, actualType, CultureInfo.CurrentCulture);
 	}
 }

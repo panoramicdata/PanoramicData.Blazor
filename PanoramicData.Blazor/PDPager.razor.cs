@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDPager : IDisposable
+public partial class PDPager : IDisposable, IEnablable
 {
 	/// <summary>
 	/// Determines whether the component is enable dor not.
@@ -20,7 +20,12 @@ public partial class PDPager : IDisposable
 	/// <summary>
 	/// Gets or sets the possible page sizes offered to the user.
 	/// </summary>
-	[Parameter] public uint[] PageSizeChoices { get; set; } = new uint[] { 10, 25, 50, 100, 250, 500 };
+	[Parameter] public uint[] PageSizeChoices { get; set; } = [10, 25, 50, 100, 250, 500];
+
+	/// <summary>
+	/// Determines whether the navigation buttons are displayed.
+	/// </summary>
+	[Parameter] public bool ShowPageChangeButtons { get; set; } = true;
 
 	/// <summary>
 	/// Determines whether the description of the current page items is displayed.
@@ -37,38 +42,35 @@ public partial class PDPager : IDisposable
 	/// </summary>
 	[Parameter] public ButtonSizes? Size { get; set; }
 
-	protected override void OnInitialized()
-	{
-		PageCriteria.TotalCountChanged += PageCriteria_TotalCountChanged;
-	}
-	public void Dispose()
-	{
-		PageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
-	}
+	protected override void OnInitialized() => PageCriteria.TotalCountChanged += PageCriteria_TotalCountChanged;
+	public void Dispose() => PageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
 
-	private void PageCriteria_TotalCountChanged(object? sender, EventArgs e)
+	private void PageCriteria_TotalCountChanged(object? sender, EventArgs e) => StateHasChanged();
+
+	public void MoveLast() => PageCriteria.Page = PageCriteria.PageCount;
+
+	public void MoveNext() => PageCriteria.Page++;
+
+	public void MovePrevious() => PageCriteria.Page--;
+
+	public void MoveFirst() => PageCriteria.Page = 1;
+
+	public void Enable()
 	{
+		IsEnabled = true;
 		StateHasChanged();
 	}
 
-	public void MoveLast()
+	public void Disable()
 	{
-		PageCriteria.Page = PageCriteria.PageCount;
+		IsEnabled = false;
+		StateHasChanged();
 	}
 
-	public void MoveNext()
+	public void SetEnabled(bool isEnabled)
 	{
-		PageCriteria.Page++;
-	}
-
-	public void MovePrevious()
-	{
-		PageCriteria.Page--;
-	}
-
-	public void MoveFirst()
-	{
-		PageCriteria.Page = 1;
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 
 	private string ControlSizeCssClass

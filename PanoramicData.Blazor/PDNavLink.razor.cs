@@ -71,17 +71,31 @@ public partial class PDNavLink : IAsyncDisposable
 			// use JS to perform navigation in new tab
 			await _commonModule.InvokeVoidAsync("openUrl", _hrefAbsolute, "_blank").ConfigureAwait(true);
 		}
-		else if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? String.Empty).ConfigureAwait(true))
+		else if (await NavigationCancelService.ProceedAsync(_hrefAbsolute ?? string.Empty).ConfigureAwait(true))
 		{
-			NavigationManager.NavigateTo(_hrefAbsolute ?? String.Empty);
+			NavigationManager.NavigateTo(_hrefAbsolute ?? string.Empty);
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		// We'll consider re-rendering on each location change
 		NavigationManager.LocationChanged += OnLocationChanged;
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && JSRuntime is not null)
+		{
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
+		}
 	}
 
 	/// <inheritdoc />
@@ -106,10 +120,7 @@ public partial class PDNavLink : IAsyncDisposable
 		UpdateCssClass();
 	}
 
-	private void UpdateCssClass()
-	{
-		CssClass = _isActive ? CombineWithSpace(_class, ActiveClass ?? _defaultActiveClass) : _class;
-	}
+	private void UpdateCssClass() => CssClass = _isActive ? CombineWithSpace(_class, ActiveClass ?? _defaultActiveClass) : _class;
 
 	private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
 	{
@@ -164,7 +175,7 @@ public partial class PDNavLink : IAsyncDisposable
 			// which in turn is because it's common for servers to return the same page
 			// for http://host/vdir as they do for host://host/vdir/ as it's no
 			// good to display a blank page in that case.
-			if (_hrefAbsolute[_hrefAbsolute.Length - 1] == '/'
+			if (_hrefAbsolute[^1] == '/'
 				&& _hrefAbsolute.StartsWith(currentUriAbsolute, StringComparison.OrdinalIgnoreCase))
 			{
 				return true;
@@ -174,7 +185,7 @@ public partial class PDNavLink : IAsyncDisposable
 		return false;
 	}
 
-	private string? CombineWithSpace(string? str1, string str2)
+	private static string? CombineWithSpace(string? str1, string str2)
 		=> str1 == null ? str2 : $"{str1} {str2}";
 
 	private static bool IsStrictlyPrefixWithSeparator(string value, string prefix)

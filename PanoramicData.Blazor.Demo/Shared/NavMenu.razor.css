@@ -49,6 +49,19 @@
 	color: white;
 }
 
+ul.nav {
+	flex-direction: row;
+	overflow-y: auto;
+	height: calc(100vh - 56px);
+}
+
+@media (max-width: 767px) {
+	ul.nav {
+		overflow-y: auto;
+		flex-direction: column;
+	}
+}
+
 @media (min-width: 768px) {
 	.navbar-toggler {
 		display: none;

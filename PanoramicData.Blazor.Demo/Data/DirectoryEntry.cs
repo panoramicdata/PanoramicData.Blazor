@@ -13,7 +13,7 @@ public class DirectoryEntry
 	public bool IsHidden { get; set; }
 	public bool IsSystem { get; set; }
 	public bool IsReadOnly { get; set; }
-	public List<DirectoryEntry> Items { get; } = new List<DirectoryEntry>();
+	public List<DirectoryEntry> Items { get; } = [];
 	public string Name { get; set; } = string.Empty;
 	public DirectoryEntry? Parent { get; set; }
 	public long Size { get; set; }
@@ -45,6 +45,7 @@ public class DirectoryEntry
 		{
 			item.Parent = this;
 		}
+
 		Items.AddRange(items);
 	}
 
@@ -56,6 +57,7 @@ public class DirectoryEntry
 		{
 			item.Parent = this;
 		}
+
 		Items.AddRange(items);
 	}
 
@@ -69,6 +71,7 @@ public class DirectoryEntry
 		{
 			item.Parent = this;
 		}
+
 		Items.AddRange(items);
 	}
 
@@ -103,6 +106,7 @@ public class DirectoryEntry
 		{
 			item.Parent = this;
 		}
+
 		Items.AddRange(items);
 	}
 
@@ -131,13 +135,11 @@ public class DirectoryEntry
 				clone.Items.Add(clonedItem);
 			}
 		}
+
 		return clone;
 	}
 
-	public int Count()
-	{
-		return Reduce((_, pv) => pv + 1, 0);
-	}
+	public int Count() => Reduce((_, pv) => pv + 1, 0);
 
 	public void ForEach(Action<DirectoryEntry> action)
 	{
@@ -148,7 +150,9 @@ public class DirectoryEntry
 		}
 	}
 
-	public string Path(string separator = "/")
+	public string Path() => Path("/");
+
+	public string Path(string separator)
 	{
 		var stack = new Stack<string>();
 		var node = this;
@@ -158,9 +162,11 @@ public class DirectoryEntry
 			{
 				stack.Push(node.Name);
 			}
+
 			node = node.Parent;
 		}
-		var path = string.Join(separator, stack.ToArray());
+
+		var path = string.Join(separator, [.. stack]);
 		return $"{separator}{path}";
 	}
 
@@ -171,33 +177,30 @@ public class DirectoryEntry
 		{
 			value = item.Reduce(func, value);
 		}
+
 		return value;
 	}
 
-	public FileExplorerItem ToFileExploreritem(string pathSeparator = "/")
-	{
-		return new FileExplorerItem
-		{
-			CanCopyMove = CanCopyMove,
-			CanDelete = CanDelete,
-			CanRename = CanRename,
-			DateCreated = DateCreated,
-			DateModified = DateModified,
-			EntryType = Type,
-			FileSize = Size,
-			HasSubFolders = Items.Any(x => x.Type == FileExplorerItemType.Directory),
-			IsHidden = IsHidden,
-			IsReadOnly = IsReadOnly,
-			IsSystem = IsSystem,
-			Name = string.IsNullOrWhiteSpace(Alias) ? Name : Alias,
-			Path = Path(pathSeparator)
-		};
-	}
+	public FileExplorerItem ToFileExploreritem() => ToFileExploreritem("/");
 
-	public override string ToString()
+	public FileExplorerItem ToFileExploreritem(string pathSeparator) => new()
 	{
-		return Path();
-	}
+		CanCopyMove = CanCopyMove,
+		CanDelete = CanDelete,
+		CanRename = CanRename,
+		DateCreated = DateCreated,
+		DateModified = DateModified,
+		EntryType = Type,
+		FileSize = Size,
+		HasSubFolders = Items.Any(x => x.Type == FileExplorerItemType.Directory),
+		IsHidden = IsHidden,
+		IsReadOnly = IsReadOnly,
+		IsSystem = IsSystem,
+		Name = string.IsNullOrWhiteSpace(Alias) ? Name : Alias,
+		Path = Path(pathSeparator)
+	};
+
+	public override string ToString() => Path();
 
 	public IEnumerable<DirectoryEntry> Where(Predicate<DirectoryEntry> predicate)
 	{

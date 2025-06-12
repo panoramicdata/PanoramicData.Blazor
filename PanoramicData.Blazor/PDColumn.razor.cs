@@ -3,14 +3,23 @@
 public partial class PDColumn<TItem> where TItem : class
 {
 	private static int _idSequence = 1;
-	private string? _title;
+
+	private string _title = string.Empty;
+
 	private Func<TItem, object>? _compiledFunc;
 	private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
+
+	public ColumnState State { get; internal set; } = new();
 
 	/// <summary>
 	/// Gets or sets the autocomplete attribute value.
 	/// </summary>
 	[Parameter] public string AutoComplete { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Gets or sets whether this column can be shown or hidden by the user.
+	/// </summary>
+	[Parameter] public bool CanToggleVisible { get; set; } = true;
 
 	/// <summary>
 	/// Gets or sets the default sort direction for this column.
@@ -21,6 +30,17 @@ public partial class PDColumn<TItem> where TItem : class
 	/// Gets or sets a short description of the columns purpose. Overrides DisplayAttribute description if set.
 	/// </summary>
 	[Parameter] public string? Description { get; set; }
+
+	/// <summary>
+	/// Gets or sets a function that returns the description for the field.
+	/// </summary>
+	/// <remarks>Defaults to Description property if set, otherwise looks for Display attribute.</remarks>
+	[Parameter] public Func<FormField<TItem>, PDForm<TItem>?, string> DescriptionFunc { get; set; } = Constants.Functions.FormFieldDescription;
+
+	/// <summary>
+	/// Gets or sets optional display options.
+	/// </summary>
+	[Parameter] public FieldDisplayOptions DisplayOptions { get; set; } = new FieldDisplayOptions();
 
 	/// <summary>
 	/// Gets or sets whether this column is editable.
@@ -60,6 +80,7 @@ public partial class PDColumn<TItem> where TItem : class
 		{
 			return GetPropertyInfo(unaryExpr.Operand);
 		}
+
 		return null;
 	}
 
@@ -69,7 +90,22 @@ public partial class PDColumn<TItem> where TItem : class
 	public Filter Filter { get; private set; } = new Filter();
 
 	[Parameter]
-	public string FilterKey { get; set; } = String.Empty;
+	public string FilterKey { get; set; } = string.Empty;
+
+	[Parameter]
+	public FilterOptions FilterOptions { get; set; } = new();
+
+	[Parameter]
+	public bool FilterShowSuggestedValues { get; set; } = true;
+
+	[Parameter]
+	public IEnumerable<object> FilterSuggestedValues { get; set; } = [];
+
+	[Parameter]
+	public int? FilterMaxValues { get; set; }
+
+	public string GetPropertyName()
+		=> Field != null ? Field.GetPropertyName() : string.Empty;
 
 	/// <summary>
 	/// Renders the field value for this column and the given item.
@@ -96,7 +132,7 @@ public partial class PDColumn<TItem> where TItem : class
 			// password / sensitive info?
 			if (IsPassword || IsSensitive(item, null))
 			{
-				return "".PadRight((value.ToString() ?? String.Empty).Length, '*');
+				return "".PadRight((value.ToString() ?? string.Empty).Length, '*');
 			}
 
 			// if enumeration value - does it have display attribute?
@@ -111,7 +147,7 @@ public partial class PDColumn<TItem> where TItem : class
 
 			// return the string to be rendered
 			return string.IsNullOrEmpty(Format)
-				? value.ToString() ?? String.Empty
+				? value.ToString() ?? string.Empty
 				: string.Format(CultureInfo.CurrentCulture, "{0:" + Format + "}", value);
 		}
 		catch
@@ -126,10 +162,7 @@ public partial class PDColumn<TItem> where TItem : class
 	/// </summary>
 	/// <param name="item">The TItem for the current row.</param>
 	/// <returns>The columns value.</returns>
-	public object? GetValue(TItem item)
-	{
-		return CompiledFunc?.Invoke(item);
-	}
+	public object? GetValue(TItem item) => CompiledFunc?.Invoke(item);
 
 	/// <summary>
 	/// Gets or sets an HTML template for the header content.
@@ -164,7 +197,7 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets a function that determines whether this field contains sensitive values that should not be shown.
 	/// </summary>
-	[Parameter] public Func<TItem?, PDForm<TItem>?, bool> IsSensitive { get; set; } = new Func<TItem?, PDForm<TItem>?, bool>((_, __) => false);
+	[Parameter] public Func<TItem?, PDForm<TItem>?, bool> IsSensitive { get; set; } = Constants.Functions.FormFieldIsSensitive;
 
 	/// <summary>
 	/// Gets or sets whether this field contains longer sections of text.
@@ -172,9 +205,37 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public bool IsTextArea { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether the column is visible or not.
+	/// </summary>
+	/// <remarks>To be visible both this parameter and ShowInList must equal true.</remarks>
+	[Parameter] public bool IsVisible { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets whether this field contains an image
+	/// If the field is a string, then the string is treated as the image URL
+	/// </summary>
+	[Parameter] public bool IsImage { get; set; }
+
+	/// <summary>
+	/// Gets or sets the minimum value for numeric values.
+	/// </summary>
+	[Parameter] public double? MinValue { get; set; }
+
+	/// <summary>
 	/// Gets or sets the maximum length for entered text.
 	/// </summary>
 	[Parameter] public int? MaxLength { get; set; }
+
+	/// <summary>
+	/// Gets or sets the maximum value for numeric values.
+	/// </summary>
+	[Parameter] public double? MaxValue { get; set; }
+
+	/// <summary>
+	/// Gets or sets an optional name for the column. Useful for calculated columns that
+	/// have no header text / title.
+	/// </summary>
+	[Parameter] public string Name { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets a function that returns available value choices.
@@ -187,6 +248,12 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public Func<FormField<TItem>, TItem?, Task<OptionInfo[]>>? OptionsAsync { get; set; }
 
 	/// <summary>
+	/// Gets or sets the preferred ordinal position of the column (from left to right).
+	/// </summary>
+	/// <remarks>The default is 1000 for all columns, columns of equal ordinality will remain in their defined order.</remarks>
+	[Parameter] public int Ordinal { get; set; } = 1000;
+
+	/// <summary>
 	/// Gets or sets the attributes of the underlying property.
 	/// </summary>
 	public PropertyInfo? PropertyInfo { get; set; }
@@ -194,17 +261,17 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is read-only when the linked form mode is Create.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = new Func<TItem?, bool>((_) => false);
+	[Parameter] public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is read-only when the linked form mode is Edit.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = new Func<TItem?, bool>((_) => false);
+	[Parameter] public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets whether a 'copy to clipboard' button is displayed for the field.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ShowCopyButton { get; set; } = new Func<TItem?, bool>((_) => false);
+	[Parameter] public Func<TItem?, bool> ShowCopyButton { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// This sets whether something CAN be shown in the list, use DTTable ColumnsToDisplay to dynamically
@@ -215,40 +282,43 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the linked form mode is Edit.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ShowInEdit { get; set; } = new Func<TItem?, bool>((_) => true);
+	[Parameter] public Func<TItem?, bool> ShowInEdit { get; set; } = Constants.Functions.True;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the linked form mode is Create.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ShowInCreate { get; set; } = new Func<TItem?, bool>((_) => true);
+	[Parameter] public Func<TItem?, bool> ShowInCreate { get; set; } = Constants.Functions.True;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the linked form mode is Create.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ShowInDelete { get; set; } = new Func<TItem?, bool>((_) => false);
+	[Parameter] public Func<TItem?, bool> ShowInDelete { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets whether the validation result should be shown when displayed in a linked form.
 	/// </summary>
 	[Parameter] public bool ShowValidationResult { get; set; } = true;
 
+	public void SetId(string id)
+	{
+		Id = id;
+	}
+
 	public void SetValue(TItem item, object? value)
 	{
 		// a null Field represents a calculated / display only column
 		if (Field != null)
 		{
-			var propInfo = GetPropertyInfo(Field!.Body);
-			if (propInfo == null)
-			{
-				throw new PDTableException("Unable to determine column data type from Field expression");
-			}
+			var propInfo = GetPropertyInfo(Field!.Body)
+				?? throw new PDTableException("Unable to determine column data type from Field expression");
+
 			if (propInfo.PropertyType.IsAssignableFrom(value?.GetType()))
 			{
 				propInfo.SetValue(item, value);
 			}
 			else
 			{
-				var stringValue = value?.ToString() ?? String.Empty;
+				var stringValue = value?.ToString() ?? string.Empty;
 				TypeConverter typeConverter = TypeDescriptor.GetConverter(propInfo.PropertyType);
 				object? propValue = typeConverter.ConvertFromString(stringValue);
 				propInfo.SetValue(item, propValue);
@@ -323,7 +393,8 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets whether the contents of this cell are user selectable.
 	/// </summary>
-	[Parameter] public bool UserSelectable { get; set; }
+	/// <remarks>When set to a null (default) will use Table property value.</remarks>
+	[Parameter] public bool? UserSelectable { get; set; }
 
 	public string GetTitle()
 	{
@@ -331,6 +402,7 @@ public partial class PDColumn<TItem> where TItem : class
 		{
 			return Title;
 		}
+
 		var memberInfo = Field?.GetPropertyMemberInfo();
 		return memberInfo is PropertyInfo propInfo
 			? propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name
@@ -345,6 +417,12 @@ public partial class PDColumn<TItem> where TItem : class
 				"Table reference is null which implies it did not initialize or that the column " +
 				$"type '{typeof(TItem)}' does not match the table type.");
 		}
+
+		// default state
+		State.Visible = IsVisible;
+		State.Ordinal = Ordinal;
+
+		// register with table
 		await Table.AddColumnAsync(this).ConfigureAwait(true);
 	}
 
@@ -355,7 +433,14 @@ public partial class PDColumn<TItem> where TItem : class
 		{
 			Type = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
 		}
+
 		PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
+	}
+
+	public void SetOrdinal(int ordinal)
+	{
+		State.Ordinal = ordinal;
+		StateHasChanged();
 	}
 
 	public void SetShowInList(bool showInList)
@@ -370,24 +455,54 @@ public partial class PDColumn<TItem> where TItem : class
 		StateHasChanged();
 	}
 
+	public void SetVisible(bool isVisible)
+	{
+		State.Visible = isVisible;
+		StateHasChanged();
+	}
+
 	public FilterDataTypes GetFilterDataType()
 	{
 		var memberInfo = Field?.GetPropertyMemberInfo();
+
+		if (Field is MemberExpression me)
+		{
+			if (Nullable.GetUnderlyingType(me.Type) != null)
+			{
+				// If the member expression type is nullable, return its underlying type
+				var t = Nullable.GetUnderlyingType(me.Type);
+
+			}
+		}
+
+
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			if (propInfo.PropertyType.IsEnum)
+			// nullable?
+			var ut = Nullable.GetUnderlyingType(propInfo.PropertyType);
+
+			if (propInfo.PropertyType.IsEnum || ut?.IsEnum == true)
 			{
 				return FilterDataTypes.Enum;
 			}
+
+			if (propInfo.PropertyType.FullName == "System.Boolean" || ut?.FullName == "System.Boolean")
+			{
+				return FilterDataTypes.Bool;
+			}
+
 			if (propInfo.PropertyType.FullName == "System.String")
 			{
 				return FilterDataTypes.Text;
 			}
-			if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset")
+
+			if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset"
+				 || ut?.FullName == "System.DateTime" || ut?.FullName == "System.DateTimeOffset")
 			{
 				return FilterDataTypes.Date;
 			}
 		}
+
 		return FilterDataTypes.Numeric;
 	}
 
@@ -400,8 +515,10 @@ public partial class PDColumn<TItem> where TItem : class
 			{
 				return true;
 			}
+
 			return Nullable.GetUnderlyingType(propInfo.PropertyType) != null;
 		}
+
 		return false;
 	}
 
@@ -411,39 +528,30 @@ public partial class PDColumn<TItem> where TItem : class
 		{
 			return FilterKeyVisitor.GetFilterKey(Field);
 		}
+
 		return Id;
 	}
 
-	private class FilterKeyVisitor : ExpressionVisitor
+	private class FilterKeyVisitor(Expression parameter) : ExpressionVisitor
 	{
-		private readonly Expression param;
-
-		public string FilterKey { get; private set; } = String.Empty;
-
-		public FilterKeyVisitor(Expression parameter) => param = parameter;
+		public string FilterKey { get; private set; } = string.Empty;
 
 		public override Expression? Visit(Expression? node)
 		{
 			if (node != null)
 			{
 				var chain = node.MemberClauses().ToList();
-				if (chain.Any() && chain.First().Expression == param)
+				if (chain.Count != 0 && chain.First().Expression == parameter)
 				{
 					FilterKey = string.Join(".", chain.Select(
 						mexpr => mexpr.Member.GetCustomAttribute<FilterKeyAttribute>()?.Value
 								?? mexpr.Member.GetCustomAttribute<DisplayAttribute>()?.ShortName
 								?? mexpr.Member.Name.LowerFirstChar()
 					));
-					//var last = chain.LastOrDefault();
-					//if (last != null)
-					//{
-					//	FilterKey = last.Member.GetCustomAttribute<FilterKeyAttribute>()?.Value
-					//			?? last.Member.GetCustomAttribute<DisplayAttribute>()?.ShortName
-					//			?? last.Member.Name;
-					//}
 					return node;
 				}
 			}
+
 			return base.Visit(node);
 		}
 

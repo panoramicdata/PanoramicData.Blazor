@@ -3,7 +3,7 @@
 public partial class PDSplitterPage
 {
 	private PDSplitter _mainSplitter = null!;
-	private double[] _lastSizes = new double[0];
+	private double[] _lastSizes = [];
 	private bool _isCollapsed;
 
 	private async Task OnTogglePanel2()
@@ -17,7 +17,7 @@ public partial class PDSplitterPage
 		else
 		{
 			_lastSizes = await _mainSplitter.GetSizesAsync().ConfigureAwait(true);
-			await _mainSplitter.SetSizesAsync(new double[] { _lastSizes[0] + _lastSizes[1], 0, _lastSizes[2] }).ConfigureAwait(true);
+			await _mainSplitter.SetSizesAsync([_lastSizes[0] + _lastSizes[1], 0, _lastSizes[2]]).ConfigureAwait(true);
 			_isCollapsed = true;
 		}
 	}

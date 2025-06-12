@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor.WebAssembly.Server.Controllers;
+﻿using System.Net;
+
+namespace PanoramicData.Blazor.WebAssembly.Server.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -7,12 +9,33 @@ public class FilesController : Controller
 	[HttpGet("download")]
 	public IActionResult Download(string path)
 	{
-		var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.file_example_WEBM_1920_3_7MB.webm");
-		var result = new FileStreamResult(stream, "text/plain")
+		// markdown file?
+		if (Path.GetExtension(path) == ".md")
 		{
-			FileDownloadName = $"{Path.GetFileNameWithoutExtension(path)}.webm"
-		};
-		return result;
+			var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.TestMarkdown.md");
+			if (stream is null)
+			{
+				return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+			}
+
+			return new FileStreamResult(stream, "text/markdown")
+			{
+				FileDownloadName = Path.GetFileName(path)
+			};
+		}
+		else
+		{
+			var stream = typeof(Demo.Data.Person).Assembly.GetManifestResourceStream($"PanoramicData.Blazor.Demo.TestVideo.webm");
+			if (stream is null)
+			{
+				return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+			}
+
+			return new FileStreamResult(stream, "text/plain")
+			{
+				FileDownloadName = $"{Path.GetFileNameWithoutExtension(path)}.webm"
+			};
+		}
 	}
 
 	[HttpPost("upload")]
@@ -27,6 +50,7 @@ public class FilesController : Controller
 			using var stream = System.IO.File.Create(filePath);
 			await uploadInfo.File.CopyToAsync(stream);
 		}
+
 		return Ok();
 	}
 

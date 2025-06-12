@@ -210,3 +210,69 @@ dotnet_diagnostic.CA1303.severity = none
 
 # RCS1079: Throwing of new NotImplementedException.
 dotnet_diagnostic.RCS1079.severity = warning
+
+vsspell_section_id = 89c3e3a339004957ab34f765448189c3
+vsspell_spell_check_as_you_type = true
+vsspell_ignore_words_with_digits = true
+vsspell_ignore_words_in_all_uppercase = true
+vsspell_ignore_format_specifiers = true
+vsspell_ignore_filenames_and_email_addresses = true
+vsspell_ignore_xml_elements_in_text = true
+vsspell_treat_underscore_as_separator = true
+vsspell_ignored_character_class = NonLatin
+vsspell_determine_resource_file_language_from_name = false
+vsspell_code_analyzer_ignore_xml_doc_comments = false
+vsspell_code_analyzer_ignore_delimited_comments = false
+vsspell_code_analyzer_ignore_standard_single_line_comments = false
+vsspell_code_analyzer_ignore_quadruple_slash_comments = false
+vsspell_code_analyzer_ignore_normal_strings = false
+vsspell_code_analyzer_ignore_verbatim_strings = false
+vsspell_cad_import_code_analysis_dictionaries = true
+vsspell_cad_recognized_word_handling = None
+vsspell_cad_treat_unrecognized_words_as_misspelled = true
+vsspell_cad_treat_deprecated_terms_as_misspelled = false
+vsspell_cad_treat_compound_terms_as_misspelled = false
+vsspell_cad_treat_casing_exceptions_as_ignored_words = false
+vsspell_additional_dictionary_folders_89c3e3a339004957ab34f765448189c3 = .\
+vsspell_ignored_words_89c3e3a339004957ab34f765448189c3 = File:PanoramicData.Blazor.dic
+vsspell_dictionary_languages_89c3e3a339004957ab34f765448189c3 = en-GB
+
+[*.js]
+vsspell_spell_check_as_you_type = false
+vsspell_include_in_project_spell_check = false
+
+[*.NoSpellCheck.*]
+vsspell_spell_check_as_you_type = false
+vsspell_include_in_project_spell_check = false
+
+[_*.scss]
+vsspell_spell_check_as_you_type = false
+vsspell_include_in_project_spell_check = false
+
+[**/fontawesome/**]
+vsspell_spell_check_as_you_type = false
+vsspell_include_in_project_spell_check = false
+
+[*.log]
+vsspell_spell_check_as_you_type = false
+vsspell_include_in_project_spell_check = false
+
+[*.psd1]
+vsspell_spell_check_as_you_type = false
+vsspell_include_in_project_spell_check = false
+
+[*.ps1xml]
+vsspell_spell_check_as_you_type = false
+vsspell_include_in_project_spell_check = false
+
+[*.psm1]
+vsspell_spell_check_as_you_type = false
+vsspell_include_in_project_spell_check = false
+
+[Newtonsoft.Json.xml]
+vsspell_spell_check_as_you_type = false
+vsspell_include_in_project_spell_check = false
+
+[Themes.razor]
+vsspell_spell_check_as_you_type = false
+vsspell_include_in_project_spell_check = false

@@ -49,11 +49,11 @@ public partial class PDModal : IAsyncDisposable
 	/// Sets the buttons displayed in the modal dialog footer.
 	/// </summary>
 	[Parameter]
-	public List<ToolbarItem> Buttons { get; set; } = new List<ToolbarItem>
-	{
+	public List<ToolbarItem> Buttons { get; set; } =
+	[
 		new ToolbarButton { Key = ModalResults.YES, Text = "Yes", CssClass = "btn-primary", ShiftRight = true },
 		new ToolbarButton { Key = ModalResults.NO, Text = "No" },
-	};
+	];
 
 	/// <summary>
 	/// Event triggered whenever the user clicks on a button.
@@ -117,38 +117,35 @@ public partial class PDModal : IAsyncDisposable
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (firstRender && JSRuntime is not null)
 		{
-			_dotNetReference = DotNetObjectReference.Create(this);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDModal.razor.js").ConfigureAwait(true);
-			if (_module != null)
+			try
 			{
-				_modalObj = await _module.InvokeAsync<IJSObjectReference>("initialize", Id, new
+				_dotNetReference = DotNetObjectReference.Create(this);
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDModal.razor.js").ConfigureAwait(true);
+				if (_module != null)
 				{
-					Backdrop = HideOnBackgroundClick ? (object)true : "static",
-					Focus = true,
-					Keyboard = CloseOnEscape
-				}, _dotNetReference).ConfigureAwait(true);
+					_modalObj = await _module.InvokeAsync<IJSObjectReference>("initialize", Id, new
+					{
+						Backdrop = HideOnBackgroundClick ? (object)true : "static",
+						Focus = true,
+						Keyboard = CloseOnEscape
+					}, _dotNetReference).ConfigureAwait(true);
+				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
-	{
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
-	}
+	[JSInvokable]
+	public async Task OnModalShown() => await Shown.InvokeAsync(null).ConfigureAwait(true);
 
 	[JSInvokable]
-	public async Task OnModalShown()
-	{
-		await Shown.InvokeAsync(null).ConfigureAwait(true);
-	}
-
-	[JSInvokable]
-	public async Task OnModalHidden()
-	{
-		await Hidden.InvokeAsync(null).ConfigureAwait(true);
-	}
+	public async Task OnModalHidden() => await Hidden.InvokeAsync(null).ConfigureAwait(true);
 
 	/// <summary>
 	/// Displays the Modal Dialog.
@@ -187,6 +184,7 @@ public partial class PDModal : IAsyncDisposable
 			{
 				return !string.IsNullOrWhiteSpace(btn.Key) && btn.CssClass.Contains("btn-primary", StringComparison.OrdinalIgnoreCase);
 			}
+
 			return false;
 		});
 		if (btn != null)
@@ -222,10 +220,12 @@ public partial class PDModal : IAsyncDisposable
 			{
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
 			}
+
 			if (_module != null)
 			{
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
+
 			if (_modalObj != null)
 			{
 				await _modalObj.DisposeAsync().ConfigureAwait(true);
@@ -253,10 +253,12 @@ public partial class PDModal : IAsyncDisposable
 			{
 				sb.Append("modal-sm ");
 			}
+
 			if (CenterVertically)
 			{
 				sb.Append("modal-dialog-centered ");
 			}
+
 			return sb.ToString().TrimEnd();
 		}
 	}

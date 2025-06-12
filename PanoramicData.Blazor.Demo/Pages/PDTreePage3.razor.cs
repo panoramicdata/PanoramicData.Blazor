@@ -7,15 +7,9 @@ public partial class PDTreePage3
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	private void OnReady()
-	{
-		Tree.ExpandAll();
-	}
+	private void OnReady() => Tree.ExpandAll();
 
-	private static string GetIconCssClass(TreeItem item, int _)
-	{
-		return item.IsGroup ? "fas fa-fw fa-building" : "fas fa-fw fa-user";
-	}
+	private static string GetIconCssClass(TreeItem item, int _) => item.IsGroup ? "fas fa-fw fa-building" : "fas fa-fw fa-user";
 
 	private void OnDrop(DropEventArgs args)
 	{

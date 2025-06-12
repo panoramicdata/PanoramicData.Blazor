@@ -5,10 +5,10 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDFormPage4
 {
-	private FormFieldHelper<RegisterModel> _docxHelper;
-	private FormFieldHelper<RegisterModel> _htmlHelper;
-	private FormFieldHelper<RegisterModel> _pdfHelper;
-	private FormFieldHelper<RegisterModel> _xlsxHelper;
+	private readonly FormFieldHelper<RegisterModel> _docxHelper;
+	private readonly FormFieldHelper<RegisterModel> _htmlHelper;
+	private readonly FormFieldHelper<RegisterModel> _pdfHelper;
+	private readonly FormFieldHelper<RegisterModel> _xlsxHelper;
 
 	private readonly DelegatedDataProviderService<RegisterModel> _dataProvider = new()
 	{
@@ -19,7 +19,7 @@ public partial class PDFormPage4
 		}
 	};
 
-	private readonly FieldBooleanOptions _reportFormatDisplayOptions = new FieldBooleanOptions
+	private readonly FieldBooleanOptions _reportFormatDisplayOptions = new()
 	{
 		CssClass = "form-control",
 		LabelBefore = true,

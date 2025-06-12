@@ -1,0 +1,23 @@
+﻿@page "/pdtree4"
+@using PanoramicData.Blazor.Demo.Data
+
+<h1>PDTree 4</h1>
+<p class="text-muted">Example of tree that provides links. To display nodes as anchor tags simply ensure the TItem returned by the Data Provider (TreeItem in this demo) implements the IWebLink interface.</p>
+
+<DemoSourceView SourceFiles="Pages/PDTreePage4.razor, Pages/PDTreePage4.razor.cs">
+
+	<PDTree @ref="_tree"
+			DataProvider="_treeDataProvider"
+			IconCssClass="(x, i) => x.IconCssClass"
+			KeyField="x => x.Id"
+			ParentKeyField="x => x.ParentId"
+			Ready="OnReady"
+			ShowLines="true"
+			ShowRoot="true"
+			TextField="x => x.Name"
+			TItem="TreeItem">
+	</PDTree>
+
+	<EventView />
+
+</DemoSourceView>

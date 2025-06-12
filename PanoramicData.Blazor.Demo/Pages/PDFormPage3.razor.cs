@@ -6,13 +6,22 @@ public partial class PDFormPage3
 	private readonly PageCriteria _pageCriteria = new(1, 10);
 	private readonly SortCriteria _sortCriteria = new("DateCreatedCol", SortDirection.Descending);
 
-	//private bool ShowDescriptions { get; set; }
 	private PDForm<Person> Form { get; set; } = null!;
 	private PDFormBody<Person> FormBody { get; set; } = null!;
 	private PDTable<Person> Table { get; set; } = null!;
 	private Person? SelectedPerson { get; set; }
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
+
+	private string GetIdDescription(FormField<Person> field, PDForm<Person> form)
+	{
+		if (form?.Item is null)
+		{
+			return string.Empty;
+		}
+
+		return $"{form?.Item?.Id} ({(form?.Item?.Id % 2 == 0 ? "even" : "odd")})";
+	}
 
 	private async Task OnPersonCreated(Person person)
 	{
@@ -32,10 +41,7 @@ public partial class PDFormPage3
 		await Table.RefreshAsync().ConfigureAwait(true);
 	}
 
-	private void OnError(string message)
-	{
-		EventManager?.Add(new Event("Error", new EventArgument("Message", message)));
-	}
+	private void OnError(string message) => EventManager?.Add(new Event("Error", new EventArgument("Message", message)));
 
 	private async Task OnFooterClick(string key)
 	{
@@ -81,21 +87,19 @@ public partial class PDFormPage3
 				IsDisabled = PersonDataProvider.Locations[i] == "Sydney"
 			});
 		}
-		return options.ToArray();
+
+		return [.. options];
 	}
 
 	private async Task OnInitialsInput(ChangeEventArgs args)
 	{
 		// custom processing - all chars to have single period separator and uppercase
 		var newValue = args.Value?.ToString()?.Replace(".", "");
-		newValue = newValue == null ? string.Empty : String.Join(".", newValue.ToArray()).ToUpper();
+		newValue = newValue == null ? string.Empty : string.Join(".", newValue.ToArray()).ToUpperInvariant();
 		await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "InitialsCol"), newValue).ConfigureAwait(true);
 	}
 
-	private async Task OnEmailInput(ChangeEventArgs args)
-	{
-		await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "EmailCol"), args?.Value ?? string.Empty).ConfigureAwait(true);
-	}
+	private async Task OnEmailInput(ChangeEventArgs args) => await Form.SetFieldValueAsync(Form.Fields.First(x => x.Id == "EmailCol"), args?.Value ?? string.Empty).ConfigureAwait(true);
 
 	private void OnCustomValidate(CustomValidateArgs<Person> args)
 	{

@@ -1,6 +1,4 @@
-﻿import * as common from "./js/common.js";
-
-export function cancel(id) {
+﻿export function cancel(id) {
 	var el = document.querySelector(id);
 	if (el && el.dropzone) {
 		el.dropzone.removeAllFiles(true);
@@ -12,6 +10,18 @@ export function clear(id) {
 	if (el && el.dropzone) {
 		el.dropzone.removeAllFiles();
 	}
+}
+
+function debounce(func, wait) {
+	let timeout;
+	return function executedFunction(...args) {
+		const later = () => {
+			timeout = null;
+			func(...args);
+		};
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
 }
 
 export function dispose(id) {
@@ -34,7 +44,7 @@ export function initialize(id, opt, sessionId, dnRef) {
 	};
 	var me = this;
 	// create a debounced function to call when all files to upload determined
-	var filesAddedFunction = common.debounce((dz) => {
+	var filesAddedFunction = debounce((dz) => {
 		//console.log("addedfile - completed", dz.files);
 		var files = dz.files.map(file => { return { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId } });
 		dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnAllUploadsReady", files);
@@ -51,16 +61,12 @@ export function initialize(id, opt, sessionId, dnRef) {
 				this.fileCount = 0;
 			});
 			this.on("addedfile", function (file) {
-				if (file.size > 0) {
-					this.fileCount++;
-					var fullPath = getPath(file);
-					if (!fullPath.endsWith("/")) fullPath = fullPath + "/";
-					fullPath = fullPath + (file.targetName || file.name);
-					file.previewElement.querySelector(".pdfe-dz-name").innerHTML = fullPath;
-					filesAddedFunction(this);
-				} else {
-					this.removeFile(file);
-				}
+				this.fileCount++;
+				var fullPath = getPath(file);
+				if (!fullPath.endsWith("/")) fullPath = fullPath + "/";
+				fullPath = fullPath + (file.targetName || file.name);
+				file.previewElement.querySelector(".pdfe-dz-name").innerHTML = fullPath;
+				filesAddedFunction(this);
 			});
 			this.on("sending", function (file, xhr) {
 				dnRef.invokeMethodAsync("PanoramicData.Blazor.PDDropZone.OnUploadBegin", { Path: getPath(file), Name: file.targetName || file.name, Size: file.size, Key: file.upload.uuid, SessionId: sessionId });

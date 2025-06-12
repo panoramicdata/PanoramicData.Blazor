@@ -28,34 +28,37 @@ public partial class PDGlobalListener : IAsyncDisposable
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		_dotNetObjectReference = DotNetObjectReference.Create<PDGlobalListener>(this);
-		_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDGlobalListener.razor.js").ConfigureAwait(true);
-		if (_module != null)
+		if (firstRender && JSRuntime is not null)
 		{
-			await _module.InvokeVoidAsync("initialize", _dotNetObjectReference).ConfigureAwait(true);
+			try
+			{
+
+				_dotNetObjectReference = DotNetObjectReference.Create(this);
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDGlobalListener.razor.js").ConfigureAwait(true);
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync("initialize", _dotNetObjectReference).ConfigureAwait(true);
+				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
 		}
+
 		GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
 	}
 
 	private void GlobalEventService_ShortcutsChanged(object? sender, IEnumerable<ShortcutKey> shortcuts)
 	{
-		if (_module != null)
-		{
-			_module.InvokeVoidAsync("registerShortcutKeys", shortcuts);
-		}
+		_module?.InvokeVoidAsync("registerShortcutKeys", shortcuts);
 	}
 
 	[JSInvokable]
-	public void OnKeyDown(KeyboardInfo keyboardInfo)
-	{
-		GlobalEventService?.KeyDown(keyboardInfo);
-	}
+	public void OnKeyDown(KeyboardInfo keyboardInfo) => GlobalEventService?.KeyDown(keyboardInfo);
 
 	[JSInvokable]
-	public void OnKeyUp(KeyboardInfo keyboardInfo)
-	{
-		GlobalEventService?.KeyUp(keyboardInfo);
-	}
+	public void OnKeyUp(KeyboardInfo keyboardInfo) => GlobalEventService?.KeyUp(keyboardInfo);
 }

@@ -3,7 +3,6 @@
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
-	justify-content: space-evenly;
 	padding-bottom: 5px;
 }
 
@@ -12,7 +11,8 @@
 	}
 
 	.pdfileexplorer ::deep .pdtable {
-		height: 0px;
+		/* RM-14062 MG */
+		height: 0px !important;
 	}
 
 	.pdfileexplorer ::deep .pdtree {
@@ -29,7 +29,20 @@
 	}
 
 	.pdfileexplorer .pdfe-toolbar {
-		/*height: 41px;*/
+		height: 42px;
+	}
+
+	.pdfileexplorer ::deep .pdsplitter.horizontal {
+		height: calc(100% - 42px);
+	}
+
+	.pdfileexplorer .preview-header {
+		background-color: silver;
+		height: 20px;
+	}
+
+	.pdfileexplorer .preview-content {
+		height: calc(100% - 20px);
 	}
 
 #upload-progress-modal {
@@ -58,9 +71,18 @@
 	padding: 2px 3px 2px 3px;
 }
 
+::deep .pdtreenode span.item-text {
+	margin-top: 2px;
+}
+
+::deep .pdtreenode span.item-icon {
+	height: 20px;
+	min-width: 30px;
+}
+
 .upload-progress-bar {
-	height: 5px;
 	background-color: #007bff;
+	height: 5px;
 }
 
 .upload-zone {
@@ -108,4 +130,21 @@
 
 .pdfe-dz-preview.dz-success .success-mark {
 	display: inline-block !important;
+}
+
+.item-icon {
+	display: flex;
+}
+
+.pd-badge {
+	background-color: white;
+	border-radius: 11px;
+	color: black;
+	height: 22px;
+	margin-left: -12px;
+	margin-top: 4px;
+	padding-left: 2px;
+	padding-top: 3px;
+	transform: scale(0.7);
+	width: 22px;
 }

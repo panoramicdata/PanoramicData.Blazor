@@ -39,68 +39,78 @@
 				Updated="OnPersonUpdatedAsync"
 				Created="OnPersonCreatedAsync">
 
-				<PDModal @ref="Modal">
-					<Header>
-						<PDFormHeader TItem="Person"
-									  ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
-					</Header>
-					<ChildContent>
-						<PDFormBody TItem="Person">
-							<PDField TItem="Person"
-									 Field="x => x.Id"
-									 ShowInDelete="(_) => true"
-									 ShowInCreate="(_) => false"
-									 ReadOnlyInEdit="(_) => true" />
+			<PDModal @ref="Modal">
+				<Header>
+					<PDFormHeader TItem="Person"
+								  ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
+				</Header>
+				<ChildContent>
+					<PDFormBody TItem="Person">
+						<PDField TItem="Person"
+								 Field="x => x.Id"
+								 ShowInDelete="_ => true"
+								 ShowInCreate="_ => false"
+								 ReadOnlyInEdit="_ => true" />
 
-							<PDField TItem="Person"
-									 Field="x => x.FirstName"
-									 Title="First Name"
-									 ShowInDelete="(_) => true" />
+						<PDField TItem="Person"
+								 Field="x => x.FirstName"
+								 Title="First Name"
+								 ShowInDelete="_ => true" />
 
-							<PDField TItem="Person"
-									 Field="x => x.LastName"
-									 Title="Last Name"
-									 MaxLength="20"
-									 ShowInDelete="(_) => true" />
+						<PDField TItem="Person"
+								 Field="x => x.LastName"
+								 Title="Last Name"
+								 MaxLength="20"
+								 ShowInDelete="_ => true" />
 
-							<PDField TItem="Person"
-									 Field="x => x.Dob" />
+						<PDField TItem="Person"
+								 Field="x => x.Dob" />
 
-							<PDField TItem="Person"
-									 ShowValidationResult="false"
-									 Field="x => x.Department" />
+						<PDField TItem="Person"
+								 ShowValidationResult="false"
+								 Field="x => x.Department" />
 
-							<PDField TItem="Person"
-									 Field="x => x.AllowLogin"
-									 Title="Login?" />
+						<PDField TItem="Person"
+								 Field="x => x.AllowLogin"
+								 Title="Login?" />
 
-							<PDField TItem="Person"
-									 Field="x => x.Target" />
+						<PDField TItem="Person"
+								 Field="x => x.Target" />
 
-							<PDField TItem="Person"
-									 Field="x => x.Comments"
-									 IsTextArea="true" />
+						<PDField TItem="Person"
+								 Field="x => x.Comments"
+								 IsTextArea="true" />
 
-							<PDField TItem="Person"
-									 Field="x => x.DateCreated"
-									 ShowInCreate="(_) => false"
-									 ReadOnlyInEdit="(_) => true" />
+						<PDField TItem="Person"
+								 Field="x => x.DateCreated"
+								 ReadOnlyInCreate="_ => true"
+								 ReadOnlyInEdit="_ => true" />
 
-							<PDField TItem="Person"
-									 Field="x => x.DateModified"
-									 ShowInCreate="(_) => false"
-									 ShowInEdit="(_) => false" />
-						</PDFormBody>
-					</ChildContent>
-					<Footer>
-						<PDFormFooter SaveButtonText="Submit"
-									  SaveButtonCssClass="btn-success"
-									  SaveButtonIconCssClass="fas fa-check"
-									  ShowDelete="false"
-									  TItem="Person"
-									  Click="OnFooterClick" />
-					</Footer>
-				</PDModal>
+						<PDField TItem="Person"
+								 Field="x => x.DateModified"
+								 ShowInCreate="_ => false"
+								 ReadOnlyInEdit="_ => true" />
+
+						<PDField TItem="Person"
+								 Field="x => x.HomeTel" />
+
+						<PDField TItem="Person"
+								 Field="x => x.MobileTel" />
+
+						<PDField TItem="Person"
+								 Field="x => x.WorkTel" />
+
+					</PDFormBody>
+				</ChildContent>
+				<Footer>
+					<PDFormFooter SaveButtonText="Submit"
+								  SaveButtonCssClass="btn-success"
+								  SaveButtonIconCssClass="fas fa-check"
+								  ShowDelete="false"
+								  TItem="Person"
+								  Click="OnFooterClick" />
+				</Footer>
+			</PDModal>
 
 		</PDForm>
 

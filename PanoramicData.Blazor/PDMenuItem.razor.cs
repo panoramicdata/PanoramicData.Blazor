@@ -29,8 +29,5 @@ public partial class PDMenuItem
 	[Parameter]
 	public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
 
-	protected override void OnInitialized()
-	{
-		ToolbarDropdown?.AddMenuItem(this);
-	}
+	protected override void OnInitialized() => ToolbarDropdown?.AddMenuItem(this);
 }

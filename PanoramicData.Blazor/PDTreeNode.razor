@@ -14,7 +14,6 @@
         <div class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)"
              @oncontextmenu:preventDefault
              @oncontextmenu="() => { }"
-             @onmousedown:preventDefault
              @onmousedown="OnContentMouseDown"
              @ondrop="OnDragDrop"
              @ondragstart="OnDragStart"
@@ -43,14 +42,19 @@
             }
             else if (Node != null)
             {
-                @if (NodeTemplate is null)
+                @if (Node.Data is IWebLink webLink && !string.IsNullOrWhiteSpace(webLink.Url))
                 {
-                    <span>@Node.Text</span>
+                    <a href="@webLink.Url"
+                       target="@webLink.Target"
+                       title="@(Node?.Data != null && Tree?.ToolTip != null ? Tree.ToolTip.Invoke(Node.Data) : null)">@Node!.Text</a>
+                }
+                else if (NodeTemplate is null)
+                {
+                    <span title="@(Node?.Data != null && Tree?.ToolTip != null ? Tree.ToolTip.Invoke(Node.Data) : null)">@Node!.Text</span>
                 }
                 else
                 {
                     @NodeTemplate(Node)
-                    ;
                 }
             }
 

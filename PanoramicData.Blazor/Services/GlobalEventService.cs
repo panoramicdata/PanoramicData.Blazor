@@ -5,7 +5,7 @@
 /// </summary>
 public class GlobalEventService : IGlobalEventService
 {
-	private readonly Dictionary<string, ShortcutKey> _registeredShortcuts = new Dictionary<string, ShortcutKey>();
+	private readonly Dictionary<string, ShortcutKey> _registeredShortcuts = [];
 
 	/// <summary>
 	/// Event raised whenever the KeyDown event occurs.
@@ -26,19 +26,13 @@ public class GlobalEventService : IGlobalEventService
 	/// Fires the KeyDown event with the given parameters.
 	/// </summary>
 	/// <param name="keyboardInfo">Details about the key pressed, along with modifier key states.</param>
-	public void KeyDown(KeyboardInfo keyboardInfo)
-	{
-		KeyDownEvent?.Invoke(this, keyboardInfo);
-	}
+	public void KeyDown(KeyboardInfo keyboardInfo) => KeyDownEvent?.Invoke(this, keyboardInfo);
 
 	/// <summary>
 	/// Fires the KeyUp event with the given parameters.
 	/// </summary>
 	/// <param name="keyboardInfo">Details about the key pressed, along with modifier key states.</param>
-	public void KeyUp(KeyboardInfo keyboardInfo)
-	{
-		KeyUpEvent?.Invoke(this, keyboardInfo);
-	}
+	public void KeyUp(KeyboardInfo keyboardInfo) => KeyUpEvent?.Invoke(this, keyboardInfo);
 
 	/// <summary>
 	/// Registers a shortcut key to listen for.
@@ -49,7 +43,7 @@ public class GlobalEventService : IGlobalEventService
 		if (!_registeredShortcuts.ContainsKey(shortcut.ToString()))
 		{
 			_registeredShortcuts.Add(shortcut.ToString(), shortcut);
-			ShortcutsChanged?.Invoke(this, _registeredShortcuts.Values.ToArray());
+			ShortcutsChanged?.Invoke(this, [.. _registeredShortcuts.Values]);
 		}
 	}
 
@@ -62,7 +56,7 @@ public class GlobalEventService : IGlobalEventService
 		if (_registeredShortcuts.ContainsKey(shortcut.ToString()))
 		{
 			_registeredShortcuts.Remove(shortcut.ToString());
-			ShortcutsChanged?.Invoke(this, _registeredShortcuts.Values.ToArray());
+			ShortcutsChanged?.Invoke(this, [.. _registeredShortcuts.Values]);
 		}
 	}
 }

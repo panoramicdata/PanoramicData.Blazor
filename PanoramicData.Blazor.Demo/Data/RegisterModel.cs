@@ -19,13 +19,13 @@ public class RegisterModel
 	[MaxLength(50)]
 	public string LastName { get; set; } = string.Empty;
 
-	public bool ReportFormatDocx { get; set; } = false;
+	public bool ReportFormatDocx { get; set; }
 
-	public bool ReportFormatHtml { get; set; } = false;
+	public bool ReportFormatHtml { get; set; }
 
-	public bool ReportFormatPdf { get; set; } = false;
+	public bool ReportFormatPdf { get; set; }
 
-	public bool ReportFormatXlsx { get; set; } = false;
+	public bool ReportFormatXlsx { get; set; }
 
 	public bool Report { get; set; }
 

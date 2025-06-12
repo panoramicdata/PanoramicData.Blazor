@@ -1,46 +1,38 @@
-﻿<style>
-    .direction-buttons button:nth-child(1) {
-        border-radius: .25rem 0px 0px .25rem;
+﻿<nav aria-label="_pager" class="pdpager d-flex justify-content-between align-items-center">
+
+    @if (ShowPageChangeButtons)
+    {
+        <div class="direction-buttons">
+            <PDButton Click="MoveFirst"
+                CssClass="btn-secondary"
+                IconCssClass="fas fa-fast-backward"
+                IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
+                Size="Size" />
+
+            <PDButton Click="MovePrevious"
+                CssClass="btn-secondary ms-1"
+                IconCssClass="fas fa-backward"
+                IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
+                Size="Size" />
+
+            <span class="d-none d-md-inline ms-1">Page</span>
+            <span class="ms-1">@PageCriteria.Page</span>
+            <span class="ms-1">of</span>
+            <span class="ms-1">@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)</span>
+
+            <PDButton Click="MoveNext"
+                CssClass="btn-secondary ms-1"
+                IconCssClass="fas fa-forward"
+                IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
+                Size="Size" />
+
+            <PDButton Click="MoveLast"
+                CssClass="btn-secondary ms-1"
+                IconCssClass="fas fa-fast-forward"
+                IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
+                Size="Size" />
+        </div>
     }
-
-    .direction-buttons button:nth-child(2), .direction-buttons button:nth-child(4) {
-        border-radius: 0px;
-    }
-
-    .direction-buttons button:nth-child(5) {
-        border-radius: 0px .25rem .25rem 0px;
-    }
-</style>
-
-<nav aria-label="_pager" class="pdpager d-flex justify-content-between align-items-center">
-
-    <div class="direction-buttons">
-        <PDButton Click="MoveFirst"
-                  CssClass="btn-secondary"
-                  IconCssClass="fas fa-fast-backward"
-                  IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
-                  Size="Size" />
-
-        <PDButton Click="MovePrevious"
-                  CssClass="btn-secondary"
-                  IconCssClass="fas fa-backward"
-                  IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
-                  Size="Size" />
-
-        <span class="d-none d-md-inline ms-1">Page&nbsp;</span> @PageCriteria.Page&nbsp;of&nbsp;@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount)
-
-        <PDButton Click="MoveNext"
-                  CssClass="btn-secondary ms-1"
-                  IconCssClass="fas fa-forward"
-                  IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
-                  Size="Size" />
-
-        <PDButton Click="MoveLast"
-                  CssClass="btn-secondary"
-                  IconCssClass="fas fa-fast-forward"
-                  IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
-                  Size="Size" />
-    </div>
 
     @if (ShowPageDescription)
     {

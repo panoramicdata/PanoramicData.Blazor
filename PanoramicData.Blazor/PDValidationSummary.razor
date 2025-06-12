@@ -1,0 +1,12 @@
+﻿<table class="pd-validation-summary">
+    @if(Errors is IDictionary<string, string> dict)
+    {
+        @foreach(var kvp in dict)
+        {
+            <tr>
+                <td class="field">@kvp.Key</td>
+                <td class="error">@kvp.Value</td>
+            </tr>
+        }
+    }
+</table>

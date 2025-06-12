@@ -1,15 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Services;
 
-public class NavigationCancelService : INavigationCancelService
+public class NavigationCancelService(IJSRuntime jsRuntime) : INavigationCancelService
 {
-	private readonly IJSRuntime _jsRuntime;
-	private ValueTask<IJSObjectReference>? _loadCommonJsTask;
-
-	public NavigationCancelService(IJSRuntime jsRuntime)
-	{
-		_jsRuntime = jsRuntime;
-		_loadCommonJsTask = jsRuntime.InvokeAsync<IJSObjectReference>("import", "/_content/PanoramicData.Blazor/js/common.js");
-	}
+	private readonly ValueTask<IJSObjectReference>? _loadCommonJsTask = jsRuntime.InvokeAsync<IJSObjectReference>("import", "/_content/PanoramicData.Blazor/js/common.js");
 
 	/// <summary>
 	/// Event raised before a navigation occurs.
@@ -21,7 +14,11 @@ public class NavigationCancelService : INavigationCancelService
 	/// </summary>
 	/// <param name="target">Optional data for intended operation. May be a target URL or operation name etc.</param>
 	/// <returns>true if the operation should proceed otherwise false.</returns>
-	public async Task<bool> ProceedAsync(string target = "")
+
+	public async Task<bool> ProceedAsync()
+		=> await ProceedAsync(string.Empty);
+
+	public async Task<bool> ProceedAsync(string target)
 	{
 		// ask listening code if operation should be canceled
 		var args = new BeforeNavigateEventArgs { Target = target };
@@ -35,6 +32,7 @@ public class NavigationCancelService : INavigationCancelService
 				return await commonModule.InvokeAsync<bool>("confirm", "Changes have been made, continue and lose those changes?").ConfigureAwait(true);
 			}
 		}
+
 		return true;
 	}
 }

@@ -11,19 +11,19 @@ public partial class PDFileModal
 	private PDModal ModalConfirm { get; set; } = null!;
 	private string _modalTitle = string.Empty;
 	private PDFileExplorer FileExplorer { get; set; } = null!;
-	private readonly List<ToolbarItem> _toolbarItems = new List<ToolbarItem>();
-	private readonly ToolbarTextBox _filenameTextbox = new ToolbarTextBox { Key = "Filename", Label = "File name", Width = "100%" };
-	private readonly ToolbarButton _cancelButton = new ToolbarButton { Key = "Cancel", Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
-	private readonly ToolbarButton _okButton = new ToolbarButton { Key = "OK", Text = "OK", CssClass = "btn-primary", ShiftRight = true, IsEnabled = false };
-	private readonly List<ToolbarItem> _confirmToolbarItems = new List<ToolbarItem>();
-	private readonly ToolbarButton _overwriteButton = new ToolbarButton { Key = "Yes", Text = "Yes - Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true };
-	private readonly ToolbarButton _noButton = new ToolbarButton { Key = "No", Text = "No", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
+	private readonly List<ToolbarItem> _toolbarItems = [];
+	private readonly ToolbarTextBox _filenameTextbox = new() { Key = "Filename", Label = "File name", Width = "100%" };
+	private readonly ToolbarButton _cancelButton = new() { Key = "Cancel", Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
+	private readonly ToolbarButton _okButton = new() { Key = "OK", Text = "OK", CssClass = "btn-primary", ShiftRight = true, IsEnabled = false };
+	private readonly List<ToolbarItem> _confirmToolbarItems = [];
+	private readonly ToolbarButton _overwriteButton = new() { Key = "Yes", Text = "Yes - Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true };
+	private readonly ToolbarButton _noButton = new() { Key = "No", Text = "No", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
 
 	[Parameter] public bool CloseOnEscape { get; set; } = true;
 
 	[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
-	[Parameter] public string[] ExcludedPaths { get; set; } = System.Array.Empty<string>();
+	[Parameter] public string[] ExcludedPaths { get; set; } = [];
 
 	[Parameter] public Func<FileExplorerItem, string>? GetItemIconCssClass { get; set; }
 
@@ -46,12 +46,9 @@ public partial class PDFileModal
 
 	[Parameter] public EventCallback<string> ModalHidden { get; set; }
 
-	private string GetOpenResult()
-	{
-		return _folderSelect
+	private string GetOpenResult() => _folderSelect
 			? (FileExplorer.SelectedFilesAndFolders.Length == 1 ? FileExplorer.SelectedFilesAndFolders[0] : FileExplorer.FolderPath)
 			: $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
-	}
 
 	private void OnFolderChanged(FileExplorerItem item)
 	{
@@ -64,16 +61,16 @@ public partial class PDFileModal
 	protected override void OnInitialized()
 	{
 		// create toolbar contents
-		_toolbarItems.AddRange(new ToolbarItem[] {
+		_toolbarItems.AddRange([
 			_filenameTextbox,
 			_okButton,
 			_cancelButton
-		});
+		]);
 
-		_confirmToolbarItems.AddRange(new ToolbarItem[] {
+		_confirmToolbarItems.AddRange([
 			_overwriteButton,
 			_noButton
-		});
+		]);
 
 		// wire up filename events
 		_filenameTextbox.KeypressEvent = true;
@@ -81,10 +78,7 @@ public partial class PDFileModal
 		_filenameTextbox.Keypress = OnFilenameKeypress;
 	}
 
-	private string? GetItemIconCssClassInternal(FileExplorerItem item)
-	{
-		return GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
-	}
+	private string? GetItemIconCssClassInternal(FileExplorerItem item) => GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
 
 	public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "", string initialFolder = "")
 	{
@@ -99,14 +93,17 @@ public partial class PDFileModal
 		{
 			_filenameTextbox.IsVisible = false;
 		}
+
 		if (_okButton.Text != OpenButtonText)
 		{
 			_okButton.Text = OpenButtonText;
 		}
+
 		if (_okButton.IconCssClass != "fas fa-fw fa-folder-open")
 		{
 			_okButton.IconCssClass = "fas fa-fw fa-folder-open";
 		}
+
 		StateHasChanged();
 
 		// show the modal
@@ -139,14 +136,17 @@ public partial class PDFileModal
 		{
 			_filenameTextbox.IsVisible = false;
 		}
+
 		if (_okButton.Text != OpenButtonText)
 		{
 			_okButton.Text = OpenButtonText;
 		}
+
 		if (_okButton.IconCssClass != "fas fa-fw fa-folder-open")
 		{
 			_okButton.IconCssClass = "fas fa-fw fa-folder-open";
 		}
+
 		StateHasChanged();
 
 		// refresh the current folder contents
@@ -158,6 +158,7 @@ public partial class PDFileModal
 		{
 			return string.Empty;
 		}
+
 		return GetOpenResult();
 	}
 
@@ -172,18 +173,22 @@ public partial class PDFileModal
 			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
 			_okButton.IsEnabled = true;
 		}
+
 		if (!_filenameTextbox.IsVisible)
 		{
 			_filenameTextbox.IsVisible = true;
 		}
+
 		if (_okButton.Text != SaveButtonText)
 		{
 			_okButton.Text = SaveButtonText;
 		}
+
 		if (_okButton.IconCssClass != "fas fa-fw fa-save")
 		{
 			_okButton.IconCssClass = "fas fa-fw fa-save";
 		}
+
 		StateHasChanged();
 
 		await Modal.ShowAsync().ConfigureAwait(true);
@@ -213,18 +218,22 @@ public partial class PDFileModal
 			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
 			_okButton.IsEnabled = true;
 		}
+
 		if (!_filenameTextbox.IsVisible)
 		{
 			_filenameTextbox.IsVisible = true;
 		}
+
 		if (_okButton.Text != SaveButtonText)
 		{
 			_okButton.Text = SaveButtonText;
 		}
+
 		if (_okButton.IconCssClass != "fas fa-fw fa-save")
 		{
 			_okButton.IconCssClass = "fas fa-fw fa-save";
 		}
+
 		StateHasChanged();
 
 		// default folder?
@@ -250,7 +259,7 @@ public partial class PDFileModal
 			}
 
 			// check for over write?
-			existing = Array.Find(FileExplorer.FileItems ?? Array.Empty<FileExplorerItem>(), x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
+			existing = Array.Find(FileExplorer.FileItems ?? [], x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
 			if (existing != null)
 			{
 				var confirmation = await ModalConfirm.ShowAndWaitResultAsync().ConfigureAwait(true);
@@ -278,7 +287,7 @@ public partial class PDFileModal
 			else
 			{
 				// save as
-				var existing = System.Array.Find(FileExplorer.FileItems ?? Array.Empty<FileExplorerItem>(), x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
+				var existing = Array.Find(FileExplorer.FileItems ?? [], x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
 				if (existing != null)
 				{
 					// prompt user for over write
@@ -290,12 +299,20 @@ public partial class PDFileModal
 						return;
 					}
 				}
+
 				result = $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
 			}
 		}
 
 		// inform caller of result and hide modal
-		await ModalHidden.InvokeAsync(result).ConfigureAwait(true);
+		try
+		{
+			await this.InvokeAsync(async () => await ModalHidden.InvokeAsync(result).ConfigureAwait(true));
+		}
+		catch
+		{
+		}
+
 		await Modal.HideAsync().ConfigureAwait(true);
 	}
 
@@ -332,7 +349,7 @@ public partial class PDFileModal
 	{
 		if (args.Code == "Enter" && !string.IsNullOrWhiteSpace(_filenameTextbox.Value))
 		{
-			Task.Run(async () => await Modal.OnButtonClick(new KeyedEventArgs<MouseEventArgs>(_okButton.Key)).ConfigureAwait(true)).ConfigureAwait(true);
+			Task.Run(async () => await this.InvokeAsync(async () => await Modal.OnButtonClick(new KeyedEventArgs<MouseEventArgs>(_okButton.Key)).ConfigureAwait(true)).ConfigureAwait(true)).ConfigureAwait(true);
 		}
 	}
 }

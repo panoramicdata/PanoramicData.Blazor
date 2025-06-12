@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor;
+﻿using PanoramicData.DeepCloner;
+
+namespace PanoramicData.Blazor;
 
 public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 {
@@ -8,6 +10,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 	public event EventHandler? ErrorsChanged;
 
+	public event EventHandler? ResetRequested;
+
 	[Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
@@ -16,6 +20,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Injected log service.
 	/// </summary>
 	[Inject] protected ILogger<PDForm<TItem>> Logger { get; set; } = new NullLogger<PDForm<TItem>>();
+
+	/// <summary>
+	/// Should edit deltas be automatically applied to the model?
+	/// </summary>
+	[Parameter] public bool AutoApplyDelta { get; set; }
 
 	/// <summary>
 	/// Gets or sets the child content that the drop zone wraps.
@@ -115,17 +124,17 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <summary>
 	/// Gets a full list of all fields.
 	/// </summary>
-	public List<FormField<TItem>> Fields { get; } = new List<FormField<TItem>>();
+	public List<FormField<TItem>> Fields { get; } = [];
 
 	/// <summary>
 	/// Gets a dictionary used to track uncommitted changes.
 	/// </summary>
-	public Dictionary<string, object?> Delta { get; } = new Dictionary<string, object?>();
+	public Dictionary<string, object?> Delta { get; } = [];
 
 	/// <summary>
 	/// Gets a dictionary used to track validation errors.
 	/// </summary>
-	public Dictionary<string, List<string>> Errors { get; } = new Dictionary<string, List<string>>();
+	public Dictionary<string, List<string>> Errors { get; } = [];
 
 	/// <summary>
 	/// Gets whether changes have been made.
@@ -143,11 +152,25 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	public FormModes PreviousMode { get; private set; }
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		Mode = DefaultMode;
 		NavigationCancelService.BeforeNavigate += NavigationService_BeforeNavigate;
-		_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDForm.razor.js").ConfigureAwait(true);
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDForm.razor.js").ConfigureAwait(true);
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
+		}
 	}
 
 	/// <summary>
@@ -162,8 +185,10 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			{
 				AutoComplete = field.AutoComplete,
 				Id = field.Id,
-				Field = field.Field,
+				Description = field.Description,
+				DescriptionFunc = field.DescriptionFunc,
 				DisplayOptions = field.DisplayOptions,
+				Field = field.Field,
 				Group = field.Group,
 				Helper = field.Helper,
 				ReadOnlyInCreate = field.ReadOnlyInCreate,
@@ -183,8 +208,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				IsPassword = field.IsPassword,
 				IsSensitive = field.IsSensitive,
 				IsTextArea = field.IsTextArea,
+				IsImage = field.IsImage,
 				TextAreaRows = field.TextAreaRows,
-				Description = field.Description,
 				HelpUrl = field.HelpUrl
 			});
 			StateHasChanged();
@@ -210,10 +235,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	/// <param name="item">The current item to be edited.</param>
 	[Obsolete("SetItem is deprecated, please use EditItemAsync instead.")]
-	public void SetItem(TItem item)
-	{
-		Item = item;
-	}
+	public void SetItem(TItem item) => Item = item;
 
 	/// <summary>
 	/// Gets or sets whether help text should be displayed.
@@ -234,13 +256,17 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <summary>
 	/// Reset the current edit changes and errors.
 	/// </summary>
-	public void ResetChanges()
+	public async Task ResetChanges()
 	{
 		Delta.Clear();
+
+		OnResetRequested(EventArgs.Empty);
+
 		if (ConfirmOnUnload && _module != null)
 		{
-			_module.InvokeVoidAsync("setUnloadListener", Id, false);
+			await _module.InvokeVoidAsync("setUnloadListener", Id, false);
 		}
+
 		if (Errors.Count > 0)
 		{
 			Errors.Clear();
@@ -259,13 +285,17 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		Mode = mode;
 		if (resetChanges && (Mode == FormModes.Create || Mode == FormModes.Edit))
 		{
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 			ResetChanges();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 		}
+
 		if (Errors.Count > 0)
 		{
 			Errors.Clear();
 			OnErrorsChanged(EventArgs.Empty);
 		}
+
 		foreach (var field in Fields)
 		{
 			field.SuppressErrors = SuppressInitialErrors;
@@ -293,6 +323,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -346,6 +377,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -371,10 +403,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	/// <param name="name">Name of the field to return.</param>
 	/// <returns>A FormField instance if found, otherwise null.</returns>
-	public FormField<TItem> GetField(string name)
-	{
-		return Fields.First(x => x.Name == name);
-	}
+	public FormField<TItem> GetField(string name) => Fields.First(x => x.Name == name);
 
 	/// <summary>
 	/// Attempts to get the requested fields current or original value and cast to the required type.
@@ -383,10 +412,17 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
-	public object? GetFieldValue(string fieldName, bool updatedValue = true)
+
+	public object? GetFieldValue(string fieldName)
+	{
+		return GetFieldValue(fieldName, true);
+	}
+
+	public object? GetFieldValue(string fieldName, bool updatedValue)
 	{
 		return GetFieldValue(GetField(fieldName), updatedValue);
 	}
+
 
 	/// <summary>
 	/// Attempts to get the requested fields current or original value and cast to the required type.
@@ -395,7 +431,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
-	public object? GetFieldValue(FormField<TItem> field, bool updatedValue = true)
+	///
+
+	public object? GetFieldValue(FormField<TItem> field)
+		=> GetFieldValue(field, true);
+	public object? GetFieldValue(FormField<TItem> field, bool updatedValue)
 	{
 		// point to relevant TItem instance
 		if (Item is null)
@@ -408,9 +448,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		var memberInfo = field.Field?.GetPropertyMemberInfo();
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			if (updatedValue && Delta.ContainsKey(memberInfo.Name))
+			if (updatedValue && Delta.TryGetValue(memberInfo.Name, out object? value2))
 			{
-				value = Delta[memberInfo.Name];
+				value = value2;
 			}
 			else
 			{
@@ -432,7 +472,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
-	public T GetFieldValue<T>(string fieldName, bool updatedValue = true) where T : struct
+
+	public T GetFieldValue<T>(string fieldName) where T : struct
+		=> GetFieldValue<T>(fieldName, true);
+
+	public T GetFieldValue<T>(string fieldName, bool updatedValue) where T : struct
 	{
 		var field = GetField(fieldName);
 		return GetFieldValue<T>(field, updatedValue);
@@ -445,25 +489,31 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
-	public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue = true) where T : struct
+
+	public T GetFieldValue<T>(FormField<TItem> field) where T : struct
+		=> GetFieldValue<T>(field, true);
+	public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue) where T : struct
 	{
 		// point to relevant TItem instance
 		if (Item is null || field is null)
 		{
 			return default;
 		}
+
 		object? value = GetFieldValue(field, updatedValue);
 		if (value is null)
 		{
 			return default;
 		}
+
 		if (value is T t)
 		{
 			return t;
 		}
+
 		try
 		{
-			return (T)Convert.ChangeType(value, typeof(T));
+			return (T)Convert.ChangeType(value, typeof(T), CultureInfo.InvariantCulture);
 		}
 		catch
 		{
@@ -478,13 +528,20 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for String fields only, use GetFieldValue<T>() for Struct values.</remarks>
-	public string GetFieldStringValue(string fieldName, bool updatedValue = true)
+
+	public string GetFieldStringValue(string fieldName)
+		=> GetFieldStringValue(fieldName, true);
+
+	public string GetFieldStringValue(string fieldName, bool updatedValue)
 	{
 		var field = GetField(fieldName);
 		return field is null ? string.Empty : GetFieldStringValue(field, updatedValue);
 	}
 
-	public string GetFieldStringValue(IEnumerable<FormField<TItem>> fields, bool updatedValue = true)
+	public string GetFieldStringValue(IEnumerable<FormField<TItem>> fields)
+		=> GetFieldStringValue(fields, true);
+
+	public string GetFieldStringValue(IEnumerable<FormField<TItem>> fields, bool updatedValue)
 	{
 		var sb = new StringBuilder();
 		foreach (var field in fields)
@@ -493,8 +550,10 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			{
 				sb.Append('\t');
 			}
+
 			sb.Append(GetFieldStringValue(field, updatedValue));
 		}
+
 		return sb.ToString();
 	}
 
@@ -505,7 +564,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for String fields only, use GetFieldValue<T>() for Struct values.</remarks>
-	public string GetFieldStringValue(FormField<TItem> field, bool updatedValue = true)
+
+	public string GetFieldStringValue(FormField<TItem> field)
+		=> GetFieldStringValue(field, true);
+
+	public string GetFieldStringValue(FormField<TItem> field, bool updatedValue)
 	{
 		// point to relevant TItem instance
 		if (Item is null)
@@ -518,9 +581,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		var memberInfo = field.Field?.GetPropertyMemberInfo();
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			if (updatedValue && Delta.ContainsKey(memberInfo.Name))
+			if (updatedValue && Delta.TryGetValue(memberInfo.Name, out object? value2))
 			{
-				value = Delta[memberInfo.Name];
+				value = value2;
 			}
 			else
 			{
@@ -536,18 +599,20 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		{
 			return string.Empty;
 		}
+
 		if (value is DateTimeOffset dto)
 		{
 			// return simple date time string
-			return dto.DateTime.ToString("yyyy-MM-dd");
+			return dto.DateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 		}
+
 		if (value is DateTime dt)
 		{
 			// return date time string
-			return dt.ToString("yyyy-MM-dd");
+			return dt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 		}
 
-		return value.ToString() ?? String.Empty;
+		return value.ToString() ?? string.Empty;
 	}
 
 	/// <summary>
@@ -589,6 +654,13 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				// validate field
 				await ValidateFieldAsync(field, value).ConfigureAwait(true);
 
+				field.OnValueChanged(value);
+
+				// auto save value if valid?
+				if (Mode == FormModes.Edit && AutoApplyDelta)
+				{
+					await ApplyDelta(Item).ConfigureAwait(true);
+				}
 
 				StateHasChanged();
 			}
@@ -601,21 +673,28 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <returns>A new TItem instance with changes applied.</returns>
 	public TItem? GetItemWithUpdates()
 	{
-		if (Item is null)
+		if (Item != null)
 		{
-			return null;
-		}
-		var json = System.Text.Json.JsonSerializer.Serialize(Item);
-		var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);
-		if (clone != null)
-		{
-			foreach (var kvp in Delta)
+			try
 			{
-				var propInfo = clone.GetType().GetProperty(kvp.Key);
-				propInfo?.SetValue(clone, kvp.Value);
+				var clone = Item.DeepClone();
+				if (clone != null)
+				{
+					foreach (var kvp in Delta)
+					{
+						var propInfo = clone.GetType().GetProperty(kvp.Key);
+						propInfo?.SetValue(clone, kvp.Value);
+					}
+				}
+
+				return clone;
+			}
+			catch
+			{
 			}
 		}
-		return clone;
+
+		return null;
 	}
 
 	/// <summary>
@@ -634,6 +713,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				await ValidateFieldAsync(field, null, updatedItem).ConfigureAwait(true);
 			}
 		}
+
 		return Errors.Count;
 	}
 
@@ -658,11 +738,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 
 					// run standard data annotation validation
 					var results = new List<ValidationResult>();
-					var itemWithUpdates = GetItemWithUpdates();
-					if (itemWithUpdates is null)
-					{
-						throw new ArgumentException("Failed to get updated item instance");
-					}
+					var itemWithUpdates = GetItemWithUpdates()
+						?? throw new ArgumentException("Failed to get updated item instance");
+
 					var context = new ValidationContext(updatedItem ??= itemWithUpdates)
 					{
 						MemberName = memberInfo.Name
@@ -673,15 +751,16 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 					}
 					else
 					{
-						SetFieldErrors(memberInfo.Name, results.Where(x => x?.ErrorMessage != null).Select(x => x.ErrorMessage!).ToArray());
+						SetFieldErrors(memberInfo.Name, [.. results.Where(x => x?.ErrorMessage != null).Select(x => x.ErrorMessage!)]);
 					}
 
 					// validate numeric values
-					if (field.MaxValue.HasValue && Convert.ToDouble(typedValue) > field.MaxValue.Value)
+					if (field.MaxValue.HasValue && Convert.ToDouble(typedValue, CultureInfo.InvariantCulture) > field.MaxValue.Value)
 					{
 						SetFieldErrors(memberInfo.Name, $"Value must be {field.MaxValue.Value} or less.");
 					}
-					if (field.MinValue.HasValue && Convert.ToDouble(typedValue) < field.MinValue.Value)
+
+					if (field.MinValue.HasValue && Convert.ToDouble(typedValue, CultureInfo.InvariantCulture) < field.MinValue.Value)
 					{
 						SetFieldErrors(memberInfo.Name, $"Value must be {field.MinValue.Value} or greater.");
 					}
@@ -703,10 +782,12 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 								}
 							}
 						}
+
 						foreach (var kvp in args.AddErrorMessages)
 						{
 							SetFieldErrors(kvp.Key, kvp.Value);
 						}
+
 						if (args.RemoveErrorMessages.Count > 0 && args.AddErrorMessages.Count == 0)
 						{
 							OnErrorsChanged(EventArgs.Empty);
@@ -721,16 +802,14 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				}
 			}
 		}
+
 		return null;
 	}
 
 	/// <summary>
 	/// Gets whether the form is currently valid.
 	/// </summary>
-	public bool IsValid()
-	{
-		return Errors.Count == 0;
-	}
+	public bool IsValid() => Errors.Count == 0;
 
 	/// <summary>
 	/// Adds one or more error messages for the given field.
@@ -741,7 +820,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	{
 		if (!Errors.ContainsKey(fieldName))
 		{
-			Errors.Add(fieldName, new List<string>());
+			Errors.Add(fieldName, []);
 		}
 		// avoid duplicate messages
 		foreach (var message in messages)
@@ -751,6 +830,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				Errors[fieldName].Add(message);
 			}
 		}
+
 		OnErrorsChanged(EventArgs.Empty);
 	}
 
@@ -764,10 +844,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		OnErrorsChanged(EventArgs.Empty);
 	}
 
-	protected virtual void OnErrorsChanged(EventArgs e)
-	{
-		ErrorsChanged?.Invoke(this, e);
-	}
+	protected virtual void OnErrorsChanged(EventArgs e) => ErrorsChanged?.Invoke(this, e);
+
+	protected virtual void OnResetRequested(EventArgs e) => ResetRequested?.Invoke(this, e);
 
 	private void NavigationService_BeforeNavigate(object? sender, BeforeNavigateEventArgs e)
 	{
@@ -791,25 +870,30 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		Mode = mode;
 		if (resetChanges && (Mode == FormModes.Create || Mode == FormModes.Edit))
 		{
-			ResetChanges();
+			await ResetChanges();
 		}
+
 		if (Errors.Count > 0)
 		{
 			Errors.Clear();
 			OnErrorsChanged(EventArgs.Empty);
 		}
-		foreach (var field in Fields)
+
+		if (Mode == FormModes.Create)
 		{
-			field.SuppressErrors = SuppressInitialErrors;
+			foreach (var field in Fields)
+			{
+				field.SuppressErrors = SuppressInitialErrors;
+			}
 		}
-		if (validate is null)
-		{
-			validate = mode == FormModes.Create;
-		}
+
+		validate ??= mode == FormModes.Create || mode == FormModes.Edit;
+
 		if (validate == true)
 		{
 			await ValidateFormAsync().ConfigureAwait(true);
 		}
+
 		StateHasChanged();
 	}
 

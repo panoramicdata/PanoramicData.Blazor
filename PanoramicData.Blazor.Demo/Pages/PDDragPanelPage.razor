@@ -1,0 +1,25 @@
+﻿@page "/pddragpanel"
+@using PanoramicData.Blazor.Services;
+
+<h1>PDDragPanel</h1>
+
+<DemoSourceView SourceFiles="Pages/PDDragPanelPage.razor, Pages/PDDragPanelPage.razor.cs">
+
+	<div>
+
+		<h2>Re-orderable List</h2>
+
+		<PDDragContainer Items="_jobs"
+						 TItem="Job"
+						 SelectionChanged="OnSelectionChanged">
+
+			<PDDragPanel TItem="Job"
+						 ItemOrderChanged="OnItemOrderChanged" />
+
+		</PDDragContainer>
+
+	</div>
+
+	<EventView />
+
+</DemoSourceView>

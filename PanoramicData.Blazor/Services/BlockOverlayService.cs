@@ -2,7 +2,7 @@
 
 /// <summary>
 /// See IBlockOverlayService for description.
-/// The BlockOverlay component can then implement the behavior as appropriate.
+/// The BlockOverlay component can then implement the behaviour as appropriate.
 /// </summary>
 public class BlockOverlayService : IBlockOverlayService
 {
@@ -10,7 +10,10 @@ public class BlockOverlayService : IBlockOverlayService
 
 	public event Action? OnHide;
 
-	public void Show(string? html = null)
+	public void Show()
+		=> OnShow?.Invoke(null);
+
+	public void Show(string? html)
 		=> OnShow?.Invoke(html);
 
 	public void Hide()

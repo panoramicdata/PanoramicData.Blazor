@@ -32,6 +32,11 @@ public partial class PDDropZone : IAsyncDisposable
 	[Parameter] public EventCallback<DropZoneEventArgs> Drop { get; set; }
 
 	/// <summary>
+	/// Event raised whenever the user finished pressing a key.
+	/// </summary>
+	[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
+
+	/// <summary>
 	/// Event raised whenever a file upload starts.
 	/// </summary>
 	[Parameter] public EventCallback<DropZoneUploadEventArgs> UploadStarted { get; set; }
@@ -134,25 +139,32 @@ public partial class PDDropZone : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_dotNetReference = DotNetObjectReference.Create(this);
-			var options = new
+			try
 			{
-				clickable = Clickable,
-				url = UploadUrl,
-				autoProcessQueue = false,
-				timeout = Timeout * 1000,
-				autoScroll = AutoScroll,
-				maxFilesize = MaxFileSize,
-				previewsContainer = PreviewContainer,
-				previewItemTemplate = PreviewTemplate
-			};
-			if (!string.IsNullOrWhiteSpace(UploadUrl))
-			{
-				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropZone.razor.js").ConfigureAwait(true);
-				if (_module != null)
+				_dotNetReference = DotNetObjectReference.Create(this);
+				var options = new
 				{
-					await _module.InvokeVoidAsync("initialize", $"#{Id}", options, SessionId, _dotNetReference).ConfigureAwait(true);
+					clickable = Clickable,
+					url = UploadUrl,
+					autoProcessQueue = false,
+					timeout = Timeout * 1000,
+					autoScroll = AutoScroll,
+					maxFilesize = MaxFileSize,
+					previewsContainer = PreviewContainer,
+					previewItemTemplate = PreviewTemplate
+				};
+				if (!string.IsNullOrWhiteSpace(UploadUrl))
+				{
+					_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropZone.razor.js").ConfigureAwait(true);
+					if (_module != null)
+					{
+						await _module.InvokeVoidAsync("initialize", $"#{Id}", options, SessionId, _dotNetReference).ConfigureAwait(true);
+					}
 				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}
@@ -172,29 +184,36 @@ public partial class PDDropZone : IAsyncDisposable
 		};
 	}
 
+	private Task OnKeyDown(KeyboardEventArgs args)
+	{
+		return KeyDown.InvokeAsync(args);
+	}
+
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadBegin")]
 	public async Task<string[]> OnUploadBeginAsync(DropZoneFile file)
 	{
-		if (file is null)
-		{
-			throw new ArgumentNullException(nameof(file));
-		}
+		ArgumentNullException.ThrowIfNull(file);
+
 		if (file.Path is null)
 		{
 			throw new ArgumentException("file's Path Property should not be null.", nameof(file));
 		}
+
 		if (file.Name is null)
 		{
 			throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 		}
-		var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId);
-		//			_batchProgress++;
-		args.BatchCount = _batchCount;
-		args.BatchProgress = _batchProgress;
+
+		var args = new DropZoneUploadEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId)
+		{
+			//_batchProgress++;
+			BatchCount = _batchCount,
+			BatchProgress = _batchProgress
+		};
 		await UploadStarted.InvokeAsync(args).ConfigureAwait(true);
 		if (args.FormFields.Count == 0)
 		{
-			return Array.Empty<string>();
+			return [];
 		}
 		else
 		{
@@ -203,44 +222,44 @@ public partial class PDDropZone : IAsyncDisposable
 			{
 				fields.Add($"{kvp.Key}={kvp.Value}");
 			}
-			return fields.ToArray();
+
+			return [.. fields];
 		}
 	}
 
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadProgress")]
 	public void OnUploadProgress(DropZoneFileUploadProgress file)
 	{
-		if (file is null)
-		{
-			throw new ArgumentNullException(nameof(file));
-		}
+		ArgumentNullException.ThrowIfNull(file);
+
 		if (file.Path is null)
 		{
 			throw new ArgumentException("file's Path Property should not be null.", nameof(file));
 		}
+
 		if (file.Name is null)
 		{
 			throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 		}
+
 		UploadProgress.InvokeAsync(new DropZoneUploadProgressEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId, file.Progress));
 	}
 
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadEnd")]
 	public void OnUploadEnd(DropZoneFileUploadOutcome file)
 	{
+		ArgumentNullException.ThrowIfNull(file);
 
-		if (file is null)
-		{
-			throw new ArgumentNullException(nameof(file));
-		}
 		if (file.Path is null)
 		{
 			throw new ArgumentException("file's Path Property should not be null.", nameof(file));
 		}
+
 		if (file.Name is null)
 		{
 			throw new ArgumentException("file's Name Property should not be null.", nameof(file));
 		}
+
 		var args = new DropZoneUploadCompletedEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId)
 		{
 			BatchCount = _batchCount,
@@ -251,6 +270,7 @@ public partial class PDDropZone : IAsyncDisposable
 		{
 			args.Reason = file.Reason;
 		}
+
 		UploadCompleted.InvokeAsync(args);
 	}
 
@@ -315,15 +335,12 @@ public partial class PDDropZone : IAsyncDisposable
 	}
 
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsProgress")]
-	public void OnAllUploadsProgress(double uploadProgress, long totalBytes, long totalBytesSent)
+	public void OnAllUploadsProgress(double uploadProgress, long totalBytes, long totalBytesSent) => AllUploadsProgress.InvokeAsync(new DropZoneAllProgressEventArgs
 	{
-		AllUploadsProgress.InvokeAsync(new DropZoneAllProgressEventArgs
-		{
-			TotalBytes = totalBytes,
-			TotalBytesSent = totalBytesSent,
-			UploadProgress = uploadProgress
-		});
-	}
+		TotalBytes = totalBytes,
+		TotalBytesSent = totalBytesSent,
+		UploadProgress = uploadProgress
+	});
 
 	public async ValueTask DisposeAsync()
 	{
@@ -335,6 +352,7 @@ public partial class PDDropZone : IAsyncDisposable
 				await _module.InvokeVoidAsync("dispose", Id).ConfigureAwait(true);
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
+
 			_dotNetReference?.Dispose();
 		}
 		catch

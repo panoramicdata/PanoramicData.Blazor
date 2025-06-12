@@ -1,16 +1,16 @@
 ﻿<div class="@($"pd-busy-overlay {(IsBusy ? "show" : "hide")} {CssClass}")">
-    @if(IsBusy)
-    {
-        <div class="overlay-content">
-            @if(OverlayContent is null)
-            {
-                <i class="@OverlayCssClass"></i>
-            }
-            else
-            {
-                @OverlayContent
-            }
-        </div>
-    }
-    @ChildContent
+	@if (IsBusy)
+	{
+		<div class="overlay-content">
+			@if (OverlayContent is null)
+			{
+				<i class="@OverlayCssClass"></i>
+			}
+			else
+			{
+				@OverlayContent
+			}
+		</div>
+	}
+	@ChildContent
 </div>

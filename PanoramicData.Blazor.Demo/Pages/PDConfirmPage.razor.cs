@@ -77,9 +77,7 @@ public partial class PDConfirmPage
 		}
 	}
 
-	private void OnCancelTokenClick()
-	{
+	private void OnCancelTokenClick() =>
 		// simulation of a task cancellation
 		_cancellationToken2.Cancel();
-	}
 }

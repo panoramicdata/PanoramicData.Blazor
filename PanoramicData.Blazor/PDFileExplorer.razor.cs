@@ -1,33 +1,35 @@
-﻿namespace PanoramicData.Blazor;
+﻿using PanoramicData.Blazor.PreviewProviders;
+
+namespace PanoramicData.Blazor;
 
 public partial class PDFileExplorer : IAsyncDisposable
 {
 	private static int _idSequence;
 	private string _deleteDialogMessage = string.Empty;
 	private string _conflictDialogMessage = string.Empty;
-	private string[] _conflictDialogList = new string[0];
-	private readonly SortCriteria _tableSort = new SortCriteria("Name", SortDirection.Ascending);
-	private readonly MenuItem _menuOpen = new MenuItem { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
-	private readonly MenuItem _menuDownload = new MenuItem { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
-	private readonly MenuItem _menuNewFolder = new MenuItem { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" };
-	private readonly MenuItem _menuUploadFiles = new MenuItem { Text = "Upload Files", IconCssClass = "fas fa-fw fa-upload" };
-	private readonly MenuItem _menuSep1 = new MenuItem { IsSeparator = true };
-	private readonly MenuItem _menuRename = new MenuItem { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" };
-	private readonly MenuItem _menuSep2 = new MenuItem { IsSeparator = true };
-	private readonly MenuItem _menuCopy = new MenuItem { Text = "Copy", IconCssClass = "fas fa-fw fa-copy" };
-	private readonly MenuItem _menuCut = new MenuItem { Text = "Cut", IconCssClass = "fas fa-fw fa-cut" };
-	private readonly MenuItem _menuPaste = new MenuItem { Text = "Paste", IconCssClass = "fas fa-fw fa-paste" };
-	private readonly MenuItem _menuSep3 = new MenuItem { IsSeparator = true };
-	private readonly MenuItem _menuDelete = new MenuItem { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
-	private readonly List<FileExplorerItem> _copyPayload = new List<FileExplorerItem>();
-	private readonly Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>> _conflictCache = new Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>>();
-	private readonly List<FileExplorerItem> _conflicts = new List<FileExplorerItem>();
+	private string[] _conflictDialogList = [];
+	private readonly SortCriteria _tableSort = new("Name", SortDirection.Ascending);
+	private readonly MenuItem _menuOpen = new() { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
+	private readonly MenuItem _menuDownload = new() { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
+	private readonly MenuItem _menuNewFolder = new() { Text = "New Folder", IconCssClass = "fas fa-fw fa-plus" };
+	private readonly MenuItem _menuUploadFiles = new() { Text = "Upload Files", IconCssClass = "fas fa-fw fa-upload" };
+	private readonly MenuItem _menuSep1 = new() { IsSeparator = true };
+	private readonly MenuItem _menuRename = new() { Text = "Rename", IconCssClass = "fas fa-fw fa-pencil-alt" };
+	private readonly MenuItem _menuSep2 = new() { IsSeparator = true };
+	private readonly MenuItem _menuCopy = new() { Text = "Copy", IconCssClass = "fas fa-fw fa-copy" };
+	private readonly MenuItem _menuCut = new() { Text = "Cut", IconCssClass = "fas fa-fw fa-cut" };
+	private readonly MenuItem _menuPaste = new() { Text = "Paste", IconCssClass = "fas fa-fw fa-paste" };
+	private readonly MenuItem _menuSep3 = new() { IsSeparator = true };
+	private readonly MenuItem _menuDelete = new() { Text = "Delete", IconCssClass = "fas fa-fw fa-trash-alt" };
+	private readonly List<FileExplorerItem> _copyPayload = [];
+	private readonly Dictionary<string, CachedResult<Task<DataResponse<FileExplorerItem>>>> _conflictCache = [];
+	private readonly List<FileExplorerItem> _conflicts = [];
 	private int _batchCount;
 	private int _batchProgress;
-	protected long _batchTotalBytes;
-	protected long _batchTotalBytesSent;
-	private readonly Dictionary<string, double> _batchFiles = new Dictionary<string, double>();
-	private bool _moveCopyPayload = false;
+	private long _batchTotalBytes;
+	private long _batchTotalBytesSent;
+	private readonly Dictionary<string, double> _batchFiles = [];
+	private bool _moveCopyPayload;
 	private string _pasteTarget = string.Empty;
 	private TreeNode<FileExplorerItem>? _selectedNode;
 	private PDTree<FileExplorerItem>? Tree { get; set; }
@@ -38,12 +40,32 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private PDModal? UploadDialog { get; set; }
 	private PDDropZone _dropZone1 = null!;
 	private PDDropZone _dropZone2 = null!;
-	public string FolderPath = string.Empty;
+	private string _folderPath = string.Empty;
 	private IJSObjectReference? _commonModule;
+	private ToolbarButton? _previewPanelButton;
+	private PDSplitter? _splitter;
+	private FileExplorerItem? _previewItem;
+	private double[] _lastSplitSizes = [20, 60, 20];
+
+	public string FolderPath { get => _folderPath; set => _folderPath = value; }
+
+	private int InitialPreviewSize => PreviewPanel == FilePreviewModes.OptionalOff ? 0 : 1;
+
+	private static bool IsParentDirectoryItem(FileExplorerItem item) => item.EntryType == FileExplorerItemType.Directory && item.Name == "..";
 
 	public string Id { get; private set; } = string.Empty;
+
 	public bool IsNavigating { get; private set; }
+
+	public bool PreviewPanelVisible { get; private set; } = true;
+
 	public string SessionId { get; private set; } = Guid.NewGuid().ToString();
+
+	public string GetItemDisplayName(FileExplorerItem? item) =>
+		item is null
+			? string.Empty
+			: $"{item.Name} {(item.Name != ".." && item.IsReadOnly ? $" {ReadOnlyPostfix}" : string.Empty)}".Trim();
+
 
 	#region Inject
 	[Inject] public IBlockOverlayService BlockOverlayService { get; set; } = null!;
@@ -70,9 +92,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public bool AllowRename { get; set; } = true;
 
 	/// <summary>
+	/// Determines whether the to rename items when conflicting with existing items.
+	/// </summary>
+	[Parameter] public bool AllowRenameConflicts { get; set; } = false;
+
+	/// <summary>
 	/// Determines whether the first node is automatically expanded on load.
 	/// </summary>
-	[Parameter] public bool AutoExpand { get; set; } = false;
+	[Parameter] public bool AutoExpand { get; set; }
 
 	/// <summary>
 	/// Gets or sets a delegate to be called before an item is renamed.
@@ -88,14 +115,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Sets the Table column configuration.
 	/// </summary>
 	[Parameter]
-	public List<PDColumnConfig> ColumnConfig { get; set; } = new List<PDColumnConfig>
-		{
+	public List<PDColumnConfig> ColumnConfig { get; set; } =
+		[
 			new PDColumnConfig { Id = "Icon", Title = "" },
 			new PDColumnConfig { Id = "Name", Title = "Name" },
 			new PDColumnConfig { Id = "Type", Title = "Type" },
 			new PDColumnConfig { Id = "Size", Title = "Size" },
 			new PDColumnConfig { Id = "Modified", Title = "Modified" }
-		};
+		];
 
 	/// <summary>
 	/// Determines the action taken when copying conflicting named items into a folder.
@@ -128,9 +155,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public EventCallback<DeleteArgs> DeleteRequest { get; set; }
 
 	/// <summary>
+	/// Function that calculates and returns the download url for the given item.
+	/// </summary>
+	[Parameter] public Func<FileExplorerItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
+
+	/// <summary>
 	/// An optional array of paths to be excluded.
 	/// </summary>
-	[Parameter] public string[] ExcludedPaths { get; set; } = System.Array.Empty<string>();
+	[Parameter] public string[] ExcludedPaths { get; set; } = [];
 
 	/// <summary>
 	/// Gets or sets a delegate to be called if an exception occurs.
@@ -147,6 +179,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Event raised whenever the current folder changes.
 	/// </summary>
 	[Parameter] public EventCallback<FileExplorerItem> FolderChanged { get; set; }
+
+	/// <summary>
+	/// Provides an optional function that allows a bagde icon CSS class to be provided for items.
+	/// </summary>
+	[Parameter] public Func<FileExplorerItem, IconInfo?>? GetItemBadgeCssClass { get; set; }
 
 	/// <summary>
 	/// Provides a function that determines the CSS class for a given item.
@@ -179,9 +216,29 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public EventCallback<MoveCopyArgs> MoveCopyConflict { get; set; }
 
 	/// <summary>
+	/// Gets or sets an optional File Preview provider.
+	/// </summary>
+	[Parameter] public IPreviewProvider PreviewProvider { get; set; } = new DefaultPreviewProvider();
+
+	/// <summary>
+	/// Preview Panel mode.
+	/// </summary>
+	[Parameter] public FilePreviewModes PreviewPanel { get; set; } = FilePreviewModes.Off;
+
+	/// <summary>
+	/// Gets or sets string to append after a Read-Only items name.
+	/// </summary>
+	[Parameter] public string ReadOnlyPostfix { get; set; } = "(ro)";
+
+	/// <summary>
 	/// Gets or sets an event callback raised when the component has perform all it initialization.
 	/// </summary>
 	[Parameter] public EventCallback Ready { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether right clicking on an item selects it?
+	/// </summary>
+	[Parameter] public bool RightClickSelectsItem { get; set; } = true;
 
 	/// <summary>
 	/// Determines whether the navigate up to the parent folder button is visible or not.
@@ -192,7 +249,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Determines where sub-folders show an entry (..) to allow navigation to the parent folder.
 	/// </summary>
 	[Parameter] public bool ShowParentFolder { get; set; } = true;
-
 
 	/// <summary>
 	/// Determines whether the toolbar is visible.
@@ -245,7 +301,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Sets the Table context menu items.
 	/// </summary>
 	[Parameter]
-	public List<MenuItem> TableContextItems { get; set; } = new List<MenuItem>();
+	public List<MenuItem> TableContextItems { get; set; } = [];
 
 	/// <summary>
 	/// Event raised when user requests to download one or more files.
@@ -261,7 +317,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Sets the Table context menu items.
 	/// </summary>
 	[Parameter]
-	public List<ToolbarItem> ToolbarItems { get; set; } = new List<ToolbarItem>();
+	public List<ToolbarItem> ToolbarItems { get; set; } = [];
 
 	/// <summary>
 	/// Event raised whenever the user clicks on a context menu item from the tree.
@@ -271,7 +327,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <summary>
 	/// Sets the Tree context menu items.
 	/// </summary>
-	[Parameter] public List<MenuItem> TreeContextItems { get; set; } = new List<MenuItem>();
+	[Parameter] public List<MenuItem> TreeContextItems { get; set; } = [];
 
 	/// <summary>
 	/// Optional sort function to use on sibling tree nodes.
@@ -325,11 +381,17 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	#endregion
 
-	protected override async Task OnInitializedAsync()
+	protected override Task OnInitializedAsync()
 	{
 		Id = $"pdfe{++_idSequence}";
-		TableContextItems.AddRange(new[]
-			{
+
+		PreviewProvider = new FileExplorerPreviewProvider()
+		{
+			FileExplorer = this
+		};
+
+		TableContextItems.AddRange(
+			[
 			_menuOpen,
 			_menuDownload,
 			_menuNewFolder,
@@ -341,9 +403,9 @@ public partial class PDFileExplorer : IAsyncDisposable
 			_menuPaste,
 			_menuSep3,
 			_menuDelete
-		});
-		TreeContextItems.AddRange(new[]
-		{
+		]);
+		TreeContextItems.AddRange(
+		[
 			_menuNewFolder,
 			_menuRename,
 			_menuSep2,
@@ -352,24 +414,46 @@ public partial class PDFileExplorer : IAsyncDisposable
 			_menuPaste,
 			_menuSep3,
 			_menuDelete
-		});
+		]);
 
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
-		var isTouchDevice = _commonModule != null && await _commonModule.InvokeAsync<bool>("isTouchDevice").ConfigureAwait(true);
+		return Task.CompletedTask;
+	}
 
-		ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline", IsVisible = ShowNavigateUpButton });
-		if (isTouchDevice)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+
+		if (firstRender)
 		{
-			ToolbarItems.Add(new ToolbarButton { Key = "open", Text = "Open", ToolTip = "Navigate into folder", IconCssClass = "fas fa-fw fa-folder-open", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
-		}
-		ToolbarItems.Add(new ToolbarButton { Key = "refresh", Text = "Refresh", ToolTip = "Refreshes the current folder", IconCssClass = "fas fa-fw fa-sync-alt", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
-		ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
-		ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
-		if (!String.IsNullOrWhiteSpace(UploadUrl))
-		{
-			TableContextItems.Insert(1, _menuUploadFiles);
-			TreeContextItems.Insert(0, _menuUploadFiles);
-			ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+			var isTouchDevice = _commonModule != null && await _commonModule.InvokeAsync<bool>("isTouchDevice").ConfigureAwait(true);
+
+			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline", IsVisible = ShowNavigateUpButton });
+			if (isTouchDevice)
+			{
+				ToolbarItems.Add(new ToolbarButton { Key = "open", Text = "Open", ToolTip = "Navigate into folder", IconCssClass = "fas fa-fw fa-folder-open", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			}
+
+			ToolbarItems.Add(new ToolbarButton { Key = "refresh", Text = "Refresh", ToolTip = "Refreshes the current folder", IconCssClass = "fas fa-fw fa-sync-alt", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+
+			if (PreviewPanel == FilePreviewModes.OptionalOff || PreviewPanel == FilePreviewModes.OptionalOn)
+			{
+				_previewPanelButton = new ToolbarButton { Key = "preview", Text = "Preview", ToolTip = "Toggles display of the Preview panel", IconCssClass = "fas fa-fw fa-eye", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" };
+				ToolbarItems.Add(_previewPanelButton);
+			}
+
+			ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
+			if (!string.IsNullOrWhiteSpace(UploadUrl))
+			{
+				TableContextItems.Insert(1, _menuUploadFiles);
+				TreeContextItems.Insert(0, _menuUploadFiles);
+				ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+			}
+
+			if (PreviewPanel == FilePreviewModes.OptionalOff)
+			{
+				PreviewPanelVisible = false;
+			}
 		}
 	}
 
@@ -409,7 +493,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 
 		// descend folder by folder
-		var parts = path.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+		var parts = path.Split(["/"], StringSplitOptions.RemoveEmptyEntries);
 		for (var i = 0; i < parts.Length; i++)
 		{
 			var subPath = "/" + string.Join("/", parts.Take(i + 1));
@@ -449,9 +533,10 @@ public partial class PDFileExplorer : IAsyncDisposable
 		if (node?.Data != null && FolderPath != node.Data.Path)
 		{
 			FolderPath = node.Data.Path;
-			await RefreshTableAsync().ConfigureAwait(true);
+			await RefreshTableAsync().ConfigureAwait(true); // will clear selection and preview
 			await RefreshToolbarAsync().ConfigureAwait(true);
 			await FolderChanged.InvokeAsync(node.Data).ConfigureAwait(true);
+			_previewItem = node.Data;
 		}
 	}
 
@@ -570,6 +655,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
 				args.Cancel = renameArgs.Cancel;
 			}
+
 			if (!AllowRename || args.Node.ParentNode == null || args.Node?.Data?.CanRename == false || string.IsNullOrEmpty(args.Node?.Data?.ParentPath))
 			{
 				args.Cancel = true;
@@ -586,7 +672,13 @@ public partial class PDFileExplorer : IAsyncDisposable
 			var newPath = $"{item.ParentPath.TrimEnd('/')}/{args.NewValue}";
 
 			// check for and disallow duplicate folder name
-			if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
+			if (args.NewValue.StartsWith('.'))
+			{
+				args.Cancel = true;
+				await OnException(new PDFileExplorerException($"Names may not begin with a period (.)")).ConfigureAwait(true);
+				return;
+			}
+			else if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
 			{
 				args.Cancel = true;
 
@@ -595,6 +687,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					await OnException(new PDFileExplorerException($"A Folder named '{args.NewValue}' already exists")).ConfigureAwait(true);
 				}
+
 				return;
 			}
 
@@ -718,25 +811,38 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	private async Task OnTableAfterEditAsync(TableAfterEditEventArgs<FileExplorerItem> args)
 	{
-		// cancel is new name is empty
-		if (args.NewValues.ContainsKey("Name"))
+		// cancel if new name is empty
+		if (args.NewValues.TryGetValue("Name", out object? value))
 		{
-			var newName = args.NewValues["Name"]?.ToString();
-			if (string.IsNullOrWhiteSpace(newName))
+			var newName = value?.ToString();
+			if (newName == args.Item.Name)
+			{
+				args.Cancel = true;
+			}
+			else if (string.IsNullOrWhiteSpace(newName))
 			{
 				args.Cancel = true;
 				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("A value is required")).ConfigureAwait(true);
+			}
+			else if (newName.StartsWith('.'))
+			{
+				args.Cancel = true;
+				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("Names may not begin with a period (.)")).ConfigureAwait(true);
 			}
 			else
 			{
 				var previousPath = args.Item.Path;
 				var newPath = $"{args.Item.ParentPath}/{newName}";
-				if (newPath.StartsWith("//"))
+				if (newPath.StartsWith("//", StringComparison.Ordinal))
 				{
-					newPath = newPath.Substring(1);
+					newPath = newPath[1..];
 				}
-				// check for duplicate name
-				if (Table!.ItemsToDisplay.Any(x => x.Path == newPath) || Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newName, StringComparison.OrdinalIgnoreCase)))
+
+				// check for duplicate name, ignoring case for renaming same file changing case
+				var justChangingCase = string.Equals(args.Item.Name, newName, StringComparison.OrdinalIgnoreCase);
+				var hasSameFullPath = Table!.ItemsToDisplay.Any(x => x.Path == newPath);
+				var hasExistingNameIgnoringCase = Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newName, StringComparison.OrdinalIgnoreCase));
+				if (!justChangingCase && (hasSameFullPath || hasExistingNameIgnoringCase))
 				{
 					args.Cancel = true;
 					await OnException(new PDFileExplorerException($"An item named '{newName}' already exists")).ConfigureAwait(true);
@@ -775,20 +881,21 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 	}
 
-	private bool ShowSeparator(MenuItem separator, IEnumerable<MenuItem> items)
+	private static bool ShowSeparator(MenuItem separator, IEnumerable<MenuItem> items)
 	{
 		var visibleItems = items.Where(x => x.IsVisible).ToList();
-		if (visibleItems.Count == 0 || separator == visibleItems[0] || separator == visibleItems[visibleItems.Count - 1])
+		if (visibleItems.Count == 0 || separator == visibleItems[0] || separator == visibleItems[^1])
 		{
 			return false;
 		}
+
 		var idx = visibleItems.IndexOf(separator);
 		return idx <= 0 || !visibleItems[idx - 1].IsSeparator;
 	}
 
 	private async Task OnTableContextMenuUpdateStateAsync(MenuItemsEventArgs args)
 	{
-		var selectedItems = Table!.GetSelectedItems() ?? Array.Empty<FileExplorerItem>();
+		var selectedItems = Table!.GetSelectedItems() ?? [];
 		var validSelection = IsValidSelection();
 		var selectedFolder = _selectedNode?.Data;
 
@@ -845,10 +952,10 @@ public partial class PDFileExplorer : IAsyncDisposable
 		_menuDownload.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
 		_menuNewFolder.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
 		_menuUploadFiles.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
-		_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && selectedItems[0].CanRename;
-		_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete);
-		_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanCopyMove);
-		_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete);
+		_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && selectedItems[0].CanRename && !IsParentDirectoryItem(selectedItems[0]);
+		_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete) && !selectedItems.Any(x => IsParentDirectoryItem(x));
+		_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanCopyMove) && !selectedItems.Any(x => IsParentDirectoryItem(x));
+		_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete) && !selectedItems.Any(x => IsParentDirectoryItem(x));
 		_menuPaste.IsVisible = canPaste;
 		_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
 		_menuSep3.IsVisible = ShowSeparator(_menuSep3, TableContextItems);
@@ -907,7 +1014,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			}
 			else if (menuItem.Text == "New Folder")
 			{
-				await CreateNewFolderAsync().ConfigureAwait(true);
+				await CreateNewFolderAsync(false).ConfigureAwait(true);
 			}
 			else if (menuItem.Text == "Upload Files")
 			{
@@ -922,30 +1029,40 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private async Task OnTableSelectionChangedAsync()
 	{
 		await RefreshToolbarAsync().ConfigureAwait(true);
-		var selection = Table?.GetSelectedItems() ?? new FileExplorerItem[0];
+		var selection = Table?.GetSelectedItems() ?? [];
 		await SelectionChanged.InvokeAsync(selection).ConfigureAwait(true);
+		_previewItem = selection.Length == 1 ? selection.First() : null;
 	}
 
 	private async Task DirectoryRenameAsync(string oldPath, string newPath)
 	{
-		// synchronize existing node paths for tree and table
-		Tree!.RootNode.Walk((x) =>
+		if (Tree != null && Table != null)
 		{
-			if (x.Data != null)
+			// synchronize existing node paths for tree and table
+			Tree.RootNode.Walk((x) =>
 			{
-				if (x.Data.Path == oldPath)
+				if (x.Data != null)
 				{
-					x.Data.Name = FileExplorerItem.GetNameFromPath(newPath);
+					if (x.Data.Path == oldPath)
+					{
+						x.Data.Name = FileExplorerItem.GetNameFromPath(newPath);
+					}
+
+					x.Key = x.Key.ReplacePathPrefix(oldPath, newPath);
+					x.Data.Path = x.Data.Path.ReplacePathPrefix(oldPath, newPath);
 				}
-				x.Key = x.Key.ReplacePathPrefix(oldPath, newPath);
-				x.Data.Path = x.Data.Path.ReplacePathPrefix(oldPath, newPath);
+
+				return true;
+			});
+			Table.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(oldPath, newPath));
+			// re-apply sort to tree and table
+			if (Tree.SelectedNode != null)
+			{
+				await OnTreeSelectionChangeAsync(Tree.SelectedNode).ConfigureAwait(true);
+				await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
 			}
-			return true;
-		});
-		Table!.ItemsToDisplay.ToList().ForEach(x => x.Path = x.Path.ReplacePathPrefix(oldPath, newPath));
-		if (Tree?.SelectedNode != null)
-		{
-			await OnTreeSelectionChangeAsync(Tree.SelectedNode).ConfigureAwait(true);
+
+			await Table.SortAsync(Table.SortCriteria);
 		}
 	}
 
@@ -1004,6 +1121,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			_batchFiles.Remove(args.FullPath);
 		}
+
 		_batchProgress = args.BatchProgress;
 
 		// get virtual file item
@@ -1012,6 +1130,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			item.IsUploading = false;
 		}
+
 		await UploadCompleted.InvokeAsync(args).ConfigureAwait(true);
 	}
 
@@ -1025,12 +1144,12 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				ConflictResolution = ConflictResolution,
 				TargetPath = targetRootFolder,
-				Payload = args.Files.Select(x => new FileExplorerItem { State = x.Key, Path = $"{x.Path?.TrimEnd('/')}/{x.Name?.TrimStart('/')}" }).ToList()
+				Payload = [.. args.Files.Select(x => new FileExplorerItem { State = x.Key, Path = $"{x.Path?.TrimEnd('/')}/{x.Name?.TrimStart('/')}" })]
 			};
 			await GetUploadConflictsAsync(moveCopyArgs).ConfigureAwait(true);
-			if (moveCopyArgs.Conflicts.Any())
+			if (moveCopyArgs.Conflicts.Count != 0)
 			{
-				var result = await PromptUserForConflictResolution(moveCopyArgs.Conflicts.Select(x => x.Path).ToArray(), true, false).ConfigureAwait(true);
+				var result = await PromptUserForConflictResolution([.. moveCopyArgs.Conflicts.Select(x => x.Path)], true, false).ConfigureAwait(true);
 				if (result == ConflictResolutions.Cancel)
 				{
 					args.Cancel = true;
@@ -1043,7 +1162,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					// remove files from queue before proceeding
 					var ids = moveCopyArgs.Conflicts.Select(x => x.State).ToArray();
-					args.FilesToSkip = args.Files.Where(x => ids.Contains(x.Key)).ToArray();
+					args.FilesToSkip = [.. args.Files.Where(x => ids.Contains(x.Key))];
 				}
 			}
 		}
@@ -1101,13 +1220,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 					};
 					Table.ItemsToDisplay.Add(item);
 				}
+
 				return item;
 			}
-			else if (args.Path.StartsWith(FolderPath.TrimEnd('/') + "/")) // in higher folder
+			else if (args.Path.StartsWith(FolderPath.TrimEnd('/') + "/", StringComparison.Ordinal)) // in higher folder
 			{
-				var relativePath = args.Path.Substring(FolderPath.Length).TrimStart('/');
+				var relativePath = args.Path[FolderPath.Length..].TrimStart('/');
 				var idx = relativePath.IndexOf('/');
-				var subFolder = idx == -1 ? relativePath : relativePath.Substring(0, idx);
+				var subFolder = idx == -1 ? relativePath : relativePath[..idx];
 				var item = Table.ItemsToDisplay.Find(x => x.Name == subFolder);
 				if (item is null)
 				{
@@ -1122,10 +1242,35 @@ public partial class PDFileExplorer : IAsyncDisposable
 					};
 					Table.ItemsToDisplay.Add(item);
 				}
+
 				return item;
 			}
 		}
+
 		return null;
+	}
+
+	private async Task OnTogglePreviewPanelAsync()
+	{
+		if (_splitter != null)
+		{
+			if (PreviewPanelVisible)
+			{
+				_lastSplitSizes = await _splitter.GetSizesAsync().ConfigureAwait(true);
+				if (_lastSplitSizes.Length > 2)
+				{
+					await _splitter.SetSizesAsync([_lastSplitSizes[0], _lastSplitSizes[1] + _lastSplitSizes[2], 0]).ConfigureAwait(true);
+				}
+			}
+			else
+			{
+				await _splitter.SetSizesAsync(_lastSplitSizes).ConfigureAwait(true);
+			}
+
+			PreviewPanelVisible = !PreviewPanelVisible;
+
+			await RefreshToolbarAsync();
+		}
 	}
 
 	private async Task OnToolbarButtonClickAsync(KeyedEventArgs<MouseEventArgs> args)
@@ -1142,10 +1287,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					await NavigateFolderAsync(selectedFolderPath).ConfigureAwait(true);
 				}
+
 				break;
 
 			case "create-folder":
-				await CreateNewFolderAsync().ConfigureAwait(true);
+				await CreateNewFolderAsync(false).ConfigureAwait(true);
 				break;
 
 			case "delete":
@@ -1157,10 +1303,19 @@ public partial class PDFileExplorer : IAsyncDisposable
 				{
 					await UploadDialog.ShowAsync().ConfigureAwait(true);
 				}
+
 				break;
 
 			case "refresh":
 				await RefreshAllAsync().ConfigureAwait(true);
+				break;
+
+			case "preview":
+				if (PreviewPanel == FilePreviewModes.OptionalOff || PreviewPanel == FilePreviewModes.OptionalOn)
+				{
+					await OnTogglePreviewPanelAsync().ConfigureAwait(true);
+				}
+
 				break;
 
 			default:
@@ -1184,7 +1339,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		// source and target are file items - and target is folder?
 		if (args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory)
 		{
-			List<FileExplorerItem> payload = new List<FileExplorerItem>();
+			List<FileExplorerItem> payload = [];
 			if (args.Payload is List<FileExplorerItem> mfe)
 			{
 				payload = mfe;
@@ -1211,10 +1366,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 			await MoveCopyFilesAsync(payload, targetPath, args.Ctrl).ConfigureAwait(true);
 		}
 	}
-	private async Task OnException(Exception exception)
-	{
-		await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
-	}
+	private async Task OnException(Exception exception) => await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
 
 	protected override void OnAfterRender(bool firstRender)
 	{
@@ -1223,24 +1375,24 @@ public partial class PDFileExplorer : IAsyncDisposable
 			if (DeleteDialog != null)
 			{
 				DeleteDialog.Buttons.Clear();
-				DeleteDialog.Buttons.AddRange(new[]
-				{
+				DeleteDialog.Buttons.AddRange(
+				[
 					new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check", ShiftRight = true },
 					new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
-				});
+				]);
 			}
 
 			// add third button needed for conflict resolution
 			if (ConflictDialog != null)
 			{
 				ConflictDialog.Buttons.Clear();
-				ConflictDialog.Buttons.AddRange(new[]
-				{
+				ConflictDialog.Buttons.AddRange(
+				[
 					new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
 					new ToolbarButton { Text = "Rename", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-pen-square" },
 					new ToolbarButton { Text = "Skip", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-forward" },
 					new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
-				});
+				]);
 			}
 
 			// set up buttons on upload dialog
@@ -1268,6 +1420,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -1277,6 +1430,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			await Tree!.ToggleNodeIsExpandedAsync(_selectedNode).ConfigureAwait(true);
 		}
+
 		var node = Tree!.RootNode.Find(path);
 		if (node != null)
 		{
@@ -1293,17 +1447,32 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 	}
 
-	private async Task CreateNewFolderAsync()
+	private async Task CreateNewFolderAsync(bool createInTree = true)
 	{
 		if (Tree?.SelectedNode?.Data != null)
 		{
-			// current logic uses tree node sub-items to create a new folder with a unique name
-			// ensure that the node is expanded so all sub-items are fetched.
-			if (!Tree.SelectedNode.IsExpanded)
+			// determine default name
+			var newFolderName = "New Folder";
+			if (createInTree)
 			{
-				await Tree.ToggleNodeIsExpandedAsync(Tree.SelectedNode).ConfigureAwait(true);
+				// current logic uses tree node sub-items to create a new folder with a unique name
+				// ensure that the node is expanded so all sub-items are fetched.
+				if (!Tree.SelectedNode.IsExpanded)
+				{
+					await Tree.ToggleNodeIsExpandedAsync(Tree.SelectedNode).ConfigureAwait(true);
+				}
+
+				newFolderName = Tree!.SelectedNode.MakeUniqueText("New Folder") ?? "New Folder";
 			}
-			var newFolderName = Tree!.SelectedNode.MakeUniqueText("New Folder") ?? "New Folder";
+			else
+			{
+				for (var count = 2; Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newFolderName, StringComparison.OrdinalIgnoreCase)); count++)
+				{
+					newFolderName = $"New Folder ({count})";
+				}
+			}
+
+			// create new folder via api
 			var newPath = $"{Tree.SelectedNode.Data.Path.TrimEnd('/')}/{newFolderName}";
 			var newItem = new FileExplorerItem
 			{
@@ -1317,11 +1486,26 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				// refresh current node, select new node and finally begin edit mode
 				await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
-				var newNode = Tree.RootNode.Find(newItem.Path);
-				if (newNode != null)
+
+				if (createInTree)
 				{
-					await Tree.SelectNode(newNode).ConfigureAwait(true);
-					await Tree.BeginEdit().ConfigureAwait(true);
+					var newNode = Tree.RootNode.Find(newItem.Path);
+					if (newNode != null)
+					{
+						await Tree.SelectNode(newNode).ConfigureAwait(true);
+						await Tree.BeginEdit().ConfigureAwait(true);
+					}
+				}
+				else
+				{
+					// refresh table, select new folder row and begin edit
+					await Table!.RefreshAsync().ConfigureAwait(true);
+					var row = Table!.ItemsToDisplay.FirstOrDefault(x => x.Name == newFolderName);
+					if (row != null && Table!.KeyField!(row)?.ToString() is string key)
+					{
+						await Table!.SelectItemAsync(key).ConfigureAwait(true);
+						await Table!.BeginEditAsync().ConfigureAwait(true);
+					}
 				}
 			}
 		}
@@ -1333,7 +1517,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			var deleteArgs = new DeleteArgs
 			{
-				Items = new[] { _selectedNode.Data },
+				Items = [_selectedNode.Data],
 				Resolution = DeleteArgs.DeleteResolutions.Prompt
 			};
 
@@ -1445,8 +1629,8 @@ public partial class PDFileExplorer : IAsyncDisposable
 				// check if target folder is source folder?
 				var parentPaths = payload.Select(x => x.ParentPath).Distinct().ToArray();
 				conflictArgs.ConflictResolution = parentPaths.Any(x => x == targetPath)
-					? await PromptUserForConflictResolution(Array.Empty<string>(), false, false, "The source and destination filenames are the same.").ConfigureAwait(true)
-					: await PromptUserForConflictResolution(conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray(), showOverwrite).ConfigureAwait(true);
+					? await PromptUserForConflictResolution([], false, AllowRenameConflicts, "The source and destination filenames are the same.").ConfigureAwait(true)
+					: await PromptUserForConflictResolution([.. conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path))], showOverwrite).ConfigureAwait(true);
 			}
 		}
 
@@ -1493,7 +1677,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 							// check source and destination are not same file
 							if (newPath == source.Path)
 							{
-								await ExceptionHandler.InvokeAsync(new Exception("Operation Failed: Source and Destination are the same")).ConfigureAwait(true);
+								await ExceptionHandler.InvokeAsync(new InvalidOperationException("Operation Failed: Source and Destination are the same")).ConfigureAwait(true);
 								continue;
 							}
 							else
@@ -1546,7 +1730,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 	}
 
-	private string GetUniqueName(FileExplorerItem source, List<FileExplorerItem> targetItems)
+	private static string GetUniqueName(FileExplorerItem source, List<FileExplorerItem> targetItems)
 	{
 		var count = 1;
 		var newName = PostFixFilename(FileExplorerItem.GetNameFromPath(source.Path), " Copy");
@@ -1554,30 +1738,30 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			newName = PostFixFilename(FileExplorerItem.GetNameFromPath(source.Path), $" Copy {count++}");
 		}
+
 		return newName;
 	}
 
-	private string PostFixFilename(string filename, string postfix)
+	private static string PostFixFilename(string filename, string postfix)
 	{
 		if (string.IsNullOrWhiteSpace(filename))
 		{
 			return postfix.Trim();
 		}
-		var idx = filename.IndexOf('.');
+
+		var idx = filename.LastIndexOf('.');
 		if (idx == -1)
 		{
 			return $"{filename}{postfix}";
 		}
-		return $"{filename.Substring(0, idx)}{postfix}{filename.Substring(idx)}";
+
+		return $"{filename[..idx]}{postfix}{filename[idx..]}";
 	}
 
 	/// <summary>
 	/// Forces the tree component of the file explorer to be refreshed.
 	/// </summary>
-	public async Task RefreshTreeAsync()
-	{
-		await Tree!.RefreshAsync().ConfigureAwait(true);
-	}
+	public async Task RefreshTreeAsync() => await Tree!.RefreshAsync().ConfigureAwait(true);
 
 	/// <summary>
 	/// Refreshes the tree and table panes.
@@ -1599,6 +1783,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 
 		Table.Selection.Clear();
+		_previewItem = null;
 
 		// explicitly state search path else fetch will use previous value as OnParametersSet not yet called
 		await Table
@@ -1647,7 +1832,15 @@ public partial class PDFileExplorer : IAsyncDisposable
 		var deleteButton = ToolbarItems.Find(x => x.Key == "delete");
 		if (deleteButton != null)
 		{
-			deleteButton.IsEnabled = Table!.Selection.Count > 0 && selectedItems.All(x => x.CanDelete);
+			deleteButton.IsEnabled = Table!.Selection.Count > 0
+				&& selectedItems.All(x => x.CanDelete)
+				&& !selectedItems.Any(x => IsParentDirectoryItem(x));
+		}
+
+		// preview button
+		if (_previewPanelButton != null)
+		{
+			_previewPanelButton.IconCssClass = PreviewPanelVisible ? "fas fa-fw fa-eye-slash" : "fas fa-fw fa-eye";
 		}
 
 		// allow application to alter toolbar state
@@ -1661,7 +1854,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	{
 		get
 		{
-			return Table!.Selection.ToArray();
+			return [.. Table!.Selection];
 		}
 	}
 
@@ -1681,13 +1874,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 				CachedResult<Task<DataResponse<FileExplorerItem>>>? cachedTask = null;
 				lock (_conflictCache)
 				{
-					if (_conflictCache.ContainsKey(folderPath) && _conflictCache[folderPath].HasExpired)
+					if (_conflictCache.TryGetValue(folderPath, out CachedResult<Task<DataResponse<FileExplorerItem>>>? value) && value.HasExpired)
 					{
 						_conflictCache.Remove(folderPath);
 					}
-					if (_conflictCache.ContainsKey(folderPath))
+
+					if (_conflictCache.TryGetValue(folderPath, out CachedResult<Task<DataResponse<FileExplorerItem>>>? value2))
 					{
-						cachedTask = _conflictCache[folderPath];
+						cachedTask = value2;
 					}
 					else
 					{
@@ -1699,12 +1893,13 @@ public partial class PDFileExplorer : IAsyncDisposable
 						_conflictCache.Add(folderPath, cachedTask);
 					}
 				}
+
 				if (cachedTask != null)
 				{
 					// wait for cache to load
 					var result = await cachedTask.Result.ConfigureAwait(true);
 					var names = folder.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray();
-					args.TargetItems = result.Items.ToList();
+					args.TargetItems = [.. result.Items];
 					foreach (var folderItem in folder)
 					{
 						var match = args.TargetItems.FirstOrDefault(x => FileExplorerItem.GetNameFromPath(x.Path) == FileExplorerItem.GetNameFromPath(folderItem.Path));
@@ -1716,16 +1911,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 				}
 			}
 		}
-		args.Conflicts = conflicts.OrderBy(x => x.Path).ToList();
+
+		args.Conflicts = [.. conflicts.OrderBy(x => x.Path)];
 	}
 
 	/// <summary>
 	/// Gets the folder currently selected in the tree view.
 	/// </summary>
-	public FileExplorerItem? GetTreeSelectedFolder()
-	{
-		return Tree?.SelectedNode?.Data;
-	}
+	public FileExplorerItem? GetTreeSelectedFolder() => Tree?.SelectedNode?.Data;
 
 	/// <summary>
 	/// Populates the move copy arguments with conflicting items.
@@ -1736,7 +1929,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		var names = args.Payload.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray();
 		var request = new DataRequest<FileExplorerItem> { SearchText = args.TargetPath };
 		var response = await DataProvider.GetDataAsync(request, CancellationToken.None).ConfigureAwait(true);
-		args.TargetItems = response.Items.ToList();
+		args.TargetItems = [.. response.Items];
 		foreach (var item in response.Items)
 		{
 			if (names.Any(x => string.Equals(item.Name, x, StringComparison.OrdinalIgnoreCase)))
@@ -1744,6 +1937,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				conflicts.Add(item);
 			}
 		}
+
 		args.Conflicts = conflicts;
 	}
 
@@ -1754,10 +1948,18 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			namesSummary.Add($"+ {names.Count() - 5} other items");
 		}
+
 		_conflictDialogMessage = message ?? $"{names.Count()} conflicts found : -";
-		_conflictDialogList = namesSummary.ToArray();
-		ConflictDialog!.Buttons.First(x => x.Key == "Overwrite").IsVisible = showOverwrite;
-		ConflictDialog!.Buttons.First(x => x.Key == "Rename").IsVisible = showRename;
+		_conflictDialogList = [.. namesSummary];
+		var buttons = ConflictDialog!.Buttons;
+		buttons.First(x => x.Key == "Overwrite").IsVisible = showOverwrite;
+		buttons.First(x => x.Key == "Rename").IsVisible = showRename;
+		// shift first button right
+		foreach (var btn in buttons)
+		{
+			btn.ShiftRight = buttons.FirstOrDefault(x => x.IsVisible) == btn;
+		}
+
 		StateHasChanged();
 		if (ConflictDialog != null)
 		{
@@ -1771,6 +1973,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 				_ => ConflictResolutions.Skip
 			};
 		}
+
 		return ConflictResolutions.Skip;
 	}
 
@@ -1780,31 +1983,36 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			return string.Empty;
 		}
+
 		var defaultCss = $"{(item.IsHidden ? "file-hidden" : "")} {(item.IsSystem ? "file-system" : "")} {(item.IsReadOnly ? "file-readonly" : "")}";
 		if (GetItemCssClass != null)
 		{
 			return GetItemCssClass(item) ?? defaultCss;
 		}
+
 		return defaultCss;
 	}
 
-	private string GetIconCssClass(FileExplorerItem? item)
+	public string GetIconCssClass(FileExplorerItem? item)
 	{
 		if (item != null)
 		{
 			// allow app supplied icon css
 			var cssClass = GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
-			//}
+
 			if (cssClass is null)
 			{
 				return item.EntryType == FileExplorerItemType.File ? "far fa-fw fa-file" : "fa fa-fw fa-folder";
 			}
+
 			if (cssClass.Length == 0)
 			{
 				return "far fa-fw fa-hidden fa-file";
 			}
+
 			return cssClass;
 		}
+
 		return string.Empty;
 	}
 
@@ -1812,7 +2020,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	{
 		if (TreeSort is null)
 		{
-			return item1.Name.CompareTo(item2.Name);
+			return string.Compare(item1.Name, item2.Name, StringComparison.Ordinal);
 		}
 		else
 		{
@@ -1834,6 +2042,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			await _commonModule.InvokeVoidAsync("removeClass", "pdfe-drop-zone-1", "dz-started").ConfigureAwait(true);
 		}
+
 		var tasks = new List<Task>
 		{
 			_dropZone1.ClearAsync(),

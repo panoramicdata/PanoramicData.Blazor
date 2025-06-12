@@ -2,176 +2,179 @@
 @typeparam TItem
 
 <div id="@Id"
-     class="pdtable @(IsEnabled ? "" : "disabled") @CssClass"
-     tabindex="0"
-     @attributes="DivAttributes"
-     @onmousedown="OnDivMouseDown"
-     @oncontextmenu:stopPropagation
-     @oncontextmenu:preventDefault
-     @ondrop="OnDragDropAsync"
-     @onkeydown="OnKeyDownAsync">
-    <table class="table @TableClass"
-           @onmousedown="OnTableMouseDown">
-        <thead>
-            @if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Bottom)
-            {
-                <tr>
-                    <td colspan="@(ActualColumnsToDisplay.Count() + (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple ? 1 : 0))">
-                        <div class="">
-                            <PDPager IsEnabled="IsEnabled"
-                                 NoItemsText=""
-                                 PageCriteria="PageCriteria"
-                                 PageSizeChoices="PageSizeChoices"
-                                 Size="Size" />
-                        </div>
-                    </td>
-                </tr>
-            }
-            <tr>
-                @if (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple && ItemsToDisplay.Any())
-                {
-                    <th>
-                        <input checked="@(ItemsToDisplay.All(x => IsSelected(x)))"
-                           class="form-check-input"
-                           disabled="@(!IsEnabled)"
-                           type="checkbox"
-                           @onclick:stopPropagation
-                           @oninput="@((a) => OnToggleAllSelection(Convert.ToBoolean(a.Value)))"
-                           @onmousedown:stopPropagation
-                           @onmouseup:stopPropagation />
-                    </th>
-                }
-                @foreach (var column in ActualColumnsToDisplay)
-                {
-                    <th scope="col" class="@column.ThClass" style="white-space: nowrap;">
-                        <div class="hdr">
-                            @if (column.HeaderTemplate is null)
-                            {
-                                <span class="text-nowrap" title="@column.HelpText">@column.GetTitle()</span>
-                            }
-                            else
-                            {
-                                @column.HeaderTemplate
-                            }
-                            @if (column.Filterable)
-                            {
-                                <PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column, f))"
-                                  Filter="column.Filter"
-                                  FilterChanged="OnFilterChanged"
-                                  DataType="@column.GetFilterDataType()"
-                                  Nullable="@column.GetFilterIsNullable()" />
-                            }
-                            @if (column.Sortable)
-                            {
-                                <span class="pd-pointer pd-sort" @onclick="@(async () => await SortByAsync(column))">@((MarkupString)column.SortIcon)</span>
-                            }
-                        </div>
-                    </th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @if (ItemsToDisplay.Any())
-            {
-                foreach (var item in ItemsToDisplay)
-                {
-                    <tr class="pdtablerow @GetDynamicRowClasses(item)"
-                        id="@(KeyField is null ? null : KeyField(item)?.ToString())"
-                        @attributes="RowAttributes"
-                        @oncontextmenu:preventDefault
-                        @onmousedown="@((args) => OnRowMouseDownAsync(args, item))"
-                        @onclick="@((args) => OnRowClick(args, item))"
-                        @ondblclick="@((args) => OnRowDoubleClick(args, item))"
-                        @ondragstart="OnDragStart"
-                        @ondragend="OnDragEnd"
-                        @ondrop:stopPropagation
-                        @ondrop="@((args) => OnRowDragDropAsync(args, item))">
+	 class="pdtable @(IsEnabled ? "" : "disabled") @CssClass"
+	 tabindex="0"
+	 @attributes="DivAttributes"
+	 @onmousedown="OnDivMouseDown"
+	 @oncontextmenu:stopPropagation
+	 @oncontextmenu:preventDefault
+	 @ondrop="OnDragDropAsync"
+	 @onkeydown="OnKeyDownAsync"
+     @onkeydown:stopPropagation>
+	<table class="table @TableClass"
+		   @onmousedown="OnTableMouseDown">
+		<thead>
+			@if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Bottom)
+			{
+				<tr>
+					<td colspan="@(ActualColumnsToDisplay.Count() + (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple ? 1 : 0))">
+						<div class="">
+							<PDPager IsEnabled="IsEnabled"
+									 NoItemsText=""
+									 PageCriteria="PageCriteria"
+									 PageSizeChoices="PageSizeChoices"
+									 Size="Size" />
+						</div>
+					</td>
+				</tr>
+			}
+			<tr>
+				@if (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple && ItemsToDisplay.Any())
+				{
+					<th>
+						<input checked="@(ItemsToDisplay.All(x => IsSelected(x)))"
+							   class="form-check-input"
+							   disabled="@(!IsEnabled)"
+							   type="checkbox"
+						@onclick:stopPropagation
+							   @oninput="@((a) => OnToggleAllSelection(Convert.ToBoolean(a.Value)))"
+						@onmousedown:stopPropagation
+						@onmouseup:stopPropagation />
+					</th>
+				}
+				@foreach (var column in ActualColumnsToDisplay)
+				{
+					<th id="@column.Id" class="@column.ThClass @((column.UserSelectable ?? UserSelectable) == false ? "noselect" : "")" style="white-space: nowrap;">
+						<div class="hdr">
+							@if (column.HeaderTemplate is null)
+							{
+								<span class="text-nowrap" title="@column.HelpText">@column.GetTitle()</span>
+							}
+							else
+							{
+								@column.HeaderTemplate
+							}
+							@if (column.Filterable)
+							{
+								<PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column, f))"
+										  Filter="column.Filter"
+										  FilterChanged="OnFilterChanged"
+                                          Options="@column.FilterOptions"
+										  ShowValues="@column.FilterShowSuggestedValues"
+										  DataType="@column.GetFilterDataType()"
+										  Nullable="@column.GetFilterIsNullable()" />
+							}
+							@if (column.Sortable)
+							{
+								<span class="pd-pointer pd-sort" @onclick="@(async () => await SortByAsync(column))">@((MarkupString)column.SortIcon)</span>
+							}
+						</div>
+					</th>
+				}
+			</tr>
+		</thead>
+		<tbody>
+			@if (ItemsToDisplay.Any())
+			{
+				foreach (var item in ItemsToDisplay)
+				{
+					<tr class="pdtablerow @GetDynamicRowClasses(item)"
+						id="@(KeyField is null ? null : KeyField(item)?.ToString())"
+						@attributes="GetRowAttributes(item)"
+					@oncontextmenu:preventDefault
+						@onmouseup="@((args) => OnRowMouseUpAsync(args, item))"
+						@onclick="@((args) => OnRowClick(args, item))"
+						@ondblclick="@((args) => OnRowDoubleClick(args, item))"
+						@ondragstart="@((args) => OnRowDragStart(args, item))"
+						@ondragend="OnDragEnd"
+					@ondrop:stopPropagation
+						@ondrop="@((args) => OnRowDragDropAsync(args, item))">
 
-                        @if (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple)
-                        {
-                            <td>
-                                <input checked="@IsSelected(item)"
-                                   class="form-check-input"
-                                   disabled="@(!IsEnabled || !RowIsEnabled(item))"
-                                   type="checkbox"
-                                   @onclick:stopPropagation
-                                   @oninput="@((a) => OnToggleSelection(item, Convert.ToBoolean(a.Value)))"
-                                   @onmousedown:stopPropagation
-                                   @onmouseup:stopPropagation />
-                            </td>
-                        }
+						@if (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple)
+						{
+							<td>
+								<input checked="@IsSelected(item)"
+									   class="form-check-input"
+									   disabled="@(!IsEnabled || !RowIsEnabled(item))"
+									   type="checkbox"
+								@onclick:stopPropagation
+									   @oninput="@((a) => OnToggleSelection(item, Convert.ToBoolean(a.Value)))"
+								@onmousedown:stopPropagation
+								@onmouseup:stopPropagation />
+							</td>
+						}
 
-                        @foreach (var column in ActualColumnsToDisplay)
-                        {
-                            var row = ItemsToDisplay.IndexOf(item);
-                            <td class="@GetDynamicCellClasses(column, item)">
-                                @if (IsColumnInEditMode(column, item) && column.Field != null)
-                                {
-                                    if (column.EditTemplate == null)
-                                    {
-                                        <input id="@($"{IdEditPrefix}-{row}-{column.Id}")"
-                                           type="@(column.IsPassword || column.IsSensitive(item, null) ? "password" : "text")"
-                                           value="@($"{column.GetValue(item)}")"
-                                           class="pdtable_edit"
-                                           @oninput="(a) => OnEditInput(column, a.Value == null ? string.Empty : a.Value.ToString())"
-                                           @onblur="async () => await OnEditBlurAsync().ConfigureAwait(true)"
-                                           @onmousedown:stopPropagation
-                                           @onclick:stopPropagation
-                                           @oncontextmenu:stopPropagation />
-                                    }
-                                    else
-                                    {
-                                        @column.EditTemplate(item)
-                                    }
-                                }
-                                else
-                                {
-                                    if (column.ShowCopyButton(item) && !string.IsNullOrWhiteSpace(column.GetRenderValue(item)))
-                                    {
-                                        <PDClipboard CssClass="me-1" Text="@(column.GetRenderValue(item))" />
-                                    }
-                                    if (column.Template == null)
-                                    {
-                                        @column.GetRenderValue(item)
-                                    }
-                                    else
-                                    {
-                                        @column.Template(item)
-                                    }
-                                }
-                            </td>
-                        }
-                    </tr>
-                }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="@ActualColumnsToDisplay.Count()" style="text-align: center;">
-                        @NoDataMessage
-                    </td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            @if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Top)
-            {
-                <tr>
-                    <td colspan="@(ActualColumnsToDisplay.Count() + (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple ? 1 : 0))">
-                        <div class="">
-                            <PDPager IsEnabled="IsEnabled"
-                                 NoItemsText=""
-                                 PageCriteria="PageCriteria"
-                                 PageSizeChoices="PageSizeChoices"
-                                 Size="Size" />
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tfoot>
-    </table>
+						@foreach (var column in ActualColumnsToDisplay)
+						{
+							var row = ItemsToDisplay.IndexOf(item);
+							<td class="@GetDynamicCellClasses(column, item)">
+								@if (IsColumnInEditMode(column, item) && column.Field != null)
+								{
+									if (column.EditTemplate == null)
+									{
+										<input id="@($"{_idEditPrefix}-{row}-{column.Id}")"
+											   type="@(column.IsPassword || column.IsSensitive(item, null) ? "password" : "text")"
+											   value="@($"{column.GetValue(item)}")"
+											   class="pdtable_edit"
+											   @oninput="(a) => OnEditInput(column, a.Value == null ? string.Empty : a.Value.ToString())"
+											   @onblur="async () => await OnEditBlurAsync().ConfigureAwait(true)"
+										@onmousedown:stopPropagation
+										@onclick:stopPropagation
+										@oncontextmenu:stopPropagation />
+									}
+									else
+									{
+										@column.EditTemplate(item)
+									}
+								}
+								else
+								{
+									if (column.ShowCopyButton(item) && !string.IsNullOrWhiteSpace(column.GetRenderValue(item)))
+									{
+										<PDClipboard CssClass="me-1" Text="@(column.GetRenderValue(item))" />
+									}
+									if (column.Template == null)
+									{
+										@column.GetRenderValue(item)
+									}
+									else
+									{
+										@column.Template(item)
+									}
+								}
+							</td>
+						}
+					</tr>
+				}
+			}
+			else
+			{
+				<tr>
+					<td colspan="@ActualColumnsToDisplay.Count()" style="text-align: center;">
+						@NoDataMessage
+					</td>
+				</tr>
+			}
+		</tbody>
+		<tfoot>
+			@if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Top)
+			{
+				<tr>
+					<td colspan="@(ActualColumnsToDisplay.Count() + (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple ? 1 : 0))">
+						<div class="">
+							<PDPager IsEnabled="IsEnabled"
+									 NoItemsText=""
+									 PageCriteria="PageCriteria"
+									 PageSizeChoices="PageSizeChoices"
+									 Size="Size" />
+						</div>
+					</td>
+				</tr>
+			}
+		</tfoot>
+	</table>
 </div>
 
 <CascadingValue Value="(PDTable<TItem>)this" Name="Table">
-    @ChildContent
+	@ChildContent
 </CascadingValue>

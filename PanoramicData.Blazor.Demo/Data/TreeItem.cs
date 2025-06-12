@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor.Demo.Data;
 
-public class TreeItem
+public class TreeItem : IWebLink
 {
 	public int Id { get; set; }
 	public int? ParentId { get; set; }
@@ -9,8 +9,13 @@ public class TreeItem
 	public string IconCssClass { get; set; } = string.Empty;
 	public bool IsGroup { get; set; }
 
-	public override string ToString()
-	{
-		return $"{Id} - {Name} (order {Order})";
-	}
+	#region IWebLink members
+
+	public string Target { get; set; } = string.Empty;
+
+	public string Url { get; set; } = string.Empty;
+
+	#endregion
+
+	public override string ToString() => $"{Id} - {Name} (order {Order})";
 }

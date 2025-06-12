@@ -1,15 +1,16 @@
-﻿using System.IO;
+﻿using BlazorMonaco.Editor;
+using System.IO;
 
 namespace PanoramicData.Blazor.Demo.Shared;
 
 public partial class DemoSourceView
 {
 	private string ActiveTab { get; set; } = "Demo";
-	private const string _sourceBaseUrl = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/release/2.x/PanoramicData.Blazor.Demo";
+	private const string _sourceBaseUrl = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/main/PanoramicData.Blazor.Demo";
 	private readonly HttpClient _httpClient = new();
-	private readonly Dictionary<string, SourceFile> _sourceFiles = new();
+	private readonly Dictionary<string, SourceFile> _sourceFiles = [];
 	private string _activeSourceFile = string.Empty;
-	private MonacoEditor? Editor { get; set; }
+	private StandaloneCodeEditor? Editor { get; set; }
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
 
@@ -50,7 +51,7 @@ public partial class DemoSourceView
 			_sourceFiles.Add("_Host.cshtml", new SourceFile
 			{
 				Name = "_Host.cshtml",
-				Url = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/release/2.x/PanoramicData.Blazor.Web/Pages/_Host.cshtml"
+				Url = "https://raw.githubusercontent.com/panoramicdata/PanoramicData.Blazor/main/PanoramicData.Blazor.Web/Pages/_Host.cshtml"
 			});
 			// load first source file
 			if (!string.IsNullOrWhiteSpace(_activeSourceFile))
@@ -75,23 +76,10 @@ public partial class DemoSourceView
 		}
 	}
 
-	private string SourceCode
-	{
-		get
-		{
-			if (_sourceFiles.ContainsKey(_activeSourceFile))
-			{
-				return _sourceFiles[_activeSourceFile].Content;
-			}
+	private string SourceCode =>
+		_sourceFiles.TryGetValue(_activeSourceFile, out var value) ? value.Content : string.Empty;
 
-			return "";
-		}
-	}
-
-	public static string GetUrl(string url)
-	{
-		return url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : $"{_sourceBaseUrl}/{url}";
-	}
+	public static string GetUrl(string url) => url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : $"{_sourceBaseUrl}/{url}";
 
 	private async Task<string> LoadSourceAsync(string url)
 	{
@@ -107,9 +95,8 @@ public partial class DemoSourceView
 
 	private async Task OnFileClick(string name)
 	{
-		if (_sourceFiles.ContainsKey(name))
+		if (_sourceFiles.TryGetValue(name, out SourceFile? sourceFile))
 		{
-			var sourceFile = _sourceFiles[name];
 			if (string.IsNullOrWhiteSpace(sourceFile.Content))
 			{
 				sourceFile.Content = await LoadSourceAsync(sourceFile.Url).ConfigureAwait(true);
@@ -123,32 +110,26 @@ public partial class DemoSourceView
 			if (extnChanged)
 			{
 				var model = await Editor.GetModel().ConfigureAwait(true);
-				await MonacoEditorBase.SetModelLanguage(model, GetLanguageForFile(_activeSourceFile)).ConfigureAwait(true);
+				await Global.SetModelLanguage(model, GetLanguageForFile(_activeSourceFile)).ConfigureAwait(true);
 			}
 		}
 	}
 
-	private StandaloneEditorConstructionOptions EditorConstructionOptions(MonacoEditor _)
+	private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor _) => new()
 	{
-		return new StandaloneEditorConstructionOptions
-		{
-			AutomaticLayout = true,
-			Language = GetLanguageForFile(_activeSourceFile),
-			Value = SourceCode,
-			ReadOnly = true
-		};
-	}
+		AutomaticLayout = true,
+		Language = GetLanguageForFile(_activeSourceFile),
+		Value = SourceCode,
+		ReadOnly = true
+	};
 
-	private static string GetLanguageForFile(string filename)
+	private static string GetLanguageForFile(string filename) => Path.GetExtension(filename) switch
 	{
-		return Path.GetExtension(filename) switch
-		{
-			".cs" => "csharp",
-			".css" => "css",
-			".html" => "html",
-			".cshtml" => "razor",
-			".razor" => "razor",
-			_ => "csharp"
-		};
-	}
+		".cs" => "csharp",
+		".css" => "css",
+		".html" => "html",
+		".cshtml" => "razor",
+		".razor" => "razor",
+		_ => "csharp"
+	};
 }

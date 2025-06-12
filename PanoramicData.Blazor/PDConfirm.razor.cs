@@ -13,12 +13,12 @@ public partial class PDConfirm : PDModalBase
 		HideOnBackgroundClick = false;
 		ShowClose = false;
 		Title = "Confirm Action";
-		Buttons = new List<ToolbarItem>
-		{
+		Buttons =
+		[
 			_yesButton,
 			_noButton,
 			_cancelButton
-		};
+		];
 	}
 
 	/// <summary>
@@ -34,7 +34,7 @@ public partial class PDConfirm : PDModalBase
 	public RenderFragment? ChildContent { get; set; }
 
 	/// <summary>
-	/// Gets the message to be displayed if the ChildContent not suupplied.
+	/// Gets the message to be displayed if the ChildContent not supplied.
 	/// </summary>
 	[Parameter]
 	public string Message { get; set; } = "Are you sure?";
@@ -69,20 +69,12 @@ public partial class PDConfirm : PDModalBase
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
-	public new Task<Outcomes> ShowAndWaitResultAsync() => ShowAndWaitResultAsync(CancellationToken.None);
-
-	/// <summary>
-	/// Displays the Modal Dialog and awaits the users choice.
-	/// </summary>
-	public new async Task<Outcomes> ShowAndWaitResultAsync(CancellationToken cancellationToken)
+	public new async Task<Outcomes> ShowAndWaitResultAsync() => await Modal.ShowAndWaitResultAsync() switch
 	{
-		return await Modal.ShowAndWaitResultAsync(cancellationToken) switch
-		{
-			ModalResults.YES => Outcomes.Yes,
-			ModalResults.NO => Outcomes.No,
-			_ => Outcomes.Cancel
-		};
-	}
+		ModalResults.YES => Outcomes.Yes,
+		ModalResults.NO => Outcomes.No,
+		_ => Outcomes.Cancel
+	};
 
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.
@@ -108,6 +100,19 @@ public partial class PDConfirm : PDModalBase
 	/// Displays the Modal Dialog and awaits the users choice.
 	/// </summary>
 	public Task<Outcomes> ShowAndWaitResultAsync(string message, string title) => ShowAndWaitResultAsync(message, title, default);
+
+	/// <summary>
+	/// Displays the Modal Dialog and awaits the users choice.
+	/// </summary>
+	public new async Task<Outcomes> ShowAndWaitResultAsync(CancellationToken cancellationToken)
+	{
+		return await Modal.ShowAndWaitResultAsync(cancellationToken) switch
+		{
+			ModalResults.YES => Outcomes.Yes,
+			ModalResults.NO => Outcomes.No,
+			_ => Outcomes.Cancel
+		};
+	}
 
 	/// <summary>
 	/// Displays the Modal Dialog and awaits the users choice.

@@ -1,14 +1,4 @@
-﻿<style>
-	.pd-editor {
-		/*min-height: calc(100vh - 250px);*/
-	}
-
-	.monaco-editor-container {
-		height: 500px;
-		border: 1px solid gray;
-	}
-</style>
-<ul class="nav nav-pills p-2">
+﻿<ul class="nav nav-pills p-2">
 	<li class="nav-item @(ActiveTab == "Demo" ? "" : "pd-pointer")" @onclick="@(() => OnChangeTab("Demo"))">
 		<span class="nav-link @(ActiveTab == "Demo" ? "active" : "")">Demo</span>
 	</li>
@@ -16,6 +6,7 @@
 		<span class="nav-link @(ActiveTab == "Source" ? "active" : "")">Source</span>
 	</li>
 </ul>
+
 <div class="demo-source-view">
 	@if (ActiveTab == "Demo")
 	{
@@ -34,9 +25,9 @@
 					</li>
 				}
 			</ul>
-			<MonacoEditor @ref="Editor"
+			<StandaloneCodeEditor @ref="Editor"
 						  Id="pd-source-code"
-						  CssClass="pd-editor"
+						  CssClass="pd-editor h-500"
 						  ConstructionOptions="EditorConstructionOptions" />
 		</div>
 	}

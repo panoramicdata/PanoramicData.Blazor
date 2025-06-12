@@ -6,7 +6,7 @@
 <DemoSourceView SourceFiles="Pages/PDButtonPage.razor, Pages/PDButtonPage.razor.cs">
 
     <div>
-        <PDButton Text="Click Me"
+        <PDButton Text="Counter++"
                   IconCssClass="fas fa-fw fa-plus"
                   CssClass="btn btn-primary"
                   ShortcutKey="_shortcut1"
@@ -18,6 +18,34 @@
             <span class="ms-2">Button clicked @Counter Times</span>
         }
     </div>
+
+    <div class="mt-2">
+        <PDButton Text="Long running operation"
+                  IconCssClass="fas fa-fw fa-cog"
+                  CssClass="btn btn-secondary"
+                  ToolTip="@($"Click me to start long running operation")"
+                  Operation="DoLongRunningOperation"
+                  OperationIconCssClass="fas fa-fw fa-cog fa-spin">
+        </PDButton>
+    </div>
+
+    <div class="mt-2">
+        <div class="d-flex">
+            <PDButton CssClass="btn btn-secondary"
+                      IconCssClass="@($"fas fa-fw fa-random")"
+                      Text="Toggle button state >"
+                      ToolTip="@($"Click me to enable/disable adjacent button")"
+                      Click="@(() => _buttonEnabled = !_buttonEnabled)">
+            </PDButton>
+            <PDButton CssClass="btn btn-secondary ms-2"
+                      IconCssClass="@($"fas fa-fw {(_buttonEnabled ? "fa-toggle-on" : "fa-toggle-off")}")"
+                      IsEnabled="_buttonEnabled"
+                      Text="@(_buttonEnabled ? "Enabled" : "Disabled")"
+                      ToolTip="@($"This button does nothing")">
+            </PDButton>
+        </div>
+    </div>
+
 
     <div class="mt-2">
         <PDLinkButton Text="Launch 1"

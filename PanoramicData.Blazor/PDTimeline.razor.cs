@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDTimeline : IAsyncDisposable
+public partial class PDTimeline : IAsyncDisposable, IEnablable
 {
 	public delegate ValueTask<DataPoint[]> DataProviderDelegate(DateTime start, DateTime end, TimelineScale scale, CancellationToken cancellationToken);
 
@@ -19,7 +19,7 @@ public partial class PDTimeline : IAsyncDisposable
 	private int _selectionEndIndex = -1;
 	private int _lastSelectionStartIndex;
 	private int _lastSelectionEndIndex;
-	private TimeRange? _selectionRange = null;
+	private TimeRange? _selectionRange;
 	private ElementReference _svgSelectionHandleStart;
 	private ElementReference _svgSelectionHandleEnd;
 	private bool _isSelectionStartDragging;
@@ -40,7 +40,11 @@ public partial class PDTimeline : IAsyncDisposable
 	private DateTime _lastMinDateTime;
 	private DateTime? _lastMaxDateTime;
 	private IJSObjectReference? _commonModule;
-	private readonly Dictionary<int, DataPoint> _dataPoints = new Dictionary<int, DataPoint>();
+	private readonly Dictionary<int, DataPoint> _dataPoints = [];
+
+	private DateTime _lastQueryEnd = DateTime.MinValue;
+	private DateTime _lastQueryStart = DateTime.MinValue;
+	private TimelineScale _lastQueryScale = TimelineScale.Years;
 
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -116,6 +120,7 @@ public partial class PDTimeline : IAsyncDisposable
 				}
 			}
 		}
+
 		return false;
 	}
 
@@ -141,13 +146,17 @@ public partial class PDTimeline : IAsyncDisposable
 				}
 			}
 		}
+
 		return false;
 	}
 
-	public async Task Clear()
+	public async Task Clear(bool clearSelection = true)
 	{
 		_dataPoints.Clear();
-		await ClearSelection().ConfigureAwait(true);
+		if (clearSelection)
+		{
+			await ClearSelection().ConfigureAwait(true);
+		}
 	}
 
 	public async Task ClearSelection()
@@ -170,6 +179,7 @@ public partial class PDTimeline : IAsyncDisposable
 				await _module.InvokeVoidAsync("dispose", Id).ConfigureAwait(true);
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
+
 			_objRef?.Dispose();
 		}
 		catch
@@ -185,14 +195,9 @@ public partial class PDTimeline : IAsyncDisposable
 
 	public TimelineScale? GetScaleToFit(DateTime? date1 = null, DateTime? date2 = null)
 	{
-		if (date1 is null)
-		{
-			date1 = RoundedMinDateTime;
-		}
-		if (date2 is null)
-		{
-			date2 = RoundedMaxDateTime;
-		}
+		date1 ??= RoundedMinDateTime;
+		date2 ??= RoundedMaxDateTime;
+
 		var viewportColumns = _canvasWidth > 0 ? (int)Math.Floor(_canvasWidth / (double)Options.Bar.Width) : 0;
 		for (var i = 0; i < Options.General.Scales.Length - 1; i++)
 		{
@@ -203,6 +208,7 @@ public partial class PDTimeline : IAsyncDisposable
 				return newScale;
 			}
 		}
+
 		return Options.General.Scales.FirstOrDefault();
 	}
 
@@ -215,8 +221,8 @@ public partial class PDTimeline : IAsyncDisposable
 	{
 		double max = 0;
 
-		var tempArray = points.Where(x => x != null && x.SeriesValues.Length > 0).ToArray();
-		if (tempArray.Any())
+		DataPoint[] tempArray = [.. points.Where(x => x != null && x.SeriesValues.Length > 0)];
+		if (tempArray.Length != 0)
 		{
 			max = tempArray.Max(x => x.SeriesValues.Sum(y => YValueTransform(y)));
 		}
@@ -230,9 +236,9 @@ public partial class PDTimeline : IAsyncDisposable
 		for (var i = 0; i < _viewportColumns; i++)
 		{
 			var key = _columnOffset + i;
-			if (_dataPoints.ContainsKey(key))
+			if (_dataPoints.TryGetValue(key, out DataPoint? value))
 			{
-				points[i] = _dataPoints[key];
+				points[i] = value;
 			}
 			else if (!_loading)
 			{
@@ -243,7 +249,8 @@ public partial class PDTimeline : IAsyncDisposable
 				};
 			}
 		}
-		return points.ToArray();
+
+		return [.. points];
 	}
 
 	private bool IsPointEnabled(DataPoint point)
@@ -255,6 +262,7 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			return false;
 		}
+
 		return true;
 	}
 
@@ -269,32 +277,42 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			_panHandleX = _canvasWidth - _panHandleWidth;
 		}
-		_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
+
+		_columnOffset = (int)Math.Floor(_panHandleX / _canvasWidth * _totalColumns);
 	}
 
-	protected async override Task OnAfterRenderAsync(bool firstRender)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (firstRender && JSRuntime is not null)
 		{
-			_objRef = DotNetObjectReference.Create(this);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTimeline.razor.js").ConfigureAwait(true);
-			if (_module != null)
+			try
 			{
-				await _module.InvokeVoidAsync("initialize", Id, Options, _objRef).ConfigureAwait(true);
+				_objRef = DotNetObjectReference.Create(this);
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTimeline.razor.js").ConfigureAwait(true);
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync("initialize", Id, Options, _objRef).ConfigureAwait(true);
+				}
+
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				if (_commonModule != null)
+				{
+					_canvasHeight = (int)await _commonModule.InvokeAsync<double>("getHeight", _svgPlotElement).ConfigureAwait(true);
+					_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true);
+					_canvasX = (int)await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true);
+				}
+
+				if (Options.General.AutoRefresh)
+				{
+					await SetScale(Scale, true);
+				}
+				// notify app
+				await Initialized.InvokeAsync().ConfigureAwait(true);
 			}
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-			if (_commonModule != null)
+			catch
 			{
-				_canvasHeight = (int)(await _commonModule.InvokeAsync<double>("getHeight", _svgPlotElement).ConfigureAwait(true));
-				_canvasWidth = (int)(await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true));
-				_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true));
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
-			if (Options.General.AutoRefresh)
-			{
-				await SetScale(Scale, true);
-			}
-			// notify app
-			await Initialized.InvokeAsync().ConfigureAwait(true);
 		}
 	}
 
@@ -319,6 +337,7 @@ public partial class PDTimeline : IAsyncDisposable
 			{
 				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
 			}
+
 			await SetSelectionFromDrag(index, index).ConfigureAwait(true);
 		}
 	}
@@ -388,6 +407,7 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			_isPanDragging = true;
 		}
+
 		if (_isPanDragging)
 		{
 			MovePanHandle(_panHandleX + (args.ClientX - _panDragOrigin));
@@ -417,6 +437,7 @@ public partial class PDTimeline : IAsyncDisposable
 				refresh = true;
 			}
 		}
+
 		if (refresh && !Options.General.FetchAll)
 		{
 			await RefreshAsync().ConfigureAwait(true);
@@ -455,8 +476,10 @@ public partial class PDTimeline : IAsyncDisposable
 	{
 		if (_commonModule != null)
 		{
+			_canvasX = (int)(await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true));
 			_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true);
 		}
+
 		await SetScale(Scale, true).ConfigureAwait(true);
 		await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 	}
@@ -552,12 +575,16 @@ public partial class PDTimeline : IAsyncDisposable
 		}
 	}
 
-	public void PanTo(DateTime dateTime, TimelinePositions position = TimelinePositions.Center)
+	public void PanTo(DateTime dateTime)
+		=> PanTo(dateTime, TimelinePositions.Center);
+
+	public void PanTo(DateTime dateTime, TimelinePositions position)
 	{
 		if (dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
 		{
 			dateTime = MaxDateTime ?? DateTime.Now;
 		}
+
 		var maxOffset = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime) - _viewportColumns;
 		if (maxOffset <= 0)
 		{
@@ -574,6 +601,7 @@ public partial class PDTimeline : IAsyncDisposable
 			{
 				newOffset = Scale.PeriodsBetween(RoundedMinDateTime, Scale.PeriodEnd(dateTime)) - _viewportColumns;
 			}
+
 			if (newOffset >= 0 && newOffset <= maxOffset)
 			{
 				//Console.WriteLine($"Old Offset = {_columnOffset}, New Offset = {newOffset}, TotalColumns = {_totalColumns}");
@@ -585,35 +613,43 @@ public partial class PDTimeline : IAsyncDisposable
 		_panHandleX = (_columnOffset / (double)_totalColumns) * (double)_canvasWidth;
 	}
 
-	public async Task RefreshAsync()
+	public async Task RefreshAsync(bool force = false)
 	{
 		if (DataProvider != null && MinDateTime != DateTime.MinValue)
 		{
-			// cancel previous query?
-			if (_refreshCancellationToken != null)
-			{
-				_refreshCancellationToken.Cancel();
-				_refreshCancellationToken = null;
-			}
-
-			// either fetch all data points for scale, or just the current viewport
-			_loading = true;
 			var start = Options.General.FetchAll ? RoundedMinDateTime : Scale.AddPeriods(RoundedMinDateTime, _columnOffset);
 			var end = Options.General.FetchAll ? RoundedMaxDateTime : Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, _columnOffset + _viewportColumns));
-			_refreshCancellationToken = new CancellationTokenSource();
-			var points = await DataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
-			foreach (var point in points)
+
+			// only proceed if query is different to last one
+			if (force || start != _lastQueryStart || end != _lastQueryEnd || Scale != _lastQueryScale)
 			{
-				//point.PeriodIndex =  point.StartTime.TotalPeriodsSince(MinDateTime, Scale);
-				point.PeriodIndex = Scale.PeriodsBetween(RoundedMinDateTime, point.StartTime);
-				if (!_dataPoints.ContainsKey(point.PeriodIndex))
+				_lastQueryEnd = end;
+				_lastQueryStart = start;
+				_lastQueryScale = Scale;
+
+				// cancel previous query?
+				if (_refreshCancellationToken != null)
 				{
-					_dataPoints.Add(point.PeriodIndex, point);
+					_refreshCancellationToken.Cancel();
+					_refreshCancellationToken = null;
 				}
+
+				// either fetch all data points for scale, or just the current viewport
+				_loading = true;
+				_refreshCancellationToken = new CancellationTokenSource();
+				var points = await DataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
+				foreach (var point in points)
+				{
+					//point.PeriodIndex =  point.StartTime.TotalPeriodsSince(MinDateTime, Scale);
+					point.PeriodIndex = Scale.PeriodsBetween(RoundedMinDateTime, point.StartTime);
+					_dataPoints.TryAdd(point.PeriodIndex, point);
+				}
+
+				_loading = false;
+				await Refreshed.InvokeAsync(null).ConfigureAwait(true);
 			}
-			_loading = false;
-			await Refreshed.InvokeAsync(null).ConfigureAwait(true);
 		}
+
 		StateHasChanged();
 	}
 
@@ -652,7 +688,6 @@ public partial class PDTimeline : IAsyncDisposable
 			var previousCenter = _previousScale.AddPeriods(_previousScale.PeriodStart(RoundedMinDateTime), _columnOffset + (_viewportColumns / 2));
 			var scaleChanged = scale != _previousScale;
 			var previousScale = _previousScale;
-			var zoomChange = Comparer<TimelineScale>.Default.Compare(scale, previousScale);
 
 			// should we restrict zoom out?
 			var restrictCheck = scaleChanged && Options.General.RestrictZoomOut
@@ -674,11 +709,14 @@ public partial class PDTimeline : IAsyncDisposable
 				return;
 			}
 
-			// clear display if scale has changed
+			if (scaleChanged || forceRefresh)
+			{
+				_dataPoints.Clear();
+			}
+
 			if (scaleChanged)
 			{
 				await ScaleChanged.InvokeAsync(Scale).ConfigureAwait(true);
-				_dataPoints.Clear();
 			}
 
 			// calculate visible columns
@@ -691,6 +729,7 @@ public partial class PDTimeline : IAsyncDisposable
 				{
 					_panHandleX = _canvasWidth - _panHandleWidth;
 				}
+
 				_columnOffset = (int)Math.Floor((_panHandleX / (double)_canvasWidth) * _totalColumns);
 			}
 
@@ -707,7 +746,7 @@ public partial class PDTimeline : IAsyncDisposable
 			PanTo(dateTime ?? previousCenter, reposition);
 
 			// refresh data for new scale?
-			await RefreshAsync().ConfigureAwait(true);
+			await RefreshAsync(forceRefresh).ConfigureAwait(true);
 
 			// mark state as changed
 			StateHasChanged();
@@ -727,16 +766,19 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			start = RoundedMaxDateTime;
 		}
+
 		if (end > RoundedMaxDateTime)
 		{
 			end = RoundedMaxDateTime;
 		}
+
 		if (!Options.General.AllowDisableSelection)
 		{
 			if (DisableAfter != DateTime.MinValue && (end >= DisableAfter))
 			{
 				end = DisableAfter;
 			}
+
 			if (DisableBefore != DateTime.MinValue && (start < DisableBefore))
 			{
 				start = DisableBefore;
@@ -749,6 +791,7 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			_selectionStartIndex = 0;
 		}
+
 		_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, end) - 1;
 
 		// ensure selection is not beyond max datetime
@@ -807,9 +850,7 @@ public partial class PDTimeline : IAsyncDisposable
 				: Scale.PeriodStart(Scale.AddPeriods(RoundedMinDateTime, endIndex));
 			if (startTime > endTime)
 			{
-				var tmp = startTime;
-				startTime = endTime;
-				endTime = tmp;
+				(endTime, startTime) = (startTime, endTime);
 			}
 
 			// limit selection range to enabled range?
@@ -820,6 +861,7 @@ public partial class PDTimeline : IAsyncDisposable
 					endTime = DisableAfter;
 					_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, endTime) - 1;
 				}
+
 				if (DisableBefore != DateTime.MinValue && (startTime < DisableBefore))
 				{
 					startTime = DisableBefore;
@@ -871,7 +913,10 @@ public partial class PDTimeline : IAsyncDisposable
 		}
 	}
 
-	public async Task ZoomToAsync(DateTime date1, DateTime date2, TimelinePositions position = TimelinePositions.Center)
+	public async Task ZoomToAsync(DateTime date1, DateTime date2)
+		=> await ZoomToAsync(date1, date2, TimelinePositions.Center);
+
+	public async Task ZoomToAsync(DateTime date1, DateTime date2, TimelinePositions position)
 	{
 		if (_canvasWidth > 0)
 		{
@@ -896,14 +941,14 @@ public partial class PDTimeline : IAsyncDisposable
 		}
 	}
 
-	public async Task ZoomToSelectionAsync()
+	public async Task ZoomToSelectionAsync(bool forceRefresh = false)
 	{
 		if (_canvasWidth > 0 && _selectionRange != null)
 		{
 			var scale = GetScaleToFit(_selectionRange.StartTime, _selectionRange.EndTime);
 			if (scale != null)
 			{
-				await SetScale(scale, false, _selectionRange.EndTime, TimelinePositions.End).ConfigureAwait(true);
+				await SetScale(scale, forceRefresh, _selectionRange.EndTime, TimelinePositions.End).ConfigureAwait(true);
 			}
 		}
 	}
@@ -920,6 +965,24 @@ public partial class PDTimeline : IAsyncDisposable
 		}
 	}
 
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
+	}
+
 	public static class Utilities
 	{
 		public static string DescribeArc(double x, double y, double radius, double startAngle, double endAngle)
@@ -927,10 +990,19 @@ public partial class PDTimeline : IAsyncDisposable
 			var sp = PolarToCartesian(x, y, radius, endAngle);
 			var ep = PolarToCartesian(x, y, radius, startAngle);
 			var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
-			var d = string.Join(" ", new[] {
-			"M", sp.x.ToString("0.00"), sp.y.ToString("0.00"),
-			"A", radius.ToString(), radius.ToString(), "0", arcSweep, "0", ep.x.ToString("0.00"), ep.y.ToString("0.00")
-			});
+			var d = string.Join(" ", [
+				"M",
+				sp.x.ToString("0.00", CultureInfo.InvariantCulture),
+				sp.y.ToString("0.00", CultureInfo.InvariantCulture),
+				"A",
+				radius.ToString(CultureInfo.InvariantCulture),
+				radius.ToString(CultureInfo.InvariantCulture),
+				"0",
+				arcSweep,
+				"0",
+				ep.x.ToString("0.00", CultureInfo.InvariantCulture),
+				ep.y.ToString("0.00", CultureInfo.InvariantCulture)
+			]);
 			return d;
 		}
 
@@ -946,7 +1018,7 @@ public partial class PDTimeline : IAsyncDisposable
 		{
 			var cy = boundsHeight / 2;
 			var w = boundsWidth - (2 * padding);
-			var sb = new System.Text.StringBuilder();
+			var sb = new StringBuilder();
 			if (faceLeft)
 			{
 				sb.Append("M ").Append(x + padding).Append(' ').Append(Math.Round(cy));
@@ -959,7 +1031,8 @@ public partial class PDTimeline : IAsyncDisposable
 				sb.Append("l -").Append(w).Append(" -").Append(w);
 				sb.Append("l 0 ").Append(2 * w);
 			}
-			sb.Append("Z");
+
+			sb.Append('Z');
 			return sb.ToString();
 		}
 	}

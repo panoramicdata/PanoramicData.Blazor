@@ -3,37 +3,27 @@
 /// <summary>
 /// The TableEventArgs class holds details on a node event.
 /// </summary>
-public class TableEventArgs<TItem> where TItem : class
+/// <remarks>
+/// Initializes a new instance of the TableEventArgs class.
+/// </remarks>
+/// <param name="item">The item the event relates to.</param>
+public class TableEventArgs<TItem>(TItem item) where TItem : class
 {
-	/// <summary>
-	/// Initializes a new instance of the TableEventArgs class.
-	/// </summary>
-	/// <param name="item">The item the event relates to.</param>
-	public TableEventArgs(TItem item)
-	{
-		Item = item;
-	}
-
 	/// <summary>
 	/// Gets the item the event relates to.
 	/// </summary>
-	public TItem Item { get; }
+	public TItem Item { get; } = item;
 }
 
 /// <summary>
 /// The TableCancelEventArgs class allows an event to be canceled.
 /// </summary>
-public class TableCancelEventArgs<TItem> : TableEventArgs<TItem> where TItem : class
+/// <remarks>
+/// Initializes a new instance of the TableCancelEventArgs class.
+/// </remarks>
+/// <param name="node">The node the event relates to.</param>
+public class TableCancelEventArgs<TItem>(TItem item) : TableEventArgs<TItem>(item) where TItem : class
 {
-	/// <summary>
-	/// Initializes a new instance of the TableCancelEventArgs class.
-	/// </summary>
-	/// <param name="node">The node the event relates to.</param>
-	public TableCancelEventArgs(TItem item)
-		: base(item)
-	{
-	}
-
 	/// <summary>
 	/// Gets or sets whether the operation attempted should be canceled.
 	/// </summary>
@@ -43,17 +33,12 @@ public class TableCancelEventArgs<TItem> : TableEventArgs<TItem> where TItem : c
 /// <summary>
 /// The TableBeforeEditEventArgs class allows a pending edit to be canceled.
 /// </summary>
-public class TableBeforeEditEventArgs<TItem> : TableCancelEventArgs<TItem> where TItem : class
+/// <remarks>
+/// Initializes a new instance of the TableBeforeEditEventArgs class.
+/// </remarks>
+/// <param item="">The item the event relates to.</param>
+public class TableBeforeEditEventArgs<TItem>(TItem item) : TableCancelEventArgs<TItem>(item) where TItem : class
 {
-	/// <summary>
-	/// Initializes a new instance of the TableBeforeEditEventArgs class.
-	/// </summary>
-	/// <param item="">The item the event relates to.</param>
-	public TableBeforeEditEventArgs(TItem item)
-		: base(item)
-	{
-	}
-
 	/// <summary>
 	/// Gets or sets the start of the selected text to be edited.
 	/// </summary>
@@ -68,39 +53,78 @@ public class TableBeforeEditEventArgs<TItem> : TableCancelEventArgs<TItem> where
 /// <summary>
 /// The TableAfterEditEventArgs class provides details of a completed edit and allows for cancellation.
 /// </summary>
-public class TableAfterEditEventArgs<TItem> : TableCancelEventArgs<TItem> where TItem : class
+/// <remarks>
+/// Initializes a new instance of the TableBeforeEditEventArgs class.
+/// </remarks>
+/// <param name="item">The original item values the event relates to.</param>
+public class TableAfterEditEventArgs<TItem>(TItem item) : TableCancelEventArgs<TItem>(item) where TItem : class
 {
-	/// <summary>
-	/// Initializes a new instance of the TableBeforeEditEventArgs class.
-	/// </summary>
-	/// <param name="item">The original item values the event relates to.</param>
-	public TableAfterEditEventArgs(TItem item)
-		: base(item)
-	{
-	}
-
 	/// <summary>
 	/// Gets or sets the new values.
 	/// </summary>
-	public Dictionary<string, object?> NewValues { get; set; } = new Dictionary<string, object?>();
+	public Dictionary<string, object?> NewValues { get; set; } = [];
+
+	public override string ToString()
+	{
+		var sb = new StringBuilder();
+		foreach (var kvp in NewValues)
+		{
+			if (sb.Length > 0)
+			{
+				sb.Append(", ");
+			}
+
+			string valueStr = kvp.Value?.ToString() ?? "(null)";
+			sb.Append(kvp.Key).Append(" = ").Append(valueStr);
+		}
+
+		return sb.ToString();
+	}
+}
+
+/// <summary>
+/// The TableAfterEditEventArgs class provides details of a completed edit and allows for cancellation.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the TableBeforeEditEventArgs class.
+/// </remarks>
+/// <param name="item">The original item values the event relates to.</param>
+public class TableAfterEditCommittedEventArgs<TItem>(TItem item) : TableEventArgs<TItem>(item) where TItem : class
+{
+	/// <summary>
+	/// Gets or sets the new values.
+	/// </summary>
+	public Dictionary<string, object?> NewValues { get; set; } = [];
+
+	public override string ToString()
+	{
+		var sb = new StringBuilder();
+		foreach (var kvp in NewValues)
+		{
+			if (sb.Length > 0)
+			{
+				sb.Append(", ");
+			}
+
+			string valueStr = kvp.Value?.ToString() ?? "(null)";
+			sb.Append(kvp.Key).Append(" = ").Append(valueStr);
+		}
+
+		return sb.ToString();
+	}
 }
 
 /// <summary>
 /// The TableSelectionEventArgs class holds data for an action that is performed on a selection of items.
 /// </summary>
-public class TableSelectionEventArgs<TItem> where TItem : class
+/// <remarks>
+/// Initializes a new instance of the TableSelectionEventArgs class.
+/// </remarks>
+/// <param name="items">The items the event relates to.</param>
+public class TableSelectionEventArgs<TItem>(TItem[] items) where TItem : class
 {
-	/// <summary>
-	/// Initializes a new instance of the TableSelectionEventArgs class.
-	/// </summary>
-	/// <param name="items">The items the event relates to.</param>
-	public TableSelectionEventArgs(TItem[] items)
-	{
-		Items = items;
-	}
-
 	/// <summary>
 	/// Gets the items the event relates to.
 	/// </summary>
-	public TItem[] Items { get; }
+	public TItem[] Items { get; } = items;
 }

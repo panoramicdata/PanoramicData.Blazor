@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDToolbarButton : IToolbarItem
+public partial class PDToolbarButton : IToolbarItem, IEnablable
 {
 	/// <summary>
 	/// Gets or sets the button sizes.
@@ -58,9 +58,19 @@ public partial class PDToolbarButton : IToolbarItem
 	[Parameter] public bool IsEnabled { get; set; } = true;
 
 	/// <summary>
+	/// Async function to be called when button is clicked.
+	/// </summary>
+	[Parameter] public Func<MouseEventArgs, Task>? Operation { get; set; }
+
+	/// <summary>
+	/// CSS Class for icon to be displayed on button when Operation is running.
+	/// </summary>
+	[Parameter] public string OperationIconCssClass { get; set; } = string.Empty;
+
+	/// <summary>
 	/// Gets or sets whether the toolbar item is positioned further to the right of the previous toolbar item.
 	/// </summary>
-	[Parameter] public bool ShiftRight { get; set; } = false;
+	[Parameter] public bool ShiftRight { get; set; }
 
 	/// <summary>
 	/// Sets the short cut keys that will perform a click on this button.
@@ -78,7 +88,7 @@ public partial class PDToolbarButton : IToolbarItem
 	/// </summary>
 	[Parameter] public string Url { get; set; } = string.Empty;
 
-	private Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+	private Dictionary<string, object> Attributes { get; set; } = [];
 
 	protected override void OnParametersSet()
 	{
@@ -89,8 +99,23 @@ public partial class PDToolbarButton : IToolbarItem
 		}
 	}
 
-	private async Task OnClick(MouseEventArgs args)
+	private async Task OnClick(MouseEventArgs args) => await Click.InvokeAsync(new KeyedEventArgs<MouseEventArgs>(Key, args)).ConfigureAwait(true);
+
+	public void Disable()
 	{
-		await Click.InvokeAsync(new KeyedEventArgs<MouseEventArgs>(Key, args)).ConfigureAwait(true);
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 }

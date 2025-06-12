@@ -16,10 +16,7 @@ public static class UriExtensions
 		{
 			query[entry.Key] = entry.Value;
 		}
-		var items = query
-			.SelectMany(x => x.Value, (col, value) => new KeyValuePair<string, string>(col.Key, value ?? string.Empty))
-			.ToList();
-		var queryBuilder = new QueryBuilder(items);
-		return uri.AbsolutePath + queryBuilder.ToQueryString();
+
+		return QueryHelpers.AddQueryString(uri.AbsolutePath, query);
 	}
 }

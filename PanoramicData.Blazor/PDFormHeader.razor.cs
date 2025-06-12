@@ -46,14 +46,9 @@ public partial class PDFormHeader<TItem> where TItem : class
 	/// <remarks>If present, the placeholder {0} will be substituted by the result of GetItemDescription() </remarks>
 	[Parameter] public string DeleteTitle { get; set; } = string.Empty;
 
-	private string GetClassDescription()
-	{
+	private static string GetClassDescription() =>
 		// look for Display attribute and use name if provided, else fall-back to using class name.
-		return typeof(TItem).GetCustomAttribute<DisplayAttribute>()?.Name ?? typeof(TItem).Name;
-	}
+		typeof(TItem).GetCustomAttribute<DisplayAttribute>()?.Name ?? typeof(TItem).Name;
 
-	private string GetItemDescription()
-	{
-		return Form?.Item is null || ItemDescription is null ? GetClassDescription() : ItemDescription(Form.Item);
-	}
+	private string GetItemDescription() => Form?.Item is null || ItemDescription is null ? PDFormHeader<TItem>.GetClassDescription() : ItemDescription(Form.Item);
 }

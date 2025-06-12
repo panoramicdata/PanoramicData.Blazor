@@ -1,0 +1,25 @@
+.pddatetimeoffset {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.form-control.date {
+	width: 124px;
+}
+
+.form-control.time {
+	width: 120px;
+}
+
+.form-select {
+	width: 100px;
+}
+
+
+.invalid {
+	color: var(--bs-danger);
+}
+
+input::-webkit-calendar-picker-indicator {
+	margin-bottom: 4px;
+}

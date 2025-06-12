@@ -131,6 +131,17 @@ export function scrollIntoView(id, alignTop) {
 	}
 }
 
+export function scrollIntoViewEx(selector, behaviour, block, inline) {
+	const el = document.querySelector(selector);
+	if (el) {
+		el.scrollIntoView({
+			behavior: 'smooth', // or 'auto' for immediate scrolling
+			block: 'nearest',   // aligns vertically (not usually needed for columns)
+			inline: 'center'    // aligns horizontally
+		});
+	}
+}
+
 export function selectText(id, start, end) {
 	var node = document.getElementById(id);
 	if (!node) {
@@ -169,3 +180,22 @@ export function setValue (id, value) {
 		node.value = value;
 	}
 }
+
+export function onTableDragStart(id) {
+	var node = document.getElementById(id);
+	if (node) {
+		node.addEventListener("dragstart", onDragStart);
+	}
+}
+
+function scrollToBottom(element) {
+	element.scrollTop = element.scrollHeight;
+}
+
+function onDragStart(evt) {
+	var url = evt.target.getAttribute('data-downloadurl');
+	if (url) {
+		evt.dataTransfer.setData("DownloadURL", url);
+	}
+}
+

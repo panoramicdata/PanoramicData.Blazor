@@ -27,27 +27,28 @@ public partial class PDZoomBar : IAsyncDisposable
 
 	private string CanvasId => $"{Id}-canvas";
 
-	private int Height => 20;
+	private static int Height => 20;
 
-	private bool CanZoomIn()
-	{
-		return Options.ZoomSteps.Length > 0 && Value.Zoom != Options.ZoomSteps[0];
-	}
+	private bool CanZoomIn() => Options.ZoomSteps.Length > 0 && Value.Zoom != Options.ZoomSteps[0];
 
-	private bool CanZoomOut()
-	{
-		return Options.ZoomSteps.Length > 0 && Value.Zoom != Options.ZoomSteps.Last();
-	}
+	private bool CanZoomOut() => Options.ZoomSteps.Length > 0 && Value.Zoom != Options.ZoomSteps.Last();
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
-			_objRef = DotNetObjectReference.Create(this);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDZoomBar.razor.js");
-			if (_module != null)
+			try
 			{
-				await _module.InvokeVoidAsync("initialize", CanvasId, Value, Options, _objRef).ConfigureAwait(true);
+				_objRef = DotNetObjectReference.Create(this);
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDZoomBar.razor.js");
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync("initialize", CanvasId, Value, Options, _objRef).ConfigureAwait(true);
+				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}
@@ -62,6 +63,7 @@ public partial class PDZoomBar : IAsyncDisposable
 			{
 				await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
 			}
+
 			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
 	}
@@ -76,6 +78,7 @@ public partial class PDZoomBar : IAsyncDisposable
 			{
 				await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
 			}
+
 			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
 	}
@@ -97,6 +100,7 @@ public partial class PDZoomBar : IAsyncDisposable
 				await _module.InvokeVoidAsync("dispose", CanvasId).ConfigureAwait(true);
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
+
 			_objRef?.Dispose();
 		}
 		catch

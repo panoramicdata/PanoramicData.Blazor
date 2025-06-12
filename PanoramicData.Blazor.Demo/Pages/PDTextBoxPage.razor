@@ -16,12 +16,14 @@
 
 	</PDToolbar>
 
+	<label>Text Box 1</label>
 	<div class="input-group">
 		<PDTextBox DebounceWait="250"
 				   IsEnabled="Enabled"
 				   IsVisible="Visible"
 				   Keypress="OnKeypress"
 				   KeypressEvent="true"
+				   ShowSpeechButton="true"
 				   Value="@Value"
 				   ValueChanged="OnValueChanged" />
 
@@ -35,6 +37,69 @@
 	<div>
 		Value = @Value
 	</div>
+
+	<hr />
+
+	<label>Text Box 2 - Example using debounced input</label>
+	<div class="input-group">
+		<PDTextBox @bind-Value="_textBox2"
+				   DebounceWait="250"
+				   ShowSpeechButton="true" />
+	</div>
+	<div>
+		Text Box 2 Value: <b>@_textBox2</b>
+	</div>
+
+	<hr />
+
+	<label>Text Box 3 - Example showing update on keypress</label>
+	<div class="input-group">
+		<PDTextBox @bind-Value="_textBox3"
+				   KeypressEvent="true" />
+	</div>
+	<div>
+		Text Box 3 Value: <b>@_textBox3</b>
+	</div>
+
+	<hr />
+
+	<label>Text Box 4 - Example showing update on lost focus (blur)</label>
+	<div class="input-group">
+		<PDTextBox @bind-Value="_textBox4" />
+	</div>
+	<div>
+		Text Box 4 Value: <b>@_textBox4</b>
+	</div>
+
+	<hr />
+
+	<label>Text Area 1 - Example binding two PDTextAreas to a single backing field</label>
+	<div class="input-group">
+		<PDTextArea @ref="_textArea1"
+					Value="@_textArea"
+					ValueChanged="OnTextAreaChanged" />
+		<PDTextArea @ref="_textArea2"
+					Value="@_textArea"
+					ValueChanged="OnTextAreaChanged" />
+	</div>
+	<div>
+		Text Area Value: <b>@_textArea</b>
+	</div>
+
+	<hr />
+
+	<label>Text Area 2 - Selection</label>
+	<div class="toolbar mb-1">
+		<button class="btn btn-sm btn-secondary" @onclick="OnGetTextAreaSelection">Get</button>
+		<button class="btn btn-sm btn-secondary ms-1" @onclick="OnSetTextAreaSelection">Set</button>
+		Text Area Selection: @_textSelection
+	</div>
+	<div class="input-group">
+		<PDTextArea @ref="_textArea3" @bind-Value="@_text3" SelectionChanged="OnTextAreaSelectionChanged" />
+	</div>
+	<div>
+	</div>
+
 
 	<EventView />
 

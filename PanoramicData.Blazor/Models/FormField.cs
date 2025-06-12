@@ -6,10 +6,28 @@ public class FormField<TItem> where TItem : class
 
 	internal Func<TItem, object>? CompiledFieldFunc => _compiledFieldFunc ??= Field?.Compile();
 
+	public event EventHandler<object?>? ValueChanged;
+
+	public void OnValueChanged(object? value)
+	{
+		ValueChanged?.Invoke(this, value);
+	}
+
 	/// <summary>
 	/// Gets or sets the autocomplete attribute value.
 	/// </summary>
 	public string AutoComplete { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Gets or sets a short description of the fields purpose. Overrides DisplayAttribute description if set.
+	/// </summary>
+	public string? Description { get; set; }
+
+	/// <summary>
+	/// Gets or sets a function that returns the description for the field.
+	/// </summary>
+	/// <remarks>Defaults to Description property if set, otherwise looks for Display attribute.</remarks>
+	public Func<FormField<TItem>, PDForm<TItem>?, string> DescriptionFunc { get; set; } = Constants.Functions.FormFieldDescription;
 
 	/// <summary>
 	/// Gets or sets optional display options.
@@ -63,32 +81,31 @@ public class FormField<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets whether a 'copy to clipboard' button is displayed for the field.
 	/// </summary>
-	public Func<TItem?, bool> ShowCopyButton { get; set; } = new Func<TItem?, bool>((_) => false);
+	public Func<TItem?, bool> ShowCopyButton { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the form mode is Edit.
 	/// </summary>
-	public Func<TItem?, bool> ShowInEdit { get; set; } = new Func<TItem?, bool>((_) => true);
+	public Func<TItem?, bool> ShowInEdit { get; set; } = Constants.Functions.True;
+	/// <summary>
+	/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
+	/// </summary>
+	public Func<TItem?, bool> ShowInCreate { get; set; } = Constants.Functions.True;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
 	/// </summary>
-	public Func<TItem?, bool> ShowInCreate { get; set; } = new Func<TItem?, bool>((_) => true);
-
-	/// <summary>
-	/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
-	/// </summary>
-	public Func<TItem?, bool> ShowInDelete { get; set; } = new Func<TItem?, bool>((_) => false);
+	public Func<TItem?, bool> ShowInDelete { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is read-only when the form mode is Edit.
 	/// </summary>
-	public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = new Func<TItem?, bool>((_) => false);
+	public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is read-only when the form mode is Create.
 	/// </summary>
-	public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = new Func<TItem?, bool>((_) => false);
+	public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets a function that returns available value choices.
@@ -108,7 +125,7 @@ public class FormField<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets a function that determines whether this field contains sensitive values that should not be shown.
 	/// </summary>
-	public Func<TItem?, PDForm<TItem>?, bool> IsSensitive { get; set; } = new Func<TItem?, PDForm<TItem>?, bool>((_, __) => false);
+	public Func<TItem?, PDForm<TItem>?, bool> IsSensitive { get; set; } = Constants.Functions.FormFieldIsSensitive;
 
 	/// <summary>
 	/// Gets or sets whether this field contains longer sections of text.
@@ -119,6 +136,12 @@ public class FormField<TItem> where TItem : class
 	/// Gets or sets the number of rows of text displayed by default in a text area.,
 	/// </summary>
 	public int TextAreaRows { get; set; } = 4;
+
+	/// <summary>
+	/// Gets or sets whether this field contains an image
+	/// If the field is a string, then the string is treated as the image URL
+	/// </summary>
+	public bool IsImage { get; set; }
 
 	/// <summary>
 	/// Gets or sets an HTML template for editing.
@@ -146,20 +169,23 @@ public class FormField<TItem> where TItem : class
 		{
 			return null;
 		}
+
 		var value = CompiledFieldFunc?.Invoke(item);
 		if (value != null)
 		{
 			if (value is DateTimeOffset dto)
 			{
 				// return simple date time string
-				return dto.DateTime.ToString("yyyy-MM-dd");
+				return dto.DateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 			}
+
 			if (value is DateTime dt)
 			{
 				// return date time string
-				return dt.ToString("yyyy-MM-dd");
+				return dt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 			}
 		}
+
 		return value;
 	}
 
@@ -173,23 +199,43 @@ public class FormField<TItem> where TItem : class
 		{
 			return null;
 		}
-		return Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
+
+		var dataType = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
+		if (dataType != null)
+		{
+			return Nullable.GetUnderlyingType(dataType) ?? dataType;
+		}
+
+		return dataType;
+	}
+
+	public bool GetFieldIsNullable()
+	{
+		var memberInfo = Field?.GetPropertyMemberInfo();
+		if (memberInfo is PropertyInfo propInfo)
+		{
+			if (propInfo.PropertyType.FullName == "System.String")
+			{
+				return true;
+			}
+
+			return Nullable.GetUnderlyingType(propInfo.PropertyType) != null;
+		}
+
+		return false;
 	}
 
 	/// <summary>
 	/// Simple function that returns true.
 	/// </summary>
-	public static Func<TItem?, bool> True => new Func<TItem?, bool>((_) => true);
+	[Obsolete("Please use Contstants.Functions.True")]
+	public static Func<TItem?, bool> True => Constants.Functions.True;
 
 	/// <summary>
 	/// Simple function that returns false.
 	/// </summary>
-	public static Func<TItem?, bool> False => new Func<TItem?, bool>((_) => false);
-
-	/// <summary>
-	/// Gets or sets a short description of the fields purpose. Overrides DisplayAttribute description if set.
-	/// </summary>
-	public string? Description { get; set; }
+	[Obsolete("Please use Contstants.Functions.False")]
+	public static Func<TItem?, bool> False => Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets the maximum length for entered text.
@@ -214,24 +260,10 @@ public class FormField<TItem> where TItem : class
 	/// <summary>
 	/// Gets the description for the field, if one is either declared or in DisplayAttribute.
 	/// </summary>
-	public string? GetDescription()
-	{
-		return Description ?? (Field?.GetPropertyMemberInfo()?.GetCustomAttribute<DisplayAttribute>()?.Description);
-	}
-
-	/// <summary>
-	/// Gets the description for the field, if one is either declared or in DisplayAttribute.
-	/// </summary>
-	public bool GetIsRequired()
-	{
-		return Field?.GetPropertyMemberInfo()?.GetCustomAttribute<RequiredAttribute>() != null;
-	}
+	public bool GetIsRequired() => Field?.GetPropertyMemberInfo()?.GetCustomAttribute<RequiredAttribute>() != null;
 
 	/// <summary>
 	/// Gets the fields name.
 	/// </summary>
-	public string? GetName()
-	{
-		return Field?.GetPropertyMemberInfo()?.Name;
-	}
+	public string? GetName() => Field?.GetPropertyMemberInfo()?.Name;
 }

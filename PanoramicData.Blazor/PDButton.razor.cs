@@ -1,7 +1,9 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDButton : IDisposable
+public partial class PDButton : IEnablable, IDisposable
 {
+	private bool _operationInProgress;
+
 	#region Inject
 	[Inject]
 	private IGlobalEventService GlobalEventService { get; set; } = null!;
@@ -10,7 +12,7 @@ public partial class PDButton : IDisposable
 	/// <summary>
 	/// Extra attributes to apply to the button.
 	/// </summary>
-	[Parameter] public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+	[Parameter] public Dictionary<string, object> Attributes { get; set; } = [];
 
 	/// <summary>
 	/// Custom content to display instead of the standard text and icon.
@@ -45,6 +47,21 @@ public partial class PDButton : IDisposable
 
 	[Parameter]
 	public EventCallback<MouseEventArgs> MouseDown { get; set; }
+
+	[Parameter]
+	public EventCallback<MouseEventArgs> MouseEnter { get; set; }
+
+	/// <summary>
+	/// Async function to be called when button is clicked.
+	/// </summary>
+	[Parameter]
+	public Func<MouseEventArgs, Task>? Operation { get; set; }
+
+	/// <summary>
+	/// CSS Class for icon to be displayed on button when Operation is running.
+	/// </summary>
+	[Parameter] public string OperationIconCssClass { get; set; } = string.Empty;
+
 
 	[Parameter]
 	public bool PreventDefault { get; set; }
@@ -88,6 +105,8 @@ public partial class PDButton : IDisposable
 	/// </summary>
 	[Parameter] public string Url { get; set; } = string.Empty;
 
+	private bool ActualEnabledState => IsEnabled && (Operation is null || !_operationInProgress);
+
 	private string ButtonSizeCssClass
 	{
 		get
@@ -98,6 +117,27 @@ public partial class PDButton : IDisposable
 				ButtonSizes.Large => "btn-lg",
 				_ => string.Empty,
 			};
+		}
+	}
+
+	private string GetIconCssClass()
+	{
+		return Operation != null && _operationInProgress && !string.IsNullOrWhiteSpace(OperationIconCssClass)
+			? OperationIconCssClass
+			: IconCssClass;
+	}
+
+	private async Task OnClickAsync(MouseEventArgs args)
+	{
+		if (Operation is null)
+		{
+			await Click.InvokeAsync(args);
+		}
+		else
+		{
+			_operationInProgress = true;
+			await Operation.Invoke(args);
+			_operationInProgress = false;
 		}
 	}
 
@@ -118,13 +158,23 @@ public partial class PDButton : IDisposable
 		}
 	}
 
-	//private async void GlobalEventService_KeyDownEvent(object sender, KeyboardInfo e)
-	//{
-	//	if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.AltKey, e.CtrlKey, e.ShiftKey))
-	//	{
-	//		await InvokeAsync(async () => await Click.InvokeAsync(new MouseEventArgs()).ConfigureAwait(true)).ConfigureAwait(true);
-	//	}
-	//}
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
+	}
 
 	public void Dispose()
 	{
@@ -132,6 +182,7 @@ public partial class PDButton : IDisposable
 		{
 			GlobalEventService.UnregisterShortcutKey(ShortcutKey);
 		}
+
 		GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
 	}
 }

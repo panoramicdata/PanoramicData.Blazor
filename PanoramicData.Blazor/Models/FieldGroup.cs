@@ -2,7 +2,9 @@
 
 public class FieldGroup<TItem> where TItem : class
 {
-	public List<FormField<TItem>> Fields { get; set; } = new();
+	public string Id { get; set; } = string.Empty;
+
+	public List<FormField<TItem>> Fields { get; set; } = [];
 
 	public string Title
 	{
@@ -27,6 +29,7 @@ public class FieldGroup<TItem> where TItem : class
 				}
 			}
 		}
+
 		return false;
 	}
 }

@@ -1,0 +1,20 @@
+.pddatetime {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.form-control.date {
+	width: 124px;
+}
+
+.form-control.time {
+	width: 120px;
+}
+
+.invalid {
+	color: var(--bs-danger);
+}
+
+input::-webkit-calendar-picker-indicator {
+	margin-bottom: 4px;
+}

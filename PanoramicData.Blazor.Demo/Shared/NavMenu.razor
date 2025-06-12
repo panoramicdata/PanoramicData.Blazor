@@ -1,148 +1,191 @@
 ﻿<div class="top-row ps-4 navbar navbar-dark">
-    <PDNavLink class="navbar-brand" href="">PanoramicData.Blazor</PDNavLink>
-    @*<a class="navbar-brand" href="">PanoramicData.Blazor</a>*@
-    <button class="navbar-toggler" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+	<PDNavLink class="navbar-brand" href="">PanoramicData.Blazor</PDNavLink>
+	@*<a class="navbar-brand" href="">PanoramicData.Blazor</a>*@
+	<button class="navbar-toggler" @onclick="ToggleNavMenu">
+		<span class="navbar-toggler-icon"></span>
+	</button>
 </div>
 
 <div class="@NavMenuCssClass">
-    <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="fas fa-fw fa-home me-2" aria-hidden="true"></span> Home
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="installation">
-                <span class="fas fa-fw fa-question-circle me-2" aria-hidden="true"></span> Installation
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdblockoverlay">
-                <span class="fas fa-fw fa-clone me-2" aria-hidden="true"></span> PDBlockOverlay
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdbutton">
-                <span class="far fa-fw fa-square me-2" aria-hidden="true"></span> PDButton
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdcarddeck">
-                <span class="fas fa-fw fa-stream me-2" aria-hidden="true"></span> PDCardDeck
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdclipboard">
-                <span class="fas fa-fw fa-clipboard me-2" aria-hidden="true"></span> PDClipboard
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdconfirm">
-                <span class="fas fa-fw fa-check me-2" aria-hidden="true"></span> PDConfirm
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdcontextmenu">
-                <span class="fas fa-fw fa-list-alt me-2" aria-hidden="true"></span> PDContextMenu
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdfileexplorer">
-                <span class="fas fa-fw fa-folder-open me-2" aria-hidden="true"></span> PDFileExplorer
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdfilemodals">
-                <span class="fas fa-fw fa-comment-alt me-2" aria-hidden="true"></span> PDFileModal
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdform">
-                <span class="fas fa-fw fa-file-alt me-2" aria-hidden="true"></span> PDForm
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdform2">
-                <span class="fas fa-fw fa-file-alt me-2" aria-hidden="true"></span> PDForm 2
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdform3">
-                <span class="fas fa-fw fa-file-alt me-2" aria-hidden="true"></span> PDForm 3
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdform4">
-                <span class="fas fa-fw fa-file-alt me-2" aria-hidden="true"></span> PDForm 4
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdgloballistener">
-                <span class="fas fa-fw fa-headphones me-2" aria-hidden="true"></span> PDGlobalListener
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdpager">
-                <span class="fas fa-fw fa-arrows-alt-h me-2" aria-hidden="true"></span> PDPager
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdsplitter">
-                <span class="fas fa-fw fa-columns me-2" aria-hidden="true"></span> PDSplitter
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdtable">
-                <span class="fas fa-fw fa-table me-2" aria-hidden="true"></span> PDTable
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdtextbox">
-                <span class="fas fa-fw fa-keyboard me-2" aria-hidden="true"></span> PDTextBox
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdtimeline">
-                <span class="fas fa-fw fa-clock me-2" aria-hidden="true"></span> PDTimeline
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdtoggleswitch">
-                <span class="fas -fa-fw fa-toggle-on me-2" aria-hidden="true"></span> PDToggleSwitch
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdtoolbar">
-                <span class="fas -fa-fw fa-ellipsis-h me-2" aria-hidden="true"></span> PDToolbar
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdtree">
-                <span class="fas fa-fw fa-code-branch fa-rotate-90 me-2" aria-hidden="true"></span> PDTree
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdtree2">
-                <span class="fas fa-fw fa-code-branch fa-rotate-90 me-2" aria-hidden="true"></span> PDTree 2
-            </PDNavLink>
-        </li>
-        <li class="nav-item px-3">
-            <PDNavLink class="nav-link" href="pdtree3">
-                <span class="fas fa-fw fa-code-branch fa-rotate-90 me-2" aria-hidden="true"></span> PDTree 3
-            </PDNavLink>
-        </li>
-    </ul>
+	<ul class="nav">
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="" Match="NavLinkMatch.All">
+				<span class="fas fa-fw fa-home me-2" aria-hidden="true"></span> Home
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="installation">
+				<span class="fas fa-fw fa-question-circle me-2" aria-hidden="true"></span> Installation
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdblockoverlay">
+				<span class="fas fa-fw fa-clone me-2" aria-hidden="true"></span> PDBlockOverlay
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdbutton">
+				<span class="far fa-fw fa-square me-2" aria-hidden="true"></span> PDButton
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdclipboard">
+				<span class="fas fa-fw fa-clipboard me-2" aria-hidden="true"></span> PDClipboard
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdconfirm">
+				<span class="fas fa-fw fa-check me-2" aria-hidden="true"></span> PDConfirm
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdcombobox">
+				<span class="fas fa-fw fa-list-alt me-2" aria-hidden="true"></span> PDComboBox
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdcontextmenu">
+				<span class="fas fa-fw fa-list-alt me-2" aria-hidden="true"></span> PDContextMenu
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pddatetime">
+				<span class="fas fa-fw fa-calendar-day me-2" aria-hidden="true"></span> PDDateTime
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pddropdown">
+				<span class="fas fa-fw fa-angle-down me-2" aria-hidden="true"></span> PDDropDown
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdfileexplorer">
+				<span class="fas fa-fw fa-folder-open me-2" aria-hidden="true"></span> PDFileExplorer
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdfilemodals">
+				<span class="fas fa-fw fa-comment-alt me-2" aria-hidden="true"></span> PDFileModal
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdform">
+				<span class="fas fa-fw fa-file-alt me-2" aria-hidden="true"></span> PDForm
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdform2">
+				<span class="fas fa-fw fa-file-alt me-2" aria-hidden="true"></span> PDForm 2
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdform3">
+				<span class="fas fa-fw fa-file-alt me-2" aria-hidden="true"></span> PDForm 3
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdform4">
+				<span class="fas fa-fw fa-file-alt me-2" aria-hidden="true"></span> PDForm 4
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdform5">
+				<span class="fas fa-fw fa-file-alt me-2" aria-hidden="true"></span> PDForm 5
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdgloballistener">
+				<span class="fas fa-fw fa-headphones me-2" aria-hidden="true"></span> PDGlobalListener
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdlist">
+				<span class="fas fa-fw fa-list me-2" aria-hidden="true"></span> PDList
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdlog">
+				<span class="fas fa-fw fa-list me-2" aria-hidden="true"></span> PDLog
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdmonaco">
+				<span class="fas fa-fw fa-edit me-2" aria-hidden="true"></span> PDMonacoEditor
+			</PDNavLink>
+		</li>
+
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdpager">
+				<span class="fas fa-fw fa-arrows-alt-h me-2" aria-hidden="true"></span> PDPager
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdquestvisualizer">
+				<span class="fas fa-fw fa-arrows-alt-h me-2" aria-hidden="true"></span> PDQuestVisualizer
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdrange">
+				<span class="fas fa-fw fa-sliders-h me-2" aria-hidden="true"></span> PDRange
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdsplitter">
+				<span class="fas fa-fw fa-columns me-2" aria-hidden="true"></span> PDSplitter
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdtable">
+				<span class="fas fa-fw fa-table me-2" aria-hidden="true"></span> PDTable
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdtextbox">
+				<span class="fas fa-fw fa-keyboard me-2" aria-hidden="true"></span> PDTextBox
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdtimeline">
+				<span class="fas fa-fw fa-clock me-2" aria-hidden="true"></span> PDTimeline
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdtoggleswitch">
+				<span class="fas -fa-fw fa-toggle-on me-2" aria-hidden="true"></span> PDToggleSwitch
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdtoolbar">
+				<span class="fas -fa-fw fa-ellipsis-h me-2" aria-hidden="true"></span> PDToolbar
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdtree">
+				<span class="fas fa-fw fa-code-branch fa-rotate-90 me-2" aria-hidden="true"></span> PDTree
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdtree2">
+				<span class="fas fa-fw fa-code-branch fa-rotate-90 me-2" aria-hidden="true"></span> PDTree 2
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdtree3">
+				<span class="fas fa-fw fa-code-branch fa-rotate-90 me-2" aria-hidden="true"></span> PDTree 3
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3">
+			<PDNavLink class="nav-link" href="pdtree4">
+				<span class="fas fa-fw fa-code-branch fa-rotate-90 me-2" aria-hidden="true"></span> PDTree 4
+			</PDNavLink>
+		</li>
+	</ul>
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+	private bool collapseNavMenu = true;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+	private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+	private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
 }

@@ -33,5 +33,7 @@ public enum FilterTypes
 	[Display(Name = "Is Empty")]
 	IsEmpty,
 	[Display(Name = "Is Not Empty")]
-	IsNotEmpty
+	IsNotEmpty,
+	[Display(Name = "Not In list")]
+	NotIn
 }

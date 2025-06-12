@@ -1,0 +1,18 @@
+.pd-dragpanel {
+	border: 1px solid silver;
+	margin: 4px;
+}
+
+.pd-dragitem {
+	background-color: white;
+	border: 1px solid silver;
+	margin: 2px;
+	min-height: 10px;
+	padding: 4px;
+	white-space: nowrap;
+}
+
+.pd-dragitem.dragging {
+	background-color: transparent;
+	border-color: transparent;
+}

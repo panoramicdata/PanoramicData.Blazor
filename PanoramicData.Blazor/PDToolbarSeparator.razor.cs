@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDToolbarSeparator : IToolbarItem
+public partial class PDToolbarSeparator : IToolbarItem, IEnablable
 {
 	/// <summary>
 	/// Gets or sets the unique identifier.
@@ -35,5 +35,23 @@ public partial class PDToolbarSeparator : IToolbarItem
 	/// <summary>
 	/// Gets or sets whether the toolbar item is positioned further to the right of the previous toolbar item.
 	/// </summary>
-	[Parameter] public bool ShiftRight { get; set; } = false;
+	[Parameter] public bool ShiftRight { get; set; }
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
+	}
 }

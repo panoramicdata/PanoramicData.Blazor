@@ -1,4 +1,7 @@
-﻿<textarea id="@Id"
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<textarea id="@Id"
           @onblur="OnBlur"
           class="form-control @(IsVisible ? "" : "d-none ") @CssClass"
           disabled="@(!IsEnabled)"
@@ -6,5 +9,6 @@
           placeholder="@Placeholder"
           rows="@Rows"
           maxlength="@MaxLength"
-          @oninput="OnInput"
-          @onkeypress="OnKeypress">@Value</textarea>
+          @bind:after="OnAfter"
+          @bind:event="oninput"
+          @bind="Value" @onkeypress="OnKeypress">@Value</textarea>

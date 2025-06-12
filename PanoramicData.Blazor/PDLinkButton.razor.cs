@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDLinkButton : IAsyncDisposable
+public partial class PDLinkButton : IAsyncDisposable, IEnablable
 {
 	private static int _sequence;
 	private IJSObjectReference? _commonModule;
@@ -19,7 +19,7 @@ public partial class PDLinkButton : IAsyncDisposable
 	/// <summary>
 	/// Extra attributes to apply to the button.
 	/// </summary>
-	[Parameter] public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+	[Parameter] public Dictionary<string, object> Attributes { get; set; } = [];
 
 	/// <summary>
 	/// CSS Class for button.
@@ -99,6 +99,7 @@ public partial class PDLinkButton : IAsyncDisposable
 			{
 				GlobalEventService.UnregisterShortcutKey(ShortcutKey);
 			}
+
 			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
 			if (_commonModule != null)
 			{
@@ -110,14 +111,30 @@ public partial class PDLinkButton : IAsyncDisposable
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
 		if (ShortcutKey.HasValue)
 		{
 			GlobalEventService.RegisterShortcutKey(ShortcutKey);
 		}
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && JSRuntime is not null)
+		{
+			try
+			{
+				_commonModule = await JSRuntime
+					.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js")
+					.ConfigureAwait(true);
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
+		}
 	}
 
 	private async void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e)
@@ -134,5 +151,23 @@ public partial class PDLinkButton : IAsyncDisposable
 		{
 			await _commonModule.InvokeVoidAsync("click", Id).ConfigureAwait(true);
 		}
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 }

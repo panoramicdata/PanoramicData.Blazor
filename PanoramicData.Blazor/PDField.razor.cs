@@ -35,6 +35,17 @@ public partial class PDField<TItem> where TItem : class
 	[Parameter] public FieldDisplayOptions DisplayOptions { get; set; } = new FieldDisplayOptions();
 
 	/// <summary>
+	/// Gets or sets a short description of the fields purpose. Overrides DisplayAttribute description if set.
+	/// </summary>
+	[Parameter] public string? Description { get; set; }
+
+	/// <summary>
+	/// Gets or sets a function that returns the description for the field.
+	/// </summary>
+	[Parameter]
+	public Func<FormField<TItem>, PDForm<TItem>?, string> DescriptionFunc { get; set; } = Constants.Functions.FormFieldDescription;
+
+	/// <summary>
 	/// Gets or sets name of the group the field belongs to.
 	/// </summary>
 	[Parameter] public string Group { get; set; } = string.Empty;
@@ -48,32 +59,32 @@ public partial class PDField<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets whether a 'copy to clipboard' button is displayed for the field.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ShowCopyButton { get; set; } = new Func<TItem?, bool>((_) => false);
+	[Parameter] public Func<TItem?, bool> ShowCopyButton { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the form mode is Edit.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ShowInEdit { get; set; } = new Func<TItem?, bool>((_) => true);
+	[Parameter] public Func<TItem?, bool> ShowInEdit { get; set; } = Constants.Functions.True;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ShowInCreate { get; set; } = new Func<TItem?, bool>((_) => true);
+	[Parameter] public Func<TItem?, bool> ShowInCreate { get; set; } = Constants.Functions.True;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is visible when the form mode is Create.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ShowInDelete { get; set; } = new Func<TItem?, bool>((_) => false);
+	[Parameter] public Func<TItem?, bool> ShowInDelete { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is read-only when the form mode is Edit.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = new Func<TItem?, bool>((_) => false);
+	[Parameter] public Func<TItem?, bool> ReadOnlyInEdit { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets or sets a function that determines whether this field is read-only when the form mode is Create.
 	/// </summary>
-	[Parameter] public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = new Func<TItem?, bool>((_) => false);
+	[Parameter] public Func<TItem?, bool> ReadOnlyInCreate { get; set; } = Constants.Functions.False;
 
 	/// <summary>
 	/// Gets a function that returns available value choices.
@@ -93,12 +104,18 @@ public partial class PDField<TItem> where TItem : class
 	/// <summary>
 	/// Gets or sets a function that determines whether this field contains sensitive values that should not be shown.
 	/// </summary>
-	[Parameter] public Func<TItem?, PDForm<TItem>?, bool> IsSensitive { get; set; } = new Func<TItem?, PDForm<TItem>?, bool>((_, __) => false);
+	[Parameter] public Func<TItem?, PDForm<TItem>?, bool> IsSensitive { get; set; } = Constants.Functions.FormFieldIsSensitive;
 
 	/// <summary>
 	/// Gets or sets whether this field contains longer sections of text.
 	/// </summary>
 	[Parameter] public bool IsTextArea { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether this field contains an image
+	/// If the field is a string, then the string is treated as the image URL
+	/// </summary>
+	[Parameter] public bool IsImage { get; set; }
 
 	/// <summary>
 	/// Gets or sets the number of rows of text displayed by default in a text area.,
@@ -136,11 +153,6 @@ public partial class PDField<TItem> where TItem : class
 	[Parameter] public RenderFragment<TItem>? Template { get; set; }
 
 	/// <summary>
-	/// Gets or sets a short description of the fields purpose. Overrides DisplayAttribute description if set.
-	/// </summary>
-	[Parameter] public string? Description { get; set; }
-
-	/// <summary>
 	/// Gets or sets an optional helper for filling in the field.
 	/// </summary>
 	[Parameter] public FormFieldHelper<TItem>? Helper { get; set; }
@@ -156,6 +168,7 @@ public partial class PDField<TItem> where TItem : class
 		{
 			return Title;
 		}
+
 		var memberInfo = Field?.GetPropertyMemberInfo();
 		return memberInfo is PropertyInfo propInfo
 			? propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name
@@ -170,6 +183,7 @@ public partial class PDField<TItem> where TItem : class
 				"FormBody reference is null which implies it did not initialize or that the field " +
 				$"type '{typeof(TItem)}' does not match the form type.");
 		}
+
 		await FormBody.Form.AddFieldAsync(this).ConfigureAwait(true);
 	}
 }

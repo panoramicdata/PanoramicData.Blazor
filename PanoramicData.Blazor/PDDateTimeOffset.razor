@@ -1,0 +1,35 @@
+﻿@inherits PDComponentBase
+
+<div class="pddatetimeoffset @(IsVisible ? "" : "d-none ") w-100 @CssClass">
+
+	<input @onblur="OnBlur"
+		   @oninput="OnDateInputAsync"
+		   class="form-control date @_dateCssClass"
+		   disabled="@(!IsEnabled)"
+		   type="date"
+		   value="@(Value.ToString("yyyy-MM-dd"))">
+
+	@if (ShowTime)
+	{
+		<input @onblur="OnBlur"
+			   @oninput="OnTimeInputAsync"
+			   class="form-control ms-1 time @_timeCssClass"
+			   disabled="@(!IsEnabled)"
+			   step="@TimeStepSecs"
+			   type="time"
+			   value="@(Value.ToString("HH:mm:ss"))" />
+
+		@if (ShowOffset)
+		{
+			<select class="form-select ms-1 offset"
+					@onblur="OnBlur"
+					@oninput="OnOffsetInputAsync">
+				@for (double i = -11; i <= 14; i = i + 0.5)
+				{
+					<option value="@i" selected="@(Value.Offset.TotalHours == i)">@(OffsetDisplay(i))</option>
+				}
+			</select>
+		}
+	}
+
+</div>

@@ -1,0 +1,57 @@
+.editor {
+	align-items: center;
+	border-bottom: 1px solid #ced4da;
+	border-top: 1px solid #ced4da;
+	border-right: 1px solid #ced4da;
+	display: flex;
+	flex: 1 1;
+	padding: 0px 2px;
+	vertical-align: middle;
+	z-index: 0;
+}
+
+/* this is required to allow monaco editor to shrink when user resizes page */
+::deep .monaco-editor-container {
+	display: grid;
+	height: 100%;
+	grid-template-columns: minmax(0px, auto);
+}
+
+.editor ::deep .form-control, .form-select {
+	border: none;
+}
+
+::deep .ms-nullable {
+	margin: 0 4px 2px 12px;
+	line-height: 0.5rem;
+	vertical-align: middle;
+	padding: 0px;
+	width: 16px;
+}
+
+.editor ::deep .pddatetime input {
+	flex-grow: 1;
+}
+
+.editor ::deep .pddatetimeoffset input {
+	flex-grow: 1;
+}
+
+.editor ::deep .no-resize {
+	resize: none;
+}
+
+
+.editor.readonly ::deep .view-lines {
+	background-color: #e9ecef;
+}
+
+.editor.readonly ::deep .margin {
+	background-color: #e9ecef;
+}
+
+.editor.readonly ::deep .minimap canvas {
+	background-color: #e9ecef;
+}
+
+

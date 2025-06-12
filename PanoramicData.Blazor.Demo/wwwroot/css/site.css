@@ -1,5 +1,10 @@
+@font-face {
+	font-family: 'Tenorite';
+	src: url('/fonts/Tenorite.ttf');
+}
+
 html, body {
-	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: 'Tenorite', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 a, .btn-link {
@@ -14,6 +19,21 @@ a, .btn-link {
 
 .content {
 	padding-top: 10px;
+}
+
+.icon-sharepoint {
+	background: url("/_content/PanoramicData.Blazor.Demo/svg/sharepoint.svg");
+	background-size: 18px;
+	background-repeat: no-repeat;
+	display: inline-block;
+	transform: translate(2px, 2px);
+	height: 18px;
+	width: 18px;
+}
+
+.icon-sharepoint.fa-4x {
+	transform: scale(4) translate(0, -5px);
+	margin-top: 50px;
 }
 
 .navbar-toggler {

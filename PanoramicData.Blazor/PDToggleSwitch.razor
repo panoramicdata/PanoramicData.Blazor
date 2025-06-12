@@ -1,4 +1,4 @@
-@inherits PDComponentBase
+@inherits 			PDComponentBase
 
 <div class="pdtoggleswitch @(CssClass ?? Options.CssClass) @(SizeCssClass) @(IsEnabled ? "" : "disabled") @(Rounded ?? Options.Rounded ? "rd" : "")" id="@Id">
     @if (!string.IsNullOrWhiteSpace(Label) && (LabelBefore ?? Options.LabelBefore))

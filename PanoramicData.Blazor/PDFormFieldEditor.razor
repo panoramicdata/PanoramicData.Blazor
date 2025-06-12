@@ -1,151 +1,199 @@
 ﻿@typeparam TItem
 
 @{
-    var fieldType = Field.GetFieldType();
+	var fieldType = Field.GetFieldType();
 }
-@if (Field.EditTemplate != null)
-{
-    @Field.EditTemplate(Form?.Item)
-}
-else if (Field.IsPassword || Field.IsSensitive(Form?.Item, Form))
-{
-    <input type="password"
-           autocomplete="@Field.AutoComplete"
-           @onblur="() => Field.SuppressErrors = false"
-           disabled="@IsReadOnly(Field)"
-           class="form-control @GetEditorClass(Field)"
-           value="@Form?.GetFieldStringValue(Field)"
-           maxlength="@(Field.MaxLength ?? -1)"
-           @onchange="async (x) => await UpdateValueViaCastAsync(x, Field).ConfigureAwait(true)">
-}
-else if (Field.Options != null)
-{
-    <select @onblur="() => Field.SuppressErrors = false"
-            class="form-select @GetEditorClass(Field)"
-            disabled="@IsReadOnly(Field)"
-            @oninput="(x) => OnSelectInputChanged(x, Field)">
-        @foreach (var option in Field.Options(Field, Form?.Item))
-        {
-            if (option.IsSelected)
-            {
-                <option value="@option.Value" disabled="@option.IsDisabled" selected>@option.Text</option>
-            }
-            else
-            {
-                <option value="@option.Value" disabled="@option.IsDisabled">@option.Text</option>
-            }
-        }
-    </select>
-}
-else if (Field.IsTextArea)
-{
-    <PDTextArea IsEnabled="@(!IsReadOnly(Field))"
-            Blur="() => Field.SuppressErrors = false"
-            CssClass="@($"form-control {GetEditorClass(Field)}")"
-            Rows="@Field.TextAreaRows"
-            MaxLength="@(Field.MaxLength ?? -1)"
-            Value="@(Form?.GetFieldStringValue(Field))"
-            ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
-            DebounceWait="DebounceWait" />
-}
-else if (fieldType?.FullName == "System.Boolean")
-{
-    if(Field.DisplayOptions is FieldBooleanOptions boolOpt)
-    {
-        if(boolOpt.Style == FieldBooleanOptions.DisplayComponent.ToggleSwitch)
-        {
-            <PDToggleSwitch CssClass="@boolOpt.CssClass"
-                IsEnabled="@(!IsReadOnly(Field))"
-                Rounded="boolOpt.Rounded"
-                Label="@Field.Label"
-                LabelBefore="@boolOpt.LabelBefore"
-                OffText="@boolOpt.OffText"
-                OnText="@boolOpt.OnText"
-                Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
-                ValueChanged="(x) => Form?.SetFieldValueAsync(Field, (bool)x) ?? Task.CompletedTask" />
-        }
-        else
-        {
-            <PDFormCheckBox CssClass="@boolOpt.CssClass"
-                Disabled="@IsReadOnly(Field)"
-                Label="@Field.Label"
-                LabelBefore="@boolOpt.LabelBefore"
-                Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
-                ValueChanged="(x) => Form?.SetFieldValueAsync(Field, (bool)x) ?? Task.CompletedTask" />
-        }
-    }
-    else
-    {
-        <PDFormCheckBox CssClass="@(Field.DisplayOptions?.CssClass)"
-                    Disabled="@IsReadOnly(Field)"
-                    Label="@Field.Label"
-                    Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
-                    ValueChanged="(x) => Form?.SetFieldValueAsync(Field, (bool)x) ?? Task.CompletedTask" />
-    }
-}
-else if (fieldType?.IsEnum == true)
-{
-    <select @onblur="() => Field.SuppressErrors = false"
-            class="form-select @GetEditorClass(Field)"
-            disabled="@IsReadOnly(Field)"
-        @oninput="(x) => Form?.SetFieldValueAsync(Field, Enum.Parse(fieldType, x.Value?.ToString() ?? string.Empty)) ?? Task.CompletedTask">
-        @foreach (var option in GetEnumValues(Field))
-        {
-            <option value="@option.Value"
-                    selected="@option.IsSelected">
-                @option.Text
-            </option>
-        }
-    </select>
-}
-else if (fieldType?.FullName == "System.DateTime")
-{
-    <input type="date"
-       @onblur="() => Field.SuppressErrors = false"
-           disabled="@IsReadOnly(Field)"
-           class="form-control @GetEditorClass(Field)"
-           value="@(Form?.GetFieldStringValue(Field))"
-       @onchange="(x) => UpdateDateTimeValue(x, Field)">
-}
-else if (fieldType?.FullName == "System.DateTimeOffset")
-{
-    <input type="date"
-       @onblur="() => Field.SuppressErrors = false"
-           class="form-control"
-           disabled="@IsReadOnly(Field)"
-           value="@(Form?.GetFieldStringValue(Field))"
-       @onchange="(x) => UpdateDateTimeOffsetValue(x, Field)">
-}
-else if (fieldType?.FullName == "System.String")
-{
-    <PDTextBox CssClass="@GetEditorClass(Field)"
-           AutoComplete="@Field.AutoComplete"
-           Blur="() => Field.SuppressErrors = false"
-           ShowClearButton="false"
-           Placeholder="@Field.Label"
-           IsEnabled="!IsReadOnly(Field)"
-           Value="@(Form?.GetFieldStringValue(Field))"
-           ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
-           DebounceWait="DebounceWait" />
-}
-else if (fieldType?.FullName == "System.Guid")
-{
-    <PDTextBox CssClass="@GetEditorClass(Field)"
-           AutoComplete="@Field.AutoComplete"
-           Blur="() => Field.SuppressErrors = false"
-           ShowClearButton="false"
-           IsEnabled="!IsReadOnly(Field)"
-           Value="@(Form?.GetFieldStringValue(Field))"
-           ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
-           DebounceWait="DebounceWait" />
-}
-else
-{
-    <input @attributes="PDFormFieldEditor<TItem>.GetNumericAttributes(Field)"
-       @onblur="() => Field.SuppressErrors = false"
-           type="number"
-           disabled="@IsReadOnly(Field)"
-           class="form-control @GetEditorClass(Field)"
-           value="@(Form?.GetFieldValue<double>(Field))"
-       @onchange="async (x) => await UpdateValueViaCastAsync(x, Field).ConfigureAwait(true)">
-}
+<div class="editor @(GetResizeableCssCls()) @(Form?.Mode == FormModes.ReadOnly || Form?.Mode == FormModes.Cancel ? "readonly" : "")">
+
+	@if (Field.GetFieldIsNullable() && Field.DisplayOptions?.AllowNulls == true)
+	{
+		<PDFormCheckBox CssClass="ms-nullable"
+						Value="_hasValue"
+						ValueChanged="OnHasNullValueChanged" />
+	}
+
+	@if (Field.EditTemplate != null)
+	{
+		@Field.EditTemplate(Form?.Item)
+	}
+	else if (Field.IsPassword || Field.IsSensitive(Form?.Item, Form))
+	{
+		<input @onblur="() => Field.SuppressErrors = false"
+			   @onchange="async (x) => await UpdateValueViaCastAsync(x, Field).ConfigureAwait(true)"
+			   autocomplete="@Field.AutoComplete"
+			   class="form-control @GetEditorClass(Field)"
+			   disabled="@IsReadOnly(Field)"
+			   maxlength="@(Field.MaxLength ?? -1)"
+			   type="password"
+			   value="@Form?.GetFieldStringValue(Field)" />
+	}
+	else if (fieldType?.FullName == "System.DateTime")
+	{
+		<PDDateTime Blur="() => Field.SuppressErrors = false"
+					CssClass="@(GetEditorClass(Field))"
+					IsEnabled="@(!IsReadOnly(Field))"
+					ShowTime="@(Field.DisplayOptions is FieldDateTimeOptions opt1 ? opt1.ShowTime : false)"
+					TimeStepSecs="@(Field.DisplayOptions is FieldDateTimeOptions opt2 ? opt2.TimeStepSecs : 1)"
+					Value="@(Form!.GetFieldValue<DateTime>(Field))"
+					ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask" />
+	}
+	else if (fieldType?.FullName == "System.DateTimeOffset")
+	{
+		<PDDateTimeOffset Blur="() => Field.SuppressErrors = false"
+						  CssClass="@(GetEditorClass(Field))"
+						  IsEnabled="@(!IsReadOnly(Field))"
+						  ShowOffset="@(Field.DisplayOptions is FieldDateTimeOptions opt1 ? opt1.ShowOffset : false)"
+						  ShowTime="@(Field.DisplayOptions is FieldDateTimeOptions opt2 ? opt2.ShowTime : false)"
+						  TimeStepSecs="@(Field.DisplayOptions is FieldDateTimeOptions opt3 ? opt3.TimeStepSecs : 1)"
+						  Value="@(Form!.GetFieldValue<DateTimeOffset>(Field))"
+						  ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask" />
+	}
+	else if (Field.Options != null)
+	{
+		<select @onblur="() => Field.SuppressErrors = false"
+				@oninput="(x) => OnSelectInputChanged(x, Field)"
+				class="form-select @GetEditorClass(Field)"
+				disabled="@IsReadOnly(Field)">
+			@{
+				var currentValue = Form!.GetFieldValue(Field, true);
+				foreach (var option in Field.Options(Field, Form?.Item))
+				{
+					if ((option.Value == null && currentValue == null) || (option.Value!.Equals(currentValue)))
+					{
+						<option value="@option.Value" disabled="@option.IsDisabled" selected>@option.Text</option>
+					}
+					else
+					{
+						<option value="@option.Value" disabled="@option.IsDisabled">@option.Text</option>
+					}
+				}
+			}
+		</select>
+	}
+	else if (Field.IsTextArea)
+	{
+		<PDTextArea IsEnabled="@(!IsReadOnly(Field))"
+					Blur="() => Field.SuppressErrors = false"
+					CssClass="@($"form-control {GetEditorClass(Field)}")"
+					Rows="@Field.TextAreaRows"
+					MaxLength="@(Field.MaxLength ?? -1)"
+					Value="@(Form?.GetFieldStringValue(Field))"
+					ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
+					DebounceWait="DebounceWait" />
+	}
+	else if (Field.IsImage)
+	{
+		<img src="@(Form?.GetFieldStringValue(Field))" />
+	}
+	else if (fieldType?.FullName == "System.Boolean")
+	{
+		if (Field.DisplayOptions is FieldBooleanOptions boolOpt && boolOpt.Style == FieldBooleanOptions.DisplayComponent.ToggleSwitch)
+		{
+			<PDToggleSwitch CssClass="@boolOpt.CssClass"
+							IsEnabled="@(!IsReadOnly(Field))"
+							Rounded="boolOpt.Rounded"
+							Label="@Field.Label"
+							LabelBefore="@boolOpt.LabelBefore"
+							OffText="@boolOpt.OffText"
+							OnText="@boolOpt.OnText"
+							Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
+							ValueChanged="(x) => Form?.SetFieldValueAsync(Field, (bool)x) ?? Task.CompletedTask" />
+		}
+		else
+		{
+			<PDFormCheckBox CssClass="@(Field.DisplayOptions?.CssClass)"
+							Disabled="@IsReadOnly(Field)"
+							Label="@Field.Label"
+							Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
+							ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x)" />
+		}
+	}
+	else if (fieldType?.IsEnum == true)
+	{
+		<select @onblur="() => Field.SuppressErrors = false"
+				@oninput="(x) => Form?.SetFieldValueAsync(Field, Enum.Parse(fieldType, x.Value?.ToString() ?? string.Empty)) ?? Task.CompletedTask"
+				class="form-select @GetEditorClass(Field)"
+				disabled="@IsReadOnly(Field)">
+			@foreach (var option in GetEnumValues(Field))
+			{
+				<option value="@option.Value"
+						selected="@option.IsSelected">
+					@option.Text
+				</option>
+			}
+		</select>
+	}
+	else if (fieldType?.FullName == "System.String")
+	{
+		if (Field.DisplayOptions is FieldStringOptions fso && fso.Editor != FieldStringOptions.Editors.TextBox)
+		{
+			if (fso.Editor == FieldStringOptions.Editors.TextArea)
+			{
+				<PDTextArea IsEnabled="@(!IsReadOnly(Field))"
+							Blur="() => Field.SuppressErrors = false"
+							CssClass="@($"form-control {GetEditorClass(Field)} h-100-pct no-resize")"
+							Rows="@fso.Rows"
+							MaxLength="@(Field.MaxLength ?? -1)"
+							Value="@(Form?.GetFieldStringValue(Field))"
+							ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
+							DebounceWait="DebounceWait" />
+			}
+			else if (fso.Editor == FieldStringOptions.Editors.Monaco)
+			{
+				@* to toggle read-only we need to destroy and re-create entire editor *@
+				@if (Form?.Mode == FormModes.ReadOnly || Form?.Mode == FormModes.Cancel)
+				{
+					<StandaloneCodeEditor @ref="_monacoEditor"
+										  Id="@Id"
+										  OnDidInit="OnMonacoInitAsync"
+										  CssClass="@($"w-100 {fso.CssClass}")"
+										  ConstructionOptions="(ed) => PDFormFieldEditor<TItem>.GetMonacoOptionsReadOnly(fso, ed)" />
+				}
+				else
+				{
+					<StandaloneCodeEditor @ref="_monacoEditor"
+										  @key="@Id"
+										  Id="@Id"
+										  OnDidInit="OnMonacoInitAsync"
+										  OnDidBlurEditorText="OnMonacoEditorBlurAsync"
+										  CssClass="@($"w-100 {fso.CssClass}")"
+										  ConstructionOptions="fso.MonacoOptions" />
+				}
+			}
+		}
+		else
+		{
+			<PDTextBox CssClass="@GetEditorClass(Field)"
+					   AutoComplete="@Field.AutoComplete"
+					   Blur="() => Field.SuppressErrors = false"
+					   ShowClearButton="false"
+					   Placeholder="@Field.Label"
+					   IsEnabled="!IsReadOnly(Field)"
+					   Value="@(Form?.GetFieldStringValue(Field))"
+					   ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
+					   DebounceWait="DebounceWait" />
+		}
+	}
+	else if (fieldType?.FullName == "System.Guid")
+	{
+		<PDTextBox CssClass="@GetEditorClass(Field)"
+				   AutoComplete="@Field.AutoComplete"
+				   Blur="() => Field.SuppressErrors = false"
+				   ShowClearButton="false"
+				   IsEnabled="!IsReadOnly(Field)"
+				   Value="@(Form?.GetFieldStringValue(Field))"
+				   ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask"
+				   DebounceWait="DebounceWait" />
+	}
+	else
+	{
+		<input @attributes="PDFormFieldEditor<TItem>.GetNumericAttributes(Field)"
+			   @onblur="() => Field.SuppressErrors = false"
+			   @onchange="async (x) => await UpdateValueViaCastAsync(x, Field).ConfigureAwait(true)"
+			   type="number"
+			   disabled="@IsReadOnly(Field)"
+			   class="form-control @GetEditorClass(Field)"
+			   value="@(Form?.GetFieldValue<double>(Field))" />
+	}
+
+</div>

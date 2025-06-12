@@ -29,123 +29,6 @@ public partial class PDTree<TItem> where TItem : class
 	#region Parameters
 
 	/// <summary>
-	/// Should a node clear its child content on collapse? Doing so will force a re-load of child nodes
-	/// if it is re-expanded. Only applicable when LoadOnDemand = true.
-	/// </summary>
-	[Parameter] public bool ClearOnCollapse { get; set; }
-
-	/// <summary>
-	/// Gets or sets the IDataProviderService instance to use to fetch data.
-	/// </summary>
-	[Parameter] public IDataProviderService<TItem> DataProvider { get; set; } = null!;
-
-	/// <summary>
-	/// Gets or sets a delegate to be called if an exception occurs.
-	/// </summary>
-	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
-
-	/// <summary>
-	/// A function that selects the field that contains the key value.
-	/// </summary>
-	[Parameter] public Func<TItem, object>? KeyField { get; set; }
-
-	/// <summary>
-	/// A function that selects the field that contains the parent key value.
-	/// </summary>
-	[Parameter] public Func<TItem, object>? ParentKeyField { get; set; }
-
-	/// <summary>
-	/// A function that selects the field to display for the item.
-	/// </summary>
-	[Parameter] public Func<TItem, object>? TextField { get; set; }
-
-	/// <summary>
-	/// A function that determines whether the given item is a leaf in the tree.
-	/// </summary>
-	[Parameter] public Func<TItem, bool>? IsLeaf { get; set; }
-
-	/// <summary>
-	/// A function that calculates the CSS classes used to show an icon for the given node.
-	/// </summary>
-	[Parameter] public Func<TItem, int, string>? IconCssClass { get; set; }
-
-	/// <summary>
-	/// A function used to determine sort order of child nodes.
-	/// </summary>
-	[Parameter] public Comparison<TItem>? Sort { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether a non-leaf node will request data where necessary.
-	/// </summary>
-	[Parameter] public bool LoadOnDemand { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether expanded nodes should show lines to help identify nested levels.
-	/// </summary>
-	[Parameter] public bool ShowLines { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether the root node is displayed.
-	/// </summary>
-	[Parameter] public bool ShowRoot { get; set; } = true;
-
-	/// <summary>
-	/// Gets or sets whether selection is allowed.
-	/// </summary>
-	[Parameter] public bool AllowSelection { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether node edit is allowed.
-	/// </summary>
-	[Parameter] public bool AllowEdit { get; set; }
-
-	/// <summary>
-	/// Predicate used to determine whether a node should be expanded when ExpandAll is called.
-	/// </summary>
-	[Parameter] public Predicate<TreeNode<TItem>>? ExpandOnExpandAll { get; set; }
-
-	/// <summary>
-	/// Gets or sets the template to render for each node.
-	/// </summary>
-	[Parameter] public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
-
-	/// <summary>
-	/// Gets or sets an event callback raised when the component has perform all it initialization.
-	/// </summary>
-	[Parameter] public EventCallback Ready { get; set; }
-
-	/// <summary>
-	/// Gets or sets an event callback raise whenever the selection changes.
-	/// </summary>
-	[Parameter] public EventCallback<TreeNode<TItem>> SelectionChange { get; set; }
-
-	/// <summary>
-	/// Callback fired whenever the user expands a node.
-	/// </summary>
-	[Parameter] public EventCallback<TreeNode<TItem>> NodeExpanded { get; set; }
-
-	/// <summary>
-	/// Callback fired whenever the user collapses a node.
-	/// </summary>
-	[Parameter] public EventCallback<TreeNode<TItem>> NodeCollapsed { get; set; }
-
-	/// <summary>
-	/// Callback fired whenever data items are loaded.
-	/// </summary>
-	/// <remarks>The callback allows the items to be modified by the calling application.</remarks>
-	[Parameter] public EventCallback<List<TItem>> ItemsLoaded { get; set; }
-
-	/// <summary>
-	/// Callback fired whenever a tree node is updated.
-	/// </summary>
-	[Parameter] public EventCallback<TreeNode<TItem>> NodeUpdated { get; set; }
-
-	/// <summary>
-	/// Callback fired before a node edit begins.
-	/// </summary>
-	[Parameter] public EventCallback<TreeNodeBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
-
-	/// <summary>
 	/// Callback fired after a node edit ends.
 	/// </summary>
 	[Parameter] public EventCallback<TreeNodeAfterEditEventArgs<TItem>> AfterEdit { get; set; }
@@ -166,14 +49,146 @@ public partial class PDTree<TItem> where TItem : class
 	[Parameter] public bool AllowDropInBetween { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether node edit is allowed.
+	/// </summary>
+	[Parameter] public bool AllowEdit { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether selection is allowed.
+	/// </summary>
+	[Parameter] public bool AllowSelection { get; set; }
+
+	/// <summary>
+	/// Callback fired before a node edit begins.
+	/// </summary>
+	[Parameter] public EventCallback<TreeNodeBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
+
+	/// <summary>
+	/// Gets or sets an event callback raised just before the selection changes.
+	/// </summary>
+	[Parameter] public EventCallback<TreeBeforeSelectionChangeEventArgs<TItem>> BeforeSelectionChange { get; set; }
+
+	/// <summary>
+	/// Should a node clear its child content on collapse? Doing so will force a re-load of child nodes
+	/// if it is re-expanded. Only applicable when LoadOnDemand = true.
+	/// </summary>
+	[Parameter] public bool ClearOnCollapse { get; set; }
+
+	/// <summary>
+	/// Gets or sets the IDataProviderService instance to use to fetch data.
+	/// </summary>
+	[Parameter] public IDataProviderService<TItem> DataProvider { get; set; } = null!;
+
+	/// <summary>
 	/// Callback fired whenever a drag operation ends on a node within the tree.
 	/// </summary>
 	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
 	/// <summary>
+	/// Gets or sets a delegate to be called if an exception occurs.
+	/// </summary>
+	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
+
+	/// <summary>
+	/// Predicate used to determine whether a node should be expanded when ExpandAll is called.
+	/// </summary>
+	[Parameter] public Predicate<TreeNode<TItem>>? ExpandOnExpandAll { get; set; }
+
+	/// <summary>
+	/// A function that calculates the CSS classes used to show an icon for the given node.
+	/// </summary>
+	[Parameter] public Func<TItem, int, string>? IconCssClass { get; set; }
+
+	/// <summary>
+	/// A function that determines whether the given item is a leaf in the tree.
+	/// </summary>
+	[Parameter] public Func<TItem, bool>? IsLeaf { get; set; }
+
+	/// <summary>
+	/// Callback fired whenever data items are loaded.
+	/// </summary>
+	/// <remarks>The callback allows the items to be modified by the calling application.</remarks>
+	[Parameter] public EventCallback<List<TItem>> ItemsLoaded { get; set; }
+
+	/// <summary>
 	/// Callback fired whenever the user presses a key down.
 	/// </summary>
 	[Parameter] public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
+
+	/// <summary>
+	/// A function that selects the field that contains the key value.
+	/// </summary>
+	[Parameter] public Func<TItem, object>? KeyField { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether a non-leaf node will request data where necessary.
+	/// </summary>
+	[Parameter] public bool LoadOnDemand { get; set; }
+
+	/// <summary>
+	/// Callback fired whenever the user collapses a node.
+	/// </summary>
+	[Parameter] public EventCallback<TreeNode<TItem>> NodeCollapsed { get; set; }
+
+	/// <summary>
+	/// Callback fired whenever the user expands a node.
+	/// </summary>
+	[Parameter] public EventCallback<TreeNode<TItem>> NodeExpanded { get; set; }
+
+	/// <summary>
+	/// Gets or sets the template to render for each node.
+	/// </summary>
+	[Parameter] public RenderFragment<TreeNode<TItem>>? NodeTemplate { get; set; }
+
+	/// <summary>
+	/// Callback fired whenever a tree node is updated.
+	/// </summary>
+	[Parameter] public EventCallback<TreeNode<TItem>> NodeUpdated { get; set; }
+
+	/// <summary>
+	/// A function that selects the field that contains the parent key value.
+	/// </summary>
+	[Parameter] public Func<TItem, object>? ParentKeyField { get; set; }
+
+	/// <summary>
+	/// Gets or sets an event callback raised when the component has perform all it initialization.
+	/// </summary>
+	[Parameter] public EventCallback Ready { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether right clicking on an item selects it?
+	/// </summary>
+	[Parameter] public bool RightClickSelectsItem { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets an event callback raise whenever the selection changes.
+	/// </summary>
+	[Parameter] public EventCallback<TreeNode<TItem>> SelectionChange { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether expanded nodes should show lines to help identify nested levels.
+	/// </summary>
+	[Parameter] public bool ShowLines { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the root node is displayed.
+	/// </summary>
+	[Parameter] public bool ShowRoot { get; set; } = true;
+
+	/// <summary>
+	/// A function used to determine sort order of child nodes.
+	/// </summary>
+	[Parameter] public Comparison<TItem>? Sort { get; set; }
+
+	/// <summary>
+	/// A function that selects the field to display for the item.
+	/// </summary>
+	[Parameter] public Func<TItem, object>? TextField { get; set; }
+
+	/// <summary>
+	/// A function that returns the tool tip text for a node.
+	/// </summary>
+	[Parameter] public Func<TItem, string>? ToolTip { get; set; }
 
 	#endregion
 
@@ -195,36 +210,28 @@ public partial class PDTree<TItem> where TItem : class
 	/// <summary>
 	/// Expands all the branch nodes in the tree.
 	/// </summary>
-	public void ExpandAll()
-	{
-		RootNode.Walk((n) => { n.IsExpanded = !n.Isleaf; return true; });
-	}
+	public void ExpandAll() => RootNode.Walk((n) => { n.IsExpanded = !n.Isleaf; return true; });
 
 	/// <summary>
 	/// Expands all the branch nodes in the tree.
 	/// </summary>
-	public async Task ExpandAllAsync()
-	{
-		await RootNode.WalkAsync(async (n) =>
-		{
-			if (!n.IsExpanded && !n.Isleaf)
-			{
-				if (ExpandOnExpandAll == null || ExpandOnExpandAll(n))
-				{
-					await ToggleNodeIsExpandedAsync(n).ConfigureAwait(true);
-				}
-			}
-			return true;
-		}).ConfigureAwait(true);
-	}
+	public async Task ExpandAllAsync() => await RootNode.WalkAsync(async (n) =>
+											   {
+												   if (!n.IsExpanded && !n.Isleaf)
+												   {
+													   if (ExpandOnExpandAll == null || ExpandOnExpandAll(n))
+													   {
+														   await ToggleNodeIsExpandedAsync(n).ConfigureAwait(true);
+													   }
+												   }
+
+												   return true;
+											   }).ConfigureAwait(true);
 
 	/// <summary>
 	/// Collapses all the branch nodes in the tree.
 	/// </summary>
-	public void CollapseAll()
-	{
-		RootNode.Walk((n) => { n.IsExpanded = false; return true; });
-	}
+	public void CollapseAll() => RootNode.Walk((n) => { n.IsExpanded = false; return true; });
 
 	/// <summary>
 	/// Searches all nodes until the given criteria is first matched.
@@ -239,6 +246,7 @@ public partial class PDTree<TItem> where TItem : class
 				found = n;
 				return false;
 			}
+
 			return true;
 		});
 		return found;
@@ -263,6 +271,7 @@ public partial class PDTree<TItem> where TItem : class
 					var autoEdit = state is MouseEventArgs args && args.Button == 0;
 					await SelectNode(_clickedNode, autoEdit).ConfigureAwait(true);
 				}
+
 				StateHasChanged();
 			}
 		});
@@ -278,6 +287,12 @@ public partial class PDTree<TItem> where TItem : class
 
 	public void NodeMouseDown(TreeNode<TItem> node, MouseEventArgs args)
 	{
+		// ignore right button?
+		if (args.Button == 2 && !RightClickSelectsItem)
+		{
+			return;
+		}
+
 		if (_clickTimer == null || node != _clickedNode)
 		{
 			_clickTimer?.Dispose();
@@ -296,7 +311,10 @@ public partial class PDTree<TItem> where TItem : class
 	/// </summary>
 	/// <param name="node">The node to select.</param>
 	/// <param name="autoEdit">If the same node is selected twice should it go into edit mode?</param>
-	public async Task SelectNode(TreeNode<TItem> node, bool autoEdit = true)
+	public async Task SelectNode(TreeNode<TItem> node)
+		=> await SelectNode(node, true);
+
+	public async Task SelectNode(TreeNode<TItem> node, bool autoEdit)
 	{
 		if (AllowSelection)
 		{
@@ -317,10 +335,19 @@ public partial class PDTree<TItem> where TItem : class
 			}
 			else
 			{
+				// allow app to pre-process or cancel change
+				var beforeEventArgs = new TreeBeforeSelectionChangeEventArgs<TItem>(node, SelectedNode);
+				await BeforeSelectionChange.InvokeAsync(beforeEventArgs).ConfigureAwait(true);
+				if (beforeEventArgs.Cancel)
+				{
+					return;
+				}
+
 				if (SelectedNode != null)
 				{
 					SelectedNode.IsSelected = false;
 				}
+
 				SelectedNode = node;
 				SelectedNode.IsSelected = true;
 
@@ -359,7 +386,7 @@ public partial class PDTree<TItem> where TItem : class
 			var key = node.Data is null ? null : KeyField!(node.Data!).ToString();
 			var items = await GetDataAsync(key).ConfigureAwait(true);
 			// add new nodes to existing node
-			node.Nodes = new List<TreeNode<TItem>>(); // indicates data fetched, even if no items returned
+			node.Nodes = []; // indicates data fetched, even if no items returned
 			UpdateModel(items);
 
 			// notify any listeners that new data fetched
@@ -411,6 +438,7 @@ public partial class PDTree<TItem> where TItem : class
 				{
 					break;
 				}
+
 				node = nextNode;
 
 				// refresh node
@@ -533,28 +561,37 @@ public partial class PDTree<TItem> where TItem : class
 
 	private async Task<IEnumerable<TItem>> GetDataAsync(string? key = null)
 	{
-		if (DataProvider is null)
+		try
 		{
-			return new TItem[0];
+			if (DataProvider is null)
+			{
+				return [];
+			}
+
+			var request = new DataRequest<TItem>
+			{
+				Skip = 0,
+				ForceUpdate = false,
+				// if load on demand and item key is given then only fetch immediate child items
+				SearchText = LoadOnDemand ? key ?? string.Empty : null
+			};
+
+			// perform query data
+			var response = await DataProvider
+				.GetDataAsync(request, CancellationToken.None)
+				.ConfigureAwait(true);
+
+			// allow calling application to filter/add items etc
+			var items = new List<TItem>(response.Items);
+			await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
+
+			return items;
 		}
-		var request = new DataRequest<TItem>
+		catch (Exception ex)
 		{
-			Skip = 0,
-			ForceUpdate = false,
-			// if load on demand and item key is given then only fetch immediate child items
-			SearchText = LoadOnDemand ? key ?? string.Empty : null
-		};
-
-		// perform query data
-		var response = await DataProvider
-			.GetDataAsync(request, CancellationToken.None)
-			.ConfigureAwait(true);
-
-		// allow calling application to filter/add items etc
-		var items = new List<TItem>(response.Items);
-		await ItemsLoaded.InvokeAsync(items).ConfigureAwait(true);
-
-		return items;
+			await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
+			return [];
+		}
 	}
 
 	private void UpdateModel(IEnumerable<TItem> items)
@@ -580,8 +617,9 @@ public partial class PDTree<TItem> where TItem : class
 			}
 			else
 			{
-				parentNode = (dict.ContainsKey(parentKey)) ? parentNode = dict[parentKey] : RootNode.Find(parentKey);
+				parentNode = (dict.TryGetValue(parentKey, out TreeNode<TItem>? value)) ? parentNode = value : RootNode.Find(parentKey);
 			}
+
 			if (parentNode == null)
 			{
 				throw new PDTreeException($"A parent item with key '{parentKey}' could not be found");
@@ -593,16 +631,17 @@ public partial class PDTree<TItem> where TItem : class
 			{
 				node = new TreeNode<TItem>();
 				// add to parent node and mark parent node for re-sort
-				(parentNode.Nodes ??= new List<TreeNode<TItem>>()).Add(node);
+				(parentNode.Nodes ??= []).Add(node);
 				if (!modifiedNodes.Contains(parentNode))
 				{
 					modifiedNodes.Add(parentNode);
 				}
 			}
+
 			node.Key = key;
 			node.Text = TextField is null
-				? item?.ToString() ?? String.Empty
-				: TextField.Invoke(item).ToString() ?? item.ToString() ?? String.Empty;
+				? item?.ToString() ?? string.Empty
+				: TextField.Invoke(item).ToString() ?? item.ToString() ?? string.Empty;
 			node.IsExpanded = false;
 			node.Data = item;
 			node.ParentNode = parentNode;
@@ -610,10 +649,10 @@ public partial class PDTree<TItem> where TItem : class
 			node.IconCssClass = IconCssClass is null || item is null
 				? string.Empty
 				: IconCssClass.Invoke(item, parentNode.Level + 1);
-			node.Nodes = LoadOnDemand ? null : new List<TreeNode<TItem>>();
+			node.Nodes = LoadOnDemand ? null : [];
 			if (LoadOnDemand && IsLeaf != null && item != null && IsLeaf(item))
 			{
-				node.Nodes = new List<TreeNode<TItem>>();
+				node.Nodes = [];
 			}
 
 			// cache node for performance
@@ -639,26 +678,34 @@ public partial class PDTree<TItem> where TItem : class
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		Id = $"{_idPrefix}{++_idSequence}";
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 	}
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (firstRender && JSRuntime is not null)
 		{
-			// build initial model and notify listeners
-			var items = await GetDataAsync().ConfigureAwait(true);
-			UpdateModel(items);
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
 
-			// notify that node updated
-			await NodeUpdated.InvokeAsync(RootNode).ConfigureAwait(true);
+				// build initial model and notify listeners
+				var items = await GetDataAsync().ConfigureAwait(true);
+				UpdateModel(items);
 
-			// notify that initialization completed
-			await Ready.InvokeAsync(null).ConfigureAwait(true);
-			StateHasChanged();
+				// notify that node updated
+				await NodeUpdated.InvokeAsync(RootNode).ConfigureAwait(true);
+
+				// notify that initialization completed
+				await Ready.InvokeAsync(null).ConfigureAwait(true);
+				StateHasChanged();
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
 		}
 	}
 
@@ -668,6 +715,7 @@ public partial class PDTree<TItem> where TItem : class
 		{
 			throw new PDTreeException("KeyField attribute is required.");
 		}
+
 		if (ParentKeyField == null)
 		{
 			throw new PDTreeException("ParentKeyField attribute is required.");
@@ -712,6 +760,7 @@ public partial class PDTree<TItem> where TItem : class
 					{
 						await ToggleNodeIsExpandedAsync(SelectedNode).ConfigureAwait(true);
 					}
+
 					break;
 
 				case "ArrowLeft":
@@ -719,6 +768,7 @@ public partial class PDTree<TItem> where TItem : class
 					{
 						await ToggleNodeIsExpandedAsync(SelectedNode).ConfigureAwait(true);
 					}
+
 					break;
 
 				case "ArrowDown":
@@ -727,6 +777,7 @@ public partial class PDTree<TItem> where TItem : class
 					{
 						await SelectNode(nextNode).ConfigureAwait(true);
 					}
+
 					break;
 
 				case "ArrowUp":
@@ -739,6 +790,7 @@ public partial class PDTree<TItem> where TItem : class
 							await SelectNode(prevNode).ConfigureAwait(true);
 						}
 					}
+
 					break;
 			}
 		}

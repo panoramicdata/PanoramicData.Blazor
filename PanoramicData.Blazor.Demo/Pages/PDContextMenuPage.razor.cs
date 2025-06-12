@@ -2,8 +2,9 @@
 
 public partial class PDContextMenuPage
 {
-	private readonly Random _random = new(Environment.TickCount);
-	private readonly List<MenuItem> _items = new();
+	private readonly Random _random = new(System.Environment.TickCount);
+	private readonly List<MenuItem> _items = [];
+	private bool _showOnMouseUp;
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
@@ -24,7 +25,7 @@ public partial class PDContextMenuPage
 		_items.Add(new MenuItem { Text = "About", IsVisible = false });
 	}
 
-	public void OnUpdateState(Arguments.CancelEventArgs _)
+	public void OnUpdateState(CancelEventArgs _)
 	{
 		EventManager?.Add(new Event("UpdateState"));
 
@@ -33,13 +34,7 @@ public partial class PDContextMenuPage
 		_items[_random.Next(2, 8)].IsDisabled = true;
 	}
 
-	public void OnItemClick(MenuItem item)
-	{
-		EventManager?.Add(new Event("ItemClick", new EventArgument("Text", item.Text)));
-	}
+	public void OnItemClick(MenuItem item) => EventManager?.Add(new Event("ItemClick", new EventArgument("Text", item.Text)));
 
-	private void OnClick()
-	{
-		Enabled = !Enabled;
-	}
+	private void OnClick() => Enabled = !Enabled;
 }

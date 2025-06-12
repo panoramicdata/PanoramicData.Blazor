@@ -55,5 +55,5 @@ public class ToolbarTextBox : ToolbarItem
 	/// <summary>
 	/// Gets or sets the debounce wait period in milliseconds.
 	/// </summary>
-	public int DebounceWait { get; set; } = 0;
+	public int DebounceWait { get; set; }
 }

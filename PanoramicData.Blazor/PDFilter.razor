@@ -1,41 +1,92 @@
 ﻿<div class="pd-filter @(HasFilter ? "filtered" : "")">
-	<PDDropDown @ref="_dropDown"
-				IconCssClass="@($"filter-icon {IconCssClass}")"
-				CssClass="@($"{CssClass}")"
-				CloseOption="PDDropDown.CloseOptions.Outside"
-				DropDownShown="OnDropDownShown"
-				KeyPress="OnDropDownKeyPress"
-				ShowCaret="false">
+    <PDDropDown @ref="_dropDown"
+    IconCssClass="@($"filter-icon {IconCssClass}")"
+    CssClass="@($"{CssClass}")"
+    CloseOption="PDDropDown.CloseOptions.Outside"
+    DropDownShown="OnDropDownShown"
+    KeyPress="OnDropDownKeyPress"
+    ShowCaret="false">
 
-		<div class="filter-body"
-			 onclick="event.stopPropagation()">
-			<div class="mb-1">
-				<select class="form-select form-control-sm"
-						@onchange="OnFilterTypeChanged">
-					<option value="@FilterTypes.Equals" selected="@(_filterType == FilterTypes.Equals)">Equals</option>
-					<option value="@FilterTypes.DoesNotEqual" selected="@(_filterType == FilterTypes.DoesNotEqual)">Does not equal</option>
-					<option value="@FilterTypes.In" selected="@(_filterType == FilterTypes.In)">In list</option>
-					@if (DataType != FilterDataTypes.Enum)
+        <div class="filter-body"
+        onclick="event.stopPropagation()">
+            <div class="mb-1">
+                <select @bind="_filterType" @bind:after="OnFilterTypeBindAfter" class="form-select form-control-sm">
+                    @if(Options.AllowEquals)
+                    {
+                        <option value="@FilterTypes.Equals" selected="@(_filterType == FilterTypes.Equals)">Equals</option>
+                    }
+                    @if (Options.AllowDoesNotEqual)
+                    {
+                        <option value="@FilterTypes.DoesNotEqual" selected="@(_filterType == FilterTypes.DoesNotEqual)">Does not equal</option>
+                    }
+                    @if(Options.AllowIn)
+                    {
+                        <option value="@FilterTypes.In" selected="@(_filterType == FilterTypes.In)">In list</option>
+                    }
+                    @if(Options.AllowNotIn)
+                    {
+                        <option value="@FilterTypes.NotIn" selected="@(_filterType == FilterTypes.NotIn)">Not In list</option>
+                    }
+					@if (DataType != FilterDataTypes.Enum && DataType != FilterDataTypes.Text && DataType != FilterDataTypes.Bool)
 					{
-						<option value="@FilterTypes.GreaterThan" selected="@(_filterType == FilterTypes.GreaterThan)">Greater than</option>
-						<option value="@FilterTypes.GreaterThanOrEqual" selected="@(_filterType == FilterTypes.GreaterThanOrEqual)">Greater than or equal</option>
-						<option value="@FilterTypes.LessThan" selected="@(_filterType == FilterTypes.LessThan)">Less than</option>
-						<option value="@FilterTypes.LessThanOrEqual" selected="@(_filterType == FilterTypes.LessThanOrEqual)">Less than or equal</option>
-						<option value="@FilterTypes.Range" selected="@(_filterType == FilterTypes.Range)">In range</option>
+                        @if(Options.AllowGreaterThan)
+                        {
+						    <option value="@FilterTypes.GreaterThan" selected="@(_filterType == FilterTypes.GreaterThan)">Greater than</option>
+                        }
+                        @if(Options.AllowGreaterThanOrEqual)
+                        {
+						    <option value="@FilterTypes.GreaterThanOrEqual" selected="@(_filterType == FilterTypes.GreaterThanOrEqual)">Greater than or equal</option>
+                        }
+                        @if(Options.AllowLessThan)
+                        {
+						    <option value="@FilterTypes.LessThan" selected="@(_filterType == FilterTypes.LessThan)">Less than</option>
+                        }
+                        @if(Options.AllowLessThanOrEqual)
+                        {
+						    <option value="@FilterTypes.LessThanOrEqual" selected="@(_filterType == FilterTypes.LessThanOrEqual)">Less than or equal</option>
+                        }
+                        @if(Options.AllowRange)
+                        {
+						    <option value="@FilterTypes.Range" selected="@(_filterType == FilterTypes.Range)">In range</option>
+                        }
 					}
 					@if (DataType == FilterDataTypes.Text)
 					{
-						<option value="@FilterTypes.StartsWith" selected="@(_filterType == FilterTypes.StartsWith)">Starts with</option>
-						<option value="@FilterTypes.EndsWith" selected="@(_filterType == FilterTypes.EndsWith)">Ends with</option>
-						<option value="@FilterTypes.Contains" selected="@(_filterType == FilterTypes.Contains)">Contains</option>
-						<option value="@FilterTypes.DoesNotContain" selected="@(_filterType == FilterTypes.DoesNotContain)">Does not contain</option>
-						<option value="@FilterTypes.IsEmpty" selected="@(_filterType == FilterTypes.IsEmpty)">Is Empty</option>
-						<option value="@FilterTypes.IsNotEmpty" selected="@(_filterType == FilterTypes.IsNotEmpty)">Is Not Empty</option>
+                        @if(Options.AllowStartsWith)
+                        {
+						    <option value="@FilterTypes.StartsWith" selected="@(_filterType == FilterTypes.StartsWith)">Starts with</option>
+                        }
+                        @if (Options.AllowEndsWith)
+                        {
+						    <option value="@FilterTypes.EndsWith" selected="@(_filterType == FilterTypes.EndsWith)">Ends with</option>
+                        }
+                        @if(Options.AllowContains)
+                        {
+						    <option value="@FilterTypes.Contains" selected="@(_filterType == FilterTypes.Contains)">Contains</option>
+                        }
+                        @if (Options.AllowDoesNotContain)
+                        {
+						    <option value="@FilterTypes.DoesNotContain" selected="@(_filterType == FilterTypes.DoesNotContain)">Does not contain</option>
+                        }
+                        @if (Options.AllowIsEmpty)
+                        {
+						    <option value="@FilterTypes.IsEmpty" selected="@(_filterType == FilterTypes.IsEmpty)">Is Empty</option>
+                        }
+                        @if (Options.AllowIsNotEmpty)
+                        {
+						    <option value="@FilterTypes.IsNotEmpty" selected="@(_filterType == FilterTypes.IsNotEmpty)">Is Not Empty</option>
+                        }
 					}
 					@if(Nullable)
 					{
-						<option value="@FilterTypes.IsNull" selected="@(_filterType == FilterTypes.IsNull)">Is Null</option>
-						<option value="@FilterTypes.IsNotNull" selected="@(_filterType == FilterTypes.IsNotNull)">Is Not Null</option>
+                        @if(Options.AllowIsNull)
+                        {
+						    <option value="@FilterTypes.IsNull" selected="@(_filterType == FilterTypes.IsNull)">Is Null</option>
+                        }
+                        @if(Options.AllowIsNotNull)
+                        {
+						    <option value="@FilterTypes.IsNotNull" selected="@(_filterType == FilterTypes.IsNotNull)">Is Not Null</option>
+                        }
 					}
 				</select>
 			</div>
@@ -70,7 +121,7 @@
 							<PDTextBox CssClass="form-control-sm"
 									   DebounceWait="500"
 									   ShowClearButton=false
-									   Placeholder="search"
+									   Placeholder="filter"
 									   Value="@_valuesFilter"
 									   ValueChanged="OnValuesFilterTextChange" />
 						</div>

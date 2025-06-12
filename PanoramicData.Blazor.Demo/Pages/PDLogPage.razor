@@ -1,0 +1,79 @@
+﻿@page "/pdlog"
+@using Microsoft.Extensions.Logging
+@using PanoramicData.Blazor.Demo.Data
+
+<h1>PDLog</h1>
+
+<DemoSourceView SourceFiles="Pages/PDLogPage.razor, Pages/PDLogPage.razor.cs">
+
+	<PDToolbar>
+		<PDToolbarButton Text="Log Trace"
+						 Click="() => Log(LogLevel.Trace)"
+						 CssClass="btn-secondary" />
+		<PDToolbarButton Text="Log Debug"
+						 Click="() => Log(LogLevel.Debug)"
+						 CssClass="btn-secondary" />
+		<PDToolbarButton Text="Log Info"
+						 Click="() => Log(LogLevel.Information)"
+						 CssClass="btn-primary" />
+		<PDToolbarButton Text="Long Info"
+						 Click="() => Log(LogLevel.Information, true)"
+						 CssClass="btn-primary" />
+		<PDToolbarButton Text="Log Warning"
+						 Click="() => Log(LogLevel.Warning)"
+						 CssClass="btn-warning" />
+		<PDToolbarButton Text="Log Error"
+						 Click="() => Log(LogLevel.Error)"
+						 CssClass="btn-danger" />
+		<PDToolbarButton Text="Log Critical"
+						 Click="() => Log(LogLevel.Critical)"
+						 CssClass="btn-danger" />
+		<PDToolbarButton Text="Exception"
+						 Click="() => Log(LogLevel.Error, true, true)"
+						 CssClass="btn-danger" />
+	</PDToolbar>
+	<PDToolbar>
+		<PDLabel Text="Word Wrap" />
+		<PDToggleSwitch @bind-Value="_wordWrap" />
+		<PDLabel Text="Reverse" />
+		<PDToggleSwitch @bind-Value="_reverse" />
+		<PDLabel Text="Show Icon" />
+		<PDToggleSwitch @bind-Value="_showIcon" />
+		<PDLabel Text="Show Exception" />
+		<PDToggleSwitch @bind-Value="_showException" />
+		<PDLabel Text="Tail" />
+		<PDToggleSwitch @bind-Value="_tail" />
+		<PDLabel Text="Use Local Time" />
+		<PDToggleSwitch @bind-Value="_useLocalTime" />
+		<PDLabel Text="Show Timestamp" />
+		<PDToggleSwitch @bind-Value="_showTimestamp" />
+		<PDToolbarTextbox Label="Timestamp Format"
+						  @bind-Value="@LogTimestampFormat" />
+		<PDToolbarButton Text="Clear"
+						 Click="Clear" />
+		<PDLabel Text="Rows" />
+		<PDToolbarTextbox Type="PDInputType.Number"
+						  @bind-Value="_rows" />
+		<PDLabel Text="Capacity" />
+		<PDToolbarTextbox Type="PDInputType.Number"
+						  @bind-Value="_capacity" />
+		<PDLabel Text="Log Level" />
+		<PDToolbarDropdown Text="@_logLevel.ToString()"
+						   Items="LogLevelMenuItems"
+						   Click="OnLogLevelClick" />
+	</PDToolbar>
+
+	<PDLog @ref="_log"
+		   Rows="@int.Parse(_rows)"
+		   WordWrap="@_wordWrap"
+		   Reverse="@_reverse"
+		   Tail="@_tail"
+		   LogLevel="@_logLevel"
+		   Capacity="@int.Parse(_capacity)"
+		   ShowTimestamp="@_showTimestamp"
+		   ShowIcon="@_showIcon"
+		   ShowException="@_showException"
+		   UseLocalTime="@_useLocalTime"
+		   UtcTimestampFormat="@LogTimestampFormat" />
+
+</DemoSourceView>

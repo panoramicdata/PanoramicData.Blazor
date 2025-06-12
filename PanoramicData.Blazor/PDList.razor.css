@@ -1,0 +1,54 @@
+.filter {
+	display: flex;
+}
+
+	.filter ::deep input {
+		border-top-right-radius: 0px !important;
+		border-bottom-right-radius: 0px !important;
+	}
+
+	.filter ::deep .input-group-text {
+		border-top-left-radius: 0px !important;
+		border-bottom-left-radius: 0px !important;
+	}
+
+.footer {
+	border-top: 1px solid silver;
+	display: flex;
+	justify-content: flex-end;
+	padding: 5px 0px;
+}
+
+.header {
+	border-bottom: 1px solid silver;
+	padding: 5px 0px;
+}
+
+.pd-list {
+	margin: 0px 5px;
+	user-select: none;
+}
+
+.pd-list.disabled {
+	opacity: 0.5;
+}
+
+hr {
+	margin: 0.5rem;
+}
+
+li {
+	list-style: none;
+	padding: 0px 2px;
+}
+
+li.selected {
+	background-color: var(--bs-primary);
+}
+
+ul {
+	height: 150px;
+	padding-left: 0px;
+	margin-bottom: 0px;
+	overflow-y: auto;
+}

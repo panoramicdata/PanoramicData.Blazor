@@ -2,8 +2,9 @@
 
 public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 {
-	private readonly Random _random = new(Environment.TickCount);
+	private readonly Random _random = new(System.Environment.TickCount);
 	private readonly DirectoryEntry _root = new(
+
 		new DirectoryEntry("Library", true, false, false,
 			new DirectoryEntry("Templates", true, false, false,
 				new DirectoryEntry("web_template.html", FileExplorerItemType.File, 13000, true, false, false),
@@ -14,7 +15,11 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 		new DirectoryEntry("Users", true, false, false,
 			new DirectoryEntry("1", false, false, false,
 				new DirectoryEntry("summary.xlsx", FileExplorerItemType.File, 5012, false),
-				new DirectoryEntry("instruction.docx", FileExplorerItemType.File, 4320, false)
+				new DirectoryEntry("instruction.docx", FileExplorerItemType.File, 4320, false),
+				new DirectoryEntry("example.md", FileExplorerItemType.File, 2647, false),
+				new DirectoryEntry("lorem_ipsum.txt", FileExplorerItemType.File, 1424, false),
+				new DirectoryEntry("simple_example.html", FileExplorerItemType.File, 21155, false),
+				new DirectoryEntry("web_shortcut.url", FileExplorerItemType.File, 55, false)
 			)
 			{ Alias = "Alice" },
 			new DirectoryEntry("2", false, false, false,
@@ -31,10 +36,11 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				new DirectoryEntry("stats.txt", FileExplorerItemType.File, 60766)
 			),
 			new DirectoryEntry("Temp",
-				new DirectoryEntry("p21wsa.tmp", FileExplorerItemType.File, 4096) { IsHidden = true },
-				new DirectoryEntry("a53fde.tmp", FileExplorerItemType.File, 1024) { IsHidden = true },
-				new DirectoryEntry("b76jba.tmp", FileExplorerItemType.File, 2048) { IsHidden = true },
-				new DirectoryEntry("z671hy.tmp", FileExplorerItemType.File, 0) { IsHidden = true }
+				new DirectoryEntry("1gigabyte.tmp", FileExplorerItemType.File, 1096000000) { IsHidden = true },
+				new DirectoryEntry("1kilobyte.tmp", FileExplorerItemType.File, 1024) { IsHidden = true },
+				new DirectoryEntry("2kilobytes.tmp", FileExplorerItemType.File, 2048) { IsHidden = true },
+				new DirectoryEntry("4bytes.tmp", FileExplorerItemType.File, 4) { IsHidden = true },
+				new DirectoryEntry("empty.tmp", FileExplorerItemType.File, 0) { IsHidden = true }
 			),
 			new DirectoryEntry("Cache",
 				new DirectoryEntry("document.docx", FileExplorerItemType.File, 4096),
@@ -59,9 +65,47 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				new DirectoryEntry("WeeklyStats.json", FileExplorerItemType.File, 23500),
 				new DirectoryEntry("MonthlyStats.json", FileExplorerItemType.File, 104999)
 			),
+			new DirectoryEntry("Folders",
+				new DirectoryEntry("Folder01"),
+				new DirectoryEntry("Folder02"),
+				new DirectoryEntry("Folder03"),
+				new DirectoryEntry("Folder04"),
+				new DirectoryEntry("Folder05"),
+				new DirectoryEntry("Folder06"),
+				new DirectoryEntry("Folder07"),
+				new DirectoryEntry("Folder08"),
+				new DirectoryEntry("Folder09"),
+				new DirectoryEntry("Folder10"),
+				new DirectoryEntry("Folder11"),
+				new DirectoryEntry("Folder12"),
+				new DirectoryEntry("Folder13"),
+				new DirectoryEntry("Folder14"),
+				new DirectoryEntry("Folder15"),
+				new DirectoryEntry("Folder16"),
+				new DirectoryEntry("Folder17"),
+				new DirectoryEntry("Folder18"),
+				new DirectoryEntry("Folder19"),
+				new DirectoryEntry("Folder20"),
+				new DirectoryEntry("Folder21"),
+				new DirectoryEntry("Folder22"),
+				new DirectoryEntry("Folder23"),
+				new DirectoryEntry("Folder24"),
+				new DirectoryEntry("Folder25"),
+				new DirectoryEntry("Folder26"),
+				new DirectoryEntry("Folder27"),
+				new DirectoryEntry("Folder28"),
+				new DirectoryEntry("Folder29")
+			),
 			new DirectoryEntry("Readme.txt", FileExplorerItemType.File, 3500)
 		)
-		{ CanCopyMove = false }
+		{ CanCopyMove = false },
+		new DirectoryEntry("Sharepoint", true, false, false,
+			new DirectoryEntry("Public", true, false, false,
+				new DirectoryEntry("web_template.html", FileExplorerItemType.File, 13000, true, false, false),
+				new DirectoryEntry("excel_template.xlsx", FileExplorerItemType.File, 7500, true, false, false),
+				new DirectoryEntry("word_template.docx", FileExplorerItemType.File, 10000, true, false, false)
+			)
+		)
 	)
 	{ Alias = "/" };
 
@@ -72,8 +116,10 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 		{
 			for (var i = 0; i < 50; i++)
 			{
-				var childItem = new DirectoryEntry($"datafile-{i + 1:00}.dat", FileExplorerItemType.File, _random.Next(100000));
-				childItem.Parent = itemNode;
+				var childItem = new DirectoryEntry($"datafile-{i + 1:00}.dat", FileExplorerItemType.File, _random.Next(100000))
+				{
+					Parent = itemNode
+				};
 				itemNode.Items.Add(childItem);
 			}
 		}
@@ -164,9 +210,9 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 		if (request.SortFieldExpression != null)
 		{
 			var sortedItems = request.SortDirection == SortDirection.Ascending
-				? items.AsQueryable<FileExplorerItem>().OrderBy(request.SortFieldExpression)
-				: items.AsQueryable<FileExplorerItem>().OrderByDescending(request.SortFieldExpression);
-			items = sortedItems.ToList();
+				? items.AsQueryable().OrderBy(request.SortFieldExpression)
+				: items.AsQueryable().OrderByDescending(request.SortFieldExpression);
+			items = [.. sortedItems];
 
 			// move Library folder to the top of the list - if displayed
 			if (items.SingleOrDefault(i => i.Path == "/Library") is FileExplorerItem libraryFolder)
@@ -196,7 +242,8 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 		{
 			return "fas fa-fw fa-folder";
 		}
-		return item.FileExtension.ToLower() switch
+
+		return item.FileExtension.ToLowerInvariant() switch
 		{
 			"doc" or "docx" => "fas fa-fw fa-file-word",
 			"xls" or "xlsx" => "fas fa-fw fa-file-excel",
@@ -224,12 +271,13 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 
 		await Task.Run(() =>
 		{
-			if (!delta.ContainsKey("Path"))
+			if (!delta.TryGetValue("Path", out object? value))
 			{
 				result.ErrorMessage = "Only Path property update supported";
 				return;
 			}
-			var tempPath = delta["Path"]?.ToString() ?? string.Empty;
+
+			var tempPath = value?.ToString() ?? string.Empty;
 			var tempItem = new FileExplorerItem { Path = tempPath ?? string.Empty, Name = FileExplorerItem.GetNameFromPath(tempPath) };
 			var targetNode = _root.Where(x => x.Path() == tempItem.Path).FirstOrDefault();
 			var targetParentNode = targetNode is null ? _root.Where(x => x.Path() == tempItem.ParentPath).FirstOrDefault() : targetNode.Parent;
@@ -263,10 +311,9 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 					result.ErrorMessage = "Failed to move: Invalid name";
 					return;
 				}
-				if (itemNode.Parent != null)
-				{
-					itemNode.Parent.Items.Remove(itemNode);
-				}
+
+				itemNode.Parent?.Items.Remove(itemNode);
+
 				targetParentNode.Items.Add(itemNode);
 				itemNode.Parent = targetParentNode;
 				itemNode.Name = tempItem.Name;
@@ -282,13 +329,12 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				}
 
 				// target is folder - so move item into
-				if (itemNode.Parent != null)
-				{
-					itemNode.Parent.Items.Remove(itemNode);
-				}
+				itemNode.Parent?.Items.Remove(itemNode);
+
 				targetNode.Items.Add(itemNode);
 				itemNode.Parent = targetNode;
 			}
+
 			result.Success = true;
 		}, cancellationToken).ConfigureAwait(true);
 		return result;

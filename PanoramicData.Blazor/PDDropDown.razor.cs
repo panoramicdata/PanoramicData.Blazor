@@ -1,12 +1,12 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDDropDown : IAsyncDisposable
+public partial class PDDropDown : IAsyncDisposable, IEnablable
 {
-	private static int _sequence;
 	private bool _shown;
-	private DotNetObjectReference<PDDropDown>? _objRef;
+	private static int _sequence;
 	private IJSObjectReference? _module;
 	private IJSObjectReference? _dropdownObj;
+	private DotNetObjectReference<PDDropDown>? _objRef;
 
 	public enum CloseOptions
 	{
@@ -35,8 +35,10 @@ public partial class PDDropDown : IAsyncDisposable
 	public Directions DropdownDirection { get; set; } = Directions.Down;
 
 	[Parameter]
-	public EventCallback DropDownShown { get; set; }
+	public EventCallback DropDownHidden { get; set; }
 
+	[Parameter]
+	public EventCallback DropDownShown { get; set; }
 
 	[Parameter]
 	public bool IsEnabled { get; set; } = true;
@@ -57,6 +59,9 @@ public partial class PDDropDown : IAsyncDisposable
 	public bool ShowCaret { get; set; } = true;
 
 	[Parameter]
+	public bool ShowOnMouseEnter { get; set; }
+
+	[Parameter]
 	public ButtonSizes Size { get; set; } = ButtonSizes.Medium;
 
 	[Parameter]
@@ -74,13 +79,14 @@ public partial class PDDropDown : IAsyncDisposable
 	[Parameter]
 	public bool Visible { get; set; } = true;
 
-	private Dictionary<string, object> Attributes
+	private static Dictionary<string, object> Attributes
 	{
 		get
 		{
 			return new Dictionary<string, object>
 			{
-				{ "data-bs-toggle", "dropdown" }
+				{ "data-bs-toggle", "dropdown" },
+				{ "data-bs-offset", "0,-3" } // required to leave no gap between toggle button and dropdown
 			};
 		}
 	}
@@ -97,11 +103,13 @@ public partial class PDDropDown : IAsyncDisposable
 					_objRef.Dispose();
 					_objRef = null;
 				}
+
 				if (_dropdownObj != null)
 				{
 					await _dropdownObj.DisposeAsync().ConfigureAwait(true);
 					_dropdownObj = null;
 				}
+
 				if (_module != null)
 				{
 					await _module.DisposeAsync().ConfigureAwait(true);
@@ -113,6 +121,8 @@ public partial class PDDropDown : IAsyncDisposable
 		{
 		}
 	}
+
+	public string DropdownId => $"{Id}-dropdown";
 
 	public async Task HideAsync()
 	{
@@ -126,20 +136,27 @@ public partial class PDDropDown : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_objRef = DotNetObjectReference.Create(this);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropDown.razor.js").ConfigureAwait(true);
-			if (_module != null)
+			try
 			{
-				_dropdownObj = await _module.InvokeAsync<IJSObjectReference>("initialize", ToggleId, _objRef, new
+				_objRef = DotNetObjectReference.Create(this);
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDropDown.razor.js").ConfigureAwait(true);
+				if (_module != null)
 				{
-					autoClose = CloseOption switch
+					_dropdownObj = await _module.InvokeAsync<IJSObjectReference>("initialize", Id, ToggleId, DropdownId, _objRef, new
 					{
-						CloseOptions.Inside => (object)"inside",
-						CloseOptions.InsideOrOutside => true,
-						CloseOptions.Manual => false,
-						_ => "outside"
-					}
-				}).ConfigureAwait(true);
+						autoClose = CloseOption switch
+						{
+							CloseOptions.Inside => (object)"inside",
+							CloseOptions.InsideOrOutside => true,
+							CloseOptions.Manual => false,
+							_ => "outside"
+						}
+					}).ConfigureAwait(true);
+				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}
@@ -153,17 +170,15 @@ public partial class PDDropDown : IAsyncDisposable
 	}
 
 	[JSInvokable]
-	public void OnDropDownHidden()
+	public async Task OnDropDownHidden()
 	{
 		_shown = false;
+		await DropDownHidden.InvokeAsync(null).ConfigureAwait(true);
 		StateHasChanged();
 	}
 
 	[JSInvokable]
-	public async Task OnKeyPressed(int keyCode)
-	{
-		await KeyPress.InvokeAsync(keyCode).ConfigureAwait(true);
-	}
+	public async Task OnKeyPressed(int keyCode) => await KeyPress.InvokeAsync(keyCode).ConfigureAwait(true);
 
 	public async Task ShowAsync()
 	{
@@ -173,6 +188,12 @@ public partial class PDDropDown : IAsyncDisposable
 		}
 	}
 
+	private Task OnMouseEnter(MouseEventArgs args)
+		=> IsEnabled && ShowOnMouseEnter ? ShowAsync() : Task.CompletedTask;
+
+	[JSInvokable]
+	public Task OnMouseLeave()
+		=> IsEnabled && ShowOnMouseEnter ? HideAsync() : Task.CompletedTask;
 
 	public async Task ToggleAsync()
 	{
@@ -180,6 +201,24 @@ public partial class PDDropDown : IAsyncDisposable
 		{
 			await _dropdownObj.InvokeVoidAsync("toggle").ConfigureAwait(true);
 		}
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 
 	public string ToggleId => $"{Id}-toggle";

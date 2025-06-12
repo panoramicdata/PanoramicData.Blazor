@@ -32,7 +32,7 @@ public class Person : IComparable
 
 	[Display(Name = "Date of Birth", Description = "Persons date of birth")]
 	[FilterKey("dob")]
-	public DateTime Dob { get; set; }
+	public DateTime? Dob { get; set; }
 
 	[Display(Description = "Department person is currently working within")]
 	[FilterKey("dept")]
@@ -64,12 +64,32 @@ public class Person : IComparable
 	[FilterKey("modified")]
 	public DateTimeOffset? DateModified { get; set; }
 
+	[Display(Name = "First Aider?", Description = "Is the person a qualified first aider?")]
+	public bool? IsFirstAider { get; set; }
+
 	[Display(Name = "Username", Description = "Login username")]
 	[FilterKey("user")]
-	public string Username { get; set; } = string.Empty;
+	public string? Username { get; set; }
 
 	[FilterKey("boss")]
 	public Person? Manager { get; set; }
+
+	[FilterKey("dep")]
+	public int? Dependents { get; set; }
+
+	[Display(Name = "Home Telephone")]
+	[FilterKey("home")]
+	public string? HomeTel { get; set; }
+
+	[Required]
+	[Display(Name = "Mobile Telephone")]
+	[FilterKey("mob")]
+	public string? MobileTel { get; set; }
+
+	[Display(Name = "Work Telephone")]
+	[FilterKey("work")]
+	public string? WorkTel { get; set; }
+
 
 	public int CompareTo(object? obj)
 	{
@@ -77,6 +97,7 @@ public class Person : IComparable
 		{
 			return string.Compare(LastName, other.LastName);
 		}
+
 		return 1;
 	}
 

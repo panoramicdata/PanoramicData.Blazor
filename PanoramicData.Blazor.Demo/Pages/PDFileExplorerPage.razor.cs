@@ -1,10 +1,14 @@
-﻿namespace PanoramicData.Blazor.Demo.Pages;
+﻿using System.IO;
+
+namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDFileExplorerPage
 {
-	private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
-	private readonly string[] _virtualFolders = new string[] { "/Library", "/Users" };
 	private string? _deepLinkPath;
+	private readonly string[] _virtualFolders = ["/Library", "/Users"];
+	private static readonly TestFileSystemDataProvider _testFileSystemDataProvider = new();
+	private readonly TestFileSystemDataProvider _dataProvider = _testFileSystemDataProvider;
+	private IPreviewProvider? _previewProvider;
 
 	private PDFileExplorer? FileExplorer { get; set; }
 
@@ -20,6 +24,25 @@ public partial class PDFileExplorerPage
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
+	private string GetDownloadUrl(FileExplorerItem item)
+	{
+		if (item.EntryType == FileExplorerItemType.File)
+		{
+			// in real world scenarios  you would calculate the download url as <mime>:<filename>:<url>
+			//return $"application/octet-stream:{item.Name}:" + NavigationManager.ToAbsoluteUri($"/files/Download?path={item.Path}").ToString();
+
+			// in this demo the content is either a webm or markdown reference file
+			if (Path.GetExtension(item.Path) == ".md")
+			{
+				return $"text/markdown:{item.Path}:" + NavigationManager.ToAbsoluteUri($"/files/Download?path={item.Path}").ToString();
+			}
+
+			return $"application/octet-stream:{Path.ChangeExtension(item.Name, ".webm")}:" + NavigationManager.ToAbsoluteUri($"/files/Download?path={item.Path}").ToString();
+		}
+
+		return string.Empty;
+	}
+
 	protected override void OnInitialized()
 	{
 		var uri = new Uri(NavigationManager.Uri);
@@ -30,10 +53,15 @@ public partial class PDFileExplorerPage
 		}
 	}
 
-	private void OnFolderChanged(FileExplorerItem folder)
+	protected override void OnAfterRender(bool firstRender)
 	{
-		NavigationManager.SetUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } });
+		if (firstRender && FileExplorer != null)
+		{
+			_previewProvider = new DemoPreviewProvider() { FileExplorer = FileExplorer };
+		}
 	}
+
+	private void OnFolderChanged(FileExplorerItem folder) => NavigationManager.SetUri(new Dictionary<string, object> { { "path", $"{folder.Path}" } });
 
 	private async Task OnReady()
 	{
@@ -47,17 +75,21 @@ public partial class PDFileExplorerPage
 	public async Task OnTableDownloadRequest(TableSelectionEventArgs<FileExplorerItem> args)
 	{
 		// Method A: this method works up to file sizes of 125MB - limit imposed by System.Text.Json (04/08/20)
-		//var bytes = System.IO.File.ReadAllBytes("Download/file_example_WEBM_1920_3_7MB.webm");
+		//var bytes = System.IO.File.ReadAllBytes("Download/TestVideo.webm");
 		//var base64 = System.Convert.ToBase64String(bytes);
 		//await JSRuntime.InvokeVoidAsync("downloadFile", $"{System.IO.Path.GetFileNameWithoutExtension(args.Item.Name)}.webm", base64).ConfigureAwait(true);
 
 		// Method B: to avoid size limit and conversion to base64 - use javascript to get from controller method
 
-		// demo downloads the same WEBM file
+		// demo downloads the either MD or WEBM file
 		foreach (var item in args.Items)
 		{
-			item.Name = System.IO.Path.ChangeExtension(item.Name, ".webm");
+			if (Path.GetExtension(item.Path) != ".md")
+			{
+				item.Name = Path.ChangeExtension(item.Name, ".webm");
+			}
 		}
+
 		await JSRuntime.InvokeVoidAsync("panoramicDataDemo.downloadFiles", args).ConfigureAwait(false);
 	}
 
@@ -184,32 +216,46 @@ public partial class PDFileExplorerPage
 		}
 	}
 
-	private static string GetCssClass(FileExplorerItem _)
+	private static IconInfo? GetBadgeIconCssClass(FileExplorerItem item)
 	{
-		return string.Empty;
+		return item.IsReadOnly
+			? new IconInfo { CssCls = "fas fa-fw fa-ban text-danger", ToolTip = "Read Only" }
+			: null;
 	}
+
+	private static string GetCssClass(FileExplorerItem _) => string.Empty;
 
 	private static string GetIconCssClass(FileExplorerItem item)
 	{
 		if (item.EntryType == FileExplorerItemType.Directory && item.Name != "..")
 		{
+			if (item.Path == "/Sharepoint")
+			{
+				return "icon-sharepoint";
+			}
+
 			if (item.Path == "/Library")
 			{
 				return "fas fa-book";
 			}
+
 			if (item.Path == "/Users")
 			{
 				return "fas fa-users";
 			}
+
 			if (item.Path == "/")
 			{
 				return "fas fa-server";
 			}
+
 			if (item.ParentPath == "/")
 			{
 				return "fas fa-hdd";
 			}
+
 		}
+
 		return TestFileSystemDataProvider.GetIconClass(item);
 	}
 
@@ -224,6 +270,7 @@ public partial class PDFileExplorerPage
 		{
 			return 1;
 		}
+
 		return item1.Name.CompareTo(item2.Name);
 	}
 }

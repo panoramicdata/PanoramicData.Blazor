@@ -1,36 +1,35 @@
 ﻿<PDModal @ref="Modal"
-         Title="@_modalTitle"
-         ButtonClick="OnButtonClick"
-         Buttons="_toolbarItems"
-         CloseOnEscape="CloseOnEscape"
-         HideOnBackgroundClick="HideOnBackgroundClick"
-         Size="Size">
+		 Title="@_modalTitle"
+		 ButtonClick="OnButtonClick"
+		 Buttons="_toolbarItems"
+		 CloseOnEscape="CloseOnEscape"
+		 HideOnBackgroundClick="HideOnBackgroundClick"
+		 Size="Size">
 
-    <div class="pdfilemodalexplorer">
-        <PDFileExplorer @ref="FileExplorer"
-                        DataProvider="DataProvider"
-                        AllowDrag="false"
-                        AllowDrop="false"
-                        AllowRename="@(ShowToolbar || ShowContextMenu)"
-                        AutoExpand="true"
-                        ExcludedPaths="ExcludedPaths"
-                        FilenamePattern="@_filenamePattern"
-                        FolderChanged="OnFolderChanged"
-                        GetItemIconCssClass="GetItemIconCssClassInternal"
-                        ItemDoubleClick="OnItemDoubleClick"
-                        ShowFiles="_showFiles"
-                        ShowNavigateUpButton="ShowNavigateUpButton"
-                        ShowToolbar="@ShowToolbar"
-                        ShowContextMenu="@ShowContextMenu"
-                        SelectionMode="TableSelectionMode.Single"
-                        SelectionChanged="OnSelectionChanged" />
-    </div>
-
+	<div class="pdfilemodalexplorer">
+		<PDFileExplorer @ref="FileExplorer"
+						DataProvider="DataProvider"
+						AllowDrag="false"
+						AllowDrop="false"
+						AllowRename="@(ShowToolbar || ShowContextMenu)"
+						AutoExpand="true"
+						ExcludedPaths="ExcludedPaths"
+						FilenamePattern="@_filenamePattern"
+						FolderChanged="OnFolderChanged"
+						GetItemIconCssClass="GetItemIconCssClassInternal"
+						ItemDoubleClick="OnItemDoubleClick"
+						ShowFiles="_showFiles"
+						ShowNavigateUpButton="ShowNavigateUpButton"
+						ShowToolbar="@ShowToolbar"
+						ShowContextMenu="@ShowContextMenu"
+						SelectionMode="TableSelectionMode.Single"
+						SelectionChanged="OnSelectionChanged" />
+	</div>
 </PDModal>
 
 <PDModal @ref="ModalConfirm"
-         Title="Confirm Overwrite"
-         HideOnBackgroundClick="HideOnBackgroundClick"
-         Buttons="_confirmToolbarItems">
-    <span>Are you sure you wish to overwrite '<b>@_filenameTextbox.Value</b>'?</span>
+		 Title="Confirm Overwrite"
+		 HideOnBackgroundClick="HideOnBackgroundClick"
+		 Buttons="_confirmToolbarItems">
+	<span>Are you sure you wish to overwrite '<b>@_filenameTextbox.Value</b>'?</span>
 </PDModal>

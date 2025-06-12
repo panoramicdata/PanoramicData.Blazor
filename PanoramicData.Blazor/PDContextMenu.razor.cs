@@ -11,7 +11,7 @@ public partial class PDContextMenu : IAsyncDisposable
 	/// <summary>
 	/// Gets or sets the menu items to be displayed in the context menu.
 	/// </summary>
-	[Parameter] public List<MenuItem> Items { get; set; } = new List<MenuItem>();
+	[Parameter] public List<MenuItem> Items { get; set; } = [];
 
 	/// <summary>
 	/// Gets or sets the child content that the COntextMenu wraps.
@@ -35,21 +35,36 @@ public partial class PDContextMenu : IAsyncDisposable
 	[Parameter] public bool Enabled { get; set; } = true;
 
 	/// <summary>
+	/// Gets or sets wether the menu is displayed on the mouse up event instead of the default mouse down event.
+	/// </summary>
+	[Parameter] public bool ShowOnMouseUp { get; set; }
+
+	/// <summary>
 	/// Gets the unique identifier of this panel.
 	/// </summary>
 	public string Id { get; private set; } = string.Empty;
 
-	protected async override Task OnInitializedAsync()
+	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		Id = $"pdcm{++_idSequence}";
-		if (JSRuntime != null)
+		if (firstRender && JSRuntime is not null)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDContextMenu.razor.js");
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
-			var available = await _module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
-			if (!available)
+			try
 			{
-				throw new PDContextMenuException($"To use the {nameof(PDContextMenu)} component you must include the popper.js library");
+				Id = $"pdcm{++_idSequence}";
+				if (JSRuntime != null)
+				{
+					_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDContextMenu.razor.js");
+					_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+					var available = await _module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
+					if (!available)
+					{
+						throw new PDContextMenuException($"To use the {nameof(PDContextMenu)} component you must include the popper.js library");
+					}
+				}
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
 	}
@@ -62,25 +77,43 @@ public partial class PDContextMenu : IAsyncDisposable
 			{
 				await _module.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
 			}
+
 			await ItemClick.InvokeAsync(item).ConfigureAwait(true);
 		}
 	}
 
-	private async Task OnMouseDown(MouseEventArgs args)
+	private Task OnMouseDownAsync(MouseEventArgs args)
 	{
-		if (Enabled && args.Button == 2)
+		if (Enabled && args.Button == 2 && !ShowOnMouseUp)
 		{
-			var cancelArgs = new MenuItemsEventArgs(this, Items)
-			{
-				// get details of element that was clicked on
-				SourceElement = _commonModule != null ? (await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)) : null
-			};
+			return ShowMenuAsync(args);
+		}
 
-			await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
-			if (!cancelArgs.Cancel && _module != null)
-			{
-				await _module.InvokeVoidAsync("showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
-			}
+		return Task.CompletedTask;
+	}
+
+	private Task OnMouseUpAsync(MouseEventArgs args)
+	{
+		if (Enabled && args.Button == 2 && ShowOnMouseUp)
+		{
+			return ShowMenuAsync(args);
+		}
+
+		return Task.CompletedTask;
+	}
+
+	private async Task ShowMenuAsync(MouseEventArgs args)
+	{
+		var cancelArgs = new MenuItemsEventArgs(this, Items)
+		{
+			// get details of element that was clicked on
+			SourceElement = _commonModule != null ? (await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true)) : null
+		};
+
+		await UpdateState.InvokeAsync(cancelArgs).ConfigureAwait(true);
+		if (!cancelArgs.Cancel && _module != null)
+		{
+			await _module.InvokeVoidAsync("showMenu", Id, args.ClientX, args.ClientY).ConfigureAwait(true);
 		}
 	}
 

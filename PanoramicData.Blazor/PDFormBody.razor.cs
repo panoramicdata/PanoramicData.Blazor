@@ -39,7 +39,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	[Parameter] public int TitleWidth { get; set; } = 200;
 
-	private MarkupString WidthCssMarkup => new MarkupString($".title-box {{ width: {TitleWidth}px }}");
+	private MarkupString WidthCssMarkup => new($".title-box {{ width: {TitleWidth}px }}");
 
 	public async ValueTask DisposeAsync()
 	{
@@ -58,6 +58,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 
 	public List<FieldGroup<TItem>> Group(IEnumerable<FormField<TItem>> fields)
 	{
+		var index = 0;
 		var groups = new List<FieldGroup<TItem>>();
 		var dict = new Dictionary<string, FieldGroup<TItem>>();
 		foreach (var field in fields)
@@ -65,7 +66,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 			if (string.IsNullOrWhiteSpace(field.Group))
 			{
 				// create separate group for single field
-				groups.Add(new FieldGroup<TItem>() { Fields = new() { field } });
+				groups.Add(new FieldGroup<TItem>() { Id = $"group-{++index}", Fields = [field] });
 			}
 			else
 			{
@@ -76,7 +77,11 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 				else
 				{
 					// create new group
-					var g = new FieldGroup<TItem>() { Fields = new() { field } };
+					var g = new FieldGroup<TItem>()
+					{
+						Id = $"group-{++index}",
+						Fields = [field]
+					};
 					// add to dict for lookup / grouping by id
 					dict.Add(field.Group, g);
 					// add to results - provides ordering
@@ -84,12 +89,23 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 				}
 			}
 		}
+
 		return groups;
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+		if (firstRender && JSRuntime is not null)
+		{
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
+		}
 	}
 
 	protected override void OnParametersSet()
@@ -102,8 +118,11 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 				Form.Fields.Add(new FormField<TItem>
 				{
 					AutoComplete = column.AutoComplete,
-					Id = column.Id,
+					Description = column.Description,
+					DescriptionFunc = column.DescriptionFunc,
 					Field = column.Field,
+					DisplayOptions = column.DisplayOptions,
+					Id = column.Id,
 					ReadOnlyInCreate = column.ReadOnlyInCreate,
 					ReadOnlyInEdit = column.ReadOnlyInEdit,
 					ShowCopyButton = column.ShowCopyButton,
@@ -113,28 +132,29 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 					EditTemplate = column.EditTemplate,
 					Helper = column.Helper,
 					MaxLength = column.MaxLength,
+					MinValue = column.MinValue,
+					MaxValue = column.MaxValue,
 					Title = column.GetTitle(),
 					Options = column.Options,
 					OptionsAsync = column.OptionsAsync,
 					IsPassword = column.IsPassword,
 					IsSensitive = column.IsSensitive,
 					IsTextArea = column.IsTextArea,
+					IsImage = column.IsImage,
 					TextAreaRows = column.TextAreaRows,
 					ShowValidationResult = column.ShowValidationResult,
-					Description = column.Description,
 					HelpUrl = column.HelpUrl
 				});
 			}
-
 		}
 	}
 
-	public bool IsShown(FormField<TItem> field, FormModes? mode = null)
+	public bool IsShown(FormField<TItem> field) => IsShown(field, null);
+
+	public bool IsShown(FormField<TItem> field, FormModes? mode)
 	{
-		if (mode == null)
-		{
-			mode = Form?.Mode;
-		}
+		mode ??= Form?.Mode;
+
 		return (mode == FormModes.Create && field.ShowInCreate(Form?.GetItemWithUpdates())) ||
 			((mode == FormModes.Edit || mode == FormModes.ReadOnly) && field.ShowInEdit(Form?.GetItemWithUpdates())) ||
 			(mode == FormModes.Delete && field.ShowInDelete(Form?.GetItemWithUpdates()));
@@ -147,16 +167,13 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		Form?.Mode == FormModes.Cancel ||
 		Form?.Mode == FormModes.ReadOnly;
 
-	public string GetEditorClass(FormField<TItem> field)
-	{
-		return Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
-	}
+	public string GetEditorClass(FormField<TItem> field) => Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
 
 	private async Task OnHelperClick(FormField<TItem> field)
 	{
 		if (field != null && Form != null && (field?.Helper?.Click != null || field?.Helper?.ClickAsync != null))
 		{
-			FormFieldResult result = new FormFieldResult { Canceled = true };
+			FormFieldResult result = new() { Canceled = true };
 			if (field.Helper?.Click != null)
 			{
 				result = field.Helper.Click(field);
@@ -165,6 +182,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 			{
 				result = await field.Helper.ClickAsync(field).ConfigureAwait(true);
 			}
+
 			if (!result.Canceled && result.NewValue != null)
 			{
 				await Form.SetFieldValueAsync(field, result.NewValue).ConfigureAwait(true);
@@ -172,11 +190,11 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
-	private void OnHelpUrlClick(FormField<TItem> field)
+	private async Task OnHelpUrlClick(FormField<TItem> field)
 	{
 		if (_commonModule != null)
 		{
-			_commonModule.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
+			await _commonModule.InvokeVoidAsync("openUrl", field.HelpUrl, "pd-help-page");
 		}
 	}
 
@@ -191,10 +209,15 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		{
 			return "alert-danger";
 		}
-		else if (Form != null && field.GetIsRequired() && string.IsNullOrWhiteSpace(Form?.GetFieldValue(field)?.ToString()))
+		else if (fieldName != null && field.SuppressErrors && Form?.Errors?.ContainsKey(fieldName) == true)
 		{
 			return "alert-warning";
 		}
+		// check if field is required
+		//		else if (Form != null && field.GetIsRequired() && string.IsNullOrWhiteSpace(Form?.GetFieldValue(field)?.ToString()))
+		//		{
+		//			return "alert-warning";
+		//		}
 		else
 		{
 			return "alert-success";
@@ -211,20 +234,23 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 			{
 				return "alert-danger";
 			}
+
 			classes.Add(key);
 		}
+
 		if (classes.Contains("alert-warning"))
 		{
 			return "alert-warning";
 		}
+
 		return classes.Contains("alert-success") ? "alert-success" : string.Empty;
 	}
 
-	private static string GetValidationIconForCssClass(string cssClass) => cssClass switch
+	private static string GetValidationIconForCssClass(string cssClass) => "d-table-cell pt-1 fas fa-fw " + cssClass switch
 	{
-		"alert-danger" => "fas fa-exclamation-circle",
-		"alert-warning" => "fas fa-asterisk",
-		"alert-success" => "fas fa-check-circle",
-		_ => "pd-empty-icon"
+		"alert-danger" => "fa-exclamation-circle",
+		"alert-warning" => "fa-asterisk",
+		"alert-success" => "fa-check-circle",
+		_ => ""
 	};
 }

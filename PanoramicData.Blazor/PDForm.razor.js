@@ -1,6 +1,4 @@
-﻿import * as common from "./js/common.js";
-
-var unloadListener = false;
+﻿var unloadListener = false;
 var unloadListenerIds = {};
 
 export function beforeUnloadListener(event) {
@@ -10,7 +8,7 @@ export function beforeUnloadListener(event) {
 
 export function removeUnloadListener () {
 	if (unloadListener) {
-		removeEventListener("beforeunload", common.beforeUnloadListener, { capture: true });
+		removeEventListener("beforeunload", beforeUnloadListener, { capture: true });
 		unloadListener = false;
 	}
 	unloadListenerIds = {};
@@ -28,11 +26,11 @@ export function setUnloadListener (id, changesMade) {
 	// add or remove unload listener
 	var listenerCount = Object.keys(unloadListenerIds).length;
 	if (listenerCount > 0 && !unloadListener) {
-		addEventListener("beforeunload", common.beforeUnloadListener, { capture: true });
+		addEventListener("beforeunload", beforeUnloadListener, { capture: true });
 		unloadListener = true;
 	}
 	else if (listenerCount === 0 && unloadListener) {
-		removeEventListener("beforeunload", common.beforeUnloadListener, { capture: true });
+		removeEventListener("beforeunload", beforeUnloadListener, { capture: true });
 		unloadListener = false;
 	}
 }

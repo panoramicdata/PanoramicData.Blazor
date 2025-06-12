@@ -1,12 +1,15 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDStackedBar
+public partial class PDStackedBar : IEnablable
 {
 	[Parameter]
 	public string DateFormat { get; set; } = "dd/MM/yy HH:mm";
 
 	[Parameter]
 	public DataPoint DataPoint { get; set; } = new DataPoint();
+
+	[Parameter]
+	public double Height { get; set; }
 
 	[Parameter]
 	public bool IsEnabled { get; set; } = true;
@@ -23,24 +26,44 @@ public partial class PDStackedBar
 	[Parameter]
 	public Func<double, double> YValueTransform { get; set; } = (v) => v;
 
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
+	}
+
 	private string GetTitle()
 	{
 		if (DataPoint is null)
 		{
-			return String.Empty;
+			return string.Empty;
 		}
+
 		var sb = new StringBuilder();
-		sb.AppendLine(DataPoint.StartTime.ToString(DateFormat));
+		sb.AppendLine(DataPoint.StartTime.ToString(DateFormat, CultureInfo.InvariantCulture));
 		if (DataPoint != null && DataPoint.SeriesValues.Length > 0)
 		{
 			for (var i = 0; i < Options.Series.Length; i++)
 			{
 				sb.Append(Options.Series[i].Label)
 				  .Append(": ")
-				  .AppendLine(DataPoint.SeriesValues[i].ToString(Options.Series[i].Format));
+				  .AppendLine(DataPoint.SeriesValues[i].ToString(Options.Series[i].Format, CultureInfo.InvariantCulture));
 			}
 		}
-		sb.Append($"{DataPoint.CountLabel}: ").AppendLine(DataPoint!.Count.ToString());
+
+		sb.Append($"{DataPoint.CountLabel}: ").AppendLine(DataPoint!.Count.ToString(CultureInfo.InvariantCulture));
 		return sb.ToString();
 	}
 }

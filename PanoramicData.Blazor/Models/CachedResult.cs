@@ -3,13 +3,8 @@
 /// <summary>
 /// The CachedResult class implements a very simple cached item.
 /// </summary>
-public class CachedResult<T>
+public class CachedResult<T>(string key, T result)
 {
-	public CachedResult(string key, T result)
-	{
-		Key = key;
-		Result = result;
-	}
 
 	/// <summary>
 	/// Gets or sets the expiry time of the cache.
@@ -24,10 +19,10 @@ public class CachedResult<T>
 	/// <summary>
 	/// Gets or sets a unique key value for the collection of items.
 	/// </summary>
-	public string Key { get; } = string.Empty;
+	public string Key { get; } = key;
 
 	/// <summary>
 	/// Gets the cached result.
 	/// </summary>
-	public T Result { get; }
+	public T Result { get; } = result;
 }

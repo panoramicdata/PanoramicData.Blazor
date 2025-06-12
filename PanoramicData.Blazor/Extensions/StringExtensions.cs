@@ -12,10 +12,11 @@ public static class StringExtensions
 	/// <returns>A new string containing either the new path if modified, otherwise the original path.</returns>
 	public static string ReplacePathPrefix(this string path, string oldPathPrefix, string newPathPrefix)
 	{
-		if (path == oldPathPrefix || path.StartsWith(oldPathPrefix.TrimEnd('/') + '/'))
+		if (path == oldPathPrefix || path.StartsWith(oldPathPrefix.TrimEnd('/') + '/', StringComparison.Ordinal))
 		{
 			return path.Replace(oldPathPrefix, newPathPrefix);
 		}
+
 		return path;
 	}
 
@@ -25,10 +26,7 @@ public static class StringExtensions
 	/// <param name="value">The current string to check for.</param>
 	/// <param name="comparisonList">A list of one or more comparison strings.</param>
 	/// <returns>true if the given string is contained within the given list, otherwise false.</returns>
-	public static bool In(this string value, params string[] comparisonList)
-	{
-		return comparisonList.Contains(value);
-	}
+	public static bool In(this string value, params string[] comparisonList) => comparisonList.Contains(value);
 
 	/// <summary>
 	/// Appends the shortcut keys to the given text.
@@ -42,6 +40,7 @@ public static class StringExtensions
 		{
 			return text;
 		}
+
 		return $"{text.Replace("&&", "")} ({shortcutKey})";
 	}
 
@@ -56,35 +55,37 @@ public static class StringExtensions
 		{
 			return (MarkupString)text;
 		}
-		var ampIdx = text.IndexOf("&&");
+
+		var ampIdx = text.IndexOf("&&", StringComparison.Ordinal);
 		if (ampIdx == -1)
 		{
 			return (MarkupString)text;
 		}
+
 		var sb = new StringBuilder();
 		sb.Append("<span>")
-			.Append(text.Substring(0, ampIdx))
+			.Append(text[..ampIdx])
 			.Append("<u>")
-			.Append(text.Substring(ampIdx + 2, 1))
+			.Append(text.AsSpan(ampIdx + 2, 1))
 			.Append("</u>")
-			.Append(text.Substring(ampIdx + 3))
+			.Append(text[(ampIdx + 3)..])
 			.Append("</span>");
 		return (MarkupString)sb.ToString();
 	}
 
 	public static string LowerFirstChar(this string text) => string.IsNullOrWhiteSpace(text)
 		? text
-		: text[0].ToString().ToLower() + text[1..];
+		: text[0].ToString().ToLowerInvariant() + text[1..];
 
 	public static string UpperFirstChar(this string text) => string.IsNullOrWhiteSpace(text)
 		? text
-		: text[0].ToString().ToUpper() + text[1..];
+		: text[0].ToString().ToUpperInvariant() + text[1..];
 
 	public static string QuoteIfContainsWhitespace(this string text)
 	{
 		if (text.Length > 0)
 		{
-			if (!(text.StartsWith("\"") && text.StartsWith("\"")) && !(text.StartsWith("#") && text.StartsWith("#")))
+			if (!(text.StartsWith('"') && text.StartsWith('"')) && !(text.StartsWith('#') && text.StartsWith('#')))
 			{
 				if (text.Contains(' ') || text.Contains('\t') || text.Contains('\r') || text.Contains('\n'))
 				{
@@ -92,15 +93,36 @@ public static class StringExtensions
 				}
 			}
 		}
+
 		return text;
 	}
 
 	public static string RemoveQuotes(this string text)
 	{
-		if (text.StartsWith("\"") && text.EndsWith("\""))
+		if (text.StartsWith('"') && text.EndsWith('"'))
 		{
-			return text.Substring(1, text.Length - 2);
+			return text[1..^1];
 		}
+
 		return text;
+	}
+
+	public static string ExtractAlphanumericChars(this string text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return text;
+		}
+
+		var sb = new StringBuilder();
+		foreach (char ch in text)
+		{
+			if (char.IsLetter(ch) || char.IsDigit(ch))
+			{
+				sb.Append(ch);
+			}
+		}
+
+		return sb.ToString();
 	}
 }

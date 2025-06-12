@@ -6,6 +6,7 @@ public partial class PDTablePage
 	private PageCriteria _pageCriteria = new(1, 100);
 	private SortCriteria _sortCriteria = new("Last Name", SortDirection.Descending);
 	private readonly PersonDataProvider _personDataProvider = new();
+	private object[] _ages = [];
 	private bool AllowDrag { get; set; }
 	private bool AllowDrop { get; set; }
 	private string DropZoneCss { get; set; } = "";
@@ -13,8 +14,6 @@ public partial class PDTablePage
 	private string DropMessage { get; set; } = "Drop Zone";
 	private bool Enabled { get; set; } = true;
 	private PDTable<Person> Table { get; set; } = null!;
-
-	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
 
 	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
@@ -31,7 +30,7 @@ public partial class PDTablePage
 		// Sort
 		if (query.TryGetValue("sort", out var requestedSortFields))
 		{
-			var sortFieldSpecs = requestedSortFields[0]?.Split('|') ?? Array.Empty<string>();
+			var sortFieldSpecs = requestedSortFields[0]?.Split('|') ?? [];
 			if (sortFieldSpecs.Length == 2)
 			{
 				_sortCriteria = new SortCriteria(sortFieldSpecs[0], sortFieldSpecs[1] == "desc" ? SortDirection.Descending : SortDirection.Ascending);
@@ -51,6 +50,13 @@ public partial class PDTablePage
 		}
 	}
 
+	protected override async Task OnInitializedAsync()
+	{
+		// determine unique birth years
+		var years = await _personDataProvider.GetDistinctValuesAsync(new(), x => x.Dob!.Value.Year);
+		_ages = [.. years.Select(x => (DateTime.Now.Date.Year - Convert.ToInt32(x)) as object).OrderBy(x => x)];
+	}
+
 	private async Task SearchAsync()
 	{
 		// Update the URI for bookmarking
@@ -65,6 +71,25 @@ public partial class PDTablePage
 		// Update the URI for bookmarking
 		var direction = criteria.Direction == SortDirection.Ascending ? "asc" : "desc";
 		NavigationManager.SetUri(new Dictionary<string, object> { { "sort", $"{criteria.Key}|{direction}" } });
+	}
+
+	private void OnAfterEdit(TableAfterEditEventArgs<Person> args)
+	{
+		EventManager?.Add(new Event("AfterEdit", new EventArgument("Person", args.Item.FirstName), new EventArgument("Cancel", args.Cancel), new EventArgument("NewValues", args.ToString())));
+	}
+
+
+	private void OnAfterEditCommitted(TableAfterEditCommittedEventArgs<Person> args)
+	{
+		EventManager?.Add(new Event("AfterEditCommitted", new EventArgument("Person", args.Item.FirstName), new EventArgument("NewValues", args.ToString())));
+	}
+
+	private void OnBeforeEdit(TableBeforeEditEventArgs<Person> args)
+	{
+		EventManager?.Add(new Event("BeforeEdit", new EventArgument("Person", args.Item.FirstName), new EventArgument("SelectionStart", args.SelectionStart), new EventArgument("SelectionEnd", args.SelectionEnd)));
+
+		// example of preventing an edit
+		args.Cancel = args.Item.FirstName == "Alice";
 	}
 
 	private void OnPageChange(PageCriteria criteria)
@@ -84,23 +109,9 @@ public partial class PDTablePage
 		}
 	}
 
-	private void OnClick(Person item)
-	{
-		EventManager?.Add(new Event("Click", new EventArgument("Person", item.FirstName)));
-	}
+	private void OnClick(Person item) => EventManager?.Add(new Event("Click", new EventArgument("Person", item.FirstName)));
 
-	private void OnDoubleClick(Person item)
-	{
-		EventManager?.Add(new Event("DoubleClick", new EventArgument("Person", item.FirstName)));
-	}
-
-	private void OnBeforeEdit(TableBeforeEditEventArgs<Person> args)
-	{
-		EventManager?.Add(new Event("BeforeEdit", new EventArgument("Person", args.Item.FirstName)));
-
-		// example of preventing an edit
-		args.Cancel = args.Item.FirstName == "Alice";
-	}
+	private void OnDoubleClick(Person item) => EventManager?.Add(new Event("DoubleClick", new EventArgument("Person", item.FirstName)));
 
 	private void OnDrop(DropEventArgs args)
 	{
@@ -125,10 +136,7 @@ public partial class PDTablePage
 		}
 	}
 
-	private void OnDragLeave(DragEventArgs _)
-	{
-		DropZoneCss = "";
-	}
+	private void OnDragLeave(DragEventArgs _) => DropZoneCss = "";
 
 	private void OnDragDrop(DragEventArgs _)
 	{
@@ -155,20 +163,19 @@ public partial class PDTablePage
 		await SearchAsync().ConfigureAwait(true);
 	}
 
-	private async Task OnSearchCleared()
-	{
+	private async Task OnSearchCleared() =>
 		//_searchText = string.Empty;
 		await SearchAsync().ConfigureAwait(true);
-	}
 
-	private OptionInfo[] GetLocationOptions(FormField<Person> _, Person item)
+	private static OptionInfo[] GetLocationOptions(FormField<Person> _, Person item)
 	{
 		var options = new List<OptionInfo>();
 		for (var i = 0; i < PersonDataProvider.Locations.Length; i++)
 		{
 			options.Add(new OptionInfo { Text = PersonDataProvider.Locations[i], Value = i, IsSelected = item?.Location == i });
 		}
-		return options.ToArray();
+
+		return [.. options];
 	}
 
 	private async Task OnEditCommand()
@@ -181,5 +188,18 @@ public partial class PDTablePage
 		{
 			await Table.BeginEditAsync().ConfigureAwait(true);
 		}
+	}
+
+	private static object[] GetFormattedDobOptions()
+	{
+		var dobOptions = new List<object>();
+		foreach (var person in PersonDataProvider.GetAllPersons())
+		{
+			if (person.Dob.HasValue)
+			{
+				dobOptions.Add(person.Dob.Value.ToString("MM/dd/yyyy"));
+			}
+		}
+		return [.. dobOptions.Distinct().Order()];
 	}
 }

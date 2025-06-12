@@ -2,11 +2,17 @@
 
 public class TimelineScale : IComparable
 {
-	private CultureInfo _cultureInfo;
-	private Calendar _calendar;
+	private readonly CultureInfo _cultureInfo;
+	private readonly Calendar _calendar;
 
 	public TimelineScale(string name, TimelineUnits unitType, int unitCount)
 	{
+		// validate
+		if (unitType > TimelineUnits.Hours && unitCount > 1)
+		{
+			throw new ArgumentOutOfRangeException(nameof(unitCount), "Unit Count can only be 1 when Unit Type is greater than hours");
+		}
+
 		_cultureInfo = CultureInfo.CurrentUICulture;
 		_calendar = _cultureInfo.Calendar;
 		Name = name;
@@ -30,6 +36,7 @@ public class TimelineScale : IComparable
 		{
 			return dateTime;
 		}
+
 		return UnitType switch
 		{
 			TimelineUnits.Milliseconds => _calendar.AddMilliseconds(dateTime, periods * UnitCount),
@@ -43,63 +50,64 @@ public class TimelineScale : IComparable
 		};
 	}
 
-	public virtual string FormatPattern(string dateFormat = "d")
+	public virtual string FormatPattern()
 	{
-		return UnitType switch
-		{
-			TimelineUnits.Years => "yyyy",
-			TimelineUnits.Months => "MMM yyyy",
-			TimelineUnits.Hours => $"{dateFormat} HH:00",
-			TimelineUnits.Minutes => $"{dateFormat} HH:mm",
-			_ => dateFormat
-		};
+		return FormatPattern("d");
 	}
 
-	public virtual bool IsMajorTick(DateTime dateTime)
+	public virtual string FormatPattern(string dateFormat) => UnitType switch
 	{
-		return UnitType switch
-		{
-			TimelineUnits.Years => dateTime.Year % 2 == 0,
-			TimelineUnits.Months => dateTime.Month == 1,
-			TimelineUnits.Weeks => dateTime.Month == 1 && dateTime.Day <= 7,
-			TimelineUnits.Days => dateTime.Day == 1,
-			TimelineUnits.Hours => UnitCount < 12 ? dateTime.Hour == 0 : dateTime.Hour == 0 && (dateTime.DayOfYear) % 2 == 0,
-			TimelineUnits.Minutes => dateTime.Minute == 0,
-			TimelineUnits.Milliseconds => dateTime.Second == 0,
-			_ => false
-		};
-	}
+		TimelineUnits.Years => "yyyy",
+		TimelineUnits.Months => "MMM yyyy",
+		TimelineUnits.Hours => $"{dateFormat} HH:00",
+		TimelineUnits.Minutes => $"{dateFormat} HH:mm",
+		_ => dateFormat,
+	};
 
-	public int PeriodsBetween(DateTime start, DateTime end, bool roundUp = true)
+
+	public virtual bool IsMajorTick(DateTime dateTime) => UnitType switch
+	{
+		TimelineUnits.Years => dateTime.Year % 2 == 0,
+		TimelineUnits.Months => dateTime.Month == 1,
+		TimelineUnits.Weeks => dateTime.Month == 1 && dateTime.Day <= 7,
+		TimelineUnits.Days => dateTime.Day == 1,
+		TimelineUnits.Hours => UnitCount < 12 ? dateTime.Hour == 0 : dateTime.Hour == 0 && (dateTime.DayOfYear) % 2 == 0,
+		TimelineUnits.Minutes => dateTime.Minute == 0,
+		TimelineUnits.Milliseconds => dateTime.Second == 0,
+		_ => false
+	};
+
+	public int PeriodsBetween(DateTime start, DateTime end)
+		=> PeriodsBetween(start, end, true);
+
+	public int PeriodsBetween(DateTime start, DateTime end, bool roundUp)
 	{
 		var temp = UnitType switch
 		{
 			TimelineUnits.Milliseconds => end.Subtract(start).TotalMilliseconds,
 			TimelineUnits.Seconds => end.Subtract(start).TotalSeconds,
 			TimelineUnits.Minutes => end.Subtract(start).TotalMinutes,
-			TimelineUnits.Hours => end.Subtract(start).TotalHours / UnitCount,
+			TimelineUnits.Hours => end.Subtract(start).TotalHours,
 			TimelineUnits.Days => end.Subtract(start).TotalDays,
 			TimelineUnits.Weeks => end.Subtract(start).TotalDays / 7,
 			TimelineUnits.Months => end.TotalMonthsSince(start),
 			_ => end.TotalYearsSince(start)
 		};
+		temp /= UnitCount;
 		return (int)(roundUp ? Math.Ceiling(temp) : Math.Floor(temp));
 	}
 
-	public DateTime PeriodEnd(DateTime dateTime)
+	public DateTime PeriodEnd(DateTime dateTime) => UnitType switch
 	{
-		return UnitType switch
-		{
-			TimelineUnits.Milliseconds => _calendar.AddMilliseconds(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Seconds => _calendar.AddSeconds(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Minutes => _calendar.AddMinutes(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Hours => _calendar.AddHours(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Days => _calendar.AddDays(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Weeks => _calendar.AddWeeks(PeriodStart(dateTime), UnitCount),
-			TimelineUnits.Months => _calendar.AddMonths(PeriodStart(dateTime), UnitCount),
-			_ => _calendar.AddYears(PeriodStart(dateTime), UnitCount),
-		};
-	}
+		TimelineUnits.Milliseconds => _calendar.AddMilliseconds(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Seconds => _calendar.AddSeconds(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Minutes => _calendar.AddMinutes(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Hours => _calendar.AddHours(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Days => _calendar.AddDays(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Weeks => _calendar.AddWeeks(PeriodStart(dateTime), UnitCount),
+		TimelineUnits.Months => _calendar.AddMonths(PeriodStart(dateTime), UnitCount),
+		_ => _calendar.AddYears(PeriodStart(dateTime), UnitCount),
+	};
 
 	public DateTime PeriodStart(DateTime dateTime)
 	{
@@ -136,12 +144,13 @@ public class TimelineScale : IComparable
 		};
 	}
 
-	private int Round(int value)
-	{
-		return UnitCount == 1 ? value : (value / UnitCount) * UnitCount;
-	}
 
-	public virtual string TickLabelMajor(DateTime dateTime, string dateFormat = "d")
+	private int Round(int value) => UnitCount == 1 ? value : (value / UnitCount) * UnitCount;
+
+	public virtual string TickLabelMajor(DateTime dateTime)
+		=> TickLabelMajor(dateTime, "d");
+
+	public virtual string TickLabelMajor(DateTime dateTime, string dateFormat)
 	{
 		var pattern = UnitType switch
 		{
@@ -155,7 +164,7 @@ public class TimelineScale : IComparable
 			TimelineUnits.Years => "yyyy",
 			_ => ""
 		};
-		return dateTime.ToString(pattern);
+		return dateTime.ToString(pattern, CultureInfo.InvariantCulture);
 	}
 
 	public virtual string TickLabelMinor(DateTime dateTime)
@@ -173,15 +182,13 @@ public class TimelineScale : IComparable
 		if (UnitType == TimelineUnits.Weeks)
 		{
 			var woy = _calendar.GetWeekOfYear(dateTime, CalendarWeekRule, CalendarDayOfWeek);
-			return woy.ToString("00");
+			return woy.ToString("00", CultureInfo.InvariantCulture);
 		}
-		return dateTime.ToString(pattern);
+
+		return dateTime.ToString(pattern, CultureInfo.InvariantCulture);
 	}
 
-	public override string ToString()
-	{
-		return Name;
-	}
+	public override string ToString() => Name;
 
 	#region IComparable
 
@@ -195,7 +202,7 @@ public class TimelineScale : IComparable
 				return 0;
 			}
 
-			// check if current instance preceeds given scale
+			// check if current instance precedes given scale
 			if (UnitType < ts.UnitType || (UnitType == ts.UnitType && UnitCount < ts.UnitCount))
 			{
 				return -1;
@@ -204,6 +211,7 @@ public class TimelineScale : IComparable
 			// current instance must follow given scale
 			return 1;
 		}
+
 		throw new ArgumentException("Object is not a TimelineScale");
 	}
 
@@ -211,17 +219,20 @@ public class TimelineScale : IComparable
 
 	#region Class Members
 
-	public static TimelineScale Years => new TimelineScale("Years", TimelineUnits.Years, 1);
-	public static TimelineScale Months => new TimelineScale("Months", TimelineUnits.Months, 1);
-	public static TimelineScale Weeks => new TimelineScale("Weeks", TimelineUnits.Weeks, 1);
-	public static TimelineScale Days => new TimelineScale("Days", TimelineUnits.Days, 1);
-	public static TimelineScale Hours => new TimelineScale("Hours", TimelineUnits.Hours, 1);
-	public static TimelineScale Hours4 => new TimelineScale("4 Hours", TimelineUnits.Hours, 4);
-	public static TimelineScale Hours6 => new TimelineScale("6 Hours", TimelineUnits.Hours, 6);
-	public static TimelineScale Hours8 => new TimelineScale("8 Hours", TimelineUnits.Hours, 8);
-	public static TimelineScale Hours12 => new TimelineScale("12 Hours", TimelineUnits.Hours, 12);
-	public static TimelineScale Minutes => new TimelineScale("Minutes", TimelineUnits.Minutes, 1);
-	public static TimelineScale Seconds => new TimelineScale("Seconds", TimelineUnits.Seconds, 1);
+	public static TimelineScale Years => new("Years", TimelineUnits.Years, 1);
+	public static TimelineScale Months => new("Months", TimelineUnits.Months, 1);
+	public static TimelineScale Weeks => new("Weeks", TimelineUnits.Weeks, 1);
+	public static TimelineScale Days => new("Days", TimelineUnits.Days, 1);
+	public static TimelineScale Hours => new("Hours", TimelineUnits.Hours, 1);
+	public static TimelineScale Hours4 => new("4 Hours", TimelineUnits.Hours, 4);
+	public static TimelineScale Hours6 => new("6 Hours", TimelineUnits.Hours, 6);
+	public static TimelineScale Hours8 => new("8 Hours", TimelineUnits.Hours, 8);
+	public static TimelineScale Hours12 => new("12 Hours", TimelineUnits.Hours, 12);
+	public static TimelineScale Minutes => new("Minutes", TimelineUnits.Minutes, 1);
+	public static TimelineScale Minutes5 => new("5 Minutes", TimelineUnits.Minutes, 5);
+	public static TimelineScale Minutes10 => new("10 Minutes", TimelineUnits.Minutes, 10);
+	public static TimelineScale Minutes15 => new("15 Minutes", TimelineUnits.Minutes, 15);
+	public static TimelineScale Seconds => new("Seconds", TimelineUnits.Seconds, 1);
 
 	#endregion
 }

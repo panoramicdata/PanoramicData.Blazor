@@ -6,7 +6,7 @@ public partial class PDFormPage2
 
 	private PDModal Modal { get; set; } = null!;
 	private PDForm<Person> Form { get; set; } = null!;
-	private List<Person> People { get; set; } = new List<Person>();
+	private List<Person> People { get; set; } = [];
 	private Person? SelectedPerson { get; set; }
 
 	[Inject] public IJSRuntime? JSRuntime { get; set; }
@@ -50,14 +50,9 @@ public partial class PDFormPage2
 		RefreshPeople();
 	}
 
-	private void OnError(string message)
-	{
-		EventManager?.Add(new Event("Error", new EventArgument("Message", message)));
-	}
+	private void OnError(string message) => EventManager?.Add(new Event("Error", new EventArgument("Message", message)));
 
-	private void RefreshPeople()
-	{
-		_personDataProvider
+	private void RefreshPeople() => _personDataProvider
 			.GetDataAsync(new DataRequest<Person>
 			{
 				Take = 5,
@@ -65,7 +60,6 @@ public partial class PDFormPage2
 				SortDirection = SortDirection.Descending
 			}, CancellationToken.None)
 			.ContinueWith(PopulatePeopleResult);
-	}
 
 	private void PopulatePeopleResult(Task<DataResponse<Person>> resultTask)
 	{

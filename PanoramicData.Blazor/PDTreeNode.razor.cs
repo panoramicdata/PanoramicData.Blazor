@@ -69,9 +69,16 @@ public partial class PDTreeNode<TItem> where TItem : class
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (firstRender && JSRuntime is not null)
 		{
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			}
+			catch
+			{
+				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
 		}
 
 		if (Node != null)
@@ -83,18 +90,11 @@ public partial class PDTreeNode<TItem> where TItem : class
 				{
 					await _commonModule.InvokeVoidAsync("selectText", $"PDTNE{Node.Id}", 0, Node.Text.Length).ConfigureAwait(true);
 				}
+
 				Node.BeginEditEvent.Reset();
 			}
 		}
 	}
-
-	//private async Task OnContentDblClick(MouseEventArgs args)
-	//{
-	//	if (Node != null)
-	//	{
-	//		await Tree.NodeDoubleClick(Node, args).ConfigureAwait(true);
-	//	}
-	//}
 
 	private void OnContentMouseDown(MouseEventArgs args)
 	{
@@ -126,10 +126,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 		}
 	}
 
-	private async Task OnEndEdit()
-	{
-		await EndEdit.InvokeAsync(null).ConfigureAwait(true);
-	}
+	private async Task OnEndEdit() => await EndEdit.InvokeAsync(null).ConfigureAwait(true);
 
 	private Dictionary<string, object> TreeAttributes
 	{
@@ -140,6 +137,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 			{
 				dict.Add("ondragover", "event.preventDefault();");
 			}
+
 			return dict;
 		}
 	}
@@ -153,10 +151,12 @@ public partial class PDTreeNode<TItem> where TItem : class
 			{
 				dict.Add("draggable", "true");
 			}
+
 			if (AllowDrop)
 			{
 				dict.Add("ondragover", "event.preventDefault();");
 			}
+
 			return dict;
 		}
 	}
@@ -169,10 +169,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 		}
 	}
 
-	private async Task OnDrop(DropEventArgs args)
-	{
-		await Drop.InvokeAsync(args).ConfigureAwait(true);
-	}
+	private async Task OnDrop(DropEventArgs args) => await Drop.InvokeAsync(args).ConfigureAwait(true);
 
 	private async Task OnSeparatorDrop(DropEventArgs args)
 	{

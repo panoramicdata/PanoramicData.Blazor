@@ -1,0 +1,32 @@
+<div class="log-container" style="height: @($"{Rows * 2.5}em"); overflow-y: auto;" @ref="_logContainer">
+	@foreach (var entry in OrderedEntries)
+	{
+		<div class="log-entry" style="white-space: @(WordWrap ? "normal" : "nowrap");">
+			@if (ShowTimestamp && entry.Timestamp != DateTime.MinValue)
+			{
+				 <span class="log-timestamp @entry.TimestampClass">@((MarkupString)GetTimestamp(entry.Timestamp))</span>
+			}
+			@if (ShowIcon)
+			{
+				<i class="@entry.Icon"></i>
+			}
+			<div class="log-messages">
+				@foreach(var messageLine in entry.Message.Split('\n').Select(line => line.Trim()))
+				{
+					<span class="log-message">@((MarkupString)messageLine)</span>
+				}
+				@if(ShowException && entry.Exception is not null)
+				{
+					<hr/>
+					<span class="log-message log-exception-type">@((MarkupString)(entry.Exception.GetType().FullName ?? string.Empty))</span>
+					<span class="log-message log-exception-message">@((MarkupString)entry.Exception.Message)</span>
+					@if(entry.Exception.StackTrace is not null)
+					{
+						<span class="log-message log-exception-stack">@((MarkupString)entry.Exception.StackTrace)</span>
+					}
+				}
+			</div>
+		</div>
+		<hr/>
+	}
+</div>

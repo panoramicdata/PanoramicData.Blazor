@@ -14,15 +14,9 @@ public partial class PDDragDropSeparator
 
 	public bool DragOver { get; set; }
 
-	private void OnDragOver()
-	{
-		DragOver = true;
-	}
+	private void OnDragOver() => DragOver = true;
 
-	private void OnDragLeave()
-	{
-		DragOver = false;
-	}
+	private void OnDragLeave() => DragOver = false;
 
 	private async Task OnDropAsync(MouseEventArgs args)
 	{

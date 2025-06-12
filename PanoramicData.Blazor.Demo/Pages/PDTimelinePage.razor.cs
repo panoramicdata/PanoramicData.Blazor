@@ -2,12 +2,12 @@
 
 public partial class PDTimelinePage
 {
-	private List<ConfigChange> _data = new();
-	private PDTimeline? _timeline = null!;
-	private TimelinePageModel _model = new TimelinePageModel();
+	private readonly List<ConfigChange> _data = [];
+	private PDTimeline _timeline = null!;
+	private readonly TimelinePageModel _model = new();
 	private TimeRange? _selection;
 	private bool _isEnabled = true;
-	private readonly TimelineOptions _timelineOptions = new TimelineOptions
+	private readonly TimelineOptions _timelineOptions = new()
 	{
 		Bar = new TimelineBarOptions
 		{
@@ -18,10 +18,26 @@ public partial class PDTimelinePage
 		{
 			DateFormat = "yyyy-MM-dd",
 			RestrictZoomOut = false,
-			RightAlign = true
+			RightAlign = true,
+			Scales =
+			[
+				TimelineScale.Seconds,
+				TimelineScale.Minutes,
+				TimelineScale.Minutes5,
+				new TimelineScale("10 Minutes", TimelineUnits.Minutes, 10),
+				TimelineScale.Hours,
+				TimelineScale.Hours4,
+				TimelineScale.Hours6,
+				TimelineScale.Hours8,
+				TimelineScale.Hours12,
+				TimelineScale.Days,
+				TimelineScale.Weeks,
+				TimelineScale.Months,
+				TimelineScale.Years
+			]
 		},
-		Series = new[]
-		{
+		Series =
+		[
 			new TimelineSeries
 			{
 				Label = "Lines Deleted",
@@ -37,7 +53,7 @@ public partial class PDTimelinePage
 				Label = "Lines Added",
 				Colour = "Green"
 			}
-		},
+		],
 		Selection = new TimelineSelectionOptions
 		{
 			Enabled = true,
@@ -56,10 +72,10 @@ public partial class PDTimelinePage
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	private void GenerateData(int startYear = 2015, int endYear = 2020, int points = 5000)
+	private void GenerateData(int startYear = 2015, int endYear = 2020, int points = 10000)
 	{
 		// generate data
-		var random = new Random(Environment.TickCount);
+		var random = new Random(System.Environment.TickCount);
 		var startDate = new DateTime(startYear, 1, 1);
 		var endDate = new DateTime(endYear, 12, 31);
 		var dayStart = new TimeSpan(9, 0, 0);
@@ -74,9 +90,14 @@ public partial class PDTimelinePage
 			_data.Add(new ConfigChange
 			{
 				DateChanged = date,
-				LinesAdded = random.Next(0, 50),
-				LinesChanged = random.Next(20, 100),
-				LinesDeleted = random.Next(0, 20),
+				// high counts
+				//LinesAdded = random.Next(0, 50),
+				//LinesChanged = random.Next(20, 100),
+				//LinesDeleted = random.Next(0, 20),
+				// low counts
+				LinesAdded = random.Next(0, 5),
+				LinesChanged = random.Next(0, 5),
+				LinesDeleted = random.Next(0, 5),
 			});
 		}
 	}
@@ -85,25 +106,11 @@ public partial class PDTimelinePage
 	{
 	}
 
-	private void OnScaleChanged(TimelineScale scale)
-	{
-		_model.Scale = scale;
-	}
+	private void OnScaleChanged(TimelineScale scale) => _model.Scale = scale;
 
-	private void OnSelectionChanged(TimeRange? range)
-	{
-		_selection = range;
-	}
+	private void OnSelectionChanged(TimeRange? range) => _selection = range;
 
-	private void OnSelectionChangeEnd()
-	{
-		if (_timeline is null)
-		{
-			return;
-		}
-
-		EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection()?.StartTime), new EventArgument("end", _timeline.GetSelection()?.EndTime)));
-	}
+	private void OnSelectionChangeEnd() => EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection()?.StartTime), new EventArgument("end", _timeline.GetSelection()?.EndTime)));
 
 	private async Task OnClearData()
 	{
@@ -121,7 +128,10 @@ public partial class PDTimelinePage
 	{
 		// generate new data
 		_data.Clear();
-		GenerateData(2015, 2020, 10);
+		// lots of points
+		//GenerateData(2015, 2020, 10000);
+		// fewer points
+		GenerateData(2015, 2020, 100);
 
 		// update component parameters
 		_minDate = _data.Min(x => x.DateChanged);
@@ -149,12 +159,12 @@ public partial class PDTimelinePage
 				{
 					Count = group.Count(),
 					StartTime = group.Key,
-					SeriesValues = new[]
-					{
+					SeriesValues =
+					[
 						(double)group.Sum(x=> x.LinesDeleted),
 						(double)group.Sum(x=> x.LinesChanged),
 						(double)group.Sum(x=> x.LinesAdded)
-					}
+					]
 				});
 			}
 
@@ -163,12 +173,16 @@ public partial class PDTimelinePage
 
 			// add some latency
 			await Task.Delay(1000, cancellationToken).ConfigureAwait(true);
-			return points.ToArray();
+			return [.. points];
+		}
+		catch (TaskCanceledException)
+		{
+			return [];
 		}
 		catch (Exception ex)
 		{
 			Console.WriteLine($"GetTimelineData: Exception: {ex.Message}");
-			return Array.Empty<DataPoint>();
+			return [];
 		}
 	}
 
@@ -222,11 +236,8 @@ public partial class PDTimelinePage
 		}
 	}
 
-	private double MyYValueTransform(double value)
-	{
-		//return value;
-		return Math.Sqrt(value);
-	}
+	private static double MyYValueTransform(double value) =>
+		Math.Sqrt(value);
 }
 
 public class ConfigChange
