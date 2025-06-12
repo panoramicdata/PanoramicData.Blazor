@@ -6,12 +6,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	private TCard? _dragTarget;
 	private TCard? _draggedCard;
 	private static int _sequence;
-	private readonly List<TCard> _selection = new();
-	private List<TCard> _cards = new();
+	private readonly List<TCard> _selection = [];
+	private List<TCard> _cards = [];
 	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
 	[Parameter]
-	public string Id { get; set; } = $"pd-toggleswitch-{++_sequence}";
+	public string CardDeckId { get; set; } = $"pd-carddeck-{++_sequence}";
 
 	[Parameter]
 	public int CardHeight { get; set; } = 32;
@@ -55,7 +55,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		var dict = new Dictionary<string, object?>
 		{
 			{ "class", $"pdcarddeck {CssClass}{(IsEnabled ? "" : " disabled")} {SizeCssClass}" },
-			{ "id", Id }
+			{ "id", CardDeckId }
 		};
 		return dict;
 	}
