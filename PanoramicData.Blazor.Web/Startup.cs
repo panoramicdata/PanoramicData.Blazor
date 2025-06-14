@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Interfaces;
+using PanoramicData.Blazor.Services;
 
 namespace PanoramicData.Blazor.Web;
 
@@ -21,6 +23,7 @@ public class Startup(IConfiguration configuration)
 
 		// PanoramicData.Blazor services
 		services.AddPanoramicDataBlazor();
+		services.AddSingleton<IChatService, DumbChatService>(); // Register the dumb chat service for demonstration purposes
 		services.AddServerSideBlazor();
 	}
 

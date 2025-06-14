@@ -1,0 +1,201 @@
+.pdchat-container {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	z-index: 10000;
+	font-family: Arial, sans-serif;
+}
+
+.pdchat-toggle {
+	background-color: #0078d4;
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	font-size: 24px;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+	transition: background-color 0.3s ease;
+}
+
+/* Renamed for clarity: toggle when collapsed only */
+.pdchat-toggle-collapsed {
+	background-color: #0078d4;
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	font-size: 24px;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+	transition: background-color 0.3s ease;
+}
+
+	.pdchat-toggle-collapsed:hover {
+		background-color: #005a9e;
+	}
+
+/* Hide collapsed toggle when open */
+.pdchat-container.open .pdchat-toggle-collapsed {
+	display: none;
+}
+
+	.pdchat-toggle:hover {
+		background-color: #005a9e;
+	}
+
+.pdchat-window {
+	background-color: white;
+	width: 90vw;
+	max-width: 400px;
+	height: 70vh;
+	max-height: 600px;
+	box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+@media (min-width: 768px) {
+	.pdchat-window {
+		width: 400px;
+		height: 600px;
+	}
+}
+
+.pdchat-header {
+	background-color: #0078d4;
+	color: white;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px;
+}
+
+.pdchat-title {
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.pdchat-close {
+	background: none;
+	border: none;
+	color: white;
+	font-size: 18px;
+	cursor: pointer;
+}
+
+.pdchat-messages {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 10px;
+	overflow-y: auto;
+	font-size: 14px;
+	background: #f9f9f9;
+}
+
+.pdchat-message {
+	padding: 8px 12px;
+	border-radius: 12px;
+	max-width: 80%;
+	word-wrap: break-word;
+	font-size: 14px;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+	position: relative;
+}
+
+	.pdchat-message.left {
+		background: #e1f0ff;
+		align-self: flex-start;
+	}
+
+	.pdchat-message.right {
+		background: #d1ffd1;
+		align-self: flex-end;
+	}
+
+	.pdchat-message .pdchat-header {
+		background: none;
+		color: #555;
+		display: flex;
+		align-items: center;
+		font-size: 12px;
+		margin-bottom: 4px;
+	}
+
+	.pdchat-message .pdchat-icon {
+		margin-right: 4px;
+	}
+
+.pdchat-username {
+	font-weight: bold;
+	margin-right: 8px;
+}
+
+.pdchat-timestamp {
+	font-size: 10px;
+	color: #888;
+}
+
+.pdchat-text {
+	font-size: 14px;
+}
+
+.pdchat-message.priority-warning {
+	background-color: #fff4e5;
+	color: #663c00;
+}
+
+.pdchat-message.priority-high {
+	background-color: #ffe0e0;
+	color: #990000;
+}
+
+.pdchat-message.priority-critical {
+	background-color: #ffcccc;
+	color: #7a0000;
+	font-weight: bold;
+}
+
+.pdchat-window textarea {
+	border: none;
+	padding: 10px;
+	font-size: 14px;
+	outline: none;
+	width: 100%;
+	box-sizing: border-box;
+	resize: none;
+	min-height: 50px;
+	max-height: 100px;
+}
+
+.typing-ellipsis::after {
+	content: "";
+	display: inline-block;
+	width: 1em;
+	text-align: left;
+	animation: ellipsis-dots 1.5s steps(3, end) infinite;
+}
+
+@keyframes ellipsis-dots {
+	0%, 20% {
+		content: "";
+	}
+
+	40% {
+		content: ".";
+	}
+
+	60% {
+		content: "..";
+	}
+
+	80%, 100% {
+		content: "...";
+	}
+}
