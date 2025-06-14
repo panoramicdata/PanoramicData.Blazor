@@ -59,30 +59,31 @@
 
 
 	<ItemGroup>
-	  <UpToDateCheckInput Remove="Pages\PDRangePage.razor" />
+		<UpToDateCheckInput Remove="Pages\PDRangePage.razor" />
 	</ItemGroup>
 
 
 	<ItemGroup>
-	  <_ContentIncludedByDefault Remove="Pages\PDMonaco.razor" />
-	  <_ContentIncludedByDefault Remove="Pages\PDRangePage.razor" />
+		<_ContentIncludedByDefault Remove="Pages\PDMonaco.razor" />
+		<_ContentIncludedByDefault Remove="Pages\PDRangePage.razor" />
 	</ItemGroup>
 
 
 	<ItemGroup>
-	  <None Include="wwwroot\html\TestWeb.html" />
+		<None Include="wwwroot\html\TestWeb.html" />
+		<None Include="wwwroot\sounds\tick.mp3" />
 	</ItemGroup>
 
 
 	<ItemGroup>
-	  <UpToDateCheckInput Remove="Pages\PDMonaco.razor" />
+		<UpToDateCheckInput Remove="Pages\PDMonaco.razor" />
 	</ItemGroup>
 
 
 	<ItemGroup>
-	  <Content Update="Pages\PDLogPage.razor">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  </Content>
+		<Content Update="Pages\PDLogPage.razor">
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
 	</ItemGroup>
 
 </Project>

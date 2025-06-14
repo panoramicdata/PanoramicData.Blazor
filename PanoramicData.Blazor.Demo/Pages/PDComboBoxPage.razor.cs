@@ -200,7 +200,7 @@ public partial class PDComboBoxPage
 		new Country { Name = "Zimbabwe", Code = "ZW", Continent = "Africa" }
 	];
 
-	private Country _selectedItem { get; set; } = _items[0];
+	private Country SelectedItem { get; set; } = _items[0];
 
 	[CascadingParameter]
 	protected EventManager? EventManager { get; set; }

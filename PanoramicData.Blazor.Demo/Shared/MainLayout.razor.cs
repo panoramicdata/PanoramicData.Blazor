@@ -6,25 +6,35 @@ public partial class MainLayout
 
 	[Inject] private IChatService ChatService { get; set; } = default!;
 
-	private string GetUserIcon(ChatMessage chatMessage)
+	private static string? GetUserIcon(ChatMessage chatMessage)
 	{
 		return chatMessage.Sender switch
 		{
-			"User" => "🙋",
 			string x when x.EndsWith("Bot") => "🤖",
 			_ => "👤"
 		};
 	}
 
-	private string GetPriorityIcon(ChatMessage chatMessage)
-	{
-		return chatMessage.Priority switch
+	private static string? GetPriorityIcon(ChatMessage chatMessage)
+		=> chatMessage.Type switch
 		{
-			MessagePriority.Normal => "ℹ️",
-			MessagePriority.Warning => "⚠️",
-			MessagePriority.High => "❗",
-			MessagePriority.Critical => "🚨",
-			_ => "❓"
+			MessageType.Thinking => "💭",
+			MessageType.Normal => string.Empty,
+			MessageType.Warning => "⚠️",
+			MessageType.Error => "🛑",
+			MessageType.Critical => "🚨",
+			_ => "?"
 		};
-	}
+
+	private static string? GetSoundUrl(ChatMessage chatMessage)
+		=> chatMessage.Sender == "User" || chatMessage.Type == MessageType.Thinking
+			? null
+			: "/_content/PanoramicData.Blazor.Demo/sounds/" + chatMessage.Type switch
+			{
+				MessageType.Normal => "tick.mp3",
+				MessageType.Warning => "warning.mp3",
+				MessageType.Error => "error.mp3",
+				MessageType.Critical => "critical.mp3",
+				_ => null
+			};
 }

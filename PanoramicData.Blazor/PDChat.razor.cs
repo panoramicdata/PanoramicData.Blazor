@@ -15,19 +15,24 @@ public partial class PDChat
 	public string CollapsedIcon { get; set; } = "💬";
 
 	[Parameter]
-	public Func<ChatMessage, string>? UserIconSelector { get; set; }
+	public Func<ChatMessage, string?>? UserIconSelector { get; set; }
 
 	[Parameter]
-	public Func<ChatMessage, string>? PriorityIconSelector { get; set; }
+	public Func<ChatMessage, string?>? PriorityIconSelector { get; set; }
+
+	[Parameter]
+	public Func<ChatMessage, string?>? SoundSelector { get; set; }
 
 	private IJSObjectReference? _module;
 	private bool _isOpen;
+	private bool _isMuted = false;
 	private string _currentInput = "";
 	private readonly List<ChatMessage> _messages = [];
 
 	protected override Task OnInitializedAsync()
 	{
 		Service.OnMessageReceived += OnMessageReceived;
+		Service.Initialize();
 		return base.OnInitializedAsync();
 	}
 
@@ -37,8 +42,6 @@ public partial class PDChat
 		{
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDChat.razor.js").ConfigureAwait(true);
 		}
-
-		await ScrollToBottomAsync();
 	}
 
 	private void OnMessageReceived(ChatMessage message)
@@ -47,14 +50,32 @@ public partial class PDChat
 		if (existing != null)
 		{
 			existing.Message = message.Message;
-			existing.IsThinking = message.IsThinking;
+			existing.Type = message.Type;
+			existing.Title = message.Title;
+			existing.Timestamp = message.Timestamp;
 		}
 		else
 		{
 			_messages.Add(message);
 		}
 
+		if (!_isOpen)
+		{
+			_unreadMessages = true;
+		}
+
+		// Get the sound to play, if any
+		var soundUrlString = SoundSelector?.Invoke(message);
+		if (!string.IsNullOrWhiteSpace(soundUrlString) && !_isMuted)
+		{
+			var soundUrl = new Uri(soundUrlString, UriKind.RelativeOrAbsolute);
+			// Play the sound
+			_module?.InvokeVoidAsync("playSound", soundUrlString);
+		}
+
 		InvokeAsync(StateHasChanged);
+
+		InvokeAsync(ScrollToBottomAsync);
 	}
 
 	public void ShowToast(ChatMessage message)
@@ -66,15 +87,17 @@ public partial class PDChat
 	private void ToggleChat()
 	{
 		_isOpen = !_isOpen;
+
+		if (_isOpen)
+		{
+			_unreadMessages = false;
+			InvokeAsync(ScrollToBottomAsync);
+		}
 	}
 
-	private async Task OnInputKeyDown(KeyboardEventArgs e)
+	private void ToggleMute()
 	{
-		if (e.Key == "Enter" && !e.ShiftKey)
-		{
-			await SendCurrentMessageAsync();
-		}
-		// else let Shift+Enter insert newline naturally
+		_isMuted = !_isMuted;
 	}
 
 	private async Task SendCurrentMessageAsync()
@@ -90,7 +113,7 @@ public partial class PDChat
 			Message = _currentInput,
 			Sender = "User",
 			Title = "User Input",
-			Priority = MessagePriority.Normal,
+			Type = MessageType.Normal,
 			Timestamp = DateTime.UtcNow
 		};
 
@@ -113,17 +136,18 @@ public partial class PDChat
 
 	private string GetDefaultPriorityIcon(ChatMessage chatMessage)
 	{
-		return chatMessage.Priority switch
+		return chatMessage.Type switch
 		{
-			MessagePriority.Normal => "ℹ️",
-			MessagePriority.Warning => "⚠️",
-			MessagePriority.High => "❗",
-			MessagePriority.Critical => "🚨",
+			MessageType.Normal => "ℹ️",
+			MessageType.Warning => "⚠️",
+			MessageType.Error => "❗",
+			MessageType.Critical => "🚨",
 			_ => "❓"
 		};
 	}
 
 	private ElementReference messagesContainer;
+	private bool _unreadMessages;
 
 	private async Task ScrollToBottomAsync()
 	{
