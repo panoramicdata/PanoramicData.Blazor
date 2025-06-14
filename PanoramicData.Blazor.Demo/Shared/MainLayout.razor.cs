@@ -18,8 +18,7 @@ public partial class MainLayout
 	private static string? GetPriorityIcon(ChatMessage chatMessage)
 		=> chatMessage.Type switch
 		{
-			MessageType.Thinking => "💭",
-			MessageType.Normal => string.Empty,
+			MessageType.Normal or MessageType.Typing => string.Empty,
 			MessageType.Warning => "⚠️",
 			MessageType.Error => "🛑",
 			MessageType.Critical => "🚨",
@@ -27,7 +26,7 @@ public partial class MainLayout
 		};
 
 	private static string? GetSoundUrl(ChatMessage chatMessage)
-		=> chatMessage.Sender == "User" || chatMessage.Type == MessageType.Thinking
+		=> chatMessage.Sender == "User" || chatMessage.Type == MessageType.Typing
 			? null
 			: "/_content/PanoramicData.Blazor.Demo/sounds/" + chatMessage.Type switch
 			{

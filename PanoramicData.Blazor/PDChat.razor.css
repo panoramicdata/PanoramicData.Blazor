@@ -157,7 +157,7 @@
 	color: #663c00;
 }
 
-.pdchat-message.error {
+.pdchat-message.priority-error {
 	background-color: #ffe0e0;
 	color: #990000;
 }
@@ -168,7 +168,7 @@
 	font-weight: bold;
 }
 
-.pdchat-message.priority-thinking {
+.pdchat-message.priority-typing {
 	background-color: #f0f0f0;
 	color: #555;
 	font-style: italic;

@@ -2,7 +2,7 @@
 
 public enum MessageType
 {
-	Thinking = 0,
+	Typing = 0,
 	Normal = 1,
 	Warning = 2,
 	Error = 3,

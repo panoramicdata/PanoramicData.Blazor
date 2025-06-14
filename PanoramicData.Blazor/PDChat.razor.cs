@@ -25,7 +25,9 @@ public partial class PDChat
 
 	private IJSObjectReference? _module;
 	private bool _isOpen;
-	private bool _isMuted = false;
+	private bool _isMuted;
+	private ElementReference _messagesContainer;
+	private bool _unreadMessages;
 	private string _currentInput = "";
 	private readonly List<ChatMessage> _messages = [];
 
@@ -72,8 +74,6 @@ public partial class PDChat
 			// Play the sound
 			_module?.InvokeVoidAsync("playSound", soundUrlString);
 		}
-
-		InvokeAsync(StateHasChanged);
 
 		InvokeAsync(ScrollToBottomAsync);
 	}
@@ -122,19 +122,21 @@ public partial class PDChat
 
 		// Clear input
 		_currentInput = string.Empty;
+
+		await ScrollToBottomAsync();
 	}
 
-	private string GetDefaultUserIcon(ChatMessage chatMessage)
+	private static string GetDefaultUserIcon(ChatMessage chatMessage)
 	{
 		return chatMessage.Sender switch
 		{
 			"User" => "🙋",
-			string x when x.EndsWith("Bot") => "🤖",
+			string x when x.EndsWith("Bot", StringComparison.Ordinal) => "🤖",
 			_ => "👤"
 		};
 	}
 
-	private string GetDefaultPriorityIcon(ChatMessage chatMessage)
+	private static string GetDefaultPriorityIcon(ChatMessage chatMessage)
 	{
 		return chatMessage.Type switch
 		{
@@ -146,15 +148,14 @@ public partial class PDChat
 		};
 	}
 
-	private ElementReference messagesContainer;
-	private bool _unreadMessages;
-
 	private async Task ScrollToBottomAsync()
 	{
-		if (_module is not null)
+		if (_module is null)
 		{
-			await _module.InvokeVoidAsync("scrollToBottom", messagesContainer);
-			StateHasChanged();
+			return;
 		}
+
+		await _module.InvokeVoidAsync("scrollToBottom", _messagesContainer);
+		StateHasChanged();
 	}
 }

@@ -3,7 +3,7 @@
 public class DumbChatService : IChatService, IDisposable
 {
 	private static readonly Random _random = new();
-	private static readonly MessageType[] _messageTypes = [.. Enum.GetValues<MessageType>().Except([MessageType.Thinking])];
+	private static readonly MessageType[] _messageTypes = [.. Enum.GetValues<MessageType>().Except([MessageType.Typing])];
 	private bool _isInitialized;
 	private Timer? _timer;
 
@@ -52,23 +52,23 @@ public class DumbChatService : IChatService, IDisposable
 
 	private async Task RespondAsync(ChatMessage userMessage)
 	{
-		// Create a shared GUID for both thinking and final messages
+		// Create a shared GUID for both typing and final messages
 		var responseId = Guid.NewGuid();
 
-		// Send the "thinking" message (empty content)
-		var thinkingMessage = new ChatMessage
+		// Send the "typing" message (empty content)
+		var typingMessage = new ChatMessage
 		{
 			Id = responseId,
 			Sender = "DumbBot",
-			Title = "Thinking...",
+			Title = "Typing...",
 			Message = "...",
-			Type = MessageType.Thinking,
+			Type = MessageType.Typing,
 		};
 
 		// Wait 500-1000ms to simulate "delayed response"
 		await Task.Delay(_random.Next(500, 3000));
 
-		OnMessageReceived?.Invoke(thinkingMessage);
+		OnMessageReceived?.Invoke(typingMessage);
 
 		// Wait for 1-2 seconds to simulate "typing"
 		await Task.Delay(_random.Next(2000, 8000));
