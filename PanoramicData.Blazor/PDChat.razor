@@ -11,6 +11,9 @@
 		<div class="pdchat-window">
 			<div class="pdchat-header">
 				<span class="pdchat-title">@Title</span>
+				<button class="pdchat-header-btn" @onclick="ToggleMute" title="@(_isMuted ? "Unmute" : "Mute")">
+					<span>@(_isMuted ? "🔇" : "🔊")</span>
+				</button>
 				<button class="pdchat-close" @onclick="ToggleChat">✖</button>
 			</div>
 			<div @ref="_messagesContainer" class="pdchat-messages">
