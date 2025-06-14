@@ -17,7 +17,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 
 		// Start the timer to send a time check every minute
-		_timer = new Timer(SendTimeCheck, null, TimeSpan.Zero, TimeSpan.FromMinutes(5));
+		_timer = new Timer(SendTimeCheck, null, TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(5));
 		_isInitialized = true;
 	}
 
