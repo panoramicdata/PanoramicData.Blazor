@@ -155,7 +155,8 @@ public partial class PDChat
 			return;
 		}
 
-		await _module.InvokeVoidAsync("scrollToBottom", _messagesContainer);
 		StateHasChanged();
+
+		await _module.InvokeVoidAsync("scrollToBottom", _messagesContainer);
 	}
 }
