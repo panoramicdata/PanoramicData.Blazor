@@ -81,6 +81,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	private Task OnDropAsync(DragEventArgs args)
 	{
+		// Cannot move cards if it is not dragging
+		if (!_isDragging)
+		{
+			return Task.CompletedTask;
+		}
+
 		MoveCards();
 
 		// TODO: notify app to add items from source
@@ -128,6 +134,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <param name="card"></param>
 	private void OnDragOver(DragEventArgs args, TCard card)
 	{
+		// Cannot move cards if it is not dragging
+		if (!_isDragging)
+		{
+			return;
+		}
+
 		// Shift the null values to the card
 		var hoveredIndex = _cards.IndexOf(card);
 
