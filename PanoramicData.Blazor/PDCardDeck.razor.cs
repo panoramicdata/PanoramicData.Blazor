@@ -2,21 +2,23 @@
 
 public partial class PDCardDeck<TCard> where TCard : ICard
 {
+	private static int _sequence;
+
 	/// <summary>
 	/// Indicates whether a user is currently dragging cards
 	/// </summary>
 	private bool _isDragging;
 
-	private bool _dropAbove;
+	/// <summary>
+	/// The Card(s) that have been selected by the user
+	/// </summary>
+	private List<TCard?> _selection = [];
 
 	/// <summary>
-	/// The card that is being hovered over by the dragged card.
+	/// A backup of the original cards, used to restore the deck when the user drags cards out of bounds
 	/// </summary>
-	private TCard? _dropTarget;
-
-	private static int _sequence;
-	private readonly List<TCard> _selection = [];
 	private List<TCard> _cards = [];
+
 	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
 	[Parameter]
@@ -38,19 +40,16 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	[Parameter]
 	public bool MultipleSelection { get; set; }
 
-	public IEnumerable<TCard> GetSelection() => _selection;
+	public IEnumerable<TCard?> GetSelection() => _selection;
 
 	private Dictionary<string, object?> GetCardAttributes(TCard card)
 	{
 		var dict = new Dictionary<string, object?>
 		{
-			//{ "class", $"card {(_selection.Contains(card) ? "selected" : "")} {(_draggedCard?.Equals(card) == true ? "dragging" : "")}" },
 			{ "class", $"card {(_selection.Contains(card) ? "selected" : "")} {(_selection?.Contains(card) == true && _isDragging ? "dragging" : "")}" },
-			{ "ondragend", (DragEventArgs e)=> OnDragEnd(e, card) },
-			{ "ondragenter", (DragEventArgs e)=> OnDragEnter(e, card) },
+			{ "ondragend", (DragEventArgs e)=> OnDragEnd(e) },
 			{ "ondragover", (DragEventArgs e) => OnDragOver(e, card) },
 			{ "ondragstart", (DragEventArgs e) => OnDragStart(e, card) },
-			{ "ondrop", (DragEventArgs e) => OnDropAsync(e) },
 			{ "onmouseup", (MouseEventArgs e) => OnItemMouseUpAsync(card, e) }
 		};
 		if (IsEnabled)
@@ -75,40 +74,88 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return new Dictionary<string, object?>
 		{
 			{ "class", "droparea" },
-			{ "ondrop", (DragEventArgs e) => OnDropAsync(e) }
+			{ "ondrop", (DragEventArgs e) => OnDropAsync(e) },
 		};
 	}
 
-	private void OnDragEnd(DragEventArgs args, TCard card)
+	private Task OnDropAsync(DragEventArgs args)
+	{
+		MoveCards();
+
+		// TODO: notify app to add items from source
+		return Task.CompletedTask;
+	}
+
+	/// <summary>
+	/// Ends the dragging action
+	/// </summary>
+	/// <param name="args"></param>
+	/// <param name="card"></param>
+	private void OnDragEnd(DragEventArgs args)
+	{
+		MoveCards();
+
+		StateHasChanged();
+	}
+
+	private void MoveCards()
 	{
 		_isDragging = false;
-		_dropTarget = default;
-		StateHasChanged();
+
+		// Cannot move if no card is being dragged or no target is set
+		if (_selection.Count == 0)
+		{
+			return;
+		}
+
+		// Replace each null with the respective card
+		foreach (var selectedCard in _selection)
+		{
+			var index = _cards.IndexOf(default);
+
+			if (index >= 0)
+			{
+				_cards[index] = selectedCard;
+			}
+		}
 	}
 
-	private void OnDragEnter(DragEventArgs args, TCard card)
-	{
-		_isDragging = true;
-
-		_dropTarget = card;
-		_dropAbove = args.OffsetY <= (CardHeight / 2d);
-		StateHasChanged();
-	}
-
+	/// <summary>
+	/// Updates destination for dropping cards
+	/// </summary>
+	/// <param name="args"></param>
+	/// <param name="card"></param>
 	private void OnDragOver(DragEventArgs args, TCard card)
 	{
-		var newDropAbove = args.OffsetY <= (CardHeight / 2d);
-		if (newDropAbove != _dropAbove)
+		// Shift the null values to the card
+		var hoveredIndex = _cards.IndexOf(card);
+
+		if (hoveredIndex == -1)
 		{
-			_dropAbove = newDropAbove;
-			_dropTarget = card;
-			StateHasChanged();
+			hoveredIndex = _cards.Count - 1; // If the card is not found, place it at the end
 		}
+
+		// Remove nulls, put them under the hovered card
+		while (_cards.Contains(default))
+		{
+			_cards.Remove(default);
+		}
+
+		foreach (var _ in _selection)
+		{
+			// Ensures that it is within bounds
+			var minIndex = Math.Min(hoveredIndex, _cards.Count);
+
+			_cards.Insert(minIndex, default);
+		}
+
+		StateHasChanged();
 	}
 
 	private void OnDragStart(DragEventArgs args, TCard card)
 	{
 		_isDragging = true;
+
 		// ensure dragged item is selected
 		if (_selection.Count == 0 || !_selection.Contains(card))
 		{
@@ -116,47 +163,30 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			UpdateSelection(card, args.CtrlKey, args.ShiftKey);
 		}
 
-		_dropTarget = card;
-		_dropAbove = args.OffsetY <= (CardHeight / 2d);
+		// Replace the moving cards with nulls to indicate they have been moved
+		foreach (var selectedCard in _selection)
+		{
+			var index = _cards.IndexOf(selectedCard!);
+			if (index >= 0)
+			{
+				_cards[index] = default;
+			}
+		}
+
 		StateHasChanged();
 	}
 
-	private Task OnDropAsync(DragEventArgs args)
-	{
-		// Cannot move if no card is being dragged or no target is set
-		if (_selection.Count == 0 || _dropTarget is null)
-		{
-			return Task.CompletedTask;
-		}
+	/// <summary>
+	/// Moves the selected cards to their new positions in the deck
+	/// </summary>
+	/// <returns></returns>
 
-		// index to insert at
-		var index = _cards.IndexOf(_dropTarget);
-
-		// remove selection
-		foreach (var card in _selection)
-		{
-			_cards.Remove(card);
-		}
-
-		// validate bounds
-		if (index > _cards.Count - 1)
-		{
-			index = _cards.Count;
-		}
-		if (index < 0)
-		{
-			index = 0;
-		}
-
-		foreach (var card in _selection.Reverse<TCard>())
-		{
-			_cards.Insert(index, card);
-		}
-
-		// TODO: notify app to add items from source
-		return Task.CompletedTask;
-	}
-
+	/// <summary>
+	/// Update Selection
+	/// </summary>
+	/// <param name="card"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
 	private Task OnItemMouseUpAsync(TCard card, MouseEventArgs args)
 	{
 		UpdateSelection(card, args.CtrlKey, args.ShiftKey);
@@ -164,11 +194,16 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return Task.CompletedTask;
 	}
 
+	/// <summary>
+	/// Set the Data Provider and get the initial data set
+	/// </summary>
+	/// <returns></returns>
 	protected override async Task OnParametersSetAsync()
 	{
 		if (DataProvider != _dataProviderService)
 		{
 			_dataProviderService = DataProvider;
+
 			var request = new DataRequest<TCard>();
 			var cards = await _dataProviderService.GetDataAsync(request, default).ConfigureAwait(true);
 
@@ -194,7 +229,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 				else if (shift && _selection.Count > 0) // add range
 				{
 					// Get selected cards
-					var firstCardIndex = _cards.IndexOf(_selection.First());
+					var firstCardIndex = _cards.IndexOf(_selection.First() ?? card);
 					var lastCardIndex = _cards.IndexOf(card);
 
 					var start = Math.Min(firstCardIndex, lastCardIndex);

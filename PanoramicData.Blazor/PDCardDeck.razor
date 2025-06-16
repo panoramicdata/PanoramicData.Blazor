@@ -2,35 +2,29 @@
 @typeparam TCard
 
 <div @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
-    @foreach (var card in _cards)
-    {
-        @if (_dropTarget?.Equals(card) == true && _dropAbove)
-        {
-            <div @attributes="GetDropAreaAttributes()">
-                @if (DropAreaTemplate != null)
-                {
-                    @DropAreaTemplate
-                }
-            </div>
-        }
-        <div @attributes="GetCardAttributes(card)">
-            @if (CardTemplate is null)
-            {
-                <span>@(card!.ToString())</span>
-            }
-            else
-            {
-                @CardTemplate(card)
-            }
-        </div>
-        @if (_dropTarget?.Equals(card) == true && !_dropAbove)
-        {
-            <div @attributes="GetDropAreaAttributes()">
-                @if (DropAreaTemplate != null)
-                {
-                    @DropAreaTemplate
-                }
-            </div>
-        }
-    }
+	@foreach (var card in _cards)
+	{
+		@if (card == null)
+		{
+			<div @attributes="GetDropAreaAttributes()">
+				@if (DropAreaTemplate != null)
+				{
+					@DropAreaTemplate
+				}
+			</div>
+		}
+		else
+		{
+			<div @attributes="GetCardAttributes(card)">
+				@if (CardTemplate is null)
+				{
+					<span>@(card!.ToString())</span>
+				}
+				else
+				{
+					@CardTemplate(card)
+				}
+			</div>
+		}
+	}
 </div>
