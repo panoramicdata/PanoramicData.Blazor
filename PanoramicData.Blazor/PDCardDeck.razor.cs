@@ -64,7 +64,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		var dict = new Dictionary<string, object?>
 		{
 			{ "class", $"pdcarddeck {CssClass}{(IsEnabled ? "" : " disabled")} {SizeCssClass}" },
-			{ "id", CardDeckId }
+			{ "id", CardDeckId },
+			{ "onmouseleave", (MouseEventArgs e) => OnDragEnd(new DragEventArgs()) }, // End dragging when mouse leaves the deck
 		};
 		return dict;
 	}
