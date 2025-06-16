@@ -5,29 +5,29 @@
 	padding: 5px 5px 0 5px;
 }
 
-.pdcarddeck .card {
-	margin-bottom: 5px;
-	border-left: 5px solid silver;
-	height: 32px;
-	padding: 5px;
-	user-select: none;
-}
+	.pdcarddeck .card {
+		margin-bottom: 5px;
+		border-left: 5px solid silver;
+		height: 32px;
+		padding: 5px;
+		user-select: none;
+	}
 
-.pdcarddeck .card.selected {
-	background-color: rgba(13,110,253,.25);
-}
+		.pdcarddeck .card.selected {
+			background-color: rgba(13,110,253,.25);
+		}
 
-.pdcarddeck .card.dragging {
-	display:none;
-	opacity: 0.5;
-	cursor: move;
-}
+		.pdcarddeck .card.dragging {
+			display: none;
+			opacity: 0.5;
+			cursor: move;
+		}
 
-.pdcarddeck:not(.disabled) .card:hover {
-	background: #ebecf0;
-	cursor: move;
-}
+	.pdcarddeck:not(.disabled) .card:hover {
+		background: #ebecf0;
+		cursor: move;
+	}
 
-.pdcarddeck .droparea {
-	min-height: 36px;
-}
+	.pdcarddeck .droparea {
+		min-height: 36px;
+	}

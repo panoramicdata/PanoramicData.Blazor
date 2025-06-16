@@ -2,9 +2,18 @@
 
 public partial class PDCardDeck<TCard> where TCard : ICard
 {
+	/// <summary>
+	/// Indicates whether a user is currently dragging cards
+	/// </summary>
+	private bool _isDragging;
+
 	private bool _dropAbove;
-	private TCard? _dragTarget;
-	private TCard? _draggedCard;
+
+	/// <summary>
+	/// The card that is being hovered over by the dragged card.
+	/// </summary>
+	private TCard? _dropTarget;
+
 	private static int _sequence;
 	private readonly List<TCard> _selection = [];
 	private List<TCard> _cards = [];
@@ -31,17 +40,18 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	public IEnumerable<TCard> GetSelection() => _selection;
 
-	private IDictionary<string, object?> GetCardAttributes(TCard card)
+	private Dictionary<string, object?> GetCardAttributes(TCard card)
 	{
 		var dict = new Dictionary<string, object?>
 		{
-			{ "class", $"card {(_selection.Contains(card) ? "selected" : "")} {(_draggedCard?.Equals(card) == true ? "dragging" : "")}" },
+			//{ "class", $"card {(_selection.Contains(card) ? "selected" : "")} {(_draggedCard?.Equals(card) == true ? "dragging" : "")}" },
+			{ "class", $"card {(_selection.Contains(card) ? "selected" : "")} {(_selection?.Contains(card) == true && _isDragging ? "dragging" : "")}" },
 			{ "ondragend", (DragEventArgs e)=> OnDragEnd(e, card) },
 			{ "ondragenter", (DragEventArgs e)=> OnDragEnter(e, card) },
 			{ "ondragover", (DragEventArgs e) => OnDragOver(e, card) },
 			{ "ondragstart", (DragEventArgs e) => OnDragStart(e, card) },
 			{ "ondrop", (DragEventArgs e) => OnDropAsync(e) },
-			{ "onmousedown", (MouseEventArgs e) => OnItemMouseDownAsync(card, e) }
+			{ "onmouseup", (MouseEventArgs e) => OnItemMouseUpAsync(card, e) }
 		};
 		if (IsEnabled)
 		{
@@ -50,7 +60,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return dict;
 	}
 
-	private IDictionary<string, object?> GetDeckAttributes()
+	private Dictionary<string, object?> GetDeckAttributes()
 	{
 		var dict = new Dictionary<string, object?>
 		{
@@ -60,7 +70,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return dict;
 	}
 
-	private IDictionary<string, object?> GetDropAreaAttributes()
+	private Dictionary<string, object?> GetDropAreaAttributes()
 	{
 		return new Dictionary<string, object?>
 		{
@@ -71,14 +81,16 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	private void OnDragEnd(DragEventArgs args, TCard card)
 	{
-		_draggedCard = default;
-		_dragTarget = default;
+		_isDragging = false;
+		_dropTarget = default;
 		StateHasChanged();
 	}
 
 	private void OnDragEnter(DragEventArgs args, TCard card)
 	{
-		_dragTarget = card;
+		_isDragging = true;
+
+		_dropTarget = card;
 		_dropAbove = args.OffsetY <= (CardHeight / 2d);
 		StateHasChanged();
 	}
@@ -89,53 +101,63 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		if (newDropAbove != _dropAbove)
 		{
 			_dropAbove = newDropAbove;
+			_dropTarget = card;
 			StateHasChanged();
 		}
 	}
 
 	private void OnDragStart(DragEventArgs args, TCard card)
 	{
+		_isDragging = true;
 		// ensure dragged item is selected
-		_draggedCard = card;
-		_dragTarget = card;
+		if (_selection.Count == 0 || !_selection.Contains(card))
+		{
+			// Add the card to the selection
+			UpdateSelection(card, args.CtrlKey, args.ShiftKey);
+		}
+
+		_dropTarget = card;
 		_dropAbove = args.OffsetY <= (CardHeight / 2d);
 		StateHasChanged();
 	}
 
-	private async Task OnDropAsync(DragEventArgs args)
+	private Task OnDropAsync(DragEventArgs args)
 	{
-		// default action is to re-order
-		if (_draggedCard != null && _dragTarget != null)
+		// Cannot move if no card is being dragged or no target is set
+		if (_selection.Count == 0 || _dropTarget is null)
 		{
-			// index to insert at
-			var idx = _cards.IndexOf(_dragTarget);
-
-			// remove selection
-			foreach (var card in _selection)
-			{
-				_cards.Remove(card);
-			}
-
-			// validate bounds
-			if (idx > _cards.Count - 1)
-			{
-				idx = _cards.Count;
-			}
-			if (idx < 0)
-			{
-				idx = 0;
-			}
-
-			foreach (var card in _selection.Reverse<TCard>())
-			{
-				_cards.Insert(idx, card);
-			}
-
-			// TODO: notify app to add items from source
+			return Task.CompletedTask;
 		}
+
+		// index to insert at
+		var index = _cards.IndexOf(_dropTarget);
+
+		// remove selection
+		foreach (var card in _selection)
+		{
+			_cards.Remove(card);
+		}
+
+		// validate bounds
+		if (index > _cards.Count - 1)
+		{
+			index = _cards.Count;
+		}
+		if (index < 0)
+		{
+			index = 0;
+		}
+
+		foreach (var card in _selection.Reverse<TCard>())
+		{
+			_cards.Insert(index, card);
+		}
+
+		// TODO: notify app to add items from source
+		return Task.CompletedTask;
 	}
 
-	private Task OnItemMouseDownAsync(TCard card, MouseEventArgs args)
+	private Task OnItemMouseUpAsync(TCard card, MouseEventArgs args)
 	{
 		UpdateSelection(card, args.CtrlKey, args.ShiftKey);
 		StateHasChanged();
@@ -187,6 +209,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 					_selection.Add(card);
 				}
 			}
+
+			// Single Selection
 			else
 			{
 				_selection.Clear();

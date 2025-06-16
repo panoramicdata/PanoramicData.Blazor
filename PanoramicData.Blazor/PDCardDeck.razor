@@ -4,7 +4,7 @@
 <div @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
     @foreach (var card in _cards)
     {
-        @if (_dragTarget?.Equals(card) == true && _dropAbove)
+        @if (_dropTarget?.Equals(card) == true && _dropAbove)
         {
             <div @attributes="GetDropAreaAttributes()">
                 @if (DropAreaTemplate != null)
@@ -23,7 +23,7 @@
                 @CardTemplate(card)
             }
         </div>
-        @if (_dragTarget?.Equals(card) == true && !_dropAbove)
+        @if (_dropTarget?.Equals(card) == true && !_dropAbove)
         {
             <div @attributes="GetDropAreaAttributes()">
                 @if (DropAreaTemplate != null)
