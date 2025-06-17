@@ -21,7 +21,7 @@
 					|| item.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)
 					|| string.Equals(item.Code, searchText, StringComparison.OrdinalIgnoreCase)"
 				Placeholder="Select a country..."
-				SelectedItem="_selectedItem"
+				SelectedItem="SelectedItem"
 				MaxResults="5"
 				OrderBy="@(item => $"{item.Continent} {item.Name}")"
 				SelectedItemChanged="@(item => OnLogEvent($"Selected Item Changed: {item}"))" />
@@ -38,7 +38,7 @@
 					|| item.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)
 					|| string.Equals(item.Code, searchText, StringComparison.OrdinalIgnoreCase)"
 				Placeholder="Select a country..."
-				SelectedItem="_selectedItem"
+				SelectedItem="SelectedItem"
 				MaxResults="5"
 				OrderBy="@(item => $"{item.Continent} {item.Name}")"
 				SelectedItemChanged="@(item => OnLogEvent($"Selected Item Changed: {item}"))"
