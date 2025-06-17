@@ -12,17 +12,19 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <summary>
 	/// The Card(s) that have been selected by the user
 	/// </summary>
-	private List<TCard?> _selection = [];
+	private readonly List<TCard> _selection = [];
 
 	/// <summary>
 	/// A collection of cards that are currently in the deck.
 	/// </summary>
-	private List<TCard> _cards = [];
+	private List<TCard?> _cards = [];
 
 	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
+	#region Parameters
+
 	[Parameter]
-	public string CardDeckId { get; set; } = $"pd-carddeck-{++_sequence}";
+	public override string Id { get; set; } = $"pd-carddeck-{++_sequence}";
 
 	[Parameter]
 	public int CardHeight { get; set; } = 32;
@@ -40,6 +42,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	[Parameter]
 	public bool MultipleSelection { get; set; }
 
+	#endregion
+
 	public IEnumerable<TCard?> GetSelection() => _selection;
 
 	private Dictionary<string, object?> GetCardAttributes(TCard card)
@@ -52,6 +56,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			{ "ondragstart", (DragEventArgs e) => OnDragStart(e, card) },
 			{ "onmouseup", (MouseEventArgs e) => OnItemMouseUpAsync(card, e) }
 		};
+
 		if (IsEnabled)
 		{
 			dict.Add("draggable", @"true");
@@ -64,7 +69,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		var dict = new Dictionary<string, object?>
 		{
 			{ "class", $"pdcarddeck {CssClass}{(IsEnabled ? "" : " disabled")} {SizeCssClass}" },
-			{ "id", CardDeckId },
+			{ "id", Id },
 			{ "onmouseleave", (MouseEventArgs e) => OnDragEnd(new DragEventArgs()) }, // End dragging when mouse leaves the deck
 		};
 		return dict;
@@ -101,7 +106,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	private void OnDragEnd(DragEventArgs args)
 	{
 		MoveCards();
-
 		StateHasChanged();
 	}
 
@@ -118,7 +122,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		// Replace each null with the respective card
 		foreach (var selectedCard in _selection)
 		{
-			var index = _cards.IndexOf(default);
+			var index = _cards.IndexOf(default!);
 
 			if (index >= 0)
 			{
@@ -149,9 +153,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		// Remove nulls, put them under the hovered card
-		while (_cards.Contains(default))
+		while (_cards.Contains(default!))
 		{
-			_cards.Remove(default);
+			_cards.Remove(default!);
 		}
 
 		foreach (var _ in _selection)
@@ -159,7 +163,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			// Ensures that it is within bounds
 			var minIndex = Math.Min(hoveredIndex, _cards.Count);
 
-			_cards.Insert(minIndex, default);
+			_cards.Insert(minIndex, default!);
 		}
 
 		StateHasChanged();
@@ -182,7 +186,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			var index = _cards.IndexOf(selectedCard!);
 			if (index >= 0)
 			{
-				_cards[index] = default;
+				_cards[index] = default!;
 			}
 		}
 
@@ -213,57 +217,64 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <returns></returns>
 	protected override async Task OnParametersSetAsync()
 	{
-		if (DataProvider != _dataProviderService)
+		// Cannot fetch data if the data provider is not set
+		if (DataProvider == _dataProviderService)
 		{
-			_dataProviderService = DataProvider;
-
-			var request = new DataRequest<TCard>();
-			var cards = await _dataProviderService.GetDataAsync(request, default).ConfigureAwait(true);
-
-			_cards.Clear();
-			_cards.AddRange(cards.Items);
+			return;
 		}
+
+		_dataProviderService = DataProvider;
+
+		var request = new DataRequest<TCard>();
+		var cards = await _dataProviderService.GetDataAsync(request, default).ConfigureAwait(true);
+
+		_cards.Clear();
+		_cards.AddRange(cards.Items);
+
 	}
 
 	private void UpdateSelection(TCard card, bool ctrl, bool shift)
 	{
-		if (IsEnabled)
+		// Not enabled, cannot select
+		if (!IsEnabled)
 		{
-			if (MultipleSelection)
+			return;
+		}
+
+		if (MultipleSelection)
+		{
+			if (ctrl) // add/remove single card to current selection
 			{
-				if (ctrl) // add/remove single card to current selection
+				// If not in selection, add
+				if (!_selection.Remove(card))
 				{
-					// If not in selection, add
-					if (!_selection.Remove(card))
-					{
-						_selection.Add(card);
-					}
-				}
-				else if (shift && _selection.Count > 0) // add range
-				{
-					// Get selected cards
-					var firstCardIndex = _cards.IndexOf(_selection.First() ?? card);
-					var lastCardIndex = _cards.IndexOf(card);
-
-					var start = Math.Min(firstCardIndex, lastCardIndex);
-					var end = Math.Max(firstCardIndex, lastCardIndex);
-
-					_selection.Clear();
-					_selection.AddRange(_cards.GetRange(start, end - start + 1));
-				}
-				else // Single selection
-				{
-					_selection.Clear();
 					_selection.Add(card);
 				}
 			}
+			else if (shift && _selection.Count > 0) // add range
+			{
+				// Get selected cards
+				var firstCardIndex = _cards.IndexOf(_selection.First() ?? card);
+				var lastCardIndex = _cards.IndexOf(card);
 
-			// Single Selection
-			else
+				var start = Math.Min(firstCardIndex, lastCardIndex);
+				var end = Math.Max(firstCardIndex, lastCardIndex);
+
+				_selection.Clear();
+				_selection.AddRange(_cards.GetRange(start, end - start + 1)!);
+			}
+			else // Single selection
 			{
 				_selection.Clear();
 				_selection.Add(card);
 			}
+		}
+
+		// Single Selection
+		else
+		{
+			_selection.Clear();
+			_selection.Add(card);
 		}
 	}
 
