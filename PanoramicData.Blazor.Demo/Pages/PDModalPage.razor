@@ -1,30 +1,16 @@
 @page "/pdmodal"
 <DemoSourceView SourceFiles="Pages/PDModalPage.razor, Pages/PDModalPage.razor.cs">
-	
+
 
 	<div class="main-view">
 		<h1>Stock View</h1>
 
 		<button class="special-offers" @onclick="OnClick">Special Offers</button>
-		<p>Modals are useful for seperating information from the main view of a webpage
-			and allowing users to focus there attention. Click the special offers button to
+
+		<p>Modal dialogs are useful for separating information from the main view of a web-page
+			and allowing users to focus their attention. Click the special offers button to
 			see an example of this!
 		</p>
-
-		<PDList 
-				DataProvider="_dataProvider"
-				SelectionMode="TableSelectionMode.Single"
-				ShowApplyCancelButtons="true"
-				SortDirection="SortDirection.Ascending"
-				TItem="Car">
-			<ItemTemplate Context="car">
-				<div class="d-flex justify-content-between w-100-pct">
-					<span>@car.Make @car.Model</span>
-					<span class="small">@car.FromYear - @(car.ToYear.HasValue ? car.ToYear : "Present")</span>
-				</div>
-			</ItemTemplate>
-		</PDList>
-
 	</div>
 
 	<PDModal @ref="_modalPopup" >
@@ -33,7 +19,7 @@
 		<ChildContent>
 			Unfortunately there are no special offers this time...
 		</ChildContent>
-	
+
 		<Footer>
 			<PDButton Click="CloseModal">Close</PDButton>
 		</Footer>
