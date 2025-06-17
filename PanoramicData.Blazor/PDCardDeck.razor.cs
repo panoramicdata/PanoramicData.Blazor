@@ -15,7 +15,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	private List<TCard?> _selection = [];
 
 	/// <summary>
-	/// A backup of the original cards, used to restore the deck when the user drags cards out of bounds
+	/// A collection of cards that are currently in the deck.
 	/// </summary>
 	private List<TCard> _cards = [];
 
