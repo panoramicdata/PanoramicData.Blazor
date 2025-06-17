@@ -76,7 +76,7 @@ public partial class PDSplitter : IAsyncDisposable
 				var options = new SplitOptions
 				{
 					Direction = Direction.ToString().ToLowerInvariant(),
-					MinSize = Panels.Select(x => x.MinSize).ToArray(),
+					MinSize = [.. Panels.Select(x => x.MinSize)],
 					ExpandToMin = ExpandToMin,
 					Sizes = pcts,
 					GutterSize = GutterSize,

@@ -1,21 +1,32 @@
-﻿.pdtextbox {
+﻿.pdtextbox
+{
 }
 
-.pdtextbox-clear-btn {
+.pdtextbox-clear-btn
+{
 	position: relative;
 	left: -20px;
 	cursor: pointer;
 }
 
-.input-group-text {
+.input-group-text
+{
 	padding: 0px;
 }
 
-button.flash i {
+button.flash i
+{
 	animation: flash 1s infinite;
 }
 
-@keyframes flash {
+.square-left-border-radius
+{
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+@keyframes flash
+{
 	0% {
 		opacity: 1;
 	}

@@ -85,7 +85,7 @@ public static class StringExtensions
 	{
 		if (text.Length > 0)
 		{
-			if (!(text.StartsWith("\"", StringComparison.Ordinal) && text.StartsWith("\"", StringComparison.Ordinal)) && !(text.StartsWith("#", StringComparison.Ordinal) && text.StartsWith("#", StringComparison.Ordinal)))
+			if (!(text.StartsWith('"') && text.StartsWith('"')) && !(text.StartsWith('#') && text.StartsWith('#')))
 			{
 				if (text.Contains(' ') || text.Contains('\t') || text.Contains('\r') || text.Contains('\n'))
 				{
@@ -99,7 +99,7 @@ public static class StringExtensions
 
 	public static string RemoveQuotes(this string text)
 	{
-		if (text.StartsWith("\"", StringComparison.Ordinal) && text.EndsWith("\"", StringComparison.Ordinal))
+		if (text.StartsWith('"') && text.EndsWith('"'))
 		{
 			return text[1..^1];
 		}

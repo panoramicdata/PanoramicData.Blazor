@@ -1,4 +1,4 @@
-﻿using System.Security.Policy;
+﻿using PanoramicData.DeepCloner;
 
 namespace PanoramicData.Blazor;
 
@@ -448,9 +448,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		var memberInfo = field.Field?.GetPropertyMemberInfo();
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			if (updatedValue && Delta.ContainsKey(memberInfo.Name))
+			if (updatedValue && Delta.TryGetValue(memberInfo.Name, out object? value2))
 			{
-				value = Delta[memberInfo.Name];
+				value = value2;
 			}
 			else
 			{
@@ -473,7 +473,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
 
-	public T GetFieldValue<T>(string fieldName) where T: struct
+	public T GetFieldValue<T>(string fieldName) where T : struct
 		=> GetFieldValue<T>(fieldName, true);
 
 	public T GetFieldValue<T>(string fieldName, bool updatedValue) where T : struct
@@ -581,9 +581,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		var memberInfo = field.Field?.GetPropertyMemberInfo();
 		if (memberInfo is PropertyInfo propInfo)
 		{
-			if (updatedValue && Delta.ContainsKey(memberInfo.Name))
+			if (updatedValue && Delta.TryGetValue(memberInfo.Name, out object? value2))
 			{
-				value = Delta[memberInfo.Name];
+				value = value2;
 			}
 			else
 			{
@@ -673,23 +673,28 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <returns>A new TItem instance with changes applied.</returns>
 	public TItem? GetItemWithUpdates()
 	{
-		if (Item is null)
+		if (Item != null)
 		{
-			return null;
-		}
-
-		var json = System.Text.Json.JsonSerializer.Serialize(Item);
-		var clone = System.Text.Json.JsonSerializer.Deserialize<TItem>(json);
-		if (clone != null)
-		{
-			foreach (var kvp in Delta)
+			try
 			{
-				var propInfo = clone.GetType().GetProperty(kvp.Key);
-				propInfo?.SetValue(clone, kvp.Value);
+				var clone = Item.DeepClone();
+				if (clone != null)
+				{
+					foreach (var kvp in Delta)
+					{
+						var propInfo = clone.GetType().GetProperty(kvp.Key);
+						propInfo?.SetValue(clone, kvp.Value);
+					}
+				}
+
+				return clone;
+			}
+			catch
+			{
 			}
 		}
 
-		return clone;
+		return null;
 	}
 
 	/// <summary>
@@ -746,7 +751,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 					}
 					else
 					{
-						SetFieldErrors(memberInfo.Name, results.Where(x => x?.ErrorMessage != null).Select(x => x.ErrorMessage!).ToArray());
+						SetFieldErrors(memberInfo.Name, [.. results.Where(x => x?.ErrorMessage != null).Select(x => x.ErrorMessage!)]);
 					}
 
 					// validate numeric values

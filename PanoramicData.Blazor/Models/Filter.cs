@@ -2,6 +2,96 @@
 
 public class Filter
 {
+	private static readonly string[] _formatsWithTimeZone =
+	[
+		"yyyy'-'MM'-'dd HH:m zzz",
+		"yyyy'-'MM'-'dd HH:mm zzz",
+		"yyyy'-'MM'-'dd HH:mm:ss zzz",
+		"yyyy'-'MM'-'dd zzz",
+		"yyyy'-'MM'-'dd HH:mm:ss K",
+
+		"yyyy'-'MM'-'dd HH:m.fff zzz",
+		"yyyy'-'MM'-'dd HH:mm.fff zzz",
+		"yyyy'-'MM'-'dd HH:mm:ss.fff zzz",
+		"yyyy'-'MM'-'dd zzz",
+		"yyyy'-'MM'-'dd HH:mm:ss.fff K",
+
+		"dd'/'MM'/'yyyy HH:m zzz",
+		"dd'/'MM'/'yyyy HH:mm zzz",
+		"dd'/'MM'/'yyyy HH:mm:ss zzz",
+		"dd'/'MM'/'yyyy zzz",
+		"dd'/'MM'/'yyyy HH:mm:ss K",
+
+		"dd'-'MM'-'yyyy HH:m zzz",
+		"dd'-'MM'-'yyyy HH:mm zzz",
+		"dd'-'MM'-'yyyy HH:mm:ss zzz",
+		"dd'-'MM'-'yyyy zzz",
+		"dd'-'MM'-'yyyy HH:mm:ss K",
+
+		"dd'/'MM'/'yyyy HH:m.fff zzz",
+		"dd'/'MM'/'yyyy HH:mm.fff zzz",
+		"dd'/'MM'/'yyyy HH:mm:ss.fff zzz",
+		"dd'/'MM'/'yyyy zzz",
+		"dd'/'MM'/'yyyy HH:mm:ss.fff K",
+
+		"MM'/'dd'/'yyyy HH:m zzz",
+		"MM'/'dd'/'yyyy HH:mm zzz",
+		"MM'/'dd'/'yyyy HH:mm:ss zzz",
+		"MM'/'dd'/'yyyy zzz",
+		"MM'/'dd'/'yyyy HH:mm:ss K",
+
+		"MM'/'dd'/'yyyy HH:m.fff zzz",
+		"MM'/'dd'/'yyyy HH:mm.fff zzz",
+		"MM'/'dd'/'yyyy HH:mm:ss.fff zzz",
+		"MM'/'dd'/'yyyy zzz",
+		"MM'/'dd'/'yyyy HH:mm:ss.fff K"
+	];
+
+	private static readonly string[] _formatsWithoutTimeZone =
+	[
+		"yyyy'-'MM'-'dd HH:m",
+		"yyyy'-'MM'-'dd HH:mm",
+		"yyyy'-'MM'-'dd HH:mm:ss",
+		"yyyy'-'MM'-'dd",
+		"yyyy'-'MM'-'dd HH:mm:ss K",
+
+		"yyyy'-'MM'-'dd HH:m.fff",
+		"yyyy'-'MM'-'dd HH:mm.fff",
+		"yyyy'-'MM'-'dd HH:mm:ss.fff",
+		"yyyy'-'MM'-'dd",
+		"yyyy'-'MM'-'dd HH:mm:ss.fff K",
+
+		"dd'/'MM'/'yyyy HH:m",
+		"dd'/'MM'/'yyyy HH:mm",
+		"dd'/'MM'/'yyyy HH:mm:ss",
+		"dd'/'MM'/'yyyy HH:mm:ss K",
+		"dd'/'MM'/'yyyy",
+
+		"dd'-'MM'-'yyyy HH:m",
+		"dd'-'MM'-'yyyy HH:mm",
+		"dd'-'MM'-'yyyy HH:mm:ss",
+		"dd'-'MM'-'yyyy HH:mm:ss K",
+		"dd'-'MM'-'yyyy",
+
+		"dd'/'MM'/'yyyy HH:m.fff",
+		"dd'/'MM'/'yyyy HH:mm.fff",
+		"dd'/'MM'/'yyyy HH:mm:ss.fff",
+		"dd'/'MM'/'yyyy HH:mm:ss.fff K",
+		"dd'/'MM'/'yyyy",
+
+		"MM'/'yy'/'yyyy HH:m",
+		"MM'/'yy'/'yyyy HH:mm",
+		"MM'/'yy'/'yyyy HH:mm:ss",
+		"MM'/'yy'/'yyyy HH:mm:ss K",
+		"MM'/'yy'/'yyyy",
+
+		"MM'/'yy'/'yyyy HH:m.fff",
+		"MM'/'yy'/'yyyy HH:mm.fff",
+		"MM'/'yy'/'yyyy HH:mm:ss.fff",
+		"MM'/'yy'/'yyyy HH:mm:ss.fff K",
+		"MM'/'yy'/'yyyy",
+	];
+
 	public Filter()
 	{
 	}
@@ -100,7 +190,7 @@ public class Filter
 			}
 			else
 			{
-				// read until next unquoted whitespace
+				// read until next unquoted white space
 				var filter = ParseMany(text[idx..]).FirstOrDefault();
 				if (filter is null)
 				{
@@ -188,72 +278,72 @@ public class Filter
 			value = string.Empty;
 			filterType = FilterTypes.IsNull;
 		}
-		else if (encodedValue.StartsWith("!in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")", StringComparison.Ordinal) && encodedValue.Length > 3)
+		else if (encodedValue.StartsWith("!in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(')') && encodedValue.Length > 3)
 		{
-			value = encodedValue[4..^1];
+			value = Fix(encodedValue[4..^1]);
 			filterType = FilterTypes.NotIn;
 		}
-		else if (encodedValue.StartsWith("in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(")", StringComparison.Ordinal) && encodedValue.Length > 3)
+		else if (encodedValue.StartsWith("in(", StringComparison.OrdinalIgnoreCase) && encodedValue.EndsWith(')') && encodedValue.Length > 3)
 		{
-			value = encodedValue[3..^1];
+			value = Fix(encodedValue[3..^1]);
 			filterType = FilterTypes.In;
 		}
-		else if (encodedValue.StartsWith("!*", StringComparison.Ordinal) && encodedValue.EndsWith("*", StringComparison.Ordinal) && encodedValue.Length > 2)
+		else if (encodedValue.StartsWith("!*", StringComparison.Ordinal) && encodedValue.EndsWith('*') && encodedValue.Length > 2)
 		{
-			value = encodedValue[2..^1];
+			value = Fix(encodedValue[2..^1]);
 			filterType = FilterTypes.DoesNotContain;
 		}
-		else if (encodedValue.StartsWith("*", StringComparison.Ordinal) && encodedValue.EndsWith("*", StringComparison.Ordinal) && encodedValue.Length > 1)
+		else if (encodedValue.StartsWith('*') && encodedValue.EndsWith('*') && encodedValue.Length > 1)
 		{
-			value = encodedValue[1..^1];
+			value = Fix(encodedValue[1..^1]);
 			filterType = FilterTypes.Contains;
 		}
-		else if (encodedValue.StartsWith(">", StringComparison.Ordinal) && encodedValue.EndsWith("<", StringComparison.Ordinal) && encodedValue.Contains('|', StringComparison.Ordinal) && encodedValue.Length > 1)
+		else if (encodedValue.StartsWith('>') && encodedValue.EndsWith('<') && encodedValue.Contains('|', StringComparison.Ordinal) && encodedValue.Length > 1)
 		{
-			value = encodedValue[1..^1];
+			value = Fix(encodedValue[1..^1]);
 			var idx = value.IndexOf('|');
 			value2 = value[(idx + 1)..];
 			value = value[..idx];
 			filterType = FilterTypes.Range;
 		}
-		else if (encodedValue.EndsWith("*", StringComparison.Ordinal))
+		else if (encodedValue.EndsWith('*'))
 		{
-			value = encodedValue[..^1];
+			value = Fix(encodedValue[..^1]);
 			filterType = FilterTypes.StartsWith;
 		}
-		else if (encodedValue.StartsWith("*", StringComparison.Ordinal))
+		else if (encodedValue.StartsWith('*'))
 		{
-			value = encodedValue[1..];
+			value = Fix(encodedValue[1..]);
 			filterType = FilterTypes.EndsWith;
 		}
-		else if (encodedValue.StartsWith("!", StringComparison.Ordinal))
+		else if (encodedValue.StartsWith('!'))
 		{
-			value = encodedValue[1..];
+			value = Fix(encodedValue[1..]);
 			filterType = FilterTypes.DoesNotEqual;
 		}
 		else if (encodedValue.StartsWith(">=", StringComparison.Ordinal))
 		{
-			value = encodedValue[2..];
+			value = Fix(encodedValue[2..]);
 			filterType = FilterTypes.GreaterThanOrEqual;
 		}
 		else if (encodedValue.StartsWith("<=", StringComparison.Ordinal))
 		{
-			value = encodedValue[2..];
+			value = Fix(encodedValue[2..]);
 			filterType = FilterTypes.LessThanOrEqual;
 		}
-		else if (encodedValue.StartsWith(">", StringComparison.Ordinal))
+		else if (encodedValue.StartsWith('>'))
 		{
-			value = encodedValue[1..];
+			value = Fix(encodedValue[1..]);
 			filterType = FilterTypes.GreaterThan;
 		}
-		else if (encodedValue.StartsWith("<", StringComparison.Ordinal))
+		else if (encodedValue.StartsWith('<'))
 		{
-			value = encodedValue[1..];
+			value = Fix(encodedValue[1..]);
 			filterType = FilterTypes.LessThan;
 		}
 		else
 		{
-			value = encodedValue;
+			value = Fix(encodedValue);
 			filterType = FilterTypes.Equals;
 		}
 
@@ -264,6 +354,28 @@ public class Filter
 		//}
 
 		return new Filter(filterType, key, value, value2) { PropertyName = propertyName };
+	}
+
+	private static string Fix(string value)
+	{
+		return value;
+		// Don't do this, it's not needed and it breaks the parsing of dates
+		// The formatting into a DateTime format is done in the Format method when applying the filter
+		// This allows a more readable format to be used in the filter UI using the Format specified
+		// as a component parameter
+
+		//var trimmedValue = value.Trim('"');
+
+		//if (DateTimeOffset.TryParseExact(trimmedValue, _formatsWithTimeZone, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.None, out var parsedDateTimeOffset) ||
+		//	DateTimeOffset.TryParseExact(trimmedValue, _formatsWithoutTimeZone, CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.AssumeUniversal, out parsedDateTimeOffset))
+		//{
+		//	var returnValue = parsedDateTimeOffset.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+		//	return value == trimmedValue
+		//		? returnValue
+		//		: $"\"{returnValue}\"";
+		//}
+
+		//return value;
 	}
 
 	public static IEnumerable<Filter> ParseMany(string text, IDictionary<string, string>? keyMappings = null)
@@ -306,7 +418,7 @@ public class Filter
 			}
 			else
 			{
-				// consume leading whitespace
+				// consume leading white space
 				if (char.IsWhiteSpace(ch))
 				{
 					continue;
@@ -333,5 +445,69 @@ public class Filter
 		}
 	}
 
+	public static bool IsDateTime(string? dateTimeString, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
+	{
+		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).Concat(["yyyy-MM-ddTHH:mm:ssZ"]).ToArray();
+
+		foreach (var format in dateTimeFormats)
+		{
+			if (DateTime.TryParseExact(dateTimeString?.RemoveQuotes(), format, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+			{
+				if (format.Contains("fff"))
+				{
+					datePrecision = DatePrecision.Millisecond;
+				}
+				else if (format.Contains("ss"))
+				{
+					datePrecision = DatePrecision.Second;
+				}
+				else if (format.Contains('m'))
+				{
+					datePrecision = DatePrecision.Minute;
+				}
+				else if (format.Contains("HH"))
+				{
+					datePrecision = DatePrecision.Hour;
+				}
+				else if (format.Contains("dd"))
+				{
+					datePrecision = DatePrecision.Day;
+				}
+				else if (format.Contains("MM"))
+				{
+					datePrecision = DatePrecision.Month;
+				}
+				else if (format.Contains("yyyy"))
+				{
+					datePrecision = DatePrecision.Year;
+				}
+				else
+				{
+					// default to second
+					datePrecision = DatePrecision.Second;
+				}
+				// format found
+				formatFound = format;
+				return true;
+			}
+		}
+		// format not found
+		datePrecision = DatePrecision.Second;
+		formatFound = string.Empty;
+		dateTime = DateTime.MinValue;
+		return false;
+	}
+
 	#endregion
+}
+
+public enum DatePrecision
+{
+	Year,
+	Month,
+	Day,
+	Hour,
+	Minute,
+	Second,
+	Millisecond
 }

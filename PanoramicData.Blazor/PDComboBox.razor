@@ -1,0 +1,54 @@
+﻿@typeparam TItem
+
+<div class="pd-combobox @CssClass" @onclick:stopPropagation>
+	<div class="combo-input-wrapper">
+		<input type="text" class="combo-input"
+			   @bind-value="_searchText"
+			   @onfocus="OnInputFocus"
+			   @onblur="HideDropdownWithDelay"
+			   placeholder="@Placeholder"
+			   @oninput="FilterItems"
+			   @onkeydown="OnInputKeyDown"
+			   disabled="@IsDisabled"
+			   readonly="@IsReadOnly"
+			   @ref="_inputRef" />
+		@if (!string.IsNullOrEmpty(_searchText) && !IsReadOnly && !IsDisabled)
+		{
+			<button type="button" class="combo-clear" @onclick="ClearInput" tabindex="-1" aria-label="Clear">&times;</button>
+		}
+	</div>
+
+	@if (_showDropdown)
+	{
+		@if (_filteredItems?.Any() == true)
+		{
+			<ul class="combo-dropdown" role="listbox">
+				@for (int i = 0; i < _filteredItems.Count; i++)
+				{
+					var item = _filteredItems[i];
+					<li @onclick="() => SelectItem(item)"
+						class="@(i == _activeIndex ? "active" : null)"
+						role="option"
+						aria-selected="@(i == _activeIndex)">
+						@if (ItemTemplate != null)
+						{
+							@ItemTemplate(item)
+						}
+						else
+						{
+							@ItemToString(item)
+						}
+						@if (i == _activeIndex)
+						{
+							<text> *</text>
+						}
+					</li>
+				}
+			</ul>
+		}
+		else
+		{
+			<div class="combo-no-results">@NoResultsText</div>
+		}
+	}
+</div>

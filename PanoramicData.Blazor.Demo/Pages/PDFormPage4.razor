@@ -5,106 +5,106 @@
 
 <DemoSourceView SourceFiles="Pages/PDFormPage4.razor, Pages/PDFormPage4.razor.cs, Pages/PDFormPage4.razor.css">
 
-    <PDToolbar>
+	<PDToolbar>
 
-        <PDToolbarPlaceholder>
-            <div>
-                <span>Form - Field Grouping</span>
-                <br />
-                <span class="text-muted"
-                      style="font-size: 0.8rem;">Grouping multiple fields onto a single row</span>
-            </div>
-        </PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<div>
+				<span>Form - Field Grouping</span>
+				<br />
+				<span class="text-muted"
+					  style="font-size: 0.8rem;">Grouping multiple fields onto a single row</span>
+			</div>
+		</PDToolbarPlaceholder>
 
-    </PDToolbar>
+	</PDToolbar>
 
-    <div class="d-flex">
+	<div class="d-flex">
 
-        <PDForm @ref="_registerForm"
-                CssClass="w-100"
-                TItem="RegisterModel"
-                Item="_model"
-                DefaultMode="FormModes.Create"
-                DataProvider="_dataProvider">
+		<PDForm @ref="_registerForm"
+				CssClass="w-100"
+				TItem="RegisterModel"
+				Item="_model"
+				DefaultMode="FormModes.Create"
+				DataProvider="_dataProvider">
 
-            <PDFormBody TItem="RegisterModel">
+			<PDFormBody TItem="RegisterModel">
 
-                <PDField TItem="RegisterModel"
-                         Field="x => x.FirstName"
-                         Group="Name"
-                         Label="First Name"
-                         ShowCopyButton="_ => true" />
+				<PDField TItem="RegisterModel"
+						 Field="x => x.FirstName"
+						 Group="Name"
+						 Label="First Name"
+						 ShowCopyButton="_ => true" />
 
-                <PDField TItem="RegisterModel"
-                         Field="x => x.LastName"
-                         Group="Name"
-                         Label="Last Name" />
+				<PDField TItem="RegisterModel"
+						 Field="x => x.LastName"
+						 Group="Name"
+						 Label="Last Name" />
 
-                <PDField TItem="RegisterModel"
-                         Group="Reporting"
-                         Field="x => x.Report" />
+				<PDField TItem="RegisterModel"
+						 Group="Reporting"
+						 Field="x => x.Report" />
 
-                <PDField TItem="RegisterModel"
-                         DisplayOptions="@(new FieldDisplayOptions() { CssClass = "fg-3 fix-margin-18" })"
-                         Group="Reporting"
-                         Field="x => x.ReportEmailAddress"
-                         HelpUrl="https://generator.email/"
-                         Label="Email Address"
-                         ReadOnlyInCreate="(x) => !x.Report" />
+				<PDField TItem="RegisterModel"
+						 DisplayOptions="@(new FieldDisplayOptions() { CssClass = "fg-3 fix-margin-18" })"
+						 Group="Reporting"
+						 Field="x => x.ReportEmailAddress"
+						 HelpUrl="https://generator.email/"
+						 Label="Email Address"
+						 ReadOnlyInCreate="(x) => !x.Report" />
 
-                <!-- form-control class is used to provide consistant look and feel for toggle switch containers -->
-                <PDField TItem="RegisterModel"
-                         Field="x => x.ReportFormatDocx"
-                         DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control docx" })"
-                         Group="Formats"
-                         Helper="_docxHelper"
-                         Label="DOCX"
-                         ReadOnlyInCreate="(x) => !x.Report" />
+				<!-- form-control class is used to provide consistant look and feel for toggle switch containers -->
+				<PDField TItem="RegisterModel"
+						 Field="x => x.ReportFormatDocx"
+						 DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control docx" })"
+						 Group="Formats"
+						 Helper="_docxHelper"
+						 Label="DOCX"
+						 ReadOnlyInCreate="(x) => !x.Report" />
 
-                <PDField TItem="RegisterModel"
-                         DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control html" })"
-                         Field="x => x.ReportFormatHtml"
-                         Group="Formats"
-                         Helper="_htmlHelper"
-                         Label="HTML"
-                         ReadOnlyInCreate="(x) => !x.Report" />
+				<PDField TItem="RegisterModel"
+						 DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control html" })"
+						 Field="x => x.ReportFormatHtml"
+						 Group="Formats"
+						 Helper="_htmlHelper"
+						 Label="HTML"
+						 ReadOnlyInCreate="(x) => !x.Report" />
 
-                <PDField TItem="RegisterModel"
-                         DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control pdf" })"
-                         Field="x => x.ReportFormatPdf"
-                         Group="Formats"
-                         Helper="_pdfHelper"
-                         Label="PDF"
-                         ReadOnlyInCreate="(x) => !x.Report" />
+				<PDField TItem="RegisterModel"
+						 DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control pdf" })"
+						 Field="x => x.ReportFormatPdf"
+						 Group="Formats"
+						 Helper="_pdfHelper"
+						 Label="PDF"
+						 ReadOnlyInCreate="(x) => !x.Report" />
 
-                <PDField TItem="RegisterModel"
-                         DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control xlsx" })"
-                         Field="x => x.ReportFormatXlsx"
-                         Group="Formats"
-                         Helper="_xlsxHelper"
-                         Label="XLSX"
-                         ReadOnlyInCreate="(x) => !x.Report" />
+				<PDField TItem="RegisterModel"
+						 DisplayOptions="@(_reportFormatDisplayOptions with { CssClass = "form-control xlsx" })"
+						 Field="x => x.ReportFormatXlsx"
+						 Group="Formats"
+						 Helper="_xlsxHelper"
+						 Label="XLSX"
+						 ReadOnlyInCreate="(x) => !x.Report" />
 
-                <PDField TItem="RegisterModel"
-                         Field="x => x.ReportFrequencyUnit"
-                         Group="Frequency"
-                         ReadOnlyInCreate="(x) => !x.Report" />
+				<PDField TItem="RegisterModel"
+						 Field="x => x.ReportFrequencyUnit"
+						 Group="Frequency"
+						 ReadOnlyInCreate="(x) => !x.Report" />
 
-                <!-- use fg-3 style to stretch field (fg-1 thru fg-9 are available) -->
-                <PDField TItem="RegisterModel"
-                         DisplayOptions="@(new FieldDisplayOptions() { CssClass = "fg-3 fix-margin-10" })"
-                         Field="x => x.ReportFrequencyPeriod"
-                         Group="Frequency"
-                         ReadOnlyInCreate="(x) => !x.Report" />
+				<!-- use fg-3 style to stretch field (fg-1 thru fg-9 are available) -->
+				<PDField TItem="RegisterModel"
+						 DisplayOptions="@(new FieldDisplayOptions() { CssClass = "fg-3 fix-margin-10" })"
+						 Field="x => x.ReportFrequencyPeriod"
+						 Group="Frequency"
+						 ReadOnlyInCreate="(x) => !x.Report" />
 
-            </PDFormBody>
+			</PDFormBody>
 
-            <PDFormFooter TItem="RegisterModel"
-                SaveButtonText="Register Now"
-                ShowCancel="false" />
-        </PDForm>
+			<PDFormFooter TItem="RegisterModel"
+						  SaveButtonText="Register Now"
+						  ShowCancel="false" />
+		</PDForm>
 
-    </div>
+	</div>
 
 </DemoSourceView>
 

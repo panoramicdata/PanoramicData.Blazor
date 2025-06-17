@@ -23,30 +23,35 @@ else if (Form.Mode != FormModes.Hidden)
 				fields.AddRange(Form.Fields.Where(x => IsShown(x)));
 			}
 
-            @* display groups *@
-            var fieldGroups = Group(fields);
-            @foreach(var fieldGroup in fieldGroups)
-            {
-                var firstField = fieldGroup.Fields.First();
+			@* display groups *@
+			var fieldGroups = Group(fields);
+			@foreach (var fieldGroup in fieldGroups)
+			{
+				var firstField = fieldGroup.Fields.First();
 				var fieldName = firstField.GetName();
 				var fieldDescription = firstField.DescriptionFunc(firstField, Form);
-                <div class="pd-form-field" id="@fieldGroup.Id">
-                    <label class="sr-only">@fieldGroup.Title</label>
-                    <div class="input-group">
-                        @* label *@
+				<div class="pd-form-field" id="@fieldGroup.Id">
+					<label class="sr-only">@fieldGroup.Title</label>
+					<div class="input-group">
+						@* label *@
 						<div class="input-group-text d-flex align-items-start justify-content-between title-box @(fieldGroup.HasErrors(Form) ? "alert-danger" : "")" title="@fieldDescription">
 							<span>@fieldGroup.Title</span>
 							<div class="helpers">
 								@foreach (var f in fieldGroup.Fields.Where(x => !string.IsNullOrWhiteSpace(x.HelpUrl)))
 								{
 									<i class="pd-form-help-icon fas fa-external-link-alt text-info cursor-pointer"
-										@onclick="() => OnHelpUrlClick(f)"></i>
+									   @onclick="() => OnHelpUrlClick(f)"></i>
 								}
-                                @foreach (var f in fieldGroup.Fields.Where(x => x.Helper != null))
+								@foreach (var f in fieldGroup.Fields.Where(x => x.Helper != null))
 								{
-									<i class="pd-form-help-icon text-info cursor-pointer pt-1 ms-1 @f.Helper!.IconCssClass"
-										@onclick="async () => await OnHelperClick(f).ConfigureAwait(true)"
-										title="@f.Helper.ToolTip"></i>
+									var iconCssCls = Form?.Item is null || f.Helper!.IconCssClass2 is null
+									? f.Helper!.IconCssClass
+									: f.Helper!.IconCssClass2(Form.Item);
+									var css = $"{(f.Helper.Click == null ? "" : "cursor-pointer")}";
+									var tooltip = Form?.Item is null || f.Helper.ToolTip2 is null ? f.Helper.ToolTip : f.Helper.ToolTip2(Form.Item);
+									<i class="pd-form-help-icon text-info pt-1 ms-1 @iconCssCls @css"
+									   @onclick="async () => await OnHelperClick(f).ConfigureAwait(true)"
+									   title="@tooltip"></i>
 								}
 								@if (fieldGroup.Fields.Any(x => x.ShowCopyButton(Form?.Item)))
 								{
@@ -55,48 +60,48 @@ else if (Form.Mode != FormModes.Hidden)
 							</div>
 						</div>
 
-                        @* editors *@
-                        @foreach(var field in fieldGroup.Fields)
-                        {
-                            <PDFormFieldEditor DebounceWait="DebounceWait"
-                                Field="field"
-                                Form="Form" />
-                        }
+						@* editors *@
+						@foreach (var field in fieldGroup.Fields)
+						{
+							<PDFormFieldEditor DebounceWait="DebounceWait"
+											   Field="field"
+											   Form="Form" />
+						}
 
-                        @* validation indicator *@
+						@* validation indicator *@
 						@if (ShowValidationIndicator && Form?.Mode != FormModes.Delete)
 						{
-                            var cssCls = GetValidationCssClass(fieldGroup.Fields);
+							var cssCls = GetValidationCssClass(fieldGroup.Fields);
 							<span class="d-table input-group-text align-items-start @cssCls">
 								<i class="@GetValidationIconForCssClass(cssCls)"></i>
 							</span>
 						}
-                    </div>
-                    <div class="mb-2">
-                        @* validation messages *@
+					</div>
+					<div class="mb-2">
+						@* validation messages *@
 						@if (!string.IsNullOrWhiteSpace(fieldDescription)
-							&& (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit)
-							&& (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+								&& (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit)
+								&& (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
 						{
 							<div class="small text-muted">@fieldDescription</div>
 						}
 						@if (Form != null && fieldGroup.Fields.Any(x => !x.SuppressErrors) && fieldName != null && fieldGroup.HasErrors(Form) == true)
 						{
-                            foreach (var field in fieldGroup.Fields)
-                            {
-                                var fn = field.GetName();
-                                if(!string.IsNullOrWhiteSpace(fn) && Form.Errors.ContainsKey(fn))
-                                {
-                                    foreach (var message in Form.Errors[fn])
-                                    {
-                                        <div class="small text-danger">@message</div>
-                                    }
-                                }
-                            }
+							foreach (var field in fieldGroup.Fields)
+							{
+								var fn = field.GetName();
+								if (!string.IsNullOrWhiteSpace(fn) && Form.Errors.ContainsKey(fn))
+								{
+									foreach (var message in Form.Errors[fn])
+									{
+										<div class="small text-danger">@message</div>
+									}
+								}
+							}
 						}
-                    </div>
-                </div>
-            }
+					</div>
+				</div>
+			}
 		}
 	</div>
 }

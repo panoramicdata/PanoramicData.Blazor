@@ -28,7 +28,7 @@ else
 	@if (ShowClearButton)
 	{
 		<div class="input-group-text">
-			<button class=" btn @ButtonSizeCssClass"
+			<button class="square-left-border-radius btn @ButtonSizeCssClass"
 					disabled="@(Value == string.Empty || !IsEnabled)"
 					@onclick="OnClear">
 				<i class="fas fa-times" />
@@ -38,7 +38,7 @@ else
 	@if (ShowSpeechButton)
 	{
 		<div class="input-group-text">
-			<button class=" btn @ButtonSizeCssClass @(_activeListener == Id ? "flash" : "")"
+			<button class="square-left-border-radius btn @ButtonSizeCssClass @(_activeListener == Id ? "flash" : "")"
 					disabled="@(!IsEnabled)"
 					@onclick="OnListenForSpeech">
 				<i class="fas fa-microphone" />

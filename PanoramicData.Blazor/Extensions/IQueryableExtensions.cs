@@ -2,9 +2,9 @@
 
 public static class IQueryableExtensions
 {
-	public static IQueryable<T> ApplyFilter<T>(this IQueryable<T> query, Filter filter, IDictionary<string, string>? keyProperyMappings = null)
+	public static IQueryable<T> ApplyFilter<T>(this IQueryable<T> query, Filter filter, IDictionary<string, string>? keyPropertyMappings = null)
 	{
-		// uses dynamic linq to build queries : https://dynamic-linq.net/advanced-null-propagation
+		// uses dynamic LINQ to build queries : https://dynamic-linq.net/advanced-null-propagation
 
 		try
 		{
@@ -17,14 +17,14 @@ public static class IQueryableExtensions
 			// determine property name to use in query
 			if (string.IsNullOrEmpty(filter.PropertyName))
 			{
-				if (keyProperyMappings != null && keyProperyMappings.ContainsKey(filter.Key))
+				if (keyPropertyMappings != null && keyPropertyMappings.TryGetValue(filter.Key, out string? value))
 				{
-					filter.PropertyName = keyProperyMappings[filter.Key];
+					filter.PropertyName = value;
 				}
 				else
 				{
 					// search entity properties for matching key attribute
-					// Note - currently this does NOT perform a nested serach
+					// Note - currently this does NOT perform a nested search
 					var entityProperties = typeof(T).GetProperties();
 					var propertyInfo = entityProperties.SingleOrDefault(x => x.GetFilterKey() == filter.Key || x.GetDisplayShortName() == filter.Key);
 					if (propertyInfo != null)
@@ -43,10 +43,11 @@ public static class IQueryableExtensions
 			// apply query only if property name is known
 			if (!string.IsNullOrWhiteSpace(filter.PropertyName))
 			{
+				string[] separatorArray = ["|"];
 				object[] parameters = filter.FilterType switch
 				{
-					FilterTypes.In => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
-					FilterTypes.NotIn => filter.Value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes()).ToArray(),
+					FilterTypes.In => [.. filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
+					FilterTypes.NotIn => [.. filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
 					FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
 					FilterTypes.IsEmpty => [string.Empty],
 					FilterTypes.IsNotEmpty => [string.Empty],

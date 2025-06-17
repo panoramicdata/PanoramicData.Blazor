@@ -2,7 +2,7 @@
 
 /// <summary>
 /// See IBlockOverlayService for description.
-/// The BlockOverlay component can then implement the behavior as appropriate.
+/// The BlockOverlay component can then implement the behaviour as appropriate.
 /// </summary>
 public class BlockOverlayService : IBlockOverlayService
 {

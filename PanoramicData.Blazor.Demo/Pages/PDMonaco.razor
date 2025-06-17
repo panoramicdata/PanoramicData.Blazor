@@ -5,88 +5,88 @@
 
 <DemoSourceView SourceFiles="Pages/PDMonaco.razor, Pages/PDMonaco.razor.cs">
 
-    <div class="host">
+	<div class="host">
 
-        <PDToolbar>
-            <PDToolbarButton Click="@(() => OnSetLanguage("sql"))"
-                             CssClass="@(_language == "sql" ? "btn-primary" : "btn-secondary")"
-                             Size="ButtonSizes.Small"
-                             Text="SQL" />
+		<PDToolbar>
+			<PDToolbarButton Click="@(() => OnSetLanguage("sql"))"
+							 CssClass="@(_language == "sql" ? "btn-primary" : "btn-secondary")"
+							 Size="ButtonSizes.Small"
+							 Text="SQL" />
 
-            <PDToolbarButton Click="@(() => OnSetLanguage("javascript"))"
-                             CssClass="@(_language == "javascript" ? "btn-primary" : "btn-secondary")"
-                             Size="ButtonSizes.Small"
-                             Text="Javascript" />
+			<PDToolbarButton Click="@(() => OnSetLanguage("javascript"))"
+							 CssClass="@(_language == "javascript" ? "btn-primary" : "btn-secondary")"
+							 Size="ButtonSizes.Small"
+							 Text="Javascript" />
 
-            <PDToolbarButton Click="@(() => OnSetLanguage("ncalc"))"
-                             CssClass="@(_language == "ncalc" ? "btn-primary" : "btn-secondary")"
-                             Size="ButtonSizes.Small"
-                             Text="NCalc" />
+			<PDToolbarButton Click="@(() => OnSetLanguage("ncalc"))"
+							 CssClass="@(_language == "ncalc" ? "btn-primary" : "btn-secondary")"
+							 Size="ButtonSizes.Small"
+							 Text="NCalc" />
 
-            <PDToolbarButton Click="@(() => OnSetLanguage("rmscript"))"
-                             CssClass="@(_language == "rmscript" ? "btn-primary" : "btn-secondary")"
-                             Size="ButtonSizes.Small"
-                             Text="RMScript" />
+			<PDToolbarButton Click="@(() => OnSetLanguage("rmscript"))"
+							 CssClass="@(_language == "rmscript" ? "btn-primary" : "btn-secondary")"
+							 Size="ButtonSizes.Small"
+							 Text="RMScript" />
 
-            <PDToolbarSeparator />
+			<PDToolbarSeparator />
 
-            <PDToolbarButton Click="@(() => OnSetTheme("light"))"
-                             CssClass="@(_themePreference == "light" ? "btn-primary" : "btn-secondary")"
-                             Size="ButtonSizes.Small"
-                             Text="Light" />
+			<PDToolbarButton Click="@(() => OnSetTheme("light"))"
+							 CssClass="@(_themePreference == "light" ? "btn-primary" : "btn-secondary")"
+							 Size="ButtonSizes.Small"
+							 Text="Light" />
 
-            <PDToolbarButton Click="@(() => OnSetTheme("dark"))"
-                             CssClass="@(_themePreference == "dark" ? "btn-primary" : "btn-secondary")"
-                             Size="ButtonSizes.Small"
-                             Text="Dark" />
+			<PDToolbarButton Click="@(() => OnSetTheme("dark"))"
+							 CssClass="@(_themePreference == "dark" ? "btn-primary" : "btn-secondary")"
+							 Size="ButtonSizes.Small"
+							 Text="Dark" />
 
-            <PDToolbarPlaceholder>
-                <PDToggleSwitch @bind-Value="_showSuggestions"
-                                Label="Show Suggestions"
-                                LabelBefore="true"
-                                Rounded="true" />
-            </PDToolbarPlaceholder>
+			<PDToolbarPlaceholder>
+				<PDToggleSwitch @bind-Value="_showSuggestions"
+								Label="Show Suggestions"
+								LabelBefore="true"
+								Rounded="true" />
+			</PDToolbarPlaceholder>
 
-            <PDToolbarPlaceholder ShiftRight="true">
-                <span>Selection</span>
-            </PDToolbarPlaceholder>
+			<PDToolbarPlaceholder ShiftRight="true">
+				<span>Selection</span>
+			</PDToolbarPlaceholder>
 
-            <PDToolbarButton Click="@(() => OnGetSelection())"
-                             CssClass="btn-secondary"
-                             Size="ButtonSizes.Small"
-                             Text="Get" />
+			<PDToolbarButton Click="@(() => OnGetSelection())"
+							 CssClass="btn-secondary"
+							 Size="ButtonSizes.Small"
+							 Text="Get" />
 
-            <PDToolbarButton Click="@(() => OnSetSelection())"
-                             CssClass="btn-secondary"
-                             Size="ButtonSizes.Small"
-                             Text="Set" />
+			<PDToolbarButton Click="@(() => OnSetSelection())"
+							 CssClass="btn-secondary"
+							 Size="ButtonSizes.Small"
+							 Text="Set" />
 
-            <PDToolbarPlaceholder>
-                <span>Text: @_selectionText</span>
-            </PDToolbarPlaceholder>
+			<PDToolbarPlaceholder>
+				<span>Text: @_selectionText</span>
+			</PDToolbarPlaceholder>
 
 
-        </PDToolbar>
+		</PDToolbar>
 
-        @* @key is ONLY required if the Language parameter is to change*@
-        @*    - it forces a new instance of the component when the Language parameter changes *@
-        <PDMonacoEditor @bind-Value="@_value"
-                        @key="@_language"
-                        @ref="_editor"
-                        ShowSuggestions="_showSuggestions"
-                        InitializeCache="InitializeCache"
-                        InitializeOptions="InitializeOptions"
-                        InitializeLanguageAsync="InitializeLanguageAsync"
-                        Language="@_language"
-                        RegisterLanguages="RegisterLanguages"
-                        SelectionChanged="OnSelectionChanged"
-                        Theme="@_theme"
-                        UpdateCacheAsync="UpdateCacheAsync" />
+		@* @key is ONLY required if the Language parameter is to change*@
+		@*    - it forces a new instance of the component when the Language parameter changes *@
+		<PDMonacoEditor @bind-Value="@_value"
+						@key="@_language"
+						@ref="_editor"
+						ShowSuggestions="_showSuggestions"
+						InitializeCache="InitializeCache"
+						InitializeOptions="InitializeOptions"
+						InitializeLanguageAsync="InitializeLanguageAsync"
+						Language="@_language"
+						RegisterLanguages="RegisterLanguages"
+						SelectionChanged="OnSelectionChanged"
+						Theme="@_theme"
+						UpdateCacheAsync="UpdateCacheAsync" />
 
-        <div class="output">@_value</div>
+		<div class="output">@_value</div>
 
-    </div>
+	</div>
 
-    <EventView />
+	<EventView />
 
 </DemoSourceView>

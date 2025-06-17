@@ -142,7 +142,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		var names = new List<string>();
 		foreach (var kvp in Form.Errors)
 		{
-			if (Form.Fields.Find(x => x.Name == kvp.Key) is FormField<TItem> field)
+			if (Form.Fields.FirstOrDefault(x => x.Name == kvp.Key) is FormField<TItem> field)
 			{
 				names.Add(field.Title);
 			}
@@ -209,8 +209,10 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 			{
 				return;
 			}
+
 			await Form.ResetChanges();
 		}
+
 		await Click.InvokeAsync("Save").ConfigureAwait(true);
 	}
 
@@ -227,8 +229,11 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 					{
 						return;
 					}
+
 					await Form.ResetChanges();
 				}
+
+				// DO NOT change this to "Delete" as it means that there is a non-closable modal after deletion (or cancellation of a delete) !!!
 				await Click.InvokeAsync("Yes").ConfigureAwait(true);
 			}
 			else if (Form.Mode == FormModes.Cancel)

@@ -16,21 +16,21 @@
 						 CssClass="btn-secondary"
 						 Click="OnClick" />
 
-        <PDToolbarButton Text="@($"Show on 'Mouse {(_showOnMouseUp ? "Up" : "Down")}' event'")"
-                         CssClass="btn-secondary"
-                         Click="@(() => _showOnMouseUp = !_showOnMouseUp)" />
+		<PDToolbarButton Text="@($"Show on 'Mouse {(_showOnMouseUp ? "Up" : "Down")}' event'")"
+						 CssClass="btn-secondary"
+						 Click="@(() => _showOnMouseUp = !_showOnMouseUp)" />
 
 	</PDToolbar>
 
 
 	<PDContextMenu Items="_items"
 				   Enabled="Enabled"
-                   ShowOnMouseUp="_showOnMouseUp"
+				   ShowOnMouseUp="_showOnMouseUp"
 				   UpdateState="OnUpdateState"
 				   ItemClick="OnItemClick">
 
 		<div style="width: 100%; height: 500px; background-color: #eee;"
-			 @oncontextmenu:preventDefault
+		@oncontextmenu:preventDefault
 			 @oncontextmenu="() => { }">
 		</div>
 

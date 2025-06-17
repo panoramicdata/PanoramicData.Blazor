@@ -1,23 +1,26 @@
 ﻿<svg class="tl-stacked-bar @(IsEnabled ? "" : "disabled")"
-	 viewBox="@($"0 0 {Options.Bar.Width} {MaxValue}")"
-	 x="@X"
+	 height="@Height"
 	 preserveAspectRatio="none"
-	 width="@Options.Bar.Width">
+	 width="@Options.Bar.Width"
+	 x="@X">
 	@{
-		var y = MaxValue;
-		@if(DataPoint != null)
+		var y = Height;
+		@if (DataPoint != null)
 		{
 			for (var i = 0; i < DataPoint.SeriesValues.Length; i++)
 			{
-				var value =  YValueTransform(DataPoint.SeriesValues[i]);
+				var value = (YValueTransform(DataPoint.SeriesValues[i]) / MaxValue) * Height;
 				var colour = Options.Series.Length > 0 && i < Options.Series.Length ? Options.Series[i].Colour : "black";
-				<rect x="@Options.Bar.Padding"
-					  y="@(y - value)"
-					  width="@(Options.Bar.Width - 2 * Options.Bar.Padding)"
-					  height="@value"
-					  stroke="@colour"
-					  fill="@colour" />
-				y -= value;
+				@if (value > 0)
+				{
+					<rect x="@Options.Bar.Padding"
+						  y="@(y - value)"
+						  width="@(Options.Bar.Width - 2 * Options.Bar.Padding)"
+						  height="@(value)"
+						  stroke="@colour"
+						  fill="@colour" />
+					y -= value;
+				}
 			}
 		}
 	}

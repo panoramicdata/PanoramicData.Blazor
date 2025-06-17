@@ -42,7 +42,7 @@ public partial class PDDragPanelPage
 
 public class Job : SelectableItem
 {
-	public Job.Statuses Status { get; set; }
+	public Statuses Status { get; set; }
 
 	public DateTime LastUpdated { get; set; }
 

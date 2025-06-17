@@ -2,7 +2,7 @@
 
 namespace PanoramicData.Blazor;
 
-public partial class PDToolbarDropdown : IDisposable
+public partial class PDToolbarDropdown : IDisposable, IEnablable
 {
 	#region Inject
 	[Inject] IGlobalEventService GlobalEventService { get; set; } = null!;
@@ -151,4 +151,22 @@ public partial class PDToolbarDropdown : IDisposable
 	}
 
 	private async Task OnClick(string itemKey) => await Click.InvokeAsync(itemKey).ConfigureAwait(true);
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
+	}
 }

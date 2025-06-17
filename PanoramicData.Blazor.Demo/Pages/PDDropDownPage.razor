@@ -4,17 +4,17 @@
 
 <DemoSourceView SourceFiles="Pages/PDDropDownPage.razor, Pages/PDDropDownPage.razor.cs">
 
-    <p>Dropdown 1 : Example showing normal and programmatic behaviour</p>
+	<p>Dropdown 1 : Example showing normal and programmatic behaviour</p>
 
-    <PDToolbar>
-        <PDToolbarButton Click="@(() => _dropdown.HideAsync())" Text="Hide" />
-        <PDToolbarButton Click="@(() => _dropdown.ShowAsync())" Text="Show" />
-    </PDToolbar>
+	<PDToolbar>
+		<PDToolbarButton Click="@(() => _dropdown.HideAsync())" Text="Hide" />
+		<PDToolbarButton Click="@(() => _dropdown.ShowAsync())" Text="Show" />
+	</PDToolbar>
 
 	<PDDropDown @ref="_dropdown"
-                DropDownHidden="@(() => OnLogEvent("Dropdown 1 Hidden"))"
-                DropDownShown="@(() => OnLogEvent("Dropdown 1 Shown"))"
-                Text="Click Me">
+				DropDownHidden="@(() => OnLogEvent("Dropdown 1 Hidden"))"
+				DropDownShown="@(() => OnLogEvent("Dropdown 1 Shown"))"
+				Text="Click Me">
 		<div>
 			<ul>
 				<li>
@@ -45,21 +45,21 @@
 		</div>
 	</PDDropDown>
 
-    <hr/>
+	<hr />
 
-    <p>Dropdown 2 : Example showing ShowOnMouseEnter and CloseOptions.InsideOrOutside behaviour</p>
+	<p>Dropdown 2 : Example showing ShowOnMouseEnter and CloseOptions.InsideOrOutside behaviour</p>
 
-    <PDDropDown CloseOption="PDDropDown.CloseOptions.InsideOrOutside"
-                DropDownHidden="@(() => OnLogEvent("Dropdown 2 Hidden"))"
-                DropDownShown="@(() => OnLogEvent("Dropdown 2 Shown"))"
-                ShowOnMouseEnter="true"
-                Text="Hover Here">
-        <div>
-            <PDButton Click="@(() => OnLogEvent("Option 1 Click"))" Text="Option 1" />
-            <PDButton Click="@(() => OnLogEvent("Option 2 Click"))" Text="Option 2" />
-            <PDButton Click="@(() => OnLogEvent("Option 3 Click"))" Text="Option 3" />
-        </div>
-    </PDDropDown>
+	<PDDropDown CloseOption="PDDropDown.CloseOptions.InsideOrOutside"
+				DropDownHidden="@(() => OnLogEvent("Dropdown 2 Hidden"))"
+				DropDownShown="@(() => OnLogEvent("Dropdown 2 Shown"))"
+				ShowOnMouseEnter="true"
+				Text="Hover Here">
+		<div>
+			<PDButton Click="@(() => OnLogEvent("Option 1 Click"))" Text="Option 1" />
+			<PDButton Click="@(() => OnLogEvent("Option 2 Click"))" Text="Option 2" />
+			<PDButton Click="@(() => OnLogEvent("Option 3 Click"))" Text="Option 3" />
+		</div>
+	</PDDropDown>
 
 	<EventView />
 

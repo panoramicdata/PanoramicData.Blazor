@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDTextArea : IAsyncDisposable
+public partial class PDTextArea : IAsyncDisposable, IEnablable
 {
 	private static int _seq;
 	private bool _cancelDebounce;
@@ -107,11 +107,13 @@ public partial class PDTextArea : IAsyncDisposable
 			{
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
 			}
+
 			if (_module != null)
 			{
 				await _module.InvokeVoidAsync("termTextArea", Id).ConfigureAwait(true);
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
+
 			_objRef?.Dispose();
 		}
 		catch
@@ -140,6 +142,7 @@ public partial class PDTextArea : IAsyncDisposable
 				{
 					await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);
 				}
+
 				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTextArea.razor.js").ConfigureAwait(true);
 				if (_module != null)
 				{
@@ -236,5 +239,23 @@ public partial class PDTextArea : IAsyncDisposable
 		{
 			await _commonModule.InvokeVoidAsync("scrollToEnd", Id);
 		}
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 }

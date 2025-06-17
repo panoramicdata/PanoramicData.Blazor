@@ -1,0 +1,45 @@
+﻿<div @ref="_container" class="pdresizepane-container" style="position: relative;">
+	<div @ref="_handle" class="pdresizepane-handle @CornerClass"></div>
+	<div class="pdresizepane-content">
+		@ChildContent
+	</div>
+</div>
+
+@code {
+	[Parameter] public RenderFragment? ChildContent { get; set; }
+	[Parameter] public ResizeCorner Corner { get; set; } = ResizeCorner.TopLeft;
+
+	private string CornerClass => Corner switch
+	{
+		ResizeCorner.TopLeft => "handle-tl",
+		ResizeCorner.TopRight => "handle-tr",
+		ResizeCorner.BottomLeft => "handle-bl",
+		ResizeCorner.BottomRight => "handle-br",
+		_ => "handle-tl"
+	};
+
+	private ElementReference _container;
+	private ElementReference _handle;
+
+	[Inject] private IJSRuntime JS { get; set; } = default!;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await JS.InvokeVoidAsync("init", _container, _handle, CornerClass);
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+	}
+
+	public enum ResizeCorner
+	{
+		TopLeft,
+		TopRight,
+		BottomLeft,
+		BottomRight
+	}
+}

@@ -1,14 +1,14 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDToolbarTextbox
+public partial class PDToolbarTextbox : IEnablable
 {
 	/// <summary>
-	/// Gets or sets the textbox input type
+	/// Gets or sets the text box input type
 	/// </summary>
 	[Parameter] public PDInputType Type { get; set; } = PDInputType.Text;
 
 	/// <summary>
-	/// Gets or sets the textbox sizes.
+	/// Gets or sets the text box sizes.
 	/// </summary>
 	[Parameter] public ButtonSizes? Size { get; set; }
 
@@ -88,12 +88,12 @@ public partial class PDToolbarTextbox
 	[Parameter] public EventCallback Cleared { get; set; }
 
 	/// <summary>
-	/// Sets an optional label to be displayed before the textbox.
+	/// Sets an optional label to be displayed before the text box.
 	/// </summary>
 	[Parameter] public string Label { get; set; } = string.Empty;
 
 	/// <summary>
-	/// Sets the debounce wait period in milliseconds.
+	/// Sets the de-bounce wait period in milliseconds.
 	/// </summary>
 	[Parameter] public int DebounceWait { get; set; }
 
@@ -115,5 +115,22 @@ public partial class PDToolbarTextbox
 			Value = value;
 			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 		}
+	}
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 }

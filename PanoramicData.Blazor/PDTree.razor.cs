@@ -311,8 +311,6 @@ public partial class PDTree<TItem> where TItem : class
 	/// </summary>
 	/// <param name="node">The node to select.</param>
 	/// <param name="autoEdit">If the same node is selected twice should it go into edit mode?</param>
-
-
 	public async Task SelectNode(TreeNode<TItem> node)
 		=> await SelectNode(node, true);
 
@@ -619,7 +617,7 @@ public partial class PDTree<TItem> where TItem : class
 			}
 			else
 			{
-				parentNode = (dict.ContainsKey(parentKey)) ? parentNode = dict[parentKey] : RootNode.Find(parentKey);
+				parentNode = (dict.TryGetValue(parentKey, out TreeNode<TItem>? value)) ? parentNode = value : RootNode.Find(parentKey);
 			}
 
 			if (parentNode == null)

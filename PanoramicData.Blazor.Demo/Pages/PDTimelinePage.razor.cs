@@ -90,9 +90,14 @@ public partial class PDTimelinePage
 			_data.Add(new ConfigChange
 			{
 				DateChanged = date,
-				LinesAdded = random.Next(0, 50),
-				LinesChanged = random.Next(20, 100),
-				LinesDeleted = random.Next(0, 20),
+				// high counts
+				//LinesAdded = random.Next(0, 50),
+				//LinesChanged = random.Next(20, 100),
+				//LinesDeleted = random.Next(0, 20),
+				// low counts
+				LinesAdded = random.Next(0, 5),
+				LinesChanged = random.Next(0, 5),
+				LinesDeleted = random.Next(0, 5),
 			});
 		}
 	}
@@ -123,7 +128,10 @@ public partial class PDTimelinePage
 	{
 		// generate new data
 		_data.Clear();
-		GenerateData(2015, 2020, 10000);
+		// lots of points
+		//GenerateData(2015, 2020, 10000);
+		// fewer points
+		GenerateData(2015, 2020, 100);
 
 		// update component parameters
 		_minDate = _data.Min(x => x.DateChanged);

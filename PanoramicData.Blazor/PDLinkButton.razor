@@ -6,9 +6,9 @@
    title="@ToolTip.AppendShortcut(ShortcutKey)"
    href="@Url"
    target="@Target">
-    @if (!string.IsNullOrWhiteSpace(IconCssClass))
-    {
-        <span class="pe-1 @IconCssClass"></span>
-    }
-    <span class="@TextCssClass">@Text.GetShortcutMarkup()</span>
+	@if (!string.IsNullOrWhiteSpace(IconCssClass))
+	{
+		<span class="pe-1 @IconCssClass"></span>
+	}
+	<span class="@TextCssClass">@Text.GetShortcutMarkup()</span>
 </a>

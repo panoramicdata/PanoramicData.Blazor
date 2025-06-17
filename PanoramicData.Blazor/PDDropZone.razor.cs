@@ -230,10 +230,7 @@ public partial class PDDropZone : IAsyncDisposable
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadProgress")]
 	public void OnUploadProgress(DropZoneFileUploadProgress file)
 	{
-		if (file is null)
-		{
-			throw new ArgumentNullException(nameof(file));
-		}
+		ArgumentNullException.ThrowIfNull(file);
 
 		if (file.Path is null)
 		{
@@ -251,11 +248,7 @@ public partial class PDDropZone : IAsyncDisposable
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadEnd")]
 	public void OnUploadEnd(DropZoneFileUploadOutcome file)
 	{
-
-		if (file is null)
-		{
-			throw new ArgumentNullException(nameof(file));
-		}
+		ArgumentNullException.ThrowIfNull(file);
 
 		if (file.Path is null)
 		{

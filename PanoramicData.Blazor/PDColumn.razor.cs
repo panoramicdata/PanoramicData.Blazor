@@ -93,6 +93,9 @@ public partial class PDColumn<TItem> where TItem : class
 	public string FilterKey { get; set; } = string.Empty;
 
 	[Parameter]
+	public FilterOptions FilterOptions { get; set; } = new();
+
+	[Parameter]
 	public bool FilterShowSuggestedValues { get; set; } = true;
 
 	[Parameter]
@@ -202,7 +205,7 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public bool IsTextArea { get; set; }
 
 	/// <summary>
-	/// Gets or sets whether the colum is visible or not.
+	/// Gets or sets whether the column is visible or not.
 	/// </summary>
 	/// <remarks>To be visible both this parameter and ShowInList must equal true.</remarks>
 	[Parameter] public bool IsVisible { get; set; } = true;
@@ -538,7 +541,7 @@ public partial class PDColumn<TItem> where TItem : class
 			if (node != null)
 			{
 				var chain = node.MemberClauses().ToList();
-				if (chain.Any() && chain.First().Expression == parameter)
+				if (chain.Count != 0 && chain.First().Expression == parameter)
 				{
 					FilterKey = string.Join(".", chain.Select(
 						mexpr => mexpr.Member.GetCustomAttribute<FilterKeyAttribute>()?.Value

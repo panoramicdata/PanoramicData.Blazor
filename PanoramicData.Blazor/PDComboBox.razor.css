@@ -1,0 +1,119 @@
+/* Define color variables for light mode */
+:root {
+	--pdcb-bg: #fff;
+	--pdcb-border: #ccc;
+	--pdcb-border-focus: #007bff;
+	--pdcb-shadow-focus: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+	--pdcb-dropdown-bg: #fff;
+	--pdcb-dropdown-border: #ccc;
+	--pdcb-dropdown-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	--pdcb-item-hover-bg: #f0f0f0;
+	--pdcb-item-active-bg: #007bff;
+	--pdcb-item-active-color: #fff;
+	--pdcb-no-results-color: #888;
+	--pdcb-clear-color: #888;
+	--pdcb-clear-color-focus: #333;
+	--pdcb-input-color: #222;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--pdcb-bg: #23272f;
+		--pdcb-border: #444b58;
+		--pdcb-border-focus: #339cff;
+		--pdcb-shadow-focus: 0 0 0 0.2rem rgba(51, 156, 255, 0.25);
+		--pdcb-dropdown-bg: #23272f;
+		--pdcb-dropdown-border: #444b58;
+		--pdcb-dropdown-shadow: 0 4px 16px rgba(0,0,0,0.5);
+		--pdcb-item-hover-bg: #2d323c;
+		--pdcb-item-active-bg: #339cff;
+		--pdcb-item-active-color: #fff;
+		--pdcb-no-results-color: #aaa;
+		--pdcb-clear-color: #aaa;
+		--pdcb-clear-color-focus: #fff;
+		--pdcb-input-color: #f3f3f3;
+	}
+}
+
+.pd-combobox {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+
+	.pd-combobox .combo-input {
+		width: 100%;
+		padding: 8px 12px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		font-size: 16px;
+		box-sizing: border-box;
+		outline: none;
+		padding-right: 2em;
+	}
+
+		.pd-combobox .combo-input:focus {
+			border-color: #007bff;
+			box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+		}
+
+	.pd-combobox .combo-dropdown {
+		position: absolute;
+		top: 100%; 
+		left: 0;
+		z-index: 1000; 
+		width: 100%;
+		max-height: 200px; 
+		overflow-y: auto;
+		border: 1px solid #ccc;
+		border-top: none; 
+		border-radius: 0 0 4px 4px; 
+		background-color: #fff;
+		list-style: none; 
+		padding: 0;
+		margin: 0;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+	}
+
+		
+		.pd-combobox .combo-dropdown li {
+			padding: 10px 12px;
+			cursor: pointer;
+			white-space: nowrap; 
+			overflow: hidden; 
+			text-overflow: ellipsis;
+		}
+
+			.pd-combobox .combo-dropdown li:hover {
+				background-color: var(--pdcb-item-hover-bg);
+			}
+
+			.pd-combobox .combo-dropdown li.active {
+				background-color: var(--pdcb-item-active-bg);
+				color: var(--pdcb-item-active-color);
+			}
+
+	.pd-combobox.show-dropdown .combo-dropdown {
+		display: block;
+	}
+
+.combo-clear {
+	position: absolute;
+	right: 0.5em;
+	top: 50%;
+	transform: translateY(-50%);
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	font-size: 1.2em;
+	color: #888;
+	padding: 0;
+	line-height: 1;
+	z-index: 2;
+}
+
+.combo-clear:focus {
+	outline: none;
+	color: #333;
+}

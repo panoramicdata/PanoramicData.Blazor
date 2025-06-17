@@ -1,0 +1,282 @@
+.pdchat-container {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	z-index: 10000;
+	font-family: Arial, sans-serif;
+}
+
+.pdchat-toggle,
+.pdchat-toggle-collapsed {
+	background-color: #0078d4;
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	font-size: 24px;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+	transition: background-color 0.3s ease;
+}
+
+	.pdchat-toggle:hover,
+	.pdchat-toggle-collapsed:hover {
+		background-color: #005a9e;
+	}
+
+/* Hide collapsed toggle when open */
+.pdchat-container.open .pdchat-toggle-collapsed {
+	display: none;
+}
+
+.pdchat-window {
+	background-color: white;
+	width: 90vw;
+	max-width: 400px;
+	height: 70vh;
+	max-height: 600px;
+	box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+@media (min-width: 768px) {
+	.pdchat-window {
+		width: 400px;
+		height: 600px;
+	}
+}
+
+.pdchat-header {
+	background-color: #0078d4;
+	color: white;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px;
+	gap: 8px; /* Add spacing between header items */
+}
+
+.pdchat-title {
+	font-weight: bold;
+	font-size: 16px;
+	flex: 1; /* Pushes buttons to the right */
+}
+
+/* Shared style for header icon buttons (mute, close, etc.) */
+.pdchat-header-btn,
+.pdchat-close {
+	background: none;
+	border: none;
+	color: white;
+	font-size: 18px;
+	cursor: pointer;
+	padding: 4px 8px;
+	border-radius: 4px;
+	transition: background 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+	.pdchat-header-btn:hover,
+	.pdchat-close:hover {
+		background: rgba(255,255,255,0.15);
+	}
+
+	/* Optional: add a subtle focus style for accessibility */
+	.pdchat-header-btn:focus,
+	.pdchat-close:focus {
+		outline: 2px solid #fff;
+		outline-offset: 1px;
+	}
+
+.pdchat-messages {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 10px;
+	overflow-y: auto;
+	font-size: 14px;
+	background: #f9f9f9;
+}
+
+.pdchat-message {
+	padding: 8px 12px;
+	border-radius: 12px;
+	max-width: 80%;
+	word-wrap: break-word;
+	font-size: 14px;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+	position: relative;
+}
+
+	.pdchat-message.left {
+		background: #e1f0ff;
+		align-self: flex-start;
+	}
+
+	.pdchat-message.right {
+		background: #d1ffd1;
+		align-self: flex-end;
+	}
+
+	.pdchat-message .pdchat-header {
+		background: none;
+		color: #555;
+		display: flex;
+		align-items: center;
+		font-size: 12px;
+		margin-bottom: 4px;
+	}
+
+	.pdchat-message .pdchat-icon {
+		margin-right: 4px;
+	}
+
+.pdchat-username {
+	font-weight: bold;
+	margin-right: 8px;
+}
+
+.pdchat-timestamp {
+	font-size: 10px;
+	color: #888;
+}
+
+.pdchat-text {
+	font-size: 14px;
+}
+
+.pdchat-message.priority-warning {
+	background-color: #fff4e5;
+	color: #663c00;
+}
+
+.pdchat-message.priority-error {
+	background-color: #ffe0e0;
+	color: #990000;
+}
+
+.pdchat-message.priority-critical {
+	background-color: #ffcccc;
+	color: #7a0000;
+	font-weight: bold;
+}
+
+.pdchat-message.priority-typing {
+	background-color: #f0f0f0;
+	color: #555;
+	font-style: italic;
+}
+
+.pdchat-window textarea {
+	border: none;
+	padding: 10px;
+	font-size: 14px;
+	outline: none;
+	width: 100%;
+	box-sizing: border-box;
+	resize: vertical;
+	height: 50px;
+	min-height: 50px;
+	max-height: 200px;
+}
+
+/* Modern chat input container with submit button */
+.pdchat-window .chat-input-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	background: #f5f7fa;
+	border-radius: 8px;
+	box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+	max-width: 100%;
+}
+
+	.pdchat-window .chat-input-container textarea {
+		flex: 1;
+		resize: vertical;
+		padding: 8px 12px;
+		border: 1px solid #ccc;
+		border-radius: 6px;
+		font-size: 1rem;
+		font-family: inherit;
+		transition: border-color 0.2s ease;
+	}
+
+		.pdchat-window .chat-input-container textarea:focus {
+			outline: none;
+			border-color: #4a90e2;
+			box-shadow: 0 0 5px #4a90e2aa;
+		}
+
+.submit-button {
+	background-color: #4a90e2;
+	border: none;
+	color: white;
+	padding: 10px 20px;
+	border-radius: 6px;
+	font-weight: 600;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+	user-select: none;
+}
+
+	.submit-button:hover {
+		background-color: #357abd;
+	}
+
+	.submit-button:active {
+		background-color: #2a5d9f;
+	}
+
+.typing-ellipsis::after {
+	content: "";
+	display: inline-block;
+	width: 1em;
+	text-align: left;
+	animation: ellipsis-dots 1.5s steps(3, end) infinite;
+}
+
+@keyframes ellipsis-dots {
+	0%, 20% {
+		content: "";
+	}
+
+	40% {
+		content: ".";
+	}
+
+	60% {
+		content: "..";
+	}
+
+	80%, 100% {
+		content: "...";
+	}
+}
+
+.pulsate {
+	animation: pdchat-pulsate 1.5s infinite;
+}
+
+@keyframes pdchat-pulsate {
+	0% {
+		box-shadow: 0 0 0 0 rgba(0,120,212,0.7);
+	}
+
+	70% {
+		box-shadow: 0 0 0 10px rgba(0,120,212,0);
+	}
+
+	100% {
+		box-shadow: 0 0 0 0 rgba(0,120,212,0);
+	}
+}

@@ -2,7 +2,7 @@
 	@foreach (var entry in OrderedEntries)
 	{
 		<div class="log-entry" style="white-space: @(WordWrap ? "normal" : "nowrap");">
-			@if (ShowTimestamp && entry.Timestamp != null)
+			@if (ShowTimestamp && entry.Timestamp != DateTime.MinValue)
 			{
 				 <span class="log-timestamp @entry.TimestampClass">@((MarkupString)GetTimestamp(entry.Timestamp))</span>
 			}
@@ -18,7 +18,7 @@
 				@if(ShowException && entry.Exception is not null)
 				{
 					<hr/>
-					<span class="log-message log-exception-type">@((MarkupString)entry.Exception.GetType().FullName)</span>
+					<span class="log-message log-exception-type">@((MarkupString)(entry.Exception.GetType().FullName ?? string.Empty))</span>
 					<span class="log-message log-exception-message">@((MarkupString)entry.Exception.Message)</span>
 					@if(entry.Exception.StackTrace is not null)
 					{

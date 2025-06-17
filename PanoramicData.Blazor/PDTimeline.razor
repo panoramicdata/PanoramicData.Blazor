@@ -3,7 +3,7 @@
 <div id="@Id"
 	 class="pd-timeline @(IsEnabled ? "" : "disabled")"
 	 @onmousewheel="OnMouseWheel"
-     @onwheel="OnMouseWheel">
+	 @onwheel="OnMouseWheel">
 
 	@{
 		DataPoint[] points = GetViewPortDataPoints();
@@ -37,6 +37,7 @@
 				{
 					<PDStackedBar DateFormat="@Scale.FormatPattern(Options.General.DateFormat)"
 								  DataPoint="points[i]"
+								  Height="_canvasHeight"
 								  IsEnabled="IsPointEnabled(points[i])"
 								  MaxValue="@(Options.YAxis.MaxValue ?? maxYValue)"
 								  Options="Options"

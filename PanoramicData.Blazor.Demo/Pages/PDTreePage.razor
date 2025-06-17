@@ -36,10 +36,10 @@
 						 CssClass="btn-secondary"
 						 Click="() => { Tree?.BeginEdit(); }" />
 
-        <PDToolbarPlaceholder>
-            <label class="me-1">Cancel Selection</label>
-            <PDToggleSwitch @bind-Value="_cancelSelection" />
-        </PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<label class="me-1">Cancel Selection</label>
+			<PDToggleSwitch @bind-Value="_cancelSelection" />
+		</PDToolbarPlaceholder>
 
 	</PDToolbar>
 
@@ -54,7 +54,7 @@
 			ExceptionHandler="OnException"
 			ShowLines="ShowLines"
 			ShowRoot="ShowRoot"
-            BeforeSelectionChange="OnBeforeSelectionChanged"
+			BeforeSelectionChange="OnBeforeSelectionChanged"
 			SelectionChange="OnSelectionChanged"
 			NodeExpanded="OnNodeExpanded"
 			NodeCollapsed="OnNodeCollapsed"

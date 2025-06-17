@@ -66,7 +66,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 	{
 		if (Container != null)
 		{
-			_localItems = Container.Items.ToList(); // initial order
+			_localItems = [.. Container.Items]; // initial order
 		}
 	}
 

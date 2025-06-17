@@ -60,7 +60,7 @@ public partial class PDTextBoxPage
 		}
 	}
 
-	private async Task OnTextAreaSelectionChanged(TextAreaSelection args)
+	private void OnTextAreaSelectionChanged(TextAreaSelection args)
 	{
 		EventManager?.Add(new Event("SelectionChanged",
 			new EventArgument("Start", args.Start),

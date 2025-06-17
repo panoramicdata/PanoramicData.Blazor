@@ -9,7 +9,8 @@
 	 @oncontextmenu:stopPropagation
 	 @oncontextmenu:preventDefault
 	 @ondrop="OnDragDropAsync"
-	 @onkeydown="OnKeyDownAsync">
+	 @onkeydown="OnKeyDownAsync"
+     @onkeydown:stopPropagation>
 	<table class="table @TableClass"
 		   @onmousedown="OnTableMouseDown">
 		<thead>
@@ -43,7 +44,7 @@
 				}
 				@foreach (var column in ActualColumnsToDisplay)
 				{
-					<th class="@column.ThClass @((column.UserSelectable ?? UserSelectable) == false ? "noselect" : "")" style="white-space: nowrap;">
+					<th id="@column.Id" class="@column.ThClass @((column.UserSelectable ?? UserSelectable) == false ? "noselect" : "")" style="white-space: nowrap;">
 						<div class="hdr">
 							@if (column.HeaderTemplate is null)
 							{
@@ -58,6 +59,7 @@
 								<PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column, f))"
 										  Filter="column.Filter"
 										  FilterChanged="OnFilterChanged"
+                                          Options="@column.FilterOptions"
 										  ShowValues="@column.FilterShowSuggestedValues"
 										  DataType="@column.GetFilterDataType()"
 										  Nullable="@column.GetFilterIsNullable()" />

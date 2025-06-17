@@ -10,7 +10,7 @@ public static class Constants
 	public static class Functions
 	{
 		/// <summary>
-		/// Function that returns Field.Description if set, otherwise lokos to return description from Display attribute on Item under edit.
+		/// Function that returns Field.Description if set, otherwise looks to return description from Display attribute on Item under edit.
 		/// </summary>
 		/// <typeparam name="T">Data type of instance</typeparam>
 		/// <param name="field">The FormField instance.</param>

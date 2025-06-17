@@ -182,7 +182,7 @@ public partial class PDModal : IAsyncDisposable
 		{
 			if (x is ToolbarButton btn)
 			{
-				return !string.IsNullOrWhiteSpace(btn.Key) && btn.CssClass.IndexOf("btn-primary", StringComparison.OrdinalIgnoreCase) >= 0;
+				return !string.IsNullOrWhiteSpace(btn.Key) && btn.CssClass.Contains("btn-primary", StringComparison.OrdinalIgnoreCase);
 			}
 
 			return false;

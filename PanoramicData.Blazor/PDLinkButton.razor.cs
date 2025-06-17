@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDLinkButton : IAsyncDisposable
+public partial class PDLinkButton : IAsyncDisposable, IEnablable
 {
 	private static int _sequence;
 	private IJSObjectReference? _commonModule;
@@ -111,7 +111,7 @@ public partial class PDLinkButton : IAsyncDisposable
 		}
 	}
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
 		if (ShortcutKey.HasValue)
@@ -151,5 +151,23 @@ public partial class PDLinkButton : IAsyncDisposable
 		{
 			await _commonModule.InvokeVoidAsync("click", Id).ConfigureAwait(true);
 		}
+	}
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
 	}
 }

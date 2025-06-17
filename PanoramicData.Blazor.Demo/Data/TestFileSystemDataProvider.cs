@@ -36,10 +36,11 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				new DirectoryEntry("stats.txt", FileExplorerItemType.File, 60766)
 			),
 			new DirectoryEntry("Temp",
-				new DirectoryEntry("p21wsa.tmp", FileExplorerItemType.File, 4096) { IsHidden = true },
-				new DirectoryEntry("a53fde.tmp", FileExplorerItemType.File, 1024) { IsHidden = true },
-				new DirectoryEntry("b76jba.tmp", FileExplorerItemType.File, 2048) { IsHidden = true },
-				new DirectoryEntry("z671hy.tmp", FileExplorerItemType.File, 0) { IsHidden = true }
+				new DirectoryEntry("1gigabyte.tmp", FileExplorerItemType.File, 1096000000) { IsHidden = true },
+				new DirectoryEntry("1kilobyte.tmp", FileExplorerItemType.File, 1024) { IsHidden = true },
+				new DirectoryEntry("2kilobytes.tmp", FileExplorerItemType.File, 2048) { IsHidden = true },
+				new DirectoryEntry("4bytes.tmp", FileExplorerItemType.File, 4) { IsHidden = true },
+				new DirectoryEntry("empty.tmp", FileExplorerItemType.File, 0) { IsHidden = true }
 			),
 			new DirectoryEntry("Cache",
 				new DirectoryEntry("document.docx", FileExplorerItemType.File, 4096),
@@ -270,13 +271,13 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 
 		await Task.Run(() =>
 		{
-			if (!delta.ContainsKey("Path"))
+			if (!delta.TryGetValue("Path", out object? value))
 			{
 				result.ErrorMessage = "Only Path property update supported";
 				return;
 			}
 
-			var tempPath = delta["Path"]?.ToString() ?? string.Empty;
+			var tempPath = value?.ToString() ?? string.Empty;
 			var tempItem = new FileExplorerItem { Path = tempPath ?? string.Empty, Name = FileExplorerItem.GetNameFromPath(tempPath) };
 			var targetNode = _root.Where(x => x.Path() == tempItem.Path).FirstOrDefault();
 			var targetParentNode = targetNode is null ? _root.Where(x => x.Path() == tempItem.ParentPath).FirstOrDefault() : targetNode.Parent;

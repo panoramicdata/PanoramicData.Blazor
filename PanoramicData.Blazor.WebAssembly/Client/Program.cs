@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Interfaces;
+using PanoramicData.Blazor.Services;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ public static class Program
 
 		builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 		builder.Services.AddPanoramicDataBlazor();
+		builder.Services.AddSingleton<IChatService, DumbChatService>(); // Register the dumb chat service for demonstration purposes
 
 		await builder.Build().RunAsync().ConfigureAwait(true);
 	}

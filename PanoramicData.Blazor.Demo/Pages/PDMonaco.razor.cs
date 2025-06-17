@@ -314,6 +314,7 @@ public partial class PDMonaco : IAsyncDisposable
 		{
 			_methodCache.Options.HideDataTypes = language == "rmscript";
 		}
+
 		StateHasChanged();
 	}
 

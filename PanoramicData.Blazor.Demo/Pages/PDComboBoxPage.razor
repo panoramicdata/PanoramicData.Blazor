@@ -1,0 +1,54 @@
+﻿@page "/pdcombobox"
+
+<h1>PDComboBox</h1>
+
+<DemoSourceView SourceFiles="Pages/PDComboBoxPage.razor, Pages/PDComboBoxPage.razor.cs">
+
+	<p>ComboBox 1 : Minimal configuration</p>
+
+	<PDComboBox Items="_items"
+				Placeholder="Select a country..." />
+	
+	<hr />
+
+	<p>ComboBox 2 : All configuration applied</p>
+
+	<PDComboBox Items="_items"
+				ItemToId="item => item.Code"
+				ItemToString="@(item => $"{item.Continent}: {item.Name}")"
+				Filter="(item, searchText) =>
+					item.Continent.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+					|| item.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+					|| string.Equals(item.Code, searchText, StringComparison.OrdinalIgnoreCase)"
+				Placeholder="Select a country..."
+				SelectedItem="SelectedItem"
+				MaxResults="5"
+				OrderBy="@(item => $"{item.Continent} {item.Name}")"
+				SelectedItemChanged="@(item => OnLogEvent($"Selected Item Changed: {item}"))" />
+
+	<hr />
+
+	<p>ComboBox 3 : All configuration applied plus a flag based on the two-letter country code.</p>
+
+	<PDComboBox Items="_items"
+				ItemToId="item => item.Code"
+				ItemToString="@(item => $"{item.Continent}: {item.Name}")"
+				Filter="(item, searchText) =>
+					item.Continent.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+					|| item.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+					|| string.Equals(item.Code, searchText, StringComparison.OrdinalIgnoreCase)"
+				Placeholder="Select a country..."
+				SelectedItem="SelectedItem"
+				MaxResults="5"
+				OrderBy="@(item => $"{item.Continent} {item.Name}")"
+				SelectedItemChanged="@(item => OnLogEvent($"Selected Item Changed: {item}"))"
+				>
+		<ItemTemplate Context="item">
+			<span style="border: 1px solid grey"><PDFlag CountryCode="@item.Code" Width="20px" /></span>
+			<span class="item-text">@($"{item.Continent}: {item.Name}")</span>
+		</ItemTemplate>
+		</PDComboBox>
+
+	<EventView />
+
+</DemoSourceView>

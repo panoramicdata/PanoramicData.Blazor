@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor;
 
-public partial class PDPager : IDisposable
+public partial class PDPager : IDisposable, IEnablable
 {
 	/// <summary>
 	/// Determines whether the component is enable dor not.
@@ -54,6 +54,24 @@ public partial class PDPager : IDisposable
 	public void MovePrevious() => PageCriteria.Page--;
 
 	public void MoveFirst() => PageCriteria.Page = 1;
+
+	public void Enable()
+	{
+		IsEnabled = true;
+		StateHasChanged();
+	}
+
+	public void Disable()
+	{
+		IsEnabled = false;
+		StateHasChanged();
+	}
+
+	public void SetEnabled(bool isEnabled)
+	{
+		IsEnabled = isEnabled;
+		StateHasChanged();
+	}
 
 	private string ControlSizeCssClass
 	{

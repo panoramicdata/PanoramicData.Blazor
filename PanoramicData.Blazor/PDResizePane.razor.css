@@ -1,0 +1,49 @@
+.pdresizepane-container {
+	width: 300px;
+	height: 200px;
+	border: 1px solid #999;
+	position: absolute;
+	background: white;
+	overflow: hidden;
+}
+
+.pdresizepane-content {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 10px;
+	overflow: auto;
+}
+
+.pdresizepane-handle {
+	width: 15px;
+	height: 15px;
+	background-color: #0078d4;
+	position: absolute;
+	cursor: nwse-resize;
+	border-radius: 3px;
+}
+
+.handle-tl {
+	top: 0;
+	left: 0;
+	cursor: nwse-resize;
+}
+
+.handle-tr {
+	top: 0;
+	right: 0;
+	cursor: nesw-resize;
+}
+
+.handle-bl {
+	bottom: 0;
+	left: 0;
+	cursor: nesw-resize;
+}
+
+.handle-br {
+	bottom: 0;
+	right: 0;
+	cursor: nwse-resize;
+}

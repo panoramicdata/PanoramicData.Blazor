@@ -29,35 +29,28 @@ public partial class PDTreePage4
 						Name = "Bing",
 						ParentId = 1,
 						IconCssClass="fas fa-fw fa-external-link-alt me-1",
-						Target = "_blank",
-						Url = "https://www.bing.com/"
+
 					},
 					new ()
 					{
 						Id = 102,
 						Name = "DuckDuckGo",
 						ParentId = 1,
-						IconCssClass="fas fa-fw fa-external-link-alt me-1",
-						Target = "_blank",
-						Url = "https://duckduckgo.com/"
+						IconCssClass="fas fa-fw fa-external-link-alt me-1"
 					},
 					new ()
 					{
 						Id = 103,
 						Name = "Google",
 						ParentId = 1,
-						IconCssClass="fas fa-fw fa-external-link-alt me-1",
-						Target = "_blank",
-						Url = "https://google.co.uk"
+						IconCssClass="fas fa-fw fa-external-link-alt me-1"
 					},
 					new ()
 					{
 						Id = 104,
 						Name = "Presearch",
 						ParentId = 1,
-						IconCssClass="fas fa-fw fa-external-link-alt me-1",
-						Target = "_blank",
-						Url = "https://presearch.com/"
+						IconCssClass="fas fa-fw fa-external-link-alt me-1"
 					},
 					new ()
 					{
@@ -71,24 +64,21 @@ public partial class PDTreePage4
 						Id = 201,
 						Name = "BBC Weather",
 						ParentId = 2,
-						IconCssClass="fas fa-fw fa-external-link-square-alt me-1",
-						Url = "https://www.bbc.co.uk/weather"
+						IconCssClass="fas fa-fw fa-external-link-square-alt me-1"
 					},
 					new ()
 					{
 						Id = 202,
 						Name = "MetOffice",
 						ParentId = 2,
-						IconCssClass="fas fa-fw fa-external-link-square-alt me-1",
-						Url = "https://www.metoffice.gov.uk/"
+						IconCssClass="fas fa-fw fa-external-link-square-alt me-1"
 					},
 					new ()
 					{
 						Id = 203,
 						Name = "Weather.com",
 						ParentId = 2,
-						IconCssClass="fas fa-fw fa-external-link-square-alt me-1",
-						Url = "https://weather.com/"
+						IconCssClass="fas fa-fw fa-external-link-square-alt me-1"
 					}
 				};
 				return Task.FromResult(new DataResponse<TreeItem>(items, items.Count));

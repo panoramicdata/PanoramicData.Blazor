@@ -1,0 +1,48 @@
+﻿@using static PanoramicData.Blazor.PDResizePane
+@inherits ComponentBase
+
+<div class="pdchat-container @( _isOpen ? "open" : "" )">
+	<button class="pdchat-toggle-collapsed" @onclick="ToggleChat">
+		<span>@(_isOpen ? "×" : "💬")</span>
+	</button>
+
+	@if (_isOpen)
+	{
+		<div class="pdchat-window">
+			<div class="pdchat-header">
+				<span class="pdchat-title">@Title</span>
+				<button class="pdchat-header-btn" @onclick="ToggleMute" title="@(_isMuted ? "Unmute" : "Mute")">
+					<span>@(_isMuted ? "🔇" : "🔊")</span>
+				</button>
+				<button class="pdchat-close" @onclick="ToggleChat">✖</button>
+			</div>
+			<div @ref="_messagesContainer" class="pdchat-messages">
+				@foreach (var message in _messages)
+				{
+					<div class="pdchat-message @(message.Sender == "User" ? "right" : "left") priority-@message.Type.ToString().ToLower()">
+						<div class="pdchat-header">
+							<span class="pdchat-icon">@(PriorityIconSelector?.Invoke(message) ?? GetDefaultPriorityIcon(message))</span>
+							<span class="pdchat-icon">@(UserIconSelector?.Invoke(message) ?? GetDefaultUserIcon(message))</span>
+							<span class="pdchat-username">@message.Sender</span>
+							<span class="pdchat-timestamp">@message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
+						</div>
+						<div class="pdchat-text">
+							@if (message.Type == MessageType.Typing)
+							{
+								<span class="typing-ellipsis"></span>
+							}
+							else
+							{
+								<span class="@(message.Sender == "User" ? "right" : "left")">@message.Message</span>
+							}
+						</div>
+					</div>
+				}
+			</div>
+			<div class="chat-input-container">
+				<textarea @bind="_currentInput" placeholder="Type a message..." rows="3"></textarea>
+				<button class="submit-button" @onclick="SendCurrentMessageAsync">Send</button>
+			</div>
+		</div>
+	}
+</div>

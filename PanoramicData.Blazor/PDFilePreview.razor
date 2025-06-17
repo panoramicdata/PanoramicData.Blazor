@@ -1,16 +1,16 @@
 ﻿<div class="pdfilepreview @(_previewInfo?.CssClass)">
-    @if(!string.IsNullOrWhiteSpace(_previewInfo?.Url))
-    {
-        <iframe src="@_previewInfo?.Url" sandbox="" />
-    }
-    else if(_previewInfo?.CssClass == "html")
-    {
-        <iframe class="web"
-                sandbox=""
-                srcdoc="@_previewInfo?.HtmlContent" />
-    }
-    else
-    {
-        @_previewInfo?.HtmlContent
-    }
+	@if (!string.IsNullOrWhiteSpace(_previewInfo?.Url))
+	{
+		<iframe src="@_previewInfo?.Url" sandbox="" />
+	}
+	else if (_previewInfo?.CssClass == "html")
+	{
+		<iframe class="web"
+				sandbox=""
+				srcdoc="@_previewInfo?.HtmlContent" />
+	}
+	else
+	{
+		@_previewInfo?.HtmlContent
+	}
 </div>
