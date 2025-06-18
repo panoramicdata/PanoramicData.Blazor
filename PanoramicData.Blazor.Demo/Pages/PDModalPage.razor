@@ -1,0 +1,28 @@
+@page "/pdmodal"
+<DemoSourceView SourceFiles="Pages/PDModalPage.razor, Pages/PDModalPage.razor.cs">
+
+
+	<div class="main-view">
+		<h1>Stock View</h1>
+
+		<button class="special-offers" @onclick="OnClick">Special Offers</button>
+
+		<p>Modal dialogs are useful for separating information from the main view of a web-page
+			and allowing users to focus their attention. Click the special offers button to
+			see an example of this!
+		</p>
+	</div>
+
+	<PDModal @ref="_modalPopup" >
+		<Header>Special Offers</Header>
+
+		<ChildContent>
+			Unfortunately there are no special offers this time...
+		</ChildContent>
+
+		<Footer>
+			<PDButton Click="CloseModal">Close</PDButton>
+		</Footer>
+	</PDModal>
+
+</DemoSourceView>
