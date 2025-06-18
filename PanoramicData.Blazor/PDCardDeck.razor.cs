@@ -42,9 +42,23 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	[Parameter]
 	public bool MultipleSelection { get; set; }
 
+	/// <summary>
+	/// Event that is invoked when the user rearranges cards in the deck.
+	/// </summary>
+	[Parameter]
+	public EventCallback<DragEventArgs> OnRearrange { get; set; }
+
+	/// <summary>
+	/// Event that is invoked when the user selects a card / cards in the deck.
+	/// </summary>
+	[Parameter]
+	public EventCallback<MouseEventArgs> OnSelect { get; set; }
+
 	#endregion
 
 	public IEnumerable<TCard?> GetSelection() => _selection;
+
+	public IEnumerable<TCard?> GetCards() => _cards;
 
 	private Dictionary<string, object?> GetCardAttributes(TCard card)
 	{
@@ -53,7 +67,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			{ "class", $"card {(_selection.Contains(card) ? "selected" : "")} {(_selection?.Contains(card) == true && _isDragging ? "dragging" : "")}" },
 			{ "ondragend", (DragEventArgs e)=> OnDragEnd(e) },
 			{ "ondragover", (DragEventArgs e) => OnDragOver(e, card) },
-			{ "ondragstart", (DragEventArgs e) => OnDragStart(e, card) },
+			{ "ondragstart", (DragEventArgs e) => OnDragStartAsync(e, card) },
 			{ "onmouseup", (MouseEventArgs e) => OnItemMouseUpAsync(card, e) }
 		};
 
@@ -84,18 +98,19 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		};
 	}
 
-	private Task OnDropAsync(DragEventArgs args)
+	private async Task OnDropAsync(DragEventArgs args)
 	{
 		// Cannot move cards if it is not dragging
 		if (!_isDragging)
 		{
-			return Task.CompletedTask;
+			return;
 		}
 
 		MoveCards();
 
+		await OnRearrange.InvokeAsync(args);
+
 		// TODO: notify app to add items from source
-		return Task.CompletedTask;
 	}
 
 	/// <summary>
@@ -169,7 +184,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		StateHasChanged();
 	}
 
-	private void OnDragStart(DragEventArgs args, TCard card)
+	private async Task OnDragStartAsync(DragEventArgs args, TCard card)
 	{
 		_isDragging = true;
 
@@ -177,7 +192,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		if (_selection.Count == 0 || !_selection.Contains(card))
 		{
 			// Add the card to the selection
-			UpdateSelection(card, args.CtrlKey, args.ShiftKey);
+			await UpdateSelectionAsync(args, card);
 		}
 
 		// Replace the moving cards with nulls to indicate they have been moved
@@ -204,11 +219,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <param name="card"></param>
 	/// <param name="args"></param>
 	/// <returns></returns>
-	private Task OnItemMouseUpAsync(TCard card, MouseEventArgs args)
+	private async Task OnItemMouseUpAsync(TCard card, MouseEventArgs args)
 	{
-		UpdateSelection(card, args.CtrlKey, args.ShiftKey);
+		await UpdateSelectionAsync(args, card);
 		StateHasChanged();
-		return Task.CompletedTask;
 	}
 
 	/// <summary>
@@ -233,7 +247,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	}
 
-	private void UpdateSelection(TCard card, bool ctrl, bool shift)
+	private async Task UpdateSelectionAsync(MouseEventArgs args, TCard card)
 	{
 		// Not enabled, cannot select
 		if (!IsEnabled)
@@ -243,7 +257,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		if (MultipleSelection)
 		{
-			if (ctrl) // add/remove single card to current selection
+			if (args.CtrlKey) // add/remove single card to current selection
 			{
 				// If not in selection, add
 				if (!_selection.Remove(card))
@@ -251,7 +265,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 					_selection.Add(card);
 				}
 			}
-			else if (shift && _selection.Count > 0) // add range
+			else if (args.ShiftKey && _selection.Count > 0) // add range
 			{
 				// Get selected cards
 				var firstCardIndex = _cards.IndexOf(_selection.First() ?? card);
@@ -276,6 +290,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			_selection.Clear();
 			_selection.Add(card);
 		}
+
+		await OnSelect.InvokeAsync(args);
 	}
 
 	private string SizeCssClass => Size switch

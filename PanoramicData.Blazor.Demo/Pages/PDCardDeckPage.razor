@@ -2,30 +2,39 @@
 
 <DemoSourceView SourceFiles="Pages/PDCardDeckPage.razor, Pages/PDCardDeckPage.razor.cs">
 
-    <div>
-        <p>Example 1: Basic Card Deck</p>
-    </div>
+	<div>
+		<p>Example 1: Basic Card Deck</p>
+	</div>
 
-    <PDCardDeck DataProvider="_todoList1" />
+	<PDCardDeck @ref="_cardDeck1"
+				DataProvider="_todoList1"
+				OnRearrange="OnRearrange1"
+				OnSelect="OnSelect1" />
 
-    <hr />
+	<hr />
 
-    <div>
-        <p>Example 2: Multiple Select</p>
-    </div>
+	<div>
+		<p>Example 2: Multiple Select</p>
+	</div>
 
-    <PDCardDeck DataProvider="_todoList2"
-        MultipleSelection="true" />
+	<PDCardDeck @ref="_cardDeck2"
+				DataProvider="_todoList2"
+				MultipleSelection="true"
+				OnRearrange="OnRearrange2" 
+				OnSelect="OnSelect2" />
 
-    <hr />
+	<hr />
 
-    <div>
-        <p>Example 3: Disabled Card Deck</p>
-    </div>
+	<div>
+		<p>Example 3: Disabled Card Deck</p>
+	</div>
 
-    <PDCardDeck DataProvider="_todoList3"
-        IsEnabled="false" />
+	<PDCardDeck @ref="_cardDeck3"
+				DataProvider="_todoList3"
+				IsEnabled="false"
+				OnRearrange="OnRearrange3"
+				OnSelect="OnSelect3" />
 
-    <EventView />
+	<EventView />
 
 </DemoSourceView>
