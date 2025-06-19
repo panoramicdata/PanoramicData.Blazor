@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using PanoramicData.Blazor.Services;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PanoramicData.Blazor.Demo.Pages;
 
@@ -9,7 +10,7 @@ public partial class PDFormPage4
 	private readonly FormFieldHelper<RegisterModel> _pdfHelper;
 	private readonly FormFieldHelper<RegisterModel> _xlsxHelper;
 
-	private readonly DelegatedDataProvider<RegisterModel> _dataProvider = new()
+	private readonly DelegatedDataProviderService<RegisterModel> _dataProvider = new()
 	{
 		CreateAsync = (model, cancellationToken) =>
 		{
