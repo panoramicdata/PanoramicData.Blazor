@@ -9,6 +9,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// </summary>
 	private bool _isDragging;
 
+	int _cursorX, _cursorY;
+	string _cursorXpx => $"{_cursorX}px";
+	string _cursorYpx => $"{_cursorY}px";
+
 	/// <summary>
 	/// The Card(s) that have been selected by the user
 	/// </summary>
@@ -27,10 +31,13 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	public override string Id { get; set; } = $"pd-carddeck-{++_sequence}";
 
 	[Parameter]
-	public int CardHeight { get; set; } = 32;
+	public string CardHeight { get; set; } = "64px";
 
 	[Parameter]
 	public RenderFragment<TCard>? CardTemplate { get; set; }
+
+	[Parameter]
+	public Func<TCard, string> CardCss { get; set; } = (card => "");
 
 	[EditorRequired]
 	[Parameter]
@@ -64,11 +71,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		var dict = new Dictionary<string, object?>
 		{
-			{ "class", $"card {(_selection.Contains(card) ? "selected" : "")} {(_selection?.Contains(card) == true && _isDragging ? "dragging" : "")}" },
+			{ "class", $"card {CardCss(card)} {(_selection.Contains(card) ? "selected" : "")} {(_selection?.Contains(card) == true && _isDragging ? "dragging" : "")}" },
 			{ "ondragend", (DragEventArgs e)=> OnDragEnd(e) },
 			{ "ondragover", (DragEventArgs e) => OnDragOver(e, card) },
 			{ "ondragstart", (DragEventArgs e) => OnDragStartAsync(e, card) },
-			{ "onmouseup", (MouseEventArgs e) => OnItemMouseUpAsync(card, e) }
+			{ "onmouseup", (MouseEventArgs e) => OnItemMouseUpAsync(card, e) },
+			{ "style", $"min-height:{CardHeight}" }
 		};
 
 		if (IsEnabled)
@@ -87,6 +95,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			{ "onmouseleave", (MouseEventArgs e) => OnDragEnd(new DragEventArgs()) }, // End dragging when mouse leaves the deck
 		};
 		return dict;
+	}
+
+	private void UpdateIndicatorPosition(DragEventArgs e)
+	{
+		_cursorX = (int)e.ClientX;
+		_cursorY = (int)e.ClientY;
 	}
 
 	private Dictionary<string, object?> GetDropAreaAttributes()
@@ -159,6 +173,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			return;
 		}
 
+		// Indicate to the user where the cards will be dropped
+		UpdateIndicatorPosition(args);
+
 		// Shift the null values to the card
 		var hoveredIndex = _cards.IndexOf(card);
 
@@ -187,6 +204,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	private async Task OnDragStartAsync(DragEventArgs args, TCard card)
 	{
 		_isDragging = true;
+
+		// Indicate to the user where the cards will be dropped
+		UpdateIndicatorPosition(args);
 
 		// ensure dragged item is selected
 		if (_selection.Count == 0 || !_selection.Contains(card))

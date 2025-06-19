@@ -2,18 +2,14 @@
 
 public class Todo : ICard
 {
-	public Todo()
-	{
-	}
-
-	public Todo(string title)
-	{
-		Title = title;
-	}
 
 	public Guid Id { get; set; } = Guid.NewGuid();
 
-	public string Title { get; set; } = string.Empty;
+	public Priority Priority { get; set; } = Priority.Major;
+
+	public required string Title { get; set; } = string.Empty;
+
+	public required string Description { get; set; } = string.Empty;
 
 	public override string ToString() => Title;
 

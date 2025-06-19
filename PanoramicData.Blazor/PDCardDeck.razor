@@ -1,6 +1,18 @@
 ﻿@inherits PDComponentBase
 @typeparam TCard
 
+@if(MultipleSelection && _isDragging && _selection.Count > 1)
+{
+	<span style="top:@_cursorYpx; left:@_cursorXpx;" class="ghost-drag-preview">@_selection[0]
+
+		@if (_selection.Count > 1)
+		{
+			<span> +@(_selection.Count - 1)</span>
+		}
+	</span>
+}
+
+
 <div @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
 	@foreach (var card in _cards)
 	{

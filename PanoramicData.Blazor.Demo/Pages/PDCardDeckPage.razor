@@ -32,8 +32,14 @@
 	<PDCardDeck @ref="_cardDeck3"
 				DataProvider="_todoList3"
 				IsEnabled="false"
+				CardCss="@(card => $"pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
 				OnRearrange="OnRearrange3"
-				OnSelect="OnSelect3" />
+				OnSelect="OnSelect3" >
+
+			<CardTemplate>
+			<div>Title:@context.Title<br />Description: @context.Description</div>
+			</CardTemplate>
+			</PDCardDeck>
 
 	<EventView />
 

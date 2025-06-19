@@ -17,27 +17,27 @@ public partial class PDCardDeckPage
 	protected override void OnInitialized()
 	{
 		// generate some todos
-		_todoList1.List.AddRange(new[] {
-			new Todo("Do weekly shop"),
-			new Todo("Record Antiques Roadshow"),
-			new Todo("Get a haircut"),
-			new Todo("Walk the dog")
-		});
+		_todoList1.List.AddRange([
+			new Todo{Title = "Do weekly shop", Description = "a description" },
+			new Todo{Title = "Record Antiques Roadshow", Description = "a description"},
+			new Todo{Title = "Get a haircut", Description = "a description"},
+			new Todo{Title = "Walk the dog",Description =  "a description"} ]
+			);
 
-		_todoList2.List.AddRange(new[] {
-			new Todo("Book holiday"),
-			new Todo("Do weekly shop"),
-			new Todo("Record Antiques Roadshow"),
-			new Todo("Put up shelf"),
-			new Todo("Get a haircut"),
-			new Todo("Walk the dog")
-		});
+		_todoList2.List.AddRange([
+			new Todo{Title = "Book holiday", Description = "a description"},
+			new Todo{Title = "Do weekly shop", Description = "a description"},
+			new Todo{Title = "Record Antiques Roadshow", Description = "a description"},
+			new Todo{Title = "Put up shelf", Description = "a description"},
+			new Todo{Title = "Get a haircut", Description = "a description"},
+			new Todo{Title = "Walk the dog",Description =  "a description"} ]
+			);
 
-		_todoList3.List.AddRange(new[] {
-			new Todo("Get a haircut"),
-			new Todo("Record Antiques Roadshow"),
-			new Todo("Walk the dog")
-		});
+		_todoList3.List.AddRange([
+			new Todo{Title = "Get a haircut", Description = "a description"},
+			new Todo{Title = "Record Antiques Roadshow", Description = "a description"},
+			new Todo{Title = "Walk the dog",Description =  "a description"} ]
+			);
 	}
 
 	protected void OnSelect1(MouseEventArgs args)
