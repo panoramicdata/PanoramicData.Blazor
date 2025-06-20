@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Fixed CSS Class for search box buttons that was specified as a style on PDTextBox.
+			Pager counts now use N0 format, e.g. 1001 is shown as 1,001.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
