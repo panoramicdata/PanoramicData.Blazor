@@ -156,7 +156,7 @@
 										  Id="@Id"
 										  OnDidInit="OnMonacoInitAsync"
                                           OnKeyUp="OnMonacoEditorKeyUpAsync"
-                                          OnDidBlurEditorText="() => Field.SuppressErrors = false"
+                                          OnDidBlurEditorText="OnMonacoEditorBlurAsync"
 										  CssClass="@($"w-100 {fso.CssClass}")"
 										  ConstructionOptions="fso.MonacoOptions" />    
 				}
