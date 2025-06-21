@@ -25,7 +25,7 @@
 			<PDFormHeader TItem="DatabaseQueryModel"
 						  EditTitle="Edit Query" />
 
-			<PDFormBody TItem="DatabaseQueryModel">
+			<PDFormBody TItem="DatabaseQueryModel" DebounceWait="1000">
 
 				<PDField TItem="DatabaseQueryModel"
 						 Field="x => x.EmailAddress"
@@ -44,6 +44,11 @@
 						 DisplayOptions="QueryEditorOptions"
 						 Field="x => x.SqlQuery"
 						 ShowCopyButton="_ => true" />
+
+                <PDField TItem="DatabaseQueryModel"
+                         IsTextArea="true"
+                         Field="x => x.SqlQuery"
+                         ShowCopyButton="_ => true" />
 
 			</PDFormBody>
 
