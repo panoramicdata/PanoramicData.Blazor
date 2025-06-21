@@ -181,6 +181,16 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
+	private async Task OnMonacoEditorKeyUpAsync(BlazorMonaco.KeyboardEvent args)
+	{
+		if (_monacoEditor != null && Form != null && Field != null)
+		{
+			var model = await _monacoEditor.GetModel();
+			var value = await model.GetValue(EndOfLinePreference.CRLF, true);
+			await Form.SetFieldValueAsync(Field, value);
+		}
+	}
+
 	private async Task OnMonacoInitAsync()
 	{
 		if (_monacoEditor != null && Form != null)
@@ -205,7 +215,12 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 			if (_monacoEditor != null && Form != null)
 			{
 				var model = await _monacoEditor.GetModel();
-				await model.SetValue(value);
+				var oldValue = await model.GetValue(EndOfLinePreference.CRLF, true);
+				// only update if it is different to what we have or it will move cursor to the beginning of the editor
+				if (oldValue != value)
+				{
+					await model.SetValue(value);
+				}
 			}
 		}
 		catch
