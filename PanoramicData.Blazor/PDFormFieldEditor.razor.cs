@@ -7,6 +7,9 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	private bool _hasValue = true;
 	private StandaloneCodeEditor? _monacoEditor;
 
+	// Debounce support
+	private CancellationTokenSource? _monacoDebounceCts;
+
 	[Parameter]
 	public int DebounceWait { get; set; }
 
@@ -175,6 +178,11 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		if (_monacoEditor != null && Form != null && Field != null)
 		{
+			// On blur, immediately update and cancel any pending debounce
+			_monacoDebounceCts?.Cancel();
+			_monacoDebounceCts?.Dispose();
+			_monacoDebounceCts = null;
+
 			var model = await _monacoEditor.GetModel();
 			var value = await model.GetValue(EndOfLinePreference.CRLF, true);
 			await Form.SetFieldValueAsync(Field, value);
@@ -185,9 +193,26 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		if (_monacoEditor != null && Form != null && Field != null)
 		{
-			var model = await _monacoEditor.GetModel();
-			var value = await model.GetValue(EndOfLinePreference.CRLF, true);
-			await Form.SetFieldValueAsync(Field, value);
+			// Cancel any pending update
+			_monacoDebounceCts?.Cancel();
+			_monacoDebounceCts?.Dispose();
+			_monacoDebounceCts = new CancellationTokenSource();
+			var token = _monacoDebounceCts.Token;
+
+			try
+			{
+				await Task.Delay(DebounceWait > 0 ? DebounceWait : 0, token);
+				if (!token.IsCancellationRequested)
+				{
+					var model = await _monacoEditor.GetModel();
+					var value = await model.GetValue(EndOfLinePreference.CRLF, true);
+					await Form.SetFieldValueAsync(Field, value);
+				}
+			}
+			catch (TaskCanceledException)
+			{
+				// Ignore, another keyup event occurred
+			}
 		}
 	}
 
@@ -304,6 +329,9 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 			{
 				Field.ValueChanged -= Field_ValueChanged;
 				Form.ResetRequested -= Form_ResetRequested;
+				_monacoDebounceCts?.Cancel();
+				_monacoDebounceCts?.Dispose();
+				_monacoDebounceCts = null;
 			}
 
 			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
