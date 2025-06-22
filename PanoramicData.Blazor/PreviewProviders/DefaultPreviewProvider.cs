@@ -20,7 +20,7 @@ public class DefaultPreviewProvider : IPreviewProvider
 		{
 			return new PreviewInfo
 			{
-				HtmlContent = new MarkupString("<span>No Preview</span>"),
+				HtmlContent = new MarkupString("<span class=\"user-select-none\">No Preview</span>"),
 				CssClass = "basic"
 			};
 		}
@@ -122,20 +122,24 @@ public class DefaultPreviewProvider : IPreviewProvider
 		{
 			return
 			[
+				"<span class=\"user-select-none\">",
 				$"<span class=\"h1\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",
 				"<span class=\"h4\">Folder</span>",
 				$"<span class=\"text-small text-muted\">Created: {item.DateCreated?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
-				$"<span class=\"text-small text-muted\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>"
+				$"<span class=\"text-small text-muted\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
+				"</span>"
 			];
 		}
 
 		return
 		[
+			"<span class=\"user-select-none\">",
 			$"<span class=\"h1\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",
 			$"<span class=\"h4\">{Path.GetExtension(item.Name)[1..].ToUpperInvariant()} File</span>",
 			$"<span>{item.FileSize:N0} bytes</span>",
 			$"<span class=\"text-small text-muted\">Created: {item.DateCreated?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
-			$"<span class=\"text-small text-muted\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>"
+			$"<span class=\"text-small text-muted\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
+			"</span>",
 		];
 	}
 }
