@@ -125,8 +125,11 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 
 	private Task OnAfter()
 	{
-		// invoke the event
-		ValueChanged.InvokeAsync(Value);
+		if (DebounceWait <= 0)
+		{
+			// invoke the event
+			ValueChanged.InvokeAsync(Value);
+		}
 		return Task.CompletedTask;
 	}
 
@@ -198,8 +201,11 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 
 	private async Task OnKeypress(KeyboardEventArgs args)
 	{
-		await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
-		await Keypress.InvokeAsync(args).ConfigureAwait(true);
+		if (DebounceWait <= 0)
+		{
+			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
+			await Keypress.InvokeAsync(args).ConfigureAwait(true);
+		}
 	}
 
 	[JSInvokable]
