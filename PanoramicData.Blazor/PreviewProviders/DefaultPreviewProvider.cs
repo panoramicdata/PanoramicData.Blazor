@@ -122,24 +122,20 @@ public class DefaultPreviewProvider : IPreviewProvider
 		{
 			return
 			[
-				"<span class=\"user-select-none\">",
-				$"<span class=\"h1\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",
-				"<span class=\"h4\">Folder</span>",
-				$"<span class=\"text-small text-muted\">Created: {item.DateCreated?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
-				$"<span class=\"text-small text-muted\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
-				"</span>"
+				$"<span class=\"h1 user-select-none\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",
+				"<span class=\"h4 user-select-none\">Folder</span>",
+				$"<span class=\"text-small text-muted user-select-none\">Created: {item.DateCreated?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
+				$"<span class=\"text-small text-muted user-select-none\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>"
 			];
 		}
 
 		return
 		[
-			"<span class=\"user-select-none\">",
-			$"<span class=\"h1\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",
-			$"<span class=\"h4\">{Path.GetExtension(item.Name)[1..].ToUpperInvariant()} File</span>",
-			$"<span>{item.FileSize:N0} bytes</span>",
-			$"<span class=\"text-small text-muted\">Created: {item.DateCreated?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
-			$"<span class=\"text-small text-muted\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
-			"</span>",
+			$"<span class=\"h1 user-select-none\">{Path.GetFileNameWithoutExtension(item.Name)}</span>",
+			$"<span class=\"h4 user-select-none\">{Path.GetExtension(item.Name)[1..].ToUpperInvariant()} File</span>",
+			$"<span user-select-none>{item.FileSize:N0} bytes</span>",
+			$"<span class=\"text-small text-muted user-select-none\">Created: {item.DateCreated?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
+			$"<span class=\"text-small text-muted user-select-none\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>"
 		];
 	}
 }

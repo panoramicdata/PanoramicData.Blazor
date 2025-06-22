@@ -52,24 +52,20 @@ public class FileExplorerPreviewProvider : DefaultPreviewProvider
 				$"<i class=\"fa-4x {FileExplorer.GetIconCssClass(item)}\"></i>"
 			};
 
-			details.Add("<span class=\"user-select-none\">");
-
 			if (item.EntryType == FileExplorerItemType.Directory)
 			{
-				details.Add($"<span class=\"h1\">{item.Name}</span>");
-				details.Add("<span class=\"h4\">Folder</span>");
+				details.Add($"<span class=\"h1 user-select-none\">{item.Name}</span>");
+				details.Add("<span class=\"h4 user-select-none\">Folder</span>");
 			}
 			else
 			{
-				details.Add($"<span class=\"h1\">{Path.GetFileNameWithoutExtension(item.Name)}</span>");
-				details.Add($"<span class=\"h4\">{Path.GetExtension(item.Name)[1..].ToUpperInvariant()} File</span>");
+				details.Add($"<span class=\"h1 user-select-none\">{Path.GetFileNameWithoutExtension(item.Name)}</span>");
+				details.Add($"<span class=\"h4 user-select-none\">{Path.GetExtension(item.Name)[1..].ToUpperInvariant()} File</span>");
 				details.Add($"<span title=\"{item.FileSize:N0} bytes\">{item.FileSize.Bytes().Humanize(CultureInfo.InvariantCulture)}</span>");
 			}
 
-			details.Add($"<span title=\"{item.DateCreated}\" class=\"text-small text-muted\">Created: {dc}</span>");
-			details.Add($"<span title=\"{item.DateModified}\" class=\"text-small text-muted\">Modified: {dm}</span>");
-
-			details.Add("</span>");
+			details.Add($"<span title=\"{item.DateCreated}\" class=\"text-small text-muted user-select-none\">Created: {dc}</span>");
+			details.Add($"<span title=\"{item.DateModified}\" class=\"text-small text-muted user-select-none\">Modified: {dm}</span>");
 
 			return details;
 		}
