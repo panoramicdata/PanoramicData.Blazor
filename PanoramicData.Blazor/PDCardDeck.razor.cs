@@ -6,10 +6,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 {
 	private static int _sequence;
 
-	/// <summary>
-	/// Whether a drag event has been detected
-	/// </summary>
-	public bool IsDragging { get; private set; }
+	/// <inheritdoc/>
+	public PDCardDragDropInformation DragState { get; private set; } = new();
 
 	/// <summary>
 	/// The Card(s) that have been selected by the user
@@ -130,14 +128,19 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void OnDragStart(DragEventArgs e, TCard card)
 	{
-		IsDragging = true;
+		DragState.IsDragging = true;
 		StateHasChanged();
 	}
 
 	internal void OnDragEnd(DragEventArgs e, TCard card)
 	{
-		IsDragging = false;
+		DragState.IsDragging = false;
 		StateHasChanged();
+	}
+
+	internal void NotifyDragPosition(DragEventArgs e, TCard card)
+	{
+		DragState.TargetIndex = _childCards.FindIndex(childCard => childCard.Card.Equals(card));
 	}
 
 	private string SizeCssClass => Size switch

@@ -7,7 +7,7 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		private bool _isSelected => ParentCardDeck.Selection.Contains(Card);
 
-		private bool _isDragging => ParentCardDeck.IsDragging && _isSelected;
+		private bool _isDragging => ParentCardDeck.DragState.IsDragging && _isSelected;
 
 		#region Parameters
 		/// <summary>
@@ -48,9 +48,14 @@ namespace PanoramicData.Blazor
 		{
 			{ "class", GetCardClass(card) },
 			{ "draggable", $"{DraggingEnabled}".ToLowerInvariant() }, // Make sure the value is lowercase,
+			
+			// Visual Updates
 			{ "onmouseup", (MouseEventArgs e) => ParentCardDeck.AddToSelection(e, card) },
 			{"ondragstart", (DragEventArgs e) => ParentCardDeck.OnDragStart(e, card) },
 			{"ondragend", (DragEventArgs e) => ParentCardDeck.OnDragEnd(e, card) },
+
+			// Position Updates
+			{"ondragover",(DragEventArgs e) => ParentCardDeck.NotifyDragPosition(e, card) }
 		};
 
 			return dict;
