@@ -5,7 +5,7 @@
 		<input type="text" class="combo-input"
 			   @bind-value="_searchText"
 			   @onfocus="OnInputFocus"
-			   @onblur="HideDropdownWithDelay"
+               @onblur="OnInputBlur"
 			   placeholder="@Placeholder"
 			   @oninput="FilterItems"
 			   @onkeydown="OnInputKeyDown"
@@ -16,6 +16,16 @@
 		{
 			<button type="button" class="combo-clear" @onclick="ClearInput" tabindex="-1" aria-label="Clear">&times;</button>
 		}
+		<button type="button"
+				class="combo-dropdown-icon"
+				tabindex="-1"
+				disabled="@IsDisabled"
+                @onclick="ToggleDropdown"
+				aria-label="Show options">
+			<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+				<path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+			</svg>
+		</button>
 	</div>
 
 	@if (_showDropdown)
@@ -40,7 +50,7 @@
 						}
 						@if (i == _activeIndex)
 						{
-							<text> *</text>
+							<span class="combo-active-icon" aria-hidden="true">&#10003;</span>
 						}
 					</li>
 				}

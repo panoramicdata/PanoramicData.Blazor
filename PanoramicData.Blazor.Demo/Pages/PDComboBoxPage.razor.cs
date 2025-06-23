@@ -200,7 +200,7 @@ public partial class PDComboBoxPage
 		new Country { Name = "Zimbabwe", Code = "ZW", Continent = "Africa" }
 	];
 
-	private Country SelectedItem { get; set; } = _items[0];
+	private Country? SelectedItem { get; set; } = _items[0];
 
 	[CascadingParameter]
 	protected EventManager? EventManager { get; set; }
@@ -210,6 +210,12 @@ public partial class PDComboBoxPage
 		EventManager?.Add(new Event(name));
 	}
 
+	private void OnSelectedItemChanged(Country? item)
+	{
+		SelectedItem = item;
+		OnLogEvent($"Selected Item Changed: {item}");
+	}
+	
 	class Country
 	{
 		public required string Name { get; set; }
