@@ -24,9 +24,8 @@
 			opacity: 0.2;
 		}
 
-	.card .card-selected {
-		background-color: #d1ecf1;
-		border-color: #bee5eb;
+	.card-selected {
+		background-color: #d1ecf1 !important;
 	}
 
 	.card[draggable="true"]:hover {

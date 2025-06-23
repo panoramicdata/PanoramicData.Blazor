@@ -1,10 +1,10 @@
-﻿namespace PanoramicData.Blazor;
+﻿using PanoramicData.Blazor.Helpers;
+
+namespace PanoramicData.Blazor;
 
 public partial class PDCardDeck<TCard> where TCard : ICard
 {
 	private static int _sequence;
-
-	private List<PDCard<TCard>> _cardReferences = [];
 
 	/// <summary>
 	/// The Card(s) that have been selected by the user
@@ -81,9 +81,42 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		Cards.Clear();
 
-		// Add the components to the _cards property
-		Cards.AddRange(cards.Items);
+		for (int index = 0; index < cards.Count; index++)
+		{
+			var card = cards.Items.ElementAt(index);
+			card.CurrentPosition = index; // Set the index for the card
 
+			Cards.Add(card);
+		}
+
+	}
+
+	internal void AddToSelection(MouseEventArgs args, TCard card)
+	{
+		// No point in adding to selection if multiple selection is not enabled
+		if (!MultipleSelection)
+		{
+			return;
+		}
+
+		if (args.ShiftKey)
+		{
+			Selection = PDCardDeckSelectionHelper
+				.HandleAddRange(Selection, Cards, card);
+		}
+
+		else if (args.CtrlKey)
+		{
+			Selection = PDCardDeckSelectionHelper
+				.HandleIndividualAddRemove(card, Selection);
+		}
+		else
+		{
+			// If no modifier keys are pressed, clear the selection and add the clicked card
+			Selection.Clear();
+			Selection.Add(card);
+		}
+		StateHasChanged();
 	}
 
 	private string SizeCssClass => Size switch

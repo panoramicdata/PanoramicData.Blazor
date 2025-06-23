@@ -5,7 +5,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Whether this card is currently selected by the user.
 		/// </summary>
-		private bool _isSelected;
+		private bool _isSelected => ParentCardDeck.Selection.Contains(Card);
 
 		#region Parameters
 		/// <summary>
@@ -46,6 +46,7 @@ namespace PanoramicData.Blazor
 		{
 			{ "class", GetCardClass(card) },
 			{ "draggable", $"{DraggingEnabled}".ToLowerInvariant() }, // Make sure the value is lowercase,
+			{ "onmouseup", (MouseEventArgs e) => ParentCardDeck.AddToSelection(e, card) },
 		};
 
 			return dict;

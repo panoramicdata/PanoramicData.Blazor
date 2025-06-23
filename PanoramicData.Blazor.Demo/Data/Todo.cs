@@ -2,6 +2,8 @@
 
 public class Todo : ICard
 {
+	/// <inheritdoc/>
+	public int CurrentPosition { get; set; }
 
 	public Guid Id { get; set; } = Guid.NewGuid();
 
@@ -13,5 +15,4 @@ public class Todo : ICard
 
 	public override string ToString() => Title;
 
-	public int CardSequence { get; set; }
 }
