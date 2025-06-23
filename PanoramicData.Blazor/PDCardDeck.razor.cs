@@ -4,15 +4,17 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 {
 	private static int _sequence;
 
+	private List<PDCard<TCard>> _cardReferences = [];
+
 	/// <summary>
 	/// The Card(s) that have been selected by the user
 	/// </summary>
-	private readonly List<TCard> _selection = [];
+	public List<TCard> Selection { get; private set; } = [];
 
 	/// <summary>
 	/// A collection of cards that are currently in the deck.
 	/// </summary>
-	private List<TCard> _cards = [];
+	public List<TCard> Cards { get; private set; } = [];
 
 	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
@@ -50,10 +52,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	public EventCallback<MouseEventArgs> OnSelect { get; set; }
 	#endregion
 
-	public IEnumerable<TCard?> GetSelection() => _selection;
-
-	public IEnumerable<TCard?> GetCards() => _cards;
-
 	private Dictionary<string, object?> GetDeckAttributes()
 	{
 		var dict = new Dictionary<string, object?>
@@ -81,10 +79,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		var request = new DataRequest<TCard>();
 		var cards = await _dataProviderService.GetDataAsync(request, default).ConfigureAwait(true);
 
-		_cards.Clear();
+		Cards.Clear();
 
 		// Add the components to the _cards property
-		_cards.AddRange(cards.Items);
+		Cards.AddRange(cards.Items);
 
 	}
 

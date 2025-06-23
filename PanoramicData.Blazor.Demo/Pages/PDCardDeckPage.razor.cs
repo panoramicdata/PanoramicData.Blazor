@@ -5,9 +5,9 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDCardDeckPage
 {
-	private ListDataProviderService<Todo> _todoList1 = new();
-	private ListDataProviderService<Todo> _todoList2 = new();
-	private ListDataProviderService<Todo> _todoList3 = new();
+	private readonly ListDataProviderService<Todo> _todoList1 = new();
+	private readonly ListDataProviderService<Todo> _todoList2 = new();
+	private readonly ListDataProviderService<Todo> _todoList3 = new();
 
 	private PDCardDeck<Todo> _cardDeck1 = new();
 	private PDCardDeck<Todo> _cardDeck2 = new();
@@ -42,40 +42,40 @@ public partial class PDCardDeckPage
 
 	protected void OnSelect1(MouseEventArgs args)
 	{
-		var cards = _cardDeck1.GetSelection();
+		var cards = _cardDeck1.Selection;
 		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cards))));
 	}
 
 	protected void OnSelect2(MouseEventArgs args)
 	{
-		var cards = _cardDeck2.GetSelection();
+		var cards = _cardDeck2.Selection;
 		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cards))));
 	}
 
 	protected void OnSelect3(MouseEventArgs args)
 	{
-		var cards = _cardDeck3.GetSelection();
+		var cards = _cardDeck3.Selection;
 		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cards))));
 	}
 
 
 	protected void OnRearrange1(DragEventArgs args)
 	{
-		var cards = _cardDeck1.GetCards();
+		var cards = _cardDeck1.Cards;
 
 		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cards))));
 	}
 
 	protected void OnRearrange2(DragEventArgs args)
 	{
-		var cards = _cardDeck2.GetCards();
+		var cards = _cardDeck2.Cards;
 
 		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cards))));
 	}
 
 	protected void OnRearrange3(DragEventArgs args)
 	{
-		var cards = _cardDeck3.GetCards();
+		var cards = _cardDeck3.Cards;
 
 		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cards))));
 	}

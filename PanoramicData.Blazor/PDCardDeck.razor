@@ -3,12 +3,13 @@
 
 <div @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
 
-	@foreach (var card in _cards)
+	@foreach (var card in Cards)
 	{
 		<PDCard DraggingEnabled="IsEnabled"
 				Template="CardTemplate"
 				Css="CardCss"
-				Card="card" />
+				Card="card"
+				ParentCardDeck="this"/>
 	}
 </div>
 

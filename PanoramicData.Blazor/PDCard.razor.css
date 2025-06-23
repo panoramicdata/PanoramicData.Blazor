@@ -24,6 +24,11 @@
 			opacity: 0.2;
 		}
 
-.card[draggable="true"]:hover {
-	background-color: #e9ecef;
-}
+	.card .card-selected {
+		background-color: #d1ecf1;
+		border-color: #bee5eb;
+	}
+
+	.card[draggable="true"]:hover {
+		background-color: #e9ecef;
+	}
