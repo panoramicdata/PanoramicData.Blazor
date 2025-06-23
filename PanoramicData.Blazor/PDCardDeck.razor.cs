@@ -7,6 +7,11 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	private static int _sequence;
 
 	/// <summary>
+	/// Whether a drag event has been detected
+	/// </summary>
+	public bool IsDragging { get; private set; }
+
+	/// <summary>
 	/// The Card(s) that have been selected by the user
 	/// </summary>
 	public List<TCard> Selection { get; private set; } = [];
@@ -116,6 +121,18 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			Selection.Clear();
 			Selection.Add(card);
 		}
+		StateHasChanged();
+	}
+
+	internal void OnDragStart(DragEventArgs e, TCard card)
+	{
+		IsDragging = true;
+		StateHasChanged();
+	}
+
+	internal void OnDragEnd(DragEventArgs e, TCard card)
+	{
+		IsDragging = false;
 		StateHasChanged();
 	}
 

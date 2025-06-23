@@ -19,15 +19,16 @@
 		cursor: grab;
 	}
 
-		.card[draggable="true"]:active {
+		.card[draggable="true"]:active,
+		.dragging {
 			cursor: grabbing;
 			opacity: 0.2;
 		}
 
-	.selected {
-		background-color: #d1ecf1 !important;
-	}
+.selected {
+	background-color: #d1ecf1 !important;
+}
 
-	.card[draggable="true"]:hover {
-		background-color: #e9ecef;
-	}
+.card[draggable="true"]:hover {
+	background-color: #e9ecef;
+}
