@@ -32,8 +32,7 @@
 	<PDCardDeck @ref="_cardDeck3"
 				DataProvider="_todoList3"
 				IsEnabled="false"
-				CardCss="@(card => $"pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-				DropzoneCss="@(() => "pdcard-dropzone")"
+				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
 				OnRearrange="OnRearrange3"
 				OnSelect="OnSelect3" >
 

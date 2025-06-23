@@ -1,42 +1,14 @@
 ﻿@inherits PDComponentBase
 @typeparam TCard
 
-@if(MultipleSelection && _isDragging && _selection.Count > 1)
-{
-	<span style="top:@_cursorYpx; left:@_cursorXpx;" class="ghost-drag-preview">@_selection[0]
-
-		@if (_selection.Count > 1)
-		{
-			<span> +@(_selection.Count - 1)</span>
-		}
-	</span>
-}
-
-
 <div @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
+
 	@foreach (var card in _cards)
 	{
-		@if (card == null)
-		{
-			<div @attributes="GetDropAreaAttributes()">
-				@if (DropAreaTemplate != null)
-				{
-					@DropAreaTemplate
-				}
-			</div>
-		}
-		else
-		{
-			<div @attributes="GetCardAttributes(card)">
-				@if (CardTemplate is null)
-				{
-					<span>@(card!.ToString())</span>
-				}
-				else
-				{
-					@CardTemplate(card)
-				}
-			</div>
-		}
+		<PDCard DraggingEnabled="IsEnabled"
+				Template="CardTemplate"
+				Css="CardCss"
+				Card="card" />
 	}
 </div>
+

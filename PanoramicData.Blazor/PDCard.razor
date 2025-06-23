@@ -1,0 +1,17 @@
+@typeparam TCard
+
+@if (Card is not null)
+{
+
+	<div @attributes="GetCardAttributes(Card)">
+
+		@if (Template is null)
+		{
+			<span>@(Card!.ToString())</span>
+		}
+		else
+		{
+			@Template(Card)
+		}
+	</div>
+}

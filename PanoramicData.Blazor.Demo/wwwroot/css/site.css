@@ -210,31 +210,25 @@ a, .btn-link {
 	color: #ce0404;
 }
 
-.pdcard-dropzone {
-	min-height: 64px;
+.pdcard {
+	min-height: 4em;
 }
 
 .pdcard-trivial {
 	border-color: grey !important;
-	min-height: 64px;
 }
 
 .pdcard-minor {
-	border-color: yellow !important;
-	min-height: 64px;
+	border-color: rgb(243 228 54) !important;
 }
 
 .pdcard-major {
 	border-color: orange !important;
-	min-height: 64px;
 }
 
 .pdcard-critical {
 	border-color: red !important;
-	min-height: 64px;
 }
 
 .pdcard-blocker {
-	border-color: darkred !important;
-	min-height: 64px;
 }

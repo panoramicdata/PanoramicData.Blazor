@@ -1,0 +1,29 @@
+﻿.card {
+	min-height: 2em;
+}
+
+.card {
+	margin-bottom: 5px;
+	border-left: 5px solid silver;
+	padding: 5px;
+	user-select: none;
+}
+
+	/*Indicate to the user the card not draggable*/
+	.card[draggable="false"] {
+		cursor: not-allowed !important;
+	}
+
+	/*Indicate to the user the card is draggable*/
+	.card[draggable="true"] {
+		cursor: grab;
+	}
+
+		.card[draggable="true"]:active {
+			cursor: grabbing;
+			opacity: 0.2;
+		}
+
+.card[draggable="true"]:hover {
+	background-color: #e9ecef;
+}
