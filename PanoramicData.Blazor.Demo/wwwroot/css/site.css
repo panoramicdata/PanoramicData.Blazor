@@ -31,10 +31,10 @@ a, .btn-link {
 	width: 18px;
 }
 
-.icon-sharepoint.fa-4x {
-	transform: scale(4) translate(0, -5px);
-	margin-top: 50px;
-}
+	.icon-sharepoint.fa-4x {
+		transform: scale(4) translate(0, -5px);
+		margin-top: 50px;
+	}
 
 .navbar-toggler {
 	background-color: rgba(255, 255, 255, 0.1);
@@ -64,12 +64,12 @@ a, .btn-link {
 	z-index: 1000;
 }
 
-#blazor-error-ui .dismiss {
-	cursor: pointer;
-	position: absolute;
-	right: 0.75rem;
-	top: 0.5rem;
-}
+	#blazor-error-ui .dismiss {
+		cursor: pointer;
+		position: absolute;
+		right: 0.75rem;
+		top: 0.5rem;
+	}
 
 .rotate {
 	transform: rotate(-90deg);
@@ -181,16 +181,16 @@ a, .btn-link {
 		background-color: white;
 	}
 
-	.drop-zone.good {
-		color: green;
-		border: 2px solid green;
-		background-color: #e8ffe8
-	}
+		.drop-zone.good {
+			color: green;
+			border: 2px solid green;
+			background-color: #e8ffe8
+		}
 
-	.drop-zone.bad {
-		color: red;
-		border: 2px solid red;
-	}
+		.drop-zone.bad {
+			color: red;
+			border: 2px solid red;
+		}
 }
 
 /* file explorer icon colours */
@@ -208,4 +208,33 @@ a, .btn-link {
 
 .fa-file-pdf {
 	color: #ce0404;
+}
+
+.pdcard-dropzone {
+	min-height: 64px;
+}
+
+.pdcard-trivial {
+	border-color: grey !important;
+	min-height: 64px;
+}
+
+.pdcard-minor {
+	border-color: yellow !important;
+	min-height: 64px;
+}
+
+.pdcard-major {
+	border-color: orange !important;
+	min-height: 64px;
+}
+
+.pdcard-critical {
+	border-color: red !important;
+	min-height: 64px;
+}
+
+.pdcard-blocker {
+	border-color: darkred !important;
+	min-height: 64px;
 }

@@ -35,8 +35,8 @@ public partial class PDCardDeckPage
 
 		_todoList3.List.AddRange([
 			new Todo{Title = "Get a haircut", Description = "a description"},
-			new Todo{Title = "Record Antiques Roadshow", Description = "a description"},
-			new Todo{Title = "Walk the dog",Description =  "a description"} ]
+			new Todo{Title = "Record Antiques Roadshow", Description = "a description", Priority = Priority.Minor},
+			new Todo{Title = "Walk the dog",Description =  "a description", Priority = Priority.Critical} ]
 			);
 	}
 

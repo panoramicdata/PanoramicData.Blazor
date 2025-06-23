@@ -39,6 +39,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	[Parameter]
 	public Func<TCard, string> CardCss { get; set; } = (card => "");
 
+	[Parameter]
+	public Func<string> DropzoneCss { get; set; } = () => "pdcard-dropzone";
+
 	[EditorRequired]
 	[Parameter]
 	public IDataProviderService<TCard> DataProvider { get; set; } = new EmptyDataProviderService<TCard>();
@@ -76,7 +79,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			{ "ondragover", (DragEventArgs e) => OnDragOver(e, card) },
 			{ "ondragstart", (DragEventArgs e) => OnDragStartAsync(e, card) },
 			{ "onmouseup", (MouseEventArgs e) => OnItemMouseUpAsync(card, e) },
-			{ "style", $"min-height:{CardHeight}" }
 		};
 
 		if (IsEnabled)
@@ -107,7 +109,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		return new Dictionary<string, object?>
 		{
-			{ "class", "droparea" },
+			{ "class", $"{DropzoneCss()}" },
 			{ "ondrop", (DragEventArgs e) => OnDropAsync(e) },
 		};
 	}

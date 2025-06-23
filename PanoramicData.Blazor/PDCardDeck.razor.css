@@ -8,7 +8,6 @@
 	.pdcarddeck .card {
 		margin-bottom: 5px;
 		border-left: 5px solid silver;
-		height: 32px;
 		padding: 5px;
 		user-select: none;
 	}
@@ -26,10 +25,6 @@
 	.pdcarddeck:not(.disabled) .card:hover {
 		background: #ebecf0;
 		cursor: move;
-	}
-
-	.pdcarddeck .droparea {
-		min-height: 36px;
 	}
 
 .ghost-drag-preview {
