@@ -21,6 +21,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// </summary>
 	public List<TCard> Cards { get; private set; } = [];
 
+	private List<PDCard<TCard>> _childCards = [];
+
+	public PDCard<TCard> ChildReference { set => _childCards.Add(value); }
+
 	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
 	#region Parameters
