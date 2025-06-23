@@ -68,7 +68,7 @@ namespace PanoramicData.Blazor
 
 			if (_isSelected)
 			{
-				cardClass.Append(" card-selected");
+				cardClass.Append(" selected");
 			}
 
 			return cardClass.ToString();
