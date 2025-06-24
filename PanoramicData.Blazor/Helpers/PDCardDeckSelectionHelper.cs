@@ -27,7 +27,7 @@
 				_multiSelectionPivot = card; // Set the pivot to the newly added card
 			}
 
-			return [.. selection.OrderBy(cards.IndexOf)];
+			return [.. selection];
 		}
 
 		/// <summary>
@@ -87,7 +87,7 @@
 			selection.Clear();
 			selection.AddRange(currentSelection);
 
-			return [.. selection.OrderBy(cards.IndexOf)];
+			return [.. selection];
 		}
 
 		internal List<TCard> HandleSingleSelect(List<TCard> selection, List<TCard> cards, TCard card)

@@ -6,6 +6,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 {
 	private static int _sequence;
 
+	/// <inheritdoc/>
 	private PDCardDeckSelectionHelper<TCard> _selectionHelper = new();
 
 	/// <inheritdoc/>
@@ -153,6 +154,46 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		DragState.TargetIndex = cardIndex;
+		UpdateCardPositions();
+		StateHasChanged();
+	}
+
+	private void UpdateCardPositions()
+	{
+		var destination = DragState.TargetIndex;
+
+		if (destination < 0 || destination >= Cards.Count)
+		{
+			return; // Invalid index
+		}
+
+		// If the target index is contained in the selection, do nothing
+		if (Selection.Any(card => Cards.IndexOf(card) == destination))
+		{
+			return;
+		}
+
+		// Swap positions of the selected cards with the card at the target index
+		for (int iteration = 0; iteration < Selection.Count; iteration++)
+		{
+			var card = Selection[iteration];
+
+			var currentIndex = Cards.IndexOf(card);
+			// If the card is not found, skip it
+			if (currentIndex == -1)
+			{
+				continue;
+			}
+
+			// Move the card to the target index
+			Cards.RemoveAt(currentIndex);
+
+			// Clamp the destination index to ensure it does not exceed the bounds of the list
+			var destinationIndex = Math.Min(destination + iteration, Cards.Count);
+
+			Cards.Insert(destinationIndex, card);
+		}
+
 	}
 
 	private string SizeCssClass => Size switch
