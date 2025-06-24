@@ -6,6 +6,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 {
 	private static int _sequence;
 
+	private PDCardDeckSelectionHelper<TCard> _selectionHelper = new();
+
 	/// <inheritdoc/>
 	public PDCardDragDropInformation DragState { get; private set; } = new();
 
@@ -104,20 +106,19 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		if (args.ShiftKey)
 		{
-			Selection = PDCardDeckSelectionHelper
+			Selection = _selectionHelper
 				.HandleAddRange(Selection, Cards, card);
 		}
 
 		else if (args.CtrlKey)
 		{
-			Selection = PDCardDeckSelectionHelper
-				.HandleIndividualAddRemove(card, Selection);
+			Selection = _selectionHelper
+				.HandleIndividualAddRemove(Selection, Cards, card);
 		}
 		else
 		{
-			// If no modifier keys are pressed, clear the selection and add the clicked card
-			Selection.Clear();
-			Selection.Add(card);
+			Selection = _selectionHelper
+				.HandleSingleSelect(Selection, Cards, card);
 		}
 		StateHasChanged();
 	}

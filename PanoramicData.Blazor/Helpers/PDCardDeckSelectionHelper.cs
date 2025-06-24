@@ -3,8 +3,14 @@
 	/// <summary>
 	/// Helper class for managing card selection in a card deck.
 	/// </summary>
-	internal static class PDCardDeckSelectionHelper
+	internal class PDCardDeckSelectionHelper<TCard> where TCard : ICard
 	{
+		/// <summary>
+		/// The Card at which multiple selection will pivot around when Shift+Click is used.
+		/// </summary>
+		private TCard? _multiSelectionPivot;
+
+
 		/// <summary>
 		/// Toggles the membership of a given card in the selection list.
 		/// </summary>
@@ -12,36 +18,45 @@
 		/// <param name="card"></param>
 		/// <param name="selection"></param>
 		/// <returns></returns>
-		internal static List<TCard> HandleIndividualAddRemove<TCard>(TCard card, List<TCard> selection) where TCard : ICard
+		internal List<TCard> HandleIndividualAddRemove(List<TCard> selection, List<TCard> cards, TCard card)
 		{
 			// Add the card to the selection if it is not already selected
 			if (!selection.Remove(card))
 			{
 				selection.Add(card);
+				_multiSelectionPivot = card; // Set the pivot to the newly added card
 			}
 
-			return selection;
+			return [.. selection.OrderBy(cards.IndexOf)];
 		}
 
 		/// <summary>
 		/// Adds a range of cards to the selection based on the Shift+Click action.
 		/// </summary>
 		/// <param name="currentCard"></param>
-		internal static List<TCard> HandleAddRange<TCard>(List<TCard> selection, List<TCard> cards, TCard currentCard) where TCard : ICard
+		internal List<TCard> HandleAddRange(List<TCard> selection, List<TCard> cards, TCard currentCard)
 		{
-			// For accessibility, on Shift+Click, select all cards from start to the current card
+			// For accessibility, on Shift+Click, select all cards from start to the current card if there is no multi-selection pivot set.
 			int lastPosition = 0;
 
-			if (selection.Count != 0)
+			if (_multiSelectionPivot != null)
 			{
-				// Check index of the last added card, selection will be calculated from this point
-				lastPosition = cards.IndexOf(selection[^1]);
+				// Check index of the pivot card, selection will be calculated from this point
+				lastPosition = cards.IndexOf(_multiSelectionPivot);
+
+				// If the pivot card is not found, reset it
+				if (lastPosition == -1)
+				{
+					_multiSelectionPivot = default;
+					lastPosition = 0; // Reset to the start of the list
+					return selection;
+				}
 			}
 
 			int currentPosition = cards.IndexOf(currentCard);
 
 			// Cannot find Card, Illegal
-			if (lastPosition == -1 || currentPosition == -1)
+			if (currentPosition == -1)
 			{
 				return selection;
 			}
@@ -63,23 +78,26 @@
 					return selection;
 				}
 
-				if (currentPosition > lastPosition)
-				{
-					// If the current position is greater than the last position, we are selecting backwards
-					currentSelection.Insert(0, cardToSelect);
-				}
-				else
-				{
-					// Otherwise, we are selecting forwards
-					currentSelection.Add(cardToSelect);
-				}
+				// Add Card to selection
+				currentSelection.Add(cardToSelect);
+
 			}
 
 			// Replace the current selection with the new selection
 			selection.Clear();
 			selection.AddRange(currentSelection);
 
-			return selection;
+			return [.. selection.OrderBy(cards.IndexOf)];
+		}
+
+		internal List<TCard> HandleSingleSelect(List<TCard> selection, List<TCard> cards, TCard card)
+		{
+			// If no modifier keys are pressed, clear the selection and add the clicked card
+			selection.Clear();
+			selection.Add(card);
+			_multiSelectionPivot = card; // Set the pivot to the newly added card
+
+			return [.. selection];
 		}
 	}
 }
