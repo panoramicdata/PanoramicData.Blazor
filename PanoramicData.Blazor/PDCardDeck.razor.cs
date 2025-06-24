@@ -140,7 +140,13 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void NotifyDragPosition(DragEventArgs e, TCard card)
 	{
-		DragState.TargetIndex = _childCards.FindIndex(childCard => childCard.Card.Equals(card));
+		var newTarget = _childCards.FindIndex(childCard => childCard.Card.Equals(card));
+
+		if (newTarget != DragState.TargetIndex)
+		{
+			DragState.TargetIndex = newTarget;
+			StateHasChanged();
+		}
 	}
 
 	private string SizeCssClass => Size switch
