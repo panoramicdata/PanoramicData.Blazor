@@ -3,9 +3,6 @@
 public class Todo : ICard
 {
 	/// <inheritdoc/>
-	public int CurrentPosition { get; set; }
-
-	/// <inheritdoc/>
 	public Guid Id { get; set; } = Guid.NewGuid();
 
 	public Priority Priority { get; set; } = Priority.Major;

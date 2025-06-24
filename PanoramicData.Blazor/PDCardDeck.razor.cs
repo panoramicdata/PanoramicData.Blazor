@@ -88,7 +88,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		for (int index = 0; index < cards.Count; index++)
 		{
 			var card = cards.Items.ElementAt(index);
-			card.CurrentPosition = index; // Set the index for the card
 
 			Cards.Add(card);
 		}

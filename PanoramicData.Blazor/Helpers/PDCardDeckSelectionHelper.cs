@@ -35,10 +35,16 @@
 			if (selection.Count != 0)
 			{
 				// Check index of the last added card, selection will be calculated from this point
-				lastPosition = selection[^1].CurrentPosition;
+				lastPosition = cards.IndexOf(selection[^1]);
 			}
 
-			int currentPosition = currentCard.CurrentPosition;
+			int currentPosition = cards.IndexOf(currentCard);
+
+			// Cannot find Card, Illegal
+			if (lastPosition == -1 || currentPosition == -1)
+			{
+				return selection;
+			}
 
 			// Find Smallest bound and largest bound
 			var start = Math.Min(lastPosition, currentPosition);
@@ -48,7 +54,7 @@
 
 			for (int i = start; i <= end; i++)
 			{
-				var cardToSelect = cards.FirstOrDefault(c => c.CurrentPosition == i);
+				var cardToSelect = cards.FirstOrDefault(c => cards.IndexOf(c) == i);
 
 				// Cannot select a null card, so skip if it is null
 				if (cardToSelect == null)
