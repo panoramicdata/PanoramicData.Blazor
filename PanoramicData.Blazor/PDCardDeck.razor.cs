@@ -124,7 +124,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void OnDragStart(DragEventArgs e, TCard card)
 	{
-		if (!MultipleSelection)
+		// Handles edge case where the user drags a card that is not in the selection
+		if (!MultipleSelection || !Selection.Contains(card))
 		{
 			Selection.Clear();
 			Selection.Add(card);
@@ -142,7 +143,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void NotifyDragPosition(DragEventArgs e, TCard card)
 	{
-
 		var cardIndex = Cards.IndexOf(card);
 
 		// Cannot find Card, Illegal
