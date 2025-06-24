@@ -43,6 +43,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	[Parameter]
 	public IDataProviderService<TCard> DataProvider { get; set; } = new EmptyDataProviderService<TCard>();
 
+	/// <summary>
+	/// Whether the deck can interact with other decks or not. Defaults to true.
+	/// </summary>
+	[Parameter]
+	public bool IsIsolated { get; set; } = true;
+
 	[Parameter]
 	public bool MultipleSelection { get; set; }
 
@@ -63,7 +69,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		var dict = new Dictionary<string, object?>
 		{
-			{ "class", $"pdcarddeck {CssClass}{(IsEnabled ? "" : " disabled")} {SizeCssClass}" },
+			{ "class", $"{CssClass ?? "pdcarddeck"} {(IsEnabled ? "" : " disabled")} {SizeCssClass}" },
 			{ "id", Id }
 		};
 		return dict;

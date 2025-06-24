@@ -237,3 +237,14 @@ a, .btn-link {
 .pdcard-blocker {
 	border-color: darkred;
 }
+
+.pd-carddeck-area {
+	width: 30%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+	padding: 1em;
+	border: solid 0.15em;
+	border-radius: 0.5em;
+}

@@ -8,10 +8,12 @@ public partial class PDCardDeckPage
 	private readonly ListDataProviderService<Todo> _todoList1 = new();
 	private readonly ListDataProviderService<Todo> _todoList2 = new();
 	private readonly ListDataProviderService<Todo> _todoList3 = new();
+	private readonly ListDataProviderService<Todo> _todoList4 = new();
 
 	private PDCardDeck<Todo> _cardDeck1 = new();
 	private PDCardDeck<Todo> _cardDeck2 = new();
 	private PDCardDeck<Todo> _cardDeck3 = new();
+	private PDCardDeck<Todo> _cardDeck4 = new();
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	protected override void OnInitialized()
@@ -38,6 +40,14 @@ public partial class PDCardDeckPage
 			new Todo{Title = "Record Antiques Roadshow", Description = "a description", Priority = Priority.Minor},
 			new Todo{Title = "Walk the dog",Description =  "a description", Priority = Priority.Critical} ]
 			);
+
+		_todoList4.List.AddRange([
+			new Todo{Title = "Get a haircut", Description = "a description"},
+			new Todo{Title = "Record Antiques Roadshow", Description = "a description", Priority = Priority.Minor},
+			new Todo{Title = "Walk the dog",Description =  "a description", Priority = Priority.Critical},
+			new Todo{Title = "Extinguish Shed Fire",Description =  "a description", Priority = Priority.Blocker},
+		]
+			);
 	}
 
 	protected void OnSelect1(MouseEventArgs args)
@@ -55,6 +65,12 @@ public partial class PDCardDeckPage
 	protected void OnSelect3(MouseEventArgs args)
 	{
 		var cards = _cardDeck3.Selection;
+		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cards))));
+	}
+
+	protected void OnSelect4(MouseEventArgs args)
+	{
+		var cards = _cardDeck4.Selection;
 		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cards))));
 	}
 
@@ -80,6 +96,12 @@ public partial class PDCardDeckPage
 		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cards))));
 	}
 
+	protected void OnRearrange4(DragEventArgs args)
+	{
+		var cards = _cardDeck4.Cards;
+
+		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cards))));
+	}
 	private string ConvertToString(IEnumerable<Todo?> cards)
 	{
 		var stringBuilder = new StringBuilder("[");
@@ -100,4 +122,6 @@ public partial class PDCardDeckPage
 
 		return stringBuilder.ToString();
 	}
+
+
 }

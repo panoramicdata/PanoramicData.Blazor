@@ -20,26 +20,73 @@
 	<PDCardDeck @ref="_cardDeck2"
 				DataProvider="_todoList2"
 				MultipleSelection="true"
-				OnRearrange="OnRearrange2" 
+				OnRearrange="OnRearrange2"
 				OnSelect="OnSelect2" />
 
 	<hr />
 
 	<div>
-		<p>Example 3: Disabled Card Deck</p>
+		<p>Example 3: Multiple Card Decks</p>
 	</div>
 
-	<PDCardDeck @ref="_cardDeck3"
-				DataProvider="_todoList3"
-				IsEnabled="false"
-				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-				OnRearrange="OnRearrange3"
-				OnSelect="OnSelect3" >
+	<div class="multiple-card-decks">
+		<PDCardDeck @ref="_cardDeck3"
+					DataProvider="_todoList4"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					OnRearrange="OnRearrange3"
+					OnSelect="OnSelect3">
 
 			<CardTemplate>
-			<div>Title:@context.Title<br />Description: @context.Description</div>
+				<ExampleTicket Ticket="context"/>
 			</CardTemplate>
-			</PDCardDeck>
+		</PDCardDeck>
+
+		<PDCardDeck @ref="_cardDeck3"
+					DataProvider="_todoList4"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					OnRearrange="OnRearrange3"
+					OnSelect="OnSelect3">
+
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+
+		</PDCardDeck>
+
+		<PDCardDeck @ref="_cardDeck3"
+					DataProvider="_todoList4"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					OnRearrange="OnRearrange3"
+					OnSelect="OnSelect3">
+
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+
+		</PDCardDeck>
+
+	</div>
+
+	<hr />
+
+	<div>
+		<p>Example 4: Disabled Card Deck</p>
+	</div>
+
+	<PDCardDeck @ref="_cardDeck4"
+				DataProvider="_todoList4"
+				IsEnabled="false"
+				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+				OnRearrange="OnRearrange4"
+				OnSelect="OnSelect4">
+
+		<CardTemplate>
+			<ExampleTicket Ticket="context" />
+		</CardTemplate>
+	</PDCardDeck>
 
 	<EventView />
 

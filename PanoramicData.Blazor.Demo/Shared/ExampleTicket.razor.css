@@ -1,0 +1,10 @@
+﻿.example-ticket{
+
+}
+
+.example-ticket-icon {
+	display: flex;
+	justify-content:right;
+	font-size: 1.5em;
+	padding: 0.25em;
+}
