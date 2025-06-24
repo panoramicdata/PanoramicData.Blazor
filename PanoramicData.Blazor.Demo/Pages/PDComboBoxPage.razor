@@ -38,7 +38,7 @@
 				Filter="(item, searchText) =>
 					item.Continent.Contains(searchText, StringComparison.OrdinalIgnoreCase)
 					|| item.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)
-					|| string.Equals(item.Code, searchText, StringComparison.OrdinalIgnoreCase)"
+                                    || string.Equals(item.Code, searchText, StringComparison.OrdinalIgnoreCase)"
 				Placeholder="Select a country..."
 				SelectedItem="SelectedItem"
 				MaxResults="5"
@@ -50,6 +50,40 @@
 		</ItemTemplate>
 		</PDComboBox>
 
+    <hr />
+
+    <p>ComboBox 4 : Limitting the search to atleast 3 characters, showing different message with less.</p>
+
+    <PDComboBox TItem="Country"
+                Items="_items"
+                ItemToId="item => item.Code"
+                ItemToString="@(item => $"{item.Continent}: {item.Name}")"
+                Filter="(item, searchText) =>
+                                    ( item.Continent.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                                    || item.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                                                    ) && searchText.Length > 2"
+                Placeholder="Select a country..."
+                SelectedItem="Combo4SelectedItem"
+                MaxResults="15"
+                OrderBy="@(item => $"{item.Continent} {item.Name}")"
+                SelectedItemChanged="@(EventCallback.Factory.Create<Country>(this, OnCombo4SelectedItemChanged))"
+                ShowSelectedItemOnTop="true">
+        <ItemTemplate Context="item">
+            <span style="border: 1px solid grey"><PDFlag CountryCode="@item.Code" Width="20px" /></span>
+            <span class="item-text">@($"{item.Continent}: {item.Name}")</span>
+        </ItemTemplate>
+        <NoResultsTemplate Context="searchText">
+            @if (string.IsNullOrEmpty(searchText) || searchText.Length < 3)
+            {
+                <div class="text-muted">Type at least 3 characters to search</div>
+            }
+            else
+            {
+                <div class="text-muted">No results found for '@searchText'</div>
+            }
+        </NoResultsTemplate>
+    </PDComboBox>
+    <button @onclick="() => { Combo4SelectedItem = null; StateHasChanged(); }">Clear Selection</button>
 	<EventView />
 
 </DemoSourceView>

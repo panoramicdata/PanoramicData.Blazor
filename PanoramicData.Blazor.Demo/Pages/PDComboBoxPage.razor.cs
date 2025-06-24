@@ -201,6 +201,7 @@ public partial class PDComboBoxPage
 	];
 
 	private Country? SelectedItem { get; set; } = _items[0];
+	private Country? Combo4SelectedItem { get; set; } = _items[0];
 
 	[CascadingParameter]
 	protected EventManager? EventManager { get; set; }
@@ -212,10 +213,21 @@ public partial class PDComboBoxPage
 
 	private void OnSelectedItemChanged(Country? item)
 	{
-		SelectedItem = item;
 		OnLogEvent($"Selected Item Changed: {item}");
+
+		if (item == null)
+		{
+			return;
+		}
+		SelectedItem = item;
 	}
-	
+
+	private void OnCombo4SelectedItemChanged(Country? item)
+	{
+		OnLogEvent($"Combo4 Selected Item Changed: {item}");
+		Combo4SelectedItem = item;
+	}
+
 	class Country
 	{
 		public required string Name { get; set; }

@@ -44,6 +44,13 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	[Parameter]
 	public RenderFragment<TItem>? ItemTemplate { get; set; }
 
+	[Parameter]
+	public RenderFragment<string>? NoResultsTemplate { get; set; }
+
+	[Parameter]
+	public bool ShowSelectedItemOnTop { get; set; } = false;
+
+	// Internal state
 	private string _searchText = "";
 	private string _lastSearchText = "";
 	private List<TItem> _filteredItems = [];
@@ -72,8 +79,11 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 
 	protected override void OnParametersSet()
 	{
-		// Only set _searchText if it's empty and SelectedItem is set
-		if (string.IsNullOrEmpty(_searchText) && SelectedItem is not null)
+		if (SelectedItem is null)
+		{
+			_searchText = "";
+		}
+		else if (string.IsNullOrEmpty(_searchText))
 		{
 			_searchText = ItemToString(SelectedItem);
 		}
@@ -90,7 +100,6 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	private void ApplyFilter(string searchText)
 	{
 		_searchText = searchText.Trim();
-		//_lastSearchText = _searchText;
 
 		var query = Items.Where(item => Filter(item, _searchText));
 
@@ -103,7 +112,18 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 			query = query.OrderBy(ItemToString);
 		}
 
-		_filteredItems = [.. query.Take(MaxResults)];
+		var filtered = query.Take(MaxResults).ToList();
+
+		if (ShowSelectedItemOnTop && SelectedItem is not null)
+		{
+			var selectedId = ItemToId(SelectedItem);
+			if (!filtered.Any(item => ItemToId(item) == selectedId))
+			{
+				filtered.Insert(0, SelectedItem);
+			}
+		}
+
+		_filteredItems = filtered; 
 		_showDropdown = true;
 
 		// Set _activeIndex to the selected item if present in the filtered list
@@ -204,8 +224,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		_lastSearchText = "";
 		_filteredItems.Clear();
 		_activeIndex = -1;
-		SelectedItem = default!;
-		await SelectedItemChanged.InvokeAsync(SelectedItem);
+		
 		if (_showDropdown)
 		{
 			ApplyFilter(string.Empty);

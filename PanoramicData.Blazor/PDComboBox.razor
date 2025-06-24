@@ -2,7 +2,7 @@
 
 <div class="pd-combobox @CssClass" @onclick:stopPropagation>
 	<div class="combo-input-wrapper">
-		<input type="text" class="combo-input"
+        <input type="text" class="form-control combo-input"
 			   @bind-value="_searchText"
 			   @onfocus="OnInputFocus"
                @onblur="OnInputBlur"
@@ -55,10 +55,34 @@
 					</li>
 				}
 			</ul>
+            @* Show NoResultsTemplate if only the selected item is present and it doesn't match the filter *@
+            @if (
+                _filteredItems.Count == 1
+                && SelectedItem != null
+                && ItemToId(_filteredItems[0]) == ItemToId(SelectedItem)
+                && !Filter(SelectedItem, _searchText)
+                )
+            {
+                if (NoResultsTemplate != null)
+                {
+                    @NoResultsTemplate(_searchText)
+                }
+                else
+                {
+                    <div class="combo-no-results">@NoResultsText</div>
+                }
+            }
 		}
 		else
 		{
-			<div class="combo-no-results">@NoResultsText</div>
+            @if (NoResultsTemplate != null)
+            {
+                @NoResultsTemplate(_searchText)
+            }
+            else
+            {
+			    <div class="combo-no-results">@NoResultsText</div>
+            }
 		}
 	}
 </div>

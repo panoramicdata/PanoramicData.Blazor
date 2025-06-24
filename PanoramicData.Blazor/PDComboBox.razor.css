@@ -56,7 +56,7 @@
 	font-size: 16px;
 	box-sizing: border-box;
 	outline: none;
-	padding-right: 3em; /* Space for clear and dropdown icon */
+	padding-right: 3.5em; /* Only space for clear and dropdown */
 }
 
 .pd-combobox .combo-input:focus {
