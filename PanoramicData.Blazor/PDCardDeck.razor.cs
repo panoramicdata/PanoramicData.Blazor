@@ -19,9 +19,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// </summary>
 	public List<TCard> Cards { get; private set; } = [];
 
-	private List<PDCard<TCard>> _childCards = [];
-
-	public PDCard<TCard> ChildReference { set => _childCards.Add(value); }
 
 	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
@@ -140,13 +137,16 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void NotifyDragPosition(DragEventArgs e, TCard card)
 	{
-		var newTarget = _childCards.FindIndex(childCard => childCard.Card.Equals(card));
 
-		if (newTarget != DragState.TargetIndex)
+		var cardIndex = Cards.IndexOf(card);
+
+		// Cannot find Card, Illegal
+		if (cardIndex == -1)
 		{
-			DragState.TargetIndex = newTarget;
-			StateHasChanged();
+			return;
 		}
+
+		DragState.TargetIndex = cardIndex;
 	}
 
 	private string SizeCssClass => Size switch

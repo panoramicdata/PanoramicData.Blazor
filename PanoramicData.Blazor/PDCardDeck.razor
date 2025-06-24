@@ -3,20 +3,10 @@
 
 <div @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
 
-	@* No need to create new cards here, just use the existing ones. *@
-	@if (_childCards.Count > 0)
-	{
-		@for(int index = 0; index < _childCards.Count; index ++)
-		{
-			var childCard = _childCards[index];
-			<PDCard TCard= "TCard" @ref="@childCard"/>
-		}
-	}
-
 	@* First time setup, Create the visible components *@
 	@foreach (var card in Cards)
 	{
-		<PDCard @ref="@ChildReference"
+		<PDCard @key="@card.Id"
 				DraggingEnabled="IsEnabled"
 				Template="CardTemplate"
 				Css="CardCss"
