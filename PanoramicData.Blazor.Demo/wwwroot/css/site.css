@@ -212,23 +212,28 @@ a, .btn-link {
 
 .pdcard {
 	min-height: 4em;
+	margin-bottom: 5px;
+	border-left: 5px solid;
+	padding: 5px;
+	user-select: none;
 }
 
 .pdcard-trivial {
-	border-color: grey !important;
+	border-color: grey;
 }
 
 .pdcard-minor {
-	border-color: rgb(243 228 54) !important;
+	border-color: rgb(243 228 54);
 }
 
 .pdcard-major {
-	border-color: orange !important;
+	border-color: orange;
 }
 
 .pdcard-critical {
-	border-color: red !important;
+	border-color: red;
 }
 
 .pdcard-blocker {
+	border-color: darkred;
 }

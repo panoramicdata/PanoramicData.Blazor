@@ -2,7 +2,7 @@
 	min-height: 2em;
 }
 
-.card {
+.card-default {
 	margin-bottom: 5px;
 	border-left: 5px solid silver;
 	padding: 5px;
