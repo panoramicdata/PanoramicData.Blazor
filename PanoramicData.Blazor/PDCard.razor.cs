@@ -60,7 +60,7 @@ namespace PanoramicData.Blazor
 			{"ondragend", (DragEventArgs e) => ParentCardDeck.OnDragEnd(e, card) },
 
 			// Position Updates
-			{"ondragover",(DragEventArgs e) => ParentCardDeck.NotifyDragPosition(e, card) }
+			{"ondragover",(DragEventArgs e) => ParentCardDeck.NotifyDragPositionAsync(e, card) }
 		};
 
 			return dict;

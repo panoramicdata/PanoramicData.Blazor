@@ -143,22 +143,33 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		StateHasChanged();
 	}
 
-	internal void NotifyDragPosition(DragEventArgs e, TCard card)
+	internal async Task NotifyDragPositionAsync(DragEventArgs e, TCard card)
 	{
 		var cardIndex = Cards.IndexOf(card);
 
-		// Cannot find Card, Illegal
+		// Cannot find Card
 		if (cardIndex == -1)
 		{
 			return;
 		}
 
+		var movingDown = false;
+
+		// Check direction of the change of drop target
+		if (DragState.TargetIndex < cardIndex)
+		{
+			movingDown = true;
+		}
+
 		DragState.TargetIndex = cardIndex;
-		UpdateCardPositions();
-		StateHasChanged();
+		await UpdateCardPositionsAsync(movingDown);
 	}
 
-	private void UpdateCardPositions()
+	/// <summary>
+	/// Updates the positions of the selected cards in the deck based on the current drag state.
+	/// </summary>
+	/// <returns></returns>
+	private async Task UpdateCardPositionsAsync(bool movingDown)
 	{
 		var destination = DragState.TargetIndex;
 
@@ -173,20 +184,28 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			return;
 		}
 
+
+
+		// Remove Moving Cards
+		var movingCards = Selection
+			.Where(card => Cards.IndexOf(card) != -1)
+			.ToList();
+
+		// Check if the cards being removed are contiguous and we are moving down, if so, we need to adjust the destination as cards have been removed
+		if (IsContiguous(movingCards) && movingDown)
+		{
+			destination = Math.Max(0, destination - (movingCards.Count - 1));
+		}
+
+		foreach (var card in movingCards)
+		{
+			Cards.Remove(card);
+		}
+
 		// Swap positions of the selected cards with the card at the target index
 		for (int iteration = 0; iteration < Selection.Count; iteration++)
 		{
 			var card = Selection[iteration];
-
-			var currentIndex = Cards.IndexOf(card);
-			// If the card is not found, skip it
-			if (currentIndex == -1)
-			{
-				continue;
-			}
-
-			// Move the card to the target index
-			Cards.RemoveAt(currentIndex);
 
 			// Clamp the destination index to ensure it does not exceed the bounds of the list
 			var destinationIndex = Math.Min(destination + iteration, Cards.Count);
@@ -194,6 +213,26 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			Cards.Insert(destinationIndex, card);
 		}
 
+		await InvokeAsync(StateHasChanged)
+			.ConfigureAwait(false);
+
+	}
+
+	private bool IsContiguous(List<TCard> movingCards)
+	{
+		var orderedCards = movingCards
+			.OrderBy(Cards.IndexOf)
+			.ToList();
+
+		for (int i = 0; i < movingCards.Count; i++)
+		{
+			if (!movingCards[i].Equals(orderedCards[i]))
+			{
+				return false; // Cards are not in order
+			}
+		}
+
+		return true;
 	}
 
 	private string SizeCssClass => Size switch
