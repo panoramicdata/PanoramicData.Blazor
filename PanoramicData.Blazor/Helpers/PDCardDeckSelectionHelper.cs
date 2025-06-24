@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Helper class for managing card selection in a card deck.
 	/// </summary>
-	internal class PDCardDeckSelectionHelper
+	internal static class PDCardDeckSelectionHelper
 	{
 		/// <summary>
 		/// Toggles the membership of a given card in the selection list.

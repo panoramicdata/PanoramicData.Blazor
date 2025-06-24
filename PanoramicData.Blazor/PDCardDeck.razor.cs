@@ -124,6 +124,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void OnDragStart(DragEventArgs e, TCard card)
 	{
+		if (!MultipleSelection)
+		{
+			Selection.Clear();
+			Selection.Add(card);
+		}
+
 		DragState.IsDragging = true;
 		StateHasChanged();
 	}

@@ -1,14 +1,6 @@
 ﻿.card {
 	min-height: 2em;
 }
-
-.card-default {
-	margin-bottom: 5px;
-	border-left: 5px solid silver;
-	padding: 5px;
-	user-select: none;
-}
-
 	/*Indicate to the user the card not draggable*/
 	.card[draggable="false"] {
 		cursor: not-allowed !important;
@@ -19,11 +11,18 @@
 		cursor: grab;
 	}
 
-		.card[draggable="true"]:active,
-		.dragging {
-			cursor: grabbing;
-			opacity: 0.2;
-		}
+.card-default {
+	margin-bottom: 5px;
+	border-left: 5px solid silver;
+	padding: 5px;
+	user-select: none;
+	transition: transform 0.3s linear;
+}
+
+.dragging {
+	cursor: grabbing;
+	opacity: 0.2;
+}
 
 .selected {
 	background-color: #d1ecf1 !important;
