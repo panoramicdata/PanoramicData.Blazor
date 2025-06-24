@@ -3,6 +3,11 @@ namespace PanoramicData.Blazor
 	public partial class PDCard<TCard> where TCard : ICard
 	{
 		/// <summary>
+		/// A unique identifier for this card instance.
+		/// </summary>
+		public Guid Id { get; set; } = Guid.NewGuid();
+
+		/// <summary>
 		/// Whether this card is currently selected by the user.
 		/// </summary>
 		private bool _isSelected => ParentCardDeck.Selection.Contains(Card);

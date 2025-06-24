@@ -134,7 +134,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void OnDragEnd(DragEventArgs e, TCard card)
 	{
-		DragState.IsDragging = false;
+		DragState.Reset();
 		StateHasChanged();
 	}
 

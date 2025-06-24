@@ -14,5 +14,14 @@
 		/// The index that the current selection will be dragged to when the user drops it.
 		/// </summary>
 		public int TargetIndex { get; set; }
+
+		/// <summary>
+		/// Resets information about the drag-and-drop state.
+		/// </summary>
+		public void Reset()
+		{
+			IsDragging = false;
+			TargetIndex = -1;
+		}
 	}
 }
