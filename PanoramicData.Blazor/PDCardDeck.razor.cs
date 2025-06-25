@@ -291,6 +291,22 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		StateHasChanged();
 	}
 
+	internal void AddCards(List<TCard> selection)
+	{
+		Cards.AddRange(selection);
+		Selection.AddRange(selection);
+	}
+
+	internal void RemoveSelectedCards()
+	{
+		foreach (var card in Selection)
+		{
+			Cards.Remove(card);
+		}
+
+		Selection.Clear();
+	}
+
 	private string SizeCssClass => Size switch
 	{
 		ButtonSizes.Small => "sm",

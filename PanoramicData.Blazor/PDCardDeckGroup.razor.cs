@@ -103,6 +103,7 @@ namespace PanoramicData.Blazor
 			if (_userTrail.Count == 0)
 			{
 				_userTrail.Add(_decks.IndexOf(deck));
+				return;
 			}
 
 			if (deck == _decks[_userTrail.Last()])
@@ -120,7 +121,27 @@ namespace PanoramicData.Blazor
 				_userTrail.RemoveAt(0);
 			}
 
+			// Move the Cards
+			MoveCards();
+
 			await InvokeAsync(StateHasChanged);
+		}
+
+		private void MoveCards()
+		{
+			if (_userTrail.Count < 2)
+			{
+				// Not enough decks in the trail to move cards
+				return;
+			}
+
+			var sourceDeck = _decks[_userTrail[0]];
+			var destinationDeck = _decks[_userTrail[1]];
+
+			destinationDeck.AddCards(sourceDeck.Selection);
+			sourceDeck.RemoveSelectedCards();
+
+			_userTrail.RemoveAt(0);
 		}
 		#endregion
 	}
