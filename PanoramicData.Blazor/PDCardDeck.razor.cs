@@ -62,6 +62,14 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	public EventCallback<MouseEventArgs> OnSelect { get; set; }
 	#endregion
 
+
+	/// <inheritdoc cref="DeckGroupContext{TCard}"/>
+	internal DeckGroupContext<TCard> GroupContext = new(false);
+
+	private bool _isGroupMember
+		=> GroupContext.IsMemberOfGroup;
+
+
 	private Dictionary<string, object?> GetDeckAttributes()
 	{
 		var dict = new Dictionary<string, object?>
@@ -69,8 +77,34 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			{ "class", $"{CssClass ?? "pdcarddeck"} {(IsEnabled ? "" : " disabled")} {SizeCssClass}" },
 			{ "id", Id }
 		};
+
+		// If part of a group, add the drag enter and drag leave methods
+		if (_isGroupMember)
+		{
+			if (GroupContext.OnDeckDragEntered is null)
+			{
+				// TODO: Log that the events haven't been set up correctly
+				return dict;
+			}
+
+			if (GroupContext.OnDeckDragLeft is null)
+			{
+				// TODO: Log that the events haven't been set up correctly
+				return dict;
+			}
+
+			dict.Add("ondragenter",
+				async (DragEventArgs _) => await GroupContext.OnDeckDragEntered!(this));
+
+			// Add the drag leave method
+			dict.Add("ondragleave",
+			async (DragEventArgs _) => await GroupContext.OnDeckDragLeft!(this));
+
+
+		}
 		return dict;
 	}
+
 
 	/// <summary>
 	/// Set the Data Provider and get the initial data set
@@ -100,12 +134,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	}
 
-	internal Task AddToSelectionAsync(MouseEventArgs args, TCard card)
+	internal async Task AddToSelectionAsync(MouseEventArgs args, TCard card)
 	{
 		// No point in adding to selection if multiple selection is not enabled
 		if (!MultipleSelection)
 		{
-			return Task.CompletedTask;
+			return;
 		}
 
 		if (args.ShiftKey)
@@ -126,10 +160,16 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 		StateHasChanged();
 
-		return OnSelect.InvokeAsync(args);
+		// Notify the parent component that a selection has been made (is part of a group)
+		if (_isGroupMember && GroupContext.OnDeckSelected != null)
+		{
+			await GroupContext.OnDeckSelected(this);
+		}
+
+		await OnSelect.InvokeAsync(args);
 	}
 
-	internal void OnDragStart(DragEventArgs e, TCard card)
+	internal async Task OnDragStartAsync(DragEventArgs e, TCard card)
 	{
 		// Handles edge case where the user drags a card that is not in the selection
 		if (!MultipleSelection || !Selection.Contains(card))
@@ -139,7 +179,14 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		DragState.IsDragging = true;
-		StateHasChanged();
+
+		// Notify the parent component that a selection has been made (is part of a group)
+		if (_isGroupMember && GroupContext.OnDeckSelected != null)
+		{
+			await GroupContext.OnDeckSelected(this);
+		}
+
+		await InvokeAsync(StateHasChanged);
 	}
 
 	internal Task OnDragEndAsync(DragEventArgs e, TCard card)

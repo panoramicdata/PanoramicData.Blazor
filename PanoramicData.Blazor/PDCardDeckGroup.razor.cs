@@ -1,3 +1,4 @@
+
 namespace PanoramicData.Blazor
 {
 	public partial class PDCardDeckGroup<TCard> where TCard : ICard
@@ -5,11 +6,20 @@ namespace PanoramicData.Blazor
 
 		private static int _sequence;
 
+		/// <summary>
+		/// The deck that cards will be transfered from
+		/// </summary>
+		private PDCardDeck<TCard>? _sourceDeck;
+
+		/// <summary>
+		/// The deck that cards will be transfered to
+		/// </summary>
+		private PDCardDeck<TCard>? _targetDeck;
+
 		// Reference Capture
 		private List<PDCardDeck<TCard>> _decks = [];
 
 		public PDCardDeck<TCard> Ref { set => _decks.Add(value); }
-
 
 		#region Parameters
 
@@ -58,6 +68,30 @@ namespace PanoramicData.Blazor
 
 		#endregion
 
+		protected override void OnAfterRender(bool firstRender)
+		{
+			if (!firstRender)
+			{
+
+			}
+
+			var context = new DeckGroupContext<TCard>(true)
+			{
+				OnDeckSelected = OnSelectDeckAsync,
+				OnDeckDragStarted = OnDragWithinAsync,
+				OnDeckDragEntered = OnDragEnterDeckAsync,
+				OnDeckDragLeft = OnDragLeaveDeckAsync
+
+			};
+
+			foreach (var deck in _decks)
+			{
+				deck.GroupContext = context;
+			}
+
+
+		}
+
 		private Dictionary<string, object?> GetAttributes()
 		{
 			var dict = new Dictionary<string, object?>
@@ -68,5 +102,30 @@ namespace PanoramicData.Blazor
 
 			return dict;
 		}
+
+
+		#region Event Handlers
+
+		private async Task OnSelectDeckAsync(PDCardDeck<TCard> deck)
+		{
+			return;
+		}
+
+		private async Task OnDragWithinAsync(PDCardDeck<TCard> deck)
+		{
+			return;
+		}
+
+		private async Task OnDragEnterDeckAsync(PDCardDeck<TCard> deck)
+		{
+			return;
+		}
+
+		private async Task OnDragLeaveDeckAsync(PDCardDeck<TCard> deck)
+		{
+			return;
+		}
+
+		#endregion
 	}
 }
