@@ -23,11 +23,11 @@
 
 	private  Task ShowModal(MouseEventArgs args)
 	{
-		return _modal.ShowAsync();
+		return _modal!.ShowAsync();
 
 	}
 	private Task CloseModal(MouseEventArgs args)
 	{
-		return _modal.HideAsync();
+		return _modal!.HideAsync();
 	}
 }

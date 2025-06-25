@@ -213,29 +213,30 @@ a, .btn-link {
 .pdcard {
 	min-height: 4em;
 	margin-bottom: 5px;
-	border-left: 5px solid;
-	padding: 5px;
+	border-left: 0.7vw solid;
+	border-radius: 0.35vw;
+	padding: 0.5em;
 	user-select: none;
 }
 
 .pdcard-trivial {
-	border-color: grey;
+	border-left-color: grey;
 }
 
 .pdcard-minor {
-	border-color: rgb(243 228 54);
+	border-left-color: rgb(243 228 54);
 }
 
 .pdcard-major {
-	border-color: orange;
+	border-left-color: orange;
 }
 
 .pdcard-critical {
-	border-color: red;
+	border-left-color: red;
 }
 
 .pdcard-blocker {
-	border-color: darkred;
+	border-left-color: darkred;
 }
 
 .pd-carddeck-area {

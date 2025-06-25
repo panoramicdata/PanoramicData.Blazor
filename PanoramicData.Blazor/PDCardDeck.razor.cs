@@ -287,10 +287,19 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void AddCards(List<TCard> selection)
 	{
-		var dragIndex = Math.Min(DragState.TargetIndex, Cards.Count);
+		// Ensure correct bounds
+		var dragIndex = ClampBounds();
 
 		Cards.InsertRange(dragIndex, selection);
 		Selection.AddRange(selection);
+	}
+
+	private int ClampBounds()
+	{
+		var dragIndex = Math.Min(DragState.TargetIndex, Cards.Count);
+		dragIndex = Math.Max(dragIndex, 0);
+
+		return dragIndex;
 	}
 
 	internal void RemoveSelectedCards()

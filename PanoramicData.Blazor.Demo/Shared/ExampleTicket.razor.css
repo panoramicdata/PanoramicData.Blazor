@@ -2,16 +2,9 @@
 	padding: 0.25em;
 }
 
-.example-ticket-icon {
-	position: absolute;
-	top: 0.25em;
-	right: 0.25em;
-	font-size: 1.5em;
-	padding: 0.25em;
-}
-
 .title-section {
 	display: flex;
+	width: 100%;
 	font-size: 1.2em;
 	font-weight: bold;
 	padding-bottom: 1em;
@@ -38,3 +31,4 @@
 	right: 0.25em;
 	padding: 0.25em;
 }
+
