@@ -83,7 +83,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		{
 			_searchText = "";
 		}
-		else if (string.IsNullOrEmpty(_searchText))
+		else
 		{
 			_searchText = ItemToString(SelectedItem);
 		}
