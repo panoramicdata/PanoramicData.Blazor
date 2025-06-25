@@ -55,9 +55,9 @@ namespace PanoramicData.Blazor
 			{ "draggable", $"{DraggingEnabled}".ToLowerInvariant() }, // Make sure the value is lowercase,
 			
 			// Visual Updates
-			{ "onmouseup", (MouseEventArgs e) => ParentCardDeck.AddToSelection(e, card) },
+			{ "onmouseup", (MouseEventArgs e) => ParentCardDeck.AddToSelectionAsync(e, card) },
 			{"ondragstart", (DragEventArgs e) => ParentCardDeck.OnDragStart(e, card) },
-			{"ondragend", (DragEventArgs e) => ParentCardDeck.OnDragEnd(e, card) },
+			{"ondragend", (DragEventArgs e) => ParentCardDeck.OnDragEndAsync(e, card) },
 
 			// Position Updates
 			{"ondragover",(DragEventArgs e) => ParentCardDeck.NotifyDragPositionAsync(e, card) }

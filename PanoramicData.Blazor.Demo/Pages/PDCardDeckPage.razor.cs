@@ -8,12 +8,18 @@ public partial class PDCardDeckPage
 	private readonly ListDataProviderService<Todo> _todoList1 = new();
 	private readonly ListDataProviderService<Todo> _todoList2 = new();
 	private readonly ListDataProviderService<Todo> _todoList3 = new();
-	private readonly ListDataProviderService<Todo> _todoList4 = new();
+
+	private readonly ListDataProviderService<Todo> _ticketList1 = new();
+	private readonly ListDataProviderService<Todo> _ticketList2 = new();
+	private readonly ListDataProviderService<Todo> _ticketList3 = new();
 
 	private PDCardDeck<Todo> _cardDeck1 = new();
 	private PDCardDeck<Todo> _cardDeck2 = new();
 	private PDCardDeck<Todo> _cardDeck3 = new();
 	private PDCardDeck<Todo> _cardDeck4 = new();
+	private PDCardDeck<Todo> _cardDeck5 = new();
+	private PDCardDeck<Todo> _cardDeck6 = new();
+
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	protected override void OnInitialized()
@@ -35,13 +41,13 @@ public partial class PDCardDeckPage
 			new Todo{Title = "Walk the dog",Description =  "a description"} ]
 			);
 
-		_todoList3.List.AddRange([
+		_ticketList1.List.AddRange([
 			new Todo{Title = "Get a haircut", Description = "a description"},
 			new Todo{Title = "Record Antiques Roadshow", Description = "a description", Priority = Priority.Minor},
 			new Todo{Title = "Walk the dog",Description =  "a description", Priority = Priority.Critical} ]
 			);
 
-		_todoList4.List.AddRange([
+		_todoList3.List.AddRange([
 			new Todo{Title = "Get a haircut", Description = "a description"},
 			new Todo{Title = "Record Antiques Roadshow", Description = "a description", Priority = Priority.Minor},
 			new Todo{Title = "Walk the dog",Description =  "a description", Priority = Priority.Critical},
@@ -50,59 +56,17 @@ public partial class PDCardDeckPage
 			);
 	}
 
-	protected void OnSelect1(MouseEventArgs args)
+	protected void OnSelect(MouseEventArgs args, PDCardDeck<Todo> cardDeck)
 	{
-		var cards = _cardDeck1.Selection;
-		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cards))));
+		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cardDeck.Selection))));
 	}
 
-	protected void OnSelect2(MouseEventArgs args)
+	protected void OnRearrange(DragEventArgs args, PDCardDeck<Todo> cardDeck)
 	{
-		var cards = _cardDeck2.Selection;
-		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cards))));
+		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cardDeck.Cards))));
 	}
 
-	protected void OnSelect3(MouseEventArgs args)
-	{
-		var cards = _cardDeck3.Selection;
-		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cards))));
-	}
-
-	protected void OnSelect4(MouseEventArgs args)
-	{
-		var cards = _cardDeck4.Selection;
-		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cards))));
-	}
-
-
-	protected void OnRearrange1(DragEventArgs args)
-	{
-		var cards = _cardDeck1.Cards;
-
-		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cards))));
-	}
-
-	protected void OnRearrange2(DragEventArgs args)
-	{
-		var cards = _cardDeck2.Cards;
-
-		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cards))));
-	}
-
-	protected void OnRearrange3(DragEventArgs args)
-	{
-		var cards = _cardDeck3.Cards;
-
-		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cards))));
-	}
-
-	protected void OnRearrange4(DragEventArgs args)
-	{
-		var cards = _cardDeck4.Cards;
-
-		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cards))));
-	}
-	private string ConvertToString(IEnumerable<Todo?> cards)
+	private static string ConvertToString(IEnumerable<Todo?> cards)
 	{
 		var stringBuilder = new StringBuilder("[");
 

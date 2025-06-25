@@ -103,12 +103,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	}
 
-	internal void AddToSelection(MouseEventArgs args, TCard card)
+	internal Task AddToSelectionAsync(MouseEventArgs args, TCard card)
 	{
 		// No point in adding to selection if multiple selection is not enabled
 		if (!MultipleSelection)
 		{
-			return;
+			return Task.CompletedTask;
 		}
 
 		if (args.ShiftKey)
@@ -128,6 +128,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 				.HandleSingleSelect(Selection, Cards, card);
 		}
 		StateHasChanged();
+
+		return OnSelect.InvokeAsync(args);
 	}
 
 	internal void OnDragStart(DragEventArgs e, TCard card)
@@ -143,10 +145,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		StateHasChanged();
 	}
 
-	internal void OnDragEnd(DragEventArgs e, TCard card)
+	internal Task OnDragEndAsync(DragEventArgs e, TCard card)
 	{
 		DragState.Reset();
 		StateHasChanged();
+
+		return OnRearrange.InvokeAsync(e);
 	}
 
 	internal async Task NotifyDragPositionAsync(DragEventArgs e, TCard card)
@@ -154,7 +158,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		var cardIndex = Cards.IndexOf(card);
 
 		// Cannot find Card
-		if (cardIndex == -1)
+		if (cardIndex == -1 || DragState.TargetIndex == cardIndex)
 		{
 			return;
 		}
