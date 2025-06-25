@@ -1,0 +1,12 @@
+﻿.icon {
+	font-size: 1.5em;
+	transition: 
+		transform 0.3s ease,
+		color 0.1s ease;
+}
+
+.icon:hover {
+	transform: rotate(90deg) scale(1.2);
+	color: #2196f3;
+	cursor: pointer;
+}

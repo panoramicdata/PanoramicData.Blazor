@@ -1,0 +1,33 @@
+<i @onclick="ShowModal" class="fas fa-cog icon"></i>
+
+<PDModal @ref="_modal">
+	<Header>Edit Ticket "@Ticket.Title"</Header>
+
+	<ChildContent>
+		Unfortunately you cannot edit this ticket at the moment.
+	</ChildContent>
+
+	<Footer>
+		<PDButton Click="CloseModal">Close</PDButton>
+	</Footer>
+</PDModal>
+
+@code{
+
+	[EditorRequired]
+	[Parameter]
+	public required Todo Ticket { get; set; }
+
+	private PDModal? _modal { get; set; } = null!;
+
+
+	private  Task ShowModal(MouseEventArgs args)
+	{
+		return _modal.ShowAsync();
+
+	}
+	private Task CloseModal(MouseEventArgs args)
+	{
+		return _modal.HideAsync();
+	}
+}

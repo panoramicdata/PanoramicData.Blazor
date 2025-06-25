@@ -34,7 +34,8 @@
 					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")">
 
 		<CardTemplate>
-			<ExampleTicket Ticket="context" />
+			<ExampleTicket Ticket="context"
+				ShowEditOptions="true"/>
 		</CardTemplate>
 
 	</PDCardDeckGroup>

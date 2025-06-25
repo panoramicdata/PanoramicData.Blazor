@@ -6,6 +6,8 @@ namespace PanoramicData.Blazor.Demo.Shared
 		[Parameter]
 		public required Todo Ticket { get; set; }
 
+		[Parameter]
+		public bool ShowEditOptions { get; set; }
 
 		private static string GetSeverityIcon(Todo todo)
 		{
