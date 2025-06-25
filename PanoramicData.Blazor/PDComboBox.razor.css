@@ -140,13 +140,15 @@
 	padding: 0;
 	display: flex;
 	align-items: center;
-	color: #888;
+	color: var(--pdcb-input-color, #222); /* Make sure this is set to a visible color */
+	opacity: 1; /* Ensure full opacity */
 	z-index: 1;
 }
 
 .combo-dropdown-icon:focus {
 	outline: none;
 	color: #333;
+	opacity: 1;
 }
 
 .combo-dropdown-icon[disabled] {
