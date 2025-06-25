@@ -12,9 +12,19 @@
 			   disabled="@IsDisabled"
 			   readonly="@IsReadOnly"
 			   @ref="_inputRef" />
-		@if (!string.IsNullOrEmpty(_searchText) && !IsReadOnly && !IsDisabled)
+        @if (!string.IsNullOrEmpty(_lastSearchText) && _lastSearchText == _searchText
+                                                    && !IsReadOnly && !IsDisabled)
 		{
-			<button type="button" class="combo-clear" @onclick="ClearInput" tabindex="-1" aria-label="Clear">&times;</button>
+			 <button class="combo-clear"
+			         @onmousedown:preventDefault
+			         @onclick="ClearInput"
+			         aria-label="Clear"
+			         type="button"
+			         tabindex="-1">
+			     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+			         <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+			     </svg>
+			 </button>
 		}
 		<button type="button"
 				class="combo-dropdown-icon"

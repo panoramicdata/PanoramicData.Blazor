@@ -194,11 +194,6 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 
 	private async Task OnInputBlur(FocusEventArgs e)
 	{
-		if (SelectedItem is not null)
-		{
-			_searchText = ItemToString(SelectedItem);
-			StateHasChanged();
-		}
 		await HideDropdownWithDelay();
 		await Task.CompletedTask;
 	}
@@ -213,6 +208,10 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		{
 			await Task.Delay(400, _blurToken.Token);
 			_showDropdown = false;
+			if (SelectedItem is not null)
+			{
+				_searchText = ItemToString(SelectedItem);
+			}
 			await InvokeAsync(StateHasChanged);
 		}
 		catch (TaskCanceledException) { }
@@ -228,7 +227,6 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		if (_showDropdown)
 		{
 			ApplyFilter(string.Empty);
-			StateHasChanged();
 		}
 		await FocusInputAsync();
 	}
@@ -303,7 +301,19 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		if (SelectedItem is not null && !string.IsNullOrEmpty(_lastSearchText))
 		{
 			_searchText = _lastSearchText;
+			_showDropdown = true;
+			ApplyFilter(_searchText);
 			StateHasChanged();
+		} 
+		else
+		{
+			_searchText = "";
+			_lastSearchText = "";
+			_filteredItems.Clear();
+			_activeIndex = -1;
+
+			_showDropdown = true;
+			ApplyFilter(_searchText);
 		}
 		if (_jsModule is not null && !string.IsNullOrEmpty(_searchText))
 		{
