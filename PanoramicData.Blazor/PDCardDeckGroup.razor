@@ -1,7 +1,20 @@
-<div>
+@inherits PDComponentBase
+@typeparam TCard
 
+<div @attributes=@GetAttributes()>
+
+	@foreach (var dataProvider in DataProviders)
+	{
+
+		<PDCardDeck DataProvider="@dataProvider"
+					MultipleSelection="@MultipleSelection"
+					IsEnabled="@IsEnabled"
+					CardCss="@CardCss"
+					CssClass="@DeckCss"
+					OnRearrange="@OnRearrange"
+					OnSelect="@OnSelect"
+					CardTemplate="@CardTemplate" />
+
+	}
 </div>
 
-@code{
-
-}
