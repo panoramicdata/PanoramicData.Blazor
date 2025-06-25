@@ -288,15 +288,11 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return true;
 	}
 
-	internal void SetGroupContext(DeckGroupContext<TCard> context)
-	{
-		GroupContext = context;
-		StateHasChanged();
-	}
-
 	internal void AddCards(List<TCard> selection)
 	{
-		Cards.InsertRange(DragState.TargetIndex, selection);
+		var dragIndex = Math.Min(DragState.TargetIndex, Cards.Count);
+
+		Cards.InsertRange(dragIndex, selection);
 		Selection.AddRange(selection);
 	}
 
