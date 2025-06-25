@@ -44,12 +44,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	public IDataProviderService<TCard> DataProvider { get; set; } = new EmptyDataProviderService<TCard>();
 
 	/// <summary>
-	/// Whether the deck can interact with other decks or not. Defaults to true.
-	/// </summary>
-	[Parameter]
-	public bool IsIsolated { get; set; } = true;
-
-	/// <summary>
 	/// Whether the deck has multiple selection enabled or not. Defaults to false.
 	/// </summary>
 	[Parameter]
@@ -67,43 +61,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	[Parameter]
 	public EventCallback<MouseEventArgs> OnSelect { get; set; }
 	#endregion
-
-	public void RemoveCards(IEnumerable<TCard> cardsToRemove)
-	{
-		// If the deck is isolated, we cannot remove cards from it
-		if (IsIsolated)
-		{
-			return;
-		}
-
-		List<TCard> cards = [.. Cards];
-
-		foreach (var card in cardsToRemove)
-		{
-			cards.Remove(card);
-		}
-
-		Cards = cards;
-		StateHasChanged();
-	}
-
-	public void AddCards(IEnumerable<TCard> cardsToAdd)
-	{
-		// If the deck is isolated, we cannot remove cards from it
-		if (IsIsolated)
-		{
-			return;
-		}
-
-		foreach (var card in cardsToAdd)
-		{
-			if (!Cards.Contains(card))
-			{
-				Cards.Insert(DragState.TargetIndex, card);
-			}
-		}
-		StateHasChanged();
-	}
 
 	private Dictionary<string, object?> GetDeckAttributes()
 	{

@@ -9,16 +9,10 @@ public partial class PDCardDeckPage
 	private readonly ListDataProviderService<Todo> _todoList2 = new();
 	private readonly ListDataProviderService<Todo> _todoList3 = new();
 
-	private readonly ListDataProviderService<Todo> _ticketList1 = new();
-	private readonly ListDataProviderService<Todo> _ticketList2 = new();
-	private readonly ListDataProviderService<Todo> _ticketList3 = new();
 
 	private PDCardDeck<Todo> _cardDeck1 = new();
 	private PDCardDeck<Todo> _cardDeck2 = new();
 	private PDCardDeck<Todo> _cardDeck3 = new();
-	private PDCardDeck<Todo> _cardDeck4 = new();
-	private PDCardDeck<Todo> _cardDeck5 = new();
-	private PDCardDeck<Todo> _cardDeck6 = new();
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
@@ -39,12 +33,6 @@ public partial class PDCardDeckPage
 			new Todo{Title = "Put up shelf", Description = "a description"},
 			new Todo{Title = "Get a haircut", Description = "a description"},
 			new Todo{Title = "Walk the dog",Description =  "a description"} ]
-			);
-
-		_ticketList1.List.AddRange([
-			new Todo{Title = "Get a haircut", Description = "a description"},
-			new Todo{Title = "Record Antiques Roadshow", Description = "a description", Priority = Priority.Minor},
-			new Todo{Title = "Walk the dog",Description =  "a description", Priority = Priority.Critical} ]
 			);
 
 		_todoList3.List.AddRange([

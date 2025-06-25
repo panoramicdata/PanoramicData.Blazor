@@ -26,65 +26,15 @@
 	<hr />
 
 	<div>
-		<p>Example 3: Multiple Card Decks</p>
+		<p>Example 3: Disabled Card Deck</p>
 	</div>
 
-	<div class="multiple-card-decks">
-		<PDCardDeck @ref="_cardDeck3"
-					DataProvider="_ticketList1"
-					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-					CssClass="pd-carddeck-area"
-					IsIsolated="false"
-					OnRearrange="(e) => OnRearrange(e, _cardDeck3)"
-					OnSelect="(e) => OnSelect(e, _cardDeck3)">
-
-			<CardTemplate>
-				<ExampleTicket Ticket="context" />
-			</CardTemplate>
-		</PDCardDeck>
-
-		<PDCardDeck @ref="_cardDeck4"
-					DataProvider="_ticketList2"
-					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-					CssClass="pd-carddeck-area"
-					IsIsolated="false"
-					OnRearrange="(e) => OnRearrange(e, _cardDeck4)"
-					OnSelect="(e) => OnSelect(e, _cardDeck4)">
-
-			<CardTemplate>
-				<ExampleTicket Ticket="context" />
-			</CardTemplate>
-
-		</PDCardDeck>
-
-		<PDCardDeck @ref="_cardDeck5"
-					DataProvider="_ticketList3"
-					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-					CssClass="pd-carddeck-area"
-					IsIsolated="false"
-					OnRearrange="(e) => OnRearrange(e, _cardDeck5)"
-					OnSelect="(e) => OnSelect(e, _cardDeck5)">
-
-			<CardTemplate>
-				<ExampleTicket Ticket="context" />
-			</CardTemplate>
-
-		</PDCardDeck>
-
-	</div>
-
-	<hr />
-
-	<div>
-		<p>Example 4: Disabled Card Deck</p>
-	</div>
-
-	<PDCardDeck @ref="_cardDeck6"
+	<PDCardDeck @ref="_cardDeck3"
 				DataProvider="_todoList3"
 				IsEnabled="false"
 				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-				OnRearrange="(e) => OnRearrange(e, _cardDeck6)"
-				OnSelect="(e) => OnSelect(e, _cardDeck6)">
+				OnRearrange="(e) => OnRearrange(e, _cardDeck3)"
+				OnSelect="(e) => OnSelect(e, _cardDeck3)">
 
 		<CardTemplate>
 			<ExampleTicket Ticket="context" />
