@@ -293,7 +293,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void AddCards(List<TCard> selection)
 	{
-		Cards.AddRange(selection);
+		Cards.InsertRange(DragState.TargetIndex, selection);
 		Selection.AddRange(selection);
 	}
 
