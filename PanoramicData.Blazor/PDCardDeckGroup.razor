@@ -5,17 +5,17 @@
 
 	@foreach (var dataProvider in DataProviders)
 	{
-
-		<PDCardDeck @ref="@Ref"
-					DataProvider="@dataProvider"
-					MultipleSelection="@MultipleSelection"
-					IsEnabled="@IsEnabled"
-					CardCss="@CardCss"
-					CssClass="@DeckCss"
-					OnRearrange="@OnRearrange"
-					OnSelect="@OnSelect"
-					CardTemplate="@CardTemplate" />
-
+		<CascadingValue Value="_context" Name="cardDeckGroupContext">
+			<PDCardDeck @ref="@Ref"
+						DataProvider="@dataProvider"
+						MultipleSelection="@MultipleSelection"
+						IsEnabled="@IsEnabled"
+						CardCss="@CardCss"
+						CssClass="@DeckCss"
+						OnRearrange="@OnRearrange"
+						OnSelect="@OnSelect"
+						CardTemplate="@CardTemplate" />
+		</CascadingValue>
 	}
 </div>
 

@@ -62,9 +62,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	public EventCallback<MouseEventArgs> OnSelect { get; set; }
 	#endregion
 
-
+	/// <summary>
+	/// The Event Handlers that are used to handle drag and drop events for this deck.
+	/// </summary>
+	[CascadingParameter(Name = "cardDeckGroupContext")]
 	/// <inheritdoc cref="DeckGroupContext{TCard}"/>
-	internal DeckGroupContext<TCard> GroupContext = new(false);
+	public DeckGroupContext<TCard> GroupContext { get; set; } = new(false);
 
 	private bool _isGroupMember
 		=> GroupContext.IsMemberOfGroup;
@@ -75,30 +78,23 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		var dict = new Dictionary<string, object?>
 		{
 			{ "class", $"{CssClass ?? "pdcarddeck"} {(IsEnabled ? "" : " disabled")} {SizeCssClass}" },
-			{ "id", Id }
+			{ "id", Id },
+			{ "ondrop", (MouseEventArgs _) => DragState.IsDragging = false }
 		};
 
 		// If part of a group, add the drag enter and drag leave methods
 		if (_isGroupMember)
 		{
-			if (GroupContext.OnDeckDragEntered is null)
+
+			if (GroupContext.OnDragEntered is null)
 			{
 				// TODO: Log that the events haven't been set up correctly
 				return dict;
 			}
 
-			if (GroupContext.OnDeckDragLeft is null)
-			{
-				// TODO: Log that the events haven't been set up correctly
-				return dict;
-			}
-
+			// Add the on drag enter event handler
 			dict.Add("ondragenter",
-				async (DragEventArgs _) => await GroupContext.OnDeckDragEntered!(this));
-
-			// Add the drag leave method
-			dict.Add("ondragleave",
-			async (DragEventArgs _) => await GroupContext.OnDeckDragLeft!(this));
+			async (MouseEventArgs _) => await GroupContext.OnDragEntered!(this));
 
 
 		}
@@ -161,9 +157,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		StateHasChanged();
 
 		// Notify the parent component that a selection has been made (is part of a group)
-		if (_isGroupMember && GroupContext.OnDeckSelected != null)
+		if (_isGroupMember && GroupContext.OnSelect != null)
 		{
-			await GroupContext.OnDeckSelected(this);
+			await GroupContext.OnSelect(this);
 		}
 
 		await OnSelect.InvokeAsync(args);
@@ -181,9 +177,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		DragState.IsDragging = true;
 
 		// Notify the parent component that a selection has been made (is part of a group)
-		if (_isGroupMember && GroupContext.OnDeckSelected != null)
+		if (_isGroupMember && GroupContext.OnSelect != null)
 		{
-			await GroupContext.OnDeckSelected(this);
+			await GroupContext.OnSelect(this);
 		}
 
 		await InvokeAsync(StateHasChanged);
@@ -287,6 +283,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		return true;
+	}
+
+	internal void SetGroupContext(DeckGroupContext<TCard> context)
+	{
+		GroupContext = context;
+		StateHasChanged();
 	}
 
 	private string SizeCssClass => Size switch

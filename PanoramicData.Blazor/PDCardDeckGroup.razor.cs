@@ -1,4 +1,3 @@
-
 namespace PanoramicData.Blazor
 {
 	public partial class PDCardDeckGroup<TCard> where TCard : ICard
@@ -6,15 +5,9 @@ namespace PanoramicData.Blazor
 
 		private static int _sequence;
 
-		/// <summary>
-		/// The deck that cards will be transfered from
-		/// </summary>
-		private PDCardDeck<TCard>? _sourceDeck;
+		private DeckGroupContext<TCard> _context = null!;
 
-		/// <summary>
-		/// The deck that cards will be transfered to
-		/// </summary>
-		private PDCardDeck<TCard>? _targetDeck;
+		private List<int> _userTrail = [];
 
 		// Reference Capture
 		private List<PDCardDeck<TCard>> _decks = [];
@@ -68,30 +61,6 @@ namespace PanoramicData.Blazor
 
 		#endregion
 
-		protected override void OnAfterRender(bool firstRender)
-		{
-			if (!firstRender)
-			{
-
-			}
-
-			var context = new DeckGroupContext<TCard>(true)
-			{
-				OnDeckSelected = OnSelectDeckAsync,
-				OnDeckDragStarted = OnDragWithinAsync,
-				OnDeckDragEntered = OnDragEnterDeckAsync,
-				OnDeckDragLeft = OnDragLeaveDeckAsync
-
-			};
-
-			foreach (var deck in _decks)
-			{
-				deck.GroupContext = context;
-			}
-
-
-		}
-
 		private Dictionary<string, object?> GetAttributes()
 		{
 			var dict = new Dictionary<string, object?>
@@ -103,17 +72,23 @@ namespace PanoramicData.Blazor
 			return dict;
 		}
 
+		protected override void OnInitialized()
+		{
+			_context = new(true)
+			{
+				OnSelect = OnSelectDeckAsync,
+				OnDragEntered = OnDragAsync,
 
+			};
+		}
 		#region Event Handlers
 
 		private async Task OnSelectDeckAsync(PDCardDeck<TCard> sourceDeck)
 		{
-			_sourceDeck = sourceDeck;
-
 			// Remove selection for non source decks
 			foreach (var deck in _decks)
 			{
-				if (deck != _sourceDeck)
+				if (deck != sourceDeck)
 				{
 					deck.Selection.Clear();
 				}
@@ -122,21 +97,31 @@ namespace PanoramicData.Blazor
 			await InvokeAsync(StateHasChanged);
 		}
 
-		private async Task OnDragWithinAsync(PDCardDeck<TCard> deck)
+		private async Task OnDragAsync(PDCardDeck<TCard> deck)
 		{
-			return;
-		}
+			// First deck in this user trail
+			if (_userTrail.Count == 0)
+			{
+				_userTrail.Add(_decks.IndexOf(deck));
+			}
 
-		private async Task OnDragEnterDeckAsync(PDCardDeck<TCard> deck)
-		{
-			return;
-		}
+			if (deck == _decks[_userTrail.Last()])
+			{
+				// User is dragging the same deck, do nothing
+				return;
+			}
 
-		private async Task OnDragLeaveDeckAsync(PDCardDeck<TCard> deck)
-		{
-			return;
-		}
+			_userTrail.Add(_decks.IndexOf(deck));
 
+			// Clamp the user trail to the last two decks
+			if (_userTrail.Count > 2)
+			{
+				// User is dragging a deck that is not the first in the trail, clear the trail
+				_userTrail.RemoveAt(0);
+			}
+
+			await InvokeAsync(StateHasChanged);
+		}
 		#endregion
 	}
 }
