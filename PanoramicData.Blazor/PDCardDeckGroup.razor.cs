@@ -106,9 +106,20 @@ namespace PanoramicData.Blazor
 
 		#region Event Handlers
 
-		private async Task OnSelectDeckAsync(PDCardDeck<TCard> deck)
+		private async Task OnSelectDeckAsync(PDCardDeck<TCard> sourceDeck)
 		{
-			return;
+			_sourceDeck = sourceDeck;
+
+			// Remove selection for non source decks
+			foreach (var deck in _decks)
+			{
+				if (deck != _sourceDeck)
+				{
+					deck.Selection.Clear();
+				}
+			}
+
+			await InvokeAsync(StateHasChanged);
 		}
 
 		private async Task OnDragWithinAsync(PDCardDeck<TCard> deck)
