@@ -6,7 +6,8 @@
 	@foreach (var dataProvider in DataProviders)
 	{
 
-		<PDCardDeck DataProvider="@dataProvider"
+		<PDCardDeck @ref="@Ref"
+					DataProvider="@dataProvider"
 					MultipleSelection="@MultipleSelection"
 					IsEnabled="@IsEnabled"
 					CardCss="@CardCss"

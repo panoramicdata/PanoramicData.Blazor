@@ -5,6 +5,12 @@ namespace PanoramicData.Blazor
 
 		private static int _sequence;
 
+		// Reference Capture
+		private List<PDCardDeck<TCard>> _decks = [];
+
+		public PDCardDeck<TCard> Ref { set => _decks.Add(value); }
+
+
 		#region Parameters
 
 		[Parameter]
@@ -57,7 +63,7 @@ namespace PanoramicData.Blazor
 			var dict = new Dictionary<string, object?>
 			{
 				{ "id", Id },
-				{ "class", "pd-carddeck-group-default" }
+				{ "class", "pd-carddeck-group-default" },
 			};
 
 			return dict;
