@@ -237,8 +237,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			return;
 		}
 
-
-
 		// Remove Moving Cards
 		var movingCards = Selection
 			.Where(card => Cards.IndexOf(card) != -1)
@@ -268,7 +266,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		await InvokeAsync(StateHasChanged)
 			.ConfigureAwait(false);
-
 	}
 
 	private bool IsContiguous(List<TCard> movingCards)
