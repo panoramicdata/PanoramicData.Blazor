@@ -11,7 +11,9 @@
 					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")">
 
 		<CardTemplate>
-			<ExampleTicket Ticket="context" />
+			<ExampleTicket 
+				Ticket="context" 
+				Interactable="true"/>
 		</CardTemplate>
 
 	</PDCardDeckGroup>
@@ -35,7 +37,8 @@
 
 		<CardTemplate>
 			<ExampleTicket Ticket="context"
-				ShowEditOptions="true"/>
+						   ShowEditOptions="true" 
+						   Interactable="true" />
 		</CardTemplate>
 
 	</PDCardDeckGroup>

@@ -2,6 +2,8 @@ namespace PanoramicData.Blazor.Demo.Shared
 {
 	public partial class SeverityIcon
 	{
+		[Parameter]
+		public required bool Interactable { get; set; }
 
 		[Parameter]
 		public required Todo Ticket { get; set; }
@@ -35,7 +37,7 @@ namespace PanoramicData.Blazor.Demo.Shared
 		/// <returns></returns>
 		private string GetHoverSeverityClass(Todo ticket, bool animate)
 		{
-			if (!_isHovered)
+			if (!_isHovered || !Interactable)
 			{
 				return string.Empty;
 			}
