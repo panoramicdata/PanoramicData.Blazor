@@ -132,6 +132,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal async Task AddToSelectionAsync(MouseEventArgs args, TCard card)
 	{
+		// Cannot be dragging while adding to selection
+		DragState.IsDragging = false;
+
 		// No point in adding to selection if multiple selection is not enabled
 		if (!MultipleSelection)
 		{

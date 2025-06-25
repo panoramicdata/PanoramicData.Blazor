@@ -24,6 +24,21 @@
 
 	<PDCardDeckGroup DataProviders="_todoLists2" />
 
+	<div>
+		<p>Example 3: Kanban style multiselect board</p>
+	</div>
+
+	<PDCardDeckGroup DataProviders="_todoLists"
+					 DeckCss="pd-carddeck-area "
+					 MultipleSelection="true"
+					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")">
+
+		<CardTemplate>
+			<ExampleTicket Ticket="context" />
+		</CardTemplate>
+
+	</PDCardDeckGroup>
+
 	<EventView />
 
 </DemoSourceView>
