@@ -6,7 +6,7 @@ public partial class PDChat
 
 	[EditorRequired]
 	[Parameter]
-	public required IChatService Service { get; set; }
+	public required IChatService ChatService { get; set; }
 
 	[Parameter]
 	public string Title { get; set; } = "Chat";
@@ -33,9 +33,15 @@ public partial class PDChat
 
 	protected override Task OnInitializedAsync()
 	{
-		Service.OnMessageReceived += OnMessageReceived;
-		Service.Initialize();
+		ChatService.OnMessageReceived += OnMessageReceived;
+		ChatService.OnLiveStatusChanged += OnLiveStatusChanged;
+		ChatService.Initialize();
 		return base.OnInitializedAsync();
+	}
+
+	private void OnLiveStatusChanged(bool obj)
+	{
+		StateHasChanged();
 	}
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -118,7 +124,7 @@ public partial class PDChat
 		};
 
 		// Fire it off
-		Service.SendMessage(message);
+		ChatService.SendMessage(message);
 
 		// Clear input
 		_currentInput = string.Empty;
@@ -159,4 +165,6 @@ public partial class PDChat
 
 		await _module.InvokeVoidAsync("scrollToBottom", _messagesContainer);
 	}
+
+	private bool CanSend => ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);
 }

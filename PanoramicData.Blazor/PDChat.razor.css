@@ -20,6 +20,11 @@
 	transition: background-color 0.3s ease;
 }
 
+.pdchat-not-live {
+	background-color: #ff4d4d; /* Red for not live */
+	color: white;
+}
+
 	.pdchat-toggle:hover,
 	.pdchat-toggle-collapsed:hover {
 		background-color: #005a9e;

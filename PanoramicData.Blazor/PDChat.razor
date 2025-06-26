@@ -2,15 +2,24 @@
 @inherits ComponentBase
 
 <div class="pdchat-container @( _isOpen ? "open" : "" )">
-	<button class="pdchat-toggle-collapsed" @onclick="ToggleChat">
-		<span>@(_isOpen ? "×" : "💬")</span>
-	</button>
+	@if(ChatService.IsLive)
+	{
+		<button class="pdchat-toggle-collapsed" @onclick="ToggleChat">
+			<span>@(_isOpen ? "×" : "💬")</span>
+		</button>
+	}
+	else
+	{
+		<button class="pdchat-toggle-collapsed pdchat-not-live" @onclick="ToggleChat" title="Offline">
+			<span>💬</span>
+		</button>
+	}
 
 	@if (_isOpen)
 	{
 		<div class="pdchat-window">
 			<div class="pdchat-header">
-				<span class="pdchat-title">@Title</span>
+				<span class="pdchat-title">@Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
 				<button class="pdchat-header-btn" @onclick="ToggleMute" title="@(_isMuted ? "Unmute" : "Mute")">
 					<span>@(_isMuted ? "🔇" : "🔊")</span>
 				</button>
@@ -40,8 +49,8 @@
 				}
 			</div>
 			<div class="chat-input-container">
-				<textarea @bind="_currentInput" placeholder="Type a message..." rows="3"></textarea>
-				<button class="submit-button" @onclick="SendCurrentMessageAsync">Send</button>
+				<textarea @bind="_currentInput" placeholder="Type a message..." rows="3" disabled="@(!ChatService.IsLive)"></textarea>
+				<button class="submit-button @(CanSend ? string.Empty : "submit-button-disabled")" @onclick="SendCurrentMessageAsync" disabled="@(!CanSend)">Send</button>
 			</div>
 		</div>
 	}
