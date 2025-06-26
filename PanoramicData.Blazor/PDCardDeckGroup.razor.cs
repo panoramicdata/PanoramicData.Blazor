@@ -32,7 +32,7 @@ namespace PanoramicData.Blazor
 		/// Holds styling for each individual Deck
 		/// </summary>
 		[Parameter]
-		public string DeckCss { get; set; } = "pd-carddeck-default";
+		public string DeckCss { get; set; } = "pdcarddeck";
 
 		/// <summary>
 		/// Data Providers for this card deck group
@@ -122,12 +122,12 @@ namespace PanoramicData.Blazor
 			}
 
 			// Move the Cards
-			MoveCards();
+			await MoveCardsAsync();
 
 			await InvokeAsync(StateHasChanged);
 		}
 
-		private void MoveCards()
+		private async Task MoveCardsAsync()
 		{
 			if (_userTrail.Count < 2)
 			{

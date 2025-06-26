@@ -60,7 +60,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// </summary>
 	[Parameter]
 	public EventCallback<MouseEventArgs> OnSelect { get; set; }
-	#endregion
 
 	/// <summary>
 	/// The Event Handlers that are used to handle drag and drop events for this deck.
@@ -69,8 +68,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <inheritdoc cref="DeckGroupContext{TCard}"/>
 	public DeckGroupContext<TCard> GroupContext { get; set; } = new(false);
 
-	private bool _isGroupMember
-		=> GroupContext.IsMemberOfGroup;
 
 
 	private Dictionary<string, object?> GetDeckAttributes()
@@ -83,7 +80,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		};
 
 		// If part of a group, add the drag enter and drag leave methods
-		if (_isGroupMember)
+		if (GroupContext.IsMemberOfGroup)
 		{
 
 			if (GroupContext.OnDragEntered is null)
@@ -160,7 +157,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		StateHasChanged();
 
 		// Notify the parent component that a selection has been made (is part of a group)
-		if (_isGroupMember && GroupContext.OnSelect != null)
+		if (GroupContext.IsMemberOfGroup && GroupContext.OnSelect != null)
 		{
 			await GroupContext.OnSelect(this);
 		}
@@ -180,7 +177,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		DragState.IsDragging = true;
 
 		// Notify the parent component that a selection has been made (is part of a group)
-		if (_isGroupMember && GroupContext.OnSelect != null)
+		if (GroupContext.IsMemberOfGroup && GroupContext.OnSelect != null)
 		{
 			await GroupContext.OnSelect(this);
 		}
