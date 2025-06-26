@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Trivial CSS update to file preview CSS.
+			Added PDComboBox component.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
