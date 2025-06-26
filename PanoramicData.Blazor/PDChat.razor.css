@@ -179,6 +179,20 @@
 	font-style: italic;
 }
 
+/* Title bar for chat message titles */
+.pdchat-title-bar {
+  background: linear-gradient(90deg, #e3eafc 0%, #c9e4ff 100%);
+  color: #205081;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  margin-top: 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  letter-spacing: 0.02em;
+}
+
 .pdchat-window textarea {
 	border: none;
 	padding: 10px;

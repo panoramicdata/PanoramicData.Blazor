@@ -2,11 +2,14 @@
 
 public class ChatMessage()
 {
+	/// <summary>
+	/// A unique id per message.  This allows existing messages to be updated.
+	/// </summary>
 	public required Guid Id { get; init; }
 
 	public required string Sender { get; init; }
 
-	public required string Title { get; set; }
+	public string? Title { get; set; }
 
 	public required string Message { get; set; }
 

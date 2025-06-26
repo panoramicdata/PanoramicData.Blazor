@@ -137,7 +137,6 @@ public class DumbChatService : IChatService, IDisposable
 		{
 			Id = responseId,
 			Sender = "DumbBot",
-			Title = "Auto-reply",
 			Message = $"You said: \"{userMessage.Message}\"",
 			Type = _messageTypes[_random.Next(_messageTypes.Length)]
 		});

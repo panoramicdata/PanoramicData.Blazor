@@ -35,6 +35,10 @@
 							<span class="pdchat-username">@message.Sender</span>
 							<span class="pdchat-timestamp">@message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
 						</div>
+						@if (!string.IsNullOrEmpty(message.Title))
+						{
+							<div class="pdchat-title-bar">@message.Title</div>
+						}
 						<div class="pdchat-text">
 							@if (message.Type == MessageType.Typing)
 							{

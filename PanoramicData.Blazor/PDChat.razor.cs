@@ -118,7 +118,6 @@ public partial class PDChat
 			Id = Guid.NewGuid(),
 			Message = _currentInput,
 			Sender = "User",
-			Title = "User Input",
 			Type = MessageType.Normal,
 			Timestamp = DateTime.UtcNow
 		};
