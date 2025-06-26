@@ -110,24 +110,44 @@
 	background: #f9f9f9;
 }
 
+/* Chat bubble header for icon, username, timestamp */
+.pdchat-bubble-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 2px;
+	padding-bottom: 2px;
+}
+
 .pdchat-message {
-	padding: 8px 12px;
-	border-radius: 12px;
-	max-width: 80%;
-	word-wrap: break-word;
-	font-size: 14px;
-	box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 	position: relative;
+	padding: 38px 14px 12px 14px; /* Make room for title bar if present */
+	margin-bottom: 10px;
+	border-radius: 16px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+	background: #f4f8fb;
+}
+
+.pdchat-message:not(:has(.pdchat-title-bar)) {
+	padding-top: 10px; /* Default top padding if no title bar */
 }
 
 	.pdchat-message.left {
-		background: #e1f0ff;
+		background: #e6f0ff;
 		align-self: flex-start;
+		border-top-left-radius: 8px;
+		border-top-right-radius: 16px;
+		border-bottom-right-radius: 16px;
+		border-bottom-left-radius: 16px;
 	}
 
 	.pdchat-message.right {
-		background: #d1ffd1;
+		background: #d6fcd6;
 		align-self: flex-end;
+		border-top-right-radius: 8px;
+		border-top-left-radius: 16px;
+		border-bottom-left-radius: 16px;
+		border-bottom-right-radius: 16px;
 	}
 
 	.pdchat-message .pdchat-header {
@@ -140,7 +160,23 @@
 	}
 
 	.pdchat-message .pdchat-icon {
-		margin-right: 4px;
+		margin-right: 0;
+		margin-left: 0;
+		font-size: 1.3em;
+		align-self: flex-start;
+	}
+
+	.pdchat-message .pdchat-username {
+		font-weight: 600;
+		color: #205081;
+		margin-right: 8px;
+		font-size: 1em;
+	}
+
+	.pdchat-message .pdchat-timestamp {
+		font-size: 0.85em;
+		color: #888;
+		margin-left: auto;
 	}
 
 .pdchat-username {
@@ -154,7 +190,10 @@
 }
 
 .pdchat-text {
-	font-size: 14px;
+	font-size: 1em;
+	color: #222;
+	padding-top: 2px;
+	white-space: pre-line;
 }
 
 .pdchat-message.priority-warning {
@@ -179,18 +218,24 @@
 	font-style: italic;
 }
 
-/* Title bar for chat message titles */
+/* Title bar for chat message titles - full width inside bubble */
 .pdchat-title-bar {
-  background: linear-gradient(90deg, #e3eafc 0%, #c9e4ff 100%);
-  color: #205081;
-  font-weight: 600;
-  font-size: 13px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  margin-top: 2px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-  letter-spacing: 0.02em;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	border-top-left-radius: 16px;
+	border-top-right-radius: 16px;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	background: #dbeafe;
+	color: #205081;
+	font-weight: 700;
+	font-size: 1em;
+	padding: 7px 18px 7px 18px;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+	letter-spacing: 0.02em;
+	z-index: 1;
 }
 
 .pdchat-window textarea {

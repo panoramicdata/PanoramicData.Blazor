@@ -28,11 +28,10 @@
 			<div @ref="_messagesContainer" class="pdchat-messages">
 				@foreach (var message in _messages)
 				{
-					<div class="pdchat-message @(message.Sender == "User" ? "right" : "left") priority-@message.Type.ToString().ToLower()">
-						<div class="pdchat-header">
-							<span class="pdchat-icon">@(PriorityIconSelector?.Invoke(message) ?? GetDefaultPriorityIcon(message))</span>
+					<div class="pdchat-message @(message.Sender.IsUser ? "right" : "left") priority-@message.Type.ToString().ToLower()">
+						<div class="pdchat-bubble-header">
 							<span class="pdchat-icon">@(UserIconSelector?.Invoke(message) ?? GetDefaultUserIcon(message))</span>
-							<span class="pdchat-username">@message.Sender</span>
+							<span class="pdchat-username">@message.Sender.Name</span>
 							<span class="pdchat-timestamp">@message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
 						</div>
 						@if (!string.IsNullOrEmpty(message.Title))
@@ -46,7 +45,7 @@
 							}
 							else
 							{
-								<span class="@(message.Sender == "User" ? "right" : "left")">@message.Message</span>
+								<span class="@(message.Sender.IsUser ? "right" : "left")">@message.Message</span>
 							}
 						</div>
 					</div>

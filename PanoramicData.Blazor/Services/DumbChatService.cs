@@ -11,6 +11,22 @@ public class DumbChatService : IChatService, IDisposable
 	public event Action<ChatMessage>? OnMessageReceived;
 	public event Action<bool>? OnLiveStatusChanged;
 
+	public static ChatMessageSender TimeBot { get; } = new()
+	{
+		Name = "TimeBot",
+		IsUser = false,
+		IsHuman = false,
+		IsSupport = false
+	};
+
+	public static ChatMessageSender DumbBot { get; } = new()
+	{
+		Name = "DumbBot",
+		IsUser = false,
+		IsHuman = false,
+		IsSupport = false
+	};
+
 	public void Initialize()
 	{
 		if (_isInitialized)
@@ -31,7 +47,7 @@ public class DumbChatService : IChatService, IDisposable
 		var message = new ChatMessage
 		{
 			Id = Guid.NewGuid(),
-			Sender = "TimeBot",
+			Sender = TimeBot,
 			Title = "Time Check",
 			Message = $"The current time is {DateTime.Now:T}",
 			Type = MessageType.Normal,
@@ -57,6 +73,12 @@ public class DumbChatService : IChatService, IDisposable
 
 	private async Task RespondAsync(ChatMessage userMessage)
 	{
+		// Ignore messages not from the user
+		if (!userMessage.Sender.IsUser)
+		{
+			return;
+		}
+
 		// Create a shared GUID for both typing and final messages
 		var responseId = Guid.NewGuid();
 
@@ -64,7 +86,7 @@ public class DumbChatService : IChatService, IDisposable
 		var typingMessage = new ChatMessage
 		{
 			Id = responseId,
-			Sender = "DumbBot",
+			Sender = DumbBot,
 			Title = "Typing...",
 			Message = "...",
 			Type = MessageType.Typing,
@@ -93,7 +115,7 @@ public class DumbChatService : IChatService, IDisposable
 			OnMessageReceived?.Invoke(new ChatMessage
 			{
 				Id = responseId,
-				Sender = "DumbBot",
+				Sender = DumbBot,
 				Title = "Going Offline",
 				Message = "I'm going offline for a short break. Please wait...",
 				Type = MessageType.Warning
@@ -107,7 +129,7 @@ public class DumbChatService : IChatService, IDisposable
 			OnMessageReceived?.Invoke(new ChatMessage
 			{
 				Id = Guid.NewGuid(),
-				Sender = "DumbBot",
+				Sender = DumbBot,
 				Title = "Back Online",
 				Message = "I'm back online! How can I assist you?",
 				Type = MessageType.Normal
@@ -121,7 +143,7 @@ public class DumbChatService : IChatService, IDisposable
 			var helpMessage = new ChatMessage
 			{
 				Id = responseId,
-				Sender = "DumbBot",
+				Sender = DumbBot,
 				Title = "Help",
 				Message = "Available commands: 'help', 'go away'.",
 				Type = MessageType.Normal
@@ -136,7 +158,7 @@ public class DumbChatService : IChatService, IDisposable
 		OnMessageReceived?.Invoke(new ChatMessage
 		{
 			Id = responseId,
-			Sender = "DumbBot",
+			Sender = DumbBot,
 			Message = $"You said: \"{userMessage.Message}\"",
 			Type = _messageTypes[_random.Next(_messageTypes.Length)]
 		});

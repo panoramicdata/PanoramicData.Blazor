@@ -7,7 +7,7 @@ public class ChatMessage()
 	/// </summary>
 	public required Guid Id { get; init; }
 
-	public required string Sender { get; init; }
+	public required ChatMessageSender Sender { get; init; }
 
 	public string? Title { get; set; }
 
