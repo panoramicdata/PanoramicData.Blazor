@@ -75,7 +75,7 @@ namespace PanoramicData.Blazor
 
 		private async Task OnDragOverAsync(DragEventArgs e, TCard card)
 		{
-			if (!_dragEventActive)
+			if (!_dragEventActive && AnimationHandler is not null)
 			{
 				_dragEventActive = true;
 				await ParentCardDeck.NotifyDragPositionAsync(e, card);

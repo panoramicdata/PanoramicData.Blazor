@@ -33,7 +33,8 @@
 	<PDCardDeckGroup DataProviders="_todoLists"
 					 DeckCss="pd-carddeck-area "
 					 MultipleSelection="true"
-					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")">
+					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					 IsAnimated="true">
 
 		<CardTemplate>
 			<ExampleTicket Ticket="context"
