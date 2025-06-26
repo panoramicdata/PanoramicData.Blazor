@@ -26,15 +26,35 @@
 	<hr />
 
 	<div>
-		<p>Example 3: Disabled Card Deck</p>
+		<p>Example 3: Animated Card Deck</p>
 	</div>
 
 	<PDCardDeck @ref="_cardDeck3"
 				DataProvider="_todoList3"
+				MultipleSelection="true"
+				IsAnimated="true"
+				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+				OnRearrange="(e) => OnRearrange(e, _cardDeck2)"
+				OnSelect="(e) => OnSelect(e, _cardDeck2)">
+
+		<CardTemplate>
+			<ExampleTicket Ticket="context" />
+		</CardTemplate>
+
+	</PDCardDeck>
+
+	<hr />
+
+	<div>
+		<p>Example 4: Disabled Card Deck</p>
+	</div>
+
+	<PDCardDeck @ref="_cardDeck4"
+				DataProvider="_todoList4"
 				IsEnabled="false"
 				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-				OnRearrange="(e) => OnRearrange(e, _cardDeck3)"
-				OnSelect="(e) => OnSelect(e, _cardDeck3)">
+				OnRearrange="(e) => OnRearrange(e, _cardDeck4)"
+				OnSelect="(e) => OnSelect(e, _cardDeck4)">
 
 		<CardTemplate>
 			<ExampleTicket Ticket="context" />
