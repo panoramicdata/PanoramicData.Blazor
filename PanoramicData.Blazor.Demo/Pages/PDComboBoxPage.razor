@@ -66,7 +66,7 @@
                 SelectedItem="Combo4SelectedItem"
                 MaxResults="15"
                 OrderBy="@(item => $"{item.Continent} {item.Name}")"
-                SelectedItemChanged="@(EventCallback.Factory.Create<Country>(this, OnCombo4SelectedItemChanged))"
+                SelectedItemChanged="@(item => OnCombo4SelectedItemChanged(item))"
                 ShowSelectedItemOnTop="true">
         <ItemTemplate Context="item">
             <span style="border: 1px solid grey"><PDFlag CountryCode="@item.Code" Width="20px" /></span>

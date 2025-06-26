@@ -222,11 +222,14 @@ public partial class PDComboBoxPage
 		SelectedItem = item;
 	}
 
-	private void OnCombo4SelectedItemChanged(Country? item)
-	{
-		OnLogEvent($"Combo4 Selected Item Changed: {item}");
+    private async void OnCombo4SelectedItemChanged(Country? item)
+    {
 		Combo4SelectedItem = item;
-	}
+		StateHasChanged();
+		// Simulate some work as behaviour is different
+		await Task.Delay(500);
+		OnLogEvent($"Combo4 Selected Item Changed: {item}");
+    }
 
 	class Country
 	{

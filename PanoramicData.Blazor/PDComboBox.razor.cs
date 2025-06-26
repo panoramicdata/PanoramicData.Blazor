@@ -243,6 +243,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 			_filteredItems.Clear();
 			_activeIndex = -1;
 			StateHasChanged();
+			await BlurInputAsync();
 			return;
 		}
 
