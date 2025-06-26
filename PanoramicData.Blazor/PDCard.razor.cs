@@ -11,6 +11,13 @@ namespace PanoramicData.Blazor
 		private bool _isDragging => ParentCardDeck.DragState.IsDragging && _isSelected;
 
 		#region Parameters
+
+		/// <summary>
+		/// Whether this card is animated when it is rendered or not.
+		/// </summary>
+		[Parameter]
+		public bool IsAnimated { get; set; }
+
 		/// <summary>
 		/// Whether Dragging is enabled for this card.
 		/// </summary>

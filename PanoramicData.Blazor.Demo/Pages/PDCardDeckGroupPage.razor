@@ -8,12 +8,12 @@
 
 	<PDCardDeckGroup DataProviders="_todoLists"
 					 DeckCss="pd-carddeck-area "
-					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")">
+					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					 IsAnimated="true">
 
 		<CardTemplate>
-			<ExampleTicket 
-				Ticket="context" 
-				Interactable="true"/>
+			<ExampleTicket Ticket="context"
+						   Interactable="true" />
 		</CardTemplate>
 
 	</PDCardDeckGroup>
@@ -37,7 +37,7 @@
 
 		<CardTemplate>
 			<ExampleTicket Ticket="context"
-						   ShowEditOptions="true" 
+						   ShowEditOptions="true"
 						   Interactable="true" />
 		</CardTemplate>
 

@@ -30,6 +30,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	[Parameter]
 	public override string Id { get; set; } = $"pd-carddeck-{++_sequence}";
 
+	/// <summary>
+	/// Whether the deck has animations enabled or not. Defaults to false.
+	/// </summary>
+	[Parameter]
+	public bool IsAnimated { get; set; }
+
 	[Parameter]
 	public RenderFragment<TCard>? CardTemplate { get; set; }
 

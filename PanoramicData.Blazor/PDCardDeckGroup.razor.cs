@@ -19,6 +19,12 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public override string Id { get; set; } = $"pd-carddeck-{++_sequence}";
 
+		/// <summary>
+		/// Whether the decks have animations enabled or not. Defaults to false.
+		/// </summary>
+		[Parameter]
+		public bool IsAnimated { get; set; }
+
 		[Parameter]
 		public RenderFragment<TCard>? CardTemplate { get; set; }
 

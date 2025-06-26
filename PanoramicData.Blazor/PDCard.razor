@@ -3,16 +3,37 @@
 
 @if (Card is not null)
 {
+	@if (IsAnimated)
+	{
+		<PDAnimation>
+			<Element>
+				<div @attributes="GetCardAttributes(Card)">
 
-	<div @attributes="GetCardAttributes(Card)">
+					@if (Template is null)
+					{
+						<span>@(Card!.ToString())</span>
+					}
+					else
+					{
+						@Template(Card)
+					}
+				</div>
+			</Element>
+		</PDAnimation>
+	}
+	else
+	{
 
-		@if (Template is null)
-		{
-			<span>@(Card!.ToString())</span>
-		}
-		else
-		{
-			@Template(Card)
-		}
-	</div>
+		<div @attributes="GetCardAttributes(Card)">
+
+			@if (Template is null)
+			{
+				<span>@(Card!.ToString())</span>
+			}
+			else
+			{
+				@Template(Card)
+			}
+		</div>
+	}
 }
