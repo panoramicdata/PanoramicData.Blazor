@@ -12,6 +12,12 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public required RenderFragment Element { get; set; }
 
+		/// <summary>
+		/// The time in seconds for the animation to complete when the element is moved.
+		/// </summary>
+		[Parameter]
+		public double AnimationTime { get; set; } = 0.3d;
+
 		#endregion
 
 		private List<ElementPosition> _positions = [];
@@ -74,12 +80,11 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
-			var animationTime = 0.3d;
 			if (_module is not null)
 			{
-				await _module.InvokeVoidAsync("animate", Id, _positions[^2], _positions[^1], animationTime);
+				await _module.InvokeVoidAsync("animate", Id, _positions[^2], _positions[^1], AnimationTime);
 
-				_positions.RemoveAt(0);
+				_positions.Clear();
 			}
 		}
 	}

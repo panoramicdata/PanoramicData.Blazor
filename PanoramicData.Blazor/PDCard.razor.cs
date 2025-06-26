@@ -1,4 +1,3 @@
-
 namespace PanoramicData.Blazor
 {
 	public partial class PDCard<TCard> where TCard : ICard
@@ -10,6 +9,8 @@ namespace PanoramicData.Blazor
 		private bool _isSelected => ParentCardDeck.Selection.Contains(Card);
 
 		private bool _isDragging => ParentCardDeck.DragState.IsDragging && _isSelected;
+
+		private bool _dragEventActive;
 
 		public PDAnimation AnimationHandler { get; set; } = null!;
 
@@ -66,10 +67,22 @@ namespace PanoramicData.Blazor
 			{ "ondragend", (DragEventArgs e) => ParentCardDeck.OnDragEndAsync(e, card) },
 
 			// Position Updates
-			{ "ondragover",(DragEventArgs e) => ParentCardDeck.NotifyDragPositionAsync(e, card) }
+			{ "ondragover",(DragEventArgs e) => OnDragOverAsync(e, card) }
 		};
 
 			return dict;
+		}
+
+		private async Task OnDragOverAsync(DragEventArgs e, TCard card)
+		{
+			if (!_dragEventActive)
+			{
+				_dragEventActive = true;
+				await ParentCardDeck.NotifyDragPositionAsync(e, card);
+				await Task.Delay(TimeSpan.FromSeconds(AnimationHandler.AnimationTime)); // Allow the UI to update before continuing
+				_dragEventActive = false;
+			}
+
 		}
 
 		private string GetCardClass(TCard card)
