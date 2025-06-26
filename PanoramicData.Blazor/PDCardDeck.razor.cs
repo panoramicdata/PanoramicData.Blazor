@@ -68,7 +68,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <inheritdoc cref="DeckGroupContext{TCard}"/>
 	public DeckGroupContext<TCard> GroupContext { get; set; } = new(false);
 
-
+	#endregion
 
 	private Dictionary<string, object?> GetDeckAttributes()
 	{
