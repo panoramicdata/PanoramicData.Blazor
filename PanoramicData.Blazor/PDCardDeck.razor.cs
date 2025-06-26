@@ -12,6 +12,11 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <inheritdoc/>
 	public PDCardDragDropInformation DragState { get; private set; } = new();
 
+	// Reference Capture
+	private List<PDCard<TCard>> _cards = [];
+
+	public PDCard<TCard> Ref { set => _cards.Add(value); }
+
 	/// <summary>
 	/// The Card(s) that have been selected by the user
 	/// </summary>
@@ -218,6 +223,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		DragState.TargetIndex = cardIndex;
+
+
 		await UpdateCardPositionsAsync(movingDown);
 	}
 
@@ -227,6 +234,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <returns></returns>
 	private async Task UpdateCardPositionsAsync(bool movingDown)
 	{
+		await UpdateAnimationPositionsAsync()
+			.ConfigureAwait(false);
+
 		var destination = DragState.TargetIndex;
 
 		if (destination < 0 || destination >= Cards.Count)
@@ -269,6 +279,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		await InvokeAsync(StateHasChanged)
 			.ConfigureAwait(false);
+
+		await AnimateToPositionsAsync();
 	}
 
 	private bool IsContiguous(List<TCard> movingCards)
@@ -290,6 +302,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void AddCards(List<TCard> selection)
 	{
+
 		// Ensure correct bounds
 		var dragIndex = ClampBounds();
 
@@ -314,6 +327,38 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		Selection.Clear();
 	}
+
+	#region Animation Methods
+	private async Task UpdateAnimationPositionsAsync()
+	{
+		if (!IsAnimated)
+		{
+			return;
+		}
+
+		foreach (var card in _cards)
+		{
+			await card.AnimationHandler.UpdatePositionAsync();
+		}
+	}
+
+	private async Task AnimateToPositionsAsync()
+	{
+		if (!IsAnimated)
+		{
+			return;
+		}
+
+		foreach (var card in _cards)
+		{
+			if (!Selection.Contains(card.Card))
+			{
+				await card.AnimationHandler.AnimateElementAsync();
+			}
+		}
+	}
+
+	#endregion
 
 	private string SizeCssClass => Size switch
 	{

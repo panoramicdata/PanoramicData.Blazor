@@ -1,5 +1,7 @@
 ﻿export function getPosition(id) {
+
 	const el = document.getElementById(id);
+
 	if (!el) return null;
 	const rect = el.getBoundingClientRect();
 	return {
@@ -8,20 +10,27 @@
 	};
 }
 
-export function animate(id, prevPosition, animationDuration) {
+
+export function animate(id, prevPosition, currentPosition, animationDuration) {
 	const el = document.getElementById(id);
-	if (!el || !prevPosition) return;
 
-	const rect = el.getBoundingClientRect();
-	const dx = prevPosition.left - rect.left;
-	const dy = prevPosition.top - rect.top;
+	// If any of these are null, cancel the animation
+	if (!el || !prevPosition || !currentPosition) return;
 
-	if (dx === 0 && dy === 0) return;
+	// Calculate the deltas between previous and current positions
+	const deltaLeft = prevPosition.left - currentPosition.left;
+	const deltaTop = prevPosition.top - currentPosition.top;
 
+	// Instantly move the element back to its previous position using transform
 	el.style.transition = 'none';
-	el.style.transform = `translate(${dx}px, ${dy}px)`;
-	el.getBoundingClientRect(); // force reflow
+	el.style.transform = `translate(${deltaLeft}px, ${deltaTop}px)`;
 
+	// Force reflow to apply the initial transform
+	el.getBoundingClientRect();
+
+	// Now animate it to its current position (translate back to 0,0)
 	el.style.transition = `transform ${animationDuration}s ease`;
-	el.style.transform = '';
+	requestAnimationFrame(() => {
+		el.style.transform = 'translate(0px, 0px)';
+	});
 }

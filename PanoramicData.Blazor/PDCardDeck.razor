@@ -6,13 +6,14 @@
 	@* First time setup, Create the visible components *@
 	@foreach (var card in Cards)
 	{
-		<PDCard @key="@card.Id"
+		<PDCard @ref="@Ref"
+				@key="@card.Id"
 				DraggingEnabled="IsEnabled"
 				Template="CardTemplate"
 				Css="CardCss"
 				Card="card"
 				ParentCardDeck="this"
-				IsAnimated="@IsAnimated"/>
+				IsAnimated="@IsAnimated" />
 	}
 </div>
 
