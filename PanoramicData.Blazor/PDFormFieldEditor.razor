@@ -105,7 +105,7 @@
 							Disabled="@IsReadOnly(Field)"
 							Label="@Field.Label"
 							Value="@(Form?.GetFieldValue<bool>(Field) ?? false)"
-							ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x)" />
+                            ValueChanged="(x) => Form?.SetFieldValueAsync(Field, x) ?? Task.CompletedTask" />
 		}
 	}
 	else if (fieldType?.IsEnum == true)
@@ -150,14 +150,15 @@
 										  ConstructionOptions="(ed) => PDFormFieldEditor<TItem>.GetMonacoOptionsReadOnly(fso, ed)" />
 				}
 				else
-				{
+				{                
 					<StandaloneCodeEditor @ref="_monacoEditor"
 										  @key="@Id"
 										  Id="@Id"
 										  OnDidInit="OnMonacoInitAsync"
-										  OnDidBlurEditorText="OnMonacoEditorBlurAsync"
+                                          OnKeyUp="OnMonacoEditorKeyUpAsync"
+                                          OnDidBlurEditorText="OnMonacoEditorBlurAsync"
 										  CssClass="@($"w-100 {fso.CssClass}")"
-										  ConstructionOptions="fso.MonacoOptions" />
+										  ConstructionOptions="fso.MonacoOptions" />    
 				}
 			}
 		}

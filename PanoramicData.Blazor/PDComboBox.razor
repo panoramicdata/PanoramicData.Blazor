@@ -2,20 +2,40 @@
 
 <div class="pd-combobox @CssClass" @onclick:stopPropagation>
 	<div class="combo-input-wrapper">
-		<input type="text" class="combo-input"
+        <input type="text" class="form-control combo-input"
 			   @bind-value="_searchText"
 			   @onfocus="OnInputFocus"
-			   @onblur="HideDropdownWithDelay"
+               @onblur="OnInputBlur"
 			   placeholder="@Placeholder"
 			   @oninput="FilterItems"
 			   @onkeydown="OnInputKeyDown"
 			   disabled="@IsDisabled"
 			   readonly="@IsReadOnly"
 			   @ref="_inputRef" />
-		@if (!string.IsNullOrEmpty(_searchText) && !IsReadOnly && !IsDisabled)
+        @if (!string.IsNullOrEmpty(_lastSearchText) && _lastSearchText == _searchText
+                                                    && !IsReadOnly && !IsDisabled)
 		{
-			<button type="button" class="combo-clear" @onclick="ClearInput" tabindex="-1" aria-label="Clear">&times;</button>
+			 <button class="combo-clear"
+			         @onmousedown:preventDefault
+			         @onclick="ClearInput"
+			         aria-label="Clear"
+			         type="button"
+			         tabindex="-1">
+			     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+			         <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+			     </svg>
+			 </button>
 		}
+		<button type="button"
+				class="combo-dropdown-icon"
+				tabindex="-1"
+				disabled="@IsDisabled"
+                @onclick="ToggleDropdown"
+				aria-label="Show options">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+            </svg>
+		</button>
 	</div>
 
 	@if (_showDropdown)
@@ -40,15 +60,39 @@
 						}
 						@if (i == _activeIndex)
 						{
-							<text> *</text>
+							<span class="combo-active-icon" aria-hidden="true">&#10003;</span>
 						}
 					</li>
 				}
 			</ul>
+            @* Show NoResultsTemplate if only the selected item is present and it doesn't match the filter *@
+            @if (
+                _filteredItems.Count == 1
+                && SelectedItem != null
+                && ItemToId(_filteredItems[0]) == ItemToId(SelectedItem)
+                && !Filter(SelectedItem, _searchText)
+                )
+            {
+                if (NoResultsTemplate != null)
+                {
+                    @NoResultsTemplate(_searchText)
+                }
+                else
+                {
+                    <div class="combo-no-results">@NoResultsText</div>
+                }
+            }
 		}
 		else
 		{
-			<div class="combo-no-results">@NoResultsText</div>
+            @if (NoResultsTemplate != null)
+            {
+                @NoResultsTemplate(_searchText)
+            }
+            else
+            {
+			    <div class="combo-no-results">@NoResultsText</div>
+            }
 		}
 	}
 </div>

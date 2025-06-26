@@ -3,7 +3,7 @@
 public partial class PDPager : IDisposable, IEnablable
 {
 	/// <summary>
-	/// Determines whether the component is enable dor not.
+	/// Determines whether the component is enabled or not.
 	/// </summary>
 	[Parameter] public bool IsEnabled { get; set; } = true;
 
