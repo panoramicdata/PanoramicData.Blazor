@@ -84,6 +84,4 @@ public partial class PDCardDeckPage
 
 		return stringBuilder.ToString();
 	}
-
-
 }

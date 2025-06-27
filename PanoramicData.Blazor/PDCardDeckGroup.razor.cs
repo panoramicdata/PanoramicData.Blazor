@@ -10,9 +10,9 @@ namespace PanoramicData.Blazor
 		private List<int> _userTrail = [];
 
 		// Reference Capture
-		private List<PDCardDeck<TCard>> _decks = [];
+		public List<PDCardDeck<TCard>> Decks { get; private set; } = [];
 
-		public PDCardDeck<TCard> Ref { set => _decks.Add(value); }
+		public PDCardDeck<TCard> Ref { set => Decks.Add(value); }
 
 		#region Parameters
 
@@ -54,13 +54,13 @@ namespace PanoramicData.Blazor
 		public bool MultipleSelection { get; set; }
 
 		/// <summary>
-		/// Event that is invoked when the user rearranges cards in the deck.
+		/// Event that is invoked when the user rearranges cards in within a deck in this group.
 		/// </summary>
 		[Parameter]
 		public EventCallback<DragEventArgs> OnRearrange { get; set; }
 
 		/// <summary>
-		/// Event that is invoked when the user selects a card / cards in the deck.
+		/// Event that is invoked when the user selects a card / cards within a deck in this group.
 		/// </summary>
 		[Parameter]
 		public EventCallback<MouseEventArgs> OnSelect { get; set; }
@@ -92,7 +92,7 @@ namespace PanoramicData.Blazor
 		private async Task OnSelectDeckAsync(PDCardDeck<TCard> sourceDeck)
 		{
 			// Remove selection for non source decks
-			foreach (var deck in _decks)
+			foreach (var deck in Decks)
 			{
 				if (deck != sourceDeck)
 				{
@@ -108,17 +108,17 @@ namespace PanoramicData.Blazor
 			// First deck in this user trail
 			if (_userTrail.Count == 0)
 			{
-				_userTrail.Add(_decks.IndexOf(deck));
+				_userTrail.Add(Decks.IndexOf(deck));
 				return;
 			}
 
-			if (deck == _decks[_userTrail.Last()])
+			if (deck == Decks[_userTrail.Last()])
 			{
 				// User is dragging the same deck, do nothing
 				return;
 			}
 
-			_userTrail.Add(_decks.IndexOf(deck));
+			_userTrail.Add(Decks.IndexOf(deck));
 
 			// Clamp the user trail to the last two decks
 			if (_userTrail.Count > 2)
@@ -141,8 +141,8 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
-			var sourceDeck = _decks[_userTrail[0]];
-			var destinationDeck = _decks[_userTrail[1]];
+			var sourceDeck = Decks[_userTrail[0]];
+			var destinationDeck = Decks[_userTrail[1]];
 
 			destinationDeck.AddCards(sourceDeck.Selection);
 			sourceDeck.RemoveSelectedCards();
