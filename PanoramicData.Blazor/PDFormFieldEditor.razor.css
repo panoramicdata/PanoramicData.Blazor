@@ -54,4 +54,21 @@
 	background-color: #e9ecef;
 }
 
+/* Remove the default arrow in most browsers */
+::deep .form-select:disabled {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: none !important;
+}
 
+/* override disabled grey out */
+.editor.readonly ::deep .form-control:disabled,
+.form-control[readonly] {
+	border-radius: 0 !important;
+}
+
+.form-select:disabled,
+.form-select[readonly] {
+	border-radius: 0 !important;
+}
