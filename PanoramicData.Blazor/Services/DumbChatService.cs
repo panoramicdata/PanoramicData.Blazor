@@ -144,8 +144,10 @@ public class DumbChatService : IChatService, IDisposable
 			{
 				Id = responseId,
 				Sender = DumbBot,
-				Title = "Help",
-				Message = "Available commands: 'help', 'go away'.",
+				Title = "<b>Help</b>",
+				IsTitleHtml = true,
+				Message = "Available commands: <ul><li>help</li><li>go away</li></ul>",
+				IsMessageHtml = true,
 				Type = MessageType.Normal
 			};
 			OnMessageReceived?.Invoke(helpMessage);

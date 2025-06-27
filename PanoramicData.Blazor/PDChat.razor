@@ -36,12 +36,23 @@
 						</div>
 						@if (!string.IsNullOrEmpty(message.Title))
 						{
-							<div class="pdchat-title-bar">@message.Title</div>
+							if (message.IsTitleHtml)
+							{
+								<div class="pdchat-title-bar">@((MarkupString)message.Title)</div>
+							}
+							else
+							{
+								<div class="pdchat-title-bar">@message.Title</div>
+							}
 						}
 						<div class="pdchat-text">
 							@if (message.Type == MessageType.Typing)
 							{
 								<span class="typing-ellipsis"></span>
+							}
+							else if(message.IsMessageHtml)
+							{
+								<span class="@(message.Sender.IsUser ? "right" : "left")">@((MarkupString)@message.Message)</span>
 							}
 							else
 							{

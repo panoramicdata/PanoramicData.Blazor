@@ -65,6 +65,8 @@ public partial class PDChat
 			existing.Type = message.Type;
 			existing.Title = message.Title;
 			existing.Timestamp = message.Timestamp;
+			existing.IsTitleHtml = message.IsTitleHtml;
+			existing.IsMessageHtml = message.IsMessageHtml;
 		}
 		else
 		{

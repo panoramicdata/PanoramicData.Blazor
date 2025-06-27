@@ -13,6 +13,10 @@ public class ChatMessage()
 
 	public required string Message { get; set; }
 
+	public bool IsTitleHtml { get; set; }
+
+	public bool IsMessageHtml { get; set; }
+
 	public required MessageType Type { get; set; } = MessageType.Normal;
 
 	public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
