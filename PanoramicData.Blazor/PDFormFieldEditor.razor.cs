@@ -178,11 +178,11 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		if (_monacoEditor != null && Form != null && Field != null)
 		{
-			// On blur, immediately update and cancel any pending debounce
-			if (DebounceWait > 0)
+			 // Only update if a debounce is outstanding
+			if (DebounceWait > 0 && _monacoDebounceCts != null)
 			{
-				_monacoDebounceCts?.Cancel();
-				_monacoDebounceCts?.Dispose();
+				_monacoDebounceCts.Cancel();
+				_monacoDebounceCts.Dispose();
 				_monacoDebounceCts = null;
 
 				var model = await _monacoEditor.GetModel();
@@ -209,6 +209,11 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 				await Task.Delay(DebounceWait > 0 ? DebounceWait : 0, token);
 				if (!token.IsCancellationRequested)
 				{
+					// Cancel and dispose after use
+					_monacoDebounceCts.Cancel();
+					_monacoDebounceCts.Dispose();
+					_monacoDebounceCts = null;
+
 					var model = await _monacoEditor.GetModel();
 					var value = await model.GetValue(EndOfLinePreference.CRLF, true);
 					await Form.SetFieldValueAsync(Field, value);
