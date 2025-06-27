@@ -1,0 +1,19 @@
+﻿@inherits PDComponentBase
+@typeparam TCard
+
+<div @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
+
+	@* First time setup, Create the visible components *@
+	@foreach (var card in Cards)
+	{
+		<PDCard @ref="@Ref"
+				@key="@card.Id"
+				DraggingEnabled="IsEnabled"
+				Template="CardTemplate"
+				Css="CardCss"
+				Card="card"
+				ParentCardDeck="this"
+				IsAnimated="@IsAnimated" />
+	}
+</div>
+

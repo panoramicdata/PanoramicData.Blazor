@@ -1,0 +1,83 @@
+﻿.severity-icon {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 1.5em;
+	padding: 0.25em;
+	transition: color 0.2s;
+}
+
+/* Animation keyframes (anything greater than or equal to Major */
+@keyframes expand {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(1.12);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+
+@keyframes rattle {
+	0% {
+		transform: translateX(0);
+	}
+
+	20% {
+		transform: translateX(-4px);
+	}
+
+	40% {
+		transform: translateX(4px);
+	}
+
+	60% {
+		transform: translateX(-4px);
+	}
+
+	80% {
+		transform: translateX(4px);
+	}
+
+	100% {
+		transform: translateX(0);
+	}
+}
+
+.trivial.animate,
+.minor.animate {
+	animation: expand 0.4s ease-in-out;
+}
+
+.major.animate,
+.critical.animate,
+.blocker.animate {
+	animation: rattle 0.4s ease-in-out;
+}
+
+.trivial {
+	color: grey;
+}
+
+.minor {
+	color: rgb(243 228 54);
+}
+
+.major {
+	color: orange;
+}
+
+.critical {
+	color: red;
+}
+
+.blocker {
+	color: darkred;
+}
+
+.severity-popup {
+}
