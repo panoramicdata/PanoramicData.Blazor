@@ -2,15 +2,24 @@
 @inherits ComponentBase
 
 <div class="pdchat-container @( _isOpen ? "open" : "" )">
-	<button class="pdchat-toggle-collapsed" @onclick="ToggleChat">
-		<span>@(_isOpen ? "×" : "💬")</span>
-	</button>
+	@if(ChatService.IsLive)
+	{
+		<button class="pdchat-toggle-collapsed" @onclick="ToggleChat">
+			<span>@(_isOpen ? "×" : "💬")</span>
+		</button>
+	}
+	else
+	{
+		<button class="pdchat-toggle-collapsed pdchat-not-live" @onclick="ToggleChat" title="Offline">
+			<span>💬</span>
+		</button>
+	}
 
 	@if (_isOpen)
 	{
 		<div class="pdchat-window">
 			<div class="pdchat-header">
-				<span class="pdchat-title">@Title</span>
+				<span class="pdchat-title">@Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
 				<button class="pdchat-header-btn" @onclick="ToggleMute" title="@(_isMuted ? "Unmute" : "Mute")">
 					<span>@(_isMuted ? "🔇" : "🔊")</span>
 				</button>
@@ -19,13 +28,16 @@
 			<div @ref="_messagesContainer" class="pdchat-messages">
 				@foreach (var message in _messages)
 				{
-					<div class="pdchat-message @(message.Sender == "User" ? "right" : "left") priority-@message.Type.ToString().ToLower()">
-						<div class="pdchat-header">
-							<span class="pdchat-icon">@(PriorityIconSelector?.Invoke(message) ?? GetDefaultPriorityIcon(message))</span>
+					<div class="pdchat-message @(message.Sender.IsUser ? "right" : "left") priority-@message.Type.ToString().ToLower()">
+						<div class="pdchat-bubble-header">
 							<span class="pdchat-icon">@(UserIconSelector?.Invoke(message) ?? GetDefaultUserIcon(message))</span>
-							<span class="pdchat-username">@message.Sender</span>
+							<span class="pdchat-username">@message.Sender.Name</span>
 							<span class="pdchat-timestamp">@message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
 						</div>
+						@if (!string.IsNullOrEmpty(message.Title))
+						{
+							<div class="pdchat-title-bar">@message.Title</div>
+						}
 						<div class="pdchat-text">
 							@if (message.Type == MessageType.Typing)
 							{
@@ -33,15 +45,15 @@
 							}
 							else
 							{
-								<span class="@(message.Sender == "User" ? "right" : "left")">@message.Message</span>
+								<span class="@(message.Sender.IsUser ? "right" : "left")">@message.Message</span>
 							}
 						</div>
 					</div>
 				}
 			</div>
 			<div class="chat-input-container">
-				<textarea @bind="_currentInput" placeholder="Type a message..." rows="3"></textarea>
-				<button class="submit-button" @onclick="SendCurrentMessageAsync">Send</button>
+				<textarea @bind="_currentInput" placeholder="Type a message..." rows="3" disabled="@(!ChatService.IsLive)"></textarea>
+				<button class="submit-button @(CanSend ? string.Empty : "submit-button-disabled")" @onclick="SendCurrentMessageAsync" disabled="@(!CanSend)">Send</button>
 			</div>
 		</div>
 	}

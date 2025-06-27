@@ -6,7 +6,11 @@ public partial class PDChat
 
 	[EditorRequired]
 	[Parameter]
-	public required IChatService Service { get; set; }
+	public required IChatService ChatService { get; set; }
+
+	[EditorRequired]
+	[Parameter]
+	public required ChatMessageSender User { get; set; }
 
 	[Parameter]
 	public string Title { get; set; } = "Chat";
@@ -33,9 +37,15 @@ public partial class PDChat
 
 	protected override Task OnInitializedAsync()
 	{
-		Service.OnMessageReceived += OnMessageReceived;
-		Service.Initialize();
+		ChatService.OnMessageReceived += OnMessageReceived;
+		ChatService.OnLiveStatusChanged += OnLiveStatusChanged;
+		ChatService.Initialize();
 		return base.OnInitializedAsync();
+	}
+
+	private void OnLiveStatusChanged(bool obj)
+	{
+		StateHasChanged();
 	}
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -111,14 +121,13 @@ public partial class PDChat
 		{
 			Id = Guid.NewGuid(),
 			Message = _currentInput,
-			Sender = "User",
-			Title = "User Input",
+			Sender = User,
 			Type = MessageType.Normal,
 			Timestamp = DateTime.UtcNow
 		};
 
 		// Fire it off
-		Service.SendMessage(message);
+		ChatService.SendMessage(message);
 
 		// Clear input
 		_currentInput = string.Empty;
@@ -127,26 +136,19 @@ public partial class PDChat
 	}
 
 	private static string GetDefaultUserIcon(ChatMessage chatMessage)
-	{
-		return chatMessage.Sender switch
-		{
-			"User" => "🙋",
-			string x when x.EndsWith("Bot", StringComparison.Ordinal) => "🤖",
-			_ => "👤"
-		};
-	}
+		=> chatMessage.Sender.IsUser ? "🙋"
+			: !chatMessage.Sender.IsHuman ? "🤖"
+			: "👤";
 
 	private static string GetDefaultPriorityIcon(ChatMessage chatMessage)
+	=> chatMessage.Type switch
 	{
-		return chatMessage.Type switch
-		{
-			MessageType.Normal => "ℹ️",
-			MessageType.Warning => "⚠️",
-			MessageType.Error => "❗",
-			MessageType.Critical => "🚨",
-			_ => "❓"
-		};
-	}
+		MessageType.Normal => "ℹ️",
+		MessageType.Warning => "⚠️",
+		MessageType.Error => "❗",
+		MessageType.Critical => "🚨",
+		_ => "❓"
+	};
 
 	private async Task ScrollToBottomAsync()
 	{
@@ -159,4 +161,6 @@ public partial class PDChat
 
 		await _module.InvokeVoidAsync("scrollToBottom", _messagesContainer);
 	}
+
+	private bool CanSend => ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);
 }
