@@ -16,6 +16,9 @@ namespace PanoramicData.Blazor
 
 		#region Parameters
 
+		/// <summary>
+		/// Unique identifier for this card deck group.
+		/// </summary>
 		[Parameter]
 		public override string Id { get; set; } = $"pd-carddeck-{++_sequence}";
 
@@ -65,6 +68,12 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public EventCallback<MouseEventArgs> OnSelect { get; set; }
 
+		/// <summary>
+		/// The Event that is invoked when the user migrates cards from one deck to another within this group.
+		/// </summary>
+		[Parameter]
+		public EventCallback OnCardMigration { get; set; }
+
 		#endregion
 
 		private Dictionary<string, object?> GetAttributes()
@@ -87,6 +96,7 @@ namespace PanoramicData.Blazor
 
 			};
 		}
+
 		#region Event Handlers
 
 		private async Task OnSelectDeckAsync(PDCardDeck<TCard> sourceDeck)
@@ -147,6 +157,7 @@ namespace PanoramicData.Blazor
 			destinationDeck.AddCards(sourceDeck.Selection);
 			sourceDeck.RemoveSelectedCards();
 
+			await OnCardMigration.InvokeAsync();
 			_userTrail.RemoveAt(0);
 		}
 		#endregion

@@ -7,12 +7,13 @@
 	</div>
 
 	<PDCardDeckGroup @ref="_cardDeckGroup1"
-		DataProviders="_todoLists"
+					 DataProviders="_todoLists"
 					 DeckCss="pd-carddeck-area "
 					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
 					 IsAnimated="true"
 					 OnRearrange="(e) => OnRearrange(e, _cardDeckGroup1)"
-					 OnSelect="(e) => OnSelect(e, _cardDeckGroup1)">
+					 OnSelect="(e) => OnSelect(e, _cardDeckGroup1)"
+					 OnCardMigration="() => OnCardMigration(_cardDeckGroup1)">
 
 		<CardTemplate>
 			<ExampleTicket Ticket="context"
@@ -28,22 +29,24 @@
 	</div>
 
 	<PDCardDeckGroup @ref="_cardDeckGroup2"
-		DataProviders="_todoLists2"
+					 DataProviders="_todoLists2"
 					 OnRearrange="(e) => OnRearrange(e, _cardDeckGroup2)"
-					 OnSelect="(e) => OnSelect(e, _cardDeckGroup2)" />
+					 OnSelect="(e) => OnSelect(e, _cardDeckGroup2)"
+					 OnCardMigration="() => OnCardMigration(_cardDeckGroup2)" />
 
 	<div>
 		<p>Example 3: Kanban style multiselect board</p>
 	</div>
 
 	<PDCardDeckGroup @ref="_cardDeckGroup3"
-		DataProviders="_todoLists3"
+					 DataProviders="_todoLists3"
 					 DeckCss="pd-carddeck-area "
 					 MultipleSelection="true"
 					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
 					 IsAnimated="true"
-	OnRearrange="(e) => OnRearrange(e, _cardDeckGroup1)"
-					 OnSelect="(e) => OnSelect(e, _cardDeckGroup1)">
+					 OnRearrange="(e) => OnRearrange(e, _cardDeckGroup1)"
+					 OnSelect="(e) => OnSelect(e, _cardDeckGroup1)"
+					 OnCardMigration="() => OnCardMigration(_cardDeckGroup3)">
 
 		<CardTemplate>
 			<ExampleTicket Ticket="context"

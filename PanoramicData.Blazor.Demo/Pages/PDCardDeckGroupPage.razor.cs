@@ -69,6 +69,17 @@ namespace PanoramicData.Blazor.Demo.Pages
 			EventManager?.Add(new Event("Order State Updated", new EventArgument("List", deckLayoutsString)));
 		}
 
+		private void OnCardMigration(PDCardDeckGroup<Todo> cardDeckGroup)
+		{
+			var deckLayouts = cardDeckGroup.Decks
+				.Select(deck => new { deck.Id, Cards = ConvertToString(deck.Cards) })
+				.ToList();
+
+			// convert deck Layouts to a string representation
+			var deckLayoutsString = string.Join(", ", deckLayouts.Select(dl => $"{dl.Id}: {dl.Cards}"));
+			EventManager?.Add(new Event("Card Migration", new EventArgument("List", deckLayoutsString)));
+		}
+
 
 		private void SetupExample1()
 		{
