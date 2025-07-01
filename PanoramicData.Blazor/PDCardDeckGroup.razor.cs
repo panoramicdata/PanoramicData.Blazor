@@ -154,8 +154,8 @@ namespace PanoramicData.Blazor
 			var sourceDeck = Decks[_userTrail[0]];
 			var destinationDeck = Decks[_userTrail[1]];
 
-			destinationDeck.AddCards(sourceDeck.Selection);
-			sourceDeck.RemoveSelectedCards();
+			await destinationDeck.AddCardsAsync(sourceDeck.Selection);
+			await sourceDeck.RemoveSelectedCardsAsync();
 
 			await OnCardMigration.InvokeAsync();
 			_userTrail.RemoveAt(0);

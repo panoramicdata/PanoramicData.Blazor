@@ -57,27 +57,36 @@ namespace PanoramicData.Blazor.Demo.Pages
 			EventManager?.Add(new Event("Decks Selected", new EventArgument("Decks", string.Join(", ", selectedDecks))));
 		}
 
-		private void OnRearrange(DragEventArgs args, PDCardDeckGroup<Todo> cardDeckGroup)
+		private async Task OnRearrange(DragEventArgs args, List<IDataProviderService<Todo>> dataProviders)
 		{
-			var deckLayouts = cardDeckGroup.Decks
-				.Select(deck => new { deck.Id, Cards = ConvertToString(deck.Cards) })
-				.ToList();
+			var output = new StringBuilder("");
 
-			// convert deck Layouts to a string representation
-			var deckLayoutsString = string.Join(", ", deckLayouts.Select(dl => $"{dl.Id}: {dl.Cards}"));
+			foreach ((var dataProvider, var index) in dataProviders.Select((index, dataProvider) => (index, dataProvider)))
+			{
+				var data = await dataProvider.GetDataAsync(new(), default);
 
-			EventManager?.Add(new Event("Order State Updated", new EventArgument("List", deckLayoutsString)));
+				var cardsString = ConvertToString(data.Items.OrderBy(c => c.DeckPosition));
+
+				output.AppendLine($"Deck [{index}]: {cardsString}");
+			}
+
+			EventManager?.Add(new Event("Order State Updated", new EventArgument("Rearranged Cards:", output)));
 		}
 
-		private void OnCardMigration(PDCardDeckGroup<Todo> cardDeckGroup)
+		private async Task OnCardMigration(List<IDataProviderService<Todo>> dataProviders)
 		{
-			var deckLayouts = cardDeckGroup.Decks
-				.Select(deck => new { deck.Id, Cards = ConvertToString(deck.Cards) })
-				.ToList();
+			var output = new StringBuilder("");
 
-			// convert deck Layouts to a string representation
-			var deckLayoutsString = string.Join(", ", deckLayouts.Select(dl => $"{dl.Id}: {dl.Cards}"));
-			EventManager?.Add(new Event("Card Migration", new EventArgument("List", deckLayoutsString)));
+			foreach ((var dataProvider, var index) in dataProviders.Select((index, dataProvider) => (index, dataProvider)))
+			{
+				var data = await dataProvider.GetDataAsync(new(), default);
+
+				var cardsString = ConvertToString(data.Items.OrderBy(c => c.DeckPosition));
+
+				output.AppendLine($"Deck [{index}]: {cardsString}");
+			}
+
+			EventManager?.Add(new Event("Migrated Card(s)", new EventArgument("List", output)));
 		}
 
 

@@ -271,6 +271,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		UpdateCardDeckPositions();
 
 		await AnimateToPositionsAsync();
+
+		await SyncDataProviderCardsAsync();
 	}
 
 	private bool IsContiguous(List<TCard> movingCards)
@@ -290,7 +292,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return true;
 	}
 
-	internal void AddCards(List<TCard> selection)
+	internal async Task AddCardsAsync(List<TCard> selection)
 	{
 		// Create the new cards
 		for (int index = 0; index < selection.Count; index++)
@@ -302,6 +304,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		UpdateCardDeckPositions();
+		await SyncDataProviderCardsAsync();
 	}
 
 	/// <summary>
@@ -326,7 +329,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 	}
 
-	internal void RemoveSelectedCards()
+	internal async Task RemoveSelectedCardsAsync()
 	{
 		foreach (var card in Selection)
 		{
@@ -335,6 +338,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		Selection.Clear();
 		UpdateCardDeckPositions();
+
+		await SyncDataProviderCardsAsync();
 	}
 
 	#region Animation Methods
@@ -385,6 +390,85 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		var dataResponse = await _dataProviderService.GetDataAsync(new(), default);
 
 		Cards = [.. dataResponse.Items];
+	}
+
+	private async Task SyncDataProviderCardsAsync()
+	{
+		if (!ValidDataContext())
+		{
+			return;
+		}
+
+		var dataResponse = await _dataProviderService.GetDataAsync(new(), default);
+
+		var dataProviderCards = dataResponse.Items;
+
+		// Checks against Local Data
+		foreach (var card in Cards)
+		{
+			var dataProviderCard = dataProviderCards.FirstOrDefault(c => c.Id == card.Id);
+
+			// Handle the card being present on the local but not the data provider
+			if (dataProviderCard is null)
+			{
+				await AddCardToDataProviderAsync(card);
+				continue;
+			}
+
+			// Handle the card being present on both but the position is different, update the position
+			if (dataProviderCard.DeckPosition != card.DeckPosition)
+			{
+				await UpdateCardDeckPositionAsync(dataProviderCard, card.DeckPosition);
+				continue;
+			}
+			// Position is the same, no need to update it
+		}
+
+		// Cards Present in dataprovider that aren't in local
+		var missingCards = dataProviderCards
+			.Where(c => !Cards.Any(localCard => localCard.Id == c.Id))
+			.ToList();
+
+		foreach (var card in missingCards)
+		{
+			// Remove cards from the data provider that are not in the local deck
+			var deleteResponse = await _dataProviderService.DeleteAsync(card, default);
+
+			if (!deleteResponse.Success)
+			{
+				// TODO: Log the delete failure
+				continue;
+			}
+
+		}
+	}
+
+	private async Task UpdateCardDeckPositionAsync(TCard card, int? deckPosition)
+	{
+		var updateResponse = await _dataProviderService.UpdateAsync(card, new Dictionary<string, object?>
+		{
+			{ nameof(card.DeckPosition), card.DeckPosition }
+		}, default);
+
+		if (!updateResponse.Success)
+		{
+			// TODO: Log the update failure
+			return;
+		}
+	}
+
+	private async Task AddCardToDataProviderAsync(TCard card)
+	{
+		// Need to add it and update its position
+		var createResponse = await _dataProviderService.CreateAsync(card, default);
+
+		if (!createResponse.Success)
+		{
+			// TODO: Log the create failure
+			return;
+		}
+
+		await UpdateCardDeckPositionAsync(card, card.DeckPosition);
 	}
 
 	/// <summary>
