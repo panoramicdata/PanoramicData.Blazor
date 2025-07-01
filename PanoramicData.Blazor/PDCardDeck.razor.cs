@@ -12,7 +12,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <inheritdoc/>
 	public PDCardDragDropInformation DragState { get; private set; } = new();
 
-	// Reference Capture
+	// Reference Capture for Blazor Sub Components
 	private List<PDCard<TCard>> _cards = [];
 
 	public PDCard<TCard> Ref { set => _cards.Add(value); }
@@ -26,7 +26,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// A collection of cards that are currently in the deck.
 	/// </summary>
 	public List<TCard> Cards { get; private set; } = [];
-
 
 	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
@@ -125,17 +124,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		_dataProviderService = DataProvider;
 
 		var request = new DataRequest<TCard>();
-		var cards = await _dataProviderService.GetDataAsync(request, default).ConfigureAwait(true);
 
-		Cards.Clear();
-
-		for (int index = 0; index < cards.Count; index++)
-		{
-			var card = cards.Items.ElementAt(index);
-
-			Cards.Add(card);
-		}
-
+		await GetCardsAsync();
 	}
 
 	internal async Task AddToSelectionAsync(MouseEventArgs args, TCard card)
@@ -224,10 +214,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		DragState.TargetIndex = cardIndex;
 
-
 		await UpdateCardPositionsAsync(movingDown);
 	}
-
 	/// <summary>
 	/// Updates the positions of the selected cards in the deck based on the current drag state.
 	/// </summary>
@@ -302,17 +290,24 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void AddCards(List<TCard> selection)
 	{
+		// Create the new cards
+		for (int index = 0; index < selection.Count; index++)
+		{
+			var card = selection[index];
 
-		// Ensure correct bounds
-		var dragIndex = ClampBounds();
-
-		Cards.InsertRange(dragIndex, selection);
-		Selection.AddRange(selection);
+			Cards.Insert(ClampBounds(index + DragState.TargetIndex), card);
+			Selection.Add(card);
+		}
 	}
 
-	private int ClampBounds()
+	/// <summary>
+	/// Clamps the bounds of an index to ensure it does not exceed the bounds of the card list.
+	/// </summary>
+	/// <param name="index"></param>
+	/// <returns></returns>
+	private int ClampBounds(int index)
 	{
-		var dragIndex = Math.Min(DragState.TargetIndex, Cards.Count);
+		var dragIndex = Math.Min(index, Cards.Count);
 		dragIndex = Math.Max(dragIndex, 0);
 
 		return dragIndex;
@@ -356,6 +351,52 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 				await card.AnimationHandler.AnimateElementAsync();
 			}
 		}
+	}
+
+	#endregion
+
+	#region Data Provider CRUD Methods
+
+	/// <summary>
+	/// Fetches the set of cards that are associated with the Data Provider
+	/// </summary>
+	/// <returns></returns>
+	private async Task GetCardsAsync()
+	{
+		if (!ValidDataContext())
+		{
+			return;
+		}
+
+		var dataResponse = await _dataProviderService.GetDataAsync(new(), default);
+
+		Cards = [.. dataResponse.Items];
+	}
+	/// <summary>
+	/// Ensures that Local Data is valid before performing any operations on the data source
+	/// </summary>
+	/// <returns></returns>
+	private bool ValidDataContext()
+	{
+		if (_dataProviderService is null)
+		{
+			// TODO: Log that the data provider service is not set
+			return false;
+		}
+
+		// Check for duplicate DeckPositions in the current deck, ignoring nulls
+		var duplicatedPosition = Cards
+			.Where(c => c.DeckPosition != null)
+			.GroupBy(c => c.DeckPosition)
+			.Any(g => g.Count() > 1);
+
+		if (duplicatedPosition)
+		{
+			// TODO: Log that the local data is invalid
+			return false;
+		}
+
+		return true;
 	}
 
 	#endregion

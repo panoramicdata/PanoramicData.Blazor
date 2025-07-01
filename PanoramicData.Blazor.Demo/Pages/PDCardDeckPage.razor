@@ -8,7 +8,7 @@
 
 	<PDCardDeck @ref="_cardDeck1"
 				DataProvider="_todoList1"
-				OnRearrange="(e) => OnRearrange(e, _cardDeck1)"
+				OnRearrange="(e) => OnRearrange(e, _todoList1)"
 				OnSelect="(e) => OnSelect(e, _cardDeck1)" />
 
 	<hr />
@@ -20,7 +20,7 @@
 	<PDCardDeck @ref="_cardDeck2"
 				DataProvider="_todoList2"
 				MultipleSelection="true"
-				OnRearrange="(e) => OnRearrange(e, _cardDeck2)"
+				OnRearrange="(e) => OnRearrange(e, _todoList2)"
 				OnSelect="(e) => OnSelect(e, _cardDeck2)" />
 
 	<hr />
@@ -34,7 +34,7 @@
 				MultipleSelection="true"
 				IsAnimated="true"
 				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-				OnRearrange="(e) => OnRearrange(e, _cardDeck3)"
+				OnRearrange="(e) => OnRearrange(e, _todoList3)"
 				OnSelect="(e) => OnSelect(e, _cardDeck3)">
 
 		<CardTemplate>
@@ -53,7 +53,7 @@
 				DataProvider="_todoList4"
 				IsEnabled="false"
 				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-				OnRearrange="(e) => OnRearrange(e, _cardDeck4)"
+				OnRearrange="(e) => OnRearrange(e, _todoList4)"
 				OnSelect="(e) => OnSelect(e, _cardDeck4)">
 
 		<CardTemplate>

@@ -11,6 +11,8 @@ public class Todo : ICard
 
 	public required string Description { get; set; } = string.Empty;
 
+	public int? DeckPosition { get; set; }
+
 	public override string ToString() => Title;
 
 }

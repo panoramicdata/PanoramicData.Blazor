@@ -59,9 +59,9 @@ public partial class PDCardDeckPage
 		EventManager?.Add(new Event("Selection Update", new EventArgument("List", ConvertToString(cardDeck.Selection))));
 	}
 
-	protected void OnRearrange(DragEventArgs args, PDCardDeck<Todo> cardDeck)
+	protected void OnRearrange(DragEventArgs args, ListDataProviderService<Todo> dataProvider)
 	{
-		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(cardDeck.Cards))));
+		EventManager?.Add(new Event("Rearranged cards", new EventArgument("List", ConvertToString(dataProvider.List.OrderBy(c => c.DeckPosition)))));
 	}
 
 	private static string ConvertToString(IEnumerable<Todo?> cards)
