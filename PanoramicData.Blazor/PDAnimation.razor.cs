@@ -34,6 +34,8 @@ namespace PanoramicData.Blazor
 			{
 				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDAnimation.razor.js").ConfigureAwait(true);
 			}
+			await UpdatePositionAsync();
+
 		}
 
 		/// <summary>
@@ -86,6 +88,11 @@ namespace PanoramicData.Blazor
 
 				_positions.Clear();
 			}
+		}
+
+		public void ClearPositions()
+		{
+			_positions.Clear();
 		}
 	}
 }

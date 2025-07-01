@@ -181,6 +181,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			await GroupContext.OnSelect(this);
 		}
 
+		// To Prevent the elements using incorrect positions (E.g browser window scroll, resizing)
+		ClearAnimationPositions();
+
 		await InvokeAsync(StateHasChanged);
 	}
 
@@ -302,7 +305,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		UpdateCardDeckPositions();
+		ClearAnimationPositions();
 		await SyncDataProviderCardsAsync();
+
+		await InvokeAsync(StateHasChanged);
 	}
 
 	/// <summary>
@@ -336,6 +342,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		Selection.Clear();
 		UpdateCardDeckPositions();
+		ClearAnimationPositions();
 
 		await SyncDataProviderCardsAsync();
 	}
@@ -351,6 +358,19 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		foreach (var card in _cards)
 		{
 			await card.AnimationHandler.UpdatePositionAsync();
+		}
+	}
+
+	private void ClearAnimationPositions()
+	{
+		if (!IsAnimated)
+		{
+			return;
+		}
+
+		foreach (var card in _cards)
+		{
+			card.AnimationHandler.ClearPositions();
 		}
 	}
 
