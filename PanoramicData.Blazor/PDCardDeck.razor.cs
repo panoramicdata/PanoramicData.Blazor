@@ -125,7 +125,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		var request = new DataRequest<TCard>();
 
-		await GetCardsAsync();
+		await GetCardsFromDataProviderAsync();
 	}
 
 	internal async Task AddToSelectionAsync(MouseEventArgs args, TCard card)
@@ -268,6 +268,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		await InvokeAsync(StateHasChanged)
 			.ConfigureAwait(false);
 
+		UpdateCardDeckPositions();
+
 		await AnimateToPositionsAsync();
 	}
 
@@ -298,6 +300,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			Cards.Insert(ClampBounds(index + DragState.TargetIndex), card);
 			Selection.Add(card);
 		}
+
+		UpdateCardDeckPositions();
 	}
 
 	/// <summary>
@@ -313,6 +317,15 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return dragIndex;
 	}
 
+	private void UpdateCardDeckPositions()
+	{
+		for (int index = 0; index < Cards.Count; index++)
+		{
+			var card = Cards[index];
+			card.DeckPosition = index;
+		}
+	}
+
 	internal void RemoveSelectedCards()
 	{
 		foreach (var card in Selection)
@@ -321,6 +334,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		Selection.Clear();
+		UpdateCardDeckPositions();
 	}
 
 	#region Animation Methods
@@ -361,7 +375,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// Fetches the set of cards that are associated with the Data Provider
 	/// </summary>
 	/// <returns></returns>
-	private async Task GetCardsAsync()
+	private async Task GetCardsFromDataProviderAsync()
 	{
 		if (!ValidDataContext())
 		{
@@ -372,6 +386,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		Cards = [.. dataResponse.Items];
 	}
+
 	/// <summary>
 	/// Ensures that Local Data is valid before performing any operations on the data source
 	/// </summary>
