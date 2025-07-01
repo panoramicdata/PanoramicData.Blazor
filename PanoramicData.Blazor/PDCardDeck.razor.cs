@@ -166,6 +166,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal async Task OnDragStartAsync(DragEventArgs e, TCard card)
 	{
+		ClearAnimationPositions();
+		await UpdateAnimationPositionsAsync();
+
 		// Handles edge case where the user drags a card that is not in the selection
 		if (!MultipleSelection || !Selection.Contains(card))
 		{
@@ -181,9 +184,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			await GroupContext.OnSelect(this);
 		}
 
-		// To Prevent the elements using incorrect positions (E.g browser window scroll, resizing)
-		ClearAnimationPositions();
-
 		await InvokeAsync(StateHasChanged);
 	}
 
@@ -197,6 +197,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal async Task NotifyDragPositionAsync(DragEventArgs e, TCard card)
 	{
+		await UpdateAnimationPositionsAsync();
 		var cardIndex = Cards.IndexOf(card);
 
 		// Cannot find Card
@@ -216,6 +217,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		DragState.TargetIndex = cardIndex;
 
 		await UpdateCardPositionsAsync(movingDown);
+
+		await AnimateToPositionsAsync();
 	}
 	/// <summary>
 	/// Updates the positions of the selected cards in the deck based on the current drag state.
@@ -223,8 +226,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <returns></returns>
 	private async Task UpdateCardPositionsAsync(bool movingDown)
 	{
-		await UpdateAnimationPositionsAsync()
-			.ConfigureAwait(false);
 
 		var destination = DragState.TargetIndex;
 
@@ -270,9 +271,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			.ConfigureAwait(false);
 
 		UpdateCardDeckPositions();
-
-		await AnimateToPositionsAsync();
-
 		await SyncDataProviderCardsAsync();
 	}
 
@@ -295,6 +293,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal async Task AddCardsAsync(List<TCard> selection)
 	{
+		ClearAnimationPositions();
 		// Create the new cards
 		for (int index = 0; index < selection.Count; index++)
 		{
@@ -305,7 +304,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		UpdateCardDeckPositions();
-		ClearAnimationPositions();
 		await SyncDataProviderCardsAsync();
 
 		await InvokeAsync(StateHasChanged);
@@ -335,6 +333,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal async Task RemoveSelectedCardsAsync()
 	{
+		ClearAnimationPositions();
 		foreach (var card in Selection)
 		{
 			Cards.Remove(card);
@@ -342,7 +341,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		Selection.Clear();
 		UpdateCardDeckPositions();
-		ClearAnimationPositions();
 
 		await SyncDataProviderCardsAsync();
 	}
@@ -370,7 +368,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		foreach (var card in _cards)
 		{
-			card.AnimationHandler.ClearPositions();
+			if (!Selection.Contains(card.Card))
+			{
+				card.AnimationHandler.ClearPositions();
+			}
 		}
 	}
 
@@ -386,6 +387,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			if (!Selection.Contains(card.Card))
 			{
 				await card.AnimationHandler.AnimateElementAsync();
+
 			}
 		}
 	}

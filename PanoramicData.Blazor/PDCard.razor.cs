@@ -12,6 +12,8 @@ namespace PanoramicData.Blazor
 
 		private bool _dragEventActive;
 
+		private double AnimationDelay => Math.Max(AnimationHandler.AnimationTime / 2, 0.15);
+
 		public PDAnimation AnimationHandler { get; set; } = null!;
 
 		#region Parameters
@@ -82,7 +84,7 @@ namespace PanoramicData.Blazor
 				{
 					_dragEventActive = true;
 					await ParentCardDeck.NotifyDragPositionAsync(e, card);
-					await Task.Delay(TimeSpan.FromSeconds(AnimationHandler.AnimationTime)); // Allow the UI to update before continuing
+					await Task.Delay(TimeSpan.FromSeconds(AnimationDelay)); // Allow the UI to update before continuing
 					_dragEventActive = false;
 				}
 			}
