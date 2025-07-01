@@ -51,7 +51,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		{
 			var selectedDecks = cardDeckGroup.Decks
 				.Where(deck => deck.Selection.Count > 0)
-				.Select(deck => deck.Id)
+				.Select(deck => $"{deck.Id}: {ConvertToString(deck.Selection)}")
 				.ToList();
 
 			EventManager?.Add(new Event("Decks Selected", new EventArgument("Decks", string.Join(", ", selectedDecks))));
