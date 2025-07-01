@@ -20,7 +20,7 @@ namespace PanoramicData.Blazor
 
 		#endregion
 
-		private List<ElementPosition> _positions = [];
+		private readonly List<ElementPosition> _positions = [];
 
 		// Java script Interop
 		[Inject] IJSRuntime JSRuntime { get; set; } = null!;

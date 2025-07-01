@@ -32,6 +32,6 @@ export function animate(id, prevPosition, currentPosition, animationDuration) {
 	// Now animate it to its current position (translate back to 0,0)
 	el.style.transition = `transform ${animationDuration}s ease`;
 	requestAnimationFrame(() => {
-		el.style.transform = 'translate(0px, 0px)';
+		el.style.transform = "translate(0px, 0px)";
 	});
 }

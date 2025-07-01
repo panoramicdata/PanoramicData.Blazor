@@ -123,8 +123,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		_dataProviderService = DataProvider;
 
-		var request = new DataRequest<TCard>();
-
 		await GetCardsFromDataProviderAsync();
 	}
 
@@ -447,13 +445,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		var updateResponse = await _dataProviderService.UpdateAsync(card, new Dictionary<string, object?>
 		{
-			{ nameof(card.DeckPosition), card.DeckPosition }
+			{ nameof(card.DeckPosition), deckPosition }
 		}, default);
 
 		if (!updateResponse.Success)
 		{
 			// TODO: Log the update failure
-			return;
 		}
 	}
 

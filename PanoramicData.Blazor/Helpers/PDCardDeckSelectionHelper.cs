@@ -48,7 +48,6 @@
 				if (lastPosition == -1)
 				{
 					_multiSelectionPivot = default;
-					lastPosition = 0; // Reset to the start of the list
 					return selection;
 				}
 			}

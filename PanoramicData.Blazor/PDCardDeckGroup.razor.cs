@@ -7,7 +7,7 @@ namespace PanoramicData.Blazor
 
 		private DeckGroupContext<TCard> _context = null!;
 
-		private List<int> _userTrail = [];
+		private readonly List<int> _userTrail = [];
 
 		// Reference Capture
 		public List<PDCardDeck<TCard>> Decks { get; private set; } = [];
