@@ -44,7 +44,7 @@ public class ListDataProviderService<TItem> : IDataProviderService<TItem>
 	{
 		try
 		{
-			if (item != null)
+			if (item is not null)
 			{
 				var idx = List.IndexOf(item);
 				if (idx == -1)

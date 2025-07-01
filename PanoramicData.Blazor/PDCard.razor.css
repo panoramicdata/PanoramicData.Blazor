@@ -1,12 +1,12 @@
 ﻿.card {
 	min-height: 2em;
 }
-	/*Indicate to the user the card not draggable*/
+	/* Indicate to the user the card not draggable */
 	.card[draggable="false"] {
 		cursor: not-allowed !important;
 	}
 
-	/*Indicate to the user the card is draggable*/
+	/* Indicate to the user the card is draggable */
 	.card[draggable="true"] {
 		cursor: grab;
 	}

@@ -2,12 +2,13 @@
 
 	const el = document.getElementById(id);
 
-	if (!el) return null;
+	if (!el) {
+		return null;
+	}
+
 	const rect = el.getBoundingClientRect();
-	return {
-		top: rect.top,
-		left: rect.left
-	};
+
+	return { top: rect.top, left: rect.left };
 }
 
 
@@ -22,7 +23,7 @@ export function animate(id, prevPosition, currentPosition, animationDuration) {
 	const deltaTop = prevPosition.top - currentPosition.top;
 
 	// Instantly move the element back to its previous position using transform
-	el.style.transition = 'none';
+	el.style.transition = "none";
 	el.style.transform = `translate(${deltaLeft}px, ${deltaTop}px)`;
 
 	// Force reflow to apply the initial transform
