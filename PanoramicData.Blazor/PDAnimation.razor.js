@@ -1,5 +1,4 @@
 ﻿export function getPosition(id) {
-
 	const el = document.getElementById(id);
 
 	if (!el) {
@@ -9,6 +8,7 @@
 	const rect = el.getBoundingClientRect();
 
 	return { top: rect.top, left: rect.left };
+
 }
 
 

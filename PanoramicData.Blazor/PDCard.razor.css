@@ -1,6 +1,7 @@
 ﻿.card {
 	min-height: 2em;
 }
+
 	/* Indicate to the user the card not draggable */
 	.card[draggable="false"] {
 		cursor: not-allowed !important;
