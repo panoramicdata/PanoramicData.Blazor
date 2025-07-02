@@ -7,10 +7,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 {
 	private static int _sequence;
 
-	/// <inheritdoc/>
+	/// <inheritdoc cref="PDCardDeckSelectionHelper{TCard}"/>
 	private readonly PDCardDeckSelectionHelper<TCard> _selectionHelper = new();
 
-	/// <inheritdoc/>
+	/// <inheritdoc cref="PDCardDragDropInformation"/>
 	public PDCardDragDropInformation DragState { get; private set; } = new();
 
 	// Reference Capture for Blazor Sub Components
@@ -128,6 +128,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		await GetCardsFromDataProviderAsync();
 	}
 
+	#region Card Called Events
+
 	internal async Task AddToSelectionAsync(MouseEventArgs args, TCard card)
 	{
 		// Cannot be dragging while adding to selection
@@ -226,6 +228,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		await AnimateToPositionsAsync();
 	}
+
+	#endregion
+
 	/// <summary>
 	/// Updates the positions of the selected cards in the deck based on the current drag state.
 	/// </summary>
@@ -280,8 +285,14 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		await SyncDataProviderCardsAsync();
 	}
 
+	/// <summary>
+	/// Checks if the Selection is contiguous in the deck.
+	/// </summary>
+	/// <param name="movingCards"></param>
+	/// <returns></returns>
 	private bool IsContiguous(List<TCard> movingCards)
 	{
+		// order the cards by their index in the main Cards list
 		var orderedCards = movingCards
 			.OrderBy(Cards.IndexOf)
 			.ToList();
@@ -297,10 +308,19 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return true;
 	}
 
+	/// <summary>
+	/// Adds a set of cards to the deck at the specified index, updating the selection and card positions accordingly. 
+	/// </summary>
+	/// <param name="selection"></param>
+	/// <returns></returns>
+	/// <remarks>
+	/// Used for migrating cards between decks in the  <see cref="PDCardDeckGroup{TCard}"/> component.
+	/// </remarks>
 	internal async Task AddCardsAsync(List<TCard> selection)
 	{
 		DragState.IsDragging = true;
 		ClearAnimationPositions();
+
 		// Create the new cards
 		for (int index = 0; index < selection.Count; index++)
 		{
@@ -317,6 +337,29 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	}
 
 	/// <summary>
+	/// Removes the currently selected cards in this deck and  updates card positions accordingly. 
+	/// </summary>
+	/// <param name="selection"></param>
+	/// <returns></returns>
+	/// <remarks>
+	/// Used for migrating cards between decks in the  <see cref="PDCardDeckGroup{TCard}"/> component.
+	/// </remarks>
+	internal async Task RemoveSelectedCardsAsync()
+	{
+		DragState.IsDragging = false;
+		ClearAnimationPositions();
+		foreach (var card in Selection)
+		{
+			Cards.Remove(card);
+		}
+
+		Selection.Clear();
+
+		UpdateCardDeckPositions();
+		await SyncDataProviderCardsAsync();
+	}
+
+	/// <summary>
 	/// Clamps the bounds of an index to ensure it does not exceed the bounds of the card list.
 	/// </summary>
 	/// <param name="index"></param>
@@ -329,6 +372,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return dragIndex;
 	}
 
+	/// <summary>
+	/// Updates the deck positions of all cards in the deck based on their current order - locally.
+	/// </summary>
+	/// <remarks>
+	/// To push these changes to the data provider, you must call <see cref="SyncDataProviderCardsAsync"/> after this method.
+	/// </remarks>
 	private void UpdateCardDeckPositions()
 	{
 		for (int index = 0; index < Cards.Count; index++)
@@ -338,24 +387,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 	}
 
-	internal async Task RemoveSelectedCardsAsync()
-	{
-		DragState.IsDragging = false;
-		ClearAnimationPositions();
-		foreach (var card in Selection)
-		{
-			Cards.Remove(card);
-		}
-
-		Selection.Clear();
-		UpdateCardDeckPositions();
-
-		await SyncDataProviderCardsAsync();
-	}
-
 	#region Animation Methods
 	private async Task UpdateAnimationPositionsAsync()
 	{
+		// Not an animated component, so no need to update positions
 		if (!IsAnimated)
 		{
 			return;
@@ -371,6 +406,32 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		await Task.WhenAll(updateTasks);
 	}
 
+	/// <summary>
+	/// Animates the each card to their new positions
+	/// </summary>
+	/// <returns></returns>
+	private async Task AnimateToPositionsAsync()
+	{
+		// Not an animated component, so do not animate
+		if (!IsAnimated)
+		{
+			return;
+		}
+
+		foreach (var card in _cards)
+		{
+			if (!Selection.Contains(card.Card))
+			{
+				await card.AnimationHandler.AnimateElementAsync();
+
+			}
+		}
+	}
+
+	/// <summary>
+	/// Clears the animation positions of all cards in the deck that are not selected.
+	/// </summary>
+	/// <remarks>Used when changes to the contents of the deck have been made, like in the <see cref="PDCardDeckGroup{TCard}"/> component</remarks>
 	private void ClearAnimationPositions()
 	{
 		if (!IsAnimated)
@@ -383,23 +444,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			if (!Selection.Contains(card.Card))
 			{
 				card.AnimationHandler.ClearPositions();
-			}
-		}
-	}
-
-	private async Task AnimateToPositionsAsync()
-	{
-		if (!IsAnimated)
-		{
-			return;
-		}
-
-		foreach (var card in _cards)
-		{
-			if (!Selection.Contains(card.Card))
-			{
-				await card.AnimationHandler.AnimateElementAsync();
-
 			}
 		}
 	}
@@ -424,6 +468,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		Cards = [.. dataResponse.Items];
 	}
 
+	/// <summary>
+	/// Synchronizes the local card deck with the data provider
+	/// </summary>
+	/// <returns></returns>
 	private async Task SyncDataProviderCardsAsync()
 	{
 		if (!ValidDataContext())
@@ -475,6 +523,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 	}
 
+	/// <summary>
+	/// Updates the deck position of a card in the data provider.
+	/// </summary>
+	/// <param name="card"></param>
+	/// <param name="deckPosition"></param>
+	/// <returns></returns>
 	private async Task UpdateCardDeckPositionAsync(TCard card, int? deckPosition)
 	{
 		var updateResponse = await _dataProviderService.UpdateAsync(card, new Dictionary<string, object?>
@@ -488,6 +542,11 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 	}
 
+	/// <summary>
+	/// Creates a new card in the data provider and sets its deck position.
+	/// </summary>
+	/// <param name="card"></param>
+	/// <returns></returns>
 	private async Task AddCardToDataProviderAsync(TCard card)
 	{
 		// Need to add it and update its position
