@@ -60,13 +60,13 @@ namespace PanoramicData.Blazor
 		/// Event that is invoked when the user rearranges cards in within a deck in this group.
 		/// </summary>
 		[Parameter]
-		public EventCallback<DragEventArgs> OnRearrange { get; set; }
+		public EventCallback<DragEventArgs> OnRearrangeCards { get; set; }
 
 		/// <summary>
 		/// Event that is invoked when the user selects a card / cards within a deck in this group.
 		/// </summary>
 		[Parameter]
-		public EventCallback<MouseEventArgs> OnSelect { get; set; }
+		public EventCallback<MouseEventArgs> OnCardSelection { get; set; }
 
 		/// <summary>
 		/// The Event that is invoked when the user migrates cards from one deck to another within this group.
