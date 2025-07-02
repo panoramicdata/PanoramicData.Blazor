@@ -154,6 +154,12 @@ namespace PanoramicData.Blazor
 			var sourceDeck = Decks[_userTrail[0]];
 			var destinationDeck = Decks[_userTrail[1]];
 
+			if (!sourceDeck.DragState.IsDragging)
+			{
+				// User is not dragging cards, do not allow migration
+				return;
+			}
+
 			await destinationDeck.AddCardsAsync(sourceDeck.Selection);
 			await sourceDeck.RemoveSelectedCardsAsync();
 
