@@ -8,12 +8,25 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		private bool _isSelected => ParentCardDeck.Selection.Contains(Card);
 
+		/// <summary>
+		/// Whether this card is being dragged by the user.
+		/// </summary>
 		private bool _isDragging => ParentCardDeck.DragState.IsDragging && _isSelected;
 
-		private bool _dragEventActive;
+		/// <summary>
+		/// Whether the drag animation is currently active. This is used to prevent multiple drag events from triggering the animation at the same time.
+		/// </summary>
+		private bool _dragAnimationActive;
 
-		private double AnimationDelay => Math.Max(AnimationHandler.AnimationTime / 2, 0.15);
+		/// <summary>
+		/// Delay to prevent fluttering effect when dragging cards.
+		/// </summary>
+		private double DragOverDelay
+			=> Math.Max(AnimationHandler.AnimationTime / 2, 0.15);
 
+		/// <summary>
+		/// Blazor component responsible for position animation
+		/// </summary>
 		public PDAnimation AnimationHandler { get; set; } = null!;
 
 		#region Parameters
@@ -80,12 +93,12 @@ namespace PanoramicData.Blazor
 			if (IsAnimated)
 			{
 
-				if (!_dragEventActive && AnimationHandler is not null)
+				if (!_dragAnimationActive && AnimationHandler is not null)
 				{
-					_dragEventActive = true;
+					_dragAnimationActive = true;
 					await ParentCardDeck.NotifyDragPositionAsync(e, card);
-					await Task.Delay(TimeSpan.FromSeconds(AnimationDelay)); // Allow the UI to update before continuing
-					_dragEventActive = false;
+					await Task.Delay(TimeSpan.FromSeconds(DragOverDelay)); // Allow the UI to update before continuing
+					_dragAnimationActive = false;
 				}
 			}
 			else
