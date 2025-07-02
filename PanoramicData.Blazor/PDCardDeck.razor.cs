@@ -29,6 +29,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
+	[Inject] private ILogger<PDCardDeck<TCard>> _logger { get; set; } = null!;
+
 	#region Parameters
 
 	[Parameter]
@@ -95,7 +97,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 			if (GroupContext.OnDragEntered is null)
 			{
-				// TODO: Log that the events haven't been set up correctly
+				_logger.LogError("Drag event has not been correctly set");
 				return dict;
 			}
 
@@ -115,7 +117,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <returns></returns>
 	protected override async Task OnParametersSetAsync()
 	{
-		// Cannot fetch data if the data provider is not set
 		if (DataProvider == _dataProviderService)
 		{
 			return;
@@ -456,7 +457,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 			if (!deleteResponse.Success)
 			{
-				// TODO: Log the delete failure
+				_logger.LogError("Failed to delete card [{CardId}] on data provider.", card.Id);
 				continue;
 			}
 
@@ -472,7 +473,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		if (!updateResponse.Success)
 		{
-			// TODO: Log the update failure
+			_logger.LogError("Failed to update card [{CardId}] on data provider.", card.Id);
 		}
 	}
 
@@ -483,7 +484,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		if (!createResponse.Success)
 		{
-			// TODO: Log the create failure
+			_logger.LogError("Failed to create card [{CardId}] on data provider.", card.Id);
 			return;
 		}
 
@@ -498,7 +499,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		if (_dataProviderService is null)
 		{
-			// TODO: Log that the data provider service is not set
+			_logger.LogError("DataProvider is not set");
 			return false;
 		}
 
@@ -510,7 +511,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		if (duplicatedPosition)
 		{
-			// TODO: Log that the local data is invalid
+			_logger.LogError("Local Data contains duplicated positions on Card Deck [{CardDeck}]", Id);
 			return false;
 		}
 
