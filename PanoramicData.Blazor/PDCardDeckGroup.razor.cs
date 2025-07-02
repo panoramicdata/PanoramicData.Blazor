@@ -28,8 +28,17 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public bool IsAnimated { get; set; }
 
+		/// <summary>
+		/// Template for rendering each individual Card within the Decks of this group.
+		/// </summary>
 		[Parameter]
 		public RenderFragment<TCard>? CardTemplate { get; set; }
+
+		/// <summary>
+		/// Template for rendering each individual Deck within this group.
+		/// </summary>
+		[Parameter]
+		public RenderFragment<TCard>? DeckTemplate { get; set; }
 
 		/// <summary>
 		/// Global CSS Class to outline the styling of each Card

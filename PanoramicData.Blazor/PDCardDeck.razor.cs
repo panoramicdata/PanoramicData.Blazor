@@ -50,8 +50,17 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	[Parameter]
 	public bool IsAnimated { get; set; }
 
+	/// <summary>
+	/// Template for rendering each individual Card within this Deck
+	/// </summary>
 	[Parameter]
 	public RenderFragment<TCard>? CardTemplate { get; set; }
+
+	/// <summary>
+	/// Template for rendering this Deck
+	/// </summary>
+	[Parameter]
+	public RenderFragment<PDCardDeck<TCard>>? DeckTemplate { get; set; }
 
 	/// <summary>
 	/// Global CSS Class to outline the styling of each Card

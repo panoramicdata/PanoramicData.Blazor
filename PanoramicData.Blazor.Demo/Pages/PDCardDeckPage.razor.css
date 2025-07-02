@@ -5,3 +5,20 @@
 	gap: 1rem;
 	justify-content: center;
 }
+
+.deck-title{
+	font-weight: bold;
+	text-align: center;
+	padding: 1em;
+}
+
+.deck-disclaimer{
+	font-style: italic;
+	padding: 0.5em;
+	text-align: center;
+}
+
+.priority{
+	font-weight: bold;
+	font-size: 1.25em;
+}

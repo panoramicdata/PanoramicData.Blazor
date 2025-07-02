@@ -34,12 +34,38 @@
 				MultipleSelection="true"
 				IsAnimated="true"
 				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+				CssClass="pdcarddeck-animated"
 				OnRearrange="(e) => OnRearrange(e, _todoList3)"
 				OnSelect="(e) => OnSelect(e, _cardDeck3)">
 
 		<CardTemplate>
 			<ExampleTicket Ticket="context" />
 		</CardTemplate>
+
+		<DeckTemplate>
+			<h1 class="deck-title">Todo List</h1>
+			@{
+				var currentIndex = 0;
+			}
+
+			<div class="card-collection">
+				@foreach (var card in context.Cards)
+				{
+					currentIndex++;
+						<span class="priority">@currentIndex</span>
+
+						<PDCard @ref="@context.Ref"
+								@key="@card.Id"
+								DraggingEnabled="context.IsEnabled"
+								Template="context.CardTemplate"
+								Css="context.CardCss"
+								Card="card"
+								ParentCardDeck="context"
+								IsAnimated="@context.IsAnimated" />
+				}
+			</div>
+			<p class="deck-disclaimer">Disclaimer: These tasks are to be completed as soon as possible.</p>
+		</DeckTemplate>
 
 	</PDCardDeck>
 

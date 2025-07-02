@@ -249,3 +249,17 @@ a, .btn-link {
 	border: solid 0.15em;
 	border-radius: 0.5em;
 }
+
+.pdcarddeck-animated {
+	border: 2px solid #1b6ec2;
+	border-radius: 1em;
+	box-shadow: 0 4px 16px rgba(27, 110, 194, 0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+	padding: 1.5em 2em;
+	transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.pdcarddeck-animated:hover {
+	border-color: #0366d6;
+	box-shadow: 0 8px 32px rgba(27, 110, 194, 0.16), 0 3px 8px rgba(0,0,0,0.08);
+}
