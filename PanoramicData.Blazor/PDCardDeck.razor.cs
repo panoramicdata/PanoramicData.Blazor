@@ -1,4 +1,5 @@
 ﻿using PanoramicData.Blazor.Helpers;
+using System.Collections.Concurrent;
 
 namespace PanoramicData.Blazor;
 
@@ -13,7 +14,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	public PDCardDragDropInformation DragState { get; private set; } = new();
 
 	// Reference Capture for Blazor Sub Components
-	private List<PDCard<TCard>> _cards = [];
+	private readonly ConcurrentBag<PDCard<TCard>> _cards = [];
 
 	public PDCard<TCard> Ref { set => _cards.Add(value); }
 
@@ -168,7 +169,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	internal async Task OnDragStartAsync(DragEventArgs e, TCard card)
 	{
 		ClearAnimationPositions();
-		await UpdateAnimationPositionsAsync();
 
 		// Handles edge case where the user drags a card that is not in the selection
 		if (!MultipleSelection || !Selection.Contains(card))
@@ -354,10 +354,14 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			return;
 		}
 
+		List<Task> updateTasks = [];
+
 		foreach (var card in _cards)
 		{
-			await card.AnimationHandler.UpdatePositionAsync();
+			updateTasks.Add(card.AnimationHandler.UpdatePositionAsync());
 		}
+
+		await Task.WhenAll(updateTasks);
 	}
 
 	private void ClearAnimationPositions()
