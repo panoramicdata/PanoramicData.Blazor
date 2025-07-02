@@ -1,7 +1,7 @@
 ﻿@inherits PDComponentBase
 @typeparam TCard
 
-<div @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
+<div @ref="_elementRef" @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
 
 	@* First time setup, Create the visible components *@
 	@foreach (var card in Cards)

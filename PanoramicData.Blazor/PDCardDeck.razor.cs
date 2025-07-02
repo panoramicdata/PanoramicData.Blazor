@@ -30,7 +30,14 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
+	// Javascript Interop
+	private IJSObjectReference? _jsModule;
+	private ElementReference _elementRef;
+	private DotNetObjectReference<PDCardDeck<TCard>>? _dotNetRef;
+
 	[Inject] private ILogger<PDCardDeck<TCard>> _logger { get; set; } = null!;
+	// Add these fields at the top of your class
+	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
 
 	#region Parameters
 
@@ -126,6 +133,30 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		_dataProviderService = DataProvider;
 
 		await GetCardsFromDataProviderAsync();
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		_dotNetRef = DotNetObjectReference.Create(this);
+		_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
+			"import", "./_content/PanoramicData.Blazor/PDCardDeck.razor.js");
+
+		if (_jsModule != null)
+		{
+			await _jsModule.InvokeVoidAsync("registerEndDragOperation", _elementRef, _dotNetRef);
+		}
+
+		await base.OnInitializedAsync();
+	}
+
+	/// <summary>
+	/// Ends the drag operation
+	/// </summary>
+	[JSInvokable]
+	public void EndDragOperation()
+	{
+		DragState.IsDragging = false;
+		StateHasChanged();
 	}
 
 	#region Card Called Events
