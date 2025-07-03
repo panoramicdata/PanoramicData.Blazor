@@ -16,6 +16,9 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	// Reference Capture for Blazor Sub Components
 	private readonly ConcurrentBag<PDCard<TCard>> _cards = [];
 
+	/// <summary>
+	/// Reference to each Card in the Deck. This is used for animations, without this, the cards will not animate correctly.
+	/// </summary>
 	public PDCard<TCard> Ref { set => _cards.Add(value); }
 
 	/// <summary>
