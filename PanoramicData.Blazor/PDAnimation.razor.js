@@ -16,7 +16,9 @@ export function animate(id, prevPosition, currentPosition, animationDuration) {
 	const el = document.getElementById(id);
 
 	// If any of these are null, cancel the animation
-	if (!el || !prevPosition || !currentPosition) return;
+	if (!el || !prevPosition || !currentPosition) {
+		return;
+	}
 
 	// Calculate the deltas between previous and current positions
 	const deltaLeft = prevPosition.left - currentPosition.left;

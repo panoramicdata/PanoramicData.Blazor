@@ -27,6 +27,11 @@ namespace PanoramicData.Blazor
 
 		private IJSObjectReference? _module;
 
+		/// <summary>
+		/// The last time this animation was triggered.
+		/// </summary>
+		private TimeSpan _lastAnimationTrigger = TimeSpan.Zero;
+
 		protected async override Task OnAfterRenderAsync(bool firstRender)
 		{
 			// Load the Javascript module
@@ -37,6 +42,7 @@ namespace PanoramicData.Blazor
 			await UpdatePositionAsync();
 
 		}
+
 
 		/// <summary>
 		/// Updates the position of the card by querying the JavaScript module.
@@ -75,6 +81,12 @@ namespace PanoramicData.Blazor
 		/// <returns></returns>
 		public async Task AnimateElementAsync()
 		{
+			// Don't animate if the last animation was triggered too recently
+			if (_lastAnimationTrigger + TimeSpan.FromSeconds(AnimationTime) > DateTime.Now.TimeOfDay)
+			{
+				return;
+			}
+
 			await UpdatePositionAsync();
 
 			if (_positions.Count < 2)
@@ -84,6 +96,7 @@ namespace PanoramicData.Blazor
 
 			if (_module is not null)
 			{
+				_lastAnimationTrigger = DateTime.Now.TimeOfDay;
 				await _module.InvokeVoidAsync("animate", Id, _positions[^2], _positions[^1], AnimationTime);
 
 				_positions.Clear();
