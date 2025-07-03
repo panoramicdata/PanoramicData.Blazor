@@ -1,0 +1,6 @@
+﻿.pd-carddeck-group-default {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
