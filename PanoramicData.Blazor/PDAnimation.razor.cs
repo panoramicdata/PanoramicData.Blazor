@@ -1,3 +1,5 @@
+using PanoramicData.Blazor.Enums;
+
 namespace PanoramicData.Blazor
 {
 	public partial class PDAnimation
@@ -17,6 +19,12 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		[Parameter]
 		public double AnimationTime { get; set; } = 0.3d;
+
+		/// <summary>
+		/// The type of transition to apply to the animation.
+		/// </summary>
+		[Parameter]
+		public AnimationTransition Transition { get; set; } = AnimationTransition.EaseIn;
 
 		#endregion
 
@@ -96,8 +104,11 @@ namespace PanoramicData.Blazor
 
 			if (_module is not null)
 			{
+				var animationTransitionFunction =
+					Transition.ToString().ToLowerInvariant();
+
 				_lastAnimationTrigger = DateTime.Now.TimeOfDay;
-				await _module.InvokeVoidAsync("animate", Id, _positions[^2], _positions[^1], AnimationTime);
+				await _module.InvokeVoidAsync("animate", Id, _positions[^2], _positions[^1], AnimationTime, animationTransitionFunction);
 
 				_positions.Clear();
 			}

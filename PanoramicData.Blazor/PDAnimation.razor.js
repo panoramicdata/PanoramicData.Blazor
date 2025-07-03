@@ -12,7 +12,7 @@
 }
 
 
-export function animate(id, prevPosition, currentPosition, animationDuration) {
+export function animate(id, prevPosition, currentPosition, animationDuration, animationTimingFunction) {
 	const el = document.getElementById(id);
 
 	// If any of these are null, cancel the animation
@@ -32,7 +32,7 @@ export function animate(id, prevPosition, currentPosition, animationDuration) {
 	el.getBoundingClientRect();
 
 	// Now animate it to its current position (translate back to 0,0)
-	el.style.transition = `transform ${animationDuration}s ease`;
+	el.style.transition = `transform ${animationDuration}s ${animationTimingFunction}`;
 	requestAnimationFrame(() => {
 		el.style.transform = "translate(0px, 0px)";
 	});
