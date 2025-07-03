@@ -248,6 +248,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			return;
 		}
 
+		ClearAnimationPositions();
 		await UpdateAnimationPositionsAsync();
 		var cardIndex = Cards.IndexOf(card);
 
@@ -362,7 +363,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	internal async Task AddCardsAsync(List<TCard> selection)
 	{
 		DragState.IsDragging = true;
-		ClearAnimationPositions();
 
 		// Create the new cards
 		for (int index = 0; index < selection.Count; index++)
@@ -372,7 +372,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			Cards.Insert(ClampBounds(index + DragState.TargetIndex), card);
 			Selection.Add(card);
 		}
-
+		ClearAnimationPositions();
 		UpdateCardDeckPositions();
 		await SyncDataProviderCardsAsync();
 

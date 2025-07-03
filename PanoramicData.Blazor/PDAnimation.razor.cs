@@ -82,7 +82,7 @@ namespace PanoramicData.Blazor
 		public async Task AnimateElementAsync()
 		{
 			// Don't animate if the last animation was triggered too recently
-			if (_lastAnimationTrigger + TimeSpan.FromSeconds(AnimationTime) > DateTime.Now.TimeOfDay)
+			if (_lastAnimationTrigger + TimeSpan.FromSeconds(AnimationTime / 3) > DateTime.Now.TimeOfDay)
 			{
 				return;
 			}
