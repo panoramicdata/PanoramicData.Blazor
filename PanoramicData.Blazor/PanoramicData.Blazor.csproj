@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Added PDComboBox component.
+			Added class 'pd-form-field-form-error-message' to form field error message elements (which default to Bootstrap's text-danger') so they can be styled externally (e.g. red on a black background in dark mode UIs is almost unreadable!).
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
