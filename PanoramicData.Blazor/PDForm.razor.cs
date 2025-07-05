@@ -622,7 +622,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="value">The new value for the field.</param>
 	/// <remarks>If valid, the new value is applied direct to the Item when in Create mode,
 	/// otherwise tracked as a delta when in Edit mode.</remarks>
-	public async Task SetFieldValueAsync(FormField<TItem> field, object? value)
+	public async Task SetFieldValueAsync(FormField<TItem> field, object? value, bool notifyField = true)
 	{
 		// Exit if no item or field is set
 		if (Item == null || field.Field == null)
@@ -700,7 +700,10 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		await ValidateFieldAsync(field, value).ConfigureAwait(true);
 
 		// Notify the field of the value change
-		field.OnValueChanged(value);
+		if (notifyField)
+		{
+			field.OnValueChanged(value);
+		}
 
 		// If in Edit mode and auto-apply is enabled, apply the delta to the item
 		if (Mode == FormModes.Edit && AutoApplyDelta)

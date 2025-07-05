@@ -216,7 +216,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 
 					var model = await _monacoEditor.GetModel();
 					var value = await model.GetValue(EndOfLinePreference.CRLF, true);
-					await Form.SetFieldValueAsync(Field, value);
+					await Form.SetFieldValueAsync(Field, value, false);
 				}
 			}
 			catch (TaskCanceledException)
