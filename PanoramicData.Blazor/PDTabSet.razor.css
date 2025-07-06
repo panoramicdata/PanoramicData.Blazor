@@ -13,9 +13,12 @@
 }
 
 .pdtabset-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: none;
-    border-bottom: 2px solid transparent;
     color: #205081;
     font-weight: 600;
     font-size: 1rem;
@@ -31,7 +34,15 @@
     white-space: nowrap;
     margin-right: 2px;
     margin-bottom: -1px;
-    box-shadow: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 0.5px 0.5px rgba(0,0,0,0.03);
+    border: 1.5px solid #e0e0e0;
+    border-bottom: 2px solid transparent;
+}
+
+.pdtabset-tab-title {
+    flex: 1 1 auto;
+    text-align: left;
+    padding-right: 0.5em;
 }
 
 .pdtabset-tab.active {
@@ -39,27 +50,33 @@
     background: #fff;
     color: #0078d4;
     z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,120,212,0.07), 0 1px 4px rgba(0,0,0,0.04);
+    border: 1.5px solid #e0e0e0;
+    border-bottom: 2px solid #0078d4;
 }
 
 .pdtabset-tab:hover:not(.active) {
     background: #e6f0ff;
+    box-shadow: 0 2px 8px rgba(0,120,212,0.09), 0 1px 4px rgba(0,0,0,0.04);
+    border: 1.5px solid #b3d1f7;
+    border-bottom: 2px solid transparent;
 }
 
 .pdtabset-tab-close {
+    color: #888;
+    margin-left: 0.25em;
+    cursor: pointer;
+    font-size: 1em;
     background: none;
     border: none;
-    color: #888;
-    font-size: 1.1em;
-    margin-left: 2px;
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 0 6px;
-    transition: background 0.2s;
+    outline: none;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
 }
 
 .pdtabset-tab-close:hover {
-    background: #ffe0e0;
-    color: #c00;
+    color: #d32f2f;
 }
 
 .pdtabset-content {

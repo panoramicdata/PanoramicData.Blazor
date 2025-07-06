@@ -32,114 +32,43 @@
 				<button class="pdchat-close" @onclick="ToggleChat">✖</button>
 			</div>
 
-			@if (_isMaximized)
+			@if (_isMaximized && IsCanvasUsePermitted)
 			{
-				@if (IsCanvasUsePermitted)
-				{
-					<PDSplitter Direction="SplitDirection.Horizontal" GutterSize="6" CssClass="pdchat-splitter">
-						<PDSplitPanel Size="2" MinSize="200">
-							<div class="pdchat-panel-flex">
-								<div class="pdchat-messages" @ref="_messagesContainer">
-									@foreach (var message in _messages)
-									{
-										<div class="pdchat-message @(message.Sender.IsUser ? "right" : "left") priority-@message.Type.ToString().ToLower()">
-											<div class="pdchat-bubble-header">
-												<span class="pdchat-icon">@(UserIconSelector?.Invoke(message) ?? GetDefaultUserIcon(message))</span>
-												<span class="pdchat-username">@message.Sender.Name</span>
-												<span class="pdchat-timestamp">@message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
-											</div>
-											@if (!string.IsNullOrEmpty(message.Title))
-											{
-												if (message.IsTitleHtml)
-												{
-													<div class="pdchat-title-bar">@((MarkupString)message.Title)</div>
-												}
-												else
-												{
-													<div class="pdchat-title-bar">@message.Title</div>
-												}
-											}
-											<div class="pdchat-text">
-												@if (message.Type == MessageType.Typing)
-												{
-													<span class="typing-ellipsis"></span>
-												}
-												else if(message.IsMessageHtml)
-												{
-													<span class="@(message.Sender.IsUser ? "right" : "left")">@((MarkupString)@message.Message)</span>
-												}
-												else
-												{
-													<span class="@(message.Sender.IsUser ? "right" : "left")">@message.Message</span>
-												}
-											</div>
-										</div>
-									}
-								</div>
-								<div class="chat-input-container">
-									<textarea @bind="_currentInput" placeholder="Type a message..." rows="3" disabled="@(!ChatService.IsLive)"></textarea>
-									<button class="submit-button @(CanSend ? string.Empty : "submit-button-disabled")" @onclick="SendCurrentMessageAsync" disabled="@(!CanSend)">Send</button>
-								</div>
-							</div>
-						</PDSplitPanel>
-						<PDSplitPanel Size="3" MinSize="200">
-							<div class="pdchat-canvas-flex">
-								<PDTabSet @ref="_tabSetRef" 
-									IsTabClosingEnabled="true"
-									IsTabAdditionEnabled="true"
-									IsTabRenamingEnabled="true"
-									OnTabAdded="OnTabAdded">
-								</PDTabSet>
-							</div>
-						</PDSplitPanel>
-					</PDSplitter>
-				}
-				else
-				{
-					<div style="height:100%;display:flex;flex-direction:column;">
-						<div class="pdchat-messages" @ref="_messagesContainer">
-							@foreach (var message in _messages)
-							{
-								<div class="pdchat-message @(message.Sender.IsUser ? "right" : "left") priority-@message.Type.ToString().ToLower()">
-									<div class="pdchat-bubble-header">
-										<span class="pdchat-icon">@(UserIconSelector?.Invoke(message) ?? GetDefaultUserIcon(message))</span>
-										<span class="pdchat-username">@message.Sender.Name</span>
-										<span class="pdchat-timestamp">@message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
-									</div>
-									@if (!string.IsNullOrEmpty(message.Title))
-									{
-										if (message.IsTitleHtml)
-										{
-											<div class="pdchat-title-bar">@((MarkupString)message.Title)</div>
-										}
-										else
-										{
-											<div class="pdchat-title-bar">@message.Title</div>
-										}
-									}
-									<div class="pdchat-text">
-										@if (message.Type == MessageType.Typing)
-										{
-											<span class="typing-ellipsis"></span>
-										}
-										else if(message.IsMessageHtml)
-										{
-											<span class="@(message.Sender.IsUser ? "right" : "left")">@((MarkupString)@message.Message)</span>
-										}
-										else
-										{
-											<span class="@(message.Sender.IsUser ? "right" : "left")">@message.Message</span>
-										}
-									</div>
-								</div>
-							}
+				<PDSplitter Direction="SplitDirection.Horizontal" GutterSize="6" CssClass="pdchat-splitter">
+					<PDSplitPanel Size="2" MinSize="200">
+						<PDMessages 
+							Messages="_messages"
+							CurrentInput="@_currentInput"
+							CurrentInputChanged="@((string v) => _currentInput = v)"
+							IsLive="@ChatService.IsLive"
+							CanSend="@CanSend"
+							OnSendClicked="SendCurrentMessageAsync"
+							UserIconSelector="UserIconSelector"
+							MessagesContainer="_messagesContainer" />
+					</PDSplitPanel>
+					<PDSplitPanel Size="3" MinSize="200">
+						<div class="pdchat-canvas-flex">
+							<PDTabSet @ref="_tabSetRef" 
+								IsTabClosingEnabled="true"
+								IsTabAdditionEnabled="true"
+								IsTabRenamingEnabled="true"
+								OnTabAdded="OnTabAdded">
+							</PDTabSet>
 						</div>
-						<div class="chat-input-container">
-							<textarea @bind="_currentInput" placeholder="Type a message..." rows="3" disabled="@(!ChatService.IsLive)"></textarea>
-							<button class="submit-button @(CanSend ? string.Empty : "submit-button-disabled")" @onclick="SendCurrentMessageAsync" disabled="@(!CanSend)">Send</button>
-						</div>
-					</div>
-				}
+					</PDSplitPanel>
+				</PDSplitter>
+			}
+			else
+			{
+				<PDMessages 
+					Messages="_messages"
+					CurrentInput="@_currentInput"
+					CurrentInputChanged="@((string v) => _currentInput = v)"
+					IsLive="@ChatService.IsLive"
+					CanSend="@CanSend"
+					OnSendClicked="SendCurrentMessageAsync"
+					UserIconSelector="UserIconSelector"
+					MessagesContainer="_messagesContainer" />
 			}
 		</div>
 	}
