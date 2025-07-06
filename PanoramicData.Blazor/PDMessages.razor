@@ -1,7 +1,7 @@
 @inherits ComponentBase
 
 <div class="pdchat-panel-flex">
-	<div class="pdchat-messages" @ref="MessagesContainer">
+	<div class="pdchat-messages" @ref="_messagesContainer">
 		@if (Messages != null)
 		{
 			foreach (var message in Messages)
@@ -13,6 +13,7 @@
 	</div>
 	<div class="chat-input-container">
 		<textarea
+			@ref="_inputRef"
 			value="@CurrentInput"
 			@oninput="OnInputChanged"
 			@onkeydown="OnInputKeyDown"

@@ -2,8 +2,6 @@
 
 public partial class PDChat
 {
-	[Inject] IJSRuntime JSRuntime { get; set; }
-
 	[EditorRequired]
 	[Parameter]
 	public required IChatService ChatService { get; set; }
@@ -37,11 +35,12 @@ public partial class PDChat
 	private bool _isOpen;
 	private bool _isMuted;
 	private bool _isMaximized;
-	private ElementReference _messagesContainer;
 	private bool _unreadMessages;
 	private string _currentInput = "";
+
 	private readonly List<ChatMessage> _messages = [];
 	private PDTabSet? _tabSetRef;
+	private PDMessages? _pdMessages;
 
 	protected override Task OnInitializedAsync()
 	{
@@ -54,14 +53,6 @@ public partial class PDChat
 	private void OnLiveStatusChanged(bool obj)
 	{
 		StateHasChanged();
-	}
-
-	protected async override Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDChat.razor.js").ConfigureAwait(true);
-		}
 	}
 
 	private void OnMessageReceived(ChatMessage message)
@@ -95,7 +86,7 @@ public partial class PDChat
 			_module?.InvokeVoidAsync("playSound", soundUrlString);
 		}
 
-		InvokeAsync(ScrollToBottomAsync);
+		InvokeAsync(StateHasChanged);
 	}
 
 	public void ShowToast(ChatMessage message)
@@ -111,7 +102,6 @@ public partial class PDChat
 		if (_isOpen)
 		{
 			_unreadMessages = false;
-			InvokeAsync(ScrollToBottomAsync);
 		}
 	}
 
@@ -146,25 +136,6 @@ public partial class PDChat
 
 		// Clear input
 		_currentInput = string.Empty;
-
-		await ScrollToBottomAsync();
-	}
-
-	private static string GetDefaultUserIcon(ChatMessage chatMessage)
-		=> chatMessage.Sender.IsUser ? "🙋"
-			: !chatMessage.Sender.IsHuman ? "🤖"
-			: "👤";
-
-	private async Task ScrollToBottomAsync()
-	{
-		if (_module is null)
-		{
-			return;
-		}
-
-		StateHasChanged();
-
-		await _module.InvokeVoidAsync("scrollToBottom", _messagesContainer);
 	}
 
 	private bool CanSend => ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);

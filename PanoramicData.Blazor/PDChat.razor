@@ -36,15 +36,14 @@
 			{
 				<PDSplitter Direction="SplitDirection.Horizontal" GutterSize="6" CssClass="pdchat-splitter">
 					<PDSplitPanel Size="2" MinSize="200">
-						<PDMessages 
+						<PDMessages @ref="_pdMessages"
 							Messages="_messages"
 							CurrentInput="@_currentInput"
 							CurrentInputChanged="@((string v) => _currentInput = v)"
 							IsLive="@ChatService.IsLive"
 							CanSend="@CanSend"
 							OnSendClicked="SendCurrentMessageAsync"
-							UserIconSelector="UserIconSelector"
-							MessagesContainer="_messagesContainer" />
+							UserIconSelector="UserIconSelector" />
 					</PDSplitPanel>
 					<PDSplitPanel Size="3" MinSize="200">
 						<div class="pdchat-canvas-flex">
@@ -60,15 +59,14 @@
 			}
 			else
 			{
-				<PDMessages 
+				<PDMessages @ref="_pdMessages"
 					Messages="_messages"
 					CurrentInput="@_currentInput"
 					CurrentInputChanged="@((string v) => _currentInput = v)"
 					IsLive="@ChatService.IsLive"
 					CanSend="@CanSend"
 					OnSendClicked="SendCurrentMessageAsync"
-					UserIconSelector="UserIconSelector"
-					MessagesContainer="_messagesContainer" />
+					UserIconSelector="UserIconSelector" />
 			}
 		</div>
 	}
