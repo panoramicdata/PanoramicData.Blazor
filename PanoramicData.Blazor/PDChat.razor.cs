@@ -27,13 +27,21 @@ public partial class PDChat
 	[Parameter]
 	public Func<ChatMessage, string?>? SoundSelector { get; set; }
 
+	[Parameter]
+	public bool IsMaximizePermitted { get; set; }
+
+	[Parameter]
+	public bool IsCanvasUsePermitted { get; set; }
+
 	private IJSObjectReference? _module;
 	private bool _isOpen;
 	private bool _isMuted;
+	private bool _isMaximized;
 	private ElementReference _messagesContainer;
 	private bool _unreadMessages;
 	private string _currentInput = "";
 	private readonly List<ChatMessage> _messages = [];
+	private PDTabSet? _tabSetRef;
 
 	protected override Task OnInitializedAsync()
 	{
@@ -112,6 +120,11 @@ public partial class PDChat
 		_isMuted = !_isMuted;
 	}
 
+	private void ToggleMaximize()
+	{
+		_isMaximized = !_isMaximized;
+	}
+
 	private async Task SendCurrentMessageAsync()
 	{
 		if (string.IsNullOrWhiteSpace(_currentInput))
@@ -142,16 +155,6 @@ public partial class PDChat
 			: !chatMessage.Sender.IsHuman ? "🤖"
 			: "👤";
 
-	private static string GetDefaultPriorityIcon(ChatMessage chatMessage)
-	=> chatMessage.Type switch
-	{
-		MessageType.Normal => "ℹ️",
-		MessageType.Warning => "⚠️",
-		MessageType.Error => "❗",
-		MessageType.Critical => "🚨",
-		_ => "❓"
-	};
-
 	private async Task ScrollToBottomAsync()
 	{
 		if (_module is null)
@@ -165,4 +168,18 @@ public partial class PDChat
 	}
 
 	private bool CanSend => ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);
+
+	private void OnTabAdded()
+	{
+		if (_tabSetRef is not null)
+		{
+			var newTab = new PDTab
+			{
+				Title = "New Tab",
+				IsRenamingEnabled = true
+			};
+			_tabSetRef.AddTab(newTab);
+			_tabSetRef.StartRenamingTab(newTab);
+		}
+	}
 }

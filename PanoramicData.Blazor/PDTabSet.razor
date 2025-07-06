@@ -1,0 +1,63 @@
+@* PDTabSet.razor *@
+@using PanoramicData.Blazor
+@using Microsoft.AspNetCore.Components
+@inherits ComponentBase
+
+<CascadingValue Value="this" Name="TabSet">
+    <div class="pdtabset @CssClass">
+        <div class="pdtabset-tabs">
+            @if (IsTabAdditionEnabled && (CreateTabPosition == CreateTabPosition.Start || CreateTabPosition == CreateTabPosition.Both))
+            {
+                <div class="pdtabset-tab-container pdtabset-addtab-container">
+                    <button class="pdtabset-tab pdtabset-addtab" @onclick="OnAddTabClicked" title="Add tab">+</button>
+                </div>
+            }
+            @foreach (var tab in Tabs)
+            {
+                <div class="pdtabset-tab-container" style="min-width:@TabMinWidth;max-width:@TabMaxWidth;">
+                    @if (GetTabCanBeRenamed(tab))
+                    {
+                        @if (tab.IsRenaming)
+                        {
+                            <input class="pdtabset-tab-rename-input" value="@tab.Title" @onblur="(e) => OnRenameTabBlur(tab, e)" @onkeydown="(e) => OnRenameTabKeyDown(tab, e)" @oninput="(e) => OnRenameTabInput(tab, e)" autofocus />
+                        }
+                        else
+                        {
+                            <button class="pdtabset-tab @(object.ReferenceEquals(tab, ActiveTab) ? "active" : null) @tab.CssClass"
+                                    @onclick="() => SelectTab(tab)"
+                                    @ondblclick="() => StartRenamingTab(tab)"
+                                    style="min-width:@TabMinWidth;max-width:@TabMaxWidth;">
+                                @tab.Title
+                            </button>
+                        }
+                    }
+                    else
+                    {
+                        <button class="pdtabset-tab @(object.ReferenceEquals(tab, ActiveTab) ? "active" : null) @tab.CssClass"
+                                @onclick="() => SelectTab(tab)"
+                                style="min-width:@TabMinWidth;max-width:@TabMaxWidth;">
+                            @tab.Title
+                        </button>
+                    }
+                    @if (GetTabCanBeClosed(tab))
+                    {
+                        <button class="pdtabset-tab-close" @onclick="(e) => CloseTab(tab, e)">×</button>
+                    }
+                </div>
+            }
+            @if (IsTabAdditionEnabled && (CreateTabPosition == CreateTabPosition.End || CreateTabPosition == CreateTabPosition.Both))
+            {
+                <div class="pdtabset-tab-container pdtabset-addtab-container">
+                    <button class="pdtabset-tab pdtabset-addtab" @onclick="OnAddTabClicked" title="Add tab">+</button>
+                </div>
+            }
+        </div>
+        <div class="pdtabset-content">
+            @if (ActiveTab != null)
+            {
+                @ActiveTab.GetChildContent()
+            }
+        </div>
+        @ChildContent
+    </div>
+</CascadingValue>
