@@ -372,7 +372,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	internal async Task AddCardsAsync(List<TCard> selection)
 	{
 		DragState.IsDragging = true;
-
+		await CancelAnimations();
 		// Create the new cards
 		for (int index = 0; index < selection.Count; index++)
 		{
@@ -399,6 +399,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	internal async Task RemoveSelectedCardsAsync()
 	{
 		DragState.IsDragging = false;
+		await CancelAnimations();
 		ClearAnimationPositions();
 		foreach (var card in Selection)
 		{
@@ -497,6 +498,18 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			{
 				card.AnimationHandler.ClearPositions();
 			}
+		}
+	}
+
+	private async Task CancelAnimations()
+	{
+		if (!IsAnimated)
+		{
+			return;
+		}
+		foreach (var card in _cards)
+		{
+			await card.AnimationHandler.CancelAnimationAsync();
 		}
 	}
 

@@ -37,3 +37,16 @@ export function animate(id, prevPosition, currentPosition, animationDuration, an
 		el.style.transform = "translate(0px, 0px)";
 	});
 }
+
+export function cancelAnimation(id) {
+
+	const el = document.getElementById(id);
+
+	// If any of these are null, cannot continue
+	if (!el) {
+		return;
+	}
+
+	el.style.transform = "translate(0px, 0px)";
+	el.style.transition = "none"; // Cancel the transition
+}

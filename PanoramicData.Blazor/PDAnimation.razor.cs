@@ -112,7 +112,16 @@ public partial class PDAnimation
 
 	public void ClearPositions()
 	{
+
 		_positions.Clear();
+	}
+
+	public async Task CancelAnimationAsync()
+	{
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync("cancelAnimation", Id);
+		}
 	}
 
 	private string GetAnimationStyle()
