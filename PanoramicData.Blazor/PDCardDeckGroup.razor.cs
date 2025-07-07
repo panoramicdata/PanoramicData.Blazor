@@ -169,7 +169,21 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
+			var cardsInGroup = Decks.Sum(c => c.Cards.Count);
+
 			await destinationDeck.AddCardsAsync(sourceDeck.Selection);
+
+			var cardsAfterAdd = Decks.Sum(c => c.Cards.Count);
+
+			if (cardsAfterAdd <= cardsInGroup)
+			{
+				// Prevent drag event
+				sourceDeck.DragState.IsDragging = false;
+				await destinationDeck.RemoveSelectedCardsAsync();
+
+				return;
+			}
+
 			await sourceDeck.RemoveSelectedCardsAsync();
 
 			await OnCardMigration.InvokeAsync();
