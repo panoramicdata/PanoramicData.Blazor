@@ -20,6 +20,12 @@
 		<div class="pdchat-window@(_isMaximized ? " maximized" : string.Empty)">
 			<div class="pdchat-header">
 				<span class="pdchat-title">@Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
+				@if (IsClearPermitted && _messages.Count > 0)
+				{
+					<button class="pdchat-header-btn" @onclick="ClearChat" title="Clear Chat">
+						<span>🗑️</span>
+					</button>
+				}
 				<button class="pdchat-header-btn" @onclick="ToggleMute" title="@(_isMuted ? "Unmute" : "Mute")">
 					<span>@(_isMuted ? "🔇" : "🔊")</span>
 				</button>
@@ -71,5 +77,6 @@
 		</div>
 	}
 </div>
+
 
 

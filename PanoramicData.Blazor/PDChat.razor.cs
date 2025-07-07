@@ -31,6 +31,9 @@ public partial class PDChat
 	[Parameter]
 	public bool IsCanvasUsePermitted { get; set; }
 
+	[Parameter]
+	public bool IsClearPermitted { get; set; } = true;
+
 	private IJSObjectReference? _module;
 	private bool _isOpen;
 	private bool _isMuted;
@@ -113,6 +116,13 @@ public partial class PDChat
 	private void ToggleMaximize()
 	{
 		_isMaximized = !_isMaximized;
+	}
+
+	private void ClearChat()
+	{
+		_messages.Clear();
+		_currentInput = string.Empty;
+		StateHasChanged();
 	}
 
 	private async Task SendCurrentMessageAsync()
