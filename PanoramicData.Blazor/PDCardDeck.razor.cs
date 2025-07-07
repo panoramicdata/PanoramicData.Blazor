@@ -13,11 +13,13 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <inheritdoc cref="PDCardDragDropInformation"/>
 	public PDCardDragDropInformation DragState { get; private set; } = new();
 
-	// Reference Capture for Blazor Sub Components
+	/// <summary>
+	/// References to each PDCardComponent in the Deck. This is used for animations, without this, the cards will not animate correctly.
+	/// </summary>
 	private readonly ConcurrentBag<PDCard<TCard>> _cards = [];
 
 	/// <summary>
-	/// Reference to each Card in the Deck. This is used for animations, without this, the cards will not animate correctly.
+	/// Reference to each PDCardComponent in the Deck. This is used for animations, without this, the cards will not animate correctly.
 	/// </summary>
 	public PDCard<TCard> Ref { set => _cards.Add(value); }
 
@@ -39,11 +41,14 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	private DotNetObjectReference<PDCardDeck<TCard>>? _dotNetRef;
 
 	[Inject] private ILogger<PDCardDeck<TCard>> _logger { get; set; } = null!;
-	// Add these fields at the top of your class
+
 	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
 
 	#region Parameters
 
+	/// <summary>
+	/// Unique identifier for this Card Deck. If not set, a unique ID will be generated.
+	/// </summary>
 	[Parameter]
 	public override string Id { get; set; } = $"pd-carddeck-{++_sequence}";
 
@@ -184,17 +189,21 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			return;
 		}
 
+		// Contiguous Multiple Selection
 		if (args.ShiftKey)
 		{
 			Selection = _selectionHelper
 				.HandleAddRange(Selection, Cards, card);
 		}
 
+		// Single Card Selection / Deselection
 		else if (args.CtrlKey)
 		{
 			Selection = _selectionHelper
 				.HandleIndividualAddRemove(Selection, Cards, card);
 		}
+
+		// Single Card override selection
 		else
 		{
 			Selection = _selectionHelper
@@ -450,7 +459,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	}
 
 	/// <summary>
-	/// Animates the each card to their new positions
+	/// Animates each card to their new positions
 	/// </summary>
 	/// <returns></returns>
 	private async Task AnimateToPositionsAsync()
