@@ -200,7 +200,8 @@ public partial class PDComboBoxPage
 		new Country { Name = "Zimbabwe", Code = "ZW", Continent = "Africa" }
 	];
 
-	private Country SelectedItem { get; set; } = _items[0];
+	private Country? SelectedItem { get; set; } = _items[0];
+	private Country? Combo4SelectedItem { get; set; } = _items[0];
 
 	[CascadingParameter]
 	protected EventManager? EventManager { get; set; }
@@ -209,6 +210,26 @@ public partial class PDComboBoxPage
 	{
 		EventManager?.Add(new Event(name));
 	}
+
+	private void OnSelectedItemChanged(Country? item)
+	{
+		OnLogEvent($"Selected Item Changed: {item}");
+
+		if (item == null)
+		{
+			return;
+		}
+		SelectedItem = item;
+	}
+
+    private async void OnCombo4SelectedItemChanged(Country? item)
+    {
+		Combo4SelectedItem = item;
+		StateHasChanged();
+		// Simulate some work as behaviour is different
+		await Task.Delay(500);
+		OnLogEvent($"Combo4 Selected Item Changed: {item}");
+    }
 
 	class Country
 	{

@@ -616,55 +616,114 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	}
 
 	/// <summary>
-	/// Updates the current value for the given field.
+	/// Updates the value for a given field, manages the Delta dictionary, and notifies listeners.
 	/// </summary>
 	/// <param name="field">The field to be updated.</param>
 	/// <param name="value">The new value for the field.</param>
+	/// <param name="notifyField">Whether to notify the field (currently only for Monaco) of the value change.</param>
 	/// <remarks>If valid, the new value is applied direct to the Item when in Create mode,
 	/// otherwise tracked as a delta when in Edit mode.</remarks>
-	public async Task SetFieldValueAsync(FormField<TItem> field, object? value)
+	public async Task SetFieldValueAsync(FormField<TItem> field, object? value, bool notifyField = true)
 	{
-		var previousChanges = Delta.Count;
-		if (Item != null && field.Field != null)
+		// Exit if no item or field is set
+		if (Item == null || field.Field == null)
 		{
-			// stop suppressing errors after editing
-			field.SuppressErrors = false;
+			return;
+		}
 
-			var memberInfo = field.Field.GetPropertyMemberInfo();
-			if (memberInfo != null && memberInfo is PropertyInfo propInfo)
+		// Stop suppressing errors after editing
+		field.SuppressErrors = false;
+
+		// Get property info for the field
+		var memberInfo = field.Field.GetPropertyMemberInfo();
+		if (memberInfo is not PropertyInfo propInfo)
+		{
+			return;
+		}
+
+		// Get the original value from the item
+		object? originalValue = propInfo.GetValue(Item);
+
+		// Helper function to compare values, normalizing line endings for strings
+		static bool ValuesEqual(object? a, object? b)
+		{
+			if (a is string sa && b is string sb)
 			{
-				// add / replace value on delta object
-				object? typedValue = value is null ? null
-					: (propInfo.PropertyType == value.GetType() ? value : value.Cast(propInfo.PropertyType));
+				return NormalizeLineEndings(sa) == NormalizeLineEndings(sb);
+			}
+			return Equals(a, b);
+		}
 
-				// notify application of change - and allow for override
-				var args = new FieldUpdateArgs<TItem>(field, GetFieldValue(field, false), typedValue);
-				await FieldUpdated.InvokeAsync(args).ConfigureAwait(true);
-				typedValue = args.NewValue;
+		// Get the current value (from Delta if present, else from the item)
+		object? currentValue = Delta.TryGetValue(memberInfo.Name, out var deltaValue)
+			? deltaValue
+			: originalValue;
 
-				// update delta
-				Delta[memberInfo.Name] = typedValue;
+		// If the value hasn't changed, do nothing
+		if (ValuesEqual(currentValue, value))
+		{
+			return;
+		}
 
-				// set on unload flag
-				if (previousChanges == 0 && Delta.Count > 0 && ConfirmOnUnload && _module != null)
+		// Check if the new value is the same as the original (revert)
+		bool revertedToOriginal = ValuesEqual(originalValue, value);
+		if (revertedToOriginal)
+		{
+			// Remove from Delta if present
+			if (Delta.ContainsKey(memberInfo.Name))
+			{
+				Delta.Remove(memberInfo.Name);
+				// If no more changes, update unload listener
+				if (Delta.Count == 0 && ConfirmOnUnload && _module != null)
 				{
-					await _module.InvokeVoidAsync("setUnloadListener", Id, true).ConfigureAwait(true);
+					await _module.InvokeVoidAsync("setUnloadListener", Id, false).ConfigureAwait(true);
 				}
-
-				// validate field
-				await ValidateFieldAsync(field, value).ConfigureAwait(true);
-
-				field.OnValueChanged(value);
-
-				// auto save value if valid?
-				if (Mode == FormModes.Edit && AutoApplyDelta)
-				{
-					await ApplyDelta(Item).ConfigureAwait(true);
-				}
-
-				StateHasChanged();
 			}
 		}
+		else
+		{
+			// Convert value to the correct type if needed and add/update Delta
+			object? typedValue = value is null ? null
+				: (propInfo.PropertyType == value.GetType() ? value : value.Cast(propInfo.PropertyType));
+			Delta[memberInfo.Name] = typedValue;
+			// If this is the first change, update unload listener
+			if (Delta.Count == 1 && ConfirmOnUnload && _module != null)
+			{
+				await _module.InvokeVoidAsync("setUnloadListener", Id, true).ConfigureAwait(true);
+			}
+		}
+
+		// Notify listeners of the field update
+		var args = new FieldUpdateArgs<TItem>(field, currentValue, value);
+		await FieldUpdated.InvokeAsync(args).ConfigureAwait(true);
+
+		// Validate the field
+		await ValidateFieldAsync(field, value).ConfigureAwait(true);
+
+		// Notify the field of the value change
+		if (notifyField)
+		{
+			field.OnValueChanged(value);
+		}
+
+		// If in Edit mode and auto-apply is enabled, apply the delta to the item
+		if (Mode == FormModes.Edit && AutoApplyDelta)
+		{
+			await ApplyDelta(Item).ConfigureAwait(true);
+		}
+
+		// Trigger UI update
+		StateHasChanged();
+	}
+
+	private static string NormalizeLineEndings(string? text)
+	{
+		if (text is null)
+		{
+			return string.Empty;
+		}
+		// Normalize all CRLF and CR to LF, then back to CRLF for consistency
+		return text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
 	}
 
 	/// <summary>

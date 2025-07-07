@@ -1,0 +1,126 @@
+.pdchat-message {
+    position: relative;
+    padding: 38px 14px 12px 14px;
+    margin-bottom: 10px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    background: #f4f8fb;
+}
+.pdchat-message:not(:has(.pdchat-title-bar)) {
+    padding-top: 10px;
+}
+.pdchat-message.left {
+    background: #e6f0ff;
+    align-self: flex-start;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+}
+.pdchat-message.right {
+    background: #d6fcd6;
+    align-self: flex-end;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+.pdchat-bubble-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+}
+.pdchat-message .pdchat-icon {
+    margin-right: 0;
+    margin-left: 0;
+    font-size: 1.3em;
+    align-self: flex-start;
+}
+.pdchat-message .pdchat-username {
+    font-weight: 600;
+    color: #205081;
+    margin-right: 8px;
+    font-size: 1em;
+}
+.pdchat-message .pdchat-timestamp {
+    font-size: 0.85em;
+    color: #888;
+    margin-left: auto;
+}
+.pdchat-username {
+    font-weight: bold;
+    margin-right: 8px;
+}
+.pdchat-timestamp {
+    font-size: 10px;
+    color: #888;
+}
+.pdchat-text {
+    font-size: 1em;
+    color: #222;
+    padding-top: 2px;
+    white-space: pre-line;
+}
+.pdchat-message.priority-warning {
+    background-color: #fff4e5;
+    color: #663c00;
+}
+.pdchat-message.priority-error {
+    background-color: #ffe0e0;
+    color: #990000;
+}
+.pdchat-message.priority-critical {
+    background-color: #ffcccc;
+    color: #7a0000;
+    font-weight: bold;
+}
+.pdchat-message.priority-typing {
+    background-color: #f0f0f0;
+    color: #555;
+    font-style: italic;
+}
+.pdchat-title-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background: #dbeafe;
+    color: #205081;
+    font-weight: 700;
+    font-size: 1em;
+    padding: 7px 18px 7px 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    letter-spacing: 0.02em;
+    z-index: 1;
+}
+.typing-ellipsis {
+    display: inline-block;
+    min-width: 1em;
+}
+.typing-ellipsis::after {
+    content: '';
+    display: inline-block;
+    width: 1em;
+    text-align: left;
+    animation: ellipsis-dots 1.5s steps(3, end) infinite;
+}
+@keyframes ellipsis-dots {
+    0%, 20% {
+        content: '';
+    }
+    40% {
+        content: '.';
+    }
+    60% {
+        content: '..';
+    }
+    80%, 100% {
+        content: '...';
+    }
+}

@@ -2,11 +2,13 @@
 
 public partial class PDChat
 {
-	[Inject] IJSRuntime JSRuntime { get; set; }
+	[EditorRequired]
+	[Parameter]
+	public required IChatService ChatService { get; set; }
 
 	[EditorRequired]
 	[Parameter]
-	public required IChatService Service { get; set; }
+	public required ChatMessageSender User { get; set; }
 
 	[Parameter]
 	public string Title { get; set; } = "Chat";
@@ -23,27 +25,34 @@ public partial class PDChat
 	[Parameter]
 	public Func<ChatMessage, string?>? SoundSelector { get; set; }
 
+	[Parameter]
+	public bool IsMaximizePermitted { get; set; }
+
+	[Parameter]
+	public bool IsCanvasUsePermitted { get; set; }
+
 	private IJSObjectReference? _module;
 	private bool _isOpen;
 	private bool _isMuted;
-	private ElementReference _messagesContainer;
+	private bool _isMaximized;
 	private bool _unreadMessages;
 	private string _currentInput = "";
+
 	private readonly List<ChatMessage> _messages = [];
+	private PDTabSet? _tabSetRef;
+	private PDMessages? _pdMessages;
 
 	protected override Task OnInitializedAsync()
 	{
-		Service.OnMessageReceived += OnMessageReceived;
-		Service.Initialize();
+		ChatService.OnMessageReceived += OnMessageReceived;
+		ChatService.OnLiveStatusChanged += OnLiveStatusChanged;
+		ChatService.Initialize();
 		return base.OnInitializedAsync();
 	}
 
-	protected async override Task OnAfterRenderAsync(bool firstRender)
+	private void OnLiveStatusChanged(bool obj)
 	{
-		if (firstRender)
-		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDChat.razor.js").ConfigureAwait(true);
-		}
+		StateHasChanged();
 	}
 
 	private void OnMessageReceived(ChatMessage message)
@@ -55,6 +64,8 @@ public partial class PDChat
 			existing.Type = message.Type;
 			existing.Title = message.Title;
 			existing.Timestamp = message.Timestamp;
+			existing.IsTitleHtml = message.IsTitleHtml;
+			existing.IsMessageHtml = message.IsMessageHtml;
 		}
 		else
 		{
@@ -75,7 +86,7 @@ public partial class PDChat
 			_module?.InvokeVoidAsync("playSound", soundUrlString);
 		}
 
-		InvokeAsync(ScrollToBottomAsync);
+		InvokeAsync(StateHasChanged);
 	}
 
 	public void ShowToast(ChatMessage message)
@@ -91,13 +102,17 @@ public partial class PDChat
 		if (_isOpen)
 		{
 			_unreadMessages = false;
-			InvokeAsync(ScrollToBottomAsync);
 		}
 	}
 
 	private void ToggleMute()
 	{
 		_isMuted = !_isMuted;
+	}
+
+	private void ToggleMaximize()
+	{
+		_isMaximized = !_isMaximized;
 	}
 
 	private async Task SendCurrentMessageAsync()
@@ -111,52 +126,31 @@ public partial class PDChat
 		{
 			Id = Guid.NewGuid(),
 			Message = _currentInput,
-			Sender = "User",
-			Title = "User Input",
+			Sender = User,
 			Type = MessageType.Normal,
 			Timestamp = DateTime.UtcNow
 		};
 
 		// Fire it off
-		Service.SendMessage(message);
+		ChatService.SendMessage(message);
 
 		// Clear input
 		_currentInput = string.Empty;
-
-		await ScrollToBottomAsync();
 	}
 
-	private static string GetDefaultUserIcon(ChatMessage chatMessage)
-	{
-		return chatMessage.Sender switch
-		{
-			"User" => "🙋",
-			string x when x.EndsWith("Bot", StringComparison.Ordinal) => "🤖",
-			_ => "👤"
-		};
-	}
+	private bool CanSend => ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);
 
-	private static string GetDefaultPriorityIcon(ChatMessage chatMessage)
+	private void OnTabAdded()
 	{
-		return chatMessage.Type switch
+		if (_tabSetRef is not null)
 		{
-			MessageType.Normal => "ℹ️",
-			MessageType.Warning => "⚠️",
-			MessageType.Error => "❗",
-			MessageType.Critical => "🚨",
-			_ => "❓"
-		};
-	}
-
-	private async Task ScrollToBottomAsync()
-	{
-		if (_module is null)
-		{
-			return;
+			var newTab = new PDTab
+			{
+				Title = "New Tab",
+				IsRenamingEnabled = true
+			};
+			_tabSetRef.AddTab(newTab);
+			_tabSetRef.StartRenamingTab(newTab);
 		}
-
-		StateHasChanged();
-
-		await _module.InvokeVoidAsync("scrollToBottom", _messagesContainer);
 	}
 }

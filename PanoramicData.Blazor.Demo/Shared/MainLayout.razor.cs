@@ -6,14 +6,16 @@ public partial class MainLayout
 
 	[Inject] private IChatService ChatService { get; set; } = default!;
 
-	private static string? GetUserIcon(ChatMessage chatMessage)
+	private ChatMessageSender User => new ChatMessageSender
 	{
-		return chatMessage.Sender switch
-		{
-			string x when x.EndsWith("Bot") => "🤖",
-			_ => "👤"
-		};
-	}
+		Name = "User",
+		IsUser = true,
+		IsHuman = true,
+		IsSupport = false
+	};
+
+	private static string? GetUserIcon(ChatMessage chatMessage)
+		=> chatMessage.Sender.IsHuman ? "👤" : "🤖";
 
 	private static string? GetPriorityIcon(ChatMessage chatMessage)
 		=> chatMessage.Type switch
@@ -26,7 +28,7 @@ public partial class MainLayout
 		};
 
 	private static string? GetSoundUrl(ChatMessage chatMessage)
-		=> chatMessage.Sender == "User" || chatMessage.Type == MessageType.Typing
+		=> chatMessage.Sender.IsUser || chatMessage.Type == MessageType.Typing
 			? null
 			: "/_content/PanoramicData.Blazor.Demo/sounds/" + chatMessage.Type switch
 			{

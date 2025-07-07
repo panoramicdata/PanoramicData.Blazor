@@ -1,0 +1,28 @@
+@inherits ComponentBase
+
+<div class="pdchat-panel-flex">
+	<div class="pdchat-messages" @ref="_messagesContainer">
+		@if (Messages != null)
+		{
+			foreach (var message in Messages)
+			{
+				<PDMessage Message="message"
+						   UserIconSelector="UserIconSelector" />
+			}
+		}
+	</div>
+	<div class="chat-input-container">
+		<textarea
+			@ref="_inputRef"
+			value="@CurrentInput"
+			@oninput="OnInputChanged"
+			@onkeydown="OnInputKeyDown"
+			placeholder="Type a message..."
+			rows="3"
+			disabled="@(!IsLive)"></textarea>
+		<button class="submit-button @(CanSend ? string.Empty : "submit-button-disabled")" @onclick="OnSendClickedInternal" disabled="@(!CanSend)">Send</button>
+	</div>
+</div>
+
+
+
