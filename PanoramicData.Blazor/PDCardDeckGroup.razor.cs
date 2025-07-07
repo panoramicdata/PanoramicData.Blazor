@@ -20,7 +20,7 @@ namespace PanoramicData.Blazor
 		/// Unique identifier for this card deck group.
 		/// </summary>
 		[Parameter]
-		public override string Id { get; set; } = $"pd-carddeck-{++_sequence}";
+		public override string Id { get; set; } = $"pd-carddeckgroup-{++_sequence}";
 
 		/// <summary>
 		/// Whether the decks have animations enabled or not. Defaults to false.
