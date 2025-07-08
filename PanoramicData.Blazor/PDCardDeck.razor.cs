@@ -135,7 +135,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	#region Card Called Events
 
-	internal async Task AddToSelectionAsync(MouseEventArgs args, TCard card)
+	internal void AddToSelection(MouseEventArgs args, TCard card)
 	{
 		// Cannot be dragging while adding to selection
 		DragState.IsDragging = false;

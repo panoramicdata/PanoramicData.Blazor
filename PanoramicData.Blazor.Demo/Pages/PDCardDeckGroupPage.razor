@@ -6,8 +6,42 @@
 		<p>Example 1: Kanban style board</p>
 	</div>
 
-	<PDCardDeckGroup DataProvider="_todoList1">
+	<PDCardDeckGroup DataProvider="_todoList1"
+					 Decks="[_cardDeck1, _cardDeck2, _cardDeck3]">
+
+		<PDCardDeck @ref="_cardDeck1"
+					DataFunction="() => _todoList1.GetDataAsync(new(), default)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area">
+
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+
+		<PDCardDeck @ref="_cardDeck2"
+					DataFunction="() => _todoList1.GetDataAsync(new(), default)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area">
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+
+		<PDCardDeck @ref="_cardDeck3"
+					DataFunction="() => _todoList1.GetDataAsync(new(), default)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area">
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
 	</PDCardDeckGroup>
+
+
 
 	<hr />
 
@@ -15,7 +49,8 @@
 		<p>Example 2: Simple</p>
 	</div>
 
-	<PDCardDeckGroup DataProvider="_todoList2"/>
+	<PDCardDeckGroup DataProvider="_todoList2">
+	</PDCardDeckGroup>
 	<hr />
 
 	<div>
@@ -23,7 +58,6 @@
 	</div>
 
 	<PDCardDeckGroup DataProvider="_todoList3">
-
 	</PDCardDeckGroup>
 
 	<EventView />

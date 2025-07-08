@@ -31,6 +31,13 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public RenderFragment? ChildContent { get; set; }
 
+		/// <summary>
+		/// The decks that are part of this group
+		/// </summary>
+		[EditorRequired]
+		[Parameter]
+		public List<PDCardDeck<TCard>> Decks { get; set; } = [];
+
 		#endregion
 
 		private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
