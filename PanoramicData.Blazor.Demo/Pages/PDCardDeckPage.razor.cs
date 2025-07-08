@@ -84,4 +84,13 @@ public partial class PDCardDeckPage
 
 		return stringBuilder.ToString();
 	}
+
+	/// <summary>
+	/// Fetch information from the data provider and returns a DataResponse.
+	/// </summary>
+	/// <param name="dataProvider"></param>
+	/// <param name="cancellationToken"></param>
+	/// <returns></returns>
+	private static Task<DataResponse<Todo>> FetchData(ListDataProviderService<Todo> dataProvider, CancellationToken cancellationToken)
+		=> dataProvider.GetDataAsync(new DataRequest<Todo>(), cancellationToken);
 }

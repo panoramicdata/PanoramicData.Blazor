@@ -2,47 +2,6 @@
 @typeparam TCard
 
 <div @attributes=@GetAttributes()>
-
-	@if (DeckTemplate is null)
-	{
-		@foreach (var dataProvider in DataProviders)
-		{
-			<CascadingValue Value="_context" Name="cardDeckGroupContext">
-				<PDCardDeck @ref="@Ref"
-							DataProvider="@dataProvider"
-							MultipleSelection="@MultipleSelection"
-							IsEnabled="@IsEnabled"
-							CardCss="@CardCss"
-							CssClass="@DeckCss"
-							OnRearrange="@OnRearrangeCards"
-							OnSelect="@OnCardSelection"
-							CardTemplate="@CardTemplate"
-							IsAnimated="@IsAnimated" />
-			</CascadingValue>
-		}
-	}
-	else
-	{
-		@foreach (var dataProvider in DataProviders)
-		{
-			<CascadingValue Value="_context" Name="cardDeckGroupContext">
-				<PDCardDeck @ref="@Ref"
-							DataProvider="@dataProvider"
-							MultipleSelection="@MultipleSelection"
-							IsEnabled="@IsEnabled"
-							CardCss="@CardCss"
-							CssClass="@DeckCss"
-							OnRearrange="@OnRearrangeCards"
-							OnSelect="@OnCardSelection"
-							CardTemplate="@CardTemplate"
-							IsAnimated="@IsAnimated">
-
-					<DeckTemplate>
-						@DeckTemplate
-						</DeckTemplate>
-				</PDCardDeck>
-			</CascadingValue>
-		}
-	}
+	@ChildContent
 </div>
 

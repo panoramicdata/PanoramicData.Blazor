@@ -6,20 +6,7 @@
 		<p>Example 1: Kanban style board</p>
 	</div>
 
-	<PDCardDeckGroup @ref="_cardDeckGroup1"
-					 DataProviders="_todoLists"
-					 DeckCss="pd-carddeck-area "
-					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-					 IsAnimated="true"
-					 OnRearrangeCards="(e) => OnRearrange(e, _todoLists)"
-					 OnCardSelection="(e) => OnSelect(e, _cardDeckGroup1)"
-					 OnCardMigration="() => OnCardMigration(_todoLists)">
-
-		<CardTemplate>
-			<ExampleTicket Ticket="context"
-						   Interactable="true" />
-		</CardTemplate>
-
+	<PDCardDeckGroup DataProvider="_todoList1">
 	</PDCardDeckGroup>
 
 	<hr />
@@ -28,32 +15,14 @@
 		<p>Example 2: Simple</p>
 	</div>
 
-	<PDCardDeckGroup @ref="_cardDeckGroup2"
-					 DataProviders="_todoLists2"
-					 OnRearrangeCards="(e) => OnRearrange(e, _todoLists2)"
-					 OnCardSelection="(e) => OnSelect(e, _cardDeckGroup2)"
-					 OnCardMigration="() => OnCardMigration(_todoLists2)" />
+	<PDCardDeckGroup DataProvider="_todoList2"/>
 	<hr />
 
 	<div>
 		<p>Example 3: Kanban style multiselect board</p>
 	</div>
 
-	<PDCardDeckGroup @ref="_cardDeckGroup3"
-					 DataProviders="_todoLists3"
-					 DeckCss="pd-carddeck-area "
-					 MultipleSelection="true"
-					 CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-					 IsAnimated="true"
-					 OnRearrangeCards="(e) => OnRearrange(e, _todoLists3)"
-					 OnCardSelection="(e) => OnSelect(e, _cardDeckGroup3)"
-					 OnCardMigration="() => OnCardMigration(_todoLists3)">
-
-		<CardTemplate>
-			<ExampleTicket Ticket="context"
-						   ShowEditOptions="true"
-						   Interactable="true" />
-		</CardTemplate>
+	<PDCardDeckGroup DataProvider="_todoList3">
 
 	</PDCardDeckGroup>
 

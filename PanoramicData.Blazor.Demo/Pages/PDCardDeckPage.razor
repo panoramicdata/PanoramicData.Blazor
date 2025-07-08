@@ -7,9 +7,7 @@
 	</div>
 
 	<PDCardDeck @ref="_cardDeck1"
-				DataProvider="_todoList1"
-				OnRearrange="(e) => OnRearrange(e, _todoList1)"
-				OnSelect="(e) => OnSelect(e, _cardDeck1)" />
+				DataFunction="() => FetchData(_todoList1 ,default)" />
 
 	<hr />
 
@@ -18,10 +16,8 @@
 	</div>
 
 	<PDCardDeck @ref="_cardDeck2"
-				DataProvider="_todoList2"
 				MultipleSelection="true"
-				OnRearrange="(e) => OnRearrange(e, _todoList2)"
-				OnSelect="(e) => OnSelect(e, _cardDeck2)" />
+				DataFunction="() => FetchData(_todoList2 ,default)" />
 
 	<hr />
 
@@ -30,13 +26,11 @@
 	</div>
 
 	<PDCardDeck @ref="_cardDeck3"
-				DataProvider="_todoList3"
 				MultipleSelection="true"
 				IsAnimated="true"
 				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
 				CssClass="pdcarddeck-animated"
-				OnRearrange="(e) => OnRearrange(e, _todoList3)"
-				OnSelect="(e) => OnSelect(e, _cardDeck3)">
+				DataFunction="() => FetchData(_todoList3 ,default)">
 
 		<CardTemplate>
 			<ExampleTicket Ticket="context" />
@@ -52,16 +46,16 @@
 				@foreach (var card in context.Cards)
 				{
 					currentIndex++;
-						<span class="priority">@currentIndex</span>
+					<span class="priority">@currentIndex</span>
 
-						<PDCard @ref="@context.Ref"
-								@key="@card.Id"
-								DraggingEnabled="context.IsEnabled"
-								Template="context.CardTemplate"
-								Css="context.CardCss"
-								Card="card"
-								ParentCardDeck="context"
-								IsAnimated="@context.IsAnimated" />
+					<PDCard @ref="@context.Ref"
+							@key="@card.Id"
+							DraggingEnabled="context.IsEnabled"
+							Template="context.CardTemplate"
+							Css="context.CardCss"
+							Card="card"
+							ParentCardDeck="context"
+							IsAnimated="@context.IsAnimated" />
 				}
 			</div>
 			<p class="deck-disclaimer">Disclaimer: These tasks are to be completed as soon as possible.</p>
@@ -76,11 +70,9 @@
 	</div>
 
 	<PDCardDeck @ref="_cardDeck4"
-				DataProvider="_todoList4"
 				IsEnabled="false"
 				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-				OnRearrange="(e) => OnRearrange(e, _todoList4)"
-				OnSelect="(e) => OnSelect(e, _cardDeck4)">
+				DataFunction="() => FetchData(_todoList4 , default)">
 
 		<CardTemplate>
 			<ExampleTicket Ticket="context" />

@@ -79,7 +79,7 @@ namespace PanoramicData.Blazor
 			// Visual Updates
 			{ "onmouseup", (MouseEventArgs e) => ParentCardDeck.AddToSelectionAsync(e, card)},
 			{ "ondragstart", (DragEventArgs e) => ParentCardDeck.OnDragStartAsync(e, card)},
-			{ "ondragend", (DragEventArgs e) => ParentCardDeck.OnDragEndAsync(e, card) },
+			{ "ondragend", (DragEventArgs e) => ParentCardDeck.OnDragEnd(e, card) },
 
 			// Position Updates
 			{ "ondragover",(DragEventArgs e) => OnDragOverAsync(e, card) }
