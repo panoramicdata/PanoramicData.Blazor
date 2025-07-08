@@ -1,6 +1,6 @@
 ﻿@typeparam TItem
 
-<div class="pdtreenode" @attributes="TreeAttributes">
+<div id="@($"tree-node-{Node?.Id}")" class="pdtreenode" @attributes="TreeAttributes">
 
     <div class="pdtreenode_header">
         @if (Node?.Isleaf ?? true)

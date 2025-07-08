@@ -60,4 +60,29 @@ public partial class PDTreePage
 			args.Node.Data.Path = $"{item?.ParentPath}/{args.NewValue}";
 		}
 	}
+
+	private async Task ScrollToAlicesFiles()
+	{
+		if (Tree is null)
+		{
+			return;
+		}
+
+		// Find the "Alice" node whose parent is "Users"
+		var node = Tree.Search(n =>
+			n.Text == "Alice" &&
+			n.ParentNode is not null &&
+			n.ParentNode.Text == "Users"
+		);
+
+		if (node is not null)
+		{
+			await Tree.SelectNode(node, false);
+			if (!node.IsExpanded)
+			{
+				await Tree.ToggleNodeIsExpandedAsync(node); // Expand the Alice node
+			}
+			await Tree.ScrollNodeIntoViewAsync(node);
+		}
+	}
 }

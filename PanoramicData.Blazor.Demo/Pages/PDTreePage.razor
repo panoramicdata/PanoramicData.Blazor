@@ -15,8 +15,12 @@
 			</div>
 		</PDToolbarPlaceholder>
 
+        <PDToolbarButton Text="Scroll to Alice's Files"
+                         ShiftRight="true"
+                         CssClass="btn-secondary"
+                         Click="() => ScrollToAlicesFiles()" />
+
 		<PDToolbarButton Text="@(ShowLines ? "Hide Lines" : "Show Lines")"
-						 ShiftRight="true"
 						 CssClass="btn-secondary"
 						 Click="() => ShowLines = !ShowLines" />
 
