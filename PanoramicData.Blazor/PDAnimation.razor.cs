@@ -2,7 +2,7 @@ using PanoramicData.Blazor.Enums;
 
 namespace PanoramicData.Blazor;
 
-public partial class PDAnimation
+public partial class PDAnimation : IDisposable
 {
 	private static int _sequence;
 
@@ -39,6 +39,7 @@ public partial class PDAnimation
 	/// The last time this animation was triggered.
 	/// </summary>
 	private TimeSpan _lastAnimationTrigger = TimeSpan.Zero;
+	private bool _disposedValue;
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -138,4 +139,35 @@ public partial class PDAnimation
 			AnimationTransition.StepEnd => "step-end",
 			_ => "ease-in-out"
 		};
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!_disposedValue)
+		{
+			if (disposing)
+			{
+				// Dispose managed state (managed objects)
+				_positions.Clear();
+				_module = null;
+			}
+			// Free unmanaged resources (unmanaged objects) and override finalizer
+			// Set large fields to null
+			Element = default!;
+			_disposedValue = true;
+		}
+	}
+
+	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+	// ~PDAnimation()
+	// {
+	//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+	//     Dispose(disposing: false);
+	// }
+
+	public void Dispose()
+	{
+		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
+	}
 }
