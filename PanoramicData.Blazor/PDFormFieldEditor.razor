@@ -3,7 +3,7 @@
 @{
 	var fieldType = Field.GetFieldType();
 }
-<div class="editor @(GetResizeableCssCls()) @(Form?.Mode == FormModes.ReadOnly || Form?.Mode == FormModes.Cancel ? "readonly" : "")">
+<div @ref="_editorDiv" class="editor @(GetResizeableCssCls()) @(Form?.Mode == FormModes.ReadOnly || Form?.Mode == FormModes.Cancel ? "readonly" : "")">
 
 	@if (Field.GetFieldIsNullable() && Field.DisplayOptions?.AllowNulls == true)
 	{
@@ -198,3 +198,7 @@
 	}
 
 </div>
+
+@code {
+    // Registration logic is handled in the code-behind (PDFormFieldEditor.razor.cs)
+}

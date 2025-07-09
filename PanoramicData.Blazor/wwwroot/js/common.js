@@ -188,6 +188,12 @@ export function onTableDragStart(id) {
 	}
 }
 
+export function clearInlineStyle(element) {
+    if (element && element.style) {
+        element.style.cssText = '';
+    }
+}
+
 function scrollToBottom(element) {
 	element.scrollTop = element.scrollHeight;
 }
@@ -198,4 +204,3 @@ function onDragStart(evt) {
 		evt.dataTransfer.setData("DownloadURL", url);
 	}
 }
-
