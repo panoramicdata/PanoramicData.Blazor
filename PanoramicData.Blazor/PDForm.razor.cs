@@ -7,6 +7,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	private static int _seq;
 	private bool _showHelp;
 	private IJSObjectReference? _module;
+	private readonly List<PDFormFieldEditor<TItem>> _fieldEditors = new();
 
 	public event EventHandler? ErrorsChanged;
 
@@ -302,6 +303,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		}
 
 		StateHasChanged();
+		_ = ResetAllEditorCssAsync();
 	}
 
 	/// <summary>
@@ -954,6 +956,28 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		}
 
 		StateHasChanged();
+		await ResetAllEditorCssAsync();
+	}
+
+	public void RegisterFieldEditor(PDFormFieldEditor<TItem> editor)
+	{
+		if (!_fieldEditors.Contains(editor))
+		{
+			_fieldEditors.Add(editor);
+		}
+	}
+
+	public void UnregisterFieldEditor(PDFormFieldEditor<TItem> editor)
+	{
+		_fieldEditors.Remove(editor);
+	}
+
+	private async Task ResetAllEditorCssAsync()
+	{
+		foreach (var editor in _fieldEditors.ToList())
+		{
+			await editor.ResetEditorCssAsync();
+		}
 	}
 
 	public async ValueTask DisposeAsync()

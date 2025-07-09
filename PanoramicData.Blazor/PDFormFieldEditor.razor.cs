@@ -10,6 +10,12 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	// Debounce support
 	private CancellationTokenSource? _monacoDebounceCts;
 
+	private ElementReference _editorDiv;
+	private IJSObjectReference? _commonModule;
+
+	[Inject]
+	public IJSRuntime JSRuntime { get; set; } = null!;
+
 	[Parameter]
 	public int DebounceWait { get; set; }
 
@@ -147,8 +153,18 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 
 	protected override void OnInitialized()
 	{
+		base.OnInitialized();
+		Form?.RegisterFieldEditor(this);
 		Form.ResetRequested += Form_ResetRequested;
 		Field.ValueChanged += Field_ValueChanged;
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+		}
 	}
 
 	private async void Field_ValueChanged(object? sender, object? value)
@@ -329,6 +345,12 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
+	public async Task ResetEditorCssAsync()
+	{
+		_commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+		await _commonModule.InvokeVoidAsync("clearInlineStyle", _editorDiv);
+	}
+
 	#region IDisposable
 
 	protected virtual void Dispose(bool disposing)
@@ -339,6 +361,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 			{
 				Field.ValueChanged -= Field_ValueChanged;
 				Form.ResetRequested -= Form_ResetRequested;
+				Form?.UnregisterFieldEditor(this);
 				_monacoDebounceCts?.Cancel();
 				_monacoDebounceCts?.Dispose();
 				_monacoDebounceCts = null;
