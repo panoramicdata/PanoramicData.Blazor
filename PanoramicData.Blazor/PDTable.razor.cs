@@ -1289,7 +1289,7 @@ public partial class PDTable<TItem> :
 				// begin edit mode?
 				if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0 && !EditOnDoubleClick)
 				{
-					_editTimer?.Change(100, Timeout.Infinite);
+					_editTimer?.Change(250, Timeout.Infinite);
 				}
 				else
 				{
