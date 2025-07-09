@@ -25,6 +25,11 @@ public class DataRequest<TItem>
 	public Expression<Func<TItem, object>>? SortFieldExpression { get; set; }
 
 	/// <summary>
+	/// Gets or sets a Linq expression that defines one or more fields to filter the query results, before returning.
+	/// </summary>
+	public Func<IEnumerable<TItem>, IEnumerable<TItem>>? ResponseFilter { get; set; }
+
+	/// <summary>
 	/// Gets or sets the direction of the sort.
 	/// </summary>
 	public SortDirection? SortDirection { get; set; }

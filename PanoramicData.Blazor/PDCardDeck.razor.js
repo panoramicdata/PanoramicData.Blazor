@@ -7,6 +7,9 @@
 		if (isOutsideElement(event)) {
 			dotNetRef.invokeMethodAsync('EndDragOperation');
 		}
+		else {
+			dotNetRef.invokeMethodAsync('RegisterSource', event.target.id);
+		}
 	});
 
 	document.addEventListener('mouseup',
@@ -14,6 +17,9 @@
 
 	document.addEventListener('mouseleave',
 		function (_) { dotNetRef.invokeMethodAsync("EndDragOperation") });
+
+	document.addEventListener('drop',
+		function (_) { dotNetRef.invokeMethodAsync("InitiateTransformAsync") });
 }
 
 export function registerDragEnterOperation(element, dotNetRef) {

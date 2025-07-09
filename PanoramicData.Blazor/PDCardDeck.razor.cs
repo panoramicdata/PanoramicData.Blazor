@@ -112,10 +112,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	protected override async Task OnParametersSetAsync()
 	{
-		// Fetch the contents of the deck
-		var response = await DataFunction.Invoke();
-
-		Cards = [.. response.Items];
+		await RefreshAsync();
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -145,13 +142,18 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	}
 
 	[JSInvokable]
-	public async Task RegisterDestination()
-	{
-		if (Parent is not null)
-		{
-			await Parent.RegisterDestinationAsync(this);
-		}
-	}
+	public void RegisterDestination()
+		=> Parent?.RegisterTarget(this);
+
+	[JSInvokable]
+	public void RegisterSource()
+		=> Parent?.RegisterSource(this);
+
+	[JSInvokable]
+	public Task InitiateTransformAsync()
+		=> Parent?.InitiateTransformAsync()
+		?? Task.CompletedTask;
+
 
 	#region Card Called Events
 
@@ -467,6 +469,18 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		{
 			await card.AnimationHandler.CancelAnimationAsync();
 		}
+	}
+
+	internal async Task RefreshAsync()
+	{
+		// Fetch the contents of the deck
+		var response = await DataFunction.Invoke();
+
+		var newOrder = response.Items
+			.OrderBy(card => card.DeckPosition)
+			.ToList();
+
+		Cards = newOrder;
 	}
 
 	#endregion
