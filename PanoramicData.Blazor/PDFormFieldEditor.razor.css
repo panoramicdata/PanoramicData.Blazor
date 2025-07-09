@@ -7,7 +7,7 @@
 	flex: 1 1;
 	padding: 0px 2px;
 	vertical-align: middle;
-	z-index: 0;
+	z-index: 1;
 }
 
 /* this is required to allow monaco editor to shrink when user resizes page */
