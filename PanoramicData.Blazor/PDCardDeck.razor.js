@@ -15,3 +15,12 @@
 	document.addEventListener('mouseleave',
 		function (_) { dotNetRef.invokeMethodAsync("EndDragOperation") });
 }
+
+export function registerDragEnterOperation(element, dotNetRef) {
+	if (!element) return;
+
+	element.addEventListener('dragenter', function (event) {
+		event.preventDefault();
+		dotNetRef.invokeMethodAsync('RegisterDestination');
+  });
+}

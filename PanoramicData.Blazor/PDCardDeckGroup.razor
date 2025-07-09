@@ -2,6 +2,8 @@
 @typeparam TCard
 
 <div @attributes=@GetAttributes()>
-	@ChildContent
-</div>
 
+	<CascadingValue Value="this">
+		@ChildContent
+	</CascadingValue>
+</div>

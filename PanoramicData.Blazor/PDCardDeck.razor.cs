@@ -7,12 +7,15 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 {
 	private static int _sequence;
 
+	#region State Management
+
 	/// <inheritdoc cref="PDCardDeckSelectionHelper{TCard}"/>
 	private readonly PDCardDeckSelectionHelper<TCard> _selectionHelper = new();
 
 	/// <inheritdoc cref="PDCardDragDropInformation"/>
 	public PDCardDragDropInformation DragState { get; private set; } = new();
 
+	#endregion
 	/// <summary>
 	/// References to each PDCardComponent in the Deck. This is used for animations, without this, the cards will not animate correctly.
 	/// </summary>
@@ -87,6 +90,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	[Parameter]
 	public bool MultipleSelection { get; set; }
 
+	/// <summary>
+	/// The parent deck group that this deck belongs to, if any. This is used for migrating cards between decks.
+	/// </summary>
+	[CascadingParameter]
+	public PDCardDeckGroup<TCard>? Parent { get; set; }
+
 	#endregion
 
 	private Dictionary<string, object?> GetDeckAttributes()
@@ -95,7 +104,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		{
 			{ "class", $"{CssClass ?? "pdcarddeck"} {(IsEnabled ? "" : " disabled")} {SizeCssClass}" },
 			{ "id", Id },
-			{ "ondrop", (MouseEventArgs _) => DragState.IsDragging = false }
+			{ "ondrop", (MouseEventArgs _) => DragState.IsDragging = false },
 		};
 
 		return dict;
@@ -118,6 +127,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		if (_jsModule != null)
 		{
 			await _jsModule.InvokeVoidAsync("registerEndDragOperation", _elementRef, _dotNetRef);
+
+			await _jsModule.InvokeVoidAsync("registerDragEnterOperation", _elementRef, _dotNetRef);
 		}
 
 		await base.OnInitializedAsync();
@@ -131,6 +142,15 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		DragState.IsDragging = false;
 		StateHasChanged();
+	}
+
+	[JSInvokable]
+	public async Task RegisterDestination()
+	{
+		if (Parent is not null)
+		{
+			await Parent.RegisterDestinationAsync(this);
+		}
 	}
 
 	#region Card Called Events

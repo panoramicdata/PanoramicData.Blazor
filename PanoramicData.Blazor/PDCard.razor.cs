@@ -6,12 +6,14 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// Whether this card is currently selected by the user.
 		/// </summary>
-		private bool _isSelected => ParentCardDeck.Selection.Contains(Card);
+		private bool _isSelected
+			=> ParentCardDeck.Selection.Contains(Card);
 
 		/// <summary>
 		/// Whether this card is being dragged by the user.
 		/// </summary>
-		private bool _isDragging => ParentCardDeck.DragState.IsDragging && _isSelected;
+		private bool _isDragging
+			=> ParentCardDeck.DragState.IsDragging && _isSelected;
 
 		/// <summary>
 		/// Whether the drag animation is currently active. This is used to prevent multiple drag events from triggering the animation at the same time.

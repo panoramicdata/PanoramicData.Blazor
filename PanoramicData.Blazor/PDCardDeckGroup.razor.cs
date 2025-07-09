@@ -4,6 +4,8 @@ namespace PanoramicData.Blazor
 	{
 		private static int _sequence;
 
+		private List<PDCardDeck<TCard>> _decks = [];
+
 		#region Parameters
 
 		/// <summary>
@@ -31,13 +33,6 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public RenderFragment? ChildContent { get; set; }
 
-		/// <summary>
-		/// The decks that are part of this group
-		/// </summary>
-		[EditorRequired]
-		[Parameter]
-		public List<PDCardDeck<TCard>> Decks { get; set; } = [];
-
 		#endregion
 
 		private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
@@ -61,6 +56,41 @@ namespace PanoramicData.Blazor
 			};
 
 			return dict;
+		}
+
+		public async Task RegisterDestinationAsync(PDCardDeck<TCard> deck)
+		{
+			var lastDeck = _decks.LastOrDefault();
+
+			if (lastDeck == deck)
+			{
+				return; // Already registered
+			}
+
+			_decks.Add(deck);
+
+			if (_decks.Count > 2)
+			{
+				_decks.RemoveAt(0);
+			}
+
+			// Migrate the cards
+			if (_decks.Count == 2)
+			{
+				var source = _decks[0];
+				var destination = _decks[1];
+
+				var movingCards = source.Selection;
+
+				// Check if the moving cards are already in the destination deck
+				if (destination.Cards.Any(movingCards.Contains))
+				{
+					return;
+				}
+
+				await destination.AddCardsAsync(movingCards);
+				await source.RemoveSelectedCardsAsync();
+			}
 		}
 	}
 }
