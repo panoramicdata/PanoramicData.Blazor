@@ -21,6 +21,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 				Title = "A Todo", Description = "a description" },
 			new() { Title = "Put out Pan Fire", Description = "a description" },
 			new() { Title = "Mow the Lawn", Description = "a description" }]);
+
+			_todoList3.List.AddRange([new() {
+				Title = "A Todo", Description = "a description" },
+			new() { Title = "Put out Pan Fire", Description = "a description" },
+			new() { Title = "Mow the Lawn", Description = "a description" }]);
 		}
 
 		private static Func<Task<DataResponse<Todo>>> GetDataFunction(CardDeckDataProviderService<Todo> dataProvider, TodoProgress progress)
