@@ -6,7 +6,8 @@
 		<p>Example 1: Kanban style board</p>
 	</div>
 
-	<PDCardDeckGroup DataProvider="_todoList1">
+	<PDCardDeckGroup DataProvider="_todoList1"
+		CssClass="pd-kanbanboard">
 
 		<PDCardDeck DataFunction="GetDataFunction(_todoList1, TodoProgress.BeingDefined)"
 					IsAnimated="true"
@@ -47,16 +48,21 @@
 	</PDCardDeckGroup>
 
 	<hr />
-	@* 
+
 	<div>
 		<p>Example 2: Simple</p>
 	</div>
 
 	<PDCardDeckGroup DataProvider="_todoList2">
+		<PDCardDeck DataFunction="GetDataFunction(_todoList2, TodoProgress.BeingDefined)" />
+		<PDCardDeck DataFunction="GetDataFunction(_todoList2, TodoProgress.InProgress)" />
+		<PDCardDeck DataFunction="GetDataFunction(_todoList2, TodoProgress.Done)" />
+
 	</PDCardDeckGroup>
 	<hr />
 
-	<div>
+	@*
+		<div>
 		<p>Example 3: Kanban style multiselect board</p>
 	</div>
 

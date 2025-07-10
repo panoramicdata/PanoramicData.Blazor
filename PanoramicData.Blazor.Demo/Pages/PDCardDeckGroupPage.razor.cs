@@ -12,16 +12,22 @@ namespace PanoramicData.Blazor.Demo.Pages
 
 		protected override void OnInitialized()
 		{
-			_todoList1.List.AddRange([new() { Title = "A Todo", Description = "a description" },
+			_todoList1.List.AddRange([new() {
+				Title = "A Todo", Description = "a description" },
+			new() { Title = "Put out Pan Fire", Description = "a description" },
+			new() { Title = "Mow the Lawn", Description = "a description" }]);
+
+			_todoList2.List.AddRange([new() {
+				Title = "A Todo", Description = "a description" },
 			new() { Title = "Put out Pan Fire", Description = "a description" },
 			new() { Title = "Mow the Lawn", Description = "a description" }]);
 		}
 
-		private Func<Task<DataResponse<Todo>>> GetDataFunction(CardDeckDataProviderService<Todo> dataProvider, TodoProgress progress)
+		private static Func<Task<DataResponse<Todo>>> GetDataFunction(CardDeckDataProviderService<Todo> dataProvider, TodoProgress progress)
 			=> ()
-			=> dataProvider.GetDataAsync(new DataRequest<Todo>
-			{
-				ResponseFilter = items => items.Where(item => item.Progress == progress),
-			}, CancellationToken.None);
+				=> dataProvider.GetDataAsync(new DataRequest<Todo>
+				{
+					ResponseFilter = items => items.Where(item => item.Progress == progress),
+				}, CancellationToken.None);
 	}
 }

@@ -250,6 +250,13 @@ a, .btn-link {
 	border-radius: 0.5em;
 }
 
+.pd-kanbanboard{
+	display: flex;
+	gap: 1em;
+	padding: 1em;
+	justify-content: center;
+}
+
 .pdcarddeck-animated {
 	border: 2px solid #1b6ec2;
 	border-radius: 1em;

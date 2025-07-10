@@ -1,5 +1,6 @@
 
 
+
 namespace PanoramicData.Blazor
 {
 	public partial class PDCardDeckGroup<TCard> where TCard : ICard
@@ -39,6 +40,7 @@ namespace PanoramicData.Blazor
 		/// <summary>
 		/// The decks that are to be rendered within this group.
 		/// </summary>
+		[EditorRequired]
 		[Parameter]
 		public RenderFragment? ChildContent { get; set; }
 
@@ -63,10 +65,20 @@ namespace PanoramicData.Blazor
 			var dict = new Dictionary<string, object?>
 			{
 				{ "id", Id },
-				{ "class", "pd-carddeck-group-default" },
+				{ "class", GetDeckGroupClass() },
 			};
 
 			return dict;
+		}
+
+		private string GetDeckGroupClass()
+		{
+			if (CssClass is null)
+			{
+				return "pd-carddeck-group-default";
+			}
+
+			return CssClass;
 		}
 
 		#region UI Indicators for Migration
