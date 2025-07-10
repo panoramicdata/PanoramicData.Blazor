@@ -79,7 +79,7 @@ public partial class PDFilter : IAsyncDisposable
 			try
 			{
 				_commonModule = await JSRuntime
-					.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js")
+					.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl)
 					.ConfigureAwait(true);
 			}
 			catch

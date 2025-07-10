@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Fixed an issue with z-index on the right-click menu, in the Monaco editor
+			Loading common.js based on versioning to prevent over caching
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

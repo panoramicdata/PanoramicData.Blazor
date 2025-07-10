@@ -24,7 +24,13 @@ public partial class PDButtonPage : IAsyncDisposable
 		EventManager?.Add(new Event("Long running operation stopped"));
 	}
 
-	protected override async Task OnInitializedAsync() => _commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+		}
+	}
 
 	private void OnButton1Click(MouseEventArgs args)
 	{

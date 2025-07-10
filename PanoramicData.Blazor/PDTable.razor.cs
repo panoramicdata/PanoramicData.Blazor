@@ -880,7 +880,7 @@ public partial class PDTable<TItem> :
 				_editTimer = new Timer(OnEditTimer, null, Timeout.Infinite, Timeout.Infinite);
 
 				// Load common JavaScript
-				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
 				if (_commonModule != null)
 				{
 					await _commonModule.InvokeVoidAsync("onTableDragStart", Id);

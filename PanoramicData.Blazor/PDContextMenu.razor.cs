@@ -54,7 +54,7 @@ public partial class PDContextMenu : IAsyncDisposable
 				if (JSRuntime != null)
 				{
 					_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDContextMenu.razor.js");
-					_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+					_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
 					var available = await _module.InvokeAsync<bool>("hasPopperJs").ConfigureAwait(true);
 					if (!available)
 					{

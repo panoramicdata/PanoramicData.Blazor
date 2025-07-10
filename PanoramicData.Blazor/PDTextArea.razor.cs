@@ -140,7 +140,7 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 			try
 			{
 				_objRef = DotNetObjectReference.Create(this);
-				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
 				if (_commonModule != null && DebounceWait > 0)
 				{
 					await _commonModule.InvokeVoidAsync("debounceInput", Id, DebounceWait, _objRef).ConfigureAwait(true);

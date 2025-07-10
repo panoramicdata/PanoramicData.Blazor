@@ -294,7 +294,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 					await _module.InvokeVoidAsync("initialize", Id, Options, _objRef).ConfigureAwait(true);
 				}
 
-				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
 				if (_commonModule != null)
 				{
 					_canvasHeight = (int)await _commonModule.InvokeAsync<double>("getHeight", _svgPlotElement).ConfigureAwait(true);

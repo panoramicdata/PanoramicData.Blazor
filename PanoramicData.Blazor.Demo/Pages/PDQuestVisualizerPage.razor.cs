@@ -13,9 +13,12 @@ public partial class PDQuestVisualizerPage : IAsyncDisposable
 
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js").ConfigureAwait(true);
+		if (firstRender)
+		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
+		}
 	}
 
 	public async ValueTask DisposeAsync()

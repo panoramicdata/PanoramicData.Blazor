@@ -339,7 +339,7 @@ public partial class PDTree<TItem> where TItem : class
     /// <param name="nodeId">The ID of the node to scroll into view.</param>
     public async Task ScrollNodeIntoViewAsync(string nodeId)
     {
-        _commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/common.js");
+        _commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
 
         await _commonModule.InvokeVoidAsync("scrollIntoView", nodeId);
     }
@@ -768,7 +768,7 @@ public partial class PDTree<TItem> where TItem : class
         {
             try
             {
-                _commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+                _commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
 
                 // build initial model and notify listeners
                 var items = await GetDataAsync().ConfigureAwait(true);

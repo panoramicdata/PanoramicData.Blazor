@@ -99,7 +99,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		{
 			try
 			{
-				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
 			}
 			catch
 			{

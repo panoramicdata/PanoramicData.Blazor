@@ -163,7 +163,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		if (firstRender)
 		{
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
 		}
 	}
 
@@ -347,7 +347,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 
 	public async Task ResetEditorCssAsync()
 	{
-		_commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/js/common.js");
+		_commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
 		await _commonModule.InvokeVoidAsync("clearInlineStyle", _editorDiv);
 	}
 
