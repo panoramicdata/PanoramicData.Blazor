@@ -16,6 +16,12 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		private List<PDCardDeck<TCard>> _decks = [];
 
+		/// <summary>
+		/// Check if any of the decks in this group have cards that are currently being dragged.
+		/// </summary>
+		private bool _isDragging
+			=> _decks.Any(deck => deck.DragState.IsDragging);
+
 		#region Parameters
 
 		/// <summary>
@@ -100,6 +106,12 @@ namespace PanoramicData.Blazor
 
 		public void RegisterDestination(PDCardDeck<TCard> deck)
 		{
+			// Prevents interference between card deck groups
+			if (!_isDragging)
+			{
+				return;
+			}
+
 			// Check the last deck in the list is not the same as the one being registered.
 			if (_destinations.Count > 0 && _destinations[^1] == deck.Id)
 			{
