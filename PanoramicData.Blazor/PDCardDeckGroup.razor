@@ -2,9 +2,9 @@
 @typeparam TCard
 
 <div @attributes=@GetAttributes()>
-    @if (!AllDataLoaded())
+	@if (!AllDataLoaded())
     {
-        <PDCardDeckLoadingIcon />
+        <PDCardDeckLoadingIcon @ref="_loadingIcon" />
     }
 
     <CascadingValue Value="this">

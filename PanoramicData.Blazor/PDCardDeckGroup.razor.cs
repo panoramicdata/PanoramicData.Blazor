@@ -8,6 +8,8 @@ namespace PanoramicData.Blazor
 
 		private List<string> _destinations = [];
 
+		private PDCardDeckLoadingIcon _loadingIcon = new();
+
 		/// <summary>
 		/// Holds references to the decks that are part of this group
 		/// </summary>
@@ -123,14 +125,22 @@ namespace PanoramicData.Blazor
 		{
 			if (_decks.Count == 0)
 			{
-				BlockOverlayService.Show();
+				// Show the Blocker overlay only when the icon is active, to avoid flickering.
+				if (_loadingIcon.IsActive)
+				{
+					BlockOverlayService.Show();
+				}
 				return false;
 			}
 			foreach (var deck in _decks)
 			{
 				if (!deck.DataLoaded)
 				{
-					BlockOverlayService.Show();
+					// Show the Blocker overlay only when the icon is active, to avoid flickering.
+					if (_loadingIcon.IsActive)
+					{
+						BlockOverlayService.Show();
+					}
 					return false;
 				}
 			}

@@ -1,44 +1,10 @@
-<div class="pd-carddeck-loading">
-	<div class="loading-card pd-carddeck-item-top"></div>
-	<div class="loading-card pd-carddeck-item-bottom"></div>
-	<div class="loading-card"></div>
-	Loading Data... (current elapsed time @_currentLoadTime seconds)
-</div>
-
-@code {
-	private DateTime _loadStart = DateTime.UtcNow;
-	private int _currentLoadTime = 0;
-	private bool _isRunning = true;
-	private CancellationTokenSource? _cts;
-
-	protected override void OnInitialized()
-	{
-		_loadStart = DateTime.UtcNow;
-		_cts = new CancellationTokenSource();
-		_ = UpdateElapsedTimeAsync(_cts.Token);
-	}
-
-	private async Task UpdateElapsedTimeAsync(CancellationToken token)
-	{
-		while (!token.IsCancellationRequested)
-		{
-			_currentLoadTime = (int)(DateTime.UtcNow - _loadStart).TotalSeconds;
-			await InvokeAsync(StateHasChanged);
-			try
-			{
-				await Task.Delay(TimeSpan.FromSeconds(1), token);
-			}
-			catch (TaskCanceledException)
-			{
-				break;
-			}
-		}
-	}
-
-	public void Dispose()
-	{
-		_isRunning = false;
-		_cts?.Cancel();
-		_cts?.Dispose();
-	}
+@if (IsActive)
+{
+	<div class="pd-carddeck-loading">
+		<div class="loading-card pd-carddeck-item-top"></div>
+		<div class="loading-card pd-carddeck-item-bottom"></div>
+		<div class="loading-card"></div>
+		Loading Data... (current elapsed time @_currentLoadTime seconds)
+	</div>
 }
+
