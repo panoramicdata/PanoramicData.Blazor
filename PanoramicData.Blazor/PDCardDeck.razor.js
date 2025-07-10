@@ -7,9 +7,6 @@
 		if (isOutsideElement(event)) {
 			dotNetRef.invokeMethodAsync('EndDragOperation');
 		}
-		else {
-			dotNetRef.invokeMethodAsync('RegisterSource', event.target.id);
-		}
 	});
 
 	document.addEventListener('mouseup',
@@ -26,7 +23,6 @@ export function registerDragEnterOperation(element, dotNetRef) {
 	if (!element) return;
 
 	element.addEventListener('dragenter', function (event) {
-		event.preventDefault();
 		dotNetRef.invokeMethodAsync('RegisterDestination');
-  });
+	});
 }

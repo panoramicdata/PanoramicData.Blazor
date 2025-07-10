@@ -6,9 +6,7 @@
 		<p>Example 1: Kanban style board</p>
 	</div>
 
-	<PDCardDeckGroup DataProvider="_todoList1"
-		MoveValidationFunction="ValidationFunction"
-					 TransformOperation="GetTransformOperation()">
+	<PDCardDeckGroup DataProvider="_todoList1">
 
 		<PDCardDeck DataFunction="GetDataFunction(_todoList1, TodoProgress.BeingDefined)"
 					IsAnimated="true"
@@ -49,7 +47,7 @@
 	</PDCardDeckGroup>
 
 	<hr />
-@* 
+	@* 
 	<div>
 		<p>Example 2: Simple</p>
 	</div>

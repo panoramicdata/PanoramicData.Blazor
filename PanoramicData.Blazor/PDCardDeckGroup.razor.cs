@@ -1,11 +1,17 @@
+
+
 namespace PanoramicData.Blazor
 {
 	public partial class PDCardDeckGroup<TCard> where TCard : ICard
 	{
 		private static int _sequence;
 
-		private PDCardDeck<TCard>? _dragSource;
-		private PDCardDeck<TCard>? _dropTarget;
+		private List<string> _destinations = [];
+
+		/// <summary>
+		/// Holds references to the decks that are part of this group
+		/// </summary>
+		private List<PDCardDeck<TCard>> _decks = [];
 
 		#region Parameters
 
@@ -34,20 +40,6 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public RenderFragment? ChildContent { get; set; }
 
-		/// <summary>
-		/// Function that checks the validity of card moving operations between decks
-		/// </summary>
-		[EditorRequired]
-		[Parameter]
-		public Func<PDCardDeck<TCard>, PDCardDeck<TCard>, bool>? MoveValidationFunction { get; set; }
-
-		/// <summary>
-		/// Operation that is performed when a card (or collection of cards) are to be moved from one deck to another
-		/// </summary>
-		[EditorRequired]
-		[Parameter]
-		public Action<PDCardDeck<TCard>, PDCardDeck<TCard>>? TransformOperation { get; set; }
-
 		#endregion
 
 		private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
@@ -73,58 +65,77 @@ namespace PanoramicData.Blazor
 			return dict;
 		}
 
-		public void RegisterSource(PDCardDeck<TCard> deck)
+		#region UI Indicators for Migration
+		public void RegisterDestination(PDCardDeck<TCard> deck)
 		{
-			_dropTarget = null!;
-			_dragSource = deck;
-		}
-
-		public void RegisterTarget(PDCardDeck<TCard> deck)
-		{
-			// Cannot drag from the same deck
-			if (deck != _dragSource)
+			// Check the last deck in the list is not the same as the one being registered.
+			if (_destinations.Count > 0 && _destinations[^1] == deck.Id)
 			{
-				_dropTarget = deck;
+				return;
+			}
+
+			_destinations.Add(deck.Id);
+
+			if (_destinations.Count > 2)
+			{
+				_destinations.RemoveAt(0);
 			}
 		}
+
+		internal async Task UpdateCardLocationsAsync()
+		{
+			// Must have two destinations to perform a migration.
+			if (_destinations.Count < 2)
+			{
+				return;
+			}
+
+			// Perform the migration
+			var source = _decks.FirstOrDefault(c => _destinations[0] == c.Id);
+			var destination = _decks.FirstOrDefault(c => _destinations[1] == c.Id);
+
+			if (source == null || destination == null)
+			{
+				return;
+			}
+
+			List<TCard> movingCards = [.. source.Selection];
+
+			await source.RemoveSelectedCardsAsync();
+			await destination.AddCardsAsync(movingCards);
+
+			_destinations.Clear();
+
+			await source.NotifyUiUpdateAsync();
+			await destination.NotifyUiUpdateAsync();
+		}
+
+		#endregion
 
 		internal async Task InitiateTransformAsync()
 		{
-			// Ensure that the transform methods are set
-			if (MoveValidationFunction is null || TransformOperation is null)
+			await Task.CompletedTask;
+		}
+
+		internal void SetActiveDeck(PDCardDeck<TCard> activeDeck)
+		{
+			foreach (var deck in _decks)
+			{
+				if (deck != activeDeck)
+				{
+					deck.Selection.Clear();
+				}
+			}
+		}
+
+		internal void RegisterDeckAsChild(PDCardDeck<TCard> deck)
+		{
+			if (deck == null || _destinations.Contains(deck.Id))
 			{
 				return;
 			}
 
-			// Cannot perform a transform without a source and target
-			if (_dragSource is null || _dropTarget is null)
-			{
-
-				return;
-			}
-
-			// Move is not valid
-			if (!MoveValidationFunction(_dragSource, _dropTarget))
-			{
-
-				return;
-			}
-			var movingCards = _dragSource.Selection.ToList();
-
-			// Perform the transform
-			TransformOperation(_dragSource, _dropTarget);
-
-			// reset the drag and drop targets
-			_dragSource.Selection.Clear();
-			_dropTarget.Selection.Clear();
-
-			await _dropTarget.RefreshAsync();
-			await _dragSource.RefreshAsync();
-
-			_dragSource = null;
-			_dropTarget = null;
-
-			await InvokeAsync(StateHasChanged);
+			_decks.Add(deck);
 		}
 	}
 }

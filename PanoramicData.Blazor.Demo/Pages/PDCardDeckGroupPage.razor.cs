@@ -23,26 +23,5 @@ namespace PanoramicData.Blazor.Demo.Pages
 			{
 				ResponseFilter = items => items.Where(item => item.Progress == progress),
 			}, CancellationToken.None);
-
-
-		private Func<PDCardDeck<Todo>, PDCardDeck<Todo>, bool> ValidationFunction
-				=> (source, target) =>
-			{
-				// Allow all moves
-				return true;
-			};
-
-		private static Action<PDCardDeck<Todo>, PDCardDeck<Todo>>
-			GetTransformOperation()
-		{
-			return (source, destination) =>
-				{
-					source.Selection.ForEach(item =>
-					{
-						// Update the progress of the todo item
-						item.Progress = destination.Cards[0].Progress;
-					});
-				};
-		}
 	}
 }

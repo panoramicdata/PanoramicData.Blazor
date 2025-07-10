@@ -107,12 +107,22 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			{ "ondrop", (MouseEventArgs _) => DragState.IsDragging = false },
 		};
 
+		if (Parent is not null)
+		{
+			dict.Add("ondragenter",
+				async (MouseEventArgs _) => await RegisterDestination());
+		}
+
 		return dict;
 	}
 
-	protected override async Task OnParametersSetAsync()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		await RefreshAsync();
+		if (firstRender)
+		{
+			await RefreshAsync();
+			Parent?.RegisterDeckAsChild(this);
+		}
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -124,8 +134,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		if (_jsModule != null)
 		{
 			await _jsModule.InvokeVoidAsync("registerEndDragOperation", _elementRef, _dotNetRef);
-
-			await _jsModule.InvokeVoidAsync("registerDragEnterOperation", _elementRef, _dotNetRef);
 		}
 
 		await base.OnInitializedAsync();
@@ -141,14 +149,26 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Registers a new destination for the card deck group
+	/// </summary>
+	/// <returns></returns>
 	[JSInvokable]
-	public void RegisterDestination()
-		=> Parent?.RegisterTarget(this);
+	public async Task RegisterDestination()
+	{
+		if (Parent is null)
+		{
+			return;
+		}
 
-	[JSInvokable]
-	public void RegisterSource()
-		=> Parent?.RegisterSource(this);
+		Parent.RegisterDestination(this);
+		await Parent.UpdateCardLocationsAsync();
+	}
 
+	/// <summary>
+	/// Initiates the defined transform operation on the card group
+	/// </summary>
+	/// <returns></returns>
 	[JSInvokable]
 	public Task InitiateTransformAsync()
 		=> Parent?.InitiateTransformAsync()
@@ -159,6 +179,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void AddToSelection(MouseEventArgs args, TCard card)
 	{
+		Parent?.SetActiveDeck(this);
+
 		// Cannot be dragging while adding to selection
 		DragState.IsDragging = false;
 
@@ -194,6 +216,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	internal async Task OnDragStartAsync(DragEventArgs e, TCard card)
 	{
 		ClearAnimationPositions();
+		Parent?.SetActiveDeck(this);
 
 		// Handles edge case where the user drags a card that is not in the selection
 		if (!MultipleSelection || !Selection.Contains(card))
@@ -253,7 +276,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <returns></returns>
 	private async Task UpdateCardPositionsAsync(bool movingDown)
 	{
-
 		var destination = DragState.TargetIndex;
 
 		if (destination < 0 || destination >= Cards.Count)
@@ -296,8 +318,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		await InvokeAsync(StateHasChanged)
 			.ConfigureAwait(false);
-
-		UpdateCardDeckPositions();
 	}
 
 	/// <summary>
@@ -323,6 +343,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return true;
 	}
 
+	#region Card Migration Methods
+
 	/// <summary>
 	/// Adds a set of cards to the deck at the specified index, updating the selection and card positions accordingly. 
 	/// </summary>
@@ -335,18 +357,18 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		DragState.IsDragging = true;
 		await CancelAnimations();
+
 		// Create the new cards
 		for (int index = 0; index < selection.Count; index++)
 		{
 			var card = selection[index];
 
 			Cards.Insert(ClampBounds(index + DragState.TargetIndex), card);
+
 			Selection.Add(card);
+
 		}
 		ClearAnimationPositions();
-		UpdateCardDeckPositions();
-
-		await InvokeAsync(StateHasChanged);
 	}
 
 	/// <summary>
@@ -369,9 +391,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		Selection.Clear();
-
-		UpdateCardDeckPositions();
 	}
+
+	internal Task NotifyUiUpdateAsync()
+		=> InvokeAsync(StateHasChanged);
 
 	/// <summary>
 	/// Clamps the bounds of an index to ensure it does not exceed the bounds of the card list.
@@ -386,17 +409,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return dragIndex;
 	}
 
-	/// <summary>
-	/// Updates the deck positions of all cards in the deck based on their current order - locally.
-	/// </summary>
-	private void UpdateCardDeckPositions()
-	{
-		for (int index = 0; index < Cards.Count; index++)
-		{
-			var card = Cards[index];
-			card.DeckPosition = index;
-		}
-	}
+	#endregion
 
 	#region Animation Methods
 	private async Task UpdateAnimationPositionsAsync()
