@@ -408,9 +408,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		Selection.Clear();
 	}
 
-	internal Task NotifyUiUpdateAsync()
-		=> InvokeAsync(StateHasChanged);
-
 	/// <summary>
 	/// Clamps the bounds of an index to ensure it does not exceed the bounds of the card list.
 	/// </summary>
@@ -511,7 +508,12 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		Cards = newOrder;
 		DataLoaded = true;
-		await InvokeAsync(StateHasChanged);
+
+		// Refresh will be performed on the Group level, no need to invoke StateHasChanged here.
+		if (Parent is not null)
+		{
+			await InvokeAsync(StateHasChanged);
+		}
 	}
 
 	#endregion

@@ -110,8 +110,7 @@ namespace PanoramicData.Blazor
 
 			_destinations.Clear();
 
-			await source.NotifyUiUpdateAsync();
-			await destination.NotifyUiUpdateAsync();
+			await InvokeAsync(StateHasChanged);
 		}
 
 		#endregion
