@@ -9,6 +9,7 @@ namespace PanoramicData.Blazor.Demo.Pages
 		public CardDeckDataProviderService<Todo> _todoList2 { get; set; } = new();
 
 		public CardDeckDataProviderService<Todo> _todoList3 { get; set; } = new();
+		public CardDeckDataProviderService<Todo> _todoList4 { get; set; } = new();
 
 		protected override void OnInitialized()
 		{
@@ -23,6 +24,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 			new() { Title = "Mow the Lawn", Description = "a description" }]);
 
 			_todoList3.List.AddRange([new() {
+				Title = "A Todo", Description = "a description" },
+			new() { Title = "Put out Pan Fire", Description = "a description" },
+			new() { Title = "Mow the Lawn", Description = "a description" }]);
+
+			_todoList4.List.AddRange([new() {
 				Title = "A Todo", Description = "a description" },
 			new() { Title = "Put out Pan Fire", Description = "a description" },
 			new() { Title = "Mow the Lawn", Description = "a description" }]);

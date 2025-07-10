@@ -115,6 +115,22 @@
 		</PDCardDeck>
 	</PDCardDeckGroup>
 
+	<hr />
+
+	<div>
+		<p>Example 4: No Valid Migrations</p>
+	</div>
+
+	<PDCardDeckGroup DataProvider="_todoList4"
+					 CssClass="pd-kanbanboard"
+					 ValidateCardMove="(source, destination) => false">
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList4, TodoProgress.BeingDefined)" />
+		<PDCardDeck DataFunction="GetDataFunction(_todoList4, TodoProgress.InProgress)" />
+		<PDCardDeck DataFunction="GetDataFunction(_todoList4, TodoProgress.Done)" />
+
+	</PDCardDeckGroup>
+
 	<EventView />
 
 </DemoSourceView>
