@@ -7,12 +7,14 @@
 	</div>
 
 	<PDCardDeckGroup DataProvider="_todoList1"
-					 CssClass="pd-kanbanboard">
+					 CssClass="pd-kanbanboard"
+					 Transformation="MoveCardToRespectiveStatusAsync">
 
 		<PDCardDeck DataFunction="GetDataFunction(_todoList1, TodoProgress.BeingDefined)"
 					IsAnimated="true"
 					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-					CssClass="pd-carddeck-area">
+					CssClass="pd-carddeck-area"
+					Id="beingdefined">
 
 			<CardTemplate>
 				<ExampleTicket Ticket="context" />
@@ -22,7 +24,9 @@
 		<PDCardDeck DataFunction="GetDataFunction(_todoList1, TodoProgress.InProgress)"
 					IsAnimated="true"
 					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-					CssClass="pd-carddeck-area">
+					CssClass="pd-carddeck-area"
+					Id="inprogress">
+
 			<CardTemplate>
 				<ExampleTicket Ticket="context" />
 			</CardTemplate>
@@ -31,7 +35,9 @@
 		<PDCardDeck DataFunction="GetDataFunction(_todoList1, TodoProgress.ReadyForTest)"
 					IsAnimated="true"
 					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-					CssClass="pd-carddeck-area">
+					CssClass="pd-carddeck-area"
+					Id="readyfortest">
+
 			<CardTemplate>
 				<ExampleTicket Ticket="context" />
 			</CardTemplate>
@@ -40,7 +46,8 @@
 		<PDCardDeck DataFunction="GetDataFunction(_todoList1, TodoProgress.Done)"
 					IsAnimated="true"
 					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
-					CssClass="pd-carddeck-area">
+					CssClass="pd-carddeck-area"
+					Id="done">
 			<CardTemplate>
 				<ExampleTicket Ticket="context" />
 			</CardTemplate>

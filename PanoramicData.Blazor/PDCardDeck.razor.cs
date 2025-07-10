@@ -232,6 +232,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		ClearAnimationPositions();
 		Parent?.ClearAllSelectionExceptActive(this);
+		Parent?.SetSourceDeck(this);
 
 		// Handles edge case where the user drags a card that is not in the selection
 		if (!MultipleSelection || !Selection.Contains(card))

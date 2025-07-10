@@ -40,5 +40,34 @@ namespace PanoramicData.Blazor.Demo.Pages
 				{
 					ResponseFilter = items => items.Where(item => item.Progress == progress),
 				}, CancellationToken.None);
+
+
+		private async Task MoveCardToRespectiveStatusAsync(
+			IDataProviderService<Todo> dataProvider,
+			PDCardDeck<Todo> sourceDeck,
+			PDCardDeck<Todo> destinationDeck,
+			List<Todo> cards)
+		{
+			// Update the data provider cards depending on the destination deck
+			var destinationId = destinationDeck.Id;
+
+			var cardProgress = destinationId switch
+			{
+				"beingdefined" => TodoProgress.BeingDefined,
+				"inprogress" => TodoProgress.InProgress,
+				"readyfortest" => TodoProgress.ReadyForTest,
+				"done" => TodoProgress.Done,
+				_ => TodoProgress.BeingDefined
+			};
+
+			// Update each moving card
+			foreach (var card in cards)
+			{
+				await dataProvider.UpdateAsync(card, new Dictionary<string, object?>
+				{
+					{ nameof(Todo.Progress), cardProgress }
+				}, default);
+			}
+		}
 	}
 }

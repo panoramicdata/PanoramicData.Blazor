@@ -9,12 +9,18 @@ namespace PanoramicData.Blazor
 
 		private List<string> _destinations = [];
 
+		/// <summary>
+		/// The original deck that holds the cards that are moving
+		/// </summary>
+		private PDCardDeck<TCard> _sourceDeck = null!;
+
 		private PDCardDeckLoadingIcon _loadingIcon = new();
 
 		/// <summary>
 		/// Holds references to the decks that are part of this group
 		/// </summary>
 		private List<PDCardDeck<TCard>> _decks = [];
+
 
 		/// <summary>
 		/// Check if any of the decks in this group have cards that are currently being dragged.
@@ -64,6 +70,22 @@ namespace PanoramicData.Blazor
 		/// </remarks>
 		[Parameter]
 		public Func<PDCardDeck<TCard>, PDCardDeck<TCard>, bool>? ValidateCardMove { get; set; }
+
+		/// <summary>
+		/// Transformation that is applied to the cards when they are moved from one deck to another within this group.
+		/// </summary>
+		/// <remarks>
+		/// In the form Func{DataProvider, Source, Destination, Cards}
+		/// <para>
+		/// <list type="bullet">
+		/// <item>DataProvider - The data provider that is responsible for the data in these decks</item>
+		/// <item>Source - The deck that the moving card(s) have originated from</item>
+		/// <item>Destination - The deck that the moving card(s) are moving to</item>
+		/// <item>Cards - List of Cards that are to be transformed</item>
+		/// </list></para>
+		/// </remarks>
+		[Parameter]
+		public Func<IDataProviderService<TCard>, PDCardDeck<TCard>, PDCardDeck<TCard>, List<TCard>, Task>? Transformation { get; set; }
 
 		#endregion
 
@@ -143,7 +165,7 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
-			if (ValidateCardMove is not null && !ValidateCardMove(source, destination))
+			if (ValidateCardMove is not null && !ValidateCardMove(_sourceDeck, destination))
 			{
 				// If the move is not valid, clear the destinations and return.
 				_destinations.Clear();
@@ -167,6 +189,35 @@ namespace PanoramicData.Blazor
 		internal async Task InitiateTransformAsync()
 		{
 			await Task.CompletedTask;
+
+			// Refresh if a transform has occurred
+			if (Transformation is null)
+			{
+				return;
+			}
+
+			// Perform the transformation of cards from the source deck to the destination deck.
+			var movingCards = _decks.FirstOrDefault(d
+				=> d.Id == _destinations.First())?.Selection;
+
+			var destination = _decks.FirstOrDefault(d
+				=> d.Id == _destinations.Last());
+
+			if (destination is null || movingCards is null)
+			{
+				return;
+			}
+
+			await Transformation(_dataProviderService, _sourceDeck, destination, movingCards);
+
+			foreach (var deck in _decks)
+			{
+				await deck.RefreshAsync();
+			}
+
+			_sourceDeck = null!;
+			_destinations.Clear();
+			await InvokeAsync(StateHasChanged);
 		}
 
 		/// <summary>
@@ -233,6 +284,11 @@ namespace PanoramicData.Blazor
 			_decks.Add(deck);
 
 			StateHasChanged();
+		}
+
+		internal void SetSourceDeck(PDCardDeck<TCard> source)
+		{
+			_sourceDeck = source;
 		}
 	}
 }
