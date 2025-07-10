@@ -135,8 +135,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		if (firstRender)
 		{
-			Parent?.RegisterDeckAsChild(this);
 			await RefreshAsync();
+			Parent?.RegisterDeckAsChild(this);
 		}
 	}
 

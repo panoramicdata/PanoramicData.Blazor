@@ -53,7 +53,9 @@
 		<p>Example 2: Simple</p>
 	</div>
 
-	<PDCardDeckGroup DataProvider="_todoList2">
+	<PDCardDeckGroup DataProvider="_todoList2"
+					 CssClass="pd-kanbanboard">
+
 		<PDCardDeck DataFunction="GetDataFunction(_todoList2, TodoProgress.BeingDefined)" />
 		<PDCardDeck DataFunction="GetDataFunction(_todoList2, TodoProgress.InProgress)" />
 		<PDCardDeck DataFunction="GetDataFunction(_todoList2, TodoProgress.Done)" />

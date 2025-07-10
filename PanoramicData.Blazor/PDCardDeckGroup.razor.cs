@@ -44,6 +44,21 @@ namespace PanoramicData.Blazor
 		[Parameter]
 		public RenderFragment? ChildContent { get; set; }
 
+		/// <summary>
+		/// Determines if a card move is valid.
+		/// </summary>
+		/// <remarks>
+		/// In the form Func{Source, Destination, outcome}
+		/// <para>
+		/// <list type="bullet">
+		/// <item>Source - The deck that the moving card(s) have originated from</item>
+		/// <item>Destination - The deck that the moving card(s) are moving to</item>
+		/// <item>Outcome - Is the move allowed? True / False</item>
+		/// </list></para>
+		/// </remarks>
+		[Parameter]
+		public Func<PDCardDeck<TCard>, PDCardDeck<TCard>, bool>? ValidateCardMove { get; set; }
+
 		#endregion
 
 		[Inject] IBlockOverlayService BlockOverlayService { get; set; } = null!;
@@ -82,6 +97,7 @@ namespace PanoramicData.Blazor
 		}
 
 		#region UI Indicators for Migration
+
 		public void RegisterDestination(PDCardDeck<TCard> deck)
 		{
 			// Check the last deck in the list is not the same as the one being registered.
@@ -106,7 +122,7 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
-			// Perform the migration
+			// Check if the move is valid
 			var source = _decks.FirstOrDefault(c => _destinations[0] == c.Id);
 			var destination = _decks.FirstOrDefault(c => _destinations[1] == c.Id);
 
@@ -115,6 +131,15 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
+			if (ValidateCardMove is not null && !ValidateCardMove(source, destination))
+			{
+				// If the move is not valid, clear the destinations and return.
+				_destinations.Clear();
+				await InvokeAsync(StateHasChanged);
+				return;
+			}
+
+			// Perform the migration
 			List<TCard> movingCards = [.. source.Selection];
 
 			await source.RemoveSelectedCardsAsync();
