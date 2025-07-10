@@ -3,7 +3,12 @@
 
 <div @ref="_elementRef" @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
 
-	@if (DeckTemplate is not null)
+	@if (!DataLoaded && Parent is null)
+	{
+	<PDCardDeckLoadingIcon />
+	}
+
+	else if (DeckTemplate is not null)
 	{
 		@DeckTemplate(this)
 	}
@@ -21,5 +26,5 @@
 					IsAnimated="@IsAnimated" />
 		}
 	}
-</div>
 
+</div>

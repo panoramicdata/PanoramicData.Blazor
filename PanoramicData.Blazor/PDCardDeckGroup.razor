@@ -2,8 +2,12 @@
 @typeparam TCard
 
 <div @attributes=@GetAttributes()>
+    @if (!AllDataLoaded())
+    {
+        <PDCardDeckLoadingIcon />
+    }
 
-	<CascadingValue Value="this">
-		@ChildContent
-	</CascadingValue>
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
 </div>

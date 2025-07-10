@@ -7,6 +7,11 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 {
 	private static int _sequence;
 
+	/// <summary>
+	/// Whether this card deck has valid data
+	/// </summary>
+	public bool DataLoaded { get; private set; }
+
 	#region State Management
 
 	/// <inheritdoc cref="PDCardDeckSelectionHelper{TCard}"/>
@@ -102,7 +107,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		var dict = new Dictionary<string, object?>
 		{
-			{ "class", $"{CssClass ?? "pdcarddeck"} {(IsEnabled ? "" : " disabled")} {SizeCssClass}" },
+			{ "class", $"{GetDeckCss()} {SizeCssClass}" },
 			{ "id", Id },
 			{ "ondrop", (MouseEventArgs _) => DragState.IsDragging = false },
 		};
@@ -114,6 +119,16 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		return dict;
+	}
+
+	private string GetDeckCss()
+	{
+		if (!DataLoaded)
+		{
+			return "";
+		}
+
+		return $"{CssClass ?? "pdcarddeck"} {(IsEnabled ? "" : " disabled")}";
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -486,6 +501,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal async Task RefreshAsync()
 	{
+		DataLoaded = false;
 		// Fetch the contents of the deck
 		var response = await DataFunction.Invoke();
 
@@ -494,6 +510,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			.ToList();
 
 		Cards = newOrder;
+		DataLoaded = true;
+		await InvokeAsync(StateHasChanged);
 	}
 
 	#endregion

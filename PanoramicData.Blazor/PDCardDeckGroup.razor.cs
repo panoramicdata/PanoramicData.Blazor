@@ -42,6 +42,8 @@ namespace PanoramicData.Blazor
 
 		#endregion
 
+		[Inject] IBlockOverlayService BlockOverlayService { get; set; } = null!;
+
 		private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
 		protected override void OnParametersSet()
@@ -117,6 +119,26 @@ namespace PanoramicData.Blazor
 			await Task.CompletedTask;
 		}
 
+		public bool AllDataLoaded()
+		{
+			if (_decks.Count == 0)
+			{
+				BlockOverlayService.Show();
+				return false;
+			}
+			foreach (var deck in _decks)
+			{
+				if (!deck.DataLoaded)
+				{
+					BlockOverlayService.Show();
+					return false;
+				}
+			}
+
+			BlockOverlayService.Hide();
+			return true;
+		}
+
 		internal void SetActiveDeck(PDCardDeck<TCard> activeDeck)
 		{
 			foreach (var deck in _decks)
@@ -136,6 +158,8 @@ namespace PanoramicData.Blazor
 			}
 
 			_decks.Add(deck);
+
+			StateHasChanged();
 		}
 	}
 }

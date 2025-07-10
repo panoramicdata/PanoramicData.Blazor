@@ -1,0 +1,60 @@
+﻿.pd-carddeck-loading {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1em;
+	align-items: center;
+}
+
+.pd-carddeck-item-top {
+	animation: swap-top 0.6s infinite cubic-bezier(0.2, 0.2, 0.2, 0.2);
+}
+
+.pd-carddeck-item-bottom {
+	animation: swap-bottom 0.6s infinite cubic-bezier(0.2, 0.2, 0.2, 0.2);
+}
+
+@keyframes swap-top {
+	0% {
+		transform: translate(0em, 0);
+	}
+	33% {
+		transform: translate(6em, 0em);
+	}
+	66% {
+		transform: translate(6em, 1.35em);
+	}
+	100% {
+		transform: translate(0em, 1.35em);
+	}
+}
+
+@keyframes swap-bottom {
+	0% {
+		transform: translate(0em, 0);
+	}
+	33% {
+		transform: translate(0em, 0);
+	}
+
+	66% {
+		transform: translate(0em, -1.25em);
+	}
+
+	100% {
+		transform: translate(0em, -1.25em);
+	}
+}
+
+.loading-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 6em;
+	height: 1.25em;
+	border: solid;
+	border-color: black;
+	border-width: 0.2em;
+	border-radius: 0.25em;
+	background-color: black;
+}
