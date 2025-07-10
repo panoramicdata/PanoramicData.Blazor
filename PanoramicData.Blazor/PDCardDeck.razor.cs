@@ -135,8 +135,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		if (firstRender)
 		{
-			await RefreshAsync();
 			Parent?.RegisterDeckAsChild(this);
+			await RefreshAsync();
 		}
 	}
 
@@ -194,7 +194,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	internal void AddToSelection(MouseEventArgs args, TCard card)
 	{
-		Parent?.SetActiveDeck(this);
+		Parent?.ClearAllSelectionExceptActive(this);
 
 		// Cannot be dragging while adding to selection
 		DragState.IsDragging = false;
@@ -231,7 +231,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	internal async Task OnDragStartAsync(DragEventArgs e, TCard card)
 	{
 		ClearAnimationPositions();
-		Parent?.SetActiveDeck(this);
+		Parent?.ClearAllSelectionExceptActive(this);
 
 		// Handles edge case where the user drags a card that is not in the selection
 		if (!MultipleSelection || !Selection.Contains(card))

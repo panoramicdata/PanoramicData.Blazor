@@ -132,6 +132,10 @@ namespace PanoramicData.Blazor
 			await Task.CompletedTask;
 		}
 
+		/// <summary>
+		/// Checks if all decks in this group have loaded their data. Indicates using Blocker overlay if data is not fully loaded
+		/// </summary>
+		/// <returns></returns>
 		public bool AllDataLoaded()
 		{
 			if (_decks.Count == 0)
@@ -160,7 +164,14 @@ namespace PanoramicData.Blazor
 			return true;
 		}
 
-		internal void SetActiveDeck(PDCardDeck<TCard> activeDeck)
+		/// <summary>
+		/// Clears the selection of all decks in this group, except for the active deck. 
+		/// </summary>
+		/// <param name="activeDeck"></param>
+		/// <remarks>
+		/// Prevents cases where selections are incorrect when dragging across multiple decks
+		/// </remarks>
+		internal void ClearAllSelectionExceptActive(PDCardDeck<TCard> activeDeck)
 		{
 			foreach (var deck in _decks)
 			{
@@ -171,6 +182,10 @@ namespace PanoramicData.Blazor
 			}
 		}
 
+		/// <summary>
+		/// Registers a deck as a child of this group.
+		/// </summary>
+		/// <param name="deck"></param>
 		internal void RegisterDeckAsChild(PDCardDeck<TCard> deck)
 		{
 			if (deck == null || _destinations.Contains(deck.Id))
