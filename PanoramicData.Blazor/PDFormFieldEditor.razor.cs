@@ -202,7 +202,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 				_monacoDebounceCts = null;
 
 				var model = await _monacoEditor.GetModel();
-				var value = await model.GetValue(EndOfLinePreference.CRLF, true);
+				var value = await model.GetValue(EndOfLinePreference.LF, true);
 				await Form.SetFieldValueAsync(Field, value);
 			}
 
@@ -231,7 +231,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 					_monacoDebounceCts = null;
 
 					var model = await _monacoEditor.GetModel();
-					var value = await model.GetValue(EndOfLinePreference.CRLF, true);
+					var value = await model.GetValue(EndOfLinePreference.LF, true);
 					await Form.SetFieldValueAsync(Field, value, false);
 				}
 			}
@@ -266,7 +266,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 			if (_monacoEditor != null && Form != null)
 			{
 				var model = await _monacoEditor.GetModel();
-				var oldValue = await model.GetValue(EndOfLinePreference.CRLF, true);
+				var oldValue = await model.GetValue(EndOfLinePreference.LF, true);
 				// only update if it is different to what we have or it will move cursor to the beginning of the editor
 				if (oldValue != value)
 				{

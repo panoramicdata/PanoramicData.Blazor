@@ -168,7 +168,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		if (_monacoEditor != null && UpdateValueOnBlur)
 		{
 			var model = await _monacoEditor.GetModel();
-			var value = await model.GetValue(EndOfLinePreference.CRLF, true);
+			var value = await model.GetValue(EndOfLinePreference.LF, true);
 			await ValueChanged.InvokeAsync(value);
 		}
 	}
@@ -178,7 +178,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		if (_monacoEditor != null && !UpdateValueOnBlur)
 		{
 			var model = await _monacoEditor.GetModel();
-			var value = await model.GetValue(EndOfLinePreference.CRLF, true);
+			var value = await model.GetValue(EndOfLinePreference.LF, true);
 			await ValueChanged.InvokeAsync(value);
 		}
 	}
