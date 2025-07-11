@@ -148,7 +148,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 		if (_jsModule != null)
 		{
-			await _jsModule.InvokeVoidAsync("registerEndDragOperation", _elementRef, _dotNetRef);
+			await _jsModule.InvokeVoidAsync("registerValidDragOperationListeners", _elementRef, _dotNetRef);
+			await _jsModule.InvokeVoidAsync("registerInvalidDragOperationListeners", _elementRef, _dotNetRef);
 		}
 
 		await base.OnInitializedAsync();
