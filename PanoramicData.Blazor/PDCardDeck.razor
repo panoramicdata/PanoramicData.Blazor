@@ -17,7 +17,7 @@
 		@foreach (var card in Cards)
 		{
 			<PDCard @ref="@Ref"
-					@key="@card.Id"
+					@key="@($"{Id}_{card.Id}")"
 					DraggingEnabled="IsEnabled"
 					Template="CardTemplate"
 					Css="CardCss"
