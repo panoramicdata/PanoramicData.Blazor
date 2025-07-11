@@ -159,10 +159,20 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// Ends the drag operation
 	/// </summary>
 	[JSInvokable]
-	public void EndDragOperation()
+	public async Task EndDragOperationAsync()
 	{
 		DragState.IsDragging = false;
-		StateHasChanged();
+		// Reset the parent transform information
+		if (Parent is not null)
+		{
+			await Parent.EndDragOperationAsync();
+		}
+		else
+		{
+			await InvokeAsync(StateHasChanged);
+		}
+
+
 	}
 
 	/// <summary>

@@ -6,15 +6,15 @@
 export function registerInvalidDragOperationListeners(element, dotNetRef) {
 	document.addEventListener('dragstart', function (event) {
 		if (isOutsideElement(event)) {
-			dotNetRef.invokeMethodAsync('EndDragOperation');
+			dotNetRef.invokeMethodAsync('EndDragOperationAsync');
 		}
 	});
 
 	document.addEventListener('mouseup',
-		function (_) { dotNetRef.invokeMethodAsync("EndDragOperation") });
+		function (_) { dotNetRef.invokeMethodAsync("EndDragOperationAsync") });
 
 	document.addEventListener('mouseleave',
-		function (_) { dotNetRef.invokeMethodAsync("EndDragOperation") });
+		function (_) { dotNetRef.invokeMethodAsync("EndDragOperationAsync") });
 }
 
 function isOutsideElement(event, element) {

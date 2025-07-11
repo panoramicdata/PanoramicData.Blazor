@@ -222,12 +222,7 @@ namespace PanoramicData.Blazor
 			await Transformation(_dataProviderService, _sourceDeck, destination, movingCards);
 
 			// Refresh the source deck and destination deck
-			await _sourceDeck.RefreshAsync();
-			await destination.RefreshAsync();
-
-			_sourceDeck = null!;
-			_destinations.Clear();
-			await InvokeAsync(StateHasChanged);
+			await EndDragOperationAsync();
 		}
 
 		/// <summary>
@@ -300,6 +295,26 @@ namespace PanoramicData.Blazor
 		{
 			_sourceDeck = source;
 			_destinations.Add(source.Id);
+		}
+
+		internal async Task EndDragOperationAsync()
+		{
+
+			var destination = _decks.FirstOrDefault(d => _destinations.Count > 0 && d.Id == _destinations.Last());
+
+			if (destination is not null)
+			{
+				await destination.RefreshAsync();
+			}
+
+			if (_sourceDeck is not null)
+			{
+				await _sourceDeck.RefreshAsync();
+			}
+
+			_destinations.Clear();
+			_sourceDeck = null!;
+			await InvokeAsync(StateHasChanged);
 		}
 	}
 }
