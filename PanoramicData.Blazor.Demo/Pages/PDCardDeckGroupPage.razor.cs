@@ -1,4 +1,5 @@
 using PanoramicData.Blazor.Services;
+using System.Text;
 
 namespace PanoramicData.Blazor.Demo.Pages
 {
@@ -13,6 +14,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 		public CardDeckDataProviderService<Todo> _todoList4 { get; set; } = new();
 
 		public CardDeckDataProviderService<Todo> _todoList5 { get; set; } = new();
+
+		[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 		protected override void OnInitialized()
 		{
@@ -84,6 +87,36 @@ namespace PanoramicData.Blazor.Demo.Pages
 					{ nameof(Todo.DeckPosition), card.DeckPosition }
 				}, default);
 			}
+
+			if (sourceDeck == destinationDeck)
+			{
+				EventManager!.Add(new Event($"Reordered cards for {destinationDeck.Parent!.Id}", new EventArgument($"{destinationDeck.Id} - Order", ConvertToString(destinationDeck.Cards))));
+			}
+			else
+			{
+				EventManager!.Add(new Event($"Migrated cards for {destinationDeck.Parent!.Id}", new EventArgument($"{destinationDeck.Id} - New Contents", ConvertToString(destinationDeck.Cards))));
+			}
+		}
+
+		private static string ConvertToString(IEnumerable<Todo?> cards)
+		{
+			var stringBuilder = new StringBuilder("[");
+
+			foreach (var card in cards)
+			{
+				if (card != null)
+				{
+					stringBuilder.AppendLine($"{card.Title}, ");
+				}
+				else
+				{
+					stringBuilder.AppendLine("null, ");
+				}
+			}
+
+			stringBuilder.Append(']');
+
+			return stringBuilder.ToString();
 		}
 	}
 }
