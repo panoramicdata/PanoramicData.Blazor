@@ -1,0 +1,22 @@
+<div class="example-ticket">
+	<div class="title-section">
+		<span> @Ticket.Title </span>
+		<SeverityIcon Ticket="Ticket" Interactable="Interactable"/>
+	</div>
+
+	<div class="body-section">
+		<div class="description-section">
+			@Ticket.Description
+		</div>
+	</div>
+
+	@if (ShowEditOptions)
+	{
+		<div class="footer-section">
+			<div class="footer-right">
+				<SettingsIcon Ticket="Ticket"/>
+			</div>
+		</div>
+	}
+</div>
+

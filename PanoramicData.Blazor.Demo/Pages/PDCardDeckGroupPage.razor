@@ -1,0 +1,159 @@
+@page "/pdcarddeckgroup"
+
+<DemoSourceView SourceFiles="Pages/PDCardDeckGroupPage.razor, Pages/PDCardDeckGroupPage.razor.cs">
+
+	<div>
+		<p>Example 1: Kanban style board</p>
+	</div>
+
+	<PDCardDeckGroup DataProvider="_todoList1"
+					 CssClass="pd-kanbanboard"
+					 Transformation="MoveCardToRespectiveStatusAsync">
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList1, TodoProgress.BeingDefined)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					Id="beingdefined">
+
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList1, TodoProgress.InProgress)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					Id="inprogress">
+
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList1, TodoProgress.ReadyForTest)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					Id="readyfortest">
+
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList1, TodoProgress.Done)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					Id="done">
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+	</PDCardDeckGroup>
+
+	<hr />
+
+	<div>
+		<p>Example 2: Simple</p>
+	</div>
+
+	<PDCardDeckGroup DataProvider="_todoList2"
+					 CssClass="pd-kanbanboard">
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList2, TodoProgress.BeingDefined)" />
+		<PDCardDeck DataFunction="GetDataFunction(_todoList2, TodoProgress.InProgress)" />
+		<PDCardDeck DataFunction="GetDataFunction(_todoList2, TodoProgress.Done)" />
+
+	</PDCardDeckGroup>
+	<hr />
+
+	<div>
+		<p>Example 3: Kanban style multiselect board</p>
+	</div>
+
+	<PDCardDeckGroup DataProvider="_todoList3"
+					 CssClass="pd-kanbanboard">
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList3, TodoProgress.BeingDefined)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					MultipleSelection="true">
+
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList3, TodoProgress.InProgress)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					MultipleSelection="true">
+
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList3, TodoProgress.ReadyForTest)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					MultipleSelection="true">
+
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList3, TodoProgress.Done)"
+					IsAnimated="true"
+					CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+					CssClass="pd-carddeck-area"
+					MultipleSelection="true">
+
+			<CardTemplate>
+				<ExampleTicket Ticket="context" />
+			</CardTemplate>
+		</PDCardDeck>
+	</PDCardDeckGroup>
+
+	<hr />
+
+	<div>
+		<p>Example 4: No Valid Migrations</p>
+	</div>
+
+	<PDCardDeckGroup DataProvider="_todoList4"
+					 CssClass="pd-kanbanboard"
+					 ValidateCardMove="(source, destination) => false">
+
+		<PDCardDeck DataFunction="GetDataFunction(_todoList4, TodoProgress.BeingDefined)" />
+		<PDCardDeck DataFunction="GetDataFunction(_todoList4, TodoProgress.InProgress)" />
+		<PDCardDeck DataFunction="GetDataFunction(_todoList4, TodoProgress.Done)" />
+
+	</PDCardDeckGroup>
+
+	<hr />
+
+	<div>
+		<p>Example 5: Delayed Data Load (5 seconds)</p>
+	</div>
+
+	<PDCardDeckGroup DataProvider="_todoList5"
+					 CssClass="pd-kanbanboard">
+
+		<PDCardDeck DataFunction="GetDelayedDataFunction(_todoList5, TodoProgress.BeingDefined)" />
+		<PDCardDeck DataFunction="GetDelayedDataFunction(_todoList5, TodoProgress.InProgress)" />
+		<PDCardDeck DataFunction="GetDelayedDataFunction(_todoList5, TodoProgress.Done)" />
+
+	</PDCardDeckGroup>
+
+	<EventView />
+
+</DemoSourceView>
+

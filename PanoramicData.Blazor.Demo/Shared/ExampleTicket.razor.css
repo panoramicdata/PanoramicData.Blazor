@@ -1,0 +1,30 @@
+﻿.example-ticket {
+	padding: 0.25em;
+}
+
+.title-section {
+	display: flex;
+	width: 100%;
+	font-size: 1.2em;
+	font-weight: bold;
+	padding-bottom: 1em;
+}
+
+.body-section {
+	padding: 0.5em;
+	font-size: 1em;
+	padding-bottom: 2em;
+}
+
+.description-section {
+	display: flex;
+	align-items: center;
+}
+
+.footer-right{
+	position: absolute;
+	bottom: 0.25em;
+	right: 0.25em;
+	padding: 0.25em;
+}
+

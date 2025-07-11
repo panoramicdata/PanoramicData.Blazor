@@ -1,0 +1,9 @@
+.pdcarddeck {
+	background-color: #f4f5f7;
+	display: flex;
+	flex-direction: column;
+	padding: 5px 5px 0 5px;
+	border: solid;
+	min-height: fit-content;
+	min-width: 10em;
+}

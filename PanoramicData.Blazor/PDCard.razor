@@ -1,0 +1,39 @@
+@inherits PDComponentBase
+@typeparam TCard
+
+@if (Card is not null)
+{
+	@if (IsAnimated)
+	{
+		<PDAnimation @ref="AnimationHandler">
+			<Element>
+				<div @attributes="GetCardAttributes(Card)">
+
+					@if (Template is null)
+					{
+						<span>@(Card!.ToString())</span>
+					}
+					else
+					{
+						@Template(Card)
+					}
+				</div>
+			</Element>
+		</PDAnimation>
+	}
+	else
+	{
+
+		<div @attributes="GetCardAttributes(Card)">
+
+			@if (Template is null)
+			{
+				<span>@(Card!.ToString())</span>
+			}
+			else
+			{
+				@Template(Card)
+			}
+		</div>
+	}
+}
