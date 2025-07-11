@@ -65,7 +65,8 @@ namespace PanoramicData.Blazor.Demo.Pages
 			{
 				await dataProvider.UpdateAsync(card, new Dictionary<string, object?>
 				{
-					{ nameof(Todo.Progress), cardProgress }
+					{ nameof(Todo.Progress), cardProgress },
+					{ nameof(Todo.DeckPosition), card.DeckPosition }
 				}, default);
 			}
 		}

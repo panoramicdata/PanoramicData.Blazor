@@ -5,8 +5,14 @@ namespace PanoramicData.Blazor
 {
 	public partial class PDCardDeckGroup<TCard> where TCard : ICard
 	{
+		/// <summary>
+		/// A unique sequence number for each instance of this component.`
+		/// </summary>
 		private static int _sequence;
 
+		/// <summary>
+		/// Holds a list of destination deck IDs that are part of the current card migration process (this is for UI only).
+		/// </summary>
 		private List<string> _destinations = [];
 
 		/// <summary>
@@ -14,6 +20,9 @@ namespace PanoramicData.Blazor
 		/// </summary>
 		private PDCardDeck<TCard> _sourceDeck = null!;
 
+		/// <summary>
+		/// Reference to the loading icon that is displayed when the data is being loaded for the decks in this group.
+		/// </summary>
 		private PDCardDeckLoadingIcon _loadingIcon = new();
 
 		/// <summary>
@@ -44,12 +53,6 @@ namespace PanoramicData.Blazor
 		public IDataProviderService<TCard> DataProvider { get; set; } = null!;
 
 		/// <summary>
-		/// The Event that is invoked when the user migrates cards from one deck to another within this group.
-		/// </summary>
-		[Parameter]
-		public EventCallback OnCardMigration { get; set; }
-
-		/// <summary>
 		/// The decks that are to be rendered within this group.
 		/// </summary>
 		[EditorRequired]
@@ -72,7 +75,7 @@ namespace PanoramicData.Blazor
 		public Func<PDCardDeck<TCard>, PDCardDeck<TCard>, bool>? ValidateCardMove { get; set; }
 
 		/// <summary>
-		/// Transformation that is applied to the cards when they are moved from one deck to another within this group.
+		/// Transformation that is applied to the cards when they are moved within this group. This can be a Reordering operation or Migration (cards moving from one deck to another)
 		/// </summary>
 		/// <remarks>
 		/// In the form Func{DataProvider, Source, Destination, Cards}
@@ -208,12 +211,15 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
+			// Update the card deck positions of _source and destination
+			destination.UpdateCardDeckPositions();
+			_sourceDeck.UpdateCardDeckPositions();
+
 			await Transformation(_dataProviderService, _sourceDeck, destination, movingCards);
 
-			foreach (var deck in _decks)
-			{
-				await deck.RefreshAsync();
-			}
+			// Refresh the source deck and destination deck
+			await _sourceDeck.RefreshAsync();
+			await destination.RefreshAsync();
 
 			_sourceDeck = null!;
 			_destinations.Clear();

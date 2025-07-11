@@ -519,6 +519,16 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 
 	#endregion
 
+
+	internal void UpdateCardDeckPositions()
+	{
+		for (int index = 0; index < Cards.Count; index++)
+		{
+			var card = Cards[index];
+			card.DeckPosition = index;
+		}
+	}
+
 	private string SizeCssClass => Size switch
 	{
 		ButtonSizes.Small => "sm",
