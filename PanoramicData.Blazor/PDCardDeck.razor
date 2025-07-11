@@ -1,0 +1,30 @@
+﻿@inherits PDComponentBase
+@typeparam TCard
+
+<div @ref="_elementRef" @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
+
+	@if (!DataLoaded && Parent is null)
+	{
+	<PDCardDeckLoadingIcon />
+	}
+
+	else if (DeckTemplate is not null)
+	{
+		@DeckTemplate(this)
+	}
+	else
+	{
+		@foreach (var card in Cards)
+		{
+			<PDCard @ref="@Ref"
+					@key="@card.Id"
+					DraggingEnabled="IsEnabled"
+					Template="CardTemplate"
+					Css="CardCss"
+					Card="card"
+					ParentCardDeck="this"
+					IsAnimated="@IsAnimated" />
+		}
+	}
+
+</div>

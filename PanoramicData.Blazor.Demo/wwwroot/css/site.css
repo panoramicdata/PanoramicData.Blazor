@@ -31,10 +31,10 @@ a, .btn-link {
 	width: 18px;
 }
 
-.icon-sharepoint.fa-4x {
-	transform: scale(4) translate(0, -5px);
-	margin-top: 50px;
-}
+	.icon-sharepoint.fa-4x {
+		transform: scale(4) translate(0, -5px);
+		margin-top: 50px;
+	}
 
 .navbar-toggler {
 	background-color: rgba(255, 255, 255, 0.1);
@@ -64,12 +64,12 @@ a, .btn-link {
 	z-index: 1000;
 }
 
-#blazor-error-ui .dismiss {
-	cursor: pointer;
-	position: absolute;
-	right: 0.75rem;
-	top: 0.5rem;
-}
+	#blazor-error-ui .dismiss {
+		cursor: pointer;
+		position: absolute;
+		right: 0.75rem;
+		top: 0.5rem;
+	}
 
 .rotate {
 	transform: rotate(-90deg);
@@ -181,16 +181,16 @@ a, .btn-link {
 		background-color: white;
 	}
 
-	.drop-zone.good {
-		color: green;
-		border: 2px solid green;
-		background-color: #e8ffe8
-	}
+		.drop-zone.good {
+			color: green;
+			border: 2px solid green;
+			background-color: #e8ffe8
+		}
 
-	.drop-zone.bad {
-		color: red;
-		border: 2px solid red;
-	}
+		.drop-zone.bad {
+			color: red;
+			border: 2px solid red;
+		}
 }
 
 /* file explorer icon colours */
@@ -208,4 +208,65 @@ a, .btn-link {
 
 .fa-file-pdf {
 	color: #ce0404;
+}
+
+.pdcard {
+	min-height: 4em;
+	margin-bottom: 5px;
+	border-left: 0.7vw solid;
+	border-radius: 0.35vw;
+	padding: 0.5em;
+	user-select: none;
+}
+
+.pdcard-trivial {
+	border-left-color: grey;
+}
+
+.pdcard-minor {
+	border-left-color: rgb(243 228 54);
+}
+
+.pdcard-major {
+	border-left-color: orange;
+}
+
+.pdcard-critical {
+	border-left-color: red;
+}
+
+.pdcard-blocker {
+	border-left-color: darkred;
+}
+
+.pd-carddeck-area {
+	min-width: 20%;
+	min-height: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+	padding: 1em;
+	border: solid 0.15em;
+	border-radius: 0.5em;
+}
+
+.pd-kanbanboard{
+	display: flex;
+	gap: 1em;
+	padding: 1em;
+	justify-content: center;
+}
+
+.pdcarddeck-animated {
+	border: 2px solid #1b6ec2;
+	border-radius: 1em;
+	box-shadow: 0 4px 16px rgba(27, 110, 194, 0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+	padding: 1.5em 2em;
+	transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.pdcarddeck-animated:hover {
+	border-color: #0366d6;
+	box-shadow: 0 8px 32px rgba(27, 110, 194, 0.16), 0 3px 8px rgba(0,0,0,0.08);
 }

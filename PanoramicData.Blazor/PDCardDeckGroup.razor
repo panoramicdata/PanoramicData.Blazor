@@ -1,0 +1,13 @@
+@inherits PDComponentBase
+@typeparam TCard
+
+<div @attributes=@GetAttributes()>
+	@if (!AllDataLoaded())
+    {
+        <PDCardDeckLoadingIcon @ref="_loadingIcon" />
+    }
+
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>

@@ -1,0 +1,84 @@
+﻿@page "/pdcarddeck"
+
+<DemoSourceView SourceFiles="Pages/PDCardDeckPage.razor, Pages/PDCardDeckPage.razor.cs">
+
+	<div>
+		<p>Example 1: Basic Card Deck</p>
+	</div>
+
+	<PDCardDeck @ref="_cardDeck1"
+				DataFunction="() => FetchData(_todoList1 ,default)" />
+
+	<hr />
+
+	<div>
+		<p>Example 2: Multiple Select</p>
+	</div>
+
+	<PDCardDeck @ref="_cardDeck2"
+				MultipleSelection="true"
+				DataFunction="() => FetchData(_todoList2 ,default)" />
+
+	<hr />
+
+	<div>
+		<p>Example 3: Animated Card Deck</p>
+	</div>
+
+	<PDCardDeck @ref="_cardDeck3"
+				MultipleSelection="true"
+				IsAnimated="true"
+				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+				CssClass="pdcarddeck-animated"
+				DataFunction="() => FetchData(_todoList3 ,default)">
+
+		<CardTemplate>
+			<ExampleTicket Ticket="context" />
+		</CardTemplate>
+
+		<DeckTemplate>
+			<h1 class="deck-title">Todo List</h1>
+			@{
+				var currentIndex = 0;
+			}
+
+			<div class="card-collection">
+				@foreach (var card in context.Cards)
+				{
+					currentIndex++;
+					<span class="priority">@currentIndex</span>
+
+					<PDCard @ref="@context.Ref"
+							@key="@card.Id"
+							DraggingEnabled="context.IsEnabled"
+							Template="context.CardTemplate"
+							Css="context.CardCss"
+							Card="card"
+							ParentCardDeck="context"
+							IsAnimated="@context.IsAnimated" />
+				}
+			</div>
+			<p class="deck-disclaimer">Disclaimer: These tasks are to be completed as soon as possible.</p>
+		</DeckTemplate>
+
+	</PDCardDeck>
+
+	<hr />
+
+	<div>
+		<p>Example 4: Disabled Card Deck</p>
+	</div>
+
+	<PDCardDeck @ref="_cardDeck4"
+				IsEnabled="false"
+				CardCss="@(card => $"pdcard pdcard-{card.Priority.ToString().ToLowerInvariant()}")"
+				DataFunction="() => FetchData(_todoList4 , default)">
+
+		<CardTemplate>
+			<ExampleTicket Ticket="context" />
+		</CardTemplate>
+	</PDCardDeck>
+
+	<EventView />
+
+</DemoSourceView>

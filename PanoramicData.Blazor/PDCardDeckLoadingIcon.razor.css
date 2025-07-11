@@ -1,0 +1,91 @@
+﻿.pd-carddeck-loading {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1em;
+	align-items: center;
+}
+
+.loading-message{
+	padding-top: 1em;
+}
+
+.pd-carddeck-item-top {
+	animation: swap-top 1s infinite cubic-bezier(0.2, 0.2, 0.2, 0.2), loading-card-lighten-darken 2s infinite ease-in-out !important;
+}
+
+.pd-carddeck-item-bottom {
+	animation: swap-bottom 1s infinite cubic-bezier(0.2, 0.2, 0.2, 0.2), loading-card-lighten-darken 2s infinite ease-in-out !important;
+}
+
+@keyframes swap-top {
+	0% {
+		transform: translate(0em, 0);
+	}
+
+	33% {
+		transform: translate(6em, 0em);
+	}
+
+	66% {
+		transform: translate(6em, 1.35em);
+	}
+
+	100% {
+		transform: translate(0em, 1.35em);
+	}
+}
+
+@keyframes swap-bottom {
+	0% {
+		transform: translate(0em, 0);
+	}
+
+	33% {
+		transform: translate(0em, 0);
+	}
+
+	66% {
+		transform: translate(0em, -1.25em);
+	}
+
+	100% {
+		transform: translate(0em, -1.25em);
+	}
+}
+
+.loading-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 6em;
+	height: 1.25em;
+	border: solid;
+	border-color: black;
+	border-width: 0.2em;
+	border-radius: 0.25em;
+	background-color: black;
+	animation: loading-card-lighten-darken 2s infinite ease-in-out;
+}
+
+@keyframes loading-card-lighten-darken {
+	0% {
+		background-color: black;
+		border-color: black;
+	}
+
+	30% {
+		background-color: #222;
+		border-color: #222;
+	}
+
+	60% {
+		background-color: #444;
+		border-color: #444;
+	}
+
+	100% {
+		background-color: black;
+		border-color: black;
+	}
+}
