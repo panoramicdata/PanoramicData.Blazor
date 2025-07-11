@@ -35,7 +35,7 @@ public partial class PDContextMenu : IAsyncDisposable
 	[Parameter] public bool Enabled { get; set; } = true;
 
 	/// <summary>
-	/// Gets or sets wether the menu is displayed on the mouse up event instead of the default mouse down event.
+	/// Gets or sets whether the menu is displayed on the mouse up event instead of the default mouse down event.
 	/// </summary>
 	[Parameter] public bool ShowOnMouseUp { get; set; }
 
