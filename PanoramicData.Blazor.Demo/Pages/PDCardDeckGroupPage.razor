@@ -138,6 +138,21 @@
 
 	</PDCardDeckGroup>
 
+	<hr />
+
+	<div>
+		<p>Example 5: Delayed Data Load (5 seconds)</p>
+	</div>
+
+	<PDCardDeckGroup DataProvider="_todoList5"
+					 CssClass="pd-kanbanboard">
+
+		<PDCardDeck DataFunction="GetDelayedDataFunction(_todoList5, TodoProgress.BeingDefined)" />
+		<PDCardDeck DataFunction="GetDelayedDataFunction(_todoList5, TodoProgress.InProgress)" />
+		<PDCardDeck DataFunction="GetDelayedDataFunction(_todoList5, TodoProgress.Done)" />
+
+	</PDCardDeckGroup>
+
 	<EventView />
 
 </DemoSourceView>

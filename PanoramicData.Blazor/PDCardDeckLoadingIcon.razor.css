@@ -6,11 +6,11 @@
 }
 
 .pd-carddeck-item-top {
-	animation: swap-top 0.6s infinite cubic-bezier(0.2, 0.2, 0.2, 0.2);
+	animation: swap-top 1s infinite cubic-bezier(0.2, 0.2, 0.2, 0.2);
 }
 
 .pd-carddeck-item-bottom {
-	animation: swap-bottom 0.6s infinite cubic-bezier(0.2, 0.2, 0.2, 0.2);
+	animation: swap-bottom 1s infinite cubic-bezier(0.2, 0.2, 0.2, 0.2);
 }
 
 @keyframes swap-top {

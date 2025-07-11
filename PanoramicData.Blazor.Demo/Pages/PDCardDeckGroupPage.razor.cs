@@ -9,7 +9,10 @@ namespace PanoramicData.Blazor.Demo.Pages
 		public CardDeckDataProviderService<Todo> _todoList2 { get; set; } = new();
 
 		public CardDeckDataProviderService<Todo> _todoList3 { get; set; } = new();
+
 		public CardDeckDataProviderService<Todo> _todoList4 { get; set; } = new();
+
+		public CardDeckDataProviderService<Todo> _todoList5 { get; set; } = new();
 
 		protected override void OnInitialized()
 		{
@@ -32,6 +35,11 @@ namespace PanoramicData.Blazor.Demo.Pages
 				Title = "A Todo", Description = "a description" },
 			new() { Title = "Put out Pan Fire", Description = "a description" },
 			new() { Title = "Mow the Lawn", Description = "a description" }]);
+
+			_todoList5.List.AddRange([new() {
+				Title = "A Todo", Description = "a description" },
+			new() { Title = "Put out Pan Fire", Description = "a description" },
+			new() { Title = "Mow the Lawn", Description = "a description" }]);
 		}
 
 		private static Func<Task<DataResponse<Todo>>> GetDataFunction(CardDeckDataProviderService<Todo> dataProvider, TodoProgress progress)
@@ -40,6 +48,13 @@ namespace PanoramicData.Blazor.Demo.Pages
 				{
 					ResponseFilter = items => items.Where(item => item.Progress == progress),
 				}, CancellationToken.None);
+
+		private static Func<Task<DataResponse<Todo>>> GetDelayedDataFunction(CardDeckDataProviderService<Todo> dataProvider, TodoProgress progress)
+			=> ()
+				=> dataProvider.GetDataAsync(new DataRequest<Todo>
+				{
+					ResponseFilter = items => items.Where(item => item.Progress == progress),
+				}, 5, CancellationToken.None);
 
 
 		private async Task MoveCardToRespectiveStatusAsync(

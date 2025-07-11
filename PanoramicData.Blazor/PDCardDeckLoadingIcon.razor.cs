@@ -13,7 +13,7 @@ namespace PanoramicData.Blazor
 			_loadStart = DateTime.UtcNow;
 
 			// Delay the start of the loading icon to allow the parent component to set up
-			await Task.Delay(TimeSpan.FromSeconds(0.08));
+			await Task.Delay(TimeSpan.FromSeconds(0.12));
 			IsActive = true;
 			_cts = new CancellationTokenSource();
 			_ = UpdateElapsedTimeAsync(_cts.Token);

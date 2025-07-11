@@ -33,6 +33,20 @@
 			return Task.FromResult(new DataResponse<TItem>(results, List.Count));
 		}
 
+		/// <summary>
+		/// Returns data for the given request after a delay.
+		/// </summary>
+		/// <param name="request"></param>
+		/// <param name="delay"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		public async Task<DataResponse<TItem>> GetDataAsync(DataRequest<TItem> request, double delay, CancellationToken cancellationToken)
+		{
+			await Task.Delay(TimeSpan.FromSeconds(delay), cancellationToken);
+
+			return await GetDataAsync(request, cancellationToken);
+		}
+
 		public Task<OperationResponse> UpdateAsync(TItem item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
 		{
 			try
