@@ -151,7 +151,11 @@ namespace PanoramicData.Blazor
 			}
 		}
 
-		internal async Task UpdateCardLocationsAsync()
+		/// <summary>
+		/// Updates the locations of cards that are being dragged between decks in this group.
+		/// </summary>
+		/// <returns></returns>
+		internal async Task UpdateGraphicalCardLocationsAsync()
 		{
 			// Must have two destinations to perform a migration.
 			if (_destinations.Count < 2)
@@ -194,7 +198,7 @@ namespace PanoramicData.Blazor
 			await Task.CompletedTask;
 
 			// Refresh if a transform has occurred
-			if (Transformation is null)
+			if (Transformation is null || _destinations.Count == 0)
 			{
 				return;
 			}
@@ -211,7 +215,7 @@ namespace PanoramicData.Blazor
 				return;
 			}
 
-			// Update the card deck positions of _source and destination
+			// Update the card deck positions of _source and destinations before Transformation
 			destination.UpdateCardDeckPositions();
 			_sourceDeck.UpdateCardDeckPositions();
 
@@ -295,6 +299,7 @@ namespace PanoramicData.Blazor
 		internal void SetSourceDeck(PDCardDeck<TCard> source)
 		{
 			_sourceDeck = source;
+			_destinations.Add(source.Id);
 		}
 	}
 }

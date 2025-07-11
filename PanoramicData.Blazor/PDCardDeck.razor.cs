@@ -177,7 +177,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		}
 
 		Parent.RegisterDestination(this);
-		await Parent.UpdateCardLocationsAsync();
+		await Parent.UpdateGraphicalCardLocationsAsync();
 	}
 
 	/// <summary>
@@ -500,6 +500,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	internal async Task RefreshAsync()
 	{
 		DataLoaded = false;
+		Cards.Clear();
 		// Fetch the contents of the deck
 		var response = await DataFunction.Invoke();
 
