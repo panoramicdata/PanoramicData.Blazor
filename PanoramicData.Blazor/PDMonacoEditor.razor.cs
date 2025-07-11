@@ -173,7 +173,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
-	private async Task OnMonacoEditorKeyUpAsync(KeyboardEvent evt)
+	private async Task OnMonacoEditorContentChangedAsync(ModelContentChangedEvent args)
 	{
 		if (_monacoEditor != null && !UpdateValueOnBlur)
 		{
