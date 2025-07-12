@@ -1,6 +1,6 @@
 ﻿@inherits ComponentBase
 
-<div class="pdchat-message @(Message.Sender.IsUser ? "user" : "bot") @(UseFullWidthMessages ? "full-width" : "bubble") priority-@Message.Type.ToString().ToLower()">
+<div class="pdchat-message @(Message.Sender.IsUser ? "user" : "bot") @(UseFullWidthMessages ? "full-width" : "bubble") @GetMetaPositionClass() priority-@Message.Type.ToString().ToLower()">
 	@if (UseFullWidthMessages)
 	{
 		@if (ShouldShowMetaOnRight())

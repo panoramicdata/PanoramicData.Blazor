@@ -27,12 +27,12 @@
 }
 
 /* Default: Meta on left, content on right */
-.pdchat-message.full-width {
+.pdchat-message.full-width.meta-on-left {
     flex-direction: row;
 }
 
 /* When meta should be on right: reverse direction */
-.pdchat-message.full-width:has(.pdchat-meta:last-child) {
+.pdchat-message.full-width.meta-on-right {
     flex-direction: row-reverse;
 }
 

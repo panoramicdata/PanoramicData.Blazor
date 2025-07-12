@@ -1,15 +1,14 @@
-﻿namespace PanoramicData.Blazor.Demo.Data
+﻿namespace PanoramicData.Blazor.Demo.Data;
+
+public enum Priority
 {
-	public enum Priority
-	{
-		Trivial,
+	Trivial,
 
-		Minor,
+	Minor,
 
-		Major,
+	Major,
 
-		Critical,
+	Critical,
 
-		Blocker
-	}
+	Blocker
 }

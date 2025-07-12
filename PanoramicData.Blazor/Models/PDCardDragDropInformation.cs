@@ -1,27 +1,26 @@
-﻿namespace PanoramicData.Blazor.Models
+﻿namespace PanoramicData.Blazor.Models;
+
+/// <summary>
+/// Information about the drag-and-drop state of cards in a card deck.
+/// </summary>
+public class PDCardDragDropInformation
 {
 	/// <summary>
-	/// Information about the drag-and-drop state of cards in a card deck.
+	/// Whether a drag event has been detected
 	/// </summary>
-	public class PDCardDragDropInformation
+	public bool IsDragging { get; set; }
+
+	/// <summary>
+	/// The index that the current selection will be dragged to when the user drops it.
+	/// </summary>
+	public int TargetIndex { get; set; }
+
+	/// <summary>
+	/// Resets information about the drag-and-drop state.
+	/// </summary>
+	public void Reset()
 	{
-		/// <summary>
-		/// Whether a drag event has been detected
-		/// </summary>
-		public bool IsDragging { get; set; }
-
-		/// <summary>
-		/// The index that the current selection will be dragged to when the user drops it.
-		/// </summary>
-		public int TargetIndex { get; set; }
-
-		/// <summary>
-		/// Resets information about the drag-and-drop state.
-		/// </summary>
-		public void Reset()
-		{
-			IsDragging = false;
-			TargetIndex = -1;
-		}
+		IsDragging = false;
+		TargetIndex = -1;
 	}
 }

@@ -1,47 +1,46 @@
-namespace PanoramicData.Blazor
+namespace PanoramicData.Blazor;
+
+public partial class PDCardDeckLoadingIcon
 {
-	public partial class PDCardDeckLoadingIcon
+	private DateTime _loadStart = DateTime.UtcNow;
+	private int _currentLoadTime;
+	private CancellationTokenSource? _cts;
+
+	public bool IsActive { get; private set; }
+
+	protected override async Task OnInitializedAsync()
 	{
-		private DateTime _loadStart = DateTime.UtcNow;
-		private int _currentLoadTime;
-		private CancellationTokenSource? _cts;
+		_loadStart = DateTime.UtcNow;
 
-		public bool IsActive { get; private set; }
+		// Delay the start of the loading icon to allow the parent component to set up
+		await Task.Delay(TimeSpan.FromSeconds(0.12));
+		IsActive = true;
+		_cts = new CancellationTokenSource();
+		_ = UpdateElapsedTimeAsync(_cts.Token);
+	}
 
-		protected override async Task OnInitializedAsync()
+	private async Task UpdateElapsedTimeAsync(CancellationToken token)
+	{
+		while (!token.IsCancellationRequested)
 		{
-			_loadStart = DateTime.UtcNow;
-
-			// Delay the start of the loading icon to allow the parent component to set up
-			await Task.Delay(TimeSpan.FromSeconds(0.12));
-			IsActive = true;
-			_cts = new CancellationTokenSource();
-			_ = UpdateElapsedTimeAsync(_cts.Token);
-		}
-
-		private async Task UpdateElapsedTimeAsync(CancellationToken token)
-		{
-			while (!token.IsCancellationRequested)
+			_currentLoadTime = (int)(DateTime.UtcNow - _loadStart).TotalSeconds;
+			await InvokeAsync(StateHasChanged);
+			try
 			{
-				_currentLoadTime = (int)(DateTime.UtcNow - _loadStart).TotalSeconds;
-				await InvokeAsync(StateHasChanged);
-				try
-				{
-					await Task.Delay(TimeSpan.FromSeconds(1), token);
+				await Task.Delay(TimeSpan.FromSeconds(1), token);
 
-				}
-				catch (TaskCanceledException)
-				{
-					break;
-				}
+			}
+			catch (TaskCanceledException)
+			{
+				break;
 			}
 		}
+	}
 
-		public void Dispose()
-		{
-			IsActive = false;
-			_cts?.Cancel();
-			_cts?.Dispose();
-		}
+	public void Dispose()
+	{
+		IsActive = false;
+		_cts?.Cancel();
+		_cts?.Dispose();
 	}
 }
