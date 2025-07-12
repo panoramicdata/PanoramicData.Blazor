@@ -1,5 +1,5 @@
 /* ==============================================
-   PDChat Component - Proper Overflow Control
+   PDChat Component - Clean Layout Architecture
    ============================================== */
 
 .pdchat-container {
@@ -65,7 +65,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 }
 
 /* ==============================================
-   Fullscreen Container - CRITICAL FIX
+   Fullscreen Container
    ============================================== */
 
 .pdchat-container.dock-fullscreen {
@@ -153,7 +153,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 }
 
 /* ==============================================
-   FULLSCREEN LAYOUT - CRITICAL CONSTRAINTS
+   Fullscreen Layout
    ============================================== */
 
 .pdchat-window.fullscreen {
@@ -228,7 +228,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 }
 
 /* ==============================================
-   Splitter Layout - OVERFLOW FIXES
+   Splitter and Panel Layout
    ============================================== */
 
 .pdchat-splitter {
@@ -250,7 +250,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 }
 
 /* ==============================================
-   Canvas Panel
+   Canvas Panel Layout
    ============================================== */
 
 .pdchat-canvas-flex {
@@ -266,8 +266,30 @@ body:has(.pdchat-container.dock-fullscreen) {
 	background-color: #f8f9fa;
 }
 
+.pdchat-canvas-tab-content {
+	flex: 1 1 auto;
+	min-height: 0;
+	min-width: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.pdchat-canvas-tab-content .pd-monacoeditor {
+	flex: 1 1 auto;
+	min-height: 0;
+	min-width: 0;
+	height: 100%;
+}
+
+/* Ensure Monaco editor container fills the tab properly */
+.pdchat-canvas-tab-content .monaco-editor-container {
+	height: 100%;
+	width: 100%;
+}
+
 /* ==============================================
-   Fullscreen-specific overrides
+   Fullscreen Overrides
    ============================================== */
 
 .pdchat-window.fullscreen .pdchat-messages {

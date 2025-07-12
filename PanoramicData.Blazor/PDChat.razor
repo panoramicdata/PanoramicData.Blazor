@@ -1,5 +1,5 @@
 ﻿@using static PanoramicData.Blazor.PDResizePane
-@inherits ComponentBase
+@inherits JSModuleComponentBase
 
 <div class="pdchat-container @GetDockModeClasses() @( DockMode != PDChatDockMode.Minimized ? "open" : "" )">
 	@if (DockMode != PDChatDockMode.Minimized)

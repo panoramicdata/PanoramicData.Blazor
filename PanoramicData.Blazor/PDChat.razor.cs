@@ -1,6 +1,8 @@
-﻿namespace PanoramicData.Blazor;
+﻿using BlazorMonaco.Editor;
 
-public partial class PDChat
+namespace PanoramicData.Blazor;
+
+public partial class PDChat : JSModuleComponentBase
 {
 	[EditorRequired]
 	[Parameter]
@@ -70,7 +72,6 @@ public partial class PDChat
 	[Parameter]
 	public EventCallback OnAutoRestored { get; set; }
 
-	private IJSObjectReference? _module;
 	private bool _isMuted;
 	private bool _unreadMessages;
 	private string _currentInput = "";
@@ -80,6 +81,8 @@ public partial class PDChat
 	private readonly List<ChatMessage> _messages = [];
 	private PDTabSet? _tabSetRef;
 	private PDMessages? _pdMessages;
+
+	protected override string ModulePath => "./_content/PanoramicData.Blazor/PDChat.razor.js";
 
 	protected override Task OnInitializedAsync()
 	{
@@ -148,7 +151,7 @@ public partial class PDChat
 		{
 			var soundUrl = new Uri(soundUrlString, UriKind.RelativeOrAbsolute);
 			// Play the sound
-			_module?.InvokeVoidAsync("playSound", soundUrlString);
+			Module?.InvokeVoidAsync("playSound", soundUrlString);
 		}
 
 		await InvokeAsync(StateHasChanged);
@@ -300,6 +303,29 @@ public partial class PDChat
 				Title = "New Tab",
 				IsRenamingEnabled = true
 			};
+
+			// Add PDMonaco editor as child content when in fullscreen mode
+			if (DockMode == PDChatDockMode.FullScreen)
+			{
+				newTab.ChildContent = builder =>
+				{
+					builder.OpenComponent<PDMonacoEditor>(0);
+					builder.AddAttribute(1, "Language", "csharp");
+					builder.AddAttribute(2, "Theme", "vs-dark");
+					builder.AddAttribute(3, "CssClass", "pdchat-canvas-tab-content");
+					builder.AddAttribute(4, "InitializeOptions", new Func<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(() => 
+						new BlazorMonaco.Editor.StandaloneEditorConstructionOptions
+						{
+							AutomaticLayout = true,
+							Language = "csharp",
+							Theme = "vs-dark",
+							Value = "// Welcome to the Monaco Editor!\n// Start coding here...\n",
+							Minimap = new BlazorMonaco.Editor.EditorMinimapOptions { Enabled = false }
+						}));
+					builder.CloseComponent();
+				};
+			}
+
 			_tabSetRef.AddTab(newTab);
 			_tabSetRef.StartRenamingTab(newTab);
 		}

@@ -1,4 +1,5 @@
 ﻿using PanoramicData.Blazor.Services;
+using PanoramicData.Blazor.Demo.Data;
 
 namespace PanoramicData.Blazor.Demo.Pages;
 
@@ -6,6 +7,8 @@ public partial class PDChatPage : IDisposable
 {
 	private readonly DumbChatService _chatService = new();
 	private PDChat? _chatRef;
+
+	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	// Demo configuration properties
 	private PDChatDockMode _currentDockMode = PDChatDockMode.BottomRight;
@@ -173,6 +176,51 @@ public partial class PDChatPage : IDisposable
 			Timestamp = DateTime.UtcNow
 		};
 		_chatService.SendMessage(message);
+	}
+
+	// Event handlers for PDChat events
+	private void OnChatMinimized()
+	{
+		EventManager?.Add(new Event("ChatMinimized"));
+	}
+
+	private void OnChatRestored()
+	{
+		EventManager?.Add(new Event("ChatRestored"));
+	}
+
+	private void OnChatMaximized()
+	{
+		EventManager?.Add(new Event("ChatMaximized"));
+	}
+
+	private void OnMuteToggled()
+	{
+		EventManager?.Add(new Event("MuteToggled"));
+	}
+
+	private void OnChatCleared()
+	{
+		EventManager?.Add(new Event("ChatCleared"));
+	}
+
+	private void OnMessageSent(ChatMessage message)
+	{
+		EventManager?.Add(new Event("MessageSent", 
+			new EventArgument("Message", message.Message),
+			new EventArgument("Sender", message.Sender.Name)));
+	}
+
+	private void OnMessageReceived(ChatMessage message)
+	{
+		EventManager?.Add(new Event("MessageReceived", 
+			new EventArgument("Message", message.Message),
+			new EventArgument("Sender", message.Sender.Name)));
+	}
+
+	private void OnAutoRestored()
+	{
+		EventManager?.Add(new Event("AutoRestored"));
 	}
 
 	public void Dispose()

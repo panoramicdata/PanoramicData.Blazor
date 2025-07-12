@@ -163,6 +163,7 @@
 		ChatService="_chatService"
 		Title="@_chatTitle"
 		DockMode="@_currentDockMode"
+		DockModeChanged="@((PDChatDockMode mode) => _currentDockMode = mode)"
 		ChatDockPosition="@_currentChatDockPosition"
 		UserIconSelector="GetUserIcon"
 		PriorityIconSelector="GetPriorityIcon"
@@ -171,7 +172,17 @@
 		IsCanvasUsePermitted="_isCanvasUsePermitted"
 		IsClearPermitted="_isClearPermitted"
 		AutoRestoreOnNewMessage="_autoRestoreOnNewMessage"
+		OnChatMinimized="OnChatMinimized"
+		OnChatRestored="OnChatRestored"
+		OnChatMaximized="OnChatMaximized"
+		OnMuteToggled="OnMuteToggled"
+		OnChatCleared="OnChatCleared"
+		OnMessageSent="OnMessageSent"
+		OnMessageReceivedEvent="OnMessageReceived"
+		OnAutoRestored="OnAutoRestored"
 		User="User"
 		/>
+
+	<EventView />
 
 </DemoSourceView>
