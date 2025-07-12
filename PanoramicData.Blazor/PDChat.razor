@@ -1,7 +1,7 @@
 ﻿@using static PanoramicData.Blazor.PDResizePane
 @inherits ComponentBase
 
-<div class="pdchat-container @GetDockModeClasses() @( DockMode == PDChatDockMode.Minimized ? "open" : "" )">
+<div class="pdchat-container @GetDockModeClasses() @( DockMode != PDChatDockMode.Minimized ? "open" : "" )">
 	@if (DockMode != PDChatDockMode.Minimized)
 	{
 		<div class="pdchat-window@(DockMode == PDChatDockMode.FullScreen ? " fullscreen" : string.Empty)">
@@ -22,7 +22,7 @@
 						<span>@(DockMode == PDChatDockMode.FullScreen ? "🗗" : "🗖")</span>
 					</button>
 				}
-				<button class="pdchat-close" @onclick="ToggleChat" title="Minimize">🗕</button>
+				<button class="pdchat-close" @onclick="ToggleChatAsync" title="Minimize">🗕</button>
 			</div>
 
 			@if (DockMode == PDChatDockMode.FullScreen && IsCanvasUsePermitted)
@@ -93,13 +93,13 @@
 	{
 		@if(ChatService.IsLive)
 		{
-			<button class="pdchat-toggle-collapsed @(_unreadMessages ? "pulsate" : "")" @onclick="ToggleChat">
+			<button class="pdchat-toggle-collapsed @(_unreadMessages ? "pulsate" : "")" @onclick="ToggleChatAsync">
 				<span>@CollapsedIcon</span>
 			</button>
 		}
 		else
 		{
-			<button class="pdchat-toggle-collapsed pdchat-not-live" @onclick="ToggleChat" title="Offline">
+			<button class="pdchat-toggle-collapsed pdchat-not-live" @onclick="ToggleChatAsync" title="Offline">
 				<span>@CollapsedIcon</span>
 			</button>
 		}		

@@ -51,6 +51,21 @@
 
 .pdchat-container.dock-minimized {
 	/* Minimized state inherits positioning from previous dock mode */
+	/* Ensure the toggle button is always visible in minimized state */
+}
+
+.pdchat-container.dock-minimized .pdchat-window {
+	display: none;
+}
+
+/* Show toggle button only when minimized (not when open) */
+.pdchat-toggle-collapsed {
+	display: block;
+}
+
+/* Hide toggle button when chat window is open */
+.pdchat-container.open .pdchat-toggle-collapsed {
+	display: none;
 }
 
 .pdchat-container.dock-fullscreen {
@@ -73,7 +88,8 @@
 	font-size: 24px;
 	cursor: pointer;
 	box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-	transition: background-color 0.3s ease;
+	transition: background-color 0.3s ease, opacity 0.3s ease;
+	opacity: 1;
 }
 
 .pdchat-not-live {

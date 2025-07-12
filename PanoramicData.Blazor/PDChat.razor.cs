@@ -47,7 +47,8 @@ public partial class PDChat
 	private bool _isMuted;
 	private bool _unreadMessages;
 	private string _currentInput = "";
-	private PDChatDockMode _previousDockMode = PDChatDockMode.BottomRight; // Store previous dock mode
+	private PDChatDockMode _previousDockMode = PDChatDockMode.BottomRight; // Store previous dock mode for minimize/restore
+	private PDChatDockMode _lastNonMaximizedMode = PDChatDockMode.BottomRight; // Store last non-fullscreen dock mode for maximize/restore
 
 	private readonly List<ChatMessage> _messages = [];
 	private PDTabSet? _tabSetRef;
@@ -55,8 +56,9 @@ public partial class PDChat
 
 	protected override Task OnInitializedAsync()
 	{
-		// Initialize previous dock mode with current value
+		// Initialize previous dock mode and last non-maximized mode with current value
 		_previousDockMode = DockMode;
+		_lastNonMaximizedMode = DockMode;
 
 		ChatService.OnMessageReceived += OnMessageReceived;
 		ChatService.OnLiveStatusChanged += OnLiveStatusChanged;
@@ -109,17 +111,19 @@ public partial class PDChat
 		InvokeAsync(StateHasChanged);
 	}
 
-	private void ToggleChat()
+	private async Task ToggleChatAsync()
 	{
 		if (DockMode == PDChatDockMode.Minimized)
 		{
-			DockMode = _previousDockMode;
+			// Restore from minimized state to previous dock mode
+			await SetDockModeAsync(_previousDockMode);
 			_unreadMessages = false; // Clear unread messages when chat is opened
 		}
 		else
 		{
+			// Save current dock mode before minimizing (for minimize/restore cycle)
 			_previousDockMode = DockMode;
-			DockMode = PDChatDockMode.Minimized;
+			await SetDockModeAsync(PDChatDockMode.Minimized);
 		}
 	}
 
@@ -132,13 +136,18 @@ public partial class PDChat
 	{
 		if (DockMode == PDChatDockMode.FullScreen)
 		{
-			// Restore to previous dock mode
-			await SetDockModeAsync(_previousDockMode);
+			// Restore to last non-maximized dock mode, fallback to BottomRight if not set
+			var targetMode = IsNormalDockMode(_lastNonMaximizedMode) ? _lastNonMaximizedMode : PDChatDockMode.BottomRight;
+			await SetDockModeAsync(targetMode);
 		}
 		else
 		{
-			// Store current dock mode before going full screen
-			_previousDockMode = DockMode;
+			// Store current dock mode as last non-maximized before going full screen
+			// Only store if it's a normal dock mode (not Minimized)
+			if (IsNormalDockMode(DockMode))
+			{
+				_lastNonMaximizedMode = DockMode;
+			}
 			await SetDockModeAsync(PDChatDockMode.FullScreen);
 		}
 	}
@@ -154,6 +163,12 @@ public partial class PDChat
 	{
 		if (DockMode != mode)
 		{
+			// Track the last non-maximized mode when changing away from normal dock modes
+			if (IsNormalDockMode(DockMode))
+			{
+				_lastNonMaximizedMode = DockMode;
+			}
+			
 			DockMode = mode;
 			await DockModeChanged.InvokeAsync(mode);
 			StateHasChanged();
@@ -202,6 +217,25 @@ public partial class PDChat
 	// Helper method to get CSS classes for dock mode positioning
 	private string GetDockModeClasses()
 	{
+		if (DockMode == PDChatDockMode.Minimized)
+		{
+			// When minimized, use the previous dock mode's positioning class plus minimized
+			var previousClass = _previousDockMode switch
+			{
+				PDChatDockMode.BottomRight => "dock-bottom-right",
+				PDChatDockMode.TopRight => "dock-top-right",
+				PDChatDockMode.BottomLeft => "dock-bottom-left",
+				PDChatDockMode.TopLeft => "dock-top-left",
+				PDChatDockMode.FullScreen => "dock-bottom-right", // Default fallback for fullscreen
+				PDChatDockMode.Left => "dock-left",
+				PDChatDockMode.Right => "dock-right",
+				PDChatDockMode.Top => "dock-top",
+				PDChatDockMode.Bottom => "dock-bottom",
+				_ => "dock-bottom-right" // Default fallback
+			};
+			return $"{previousClass} dock-minimized";
+		}
+
 		return DockMode switch
 		{
 			PDChatDockMode.BottomRight => "dock-bottom-right",
@@ -213,7 +247,6 @@ public partial class PDChat
 			PDChatDockMode.Right => "dock-right",
 			PDChatDockMode.Top => "dock-top",
 			PDChatDockMode.Bottom => "dock-bottom",
-			PDChatDockMode.Minimized => "dock-minimized",
 			_ => "dock-bottom-right" // Default fallback
 		};
 	}
@@ -240,5 +273,11 @@ public partial class PDChat
 			PDChatDockPosition.Bottom => false,
 			_ => false // Default chat on the right (second panel)
 		};
+	}
+
+	// Helper method to check if a dock mode is a "normal" docked position (not minimized or fullscreen)
+	private static bool IsNormalDockMode(PDChatDockMode mode)
+	{
+		return mode != PDChatDockMode.Minimized && mode != PDChatDockMode.FullScreen;
 	}
 }
