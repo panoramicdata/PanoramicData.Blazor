@@ -115,6 +115,19 @@ public partial class PDChatPage : IDisposable
 		_chatService.SendMessage(message);
 	}
 
+	private void SendCriticalMessage()
+	{
+		var message = new ChatMessage
+		{
+			Id = Guid.NewGuid(),
+			Message = "🚨 CRITICAL: This is a critical message! Immediate attention required!",
+			Sender = Bot,
+			Type = MessageType.Critical,
+			Timestamp = DateTime.UtcNow
+		};
+		_chatService.SendMessage(message);
+	}
+
 	private async Task SendTypingMessage()
 	{
 		// First show typing indicator

@@ -80,6 +80,8 @@ public partial class PDChat : JSModuleComponentBase
 
 	private bool _isMuted;
 	private bool _unreadMessages;
+	private MessageType _highestPriorityUnreadMessage = MessageType.Normal;
+	private DateTimeOffset _lastReadTimestamp = DateTimeOffset.UtcNow;
 	private string _currentInput = "";
 	private PDChatDockMode _previousDockMode = PDChatDockMode.BottomRight; // Store previous dock mode for minimize/restore
 	private PDChatDockMode _lastNonMaximizedMode = PDChatDockMode.BottomRight; // Store last non-fullscreen dock mode for maximize/restore
@@ -136,12 +138,20 @@ public partial class PDChat : JSModuleComponentBase
 		{
 			_unreadMessages = true;
 			
+			// Update the highest priority unread message type
+			if (isNewMessage && message.Type != MessageType.Typing)
+			{
+				UpdateHighestPriorityUnreadMessage();
+			}
+			
 			// Optionally auto-restore the chat when new messages arrive
 			// Only auto-restore for new messages (not updates) and if it's not a typing indicator
 			if (AutoRestoreOnNewMessage && isNewMessage && message.Type != MessageType.Typing)
 			{
 				await SetDockModeAsync(_previousDockMode);
 				_unreadMessages = false; // Clear unread flag since we're opening the chat
+				_highestPriorityUnreadMessage = MessageType.Normal; // Reset priority
+				_lastReadTimestamp = DateTimeOffset.UtcNow; // Update last read time
 				
 				// Emit auto-restore event
 				if (OnAutoRestored.HasDelegate)
@@ -176,6 +186,8 @@ public partial class PDChat : JSModuleComponentBase
 			// Restore from minimized state to previous dock mode
 			await SetDockModeAsync(_previousDockMode);
 			_unreadMessages = false; // Clear unread messages when chat is opened
+			_highestPriorityUnreadMessage = MessageType.Normal; // Reset priority
+			_lastReadTimestamp = DateTimeOffset.UtcNow; // Update last read time
 			
 			// Emit restore event
 			if (OnChatRestored.HasDelegate)
@@ -244,6 +256,9 @@ public partial class PDChat : JSModuleComponentBase
 	{
 		_messages.Clear();
 		_currentInput = string.Empty;
+		_unreadMessages = false;
+		_highestPriorityUnreadMessage = MessageType.Normal;
+		_lastReadTimestamp = DateTimeOffset.UtcNow;
 		StateHasChanged();
 		
 		// Emit chat cleared event
@@ -335,6 +350,92 @@ public partial class PDChat : JSModuleComponentBase
 			_tabSetRef.AddTab(newTab);
 			_tabSetRef.StartRenamingTab(newTab);
 		}
+	}
+
+	// Helper method to update the highest priority unread message
+	private void UpdateHighestPriorityUnreadMessage()
+	{
+		if (!_unreadMessages || !_messages.Any())
+		{
+			_highestPriorityUnreadMessage = MessageType.Normal;
+			return;
+		}
+
+		// Get the highest priority message that arrived after the last read timestamp
+		// and exclude typing messages
+		var unreadNonTypingMessages = _messages
+			.Where(m => m.Type != MessageType.Typing && m.Timestamp > _lastReadTimestamp)
+			.ToList();
+
+		if (!unreadNonTypingMessages.Any())
+		{
+			_highestPriorityUnreadMessage = MessageType.Normal;
+			return;
+		}
+
+		_highestPriorityUnreadMessage = unreadNonTypingMessages
+			.Select(m => m.Type)
+			.Max(); // MessageType enum values are ordered by priority
+	}
+
+	// Helper method to get the bootstrap color class based on message priority
+	private string GetBootstrapColorClass()
+	{
+		if (!ChatService.IsLive)
+		{
+			return "pdchat-not-live";
+		}
+
+		if (!_unreadMessages)
+		{
+			return string.Empty;
+		}
+
+		return _highestPriorityUnreadMessage switch
+		{
+			MessageType.Critical => "pdchat-critical",
+			MessageType.Error => "pdchat-error", 
+			MessageType.Warning => "pdchat-warning",
+			MessageType.Normal => "pdchat-info",
+			MessageType.Typing => string.Empty,
+			_ => string.Empty
+		};
+	}
+
+	// Helper method to get the animation class based on message priority
+	private string GetAnimationClass()
+	{
+		if (!_unreadMessages)
+		{
+			return string.Empty;
+		}
+
+		return _highestPriorityUnreadMessage switch
+		{
+			MessageType.Critical => "pulsate-critical",
+			MessageType.Error => "pulsate-error",
+			MessageType.Warning => "pulsate-warning", 
+			MessageType.Normal => "pulsate",
+			MessageType.Typing => string.Empty,
+			_ => string.Empty
+		};
+	}
+
+	// Helper method to get the priority indicator icon
+	private string GetPriorityIndicator()
+	{
+		if (!_unreadMessages)
+		{
+			return string.Empty;
+		}
+
+		return _highestPriorityUnreadMessage switch
+		{
+			MessageType.Warning => "⚠",
+			MessageType.Error => "!",
+			MessageType.Critical => "!!",
+			_ => string.Empty
+		};
 	}
 
 	// Helper method to get CSS classes for dock mode positioning

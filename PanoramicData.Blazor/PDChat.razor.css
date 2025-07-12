@@ -116,16 +116,108 @@ body:has(.pdchat-container.dock-fullscreen) {
 	box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 	transition: background-color 0.3s ease, opacity 0.3s ease;
 	opacity: 1;
+	position: relative;
+	overflow: visible;
+}
+
+/* Bootstrap Color Classes for Chat Toggle */
+.pdchat-toggle-collapsed.pdchat-info {
+	background-color: #0dcaf0; /* Bootstrap info color */
+}
+
+.pdchat-toggle-collapsed.pdchat-warning {
+	background-color: #ffc107; /* Bootstrap warning color */
+	color: #212529; /* Dark text for better contrast on yellow */
+}
+
+.pdchat-toggle-collapsed.pdchat-error {
+	background-color: #dc3545; /* Bootstrap danger color */
+}
+
+.pdchat-toggle-collapsed.pdchat-critical {
+	background-color: #6f42c1; /* Bootstrap purple for critical */
 }
 
 .pdchat-not-live {
-	background-color: #ff4d4d;
+	background-color: #6c757d; /* Bootstrap secondary color */
 	color: white;
 }
 
 .pdchat-toggle:hover,
 .pdchat-toggle-collapsed:hover {
 	background-color: #005a9e;
+	transform: scale(1.05);
+}
+
+.pdchat-toggle-collapsed.pdchat-info:hover {
+	background-color: #0bb5d6;
+}
+
+.pdchat-toggle-collapsed.pdchat-warning:hover {
+	background-color: #e6ac00;
+}
+
+.pdchat-toggle-collapsed.pdchat-error:hover {
+	background-color: #bb2d3b;
+}
+
+.pdchat-toggle-collapsed.pdchat-critical:hover {
+	background-color: #5d369a;
+}
+
+/* ==============================================
+   Priority Indicator Container and Icons
+   ============================================== */
+
+.pdchat-icon-container {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.pdchat-main-icon {
+	display: inline-block;
+}
+
+.pdchat-priority-indicator {
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	background-color: rgba(255, 255, 255, 0.9);
+	color: #212529;
+	border-radius: 50%;
+	width: 18px;
+	height: 18px;
+	font-size: 10px;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+	border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Warning triangle specific styling */
+.pdchat-toggle-collapsed.pdchat-warning .pdchat-priority-indicator {
+	background-color: #ffc107;
+	color: #212529;
+}
+
+/* Error exclamation specific styling */
+.pdchat-toggle-collapsed.pdchat-error .pdchat-priority-indicator {
+	background-color: #dc3545;
+	color: white;
+}
+
+/* Critical double exclamation specific styling */
+.pdchat-toggle-collapsed.pdchat-critical .pdchat-priority-indicator {
+	background-color: #6f42c1;
+	color: white;
+	font-size: 8px; /* Smaller to fit double exclamation */
 }
 
 /* ==============================================
@@ -325,21 +417,73 @@ body:has(.pdchat-container.dock-fullscreen) {
 }
 
 /* ==============================================
-   Animations
+   Animations - Default and Priority-Based
    ============================================== */
 
 .pulsate {
 	animation: pdchat-pulsate 1.5s infinite;
 }
 
+.pulsate-warning {
+	animation: pdchat-pulsate-warning 1.2s infinite;
+}
+
+.pulsate-error {
+	animation: pdchat-pulsate-error 1s infinite;
+}
+
+.pulsate-critical {
+	animation: pdchat-pulsate-critical 0.7s infinite;
+}
+
+/* Base pulsate animation (Normal messages) */
 @keyframes pdchat-pulsate {
 	0% {
-		box-shadow: 0 0 0 0 rgba(0,120,212,0.7);
+		box-shadow: 0 0 0 0 rgba(13, 202, 240, 0.7);
 	}
 	70% {
-		box-shadow: 0 0 0 10px rgba(0,120,212,0);
+		box-shadow: 0 0 0 10px rgba(13, 202, 240, 0);
 	}
 	100% {
-		box-shadow: 0 0 0 0 rgba(0,120,212,0);
+		box-shadow: 0 0 0 0 rgba(13, 202, 240, 0);
+	}
+}
+
+/* Warning pulsate animation (Warning messages) */
+@keyframes pdchat-pulsate-warning {
+	0% {
+		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+	}
+	70% {
+		box-shadow: 0 0 0 12px rgba(255, 193, 7, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+	}
+}
+
+/* Error pulsate animation (Error messages) */
+@keyframes pdchat-pulsate-error {
+	0% {
+		box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.8);
+	}
+	70% {
+		box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+	}
+}
+
+/* Critical pulsate animation (Critical messages) */
+@keyframes pdchat-pulsate-critical {
+	0% {
+		box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.9);
+	}
+	70% {
+		box-shadow: 0 0 0 20px rgba(111, 66, 193, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(111, 66, 193, 0);
 	}
 }

@@ -99,8 +99,14 @@
 	{
 		@if(ChatService.IsLive)
 		{
-			<button class="pdchat-toggle-collapsed @(_unreadMessages ? "pulsate" : "")" @onclick="ToggleChatAsync">
-				<span>@CollapsedIcon</span>
+			<button class="pdchat-toggle-collapsed @GetBootstrapColorClass() @GetAnimationClass()" @onclick="ToggleChatAsync">
+				<span class="pdchat-icon-container">
+					<span class="pdchat-main-icon">@CollapsedIcon</span>
+					@if (!string.IsNullOrEmpty(GetPriorityIndicator()))
+					{
+						<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>
+					}
+				</span>
 			</button>
 		}
 		else
