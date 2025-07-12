@@ -28,12 +28,22 @@
     flex-direction: row;
 }
 
-.pdchat-message.full-width.user {
+/* Default colored strip on left for meta-on-left */
+.pdchat-message.full-width.meta-on-left.user {
     border-left: 4px solid #6c757d;
 }
 
-.pdchat-message.full-width.bot {
+.pdchat-message.full-width.meta-on-left.bot {
     border-left: 4px solid #0d6efd;
+}
+
+/* Colored strip on right for meta-on-right */
+.pdchat-message.full-width.meta-on-right.user {
+    border-right: 4px solid #6c757d;
+}
+
+.pdchat-message.full-width.meta-on-right.bot {
+    border-right: 4px solid #0d6efd;
 }
 
 .pdchat-message.full-width .pdchat-content {
@@ -79,27 +89,52 @@
 }
 
 /* ==============================================
-   Priority Color Overrides for Full Width
+   Priority Color Overrides for Full Width - Meta on Left
    ============================================== */
 
-.pdchat-message.full-width.priority-warning {
+.pdchat-message.full-width.meta-on-left.priority-warning {
     border-left-color: #ffc107;
     background-color: #fff3cd;
 }
 
-.pdchat-message.full-width.priority-error {
+.pdchat-message.full-width.meta-on-left.priority-error {
     border-left-color: #dc3545;
     background-color: #f8d7da;
 }
 
-.pdchat-message.full-width.priority-critical {
+.pdchat-message.full-width.meta-on-left.priority-critical {
     border-left-color: #dc3545;
     background-color: #f8d7da;
     box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
 }
 
-.pdchat-message.full-width.priority-typing {
+.pdchat-message.full-width.meta-on-left.priority-typing {
     border-left-color: #6c757d;
+    background-color: #f8f9fa;
+}
+
+/* ==============================================
+   Priority Color Overrides for Full Width - Meta on Right
+   ============================================== */
+
+.pdchat-message.full-width.meta-on-right.priority-warning {
+    border-right-color: #ffc107;
+    background-color: #fff3cd;
+}
+
+.pdchat-message.full-width.meta-on-right.priority-error {
+    border-right-color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.pdchat-message.full-width.meta-on-right.priority-critical {
+    border-right-color: #dc3545;
+    background-color: #f8d7da;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.pdchat-message.full-width.meta-on-right.priority-typing {
+    border-right-color: #6c757d;
     background-color: #f8f9fa;
 }
 
