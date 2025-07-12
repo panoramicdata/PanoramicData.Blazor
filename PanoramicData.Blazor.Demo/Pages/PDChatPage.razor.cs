@@ -13,6 +13,7 @@ public partial class PDChatPage : IDisposable
 	private bool _isMaximizePermitted = true;
 	private bool _isCanvasUsePermitted = true;
 	private bool _isClearPermitted = true;
+	private bool _autoRestoreOnNewMessage = false;
 	private string _chatTitle = "Demo Chat";
 
 	private ChatMessageSender User => new()
@@ -160,6 +161,19 @@ public partial class PDChatPage : IDisposable
 				MessageType.Critical => "critical.mp3",
 				_ => null
 			};
+
+	private void TestAutoRestore()
+	{
+		var message = new ChatMessage
+		{
+			Id = Guid.NewGuid(),
+			Message = "🔄 This message was sent to test the auto-restore feature. If auto-restore is enabled and the chat is minimized, it should automatically open when this message arrives.",
+			Sender = Bot,
+			Type = MessageType.Normal,
+			Timestamp = DateTime.UtcNow
+		};
+		_chatService.SendMessage(message);
+	}
 
 	public void Dispose()
 	{

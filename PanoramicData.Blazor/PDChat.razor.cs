@@ -43,6 +43,9 @@ public partial class PDChat
 	[Parameter]
 	public bool IsClearPermitted { get; set; } = true;
 
+	[Parameter]
+	public bool AutoRestoreOnNewMessage { get; set; } = false;
+
 	private IJSObjectReference? _module;
 	private bool _isMuted;
 	private bool _unreadMessages;
@@ -74,6 +77,8 @@ public partial class PDChat
 	private async void OnMessageReceived(ChatMessage message)
 	{
 		var existing = _messages.FirstOrDefault(m => m.Id == message.Id);
+		var isNewMessage = existing == null;
+		
 		if (existing != null)
 		{
 			existing.Message = message.Message;
@@ -91,6 +96,14 @@ public partial class PDChat
 		if (DockMode == PDChatDockMode.Minimized)
 		{
 			_unreadMessages = true;
+			
+			// Optionally auto-restore the chat when new messages arrive
+			// Only auto-restore for new messages (not updates) and if it's not a typing indicator
+			if (AutoRestoreOnNewMessage && isNewMessage && message.Type != MessageType.Typing)
+			{
+				await SetDockModeAsync(_previousDockMode);
+				_unreadMessages = false; // Clear unread flag since we're opening the chat
+			}
 		}
 
 		// Get the sound to play, if any
