@@ -82,24 +82,29 @@ public partial class PDMessages
 		{
 			value = string.Empty;
 		}
+
 		CurrentInput = value;
 		await CurrentInputChanged.InvokeAsync(value);
 	}
 
 	private async Task OnSendClickedInternal()
 	{
-		if (CanSend && OnSendClicked.HasDelegate)
+		if (!CanSend || !OnSendClicked.HasDelegate)
 		{
-			CurrentInput = string.Empty;
-			await OnSendClicked.InvokeAsync();
+			return;
 		}
+
+		CurrentInput = string.Empty;
+		await OnSendClicked.InvokeAsync();
 	}
 
 	private async Task OnInputKeyDown(KeyboardEventArgs e)
 	{
-		if (e.Key == "Enter" && !e.ShiftKey && !e.AltKey && !e.CtrlKey)
+		if (e.Key != "Enter" || e.ShiftKey || e.AltKey || e.CtrlKey)
 		{
-			await OnSendClickedInternal();
+			return;
 		}
+
+		await OnSendClickedInternal();
 	}
 }

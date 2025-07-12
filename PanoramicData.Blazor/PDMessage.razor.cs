@@ -7,20 +7,15 @@ public partial class PDMessage
 	[Parameter] public bool UseFullWidthMessages { get; set; } = true;
 	[Parameter] public UserInfoMode UserInfoMode { get; set; } = UserInfoMode.UserOnlyOnRightOthersOnLeft;
 
-	private bool ShouldShowMetaOnRight()
+	private bool ShouldShowMetaOnRight() => UserInfoMode switch
 	{
-		return UserInfoMode switch
-		{
-			UserInfoMode.UserOnlyOnRightOthersOnLeft => Message.Sender.IsUser,
-			UserInfoMode.UserOnlyOnLeftOthersOnRight => !Message.Sender.IsUser,
-			UserInfoMode.AlwaysOnLeft => false,
-			UserInfoMode.AlwaysOnRight => true,
-			_ => Message.Sender.IsUser // Default fallback
-		};
-	}
+		UserInfoMode.UserOnlyOnRightOthersOnLeft => Message.Sender.IsUser,
+		UserInfoMode.UserOnlyOnLeftOthersOnRight => !Message.Sender.IsUser,
+		UserInfoMode.AlwaysOnLeft => false,
+		UserInfoMode.AlwaysOnRight => true,
+		_ => Message.Sender.IsUser // Default fallback
+	};
 
 	private string GetMetaPositionClass()
-	{
-		return ShouldShowMetaOnRight() ? "meta-on-right" : "meta-on-left";
-	}
+		=> ShouldShowMetaOnRight() ? "meta-on-right" : "meta-on-left";
 }

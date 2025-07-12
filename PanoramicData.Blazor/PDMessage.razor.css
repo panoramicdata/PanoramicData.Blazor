@@ -24,16 +24,8 @@
     gap: 12px;
     /* Ensure full-width messages can expand vertically */
     min-height: fit-content;
-}
-
-/* Default: Meta on left, content on right */
-.pdchat-message.full-width.meta-on-left {
+    /* Always use row direction since DOM order is correct */
     flex-direction: row;
-}
-
-/* When meta should be on right: reverse direction */
-.pdchat-message.full-width.meta-on-right {
-    flex-direction: row-reverse;
 }
 
 .pdchat-message.full-width.user {

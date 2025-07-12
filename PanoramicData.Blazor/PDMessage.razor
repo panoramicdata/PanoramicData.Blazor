@@ -5,6 +5,7 @@
 	{
 		@if (ShouldShowMetaOnRight())
 		{
+			<!-- Meta on RIGHT: Content first, then Meta -->
 			<div class="pdchat-content">
 				@if (!string.IsNullOrEmpty(Message.Title))
 				{
@@ -42,6 +43,7 @@
 		}
 		else
 		{
+			<!-- Meta on LEFT: Meta first, then Content -->
 			<div class="pdchat-meta">
 				<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
 				<div class="pdchat-details">
