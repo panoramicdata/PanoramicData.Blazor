@@ -11,6 +11,9 @@ public partial class PDChat
 	public required ChatMessageSender User { get; set; }
 
 	[Parameter]
+	public PDChatDockMode DockMode { get; set; } = PDChatDockMode.BottomRight;
+
+	[Parameter]
 	public string Title { get; set; } = "Chat";
 
 	[Parameter]
@@ -37,13 +40,15 @@ public partial class PDChat
 	private IJSObjectReference? _module;
 	private bool _isOpen;
 	private bool _isMuted;
-	private bool _isMaximized;
 	private bool _unreadMessages;
 	private string _currentInput = "";
 
 	private readonly List<ChatMessage> _messages = [];
 	private PDTabSet? _tabSetRef;
 	private PDMessages? _pdMessages;
+
+	// Helper property to check if in fullscreen mode
+	private bool IsFullScreen => DockMode == PDChatDockMode.FullScreen;
 
 	protected override Task OnInitializedAsync()
 	{
@@ -113,15 +118,21 @@ public partial class PDChat
 		_isMuted = !_isMuted;
 	}
 
-	private void ToggleMaximize()
+	private void ToggleFullScreen()
 	{
-		_isMaximized = !_isMaximized;
+		DockMode = DockMode == PDChatDockMode.FullScreen ? PDChatDockMode.BottomRight : PDChatDockMode.FullScreen;
 	}
 
 	private void ClearChat()
 	{
 		_messages.Clear();
 		_currentInput = string.Empty;
+		StateHasChanged();
+	}
+
+	private void SetDockMode(PDChatDockMode mode)
+	{
+		DockMode = mode;
 		StateHasChanged();
 	}
 
@@ -162,5 +173,19 @@ public partial class PDChat
 			_tabSetRef.AddTab(newTab);
 			_tabSetRef.StartRenamingTab(newTab);
 		}
+	}
+
+	// Helper method to get CSS classes for dock mode positioning
+	private string GetDockModeClasses()
+	{
+		return DockMode switch
+		{
+			PDChatDockMode.BottomRight => "dock-bottom-right",
+			PDChatDockMode.TopRight => "dock-top-right",
+			PDChatDockMode.BottomLeft => "dock-bottom-left",
+			PDChatDockMode.TopLeft => "dock-top-left",
+			PDChatDockMode.FullScreen => "dock-fullscreen",
+			_ => "dock-bottom-right" // Default fallback
+		};
 	}
 }

@@ -1,7 +1,7 @@
 ﻿@using static PanoramicData.Blazor.PDResizePane
 @inherits ComponentBase
 
-<div class="pdchat-container @( _isOpen ? "open" : "" )">
+<div class="pdchat-container @GetDockModeClasses() @( _isOpen ? "open" : "" )">
 	@if(ChatService.IsLive)
 	{
 		<button class="pdchat-toggle-collapsed" @onclick="ToggleChat">
@@ -17,7 +17,7 @@
 
 	@if (_isOpen)
 	{
-		<div class="pdchat-window@(_isMaximized ? " maximized" : string.Empty)">
+		<div class="pdchat-window@(IsFullScreen ? " fullscreen" : string.Empty)">
 			<div class="pdchat-header">
 				<span class="pdchat-title">@Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
 				@if (IsClearPermitted && _messages.Count > 0)
@@ -31,14 +31,14 @@
 				</button>
 				@if (IsMaximizePermitted)
 				{
-					<button class="pdchat-header-btn" @onclick="ToggleMaximize" title="@(_isMaximized ? "Restore" : "Maximize")">
-						<span>@(_isMaximized ? "🗗" : "🗖")</span>
+					<button class="pdchat-header-btn" @onclick="ToggleFullScreen" title="@(IsFullScreen ? "Restore" : "Fullscreen")">
+						<span>@(IsFullScreen ? "🗗" : "🗖")</span>
 					</button>
 				}
 				<button class="pdchat-close" @onclick="ToggleChat">✖</button>
 			</div>
 
-			@if (_isMaximized && IsCanvasUsePermitted)
+			@if (IsFullScreen && IsCanvasUsePermitted)
 			{
 				<PDSplitter Direction="SplitDirection.Horizontal" GutterSize="6" CssClass="pdchat-splitter">
 					<PDSplitPanel Size="2" MinSize="200">

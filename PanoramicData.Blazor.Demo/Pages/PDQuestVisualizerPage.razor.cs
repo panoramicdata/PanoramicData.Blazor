@@ -42,9 +42,9 @@ public partial class PDQuestVisualizerPage : IAsyncDisposable
 		{
 			return new List<Quest>
 			{
-				new Quest { Id = 0, Name = "Hero's Path", Description = "Main storyline.", ThemeColorHex = "#1f77b4" },
-				new Quest { Id = 1, Name = "Mage's Journey", Description = "Magic side path.", ThemeColorHex = "#ff7f0e" },
-				new Quest { Id = 2, Name = "Rogue's Gambit", Description = "Stealth missions.", ThemeColorHex = "#2ca02c" }
+				new() { Id = 0, Name = "Hero's Path", Description = "Main storyline.", ThemeColorHex = "#1f77b4" },
+				new() { Id = 1, Name = "Mage's Journey", Description = "Magic side path.", ThemeColorHex = "#ff7f0e" },
+				new() { Id = 2, Name = "Rogue's Gambit", Description = "Stealth missions.", ThemeColorHex = "#2ca02c" }
 			};
 		}
 
@@ -52,15 +52,15 @@ public partial class PDQuestVisualizerPage : IAsyncDisposable
 		{
 			return new List<QuestAction>
 			{
-				new QuestAction { Id = 1, QuestId = 0, Name = "Begin", Description = "Start your journey", PreviousQuestActionIds = Array.Empty<int>(), IsComplete = true },
-				new QuestAction { Id = 2, QuestId = 0, Name = "Meet the Mentor", Description = "Find a guide", PreviousQuestActionIds = [1], IsComplete = true },
-				new QuestAction { Id = 3, QuestId = 0, Name = "Trial of Fire", Description = "Prove yourself", PreviousQuestActionIds = [2], IsComplete = false },
-				new QuestAction { Id = 4, QuestId = 1, Name = "Arcane Intro", Description = "Learn magic", PreviousQuestActionIds = Array.Empty<int>(), IsComplete = true },
-				new QuestAction { Id = 5, QuestId = 1, Name = "Summon Familiar", Description = "Get a pet", PreviousQuestActionIds = [4], IsComplete = false },
-				new QuestAction { Id = 6, QuestId = 2, Name = "Shadows Stir", Description = "Start sneaking", PreviousQuestActionIds = Array.Empty<int>(), IsComplete = true },
-				new QuestAction { Id = 7, QuestId = 2, Name = "Heist Planning", Description = "Prepare for theft", PreviousQuestActionIds = [6], IsComplete = true },
-				new QuestAction { Id = 8, QuestId = 2, Name = "Steal the Jewel", Description = "Execute the plan", PreviousQuestActionIds = [7], IsComplete = false },
-				new QuestAction { Id = 9, QuestId = 0, Name = "Crossover Battle", Description = "Merge paths", PreviousQuestActionIds = [3, 5, 8], IsComplete = false }
+				new() { Id = 1, QuestId = 0, Name = "Begin", Description = "Start your journey", PreviousQuestActionIds = Array.Empty<int>(), IsComplete = true },
+				new() { Id = 2, QuestId = 0, Name = "Meet the Mentor", Description = "Find a guide", PreviousQuestActionIds = [1], IsComplete = true },
+				new() { Id = 3, QuestId = 0, Name = "Trial of Fire", Description = "Prove yourself", PreviousQuestActionIds = [2], IsComplete = false },
+				new() { Id = 4, QuestId = 1, Name = "Arcane Intro", Description = "Learn magic", PreviousQuestActionIds = Array.Empty<int>(), IsComplete = true },
+				new() { Id = 5, QuestId = 1, Name = "Summon Familiar", Description = "Get a pet", PreviousQuestActionIds = [4], IsComplete = false },
+				new() { Id = 6, QuestId = 2, Name = "Shadows Stir", Description = "Start sneaking", PreviousQuestActionIds = Array.Empty<int>(), IsComplete = true },
+				new() { Id = 7, QuestId = 2, Name = "Heist Planning", Description = "Prepare for theft", PreviousQuestActionIds = [6], IsComplete = true },
+				new() { Id = 8, QuestId = 2, Name = "Steal the Jewel", Description = "Execute the plan", PreviousQuestActionIds = [7], IsComplete = false },
+				new() { Id = 9, QuestId = 0, Name = "Crossover Battle", Description = "Merge paths", PreviousQuestActionIds = [3, 5, 8], IsComplete = false }
 			};
 		}
 	}

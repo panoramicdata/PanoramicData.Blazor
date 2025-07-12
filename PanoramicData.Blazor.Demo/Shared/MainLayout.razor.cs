@@ -6,7 +6,7 @@ public partial class MainLayout
 
 	[Inject] private IChatService ChatService { get; set; } = default!;
 
-	private ChatMessageSender User => new ChatMessageSender
+	private ChatMessageSender User => new()
 	{
 		Name = "User",
 		IsUser = true,

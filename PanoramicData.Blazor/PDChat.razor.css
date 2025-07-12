@@ -1,9 +1,37 @@
 .pdchat-container {
 	position: fixed;
-	bottom: 20px;
-	right: 20px;
 	z-index: 10000;
 	font-family: Arial, sans-serif;
+}
+
+/* Dock Mode Positioning */
+.pdchat-container.dock-bottom-right {
+	bottom: 20px;
+	right: 20px;
+}
+
+.pdchat-container.dock-top-right {
+	top: 20px;
+	right: 20px;
+}
+
+.pdchat-container.dock-bottom-left {
+	bottom: 20px;
+	left: 20px;
+}
+
+.pdchat-container.dock-top-left {
+	top: 20px;
+	left: 20px;
+}
+
+.pdchat-container.dock-fullscreen {
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100vw;
+	height: 100vh;
 }
 
 .pdchat-toggle,
@@ -73,8 +101,8 @@
 	}
 }
 
-/* --- Maximized Chat Window Styles --- */
-.pdchat-window.maximized {
+/* --- Fullscreen Chat Window Styles --- */
+.pdchat-window.fullscreen {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -93,6 +121,11 @@
 	margin: 0;
 }
 
+/* Hide toggle button in fullscreen mode */
+.pdchat-container.dock-fullscreen .pdchat-toggle-collapsed {
+	display: none;
+}
+
 .pdchat-splitter {
 	height: 100%;
 	width: 100%;
@@ -100,7 +133,7 @@
 	min-width: 0;
 }
 
-.pdchat-window.maximized .pdsplitpanel {
+.pdchat-window.fullscreen .pdsplitpanel {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
@@ -108,7 +141,7 @@
 	margin: 0;
 }
 
-.pdchat-window.maximized .pdchat-messages {
+.pdchat-window.fullscreen .pdchat-messages {
 	flex: 1 1 auto;
 	min-height: 0;
 	max-height: none;
@@ -116,17 +149,17 @@
 	overflow-y: auto;
 }
 
-.pdchat-window.maximized .chat-input-container {
+.pdchat-window.fullscreen .chat-input-container {
 	flex-shrink: 0;
 	padding: 8px;
 }
 
-.pdchat-window.maximized .pd-monacoeditor {
+.pdchat-window.fullscreen .pd-monacoeditor {
 	height: 100%;
 	min-height: 0;
 }
 
-/* --- End Maximized Chat Window Styles --- */
+/* --- End Fullscreen Chat Window Styles --- */
 
 .pdsplitpanel {
 	display: flex;

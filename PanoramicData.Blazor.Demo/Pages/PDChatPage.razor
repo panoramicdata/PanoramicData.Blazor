@@ -1,0 +1,141 @@
+@page "/pdchat"
+
+<h1>PDChat</h1>
+<p class="text-muted">The PDChat component provides a flexible chat interface with multiple docking modes including docked positions and undocked (draggable/resizable) mode.</p>
+
+<DemoSourceView SourceFiles="Pages/PDChatPage.razor, Pages/PDChatPage.razor.cs">
+
+	<div class="row">
+		<div class="col-md-6">
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title mb-0">Dock Mode Controls</h5>
+				</div>
+				<div class="card-body">
+					<div class="mb-3">
+						<label class="form-label">Dock Mode:</label>
+						<select @bind="_currentDockMode" class="form-select">
+							<option value="@PDChatDockMode.BottomRight">Bottom Right</option>
+							<option value="@PDChatDockMode.TopRight">Top Right</option>
+							<option value="@PDChatDockMode.BottomLeft">Bottom Left</option>
+							<option value="@PDChatDockMode.TopLeft">Top Left</option>
+							<option value="@PDChatDockMode.FullScreen">Full Screen</option>
+						</select>
+					</div>
+
+					<div class="mb-3">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" @bind="_isMaximizePermitted" id="maximizeCheck">
+							<label class="form-check-label" for="maximizeCheck">
+								Enable Maximize/Fullscreen Button
+							</label>
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" @bind="_isCanvasUsePermitted" id="canvasCheck">
+							<label class="form-check-label" for="canvasCheck">
+								Enable Canvas Mode (when maximized)
+							</label>
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" @bind="_isClearPermitted" id="clearCheck">
+							<label class="form-check-label" for="clearCheck">
+								Enable Clear Chat Button
+							</label>
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Chat Title:</label>
+						<input type="text" @bind="_chatTitle" class="form-control" placeholder="Enter chat title">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title mb-0">Chat Actions</h5>
+				</div>
+				<div class="card-body">
+					<div class="d-grid gap-2">
+						<button class="btn btn-primary" @onclick="SendWelcomeMessage">
+							<i class="fas fa-paper-plane me-2"></i>Send Welcome Message
+						</button>
+						<button class="btn btn-info" @onclick="SendInfoMessage">
+							<i class="fas fa-info-circle me-2"></i>Send Info Message
+						</button>
+						<button class="btn btn-warning" @onclick="SendWarningMessage">
+							<i class="fas fa-exclamation-triangle me-2"></i>Send Warning Message
+						</button>
+						<button class="btn btn-danger" @onclick="SendErrorMessage">
+							<i class="fas fa-times-circle me-2"></i>Send Error Message
+						</button>
+						<button class="btn btn-success" @onclick="SendTypingMessage">
+							<i class="fas fa-keyboard me-2"></i>Simulate Typing
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row mt-4">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title mb-0">Dock Mode Information</h5>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-md-4">
+							<h6>Fixed Dock Modes:</h6>
+							<ul class="list-unstyled">
+								<li><strong>Bottom Right:</strong> Default position</li>
+								<li><strong>Top Right:</strong> Anchored to top-right corner</li>
+								<li><strong>Bottom Left:</strong> Anchored to bottom-left corner</li>
+								<li><strong>Top Left:</strong> Anchored to top-left corner</li>
+							</ul>
+						</div>
+						<div class="col-md-4">
+							<h6>Special Modes:</h6>
+							<ul class="list-unstyled">
+								<li><strong>Full Screen:</strong> Covers entire viewport</li>
+								<li><strong>Undocked:</strong> Draggable and resizable window</li>
+							</ul>
+						</div>
+						<div class="col-md-4">
+							<h6>Undocked Mode Features:</h6>
+							<ul class="list-unstyled">
+								<li>? Drag by header to move</li>
+								<li>? Resize from any edge/corner</li>
+								<li>? Minimum size constraints</li>
+								<li>? Viewport boundary constraints</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<PDChat @ref="_chatRef"
+		ChatService="_chatService"
+		Title="@_chatTitle"
+		DockMode="@_currentDockMode"
+		UserIconSelector="GetUserIcon"
+		PriorityIconSelector="GetPriorityIcon"
+		SoundSelector="GetSoundUrl"
+		IsMaximizePermitted="_isMaximizePermitted"
+		IsCanvasUsePermitted="_isCanvasUsePermitted"
+		IsClearPermitted="_isClearPermitted"
+		User="User"
+		/>
+
+</DemoSourceView>
