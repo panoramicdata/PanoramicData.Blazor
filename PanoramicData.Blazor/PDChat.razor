@@ -9,11 +9,11 @@
 				<span class="pdchat-title">@Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
 				@if (IsClearPermitted && _messages.Count > 0)
 				{
-					<button class="pdchat-header-btn" @onclick="ClearChat" title="Clear Chat">
+					<button class="pdchat-header-btn" @onclick="ClearChatAsync" title="Clear Chat">
 						<span>🗑️</span>
 					</button>
 				}
-				<button class="pdchat-header-btn" @onclick="ToggleMute" title="@(_isMuted ? "Unmute" : "Mute")">
+				<button class="pdchat-header-btn" @onclick="ToggleMuteAsync" title="@(_isMuted ? "Unmute" : "Mute")">
 					<span>@(_isMuted ? "🔇" : "🔊")</span>
 				</button>
 				@if (IsMaximizePermitted)

@@ -46,6 +46,30 @@ public partial class PDChat
 	[Parameter]
 	public bool AutoRestoreOnNewMessage { get; set; } = false;
 
+	[Parameter]
+	public EventCallback OnChatMinimized { get; set; }
+
+	[Parameter]
+	public EventCallback OnChatRestored { get; set; }
+
+	[Parameter]
+	public EventCallback OnChatMaximized { get; set; }
+
+	[Parameter]
+	public EventCallback OnMuteToggled { get; set; }
+
+	[Parameter]
+	public EventCallback OnChatCleared { get; set; }
+
+	[Parameter]
+	public EventCallback<ChatMessage> OnMessageSent { get; set; }
+
+	[Parameter]
+	public EventCallback<ChatMessage> OnMessageReceivedEvent { get; set; }
+
+	[Parameter]
+	public EventCallback OnAutoRestored { get; set; }
+
 	private IJSObjectReference? _module;
 	private bool _isMuted;
 	private bool _unreadMessages;
@@ -93,6 +117,12 @@ public partial class PDChat
 			_messages.Add(message);
 		}
 
+		// Emit OnMessageReceived event for new messages
+		if (isNewMessage && OnMessageReceivedEvent.HasDelegate)
+		{
+			await OnMessageReceivedEvent.InvokeAsync(message);
+		}
+
 		if (DockMode == PDChatDockMode.Minimized)
 		{
 			_unreadMessages = true;
@@ -103,6 +133,12 @@ public partial class PDChat
 			{
 				await SetDockModeAsync(_previousDockMode);
 				_unreadMessages = false; // Clear unread flag since we're opening the chat
+				
+				// Emit auto-restore event
+				if (OnAutoRestored.HasDelegate)
+				{
+					await OnAutoRestored.InvokeAsync();
+				}
 			}
 		}
 
@@ -131,18 +167,36 @@ public partial class PDChat
 			// Restore from minimized state to previous dock mode
 			await SetDockModeAsync(_previousDockMode);
 			_unreadMessages = false; // Clear unread messages when chat is opened
+			
+			// Emit restore event
+			if (OnChatRestored.HasDelegate)
+			{
+				await OnChatRestored.InvokeAsync();
+			}
 		}
 		else
 		{
 			// Save current dock mode before minimizing (for minimize/restore cycle)
 			_previousDockMode = DockMode;
 			await SetDockModeAsync(PDChatDockMode.Minimized);
+			
+			// Emit minimize event
+			if (OnChatMinimized.HasDelegate)
+			{
+				await OnChatMinimized.InvokeAsync();
+			}
 		}
 	}
 
-	private void ToggleMute()
+	private async Task ToggleMuteAsync()
 	{
 		_isMuted = !_isMuted;
+		
+		// Emit mute toggle event
+		if (OnMuteToggled.HasDelegate)
+		{
+			await OnMuteToggled.InvokeAsync();
+		}
 	}
 
 	private async Task ToggleFullScreenAsync()
@@ -152,6 +206,12 @@ public partial class PDChat
 			// Restore to last non-maximized dock mode, fallback to BottomRight if not set
 			var targetMode = IsNormalDockMode(_lastNonMaximizedMode) ? _lastNonMaximizedMode : PDChatDockMode.BottomRight;
 			await SetDockModeAsync(targetMode);
+			
+			// Emit restore event
+			if (OnChatRestored.HasDelegate)
+			{
+				await OnChatRestored.InvokeAsync();
+			}
 		}
 		else
 		{
@@ -162,14 +222,26 @@ public partial class PDChat
 				_lastNonMaximizedMode = DockMode;
 			}
 			await SetDockModeAsync(PDChatDockMode.FullScreen);
+			
+			// Emit maximize event
+			if (OnChatMaximized.HasDelegate)
+			{
+				await OnChatMaximized.InvokeAsync();
+			}
 		}
 	}
 
-	private void ClearChat()
+	private async Task ClearChatAsync()
 	{
 		_messages.Clear();
 		_currentInput = string.Empty;
 		StateHasChanged();
+		
+		// Emit chat cleared event
+		if (OnChatCleared.HasDelegate)
+		{
+			await OnChatCleared.InvokeAsync();
+		}
 	}
 
 	private async Task SetDockModeAsync(PDChatDockMode mode)
@@ -206,6 +278,12 @@ public partial class PDChat
 
 		// Fire it off
 		ChatService.SendMessage(message);
+
+		// Emit message sent event
+		if (OnMessageSent.HasDelegate)
+		{
+			await OnMessageSent.InvokeAsync(message);
+		}
 
 		// Clear input
 		_currentInput = string.Empty;

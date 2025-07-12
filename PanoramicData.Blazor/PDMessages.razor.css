@@ -1,10 +1,14 @@
-/* --- Ensure panel flex fills parent and children stretch --- */
+/* ==============================================
+   PDMessages Component - Proper Overflow Control
+   ============================================== */
+
 .pdchat-panel-flex {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
 	min-height: 0;
 	min-width: 0;
+	overflow: hidden;
 }
 
 .pdchat-messages {
@@ -14,29 +18,28 @@
 	gap: 8px;
 	padding: 10px;
 	overflow-y: auto;
+	overflow-x: hidden;
 	font-size: 14px;
 	background: #f9f9f9;
 	min-height: 0;
-	max-height: none;
 	scroll-behavior: smooth;
 }
 
-/* Maximized mode support for messages and input */
-.pdchat-window.maximized .pdchat-panel-flex {
+/* Fullscreen specific - prevent viewport overflow */
+.pdchat-window.fullscreen .pdchat-panel-flex {
 	height: 100%;
 	min-height: 0;
-}
-.pdchat-window.maximized .pdchat-messages {
-	padding: 16px;
-	min-height: 0;
-	max-height: none;
-}
-.pdchat-window.maximized .chat-input-container {
-	flex-shrink: 0;
-	padding: 8px;
+	overflow: hidden;
 }
 
-/* Make chat input container always at bottom, stretch input */
+.pdchat-window.fullscreen .pdchat-messages {
+	padding: 16px;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+/* Chat input container - always at bottom */
 .chat-input-container {
 	display: flex;
 	align-items: center;
@@ -45,8 +48,13 @@
 	background: #f5f7fa;
 	border-radius: 8px;
 	box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
-	max-width: 100%;
 	flex-shrink: 0;
+	min-height: 0;
+}
+
+.pdchat-window.fullscreen .chat-input-container {
+	flex-shrink: 0;
+	padding: 8px;
 }
 
 .chat-input-container textarea {
@@ -60,42 +68,13 @@
 	transition: border-color 0.2s ease;
 	min-height: 50px;
 	max-height: 200px;
+	box-sizing: border-box;
 }
 
 .chat-input-container textarea:focus {
 	outline: none;
 	border-color: #4a90e2;
 	box-shadow: 0 0 5px #4a90e2aa;
-}
-
-
-.pdchat-title {
-	font-weight: bold;
-	font-size: 16px;
-	flex: 1; /* Pushes buttons to the right */
-}
-
-
-/* Chat bubble header for icon, username, timestamp */
-.pdchat-bubble-header {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	margin-bottom: 2px;
-	padding-bottom: 2px;
-}
-
-.pdchat-window textarea {
-	border: none;
-	padding: 10px;
-	font-size: 14px;
-	outline: none;
-	width: 100%;
-	box-sizing: border-box;
-	resize: vertical;
-	height: 50px;
-	min-height: 50px;
-	max-height: 200px;
 }
 
 .submit-button {
@@ -109,83 +88,81 @@
 	cursor: pointer;
 	transition: background-color 0.2s ease;
 	user-select: none;
+	flex-shrink: 0;
 }
 
-	.submit-button:hover {
-		background-color: #357abd;
-	}
-
-	.submit-button:active {
-		background-color: #2a5d9f;
-	}
-
-.typing-ellipsis::after {
-	content: "";
-	display: inline-block;
-	width: 1em;
-	text-align: left;
-	animation: ellipsis-dots 1.5s steps(3, end) infinite;
+.submit-button:hover {
+	background-color: #357abd;
 }
+
+.submit-button:active {
+	background-color: #2a5d9f;
+}
+
+/* ==============================================
+   Message Bubble Styles
+   ============================================== */
 
 .pdchat-message {
 	position: relative;
-	padding: 38px 14px 12px 14px; /* Make room for title bar if present */
+	padding: 38px 14px 12px 14px;
 	margin-bottom: 10px;
 	border-radius: 16px;
 	box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 	background: #f4f8fb;
+	flex-shrink: 0;
 }
 
-	.pdchat-message:not(:has(.pdchat-title-bar)) {
-		padding-top: 10px; /* Default top padding if no title bar */
-	}
+.pdchat-message:not(:has(.pdchat-title-bar)) {
+	padding-top: 10px;
+}
 
-	.pdchat-message.left {
-		background: #e6f0ff;
-		align-self: flex-start;
-		border-top-left-radius: 8px;
-		border-top-right-radius: 16px;
-		border-bottom-right-radius: 16px;
-		border-bottom-left-radius: 16px;
-	}
+.pdchat-message.left {
+	background: #e6f0ff;
+	align-self: flex-start;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 16px;
+	border-bottom-right-radius: 16px;
+	border-bottom-left-radius: 16px;
+}
 
-	.pdchat-message.right {
-		background: #d6fcd6;
-		align-self: flex-end;
-		border-top-right-radius: 8px;
-		border-top-left-radius: 16px;
-		border-bottom-left-radius: 16px;
-		border-bottom-right-radius: 16px;
-	}
+.pdchat-message.right {
+	background: #d6fcd6;
+	align-self: flex-end;
+	border-top-right-radius: 8px;
+	border-top-left-radius: 16px;
+	border-bottom-left-radius: 16px;
+	border-bottom-right-radius: 16px;
+}
 
-	.pdchat-message .pdchat-header {
-		background: none;
-		color: #555;
-		display: flex;
-		align-items: center;
-		font-size: 12px;
-		margin-bottom: 4px;
-	}
+.pdchat-message .pdchat-header {
+	background: none;
+	color: #555;
+	display: flex;
+	align-items: center;
+	font-size: 12px;
+	margin-bottom: 4px;
+}
 
-	.pdchat-message .pdchat-icon {
-		margin-right: 0;
-		margin-left: 0;
-		font-size: 1.3em;
-		align-self: flex-start;
-	}
+.pdchat-message .pdchat-icon {
+	margin-right: 0;
+	margin-left: 0;
+	font-size: 1.3em;
+	align-self: flex-start;
+}
 
-	.pdchat-message .pdchat-username {
-		font-weight: 600;
-		color: #205081;
-		margin-right: 8px;
-		font-size: 1em;
-	}
+.pdchat-message .pdchat-username {
+	font-weight: 600;
+	color: #205081;
+	margin-right: 8px;
+	font-size: 1em;
+}
 
-	.pdchat-message .pdchat-timestamp {
-		font-size: 0.85em;
-		color: #888;
-		margin-left: auto;
-	}
+.pdchat-message .pdchat-timestamp {
+	font-size: 0.85em;
+	color: #888;
+	margin-left: auto;
+}
 
 .pdchat-username {
 	font-weight: bold;
@@ -204,6 +181,7 @@
 	white-space: pre-line;
 }
 
+/* Message Priority Styles */
 .pdchat-message.priority-warning {
 	background-color: #fff4e5;
 	color: #663c00;
@@ -226,7 +204,7 @@
 	font-style: italic;
 }
 
-/* Title bar for chat message titles - full width inside bubble */
+/* Title bar for chat message titles */
 .pdchat-title-bar {
 	position: absolute;
 	top: 0;
@@ -244,4 +222,28 @@
 	box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 	letter-spacing: 0.02em;
 	z-index: 1;
+}
+
+/* Typing animation */
+.typing-ellipsis::after {
+	content: "";
+	display: inline-block;
+	width: 1em;
+	text-align: left;
+	animation: ellipsis-dots 1.5s steps(3, end) infinite;
+}
+
+@keyframes ellipsis-dots {
+	0%, 20% {
+		content: '';
+	}
+	40% {
+		content: '.';
+	}
+	60% {
+		content: '..';
+	}
+	80%, 100% {
+		content: '...';
+	}
 }

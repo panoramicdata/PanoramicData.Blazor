@@ -1,10 +1,25 @@
+/* ==============================================
+   PDChat Component - Proper Overflow Control
+   ============================================== */
+
 .pdchat-container {
 	position: fixed;
 	z-index: 10000;
 	font-family: Arial, sans-serif;
 }
 
-/* Dock Mode Positioning */
+/* ==============================================
+   Prevent Body Scroll When Fullscreen
+   ============================================== */
+
+body:has(.pdchat-container.dock-fullscreen) {
+	overflow: hidden;
+}
+
+/* ==============================================
+   Dock Mode Positioning (Non-Fullscreen)
+   ============================================== */
+
 .pdchat-container.dock-bottom-right {
 	bottom: 20px;
 	right: 20px;
@@ -49,24 +64,9 @@
 	transform: translateX(-50%);
 }
 
-.pdchat-container.dock-minimized {
-	/* Minimized state inherits positioning from previous dock mode */
-	/* Ensure the toggle button is always visible in minimized state */
-}
-
-.pdchat-container.dock-minimized .pdchat-window {
-	display: none;
-}
-
-/* Show toggle button only when minimized (not when open) */
-.pdchat-toggle-collapsed {
-	display: block;
-}
-
-/* Hide toggle button when chat window is open */
-.pdchat-container.open .pdchat-toggle-collapsed {
-	display: none;
-}
+/* ==============================================
+   Fullscreen Container - CRITICAL FIX
+   ============================================== */
 
 .pdchat-container.dock-fullscreen {
 	top: 0;
@@ -75,7 +75,33 @@
 	bottom: 0;
 	width: 100vw;
 	height: 100vh;
+	overflow: hidden;
+	position: fixed;
 }
+
+/* ==============================================
+   Minimized State
+   ============================================== */
+
+.pdchat-container.dock-minimized .pdchat-window {
+	display: none;
+}
+
+.pdchat-toggle-collapsed {
+	display: block;
+}
+
+.pdchat-container.open .pdchat-toggle-collapsed {
+	display: none;
+}
+
+.pdchat-container.dock-fullscreen .pdchat-toggle-collapsed {
+	display: none;
+}
+
+/* ==============================================
+   Toggle Button Styles
+   ============================================== */
 
 .pdchat-toggle,
 .pdchat-toggle-collapsed {
@@ -93,7 +119,7 @@
 }
 
 .pdchat-not-live {
-	background-color: #ff4d4d; /* Red for not live */
+	background-color: #ff4d4d;
 	color: white;
 }
 
@@ -102,10 +128,9 @@
 	background-color: #005a9e;
 }
 
-/* Hide collapsed toggle when open */
-.pdchat-container.open .pdchat-toggle-collapsed {
-	display: none;
-}
+/* ==============================================
+   Standard Chat Window
+   ============================================== */
 
 .pdchat-window {
 	background-color: white;
@@ -127,25 +152,10 @@
 	}
 }
 
-.pulsate {
-	animation: pdchat-pulsate 1.5s infinite;
-}
+/* ==============================================
+   FULLSCREEN LAYOUT - CRITICAL CONSTRAINTS
+   ============================================== */
 
-@keyframes pdchat-pulsate {
-	0% {
-		box-shadow: 0 0 0 0 rgba(0,120,212,0.7);
-	}
-
-	70% {
-		box-shadow: 0 0 0 10px rgba(0,120,212,0);
-	}
-
-	100% {
-		box-shadow: 0 0 0 0 rgba(0,120,212,0);
-	}
-}
-
-/* --- Fullscreen Chat Window Styles --- */
 .pdchat-window.fullscreen {
 	position: fixed;
 	top: 0;
@@ -157,33 +167,108 @@
 	max-width: 100vw;
 	max-height: 100vh;
 	z-index: 10001;
-	display: flex;
-	flex-direction: column;
 	border-radius: 0;
 	box-shadow: none;
 	padding: 0;
 	margin: 0;
-}
-
-/* Hide toggle button in fullscreen mode */
-.pdchat-container.dock-fullscreen .pdchat-toggle-collapsed {
-	display: none;
-}
-
-.pdchat-splitter {
-	height: 100%;
-	width: 100%;
-	min-height: 0;
-	min-width: 0;
-}
-
-.pdchat-window.fullscreen .pdsplitpanel {
-	height: 100%;
 	display: flex;
 	flex-direction: column;
-	padding: 0;
-	margin: 0;
+	overflow: hidden;
 }
+
+/* ==============================================
+   Header Styles
+   ============================================== */
+
+.pdchat-header {
+	background-color: #0078d4;
+	color: white;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0 15px;
+	gap: 8px;
+	flex-shrink: 0;
+	height: 60px;
+	box-sizing: border-box;
+}
+
+.pdchat-title {
+	font-weight: bold;
+	font-size: 16px;
+	flex: 1;
+}
+
+.pdchat-header-btn,
+.pdchat-close {
+	background: none;
+	border: none;
+	color: white;
+	font-size: 18px;
+	cursor: pointer;
+	padding: 8px;
+	border-radius: 4px;
+	transition: background 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 32px;
+	height: 32px;
+}
+
+.pdchat-header-btn:hover,
+.pdchat-close:hover {
+	background: rgba(255,255,255,0.15);
+}
+
+.pdchat-header-btn:focus,
+.pdchat-close:focus {
+	outline: 2px solid #fff;
+	outline-offset: 1px;
+}
+
+/* ==============================================
+   Splitter Layout - OVERFLOW FIXES
+   ============================================== */
+
+.pdchat-splitter {
+	flex: 1 1 auto;
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+	display: flex;
+	overflow: hidden;
+}
+
+.pdsplitpanel {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* ==============================================
+   Canvas Panel
+   ============================================== */
+
+.pdchat-canvas-flex {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.pdchat-canvas-panel {
+	background-color: #f8f9fa;
+}
+
+/* ==============================================
+   Fullscreen-specific overrides
+   ============================================== */
 
 .pdchat-window.fullscreen .pdchat-messages {
 	flex: 1 1 auto;
@@ -191,6 +276,7 @@
 	max-height: none;
 	padding: 16px;
 	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .pdchat-window.fullscreen .chat-input-container {
@@ -201,89 +287,25 @@
 .pdchat-window.fullscreen .pd-monacoeditor {
 	height: 100%;
 	min-height: 0;
+	overflow: hidden;
 }
 
-/* --- End Fullscreen Chat Window Styles --- */
+/* ==============================================
+   Animations
+   ============================================== */
 
-.pdsplitpanel {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	overflow: auto;
-	min-width: 0;
-	min-height: 0;
+.pulsate {
+	animation: pdchat-pulsate 1.5s infinite;
 }
 
-.pdchat-canvas-flex {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	min-height: 0;
-	min-width: 0;
-}
-
-.pdchat-canvas-tab-content {
-	flex: 1 1 auto;
-	min-height: 0;
-	min-width: 0;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-}
-
-	.pdchat-canvas-tab-content .pd-monacoeditor {
-		flex: 1 1 auto;
-		min-height: 0;
-		min-width: 0;
-		height: 100%;
+@keyframes pdchat-pulsate {
+	0% {
+		box-shadow: 0 0 0 0 rgba(0,120,212,0.7);
 	}
-
-.pdchat-header {
-	background-color: #0078d4;
-	color: white;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 10px;
-	gap: 8px;
-}
-
-.pdchat-title {
-	font-weight: bold;
-	font-size: 16px;
-	flex: 1;
-}
-
-.pdchat-header-icons {
-	display: flex;
-	gap: 8px;
-	margin-left: auto;
-}
-
-/* Shared style for header icon buttons (mute, close, etc.) */
-.pdchat-header-btn,
-.pdchat-close {
-	background: none;
-	border: none;
-	color: white;
-	font-size: 18px;
-	cursor: pointer;
-	padding: 4px 8px;
-	border-radius: 4px;
-	transition: background 0.2s;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-	.pdchat-header-btn:hover,
-	.pdchat-close:hover {
-		background: rgba(255,255,255,0.15);
+	70% {
+		box-shadow: 0 0 0 10px rgba(0,120,212,0);
 	}
-
-	/* Optional: add a subtle focus style for accessibility */
-	.pdchat-header-btn:focus,
-	.pdchat-close:focus {
-		outline: 2px solid #fff;
-		outline-offset: 1px;
+	100% {
+		box-shadow: 0 0 0 0 rgba(0,120,212,0);
 	}
+}
