@@ -35,7 +35,7 @@
 						<span>@(IsFullScreen ? "🗗" : "🗖")</span>
 					</button>
 				}
-				<button class="pdchat-close" @onclick="ToggleChat">✖</button>
+				<button class="pdchat-close" @onclick="ToggleChat" title="@(IsFullScreen ? "Minimize" : "Close")">@(IsFullScreen ? "🗕" : "✖")</button>
 			</div>
 
 			@if (IsFullScreen && IsCanvasUsePermitted)
@@ -103,6 +103,8 @@
 		</div>
 	}
 </div>
+
+
 
 
 
