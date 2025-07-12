@@ -38,6 +38,16 @@
 						<input type="text" @bind="_chatTitle" class="form-control form-control-sm" placeholder="Enter chat title">
 					</div>
 
+					<div class="mb-3">
+						<label class="form-label small">User Info Mode:</label>
+						<select @bind="_userInfoMode" class="form-select form-select-sm">
+							<option value="@UserInfoMode.UserOnlyOnRightOthersOnLeft">User Right, Others Left</option>
+							<option value="@UserInfoMode.UserOnlyOnLeftOthersOnRight">User Left, Others Right</option>
+							<option value="@UserInfoMode.AlwaysOnLeft">Always Left</option>
+							<option value="@UserInfoMode.AlwaysOnRight">Always Right</option>
+						</select>
+					</div>
+
 					<div class="mb-2">
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" @bind="_isMaximizePermitted" id="maximizeCheck">
@@ -63,6 +73,13 @@
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" @bind="_autoRestoreOnNewMessage" id="autoRestoreCheck">
 							<label class="form-check-label small" for="autoRestoreCheck">Auto-Restore</label>
+						</div>
+					</div>
+
+					<div class="mb-2">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" @bind="_useFullWidthMessages" id="fullWidthCheck">
+							<label class="form-check-label small" for="fullWidthCheck">Full Width Messages</label>
 						</div>
 					</div>
 				</div>
@@ -125,6 +142,8 @@
 		IsCanvasUsePermitted="_isCanvasUsePermitted"
 		IsClearPermitted="_isClearPermitted"
 		AutoRestoreOnNewMessage="_autoRestoreOnNewMessage"
+		UseFullWidthMessages="_useFullWidthMessages"
+		UserInfoMode="_userInfoMode"
 		OnChatMinimized="OnChatMinimized"
 		OnChatRestored="OnChatRestored"
 		OnChatMaximized="OnChatMaximized"

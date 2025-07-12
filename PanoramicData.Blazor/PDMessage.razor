@@ -1,36 +1,116 @@
 ﻿@inherits ComponentBase
 
-<div class="pdchat-message @(Message.Sender.IsUser ? "right" : "left") priority-@Message.Type.ToString().ToLower()">
-	<div class="pdchat-bubble-header">
-		<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
-		<span class="pdchat-username">@Message.Sender.Name</span>
-		<span class="pdchat-timestamp">@Message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
-	</div>
-	@if (!string.IsNullOrEmpty(Message.Title))
+<div class="pdchat-message @(Message.Sender.IsUser ? "user" : "bot") @(UseFullWidthMessages ? "full-width" : "bubble") priority-@Message.Type.ToString().ToLower()">
+	@if (UseFullWidthMessages)
 	{
-		if (Message.IsTitleHtml)
+		@if (ShouldShowMetaOnRight())
 		{
-			<div class="pdchat-title-bar">@((MarkupString)Message.Title)</div>
+			<div class="pdchat-content">
+				@if (!string.IsNullOrEmpty(Message.Title))
+				{
+					if (Message.IsTitleHtml)
+					{
+						<div class="pdchat-title-bar">@((MarkupString)Message.Title)</div>
+					}
+					else
+					{
+						<div class="pdchat-title-bar">@Message.Title</div>
+					}
+				}
+				<div class="pdchat-text">
+					@if (Message.Type == MessageType.Typing)
+					{
+						<span class="typing-ellipsis">&nbsp;</span>
+					}
+					else if (Message.IsMessageHtml)
+					{
+						<span>@((MarkupString)@Message.Message)</span>
+					}
+					else
+					{
+						<span>@Message.Message</span>
+					}
+				</div>
+			</div>
+			<div class="pdchat-meta">
+				<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
+				<div class="pdchat-details">
+					<span class="pdchat-username">@Message.Sender.Name</span>
+					<span class="pdchat-timestamp">@Message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+			</div>
 		}
 		else
 		{
-			<div class="pdchat-title-bar">@Message.Title</div>
+			<div class="pdchat-meta">
+				<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
+				<div class="pdchat-details">
+					<span class="pdchat-username">@Message.Sender.Name</span>
+					<span class="pdchat-timestamp">@Message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+			</div>
+			<div class="pdchat-content">
+				@if (!string.IsNullOrEmpty(Message.Title))
+				{
+					if (Message.IsTitleHtml)
+					{
+						<div class="pdchat-title-bar">@((MarkupString)Message.Title)</div>
+					}
+					else
+					{
+						<div class="pdchat-title-bar">@Message.Title</div>
+					}
+				}
+				<div class="pdchat-text">
+					@if (Message.Type == MessageType.Typing)
+					{
+						<span class="typing-ellipsis">&nbsp;</span>
+					}
+					else if (Message.IsMessageHtml)
+					{
+						<span>@((MarkupString)@Message.Message)</span>
+					}
+					else
+					{
+						<span>@Message.Message</span>
+					}
+				</div>
+			</div>
 		}
 	}
-	<div class="pdchat-text">
-		@if (Message.Type == MessageType.Typing)
+	else
+	{
+		<div class="pdchat-bubble-header">
+			<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
+			<span class="pdchat-username">@Message.Sender.Name</span>
+			<span class="pdchat-timestamp">@Message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
+		</div>
+		@if (!string.IsNullOrEmpty(Message.Title))
 		{
-			<span class="typing-ellipsis">&nbsp;</span>
+			if (Message.IsTitleHtml)
+			{
+				<div class="pdchat-title-bar">@((MarkupString)Message.Title)</div>
+			}
+			else
+			{
+				<div class="pdchat-title-bar">@Message.Title</div>
+			}
 		}
-		else if (Message.IsMessageHtml)
-		{
-			<span class="@(Message.Sender.IsUser ? "right" : "left")">@((MarkupString)@Message.Message)</span>
-		}
-		else
-		{
-			<span class="@(Message.Sender.IsUser ? "right" : "left")">@Message.Message</span>
-		}
-	</div>
+		<div class="pdchat-text">
+			@if (Message.Type == MessageType.Typing)
+			{
+				<span class="typing-ellipsis">&nbsp;</span>
+			}
+			else if (Message.IsMessageHtml)
+			{
+				<span class="@(Message.Sender.IsUser ? "right" : "left")">@((MarkupString)@Message.Message)</span>
+			}
+			else
+			{
+				<span class="@(Message.Sender.IsUser ? "right" : "left")">@Message.Message</span>
+			}
+		</div>
+	}
 </div>
 
 

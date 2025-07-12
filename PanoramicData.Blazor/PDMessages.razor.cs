@@ -17,6 +17,10 @@ public partial class PDMessages
 
 	[Parameter] public Func<ChatMessage, string?>? UserIconSelector { get; set; }
 
+	[Parameter] public bool UseFullWidthMessages { get; set; } = true;
+
+	[Parameter] public UserInfoMode UserInfoMode { get; set; } = UserInfoMode.UserOnlyOnRightOthersOnLeft;
+
 	private ElementReference _messagesContainer { get; set; }
 
 	private IJSObjectReference? _module;

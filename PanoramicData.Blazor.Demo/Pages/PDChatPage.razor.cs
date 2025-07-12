@@ -17,6 +17,8 @@ public partial class PDChatPage : IDisposable
 	private bool _isCanvasUsePermitted = true;
 	private bool _isClearPermitted = true;
 	private bool _autoRestoreOnNewMessage = false;
+	private bool _useFullWidthMessages = true;
+	private UserInfoMode _userInfoMode = UserInfoMode.UserOnlyOnRightOthersOnLeft;
 	private string _chatTitle = "Demo Chat";
 
 	private ChatMessageSender User => new()

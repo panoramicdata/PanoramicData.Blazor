@@ -1,23 +1,125 @@
+/* ==============================================
+   PDMessage Component - Bootstrap-Inspired Colors
+   ============================================== */
+
 .pdchat-message {
     position: relative;
-    padding: 38px 14px 12px 14px;
     margin-bottom: 10px;
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: white;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+}
+
+/* ==============================================
+   Full Width Layout
+   ============================================== */
+
+.pdchat-message.full-width {
+    display: flex;
+    width: 100%;
+    padding: 12px;
+    gap: 12px;
+}
+
+/* Default: Meta on left, content on right */
+.pdchat-message.full-width {
+    flex-direction: row;
+}
+
+/* When meta should be on right: reverse direction */
+.pdchat-message.full-width:has(.pdchat-meta:last-child) {
+    flex-direction: row-reverse;
+}
+
+.pdchat-message.full-width.user {
+    border-left: 4px solid #6c757d;
+}
+
+.pdchat-message.full-width.bot {
+    border-left: 4px solid #0d6efd;
+}
+
+.pdchat-message.full-width .pdchat-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.pdchat-message.full-width .pdchat-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 60px;
+    text-align: center;
+}
+
+.pdchat-message.full-width .pdchat-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.pdchat-message.full-width .pdchat-icon {
+    font-size: 1.5em;
+    margin-bottom: 4px;
+}
+
+.pdchat-message.full-width .pdchat-username {
+    font-weight: 600;
+    font-size: 0.8em;
+    color: #495057;
+    margin-bottom: 2px;
+    word-break: break-word;
+}
+
+.pdchat-message.full-width .pdchat-timestamp {
+    font-size: 0.7em;
+    color: #6c757d;
+    word-break: break-word;
+}
+
+/* ==============================================
+   Priority Color Overrides for Full Width
+   ============================================== */
+
+.pdchat-message.full-width.priority-warning {
+    border-left-color: #ffc107;
+    background-color: #fff3cd;
+}
+
+.pdchat-message.full-width.priority-error {
+    border-left-color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.pdchat-message.full-width.priority-critical {
+    border-left-color: #dc3545;
+    background-color: #f8d7da;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.pdchat-message.full-width.priority-typing {
+    border-left-color: #6c757d;
+    background-color: #f8f9fa;
+}
+
+/* ==============================================
+   Bubble Layout (Legacy)
+   ============================================== */
+
+.pdchat-message.bubble {
+    padding: 38px 14px 12px 14px;
     background: #f4f8fb;
 }
-.pdchat-message:not(:has(.pdchat-title-bar)) {
+
+.pdchat-message.bubble:not(:has(.pdchat-title-bar)) {
     padding-top: 10px;
 }
-.pdchat-message.left {
-    background: #e6f0ff;
-    align-self: flex-start;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 16px;
-    border-bottom-right-radius: 16px;
-    border-bottom-left-radius: 16px;
-}
-.pdchat-message.right {
+
+.pdchat-message.bubble.user {
     background: #d6fcd6;
     align-self: flex-end;
     border-top-right-radius: 8px;
@@ -25,6 +127,16 @@
     border-bottom-left-radius: 16px;
     border-bottom-right-radius: 16px;
 }
+
+.pdchat-message.bubble.bot {
+    background: #e6f0ff;
+    align-self: flex-start;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+}
+
 .pdchat-bubble-header {
     display: flex;
     align-items: center;
@@ -32,56 +144,93 @@
     margin-bottom: 2px;
     padding-bottom: 2px;
 }
-.pdchat-message .pdchat-icon {
+
+/* ==============================================
+   Common Text Styles
+   ============================================== */
+
+.pdchat-text {
+    font-size: 1em;
+    color: #212529;
+    line-height: 1.4;
+    white-space: pre-line;
+    word-wrap: break-word;
+}
+
+.pdchat-message.full-width .pdchat-text {
+    padding: 0;
+}
+
+.pdchat-message.bubble .pdchat-text {
+    padding-top: 2px;
+}
+
+/* ==============================================
+   Legacy Bubble Priority Colors
+   ============================================== */
+
+.pdchat-message.bubble.priority-warning {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+}
+
+.pdchat-message.bubble.priority-error {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+}
+
+.pdchat-message.bubble.priority-critical {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.pdchat-message.bubble.priority-typing {
+    background-color: #f8f9fa;
+    border-color: #6c757d;
+    font-style: italic;
+}
+
+/* ==============================================
+   Legacy Bubble Icon and Username Styles
+   ============================================== */
+
+.pdchat-message.bubble .pdchat-icon {
     margin-right: 0;
     margin-left: 0;
     font-size: 1.3em;
     align-self: flex-start;
 }
-.pdchat-message .pdchat-username {
+
+.pdchat-message.bubble .pdchat-username {
     font-weight: 600;
-    color: #205081;
+    color: #495057;
     margin-right: 8px;
     font-size: 1em;
 }
-.pdchat-message .pdchat-timestamp {
+
+.pdchat-message.bubble .pdchat-timestamp {
     font-size: 0.85em;
-    color: #888;
+    color: #6c757d;
     margin-left: auto;
 }
-.pdchat-username {
-    font-weight: bold;
-    margin-right: 8px;
-}
-.pdchat-timestamp {
-    font-size: 10px;
-    color: #888;
-}
-.pdchat-text {
-    font-size: 1em;
-    color: #222;
-    padding-top: 2px;
-    white-space: pre-line;
-}
-.pdchat-message.priority-warning {
-    background-color: #fff4e5;
-    color: #663c00;
-}
-.pdchat-message.priority-error {
-    background-color: #ffe0e0;
-    color: #990000;
-}
-.pdchat-message.priority-critical {
-    background-color: #ffcccc;
-    color: #7a0000;
-    font-weight: bold;
-}
-.pdchat-message.priority-typing {
-    background-color: #f0f0f0;
-    color: #555;
-    font-style: italic;
-}
+
+/* ==============================================
+   Title Bar Styles
+   ============================================== */
+
 .pdchat-title-bar {
+    background: #e9ecef;
+    color: #495057;
+    font-weight: 700;
+    font-size: 0.9em;
+    padding: 8px 12px;
+    margin: -12px -12px 8px -12px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.pdchat-message.bubble .pdchat-title-bar {
     position: absolute;
     top: 0;
     left: 0;
@@ -91,18 +240,23 @@
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     background: #dbeafe;
-    color: #205081;
-    font-weight: 700;
-    font-size: 1em;
+    color: #1e40af;
     padding: 7px 18px 7px 18px;
+    margin: 0;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     letter-spacing: 0.02em;
     z-index: 1;
 }
+
+/* ==============================================
+   Typing Animation
+   ============================================== */
+
 .typing-ellipsis {
     display: inline-block;
     min-width: 1em;
 }
+
 .typing-ellipsis::after {
     content: '';
     display: inline-block;
@@ -110,6 +264,7 @@
     text-align: left;
     animation: ellipsis-dots 1.5s steps(3, end) infinite;
 }
+
 @keyframes ellipsis-dots {
     0%, 20% {
         content: '';

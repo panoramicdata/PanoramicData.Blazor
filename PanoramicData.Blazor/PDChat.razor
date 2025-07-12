@@ -38,7 +38,9 @@
 								IsLive="@ChatService.IsLive"
 								CanSend="@CanSend"
 								OnSendClicked="SendCurrentMessageAsync"
-								UserIconSelector="UserIconSelector" />
+								UserIconSelector="UserIconSelector"
+								UseFullWidthMessages="UseFullWidthMessages"
+								UserInfoMode="UserInfoMode" />
 						</PDSplitPanel>
 						<PDSplitPanel Size="3" MinSize="200">
 							<div class="pdchat-canvas-flex">
@@ -71,7 +73,9 @@
 								IsLive="@ChatService.IsLive"
 								CanSend="@CanSend"
 								OnSendClicked="SendCurrentMessageAsync"
-								UserIconSelector="UserIconSelector" />
+								UserIconSelector="UserIconSelector"
+								UseFullWidthMessages="UseFullWidthMessages"
+								UserInfoMode="UserInfoMode" />
 						</PDSplitPanel>
 					}
 				</PDSplitter>
@@ -85,7 +89,8 @@
 					IsLive="@ChatService.IsLive"
 					CanSend="@CanSend"
 					OnSendClicked="SendCurrentMessageAsync"
-					UserIconSelector="UserIconSelector" />
+					UserIconSelector="UserIconSelector"
+					UseFullWidthMessages="UseFullWidthMessages" />
 			}
 		</div>
 	}

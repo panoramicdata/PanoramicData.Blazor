@@ -72,6 +72,12 @@ public partial class PDChat : JSModuleComponentBase
 	[Parameter]
 	public EventCallback OnAutoRestored { get; set; }
 
+	[Parameter]
+	public bool UseFullWidthMessages { get; set; } = true;
+
+	[Parameter]
+	public UserInfoMode UserInfoMode { get; set; } = UserInfoMode.UserOnlyOnRightOthersOnLeft;
+
 	private bool _isMuted;
 	private bool _unreadMessages;
 	private string _currentInput = "";
