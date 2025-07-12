@@ -12,3 +12,11 @@ public enum PDChatDockMode
 	Top,
 	Bottom
 }
+
+public enum PDChatDockPosition
+{
+	Right,
+	Left,
+	Top,
+	Bottom
+}

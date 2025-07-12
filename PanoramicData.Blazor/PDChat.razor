@@ -40,27 +40,53 @@
 
 			@if (IsFullScreen && IsCanvasUsePermitted)
 			{
-				<PDSplitter Direction="SplitDirection.Horizontal" GutterSize="6" CssClass="pdchat-splitter">
-					<PDSplitPanel Size="2" MinSize="200">
-						<PDMessages @ref="_pdMessages"
-							Messages="_messages"
-							CurrentInput="@_currentInput"
-							CurrentInputChanged="@((string v) => _currentInput = v)"
-							IsLive="@ChatService.IsLive"
-							CanSend="@CanSend"
-							OnSendClicked="SendCurrentMessageAsync"
-							UserIconSelector="UserIconSelector" />
-					</PDSplitPanel>
-					<PDSplitPanel Size="3" MinSize="200">
-						<div class="pdchat-canvas-flex">
-							<PDTabSet @ref="_tabSetRef" 
-								IsTabClosingEnabled="true"
-								IsTabAdditionEnabled="true"
-								IsTabRenamingEnabled="true"
-								OnTabAdded="OnTabAdded">
-							</PDTabSet>
-						</div>
-					</PDSplitPanel>
+				<PDSplitter Direction="@GetSplitDirection()" GutterSize="6" CssClass="pdchat-splitter">
+					@if (IsChatFirstPanel())
+					{
+						<PDSplitPanel Size="2" MinSize="200">
+							<PDMessages @ref="_pdMessages"
+								Messages="_messages"
+								CurrentInput="@_currentInput"
+								CurrentInputChanged="@((string v) => _currentInput = v)"
+								IsLive="@ChatService.IsLive"
+								CanSend="@CanSend"
+								OnSendClicked="SendCurrentMessageAsync"
+								UserIconSelector="UserIconSelector" />
+						</PDSplitPanel>
+						<PDSplitPanel Size="3" MinSize="200">
+							<div class="pdchat-canvas-flex">
+								<PDTabSet @ref="_tabSetRef" 
+									IsTabClosingEnabled="true"
+									IsTabAdditionEnabled="true"
+									IsTabRenamingEnabled="true"
+									OnTabAdded="OnTabAdded">
+								</PDTabSet>
+							</div>
+						</PDSplitPanel>
+					}
+					else
+					{
+						<PDSplitPanel Size="3" MinSize="200">
+							<div class="pdchat-canvas-flex">
+								<PDTabSet @ref="_tabSetRef" 
+									IsTabClosingEnabled="true"
+									IsTabAdditionEnabled="true"
+									IsTabRenamingEnabled="true"
+									OnTabAdded="OnTabAdded">
+								</PDTabSet>
+							</div>
+						</PDSplitPanel>
+						<PDSplitPanel Size="2" MinSize="200">
+							<PDMessages @ref="_pdMessages"
+								Messages="_messages"
+								CurrentInput="@_currentInput"
+								CurrentInputChanged="@((string v) => _currentInput = v)"
+								IsLive="@ChatService.IsLive"
+								CanSend="@CanSend"
+								OnSendClicked="SendCurrentMessageAsync"
+								UserIconSelector="UserIconSelector" />
+						</PDSplitPanel>
+					}
 				</PDSplitter>
 			}
 			else

@@ -14,6 +14,9 @@ public partial class PDChat
 	public PDChatDockMode DockMode { get; set; } = PDChatDockMode.BottomRight;
 
 	[Parameter]
+	public PDChatDockPosition ChatDockPosition { get; set; } = PDChatDockPosition.Right;
+
+	[Parameter]
 	public string Title { get; set; } = "Chat";
 
 	[Parameter]
@@ -186,6 +189,30 @@ public partial class PDChat
 			PDChatDockMode.TopLeft => "dock-top-left",
 			PDChatDockMode.FullScreen => "dock-fullscreen",
 			_ => "dock-bottom-right" // Default fallback
+		};
+	}
+
+	// Helper method to get the appropriate split direction based on chat dock position
+	private SplitDirection GetSplitDirection()
+	{
+		return ChatDockPosition switch
+		{
+			PDChatDockPosition.Left or PDChatDockPosition.Right => SplitDirection.Horizontal,
+			PDChatDockPosition.Top or PDChatDockPosition.Bottom => SplitDirection.Vertical,
+			_ => SplitDirection.Horizontal // Default to horizontal
+		};
+	}
+
+	// Helper method to determine if chat should be the first panel
+	private bool IsChatFirstPanel()
+	{
+		return ChatDockPosition switch
+		{
+			PDChatDockPosition.Left => true,
+			PDChatDockPosition.Top => true,
+			PDChatDockPosition.Right => false,
+			PDChatDockPosition.Bottom => false,
+			_ => false // Default chat on the right (second panel)
 		};
 	}
 }

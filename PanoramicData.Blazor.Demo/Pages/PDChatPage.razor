@@ -24,6 +24,17 @@
 					</div>
 
 					<div class="mb-3">
+						<label class="form-label">Chat Position (Maximized):</label>
+						<select @bind="_currentChatDockPosition" class="form-select">
+							<option value="@PDChatDockPosition.Right">Right</option>
+							<option value="@PDChatDockPosition.Left">Left</option>
+							<option value="@PDChatDockPosition.Top">Top</option>
+							<option value="@PDChatDockPosition.Bottom">Bottom</option>
+						</select>
+						<div class="form-text">Controls where the chat appears when maximized with canvas enabled.</div>
+					</div>
+
+					<div class="mb-3">
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" @bind="_isMaximizePermitted" id="maximizeCheck">
 							<label class="form-check-label" for="maximizeCheck">
@@ -94,7 +105,7 @@
 				</div>
 				<div class="card-body">
 					<div class="row">
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<h6>Fixed Dock Modes:</h6>
 							<ul class="list-unstyled">
 								<li><strong>Bottom Right:</strong> Default position</li>
@@ -103,20 +114,29 @@
 								<li><strong>Top Left:</strong> Anchored to top-left corner</li>
 							</ul>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<h6>Special Modes:</h6>
 							<ul class="list-unstyled">
 								<li><strong>Full Screen:</strong> Covers entire viewport</li>
 								<li><strong>Undocked:</strong> Draggable and resizable window</li>
 							</ul>
 						</div>
-						<div class="col-md-4">
-							<h6>Undocked Mode Features:</h6>
+						<div class="col-md-3">
+							<h6>Chat Positions (Maximized):</h6>
 							<ul class="list-unstyled">
-								<li>? Drag by header to move</li>
-								<li>? Resize from any edge/corner</li>
-								<li>? Minimum size constraints</li>
-								<li>? Viewport boundary constraints</li>
+								<li><strong>Right:</strong> Chat on right, canvas on left</li>
+								<li><strong>Left:</strong> Chat on left, canvas on right</li>
+								<li><strong>Top:</strong> Chat on top, canvas below</li>
+								<li><strong>Bottom:</strong> Chat on bottom, canvas above</li>
+							</ul>
+						</div>
+						<div class="col-md-3">
+							<h6>Features:</h6>
+							<ul class="list-unstyled">
+								<li>?? Configurable dock positions</li>
+								<li>?? Responsive design</li>
+								<li>?? Sound notifications</li>
+								<li>? Smooth animations</li>
 							</ul>
 						</div>
 					</div>
@@ -129,6 +149,7 @@
 		ChatService="_chatService"
 		Title="@_chatTitle"
 		DockMode="@_currentDockMode"
+		ChatDockPosition="@_currentChatDockPosition"
 		UserIconSelector="GetUserIcon"
 		PriorityIconSelector="GetPriorityIcon"
 		SoundSelector="GetSoundUrl"

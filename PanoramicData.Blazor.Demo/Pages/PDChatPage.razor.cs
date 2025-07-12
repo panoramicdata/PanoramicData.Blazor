@@ -9,6 +9,7 @@ public partial class PDChatPage : IDisposable
 
 	// Demo configuration properties
 	private PDChatDockMode _currentDockMode = PDChatDockMode.BottomRight;
+	private PDChatDockPosition _currentChatDockPosition = PDChatDockPosition.Right;
 	private bool _isMaximizePermitted = true;
 	private bool _isCanvasUsePermitted = true;
 	private bool _isClearPermitted = true;
