@@ -33,24 +33,48 @@
 					}
 				</div>
 			</div>
-			<div class="pdchat-meta">
-				<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
-				<div class="pdchat-details">
-					<span class="pdchat-username">@Message.Sender.Name</span>
-					<span class="pdchat-timestamp">@Message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
+			@if (ShouldShowAnyMetadata())
+			{
+				<div class="pdchat-meta">
+					@if (ShowMessageUserIcon)
+					{
+						<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
+					}
+					<div class="pdchat-details">
+						@if (ShowMessageUserName)
+						{
+							<span class="pdchat-username">@Message.Sender.Name</span>
+						}
+						@if (ShowMessageTimestamp)
+						{
+							<span class="pdchat-timestamp">@GetFormattedTimestamp()</span>
+						}
+					</div>
 				</div>
-			</div>
+			}
 		}
 		else
 		{
 			<!-- Meta on LEFT: Meta first, then Content -->
-			<div class="pdchat-meta">
-				<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
-				<div class="pdchat-details">
-					<span class="pdchat-username">@Message.Sender.Name</span>
-					<span class="pdchat-timestamp">@Message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
+			@if (ShouldShowAnyMetadata())
+			{
+				<div class="pdchat-meta">
+					@if (ShowMessageUserIcon)
+					{
+						<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
+					}
+					<div class="pdchat-details">
+						@if (ShowMessageUserName)
+						{
+							<span class="pdchat-username">@Message.Sender.Name</span>
+						}
+						@if (ShowMessageTimestamp)
+						{
+							<span class="pdchat-timestamp">@GetFormattedTimestamp()</span>
+						}
+					</div>
 				</div>
-			</div>
+			}
 			<div class="pdchat-content">
 				@if (!string.IsNullOrEmpty(Message.Title))
 				{
@@ -82,11 +106,23 @@
 	}
 	else
 	{
-		<div class="pdchat-bubble-header">
-			<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
-			<span class="pdchat-username">@Message.Sender.Name</span>
-			<span class="pdchat-timestamp">@Message.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
-		</div>
+		@if (ShouldShowAnyMetadata())
+		{
+			<div class="pdchat-bubble-header">
+				@if (ShowMessageUserIcon)
+				{
+					<span class="pdchat-icon">@(UserIconSelector?.Invoke(Message) ?? "👤")</span>
+				}
+				@if (ShowMessageUserName)
+				{
+					<span class="pdchat-username">@Message.Sender.Name</span>
+				}
+				@if (ShowMessageTimestamp)
+				{
+					<span class="pdchat-timestamp">@GetFormattedTimestamp()</span>
+				}
+			</div>
+		}
 		@if (!string.IsNullOrEmpty(Message.Title))
 		{
 			if (Message.IsTitleHtml)

@@ -1,5 +1,4 @@
 ﻿using PanoramicData.Blazor.Services;
-using PanoramicData.Blazor.Demo.Data;
 
 namespace PanoramicData.Blazor.Demo.Pages;
 
@@ -18,8 +17,12 @@ public partial class PDChatPage : IDisposable
 	private bool _isClearPermitted = true;
 	private bool _autoRestoreOnNewMessage = false;
 	private bool _useFullWidthMessages = true;
-	private UserInfoMode _userInfoMode = UserInfoMode.UserOnlyOnRightOthersOnLeft;
+	private MessageMetadataDisplayMode _messageMetadataDisplayMode = MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft;
 	private string _chatTitle = "Demo Chat";
+	private bool _showMessageUserIcon = true;
+	private bool _showMessageUserName = true;
+	private bool _showMessageTimestamp = true;
+	private string _messageTimestampFormat = "HH:mm:ss";
 
 	private ChatMessageSender User => new()
 	{
@@ -221,14 +224,14 @@ public partial class PDChatPage : IDisposable
 
 	private void OnMessageSent(ChatMessage message)
 	{
-		EventManager?.Add(new Event("MessageSent", 
+		EventManager?.Add(new Event("MessageSent",
 			new EventArgument("Message", message.Message),
 			new EventArgument("Sender", message.Sender.Name)));
 	}
 
 	private void OnMessageReceived(ChatMessage message)
 	{
-		EventManager?.Add(new Event("MessageReceived", 
+		EventManager?.Add(new Event("MessageReceived",
 			new EventArgument("Message", message.Message),
 			new EventArgument("Sender", message.Sender.Name)));
 	}

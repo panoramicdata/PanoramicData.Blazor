@@ -19,7 +19,15 @@ public partial class PDMessages
 
 	[Parameter] public bool UseFullWidthMessages { get; set; } = true;
 
-	[Parameter] public UserInfoMode UserInfoMode { get; set; } = UserInfoMode.UserOnlyOnRightOthersOnLeft;
+	[Parameter] public MessageMetadataDisplayMode MessageMetadataDisplayMode { get; set; } = MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft;
+
+	[Parameter] public bool ShowMessageUserIcon { get; set; } = true;
+
+	[Parameter] public bool ShowMessageUserName { get; set; } = true;
+
+	[Parameter] public bool ShowMessageTimestamp { get; set; } = true;
+
+	[Parameter] public string MessageTimestampFormat { get; set; } = "HH:mm:ss";
 
 	private ElementReference _messagesContainer { get; set; }
 

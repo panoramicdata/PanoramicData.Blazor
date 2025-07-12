@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor.Models;
 
-public enum UserInfoMode
+public enum MessageMetadataDisplayMode
 {
 	UserOnlyOnRightOthersOnLeft = 0,
 	UserOnlyOnLeftOthersOnRight = 1,

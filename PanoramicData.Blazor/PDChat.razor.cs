@@ -1,6 +1,4 @@
-﻿using BlazorMonaco.Editor;
-
-namespace PanoramicData.Blazor;
+﻿namespace PanoramicData.Blazor;
 
 public partial class PDChat : JSModuleComponentBase
 {
@@ -76,7 +74,19 @@ public partial class PDChat : JSModuleComponentBase
 	public bool UseFullWidthMessages { get; set; } = true;
 
 	[Parameter]
-	public UserInfoMode UserInfoMode { get; set; } = UserInfoMode.UserOnlyOnRightOthersOnLeft;
+	public MessageMetadataDisplayMode MessageMetadataDisplayMode { get; set; } = MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft;
+
+	[Parameter]
+	public bool ShowMessageUserIcon { get; set; } = true;
+
+	[Parameter]
+	public bool ShowMessageUserName { get; set; } = true;
+
+	[Parameter]
+	public bool ShowMessageTimestamp { get; set; } = true;
+
+	[Parameter]
+	public string MessageTimestampFormat { get; set; } = "HH:mm:ss";
 
 	private bool _isMuted;
 	private bool _unreadMessages;
@@ -113,7 +123,7 @@ public partial class PDChat : JSModuleComponentBase
 	{
 		var existing = _messages.FirstOrDefault(m => m.Id == message.Id);
 		var isNewMessage = existing == null;
-		
+
 		if (existing != null)
 		{
 			existing.Message = message.Message;
@@ -137,13 +147,13 @@ public partial class PDChat : JSModuleComponentBase
 		if (DockMode == PDChatDockMode.Minimized)
 		{
 			_unreadMessages = true;
-			
+
 			// Update the highest priority unread message type
 			if (isNewMessage && message.Type != MessageType.Typing)
 			{
 				UpdateHighestPriorityUnreadMessage();
 			}
-			
+
 			// Optionally auto-restore the chat when new messages arrive
 			// Only auto-restore for new messages (not updates) and if it's not a typing indicator
 			if (AutoRestoreOnNewMessage && isNewMessage && message.Type != MessageType.Typing)
@@ -152,7 +162,7 @@ public partial class PDChat : JSModuleComponentBase
 				_unreadMessages = false; // Clear unread flag since we're opening the chat
 				_highestPriorityUnreadMessage = MessageType.Normal; // Reset priority
 				_lastReadTimestamp = DateTimeOffset.UtcNow; // Update last read time
-				
+
 				// Emit auto-restore event
 				if (OnAutoRestored.HasDelegate)
 				{
@@ -188,7 +198,7 @@ public partial class PDChat : JSModuleComponentBase
 			_unreadMessages = false; // Clear unread messages when chat is opened
 			_highestPriorityUnreadMessage = MessageType.Normal; // Reset priority
 			_lastReadTimestamp = DateTimeOffset.UtcNow; // Update last read time
-			
+
 			// Emit restore event
 			if (OnChatRestored.HasDelegate)
 			{
@@ -200,7 +210,7 @@ public partial class PDChat : JSModuleComponentBase
 			// Save current dock mode before minimizing (for minimize/restore cycle)
 			_previousDockMode = DockMode;
 			await SetDockModeAsync(PDChatDockMode.Minimized);
-			
+
 			// Emit minimize event
 			if (OnChatMinimized.HasDelegate)
 			{
@@ -212,7 +222,7 @@ public partial class PDChat : JSModuleComponentBase
 	private async Task ToggleMuteAsync()
 	{
 		_isMuted = !_isMuted;
-		
+
 		// Emit mute toggle event
 		if (OnMuteToggled.HasDelegate)
 		{
@@ -227,7 +237,7 @@ public partial class PDChat : JSModuleComponentBase
 			// Restore to last non-maximized dock mode, fallback to BottomRight if not set
 			var targetMode = IsNormalDockMode(_lastNonMaximizedMode) ? _lastNonMaximizedMode : PDChatDockMode.BottomRight;
 			await SetDockModeAsync(targetMode);
-			
+
 			// Emit restore event
 			if (OnChatRestored.HasDelegate)
 			{
@@ -243,7 +253,7 @@ public partial class PDChat : JSModuleComponentBase
 				_lastNonMaximizedMode = DockMode;
 			}
 			await SetDockModeAsync(PDChatDockMode.FullScreen);
-			
+
 			// Emit maximize event
 			if (OnChatMaximized.HasDelegate)
 			{
@@ -260,7 +270,7 @@ public partial class PDChat : JSModuleComponentBase
 		_highestPriorityUnreadMessage = MessageType.Normal;
 		_lastReadTimestamp = DateTimeOffset.UtcNow;
 		StateHasChanged();
-		
+
 		// Emit chat cleared event
 		if (OnChatCleared.HasDelegate)
 		{
@@ -277,7 +287,7 @@ public partial class PDChat : JSModuleComponentBase
 			{
 				_lastNonMaximizedMode = DockMode;
 			}
-			
+
 			DockMode = mode;
 			await DockModeChanged.InvokeAsync(mode);
 			StateHasChanged();
@@ -334,7 +344,7 @@ public partial class PDChat : JSModuleComponentBase
 					builder.AddAttribute(1, "Language", "csharp");
 					builder.AddAttribute(2, "Theme", "vs-dark");
 					builder.AddAttribute(3, "CssClass", "pdchat-canvas-tab-content");
-					builder.AddAttribute(4, "InitializeOptions", new Func<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(() => 
+					builder.AddAttribute(4, "InitializeOptions", new Func<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(() =>
 						new BlazorMonaco.Editor.StandaloneEditorConstructionOptions
 						{
 							AutomaticLayout = true,
@@ -394,7 +404,7 @@ public partial class PDChat : JSModuleComponentBase
 		return _highestPriorityUnreadMessage switch
 		{
 			MessageType.Critical => "pdchat-critical",
-			MessageType.Error => "pdchat-error", 
+			MessageType.Error => "pdchat-error",
 			MessageType.Warning => "pdchat-warning",
 			MessageType.Normal => "pdchat-info",
 			MessageType.Typing => string.Empty,
@@ -414,7 +424,7 @@ public partial class PDChat : JSModuleComponentBase
 		{
 			MessageType.Critical => "pulsate-critical",
 			MessageType.Error => "pulsate-error",
-			MessageType.Warning => "pulsate-warning", 
+			MessageType.Warning => "pulsate-warning",
 			MessageType.Normal => "pulsate",
 			MessageType.Typing => string.Empty,
 			_ => string.Empty

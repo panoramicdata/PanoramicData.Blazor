@@ -39,13 +39,19 @@
 					</div>
 
 					<div class="mb-3">
-						<label class="form-label small">User Info Mode:</label>
-						<select @bind="_userInfoMode" class="form-select form-select-sm">
-							<option value="@UserInfoMode.UserOnlyOnRightOthersOnLeft">User Right, Others Left</option>
-							<option value="@UserInfoMode.UserOnlyOnLeftOthersOnRight">User Left, Others Right</option>
-							<option value="@UserInfoMode.AlwaysOnLeft">Always Left</option>
-							<option value="@UserInfoMode.AlwaysOnRight">Always Right</option>
+						<label class="form-label small">Metadata Display Mode:</label>
+						<select @bind="_messageMetadataDisplayMode" class="form-select form-select-sm">
+							<option value="@MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft">User Right, Others Left</option>
+							<option value="@MessageMetadataDisplayMode.UserOnlyOnLeftOthersOnRight">User Left, Others Right</option>
+							<option value="@MessageMetadataDisplayMode.AlwaysOnLeft">Always Left</option>
+							<option value="@MessageMetadataDisplayMode.AlwaysOnRight">Always Right</option>
 						</select>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label small">Timestamp Format:</label>
+						<input type="text" @bind="_messageTimestampFormat" class="form-control form-control-sm" placeholder="Enter timestamp format">
+						<div class="form-text">Examples: HH:mm:ss, yyyy-MM-dd HH:mm, dd/MM/yyyy HH:mm:ss</div>
 					</div>
 
 					<div class="mb-2">
@@ -80,6 +86,27 @@
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" @bind="_useFullWidthMessages" id="fullWidthCheck">
 							<label class="form-check-label small" for="fullWidthCheck">Full Width Messages</label>
+						</div>
+					</div>
+
+					<div class="mb-2">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" @bind="_showMessageUserIcon" id="showIconCheck">
+							<label class="form-check-label small" for="showIconCheck">Show User Icon</label>
+						</div>
+					</div>
+
+					<div class="mb-2">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" @bind="_showMessageUserName" id="showNameCheck">
+							<label class="form-check-label small" for="showNameCheck">Show User Name</label>
+						</div>
+					</div>
+
+					<div class="mb-2">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" @bind="_showMessageTimestamp" id="showTimestampCheck">
+							<label class="form-check-label small" for="showTimestampCheck">Show Timestamp</label>
 						</div>
 					</div>
 				</div>
@@ -148,7 +175,11 @@
 		IsClearPermitted="_isClearPermitted"
 		AutoRestoreOnNewMessage="_autoRestoreOnNewMessage"
 		UseFullWidthMessages="_useFullWidthMessages"
-		UserInfoMode="_userInfoMode"
+		MessageMetadataDisplayMode="_messageMetadataDisplayMode"
+		ShowMessageUserIcon="_showMessageUserIcon"
+		ShowMessageUserName="_showMessageUserName"
+		ShowMessageTimestamp="_showMessageTimestamp"
+		MessageTimestampFormat="@_messageTimestampFormat"
 		OnChatMinimized="OnChatMinimized"
 		OnChatRestored="OnChatRestored"
 		OnChatMaximized="OnChatMaximized"
