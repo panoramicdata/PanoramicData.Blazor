@@ -1,20 +1,20 @@
 @page "/pdchat"
 
 <h1>PDChat</h1>
-<p class="text-muted">The PDChat component provides a flexible chat interface with multiple docking modes including docked positions and undocked (draggable/resizable) mode.</p>
+<p class="text-muted mb-3">The PDChat component provides a flexible chat interface with multiple docking modes.</p>
 
 <DemoSourceView SourceFiles="Pages/PDChatPage.razor, Pages/PDChatPage.razor.cs">
 
-	<div class="row">
-		<div class="col-md-6">
+	<div class="row g-3 mb-3">
+		<div class="col-lg-5">
 			<div class="card">
-				<div class="card-header">
-					<h5 class="card-title mb-0">Dock Mode Controls</h5>
+				<div class="card-header py-2">
+					<h6 class="card-title mb-0">Configuration</h6>
 				</div>
-				<div class="card-body">
+				<div class="card-body p-3">
 					<div class="mb-3">
-						<label class="form-label">Dock Mode:</label>
-						<select @bind="_currentDockMode" class="form-select">
+						<label class="form-label small">Dock Mode:</label>
+						<select @bind="_currentDockMode" class="form-select form-select-sm">
 							<option value="@PDChatDockMode.BottomRight">Bottom Right</option>
 							<option value="@PDChatDockMode.TopRight">Top Right</option>
 							<option value="@PDChatDockMode.BottomLeft">Bottom Left</option>
@@ -22,136 +22,89 @@
 							<option value="@PDChatDockMode.FullScreen">Full Screen</option>
 						</select>
 					</div>
-
+					
 					<div class="mb-3">
-						<label class="form-label">Chat Position (Maximized):</label>
-						<select @bind="_currentChatDockPosition" class="form-select">
+						<label class="form-label small">Chat Position:</label>
+						<select @bind="_currentChatDockPosition" class="form-select form-select-sm">
 							<option value="@PDChatDockPosition.Right">Right</option>
 							<option value="@PDChatDockPosition.Left">Left</option>
 							<option value="@PDChatDockPosition.Top">Top</option>
 							<option value="@PDChatDockPosition.Bottom">Bottom</option>
 						</select>
-						<div class="form-text">Controls where the chat appears when maximized with canvas enabled.</div>
+					</div>
+					
+					<div class="mb-3">
+						<label class="form-label small">Chat Title:</label>
+						<input type="text" @bind="_chatTitle" class="form-control form-control-sm" placeholder="Enter chat title">
 					</div>
 
-					<div class="mb-3">
+					<div class="mb-2">
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" @bind="_isMaximizePermitted" id="maximizeCheck">
-							<label class="form-check-label" for="maximizeCheck">
-								Enable Maximize/Fullscreen Button
-							</label>
+							<label class="form-check-label small" for="maximizeCheck">Enable Maximize</label>
 						</div>
 					</div>
-
-					<div class="mb-3">
+					
+					<div class="mb-2">
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" @bind="_isCanvasUsePermitted" id="canvasCheck">
-							<label class="form-check-label" for="canvasCheck">
-								Enable Canvas Mode (when maximized)
-							</label>
+							<label class="form-check-label small" for="canvasCheck">Enable Canvas</label>
 						</div>
 					</div>
-
-					<div class="mb-3">
+					
+					<div class="mb-2">
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" @bind="_isClearPermitted" id="clearCheck">
-							<label class="form-check-label" for="clearCheck">
-								Enable Clear Chat Button
-							</label>
+							<label class="form-check-label small" for="clearCheck">Enable Clear</label>
 						</div>
 					</div>
-
-					<div class="mb-3">
+					
+					<div class="mb-2">
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" @bind="_autoRestoreOnNewMessage" id="autoRestoreCheck">
-							<label class="form-check-label" for="autoRestoreCheck">
-								Auto-Restore on New Message
-							</label>
+							<label class="form-check-label small" for="autoRestoreCheck">Auto-Restore</label>
 						</div>
-						<div class="form-text">When enabled, the chat will automatically restore from minimized state when new messages arrive.</div>
-					</div>
-
-					<div class="mb-3">
-						<label class="form-label">Chat Title:</label>
-						<input type="text" @bind="_chatTitle" class="form-control" placeholder="Enter chat title">
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="col-md-6">
+		<div class="col-lg-7">
 			<div class="card">
-				<div class="card-header">
-					<h5 class="card-title mb-0">Chat Actions</h5>
+				<div class="card-header py-2">
+					<h6 class="card-title mb-0">Actions</h6>
 				</div>
-				<div class="card-body">
-					<div class="d-grid gap-2">
-						<button class="btn btn-primary" @onclick="SendWelcomeMessage">
-							<i class="fas fa-paper-plane me-2"></i>Send Welcome Message
-						</button>
-						<button class="btn btn-info" @onclick="SendInfoMessage">
-							<i class="fas fa-info-circle me-2"></i>Send Info Message
-						</button>
-						<button class="btn btn-warning" @onclick="SendWarningMessage">
-							<i class="fas fa-exclamation-triangle me-2"></i>Send Warning Message
-						</button>
-						<button class="btn btn-danger" @onclick="SendErrorMessage">
-							<i class="fas fa-times-circle me-2"></i>Send Error Message
-						</button>
-						<button class="btn btn-success" @onclick="SendTypingMessage">
-							<i class="fas fa-keyboard me-2"></i>Simulate Typing
-						</button>
-						<button class="btn btn-secondary" @onclick="TestAutoRestore">
-							<i class="fas fa-robot me-2"></i>Test Auto-Restore
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="row mt-4">
-		<div class="col-12">
-			<div class="card">
-				<div class="card-header">
-					<h5 class="card-title mb-0">Dock Mode Information</h5>
-				</div>
-				<div class="card-body">
-					<div class="row">
-						<div class="col-md-3">
-							<h6>Fixed Dock Modes:</h6>
-							<ul class="list-unstyled">
-								<li><strong>Bottom Right:</strong> Default position</li>
-								<li><strong>Top Right:</strong> Anchored to top-right corner</li>
-								<li><strong>Bottom Left:</strong> Anchored to bottom-left corner</li>
-								<li><strong>Top Left:</strong> Anchored to top-left corner</li>
-							</ul>
+				<div class="card-body p-3">
+					<div class="row g-2">
+						<div class="col-6 col-xl-4">
+							<button class="btn btn-primary btn-sm w-100 mb-2" @onclick="SendWelcomeMessage">
+								<i class="fas fa-paper-plane me-1"></i>Welcome
+							</button>
 						</div>
-						<div class="col-md-3">
-							<h6>Special Modes:</h6>
-							<ul class="list-unstyled">
-								<li><strong>Full Screen:</strong> Covers entire viewport</li>
-								<li><strong>Undocked:</strong> Draggable and resizable window</li>
-							</ul>
+						<div class="col-6 col-xl-4">
+							<button class="btn btn-info btn-sm w-100 mb-2" @onclick="SendInfoMessage">
+								<i class="fas fa-info-circle me-1"></i>Info
+							</button>
 						</div>
-						<div class="col-md-3">
-							<h6>Chat Positions (Maximized):</h6>
-							<ul class="list-unstyled">
-								<li><strong>Right:</strong> Chat on right, canvas on left</li>
-								<li><strong>Left:</strong> Chat on left, canvas on right</li>
-								<li><strong>Top:</strong> Chat on top, canvas below</li>
-								<li><strong>Bottom:</strong> Chat on bottom, canvas above</li>
-							</ul>
+						<div class="col-6 col-xl-4">
+							<button class="btn btn-warning btn-sm w-100 mb-2" @onclick="SendWarningMessage">
+								<i class="fas fa-exclamation-triangle me-1"></i>Warning
+							</button>
 						</div>
-						<div class="col-md-3">
-							<h6>Features:</h6>
-							<ul class="list-unstyled">
-								<li>? Configurable dock positions</li>
-								<li>? Responsive design</li>
-								<li>? Sound notifications</li>
-								<li>? Smooth animations</li>
-								<li>? Auto-restore on new messages</li>
-							</ul>
+						<div class="col-6 col-xl-4">
+							<button class="btn btn-danger btn-sm w-100 mb-2" @onclick="SendErrorMessage">
+								<i class="fas fa-times-circle me-1"></i>Error
+							</button>
+						</div>
+						<div class="col-6 col-xl-4">
+							<button class="btn btn-success btn-sm w-100 mb-2" @onclick="SendTypingMessage">
+								<i class="fas fa-keyboard me-1"></i>Typing
+							</button>
+						</div>
+						<div class="col-6 col-xl-4">
+							<button class="btn btn-secondary btn-sm w-100 mb-2" @onclick="TestAutoRestore">
+								<i class="fas fa-robot me-1"></i>Auto-Restore
+							</button>
 						</div>
 					</div>
 				</div>
