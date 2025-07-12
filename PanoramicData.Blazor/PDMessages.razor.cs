@@ -33,7 +33,7 @@ public partial class PDMessages
 
 	private IJSObjectReference? _module;
 	private ElementReference _inputRef;
-	private bool _forceTextareaRender = false;
+	private bool _forceTextareaRender;
 	private string _textareaKey = Guid.NewGuid().ToString();
 
 	protected override async Task OnParametersSetAsync()
@@ -107,10 +107,10 @@ public partial class PDMessages
 		// Force textarea to re-render with a new key (C#-only double buffering)
 		_textareaKey = Guid.NewGuid().ToString();
 		CurrentInput = string.Empty;
-		
+
 		// Force a re-render to create a new textarea element
 		StateHasChanged();
-		
+
 		await OnSendClicked.InvokeAsync();
 	}
 

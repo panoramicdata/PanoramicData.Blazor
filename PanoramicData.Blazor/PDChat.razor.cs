@@ -104,18 +104,57 @@ public partial class PDChat : JSModuleComponentBase
 
 	protected override Task OnInitializedAsync()
 	{
-		// Initialize previous dock mode and last non-maximized mode with current value
-		_previousDockMode = DockMode;
-		_lastNonMaximizedMode = DockMode;
+		// Initialize restore mode - ensure we have a valid restore target
+		if (!IsNormalDockMode(ChatService.RestoreMode))
+		{
+			ChatService.RestoreMode = PDChatDockMode.BottomRight;
+		}
+
+		// Initialize previous dock mode for backwards compatibility
+		_previousDockMode = IsNormalDockMode(DockMode) ? DockMode : ChatService.RestoreMode;
+		_lastNonMaximizedMode = IsNormalDockMode(DockMode) ? DockMode : ChatService.RestoreMode;
+
+		// Load existing messages from the service
+		_messages.Clear();
+		_messages.AddRange(ChatService.Messages);
+
+		// Sync local mute state with service
+		_isMuted = ChatService.IsMuted;
 
 		ChatService.OnMessageReceived += OnMessageReceived;
 		ChatService.OnLiveStatusChanged += OnLiveStatusChanged;
+		ChatService.OnDockModeChanged += OnServiceDockModeChanged;
+		ChatService.OnMuteStatusChanged += OnServiceMuteStatusChanged;
+		ChatService.OnConfigurationChanged += OnServiceConfigurationChanged;
 		ChatService.Initialize();
 		return base.OnInitializedAsync();
 	}
 
 	private void OnLiveStatusChanged(bool obj)
 	{
+		StateHasChanged();
+	}
+
+	private void OnServiceDockModeChanged(PDChatDockMode newDockMode)
+	{
+		// Update our dock mode when the service preference changes
+		if (DockMode != newDockMode && IsNormalDockMode(newDockMode))
+		{
+			_previousDockMode = newDockMode;
+			StateHasChanged();
+		}
+	}
+
+	private void OnServiceMuteStatusChanged(bool isMuted)
+	{
+		// Sync local mute state with service
+		_isMuted = isMuted;
+		StateHasChanged();
+	}
+
+	private void OnServiceConfigurationChanged()
+	{
+		// Configuration changed, trigger UI update and ensure parameters are synchronized
 		StateHasChanged();
 	}
 
@@ -156,9 +195,13 @@ public partial class PDChat : JSModuleComponentBase
 
 			// Optionally auto-restore the chat when new messages arrive
 			// Only auto-restore for new messages (not updates) and if it's not a typing indicator
-			if (AutoRestoreOnNewMessage && isNewMessage && message.Type != MessageType.Typing)
+			// Get the auto-restore setting directly from the service to ensure it's current
+			var shouldAutoRestore = ChatService.AutoRestoreOnNewMessage && isNewMessage && message.Type != MessageType.Typing;
+			
+			if (shouldAutoRestore)
 			{
-				await SetDockModeAsync(_previousDockMode);
+				var restoreMode = IsNormalDockMode(ChatService.RestoreMode) ? ChatService.RestoreMode : PDChatDockMode.BottomRight;
+				await SetDockModeAsync(restoreMode);
 				_unreadMessages = false; // Clear unread flag since we're opening the chat
 				_highestPriorityUnreadMessage = MessageType.Normal; // Reset priority
 				_lastReadTimestamp = DateTimeOffset.UtcNow; // Update last read time
@@ -193,8 +236,9 @@ public partial class PDChat : JSModuleComponentBase
 	{
 		if (DockMode == PDChatDockMode.Minimized)
 		{
-			// Restore from minimized state to previous dock mode
-			await SetDockModeAsync(_previousDockMode);
+			// Restore from minimized state to the service's restore mode
+			var restoreMode = IsNormalDockMode(ChatService.RestoreMode) ? ChatService.RestoreMode : PDChatDockMode.BottomRight;
+			await SetDockModeAsync(restoreMode);
 			_unreadMessages = false; // Clear unread messages when chat is opened
 			_highestPriorityUnreadMessage = MessageType.Normal; // Reset priority
 			_lastReadTimestamp = DateTimeOffset.UtcNow; // Update last read time
@@ -207,8 +251,12 @@ public partial class PDChat : JSModuleComponentBase
 		}
 		else
 		{
-			// Save current dock mode before minimizing (for minimize/restore cycle)
-			_previousDockMode = DockMode;
+			// Save current dock mode as restore mode before minimizing (only if it's a normal dock mode)
+			if (IsNormalDockMode(DockMode))
+			{
+				ChatService.RestoreMode = DockMode;
+				_previousDockMode = DockMode;
+			}
 			await SetDockModeAsync(PDChatDockMode.Minimized);
 
 			// Emit minimize event
@@ -221,7 +269,9 @@ public partial class PDChat : JSModuleComponentBase
 
 	private async Task ToggleMuteAsync()
 	{
+		// Update both local and service mute state
 		_isMuted = !_isMuted;
+		ChatService.IsMuted = _isMuted;
 
 		// Emit mute toggle event
 		if (OnMuteToggled.HasDelegate)
@@ -264,7 +314,9 @@ public partial class PDChat : JSModuleComponentBase
 
 	private async Task ClearChatAsync()
 	{
+		// Clear messages from both local collection and service
 		_messages.Clear();
+		ChatService.ClearMessages();
 		_currentInput = string.Empty;
 		_unreadMessages = false;
 		_highestPriorityUnreadMessage = MessageType.Normal;
@@ -288,10 +340,34 @@ public partial class PDChat : JSModuleComponentBase
 				_lastNonMaximizedMode = DockMode;
 			}
 
+			var previousMode = DockMode;
 			DockMode = mode;
+
+			// Update service preferred dock mode if it's a normal dock mode
+			if (IsNormalDockMode(mode))
+			{
+				ChatService.PreferredDockMode = mode;
+			}
+
 			await DockModeChanged.InvokeAsync(mode);
+			
+			// Force a complete re-render when switching between split modes
+			// to prevent component duplication issues
+			if ((IsNormalDockMode(previousMode) && IsNormalDockMode(mode)) &&
+				(IsSplitMode(previousMode) != IsSplitMode(mode)))
+			{
+				await Task.Delay(1); // Small delay to ensure clean transition
+			}
+			
 			StateHasChanged();
 		}
+	}
+
+	// Helper method to check if a mode is a split mode
+	private static bool IsSplitMode(PDChatDockMode mode)
+	{
+		return mode is PDChatDockMode.Left or PDChatDockMode.Right 
+					   or PDChatDockMode.Top or PDChatDockMode.Bottom;
 	}
 
 	private async Task SendCurrentMessageAsync()
@@ -453,21 +529,17 @@ public partial class PDChat : JSModuleComponentBase
 	{
 		if (DockMode == PDChatDockMode.Minimized)
 		{
-			// When minimized, use the previous dock mode's positioning class plus minimized
-			var previousClass = _previousDockMode switch
+			// When minimized, use the service's MinimizedButtonPosition to position the button
+			var buttonPositionClass = ChatService.MinimizedButtonPosition switch
 			{
-				PDChatDockMode.BottomRight => "dock-bottom-right",
-				PDChatDockMode.TopRight => "dock-top-right",
-				PDChatDockMode.BottomLeft => "dock-bottom-left",
-				PDChatDockMode.TopLeft => "dock-top-left",
-				PDChatDockMode.FullScreen => "dock-bottom-right", // Default fallback for fullscreen
-				PDChatDockMode.Left => "dock-left",
-				PDChatDockMode.Right => "dock-right",
-				PDChatDockMode.Top => "dock-top",
-				PDChatDockMode.Bottom => "dock-bottom",
+				PDChatButtonPosition.BottomRight => "dock-bottom-right",
+				PDChatButtonPosition.TopRight => "dock-top-right",
+				PDChatButtonPosition.BottomLeft => "dock-bottom-left",
+				PDChatButtonPosition.TopLeft => "dock-top-left",
+				PDChatButtonPosition.None => "dock-none", // Hide the button completely
 				_ => "dock-bottom-right" // Default fallback
 			};
-			return $"{previousClass} dock-minimized";
+			return $"{buttonPositionClass} dock-minimized";
 		}
 
 		return DockMode switch
@@ -513,5 +585,17 @@ public partial class PDChat : JSModuleComponentBase
 	private static bool IsNormalDockMode(PDChatDockMode mode)
 	{
 		return mode != PDChatDockMode.Minimized && mode != PDChatDockMode.FullScreen;
+	}
+
+	public override async ValueTask DisposeAsync()
+	{
+		// Clean up event handlers
+		ChatService.OnMessageReceived -= OnMessageReceived;
+		ChatService.OnLiveStatusChanged -= OnLiveStatusChanged;
+		ChatService.OnDockModeChanged -= OnServiceDockModeChanged;
+		ChatService.OnMuteStatusChanged -= OnServiceMuteStatusChanged;
+		ChatService.OnConfigurationChanged -= OnServiceConfigurationChanged;
+
+		await base.DisposeAsync();
 	}
 }

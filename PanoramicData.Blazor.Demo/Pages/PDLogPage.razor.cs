@@ -9,8 +9,8 @@ public partial class PDLogPage
 	private string _capacity = "20";
 	private bool _wordWrap = true;
 	private bool _reverse = true;
-	private bool _tail = false;
-	private bool _useLocalTime = false;
+	private bool _tail;
+	private bool _useLocalTime;
 	private bool _showTimestamp = true;
 	private bool _showException = true;
 	private bool _showIcon = true;

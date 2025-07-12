@@ -1,28 +1,19 @@
-﻿using PanoramicData.Blazor.Services;
+﻿using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDChatPage : IDisposable
 {
-	private readonly DumbChatService _chatService = new();
-	private PDChat? _chatRef;
-
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	// Demo configuration properties
-	private PDChatDockMode _currentDockMode = PDChatDockMode.BottomRight;
-	private PDChatDockPosition _currentChatDockPosition = PDChatDockPosition.Right;
-	private bool _isMaximizePermitted = true;
-	private bool _isCanvasUsePermitted = true;
-	private bool _isClearPermitted = true;
-	private bool _autoRestoreOnNewMessage = false;
-	private bool _useFullWidthMessages = true;
-	private MessageMetadataDisplayMode _messageMetadataDisplayMode = MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft;
-	private string _chatTitle = "Demo Chat";
-	private bool _showMessageUserIcon = true;
-	private bool _showMessageUserName = true;
-	private bool _showMessageTimestamp = true;
-	private string _messageTimestampFormat = "HH:mm:ss";
+	[Inject] private IChatService ChatService { get; set; } = default!;
+
+	// This property will be synced with the global dock mode
+	private PDChatDockMode _currentDockMode
+	{
+		get => ChatService.PreferredDockMode;
+		set => ChatService.PreferredDockMode = value;
+	}
 
 	private ChatMessageSender User => new()
 	{
@@ -42,41 +33,62 @@ public partial class PDChatPage : IDisposable
 
 	protected override void OnInitialized()
 	{
-		// Send initial welcome message
-		Task.Delay(1000).ContinueWith(_ =>
-		{
-			var welcomeMessage = new ChatMessage
-			{
-				Id = Guid.NewGuid(),
-				Message = "Welcome to the PDChat demo! Try changing the dock modes and sending messages.",
-				Sender = Bot,
-				Type = MessageType.Normal,
-				Timestamp = DateTime.UtcNow
-			};
-			_chatService.SendMessage(welcomeMessage);
-		});
+		// Subscribe to configuration changes to trigger UI updates
+		ChatService.OnConfigurationChanged += OnConfigurationChanged;
+		ChatService.OnDockModeChanged += OnDockModeChanged;
 	}
 
-	private void OnDockModeChanged(ChangeEventArgs e)
+	private void OnConfigurationChanged()
 	{
-		if (Enum.TryParse<PDChatDockMode>(e.Value?.ToString(), out var mode))
-		{
-			_currentDockMode = mode;
-			StateHasChanged();
-		}
+		StateHasChanged();
 	}
+
+	private void OnDockModeChanged(PDChatDockMode newMode)
+	{
+		StateHasChanged();
+	}
+
+	// Handle dock mode changes from the dropdown - this will trigger MainLayout updates
+	private void OnDockModeChangedFromDropdown()
+	{
+		// The change will be automatically propagated through the service
+		StateHasChanged();
+	}
+
+	// Handle restore mode changes from the dropdown
+	private void OnRestoreModeChanged()
+	{
+		// The change will be automatically propagated through the service
+		StateHasChanged();
+	}
+
+	// Handle auto-restore changes from the checkbox
+	private void OnAutoRestoreChanged()
+	{
+		// The change will be automatically propagated through the service
+		StateHasChanged();
+	}
+
+	// Helper methods to determine dock mode types
+	private static bool IsCornerMode(PDChatDockMode mode)
+		=> mode is PDChatDockMode.BottomRight or PDChatDockMode.TopRight
+				   or PDChatDockMode.BottomLeft or PDChatDockMode.TopLeft;
+
+	private static bool IsSplitMode(PDChatDockMode mode)
+		=> mode is PDChatDockMode.Left or PDChatDockMode.Right
+				   or PDChatDockMode.Top or PDChatDockMode.Bottom;
 
 	private void SendWelcomeMessage()
 	{
 		var message = new ChatMessage
 		{
 			Id = Guid.NewGuid(),
-			Message = "Hello! This is a welcome message from the demo bot. The chat is working perfectly!",
+			Message = "Hello! This is a welcome message from the demo bot. The chat is working perfectly across the entire application!",
 			Sender = Bot,
 			Type = MessageType.Normal,
 			Timestamp = DateTime.UtcNow
 		};
-		_chatService.SendMessage(message);
+		ChatService.SendMessage(message);
 	}
 
 	private void SendInfoMessage()
@@ -84,12 +96,12 @@ public partial class PDChatPage : IDisposable
 		var message = new ChatMessage
 		{
 			Id = Guid.NewGuid(),
-			Message = "ℹ️ This is an informational message. You can customize message types and icons.",
+			Message = "ℹ️ This is an informational message. Corner modes now respect max 30% width and 80% height constraints while maintaining usability. Navigate to other pages to see the chat persist!",
 			Sender = Bot,
 			Type = MessageType.Normal,
 			Timestamp = DateTime.UtcNow
 		};
-		_chatService.SendMessage(message);
+		ChatService.SendMessage(message);
 	}
 
 	private void SendWarningMessage()
@@ -97,12 +109,12 @@ public partial class PDChatPage : IDisposable
 		var message = new ChatMessage
 		{
 			Id = Guid.NewGuid(),
-			Message = "This is a warning message. Pay attention to important notifications!",
+			Message = "This is a warning message. Pay attention to important notifications! Try switching to corner modes to see the new dimension constraints in action.",
 			Sender = Bot,
 			Type = MessageType.Warning,
 			Timestamp = DateTime.UtcNow
 		};
-		_chatService.SendMessage(message);
+		ChatService.SendMessage(message);
 	}
 
 	private void SendErrorMessage()
@@ -110,12 +122,12 @@ public partial class PDChatPage : IDisposable
 		var message = new ChatMessage
 		{
 			Id = Guid.NewGuid(),
-			Message = "This is an error message. Something went wrong in the system.",
+			Message = "This is an error message. Something went wrong in the system. The chat will persist even when you navigate to other demo pages and now has proper size constraints.",
 			Sender = Bot,
 			Type = MessageType.Error,
 			Timestamp = DateTime.UtcNow
 		};
-		_chatService.SendMessage(message);
+		ChatService.SendMessage(message);
 	}
 
 	private void SendCriticalMessage()
@@ -123,12 +135,12 @@ public partial class PDChatPage : IDisposable
 		var message = new ChatMessage
 		{
 			Id = Guid.NewGuid(),
-			Message = "🚨 CRITICAL: This is a critical message! Immediate attention required!",
+			Message = "🚨 CRITICAL: This is a critical message! Immediate attention required! The restored chat button functionality now works properly when starting from minimized state.",
 			Sender = Bot,
 			Type = MessageType.Critical,
 			Timestamp = DateTime.UtcNow
 		};
-		_chatService.SendMessage(message);
+		ChatService.SendMessage(message);
 	}
 
 	private async Task SendTypingMessage()
@@ -142,7 +154,7 @@ public partial class PDChatPage : IDisposable
 			Type = MessageType.Typing,
 			Timestamp = DateTime.UtcNow
 		};
-		_chatService.SendMessage(typingMessage);
+		ChatService.SendMessage(typingMessage);
 
 		// Wait a bit and then replace with actual message
 		await Task.Delay(2000);
@@ -150,100 +162,34 @@ public partial class PDChatPage : IDisposable
 		var actualMessage = new ChatMessage
 		{
 			Id = typingMessage.Id, // Same ID to replace the typing message
-			Message = "Here's the message I was typing! The typing indicator helps show when someone is responding.",
+			Message = "Here's the message I was typing! The typing indicator helps show when someone is responding. The global chat now works seamlessly with proper dimension constraints!",
 			Sender = Bot,
 			Type = MessageType.Normal,
 			Timestamp = DateTime.UtcNow
 		};
-		_chatService.SendMessage(actualMessage);
+		ChatService.SendMessage(actualMessage);
 	}
 
-	private static string? GetUserIcon(ChatMessage chatMessage)
-		=> chatMessage.Sender.IsHuman ? "👤" : "🤖";
-
-	private static string? GetPriorityIcon(ChatMessage chatMessage)
-		=> chatMessage.Type switch
-		{
-			MessageType.Normal or MessageType.Typing => string.Empty,
-			MessageType.Warning => "⚠️",
-			MessageType.Error => "🛑",
-			MessageType.Critical => "🚨",
-			_ => "?"
-		};
-
-	private static string? GetSoundUrl(ChatMessage chatMessage)
-		=> chatMessage.Sender.IsUser || chatMessage.Type == MessageType.Typing
-			? null
-			: "/_content/PanoramicData.Blazor.Demo/sounds/" + chatMessage.Type switch
-			{
-				MessageType.Normal => "tick.mp3",
-				MessageType.Warning => "warning.mp3",
-				MessageType.Error => "error.mp3",
-				MessageType.Critical => "critical.mp3",
-				_ => null
-			};
-
-	private void TestAutoRestore()
+	private async Task TestAutoRestore()
 	{
+		// Small delay to ensure auto-restore setting is properly synchronized
+		await Task.Delay(100);
+		
 		var message = new ChatMessage
 		{
 			Id = Guid.NewGuid(),
-			Message = "🔄 This message was sent to test the auto-restore feature. If auto-restore is enabled and the chat is minimized, it should automatically open when this message arrives.",
+			Message = "🔄 This message was sent to test the auto-restore feature. If auto-restore is enabled and the chat is minimized, it should automatically open when this message arrives. The restored button functionality now works correctly!",
 			Sender = Bot,
 			Type = MessageType.Normal,
 			Timestamp = DateTime.UtcNow
 		};
-		_chatService.SendMessage(message);
-	}
-
-	// Event handlers for PDChat events
-	private void OnChatMinimized()
-	{
-		EventManager?.Add(new Event("ChatMinimized"));
-	}
-
-	private void OnChatRestored()
-	{
-		EventManager?.Add(new Event("ChatRestored"));
-	}
-
-	private void OnChatMaximized()
-	{
-		EventManager?.Add(new Event("ChatMaximized"));
-	}
-
-	private void OnMuteToggled()
-	{
-		EventManager?.Add(new Event("MuteToggled"));
-	}
-
-	private void OnChatCleared()
-	{
-		EventManager?.Add(new Event("ChatCleared"));
-	}
-
-	private void OnMessageSent(ChatMessage message)
-	{
-		EventManager?.Add(new Event("MessageSent",
-			new EventArgument("Message", message.Message),
-			new EventArgument("Sender", message.Sender.Name)));
-	}
-
-	private void OnMessageReceived(ChatMessage message)
-	{
-		EventManager?.Add(new Event("MessageReceived",
-			new EventArgument("Message", message.Message),
-			new EventArgument("Sender", message.Sender.Name)));
-	}
-
-	private void OnAutoRestored()
-	{
-		EventManager?.Add(new Event("AutoRestored"));
+		ChatService.SendMessage(message);
 	}
 
 	public void Dispose()
 	{
-		_chatService?.Dispose();
+		ChatService.OnConfigurationChanged -= OnConfigurationChanged;
+		ChatService.OnDockModeChanged -= OnDockModeChanged;
 		GC.SuppressFinalize(this);
 	}
 }

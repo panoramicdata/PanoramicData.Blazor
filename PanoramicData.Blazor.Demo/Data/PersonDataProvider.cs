@@ -14,7 +14,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 	/// <summary>
 	/// Add a small delay to simulate network latency.
 	/// </summary>
-	public bool AddDelay { get; set; } = false;
+	public bool AddDelay { get; set; }
 
 	public static List<Person> GetAllPersons()
 	{

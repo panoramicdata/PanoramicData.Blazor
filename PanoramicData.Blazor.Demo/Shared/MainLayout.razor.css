@@ -2,10 +2,14 @@
 	position: relative;
 	display: flex;
 	flex-direction: column;
+	height: 100vh; /* Ensure full height for proper layout */
 }
 
 .main {
 	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0; /* Allow flex child to shrink */
 }
 
 .sidebar {
@@ -19,6 +23,7 @@
 	height: 3.5rem;
 	display: flex;
 	align-items: center;
+	flex-shrink: 0; /* Prevent top row from shrinking */
 }
 
 	.top-row ::deep a, .top-row .btn-link {
@@ -30,6 +35,28 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
+
+/* Chat controls in top bar */
+.top-row ::deep .form-check-label {
+	color: #333;
+	font-size: 0.875rem;
+}
+
+.top-row ::deep .form-select-sm {
+	font-size: 0.775rem;
+}
+
+/* Ensure PDChatContainer takes full remaining height */
+.main ::deep .pdchat-container-wrapper {
+	height: 100%;
+	flex: 1;
+	min-height: 0;
+}
+
+.content {
+	flex: 1;
+	min-height: 0;
+}
 
 @media (max-width: 767.98px) {
 	.top-row:not(.auth) {
@@ -43,11 +70,17 @@
 	.top-row a, .top-row .btn-link {
 		margin-left: 0;
 	}
+
+	/* Hide dock mode selector on mobile to save space */
+	.top-row ::deep .me-3 {
+		display: none;
+	}
 }
 
 @media (min-width: 768px) {
 	.page {
 		flex-direction: row;
+		height: 100vh; /* Maintain full height in row layout */
 	}
 
 	.sidebar {
@@ -55,6 +88,12 @@
 		height: 100vh;
 		position: sticky;
 		top: 0;
+		flex-shrink: 0; /* Prevent sidebar from shrinking */
+	}
+
+	.main {
+		flex: 1;
+		min-width: 0; /* Allow main to shrink if needed */
 	}
 
 	.top-row {
@@ -63,7 +102,11 @@
 		z-index: 1;
 	}
 
-	.main > div {
+	.main > ::deep .pdchat-container-wrapper {
+		height: calc(100vh - 3.5rem); /* Account for top row height */
+	}
+
+	.main .content {
 		padding-left: 2rem !important;
 		padding-right: 1.5rem !important;
 	}

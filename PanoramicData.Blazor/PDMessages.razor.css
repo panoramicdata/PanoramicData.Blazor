@@ -25,6 +25,12 @@
 	scroll-behavior: smooth;
 }
 
+/* When there are no messages or minimal content, ensure messages area still takes available space */
+.pdchat-messages:empty {
+	flex: 1 1 auto;
+	min-height: 200px; /* Minimum height to push input to bottom */
+}
+
 /* Fullscreen specific - prevent viewport overflow */
 .pdchat-window.fullscreen .pdchat-panel-flex {
 	height: 100%;
@@ -50,11 +56,13 @@
 	box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
 	flex-shrink: 0;
 	min-height: 0;
+	margin-top: auto; /* Push to bottom when messages area has minimal content */
 }
 
 .pdchat-window.fullscreen .chat-input-container {
 	flex-shrink: 0;
 	padding: 8px;
+	margin-top: auto;
 }
 
 .chat-input-container textarea {

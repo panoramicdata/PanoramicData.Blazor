@@ -1,0 +1,75 @@
+@using static PanoramicData.Blazor.PDResizePane
+@inherits ComponentBase
+
+@if (IsSplitMode)
+{
+    <div class="pdchat-container-wrapper">
+        <PDSplitter @key="@($"chat-splitter-{DockMode}")" 
+                    Direction="@GetSplitDirection()" 
+                    GutterSize="@GutterSize" 
+                    CssClass="pdchat-container-splitter">
+            @if (IsChatFirstPanel())
+            {
+                <PDSplitPanel @key="@($"chat-panel-{DockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
+                    @ChatContent
+                </PDSplitPanel>
+                <PDSplitPanel @key="@($"content-panel-{DockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
+                    @ChildContent
+                </PDSplitPanel>
+            }
+            else
+            {
+                <PDSplitPanel @key="@($"content-panel-{DockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
+                    @ChildContent
+                </PDSplitPanel>
+                <PDSplitPanel @key="@($"chat-panel-{DockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
+                    @ChatContent
+                </PDSplitPanel>
+            }
+        </PDSplitter>
+    </div>
+}
+else
+{
+    @* For non-split modes (corners, fullscreen, minimized), render content normally with chat as overlay *@
+    <div class="pdchat-container-wrapper">
+        @ChildContent
+        @ChatContent
+    </div>
+}
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? ChatContent { get; set; }
+    [Parameter] public PDChatDockMode DockMode { get; set; } = PDChatDockMode.BottomRight;
+    [Parameter] public int GutterSize { get; set; } = 6;
+    [Parameter] public int ChatPanelSize { get; set; } = 2;
+    [Parameter] public int TotalSize { get; set; } = 5;
+    [Parameter] public int ChatMinSize { get; set; } = 200;
+    [Parameter] public int ContentMinSize { get; set; } = 200;
+
+    private bool IsSplitMode => DockMode is PDChatDockMode.Left or PDChatDockMode.Right 
+                                         or PDChatDockMode.Top or PDChatDockMode.Bottom;
+
+    private SplitDirection GetSplitDirection()
+    {
+        return DockMode switch
+        {
+            PDChatDockMode.Left or PDChatDockMode.Right => SplitDirection.Horizontal,
+            PDChatDockMode.Top or PDChatDockMode.Bottom => SplitDirection.Vertical,
+            _ => SplitDirection.Horizontal
+        };
+    }
+
+    private bool IsChatFirstPanel()
+    {
+        return DockMode switch
+        {
+            PDChatDockMode.Left => true,
+            PDChatDockMode.Top => true,
+            PDChatDockMode.Right => false,
+            PDChatDockMode.Bottom => false,
+            _ => false
+        };
+    }
+}}

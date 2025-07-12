@@ -1,4 +1,5 @@
 @page "/pdchat"
+@using PanoramicData.Blazor.Models
 
 <h1>PDChat</h1>
 <p class="text-muted mb-3">The PDChat component provides a flexible chat interface with multiple docking modes.</p>
@@ -6,41 +7,117 @@
 <DemoSourceView SourceFiles="Pages/PDChatPage.razor, Pages/PDChatPage.razor.cs">
 
 	<div class="row g-3 mb-3">
-		<div class="col-lg-5">
+		<div class="col-12">
+			<div class="alert alert-success" role="alert">
+				<h4 class="alert-heading">
+					<i class="fas fa-check-circle me-2"></i>Dedicated Button Positioning & Custom Triggers
+				</h4>
+				<p class="mb-3">This demo application shows **smart chat integration** with dedicated button positioning and custom trigger support:</p>
+				<ul class="mb-3">
+					<li><strong>Chat always starts minimized</strong> for an unobtrusive experience</li>
+					<li><strong>Dedicated button positioning</strong> - choose from corner positions or "None" for custom buttons</li>
+					<li><strong>Independent restore mode</strong> - chat opens where you want, regardless of button position</li>
+					<li><strong>Custom trigger support</strong> - set position to "None" and provide your own chat activation button</li>
+					<li><strong>Corner-only positioning</strong> - clean enum with only sensible button positions</li>
+					<li><strong>Mobile-optimized display</strong> with smart responsive constraints</li>
+					<li><strong>Navigate between pages</strong> to see how settings persist across the application</li>
+				</ul>
+				<p class="mb-0">
+					<i class="fas fa-arrow-down me-2"></i>
+					<strong>Try different button positions or set to "None" for custom integration!</strong>
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="row g-3 mb-3">
+		<div class="col-lg-6">
 			<div class="card">
 				<div class="card-header py-2">
-					<h6 class="card-title mb-0">Configuration</h6>
+					<h6 class="card-title mb-0">
+						<i class="fas fa-cog me-2"></i>Configuration & Testing
+					</h6>
 				</div>
 				<div class="card-body p-3">
 					<div class="mb-3">
-						<label class="form-label small">Dock Mode:</label>
-						<select @bind="_currentDockMode" class="form-select form-select-sm">
+						<label class="form-label small">Chat Dock Mode:</label>
+						<select @bind="_currentDockMode" @bind:after="OnDockModeChangedFromDropdown" class="form-select form-select-sm">
+							<option value="@PDChatDockMode.Minimized">Minimized</option>
 							<option value="@PDChatDockMode.BottomRight">Bottom Right</option>
 							<option value="@PDChatDockMode.TopRight">Top Right</option>
 							<option value="@PDChatDockMode.BottomLeft">Bottom Left</option>
 							<option value="@PDChatDockMode.TopLeft">Top Left</option>
 							<option value="@PDChatDockMode.FullScreen">Full Screen</option>
+							<option value="@PDChatDockMode.Left">Left (Split)</option>
+							<option value="@PDChatDockMode.Right">Right (Split)</option>
+							<option value="@PDChatDockMode.Top">Top (Split)</option>
+							<option value="@PDChatDockMode.Bottom">Bottom (Split)</option>
 						</select>
+						<div class="form-text">
+							@if (IsCornerMode(_currentDockMode))
+							{
+								<span class="text-info">
+									<i class="fas fa-info-circle me-1"></i>Corner mode: Fixed 350x500px (desktop), 300x400px (mobile)
+								</span>
+							}
+							else if (IsSplitMode(_currentDockMode))
+							{
+								<span class="text-primary">
+									<i class="fas fa-arrows-alt-h me-1"></i>Split mode: Chat shares space with main content
+								</span>
+							}
+							else if (_currentDockMode == PDChatDockMode.FullScreen)
+							{
+								<span class="text-warning">
+									<i class="fas fa-expand me-1"></i>Full screen mode: Chat takes entire view
+								</span>
+							}
+							else
+							{
+								<span class="text-secondary">
+									<i class="fas fa-minus me-1"></i>Minimized: Click chat button to restore to preferred mode
+								</span>
+							}
+						</div>
 					</div>
-					
+
 					<div class="mb-3">
-						<label class="form-label small">Chat Position:</label>
-						<select @bind="_currentChatDockPosition" class="form-select form-select-sm">
-							<option value="@PDChatDockPosition.Right">Right</option>
-							<option value="@PDChatDockPosition.Left">Left</option>
-							<option value="@PDChatDockPosition.Top">Top</option>
-							<option value="@PDChatDockPosition.Bottom">Bottom</option>
+						<label class="form-label small">Restore Mode (when minimized chat is reopened):</label>
+						<select @bind="ChatService.RestoreMode" @bind:after="OnRestoreModeChanged" class="form-select form-select-sm">
+							<option value="@PDChatDockMode.BottomRight">Bottom Right</option>
+							<option value="@PDChatDockMode.TopRight">Top Right</option>
+							<option value="@PDChatDockMode.BottomLeft">Bottom Left</option>
+							<option value="@PDChatDockMode.TopLeft">Top Left</option>
+							<option value="@PDChatDockMode.FullScreen">Full Screen</option>
+							<option value="@PDChatDockMode.Left">Left (Split)</option>
+							<option value="@PDChatDockMode.Right">Right (Split)</option>
+							<option value="@PDChatDockMode.Top">Top (Split)</option>
+							<option value="@PDChatDockMode.Bottom">Bottom (Split)</option>
 						</select>
+						<div class="form-text">Choose where the chat opens when clicking the minimized chat button or when auto-restore triggers.</div>
 					</div>
-					
+
+					<div class="mb-3">
+						<label class="form-label small">Minimized Button Position (where the chat button appears):</label>
+						<select @bind="ChatService.MinimizedButtonPosition" class="form-select form-select-sm">
+							<option value="@PDChatButtonPosition.None">None (provide your own button)</option>
+							<option value="@PDChatButtonPosition.TopLeft">Top Left</option>
+							<option value="@PDChatButtonPosition.TopRight">Top Right</option>
+							<option value="@PDChatButtonPosition.BottomLeft">Bottom Left</option>
+							<option value="@PDChatButtonPosition.BottomRight">Bottom Right</option>
+						</select>
+						<div class="form-text">Choose where the minimized chat button appears on screen. Select "None" when providing your own chat trigger button.</div>
+					</div>
+
 					<div class="mb-3">
 						<label class="form-label small">Chat Title:</label>
-						<input type="text" @bind="_chatTitle" class="form-control form-control-sm" placeholder="Enter chat title">
+						<input type="text" @bind="ChatService.Title" class="form-control form-control-sm" placeholder="Enter chat title">
+						<div class="form-text">Changes to the title will be reflected in the chat header immediately.</div>
 					</div>
 
 					<div class="mb-3">
 						<label class="form-label small">Metadata Display Mode:</label>
-						<select @bind="_messageMetadataDisplayMode" class="form-select form-select-sm">
+						<select @bind="ChatService.MessageMetadataDisplayMode" class="form-select form-select-sm">
 							<option value="@MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft">User Right, Others Left</option>
 							<option value="@MessageMetadataDisplayMode.UserOnlyOnLeftOthersOnRight">User Left, Others Right</option>
 							<option value="@MessageMetadataDisplayMode.AlwaysOnLeft">Always Left</option>
@@ -50,110 +127,113 @@
 
 					<div class="mb-3">
 						<label class="form-label small">Timestamp Format:</label>
-						<input type="text" @bind="_messageTimestampFormat" class="form-control form-control-sm" placeholder="Enter timestamp format">
+						<input type="text" @bind="ChatService.MessageTimestampFormat" class="form-control form-control-sm" placeholder="Enter timestamp format">
 						<div class="form-text">Examples: HH:mm:ss, yyyy-MM-dd HH:mm, dd/MM/yyyy HH:mm:ss</div>
 					</div>
 
-					<div class="mb-2">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" @bind="_isMaximizePermitted" id="maximizeCheck">
-							<label class="form-check-label small" for="maximizeCheck">Enable Maximize</label>
+					<div class="row">
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.IsMaximizePermitted" id="maximizeCheck">
+								<label class="form-check-label small" for="maximizeCheck">Enable Maximize</label>
+							</div>
 						</div>
-					</div>
-					
-					<div class="mb-2">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" @bind="_isCanvasUsePermitted" id="canvasCheck">
-							<label class="form-check-label small" for="canvasCheck">Enable Canvas</label>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.IsCanvasUsePermitted" id="canvasCheck">
+								<label class="form-check-label small" for="canvasCheck">Enable Canvas</label>
+							</div>
 						</div>
-					</div>
-					
-					<div class="mb-2">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" @bind="_isClearPermitted" id="clearCheck">
-							<label class="form-check-label small" for="clearCheck">Enable Clear</label>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.IsClearPermitted" id="clearCheck">
+								<label class="form-check-label small" for="clearCheck">Enable Clear</label>
+							</div>
 						</div>
-					</div>
-					
-					<div class="mb-2">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" @bind="_autoRestoreOnNewMessage" id="autoRestoreCheck">
-							<label class="form-check-label small" for="autoRestoreCheck">Auto-Restore</label>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.AutoRestoreOnNewMessage" @bind:after="OnAutoRestoreChanged" id="autoRestoreCheck">
+								<label class="form-check-label small" for="autoRestoreCheck">Auto-Restore</label>
+							</div>
 						</div>
-					</div>
-
-					<div class="mb-2">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" @bind="_useFullWidthMessages" id="fullWidthCheck">
-							<label class="form-check-label small" for="fullWidthCheck">Full Width Messages</label>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.UseFullWidthMessages" id="fullWidthCheck">
+								<label class="form-check-label small" for="fullWidthCheck">Full Width Messages</label>
+							</div>
 						</div>
-					</div>
-
-					<div class="mb-2">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" @bind="_showMessageUserIcon" id="showIconCheck">
-							<label class="form-check-label small" for="showIconCheck">Show User Icon</label>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.ShowMessageUserIcon" id="showIconCheck">
+								<label class="form-check-label small" for="showIconCheck">Show User Icon</label>
+							</div>
 						</div>
-					</div>
-
-					<div class="mb-2">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" @bind="_showMessageUserName" id="showNameCheck">
-							<label class="form-check-label small" for="showNameCheck">Show User Name</label>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.ShowMessageUserName" id="showNameCheck">
+								<label class="form-check-label small" for="showNameCheck">Show User Name</label>
+							</div>
 						</div>
-					</div>
-
-					<div class="mb-2">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" @bind="_showMessageTimestamp" id="showTimestampCheck">
-							<label class="form-check-label small" for="showTimestampCheck">Show Timestamp</label>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.ShowMessageTimestamp" id="showTimestampCheck">
+								<label class="form-check-label small" for="showTimestampCheck">Show Timestamp</label>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="col-lg-7">
+		<div class="col-lg-6">
 			<div class="card">
 				<div class="card-header py-2">
-					<h6 class="card-title mb-0">Actions</h6>
+					<h6 class="card-title mb-0">
+						<i class="fas fa-paper-plane me-2"></i>Test Messages
+					</h6>
 				</div>
 				<div class="card-body p-3">
 					<div class="row g-2">
-						<div class="col-6 col-xl-4">
+						<div class="col-6">
 							<button class="btn btn-primary btn-sm w-100 mb-2" @onclick="SendWelcomeMessage">
 								<i class="fas fa-paper-plane me-1"></i>Welcome
 							</button>
 						</div>
-						<div class="col-6 col-xl-4">
+						<div class="col-6">
 							<button class="btn btn-info btn-sm w-100 mb-2" @onclick="SendInfoMessage">
 								<i class="fas fa-info-circle me-1"></i>Info
 							</button>
 						</div>
-						<div class="col-6 col-xl-4">
+						<div class="col-6">
 							<button class="btn btn-warning btn-sm w-100 mb-2" @onclick="SendWarningMessage">
 								<i class="fas fa-exclamation-triangle me-1"></i>Warning
 							</button>
 						</div>
-						<div class="col-6 col-xl-4">
+						<div class="col-6">
 							<button class="btn btn-danger btn-sm w-100 mb-2" @onclick="SendErrorMessage">
 								<i class="fas fa-times-circle me-1"></i>Error
 							</button>
 						</div>
-						<div class="col-6 col-xl-4">
+						<div class="col-6">
 							<button class="btn btn-dark btn-sm w-100 mb-2" @onclick="SendCriticalMessage">
 								<i class="fas fa-fire me-1"></i>Critical
 							</button>
 						</div>
-						<div class="col-6 col-xl-4">
+						<div class="col-6">
 							<button class="btn btn-success btn-sm w-100 mb-2" @onclick="SendTypingMessage">
 								<i class="fas fa-keyboard me-1"></i>Typing
 							</button>
 						</div>
-						<div class="col-6 col-xl-4">
+						<div class="col-12">
 							<button class="btn btn-secondary btn-sm w-100 mb-2" @onclick="TestAutoRestore">
-								<i class="fas fa-robot me-1"></i>Auto-Restore
+								<i class="fas fa-robot me-1"></i>Test Auto-Restore
 							</button>
+						</div>
+					</div>
+					<div class="mt-3">
+						<div class="alert alert-warning small" role="alert">
+							<i class="fas fa-info-circle me-1"></i>
+							<strong>Note:</strong> Messages sent while chat is minimized will trigger the chat indicator. Try sending a message and watch the minimized chat button animate! All configuration changes now affect the actual chat component.
 						</div>
 					</div>
 				</div>
@@ -161,35 +241,81 @@
 		</div>
 	</div>
 
-	<PDChat @ref="_chatRef"
-		ChatService="_chatService"
-		Title="@_chatTitle"
-		DockMode="@_currentDockMode"
-		DockModeChanged="@((PDChatDockMode mode) => _currentDockMode = mode)"
-		ChatDockPosition="@_currentChatDockPosition"
-		UserIconSelector="GetUserIcon"
-		PriorityIconSelector="GetPriorityIcon"
-		SoundSelector="GetSoundUrl"
-		IsMaximizePermitted="_isMaximizePermitted"
-		IsCanvasUsePermitted="_isCanvasUsePermitted"
-		IsClearPermitted="_isClearPermitted"
-		AutoRestoreOnNewMessage="_autoRestoreOnNewMessage"
-		UseFullWidthMessages="_useFullWidthMessages"
-		MessageMetadataDisplayMode="_messageMetadataDisplayMode"
-		ShowMessageUserIcon="_showMessageUserIcon"
-		ShowMessageUserName="_showMessageUserName"
-		ShowMessageTimestamp="_showMessageTimestamp"
-		MessageTimestampFormat="@_messageTimestampFormat"
-		OnChatMinimized="OnChatMinimized"
-		OnChatRestored="OnChatRestored"
-		OnChatMaximized="OnChatMaximized"
-		OnMuteToggled="OnMuteToggled"
-		OnChatCleared="OnChatCleared"
-		OnMessageSent="OnMessageSent"
-		OnMessageReceivedEvent="OnMessageReceived"
-		OnAutoRestored="OnAutoRestored"
-		User="User"
-		/>
+	<div class="row g-3">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header py-2">
+					<h6 class="card-title mb-0">
+						<i class="fas fa-code me-2"></i>Implementation Guide
+					</h6>
+				</div>
+				<div class="card-body">
+					<h6>How to implement dedicated button positioning and custom triggers:</h6>
+					<ol>
+						<li><strong>Use dedicated button positioning enum</strong> for clean, focused options:</li>
+					</ol>
+					<pre class="bg-light p-3 rounded"><code>public enum PDChatButtonPosition
+{
+    None,          // No button - provide your own trigger
+    TopLeft,       // Button in top-left corner
+    TopRight,      // Button in top-right corner  
+    BottomLeft,    // Button in bottom-left corner
+    BottomRight    // Button in bottom-right corner (default)
+}</code></pre>
+
+					<ol start="2">
+						<li><strong>Configure independent positioning</strong> in IChatService:</li>
+					</ol>
+					<pre class="bg-light p-3 rounded"><code>public interface IChatService 
+{
+    PDChatDockMode RestoreMode { get; set; }              // Where chat opens
+    PDChatButtonPosition MinimizedButtonPosition { get; set; } // Where button appears
+    // ... other properties
+}</code></pre>
+
+					<ol start="3">
+						<li><strong>Custom trigger integration</strong> - set position to None and provide your own button:</li>
+					</ol>
+					<pre class="bg-light p-3 rounded"><code>// Hide built-in button and use custom trigger
+ChatService.MinimizedButtonPosition = PDChatButtonPosition.None;
+
+// Your custom button can trigger chat restore
+&amp;lt;button @@onclick="OpenChat"&amp;gt;?? Support&amp;lt;/button&amp;gt;
+
+@@code {
+    private void OpenChat() {
+        // Logic to restore chat from minimized state
+    }
+}</code></pre>
+
+					<ol start="4">
+						<li><strong>Benefits of this approach</strong>:</li>
+					</ol>
+					<ul class="ms-4">
+						<li>Clean enum with only sensible button positions (corners only)</li>
+						<li>None option enables custom chat trigger integration</li>
+						<li>Independent of chat restore positioning</li>
+						<li>Perfect for branded chat experiences</li>
+						<li>Supports both built-in and custom UI patterns</li>
+						<li>Settings persist across browser sessions when combined with storage</li>
+					</ul>
+
+					<div class="alert alert-success mt-3" role="alert">
+						<i class="fas fa-check-circle me-2"></i>
+						<strong>Try the dedicated button positioning:</strong> 
+						<ul class="mb-0 mt-2">
+							<li>Test different corner positions (Top Left, Top Right, Bottom Left, Bottom Right)</li>
+							<li>Set button position to "None" and notice the button disappears</li>
+							<li>Set restore mode to "Full Screen" with button position "Top Left" for maximum flexibility</li>
+							<li>Notice how the button enum only includes sensible corner positions</li>
+							<li>Perfect for integrating custom chat triggers into your existing UI</li>
+							<li>All settings work independently for maximum customization</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<EventView />
 
