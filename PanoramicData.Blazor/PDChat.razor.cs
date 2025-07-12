@@ -14,6 +14,9 @@ public partial class PDChat
 	public PDChatDockMode DockMode { get; set; } = PDChatDockMode.BottomRight;
 
 	[Parameter]
+	public EventCallback<PDChatDockMode> DockModeChanged { get; set; }
+
+	[Parameter]
 	public PDChatDockPosition ChatDockPosition { get; set; } = PDChatDockPosition.Right;
 
 	[Parameter]
@@ -45,6 +48,7 @@ public partial class PDChat
 	private bool _isMuted;
 	private bool _unreadMessages;
 	private string _currentInput = "";
+	private PDChatDockMode _previousDockMode = PDChatDockMode.BottomRight; // Store previous dock mode
 
 	private readonly List<ChatMessage> _messages = [];
 	private PDTabSet? _tabSetRef;
@@ -55,6 +59,9 @@ public partial class PDChat
 
 	protected override Task OnInitializedAsync()
 	{
+		// Initialize previous dock mode with current value
+		_previousDockMode = DockMode;
+		
 		ChatService.OnMessageReceived += OnMessageReceived;
 		ChatService.OnLiveStatusChanged += OnLiveStatusChanged;
 		ChatService.Initialize();
@@ -121,9 +128,19 @@ public partial class PDChat
 		_isMuted = !_isMuted;
 	}
 
-	private void ToggleFullScreen()
+	private async Task ToggleFullScreenAsync()
 	{
-		DockMode = DockMode == PDChatDockMode.FullScreen ? PDChatDockMode.BottomRight : PDChatDockMode.FullScreen;
+		if (DockMode == PDChatDockMode.FullScreen)
+		{
+			// Restore to previous dock mode
+			await SetDockModeAsync(_previousDockMode);
+		}
+		else
+		{
+			// Store current dock mode before going fullscreen
+			_previousDockMode = DockMode;
+			await SetDockModeAsync(PDChatDockMode.FullScreen);
+		}
 	}
 
 	private void ClearChat()
@@ -133,10 +150,14 @@ public partial class PDChat
 		StateHasChanged();
 	}
 
-	private void SetDockMode(PDChatDockMode mode)
+	private async Task SetDockModeAsync(PDChatDockMode mode)
 	{
-		DockMode = mode;
-		StateHasChanged();
+		if (DockMode != mode)
+		{
+			DockMode = mode;
+			await DockModeChanged.InvokeAsync(mode);
+			StateHasChanged();
+		}
 	}
 
 	private async Task SendCurrentMessageAsync()
