@@ -8,8 +8,9 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     background: white;
-    overflow: hidden;
     border: 1px solid #e9ecef;
+    /* Remove overflow: hidden to allow content to expand vertically */
+    min-height: fit-content;
 }
 
 /* ==============================================
@@ -21,6 +22,8 @@
     width: 100%;
     padding: 12px;
     gap: 12px;
+    /* Ensure full-width messages can expand vertically */
+    min-height: fit-content;
 }
 
 /* Default: Meta on left, content on right */
@@ -44,6 +47,8 @@
 .pdchat-message.full-width .pdchat-content {
     flex: 1;
     min-width: 0;
+    /* Ensure content can expand vertically */
+    min-height: fit-content;
 }
 
 .pdchat-message.full-width .pdchat-meta {
@@ -113,6 +118,8 @@
 .pdchat-message.bubble {
     padding: 38px 14px 12px 14px;
     background: #f4f8fb;
+    /* Ensure bubble messages can expand vertically */
+    min-height: fit-content;
 }
 
 .pdchat-message.bubble:not(:has(.pdchat-title-bar)) {
@@ -155,6 +162,9 @@
     line-height: 1.4;
     white-space: pre-line;
     word-wrap: break-word;
+    /* Ensure text content can expand properly */
+    overflow-wrap: break-word;
+    min-height: 1.4em; /* Ensure at least one line height */
 }
 
 .pdchat-message.full-width .pdchat-text {
