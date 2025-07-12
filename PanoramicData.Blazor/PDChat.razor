@@ -1,10 +1,10 @@
 ﻿@using static PanoramicData.Blazor.PDResizePane
 @inherits ComponentBase
 
-<div class="pdchat-container @GetDockModeClasses() @( _isOpen ? "open" : "" )">
-	@if (_isOpen)
+<div class="pdchat-container @GetDockModeClasses() @( DockMode == PDChatDockMode.Minimized ? "open" : "" )">
+	@if (DockMode != PDChatDockMode.Minimized)
 	{
-		<div class="pdchat-window@(IsFullScreen ? " fullscreen" : string.Empty)">
+		<div class="pdchat-window@(DockMode == PDChatDockMode.FullScreen ? " fullscreen" : string.Empty)">
 			<div class="pdchat-header">
 				<span class="pdchat-title">@Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
 				@if (IsClearPermitted && _messages.Count > 0)
@@ -18,14 +18,14 @@
 				</button>
 				@if (IsMaximizePermitted)
 				{
-					<button class="pdchat-header-btn" @onclick="ToggleFullScreenAsync" title="@(IsFullScreen ? "Restore" : "Fullscreen")">
-						<span>@(IsFullScreen ? "🗗" : "🗖")</span>
+					<button class="pdchat-header-btn" @onclick="ToggleFullScreenAsync" title="@(DockMode == PDChatDockMode.FullScreen ? "Restore" : "Fullscreen")">
+						<span>@(DockMode == PDChatDockMode.FullScreen ? "🗗" : "🗖")</span>
 					</button>
 				}
 				<button class="pdchat-close" @onclick="ToggleChat" title="Minimize">🗕</button>
 			</div>
 
-			@if (IsFullScreen && IsCanvasUsePermitted)
+			@if (DockMode == PDChatDockMode.FullScreen && IsCanvasUsePermitted)
 			{
 				<PDSplitter Direction="@GetSplitDirection()" GutterSize="6" CssClass="pdchat-splitter">
 					@if (IsChatFirstPanel())
@@ -93,14 +93,14 @@
 	{
 		@if(ChatService.IsLive)
 		{
-			<button class="pdchat-toggle-collapsed" @onclick="ToggleChat">
-				<span>@(_isOpen ? "×" : "💬")</span>
+			<button class="pdchat-toggle-collapsed @(_unreadMessages ? "pulsate" : "")" @onclick="ToggleChat">
+				<span>@CollapsedIcon</span>
 			</button>
 		}
 		else
 		{
 			<button class="pdchat-toggle-collapsed pdchat-not-live" @onclick="ToggleChat" title="Offline">
-				<span>💬</span>
+				<span>@CollapsedIcon</span>
 			</button>
 		}		
 	}

@@ -44,7 +44,6 @@ public partial class PDChat
 	public bool IsClearPermitted { get; set; } = true;
 
 	private IJSObjectReference? _module;
-	private bool _isOpen;
 	private bool _isMuted;
 	private bool _unreadMessages;
 	private string _currentInput = "";
@@ -54,14 +53,11 @@ public partial class PDChat
 	private PDTabSet? _tabSetRef;
 	private PDMessages? _pdMessages;
 
-	// Helper property to check if in fullscreen mode
-	private bool IsFullScreen => DockMode == PDChatDockMode.FullScreen;
-
 	protected override Task OnInitializedAsync()
 	{
 		// Initialize previous dock mode with current value
 		_previousDockMode = DockMode;
-		
+
 		ChatService.OnMessageReceived += OnMessageReceived;
 		ChatService.OnLiveStatusChanged += OnLiveStatusChanged;
 		ChatService.Initialize();
@@ -73,7 +69,7 @@ public partial class PDChat
 		StateHasChanged();
 	}
 
-	private void OnMessageReceived(ChatMessage message)
+	private async void OnMessageReceived(ChatMessage message)
 	{
 		var existing = _messages.FirstOrDefault(m => m.Id == message.Id);
 		if (existing != null)
@@ -90,7 +86,7 @@ public partial class PDChat
 			_messages.Add(message);
 		}
 
-		if (!_isOpen)
+		if (DockMode == PDChatDockMode.Minimized)
 		{
 			_unreadMessages = true;
 		}
@@ -104,7 +100,7 @@ public partial class PDChat
 			_module?.InvokeVoidAsync("playSound", soundUrlString);
 		}
 
-		InvokeAsync(StateHasChanged);
+		await InvokeAsync(StateHasChanged);
 	}
 
 	public void ShowToast(ChatMessage message)
@@ -115,11 +111,15 @@ public partial class PDChat
 
 	private void ToggleChat()
 	{
-		_isOpen = !_isOpen;
-
-		if (_isOpen)
+		if (DockMode == PDChatDockMode.Minimized)
 		{
-			_unreadMessages = false;
+			DockMode = _previousDockMode;
+			_unreadMessages = false; // Clear unread messages when chat is opened
+		}
+		else
+		{
+			_previousDockMode = DockMode;
+			DockMode = PDChatDockMode.Minimized;
 		}
 	}
 
@@ -137,7 +137,7 @@ public partial class PDChat
 		}
 		else
 		{
-			// Store current dock mode before going fullscreen
+			// Store current dock mode before going full screen
 			_previousDockMode = DockMode;
 			await SetDockModeAsync(PDChatDockMode.FullScreen);
 		}
@@ -209,6 +209,11 @@ public partial class PDChat
 			PDChatDockMode.BottomLeft => "dock-bottom-left",
 			PDChatDockMode.TopLeft => "dock-top-left",
 			PDChatDockMode.FullScreen => "dock-fullscreen",
+			PDChatDockMode.Left => "dock-left",
+			PDChatDockMode.Right => "dock-right",
+			PDChatDockMode.Top => "dock-top",
+			PDChatDockMode.Bottom => "dock-bottom",
+			PDChatDockMode.Minimized => "dock-minimized",
 			_ => "dock-bottom-right" // Default fallback
 		};
 	}

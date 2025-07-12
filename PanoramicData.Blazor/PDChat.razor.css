@@ -25,6 +25,34 @@
 	left: 20px;
 }
 
+.pdchat-container.dock-left {
+	top: 50%;
+	left: 20px;
+	transform: translateY(-50%);
+}
+
+.pdchat-container.dock-right {
+	top: 50%;
+	right: 20px;
+	transform: translateY(-50%);
+}
+
+.pdchat-container.dock-top {
+	top: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.pdchat-container.dock-bottom {
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.pdchat-container.dock-minimized {
+	/* Minimized state inherits positioning from previous dock mode */
+}
+
 .pdchat-container.dock-fullscreen {
 	top: 0;
 	left: 0;

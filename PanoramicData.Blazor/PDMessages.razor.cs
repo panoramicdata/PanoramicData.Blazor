@@ -24,6 +24,7 @@ public partial class PDMessages
 
 	protected override async Task OnParametersSetAsync()
 	{
+		// Always try to scroll to bottom when parameters change (new messages)
 		await ScrollToBottomAsync();
 	}
 
@@ -33,6 +34,9 @@ public partial class PDMessages
 		{
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDMessages.razor.js").ConfigureAwait(true);
 		}
+
+		await ScrollToBottomAsync();
+
 
 		if (_inputRef.Context != null)
 		{
@@ -47,9 +51,17 @@ public partial class PDMessages
 			return;
 		}
 
-		StateHasChanged();
+		// Small delay to ensure DOM is updated
+		await Task.Delay(10);
 
-		await _module.InvokeVoidAsync("scrollToBottom", _messagesContainer);
+		try
+		{
+			await _module.InvokeVoidAsync("scrollToBottom", _messagesContainer);
+		}
+		catch (Exception)
+		{
+			// Ignore JavaScript errors if the element is not available
+		}
 	}
 
 	private async Task OnInputChanged(ChangeEventArgs e)

@@ -18,6 +18,7 @@
 	background: #f9f9f9;
 	min-height: 0;
 	max-height: none;
+	scroll-behavior: smooth;
 }
 
 /* Maximized mode support for messages and input */
