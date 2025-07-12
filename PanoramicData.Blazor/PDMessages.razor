@@ -19,6 +19,7 @@
 	</div>
 	<div class="chat-input-container">
 		<textarea
+			@key="@_textareaKey"
 			@ref="_inputRef"
 			value="@CurrentInput"
 			@oninput="OnInputChanged"
