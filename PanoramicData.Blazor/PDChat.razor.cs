@@ -20,9 +20,6 @@ public partial class PDChat : JSModuleComponentBase
 	public PDChatDockPosition ChatDockPosition { get; set; } = PDChatDockPosition.Right;
 
 	[Parameter]
-	public string Title { get; set; } = "Chat";
-
-	[Parameter]
 	public string CollapsedIcon { get; set; } = "💬";
 
 	[Parameter]
@@ -33,18 +30,6 @@ public partial class PDChat : JSModuleComponentBase
 
 	[Parameter]
 	public Func<ChatMessage, string?>? SoundSelector { get; set; }
-
-	[Parameter]
-	public bool IsMaximizePermitted { get; set; }
-
-	[Parameter]
-	public bool IsCanvasUsePermitted { get; set; }
-
-	[Parameter]
-	public bool IsClearPermitted { get; set; } = true;
-
-	[Parameter]
-	public bool AutoRestoreOnNewMessage { get; set; } = false;
 
 	[Parameter]
 	public EventCallback OnChatMinimized { get; set; }
@@ -69,24 +54,6 @@ public partial class PDChat : JSModuleComponentBase
 
 	[Parameter]
 	public EventCallback OnAutoRestored { get; set; }
-
-	[Parameter]
-	public bool UseFullWidthMessages { get; set; } = true;
-
-	[Parameter]
-	public MessageMetadataDisplayMode MessageMetadataDisplayMode { get; set; } = MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft;
-
-	[Parameter]
-	public bool ShowMessageUserIcon { get; set; } = true;
-
-	[Parameter]
-	public bool ShowMessageUserName { get; set; } = true;
-
-	[Parameter]
-	public bool ShowMessageTimestamp { get; set; } = true;
-
-	[Parameter]
-	public string MessageTimestampFormat { get; set; } = "HH:mm:ss";
 
 	private bool _isMuted;
 	private bool _unreadMessages;

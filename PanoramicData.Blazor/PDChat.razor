@@ -6,8 +6,8 @@
 	{
 		<div class="pdchat-window@(DockMode == PDChatDockMode.FullScreen ? " fullscreen" : string.Empty)">
 			<div class="pdchat-header">
-				<span class="pdchat-title">@Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
-				@if (IsClearPermitted && _messages.Count > 0)
+				<span class="pdchat-title">@ChatService.Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
+				@if (ChatService.IsClearPermitted && _messages.Count > 0)
 				{
 					<button class="pdchat-header-btn" @onclick="ClearChatAsync" title="Clear Chat">
 						<span>🗑️</span>
@@ -30,7 +30,7 @@
 						<span>▽</span>
 					</button>
 				}
-				@if (IsMaximizePermitted)
+				@if (ChatService.IsMaximizePermitted)
 				{
 					<button class="pdchat-header-btn" @onclick="ToggleFullScreenAsync" title="@(DockMode == PDChatDockMode.FullScreen ? "Restore" : "Fullscreen")">
 						<span>@(DockMode == PDChatDockMode.FullScreen ? "🗗" : "🗖")</span>
@@ -39,7 +39,7 @@
 				<button class="pdchat-close" @onclick="ToggleChatAsync" title="Minimize">🗕</button>
 			</div>
 
-			@if (DockMode == PDChatDockMode.FullScreen && IsCanvasUsePermitted)
+			@if (DockMode == PDChatDockMode.FullScreen && ChatService.IsCanvasUsePermitted)
 			{
 				<PDSplitter Direction="@GetSplitDirection()" GutterSize="6" CssClass="pdchat-splitter">
 					@if (IsChatFirstPanel())
@@ -53,12 +53,12 @@
 								CanSend="@CanSend"
 								OnSendClicked="SendCurrentMessageAsync"
 								UserIconSelector="UserIconSelector"
-								UseFullWidthMessages="UseFullWidthMessages"
-								MessageMetadataDisplayMode="MessageMetadataDisplayMode"
-								ShowMessageUserIcon="ShowMessageUserIcon"
-								ShowMessageUserName="ShowMessageUserName"
-								ShowMessageTimestamp="ShowMessageTimestamp"
-								MessageTimestampFormat="@MessageTimestampFormat" />
+								UseFullWidthMessages="@ChatService.UseFullWidthMessages"
+								MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
+								ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
+								ShowMessageUserName="@ChatService.ShowMessageUserName"
+								ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
+								MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
 						</PDSplitPanel>
 						<PDSplitPanel Size="3" MinSize="200">
 							<div class="pdchat-canvas-flex">
@@ -92,12 +92,12 @@
 								CanSend="@CanSend"
 								OnSendClicked="SendCurrentMessageAsync"
 								UserIconSelector="UserIconSelector"
-								UseFullWidthMessages="UseFullWidthMessages"
-								MessageMetadataDisplayMode="MessageMetadataDisplayMode"
-								ShowMessageUserIcon="ShowMessageUserIcon"
-								ShowMessageUserName="ShowMessageUserName"
-								ShowMessageTimestamp="ShowMessageTimestamp"
-								MessageTimestampFormat="@MessageTimestampFormat" />
+								UseFullWidthMessages="@ChatService.UseFullWidthMessages"
+								MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
+								ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
+								ShowMessageUserName="@ChatService.ShowMessageUserName"
+								ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
+								MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
 						</PDSplitPanel>
 					}
 				</PDSplitter>
@@ -112,12 +112,12 @@
 					CanSend="@CanSend"
 					OnSendClicked="SendCurrentMessageAsync"
 					UserIconSelector="UserIconSelector"
-					UseFullWidthMessages="UseFullWidthMessages"
-					MessageMetadataDisplayMode="MessageMetadataDisplayMode"
-					ShowMessageUserIcon="ShowMessageUserIcon"
-					ShowMessageUserName="ShowMessageUserName"
-					ShowMessageTimestamp="ShowMessageTimestamp"
-					MessageTimestampFormat="@MessageTimestampFormat" />
+					UseFullWidthMessages="@ChatService.UseFullWidthMessages"
+					MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
+					ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
+					ShowMessageUserName="@ChatService.ShowMessageUserName"
+					ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
+					MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
 			}
 		</div>
 	}
