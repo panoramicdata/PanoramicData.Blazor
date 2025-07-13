@@ -52,18 +52,6 @@ body:has(.pdchat-container.dock-fullscreen) {
 	transform: translateY(-50%);
 }
 
-.pdchat-container.dock-top {
-	top: 20px;
-	left: 50%;
-	transform: translateX(-50%);
-}
-
-.pdchat-container.dock-bottom {
-	bottom: 20px;
-	left: 50%;
-	transform: translateX(-50%);
-}
-
 /* ==============================================
    Fullscreen Container
    ============================================== */

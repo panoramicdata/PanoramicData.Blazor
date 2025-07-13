@@ -330,6 +330,47 @@ public partial class PDChat : JSModuleComponentBase
 		}
 	}
 
+	private async Task DockToSideAsync()
+	{
+		// Determine which side to dock to based on current position
+		var newDockMode = DockMode switch
+		{
+			PDChatDockMode.TopRight or PDChatDockMode.BottomRight => PDChatDockMode.Right,
+			PDChatDockMode.TopLeft or PDChatDockMode.BottomLeft => PDChatDockMode.Left,
+			_ => PDChatDockMode.Right // Default to right for other cases
+		};
+
+		// Store current dock mode as restore preference if it's a corner mode
+		if (IsCornerMode(DockMode))
+		{
+			ChatService.RestoreMode = DockMode;
+		}
+
+		await SetDockModeAsync(newDockMode);
+
+		// Emit restore event since this is similar to a restore operation
+		if (OnChatRestored.HasDelegate)
+		{
+			await OnChatRestored.InvokeAsync();
+		}
+	}
+
+	private async Task UnpinFromSideAsync()
+	{
+		// Restore to the preferred dock position from service
+		var restoreMode = IsNormalDockMode(ChatService.RestoreMode) ? ChatService.RestoreMode : PDChatDockMode.BottomRight;
+		await SetDockModeAsync(restoreMode);
+
+		// Force a UI update after the mode change
+		StateHasChanged();
+
+		// Emit restore event
+		if (OnChatRestored.HasDelegate)
+		{
+			await OnChatRestored.InvokeAsync();
+		}
+	}
+
 	private async Task SetDockModeAsync(PDChatDockMode mode)
 	{
 		if (DockMode != mode)
@@ -350,7 +391,7 @@ public partial class PDChat : JSModuleComponentBase
 			}
 
 			await DockModeChanged.InvokeAsync(mode);
-			
+
 			// Force a complete re-render when switching between split modes
 			// to prevent component duplication issues
 			if ((IsNormalDockMode(previousMode) && IsNormalDockMode(mode)) &&
@@ -358,16 +399,9 @@ public partial class PDChat : JSModuleComponentBase
 			{
 				await Task.Delay(1); // Small delay to ensure clean transition
 			}
-			
+
 			StateHasChanged();
 		}
-	}
-
-	// Helper method to check if a mode is a split mode
-	private static bool IsSplitMode(PDChatDockMode mode)
-	{
-		return mode is PDChatDockMode.Left or PDChatDockMode.Right 
-					   or PDChatDockMode.Top or PDChatDockMode.Bottom;
 	}
 
 	private async Task SendCurrentMessageAsync()
@@ -419,8 +453,7 @@ public partial class PDChat : JSModuleComponentBase
 					builder.OpenComponent<PDMonacoEditor>(0);
 					builder.AddAttribute(1, "Language", "csharp");
 					builder.AddAttribute(2, "Theme", "vs-dark");
-					builder.AddAttribute(3, "CssClass", "pdchat-canvas-tab-content");
-					builder.AddAttribute(4, "InitializeOptions", new Func<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(() =>
+					builder.AddAttribute(3, "InitializeOptions", new Func<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(() =>
 						new BlazorMonaco.Editor.StandaloneEditorConstructionOptions
 						{
 							AutomaticLayout = true,
@@ -462,6 +495,19 @@ public partial class PDChat : JSModuleComponentBase
 		_highestPriorityUnreadMessage = unreadNonTypingMessages
 			.Select(m => m.Type)
 			.Max(); // MessageType enum values are ordered by priority
+	}
+
+	// Helper method to check if a mode is a split mode
+	private static bool IsSplitMode(PDChatDockMode mode)
+	{
+		return mode is PDChatDockMode.Left or PDChatDockMode.Right;
+	}
+
+	// Helper method to check if current mode is a corner mode
+	private static bool IsCornerMode(PDChatDockMode mode)
+	{
+		return mode is PDChatDockMode.BottomRight or PDChatDockMode.TopRight
+					   or PDChatDockMode.BottomLeft or PDChatDockMode.TopLeft;
 	}
 
 	// Helper method to get the bootstrap color class based on message priority
@@ -551,8 +597,6 @@ public partial class PDChat : JSModuleComponentBase
 			PDChatDockMode.FullScreen => "dock-fullscreen",
 			PDChatDockMode.Left => "dock-left",
 			PDChatDockMode.Right => "dock-right",
-			PDChatDockMode.Top => "dock-top",
-			PDChatDockMode.Bottom => "dock-bottom",
 			_ => "dock-bottom-right" // Default fallback
 		};
 	}
@@ -563,7 +607,6 @@ public partial class PDChat : JSModuleComponentBase
 		return ChatDockPosition switch
 		{
 			PDChatDockPosition.Left or PDChatDockPosition.Right => SplitDirection.Horizontal,
-			PDChatDockPosition.Top or PDChatDockPosition.Bottom => SplitDirection.Vertical,
 			_ => SplitDirection.Horizontal // Default to horizontal
 		};
 	}
@@ -574,9 +617,7 @@ public partial class PDChat : JSModuleComponentBase
 		return ChatDockPosition switch
 		{
 			PDChatDockPosition.Left => true,
-			PDChatDockPosition.Top => true,
 			PDChatDockPosition.Right => false,
-			PDChatDockPosition.Bottom => false,
 			_ => false // Default chat on the right (second panel)
 		};
 	}

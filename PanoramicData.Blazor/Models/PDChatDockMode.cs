@@ -9,7 +9,5 @@ public enum PDChatDockMode
 	TopLeft,
 	FullScreen,
 	Left,
-	Right,
-	Top,
-	Bottom
+	Right
 }

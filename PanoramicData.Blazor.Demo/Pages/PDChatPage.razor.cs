@@ -75,8 +75,7 @@ public partial class PDChatPage : IDisposable
 				   or PDChatDockMode.BottomLeft or PDChatDockMode.TopLeft;
 
 	private static bool IsSplitMode(PDChatDockMode mode)
-		=> mode is PDChatDockMode.Left or PDChatDockMode.Right
-				   or PDChatDockMode.Top or PDChatDockMode.Bottom;
+		=> mode is PDChatDockMode.Left or PDChatDockMode.Right;
 
 	private void SendWelcomeMessage()
 	{
@@ -177,11 +176,11 @@ public partial class PDChatPage : IDisposable
 		
 		var message = new ChatMessage
 		{
-			Id = Guid.NewGuid(),
-			Message = "🔄 This message was sent to test the auto-restore feature. If auto-restore is enabled and the chat is minimized, it should automatically open when this message arrives. The restored button functionality now works correctly!",
-			Sender = Bot,
-			Type = MessageType.Normal,
-			Timestamp = DateTime.UtcNow
+		 Id = Guid.NewGuid(),
+		 Message = "🔄 This message was sent to test the auto-restore feature. If auto-restore is enabled and the chat is minimized, it should automatically open when this message arrives. The restored button functionality now works correctly!",
+		 Sender = Bot,
+		 Type = MessageType.Normal,
+		 Timestamp = DateTime.UtcNow
 		};
 		ChatService.SendMessage(message);
 	}

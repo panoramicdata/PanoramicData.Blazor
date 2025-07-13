@@ -16,6 +16,20 @@
 				<button class="pdchat-header-btn" @onclick="ToggleMuteAsync" title="@(_isMuted ? "Unmute" : "Mute")">
 					<span>@(_isMuted ? "🔇" : "🔊")</span>
 				</button>
+				@* Show dock to side button for corner modes *@
+				@if (IsCornerMode(DockMode))
+				{
+					<button class="pdchat-header-btn" @onclick="DockToSideAsync" title="Dock to Side">
+						<span>▷</span>
+					</button>
+				}
+				@* Show unpin button when in split mode *@
+				@if (IsSplitMode(DockMode))
+				{
+					<button class="pdchat-header-btn" @onclick="UnpinFromSideAsync" title="Unpin from Side">
+						<span>▽</span>
+					</button>
+				}
 				@if (IsMaximizePermitted)
 				{
 					<button class="pdchat-header-btn" @onclick="ToggleFullScreenAsync" title="@(DockMode == PDChatDockMode.FullScreen ? "Restore" : "Fullscreen")">

@@ -56,6 +56,14 @@
 .content {
 	flex: 1;
 	min-height: 0;
+	overflow-x: auto; /* Enable horizontal scrolling */
+	overflow-y: auto; /* Enable vertical scrolling */
+	/* Ensure content doesn't get clipped */
+	width: 100%;
+	min-width: 0;
+	/* Ensure proper height for split mode scrolling */
+	max-height: 100%;
+	box-sizing: border-box;
 }
 
 @media (max-width: 767.98px) {
@@ -109,5 +117,11 @@
 	.main .content {
 		padding-left: 2rem !important;
 		padding-right: 1.5rem !important;
+		/* Ensure scrolling still works in split modes */
+		overflow-x: auto;
+		overflow-y: auto;
+		/* Maintain height constraints for proper scrolling */
+		max-height: 100%;
+		box-sizing: border-box;
 	}
 }

@@ -46,5 +46,55 @@
 .pdchat-container-wrapper ::deep .pdsplitpanel {
     min-height: 0;
     min-width: 0;
-    overflow: hidden;
+    overflow: hidden; /* Let child content handle its own scrolling */
+}
+
+/* Enable scrolling for the content panel specifically */
+.pdchat-container-wrapper ::deep .pdsplitpanel:has(.content) {
+    overflow: visible; /* Allow content to handle its own overflow */
+}
+
+/* Alternative approach using a more specific selector */
+.pdchat-container-wrapper .content {
+    overflow-x: auto;
+    overflow-y: auto;
+    height: 100%;
+    width: 100%;
+    /* Ensure proper flex behavior for scrolling */
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Allow flex child to shrink and enable scrolling */
+}
+
+/* Ensure content children fill properly for scrolling */
+.pdchat-container-wrapper .content > * {
+    flex-shrink: 0; /* Don't shrink content, let it scroll instead */
+}
+
+/* Ensure the content area has proper boundaries for scrolling */
+.pdchat-container-wrapper ::deep .pdsplitpanel .content {
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+/* Ensure wide content elements trigger horizontal scrolling */
+.pdchat-container-wrapper .content pre,
+.pdchat-container-wrapper .content table,
+.pdchat-container-wrapper .content .card {
+    max-width: none; /* Allow these elements to be wider than container */
+}
+
+/* Ensure code blocks don't break out of containers */
+.pdchat-container-wrapper .content pre {
+    white-space: pre; /* Preserve formatting but allow scrolling */
+    word-wrap: normal; /* Don't wrap long lines */
+}
+
+/* Responsive behavior for split mode */
+@media (max-width: 768px) {
+    .pdchat-container-wrapper .content {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
 }

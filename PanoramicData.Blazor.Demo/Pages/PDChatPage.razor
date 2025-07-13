@@ -10,21 +10,23 @@
 		<div class="col-12">
 			<div class="alert alert-success" role="alert">
 				<h4 class="alert-heading">
-					<i class="fas fa-check-circle me-2"></i>Dedicated Button Positioning & Custom Triggers
+					<i class="fas fa-check-circle me-2"></i>Enhanced Chat Docking with Pin/Unpin Feature
 				</h4>
-				<p class="mb-3">This demo application shows **smart chat integration** with dedicated button positioning and custom trigger support:</p>
+				<p class="mb-3">This demo application shows **advanced chat integration** with enhanced pin/unpin docking functionality:</p>
 				<ul class="mb-3">
 					<li><strong>Chat always starts minimized</strong> for an unobtrusive experience</li>
-					<li><strong>Dedicated button positioning</strong> - choose from corner positions or "None" for custom buttons</li>
-					<li><strong>Independent restore mode</strong> - chat opens where you want, regardless of button position</li>
-					<li><strong>Custom trigger support</strong> - set position to "None" and provide your own chat activation button</li>
-					<li><strong>Corner-only positioning</strong> - clean enum with only sensible button positions</li>
+					<li><strong>Corner positioning</strong> - choose from four corner positions for floating chat</li>
+					<li><strong>Split docking</strong> - dock to left or right side to share space with content</li>
+					<li><strong>Pin to side button</strong> - easily convert corner position to side docking</li>
+					<li><strong>Unpin button</strong> - return from split mode to preferred corner position</li>
+					<li><strong>Smart button logic</strong> - only relevant buttons are shown based on current mode</li>
+					<li><strong>Independent button positioning</strong> - choose where minimized button appears</li>
 					<li><strong>Mobile-optimized display</strong> with smart responsive constraints</li>
 					<li><strong>Navigate between pages</strong> to see how settings persist across the application</li>
 				</ul>
 				<p class="mb-0">
 					<i class="fas fa-arrow-down me-2"></i>
-					<strong>Try different button positions or set to "None" for custom integration!</strong>
+					<strong>Try the pin/unpin feature: ? to dock and undock!</strong>
 				</p>
 			</div>
 		</div>
@@ -50,8 +52,6 @@
 							<option value="@PDChatDockMode.FullScreen">Full Screen</option>
 							<option value="@PDChatDockMode.Left">Left (Split)</option>
 							<option value="@PDChatDockMode.Right">Right (Split)</option>
-							<option value="@PDChatDockMode.Top">Top (Split)</option>
-							<option value="@PDChatDockMode.Bottom">Bottom (Split)</option>
 						</select>
 						<div class="form-text">
 							@if (IsCornerMode(_currentDockMode))
@@ -91,8 +91,6 @@
 							<option value="@PDChatDockMode.FullScreen">Full Screen</option>
 							<option value="@PDChatDockMode.Left">Left (Split)</option>
 							<option value="@PDChatDockMode.Right">Right (Split)</option>
-							<option value="@PDChatDockMode.Top">Top (Split)</option>
-							<option value="@PDChatDockMode.Bottom">Bottom (Split)</option>
 						</select>
 						<div class="form-text">Choose where the chat opens when clicking the minimized chat button or when auto-restore triggers.</div>
 					</div>
@@ -302,12 +300,15 @@ ChatService.MinimizedButtonPosition = PDChatButtonPosition.None;
 
 					<div class="alert alert-success mt-3" role="alert">
 						<i class="fas fa-check-circle me-2"></i>
-						<strong>Try the dedicated button positioning:</strong> 
+						<strong>Try the enhanced pin/unpin functionality:</strong> 
 						<ul class="mb-0 mt-2">
+							<li><strong>? Dock Button</strong> - appears in corner modes, docks chat to left/right side</li>
+							<li><strong>? Undock Button</strong> - appears in split modes, returns to saved corner position</li>
+							<li><strong>Consistent dock icon</strong> - same icon used for both dock and undock operations</li>
+							<li><strong>Smart button logic</strong> - only relevant buttons are shown based on current mode</li>
+							<li><strong>Automatic preference saving</strong> - corner position is saved when docking to side</li>
 							<li>Test different corner positions (Top Left, Top Right, Bottom Left, Bottom Right)</li>
 							<li>Set button position to "None" and notice the button disappears</li>
-							<li>Set restore mode to "Full Screen" with button position "Top Left" for maximum flexibility</li>
-							<li>Notice how the button enum only includes sensible corner positions</li>
 							<li>Perfect for integrating custom chat triggers into your existing UI</li>
 							<li>All settings work independently for maximum customization</li>
 						</ul>

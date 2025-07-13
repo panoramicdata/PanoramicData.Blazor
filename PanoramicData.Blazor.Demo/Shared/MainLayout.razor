@@ -111,18 +111,14 @@
 	{
 		_currentDockMode = newMode;
 		
-		// Update service restore mode if moving to a normal dock mode
-		if (IsNormalDockMode(newMode))
-		{
-			ChatService.RestoreMode = newMode;
-		}
+		// Don't automatically update restore mode here - let the PDChat component manage it
+		// The PDChat component will set RestoreMode when appropriate (e.g., during pin operations)
 		
 		StateHasChanged();
 	}
 
 	// Helper method to determine if current dock mode requires split layout
-	private bool IsSplitMode() => _currentDockMode is PDChatDockMode.Left or PDChatDockMode.Right 
-												   or PDChatDockMode.Top or PDChatDockMode.Bottom;
+	private bool IsSplitMode() => _currentDockMode is PDChatDockMode.Left or PDChatDockMode.Right;
 
 	// Helper method to check if a dock mode is a "normal" docked position (not minimized or fullscreen)
 	private bool IsNormalDockMode(PDChatDockMode mode)
