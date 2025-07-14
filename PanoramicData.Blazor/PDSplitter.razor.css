@@ -26,5 +26,25 @@
 
 .pdsplitpanel {
 	height: 100%;
-	overflow: auto;
+	overflow: hidden; /* Changed from auto to hidden - let children handle scrolling */
+	display: flex;
+	flex-direction: column;
+	min-height: 0; /* Enable proper flex shrinking */
+	min-width: 0; /* Enable proper flex shrinking */
+}
+
+/* Ensure immediate children of split panels get proper scrolling behavior */
+.pdsplitpanel > * {
+	flex: 1 1 auto;
+	min-height: 0;
+	min-width: 0;
+	overflow-y: auto; /* Enable vertical scrolling for content */
+	overflow-x: auto; /* Enable horizontal scrolling for content */
+	box-sizing: border-box;
+}
+
+/* Special handling for content that should maintain its own overflow behavior */
+.pdsplitpanel > .pdchat-container,
+.pdsplitpanel > .pdchat-window {
+	overflow: visible; /* Let chat components handle their own overflow */
 }
