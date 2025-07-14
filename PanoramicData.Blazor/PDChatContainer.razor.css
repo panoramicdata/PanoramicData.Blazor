@@ -20,9 +20,7 @@
 
 /* Override PDChat positioning when in container split mode */
 .pdchat-container-wrapper ::deep .pdchat-container.dock-left,
-.pdchat-container-wrapper ::deep .pdchat-container.dock-right,
-.pdchat-container-wrapper ::deep .pdchat-container.dock-top,
-.pdchat-container-wrapper ::deep .pdchat-container.dock-bottom {
+.pdchat-container-wrapper ::deep .pdchat-container.dock-right {
     position: static !important;
     transform: none !important;
     top: auto !important;

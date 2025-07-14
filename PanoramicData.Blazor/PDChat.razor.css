@@ -272,9 +272,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 
 /* Split modes should have minimal border radius */
 .pdchat-container.dock-left .pdchat-window,
-.pdchat-container.dock-right .pdchat-window,
-.pdchat-container.dock-top .pdchat-window,
-.pdchat-container.dock-bottom .pdchat-window {
+.pdchat-container.dock-right .pdchat-window {
 	border-radius: 4px !important;
 }
 
@@ -394,9 +392,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 
 /* Split mode headers have minimal radius */
 .pdchat-container.dock-left .pdchat-header,
-.pdchat-container.dock-right .pdchat-header,
-.pdchat-container.dock-top .pdchat-header,
-.pdchat-container.dock-bottom .pdchat-header {
+.pdchat-container.dock-right .pdchat-header {
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
 }
