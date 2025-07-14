@@ -4,26 +4,30 @@
 @if (IsSplitMode)
 {
     <div class="pdchat-container-wrapper">
-        <PDSplitter @key="@($"chat-splitter-{DockMode}")" 
+        <PDSplitter @key="@($"chat-splitter-{_currentDockMode}")" 
                     Direction="@GetSplitDirection()" 
                     GutterSize="@GutterSize" 
                     CssClass="pdchat-container-splitter">
             @if (IsChatFirstPanel())
             {
-                <PDSplitPanel @key="@($"chat-panel-{DockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
-                    @ChatContent
+                <PDSplitPanel @key="@($"chat-panel-{_currentDockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
+                    <CascadingValue Value="this" Name="ChatContainer">
+                        @ChatContent
+                    </CascadingValue>
                 </PDSplitPanel>
-                <PDSplitPanel @key="@($"content-panel-{DockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
+                <PDSplitPanel @key="@($"content-panel-{_currentDockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
                     @ChildContent
                 </PDSplitPanel>
             }
             else
             {
-                <PDSplitPanel @key="@($"content-panel-{DockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
+                <PDSplitPanel @key="@($"content-panel-{_currentDockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
                     @ChildContent
                 </PDSplitPanel>
-                <PDSplitPanel @key="@($"chat-panel-{DockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
-                    @ChatContent
+                <PDSplitPanel @key="@($"chat-panel-{_currentDockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
+                    <CascadingValue Value="this" Name="ChatContainer">
+                        @ChatContent
+                    </CascadingValue>
                 </PDSplitPanel>
             }
         </PDSplitter>
@@ -34,7 +38,9 @@ else
     @* For non-split modes (corners, fullscreen, minimized), render content normally with chat as overlay *@
     <div class="pdchat-container-wrapper">
         @ChildContent
-        @ChatContent
+        <CascadingValue Value="this" Name="ChatContainer">
+            @ChatContent
+        </CascadingValue>
     </div>
 }
 

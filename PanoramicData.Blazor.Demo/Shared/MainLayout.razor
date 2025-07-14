@@ -31,21 +31,18 @@
 			</div>
 		</div>
 
-		@* PDChatContainer wraps only the content area, not the entire layout *@
-		<PDChatContainer @key="@($"chat-container-{_currentDockMode}")"
-						 DockMode="_currentDockMode" 
+		@* NEW SIMPLIFIED USAGE - No manual dock mode management required! *@
+		<PDChatContainer InitialDockMode="PDChatDockMode.Minimized"
+						 DockModeChanged="@OnDockModeChanged"
 						 ChatPanelSize="2" 
 						 GutterSize="6">
 			<ChatContent>
 				@* Chat is always enabled - no conditional rendering *@
-				<PDChat @key="@GetChatComponentKey()"
-					ChatService="ChatService"
-					DockMode="@_currentDockMode"
-					DockModeChanged="@OnDockModeChanged"
-					UserIconSelector="GetUserIcon"
-					PriorityIconSelector="GetPriorityIcon"
-					SoundSelector="GetSoundUrl"
-					User="User" />
+				<PDChat ChatService="ChatService"
+						UserIconSelector="GetUserIcon"
+						PriorityIconSelector="GetPriorityIcon"
+						SoundSelector="GetSoundUrl"
+						User="User" />
 			</ChatContent>
 			<ChildContent>
 				@* Only the main content area goes here *@

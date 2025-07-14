@@ -1,10 +1,10 @@
 ﻿@using static PanoramicData.Blazor.PDResizePane
 @inherits JSModuleComponentBase
 
-<div class="pdchat-container @GetDockModeClasses() @( DockMode != PDChatDockMode.Minimized ? "open" : "" )">
-	@if (DockMode != PDChatDockMode.Minimized)
+<div class="pdchat-container @GetDockModeClasses() @( GetEffectiveDockMode() != PDChatDockMode.Minimized ? "open" : "" )">
+	@if (GetEffectiveDockMode() != PDChatDockMode.Minimized)
 	{
-		<div class="pdchat-window@(DockMode == PDChatDockMode.FullScreen ? " fullscreen" : string.Empty)">
+		<div class="pdchat-window@(GetEffectiveDockMode() == PDChatDockMode.FullScreen ? " fullscreen" : string.Empty)">
 			<div class="pdchat-header">
 				<span class="pdchat-title">@ChatService.Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
 				@if (ChatService.IsClearPermitted && _messages.Count > 0)
@@ -17,14 +17,14 @@
 					<span>@(_isMuted ? "🔇" : "🔊")</span>
 				</button>
 				@* Show dock to side button for corner modes *@
-				@if (IsCornerMode(DockMode))
+				@if (IsCornerMode(GetEffectiveDockMode()))
 				{
 					<button class="pdchat-header-btn" @onclick="DockToSideAsync" title="Dock to Side">
 						<span>▷</span>
 					</button>
 				}
 				@* Show unpin button when in split mode *@
-				@if (IsSplitMode(DockMode))
+				@if (IsSplitMode(GetEffectiveDockMode()))
 				{
 					<button class="pdchat-header-btn" @onclick="UnpinFromSideAsync" title="Unpin from Side">
 						<span>▽</span>
@@ -32,14 +32,14 @@
 				}
 				@if (ChatService.IsMaximizePermitted)
 				{
-					<button class="pdchat-header-btn" @onclick="ToggleFullScreenAsync" title="@(DockMode == PDChatDockMode.FullScreen ? "Restore" : "Fullscreen")">
-						<span>@(DockMode == PDChatDockMode.FullScreen ? "🗗" : "🗖")</span>
+					<button class="pdchat-header-btn" @onclick="ToggleFullScreenAsync" title="@(GetEffectiveDockMode() == PDChatDockMode.FullScreen ? "Restore" : "Fullscreen")">
+						<span>@(GetEffectiveDockMode() == PDChatDockMode.FullScreen ? "🗗" : "🗖")</span>
 					</button>
 				}
 				<button class="pdchat-close" @onclick="ToggleChatAsync" title="Minimize">🗕</button>
 			</div>
 
-			@if (DockMode == PDChatDockMode.FullScreen && ChatService.IsCanvasUsePermitted)
+			@if (GetEffectiveDockMode() == PDChatDockMode.FullScreen && ChatService.IsCanvasUsePermitted)
 			{
 				<PDSplitter Direction="@GetSplitDirection()" GutterSize="6" CssClass="pdchat-splitter">
 					@if (IsChatFirstPanel())
@@ -123,23 +123,18 @@
 	}
 	else
 	{
-		@if(ChatService.IsLive)
+		@* Minimized button - only show if not None position *@
+		@if (ChatService.MinimizedButtonPosition != PDChatButtonPosition.None)
 		{
-			<button class="pdchat-toggle-collapsed @GetBootstrapColorClass() @GetAnimationClass()" @onclick="ToggleChatAsync">
-				<span class="pdchat-icon-container">
-					<span class="pdchat-main-icon">@CollapsedIcon</span>
-					@if (!string.IsNullOrEmpty(GetPriorityIndicator()))
-					{
-						<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>
-					}
-				</span>
+			<button class="pdchat-toggle-collapsed @GetBootstrapColorClass() @GetAnimationClass()"
+					@onclick="ToggleChatAsync"
+					title="Open Chat (@_messages.Count message@(_messages.Count != 1 ? "s" : ""))">
+				<span>@CollapsedIcon</span>
+				@if (!string.IsNullOrEmpty(GetPriorityIndicator()))
+				{
+					<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>
+				}
 			</button>
 		}
-		else
-		{
-			<button class="pdchat-toggle-collapsed pdchat-not-live" @onclick="ToggleChatAsync" title="Offline">
-				<span>@CollapsedIcon</span>
-			</button>
-		}		
 	}
 </div>
