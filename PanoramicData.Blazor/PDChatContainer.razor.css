@@ -4,16 +4,18 @@
 
 .pdchat-container-wrapper {
     width: 100%;
-    height: 100%;
+    height: 100%; /* Take full height from parent */
     display: flex;
     flex-direction: column;
     position: relative;
+    min-height: 0; /* Allow shrinking */
 }
 
 .pdchat-container-splitter {
     width: 100%;
-    height: 100%;
-    flex: 1;
+    height: 100%; /* Take full height */
+    flex: 1; /* Grow to fill space */
+    min-height: 0; /* Allow shrinking */
 }
 
 /* Override PDChat positioning when in container split mode */
@@ -48,11 +50,12 @@
 
 /* Ensure proper layout for container mode */
 .pdchat-container-wrapper ::deep .pdsplitpanel {
-    min-height: 0;
-    min-width: 0;
-    overflow: hidden; /* Let child content handle its own scrolling */
-    display: flex;
-    flex-direction: column;
+    min-height: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden !important; /* Let child content handle its own scrolling */
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important; /* Each panel takes full height of its allocation */
 }
 
 /* Automatically apply proper scrolling to content within split panels */
@@ -60,8 +63,8 @@
     flex: 1 1 auto;
     min-height: 0;
     min-width: 0;
-    overflow-y: auto;
-    overflow-x: auto;
+    overflow-y: auto !important; /* Enable vertical scrolling */
+    overflow-x: auto !important; /* Enable horizontal scrolling */
     /* Ensure content behaves properly in flexbox */
     width: 100%;
     height: 100%;

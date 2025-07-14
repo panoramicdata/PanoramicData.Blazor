@@ -3,6 +3,7 @@
 	display: flex;
 	flex-direction: column;
 	height: 100vh; /* Ensure full height for proper layout */
+	overflow: hidden; /* Prevent page-level scrolling */
 }
 
 .main {
@@ -10,6 +11,7 @@
 	display: flex;
 	flex-direction: column;
 	min-height: 0; /* Allow flex child to shrink */
+	height: 100%; /* Ensure main takes full height */
 }
 
 .sidebar {
@@ -46,19 +48,30 @@
 	font-size: 0.775rem;
 }
 
-/* Ensure PDChatContainer takes full remaining height */
+/* CRITICAL: Ensure PDChatContainer takes full remaining height */
 .main ::deep .pdchat-container-wrapper {
-	height: 100%;
-	flex: 1;
-	min-height: 0;
+	height: 100% !important; /* Force full height */
+	flex: 1 !important; /* Take all remaining space */
+	min-height: 0 !important; /* Allow shrinking */
+	display: flex !important; /* Ensure flex behavior */
+	flex-direction: column !important; /* Column layout */
 }
 
+/* Ensure the splitter within PDChatContainer takes full height */
+.main ::deep .pdchat-container-splitter {
+	height: 100% !important;
+	flex: 1 !important;
+	min-height: 0 !important;
+}
+
+/* Basic content styling - let PDChatContainer handle the height */
 .content {
 	flex: 1;
 	min-height: 0;
 	width: 100%;
 	min-width: 0;
 	box-sizing: border-box;
+	/* Remove explicit height - let the split panel handle it */
 }
 
 @media (max-width: 767.98px) {
@@ -77,6 +90,11 @@
 	/* Hide dock mode selector on mobile to save space */
 	.top-row ::deep .me-3 {
 		display: none;
+	}
+
+	/* Ensure PDChatContainer takes full height on mobile */
+	.main ::deep .pdchat-container-wrapper {
+		height: 100% !important;
 	}
 }
 
@@ -97,6 +115,7 @@
 	.main {
 		flex: 1;
 		min-width: 0; /* Allow main to shrink if needed */
+		height: 100vh; /* Ensure main takes full viewport height */
 	}
 
 	.top-row {
@@ -105,14 +124,17 @@
 		z-index: 1;
 	}
 
+	/* CRITICAL: Account for top row height in desktop layout */
 	.main > ::deep .pdchat-container-wrapper {
-		height: calc(100vh - 3.5rem); /* Account for top row height */
+		height: calc(100vh - 3.5rem) !important; /* Account for top row height */
+		flex: 1 !important;
+		min-height: 0 !important;
 	}
 
 	.main .content {
 		padding-left: 2rem !important;
 		padding-right: 1.5rem !important;
-		/* Let PDChatContainer handle overflow behavior */
+		/* Let PDChatContainer and PDSplitPanel handle the height and scrolling */
 		box-sizing: border-box;
 	}
 }
