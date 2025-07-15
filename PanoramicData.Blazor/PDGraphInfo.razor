@@ -1,0 +1,50 @@
+@inherits PDComponentBase
+@typeparam TItem where TItem : class
+
+<div class="pd-graph-info @CssClass @(IsVisible ? "" : " d-none")" id="@Id">
+	@if (ShowControls && SplitDirection == SplitDirection.Horizontal)
+	{
+		<PDSplitter Direction="SplitDirection.Horizontal" @ref="_splitter">
+			<PDSplitPanel Size="1" MinSize="200">
+				<PDGraphControls TItem="TItem"
+					VisualizationConfig="VisualizationConfig"
+					ClusteringConfig="ClusteringConfig"
+					IsReadOnly="ReadOnlyControls"
+					ConfigurationChanged="OnConfigurationChanged"
+					@ref="_controls" />
+			</PDSplitPanel>
+			<PDSplitPanel Size="1" MinSize="200">
+				<PDGraphSelectionInfo TItem="TItem"
+					SelectedNode="SelectedNode"
+					SelectedEdge="SelectedEdge"
+					@ref="_selectionInfo" />
+			</PDSplitPanel>
+		</PDSplitter>
+	}
+	else if (ShowControls && SplitDirection == SplitDirection.Vertical)
+	{
+		<PDSplitter Direction="SplitDirection.Vertical" @ref="_splitter">
+			<PDSplitPanel Size="1" MinSize="150">
+				<PDGraphControls TItem="TItem"
+					VisualizationConfig="VisualizationConfig"
+					ClusteringConfig="ClusteringConfig"
+					IsReadOnly="ReadOnlyControls"
+					ConfigurationChanged="OnConfigurationChanged"
+					@ref="_controls" />
+			</PDSplitPanel>
+			<PDSplitPanel Size="1" MinSize="150">
+				<PDGraphSelectionInfo TItem="TItem"
+					SelectedNode="SelectedNode"
+					SelectedEdge="SelectedEdge"
+					@ref="_selectionInfo" />
+			</PDSplitPanel>
+		</PDSplitter>
+	}
+	else
+	{
+		<PDGraphSelectionInfo TItem="TItem"
+			SelectedNode="SelectedNode"
+			SelectedEdge="SelectedEdge"
+			@ref="_selectionInfo" />
+	}
+</div>

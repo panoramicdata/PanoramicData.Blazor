@@ -1,0 +1,111 @@
+@page "/pdgraphviewer"
+@using PanoramicData.Blazor.Demo.Data
+@using PanoramicData.Blazor.Models
+
+<h1>PDGraphViewer</h1>
+<p class="text-muted">A comprehensive graph visualization component with multi-dimensional data visualization, interactive nodes and edges, configurable clustering, and dark mode support.</p>
+
+<DemoSourceView SourceFiles="Pages/PDGraphViewerPage.razor, Pages/PDGraphViewerPage.razor.cs">
+
+	<div class="graph-demo">
+		<div class="demo-toolbar">
+			<EditForm Model="this" class="toolbar">
+				<div class="toolbar-group">
+					<label class="form-check-label">Show Info Panel</label>
+					<InputCheckbox @bind-Value="_showInfo" />
+				</div>
+
+				<div class="toolbar-group">
+					<label class="form-check-label">Show Controls</label>
+					<InputCheckbox @bind-Value="_showControls" />
+				</div>
+
+				<div class="toolbar-group">
+					<label class="form-check-label">Read-only Controls</label>
+					<InputCheckbox @bind-Value="_readOnlyControls" />
+				</div>
+
+				<div class="toolbar-group">
+					<label class="form-label">Split Direction</label>
+					<select class="form-select form-select-sm" @bind="_splitDirection">
+						<option value="@SplitDirection.Horizontal">Horizontal</option>
+						<option value="@SplitDirection.Vertical">Vertical</option>
+					</select>
+				</div>
+
+				<div class="toolbar-group">
+					<button type="button" class="btn btn-primary btn-sm" @onclick="OnRefreshData">
+						<i class="fas fa-sync-alt me-1"></i>
+						Refresh Data
+					</button>
+				</div>
+
+				<div class="toolbar-group">
+					<button type="button" class="btn btn-secondary btn-sm" @onclick="OnFitToView">
+						<i class="fas fa-expand-arrows-alt me-1"></i>
+						Fit to View
+					</button>
+				</div>
+			</EditForm>
+		</div>
+
+		<div class="graph-container">
+			<PDGraphViewer @ref="_graphViewer"
+						   TItem="GraphDataItem"
+						   DataProvider="_dataProvider"
+						   SplitDirection="_splitDirection"
+						   ShowInfo="_showInfo"
+						   ShowControls="_showControls"
+						   ReadOnlyControls="_readOnlyControls"
+						   VisualizationConfig="_visualizationConfig"
+						   ClusteringConfig="_clusteringConfig"
+						   NodeClick="OnNodeClick"
+						   EdgeClick="OnEdgeClick"
+						   SelectionChanged="OnSelectionChanged"
+						   ConfigurationChanged="OnConfigurationChanged" />
+		</div>
+
+		@if (_selectedNode != null)
+		{
+			<div class="alert alert-info mt-3">
+				<h6><i class="fas fa-circle me-2"></i>Selected Node</h6>
+				<strong>@_selectedNode.Label</strong> (ID: @_selectedNode.Id)
+				<br />
+				Position: (@_selectedNode.X.ToString("F1"), @_selectedNode.Y.ToString("F1"))
+				@if (_selectedNode.Dimensions.Any())
+				{
+					<br />
+					<strong>Dimensions:</strong>
+					@foreach (var dim in _selectedNode.Dimensions)
+					{
+						<span class="badge bg-secondary me-1">@dim.Key: @dim.Value.ToString("F2")</span>
+					}
+				}
+			</div>
+		}
+
+		@if (_selectedEdge != null)
+		{
+			<div class="alert alert-info mt-3">
+				<h6><i class="fas fa-minus me-2"></i>Selected Edge</h6>
+				<strong>@(!string.IsNullOrEmpty(_selectedEdge.Label) ? _selectedEdge.Label : "Connection")</strong> (ID: @_selectedEdge.Id)
+				<br />
+				From: @_selectedEdge.FromNodeId ? To: @_selectedEdge.ToNodeId
+				<br />
+				Strength: @_selectedEdge.Strength.ToString("F2")
+				@if (_selectedEdge.Dimensions.Any())
+				{
+					<br />
+					<strong>Dimensions:</strong>
+					@foreach (var dim in _selectedEdge.Dimensions)
+					{
+						<span class="badge bg-secondary me-1">@dim.Key: @dim.Value.ToString("F2")</span>
+					}
+				}
+			</div>
+		}
+	</div>
+
+	<EventView />
+
+</DemoSourceView>

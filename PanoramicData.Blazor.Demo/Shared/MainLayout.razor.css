@@ -74,6 +74,49 @@
 	/* Remove explicit height - let the split panel handle it */
 }
 
+/* SPECIAL HANDLING FOR GRAPH VIEWER PAGES */
+.content ::deep .graph-demo {
+	height: calc(100vh - 8rem) !important; /* Account for header + padding + toolbar */
+	min-height: 600px !important;
+	display: flex !important;
+	flex-direction: column !important;
+}
+
+.content ::deep .graph-container {
+	flex: 1 !important;
+	height: auto !important; /* Let flex handle the height */
+	min-height: 500px !important;
+	overflow: hidden !important;
+}
+
+/* Ensure PDGraphViewer takes full container height */
+.content ::deep .pd-graph-viewer {
+	height: 100% !important;
+	min-height: 500px !important;
+}
+
+/* Ensure PDSplitter in graphs works properly */
+.content ::deep .pd-graph-viewer .pd-splitter {
+	height: 100% !important;
+	width: 100% !important;
+}
+
+.content ::deep .pd-graph-viewer .pd-split-panel {
+	height: 100% !important;
+	overflow: hidden !important;
+}
+
+/* Ensure PDGraph SVG takes full height */
+.content ::deep .pd-graph {
+	height: 100% !important;
+	min-height: 400px !important;
+}
+
+.content ::deep .graph-svg {
+	height: 100% !important;
+	width: 100% !important;
+}
+
 @media (max-width: 767.98px) {
 	.top-row:not(.auth) {
 		display: none;
@@ -95,6 +138,20 @@
 	/* Ensure PDChatContainer takes full height on mobile */
 	.main ::deep .pdchat-container-wrapper {
 		height: 100% !important;
+	}
+
+	/* Adjust graph demo for mobile */
+	.content ::deep .graph-demo {
+		height: calc(100vh - 6rem) !important; /* Less space on mobile */
+		min-height: 400px !important;
+	}
+
+	.content ::deep .graph-container {
+		min-height: 350px !important;
+	}
+
+	.content ::deep .pd-graph {
+		min-height: 300px !important;
 	}
 }
 
@@ -136,5 +193,19 @@
 		padding-right: 1.5rem !important;
 		/* Let PDChatContainer and PDSplitPanel handle the height and scrolling */
 		box-sizing: border-box;
+	}
+
+	/* Desktop graph demo adjustments */
+	.content ::deep .graph-demo {
+		height: calc(100vh - 10rem) !important; /* More space for desktop - account for top row, padding, and toolbar */
+		min-height: 600px !important;
+	}
+
+	.content ::deep .graph-container {
+		min-height: 500px !important;
+	}
+
+	.content ::deep .pd-graph {
+		min-height: 450px !important;
 	}
 }

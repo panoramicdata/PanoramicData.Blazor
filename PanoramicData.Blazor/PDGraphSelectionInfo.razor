@@ -1,0 +1,127 @@
+@inherits PDComponentBase
+@typeparam TItem where TItem : class
+
+<div class="pd-graph-selection-info @CssClass @(IsVisible ? "" : " d-none")" id="@Id">
+	<div class="selection-header">
+		<h6 class="mb-0">
+			<i class="fas fa-info-circle me-2"></i>
+			Selection Details
+		</h6>
+	</div>
+
+	<div class="selection-content">
+		@if (SelectedNode != null)
+		{
+			<div class="selection-item">
+				<div class="item-header">
+					<i class="fas fa-circle me-2 text-primary"></i>
+					<strong>Node: @SelectedNode.Label</strong>
+				</div>
+				
+				<div class="item-details">
+					<div class="detail-row">
+						<span class="detail-label">ID:</span>
+						<span class="detail-value">@SelectedNode.Id</span>
+					</div>
+					
+					<div class="detail-row">
+						<span class="detail-label">Position:</span>
+						<span class="detail-value">(@SelectedNode.X.ToString("F1"), @SelectedNode.Y.ToString("F1"))</span>
+					</div>
+
+					@if (SelectedNode.Dimensions.Any())
+					{
+						<div class="dimensions-section">
+							<h6 class="dimensions-title">Dimensions</h6>
+							<div class="dimensions-list">
+								@foreach (var dimension in SelectedNode.Dimensions.OrderBy(d => d.Key))
+								{
+									<div class="dimension-item">
+										<div class="dimension-header">
+											<span class="dimension-name">@dimension.Key</span>
+											<span class="dimension-value">@dimension.Value.ToString("F3")</span>
+										</div>
+										<div class="dimension-bar">
+											<div class="dimension-fill" style="width: @(dimension.Value * 100)%"></div>
+										</div>
+									</div>
+								}
+							</div>
+						</div>
+					}
+
+					@if (SelectedNode.IsFixed)
+					{
+						<div class="node-status">
+							<i class="fas fa-thumbtack me-2 text-warning"></i>
+							<span>Fixed Position</span>
+						</div>
+					}
+				</div>
+			</div>
+		}
+		else if (SelectedEdge != null)
+		{
+			<div class="selection-item">
+				<div class="item-header">
+					<i class="fas fa-minus me-2 text-info"></i>
+					<strong>Edge: @(!string.IsNullOrEmpty(SelectedEdge.Label) ? SelectedEdge.Label : "Connection")</strong>
+				</div>
+				
+				<div class="item-details">
+					<div class="detail-row">
+						<span class="detail-label">ID:</span>
+						<span class="detail-value">@SelectedEdge.Id</span>
+					</div>
+					
+					<div class="detail-row">
+						<span class="detail-label">From:</span>
+						<span class="detail-value">@SelectedEdge.FromNodeId</span>
+					</div>
+					
+					<div class="detail-row">
+						<span class="detail-label">To:</span>
+						<span class="detail-value">@SelectedEdge.ToNodeId</span>
+					</div>
+
+					<div class="detail-row">
+						<span class="detail-label">Strength:</span>
+						<span class="detail-value">@SelectedEdge.Strength.ToString("F2")</span>
+					</div>
+
+					@if (SelectedEdge.Dimensions.Any())
+					{
+						<div class="dimensions-section">
+							<h6 class="dimensions-title">Dimensions</h6>
+							<div class="dimensions-list">
+								@foreach (var dimension in SelectedEdge.Dimensions.OrderBy(d => d.Key))
+								{
+									<div class="dimension-item">
+										<div class="dimension-header">
+											<span class="dimension-name">@dimension.Key</span>
+											<span class="dimension-value">@dimension.Value.ToString("F3")</span>
+										</div>
+										<div class="dimension-bar">
+											<div class="dimension-fill" style="width: @(dimension.Value * 100)%"></div>
+										</div>
+									</div>
+								}
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="no-selection">
+				<div class="no-selection-icon">
+					<i class="fas fa-hand-pointer"></i>
+				</div>
+				<p class="no-selection-text">
+					Click on a node or edge to view details
+				</p>
+			</div>
+		}
+	</div>
+</div>
