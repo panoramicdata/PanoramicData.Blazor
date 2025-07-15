@@ -1,0 +1,223 @@
+@inherits PDComponentBase
+@typeparam TItem where TItem : class
+
+<div class="pd-graph-controls @CssClass @(IsVisible ? "" : " d-none")" id="@Id">
+	<div class="controls-header">
+		<h6 class="mb-0">
+			<i class="fas fa-sliders-h me-2"></i>
+			Graph Controls
+		</h6>
+	</div>
+
+	<div class="controls-content">
+		@if (!IsReadOnly)
+		{
+			<!-- Clustering Configuration -->
+			<div class="control-group">
+				<label class="form-label">
+					<i class="fas fa-object-group me-2"></i>
+					Clustering
+				</label>
+				
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" 
+						   id="@($"{Id}-clustering-enabled")" 
+						   @bind="ClusteringConfig.IsEnabled"
+						   @bind:after="OnConfigurationChanged" />
+					<label class="form-check-label" for="@($"{Id}-clustering-enabled")">
+						Enable Clustering
+					</label>
+				</div>
+
+				@if (ClusteringConfig.IsEnabled)
+				{
+					<div class="mt-2">
+						<label class="form-label">Max Clusters</label>
+						<input type="range" class="form-range" 
+							   min="2" max="10" step="1"
+							   @bind="ClusteringConfig.MaxClusters" 
+							   @bind:after="OnConfigurationChanged" />
+						<small class="text-muted">@ClusteringConfig.MaxClusters clusters</small>
+					</div>
+
+					<div class="mt-2">
+						<label class="form-label">Algorithm</label>
+						<select class="form-select form-select-sm" 
+								@bind="ClusteringConfig.Algorithm" 
+								@bind:after="OnConfigurationChanged">
+							<option value="@GraphClusteringAlgorithm.KMeans">K-Means</option>
+							<option value="@GraphClusteringAlgorithm.Hierarchical">Hierarchical</option>
+						</select>
+					</div>
+				}
+			</div>
+
+			<!-- Node Visualization -->
+			<div class="control-group">
+				<label class="form-label">
+					<i class="fas fa-circle me-2"></i>
+					Node Visualization
+				</label>
+				
+				<div class="dimension-controls">
+					<div class="control-row">
+						<label class="control-label">Size:</label>
+						<select class="form-select form-select-sm" @bind="VisualizationConfig.NodeVisualization.SizeDimension" @bind:after="OnConfigurationChanged">
+							<option value="">None</option>
+							@foreach (var dim in _availableDimensions)
+							{
+								<option value="@dim">@dim</option>
+							}
+						</select>
+					</div>
+
+					<div class="size-range" style="display: @(string.IsNullOrEmpty(VisualizationConfig.NodeVisualization.SizeDimension) ? "none" : "block")">
+						<div class="range-inputs">
+							<div class="range-input">
+								<label>Min:</label>
+								<input type="number" class="form-control form-control-sm" 
+									   min="1" max="50" step="0.5"
+									   @bind="VisualizationConfig.NodeVisualization.MinSize" 
+									   @bind:after="OnConfigurationChanged" />
+							</div>
+							<div class="range-input">
+								<label>Max:</label>
+								<input type="number" class="form-control form-control-sm" 
+									   min="1" max="50" step="0.5"
+									   @bind="VisualizationConfig.NodeVisualization.MaxSize" 
+									   @bind:after="OnConfigurationChanged" />
+							</div>
+						</div>
+					</div>
+
+					<div class="control-row">
+						<label class="control-label">Shape:</label>
+						<select class="form-select form-select-sm" @bind="VisualizationConfig.NodeVisualization.ShapeDimension" @bind:after="OnConfigurationChanged">
+							<option value="">None</option>
+							@foreach (var dim in _availableDimensions)
+							{
+								<option value="@dim">@dim</option>
+							}
+						</select>
+					</div>
+
+					<div class="control-row">
+						<label class="control-label">Fill Hue:</label>
+						<select class="form-select form-select-sm" @bind="VisualizationConfig.NodeVisualization.FillHueDimension" @bind:after="OnConfigurationChanged">
+							<option value="">None</option>
+							@foreach (var dim in _availableDimensions)
+							{
+								<option value="@dim">@dim</option>
+							}
+						</select>
+					</div>
+
+					<div class="control-row">
+						<label class="control-label">Fill Saturation:</label>
+						<select class="form-select form-select-sm" @bind="VisualizationConfig.NodeVisualization.FillSaturationDimension" @bind:after="OnConfigurationChanged">
+							<option value="">None</option>
+							@foreach (var dim in _availableDimensions)
+							{
+								<option value="@dim">@dim</option>
+							}
+						</select>
+					</div>
+
+					<div class="control-row">
+						<label class="control-label">Fill Luminance:</label>
+						<select class="form-select form-select-sm" @bind="VisualizationConfig.NodeVisualization.FillLuminanceDimension" @bind:after="OnConfigurationChanged">
+							<option value="">None</option>
+							@foreach (var dim in _availableDimensions)
+							{
+								<option value="@dim">@dim</option>
+							}
+						</select>
+					</div>
+
+					<div class="control-row">
+						<label class="control-label">Stroke Thickness:</label>
+						<select class="form-select form-select-sm" @bind="VisualizationConfig.NodeVisualization.StrokeThicknessDimension" @bind:after="OnConfigurationChanged">
+							<option value="">None</option>
+							@foreach (var dim in _availableDimensions)
+							{
+								<option value="@dim">@dim</option>
+							}
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- Edge Visualization -->
+			<div class="control-group">
+				<label class="form-label">
+					<i class="fas fa-minus me-2"></i>
+					Edge Visualization
+				</label>
+				
+				<div class="dimension-controls">
+					<div class="control-row">
+						<label class="control-label">Thickness:</label>
+						<select class="form-select form-select-sm" @bind="VisualizationConfig.EdgeVisualization.ThicknessDimension" @bind:after="OnConfigurationChanged">
+							<option value="">None</option>
+							@foreach (var dim in _availableDimensions)
+							{
+								<option value="@dim">@dim</option>
+							}
+						</select>
+					</div>
+
+					<div class="thickness-range" style="display: @(string.IsNullOrEmpty(VisualizationConfig.EdgeVisualization.ThicknessDimension) ? "none" : "block")">
+						<div class="range-inputs">
+							<div class="range-input">
+								<label>Min:</label>
+								<input type="number" class="form-control form-control-sm" 
+									   min="0.1" max="10" step="0.1"
+									   @bind="VisualizationConfig.EdgeVisualization.MinThickness" 
+									   @bind:after="OnConfigurationChanged" />
+							</div>
+							<div class="range-input">
+								<label>Max:</label>
+								<input type="number" class="form-control form-control-sm" 
+									   min="0.1" max="10" step="0.1"
+									   @bind="VisualizationConfig.EdgeVisualization.MaxThickness" 
+									   @bind:after="OnConfigurationChanged" />
+							</div>
+						</div>
+					</div>
+
+					<div class="control-row">
+						<label class="control-label">Color Hue:</label>
+						<select class="form-select form-select-sm" @bind="VisualizationConfig.EdgeVisualization.HueDimension" @bind:after="OnConfigurationChanged">
+							<option value="">None</option>
+							@foreach (var dim in _availableDimensions)
+							{
+								<option value="@dim">@dim</option>
+							}
+						</select>
+					</div>
+
+					<div class="control-row">
+						<label class="control-label">Alpha:</label>
+						<select class="form-select form-select-sm" @bind="VisualizationConfig.EdgeVisualization.AlphaDimension" @bind:after="OnConfigurationChanged">
+							<option value="">None</option>
+							@foreach (var dim in _availableDimensions)
+							{
+								<option value="@dim">@dim</option>
+							}
+						</select>
+					</div>
+				</div>
+			</div>
+		}
+		else
+		{
+			<!-- Read-only view -->
+			<div class="readonly-info">
+				<p class="text-muted">
+					<i class="fas fa-lock me-2"></i>
+					Controls are read-only
+				</p>
+			</div>
+		}
+	</div>
+</div>

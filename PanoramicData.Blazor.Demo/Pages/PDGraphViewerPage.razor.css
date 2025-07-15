@@ -1,0 +1,175 @@
+.graph-demo {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem; /* Reduced gap */
+}
+
+.demo-toolbar {
+	background: #e9ecef;
+	padding: 0.75rem;
+	border-radius: 0.375rem;
+	margin-bottom: 1rem;
+	flex-shrink: 0;
+	z-index: 10;
+}
+
+.toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem; /* Reduced gap */
+	padding: 0.75rem; /* Reduced padding */
+	background-color: var(--bs-secondary-bg, #e9ecef);
+	border: 1px solid var(--bs-border-color, #dee2e6);
+	border-radius: var(--bs-border-radius, 0.375rem);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* Reduced shadow */
+}
+
+.toolbar-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem; /* Reduced gap */
+}
+
+.toolbar-group label {
+	font-size: 0.8rem; /* Smaller font */
+	font-weight: 500;
+	margin: 0;
+	color: var(--bs-body-color, #212529);
+	line-height: 1.2; /* Tighter line height */
+}
+
+.demo-toolbar .toolbar-group label {
+	font-size: 0.875rem;
+	margin: 0;
+	font-weight: 500;
+	color: #495057; /* ? Fix: Proper dark text color */
+}
+
+.form-check-label {
+	color: #495057 !important; /* ? Fix: Force dark text for checkboxes */
+}
+
+.toolbar-group .form-select,
+.toolbar-group .btn {
+	min-width: 100px; /* Reduced width */
+	font-size: 0.875rem; /* Smaller font */
+	padding: 0.375rem 0.5rem; /* Smaller padding */
+}
+
+.toolbar-group .form-check-input {
+	margin-top: 0.2rem; /* Better alignment */
+}
+
+.graph-container {
+	flex: 1;
+	height: 100%;
+	border: 1px solid var(--bs-border-color, #dee2e6);
+	border-radius: var(--bs-border-radius, 0.375rem);
+	overflow: hidden;
+	background-color: var(--bs-body-bg, #ffffff);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	position: relative;
+}
+
+/* Ensure the PDGraphViewer fills the container properly */
+.graph-container > * {
+	height: 100%;
+	width: 100%;
+}
+
+/* Selection info styling improvements */
+.graph-demo .alert {
+	margin-top: 0.75rem; /* Reduced margin */
+	border-radius: var(--bs-border-radius, 0.375rem);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	z-index: 5;
+	position: relative;
+	padding: 0.75rem; /* Compact padding */
+}
+
+.graph-demo .alert h6 {
+	margin-bottom: 0.5rem;
+	font-weight: 600;
+}
+
+.graph-demo .badge {
+	font-size: 0.75rem;
+	margin-right: 0.25rem;
+	margin-bottom: 0.25rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+	.toolbar {
+		background-color: var(--bs-dark-bg-subtle, #2d3436);
+		border-color: var(--bs-secondary, #6c757d);
+		color: var(--bs-light, #f8f9fa);
+		box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+	}
+	
+	.toolbar-group label {
+		color: var(--bs-light, #f8f9fa);
+	}
+	
+	.graph-container {
+		border-color: var(--bs-secondary, #6c757d);
+		background-color: var(--bs-dark, #212529);
+		box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+	}
+
+	.graph-demo .alert {
+		box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+	}
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+	.graph-demo {
+		gap: 0.5rem;
+	}
+
+	.toolbar {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.5rem;
+		padding: 0.5rem;
+	}
+	
+	.toolbar-group {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	
+	.toolbar-group .form-select,
+	.toolbar-group .btn {
+		min-width: auto;
+		flex: 1;
+		max-width: 150px;
+		font-size: 0.8rem;
+	}
+
+	.graph-demo .alert {
+		margin-top: 0.5rem;
+		padding: 0.5rem;
+	}
+
+	.graph-demo .badge {
+		font-size: 0.7rem;
+	}
+}
+
+@media (max-width: 576px) {
+	.toolbar-group {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.25rem;
+	}
+
+	.toolbar-group .form-select,
+	.toolbar-group .btn {
+		max-width: none;
+	}
+}

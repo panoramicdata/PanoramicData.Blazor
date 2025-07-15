@@ -1,0 +1,120 @@
+@inherits JSModuleComponentBase
+@typeparam TItem where TItem : class
+
+<div class="pd-graph @CssClass @(IsVisible ? "" : " d-none")" id="@Id">
+	@if (_isLoading)
+	{
+		<div class="pd-graph-loading">
+			<div class="spinner-border" role="status">
+				<span class="visually-hidden">Loading graph...</span>
+			</div>
+			<div class="loading-text">Loading graph data...</div>
+		</div>
+	}
+	else if (_hasError)
+	{
+		<div class="pd-graph-error">
+			<div class="alert alert-danger" role="alert">
+				<i class="fas fa-exclamation-triangle me-2"></i>
+				Failed to load graph data. Please try again.
+			</div>
+		</div>
+	}
+	else
+	{
+		<svg class="graph-svg" 
+			 width="100%" 
+			 height="100%" 
+			 preserveAspectRatio="xMidYMid meet"
+			 @ref="_svgElement">
+			
+			<!-- Definitions for patterns and gradients -->
+			<defs>
+				<!-- Stroke patterns -->
+				<pattern id="@($"{Id}-dashed")" patternUnits="userSpaceOnUse" width="4" height="4">
+					<rect width="2" height="4" fill="currentColor"/>
+				</pattern>
+				<pattern id="@($"{Id}-dotted")" patternUnits="userSpaceOnUse" width="3" height="3">
+					<circle cx="1.5" cy="1.5" r="0.5" fill="currentColor"/>
+				</pattern>
+				
+				<!-- Smaller arrow markers for directed edges -->
+				<marker id="@($"{Id}-arrowhead")" markerWidth="6" markerHeight="6" 
+				 		refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+					<polygon points="0 0, 6 3, 0 6" fill="var(--edge-color, #666)" />
+				</marker>
+			</defs>
+
+			<!-- Background for pan/zoom interactions -->
+			<rect class="graph-background" 
+				  width="100%" 
+				  height="100%" 
+				  fill="transparent" />
+
+			<!-- Edges group -->
+			<g class="edges-group" transform="@_transformMatrix">
+				@if (_graphData?.Edges != null)
+				{
+					@foreach (var edge in _graphData.Edges)
+					{
+						@if (_nodePositions.ContainsKey(edge.FromNodeId) && _nodePositions.ContainsKey(edge.ToNodeId))
+						{
+							var fromPos = _nodePositions[edge.FromNodeId];
+							var toPos = _nodePositions[edge.ToNodeId];
+							var edgeStyle = GetEdgeStyle(edge);
+							
+							<line class="graph-edge @(edge.IsSelected ? "selected" : "")"
+								  x1="@fromPos.X" y1="@fromPos.Y"
+								  x2="@toPos.X" y2="@toPos.Y"
+								  stroke="@edgeStyle.Color"
+								  stroke-width="@edgeStyle.Thickness"
+								  stroke-opacity="@edgeStyle.Alpha"
+								  stroke-dasharray="@edgeStyle.Pattern"
+								  marker-end="@($"url(#{Id}-arrowhead)")"
+								  data-edge-id="@edge.Id"
+								  @onclick="() => OnEdgeClick(edge)">
+								
+								@if (!string.IsNullOrEmpty(edge.Label))
+								{
+									<title>@edge.Label</title>
+								}
+							</line>
+						}
+					}
+				}
+			</g>
+
+			<!-- Nodes group -->
+			<g class="nodes-group" transform="@_transformMatrix">
+				@if (_graphData?.Nodes != null)
+				{
+					@foreach (var node in _graphData.Nodes)
+					{
+						@if (_nodePositions.ContainsKey(node.Id))
+						{
+							var pos = _nodePositions[node.Id];
+							var nodeStyle = GetNodeStyle(node);
+							
+							<g class="graph-node @(node.IsSelected ? "selected" : "")"
+							   transform="@($"translate({pos.X},{pos.Y})")"
+							   data-node-id="@node.Id"
+							   @onclick="() => OnNodeClick(node)">
+								
+								@RenderNodeShape(nodeStyle, node)
+								
+								@* Always render node label inside the node *@
+								@RenderNodeLabel(node, nodeStyle)
+								
+								@* SVG title for accessibility and additional info *@
+								@if (!string.IsNullOrEmpty(node.Label))
+								{
+									<title>@node.Label @(node.Dimensions.Any() ? $"({string.Join(", ", node.Dimensions.Select(d => $"{d.Key}: {d.Value:F2}"))})" : "")</title>
+								}
+							</g>
+						}
+					}
+				}
+			</g>
+		</svg>
+	}
+</div>

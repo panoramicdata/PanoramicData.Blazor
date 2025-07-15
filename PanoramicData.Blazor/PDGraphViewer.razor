@@ -1,0 +1,70 @@
+@inherits PDComponentBase
+@typeparam TItem where TItem : class
+
+<div class="pd-graph-viewer @CssClass @(IsVisible ? "" : " d-none")" id="@Id">
+	@if (ShowInfo && SplitDirection == SplitDirection.Horizontal)
+	{
+		<PDSplitter Direction="SplitDirection.Horizontal" @ref="_splitter">
+			<PDSplitPanel Size="3" MinSize="200">
+				<PDGraph TItem="TItem" 
+					DataProvider="DataProvider"
+					VisualizationConfig="VisualizationConfig"
+					ClusteringConfig="ClusteringConfig"
+					NodeClick="OnNodeClick"
+					EdgeClick="OnEdgeClick"
+					SelectionChanged="OnSelectionChanged"
+					@ref="_graph" />
+			</PDSplitPanel>
+			<PDSplitPanel Size="1" MinSize="250">
+				<PDGraphInfo TItem="TItem"
+					VisualizationConfig="VisualizationConfig"
+					ClusteringConfig="ClusteringConfig"
+					SelectedNode="_selectedNode"
+					SelectedEdge="_selectedEdge"
+					ShowControls="ShowControls"
+					ReadOnlyControls="ReadOnlyControls"
+					SplitDirection="SplitDirection.Vertical"
+					ConfigurationChanged="OnConfigurationChanged"
+					@ref="_graphInfo" />
+			</PDSplitPanel>
+		</PDSplitter>
+	}
+	else if (ShowInfo && SplitDirection == SplitDirection.Vertical)
+	{
+		<PDSplitter Direction="SplitDirection.Vertical" @ref="_splitter">
+			<PDSplitPanel Size="3" MinSize="200">
+				<PDGraph TItem="TItem" 
+					DataProvider="DataProvider"
+					VisualizationConfig="VisualizationConfig"
+					ClusteringConfig="ClusteringConfig"
+					NodeClick="OnNodeClick"
+					EdgeClick="OnEdgeClick"
+					SelectionChanged="OnSelectionChanged"
+					@ref="_graph" />
+			</PDSplitPanel>
+			<PDSplitPanel Size="1" MinSize="200">
+				<PDGraphInfo TItem="TItem"
+					VisualizationConfig="VisualizationConfig"
+					ClusteringConfig="ClusteringConfig"
+					SelectedNode="_selectedNode"
+					SelectedEdge="_selectedEdge"
+					ShowControls="ShowControls"
+					ReadOnlyControls="ReadOnlyControls"
+					SplitDirection="SplitDirection.Horizontal"
+					ConfigurationChanged="OnConfigurationChanged"
+					@ref="_graphInfo" />
+			</PDSplitPanel>
+		</PDSplitter>
+	}
+	else
+	{
+		<PDGraph TItem="TItem" 
+			DataProvider="DataProvider"
+			VisualizationConfig="VisualizationConfig"
+			ClusteringConfig="ClusteringConfig"
+			NodeClick="OnNodeClick"
+			EdgeClick="OnEdgeClick"
+			SelectionChanged="OnSelectionChanged"
+			@ref="_graph" />
+	}
+</div>
