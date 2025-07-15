@@ -1,8 +1,10 @@
-.btn.disabled, .btn:disabled {
+.btn.disabled, .btn:disabled
+{
 	pointer-events: auto;
 	cursor: default;
 }
 
-.pd-button .icon {
+.pd-button .icon
+{
 	vertical-align: middle;
 }

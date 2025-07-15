@@ -5,13 +5,13 @@
         <div class="direction-buttons">
             <PDButton Click="MoveFirst"
                 CssClass="btn-secondary"
-                IconCssClass="fas fa-fast-backward"
+                IconCssClass="fa-fw fas fa-fast-backward"
                 IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
                 Size="Size" />
 
             <PDButton Click="MovePrevious"
                 CssClass="btn-secondary ms-1"
-                IconCssClass="fas fa-backward"
+                IconCssClass="fa-fw fas fa-backward"
                 IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
                 Size="Size" />
 
@@ -24,13 +24,13 @@
 
             <PDButton Click="MoveNext"
                 CssClass="btn-secondary ms-1"
-                IconCssClass="fas fa-forward"
+                IconCssClass="fa-fw fas fa-forward"
                 IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
                 Size="Size" />
 
             <PDButton Click="MoveLast"
                 CssClass="btn-secondary ms-1"
-                IconCssClass="fas fa-fast-forward"
+                IconCssClass="fa-fw fas fa-fast-forward"
                 IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
                 Size="Size" />
         </div>
