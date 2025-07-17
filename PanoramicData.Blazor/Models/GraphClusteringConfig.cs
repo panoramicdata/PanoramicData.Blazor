@@ -22,9 +22,14 @@ public class GraphClusteringConfig
 	public Dictionary<string, double> DimensionWeights { get; set; } = new();
 
 	/// <summary>
-	/// Gets or sets the clustering algorithm to use.
+	/// Gets or sets the algorithm used for clustering.
 	/// </summary>
-	public GraphClusteringAlgorithm Algorithm { get; set; } = GraphClusteringAlgorithm.KMeans;
+	public GraphClusteringAlgorithm Algorithm { get; set; } = GraphClusteringAlgorithm.None;
+
+	/// <summary>
+	/// Gets or sets the dimension to use for spatial clustering.
+	/// </summary>
+	public string? ClusterByDimension { get; set; }
 }
 
 /// <summary>
@@ -32,6 +37,11 @@ public class GraphClusteringConfig
 /// </summary>
 public enum GraphClusteringAlgorithm
 {
+	/// <summary>
+	/// No clustering algorithm applied.
+	/// </summary>
+	None,
+
 	/// <summary>
 	/// K-means clustering algorithm.
 	/// </summary>

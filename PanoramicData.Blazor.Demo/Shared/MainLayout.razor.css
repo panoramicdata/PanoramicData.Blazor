@@ -76,7 +76,7 @@
 
 /* SPECIAL HANDLING FOR GRAPH VIEWER PAGES */
 .content ::deep .graph-demo {
-	height: calc(100vh - 8rem) !important; /* Account for header + padding + toolbar */
+	height: calc(100vh - 6rem) !important; /* ✅ REDUCED: Less space for toolbar */
 	min-height: 600px !important;
 	display: flex !important;
 	flex-direction: column !important;
@@ -197,7 +197,7 @@
 
 	/* Desktop graph demo adjustments */
 	.content ::deep .graph-demo {
-		height: calc(100vh - 10rem) !important; /* More space for desktop - account for top row, padding, and toolbar */
+		height: calc(100vh - 8rem) !important; /* ✅ REDUCED: Less space for desktop toolbar */
 		min-height: 600px !important;
 	}
 

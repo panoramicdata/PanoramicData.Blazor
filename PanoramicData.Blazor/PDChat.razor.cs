@@ -133,7 +133,10 @@ public partial class PDChat : JSModuleComponentBase
 	/// </summary>
 	private async Task ChangeDockModeAsync(PDChatDockMode newMode)
 	{
-		if (_currentState == newMode) return;
+		if (_currentState == newMode)
+		{
+			return;
+		}
 
 		var previousState = _currentState;
 
@@ -368,7 +371,10 @@ public partial class PDChat : JSModuleComponentBase
 		};
 
 		// If we're already in that mode, don't do anything
-		if (currentMode == newDockMode) return;
+		if (currentMode == newDockMode)
+		{
+			return;
+		}
 
 		// Dock to split mode
 		await ChangeDockModeAsync(newDockMode);

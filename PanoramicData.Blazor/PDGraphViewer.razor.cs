@@ -1,7 +1,4 @@
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Models;
-
-namespace PanoramicData.Blazor;
+﻿namespace PanoramicData.Blazor;
 
 /// <summary>
 /// A comprehensive graph visualization component that supports multi-dimensional data visualization
@@ -16,6 +13,12 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	private PDGraphInfo<TItem>? _graphInfo;
 	private GraphNode? _selectedNode;
 	private GraphEdge? _selectedEdge;
+
+	// Add these fields to track parameter changes
+	private bool _isUpdatingParameters = false;
+	private GraphVisualizationConfig? _previousVisualizationConfig;
+	private GraphClusteringConfig? _previousClusteringConfig;
+	private double _previousConvergenceThreshold = 0.02;
 
 	/// <summary>
 	/// Gets or sets the data provider for the graph data.
@@ -61,6 +64,18 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	public GraphClusteringConfig ClusteringConfig { get; set; } = new();
 
 	/// <summary>
+	/// Gets or sets the convergence threshold for the physics simulation.
+	/// </summary>
+	[Parameter]
+	public double ConvergenceThreshold { get; set; } = 0.02;
+
+	/// <summary>
+	/// Gets or sets the damping factor for the physics simulation. Higher values mean faster settling.
+	/// </summary>
+	[Parameter]
+	public double Damping { get; set; } = 0.98;
+
+	/// <summary>
 	/// Gets or sets a callback that is invoked when a node is clicked.
 	/// </summary>
 	[Parameter]
@@ -82,7 +97,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	/// Gets or sets a callback that is invoked when the configuration changes.
 	/// </summary>
 	[Parameter]
-	public EventCallback<(GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering)> ConfigurationChanged { get; set; }
+	public EventCallback<(GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double Damping)> ConfigurationChanged { get; set; }
 
 	protected override void OnInitialized()
 	{
@@ -94,49 +109,11 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		}
 	}
 
-	/// <summary>
-	/// Refreshes the graph data from the data provider.
-	/// </summary>
-	/// <param name="cancellationToken">Cancellation token for the async operation.</param>
-	/// <returns>A task representing the async operation.</returns>
-	public async Task RefreshAsync(CancellationToken cancellationToken = default)
-	{
-		if (_graph is not null)
-		{
-			await _graph.RefreshAsync(cancellationToken).ConfigureAwait(false);
-		}
-	}
-
-	/// <summary>
-	/// Centers the graph on the specified node.
-	/// </summary>
-	/// <param name="nodeId">The ID of the node to center on.</param>
-	/// <returns>A task representing the async operation.</returns>
-	public async Task CenterOnNodeAsync(string nodeId)
-	{
-		if (_graph is not null)
-		{
-			await _graph.CenterOnNodeAsync(nodeId).ConfigureAwait(false);
-		}
-	}
-
-	/// <summary>
-	/// Fits the entire graph into the viewport.
-	/// </summary>
-	/// <returns>A task representing the async operation.</returns>
-	public async Task FitToViewAsync()
-	{
-		if (_graph is not null)
-		{
-			await _graph.FitToViewAsync().ConfigureAwait(false);
-		}
-	}
-
 	private async Task OnNodeClick(GraphNode node)
 	{
 		_selectedNode = node;
 		_selectedEdge = null;
-		
+
 		if (_graphInfo is not null)
 		{
 			_graphInfo.SetSelection(node, null);
@@ -150,7 +127,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	{
 		_selectedNode = null;
 		_selectedEdge = edge;
-		
+
 		if (_graphInfo is not null)
 		{
 			_graphInfo.SetSelection(null, edge);
@@ -167,17 +144,57 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		await SelectionChanged.InvokeAsync(selection).ConfigureAwait(false);
 	}
 
-	private async Task OnConfigurationChanged((GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering) config)
+	// Update the OnConfigurationChanged method
+	public async Task UpdateConfigurationAsync((GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double Damping) config)
 	{
-		VisualizationConfig = config.Visualization;
-		ClusteringConfig = config.Clustering;
-		
-		// ? FIXED: Use UpdateConfigurationAsync to preserve positions
+		_isUpdatingParameters = true;
+		try
+		{
+			VisualizationConfig = config.Visualization;
+			ClusteringConfig = config.Clustering;
+			Damping = config.Damping;
+
+			// ✅ FIXED: Use UpdateConfigurationAsync to preserve positions
+			if (_graph is not null)
+			{
+				await _graph.UpdateConfigurationAsync(config.Visualization, config.Clustering).ConfigureAwait(false);
+			}
+
+			await ConfigurationChanged.InvokeAsync(config).ConfigureAwait(false);
+		}
+		finally
+		{
+			_isUpdatingParameters = false;
+		}
+	}
+
+	private async Task OnConfigurationChanged((GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double Damping) config)
+	{
+		await UpdateConfigurationAsync(config).ConfigureAwait(false);
+	}
+
+	// ✅ KEEP: Only the methods that are called externally
+	public async Task RefreshAsync(CancellationToken cancellationToken = default)
+	{
 		if (_graph is not null)
 		{
-			await _graph.UpdateConfigurationAsync(config.Visualization, config.Clustering).ConfigureAwait(false);
+			await _graph.RefreshAsync(cancellationToken).ConfigureAwait(false);
 		}
+	}
 
-		await ConfigurationChanged.InvokeAsync(config).ConfigureAwait(false);
+	public async Task CenterOnNodeAsync(string nodeId)
+	{
+		if (_graph is not null)
+		{
+			await _graph.CenterOnNodeAsync(nodeId).ConfigureAwait(false);
+		}
+	}
+
+	public async Task FitToViewAsync()
+	{
+		if (_graph is not null)
+		{
+			await _graph.FitToViewAsync().ConfigureAwait(false);
+		}
 	}
 }

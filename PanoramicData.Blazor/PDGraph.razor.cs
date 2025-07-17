@@ -1,8 +1,4 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
-using PanoramicData.Blazor.Models;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace PanoramicData.Blazor;
 
@@ -19,6 +15,17 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	private string _transformMatrix = "translate(0,0) scale(1)";
 	private bool _isLoading = true;
 	private bool _hasError;
+	private DotNetObjectReference<PDGraph<TItem>>? _objRef;
+
+	// Add a flag to prevent re-initialization during selection updates
+	private bool _isUpdatingSelection = false;
+
+	// Add these fields to track parameter changes
+	private bool _isUpdatingParameters = false;
+	private GraphVisualizationConfig? _previousVisualizationConfig;
+	private GraphClusteringConfig? _previousClusteringConfig;
+	private double _previousConvergenceThreshold = 0.02;
+	private double _previousDamping = 0.95;
 
 	/// <summary>
 	/// Gets the JavaScript module path for this component.
@@ -61,6 +68,18 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	/// </summary>
 	[Parameter]
 	public GraphClusteringConfig ClusteringConfig { get; set; } = new();
+
+	/// <summary>
+	/// Gets or sets the convergence threshold for the physics simulation. Lower values make physics run longer.
+	/// </summary>
+	[Parameter]
+	public double ConvergenceThreshold { get; set; } = 0.02;
+
+	/// <summary>
+	/// Gets or sets the damping factor for the physics simulation. Higher values mean faster settling.
+	/// </summary>
+	[Parameter]
+	public double Damping { get; set; } = 0.95;
 
 	/// <summary>
 	/// Gets or sets a callback that is invoked when a node is clicked.
@@ -116,15 +135,83 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	protected override async Task OnParametersSetAsync()
 	{
 		await base.OnParametersSetAsync();
-		await RefreshAsync().ConfigureAwait(false);
+
+		// ✅ FIXED: Early exit if we're updating to prevent cascading
+		if (_isUpdatingSelection || _isUpdatingParameters)
+		{
+			Console.WriteLine("PDGraph: Skipping OnParametersSetAsync - already updating");
+			return;
+		}
+
+		// ✅ FIXED: Track if this is the first load
+		var isFirstLoad = _previousVisualizationConfig == null;
+
+		if (isFirstLoad)
+		{
+			Console.WriteLine("PDGraph: First load - doing full refresh");
+			_previousVisualizationConfig = VisualizationConfig;
+			_previousClusteringConfig = ClusteringConfig;
+			_previousConvergenceThreshold = ConvergenceThreshold;
+			_previousDamping = Damping;
+
+			await RefreshAsync().ConfigureAwait(false);
+			return;
+		}
+
+		// ✅ FIXED: Check for actual changes with better logic
+		var hasVisualizationChanged = !ReferenceEquals(_previousVisualizationConfig, VisualizationConfig);
+		var hasClusteringChanged = !ReferenceEquals(_previousClusteringConfig, ClusteringConfig);
+		var hasConvergenceChanged = Math.Abs(_previousConvergenceThreshold - ConvergenceThreshold) > 0.001;
+		var hasDampingChanged = Math.Abs(_previousDamping - Damping) > 0.001;
+
+		if (!hasVisualizationChanged && !hasClusteringChanged && !hasConvergenceChanged && !hasDampingChanged)
+		{
+			// No actual changes detected
+			return;
+		}
+
+		Console.WriteLine($"PDGraph: Parameter changes - Viz: {hasVisualizationChanged}, Clustering: {hasClusteringChanged}, Convergence: {hasConvergenceChanged} ({_previousConvergenceThreshold:F3} -> {ConvergenceThreshold:F3}), Damping: {hasDampingChanged} ({_previousDamping:F3} -> {Damping:F3})");
+
+		// ✅ FIXED: Set flag to prevent cascading and store new values
+		_isUpdatingParameters = true;
+		try
+		{
+			_previousVisualizationConfig = VisualizationConfig;
+			_previousClusteringConfig = ClusteringConfig;
+			_previousConvergenceThreshold = ConvergenceThreshold;
+			_previousDamping = Damping;
+
+			if (hasVisualizationChanged || hasClusteringChanged)
+			{
+				Console.WriteLine("PDGraph: Updating configuration via JavaScript");
+				if (Module != null && _graphData != null)
+				{
+					await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData, ClusteringConfig).ConfigureAwait(false);
+				}
+			}
+			else if (hasConvergenceChanged || hasDampingChanged)
+			{
+				Console.WriteLine($"PDGraph: Updating physics parameters to Convergence: {ConvergenceThreshold:F3}, Damping: {Damping:F3}");
+				if (Module != null)
+				{
+					await Module.InvokeVoidAsync("updatePhysicsParameters", Id, ConvergenceThreshold, Damping).ConfigureAwait(false);
+				}
+			}
+		}
+		finally
+		{
+			_isUpdatingParameters = false;
+		}
 	}
 
 	protected override async Task OnModuleLoadedAsync(bool firstRender)
 	{
 		if (firstRender && Module != null)
 		{
-			await Module.InvokeVoidAsync("initialize", Id).ConfigureAwait(false);
-			
+			// Create a DotNet object reference for JavaScript interop
+			_objRef = DotNetObjectReference.Create(this);
+			await Module.InvokeVoidAsync("initialize", Id, _objRef, ClusteringConfig).ConfigureAwait(false);
+
 			// If we have data already, initialize the layout after module loads
 			if (_graphData?.Nodes != null)
 			{
@@ -140,7 +227,10 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	/// <returns>A task representing the async operation.</returns>
 	public async Task RefreshAsync(CancellationToken cancellationToken = default)
 	{
-		if (DataProvider == null) return;
+		if (DataProvider == null)
+		{
+			return;
+		}
 
 		try
 		{
@@ -150,11 +240,11 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 
 			var request = new DataRequest<GraphData>();
 			var response = await DataProvider.GetDataAsync(request, cancellationToken).ConfigureAwait(false);
-			
+
 			if (response.Items.Any())
 			{
 				_graphData = response.Items.First();
-				
+
 				// Only initialize layout if module is loaded
 				if (Module != null)
 				{
@@ -205,6 +295,35 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	}
 
 	/// <summary>
+	/// Updates the physics simulation parameters.
+	/// </summary>
+	/// <param name="convergenceThreshold">The convergence threshold for physics simulation.</param>
+	public async Task UpdatePhysicsParametersAsync(double convergenceThreshold)
+	{
+		// ✅ FIXED: Check if we're already updating to prevent cascading
+		if (_isUpdatingParameters)
+		{
+			Console.WriteLine($"UpdatePhysicsParametersAsync: Already updating, skipping ({convergenceThreshold:F3})");
+			return;
+		}
+
+		_isUpdatingParameters = true;
+		try
+		{
+			Console.WriteLine($"UpdatePhysicsParametersAsync: Updating from {ConvergenceThreshold:F3} to {convergenceThreshold:F3}");
+			ConvergenceThreshold = convergenceThreshold;
+			if (Module != null)
+			{
+				await Module.InvokeVoidAsync("updatePhysicsParameters", Id, convergenceThreshold).ConfigureAwait(false);
+			}
+		}
+		finally
+		{
+			_isUpdatingParameters = false;
+		}
+	}
+
+	/// <summary>
 	/// Updates the visualization configuration.
 	/// </summary>
 	/// <param name="visualizationConfig">The new visualization configuration.</param>
@@ -223,25 +342,36 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	/// <param name="clusteringConfig">The new clustering configuration.</param>
 	public async Task UpdateConfigurationAsync(GraphVisualizationConfig visualizationConfig, GraphClusteringConfig clusteringConfig)
 	{
-		VisualizationConfig = visualizationConfig;
-		ClusteringConfig = clusteringConfig;
-
-		// ? FIXED: Use updateConfiguration to preserve positions while updating styling
-		if (Module != null && _graphData != null)
+		_isUpdatingParameters = true;
+		try
 		{
-			await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData).ConfigureAwait(false);
+			VisualizationConfig = visualizationConfig;
+			ClusteringConfig = clusteringConfig;
+
+			// ✅ FIXED: Use updateConfiguration to preserve positions while updating styling
+			if (Module != null && _graphData != null)
+			{
+				await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData).ConfigureAwait(false);
+			}
+
+			StateHasChanged();
 		}
-		
-		StateHasChanged();
+		finally
+		{
+			_isUpdatingParameters = false;
+		}
 	}
 
 	private async Task InitializeLayout()
 	{
-		if (_graphData?.Nodes == null) return;
+		if (_graphData?.Nodes == null)
+		{
+			return;
+		}
 
 		// Clear existing positions
 		_nodePositions.Clear();
-		
+
 		// Initialize position tracking dictionary
 		foreach (var node in _graphData.Nodes)
 		{
@@ -251,7 +381,8 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 		// Start the force simulation - use regenerateLayout to force fresh positioning
 		if (Module != null)
 		{
-			await Module.InvokeVoidAsync("regenerateLayout", Id, _graphData).ConfigureAwait(false);
+			// Pass the convergence threshold parameter
+			await Module.InvokeVoidAsync("regenerateLayout", Id, _graphData, ConvergenceThreshold, ClusteringConfig).ConfigureAwait(false);
 		}
 	}
 
@@ -259,7 +390,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	{
 		var config = VisualizationConfig.NodeVisualization;
 		var defaults = VisualizationConfig.Defaults;
-		
+
 		var style = new NodeStyle();
 
 		// Size
@@ -280,7 +411,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 		// Stroke
 		var strokeThickValue = GetDimensionValue(node, config.StrokeThicknessDimension, defaults.NodeStrokeThickness);
 		style.StrokeThickness = config.MinStrokeThickness + (config.MaxStrokeThickness - config.MinStrokeThickness) * strokeThickValue;
-		
+
 		var strokeHue = GetDimensionValue(node, config.StrokeHueDimension, defaults.NodeStrokeHue) * 360;
 		var strokeSaturation = GetDimensionValue(node, config.StrokeSaturationDimension, defaults.NodeStrokeSaturation) * 100;
 		var strokeLuminance = GetDimensionValue(node, config.StrokeLuminanceDimension, defaults.NodeStrokeLuminance) * 100;
@@ -411,7 +542,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 			var fontSize = Math.Max(8, style.Size * 0.6);
 			var textColor = GetContrastingTextColor(style.FillColor);
 			var truncatedLabel = GetTruncatedLabel(node.Label, style.Size);
-			
+
 			builder.OpenElement(0, "text");
 			builder.AddAttribute(1, "class", "node-label");
 			builder.AddAttribute(2, "text-anchor", "middle");
@@ -428,7 +559,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	{
 		var config = VisualizationConfig.EdgeVisualization;
 		var defaults = VisualizationConfig.Defaults;
-		
+
 		var style = new EdgeStyle();
 
 		// Thickness
@@ -501,62 +632,96 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 				return luminance > 50 ? "#212529" : "#ffffff";
 			}
 		}
-		
+
 		// Default to white text for unknown formats
 		return "#ffffff";
 	}
 
 	private async Task OnNodeClick(GraphNode node)
 	{
-		// Clear all selections first
-		if (_graphData?.Nodes != null)
-		{
-			foreach (var n in _graphData.Nodes)
-				n.IsSelected = false;
-		}
-		if (_graphData?.Edges != null)
-		{
-			foreach (var e in _graphData.Edges)
-				e.IsSelected = false;
-		}
+		// ✅ FIXED: Set flag to prevent re-initialization
+		_isUpdatingSelection = true;
 
-		// Select the clicked node
-		node.IsSelected = true;
-		
-		// Set this node as the focus of the multi-dimensional space
-		if (Module != null)
+		try
 		{
-			await Module.InvokeVoidAsync("setFocusNode", Id, node.Id).ConfigureAwait(false);
+			// Clear all selections first
+			if (_graphData?.Nodes != null)
+			{
+				foreach (var n in _graphData.Nodes)
+				{
+					n.IsSelected = false;
+				}
+			}
+			if (_graphData?.Edges != null)
+			{
+				foreach (var e in _graphData.Edges)
+				{
+					e.IsSelected = false;
+				}
+			}
+
+			// Select the clicked node
+			node.IsSelected = true;
+
+			// ✅ FIXED: Update selection in JavaScript without regenerating layout
+			if (Module != null)
+			{
+				await Module.InvokeVoidAsync("updateSelection", Id, node.Id, "node").ConfigureAwait(false);
+				await Module.InvokeVoidAsync("setFocusNode", Id, node.Id).ConfigureAwait(false);
+			}
+
+			await NodeClick.InvokeAsync(node).ConfigureAwait(false);
+			await SelectionChanged.InvokeAsync((node, null)).ConfigureAwait(false);
+
+			// ✅ FIXED: Don't call StateHasChanged() here to avoid triggering refresh
 		}
-		
-		await NodeClick.InvokeAsync(node).ConfigureAwait(false);
-		await SelectionChanged.InvokeAsync((node, null)). ConfigureAwait(false);
-		StateHasChanged();
+		finally
+		{
+			_isUpdatingSelection = false;
+		}
 	}
 
 	private async Task OnEdgeClick(GraphEdge edge)
 	{
-		// Clear all selections first
-		if (_graphData?.Nodes != null)
-		{
-			foreach (var n in _graphData.Nodes)
-				n.IsSelected = false;
-		}
-		if (_graphData?.Edges != null)
-		{
-			foreach (var e in _graphData.Edges)
-				e.IsSelected = false;
-		}
+		// ✅ FIXED: Set flag to prevent re-initialization
+		_isUpdatingSelection = true;
 
-		// Select the clicked edge
-		edge.IsSelected = true;
-		
-		// DO NOT call setFocusNode for edge clicks - only select the edge
-		// No layout changes should happen when clicking edges
-		
-		await EdgeClick.InvokeAsync(edge). ConfigureAwait(false);
-		await SelectionChanged.InvokeAsync((null, edge)).ConfigureAwait(false);
-		StateHasChanged();
+		try
+		{
+			// Clear all selections first
+			if (_graphData?.Nodes != null)
+			{
+				foreach (var n in _graphData.Nodes)
+				{
+					n.IsSelected = false;
+				}
+			}
+			if (_graphData?.Edges != null)
+			{
+				foreach (var e in _graphData.Edges)
+				{
+					e.IsSelected = false;
+				}
+			}
+
+			// Select the clicked edge
+			edge.IsSelected = true;
+
+			// ✅ FIXED: Update selection in JavaScript without regenerating layout
+			if (Module != null)
+			{
+				await Module.InvokeVoidAsync("updateSelection", Id, edge.Id, "edge").ConfigureAwait(false);
+			}
+
+			await EdgeClick.InvokeAsync(edge).ConfigureAwait(false);
+			await SelectionChanged.InvokeAsync((null, edge)).ConfigureAwait(false);
+
+			// ✅ FIXED: Don't call StateHasChanged() here to avoid triggering refresh
+		}
+		finally
+		{
+			_isUpdatingSelection = false;
+		}
 	}
 
 	[JSInvokable]
@@ -581,5 +746,50 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	{
 		_transformMatrix = transform;
 		// Remove StateHasChanged() here to prevent unnecessary re-renders during smooth animations
+	}
+
+	/// <summary>
+	/// JavaScript interop method called when a node is clicked from the JavaScript side.
+	/// </summary>
+	/// <param name="nodeData">The node data from JavaScript.</param>
+	[JSInvokable]
+	public async Task OnNodeClickedFromJS(JsonElement nodeData)
+	{
+		try
+		{
+			Console.WriteLine($"Node clicked from JS: {nodeData}");
+
+			// Find the corresponding node in our graph data
+			if (_graphData?.Nodes != null)
+			{
+				var nodeId = nodeData.GetProperty("id").GetString();
+				var node = _graphData.Nodes.FirstOrDefault(n => n.Id == nodeId);
+
+				if (node != null)
+				{
+					Console.WriteLine($"Found node: {node.Label}, invoking click handler");
+					await OnNodeClick(node).ConfigureAwait(false);
+				}
+				else
+				{
+					Console.WriteLine($"Node with ID {nodeId} not found in graph data");
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error handling node click from JS: {ex.Message}");
+		}
+	}
+
+	public override async ValueTask DisposeAsync()
+	{
+		if (Module != null)
+		{
+			await Module.InvokeVoidAsync("destroy", Id).ConfigureAwait(false);
+		}
+
+		_objRef?.Dispose();
+		await base.DisposeAsync();
 	}
 }

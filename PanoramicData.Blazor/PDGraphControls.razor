@@ -41,12 +41,33 @@
 					</div>
 
 					<div class="mt-2">
+						<label class="form-label">Damping</label>
+						<input type="range" class="form-range" 
+							   min="0.9" max="0.99" step="0.01"
+							   @bind="Damping" 
+							   @bind:after="OnConfigurationChanged" />
+						<small class="text-muted">@Damping.ToString("F2") (higher = faster settling)</small>
+					</div>
+
+					<div class="mt-2">
 						<label class="form-label">Algorithm</label>
 						<select class="form-select form-select-sm" 
 								@bind="ClusteringConfig.Algorithm" 
 								@bind:after="OnConfigurationChanged">
 							<option value="@GraphClusteringAlgorithm.KMeans">K-Means</option>
-							<option value="@GraphClusteringAlgorithm.Hierarchical">Hierarchical</option>
+						</select>
+					</div>
+
+					<div class="mt-2">
+						<label class="form-label">Cluster By</label>
+						<select class="form-select form-select-sm" 
+								@bind="ClusteringConfig.ClusterByDimension" 
+								@bind:after="OnConfigurationChanged">
+							<option value="">None</option>
+							@foreach (var dim in _availableDimensions)
+							{
+								<option value="@dim">@dim</option>
+							}
 						</select>
 					</div>
 				}

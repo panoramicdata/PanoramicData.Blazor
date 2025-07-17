@@ -2,14 +2,14 @@
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem; /* Reduced gap */
+	gap: 0.25rem; /* ? REDUCED: Even smaller gap */
 }
 
 .demo-toolbar {
 	background: #e9ecef;
-	padding: 0.75rem;
-	border-radius: 0.375rem;
-	margin-bottom: 1rem;
+	padding: 0.5rem; /* ? REDUCED: Smaller padding */
+	border-radius: 0.25rem; /* ? REDUCED: Smaller border radius */
+	margin-bottom: 0.5rem; /* ? REDUCED: Less margin */
 	flex-shrink: 0;
 	z-index: 10;
 }
@@ -18,30 +18,30 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.75rem; /* Reduced gap */
-	padding: 0.75rem; /* Reduced padding */
+	gap: 0.5rem; /* ? REDUCED: Smaller gap */
+	padding: 0.5rem; /* ? REDUCED: Smaller padding */
 	background-color: var(--bs-secondary-bg, #e9ecef);
 	border: 1px solid var(--bs-border-color, #dee2e6);
-	border-radius: var(--bs-border-radius, 0.375rem);
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* Reduced shadow */
+	border-radius: 0.25rem; /* ? REDUCED: Smaller border radius */
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* ? REDUCED: Smaller shadow */
 }
 
 .toolbar-group {
 	display: flex;
 	flex-direction: column;
-	gap: 0.2rem; /* Reduced gap */
+	gap: 0.125rem; /* ? REDUCED: Much smaller gap */
 }
 
 .toolbar-group label {
-	font-size: 0.8rem; /* Smaller font */
+	font-size: 0.75rem; /* ? REDUCED: Even smaller font */
 	font-weight: 500;
 	margin: 0;
 	color: var(--bs-body-color, #212529);
-	line-height: 1.2; /* Tighter line height */
+	line-height: 1.1; /* ? REDUCED: Tighter line height */
 }
 
 .demo-toolbar .toolbar-group label {
-	font-size: 0.875rem;
+	font-size: 0.75rem; /* ? REDUCED: Smaller font */
 	margin: 0;
 	font-weight: 500;
 	color: #495057; /* ? Fix: Proper dark text color */
@@ -53,13 +53,15 @@
 
 .toolbar-group .form-select,
 .toolbar-group .btn {
-	min-width: 100px; /* Reduced width */
-	font-size: 0.875rem; /* Smaller font */
-	padding: 0.375rem 0.5rem; /* Smaller padding */
+	min-width: 80px; /* ? REDUCED: Smaller width */
+	font-size: 0.75rem; /* ? REDUCED: Smaller font */
+	padding: 0.25rem 0.375rem; /* ? REDUCED: Much smaller padding */
+	line-height: 1.2; /* ? ADDED: Compact line height */
 }
 
 .toolbar-group .form-check-input {
-	margin-top: 0.2rem; /* Better alignment */
+	margin-top: 0.125rem; /* ? REDUCED: Better alignment */
+	transform: scale(0.9); /* ? ADDED: Smaller checkboxes */
 }
 
 .graph-container {
@@ -171,5 +173,25 @@
 	.toolbar-group .form-select,
 	.toolbar-group .btn {
 		max-width: none;
+	}
+}
+
+.toolbar-group {
+	min-width: fit-content;
+}
+
+	.toolbar-group label.form-label {
+		margin-bottom: 0.25rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+
+	.toolbar-group .form-range {
+		width: 150px;
+	}
+
+@media (max-width: 768px) {
+	.row .col-md-6 {
+		margin-bottom: 1rem;
 	}
 }

@@ -82,7 +82,6 @@ public class PersonDataProvider : DataProviderBase<Person>
 			}
 			catch (TaskCanceledException)
 			{
-				var a = 1;
 			}
 		}
 

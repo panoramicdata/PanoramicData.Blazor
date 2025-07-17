@@ -1,11 +1,12 @@
-﻿using BlazorMonaco.Editor;
+﻿using PanoramicData.Blazor.Services;
+using BlazorMonaco.Editor;
 
 namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDFormPage5
 {
 	private PDForm<DatabaseQueryModel>? _queryForm;
-	private readonly DelegatedDataProvider<DatabaseQueryModel> _dataProvider = new()
+	private readonly DelegatedDataProviderService<DatabaseQueryModel> _dataProvider = new()
 	{
 		UpdateAsync = (model, delta, cancellationToken) =>
 		{

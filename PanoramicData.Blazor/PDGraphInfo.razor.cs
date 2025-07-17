@@ -60,7 +60,7 @@ public partial class PDGraphInfo<TItem> : PDComponentBase where TItem : class
 	/// Gets or sets a callback that is invoked when the configuration changes.
 	/// </summary>
 	[Parameter]
-	public EventCallback<(GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering)> ConfigurationChanged { get; set; }
+	public EventCallback<(GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double Damping)> ConfigurationChanged { get; set; }
 
 	protected override void OnInitialized()
 	{
@@ -90,7 +90,7 @@ public partial class PDGraphInfo<TItem> : PDComponentBase where TItem : class
 		StateHasChanged();
 	}
 
-	private async Task OnConfigurationChanged((GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering) config)
+	private async Task OnConfigurationChanged((GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double Damping) config)
 	{
 		VisualizationConfig = config.Visualization;
 		ClusteringConfig = config.Clustering;

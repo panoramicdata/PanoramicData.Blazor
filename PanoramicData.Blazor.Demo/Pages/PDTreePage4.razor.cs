@@ -1,3 +1,4 @@
+using PanoramicData.Blazor.Services;
 namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDTreePage4
@@ -10,7 +11,7 @@ public partial class PDTreePage4
 
 	public PDTreePage4()
 	{
-		_treeDataProvider = new DelegatedDataProvider<TreeItem>
+		_treeDataProvider = new DelegatedDataProviderService<TreeItem>
 		{
 			GetDataAsync = (DataRequest, cancellationToken) =>
 			{

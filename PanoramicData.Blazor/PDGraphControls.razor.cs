@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Models;
-
 namespace PanoramicData.Blazor;
 
 /// <summary>
@@ -37,10 +34,16 @@ public partial class PDGraphControls<TItem> : PDComponentBase where TItem : clas
 	public List<string> AvailableDimensions { get; set; } = new();
 
 	/// <summary>
+	/// Gets or sets the damping factor for the physics simulation.
+	/// </summary>
+	[Parameter]
+	public double Damping { get; set; } = 0.95;
+
+	/// <summary>
 	/// Gets or sets a callback that is invoked when the configuration changes.
 	/// </summary>
 	[Parameter]
-	public EventCallback<(GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering)> ConfigurationChanged { get; set; }
+	public EventCallback<(GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double damping)> ConfigurationChanged { get; set; }
 
 	protected override void OnInitialized()
 	{
@@ -56,7 +59,7 @@ public partial class PDGraphControls<TItem> : PDComponentBase where TItem : clas
 	{
 		base.OnParametersSet();
 		_availableDimensions = AvailableDimensions ?? new List<string>();
-		
+
 		// Add meaningful dimensions for the innovation knowledge graph
 		if (_availableDimensions.Count == 0)
 		{
@@ -72,7 +75,7 @@ public partial class PDGraphControls<TItem> : PDComponentBase where TItem : clas
 	{
 		if (!IsReadOnly)
 		{
-			await ConfigurationChanged.InvokeAsync((VisualizationConfig, ClusteringConfig)).ConfigureAwait(false);
+			await ConfigurationChanged.InvokeAsync((VisualizationConfig, ClusteringConfig, Damping)).ConfigureAwait(false);
 		}
 	}
 }

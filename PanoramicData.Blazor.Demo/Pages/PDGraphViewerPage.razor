@@ -1,6 +1,7 @@
-@page "/pdgraphviewer"
+﻿@page "/pdgraphviewer"
 @using PanoramicData.Blazor.Demo.Data
 @using PanoramicData.Blazor.Models
+@implements IDisposable
 
 <h1>PDGraphViewer</h1>
 <p class="text-muted">A comprehensive graph visualization component with multi-dimensional data visualization, interactive nodes and edges, configurable clustering, and dark mode support.</p>
@@ -10,41 +11,76 @@
 	<div class="graph-demo">
 		<div class="demo-toolbar">
 			<EditForm Model="this" class="toolbar">
-				<div class="toolbar-group">
-					<label class="form-check-label">Show Info Panel</label>
-					<InputCheckbox @bind-Value="_showInfo" />
-				</div>
+				<!-- ✅ NEW: Bootstrap two-column layout for controls -->
+				<div class="row g-3">
+					<div class="col-md-6">
+						<div class="d-flex flex-wrap gap-3">
+							<div class="toolbar-group">
+								<div class="form-check">
+									<InputCheckbox @bind-Value="_showInfo" class="form-check-input" id="showInfoPanel" />
+									<label class="form-check-label" for="showInfoPanel">Show Info Panel</label>
+								</div>
+							</div>
 
-				<div class="toolbar-group">
-					<label class="form-check-label">Show Controls</label>
-					<InputCheckbox @bind-Value="_showControls" />
-				</div>
+							<div class="toolbar-group">
+								<div class="form-check">
+									<InputCheckbox @bind-Value="_showControls" class="form-check-input" id="showControls" />
+									<label class="form-check-label" for="showControls">Show Controls</label>
+								</div>
+							</div>
 
-				<div class="toolbar-group">
-					<label class="form-check-label">Read-only Controls</label>
-					<InputCheckbox @bind-Value="_readOnlyControls" />
-				</div>
+							<div class="toolbar-group">
+								<div class="form-check">
+									<InputCheckbox @bind-Value="_readOnlyControls" class="form-check-input" id="readOnlyControls" />
+									<label class="form-check-label" for="readOnlyControls">Read-only Controls</label>
+								</div>
+							</div>
 
-				<div class="toolbar-group">
-					<label class="form-label">Split Direction</label>
-					<select class="form-select form-select-sm" @bind="_splitDirection">
-						<option value="@SplitDirection.Horizontal">Horizontal</option>
-						<option value="@SplitDirection.Vertical">Vertical</option>
-					</select>
-				</div>
+							<div class="toolbar-group">
+								<label class="form-label">Split Direction</label>
+								<select class="form-select form-select-sm" @bind="_splitDirection">
+									<option value="@SplitDirection.Horizontal">Horizontal</option>
+									<option value="@SplitDirection.Vertical">Vertical</option>
+								</select>
+							</div>
+						</div>
+					</div>
 
-				<div class="toolbar-group">
-					<button type="button" class="btn btn-primary btn-sm" @onclick="OnRefreshData">
-						<i class="fas fa-sync-alt me-1"></i>
-						Refresh Data
-					</button>
-				</div>
+					<div class="col-md-6">
+						<div class="d-flex flex-wrap gap-3 align-items-end">
+							<div class="toolbar-group">
+								<label class="form-label">Convergence Threshold</label>
+								<input type="range" class="form-range" 
+									   min="0.001" max="0.1" step="0.001"
+									   @bind="_convergenceThreshold"
+									   @bind:after="OnConvergenceThresholdChanged" />
+								<small class="text-muted">@_convergenceThreshold.ToString("F3") (lower = longer physics)</small>
+							</div>
 
-				<div class="toolbar-group">
-					<button type="button" class="btn btn-secondary btn-sm" @onclick="OnFitToView">
-						<i class="fas fa-expand-arrows-alt me-1"></i>
-						Fit to View
-					</button>
+							<div class="toolbar-group">
+								<label class="form-label">Damping</label>
+								<input type="range" class="form-range"
+									   min="0.2" max="0.95" step="0.05"
+									   @bind="_damping"
+									   @bind:after="OnDampingChanged" />
+								<small class="text-muted">@_damping.ToString("F2")</small>
+							</div>
+
+							<div class="toolbar-group">
+								<button type="button" class="btn btn-primary btn-sm" @onclick="OnRefreshData">
+									<i class="fas fa-sync-alt me-1"></i>
+									Refresh Data
+								</button>
+							</div>
+
+							<div class="toolbar-group">
+								<button type="button" class="btn btn-secondary btn-sm" @onclick="OnFitToView">
+									<i class="fas fa-expand-arrows-alt me-1"></i>
+									Fit to View
+								</button>
+							</div>
+						</div>
+					</div>
 				</div>
 			</EditForm>
 		</div>
@@ -59,6 +95,7 @@
 						   ReadOnlyControls="_readOnlyControls"
 						   VisualizationConfig="_visualizationConfig"
 						   ClusteringConfig="_clusteringConfig"
+						   ConvergenceThreshold="_convergenceThreshold"
 						   NodeClick="OnNodeClick"
 						   EdgeClick="OnEdgeClick"
 						   SelectionChanged="OnSelectionChanged"
@@ -90,7 +127,7 @@
 				<h6><i class="fas fa-minus me-2"></i>Selected Edge</h6>
 				<strong>@(!string.IsNullOrEmpty(_selectedEdge.Label) ? _selectedEdge.Label : "Connection")</strong> (ID: @_selectedEdge.Id)
 				<br />
-				From: @_selectedEdge.FromNodeId ? To: @_selectedEdge.ToNodeId
+				From: @_selectedEdge.FromNodeId → To: @_selectedEdge.ToNodeId
 				<br />
 				Strength: @_selectedEdge.Strength.ToString("F2")
 				@if (_selectedEdge.Dimensions.Any())

@@ -55,7 +55,10 @@ public partial class PDTabSet : ComponentBase
 				ActiveTab = Tabs.FirstOrDefault();
 			}
 			if (OnTabClosed.HasDelegate)
+			{
 				OnTabClosed.InvokeAsync(tab);
+			}
+
 			StateHasChanged();
 		}
 	}

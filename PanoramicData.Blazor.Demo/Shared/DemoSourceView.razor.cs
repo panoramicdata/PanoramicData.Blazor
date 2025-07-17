@@ -14,6 +14,8 @@ public partial class DemoSourceView
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
 
+	[Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+
 	/// <summary>
 	/// Sets the child content that the drop zone wraps.
 	/// </summary>
@@ -110,7 +112,7 @@ public partial class DemoSourceView
 			if (extnChanged)
 			{
 				var model = await Editor.GetModel().ConfigureAwait(true);
-				await Global.SetModelLanguage(model, GetLanguageForFile(_activeSourceFile)).ConfigureAwait(true);
+				await Global.SetModelLanguage(JSRuntime, model, GetLanguageForFile(_activeSourceFile)).ConfigureAwait(true);
 			}
 		}
 	}
