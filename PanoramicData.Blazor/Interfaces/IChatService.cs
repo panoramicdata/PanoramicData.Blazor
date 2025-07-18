@@ -1,4 +1,5 @@
-﻿namespace PanoramicData.Blazor.Interfaces;
+﻿
+namespace PanoramicData.Blazor.Interfaces;
 
 public interface IChatService
 {
@@ -7,6 +8,12 @@ public interface IChatService
 	/// If not, the UI should either not display the chat interface, grey out the chat bubble, or display a "Chat is unavailable" message.
 	/// </summary>
 	bool IsLive { get; }
+
+	/// <summary>
+	/// Gets the current dock mode preference for the chat interface.
+	/// This allows the service to remember user's preferred chat positioning.
+	/// </summary>
+	PDChatDockMode DockMode { get; set; }
 
 	/// <summary>
 	/// Gets the current dock mode preference for the chat interface.

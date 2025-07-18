@@ -3,44 +3,44 @@
 
 @if (IsSplitMode)
 {
-    <div class="pdchat-container-wrapper">
-        <PDSplitter @key="@($"chat-splitter-{_currentDockMode}")" 
-                    Direction="@GetSplitDirection()" 
-                    GutterSize="@GutterSize" 
-                    CssClass="pdchat-container-splitter">
-            @if (IsChatFirstPanel())
-            {
-                <PDSplitPanel @key="@($"chat-panel-{_currentDockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
-                    <CascadingValue Value="this" Name="ChatContainer">
-                        @ChatContent
-                    </CascadingValue>
-                </PDSplitPanel>
-                <PDSplitPanel @key="@($"content-panel-{_currentDockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
-                    @ChildContent
-                </PDSplitPanel>
-            }
-            else
-            {
-                <PDSplitPanel @key="@($"content-panel-{_currentDockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
-                    @ChildContent
-                </PDSplitPanel>
-                <PDSplitPanel @key="@($"chat-panel-{_currentDockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
-                    <CascadingValue Value="this" Name="ChatContainer">
-                        @ChatContent
-                    </CascadingValue>
-                </PDSplitPanel>
-            }
-        </PDSplitter>
-    </div>
+	<div class="pdchat-container-wrapper">
+		<PDSplitter @key="@($"chat-splitter-{ChatService.DockMode}")"
+					Direction="@SplitDirection.Horizontal"
+					GutterSize="@GutterSize"
+					CssClass="pdchat-container-splitter">
+			@if (ChatService.DockMode == PDChatDockMode.Left)
+			{
+				<PDSplitPanel @key="@($"chat-panel-{ChatService.DockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
+					<CascadingValue Value="this" Name="ChatContainer">
+						@ChatContent
+					</CascadingValue>
+				</PDSplitPanel>
+				<PDSplitPanel @key="@($"content-panel-{ChatService.DockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
+					@ChildContent
+				</PDSplitPanel>
+			}
+			else
+			{
+				<PDSplitPanel @key="@($"content-panel-{ChatService.DockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
+					@ChildContent
+				</PDSplitPanel>
+				<PDSplitPanel @key="@($"chat-panel-{ChatService.DockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
+					<CascadingValue Value="this" Name="ChatContainer">
+						@ChatContent
+					</CascadingValue>
+				</PDSplitPanel>
+			}
+		</PDSplitter>
+	</div>
 }
 else
 {
-    @* For non-split modes (corners, fullscreen, minimized), render content normally with chat as overlay *@
-    <div class="pdchat-container-wrapper">
-        @ChildContent
-        <CascadingValue Value="this" Name="ChatContainer">
-            @ChatContent
-        </CascadingValue>
-    </div>
+	@* For non-split modes (corners, fullscreen, minimized), render content normally with chat as overlay *@
+	<div class="pdchat-container-wrapper">
+		@ChildContent
+		<CascadingValue Value="this" Name="ChatContainer">
+			@ChatContent
+		</CascadingValue>
+	</div>
 }
 

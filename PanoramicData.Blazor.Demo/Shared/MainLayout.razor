@@ -31,13 +31,11 @@
 			</div>
 		</div>
 
-		@* NEW SIMPLIFIED USAGE - No manual dock mode management required! *@
-		<PDChatContainer InitialDockMode="PDChatDockMode.Minimized"
+		<PDChatContainer ChatService="ChatService" 
 						 DockModeChanged="@OnDockModeChanged"
 						 ChatPanelSize="2" 
 						 GutterSize="6">
 			<ChatContent>
-				@* Chat is always enabled - no conditional rendering *@
 				<PDChat ChatService="ChatService"
 						UserIconSelector="GetUserIcon"
 						PriorityIconSelector="GetPriorityIcon"
@@ -45,7 +43,7 @@
 						User="User" />
 			</ChatContent>
 			<ChildContent>
-				@* Only the main content area goes here *@
+				@* The main content area goes here *@
 				<div class="content px-4">
 					<CascadingValue Value="_eventManager">
 						@Body

@@ -259,6 +259,8 @@ public class DumbChatService : IChatService, IDisposable
 
 	public bool IsLive => _isInitialized && _isOnline;
 
+	public PDChatDockMode DockMode { get; set; }
+
 	private void SendTimeCheck(object? state)
 	{
 		var message = new ChatMessage
@@ -273,7 +275,7 @@ public class DumbChatService : IChatService, IDisposable
 
 		// Add to service's message collection
 		_messages.Add(message);
-		
+
 		OnMessageReceived?.Invoke(message);
 	}
 
@@ -415,5 +417,17 @@ public class DumbChatService : IChatService, IDisposable
 		};
 		_messages.Add(finalResponse);
 		OnMessageReceived?.Invoke(finalResponse);
+	}
+
+	public Task SetDockModeAsync(PDChatDockMode newMode)
+	{
+		if (DockMode == newMode)
+		{
+			return Task.CompletedTask;
+		}
+
+		DockMode = newMode;
+		OnDockModeChanged?.Invoke(DockMode);
+		return Task.CompletedTask;
 	}
 }

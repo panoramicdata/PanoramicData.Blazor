@@ -10,23 +10,12 @@ public partial class PDChat : JSModuleComponentBase
 	[Parameter]
 	public required ChatMessageSender User { get; set; }
 
-	[Parameter]
-	public PDChatDockMode DockMode { get; set; } = PDChatDockMode.Minimized;
-
-	[Parameter]
-	public EventCallback<PDChatDockMode> DockModeChanged { get; set; }
-
 	/// <summary>
 	/// Cascading parameter to get the parent chat container, if any.
 	/// When present, dock mode changes will be automatically synchronized.
 	/// </summary>
-	[CascadingParameter(Name = "ChatContainer")] 
+	[CascadingParameter(Name = "ChatContainer")]
 	public PDChatContainer? Container { get; set; }
-
-	/// <summary>
-	/// Gets the effective dock mode - either from container or local parameter.
-	/// </summary>
-	private PDChatDockMode EffectiveDockMode => Container?.GetCurrentDockMode() ?? DockMode;
 
 	[Parameter]
 	public PDChatDockPosition ChatDockPosition { get; set; } = PDChatDockPosition.Right;
@@ -73,30 +62,14 @@ public partial class PDChat : JSModuleComponentBase
 	private DateTimeOffset _lastReadTimestamp = DateTimeOffset.UtcNow;
 	private string _currentInput = "";
 
-	// === CLEAN STATE MACHINE ===
-	
-	/// <summary>
-	/// The current dock mode - single source of truth.
-	/// </summary>
-	private PDChatDockMode _currentState = PDChatDockMode.Minimized;
-	
-	/// <summary>
-	/// The last normal state - used for restore operations.
-	/// This is the state to restore to when minimizing/restoring or maximizing/restoring.
-	/// </summary>
-	private PDChatDockMode _lastNormalState = PDChatDockMode.BottomRight;
-
 	private readonly List<ChatMessage> _messages = [];
 	private PDTabSet? _tabSetRef;
-	private PDMessages? _pdMessages;
+	private PDChatDockMode? _restoreDockMode;
 
 	protected override string ModulePath => "./_content/PanoramicData.Blazor/PDChat.razor.js";
 
 	protected override Task OnInitializedAsync()
 	{
-		// Initialize the state machine properly
-		InitializeStateMachine();
-
 		// Load existing messages from the service
 		_messages.Clear();
 		_messages.AddRange(ChatService.Messages);
@@ -114,67 +87,25 @@ public partial class PDChat : JSModuleComponentBase
 	}
 
 	/// <summary>
-	/// Initialize the state machine with proper fallbacks and state consistency.
-	/// </summary>
-	private void InitializeStateMachine()
-	{
-		// 1. Set current state from parameter
-		_currentState = DockMode;
-		
-		// 2. Set last normal state from service or use a sensible default
-		_lastNormalState = IsNormalDockMode(ChatService.RestoreMode) ? ChatService.RestoreMode : PDChatDockMode.BottomRight;
-		
-		// 3. Ensure service has valid restore mode
-		ChatService.RestoreMode = _lastNormalState;
-	}
-
-	/// <summary>
 	/// Change the dock mode state with proper state tracking.
 	/// </summary>
 	private async Task ChangeDockModeAsync(PDChatDockMode newMode)
 	{
-		if (_currentState == newMode)
+		if (ChatService.DockMode is not PDChatDockMode.Minimized and not PDChatDockMode.FullScreen)
 		{
+			_restoreDockMode = ChatService.DockMode;
+		}
+
+		// Notify container if there is one, and let it handle the changes
+		if (Container is not null)
+		{
+			await Container.OnInternalDockModeChanged(newMode);
 			return;
 		}
 
-		var previousState = _currentState;
-
-		// Update last normal state when leaving a normal mode
-		if (IsNormalDockMode(_currentState))
-		{
-			_lastNormalState = _currentState;
-			ChatService.RestoreMode = _currentState;
-		}
-
-		// Update current state
-		_currentState = newMode;
-		DockMode = newMode;
-
-		// Update service state
-		if (IsNormalDockMode(newMode))
-		{
-			ChatService.PreferredDockMode = newMode;
-		}
-
-		// Notify container
-		if (Container != null)
-		{
-			await Container.OnInternalDockModeChanged(newMode);
-		}
-
-		// Notify external listeners
-		await DockModeChanged.InvokeAsync(newMode);
+		ChatService.DockMode = newMode;
 
 		StateHasChanged();
-	}
-
-	/// <summary>
-	/// Get the current effective dock mode, accounting for container override.
-	/// </summary>
-	private PDChatDockMode GetEffectiveDockMode()
-	{
-		return Container?.GetCurrentDockMode() ?? _currentState;
 	}
 
 	private void OnLiveStatusChanged(bool obj)
@@ -183,13 +114,7 @@ public partial class PDChat : JSModuleComponentBase
 	}
 
 	private void OnServiceDockModeChanged(PDChatDockMode newDockMode)
-	{
-		// Update our dock mode when the service preference changes
-		if (_currentState != newDockMode && IsNormalDockMode(newDockMode))
-		{
-			_ = ChangeDockModeAsync(newDockMode);
-		}
-	}
+		=> _ = ChangeDockModeAsync(newDockMode);
 
 	private void OnServiceMuteStatusChanged(bool isMuted)
 	{
@@ -229,7 +154,7 @@ public partial class PDChat : JSModuleComponentBase
 			await OnMessageReceivedEvent.InvokeAsync(message);
 		}
 
-		if (GetEffectiveDockMode() == PDChatDockMode.Minimized)
+		if (ChatService.DockMode == PDChatDockMode.Minimized)
 		{
 			_unreadMessages = true;
 
@@ -242,7 +167,7 @@ public partial class PDChat : JSModuleComponentBase
 			// Optionally auto-restore the chat when new messages arrive
 			if (ChatService.AutoRestoreOnNewMessage && isNewMessage && message.Type != MessageType.Typing)
 			{
-				await ChangeDockModeAsync(_lastNormalState);
+				await ChangeDockModeAsync(ChatService.RestoreMode);
 				_unreadMessages = false;
 				_highestPriorityUnreadMessage = MessageType.Normal;
 				_lastReadTimestamp = DateTimeOffset.UtcNow;
@@ -266,20 +191,12 @@ public partial class PDChat : JSModuleComponentBase
 		await InvokeAsync(StateHasChanged);
 	}
 
-	public void ShowToast(ChatMessage message)
-	{
-		_messages.Add(message);
-		InvokeAsync(StateHasChanged);
-	}
-
 	private async Task ToggleChatAsync()
 	{
-		var currentMode = GetEffectiveDockMode();
-		
-		if (currentMode == PDChatDockMode.Minimized)
+		if (ChatService.DockMode == PDChatDockMode.Minimized)
 		{
 			// Restore to last normal state
-			await ChangeDockModeAsync(_lastNormalState);
+			await ChangeDockModeAsync(ChatService.RestoreMode);
 			_unreadMessages = false;
 			_highestPriorityUnreadMessage = MessageType.Normal;
 			_lastReadTimestamp = DateTimeOffset.UtcNow;
@@ -316,12 +233,10 @@ public partial class PDChat : JSModuleComponentBase
 
 	private async Task ToggleFullScreenAsync()
 	{
-		var currentMode = GetEffectiveDockMode();
-		
-		if (currentMode == PDChatDockMode.FullScreen)
+		if (ChatService.DockMode == PDChatDockMode.FullScreen)
 		{
 			// Restore to last normal state
-			await ChangeDockModeAsync(_lastNormalState);
+			await ChangeDockModeAsync(ChatService.RestoreMode);
 
 			if (OnChatRestored.HasDelegate)
 			{
@@ -360,35 +275,19 @@ public partial class PDChat : JSModuleComponentBase
 
 	private async Task DockToSideAsync()
 	{
-		var currentMode = GetEffectiveDockMode();
-		
 		// Determine which side to dock to based on current position
-		var newDockMode = currentMode switch
+		await ChangeDockModeAsync(ChatService.DockMode switch
 		{
 			PDChatDockMode.TopRight or PDChatDockMode.BottomRight => PDChatDockMode.Right,
 			PDChatDockMode.TopLeft or PDChatDockMode.BottomLeft => PDChatDockMode.Left,
 			_ => PDChatDockMode.Right // Default to right for other cases
-		};
-
-		// If we're already in that mode, don't do anything
-		if (currentMode == newDockMode)
-		{
-			return;
-		}
-
-		// Dock to split mode
-		await ChangeDockModeAsync(newDockMode);
-
-		if (OnChatRestored.HasDelegate)
-		{
-			await OnChatRestored.InvokeAsync();
-		}
+		});
 	}
 
 	private async Task UnpinFromSideAsync()
 	{
 		// Restore to last normal state (should be a corner position)
-		await ChangeDockModeAsync(_lastNormalState);
+		await ChangeDockModeAsync(_restoreDockMode ?? ChatService.RestoreMode);
 
 		if (OnChatRestored.HasDelegate)
 		{
@@ -437,26 +336,22 @@ public partial class PDChat : JSModuleComponentBase
 				IsRenamingEnabled = true
 			};
 
-			// Add PDMonaco editor as child content when in fullscreen mode
-			if (GetEffectiveDockMode() == PDChatDockMode.FullScreen)
+			newTab.ChildContent = builder =>
 			{
-				newTab.ChildContent = builder =>
-				{
-					builder.OpenComponent<PDMonacoEditor>(0);
-					builder.AddAttribute(1, "Language", "csharp");
-					builder.AddAttribute(2, "Theme", "vs-dark");
-					builder.AddAttribute(3, "InitializeOptions", new Func<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(() =>
-						new BlazorMonaco.Editor.StandaloneEditorConstructionOptions
-						{
-							AutomaticLayout = true,
-							Language = "csharp",
-							Theme = "vs-dark",
-							Value = "// Welcome to the Monaco Editor!\n// Start coding here...\n",
-							Minimap = new BlazorMonaco.Editor.EditorMinimapOptions { Enabled = false }
-						}));
-					builder.CloseComponent();
-				};
-			}
+				builder.OpenComponent<PDMonacoEditor>(0);
+				builder.AddAttribute(1, "Language", "csharp");
+				builder.AddAttribute(2, "Theme", "vs-dark");
+				builder.AddAttribute(3, "InitializeOptions", new Func<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(() =>
+					new BlazorMonaco.Editor.StandaloneEditorConstructionOptions
+					{
+						AutomaticLayout = true,
+						Language = "csharp",
+						Theme = "vs-dark",
+						Value = "// Welcome to the Monaco Editor!\n// Start coding here...\n",
+						Minimap = new BlazorMonaco.Editor.EditorMinimapOptions { Enabled = false }
+					}));
+				builder.CloseComponent();
+			};
 
 			_tabSetRef.AddTab(newTab);
 			_tabSetRef.StartRenamingTab(newTab);
@@ -487,19 +382,6 @@ public partial class PDChat : JSModuleComponentBase
 		_highestPriorityUnreadMessage = unreadNonTypingMessages
 			.Select(m => m.Type)
 			.Max(); // MessageType enum values are ordered by priority
-	}
-
-	// Helper method to check if a mode is a split mode
-	private static bool IsSplitMode(PDChatDockMode mode)
-	{
-		return mode is PDChatDockMode.Left or PDChatDockMode.Right;
-	}
-
-	// Helper method to check if current mode is a corner mode
-	private static bool IsCornerMode(PDChatDockMode mode)
-	{
-		return mode is PDChatDockMode.BottomRight or PDChatDockMode.TopRight
-					   or PDChatDockMode.BottomLeft or PDChatDockMode.TopLeft;
 	}
 
 	// Helper method to get the bootstrap color class based on message priority
@@ -565,10 +447,8 @@ public partial class PDChat : JSModuleComponentBase
 	// Helper method to get CSS classes for dock mode positioning
 	private string GetDockModeClasses()
 	{
-		var effectiveMode = GetEffectiveDockMode();
-		
 		// If minimized, always use minimized logic regardless of container state
-		if (effectiveMode == PDChatDockMode.Minimized)
+		if (ChatService.DockMode == PDChatDockMode.Minimized)
 		{
 			// When minimized, use the service's MinimizedButtonPosition to position the button
 			var buttonPositionClass = ChatService.MinimizedButtonPosition switch
@@ -582,15 +462,14 @@ public partial class PDChat : JSModuleComponentBase
 			};
 			return $"{buttonPositionClass} dock-minimized";
 		}
-		
-		// In split mode, use different positioning logic (only when not minimized)
-		if (Container != null && Container.IsSplitMode)
+
+		// Check if we're in a container that's handling split mode
+		if (Container?.IsSplitMode == true && (ChatService.DockMode == PDChatDockMode.Left || ChatService.DockMode == PDChatDockMode.Right))
 		{
-			// When inside a split container, don't use overlay positioning
 			return "dock-split-panel";
 		}
 
-		return effectiveMode switch
+		return ChatService.DockMode switch
 		{
 			PDChatDockMode.BottomRight => "dock-bottom-right",
 			PDChatDockMode.TopRight => "dock-top-right",
@@ -601,44 +480,6 @@ public partial class PDChat : JSModuleComponentBase
 			PDChatDockMode.Right => "dock-right",
 			_ => "dock-bottom-right" // Default fallback
 		};
-	}
-
-	// Helper method to get the appropriate split direction based on chat dock position
-	private SplitDirection GetSplitDirection()
-	{
-		return ChatDockPosition switch
-		{
-			PDChatDockPosition.Left or PDChatDockPosition.Right => SplitDirection.Horizontal,
-			_ => SplitDirection.Horizontal // Default to horizontal
-		};
-	}
-
-	// Helper method to determine if chat should be the first panel
-	private bool IsChatFirstPanel()
-	{
-		return ChatDockPosition switch
-		{
-			PDChatDockPosition.Left => true,
-			PDChatDockPosition.Right => false,
-			_ => false // Default chat on the right (second panel)
-		};
-	}
-
-	// Helper method to check if a dock mode is a "normal" docked position (not minimized or fullscreen)
-	private static bool IsNormalDockMode(PDChatDockMode mode)
-	{
-		return mode != PDChatDockMode.Minimized && mode != PDChatDockMode.FullScreen;
-	}
-
-	/// <summary>
-	/// Debug method to get current state machine state (for development/testing).
-	/// </summary>
-	public string GetStateMachineDebugInfo()
-	{
-		return $"Current: {_currentState}, " +
-		       $"Effective: {GetEffectiveDockMode()}, " +
-		       $"LastNormal: {_lastNormalState}, " +
-		       $"ServiceRestore: {ChatService.RestoreMode}";
 	}
 
 	public override async ValueTask DisposeAsync()

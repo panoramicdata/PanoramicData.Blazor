@@ -32,21 +32,13 @@ public partial class PDChatContainer : ComponentBase
 	[Parameter] public int ChatMinSize { get; set; } = 200;
 	[Parameter] public int ContentMinSize { get; set; } = 200;
 
-	// Internal dock mode management - no longer exposed as a parameter
-	private PDChatDockMode _currentDockMode;
+	[Parameter] public required IChatService ChatService { get; set; }
 
 	/// <summary>
 	/// Gets whether the container is currently in split mode.
-	/// Used by child components to adjust their behavior.
+	/// Used by child components to adjust their behaviour.
 	/// </summary>
-	internal bool IsSplitMode => _currentDockMode is PDChatDockMode.Left or PDChatDockMode.Right;
-
-	protected override void OnInitialized()
-	{
-		// Initialize internal dock mode from the initial parameter
-		_currentDockMode = InitialDockMode;
-		base.OnInitialized();
-	}
+	internal bool IsSplitMode => ChatService.DockMode is PDChatDockMode.Left or PDChatDockMode.Right;
 
 	/// <summary>
 	/// Internal method called by PDChat when dock mode changes.
@@ -54,41 +46,14 @@ public partial class PDChatContainer : ComponentBase
 	/// </summary>
 	internal async Task OnInternalDockModeChanged(PDChatDockMode newDockMode)
 	{
-		if (_currentDockMode != newDockMode)
-		{
-			_currentDockMode = newDockMode;
-			StateHasChanged();
+		ChatService.DockMode = newDockMode;
 
-			// Optionally notify external listeners
-			if (DockModeChanged.HasDelegate)
-			{
-				await DockModeChanged.InvokeAsync(newDockMode);
-			}
+		StateHasChanged();
+
+		// Optionally notify external listeners
+		if (DockModeChanged.HasDelegate)
+		{
+			await DockModeChanged.InvokeAsync(newDockMode);
 		}
-	}
-
-	/// <summary>
-	/// Gets the current dock mode for child components.
-	/// This ensures PDChat uses the container's dock mode.
-	/// </summary>
-	internal PDChatDockMode GetCurrentDockMode() => _currentDockMode;
-
-	private SplitDirection GetSplitDirection()
-	{
-		return _currentDockMode switch
-		{
-			PDChatDockMode.Left or PDChatDockMode.Right => SplitDirection.Horizontal,
-			_ => SplitDirection.Horizontal
-		};
-	}
-
-	private bool IsChatFirstPanel()
-	{
-		return _currentDockMode switch
-		{
-			PDChatDockMode.Left => true,
-			PDChatDockMode.Right => false,
-			_ => false
-		};
 	}
 }

@@ -1,140 +1,139 @@
 ﻿@using static PanoramicData.Blazor.PDResizePane
 @inherits JSModuleComponentBase
 
-<div class="pdchat-container @GetDockModeClasses() @( GetEffectiveDockMode() != PDChatDockMode.Minimized ? "open" : "" )">
-	@if (GetEffectiveDockMode() != PDChatDockMode.Minimized)
+<div class="pdchat-container @GetDockModeClasses() @( ChatService.DockMode != PDChatDockMode.Minimized ? "open" : "" )">
+	@switch (ChatService.DockMode)
 	{
-		<div class="pdchat-window@(GetEffectiveDockMode() == PDChatDockMode.FullScreen ? " fullscreen" : string.Empty)">
-			<div class="pdchat-header">
-				<span class="pdchat-title">@ChatService.Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
-				@if (ChatService.IsClearPermitted && _messages.Count > 0)
-				{
-					<button class="pdchat-header-btn" @onclick="ClearChatAsync" title="Clear Chat">
-						<span>🗑️</span>
-					</button>
-				}
-				<button class="pdchat-header-btn" @onclick="ToggleMuteAsync" title="@(_isMuted ? "Unmute" : "Mute")">
-					<span>@(_isMuted ? "🔇" : "🔊")</span>
+		case PDChatDockMode.Minimized:
+			@if (ChatService.MinimizedButtonPosition != PDChatButtonPosition.None)
+			{
+				<button class="pdchat-toggle-collapsed @GetBootstrapColorClass() @GetAnimationClass()"
+						@onclick="ToggleChatAsync"
+						title="Open Chat (@_messages.Count message@(_messages.Count != 1 ? "s" : ""))">
+					<span>@CollapsedIcon</span>
+					@if (!string.IsNullOrEmpty(GetPriorityIndicator()))
+					{
+						<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>
+					}
 				</button>
-				@* Show dock to side button for corner modes *@
-				@if (IsCornerMode(GetEffectiveDockMode()))
-				{
-					<button class="pdchat-header-btn" @onclick="DockToSideAsync" title="Dock to Side">
-						<span>▷</span>
+			}
+			break;
+		default:
+			<div class="pdchat-window@(ChatService.DockMode == PDChatDockMode.FullScreen ? " fullscreen" : string.Empty)">
+				<div class="pdchat-header">
+					<span class="pdchat-title">@ChatService.Title@(ChatService.IsLive ? string.Empty : " (Offline)")</span>
+					@if (ChatService.IsClearPermitted && _messages.Count > 0)
+					{
+						<button class="pdchat-header-btn" @onclick="ClearChatAsync" title="Clear Chat">
+							<span>🗑️</span>
+						</button>
+					}
+					<button class="pdchat-header-btn" @onclick="ToggleMuteAsync" title="@(_isMuted ? "Unmute" : "Mute")">
+						<span>@(_isMuted ? "🔇" : "🔊")</span>
 					</button>
-				}
-				@* Show unpin button when in split mode *@
-				@if (IsSplitMode(GetEffectiveDockMode()))
-				{
-					<button class="pdchat-header-btn" @onclick="UnpinFromSideAsync" title="Unpin from Side">
-						<span>▽</span>
-					</button>
-				}
-				@if (ChatService.IsMaximizePermitted)
-				{
-					<button class="pdchat-header-btn" @onclick="ToggleFullScreenAsync" title="@(GetEffectiveDockMode() == PDChatDockMode.FullScreen ? "Restore" : "Fullscreen")">
-						<span>@(GetEffectiveDockMode() == PDChatDockMode.FullScreen ? "🗗" : "🗖")</span>
-					</button>
-				}
-				<button class="pdchat-close" @onclick="ToggleChatAsync" title="Minimize">🗕</button>
-			</div>
+					@* Show dock to side button for corner modes *@
+					@if (ChatService.DockMode is PDChatDockMode.BottomRight or PDChatDockMode.TopRight
+					   or PDChatDockMode.BottomLeft or PDChatDockMode.TopLeft)
+					{
+						<button class="pdchat-header-btn" @onclick="DockToSideAsync" title="Dock to Side">
+							<span>▷</span>
+						</button>
+					}
+					@* Show unpin button when in split mode *@
+					@if (ChatService.DockMode is PDChatDockMode.Left or PDChatDockMode.Right)
+					{
+						<button class="pdchat-header-btn" @onclick="UnpinFromSideAsync" title="Unpin from Side">
+							<span>🗗</span>
+						</button>
+					}
 
-			@if (GetEffectiveDockMode() == PDChatDockMode.FullScreen && ChatService.IsCanvasUsePermitted)
-			{
-				<PDSplitter Direction="@GetSplitDirection()" GutterSize="6" CssClass="pdchat-splitter">
-					@if (IsChatFirstPanel())
+					@if (ChatService.IsMaximizePermitted)
 					{
-						<PDSplitPanel Size="2" MinSize="200">
-							<PDMessages @ref="_pdMessages"
-								Messages="_messages"
-								CurrentInput="@_currentInput"
-								CurrentInputChanged="@((string v) => _currentInput = v)"
-								IsLive="@ChatService.IsLive"
-								CanSend="@CanSend"
-								OnSendClicked="SendCurrentMessageAsync"
-								UserIconSelector="UserIconSelector"
-								UseFullWidthMessages="@ChatService.UseFullWidthMessages"
-								MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
-								ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
-								ShowMessageUserName="@ChatService.ShowMessageUserName"
-								ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
-								MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
-						</PDSplitPanel>
-						<PDSplitPanel Size="3" MinSize="200">
-							<div class="pdchat-canvas-flex">
-								<PDTabSet @ref="_tabSetRef" 
-									IsTabClosingEnabled="true"
-									IsTabAdditionEnabled="true"
-									IsTabRenamingEnabled="true"
-									OnTabAdded="OnTabAdded">
-								</PDTabSet>
-							</div>
-						</PDSplitPanel>
+						<button class="pdchat-header-btn" @onclick="ToggleFullScreenAsync" title="@(ChatService.DockMode == PDChatDockMode.FullScreen ? "Restore" : "Fullscreen")">
+							<span>@(ChatService.DockMode == PDChatDockMode.FullScreen ? "🗗" : "🗖")</span>
+						</button>
 					}
-					else
-					{
-						<PDSplitPanel Size="3" MinSize="200">
-							<div class="pdchat-canvas-flex">
-								<PDTabSet @ref="_tabSetRef" 
-									IsTabClosingEnabled="true"
-									IsTabAdditionEnabled="true"
-									IsTabRenamingEnabled="true"
-									OnTabAdded="OnTabAdded">
-								</PDTabSet>
-							</div>
-						</PDSplitPanel>
-						<PDSplitPanel Size="2" MinSize="200">
-							<PDMessages @ref="_pdMessages"
-								Messages="_messages"
-								CurrentInput="@_currentInput"
-								CurrentInputChanged="@((string v) => _currentInput = v)"
-								IsLive="@ChatService.IsLive"
-								CanSend="@CanSend"
-								OnSendClicked="SendCurrentMessageAsync"
-								UserIconSelector="UserIconSelector"
-								UseFullWidthMessages="@ChatService.UseFullWidthMessages"
-								MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
-								ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
-								ShowMessageUserName="@ChatService.ShowMessageUserName"
-								ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
-								MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
-						</PDSplitPanel>
-					}
-				</PDSplitter>
-			}
-			else
-			{
-				<PDMessages @ref="_pdMessages"
-					Messages="_messages"
-					CurrentInput="@_currentInput"
-					CurrentInputChanged="@((string v) => _currentInput = v)"
-					IsLive="@ChatService.IsLive"
-					CanSend="@CanSend"
-					OnSendClicked="SendCurrentMessageAsync"
-					UserIconSelector="UserIconSelector"
-					UseFullWidthMessages="@ChatService.UseFullWidthMessages"
-					MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
-					ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
-					ShowMessageUserName="@ChatService.ShowMessageUserName"
-					ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
-					MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
-			}
-		</div>
-	}
-	else
-	{
-		@* Minimized button - only show if not None position *@
-		@if (ChatService.MinimizedButtonPosition != PDChatButtonPosition.None)
-		{
-			<button class="pdchat-toggle-collapsed @GetBootstrapColorClass() @GetAnimationClass()"
-					@onclick="ToggleChatAsync"
-					title="Open Chat (@_messages.Count message@(_messages.Count != 1 ? "s" : ""))">
-				<span>@CollapsedIcon</span>
-				@if (!string.IsNullOrEmpty(GetPriorityIndicator()))
+					<button class="pdchat-close" @onclick="ToggleChatAsync" title="Minimize">🗕</button>
+				</div>
+
+				@if (ChatService.DockMode == PDChatDockMode.FullScreen && ChatService.IsCanvasUsePermitted)
 				{
-					<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>
+					<PDSplitter Direction="@(SplitDirection.Horizontal)" GutterSize="6" CssClass="pdchat-splitter">
+						@if (ChatService.DockMode == PDChatDockMode.Left)
+						{
+							<PDSplitPanel Size="2" MinSize="200">
+								<PDMessages Messages="_messages"
+											CurrentInput="@_currentInput"
+											CurrentInputChanged="@((string v) => _currentInput = v)"
+											IsLive="@ChatService.IsLive"
+											CanSend="@CanSend"
+											OnSendClicked="SendCurrentMessageAsync"
+											UserIconSelector="UserIconSelector"
+											UseFullWidthMessages="@ChatService.UseFullWidthMessages"
+											MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
+											ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
+											ShowMessageUserName="@ChatService.ShowMessageUserName"
+											ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
+											MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
+							</PDSplitPanel>
+							<PDSplitPanel Size="3" MinSize="200">
+								<div class="pdchat-canvas-flex">
+									<PDTabSet @ref="_tabSetRef"
+											  IsTabClosingEnabled="true"
+											  IsTabAdditionEnabled="true"
+											  IsTabRenamingEnabled="true"
+											  OnTabAdded="OnTabAdded">
+									</PDTabSet>
+								</div>
+							</PDSplitPanel>
+						}
+						else
+						{
+							<PDSplitPanel Size="3" MinSize="200">
+								<div class="pdchat-canvas-flex">
+									<PDTabSet @ref="_tabSetRef"
+											  IsTabClosingEnabled="true"
+											  IsTabAdditionEnabled="true"
+											  IsTabRenamingEnabled="true"
+											  OnTabAdded="OnTabAdded">
+									</PDTabSet>
+								</div>
+							</PDSplitPanel>
+							<PDSplitPanel Size="2" MinSize="200">
+								<PDMessages Messages="_messages"
+											CurrentInput="@_currentInput"
+											CurrentInputChanged="@((string v) => _currentInput = v)"
+											IsLive="@ChatService.IsLive"
+											CanSend="@CanSend"
+											OnSendClicked="SendCurrentMessageAsync"
+											UserIconSelector="UserIconSelector"
+											UseFullWidthMessages="@ChatService.UseFullWidthMessages"
+											MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
+											ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
+											ShowMessageUserName="@ChatService.ShowMessageUserName"
+											ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
+											MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
+							</PDSplitPanel>
+						}
+					</PDSplitter>
 				}
-			</button>
-		}
+				else
+				{
+					<PDMessages Messages="_messages"
+								CurrentInput="@_currentInput"
+								CurrentInputChanged="@((string v) => _currentInput = v)"
+								IsLive="@ChatService.IsLive"
+								CanSend="@CanSend"
+								OnSendClicked="SendCurrentMessageAsync"
+								UserIconSelector="UserIconSelector"
+								UseFullWidthMessages="@ChatService.UseFullWidthMessages"
+								MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
+								ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
+								ShowMessageUserName="@ChatService.ShowMessageUserName"
+								ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
+								MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
+				}
+			</div>
+			break;
 	}
 </div>
