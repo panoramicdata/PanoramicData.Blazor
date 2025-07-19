@@ -6,44 +6,50 @@
 	padding-bottom: 5px;
 }
 
-	.pdfileexplorer .table td, .pdfileexplorer .table th {
-		padding: 2px 4px 1px 4px;
-	}
+.pdfileexplorer .table td, .pdfileexplorer .table th {
+	padding: 2px 4px 1px 4px;
+}
 
-	.pdfileexplorer ::deep .pdtable {
-		/* RM-14062 MG */
-		height: 0px !important;
-	}
+.pdfileexplorer ::deep .pdtable {
+	/* RM-14062 MG */
+	height: 0px !important;
+}
 
-	.pdfileexplorer ::deep .pdtree {
-		height: 0px;
-	}
+.pdfileexplorer ::deep .pdtree {
+	height: 0px;
+}
 
-	.pdfileexplorer .file-hidden, .pdfileexplorer .file-system {
-		color: #ccc;
-	}
+.pdfileexplorer .file-hidden, .pdfileexplorer .file-system {
+	color: #ccc;
+}
 
-	.pdfileexplorer .uploading {
-		color: #666;
-		font-style: italic;
-	}
+.pdfileexplorer .uploading {
+	color: #666;
+	font-style: italic;
+}
 
-	.pdfileexplorer .pdfe-toolbar {
-		height: 42px;
-	}
+.pdfileexplorer .pdfe-toolbar {
+	height: 42px;
+}
 
-	.pdfileexplorer ::deep .pdsplitter.horizontal {
-		height: calc(100% - 42px);
-	}
+.pdfileexplorer ::deep .pdsplitter.horizontal {
+	height: calc(100% - 42px);
+}
 
-	.pdfileexplorer .preview-header {
-		background-color: silver;
-		height: 20px;
-	}
+.pdfileexplorer .preview-header {
+	background-color: silver;
+	height: 20px;
+}
 
-	.pdfileexplorer .preview-content {
-		height: calc(100% - 20px);
-	}
+.pdfileexplorer .preview-content {
+	height: calc(100% - 20px);
+}
+
+.pdfileexplorer:has(.pdsplitpanel) .pdsplitpanel
+{
+	padding-left: .5rem !important;
+	padding-right: .5rem !important;
+}
 
 #upload-progress-modal {
 	z-index: 1060;
