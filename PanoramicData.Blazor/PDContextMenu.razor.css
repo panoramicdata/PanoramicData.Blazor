@@ -1,4 +1,11 @@
-﻿.pdcontextmenuhost {
+﻿/* These declaration fixes the issue that elsewhere, the immediate children of a .pdsplitpanel are now required to manage scrolling themselves */
+.pdsplitpanel:has(.pdcontextmenuhost) > .pdcontextmenuhost
+{
+	overflow: auto !important;
+}
+
+.pdcontextmenuhost
+{
 	height: 100%;
 }
 

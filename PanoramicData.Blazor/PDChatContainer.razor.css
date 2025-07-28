@@ -131,8 +131,8 @@
     box-sizing: border-box !important;
 }
 
-/* Handle nested content containers */
-.pdchat-container-wrapper ::deep .pdsplitpanel > * > * {
+/* Handle nested content containers - changed second * to div, otherwise things like h1 and other elements had scrollbars!!! */
+.pdchat-container-wrapper ::deep .pdsplitpanel > * > div {
     max-height: 100%;
     overflow-y: auto;
     overflow-x: auto;
