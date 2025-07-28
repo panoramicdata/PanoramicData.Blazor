@@ -1,0 +1,24 @@
+﻿@page "/pdtabset"
+@using PanoramicData.Blazor
+
+<h3>PDTabSet Demo</h3>
+
+<DemoSourceView SourceFiles="Pages/PDTabSetPage.razor, Pages/PDTabSetPage.razor.cs">
+	<PDTabSet IsTabAdditionEnabled="true"
+			  IsTabClosingEnabled="true"
+			  IsTabRenamingEnabled="true"
+			  OnTabSelected="OnTabSelected"
+			  OnTabClosed="OnTabClosed"
+			  OnTabAdded="OnTabAdded"
+			  OnTabRenamed="OnTabRenamed">
+		@foreach (var tab in _tabs)
+		{
+			<PDTab Id="@tab.Id" Title="@tab.Title">
+				<div>@tab.Content</div>
+			</PDTab>
+		}
+	</PDTabSet>
+
+	<h5 class="mt-4">Event Log</h5>
+	<pre style="max-height:200px;overflow:auto;">@_eventLog</pre>
+</DemoSourceView>
