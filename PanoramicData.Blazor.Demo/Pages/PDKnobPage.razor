@@ -1,0 +1,66 @@
+@page "/pdknob"
+@using PanoramicData.Blazor.Enums
+
+<h1>PDKnob Demo</h1>
+
+<DemoSourceView SourceFiles="Pages/PDKnobPage.razor,Pages/PDKnobPage.razor.cs">
+	<div style="display: flex; gap: 48px; align-items: flex-start;">
+		<div>
+			<h3>Volume</h3>
+			<PDKnob Mode="PDKnobMode.Volume" @bind-Value="volumeValue" MaxVolume="@maxVolume" KnobColor="@knobColor" ActiveColor="@activeColor" Label="@knobLabel" LabelPosition="@labelPosition" LabelHeightPx="@labelHeightPx" LabelCssClass="@labelCssClass" />
+			<div>Value: @(volumeValue.ToString("F2"))</div>
+		</div>
+		<div>
+			<h3>Balance</h3>
+			<PDKnob Mode="PDKnobMode.Balance" @bind-Value="balanceValue" KnobColor="@knobColor" ActiveColor="@activeColor" Label="@knobLabel" LabelPosition="@labelPosition" LabelHeightPx="@labelHeightPx" LabelCssClass="@labelCssClass" />
+			<div>Value: @(balanceValue.ToString("F2"))</div>
+		</div>
+		<div>
+			<h3>Gain</h3>
+			<PDKnob Mode="PDKnobMode.Gain" @bind-Value="gainValue" KnobColor="@knobColor" ActiveColor="@activeColor" Label="@knobLabel" LabelPosition="@labelPosition" LabelHeightPx="@labelHeightPx" LabelCssClass="@labelCssClass" />
+			<div>Value: @(gainValue.ToString("F2"))</div>
+		</div>
+		<div>
+			<h3>Snapping</h3>
+			<PDKnob Mode="PDKnobMode.Volume" @bind-Value="snapValue" SnapIncrement="@snapIncrement" KnobColor="@knobColor" ActiveColor="@activeColor" Label="@knobLabel" LabelPosition="@labelPosition" LabelHeightPx="@labelHeightPx" LabelCssClass="@labelCssClass" />
+			<div>Value: @(snapValue.ToString("F2"))</div>
+		</div>
+	</div>
+
+	<div class="m-t-20">
+		<label>Max Volume</label>
+		<input type="number" @bind="maxVolume" />
+	</div>
+	<div class="m-t-10">
+		<label>Snap Increment</label>
+		<input type="number" step="0.01" @bind="snapIncrement" />
+	</div>
+	<div class="m-t-10">
+		<label>Knob Color</label>
+		<input type="color" @bind="knobColor" />
+	</div>
+	<div class="m-t-10">
+		<label>Active Color</label>
+		<input type="color" @bind="activeColor" />
+	</div>
+	<div class="m-t-10">
+		<label>Label</label>
+		<input type="text" @bind="knobLabel" />
+	</div>
+	<div class="m-t-10">
+		<label>Label Position</label>
+		<select @bind="labelPosition">
+			<option value="@(LabelPosition.Above)">Above</option>
+			<option value="@(LabelPosition.Below)">Below</option>
+		</select>
+	</div>
+	<div class="m-t-10">
+		<label>Label Height (px)</label>
+		<input type="number" @bind="labelHeightPx" />
+	</div>
+	<div class="m-t-10">
+		<label>Label CSS Class</label>
+		<input type="text" @bind="labelCssClass" />
+	</div>
+</DemoSourceView>
+	

@@ -1,0 +1,36 @@
+@using PanoramicData.Blazor.Enums
+
+<div class="pd-knob @(IsEnabled ? "" : "disabled")" style="display:inline-block; touch-action:none; user-select:none;">
+	@if (LabelPosition == LabelPosition.Above && !string.IsNullOrEmpty(Label))
+	{
+		<div class="pd-knob-label @LabelCssClass" style="height:@(LabelHeightPx)px;">@Label</div>
+	}
+	<svg @ref="_svgRef"
+		 width="@(SizePx)" height="@(SizePx)"
+		 @onpointerdown="OnPointerDown"
+		 @ondblclick="OnDoubleClick"
+		 style="cursor:pointer;">
+		<!-- Knob background -->
+		<circle cx="@(Center)" cy="@(Center)" r="@(Radius)" fill="@KnobColor" stroke="#aaa" stroke-width="2" />
+		<!-- Knob arc (value) -->
+		<path d="@ArcPath" fill="none" stroke="@ActiveColor" stroke-width="4" />
+		<!-- Knob indicator -->
+		<line x1="@(Center)" y1="@(Center)" x2="@(IndicatorX)" y2="@(IndicatorY)" stroke="#333" stroke-width="3" stroke-linecap="round" />
+		<!-- Markings -->
+		@foreach (var mark in Markings)
+		{
+			<g>
+				<text x="@mark.X" y="@mark.Y" font-size="10" text-anchor="middle" alignment-baseline="middle">@mark.Label</text>
+			</g>
+		}
+		<!-- Ticks -->
+		@foreach (var tick in Ticks)
+		{
+			<line x1="@tick.X1" y1="@tick.Y1" x2="@tick.X2" y2="@tick.Y2" stroke="#999" stroke-width="1" />
+		}
+	</svg>
+	@if (LabelPosition == LabelPosition.Below && !string.IsNullOrEmpty(Label))
+	{
+		<div class="pd-knob-label @LabelCssClass" style="height:@(LabelHeightPx)px;">@Label</div>
+	}
+</div>

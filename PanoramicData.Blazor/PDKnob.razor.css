@@ -1,0 +1,11 @@
+.pd-knob-label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8em;
+    color: #333;
+    background-color: #f0f0f0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
