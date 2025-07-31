@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".github/workflows/main.yml" />
+    <File Path="global.json" />
+    <File Path="PanoramicData.Blazor.dic" />
+    <File Path="PanoramicData.Blazor/publish-nuget.ps1" />
+    <File Path="README.md" />
+    <File Path="version.json" />
+  </Folder>
+  <Project Path="PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj" />
+  <Project Path="PanoramicData.Blazor.Test/PanoramicData.Blazor.Test.csproj" />
+  <Project Path="PanoramicData.Blazor.Web/PanoramicData.Blazor.Web.csproj" />
+  <Project Path="PanoramicData.Blazor.WebAssembly/Client/PanoramicData.Blazor.WebAssembly.Client.csproj" />
+  <Project Path="PanoramicData.Blazor.WebAssembly/Server/PanoramicData.Blazor.WebAssembly.Server.csproj" />
+  <Project Path="PanoramicData.Blazor/PanoramicData.Blazor.csproj" />
+</Solution>
