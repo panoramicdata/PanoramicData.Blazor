@@ -31,6 +31,12 @@ public partial class PDFader : PDAudioControl
 	protected List<Mark> Markings => GetMarkings();
 	protected record Mark(double Y, string Label);
 
+	protected override void OnParametersSet()
+	{
+		SnapPoints = MaxValue - MinValue + 1;
+		base.OnParametersSet();
+	}
+
 	protected List<Mark> GetMarkings()
 	{
 		var marks = new List<Mark>();

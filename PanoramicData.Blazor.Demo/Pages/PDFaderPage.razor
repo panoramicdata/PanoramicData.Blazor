@@ -5,17 +5,17 @@
 <h1>PDFader Demo</h1>
 
 <div class="row">
-	<div class="col-md-3">
-		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Left" FaderColor="@_faderColor" Label="Fader" />
+	<div class="col-md-2">
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Left" FaderColor="@_faderColor" Label="Fader Mode: Left" SnapPoints="@(_snap ? 21 : 0)" />
 	</div>
-	<div class="col-md-3">
-		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Right" FaderColor="@_faderColor" Label="Fader" />
+	<div class="col-md-2">
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Right" FaderColor="@_faderColor" Label="Fader Mode: Right" SnapPoints="@(_snap ? 21 : 0)" />
 	</div>
-	<div class="col-md-3">
-		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Both" FaderColor="@_faderColor" Label="Fader" />
+	<div class="col-md-2">
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Both" FaderColor="@_faderColor" Label="Fader Mode: Both" SnapPoints="@(_snap ? 21 : 0)" />
 	</div>
-	<div class="col-md-3">
-		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.None" FaderColor="@_faderColor" Label="Fader" />
+	<div class="col-md-2">
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.None" FaderColor="@_faderColor" Label="Fader Mode: None" SnapPoints="@(_snap ? 21 : 0)" />
 	</div>
 </div>
 <div class="row">
@@ -28,6 +28,10 @@
 	<div class="col-md-4">
 		<label>Fader Color</label>
 		<input type="color" @bind="_faderColor" />
+	</div>
+	<div class="col-md-4">
+		<label>Snap</label>
+		<PDToggleSwitch @bind-Value="_snap" />
 	</div>
 </div>
 <div class="row">

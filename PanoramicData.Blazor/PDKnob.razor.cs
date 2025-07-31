@@ -43,15 +43,14 @@ public partial class PDKnob : PDAudioControl
 	protected double IndicatorX => Center + Radius * Math.Sin(Deg2Rad(IndicatorAngle));
 	protected double IndicatorY => Center - Radius * Math.Cos(Deg2Rad(IndicatorAngle));
 
-
-
-
-
-
-
-
-
-
+	protected override void OnParametersSet()
+	{
+		if (Mode == PDKnobMode.Volume)
+		{
+			SnapPoints = MaxVolume + 1;
+		}
+		base.OnParametersSet();
+	}
 
 	protected double GetAngleFromPointer(PointerEventArgs e)
 	{

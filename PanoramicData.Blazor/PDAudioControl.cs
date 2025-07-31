@@ -7,6 +7,7 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 	[Parameter] public double? DefaultValue { get; set; }
 	[Parameter] public bool IsEnabled { get; set; } = true;
 	[Parameter] public double SnapIncrement { get; set; }
+	[Parameter] public int? SnapPoints { get; set; }
 	[Parameter] public string? Label { get; set; }
 
 	[Parameter] public int LabelHeightPx { get; set; } = 20;
@@ -27,6 +28,11 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 	{
 		DefaultValue ??= 0.5;
 		Value = Math.Clamp(Value, 0, 1);
+		if (SnapPoints > 1)
+		{
+			SnapIncrement = 1.0 / (SnapPoints.Value - 1);
+		}
+
 		if (SnapIncrement > 0)
 		{
 			Value = Math.Round(Value / SnapIncrement) * SnapIncrement;
