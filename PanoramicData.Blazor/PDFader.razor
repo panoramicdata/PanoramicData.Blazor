@@ -2,10 +2,14 @@
 @inherits PDAudioControl
 
 @code {
-	// Set this to 1/3 of your container width, or use a parameter for flexibility
 	private int ControlWidth => 60;
 	private double CenterX => ControlWidth / 2.0;
-	private double TrackX => CenterX - (Width / 2.0);
+	private double TrackWidth => ControlWidth * 0.4; // 40% of total width
+	private double TrackX => (ControlWidth - TrackWidth) / 2.0;
+	private double LabelWidth => 35;
+	private double LabelPadding => 5;
+	private double LabelFontSize => 12;
+	private double LabelVCenterOffset => LabelFontSize / 3.0; // SVG text baseline correction
 }
 
 <div class="pd-fader @(IsEnabled ? "" : "disabled")" style="display:inline-block; width:@($"{ControlWidth}px"); touch-action:none; user-select:none;">
@@ -15,8 +19,8 @@
 		 style="cursor:pointer; display:block;">
 		<!-- SVG background with improved contrast -->
 		<rect x="0" y="0" width="@ControlWidth" height="@Height" fill="#222" />
-		<!-- Fader track (centered, higher contrast) -->
-		<rect x="@TrackX" y="0" width="@Width" height="@Height" fill="#555" />
+		<!-- Fader track (centered, narrower) -->
+		<rect x="@TrackX" y="0" width="@TrackWidth" height="@Height" fill="#555" />
 		<line x1="@CenterX" y1="0" x2="@CenterX" y2="@Height" stroke="#fff" stroke-width="1" />
 
 		<!-- Markings (full width, high contrast) -->
@@ -25,16 +29,20 @@
 			<g>
 				@if (FaderLabelPosition is PDFaderLabelPosition.Left or PDFaderLabelPosition.Both)
 				{
-					<foreignObject x="@(TrackX - 40)" y="@(mark.Y - 10)" width="35" height="20">
-						<div style="font-size:12px; color:#fff; text-align:right; line-height:20px; text-shadow: 1px 1px 2px #000;">@mark.Label</div>
-					</foreignObject>
+					<text>
+						<text x="2" y="@(mark.Y)" fill="#fff" font-size="@LabelFontSize" text-anchor="start" dominant-baseline="middle" style="text-shadow:1px 1px 2px #000;">
+							@mark.Label
+						</text>
+					</text>
 				}
 				<line x1="0" y1="@mark.Y" x2="@ControlWidth" y2="@mark.Y" stroke="#aaa" stroke-width="1" />
 				@if (FaderLabelPosition is PDFaderLabelPosition.Right or PDFaderLabelPosition.Both)
 				{
-					<foreignObject x="@(TrackX + Width + 5)" y="@(mark.Y - 10)" width="35" height="20">
-						<div style="font-size:12px; color:#fff; line-height:20px; text-shadow: 1px 1px 2px #000;">@mark.Label</div>
-					</foreignObject>
+					<text>
+						<text x="@(ControlWidth - 2)" y="@(mark.Y)" fill="#fff" font-size="@LabelFontSize" text-anchor="end" dominant-baseline="middle" style="text-shadow:1px 1px 2px #000;">
+							@mark.Label
+						</text>
+					</text>
 				}
 			</g>
 		}
@@ -49,6 +57,6 @@
 	</svg>
 	@if (!string.IsNullOrEmpty(Label))
 	{
-		<div style="text-align:center; color:#fff; font-weight:bold; margin-top:8px; text-shadow: 1px 1px 2px #000;">@Label</div>
+		<div style="text-align:center; font-weight:bold; margin-top:8px;">@Label</div>
 	}
 </div>

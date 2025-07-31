@@ -18,9 +18,9 @@ public partial class PDFader : PDAudioControl
 	// Geometry
 
 	protected double GripHeight => 20;
-	protected double GripWidth => Width * 0.9;
+	protected double GripWidth => Width * 0.75;
 	protected double GripRx => 2;
-	protected double GripX => 0;
+	protected double GripX => (Width - GripWidth) / 2;
 	protected double GripY => (Height - GripHeight) * (1 - Value);
 	protected double GripX2 => GripX + GripWidth;
 	protected double CenterLineY => GripY + (GripHeight / 2.0);
@@ -33,7 +33,12 @@ public partial class PDFader : PDAudioControl
 
 	protected override void OnParametersSet()
 	{
-		SnapPoints = MaxValue - MinValue + 1;
+		// Only set SnapPoints if not already set by the user (i.e., SnapPoints is null)
+		if (SnapPoints == null)
+		{
+			SnapPoints = MaxValue - MinValue + 1;
+		}
+
 		base.OnParametersSet();
 	}
 
@@ -44,7 +49,7 @@ public partial class PDFader : PDAudioControl
 		for (var i = MinValue; i <= MaxValue; i += step)
 		{
 			var y = (Height - GripHeight) * (1 - (double)(i - MinValue) / (MaxValue - MinValue)) + (GripHeight / 2.0);
-			marks.Add(new Mark(y, i.ToString()));
+			marks.Add(new Mark(y, i.ToString(CultureInfo.InvariantCulture)));
 		}
 
 		return marks;
