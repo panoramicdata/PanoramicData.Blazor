@@ -1,0 +1,37 @@
+@page "/pdfader"
+@using PanoramicData.Blazor.Enums
+@using Microsoft.Extensions.Logging
+
+<h1>PDFader Demo</h1>
+
+<div class="row">
+	<div class="col-md-3">
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Left" FaderColor="@_faderColor" Label="Fader" />
+	</div>
+	<div class="col-md-3">
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Right" FaderColor="@_faderColor" Label="Fader" />
+	</div>
+	<div class="col-md-3">
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Both" FaderColor="@_faderColor" Label="Fader" />
+	</div>
+	<div class="col-md-3">
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.None" FaderColor="@_faderColor" Label="Fader" />
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<PDKnob @bind-Value="_faderValue" />
+		<p>Fader Value: <input @bind="_faderValue" /></p>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-4">
+		<label>Fader Color</label>
+		<input type="color" @bind="_faderColor" />
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<PDLog @ref="_log" />
+	</div>
+</div>

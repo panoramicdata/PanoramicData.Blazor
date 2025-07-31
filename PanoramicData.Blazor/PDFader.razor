@@ -1,0 +1,54 @@
+@using PanoramicData.Blazor.Enums
+@inherits PDAudioControl
+
+@code {
+	// Set this to 1/3 of your container width, or use a parameter for flexibility
+	private int ControlWidth => 60;
+	private double CenterX => ControlWidth / 2.0;
+	private double TrackX => CenterX - (Width / 2.0);
+}
+
+<div class="pd-fader @(IsEnabled ? "" : "disabled")" style="display:inline-block; width:@($"{ControlWidth}px"); touch-action:none; user-select:none;">
+	<svg width="@ControlWidth" height="@Height"
+		 @onpointerdown="OnPointerDown"
+		 @ondblclick="OnDoubleClick"
+		 style="cursor:pointer; display:block;">
+		<!-- SVG background with improved contrast -->
+		<rect x="0" y="0" width="@ControlWidth" height="@Height" fill="#222" />
+		<!-- Fader track (centered, higher contrast) -->
+		<rect x="@TrackX" y="0" width="@Width" height="@Height" fill="#555" />
+		<line x1="@CenterX" y1="0" x2="@CenterX" y2="@Height" stroke="#fff" stroke-width="1" />
+
+		<!-- Markings (full width, high contrast) -->
+		@foreach (var mark in Markings)
+		{
+			<g>
+				@if (FaderLabelPosition is PDFaderLabelPosition.Left or PDFaderLabelPosition.Both)
+				{
+					<foreignObject x="@(TrackX - 40)" y="@(mark.Y - 10)" width="35" height="20">
+						<div style="font-size:12px; color:#fff; text-align:right; line-height:20px; text-shadow: 1px 1px 2px #000;">@mark.Label</div>
+					</foreignObject>
+				}
+				<line x1="0" y1="@mark.Y" x2="@ControlWidth" y2="@mark.Y" stroke="#aaa" stroke-width="1" />
+				@if (FaderLabelPosition is PDFaderLabelPosition.Right or PDFaderLabelPosition.Both)
+				{
+					<foreignObject x="@(TrackX + Width + 5)" y="@(mark.Y - 10)" width="35" height="20">
+						<div style="font-size:12px; color:#fff; line-height:20px; text-shadow: 1px 1px 2px #000;">@mark.Label</div>
+					</foreignObject>
+				}
+			</g>
+		}
+
+		<!-- Fader grip (centered on center line) -->
+		<rect x="@(CenterX - (GripWidth / 2.0))" y="@GripY" width="@GripWidth" height="@GripHeight" fill="@FaderColor" rx="@GripRx" />
+		<line x1="@(CenterX - (GripWidth / 2.0))" y1="@CenterLineY" x2="@(CenterX + (GripWidth / 2.0))" y2="@CenterLineY" stroke="#fff" stroke-width="1" />
+
+		<!-- Grip highlights/shadows -->
+		<line x1="@(CenterX - (GripWidth / 2.0))" y1="@(CenterLineY - 2)" x2="@(CenterX + (GripWidth / 2.0))" y2="@(CenterLineY - 2)" stroke="#eee" stroke-width="1" />
+		<line x1="@(CenterX - (GripWidth / 2.0))" y1="@(CenterLineY + 2)" x2="@(CenterX + (GripWidth / 2.0))" y2="@(CenterLineY + 2)" stroke="#111" stroke-width="1" />
+	</svg>
+	@if (!string.IsNullOrEmpty(Label))
+	{
+		<div style="text-align:center; color:#fff; font-weight:bold; margin-top:8px; text-shadow: 1px 1px 2px #000;">@Label</div>
+	}
+</div>

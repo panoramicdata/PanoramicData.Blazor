@@ -11,7 +11,7 @@ public partial class PDKnobPage
 	private string knobColor = "#eee";
 	private string activeColor = "#2196f3";
 	private string knobLabel = "Volume";
-	private LabelPosition labelPosition = LabelPosition.Below;
+	private PDLabelPosition labelPosition = PDLabelPosition.Below;
 	private int labelHeightPx = 20;
 	private string labelCssClass = "";
 }
