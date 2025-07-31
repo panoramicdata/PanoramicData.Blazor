@@ -7,7 +7,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	private static int _seq;
 	private bool _showHelp;
 	private IJSObjectReference? _module;
-	private readonly List<PDFormFieldEditor<TItem>> _fieldEditors = new();
+	private readonly List<PDFormFieldEditor<TItem>> _fieldEditors = [];
 
 	public event EventHandler? ErrorsChanged;
 
@@ -653,6 +653,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			{
 				return NormalizeLineEndings(sa) == NormalizeLineEndings(sb);
 			}
+
 			return Equals(a, b);
 		}
 

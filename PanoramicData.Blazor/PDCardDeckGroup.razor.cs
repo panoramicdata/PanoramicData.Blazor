@@ -238,8 +238,10 @@ public partial class PDCardDeckGroup<TCard> where TCard : ICard
 			{
 				BlockOverlayService.Show();
 			}
+
 			return false;
 		}
+
 		foreach (var deck in _decks)
 		{
 			if (!deck.DataLoaded)
@@ -249,6 +251,7 @@ public partial class PDCardDeckGroup<TCard> where TCard : ICard
 				{
 					BlockOverlayService.Show();
 				}
+
 				return false;
 			}
 		}

@@ -48,6 +48,7 @@ public partial class PDAnimation : IDisposable
 		{
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDAnimation.razor.js").ConfigureAwait(true);
 		}
+
 		await UpdatePositionAsync();
 
 	}

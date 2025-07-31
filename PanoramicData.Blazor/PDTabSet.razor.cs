@@ -9,7 +9,7 @@ public enum CreateTabPosition
 
 public partial class PDTabSet : ComponentBase
 {
-	internal List<PDTab> Tabs { get; } = new();
+	internal List<PDTab> Tabs { get; } = [];
 	internal PDTab? ActiveTab { get; set; }
 
 	[Parameter] public RenderFragment? ChildContent { get; set; }
@@ -54,6 +54,7 @@ public partial class PDTabSet : ComponentBase
 			{
 				ActiveTab = Tabs.FirstOrDefault();
 			}
+
 			if (OnTabClosed.HasDelegate)
 			{
 				OnTabClosed.InvokeAsync(tab);

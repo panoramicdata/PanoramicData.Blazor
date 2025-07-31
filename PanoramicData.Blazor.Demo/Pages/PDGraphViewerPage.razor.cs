@@ -95,6 +95,7 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 					await _graphViewer.UpdateConfigurationAsync((_visualizationConfig, _clusteringConfig, _damping)).ConfigureAwait(false);
 				}
 			}
+
 			EventManager?.Add(new Event("Graph data refreshed"));
 		}
 		catch (Exception ex)
@@ -122,6 +123,7 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 			{
 				await _graphViewer.FitToViewAsync();
 			}
+
 			EventManager?.Add(new Event("Graph fitted to view"));
 		}
 		finally

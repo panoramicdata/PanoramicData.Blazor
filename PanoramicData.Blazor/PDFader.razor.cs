@@ -46,6 +46,7 @@ public partial class PDFader : PDAudioControl
 			var y = (Height - GripHeight) * (1 - (double)(i - MinValue) / (MaxValue - MinValue)) + (GripHeight / 2.0);
 			marks.Add(new Mark(y, i.ToString()));
 		}
+
 		return marks;
 	}
 }

@@ -144,6 +144,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		{
 			return;
 		}
+
 		_searchText = e.Value?.ToString() ?? string.Empty;
 		_searchText = _searchText.Trim();
 		_lastSearchText = _searchText;
@@ -179,6 +180,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 			{
 				_searchText = ItemToString(SelectedItem);
 			}
+
 			StateHasChanged();
 			return;
 		}
@@ -212,6 +214,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 			{
 				_searchText = ItemToString(SelectedItem);
 			}
+
 			await InvokeAsync(StateHasChanged);
 		}
 		catch (TaskCanceledException) { }
@@ -228,6 +231,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		{
 			ApplyFilter(string.Empty);
 		}
+
 		await FocusInputAsync();
 	}
 
@@ -316,6 +320,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 			_showDropdown = true;
 			ApplyFilter(_searchText);
 		}
+
 		if (_jsModule is not null && !string.IsNullOrEmpty(_searchText))
 		{
 			await _jsModule.InvokeVoidAsync("selectInputText", _inputRef);
@@ -343,6 +348,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 				{
 					// Ignore JS dispose exceptions
 				}
+
 				_jsModule = null;
 			}
 

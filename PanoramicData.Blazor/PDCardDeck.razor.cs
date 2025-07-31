@@ -46,7 +46,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	private ElementReference _elementRef;
 	private DotNetObjectReference<PDCardDeck<TCard>>? _dotNetRef;
 
-	[Inject] private ILogger<PDCardDeck<TCard>> _logger { get; set; } = null!;
+	[Inject] private ILogger<PDCardDeck<TCard>> Logger { get; set; } = null!;
 
 	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -236,6 +236,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			Selection = _selectionHelper
 				.HandleSingleSelect(Selection, Cards, card);
 		}
+
 		StateHasChanged();
 	}
 
@@ -395,6 +396,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			Selection.Add(card);
 
 		}
+
 		ClearAnimationPositions();
 	}
 
@@ -502,6 +504,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		{
 			return;
 		}
+
 		foreach (var card in _cards)
 		{
 			await card.AnimationHandler.CancelAnimationAsync();

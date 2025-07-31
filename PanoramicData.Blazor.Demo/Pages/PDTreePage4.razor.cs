@@ -3,7 +3,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDTreePage4
 {
-	private PDTree<TreeItem>? _tree { get; set; }
+	private PDTree<TreeItem>? Tree { get; set; }
 	private readonly IDataProviderService<TreeItem> _treeDataProvider;
 
 	[CascadingParameter]
@@ -87,5 +87,5 @@ public partial class PDTreePage4
 		};
 	}
 
-	private void OnReady() => _tree?.ExpandAll();
+	private void OnReady() => Tree?.ExpandAll();
 }

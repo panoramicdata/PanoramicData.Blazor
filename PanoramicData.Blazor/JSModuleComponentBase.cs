@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-
 namespace PanoramicData.Blazor;
 
 /// <summary>

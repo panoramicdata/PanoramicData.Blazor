@@ -28,6 +28,7 @@ public partial class PDTab : ComponentBase
 		{
 			Id = Guid.NewGuid();
 		}
+
 		TempTitle = Title;
 		TabSet?.AddTab(this);
 	}

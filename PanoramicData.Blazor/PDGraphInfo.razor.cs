@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using PanoramicData.Blazor.Models;
-
 namespace PanoramicData.Blazor;
 
 /// <summary>
@@ -82,10 +79,7 @@ public partial class PDGraphInfo<TItem> : PDComponentBase where TItem : class
 		SelectedNode = node;
 		SelectedEdge = edge;
 		
-		if (_selectionInfo is not null)
-		{
-			_selectionInfo.UpdateSelection(node, edge);
-		}
+		_selectionInfo?.UpdateSelection(node, edge);
 		
 		StateHasChanged();
 	}

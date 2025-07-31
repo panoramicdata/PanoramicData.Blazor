@@ -1,7 +1,3 @@
-using PanoramicData.Blazor.Interfaces;
-using PanoramicData.Blazor.Models;
-using PanoramicData.Blazor.Services;
-
 namespace PanoramicData.Blazor.Demo.Data;
 
 /// <summary>

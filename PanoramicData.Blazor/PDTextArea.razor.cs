@@ -130,6 +130,7 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 			// invoke the event
 			ValueChanged.InvokeAsync(Value);
 		}
+
 		return Task.CompletedTask;
 	}
 

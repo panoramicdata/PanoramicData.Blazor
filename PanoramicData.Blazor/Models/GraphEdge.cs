@@ -24,7 +24,7 @@ public class GraphEdge
 	/// Gets or sets the dimensional data for visualization controls.
 	/// Key is the dimension name, value is the normalized value (0.0-1.0).
 	/// </summary>
-	public Dictionary<string, double> Dimensions { get; set; } = new();
+	public Dictionary<string, double> Dimensions { get; set; } = [];
 
 	/// <summary>
 	/// Gets or sets the strength of the connection for force-directed layout.

@@ -15,7 +15,7 @@ public class EmptyDataProviderService<TItem> : IDataProviderService<TItem>
 		=> Task.FromResult(new OperationResponse { Success = true });
 
 	public Task<DataResponse<TItem>> GetDataAsync(DataRequest<TItem> request, CancellationToken cancellationToken)
-		=> Task.FromResult(new DataResponse<TItem>(new List<TItem>(), 0));
+		=> Task.FromResult(new DataResponse<TItem>([], 0));
 
 	public Task<OperationResponse> UpdateAsync(TItem item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
 		=> Task.FromResult(new OperationResponse { Success = true });

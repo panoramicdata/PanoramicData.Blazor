@@ -7,7 +7,7 @@ namespace PanoramicData.Blazor;
 public partial class PDGraphControls<TItem> : PDComponentBase where TItem : class
 {
 	private static int _idSequence;
-	private List<string> _availableDimensions = new();
+	private List<string> _availableDimensions = [];
 
 	/// <summary>
 	/// Gets or sets whether the controls are read-only.
@@ -31,7 +31,7 @@ public partial class PDGraphControls<TItem> : PDComponentBase where TItem : clas
 	/// Gets or sets the available dimension names for mapping.
 	/// </summary>
 	[Parameter]
-	public List<string> AvailableDimensions { get; set; } = new();
+	public List<string> AvailableDimensions { get; set; } = [];
 
 	/// <summary>
 	/// Gets or sets the damping factor for the physics simulation.
@@ -58,7 +58,7 @@ public partial class PDGraphControls<TItem> : PDComponentBase where TItem : clas
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
-		_availableDimensions = AvailableDimensions ?? new List<string>();
+		_availableDimensions = AvailableDimensions ?? [];
 
 		// Add meaningful dimensions for the innovation knowledge graph
 		if (_availableDimensions.Count == 0)

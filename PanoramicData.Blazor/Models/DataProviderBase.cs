@@ -139,7 +139,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 			FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
 			FilterTypes.IsEmpty => [string.Empty],
 			FilterTypes.IsNotEmpty => [string.Empty],
-			_ => new object[] { filter.Value.RemoveQuotes() }
+			_ => [filter.Value.RemoveQuotes()]
 		};
 
 		switch (filter.FilterType)
@@ -169,6 +169,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 					{
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} != @0", parameters);
 					}
+
 					break;
 				}
 			case FilterTypes.EndsWith:
@@ -187,6 +188,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 					{
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} > @0", parameters);
 					}
+
 					break;
 				}
 			case FilterTypes.GreaterThanOrEqual:
@@ -200,6 +202,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 					{
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", parameters);
 					}
+
 					break;
 				}
 			case FilterTypes.In:
@@ -225,6 +228,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, parameters);
 					}
 				}
+
 				break;
 
 			case FilterTypes.NotIn:
@@ -250,6 +254,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, parameters);
 					}
 				}
+
 				break;
 
 			case FilterTypes.LessThan:
@@ -264,6 +269,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 					{
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} < @0", parameters);
 					}
+
 					break;
 				}
 			case FilterTypes.LessThanOrEqual:
@@ -279,6 +285,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 					{
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} <= @0", parameters);
 					}
+
 					break;
 				}
 			case FilterTypes.Range:
@@ -301,6 +308,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 				{
 					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} <= @1", parameters);
 				}
+
 				break;
 
 			case FilterTypes.StartsWith:
@@ -330,6 +338,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 					{
 						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} == @0", parameters);
 					}
+
 					break;
 				}
 			default:

@@ -119,6 +119,7 @@ public partial class PDFilter : IAsyncDisposable
 		{
 			_selectedValues.AddRange([.. _value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())]);
 		}
+
 		if (_filterType == FilterTypes.Range)
 		{
 			_selectedValues.AddRange([.. _value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())]);
@@ -188,6 +189,7 @@ public partial class PDFilter : IAsyncDisposable
 		{
 			tempValue1 = _selectedValues[0];
 		}
+
 		if (_selectedValues.Count > 1)
 		{
 			tempValue2 = _selectedValues[1];
@@ -199,6 +201,7 @@ public partial class PDFilter : IAsyncDisposable
 			_selectedValues.Add(tempValue1);
 			_value1 = tempValue1.QuoteIfContainsWhitespace();
 		}
+
 		if (doubleOptions.Contains(_filterType))
 		{
 			if (tempValue2 != null)
@@ -207,6 +210,7 @@ public partial class PDFilter : IAsyncDisposable
 				_value2 = tempValue2.QuoteIfContainsWhitespace();
 			}
 		}
+
 		if(_filterType is FilterTypes.NotIn or FilterTypes.In)
 		{
 			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
@@ -237,8 +241,10 @@ public partial class PDFilter : IAsyncDisposable
 			{
 				_selectedValues.Clear();
 			}
+
 			_selectedValues.Add(value);
 		}
+
 		if (_selectedValues.Count == 1 && ops.Contains(_filterType))
 		{
 			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();

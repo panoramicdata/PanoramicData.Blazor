@@ -19,7 +19,7 @@ public class GraphClusteringConfig
 	/// Gets or sets the dimensions to use for clustering with their weights.
 	/// Key is dimension name, value is weight (0.0-1.0).
 	/// </summary>
-	public Dictionary<string, double> DimensionWeights { get; set; } = new();
+	public Dictionary<string, double> DimensionWeights { get; set; } = [];
 
 	/// <summary>
 	/// Gets or sets the algorithm used for clustering.

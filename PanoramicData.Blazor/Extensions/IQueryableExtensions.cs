@@ -51,7 +51,7 @@ public static class IQueryableExtensions
 					FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
 					FilterTypes.IsEmpty => [string.Empty],
 					FilterTypes.IsNotEmpty => [string.Empty],
-					_ => new object[] { filter.Value.RemoveQuotes() }
+					_ => [filter.Value.RemoveQuotes()]
 				};
 
 				// build dynamic predicate

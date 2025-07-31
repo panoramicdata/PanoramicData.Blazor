@@ -166,7 +166,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 	{
 		if (AddDelay)
 		{
-			await Task.Delay(1000);
+			await Task.Delay(1000, cancellationToken);
 		}
 
 		var existingPerson = _people.Find(x => x.Id == item.Id);
@@ -190,7 +190,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 	{
 		if (AddDelay)
 		{
-			await Task.Delay(1000);
+			await Task.Delay(1000, cancellationToken);
 		}
 
 
@@ -235,7 +235,7 @@ public class PersonDataProvider : DataProviderBase<Person>
 	{
 		if (AddDelay)
 		{
-			await Task.Delay(1000);
+			await Task.Delay(1000, cancellationToken);
 		}
 
 		item.Id = _people.Max(x => x.Id) + 1;

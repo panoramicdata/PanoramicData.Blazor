@@ -219,6 +219,7 @@ public partial class PDComboBoxPage
 		{
 			return;
 		}
+
 		SelectedItem = item;
 	}
 

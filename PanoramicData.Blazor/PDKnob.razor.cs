@@ -15,18 +15,22 @@ public partial class PDKnob : PDAudioControl
 	[Parameter] public int MaxVolume { get; set; } = 11;
 
 	[Parameter] public int SizePx { get; set; } = 60;
+
 	[Parameter] public string KnobColor { get; set; } = "#eee";
+
 	[Parameter] public string ActiveColor { get; set; } = "#2196f3";
 
 	[Parameter] public bool ShowTicks { get; set; } = true;
+
+	[Parameter] public double StartAngle { get; set; } = -160;
+
+	[Parameter] public double EndAngle { get; set; } = 160;
 
 	private ElementReference _svgRef;
 
 	// Geometry
 	protected double Center => SizePx / 2.0;
 	protected double Radius => SizePx * 0.3;
-	protected double StartAngle => -160;
-	protected double EndAngle => 160;
 	protected double ArcAngle => EndAngle - StartAngle;
 
 	// Markings
@@ -49,6 +53,7 @@ public partial class PDKnob : PDAudioControl
 		{
 			SnapPoints = MaxVolume + 1;
 		}
+
 		base.OnParametersSet();
 	}
 
@@ -99,7 +104,7 @@ public partial class PDKnob : PDAudioControl
 				double frac = (double)i / MaxVolume;
 				double angle = StartAngle + ArcAngle * frac;
 				var (x, y) = PolarToCartesian(Center, Center, Radius + 10, angle);
-				marks.Add(new Mark(x, y, i.ToString()));
+				marks.Add(new Mark(x, y, i.ToString(CultureInfo.InvariantCulture)));
 			}
 
 			// Ensure the last mark (MaxVolume) is always included if not already
@@ -108,9 +113,9 @@ public partial class PDKnob : PDAudioControl
 				double frac = (double)MaxVolume / MaxVolume;
 				double angle = StartAngle + ArcAngle * frac;
 				var (x, y) = PolarToCartesian(Center, Center, Radius + 10, angle);
-				if (!marks.Any(m => m.Label == MaxVolume.ToString()))
+				if (!marks.Any(m => m.Label == MaxVolume.ToString(CultureInfo.InvariantCulture)))
 				{
-					marks.Add(new Mark(x, y, MaxVolume.ToString()));
+					marks.Add(new Mark(x, y, MaxVolume.ToString(CultureInfo.InvariantCulture)));
 				}
 			}
 		}
@@ -162,6 +167,7 @@ public partial class PDKnob : PDAudioControl
 				}
 			}
 		}
+
 		return ticks;
 	}
 

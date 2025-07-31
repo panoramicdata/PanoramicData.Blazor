@@ -1,6 +1,4 @@
-﻿using PanoramicData.Blazor.Models;
-
-namespace PanoramicData.Blazor.Demo.Pages;
+﻿namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDChatPage : IDisposable
 {

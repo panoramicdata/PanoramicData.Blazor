@@ -114,10 +114,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		_selectedNode = node;
 		_selectedEdge = null;
 
-		if (_graphInfo is not null)
-		{
-			_graphInfo.SetSelection(node, null);
-		}
+		_graphInfo?.SetSelection(node, null);
 
 		await NodeClick.InvokeAsync(node).ConfigureAwait(false);
 		await SelectionChanged.InvokeAsync((node, null)).ConfigureAwait(false);
@@ -128,10 +125,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		_selectedNode = null;
 		_selectedEdge = edge;
 
-		if (_graphInfo is not null)
-		{
-			_graphInfo.SetSelection(null, edge);
-		}
+		_graphInfo?.SetSelection(null, edge);
 
 		await EdgeClick.InvokeAsync(edge).ConfigureAwait(false);
 		await SelectionChanged.InvokeAsync((null, edge)).ConfigureAwait(false);

@@ -11,7 +11,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	private static int _idSequence;
 	private ElementReference _svgElement;
 	private GraphData? _graphData;
-	private Dictionary<string, (double X, double Y)> _nodePositions = new();
+	private Dictionary<string, (double X, double Y)> _nodePositions = [];
 	private string _transformMatrix = "translate(0,0) scale(1)";
 	private bool _isLoading = true;
 	private bool _hasError;
@@ -586,6 +586,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 		{
 			return defaultValue;
 		}
+
 		return Math.Clamp(value, 0.0, 1.0);
 	}
 
@@ -595,6 +596,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 		{
 			return defaultValue;
 		}
+
 		return Math.Clamp(value, 0.0, 1.0);
 	}
 
@@ -652,6 +654,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 					n.IsSelected = false;
 				}
 			}
+
 			if (_graphData?.Edges != null)
 			{
 				foreach (var e in _graphData.Edges)
@@ -696,6 +699,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 					n.IsSelected = false;
 				}
 			}
+
 			if (_graphData?.Edges != null)
 			{
 				foreach (var e in _graphData.Edges)

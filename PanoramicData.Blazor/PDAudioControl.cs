@@ -41,7 +41,11 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 
 	protected async Task OnPointerDown(PointerEventArgs e)
 	{
-		if (!IsEnabled) return;
+		if (!IsEnabled)
+		{
+			return;
+		}
+
 		Logger.LogInformation($"OnPointerDown: ClientY={e.ClientY}, Value={Value}");
 		_isDragging = true;
 		_dragOriginY = e.ClientY;

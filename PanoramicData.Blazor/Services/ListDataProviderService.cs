@@ -12,7 +12,7 @@ public class ListDataProviderService<TItem> : IDataProviderService<TItem>
 		List = items;
 	}
 
-	public List<TItem> List { get; private set; } = new();
+	public List<TItem> List { get; private set; } = [];
 
 	public Task<OperationResponse> CreateAsync(TItem item, CancellationToken cancellationToken)
 		=> CreateAsync(item, -1, cancellationToken);
@@ -51,6 +51,7 @@ public class ListDataProviderService<TItem> : IDataProviderService<TItem>
 				{
 					return Task.FromResult(new OperationResponse { ErrorMessage = "Not found" });
 				}
+
 				var itemType = item.GetType();
 				foreach (var name in delta.Keys)
 				{
@@ -59,13 +60,16 @@ public class ListDataProviderService<TItem> : IDataProviderService<TItem>
 					{
 						return Task.FromResult(new OperationResponse { ErrorMessage = $"Property {name} not found" });
 					}
+
 					if (!propInfo.CanWrite)
 					{
 						return Task.FromResult(new OperationResponse { ErrorMessage = $"Property {name} can not be written too" });
 					}
+
 					propInfo.SetValue(item, delta[name]);
 				}
 			}
+
 			return Task.FromResult(new OperationResponse { Success = true });
 		}
 		catch (Exception ex)

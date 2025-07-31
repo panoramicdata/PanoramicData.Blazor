@@ -6,14 +6,14 @@ public partial class PDCard<TCard> where TCard : ICard
 	/// <summary>
 	/// Whether this card is currently selected by the user.
 	/// </summary>
-	private bool _isSelected
+	private bool IsSelected
 		=> ParentCardDeck.Selection.Contains(Card);
 
 	/// <summary>
 	/// Whether this card is being dragged by the user.
 	/// </summary>
-	private bool _isDragging
-		=> ParentCardDeck.DragState.IsDragging && _isSelected;
+	private bool IsDragging
+		=> ParentCardDeck.DragState.IsDragging && IsSelected;
 
 	/// <summary>
 	/// Whether the drag animation is currently active. This is used to prevent multiple drag events from triggering the animation at the same time.
@@ -125,12 +125,12 @@ public partial class PDCard<TCard> where TCard : ICard
 		}
 
 		// Visual Updates of user actions
-		if (_isSelected)
+		if (IsSelected)
 		{
 			cardClass.Append(" selected");
 		}
 
-		if (_isDragging)
+		if (IsDragging)
 		{
 			cardClass.Append(" dragging");
 		}

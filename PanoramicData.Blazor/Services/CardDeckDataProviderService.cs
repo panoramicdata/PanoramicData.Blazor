@@ -70,13 +70,16 @@ public class CardDeckDataProviderService<TItem> : IDataProviderService<TItem>
 					{
 						return Task.FromResult(new OperationResponse { ErrorMessage = $"Property {name} not found" });
 					}
+
 					if (!propInfo.CanWrite)
 					{
 						return Task.FromResult(new OperationResponse { ErrorMessage = $"Property {name} can not be written too" });
 					}
+
 					propInfo.SetValue(item, delta[name]);
 				}
 			}
+
 			return Task.FromResult(new OperationResponse { Success = true });
 		}
 		catch (Exception ex)

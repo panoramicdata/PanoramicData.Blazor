@@ -82,6 +82,7 @@ public partial class PDTreePage
 			{
 				await Tree.ToggleNodeIsExpandedAsync(node); // Expand the Alice node
 			}
+
 			await Tree.ScrollNodeIntoViewAsync(node);
 		}
 	}
