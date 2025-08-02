@@ -13,7 +13,7 @@ public partial class PDChatPage : IDisposable
 		set => ChatService.PreferredDockMode = value;
 	}
 
-	private ChatMessageSender User => new()
+	private static ChatMessageSender User => new()
 	{
 		Name = "Demo User",
 		IsUser = true,
@@ -21,7 +21,7 @@ public partial class PDChatPage : IDisposable
 		IsSupport = false
 	};
 
-	private ChatMessageSender Bot => new()
+	private static ChatMessageSender Bot => new()
 	{
 		Name = "Demo Bot",
 		IsUser = false,

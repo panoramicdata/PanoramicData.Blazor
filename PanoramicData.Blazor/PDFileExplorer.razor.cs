@@ -40,14 +40,13 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private PDModal? UploadDialog { get; set; }
 	private PDDropZone _dropZone1 = null!;
 	private PDDropZone _dropZone2 = null!;
-	private string _folderPath = string.Empty;
 	private IJSObjectReference? _commonModule;
 	private ToolbarButton? _previewPanelButton;
 	private PDSplitter? _splitter;
 	private FileExplorerItem? _previewItem;
 	private double[] _lastSplitSizes = [20, 60, 20];
 
-	public string FolderPath { get => _folderPath; set => _folderPath = value; }
+	public string FolderPath { get; set; } = string.Empty;
 
 	private int InitialPreviewSize => PreviewPanel == FilePreviewModes.OptionalOff ? 0 : 1;
 

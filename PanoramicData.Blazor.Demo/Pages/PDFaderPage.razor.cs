@@ -10,6 +10,10 @@ public partial class PDFaderPage
 
 	private void OnValueChanged(double value)
 	{
-		_log.Log(LogLevel.Information, new EventId(0, "ValueChanged"), $"Value changed to {value}");
+		_log.Log(
+			LogLevel.Information,
+			new EventId(0, "ValueChanged"),
+			"Value changed to {Value}",
+			value);
 	}
 }

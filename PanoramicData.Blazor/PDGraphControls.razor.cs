@@ -63,11 +63,11 @@ public partial class PDGraphControls<TItem> : PDComponentBase where TItem : clas
 		// Add meaningful dimensions for the innovation knowledge graph
 		if (_availableDimensions.Count == 0)
 		{
-			_availableDimensions.AddRange(new[]
-			{
+			_availableDimensions.AddRange(
+			[
 				"Influence", "Fame", "Creativity", "Era", "Category",
 				"ConnectionStrength", "RelationshipType", "Certainty"
-			});
+			]);
 		}
 	}
 

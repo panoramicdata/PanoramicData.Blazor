@@ -28,6 +28,8 @@ public partial class PDPagerPage : IDisposable
 		_pageCriteria.PageChanged -= PageCriteria_PageChanged;
 		_pageCriteria.PageSizeChanged -= PageCriteria_PageSizeChanged;
 		_pageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
+
+		GC.SuppressFinalize(this);
 	}
 
 	private void PageCriteria_TotalCountChanged(object? sender, EventArgs e) => EventManager?.Add(new Event("TotalCountChanged", new EventArgument("TotalCount", _pageCriteria.TotalCount)));

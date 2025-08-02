@@ -22,5 +22,7 @@ public partial class EventView : IDisposable
 		{
 			EventManager.EventAdded -= OnEventAdded;
 		}
+
+		GC.SuppressFinalize(this);
 	}
 }

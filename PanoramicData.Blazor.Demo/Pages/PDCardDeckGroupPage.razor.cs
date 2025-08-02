@@ -5,41 +5,41 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDCardDeckGroupPage
 {
-	public CardDeckDataProviderService<Todo> _todoList1 { get; set; } = new();
+	public CardDeckDataProviderService<Todo> TodoList1 { get; set; } = new();
 
-	public CardDeckDataProviderService<Todo> _todoList2 { get; set; } = new();
+	public CardDeckDataProviderService<Todo> TodoList2 { get; set; } = new();
 
-	public CardDeckDataProviderService<Todo> _todoList3 { get; set; } = new();
+	public CardDeckDataProviderService<Todo> TodoList3 { get; set; } = new();
 
-	public CardDeckDataProviderService<Todo> _todoList4 { get; set; } = new();
+	public CardDeckDataProviderService<Todo> TodoList4 { get; set; } = new();
 
-	public CardDeckDataProviderService<Todo> _todoList5 { get; set; } = new();
+	public CardDeckDataProviderService<Todo> TodoList5 { get; set; } = new();
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	protected override void OnInitialized()
 	{
-		_todoList1.List.AddRange([new() {
+		TodoList1.List.AddRange([new() {
 			Title = "A Todo", Description = "a description" },
 		new() { Title = "Put out Pan Fire", Description = "a description" },
 		new() { Title = "Mow the Lawn", Description = "a description" }]);
 
-		_todoList2.List.AddRange([new() {
+		TodoList2.List.AddRange([new() {
 			Title = "A Todo", Description = "a description" },
 		new() { Title = "Put out Pan Fire", Description = "a description" },
 		new() { Title = "Mow the Lawn", Description = "a description" }]);
 
-		_todoList3.List.AddRange([new() {
+		TodoList3.List.AddRange([new() {
 			Title = "A Todo", Description = "a description" },
 		new() { Title = "Put out Pan Fire", Description = "a description" },
 		new() { Title = "Mow the Lawn", Description = "a description" }]);
 
-		_todoList4.List.AddRange([new() {
+		TodoList4.List.AddRange([new() {
 			Title = "A Todo", Description = "a description" },
 		new() { Title = "Put out Pan Fire", Description = "a description" },
 		new() { Title = "Mow the Lawn", Description = "a description" }]);
 
-		_todoList5.List.AddRange([new() {
+		TodoList5.List.AddRange([new() {
 			Title = "A Todo", Description = "a description" },
 		new() { Title = "Put out Pan Fire", Description = "a description" },
 		new() { Title = "Mow the Lawn", Description = "a description" }]);

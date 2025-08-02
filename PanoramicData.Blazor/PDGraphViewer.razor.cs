@@ -16,9 +16,9 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 
 	// Add these fields to track parameter changes
 	private bool _isUpdatingParameters = false;
-	private GraphVisualizationConfig? _previousVisualizationConfig;
-	private GraphClusteringConfig? _previousClusteringConfig;
-	private double _previousConvergenceThreshold = 0.02;
+	private readonly GraphVisualizationConfig? _previousVisualizationConfig;
+	private readonly GraphClusteringConfig? _previousClusteringConfig;
+	private readonly double _previousConvergenceThreshold = 0.02;
 
 	/// <summary>
 	/// Gets or sets the data provider for the graph data.

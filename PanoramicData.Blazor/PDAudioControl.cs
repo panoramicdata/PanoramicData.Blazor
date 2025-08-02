@@ -110,7 +110,7 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 		StateHasChanged();
 	}
 
-	protected int CalculateMarkingStep(int maxVolume)
+	protected static int CalculateMarkingStep(int maxVolume)
 	{
 		if (maxVolume <= 12)
 		{

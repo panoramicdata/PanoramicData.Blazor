@@ -16,7 +16,7 @@ public partial class PDLogPage
 	private bool _showIcon = true;
 	private LogLevel _logLevel = LogLevel.Information;
 
-	private List<MenuItem> LogLevelMenuItems => [.. Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>().Select(ll => new MenuItem { Key = ll.ToString(), Text = ll.ToString() })];
+	private static List<MenuItem> LogLevelMenuItems => [.. Enum.GetValues<LogLevel>().Cast<LogLevel>().Select(ll => new MenuItem { Key = ll.ToString(), Text = ll.ToString() })];
 
 	private string LogTimestampFormat { get; set; } = "yyyy-MM-dd HH:mm:ss.fff";
 

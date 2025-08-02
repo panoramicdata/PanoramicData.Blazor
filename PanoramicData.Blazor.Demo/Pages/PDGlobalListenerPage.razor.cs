@@ -32,5 +32,7 @@ public partial class PDGlobalListenerPage : IDisposable
 			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
 			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyDownEvent;
 		}
+
+		GC.SuppressFinalize(this);
 	}
 }

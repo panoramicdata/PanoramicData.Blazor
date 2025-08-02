@@ -171,8 +171,6 @@ public class MethodCache
 		// filter methods?
 		var methodInfos = flags.HasValue ? type.GetMethods(flags.Value) : type.GetMethods();
 
-		var typeNameFn = (string name) => name;
-
 		// iterate over each method
 		foreach (MethodInfo methodInfo in methodInfos)
 		{

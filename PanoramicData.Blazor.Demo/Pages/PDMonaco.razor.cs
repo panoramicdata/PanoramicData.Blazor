@@ -79,7 +79,7 @@ public partial class PDMonaco : IAsyncDisposable
 		}
 	}
 
-	private Task UpdateCacheAsync(MethodCache methodCache, string language, string methodName)
+	private static Task UpdateCacheAsync(MethodCache methodCache, string language, string methodName)
 	{
 		// use this function to fetch parameter information for the given method
 		// useful when thousands of parameters in total and to load upfront
@@ -98,7 +98,7 @@ public partial class PDMonaco : IAsyncDisposable
 		return Task.CompletedTask;
 	}
 
-	private void AddRmscriptMacroParameters(MethodCache.Method method)
+	private static void AddRmscriptMacroParameters(MethodCache.Method method)
 	{
 		if (method.MethodName == "List.Add")
 		{
@@ -232,7 +232,7 @@ public partial class PDMonaco : IAsyncDisposable
 		]);
 	}
 
-	private void InitializeOptions(StandaloneEditorConstructionOptions options)
+	private static void InitializeOptions(StandaloneEditorConstructionOptions options)
 	{
 		// this method is called by the PDMonacoEditor when initialized to allow for default options to be applied
 		// Language and Theme are already set from the supplied Parameters
@@ -329,7 +329,7 @@ public partial class PDMonaco : IAsyncDisposable
 		_themePreference = themePreference;
 	}
 
-	private void RegisterLanguages(List<Language> languages)
+	private static void RegisterLanguages(List<Language> languages)
 	{
 		// this method is called by the PDMonacoEditor to allow custom languages to be added
 		languages.Add(new Language

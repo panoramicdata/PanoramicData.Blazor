@@ -13,7 +13,7 @@ public partial class PDCardDeckGroup<TCard> where TCard : ICard
 	/// <summary>
 	/// Holds a list of destination deck IDs that are part of the current card migration process (this is for UI only).
 	/// </summary>
-	private List<string> _destinations = [];
+	private readonly List<string> _destinations = [];
 
 	/// <summary>
 	/// The original deck that holds the cards that are moving
@@ -28,7 +28,7 @@ public partial class PDCardDeckGroup<TCard> where TCard : ICard
 	/// <summary>
 	/// Holds references to the decks that are part of this group
 	/// </summary>
-	private List<PDCardDeck<TCard>> _decks = [];
+	private readonly List<PDCardDeck<TCard>> _decks = [];
 
 
 	/// <summary>

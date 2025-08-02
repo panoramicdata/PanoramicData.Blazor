@@ -6,7 +6,7 @@ public partial class MainLayout
 
 	[Inject] private IChatService ChatService { get; set; } = default!;
 
-	private ChatMessageSender User => new()
+	private static ChatMessageSender User => new()
 	{
 		Name = "User",
 		IsUser = true,
@@ -58,7 +58,7 @@ public partial class MainLayout
 
 	// Optional dock mode change handler - for monitoring purposes only
 	// The PDChatContainer now handles all dock mode synchronization automatically!
-	private void OnDockModeChanged(PDChatDockMode newMode)
+	private static void OnDockModeChanged(PDChatDockMode newMode)
 	{
 		// This is now optional - you could log analytics, show notifications, etc.
 		// The container handles all the actual state management internally
@@ -72,5 +72,6 @@ public partial class MainLayout
 	public void Dispose()
 	{
 		ChatService.OnConfigurationChanged -= OnConfigurationChanged;
+		GC.SuppressFinalize(this);
 	}
 }

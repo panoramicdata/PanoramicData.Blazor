@@ -8,7 +8,7 @@ public class GraphDataProvider : DataProviderBase<GraphData>
 	public override Task<DataResponse<GraphData>> GetDataAsync(DataRequest<GraphData> request, CancellationToken cancellationToken = default)
 	{
 		var graphData = CreateInnovationKnowledgeGraph();
-		
+
 		// Use the correct constructor: new DataResponse<T>(items, totalCount)
 		var response = new DataResponse<GraphData>([graphData], 1);
 
@@ -35,7 +35,6 @@ public class GraphDataProvider : DataProviderBase<GraphData>
 
 	private static GraphData CreateInnovationKnowledgeGraph()
 	{
-		var random = new Random(42); // Fixed seed for consistent demo data
 		var graphData = new GraphData();
 
 		// Create innovation knowledge graph nodes

@@ -72,16 +72,16 @@ public partial class PDKnob : PDAudioControl
 
 	protected static double Deg2Rad(double deg) => deg * Math.PI / 180.0;
 
-	protected string DescribeArc(double cx, double cy, double r, double startAngle, double endAngle)
+	protected static string DescribeArc(double cx, double cy, double r, double startAngle, double endAngle)
 	{
-		var start = PolarToCartesian(cx, cy, r, endAngle);
-		var end = PolarToCartesian(cx, cy, r, startAngle);
+		var (startX, startY) = PolarToCartesian(cx, cy, r, endAngle);
+		var (endX, endY) = PolarToCartesian(cx, cy, r, startAngle);
 		var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-		return $"M {start.X.ToString(CultureInfo.InvariantCulture)} {start.Y.ToString(CultureInfo.InvariantCulture)} " +
-			   $"A {r.ToString(CultureInfo.InvariantCulture)} {r.ToString(CultureInfo.InvariantCulture)} 0 {largeArcFlag} 0 {end.X.ToString(CultureInfo.InvariantCulture)} {end.Y.ToString(CultureInfo.InvariantCulture)}";
+		return $"M {startX.ToString(CultureInfo.InvariantCulture)} {startY.ToString(CultureInfo.InvariantCulture)} " +
+			   $"A {r.ToString(CultureInfo.InvariantCulture)} {r.ToString(CultureInfo.InvariantCulture)} 0 {largeArcFlag} 0 {endX.ToString(CultureInfo.InvariantCulture)} {endY.ToString(CultureInfo.InvariantCulture)}";
 	}
 
-	protected (double X, double Y) PolarToCartesian(double cx, double cy, double r, double angleDeg)
+	protected static (double X, double Y) PolarToCartesian(double cx, double cy, double r, double angleDeg)
 	{
 		var angleRad = Deg2Rad(angleDeg);
 		return (cx + r * Math.Sin(angleRad), cy - r * Math.Cos(angleRad));

@@ -19,7 +19,7 @@ public partial class PDFormPage5
 		SqlQuery = "SELECT *\r\n  FROM [Customers]\r\n WHERE [Type] = 123"
 	};
 
-	private FieldStringOptions QueryEditorOptions
+	private static FieldStringOptions QueryEditorOptions
 	{
 		get
 		{

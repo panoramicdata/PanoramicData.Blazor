@@ -333,24 +333,23 @@ public partial class PDChat : JSModuleComponentBase
 			var newTab = new PDTab
 			{
 				Title = "New Tab",
-				IsRenamingEnabled = true
-			};
-
-			newTab.ChildContent = builder =>
-			{
-				builder.OpenComponent<PDMonacoEditor>(0);
-				builder.AddAttribute(1, "Language", "csharp");
-				builder.AddAttribute(2, "Theme", "vs-dark");
-				builder.AddAttribute(3, "InitializeOptions", new Func<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(() =>
-					new BlazorMonaco.Editor.StandaloneEditorConstructionOptions
+				IsRenamingEnabled = true,
+				ChildContent = builder =>
 					{
-						AutomaticLayout = true,
-						Language = "csharp",
-						Theme = "vs-dark",
-						Value = "// Welcome to the Monaco Editor!\n// Start coding here...\n",
-						Minimap = new BlazorMonaco.Editor.EditorMinimapOptions { Enabled = false }
-					}));
-				builder.CloseComponent();
+						builder.OpenComponent<PDMonacoEditor>(0);
+						builder.AddAttribute(1, "Language", "csharp");
+						builder.AddAttribute(2, "Theme", "vs-dark");
+						builder.AddAttribute(3, "InitializeOptions", new Func<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(() =>
+							new BlazorMonaco.Editor.StandaloneEditorConstructionOptions
+							{
+								AutomaticLayout = true,
+								Language = "csharp",
+								Theme = "vs-dark",
+								Value = "// Welcome to the Monaco Editor!\n// Start coding here...\n",
+								Minimap = new BlazorMonaco.Editor.EditorMinimapOptions { Enabled = false }
+							}));
+						builder.CloseComponent();
+					}
 			};
 
 			_tabSetRef.AddTab(newTab);

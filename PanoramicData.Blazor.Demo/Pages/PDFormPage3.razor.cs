@@ -13,7 +13,7 @@ public partial class PDFormPage3
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	private string GetIdDescription(FormField<Person> field, PDForm<Person> form)
+	private static string GetIdDescription(FormField<Person> field, PDForm<Person> form)
 	{
 		if (form?.Item is null)
 		{

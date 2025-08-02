@@ -2,7 +2,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDTabSetPage
 {
-	private List<TabInfo> _tabs =
+	private readonly List<TabInfo> _tabs =
 	[
 		new TabInfo { Title = "Tab 1", Content = "This is the first tab." },
 		new TabInfo { Title = "Tab 2", Content = "This is the second tab." }

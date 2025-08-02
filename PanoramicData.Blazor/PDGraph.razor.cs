@@ -11,7 +11,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 	private static int _idSequence;
 	private ElementReference _svgElement;
 	private GraphData? _graphData;
-	private Dictionary<string, (double X, double Y)> _nodePositions = [];
+	private readonly Dictionary<string, (double X, double Y)> _nodePositions = [];
 	private string _transformMatrix = "translate(0,0) scale(1)";
 	private bool _isLoading = true;
 	private bool _hasError;

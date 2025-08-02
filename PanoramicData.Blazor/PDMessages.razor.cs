@@ -33,7 +33,6 @@ public partial class PDMessages
 
 	private IJSObjectReference? _module;
 	private ElementReference _inputRef;
-	private bool _forceTextareaRender;
 	private string _textareaKey = Guid.NewGuid().ToString();
 
 	protected override async Task OnParametersSetAsync()

@@ -87,7 +87,7 @@ public partial class PDTabSet : ComponentBase
 		}
 	}
 
-	internal void OnRenameTabInput(PDTab tab, ChangeEventArgs e)
+	internal static void OnRenameTabInput(PDTab tab, ChangeEventArgs e)
 	{
 		tab.TempTitle = e.Value?.ToString() ?? string.Empty;
 	}

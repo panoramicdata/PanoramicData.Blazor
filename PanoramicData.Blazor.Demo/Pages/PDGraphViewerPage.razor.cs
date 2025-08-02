@@ -219,7 +219,7 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 
 	public void Dispose()
 	{
-		// No cleanup needed
+		GC.SuppressFinalize(this);
 	}
 }
 

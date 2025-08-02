@@ -21,7 +21,7 @@ public partial class PDFormPage
 
 	// MONACO editor example
 
-	private FieldStringOptions TextEditorOptions
+	private static FieldStringOptions TextEditorOptions
 	{
 		get
 		{

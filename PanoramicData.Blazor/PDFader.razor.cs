@@ -17,15 +17,15 @@ public partial class PDFader : PDAudioControl
 
 	// Geometry
 
-	protected double GripHeight => 20;
+	protected static double GripHeight => 20;
 	protected double GripWidth => Width * 0.75;
-	protected double GripRx => 2;
+	protected static double GripRx => 2;
 	protected double GripX => (Width - GripWidth) / 2;
 	protected double GripY => (Height - GripHeight) * (1 - Value);
 	protected double GripX2 => GripX + GripWidth;
 	protected double CenterLineY => GripY + (GripHeight / 2.0);
-	protected string HighlightColor => "#aaa";
-	protected string ShadowColor => "#666";
+	protected static string HighlightColor => "#aaa";
+	protected static string ShadowColor => "#666";
 
 	// Markings
 	protected List<Mark> Markings => GetMarkings();
@@ -34,10 +34,7 @@ public partial class PDFader : PDAudioControl
 	protected override void OnParametersSet()
 	{
 		// Only set SnapPoints if not already set by the user (i.e., SnapPoints is null)
-		if (SnapPoints == null)
-		{
-			SnapPoints = MaxValue - MinValue + 1;
-		}
+		SnapPoints ??= MaxValue - MinValue + 1;
 
 		base.OnParametersSet();
 	}

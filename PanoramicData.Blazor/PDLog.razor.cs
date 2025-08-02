@@ -139,7 +139,7 @@ public partial class PDLog : ILogger
 	};
 
 	// Get the timestamp color class matching the log level
-	private string GetLogLevelTimestampClass(LogLevel logLevel) => logLevel switch
+	private static string GetLogLevelTimestampClass(LogLevel logLevel) => logLevel switch
 	{
 		LogLevel.Information => "text-info",
 		LogLevel.Warning => "text-warning",
