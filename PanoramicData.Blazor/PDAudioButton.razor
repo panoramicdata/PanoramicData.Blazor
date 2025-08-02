@@ -1,18 +1,16 @@
 @inherits PDAudioControl
 
 <div class="pd-audio-button @CssClass" style="display:inline-block; user-select:none;">
-    @if (LabelPosition == PDLabelPosition.Above) { @RenderLabel() }
-    <svg width="60" height="40" @onclick="Toggle" style="cursor:pointer;">
-        <rect x="10" y="15" width="40" height="10" rx="5" fill="@(Value > 0.5 ? ActiveColor : InactiveColor)" filter="@(Value > 0.5 ? "url(#glow)" : null)" />
-        <defs>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-            </filter>
-        </defs>
-    </svg>
-    @if (LabelPosition == PDLabelPosition.Below) { @RenderLabel() }
+	@if (LabelPosition == PDLabelPosition.Above)
+	{
+		@RenderLabel()
+	}
+	<div class="button-container @(Value > 0.5 ? "pressed" : "unpressed")" @onclick="Toggle">
+		<div class="button-inner" style="background-color: @(Value > 0.5 ? ActiveColor : InactiveColor);">
+		</div>
+	</div>
+	@if (LabelPosition == PDLabelPosition.Below)
+	{
+		@RenderLabel()
+	}
 </div>

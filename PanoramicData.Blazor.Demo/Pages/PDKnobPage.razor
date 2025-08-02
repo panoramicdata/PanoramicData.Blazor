@@ -7,22 +7,22 @@
 	<div style="display: flex; gap: 48px; align-items: flex-start;">
 		<div>
 			<h3>Volume</h3>
-			<PDKnob Mode="PDKnobMode.Volume" @bind-Value="_volumeValue" MaxVolume="@_maxVolume" KnobColor="@_knobColor" ActiveColor="@_activeColor" Label="@_knobLabel" LabelPosition="@_labelPosition" LabelHeightPx="@_labelHeightPx" LabelCssClass="@_labelCssClass" />
+			<PDKnob Mode="PDKnobMode.Volume" @bind-Value="_volumeValue" MaxDisplay="@_maxVolume" CapColor="@_knobColor" ActiveColor="@_activeColor" Label="@_knobLabel" LabelPosition="@_labelPosition" LabelHeightPx="@_labelHeightPx" LabelCssClass="@_labelCssClass" />
 			<div>Value: @(_volumeValue.ToString("F2"))</div>
 		</div>
 		<div>
 			<h3>Balance</h3>
-			<PDKnob Mode="PDKnobMode.Balance" @bind-Value="_balanceValue" KnobColor="@_knobColor" ActiveColor="@_activeColor" Label="@_knobLabel" LabelPosition="@_labelPosition" LabelHeightPx="@_labelHeightPx" LabelCssClass="@_labelCssClass" />
+			<PDKnob Mode="PDKnobMode.Balance" @bind-Value="_balanceValue" CapColor="@_knobColor" ActiveColor="@_activeColor" Label="@_knobLabel" LabelPosition="@_labelPosition" LabelHeightPx="@_labelHeightPx" LabelCssClass="@_labelCssClass" />
 			<div>Value: @(_balanceValue.ToString("F2"))</div>
 		</div>
 		<div>
 			<h3>Gain</h3>
-			<PDKnob Mode="PDKnobMode.Gain" @bind-Value="_gainValue" KnobColor="@_knobColor" ActiveColor="@_activeColor" Label="@_knobLabel" LabelPosition="@_labelPosition" LabelHeightPx="@_labelHeightPx" LabelCssClass="@_labelCssClass" />
+			<PDKnob Mode="PDKnobMode.Gain" @bind-Value="_gainValue" CapColor="@_knobColor" ActiveColor="@_activeColor" Label="@_knobLabel" LabelPosition="@_labelPosition" LabelHeightPx="@_labelHeightPx" LabelCssClass="@_labelCssClass" />
 			<div>Value: @(_gainValue.ToString("F2"))</div>
 		</div>
 		<div>
 			<h3>Snapping</h3>
-			<PDKnob Mode="PDKnobMode.Volume" @bind-Value="@_snapValue" SnapIncrement="@_snapIncrement" KnobColor="@_knobColor" ActiveColor="@_activeColor" Label="@_knobLabel" LabelPosition="@_labelPosition" LabelHeightPx="@_labelHeightPx" LabelCssClass="@_labelCssClass" />
+			<PDKnob Mode="PDKnobMode.Volume" @bind-Value="@_snapValue" SnapIncrement="@_snapIncrement" CapColor="@_knobColor" ActiveColor="@_activeColor" Label="@_knobLabel" LabelPosition="@_labelPosition" LabelHeightPx="@_labelHeightPx" LabelCssClass="@_labelCssClass" />
 			<div>Value: @(_snapValue.ToString("F2"))</div>
 		</div>
 	</div>

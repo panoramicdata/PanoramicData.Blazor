@@ -5,25 +5,36 @@ namespace PanoramicData.Blazor;
 public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 {
 	[Parameter] public double Value { get; set; } = 0.5;
+
 	[Parameter] public EventCallback<double> ValueChanged { get; set; }
+
 	[Parameter] public double? DefaultValue { get; set; }
+
 	[Parameter] public bool IsEnabled { get; set; } = true;
+
 	[Parameter] public double SnapIncrement { get; set; }
+
 	[Parameter] public int? SnapPoints { get; set; }
+
 	[Parameter] public string? Label { get; set; }
+
 	[Parameter] public int LabelHeightPx { get; set; } = 20;
+
 	[Parameter] public string? LabelCssClass { get; set; }
+
 	[Parameter] public PDLabelPosition LabelPosition { get; set; } = PDLabelPosition.Below;
+
 	[Parameter] public string? CssClass { get; set; } // Allow user to override CSS
 
 	[Inject] protected IJSRuntime JS { get; set; } = default!;
+
 	[Inject] protected ILogger<PDAudioControl> Logger { get; set; } = default!;
 
-	protected bool _isDragging;
-	protected double _dragOriginValue;
-	protected double _dragOriginY;
-	protected DotNetObjectReference<PDAudioControl>? _dotNetRef;
-	protected IJSObjectReference? _jsModule;
+	private bool _isDragging;
+	private double _dragOriginValue;
+	private double _dragOriginY;
+	private DotNetObjectReference<PDAudioControl>? _dotNetRef;
+	private IJSObjectReference? _jsModule;
 	protected virtual string JsFileName => string.Empty; // Make virtual instead of abstract
 
 	protected override void OnParametersSet()
@@ -51,7 +62,7 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 		// Only import JS module if JsFileName is not empty
 		if (!string.IsNullOrEmpty(JsFileName))
 		{
-			Logger.LogInformation($"OnPointerDown: ClientY={e.ClientY}, Value={Value}");
+			Logger.LogInformation("OnPointerDown: ClientY={ClientY}, Value={Value}", e.ClientY, Value);
 			_isDragging = true;
 			_dragOriginY = e.ClientY;
 			_dragOriginValue = Value;
