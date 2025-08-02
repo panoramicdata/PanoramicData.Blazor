@@ -1,0 +1,3 @@
+.pd-audio-button { display: inline-block; }
+.pd-audio-button rect { transition: fill 0.2s; }
+.pd-audio-button .pd-audio-label { font-size: 0.9rem; color: #ccc; }

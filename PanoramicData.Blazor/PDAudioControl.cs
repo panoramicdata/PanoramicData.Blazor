@@ -1,3 +1,5 @@
+using PanoramicData.Blazor.Enums;
+
 namespace PanoramicData.Blazor;
 
 public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
@@ -9,10 +11,10 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 	[Parameter] public double SnapIncrement { get; set; }
 	[Parameter] public int? SnapPoints { get; set; }
 	[Parameter] public string? Label { get; set; }
-
 	[Parameter] public int LabelHeightPx { get; set; } = 20;
 	[Parameter] public string? LabelCssClass { get; set; }
 	[Parameter] public PDLabelPosition LabelPosition { get; set; } = PDLabelPosition.Below;
+	[Parameter] public string? CssClass { get; set; } // Allow user to override CSS
 
 	[Inject] protected IJSRuntime JS { get; set; } = default!;
 	[Inject] protected ILogger<PDAudioControl> Logger { get; set; } = default!;
@@ -22,7 +24,7 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 	protected double _dragOriginY;
 	protected DotNetObjectReference<PDAudioControl>? _dotNetRef;
 	protected IJSObjectReference? _jsModule;
-	protected abstract string JsFileName { get; }
+	protected virtual string JsFileName => string.Empty; // Make virtual instead of abstract
 
 	protected override void OnParametersSet()
 	{
@@ -46,14 +48,18 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 			return;
 		}
 
-		Logger.LogInformation($"OnPointerDown: ClientY={e.ClientY}, Value={Value}");
-		_isDragging = true;
-		_dragOriginY = e.ClientY;
-		_dragOriginValue = Value;
+		// Only import JS module if JsFileName is not empty
+		if (!string.IsNullOrEmpty(JsFileName))
+		{
+			Logger.LogInformation($"OnPointerDown: ClientY={e.ClientY}, Value={Value}");
+			_isDragging = true;
+			_dragOriginY = e.ClientY;
+			_dragOriginValue = Value;
 
-		_dotNetRef ??= DotNetObjectReference.Create(this);
-		_jsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", JsFileName);
-		await _jsModule.InvokeVoidAsync("registerAudioControlEvents", _dotNetRef);
+			_dotNetRef ??= DotNetObjectReference.Create(this);
+			_jsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", JsFileName);
+			await _jsModule.InvokeVoidAsync("registerAudioControlEvents", _dotNetRef);
+		}
 	}
 
 	[JSInvokable]
@@ -126,6 +132,19 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 			_ => (int)Math.Ceiling(rawStep / 10) * 10
 		};
 	}
+
+	// Render label above or below
+	protected RenderFragment RenderLabel() => builder =>
+	{
+		if (!string.IsNullOrEmpty(Label))
+		{
+			builder.OpenElement(0, "div");
+			builder.AddAttribute(1, "class", $"pd-audio-label {LabelCssClass}");
+			builder.AddAttribute(2, "style", $"height:{LabelHeightPx}px;text-align:center;pointer-events:none;");
+			builder.AddContent(3, Label);
+			builder.CloseElement();
+		}
+	};
 
 	public async ValueTask DisposeAsync()
 	{

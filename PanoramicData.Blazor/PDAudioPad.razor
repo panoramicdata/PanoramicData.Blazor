@@ -1,0 +1,40 @@
+@using PanoramicData.Blazor.Enums
+@inherits PDAudioControl
+
+<div class="pd-audio-pad @CssClass" style="display: inline-block; text-align: center; position: relative;">
+	@if (LabelPosition == PDLabelPosition.Above)
+	{
+		@RenderLabel()
+	}
+	<svg width="@Width" height="@Height" @onmousedown="HandlePress" @onmouseup="HandleRelease" style="cursor:pointer;">
+		<rect x="@(Width * 0.1)" y="@(Height * 0.1)" width="@(Width * 0.8)" height="@(Height * 0.8)" rx="8" fill="@DisplayColor" filter="@(Value > 0.5 ? "url(#glow)" : null)" />
+		@if (Symbol.HasValue)
+		{
+			<foreignObject x="@(Width * 0.25)" y="@(Height * 0.25)" width="@(Width * 0.5)" height="@(Height * 0.5)">
+				<div class="pd-audio-pad-symbol @SymbolClass" style="color: @(SymbolColorInternal);"></div>
+			</foreignObject>
+		}
+		@if (LabelPosition == PDLabelPosition.Overlay)
+		{
+			<foreignObject x="0" y="0" width="@Width" height="@Height">
+				<div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; text-align: center; word-wrap: break-word; overflow: hidden; color: @OverlayLabelColor; font-size: @(Height * 0.1)px; user-select:none;">
+					@Label
+				</div>
+			</foreignObject>
+		}
+		<defs>
+			<filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+				<feGaussianBlur stdDeviation="4" result="coloredBlur" />
+				<feMerge>
+					<feMergeNode in="coloredBlur" />
+					<feMergeNode in="SourceGraphic" />
+				</feMerge>
+			</filter>
+		</defs>
+	</svg>
+	@if (LabelPosition == PDLabelPosition.Below)
+	{
+		@RenderLabel()
+	}
+</div>
+

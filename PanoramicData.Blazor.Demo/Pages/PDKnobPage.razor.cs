@@ -1,3 +1,5 @@
+using PanoramicData.Blazor.Enums;
+
 namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDKnobPage

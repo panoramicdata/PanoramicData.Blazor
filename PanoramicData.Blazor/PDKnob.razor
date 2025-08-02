@@ -1,10 +1,10 @@
 @inherits PDAudioControl
 @using PanoramicData.Blazor.Enums
 
-<div class="pd-knob @(IsEnabled ? "" : "disabled")" style="display:inline-block; touch-action:none; user-select:none;">
+<div class="pd-knob @(IsEnabled ? "" : "disabled")" style="display:inline-block; touch-action:none; user-select:none; position: relative;">
 	@if (LabelPosition == PDLabelPosition.Above && !string.IsNullOrEmpty(Label))
 	{
-		<div class="pd-knob-label @LabelCssClass" style="height:@(LabelHeightPx)px;">@Label</div>
+		<div class="pd-knob-label @LabelCssClass">@Label</div>
 	}
 	<svg @ref="_svgRef"
 		 width="@(SizePx)" height="@(SizePx)"
@@ -32,6 +32,10 @@
 	</svg>
 	@if (LabelPosition == PDLabelPosition.Below && !string.IsNullOrEmpty(Label))
 	{
-		<div class="pd-knob-label @LabelCssClass" style="height:@(LabelHeightPx)px;">@Label</div>
+		<div class="pd-knob-label @LabelCssClass">@Label</div>
+	}
+	@if (LabelPosition == PDLabelPosition.Overlay && !string.IsNullOrEmpty(Label))
+	{
+		<div class="pd-knob-label-overlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; pointer-events: none;">@Label</div>
 	}
 </div>

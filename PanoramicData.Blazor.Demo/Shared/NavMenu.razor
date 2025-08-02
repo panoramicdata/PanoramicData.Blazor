@@ -1,6 +1,5 @@
 ﻿<div class="top-row ps-4 navbar navbar-dark">
 	<PDNavLink class="navbar-brand" href="">PanoramicData.Blazor</PDNavLink>
-	@*<a class="navbar-brand" href="">PanoramicData.Blazor</a>*@
 	<button class="navbar-toggler" @onclick="ToggleNavMenu">
 		<span class="navbar-toggler-icon"></span>
 	</button>
@@ -18,6 +17,33 @@
 				<span class="fas fa-fw fa-question-circle me-2" aria-hidden="true"></span> Installation
 			</PDNavLink>
 		</li>
+
+		<!-- Audio Section -->
+		<li class="nav-item px-3">
+			<span class="nav-link disabled" style="font-weight:bold;opacity:1;">Audio</span>
+		</li>
+		<li class="nav-item px-3 sub-menu">
+			<PDNavLink class="nav-link" href="pdfader">
+				<span class="fas fa-fw fa-sliders-h me-2" aria-hidden="true"></span> PDFader
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3 sub-menu">
+			<PDNavLink class="nav-link" href="pdknob">
+				<span class="fas fa-fw fa-dot-circle me-2" aria-hidden="true"></span> PDKnob
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3 sub-menu">
+			<PDNavLink class="nav-link" href="pdaudiobutton">
+				<span class="fas fa-fw fa-toggle-on me-2" aria-hidden="true"></span> PDAudioButton
+			</PDNavLink>
+		</li>
+		<li class="nav-item px-3 sub-menu">
+			<PDNavLink class="nav-link" href="pdaudiopad">
+				<span class="fas fa-fw fa-square me-2" aria-hidden="true"></span> PDAudioPad
+			</PDNavLink>
+		</li>
+
+		<!-- Other Components -->
 		<li class="nav-item px-3">
 			<PDNavLink class="nav-link" href="pdblockoverlay">
 				<span class="fas fa-fw fa-clone me-2" aria-hidden="true"></span> PDBlockOverlay
@@ -119,16 +145,6 @@
 			</PDNavLink>
 		</li>
 		<li class="nav-item px-3">
-			<PDNavLink class="nav-link" href="pdknob">
-				<span class="fas fa-fw fa-dot-circle me-2" aria-hidden="true"></span> PDKnob
-			</PDNavLink>
-		</li>
-		<li class="nav-item px-3">
-			<PDNavLink class="nav-link" href="pdfader">
-				<span class="fas fa-fw fa-sliders-h me-2" aria-hidden="true"></span> PDFader
-			</PDNavLink>
-		</li>
-		<li class="nav-item px-3">
 			<PDNavLink class="nav-link" href="pdlist">
 				<span class="fas fa-fw fa-list me-2" aria-hidden="true"></span> PDList
 			</PDNavLink>
@@ -148,7 +164,6 @@
 				<span class="fas fa-fw fa-edit me-2" aria-hidden="true"></span> PDMonacoEditor
 			</PDNavLink>
 		</li>
-
 		<li class="nav-item px-3">
 			<PDNavLink class="nav-link" href="pdpager">
 				<span class="fas fa-fw fa-arrows-alt-h me-2" aria-hidden="true"></span> PDPager

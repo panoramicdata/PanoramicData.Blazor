@@ -1,0 +1,26 @@
+@page "/pdaudiobutton"
+@using PanoramicData.Blazor
+
+<h1>PDAudioButton Demo</h1>
+
+<DemoSourceView SourceFiles="Pages/PDAudioButtonDemo.razor, Pages/PDAudioButtonDemo.razor.cs">
+	<div class="row">
+		<div class="col-md-6">
+			<h5>Basic Examples</h5>
+			<div class="d-flex gap-3 mb-3">
+				<PDAudioButton Label="Mute"
+							   LabelPosition="PDLabelPosition.Above" />
+				<PDAudioButton Label="Solo"
+							   LabelPosition="PDLabelPosition.Below"
+							   ActiveColor="#f00" />
+				<PDAudioButton Label="Phantom"
+							   LabelPosition="PDLabelPosition.Above"
+							   ActiveColor="#0f0" />
+			</div>
+
+
+		</div>
+	</div>
+
+	<EventView />
+</DemoSourceView>

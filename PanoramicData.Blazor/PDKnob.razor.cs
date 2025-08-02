@@ -2,12 +2,6 @@ using PanoramicData.Blazor.Enums;
 
 namespace PanoramicData.Blazor;
 
-public enum PDLabelPosition
-{
-	Above,
-	Below
-}
-
 public partial class PDKnob : PDAudioControl
 {
 	[Parameter] public PDKnobMode Mode { get; set; } = PDKnobMode.Volume;

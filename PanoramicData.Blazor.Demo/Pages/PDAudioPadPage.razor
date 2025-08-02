@@ -1,0 +1,34 @@
+@page "/pdaudiopad"
+
+<style>
+    .pd-audio-pad-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background-color: #666;
+    }
+</style>
+
+<h1>PDAudioPad Demo</h1>
+
+<div class="pd-audio-pad-grid">
+    <PDAudioPad Label="Drum" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Press" ActiveColor="#ff0000" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
+    <PDAudioPad Label="Snare" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Press" ActiveColor="#00ff00" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
+    <PDAudioPad Label="Tom 1" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Press" ActiveColor="#0000ff" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
+    <PDAudioPad Label="Hi-hat" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Release" ActiveColor="#ffff00" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
+
+    <PDAudioPad Label="Linear Decay" DecayMode="DecayMode.Linear" DecayUpon="DecayUpon.Press" ActiveColor="#ff00ff" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
+    <PDAudioPad Label="Release Toggle" DecayMode="DecayMode.Toggle" DecayUpon="DecayUpon.Release" ActiveColor="#00ffff" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
+    <PDAudioPad Label="Slow Decay" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Press" DecayHalfLife="TimeSpan.FromSeconds(2)" ActiveColor="#ff8800" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
+    <PDAudioPad Label="No Zeroing" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Press" ZeroBelow="0" ActiveColor="#ff0088" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
+
+    <PDAudioPad Symbol="Symbol.PreviousTrack" MinValue="0.5" Width="120" Height="60" />
+    <PDAudioPad Symbol="Symbol.Play" MinValue="0.5" Width="120" Height="60" />
+    <PDAudioPad Symbol="Symbol.Pause" DecayMode="DecayMode.Toggle" Width="120" Height="60" />
+    <PDAudioPad Symbol="Symbol.NextTrack" MinValue="0.5" Width="120" Height="60" />
+
+    <PDAudioPad Width="120" Height="120" />
+    <PDAudioPad Width="120" Height="120" />
+    <PDAudioPad Width="120" Height="120" />
+    <PDAudioPad Width="120" Height="120" />
+</div>
