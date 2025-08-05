@@ -36,7 +36,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		{
 			if (JSRuntime is null || _module is null)
 			{
-				throw new InvalidOperationException("Javascript runtime is not available");
+				throw new InvalidOperationException("JavaScript runtime is not available");
 			}
 
 			var data = await _module.InvokeAsync<string>("getItem", key);
@@ -59,7 +59,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		{
 			if (JSRuntime is null || _module is null)
 			{
-				throw new InvalidOperationException("Javascript runtime is not available");
+				throw new InvalidOperationException("JavaScript runtime is not available");
 			}
 
 			await _module.InvokeVoidAsync("removeItem", key);
@@ -76,7 +76,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		{
 			if (JSRuntime is null || _module is null)
 			{
-				throw new InvalidOperationException("Javascript runtime is not available");
+				throw new InvalidOperationException("JavaScript runtime is not available");
 			}
 
 			var data = System.Text.Json.JsonSerializer.Serialize(state);
@@ -94,9 +94,20 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 
 	public async ValueTask DisposeAsync()
 	{
-		if (_module != null)
+		try
 		{
-			await _module.DisposeAsync();
+			if (_module != null)
+			{
+				await _module.DisposeAsync();
+			}
+		}
+		catch (JSDisconnectedException)
+		{
+			// Ignore the exception if the JS runtime is disconnected
+		}
+		finally
+		{
+			_module = null;
 		}
 
 		GC.SuppressFinalize(this);
