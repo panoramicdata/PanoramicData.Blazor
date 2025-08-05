@@ -24,9 +24,14 @@
 	cursor: col-resize;
 }
 
-.pdsplitpanel {
+.pdsplitpanel
+{
 	height: 100%;
-	overflow: hidden; /* Changed from auto to hidden - let children handle scrolling */
+	/* Changed from auto to hidden - let children handle scrolling */
+	/* Roland: changed back to auto for now. Commented out for now to fix LOTS of broken CSS issues in magic suite apps. Have blanket-commented out rules likely
+	to have been affecting things. Magic Suite apps now appear OK, and PDChat is STILL OK, as far as we can see
+*/
+	overflow: auto;
 	display: flex;
 	flex-direction: column;
 	min-height: 0; /* Enable proper flex shrinking */

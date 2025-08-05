@@ -461,14 +461,17 @@ body:has(.pdchat-container.dock-fullscreen) {
 	overflow: hidden;
 }
 
-.pdsplitpanel {
+/* Roland: commented out for now to fix LOTS of broken CSS issues in magic suite apps. Have blanket-commented out rules likely
+	to have been affecting things. Magic Suite apps now appear OK, and PDChat is STILL OK, as far as we can see
+*/
+/*.pdsplitpanel {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
 	min-width: 0;
 	min-height: 0;
 	overflow: hidden;
-}
+}*/
 
 /* ==============================================
    Canvas Panel Layout
