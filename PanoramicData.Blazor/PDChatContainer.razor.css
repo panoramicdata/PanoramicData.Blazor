@@ -47,99 +47,99 @@
    ============================================== */
 
 /* Ensure proper layout for container mode */
-.pdchat-container-wrapper ::deep .pdsplitpanel {
+/*.pdchat-container-wrapper ::deep .pdsplitpanel {
     min-height: 0 !important;
     min-width: 0 !important;
-    overflow: hidden !important; /* Let child content handle its own scrolling */
-    display: flex !important;
+    overflow: hidden !important;*/ /* Let child content handle its own scrolling */
+    /*display: flex !important;
     flex-direction: column !important;
-    height: 100% !important; /* Each panel takes full height of its allocation */
-}
+    height: 100% !important;*/ /* Each panel takes full height of its allocation */
+/*}*/
 
 /* Automatically apply proper scrolling to content within split panels */
-.pdchat-container-wrapper ::deep .pdsplitpanel > * {
+/*.pdchat-container-wrapper ::deep .pdsplitpanel > * {
     flex: 1 1 auto;
     min-height: 0;
     min-width: 0;
-    overflow-y: auto !important; /* Enable vertical scrolling */
-    overflow-x: auto !important; /* Enable horizontal scrolling */
+    overflow-y: auto !important;*/ /* Enable vertical scrolling */
+    /*overflow-x: auto !important;*/ /* Enable horizontal scrolling */
     /* Ensure content behaves properly in flexbox */
-    width: 100%;
+    /*width: 100%;
     height: 100%;
     box-sizing: border-box;
-}
+}*/
 
 /* Special handling for direct div children that contain user content */
-.pdchat-container-wrapper ::deep .pdsplitpanel > div {
-    padding: 0; /* Remove default padding that might interfere */
-    margin: 0; /* Remove default margin that might interfere */
-}
+/*.pdchat-container-wrapper ::deep .pdsplitpanel > div {
+    padding: 0;*/ /* Remove default padding that might interfere */
+    /*margin: 0;*/ /* Remove default margin that might interfere */
+/*}*/
 
 /* Ensure content with .content class gets proper scrolling */
-.pdchat-container-wrapper .content,
+/*.pdchat-container-wrapper .content,
 .pdchat-container-wrapper ::deep .content {
     overflow-x: auto !important;
     overflow-y: auto !important;
     height: 100% !important;
-    width: 100% !important;
+    width: 100% !important;*/
     /* Ensure proper flex behavior for scrolling */
-    display: flex !important;
+    /*display: flex !important;
     flex-direction: column !important;
-    min-height: 0 !important; /* Allow flex child to shrink and enable scrolling */
-    box-sizing: border-box !important;
-}
+    min-height: 0 !important;*/ /* Allow flex child to shrink and enable scrolling */
+    /*box-sizing: border-box !important;
+}*/
 
 /* Ensure content children fill properly for scrolling */
-.pdchat-container-wrapper .content > *,
+/*.pdchat-container-wrapper .content > *,
 .pdchat-container-wrapper ::deep .content > * {
-    flex-shrink: 0; /* Don't shrink content, let it scroll instead */
-}
+    flex-shrink: 0;*/ /* Don't shrink content, let it scroll instead */
+/*}*/
 
 /* Ensure the content area has proper boundaries for scrolling */
-.pdchat-container-wrapper ::deep .pdsplitpanel .content {
+/*.pdchat-container-wrapper ::deep .pdsplitpanel .content {
     max-height: 100%;
     overflow-y: auto;
     overflow-x: auto;
-}
+}*/
 
 /* Ensure wide content elements trigger horizontal scrolling */
-.pdchat-container-wrapper .content pre,
+/*.pdchat-container-wrapper .content pre,
 .pdchat-container-wrapper .content table,
 .pdchat-container-wrapper .content .card,
 .pdchat-container-wrapper ::deep .content pre,
 .pdchat-container-wrapper ::deep .content table,
 .pdchat-container-wrapper ::deep .content .card {
-    max-width: none; /* Allow these elements to be wider than container */
-}
+    max-width: none;*/ /* Allow these elements to be wider than container */
+/*}*/
 
 /* Ensure code blocks don't break out of containers */
-.pdchat-container-wrapper .content pre,
+/*.pdchat-container-wrapper .content pre,
 .pdchat-container-wrapper ::deep .content pre {
-    white-space: pre; /* Preserve formatting but allow scrolling */
-    word-wrap: normal; /* Don't wrap long lines */
-}
+    white-space: pre;*/ /* Preserve formatting but allow scrolling */
+    /*word-wrap: normal;*/ /* Don't wrap long lines */
+/*}*/
 
 /* ==============================================
    Universal Content Scrolling for All Content Types
    ============================================== */
 
 /* Apply scrolling to any content that doesn't have specific classes */
-.pdchat-container-wrapper ::deep .pdsplitpanel > :not(.pdchat-window):not(.pdchat-container) {
+/*.pdchat-container-wrapper ::deep .pdsplitpanel > :not(.pdchat-window):not(.pdchat-container) {
     overflow-y: auto !important;
     overflow-x: auto !important;
     max-height: 100% !important;
     box-sizing: border-box !important;
-}
+}*/
 
 /* Handle nested content containers - changed second * to div, otherwise things like h1 and other elements had scrollbars!!! */
-.pdchat-container-wrapper ::deep .pdsplitpanel > * > div {
+/*.pdchat-container-wrapper ::deep .pdsplitpanel > * > div {
     max-height: 100%;
     overflow-y: auto;
     overflow-x: auto;
-}
+}*/
 
 /* Special handling for main content areas that need scrolling */
-.pdchat-container-wrapper ::deep .main,
+/*.pdchat-container-wrapper ::deep .main,
 .pdchat-container-wrapper ::deep .content,
 .pdchat-container-wrapper ::deep .page-content,
 .pdchat-container-wrapper ::deep .app-content {
@@ -148,32 +148,32 @@
     height: 100% !important;
     max-height: 100% !important;
     box-sizing: border-box !important;
-}
+}*/
 
 /* Responsive behavior for split mode */
-@media (max-width: 768px) {
+/*@media (max-width: 768px) {
     .pdchat-container-wrapper .content,
     .pdchat-container-wrapper ::deep .content {
         padding-left: 1rem !important;
         padding-right: 1rem !important;
     }
-}
+}*/
 
 /* ==============================================
    Additional safeguards for common scenarios
    ============================================== */
 
 /* Ensure Bootstrap containers work properly */
-.pdchat-container-wrapper ::deep .pdsplitpanel .container,
+/*.pdchat-container-wrapper ::deep .pdsplitpanel .container,
 .pdchat-container-wrapper ::deep .pdsplitpanel .container-fluid {
     height: 100%;
     overflow-y: auto;
     overflow-x: auto;
     max-height: 100%;
-}
+}*/
 
 /* Ensure tables are scrollable */
-.pdchat-container-wrapper ::deep .pdsplitpanel table {
+/*.pdchat-container-wrapper ::deep .pdsplitpanel table {
     table-layout: auto;
     max-width: 100%;
 }
@@ -181,16 +181,16 @@
 .pdchat-container-wrapper ::deep .pdsplitpanel .table-responsive {
     overflow-x: auto;
     max-width: 100%;
-}
+}*/
 
 /* Handle flex layouts within content */
-.pdchat-container-wrapper ::deep .pdsplitpanel .d-flex {
+/*.pdchat-container-wrapper ::deep .pdsplitpanel .d-flex {
     min-height: 0;
     min-width: 0;
-}
+}*/
 
 /* Ensure grid layouts work properly */
-.pdchat-container-wrapper ::deep .pdsplitpanel .row {
+/*.pdchat-container-wrapper ::deep .pdsplitpanel .row {
     margin: 0;
     max-width: 100%;
 }
@@ -199,4 +199,4 @@
 .pdchat-container-wrapper ::deep .pdsplitpanel [class*="col-"] {
     min-width: 0;
     overflow-x: auto;
-}
+}*/

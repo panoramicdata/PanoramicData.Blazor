@@ -461,14 +461,14 @@ body:has(.pdchat-container.dock-fullscreen) {
 	overflow: hidden;
 }
 
-.pdsplitpanel {
+/*.pdsplitpanel {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
 	min-width: 0;
 	min-height: 0;
 	overflow: hidden;
-}
+}*/
 
 /* ==============================================
    Canvas Panel Layout
