@@ -1,9 +1,11 @@
 ﻿<div id="@Id"
-	 class="pddropzone
-	 @CssClass"
-	 @onkeydown="OnKeyDown"
-	 @oncontextmenu:preventDefault
-	 tabindex="0"
-	 style="min-height: 200px;">
-	@ChildContent
+     class="pddropzone 
+     @CssClass"
+     @onkeydown="OnKeyDown"
+     @oncontextmenu:preventDefault
+     tabindex="0"
+     style="min-height: 100%; overflow: auto;">
+    <div style="height: inherit;">
+        @ChildContent
+    </div>
 </div>
