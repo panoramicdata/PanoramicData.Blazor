@@ -24,9 +24,12 @@
 	cursor: col-resize;
 }
 
-.pdsplitpanel {
+.pdsplitpanel
+{
 	height: 100%;
-	overflow: hidden; /* Changed from auto to hidden - let children handle scrolling */
+	/* Changed from auto to hidden - let children handle scrolling */
+	/* Roland: changed back to auto for now */
+	overflow: auto;
 	display: flex;
 	flex-direction: column;
 	min-height: 0; /* Enable proper flex shrinking */
