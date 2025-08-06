@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Removed various bits of CSS related to PDChat, that were negatively affecting PDSplitter components and other items' layout
+			Fixed an issue with the PDDropZone component's height
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
