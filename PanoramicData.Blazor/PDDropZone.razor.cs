@@ -129,6 +129,7 @@ public partial class PDDropZone : IAsyncDisposable
 
 	protected override void OnInitialized()
 	{
+		base.OnInitialized();
 		if (Id == string.Empty)
 		{
 			Id = $"pddz{++_idSequence}";

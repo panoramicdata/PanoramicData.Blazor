@@ -12,7 +12,8 @@
 
 .pdfileexplorer ::deep .pdtable {
 	/* RM-14062 MG */
-	height: 0px !important;
+	/* BC-73 removed again to fix the table height*/
+	/* height: 0px !important;*/
 }
 
 .pdfileexplorer ::deep .pdtree {
