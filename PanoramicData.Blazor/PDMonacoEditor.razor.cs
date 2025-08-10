@@ -190,13 +190,21 @@ public partial class PDMonacoEditor : IAsyncDisposable
 
 	protected override async Task OnParametersSetAsync()
 	{
-		if (_monacoEditor != null)
+		try
 		{
-			if (Theme != _theme)
+			if (_monacoEditor != null)
 			{
-				_theme = Theme;
-				await _monacoEditor.UpdateOptions(new EditorUpdateOptions { Theme = _theme });
+				if (Theme != _theme)
+				{
+					_theme = Theme;
+					await _monacoEditor.UpdateOptions(new EditorUpdateOptions { Theme = _theme });
+				}
 			}
+		}
+		catch (JSException)
+		{
+			// This can happen if the editor is disposed before the parameters are set.
+			// We can safely ignore this exception.
 		}
 	}
 
@@ -252,6 +260,15 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 		catch
 		{
+			// Ignore any exceptions during disposal
+			// This can happen if the module is already disposed or if there are issues with the JS runtime.
+		}
+		finally
+		{
+			_module = null;
+			_monacoEditor = null;
+			_objRef = null;
+			_theme = string.Empty;
 		}
 	}
 
