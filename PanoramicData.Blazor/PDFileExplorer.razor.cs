@@ -769,7 +769,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		{
 			var renameArgs = new RenameArgs { Item = args.Item };
 			await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
-			if (renameArgs.Cancel || !AllowRename || args.Item.Name == ".." || args.Item.IsUploading || args.Item.IsReadOnly || args.Item.CanRename)
+			if (renameArgs.Cancel || !AllowRename || args.Item.Name == ".." || args.Item.IsUploading || args.Item.IsReadOnly || !args.Item.CanRename)
 			{
 				args.Cancel = true;
 			}
