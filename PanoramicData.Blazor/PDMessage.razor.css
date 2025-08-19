@@ -316,3 +316,88 @@
         content: '...';
     }
 }
+
+/* ==============================================
+   DARK MODE - Message Backgrounds and Text
+   ============================================== */
+
+@media (prefers-color-scheme: dark) {
+    /* Default message background and text */
+    .pdchat-message {
+        background: #3a3f44;
+        border-color: #495057;
+        color: #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    /* Dark mode text color */
+    .pdchat-text {
+        color: #e0e0e0;
+    }
+    
+    /* Dark mode username and timestamp colors */
+    .pdchat-message.full-width .pdchat-username {
+        color: #ced4da;
+    }
+    
+    .pdchat-message.full-width .pdchat-timestamp {
+        color: #adb5bd;
+    }
+    
+    .pdchat-message.bubble .pdchat-username {
+        color: #ced4da;
+    }
+    
+    .pdchat-message.bubble .pdchat-timestamp {
+        color: #adb5bd;
+    }
+    
+    /* Warning messages - dark yellow/amber background */
+    .pdchat-message.full-width.meta-on-left.priority-warning,
+    .pdchat-message.full-width.meta-on-right.priority-warning,
+    .pdchat-message.bubble.priority-warning {
+        background-color: #4a3d1a;
+        border-color: #ffab00;
+        box-shadow: 0 2px 4px rgba(255, 171, 0, 0.2);
+    }
+    
+    /* Error messages - dark red background */
+    .pdchat-message.full-width.meta-on-left.priority-error,
+    .pdchat-message.full-width.meta-on-right.priority-error,
+    .pdchat-message.bubble.priority-error {
+        background-color: #3d1a1a;
+        border-color: #dc3545;
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+    }
+    
+    /* Critical messages - darker red background with stronger shadow */
+    .pdchat-message.full-width.meta-on-left.priority-critical,
+    .pdchat-message.full-width.meta-on-right.priority-critical,
+    .pdchat-message.bubble.priority-critical {
+        background-color: #3d1a1a;
+        border-color: #dc3545;
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+    }
+    
+    /* Typing messages - neutral dark background */
+    .pdchat-message.full-width.meta-on-left.priority-typing,
+    .pdchat-message.full-width.meta-on-right.priority-typing,
+    .pdchat-message.bubble.priority-typing {
+        background-color: #2c3034;
+        border-color: #6c757d;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* Title bar dark mode */
+    .pdchat-title-bar {
+        background: #495057;
+        color: #e9ecef;
+        border-bottom-color: #6c757d;
+    }
+    
+    .pdchat-message.bubble .pdchat-title-bar {
+        background: #1e3a5f;
+        color: #93c5fd;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+}

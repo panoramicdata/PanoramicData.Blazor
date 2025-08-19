@@ -115,3 +115,81 @@
 .submit-button-disabled:hover {
 	background-color: #6c757d;
 }
+
+/* ==============================================
+   DARK MODE - Messages Area and Input Styling
+   ============================================== */
+
+/* Dark mode for messages area and text input */
+@media (prefers-color-scheme: dark) {
+	.pdchat-messages {
+		background: #2b2f33;
+		color: #ffffff;
+		
+		/* Dark scrollbar styling for Webkit browsers (Chrome, Safari, Edge) */
+		scrollbar-width: thin;
+		scrollbar-color: #495057 #2b2f33;
+	}
+	
+	/* Webkit scrollbar styling for dark mode */
+	.pdchat-messages::-webkit-scrollbar {
+		width: 8px;
+	}
+	
+	.pdchat-messages::-webkit-scrollbar-track {
+		background: #2b2f33;
+	}
+	
+	.pdchat-messages::-webkit-scrollbar-thumb {
+		background-color: #495057;
+		border-radius: 4px;
+	}
+	
+	.pdchat-messages::-webkit-scrollbar-thumb:hover {
+		background-color: #6c757d;
+	}
+	
+	.chat-input-container {
+		background: #373b3e;
+		box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+	}
+	
+	.chat-input-container textarea {
+		background: #2b2f33;
+		color: #ffffff;
+		border-color: #495057;
+	}
+	
+	.chat-input-container textarea:focus {
+		border-color: #0d6efd;
+		box-shadow: 0 0 5px #0d6efdaa;
+	}
+	
+	/* Fixed Send button styling for dark mode - prevent conflicts */
+	.submit-button:not(.submit-button-disabled) {
+		background-color: #6c757d !important;
+		color: #ffffff !important;
+		border: none !important;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+	}
+	
+	.submit-button:not(.submit-button-disabled):hover {
+		background-color: #5a6268 !important;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+	}
+	
+	.submit-button:not(.submit-button-disabled):active {
+		background-color: #495057 !important;
+	}
+	
+	.submit-button-disabled {
+		background-color: #343a40 !important;
+		color: #6c757d !important;
+		cursor: not-allowed !important;
+		box-shadow: none !important;
+	}
+	
+	.submit-button-disabled:hover {
+		background-color: #343a40 !important;
+	}
+}

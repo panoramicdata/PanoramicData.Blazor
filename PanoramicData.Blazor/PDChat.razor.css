@@ -607,3 +607,15 @@ body:has(.pdchat-container.dock-fullscreen) {
 		box-shadow: 0 0 0 0 rgba(111, 66, 193, 0);
 	}
 }
+
+/* ==============================================
+   DARK MODE - Simple Background and Text Override
+   ============================================== */
+
+/* Only override the main window background and text color in dark mode */
+@media (prefers-color-scheme: dark) {
+	.pdchat-window {
+		background-color: #2d3436;
+		color: #ffffff;
+	}
+}
