@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Added GetLatestFilesAsync to PDFileModal component to force it to retrieve the latest files from a directory.
+			Changed GetLatestFilesAsync to RefreshFileExplorerAsync in PDFileModal, which now updates the files table AND the files tree
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

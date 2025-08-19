@@ -1765,7 +1765,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <summary>
 	/// Refreshes the tree and table panes.
 	/// </summary>
-	private async Task RefreshAllAsync()
+	public async Task RefreshAllAsync()
 	{
 		await RefreshTreeAsync().ConfigureAwait(true);
 		await RefreshTableAsync().ConfigureAwait(true);

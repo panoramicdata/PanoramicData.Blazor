@@ -163,9 +163,9 @@ public partial class PDFileModal
 	}
 
 	/// <summary>
-	/// Provides the ability to force a refresh of the file explorer table.
+	/// Provides the ability to force a refresh of the both the file explorer tree and the files table
 	/// </summary>
-	public async Task GetLatestFilesAsync() => await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+	public async Task RefreshFileExplorerAsync() => await FileExplorer.RefreshAllAsync().ConfigureAwait(true);
 
 	public async Task ShowSaveAsAsync(string initialFilename = "", string filenamePattern = "")
 	{
