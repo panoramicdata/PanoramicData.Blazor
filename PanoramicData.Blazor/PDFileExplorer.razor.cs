@@ -1,4 +1,5 @@
 ﻿using PanoramicData.Blazor.PreviewProviders;
+using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor;
 
@@ -390,7 +391,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		};
 
 		TableContextItems.AddRange(
-			[
+		[
 			_menuOpen,
 			_menuDownload,
 			_menuNewFolder,
@@ -420,10 +421,17 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-
 		if (firstRender)
 		{
-			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).ConfigureAwait(true);
+			try
+			{
+				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).ConfigureAwait(true);
+			}
+			catch
+			{
+				// Do nothing
+			}
+
 			var isTouchDevice = _commonModule != null && await _commonModule.InvokeAsync<bool>("isTouchDevice").ConfigureAwait(true);
 
 			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline", IsVisible = ShowNavigateUpButton });
@@ -442,6 +450,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 			ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
 			ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
+
 			if (!string.IsNullOrWhiteSpace(UploadUrl))
 			{
 				TableContextItems.Insert(1, _menuUploadFiles);
@@ -453,6 +462,43 @@ public partial class PDFileExplorer : IAsyncDisposable
 			{
 				PreviewPanelVisible = false;
 			}
+
+			if (DeleteDialog != null)
+			{
+				DeleteDialog.Buttons.Clear();
+				DeleteDialog.Buttons.AddRange(
+				[
+					new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check", ShiftRight = true },
+					new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
+				]);
+			}
+
+			// add third button needed for conflict resolution
+			if (ConflictDialog != null)
+			{
+				ConflictDialog.Buttons.Clear();
+				ConflictDialog.Buttons.AddRange(
+				[
+					new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
+					new ToolbarButton { Text = "Rename", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-pen-square" },
+					new ToolbarButton { Text = "Skip", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-forward" },
+					new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
+				]);
+			}
+
+			// set up buttons on upload dialog
+			if (UploadDialog != null)
+			{
+				UploadDialog!.Buttons.First(x => x.Key == "Yes").IsVisible = false;
+				if (UploadDialog!.Buttons.First(x => x.Key == "No") is ToolbarButton btn)
+				{
+					btn.ShiftRight = true;
+					btn.Text = "Close";
+					btn.CssClass = "btn-primary";
+				}
+			}
+
+			await RefreshToolbarAsync().ConfigureAwait(true);
 		}
 	}
 
@@ -1369,43 +1415,45 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	protected override void OnAfterRender(bool firstRender)
 	{
-		if (firstRender)
-		{
-			if (DeleteDialog != null)
-			{
-				DeleteDialog.Buttons.Clear();
-				DeleteDialog.Buttons.AddRange(
-				[
-					new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check", ShiftRight = true },
-					new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
-				]);
-			}
+		//if (firstRender)
+		//{
+			//if (DeleteDialog != null)
+			//{
+			//	DeleteDialog.Buttons.Clear();
+			//	DeleteDialog.Buttons.AddRange(
+			//	[
+			//		new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check", ShiftRight = true },
+			//		new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
+			//	]);
+			//}
 
-			// add third button needed for conflict resolution
-			if (ConflictDialog != null)
-			{
-				ConflictDialog.Buttons.Clear();
-				ConflictDialog.Buttons.AddRange(
-				[
-					new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
-					new ToolbarButton { Text = "Rename", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-pen-square" },
-					new ToolbarButton { Text = "Skip", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-forward" },
-					new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
-				]);
-			}
+			//// add third button needed for conflict resolution
+			//if (ConflictDialog != null)
+			//{
+			//	ConflictDialog.Buttons.Clear();
+			//	ConflictDialog.Buttons.AddRange(
+			//	[
+			//		new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
+			//		new ToolbarButton { Text = "Rename", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-pen-square" },
+			//		new ToolbarButton { Text = "Skip", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-forward" },
+			//		new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
+			//	]);
+			//}
 
-			// set up buttons on upload dialog
-			if (UploadDialog != null)
-			{
-				UploadDialog!.Buttons.First(x => x.Key == "Yes").IsVisible = false;
-				if (UploadDialog!.Buttons.First(x => x.Key == "No") is ToolbarButton btn)
-				{
-					btn.ShiftRight = true;
-					btn.Text = "Close";
-					btn.CssClass = "btn-primary";
-				}
-			}
-		}
+			//// set up buttons on upload dialog
+			//if (UploadDialog != null)
+			//{
+			//	UploadDialog!.Buttons.First(x => x.Key == "Yes").IsVisible = false;
+			//	if (UploadDialog!.Buttons.First(x => x.Key == "No") is ToolbarButton btn)
+			//	{
+			//		btn.ShiftRight = true;
+			//		btn.Text = "Close";
+			//		btn.CssClass = "btn-primary";
+			//	}
+			//}
+
+			//await RefreshToolbarAsync().ConfigureAwait(true);
+		//}
 	}
 
 	private bool IsValidSelection()
