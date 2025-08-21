@@ -1413,49 +1413,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 	}
 	private async Task OnException(Exception exception) => await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
 
-	protected override void OnAfterRender(bool firstRender)
-	{
-		//if (firstRender)
-		//{
-			//if (DeleteDialog != null)
-			//{
-			//	DeleteDialog.Buttons.Clear();
-			//	DeleteDialog.Buttons.AddRange(
-			//	[
-			//		new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check", ShiftRight = true },
-			//		new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
-			//	]);
-			//}
-
-			//// add third button needed for conflict resolution
-			//if (ConflictDialog != null)
-			//{
-			//	ConflictDialog.Buttons.Clear();
-			//	ConflictDialog.Buttons.AddRange(
-			//	[
-			//		new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
-			//		new ToolbarButton { Text = "Rename", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-pen-square" },
-			//		new ToolbarButton { Text = "Skip", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-forward" },
-			//		new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
-			//	]);
-			//}
-
-			//// set up buttons on upload dialog
-			//if (UploadDialog != null)
-			//{
-			//	UploadDialog!.Buttons.First(x => x.Key == "Yes").IsVisible = false;
-			//	if (UploadDialog!.Buttons.First(x => x.Key == "No") is ToolbarButton btn)
-			//	{
-			//		btn.ShiftRight = true;
-			//		btn.Text = "Close";
-			//		btn.CssClass = "btn-primary";
-			//	}
-			//}
-
-			//await RefreshToolbarAsync().ConfigureAwait(true);
-		//}
-	}
-
 	private bool IsValidSelection()
 	{
 		foreach (var path in Table!.Selection)
