@@ -48,8 +48,8 @@
 				<span>@_batchCount</span>
 			</div>
 			<PDProgressBar DecimalPlaces="0"
-						   Total="@_batchCount"
-						   Value="@_batchProgress">
+					   Total="@_batchCount"
+					   Value="@_batchProgress">
 				<BarContent Context="progress">
 					@progress.GetPercentage()%
 				</BarContent>
@@ -63,8 +63,8 @@
 						@kvp.Key
 					</div>
 					<PDProgressBar DecimalPlaces="0"
-								   Height="16px"
-								   Value="@kvp.Value">
+							   Height="16px"
+							   Value="@kvp.Value">
 						<BarContent Context="progress">
 							@progress.GetPercentage()%
 						</BarContent>
@@ -105,7 +105,12 @@
 				UploadProgress="OnUploadProgressAsync"
 				UploadStarted="OnUploadStartedAsync"
 				UploadUrl="@UploadUrl">
-		<div class="pdfe-drop-zone-msg" onclick="this?.parentElement?.click()">
+		<div class="pdfe-drop-zone-msg"
+			 role="button"
+			 tabindex="0"
+			 aria-label="Select files to upload"
+			 onclick="this.closest('.pddropzone')?.click()"
+			 >
 			<span>Drag and drop files here to upload</span>
 			<span>Click to browse for files to upload </span>
 		</div>
@@ -129,9 +134,9 @@
 		<PDSplitPanel Size="1">
 
 			<PDContextMenu Items="TreeContextItems"
-						   Enabled="ShowContextMenu"
-						   UpdateState="OnTreeContextMenuUpdateStateAsync"
-						   ItemClick="OnTreeContextMenuItemClickAsync">
+					   Enabled="ShowContextMenu"
+					   UpdateState="OnTreeContextMenuUpdateStateAsync"
+					   ItemClick="OnTreeContextMenuItemClickAsync">
 
 				<PDDropZone @ref="_dropZone2"
 							AllUploadsComplete="OnAllUploadsComplete"
@@ -198,10 +203,10 @@
 		<PDSplitPanel Size="3">
 
 			<PDContextMenu Items="TableContextItems"
-						   Enabled="ShowContextMenu"
-						   ShowOnMouseUp="true"
-						   UpdateState="OnTableContextMenuUpdateStateAsync"
-						   ItemClick="OnTableContextMenuItemClickAsync">
+					   Enabled="ShowContextMenu"
+					   ShowOnMouseUp="true"
+					   UpdateState="OnTableContextMenuUpdateStateAsync"
+					   ItemClick="OnTableContextMenuItemClickAsync">
 
 				<PDDropZone AllUploadsComplete="OnAllUploadsComplete"
 							AllUploadsProgress="OnAllUploadsProgress"
@@ -292,8 +297,8 @@
 							<Template>
 								<span class="@(GetCssClass(context)) text-nowrap">
 									@(context.EntryType == FileExplorerItemType.Directory
-																			? "File Folder"
-																			: ($"{context.FileExtension.ToUpper()} File").Trim())
+																	? "File Folder"
+																	: ($"{context.FileExtension.ToUpper()} File").Trim())
 								</span>
 							</Template>
 						</PDColumn>
