@@ -1,0 +1,4228 @@
+/* _content/PanoramicData.Blazor/PDAudioButton.razor.rz.scp.css */
+.pd-audio-button[b-gs87x5oso0] {
+	display: inline-block;
+}
+
+	.pd-audio-button .button-container[b-gs87x5oso0] {
+		width: 60px;
+		height: 40px;
+		border-radius: 8px;
+		background: linear-gradient(145deg, #3a3a3a, #1a1a1a);
+		border: 2px solid #555;
+		cursor: pointer;
+		transition: all 0.1s ease;
+		position: relative;
+		padding: 4px;
+	}
+
+		.pd-audio-button .button-container.unpressed[b-gs87x5oso0] {
+			box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(255, 255, 255, 0.05);
+		}
+
+		.pd-audio-button .button-container.pressed[b-gs87x5oso0] {
+			box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.7), inset -1px -1px 2px rgba(255, 255, 255, 0.1);
+		}
+
+	.pd-audio-button .button-inner[b-gs87x5oso0] {
+		width: 100%;
+		height: 100%;
+		border-radius: 4px;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		transition: all 0.1s ease;
+		position: relative;
+	}
+
+	.pd-audio-button .button-container.unpressed .button-inner[b-gs87x5oso0] {
+		box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.1), inset -1px -1px 2px rgba(0, 0, 0, 0.3);
+		transform: translate(-2px, -2px);
+	}
+
+	.pd-audio-button .button-container.pressed .button-inner[b-gs87x5oso0] {
+		box-shadow: inset -1px -1px 2px rgba(255, 255, 255, 0.05), inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+		transform: translate(0, 0);
+	}
+
+	.pd-audio-button .pd-audio-label[b-gs87x5oso0] {
+		font-size: 0.9rem;
+		color: #ccc;
+	}
+/* _content/PanoramicData.Blazor/PDAudioPad.razor.rz.scp.css */
+.pd-audio-pad-label-overlay[b-2tklsgzlxv] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    font-size: 0.8em;
+    text-align: center;
+    pointer-events: none;
+}
+/* _content/PanoramicData.Blazor/PDBlockOverlay.razor.rz.scp.css */
+.blockoverlay_show[b-1qrgvznc3d] {
+	height: 100%;
+	width: 100%;
+	overflow-x: hidden;
+	z-index: 2000; /* in font of modal dialogs (1050)*/
+	background-color: rgba(0,0,0,0.3);
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	text-align: center;
+	cursor: wait;
+}
+
+.blockoverlay_show .text-container[b-1qrgvznc3d] {
+	position: relative;
+	top: 25%;
+}
+
+.blockoverlay_show .text-container .text-box[b-1qrgvznc3d] {
+	width: 600px;
+	margin: auto;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	border-radius: 5px;
+	background-color: #888;
+	padding-top: 13px;
+	padding-bottom: 10px;
+	color: white;
+}
+
+.blockoverlay_hide[b-1qrgvznc3d] {
+	display: none;
+}
+/* _content/PanoramicData.Blazor/PDBusyOverlay.razor.rz.scp.css */
+.pd-busy-overlay[b-2gcy4s6woz] {
+	position: relative;
+	display: inline-block;
+}
+
+.pd-busy-overlay.show .overlay-content[b-2gcy4s6woz] {
+	background-color: rgba(0,0,0,0.25);
+	cursor: wait;
+	height: 100%;
+	left: 0px;
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 0px;
+	width: 100%;
+	z-index: 2000;
+}
+/* _content/PanoramicData.Blazor/PDButton.razor.rz.scp.css */
+.btn.disabled[b-ddjisbdlwb], .btn:disabled[b-ddjisbdlwb]
+{
+	pointer-events: auto;
+	cursor: default;
+}
+
+.pd-button .icon[b-ddjisbdlwb]
+{
+	vertical-align: middle;
+}
+/* _content/PanoramicData.Blazor/PDCard.razor.rz.scp.css */
+.card[b-klqbuxi3j2] {
+	min-height: 2em;
+}
+
+	/* Indicate to the user the card not draggable */
+	.card[draggable="false"][b-klqbuxi3j2] {
+		cursor: not-allowed !important;
+	}
+
+	/* Indicate to the user the card is draggable */
+	.card[draggable="true"][b-klqbuxi3j2] {
+		cursor: grab;
+	}
+
+.card-default[b-klqbuxi3j2] {
+	margin-bottom: 5px;
+	border-left: 5px solid silver;
+	padding: 5px;
+	user-select: none;
+	transition: transform 0.3s linear;
+}
+
+.dragging[b-klqbuxi3j2] {
+	cursor: grabbing;
+	opacity: 0.2;
+}
+
+.selected[b-klqbuxi3j2] {
+	background-color: #d1ecf1 !important;
+}
+
+.card[draggable="true"]:hover[b-klqbuxi3j2] {
+	background-color: #e9ecef;
+}
+/* _content/PanoramicData.Blazor/PDCardDeck.razor.rz.scp.css */
+.pdcarddeck[b-l0tv6m0ey2] {
+	background-color: #f4f5f7;
+	display: flex;
+	flex-direction: column;
+	padding: 5px 5px 0 5px;
+	border: solid;
+	min-height: fit-content;
+	min-width: 10em;
+}
+/* _content/PanoramicData.Blazor/PDCardDeckGroup.razor.rz.scp.css */
+.pd-carddeck-group-default[b-9a2i98jb91] {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+/* _content/PanoramicData.Blazor/PDCardDeckLoadingIcon.razor.rz.scp.css */
+.pd-carddeck-loading[b-redwfubjec] {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1em;
+	align-items: center;
+}
+
+.loading-message[b-redwfubjec]{
+	padding-top: 1em;
+}
+
+.pd-carddeck-item-top[b-redwfubjec] {
+	animation: swap-top-b-redwfubjec 1s infinite cubic-bezier(0.2, 0.2, 0.2, 0.2), loading-card-lighten-darken-b-redwfubjec 2s infinite ease-in-out !important;
+}
+
+.pd-carddeck-item-bottom[b-redwfubjec] {
+	animation: swap-bottom-b-redwfubjec 1s infinite cubic-bezier(0.2, 0.2, 0.2, 0.2), loading-card-lighten-darken-b-redwfubjec 2s infinite ease-in-out !important;
+}
+
+@keyframes swap-top-b-redwfubjec {
+	0% {
+		transform: translate(0em, 0);
+	}
+
+	33% {
+		transform: translate(6em, 0em);
+	}
+
+	66% {
+		transform: translate(6em, 1.35em);
+	}
+
+	100% {
+		transform: translate(0em, 1.35em);
+	}
+}
+
+@keyframes swap-bottom-b-redwfubjec {
+	0% {
+		transform: translate(0em, 0);
+	}
+
+	33% {
+		transform: translate(0em, 0);
+	}
+
+	66% {
+		transform: translate(0em, -1.25em);
+	}
+
+	100% {
+		transform: translate(0em, -1.25em);
+	}
+}
+
+.loading-card[b-redwfubjec] {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 6em;
+	height: 1.25em;
+	border: solid;
+	border-color: black;
+	border-width: 0.2em;
+	border-radius: 0.25em;
+	background-color: black;
+	animation: loading-card-lighten-darken-b-redwfubjec 2s infinite ease-in-out;
+}
+
+@keyframes loading-card-lighten-darken-b-redwfubjec {
+	0% {
+		background-color: black;
+		border-color: black;
+	}
+
+	30% {
+		background-color: #222;
+		border-color: #222;
+	}
+
+	60% {
+		background-color: #444;
+		border-color: #444;
+	}
+
+	100% {
+		background-color: black;
+		border-color: black;
+	}
+}
+/* _content/PanoramicData.Blazor/PDChat.razor.rz.scp.css */
+/* Chat split panel mode - when inside PDChatContainer split layout */
+.pdchat-container.dock-split-panel[b-889sclj9f0] {
+    position: static !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: auto !important;
+}
+
+.pdchat-container.dock-split-panel .pdchat-window[b-889sclj9f0] {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    position: static !important;
+}
+
+/* ==============================================
+   PDChat Component - Clean Layout Architecture
+   ============================================== */
+
+.pdchat-container[b-889sclj9f0] {
+	position: fixed;
+	z-index: 10000;
+	font-family: Arial, sans-serif;
+}
+
+/* ==============================================
+   Prevent Body Scroll When Fullscreen
+   ============================================== */
+
+body:has(.pdchat-container.dock-fullscreen)[b-889sclj9f0] {
+	overflow: hidden;
+}
+
+/* ==============================================
+   Dock Mode Positioning (Non-Fullscreen)
+   ============================================== */
+
+.pdchat-container.dock-bottom-right[b-889sclj9f0] {
+	bottom: 20px;
+	right: 20px;
+}
+
+.pdchat-container.dock-top-right[b-889sclj9f0] {
+	top: 20px;
+	right: 20px;
+}
+
+.pdchat-container.dock-bottom-left[b-889sclj9f0] {
+	bottom: 20px;
+	left: 20px;
+}
+
+.pdchat-container.dock-top-left[b-889sclj9f0] {
+	top: 20px;
+	left: 20px;
+}
+
+.pdchat-container.dock-left[b-889sclj9f0] {
+	top: 50%;
+	left: 20px;
+	transform: translateY(-50%);
+}
+
+.pdchat-container.dock-right[b-889sclj9f0] {
+	top: 50%;
+	right: 20px;
+	transform: translateY(-50%);
+}
+
+/* ==============================================
+   Fullscreen Container
+   ============================================== */
+
+.pdchat-container.dock-fullscreen[b-889sclj9f0] {
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	position: fixed;
+}
+
+/* ==============================================
+   Minimized State
+   ============================================== */
+
+.pdchat-container.dock-minimized .pdchat-window[b-889sclj9f0] {
+	display: none;
+}
+
+.pdchat-container.dock-none .pdchat-toggle-collapsed[b-889sclj9f0] {
+	display: none; /* Hide button when position is set to None */
+}
+
+.pdchat-toggle-collapsed[b-889sclj9f0] {
+	display: block;
+}
+
+.pdchat-container.open .pdchat-toggle-collapsed[b-889sclj9f0] {
+	display: none;
+}
+
+.pdchat-container.dock-fullscreen .pdchat-toggle-collapsed[b-889sclj9f0] {
+	display: none;
+}
+
+/* ==============================================
+   Toggle Button Styles
+   ============================================== */
+
+.pdchat-toggle[b-889sclj9f0],
+.pdchat-toggle-collapsed[b-889sclj9f0] {
+	background-color: #0078d4;
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	font-size: 24px;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+	transition: background-color 0.3s ease, opacity 0.3s ease;
+	opacity: 1;
+	position: relative;
+	overflow: visible;
+}
+
+/* Bootstrap Color Classes for Chat Toggle */
+.pdchat-toggle-collapsed.pdchat-info[b-889sclj9f0] {
+	background-color: #0dcaf0; /* Bootstrap info color */
+}
+
+.pdchat-toggle-collapsed.pdchat-warning[b-889sclj9f0] {
+	background-color: #ffc107; /* Bootstrap warning color */
+	color: #212529; /* Dark text for better contrast on yellow */
+}
+
+.pdchat-toggle-collapsed.pdchat-error[b-889sclj9f0] {
+	background-color: #dc3545; /* Bootstrap danger color */
+}
+
+.pdchat-toggle-collapsed.pdchat-critical[b-889sclj9f0] {
+	background-color: #6f42c1; /* Bootstrap purple for critical */
+}
+
+.pdchat-not-live[b-889sclj9f0] {
+	background-color: #6c757d; /* Bootstrap secondary color */
+	color: white;
+}
+
+.pdchat-toggle:hover[b-889sclj9f0],
+.pdchat-toggle-collapsed:hover[b-889sclj9f0] {
+	background-color: #005a9e;
+	transform: scale(1.05);
+}
+
+.pdchat-toggle-collapsed.pdchat-info:hover[b-889sclj9f0] {
+	background-color: #0bb5d6;
+}
+
+.pdchat-toggle-collapsed.pdchat-warning:hover[b-889sclj9f0] {
+	background-color: #e6ac00;
+}
+
+.pdchat-toggle-collapsed.pdchat-error:hover[b-889sclj9f0] {
+	background-color: #bb2d3b;
+}
+
+.pdchat-toggle-collapsed.pdchat-critical:hover[b-889sclj9f0] {
+	background-color: #5d369a;
+}
+
+/* ==============================================
+   Priority Indicator Container and Icons
+   ============================================== */
+
+.pdchat-icon-container[b-889sclj9f0] {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.pdchat-main-icon[b-889sclj9f0] {
+	display: inline-block;
+}
+
+.pdchat-priority-indicator[b-889sclj9f0] {
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	background-color: rgba(255, 255, 255, 0.9);
+	color: #212529;
+	border-radius: 50%;
+	width: 18px;
+	height: 18px;
+	font-size: 10px;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+	border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Warning triangle specific styling */
+.pdchat-toggle-collapsed.pdchat-warning .pdchat-priority-indicator[b-889sclj9f0] {
+	background-color: #ffc107;
+	color: #212529;
+}
+
+/* Error exclamation specific styling */
+.pdchat-toggle-collapsed.pdchat-error .pdchat-priority-indicator[b-889sclj9f0] {
+	background-color: #dc3545;
+	color: white;
+}
+
+/* Critical double exclamation specific styling */
+.pdchat-toggle-collapsed.pdchat-critical .pdchat-priority-indicator[b-889sclj9f0] {
+	background-color: #6f42c1;
+	color: white;
+	font-size: 8px; /* Smaller to fit double exclamation */
+}
+
+/* ==============================================
+   Standard Chat Window
+   ============================================== */
+
+.pdchat-window[b-889sclj9f0] {
+	background-color: white;
+	width: 90vw;
+	max-width: 400px;
+	height: 70vh;
+	max-height: 600px;
+	box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+	border-radius: 10px !important; /* Force border-radius even when in containers */
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* ==============================================
+   Corner Dock Mode Dimensions and Constraints
+   ============================================== */
+
+/* Ensure corner dock modes have suitable dimensions with parent-relative constraints */
+.pdchat-container.dock-bottom-right .pdchat-window[b-889sclj9f0],
+.pdchat-container.dock-top-right .pdchat-window[b-889sclj9f0],
+.pdchat-container.dock-bottom-left .pdchat-window[b-889sclj9f0],
+.pdchat-container.dock-top-left .pdchat-window[b-889sclj9f0] {
+	border-radius: 10px !important;
+	min-width: 280px;
+	min-height: 400px;
+	width: 350px !important; /* Fixed width for consistency */
+	height: 500px !important; /* Fixed height to prevent overflow */
+	max-width: 350px;
+	max-height: 500px;
+}
+
+/* Split modes should have minimal border radius */
+.pdchat-container.dock-left .pdchat-window[b-889sclj9f0],
+.pdchat-container.dock-right .pdchat-window[b-889sclj9f0] {
+	border-radius: 4px !important;
+}
+
+@media (min-width: 768px) {
+	.pdchat-window[b-889sclj9f0] {
+		width: 350px;
+		height: 600px;
+	}
+	
+	/* Enhanced constraints for larger screens */
+	.pdchat-container.dock-bottom-right .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-top-right .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-bottom-left .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-top-left .pdchat-window[b-889sclj9f0] {
+		min-width: 320px;
+		min-height: 450px;
+		width: 350px !important; /* Fixed width for desktop */
+		height: 500px !important; /* Fixed height for desktop */
+		max-width: 350px;
+		max-height: 500px;
+	}
+}
+
+@media (max-width: 767px) {
+	/* Mobile-specific dimensions - ensure chat doesn't overflow phone screens */
+	.pdchat-container.dock-bottom-right .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-top-right .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-bottom-left .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-top-left .pdchat-window[b-889sclj9f0] {
+		min-width: 260px;
+		min-height: 350px;
+		width: 300px !important; /* Fixed width for mobile */
+		height: 400px !important; /* Fixed height for mobile */
+		max-width: 300px;
+		max-height: 400px;
+	}
+}
+
+/* Extra small phones (smaller than iPhone SE) */
+@media (max-width: 375px) {
+	.pdchat-container.dock-bottom-right .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-top-right .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-bottom-left .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-top-left .pdchat-window[b-889sclj9f0] {
+		min-width: 240px;
+		width: 280px !important; /* Fixed width for small phones */
+		height: 380px !important; /* Fixed height for small phones */
+		max-width: 280px;
+		max-height: 380px;
+	}
+}
+
+/* Very large desktop screens - keep chat reasonable */
+@media (min-width: 1400px) {
+	.pdchat-container.dock-bottom-right .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-top-right .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-bottom-left .pdchat-window[b-889sclj9f0],
+	.pdchat-container.dock-top-left .pdchat-window[b-889sclj9f0] {
+		width: 350px !important; /* Consistent width on large screens */
+		height: 500px !important; /* Consistent height on large screens */
+		max-width: 350px;
+		max-height: 500px;
+	}
+}
+
+/* ==============================================
+   Fullscreen Layout
+   ============================================== */
+
+.pdchat-window.fullscreen[b-889sclj9f0] {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100vw !important;
+	height: 100vh !important;
+	max-width: 100vw !important;
+	max-height: 100vh !important;
+	min-width: unset !important; /* Remove minimum constraints in fullscreen */
+	min-height: unset !important; /* Remove minimum constraints in fullscreen */
+	z-index: 10001;
+	border-radius: 0 !important; /* No rounded corners in fullscreen */
+	box-shadow: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* ==============================================
+   Header Styles
+   ============================================== */
+
+.pdchat-header[b-889sclj9f0] {
+	background-color: #0078d4;
+	color: white;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0 15px;
+	gap: 8px;
+	flex-shrink: 0;
+	height: 60px;
+	box-sizing: border-box;
+}
+
+/* Header should match window border radius for corner modes */
+.pdchat-container.dock-bottom-right .pdchat-header[b-889sclj9f0],
+.pdchat-container.dock-top-right .pdchat-header[b-889sclj9f0],
+.pdchat-container.dock-bottom-left .pdchat-header[b-889sclj9f0],
+.pdchat-container.dock-top-left .pdchat-header[b-889sclj9f0] {
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+}
+
+/* Split mode headers have minimal radius */
+.pdchat-container.dock-left .pdchat-header[b-889sclj9f0],
+.pdchat-container.dock-right .pdchat-header[b-889sclj9f0] {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
+/* Fullscreen header has no radius */
+.pdchat-window.fullscreen .pdchat-header[b-889sclj9f0] {
+	border-radius: 0 !important;
+}
+
+.pdchat-title[b-889sclj9f0] {
+	font-weight: bold;
+	font-size: 16px;
+	flex: 1;
+}
+
+.pdchat-header-btn[b-889sclj9f0],
+.pdchat-close[b-889sclj9f0] {
+	background: none;
+	border: none;
+	color: white;
+	font-size: 18px;
+	cursor: pointer;
+	padding: 8px;
+	border-radius: 4px;
+	transition: background 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 32px;
+	height: 32px;
+}
+
+.pdchat-header-btn:hover[b-889sclj9f0],
+.pdchat-close:hover[b-889sclj9f0] {
+	background: rgba(255,255,255,0.15);
+}
+
+.pdchat-header-btn:focus[b-889sclj9f0],
+.pdchat-close:focus[b-889sclj9f0] {
+	outline: 2px solid #fff;
+	outline-offset: 1px;
+}
+
+/* ==============================================
+   PDMessages Layout - Ensure Full Height
+   ============================================== */
+
+.pdchat-window > .pdchat-panel-flex[b-889sclj9f0] {
+	flex: 1 1 auto;
+	min-height: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+/* ==============================================
+   Splitter and Panel Layout
+   ============================================== */
+
+.pdchat-splitter[b-889sclj9f0] {
+	flex: 1 1 auto;
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+	display: flex;
+	overflow: hidden;
+}
+
+/* Roland: commented out for now to fix LOTS of broken CSS issues in magic suite apps. Have blanket-commented out rules likely
+	to have been affecting things. Magic Suite apps now appear OK, and PDChat is STILL OK, as far as we can see
+*/
+/*.pdsplitpanel {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}*/
+
+/* ==============================================
+   Canvas Panel Layout
+   ============================================== */
+
+.pdchat-canvas-flex[b-889sclj9f0] {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.pdchat-canvas-panel[b-889sclj9f0] {
+	background-color: #f8f9fa;
+}
+
+.pdchat-canvas-tab-content[b-889sclj9f0] {
+	flex: 1 1 auto;
+	min-height: 0;
+	min-width: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.pdchat-canvas-tab-content .pd-monacoeditor[b-889sclj9f0] {
+	flex: 1 1 auto;
+	min-height: 0;
+	min-width: 0;
+	height: 100%;
+}
+
+/* Ensure Monaco editor container fills the tab properly */
+.pdchat-canvas-tab-content .monaco-editor-container[b-889sclj9f0] {
+	height: 100%;
+	width: 100%;
+}
+
+/* ==============================================
+   Fullscreen Overrides
+   ============================================== */
+
+.pdchat-window.fullscreen .pdchat-messages[b-889sclj9f0] {
+	flex: 1 1 auto;
+	min-height: 0;
+	max-height: none;
+	padding: 16px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.pdchat-window.fullscreen .chat-input-container[b-889sclj9f0] {
+	flex-shrink: 0;
+	padding: 8px;
+}
+
+.pdchat-window.fullscreen .pd-monacoeditor[b-889sclj9f0] {
+	height: 100%;
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* ==============================================
+   Animations - Default and Priority-Based
+   ============================================== */
+
+.pulsate[b-889sclj9f0] {
+	animation: pdchat-pulsate-b-889sclj9f0 1.5s infinite;
+}
+
+.pulsate-warning[b-889sclj9f0] {
+	animation: pdchat-pulsate-warning-b-889sclj9f0 1.2s infinite;
+}
+
+.pulsate-error[b-889sclj9f0] {
+	animation: pdchat-pulsate-error-b-889sclj9f0 1s infinite;
+}
+
+.pulsate-critical[b-889sclj9f0] {
+	animation: pdchat-pulsate-critical-b-889sclj9f0 0.7s infinite;
+}
+
+/* Base pulsate animation (Normal messages) */
+@keyframes pdchat-pulsate-b-889sclj9f0 {
+	0% {
+		box-shadow: 0 0 0 0 rgba(13, 202, 240, 0.7);
+	}
+	70% {
+		box-shadow: 0 0 0 10px rgba(13, 202, 240, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(13, 202, 240, 0);
+	}
+}
+
+/* Warning pulsate animation (Warning messages) */
+@keyframes pdchat-pulsate-warning-b-889sclj9f0 {
+	0% {
+		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+	}
+	70% {
+		box-shadow: 0 0 0 12px rgba(255, 193, 7, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+	}
+}
+
+/* Error pulsate animation (Error messages) */
+@keyframes pdchat-pulsate-error-b-889sclj9f0 {
+	0% {
+		box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.8);
+	}
+	70% {
+		box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+	}
+}
+
+/* Critical pulsate animation (Critical messages) */
+@keyframes pdchat-pulsate-critical-b-889sclj9f0 {
+	0% {
+		box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.9);
+	}
+	70% {
+		box-shadow: 0 0 0 20px rgba(111, 66, 193, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(111, 66, 193, 0);
+	}
+}
+
+/* ==============================================
+   DARK MODE - Simple Background and Text Override
+   ============================================== */
+
+/* Only override the main window background and text color in dark mode */
+@media (prefers-color-scheme: dark) {
+	.pdchat-window[b-889sclj9f0] {
+		background-color: #2d3436;
+		color: #ffffff;
+	}
+}
+
+/* ==============================================
+   Message Preview Styles
+   ============================================== */
+
+.pdchat-minimized-button-container[b-889sclj9f0] {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.pdchat-message-preview[b-889sclj9f0] {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	background: white;
+	border: 1px solid #e9ecef;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+	padding: 8px 12px;
+	max-width: 250px;
+	min-width: 200px;
+	z-index: 9999;
+	font-family: Arial, sans-serif;
+	font-size: 0.9em;
+	opacity: 0;
+	animation: slideIn-b-889sclj9f0 0.3s ease-out forwards;
+}
+
+.pdchat-message-preview.slide-left[b-889sclj9f0] {
+	right: 60px; /* Position to the left of the button */
+}
+
+.pdchat-message-preview.slide-right[b-889sclj9f0] {
+	left: 60px; /* Position to the right of the button */
+}
+
+.pdchat-preview-header[b-889sclj9f0] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 4px;
+	padding-bottom: 2px;
+	border-bottom: 1px solid #f1f3f4;
+}
+
+.pdchat-preview-sender[b-889sclj9f0] {
+	font-weight: 600;
+	color: #0078d4;
+	font-size: 0.85em;
+}
+
+.pdchat-preview-timestamp[b-889sclj9f0] {
+	font-size: 0.75em;
+	color: #6c757d;
+}
+
+.pdchat-preview-content[b-889sclj9f0] {
+	color: #212529;
+	line-height: 1.3;
+	word-wrap: break-word;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	text-overflow: ellipsis;
+}
+
+/* Priority-based preview styles */
+.pdchat-message-preview.preview-warning[b-889sclj9f0] {
+	background-color: #fff3cd;
+	border-color: #ffc107;
+}
+
+.pdchat-message-preview.preview-error[b-889sclj9f0] {
+	background-color: #f8d7da;
+	border-color: #dc3545;
+}
+
+.pdchat-message-preview.preview-critical[b-889sclj9f0] {
+	background-color: #f8d7da;
+	border-color: #dc3545;
+	box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+}
+
+.pdchat-message-preview.preview-normal[b-889sclj9f0] {
+	background-color: #e6f3ff;
+	border-color: #0078d4;
+}
+
+/* Slide-in animation */
+@keyframes slideIn-b-889sclj9f0 {
+	from {
+		opacity: 0;
+		transform: translateY(-50%) translateX(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(-50%) translateX(0);
+	}
+}
+
+/* Slide-in from right animation */
+.pdchat-message-preview.slide-right[b-889sclj9f0] {
+	animation: slideInFromRight-b-889sclj9f0 0.3s ease-out forwards;
+}
+
+@keyframes slideInFromRight-b-889sclj9f0 {
+	from {
+		opacity: 0;
+		transform: translateY(-50%) translateX(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(-50%) translateX(0);
+	}
+}
+
+/* ==============================================
+   Dark Mode - Message Preview
+   ============================================== */
+
+@media (prefers-color-scheme: dark) {
+	.pdchat-message-preview[b-889sclj9f0] {
+		background: #3a3f44;
+		border-color: #495057;
+		color: #e0e0e0;
+		box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+	}
+	
+	.pdchat-preview-header[b-889sclj9f0] {
+		border-bottom-color: #495057;
+	}
+	
+	.pdchat-preview-sender[b-889sclj9f0] {
+		color: #5ba4fc;
+	}
+	
+	.pdchat-preview-timestamp[b-889sclj9f0] {
+		color: #adb5bd;
+	}
+	
+	.pdchat-preview-content[b-889sclj9f0] {
+		color: #e0e0e0;
+	}
+	
+	/* Dark mode priority styles */
+	.pdchat-message-preview.preview-warning[b-889sclj9f0] {
+		background-color: #4a3d1a;
+		border-color: #ffab00;
+	}
+	
+	.pdchat-message-preview.preview-error[b-889sclj9f0] {
+		background-color: #3d1a1a;
+		border-color: #dc3545;
+	}
+	
+	.pdchat-message-preview.preview-critical[b-889sclj9f0] {
+		background-color: #3d1a1a;
+		border-color: #dc3545;
+		box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+	}
+	
+	.pdchat-message-preview.preview-normal[b-889sclj9f0] {
+		background-color: #1e3a5f;
+		border-color: #5ba4fc;
+	}
+}
+/* _content/PanoramicData.Blazor/PDChatContainer.razor.rz.scp.css */
+/* ==============================================
+   PDChatContainer Component Styles
+   ============================================== */
+
+.pdchat-container-wrapper[b-ys2sko89yh] {
+    width: 100%;
+    height: 100%; /* Take full height from parent */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-height: 0; /* Allow shrinking */
+}
+
+.pdchat-container-splitter[b-ys2sko89yh] {
+    width: 100%;
+    height: 100%; /* Take full height */
+    flex: 1; /* Grow to fill space */
+    min-height: 0; /* Allow shrinking */
+}
+
+/* Override PDChat positioning when in container split mode */
+.pdchat-container-wrapper[b-ys2sko89yh]  .pdchat-container.dock-left,
+.pdchat-container-wrapper[b-ys2sko89yh]  .pdchat-container.dock-right {
+    position: static !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: auto !important;
+}
+
+/* Ensure the chat window fills the split panel */
+.pdchat-container-wrapper[b-ys2sko89yh]  .pdchat-window {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Roland: commented out for now to fix LOTS of broken CSS issues in magic suite apps. Have blanket-commented out rules likely
+	to have been affecting things. Magic Suite apps now appear OK, and PDChat is STILL OK, as far as we can see
+*/
+
+/* ==============================================
+   Enhanced Split Panel Layout and Scrolling
+   ============================================== */
+
+/* Ensure proper layout for container mode */
+/*.pdchat-container-wrapper ::deep .pdsplitpanel {
+    min-height: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;*/ /* Let child content handle its own scrolling */
+    /*display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;*/ /* Each panel takes full height of its allocation */
+/*}*/
+
+/* Automatically apply proper scrolling to content within split panels */
+/*.pdchat-container-wrapper ::deep .pdsplitpanel > * {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    overflow-y: auto !important;*/ /* Enable vertical scrolling */
+    /*overflow-x: auto !important;*/ /* Enable horizontal scrolling */
+    /* Ensure content behaves properly in flexbox */
+    /*width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}*/
+
+/* Special handling for direct div children that contain user content */
+/*.pdchat-container-wrapper ::deep .pdsplitpanel > div {
+    padding: 0;*/ /* Remove default padding that might interfere */
+    /*margin: 0;*/ /* Remove default margin that might interfere */
+/*}*/
+
+/* Ensure content with .content class gets proper scrolling */
+/*.pdchat-container-wrapper .content,
+.pdchat-container-wrapper ::deep .content {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    height: 100% !important;
+    width: 100% !important;*/
+    /* Ensure proper flex behavior for scrolling */
+    /*display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;*/ /* Allow flex child to shrink and enable scrolling */
+    /*box-sizing: border-box !important;
+}*/
+
+/* Ensure content children fill properly for scrolling */
+/*.pdchat-container-wrapper .content > *,
+.pdchat-container-wrapper ::deep .content > * {
+    flex-shrink: 0;*/ /* Don't shrink content, let it scroll instead */
+/*}*/
+
+/* Ensure the content area has proper boundaries for scrolling */
+/*.pdchat-container-wrapper ::deep .pdsplitpanel .content {
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+}*/
+
+/* Ensure wide content elements trigger horizontal scrolling */
+/*.pdchat-container-wrapper .content pre,
+.pdchat-container-wrapper .content table,
+.pdchat-container-wrapper .content .card,
+.pdchat-container-wrapper ::deep .content pre,
+.pdchat-container-wrapper ::deep .content table,
+.pdchat-container-wrapper ::deep .content .card {
+    max-width: none;*/ /* Allow these elements to be wider than container */
+/*}*/
+
+/* Ensure code blocks don't break out of containers */
+/*.pdchat-container-wrapper .content pre,
+.pdchat-container-wrapper ::deep .content pre {
+    white-space: pre;*/ /* Preserve formatting but allow scrolling */
+    /*word-wrap: normal;*/ /* Don't wrap long lines */
+/*}*/
+
+/* ==============================================
+   Universal Content Scrolling for All Content Types
+   ============================================== */
+
+/* Apply scrolling to any content that doesn't have specific classes */
+/*.pdchat-container-wrapper ::deep .pdsplitpanel > :not(.pdchat-window):not(.pdchat-container) {
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+}*/
+
+/* Handle nested content containers - changed second * to div, otherwise things like h1 and other elements had scrollbars!!! */
+/*.pdchat-container-wrapper ::deep .pdsplitpanel > * > div {
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+}*/
+
+/* Special handling for main content areas that need scrolling */
+/*.pdchat-container-wrapper ::deep .main,
+.pdchat-container-wrapper ::deep .content,
+.pdchat-container-wrapper ::deep .page-content,
+.pdchat-container-wrapper ::deep .app-content {
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+}*/
+
+/* Responsive behavior for split mode */
+/*@media (max-width: 768px) {
+    .pdchat-container-wrapper .content,
+    .pdchat-container-wrapper ::deep .content {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}*/
+
+/* ==============================================
+   Additional safeguards for common scenarios
+   ============================================== */
+
+/* Ensure Bootstrap containers work properly */
+/*.pdchat-container-wrapper ::deep .pdsplitpanel .container,
+.pdchat-container-wrapper ::deep .pdsplitpanel .container-fluid {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+    max-height: 100%;
+}*/
+
+/* Ensure tables are scrollable */
+/*.pdchat-container-wrapper ::deep .pdsplitpanel table {
+    table-layout: auto;
+    max-width: 100%;
+}
+
+.pdchat-container-wrapper ::deep .pdsplitpanel .table-responsive {
+    overflow-x: auto;
+    max-width: 100%;
+}*/
+
+/* Handle flex layouts within content */
+/*.pdchat-container-wrapper ::deep .pdsplitpanel .d-flex {
+    min-height: 0;
+    min-width: 0;
+}*/
+
+/* Ensure grid layouts work properly */
+/*.pdchat-container-wrapper ::deep .pdsplitpanel .row {
+    margin: 0;
+    max-width: 100%;
+}
+
+.pdchat-container-wrapper ::deep .pdsplitpanel .col,
+.pdchat-container-wrapper ::deep .pdsplitpanel [class*="col-"] {
+    min-width: 0;
+    overflow-x: auto;
+}*/
+/* _content/PanoramicData.Blazor/PDClickableImage.razor.rz.scp.css */
+.image-container[b-xbe13xdkki] {
+	cursor: pointer;
+	transition: transform 0.3s ease;
+}
+
+	.image-container:hover[b-xbe13xdkki] {
+		transform: scale(1.01);
+	}
+
+@media (hover: hover) {
+	.image-container:hover[b-xbe13xdkki] {
+		transform: scale(1.01);
+	}
+}
+
+@media (hover: none) {
+	.image-container[b-xbe13xdkki] {
+		transform: none;
+	}
+}
+
+.fullscreen-dialog[b-xbe13xdkki] {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.8);
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 10px;
+}
+
+	.fullscreen-dialog img[b-xbe13xdkki] {
+		max-width: 100%;
+		max-height: 80vh;
+	}
+
+.close-btn[b-xbe13xdkki] {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	background-color: transparent;
+	color: #fff;
+	border: none;
+	font-size: 28px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+	.close-btn span[b-xbe13xdkki] {
+		line-height: 1;
+	}
+
+@media (max-width: 768px) {
+	.close-btn[b-xbe13xdkki] {
+		font-size: 36px;
+		top: 10px;
+		right: 10px;
+	}
+}
+/* _content/PanoramicData.Blazor/PDClipboard.razor.rz.scp.css */
+.pdClipboard-button[b-sz7nu4u7dc] {
+	cursor: pointer;
+}
+/* _content/PanoramicData.Blazor/PDComboBox.razor.rz.scp.css */
+.pd-combobox[b-8mqyl0rlo7] {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+
+.pd-combobox .combo-input-wrapper[b-8mqyl0rlo7] {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.pd-combobox .combo-input[b-8mqyl0rlo7] {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid var(--pdcb-border, #ccc);
+	border-radius: 4px;
+	font-size: 16px;
+	box-sizing: border-box;
+	outline: none;
+	padding-right: 4.7em; /* 2.2em (clear) + 2.5em (dropdown) = 4.7em */
+	background-color: var(--pdcb-bg, #fff);
+	color: var(--pdcb-input-color, #222);
+}
+
+.pd-combobox .combo-input:focus[b-8mqyl0rlo7] {
+	border-color: #007bff;
+	box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.pd-combobox .combo-dropdown[b-8mqyl0rlo7] {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 1000;
+	width: 100%;
+	max-height: 200px;
+	overflow-y: auto;
+	border: 1px solid var(--pdcb-dropdown-border, #ccc);
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+	background-color: var(--pdcb-dropdown-bg, #fff);
+	color: var(--pdcb-dropdown-color, var(--pdcb-input-color, #222));
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	box-shadow: var(--pdcb-dropdown-shadow, 0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.pd-combobox .combo-dropdown li[b-8mqyl0rlo7] {
+	padding: 10px 12px;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.pd-combobox .combo-dropdown li:hover[b-8mqyl0rlo7] {
+	background-color: var(--pdcb-item-hover-bg);
+}
+
+.pd-combobox .combo-dropdown li.active[b-8mqyl0rlo7] {
+	background-color: var(--pdcb-item-active-bg);
+	color: var(--pdcb-item-active-color);
+	font-weight: bold;
+	position: relative;
+}
+
+.pd-combobox.show-dropdown .combo-dropdown[b-8mqyl0rlo7] {
+	display: block;
+}
+
+.combo-clear[b-8mqyl0rlo7] {
+	position: absolute;
+	right: 2.5em; /* exactly the width of the dropdown icon */
+	top: 0;
+	bottom: 0;
+	height: 100%;
+	width: 2.2em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	font-size: 1em;
+	color: var(--pdcb-clear-icon-color, #888);
+	padding-left: 0.4em;
+	padding-right: 0.4em;
+	line-height: 1;
+	z-index: 2;
+}
+
+.combo-clear svg[b-8mqyl0rlo7] {
+	height: 1em;
+	width: 1em;
+	display: block;
+}
+
+.combo-clear:hover[b-8mqyl0rlo7],
+.combo-clear:focus[b-8mqyl0rlo7] {
+	outline: none;
+	color: var(--pdcb-clear-icon-hover, #333);
+}
+
+.combo-dropdown-icon[b-8mqyl0rlo7] {
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	height: 100%;
+	width: 2.5em;
+	transform: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--pdcb-dropdown-icon-bg, #e1e1e1);
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	color: var(--pdcb-input-color, #222);
+	opacity: 1;
+	z-index: 1;
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+	.combo-dropdown-icon svg[b-8mqyl0rlo7] {
+		height: 1.5em; /* Restore the icon to a reasonable size */
+		width: 1.5em;
+		display: block;
+	}
+
+.combo-dropdown-icon:focus[b-8mqyl0rlo7] {
+	outline: none;
+	color: #333;
+	opacity: 1;
+}
+
+.combo-dropdown-icon[disabled][b-8mqyl0rlo7] {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+.combo-active-icon[b-8mqyl0rlo7] {
+	float: right;
+	font-size: 1.1em;
+	color: var(--pdcb-item-active-color, #007bff);
+	margin-left: 0.5em;
+}
+/* _content/PanoramicData.Blazor/PDConfirm.razor.rz.scp.css */
+.confirm-message[b-2jzd8o4361]
+{
+	font-size: 1.25rem;
+}
+/* _content/PanoramicData.Blazor/PDContextMenu.razor.rz.scp.css */
+/* These declaration fixes the issue that elsewhere, the immediate children of a .pdsplitpanel are now required to manage scrolling themselves */
+.pdsplitpanel:has(.pdcontextmenuhost) > .pdcontextmenuhost[b-fe63dx9gm6]
+{
+	overflow: auto !important;
+}
+
+.pdcontextmenuhost[b-fe63dx9gm6]
+{
+	height: 100%;
+}
+
+.pdcontextmenu[b-fe63dx9gm6] {
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	width: fit-content;
+	flex-direction: column;
+	display: none;
+}
+
+.pdcontextmenu.show[b-fe63dx9gm6] {
+	display: flex;
+}
+
+.pdcontextmenuitem[b-fe63dx9gm6] {
+	background-color: #fff;
+	padding: .25rem .50rem;
+	border-left: 1px solid rgba(0,0,0,.125);
+	border-right: 1px solid rgba(0,0,0,.125);
+	cursor: pointer;
+}
+
+.pdcontextmenuitem.disabled[b-fe63dx9gm6] {
+	color: #6c757d;
+	pointer-events: none;
+	background-color: #fff;
+}
+
+.pdcontextmenu.disabled:hover[b-fe63dx9gm6] {
+	background-color: #fff;
+}
+
+.pdcontextmenuitem:first-child[b-fe63dx9gm6] {
+	border-top: 1px solid rgba(0,0,0,.125);
+	border-top-left-radius: .25rem;
+	border-top-right-radius: .25rem;
+}
+
+.pdcontextmenuitem:last-child[b-fe63dx9gm6] {
+	border-bottom: 1px solid rgba(0,0,0,.125);
+	border-bottom-left-radius: .25rem;
+	border-bottom-right-radius: .25rem;
+}
+
+.pdcontextmenuitem:hover[b-fe63dx9gm6] {
+	background-color: #eee;
+}
+
+.pdcontextmenuseparator[b-fe63dx9gm6] {
+	background-color: #fff;
+	border-bottom: 1px solid rgba(0,0,0,.125);
+	border-left: 1px solid rgba(0,0,0,.125);
+	border-right: 1px solid rgba(0,0,0,.125);
+}
+/* _content/PanoramicData.Blazor/PDDateTime.razor.rz.scp.css */
+.pddatetime[b-r8yw67bx6r] {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.form-control.date[b-r8yw67bx6r] {
+	width: 124px;
+}
+
+.form-control.time[b-r8yw67bx6r] {
+	width: 120px;
+}
+
+.invalid[b-r8yw67bx6r] {
+	color: var(--bs-danger);
+}
+
+input[b-r8yw67bx6r]::-webkit-calendar-picker-indicator {
+	margin-bottom: 4px;
+}
+/* _content/PanoramicData.Blazor/PDDateTimeOffset.razor.rz.scp.css */
+.pddatetimeoffset[b-oyij42fde5] {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.form-control.date[b-oyij42fde5] {
+	width: 124px;
+}
+
+.form-control.time[b-oyij42fde5] {
+	width: 120px;
+}
+
+.form-select[b-oyij42fde5] {
+	width: 100px;
+}
+
+
+.invalid[b-oyij42fde5] {
+	color: var(--bs-danger);
+}
+
+input[b-oyij42fde5]::-webkit-calendar-picker-indicator {
+	margin-bottom: 4px;
+}
+/* _content/PanoramicData.Blazor/PDDragContainer.razor.rz.scp.css */
+.drag-container[b-dy0o23iju0] {
+	display: flex;
+}
+/* _content/PanoramicData.Blazor/PDDragDropSeparator.razor.rz.scp.css */
+.pdseparator.dragover[b-207fh69u0v] {
+	background-color: silver !important;
+}
+/* _content/PanoramicData.Blazor/PDDragPanel.razor.rz.scp.css */
+.pd-dragpanel[b-kl763ds61f] {
+	border: 1px solid silver;
+	margin: 4px;
+}
+
+.pd-dragitem[b-kl763ds61f] {
+	background-color: white;
+	border: 1px solid silver;
+	margin: 2px;
+	min-height: 10px;
+	padding: 4px;
+	white-space: nowrap;
+}
+
+.pd-dragitem.dragging[b-kl763ds61f] {
+	background-color: transparent;
+	border-color: transparent;
+}
+/* _content/PanoramicData.Blazor/PDDropDown.razor.rz.scp.css */
+.pd-dropdown[b-yrg9v5j02k] {
+	display: inline-block;
+}
+
+.pd-dropdown button[b-yrg9v5j02k] {
+	align-items: center;
+	display: flex;
+}
+
+[b-yrg9v5j02k] .toggle {
+	padding: 0px;
+}
+/* _content/PanoramicData.Blazor/PDDropZone.razor.rz.scp.css */
+.pddropzone[b-uu8ppmawu9] {
+	border: 1px solid transparent;
+}
+
+.pddropzone:focus-visible[b-uu8ppmawu9] {
+	outline: none;
+}
+
+.pddropzone.dz-drag-hover[b-uu8ppmawu9] {
+	background-color: #e8ffe8;
+	border: 1px dashed rgba(0, 0, 0, 0.1);
+}
+/* _content/PanoramicData.Blazor/PDFileExplorer.razor.rz.scp.css */
+.pdfileexplorer[b-icezt2zpym] {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	padding-bottom: 5px;
+}
+
+.pdfileexplorer .table td[b-icezt2zpym], .pdfileexplorer .table th[b-icezt2zpym] {
+	padding: 2px 4px 1px 4px;
+}
+
+.pdfileexplorer[b-icezt2zpym]  .pdtable {
+	/* RM-14062 MG */
+	/* BC-73 removed again to fix the table height*/
+	/* height: 0px !important;*/
+}
+
+.pdfileexplorer[b-icezt2zpym]  .pdtree {
+	height: 0px;
+}
+
+.pdfileexplorer .file-hidden[b-icezt2zpym], .pdfileexplorer .file-system[b-icezt2zpym] {
+	color: #ccc;
+}
+
+.pdfileexplorer .uploading[b-icezt2zpym] {
+	color: #666;
+	font-style: italic;
+}
+
+.pdfileexplorer .pdfe-toolbar[b-icezt2zpym] {
+	height: 42px;
+}
+
+.pdfileexplorer[b-icezt2zpym]  .pdsplitter.horizontal {
+	height: calc(100% - 42px);
+}
+
+.pdfileexplorer .preview-header[b-icezt2zpym] {
+	background-color: silver;
+	height: 20px;
+}
+
+.pdfileexplorer .preview-content[b-icezt2zpym] {
+	height: calc(100% - 20px);
+}
+
+.pdfileexplorer:has(.pdsplitpanel) .pdsplitpanel[b-icezt2zpym]
+{
+	padding-left: .5rem !important;
+	padding-right: .5rem !important;
+}
+
+#upload-progress-modal[b-icezt2zpym] {
+	z-index: 1060;
+}
+
+.progress-dialog[b-icezt2zpym] {
+	min-height: 140px;
+}
+
+	.progress-dialog .overall-progress[b-icezt2zpym] {
+		display: flex;
+		justify-content: center;
+	}
+
+	.progress-dialog .file-progress[b-icezt2zpym] {
+		font-size: 10px;
+	}
+
+.progress-dialog-buttons[b-icezt2zpym] {
+	display: flex;
+	justify-items: flex-end;
+}
+
+.pdtreenode .pdtreenode_content[b-icezt2zpym] {
+	padding: 2px 3px 2px 3px;
+}
+
+[b-icezt2zpym] .pdtreenode span.item-text {
+	margin-top: 2px;
+}
+
+[b-icezt2zpym] .pdtreenode span.item-icon {
+	height: 20px;
+	min-width: 30px;
+}
+
+.upload-progress-bar[b-icezt2zpym] {
+	background-color: #007bff;
+	height: 5px;
+}
+
+.upload-zone[b-icezt2zpym] {
+	border: 2px dashed silver !important;
+	border-radius: 5px;
+	padding: 5px;
+	max-height: 400px;
+	overflow-y: auto;
+	cursor: pointer;
+}
+
+.pdfe-drop-zone-msg[b-icezt2zpym] {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 200px;
+	color: silver;
+}
+
+.dz-started .pdfe-drop-zone-msg[b-icezt2zpym] {
+	display: none;
+}
+
+.pdfe-dz-preview.dz-success[b-icezt2zpym] {
+	color: #28a745;
+}
+
+.pdfe-dz-preview.dz-error[b-icezt2zpym] {
+	color: #dc3545;
+}
+
+.pdfe-dz-progress[b-icezt2zpym] {
+	background-color: #007bff;
+	height: 4px;
+}
+
+.pdfe-dz-preview.dz-complete .pdfe-dz-progress[b-icezt2zpym] {
+	display: none !important;
+}
+
+.pdfe-dz-preview.dz-error .error-mark[b-icezt2zpym] {
+	display: inline-block !important;
+}
+
+.pdfe-dz-preview.dz-success .success-mark[b-icezt2zpym] {
+	display: inline-block !important;
+}
+
+.item-icon[b-icezt2zpym] {
+	display: flex;
+}
+
+.pd-badge[b-icezt2zpym] {
+	background-color: white;
+	border-radius: 11px;
+	color: black;
+	height: 22px;
+	margin-left: -12px;
+	margin-top: 4px;
+	padding-left: 2px;
+	padding-top: 3px;
+	transform: scale(0.7);
+	width: 22px;
+}
+/* _content/PanoramicData.Blazor/PDFileModal.razor.rz.scp.css */
+.pdfilemodalexplorer[b-neseydoeux] {
+	height: 400px;
+}
+
+.pdfilemodalexplorer .pdfileexplorer[b-neseydoeux] {
+	height: 100%;
+}
+/* _content/PanoramicData.Blazor/PDFilePreview.razor.rz.scp.css */
+.pdfilepreview[b-7b2jv7dnh1]
+{
+	height: 100%;
+	overflow: auto;
+	width: 100%;
+}
+
+.pdfilepreview.html[b-7b2jv7dnh1], .pdfilepreview.url[b-7b2jv7dnh1]
+{
+	overflow: clip;
+}
+
+.pdfilepreview.basic[b-7b2jv7dnh1]
+{
+	align-items: center;
+	display: flex;
+	justify-content: center;
+}
+
+.pdfilepreview.html[b-7b2jv7dnh1], .pdfilepreview.url[b-7b2jv7dnh1]
+{
+	background-color: white;
+}
+
+.pdfilepreview.md[b-7b2jv7dnh1]
+{
+}
+
+.pdfilepreview.txt[b-7b2jv7dnh1]
+{
+	white-space: pre-wrap;
+}
+
+.pdfilepreview[b-7b2jv7dnh1]
+{
+	width: 100%;
+	height: 100%;
+}
+
+iframe[b-7b2jv7dnh1]
+{
+	width: 100%;
+	height: calc(100% - 0px);
+}
+
+[b-7b2jv7dnh1] .stacked
+{
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+
+[b-7b2jv7dnh1] .stacked span
+{
+	margin-top: 4px;
+}
+
+[b-7b2jv7dnh1] .h1, [b-7b2jv7dnh1] h2, [b-7b2jv7dnh1] h3, [b-7b2jv7dnh1] .h4
+{
+	margin: 0px !important;
+	padding: 0px !important;
+}
+/* _content/PanoramicData.Blazor/PDFilter.razor.rz.scp.css */
+.pd-filter[b-t5opi6g00w] {
+	display: inline-block;
+}
+
+.pd-filter:not(.filtered)[b-t5opi6g00w]  .filter-icon {
+	opacity: 0.3;
+}
+
+.pd-filter[b-t5opi6g00w]  .filter-icon {
+	color: var(--bs-primary) !important;
+}
+
+.filter-body[b-t5opi6g00w] {
+	font-weight: normal;
+	padding: 0px 5px;
+	width: 210px;
+}
+
+.filter-toolbar[b-t5opi6g00w] {
+	display: flex;
+	justify-content: space-evenly;
+	margin-top: 5px;
+}
+
+.filter-values[b-t5opi6g00w] {
+	background-color: #f5f5f585;
+	font-size: 0.9rem;
+	padding: 5px;
+}
+
+.values-filter[b-t5opi6g00w] {
+	margin-bottom: 5px;
+}
+
+.values-list[b-t5opi6g00w] {
+	max-height: 110px;
+	overflow: auto;
+}
+
+.values-listitem[b-t5opi6g00w] {
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+}
+/* _content/PanoramicData.Blazor/PDForm.razor.rz.scp.css */
+.disabled[b-d6u1gkcetr] {
+	background-color: #e9ecef;
+	color: silver;
+	filter: grayscale(1);
+	opacity: 1;
+}
+
+.pd-form-field > .input-group > .form-control.invalid[b-d6u1gkcetr] {
+	border-color: #f5c6cb;
+}
+
+.pd-form-field > .input-group > .form-control.invalid:focus[b-d6u1gkcetr] {
+	border-color: #f5c6cb;
+	box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.pd-form-help-icon[b-d6u1gkcetr] {
+	font-size: 75%;
+	margin-top: 5px;
+}
+/* _content/PanoramicData.Blazor/PDFormBody.razor.rz.scp.css */
+.pd-form-body[b-b9rffv1r9g] {
+	width: 100%;
+}
+
+.pd-form-body .form-control:disabled[b-b9rffv1r9g], .pd-form-body .form-control.disabled[b-b9rffv1r9g] {
+	background-color: #f9f9f9;
+	color: #999;
+}
+
+[b-b9rffv1r9g] .pdtoggleswitch.disabled {
+	background-color: #e9ecef;
+}
+
+[b-b9rffv1r9g] .fg-1 {
+	flex-grow: 1;
+}
+
+[b-b9rffv1r9g] .fg-2 {
+	flex-grow: 2;
+}
+
+[b-b9rffv1r9g] .fg-3 {
+	flex-grow: 3;
+}
+
+[b-b9rffv1r9g] .fg-4 {
+	flex-grow: 4;
+}
+
+[b-b9rffv1r9g] .fg-5 {
+	flex-grow: 5;
+}
+
+[b-b9rffv1r9g] .fg-6 {
+	flex-grow: 6;
+}
+
+[b-b9rffv1r9g] .fg-7 {
+	flex-grow: 7;
+}
+
+[b-b9rffv1r9g] .fg-8 {
+	flex-grow: 8;
+}
+
+[b-b9rffv1r9g] .fg-9 {
+	flex-grow: 9;
+}
+/* _content/PanoramicData.Blazor/PDFormCheckBox.razor.rz.scp.css */
+.pdformcheckbox[b-rek7i2cays] {
+	user-select: none;
+}
+
+.pdformcheckbox.disabled[b-rek7i2cays] {
+	background-color: #e9ecef;
+}
+/* _content/PanoramicData.Blazor/PDFormFieldEditor.razor.rz.scp.css */
+.editor[b-be22o4kqus] {
+	align-items: center;
+	border-bottom: 1px solid #ced4da;
+	border-top: 1px solid #ced4da;
+	border-right: 1px solid #ced4da;
+	display: flex;
+	flex: 1 1;
+	padding: 0px 2px;
+	vertical-align: middle;
+}
+
+/* this is required to allow monaco editor to shrink when user resizes page */
+[b-be22o4kqus] .monaco-editor-container {
+	display: grid;
+	height: 100%;
+	grid-template-columns: minmax(0px, auto);
+}
+
+.editor[b-be22o4kqus]  .form-control, .form-select[b-be22o4kqus] {
+	border: none;
+}
+
+[b-be22o4kqus] .ms-nullable {
+	margin: 0 4px 2px 12px;
+	line-height: 0.5rem;
+	vertical-align: middle;
+	padding: 0px;
+	width: 16px;
+}
+
+.editor[b-be22o4kqus]  .pddatetime input {
+	flex-grow: 1;
+}
+
+.editor[b-be22o4kqus]  .pddatetimeoffset input {
+	flex-grow: 1;
+}
+
+.editor[b-be22o4kqus]  .no-resize {
+	resize: none;
+}
+
+
+.editor.readonly[b-be22o4kqus]  .view-lines {
+	background-color: #e9ecef;
+}
+
+.editor.readonly[b-be22o4kqus]  .margin {
+	background-color: #e9ecef;
+}
+
+.editor.readonly[b-be22o4kqus]  .minimap canvas {
+	background-color: #e9ecef;
+}
+
+/* Remove the default arrow in most browsers */
+[b-be22o4kqus] .form-select:disabled {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: none !important;
+}
+
+/* override disabled grey out */
+.editor.readonly[b-be22o4kqus]  .form-control:disabled,
+.form-control[readonly][b-be22o4kqus] {
+	border-radius: 0 !important;
+}
+
+.form-select:disabled[b-be22o4kqus],
+.form-select[readonly][b-be22o4kqus] {
+	border-radius: 0 !important;
+}
+/* _content/PanoramicData.Blazor/PDFormFooter.razor.rz.scp.css */
+.pd-form-footer[b-yoz55cg1r9] {
+	width: 100%;
+}
+/* _content/PanoramicData.Blazor/PDFormHeader.razor.rz.scp.css */
+.pd-form-header[b-4ffxywevzg] {
+	font-weight: bold;
+	font-size: 1.2rem;
+	width: 100%;
+}
+/* _content/PanoramicData.Blazor/PDGraph.razor.rz.scp.css */
+.pd-graph[b-nj04xktkxh] {
+	height: 100%;
+	width: 100%;
+	position: relative;
+	background-color: var(--bs-body-bg, #ffffff);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.graph-svg[b-nj04xktkxh] {
+	height: 100%;
+	width: 100%;
+	display: block;
+	background-color: var(--bs-body-bg, #ffffff);
+	cursor: grab;
+	flex: 1;
+	min-height: 0;
+}
+
+.graph-svg:active[b-nj04xktkxh] {
+	cursor: grabbing;
+}
+
+/* Loading state */
+.pd-graph-loading[b-nj04xktkxh] {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	color: var(--bs-text-muted, #6c757d);
+	background-color: var(--bs-body-bg, #ffffff);
+}
+
+.pd-graph-loading .spinner-border[b-nj04xktkxh] {
+	width: 3rem;
+	height: 3rem;
+}
+
+.pd-graph-loading .loading-text[b-nj04xktkxh] {
+	margin-top: 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+/* Error state */
+.pd-graph-error[b-nj04xktkxh] {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	padding: 1rem;
+	background-color: var(--bs-body-bg, #ffffff);
+}
+
+/* SVG elements */
+.graph-background[b-nj04xktkxh] {
+	cursor: grab;
+}
+
+.graph-background:active[b-nj04xktkxh] {
+	cursor: grabbing;
+}
+
+/* Nodes - REMOVED ALL HOVER TRANSFORMS */
+.graph-node[b-nj04xktkxh] {
+	cursor: pointer;
+	/* Removed transition and hover transform that was causing movement */
+}
+
+.graph-node.selected .node-shape[b-nj04xktkxh] {
+	stroke-width: 3px;
+	filter: drop-shadow(0 0 6px rgba(66, 133, 244, 0.7));
+}
+
+.node-shape[b-nj04xktkxh] {
+	/* Removed transition that could interfere with physics */
+}
+
+.node-label[b-nj04xktkxh] {
+	font-family: var(--bs-font-sans-serif, system-ui);
+	font-weight: 600;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+	pointer-events: none;
+	user-select: none;
+	dominant-baseline: central;
+	text-anchor: middle;
+}
+
+/* Edges - KEPT MINIMAL HOVER EFFECT */
+.graph-edge[b-nj04xktkxh] {
+	cursor: pointer;
+	transition: stroke-width 0.1s ease;
+}
+
+.graph-edge:hover[b-nj04xktkxh] {
+	stroke-width: 3px !important;
+}
+
+.graph-edge.selected[b-nj04xktkxh] {
+	stroke-width: 4px !important;
+	filter: drop-shadow(0 0 3px rgba(66, 133, 244, 0.5));
+}
+
+/* Performance optimizations */
+.edges-group[b-nj04xktkxh] {
+	will-change: transform;
+}
+
+.nodes-group[b-nj04xktkxh] {
+	will-change: transform;
+}
+
+/* Improved arrow markers */
+marker[b-nj04xktkxh] {
+	overflow: visible;
+}
+
+marker polygon[b-nj04xktkxh] {
+	/* Removed transition that could interfere */
+}
+
+/* Better text readability */
+.node-label[b-nj04xktkxh] {
+	paint-order: stroke fill;
+	stroke: rgba(255, 255, 255, 0.3);
+	stroke-width: 0.5px;
+	stroke-linejoin: round;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+	.pd-graph[b-nj04xktkxh] {
+		background-color: var(--bs-dark, #212529);
+	}
+	
+	.graph-svg[b-nj04xktkxh] {
+		background-color: var(--bs-dark, #212529);
+	}
+	
+	.pd-graph-loading[b-nj04xktkxh] {
+		background-color: var(--bs-dark, #212529);
+		color: var(--bs-light, #f8f9fa);
+	}
+	
+	.pd-graph-error[b-nj04xktkxh] {
+		background-color: var(--bs-dark, #212529);
+	}
+	
+	.node-label[b-nj04xktkxh] {
+		stroke: rgba(0, 0, 0, 0.5);
+	}
+}
+
+/* Responsive design - REMOVED HOVER TRANSFORMS */
+@media (max-width: 768px) {
+	.pd-graph-loading .spinner-border[b-nj04xktkxh] {
+		width: 2rem;
+		height: 2rem;
+	}
+
+	.pd-graph-loading .loading-text[b-nj04xktkxh] {
+		font-size: 0.8rem;
+	}
+
+	.node-label[b-nj04xktkxh] {
+		font-size: 8px !important;
+		stroke-width: 0.3px;
+	}
+}
+
+/* High DPI display support */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+	.graph-svg[b-nj04xktkxh] {
+		image-rendering: -webkit-optimize-contrast;
+		image-rendering: crisp-edges;
+	}
+	
+	.node-label[b-nj04xktkxh] {
+		text-rendering: optimizeLegibility;
+	}
+}
+/* _content/PanoramicData.Blazor/PDGraphControls.razor.rz.scp.css */
+.pd-graph-controls[b-5xlwvtamke] {
+	height: 100%;
+	width: 100%;
+	background-color: var(--bs-body-bg, #ffffff);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.controls-header[b-5xlwvtamke] {
+	padding: 0.75rem;
+	border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+	background-color: var(--bs-light, #f8f9fa);
+	flex-shrink: 0;
+}
+
+.controls-header h6[b-5xlwvtamke] {
+	margin: 0;
+	color: var(--bs-body-color, #212529);
+	font-weight: 600;
+}
+
+.controls-content[b-5xlwvtamke] {
+	flex: 1;
+	overflow-y: auto;
+	padding: 1rem;
+}
+
+.control-group[b-5xlwvtamke] {
+	margin-bottom: 1.5rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0,0,0,.175));
+}
+
+.control-group:last-child[b-5xlwvtamke] {
+	border-bottom: none;
+	margin-bottom: 0;
+}
+
+.control-group .form-label[b-5xlwvtamke] {
+	font-weight: 600;
+	color: var(--bs-body-color, #212529);
+	margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
+}
+
+.dimension-controls[b-5xlwvtamke] {
+	margin-top: 0.5rem;
+}
+
+.control-row[b-5xlwvtamke] {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0.5rem;
+	gap: 0.5rem;
+}
+
+.control-label[b-5xlwvtamke] {
+	flex: 0 0 100px;
+	font-size: 0.875rem;
+	color: var(--bs-text-muted, #6c757d);
+	text-align: right;
+}
+
+.control-row .form-select[b-5xlwvtamke] {
+	flex: 1;
+}
+
+.range-inputs[b-5xlwvtamke] {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.25rem;
+	margin-left: 105px;
+}
+
+.range-input[b-5xlwvtamke] {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.range-input label[b-5xlwvtamke] {
+	font-size: 0.75rem;
+	color: var(--bs-text-muted, #6c757d);
+	margin: 0;
+}
+
+.size-range[b-5xlwvtamke],
+.thickness-range[b-5xlwvtamke] {
+	margin-bottom: 0.5rem;
+}
+
+.readonly-info[b-5xlwvtamke] {
+	text-align: center;
+	padding: 2rem;
+	color: var(--bs-text-muted, #6c757d);
+}
+
+.form-check[b-5xlwvtamke] {
+	margin-bottom: 0.5rem;
+}
+
+.form-range[b-5xlwvtamke] {
+	margin-bottom: 0.25rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+	.pd-graph-controls[b-5xlwvtamke] {
+		background-color: var(--bs-dark, #212529);
+	}
+	
+	.controls-header[b-5xlwvtamke] {
+		background-color: var(--bs-secondary, #6c757d);
+		border-color: var(--bs-secondary, #6c757d);
+	}
+	
+	.controls-header h6[b-5xlwvtamke] {
+		color: var(--bs-light, #f8f9fa);
+	}
+	
+	.control-group[b-5xlwvtamke] {
+		border-color: var(--bs-secondary, #6c757d);
+	}
+	
+	.control-group .form-label[b-5xlwvtamke] {
+		color: var(--bs-light, #f8f9fa);
+	}
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+	.controls-content[b-5xlwvtamke] {
+		padding: 0.75rem;
+	}
+	
+	.control-row[b-5xlwvtamke] {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.25rem;
+	}
+	
+	.control-label[b-5xlwvtamke] {
+		flex: none;
+		text-align: left;
+		font-size: 0.8rem;
+	}
+	
+	.range-inputs[b-5xlwvtamke] {
+		margin-left: 0;
+	}
+}
+/* _content/PanoramicData.Blazor/PDGraphInfo.razor.rz.scp.css */
+.pd-graph-info[b-ibgavfbk9y] {
+	height: 100%;
+	width: 100%;
+	background-color: var(--bs-body-bg, #ffffff);
+	border-left: 1px solid var(--bs-border-color, #dee2e6);
+	display: flex;
+	flex-direction: column;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+	.pd-graph-info[b-ibgavfbk9y] {
+		background-color: var(--bs-dark, #212529);
+		border-color: var(--bs-secondary, #6c757d);
+	}
+}
+
+.pd-graph-info .pd-splitter[b-ibgavfbk9y] {
+	height: 100%;
+	width: 100%;
+}
+
+.pd-graph-info .pd-split-panel[b-ibgavfbk9y] {
+	height: 100%;
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+	.pd-graph-info[b-ibgavfbk9y] {
+		border-left: none;
+		border-top: 1px solid var(--bs-border-color, #dee2e6);
+	}
+	
+	@media (prefers-color-scheme: dark) {
+		.pd-graph-info[b-ibgavfbk9y] {
+			border-color: var(--bs-secondary, #6c757d);
+		}
+	}
+}
+/* _content/PanoramicData.Blazor/PDGraphSelectionInfo.razor.rz.scp.css */
+.pd-graph-selection-info[b-7zyf2oc45d] {
+	height: 100%;
+	width: 100%;
+	background-color: var(--bs-body-bg, #ffffff);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.selection-header[b-7zyf2oc45d] {
+	padding: 0.75rem;
+	border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+	background-color: var(--bs-light, #f8f9fa);
+	flex-shrink: 0;
+}
+
+.selection-header h6[b-7zyf2oc45d] {
+	margin: 0;
+	color: var(--bs-body-color, #212529);
+	font-weight: 600;
+}
+
+.selection-content[b-7zyf2oc45d] {
+	flex: 1;
+	overflow-y: auto;
+	padding: 1rem;
+}
+
+.selection-item[b-7zyf2oc45d] {
+	margin-bottom: 1rem;
+}
+
+.item-header[b-7zyf2oc45d] {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0.75rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0,0,0,.175));
+}
+
+.item-header strong[b-7zyf2oc45d] {
+	color: var(--bs-body-color, #212529);
+}
+
+.item-details[b-7zyf2oc45d] {
+	padding-left: 1.5rem;
+}
+
+.detail-row[b-7zyf2oc45d] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.375rem 0;
+	border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0,0,0,.125));
+}
+
+.detail-row:last-child[b-7zyf2oc45d] {
+	border-bottom: none;
+}
+
+.detail-label[b-7zyf2oc45d] {
+	font-weight: 500;
+	color: var(--bs-text-muted, #6c757d);
+	font-size: 0.875rem;
+}
+
+.detail-value[b-7zyf2oc45d] {
+	color: var(--bs-body-color, #212529);
+	font-family: var(--bs-font-monospace, SFMono-Regular);
+	font-size: 0.875rem;
+}
+
+.dimensions-section[b-7zyf2oc45d] {
+	margin-top: 1rem;
+}
+
+.dimensions-title[b-7zyf2oc45d] {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--bs-body-color, #212529);
+	margin-bottom: 0.5rem;
+}
+
+.dimensions-list[b-7zyf2oc45d] {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.dimension-item[b-7zyf2oc45d] {
+	background-color: var(--bs-light, #f8f9fa);
+	border-radius: var(--bs-border-radius-sm, 0.25rem);
+	padding: 0.5rem;
+	border: 1px solid var(--bs-border-color-translucent, rgba(0,0,0,.125));
+}
+
+.dimension-header[b-7zyf2oc45d] {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.25rem;
+}
+
+.dimension-name[b-7zyf2oc45d] {
+	font-size: 0.8rem;
+	font-weight: 500;
+	color: var(--bs-body-color, #212529);
+}
+
+.dimension-value[b-7zyf2oc45d] {
+	font-size: 0.75rem;
+	font-family: var(--bs-font-monospace, SFMono-Regular);
+	color: var(--bs-text-muted, #6c757d);
+}
+
+.dimension-bar[b-7zyf2oc45d] {
+	height: 4px;
+	background-color: var(--bs-border-color, #dee2e6);
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.dimension-fill[b-7zyf2oc45d] {
+	height: 100%;
+	background: linear-gradient(90deg, 
+		var(--bs-primary, #0d6efd), 
+		var(--bs-info, #0dcaf0), 
+		var(--bs-success, #198754));
+	transition: width 0.3s ease;
+}
+
+.node-status[b-7zyf2oc45d] {
+	margin-top: 0.75rem;
+	padding: 0.5rem;
+	background-color: var(--bs-warning-bg-subtle, #fff3cd);
+	border: 1px solid var(--bs-warning-border-subtle, #ffecb5);
+	border-radius: var(--bs-border-radius-sm, 0.25rem);
+	color: var(--bs-warning-text-emphasis, #664d03);
+}
+
+.no-selection[b-7zyf2oc45d] {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	text-align: center;
+	color: var(--bs-text-muted, #6c757d);
+}
+
+.no-selection-icon[b-7zyf2oc45d] {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+	opacity: 0.5;
+}
+
+.no-selection-text[b-7zyf2oc45d] {
+	font-size: 1rem;
+	margin: 0;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+	.pd-graph-selection-info[b-7zyf2oc45d] {
+		background-color: var(--bs-dark, #212529);
+	}
+	
+	.selection-header[b-7zyf2oc45d] {
+		background-color: var(--bs-secondary, #6c757d);
+		border-color: var(--bs-secondary, #6c757d);
+	}
+	
+	.selection-header h6[b-7zyf2oc45d] {
+		color: var(--bs-light, #f8f9fa);
+	}
+	
+	.item-header strong[b-7zyf2oc45d] {
+		color: var(--bs-light, #f8f9fa);
+	}
+	
+	.detail-value[b-7zyf2oc45d] {
+		color: var(--bs-light, #f8f9fa);
+	}
+	
+	.dimensions-title[b-7zyf2oc45d] {
+		color: var(--bs-light, #f8f9fa);
+	}
+	
+	.dimension-item[b-7zyf2oc45d] {
+		background-color: var(--bs-secondary, #6c757d);
+		border-color: var(--bs-secondary, #6c757d);
+	}
+	
+	.dimension-name[b-7zyf2oc45d] {
+		color: var(--bs-light, #f8f9fa);
+	}
+	
+	.dimension-bar[b-7zyf2oc45d] {
+		background-color: var(--bs-secondary, #6c757d);
+	}
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+	.selection-content[b-7zyf2oc45d] {
+		padding: 0.75rem;
+	}
+	
+	.item-details[b-7zyf2oc45d] {
+		padding-left: 1rem;
+	}
+	
+	.detail-row[b-7zyf2oc45d] {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.25rem;
+	}
+	
+	.no-selection-icon[b-7zyf2oc45d] {
+		font-size: 2rem;
+	}
+}
+/* _content/PanoramicData.Blazor/PDGraphViewer.razor.rz.scp.css */
+.pd-graph-viewer[b-f6rk2p5g2w] {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--bs-body-bg, #ffffff);
+	color: var(--bs-body-color, #212529);
+	border: 1px solid var(--bs-border-color, #dee2e6);
+	border-radius: var(--bs-border-radius, 0.375rem);
+	overflow: hidden;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+	.pd-graph-viewer[b-f6rk2p5g2w] {
+		background-color: var(--bs-dark, #212529);
+		color: var(--bs-light, #f8f9fa);
+		border-color: var(--bs-secondary, #6c757d);
+	}
+}
+
+/* Ensure proper layout with splitter */
+.pd-graph-viewer .pd-splitter[b-f6rk2p5g2w] {
+	height: 100%;
+	width: 100%;
+}
+
+.pd-graph-viewer .pd-split-panel[b-f6rk2p5g2w] {
+	height: 100%;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+	.pd-graph-viewer[b-f6rk2p5g2w] {
+		border-radius: 0;
+		border-left: none;
+		border-right: none;
+	}
+}
+/* _content/PanoramicData.Blazor/PDImage.razor.rz.scp.css */
+.pdimage[b-ieqej42po1] {
+}
+
+.pdimage-clear-btn[b-ieqej42po1] {
+	position: relative;
+	left: -20px;
+	cursor: pointer;
+}
+/* _content/PanoramicData.Blazor/PDKnob.razor.rz.scp.css */
+.pd-knob-label-overlay[b-jhd062bqar] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    font-size: 0.8em;
+    text-align: center;
+    pointer-events: none;
+}
+/* _content/PanoramicData.Blazor/PDList.razor.rz.scp.css */
+.filter[b-o3rjmxg4fd] {
+	display: flex;
+}
+
+	.filter[b-o3rjmxg4fd]  input {
+		border-top-right-radius: 0px !important;
+		border-bottom-right-radius: 0px !important;
+	}
+
+	.filter[b-o3rjmxg4fd]  .input-group-text {
+		border-top-left-radius: 0px !important;
+		border-bottom-left-radius: 0px !important;
+	}
+
+.footer[b-o3rjmxg4fd] {
+	border-top: 1px solid silver;
+	display: flex;
+	justify-content: flex-end;
+	padding: 5px 0px;
+}
+
+.header[b-o3rjmxg4fd] {
+	border-bottom: 1px solid silver;
+	padding: 5px 0px;
+}
+
+.pd-list[b-o3rjmxg4fd] {
+	margin: 0px 5px;
+	user-select: none;
+}
+
+.pd-list.disabled[b-o3rjmxg4fd] {
+	opacity: 0.5;
+}
+
+hr[b-o3rjmxg4fd] {
+	margin: 0.5rem;
+}
+
+li[b-o3rjmxg4fd] {
+	list-style: none;
+	padding: 0px 2px;
+}
+
+li.selected[b-o3rjmxg4fd] {
+	background-color: var(--bs-primary);
+}
+
+ul[b-o3rjmxg4fd] {
+	height: 150px;
+	padding-left: 0px;
+	margin-bottom: 0px;
+	overflow-y: auto;
+}
+/* _content/PanoramicData.Blazor/PDLog.razor.rz.scp.css */
+.log-container[b-q64kssveqc] {
+	border: 1px solid #ccc;
+	padding: 10px;
+	overflow-y: scroll;
+	overflow-x: auto;
+	font-family: monospace;
+	border-radius: 5px;
+	max-width: 100%;
+	resize: vertical; /* Enable vertical resizing */
+}
+
+	.log-container hr[b-q64kssveqc] {
+		margin-top: 1px;
+		margin-bottom: 1px;
+	}
+
+.log-entry[b-q64kssveqc] {
+	display: flex;
+	align-items: flex-start;
+	padding: 5px 0;
+}
+
+	.log-entry i[b-q64kssveqc] {
+		margin-right: 2px;
+		vertical-align: middle; /* Align the icon vertically in the middle */
+		line-height: 1.5; /* Adjust line height for better alignment with text */
+	}
+
+.log-timestamp[b-q64kssveqc] {
+	margin-right: 10px;
+	white-space: nowrap; /* Prevent wrapping on spaces */
+	word-break: keep-all; /* Prevent breaking on hyphens */
+}
+
+.log-messages[b-q64kssveqc] {
+	display: block; /* Ensure message lines stack vertically */
+	margin-left: 10px; /* Add margin for indentation */
+}
+
+.log-message[b-q64kssveqc] {
+	display: block; /* Ensures each message line appears on a new line */
+}
+
+	.log-message b[b-q64kssveqc] {
+		color: yellow;
+	}
+
+.log-exception-type[b-q64kssveqc] {
+	font-weight: bold;
+	color: #844;
+}
+
+.log-exception-message[b-q64kssveqc] {
+	color: #484;
+}
+
+.log-exception-stack[b-q64kssveqc] {
+	color: #448;
+}
+/* _content/PanoramicData.Blazor/PDMessage.razor.rz.scp.css */
+/* ==============================================
+   PDMessage Component - Bootstrap-Inspired Colors
+   ============================================== */
+
+.pdchat-message[b-te7n3kjf3y] {
+    position: relative;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: white;
+    border: 1px solid #e9ecef;
+    /* Remove overflow: hidden to allow content to expand vertically */
+    min-height: fit-content;
+}
+
+/* ==============================================
+   Full Width Layout
+   ============================================== */
+
+.pdchat-message.full-width[b-te7n3kjf3y] {
+    display: flex;
+    width: 100%;
+    padding: 12px;
+    gap: 12px;
+    /* Ensure full-width messages can expand vertically */
+    min-height: fit-content;
+    /* Always use row direction since DOM order is correct */
+    flex-direction: row;
+}
+
+/* Default colored strip on left for meta-on-left */
+.pdchat-message.full-width.meta-on-left.user[b-te7n3kjf3y] {
+    border-left: 4px solid #6c757d;
+}
+
+.pdchat-message.full-width.meta-on-left.bot[b-te7n3kjf3y] {
+    border-left: 4px solid #0d6efd;
+}
+
+/* Colored strip on right for meta-on-right */
+.pdchat-message.full-width.meta-on-right.user[b-te7n3kjf3y] {
+    border-right: 4px solid #6c757d;
+}
+
+.pdchat-message.full-width.meta-on-right.bot[b-te7n3kjf3y] {
+    border-right: 4px solid #0d6efd;
+}
+
+.pdchat-message.full-width .pdchat-content[b-te7n3kjf3y] {
+    flex: 1;
+    min-width: 0;
+    /* Ensure content can expand vertically */
+    min-height: fit-content;
+}
+
+.pdchat-message.full-width .pdchat-meta[b-te7n3kjf3y] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 60px;
+    text-align: center;
+}
+
+.pdchat-message.full-width .pdchat-details[b-te7n3kjf3y] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.pdchat-message.full-width .pdchat-icon[b-te7n3kjf3y] {
+    font-size: 1.5em;
+    margin-bottom: 4px;
+}
+
+.pdchat-message.full-width .pdchat-username[b-te7n3kjf3y] {
+    font-weight: 600;
+    font-size: 0.8em;
+    color: #495057;
+    margin-bottom: 2px;
+    word-break: break-word;
+}
+
+.pdchat-message.full-width .pdchat-timestamp[b-te7n3kjf3y] {
+    font-size: 0.7em;
+    color: #6c757d;
+    word-break: break-word;
+}
+
+/* ==============================================
+   Priority Color Overrides for Full Width - Meta on Left
+   ============================================== */
+
+.pdchat-message.full-width.meta-on-left.priority-warning[b-te7n3kjf3y] {
+    border-left-color: #ffc107;
+    background-color: #fff3cd;
+}
+
+.pdchat-message.full-width.meta-on-left.priority-error[b-te7n3kjf3y] {
+    border-left-color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.pdchat-message.full-width.meta-on-left.priority-critical[b-te7n3kjf3y] {
+    border-left-color: #dc3545;
+    background-color: #f8d7da;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.pdchat-message.full-width.meta-on-left.priority-typing[b-te7n3kjf3y] {
+    border-left-color: #6c757d;
+    background-color: #f8f9fa;
+}
+
+/* ==============================================
+   Priority Color Overrides for Full Width - Meta on Right
+   ============================================== */
+
+.pdchat-message.full-width.meta-on-right.priority-warning[b-te7n3kjf3y] {
+    border-right-color: #ffc107;
+    background-color: #fff3cd;
+}
+
+.pdchat-message.full-width.meta-on-right.priority-error[b-te7n3kjf3y] {
+    border-right-color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.pdchat-message.full-width.meta-on-right.priority-critical[b-te7n3kjf3y] {
+    border-right-color: #dc3545;
+    background-color: #f8d7da;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.pdchat-message.full-width.meta-on-right.priority-typing[b-te7n3kjf3y] {
+    border-right-color: #6c757d;
+    background-color: #f8f9fa;
+}
+
+/* ==============================================
+   Bubble Layout (Legacy)
+   ============================================== */
+
+.pdchat-message.bubble[b-te7n3kjf3y] {
+    padding: 38px 14px 12px 14px;
+    background: #f4f8fb;
+    /* Ensure bubble messages can expand vertically */
+    min-height: fit-content;
+}
+
+.pdchat-message.bubble:not(:has(.pdchat-title-bar))[b-te7n3kjf3y] {
+    padding-top: 10px;
+}
+
+.pdchat-message.bubble.user[b-te7n3kjf3y] {
+    background: #d6fcd6;
+    align-self: flex-end;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.pdchat-message.bubble.bot[b-te7n3kjf3y] {
+    background: #e6f0ff;
+    align-self: flex-start;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+}
+
+.pdchat-bubble-header[b-te7n3kjf3y] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+}
+
+/* ==============================================
+   Common Text Styles
+   ============================================== */
+
+.pdchat-text[b-te7n3kjf3y] {
+    font-size: 1em;
+    color: #212529;
+    line-height: 1.4;
+    white-space: pre-line;
+    word-wrap: break-word;
+    /* Ensure text content can expand properly */
+    overflow-wrap: break-word;
+    min-height: 1.4em; /* Ensure at least one line height */
+}
+
+.pdchat-message.full-width .pdchat-text[b-te7n3kjf3y] {
+    padding: 0;
+}
+
+.pdchat-message.bubble .pdchat-text[b-te7n3kjf3y] {
+    padding-top: 2px;
+}
+
+/* ==============================================
+   Legacy Bubble Priority Colors
+   ============================================== */
+
+.pdchat-message.bubble.priority-warning[b-te7n3kjf3y] {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+}
+
+.pdchat-message.bubble.priority-error[b-te7n3kjf3y] {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+}
+
+.pdchat-message.bubble.priority-critical[b-te7n3kjf3y] {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.pdchat-message.bubble.priority-typing[b-te7n3kjf3y] {
+    background-color: #f8f9fa;
+    border-color: #6c757d;
+    font-style: italic;
+}
+
+/* ==============================================
+   Legacy Bubble Icon and Username Styles
+   ============================================== */
+
+.pdchat-message.bubble .pdchat-icon[b-te7n3kjf3y] {
+    margin-right: 0;
+    margin-left: 0;
+    font-size: 1.3em;
+    align-self: flex-start;
+}
+
+.pdchat-message.bubble .pdchat-username[b-te7n3kjf3y] {
+    font-weight: 600;
+    color: #495057;
+    margin-right: 8px;
+    font-size: 1em;
+}
+
+.pdchat-message.bubble .pdchat-timestamp[b-te7n3kjf3y] {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-left: auto;
+}
+
+/* ==============================================
+   Title Bar Styles
+   ============================================== */
+
+.pdchat-title-bar[b-te7n3kjf3y] {
+    background: #e9ecef;
+    color: #495057;
+    font-weight: 700;
+    font-size: 0.9em;
+    padding: 8px 12px;
+    margin: -12px -12px 8px -12px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.pdchat-message.bubble .pdchat-title-bar[b-te7n3kjf3y] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 7px 18px 7px 18px;
+    margin: 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    letter-spacing: 0.02em;
+    z-index: 1;
+}
+
+/* ==============================================
+   Typing Animation
+   ============================================== */
+
+.typing-ellipsis[b-te7n3kjf3y] {
+    display: inline-block;
+    min-width: 1em;
+}
+
+.typing-ellipsis[b-te7n3kjf3y]::after {
+    content: '';
+    display: inline-block;
+    width: 1em;
+    text-align: left;
+    animation: ellipsis-dots-b-te7n3kjf3y 1.5s steps(3, end) infinite;
+}
+
+@keyframes ellipsis-dots-b-te7n3kjf3y {
+    0%, 20% {
+        content: '';
+    }
+    40% {
+        content: '.';
+    }
+    60% {
+        content: '..';
+    }
+    80%, 100% {
+        content: '...';
+    }
+}
+
+/* ==============================================
+   DARK MODE - Message Backgrounds and Text
+   ============================================== */
+
+@media (prefers-color-scheme: dark) {
+    /* Default message background and text */
+    .pdchat-message[b-te7n3kjf3y] {
+        background: #3a3f44;
+        border-color: #495057;
+        color: #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    /* Dark mode text color */
+    .pdchat-text[b-te7n3kjf3y] {
+        color: #e0e0e0;
+    }
+    
+    /* Dark mode username and timestamp colors */
+    .pdchat-message.full-width .pdchat-username[b-te7n3kjf3y] {
+        color: #ced4da;
+    }
+    
+    .pdchat-message.full-width .pdchat-timestamp[b-te7n3kjf3y] {
+        color: #adb5bd;
+    }
+    
+    .pdchat-message.bubble .pdchat-username[b-te7n3kjf3y] {
+        color: #ced4da;
+    }
+    
+    .pdchat-message.bubble .pdchat-timestamp[b-te7n3kjf3y] {
+        color: #adb5bd;
+    }
+    
+    /* Warning messages - dark yellow/amber background */
+    .pdchat-message.full-width.meta-on-left.priority-warning[b-te7n3kjf3y],
+    .pdchat-message.full-width.meta-on-right.priority-warning[b-te7n3kjf3y],
+    .pdchat-message.bubble.priority-warning[b-te7n3kjf3y] {
+        background-color: #4a3d1a;
+        border-color: #ffab00;
+        box-shadow: 0 2px 4px rgba(255, 171, 0, 0.2);
+    }
+    
+    /* Error messages - dark red background */
+    .pdchat-message.full-width.meta-on-left.priority-error[b-te7n3kjf3y],
+    .pdchat-message.full-width.meta-on-right.priority-error[b-te7n3kjf3y],
+    .pdchat-message.bubble.priority-error[b-te7n3kjf3y] {
+        background-color: #3d1a1a;
+        border-color: #dc3545;
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+    }
+    
+    /* Critical messages - darker red background with stronger shadow */
+    .pdchat-message.full-width.meta-on-left.priority-critical[b-te7n3kjf3y],
+    .pdchat-message.full-width.meta-on-right.priority-critical[b-te7n3kjf3y],
+    .pdchat-message.bubble.priority-critical[b-te7n3kjf3y] {
+        background-color: #3d1a1a;
+        border-color: #dc3545;
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+    }
+    
+    /* Typing messages - neutral dark background */
+    .pdchat-message.full-width.meta-on-left.priority-typing[b-te7n3kjf3y],
+    .pdchat-message.full-width.meta-on-right.priority-typing[b-te7n3kjf3y],
+    .pdchat-message.bubble.priority-typing[b-te7n3kjf3y] {
+        background-color: #2c3034;
+        border-color: #6c757d;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* Title bar dark mode */
+    .pdchat-title-bar[b-te7n3kjf3y] {
+        background: #495057;
+        color: #e9ecef;
+        border-bottom-color: #6c757d;
+    }
+    
+    .pdchat-message.bubble .pdchat-title-bar[b-te7n3kjf3y] {
+        background: #1e3a5f;
+        color: #93c5fd;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+}
+/* _content/PanoramicData.Blazor/PDMessages.razor.rz.scp.css */
+/* ==============================================
+   PDMessages Component - Proper Overflow Control
+   ============================================== */
+
+.pdchat-panel-flex[b-a9wz5hgkg7] {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.pdchat-messages[b-a9wz5hgkg7] {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 10px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	font-size: 14px;
+	background: #f9f9f9;
+	min-height: 0;
+	scroll-behavior: smooth;
+}
+
+/* When there are no messages or minimal content, ensure messages area still takes available space */
+.pdchat-messages:empty[b-a9wz5hgkg7] {
+	flex: 1 1 auto;
+	min-height: 200px; /* Minimum height to push input to bottom */
+}
+
+/* Fullscreen specific - prevent viewport overflow */
+.pdchat-window.fullscreen .pdchat-panel-flex[b-a9wz5hgkg7] {
+	height: 100%;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.pdchat-window.fullscreen .pdchat-messages[b-a9wz5hgkg7] {
+	padding: 16px;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+/* Chat input container - always at bottom */
+.chat-input-container[b-a9wz5hgkg7] {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	background: #f5f7fa;
+	border-radius: 8px;
+	box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+	flex-shrink: 0;
+	min-height: 0;
+	margin-top: auto; /* Push to bottom when messages area has minimal content */
+}
+
+.pdchat-window.fullscreen .chat-input-container[b-a9wz5hgkg7] {
+	flex-shrink: 0;
+	padding: 8px;
+	margin-top: auto;
+}
+
+.chat-input-container textarea[b-a9wz5hgkg7] {
+	flex: 1;
+	resize: vertical;
+	padding: 8px 12px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	font-size: 1rem;
+	font-family: inherit;
+	transition: border-color 0.2s ease;
+	min-height: 50px;
+	max-height: 200px;
+	box-sizing: border-box;
+}
+
+.chat-input-container textarea:focus[b-a9wz5hgkg7] {
+	outline: none;
+	border-color: #4a90e2;
+	box-shadow: 0 0 5px #4a90e2aa;
+}
+
+.submit-button[b-a9wz5hgkg7] {
+	background-color: #4a90e2;
+	border: none;
+	color: white;
+	padding: 10px 20px;
+	border-radius: 6px;
+	font-weight: 600;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+	user-select: none;
+	flex-shrink: 0;
+}
+
+.submit-button:hover[b-a9wz5hgkg7] {
+	background-color: #357abd;
+}
+
+.submit-button:active[b-a9wz5hgkg7] {
+	background-color: #2a5d9f;
+}
+
+.submit-button-disabled[b-a9wz5hgkg7] {
+	background-color: #6c757d;
+	cursor: not-allowed;
+}
+
+.submit-button-disabled:hover[b-a9wz5hgkg7] {
+	background-color: #6c757d;
+}
+
+/* ==============================================
+   DARK MODE - Messages Area and Input Styling
+   ============================================== */
+
+/* Dark mode for messages area and text input */
+@media (prefers-color-scheme: dark) {
+	.pdchat-messages[b-a9wz5hgkg7] {
+		background: #2b2f33;
+		color: #ffffff;
+		
+		/* Dark scrollbar styling for Webkit browsers (Chrome, Safari, Edge) */
+		scrollbar-width: thin;
+		scrollbar-color: #495057 #2b2f33;
+	}
+	
+	/* Webkit scrollbar styling for dark mode */
+	.pdchat-messages[b-a9wz5hgkg7]::-webkit-scrollbar {
+		width: 8px;
+	}
+	
+	.pdchat-messages[b-a9wz5hgkg7]::-webkit-scrollbar-track {
+		background: #2b2f33;
+	}
+	
+	.pdchat-messages[b-a9wz5hgkg7]::-webkit-scrollbar-thumb {
+		background-color: #495057;
+		border-radius: 4px;
+	}
+	
+	.pdchat-messages[b-a9wz5hgkg7]::-webkit-scrollbar-thumb:hover {
+		background-color: #6c757d;
+	}
+	
+	.chat-input-container[b-a9wz5hgkg7] {
+		background: #373b3e;
+		box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+	}
+	
+	.chat-input-container textarea[b-a9wz5hgkg7] {
+		background: #2b2f33;
+		color: #ffffff;
+		border-color: #495057;
+	}
+	
+	.chat-input-container textarea:focus[b-a9wz5hgkg7] {
+		border-color: #0d6efd;
+		box-shadow: 0 0 5px #0d6efdaa;
+	}
+	
+	/* Fixed Send button styling for dark mode - prevent conflicts */
+	.submit-button:not(.submit-button-disabled)[b-a9wz5hgkg7] {
+		background-color: #6c757d !important;
+		color: #ffffff !important;
+		border: none !important;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+	}
+	
+	.submit-button:not(.submit-button-disabled):hover[b-a9wz5hgkg7] {
+		background-color: #5a6268 !important;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+	}
+	
+	.submit-button:not(.submit-button-disabled):active[b-a9wz5hgkg7] {
+		background-color: #495057 !important;
+	}
+	
+	.submit-button-disabled[b-a9wz5hgkg7] {
+		background-color: #343a40 !important;
+		color: #6c757d !important;
+		cursor: not-allowed !important;
+		box-shadow: none !important;
+	}
+	
+	.submit-button-disabled:hover[b-a9wz5hgkg7] {
+		background-color: #343a40 !important;
+	}
+}
+/* _content/PanoramicData.Blazor/PDMonacoEditor.razor.rz.scp.css */
+[b-4gaapcvsmd] .monaco-editor-container {
+	height: 100px;
+}
+
+.pd-monacoeditor[b-4gaapcvsmd] {
+	border: 1px solid silver;
+	display: grid;
+	grid-template-columns: minmax(0px, auto);
+	height: 100%;
+}
+/* _content/PanoramicData.Blazor/PDPager.razor.rz.scp.css */
+.direction-buttons[b-cffig5ojfh] {
+	align-items: baseline;
+	display: flex;
+}
+
+[b-cffig5ojfh] .direction-buttons button:nth-child(1) {
+	border-radius: .25rem 0px 0px .25rem;
+}
+
+[b-cffig5ojfh] .direction-buttons button:nth-child(2) {
+	border-radius: 0px;
+}
+
+[b-cffig5ojfh] .direction-buttons button:nth-child(7) {
+	border-radius: 0px;
+}
+
+[b-cffig5ojfh] .direction-buttons button:nth-child(8) {
+	border-radius: 0px .25rem .25rem 0px;
+}
+/* _content/PanoramicData.Blazor/PDProgressBar.razor.rz.scp.css */
+.pd-progressbar[b-tlawdyc4wq] {
+	border: 1px solid silver;
+}
+
+.pd-progressbar .bar[b-tlawdyc4wq] {
+	color: white;
+	background-color: #007bff;
+	text-align: center;
+}
+/* _content/PanoramicData.Blazor/PDQuestVisualizer.razor.rz.scp.css */
+.btn.disabled[b-h6panebb7o], .btn:disabled[b-h6panebb7o] {
+	pointer-events: auto;
+	cursor: default;
+}
+
+.pd-button .icon[b-h6panebb7o] {
+	vertical-align: middle;
+}
+/* _content/PanoramicData.Blazor/PDRange.razor.rz.scp.css */
+.plot-area[b-ln1llpzeta] {
+	background-color: transparent;
+}
+
+.handle[b-ln1llpzeta] {
+	fill: darkslategray;
+	stroke: silver;
+	opacity: 0.8;
+}
+
+.pd-range:not(.disabled) .handle[b-ln1llpzeta] {
+	cursor: col-resize;
+}
+
+.tick.major[b-ln1llpzeta] {
+	stroke: black;
+}
+
+.label.tick-major[b-ln1llpzeta] {
+	fill: black;
+	font-size: 0.6rem;
+	font-weight: 500;
+	stroke: none;
+	user-select: none;
+}
+
+.track.inner[b-ln1llpzeta] {
+	fill: green;
+}
+
+.track.inner.invert[b-ln1llpzeta] {
+	fill: silver;
+}
+
+.track.outer[b-ln1llpzeta] {
+	fill: silver;
+}
+
+.track.outer.invert[b-ln1llpzeta] {
+	fill: green;
+}
+
+.disabled[b-ln1llpzeta] {
+	opacity: 0.5;
+}
+/* _content/PanoramicData.Blazor/PDResizePane.razor.rz.scp.css */
+.pdresizepane-container[b-v4pa3flyxs] {
+	width: 300px;
+	height: 200px;
+	border: 1px solid #999;
+	position: absolute;
+	background: white;
+	overflow: hidden;
+}
+
+.pdresizepane-content[b-v4pa3flyxs] {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 10px;
+	overflow: auto;
+}
+
+.pdresizepane-handle[b-v4pa3flyxs] {
+	width: 15px;
+	height: 15px;
+	background-color: #0078d4;
+	position: absolute;
+	cursor: nwse-resize;
+	border-radius: 3px;
+}
+
+.handle-tl[b-v4pa3flyxs] {
+	top: 0;
+	left: 0;
+	cursor: nwse-resize;
+}
+
+.handle-tr[b-v4pa3flyxs] {
+	top: 0;
+	right: 0;
+	cursor: nesw-resize;
+}
+
+.handle-bl[b-v4pa3flyxs] {
+	bottom: 0;
+	left: 0;
+	cursor: nesw-resize;
+}
+
+.handle-br[b-v4pa3flyxs] {
+	bottom: 0;
+	right: 0;
+	cursor: nwse-resize;
+}
+/* _content/PanoramicData.Blazor/PDSplitter.razor.rz.scp.css */
+.pdsplitter[b-z1cl0y6867] {
+	width: 100%;
+	height: 100%;
+	display: flex;
+}
+
+.pdsplitter.horizontal[b-z1cl0y6867] {
+	flex-direction: row;
+}
+
+.pdsplitter.vertical[b-z1cl0y6867] {
+	flex-direction: column;
+}
+
+[b-z1cl0y6867] .gutter {
+	background-color: #eee;
+}
+
+[b-z1cl0y6867] .gutter-vertical {
+	cursor: row-resize;
+}
+
+[b-z1cl0y6867] .gutter-horizontal {
+	cursor: col-resize;
+}
+
+.pdsplitpanel[b-z1cl0y6867]
+{
+	height: 100%;
+	/* Changed from auto to hidden - let children handle scrolling */
+	/* Roland: changed back to auto for now. Commented out for now to fix LOTS of broken CSS issues in magic suite apps. Have blanket-commented out rules likely
+	to have been affecting things. Magic Suite apps now appear OK, and PDChat is STILL OK, as far as we can see
+*/
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+	min-height: 0; /* Enable proper flex shrinking */
+	min-width: 0; /* Enable proper flex shrinking */
+}
+
+/* Ensure immediate children of split panels get proper scrolling behavior */
+.pdsplitpanel > *[b-z1cl0y6867] {
+	flex: 1 1 auto;
+	min-height: 0;
+	min-width: 0;
+	overflow-y: auto; /* Enable vertical scrolling for content */
+	overflow-x: auto; /* Enable horizontal scrolling for content */
+	box-sizing: border-box;
+}
+
+/* Special handling for content that should maintain its own overflow behavior */
+.pdsplitpanel > .pdchat-container[b-z1cl0y6867],
+.pdsplitpanel > .pdchat-window[b-z1cl0y6867] {
+	overflow: visible; /* Let chat components handle their own overflow */
+}
+/* _content/PanoramicData.Blazor/PDTable.razor.rz.scp.css */
+[b-twnhedvmzg] .pd-sort, .pd-sort:hover[b-twnhedvmzg] {
+	color: var(--bs-primary);
+}
+
+[b-twnhedvmzg] .pd-sort .fa-stack {
+	width: 20px;
+}
+
+[b-twnhedvmzg] .pd-sort.fa-sort, .pd-sort.fa-sort:hover[b-twnhedvmzg] {
+	opacity: 0.3;
+}
+
+.pdtable[b-twnhedvmzg] {
+	height: 100%;
+	width: 100%;
+}
+
+.noselect[b-twnhedvmzg] {
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+}
+
+.pdtable.disabled[b-twnhedvmzg] {
+	background-color: #d3d3d3;
+	color: #dddddd;
+	filter: grayscale(1);
+}
+
+.pdtablerow.selected[b-twnhedvmzg] {
+	background-color: #007bff;
+}
+
+.pdtable:focus[b-twnhedvmzg] {
+	outline: none;
+}
+
+.pdtable_edit[b-twnhedvmzg] {
+	width: 100%;
+}
+
+.pdtable .form-check-input[b-twnhedvmzg] {
+	margin-left: 0px;
+	transform: scale(1.3);
+}
+
+.pdtable .hdr[b-twnhedvmzg] {
+	align-items: center;
+	display: flex;
+	min-height: 2em;
+}
+
+.text-right[b-twnhedvmzg] {
+	text-align: right;
+}
+
+th.text-right .hdr[b-twnhedvmzg] {
+	justify-content: flex-end;
+}
+
+.text-left[b-twnhedvmzg] {
+	text-align: left;
+}
+
+th.text-left .hdr[b-twnhedvmzg] {
+	justify-content: flex-start;
+}
+/* _content/PanoramicData.Blazor/PDTabSet.razor.rz.scp.css */
+.pdtabset-tabs[b-qp5d3qlpkj] {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #e0e0e0;
+    background: #f5f7fa;
+    padding: 0 8px;
+    gap: 2px;
+}
+
+.pdtabset-tab-container[b-qp5d3qlpkj] {
+    display: flex;
+    align-items: center;
+}
+
+.pdtabset-tab[b-qp5d3qlpkj] {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: #205081;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 10px 18px 8px 18px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    border-radius: 8px 8px 0 0;
+    outline: none;
+    min-width: 100px;
+    max-width: 240px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-right: 2px;
+    margin-bottom: -1px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 0.5px 0.5px rgba(0,0,0,0.03);
+    border: 1.5px solid #e0e0e0;
+    border-bottom: 2px solid transparent;
+}
+
+.pdtabset-tab-title[b-qp5d3qlpkj] {
+    flex: 1 1 auto;
+    text-align: left;
+    padding-right: 0.5em;
+}
+
+.pdtabset-tab.active[b-qp5d3qlpkj] {
+    border-bottom: 2px solid #0078d4;
+    background: #fff;
+    color: #0078d4;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,120,212,0.07), 0 1px 4px rgba(0,0,0,0.04);
+    border: 1.5px solid #e0e0e0;
+    border-bottom: 2px solid #0078d4;
+}
+
+.pdtabset-tab:hover:not(.active)[b-qp5d3qlpkj] {
+    background: #e6f0ff;
+    box-shadow: 0 2px 8px rgba(0,120,212,0.09), 0 1px 4px rgba(0,0,0,0.04);
+    border: 1.5px solid #b3d1f7;
+    border-bottom: 2px solid transparent;
+}
+
+.pdtabset-tab-close[b-qp5d3qlpkj] {
+    color: #888;
+    margin-left: 0.25em;
+    cursor: pointer;
+    font-size: 1em;
+    background: none;
+    border: none;
+    outline: none;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.pdtabset-tab-close:hover[b-qp5d3qlpkj] {
+    color: #d32f2f;
+}
+
+.pdtabset-content[b-qp5d3qlpkj] {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    padding: 16px;
+    overflow: auto;
+    background: #fff;
+    border-radius: 0 0 8px 8px;
+}
+
+.pdtabset-tab-rename-input[b-qp5d3qlpkj] {
+    min-width: 80px;
+    max-width: 220px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 1.5px solid #0078d4;
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-right: 2px;
+    margin-bottom: -1px;
+    outline: none;
+    color: #205081;
+    background: #f5f7fa;
+    box-shadow: 0 2px 6px rgba(0,120,212,0.07);
+    transition: border-color 0.2s;
+}
+.pdtabset-tab-rename-input:focus[b-qp5d3qlpkj] {
+    border-color: #205081;
+    background: #fff;
+}
+/* _content/PanoramicData.Blazor/PDTextBox.razor.rz.scp.css */
+.pdtextbox[b-u1hbc82htt]
+{
+}
+
+.pdtextbox-clear-btn[b-u1hbc82htt]
+{
+	position: relative;
+	left: -20px;
+	cursor: pointer;
+}
+
+.input-group-text[b-u1hbc82htt]
+{
+	padding: 0px;
+}
+
+button.flash i[b-u1hbc82htt]
+{
+	animation: flash-b-u1hbc82htt 1s infinite;
+}
+
+.square-left-border-radius[b-u1hbc82htt]
+{
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+@keyframes flash-b-u1hbc82htt
+{
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+/* _content/PanoramicData.Blazor/PDTimeline.razor.rz.scp.css */
+.pd-timeline[b-u2n9jlvho5] {
+	border: 1px solid silver;
+	display: inline-grid;
+	font-family: 'Courier, inherit';
+	overflow-x: auto;
+	user-select: none;
+	width: 100%;
+}
+
+.pd-timeline.disabled[b-u2n9jlvho5] {
+	background-color: #d3d3d3;
+	filter: grayscale(1);
+}
+
+.pd-timeline[b-u2n9jlvho5]  svg.disabled {
+	background-color: #d3d3d3;
+	filter: grayscale(1);
+}
+
+.tl-ind-l[b-u2n9jlvho5], .tl-ind-r[b-u2n9jlvho5] {
+	cursor: pointer;
+}
+
+.tl-pan[b-u2n9jlvho5] {
+	border-top: 1px solid silver;
+	cursor: ew-resize;
+	height: 20px;
+	width: 100%;
+}
+
+.tl-plot-area[b-u2n9jlvho5] {
+	height: 150px;
+	width: 100%;
+}
+
+.tl-selection-handle[b-u2n9jlvho5] {
+	cursor: col-resize;
+}
+
+.tl-x-axis[b-u2n9jlvho5] {
+	font-size: 10px;
+	height: 20px;
+	width: 100%;
+}
+
+.tl-x-axis text[b-u2n9jlvho5] {
+	user-select: none;
+}
+
+.tl-x-axis .minor-tick[b-u2n9jlvho5] {
+	font-size: 8px;
+}
+
+svg .rotate[b-u2n9jlvho5] {
+	animation: rotate-b-u2n9jlvho5 1.5s linear infinite;
+	transform-box: fill-box;
+	transform-origin: center;
+}
+
+@keyframes rotate-b-u2n9jlvho5 {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+/* _content/PanoramicData.Blazor/PDTimelineToolbar.razor.rz.scp.css */
+.pd-timeline-toolbar[b-focsc8fm98] {
+	align-items: center;
+	display: flex;
+	font-size: 0.9rem;
+	justify-content: flex-end;
+	user-select: none;
+	width: 100%;
+}
+
+.pd-timeline-toolbar .scale-label[b-focsc8fm98] {
+	min-width: 60px;
+	text-align: center;
+}
+
+.range-bar[b-focsc8fm98], .selection-bar[b-focsc8fm98] {
+	border-left: 1px solid silver;
+	padding-left: 0.5rem;
+}
+/* _content/PanoramicData.Blazor/PDToggleSwitch.razor.rz.scp.css */
+.pdtoggleswitch[b-8ji5bcf728] {
+	user-select: none;
+	display:inline-block;
+}
+
+.pdtoggleswitch svg:focus[b-8ji5bcf728] {
+	outline: 0;
+	box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+}
+
+.pdtoggleswitch.sm.rd svg:focus[b-8ji5bcf728] {
+	border-radius: 8px;
+}
+
+.pdtoggleswitch.md.rd svg:focus[b-8ji5bcf728] {
+	border-radius: 12px;
+}
+
+.pdtoggleswitch.lg.rd svg:focus[b-8ji5bcf728] {
+	border-radius: 16px;
+}
+
+.pdtoggleswitch.sm text[b-8ji5bcf728] {
+	font-size: 0.5rem;
+}
+
+.pdtoggleswitch.lg text[b-8ji5bcf728] {
+	font-size: 1.5rem;
+}
+
+.pdtoggleswitch svg[b-8ji5bcf728] {
+	cursor: pointer;
+}
+
+.pdtoggleswitch .switch[b-8ji5bcf728] {
+	stroke: #1b6ec2;
+	stroke-width: 2;
+}
+
+.pdtoggleswitch text[b-8ji5bcf728] {
+	stroke-width: 0;
+	fill: white;
+}
+
+.pdtoggleswitch .toggle[b-8ji5bcf728] {
+	fill: white;
+}
+
+.pdtoggleswitch .switch.on[b-8ji5bcf728] {
+	fill: #1b6ec2;
+}
+
+.pdtoggleswitch .switch.off[b-8ji5bcf728] {
+	fill: silver;
+}
+
+
+.pdtoggleswitch.disabled svg[b-8ji5bcf728] {
+	opacity: 0.5;
+	cursor: default;
+}
+/* _content/PanoramicData.Blazor/PDToolbar.razor.rz.scp.css */
+.pdtoolbar[b-7txq43ltln] {
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	align-items: center;
+	display: flex;
+}
+
+[b-7txq43ltln] .pdtoolbaritem {
+	padding: 5px;
+}
+
+[b-7txq43ltln] .pdtoolbaritem:first-child {
+	padding-left: 0px;
+}
+
+[b-7txq43ltln] .pdtoolbaritem:last-child {
+	padding-right: 0px;
+}
+
+[b-7txq43ltln] .pdtoolbaritem.align-right {
+	margin-left: auto;
+}
+/* _content/PanoramicData.Blazor/PDToolbarButton.razor.rz.scp.css */
+[b-jkt1ivzpea] .pdtoolbarbutton {
+	white-space: nowrap;
+}
+/* _content/PanoramicData.Blazor/PDToolbarDropdown.razor.rz.scp.css */
+[b-c2b1bju46t] .pdtoolbarbutton {
+	white-space: nowrap;
+}
+.pddropdownmenuitem[b-c2b1bju46t] {
+	padding: .25rem .50rem;
+	cursor: pointer;
+}
+
+.pddropdownmenuitem.disabled[b-c2b1bju46t] {
+	color: #6c757d;
+	pointer-events: none;
+}
+
+.pddropdownmenuitem.disabled:hover[b-c2b1bju46t] {
+}
+
+.pddropdownmenuitem:hover[b-c2b1bju46t] {
+	background-color: #eee;
+}
+
+.pddropdownseparator[b-c2b1bju46t] {
+	border-bottom: 1px solid #ddd;
+}
+/* _content/PanoramicData.Blazor/PDToolbarItem.razor.rz.scp.css */
+.pdtoolbaritem[b-dimkfdiume] {
+	padding: 5px;
+}
+
+.pdtoolbaritem:first-child[b-dimkfdiume] {
+	padding-left: 0px;
+}
+
+.pdtoolbaritem:last-child[b-dimkfdiume] {
+	padding-right: 0px;
+}
+
+.pdtoolbaritem.align-right[b-dimkfdiume] {
+	margin-left: auto;
+}
+/* _content/PanoramicData.Blazor/PDToolbarPlaceholder.razor.rz.scp.css */
+.pdtoolbarplaceholder[b-r86cutc228] {
+	display: flex;
+	align-items: center;
+}
+/* _content/PanoramicData.Blazor/PDToolbarSeparator.razor.rz.scp.css */
+.pdtoolbarseparator[b-krleyb7d9u] {
+	display: flex;
+	align-items: center;
+	height: 100%;
+}
+
+.pdtoolbarseparator .pdts-bar[b-krleyb7d9u] {
+	border-left: 2px solid #ddd;
+	height: 80%;
+	min-height: 1rem;
+}
+/* _content/PanoramicData.Blazor/PDToolbarTextbox.razor.rz.scp.css */
+.pdtoolbartextbox[b-j3wgwccb36] {
+	display: flex;
+	align-items: center;
+}
+
+.pdtoolbartextbox .input-group[b-j3wgwccb36] {
+	flex-wrap: nowrap;
+}
+
+.pdtoolbartextbox label[b-j3wgwccb36] {
+	white-space: nowrap;
+	padding: 0 0.5rem 0 0;
+	margin-bottom: 0px;
+}
+
+.pdttb-clear-btn[b-j3wgwccb36] {
+	position: relative;
+	left: -20px;
+	cursor: pointer;
+}
+/* _content/PanoramicData.Blazor/PDTree.razor.rz.scp.css */
+.pdtree[b-14el8x4u35] {
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	height: 100%;
+	width: 100%;
+}
+
+/* negates the indent on the top level nodes */
+.pdtree > .pdtreenode[b-14el8x4u35] {
+	padding-left: 0rem;
+}
+
+.pdtree:focus[b-14el8x4u35] {
+	outline: none;
+}
+/* _content/PanoramicData.Blazor/PDTreeNode.razor.rz.scp.css */
+/* indents each tree level  */
+.pdtreenode[b-453mk4wjj6] {
+	padding-left: 1.0rem;
+}
+
+.pdtreenode .selected[b-453mk4wjj6] {
+	background-color: #007bff;
+}
+
+.pdtreenode .pdtreenode_child_content[b-453mk4wjj6] {
+	margin-left: 6px;
+	padding-left: 1px;
+}
+
+.pdtreenode .pdtreenode_header[b-453mk4wjj6] {
+	display: flex;
+	align-items: baseline;
+	white-space: nowrap;
+}
+
+.pdtreenode .pdtreenode_header .pdtreenode_content[b-453mk4wjj6] {
+	width: 100%;
+	padding-left: 3px;
+	margin-left: 3px;
+}
+
+.pdtreenode_edit[b-453mk4wjj6] {
+	width: 100%;
+}
+
+/* lines that help show nested levels */
+.pdtree_lines[b-453mk4wjj6] {
+	border-left: 1px dashed grey;
+	padding-left: 0px !important;
+}
+/* _content/PanoramicData.Blazor/PDValidationSummary.razor.rz.scp.css */
+.pd-validation-summary[b-whmj7ocn27] {
+	color: red;
+}
+
+.field[b-whmj7ocn27] {
+	font-weight: bold;
+	padding-right: 5px;
+}
+/* _content/PanoramicData.Blazor/PDZoomBar.razor.rz.scp.css */
+.pd-zoombar[b-nvfk26zbbs] {
+	display: flex;
+	align-items: center;
+}
