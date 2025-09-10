@@ -22,6 +22,8 @@ public class DumbChatService : IChatService, IDisposable
 	private string _title = "Demo Chat";
 	private PDChatDockMode _restoreMode = PDChatDockMode.BottomRight;
 	private PDChatButtonPosition _minimizedButtonPosition = PDChatButtonPosition.BottomRight;
+	private bool _showLastMessage = true;
+	private double _showLastMessageDurationSeconds = 5.0;
 
 	private readonly List<ChatMessage> _messages = [];
 
@@ -223,6 +225,32 @@ public class DumbChatService : IChatService, IDisposable
 			if (_messageTimestampFormat != value)
 			{
 				_messageTimestampFormat = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	public bool ShowLastMessage
+	{
+		get => _showLastMessage;
+		set
+		{
+			if (_showLastMessage != value)
+			{
+				_showLastMessage = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	public double ShowLastMessageDurationSeconds
+	{
+		get => _showLastMessageDurationSeconds;
+		set
+		{
+			if (Math.Abs(_showLastMessageDurationSeconds - value) > 0.001)
+			{
+				_showLastMessageDurationSeconds = value;
 				OnConfigurationChanged?.Invoke();
 			}
 		}

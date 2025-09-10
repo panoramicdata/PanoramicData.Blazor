@@ -61,6 +61,9 @@ public partial class PDChat : JSModuleComponentBase
 	private MessageType _highestPriorityUnreadMessage = MessageType.Normal;
 	private DateTimeOffset _lastReadTimestamp = DateTimeOffset.UtcNow;
 	private string _currentInput = "";
+	private bool _showMessagePreview;
+	private ChatMessage? _lastMessage;
+	private Timer? _messagePreviewTimer;
 
 	private readonly List<ChatMessage> _messages = [];
 	private PDTabSet? _tabSetRef;
@@ -164,6 +167,12 @@ public partial class PDChat : JSModuleComponentBase
 				UpdateHighestPriorityUnreadMessage();
 			}
 
+			// Show message preview if enabled and it's a new non-typing message
+			if (ChatService.ShowLastMessage && isNewMessage && message.Type != MessageType.Typing)
+			{
+				await ShowMessagePreviewAsync(message);
+			}
+
 			// Optionally auto-restore the chat when new messages arrive
 			if (ChatService.AutoRestoreOnNewMessage && isNewMessage && message.Type != MessageType.Typing)
 			{
@@ -191,10 +200,38 @@ public partial class PDChat : JSModuleComponentBase
 		await InvokeAsync(StateHasChanged);
 	}
 
+	private async Task ShowMessagePreviewAsync(ChatMessage message)
+	{
+		// Cancel any existing timer
+		_messagePreviewTimer?.Dispose();
+
+		// Set the message to show
+		_lastMessage = message;
+		_showMessagePreview = true;
+		StateHasChanged();
+
+		// Set a timer to hide the message after the configured duration
+		_messagePreviewTimer = new Timer(_ =>
+		{
+			// Use InvokeAsync to ensure we're on the UI thread
+			_ = InvokeAsync(() =>
+			{
+				_showMessagePreview = false;
+				_lastMessage = null;
+				StateHasChanged();
+			});
+		}, null, TimeSpan.FromSeconds(ChatService.ShowLastMessageDurationSeconds), Timeout.InfiniteTimeSpan);
+	}
+
 	private async Task ToggleChatAsync()
 	{
 		if (ChatService.DockMode == PDChatDockMode.Minimized)
 		{
+			// Hide message preview when opening chat
+			_showMessagePreview = false;
+			_lastMessage = null;
+			_messagePreviewTimer?.Dispose();
+
 			// Restore to last normal state
 			await ChangeDockModeAsync(ChatService.RestoreMode);
 			_unreadMessages = false;
@@ -490,6 +527,51 @@ public partial class PDChat : JSModuleComponentBase
 		ChatService.OnMuteStatusChanged -= OnServiceMuteStatusChanged;
 		ChatService.OnConfigurationChanged -= OnServiceConfigurationChanged;
 
+		// Clean up timer
+		_messagePreviewTimer?.Dispose();
+
 		await base.DisposeAsync();
+	}
+
+	// Helper method to get the preview message text with truncation
+	private string GetPreviewMessageText(ChatMessage message)
+	{
+		if (string.IsNullOrWhiteSpace(message.Message))
+		{
+			return string.Empty;
+		}
+
+		// Remove HTML tags if present and limit to a reasonable length
+		var text = message.IsMessageHtml ? 
+			System.Text.RegularExpressions.Regex.Replace(message.Message, "<.*?>", string.Empty) :
+			message.Message;
+
+		// Limit to 100 characters for preview
+		return text.Length > 100 ? text[..100] + "..." : text;
+	}
+
+	// Helper method to determine if position is on the right side
+	private bool IsPositionOnRight()
+	{
+		return ChatService.MinimizedButtonPosition is 
+			PDChatButtonPosition.BottomRight or 
+			PDChatButtonPosition.TopRight;
+	}
+
+	// Helper method to get preview animation class based on priority
+	private string GetPreviewAnimationClass()
+	{
+		if (_lastMessage == null)
+		{
+			return string.Empty;
+		}
+
+		return _lastMessage.Type switch
+		{
+			MessageType.Warning => "preview-warning",
+			MessageType.Error => "preview-error", 
+			MessageType.Critical => "preview-critical",
+			_ => "preview-normal"
+		};
 	}
 }

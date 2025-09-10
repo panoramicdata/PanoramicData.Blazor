@@ -1,5 +1,4 @@
-﻿
-namespace PanoramicData.Blazor.Interfaces;
+﻿namespace PanoramicData.Blazor.Interfaces;
 
 public interface IChatService
 {
@@ -93,6 +92,17 @@ public interface IChatService
 	/// Gets or sets the format string for message timestamps.
 	/// </summary>
 	string MessageTimestampFormat { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the last message should be shown as a preview when the chat is minimized and a new message arrives.
+	/// </summary>
+	bool ShowLastMessage { get; set; }
+
+	/// <summary>
+	/// Gets or sets the duration in seconds for which the last message preview is shown before automatically hiding.
+	/// Default is 5 seconds.
+	/// </summary>
+	double ShowLastMessageDurationSeconds { get; set; }
 
 	/// <summary>
 	/// Gets the current list of chat messages.

@@ -129,6 +129,12 @@
 						<div class="form-text">Examples: HH:mm:ss, yyyy-MM-dd HH:mm, dd/MM/yyyy HH:mm:ss</div>
 					</div>
 
+					<div class="mb-3">
+						<label class="form-label small">Show Last Message Duration (seconds):</label>
+						<input type="number" @bind="ChatService.ShowLastMessageDurationSeconds" min="1" max="30" step="0.5" class="form-control form-control-sm" placeholder="5">
+						<div class="form-text">How long the message preview shows when the chat is minimized (1-30 seconds)</div>
+					</div>
+
 					<div class="row">
 						<div class="col-6">
 							<div class="form-check">
@@ -158,6 +164,12 @@
 							<div class="form-check">
 								<input class="form-check-input" type="checkbox" @bind="ChatService.UseFullWidthMessages" id="fullWidthCheck">
 								<label class="form-check-label small" for="fullWidthCheck">Full Width Messages</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.ShowLastMessage" id="showLastMessageCheck">
+								<label class="form-check-label small" for="showLastMessageCheck">Show Last Message Preview</label>
 							</div>
 						</div>
 						<div class="col-6">
@@ -227,11 +239,16 @@
 								<i class="fas fa-robot me-1"></i>Test Auto-Restore
 							</button>
 						</div>
+						<div class="col-12">
+							<button class="btn btn-outline-primary btn-sm w-100 mb-2" @onclick="TestMessagePreview">
+								<i class="fas fa-eye me-1"></i>Test Message Preview
+							</button>
+						</div>
 					</div>
 					<div class="mt-3">
 						<div class="alert alert-warning small" role="alert">
 							<i class="fas fa-info-circle me-1"></i>
-							<strong>Note:</strong> Messages sent while chat is minimized will trigger the chat indicator. Try sending a message and watch the minimized chat button animate! All configuration changes now affect the actual chat component.
+							<strong>Note:</strong> Messages sent while chat is minimized will trigger the chat indicator and show a message preview (if enabled). Try minimizing the chat, sending a message, and watch the preview slide out from the button! All configuration changes now affect the actual chat component.
 						</div>
 					</div>
 				</div>
@@ -300,15 +317,18 @@ ChatService.MinimizedButtonPosition = PDChatButtonPosition.None;
 
 					<div class="alert alert-success mt-3" role="alert">
 						<i class="fas fa-check-circle me-2"></i>
-						<strong>Try the enhanced pin/unpin functionality:</strong> 
+						<strong>Try the enhanced pin/unpin functionality and message preview:</strong> 
 						<ul class="mb-0 mt-2">
 							<li><strong>? Dock Button</strong> - appears in corner modes, docks chat to left/right side</li>
-							<li><strong>? Undock Button</strong> - appears in split modes, returns to saved corner position</li>
-							<li><strong>Consistent dock icon</strong> - same icon used for both dock and undock operations</li>
+							<li><strong>?? Undock Button</strong> - appears in split modes, returns to saved corner position</li>
+							<li><strong>?? Message Preview</strong> - when enabled, new messages slide out from the minimized button</li>
+							<li><strong>?? Configurable Duration</strong> - control how long the preview shows (1-30 seconds)</li>
+							<li><strong>?? Priority Styling</strong> - previews are styled based on message priority</li>
 							<li><strong>Smart button logic</strong> - only relevant buttons are shown based on current mode</li>
 							<li><strong>Automatic preference saving</strong> - corner position is saved when docking to side</li>
 							<li>Test different corner positions (Top Left, Top Right, Bottom Left, Bottom Right)</li>
 							<li>Set button position to "None" and notice the button disappears</li>
+							<li>Enable/disable message preview and test with the "Test Message Preview" button</li>
 							<li>Perfect for integrating custom chat triggers into your existing UI</li>
 							<li>All settings work independently for maximum customization</li>
 						</ul>

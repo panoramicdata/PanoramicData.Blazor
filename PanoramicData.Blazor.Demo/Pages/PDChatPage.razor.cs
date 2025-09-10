@@ -183,6 +183,23 @@ public partial class PDChatPage : IDisposable
 		ChatService.SendMessage(message);
 	}
 
+	private async Task TestMessagePreview()
+	{
+		// Force chat to minimized state first
+		ChatService.PreferredDockMode = PDChatDockMode.Minimized;
+		await Task.Delay(100);
+		
+		var message = new ChatMessage
+		{
+			Id = Guid.NewGuid(),
+			Message = "👀 This message demonstrates the message preview feature! If enabled, you should see this message slide out from the chat button for a few seconds.",
+			Sender = Bot,
+			Type = MessageType.Normal,
+			Timestamp = DateTime.UtcNow
+		};
+		ChatService.SendMessage(message);
+	}
+
 	public void Dispose()
 	{
 		ChatService.OnConfigurationChanged -= OnConfigurationChanged;

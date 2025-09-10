@@ -7,15 +7,30 @@
 		case PDChatDockMode.Minimized:
 			@if (ChatService.MinimizedButtonPosition != PDChatButtonPosition.None)
 			{
-				<button class="pdchat-toggle-collapsed @GetBootstrapColorClass() @GetAnimationClass()"
-						@onclick="ToggleChatAsync"
-						title="Open Chat (@_messages.Count message@(_messages.Count != 1 ? "s" : ""))">
-					<span>@CollapsedIcon</span>
-					@if (!string.IsNullOrEmpty(GetPriorityIndicator()))
+				<div class="pdchat-minimized-button-container">
+					<button class="pdchat-toggle-collapsed @GetBootstrapColorClass() @GetAnimationClass()"
+							@onclick="ToggleChatAsync"
+							title="Open Chat (@_messages.Count message@(_messages.Count != 1 ? "s" : ""))">
+						<span>@CollapsedIcon</span>
+						@if (!string.IsNullOrEmpty(GetPriorityIndicator()))
+						{
+							<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>
+						}
+					</button>
+					
+					@if (_showMessagePreview && _lastMessage != null && ChatService.ShowLastMessage)
 					{
-						<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>
+						<div class="pdchat-message-preview @(IsPositionOnRight() ? "slide-left" : "slide-right") @GetPreviewAnimationClass()">
+							<div class="pdchat-preview-header">
+								<span class="pdchat-preview-sender">@_lastMessage.Sender.Name</span>
+								<span class="pdchat-preview-timestamp">@_lastMessage.Timestamp.ToString("HH:mm")</span>
+							</div>
+							<div class="pdchat-preview-content">
+								@GetPreviewMessageText(_lastMessage)
+							</div>
+						</div>
 					}
-				</button>
+				</div>
 			}
 			break;
 		default:
