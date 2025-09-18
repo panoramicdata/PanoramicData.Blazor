@@ -533,23 +533,6 @@ public partial class PDChat : JSModuleComponentBase
 		await base.DisposeAsync();
 	}
 
-	// Helper method to get the preview message text with truncation
-	private string GetPreviewMessageText(ChatMessage message)
-	{
-		if (string.IsNullOrWhiteSpace(message.Message))
-		{
-			return string.Empty;
-		}
-
-		// Remove HTML tags if present and limit to a reasonable length
-		var text = message.IsMessageHtml ? 
-			System.Text.RegularExpressions.Regex.Replace(message.Message, "<.*?>", string.Empty) :
-			message.Message;
-
-		// Limit to 100 characters for preview
-		return text.Length > 100 ? text[..100] + "..." : text;
-	}
-
 	// Helper method to determine if position is on the right side
 	private bool IsPositionOnRight()
 	{
