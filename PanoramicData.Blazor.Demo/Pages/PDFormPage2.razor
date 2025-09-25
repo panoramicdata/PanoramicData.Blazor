@@ -39,7 +39,7 @@
 				Updated="OnPersonUpdatedAsync"
 				Created="OnPersonCreatedAsync">
 
-			<PDModal @ref="Modal">
+            <PDModal @ref="Modal" AllowBackgroundInteraction="true">
 				<Header>
 					<PDFormHeader TItem="Person"
 								  ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />

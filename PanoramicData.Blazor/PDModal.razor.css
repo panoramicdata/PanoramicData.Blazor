@@ -1,0 +1,24 @@
+.pd-bg-interactive {
+	/* Allow clicks to pass through the full-screen modal overlay when background interaction is enabled */
+	pointer-events: none;
+}
+
+/* Keep the modal UI itself usable */
+.pd-bg-interactive .modal-dialog,
+.pd-bg-interactive .modal-content,
+.pd-bg-interactive .modal-header,
+.pd-bg-interactive .modal-body,
+.pd-bg-interactive .modal-footer {
+	pointer-events: auto;
+}
+
+/* Ensure the underlying page can be scrolled and interacted with */
+body:not(.modal-open) {
+	overflow: auto !important;
+}
+
+/* Defensive: disable any backdrop */
+.pd-bg-interactive ~ .modal-backdrop {
+	pointer-events: none !important;
+	background: transparent !important;
+}

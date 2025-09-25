@@ -81,6 +81,12 @@ public partial class PDModal : IAsyncDisposable
 	[Parameter] public bool HideOnBackgroundClick { get; set; }
 
 	/// <summary>
+	/// Allows interaction with the page while the modal is shown. When true, the modal renders without a
+	/// backdrop and does not trap focus, making background UI (e.g., chat) still interactable.
+	/// </summary>
+	[Parameter] public bool AllowBackgroundInteraction { get; set; }
+
+	/// <summary>
 	/// Gets the unique identifier of the modal.
 	/// </summary>
 	[Parameter] public string Id { get; set; } = $"pd-modal-{++_sequence}";
@@ -126,11 +132,15 @@ public partial class PDModal : IAsyncDisposable
 				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDModal.razor.js").ConfigureAwait(true);
 				if (_module != null)
 				{
+					var backdrop = AllowBackgroundInteraction ? (object)false : (HideOnBackgroundClick ? (object)true : "static");
+					var focus = !AllowBackgroundInteraction; // if background is interactive, don't trap focus in modal
+
 					_modalObj = await _module.InvokeAsync<IJSObjectReference>("initialize", Id, new
 					{
-						Backdrop = HideOnBackgroundClick ? (object)true : "static",
-						Focus = true,
-						Keyboard = CloseOnEscape
+						Backdrop = backdrop,
+						Focus = focus,
+						Keyboard = CloseOnEscape,
+						AllowBackgroundInteraction
 					}, _dotNetReference).ConfigureAwait(true);
 				}
 			}
