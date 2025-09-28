@@ -8,6 +8,9 @@
     <File Path="README.md" />
     <File Path="version.json" />
   </Folder>
+  <Folder Name="/Solution Items/Feature Planning/">
+    <File Path="Documentation/Feature Planning/PDStudio-Plan.md" />
+  </Folder>
   <Project Path="PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj" />
   <Project Path="PanoramicData.Blazor.Test/PanoramicData.Blazor.Test.csproj" />
   <Project Path="PanoramicData.Blazor.Web/PanoramicData.Blazor.Web.csproj" />
