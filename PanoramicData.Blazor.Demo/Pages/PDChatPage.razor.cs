@@ -200,6 +200,22 @@ public partial class PDChatPage : IDisposable
 		ChatService.SendMessage(message);
 	}
 
+	private void SendHtmlMessage()
+	{
+		var message = new ChatMessage
+		{
+			Id = Guid.NewGuid(),
+			Title = "<strong>HTML</strong> <em>Title</em> This title is longer than the size of the Preview",
+			Message = "<p>This is an <strong>HTML</strong> message with a <a href='https://example.com' target='_blank'>link</a> and a list after this text:</p><ul><li>One</li><li>Two</li></ul>",
+			IsTitleHtml = true,
+			IsMessageHtml = true,
+			Sender = Bot,
+			Type = MessageType.Normal,
+			Timestamp = DateTime.UtcNow
+		};
+		ChatService.SendMessage(message);
+	}
+
 	public void Dispose()
 	{
 		ChatService.OnConfigurationChanged -= OnConfigurationChanged;

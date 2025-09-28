@@ -25,8 +25,28 @@
 								<span class="pdchat-preview-sender">@_lastMessage.Sender.Name</span>
 								<span class="pdchat-preview-timestamp">@_lastMessage.Timestamp.ToString("HH:mm")</span>
 							</div>
+							@if (!string.IsNullOrEmpty(_lastMessage.Title))
+							{
+								<div class="pdchat-preview-title">
+									@if (_lastMessage.IsTitleHtml)
+									{
+										@((MarkupString)_lastMessage.Title)
+									}
+									else
+									{
+										@_lastMessage.Title
+									}
+								</div>
+							}
 							<div class="pdchat-preview-content">
-								@GetPreviewMessageText(_lastMessage)
+                                @if (_lastMessage.IsMessageHtml)
+                                {
+                                    @((MarkupString)_lastMessage.Message)
+                                }
+                                else
+                                {
+                                    @_lastMessage.Message
+                                }
 							</div>
 						</div>
 					}
@@ -98,7 +118,7 @@
 											  IsTabAdditionEnabled="true"
 											  IsTabRenamingEnabled="true"
 											  OnTabAdded="OnTabAdded">
-									</PDTabSet>
+										</PDTabSet>
 								</div>
 							</PDSplitPanel>
 						}
@@ -111,7 +131,7 @@
 											  IsTabAdditionEnabled="true"
 											  IsTabRenamingEnabled="true"
 											  OnTabAdded="OnTabAdded">
-									</PDTabSet>
+										</PDTabSet>
 								</div>
 							</PDSplitPanel>
 							<PDSplitPanel Size="2" MinSize="200">
