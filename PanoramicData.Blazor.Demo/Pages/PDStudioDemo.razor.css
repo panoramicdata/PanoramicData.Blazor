@@ -1,0 +1,236 @@
+.ncalc-results {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.5;
+}
+
+.ncalc-results .success {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.ncalc-results .error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.ncalc-results .error-detail {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.ncalc-results .info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 0.85em;
+}
+
+.ncalc-results .result-section {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.ncalc-results .result-section h4 {
+    margin: 0 0 12px 0;
+    color: #495057;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.ncalc-results .result-value {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #007bff;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 8px;
+    word-break: break-all;
+}
+
+.ncalc-results .result-type {
+    font-size: 0.85em;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.ncalc-results .expression-info {
+    border-top: 1px solid #dee2e6;
+    padding-top: 12px;
+    margin-top: 16px;
+}
+
+.ncalc-results .error-results {
+    border-left: 4px solid #dc3545;
+    padding-left: 16px;
+}
+
+/* Specific styling for different error types */
+.ncalc-results .error-results .error:has-text("Invalid Code") {
+    border-left-color: #fd7e14; /* Orange for invalid code */
+}
+
+.ncalc-results .error-results .error:has-text("Runtime Error") {
+    border-left-color: #dc3545; /* Red for runtime errors */
+}
+
+.ncalc-results .error-results .error:has-text("Timed Out") {
+    border-left-color: #ffc107; /* Yellow for timeouts */
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffeaa7;
+}
+
+.ncalc-results .error-help {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.ncalc-results .error-help h5 {
+    color: #495057;
+    font-size: 1em;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.ncalc-results .error-help ul {
+    margin: 0 0 16px 0;
+    padding-left: 20px;
+}
+
+.ncalc-results .error-help li {
+    margin-bottom: 4px;
+}
+
+.ncalc-results .error-help code {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 0.9em;
+}
+
+/* Special styling for timeout errors */
+.ncalc-results .timeout-error {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+.ncalc-results .timeout-error .error {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+/* Invalid code styling */
+.ncalc-results .invalid-code-error {
+    background-color: #ffeaa0;
+    border-color: #fd7e14;
+}
+
+.ncalc-results .invalid-code-error .error {
+    background-color: #ffeaa0;
+    border-color: #fd7e14;
+    color: #8a4a00;
+}
+
+/* Runtime error styling */
+.ncalc-results .runtime-error {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+}
+
+.ncalc-results .runtime-error .error {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+/* PDStudio Demo Page Styling */
+
+/* Demo container for PDStudio */
+.pd-studio-demo-container {
+    height: 70vh;
+    min-height: 500px; /* Minimum height for usability */
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure PDStudio fills the demo container */
+.pd-studio-demo-container .pd-studio {
+    height: 100%;
+    width: 100%;
+    flex: 1;
+}
+
+/* Fix any splitter issues within the demo container */
+.pd-studio-demo-container .pd-splitter {
+    height: 100%;
+    flex: 1;
+}
+
+.pd-studio-demo-container .pd-split-panel {
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Enhanced responsive design for demo */
+@media (max-width: 992px) {
+    .pd-studio-demo-container {
+        height: 60vh;
+        min-height: 450px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pd-studio-demo-container {
+        height: 55vh;
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 576px) {
+    .pd-studio-demo-container {
+        height: 50vh;
+        min-height: 350px;
+    }
+}
+
+/* Demo page specific overrides */
+.container-fluid .row .col-12 .pd-studio-demo-container {
+    margin: 0; /* Remove any unwanted margins */
+    padding: 0; /* Remove any unwanted padding */
+}

@@ -1,0 +1,176 @@
+﻿@page "/pdstudio"
+@using PanoramicData.Blazor.Demo.Services
+@using PanoramicData.Blazor.Models
+@using Microsoft.Extensions.Logging
+
+<h1>PDStudio - Multi-Language Development Environment</h1>
+
+<DemoSourceView SourceFiles="Pages/PDStudioDemo.razor, Pages/PDStudioDemo.razor.cs, Services/DemoStudioService.cs">
+
+	<div class="container-fluid">
+		<div class="row mb-3">
+			<div class="col-12">
+				<p>
+					A versatile development environment supporting multiple languages including <strong>NCalc expressions</strong>, HTML, SQL, JavaScript, and more.
+					Try writing multiline NCalc expressions using the built-in functions and variables, or switch languages to explore other capabilities.
+				</p>
+			</div>
+		</div>
+
+		<!-- PDStudio Component with fixed height -->
+		<div class="row">
+			<div class="col-12">
+				<div class="pd-studio-demo-container">
+					<PDStudio StudioService="@StudioService"
+							  Options="@StudioOptions"
+							  OnCodeExecuted="OnCodeExecuted"
+							  OnExecutionStateChanged="OnExecutionStateChanged"
+							  OnLoggingVisibilityChanged="OnLoggingVisibilityChanged"
+							  InitializeMonacoOptions="InitializeMonacoOptions"
+							  InitializeMethodCache="InitializeMethodCache"
+							  RegisterLanguages="RegisterLanguages"
+							  InitializeLanguageAsync="InitializeLanguageAsync"
+							  UpdateMethodCacheAsync="UpdateMethodCacheAsync">
+
+						<!-- Custom toolbar content -->
+						<EditorToolbarContent>
+							<PDToolbarSeparator />
+							<PDToolbarButton Key="language"
+											 Text="@($"Language: {StudioOptions.Language.ToUpper()}")"
+											 IconCssClass="fas fa-code"
+											 CssClass="btn-outline-secondary"
+											 Click="OnChangeLanguage" />
+							<PDToolbarButton Key="theme"
+											 Text="@($"Theme: {(StudioOptions.Theme.Contains("dark") ? "Dark" : "Light")}")"
+											 IconCssClass="fas fa-palette"
+											 CssClass="btn-outline-secondary"
+											 Click="OnToggleTheme" />
+							<PDToolbarButton Key="console"
+											 Text="@($"Console: {(StudioOptions.IsLoggingVisible ? "On" : "Off")}")"
+											 IconCssClass="fas fa-terminal"
+											 CssClass="btn-outline-secondary"
+											 Click="OnToggleConsoleClick" />
+						</EditorToolbarContent>
+
+					</PDStudio>
+				</div>
+			</div>
+		</div>
+
+		<!-- Demo Information Panel -->
+		<div class="row mt-4">
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-header">
+						<h6 class="mb-0">Supported Languages</h6>
+					</div>
+					<div class="card-body">
+						<ul class="small mb-0">
+							<li><strong>NCalc</strong>: Mathematical expressions with multiline support</li>
+							<li><strong>HTML</strong>: Direct rendering and display</li>
+							<li><strong>SQL</strong>: Mock database query execution</li>
+							<li><strong>JavaScript</strong>: Simulated code execution</li>
+							<li><strong>JSON</strong>: Parsing and formatting</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-header">
+						<h6 class="mb-0">NCalc Features (Default Language)</h6>
+					</div>
+					<div class="card-body small">
+						<div class="mb-2">
+							<strong>Variables:</strong> Pi, E, Now, Today, x (10), y (20)
+						</div>
+						<div class="mb-2">
+							<strong>Math Functions:</strong> Sin, Cos, Sqrt, Abs, Pow, etc.
+						</div>
+						<div class="mb-2">
+							<strong>Logic:</strong> if(), in(), isnull()
+						</div>
+						<div class="mb-0">
+							<strong>Date/Time:</strong> AddDays(), AddHours(), Hour()
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Example Expressions -->
+		<div class="row mt-3">
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-header">
+						<h6 class="mb-0">Example NCalc Expressions</h6>
+					</div>
+					<div class="card-body small">
+						<div class="mb-2">
+							<strong>Basic Math:</strong>
+							<code>2 + 3 * 4 / (1 + 1)</code>
+						</div>
+						<div class="mb-2">
+							<strong>Trigonometry:</strong>
+							<code>Sin(Pi / 4) * Cos(Pi / 4)</code>
+						</div>
+						<div class="mb-2">
+							<strong>Conditionals:</strong>
+							<code>if(x > y, 'X is greater', 'Y is greater')</code>
+						</div>
+						<div class="mb-0">
+							<strong>Date/Time:</strong>
+							<code>AddDays(Today, 7)</code>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-header">
+						<h6 class="mb-0">Studio Features</h6>
+					</div>
+					<div class="card-body">
+						<ul class="small mb-0">
+							<li><strong>Monaco Editor</strong>: Advanced code editor with IntelliSense</li>
+							<li><strong>Syntax Highlighting</strong>: Custom themes for NCalc, SQL, and more</li>
+							<li><strong>Auto-Completion</strong>: Context-aware suggestions and function signatures</li>
+							<li><strong>File Menu</strong>: New, Load Examples, Language switching</li>
+							<li><strong>Execution Control</strong>: Run/Cancel with progress and timeout</li>
+							<li><strong>Results Panel</strong>: Safe HTML output with real-time updates</li>
+							<li><strong>Console Logging</strong>: Debug information with toggleable visibility</li>
+							<li><strong>Keyboard Shortcuts</strong>: Ctrl+Enter to execute, menu shortcuts</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Event Log -->
+		@if (Events.Any())
+		{
+			<div class="row mt-3 mb-4">
+				<div class="col-12">
+					<div class="card">
+						<div class="card-header">
+							<h6 class="mb-0">Recent Events</h6>
+						</div>
+						<div class="card-body" style="max-height: 200px; overflow-y: auto;">
+							@foreach (var evt in Events.TakeLast(10))
+							{
+								<div class="small mb-1">
+									<span class="badge bg-primary">@evt.Timestamp.ToString("HH:mm:ss")</span>
+									<strong>@evt.EventType</strong>: @evt.Description
+								</div>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+
+	</div>
+
+</DemoSourceView>

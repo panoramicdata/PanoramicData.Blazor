@@ -1,10 +1,111 @@
 var _objRef = null;
+var _disabledKeys = new Set();
+var _keyEventListeners = new Map(); // Track event listeners for cleanup
 var languageOptions = {
 };
 
 export function initialize(objRef) {
 	if (objRef) {
 		_objRef = objRef;
+	}
+}
+
+export function disableKeyBinding(keyCode, ctrlKey, altKey, shiftKey) {
+	// Create a key identifier for the combination
+	const keyId = `${keyCode}-${ctrlKey}-${altKey}-${shiftKey}`;
+	_disabledKeys.add(keyId);
+	
+	// Wait for Monaco to be ready and then intercept the key events
+	if (monaco && monaco.editor) {
+		// Get all Monaco editor instances
+		const editors = monaco.editor.getEditors();
+		
+		// Apply to all existing editors
+		editors.forEach(editor => {
+			interceptKeyboardEvent(editor, keyCode, ctrlKey, altKey, shiftKey, keyId);
+		});
+		
+		// Also intercept for any new editors that might be created
+		const originalCreate = monaco.editor.create;
+		if (!originalCreate._pdIntercepted) {
+			monaco.editor.create = function(container, options, override) {
+				const editor = originalCreate.call(this, container, options, override);
+				
+				// Apply all currently disabled key combinations to new editor
+				_disabledKeys.forEach(disabledKeyId => {
+					const [kc, ctrl, alt, shift] = disabledKeyId.split('-').map((v, i) => i === 0 ? parseInt(v) : v === 'true');
+					interceptKeyboardEvent(editor, kc, ctrl, alt, shift, disabledKeyId);
+				});
+				
+				return editor;
+			};
+			originalCreate._pdIntercepted = true;
+		}
+	}
+}
+
+function interceptKeyboardEvent(editor, keyCode, ctrlKey, altKey, shiftKey, keyId) {
+	if (!editor) return;
+	
+	try {
+		const domNode = editor.getDomNode();
+		if (!domNode) return;
+		
+		// Find the actual editor textarea/input element
+		const editorElement = domNode.querySelector('.monaco-editor textarea') || 
+							   domNode.querySelector('.monaco-editor input') ||
+							   domNode.querySelector('.view-lines');
+		
+		if (!editorElement) {
+			console.warn('Could not find Monaco editor input element');
+			return;
+		}
+		
+		// Create the event listener function
+		const keyEventHandler = function(event) {
+			const matches = event.keyCode === keyCode &&
+						   event.ctrlKey === ctrlKey &&
+						   event.altKey === altKey &&
+						   event.shiftKey === shiftKey;
+			
+			if (matches) {
+				console.log(`Intercepted disabled key combination: ${keyId}`);
+				event.preventDefault();
+				event.stopPropagation();
+				event.stopImmediatePropagation();
+				return false;
+			}
+		};
+		
+		// Add the event listener with capture=true to intercept before Monaco
+		editorElement.addEventListener('keydown', keyEventHandler, true);
+		
+		// Store the listener for cleanup
+		if (!_keyEventListeners.has(keyId)) {
+			_keyEventListeners.set(keyId, new Map());
+		}
+		_keyEventListeners.get(keyId).set(editor, { element: editorElement, handler: keyEventHandler });
+		
+		console.log(`Intercepted keyboard events for key binding: ${keyId}`);
+	} catch (error) {
+		console.warn('Failed to intercept Monaco keyboard events:', error);
+	}
+}
+
+export function enableKeyBinding(keyCode, ctrlKey, altKey, shiftKey) {
+	const keyId = `${keyCode}-${ctrlKey}-${altKey}-${shiftKey}`;
+	
+	// Remove from disabled keys
+	_disabledKeys.delete(keyId);
+	
+	// Remove all event listeners for this key combination
+	if (_keyEventListeners.has(keyId)) {
+		const editorListeners = _keyEventListeners.get(keyId);
+		editorListeners.forEach(({ element, handler }, editor) => {
+			element.removeEventListener('keydown', handler, true);
+		});
+		_keyEventListeners.delete(keyId);
+		console.log(`Re-enabled key binding: ${keyId}`);
 	}
 }
 

@@ -1,0 +1,119 @@
+﻿@namespace PanoramicData.Blazor
+@inherits PDComponentBase
+
+<div class="pd-studio @CssClass">
+	<PDSplitter Direction="SplitDirection.Vertical">
+
+		<!-- Top Panel: Menu/Toolbar + Editor + Results -->
+		<PDSplitPanel Size="@((int)Options.MainSplitSizes[0])">
+			<PDSplitter Direction="SplitDirection.Horizontal">
+
+				<!-- Left Section: Editor with Toolbar -->
+				<PDSplitPanel Size="@((int)Options.TopSplitSizes[0])" CssClass="pd-studio-editor-panel">
+					<div class="pd-studio-editor-wrapper">
+						<!-- Combined Menu and Execution Toolbar -->
+						@if (Options.ShowMenu || Options.ShowToolbar)
+						{
+							<PDToolbar ButtonSize="ButtonSizes.Small" CssClass="pd-studio-toolbar">
+								
+								<!-- Menu Items (if enabled) -->
+								@if (Options.ShowMenu)
+								{
+									<PDToolbarDropdown Text="File" IconCssClass="fas fa-file" Click="OnFileMenuClick">
+										<PDMenuItem Text="New" Key="New" ShortcutKey="@(ShortcutKey.Create("ctrl-n"))" />
+										<PDMenuItem Text="Load Example 1" Key="LoadExample1" />
+										<PDMenuItem Text="Load Example 2" Key="LoadExample2" />
+										<PDMenuItem IsSeparator="true" />
+										<PDMenuItem Text="Open" Key="Open" ShortcutKey="@(ShortcutKey.Create("ctrl-o"))" IsDisabled="true" />
+										<PDMenuItem Text="Save" Key="Save" ShortcutKey="@(ShortcutKey.Create("ctrl-s"))" IsDisabled="true" />
+									</PDToolbarDropdown>
+									<PDToolbarDropdown Text="Logging" IconCssClass="fas fa-list" Click="OnLoggingMenuClick">
+										<PDMenuItem Text="Debug" Key="Debug" />
+										<PDMenuItem Text="Info" Key="Info" />
+										<PDMenuItem Text="Warning" Key="Warning" />
+										<PDMenuItem Text="Error" Key="Error" />
+									</PDToolbarDropdown>
+								}
+
+								<!-- Separator between menu and execution buttons (if both are shown) -->
+								@if (Options.ShowMenu && Options.ShowToolbar)
+								{
+									<PDToolbarSeparator />
+								}
+
+								<!-- Execution Buttons (if enabled) -->
+								@if (Options.ShowToolbar)
+								{
+									<PDToolbarButton Key="play"
+													 Text="@(_isExecuting ? "Cancel" : "Execute")"
+													 IconCssClass="@(_isExecuting ? "fas fa-stop" : "fas fa-play")"
+													 CssClass="@(_isExecuting ? "btn-danger" : "btn-success")"
+													 Click="OnPlayCancelClick"
+													 ShortcutKey="@_executeShortcut" />
+
+									<!-- Custom Toolbar Content -->
+									@if (EditorToolbarContent != null)
+									{
+										<PDToolbarSeparator />
+										@EditorToolbarContent
+									}
+								}
+
+							</PDToolbar>
+						}
+
+						<!-- Monaco Editor Container -->
+						<div class="pd-studio-editor-container">
+							<PDMonacoEditor @ref="EditorRef"
+											Language="@Options.Language"
+											Theme="@Options.Theme"
+											Value="@_currentCode"
+											ValueChanged="OnCodeChanged"
+											InitializeOptions="@GetMonacoInitializer"
+											InitializeCache="@InitializeMethodCache"
+											RegisterLanguages="@RegisterLanguages"
+											InitializeLanguageAsync="@InitializeLanguageAsync"
+											UpdateCacheAsync="@UpdateMethodCacheAsync" />
+
+							<!-- Execution Overlay -->
+							@if (_isExecuting && !Options.IsEditingEnabledDuringExecution)
+							{
+								<div class="pd-studio-editor-overlay">
+									<div class="spinner-border" role="status">
+										<span class="visually-hidden">Executing...</span>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+				</PDSplitPanel>
+
+				<!-- Right Section: Results -->
+				<PDSplitPanel Size="@((int)Options.TopSplitSizes[1])">
+					<PDStudioResults @ref="ResultsRef"
+									 Content="@_resultsContent"
+									 IsExecuting="@_isExecuting"
+									 ExecutionStatus="@_executionStatus"
+									 ShowStatusBar="@Options.ShowStatusBar" />
+				</PDSplitPanel>
+
+			</PDSplitter>
+		</PDSplitPanel>
+
+		<!-- Bottom Panel: PDLog Component -->
+		<PDSplitPanel Size="@(Options.IsLoggingVisible ? (int)Options.MainSplitSizes[1] : 0)">
+			@if (Options.IsLoggingVisible)
+			{
+				<PDLog @ref="LogRef"
+					   ShowTimestamp="true"
+					   ShowIcon="true"
+					   WordWrap="true" />
+			}
+			else
+			{
+				<div style="height: 0; min-height: 0; overflow: hidden; display: none;"></div>
+			}
+		</PDSplitPanel>
+
+	</PDSplitter>
+</div>
