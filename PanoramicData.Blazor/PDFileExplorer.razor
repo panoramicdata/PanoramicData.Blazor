@@ -107,9 +107,9 @@
 				UploadUrl="@UploadUrl">
 		
 		@* Inline JS (in 'onclick'') is blocked on prod due to Content Security Policy. 
-			This needs to be an @onclick event handler in the code-behind file.
+			This needs to be an @onclick event handler in the code-behind file. I remove the onclick=""
 		*@
-		<div class="pdfe-drop-zone-msg" role="button" tabindex="0" aria-label="Select files to upload" onclick="this.closest('.pddropzone')?.click()">
+		<div class="pdfe-drop-zone-msg" role="button" tabindex="0" aria-label="Select files to upload">
 			<span>Drag and drop files here to upload</span>
 			<span>Click to browse for files to upload </span>
 		</div>

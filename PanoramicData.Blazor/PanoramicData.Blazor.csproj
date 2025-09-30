@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Undid a breaking change to the drag-and-drop behaviour in the file explorer due to unsafe inline script in onclick handler.
+			Refixed the breaking change to the drag-and-drop behaviour in the file explorer due to unsafe inline script in onclick handler.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
