@@ -1,14 +1,14 @@
 ﻿<div class="pd-filter @(HasFilter ? "filtered" : "")">
-    <PDDropDown @ref="_dropDown"
-    IconCssClass="@($"filter-icon {IconCssClass}")"
-    CssClass="@($"{CssClass}")"
-    CloseOption="PDDropDown.CloseOptions.Outside"
-    DropDownShown="OnDropDownShown"
-    KeyPress="OnDropDownKeyPress"
-    ShowCaret="false">
 
-        <div class="filter-body"
-        onclick="event.stopPropagation()">
+    <PDDropDown @ref="_dropDown"
+			IconCssClass="@($"filter-icon {IconCssClass}")"
+			CssClass="@($"{CssClass}")"
+			CloseOption="PDDropDown.CloseOptions.Outside"
+			DropDownShown="OnDropDownShown"
+			KeyPress="OnDropDownKeyPress"
+			ShowCaret="false">
+
+        <div class="filter-body" @onclick:stopPropagation>
             <div class="mb-1">
                 <select @bind="_filterType" @bind:after="OnFilterTypeBindAfter" class="form-select form-control-sm">
                     @if(Options.AllowEquals)

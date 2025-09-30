@@ -105,15 +105,15 @@
 				UploadProgress="OnUploadProgressAsync"
 				UploadStarted="OnUploadStartedAsync"
 				UploadUrl="@UploadUrl">
-		<div class="pdfe-drop-zone-msg"
-			 role="button"
-			 tabindex="0"
-			 aria-label="Select files to upload"
-			 onclick="this.closest('.pddropzone')?.click()"
-			 >
+		
+		@* Inline JS (in 'onclick'') is blocked on prod due to Content Security Policy. 
+			This needs to be an @onclick event handler in the code-behind file.
+		*@
+		<div class="pdfe-drop-zone-msg" role="button" tabindex="0" aria-label="Select files to upload" onclick="this.closest('.pddropzone')?.click()">
 			<span>Drag and drop files here to upload</span>
 			<span>Click to browse for files to upload </span>
 		</div>
+
 	</PDDropZone>
 	<button class="mt-1 btn btn-sm btn-default" @onclick="OnClearUploadFiles">
 		<i class="fas fa-times"></i>

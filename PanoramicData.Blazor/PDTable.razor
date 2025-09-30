@@ -37,7 +37,7 @@
 							   disabled="@(!IsEnabled)"
 							   type="checkbox"
 						@onclick:stopPropagation
-							   @oninput="@((a) => OnToggleAllSelection(Convert.ToBoolean(a.Value)))"
+						@oninput="@((a) => OnToggleAllSelection(Convert.ToBoolean(a.Value)))"
 						@onmousedown:stopPropagation
 						@onmouseup:stopPropagation />
 					</th>
