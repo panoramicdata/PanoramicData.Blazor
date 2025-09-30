@@ -108,12 +108,12 @@ public partial class PDChat : JSModuleComponentBase
 
 		ChatService.DockMode = newMode;
 
-		StateHasChanged();
+		await InvokeAsync(StateHasChanged);
 	}
 
 	private void OnLiveStatusChanged(bool obj)
 	{
-		StateHasChanged();
+		_ = InvokeAsync(StateHasChanged);
 	}
 
 	private void OnServiceDockModeChanged(PDChatDockMode newDockMode)
@@ -123,13 +123,13 @@ public partial class PDChat : JSModuleComponentBase
 	{
 		// Sync local mute state with service
 		_isMuted = isMuted;
-		StateHasChanged();
+		_ = InvokeAsync(StateHasChanged);
 	}
 
 	private void OnServiceConfigurationChanged()
 	{
 		// Configuration changed, trigger UI update and ensure parameters are synchronized
-		StateHasChanged();
+		_ = InvokeAsync(StateHasChanged);
 	}
 
 	private async void OnMessageReceived(ChatMessage message)
@@ -208,7 +208,7 @@ public partial class PDChat : JSModuleComponentBase
 		// Set the message to show
 		_lastMessage = message;
 		_showMessagePreview = true;
-		StateHasChanged();
+		await InvokeAsync(StateHasChanged);
 
 		// Set a timer to hide the message after the configured duration
 		_messagePreviewTimer = new Timer(_ =>
@@ -301,7 +301,7 @@ public partial class PDChat : JSModuleComponentBase
 		_unreadMessages = false;
 		_highestPriorityUnreadMessage = MessageType.Normal;
 		_lastReadTimestamp = DateTimeOffset.UtcNow;
-		StateHasChanged();
+		await InvokeAsync(StateHasChanged);
 
 		// Emit chat cleared event
 		if (OnChatCleared.HasDelegate)

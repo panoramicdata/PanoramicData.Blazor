@@ -1,0 +1,47 @@
+﻿@namespace PanoramicData.Blazor
+@inherits PDComponentBase
+
+<div class="pd-studio-results @CssClass @GetStatusCssClass()">
+
+	<!-- Status Bar -->
+	@if (ShowStatusBar)
+	{
+		<div class="pd-studio-results-status">
+			<div class="d-flex align-items-center">
+				@if (IsExecuting)
+				{
+					<div class="spinner-border spinner-border-sm me-2" role="status">
+						<span class="visually-hidden">Executing...</span>
+					</div>
+				}
+				else
+				{
+					<i class="@GetStatusIcon() me-2"></i>
+				}
+				<span class="status-text">@ExecutionStatus</span>
+			</div>
+		</div>
+	}
+
+	<!-- Results Content -->
+	<div class="pd-studio-results-content">
+		@if (string.IsNullOrWhiteSpace(Content))
+		{
+			<div class="pd-studio-results-placeholder">
+				<div class="text-muted text-center p-4">
+					<i class="fas fa-play-circle fa-2x mb-2"></i>
+					<div>Execute code to see results here</div>
+				</div>
+			</div>
+		}
+		else
+		{
+			<iframe class="pd-studio-results-iframe"
+					srcdoc="@GetSafeHtmlContent()"
+					sandbox="allow-same-origin"
+					@ref="ResultsIframe">
+			</iframe>
+		}
+	</div>
+
+</div>

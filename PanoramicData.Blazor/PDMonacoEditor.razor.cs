@@ -243,6 +243,48 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Forces the Monaco editor to recalculate its layout.
+	/// This should be called when the container size changes.
+	/// </summary>
+	public async Task ForceLayoutUpdateAsync()
+	{
+		if (_monacoEditor != null)
+		{
+			await _monacoEditor.Layout();
+		}
+	}
+
+	/// <summary>
+	/// Disables a specific key binding combination in the Monaco editor.
+	/// </summary>
+	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
+	/// <param name="ctrlKey">Whether Ctrl key is required</param>
+	/// <param name="altKey">Whether Alt key is required</param>
+	/// <param name="shiftKey">Whether Shift key is required</param>
+	public async Task DisableKeyBindingAsync(int keyCode, bool ctrlKey = false, bool altKey = false, bool shiftKey = false)
+	{
+		if (_module != null)
+		{
+			await _module.InvokeVoidAsync("disableKeyBinding", keyCode, ctrlKey, altKey, shiftKey);
+		}
+	}
+
+	/// <summary>
+	/// Enables a previously disabled key binding combination in the Monaco editor.
+	/// </summary>
+	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
+	/// <param name="ctrlKey">Whether Ctrl key is required</param>
+	/// <param name="altKey">Whether Alt key is required</param>
+	/// <param name="shiftKey">Whether Shift key is required</param>
+	public async Task EnableKeyBindingAsync(int keyCode, bool ctrlKey = false, bool altKey = false, bool shiftKey = false)
+	{
+		if (_module != null)
+		{
+			await _module.InvokeVoidAsync("enableKeyBinding", keyCode, ctrlKey, altKey, shiftKey);
+		}
+	}
+
 	#region IAsyncDisposable
 
 	public async ValueTask DisposeAsync()
