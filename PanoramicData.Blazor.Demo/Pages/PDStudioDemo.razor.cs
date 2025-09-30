@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 public partial class PDStudioDemo : IDisposable
 {
 	private DemoStudioService? _studioService;
-	private readonly List<DemoEvent> Events = new();
+	private readonly List<DemoEvent> _events = [];
 	private IJSObjectReference? _jsModule;
 
 	protected IPDStudioService StudioService => _studioService ??= new DemoStudioService(ServiceProvider.GetRequiredService<ILogger<DemoStudioService>>());
@@ -20,8 +20,8 @@ public partial class PDStudioDemo : IDisposable
 		Theme = "ncalc-light", // Use custom NCalc theme by default
 		IsLoggingVisible = true,
 		DefaultLogLevel = LogLevel.Information,
-		TopSplitSizes = new[] { 50.0, 50.0 },
-		MainSplitSizes = new[] { 75.0, 25.0 },
+		TopSplitSizes = [50.0, 50.0],
+		MainSplitSizes = [75.0, 25.0],
 		IsEditingEnabledDuringExecution = true,
 		ExecutionTimeoutSeconds = 5 // Set shorter timeout for demo/testing
 	};
@@ -96,7 +96,7 @@ public partial class PDStudioDemo : IDisposable
 
 	private void AddEvent(string eventType, string description)
 	{
-		Events.Add(new DemoEvent
+		_events.Add(new DemoEvent
 		{
 			Timestamp = DateTime.Now,
 			EventType = eventType,
@@ -104,9 +104,9 @@ public partial class PDStudioDemo : IDisposable
 		});
 
 		// Keep only last 20 events
-		while (Events.Count > 20)
+		while (_events.Count > 20)
 		{
-			Events.RemoveAt(0);
+			_events.RemoveAt(0);
 		}
 	}
 
@@ -130,6 +130,8 @@ public partial class PDStudioDemo : IDisposable
 			});
 			_jsModule = null;
 		}
+
+		GC.SuppressFinalize(this);
 	}
 
 	#region Monaco Editor Enhancement Methods
@@ -293,11 +295,8 @@ public partial class PDStudioDemo : IDisposable
 		try
 		{
 			// Load JavaScript module for Monaco language configuration
-			if (_jsModule == null)
-			{
-				_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import",
+			_jsModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import",
 					"./_content/PanoramicData.Blazor.Demo/Pages/PDStudioDemo.razor.js");
-			}
 
 			// Configure Monaco with custom language features
 			if (_jsModule != null)
@@ -315,11 +314,11 @@ public partial class PDStudioDemo : IDisposable
 	/// <summary>
 	/// Updates method cache asynchronously (useful for dynamic completions).
 	/// </summary>
-	private async Task UpdateMethodCacheAsync(MethodCache methodCache, string language, string methodName)
+	private static Task UpdateMethodCacheAsync(MethodCache methodCache, string language, string methodName)
 	{
 		// This could be used to fetch additional parameter information dynamically
 		// For the demo, all completions are loaded upfront in InitializeMethodCache
-		await Task.CompletedTask;
+		return Task.CompletedTask;
 	}
 
 	#endregion

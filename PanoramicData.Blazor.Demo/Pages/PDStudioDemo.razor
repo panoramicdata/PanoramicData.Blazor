@@ -149,7 +149,7 @@
 		</div>
 
 		<!-- Event Log -->
-		@if (Events.Any())
+		@if (_events.Any())
 		{
 			<div class="row mt-3 mb-4">
 				<div class="col-12">
@@ -158,7 +158,7 @@
 							<h6 class="mb-0">Recent Events</h6>
 						</div>
 						<div class="card-body" style="max-height: 200px; overflow-y: auto;">
-							@foreach (var evt in Events.TakeLast(10))
+							@foreach (var evt in _events.TakeLast(10))
 							{
 								<div class="small mb-1">
 									<span class="badge bg-primary">@evt.Timestamp.ToString("HH:mm:ss")</span>
