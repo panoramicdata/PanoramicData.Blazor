@@ -2,8 +2,8 @@
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	height: 100vh; /* Full viewport height */
-	overflow: hidden; /* Prevent page-level scrolling - let content areas handle their own scrolling */
+	height: 100vh; /* Ensure full height for proper layout */
+	overflow: hidden; /* Prevent page-level scrolling */
 }
 
 .main {
@@ -11,7 +11,7 @@
 	display: flex;
 	flex-direction: column;
 	min-height: 0; /* Allow flex child to shrink */
-	height: 100%; /* Take full height */
+	height: 100%; /* Ensure main takes full height */
 }
 
 .sidebar {
@@ -38,15 +38,15 @@
 		text-overflow: ellipsis;
 	}
 
-/* Chat controls in top bar */
-.top-row ::deep .form-check-label {
-	color: #333;
-	font-size: 0.875rem;
-}
+	/* Chat controls in top bar */
+	.top-row ::deep .form-check-label {
+		color: #333;
+		font-size: 0.875rem;
+	}
 
-.top-row ::deep .form-select-sm {
-	font-size: 0.775rem;
-}
+	.top-row ::deep .form-select-sm {
+		font-size: 0.775rem;
+	}
 
 /* CRITICAL: Ensure PDChatContainer takes full remaining height */
 .main ::deep .pdchat-container-wrapper {
@@ -64,74 +64,58 @@
 	min-height: 0 !important;
 }
 
-/* CRITICAL: Content areas within split panels should scroll */
-.main ::deep .pdchat-container-wrapper .content {
-	flex: 1 !important;
-	min-height: 0 !important;
-	overflow-y: auto !important; /* Enable vertical scrolling for content */
-	overflow-x: auto !important; /* Enable horizontal scrolling for wide content */
-	height: 100% !important;
-	width: 100% !important;
-	box-sizing: border-box !important;
-	padding: 1rem; /* Add some padding for better readability */
+/* Basic content styling - let PDChatContainer handle the height */
+.content {
+	flex: 1;
+	min-height: 0;
+	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+	/* Remove explicit height - let the split panel handle it */
 }
 
-/* Ensure content within PDSplitPanel can scroll */
-.main ::deep .pdsplitpanel > .content,
-.main ::deep .pdsplitpanel > div:has(.content) {
-	height: 100% !important;
-	overflow: hidden !important; /* Panel itself doesn't scroll */
-}
+	/* SPECIAL HANDLING FOR GRAPH VIEWER PAGES */
+	.content ::deep .graph-demo {
+		height: calc(100vh - 6rem) !important; /* ✅ REDUCED: Less space for toolbar */
+		min-height: 600px !important;
+		display: flex !important;
+		flex-direction: column !important;
+	}
 
-.main ::deep .pdsplitpanel .content {
-	overflow-y: auto !important; /* Content within panel scrolls */
-	overflow-x: auto !important;
-	height: 100% !important;
-	max-height: 100% !important;
-}
+	.content ::deep .graph-container {
+		flex: 1 !important;
+		height: auto !important; /* Let flex handle the height */
+		min-height: 500px !important;
+		overflow: hidden !important;
+	}
 
-/* SPECIAL HANDLING FOR GRAPH VIEWER PAGES - Only apply to graph pages */
-.content ::deep .graph-demo {
-	height: calc(100vh - 6rem) !important;
-	min-height: 600px !important;
-	display: flex !important;
-	flex-direction: column !important;
-}
+	/* Ensure PDGraphViewer takes full container height */
+	.content ::deep .pd-graph-viewer {
+		height: 100% !important;
+		min-height: 500px !important;
+	}
 
-.content ::deep .graph-container {
-	flex: 1 !important;
-	height: auto !important;
-	min-height: 500px !important;
-	overflow: hidden !important;
-}
+		/* Ensure PDSplitter in graphs works properly */
+		.content ::deep .pd-graph-viewer .pd-splitter {
+			height: 100% !important;
+			width: 100% !important;
+		}
 
-/* Ensure PDGraphViewer takes full container height */
-.content ::deep .pd-graph-viewer {
-	height: 100% !important;
-	min-height: 500px !important;
-}
+		.content ::deep .pd-graph-viewer .pd-split-panel {
+			height: 100% !important;
+			overflow: hidden !important;
+		}
 
-/* Ensure PDSplitter in graphs works properly */
-.content ::deep .pd-graph-viewer .pd-splitter {
-	height: 100% !important;
-	width: 100% !important;
-}
+	/* Ensure PDGraph SVG takes full height */
+	.content ::deep .pd-graph {
+		height: 100% !important;
+		min-height: 400px !important;
+	}
 
-.content ::deep .pd-graph-viewer .pd-split-panel {
-	height: 100% !important;
-	overflow: hidden !important;
-}
-
-/* Ensure PDGraph SVG takes full height */
-.content ::deep .pd-graph {
-	height: 100% !important;
-	min-height: 400px !important;
-}
-
-.content ::deep .graph-svg {
-	height: 100% !important;
-	width: 100% !important;
-}
+	.content ::deep .graph-svg {
+		height: 100% !important;
+		width: 100% !important;
+	}
 
 @media (max-width: 767.98px) {
 	.top-row:not(.auth) {
@@ -154,11 +138,6 @@
 	/* Ensure PDChatContainer takes full height on mobile */
 	.main ::deep .pdchat-container-wrapper {
 		height: 100% !important;
-	}
-
-	/* Mobile content scrolling */
-	.main ::deep .pdchat-container-wrapper .content {
-		padding: 0.5rem; /* Less padding on mobile */
 	}
 
 	/* Adjust graph demo for mobile */
@@ -218,7 +197,7 @@
 
 	/* Desktop graph demo adjustments */
 	.content ::deep .graph-demo {
-		height: calc(100vh - 8rem) !important;
+		height: calc(100vh - 8rem) !important; /* ✅ REDUCED: Less space for desktop toolbar */
 		min-height: 600px !important;
 	}
 
