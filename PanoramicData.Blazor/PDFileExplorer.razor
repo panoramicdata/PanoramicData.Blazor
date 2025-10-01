@@ -18,14 +18,11 @@
 	</div>
 </template>
 
-<PDModal @ref="DeleteDialog"
-		 Title="Delete">
+<PDModal @ref="DeleteDialog" Title="Delete">
 	<span>@_deleteDialogMessage</span>
 </PDModal>
 
-<PDModal @ref="ConflictDialog"
-		 CssClass="z-1200"
-		 Title="Move / Copy Conflict">
+<PDModal @ref="ConflictDialog" CssClass="z-1200" Title="Move / Copy Conflict">
 	<p>@_conflictDialogMessage</p>
 	<ul class="">
 		@foreach (var item in _conflictDialogList)
@@ -39,7 +36,9 @@
 <PDModal @ref="ProgressDialog"
 		 Id="upload-progress-modal"
 		 Title="Upload Progress">
+
 	<ChildContent>
+
 		<div class="progress-dialog">
 			<div class="overall-progress">
 				<span>Uploaded&nbsp;</span>
@@ -47,9 +46,8 @@
 				<span>&nbsp;of&nbsp;</span>
 				<span>@_batchCount</span>
 			</div>
-			<PDProgressBar DecimalPlaces="0"
-					   Total="@_batchCount"
-					   Value="@_batchProgress">
+
+			<PDProgressBar DecimalPlaces="0" Total="@_batchCount" Value="@_batchProgress">
 				<BarContent Context="progress">
 					@progress.GetPercentage()%
 				</BarContent>
@@ -62,9 +60,7 @@
 					<div>
 						@kvp.Key
 					</div>
-					<PDProgressBar DecimalPlaces="0"
-							   Height="16px"
-							   Value="@kvp.Value">
+					<PDProgressBar DecimalPlaces="0" Height="16px" Value="@kvp.Value">
 						<BarContent Context="progress">
 							@progress.GetPercentage()%
 						</BarContent>
@@ -73,21 +69,20 @@
 			}
 		</div>
 	</ChildContent>
+
 	<Footer>
 		<div class="progress-dialog-buttons">
-			<button class="btn btn-sm btn-danger"
-					@onclick="OnCancelUploadFiles">
+			<button class="btn btn-sm btn-danger" @onclick="OnCancelUploadFiles">
 				<i class="fas fa-times-circle"></i>
 				<span class="ms-1">Cancel</span>
 			</button>
 		</div>
 	</Footer>
+
 </PDModal>
 
-<PDModal @ref="UploadDialog"
-		 Size="ModalSizes.Large"
-		 HideOnBackgroundClick="true"
-		 ButtonClick="OnHideUploadDialog">
+<PDModal @ref="UploadDialog" Size="ModalSizes.Large" HideOnBackgroundClick="true" ButtonClick="OnHideUploadDialog">
+
 	<PDDropZone @ref="_dropZone1"
 				AllUploadsComplete="OnAllUploadsComplete"
 				AllUploadsProgress="OnAllUploadsProgress"
@@ -106,19 +101,19 @@
 				UploadStarted="OnUploadStartedAsync"
 				UploadUrl="@UploadUrl">
 		
-		@* Inline JS (in 'onclick'') is blocked on prod due to Content Security Policy. 
-			This needs to be an @onclick event handler in the code-behind file. I remove the onclick=""
-		*@
-		<div class="pdfe-drop-zone-msg" role="button" tabindex="0" aria-label="Select files to upload">
-			<span>Drag and drop files here to upload</span>
-			<span>Click to browse for files to upload </span>
+		<div id="pdfe-drop-zone-div" class="border pdfe-drop-zone-msg" role="button" tabindex="0" aria-label="Select files to upload"
+			@onclick="@(async () => await OnClickToBrowseFilesAsync("pdfe-drop-zone-div").ConfigureAwait(true))">
+			<h4>Drag and drop files here to upload</h4>
+			<h4>Click anywhere to browse for files to upload </h4>
 		</div>
 
 	</PDDropZone>
-	<button class="mt-1 btn btn-sm btn-default" @onclick="OnClearUploadFiles">
+
+	<button class="pb-0 mt-2 btn btn-sm btn-default" @onclick="OnClearUploadFiles">
 		<i class="fas fa-times"></i>
 		<span>Clear</span>
 	</button>
+
 </PDModal>
 
 <div class="pdfileexplorer @CssClass">
@@ -203,10 +198,10 @@
 		<PDSplitPanel Size="3">
 
 			<PDContextMenu Items="TableContextItems"
-					   Enabled="ShowContextMenu"
-					   ShowOnMouseUp="true"
-					   UpdateState="OnTableContextMenuUpdateStateAsync"
-					   ItemClick="OnTableContextMenuItemClickAsync">
+						   Enabled="ShowContextMenu"
+						   ShowOnMouseUp="true"
+						   UpdateState="OnTableContextMenuUpdateStateAsync"
+						   ItemClick="OnTableContextMenuItemClickAsync">
 
 				<PDDropZone AllUploadsComplete="OnAllUploadsComplete"
 							AllUploadsProgress="OnAllUploadsProgress"

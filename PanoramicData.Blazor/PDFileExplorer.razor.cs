@@ -2066,6 +2066,14 @@ public partial class PDFileExplorer : IAsyncDisposable
 		await Task.WhenAll(tasks).ConfigureAwait(true);
 	}
 
+	private async Task OnClickToBrowseFilesAsync(string elementId)
+	{
+		if (_commonModule != null)
+		{
+			await _commonModule.InvokeVoidAsync("clickClosest", elementId, ".pddropzone").ConfigureAwait(true);
+		}
+	}
+
 	public async ValueTask DisposeAsync()
 	{
 		try

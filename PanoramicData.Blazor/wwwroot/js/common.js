@@ -1,4 +1,18 @@
-export function addClass(id, cls) {
+export function clickClosest(id, cls)
+{
+	var el = document.getElementById(id);
+	if (el)
+	{
+		var closest = el.closest(cls);
+		if (closest)
+		{
+			closest.click();
+		}
+	}
+}
+
+export function addClass(id, cls)
+{
 	var el = document.getElementById(id);
 	if (el) {
 		el.classList.add(cls);
