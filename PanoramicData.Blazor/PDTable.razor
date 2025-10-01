@@ -98,7 +98,7 @@
 									   disabled="@(!IsEnabled || !RowIsEnabled(item))"
 									   type="checkbox"
 								@onclick:stopPropagation
-									   @oninput="@((a) => OnToggleSelection(item, Convert.ToBoolean(a.Value)))"
+								@oninput="@((a) => OnToggleSelection(item, Convert.ToBoolean(a.Value)))"
 								@onmousedown:stopPropagation
 								@onmouseup:stopPropagation />
 							</td>
