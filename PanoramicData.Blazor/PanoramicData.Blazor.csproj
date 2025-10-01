@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Refixed the breaking change to the drag-and-drop behaviour in the file explorer due to unsafe inline script in onclick handler.
+			'Click to browse files' functionality in the dialog that appears when pressing the Upload button, in the PDFileExplorer component, now works as expected.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
