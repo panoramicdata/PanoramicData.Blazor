@@ -8,7 +8,7 @@ This document provides an overview of the Blazor components in this project.
 
 | Name | Type | Description |
 |------|------|-------------|
-| AnimationTime | double |  |
+| AnimationTime | double | Gets or sets the unique identifier for the animation. |
 | Transition | AnimationTransition | The type of transition to apply to the animation. |
 
 ---
@@ -37,11 +37,11 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| CssClass | string |  |
-| IsBusy | bool |  |
-| ChildContent | RenderFragment? |  |
-| OverlayCssClass | string |  |
-| OverlayContent | RenderFragment? |  |
+| CssClass | string | Gets or sets the CSS class for the component. |
+| IsBusy | bool | Gets or sets whether the busy overlay is active. |
+| ChildContent | RenderFragment? | Gets or sets the child content of the component. |
+| OverlayCssClass | string | Gets or sets the CSS class for the overlay. |
+| OverlayContent | RenderFragment? | Gets or sets the content to be displayed in the overlay. |
 
 ---
 
@@ -52,11 +52,11 @@ This component has no public parameters.
 | Name | Type | Description |
 |------|------|-------------|
 | ChildContent | RenderFragment? | Custom content to display instead of the standard text and icon. |
-| MouseDown | EventCallback<MouseEventArgs> |  |
-| MouseEnter | EventCallback<MouseEventArgs> |  |
+| MouseDown | EventCallback<MouseEventArgs> | An event callback that is invoked when the mouse button is pressed down on the button. |
+| MouseEnter | EventCallback<MouseEventArgs> | An event callback that is invoked when the mouse pointer enters the button. |
 | OperationIconCssClass | string | Async function to be called when button is clicked. |
-| PreventDefault | bool |  |
-| StopPropagation | bool |  |
+| PreventDefault | bool | Gets or sets whether to prevent the default action of the event. |
+| StopPropagation | bool | Gets or sets whether to stop the event from propagating further. |
 
 ---
 
@@ -66,9 +66,9 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Height | int |  |
-| Id | string |  |
-| Width | int |  |
+| Height | int | Gets or sets the height of the canvas. |
+| Id | string | Gets or sets the unique identifier for the canvas. |
+| Width | int | Gets or sets the width of the canvas. |
 
 ---
 
@@ -122,16 +122,16 @@ This component has no public parameters.
 | Name | Type | Description |
 |------|------|-------------|
 | Container | PDChatContainer? |  |
-| ChatDockPosition | PDChatDockPosition |  |
-| CollapsedIcon | string |  |
-| OnChatMinimized | EventCallback |  |
-| OnChatRestored | EventCallback |  |
-| OnChatMaximized | EventCallback |  |
-| OnMuteToggled | EventCallback |  |
-| OnChatCleared | EventCallback |  |
-| OnMessageSent | EventCallback<ChatMessage> |  |
-| OnMessageReceivedEvent | EventCallback<ChatMessage> |  |
-| OnAutoRestored | EventCallback |  |
+| ChatDockPosition | PDChatDockPosition | Gets or sets the dock position of the chat window. |
+| CollapsedIcon | string | Gets or sets the icon to display when the chat window is collapsed. |
+| OnChatMinimized | EventCallback | A function to select a user icon for a given message. |
+| OnChatRestored | EventCallback | An event callback that is invoked when the chat window is restored. |
+| OnChatMaximized | EventCallback | An event callback that is invoked when the chat window is maximized. |
+| OnMuteToggled | EventCallback | An event callback that is invoked when the mute setting is toggled. |
+| OnChatCleared | EventCallback | An event callback that is invoked when the chat is cleared. |
+| OnMessageSent | EventCallback<ChatMessage> | An event callback that is invoked when a message is sent. |
+| OnMessageReceivedEvent | EventCallback<ChatMessage> | An event callback that is invoked when a message is received. |
+| OnAutoRestored | EventCallback | An event callback that is invoked when the chat window is automatically restored. |
 
 ---
 
@@ -147,10 +147,10 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| ImageSource | string |  |
-| Alt | string |  |
-| Title | string |  |
-| CssStyles | string |  |
+| ImageSource | string | Gets or sets the source URL of the image. |
+| Alt | string | Gets or sets the alternate text for the image. |
+| Title | string | Gets or sets the title of the image. |
+| CssStyles | string | Gets or sets the CSS styles for the image. |
 
 ---
 
