@@ -45,9 +45,15 @@ public partial class PDButton : IEnablable, IDisposable
 	/// </summary>
 	[Parameter] public EventCallback<MouseEventArgs> Click { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the mouse button is pressed down on the button.
+	/// </summary>
 	[Parameter]
 	public EventCallback<MouseEventArgs> MouseDown { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the mouse pointer enters the button.
+	/// </summary>
 	[Parameter]
 	public EventCallback<MouseEventArgs> MouseEnter { get; set; }
 
@@ -63,9 +69,15 @@ public partial class PDButton : IEnablable, IDisposable
 	[Parameter] public string OperationIconCssClass { get; set; } = string.Empty;
 
 
+	/// <summary>
+	/// Gets or sets whether to prevent the default action of the event.
+	/// </summary>
 	[Parameter]
 	public bool PreventDefault { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to stop the event from propagating further.
+	/// </summary>
 	[Parameter]
 	public bool StopPropagation { get; set; }
 

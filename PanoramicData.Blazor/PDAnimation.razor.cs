@@ -8,9 +8,15 @@ public partial class PDAnimation : IDisposable
 
 	#region Parameters
 
+	/// <summary>
+	/// Gets or sets the unique identifier for the animation.
+	/// </summary>
 	[Parameter]
 	public override string Id { get; set; } = $"pd-animation-{++_sequence}";
 
+	/// <summary>
+	/// Gets or sets the element to be animated.
+	/// </summary>
 	[Parameter]
 	public required RenderFragment Element { get; set; }
 

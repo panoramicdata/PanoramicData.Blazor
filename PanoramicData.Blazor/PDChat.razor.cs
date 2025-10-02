@@ -17,42 +17,81 @@ public partial class PDChat : JSModuleComponentBase
 	[CascadingParameter(Name = "ChatContainer")]
 	public PDChatContainer? Container { get; set; }
 
+	/// <summary>
+	/// Gets or sets the dock position of the chat window.
+	/// </summary>
 	[Parameter]
 	public PDChatDockPosition ChatDockPosition { get; set; } = PDChatDockPosition.Right;
 
+	/// <summary>
+	/// Gets or sets the icon to display when the chat window is collapsed.
+	/// </summary>
 	[Parameter]
 	public string CollapsedIcon { get; set; } = "💬";
 
+	/// <summary>
+	/// A function to select a user icon for a given message.
+	/// </summary>
 	[Parameter]
 	public Func<ChatMessage, string?>? UserIconSelector { get; set; }
 
+	/// <summary>
+	/// A function to select a priority icon for a given message.
+	/// </summary>
 	[Parameter]
 	public Func<ChatMessage, string?>? PriorityIconSelector { get; set; }
 
+	/// <summary>
+	/// A function to select a sound to play for a given message.
+	/// </summary>
 	[Parameter]
 	public Func<ChatMessage, string?>? SoundSelector { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the chat window is minimized.
+	/// </summary>
 	[Parameter]
 	public EventCallback OnChatMinimized { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the chat window is restored.
+	/// </summary>
 	[Parameter]
 	public EventCallback OnChatRestored { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the chat window is maximized.
+	/// </summary>
 	[Parameter]
 	public EventCallback OnChatMaximized { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the mute setting is toggled.
+	/// </summary>
 	[Parameter]
 	public EventCallback OnMuteToggled { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the chat is cleared.
+	/// </summary>
 	[Parameter]
 	public EventCallback OnChatCleared { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when a message is sent.
+	/// </summary>
 	[Parameter]
 	public EventCallback<ChatMessage> OnMessageSent { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when a message is received.
+	/// </summary>
 	[Parameter]
 	public EventCallback<ChatMessage> OnMessageReceivedEvent { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the chat window is automatically restored.
+	/// </summary>
 	[Parameter]
 	public EventCallback OnAutoRestored { get; set; }
 
