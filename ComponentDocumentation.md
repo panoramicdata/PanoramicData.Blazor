@@ -166,12 +166,12 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| FilterIcon | string |  |
-| FilterKey | string |  |
-| FilterOptions | FilterOptions |  |
-| FilterShowSuggestedValues | bool |  |
-| FilterSuggestedValues | IEnumerable<object> |  |
-| FilterMaxValues | int? |  |
+| FilterIcon | string | Gets or sets the CSS class for the filter icon. |
+| FilterKey | string | Gets or sets the key to use for filtering. |
+| FilterOptions | FilterOptions | Gets or sets the options for the filter. |
+| FilterShowSuggestedValues | bool | Gets or sets whether to show suggested values in the filter. |
+| FilterSuggestedValues | IEnumerable<object> | Gets or sets the suggested values for the filter. |
+| FilterMaxValues | int? | Gets or sets the maximum number of values to show in the filter. |
 | Title | string? | If set will override the FieldExpression's name |
 
 ---
@@ -182,15 +182,15 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| SelectedItem | TItem? |  |
-| Placeholder | string |  |
-| MaxResults | int |  |
-| IsDisabled | bool |  |
-| IsReadOnly | bool |  |
-| NoResultsText | string |  |
-| ItemTemplate | RenderFragment<TItem>? |  |
-| NoResultsTemplate | RenderFragment<string>? |  |
-| ShowSelectedItemOnTop | bool |  |
+| SelectedItem | TItem? | Gets or sets the list of items to be displayed in the combo box. |
+| Placeholder | string | Gets or sets the placeholder text for the input. |
+| MaxResults | int | A function to specify the sort order for the items. |
+| IsDisabled | bool | Gets or sets whether the combo box is disabled. |
+| IsReadOnly | bool | Gets or sets whether the combo box is read-only. |
+| NoResultsText | string | Gets or sets the text to display when no results are found. |
+| ItemTemplate | RenderFragment<TItem>? | A template for rendering each item in the dropdown. |
+| NoResultsTemplate | RenderFragment<string>? | A template to display when no results are found. |
+| ShowSelectedItemOnTop | bool | Gets or sets whether to show the selected item at the top of the filtered list. |
 
 ---
 
@@ -221,11 +221,11 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Blur | EventCallback |  |
-| ShowTime | bool |  |
-| TimeStepSecs | int |  |
-| Value | DateTime |  |
-| ValueChanged | EventCallback<DateTime> |  |
+| Blur | EventCallback | An event callback that is invoked when the component loses focus. |
+| ShowTime | bool | Gets or sets whether to show the time part of the value. |
+| TimeStepSecs | int | Gets or sets the step in seconds for the time input. |
+| Value | DateTime | Gets or sets the current value. |
+| ValueChanged | EventCallback<DateTime> | An event callback that is invoked when the value changes. |
 
 ---
 
@@ -235,12 +235,12 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Blur | EventCallback |  |
-| ShowOffset | bool |  |
-| ShowTime | bool |  |
-| TimeStepSecs | int |  |
-| Value | DateTimeOffset |  |
-| ValueChanged | EventCallback<DateTimeOffset> |  |
+| Blur | EventCallback | An event callback that is invoked when the component loses focus. |
+| ShowOffset | bool | Gets or sets whether to show the offset from UTC. |
+| ShowTime | bool | Gets or sets whether to show the time part of the value. |
+| TimeStepSecs | int | Gets or sets the step in seconds for the time input. |
+| Value | DateTimeOffset | Gets or sets the current value. |
+| ValueChanged | EventCallback<DateTimeOffset> | An event callback that is invoked when the value changes. |
 
 ---
 
@@ -250,9 +250,9 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| ChildContent | RenderFragment |  |
-| Items | IEnumerable<TItem> |  |
-| SelectionChanged | EventCallback<IEnumerable<TItem>> |  |
+| ChildContent | RenderFragment | Gets or sets the child content of the component. |
+| Items | IEnumerable<TItem> | Gets or sets the collection of items in the container. |
+| SelectionChanged | EventCallback<IEnumerable<TItem>> | An event callback that is invoked when the selection changes. |
 
 ---
 
@@ -274,12 +274,12 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| CanChangeOrder | bool |  |
-| CanDrag | bool |  |
-| Id | string |  |
-| ItemOrderChanged | EventCallback<DragOrderChangeArgs<TItem>> |  |
-| Template | RenderFragment<TItem>? |  |
-| PlaceholderTemplate | RenderFragment<TItem>? |  |
+| CanChangeOrder | bool | Gets or sets whether the order of items can be changed. |
+| CanDrag | bool | Gets or sets whether items can be dragged. |
+| Id | string | Gets or sets the unique identifier for the panel. |
+| ItemOrderChanged | EventCallback<DragOrderChangeArgs<TItem>> | An event callback that is invoked when the order of items changes. |
+| Template | RenderFragment<TItem>? | A template for rendering each item. |
+| PlaceholderTemplate | RenderFragment<TItem>? | A template for rendering the placeholder when an item is being dragged. |
 
 ---
 
@@ -289,26 +289,26 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Click | EventCallback<MouseEventArgs> |  |
-| ChildContent | RenderFragment? |  |
-| CloseOption | CloseOptions |  |
-| CssClass | string |  |
-| DropdownDirection | Directions |  |
-| DropDownHidden | EventCallback |  |
-| DropDownShown | EventCallback |  |
-| IsEnabled | bool |  |
-| IconCssClass | string |  |
-| Id | string |  |
-| KeyPress | EventCallback<int> |  |
-| PreventDefault | bool |  |
-| ShowCaret | bool |  |
-| ShowOnMouseEnter | bool |  |
-| Size | ButtonSizes |  |
-| StopPropagation | bool |  |
-| Text | string |  |
-| TextCssClass | string |  |
-| ToolTip | string |  |
-| Visible | bool |  |
+| Click | EventCallback<MouseEventArgs> | An event callback that is invoked when the dropdown is clicked. |
+| ChildContent | RenderFragment? | Gets or sets the child content of the dropdown. |
+| CloseOption | CloseOptions | Gets or sets when the dropdown should close. |
+| CssClass | string | Gets or sets the CSS class for the dropdown. |
+| DropdownDirection | Directions | Gets or sets the direction the dropdown will open. |
+| DropDownHidden | EventCallback | An event callback that is invoked when the dropdown is hidden. |
+| DropDownShown | EventCallback | An event callback that is invoked when the dropdown is shown. |
+| IsEnabled | bool | Gets or sets whether the dropdown is enabled. |
+| IconCssClass | string | Gets or sets the CSS class for the icon. |
+| Id | string | Gets or sets the unique identifier for the dropdown. |
+| KeyPress | EventCallback<int> | An event callback that is invoked when a key is pressed. |
+| PreventDefault | bool | Gets or sets whether to prevent the default action of the event. |
+| ShowCaret | bool | Gets or sets whether to show the caret. |
+| ShowOnMouseEnter | bool | Gets or sets whether to show the dropdown on mouse enter. |
+| Size | ButtonSizes | Gets or sets the size of the dropdown button. |
+| StopPropagation | bool | Gets or sets whether to stop the event from propagating further. |
+| Text | string | Gets or sets the text to be displayed on the dropdown button. |
+| TextCssClass | string | Gets or sets the CSS class for the text. |
+| ToolTip | string | Gets or sets the tooltip for the dropdown. |
+| Visible | bool | Gets or sets whether the dropdown is visible. |
 
 ---
 
@@ -359,9 +359,9 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| ExceptionHandler | EventCallback<Exception> |  |
-| Item | FileExplorerItem? |  |
-| PreviewProvider | IPreviewProvider |  |
+| ExceptionHandler | EventCallback<Exception> | An event callback that is invoked when an exception occurs. |
+| Item | FileExplorerItem? | Gets or sets the file item to be previewed. |
+| PreviewProvider | IPreviewProvider | Gets or sets the preview provider for the file. |
 
 ---
 
@@ -371,15 +371,15 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| CssClass | string |  |
-| Filter | Filter |  |
-| FilterChanged | EventCallback<Filter> |  |
-| IconCssClass | string |  |
-| DataType | FilterDataTypes |  |
-| Nullable | bool |  |
-| Options | FilterOptions |  |
-| ShowValues | bool |  |
-| Size | ButtonSizes |  |
+| CssClass | string | Gets or sets the CSS class for the component. |
+| Filter | Filter | Gets or sets the filter object. |
+| FilterChanged | EventCallback<Filter> | An event callback that is invoked when the filter changes. |
+| IconCssClass | string | A function to fetch the values for the filter. |
+| DataType | FilterDataTypes | Gets or sets the data type for the filter. |
+| Nullable | bool | Gets or sets whether the value can be null. |
+| Options | FilterOptions | Gets or sets the filter options. |
+| ShowValues | bool | Gets or sets whether to show the values for the filter. |
+| Size | ButtonSizes | Gets or sets the size of the filter button. |
 
 ---
 
@@ -417,10 +417,10 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| DebounceWait | int |  |
+| DebounceWait | int | Gets or sets the debounce wait period in milliseconds for value changes. |
 | Field | FormField<TItem> |  |
 | Form | PDForm<TItem> |  |
-| Id | string |  |
+| Id | string | Gets or sets the unique identifier for the editor. |
 
 ---
 
@@ -541,19 +541,19 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Click | EventCallback<MouseEventArgs> |  |
-| ChildContent | RenderFragment? |  |
-| CssClass | string |  |
-| DataItem | object? |  |
-| IconCssClass | string |  |
-| MouseDown | EventCallback<MouseEventArgs> |  |
-| MouseEnter | EventCallback<MouseEventArgs> |  |
-| PreventDefault | bool |  |
-| SelectedChanged | EventCallback<ISelectable> |  |
-| StopPropagation | bool |  |
-| Text | string |  |
-| TextCssClass | string |  |
-| ToolTip | string |  |
+| Click | EventCallback<MouseEventArgs> | An event callback that is invoked when the label is clicked. |
+| ChildContent | RenderFragment? | Gets or sets the child content of the label. |
+| CssClass | string | Gets or sets the CSS class for the label. |
+| DataItem | object? | Gets or sets the data item associated with the label. |
+| IconCssClass | string | Gets or sets the CSS class for the icon. |
+| MouseDown | EventCallback<MouseEventArgs> | An event callback that is invoked when the mouse button is pressed down on the label. |
+| MouseEnter | EventCallback<MouseEventArgs> | An event callback that is invoked when the mouse pointer enters the label. |
+| PreventDefault | bool | Gets or sets whether to prevent the default action of the event. |
+| SelectedChanged | EventCallback<ISelectable> | An event callback that is invoked when the selection state of the data item changes. |
+| StopPropagation | bool | Gets or sets whether to stop the event from propagating further. |
+| Text | string | Gets or sets the text to be displayed on the label. |
+| TextCssClass | string | Gets or sets the CSS class for the text. |
+| ToolTip | string | Gets or sets the tooltip for the label. |
 
 ---
 
@@ -569,21 +569,21 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| AllCheckBoxWhenPartial | SelectionBehaviours |  |
-| Apply | EventCallback<Selection<TItem>> |  |
-| Cancel | EventCallback |  |
-| ClearSelectionOnFilter | bool |  |
-| DataProvider | IDataProviderService<TItem>? |  |
-| DefaultToSelectAll | bool |  |
-| ItemTemplate | RenderFragment<TItem>? |  |
-| Selection | Selection<TItem> |  |
-| SelectionChanged | EventCallback<Selection<TItem>> |  |
-| SelectionMode | TableSelectionMode |  |
-| ShowAllCheckBox | bool |  |
-| ShowApplyCancelButtons | bool |  |
-| ShowCheckBoxes | bool |  |
-| ShowFilter | bool |  |
-| SortDirection | SortDirection |  |
+| AllCheckBoxWhenPartial | SelectionBehaviours | Determines the behavior of the 'All' checkbox when the selection is partial. |
+| Apply | EventCallback<Selection<TItem>> | An event callback that is invoked when the 'Apply' button is clicked. |
+| Cancel | EventCallback | An event callback that is invoked when the 'Cancel' button is clicked. |
+| ClearSelectionOnFilter | bool | Gets or sets whether to clear the selection when the filter text changes. |
+| DataProvider | IDataProviderService<TItem>? | Gets or sets the data provider service for the list. |
+| DefaultToSelectAll | bool | Gets or sets whether to select all items by default. |
+| ItemTemplate | RenderFragment<TItem>? | A function to determine whether an item should be included in the filtered list. |
+| Selection | Selection<TItem> | Gets or sets the current selection. |
+| SelectionChanged | EventCallback<Selection<TItem>> | An event callback that is invoked when the selection changes. |
+| SelectionMode | TableSelectionMode | Gets or sets the selection mode for the list. |
+| ShowAllCheckBox | bool | Gets or sets whether to show the 'All' checkbox. |
+| ShowApplyCancelButtons | bool | Gets or sets whether to show the 'Apply' and 'Cancel' buttons. |
+| ShowCheckBoxes | bool | Gets or sets whether to show checkboxes for each item. |
+| ShowFilter | bool | Gets or sets whether to show the filter input. |
+| SortDirection | SortDirection | Gets or sets the sort direction for the list. |
 
 ---
 
@@ -593,7 +593,7 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| ChildContent | RenderFragment? |  |
+| ChildContent | RenderFragment? | Gets or sets the child content of the component. |
 
 ---
 
@@ -603,13 +603,13 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| LogLevel | LogLevel |  |
-| Capacity | int |  |
-| Rows | int |  |
-| ShowTimestamp | bool |  |
-| ShowIcon | bool |  |
-| ShowException | bool |  |
-| UtcTimestampFormat | string |  |
+| LogLevel | LogLevel | Gets or sets the minimum log level to display. |
+| Capacity | int | Gets or sets the maximum number of log entries to keep. |
+| Rows | int | Gets or sets the number of rows to display. |
+| ShowTimestamp | bool | Gets or sets whether to show the timestamp for each log entry. |
+| ShowIcon | bool | Gets or sets whether to show the icon for each log entry. |
+| ShowException | bool | Gets or sets whether to show the exception for each log entry. |
+| UtcTimestampFormat | string | Gets or sets the format for the UTC timestamp. |
 
 ---
 
@@ -619,14 +619,14 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Key | string |  |
-| Text | string |  |
-| IsVisible | bool |  |
-| IsDisabled | bool |  |
-| IconCssClass | string |  |
-| Content | string |  |
-| IsSeparator | bool |  |
-| ShortcutKey | ShortcutKey |  |
+| Key | string | Gets or sets the unique identifier of the menu item. |
+| Text | string | Gets or sets the text to display on the menu item. |
+| IsVisible | bool | Gets or sets whether this item is displayed. |
+| IsDisabled | bool | Gets or sets whether this item is displayed but disabled. |
+| IconCssClass | string | Gets or sets CSS classes to display an icon for the menu item. |
+| Content | string | Gets or sets custom markup to be displayed for the item. |
+| IsSeparator | bool | Gets or sets whether this item is rendered as a separator. |
+| ShortcutKey | ShortcutKey | Sets the short cut keys that will perform a click on this button. |
 
 ---
 
@@ -658,18 +658,18 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Id | string |  |
-| Language | string |  |
-| ShowSuggestions | bool |  |
-| Theme | string |  |
-| Value | string |  |
-| ValueChanged | EventCallback<string> |  |
-| UpdateValueOnBlur | bool |  |
-| InitializeCache | Action<MethodCache>? |  |
-| InitializeOptions | Action<StandaloneEditorConstructionOptions>? |  |
-| InitializeLanguage | Action<Language>? |  |
-| RegisterLanguages | Action<List<Language>>? |  |
-| SelectionChanged | EventCallback<Selection> |  |
+| Id | string | Gets or sets the unique identifier for the editor. |
+| Language | string | Gets or sets the programming language for the editor. |
+| ShowSuggestions | bool | Gets or sets whether to show code suggestions. |
+| Theme | string | Gets or sets the theme for the editor. |
+| Value | string | Gets or sets the content of the editor. |
+| ValueChanged | EventCallback<string> | An event callback that is invoked when the content of the editor changes. |
+| UpdateValueOnBlur | bool | Gets or sets whether the Value parameter is updated only when the editor loses focus. |
+| InitializeCache | Action<MethodCache>? | An action to initialize the method cache for language completions. |
+| InitializeOptions | Action<StandaloneEditorConstructionOptions>? | An async function to initialize the method cache for language completions. |
+| InitializeLanguage | Action<Language>? | An action to initialize a custom language. |
+| RegisterLanguages | Action<List<Language>>? | An async function to initialize a custom language. |
+| SelectionChanged | EventCallback<Selection> | An async function to update the method cache. |
 
 ---
 
@@ -680,7 +680,7 @@ This component has no public parameters.
 | Name | Type | Description |
 |------|------|-------------|
 | ActiveClass | string? | Gets or sets the CSS class name applied to the NavLink when the current route matches the NavLink href. |
-| ChildContent | RenderFragment? |  |
+| ChildContent | RenderFragment? | Gets or sets the child content of the component. |
 | Match | NavLinkMatch | Gets or sets a value representing the URL matching behavior. |
 
 ---
@@ -697,11 +697,11 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| BarContent | RenderFragment<PDProgressBar>? |  |
-| DecimalPlaces | ushort |  |
-| Height | string |  |
-| Total | double |  |
-| Value | double |  |
+| BarContent | RenderFragment<PDProgressBar>? | Gets or sets the content to be displayed within the progress bar. |
+| DecimalPlaces | ushort | Gets or sets the number of decimal places to display in the percentage. |
+| Height | string | Gets or sets the height of the progress bar. |
+| Total | double | Gets or sets the total value of the progress bar. |
+| Value | double | Gets or sets the current value of the progress bar. |
 
 ---
 
@@ -711,11 +711,11 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Quests | List<Quest> |  |
-| QuestActions | List<QuestAction> |  |
-| QuestHeight | int |  |
-| QuestMargin | int |  |
-| QuestActionRadius | int |  |
+| Quests | List<Quest> | Gets or sets the list of quests to be visualized. |
+| QuestActions | List<QuestAction> | Gets or sets the list of quest actions to be visualized. |
+| QuestHeight | int | Gets or sets the height of each quest lane. |
+| QuestMargin | int | Gets or sets the margin between each quest lane. |
+| QuestActionRadius | int | Gets or sets the radius of the quest action nodes. |
 
 ---
 
@@ -725,19 +725,19 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Height | double |  |
-| Invert | bool |  |
-| Options | RangeOptions |  |
-| Range | NumericRange |  |
-| ShowLabels | bool |  |
-| TickMajor | double |  |
-| Max | double |  |
-| Min | double |  |
-| MinGap | double |  |
-| RangeChanged | EventCallback<NumericRange> |  |
-| Step | double |  |
-| TrackHeight | double |  |
-| Width | double |  |
+| Height | double | Gets or sets the height of the component. |
+| Invert | bool | Gets or sets whether to invert the range. |
+| Options | RangeOptions | Gets or sets the options for the range component. |
+| Range | NumericRange | Gets or sets the numeric range. |
+| ShowLabels | bool | Gets or sets whether to show labels. |
+| TickMajor | double | Gets or sets the major tick interval. |
+| Max | double | A function to format the major tick labels. |
+| Min | double | Gets or sets the minimum value of the range. |
+| MinGap | double | Gets or sets the minimum gap between the start and end of the range. |
+| RangeChanged | EventCallback<NumericRange> | An event callback that is invoked when the range changes. |
+| Step | double | Gets or sets the step value for the range. |
+| TrackHeight | double | Gets or sets the height of the track. |
+| Width | double | Gets or sets the width of the component. |
 
 ---
 
@@ -765,13 +765,13 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| DateFormat | string |  |
-| DataPoint | DataPoint |  |
-| Height | double |  |
-| IsEnabled | bool |  |
-| MaxValue | double |  |
-| Options | TimelineOptions |  |
-| X | double |  |
+| DateFormat | string | Gets or sets the format for displaying dates. |
+| DataPoint | DataPoint | Gets or sets the data point to be rendered. |
+| Height | double | Gets or sets the height of the bar. |
+| IsEnabled | bool | Gets or sets whether the component is enabled. |
+| MaxValue | double | Gets or sets the maximum value for the bar. |
+| Options | TimelineOptions | Gets or sets the timeline options. |
+| X | double | Gets or sets the X coordinate of the bar. |
 
 ---
 
@@ -809,9 +809,9 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Table | PDTable<TItem>? |  |
-| CanChangeOrder | bool |  |
-| CanChangeVisible | bool |  |
+| Table | PDTable<TItem>? | A reference to the PDTable component. |
+| CanChangeOrder | bool | Gets or sets whether the user can change the order of the columns. |
+| CanChangeVisible | bool | Gets or sets whether the user can change the visibility of the columns. |
 
 ---
 
@@ -839,25 +839,25 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| DisableAfter | DateTime |  |
-| DisableBefore | DateTime |  |
-| Initialized | EventCallback |  |
-| IsEnabled | bool |  |
-| Scale | TimelineScale |  |
-| ScaleChanged | EventCallback<TimelineScale> |  |
-| Refreshed | EventCallback |  |
-| SelectionChanged | EventCallback<TimeRange?> |  |
-| SelectionChangeEnd | EventCallback |  |
-| DataProvider | DataProviderDelegate? |  |
-| Id | string |  |
-| NewMaxDateTimeAvailable | bool |  |
-| NewMinDateTimeAvailable | bool |  |
-| MaxDateTime | DateTime? |  |
-| MinDateTime | DateTime |  |
-| Options | TimelineOptions |  |
-| UpdateMaxDate | EventCallback |  |
-| UpdateMinDate | EventCallback |  |
-| OffsetX | int |  |
+| DisableAfter | DateTime | Gets or sets the date and time after which the timeline is disabled. |
+| DisableBefore | DateTime | Gets or sets the date and time before which the timeline is disabled. |
+| Initialized | EventCallback | An event callback that is invoked when the component has been initialized. |
+| IsEnabled | bool | Gets or sets whether the timeline is enabled. |
+| Scale | TimelineScale | Gets or sets the current scale of the timeline. |
+| ScaleChanged | EventCallback<TimelineScale> | An event callback that is invoked when the timeline scale changes. |
+| Refreshed | EventCallback | An event callback that is invoked when the timeline has been refreshed. |
+| SelectionChanged | EventCallback<TimeRange?> | An event callback that is invoked when the time selection changes. |
+| SelectionChangeEnd | EventCallback | An event callback that is invoked when the time selection change is complete. |
+| DataProvider | DataProviderDelegate? | A delegate that provides data points to the timeline. |
+| Id | string | Gets or sets the unique identifier for the component. |
+| NewMaxDateTimeAvailable | bool | Gets or sets whether a new maximum date/time is available. |
+| NewMinDateTimeAvailable | bool | Gets or sets whether a new minimum date/time is available. |
+| MaxDateTime | DateTime? | Gets or sets the maximum date and time of the timeline. |
+| MinDateTime | DateTime | Gets or sets the minimum date and time of the timeline. |
+| Options | TimelineOptions | Gets or sets the options for the timeline. |
+| UpdateMaxDate | EventCallback | An event callback that is invoked to update the maximum date. |
+| UpdateMinDate | EventCallback | An event callback that is invoked to update the minimum date. |
+| OffsetX | int | A function to transform the Y value of data points. |
 
 ---
 
@@ -867,12 +867,12 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| IsEnabled | bool |  |
-| ShowRange | bool |  |
-| ShowScale | bool |  |
-| ShowSelection | bool |  |
-| ShowZoomButtons | bool |  |
-| Timeline | PDTimeline? |  |
+| IsEnabled | bool | Gets or sets whether the toolbar is enabled. |
+| ShowRange | bool | Gets or sets whether to show the date/time range of the timeline. |
+| ShowScale | bool | Gets or sets whether to show the scale controls. |
+| ShowSelection | bool | Gets or sets whether to show the current selection details. |
+| ShowZoomButtons | bool | Gets or sets whether to show the zoom in/out buttons. |
+| Timeline | PDTimeline? | A reference to the PDTimeline component. |
 
 ---
 
@@ -900,8 +900,8 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| CloseOption | CloseOptions |  |
-| ShowOnMouseEnter | bool |  |
+| CloseOption | CloseOptions | Determines when the dropdown should close. |
+| ShowOnMouseEnter | bool | Gets or sets whether the dropdown is shown on mouse enter. |
 
 ---
 
@@ -953,7 +953,7 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Errors | object? |  |
+| Errors | object? | Gets or sets the collection of validation errors. |
 
 ---
 
@@ -963,11 +963,11 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
-| Id | string |  |
-| Options | ZoomBarOptions |  |
-| Value | ZoombarValue |  |
-| ValueChanged | EventCallback<ZoombarValue> |  |
-| Width | int |  |
+| Id | string | Gets or sets the unique identifier for the component. |
+| Options | ZoomBarOptions | Gets or sets the options for the zoom bar. |
+| Value | ZoombarValue | Gets or sets the current zoom and pan value. |
+| ValueChanged | EventCallback<ZoombarValue> | An event callback that is invoked when the zoom or pan value changes. |
+| Width | int | Gets or sets the width of the zoom bar canvas. |
 
 ---
 
