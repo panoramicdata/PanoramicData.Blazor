@@ -3,50 +3,95 @@ namespace PanoramicData.Blazor;
 public partial class PDComboBox<TItem> : IAsyncDisposable
 {
 	// Mandatory parameters
+	/// <summary>
+	/// Gets or sets the list of items to be displayed in the combo box.
+	/// </summary>
 	[Parameter]
 	[EditorRequired]
 	public required List<TItem> Items { get; set; }
 
 	// Optional parameters
+	/// <summary>
+	/// An event callback that is invoked when the selected item changes.
+	/// </summary>
 	[Parameter]
 	public required EventCallback<TItem> SelectedItemChanged { get; set; }
 
+	/// <summary>
+	/// A function to convert an item to its string representation.
+	/// </summary>
 	[Parameter]
 	public Func<TItem, string> ItemToString { get; set; } = item => item?.ToString() ?? string.Empty;
 
+	/// <summary>
+	/// A function to get a unique identifier for an item.
+	/// </summary>
 	[Parameter]
 	public required Func<TItem, string> ItemToId { get; set; } = item => item?.ToString() ?? string.Empty;
 
+	/// <summary>
+	/// A function to filter the items based on the search text.
+	/// </summary>
 	[Parameter]
 	public required Func<TItem, string, bool> Filter { get; set; } = (item, searchText) => item?.ToString()?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false;
 
+	/// <summary>
+	/// Gets or sets the currently selected item.
+	/// </summary>
 	[Parameter]
 	public TItem? SelectedItem { get; set; }
 
+	/// <summary>
+	/// Gets or sets the placeholder text for the input.
+	/// </summary>
 	[Parameter]
 	public string Placeholder { get; set; } = "Type to search...";
 
+	/// <summary>
+	/// A function to specify the sort order for the items.
+	/// </summary>
 	[Parameter]
 	public Func<TItem, object>? OrderBy { get; set; }
 
+	/// <summary>
+	/// Gets or sets the maximum number of results to display.
+	/// </summary>
 	[Parameter]
 	public int MaxResults { get; set; } = 5;
 
+	/// <summary>
+	/// Gets or sets whether the combo box is disabled.
+	/// </summary>
 	[Parameter]
 	public bool IsDisabled { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the combo box is read-only.
+	/// </summary>
 	[Parameter]
 	public bool IsReadOnly { get; set; }
 
+	/// <summary>
+	/// Gets or sets the text to display when no results are found.
+	/// </summary>
 	[Parameter]
 	public string NoResultsText { get; set; } = "No results found";
 
+	/// <summary>
+	/// A template for rendering each item in the dropdown.
+	/// </summary>
 	[Parameter]
 	public RenderFragment<TItem>? ItemTemplate { get; set; }
 
+	/// <summary>
+	/// A template to display when no results are found.
+	/// </summary>
 	[Parameter]
 	public RenderFragment<string>? NoResultsTemplate { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to show the selected item at the top of the filtered list.
+	/// </summary>
 	[Parameter]
 	public bool ShowSelectedItemOnTop { get; set; } = false;
 

@@ -10,18 +10,33 @@ public partial class PDZoomBar : IAsyncDisposable
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets the unique identifier for the component.
+	/// </summary>
 	[Parameter]
 	public string Id { get; set; } = $"pd-zoombar-{++_seq}";
 
+	/// <summary>
+	/// Gets or sets the options for the zoom bar.
+	/// </summary>
 	[Parameter]
 	public ZoomBarOptions Options { get; set; } = new ZoomBarOptions();
 
+	/// <summary>
+	/// Gets or sets the current zoom and pan value.
+	/// </summary>
 	[Parameter]
 	public ZoombarValue Value { get; set; } = new ZoombarValue();
 
+	/// <summary>
+	/// An event callback that is invoked when the zoom or pan value changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<ZoombarValue> ValueChanged { get; set; }
 
+	/// <summary>
+	/// Gets or sets the width of the zoom bar canvas.
+	/// </summary>
 	[Parameter]
 	public int Width { get; set; } = 200;
 

@@ -5,6 +5,9 @@ public partial class PDGlobalListener : IAsyncDisposable
 	private DotNetObjectReference<PDGlobalListener>? _dotNetObjectReference;
 	private IJSObjectReference? _module;
 
+	/// <summary>
+	/// Gets or sets the child content of the component.
+	/// </summary>
 	[Parameter] public RenderFragment? ChildContent { get; set; }
 
 	[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;

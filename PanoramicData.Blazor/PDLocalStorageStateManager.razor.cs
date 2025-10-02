@@ -9,6 +9,9 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
 
+	/// <summary>
+	/// Gets or sets the child content of the component.
+	/// </summary>
 	[Parameter]
 	public RenderFragment? ChildContent { get; set; }
 

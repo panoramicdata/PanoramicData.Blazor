@@ -4,13 +4,22 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 {
 	private readonly List<IDisplayItem> _items = [];
 
+	/// <summary>
+	/// A reference to the PDTable component.
+	/// </summary>
 	[Parameter]
 	[EditorRequired]
 	public PDTable<TItem>? Table { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the user can change the order of the columns.
+	/// </summary>
 	[Parameter]
 	public bool CanChangeOrder { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets whether the user can change the visibility of the columns.
+	/// </summary>
 	[Parameter]
 	public bool CanChangeVisible { get; set; } = true;
 

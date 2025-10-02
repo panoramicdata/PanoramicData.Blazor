@@ -7,12 +7,21 @@ public partial class PDFilePreview
 	private string? _lastPreviewPath;
 	private PreviewInfo _previewInfo = new();
 
+	/// <summary>
+	/// An event callback that is invoked when an exception occurs.
+	/// </summary>
 	[Parameter]
 	public EventCallback<Exception> ExceptionHandler { get; set; }
 
+	/// <summary>
+	/// Gets or sets the file item to be previewed.
+	/// </summary>
 	[Parameter]
 	public FileExplorerItem? Item { get; set; }
 
+	/// <summary>
+	/// Gets or sets the preview provider for the file.
+	/// </summary>
 	[Parameter]
 	public IPreviewProvider PreviewProvider { get; set; } = new DefaultPreviewProvider();
 

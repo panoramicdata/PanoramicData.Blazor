@@ -19,63 +19,123 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <summary>
+	/// An event callback that is invoked when the dropdown is clicked.
+	/// </summary>
 	[Parameter]
 	public EventCallback<MouseEventArgs> Click { get; set; }
 
+	/// <summary>
+	/// Gets or sets the child content of the dropdown.
+	/// </summary>
 	[Parameter]
 	public RenderFragment? ChildContent { get; set; }
 
+	/// <summary>
+	/// Gets or sets when the dropdown should close.
+	/// </summary>
 	[Parameter]
 	public CloseOptions CloseOption { get; set; } = CloseOptions.Outside;
 
+	/// <summary>
+	/// Gets or sets the CSS class for the dropdown.
+	/// </summary>
 	[Parameter]
 	public string CssClass { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Gets or sets the direction the dropdown will open.
+	/// </summary>
 	[Parameter]
 	public Directions DropdownDirection { get; set; } = Directions.Down;
 
+	/// <summary>
+	/// An event callback that is invoked when the dropdown is hidden.
+	/// </summary>
 	[Parameter]
 	public EventCallback DropDownHidden { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the dropdown is shown.
+	/// </summary>
 	[Parameter]
 	public EventCallback DropDownShown { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the dropdown is enabled.
+	/// </summary>
 	[Parameter]
 	public bool IsEnabled { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the CSS class for the icon.
+	/// </summary>
 	[Parameter]
 	public string IconCssClass { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Gets or sets the unique identifier for the dropdown.
+	/// </summary>
 	[Parameter]
 	public string Id { get; set; } = $"pd-dropdown-{++_sequence}";
 
+	/// <summary>
+	/// An event callback that is invoked when a key is pressed.
+	/// </summary>
 	[Parameter]
 	public EventCallback<int> KeyPress { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to prevent the default action of the event.
+	/// </summary>
 	[Parameter]
 	public bool PreventDefault { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to show the caret.
+	/// </summary>
 	[Parameter]
 	public bool ShowCaret { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets whether to show the dropdown on mouse enter.
+	/// </summary>
 	[Parameter]
 	public bool ShowOnMouseEnter { get; set; }
 
+	/// <summary>
+	/// Gets or sets the size of the dropdown button.
+	/// </summary>
 	[Parameter]
 	public ButtonSizes Size { get; set; } = ButtonSizes.Medium;
 
+	/// <summary>
+	/// Gets or sets whether to stop the event from propagating further.
+	/// </summary>
 	[Parameter]
 	public bool StopPropagation { get; set; }
 
+	/// <summary>
+	/// Gets or sets the text to be displayed on the dropdown button.
+	/// </summary>
 	[Parameter]
 	public string Text { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Gets or sets the CSS class for the text.
+	/// </summary>
 	[Parameter]
 	public string TextCssClass { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Gets or sets the tooltip for the dropdown.
+	/// </summary>
 	[Parameter]
 	public string ToolTip { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Gets or sets whether the dropdown is visible.
+	/// </summary>
 	[Parameter]
 	public bool Visible { get; set; } = true;
 

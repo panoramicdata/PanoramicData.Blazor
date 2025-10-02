@@ -2,21 +2,39 @@
 
 public partial class PDTimelineToolbar : IEnablable
 {
+	/// <summary>
+	/// Gets or sets whether the toolbar is enabled.
+	/// </summary>
 	[Parameter]
 	public bool IsEnabled { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets whether to show the date/time range of the timeline.
+	/// </summary>
 	[Parameter]
 	public bool ShowRange { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets whether to show the scale controls.
+	/// </summary>
 	[Parameter]
 	public bool ShowScale { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets whether to show the current selection details.
+	/// </summary>
 	[Parameter]
 	public bool ShowSelection { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets whether to show the zoom in/out buttons.
+	/// </summary>
 	[Parameter]
 	public bool ShowZoomButtons { get; set; } = true;
 
+	/// <summary>
+	/// A reference to the PDTimeline component.
+	/// </summary>
 	[Parameter]
 	public PDTimeline? Timeline { get; set; }
 

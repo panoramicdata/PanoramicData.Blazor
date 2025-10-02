@@ -33,6 +33,9 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 	/// </summary>
 	[Parameter] public string Text { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Determines when the dropdown should close.
+	/// </summary>
 	[Parameter]
 	public CloseOptions CloseOption { get; set; } = CloseOptions.InsideOrOutside;
 
@@ -71,6 +74,9 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 	/// </summary>
 	[Parameter] public bool ShiftRight { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the dropdown is shown on mouse enter.
+	/// </summary>
 	[Parameter]
 	public bool ShowOnMouseEnter { get; set; }
 

@@ -32,6 +32,9 @@ public partial class PDNavLink : IAsyncDisposable
 	[Parameter(CaptureUnmatchedValues = true)]
 	public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
+	/// <summary>
+	/// Gets or sets the child content of the component.
+	/// </summary>
 	[Parameter]
 	public RenderFragment? ChildContent { get; set; }
 

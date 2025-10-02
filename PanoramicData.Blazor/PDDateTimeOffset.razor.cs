@@ -5,21 +5,39 @@ public partial class PDDateTimeOffset
 	private string _dateCssClass = string.Empty;
 	private string _timeCssClass = string.Empty;
 
+	/// <summary>
+	/// An event callback that is invoked when the component loses focus.
+	/// </summary>
 	[Parameter]
 	public EventCallback Blur { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to show the offset from UTC.
+	/// </summary>
 	[Parameter]
 	public bool ShowOffset { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to show the time part of the value.
+	/// </summary>
 	[Parameter]
 	public bool ShowTime { get; set; }
 
+	/// <summary>
+	/// Gets or sets the step in seconds for the time input.
+	/// </summary>
 	[Parameter]
 	public int TimeStepSecs { get; set; } = 1;
 
+	/// <summary>
+	/// Gets or sets the current value.
+	/// </summary>
 	[Parameter]
 	public DateTimeOffset Value { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the value changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<DateTimeOffset> ValueChanged { get; set; }
 

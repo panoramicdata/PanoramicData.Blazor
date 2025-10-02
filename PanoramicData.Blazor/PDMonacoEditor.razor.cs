@@ -18,48 +18,93 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
 
+	/// <summary>
+	/// Gets or sets the unique identifier for the editor.
+	/// </summary>
 	[Parameter]
 	public string Id { get; set; } = $"PDMonacoEditor-{++_seq}";
 
+	/// <summary>
+	/// Gets or sets the programming language for the editor.
+	/// </summary>
 	[Parameter]
 	public string Language { get; set; } = "javascript";
 
+	/// <summary>
+	/// Gets or sets whether to show code suggestions.
+	/// </summary>
 	[Parameter]
 	public bool ShowSuggestions { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the theme for the editor.
+	/// </summary>
 	[Parameter]
 	public string Theme { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Gets or sets the content of the editor.
+	/// </summary>
 	[Parameter]
 	public string Value { get; set; } = string.Empty;
 
+	/// <summary>
+	/// An event callback that is invoked when the content of the editor changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<string> ValueChanged { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the Value parameter is updated only when the editor loses focus.
+	/// </summary>
 	[Parameter]
 	public bool UpdateValueOnBlur { get; set; }
 
+	/// <summary>
+	/// An action to initialize the method cache for language completions.
+	/// </summary>
 	[Parameter]
 	public Action<MethodCache>? InitializeCache { get; set; }
 
+	/// <summary>
+	/// An async function to initialize the method cache for language completions.
+	/// </summary>
 	[Parameter]
 	public Func<MethodCache, Task>? InitializeCacheAsync { get; set; }
 
+	/// <summary>
+	/// An action to initialize the editor options.
+	/// </summary>
 	[Parameter]
 	public Action<StandaloneEditorConstructionOptions>? InitializeOptions { get; set; }
 
+	/// <summary>
+	/// An action to initialize a custom language.
+	/// </summary>
 	[Parameter]
 	public Action<Language>? InitializeLanguage { get; set; }
 
+	/// <summary>
+	/// An async function to initialize a custom language.
+	/// </summary>
 	[Parameter]
 	public Func<Language, Task>? InitializeLanguageAsync { get; set; }
 
+	/// <summary>
+	/// An action to register custom languages.
+	/// </summary>
 	[Parameter]
 	public Action<List<Language>>? RegisterLanguages { get; set; }
 
+	/// <summary>
+	/// An async function to update the method cache.
+	/// </summary>
 	[Parameter]
 	public Func<MethodCache, string, string, Task>? UpdateCacheAsync { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the selection changes in the editor.
+	/// </summary>
 	[Parameter]
 	public EventCallback<Selection> SelectionChanged { get; set; }
 

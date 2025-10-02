@@ -6,7 +6,14 @@
 </div>
 
 @code {
+		/// <summary>
+	/// Gets or sets the child content of the pane.
+	/// </summary>
 	[Parameter] public RenderFragment? ChildContent { get; set; }
+
+	/// <summary>
+	/// Gets or sets which corner of the pane is used for resizing.
+	/// </summary>
 	[Parameter] public ResizeCorner Corner { get; set; } = ResizeCorner.TopLeft;
 
 	private string CornerClass => Corner switch

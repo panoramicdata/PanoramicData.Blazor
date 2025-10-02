@@ -4,20 +4,44 @@ namespace PanoramicData.Blazor;
 
 public partial class PDKnob : PDAudioControl
 {
+	/// <summary>
+	/// Gets or sets the mode of the knob, which determines its behavior and appearance.
+	/// </summary>
 	[Parameter] public PDKnobMode Mode { get; set; } = PDKnobMode.Volume;
 
+	/// <summary>
+	/// Gets or sets the maximum display value for the knob.
+	/// </summary>
 	[Parameter] public int MaxDisplay { get; set; } = 11;
 
+	/// <summary>
+	/// Gets or sets the size of the knob in pixels.
+	/// </summary>
 	[Parameter] public int SizePx { get; set; } = 60;
 
+	/// <summary>
+	/// Gets or sets the color of the knob's cap.
+	/// </summary>
 	[Parameter] public string CapColor { get; set; } = "#eee";
 
+	/// <summary>
+	/// Gets or sets the color of the active part of the knob.
+	/// </summary>
 	[Parameter] public string ActiveColor { get; set; } = "#2196f3";
 
+	/// <summary>
+	/// Gets or sets whether to show tick marks around the knob.
+	/// </summary>
 	[Parameter] public bool ShowTicks { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the start angle of the knob's rotation in degrees.
+	/// </summary>
 	[Parameter] public double StartAngle { get; set; } = -160;
 
+	/// <summary>
+	/// Gets or sets the end angle of the knob's rotation in degrees.
+	/// </summary>
 	[Parameter] public double EndAngle { get; set; } = 160;
 
 	private ElementReference _svgRef;

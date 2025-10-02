@@ -17,33 +17,63 @@ public partial class PDFilter : IAsyncDisposable
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets the CSS class for the component.
+	/// </summary>
 	[Parameter]
 	public string CssClass { get; set; } = "p-0 ms-1";
 
+	/// <summary>
+	/// Gets or sets the filter object.
+	/// </summary>
 	[Parameter]
 	public Filter Filter { get; set; } = new Filter();
 
+	/// <summary>
+	/// An event callback that is invoked when the filter changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<Filter> FilterChanged { get; set; }
 
+	/// <summary>
+	/// A function to fetch the values for the filter.
+	/// </summary>
 	[Parameter]
 	public Func<Filter, Task<string[]>>? FetchValuesAsync { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS class for the icon.
+	/// </summary>
 	[Parameter]
 	public string IconCssClass { get; set; } = "fas fa-filter";
 
+	/// <summary>
+	/// Gets or sets the data type for the filter.
+	/// </summary>
 	[Parameter]
 	public FilterDataTypes DataType { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the value can be null.
+	/// </summary>
 	[Parameter]
 	public bool Nullable { get; set; }
 
+	/// <summary>
+	/// Gets or sets the filter options.
+	/// </summary>
 	[Parameter]
 	public FilterOptions Options { get; set; } = new();
 
+	/// <summary>
+	/// Gets or sets whether to show the values for the filter.
+	/// </summary>
 	[Parameter]
 	public bool ShowValues { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the size of the filter button.
+	/// </summary>
 	[Parameter]
 	public ButtonSizes Size { get; set; } = ButtonSizes.Small;
 

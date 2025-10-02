@@ -4,18 +4,33 @@ namespace PanoramicData.Blazor;
 
 public partial class PDQuestVisualizer
 {
+	/// <summary>
+	/// Gets or sets the list of quests to be visualized.
+	/// </summary>
 	[Parameter]
 	public List<Quest> Quests { get; set; } = [];
 
+	/// <summary>
+	/// Gets or sets the list of quest actions to be visualized.
+	/// </summary>
 	[Parameter]
 	public List<QuestAction> QuestActions { get; set; } = [];
 
+	/// <summary>
+	/// Gets or sets the height of each quest lane.
+	/// </summary>
 	[Parameter]
 	public int QuestHeight { get; set; } = 120;
 
+	/// <summary>
+	/// Gets or sets the margin between each quest lane.
+	/// </summary>
 	[Parameter]
 	public int QuestMargin { get; set; } = 10;
 
+	/// <summary>
+	/// Gets or sets the radius of the quest action nodes.
+	/// </summary>
 	[Parameter]
 	public int QuestActionRadius { get; set; } = 20;
 

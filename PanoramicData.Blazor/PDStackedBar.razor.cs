@@ -2,27 +2,51 @@
 
 public partial class PDStackedBar : IEnablable
 {
+	/// <summary>
+	/// Gets or sets the format for displaying dates.
+	/// </summary>
 	[Parameter]
 	public string DateFormat { get; set; } = "dd/MM/yy HH:mm";
 
+	/// <summary>
+	/// Gets or sets the data point to be rendered.
+	/// </summary>
 	[Parameter]
 	public DataPoint DataPoint { get; set; } = new DataPoint();
 
+	/// <summary>
+	/// Gets or sets the height of the bar.
+	/// </summary>
 	[Parameter]
 	public double Height { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the component is enabled.
+	/// </summary>
 	[Parameter]
 	public bool IsEnabled { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the maximum value for the bar.
+	/// </summary>
 	[Parameter]
 	public double MaxValue { get; set; } = 100;
 
+	/// <summary>
+	/// Gets or sets the timeline options.
+	/// </summary>
 	[Parameter]
 	public TimelineOptions Options { get; set; } = new TimelineOptions();
 
+	/// <summary>
+	/// Gets or sets the X coordinate of the bar.
+	/// </summary>
 	[Parameter]
 	public double X { get; set; }
 
+	/// <summary>
+	/// A function to transform the Y value of data points.
+	/// </summary>
 	[Parameter]
 	public Func<double, double> YValueTransform { get; set; } = (v) => v;
 

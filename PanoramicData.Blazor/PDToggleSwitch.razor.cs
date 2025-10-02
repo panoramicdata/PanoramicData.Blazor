@@ -13,28 +13,64 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets the border width of the switch.
+	/// </summary>
 	[Parameter] public int? BorderWidth { get; set; }
 
+	/// <summary>
+	/// Gets or sets the height of the switch.
+	/// </summary>
 	[Parameter] public int? Height { get; set; }
 
+	/// <summary>
+	/// Gets or sets the unique identifier for the component.
+	/// </summary>
 	[Parameter] public override string Id { get; set; } = $"pd-toggleswitch-{++_sequence}";
 
+	/// <summary>
+	/// Gets or sets the label text for the switch.
+	/// </summary>
 	[Parameter] public string Label { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Gets or sets whether the label should be displayed before the switch.
+	/// </summary>
 	[Parameter] public bool? LabelBefore { get; set; }
 
+	/// <summary>
+	/// Gets or sets the text to display when the switch is in the 'off' state.
+	/// </summary>
 	[Parameter] public string? OffText { get; set; }
 
+	/// <summary>
+	/// Gets or sets the text to display when the switch is in the 'on' state.
+	/// </summary>
 	[Parameter] public string? OnText { get; set; }
 
+	/// <summary>
+	/// Gets or sets the options for the toggle switch.
+	/// </summary>
 	[Parameter] public PDToggleSwitchOptions Options { get; set; } = new();
 
+	/// <summary>
+	/// Gets or sets whether the switch is rounded.
+	/// </summary>
 	[Parameter] public bool? Rounded { get; set; }
 
+	/// <summary>
+	/// Gets or sets the current value of the switch.
+	/// </summary>
 	[Parameter] public bool Value { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the switch value changes.
+	/// </summary>
 	[Parameter] public EventCallback<bool> ValueChanged { get; set; }
 
+	/// <summary>
+	/// Gets or sets the width of the switch.
+	/// </summary>
 	[Parameter] public int? Width { get; set; }
 
 	#region Helper Properties

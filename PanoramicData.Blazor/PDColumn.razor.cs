@@ -84,23 +84,41 @@ public partial class PDColumn<TItem> where TItem : class
 		return null;
 	}
 
+	/// <summary>
+	/// Gets or sets the CSS class for the filter icon.
+	/// </summary>
 	[Parameter]
 	public string FilterIcon { get; set; } = "fas fa-filter";
 
 	public Filter Filter { get; private set; } = new Filter();
 
+	/// <summary>
+	/// Gets or sets the key to use for filtering.
+	/// </summary>
 	[Parameter]
 	public string FilterKey { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Gets or sets the options for the filter.
+	/// </summary>
 	[Parameter]
 	public FilterOptions FilterOptions { get; set; } = new();
 
+	/// <summary>
+	/// Gets or sets whether to show suggested values in the filter.
+	/// </summary>
 	[Parameter]
 	public bool FilterShowSuggestedValues { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the suggested values for the filter.
+	/// </summary>
 	[Parameter]
 	public IEnumerable<object> FilterSuggestedValues { get; set; } = [];
 
+	/// <summary>
+	/// Gets or sets the maximum number of values to show in the filter.
+	/// </summary>
 	[Parameter]
 	public int? FilterMaxValues { get; set; }
 
@@ -248,13 +266,14 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public Func<FormField<TItem>, TItem?, Task<OptionInfo[]>>? OptionsAsync { get; set; }
 
 	/// <summary>
+	/// <summary>
 	/// Gets or sets the preferred ordinal position of the column (from left to right).
 	/// </summary>
 	/// <remarks>The default is 1000 for all columns, columns of equal ordinality will remain in their defined order.</remarks>
 	[Parameter] public int Ordinal { get; set; } = 1000;
 
 	/// <summary>
-	/// Gets or sets the attributes of the underlying property.
+	/// Gets or sets the PropertyInfo for the column's field.
 	/// </summary>
 	public PropertyInfo? PropertyInfo { get; set; }
 

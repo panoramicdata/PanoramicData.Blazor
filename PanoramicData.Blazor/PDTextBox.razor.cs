@@ -18,6 +18,9 @@ public partial class PDTextBox : IAsyncDisposable
 	/// </summary>
 	[Parameter] public string AutoComplete { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Event raised when the text box loses focus.
+	/// </summary>
 	[Parameter] public EventCallback Blur { get; set; }
 
 	/// <summary>
@@ -92,6 +95,9 @@ public partial class PDTextBox : IAsyncDisposable
 	[Parameter] public EventCallback<string> ValueChanged { get; set; }
 
 
+	/// <summary>
+	/// Gets or sets the event that triggers binding, e.g. oninput, onchange.
+	/// </summary>
 	[Parameter] public string BindEvent { get; set; } = "oninput";
 
 	/// <summary>

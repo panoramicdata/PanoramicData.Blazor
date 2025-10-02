@@ -23,45 +23,87 @@ public partial class PDRange : IAsyncDisposable
 
 	#region Parameters
 
+	/// <summary>
+	/// Gets or sets the height of the component.
+	/// </summary>
 	[Parameter]
 	public double Height { get; set; } = 30;
 
+	/// <summary>
+	/// Gets or sets whether to invert the range.
+	/// </summary>
 	[Parameter]
 	public bool Invert { get; set; }
 
+	/// <summary>
+	/// Gets or sets the options for the range component.
+	/// </summary>
 	[Parameter]
 	public RangeOptions Options { get; set; } = new();
 
+	/// <summary>
+	/// Gets or sets the numeric range.
+	/// </summary>
 	[Parameter]
 	public NumericRange Range { get; set; } = new();
 
+	/// <summary>
+	/// Gets or sets whether to show labels.
+	/// </summary>
 	[Parameter]
 	public bool ShowLabels { get; set; }
 
+	/// <summary>
+	/// Gets or sets the major tick interval.
+	/// </summary>
 	[Parameter]
 	public double TickMajor { get; set; }
 
+	/// <summary>
+	/// A function to format the major tick labels.
+	/// </summary>
 	[Parameter]
 	public Func<double, string>? TickMajorLabelFn { get; set; }
 
+	/// <summary>
+	/// Gets or sets the maximum value of the range.
+	/// </summary>
 	[Parameter]
 	public double Max { get; set; } = 100;
 
+	/// <summary>
+	/// Gets or sets the minimum value of the range.
+	/// </summary>
 	[Parameter]
 	public double Min { get; set; }
 
+	/// <summary>
+	/// Gets or sets the minimum gap between the start and end of the range.
+	/// </summary>
 	[Parameter]
 	public double MinGap { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the range changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<NumericRange> RangeChanged { get; set; }
 
+	/// <summary>
+	/// Gets or sets the step value for the range.
+	/// </summary>
 	[Parameter]
 	public double Step { get; set; }
 
+	/// <summary>
+	/// Gets or sets the height of the track.
+	/// </summary>
 	[Parameter]
 	public double TrackHeight { get; set; } = 0.75;
 
+	/// <summary>
+	/// Gets or sets the width of the component.
+	/// </summary>
 	[Parameter]
 	public double Width { get; set; } = 400;
 

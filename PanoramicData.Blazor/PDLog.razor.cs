@@ -11,36 +11,69 @@ public partial class PDLog : ILogger
 	[Inject] public IJSRuntime? JSRuntime { get; set; }
 	private IJSObjectReference? _commonModule;
 
+	/// <summary>
+	/// Gets or sets the minimum log level to display.
+	/// </summary>
 	[Parameter]
 	public LogLevel LogLevel { get; set; } = LogLevel.Information;
 
 	//[Parameter]
 	//public bool Tail { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the maximum number of log entries to keep.
+	/// </summary>
 	[Parameter]
 	public int Capacity { get; set; } = 1000;
 
+	/// <summary>
+	/// Gets or sets the number of rows to display.
+	/// </summary>
 	[Parameter]
 	public int Rows { get; set; } = 30;
 
+	/// <summary>
+	/// Gets or sets whether to show the timestamp for each log entry.
+	/// </summary>
 	[Parameter]
 	public bool ShowTimestamp { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets whether to show the icon for each log entry.
+	/// </summary>
 	[Parameter]
 	public bool ShowIcon { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets whether to show the exception for each log entry.
+	/// </summary>
 	[Parameter]
 	public bool ShowException { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the format for the UTC timestamp.
+	/// </summary>
 	[Parameter]
 	public string UtcTimestampFormat { get; set; } = "yyyy-MM-dd HH:mm:ss";
 
+	/// <summary>
+	/// Gets or sets whether to wrap long lines.
+	/// </summary>
 	[Parameter] public bool WordWrap { get; set; } = false; // Toggle for word wrapping
 
+	/// <summary>
+	/// Gets or sets whether to automatically scroll to the bottom of the log.
+	/// </summary>
 	[Parameter] public bool Tail { get; set; } = false; // Auto-scroll to bottom
 
+	/// <summary>
+	/// Gets or sets whether to display timestamps in local time.
+	/// </summary>
 	[Parameter] public bool UseLocalTime { get; set; } = false;
 
+	/// <summary>
+	/// Gets or sets whether to display log entries in reverse chronological order.
+	/// </summary>
 	[Parameter] public bool Reverse { get; set; } = false;
 
 	private List<LogEntry> OrderedEntries => (Reverse ? [.. _logEntries.OrderByDescending(x => x.Timestamp)] : _logEntries);

@@ -14,6 +14,9 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <summary>
+	/// Event raised when the text area loses focus.
+	/// </summary>
 	[Parameter] public EventCallback Blur { get; set; }
 
 	/// <summary>

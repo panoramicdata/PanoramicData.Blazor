@@ -16,17 +16,29 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets the debounce wait period in milliseconds for value changes.
+	/// </summary>
 	[Parameter]
 	public int DebounceWait { get; set; }
 
+	/// <summary>
+	/// Gets or sets the form field to be edited.
+	/// </summary>
 	[EditorRequired]
 	[Parameter]
 	public FormField<TItem> Field { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets the parent form.
+	/// </summary>
 	[EditorRequired]
 	[Parameter]
 	public PDForm<TItem> Form { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets the unique identifier for the editor.
+	/// </summary>
 	[Parameter]
 	public string Id { get; set; } = $"field-editor-{++_idSeq}";
 

@@ -3,12 +3,12 @@
 public partial class PDImage
 {
 	/// <summary>
-	/// Gets or sets CSS classes for the text box.
+	/// Gets or sets the unique identifier for the image.
 	/// </summary>
 	[Parameter] public string Id { get; set; } = "";
 
 	/// <summary>
-	/// Gets or sets CSS classes for the text box.
+	/// Gets or sets the CSS class for the image.
 	/// </summary>
 	[Parameter] public string CssClass { get; set; } = "";
 
@@ -28,7 +28,7 @@ public partial class PDImage
 	[Parameter] public string Width { get; set; } = "Auto";
 
 	/// <summary>
-	/// Sets the initial text value.
+	/// Gets or sets the source URL of the image.
 	/// </summary>
 	[Parameter] public string Value { get; set; } = string.Empty;
 

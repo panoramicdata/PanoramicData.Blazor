@@ -10,25 +10,46 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	[CascadingParameter]
 	public IAsyncStateManager? StateManager { get; set; }
 
+	/// <summary>
+	/// Determines the behavior of the 'All' checkbox when the selection is partial.
+	/// </summary>
 	[Parameter]
 	public SelectionBehaviours AllCheckBoxWhenPartial { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the 'Apply' button is clicked.
+	/// </summary>
 	[Parameter]
 	public EventCallback<Selection<TItem>> Apply { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the 'Cancel' button is clicked.
+	/// </summary>
 	[Parameter]
 	public EventCallback Cancel { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to clear the selection when the filter text changes.
+	/// </summary>
 	[Parameter]
 	public bool ClearSelectionOnFilter { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the data provider service for the list.
+	/// </summary>
 	[Parameter]
 	[EditorRequired]
 	public IDataProviderService<TItem>? DataProvider { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to select all items by default.
+	/// </summary>
 	[Parameter]
 	public bool DefaultToSelectAll { get; set; }
 
+	/// <summary>
+	/// A function to determine whether an item should be included in the filtered list.
+	/// </summary>
 	[Parameter]
 	public Func<TItem, string, bool>? FilterIncludeFunction { get; set; }
 
@@ -38,39 +59,75 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	[Parameter]
 	public override string Id { get; set; } = $"pd-list-{++Sequence}";
 
+	/// <summary>
+	/// A function to get the key for a given item.
+	/// </summary>
 	[Parameter]
 	public Func<TItem, object>? ItemKeyFunction { get; set; }
 
+	/// <summary>
+	/// A template for rendering each item in the list.
+	/// </summary>
 	[Parameter]
 	public RenderFragment<TItem>? ItemTemplate { get; set; }
 
+	/// <summary>
+	/// Gets or sets the current selection.
+	/// </summary>
 	[Parameter]
 	public Selection<TItem> Selection { get; set; } = new();
 
+	/// <summary>
+	/// An event callback that is invoked when the selection changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<Selection<TItem>> SelectionChanged { get; set; }
 
+	/// <summary>
+	/// Gets or sets the selection mode for the list.
+	/// </summary>
 	[Parameter]
 	public TableSelectionMode SelectionMode { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to show the 'All' checkbox.
+	/// </summary>
 	[Parameter]
 	public bool ShowAllCheckBox { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to show the 'Apply' and 'Cancel' buttons.
+	/// </summary>
 	[Parameter]
 	public bool ShowApplyCancelButtons { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to show checkboxes for each item.
+	/// </summary>
 	[Parameter]
 	public bool ShowCheckBoxes { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to show the filter input.
+	/// </summary>
 	[Parameter]
 	public bool ShowFilter { get; set; }
 
+	/// <summary>
+	/// Gets or sets the sort direction for the list.
+	/// </summary>
 	[Parameter]
 	public SortDirection SortDirection { get; set; } = SortDirection.Ascending;
 
+	/// <summary>
+	/// An expression to specify the sort order for the list.
+	/// </summary>
 	[Parameter]
 	public Expression<Func<TItem, object>>? SortExpression { get; set; }
 
+	/// <summary>
+	/// An expression to specify the text to be displayed for each item.
+	/// </summary>
 	[Parameter]
 	public Expression<Func<TItem, string>>? TextExpression { get; set; }
 

@@ -4,13 +4,44 @@ namespace PanoramicData.Blazor;
 
 public partial class PDFader : PDAudioControl
 {
+	/// <summary>
+	/// Gets or sets the width of the fader.
+	/// </summary>
 	[Parameter] public int Width { get; set; } = 40;
+
+	/// <summary>
+	/// Gets or sets the height of the fader.
+	/// </summary>
 	[Parameter] public int Height { get; set; } = 150;
+
+	/// <summary>
+	/// Gets or sets the color of the fader.
+	/// </summary>
 	[Parameter] public string FaderColor { get; set; } = "#888";
+
+	/// <summary>
+	/// Gets or sets the color of the center line.
+	/// </summary>
 	[Parameter] public string CenterLineColor { get; set; } = "#fff";
+
+	/// <summary>
+	/// Gets or sets the color of the markings.
+	/// </summary>
 	[Parameter] public string MarkingColor { get; set; } = "#000";
+
+	/// <summary>
+	/// Gets or sets the minimum value of the fader.
+	/// </summary>
 	[Parameter] public int MinValue { get; set; } = 0;
+
+	/// <summary>
+	/// Gets or sets the maximum value of the fader.
+	/// </summary>
 	[Parameter] public int MaxValue { get; set; } = 10;
+
+	/// <summary>
+	/// Gets or sets the position of the fader labels.
+	/// </summary>
 	[Parameter] public PDFaderLabelPosition FaderLabelPosition { get; set; } = PDFaderLabelPosition.Both;
 
 	protected override string JsFileName => "./_content/PanoramicData.Blazor/PDFader.razor.js";

@@ -12,24 +12,42 @@ public partial class PDDragPanel<TItem> where TItem : class
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets whether the order of items can be changed.
+	/// </summary>
 	[Parameter]
 	public bool CanChangeOrder { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets whether items can be dragged.
+	/// </summary>
 	[Parameter]
 	public bool CanDrag { get; set; } = true;
 
 	[CascadingParameter]
 	public PDDragContainer<TItem>? Container { get; set; }
 
+	/// <summary>
+	/// Gets or sets the unique identifier for the panel.
+	/// </summary>
 	[Parameter]
 	public string Id { get; set; } = $"pd-dragpanel-{++_sequence}";
 
+	/// <summary>
+	/// An event callback that is invoked when the order of items changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<DragOrderChangeArgs<TItem>> ItemOrderChanged { get; set; }
 
+	/// <summary>
+	/// A template for rendering each item.
+	/// </summary>
 	[Parameter]
 	public RenderFragment<TItem>? Template { get; set; }
 
+	/// <summary>
+	/// A template for rendering the placeholder when an item is being dragged.
+	/// </summary>
 	[Parameter]
 	public RenderFragment<TItem>? PlaceholderTemplate { get; set; }
 

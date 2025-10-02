@@ -19,31 +19,74 @@ public partial class PDFileModal
 	private readonly ToolbarButton _overwriteButton = new() { Key = "Yes", Text = "Yes - Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true };
 	private readonly ToolbarButton _noButton = new() { Key = "No", Text = "No", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
 
+	/// <summary>
+	/// Gets or sets whether the modal should close when the escape key is pressed.
+	/// </summary>
 	[Parameter] public bool CloseOnEscape { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the data provider for the file explorer.
+	/// </summary>
 	[Parameter] public IDataProviderService<FileExplorerItem> DataProvider { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets a collection of paths to exclude from the file explorer.
+	/// </summary>
 	[Parameter] public string[] ExcludedPaths { get; set; } = [];
 
+	/// <summary>
+	/// A function to get the CSS class for a given file explorer item.
+	/// </summary>
 	[Parameter] public Func<FileExplorerItem, string>? GetItemIconCssClass { get; set; }
 
+	/// <summary>
+	/// Gets or sets the text for the 'Open' button.
+	/// </summary>
 	[Parameter] public string OpenButtonText { get; set; } = "Open";
 
+	/// <summary>
+	/// Gets or sets the text for the 'Save' button.
+	/// </summary>
 	[Parameter] public string SaveButtonText { get; set; } = "Save";
+
+	/// <summary>
+	/// Gets or sets whether to show the context menu in the file explorer.
+	/// </summary>
 	[Parameter] public bool ShowContextMenu { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether to show the 'Navigate Up' button in the file explorer.
+	/// </summary>
 	[Parameter] public bool ShowNavigateUpButton { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets whether to show the toolbar in the file explorer.
+	/// </summary>
 	[Parameter] public bool ShowToolbar { get; set; }
 
+	/// <summary>
+	/// Gets or sets the title of the modal when in 'Open' mode.
+	/// </summary>
 	[Parameter] public string OpenTitle { get; set; } = "File Open";
 
+	/// <summary>
+	/// Gets or sets the title of the modal when in 'Save' mode.
+	/// </summary>
 	[Parameter] public string SaveTitle { get; set; } = "File Save";
 
+	/// <summary>
+	/// Gets or sets the size of the modal.
+	/// </summary>
 	[Parameter] public ModalSizes Size { get; set; } = ModalSizes.Large;
 
+	/// <summary>
+	/// Gets or sets whether the modal should hide when the background is clicked.
+	/// </summary>
 	[Parameter] public bool HideOnBackgroundClick { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the modal is hidden.
+	/// </summary>
 	[Parameter] public EventCallback<string> ModalHidden { get; set; }
 
 	private string GetOpenResult() => _folderSelect

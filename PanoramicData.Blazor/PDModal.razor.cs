@@ -26,6 +26,9 @@ public partial class PDModal : IAsyncDisposable
 	/// </summary>
 	[Parameter] public RenderFragment? Header { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the modal is hidden.
+	/// </summary>
 	[Parameter] public EventCallback Hidden { get; set; }
 
 	/// <summary>
@@ -38,6 +41,9 @@ public partial class PDModal : IAsyncDisposable
 	/// </summary>
 	[Parameter] public RenderFragment? ChildContent { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the modal is shown.
+	/// </summary>
 	[Parameter] public EventCallback Shown { get; set; }
 
 	/// <summary>

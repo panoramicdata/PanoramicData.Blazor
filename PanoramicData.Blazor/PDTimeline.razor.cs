@@ -48,60 +48,117 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets the date and time after which the timeline is disabled.
+	/// </summary>
 	[Parameter]
 	public DateTime DisableAfter { get; set; }
 
+	/// <summary>
+	/// Gets or sets the date and time before which the timeline is disabled.
+	/// </summary>
 	[Parameter]
 	public DateTime DisableBefore { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the component has been initialized.
+	/// </summary>
 	[Parameter]
 	public EventCallback Initialized { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the timeline is enabled.
+	/// </summary>
 	[Parameter]
 	public bool IsEnabled { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the current scale of the timeline.
+	/// </summary>
 	[Parameter]
 	public TimelineScale Scale { get; set; } = TimelineScale.Years;
 
+	/// <summary>
+	/// An event callback that is invoked when the timeline scale changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<TimelineScale> ScaleChanged { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the timeline has been refreshed.
+	/// </summary>
 	[Parameter]
 	public EventCallback Refreshed { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the time selection changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<TimeRange?> SelectionChanged { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked when the time selection change is complete.
+	/// </summary>
 	[Parameter]
 	public EventCallback SelectionChangeEnd { get; set; }
 
+	/// <summary>
+	/// A delegate that provides data points to the timeline.
+	/// </summary>
 	[Parameter]
 	public DataProviderDelegate? DataProvider { get; set; }
 
+	/// <summary>
+	/// Gets or sets the unique identifier for the component.
+	/// </summary>
 	[Parameter]
 	public string Id { get; set; } = $"pd-timeline-{++_seq}";
 
+	/// <summary>
+	/// Gets or sets whether a new maximum date/time is available.
+	/// </summary>
 	[Parameter]
 	public bool NewMaxDateTimeAvailable { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether a new minimum date/time is available.
+	/// </summary>
 	[Parameter]
 	public bool NewMinDateTimeAvailable { get; set; }
 
+	/// <summary>
+	/// Gets or sets the maximum date and time of the timeline.
+	/// </summary>
 	[Parameter]
 	public DateTime? MaxDateTime { get; set; }
 
+	/// <summary>
+	/// Gets or sets the minimum date and time of the timeline.
+	/// </summary>
 	[Parameter]
 	public DateTime MinDateTime { get; set; }
 
+	/// <summary>
+	/// Gets or sets the options for the timeline.
+	/// </summary>
 	[Parameter]
 	public TimelineOptions Options { get; set; } = new TimelineOptions();
 
+	/// <summary>
+	/// An event callback that is invoked to update the maximum date.
+	/// </summary>
 	[Parameter]
 	public EventCallback UpdateMaxDate { get; set; }
 
+	/// <summary>
+	/// An event callback that is invoked to update the minimum date.
+	/// </summary>
 	[Parameter]
 	public EventCallback UpdateMinDate { get; set; }
 
+	/// <summary>
+	/// A function to transform the Y value of data points.
+	/// </summary>
 	[Parameter]
 	public Func<double, double> YValueTransform { get; set; } = (v) => v;
 
