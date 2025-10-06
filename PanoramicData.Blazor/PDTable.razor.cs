@@ -98,11 +98,6 @@ public partial class PDTable<TItem> :
 	[Parameter] public EventCallback<TItem> BeforeDelete { get; set; }
 
 	/// <summary>
-	/// An event callback that is invoked before an item is updated.
-	/// </summary>
-	[Parameter] public EventCallback<BeforeUpdateEventArgs<TItem>> BeforeUpdate { get; set; }
-
-	/// <summary>
 	/// Gets or sets the size of the buttons in the toolbar.
 	/// </summary>
 	[Parameter] public ButtonSizes ButtonSize { get; set; } = ButtonSizes.Medium;
@@ -128,21 +123,6 @@ public partial class PDTable<TItem> :
 	[Parameter] public EventCallback AfterFetch { get; set; }
 
 	/// <summary>
-	/// Gets or sets whether rows may be dragged.
-	/// </summary>
-	[Parameter] public bool AllowDrag { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether items may be dropped onto rows.
-	/// </summary>
-	[Parameter] public bool AllowDrop { get; set; }
-
-	/// <summary>
-	/// Gets whether the table allows in-place editing.
-	/// </summary>
-	[Parameter] public bool AllowEdit { get; set; }
-
-	/// <summary>
 	/// Determines whether items are fetched from the DataProvider when the component is
 	/// first rendered.
 	/// </summary>
@@ -157,11 +137,6 @@ public partial class PDTable<TItem> :
 	/// Callback fired before a fetch is started
 	/// </summary>
 	[Parameter] public EventCallback BeforeFetch { get; set; }
-
-	/// <summary>
-	/// Child HTML content.
-	/// </summary>
-	[Parameter] public RenderFragment ChildContent { get; set; } = null!;
 
 	/// <summary>
 	/// Callback fired whenever the user clicks on a given item.
@@ -194,12 +169,10 @@ public partial class PDTable<TItem> :
 	/// </summary>
 	[Parameter] public Func<TItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
 
-	    /// <summary>
-	    /// An event callback that is invoked when an item is dropped onto the table.
-	    /// </summary>
-	    [Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
-	
-	[Parameter] public TableEditModes EditMode { get; set; }
+	/// <summary>
+	/// An event callback that is invoked when an item is dropped onto the table.
+	/// </summary>
+	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
 	/// <summary>
 	/// A template to be displayed when there is no data in the table.
@@ -215,8 +188,6 @@ public partial class PDTable<TItem> :
 	/// Gets or sets whether the export button is shown.
 	/// </summary>
 	[Parameter] public bool ExportButton { get; set; } = true;
-
-	[Parameter] public TableFilterOptions Filter { get; set; } = new();
 
 	/// <summary>
 	/// A template for the table footer.
@@ -247,11 +218,6 @@ public partial class PDTable<TItem> :
 	/// Gets or sets the maximum number of possible filter values to show.
 	/// </summary>
 	[Parameter] public int FilterMaxValues { get; set; } = 50;
-
-	/// <summary>
-	/// Gets the unique identifier of this table.
-	/// </summary>
-	[Parameter] public string Id { get; set; } = $"pd-table-{++_idSequence}";
 
 	[Parameter] public bool IsEnabled { get; set; } = true;
 
@@ -391,6 +357,11 @@ public partial class PDTable<TItem> :
 	/// </summary>
 	[Parameter] public bool UserSelectable { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether editing begins on double click instead of single click selection.
+	/// </summary>
+	[Parameter] public bool EditOnDoubleClick { get; set; }
+	
 	#endregion
 
 	/// <summary>
@@ -1608,7 +1579,7 @@ public partial class PDTable<TItem> :
 	{
 		if (IsEnabled && DragContext != null)
 		{
-			await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
+			await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)). ConfigureAwait(true);
 		}
 	}
 
