@@ -268,6 +268,11 @@ public partial class PDTable<TItem> :
 	[Parameter] public EventCallback<PageCriteria> PageChanged { get; set; }
 
 	/// <summary>
+	/// Callback fired whenever the page size changes.
+	/// </summary>
+	[Parameter] public EventCallback<PageCriteria> PageSizeChanged { get; set; }
+
+	/// <summary>
 	/// Gets or sets the default page criteria.
 	/// </summary>
 	[Parameter] public PageCriteria? PageCriteria { get; set; }
@@ -459,7 +464,7 @@ public partial class PDTable<TItem> :
 			Columns.Add(column);
 			if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
 			{
-				column.SortDirection = SortCriteria!.Direction;
+			 column.SortDirection = SortCriteria!.Direction;
 			}
 
 			if (column.Filterable && column.Field != null)
@@ -1038,6 +1043,10 @@ public partial class PDTable<TItem> :
 	private async void PageCriteria_PageSizeChanged(object? sender, EventArgs e)
 	{
 		await RefreshAsync(SearchText).ConfigureAwait(true);
+		if (PageCriteria != null)
+		{
+			await PageSizeChanged.InvokeAsync(PageCriteria).ConfigureAwait(true);
+		}
 		StateHasChanged();
 	}
 

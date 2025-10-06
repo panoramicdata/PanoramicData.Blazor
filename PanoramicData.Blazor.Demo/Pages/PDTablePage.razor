@@ -26,16 +26,16 @@
 		<PDToolbar>
 
 			<PDToolbarButton Text="Refresh"
-							 CssClass="btn-primary"
-							 Click="async () => await Table!.RefreshAsync()" />
+						 CssClass="btn-primary"
+						 Click="async () => await Table!.RefreshAsync()" />
 
 			<PDToolbarTextbox ShowClearButton="true"
-							  Label="Search: "
-							  DebounceWait="1000"
-							  Value="@_searchText"
-							  ValueChanged="OnSearchValueChanged"
-							  Keypress="OnSearchKeyPress"
-							  Cleared="OnSearchCleared" />
+						  Label="Search: "
+						  DebounceWait="1000"
+						  Value="@_searchText"
+						  ValueChanged="OnSearchValueChanged"
+						  Keypress="OnSearchKeyPress"
+						  Cleared="OnSearchCleared" />
 
 			@if (_personDataProvider.SlowSearch && Table.IsBusy)
 			{
@@ -52,13 +52,13 @@
 			}
 
 			<PDToolbarButton Text="@(AllowDrag ? "Disable Drag" : "Enable Drag")"
-							 Click="() => AllowDrag = !AllowDrag" />
+						 Click="() => AllowDrag = !AllowDrag" />
 
 			<PDToolbarButton Text="@(AllowDrop ? "Disable Drop" : "Enable Drop")"
-							 Click="() => AllowDrop = !AllowDrop" />
+						 Click="() => AllowDrop = !AllowDrop" />
 
 			<PDToolbarButton Text="@((Table?.IsEditing ?? false) ? "Stop Edit" : "Start Edit")"
-							 Click="OnEditCommand" />
+						 Click="OnEditCommand" />
 
 			<PDToolbarPlaceholder>
 				<span class="ps-2">Selection Mode</span>
@@ -76,9 +76,9 @@
 						Text="Columns">
 
 				<PDTableColumnSelector TItem="Person"
-									   CanChangeOrder="true"
-									   CanChangeVisible="true"
-									   Table="Table" />
+								   CanChangeOrder="true"
+								   CanChangeVisible="true"
+								   Table="Table" />
 
 			</PDDropDown>
 
@@ -117,28 +117,29 @@
 					 Click="OnClick"
 					 DoubleClick="OnDoubleClick"
 					 PageChanged="OnPageChange"
+					 PageSizeChanged="OnPageSizeChange"
 					 SortChanged="OnSortChange">
 
 				<PDColumn CanToggleVisible="false"
-						  Name="Icon"
-						  TdClass="ps-0 pe-2"
-						  ThClass="ps-0 pe-2"
-						  TItem="Person"
-						  Title=" "
-						  Sortable="false"
-						  Editable="false">
+					  Name="Icon"
+					  TdClass="ps-0 pe-2"
+					  ThClass="ps-0 pe-2"
+					  TItem="Person"
+					  Title=" "
+					  Sortable="false"
+					  Editable="false">
 					<Template>
 						<PDLabel IconCssClass="fas fa-user" />
 					</Template>
 				</PDColumn>
 
 				<PDColumn TdClass="ps-0 pe-0"
-						  ThClass="ps-0 pe-0"
-						  TItem="Person"
-						  Field="x => x.Id"
-						  Editable="false"
-						  IsVisible="false"
-						  Sortable="false" />
+					  ThClass="ps-0 pe-0"
+					  TItem="Person"
+					  Field="x => x.Id"
+					  Editable="false"
+					  IsVisible="false"
+					  Sortable="false" />
 
 				<PDColumn TItem="Person"
 						  Field="@((x) => x.Manager == null ? null : x.Manager.LastName)"

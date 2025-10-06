@@ -100,6 +100,14 @@ public partial class PDTablePage
 		NavigationManager.SetUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } });
 	}
 
+	private void OnPageSizeChange(PageCriteria criteria)
+	{
+		EventManager?.Add(new Event("PageSizeChange", new EventArgument("Page", criteria.Page), new EventArgument("PageSize", criteria.PageSize)));
+
+		// Keep URI in sync
+		NavigationManager.SetUri(new Dictionary<string, object> { { "page", $"{criteria.Page}" }, { "pageSize", $"{criteria.PageSize}" } });
+	}
+
 	private void OnSelectionChange()
 	{
 		var selection = Table?.GetSelectedItems();
