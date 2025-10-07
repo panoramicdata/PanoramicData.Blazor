@@ -175,11 +175,6 @@ public partial class PDTable<TItem> :
 	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
 	/// <summary>
-	/// Should edit begin on double click? if not then single click will begin edit mode.
-	/// </summary>
-	[Parameter] public bool EditOnDoubleClick { get; set; }
-
-	/// <summary>
 	/// Gets or sets a delegate to be called if an exception occurs.
 	/// </summary>
 	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
@@ -366,7 +361,7 @@ public partial class PDTable<TItem> :
 	/// Gets or sets whether editing begins on double click instead of single click selection.
 	/// </summary>
 	[Parameter] public bool EditOnDoubleClick { get; set; }
-	
+
 	#endregion
 
 	/// <summary>
@@ -464,7 +459,7 @@ public partial class PDTable<TItem> :
 			Columns.Add(column);
 			if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
 			{
-			 column.SortDirection = SortCriteria!.Direction;
+				column.SortDirection = SortCriteria!.Direction;
 			}
 
 			if (column.Filterable && column.Field != null)
@@ -1588,7 +1583,7 @@ public partial class PDTable<TItem> :
 	{
 		if (IsEnabled && DragContext != null)
 		{
-			await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)). ConfigureAwait(true);
+			await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 		}
 	}
 
