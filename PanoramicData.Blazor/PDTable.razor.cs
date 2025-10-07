@@ -38,6 +38,76 @@ public partial class PDTable<TItem> :
 	#region Parameters
 
 	/// <summary>
+	/// Gets or sets whether columns can be resized.
+	/// </summary>
+	[Parameter] public bool AllowColumnResize { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets whether columns can be sorted.
+	/// </summary>
+	[Parameter] public bool AllowColumnSort { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets whether new items can be created.
+	/// </summary>
+	[Parameter] public bool AllowCreate { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether items can be deleted.
+	/// </summary>
+	[Parameter] public bool AllowDelete { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether rows can be dragged.
+	/// </summary>
+	[Parameter] public bool AllowDrag { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether items can be dropped onto the table.
+	/// </summary>
+	[Parameter] public bool AllowDrop { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether items can be edited.
+	/// </summary>
+	[Parameter] public bool AllowEdit { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether multiple rows can be selected.
+	/// </summary>
+	[Parameter] public bool AllowMultiSelect { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether paging is enabled.
+	/// </summary>
+	[Parameter] public bool AllowPaging { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets whether rows can be selected.
+	/// </summary>
+	[Parameter] public bool AllowSelection { get; set; } = true;
+
+	/// <summary>
+	/// An event callback that is invoked before a new item is created.
+	/// </summary>
+	[Parameter] public EventCallback<DataRequest<TItem>> BeforeCreate { get; set; }
+
+	/// <summary>
+	/// An event callback that is invoked before an item is deleted.
+	/// </summary>
+	[Parameter] public EventCallback<TItem> BeforeDelete { get; set; }
+
+	/// <summary>
+	/// Gets or sets the size of the buttons in the toolbar.
+	/// </summary>
+	[Parameter] public ButtonSizes ButtonSize { get; set; } = ButtonSizes.Medium;
+
+	/// <summary>
+	/// Gets or sets the child content of the component, which is typically a set of PDColumn components.
+	/// </summary>
+	[Parameter] public RenderFragment? ChildContent { get; set; }
+
+	/// <summary>
 	/// Callback fired after an item edit ends.
 	/// </summary>
 	[Parameter] public EventCallback<TableAfterEditEventArgs<TItem>> AfterEdit { get; set; }
@@ -51,21 +121,6 @@ public partial class PDTable<TItem> :
 	/// Callback fired after a fetch has completed
 	/// </summary>
 	[Parameter] public EventCallback AfterFetch { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether rows may be dragged.
-	/// </summary>
-	[Parameter] public bool AllowDrag { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether items may be dropped onto rows.
-	/// </summary>
-	[Parameter] public bool AllowDrop { get; set; }
-
-	/// <summary>
-	/// Gets whether the table allows in-place editing.
-	/// </summary>
-	[Parameter] public bool AllowEdit { get; set; }
 
 	/// <summary>
 	/// Determines whether items are fetched from the DataProvider when the component is
@@ -82,11 +137,6 @@ public partial class PDTable<TItem> :
 	/// Callback fired before a fetch is started
 	/// </summary>
 	[Parameter] public EventCallback BeforeFetch { get; set; }
-
-	/// <summary>
-	/// Child HTML content.
-	/// </summary>
-	[Parameter] public RenderFragment ChildContent { get; set; } = null!;
 
 	/// <summary>
 	/// Callback fired whenever the user clicks on a given item.
@@ -120,7 +170,7 @@ public partial class PDTable<TItem> :
 	[Parameter] public Func<TItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
 
 	/// <summary>
-	/// Callback fired whenever a drag operation ends on a row within a DragContext.
+	/// An event callback that is invoked when an item is dropped onto the table.
 	/// </summary>
 	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
@@ -135,14 +185,39 @@ public partial class PDTable<TItem> :
 	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether the export button is shown.
+	/// </summary>
+	[Parameter] public bool ExportButton { get; set; } = true;
+
+	/// <summary>
+	/// A template for the table footer.
+	/// </summary>
+	[Parameter] public RenderFragment? FooterTemplate { get; set; }
+
+	/// <summary>
+	/// A template for the table header.
+	/// </summary>
+	[Parameter] public RenderFragment? HeaderTemplate { get; set; }
+
+	/// <summary>
+	/// Gets or sets the height of the table.
+	/// </summary>
+	[Parameter] public string Height { get; set; } = "100%";
+
+	/// <summary>
+	/// Gets or sets the unique identifier for the component.
+	/// </summary>
+	[Parameter] public string Id { get; set; } = $"pd-table-{++_idSequence}";
+
+	/// <summary>
+	/// Gets or sets whether the table is currently loading data.
+	/// </summary>
+	[Parameter] public bool IsLoading { get; set; }
+
+	/// <summary>
 	/// Gets or sets the maximum number of possible filter values to show.
 	/// </summary>
 	[Parameter] public int FilterMaxValues { get; set; } = 50;
-
-	/// <summary>
-	/// Gets the unique identifier of this table.
-	/// </summary>
-	[Parameter] public string Id { get; set; } = $"pd-table-{++_idSequence}";
 
 	[Parameter] public bool IsEnabled { get; set; } = true;
 
@@ -191,6 +266,11 @@ public partial class PDTable<TItem> :
 	/// Callback fired whenever the component changes the currently displayed page.
 	/// </summary>
 	[Parameter] public EventCallback<PageCriteria> PageChanged { get; set; }
+
+	/// <summary>
+	/// Callback fired whenever the page size changes.
+	/// </summary>
+	[Parameter] public EventCallback<PageCriteria> PageSizeChanged { get; set; }
 
 	/// <summary>
 	/// Gets or sets the default page criteria.
@@ -282,6 +362,11 @@ public partial class PDTable<TItem> :
 	/// </summary>
 	[Parameter] public bool UserSelectable { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether editing begins on double click instead of single click selection.
+	/// </summary>
+	[Parameter] public bool EditOnDoubleClick { get; set; }
+	
 	#endregion
 
 	/// <summary>
@@ -379,7 +464,7 @@ public partial class PDTable<TItem> :
 			Columns.Add(column);
 			if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
 			{
-				column.SortDirection = SortCriteria!.Direction;
+			 column.SortDirection = SortCriteria!.Direction;
 			}
 
 			if (column.Filterable && column.Field != null)
@@ -958,6 +1043,10 @@ public partial class PDTable<TItem> :
 	private async void PageCriteria_PageSizeChanged(object? sender, EventArgs e)
 	{
 		await RefreshAsync(SearchText).ConfigureAwait(true);
+		if (PageCriteria != null)
+		{
+			await PageSizeChanged.InvokeAsync(PageCriteria).ConfigureAwait(true);
+		}
 		StateHasChanged();
 	}
 
@@ -1499,7 +1588,7 @@ public partial class PDTable<TItem> :
 	{
 		if (IsEnabled && DragContext != null)
 		{
-			await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
+			await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)). ConfigureAwait(true);
 		}
 	}
 

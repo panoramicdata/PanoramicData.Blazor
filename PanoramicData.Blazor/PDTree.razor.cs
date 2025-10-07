@@ -875,8 +875,10 @@ public partial class PDTree<TItem> where TItem : class
                     var prevNode = SelectedNode.GetPrevious();
                     if (prevNode != null)
                     {
-                        // do not select previous node if that is the hidden root node
-                        if (ShowRoot || prevNode.ParentNode != null)
+						// do not select previous node if that is the hidden root node
+						// the root node is level 0 but we somehow use another root that is level 1
+						// The level 1 root node is the one we show with ShowRoot
+						if (ShowRoot && prevNode.Level != 0 || prevNode.Level > 1)
                         {
                             await SelectNode(prevNode).ConfigureAwait(true);
                         }
