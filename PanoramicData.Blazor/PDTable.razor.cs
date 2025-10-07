@@ -38,81 +38,6 @@ public partial class PDTable<TItem> :
 	#region Parameters
 
 	/// <summary>
-	/// Gets or sets whether columns can be resized.
-	/// </summary>
-	[Parameter] public bool AllowColumnResize { get; set; } = true;
-
-	/// <summary>
-	/// Gets or sets whether columns can be sorted.
-	/// </summary>
-	[Parameter] public bool AllowColumnSort { get; set; } = true;
-
-	/// <summary>
-	/// Gets or sets whether new items can be created.
-	/// </summary>
-	[Parameter] public bool AllowCreate { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether items can be deleted.
-	/// </summary>
-	[Parameter] public bool AllowDelete { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether rows can be dragged.
-	/// </summary>
-	[Parameter] public bool AllowDrag { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether items can be dropped onto the table.
-	/// </summary>
-	[Parameter] public bool AllowDrop { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether items can be edited.
-	/// </summary>
-	[Parameter] public bool AllowEdit { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether multiple rows can be selected.
-	/// </summary>
-	[Parameter] public bool AllowMultiSelect { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether paging is enabled.
-	/// </summary>
-	[Parameter] public bool AllowPaging { get; set; } = true;
-
-	/// <summary>
-	/// Gets or sets whether rows can be selected.
-	/// </summary>
-	[Parameter] public bool AllowSelection { get; set; } = true;
-
-	/// <summary>
-	/// An event callback that is invoked before a new item is created.
-	/// </summary>
-	[Parameter] public EventCallback<DataRequest<TItem>> BeforeCreate { get; set; }
-
-	/// <summary>
-	/// An event callback that is invoked before an item is deleted.
-	/// </summary>
-	[Parameter] public EventCallback<TItem> BeforeDelete { get; set; }
-
-	/// <summary>
-	/// An event callback that is invoked before an item is updated.
-	/// </summary>
-	[Parameter] public EventCallback<BeforeUpdateEventArgs<TItem>> BeforeUpdate { get; set; }
-
-	/// <summary>
-	/// Gets or sets the size of the buttons in the toolbar.
-	/// </summary>
-	[Parameter] public ButtonSizes ButtonSize { get; set; } = ButtonSizes.Medium;
-
-	/// <summary>
-	/// Gets or sets the child content of the component, which is typically a set of PDColumn components.
-	/// </summary>
-	[Parameter] public RenderFragment? ChildContent { get; set; }
-
-	/// <summary>
 	/// Callback fired after an item edit ends.
 	/// </summary>
 	[Parameter] public EventCallback<TableAfterEditEventArgs<TItem>> AfterEdit { get; set; }
@@ -194,54 +119,20 @@ public partial class PDTable<TItem> :
 	/// </summary>
 	[Parameter] public Func<TItem, string?> DownloadUrlFunc { get; set; } = (_) => null;
 
-	    /// <summary>
-	    /// An event callback that is invoked when an item is dropped onto the table.
-	    /// </summary>
-	    [Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
-	
-	[Parameter] public TableEditModes EditMode { get; set; }
-
 	/// <summary>
-	/// A template to be displayed when there is no data in the table.
+	/// Callback fired whenever a drag operation ends on a row within a DragContext.
 	/// </summary>
-	[Parameter] public RenderFragment? EmptyDataTemplate { get; set; }
+	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
 	/// <summary>
-	/// A delegate to be called if an exception occurs.
+	/// Should edit begin on double click? if not then single click will begin edit mode.
+	/// </summary>
+	[Parameter] public bool EditOnDoubleClick { get; set; }
+
+	/// <summary>
+	/// Gets or sets a delegate to be called if an exception occurs.
 	/// </summary>
 	[Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }
-
-	/// <summary>
-	/// Gets or sets whether the export button is shown.
-	/// </summary>
-	[Parameter] public bool ExportButton { get; set; } = true;
-
-	[Parameter] public TableFilterOptions Filter { get; set; } = new();
-
-	/// <summary>
-	/// A template for the table footer.
-	/// </summary>
-	[Parameter] public RenderFragment? FooterTemplate { get; set; }
-
-	/// <summary>
-	/// A template for the table header.
-	/// </summary>
-	[Parameter] public RenderFragment? HeaderTemplate { get; set; }
-
-	/// <summary>
-	/// Gets or sets the height of the table.
-	/// </summary>
-	[Parameter] public string Height { get; set; } = "100%";
-
-	/// <summary>
-	/// Gets or sets the unique identifier for the component.
-	/// </summary>
-	[Parameter] public string Id { get; set; } = $"pd-table-{++_idSequence}";
-
-	/// <summary>
-	/// Gets or sets whether the table is currently loading data.
-	/// </summary>
-	[Parameter] public bool IsLoading { get; set; }
 
 	/// <summary>
 	/// Gets or sets the maximum number of possible filter values to show.
