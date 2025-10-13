@@ -1,0 +1,114 @@
+@page "/pdaudiochannel"
+
+<h1>PDAudioChannel</h1>
+
+<DemoSourceView SourceFiles="Pages/PDAudioChannelPage.razor, Pages/PDAudioChannelPage.razor.cs">
+
+	<div class="mb-3">
+		<h3>Basic Audio Channel</h3>
+		<span class="text-muted small">A single audio channel with default settings</span>
+	</div>
+
+	<div style="display: inline-block;">
+		<PDAudioChannel Label="Channel 1"
+						FaderValue="0.7"
+						GainValue="0.6" />
+	</div>
+
+	<hr class="my-4" />
+
+	<div class="mb-3">
+		<h3>Custom Colors</h3>
+		<span class="text-muted small">Channels with custom knob and button colors</span>
+	</div>
+
+	<div style="display: flex; gap: 20px;">
+		<PDAudioChannel Label="Guitar"
+						FaderValue="0.8"
+						GainColor="orange"
+						CompColor="cyan"
+						EqColor="yellow"
+						DspColor="lime"
+						PanColor="magenta"
+						PflActiveColor="#ff0"
+						PflInactiveColor="#880" />
+
+		<PDAudioChannel Label="Bass"
+						FaderValue="0.6"
+						GainColor="#f0f"
+						CompColor="#0ff"
+						EqColor="pink"
+						MuteActiveColor="#0ff"
+						MuteInactiveColor="#088" />
+
+		<PDAudioChannel Label="Drums"
+						FaderValue="0.9"
+						GainColor="white"
+						CompColor="silver"
+						DspColor="gold" />
+	</div>
+
+	<hr class="my-4" />
+
+	<div class="mb-3">
+		<h3>Interactive Controls</h3>
+		<span class="text-muted small">Channel with bound values that can be controlled</span>
+	</div>
+
+	<div class="row">
+		<div class="col-md-2">
+			<PDAudioChannel @bind-FaderValue="_faderValue"
+							@bind-GainValue="_gainValue"
+							@bind-PanValue="_panValue"
+							@bind-MuteValue="_muteValue"
+							Label="Vocals" />
+		</div>
+		<div class="col-md-10">
+			<div class="mb-3">
+				<label class="form-label">Fader: @_faderValue.ToString("F2")</label>
+				<input type="range" class="form-range" min="0" max="1" step="0.01" @bind="_faderValue" />
+			</div>
+			<div class="mb-3">
+				<label class="form-label">Gain: @_gainValue.ToString("F2")</label>
+				<input type="range" class="form-range" min="0" max="1" step="0.01" @bind="_gainValue" />
+			</div>
+			<div class="mb-3">
+				<label class="form-label">Pan: @_panValue.ToString("F2")</label>
+				<input type="range" class="form-range" min="0" max="1" step="0.01" @bind="_panValue" />
+			</div>
+			<div class="mb-3">
+				<label class="form-check-label me-2">Mute: @(_muteValue > 0.5 ? "ON" : "OFF")</label>
+				<input type="checkbox" class="form-check-input" @bind="_muteChecked" @bind:after="OnMuteChanged" />
+			</div>
+		</div>
+	</div>
+
+	<hr class="my-4" />
+
+	<div class="mb-3">
+		<h3>Disabled Channel</h3>
+		<span class="text-muted small">A channel in disabled state</span>
+	</div>
+
+	<div style="display: inline-block;">
+		<PDAudioChannel Label="Disabled"
+						FaderValue="0.5"
+						IsEnabled="false" />
+	</div>
+
+	<hr class="my-4" />
+
+	<div class="mb-3">
+		<h3>Multiple Channels</h3>
+		<span class="text-muted small">Example showing multiple channels together</span>
+	</div>
+
+	<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+		<PDAudioChannel Label="Ch 1" FaderValue="0.75" />
+		<PDAudioChannel Label="Ch 2" FaderValue="0.60" GainValue="0.7" />
+		<PDAudioChannel Label="Ch 3" FaderValue="0.85" PanValue="0.3" />
+		<PDAudioChannel Label="Ch 4" FaderValue="0.50" PanValue="0.7" />
+		<PDAudioChannel Label="Ch 5" FaderValue="0.65" MuteValue="1" />
+	</div>
+
+</DemoSourceView>

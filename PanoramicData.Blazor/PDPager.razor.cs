@@ -43,7 +43,12 @@ public partial class PDPager : IDisposable, IEnablable
 	[Parameter] public ButtonSizes? Size { get; set; }
 
 	protected override void OnInitialized() => PageCriteria.TotalCountChanged += PageCriteria_TotalCountChanged;
-	public void Dispose() => PageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
+
+	public void Dispose()
+	{
+		PageCriteria.TotalCountChanged -= PageCriteria_TotalCountChanged;
+		GC.SuppressFinalize(this);
+	}
 
 	private void PageCriteria_TotalCountChanged(object? sender, EventArgs e) => StateHasChanged();
 

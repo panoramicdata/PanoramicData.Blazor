@@ -16,23 +16,21 @@
     gap: 0.25rem;
 }
 
-/* Override PDToolbar default flex behavior for wrapping */
+/* Keep toolbar items in a single row on desktop - no wrapping by default */
 .pd-studio-toolbar .pdtoolbar {
-    flex-wrap: wrap !important;
-    white-space: normal;
+    flex-wrap: nowrap;
+    white-space: nowrap;
     width: 100%;
     gap: 0.25rem;
     align-items: center;
-    align-content: flex-start;
 }
 
-/* Allow toolbar items to wrap */
+/* Ensure toolbar items stay inline */
 .pd-studio-toolbar .pdtoolbar > * {
     flex-shrink: 0;
-    margin-bottom: 0.25rem;
 }
 
-/* Ensure toolbar items have consistent spacing when wrapped */
+/* Ensure toolbar items have consistent spacing */
 .pd-studio-toolbar .pdtoolbar > .pdtoolbaritem {
     padding: 5px 5px 5px 0 !important;
     margin-bottom: 0.25rem;
@@ -124,8 +122,15 @@
     background-color: rgba(33, 37, 41, 0.8);
 }
 
-/* Responsive design - Enhanced for wrapping toolbar */
+/* Responsive design - Enable wrapping on smaller screens */
 @media (max-width: 768px) {
+    /* Enable wrapping on tablets and smaller */
+    .pd-studio-toolbar .pdtoolbar {
+        flex-wrap: wrap !important;
+        white-space: normal;
+        align-content: flex-start;
+    }
+    
     .pd-studio-toolbar {
         padding: 0.25rem;
         gap: 0.125rem;

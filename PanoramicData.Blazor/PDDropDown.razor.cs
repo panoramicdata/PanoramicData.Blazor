@@ -41,7 +41,7 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	/// Gets or sets the CSS class for the dropdown.
 	/// </summary>
 	[Parameter]
-	public string CssClass { get; set; } = string.Empty;
+	public string CssClass { get; set; } = "btn btn-primary dropdown-toggle";
 
 	/// <summary>
 	/// Gets or sets the direction the dropdown will open.
@@ -139,18 +139,6 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	[Parameter]
 	public bool Visible { get; set; } = true;
 
-	private static Dictionary<string, object> Attributes
-	{
-		get
-		{
-			return new Dictionary<string, object>
-			{
-				{ "data-bs-toggle", "dropdown" },
-				{ "data-bs-offset", "0,-3" } // required to leave no gap between toggle button and dropdown
-			};
-		}
-	}
-
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -158,11 +146,8 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 			GC.SuppressFinalize(this);
 			if (_module != null)
 			{
-				if (_objRef != null)
-				{
-					_objRef.Dispose();
-					_objRef = null;
-				}
+				_objRef?.Dispose();
+				_objRef = null;
 
 				if (_dropdownObj != null)
 				{

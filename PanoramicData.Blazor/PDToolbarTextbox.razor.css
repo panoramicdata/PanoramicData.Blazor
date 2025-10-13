@@ -1,20 +1,47 @@
 ﻿.pdtoolbartextbox {
 	display: flex;
 	align-items: center;
+	gap: 0.5rem;
+	min-width: 150px; /* ✅ ADDED: Minimum width for usability */
+	max-width: 100%; /* ✅ ADDED: Prevent overflow of parent container */
 }
 
 .pdtoolbartextbox .input-group {
 	flex-wrap: nowrap;
+	flex: 1 1 auto; /* Allow input group to grow */
+	min-width: 0; /* ✅ ADDED: Allow input to shrink if needed */
 }
 
 .pdtoolbartextbox label {
 	white-space: nowrap;
-	padding: 0 0.5rem 0 0;
+	margin: 0;
 	margin-bottom: 0px;
+	font-weight: 500; /* Slightly bold for better visibility */
+	flex-shrink: 0; /* Prevent label from shrinking */
+}
+
+.pdtoolbartextbox input {
+	height: calc(1.5em + 0.75rem + 2px); /* Match Bootstrap button height */
+	flex: 1 1 auto; /* Allow input to grow */
+}
+
+/* Ensure the textbox input itself can shrink */
+.pdtoolbartextbox ::deep input {
+	min-width: 0;
+	width: 100%;
 }
 
 .pdttb-clear-btn {
-	position: relative;
-	left: -20px;
+	position: absolute;
+	right: 0.5rem;
 	cursor: pointer;
+	z-index: 10;
+	color: var(--bs-secondary, #6c757d);
+	opacity: 0.7;
+	transition: opacity 0.15s ease-in-out;
+}
+
+.pdttb-clear-btn:hover {
+	opacity: 1;
+	color: var(--bs-danger, #dc3545);
 }

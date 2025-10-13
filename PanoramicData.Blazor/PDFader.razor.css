@@ -1,0 +1,76 @@
+.pd-fader {
+	display: inline-block;
+	touch-action: none;
+	user-select: none;
+}
+
+.pd-fader svg {
+	cursor: pointer;
+	display: block;
+}
+
+/* Background - lighter in light mode, darker in dark mode */
+.pd-fader svg rect[fill="#222"] {
+	fill: var(--bs-light);
+}
+
+[data-bs-theme="dark"] .pd-fader svg rect[fill="#222"] {
+	fill: var(--bs-secondary-bg);
+}
+
+/* Track */
+.pd-fader svg rect[fill="#555"] {
+	fill: var(--bs-secondary-bg);
+}
+
+[data-bs-theme="dark"] .pd-fader svg rect[fill="#555"] {
+	fill: var(--bs-tertiary-bg);
+}
+
+/* Center line */
+.pd-fader svg line[stroke="#fff"] {
+	stroke: var(--bs-body-color);
+}
+
+/* Markings */
+.pd-fader svg line[stroke="#aaa"] {
+	stroke: var(--bs-border-color);
+}
+
+/* Marking labels - dark text in light mode */
+.pd-fader svg text {
+	fill: var(--bs-dark);
+}
+
+[data-bs-theme="dark"] .pd-fader svg text {
+	fill: var(--bs-light);
+}
+
+/* Grip highlights */
+.pd-fader svg line[stroke="#eee"] {
+	stroke: var(--bs-light);
+	opacity: 0.8;
+}
+
+.pd-fader svg line[stroke="#111"] {
+	stroke: var(--bs-dark);
+	opacity: 0.3;
+}
+
+/* Label */
+.pd-fader > div {
+	text-align: center;
+	font-weight: bold;
+	margin-top: 8px;
+	color: var(--bs-body-color);
+}
+
+/* Disabled state */
+.pd-fader.disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+	.pd-fader.disabled svg {
+		cursor: not-allowed;
+	}

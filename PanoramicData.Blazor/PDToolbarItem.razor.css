@@ -1,5 +1,7 @@
 ﻿.pdtoolbaritem {
 	padding: 5px;
+	display: inline-flex; /* Ensure toolbar items display inline */
+	align-items: center;
 }
 
 .pdtoolbaritem:first-child {

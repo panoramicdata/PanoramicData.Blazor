@@ -1,0 +1,75 @@
+@page "/pdmixingdesk"
+
+<h1>PDMixingDesk</h1>
+
+<DemoSourceView SourceFiles="Pages/PDMixingDeskPage.razor, Pages/PDMixingDeskPage.razor.cs">
+
+	<div class="mb-3">
+		<h3>Basic Mixing Desk</h3>
+		<span class="text-muted small">A mixing desk with multiple audio channels</span>
+	</div>
+
+	<PDMixingDesk>
+		<PDAudioChannel Label="Mic 1" 
+						FaderValue="0.8"
+						GainValue="0.6" />
+		<PDAudioChannel Label="Mic 2" 
+						FaderValue="0.5" />
+		<PDAudioChannel Label="Line 1" 
+						FaderValue="0.7"
+						PanValue="0.3" />
+		<PDAudioChannel Label="Line 2" 
+						FaderValue="0.6"
+						PanValue="0.7" />
+		<PDAudioChannel Label="CD" 
+						FaderValue="0.9"
+						MuteValue="0" />
+	</PDMixingDesk>
+
+	<hr class="my-4" />
+
+	<div class="mb-3">
+		<h3>Custom Colors</h3>
+		<span class="text-muted small">Channels with custom knob and button colors</span>
+	</div>
+
+	<PDMixingDesk>
+		<PDAudioChannel Label="Guitar" 
+						FaderValue="0.7"
+						GainColor="orange"
+						CompColor="cyan"
+						EqColor="yellow"
+						DspColor="lime"
+						PanColor="magenta" />
+		<PDAudioChannel Label="Bass" 
+						FaderValue="0.8"
+						GainColor="#f0f"
+						CompColor="#0ff"
+						PflActiveColor="#ff0"
+						PflInactiveColor="#880"
+						MuteActiveColor="#0ff"
+						MuteInactiveColor="#088" />
+		<PDAudioChannel Label="Drums" 
+						FaderValue="0.9"
+						GainColor="white"
+						CompColor="silver" />
+	</PDMixingDesk>
+
+	<hr class="my-4" />
+
+	<div class="mb-3">
+		<h3>Disabled Channels</h3>
+		<span class="text-muted small">Some channels can be disabled</span>
+	</div>
+
+	<PDMixingDesk>
+		<PDAudioChannel Label="Active 1" 
+						FaderValue="0.5" />
+		<PDAudioChannel Label="Disabled" 
+						FaderValue="0.5"
+						IsEnabled="false" />
+		<PDAudioChannel Label="Active 2" 
+						FaderValue="0.5" />
+	</PDMixingDesk>
+
+</DemoSourceView>

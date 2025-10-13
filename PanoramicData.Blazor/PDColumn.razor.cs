@@ -551,7 +551,7 @@ public partial class PDColumn<TItem> where TItem : class
 		return Id;
 	}
 
-	private class FilterKeyVisitor(Expression parameter) : ExpressionVisitor
+	private sealed class FilterKeyVisitor(Expression parameter) : ExpressionVisitor
 	{
 		public string FilterKey { get; private set; } = string.Empty;
 

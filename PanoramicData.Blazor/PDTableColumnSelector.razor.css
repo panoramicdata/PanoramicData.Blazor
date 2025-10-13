@@ -1,0 +1,103 @@
+.pd-column-selector {
+	min-width: 200px;
+	max-width: 300px;
+	background-color: var(--bs-body-bg, #fff);
+	color: var(--bs-body-color, #212529);
+	border-radius: var(--bs-border-radius, 0.375rem);
+}
+
+/* Remove background, borders AND box-shadow from the Columns dropdown button */
+::deep .columns-dropdown .dropdown-toggle,
+::deep .columns-dropdown .btn {
+	background: transparent !important;
+	border: none !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+::deep .columns-dropdown .dropdown-toggle:hover,
+::deep .columns-dropdown .dropdown-toggle:focus,
+::deep .columns-dropdown .dropdown-toggle:active,
+::deep .columns-dropdown .btn:hover,
+::deep .columns-dropdown .btn:focus,
+::deep .columns-dropdown .btn:active {
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+::deep .columns-dropdown .dropdown-toggle::after {
+	display: none !important;
+}
+
+/* Override PDDragPanel styles for better column selector appearance */
+.pd-column-selector ::deep .pd-dragpanel {
+	border: none;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+}
+
+.pd-column-selector ::deep .pd-dragitem {
+	background-color: transparent;
+	border: none;
+	margin: 0;
+	padding: 0.5rem 1rem;
+	min-height: auto;
+	transition: background-color 0.15s ease-in-out;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.pd-column-selector ::deep .pd-dragitem:hover {
+	background-color: var(--bs-secondary-bg, #e9ecef);
+}
+
+.pd-column-selector ::deep .pd-dragitem.dragging {
+	background-color: var(--bs-primary-bg-subtle, #cfe2ff);
+	border-color: var(--bs-primary, #0d6efd);
+	opacity: 0.6;
+}
+
+/* Style checkboxes properly */
+.pd-column-selector ::deep .pd-dragitem input[type="checkbox"] {
+	width: 1rem;
+	height: 1rem;
+	margin: 0;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+/* Style checkbox labels */
+.pd-column-selector ::deep .pd-dragitem label {
+	margin: 0;
+	cursor: pointer;
+	flex: 1;
+	user-select: none;
+	color: var(--bs-body-color, #212529);
+}
+
+/* Disabled items */
+.pd-column-selector ::deep .pd-dragitem input[type="checkbox"]:disabled,
+.pd-column-selector ::deep .pd-dragitem input[type="checkbox"]:disabled + label {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .pd-column-selector {
+	background-color: var(--bs-body-bg, #212529);
+	color: var(--bs-body-color, #f8f9fa);
+}
+
+[data-bs-theme="dark"] .pd-column-selector ::deep .pd-dragitem:hover {
+	background-color: var(--bs-secondary-bg, #343a40);
+}
+
+[data-bs-theme="dark"] .pd-column-selector ::deep .pd-dragitem label {
+	color: var(--bs-body-color, #f8f9fa);
+}

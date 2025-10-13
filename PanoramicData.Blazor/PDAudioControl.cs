@@ -35,26 +35,44 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 	private double _dragOriginY;
 	private DotNetObjectReference<PDAudioControl>? _dotNetRef;
 	private IJSObjectReference? _jsModule;
+	private int? _previousSnapPoints;
 	protected virtual string JsFileName => string.Empty; // Make virtual instead of abstract
 
-	protected override void OnParametersSet()
+	protected override async Task OnParametersSetAsync()
 	{
 		DefaultValue ??= 0.5;
 		Value = Math.Clamp(Value, 0, 1);
+		
+		// Update SnapIncrement based on SnapPoints
 		if (SnapPoints > 1)
 		{
 			SnapIncrement = 1.0 / (SnapPoints.Value - 1);
 		}
-
-		if (SnapIncrement > 0)
+		else
 		{
-			Value = Math.Round(Value / SnapIncrement) * SnapIncrement;
+			SnapIncrement = 0;
+		}
+
+		// If SnapPoints changed, re-snap the current value
+		if (_previousSnapPoints != SnapPoints)
+		{
+			_previousSnapPoints = SnapPoints;
+			
+			if (SnapIncrement > 0)
+			{
+				var newValue = Math.Round(Value / SnapIncrement) * SnapIncrement;
+				if (Math.Abs(newValue - Value) > 0.0001) // Only update if changed
+				{
+					Value = newValue;
+					await ValueChanged.InvokeAsync(Value);
+				}
+			}
 		}
 	}
 
 	protected async Task OnPointerDown(PointerEventArgs e)
 	{
-		if (!IsEnabled)
+		if (!IsEnabled || _isDragging)
 		{
 			return;
 		}
@@ -67,8 +85,11 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 			_dragOriginY = e.ClientY;
 			_dragOriginValue = Value;
 
+			// Create DotNetObjectReference and load JS module only once
 			_dotNetRef ??= DotNetObjectReference.Create(this);
 			_jsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", JsFileName);
+			
+			// Register event listeners for this drag operation
 			await _jsModule.InvokeVoidAsync("registerAudioControlEvents", _dotNetRef);
 		}
 	}

@@ -436,7 +436,7 @@ public partial class PDChat : JSModuleComponentBase
 	// Helper method to update the highest priority unread message
 	private void UpdateHighestPriorityUnreadMessage()
 	{
-		if (!_unreadMessages || !_messages.Any())
+		if (!_unreadMessages || _messages.Count == 0)
 		{
 			_highestPriorityUnreadMessage = MessageType.Normal;
 			return;
@@ -448,7 +448,7 @@ public partial class PDChat : JSModuleComponentBase
 			.Where(m => m.Type != MessageType.Typing && m.Timestamp > _lastReadTimestamp)
 			.ToList();
 
-		if (!unreadNonTypingMessages.Any())
+		if (unreadNonTypingMessages.Count == 0)
 		{
 			_highestPriorityUnreadMessage = MessageType.Normal;
 			return;
@@ -570,13 +570,15 @@ public partial class PDChat : JSModuleComponentBase
 		_messagePreviewTimer?.Dispose();
 
 		await base.DisposeAsync();
+
+		GC.SuppressFinalize(this);
 	}
 
 	// Helper method to determine if position is on the right side
 	private bool IsPositionOnRight()
 	{
-		return ChatService.MinimizedButtonPosition is 
-			PDChatButtonPosition.BottomRight or 
+		return ChatService.MinimizedButtonPosition is
+			PDChatButtonPosition.BottomRight or
 			PDChatButtonPosition.TopRight;
 	}
 
@@ -591,7 +593,7 @@ public partial class PDChat : JSModuleComponentBase
 		return _lastMessage.Type switch
 		{
 			MessageType.Warning => "preview-warning",
-			MessageType.Error => "preview-error", 
+			MessageType.Error => "preview-error",
 			MessageType.Critical => "preview-critical",
 			_ => "preview-normal"
 		};

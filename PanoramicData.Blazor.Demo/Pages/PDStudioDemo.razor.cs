@@ -17,7 +17,7 @@ public partial class PDStudioDemo : IDisposable
 	protected PDStudioOptions StudioOptions { get; set; } = new()
 	{
 		Language = "ncalc",
-		Theme = "ncalc-light", // Use custom NCalc theme by default
+		Theme = "vs-dark", // Will be overridden by system preference detection
 		IsLoggingVisible = true,
 		DefaultLogLevel = LogLevel.Information,
 		TopSplitSizes = [50.0, 50.0],
@@ -30,10 +30,42 @@ public partial class PDStudioDemo : IDisposable
 	[Inject] private IServiceProvider ServiceProvider { get; set; } = null!;
 	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
+		// Detect system theme preference and set Monaco theme accordingly
+		try
+		{
+			_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import",
+				"./_content/PanoramicData.Blazor.Demo/Pages/PDStudioDemo.razor.js");
+			
+			if (_jsModule != null)
+			{
+				var isDark = await _jsModule.InvokeAsync<bool>("isSystemDarkMode");
+				UpdateThemeBasedOnPreference(isDark);
+			}
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "Failed to detect system theme preference, using default");
+		}
+		
 		// Add initial example content
 		AddEvent("Demo", "PDStudio demo initialized with NCalc support (5s timeout)");
+	}
+
+	private void UpdateThemeBasedOnPreference(bool isDark)
+	{
+		var language = StudioOptions.Language.ToLowerInvariant();
+		
+		StudioOptions.Theme = language switch
+		{
+			"ncalc" => isDark ? "ncalc-dark" : "ncalc-light",
+			"sql" => isDark ? "sql-dark" : "sql-light",
+			_ => isDark ? "vs-dark" : "vs"
+		};
+		
+		// Trigger re-render to propagate theme change to PDMonaco
+		StateHasChanged();
 	}
 
 	private async Task OnCodeExecuted(string code)
@@ -63,25 +95,18 @@ public partial class PDStudioDemo : IDisposable
 		var nextIndex = (currentIndex + 1) % languages.Length;
 
 		StudioOptions.Language = languages[nextIndex];
-		AddEvent("Settings", $"Language changed to {StudioOptions.Language.ToUpper()}");
-		StateHasChanged();
-		await Task.CompletedTask;
-	}
-
-	private async Task OnToggleTheme()
-	{
-		var currentTheme = StudioOptions.Theme;
-		var language = StudioOptions.Language.ToLowerInvariant();
-
-		// Use language-specific themes when available
-		StudioOptions.Theme = language switch
+		
+		// Update theme based on language and current system preference
+		if (_jsModule != null)
 		{
-			"ncalc" => currentTheme.Contains("dark") ? "ncalc-light" : "ncalc-dark",
-			"sql" => currentTheme.Contains("dark") ? "sql-light" : "sql-dark",
-			_ => currentTheme.Contains("dark") ? "vs-light" : "vs-dark"
-		};
-
-		AddEvent("Settings", $"Theme changed to {(StudioOptions.Theme.Contains("dark") ? "Dark" : "Light")} for {language.ToUpper()}");
+			var isDark = await _jsModule.InvokeAsync<bool>("isSystemDarkMode");
+			UpdateThemeBasedOnPreference(isDark);
+		}
+		
+		AddEvent("Settings", $"Language changed to {StudioOptions.Language.ToUpper()}");
+		
+		// StateHasChanged() is now called in UpdateThemeBasedOnPreference,
+		// but call it again to ensure all changes are propagated
 		StateHasChanged();
 		await Task.CompletedTask;
 	}

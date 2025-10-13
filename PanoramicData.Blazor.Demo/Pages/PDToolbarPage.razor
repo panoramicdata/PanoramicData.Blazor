@@ -58,8 +58,7 @@
 
 		<PDToolbarSeparator IsVisible="ShowButtons" />
 
-		<PDToolbarTextbox Width="100%"
-						  Label="Search"
+		<PDToolbarTextbox Label="Search"
 						  DebounceWait="250"
 						  Placeholder="search text"
 						  ShowClearButton="true"
@@ -69,16 +68,15 @@
 						  Keypress="OnKeypress"
 						  Cleared="OnCleared" />
 
-		<PDToolbarPlaceholder>
-			<span>Options</span>
+		<PDToolbarPlaceholder ShiftRight="true">
+			<span class="me-2">Options</span>
 		</PDToolbarPlaceholder>
 
 		<PDToolbarButton Text="@(EnableButtons ? "Disable" : "Enable")"
 						 ToolTip="Disable or enable buttons"
 						 Size="_size"
 						 CssClass="btn-secondary d-none d-sm-none d-md-none d-lg-inline"
-						 Click="() => { EnableButtons = !EnableButtons; }"
-						 ShiftRight="true" />
+						 Click="() => { EnableButtons = !EnableButtons; }" />
 
 		<PDToolbarButton Text="@(ShowButtons ? "Hide" : "Show")"
 						 ToolTip="Show or hide buttons"

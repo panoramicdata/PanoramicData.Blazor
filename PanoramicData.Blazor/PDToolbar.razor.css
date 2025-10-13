@@ -3,11 +3,31 @@
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+ */
 	align-items: center;
-	display: flex;
+	display: flex !important; /* Force flex display */
+	flex-direction: row !important; /* Force horizontal direction */
+	flex-wrap: wrap !important; /* ✅ CHANGED: Allow wrapping to prevent overflow */
+	gap: 0.25rem; /* Add small gap between items */
+	width: 100%; /* Ensure toolbar takes full width */
+	padding: 0.5rem; /* Add padding around toolbar */
+	overflow: visible; /* ? CHANGED: Allow dropdowns to overflow without scrolling */
+	position: relative; /* ? ADDED: Establish positioning context */
 }
 
 ::deep .pdtoolbaritem {
-	padding: 5px;
+	padding: 0 0.25rem; /* Reduce padding, rely on gap instead */
+	display: inline-flex !important; /* Force inline-flex */
+	align-items: center;
+	flex-shrink: 0; /* Prevent items from shrinking by default */
+	vertical-align: middle;
+	white-space: nowrap; /* Prevent content from wrapping */
+	position: relative; /* ? ADDED: Establish positioning context for dropdowns */
+}
+
+/* Allow specific items (like textbox) to grow and use available space */
+::deep .pdtoolbaritem:has(.pdtoolbartextbox) {
+	flex: 1 1 200px; /* ✅ CHANGED: Grow to fill space, but have a reasonable base size */
+	min-width: 150px; /* ✅ CHANGED: Minimum width before wrapping */
+	max-width: 400px; /* ✅ CHANGED: Maximum width to prevent it from getting too wide */
 }
 
 ::deep .pdtoolbaritem:first-child {
@@ -20,4 +40,48 @@
 
 ::deep .pdtoolbaritem.align-right {
 	margin-left: auto;
+	flex-shrink: 0; /* Items aligned right should not shrink */
+}
+
+/* Ensure buttons inside toolbar items stay inline and have proper sizing */
+::deep .pdtoolbaritem .btn,
+::deep .pdtoolbaritem .dropdown {
+	margin-bottom: 0 !important; /* Remove any bottom margin */
+	display: inline-flex;
+	vertical-align: middle;
+	align-items: center;
+	flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+/* Ensure dropdown toggles have proper styling */
+::deep .pdtoolbaritem .dropdown-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	border-radius: var(--bs-border-radius, 0.375rem); /* ? ADDED: Rounded corners */
+}
+
+/* Ensure dropdown menus overflow properly */
+::deep .pdtoolbaritem .dropdown-menu {
+	position: absolute; /* ? ADDED: Absolute positioning */
+	z-index: 1050; /* ? ADDED: High z-index to appear above everything */
+}
+
+/* Style toolbar buttons consistently */
+::deep .pdtoolbaritem .pdtoolbarbutton {
+	white-space: nowrap;
+	border-radius: var(--bs-border-radius, 0.375rem); /* ? ADDED: Rounded corners */
+}
+
+/* Mobile is already handled by wrapping - adjust for smaller screens */
+@media (max-width: 768px) {
+	::deep .pdtoolbaritem {
+		margin-bottom: 0.25rem;
+	}
+	
+	::deep .pdtoolbaritem:has(.pdtoolbartextbox) {
+		flex: 1 1 100%; /* Full width on mobile */
+		max-width: none; /* Remove max-width constraint on mobile */
+		min-width: 0; /* Allow full shrinking on mobile */
+	}
 }

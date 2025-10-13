@@ -18,23 +18,45 @@
 		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.None" FaderColor="@_faderColor" Label="None" SnapPoints="@(_snap ? 21 : 0)" />
 	</div>
 </div>
-<div class="row">
+<div class="row mt-3">
 	<div class="col-md-12">
-		<PDKnob @bind-Value="_faderValue" />
-		<p>Fader Value: <input @bind="_faderValue" /></p>
+		<div class="d-flex align-items-start gap-4">
+			<div class="text-center">
+				<PDKnob @bind-Value="_faderValue"
+						Mode="PDKnobMode.Gain"
+						MinLabel="-10"
+						MaxLabel="+10"
+						SnapPoints="@(_snap ? 21 : 0)" />
+			</div>
+			<div class="flex-grow-1">
+				<div class="mb-2">
+					<strong>Value: @GetDisplayValue().ToString("F1")</strong>
+				</div>
+				<div>
+					<input type="number"
+						   class="form-control"
+						   value="@GetDisplayValue()"
+						   @onchange="OnDisplayValueChanged"
+						   step="@(GetDisplayStep())"
+						   min="-10"
+						   max="10"
+						   style="width: 120px;" />
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
-<div class="row">
+<div class="row mt-3">
 	<div class="col-md-4">
 		<label>Fader Color</label>
-		<input type="color" @bind="_faderColor" />
+		<input type="color" @bind="_faderColor" class="form-control" />
 	</div>
 	<div class="col-md-4">
-		<label>Snap</label>
+		<label class="d-block">Snap</label>
 		<PDToggleSwitch @bind-Value="_snap" />
 	</div>
 </div>
-<div class="row">
+<div class="row mt-3">
 	<div class="col-md-12">
 		<PDLog @ref="_log" />
 	</div>

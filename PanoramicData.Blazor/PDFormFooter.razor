@@ -22,7 +22,6 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 Key="Yes"
 							 Operation="OnYesAsync"
 							 OperationIconCssClass="fas fa-fw fa-circle-notch fa-spin"
-							 ShiftRight="true"
 							 Size="Size"
 							 Text="@YesButtonText" />
 
@@ -49,6 +48,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 Key="Save"
 							 Operation="OnSaveAsync"
 							 OperationIconCssClass="fas fa-fw fa-circle-notch fa-spin"
+							 ShiftRight="@(_errorCount == 0)"
 							 Size="Size"
 							 Text="@SaveButtonText" />
 

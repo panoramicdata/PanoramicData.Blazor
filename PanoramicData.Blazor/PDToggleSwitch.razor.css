@@ -20,6 +20,17 @@
 	border-radius: 16px;
 }
 
+/* ? ADDED: Toolbar integration styles */
+.pdtoolbaritem .pdtoggleswitch svg,
+.pdtoolbar .pdtoggleswitch svg {
+	border-radius: var(--bs-border-radius, 0.375rem); /* Match toolbar button border radius */
+}
+
+.pdtoolbaritem .pdtoggleswitch.rd svg,
+.pdtoolbar .pdtoggleswitch.rd svg {
+	border-radius: calc(var(--bs-border-radius, 0.375rem) * 2); /* More rounded when explicitly set */
+}
+
 .pdtoggleswitch.sm text {
 	font-size: 0.5rem;
 }
@@ -30,30 +41,30 @@
 
 .pdtoggleswitch svg {
 	cursor: pointer;
+	vertical-align: middle; /* ? ADDED: Align with toolbar buttons */
 }
 
 .pdtoggleswitch .switch {
-	stroke: #1b6ec2;
+	stroke: var(--bs-primary, #1b6ec2);
 	stroke-width: 2;
 }
 
 .pdtoggleswitch text {
 	stroke-width: 0;
-	fill: white;
+	fill: var(--bs-body-bg, white);
 }
 
 .pdtoggleswitch .toggle {
-	fill: white;
+	fill: var(--bs-body-bg, white);
 }
 
 .pdtoggleswitch .switch.on {
-	fill: #1b6ec2;
+	fill: var(--bs-primary, #1b6ec2);
 }
 
 .pdtoggleswitch .switch.off {
-	fill: silver;
+	fill: var(--bs-secondary-bg, silver);
 }
-
 
 .pdtoggleswitch.disabled svg {
 	opacity: 0.5;

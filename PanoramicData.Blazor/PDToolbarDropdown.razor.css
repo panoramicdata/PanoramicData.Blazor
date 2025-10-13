@@ -1,23 +1,78 @@
 ﻿::deep .pdtoolbarbutton {
 	white-space: nowrap;
+	border-radius: var(--bs-border-radius, 0.375rem); /* ? Rounded corners */
+	display: inline-flex; /* ? ADDED: Use flexbox for proper alignment */
+	align-items: center; /* ? ADDED: Center content vertically */
+	line-height: 1.5; /* ? ADDED: Consistent line height */
 }
+
+/* Style dropdown buttons to look like proper Bootstrap dropdown buttons */
+::deep .pdtoolbarbutton.dropdown-toggle {
+	padding: 0.375rem 0.75rem;
+	border: 1px solid var(--bs-border-color, #dee2e6);
+	border-radius: var(--bs-border-radius, 0.375rem); /* ? Explicit rounded corners */
+	background-color: var(--bs-body-bg, #fff);
+	color: var(--bs-body-color, #212529);
+	transition: all 0.15s ease-in-out;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	line-height: 1.5; /* ? ADDED: Consistent line height */
+}
+
+::deep .pdtoolbarbutton.dropdown-toggle:hover {
+	background-color: var(--bs-secondary-bg, #e9ecef);
+	border-color: var(--bs-border-color-translucent, #adb5bd);
+}
+
+::deep .pdtoolbarbutton.dropdown-toggle::after {
+	margin-left: auto;
+}
+
+/* Ensure icon and text are properly spaced in dropdown buttons */
+::deep .pdtoolbarbutton.dropdown-toggle > span {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
 .pddropdownmenuitem {
 	padding: .25rem .50rem;
 	cursor: pointer;
+	transition: background-color 0.15s ease-in-out;
 }
 
 .pddropdownmenuitem.disabled {
-	color: #6c757d;
+	color: var(--bs-secondary-color, #6c757d);
 	pointer-events: none;
+	background-color: transparent;
 }
 
-.pddropdownmenuitem.disabled:hover {
-}
-
-.pddropdownmenuitem:hover {
-	background-color: #eee;
+.pddropdownmenuitem:hover:not(.disabled) {
+	background-color: var(--bs-secondary-bg, #eee);
 }
 
 .pddropdownseparator {
-	border-bottom: 1px solid #ddd;
+	border-bottom: 1px solid var(--bs-border-color, #ddd);
+	margin: 0.5rem 0;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] ::deep .pdtoolbarbutton.dropdown-toggle {
+	background-color: var(--bs-body-bg, #212529);
+	color: var(--bs-body-color, #f8f9fa);
+	border-color: var(--bs-border-color, #495057);
+}
+
+[data-bs-theme="dark"] ::deep .pdtoolbarbutton.dropdown-toggle:hover {
+	background-color: var(--bs-secondary-bg, #343a40);
+	border-color: var(--bs-border-color-translucent, #6c757d);
+}
+
+[data-bs-theme="dark"] .pddropdownmenuitem:hover:not(.disabled) {
+	background-color: var(--bs-secondary-bg, #343a40);
+}
+
+[data-bs-theme="dark"] .pddropdownseparator {
+	border-bottom-color: var(--bs-border-color, #495057);
 }

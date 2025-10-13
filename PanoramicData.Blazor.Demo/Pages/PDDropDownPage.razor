@@ -15,34 +15,38 @@
 				DropDownHidden="@(() => OnLogEvent("Dropdown 1 Hidden"))"
 				DropDownShown="@(() => OnLogEvent("Dropdown 1 Shown"))"
 				Text="Click Me">
-		<div>
-			<ul>
-				<li>
-					<PDLabel IconCssClass="fas fa-fw fa-dice-one"
-							 Text="One" />
-				</li>
-				<li>
-					<PDLabel IconCssClass="fas fa-fw fa-dice-two"
-							 Text="Two" />
-				</li>
-				<li>
-					<PDLabel IconCssClass="fas fa-fw fa-dice-three"
-							 Text="Three" />
-				</li>
-				<li>
-					<PDLabel IconCssClass="fas fa-fw fa-dice-four"
-							 Text="Four" />
-				</li>
-				<li>
-					<PDLabel IconCssClass="fas fa-fw fa-dice-five"
-							 Text="Five" />
-				</li>
-				<li>
-					<PDLabel IconCssClass="fas fa-fw fa-dice-six"
-							 Text="Six" />
-				</li>
-			</ul>
-		</div>
+		<ul>
+			<li>
+				<PDLabel Click="@(() => OnLogEvent("One Click"))"
+						 IconCssClass="fas fa-fw fa-dice-one"
+						 Text="One" />
+			</li>
+			<li>
+				<PDLabel Click="@(() => OnLogEvent("Two Click"))"
+						 IconCssClass="fas fa-fw fa-dice-two"
+						 Text="Two" />
+			</li>
+			<li>
+				<PDLabel Click="@(() => OnLogEvent("Three Click"))"
+						 IconCssClass="fas fa-fw fa-dice-three"
+						 Text="Three" />
+			</li>
+			<li>
+				<PDLabel Click="@(() => OnLogEvent("Four Click"))"
+						 IconCssClass="fas fa-fw fa-dice-four"
+						 Text="Four" />
+			</li>
+			<li>
+				<PDLabel Click="@(() => OnLogEvent("Five Click"))"
+						 IconCssClass="fas fa-fw fa-dice-five"
+						 Text="Five" />
+			</li>
+			<li>
+				<PDLabel Click="@(() => OnLogEvent("Six Click"))"
+						 IconCssClass="fas fa-fw fa-dice-six"
+						 Text="Six" />
+			</li>
+		</ul>
 	</PDDropDown>
 
 	<hr />
@@ -62,7 +66,5 @@
 	</PDDropDown>
 
 	<EventView />
-
-
 
 </DemoSourceView>

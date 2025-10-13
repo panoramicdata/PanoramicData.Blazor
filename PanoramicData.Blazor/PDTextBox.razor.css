@@ -12,6 +12,34 @@
 .input-group-text
 {
 	padding: 0px;
+	border-left: none !important; /* ✅ CHANGED: Only remove the left border to eliminate double border */
+	background: transparent !important; /* Keep transparent background */
+}
+
+.input-group-text button
+{
+	border: none !important; /* Remove all borders from button itself */
+	background: transparent !important; /* Make button background transparent */
+	padding: 0.375rem 0.5rem; /* Add some padding for clickability */
+	box-shadow: none !important; /* Remove any shadow */
+	outline: none !important; /* Remove outline */
+}
+
+.input-group-text button:hover {
+	background: transparent !important; /* Keep transparent on hover */
+	border: none !important;
+}
+
+.input-group-text button:focus {
+	box-shadow: none !important;
+	outline: none !important;
+	border: none !important;
+}
+
+.input-group-text button:active {
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
 }
 
 button.flash i
@@ -21,8 +49,8 @@ button.flash i
 
 .square-left-border-radius
 {
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
+	border-top-left-radius: 0 !important;
+	border-bottom-left-radius: 0 !important;
 }
 
 @keyframes flash

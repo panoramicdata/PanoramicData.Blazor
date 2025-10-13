@@ -10,15 +10,31 @@
 	font-weight: bold;
 	text-align: center;
 	padding: 1em;
+	color: var(--bs-body-color);
 }
 
 .deck-disclaimer{
 	font-style: italic;
 	padding: 0.5em;
 	text-align: center;
+	color: var(--bs-body-color);
 }
 
 .priority{
 	font-weight: bold;
 	font-size: 1.25em;
+	color: var(--bs-body-color);
+}
+
+/* Dark mode - ensure good contrast for text on animated card deck */
+[data-bs-theme="dark"] .pdcarddeck-animated .deck-title {
+	color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .pdcarddeck-animated .deck-disclaimer {
+	color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .pdcarddeck-animated .priority {
+	color: #e9ecef;
 }

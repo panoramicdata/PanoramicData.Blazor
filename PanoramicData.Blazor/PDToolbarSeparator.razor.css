@@ -2,10 +2,16 @@
 	display: flex;
 	align-items: center;
 	height: 100%;
+	padding: 0 0.5rem; /* Add horizontal padding */
 }
 
 .pdtoolbarseparator .pdts-bar {
-	border-left: 2px solid #ddd;
-	height: 80%;
-	min-height: 1rem;
+	border-left: 1px solid var(--bs-border-color, #dee2e6);
+	height: 1.5rem; /* Fixed height for consistency */
+	width: 1px;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .pdtoolbarseparator .pdts-bar {
+	border-left-color: var(--bs-border-color, #495057);
 }

@@ -43,6 +43,7 @@
 
 
 	<ItemGroup>
+		<Folder Include="Components\" />
 		<Folder Include="wwwroot\lib\bootstrap\dist\js\" />
 		<Folder Include="wwwroot\src\" />
 	</ItemGroup>

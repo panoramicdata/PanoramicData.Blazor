@@ -23,28 +23,31 @@
 		<rect x="@TrackX" y="0" width="@TrackWidth" height="@Height" fill="#555" />
 		<line x1="@CenterX" y1="0" x2="@CenterX" y2="@Height" stroke="#fff" stroke-width="1" />
 
-		<!-- Markings (full width, high contrast) -->
+		<!-- Markings (lines first, then text so text appears on top) -->
 		@foreach (var mark in Markings)
 		{
-			<g>
-				@if (FaderLabelPosition is PDFaderLabelPosition.Left or PDFaderLabelPosition.Both)
-				{
-					<text>
-						<text x="2" y="@(mark.Y)" fill="#fff" font-size="@LabelFontSize" text-anchor="start" dominant-baseline="middle" style="text-shadow:1px 1px 2px #000;">
-							@mark.Label
-						</text>
+			<line x1="0" y1="@mark.Y" x2="@ControlWidth" y2="@mark.Y" stroke="#aaa" stroke-width="1" />
+		}
+
+		<!-- Text labels rendered after lines so they appear on top -->
+		@foreach (var mark in Markings)
+		{
+			@if (FaderLabelPosition is PDFaderLabelPosition.Left or PDFaderLabelPosition.Both)
+			{
+				<text>
+					<text x="2" y="@(mark.Y)" fill="#fff" font-size="@LabelFontSize" text-anchor="start" dominant-baseline="middle" style="text-shadow:1px 1px 2px #000;">
+						@mark.Label
 					</text>
-				}
-				<line x1="0" y1="@mark.Y" x2="@ControlWidth" y2="@mark.Y" stroke="#aaa" stroke-width="1" />
-				@if (FaderLabelPosition is PDFaderLabelPosition.Right or PDFaderLabelPosition.Both)
-				{
-					<text>
-						<text x="@(ControlWidth - 2)" y="@(mark.Y)" fill="#fff" font-size="@LabelFontSize" text-anchor="end" dominant-baseline="middle" style="text-shadow:1px 1px 2px #000;">
-							@mark.Label
-						</text>
+				</text>
+			}
+			@if (FaderLabelPosition is PDFaderLabelPosition.Right or PDFaderLabelPosition.Both)
+			{
+				<text>
+					<text x="@(ControlWidth - 2)" y="@(mark.Y)" fill="#fff" font-size="@LabelFontSize" text-anchor="end" dominant-baseline="middle" style="text-shadow:1px 1px 2px #000;">
+						@mark.Label
 					</text>
-				}
-			</g>
+				</text>
+			}
 		}
 
 		<!-- Fader grip (centered on center line) -->

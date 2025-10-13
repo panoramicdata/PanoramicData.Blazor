@@ -62,3 +62,36 @@
 	border-left: 1px solid rgba(0,0,0,.125);
 	border-right: 1px solid rgba(0,0,0,.125);
 }
+
+/* Dark mode support for Bootstrap 5.3+ */
+[data-bs-theme="dark"] .pdcontextmenuitem {
+	background-color: #2b2f33;
+	border-color: rgba(255, 255, 255, 0.15);
+	color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .pdcontextmenuitem.disabled {
+	color: #6c757d;
+	background-color: #2b2f33;
+}
+
+[data-bs-theme="dark"] .pdcontextmenu.disabled:hover {
+	background-color: #2b2f33;
+}
+
+[data-bs-theme="dark"] .pdcontextmenuitem:first-child {
+	border-top-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-bs-theme="dark"] .pdcontextmenuitem:last-child {
+	border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-bs-theme="dark"] .pdcontextmenuitem:hover {
+	background-color: #343a40;
+}
+
+[data-bs-theme="dark"] .pdcontextmenuseparator {
+	background-color: #2b2f33;
+	border-color: rgba(255, 255, 255, 0.15);
+}

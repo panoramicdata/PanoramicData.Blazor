@@ -1,28 +1,26 @@
 ﻿<div class="pd-dropdown dropdown @(Visible ? "" : "d-none")" id="@Id">
-	<PDButton Attributes="Attributes"
-			  Id="@ToggleId"
-			  IsEnabled="IsEnabled"
-			  CssClass="@CssClass"
-			  IconCssClass="@IconCssClass"
-			  MouseEnter="OnMouseEnter"
-			  PreventDefault="PreventDefault"
-			  Size="Size"
-			  StopPropagation="StopPropagation"
-			  Text="@Text"
-			  TextCssClass="@TextCssClass"
-			  ToolTip="@ToolTip">
-		<PDLabel Click="Click"
-				 IconCssClass="@IconCssClass"
-				 StopPropagation="false"
-				 Text="@Text"
-				 TextCssClass="@TextCssClass"
-				 ToolTip="@ToolTip">
-			@if (ShowCaret)
-			{
-				<i class="ms-2 fas @(_shown ? "fa-angle-up" : "fa-angle-down")"></i>
-			}
-		</PDLabel>
-	</PDButton>
+	<button type="button"
+			id="@ToggleId"
+			class="@CssClass"
+			disabled="@(!IsEnabled)"
+			data-bs-toggle="dropdown"
+			data-bs-offset="0,-3"
+			@onclick="Click"
+			@onmouseenter="OnMouseEnter"
+			title="@ToolTip">
+		@if (!string.IsNullOrWhiteSpace(IconCssClass))
+		{
+			<i class="@IconCssClass"></i>
+		}
+		@if (!string.IsNullOrWhiteSpace(Text))
+		{
+			<span class="@TextCssClass">@Text</span>
+		}
+		@if (ShowCaret)
+		{
+			<i class="ms-2 fas @(_shown ? "fa-angle-up" : "fa-angle-down")"></i>
+		}
+	</button>
 	<div id="@DropdownId" class="dropdown-menu">
 		@ChildContent
 	</div>

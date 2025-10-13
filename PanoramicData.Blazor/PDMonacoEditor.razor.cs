@@ -239,11 +239,17 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		{
 			if (_monacoEditor != null)
 			{
-				if (Theme != _theme)
+				// Always update the theme if it has changed, even if it's being set for the first time
+				if (!string.IsNullOrEmpty(Theme) && Theme != _theme)
 				{
 					_theme = Theme;
 					await _monacoEditor.UpdateOptions(new EditorUpdateOptions { Theme = _theme });
 				}
+			}
+			else if (!string.IsNullOrEmpty(Theme))
+			{
+				// Store the theme even if the editor isn't initialized yet
+				_theme = Theme;
 			}
 		}
 		catch (JSException)

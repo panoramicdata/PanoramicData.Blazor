@@ -1,9 +1,16 @@
 .pdcarddeck {
-	background-color: #f4f5f7;
+	background-color: var(--bs-tertiary-bg, #f4f5f7);
 	display: flex;
 	flex-direction: column;
 	padding: 5px 5px 0 5px;
 	border: solid;
+	border-color: var(--bs-border-color, #dee2e6);
 	min-height: fit-content;
 	min-width: 10em;
+}
+
+/* Dark mode support for Bootstrap 5.3+ */
+[data-bs-theme="dark"] .pdcarddeck {
+	background-color: var(--bs-tertiary-bg, #2b3035);
+	border-color: var(--bs-border-color, #495057);
 }

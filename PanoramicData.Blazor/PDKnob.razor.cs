@@ -15,6 +15,18 @@ public partial class PDKnob : PDAudioControl
 	[Parameter] public int MaxDisplay { get; set; } = 11;
 
 	/// <summary>
+	/// Gets or sets the minimum display value for custom range labels.
+	/// Only applies when MinLabel and MaxLabel are also set.
+	/// </summary>
+	[Parameter] public string? MinLabel { get; set; }
+
+	/// <summary>
+	/// Gets or sets the maximum display value for custom range labels.
+	/// Only applies when MinLabel and MaxLabel are also set.
+	/// </summary>
+	[Parameter] public string? MaxLabel { get; set; }
+
+	/// <summary>
 	/// Gets or sets the size of the knob in pixels.
 	/// </summary>
 	[Parameter] public int SizePx { get; set; } = 60;
@@ -46,9 +58,9 @@ public partial class PDKnob : PDAudioControl
 
 	private ElementReference _svgRef;
 
-	// Geometry
+	// Geometry - adjusted for better fit
 	protected double Center => SizePx / 2.0;
-	protected double Radius => SizePx * 0.3;
+	protected double Radius => SizePx * 0.25; // Reduced from 0.3 to 0.25 to leave more room for labels
 	protected double ArcAngle => EndAngle - StartAngle;
 
 	// Markings
@@ -67,7 +79,8 @@ public partial class PDKnob : PDAudioControl
 
 	protected override void OnParametersSet()
 	{
-		if (Mode == PDKnobMode.Volume)
+		// Only auto-set SnapPoints for Volume mode if custom labels aren't being used
+		if (Mode == PDKnobMode.Volume && string.IsNullOrEmpty(MinLabel) && string.IsNullOrEmpty(MaxLabel))
 		{
 			SnapPoints = MaxDisplay + 1;
 		}
@@ -114,6 +127,19 @@ public partial class PDKnob : PDAudioControl
 	protected List<Mark> GetMarkings()
 	{
 		var marks = new List<Mark>();
+		// Adjusted label distance - reduced from Radius + 10 to Radius + 6 to fit within SVG bounds
+		var labelDistance = Radius + 6;
+
+		// Check if custom labels are provided
+		if (!string.IsNullOrEmpty(MinLabel) && !string.IsNullOrEmpty(MaxLabel))
+		{
+			// Custom labels mode (similar to Gain mode but with custom text)
+			var (xMin, yMin) = PolarToCartesian(Center, Center, labelDistance, StartAngle);
+			var (xMax, yMax) = PolarToCartesian(Center, Center, labelDistance, EndAngle);
+			marks.Add(new Mark(xMin, yMin, MinLabel));
+			marks.Add(new Mark(xMax, yMax, MaxLabel));
+			return marks;
+		}
 
 		switch (Mode)
 		{
@@ -124,7 +150,7 @@ public partial class PDKnob : PDAudioControl
 					{
 						double frac = (double)i / MaxDisplay;
 						double angle = StartAngle + ArcAngle * frac;
-						var (x, y) = PolarToCartesian(Center, Center, Radius + 10, angle);
+						var (x, y) = PolarToCartesian(Center, Center, labelDistance, angle);
 						marks.Add(new Mark(x, y, i.ToString(CultureInfo.InvariantCulture)));
 					}
 
@@ -133,7 +159,7 @@ public partial class PDKnob : PDAudioControl
 					{
 						double frac = (double)MaxDisplay / MaxDisplay;
 						double angle = StartAngle + ArcAngle * frac;
-						var (x, y) = PolarToCartesian(Center, Center, Radius + 10, angle);
+						var (x, y) = PolarToCartesian(Center, Center, labelDistance, angle);
 						if (!marks.Any(m => m.Label == MaxDisplay.ToString(CultureInfo.InvariantCulture)))
 						{
 							marks.Add(new Mark(x, y, MaxDisplay.ToString(CultureInfo.InvariantCulture)));
@@ -146,8 +172,8 @@ public partial class PDKnob : PDAudioControl
 			case PDKnobMode.Balance:
 				{
 					// L and R
-					var (xL, yL) = PolarToCartesian(Center, Center, Radius + 10, StartAngle);
-					var (xR, yR) = PolarToCartesian(Center, Center, Radius + 10, EndAngle);
+					var (xL, yL) = PolarToCartesian(Center, Center, labelDistance, StartAngle);
+					var (xR, yR) = PolarToCartesian(Center, Center, labelDistance, EndAngle);
 					marks.Add(new Mark(xL, yL, "L"));
 					marks.Add(new Mark(xR, yR, "R"));
 					break;
@@ -156,8 +182,8 @@ public partial class PDKnob : PDAudioControl
 			case PDKnobMode.Gain:
 				{
 					// -∞ and +∞
-					var (xMin, yMin) = PolarToCartesian(Center, Center, Radius + 10, StartAngle);
-					var (xMax, yMax) = PolarToCartesian(Center, Center, Radius + 10, EndAngle);
+					var (xMin, yMin) = PolarToCartesian(Center, Center, labelDistance, StartAngle);
+					var (xMax, yMax) = PolarToCartesian(Center, Center, labelDistance, EndAngle);
 					marks.Add(new Mark(xMin, yMin, "-∞"));
 					marks.Add(new Mark(xMax, yMax, "+∞"));
 					break;

@@ -32,3 +32,17 @@
 .card[draggable="true"]:hover {
 	background-color: #e9ecef;
 }
+
+/* Dark mode support for Bootstrap 5.3+ */
+[data-bs-theme="dark"] .selected {
+	background-color: #1e4d5c !important;
+	border-color: #0dcaf0;
+}
+
+[data-bs-theme="dark"] .card[draggable="true"]:hover {
+	background-color: #343a40;
+}
+
+[data-bs-theme="dark"] .card-default {
+	border-left-color: #6c757d;
+}

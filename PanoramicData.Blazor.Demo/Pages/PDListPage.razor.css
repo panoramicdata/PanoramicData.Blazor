@@ -14,9 +14,13 @@
 	overflow-y: auto;
 }
 
-
+/* Striping for list4 using Bootstrap dark mode variables */
 .list4 ::deep li:nth-child(2n+1) {
-	background-color: whitesmoke;
+	background-color: var(--bs-tertiary-bg);
+}
+
+.list4 ::deep li:nth-child(2n) {
+	background-color: var(--bs-body-bg);
 }
 
 .list5 ::deep .dropdown-menu {

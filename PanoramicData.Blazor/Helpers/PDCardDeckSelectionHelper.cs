@@ -3,7 +3,7 @@
 /// <summary>
 /// Helper class for managing card selection in a card deck.
 /// </summary>
-internal class PDCardDeckSelectionHelper<TCard> where TCard : ICard
+internal sealed class PDCardDeckSelectionHelper<TCard> where TCard : ICard
 {
 	/// <summary>
 	/// The Card at which multiple selection will pivot around when Shift+Click is used.
@@ -18,7 +18,7 @@ internal class PDCardDeckSelectionHelper<TCard> where TCard : ICard
 	/// <param name="card"></param>
 	/// <param name="selection"></param>
 	/// <returns></returns>
-	internal List<TCard> HandleIndividualAddRemove(List<TCard> selection, List<TCard> cards, TCard card)
+	internal List<TCard> HandleIndividualAddRemove(List<TCard> selection, TCard card)
 	{
 		// Add the card to the selection if it is not already selected
 		if (!selection.Remove(card))
@@ -89,7 +89,7 @@ internal class PDCardDeckSelectionHelper<TCard> where TCard : ICard
 		return [.. selection];
 	}
 
-	internal List<TCard> HandleSingleSelect(List<TCard> selection, List<TCard> cards, TCard card)
+	internal List<TCard> HandleSingleSelect(List<TCard> selection, TCard card)
 	{
 		// If no modifier keys are pressed, clear the selection and add the clicked card
 		selection.Clear();

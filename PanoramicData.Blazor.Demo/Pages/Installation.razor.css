@@ -1,5 +1,5 @@
 ﻿.deprecated {
-	background-color: whitesmoke;
+	background-color: var(--bs-secondary-bg, whitesmoke);
 	border-radius: 5px;
 	padding: 5px;
 }

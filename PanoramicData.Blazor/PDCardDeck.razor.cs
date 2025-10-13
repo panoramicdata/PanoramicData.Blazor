@@ -227,14 +227,14 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		else if (args.CtrlKey)
 		{
 			Selection = _selectionHelper
-				.HandleIndividualAddRemove(Selection, Cards, card);
+				.HandleIndividualAddRemove(Selection, card);
 		}
 
 		// Single Card override selection
 		else
 		{
 			Selection = _selectionHelper
-				.HandleSingleSelect(Selection, Cards, card);
+				.HandleSingleSelect(Selection, card);
 		}
 
 		StateHasChanged();
@@ -374,7 +374,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	#region Card Migration Methods
 
 	/// <summary>
-	/// Adds a set of cards to the deck at the specified index, updating the selection and card positions accordingly. 
+	/// Adds a set of cards to the deck at the specified index, updating the selection and card positions accordingly.
 	/// </summary>
 	/// <param name="selection"></param>
 	/// <returns></returns>
@@ -401,7 +401,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	}
 
 	/// <summary>
-	/// Removes the currently selected cards in this deck and  updates card positions accordingly. 
+	/// Removes the currently selected cards in this deck and  updates card positions accordingly.
 	/// </summary>
 	/// <param name="selection"></param>
 	/// <returns></returns>

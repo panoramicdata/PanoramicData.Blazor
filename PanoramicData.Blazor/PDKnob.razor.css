@@ -8,3 +8,45 @@
     text-align: center;
     pointer-events: none;
 }
+
+.pd-knob {
+    overflow: visible; /* Ensure labels don't get clipped */
+}
+
+.pd-knob svg {
+    overflow: visible; /* Allow SVG content to be visible outside its bounds if needed */
+}
+
+.pd-knob svg text {
+    fill: var(--bs-body-color, #000);
+    font-size: 9px; /* Slightly smaller font for better fit */
+}
+
+.pd-knob svg line[stroke="#333"] {
+    stroke: var(--bs-body-color, #333);
+}
+
+.pd-knob svg line[stroke="#999"] {
+    stroke: var(--bs-secondary-color, #999);
+}
+
+.pd-knob svg circle[stroke="#aaa"] {
+    stroke: var(--bs-border-color, #aaa);
+}
+
+/* Dark mode support for Bootstrap 5.3+ */
+[data-bs-theme="dark"] .pd-knob svg text {
+    fill: var(--bs-body-color, #e9ecef);
+}
+
+[data-bs-theme="dark"] .pd-knob svg line[stroke="#333"] {
+    stroke: var(--bs-body-color, #e9ecef);
+}
+
+[data-bs-theme="dark"] .pd-knob svg line[stroke="#999"] {
+    stroke: var(--bs-secondary-color, #adb5bd);
+}
+
+[data-bs-theme="dark"] .pd-knob svg circle[stroke="#aaa"] {
+    stroke: var(--bs-border-color, #6c757d);
+}

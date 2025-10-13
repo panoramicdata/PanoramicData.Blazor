@@ -10,6 +10,16 @@
 	opacity: 0.3;
 }
 
+/* ✅ ADDED: Make sort icon match filter icon size and alignment */
+::deep .pd-sort .fa-stack {
+	font-size: 1rem; /* Match filter icon size */
+	vertical-align: middle;
+}
+
+::deep .pd-sort i {
+	vertical-align: middle;
+}
+
 .pdtable {
 	height: 100%;
 	width: 100%;
@@ -48,6 +58,22 @@
 	align-items: center;
 	display: flex;
 	min-height: 2em;
+	gap: 0; /* ✅ CHANGED: Remove gap completely - icons will be directly adjacent */
+}
+
+/* ✅ ADDED: Better spacing for column title */
+.pdtable .hdr > span.text-nowrap {
+	margin-right: 0.25rem;
+}
+
+/* ✅ CHANGED: Remove all spacing from icons and ensure alignment */
+.pdtable .hdr > .pd-pointer.pd-sort,
+.pdtable .hdr > .pd-filter {
+	margin: 0;
+	padding: 0;
+	vertical-align: middle; /* ✅ Ensure vertical alignment */
+	display: inline-flex; /* ✅ Use inline-flex for better alignment */
+	align-items: center; /* ✅ Center content vertically */
 }
 
 .text-right {
