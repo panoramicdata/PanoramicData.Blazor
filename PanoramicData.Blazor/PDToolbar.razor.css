@@ -23,8 +23,9 @@
 	position: relative; /* ? ADDED: Establish positioning context for dropdowns */
 }
 
-/* ROLAND: I added this and remove from the above rule so that .pd-hidden items can still be have display: none. I also added !important to its rule in main.scss */
-::deep .pdtoolbaritem:not(.pd-hidden)
+/* ROLAND: I added this and remove from the above rule so that .pd-hidden items can still be have display: none. I also added !important to its rule in main.scss.
+	This also required not to apply to d-none classes, e.g. some toolbar separators have d-none to hide them. */
+::deep .pdtoolbaritem:not(.pd-hidden, .d-none)
 {
 	display: inline-flex !important; /* Force inline-flex */
 }
