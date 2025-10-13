@@ -11,7 +11,7 @@
 }
 
 .pd-hidden {
-	display: none;
+	display: none !important;
 }
 
 .pd-empty-icon {
@@ -128,6 +128,7 @@
 .z-1100 {
 	z-index: 1100;
 }
+
 .z-1200 {
 	z-index: 1200;
 }

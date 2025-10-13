@@ -13,14 +13,20 @@
 	position: relative; /* ? ADDED: Establish positioning context */
 }
 
-::deep .pdtoolbaritem {
+::deep .pdtoolbaritem
+{
 	padding: 0 0.25rem; /* Reduce padding, rely on gap instead */
-	display: inline-flex !important; /* Force inline-flex */
 	align-items: center;
 	flex-shrink: 0; /* Prevent items from shrinking by default */
 	vertical-align: middle;
 	white-space: nowrap; /* Prevent content from wrapping */
 	position: relative; /* ? ADDED: Establish positioning context for dropdowns */
+}
+
+/* ROLAND: I added this and remove from the above rule so that .pd-hidden items can still be have display: none. I also added !important to its rule in main.scss */
+::deep .pdtoolbaritem:not(.pd-hidden)
+{
+	display: inline-flex !important; /* Force inline-flex */
 }
 
 /* Allow specific items (like textbox) to grow and use available space */

@@ -11,7 +11,7 @@
 }
 
 .pd-hidden {
-  display: none;
+  display: none !important;
 }
 
 .pd-empty-icon {
