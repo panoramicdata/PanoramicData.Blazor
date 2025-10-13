@@ -11,10 +11,10 @@
 	border-radius: 0px;
 }
 
-::deep .direction-buttons button:nth-child(7) {
+::deep .direction-buttons button:nth-child(4) {
 	border-radius: 0px;
 }
 
-::deep .direction-buttons button:nth-child(8) {
+::deep .direction-buttons button:nth-child(5) {
 	border-radius: 0px .25rem .25rem 0px;
 }

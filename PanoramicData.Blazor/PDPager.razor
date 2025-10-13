@@ -15,15 +15,15 @@
                 IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
                 Size="Size" />
 
-			<span class="user-select-none">
-				<span class="d-none d-md-inline ms-1">Page</span>
+			<span class="user-select-none mx-2">
+				<span class="d-none d-md-inline">Page</span>
 				<span class="ms-1">@PageCriteria.Page.ToString("N0")</span>
 				<span class="ms-1">of</span>
 				<span class="ms-1">@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount.ToString("N0"))</span>
 			</span>
 
             <PDButton Click="MoveNext"
-                CssClass="btn-secondary ms-1"
+                CssClass="btn-secondary"
                 IconCssClass="fa-fw fas fa-forward"
                 IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
                 Size="Size" />
