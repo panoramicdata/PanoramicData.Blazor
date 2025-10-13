@@ -6,6 +6,22 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<title>PanoramicData.Blazor.WebAssembly</title>
 	<base href="/" />
+	<script>
+		// Detect user's color scheme preference and set Bootstrap theme BEFORE any styles load
+		(function() {
+			const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+			if (prefersDark) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark');
+			}
+			
+			// Listen for changes in color scheme preference
+			if (window.matchMedia) {
+				window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+					document.documentElement.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light');
+				});
+			}
+		})();
+	</script>
 	<link href="_content/PanoramicData.Blazor.Demo/lib/font-awesome/css/all.min.css" rel="stylesheet" />
 	<link href="_content/PanoramicData.Blazor.Demo/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
 	<link href="_content/PanoramicData.Blazor.Demo/css/site.css" rel="stylesheet" />

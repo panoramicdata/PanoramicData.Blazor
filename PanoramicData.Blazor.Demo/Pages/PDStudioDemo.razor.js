@@ -1,5 +1,10 @@
 // PDStudioDemo Monaco Editor Enhancement Script
 
+// Function to detect system dark mode preference
+export function isSystemDarkMode() {
+	return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
 export function configurePDStudioMonaco() {
 	if (!monaco || !monaco.editor) {
 		console.warn('Monaco Editor not available for PDStudio configuration');
