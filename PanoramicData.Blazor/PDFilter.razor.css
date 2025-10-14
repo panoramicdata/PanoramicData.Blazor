@@ -1,21 +1,76 @@
-﻿.pd-filter {
+﻿.pd-filter
+{
+	display: inline-block;
+}
+
+.pd-filter:not(.filtered) ::deep .filter-icon
+{
+	opacity: 0.3;
+}
+
+.pd-filter ::deep .filter-icon
+{
+	color: var(--bs-primary) !important;
+}
+
+.filter-body
+{
+	font-weight: normal;
+	padding: 0px 5px;
+	width: 210px;
+}
+
+.filter-toolbar
+{
+	display: flex;
+	justify-content: space-evenly;
+	margin-top: 5px;
+}
+
+.filter-values
+{
+	background-color: #f5f5f585;
+	font-size: 0.9rem;
+	padding: 5px;
+}
+
+.values-filter
+{
+	margin-bottom: 5px;
+}
+
+.values-list
+{
+	max-height: 110px;
+	overflow: auto;
+}
+
+.values-listitem
+{
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+}
+
+/* Temporarily undone this */
+/*.pd-filter {
 	display: inline-block;
 	vertical-align: middle;
 	margin: 0;
-}
+}*/
 
 /* Filter icon - use variable color based on state */
-.pd-filter:not(.filtered) ::deep .filter-icon {
+/*.pd-filter:not(.filtered) ::deep .filter-icon {
 	opacity: 0.3;
 	color: var(--bs-body-color, #212529) !important;
 }
 
 .pd-filter.filtered ::deep .filter-icon {
 	color: var(--bs-primary, #0d6efd) !important;
-}
+}*/
 
 /* Remove ALL styling from filter button - make it invisible except for the icon */
-.pd-filter ::deep .dropdown-toggle {
+/*.pd-filter ::deep .dropdown-toggle {
 	border: none !important;
 	background: transparent !important;
 	padding: 0 !important;
@@ -38,10 +93,10 @@
 	border: none !important;
 	box-shadow: none !important;
 	outline: none !important;
-}
+}*/
 
 /* Align filter icon better with sort icon */
-.pd-filter ::deep .filter-icon {
+/*.pd-filter ::deep .filter-icon {
 	vertical-align: middle;
 	margin: 0;
 	padding: 0;
@@ -60,28 +115,28 @@
 	padding-top: 0.75rem;
 	padding-bottom: 0.75rem;
 	border-top: 1px solid var(--bs-border-color, #dee2e6);
-}
+}*/
 
 /* ✅ ADDED: Remove ALL styling from Filter and Clear Filter buttons */
-.filter-toolbar ::deep .btn {
+/*.filter-toolbar ::deep .btn {
 	background: transparent !important;
 	border: none !important;
 	box-shadow: none !important;
 	outline: none !important;
-	padding: 0.375rem 0.75rem !important; /* Keep some padding for clickability */
-}
+	padding: 0.375rem 0.75rem !important;*/ /* Keep some padding for clickability */
+/*}*/
 
-.filter-toolbar ::deep .btn:hover,
+/*.filter-toolbar ::deep .btn:hover,
 .filter-toolbar ::deep .btn:focus,
 .filter-toolbar ::deep .btn:active {
 	background: transparent !important;
 	border: none !important;
 	box-shadow: none !important;
 	outline: none !important;
-}
+}*/
 
 /* Keep icon colors */
-.filter-toolbar ::deep .btn.btn-primary {
+/*.filter-toolbar ::deep .btn.btn-primary {
 	color: var(--bs-primary, #0d6efd) !important;
 }
 
@@ -114,10 +169,10 @@
 	cursor: pointer;
 	display: flex;
 	align-items: center;
-}
+}*/
 
 /* Dark mode support */
-[data-bs-theme="dark"] .pd-filter:not(.filtered) ::deep .filter-icon {
+/*[data-bs-theme="dark"] .pd-filter:not(.filtered) ::deep .filter-icon {
 	color: var(--bs-body-color, #f8f9fa) !important;
 }
 
@@ -131,4 +186,4 @@
 
 [data-bs-theme="dark"] .filter-toolbar {
 	border-top-color: var(--bs-border-color, #495057);
-}
+}*/
