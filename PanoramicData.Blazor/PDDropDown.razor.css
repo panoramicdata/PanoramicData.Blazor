@@ -16,11 +16,13 @@
 	display: none; /* Hide Bootstrap's default caret since we use our own */
 }
 
-.pd-dropdown .dropdown-menu {
+.pd-dropdown .dropdown-menu
+{
 	padding: 0;
 	border-radius: var(--bs-border-radius, 0.375rem); /* Bootstrap standard rounded corners */
 	overflow: hidden; /* Ensure content respects rounded corners */
 	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Add shadow for better visibility */
+	padding: .5rem 0;	/* Restore padding so buttons and things are not right up against the edge*/
 	position: absolute; /* ? ADDED: Absolute positioning */
 	z-index: 1050; /* ? ADDED: Ensure dropdown appears above toolbar and other content */
 	min-width: 200px; /* ? ADDED: Minimum width for dropdowns */
