@@ -75,7 +75,9 @@
 }
 
 /* Style toolbar buttons consistently */
-::deep .pdtoolbaritem .pdtoolbarbutton {
+::deep .pdtoolbaritem .pdtoolbarbutton
+{
+	height: 100%;	/* Ensures that buttons WITHOUT text are the same height as those with text */
 	white-space: nowrap;
 	border-radius: var(--bs-border-radius, 0.375rem); /* ? ADDED: Rounded corners */
 }

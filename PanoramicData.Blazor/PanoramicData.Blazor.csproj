@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PdToolbarSeparator now has less horizontal padding.
+			Fixed CSS issue where PDToolbarButtons without text (icon only) would not be the correct height e.g. as other buttons in the same toolbar.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
