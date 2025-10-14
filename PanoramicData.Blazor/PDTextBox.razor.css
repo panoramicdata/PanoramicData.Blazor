@@ -12,13 +12,14 @@
 .input-group-text
 {
 	padding: 0px;
-	border-left: none !important; /* ✅ CHANGED: Only remove the left border to eliminate double border */
+	border-left: none !important;	/* ✅ CHANGED: Only remove the left border to eliminate double border */
+	margin-left: 0 !important;		/* ✅ CHANGED: Remove left margin to align with input */
 }
 
 .input-group-text button
 {
 	border: none !important; /* Remove all borders from button itself */
-	/*background: transparent !important;*/ /* Make button background transparent */
+	/*background: transparent !important;*/ /* Make button background transparent - no because that breaks light mode in all the Magic Suite apps */
 	padding: 0.375rem 0.5rem; /* Add some padding for clickability */
 	box-shadow: none !important; /* Remove any shadow */
 	outline: none !important; /* Remove outline */
