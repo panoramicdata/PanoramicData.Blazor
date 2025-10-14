@@ -20,7 +20,14 @@
 			{
 				<span class="icon @GetIconCssClass()"></span>
 			}
-			<span class="@IconCssClass @TextCssClass @(string.IsNullOrWhiteSpace(Text) ? "" : "ps-1")">@Text.GetShortcutMarkup()</span>
+
+			var textPaddingClass = string.Empty;
+			if (!string.IsNullOrWhiteSpace(Text))
+			{
+				textPaddingClass = "ps-1";
+			}
+
+			<span class="@textPaddingClass @TextCssClass">@Text.GetShortcutMarkup()</span>
 		}
 		else
 		{
