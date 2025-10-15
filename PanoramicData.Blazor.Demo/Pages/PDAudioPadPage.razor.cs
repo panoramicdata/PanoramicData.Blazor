@@ -1,28 +1,17 @@
+using PanoramicData.Blazor.Demo.Data;
+
 namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDAudioPadDemo
+public partial class PDAudioPadPage
 {
-	private double _padValue1 = 0;
-	private double _padValue2 = 0;
-	private double _padValue3 = 0;
-
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	private void OnPad1ValueChanged(double value)
+	private void HandlePadValueChanged(PDAudioPadEventArgs args)
 	{
-		_padValue1 = value;
-		EventManager?.Add(new Event("ValueChanged", new EventArgument("Cue", value.ToString("F2"))));
-	}
+		var eventMessage = args.DecayMode == DecayMode.Toggle
+			? $"{args.Label ?? "Pad"}: {(args.IsActive ? "ON" : "OFF")}"
+			: $"{args.Label ?? "Pad"}: {args.Value:F3}";
 
-	private void OnPad2ValueChanged(double value)
-	{
-		_padValue2 = value;
-		EventManager?.Add(new Event("ValueChanged", new EventArgument("Talkback", value.ToString("F2"))));
-	}
-
-	private void OnPad3ValueChanged(double value)
-	{
-		_padValue3 = value;
-		EventManager?.Add(new Event("ValueChanged", new EventArgument("Record", value.ToString("F2"))));
+		EventManager?.Add(new Event("PadValueChanged", new EventArgument("Value", eventMessage)));
 	}
 }

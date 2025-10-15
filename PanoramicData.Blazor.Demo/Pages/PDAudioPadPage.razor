@@ -1,4 +1,5 @@
 @page "/pdaudiopad"
+@using PanoramicData.Blazor.Demo.Data
 
 <style>
     .pd-audio-pad-grid {
@@ -6,29 +7,122 @@
         grid-template-columns: repeat(4, 1fr);
         gap: 1px;
         background-color: #666;
+        margin-bottom: 20px;
     }
 </style>
 
 <h1>PDAudioPad Demo</h1>
 
-<div class="pd-audio-pad-grid">
-    <PDAudioPad Label="Drum" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Press" ActiveColor="#ff0000" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
-    <PDAudioPad Label="Snare" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Press" ActiveColor="#00ff00" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
-    <PDAudioPad Label="Tom 1" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Press" ActiveColor="#0000ff" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
-    <PDAudioPad Label="Hi-hat" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Release" ActiveColor="#ffff00" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
+<DemoSourceView SourceFiles="Pages/PDAudioPadPage.razor, Pages/PDAudioPadPage.razor.cs">
+	<div class="pd-audio-pad-grid">
+		<PDAudioPad Label="Drum" 
+					DecayMode="DecayMode.Exponential" 
+					DecayUpon="DecayUpon.Press" 
+					ActiveColor="#ff0000" 
+					Width="120" 
+					Height="120" 
+					LabelPosition="PDLabelPosition.Overlay"
+					OnPadValueChanged="HandlePadValueChanged" />
+		
+		<PDAudioPad Label="Snare" 
+					DecayMode="DecayMode.Exponential" 
+					DecayUpon="DecayUpon.Press" 
+					ActiveColor="#00ff00" 
+					Width="120" 
+					Height="120" 
+					LabelPosition="PDLabelPosition.Overlay"
+					OnPadValueChanged="HandlePadValueChanged" />
+		
+		<PDAudioPad Label="Tom 1" 
+					DecayMode="DecayMode.Exponential" 
+					DecayUpon="DecayUpon.Press" 
+					ActiveColor="#0000ff" 
+					Width="120" 
+					Height="120" 
+					LabelPosition="PDLabelPosition.Overlay"
+					OnPadValueChanged="HandlePadValueChanged" />
+		
+		<PDAudioPad Label="Hi-hat" 
+					DecayMode="DecayMode.Exponential" 
+					DecayUpon="DecayUpon.Release" 
+					ActiveColor="#ffff00" 
+					Width="120" 
+					Height="120" 
+					LabelPosition="PDLabelPosition.Overlay"
+					OnPadValueChanged="HandlePadValueChanged" />
 
-    <PDAudioPad Label="Linear Decay" DecayMode="DecayMode.Linear" DecayUpon="DecayUpon.Press" ActiveColor="#ff00ff" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
-    <PDAudioPad Label="Release Toggle" DecayMode="DecayMode.Toggle" DecayUpon="DecayUpon.Release" ActiveColor="#00ffff" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
-    <PDAudioPad Label="Slow Decay" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Press" DecayHalfLife="TimeSpan.FromSeconds(2)" ActiveColor="#ff8800" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
-    <PDAudioPad Label="No Zeroing" DecayMode="DecayMode.Exponential" DecayUpon="DecayUpon.Press" ZeroBelow="0" ActiveColor="#ff0088" Width="120" Height="120" LabelPosition="PDLabelPosition.Overlay" />
+		<PDAudioPad Label="Linear Decay" 
+					DecayMode="DecayMode.Linear" 
+					DecayUpon="DecayUpon.Press" 
+					ActiveColor="#ff00ff" 
+					Width="120" 
+					Height="120" 
+					LabelPosition="PDLabelPosition.Overlay"
+					OnPadValueChanged="HandlePadValueChanged" />
+		
+		<PDAudioPad Label="Release Toggle" 
+					DecayMode="DecayMode.Toggle" 
+					DecayUpon="DecayUpon.Release" 
+					ActiveColor="#00ffff" 
+					Width="120" 
+					Height="120" 
+					LabelPosition="PDLabelPosition.Overlay"
+					OnPadValueChanged="HandlePadValueChanged" />
+		
+		<PDAudioPad Label="Slow Decay" 
+					DecayMode="DecayMode.Exponential" 
+					DecayUpon="DecayUpon.Press" 
+					DecayHalfLife="TimeSpan.FromSeconds(2)" 
+					ActiveColor="#ff8800" 
+					Width="120" 
+					Height="120" 
+					LabelPosition="PDLabelPosition.Overlay"
+					EventThrottleMs="200"
+					OnPadValueChanged="HandlePadValueChanged" />
+		
+		<PDAudioPad Label="No Zeroing" 
+					DecayMode="DecayMode.Exponential" 
+					DecayUpon="DecayUpon.Press" 
+					ZeroBelow="0" 
+					ActiveColor="#ff0088" 
+					Width="120" 
+					Height="120" 
+					LabelPosition="PDLabelPosition.Overlay"
+					OnPadValueChanged="HandlePadValueChanged" />
 
-    <PDAudioPad Symbol="Symbol.PreviousTrack" MinValue="0.5" Width="120" Height="60" />
-    <PDAudioPad Symbol="Symbol.Play" MinValue="0.5" Width="120" Height="60" />
-    <PDAudioPad Symbol="Symbol.Pause" DecayMode="DecayMode.Toggle" Width="120" Height="60" />
-    <PDAudioPad Symbol="Symbol.NextTrack" MinValue="0.5" Width="120" Height="60" />
+		<PDAudioPad Label="Previous" 
+					Symbol="Symbol.PreviousTrack" 
+					MinValue="0.5" 
+					Width="120" 
+					Height="60"
+					OnPadValueChanged="HandlePadValueChanged" />
+		
+		<PDAudioPad Label="Play" 
+					Symbol="Symbol.Play" 
+					MinValue="0.5" 
+					Width="120" 
+					Height="60"
+					OnPadValueChanged="HandlePadValueChanged" />
+		
+		<PDAudioPad Label="Pause" 
+					Symbol="Symbol.Pause" 
+					DecayMode="DecayMode.Toggle" 
+					Width="120" 
+					Height="60"
+					OnPadValueChanged="HandlePadValueChanged" />
+		
+		<PDAudioPad Label="Next" 
+					Symbol="Symbol.NextTrack" 
+					MinValue="0.5" 
+					Width="120" 
+					Height="60"
+					OnPadValueChanged="HandlePadValueChanged" />
 
-    <PDAudioPad Width="120" Height="120" />
-    <PDAudioPad Width="120" Height="120" />
-    <PDAudioPad Width="120" Height="120" />
-    <PDAudioPad Width="120" Height="120" />
-</div>
+		<PDAudioPad Label="Pad 1" Width="120" Height="120" OnPadValueChanged="HandlePadValueChanged" />
+		<PDAudioPad Label="Pad 2" Width="120" Height="120" OnPadValueChanged="HandlePadValueChanged" />
+		<PDAudioPad Label="Pad 3" Width="120" Height="120" OnPadValueChanged="HandlePadValueChanged" />
+		<PDAudioPad Label="Pad 4" Width="120" Height="120" OnPadValueChanged="HandlePadValueChanged" />
+	</div>
+
+	<EventView />
+</DemoSourceView>
