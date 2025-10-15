@@ -9,8 +9,7 @@
 # changed, it will prompt to commit the changes to git.
 #
 # How to run this script:
-# 1. Open a PowerShell terminal in the root of your Blazor project:
-#    D:\development\panoramic-data\PanoramicData.Blazor
+# 1. Open a PowerShell terminal in the root of your Blazor project
 # 2. You may need to adjust the execution policy to run the script.
 #    You can do this for the current session by running:
 #    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
@@ -24,9 +23,23 @@
 # -----------------------------------------------------------------------------
 
 # --- Configuration ---
-$projectRoot = "D:\development\panoramic-data\PanoramicData.Blazor"
+# Automatically detect the project root (script location)
+$projectRoot = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($projectRoot)) {
+    $projectRoot = Get-Location
+}
+
+Write-Host "Project Root: $projectRoot" -ForegroundColor Cyan
+
 $componentPath = Join-Path $projectRoot "PanoramicData.Blazor"
 $outputFile = Join-Path $projectRoot "ComponentDocumentation.md"
+
+# Validate paths
+if (-not (Test-Path $componentPath)) {
+    Write-Host "Error: Component path not found: $componentPath" -ForegroundColor Red
+    Write-Host "Please run this script from the project root directory." -ForegroundColor Yellow
+    exit 1
+}
 
 # --- Script Body ---
 
@@ -37,6 +50,8 @@ $tempOutputFile = [System.IO.Path]::GetTempFileName()
 Add-Content -Path $tempOutputFile -Value "# PanoramicData.Blazor Component Documentation"
 Add-Content -Path $tempOutputFile -Value ""
 Add-Content -Path $tempOutputFile -Value "This document provides an overview of the Blazor components in this project."
+Add-Content -Path $tempOutputFile -Value ""
+Add-Content -Path $tempOutputFile -Value "Generated on: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 Add-Content -Path $tempOutputFile -Value ""
 
 # Find all .razor files for the components
