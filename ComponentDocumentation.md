@@ -2,6 +2,8 @@
 
 This document provides an overview of the Blazor components in this project.
 
+Generated on: 2025-10-15 15:44:39
+
 ## PDAnimation
 
 **Parameters:**
@@ -16,6 +18,17 @@ This document provides an overview of the Blazor components in this project.
 ## PDAudioButton
 
 This component has no public parameters.
+
+---
+
+## PDAudioChannel
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Label | string | Gets or sets the label for the channel (displayed on the fader). |
+| IsEnabled | bool | Gets or sets whether the channel is enabled. |
 
 ---
 
@@ -639,6 +652,18 @@ This component has no public parameters.
 ## PDMessages
 
 This component has no public parameters.
+
+---
+
+## PDMixingDesk
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| ChildContent | RenderFragment? | Gets or sets the child content (typically PDAudioChannel components). |
+| CssClass | string | Gets or sets additional CSS classes. |
+| MinHeight | string | Gets or sets the minimum height of the mixing desk. |
 
 ---
 
