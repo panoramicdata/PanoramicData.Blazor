@@ -9,6 +9,36 @@
 	border-radius: var(--bs-border-radius);
 	border: 1px solid var(--bs-border-color);
 	min-width: 80px;
-	min-height: 500px;
 	box-shadow: 0 2px 8px var(--bs-border-color-translucent);
+	position: relative;
+}
+
+/* Disabled state with diagonal hash overlay */
+.pd-audio-channel.disabled::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: repeating-linear-gradient(
+		45deg,
+		transparent,
+		transparent 10px,
+		rgba(0, 0, 0, 0.1) 10px,
+		rgba(0, 0, 0, 0.1) 20px
+	);
+	border-radius: var(--bs-border-radius);
+	pointer-events: none;
+	z-index: 10;
+}
+
+[data-bs-theme="dark"] .pd-audio-channel.disabled::before {
+	background: repeating-linear-gradient(
+		45deg,
+		transparent,
+		transparent 10px,
+		rgba(255, 255, 255, 0.05) 10px,
+		rgba(255, 255, 255, 0.05) 20px
+	);
 }

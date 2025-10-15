@@ -6,60 +6,335 @@
 
 	<div class="mb-3">
 		<h3>Basic Mixing Desk</h3>
-		<span class="text-muted small">A mixing desk with multiple audio channels</span>
+		<span class="text-muted small">A mixing desk with multiple audio channels - interact to see events</span>
 	</div>
 
-	<PDMixingDesk>
-		<PDAudioChannel Label="Mic 1" 
-						FaderValue="0.8"
-						GainValue="0.6" />
-		<PDAudioChannel Label="Mic 2" 
-						FaderValue="0.5" />
-		<PDAudioChannel Label="Line 1" 
-						FaderValue="0.7"
-						PanValue="0.3" />
-		<PDAudioChannel Label="Line 2" 
-						FaderValue="0.6"
-						PanValue="0.7" />
-		<PDAudioChannel Label="CD" 
-						FaderValue="0.9"
-						MuteValue="0" />
-	</PDMixingDesk>
+	<CascadingValue Value="_basicEventManager">
+		<div class="row g-3">
+			<div class="col-12 col-lg-8">
+				<div style="overflow-x: auto;">
+					<PDMixingDesk>
+						<PDAudioChannel Label="Mic 1" 
+										FaderValue="@_basic1Fader"
+										GainValue="@_basic1Gain"
+										CompValue="@_basic1Comp"
+										EqHighValue="@_basic1EqHigh"
+										EqMidValue="@_basic1EqMid"
+										EqLowValue="@_basic1EqLow"
+										DspValue="@_basic1Dsp"
+										PanValue="@_basic1Pan"
+										PflValue="@_basic1Pfl"
+										MuteValue="@_basic1Mute"
+										FaderValueChanged="@(v => OnBasicDeskValueChanged("Mic 1", "Fader", ref _basic1Fader, v))"
+										GainValueChanged="@(v => OnBasicDeskValueChanged("Mic 1", "Gain", ref _basic1Gain, v))"
+										CompValueChanged="@(v => OnBasicDeskValueChanged("Mic 1", "Comp", ref _basic1Comp, v))"
+										EqHighValueChanged="@(v => OnBasicDeskValueChanged("Mic 1", "EQ High", ref _basic1EqHigh, v))"
+										EqMidValueChanged="@(v => OnBasicDeskValueChanged("Mic 1", "EQ Mid", ref _basic1EqMid, v))"
+										EqLowValueChanged="@(v => OnBasicDeskValueChanged("Mic 1", "EQ Low", ref _basic1EqLow, v))"
+										DspValueChanged="@(v => OnBasicDeskValueChanged("Mic 1", "DSP", ref _basic1Dsp, v))"
+										PanValueChanged="@(v => OnBasicDeskValueChanged("Mic 1", "Pan", ref _basic1Pan, v))"
+										PflValueChanged="@(v => OnBasicDeskValueChanged("Mic 1", "PFL", ref _basic1Pfl, v))"
+										MuteValueChanged="@(v => OnBasicDeskValueChanged("Mic 1", "Mute", ref _basic1Mute, v))" />
+						<PDAudioChannel Label="Mic 2" 
+										FaderValue="@_basic2Fader"
+										GainValue="@_basic2Gain"
+										CompValue="@_basic2Comp"
+										EqHighValue="@_basic2EqHigh"
+										EqMidValue="@_basic2EqMid"
+										EqLowValue="@_basic2EqLow"
+										DspValue="@_basic2Dsp"
+										PanValue="@_basic2Pan"
+										PflValue="@_basic2Pfl"
+										MuteValue="@_basic2Mute"
+										FaderValueChanged="@(v => OnBasicDeskValueChanged("Mic 2", "Fader", ref _basic2Fader, v))"
+										GainValueChanged="@(v => OnBasicDeskValueChanged("Mic 2", "Gain", ref _basic2Gain, v))"
+										CompValueChanged="@(v => OnBasicDeskValueChanged("Mic 2", "Comp", ref _basic2Comp, v))"
+										EqHighValueChanged="@(v => OnBasicDeskValueChanged("Mic 2", "EQ High", ref _basic2EqHigh, v))"
+										EqMidValueChanged="@(v => OnBasicDeskValueChanged("Mic 2", "EQ Mid", ref _basic2EqMid, v))"
+										EqLowValueChanged="@(v => OnBasicDeskValueChanged("Mic 2", "EQ Low", ref _basic2EqLow, v))"
+										DspValueChanged="@(v => OnBasicDeskValueChanged("Mic 2", "DSP", ref _basic2Dsp, v))"
+										PanValueChanged="@(v => OnBasicDeskValueChanged("Mic 2", "Pan", ref _basic2Pan, v))"
+										PflValueChanged="@(v => OnBasicDeskValueChanged("Mic 2", "PFL", ref _basic2Pfl, v))"
+										MuteValueChanged="@(v => OnBasicDeskValueChanged("Mic 2", "Mute", ref _basic2Mute, v))" />
+						<PDAudioChannel Label="Line 1" 
+										FaderValue="@_basic3Fader"
+										GainValue="@_basic3Gain"
+										CompValue="@_basic3Comp"
+										EqHighValue="@_basic3EqHigh"
+										EqMidValue="@_basic3EqMid"
+										EqLowValue="@_basic3EqLow"
+										DspValue="@_basic3Dsp"
+										PanValue="@_basic3Pan"
+										PflValue="@_basic3Pfl"
+										MuteValue="@_basic3Mute"
+										FaderValueChanged="@(v => OnBasicDeskValueChanged("Line 1", "Fader", ref _basic3Fader, v))"
+										GainValueChanged="@(v => OnBasicDeskValueChanged("Line 1", "Gain", ref _basic3Gain, v))"
+										CompValueChanged="@(v => OnBasicDeskValueChanged("Line 1", "Comp", ref _basic3Comp, v))"
+										EqHighValueChanged="@(v => OnBasicDeskValueChanged("Line 1", "EQ High", ref _basic3EqHigh, v))"
+										EqMidValueChanged="@(v => OnBasicDeskValueChanged("Line 1", "EQ Mid", ref _basic3EqMid, v))"
+										EqLowValueChanged="@(v => OnBasicDeskValueChanged("Line 1", "EQ Low", ref _basic3EqLow, v))"
+										DspValueChanged="@(v => OnBasicDeskValueChanged("Line 1", "DSP", ref _basic3Dsp, v))"
+										PanValueChanged="@(v => OnBasicDeskValueChanged("Line 1", "Pan", ref _basic3Pan, v))"
+										PflValueChanged="@(v => OnBasicDeskValueChanged("Line 1", "PFL", ref _basic3Pfl, v))"
+										MuteValueChanged="@(v => OnBasicDeskValueChanged("Line 1", "Mute", ref _basic3Mute, v))" />
+						<PDAudioChannel Label="Line 2" 
+										FaderValue="@_basic4Fader"
+										GainValue="@_basic4Gain"
+										CompValue="@_basic4Comp"
+										EqHighValue="@_basic4EqHigh"
+										EqMidValue="@_basic4EqMid"
+										EqLowValue="@_basic4EqLow"
+										DspValue="@_basic4Dsp"
+										PanValue="@_basic4Pan"
+										PflValue="@_basic4Pfl"
+										MuteValue="@_basic4Mute"
+										FaderValueChanged="@(v => OnBasicDeskValueChanged("Line 2", "Fader", ref _basic4Fader, v))"
+										GainValueChanged="@(v => OnBasicDeskValueChanged("Line 2", "Gain", ref _basic4Gain, v))"
+										CompValueChanged="@(v => OnBasicDeskValueChanged("Line 2", "Comp", ref _basic4Comp, v))"
+										EqHighValueChanged="@(v => OnBasicDeskValueChanged("Line 2", "EQ High", ref _basic4EqHigh, v))"
+										EqMidValueChanged="@(v => OnBasicDeskValueChanged("Line 2", "EQ Mid", ref _basic4EqMid, v))"
+										EqLowValueChanged="@(v => OnBasicDeskValueChanged("Line 2", "EQ Low", ref _basic4EqLow, v))"
+										DspValueChanged="@(v => OnBasicDeskValueChanged("Line 2", "DSP", ref _basic4Dsp, v))"
+										PanValueChanged="@(v => OnBasicDeskValueChanged("Line 2", "Pan", ref _basic4Pan, v))"
+										PflValueChanged="@(v => OnBasicDeskValueChanged("Line 2", "PFL", ref _basic4Pfl, v))"
+										MuteValueChanged="@(v => OnBasicDeskValueChanged("Line 2", "Mute", ref _basic4Mute, v))" />
+						<PDAudioChannel Label="CD" 
+										FaderValue="@_basic5Fader"
+										GainValue="@_basic5Gain"
+										CompValue="@_basic5Comp"
+										EqHighValue="@_basic5EqHigh"
+										EqMidValue="@_basic5EqMid"
+										EqLowValue="@_basic5EqLow"
+										DspValue="@_basic5Dsp"
+										PanValue="@_basic5Pan"
+										MuteValue="@_basic5Mute"
+										PflValue="@_basic5Pfl"
+										FaderValueChanged="@(v => OnBasicDeskValueChanged("CD", "Fader", ref _basic5Fader, v))"
+										GainValueChanged="@(v => OnBasicDeskValueChanged("CD", "Gain", ref _basic5Gain, v))"
+										CompValueChanged="@(v => OnBasicDeskValueChanged("CD", "Comp", ref _basic5Comp, v))"
+										EqHighValueChanged="@(v => OnBasicDeskValueChanged("CD", "EQ High", ref _basic5EqHigh, v))"
+										EqMidValueChanged="@(v => OnBasicDeskValueChanged("CD", "EQ Mid", ref _basic5EqMid, v))"
+										EqLowValueChanged="@(v => OnBasicDeskValueChanged("CD", "EQ Low", ref _basic5EqLow, v))"
+										DspValueChanged="@(v => OnBasicDeskValueChanged("CD", "DSP", ref _basic5Dsp, v))"
+										PanValueChanged="@(v => OnBasicDeskValueChanged("CD", "Pan", ref _basic5Pan, v))"
+										MuteValueChanged="@(v => OnBasicDeskValueChanged("CD", "Mute", ref _basic5Mute, v))"
+										PflValueChanged="@(v => OnBasicDeskValueChanged("CD", "PFL", ref _basic5Pfl, v))" />
+					</PDMixingDesk>
+				</div>
+			</div>
+			<div class="col-12 col-lg-4">
+				<EventView />
+			</div>
+		</div>
+	</CascadingValue>
 
 	<hr class="my-4" />
 
 	<div class="mb-3">
 		<h3>Custom Colors</h3>
-		<span class="text-muted small">Channels with custom knob and button colors</span>
+		<span class="text-muted small">Channels with custom knob and button colors - interact to see events</span>
 	</div>
 
-	<PDMixingDesk>
-		<PDAudioChannel Label="Guitar" 
-						FaderValue="0.7"
-						GainColor="orange"
-						CompColor="cyan"
-						EqColor="yellow"
-						DspColor="lime"
-						PanColor="magenta" />
-		<PDAudioChannel Label="Bass" 
-						FaderValue="0.8"
-						GainColor="#f0f"
-						CompColor="#0ff"
-						PflActiveColor="#ff0"
-						PflInactiveColor="#880"
-						MuteActiveColor="#0ff"
-						MuteInactiveColor="#088" />
-		<PDAudioChannel Label="Drums" 
-						FaderValue="0.9"
-						GainColor="white"
-						CompColor="silver" />
-	</PDMixingDesk>
+	<CascadingValue Value="_colorEventManager">
+		<div class="row g-3">
+			<div class="col-12 col-lg-8">
+				<div style="overflow-x: auto;">
+					<PDMixingDesk>
+						<PDAudioChannel Label="Guitar" 
+										FaderValue="@_color1Fader"
+										GainValue="@_color1Gain"
+										CompValue="@_color1Comp"
+										EqHighValue="@_color1EqHigh"
+										EqMidValue="@_color1EqMid"
+										EqLowValue="@_color1EqLow"
+										DspValue="@_color1Dsp"
+										PanValue="@_color1Pan"
+										PflValue="@_color1Pfl"
+										MuteValue="@_color1Mute"
+										FaderValueChanged="@(v => OnColorDeskValueChanged("Guitar", "Fader", ref _color1Fader, v))"
+										GainValueChanged="@(v => OnColorDeskValueChanged("Guitar", "Gain", ref _color1Gain, v))"
+										CompValueChanged="@(v => OnColorDeskValueChanged("Guitar", "Comp", ref _color1Comp, v))"
+										EqHighValueChanged="@(v => OnColorDeskValueChanged("Guitar", "EQ High", ref _color1EqHigh, v))"
+										EqMidValueChanged="@(v => OnColorDeskValueChanged("Guitar", "EQ Mid", ref _color1EqMid, v))"
+										EqLowValueChanged="@(v => OnColorDeskValueChanged("Guitar", "EQ Low", ref _color1EqLow, v))"
+										DspValueChanged="@(v => OnColorDeskValueChanged("Guitar", "DSP", ref _color1Dsp, v))"
+										PanValueChanged="@(v => OnColorDeskValueChanged("Guitar", "Pan", ref _color1Pan, v))"
+										PflValueChanged="@(v => OnColorDeskValueChanged("Guitar", "PFL", ref _color1Pfl, v))"
+										MuteValueChanged="@(v => OnColorDeskValueChanged("Guitar", "Mute", ref _color1Mute, v))"
+										GainColor="orange"
+										CompColor="cyan"
+										EqColor="yellow"
+										DspColor="lime"
+										PanColor="magenta" />
+						<PDAudioChannel Label="Bass" 
+										FaderValue="@_color2Fader"
+										GainValue="@_color2Gain"
+										CompValue="@_color2Comp"
+										EqHighValue="@_color2EqHigh"
+										EqMidValue="@_color2EqMid"
+										EqLowValue="@_color2EqLow"
+										DspValue="@_color2Dsp"
+										PanValue="@_color2Pan"
+										PflValue="@_color2Pfl"
+										MuteValue="@_color2Mute"
+										FaderValueChanged="@(v => OnColorDeskValueChanged("Bass", "Fader", ref _color2Fader, v))"
+										GainValueChanged="@(v => OnColorDeskValueChanged("Bass", "Gain", ref _color2Gain, v))"
+										CompValueChanged="@(v => OnColorDeskValueChanged("Bass", "Comp", ref _color2Comp, v))"
+										EqHighValueChanged="@(v => OnColorDeskValueChanged("Bass", "EQ High", ref _color2EqHigh, v))"
+										EqMidValueChanged="@(v => OnColorDeskValueChanged("Bass", "EQ Mid", ref _color2EqMid, v))"
+										EqLowValueChanged="@(v => OnColorDeskValueChanged("Bass", "EQ Low", ref _color2EqLow, v))"
+										DspValueChanged="@(v => OnColorDeskValueChanged("Bass", "DSP", ref _color2Dsp, v))"
+										PanValueChanged="@(v => OnColorDeskValueChanged("Bass", "Pan", ref _color2Pan, v))"
+										PflValueChanged="@(v => OnColorDeskValueChanged("Bass", "PFL", ref _color2Pfl, v))"
+										MuteValueChanged="@(v => OnColorDeskValueChanged("Bass", "Mute", ref _color2Mute, v))"
+										GainColor="#f0f"
+										CompColor="#0ff"
+										PflActiveColor="#ff0"
+										PflInactiveColor="#880"
+										MuteActiveColor="#0ff"
+										MuteInactiveColor="#088" />
+						<PDAudioChannel Label="Drums" 
+										FaderValue="@_color3Fader"
+										GainValue="@_color3Gain"
+										CompValue="@_color3Comp"
+										EqHighValue="@_color3EqHigh"
+										EqMidValue="@_color3EqMid"
+										EqLowValue="@_color3EqLow"
+										DspValue="@_color3Dsp"
+										PanValue="@_color3Pan"
+										PflValue="@_color3Pfl"
+										MuteValue="@_color3Mute"
+										FaderValueChanged="@(v => OnColorDeskValueChanged("Drums", "Fader", ref _color3Fader, v))"
+										GainValueChanged="@(v => OnColorDeskValueChanged("Drums", "Gain", ref _color3Gain, v))"
+										CompValueChanged="@(v => OnColorDeskValueChanged("Drums", "Comp", ref _color3Comp, v))"
+										EqHighValueChanged="@(v => OnColorDeskValueChanged("Drums", "EQ High", ref _color3EqHigh, v))"
+										EqMidValueChanged="@(v => OnColorDeskValueChanged("Drums", "EQ Mid", ref _color3EqMid, v))"
+										EqLowValueChanged="@(v => OnColorDeskValueChanged("Drums", "EQ Low", ref _color3EqLow, v))"
+										DspValueChanged="@(v => OnColorDeskValueChanged("Drums", "DSP", ref _color3Dsp, v))"
+										PanValueChanged="@(v => OnColorDeskValueChanged("Drums", "Pan", ref _color3Pan, v))"
+										PflValueChanged="@(v => OnColorDeskValueChanged("Drums", "PFL", ref _color3Pfl, v))"
+										MuteValueChanged="@(v => OnColorDeskValueChanged("Drums", "Mute", ref _color3Mute, v))"
+										GainColor="white"
+										CompColor="silver" />
+					</PDMixingDesk>
+				</div>
+			</div>
+			<div class="col-12 col-lg-4">
+				<EventView />
+			</div>
+		</div>
+	</CascadingValue>
+
+	<hr class="my-4" />
+
+	<div class="mb-3">
+		<h3>Interactive Mixing Desk with Event Logging</h3>
+		<span class="text-muted small">Control multiple channels with events shown on the right</span>
+	</div>
+
+	<CascadingValue Value="_interactiveEventManager">
+		<div class="row g-3">
+			<div class="col-12 col-lg-8">
+				<div style="overflow-x: auto;">
+					<PDMixingDesk>
+						<PDAudioChannel Label="Ch 1"
+										FaderValue="@_channel1Fader"
+										GainValue="@_channel1Gain"
+										CompValue="@_channel1Comp"
+										EqHighValue="@_channel1EqHigh"
+										EqMidValue="@_channel1EqMid"
+										EqLowValue="@_channel1EqLow"
+										DspValue="@_channel1Dsp"
+										PanValue="@_channel1Pan"
+										PflValue="@_channel1Pfl"
+										MuteValue="@_channel1Mute"
+										FaderValueChanged="@(v => OnChannelValueChanged("Ch 1", "Fader", ref _channel1Fader, v))"
+										GainValueChanged="@(v => OnChannelValueChanged("Ch 1", "Gain", ref _channel1Gain, v))"
+										CompValueChanged="@(v => OnChannelValueChanged("Ch 1", "Comp", ref _channel1Comp, v))"
+										EqHighValueChanged="@(v => OnChannelValueChanged("Ch 1", "EQ High", ref _channel1EqHigh, v))"
+										EqMidValueChanged="@(v => OnChannelValueChanged("Ch 1", "EQ Mid", ref _channel1EqMid, v))"
+										EqLowValueChanged="@(v => OnChannelValueChanged("Ch 1", "EQ Low", ref _channel1EqLow, v))"
+										DspValueChanged="@(v => OnChannelValueChanged("Ch 1", "DSP", ref _channel1Dsp, v))"
+										PanValueChanged="@(v => OnChannelValueChanged("Ch 1", "Pan", ref _channel1Pan, v))"
+										PflValueChanged="@(v => OnChannelValueChanged("Ch 1", "PFL", ref _channel1Pfl, v))"
+										MuteValueChanged="@(v => OnChannelValueChanged("Ch 1", "Mute", ref _channel1Mute, v))" />
+						<PDAudioChannel Label="Ch 2"
+										FaderValue="@_channel2Fader"
+										GainValue="@_channel2Gain"
+										CompValue="@_channel2Comp"
+										EqHighValue="@_channel2EqHigh"
+										EqMidValue="@_channel2EqMid"
+										EqLowValue="@_channel2EqLow"
+										DspValue="@_channel2Dsp"
+										PanValue="@_channel2Pan"
+										PflValue="@_channel2Pfl"
+										MuteValue="@_channel2Mute"
+										FaderValueChanged="@(v => OnChannelValueChanged("Ch 2", "Fader", ref _channel2Fader, v))"
+										GainValueChanged="@(v => OnChannelValueChanged("Ch 2", "Gain", ref _channel2Gain, v))"
+										CompValueChanged="@(v => OnChannelValueChanged("Ch 2", "Comp", ref _channel2Comp, v))"
+										EqHighValueChanged="@(v => OnChannelValueChanged("Ch 2", "EQ High", ref _channel2EqHigh, v))"
+										EqMidValueChanged="@(v => OnChannelValueChanged("Ch 2", "EQ Mid", ref _channel2EqMid, v))"
+										EqLowValueChanged="@(v => OnChannelValueChanged("Ch 2", "EQ Low", ref _channel2EqLow, v))"
+										DspValueChanged="@(v => OnChannelValueChanged("Ch 2", "DSP", ref _channel2Dsp, v))"
+										PanValueChanged="@(v => OnChannelValueChanged("Ch 2", "Pan", ref _channel2Pan, v))"
+										PflValueChanged="@(v => OnChannelValueChanged("Ch 2", "PFL", ref _channel2Pfl, v))"
+										MuteValueChanged="@(v => OnChannelValueChanged("Ch 2", "Mute", ref _channel2Mute, v))" />
+						<PDAudioChannel Label="Ch 3"
+										FaderValue="@_channel3Fader"
+										GainValue="@_channel3Gain"
+										CompValue="@_channel3Comp"
+										EqHighValue="@_channel3EqHigh"
+										EqMidValue="@_channel3EqMid"
+										EqLowValue="@_channel3EqLow"
+										DspValue="@_channel3Dsp"
+										PanValue="@_channel3Pan"
+										PflValue="@_channel3Pfl"
+										MuteValue="@_channel3Mute"
+										FaderValueChanged="@(v => OnChannelValueChanged("Ch 3", "Fader", ref _channel3Fader, v))"
+										GainValueChanged="@(v => OnChannelValueChanged("Ch 3", "Gain", ref _channel3Gain, v))"
+										CompValueChanged="@(v => OnChannelValueChanged("Ch 3", "Comp", ref _channel3Comp, v))"
+										EqHighValueChanged="@(v => OnChannelValueChanged("Ch 3", "EQ High", ref _channel3EqHigh, v))"
+										EqMidValueChanged="@(v => OnChannelValueChanged("Ch 3", "EQ Mid", ref _channel3EqMid, v))"
+										EqLowValueChanged="@(v => OnChannelValueChanged("Ch 3", "EQ Low", ref _channel3EqLow, v))"
+										DspValueChanged="@(v => OnChannelValueChanged("Ch 3", "DSP", ref _channel3Dsp, v))"
+										PanValueChanged="@(v => OnChannelValueChanged("Ch 3", "Pan", ref _channel3Pan, v))"
+										PflValueChanged="@(v => OnChannelValueChanged("Ch 3", "PFL", ref _channel3Pfl, v))"
+										MuteValueChanged="@(v => OnChannelValueChanged("Ch 3", "Mute", ref _channel3Mute, v))" />
+						<PDAudioChannel Label="Ch 4"
+										FaderValue="@_channel4Fader"
+										GainValue="@_channel4Gain"
+										CompValue="@_channel4Comp"
+										EqHighValue="@_channel4EqHigh"
+										EqMidValue="@_channel4EqMid"
+										EqLowValue="@_channel4EqLow"
+										DspValue="@_channel4Dsp"
+										PanValue="@_channel4Pan"
+										PflValue="@_channel4Pfl"
+										MuteValue="@_channel4Mute"
+										FaderValueChanged="@(v => OnChannelValueChanged("Ch 4", "Fader", ref _channel4Fader, v))"
+										GainValueChanged="@(v => OnChannelValueChanged("Ch 4", "Gain", ref _channel4Gain, v))"
+										CompValueChanged="@(v => OnChannelValueChanged("Ch 4", "Comp", ref _channel4Comp, v))"
+										EqHighValueChanged="@(v => OnChannelValueChanged("Ch 4", "EQ High", ref _channel4EqHigh, v))"
+										EqMidValueChanged="@(v => OnChannelValueChanged("Ch 4", "EQ Mid", ref _channel4EqMid, v))"
+										EqLowValueChanged="@(v => OnChannelValueChanged("Ch 4", "EQ Low", ref _channel4EqLow, v))"
+										DspValueChanged="@(v => OnChannelValueChanged("Ch 4", "DSP", ref _channel4Dsp, v))"
+										PanValueChanged="@(v => OnChannelValueChanged("Ch 4", "Pan", ref _channel4Pan, v))"
+										PflValueChanged="@(v => OnChannelValueChanged("Ch 4", "PFL", ref _channel4Pfl, v))"
+										MuteValueChanged="@(v => OnChannelValueChanged("Ch 4", "Mute", ref _channel4Mute, v))" />
+					</PDMixingDesk>
+				</div>
+			</div>
+			<div class="col-12 col-lg-4">
+				<EventView />
+			</div>
+		</div>
+	</CascadingValue>
 
 	<hr class="my-4" />
 
 	<div class="mb-3">
 		<h3>Disabled Channels</h3>
-		<span class="text-muted small">Some channels can be disabled</span>
+		<span class="text-muted small">Some channels can be disabled - note the diagonal hash overlay</span>
 	</div>
 
 	<PDMixingDesk>

@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor.Demo.Shared;
 
-public partial class MainLayout
+public partial class MainLayout : LayoutComponentBase, IDisposable
 {
 	private readonly EventManager _eventManager = new();
 
@@ -30,7 +30,7 @@ public partial class MainLayout
 	private static string? GetSoundUrl(ChatMessage chatMessage)
 		=> chatMessage.Sender.IsUser || chatMessage.Type == MessageType.Typing
 			? null
-			: "/_content/PanoramicData.Blazor.Demo/sounds/" + chatMessage.Type switch
+			: "_content/PanoramicData.Blazor.Demo/sounds/" + chatMessage.Type switch
 			{
 				MessageType.Normal => "tick.mp3",
 				MessageType.Warning => "warning.mp3",

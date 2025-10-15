@@ -1,10 +1,5 @@
-﻿@font-face {
-	font-family: 'Tenorite';
-	src: url('/fonts/Tenorite.ttf');
-}
-
-html, body {
-	font-family: 'Tenorite', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+﻿html, body {
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 a, .btn-link {
@@ -84,3 +79,4 @@ a, .btn-link {
 	.loading-progress-text:after {
 		content: var(--blazor-load-percentage-text, "Loading");
 	}
+

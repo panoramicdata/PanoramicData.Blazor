@@ -9,9 +9,14 @@ public partial class PDAudioButton : PDAudioControl
 
     protected override string JsFileName => string.Empty;
 
-    protected void Toggle()
+    protected async Task Toggle()
     {
+        if (!IsEnabled)
+        {
+            return;
+        }
+
         Value = Value > 0.5 ? 0 : 1;
-        ValueChanged.InvokeAsync(Value);
+        await ValueChanged.InvokeAsync(Value);
     }
 }

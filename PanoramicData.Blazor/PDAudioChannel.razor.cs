@@ -43,13 +43,13 @@ public partial class PDAudioChannel
 	[Parameter] public EventCallback<double> PanValueChanged { get; set; }
 	[Parameter] public string PanColor { get; set; } = "purple";
 
-	// PFL Button - changed to double to match PDAudioButton
+	// PFL Button
 	[Parameter] public double PflValue { get; set; }
 	[Parameter] public EventCallback<double> PflValueChanged { get; set; }
 	[Parameter] public string PflActiveColor { get; set; } = "#0f0";
 	[Parameter] public string PflInactiveColor { get; set; } = "#040";
 
-	// Mute Button - changed to double to match PDAudioButton
+	// Mute Button
 	[Parameter] public double MuteValue { get; set; }
 	[Parameter] public EventCallback<double> MuteValueChanged { get; set; }
 	[Parameter] public string MuteActiveColor { get; set; } = "#f00";
@@ -60,14 +60,63 @@ public partial class PDAudioChannel
 	[Parameter] public EventCallback<double> FaderValueChanged { get; set; }
 
 	// Event handlers
-	private Task OnGainChanged(double value) => GainValueChanged.InvokeAsync(value);
-	private Task OnCompChanged(double value) => CompValueChanged.InvokeAsync(value);
-	private Task OnEqHighChanged(double value) => EqHighValueChanged.InvokeAsync(value);
-	private Task OnEqMidChanged(double value) => EqMidValueChanged.InvokeAsync(value);
-	private Task OnEqLowChanged(double value) => EqLowValueChanged.InvokeAsync(value);
-	private Task OnDspChanged(double value) => DspValueChanged.InvokeAsync(value);
-	private Task OnPanChanged(double value) => PanValueChanged.InvokeAsync(value);
-	private Task OnPflChanged(double value) => PflValueChanged.InvokeAsync(value);
-	private Task OnMuteChanged(double value) => MuteValueChanged.InvokeAsync(value);
-	private Task OnFaderChanged(double value) => FaderValueChanged.InvokeAsync(value);
+	private async Task OnGainChanged(double value)
+	{
+		GainValue = value;
+		await GainValueChanged.InvokeAsync(value);
+	}
+
+	private async Task OnCompChanged(double value)
+	{
+		CompValue = value;
+		await CompValueChanged.InvokeAsync(value);
+	}
+
+	private async Task OnEqHighChanged(double value)
+	{
+		EqHighValue = value;
+		await EqHighValueChanged.InvokeAsync(value);
+	}
+
+	private async Task OnEqMidChanged(double value)
+	{
+		EqMidValue = value;
+		await EqMidValueChanged.InvokeAsync(value);
+	}
+
+	private async Task OnEqLowChanged(double value)
+	{
+		EqLowValue = value;
+		await EqLowValueChanged.InvokeAsync(value);
+	}
+
+	private async Task OnDspChanged(double value)
+	{
+		DspValue = value;
+		await DspValueChanged.InvokeAsync(value);
+	}
+
+	private async Task OnPanChanged(double value)
+	{
+		PanValue = value;
+		await PanValueChanged.InvokeAsync(value);
+	}
+
+	private async Task OnPflChanged(double value)
+	{
+		PflValue = value;
+		await PflValueChanged.InvokeAsync(value);
+	}
+
+	private async Task OnMuteChanged(double value)
+	{
+		MuteValue = value;
+		await MuteValueChanged.InvokeAsync(value);
+	}
+
+	private async Task OnFaderChanged(double value)
+	{
+		FaderValue = value;
+		await FaderValueChanged.InvokeAsync(value);
+	}
 }

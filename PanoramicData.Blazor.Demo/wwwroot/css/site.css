@@ -1,10 +1,5 @@
-@font-face {
-	font-family: 'Tenorite';
-	src: url('/fonts/Tenorite.ttf');
-}
-
 html, body {
-	font-family: 'Tenorite', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 a, .btn-link {
@@ -19,6 +14,8 @@ a, .btn-link {
 
 .content {
 	padding-top: 10px;
+	overflow-y: auto;
+	height: 100%;
 }
 
 .icon-sharepoint {
