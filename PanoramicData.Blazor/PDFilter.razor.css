@@ -13,6 +13,13 @@
 	color: var(--bs-primary) !important;
 }
 
+/* This rule prevents the filter icons looking like buttons */
+.pd-filter ::deep .pd-dropdown > button
+{
+	border: none !important;
+	background: unset !important;
+}
+
 .filter-body
 {
 	font-weight: normal;
