@@ -1,6 +1,6 @@
 @inherits PDAudioControl
 
-<div class="pd-audio-button @CssClass" style="display:inline-block; user-select:none;">
+<div class="pd-audio-button @CssClass @(IsEnabled ? "" : "disabled")" style="display:inline-block; user-select:none;">
 	@if (LabelPosition == PDLabelPosition.Above)
 	{
 		@RenderLabel()

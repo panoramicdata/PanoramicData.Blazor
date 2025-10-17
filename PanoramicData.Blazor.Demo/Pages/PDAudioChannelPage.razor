@@ -19,75 +19,107 @@
 
 	<div class="mb-3">
 		<h3>Custom Colors</h3>
-		<span class="text-muted small">Channels with custom knob and button colors</span>
+		<span class="text-muted small">Channels with custom knob and button colors - interact to see events</span>
 	</div>
 
-	<div style="display: flex; gap: 20px;">
-		<PDAudioChannel Label="Guitar"
-						FaderValue="0.8"
-						GainColor="orange"
-						CompColor="cyan"
-						EqColor="yellow"
-						DspColor="lime"
-						PanColor="magenta"
-						PflActiveColor="#ff0"
-						PflInactiveColor="#880" />
+	<CascadingValue Value="_colorEventManager">
+		<div class="row g-3">
+			<div class="col-12 col-lg-8">
+				<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+					<PDAudioChannel Label="Guitar"
+									FaderValue="@_guitarFader"
+									GainValue="@_guitarGain"
+									PflValue="@_guitarPfl"
+									MuteValue="@_guitarMute"
+									FaderValueChanged="@(v => OnColorDemoValueChanged("Guitar", "Fader", ref _guitarFader, v))"
+									GainValueChanged="@(v => OnColorDemoValueChanged("Guitar", "Gain", ref _guitarGain, v))"
+									CompValueChanged="@(v => OnColorDemoValueChanged("Guitar", "Comp", ref _guitarComp, v))"
+									PflValueChanged="@(v => OnColorDemoValueChanged("Guitar", "PFL", ref _guitarPfl, v))"
+									MuteValueChanged="@(v => OnColorDemoValueChanged("Guitar", "Mute", ref _guitarMute, v))"
+									GainColor="orange"
+									CompColor="cyan"
+									EqColor="yellow"
+									DspColor="lime"
+									PanColor="magenta"
+									PflActiveColor="#ff0"
+									PflInactiveColor="#880" />
 
-		<PDAudioChannel Label="Bass"
-						FaderValue="0.6"
-						GainColor="#f0f"
-						CompColor="#0ff"
-						EqColor="pink"
-						MuteActiveColor="#0ff"
-						MuteInactiveColor="#088" />
+					<PDAudioChannel Label="Bass"
+									FaderValue="@_bassFader"
+									PflValue="@_bassPfl"
+									MuteValue="@_bassMute"
+									FaderValueChanged="@(v => OnColorDemoValueChanged("Bass", "Fader", ref _bassFader, v))"
+									GainValueChanged="@(v => OnColorDemoValueChanged("Bass", "Gain", ref _bassGain, v))"
+									PflValueChanged="@(v => OnColorDemoValueChanged("Bass", "PFL", ref _bassPfl, v))"
+									MuteValueChanged="@(v => OnColorDemoValueChanged("Bass", "Mute", ref _bassMute, v))"
+									GainColor="#f0f"
+									CompColor="#0ff"
+									EqColor="pink"
+									MuteActiveColor="#0ff"
+									MuteInactiveColor="#088" />
 
-		<PDAudioChannel Label="Drums"
-						FaderValue="0.9"
-						GainColor="white"
-						CompColor="silver"
-						DspColor="gold" />
-	</div>
+					<PDAudioChannel Label="Drums"
+									FaderValue="@_drumsFader"
+									PflValue="@_drumsPfl"
+									MuteValue="@_drumsMute"
+									FaderValueChanged="@(v => OnColorDemoValueChanged("Drums", "Fader", ref _drumsFader, v))"
+									GainValueChanged="@(v => OnColorDemoValueChanged("Drums", "Gain", ref _drumsGain, v))"
+									PflValueChanged="@(v => OnColorDemoValueChanged("Drums", "PFL", ref _drumsPfl, v))"
+									MuteValueChanged="@(v => OnColorDemoValueChanged("Drums", "Mute", ref _drumsMute, v))"
+									GainColor="white"
+									CompColor="silver"
+									DspColor="gold" />
+				</div>
+			</div>
+			<div class="col-12 col-lg-4">
+				<EventView />
+			</div>
+		</div>
+	</CascadingValue>
 
 	<hr class="my-4" />
 
 	<div class="mb-3">
-		<h3>Interactive Controls</h3>
-		<span class="text-muted small">Channel with bound values that can be controlled</span>
+		<h3>Interactive Controls with Event Logging</h3>
+		<span class="text-muted small">Channel with bound values that can be controlled - events shown on the right</span>
 	</div>
 
-	<div class="row">
-		<div class="col-md-2">
-			<PDAudioChannel @bind-FaderValue="_faderValue"
-							@bind-GainValue="_gainValue"
-							@bind-PanValue="_panValue"
-							@bind-MuteValue="_muteValue"
-							Label="Vocals" />
+	<CascadingValue Value="_interactiveEventManager">
+		<div class="row g-3">
+			<div class="col-12 col-lg-8">
+				<PDAudioChannel FaderValue="@_faderValue"
+								GainValue="@_gainValue"
+								CompValue="@_compValue"
+								EqHighValue="@_eqHighValue"
+								EqMidValue="@_eqMidValue"
+								EqLowValue="@_eqLowValue"
+								DspValue="@_dspValue"
+								PanValue="@_panValue"
+								PflValue="@_pflValue"
+								MuteValue="@_muteValue"
+								FaderValueChanged="@(v => OnValueChanged("Fader", ref _faderValue, v))"
+								GainValueChanged="@(v => OnValueChanged("Gain", ref _gainValue, v))"
+								CompValueChanged="@(v => OnValueChanged("Comp", ref _compValue, v))"
+								EqHighValueChanged="@(v => OnValueChanged("EQ High", ref _eqHighValue, v))"
+								EqMidValueChanged="@(v => OnValueChanged("EQ Mid", ref _eqMidValue, v))"
+								EqLowValueChanged="@(v => OnValueChanged("EQ Low", ref _eqLowValue, v))"
+								DspValueChanged="@(v => OnValueChanged("DSP", ref _dspValue, v))"
+								PanValueChanged="@(v => OnValueChanged("Pan", ref _panValue, v))"
+								PflValueChanged="@(v => OnValueChanged("PFL", ref _pflValue, v))"
+								MuteValueChanged="@(v => OnValueChanged("Mute", ref _muteValue, v))"
+								Label="Vocals" />
+			</div>
+			<div class="col-12 col-lg-4">
+				<EventView />
+			</div>
 		</div>
-		<div class="col-md-10">
-			<div class="mb-3">
-				<label class="form-label">Fader: @_faderValue.ToString("F2")</label>
-				<input type="range" class="form-range" min="0" max="1" step="0.01" @bind="_faderValue" />
-			</div>
-			<div class="mb-3">
-				<label class="form-label">Gain: @_gainValue.ToString("F2")</label>
-				<input type="range" class="form-range" min="0" max="1" step="0.01" @bind="_gainValue" />
-			</div>
-			<div class="mb-3">
-				<label class="form-label">Pan: @_panValue.ToString("F2")</label>
-				<input type="range" class="form-range" min="0" max="1" step="0.01" @bind="_panValue" />
-			</div>
-			<div class="mb-3">
-				<label class="form-check-label me-2">Mute: @(_muteValue > 0.5 ? "ON" : "OFF")</label>
-				<input type="checkbox" class="form-check-input" @bind="_muteChecked" @bind:after="OnMuteChanged" />
-			</div>
-		</div>
-	</div>
+	</CascadingValue>
 
 	<hr class="my-4" />
 
 	<div class="mb-3">
 		<h3>Disabled Channel</h3>
-		<span class="text-muted small">A channel in disabled state</span>
+		<span class="text-muted small">A channel in disabled state with diagonal hash overlay</span>
 	</div>
 
 	<div style="display: inline-block;">
@@ -100,15 +132,124 @@
 
 	<div class="mb-3">
 		<h3>Multiple Channels</h3>
-		<span class="text-muted small">Example showing multiple channels together</span>
+		<span class="text-muted small">Example showing multiple channels together - interact to see events</span>
 	</div>
 
-	<div style="display: flex; gap: 20px; flex-wrap: wrap;">
-		<PDAudioChannel Label="Ch 1" FaderValue="0.75" />
-		<PDAudioChannel Label="Ch 2" FaderValue="0.60" GainValue="0.7" />
-		<PDAudioChannel Label="Ch 3" FaderValue="0.85" PanValue="0.3" />
-		<PDAudioChannel Label="Ch 4" FaderValue="0.50" PanValue="0.7" />
-		<PDAudioChannel Label="Ch 5" FaderValue="0.65" MuteValue="1" />
-	</div>
+	<CascadingValue Value="_multiEventManager">
+		<div class="row g-3">
+			<div class="col-12 col-lg-8">
+				<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+					<PDAudioChannel Label="Ch 1" 
+									FaderValue="@_multi1Fader"
+									GainValue="@_multi1Gain"
+									CompValue="@_multi1Comp"
+									EqHighValue="@_multi1EqHigh"
+									EqMidValue="@_multi1EqMid"
+									EqLowValue="@_multi1EqLow"
+									DspValue="@_multi1Dsp"
+									PanValue="@_multi1Pan"
+									PflValue="@_multi1Pfl"
+									MuteValue="@_multi1Mute"
+									FaderValueChanged="@(v => OnMultiChannelValueChanged("Ch 1", "Fader", ref _multi1Fader, v))"
+									GainValueChanged="@(v => OnMultiChannelValueChanged("Ch 1", "Gain", ref _multi1Gain, v))"
+									CompValueChanged="@(v => OnMultiChannelValueChanged("Ch 1", "Comp", ref _multi1Comp, v))"
+									EqHighValueChanged="@(v => OnMultiChannelValueChanged("Ch 1", "EQ High", ref _multi1EqHigh, v))"
+									EqMidValueChanged="@(v => OnMultiChannelValueChanged("Ch 1", "EQ Mid", ref _multi1EqMid, v))"
+									EqLowValueChanged="@(v => OnMultiChannelValueChanged("Ch 1", "EQ Low", ref _multi1EqLow, v))"
+									DspValueChanged="@(v => OnMultiChannelValueChanged("Ch 1", "DSP", ref _multi1Dsp, v))"
+									PanValueChanged="@(v => OnMultiChannelValueChanged("Ch 1", "Pan", ref _multi1Pan, v))"
+									PflValueChanged="@(v => OnMultiChannelValueChanged("Ch 1", "PFL", ref _multi1Pfl, v))"
+									MuteValueChanged="@(v => OnMultiChannelValueChanged("Ch 1", "Mute", ref _multi1Mute, v))" />
+					<PDAudioChannel Label="Ch 2" 
+									FaderValue="@_multi2Fader" 
+									GainValue="@_multi2Gain"
+									CompValue="@_multi2Comp"
+									EqHighValue="@_multi2EqHigh"
+									EqMidValue="@_multi2EqMid"
+									EqLowValue="@_multi2EqLow"
+									DspValue="@_multi2Dsp"
+									PanValue="@_multi2Pan"
+									PflValue="@_multi2Pfl"
+									MuteValue="@_multi2Mute"
+									FaderValueChanged="@(v => OnMultiChannelValueChanged("Ch 2", "Fader", ref _multi2Fader, v))"
+									GainValueChanged="@(v => OnMultiChannelValueChanged("Ch 2", "Gain", ref _multi2Gain, v))"
+									CompValueChanged="@(v => OnMultiChannelValueChanged("Ch 2", "Comp", ref _multi2Comp, v))"
+									EqHighValueChanged="@(v => OnMultiChannelValueChanged("Ch 2", "EQ High", ref _multi2EqHigh, v))"
+									EqMidValueChanged="@(v => OnMultiChannelValueChanged("Ch 2", "EQ Mid", ref _multi2EqMid, v))"
+									EqLowValueChanged="@(v => OnMultiChannelValueChanged("Ch 2", "EQ Low", ref _multi2EqLow, v))"
+									DspValueChanged="@(v => OnMultiChannelValueChanged("Ch 2", "DSP", ref _multi2Dsp, v))"
+									PanValueChanged="@(v => OnMultiChannelValueChanged("Ch 2", "Pan", ref _multi2Pan, v))"
+									PflValueChanged="@(v => OnMultiChannelValueChanged("Ch 2", "PFL", ref _multi2Pfl, v))"
+									MuteValueChanged="@(v => OnMultiChannelValueChanged("Ch 2", "Mute", ref _multi2Mute, v))" />
+					<PDAudioChannel Label="Ch 3" 
+									FaderValue="@_multi3Fader" 
+									GainValue="@_multi3Gain"
+									CompValue="@_multi3Comp"
+									EqHighValue="@_multi3EqHigh"
+									EqMidValue="@_multi3EqMid"
+									EqLowValue="@_multi3EqLow"
+									DspValue="@_multi3Dsp"
+									PanValue="@_multi3Pan"
+									PflValue="@_multi3Pfl"
+									MuteValue="@_multi3Mute"
+									FaderValueChanged="@(v => OnMultiChannelValueChanged("Ch 3", "Fader", ref _multi3Fader, v))"
+									GainValueChanged="@(v => OnMultiChannelValueChanged("Ch 3", "Gain", ref _multi3Gain, v))"
+									CompValueChanged="@(v => OnMultiChannelValueChanged("Ch 3", "Comp", ref _multi3Comp, v))"
+									EqHighValueChanged="@(v => OnMultiChannelValueChanged("Ch 3", "EQ High", ref _multi3EqHigh, v))"
+									EqMidValueChanged="@(v => OnMultiChannelValueChanged("Ch 3", "EQ Mid", ref _multi3EqMid, v))"
+									EqLowValueChanged="@(v => OnMultiChannelValueChanged("Ch 3", "EQ Low", ref _multi3EqLow, v))"
+									DspValueChanged="@(v => OnMultiChannelValueChanged("Ch 3", "DSP", ref _multi3Dsp, v))"
+									PanValueChanged="@(v => OnMultiChannelValueChanged("Ch 3", "Pan", ref _multi3Pan, v))"
+									PflValueChanged="@(v => OnMultiChannelValueChanged("Ch 3", "PFL", ref _multi3Pfl, v))"
+									MuteValueChanged="@(v => OnMultiChannelValueChanged("Ch 3", "Mute", ref _multi3Mute, v))" />
+					<PDAudioChannel Label="Ch 4" 
+									FaderValue="@_multi4Fader" 
+									GainValue="@_multi4Gain"
+									CompValue="@_multi4Comp"
+									EqHighValue="@_multi4EqHigh"
+									EqMidValue="@_multi4EqMid"
+									EqLowValue="@_multi4EqLow"
+									DspValue="@_multi4Dsp"
+									PanValue="@_multi4Pan"
+									PflValue="@_multi4Pfl"
+									MuteValue="@_multi4Mute"
+									FaderValueChanged="@(v => OnMultiChannelValueChanged("Ch 4", "Fader", ref _multi4Fader, v))"
+									GainValueChanged="@(v => OnMultiChannelValueChanged("Ch 4", "Gain", ref _multi4Gain, v))"
+									CompValueChanged="@(v => OnMultiChannelValueChanged("Ch 4", "Comp", ref _multi4Comp, v))"
+									EqHighValueChanged="@(v => OnMultiChannelValueChanged("Ch 4", "EQ High", ref _multi4EqHigh, v))"
+									EqMidValueChanged="@(v => OnMultiChannelValueChanged("Ch 4", "EQ Mid", ref _multi4EqMid, v))"
+									EqLowValueChanged="@(v => OnMultiChannelValueChanged("Ch 4", "EQ Low", ref _multi4EqLow, v))"
+									DspValueChanged="@(v => OnMultiChannelValueChanged("Ch 4", "DSP", ref _multi4Dsp, v))"
+									PanValueChanged="@(v => OnMultiChannelValueChanged("Ch 4", "Pan", ref _multi4Pan, v))"
+									PflValueChanged="@(v => OnMultiChannelValueChanged("Ch 4", "PFL", ref _multi4Pfl, v))"
+									MuteValueChanged="@(v => OnMultiChannelValueChanged("Ch 4", "Mute", ref _multi4Mute, v))" />
+					<PDAudioChannel Label="Ch 5" 
+									FaderValue="@_multi5Fader" 
+									GainValue="@_multi5Gain"
+									CompValue="@_multi5Comp"
+									EqHighValue="@_multi5EqHigh"
+									EqMidValue="@_multi5EqMid"
+									EqLowValue="@_multi5EqLow"
+									DspValue="@_multi5Dsp"
+									PanValue="@_multi5Pan"
+									PflValue="@_multi5Pfl"
+									MuteValue="@_multi5Mute"
+									FaderValueChanged="@(v => OnMultiChannelValueChanged("Ch 5", "Fader", ref _multi5Fader, v))"
+									GainValueChanged="@(v => OnMultiChannelValueChanged("Ch 5", "Gain", ref _multi5Gain, v))"
+									CompValueChanged="@(v => OnMultiChannelValueChanged("Ch 5", "Comp", ref _multi5Comp, v))"
+									EqHighValueChanged="@(v => OnMultiChannelValueChanged("Ch 5", "EQ High", ref _multi5EqHigh, v))"
+									EqMidValueChanged="@(v => OnMultiChannelValueChanged("Ch 5", "EQ Mid", ref _multi5EqMid, v))"
+									EqLowValueChanged="@(v => OnMultiChannelValueChanged("Ch 5", "EQ Low", ref _multi5EqLow, v))"
+									DspValueChanged="@(v => OnMultiChannelValueChanged("Ch 5", "DSP", ref _multi5Dsp, v))"
+									PanValueChanged="@(v => OnMultiChannelValueChanged("Ch 5", "Pan", ref _multi5Pan, v))"
+									PflValueChanged="@(v => OnMultiChannelValueChanged("Ch 5", "PFL", ref _multi5Pfl, v))"
+									MuteValueChanged="@(v => OnMultiChannelValueChanged("Ch 5", "Mute", ref _multi5Mute, v))" />
+				</div>
+			</div>
+			<div class="col-12 col-lg-4">
+				<EventView />
+			</div>
+		</div>
+	</CascadingValue>
 
 </DemoSourceView>

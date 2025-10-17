@@ -1,10 +1,16 @@
+/* Tenorite Font - Temporarily disabled
 @font-face {
 	font-family: 'Tenorite';
-	src: url('/fonts/Tenorite.ttf');
+	src: url('../fonts/Tenorite.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
 }
+*/
 
 html, body {
-	font-family: 'Tenorite', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	/* Using system fonts (Tenorite temporarily disabled) */
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 a, .btn-link {
@@ -19,6 +25,8 @@ a, .btn-link {
 
 .content {
 	padding-top: 10px;
+	overflow-y: auto;
+	height: 100%;
 }
 
 .icon-sharepoint {

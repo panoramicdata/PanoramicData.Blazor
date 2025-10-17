@@ -36,12 +36,11 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 	private DotNetObjectReference<PDAudioControl>? _dotNetRef;
 	private IJSObjectReference? _jsModule;
 	private int? _previousSnapPoints;
-	protected virtual string JsFileName => string.Empty; // Make virtual instead of abstract
+	protected virtual string JsFileName => string.Empty;
 
 	protected override async Task OnParametersSetAsync()
 	{
 		DefaultValue ??= 0.5;
-		Value = Math.Clamp(Value, 0, 1);
 		
 		// Update SnapIncrement based on SnapPoints
 		if (SnapPoints > 1)
@@ -53,21 +52,27 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 			SnapIncrement = 0;
 		}
 
-		// If SnapPoints changed, re-snap the current value
-		if (_previousSnapPoints != SnapPoints)
+		// If SnapPoints changed, notify parent to snap the value
+		if (_previousSnapPoints != SnapPoints && _previousSnapPoints != null)
 		{
 			_previousSnapPoints = SnapPoints;
 			
 			if (SnapIncrement > 0)
 			{
-				var newValue = Math.Round(Value / SnapIncrement) * SnapIncrement;
-				if (Math.Abs(newValue - Value) > 0.0001) // Only update if changed
+				var clampedValue = Math.Clamp(Value, 0, 1);
+				var newValue = Math.Round(clampedValue / SnapIncrement) * SnapIncrement;
+				if (Math.Abs(newValue - Value) > 0.0001)
 				{
-					Value = newValue;
-					await ValueChanged.InvokeAsync(Value);
+					await ValueChanged.InvokeAsync(newValue);
 				}
 			}
 		}
+		else if (_previousSnapPoints == null)
+		{
+			_previousSnapPoints = SnapPoints;
+		}
+		
+		await base.OnParametersSetAsync();
 	}
 
 	protected async Task OnPointerDown(PointerEventArgs e)
@@ -77,19 +82,15 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 			return;
 		}
 
-		// Only import JS module if JsFileName is not empty
 		if (!string.IsNullOrEmpty(JsFileName))
 		{
-			Logger.LogInformation("OnPointerDown: ClientY={ClientY}, Value={Value}", e.ClientY, Value);
 			_isDragging = true;
 			_dragOriginY = e.ClientY;
 			_dragOriginValue = Value;
 
-			// Create DotNetObjectReference and load JS module only once
 			_dotNetRef ??= DotNetObjectReference.Create(this);
 			_jsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", JsFileName);
 			
-			// Register event listeners for this drag operation
 			await _jsModule.InvokeVoidAsync("registerAudioControlEvents", _dotNetRef);
 		}
 	}
@@ -106,40 +107,33 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 		var sensitivity = 150.0;
 		var newValue = _dragOriginValue + (deltaY / sensitivity);
 		newValue = Math.Clamp(newValue, 0, 1);
+		
 		if (SnapIncrement > 0)
 		{
 			newValue = Math.Round(newValue / SnapIncrement) * SnapIncrement;
 		}
 
-		if (newValue != Value)
+		if (Math.Abs(newValue - Value) > 0.0001)
 		{
-			Value = newValue;
-			await ValueChanged.InvokeAsync(Value);
-			StateHasChanged();
+			await ValueChanged.InvokeAsync(newValue);
 		}
 	}
 
 	[JSInvokable]
 	public void OnPointerUp(double clientY)
 	{
-		Logger.LogInformation(
-			"OnPointerUp: ClientY={ClientY}, Value={Value}",
-			clientY,
-			Value);
 		_isDragging = false;
 	}
 
 	protected async void OnDoubleClick()
 	{
-		Logger.LogInformation("OnDoubleClick: Resetting to DefaultValue={DefaultValue}", DefaultValue);
-		Value = DefaultValue ?? 0.5;
+		var newValue = DefaultValue ?? 0.5;
 		if (SnapIncrement > 0)
 		{
-			Value = Math.Round(Value / SnapIncrement) * SnapIncrement;
+			newValue = Math.Round(newValue / SnapIncrement) * SnapIncrement;
 		}
 
-		await ValueChanged.InvokeAsync(Value);
-		StateHasChanged();
+		await ValueChanged.InvokeAsync(newValue);
 	}
 
 	protected static int CalculateMarkingStep(int maxVolume)
