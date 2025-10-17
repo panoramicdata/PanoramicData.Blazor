@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Size parameter now works again on PDDropDown button.
+			Added CssClass parameter to PDLog, to allow optional CSS class overrides.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

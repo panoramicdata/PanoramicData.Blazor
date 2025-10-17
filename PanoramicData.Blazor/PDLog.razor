@@ -1,4 +1,4 @@
-<div class="log-container" style="height: @($"{Rows * 2.5}em"); overflow-y: auto;" @ref="_logContainer">
+<div class="log-container @CssClass" style="height: @($"{Rows * 2.5}em"); overflow-y: auto;" @ref="_logContainer">
 	@foreach (var entry in OrderedEntries)
 	{
 		<div class="log-entry" style="white-space: @(WordWrap ? "normal" : "nowrap");">

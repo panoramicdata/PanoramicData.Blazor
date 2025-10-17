@@ -1,4 +1,5 @@
-.log-container {
+.log-container
+{
 	border: 1px solid var(--bs-border-color);
 	padding: 10px;
 	overflow-y: scroll;
@@ -11,33 +12,38 @@
 	color: var(--bs-body-color);
 }
 
-	.log-container hr {
-		margin-top: 1px;
-		margin-bottom: 1px;
-		border-color: var(--bs-border-color);
-		opacity: 0.25;
-	}
+.log-container hr
+{
+	margin-top: 1px;
+	margin-bottom: 1px;
+	border-color: var(--bs-border-color);
+	opacity: 0.25;
+}
 
-.log-entry {
+.log-entry
+{
 	display: flex;
 	align-items: flex-start;
 	padding: 5px 0;
 	gap: 8px;
 }
 
-	.log-entry i {
-		flex-shrink: 0;
-		vertical-align: middle; /* Align the icon vertically in the middle */
-		line-height: 1.5; /* Adjust line height for better alignment with text */
-	}
+.log-entry i
+{
+	flex-shrink: 0;
+	vertical-align: middle; /* Align the icon vertically in the middle */
+	line-height: 1.5; /* Adjust line height for better alignment with text */
+}
 
-.log-timestamp {
+.log-timestamp
+{
 	flex-shrink: 0;
 	white-space: nowrap; /* Prevent wrapping on spaces */
 	word-break: keep-all; /* Prevent breaking on hyphens */
 }
 
-.log-messages {
+.log-messages
+{
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
@@ -45,26 +51,31 @@
 	min-width: 0; /* Allow flexbox to shrink */
 }
 
-.log-message {
+.log-message
+{
 	display: block; /* Ensures each message line appears on a new line */
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 }
 
-	.log-message b {
-		color: var(--bs-warning);
-	}
+.log-message b
+{
+	color: var(--bs-warning);
+}
 
-.log-exception-type {
+.log-exception-type
+{
 	font-weight: bold;
 	color: var(--bs-danger);
 }
 
-.log-exception-message {
+.log-exception-message
+{
 	color: var(--bs-success);
 }
 
-.log-exception-stack {
+.log-exception-stack
+{
 	color: var(--bs-info);
 	font-size: 0.875em;
 	opacity: 0.9;

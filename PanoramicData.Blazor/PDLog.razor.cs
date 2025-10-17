@@ -9,7 +9,14 @@ public partial class PDLog : ILogger
 	private ElementReference _logContainer;
 
 	[Inject] public IJSRuntime? JSRuntime { get; set; }
+
 	private IJSObjectReference? _commonModule;
+
+	/// <summary>
+	/// Optional CSS class to apply to the "class" attribute on the log container.
+	/// </summary>
+	[Parameter]
+	public string CssClass { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets or sets the minimum log level to display.
