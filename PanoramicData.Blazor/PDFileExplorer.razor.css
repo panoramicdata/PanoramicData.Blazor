@@ -30,11 +30,11 @@
 }
 
 .pdfileexplorer .pdfe-toolbar {
-	height: 42px;
+	height: 50px;
 }
 
 .pdfileexplorer ::deep .pdsplitter.horizontal {
-	height: calc(100% - 42px);
+	height: calc(100% - 50px);
 }
 
 .pdfileexplorer .preview-header {
@@ -60,14 +60,14 @@
 	min-height: 140px;
 }
 
-	.progress-dialog .overall-progress {
-		display: flex;
-		justify-content: center;
-	}
+.progress-dialog .overall-progress {
+display: flex;
+justify-content: center;
+}
 
-	.progress-dialog .file-progress {
-		font-size: 10px;
-	}
+.progress-dialog .file-progress {
+font-size: 10px;
+}
 
 .progress-dialog-buttons {
 	display: flex;

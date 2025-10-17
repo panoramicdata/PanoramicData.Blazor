@@ -12,6 +12,11 @@ public partial class PDModal : IAsyncDisposable
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
+	/// Sets the modal button sizes in the footer
+	/// </summary>
+	[Parameter] public ButtonSizes ButtonSize { get; set; } = ButtonSizes.Medium;
+
+	/// <summary>
 	/// Sets additional CSS classes.
 	/// </summary>
 	[Parameter] public string CssClass { get; set; } = string.Empty;

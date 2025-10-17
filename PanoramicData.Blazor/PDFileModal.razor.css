@@ -1,7 +1,9 @@
-﻿.pdfilemodalexplorer {
+﻿.pdfilemodalexplorer
+{
 	height: 400px;
 }
 
-.pdfilemodalexplorer .pdfileexplorer {
+.pdfilemodalexplorer .pdfileexplorer
+{
 	height: 100%;
 }
