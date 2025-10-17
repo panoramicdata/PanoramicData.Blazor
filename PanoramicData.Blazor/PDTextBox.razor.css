@@ -20,7 +20,7 @@
 {
 	border: none !important; /* Remove all borders from button itself */
 	/*background: transparent !important;*/ /* Make button background transparent - no because that breaks light mode in all the Magic Suite apps */
-	padding: 0.375rem 0.5rem; /* Add some padding for clickability */
+	/*padding: 0.375rem 0.5rem;*/ /* Add some padding for clickability */
 	box-shadow: none !important; /* Remove any shadow */
 	outline: none !important; /* Remove outline */
 }
