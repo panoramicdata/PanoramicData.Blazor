@@ -1,4 +1,5 @@
-.btn.disabled, .btn:disabled
+.btn.disabled,
+.btn:disabled
 {
 	pointer-events: auto;
 	cursor: default;
@@ -7,4 +8,9 @@
 .pd-button .icon
 {
 	vertical-align: middle;
+}
+
+.pd-button > span
+{
+	line-height: 1.5;	/* Match bootstrap line-height (unit-less) so that buttons with icons only maintain the correct height */
 }

@@ -16,18 +16,22 @@
 			@onmousedown:stopPropagation="StopPropagation">
 		@if (ChildContent is null)
 		{
-			@if (!string.IsNullOrWhiteSpace(IconCssClass))
+			var hasIcon = !string.IsNullOrWhiteSpace(IconCssClass);
+			var hasText = !string.IsNullOrWhiteSpace(Text);
+
+			if (hasIcon)
 			{
 				<span class="icon @GetIconCssClass()"></span>
 			}
 
 			var textPaddingClass = string.Empty;
-			if (!string.IsNullOrWhiteSpace(Text) && !string.IsNullOrWhiteSpace(IconCssClass))
+			if (hasText && hasIcon)
 			{
+				// Add padding before the text
 				textPaddingClass = "ps-1";
 			}
 
-			<span class="@textPaddingClass @TextCssClass">@Text.GetShortcutMarkup()</span>
+			<span class="@textPaddingClass @TextCssClass">Text.GetShortcutMarkup()</span>
 		}
 		else
 		{
