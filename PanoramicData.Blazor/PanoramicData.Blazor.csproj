@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Adjusted padding in PDToolbars in modal footers (as those footers already have padding) so they don't wrap in certain modals. Added ability to set PDModal button sizes.
+			Fixed drop-down button incorrect size (due to padding) compared with all the other buttons.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

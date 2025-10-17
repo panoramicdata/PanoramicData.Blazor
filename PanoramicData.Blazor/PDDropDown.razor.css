@@ -1,18 +1,20 @@
-﻿.pd-dropdown {
+﻿.pd-dropdown
+{
 	display: inline-block;
 	position: relative; /* ? ADDED: Establish positioning context for dropdown menu */
 }
 
-.pd-dropdown button {
+.pd-dropdown button
+{
 	align-items: center;
 	display: inline-flex; /* ? CHANGED: Use inline-flex for proper alignment */
 	gap: 0.25rem;
 	border-radius: var(--bs-border-radius, 0.375rem); /* ? ADDED: Rounded corners for all dropdown buttons */
 	line-height: 1.5; /* ? ADDED: Consistent line height to fix text alignment */
-	padding: 0.375rem 0.75rem; /* ? ADDED: Bootstrap standard padding */
 }
 
-.pd-dropdown .dropdown-toggle::after {
+.pd-dropdown .dropdown-toggle::after
+{
 	display: none; /* Hide Bootstrap's default caret since we use our own */
 }
 
@@ -29,55 +31,64 @@
 }
 
 /* Ensure table inside dropdown menu respects rounded corners */
-.pd-dropdown .dropdown-menu table {
+.pd-dropdown .dropdown-menu table
+{
 	border-radius: inherit;
 	overflow: hidden;
 	margin: 0;
 }
 
 /* Round the first and last rows */
-.pd-dropdown .dropdown-menu table tr:first-child td {
+.pd-dropdown .dropdown-menu table tr:first-child td
+{
 	border-top-left-radius: var(--bs-border-radius, 0.375rem);
 	border-top-right-radius: var(--bs-border-radius, 0.375rem);
 }
 
-.pd-dropdown .dropdown-menu table tr:last-child td {
+.pd-dropdown .dropdown-menu table tr:last-child td
+{
 	border-bottom-left-radius: var(--bs-border-radius, 0.375rem);
 	border-bottom-right-radius: var(--bs-border-radius, 0.375rem);
 }
 
 /* Ensure divs inside dropdown menu respect rounded corners */
-.pd-dropdown .dropdown-menu > div {
+.pd-dropdown .dropdown-menu > div
+{
 	border-radius: inherit;
 	overflow: auto; /* ? ADDED: Allow scrolling if content is too long */
 	max-height: 400px; /* ? ADDED: Maximum height before scrolling */
 }
 
 /* Remove list styling from dropdown menus */
-.pd-dropdown .dropdown-menu ul {
+.pd-dropdown .dropdown-menu ul
+{
 	list-style: none;
 	padding: 0;
 	margin: 0;
 }
 
-.pd-dropdown .dropdown-menu li {
+.pd-dropdown .dropdown-menu li
+{
 	list-style: none;
 	padding: 0;
 	margin: 0;
 }
 
 /* Style dropdown items */
-.pd-dropdown .dropdown-menu li {
+.pd-dropdown .dropdown-menu li
+{
 	cursor: pointer;
 	transition: background-color 0.15s ease-in-out;
 }
 
-.pd-dropdown .dropdown-menu li:hover {
+.pd-dropdown .dropdown-menu li:hover
+{
 	background-color: var(--bs-secondary-bg);
 }
 
 /* Ensure PDLabel inside dropdown items takes full width and has proper padding */
-.pd-dropdown .dropdown-menu li ::deep .pd-label {
+.pd-dropdown .dropdown-menu li ::deep .pd-label
+{
 	display: block;
 	padding: 0.5rem 1rem;
 	color: var(--bs-body-color);
@@ -86,13 +97,15 @@
 	width: 100%;
 }
 
-.pd-dropdown .dropdown-menu li:hover ::deep .pd-label {
+.pd-dropdown .dropdown-menu li:hover ::deep .pd-label
+{
 	background-color: transparent;
 }
 
 /* Style for PDButton items in dropdown */
 .pd-dropdown .dropdown-menu > div > button,
-.pd-dropdown .dropdown-menu > div ::deep button {
+.pd-dropdown .dropdown-menu > div ::deep button
+{
 	width: 100%;
 	text-align: left;
 	border: none;
@@ -101,6 +114,7 @@
 }
 
 .pd-dropdown .dropdown-menu > div > button:hover,
-.pd-dropdown .dropdown-menu > div ::deep button:hover {
+.pd-dropdown .dropdown-menu > div ::deep button:hover
+{
 	background-color: var(--bs-secondary-bg);
 }
