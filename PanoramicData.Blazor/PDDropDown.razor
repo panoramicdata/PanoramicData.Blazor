@@ -1,13 +1,15 @@
 ﻿<div class="pd-dropdown dropdown @(Visible ? "" : "d-none")" id="@Id">
+
 	<button type="button"
 			id="@ToggleId"
-			class="@CssClass"
+			class="@($"{CssClass} {ButtonSizeClass}")"
 			disabled="@(!IsEnabled)"
 			data-bs-toggle="dropdown"
 			data-bs-offset="0,-3"
 			@onclick="Click"
 			@onmouseenter="OnMouseEnter"
 			title="@ToolTip">
+
 		@if (!string.IsNullOrWhiteSpace(IconCssClass))
 		{
 			<i class="@IconCssClass"></i>

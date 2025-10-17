@@ -114,7 +114,7 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 			{
 				ButtonSizes.Small => "btn-sm",
 				ButtonSizes.Large => "btn-lg",
-				_ => string.Empty,
+				_ => string.Empty
 			};
 		}
 	}

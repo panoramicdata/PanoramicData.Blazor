@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Fixed drop-down button incorrect size (due to padding) compared with all the other buttons.
+			Size parameter now works again on PDDropDown button.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

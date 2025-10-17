@@ -139,6 +139,14 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	[Parameter]
 	public bool Visible { get; set; } = true;
 
+	protected string ButtonSizeClass
+		=> Size switch
+		{
+			ButtonSizes.Small => "btn-sm",
+			ButtonSizes.Large => "btn-lg",
+			_ => string.Empty
+		};
+
 	public async ValueTask DisposeAsync()
 	{
 		try
