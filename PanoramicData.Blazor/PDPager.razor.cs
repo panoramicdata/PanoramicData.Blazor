@@ -84,8 +84,8 @@ public partial class PDPager : IDisposable, IEnablable
 		{
 			return Size switch
 			{
-				ButtonSizes.Small => "form-control-sm",
-				ButtonSizes.Large => "form-control-lg",
+				ButtonSizes.Small => "form-select-sm",
+				ButtonSizes.Large => "form-select-lg",
 				_ => string.Empty,
 			};
 		}

@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Added CssClass parameter to PDLog, to allow optional CSS class overrides.
+			Fixed the form-select control size in PDPager, which was incorrectly using "form-control-xx" rather than "form-select-xx", so it was always just the standard size.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
