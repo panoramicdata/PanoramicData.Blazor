@@ -1,4 +1,10 @@
-﻿.pdtoolbarplaceholder {
+﻿.pdtoolbarplaceholder
+{
 	display: flex;
 	align-items: center;
+}
+
+.pdtoolbarplaceholder:has(.pdtoolbaritem.align-right)
+{
+	margin-left: auto !important;
 }

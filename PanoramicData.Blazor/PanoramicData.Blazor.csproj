@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Fixed the form-select control size in PDPager, which was incorrectly using "form-control-xx" rather than "form-select-xx", so it was always just the standard size.
+			Fixed an issue where PDToolbarPlaceholders with child PDToolbarItems with ShiftRight property set would not shift right in the toolbar.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

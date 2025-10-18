@@ -1,17 +1,21 @@
-﻿.pdtoolbaritem {
+﻿.pdtoolbaritem
+{
 	padding: 5px;
 	display: inline-flex; /* Ensure toolbar items display inline */
 	align-items: center;
 }
 
-.pdtoolbaritem:first-child {
+.pdtoolbaritem:first-child
+{
 	padding-left: 0px;
 }
 
-.pdtoolbaritem:last-child {
+.pdtoolbaritem:last-child
+{
 	padding-right: 0px;
 }
 
-.pdtoolbaritem.align-right {
+.pdtoolbaritem.align-right
+{
 	margin-left: auto;
 }
