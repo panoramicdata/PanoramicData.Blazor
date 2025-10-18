@@ -22,6 +22,12 @@ public partial class PDConfirm : PDModalBase
 	}
 
 	/// <summary>
+	/// Sets the button size in the modal footer.
+	/// </summary>
+	[Parameter]
+	public ButtonSizes ButtonSize { get; set; } = ButtonSizes.Medium;
+
+	/// <summary>
 	/// Gets the text displayed on the Cancel button.
 	/// </summary>
 	[Parameter]
