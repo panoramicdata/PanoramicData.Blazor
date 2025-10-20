@@ -5,7 +5,7 @@
 	align-items: center;
 	display: flex !important; /* Force flex display */
 	flex-direction: row !important; /* Force horizontal direction */
-	flex-wrap: wrap !important; /* ✅ CHANGED: Allow wrapping to prevent overflow */
+	flex-wrap: wrap; /* ✅ CHANGED: Allow wrapping to prevent overflow */
 	gap: 0.25rem; /* Add small gap between items */
 	width: 100%; /* Ensure toolbar takes full width */
 	padding: 0.5rem; /* Add padding around toolbar */
