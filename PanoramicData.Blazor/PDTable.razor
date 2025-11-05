@@ -10,7 +10,7 @@
 	 @oncontextmenu:preventDefault
 	 @ondrop="OnDragDropAsync"
 	 @onkeydown="OnKeyDownAsync"
-     @onkeydown:stopPropagation>
+	 @onkeydown:stopPropagation>
 	<table class="table @TableClass"
 		   @onmousedown="OnTableMouseDown">
 		<thead>
@@ -59,7 +59,7 @@
 								<PDFilter FetchValuesAsync="@((f) => OnFetchFilterValuesAsync(column, f))"
 										  Filter="column.Filter"
 										  FilterChanged="OnFilterChanged"
-                                          Options="@column.FilterOptions"
+										  Options="@column.FilterOptions"
 										  ShowValues="@column.FilterShowSuggestedValues"
 										  DataType="@column.GetFilterDataType()"
 										  Nullable="@column.GetFilterIsNullable()" />
@@ -133,13 +133,30 @@
 									{
 										<PDClipboard CssClass="me-1" Text="@(column.GetRenderValue(item))" />
 									}
-									if (column.Template == null)
+
+									if (AllowRightClick)
 									{
-										@column.GetRenderValue(item)
+										<div @oncontextmenu:stopPropagation>
+											@if (column.Template == null)
+											{
+												@column.GetRenderValue(item)
+											}
+											else
+											{
+												@column.Template(item)
+											}
+										</div>
 									}
 									else
 									{
-										@column.Template(item)
+										if (column.Template == null)
+										{
+											@column.GetRenderValue(item)
+										}
+										else
+										{
+											@column.Template(item)
+										}
 									}
 								}
 							</td>

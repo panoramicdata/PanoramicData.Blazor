@@ -129,6 +129,11 @@ public partial class PDTable<TItem> :
 	[Parameter] public bool AutoLoad { get; set; } = true;
 
 	/// <summary>
+	/// Determines whether items can be right-clicked to show a context menu or perform an action.
+	/// </summary>
+	[Parameter] public bool AllowRightClick { get; set; }
+
+	/// <summary>
 	/// Callback fired before an item edit begins.
 	/// </summary>
 	[Parameter] public EventCallback<TableBeforeEditEventArgs<TItem>> BeforeEdit { get; set; }
