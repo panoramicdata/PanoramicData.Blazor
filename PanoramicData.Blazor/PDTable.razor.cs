@@ -696,7 +696,14 @@ public partial class PDTable<TItem> :
 			if (_commonModule != null)
 			{
 				// Using query selector that allows column names to be non-unique - i.e default col ids are col-1, col-2 etc.
-				await _commonModule.InvokeVoidAsync("scrollIntoViewEx", $"#{Id} #{column.Id}", "smooth", "nearest", "center");
+				try
+				{
+					await _commonModule.InvokeVoidAsync("scrollIntoViewEx", $"#{Id} #{column.Id}", "smooth", "nearest", "center");
+				}
+				catch (ObjectDisposedException)
+				{
+					// Silently handle disposal during async operation
+				}
 			}
 		}
 	}
@@ -933,6 +940,7 @@ public partial class PDTable<TItem> :
 			if (_commonModule != null)
 			{
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
+				_commonModule = null;
 			}
 		}
 		catch
