@@ -1,0 +1,54 @@
+@page "/form-title-width-test"
+@using PanoramicData.Blazor.Demo.Data
+@using PanoramicData.Blazor.Models
+
+<h1>Form Title Width Test</h1>
+
+<p>This page tests the behavior of the <code>TitleWidth</code> parameter on multiple forms.</p>
+<p>The first form should have title widths of 200px, and the second form should have 300px.</p>
+
+<div class="mb-3">
+    <button class="btn btn-primary me-2" @onclick="ShowForm1">Show Form 1 (200px)</button>
+    <button class="btn btn-primary" @onclick="ShowForm2">Show Form 2 (300px)</button>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Form 1 (TitleWidth = 200)</h3>
+        <PDForm @ref="_form1" TItem="Person"
+                DataProvider="_personDataProvider">
+            <PDFormBody TItem="Person" TitleWidth="200">
+                <PDField TItem="Person" Field="x => x.FirstName" />
+                <PDField TItem="Person" Field="x => x.LastName" />
+                <PDField TItem="Person" Field="x => x.Email" />
+            </PDFormBody>
+        </PDForm>
+    </div>
+    <div class="col-md-6">
+        <h3>Form 2 (TitleWidth = 300)</h3>
+        <PDForm @ref="_form2" TItem="Person"
+                DataProvider="_personDataProvider">
+            <PDFormBody TItem="Person" TitleWidth="300">
+                <PDField TItem="Person" Field="x => x.FirstName" />
+                <PDField TItem="Person" Field="x => x.LastName" />
+                <PDField TItem="Person" Field="x => x.Email" />
+            </PDFormBody>
+        </PDForm>
+    </div>
+</div>
+
+@code {
+    private readonly PersonDataProvider _personDataProvider = new();
+    private PDForm<Person> _form1 = null!;
+    private PDForm<Person> _form2 = null!;
+
+    private async Task ShowForm1()
+    {
+        await _form1.EditItemAsync(new Person(), FormModes.Create);
+    }
+
+    private async Task ShowForm2()
+    {
+        await _form2.EditItemAsync(new Person(), FormModes.Create);
+    }
+}

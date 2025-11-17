@@ -1,16 +1,12 @@
 ﻿@typeparam TItem
 
-<style>
-	@WidthCssMarkup
-</style>
-
 @if (Form is null)
 {
 	<span>Form parameter has not been set.</span>
 }
 else if (Form.Mode != FormModes.Hidden)
 {
-	<div class="pd-form-body">
+	<div class="pd-form-body" style="@GetTitleWidthStyle()">
 		@if (Form.Mode != FormModes.Empty)
 		{
 			var fields = new List<FormField<TItem>>();
