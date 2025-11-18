@@ -132,3 +132,11 @@
 .z-1200 {
   z-index: 1200;
 }
+
+/* PDFormBody - Support dynamic title widths using CSS custom properties */
+.pd-form-body .title-box {
+  width: var(--title-width, 200px) !important;
+  min-width: var(--title-width, 200px) !important;
+  max-width: var(--title-width, 200px) !important;
+  flex: 0 0 var(--title-width, 200px) !important;
+}

@@ -39,7 +39,16 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	[Parameter] public int TitleWidth { get; set; } = 200;
 
-	private MarkupString WidthCssMarkup => new($".title-box {{ width: {TitleWidth}px }}");
+	// Keep for backwards compatability so browser refresh is not required to refresh css cache
+	private MarkupString WidthCssMarkup => new($".title-box {{ min-width: {TitleWidth}px }}");
+
+	/// <summary>
+	/// Gets the inline style for setting the title width using CSS custom properties.
+	/// </summary>
+	private string GetTitleWidthStyle()
+		=> TitleWidth > 0
+			? $"--title-width: {TitleWidth}px;"
+			: string.Empty;
 
 	public async ValueTask DisposeAsync()
 	{
