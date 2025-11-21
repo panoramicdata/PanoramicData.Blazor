@@ -61,7 +61,7 @@ public class FileExplorerPreviewProvider : DefaultPreviewProvider
 			{
 				details.Add($"<span class=\"h1 user-select-none\">{Path.GetFileNameWithoutExtension(item.Name)}</span>");
 				details.Add($"<span class=\"h4 user-select-none\">{Path.GetExtension(item.Name)[1..].ToUpperInvariant()} File</span>");
-				details.Add($"<span title=\"{item.FileSize:N0} bytes\">{item.FileSize.Bytes().Humanize(CultureInfo.InvariantCulture)}</span>");
+				details.Add($"<span class=\"user-select-none\" title=\"{item.FileSize:N0} bytes\">{item.FileSize.Bytes().Humanize(CultureInfo.InvariantCulture)}</span>");
 			}
 
 			details.Add($"<span title=\"{item.DateCreated}\" class=\"text-small text-muted user-select-none\">Created: {dc}</span>");
