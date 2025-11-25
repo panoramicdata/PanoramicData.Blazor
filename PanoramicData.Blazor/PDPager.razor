@@ -1,8 +1,8 @@
-﻿<nav aria-label="_pager" class="pdpager d-flex justify-content-between align-items-center">
+﻿<nav aria-label="_pager" class="pdpager" style="display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; width: 100%; gap: 1rem;">
 
     @if (ShowPageChangeButtons)
     {
-        <div class="direction-buttons">
+        <div class="direction-buttons" style="justify-self: start;">
             <PDButton Click="MoveFirst"
                 CssClass="btn-secondary"
                 IconCssClass="fa-fw fas fa-fast-backward"
@@ -15,12 +15,12 @@
                 IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
                 Size="Size" />
 
-			<span class="user-select-none mx-2">
-				<span class="d-none d-md-inline">Page</span>
-				<span class="ms-1">@PageCriteria.Page.ToString("N0")</span>
-				<span class="ms-1">of</span>
-				<span class="ms-1">@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount.ToString("N0"))</span>
-			</span>
+            <span class="user-select-none mx-2" style="white-space: nowrap;">
+                <span class="d-none d-md-inline">Page</span>
+                <span class="ms-1">@PageCriteria.Page.ToString("N0")</span>
+                <span class="ms-1">of</span>
+                <span class="ms-1">@(PageCriteria.PageCount == 0 ? 1 : PageCriteria.PageCount.ToString("N0"))</span>
+            </span>
 
             <PDButton Click="MoveNext"
                 CssClass="btn-secondary"
@@ -36,28 +36,30 @@
         </div>
     }
 
-    @if (ShowPageDescription)
-    {
-        if (PageCriteria.TotalCount == 0)
+    <div style="display: flex; justify-content: center; align-items: center;">
+        @if (ShowPageDescription)
         {
-            <div class="d-none d-lg-block text-nowrap user-select-none">
-                @NoItemsText
-            </div>
+            if (PageCriteria.TotalCount == 0)
+            {
+                <div class="d-none d-lg-block text-nowrap user-select-none">
+                    @NoItemsText
+                </div>
+            }
+            else
+            {
+                <div class="d-none d-lg-block text-nowrap user-select-none">
+                    <span>Showing</span>
+                    <span>@PageCriteria.PageRangeStart.ToString("N0") - @PageCriteria.PageRangeEnd.ToString("N0")</span>
+                    <span>of</span>
+                    <span>@PageCriteria.TotalCount.ToString("N0")</span>
+                </div>
+            }
         }
-        else
-        {
-            <div class="d-none d-lg-block text-nowrap user-select-none">
-                <span>Showing</span>
-                <span>@PageCriteria.PageRangeStart.ToString("N0") - @PageCriteria.PageRangeEnd.ToString("N0")</span>
-                <span>of</span>
-                <span>@PageCriteria.TotalCount.ToString("N0")</span>
-            </div>
-        }
-    }
+    </div>
 
     @if (ShowPageSizeChoices)
     {
-        <div class="d-none d-sm-flex align-items-center">
+        <div class="d-none d-sm-flex align-items-center" style="justify-self: end;">
             <div class="pe-2 text-nowrap d-none d-sm-block user-select-none">Page Size:</div>
             <select class="form-select @ControlSizeCssClass"
                 disabled="@(!IsEnabled)"

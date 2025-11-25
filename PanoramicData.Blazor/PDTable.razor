@@ -1,6 +1,15 @@
 ﻿@attribute [CascadingTypeParameter(nameof(TItem))]
 @typeparam TItem
 
+@if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Bottom)
+{
+	<PDPager IsEnabled="IsEnabled"
+			 NoItemsText=""
+			 PageCriteria="PageCriteria"
+			 PageSizeChoices="PageSizeChoices"
+			 Size="Size" />
+}
+
 <div id="@Id"
 	 class="pdtable @(IsEnabled ? "" : "disabled") @CssClass"
 	 tabindex="0"
@@ -14,20 +23,6 @@
 	<table class="table @TableClass"
 		   @onmousedown="OnTableMouseDown">
 		<thead>
-			@if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Bottom)
-			{
-				<tr>
-					<td colspan="@(ActualColumnsToDisplay.Count() + (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple ? 1 : 0))">
-						<div class="">
-							<PDPager IsEnabled="IsEnabled"
-									 NoItemsText=""
-									 PageCriteria="PageCriteria"
-									 PageSizeChoices="PageSizeChoices"
-									 Size="Size" />
-						</div>
-					</td>
-				</tr>
-			}
 			<tr>
 				@if (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple && ItemsToDisplay.Any())
 				{
@@ -157,23 +152,18 @@
 			}
 		</tbody>
 		<tfoot>
-			@if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Top)
-			{
-				<tr>
-					<td colspan="@(ActualColumnsToDisplay.Count() + (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple ? 1 : 0))">
-						<div class="">
-							<PDPager IsEnabled="IsEnabled"
-									 NoItemsText=""
-									 PageCriteria="PageCriteria"
-									 PageSizeChoices="PageSizeChoices"
-									 Size="Size" />
-						</div>
-					</td>
-				</tr>
-			}
 		</tfoot>
 	</table>
 </div>
+
+@if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Top)
+{
+	<PDPager IsEnabled="IsEnabled"
+			 NoItemsText=""
+			 PageCriteria="PageCriteria"
+			 PageSizeChoices="PageSizeChoices"
+			 Size="Size" />
+}
 
 <CascadingValue Value="(PDTable<TItem>)this" Name="Table">
 	@ChildContent
