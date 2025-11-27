@@ -22,6 +22,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 Key="Yes"
 							 Operation="OnYesAsync"
 							 OperationIconCssClass="fas fa-fw fa-circle-notch fa-spin"
+							 ShiftRight="true"
 							 Size="Size"
 							 Text="@YesButtonText" />
 
@@ -33,9 +34,10 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 Size="Size"
 							 Text="@NoButtonText" />
 
+			@* RB: Shift Right needs to only be done if visible, or it makes the Yes and No buttons in the wrong place *@
 			<PDToolbarPlaceholder ItemCssClass="text-danger"
 								  IsVisible="ShowErrorCount && ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit) && _errorCount > 0"
-								  ShiftRight="true">
+								  ShiftRight="ShowErrorCount && ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit) && _errorCount > 0">
 				<div class="d-flex flex-column">
 					<span>@(string.Format(ErrorCountMessage, _errorCount, _errorCount == 1 ? "" : "s", _errorFieldNames))</span>
 				</div>
