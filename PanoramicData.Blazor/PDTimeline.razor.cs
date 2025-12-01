@@ -14,7 +14,6 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	private int _viewportColumns;
 
 	private bool _isChartDragging;
-	private double _chartDragOrigin;
 	private int _selectionStartIndex = -1;
 	private int _selectionEndIndex = -1;
 	private int _lastSelectionStartIndex;
@@ -246,6 +245,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 
 	private int GetColumnIndexAtPoint(double clientX)
 	{
+		// Note: This method calculates using cached _canvasX.
 		var index = _columnOffset + (int)Math.Floor((clientX - _canvasX) / Options.Bar.Width);
 		return index < 0 ? 0 : index;
 	}
@@ -379,8 +379,15 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			&& !_isSelectionStartDragging && !_isSelectionEndDragging
 			&& MinDateTime != DateTime.MinValue)
 		{
+			// Refresh canvas position before starting drag in case timeline moved
+			if (_commonModule != null)
+			{
+				_canvasX = (int)await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true);
+			}
+
 			// check start time is enabled
 			var index = GetColumnIndexAtPoint(args.ClientX);
+			
 			var startTime = Scale.AddPeriods(RoundedMinDateTime, index);
 			if ((DisableBefore != DateTime.MinValue && startTime < DisableBefore)
 				|| (DisableAfter != DateTime.MinValue && startTime >= DisableAfter))
@@ -389,7 +396,6 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			}
 
 			_isChartDragging = true;
-			_chartDragOrigin = args.ClientX;
 			if (_commonModule != null)
 			{
 				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
@@ -399,13 +405,17 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
-	private async Task OnChartPointerMove(PointerEventArgs args)
+	private void OnChartPointerMove(PointerEventArgs args)
 	{
 		if (_isChartDragging)
 		{
-			_chartDragOrigin = args.ClientX;
+			// Use cached canvas position from drag start to avoid JS interop on every move
 			var index = GetColumnIndexAtPoint(args.ClientX);
-			await SetSelectionFromDrag(_selectionStartIndex, index).ConfigureAwait(true);
+			
+			// Handle both left-to-right and right-to-left dragging by ensuring proper order
+			var startIndex = Math.Min(_selectionStartIndex, index);
+			var endIndex = Math.Max(_selectionEndIndex, index);
+			_ = SetSelectionFromDrag(startIndex, endIndex).ConfigureAwait(true);
 		}
 	}
 
@@ -414,6 +424,8 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		if (_isChartDragging)
 		{
 			_isChartDragging = false;
+			// Don't reset _canvasXAtDragStart here - keep it for potential reuse
+			// It will be overwritten on the next pointer down anyway
 			if (MinDateTime != DateTime.MinValue)
 			{
 				await OnSelectionChangeEnd().ConfigureAwait(true);
@@ -554,12 +566,18 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 
 	private async Task OnSelectionEndPointerDown(PointerEventArgs args)
 	{
-		if (IsEnabled && Options.Selection.CanChangeEnd && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
+		if (IsEnabled && Options.Selection.CanChangeEnd && !_isSelectionStartDragging)
 		{
 			_isSelectionEndDragging = true;
+
+			// Refresh canvas position before starting drag in case timeline moved
+			if (_commonModule != null)
+			{
+				_canvasX = (int)await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true);
+			}
+
 			_lastSelectionStartIndex = _selectionStartIndex;
 			_lastSelectionEndIndex = _selectionEndIndex;
-			_chartDragOrigin = args.ClientX;
 			if (_commonModule != null)
 			{
 				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgSelectionHandleEnd).ConfigureAwait(true);
@@ -567,15 +585,16 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
-	private async Task OnSelectionEndPointerMove(PointerEventArgs args)
+	private void OnSelectionEndPointerMove(PointerEventArgs args)
 	{
 		if (_isSelectionEndDragging)
 		{
-			_chartDragOrigin = args.ClientX;
+			// Use cached canvas position from drag start to avoid JS interop on every move
 			var index = GetColumnIndexAtPoint(args.ClientX);
+			
 			if (index >= _selectionStartIndex)
 			{
-				await SetSelectionFromDrag(_selectionStartIndex, index).ConfigureAwait(true);
+				_ = SetSelectionFromDrag(_selectionStartIndex, index).ConfigureAwait(true);
 			}
 		}
 	}
@@ -585,6 +604,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		if (_isSelectionEndDragging)
 		{
 			_isSelectionEndDragging = false;
+			// Don't reset _canvasXAtDragStart - it will be overwritten on next pointer down
 			if (MinDateTime != DateTime.MinValue)
 			{
 				await OnSelectionChangeEnd().ConfigureAwait(true);
@@ -594,12 +614,18 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 
 	private async Task OnSelectionStartPointerDown(PointerEventArgs args)
 	{
-		if (IsEnabled && Options.Selection.CanChangeStart && !_isChartDragging && !_isSelectionStartDragging && !_isSelectionEndDragging)
+		if (IsEnabled && Options.Selection.CanChangeStart && !_isSelectionEndDragging)
 		{
 			_isSelectionStartDragging = true;
+
+			// Refresh canvas position before starting drag in case timeline moved
+			if (_commonModule != null)
+			{
+				_canvasX = (int)await _commonModule.InvokeAsync<double>("getX", _svgPlotElement).ConfigureAwait(true);
+			}
+
 			_lastSelectionStartIndex = _selectionStartIndex;
 			_lastSelectionEndIndex = _selectionEndIndex;
-			_chartDragOrigin = args.ClientX;
 			if (_commonModule != null)
 			{
 				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgSelectionHandleStart).ConfigureAwait(true);
@@ -607,15 +633,15 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
-	private async Task OnSelectionStartPointerMove(PointerEventArgs args)
+	private void OnSelectionStartPointerMove(PointerEventArgs args)
 	{
 		if (_isSelectionStartDragging)
 		{
-			_chartDragOrigin = args.ClientX;
 			var index = GetColumnIndexAtPoint(args.ClientX);
+			
 			if (index <= _selectionEndIndex)
 			{
-				await SetSelectionFromDrag(index, _selectionEndIndex).ConfigureAwait(true);
+				_ = SetSelectionFromDrag(index, _selectionEndIndex).ConfigureAwait(true);
 			}
 		}
 	}
@@ -685,11 +711,8 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 				_lastQueryScale = Scale;
 
 				// cancel previous query?
-				if (_refreshCancellationToken != null)
-				{
-					_refreshCancellationToken.Cancel();
-					_refreshCancellationToken = null;
-				}
+				_refreshCancellationToken?.Cancel();
+				_refreshCancellationToken = null;
 
 				// either fetch all data points for scale, or just the current viewport
 				_loading = true;

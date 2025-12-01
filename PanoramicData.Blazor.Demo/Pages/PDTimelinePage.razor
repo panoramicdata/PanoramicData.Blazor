@@ -63,23 +63,35 @@
 
 		<PDTimelineToolbar ShowRange="false"
 						   Timeline="_timeline" />
-		<PDTimeline @ref="_timeline"
-					DataProvider="GetTimelineData"
-					DisableAfter="_model.DisableAfter"
-					DisableBefore="_model.DisableBefore"
-					IsEnabled="_isEnabled"
-					NewMaxDateTimeAvailable="_moreDataAvailable"
-					NewMinDateTimeAvailable="_moreDataAvailable"
-					MaxDateTime="_maxDate"
-					MinDateTime="_minDate"
-					Options="_timelineOptions"
-					Refreshed="OnRefreshed"
-					SelectionChanged="OnSelectionChanged"
-					SelectionChangeEnd="OnSelectionChangeEnd"
-					Scale="_model.Scale"
-					ScaleChanged="OnScaleChanged"
-					UpdateMaxDate="OnUpdateMaxDate"
-					UpdateMinDate="OnUpdateMinDate" />
+
+		<PDSplitter Direction="SplitDirection.Horizontal" ExpandToMin="true">
+			<PDSplitPanel Size="1" MinSize="200">
+				<div style="padding: 10px;">
+					<h5>Sample Content (drag splitter to move timeline)</h5>
+					<p>This panel demonstrates the fix for PDTimeline when moved via PDSplitter.</p>
+					<p>Drag the splitter to move the timeline horizontally and verify that selection still works correctly.</p>
+				</div>
+			</PDSplitPanel>
+			<PDSplitPanel Size="1" MinSize="200">
+				<PDTimeline @ref="_timeline"
+							DataProvider="GetTimelineData"
+							DisableAfter="_model.DisableAfter"
+							DisableBefore="_model.DisableBefore"
+							IsEnabled="_isEnabled"
+							NewMaxDateTimeAvailable="_moreDataAvailable"
+							NewMinDateTimeAvailable="_moreDataAvailable"
+							MaxDateTime="_maxDate"
+							MinDateTime="_minDate"
+							Options="_timelineOptions"
+							Refreshed="OnRefreshed"
+							SelectionChanged="OnSelectionChanged"
+							SelectionChangeEnd="OnSelectionChangeEnd"
+							Scale="_model.Scale"
+							ScaleChanged="OnScaleChanged"
+							UpdateMaxDate="OnUpdateMaxDate"
+							UpdateMinDate="OnUpdateMinDate" />
+			</PDSplitPanel>
+		</PDSplitter>
 
 		<div>
 			Range: @($"{_minDate:g} - {_maxDate:g}"))
