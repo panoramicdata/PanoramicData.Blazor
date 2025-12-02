@@ -3,6 +3,11 @@
 public partial class PDPager : IDisposable, IEnablable
 {
 	/// <summary>
+	/// Additional CSS that can be applied to a pager component.
+	/// </summary>
+	[Parameter] public string CssClass { get; set; } = string.Empty;
+
+	/// <summary>
 	/// Determines whether the component is enabled or not.
 	/// </summary>
 	[Parameter] public bool IsEnabled { get; set; } = true;
