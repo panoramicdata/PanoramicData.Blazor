@@ -183,26 +183,20 @@ public class Filter
 		}
 		else
 		{
-			var idx = text.IndexOf($"{Key}:", StringComparison.Ordinal);
-			if (idx == -1)
+			// Parse all filters and find the one matching this key
+			var filters = ParseMany(text).ToList();
+			var matchingFilter = filters.FirstOrDefault(f => f.Key == Key);
+			
+			if (matchingFilter is null)
 			{
 				Clear();
 			}
 			else
 			{
-				// read until next unquoted white space
-				var filter = ParseMany(text[idx..]).FirstOrDefault();
-				if (filter is null)
-				{
-					Clear();
-				}
-				else
-				{
-					FilterType = filter.FilterType;
-					Value = filter.Value;
-					Value2 = filter.Value2;
-					Values = filter.Values;
-				}
+				FilterType = matchingFilter.FilterType;
+				Value = matchingFilter.Value;
+				Value2 = matchingFilter.Value2;
+				Values = matchingFilter.Values;
 			}
 		}
 	}
