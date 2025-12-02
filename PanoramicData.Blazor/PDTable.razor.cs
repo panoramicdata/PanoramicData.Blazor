@@ -238,6 +238,11 @@ public partial class PDTable<TItem> :
 	[Parameter] public string NoDataMessage { get; set; } = "No data";
 
 	/// <summary>
+	/// Gets or sets the CSS class to apply to the Pager, if present
+	/// </summary>
+	[Parameter] public string PagerCssClass { get; set; } = string.Empty;
+
+	/// <summary>
 	/// Gets or sets a function that calculates and returns CSS Classes for the row (TR element).
 	/// </summary>
 	[Parameter] public Func<TItem, string>? RowClass { get; set; }

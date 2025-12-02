@@ -3,7 +3,8 @@
 
 @if (PageCriteria != null && ShowPager && PagerPosition != PagerPositions.Bottom)
 {
-	<PDPager IsEnabled="IsEnabled"
+	<PDPager CssClass="@PagerCssClass"
+			 IsEnabled="IsEnabled"
 			 NoItemsText=""
 			 PageCriteria="PageCriteria"
 			 PageSizeChoices="PageSizeChoices"
