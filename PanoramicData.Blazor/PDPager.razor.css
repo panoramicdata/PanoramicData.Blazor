@@ -1,20 +1,48 @@
-.direction-buttons {
-	align-items: baseline;
-	display: flex;
+.pdpager
+{
+	align-items: center;
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: 1fr 1fr 1fr;
+	padding: 0.5rem;
+	width: 100%;
 }
 
-::deep .direction-buttons button:nth-child(1) {
+.pdpager-page-description
+{
+	align-items: center;
+	display: flex;
+	justify-content: center;
+}
+
+.pdpager-page-size-container
+{
+	justify-self: end;
+}
+
+.direction-buttons
+{
+	align-items: baseline;
+	display: flex;
+	justify-self: start;
+}
+
+::deep .direction-buttons button:nth-child(1)
+{
 	border-radius: .25rem 0px 0px .25rem;
 }
 
-::deep .direction-buttons button:nth-child(2) {
+::deep .direction-buttons button:nth-child(2)
+{
 	border-radius: 0px;
 }
 
-::deep .direction-buttons button:nth-child(4) {
+::deep .direction-buttons button:nth-child(4)
+{
 	border-radius: 0px;
 }
 
-::deep .direction-buttons button:nth-child(5) {
+::deep .direction-buttons button:nth-child(5)
+{
 	border-radius: 0px .25rem .25rem 0px;
 }

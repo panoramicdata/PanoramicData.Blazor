@@ -1,19 +1,19 @@
-﻿<nav aria-label="_pager" class="pdpager" style="display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; width: 100%; gap: 1rem;">
+﻿<nav aria-label="_pager" class="pdpager">
 
     @if (ShowPageChangeButtons)
     {
-        <div class="direction-buttons" style="justify-self: start;">
+        <div class="direction-buttons">
             <PDButton Click="MoveFirst"
-                CssClass="btn-secondary"
-                IconCssClass="fa-fw fas fa-fast-backward"
-                IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
-                Size="Size" />
+					  CssClass="btn-secondary"
+					  IconCssClass="fa-fw fas fa-fast-backward"
+					  IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
+					  Size="Size" />
 
             <PDButton Click="MovePrevious"
-                CssClass="btn-secondary ms-1"
-                IconCssClass="fa-fw fas fa-backward"
-                IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
-                Size="Size" />
+					  CssClass="btn-secondary ms-1"
+					  IconCssClass="fa-fw fas fa-backward"
+					  IsEnabled="@(IsEnabled && !PageCriteria.IsFirstPage)"
+					  Size="Size" />
 
             <span class="user-select-none mx-2" style="white-space: nowrap;">
                 <span class="d-none d-md-inline">Page</span>
@@ -23,43 +23,41 @@
             </span>
 
             <PDButton Click="MoveNext"
-                CssClass="btn-secondary"
-                IconCssClass="fa-fw fas fa-forward"
-                IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
-                Size="Size" />
+					  CssClass="btn-secondary"
+					  IconCssClass="fa-fw fas fa-forward"
+					  IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
+					  Size="Size" />
 
             <PDButton Click="MoveLast"
-                CssClass="btn-secondary ms-1"
-                IconCssClass="fa-fw fas fa-fast-forward"
-                IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
-                Size="Size" />
+					  CssClass="btn-secondary ms-1"
+					  IconCssClass="fa-fw fas fa-fast-forward"
+					  IsEnabled="@(IsEnabled && !PageCriteria.IsLastPage && PageCriteria.Page <= PageCriteria.PageCount)"
+					  Size="Size" />
         </div>
     }
 
-    <div style="display: flex; justify-content: center; align-items: center;">
+    <div class="pdpager-page-description">
         @if (ShowPageDescription)
         {
-            if (PageCriteria.TotalCount == 0)
-            {
-                <div class="d-none d-lg-block text-nowrap user-select-none">
-                    @NoItemsText
-                </div>
-            }
-            else
-            {
-                <div class="d-none d-lg-block text-nowrap user-select-none">
-                    <span>Showing</span>
-                    <span>@PageCriteria.PageRangeStart.ToString("N0") - @PageCriteria.PageRangeEnd.ToString("N0")</span>
-                    <span>of</span>
-                    <span>@PageCriteria.TotalCount.ToString("N0")</span>
-                </div>
-            }
+			<div class="d-none d-lg-block text-nowrap user-select-none">
+				@if (PageCriteria.TotalCount == 0)
+				{
+					@NoItemsText
+				}
+				else
+				{
+					<span>Showing</span>
+					<span>@PageCriteria.PageRangeStart.ToString("N0") - @PageCriteria.PageRangeEnd.ToString("N0")</span>
+					<span>of</span>
+					<span>@PageCriteria.TotalCount.ToString("N0")</span>
+				}
+			</div>
         }
     </div>
 
     @if (ShowPageSizeChoices)
     {
-        <div class="d-none d-sm-flex align-items-center" style="justify-self: end;">
+        <div class="d-none d-sm-flex align-items-center pdpager-page-size-container">
             <div class="pe-2 text-nowrap d-none d-sm-block user-select-none">Page Size:</div>
             <select class="form-select @ControlSizeCssClass"
                 disabled="@(!IsEnabled)"
