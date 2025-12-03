@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDPager now has CssClass so you can add additional CSS. PDTable now has PagerCssClass so you can add additional CSS to the pager area.
+			Refactor filter parsing logic to prevent joining Filters.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
