@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2025-10-15 15:44:39
+Generated on: 2025-12-06 12:06:45
 
 ## PDAnimation
 
@@ -213,6 +213,7 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
+| ButtonSize | ButtonSizes | Sets the button size in the modal footer. |
 | CancelText | string | Gets the text displayed on the Cancel button. |
 | ChildContent | RenderFragment? | Sets the content displayed in the modal dialog body. |
 | Message | string | Gets the message to be displayed if the ChildContent not supplied. |
@@ -616,6 +617,7 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
+| CssClass | string | Optional CSS class to apply to the "class" attribute on the log container. |
 | LogLevel | LogLevel | Gets or sets the minimum log level to display. |
 | Capacity | int | Gets or sets the maximum number of log entries to keep. |
 | Rows | int | Gets or sets the number of rows to display. |
