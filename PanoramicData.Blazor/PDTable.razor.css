@@ -91,3 +91,21 @@ th.text-right .hdr {
 th.text-left .hdr {
 	justify-content: flex-start;
 }
+
+/* Sticky header styles for scrollable table mode */
+::deep .pdtable-sticky-header {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	background-color: var(--bs-body-bg, #fff);
+}
+
+::deep .pdtable-sticky-header th {
+	background-color: inherit;
+}
+
+/* Container for scrollable table mode */
+.pdtable-container {
+	display: flex;
+	flex-direction: column;
+}

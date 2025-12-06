@@ -1,0 +1,235 @@
+@page "/pdtable-sticky"
+@using PanoramicData.Blazor.Demo.Data
+
+<h1>PDTable - Sticky Header & Pager</h1>
+
+<style>
+	.demo-container {
+		margin-bottom: 2rem;
+		padding: 1rem;
+		border: 1px solid #dee2e6;
+		border-radius: 0.25rem;
+	}
+
+	.demo-title {
+		font-weight: bold;
+		margin-bottom: 0.5rem;
+		color: #495057;
+	}
+
+	.demo-description {
+		margin-bottom: 1rem;
+		color: #6c757d;
+		font-size: 0.9rem;
+	}
+</style>
+
+<DemoSourceView SourceFiles="Pages/PDTableStickyPage.razor, Pages/PDTableStickyPage.razor.cs, Data/PersonDataProvider.cs">
+
+	<div class="demo-container">
+		<div class="demo-title">Example 1: Scrollable Table with Sticky Header</div>
+		<div class="demo-description">
+			MaxHeight="400px", StickyHeader="true" - Header stays visible while scrolling through many rows
+		</div>
+
+		<PDTable @ref="Table1"
+				 TItem="Person"
+				 DataProvider="_personDataProvider"
+				 KeyField="x => x.Id"
+				 MaxHeight="400px"
+				 StickyHeader="true"
+				 PageCriteria="_pageCriteria1"
+				 PageSizeChoices="new uint[] { 10, 25, 50, 100 }"
+				 SelectionMode="TableSelectionMode.Single">
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Id"
+					  Editable="false"
+					  IsVisible="false" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.FirstName"
+					  Filterable="true" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.LastName"
+					  Filterable="true" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Email"
+					  Filterable="true" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Dob"
+					  Title="Date of Birth"
+					  Format="yyyy-MM-dd" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Department" />
+
+		</PDTable>
+	</div>
+
+	<div class="demo-container">
+		<div class="demo-title">Example 2: Scrollable Table with Sticky Header and Sticky Pager</div>
+		<div class="demo-description">
+			MaxHeight="400px", StickyHeader="true", StickyPager="true" - Both header and pager stay fixed while content scrolls
+		</div>
+
+		<PDTable @ref="Table2"
+				 TItem="Person"
+				 DataProvider="_personDataProvider"
+				 KeyField="x => x.Id"
+				 MaxHeight="400px"
+				 StickyHeader="true"
+				 StickyPager="true"
+				 PageCriteria="_pageCriteria2"
+				 PageSizeChoices="new uint[] { 10, 25, 50, 100 }"
+				 SelectionMode="TableSelectionMode.Single">
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Id"
+					  Editable="false"
+					  IsVisible="false" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.FirstName"
+					  Filterable="true" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.LastName"
+					  Filterable="true" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Email"
+					  Filterable="true" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Dob"
+					  Title="Date of Birth"
+					  Format="yyyy-MM-dd" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Department" />
+
+		</PDTable>
+	</div>
+
+	<div class="demo-container">
+		<div class="demo-title">Example 3: Scrollable Table with Pager at Bottom</div>
+		<div class="demo-description">
+			MaxHeight="400px", StickyHeader="true", StickyPager="true", PagerPosition="Bottom" - Pager at bottom inside sticky area
+		</div>
+
+		<PDTable @ref="Table3"
+				 TItem="Person"
+				 DataProvider="_personDataProvider"
+				 KeyField="x => x.Id"
+				 MaxHeight="400px"
+				 StickyHeader="true"
+				 StickyPager="true"
+				 PagerPosition="PagerPositions.Bottom"
+				 PageCriteria="_pageCriteria3"
+				 PageSizeChoices="new uint[] { 10, 25, 50, 100 }"
+				 SelectionMode="TableSelectionMode.Single">
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Id"
+					  Editable="false"
+					  IsVisible="false" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.FirstName"
+					  Filterable="true" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.LastName"
+					  Filterable="true" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Email"
+					  Filterable="true" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Dob"
+					  Title="Date of Birth"
+					  Format="yyyy-MM-dd" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Department" />
+
+		</PDTable>
+	</div>
+
+	<div class="demo-container">
+		<div class="demo-title">Example 4: Table with Few Rows (No Scrollbar)</div>
+		<div class="demo-description">
+			MaxHeight="400px", StickyHeader="true", StickyPager="true", PageSize=5 - When content fits, no scrollbar appears but pager stays at bottom
+		</div>
+
+		<PDTable @ref="Table4"
+				 TItem="Person"
+				 DataProvider="_personDataProvider"
+				 KeyField="x => x.Id"
+				 MaxHeight="400px"
+				 StickyHeader="true"
+				 StickyPager="true"
+				 PageCriteria="_pageCriteria4"
+				 PageSizeChoices="new uint[] { 5, 10, 25, 50 }"
+				 SelectionMode="TableSelectionMode.Single">
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Id"
+					  Editable="false"
+					  IsVisible="false" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.FirstName" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.LastName" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Email" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Department" />
+
+		</PDTable>
+	</div>
+
+	<div class="demo-container">
+		<div class="demo-title">Example 5: Standard Table (No MaxHeight)</div>
+		<div class="demo-description">
+			No MaxHeight parameter - Renders as traditional table without scrolling (unchanged behavior)
+		</div>
+
+		<PDTable @ref="Table5"
+				 TItem="Person"
+				 DataProvider="_personDataProvider"
+				 KeyField="x => x.Id"
+				 PageCriteria="_pageCriteria5"
+				 PageSizeChoices="new uint[] { 5, 10, 25 }"
+				 SelectionMode="TableSelectionMode.Single">
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Id"
+					  Editable="false"
+					  IsVisible="false" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.FirstName" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.LastName" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Email" />
+
+			<PDColumn TItem="Person"
+					  Field="x => x.Department" />
+
+		</PDTable>
+	</div>
+
+</DemoSourceView>

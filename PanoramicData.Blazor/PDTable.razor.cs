@@ -367,6 +367,24 @@ public partial class PDTable<TItem> :
 	/// </summary>
 	[Parameter] public bool EditOnDoubleClick { get; set; }
 
+	/// <summary>
+	/// Gets or sets the maximum height of the table container. When set, enables scrollable mode.
+	/// </summary>
+	/// <remarks>Use CSS values like "400px", "50vh", etc. When null, the table renders as before without scrolling.</remarks>
+	[Parameter] public string? MaxHeight { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the table header (thead) stays visible at the top while the body scrolls.
+	/// Only applies when MaxHeight is set.
+	/// </summary>
+	[Parameter] public bool StickyHeader { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the pager stays at the bottom outside the scroll area.
+	/// Only applies when MaxHeight is set.
+	/// </summary>
+	[Parameter] public bool StickyPager { get; set; }
+
 	#endregion
 
 	/// <summary>
@@ -1596,7 +1614,7 @@ public partial class PDTable<TItem> :
 	{
 		if (IsEnabled && DragContext != null)
 		{
-			await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
+			await Drop.InvokeAsync(new DropEventArgs(null, DragContext.Payload, args.CtrlKey)). ConfigureAwait(true);
 		}
 	}
 
