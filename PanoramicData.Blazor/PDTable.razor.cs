@@ -13,6 +13,7 @@ public partial class PDTable<TItem> :
 	private Timer? _editTimer;
 	private static int _idSequence;
 	private string? _lastSearchText;
+	private int _lastColumnCount = 0;
 	private IJSObjectReference? _commonModule;
 	private bool _mouseDownOriginatedFromTable;
 	private readonly string _idEditPrefix = "pd-table-edit-";
@@ -1159,12 +1160,17 @@ public partial class PDTable<TItem> :
 
 	protected override void OnParametersSet()
 	{
-		// Has search text changed?
-		// Only intercept when columns available to indicate state
-		if (ActualColumnsToDisplay.Count > 0 && SearchText != _lastSearchText)
+		var currentColumnCount = ActualColumnsToDisplay.Count;
+
+		// Process SearchText if:
+		// 1. Columns are available, AND
+		// 2. Either SearchText changed OR visible columns changed
+		if (currentColumnCount > 0 &&
+			(SearchText != _lastSearchText || currentColumnCount != _lastColumnCount))
 		{
-			//Console.WriteLine($"OnParametersSet: SearchText = {SearchText}");
 			_lastSearchText = SearchText;
+			_lastColumnCount = currentColumnCount;
+
 			foreach (var column in ActualColumnsToDisplay.Where(x => x.Filterable))
 			{
 				if (string.IsNullOrWhiteSpace(SearchText))

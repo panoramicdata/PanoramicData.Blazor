@@ -183,9 +183,9 @@ public class Filter
 		}
 		else
 		{
-			// Parse all filters and find the one matching this key
-			var filters = ParseMany(text).ToList();
-			var matchingFilter = filters.FirstOrDefault(f => f.Key == Key);
+			// Parse filters lazily and find the one matching this key (case-insensitive)
+			var matchingFilter = ParseMany(text)
+				.FirstOrDefault(f => string.Equals(f.Key, Key, StringComparison.OrdinalIgnoreCase));
 			
 			if (matchingFilter is null)
 			{
