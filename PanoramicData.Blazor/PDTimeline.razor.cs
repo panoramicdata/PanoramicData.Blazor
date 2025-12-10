@@ -418,11 +418,12 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			else
 			{
 				// Store initial position and mark as potential drag
-				// Always start a new selection if Shift wasn't used to initiate move
 				_isPotentialDrag = true;
 				_chartDragStartX = args.ClientX;
+				// Store the initial index for use in drag operations
 				_selectionStartIndex = index;
-				_selectionEndIndex = index;
+				// Reset end index to prevent visual artifact of extended selection
+				_selectionEndIndex = -1;
 			}
 			
 			if (_commonModule != null)
@@ -1056,46 +1057,84 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 
 		if (startIndex > -1 && endIndex > -1)
 		{
-			// calculate time period and sort into chronological order
-			var startTime = startIndex <= endIndex
-				? Scale.AddPeriods(RoundedMinDateTime, startIndex)
-				: Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, startIndex));
-			var endTime = startIndex <= endIndex
-				? Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, endIndex))
-				: Scale.PeriodStart(Scale.AddPeriods(RoundedMinDateTime, endIndex));
-			if (startTime > endTime)
+			// For single column selection (startIndex == endIndex), use period start and end
+			if (startIndex == endIndex)
 			{
-				(endTime, startTime) = (startTime, endTime);
-			}
-
-			// limit selection range to enabled range?
-			if (!Options.General.AllowDisableSelection)
-			{
-				if (DisableAfter != DateTime.MinValue && (endTime >= DisableAfter))
+				var periodStart = Scale.AddPeriods(RoundedMinDateTime, startIndex);
+				var startTime = Scale.PeriodStart(periodStart);
+				var endTime = Scale.PeriodEnd(periodStart);
+				
+				// limit selection range to enabled range?
+				if (!Options.General.AllowDisableSelection)
 				{
-					endTime = DisableAfter;
-					_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, endTime) - 1;
-				}
-
-				if (DisableBefore != DateTime.MinValue && (startTime < DisableBefore))
-				{
-					startTime = DisableBefore;
-					if (_isChartDragging)
+					if (DisableAfter != DateTime.MinValue && endTime > DisableAfter)
 					{
-						_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, startTime);
+						endTime = DisableAfter;
 					}
-					else
+
+					if (DisableBefore != DateTime.MinValue && startTime < DisableBefore)
 					{
-						_selectionStartIndex = Scale.PeriodsBetween(RoundedMinDateTime, startTime);
+						startTime = DisableBefore;
+					}
+					
+					// If the entire period is disabled, don't create selection
+					if (startTime >= endTime)
+					{
+						return;
 					}
 				}
+				
+				// notify if selection has changed
+				if (_selectionRange is null || startTime != _selectionRange.StartTime || endTime != _selectionRange.EndTime)
+				{
+					_selectionRange = new TimeRange { StartTime = startTime, EndTime = endTime };
+					await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
+				}
 			}
-
-			// notify if selection has changed
-			if (_selectionRange is null || startTime != _selectionRange.StartTime || endTime != _selectionRange.EndTime)
+			else
 			{
-				_selectionRange = new TimeRange { StartTime = startTime, EndTime = endTime };
-				await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
+				// Multi-column selection - calculate time period and sort into chronological order
+				var startTime = startIndex <= endIndex
+					? Scale.AddPeriods(RoundedMinDateTime, startIndex)
+					: Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, startIndex));
+				var endTime = startIndex <= endIndex
+					? Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, endIndex))
+					: Scale.PeriodStart(Scale.AddPeriods(RoundedMinDateTime, endIndex));
+				
+				if (startTime > endTime)
+				{
+					(endTime, startTime) = (startTime, endTime);
+				}
+
+				// limit selection range to enabled range?
+				if (!Options.General.AllowDisableSelection)
+				{
+					if (DisableAfter != DateTime.MinValue && (endTime >= DisableAfter))
+					{
+						endTime = DisableAfter;
+						_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, endTime) - 1;
+					}
+
+					if (DisableBefore != DateTime.MinValue && (startTime < DisableBefore))
+					{
+						startTime = DisableBefore;
+						if (_isChartDragging)
+						{
+							_selectionEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, startTime);
+						}
+						else
+						{
+							_selectionStartIndex = Scale.PeriodsBetween(RoundedMinDateTime, startTime);
+						}
+					}
+				}
+
+				// notify if selection has changed
+				if (_selectionRange is null || startTime != _selectionRange.StartTime || endTime != _selectionRange.EndTime)
+				{
+					_selectionRange = new TimeRange { StartTime = startTime, EndTime = endTime };
+					await SelectionChanged.InvokeAsync(_selectionRange).ConfigureAwait(true);
+				}
 			}
 
 			StateHasChanged();
@@ -1163,7 +1202,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			var scale = GetScaleToFit(_selectionRange.StartTime, _selectionRange.EndTime);
 			if (scale != null)
 			{
-				await SetScale(scale, forceRefresh, _selectionRange.EndTime, TimelinePositions.End).ConfigureAwait(true);
+				await SetScale(scale, forceRefresh, _selectionRange.EndTime, TimelinePositions.End). ConfigureAwait(true);
 			}
 		}
 	}
