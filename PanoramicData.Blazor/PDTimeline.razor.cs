@@ -14,6 +14,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	private int _viewportColumns;
 
 	private bool _isChartDragging;
+	private bool _isPotentialDrag; // Track if pointer is down but not yet dragging
+	private double _chartDragStartX;
+	private const double _dragThreshold = 5.0; // pixels
 	private int _selectionStartIndex = -1;
 	private int _selectionEndIndex = -1;
 	private int _lastSelectionStartIndex;
@@ -395,41 +398,62 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 				return;
 			}
 
-			_isChartDragging = true;
+			// Store initial position and mark as potential drag
+			_isPotentialDrag = true;
+			_chartDragStartX = args.ClientX;
+			_selectionStartIndex = index;
+			_selectionEndIndex = index;
+			
 			if (_commonModule != null)
 			{
 				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgPlotElement).ConfigureAwait(true);
 			}
-
-			await SetSelectionFromDrag(index, index).ConfigureAwait(true);
 		}
 	}
 
 	private void OnChartPointerMove(PointerEventArgs args)
 	{
+		// Check if we should start dragging based on movement threshold
+		if (_isPotentialDrag && !_isChartDragging)
+		{
+			var distance = Math.Abs(args.ClientX - _chartDragStartX);
+			if (distance >= _dragThreshold)
+			{
+				_isChartDragging = true;
+				_isPotentialDrag = false;
+			}
+		}
+		
 		if (_isChartDragging)
 		{
 			// Use cached canvas position from drag start to avoid JS interop on every move
 			var index = GetColumnIndexAtPoint(args.ClientX);
 			
-			// Handle both left-to-right and right-to-left dragging by ensuring proper order
-			var startIndex = Math.Min(_selectionStartIndex, index);
-			var endIndex = Math.Max(_selectionEndIndex, index);
-			_ = SetSelectionFromDrag(startIndex, endIndex).ConfigureAwait(true);
+			// Update selection based on drag direction
+			_ = SetSelectionFromDrag(_selectionStartIndex, index).ConfigureAwait(true);
 		}
 	}
 
 	private async Task OnChartPointerUp(PointerEventArgs args)
 	{
-		if (_isChartDragging)
+		if (_isPotentialDrag || _isChartDragging)
 		{
-			_isChartDragging = false;
-			// Don't reset _canvasXAtDragStart here - keep it for potential reuse
-			// It will be overwritten on the next pointer down anyway
+			// If we never started dragging (distance < threshold), treat as single click
+			if (_isPotentialDrag && !_isChartDragging)
+			{
+				var index = GetColumnIndexAtPoint(args.ClientX);
+				await SetSelectionFromDrag(index, index).ConfigureAwait(true);
+			}
+			
+			// Notify selection change complete for both single clicks and drags
 			if (MinDateTime != DateTime.MinValue)
 			{
 				await OnSelectionChangeEnd().ConfigureAwait(true);
 			}
+			
+			// Reset drag state but keep selection indices
+			_isChartDragging = false;
+			_isPotentialDrag = false;
 		}
 	}
 

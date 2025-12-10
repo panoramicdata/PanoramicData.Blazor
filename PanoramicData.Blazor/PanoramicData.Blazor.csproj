@@ -27,6 +27,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
 			Added scrollable table mode to PDTable with MaxHeight, StickyHeader, and StickyPager parameters. Maintains full backward compatibility.
+			Updated PDTimeline Selection Logic
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
