@@ -16,6 +16,9 @@ class Timeline {
 	};
 	ref = null;
 	debouncedResizeHandler = null;
+	plotElement = null;
+	shiftKeyDown = false;
+	lastMouseX = 0;
 
 	constructor(id, options, ref) {
 		var el = document.getElementById(id);
@@ -23,10 +26,74 @@ class Timeline {
 			this.el = el;
 			this.ref = ref;
 			this.options = options || this.options;
+			this.plotElement = el.querySelector('.tl-plot-area');
 			this.debouncedResizeHandler = this.debounce(() => this.onResize(), 500);
 			this.log("init timeline: ", arguments);
 			el.addEventListener('wheel', this.onWheel, { passive: false });
 			window.addEventListener("resize", this.debouncedResizeHandler, { passive: false });
+			
+			// Add key event listeners for cursor management
+			window.addEventListener('keydown', this.onKeyDown.bind(this));
+			window.addEventListener('keyup', this.onKeyUp.bind(this));
+			
+			// Add mouse move listener on plot element to track position
+			if (this.plotElement) {
+				this.plotElement.addEventListener('mousemove', this.onMouseMove.bind(this));
+				this.plotElement.addEventListener('mouseleave', this.onMouseLeave.bind(this));
+			}
+		}
+	}
+
+	onKeyDown(ev) {
+		if (ev.key === 'Shift' && !this.shiftKeyDown) {
+			this.shiftKeyDown = true;
+			this.updateCursor(this.lastMouseX);
+		}
+	}
+
+	onKeyUp(ev) {
+		if (ev.key === 'Shift' && this.shiftKeyDown) {
+			this.shiftKeyDown = false;
+			this.updateCursor(this.lastMouseX);
+		}
+	}
+
+	onMouseMove(ev) {
+		this.lastMouseX = ev.clientX;
+		this.updateCursor(ev.clientX);
+	}
+
+	onMouseLeave(ev) {
+		// Remove cursor class when mouse leaves the plot area
+		if (this.plotElement) {
+			this.plotElement.classList.remove('shift-move-cursor');
+		}
+	}
+
+	async updateCursor(clientX) {
+		if (!this.plotElement || !this.ref) {
+			return;
+		}
+
+		// Only show move cursor if Shift is pressed AND mouse is over selection
+		if (this.shiftKeyDown && clientX > 0) {
+			try {
+				const isInSelection = await this.ref.invokeMethodAsync(
+					"PanoramicData.Blazor.PDTimeline.IsPointInSelection",
+					clientX
+				);
+				
+				if (isInSelection) {
+					this.plotElement.classList.add('shift-move-cursor');
+				} else {
+					this.plotElement.classList.remove('shift-move-cursor');
+				}
+			} catch (e) {
+				// Handle case where component might be disposed
+				this.plotElement.classList.remove('shift-move-cursor');
+			}
+		} else {
+			this.plotElement.classList.remove('shift-move-cursor');
 		}
 	}
 
@@ -62,6 +129,12 @@ class Timeline {
 		if (this.el) {
 			this.el.removeEventListener("wheel", this.onWheel);
 			window.removeEventListener("resize", this.debouncedResizeHandler);
+			window.removeEventListener('keydown', this.onKeyDown);
+			window.removeEventListener('keyup', this.onKeyUp);
+			if (this.plotElement) {
+				this.plotElement.removeEventListener('mousemove', this.onMouseMove);
+				this.plotElement.removeEventListener('mouseleave', this.onMouseLeave);
+			}
 			this.log("term timeline: ", this.canvasId);
 		}
 	}

@@ -15,6 +15,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 
 	private bool _isChartDragging;
 	private bool _isPotentialDrag; // Track if pointer is down but not yet dragging
+	private bool _isDraggingSelection; // Track if dragging entire selection with modifier key
+	private int _dragSelectionStartOffset; // Original start index when drag began
+	private int _dragSelectionEndOffset; // Original end index when drag began
 	private double _chartDragStartX;
 	private const double _dragThreshold = 5.0; // pixels
 	private int _selectionStartIndex = -1;
@@ -398,11 +401,29 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 				return;
 			}
 
-			// Store initial position and mark as potential drag
-			_isPotentialDrag = true;
-			_chartDragStartX = args.ClientX;
-			_selectionStartIndex = index;
-			_selectionEndIndex = index;
+			// Check if Shift key is pressed and clicking within existing selection
+			// Ensure indices are in correct order (min to max) for proper hit detection
+			var minIndex = Math.Min(_selectionStartIndex, _selectionEndIndex);
+			var maxIndex = Math.Max(_selectionStartIndex, _selectionEndIndex);
+			
+			if (args.ShiftKey && _selectionRange != null && 
+			    index >= minIndex && index <= maxIndex)
+			{
+				// Start dragging the entire selection
+				_isDraggingSelection = true;
+				_dragSelectionStartOffset = minIndex;
+				_dragSelectionEndOffset = maxIndex;
+				_chartDragStartX = args.ClientX;
+			}
+			else
+			{
+				// Store initial position and mark as potential drag
+				// Always start a new selection if Shift wasn't used to initiate move
+				_isPotentialDrag = true;
+				_chartDragStartX = args.ClientX;
+				_selectionStartIndex = index;
+				_selectionEndIndex = index;
+			}
 			
 			if (_commonModule != null)
 			{
@@ -413,6 +434,75 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 
 	private void OnChartPointerMove(PointerEventArgs args)
 	{
+		// Handle dragging entire selection
+		if (_isDraggingSelection)
+		{
+			var currentIndex = GetColumnIndexAtPoint(args.ClientX);
+			var originalIndex = GetColumnIndexAtPoint(_chartDragStartX);
+			var offset = currentIndex - originalIndex;
+			
+			// Calculate new positions
+			var newStartIndex = _dragSelectionStartOffset + offset;
+			var newEndIndex = _dragSelectionEndOffset + offset;
+			
+			// Get the selection width
+			var selectionWidth = _dragSelectionEndOffset - _dragSelectionStartOffset;
+			
+			// Constrain to valid range (0 to _totalColumns - 1)
+			var maxIndex = _totalColumns - 1;
+			if (newStartIndex < 0)
+			{
+				newStartIndex = 0;
+				newEndIndex = selectionWidth;
+			}
+			else if (newEndIndex > maxIndex)
+			{
+				newEndIndex = maxIndex;
+				newStartIndex = Math.Max(0, maxIndex - selectionWidth);
+			}
+			
+			// Apply DisableBefore and DisableAfter constraints
+			if (DisableBefore != DateTime.MinValue || DisableAfter != DateTime.MinValue)
+			{
+				// Convert indices to DateTime to check against disable boundaries
+				var newStartTime = Scale.AddPeriods(RoundedMinDateTime, newStartIndex);
+				var newEndTime = Scale.PeriodEnd(Scale.AddPeriods(RoundedMinDateTime, newEndIndex));
+				
+				// Check if selection would start before DisableBefore
+				if (DisableBefore != DateTime.MinValue && newStartTime < DisableBefore)
+				{
+					// Constrain start to DisableBefore
+					newStartIndex = Scale.PeriodsBetween(RoundedMinDateTime, DisableBefore);
+					newEndIndex = newStartIndex + selectionWidth;
+					
+					// Make sure end doesn't exceed bounds
+					if (newEndIndex > maxIndex)
+					{
+						newEndIndex = maxIndex;
+						newStartIndex = Math.Max(0, maxIndex - selectionWidth);
+					}
+				}
+				
+				// Check if selection would end after DisableAfter
+				if (DisableAfter != DateTime.MinValue && newEndTime > DisableAfter)
+				{
+					// Constrain end to DisableAfter
+					newEndIndex = Scale.PeriodsBetween(RoundedMinDateTime, DisableAfter) - 1;
+					newStartIndex = Math.Max(0, newEndIndex - selectionWidth);
+					
+					// Make sure start doesn't go negative
+					if (newStartIndex < 0)
+					{
+						newStartIndex = 0;
+						newEndIndex = selectionWidth;
+					}
+				}
+			}
+			
+			_ = SetSelectionFromDrag(newStartIndex, newEndIndex).ConfigureAwait(true);
+			return;
+		}
+		
 		// Check if we should start dragging based on movement threshold
 		if (_isPotentialDrag && !_isChartDragging)
 		{
@@ -436,7 +526,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 
 	private async Task OnChartPointerUp(PointerEventArgs args)
 	{
-		if (_isPotentialDrag || _isChartDragging)
+		if (_isPotentialDrag || _isChartDragging || _isDraggingSelection)
 		{
 			// If we never started dragging (distance < threshold), treat as single click
 			if (_isPotentialDrag && !_isChartDragging)
@@ -454,6 +544,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			// Reset drag state but keep selection indices
 			_isChartDragging = false;
 			_isPotentialDrag = false;
+			_isDraggingSelection = false;
 		}
 	}
 
@@ -577,6 +668,26 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 	}
 
+	[JSInvokable("PanoramicData.Blazor.PDTimeline.IsPointInSelection")]
+	public bool IsPointInSelection(double clientX)
+	{
+		// No selection exists
+		if (_selectionRange == null || _selectionStartIndex == -1 || _selectionEndIndex == -1)
+		{
+			return false;
+		}
+
+		// Calculate which column index the point is over
+		var index = GetColumnIndexAtPoint(clientX);
+		
+		// Ensure we check against the correct range regardless of index order
+		var minIndex = Math.Min(_selectionStartIndex, _selectionEndIndex);
+		var maxIndex = Math.Max(_selectionStartIndex, _selectionEndIndex);
+		
+		// Check if the index is within the selection range
+		return index >= minIndex && index <= maxIndex;
+	}
+	
 	private async Task OnSelectionChangeEnd()
 	{
 		// suppress event if selection not changed
@@ -1064,7 +1175,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			var scale = GetScaleToFit();
 			if (scale != null)
 			{
-				await SetScale(scale, true, MinDateTime, TimelinePositions.Start).ConfigureAwait(true);
+				await SetScale(scale, true, MinDateTime, TimelinePositions.Start). ConfigureAwait(true);
 			}
 		}
 	}

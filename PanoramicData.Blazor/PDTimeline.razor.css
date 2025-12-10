@@ -33,6 +33,11 @@
 	width: 100%;
 }
 
+/* Show move cursor when hovering over selection with Shift key */
+.tl-plot-area.shift-move-cursor {
+	cursor: move;
+}
+
 .tl-selection-handle {
 	cursor: col-resize;
 }
