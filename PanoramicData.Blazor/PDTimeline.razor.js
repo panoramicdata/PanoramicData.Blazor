@@ -19,6 +19,7 @@ class Timeline {
 	plotElement = null;
 	shiftKeyDown = false;
 	lastMouseX = 0;
+	resizeObserver = null;
 
 	constructor(id, options, ref) {
 		var el = document.getElementById(id);
@@ -40,6 +41,12 @@ class Timeline {
 			if (this.plotElement) {
 				this.plotElement.addEventListener('mousemove', this.onMouseMove.bind(this));
 				this.plotElement.addEventListener('mouseleave', this.onMouseLeave.bind(this));
+			}
+			
+			// Add ResizeObserver to detect container size changes (e.g., when splitter is adjusted)
+			if (typeof ResizeObserver !== 'undefined') {
+				this.resizeObserver = new ResizeObserver(this.debouncedResizeHandler);
+				this.resizeObserver.observe(el);
 			}
 		}
 	}
@@ -134,6 +141,10 @@ class Timeline {
 			if (this.plotElement) {
 				this.plotElement.removeEventListener('mousemove', this.onMouseMove);
 				this.plotElement.removeEventListener('mouseleave', this.onMouseLeave);
+			}
+			if (this.resizeObserver) {
+				this.resizeObserver.disconnect();
+				this.resizeObserver = null;
 			}
 			this.log("term timeline: ", this.canvasId);
 		}
