@@ -26,7 +26,6 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Added scrollable table mode to PDTable with MaxHeight, StickyHeader, and StickyPager parameters. Maintains full backward compatibility.
 			Updated PDTimeline Selection Logic
 			Added Shift to Move Timeline selection.
 		</PackageReleaseNotes>
