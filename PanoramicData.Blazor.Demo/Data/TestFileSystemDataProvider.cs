@@ -36,11 +36,11 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				new DirectoryEntry("stats.txt", FileExplorerItemType.File, 60766)
 			),
 			new DirectoryEntry("Temp",
-				new DirectoryEntry("1gigabyte.tmp", FileExplorerItemType.File, 1096000000) { IsHidden = true },
-				new DirectoryEntry("1kilobyte.tmp", FileExplorerItemType.File, 1024) { IsHidden = true },
-				new DirectoryEntry("2kilobytes.tmp", FileExplorerItemType.File, 2048) { IsHidden = true },
-				new DirectoryEntry("4bytes.tmp", FileExplorerItemType.File, 4) { IsHidden = true },
-				new DirectoryEntry("empty.tmp", FileExplorerItemType.File, 0) { IsHidden = true }
+				new DirectoryEntry("1gigabyte.tmp", FileExplorerItemType.File, 1096000000) { IsHidden = false },
+				new DirectoryEntry("1kilobyte.tmp", FileExplorerItemType.File, 1024) { IsHidden = false },
+				new DirectoryEntry("2kilobytes.tmp", FileExplorerItemType.File, 2048) { IsHidden = false },
+				new DirectoryEntry("4bytes.tmp", FileExplorerItemType.File, 4) { IsHidden = false },
+				new DirectoryEntry("empty.tmp", FileExplorerItemType.File, 0) { IsHidden = false }
 			),
 			new DirectoryEntry("Cache",
 				new DirectoryEntry("document.docx", FileExplorerItemType.File, 4096),

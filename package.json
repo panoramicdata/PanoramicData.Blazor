@@ -1,0 +1,24 @@
+{
+  "name": "panoramicdata-blazor-e2e",
+  "version": "1.0.0",
+  "description": "End-to-end Playwright tests for PanoramicData.Blazor demo and components.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PanoramicData/PanoramicData.Blazor"
+  },
+  "bugs": {
+    "url": "https://github.com/PanoramicData/PanoramicData.Blazor/issues"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "install:playwright": "playwright install",
+    "codegen": "playwright codegen http://localhost:5000/",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.43.0"
+  }
+}
