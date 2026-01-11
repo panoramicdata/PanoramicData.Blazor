@@ -89,6 +89,11 @@ public partial class PDFileModal
 	/// </summary>
 	[Parameter] public EventCallback<string> ModalHidden { get; set; }
 
+	/// <summary>
+	/// Optional sort function to use on sibling tree nodes.
+	/// </summary>
+	[Parameter] public Comparison<FileExplorerItem>? TreeSort { get; set; }
+
 	private string GetOpenResult() => _folderSelect
 			? (FileExplorer.SelectedFilesAndFolders.Length == 1 ? FileExplorer.SelectedFilesAndFolders[0] : FileExplorer.FolderPath)
 			: $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";

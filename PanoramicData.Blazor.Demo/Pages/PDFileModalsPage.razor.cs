@@ -8,6 +8,9 @@ public partial class PDFileModalsPage
 	private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 	private bool _showOpen;
 
+	// Virtual folders to prioritize at the top of the tree
+	private readonly string[] _virtualFolders = ["/Library", "/Users"];
+
 	private static string GetIconCssClass(FileExplorerItem item)
 	{
 		if (item.EntryType == FileExplorerItemType.Directory && item.Name != "..")
@@ -34,6 +37,21 @@ public partial class PDFileModalsPage
 		}
 
 		return TestFileSystemDataProvider.GetIconClass(item);
+	}
+
+	private int OnTreeSort(FileExplorerItem item1, FileExplorerItem item2)
+	{
+		// Shift Library and Users folders to top
+		if (_virtualFolders.Contains(item1.Path) && !_virtualFolders.Contains(item2.Path))
+		{
+			return -1;
+		}
+		else if (!_virtualFolders.Contains(item1.Path) && _virtualFolders.Contains(item2.Path))
+		{
+			return 1;
+		}
+
+		return item1.Name.CompareTo(item2.Name);
 	}
 
 	private void OnModalHidden(string result)

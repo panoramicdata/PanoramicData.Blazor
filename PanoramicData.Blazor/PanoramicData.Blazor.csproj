@@ -26,6 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
+			Expose TreeSort for sutom folder ordering in file modal
 			Updated PDTimeline Selection Logic
 			Added Shift to Move Timeline selection.
 		</PackageReleaseNotes>
