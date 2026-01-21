@@ -1,5 +1,14 @@
-﻿var globalListenerReference = null;
+var globalListenerReference = null;
 var shortcutKeys = [];
+
+// Helper to safely invoke .NET methods, handling disconnected SignalR state
+async function safeInvoke(ref, methodName, ...args) {
+	try {
+		await ref.invokeMethodAsync(methodName, ...args);
+	} catch (e) {
+		// Connection likely disconnected - ignore silently
+	}
+}
 
 export function initialize(ref) {
 	globalListenerReference = ref;
@@ -32,7 +41,7 @@ function onKeyDown(e) {
 			e.stopPropagation();
 			e.preventDefault();
 		}
-		globalListenerReference.invokeMethodAsync("OnKeyDown", keyInfo);
+		safeInvoke(globalListenerReference, "OnKeyDown", keyInfo);
 	}
 }
 
@@ -43,7 +52,7 @@ function onKeyUp(e) {
 			e.stopPropagation();
 			e.preventDefault();
 		}
-		globalListenerReference.invokeMethodAsync("OnKeyUp", keyInfo);
+		safeInvoke(globalListenerReference, "OnKeyUp", keyInfo);
 	}
 }
 

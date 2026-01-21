@@ -1,24 +1,33 @@
-﻿export function initialize(id, toggleId, dropdownId, ref, opt) {
+// Helper to safely invoke .NET methods, handling disconnected SignalR state
+async function safeInvoke(ref, methodName, ...args) {
+	try {
+		await ref.invokeMethodAsync(methodName, ...args);
+	} catch (e) {
+		// Connection likely disconnected - ignore silently
+	}
+}
+
+export function initialize(id, toggleId, dropdownId, ref, opt) {
 	var el = document.getElementById(toggleId);
 	if (ref && el) {
 
 		el.parentElement.addEventListener("keypress", function (ev) {
 			if (ev.keyCode === 13) {
-				ref.invokeMethodAsync("OnKeyPressed", 13);
+				safeInvoke(ref, "OnKeyPressed", 13);
 			}
 		});
 
 		el.addEventListener("shown.bs.dropdown", function () {
-			ref.invokeMethodAsync("OnDropDownShown");
+			safeInvoke(ref, "OnDropDownShown");
 		});
 
 		el.addEventListener("hidden.bs.dropdown", function () {
-			ref.invokeMethodAsync("OnDropDownHidden");
+			safeInvoke(ref, "OnDropDownHidden");
 		});
 
 		el.addEventListener("mouseleave", function (ev) {
 			if (!ev.relatedTarget || !ev.relatedTarget.parentElement || ev.relatedTarget.parentElement.id != id) {
-				ref.invokeMethodAsync("OnMouseLeave");
+				safeInvoke(ref, "OnMouseLeave");
 			}
 		});
 
@@ -26,7 +35,7 @@
 		if (dropdownEl) {
 			dropdownEl.addEventListener("mouseleave", function (ev) {
 				if (!ev.relatedTarget || !ev.relatedTarget.parentElement || ev.relatedTarget.parentElement.id != id) {
-					ref.invokeMethodAsync("OnMouseLeave");
+					safeInvoke(ref, "OnMouseLeave");
 				}
 			});
 		}

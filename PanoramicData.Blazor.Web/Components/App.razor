@@ -1,17 +1,10 @@
-﻿@page "/"
-@namespace PanoramicData.Blazor.Web.Pages
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@{
-	Layout = null;
-}
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>PanoramicData.Blazor</title>
-	<base href="~/" />
+	<base href="/" />
 	<script>
 		// Detect user's color scheme preference and set Bootstrap theme BEFORE any styles load
 		(function() {
@@ -35,46 +28,31 @@
 	<link href="_content/PanoramicData.Blazor/css/main.min.css" rel="stylesheet" />
 	<link href="PanoramicData.Blazor.Web.styles.css" rel="stylesheet" />
 	<link rel="icon" type="image/png" href="favicon.png" />
+	<HeadOutlet @rendermode="InteractiveServer" />
 </head>
+
 <body>
-	<app>
-		<component type="typeof(PanoramicData.Blazor.Demo.App)" render-mode="Server" />
-	</app>
+	<Routes @rendermode="InteractiveServer" />
 
 	<div id="blazor-error-ui">
-		<environment include="Staging,Production">
-			An error has occurred. This application may no longer respond until reloaded.
-		</environment>
-		<environment include="Development">
-			An unhandled exception has occurred. See browser dev tools for details.
-		</environment>
+		An unhandled exception has occurred. See browser dev tools for details.
 		<a href="" class="reload">Reload</a>
-		<a class="dismiss">🗙</a>
+		<a class="dismiss">??</a>
 	</div>
 
-	<environment include="Development">
-		<script src="_content/PanoramicData.Blazor.Demo/lib/jquery/jquery.js"></script>
-		<script src="_content/PanoramicData.Blazor.Demo/lib/splitjs/split.js"></script>
-		<script src="_content/PanoramicData.Blazor.Demo/lib/popperjs/umd/popper.js"></script>
-		<script src="_content/PanoramicData.Blazor.Demo/lib/bootstrap/dist/js/bootstrap.js"></script>
-		<script src="_content/PanoramicData.Blazor.Demo/lib/dropzone/dist/dropzone.js"></script>
-	</environment>
-	<environment exclude="Development">
-		<script src="_content/PanoramicData.Blazor.Demo/lib/jquery/jquery.min.js"></script>
-		<script src="_content/PanoramicData.Blazor.Demo/lib/splitjs/split.min.js"></script>
-		<script src="_content/PanoramicData.Blazor.Demo/lib/popperjs/umd/popper.min.js"></script>
-		<script src="_content/PanoramicData.Blazor.Demo/lib/bootstrap/dist/js/bootstrap.min.js"></script>
-		<script src="_content/PanoramicData.Blazor.Demo/lib/dropzone/dist/min/dropzone.min.js"></script>
-	</environment>
+	<script src="_content/PanoramicData.Blazor.Demo/lib/jquery/jquery.js"></script>
+	<script src="_content/PanoramicData.Blazor.Demo/lib/splitjs/split.js"></script>
+	<script src="_content/PanoramicData.Blazor.Demo/lib/popperjs/umd/popper.js"></script>
+	<script src="_content/PanoramicData.Blazor.Demo/lib/bootstrap/dist/js/bootstrap.js"></script>
+	<script src="_content/PanoramicData.Blazor.Demo/lib/dropzone/dist/dropzone.js"></script>
 	<script src="_content/PanoramicData.Blazor.Demo/js/interop.js"></script>
 
 	<!-- Monaco support -->
 	<script src="_content/BlazorMonaco/jsInterop.js"></script>
-    @* <script>require.config({ paths: { 'vs': '_content/BlazorMonaco/lib/monaco-editor/min/vs' } });</script> *@
 	<script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
 	<script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
 
-	<script src="_framework/blazor.server.js"></script>
-
+	<script src="_framework/blazor.web.js"></script>
 </body>
+
 </html>
