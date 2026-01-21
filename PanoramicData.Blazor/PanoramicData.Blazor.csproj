@@ -36,21 +36,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="BlazorMonaco" Version="3.3.0" />
-		<PackageReference Include="FluentValidation" Version="12.0.0" />
+		<PackageReference Include="BlazorMonaco" Version="3.4.0" />
+		<PackageReference Include="FluentValidation" Version="12.1.1" />
 		<PackageReference Include="Humanizer.Core" Version="3.0.1" />
-		<PackageReference Include="Markdig" Version="0.42.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.10" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.10" />
-		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.10" />
-		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.14.28" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.7.115">
+		<PackageReference Include="Markdig" Version="0.44.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="PanoramicData.DeepCloner" Version="1.0.1" />
-		<PackageReference Include="System.Drawing.Common" Version="9.0.10" />
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.7" />
+		<PackageReference Include="System.Drawing.Common" Version="10.0.2" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
 	</ItemGroup>
 
 	<ItemGroup>
