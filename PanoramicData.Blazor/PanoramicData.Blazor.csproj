@@ -9,7 +9,7 @@
 
 	<PropertyGroup>
 		<Authors>Panoramic Data Limited</Authors>
-		<Copyright>Copyright © Panoramic Data Limited 2020-2025</Copyright>
+		<Copyright>Copyright © Panoramic Data Limited 2020-2026</Copyright>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageIcon>Panoramic Data.png</PackageIcon>
 		<PackageTags>blazor components</PackageTags>
@@ -61,7 +61,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Attributes\" />
+		<Folder Include="Attributes\" />
 	</ItemGroup>
 
 </Project>

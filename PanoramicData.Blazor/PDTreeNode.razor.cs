@@ -128,7 +128,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 
 	private async Task OnEndEdit() => await EndEdit.InvokeAsync(null).ConfigureAwait(true);
 
-	private Dictionary<string, object> TreeAttributes
+	private static Dictionary<string, object> TreeAttributes
 	{
 		get
 		{

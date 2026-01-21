@@ -1,4 +1,5 @@
-﻿using PanoramicData.Blazor.Models.Monaco;
+﻿using System.Globalization;
+using PanoramicData.Blazor.Models.Monaco;
 
 namespace PanoramicData.Blazor;
 
@@ -557,7 +558,7 @@ for(let i = 0; i < 10; i++) {
 		Logger.Log(level, message, args);
 
 		// Also log to PDLog component if available
-		LogRef?.Log(level, default, message, null, (msg, ex) => string.Format(msg, args));
+		LogRef?.Log(level, default, message, null, (msg, ex) => string.Format(CultureInfo.InvariantCulture, msg, args));
 	}
 
 	/// <summary>
@@ -611,5 +612,7 @@ for(let i = 0; i < 10; i++) {
 
 		_cancellationTokenSource?.Cancel();
 		_cancellationTokenSource?.Dispose();
+
+		GC.SuppressFinalize(this);
 	}
 }

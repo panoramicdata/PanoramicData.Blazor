@@ -6,14 +6,14 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <WarningLevel>0</WarningLevel>
+		<WarningLevel>0</WarningLevel>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="wwwroot\js\**" />
-	  <Content Remove="wwwroot\js\**" />
-	  <EmbeddedResource Remove="wwwroot\js\**" />
-	  <None Remove="wwwroot\js\**" />
+		<Compile Remove="wwwroot\js\**" />
+		<Content Remove="wwwroot\js\**" />
+		<EmbeddedResource Remove="wwwroot\js\**" />
+		<None Remove="wwwroot\js\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -25,13 +25,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\PanoramicData.Blazor.Demo\PanoramicData.Blazor.Demo.csproj" />
-	  <ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
+		<ProjectReference Include="..\PanoramicData.Blazor.Demo\PanoramicData.Blazor.Demo.csproj" />
+		<ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Pages\" />
-	  <Folder Include="wwwroot\css\" />
+		<Folder Include="Pages\" />
+		<Folder Include="wwwroot\css\" />
 	</ItemGroup>
 
 </Project>

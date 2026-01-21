@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents the position of an element on the page.
 /// </summary>
-internal class ElementPosition
+internal sealed class ElementPosition
 {
 	public double Top { get; set; }
 

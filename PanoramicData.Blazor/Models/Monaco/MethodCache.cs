@@ -11,7 +11,7 @@ public class MethodCache
 		void AddDescriptions(Method method);
 	}
 
-	internal class MethodDictionary : Dictionary<string, List<Method>>
+	internal sealed class MethodDictionary : Dictionary<string, List<Method>>
 	{
 	}
 

@@ -4,7 +4,7 @@
 /// Represents a tree component for displaying hierarchical data with support for selection, editing, drag-and-drop, and on-demand loading.
 /// </summary>
 /// <typeparam name="TItem">The type of the data item associated with each tree node.</typeparam>
-public partial class PDTree<TItem> where TItem : class
+public partial class PDTree<TItem> : IDisposable where TItem : class
 {
     private const string _idPrefix = "pd-tree-";
     private IJSObjectReference? _commonModule;
@@ -741,7 +741,7 @@ public partial class PDTree<TItem> where TItem : class
     {
         if (Sort is null || a.Data is null || b.Data is null)
         {
-            return a.Text.CompareTo(b.Text);
+            return string.Compare(a.Text, b.Text, StringComparison.Ordinal);
         }
         else
         {
@@ -902,5 +902,14 @@ public partial class PDTree<TItem> where TItem : class
         {
             await Drop.InvokeAsync(args).ConfigureAwait(true);
         }
+    }
+
+    /// <summary>
+    /// Disposes of the component resources.
+    /// </summary>
+    public void Dispose()
+    {
+        _clickTimer?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

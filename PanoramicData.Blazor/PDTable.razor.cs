@@ -548,24 +548,24 @@ public partial class PDTable<TItem> :
 	/// <summary>
 	/// Instructs the component to show the specified page.
 	/// </summary>
-	/// <param name="criteria">Details of the page to be displayed.</param>
-	public async Task PageAsync(PageCriteria criteria)
+	/// <param name="pageCriteria">Details of the page to be displayed.</param>
+	public async Task PageAsync(PageCriteria pageCriteria)
 	{
-		SetPageCriteria(criteria);
+		SetPageCriteria(pageCriteria);
 		await GetDataAsync().ConfigureAwait(true);
-		await PageChanged.InvokeAsync(criteria).ConfigureAwait(true);
+		await PageChanged.InvokeAsync(pageCriteria).ConfigureAwait(true);
 	}
 
 	/// <summary>
 	/// Sort the displayed items.
 	/// </summary>
-	/// <param name="criteria">Details of the sort operation to be performed.</param>
-	public Task SortAsync(SortCriteria criteria)
+	/// <param name="sortCriteria">Details of the sort operation to be performed.</param>
+	public Task SortAsync(SortCriteria sortCriteria)
 	{
-		var column = Columns.SingleOrDefault(c => string.Equals(c.PropertyInfo?.Name, criteria.Key, StringComparison.OrdinalIgnoreCase));
+		var column = Columns.SingleOrDefault(c => string.Equals(c.PropertyInfo?.Name, sortCriteria.Key, StringComparison.OrdinalIgnoreCase));
 		if (column != null)
 		{
-			return SortByAsync(column, criteria.Direction);
+			return SortByAsync(column, sortCriteria.Direction);
 		}
 
 		return Task.CompletedTask;
