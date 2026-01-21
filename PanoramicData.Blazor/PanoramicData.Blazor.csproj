@@ -26,9 +26,8 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Expose TreeSort for sutom folder ordering in file modal
-			Updated PDTimeline Selection Logic
-			Added Shift to Move Timeline selection.
+			Added try/catches around JS interop calls to prevent unhandled exceptions when components are disposed before the JS call completes.
+			Added additional unit tests.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
