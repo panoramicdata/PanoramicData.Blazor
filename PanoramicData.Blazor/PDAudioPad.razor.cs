@@ -77,6 +77,7 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 				};
 				await OnPadValueChanged.InvokeAsync(args);
 			}
+
 			_lastEventEmitTime = DateTime.UtcNow;
 			return;
 		}
@@ -98,6 +99,7 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 				};
 				await OnPadValueChanged.InvokeAsync(args);
 			}
+
 			_lastEventEmitTime = now;
 		}
 	}

@@ -1063,6 +1063,7 @@ public partial class PDTable<TItem> :
 		{
 			await PageSizeChanged.InvokeAsync(PageCriteria).ConfigureAwait(true);
 		}
+
 		StateHasChanged();
 	}
 

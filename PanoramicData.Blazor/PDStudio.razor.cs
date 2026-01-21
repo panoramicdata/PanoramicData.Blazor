@@ -210,6 +210,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 					{
 						_executionStatus = e.Status;
 					}
+
 					break;
 
 				case StudioExecutionEventType.Progress:
@@ -231,12 +232,14 @@ public partial class PDStudio : PDComponentBase, IDisposable
 					{
 						_executionStatus = $"Error: {e.Status}";
 					}
+
 					LogError("Execution error: {0}", e.Status);
 
 					if (OnExecutionStateChanged.HasDelegate)
 					{
 						await OnExecutionStateChanged.InvokeAsync(_isExecuting);
 					}
+
 					break;
 
 				case StudioExecutionEventType.Completed:
@@ -251,6 +254,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 					{
 						await OnExecutionStateChanged.InvokeAsync(_isExecuting);
 					}
+
 					break;
 			}
 
@@ -393,6 +397,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		{
 			await EditorRef.SetMonacoValueAsync(example);
 		}
+
 		LogInformation("Example 1 loaded");
 	}
 
@@ -404,6 +409,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		{
 			await EditorRef.SetMonacoValueAsync(example);
 		}
+
 		LogInformation("Example 2 loaded");
 	}
 
