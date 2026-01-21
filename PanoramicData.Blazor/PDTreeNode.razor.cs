@@ -132,13 +132,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 	{
 		get
 		{
-			var dict = new Dictionary<string, object>();
-			if (AllowDrop)
-			{
-				dict.Add("ondragover", "event.preventDefault();");
-			}
-
-			return dict;
+			return [];
 		}
 	}
 
@@ -150,11 +144,6 @@ public partial class PDTreeNode<TItem> where TItem : class
 			if (AllowDrag && Node?.IsEditing != true)
 			{
 				dict.Add("draggable", "true");
-			}
-
-			if (AllowDrop)
-			{
-				dict.Add("ondragover", "event.preventDefault();");
 			}
 
 			return dict;

@@ -22,6 +22,7 @@
 			 @onmousedown="OnDivMouseDown"
 			 @oncontextmenu:stopPropagation
 			 @oncontextmenu:preventDefault
+			 @ondragover:preventDefault="AllowDrop"
 			 @ondrop="OnDragDropAsync"
 			 @onkeydown="OnKeyDownAsync"
 			 @onkeydown:stopPropagation>
@@ -47,6 +48,7 @@ else
 		 @onmousedown="OnDivMouseDown"
 		 @oncontextmenu:stopPropagation
 		 @oncontextmenu:preventDefault
+		 @ondragover:preventDefault="AllowDrop"
 		 @ondrop="OnDragDropAsync"
 		 @onkeydown="OnKeyDownAsync"
 		 @onkeydown:stopPropagation>
@@ -82,10 +84,10 @@ else
 								   class="form-check-input"
 								   disabled="@(!IsEnabled)"
 								   type="checkbox"
-							@onclick:stopPropagation
-							@oninput="@((a) => OnToggleAllSelection(Convert.ToBoolean(a.Value)))"
-							@onmousedown:stopPropagation
-							@onmouseup:stopPropagation />
+									@onclick:stopPropagation
+									@oninput="@((a) => OnToggleAllSelection(Convert.ToBoolean(a.Value)))"
+									@onmousedown:stopPropagation
+									@onmouseup:stopPropagation />
 						</th>
 					}
 					@foreach (var column in ActualColumnsToDisplay)
@@ -127,13 +129,14 @@ else
 						<tr class="pdtablerow @GetDynamicRowClasses(item)"
 							id="@(KeyField is null ? null : KeyField(item)?.ToString())"
 							@attributes="GetRowAttributes(item)"
-						@oncontextmenu:preventDefault
+							@oncontextmenu:preventDefault
+							@ondragover:preventDefault="AllowDrop"
 							@onmouseup="@((args) => OnRowMouseUpAsync(args, item))"
 							@onclick="@((args) => OnRowClick(args, item))"
 							@ondblclick="@((args) => OnRowDoubleClick(args, item))"
 							@ondragstart="@((args) => OnRowDragStart(args, item))"
 							@ondragend="OnDragEnd"
-						@ondrop:stopPropagation
+							@ondrop:stopPropagation
 							@ondrop="@((args) => OnRowDragDropAsync(args, item))">
 
 							@if (ShowCheckboxes && SelectionMode == TableSelectionMode.Multiple)
@@ -143,10 +146,10 @@ else
 										   class="form-check-input"
 										   disabled="@(!IsEnabled || !RowIsEnabled(item))"
 										   type="checkbox"
-									@onclick:stopPropagation
-									@oninput="@((a) => OnToggleSelection(item, Convert.ToBoolean(a.Value)))"
-									@onmousedown:stopPropagation
-									@onmouseup:stopPropagation />
+											@onclick:stopPropagation
+											@oninput="@((a) => OnToggleSelection(item, Convert.ToBoolean(a.Value)))"
+											@onmousedown:stopPropagation
+											@onmouseup:stopPropagation />
 								</td>
 							}
 
@@ -164,9 +167,9 @@ else
 												   class="pdtable_edit"
 												   @oninput="(a) => OnEditInput(column, a.Value == null ? string.Empty : a.Value.ToString())"
 												   @onblur="async () => await OnEditBlurAsync().ConfigureAwait(true)"
-											@onmousedown:stopPropagation
-											@onclick:stopPropagation
-											@oncontextmenu:stopPropagation />
+													@onmousedown:stopPropagation
+													@onclick:stopPropagation
+													@oncontextmenu:stopPropagation />
 										}
 										else
 										{

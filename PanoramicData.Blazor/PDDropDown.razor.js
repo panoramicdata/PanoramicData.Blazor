@@ -1,33 +1,40 @@
-// Helper to safely invoke .NET methods, handling disconnected SignalR state
-async function safeInvoke(ref, methodName, ...args) {
-	try {
-		await ref.invokeMethodAsync(methodName, ...args);
-	} catch (e) {
-		// Connection likely disconnected - ignore silently
-	}
-}
-
-export function initialize(id, toggleId, dropdownId, ref, opt) {
+﻿export function initialize(id, toggleId, dropdownId, ref, opt) {
 	var el = document.getElementById(toggleId);
 	if (ref && el) {
 
 		el.parentElement.addEventListener("keypress", function (ev) {
 			if (ev.keyCode === 13) {
-				safeInvoke(ref, "OnKeyPressed", 13);
+				try {
+					ref.invokeMethodAsync("OnKeyPressed", 13);
+				} catch {
+					// BC-85: Circuit may be disconnected
+				}
 			}
 		});
 
 		el.addEventListener("shown.bs.dropdown", function () {
-			safeInvoke(ref, "OnDropDownShown");
+			try {
+				ref.invokeMethodAsync("OnDropDownShown");
+			} catch {
+				// BC-85: Circuit may be disconnected
+			}
 		});
 
 		el.addEventListener("hidden.bs.dropdown", function () {
-			safeInvoke(ref, "OnDropDownHidden");
+			try {
+				ref.invokeMethodAsync("OnDropDownHidden");
+			} catch {
+				// BC-85: Circuit may be disconnected
+			}
 		});
 
 		el.addEventListener("mouseleave", function (ev) {
 			if (!ev.relatedTarget || !ev.relatedTarget.parentElement || ev.relatedTarget.parentElement.id != id) {
-				safeInvoke(ref, "OnMouseLeave");
+				try {
+					ref.invokeMethodAsync("OnMouseLeave");
+				} catch {
+					// BC-85: Circuit may be disconnected
+				}
 			}
 		});
 
@@ -35,7 +42,11 @@ export function initialize(id, toggleId, dropdownId, ref, opt) {
 		if (dropdownEl) {
 			dropdownEl.addEventListener("mouseleave", function (ev) {
 				if (!ev.relatedTarget || !ev.relatedTarget.parentElement || ev.relatedTarget.parentElement.id != id) {
-					safeInvoke(ref, "OnMouseLeave");
+					try {
+						ref.invokeMethodAsync("OnMouseLeave");
+					} catch {
+						// BC-85: Circuit may be disconnected
+					}
 				}
 			});
 		}

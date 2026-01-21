@@ -882,13 +882,7 @@ public partial class PDTable<TItem> :
 	{
 		get
 		{
-			var dict = new Dictionary<string, object>();
-			if (AllowDrop)
-			{
-				dict.Add("ondragover", "event.preventDefault();");
-			}
-
-			return dict;
+			return [];
 		}
 	}
 
@@ -906,11 +900,6 @@ public partial class PDTable<TItem> :
 			{
 				dict.Add("data-downloadurl", downloadUrl);
 			}
-		}
-
-		if (AllowDrop)
-		{
-			dict.Add("ondragover", "event.preventDefault();");
 		}
 
 		return dict;
