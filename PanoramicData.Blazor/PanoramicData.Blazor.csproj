@@ -26,8 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Added try/catches around JS interop calls to prevent unhandled exceptions when components are disposed before the JS call completes.
-			Added additional unit tests.
+			Removed inline event handlers on PDTable and PDTreeNode and used the Blazor bindings, to avoid CSP issues with inline scripts.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
