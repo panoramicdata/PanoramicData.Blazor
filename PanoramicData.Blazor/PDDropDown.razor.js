@@ -4,21 +4,37 @@
 
 		el.parentElement.addEventListener("keypress", function (ev) {
 			if (ev.keyCode === 13) {
-				ref.invokeMethodAsync("OnKeyPressed", 13);
+				try {
+					ref.invokeMethodAsync("OnKeyPressed", 13);
+				} catch {
+					// BC-85: Circuit may be disconnected
+				}
 			}
 		});
 
 		el.addEventListener("shown.bs.dropdown", function () {
-			ref.invokeMethodAsync("OnDropDownShown");
+			try {
+				ref.invokeMethodAsync("OnDropDownShown");
+			} catch {
+				// BC-85: Circuit may be disconnected
+			}
 		});
 
 		el.addEventListener("hidden.bs.dropdown", function () {
-			ref.invokeMethodAsync("OnDropDownHidden");
+			try {
+				ref.invokeMethodAsync("OnDropDownHidden");
+			} catch {
+				// BC-85: Circuit may be disconnected
+			}
 		});
 
 		el.addEventListener("mouseleave", function (ev) {
 			if (!ev.relatedTarget || !ev.relatedTarget.parentElement || ev.relatedTarget.parentElement.id != id) {
-				ref.invokeMethodAsync("OnMouseLeave");
+				try {
+					ref.invokeMethodAsync("OnMouseLeave");
+				} catch {
+					// BC-85: Circuit may be disconnected
+				}
 			}
 		});
 
@@ -26,7 +42,11 @@
 		if (dropdownEl) {
 			dropdownEl.addEventListener("mouseleave", function (ev) {
 				if (!ev.relatedTarget || !ev.relatedTarget.parentElement || ev.relatedTarget.parentElement.id != id) {
-					ref.invokeMethodAsync("OnMouseLeave");
+					try {
+						ref.invokeMethodAsync("OnMouseLeave");
+					} catch {
+						// BC-85: Circuit may be disconnected
+					}
 				}
 			});
 		}

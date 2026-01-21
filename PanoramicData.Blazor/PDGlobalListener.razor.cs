@@ -37,7 +37,6 @@ public partial class PDGlobalListener : IAsyncDisposable
 		{
 			try
 			{
-
 				_dotNetObjectReference = DotNetObjectReference.Create(this);
 				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDGlobalListener.razor.js").ConfigureAwait(true);
 				if (_module != null)
@@ -56,7 +55,14 @@ public partial class PDGlobalListener : IAsyncDisposable
 
 	private void GlobalEventService_ShortcutsChanged(object? sender, IEnumerable<ShortcutKey> shortcuts)
 	{
-		_module?.InvokeVoidAsync("registerShortcutKeys", shortcuts);
+		try
+		{
+			_module?.InvokeVoidAsync("registerShortcutKeys", shortcuts);
+		}
+		catch
+		{
+			// Nothing to do
+		}
 	}
 
 	[JSInvokable]

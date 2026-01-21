@@ -32,7 +32,11 @@ function onKeyDown(e) {
 			e.stopPropagation();
 			e.preventDefault();
 		}
-		globalListenerReference.invokeMethodAsync("OnKeyDown", keyInfo);
+		try {
+			globalListenerReference.invokeMethodAsync("OnKeyDown", keyInfo);
+		} catch {
+			// BC-85: Circuit may be disconnected
+		}
 	}
 }
 
@@ -43,7 +47,11 @@ function onKeyUp(e) {
 			e.stopPropagation();
 			e.preventDefault();
 		}
-		globalListenerReference.invokeMethodAsync("OnKeyUp", keyInfo);
+		try {
+			globalListenerReference.invokeMethodAsync("OnKeyUp", keyInfo);
+		} catch {
+			// BC-85: Circuit may be disconnected
+		}
 	}
 }
 

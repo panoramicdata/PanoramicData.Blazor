@@ -179,9 +179,16 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 
 	public async Task HideAsync()
 	{
-		if (_dropdownObj != null)
+		try
 		{
-			await _dropdownObj.InvokeVoidAsync("hide").ConfigureAwait(true);
+			if (_dropdownObj != null)
+			{
+				await _dropdownObj.InvokeVoidAsync("hide").ConfigureAwait(true);
+			}
+		}
+		catch
+		{
+			// Nothing to do
 		}
 	}
 
@@ -217,27 +224,58 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	[JSInvokable]
 	public async Task OnDropDownShown()
 	{
-		_shown = true;
-		await DropDownShown.InvokeAsync(null).ConfigureAwait(true);
-		StateHasChanged();
+		try
+		{
+			_shown = true;
+			await DropDownShown.InvokeAsync(null).ConfigureAwait(true);
+			StateHasChanged();
+		}
+		catch
+		{
+			// Nothing to do
+		}
 	}
 
 	[JSInvokable]
 	public async Task OnDropDownHidden()
 	{
-		_shown = false;
-		await DropDownHidden.InvokeAsync(null).ConfigureAwait(true);
-		StateHasChanged();
+		try
+		{
+			_shown = false;
+			await DropDownHidden.InvokeAsync(null).ConfigureAwait(true);
+			StateHasChanged();
+		}
+		catch
+		{
+			// Nothing to do
+		}
 	}
 
 	[JSInvokable]
-	public async Task OnKeyPressed(int keyCode) => await KeyPress.InvokeAsync(keyCode).ConfigureAwait(true);
+	public async Task OnKeyPressed(int keyCode)
+	{
+		try
+		{
+			await KeyPress.InvokeAsync(keyCode).ConfigureAwait(true);
+		}
+		catch
+		{
+			// Nothing to do
+		}
+	}
 
 	public async Task ShowAsync()
 	{
-		if (_dropdownObj != null)
+		try
 		{
-			await _dropdownObj.InvokeVoidAsync("show").ConfigureAwait(true);
+			if (_dropdownObj != null)
+			{
+				await _dropdownObj.InvokeVoidAsync("show").ConfigureAwait(true);
+			}
+		}
+		catch
+		{
+			// Nothing to do
 		}
 	}
 
@@ -250,9 +288,16 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 
 	public async Task ToggleAsync()
 	{
-		if (_dropdownObj != null)
+		try
 		{
-			await _dropdownObj.InvokeVoidAsync("toggle").ConfigureAwait(true);
+			if (_dropdownObj != null)
+			{
+				await _dropdownObj.InvokeVoidAsync("toggle").ConfigureAwait(true);
+			}
+		}
+		catch
+		{
+			// Nothing to do
 		}
 	}
 
