@@ -1,0 +1,11 @@
+<Router AppAssembly="@typeof(PanoramicData.Blazor.Demo.App).Assembly">
+	<Found Context="routeData">
+		<RouteView RouteData="@routeData" DefaultLayout="@typeof(PanoramicData.Blazor.Demo.Shared.MainLayout)" />
+		<FocusOnNavigate RouteData="@routeData" Selector="h1" />
+	</Found>
+	<NotFound>
+		<LayoutView Layout="@typeof(PanoramicData.Blazor.Demo.Shared.MainLayout)">
+			<p>Sorry, there's nothing at this address.</p>
+		</LayoutView>
+	</NotFound>
+</Router>

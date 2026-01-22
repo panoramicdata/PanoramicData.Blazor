@@ -154,6 +154,8 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 		}
 
 		GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
+
+		GC.SuppressFinalize(this);
 	}
 
 	private async Task OnClick(string itemKey) => await Click.InvokeAsync(itemKey).ConfigureAwait(true);

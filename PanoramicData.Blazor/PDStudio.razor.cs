@@ -1,4 +1,5 @@
-﻿using PanoramicData.Blazor.Models.Monaco;
+﻿using System.Globalization;
+using PanoramicData.Blazor.Models.Monaco;
 
 namespace PanoramicData.Blazor;
 
@@ -210,6 +211,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 					{
 						_executionStatus = e.Status;
 					}
+
 					break;
 
 				case StudioExecutionEventType.Progress:
@@ -231,12 +233,14 @@ public partial class PDStudio : PDComponentBase, IDisposable
 					{
 						_executionStatus = $"Error: {e.Status}";
 					}
+
 					LogError("Execution error: {0}", e.Status);
 
 					if (OnExecutionStateChanged.HasDelegate)
 					{
 						await OnExecutionStateChanged.InvokeAsync(_isExecuting);
 					}
+
 					break;
 
 				case StudioExecutionEventType.Completed:
@@ -251,6 +255,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 					{
 						await OnExecutionStateChanged.InvokeAsync(_isExecuting);
 					}
+
 					break;
 			}
 
@@ -393,6 +398,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		{
 			await EditorRef.SetMonacoValueAsync(example);
 		}
+
 		LogInformation("Example 1 loaded");
 	}
 
@@ -404,6 +410,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		{
 			await EditorRef.SetMonacoValueAsync(example);
 		}
+
 		LogInformation("Example 2 loaded");
 	}
 
@@ -551,7 +558,7 @@ for(let i = 0; i < 10; i++) {
 		Logger.Log(level, message, args);
 
 		// Also log to PDLog component if available
-		LogRef?.Log(level, default, message, null, (msg, ex) => string.Format(msg, args));
+		LogRef?.Log(level, default, message, null, (msg, ex) => string.Format(CultureInfo.InvariantCulture, msg, args));
 	}
 
 	/// <summary>
@@ -605,5 +612,7 @@ for(let i = 0; i < 10; i++) {
 
 		_cancellationTokenSource?.Cancel();
 		_cancellationTokenSource?.Dispose();
+
+		GC.SuppressFinalize(this);
 	}
 }

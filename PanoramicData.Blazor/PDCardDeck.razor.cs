@@ -135,24 +135,19 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	{
 		if (firstRender)
 		{
+			_dotNetRef = DotNetObjectReference.Create(this);
+			_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
+				"import", "./_content/PanoramicData.Blazor/PDCardDeck.razor.js");
+
+			if (_jsModule != null)
+			{
+				await _jsModule.InvokeVoidAsync("registerValidDragOperationListeners", _elementRef, _dotNetRef);
+				await _jsModule.InvokeVoidAsync("registerInvalidDragOperationListeners", _elementRef, _dotNetRef);
+			}
+
 			await RefreshAsync();
 			Parent?.RegisterDeckAsChild(this);
 		}
-	}
-
-	protected override async Task OnInitializedAsync()
-	{
-		_dotNetRef = DotNetObjectReference.Create(this);
-		_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
-			"import", "./_content/PanoramicData.Blazor/PDCardDeck.razor.js");
-
-		if (_jsModule != null)
-		{
-			await _jsModule.InvokeVoidAsync("registerValidDragOperationListeners", _elementRef, _dotNetRef);
-			await _jsModule.InvokeVoidAsync("registerInvalidDragOperationListeners", _elementRef, _dotNetRef);
-		}
-
-		await base.OnInitializedAsync();
 	}
 
 	/// <summary>

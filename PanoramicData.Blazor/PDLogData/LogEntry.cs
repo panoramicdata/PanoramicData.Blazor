@@ -1,5 +1,5 @@
 ﻿namespace PanoramicData.Blazor.PDLogData;
-internal class LogEntry
+internal sealed class LogEntry
 {
 	public required LogLevel LogLevel { get; init; }
 	public required string Message { get; init; }

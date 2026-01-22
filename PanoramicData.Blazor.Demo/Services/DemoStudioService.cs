@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using NCalc;
+using NCalc.Exceptions;
 using PanoramicData.NCalcExtensions;
 using System.Text;
 
@@ -10,8 +11,8 @@ namespace PanoramicData.Blazor.Demo.Services;
 /// </summary>
 public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioService
 {
-	private const int DefaultTimeoutSeconds = 5;
-	private int _currentTimeoutSeconds = DefaultTimeoutSeconds;
+	private const int _defaultTimeoutSeconds = 5;
+	private int _currentTimeoutSeconds = _defaultTimeoutSeconds;
 
 	public event EventHandler<StudioExecutionEventArgs>? ExecutionEvent;
 
@@ -37,7 +38,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 		string language,
 		IProgress<string>? resultsProgress,
 		CancellationToken cancellationToken)
-		=> ExecuteCodeAsync(code, language, resultsProgress, DefaultTimeoutSeconds, cancellationToken);
+		=> ExecuteCodeAsync(code, language, resultsProgress, _defaultTimeoutSeconds, cancellationToken);
 
 	public async Task<string> ExecuteCodeAsync(
 		string code,
@@ -47,8 +48,8 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 		CancellationToken cancellationToken)
 	{
 		IsExecuting = true;
-		_currentTimeoutSeconds = timeoutSeconds > 0 ? timeoutSeconds : DefaultTimeoutSeconds;
-		CurrentStatus = language.ToLowerInvariant() == "ncalc" ? StudioExecutionStatus.StartingNCalc : StudioExecutionStatus.Starting;
+		_currentTimeoutSeconds = timeoutSeconds > 0 ? timeoutSeconds : _defaultTimeoutSeconds;
+		CurrentStatus = language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase) ? StudioExecutionStatus.StartingNCalc : StudioExecutionStatus.Starting;
 
 		OnExecutionEvent(new StudioExecutionEventArgs
 		{
@@ -71,9 +72,9 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 			var effectiveToken = timeoutCts?.Token ?? cancellationToken;
 
 			// Small delay to show the executing state
-			await Task.Delay(language.ToLowerInvariant() == "ncalc" ? 100 : 1000, effectiveToken);
+			await Task.Delay(language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase) ? 100 : 1000, effectiveToken);
 
-			CurrentStatus = language.ToLowerInvariant() == "ncalc" ? StudioExecutionStatus.EvaluatingExpression : StudioExecutionStatus.Processing;
+			CurrentStatus = language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase) ? StudioExecutionStatus.EvaluatingExpression : StudioExecutionStatus.Processing;
 			OnExecutionEvent(new StudioExecutionEventArgs
 			{
 				EventType = StudioExecutionEventType.Progress,
@@ -93,7 +94,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 				Status = "Generating output..."
 			});
 
-			if (language.ToLowerInvariant() != "ncalc")
+			if (!language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
 			{
 				await Task.Delay(500, effectiveToken);
 			}
@@ -129,7 +130,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 			var timeoutMessage = $"Timed out after {_currentTimeoutSeconds}s";
 
 			// For NCalc, return timeout result but still signal error status
-			if (language.ToLowerInvariant() == "ncalc")
+			if (language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
 			{
 				// Fire error event to set the status correctly
 				OnExecutionEvent(new StudioExecutionEventArgs
@@ -139,10 +140,10 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 					Exception = new TimeoutException($"Execution timed out after {_currentTimeoutSeconds} seconds")
 				});
 				logger.LogWarning("Code execution timed out after {TimeoutSeconds} seconds", _currentTimeoutSeconds);
-				
+
 				// Return timeout content but don't fire completed event
 				var timeoutResult = GenerateNCalcTimeoutOutput(_currentTimeoutSeconds);
-				
+
 				// Update output but keep error status
 				OnExecutionEvent(new StudioExecutionEventArgs
 				{
@@ -150,10 +151,10 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 					Output = timeoutResult,
 					Status = timeoutMessage // Keep timeout status
 				});
-				
+
 				return timeoutResult;
 			}
-			
+
 			// For non-NCalc languages, fire error event and throw
 			OnExecutionEvent(new StudioExecutionEventArgs
 			{
@@ -164,7 +165,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 			logger.LogWarning("Code execution timed out after {TimeoutSeconds} seconds", _currentTimeoutSeconds);
 			throw new TimeoutException($"Execution timed out after {_currentTimeoutSeconds} seconds");
 		}
-		catch (ArgumentException ex) when (language.ToLowerInvariant() == "ncalc")
+		catch (ArgumentException ex) when (language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
 		{
 			// NCalc invalid syntax
 			CurrentStatus = StudioExecutionStatus.InvalidCode;
@@ -177,7 +178,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 			logger.LogWarning("Invalid NCalc expression: {Message}", ex.Message);
 			return GenerateNCalcInvalidCodeOutput(ex, code);
 		}
-		catch (EvaluationException ex) when (language.ToLowerInvariant() == "ncalc")
+		catch (NCalcEvaluationException ex) when (language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
 		{
 			// NCalc runtime error during evaluation
 			CurrentStatus = StudioExecutionStatus.RuntimeError;
@@ -202,10 +203,11 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 			logger.LogError(ex, "Error executing code");
 
 			// For NCalc, return error result instead of throwing
-			if (language.ToLowerInvariant() == "ncalc")
+			if (language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
 			{
 				return GenerateNCalcErrorOutput(ex, code);
 			}
+
 			throw;
 		}
 		finally
@@ -234,7 +236,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 		try
 		{
 			// Check for special test cases first
-			if (code.Trim().ToLowerInvariant().Contains("sleep(") && code.Contains("10"))
+			if (code.Trim().Contains("sleep(", StringComparison.OrdinalIgnoreCase) && code.Contains("10"))
 			{
 				// Simulate a long-running operation that will timeout
 				await Task.Delay(10000, cancellationToken); // 10 seconds - will timeout based on configured timeout
@@ -259,7 +261,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 			resultsProgress?.Report(intermediateResult);
 
 			// Small delay to show progress (unless it's a timeout test)
-			if (!code.Trim().ToLowerInvariant().Contains("sleep("))
+			if (!code.Trim().Contains("sleep(", StringComparison.OrdinalIgnoreCase))
 			{
 				await Task.Delay(50, cancellationToken);
 			}
@@ -498,6 +500,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 				var fib = Fibonacci(i);
 				output.Add($"<div>fibonacci({i}) = {fib}</div>");
 			}
+
 			return $"<div class='success'>JavaScript executed successfully</div><pre>{string.Join("\n", output)}</pre>";
 		}
 
@@ -522,6 +525,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 	private static int Fibonacci(int n)
 	{
 		if (n <= 1) { return n; }
+
 		int a = 0, b = 1;
 		for (int i = 2; i <= n; i++)
 		{

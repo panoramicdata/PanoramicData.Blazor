@@ -1,36 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <WarningLevel>0</WarningLevel>
+		<WarningLevel>0</WarningLevel>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="wwwroot\js\**" />
-	  <Content Remove="wwwroot\js\**" />
-	  <EmbeddedResource Remove="wwwroot\js\**" />
-	  <None Remove="wwwroot\js\**" />
+		<Compile Remove="wwwroot\js\**" />
+		<Content Remove="wwwroot\js\**" />
+		<EmbeddedResource Remove="wwwroot\js\**" />
+		<None Remove="wwwroot\js\**" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.7.115">
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\PanoramicData.Blazor.Demo\PanoramicData.Blazor.Demo.csproj" />
-	  <ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
+		<ProjectReference Include="..\PanoramicData.Blazor.Demo\PanoramicData.Blazor.Demo.csproj" />
+		<ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="wwwroot\css\" />
+		<Folder Include="Pages\" />
+		<Folder Include="wwwroot\css\" />
 	</ItemGroup>
 
 </Project>

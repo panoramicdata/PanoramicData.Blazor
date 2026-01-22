@@ -144,7 +144,7 @@ public class FileExplorerItem : IComparable
 		}
 
 		FileExplorerItem item = (FileExplorerItem)obj;
-		return Name.CompareTo(item?.Name);
+		return string.Compare(Name, item?.Name, StringComparison.Ordinal);
 	}
 
 	/// <summary>
