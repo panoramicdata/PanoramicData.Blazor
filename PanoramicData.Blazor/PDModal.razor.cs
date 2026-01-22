@@ -22,6 +22,16 @@ public partial class PDModal : IAsyncDisposable
 	[Parameter] public string CssClass { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Sets additional CSS classes.
+	/// </summary>
+	[Parameter] public string HeaderCssClass { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Sets additional CSS classes.
+	/// </summary>
+	[Parameter] public string BodyCssClass { get; set; } = string.Empty;
+
+	/// <summary>
 	/// Sets the content displayed in the modal dialog footer.
 	/// </summary>
 	[Parameter] public RenderFragment? Footer { get; set; }
