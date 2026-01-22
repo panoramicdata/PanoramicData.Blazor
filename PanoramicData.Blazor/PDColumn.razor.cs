@@ -323,8 +323,11 @@ public partial class PDColumn<TItem> where TItem : class
 		Id = id;
 	}
 
-	public void SetValue(TItem item, object? value)
+	public void SetValue(TItem? item, object? value)
 	{
+		// a null item can occur when an async operation completes and the item reference is no longer valid
+		ArgumentNullException.ThrowIfNull(item);
+
 		// a null Field represents a calculated / display only column
 		if (Field != null)
 		{
