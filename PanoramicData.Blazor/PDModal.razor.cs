@@ -106,6 +106,8 @@ public partial class PDModal : IAsyncDisposable
 	/// </summary>
 	[Parameter] public string Id { get; set; } = $"pd-modal-{++_sequence}";
 
+	[Parameter] public bool ShowFooter { get; set; } = true;
+
 	/// <summary>
 	/// Hides the Modal Dialog.
 	/// </summary>

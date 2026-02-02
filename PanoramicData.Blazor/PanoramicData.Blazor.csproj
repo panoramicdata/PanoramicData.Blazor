@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Added better null check in PDColumn.SetValue.
+			PDModal has been updated to include a footer toggle parameter (ShowFooter).
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
