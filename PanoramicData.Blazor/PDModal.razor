@@ -1,7 +1,7 @@
 ﻿<div id="@Id" class="modal @CssClass" tabindex="-1">
 	<div class="modal-dialog @ModalCssClass">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header @HeaderCssClass">
 				@if (Header is null)
 				{
 					<h4 class="modal-title user-select-none">@Title</h4>
@@ -17,22 +17,26 @@
 					@Header
 				}
 			</div>
-			<div class="modal-body">
+			<div class="modal-body @BodyCssClass">
 				@ChildContent
 			</div>
-			<div class="modal-footer">
-				@if (Footer is null)
-				{
-					<PDToolbar CssClass="w-100 p-0"
-							   Items="Buttons"
-							   ButtonSize="ButtonSize"
-							   ButtonClick="OnButtonClick" />
-				}
-				else
-				{
-					@Footer
-				}
-			</div>
+
+			@if (ShowFooter)
+			{
+				<div class="modal-footer">
+					@if (Footer is null)
+					{
+						<PDToolbar CssClass="w-100 p-0"
+								   Items="Buttons"
+								   ButtonSize="ButtonSize"
+								   ButtonClick="OnButtonClick" />
+					}
+					else
+					{
+						@Footer
+					}
+				</div>
+			}
 		</div>
 	</div>
 </div>

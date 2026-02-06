@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Removed inline event handlers on PDTable and PDTreeNode and used the Blazor bindings, to avoid CSP issues with inline scripts.
+			Added "NewFolderName" parameter to PDFileExplorer, to enable overriding the default "New Folder".
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

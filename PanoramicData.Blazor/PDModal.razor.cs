@@ -22,6 +22,16 @@ public partial class PDModal : IAsyncDisposable
 	[Parameter] public string CssClass { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Sets additional CSS classes.
+	/// </summary>
+	[Parameter] public string HeaderCssClass { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Sets additional CSS classes.
+	/// </summary>
+	[Parameter] public string BodyCssClass { get; set; } = string.Empty;
+
+	/// <summary>
 	/// Sets the content displayed in the modal dialog footer.
 	/// </summary>
 	[Parameter] public RenderFragment? Footer { get; set; }
@@ -95,6 +105,8 @@ public partial class PDModal : IAsyncDisposable
 	/// Gets the unique identifier of the modal.
 	/// </summary>
 	[Parameter] public string Id { get; set; } = $"pd-modal-{++_sequence}";
+
+	[Parameter] public bool ShowFooter { get; set; } = true;
 
 	/// <summary>
 	/// Hides the Modal Dialog.
