@@ -43,7 +43,7 @@
 
 	<PDToolbar ButtonSize="ButtonSizes.Small">
 		<PDToolbarDropdown Text="@($"Glow:{_options.Glow}%")" Items="@CreateMenuItems([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])" Click="OnGlowSelected" ToolTip="Glow Intensity %" />
-		<PDToolbarDropdown Text="@($"GlowR:{_options.GlowFalloff}%")" Items="@CreateMenuItems([100, 150, 200, 250, 300, 400, 500])" Click="OnGlowFalloffSelected" ToolTip="Glow Falloff Radius %" />
+		<PDToolbarDropdown Text="@($"GlowR:{_options.GlowFalloff}%")" Items="@CreateMenuItems([10, 20, 30, 50, 75, 100, 150, 200, 250, 300, 400, 500])" Click="OnGlowFalloffSelected" ToolTip="Glow Falloff Radius %" />
 		<PDToolbarDropdown Text="@($"Persp:{_options.Perspective}%")" Items="@CreateMenuItems([0, 5, 10, 15, 20, 25, 30])" Click="OnPerspectiveSelected" ToolTip="Perspective %" />
 		<PDToolbarDropdown Text="@($"Refl:{_options.Reflection}%")" Items="@CreateMenuItems([0, 25, 50, 75, 100])" Click="OnReflectionSelected" ToolTip="Reflection %" />
 		<PDToolbarDropdown Text="@($"RD:{_options.ReflectionDepth}%")" Items="@CreateMenuItems([50, 75, 100, 150, 200, 300])" Click="OnReflectionDepthSelected" ToolTip="Reflection Depth %" />
@@ -51,6 +51,8 @@
 		<PDToolbarDropdown Text="@($"Scale:{_options.Scale}%")" Items="@CreateMenuItems([30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150])" Click="OnScaleSelected" ToolTip="Scale %" />
 		<PDToolbarDropdown Text="@($"Pad:{_options.Padding}%")" Items="@CreateMenuItems([0, 5, 10, 15, 20, 25, 50])" Click="OnPaddingSelected" ToolTip="Padding %" />
 		<PDToolbarDropdown Text="@GetAlignmentShortText()" Items="@_alignmentItems" Click="OnAlignmentSelected" ToolTip="Alignment" />
+		<PDToolbarDropdown Text="@($"MaxW:{_options.MaxGridWidthPercent?.ToString() ?? "-"}%")" Items="@_maxSizeItems" Click="OnMaxWidthSelected" ToolTip="Max Grid Width %" />
+		<PDToolbarDropdown Text="@($"MaxH:{_options.MaxGridHeightPercent?.ToString() ?? "-"}%")" Items="@_maxSizeItems" Click="OnMaxHeightSelected" ToolTip="Max Grid Height %" />
 		<PDToggleSwitch @bind-Value="_showChildContent" @bind-Value:after="OnOptionsChanged" Label="Content" />
 		<PDToggleSwitch @bind-Value="_options.ShowBackground" @bind-Value:after="OnOptionsChanged" Label="BG" />
 	</PDToolbar>

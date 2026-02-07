@@ -29,7 +29,7 @@ public partial class PDTilesPage
 		LineColor = "#c0c0c0",
 		LineOpacity = 15,
 		Glow = 30,
-		GlowFalloff = 300,
+		GlowFalloff = 100,
 		Perspective = 0,
 		Reflection = 50,
 		ReflectionDepth = 150,
@@ -133,6 +133,17 @@ public partial class PDTilesPage
 		new() { Key = "100", Text = "V.Fast" }
 	];
 
+	private readonly List<MenuItem> _maxSizeItems =
+	[
+		new() { Key = "", Text = "None" },
+		new() { Key = "25", Text = "25%" },
+		new() { Key = "33", Text = "33%" },
+		new() { Key = "50", Text = "50%" },
+		new() { Key = "66", Text = "66%" },
+		new() { Key = "75", Text = "75%" },
+		new() { Key = "100", Text = "100%" }
+	];
+
 	private string _lastEvent = "None";
 	private string _lastEventIcon = "";
 
@@ -217,6 +228,8 @@ public partial class PDTilesPage
 		TryParseInt(query, "scale", v => _options.Scale = v);
 		TryParseInt(query, "pad", v => _options.Padding = v);
 		TryParseEnum<GridAlignment>(query, "align", v => _options.Alignment = v);
+		TryParseNullableInt(query, "maxW", v => _options.MaxGridWidthPercent = v);
+		TryParseNullableInt(query, "maxH", v => _options.MaxGridHeightPercent = v);
 		TryParseBool(query, "content", v => _showChildContent = v);
 
 		// Connector options
@@ -300,6 +313,8 @@ public partial class PDTilesPage
 			["scale"] = _options.Scale.ToString(),
 			["pad"] = _options.Padding.ToString(),
 			["align"] = _options.Alignment.ToString(),
+			["maxW"] = _options.MaxGridWidthPercent?.ToString() ?? "",
+			["maxH"] = _options.MaxGridHeightPercent?.ToString() ?? "",
 			["content"] = _showChildContent ? "true" : "false",
 
 			// Connector options
@@ -326,6 +341,7 @@ public partial class PDTilesPage
 	private void OnShuffle()
 	{
 		_tilesComponent?.Shuffle();
+		OnRandomizeConnectors(); // Re-randomize connectors when tiles change
 	}
 
 	private void OnRotateLogo(int degrees)
@@ -416,12 +432,18 @@ public partial class PDTilesPage
 	// Dropdown selection handlers for PDToolbarDropdown
 	private void OnColumnsSelected(string key)
 	{
-		if (int.TryParse(key, out var v)) { _options.Columns = v; OnOptionsChanged(); }
+		if (int.TryParse(key, out var v)) { _options.Columns = v; OnGridSizeChanged(); }
 	}
 
 	private void OnRowsSelected(string key)
 	{
-		if (int.TryParse(key, out var v)) { _options.Rows = v; OnOptionsChanged(); }
+		if (int.TryParse(key, out var v)) { _options.Rows = v; OnGridSizeChanged(); }
+	}
+
+	private void OnGridSizeChanged()
+	{
+		OnOptionsChanged();
+		OnRandomizeConnectors(); // Re-randomize connectors when grid size changes
 	}
 
 	private void OnDepthSelected(string key)
@@ -436,7 +458,7 @@ public partial class PDTilesPage
 
 	private void OnPopulationSelected(string key)
 	{
-		if (int.TryParse(key, out var v)) { _options.Population = v; OnOptionsChanged(); }
+		if (int.TryParse(key, out var v)) { _options.Population = v; OnGridSizeChanged(); }
 	}
 
 	private void OnLogoSizeSelected(string key)
@@ -528,6 +550,18 @@ public partial class PDTilesPage
 	private void OnAnimSpeedSelected(string key)
 	{
 		if (int.TryParse(key, out var v)) { _connectorOptions.AnimationSpeed = v; OnOptionsChanged(); }
+	}
+
+	private void OnMaxWidthSelected(string key)
+	{
+		_options.MaxGridWidthPercent = string.IsNullOrEmpty(key) ? null : int.TryParse(key, out var v) ? v : null;
+		OnOptionsChanged();
+	}
+
+	private void OnMaxHeightSelected(string key)
+	{
+		_options.MaxGridHeightPercent = string.IsNullOrEmpty(key) ? null : int.TryParse(key, out var v) ? v : null;
+		OnOptionsChanged();
 	}
 
 	// Helper to create menu items from values

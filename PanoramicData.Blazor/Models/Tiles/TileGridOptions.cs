@@ -73,7 +73,7 @@ public class TileGridOptions
 	/// <summary>
 	/// Glow falloff as percentage of grid width (100-500). Higher values = softer falloff.
 	/// </summary>
-	public int GlowFalloff { get; set; } = 300;
+	public int GlowFalloff { get; set; } = 100;
 
 	/// <summary>
 	/// Reflection intensity percentage (0-100).
@@ -124,4 +124,14 @@ public class TileGridOptions
 	/// Alignment of the tile grid within the viewbox.
 	/// </summary>
 	public GridAlignment Alignment { get; set; } = GridAlignment.MiddleRight;
+
+	/// <summary>
+	/// Maximum grid width as percentage of container width (1-100). Null means no limit.
+	/// </summary>
+	public int? MaxGridWidthPercent { get; set; }
+
+	/// <summary>
+	/// Maximum grid height as percentage of container height (1-100). Null means no limit.
+	/// </summary>
+	public int? MaxGridHeightPercent { get; set; }
 }

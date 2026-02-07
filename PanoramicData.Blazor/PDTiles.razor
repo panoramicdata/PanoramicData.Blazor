@@ -20,7 +20,7 @@
 				<stop offset="100%" style="stop-color:@(_colors.Base)" />
 			</linearGradient>
 
-			<linearGradient id="@($"{Id}-frontGrad")" x1="0%" y1="50%" x2="100%" y2="50%">
+			<linearGradient id="@($"{Id}-frontGrad")" x1="0%" y1="50%" x2="100%" y2="50%" color-interpolation="sRGB">
 				<stop offset="0%" style="stop-color:@(_colors.Dark)" />
 				<stop offset="45%" style="stop-color:@(_colors.Dark)" />
 				<stop offset="50%" style="stop-color:@(_colors.Mid)" />
@@ -53,7 +53,7 @@
 					<stop offset="0%" style="stop-color:@colorEntry.Value.Colors.Light" />
 					<stop offset="100%" style="stop-color:@colorEntry.Value.Colors.Base" />
 				</linearGradient>
-				<linearGradient id="@colorEntry.Value.FrontGradId" x1="0%" y1="50%" x2="100%" y2="50%">
+				<linearGradient id="@colorEntry.Value.FrontGradId" x1="0%" y1="50%" x2="100%" y2="50%" color-interpolation="sRGB">
 					<stop offset="0%" style="stop-color:@colorEntry.Value.Colors.Dark" />
 					<stop offset="45%" style="stop-color:@colorEntry.Value.Colors.Dark" />
 					<stop offset="50%" style="stop-color:@colorEntry.Value.Colors.Mid" />
@@ -80,10 +80,23 @@
 		@if (Options.Glow > 0)
 		{
 			var layout = CalculateLayout();
-			@* Use large negative offset and 3x size to ensure glow never clips at edges *@
+			var (anchorX, anchorY) = GetGridAnchorPoint(layout);
+			@* Calculate glow radius as percentage of grid width *@
+			var glowRadius = layout.GridWidth * (Options.GlowFalloff / 100.0);
+			var glowCenterY = anchorY + layout.DepthPixels / 2;
+			
+			<radialGradient id="@($"{Id}-bgGlow-abs")" gradientUnits="userSpaceOnUse"
+							cx="@F(anchorX)" cy="@F(glowCenterY)" r="@F(glowRadius)">
+				<stop offset="0%" style="stop-color:rgba(255,255,255,0.35)" />
+				<stop offset="30%" style="stop-color:rgba(255,255,255,0.2)" />
+				<stop offset="60%" style="stop-color:rgba(255,255,255,0.08)" />
+				<stop offset="100%" style="stop-color:rgba(255,255,255,0)" />
+			</radialGradient>
+			
+			@* Use large rect to ensure glow never clips at edges *@
 			<rect x="@F(-layout.ViewBoxWidth)" y="@F(-layout.ViewBoxHeight)" 
 				  width="@F(layout.ViewBoxWidth * 3)" height="@F(layout.ViewBoxHeight * 3)"
-				  fill="url(#@($"{Id}-bgGlow"))"
+				  fill="url(#@($"{Id}-bgGlow-abs"))"
 				  opacity="@F(Options.Glow / 100.0)"
 				  style="pointer-events: none;" />
 		}

@@ -173,18 +173,40 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		}
 	}
 
+
 	/// <summary>
 	/// Gets the style for the SVG container div.
 	/// </summary>
 	private string GetSvgContainerStyle()
 	{
+		var styles = new List<string>();
+
 		if (ChildContent != null)
 		{
 			// Position absolutely but allow pointer events on SVG elements (tiles/connectors handle their own events)
-			return "position: absolute; top: 0; left: 0; width: 100%; height: 100%;";
+			styles.Add("position: absolute; top: 0; left: 0");
 		}
 
-		return "width: 100%; height: 100%;";
+		// Apply max width/height constraints if specified
+		if (Options.MaxGridWidthPercent.HasValue)
+		{
+			styles.Add($"max-width: {Options.MaxGridWidthPercent.Value}%");
+		}
+		else
+		{
+			styles.Add("width: 100%");
+		}
+
+		if (Options.MaxGridHeightPercent.HasValue)
+		{
+			styles.Add($"max-height: {Options.MaxGridHeightPercent.Value}%");
+		}
+		else
+		{
+			styles.Add("height: 100%");
+		}
+
+		return string.Join("; ", styles) + ";";
 	}
 
 	/// <summary>
@@ -328,16 +350,28 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		{
 			for (var col = 0; col < Options.Columns; col++)
 			{
+				// Skip invisible tiles
+				var startId = row * Options.Columns + col;
+				if (startId >= _tileVisible.Count || !_tileVisible[startId])
+				{
+					continue;
+				}
+
 				var adjacents = GetAdjacentTiles(col, row);
 				foreach (var adj in adjacents)
 				{
+					// Skip if adjacent tile is invisible
+					var endId = adj.Row * Options.Columns + adj.Column;
+					if (endId >= _tileVisible.Count || !_tileVisible[endId])
+					{
+						continue;
+					}
+
 					if (!MatchesDirection(adj.Type, ConnectorOptions.Direction))
 					{
 						continue;
 					}
 
-					var startId = row * Options.Columns + col;
-					var endId = adj.Row * Options.Columns + adj.Column;
 					var pairKey = $"{Math.Min(startId, endId)}-{Math.Max(startId, endId)}";
 
 					if (added.Contains(pairKey))
@@ -510,7 +544,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 			var startLogo = GetTileLogo(conn.StartTile.Column, conn.StartTile.Row);
 			var endLogo = GetTileLogo(conn.EndTile.Column, conn.EndTile.Row);
-			var connName = $"{GetTileName(startLogo)}?{GetTileName(endLogo)}";
+			// Include edge index to make name unique for multiple connectors between same tiles
+			var connName = $"{GetTileName(startLogo)}?{GetTileName(endLogo)}#{conn.EdgeIndex}";
 
 			var renderInfo = new ConnectorRenderInfo
 			{
@@ -552,9 +587,12 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		var gridCenterCol = (Options.Columns - 1) / 2.0;
 		var gridCenterRow = (Options.Rows - 1) / 2.0;
 
-		// Extend grid lines based on scale - more extension when zoomed out
-		var scaleExtension = Math.Max(0, (100 - Options.Scale) / 10);
-		var ext = 2 + (int)Math.Ceiling((double)scaleExtension);
+		// Calculate extension to reach container edges
+		// We need lines to extend beyond the viewBox to ensure full coverage
+		var viewBoxExtent = Math.Max(layout.ViewBoxWidth, layout.ViewBoxHeight);
+		var gridExtent = Math.Max(layout.GridWidth, layout.GridHeight);
+		var extRatio = gridExtent > 0 ? viewBoxExtent / gridExtent : 2;
+		var ext = Math.Max(5, (int)Math.Ceiling(extRatio * Math.Max(Options.Columns, Options.Rows)));
 
 		// Vertical lines (column direction)
 		for (var i = -ext; i <= Options.Columns + ext; i++)
