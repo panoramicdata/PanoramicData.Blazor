@@ -1,4 +1,5 @@
-﻿@page "/pdtiles"
+@page "/pdtiles"
+@using PanoramicData.Blazor.Models
 @using PanoramicData.Blazor.Models.Tiles
 
 <h1>PDTiles</h1>
@@ -13,47 +14,18 @@
 	<h3>Grid Options</h3>
 
 	<PDToolbar ButtonSize="ButtonSizes.Small">
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Grid:</span>
-			<select class="form-select form-select-sm me-1" style="width:50px;" @bind="_options.Columns" @bind:after="OnOptionsChanged">
-				@for (var i = 1; i <= 5; i++) { <option value="@i">@i</option> }
-			</select>
-			<span class="small">&times;</span>
-			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Rows" @bind:after="OnOptionsChanged">
-				@for (var i = 1; i <= 5; i++) { <option value="@i">@i</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Depth%:</span>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Depth" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 1, 5, 10, 15, 20, 25 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Gap%:</span>
-			<select class="form-select form-select-sm" style="width:60px;" @bind="_options.Gap" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 0, 25, 50, 75, 100, 150, 200, 250, 300 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Pop%:</span>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Population" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 50, 60, 70, 80, 90, 100 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
+		<PDToolbarDropdown Text="@($"{_options.Columns}")" Items="@CreateMenuItems([1, 2, 3, 4, 5])" Click="OnColumnsSelected" ToolTip="Columns" />
+		<PDToolbarPlaceholder><span class="small mx-1">&times;</span></PDToolbarPlaceholder>
+		<PDToolbarDropdown Text="@($"{_options.Rows}")" Items="@CreateMenuItems([1, 2, 3, 4, 5])" Click="OnRowsSelected" ToolTip="Rows" />
+		<PDToolbarDropdown Text="@($"D:{_options.Depth}%")" Items="@CreateMenuItems([1, 5, 10, 15, 20, 25])" Click="OnDepthSelected" ToolTip="Depth %" />
+		<PDToolbarDropdown Text="@($"Gap:{_options.Gap}%")" Items="@CreateMenuItems([0, 25, 50, 75, 100, 150, 200, 250, 300])" Click="OnGapSelected" ToolTip="Gap %" />
+		<PDToolbarDropdown Text="@($"Pop:{_options.Population}%")" Items="@CreateMenuItems([50, 60, 70, 80, 90, 100])" Click="OnPopulationSelected" ToolTip="Population %" />
 		<PDToolbarButton Key="Shuffle" Text="Shuffle" CssClass="btn-secondary" Click="OnShuffle" />
 		<PDToolbarSeparator />
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Logo%:</span>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.LogoSize" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 60, 65, 70, 75, 80, 85, 90, 95, 100 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarButton Key="RotL" Text="↶" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(-45)" ToolTip="Rotate Left" />
-		<PDToolbarButton Key="RotR" Text="↷" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(45)" ToolTip="Rotate Right" />
-		<PDToolbarPlaceholder>
-			<span class="text-muted small">(@(_options.LogoRotation)°)</span>
-		</PDToolbarPlaceholder>
+		<PDToolbarDropdown Text="@($"Logo:{_options.LogoSize}%")" Items="@CreateMenuItems([60, 65, 70, 75, 80, 85, 90, 95, 100])" Click="OnLogoSizeSelected" ToolTip="Logo Size %" />
+		<PDToolbarButton Key="RotL" Text="?" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(-45)" ToolTip="Rotate Left" />
+		<PDToolbarButton Key="RotR" Text="?" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(45)" ToolTip="Rotate Right" />
+		<PDToolbarPlaceholder><span class="text-muted small">(@(_options.LogoRotation)�)</span></PDToolbarPlaceholder>
 		<PDToolbarSeparator />
 		<PDToolbarPlaceholder>
 			<span class="me-1 small">Tile:</span>
@@ -63,79 +35,24 @@
 			<span class="me-1 small">BG:</span>
 			<input type="color" class="form-control form-control-color p-0" style="width:28px;height:24px;" @bind="_options.BackgroundColor" @bind:after="OnOptionsChanged" />
 		</PDToolbarPlaceholder>
+		<PDToolbarDropdown Text="@($"Lines:{_options.LineOpacity}%")" Items="@CreateMenuItems([0, 5, 10, 15, 20, 25, 50, 75, 100])" Click="OnLineOpacitySelected" ToolTip="Line Opacity %" />
 		<PDToolbarPlaceholder>
-			<span class="me-1 small">Lines%:</span>
-			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.LineOpacity" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 0, 5, 10, 15, 20, 25, 50, 75, 100 }) { <option value="@v">@v</option> }
-			</select>
-			<input type="color" class="form-control form-control-color p-0 ms-1" style="width:28px;height:24px;" @bind="_options.LineColor" @bind:after="OnOptionsChanged" />
+			<input type="color" class="form-control form-control-color p-0" style="width:28px;height:24px;" @bind="_options.LineColor" @bind:after="OnOptionsChanged" />
 		</PDToolbarPlaceholder>
 	</PDToolbar>
 
 	<PDToolbar ButtonSize="ButtonSizes.Small">
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Glow%:</span>
-			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Glow" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Persp%:</span>
-			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Perspective" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 0, 5, 10, 15, 20, 25, 30 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Refl%:</span>
-			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Reflection" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 0, 25, 50, 75, 100 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">D%:</span>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.ReflectionDepth" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 50, 75, 100, 150, 200, 300 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
+		<PDToolbarDropdown Text="@($"Glow:{_options.Glow}%")" Items="@CreateMenuItems([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])" Click="OnGlowSelected" ToolTip="Glow Intensity %" />
+		<PDToolbarDropdown Text="@($"GlowR:{_options.GlowFalloff}%")" Items="@CreateMenuItems([100, 150, 200, 250, 300, 400, 500])" Click="OnGlowFalloffSelected" ToolTip="Glow Falloff Radius %" />
+		<PDToolbarDropdown Text="@($"Persp:{_options.Perspective}%")" Items="@CreateMenuItems([0, 5, 10, 15, 20, 25, 30])" Click="OnPerspectiveSelected" ToolTip="Perspective %" />
+		<PDToolbarDropdown Text="@($"Refl:{_options.Reflection}%")" Items="@CreateMenuItems([0, 25, 50, 75, 100])" Click="OnReflectionSelected" ToolTip="Reflection %" />
+		<PDToolbarDropdown Text="@($"RD:{_options.ReflectionDepth}%")" Items="@CreateMenuItems([50, 75, 100, 150, 200, 300])" Click="OnReflectionDepthSelected" ToolTip="Reflection Depth %" />
 		<PDToolbarSeparator />
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Scale%:</span>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Scale" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Pad%:</span>
-			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Padding" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 0, 5, 10, 15, 20, 25, 50 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Align:</span>
-			<select class="form-select form-select-sm" style="width:70px;" @bind="_options.Alignment" @bind:after="OnOptionsChanged">
-				<option value="@GridAlignment.TopLeft">TL</option>
-				<option value="@GridAlignment.TopCenter">TC</option>
-				<option value="@GridAlignment.TopRight">TR</option>
-				<option value="@GridAlignment.MiddleLeft">ML</option>
-				<option value="@GridAlignment.MiddleCenter">MC</option>
-				<option value="@GridAlignment.MiddleRight">MR</option>
-				<option value="@GridAlignment.BottomLeft">BL</option>
-				<option value="@GridAlignment.BottomCenter">BC</option>
-				<option value="@GridAlignment.BottomRight">BR</option>
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Content:</span>
-			<div class="form-check form-switch mb-0">
-				<input class="form-check-input" type="checkbox" @bind="_showChildContent" @bind:after="OnOptionsChanged" />
-			</div>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">BG:</span>
-			<div class="form-check form-switch mb-0">
-				<input class="form-check-input" type="checkbox" @bind="_options.ShowBackground" @bind:after="OnOptionsChanged" />
-			</div>
-		</PDToolbarPlaceholder>
+		<PDToolbarDropdown Text="@($"Scale:{_options.Scale}%")" Items="@CreateMenuItems([30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150])" Click="OnScaleSelected" ToolTip="Scale %" />
+		<PDToolbarDropdown Text="@($"Pad:{_options.Padding}%")" Items="@CreateMenuItems([0, 5, 10, 15, 20, 25, 50])" Click="OnPaddingSelected" ToolTip="Padding %" />
+		<PDToolbarDropdown Text="@GetAlignmentShortText()" Items="@_alignmentItems" Click="OnAlignmentSelected" ToolTip="Alignment" />
+		<PDToggleSwitch @bind-Value="_showChildContent" @bind-Value:after="OnOptionsChanged" Label="Content" />
+		<PDToggleSwitch @bind-Value="_options.ShowBackground" @bind-Value:after="OnOptionsChanged" Label="BG" />
 	</PDToolbar>
 
 	<h3 class="mt-3">Connector Options</h3>
@@ -144,68 +61,14 @@
 		<PDToolbarButton Key="Random" Text="Random" CssClass="btn-secondary" Click="OnRandomizeConnectors" />
 		<PDToolbarButton Key="Clear" Text="Clear" CssClass="btn-outline-secondary" Click="OnClearConnectors" />
 		<PDToolbarSeparator />
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Pattern:</span>
-			<select class="form-select form-select-sm" style="width:80px;" @bind="_connectorOptions.FillPattern" @bind:after="OnRandomizeConnectors">
-				<option value="@ConnectorFillPattern.Random">Random</option>
-				<option value="@ConnectorFillPattern.Solid">Solid</option>
-				<option value="@ConnectorFillPattern.Bars">Bars</option>
-				<option value="@ConnectorFillPattern.Chevrons">Chevrons</option>
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Dir:</span>
-			<select class="form-select form-select-sm" style="width:70px;" @bind="_connectorOptions.Direction" @bind:after="OnRandomizeConnectors">
-				<option value="@ConnectorDirection.All">All</option>
-				<option value="@ConnectorDirection.Orthogonal">Ortho</option>
-				<option value="@ConnectorDirection.Diagonal">Diag</option>
-				<option value="@ConnectorDirection.DiagonalLeftRight">D-LR</option>
-				<option value="@ConnectorDirection.DiagonalFrontBack">D-FB</option>
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">N:</span>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_perEdgeString" @bind:after="OnRandomizeConnectors">
-				<option value="">Rnd</option>
-				@for (var i = 1; i <= 4; i++) { <option value="@i">@i</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Pop%:</span>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.Population" @bind:after="OnRandomizeConnectors">
-				@foreach (var v in new[] { 25, 50, 75, 100 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">H%:</span>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.Height">
-				@foreach (var v in new[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">V:</span>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.VerticalAlign">
-				<option value="@ConnectorVerticalAlign.Bottom">Bot</option>
-				<option value="@ConnectorVerticalAlign.Center">Mid</option>
-				<option value="@ConnectorVerticalAlign.Top">Top</option>
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Op%:</span>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.Opacity">
-				@foreach (var v in new[] { 25, 50, 80, 100 }) { <option value="@v">@v</option> }
-			</select>
-		</PDToolbarPlaceholder>
-		<PDToolbarPlaceholder>
-			<span class="me-1 small">Anim:</span>
-			<select class="form-select form-select-sm" style="width:70px;" @bind="_connectorOptions.AnimationSpeed" @bind:after="OnOptionsChanged">
-				<option value="0">Off</option>
-				<option value="15">Slow</option>
-				<option value="35">Medium</option>
-				<option value="60">Fast</option>
-				<option value="100">V.Fast</option>
-			</select>
-		</PDToolbarPlaceholder>
+		<PDToolbarDropdown Text="@($"Pat:{_connectorOptions.FillPattern}")" Items="@_patternItems" Click="OnPatternSelected" ToolTip="Fill Pattern" />
+		<PDToolbarDropdown Text="@($"Dir:{GetDirectionShortText()}")" Items="@_directionItems" Click="OnDirectionSelected" ToolTip="Direction" />
+		<PDToolbarDropdown Text="@($"N:{_connectorOptions.PerEdge?.ToString() ?? "Rnd"}")" Items="@_perEdgeItems" Click="OnPerEdgeSelected" ToolTip="Per Edge" />
+		<PDToolbarDropdown Text="@($"Pop:{_connectorOptions.Population}%")" Items="@CreateMenuItems([25, 50, 75, 100])" Click="OnConnectorPopSelected" ToolTip="Population %" />
+		<PDToolbarDropdown Text="@($"H:{_connectorOptions.Height}%")" Items="@CreateMenuItems([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])" Click="OnConnectorHeightSelected" ToolTip="Height %" />
+		<PDToolbarDropdown Text="@($"V:{GetVerticalAlignShortText()}")" Items="@_verticalAlignItems" Click="OnVerticalAlignSelected" ToolTip="Vertical Align" />
+		<PDToolbarDropdown Text="@($"Op:{_connectorOptions.Opacity}%")" Items="@CreateMenuItems([25, 50, 80, 100])" Click="OnConnectorOpacitySelected" ToolTip="Opacity %" />
+		<PDToolbarDropdown Text="@($"Anim:{GetAnimSpeedText()}")" Items="@_animSpeedItems" Click="OnAnimSpeedSelected" ToolTip="Animation Speed" />
 	</PDToolbar>
 
 	<div class="mt-2 p-2 border rounded">
@@ -263,24 +126,24 @@
 </DemoSourceView>
 
 <style>
-.pd-tiles-child-content {
-position: absolute;
-top: 0;
-right: 0;
-width: 50%;
-height: 100%;
-padding: 2rem;
-overflow: auto;
-color: white;
-text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-pointer-events: auto;
-}
-.pd-tiles-child-content h1 {
-font-size: 2.5rem;
-margin-bottom: 1rem;
-}
-.pd-tiles-child-content h2 {
-font-size: 1.5rem;
+	.pd-tiles-child-content {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 50%;
+		height: 100%;
+		padding: 2rem;
+		overflow: auto;
+		color: white;
+		text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+		pointer-events: auto;
+	}
+	.pd-tiles-child-content h1 {
+		font-size: 2.5rem;
+		margin-bottom: 1rem;
+	}
+	.pd-tiles-child-content h2 {
+		font-size: 1.5rem;
 		color: #4a9eff;
 		margin-top: 1.5rem;
 	}

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
+using PanoramicData.Blazor.Models;
 using PanoramicData.Blazor.Models.Tiles;
 
 namespace PanoramicData.Blazor.Demo.Pages;
@@ -13,6 +14,7 @@ public partial class PDTilesPage
 	private bool _isInitialized;
 	private bool _showChildContent = true;
 
+
 	private readonly TileGridOptions _options = new()
 	{
 		Columns = 3,
@@ -24,15 +26,16 @@ public partial class PDTilesPage
 		Population = 100,
 		TileColor = "#373737",
 		BackgroundColor = "#000624",
-		LineColor = "#888888",
-		LineOpacity = 10,
-		Glow = 50,
+		LineColor = "#c0c0c0",
+		LineOpacity = 15,
+		Glow = 30,
+		GlowFalloff = 300,
 		Perspective = 0,
 		Reflection = 50,
 		ReflectionDepth = 150,
-		Scale = 50,
+		Scale = 100,
 		Padding = 5,
-		Alignment = GridAlignment.MiddleLeft
+		Alignment = GridAlignment.MiddleRight
 	};
 
 	private readonly TileConnectorOptions _connectorOptions = new()
@@ -74,8 +77,107 @@ public partial class PDTilesPage
 		"_content/PanoramicData.Blazor.Demo/images/tiles/ThousandEyes Logo.svg"
 	];
 
+	// Static menu items for dropdowns
+	private readonly List<MenuItem> _alignmentItems =
+	[
+		new() { Key = "TopLeft", Text = "TL" },
+		new() { Key = "TopCenter", Text = "TC" },
+		new() { Key = "TopRight", Text = "TR" },
+		new() { Key = "MiddleLeft", Text = "ML" },
+		new() { Key = "MiddleCenter", Text = "MC" },
+		new() { Key = "MiddleRight", Text = "MR" },
+		new() { Key = "BottomLeft", Text = "BL" },
+		new() { Key = "BottomCenter", Text = "BC" },
+		new() { Key = "BottomRight", Text = "BR" }
+	];
+
+	private readonly List<MenuItem> _patternItems =
+	[
+		new() { Key = "Random", Text = "Random" },
+		new() { Key = "Solid", Text = "Solid" },
+		new() { Key = "Bars", Text = "Bars" },
+		new() { Key = "Chevrons", Text = "Chevrons" }
+	];
+
+	private readonly List<MenuItem> _directionItems =
+	[
+		new() { Key = "All", Text = "All" },
+		new() { Key = "Orthogonal", Text = "Ortho" },
+		new() { Key = "Diagonal", Text = "Diag" },
+		new() { Key = "DiagonalLeftRight", Text = "D-LR" },
+		new() { Key = "DiagonalFrontBack", Text = "D-FB" }
+	];
+
+	private readonly List<MenuItem> _perEdgeItems =
+	[
+		new() { Key = "", Text = "Rnd" },
+		new() { Key = "1", Text = "1" },
+		new() { Key = "2", Text = "2" },
+		new() { Key = "3", Text = "3" },
+		new() { Key = "4", Text = "4" }
+	];
+
+	private readonly List<MenuItem> _verticalAlignItems =
+	[
+		new() { Key = "Bottom", Text = "Bot" },
+		new() { Key = "Center", Text = "Mid" },
+		new() { Key = "Top", Text = "Top" }
+	];
+
+	private readonly List<MenuItem> _animSpeedItems =
+	[
+		new() { Key = "0", Text = "Off" },
+		new() { Key = "15", Text = "Slow" },
+		new() { Key = "35", Text = "Medium" },
+		new() { Key = "60", Text = "Fast" },
+		new() { Key = "100", Text = "V.Fast" }
+	];
+
 	private string _lastEvent = "None";
 	private string _lastEventIcon = "";
+
+	// Helper methods for short text display
+	private string GetAlignmentShortText() => _options.Alignment switch
+	{
+		GridAlignment.TopLeft => "TL",
+		GridAlignment.TopCenter => "TC",
+		GridAlignment.TopRight => "TR",
+		GridAlignment.MiddleLeft => "ML",
+		GridAlignment.MiddleCenter => "MC",
+		GridAlignment.MiddleRight => "MR",
+		GridAlignment.BottomLeft => "BL",
+		GridAlignment.BottomCenter => "BC",
+		GridAlignment.BottomRight => "BR",
+		_ => "MC"
+	};
+
+	private string GetDirectionShortText() => _connectorOptions.Direction switch
+	{
+		ConnectorDirection.All => "All",
+		ConnectorDirection.Orthogonal => "Ortho",
+		ConnectorDirection.Diagonal => "Diag",
+		ConnectorDirection.DiagonalLeftRight => "D-LR",
+		ConnectorDirection.DiagonalFrontBack => "D-FB",
+		_ => "All"
+	};
+
+	private string GetVerticalAlignShortText() => _connectorOptions.VerticalAlign switch
+	{
+		ConnectorVerticalAlign.Bottom => "Bot",
+		ConnectorVerticalAlign.Center => "Mid",
+		ConnectorVerticalAlign.Top => "Top",
+		_ => "Mid"
+	};
+
+	private string GetAnimSpeedText() => _connectorOptions.AnimationSpeed switch
+	{
+		0 => "Off",
+		15 => "Slow",
+		35 => "Medium",
+		60 => "Fast",
+		100 => "V.Fast",
+		_ => _connectorOptions.AnimationSpeed.ToString()
+	};
 
 	protected override void OnInitialized()
 	{
@@ -108,6 +210,7 @@ public partial class PDTilesPage
 		TryParseHexColor(query, "lineColor", v => _options.LineColor = v);
 		TryParseInt(query, "lineOp", v => _options.LineOpacity = v);
 		TryParseInt(query, "glow", v => _options.Glow = v);
+		TryParseInt(query, "glowFO", v => _options.GlowFalloff = v);
 		TryParseInt(query, "persp", v => _options.Perspective = v);
 		TryParseInt(query, "refl", v => _options.Reflection = v);
 		TryParseInt(query, "reflD", v => _options.ReflectionDepth = v);
@@ -190,6 +293,7 @@ public partial class PDTilesPage
 			["lineColor"] = _options.LineColor.TrimStart('#'),
 			["lineOp"] = _options.LineOpacity.ToString(),
 			["glow"] = _options.Glow.ToString(),
+			["glowFO"] = _options.GlowFalloff.ToString(),
 			["persp"] = _options.Perspective.ToString(),
 			["refl"] = _options.Reflection.ToString(),
 			["reflD"] = _options.ReflectionDepth.ToString(),
@@ -308,4 +412,128 @@ public partial class PDTilesPage
 		_lastEventIcon = "fa-solid fa-link";
 		StateHasChanged();
 	}
+
+	// Dropdown selection handlers for PDToolbarDropdown
+	private void OnColumnsSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.Columns = v; OnOptionsChanged(); }
+	}
+
+	private void OnRowsSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.Rows = v; OnOptionsChanged(); }
+	}
+
+	private void OnDepthSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.Depth = v; OnOptionsChanged(); }
+	}
+
+	private void OnGapSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.Gap = v; OnOptionsChanged(); }
+	}
+
+	private void OnPopulationSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.Population = v; OnOptionsChanged(); }
+	}
+
+	private void OnLogoSizeSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.LogoSize = v; OnOptionsChanged(); }
+	}
+
+	private void OnLineOpacitySelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.LineOpacity = v; OnOptionsChanged(); }
+	}
+
+	private void OnGlowSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.Glow = v; OnOptionsChanged(); }
+	}
+
+	private void OnGlowFalloffSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.GlowFalloff = v; OnOptionsChanged(); }
+	}
+
+	private void OnPerspectiveSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.Perspective = v; OnOptionsChanged(); }
+	}
+
+	private void OnReflectionSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.Reflection = v; OnOptionsChanged(); }
+	}
+
+	private void OnReflectionDepthSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.ReflectionDepth = v; OnOptionsChanged(); }
+	}
+
+	private void OnScaleSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.Scale = v; OnOptionsChanged(); }
+	}
+
+	private void OnPaddingSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _options.Padding = v; OnOptionsChanged(); }
+	}
+
+	private void OnAlignmentSelected(string key)
+	{
+		if (Enum.TryParse<GridAlignment>(key, out var v)) { _options.Alignment = v; OnOptionsChanged(); }
+	}
+
+	private void OnPatternSelected(string key)
+	{
+		if (Enum.TryParse<ConnectorFillPattern>(key, out var v)) { _connectorOptions.FillPattern = v; OnRandomizeConnectors(); }
+	}
+
+	private void OnDirectionSelected(string key)
+	{
+		if (Enum.TryParse<ConnectorDirection>(key, out var v)) { _connectorOptions.Direction = v; OnRandomizeConnectors(); }
+	}
+
+	private void OnPerEdgeSelected(string key)
+	{
+		_connectorOptions.PerEdge = string.IsNullOrEmpty(key) ? null : int.TryParse(key, out var v) ? v : null;
+		OnRandomizeConnectors();
+	}
+
+	private void OnConnectorPopSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _connectorOptions.Population = v; OnRandomizeConnectors(); }
+	}
+
+	private void OnConnectorHeightSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _connectorOptions.Height = v; OnOptionsChanged(); }
+	}
+
+	private void OnVerticalAlignSelected(string key)
+	{
+		if (Enum.TryParse<ConnectorVerticalAlign>(key, out var v)) { _connectorOptions.VerticalAlign = v; OnOptionsChanged(); }
+	}
+
+	private void OnConnectorOpacitySelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _connectorOptions.Opacity = v; OnOptionsChanged(); }
+	}
+
+	private void OnAnimSpeedSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _connectorOptions.AnimationSpeed = v; OnOptionsChanged(); }
+	}
+
+	// Helper to create menu items from values
+	private static List<MenuItem> CreateMenuItems(int[] values) =>
+		values.Select(v => new MenuItem { Key = v.ToString(), Text = v.ToString() }).ToList();
+
+	private static List<MenuItem> CreateMenuItems<T>(params (string Key, string Text)[] items) =>
+		items.Select(i => new MenuItem { Key = i.Key, Text = i.Text }).ToList();
 }

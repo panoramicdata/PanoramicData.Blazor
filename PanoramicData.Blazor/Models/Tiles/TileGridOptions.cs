@@ -58,17 +58,17 @@ public class TileGridOptions
 	/// <summary>
 	/// Grid line color (hex format).
 	/// </summary>
-	public string LineColor { get; set; } = "#888888";
+	public string LineColor { get; set; } = "#c0c0c0";
 
 	/// <summary>
 	/// Grid line opacity percentage (0-100).
 	/// </summary>
-	public int LineOpacity { get; set; } = 10;
+	public int LineOpacity { get; set; } = 15;
 
 	/// <summary>
 	/// Background glow intensity percentage (0-100).
 	/// </summary>
-	public int Glow { get; set; } = 50;
+	public int Glow { get; set; } = 30;
 
 	/// <summary>
 	/// Glow falloff as percentage of grid width (100-500). Higher values = softer falloff.
@@ -118,10 +118,10 @@ public class TileGridOptions
 	/// <summary>
 	/// Padding around the tile grid as percentage (0-50).
 	/// </summary>
-	public int Padding { get; set; } = 0;
+	public int Padding { get; set; } = 5;
 
 	/// <summary>
 	/// Alignment of the tile grid within the viewbox.
 	/// </summary>
-	public GridAlignment Alignment { get; set; } = GridAlignment.MiddleCenter;
+	public GridAlignment Alignment { get; set; } = GridAlignment.MiddleRight;
 }
