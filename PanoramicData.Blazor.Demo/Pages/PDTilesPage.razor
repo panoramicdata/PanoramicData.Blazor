@@ -1,4 +1,4 @@
-@page "/pdtiles"
+﻿@page "/pdtiles"
 @using PanoramicData.Blazor.Models
 @using PanoramicData.Blazor.Models.Tiles
 
@@ -23,9 +23,9 @@
 		<PDToolbarButton Key="Shuffle" Text="Shuffle" CssClass="btn-secondary" Click="OnShuffle" />
 		<PDToolbarSeparator />
 		<PDToolbarDropdown Text="@($"Logo:{_options.LogoSize}%")" Items="@CreateMenuItems([60, 65, 70, 75, 80, 85, 90, 95, 100])" Click="OnLogoSizeSelected" ToolTip="Logo Size %" />
-		<PDToolbarButton Key="RotL" Text="?" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(-45)" ToolTip="Rotate Left" />
-		<PDToolbarButton Key="RotR" Text="?" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(45)" ToolTip="Rotate Right" />
-		<PDToolbarPlaceholder><span class="text-muted small">(@(_options.LogoRotation)�)</span></PDToolbarPlaceholder>
+		<PDToolbarButton Key="RotL" Text="↶" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(-45)" ToolTip="Rotate Left" />
+		<PDToolbarButton Key="RotR" Text="↷" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(45)" ToolTip="Rotate Right" />
+		<PDToolbarPlaceholder><span class="text-muted small">(@(_options.LogoRotation)°)</span></PDToolbarPlaceholder>
 		<PDToolbarSeparator />
 		<PDToolbarPlaceholder>
 			<span class="me-1 small">Tile:</span>
@@ -39,16 +39,14 @@
 		<PDToolbarPlaceholder>
 			<input type="color" class="form-control form-control-color p-0" style="width:28px;height:24px;" @bind="_options.LineColor" @bind:after="OnOptionsChanged" />
 		</PDToolbarPlaceholder>
-	</PDToolbar>
-
-	<PDToolbar ButtonSize="ButtonSizes.Small">
+		<PDToolbarSeparator />
 		<PDToolbarDropdown Text="@($"Glow:{_options.Glow}%")" Items="@CreateMenuItems([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])" Click="OnGlowSelected" ToolTip="Glow Intensity %" />
 		<PDToolbarDropdown Text="@($"GlowR:{_options.GlowFalloff}%")" Items="@CreateMenuItems([10, 20, 30, 50, 75, 100, 150, 200, 250, 300, 400, 500])" Click="OnGlowFalloffSelected" ToolTip="Glow Falloff Radius %" />
 		<PDToolbarDropdown Text="@($"Persp:{_options.Perspective}%")" Items="@CreateMenuItems([0, 5, 10, 15, 20, 25, 30])" Click="OnPerspectiveSelected" ToolTip="Perspective %" />
 		<PDToolbarDropdown Text="@($"Refl:{_options.Reflection}%")" Items="@CreateMenuItems([0, 25, 50, 75, 100])" Click="OnReflectionSelected" ToolTip="Reflection %" />
 		<PDToolbarDropdown Text="@($"RD:{_options.ReflectionDepth}%")" Items="@CreateMenuItems([50, 75, 100, 150, 200, 300])" Click="OnReflectionDepthSelected" ToolTip="Reflection Depth %" />
 		<PDToolbarSeparator />
-		<PDToolbarDropdown Text="@($"Scale:{_options.Scale}%")" Items="@CreateMenuItems([30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150])" Click="OnScaleSelected" ToolTip="Scale %" />
+		<PDToolbarDropdown Text="@($"Scale:{_options.Scale}%")" Items="@CreateMenuItems([30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 250, 300, 400])" Click="OnScaleSelected" ToolTip="Scale %" />
 		<PDToolbarDropdown Text="@($"Pad:{_options.Padding}%")" Items="@CreateMenuItems([0, 5, 10, 15, 20, 25, 50])" Click="OnPaddingSelected" ToolTip="Padding %" />
 		<PDToolbarDropdown Text="@GetAlignmentShortText()" Items="@_alignmentItems" Click="OnAlignmentSelected" ToolTip="Alignment" />
 		<PDToolbarDropdown Text="@($"MaxW:{_options.MaxGridWidthPercent?.ToString() ?? "-"}%")" Items="@_maxSizeItems" Click="OnMaxWidthSelected" ToolTip="Max Grid Width %" />

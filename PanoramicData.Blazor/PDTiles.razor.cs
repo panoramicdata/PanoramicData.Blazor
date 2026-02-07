@@ -17,6 +17,12 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	private List<bool> _tileVisible = [];
 	private readonly Random _random = new();
 
+	// Track last known grid configuration to avoid re-randomizing on every render
+	private int _lastColumns;
+	private int _lastRows;
+	private int _lastPopulation;
+	private int _lastLogoCount;
+
 	// Animation state
 	private double _animationOffset;
 	private System.Timers.Timer? _animationTimer;
@@ -174,39 +180,20 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	}
 
 
+
+
 	/// <summary>
 	/// Gets the style for the SVG container div.
 	/// </summary>
 	private string GetSvgContainerStyle()
 	{
-		var styles = new List<string>();
-
 		if (ChildContent != null)
 		{
 			// Position absolutely but allow pointer events on SVG elements (tiles/connectors handle their own events)
-			styles.Add("position: absolute; top: 0; left: 0");
+			return "position: absolute; top: 0; left: 0; width: 100%; height: 100%;";
 		}
 
-		// Apply max width/height constraints if specified
-		if (Options.MaxGridWidthPercent.HasValue)
-		{
-			styles.Add($"max-width: {Options.MaxGridWidthPercent.Value}%");
-		}
-		else
-		{
-			styles.Add("width: 100%");
-		}
-
-		if (Options.MaxGridHeightPercent.HasValue)
-		{
-			styles.Add($"max-height: {Options.MaxGridHeightPercent.Value}%");
-		}
-		else
-		{
-			styles.Add("height: 100%");
-		}
-
-		return string.Join("; ", styles) + ";";
+		return "width: 100%; height: 100%;";
 	}
 
 	/// <summary>
@@ -279,6 +266,25 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	private void InitializeTiles()
 	{
 		var totalTiles = Options.Columns * Options.Rows;
+		var logoCount = Logos?.Count ?? 0;
+
+		// Check if the grid configuration has changed
+		var configChanged = _lastColumns != Options.Columns ||
+							_lastRows != Options.Rows ||
+							_lastPopulation != Options.Population ||
+							_lastLogoCount != logoCount;
+
+		// If configuration hasn't changed, don't re-randomize
+		if (!configChanged && _tileVisible.Count == totalTiles && _tileLogos.Count == totalTiles)
+		{
+			return;
+		}
+
+		// Update tracking fields
+		_lastColumns = Options.Columns;
+		_lastRows = Options.Rows;
+		_lastPopulation = Options.Population;
+		_lastLogoCount = logoCount;
 
 		// Initialize tile overrides map
 		_tileOverrides.Clear();
@@ -442,12 +448,29 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		// Apply padding as percentage of the grid size
 		var paddingFactor = 1 + (Options.Padding / 100.0 * 2);
 
-		// Calculate viewBox dimensions accounting for scale and padding
+		// Calculate base viewBox dimensions accounting for scale and padding
 		var baseViewBoxWidth = gridPixelWidth / scaleFactor;
 		var baseViewBoxHeight = gridPixelHeight / scaleFactor;
 
-		var viewBoxWidth = baseViewBoxWidth * paddingFactor;
-		var viewBoxHeight = baseViewBoxHeight * paddingFactor;
+		// This is the "constrained area" where the grid should be positioned
+		var constrainedWidth = baseViewBoxWidth * paddingFactor;
+		var constrainedHeight = baseViewBoxHeight * paddingFactor;
+
+		var viewBoxWidth = constrainedWidth;
+		var viewBoxHeight = constrainedHeight;
+
+		// Expand the viewBox to respect MaxGridWidthPercent and MaxGridHeightPercent
+		// If MaxGridWidthPercent is 50%, the viewBox should be twice as wide so the grid
+		// occupies only 50% of the container width (positioned by alignment)
+		if (Options.MaxGridWidthPercent.HasValue && Options.MaxGridWidthPercent.Value > 0 && Options.MaxGridWidthPercent.Value < 100)
+		{
+			viewBoxWidth = constrainedWidth * (100.0 / Options.MaxGridWidthPercent.Value);
+		}
+
+		if (Options.MaxGridHeightPercent.HasValue && Options.MaxGridHeightPercent.Value > 0 && Options.MaxGridHeightPercent.Value < 100)
+		{
+			viewBoxHeight = constrainedHeight * (100.0 / Options.MaxGridHeightPercent.Value);
+		}
 
 		return new LayoutInfo
 		{
@@ -456,6 +479,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 			IsoSpacingY = isoSpacingY,
 			GridWidth = gridPixelWidth,
 			GridHeight = gridPixelHeight,
+			ConstrainedWidth = constrainedWidth,
+			ConstrainedHeight = constrainedHeight,
 			ViewBoxWidth = viewBoxWidth,
 			ViewBoxHeight = viewBoxHeight
 		};
@@ -466,27 +491,48 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	/// </summary>
 	private (double X, double Y) GetGridAnchorPoint(LayoutInfo layout)
 	{
-		// Calculate padding in viewBox units
-		var paddingX = (layout.ViewBoxWidth - layout.GridWidth) / 2;
-		var paddingY = (layout.ViewBoxHeight - layout.GridHeight) / 2;
+		// Calculate the offset for the constrained area within the expanded viewBox
+		// When MaxGridWidthPercent/MaxGridHeightPercent are set, the constrained area
+		// needs to be positioned within the larger viewBox based on alignment
+		var constrainedOffsetX = Options.Alignment switch
+		{
+			GridAlignment.TopLeft or GridAlignment.MiddleLeft or GridAlignment.BottomLeft
+				=> 0,
+			GridAlignment.TopRight or GridAlignment.MiddleRight or GridAlignment.BottomRight
+				=> layout.ViewBoxWidth - layout.ConstrainedWidth,
+			_ => (layout.ViewBoxWidth - layout.ConstrainedWidth) / 2
+		};
 
-		// Base positions for each alignment
+		var constrainedOffsetY = Options.Alignment switch
+		{
+			GridAlignment.TopLeft or GridAlignment.TopCenter or GridAlignment.TopRight
+				=> 0,
+			GridAlignment.BottomLeft or GridAlignment.BottomCenter or GridAlignment.BottomRight
+				=> layout.ViewBoxHeight - layout.ConstrainedHeight,
+			_ => (layout.ViewBoxHeight - layout.ConstrainedHeight) / 2
+		};
+
+		// Calculate padding within the constrained area
+		var paddingX = (layout.ConstrainedWidth - layout.GridWidth) / 2;
+		var paddingY = (layout.ConstrainedHeight - layout.GridHeight) / 2;
+
+		// Position within the constrained area, then offset by the constrained area position
 		var x = Options.Alignment switch
 		{
 			GridAlignment.TopLeft or GridAlignment.MiddleLeft or GridAlignment.BottomLeft
-				=> paddingX + layout.GridWidth / 2,
+				=> constrainedOffsetX + paddingX + layout.GridWidth / 2,
 			GridAlignment.TopRight or GridAlignment.MiddleRight or GridAlignment.BottomRight
-				=> layout.ViewBoxWidth - paddingX - layout.GridWidth / 2,
-			_ => layout.ViewBoxWidth / 2
+				=> constrainedOffsetX + layout.ConstrainedWidth - paddingX - layout.GridWidth / 2,
+			_ => constrainedOffsetX + layout.ConstrainedWidth / 2
 		};
 
 		var y = Options.Alignment switch
 		{
 			GridAlignment.TopLeft or GridAlignment.TopCenter or GridAlignment.TopRight
-				=> paddingY + layout.GridHeight / 2 - layout.DepthPixels / 2,
+				=> constrainedOffsetY + paddingY + layout.GridHeight / 2 - layout.DepthPixels / 2,
 			GridAlignment.BottomLeft or GridAlignment.BottomCenter or GridAlignment.BottomRight
-				=> layout.ViewBoxHeight - paddingY - layout.GridHeight / 2 - layout.DepthPixels / 2,
-			_ => layout.ViewBoxHeight / 2 - layout.DepthPixels / 2
+				=> constrainedOffsetY + layout.ConstrainedHeight - paddingY - layout.GridHeight / 2 - layout.DepthPixels / 2,
+			_ => constrainedOffsetY + layout.ConstrainedHeight / 2 - layout.DepthPixels / 2
 		};
 
 		return (x, y);
@@ -1026,6 +1072,14 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		public double IsoSpacingY { get; set; }
 		public double GridWidth { get; set; }
 		public double GridHeight { get; set; }
+		/// <summary>
+		/// The width of the area where the grid should be positioned (before MaxGridWidthPercent expansion).
+		/// </summary>
+		public double ConstrainedWidth { get; set; }
+		/// <summary>
+		/// The height of the area where the grid should be positioned (before MaxGridHeightPercent expansion).
+		/// </summary>
+		public double ConstrainedHeight { get; set; }
 		public double ViewBoxWidth { get; set; }
 		public double ViewBoxHeight { get; set; }
 	}

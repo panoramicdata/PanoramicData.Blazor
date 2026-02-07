@@ -430,19 +430,23 @@ public partial class PDTilesPage
 	}
 
 	// Dropdown selection handlers for PDToolbarDropdown
-	private void OnColumnsSelected(string key)
+	private async Task OnColumnsSelected(string key)
 	{
-		if (int.TryParse(key, out var v)) { _options.Columns = v; OnGridSizeChanged(); }
+		if (int.TryParse(key, out var v)) { _options.Columns = v; await OnGridSizeChangedAsync().ConfigureAwait(true); }
 	}
 
-	private void OnRowsSelected(string key)
+	private async Task OnRowsSelected(string key)
 	{
-		if (int.TryParse(key, out var v)) { _options.Rows = v; OnGridSizeChanged(); }
+		if (int.TryParse(key, out var v)) { _options.Rows = v; await OnGridSizeChangedAsync().ConfigureAwait(true); }
 	}
 
-	private void OnGridSizeChanged()
+	private async Task OnGridSizeChangedAsync()
 	{
 		OnOptionsChanged();
+		// Wait for the component to re-render and update its tile visibility
+		await Task.Yield();
+		StateHasChanged();
+		await Task.Yield();
 		OnRandomizeConnectors(); // Re-randomize connectors when grid size changes
 	}
 
@@ -456,9 +460,9 @@ public partial class PDTilesPage
 		if (int.TryParse(key, out var v)) { _options.Gap = v; OnOptionsChanged(); }
 	}
 
-	private void OnPopulationSelected(string key)
+	private async Task OnPopulationSelected(string key)
 	{
-		if (int.TryParse(key, out var v)) { _options.Population = v; OnGridSizeChanged(); }
+		if (int.TryParse(key, out var v)) { _options.Population = v; await OnGridSizeChangedAsync().ConfigureAwait(true); }
 	}
 
 	private void OnLogoSizeSelected(string key)
