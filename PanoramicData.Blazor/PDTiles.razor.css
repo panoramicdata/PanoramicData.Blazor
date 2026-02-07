@@ -1,0 +1,33 @@
+.pd-tiles {
+	display: block;
+	overflow: hidden;
+	position: relative;
+}
+
+.pd-tiles svg {
+	display: block;
+}
+
+.pd-tiles .grid-lines line {
+	pointer-events: none;
+}
+
+.pd-tiles .tiles-container {
+	transform-origin: center center;
+}
+
+.pd-tiles g[data-tile-id] {
+	transition: opacity 0.3s ease;
+}
+
+.pd-tiles g[data-tile-id]:hover {
+	filter: brightness(1.1);
+}
+
+.pd-tiles .connector {
+	transition: opacity 0.2s ease;
+}
+
+.pd-tiles .connector:hover {
+	filter: brightness(1.2);
+}

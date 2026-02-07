@@ -1,0 +1,362 @@
+@using PanoramicData.Blazor.Models.Tiles
+
+<div id="@Id"
+	 class="pd-tiles @CssClass"
+	 style="width: @Width; height: @Height; position: relative; @Style">
+	
+	@* SVG tile grid - positioned absolutely if there's child content *@
+	<div style="@GetSvgContainerStyle()">
+		<svg @ref="_svgElement"
+			 xmlns="http://www.w3.org/2000/svg"
+			 viewBox="@ViewBox"
+			 preserveAspectRatio="@PreserveAspectRatio"
+			 style="width: 100%; height: 100%; background-color: @Options.BackgroundColor;">
+
+		<defs>
+			@* Gradients for tile faces *@
+			<linearGradient id="@($"{Id}-topGrad")" x1="50%" y1="0%" x2="50%" y2="100%">
+				<stop offset="0%" style="stop-color:@(_colors.Light)" />
+				<stop offset="100%" style="stop-color:@(_colors.Base)" />
+			</linearGradient>
+
+			<linearGradient id="@($"{Id}-frontGrad")" x1="0%" y1="50%" x2="100%" y2="50%">
+				<stop offset="0%" style="stop-color:@(_colors.Dark)" />
+				<stop offset="45%" style="stop-color:@(_colors.Dark)" />
+				<stop offset="50%" style="stop-color:@(_colors.Mid)" />
+				<stop offset="55%" style="stop-color:@(_colors.Mid)" />
+				<stop offset="100%" style="stop-color:@(_colors.Base)" />
+			</linearGradient>
+
+			@* Shadow filter *@
+			<filter id="@($"{Id}-shadow")" x="-50%" y="-50%" width="200%" height="200%">
+				<feDropShadow dx="2" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.3" />
+			</filter>
+
+			@* Glow filter *@
+			<filter id="@($"{Id}-glow")" x="-20%" y="-20%" width="140%" height="140%">
+				<feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#ffffff" flood-opacity="0.05" />
+			</filter>
+
+		@* Background glow radial gradient - use larger radius for full coverage *@
+			<radialGradient id="@($"{Id}-bgGlow")" cx="50%" cy="50%" r="@($"{F(GetGlowRadius())}%")">
+				<stop offset="0%" style="stop-color:rgba(255,255,255,0.35)" />
+				<stop offset="30%" style="stop-color:rgba(255,255,255,0.2)" />
+				<stop offset="60%" style="stop-color:rgba(255,255,255,0.08)" />
+				<stop offset="100%" style="stop-color:rgba(255,255,255,0)" />
+			</radialGradient>
+
+			@* Per-tile color gradients *@
+			@foreach (var colorEntry in _tileColorGradients)
+			{
+				<linearGradient id="@colorEntry.Value.TopGradId" x1="50%" y1="0%" x2="50%" y2="100%">
+					<stop offset="0%" style="stop-color:@colorEntry.Value.Colors.Light" />
+					<stop offset="100%" style="stop-color:@colorEntry.Value.Colors.Base" />
+				</linearGradient>
+				<linearGradient id="@colorEntry.Value.FrontGradId" x1="0%" y1="50%" x2="100%" y2="50%">
+					<stop offset="0%" style="stop-color:@colorEntry.Value.Colors.Dark" />
+					<stop offset="45%" style="stop-color:@colorEntry.Value.Colors.Dark" />
+					<stop offset="50%" style="stop-color:@colorEntry.Value.Colors.Mid" />
+					<stop offset="55%" style="stop-color:@colorEntry.Value.Colors.Mid" />
+					<stop offset="100%" style="stop-color:@colorEntry.Value.Colors.Base" />
+				</linearGradient>
+			}
+		</defs>
+
+		@* Background grid lines *@
+		@if (Options.LineOpacity > 0)
+		{
+			<g class="grid-lines">
+				@foreach (var line in GetBackgroundLines())
+				{
+					<line x1="@line.X1" y1="@line.Y1" x2="@line.X2" y2="@line.Y2"
+						  stroke="@HexToRgba(Options.LineColor, Options.LineOpacity / 100.0)"
+						  stroke-width="1" />
+				}
+			</g>
+		}
+
+		@* Background glow - rendered AFTER grid lines but BEFORE tiles *@
+		@if (Options.Glow > 0)
+		{
+			var layout = CalculateLayout();
+			<rect x="0" y="0" width="@F(layout.ViewBoxWidth)" height="@F(layout.ViewBoxHeight)"
+				  fill="url(#@($"{Id}-bgGlow"))"
+				  opacity="@F(Options.Glow / 100.0)"
+				  style="pointer-events: none;" />
+		}
+
+		@* Tiles and connectors rendered by depth *@
+		<g class="tiles-container" style="@GetPerspectiveStyle()">
+			@{
+				var tiles = GetSortedTiles();
+				var connectorsByDepth = GetConnectorsByDepth();
+				var allDepths = GetAllDepths(tiles, connectorsByDepth);
+			}
+
+			@foreach (var depth in allDepths)
+			{
+				@* Connectors at this depth (behind tiles) *@
+				@if (connectorsByDepth.TryGetValue(depth, out var depthConnectors))
+				{
+					@foreach (var conn in depthConnectors)
+					{
+						@RenderConnector(conn)
+					}
+				}
+
+				@* Tiles at this depth *@
+				@foreach (var tile in tiles.Where(t => t.Depth == depth))
+				{
+					@RenderTile(tile)
+				}
+			}
+		</g>
+	</svg>
+	</div>
+
+	@* Child content - overlaid on top of the tile grid *@
+	@if (ChildContent != null)
+	{
+		<div class="pd-tiles-content" style="@GetChildContentStyle()">
+			@ChildContent
+		</div>
+	}
+</div>
+
+@code {
+	private RenderFragment RenderTile(TileRenderInfo tile) => __builder =>
+	{
+		var tileDepth = GetTileProperty(tile.Column, tile.Row, t => t.Depth, Options.Depth);
+		var tileColor = GetTileProperty(tile.Column, tile.Row, t => t.Color, Options.TileColor);
+		var tileReflection = GetTileProperty(tile.Column, tile.Row, t => t.Reflection, Options.Reflection);
+		var tileReflectionDepth = GetTileProperty(tile.Column, tile.Row, t => t.ReflectionDepth, Options.ReflectionDepth);
+		var depthPixels = (int)Math.Round(TileWidth * (tileDepth / 100.0));
+		var grads = EnsureGradients(tileColor, tile.Id);
+		var tileName = GetTileName(tile.Logo);
+		var clipId = $"{Id}-clip-{tile.Id}";
+
+		<g id="@($"{Id}-tile-{tile.Id}")"
+		   data-tile-id="@tile.Id"
+		   data-tile-name="@tileName"
+		   transform="translate(@tile.X.ToString(System.Globalization.CultureInfo.InvariantCulture), @tile.Y.ToString(System.Globalization.CultureInfo.InvariantCulture))"
+		   cursor="pointer"
+		   style="opacity: @(tile.Visible ? 1 : 0); pointer-events: @(tile.Visible ? "auto" : "none");"
+		   @onclick="() => OnTileClicked(tile)">
+
+			@* Clip path for logo - uses top face shape *@
+			<clipPath id="@clipId">
+				<path d="@TopFacePath" />
+			</clipPath>
+
+			@* Reflection - rendered first so it appears behind the tile *@
+			@if (tileReflection > 0)
+			{
+				var reflectionHeight = (int)Math.Round(depthPixels * (tileReflectionDepth / 100.0));
+				var reflectionMaskId = $"{Id}-reflMask-{tile.Id}";
+				var leftGradId = $"{Id}-reflL-{tile.Id}";
+				var rightGradId = $"{Id}-reflR-{tile.Id}";
+
+				// Perpendicular vector for gradient direction (matches JS: 62, 116.5)
+				var perpLen = Math.Sqrt(62 * 62 + 116.5 * 116.5);
+				var px = 62 / perpLen;
+				var py = 116.5 / perpLen;
+				var fadeDistance = Math.Max(10, reflectionHeight * 1.0);
+
+				// Left gradient (fades to bottom-left)
+				var lmx = 141.75;
+				var lmy = 186 + depthPixels;
+
+				// Right gradient (fades to bottom-right)
+				var rmx = 258.25;
+				var rmy = 186 + depthPixels;
+
+				<linearGradient id="@leftGradId" gradientUnits="userSpaceOnUse"
+								x1="@F(lmx)" y1="@F(lmy)"
+								x2="@F(lmx + (-px) * fadeDistance)" y2="@F(lmy + py * fadeDistance)">
+					<stop offset="0%" style="stop-color:white;stop-opacity:1" />
+					<stop offset="100%" style="stop-color:white;stop-opacity:0" />
+				</linearGradient>
+
+				<linearGradient id="@rightGradId" gradientUnits="userSpaceOnUse"
+								x1="@F(rmx)" y1="@F(rmy)"
+								x2="@F(rmx + px * fadeDistance)" y2="@F(rmy + py * fadeDistance)">
+					<stop offset="0%" style="stop-color:white;stop-opacity:1" />
+					<stop offset="100%" style="stop-color:white;stop-opacity:0" />
+				</linearGradient>
+
+				<mask id="@reflectionMaskId">
+					<rect x="0" y="@F(150 + depthPixels)" width="200" height="@F(reflectionHeight + 80)"
+						  fill="url(#@leftGradId)" />
+					<rect x="200" y="@F(150 + depthPixels)" width="200" height="@F(reflectionHeight + 80)"
+						  fill="url(#@rightGradId)" />
+				</mask>
+
+				<path d="@GetReflectionPath(tileDepth, tileReflectionDepth)"
+					  fill="url(#@grads.FrontGradId)"
+					  mask="url(#@reflectionMaskId)"
+					  opacity="@F(tileReflection / 100.0)" />
+			}
+
+			@* Front face *@
+			<path d="@GetFrontFacePath(tileDepth)"
+				  fill="url(#@grads.FrontGradId)"
+				  filter="url(#@($"{Id}-shadow"))" />
+
+			@* Top face *@
+			<path d="@TopFacePath"
+				  fill="url(#@grads.TopGradId)"
+				  filter="url(#@($"{Id}-glow"))" />
+
+			@* Logo with clip and isometric transform *@
+			@if (!string.IsNullOrEmpty(tile.Logo))
+			{
+				var logoSize = GetTileProperty(tile.Column, tile.Row, t => t.LogoSize, Options.LogoSize);
+				var logoRotation = GetTileProperty(tile.Column, tile.Row, t => t.LogoRotation, Options.LogoRotation);
+				// Isometric scale factor: 0.528 is the base scale at 80% logo size
+				var logoScale = 0.528 * (logoSize / 80.0);
+
+				<g clip-path="url(#@clipId)">
+					<g transform="translate(@TileCenterX, @TileCenterY)">
+						@* Isometric transformation matrix: skews the logo to match the tile's top face perspective *@
+						<g transform="matrix(0.707, -0.373, 0.707, 0.373, 0, 0) scale(@F(logoScale)) rotate(@logoRotation)">
+							<image href="@tile.Logo"
+								   x="-120" y="-120"
+								   width="240" height="240"
+								   preserveAspectRatio="xMidYMid meet" />
+						</g>
+					</g>
+				</g>
+			}
+		</g>
+	};
+
+	private RenderFragment RenderConnector(ConnectorRenderInfo conn) => __builder =>
+	{
+		var opacity = conn.Connector.Opacity / 100.0;
+		var color = conn.Connector.Color;
+		var pattern = conn.Connector.FillPattern;
+		var connectorData = GetConnectorData(conn);
+
+		if (connectorData == null)
+		{
+			return;
+		}
+
+		var (t0, t1, b0, b1, points) = connectorData.Value;
+		var clipId = $"{Id}-connClip-{conn.Name.GetHashCode():X8}";
+
+		<g class="connector"
+		   data-connector-name="@conn.Name"
+		   cursor="pointer"
+		   @onclick="() => OnConnectorClicked(conn)">
+
+			@* Clip path for connector pattern *@
+			<clipPath id="@clipId">
+				<polygon points="@points" />
+			</clipPath>
+
+			@* Base fill *@
+			<polygon points="@points"
+					 fill="@color"
+					 fill-opacity="@F(opacity * 0.15)"
+					 stroke="none" />
+
+			@* Pattern fill based on type - clipped to connector shape *@
+			@if (pattern == ConnectorFillPattern.Bars)
+			{
+				<g clip-path="url(#@clipId)">
+					@RenderBarsPattern(t0, t1, b0, b1, color, opacity)
+				</g>
+			}
+			else if (pattern == ConnectorFillPattern.Chevrons)
+			{
+				<g clip-path="url(#@clipId)">
+					@RenderChevronsPattern(t0, t1, b0, b1, color, opacity)
+				</g>
+			}
+			else if (pattern == ConnectorFillPattern.Solid)
+			{
+				<polygon points="@points"
+						 fill="@color"
+						 fill-opacity="@F(opacity * 0.4)"
+						 stroke="none" />
+			}
+
+			@* Edge lines *@
+			<line x1="@F(t0.X)" y1="@F(t0.Y)" x2="@F(t1.X)" y2="@F(t1.Y)"
+				  stroke="@color" stroke-width="1.5" stroke-opacity="@F(opacity)" />
+			<line x1="@F(b0.X)" y1="@F(b0.Y)" x2="@F(b1.X)" y2="@F(b1.Y)"
+				  stroke="@color" stroke-width="1.5" stroke-opacity="@F(opacity)" />
+		</g>
+	};
+
+	private RenderFragment RenderBarsPattern((double X, double Y) t0, (double X, double Y) t1,
+		(double X, double Y) b0, (double X, double Y) b1, string color, double opacity) => __builder =>
+	{
+		var length = Math.Sqrt(Math.Pow(t1.X - t0.X, 2) + Math.Pow(t1.Y - t0.Y, 2));
+		var barCount = Math.Max(3, (int)(length / 30));
+		var offset = _animationOffset;
+
+		for (var i = -1; i <= barCount; i++)
+		{
+			var f0 = (i + offset) / barCount;
+			var f1 = (i + offset + 0.5) / barCount;
+
+			var bl = Lerp(b0, b1, f0);
+			var br = Lerp(b0, b1, f1);
+			var tl = Lerp(t0, t1, f0);
+			var tr = Lerp(t0, t1, f1);
+
+			<polygon points="@($"{F(bl.X)},{F(bl.Y)} {F(br.X)},{F(br.Y)} {F(tr.X)},{F(tr.Y)} {F(tl.X)},{F(tl.Y)}")"
+					 fill="@color"
+					 fill-opacity="@F(opacity * 0.4)"
+					 stroke="none" />
+		}
+	};
+
+	private RenderFragment RenderChevronsPattern((double X, double Y) t0, (double X, double Y) t1,
+		(double X, double Y) b0, (double X, double Y) b1, string color, double opacity) => __builder =>
+	{
+		var length = Math.Sqrt(Math.Pow(t1.X - t0.X, 2) + Math.Pow(t1.Y - t0.Y, 2));
+		var chevronCount = Math.Max(2, (int)(length / 45));
+		var chevronWidth = 0.6;
+		var pointDepth = 0.3;
+		var notchDepth = 0.3;
+		var offset = _animationOffset;
+
+		for (var i = -1; i <= chevronCount; i++)
+		{
+			var fTrail = (i + offset) / chevronCount;
+			var fNotch = (i + offset + notchDepth) / chevronCount;
+			var fBody = (i + offset + chevronWidth) / chevronCount;
+			var fPoint = (i + offset + chevronWidth + pointDepth) / chevronCount;
+
+			var bl = Lerp(b0, b1, fTrail);
+			var tl = Lerp(t0, t1, fTrail);
+			var nm = LerpMid(t0, t1, b0, b1, fNotch);
+			var br = Lerp(b0, b1, fBody);
+			var tr = Lerp(t0, t1, fBody);
+			var pm = LerpMid(t0, t1, b0, b1, fPoint);
+
+			<polygon points="@($"{F(bl.X)},{F(bl.Y)} {F(br.X)},{F(br.Y)} {F(pm.X)},{F(pm.Y)} {F(tr.X)},{F(tr.Y)} {F(tl.X)},{F(tl.Y)} {F(nm.X)},{F(nm.Y)}")"
+					 fill="@color"
+					 fill-opacity="@F(opacity * 0.4)"
+					 stroke="none" />
+		}
+	};
+
+	private static string F(double value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+	private static (double X, double Y) Lerp((double X, double Y) a, (double X, double Y) b, double t)
+	{
+		return (a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t);
+	}
+
+	private static (double X, double Y) LerpMid((double X, double Y) t0, (double X, double Y) t1,
+		(double X, double Y) b0, (double X, double Y) b1, double t)
+	{
+		var top = Lerp(t0, t1, t);
+		var bottom = Lerp(b0, b1, t);
+		return ((top.X + bottom.X) / 2, (top.Y + bottom.Y) / 2);
+	}
+}

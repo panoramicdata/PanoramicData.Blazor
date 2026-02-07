@@ -1,0 +1,277 @@
+@page "/pdtiles"
+@using PanoramicData.Blazor.Models.Tiles
+
+<h1>PDTiles</h1>
+
+<p>
+	An isometric tile grid component for displaying connected tiles with logos.
+	Pure Blazor implementation with animated connectors and SVG rendering.
+</p>
+
+<DemoSourceView SourceFiles="Pages/PDTilesPage.razor, Pages/PDTilesPage.razor.cs">
+
+	<h3>Grid Options</h3>
+
+	<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Grid:</label>
+			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Columns" @bind:after="OnOptionsChanged">
+				@for (var i = 1; i <= 5; i++) { <option value="@i">@i</option> }
+			</select>
+			<span class="small">&times;</span>
+			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Rows" @bind:after="OnOptionsChanged">
+				@for (var i = 1; i <= 5; i++) { <option value="@i">@i</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Depth%:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Depth" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 1, 5, 10, 15, 20, 25 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Gap%:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Gap" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 0, 25, 50, 75, 100, 150, 200, 250, 300 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Pop%:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Population" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 50, 60, 70, 80, 90, 100 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<PDButton Click="OnShuffle" CssClass="btn-secondary" Size="ButtonSizes.Small" Text="Shuffle" />
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Logo%:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.LogoSize" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 60, 65, 70, 75, 80, 85, 90, 95, 100 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<PDButton Click="() => OnRotateLogo(-45)" CssClass="btn-outline-secondary" Size="ButtonSizes.Small" Text="&larr;" ToolTip="Rotate Left" />
+			<PDButton Click="() => OnRotateLogo(45)" CssClass="btn-outline-secondary" Size="ButtonSizes.Small" Text="&rarr;" ToolTip="Rotate Right" />
+			<span class="text-muted small">(@(_options.LogoRotation)°)</span>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Tile:</label>
+			<input type="color" class="form-control form-control-color p-0" style="width:28px;height:24px;" @bind="_options.TileColor" @bind:after="OnOptionsChanged" />
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">BG:</label>
+			<input type="color" class="form-control form-control-color p-0" style="width:28px;height:24px;" @bind="_options.BackgroundColor" @bind:after="OnOptionsChanged" />
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Lines%:</label>
+			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.LineOpacity" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 0, 5, 10, 15, 20, 25, 50, 75, 100 }) { <option value="@v">@v</option> }
+			</select>
+			<input type="color" class="form-control form-control-color p-0" style="width:28px;height:24px;" @bind="_options.LineColor" @bind:after="OnOptionsChanged" />
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Glow%:</label>
+			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Glow" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Persp%:</label>
+			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Perspective" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 0, 5, 10, 15, 20, 25, 30 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Refl%:</label>
+			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Reflection" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 0, 25, 50, 75, 100 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">D%:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.ReflectionDepth" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 50, 75, 100, 150, 200, 300 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Scale%:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Scale" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Pad%:</label>
+			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Padding" @bind:after="OnOptionsChanged">
+				@foreach (var v in new[] { 0, 5, 10, 15, 20, 25, 50 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Align:</label>
+			<select class="form-select form-select-sm" style="width:80px;" @bind="_options.Alignment" @bind:after="OnOptionsChanged">
+				<option value="@GridAlignment.TopLeft">TL</option>
+				<option value="@GridAlignment.TopCenter">TC</option>
+				<option value="@GridAlignment.TopRight">TR</option>
+				<option value="@GridAlignment.MiddleLeft">ML</option>
+				<option value="@GridAlignment.MiddleCenter">MC</option>
+				<option value="@GridAlignment.MiddleRight">MR</option>
+				<option value="@GridAlignment.BottomLeft">BL</option>
+				<option value="@GridAlignment.BottomCenter">BC</option>
+				<option value="@GridAlignment.BottomRight">BR</option>
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Content:</label>
+			<div class="form-check form-switch mb-0">
+				<input class="form-check-input" type="checkbox" @bind="_showChildContent" @bind:after="OnOptionsChanged" />
+			</div>
+		</div>
+	</div>
+
+	<h3 class="mt-2">Connector Options</h3>
+
+	<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Conn:</label>
+			<PDButton Click="OnRandomizeConnectors" CssClass="btn-secondary" Size="ButtonSizes.Small" Text="Random" />
+			<PDButton Click="OnClearConnectors" CssClass="btn-outline-secondary" Size="ButtonSizes.Small" Text="Clear" />
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Pattern:</label>
+			<select class="form-select form-select-sm" style="width:80px;" @bind="_connectorOptions.FillPattern" @bind:after="OnRandomizeConnectors">
+				<option value="@ConnectorFillPattern.Random">Random</option>
+				<option value="@ConnectorFillPattern.Solid">Solid</option>
+				<option value="@ConnectorFillPattern.Bars">Bars</option>
+				<option value="@ConnectorFillPattern.Chevrons">Chevrons</option>
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Dir:</label>
+			<select class="form-select form-select-sm" style="width:75px;" @bind="_connectorOptions.Direction" @bind:after="OnRandomizeConnectors">
+				<option value="@ConnectorDirection.All">All</option>
+				<option value="@ConnectorDirection.Orthogonal">Ortho</option>
+				<option value="@ConnectorDirection.Diagonal">Diag</option>
+				<option value="@ConnectorDirection.DiagonalLeftRight">D-LR</option>
+				<option value="@ConnectorDirection.DiagonalFrontBack">D-FB</option>
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">N:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_perEdgeString" @bind:after="OnRandomizeConnectors">
+				<option value="">Rnd</option>
+				@for (var i = 1; i <= 4; i++) { <option value="@i">@i</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Pop%:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.Population" @bind:after="OnRandomizeConnectors">
+				@foreach (var v in new[] { 25, 50, 75, 100 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">H%:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.Height">
+				@foreach (var v in new[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">V:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.VerticalAlign">
+				<option value="@ConnectorVerticalAlign.Bottom">Bot</option>
+				<option value="@ConnectorVerticalAlign.Center">Mid</option>
+				<option value="@ConnectorVerticalAlign.Top">Top</option>
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Op%:</label>
+			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.Opacity">
+				@foreach (var v in new[] { 25, 50, 80, 100 }) { <option value="@v">@v</option> }
+			</select>
+		</div>
+		<div class="d-flex align-items-center gap-1">
+			<label class="form-label mb-0 small text-nowrap">Anim:</label>
+			<select class="form-select form-select-sm" style="width:70px;" @bind="_connectorOptions.AnimationSpeed" @bind:after="OnOptionsChanged">
+				<option value="0">Off</option>
+				<option value="15">Slow</option>
+				<option value="35">Medium</option>
+				<option value="60">Fast</option>
+				<option value="100">V.Fast</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="border rounded" style="background-color: @_options.BackgroundColor; overflow: hidden;">
+		<PDTiles @ref="_tilesComponent"
+				 Options="_options"
+				 ConnectorOptions="_connectorOptions"
+				 Connectors="_connectors"
+				 Logos="_logos"
+				 Height="500px"
+				 TileClick="OnTileClick"
+				 ConnectorClick="OnConnectorClick">
+			@if (_showChildContent)
+			{
+				<div style="padding: 2rem; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+					<h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Magic Suite 2026</h1>
+					
+					<h2 style="font-size: 1.5rem; color: #4a9eff; margin-top: 2rem;">Enterprise Integration</h2>
+					<p style="line-height: 1.8; max-width: 600px;">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor 
+						incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
+						exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+					</p>
+					
+					<h2 style="font-size: 1.5rem; color: #ff6b6b; margin-top: 2rem;">Data Transformation</h2>
+					<p style="line-height: 1.8; max-width: 600px;">
+						Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque 
+						laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.
+					</p>
+					
+					<h2 style="font-size: 1.5rem; color: #51cf66; margin-top: 2rem;">Automation Workflows</h2>
+					<p style="line-height: 1.8; max-width: 600px;">
+						At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium 
+						voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint.
+					</p>
+				</div>
+			}
+		</PDTiles>
+	</div>
+
+	<div class="mt-3 p-2 border rounded">
+		<strong>Last Event:</strong>
+		@if (!string.IsNullOrEmpty(_lastEventIcon))
+		{
+			<i class="@_lastEventIcon me-1"></i>
+		}
+		@_lastEvent
+	</div>
+
+	<hr class="my-4" />
+
+	<h2>Code Example</h2>
+
+	<pre><code class="language-razor">&lt;PDTiles Options="options"
+         ConnectorOptions="connectorOptions"
+         Connectors="connectors"
+         TileClick="OnTileClick"&gt;
+    &lt;!-- Optional child content --&gt;
+    &lt;div style="padding: 2rem; color: white;"&gt;
+        &lt;h1&gt;Your Content Here&lt;/h1&gt;
+    &lt;/div&gt;
+&lt;/PDTiles&gt;
+
+@@code {
+    private TileGridOptions options = new()
+    {
+        Columns = 3, Rows = 3, Gap = 100, LogoSize = 85,
+        Glow = 50, LineOpacity = 15, Scale = 100,
+        Alignment = GridAlignment.MiddleCenter
+    };
+
+    private TileConnectorOptions connectorOptions = new()
+    {
+        FillPattern = ConnectorFillPattern.Random,
+        Direction = ConnectorDirection.All,
+        Population = 50, AnimationSpeed = 35
+    };
+}</code></pre>
+
+</DemoSourceView>
