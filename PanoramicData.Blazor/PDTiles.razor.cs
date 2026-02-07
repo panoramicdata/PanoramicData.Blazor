@@ -27,22 +27,22 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
 	// Tile geometry constants (based on 400x400 viewBox tile)
-	private const int TileWidth = 224;
-	private const int TileHeight = 118;
-	private const int TileCenterX = 200;
-	private const int TileCenterY = 155;
+	private const int _tileWidth = 224;
+	private const int _tileHeight = 118;
+	private const int _tileCenterX = 200;
+	private const int _tileCenterY = 155;
 
-	private static readonly TilePoint TileBack = new(200, 96);
-	private static readonly TilePoint TileLeft = new(88, 158);
-	private static readonly TilePoint TileFront = new(200, 214);
-	private static readonly TilePoint TileRight = new(312, 158);
+	private static readonly TilePoint _tileBack = new(200, 96);
+	private static readonly TilePoint _tileLeft = new(88, 158);
+	private static readonly TilePoint _tileFront = new(200, 214);
+	private static readonly TilePoint _tileRight = new(312, 158);
 
-	private const string TopFacePath = "M 88,150 C 82,153 82,156 88,158 L 192,214 C 198,217 202,217 208,214 L 312,158 C 318,156 318,153 312,150 L 208,96 C 202,93 198,93 192,96 L 88,150 Z";
+	private const string _topFacePath = "M 88,150 C 82,153 82,156 88,158 L 192,214 C 198,217 202,217 208,214 L 312,158 C 318,156 318,153 312,150 L 208,96 C 202,93 198,93 192,96 L 88,150 Z";
 
 	/// <summary>
 	/// Connector color palette.
 	/// </summary>
-	private static readonly string[] ConnectorColors = ["#00FFFF", "#FF00FF", "#00FF00", "#FF6600", "#FFFF00", "#FF0000", "#0066FF", "#FF66FF"];
+	private static readonly string[] _connectorColors = ["#00FFFF", "#FF00FF", "#00FF00", "#FF6600", "#FFFF00", "#FF0000", "#0066FF", "#FF66FF"];
 
 	/// <summary>
 	/// Gets or sets the unique identifier for the component.
@@ -177,10 +177,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	/// Gets the glow radius as a percentage, adjusting for scale.
 	/// Glow falls off faster when zoomed out.
 	/// </summary>
-	private double GetGlowRadius()
-	{
-		return Math.Max(30, 100 - (100 - Options.Scale) * 0.7);
-	}
+	private double GetGlowRadius() => Math.Max(30, 100 - (100 - Options.Scale) * 0.7);
 
 	/// <summary>
 	/// Gets the style for the SVG container div.
@@ -189,7 +186,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	{
 		if (ChildContent != null)
 		{
-			return "position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;";
+			// Position absolutely but allow pointer events on SVG elements (tiles/connectors handle their own events)
+			return "position: absolute; top: 0; left: 0; width: 100%; height: 100%;";
 		}
 
 		return "width: 100%; height: 100%;";
@@ -198,10 +196,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	/// <summary>
 	/// Gets the style for the child content container.
 	/// </summary>
-	private string GetChildContentStyle()
-	{
-		return "position: relative; width: 100%; height: 100%; overflow: auto; z-index: 1;";
-	}
+	private static string GetChildContentStyle() => "position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: auto; z-index: 1; pointer-events: none;";
 
 	protected override void OnInitialized()
 	{
@@ -323,7 +318,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	/// </summary>
 	public void Shuffle()
 	{
-		_tileLogos = _tileLogos.OrderBy(_ => _random.Next()).ToList();
+		_tileLogos = [.. _tileLogos.OrderBy(_ => _random.Next())];
 		StateHasChanged();
 	}
 
@@ -358,7 +353,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 					added.Add(pairKey);
 
-					var isDiag = adj.Type.StartsWith("diag-");
+					var isDiag = adj.Type.StartsWith("diag-", StringComparison.Ordinal);
 					var numConn = isDiag ? 1 : (ConnectorOptions.PerEdge ?? _random.Next(0, 5));
 
 					if (ConnectorOptions.Population < 100 && _random.Next(100) >= ConnectorOptions.Population)
@@ -383,7 +378,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 							EndTile = new TileCoordinate { Column = adj.Column, Row = adj.Row },
 							Direction = adj.Type,
 							Reversed = _random.Next(2) == 0,
-							Color = ConnectorColors[result.Count % ConnectorColors.Length],
+							Color = _connectorColors[result.Count % _connectorColors.Length],
 							Opacity = ConnectorOptions.Opacity,
 							AnimationSpeed = ConnectorOptions.AnimationSpeed,
 							FillPattern = chosenPattern,
@@ -402,16 +397,16 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 	private LayoutInfo CalculateLayout()
 	{
-		var depthPixels = (int)Math.Round(TileWidth * (Options.Depth / 100.0));
+		var depthPixels = (int)Math.Round(_tileWidth * (Options.Depth / 100.0));
 		// Gap is percentage of tile size to add as spacing between tiles
 		// 0% = tiles tessellate (touch), 100% = one tile-width gap between tiles
 		var gapFactor = 1 + (Options.Gap / 100.0);
-		var isoSpacingX = (TileWidth / 2.0) * gapFactor;
-		var isoSpacingY = (TileHeight / 2.0) * gapFactor;
+		var isoSpacingX = (_tileWidth / 2.0) * gapFactor;
+		var isoSpacingY = (_tileHeight / 2.0) * gapFactor;
 
 		var diagonalSteps = (Options.Columns - 1) + (Options.Rows - 1);
-		var gridPixelWidth = diagonalSteps * isoSpacingX + TileWidth;
-		var gridPixelHeight = diagonalSteps * isoSpacingY + TileHeight + depthPixels;
+		var gridPixelWidth = diagonalSteps * isoSpacingX + _tileWidth;
+		var gridPixelHeight = diagonalSteps * isoSpacingY + _tileHeight + depthPixels;
 
 		// Apply scale (100% = grid edges touch viewbox, <100% = smaller, >100% = larger/cropped)
 		var scaleFactor = Options.Scale / 100.0;
@@ -487,8 +482,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 			{
 				var relCol = col - gridCenterCol;
 				var relRow = row - gridCenterRow;
-				var x = anchorX + (relCol - relRow) * layout.IsoSpacingX - TileCenterX;
-				var y = anchorY + (relCol + relRow) * layout.IsoSpacingY - TileCenterY;
+				var x = anchorX + (relCol - relRow) * layout.IsoSpacingX - _tileCenterX;
+				var y = anchorY + (relCol + relRow) * layout.IsoSpacingY - _tileCenterY;
 
 				tiles.Add(new TileRenderInfo
 				{
@@ -505,7 +500,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 			}
 		}
 
-		return tiles.OrderBy(t => t.Depth).ToList();
+		return [.. tiles.OrderBy(t => t.Depth)];
 	}
 
 	private Dictionary<int, List<ConnectorRenderInfo>> GetConnectorsByDepth()
@@ -530,12 +525,13 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 				Depth = connDepth
 			};
 
-			if (!result.ContainsKey(connDepth))
+			if (!result.TryGetValue(connDepth, out List<ConnectorRenderInfo>? value))
 			{
-				result[connDepth] = [];
+				value = [];
+				result[connDepth] = value;
 			}
 
-			result[connDepth].Add(renderInfo);
+			value.Add(renderInfo);
 		}
 
 		return result;
@@ -549,7 +545,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 			allDepths.Add(depth);
 		}
 
-		return allDepths.OrderBy(d => d).ToList();
+		return [.. allDepths.OrderBy(d => d)];
 	}
 
 	private List<LineInfo> GetBackgroundLines()
@@ -614,13 +610,13 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 	private static string GetFrontFacePath(int depthPercent)
 	{
-		var d = (int)Math.Round(TileWidth * (depthPercent / 100.0));
+		var d = (int)Math.Round(_tileWidth * (depthPercent / 100.0));
 		return $"M 88,150 C 82,153 82,156 88,158 L 192,214 C 198,217 202,217 208,214 L 312,158 C 318,156 318,153 312,150 L 316.5,154 L 316.5,{155 + d} Q 316.5,{157 + d} 312,{158 + d} L 208,{214 + d} C 202,{217 + d} 198,{217 + d} 192,{214 + d} L 88,{158 + d} Q 83.5,{157 + d} 83.5,{155 + d} L 83.5,154 Z";
 	}
 
 	private static string GetReflectionPath(int depthPercent, int reflectionDepthPercent)
 	{
-		var d = (int)Math.Round(TileWidth * (depthPercent / 100.0));
+		var d = (int)Math.Round(_tileWidth * (depthPercent / 100.0));
 		var reflectionHeight = (int)Math.Round(d * (reflectionDepthPercent / 100.0));
 		var bottomY = 155 + d;
 		var reflectEndY = bottomY + reflectionHeight;
@@ -644,9 +640,9 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		var edgeIndex = conn.Connector.EdgeIndex;
 		var edgeTotal = conn.Connector.EdgeTotal;
 
-		// Get attachment points for connectors
+		// Get attachment points for connectors - use opposite direction for end tile (like JS version)
 		var startPoints = GetTileAttachmentPoints(startTile, direction, true, edgeIndex, edgeTotal, layout);
-		var endPoints = GetTileAttachmentPoints(endTile, direction, false, edgeIndex, edgeTotal, layout);
+		var endPoints = GetTileAttachmentPoints(endTile, GetOppositeDirection(direction), false, edgeIndex, edgeTotal, layout);
 
 		// Calculate ribbon height based on connector settings
 		var connHeight = (conn.Connector.Height ?? ConnectorOptions.Height) / 100.0;
@@ -692,21 +688,21 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		var x = tile.X;
 		var y = tile.Y;
 		var tileDepth = GetTileProperty(tile.Column, tile.Row, t => t.Depth, Options.Depth);
-		var d = TileWidth * (tileDepth / 100.0);
+		var d = _tileWidth * (tileDepth / 100.0);
 
-		var isDiag = direction.StartsWith("diag-");
+		var isDiag = direction.StartsWith("diag-", StringComparison.Ordinal);
 		if (isDiag)
 		{
 			TilePoint corner = direction switch
 			{
-				"diag-front" => TileFront,
-				"diag-back" => TileBack,
-				"diag-right" => TileRight,
-				"diag-left" => TileLeft,
-				_ => TileFront
+				"diag-front" => _tileFront,
+				"diag-back" => _tileBack,
+				"diag-right" => _tileRight,
+				"diag-left" => _tileLeft,
+				_ => _tileFront
 			};
 
-			var isLeftRight = corner == TileLeft || corner == TileRight;
+			var isLeftRight = corner == _tileLeft || corner == _tileRight;
 			var nudge = isLeftRight ? -connectorYNudge : connectorYNudge;
 			var ptX = x + corner.X;
 			var ptY = y + corner.Y + nudge;
@@ -722,26 +718,26 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		{
 			if (direction is "right" or "up")
 			{
-				p0 = TileFront;
-				p1 = TileRight;
+				p0 = _tileFront;
+				p1 = _tileRight;
 			}
 			else
 			{
-				p0 = TileLeft;
-				p1 = TileFront;
+				p0 = _tileLeft;
+				p1 = _tileFront;
 			}
 		}
 		else
 		{
 			if (direction is "left" or "down")
 			{
-				p0 = TileBack;
-				p1 = TileLeft;
+				p0 = _tileBack;
+				p1 = _tileLeft;
 			}
 			else
 			{
-				p0 = TileRight;
-				p1 = TileBack;
+				p0 = _tileRight;
+				p1 = _tileBack;
 			}
 		}
 
@@ -857,10 +853,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		);
 	}
 
-	private static string ToHex(int r, int g, int b)
-	{
-		return $"#{Math.Clamp(r, 0, 255):X2}{Math.Clamp(g, 0, 255):X2}{Math.Clamp(b, 0, 255):X2}";
-	}
+	private static string ToHex(int r, int g, int b) => $"#{Math.Clamp(r, 0, 255):X2}{Math.Clamp(g, 0, 255):X2}{Math.Clamp(b, 0, 255):X2}";
 
 	private static string HexToRgba(string hex, double alpha)
 	{
@@ -887,30 +880,71 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	{
 		var adj = new List<AdjacentTile>();
 
-		if (col > 0) adj.Add(new AdjacentTile(col - 1, row, "left"));
-		if (col < Options.Columns - 1) adj.Add(new AdjacentTile(col + 1, row, "right"));
-		if (row > 0) adj.Add(new AdjacentTile(col, row - 1, "up"));
-		if (row < Options.Rows - 1) adj.Add(new AdjacentTile(col, row + 1, "down"));
-		if (col < Options.Columns - 1 && row < Options.Rows - 1) adj.Add(new AdjacentTile(col + 1, row + 1, "diag-front"));
-		if (col > 0 && row > 0) adj.Add(new AdjacentTile(col - 1, row - 1, "diag-back"));
-		if (col < Options.Columns - 1 && row > 0) adj.Add(new AdjacentTile(col + 1, row - 1, "diag-right"));
-		if (col > 0 && row < Options.Rows - 1) adj.Add(new AdjacentTile(col - 1, row + 1, "diag-left"));
+		if (col > 0)
+		{
+			adj.Add(new AdjacentTile(col - 1, row, "left"));
+		}
+
+		if (col < Options.Columns - 1)
+		{
+			adj.Add(new AdjacentTile(col + 1, row, "right"));
+		}
+
+		if (row > 0)
+		{
+			adj.Add(new AdjacentTile(col, row - 1, "up"));
+		}
+
+		if (row < Options.Rows - 1)
+		{
+			adj.Add(new AdjacentTile(col, row + 1, "down"));
+		}
+
+		if (col < Options.Columns - 1 && row < Options.Rows - 1)
+		{
+			adj.Add(new AdjacentTile(col + 1, row + 1, "diag-front"));
+		}
+
+		if (col > 0 && row > 0)
+		{
+			adj.Add(new AdjacentTile(col - 1, row - 1, "diag-back"));
+		}
+
+		if (col < Options.Columns - 1 && row > 0)
+		{
+			adj.Add(new AdjacentTile(col + 1, row - 1, "diag-right"));
+		}
+
+		if (col > 0 && row < Options.Rows - 1)
+		{
+			adj.Add(new AdjacentTile(col - 1, row + 1, "diag-left"));
+		}
 
 		return adj;
 	}
 
-	private static bool MatchesDirection(string type, ConnectorDirection dirFilter)
+	private static bool MatchesDirection(string type, ConnectorDirection dirFilter) => dirFilter switch
 	{
-		return dirFilter switch
-		{
-			ConnectorDirection.All => true,
-			ConnectorDirection.Orthogonal => !type.StartsWith("diag-"),
-			ConnectorDirection.Diagonal => type.StartsWith("diag-"),
-			ConnectorDirection.DiagonalLeftRight => type is "diag-right" or "diag-left",
-			ConnectorDirection.DiagonalFrontBack => type is "diag-front" or "diag-back",
-			_ => true
-		};
-	}
+		ConnectorDirection.All => true,
+		ConnectorDirection.Orthogonal => !type.StartsWith("diag-", StringComparison.Ordinal),
+		ConnectorDirection.Diagonal => type.StartsWith("diag-", StringComparison.Ordinal),
+		ConnectorDirection.DiagonalLeftRight => type is "diag-right" or "diag-left",
+		ConnectorDirection.DiagonalFrontBack => type is "diag-front" or "diag-back",
+		_ => true
+	};
+
+	private static string GetOppositeDirection(string direction) => direction switch
+	{
+		"left" => "right",
+		"right" => "left",
+		"up" => "down",
+		"down" => "up",
+		"diag-front" => "diag-back",
+		"diag-back" => "diag-front",
+		"diag-right" => "diag-left",
+		"diag-left" => "diag-right",
+		_ => direction
+	};
 
 	private async Task OnTileClicked(TileRenderInfo tile)
 	{
@@ -927,16 +961,13 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		}).ConfigureAwait(true);
 	}
 
-	private async Task OnConnectorClicked(ConnectorRenderInfo conn)
+	private async Task OnConnectorClicked(ConnectorRenderInfo conn) => await ConnectorClick.InvokeAsync(new ConnectorClickEventArgs
 	{
-		await ConnectorClick.InvokeAsync(new ConnectorClickEventArgs
-		{
-			ConnectorName = conn.Name,
-			StartTile = conn.Connector.StartTile,
-			EndTile = conn.Connector.EndTile,
-			Connector = conn.Connector
-		}).ConfigureAwait(true);
-	}
+		ConnectorName = conn.Name,
+		StartTile = conn.Connector.StartTile,
+		EndTile = conn.Connector.EndTile,
+		Connector = conn.Connector
+	}).ConfigureAwait(true);
 
 	// Internal helper classes
 	private record TilePoint(double X, double Y);

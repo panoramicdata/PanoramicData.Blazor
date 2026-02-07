@@ -12,101 +12,107 @@
 
 	<h3>Grid Options</h3>
 
-	<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Grid:</label>
-			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Columns" @bind:after="OnOptionsChanged">
+	<PDToolbar ButtonSize="ButtonSizes.Small">
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Grid:</span>
+			<select class="form-select form-select-sm me-1" style="width:50px;" @bind="_options.Columns" @bind:after="OnOptionsChanged">
 				@for (var i = 1; i <= 5; i++) { <option value="@i">@i</option> }
 			</select>
 			<span class="small">&times;</span>
 			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Rows" @bind:after="OnOptionsChanged">
 				@for (var i = 1; i <= 5; i++) { <option value="@i">@i</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Depth%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Depth%:</span>
 			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Depth" @bind:after="OnOptionsChanged">
 				@foreach (var v in new[] { 1, 5, 10, 15, 20, 25 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Gap%:</label>
-			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Gap" @bind:after="OnOptionsChanged">
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Gap%:</span>
+			<select class="form-select form-select-sm" style="width:60px;" @bind="_options.Gap" @bind:after="OnOptionsChanged">
 				@foreach (var v in new[] { 0, 25, 50, 75, 100, 150, 200, 250, 300 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Pop%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Pop%:</span>
 			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Population" @bind:after="OnOptionsChanged">
 				@foreach (var v in new[] { 50, 60, 70, 80, 90, 100 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<PDButton Click="OnShuffle" CssClass="btn-secondary" Size="ButtonSizes.Small" Text="Shuffle" />
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Logo%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarButton Key="Shuffle" Text="Shuffle" CssClass="btn-secondary" Click="OnShuffle" />
+		<PDToolbarSeparator />
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Logo%:</span>
 			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.LogoSize" @bind:after="OnOptionsChanged">
 				@foreach (var v in new[] { 60, 65, 70, 75, 80, 85, 90, 95, 100 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<PDButton Click="() => OnRotateLogo(-45)" CssClass="btn-outline-secondary" Size="ButtonSizes.Small" Text="&larr;" ToolTip="Rotate Left" />
-			<PDButton Click="() => OnRotateLogo(45)" CssClass="btn-outline-secondary" Size="ButtonSizes.Small" Text="&rarr;" ToolTip="Rotate Right" />
+		</PDToolbarPlaceholder>
+		<PDToolbarButton Key="RotL" Text="?" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(-45)" ToolTip="Rotate Left" />
+		<PDToolbarButton Key="RotR" Text="?" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(45)" ToolTip="Rotate Right" />
+		<PDToolbarPlaceholder>
 			<span class="text-muted small">(@(_options.LogoRotation)°)</span>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Tile:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarSeparator />
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Tile:</span>
 			<input type="color" class="form-control form-control-color p-0" style="width:28px;height:24px;" @bind="_options.TileColor" @bind:after="OnOptionsChanged" />
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">BG:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">BG:</span>
 			<input type="color" class="form-control form-control-color p-0" style="width:28px;height:24px;" @bind="_options.BackgroundColor" @bind:after="OnOptionsChanged" />
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Lines%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Lines%:</span>
 			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.LineOpacity" @bind:after="OnOptionsChanged">
 				@foreach (var v in new[] { 0, 5, 10, 15, 20, 25, 50, 75, 100 }) { <option value="@v">@v</option> }
 			</select>
-			<input type="color" class="form-control form-control-color p-0" style="width:28px;height:24px;" @bind="_options.LineColor" @bind:after="OnOptionsChanged" />
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Glow%:</label>
+			<input type="color" class="form-control form-control-color p-0 ms-1" style="width:28px;height:24px;" @bind="_options.LineColor" @bind:after="OnOptionsChanged" />
+		</PDToolbarPlaceholder>
+	</PDToolbar>
+
+	<PDToolbar ButtonSize="ButtonSizes.Small" CssClass="mt-1">
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Glow%:</span>
 			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Glow" @bind:after="OnOptionsChanged">
 				@foreach (var v in new[] { 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Persp%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Persp%:</span>
 			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Perspective" @bind:after="OnOptionsChanged">
 				@foreach (var v in new[] { 0, 5, 10, 15, 20, 25, 30 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Refl%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Refl%:</span>
 			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Reflection" @bind:after="OnOptionsChanged">
 				@foreach (var v in new[] { 0, 25, 50, 75, 100 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">D%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">D%:</span>
 			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.ReflectionDepth" @bind:after="OnOptionsChanged">
 				@foreach (var v in new[] { 50, 75, 100, 150, 200, 300 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Scale%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarSeparator />
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Scale%:</span>
 			<select class="form-select form-select-sm" style="width:55px;" @bind="_options.Scale" @bind:after="OnOptionsChanged">
-				@foreach (var v in new[] { 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150 }) { <option value="@v">@v</option> }
+				@foreach (var v in new[] { 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Pad%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Pad%:</span>
 			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Padding" @bind:after="OnOptionsChanged">
 				@foreach (var v in new[] { 0, 5, 10, 15, 20, 25, 50 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Align:</label>
-			<select class="form-select form-select-sm" style="width:80px;" @bind="_options.Alignment" @bind:after="OnOptionsChanged">
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Align:</span>
+			<select class="form-select form-select-sm" style="width:70px;" @bind="_options.Alignment" @bind:after="OnOptionsChanged">
 				<option value="@GridAlignment.TopLeft">TL</option>
 				<option value="@GridAlignment.TopCenter">TC</option>
 				<option value="@GridAlignment.TopRight">TR</option>
@@ -117,77 +123,75 @@
 				<option value="@GridAlignment.BottomCenter">BC</option>
 				<option value="@GridAlignment.BottomRight">BR</option>
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Content:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Content:</span>
 			<div class="form-check form-switch mb-0">
 				<input class="form-check-input" type="checkbox" @bind="_showChildContent" @bind:after="OnOptionsChanged" />
 			</div>
-		</div>
-	</div>
+		</PDToolbarPlaceholder>
+	</PDToolbar>
 
-	<h3 class="mt-2">Connector Options</h3>
+	<h3 class="mt-3">Connector Options</h3>
 
-	<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Conn:</label>
-			<PDButton Click="OnRandomizeConnectors" CssClass="btn-secondary" Size="ButtonSizes.Small" Text="Random" />
-			<PDButton Click="OnClearConnectors" CssClass="btn-outline-secondary" Size="ButtonSizes.Small" Text="Clear" />
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Pattern:</label>
+	<PDToolbar ButtonSize="ButtonSizes.Small">
+		<PDToolbarButton Key="Random" Text="Random" CssClass="btn-secondary" Click="OnRandomizeConnectors" />
+		<PDToolbarButton Key="Clear" Text="Clear" CssClass="btn-outline-secondary" Click="OnClearConnectors" />
+		<PDToolbarSeparator />
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Pattern:</span>
 			<select class="form-select form-select-sm" style="width:80px;" @bind="_connectorOptions.FillPattern" @bind:after="OnRandomizeConnectors">
 				<option value="@ConnectorFillPattern.Random">Random</option>
 				<option value="@ConnectorFillPattern.Solid">Solid</option>
 				<option value="@ConnectorFillPattern.Bars">Bars</option>
 				<option value="@ConnectorFillPattern.Chevrons">Chevrons</option>
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Dir:</label>
-			<select class="form-select form-select-sm" style="width:75px;" @bind="_connectorOptions.Direction" @bind:after="OnRandomizeConnectors">
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Dir:</span>
+			<select class="form-select form-select-sm" style="width:70px;" @bind="_connectorOptions.Direction" @bind:after="OnRandomizeConnectors">
 				<option value="@ConnectorDirection.All">All</option>
 				<option value="@ConnectorDirection.Orthogonal">Ortho</option>
 				<option value="@ConnectorDirection.Diagonal">Diag</option>
 				<option value="@ConnectorDirection.DiagonalLeftRight">D-LR</option>
 				<option value="@ConnectorDirection.DiagonalFrontBack">D-FB</option>
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">N:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">N:</span>
 			<select class="form-select form-select-sm" style="width:55px;" @bind="_perEdgeString" @bind:after="OnRandomizeConnectors">
 				<option value="">Rnd</option>
 				@for (var i = 1; i <= 4; i++) { <option value="@i">@i</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Pop%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Pop%:</span>
 			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.Population" @bind:after="OnRandomizeConnectors">
 				@foreach (var v in new[] { 25, 50, 75, 100 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">H%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">H%:</span>
 			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.Height">
 				@foreach (var v in new[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">V:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">V:</span>
 			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.VerticalAlign">
 				<option value="@ConnectorVerticalAlign.Bottom">Bot</option>
 				<option value="@ConnectorVerticalAlign.Center">Mid</option>
 				<option value="@ConnectorVerticalAlign.Top">Top</option>
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Op%:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Op%:</span>
 			<select class="form-select form-select-sm" style="width:55px;" @bind="_connectorOptions.Opacity">
 				@foreach (var v in new[] { 25, 50, 80, 100 }) { <option value="@v">@v</option> }
 			</select>
-		</div>
-		<div class="d-flex align-items-center gap-1">
-			<label class="form-label mb-0 small text-nowrap">Anim:</label>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">Anim:</span>
 			<select class="form-select form-select-sm" style="width:70px;" @bind="_connectorOptions.AnimationSpeed" @bind:after="OnOptionsChanged">
 				<option value="0">Off</option>
 				<option value="15">Slow</option>
@@ -195,10 +199,10 @@
 				<option value="60">Fast</option>
 				<option value="100">V.Fast</option>
 			</select>
-		</div>
-	</div>
+		</PDToolbarPlaceholder>
+	</PDToolbar>
 
-	<div class="border rounded" style="background-color: @_options.BackgroundColor; overflow: hidden;">
+	<div class="border rounded mt-3" style="background-color: @_options.BackgroundColor; overflow: hidden;">
 		<PDTiles @ref="_tilesComponent"
 				 Options="_options"
 				 ConnectorOptions="_connectorOptions"
@@ -209,26 +213,32 @@
 				 ConnectorClick="OnConnectorClick">
 			@if (_showChildContent)
 			{
-				<div style="padding: 2rem; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
-					<h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Magic Suite 2026</h1>
+				<div class="pd-tiles-child-content">
+					<h1>Magic Suite 2026</h1>
 					
-					<h2 style="font-size: 1.5rem; color: #4a9eff; margin-top: 2rem;">Enterprise Integration</h2>
-					<p style="line-height: 1.8; max-width: 600px;">
+					<h2>Enterprise Integration</h2>
+					<p>
 						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor 
 						incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
 						exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 					</p>
 					
-					<h2 style="font-size: 1.5rem; color: #ff6b6b; margin-top: 2rem;">Data Transformation</h2>
-					<p style="line-height: 1.8; max-width: 600px;">
+					<h2>Data Transformation</h2>
+					<p>
 						Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque 
 						laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.
 					</p>
 					
-					<h2 style="font-size: 1.5rem; color: #51cf66; margin-top: 2rem;">Automation Workflows</h2>
-					<p style="line-height: 1.8; max-width: 600px;">
+					<h2>Automation Workflows</h2>
+					<p>
 						At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium 
 						voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint.
+					</p>
+
+					<h2>Monitoring & Alerts</h2>
+					<p>
+						Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum 
+						soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat.
 					</p>
 				</div>
 			}
@@ -253,25 +263,36 @@
          Connectors="connectors"
          TileClick="OnTileClick"&gt;
     &lt;!-- Optional child content --&gt;
-    &lt;div style="padding: 2rem; color: white;"&gt;
+    &lt;div class="pd-tiles-child-content"&gt;
         &lt;h1&gt;Your Content Here&lt;/h1&gt;
     &lt;/div&gt;
-&lt;/PDTiles&gt;
-
-@@code {
-    private TileGridOptions options = new()
-    {
-        Columns = 3, Rows = 3, Gap = 100, LogoSize = 85,
-        Glow = 50, LineOpacity = 15, Scale = 100,
-        Alignment = GridAlignment.MiddleCenter
-    };
-
-    private TileConnectorOptions connectorOptions = new()
-    {
-        FillPattern = ConnectorFillPattern.Random,
-        Direction = ConnectorDirection.All,
-        Population = 50, AnimationSpeed = 35
-    };
-}</code></pre>
+&lt;/PDTiles&gt;</code></pre>
 
 </DemoSourceView>
+
+<style>
+.pd-tiles-child-content {
+position: absolute;
+top: 0;
+right: 0;
+width: 50%;
+height: 100%;
+padding: 2rem;
+overflow: auto;
+color: white;
+text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+pointer-events: auto;
+}
+.pd-tiles-child-content h1 {
+font-size: 2.5rem;
+margin-bottom: 1rem;
+}
+.pd-tiles-child-content h2 {
+font-size: 1.5rem;
+		color: #4a9eff;
+		margin-top: 1.5rem;
+	}
+	.pd-tiles-child-content p {
+		line-height: 1.8;
+	}
+</style>

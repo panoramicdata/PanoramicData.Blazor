@@ -79,7 +79,9 @@
 		@if (Options.Glow > 0)
 		{
 			var layout = CalculateLayout();
-			<rect x="0" y="0" width="@F(layout.ViewBoxWidth)" height="@F(layout.ViewBoxHeight)"
+			@* Use large negative offset and 3x size to ensure glow never clips at edges *@
+			<rect x="@F(-layout.ViewBoxWidth)" y="@F(-layout.ViewBoxHeight)" 
+				  width="@F(layout.ViewBoxWidth * 3)" height="@F(layout.ViewBoxHeight * 3)"
 				  fill="url(#@($"{Id}-bgGlow"))"
 				  opacity="@F(Options.Glow / 100.0)"
 				  style="pointer-events: none;" />
@@ -130,7 +132,7 @@
 		var tileColor = GetTileProperty(tile.Column, tile.Row, t => t.Color, Options.TileColor);
 		var tileReflection = GetTileProperty(tile.Column, tile.Row, t => t.Reflection, Options.Reflection);
 		var tileReflectionDepth = GetTileProperty(tile.Column, tile.Row, t => t.ReflectionDepth, Options.ReflectionDepth);
-		var depthPixels = (int)Math.Round(TileWidth * (tileDepth / 100.0));
+		var depthPixels = (int)Math.Round(_tileWidth * (tileDepth / 100.0));
 		var grads = EnsureGradients(tileColor, tile.Id);
 		var tileName = GetTileName(tile.Logo);
 		var clipId = $"{Id}-clip-{tile.Id}";
@@ -145,7 +147,7 @@
 
 			@* Clip path for logo - uses top face shape *@
 			<clipPath id="@clipId">
-				<path d="@TopFacePath" />
+				<path d="@_topFacePath" />
 			</clipPath>
 
 			@* Reflection - rendered first so it appears behind the tile *@
@@ -203,7 +205,7 @@
 				  filter="url(#@($"{Id}-shadow"))" />
 
 			@* Top face *@
-			<path d="@TopFacePath"
+			<path d="@_topFacePath"
 				  fill="url(#@grads.TopGradId)"
 				  filter="url(#@($"{Id}-glow"))" />
 
@@ -216,7 +218,7 @@
 				var logoScale = 0.528 * (logoSize / 80.0);
 
 				<g clip-path="url(#@clipId)">
-					<g transform="translate(@TileCenterX, @TileCenterY)">
+					<g transform="translate(@_tileCenterX, @_tileCenterY)">
 						@* Isometric transformation matrix: skews the logo to match the tile's top face perspective *@
 						<g transform="matrix(0.707, -0.373, 0.707, 0.373, 0, 0) scale(@F(logoScale)) rotate(@logoRotation)">
 							<image href="@tile.Logo"

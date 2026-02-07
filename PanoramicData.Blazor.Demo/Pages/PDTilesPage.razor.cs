@@ -11,7 +11,7 @@ public partial class PDTilesPage
 
 	private PDTiles? _tilesComponent;
 	private bool _isInitialized;
-	private bool _showChildContent;
+	private bool _showChildContent = true;
 
 	private readonly TileGridOptions _options = new()
 	{
@@ -30,9 +30,9 @@ public partial class PDTilesPage
 		Perspective = 0,
 		Reflection = 50,
 		ReflectionDepth = 150,
-		Scale = 100,
-		Padding = 0,
-		Alignment = GridAlignment.MiddleCenter
+		Scale = 50,
+		Padding = 5,
+		Alignment = GridAlignment.MiddleLeft
 	};
 
 	private readonly TileConnectorOptions _connectorOptions = new()
@@ -177,10 +177,10 @@ public partial class PDTilesPage
 		if (_options.Perspective != 0) queryParams["persp"] = _options.Perspective.ToString();
 		if (_options.Reflection != 50) queryParams["refl"] = _options.Reflection.ToString();
 		if (_options.ReflectionDepth != 150) queryParams["reflD"] = _options.ReflectionDepth.ToString();
-		if (_options.Scale != 100) queryParams["scale"] = _options.Scale.ToString();
-		if (_options.Padding != 0) queryParams["pad"] = _options.Padding.ToString();
-		if (_options.Alignment != GridAlignment.MiddleCenter) queryParams["align"] = _options.Alignment.ToString();
-		if (_showChildContent) queryParams["content"] = "true";
+		if (_options.Scale != 50) queryParams["scale"] = _options.Scale.ToString();
+		if (_options.Padding != 5) queryParams["pad"] = _options.Padding.ToString();
+		if (_options.Alignment != GridAlignment.MiddleLeft) queryParams["align"] = _options.Alignment.ToString();
+		if (!_showChildContent) queryParams["content"] = "false";
 
 		// Connector options - only include non-default values
 		if (_connectorOptions.FillPattern != ConnectorFillPattern.Random) queryParams["cPat"] = _connectorOptions.FillPattern.ToString();
