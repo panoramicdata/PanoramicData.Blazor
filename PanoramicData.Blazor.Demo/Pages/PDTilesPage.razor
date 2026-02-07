@@ -1,4 +1,4 @@
-@page "/pdtiles"
+﻿@page "/pdtiles"
 @using PanoramicData.Blazor.Models.Tiles
 
 <h1>PDTiles</h1>
@@ -49,10 +49,10 @@
 				@foreach (var v in new[] { 60, 65, 70, 75, 80, 85, 90, 95, 100 }) { <option value="@v">@v</option> }
 			</select>
 		</PDToolbarPlaceholder>
-		<PDToolbarButton Key="RotL" Text="?" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(-45)" ToolTip="Rotate Left" />
-		<PDToolbarButton Key="RotR" Text="?" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(45)" ToolTip="Rotate Right" />
+		<PDToolbarButton Key="RotL" Text="↶" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(-45)" ToolTip="Rotate Left" />
+		<PDToolbarButton Key="RotR" Text="↷" CssClass="btn-outline-secondary" Click="() => OnRotateLogo(45)" ToolTip="Rotate Right" />
 		<PDToolbarPlaceholder>
-			<span class="text-muted small">(@(_options.LogoRotation)�)</span>
+			<span class="text-muted small">(@(_options.LogoRotation)°)</span>
 		</PDToolbarPlaceholder>
 		<PDToolbarSeparator />
 		<PDToolbarPlaceholder>
@@ -72,7 +72,7 @@
 		</PDToolbarPlaceholder>
 	</PDToolbar>
 
-	<PDToolbar ButtonSize="ButtonSizes.Small" CssClass="mt-1">
+	<PDToolbar ButtonSize="ButtonSizes.Small">
 		<PDToolbarPlaceholder>
 			<span class="me-1 small">Glow%:</span>
 			<select class="form-select form-select-sm" style="width:50px;" @bind="_options.Glow" @bind:after="OnOptionsChanged">
@@ -128,6 +128,12 @@
 			<span class="me-1 small">Content:</span>
 			<div class="form-check form-switch mb-0">
 				<input class="form-check-input" type="checkbox" @bind="_showChildContent" @bind:after="OnOptionsChanged" />
+			</div>
+		</PDToolbarPlaceholder>
+		<PDToolbarPlaceholder>
+			<span class="me-1 small">BG:</span>
+			<div class="form-check form-switch mb-0">
+				<input class="form-check-input" type="checkbox" @bind="_options.ShowBackground" @bind:after="OnOptionsChanged" />
 			</div>
 		</PDToolbarPlaceholder>
 	</PDToolbar>
@@ -202,50 +208,7 @@
 		</PDToolbarPlaceholder>
 	</PDToolbar>
 
-	<div class="border rounded mt-3" style="background-color: @_options.BackgroundColor; overflow: hidden;">
-		<PDTiles @ref="_tilesComponent"
-				 Options="_options"
-				 ConnectorOptions="_connectorOptions"
-				 Connectors="_connectors"
-				 Logos="_logos"
-				 Height="500px"
-				 TileClick="OnTileClick"
-				 ConnectorClick="OnConnectorClick">
-			@if (_showChildContent)
-			{
-				<div class="pd-tiles-child-content">
-					<h1>Magic Suite 2026</h1>
-					
-					<h2>Enterprise Integration</h2>
-					<p>
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor 
-						incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
-						exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-					</p>
-					
-					<h2>Data Transformation</h2>
-					<p>
-						Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque 
-						laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.
-					</p>
-					
-					<h2>Automation Workflows</h2>
-					<p>
-						At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium 
-						voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint.
-					</p>
-
-					<h2>Monitoring & Alerts</h2>
-					<p>
-						Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum 
-						soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat.
-					</p>
-				</div>
-			}
-		</PDTiles>
-	</div>
-
-	<div class="mt-3 p-2 border rounded">
+	<div class="mt-2 p-2 border rounded">
 		<strong>Last Event:</strong>
 		@if (!string.IsNullOrEmpty(_lastEventIcon))
 		{
@@ -254,19 +217,48 @@
 		@_lastEvent
 	</div>
 
-	<hr class="my-4" />
+	<div class="border rounded mt-2" style="@(_options.ShowBackground ? $"background-color: {_options.BackgroundColor};" : "") overflow: hidden; resize: vertical; min-height: 300px; height: 500px;">
+		<PDTiles @ref="_tilesComponent"
+				 Options="_options"
+				 ConnectorOptions="_connectorOptions"
+				 Connectors="_connectors"
+				 Logos="_logos"
+				 Height="100%"
+				 TileClick="OnTileClick"
+				 ConnectorClick="OnConnectorClick">
+			@if (_showChildContent)
+			{
+				<div class="pd-tiles-child-content">
+					<h1>Magic Suite 2026</h1>
 
-	<h2>Code Example</h2>
+					<h2>Enterprise Integration</h2>
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+						incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+						exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+					</p>
 
-	<pre><code class="language-razor">&lt;PDTiles Options="options"
-         ConnectorOptions="connectorOptions"
-         Connectors="connectors"
-         TileClick="OnTileClick"&gt;
-    &lt;!-- Optional child content --&gt;
-    &lt;div class="pd-tiles-child-content"&gt;
-        &lt;h1&gt;Your Content Here&lt;/h1&gt;
-    &lt;/div&gt;
-&lt;/PDTiles&gt;</code></pre>
+					<h2>Data Transformation</h2>
+					<p>
+						Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
+						laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.
+					</p>
+
+					<h2>Automation Workflows</h2>
+					<p>
+						At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium
+						voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint.
+					</p>
+
+					<h2>Monitoring & Alerts</h2>
+					<p>
+						Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum
+						soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat.
+					</p>
+				</div>
+			}
+		</PDTiles>
+	</div>
 
 </DemoSourceView>
 

@@ -24,8 +24,8 @@ public partial class PDTilesPage
 		Population = 100,
 		TileColor = "#373737",
 		BackgroundColor = "#000624",
-		LineColor = "#4A90D0",
-		LineOpacity = 15,
+		LineColor = "#888888",
+		LineOpacity = 10,
 		Glow = 50,
 		Perspective = 0,
 		Reflection = 50,
@@ -96,101 +96,118 @@ public partial class PDTilesPage
 		var query = QueryHelpers.ParseQuery(uri.Query);
 
 		// Grid options
-		if (query.TryGetValue("cols", out var cols) && int.TryParse(cols, out var colsVal))
-			_options.Columns = colsVal;
-		if (query.TryGetValue("rows", out var rows) && int.TryParse(rows, out var rowsVal))
-			_options.Rows = rowsVal;
-		if (query.TryGetValue("depth", out var depth) && int.TryParse(depth, out var depthVal))
-			_options.Depth = depthVal;
-		if (query.TryGetValue("gap", out var gap) && int.TryParse(gap, out var gapVal))
-			_options.Gap = gapVal;
-		if (query.TryGetValue("pop", out var pop) && int.TryParse(pop, out var popVal))
-			_options.Population = popVal;
-		if (query.TryGetValue("logoSize", out var logoSize) && int.TryParse(logoSize, out var logoSizeVal))
-			_options.LogoSize = logoSizeVal;
-		if (query.TryGetValue("logoRot", out var logoRot) && int.TryParse(logoRot, out var logoRotVal))
-			_options.LogoRotation = logoRotVal;
-		if (query.TryGetValue("tile", out var tile))
-			_options.TileColor = "#" + tile.ToString();
-		if (query.TryGetValue("bg", out var bg))
-			_options.BackgroundColor = "#" + bg.ToString();
-		if (query.TryGetValue("lineColor", out var lineColor))
-			_options.LineColor = "#" + lineColor.ToString();
-		if (query.TryGetValue("lineOp", out var lineOp) && int.TryParse(lineOp, out var lineOpVal))
-			_options.LineOpacity = lineOpVal;
-		if (query.TryGetValue("glow", out var glow) && int.TryParse(glow, out var glowVal))
-			_options.Glow = glowVal;
-		if (query.TryGetValue("persp", out var persp) && int.TryParse(persp, out var perspVal))
-			_options.Perspective = perspVal;
-		if (query.TryGetValue("refl", out var refl) && int.TryParse(refl, out var reflVal))
-			_options.Reflection = reflVal;
-		if (query.TryGetValue("reflD", out var reflD) && int.TryParse(reflD, out var reflDVal))
-			_options.ReflectionDepth = reflDVal;
-		if (query.TryGetValue("scale", out var scale) && int.TryParse(scale, out var scaleVal))
-			_options.Scale = scaleVal;
-		if (query.TryGetValue("pad", out var pad) && int.TryParse(pad, out var padVal))
-			_options.Padding = padVal;
-		if (query.TryGetValue("align", out var align) && Enum.TryParse<GridAlignment>(align, out var alignVal))
-			_options.Alignment = alignVal;
-		if (query.TryGetValue("content", out var content) && bool.TryParse(content, out var contentVal))
-			_showChildContent = contentVal;
+		TryParseInt(query, "cols", v => _options.Columns = v);
+		TryParseInt(query, "rows", v => _options.Rows = v);
+		TryParseInt(query, "depth", v => _options.Depth = v);
+		TryParseInt(query, "gap", v => _options.Gap = v);
+		TryParseInt(query, "pop", v => _options.Population = v);
+		TryParseInt(query, "logoSize", v => _options.LogoSize = v);
+		TryParseInt(query, "logoRot", v => _options.LogoRotation = v);
+		TryParseHexColor(query, "tile", v => _options.TileColor = v);
+		TryParseHexColor(query, "bg", v => _options.BackgroundColor = v);
+		TryParseHexColor(query, "lineColor", v => _options.LineColor = v);
+		TryParseInt(query, "lineOp", v => _options.LineOpacity = v);
+		TryParseInt(query, "glow", v => _options.Glow = v);
+		TryParseInt(query, "persp", v => _options.Perspective = v);
+		TryParseInt(query, "refl", v => _options.Reflection = v);
+		TryParseInt(query, "reflD", v => _options.ReflectionDepth = v);
+		TryParseInt(query, "scale", v => _options.Scale = v);
+		TryParseInt(query, "pad", v => _options.Padding = v);
+		TryParseEnum<GridAlignment>(query, "align", v => _options.Alignment = v);
+		TryParseBool(query, "content", v => _showChildContent = v);
 
 		// Connector options
-		if (query.TryGetValue("cPat", out var cPat) && Enum.TryParse<ConnectorFillPattern>(cPat, out var cPatVal))
-			_connectorOptions.FillPattern = cPatVal;
-		if (query.TryGetValue("cDir", out var cDir) && Enum.TryParse<ConnectorDirection>(cDir, out var cDirVal))
-			_connectorOptions.Direction = cDirVal;
-		if (query.TryGetValue("cN", out var cN))
-			_connectorOptions.PerEdge = string.IsNullOrEmpty(cN) ? null : int.TryParse(cN, out var cNVal) ? cNVal : null;
-		if (query.TryGetValue("cPop", out var cPop) && int.TryParse(cPop, out var cPopVal))
-			_connectorOptions.Population = cPopVal;
-		if (query.TryGetValue("cH", out var cH) && int.TryParse(cH, out var cHVal))
-			_connectorOptions.Height = cHVal;
-		if (query.TryGetValue("cV", out var cV) && Enum.TryParse<ConnectorVerticalAlign>(cV, out var cVVal))
-			_connectorOptions.VerticalAlign = cVVal;
-		if (query.TryGetValue("cOp", out var cOp) && int.TryParse(cOp, out var cOpVal))
-			_connectorOptions.Opacity = cOpVal;
-		if (query.TryGetValue("cAnim", out var cAnim) && int.TryParse(cAnim, out var cAnimVal))
-			_connectorOptions.AnimationSpeed = cAnimVal;
+		TryParseEnum<ConnectorFillPattern>(query, "cPat", v => _connectorOptions.FillPattern = v);
+		TryParseEnum<ConnectorDirection>(query, "cDir", v => _connectorOptions.Direction = v);
+		TryParseNullableInt(query, "cN", v => _connectorOptions.PerEdge = v);
+		TryParseInt(query, "cPop", v => _connectorOptions.Population = v);
+		TryParseInt(query, "cH", v => _connectorOptions.Height = v);
+		TryParseEnum<ConnectorVerticalAlign>(query, "cV", v => _connectorOptions.VerticalAlign = v);
+		TryParseInt(query, "cOp", v => _connectorOptions.Opacity = v);
+		TryParseInt(query, "cAnim", v => _connectorOptions.AnimationSpeed = v);
+	}
+
+	private static void TryParseInt(Dictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key, Action<int> setter)
+	{
+		if (query.TryGetValue(key, out var value) && int.TryParse(value, out var parsed))
+		{
+			setter(parsed);
+		}
+	}
+
+	private static void TryParseBool(Dictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key, Action<bool> setter)
+	{
+		if (query.TryGetValue(key, out var value) && bool.TryParse(value, out var parsed))
+		{
+			setter(parsed);
+		}
+	}
+
+	private static void TryParseEnum<TEnum>(Dictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key, Action<TEnum> setter) where TEnum : struct, Enum
+	{
+		if (query.TryGetValue(key, out var value) && Enum.TryParse<TEnum>(value, out var parsed))
+		{
+			setter(parsed);
+		}
+	}
+
+	private static void TryParseHexColor(Dictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key, Action<string> setter)
+	{
+		if (query.TryGetValue(key, out var value))
+		{
+			setter("#" + value.ToString());
+		}
+	}
+
+	private static void TryParseNullableInt(Dictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key, Action<int?> setter)
+	{
+		if (query.TryGetValue(key, out var value))
+		{
+			setter(string.IsNullOrEmpty(value) ? null : int.TryParse(value, out var parsed) ? parsed : null);
+		}
 	}
 
 	private void UpdateUrl()
 	{
 		if (!_isInitialized)
+		{
 			return;
+		}
 
-		var queryParams = new Dictionary<string, string?>();
+		// Always include all parameters so users have a complete starting point
+		var queryParams = new Dictionary<string, string?>
+		{
+			// Grid options
+			["cols"] = _options.Columns.ToString(),
+			["rows"] = _options.Rows.ToString(),
+			["depth"] = _options.Depth.ToString(),
+			["gap"] = _options.Gap.ToString(),
+			["pop"] = _options.Population.ToString(),
+			["logoSize"] = _options.LogoSize.ToString(),
+			["logoRot"] = _options.LogoRotation.ToString(),
+			["tile"] = _options.TileColor.TrimStart('#'),
+			["bg"] = _options.BackgroundColor.TrimStart('#'),
+			["lineColor"] = _options.LineColor.TrimStart('#'),
+			["lineOp"] = _options.LineOpacity.ToString(),
+			["glow"] = _options.Glow.ToString(),
+			["persp"] = _options.Perspective.ToString(),
+			["refl"] = _options.Reflection.ToString(),
+			["reflD"] = _options.ReflectionDepth.ToString(),
+			["scale"] = _options.Scale.ToString(),
+			["pad"] = _options.Padding.ToString(),
+			["align"] = _options.Alignment.ToString(),
+			["content"] = _showChildContent ? "true" : "false",
 
-		// Grid options - only include non-default values
-		if (_options.Columns != 3) queryParams["cols"] = _options.Columns.ToString();
-		if (_options.Rows != 3) queryParams["rows"] = _options.Rows.ToString();
-		if (_options.Depth != 15) queryParams["depth"] = _options.Depth.ToString();
-		if (_options.Gap != 100) queryParams["gap"] = _options.Gap.ToString();
-		if (_options.Population != 100) queryParams["pop"] = _options.Population.ToString();
-		if (_options.LogoSize != 85) queryParams["logoSize"] = _options.LogoSize.ToString();
-		if (_options.LogoRotation != 0) queryParams["logoRot"] = _options.LogoRotation.ToString();
-		if (_options.TileColor != "#373737") queryParams["tile"] = _options.TileColor.TrimStart('#');
-		if (_options.BackgroundColor != "#000624") queryParams["bg"] = _options.BackgroundColor.TrimStart('#');
-		if (_options.LineColor != "#4A90D0") queryParams["lineColor"] = _options.LineColor.TrimStart('#');
-		if (_options.LineOpacity != 15) queryParams["lineOp"] = _options.LineOpacity.ToString();
-		if (_options.Glow != 50) queryParams["glow"] = _options.Glow.ToString();
-		if (_options.Perspective != 0) queryParams["persp"] = _options.Perspective.ToString();
-		if (_options.Reflection != 50) queryParams["refl"] = _options.Reflection.ToString();
-		if (_options.ReflectionDepth != 150) queryParams["reflD"] = _options.ReflectionDepth.ToString();
-		if (_options.Scale != 50) queryParams["scale"] = _options.Scale.ToString();
-		if (_options.Padding != 5) queryParams["pad"] = _options.Padding.ToString();
-		if (_options.Alignment != GridAlignment.MiddleLeft) queryParams["align"] = _options.Alignment.ToString();
-		if (!_showChildContent) queryParams["content"] = "false";
-
-		// Connector options - only include non-default values
-		if (_connectorOptions.FillPattern != ConnectorFillPattern.Random) queryParams["cPat"] = _connectorOptions.FillPattern.ToString();
-		if (_connectorOptions.Direction != ConnectorDirection.All) queryParams["cDir"] = _connectorOptions.Direction.ToString();
-		if (_connectorOptions.PerEdge != null) queryParams["cN"] = _connectorOptions.PerEdge.ToString();
-		if (_connectorOptions.Population != 50) queryParams["cPop"] = _connectorOptions.Population.ToString();
-		if (_connectorOptions.Height != 80) queryParams["cH"] = _connectorOptions.Height.ToString();
-		if (_connectorOptions.VerticalAlign != ConnectorVerticalAlign.Center) queryParams["cV"] = _connectorOptions.VerticalAlign.ToString();
-		if (_connectorOptions.Opacity != 80) queryParams["cOp"] = _connectorOptions.Opacity.ToString();
-		if (_connectorOptions.AnimationSpeed != 35) queryParams["cAnim"] = _connectorOptions.AnimationSpeed.ToString();
+			// Connector options
+			["cPat"] = _connectorOptions.FillPattern.ToString(),
+			["cDir"] = _connectorOptions.Direction.ToString(),
+			["cN"] = _connectorOptions.PerEdge?.ToString() ?? "",
+			["cPop"] = _connectorOptions.Population.ToString(),
+			["cH"] = _connectorOptions.Height.ToString(),
+			["cV"] = _connectorOptions.VerticalAlign.ToString(),
+			["cOp"] = _connectorOptions.Opacity.ToString(),
+			["cAnim"] = _connectorOptions.AnimationSpeed.ToString()
+		};
 
 		var newUrl = QueryHelpers.AddQueryString(NavigationManager.Uri.Split('?')[0], queryParams!);
 		NavigationManager.NavigateTo(newUrl, replace: true);

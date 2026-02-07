@@ -46,24 +46,34 @@ public class TileGridOptions
 	public string TileColor { get; set; } = "#373737";
 
 	/// <summary>
-	/// Background color (hex format).
+	/// Background color (hex format). Set to empty string or "transparent" for no background.
 	/// </summary>
 	public string BackgroundColor { get; set; } = "#000624";
 
 	/// <summary>
+	/// Whether to show the background color. When false, the component is transparent.
+	/// </summary>
+	public bool ShowBackground { get; set; } = true;
+
+	/// <summary>
 	/// Grid line color (hex format).
 	/// </summary>
-	public string LineColor { get; set; } = "#ffffff";
+	public string LineColor { get; set; } = "#888888";
 
 	/// <summary>
 	/// Grid line opacity percentage (0-100).
 	/// </summary>
-	public int LineOpacity { get; set; } = 15;
+	public int LineOpacity { get; set; } = 10;
 
 	/// <summary>
-	/// Background glow percentage (0-100).
+	/// Background glow intensity percentage (0-100).
 	/// </summary>
 	public int Glow { get; set; } = 50;
+
+	/// <summary>
+	/// Glow falloff as percentage of grid width (100-500). Higher values = softer falloff.
+	/// </summary>
+	public int GlowFalloff { get; set; } = 300;
 
 	/// <summary>
 	/// Reflection intensity percentage (0-100).

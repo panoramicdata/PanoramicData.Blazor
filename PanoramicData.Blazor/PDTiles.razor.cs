@@ -174,12 +174,6 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
-	/// Gets the glow radius as a percentage, adjusting for scale.
-	/// Glow falls off faster when zoomed out.
-	/// </summary>
-	private double GetGlowRadius() => Math.Max(30, 100 - (100 - Options.Scale) * 0.7);
-
-	/// <summary>
 	/// Gets the style for the SVG container div.
 	/// </summary>
 	private string GetSvgContainerStyle()
