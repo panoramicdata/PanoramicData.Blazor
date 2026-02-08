@@ -109,21 +109,39 @@
 				var allDepths = GetAllDepths(tiles, connectorsByDepth);
 			}
 
-			@foreach (var depth in allDepths)
+		@foreach (var depth in allDepths)
 			{
-				@* Connectors at this depth (behind tiles) *@
-				@if (connectorsByDepth.TryGetValue(depth, out var depthConnectors))
+				@if (UsesBezierCurves)
 				{
-					@foreach (var conn in depthConnectors)
+					@* For curve modes: render tiles first, then connectors (curves go on top of their source row) *@
+					@foreach (var tile in tiles.Where(t => t.Depth == depth))
 					{
-						@RenderConnector(conn)
+						@RenderTile(tile)
+					}
+
+					@if (connectorsByDepth.TryGetValue(depth, out var depthConnectorsCurve))
+					{
+						@foreach (var conn in depthConnectorsCurve)
+						{
+							@RenderConnector(conn)
+						}
 					}
 				}
-
-				@* Tiles at this depth *@
-				@foreach (var tile in tiles.Where(t => t.Depth == depth))
+				else
 				{
-					@RenderTile(tile)
+					@* For straight-line mode: render connectors first (behind tiles at this depth) *@
+					@if (connectorsByDepth.TryGetValue(depth, out var depthConnectors))
+					{
+						@foreach (var conn in depthConnectors)
+						{
+							@RenderConnector(conn)
+						}
+					}
+
+					@foreach (var tile in tiles.Where(t => t.Depth == depth))
+					{
+						@RenderTile(tile)
+					}
 				}
 			}
 		</g>
@@ -349,6 +367,20 @@
 					  fill="@color"
 					  fill-opacity="@F(opacity * 0.4)"
 					  stroke="none" />
+			}
+			else if (pattern == ConnectorFillPattern.Bars)
+			{
+				@* Bars pattern - use bezier endpoints and clip to curve shape *@
+				<g clip-path="url(#@clipId)">
+					@RenderBarsPattern(bezierData.StartTop, bezierData.EndTop, bezierData.StartBottom, bezierData.EndBottom, color, opacity)
+				</g>
+			}
+			else if (pattern == ConnectorFillPattern.Chevrons)
+			{
+				@* Chevrons pattern - use bezier endpoints and clip to curve shape *@
+				<g clip-path="url(#@clipId)">
+					@RenderChevronsPattern(bezierData.StartTop, bezierData.EndTop, bezierData.StartBottom, bezierData.EndBottom, color, opacity)
+				</g>
 			}
 
 			@* Edge strokes - using bezier curves *@

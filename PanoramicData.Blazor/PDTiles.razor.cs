@@ -588,7 +588,21 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		{
 			var startDepth = conn.StartTile.Row + conn.StartTile.Column;
 			var endDepth = conn.EndTile.Row + conn.EndTile.Column;
-			var connDepth = Math.Max(startDepth, endDepth);
+			
+			// For curve modes, render connectors BETWEEN the rows/columns they connect
+			// This means using the MIN depth so connectors render after the start tile row
+			// but before the end tile row
+			int connDepth;
+			if (UsesBezierCurves)
+			{
+				// Use min depth - connector renders after start row, before end row
+				connDepth = Math.Min(startDepth, endDepth);
+			}
+			else
+			{
+				// Standard: use max depth for straight-line connectors
+				connDepth = Math.Max(startDepth, endDepth);
+			}
 
 			var startLogo = GetTileLogo(conn.StartTile.Column, conn.StartTile.Row);
 			var endLogo = GetTileLogo(conn.EndTile.Column, conn.EndTile.Row);
