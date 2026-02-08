@@ -1188,26 +1188,22 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 			break;
 		}
 
+
 		// Calculate control point distance based on tension
 		var tension = ConnectorOptions.CurveTension / 100.0;
 		var distance = Math.Sqrt(Math.Pow(endPoints.X - startPoints.X, 2) + Math.Pow(endTopY - startTopY, 2));
 		var controlDistance = distance * tension * 0.5;
 
-		// Control points should point TOWARD the destination
-		// Direction from start to end (normalized)
-		var dx = endPoints.X - startPoints.X;
-		var dy = (endTopY + endBottomY) / 2 - (startTopY + startBottomY) / 2;
-		var len = Math.Sqrt(dx * dx + dy * dy);
-		if (len < 0.001) len = 1;
-		var dirX = dx / len;
-		var dirY = dy / len;
+		// Control points are PERPENDICULAR TO THE TILE EDGE, pointing outward
+		// This makes curves exit/enter the tile edge at right angles
+		var startPerp = GetEdgeOutwardPerpendicular(direction, true);
+		var endPerp = GetEdgeOutwardPerpendicular(GetOppositeDirection(direction), false);
 
-		// Control points extend toward the destination
-		var startTopCtrl = (X: startPoints.X + dirX * controlDistance, Y: startTopY + dirY * controlDistance);
-		var endTopCtrl = (X: endPoints.X - dirX * controlDistance, Y: endTopY - dirY * controlDistance);
+		var startTopCtrl = (X: startPoints.X + startPerp.X * controlDistance, Y: startTopY + startPerp.Y * controlDistance);
+		var endTopCtrl = (X: endPoints.X + endPerp.X * controlDistance, Y: endTopY + endPerp.Y * controlDistance);
 
-		var startBottomCtrl = (X: startPoints.X + dirX * controlDistance, Y: startBottomY + dirY * controlDistance);
-		var endBottomCtrl = (X: endPoints.X - dirX * controlDistance, Y: endBottomY - dirY * controlDistance);
+		var startBottomCtrl = (X: startPoints.X + startPerp.X * controlDistance, Y: startBottomY + startPerp.Y * controlDistance);
+		var endBottomCtrl = (X: endPoints.X + endPerp.X * controlDistance, Y: endBottomY + endPerp.Y * controlDistance);
 
 		// Build SVG path
 		// Top edge: start -> end
