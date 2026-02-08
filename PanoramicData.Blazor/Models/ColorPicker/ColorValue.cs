@@ -127,35 +127,35 @@ public class ColorValue : IEquatable<ColorValue>
 		{
 			if (hex.Length == 3)
 			{
-				// Short form: #RGB
-				R = byte.Parse($"{hex[0]}{hex[0]}", NumberStyles.HexNumber);
-				G = byte.Parse($"{hex[1]}{hex[1]}", NumberStyles.HexNumber);
-				B = byte.Parse($"{hex[2]}{hex[2]}", NumberStyles.HexNumber);
-				A = 1.0;
+			// Short form: #RGB
+			R = byte.Parse($"{hex[0]}{hex[0]}", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			G = byte.Parse($"{hex[1]}{hex[1]}", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			B = byte.Parse($"{hex[2]}{hex[2]}", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			A = 1.0;
 			}
 			else if (hex.Length == 4)
 			{
-				// Short form with alpha: #RGBA
-				R = byte.Parse($"{hex[0]}{hex[0]}", NumberStyles.HexNumber);
-				G = byte.Parse($"{hex[1]}{hex[1]}", NumberStyles.HexNumber);
-				B = byte.Parse($"{hex[2]}{hex[2]}", NumberStyles.HexNumber);
-				A = byte.Parse($"{hex[3]}{hex[3]}", NumberStyles.HexNumber) / 255.0;
+			// Short form with alpha: #RGBA
+			R = byte.Parse($"{hex[0]}{hex[0]}", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			G = byte.Parse($"{hex[1]}{hex[1]}", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			B = byte.Parse($"{hex[2]}{hex[2]}", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			A = byte.Parse($"{hex[3]}{hex[3]}", NumberStyles.HexNumber, CultureInfo.InvariantCulture) / 255.0;
 			}
 			else if (hex.Length == 6)
 			{
-				// Standard form: #RRGGBB
-				R = byte.Parse(hex.Substring(0, 2), NumberStyles.HexNumber);
-				G = byte.Parse(hex.Substring(2, 2), NumberStyles.HexNumber);
-				B = byte.Parse(hex.Substring(4, 2), NumberStyles.HexNumber);
-				A = 1.0;
+			// Standard form: #RRGGBB
+			R = byte.Parse(hex[..2], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			G = byte.Parse(hex[2..4], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			B = byte.Parse(hex[4..6], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			A = 1.0;
 			}
 			else if (hex.Length == 8)
 			{
-				// With alpha: #RRGGBBAA
-				R = byte.Parse(hex.Substring(0, 2), NumberStyles.HexNumber);
-				G = byte.Parse(hex.Substring(2, 2), NumberStyles.HexNumber);
-				B = byte.Parse(hex.Substring(4, 2), NumberStyles.HexNumber);
-				A = byte.Parse(hex.Substring(6, 2), NumberStyles.HexNumber) / 255.0;
+			// With alpha: #RRGGBBAA
+			R = byte.Parse(hex[..2], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			G = byte.Parse(hex[2..4], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			B = byte.Parse(hex[4..6], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			A = byte.Parse(hex[6..8], NumberStyles.HexNumber, CultureInfo.InvariantCulture) / 255.0;
 			}
 
 			UpdateHsvFromRgb();
@@ -291,21 +291,13 @@ public class ColorValue : IEquatable<ColorValue>
 
 		var max = Math.Max(r, Math.Max(g, b));
 		var min = Math.Min(r, Math.Min(g, b));
-		var delta = max - min;
 
 		// Lightness
 		L = (max + min) / 2;
 
-		// Saturation (for HSL)
-		if (delta == 0)
-		{
-			// S is already set from HSV, but for HSL it's 0 when delta is 0
-		}
-		else
-		{
-			// HSL saturation is different from HSV saturation
-			// We keep HSV saturation in S, HSL saturation would be delta / (1 - |2L - 1|)
-		}
+		// Note: HSL saturation is different from HSV saturation.
+		// We keep HSV saturation in S property (set by UpdateHsvFromRgb).
+		// HSL saturation would be: delta / (1 - |2L - 1|) where delta = max - min
 	}
 
 	private void UpdateRgbFromHsv()
