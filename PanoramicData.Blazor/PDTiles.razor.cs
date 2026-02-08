@@ -1229,32 +1229,38 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 		TilePoint p0, p1;
 
-		// In isometric view, the tile has 4 edges:
-		// - Front-Right edge: from Front to Right (used for "curve-right" - connects to tile on the right/same row)
-		// - Front-Left edge: from Left to Front (used for "curve-left" - connects to tile on the left/same row)
-		// - Back-Right edge: from Right to Back (used for "curve-up" - connects to tile above/same column)
-		// - Back-Left edge: from Back to Left (used for "curve-down" - connects to tile below/same column)
+		// For curve modes, we need to select the appropriate edge based on direction
+		// RowCurves: curve-up/curve-down - connects tiles in adjacent rows, any column distance
+		//   - curve-down (going to higher row): attach from front edge (Left to Front to Right arc)
+		//   - curve-up (going to lower row): attach from back edge (Left to Back to Right arc)
+		// ColumnCurves: curve-left/curve-right - connects tiles in adjacent columns, any row distance
+		//   - curve-right (going to higher column): attach from right edge (Front to Right to Back arc)
+		//   - curve-left (going to lower column): attach from left edge (Back to Left to Front arc)
 		switch (direction)
 		{
-			case "curve-right":
-				// Front-Right edge: connects to tile on the right (same row, higher column)
-				p0 = _tileFront;
+			case "curve-down":
+				// Row curves going down: use front edge (the visible front of the tile)
+				// The front edge spans from Left through Front to Right
+				p0 = _tileLeft;
 				p1 = _tileRight;
 				break;
-			case "curve-left":
-				// Front-Left edge: connects to tile on the left (same row, lower column)
-				p0 = _tileLeft;
-				p1 = _tileFront;
-				break;
 			case "curve-up":
-				// Back-Right edge: connects to tile above (same column, lower row)
-				p0 = _tileRight;
+				// Row curves going up: use back edge
+				// The back edge spans from Left through Back to Right
+				p0 = _tileLeft;
+				p1 = _tileRight;
+				break;
+			case "curve-right":
+				// Column curves going right: use right edge
+				// The right edge spans from Front through Right to Back
+				p0 = _tileFront;
 				p1 = _tileBack;
 				break;
-			case "curve-down":
-				// Front-Left edge going down: connects to tile below (same column, higher row)
-				p0 = _tileFront;
-				p1 = _tileLeft;
+			case "curve-left":
+				// Column curves going left: use left edge
+				// The left edge spans from Back through Left to Front
+				p0 = _tileBack;
+				p1 = _tileFront;
 				break;
 			default:
 				p0 = _tileFront;
@@ -1262,8 +1268,19 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 				break;
 		}
 
+		// For curve-up, we need to offset Y to use the back of the tile (lower Y in isometric)
+		// For curve-down, use the front of the tile (higher Y in isometric)
+		double yOffset = direction switch
+		{
+			"curve-up" => _tileBack.Y - _tileFront.Y,    // Shift to back edge Y level
+			"curve-down" => 0,                            // Stay at front edge Y level
+			"curve-left" => (_tileLeft.Y - _tileFront.Y) / 2,  // Middle-left area
+			"curve-right" => (_tileRight.Y - _tileFront.Y) / 2, // Middle-right area
+			_ => 0
+		};
+
 		var ptX = x + p0.X + (p1.X - p0.X) * frac;
-		var ptY = y + p0.Y + (p1.Y - p0.Y) * frac + connectorYNudge;
+		var ptY = y + p0.Y + (p1.Y - p0.Y) * frac + yOffset + connectorYNudge;
 		return new CurveAttachmentPoints(ptX, ptY, ptY + d, direction);
 	}
 
