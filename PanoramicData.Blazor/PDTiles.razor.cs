@@ -1052,7 +1052,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		var tiles = new List<AdjacentTile>();
 
 		// RowCurves: Connect to tiles in adjacent rows (row +/- 1), any column
-		// This creates horizontal-spanning curves between row levels
+		// Use standard "up"/"down" directions so attachment points work the same as straight lines
 		foreach (var targetRow in new[] { row - 1, row + 1 })
 		{
 			if (targetRow < 0 || targetRow >= Options.Rows)
@@ -1062,8 +1062,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 			for (var c = 0; c < Options.Columns; c++)
 			{
-				// Direction based on row: up for lower row, down for higher row
-				var direction = targetRow < row ? "curve-up" : "curve-down";
+				// Use standard directions - attachment points are the same as straight-line mode
+				var direction = targetRow < row ? "up" : "down";
 				tiles.Add(new AdjacentTile(c, targetRow, direction));
 			}
 		}
@@ -1076,7 +1076,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		var tiles = new List<AdjacentTile>();
 
 		// ColumnCurves: Connect to tiles in adjacent columns (col +/- 1), any row
-		// This creates vertical-spanning curves between column levels
+		// Use standard "left"/"right" directions so attachment points work the same as straight lines
 		foreach (var targetCol in new[] { col - 1, col + 1 })
 		{
 			if (targetCol < 0 || targetCol >= Options.Columns)
@@ -1086,8 +1086,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 			for (var r = 0; r < Options.Rows; r++)
 			{
-				// Direction based on column: left for lower column, right for higher column
-				var direction = targetCol < col ? "curve-left" : "curve-right";
+				// Use standard directions - attachment points are the same as straight-line mode
+				var direction = targetCol < col ? "left" : "right";
 				tiles.Add(new AdjacentTile(targetCol, r, direction));
 			}
 		}
@@ -1121,9 +1121,9 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		var edgeIndex = conn.Connector.EdgeIndex;
 		var edgeTotal = conn.Connector.EdgeTotal;
 
-		// Get attachment points for curves
-		var startPoints = GetCurveAttachmentPoints(startTile, direction, true, edgeIndex, edgeTotal, layout);
-		var endPoints = GetCurveAttachmentPoints(endTile, GetOppositeCurveDirection(direction), false, edgeIndex, edgeTotal, layout);
+		// Use the SAME attachment point logic as straight-line connectors
+		var startPoints = GetTileAttachmentPoints(startTile, direction, true, edgeIndex, edgeTotal, layout);
+		var endPoints = GetTileAttachmentPoints(endTile, GetOppositeDirection(direction), false, edgeIndex, edgeTotal, layout);
 
 		// Calculate ribbon height
 		var connHeight = (conn.Connector.Height ?? ConnectorOptions.Height) / 100.0;
@@ -1214,86 +1214,6 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		);
 	}
 
-	private CurveAttachmentPoints GetCurveAttachmentPoints(TileRenderInfo tile, string direction, bool isOutgoing, int edgeIndex, int edgeTotal, LayoutInfo layout)
-	{
-		const double connectorYNudge = 3;
-		var x = tile.X;
-		var y = tile.Y;
-		var tileDepth = GetTileProperty(tile.Column, tile.Row, t => t.Depth, Options.Depth);
-		var d = _tileWidth * (tileDepth / 100.0);
-
-		// Calculate handle position along the edge
-		var frac = isOutgoing
-			? (edgeIndex + 1.0) / (edgeTotal + 1.0)
-			: (edgeTotal - edgeIndex) / (edgeTotal + 1.0);
-
-		TilePoint p0, p1;
-
-		// For curve modes, we need to select the appropriate edge based on direction
-		// RowCurves: curve-up/curve-down - connects tiles in adjacent rows, any column distance
-		//   - curve-down (going to higher row): attach from front edge (Left to Front to Right arc)
-		//   - curve-up (going to lower row): attach from back edge (Left to Back to Right arc)
-		// ColumnCurves: curve-left/curve-right - connects tiles in adjacent columns, any row distance
-		//   - curve-right (going to higher column): attach from right edge (Front to Right to Back arc)
-		//   - curve-left (going to lower column): attach from left edge (Back to Left to Front arc)
-		switch (direction)
-		{
-			case "curve-down":
-				// Row curves going down: use front edge (the visible front of the tile)
-				// The front edge spans from Left through Front to Right
-				p0 = _tileLeft;
-				p1 = _tileRight;
-				break;
-			case "curve-up":
-				// Row curves going up: use back edge
-				// The back edge spans from Left through Back to Right
-				p0 = _tileLeft;
-				p1 = _tileRight;
-				break;
-			case "curve-right":
-				// Column curves going right: use right edge
-				// The right edge spans from Front through Right to Back
-				p0 = _tileFront;
-				p1 = _tileBack;
-				break;
-			case "curve-left":
-				// Column curves going left: use left edge
-				// The left edge spans from Back through Left to Front
-				p0 = _tileBack;
-				p1 = _tileFront;
-				break;
-			default:
-				p0 = _tileFront;
-				p1 = _tileRight;
-				break;
-		}
-
-		// For curve-up, we need to offset Y to use the back of the tile (lower Y in isometric)
-		// For curve-down, use the front of the tile (higher Y in isometric)
-		double yOffset = direction switch
-		{
-			"curve-up" => _tileBack.Y - _tileFront.Y,    // Shift to back edge Y level
-			"curve-down" => 0,                            // Stay at front edge Y level
-			"curve-left" => (_tileLeft.Y - _tileFront.Y) / 2,  // Middle-left area
-			"curve-right" => (_tileRight.Y - _tileFront.Y) / 2, // Middle-right area
-			_ => 0
-		};
-
-		var ptX = x + p0.X + (p1.X - p0.X) * frac;
-		var ptY = y + p0.Y + (p1.Y - p0.Y) * frac + yOffset + connectorYNudge;
-		return new CurveAttachmentPoints(ptX, ptY, ptY + d, direction);
-	}
-
-	private static string GetOppositeCurveDirection(string direction) => direction switch
-	{
-		"curve-left" => "curve-right",
-		"curve-right" => "curve-left",
-		"curve-up" => "curve-down",
-		"curve-down" => "curve-up",
-		_ => direction
-	};
-
-	private sealed record CurveAttachmentPoints(double X, double Top, double Bottom, string Direction);
 	private sealed record BezierConnectorData(
 		string FillPath,
 		string TopStrokePath,
