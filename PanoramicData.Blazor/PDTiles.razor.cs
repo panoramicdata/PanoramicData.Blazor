@@ -540,6 +540,19 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		return (x, y);
 	}
 
+	/// <summary>
+	/// Gets the render depth for a tile based on connection mode.
+	/// </summary>
+	private int GetTileDepth(int row, int col)
+	{
+		return ConnectorOptions.ConnectionMode switch
+		{
+			ConnectionMode.RowCurves => row,        // Group by row only
+			ConnectionMode.ColumnCurves => col,     // Group by column only
+			_ => row + col                          // Standard isometric depth
+		};
+	}
+
 	private List<TileRenderInfo> GetSortedTiles()
 	{
 		var tiles = new List<TileRenderInfo>();
@@ -568,7 +581,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 					Row = row,
 					X = x,
 					Y = y,
-					Depth = row + col,
+					Depth = GetTileDepth(row, col),
 					Logo = _tileLogos.Count > tileId ? _tileLogos[tileId] : null,
 					Visible = _tileVisible.Count > tileId && _tileVisible[tileId]
 				});
@@ -586,21 +599,23 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 		foreach (var conn in connectors)
 		{
-			var startDepth = conn.StartTile.Row + conn.StartTile.Column;
-			var endDepth = conn.EndTile.Row + conn.EndTile.Column;
-			
-			// For curve modes, render connectors BETWEEN the rows/columns they connect
-			// This means using the MIN depth so connectors render after the start tile row
-			// but before the end tile row
 			int connDepth;
-			if (UsesBezierCurves)
+			
+			if (ConnectorOptions.ConnectionMode == ConnectionMode.RowCurves)
 			{
-				// Use min depth - connector renders after start row, before end row
-				connDepth = Math.Min(startDepth, endDepth);
+				// Row Curves: depth by ROW only - render after that row's tiles
+				connDepth = Math.Min(conn.StartTile.Row, conn.EndTile.Row);
+			}
+			else if (ConnectorOptions.ConnectionMode == ConnectionMode.ColumnCurves)
+			{
+				// Column Curves: depth by COLUMN only
+				connDepth = Math.Min(conn.StartTile.Column, conn.EndTile.Column);
 			}
 			else
 			{
-				// Standard: use max depth for straight-line connectors
+				// Standard straight-line: use max of row+col depth
+				var startDepth = conn.StartTile.Row + conn.StartTile.Column;
+				var endDepth = conn.EndTile.Row + conn.EndTile.Column;
 				connDepth = Math.Max(startDepth, endDepth);
 			}
 
@@ -1178,15 +1193,21 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		var distance = Math.Sqrt(Math.Pow(endPoints.X - startPoints.X, 2) + Math.Pow(endTopY - startTopY, 2));
 		var controlDistance = distance * tension * 0.5;
 
-		// Control points are PERPENDICULAR TO THE TILE EDGE, pointing outward
-		var startPerp = GetEdgeOutwardPerpendicular(direction, true);
-		var endPerp = GetEdgeOutwardPerpendicular(GetOppositeDirection(direction), false);
+		// Control points should point TOWARD the destination
+		// Direction from start to end (normalized)
+		var dx = endPoints.X - startPoints.X;
+		var dy = (endTopY + endBottomY) / 2 - (startTopY + startBottomY) / 2;
+		var len = Math.Sqrt(dx * dx + dy * dy);
+		if (len < 0.001) len = 1;
+		var dirX = dx / len;
+		var dirY = dy / len;
 
-		var startTopCtrl = (X: startPoints.X + startPerp.X * controlDistance, Y: startTopY + startPerp.Y * controlDistance);
-		var endTopCtrl = (X: endPoints.X + endPerp.X * controlDistance, Y: endTopY + endPerp.Y * controlDistance);
+		// Control points extend toward the destination
+		var startTopCtrl = (X: startPoints.X + dirX * controlDistance, Y: startTopY + dirY * controlDistance);
+		var endTopCtrl = (X: endPoints.X - dirX * controlDistance, Y: endTopY - dirY * controlDistance);
 
-		var startBottomCtrl = (X: startPoints.X + startPerp.X * controlDistance, Y: startBottomY + startPerp.Y * controlDistance);
-		var endBottomCtrl = (X: endPoints.X + endPerp.X * controlDistance, Y: endBottomY + endPerp.Y * controlDistance);
+		var startBottomCtrl = (X: startPoints.X + dirX * controlDistance, Y: startBottomY + dirY * controlDistance);
+		var endBottomCtrl = (X: endPoints.X - dirX * controlDistance, Y: endBottomY - dirY * controlDistance);
 
 		// Build SVG path
 		// Top edge: start -> end
