@@ -1164,9 +1164,16 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		var midStartY = (startTopY + startBottomY) / 2;
 		var midEndY = (endTopY + endBottomY) / 2;
 		var distance = Math.Sqrt(Math.Pow(endPoints.X - startPoints.X, 2) + Math.Pow(midEndY - midStartY, 2));
-		var controlDistance = distance * tension * 0.6;
+		
+		// For curves, we want control points that bow OUTWARD (perpendicular to line of travel)
+		// not along the line of travel
+		var bowAmount = distance * tension * 0.5;
 
-		// Calculate direction vector from start to end (normalized)
+		// Calculate the midpoint between start and end
+		var midX = (startPoints.X + endPoints.X) / 2;
+		var midY = (midStartY + midEndY) / 2;
+
+		// Calculate perpendicular direction (rotate 90 degrees)
 		var dx = endPoints.X - startPoints.X;
 		var dy = midEndY - midStartY;
 		var len = Math.Sqrt(dx * dx + dy * dy);
@@ -1175,17 +1182,23 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 			len = 1; // Avoid division by zero
 		}
 
-		var dirX = dx / len;
-		var dirY = dy / len;
+		// Perpendicular vector (rotated 90 degrees counter-clockwise)
+		var perpX = -dy / len;
+		var perpY = dx / len;
 
-		// Control points should extend in the direction of travel
-		// Start control point goes toward the end
-		// End control point comes from the start direction
-		var startTopCtrl = (X: startPoints.X + dirX * controlDistance, Y: startTopY + dirY * controlDistance);
-		var endTopCtrl = (X: endPoints.X - dirX * controlDistance, Y: endTopY - dirY * controlDistance);
+		// Control points bow outward from the midpoint
+		// For row curves (up/down), bow horizontally
+		// For column curves (left/right), bow vertically
+		var ctrlX = midX + perpX * bowAmount;
+		var ctrlY = midY + perpY * bowAmount;
 
-		var startBottomCtrl = (X: startPoints.X + dirX * controlDistance, Y: startBottomY + dirY * controlDistance);
-		var endBottomCtrl = (X: endPoints.X - dirX * controlDistance, Y: endBottomY - dirY * controlDistance);
+		// Use quadratic-style control point at the midpoint for both curves
+		// This creates a symmetric bow
+		var startTopCtrl = (X: ctrlX, Y: startTopY + (ctrlY - midStartY));
+		var endTopCtrl = (X: ctrlX, Y: endTopY + (ctrlY - midEndY));
+
+		var startBottomCtrl = (X: ctrlX, Y: startBottomY + (ctrlY - midStartY));
+		var endBottomCtrl = (X: ctrlX, Y: endBottomY + (ctrlY - midEndY));
 
 		// Build SVG path
 		// Top edge: start -> end
