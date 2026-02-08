@@ -14,7 +14,11 @@
 <h1>PDAudioPad Demo</h1>
 
 <DemoSourceView SourceFiles="Pages/PDAudioPadPage.razor, Pages/PDAudioPadPage.razor.cs">
-	<div class="pd-audio-pad-grid">
+<DocumentationContent>
+<PDAudioPadDocumentation />
+</DocumentationContent>
+<ChildContent>
+<div class="pd-audio-pad-grid">
 		<PDAudioPad Label="Drum" 
 					DecayMode="DecayMode.Exponential" 
 					DecayUpon="DecayUpon.Press" 
@@ -125,4 +129,5 @@
 	</div>
 
 	<EventView />
+	</ChildContent>
 </DemoSourceView>

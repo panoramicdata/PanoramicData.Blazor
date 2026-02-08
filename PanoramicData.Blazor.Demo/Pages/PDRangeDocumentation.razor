@@ -1,0 +1,49 @@
+<div class="pd-range-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDRange</code> is a numeric range slider component for selecting a value
+			within a minimum and maximum range. Supports customization of step, min/max, and display format.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Range"
+					AnchorId="basic-range"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 80px;">
+			<DemoContent>
+				<div class="w-50">
+					<PDRange @bind-Value="_value" Min="0" Max="100" />
+					<p class="mt-2 text-muted">Value: @_value</p>
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Set <code>Min</code> and <code>Max</code> for the range bounds. Bind the value with <code>@@bind-Value</code>.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Value</code></td><td><code>double</code></td><td>Current value</td></tr>
+				<tr><td><code>Min</code></td><td><code>double</code></td><td>Minimum value</td></tr>
+				<tr><td><code>Max</code></td><td><code>double</code></td><td>Maximum value</td></tr>
+				<tr><td><code>Step</code></td><td><code>double</code></td><td>Increment step size</td></tr>
+				<tr><td><code>ShowValue</code></td><td><code>bool</code></td><td>Display current value</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

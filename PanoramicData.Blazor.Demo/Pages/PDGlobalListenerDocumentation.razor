@@ -1,0 +1,46 @@
+<div class="pd-globallistener-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDGlobalListener</code> provides global keyboard and mouse event handling.
+			Useful for implementing keyboard shortcuts and global event listeners.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Keyboard Events"
+					AnchorId="keyboard-events"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 80px;">
+			<DemoContent>
+				<p class="text-muted p-3">
+					Press any key to see events in the demo.
+				</p>
+			</DemoContent>
+			<Description>
+				<p>
+					Subscribe to <code>KeyDown</code>, <code>KeyUp</code>, or <code>KeyPress</code> events.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Event</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>KeyDown</code></td><td><code>EventCallback&lt;KeyboardEventArgs&gt;</code></td><td>Key pressed</td></tr>
+				<tr><td><code>KeyUp</code></td><td><code>EventCallback&lt;KeyboardEventArgs&gt;</code></td><td>Key released</td></tr>
+				<tr><td><code>WindowResize</code></td><td><code>EventCallback</code></td><td>Window resized</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

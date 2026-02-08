@@ -1,0 +1,48 @@
+<div class="pd-carddeck-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDCardDeck</code> is a container for displaying a collection of cards in a responsive grid layout.
+			Supports filtering, sorting, and custom card templates.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Card Deck"
+					AnchorId="basic-carddeck"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 100px;">
+			<DemoContent>
+				<p class="text-muted p-3">
+					See the full PDCardDeck demo for interactive examples.
+				</p>
+			</DemoContent>
+			<Description>
+				<p>
+					Provide items via the <code>Items</code> property and customize display using
+					<code>CardTemplate</code>.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>TItem</code></td><td>Type parameter</td><td>Type of items</td></tr>
+				<tr><td><code>Items</code></td><td><code>IEnumerable&lt;TItem&gt;</code></td><td>Items to display as cards</td></tr>
+				<tr><td><code>CardTemplate</code></td><td><code>RenderFragment&lt;TItem&gt;</code></td><td>Template for each card</td></tr>
+				<tr><td><code>MinCardWidth</code></td><td><code>int</code></td><td>Minimum card width in pixels</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

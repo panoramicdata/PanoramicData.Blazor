@@ -1,8 +1,12 @@
-﻿@page "/pdblockoverlay"
+@page "/pdblockoverlay"
 
 <h1>PDBlockOverlay</h1>
 
 <DemoSourceView SourceFiles="Pages/PDBlockOverlayPage.razor, Pages/PDBlockOverlayPage.razor.cs">
+	<DocumentationContent>
+		<PDBlockOverlayDocumentation />
+	</DocumentationContent>
+	<ChildContent>
 	<p>
 		<button class="btn btn-primary" @onclick="@ShowFor1SecondAsync">Show a blank BlockOverlay for 1 second</button>
 	</p>
@@ -15,4 +19,5 @@
 		<button class="btn btn-primary" @onclick="@ShowLocalOverlayAsync">Show BusyOverlay for 5 seconds</button>
 	</PDBusyOverlay>
 
+	</ChildContent>
 </DemoSourceView>

@@ -1,0 +1,282 @@
+@using PanoramicData.Blazor.Demo.Data
+
+<div class="pd-table-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDTable&lt;TItem&gt;</code> is a powerful data grid component for displaying, sorting, filtering,
+			and editing tabular data. It supports virtual scrolling, column customization, selection, and
+			integration with data providers for async data loading.
+		</p>
+		<ul>
+			<li><strong>Virtual scrolling</strong> - Efficiently handles large datasets</li>
+			<li><strong>Sorting & filtering</strong> - Built-in column sorting and search</li>
+			<li><strong>Selection</strong> - Single and multi-row selection modes</li>
+			<li><strong>Editing</strong> - Inline editing with validation</li>
+			<li><strong>Column templates</strong> - Custom render templates for cells</li>
+			<li><strong>State persistence</strong> - Save/restore column widths and sort order</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Table"
+					AnchorId="basic-table"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="height: 300px; overflow: auto;">
+			<DemoContent>
+				<PDTable TItem="Person"
+						 DataProvider="_simpleDataProvider"
+						 KeyField="x => x.Id">
+					<PDColumn TItem="Person" Field="x => x.Id" Title="ID" Width="80" />
+					<PDColumn TItem="Person" Field="x => x.FirstName" Title="First Name" />
+					<PDColumn TItem="Person" Field="x => x.LastName" Title="Last Name" />
+					<PDColumn TItem="Person" Field="x => x.Email" Title="Email" />
+				</PDTable>
+			</DemoContent>
+			<Description>
+				<p>
+					The simplest table requires a <code>TItem</code> type parameter, a <code>DataProvider</code>,
+					and column definitions using <code>PDColumn</code>. The <code>KeyField</code> identifies
+					each row uniquely.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+
+		<h4>Main Parameters</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Type</th>
+					<th>Default</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>TItem</code></td>
+					<td>Type parameter</td>
+					<td>-</td>
+					<td>The type of data item in each row</td>
+				</tr>
+				<tr>
+					<td><code>DataProvider</code></td>
+					<td><code>IDataProviderService&lt;TItem&gt;</code></td>
+					<td>null</td>
+					<td>Service for fetching, creating, updating, and deleting data</td>
+				</tr>
+				<tr>
+					<td><code>KeyField</code></td>
+					<td><code>Func&lt;TItem, object&gt;</code></td>
+					<td>null</td>
+					<td>Expression to get the unique key for each row</td>
+				</tr>
+				<tr>
+					<td><code>Items</code></td>
+					<td><code>IEnumerable&lt;TItem&gt;?</code></td>
+					<td>null</td>
+					<td>Static list of items (alternative to DataProvider)</td>
+				</tr>
+				<tr>
+					<td><code>SelectionMode</code></td>
+					<td><code>TableSelectionMode</code></td>
+					<td>Single</td>
+					<td>None, Single, or Multiple row selection</td>
+				</tr>
+				<tr>
+					<td><code>AllowEdit</code></td>
+					<td><code>bool</code></td>
+					<td>false</td>
+					<td>Enable inline row editing</td>
+				</tr>
+				<tr>
+					<td><code>AllowSort</code></td>
+					<td><code>bool</code></td>
+					<td>true</td>
+					<td>Enable column sorting</td>
+				</tr>
+				<tr>
+					<td><code>SearchText</code></td>
+					<td><code>string</code></td>
+					<td>""</td>
+					<td>Text to filter rows</td>
+				</tr>
+				<tr>
+					<td><code>PageSize</code></td>
+					<td><code>int</code></td>
+					<td>10</td>
+					<td>Number of rows per page</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h4 class="mt-4">PDColumn Parameters</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Type</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>Field</code></td>
+					<td><code>Expression&lt;Func&lt;TItem, object&gt;&gt;</code></td>
+					<td>The property to display in this column</td>
+				</tr>
+				<tr>
+					<td><code>Title</code></td>
+					<td><code>string</code></td>
+					<td>Column header text</td>
+				</tr>
+				<tr>
+					<td><code>Width</code></td>
+					<td><code>int?</code></td>
+					<td>Fixed width in pixels</td>
+				</tr>
+				<tr>
+					<td><code>Sortable</code></td>
+					<td><code>bool</code></td>
+					<td>Whether column can be sorted</td>
+				</tr>
+				<tr>
+					<td><code>Template</code></td>
+					<td><code>RenderFragment&lt;TItem&gt;</code></td>
+					<td>Custom cell template</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="examples">
+		<h2 class="doc-section">Examples</h2>
+
+		<DocExample Title="Sortable Columns"
+					AnchorId="sortable-columns"
+					Code="@_example2Code"
+					Language="razor"
+					DemoStyle="height: 300px; overflow: auto;">
+			<DemoContent>
+				<PDTable TItem="Person"
+						 DataProvider="_simpleDataProvider"
+						 KeyField="x => x.Id"
+						 AllowSort="true">
+					<PDColumn TItem="Person" Field="x => x.Id" Title="ID" Width="80" Sortable="true" />
+					<PDColumn TItem="Person" Field="x => x.FirstName" Title="First Name" Sortable="true" />
+					<PDColumn TItem="Person" Field="x => x.LastName" Title="Last Name" Sortable="true" />
+					<PDColumn TItem="Person" Field="x => x.Dob" Title="Date of Birth" Sortable="true" />
+				</PDTable>
+			</DemoContent>
+			<Description>
+				<p>
+					Enable sorting with <code>AllowSort="true"</code> on the table and
+					<code>Sortable="true"</code> on individual columns. Click column headers to sort.
+				</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="Custom Cell Templates"
+					AnchorId="cell-templates"
+					Code="@_example3Code"
+					Language="razor"
+					DemoStyle="height: 300px; overflow: auto;">
+			<DemoContent>
+				<PDTable TItem="Person"
+						 DataProvider="_simpleDataProvider"
+						 KeyField="x => x.Id">
+					<PDColumn TItem="Person" Field="x => x.FirstName" Title="Name">
+						<Template>
+							<strong>@context.FirstName</strong> @context.LastName
+						</Template>
+					</PDColumn>
+					<PDColumn TItem="Person" Field="x => x.Email" Title="Contact">
+						<Template>
+							<a href="mailto:@context.Email">@context.Email</a>
+						</Template>
+					</PDColumn>
+				</PDTable>
+			</DemoContent>
+			<Description>
+				<p>
+					Use the <code>Template</code> render fragment to customize how cell content is displayed.
+					The <code>context</code> variable contains the row's data item.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Event</th>
+					<th>Type</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>SelectionChanged</code></td>
+					<td><code>EventCallback&lt;TItem?&gt;</code></td>
+					<td>Fired when selected row changes</td>
+				</tr>
+				<tr>
+					<td><code>RowClick</code></td>
+					<td><code>EventCallback&lt;TItem&gt;</code></td>
+					<td>Fired when a row is clicked</td>
+				</tr>
+				<tr>
+					<td><code>RowDoubleClick</code></td>
+					<td><code>EventCallback&lt;TItem&gt;</code></td>
+					<td>Fired when a row is double-clicked</td>
+				</tr>
+				<tr>
+					<td><code>SortChanged</code></td>
+					<td><code>EventCallback&lt;SortCriteria&gt;</code></td>
+					<td>Fired when sort order changes</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="methods">
+		<h2 class="doc-section">Public Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Method</th>
+					<th>Returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>RefreshAsync()</code></td>
+					<td><code>Task</code></td>
+					<td>Reload data from the provider</td>
+				</tr>
+				<tr>
+					<td><code>SelectAsync(TItem)</code></td>
+					<td><code>Task</code></td>
+					<td>Programmatically select a row</td>
+				</tr>
+				<tr>
+					<td><code>ClearSelectionAsync()</code></td>
+					<td><code>Task</code></td>
+					<td>Clear current selection</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

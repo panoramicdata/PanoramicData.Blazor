@@ -1,4 +1,12 @@
-﻿window.panoramicDataDemo = {
+﻿// Scroll to element by ID (used for documentation anchor links)
+window.scrollToElement = function (elementId) {
+	var element = document.getElementById(elementId);
+	if (element) {
+		element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
+};
+
+window.panoramicDataDemo = {
 
 	downloadFiles: function (args) {
 		for (var i = 0; i < args.items.length; i++) {

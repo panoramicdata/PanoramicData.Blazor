@@ -3,8 +3,12 @@
 <h1>PDPager</h1>
 
 <DemoSourceView SourceFiles="Pages/PDPagerPage.razor, Pages/PDPagerPage.razor.cs">
+<DocumentationContent>
+<PDPagerDocumentation />
+</DocumentationContent>
+<ChildContent>
 
-	<PDToolbar>
+<PDToolbar>
 
 		<PDToolbarTextbox Value="@GoToPage" ValueChanged="@((v) => GoToPage = v)" />
 		<PDToolbarButton Text="Goto Page"
@@ -33,4 +37,5 @@
 
 	<EventView />
 
+	</ChildContent>
 </DemoSourceView>

@@ -1,0 +1,214 @@
+<div class="pd-form-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDForm&lt;TItem&gt;</code> is a dynamic form component that automatically generates
+			form fields based on the properties of your data model. It supports validation, custom
+			field templates, and integrates with data providers for CRUD operations.
+		</p>
+		<ul>
+			<li><strong>Auto-generation</strong> - Fields generated from model properties</li>
+			<li><strong>Validation</strong> - Built-in and custom validation rules</li>
+			<li><strong>Data binding</strong> - Two-way binding with change tracking</li>
+			<li><strong>CRUD integration</strong> - Create, Read, Update, Delete via DataProvider</li>
+			<li><strong>Custom templates</strong> - Override field rendering</li>
+			<li><strong>Navigation protection</strong> - Warn before navigating with unsaved changes</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Form"
+					AnchorId="basic-form"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 250px;">
+			<DemoContent>
+				<PDForm TItem="SampleModel"
+						Item="_sampleItem"
+						CssClass="w-100">
+					<PDFormBody TItem="SampleModel">
+						<PDField TItem="SampleModel" Field="x => x.Name" />
+						<PDField TItem="SampleModel" Field="x => x.Email" />
+						<PDField TItem="SampleModel" Field="x => x.Age" />
+					</PDFormBody>
+				</PDForm>
+			</DemoContent>
+			<Description>
+				<p>
+					A form requires <code>TItem</code> type parameter and an <code>Item</code> to bind to.
+					Use <code>PDField</code> components to specify which properties to display.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+
+		<h4>PDForm Parameters</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Type</th>
+					<th>Default</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>TItem</code></td>
+					<td>Type parameter</td>
+					<td>-</td>
+					<td>The type of the data model</td>
+				</tr>
+				<tr>
+					<td><code>Item</code></td>
+					<td><code>TItem?</code></td>
+					<td>null</td>
+					<td>The current item being edited</td>
+				</tr>
+				<tr>
+					<td><code>DataProvider</code></td>
+					<td><code>IDataProviderService&lt;TItem&gt;</code></td>
+					<td>null</td>
+					<td>Service for CRUD operations</td>
+				</tr>
+				<tr>
+					<td><code>Mode</code></td>
+					<td><code>FormModes</code></td>
+					<td>Edit</td>
+					<td>Create, Edit, or Delete mode</td>
+				</tr>
+				<tr>
+					<td><code>AutoApplyDelta</code></td>
+					<td><code>bool</code></td>
+					<td>true</td>
+					<td>Auto-apply changes to the bound item</td>
+				</tr>
+				<tr>
+					<td><code>ConfirmOnUnload</code></td>
+					<td><code>bool</code></td>
+					<td>true</td>
+					<td>Show browser warning for unsaved changes</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h4 class="mt-4">PDField Parameters</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Type</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>Field</code></td>
+					<td><code>Expression&lt;Func&lt;TItem, object&gt;&gt;</code></td>
+					<td>The property to bind to</td>
+				</tr>
+				<tr>
+					<td><code>Title</code></td>
+					<td><code>string?</code></td>
+					<td>Override the field label</td>
+				</tr>
+				<tr>
+					<td><code>ReadOnly</code></td>
+					<td><code>bool</code></td>
+					<td>Make field read-only</td>
+				</tr>
+				<tr>
+					<td><code>Helper</code></td>
+					<td><code>string?</code></td>
+					<td>Helper text below field</td>
+				</tr>
+				<tr>
+					<td><code>Options</code></td>
+					<td><code>FieldOptions</code></td>
+					<td>Additional field configuration</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="examples">
+		<h2 class="doc-section">Examples</h2>
+
+		<DocExample Title="With Header and Footer"
+					AnchorId="header-footer"
+					Code="@_example2Code"
+					Language="razor"
+					DemoStyle="min-height: 300px;">
+			<DemoContent>
+				<PDForm TItem="SampleModel"
+						Item="_sampleItem"
+						CssClass="w-100">
+					<PDFormHeader TItem="SampleModel">
+						<h4>Edit Profile</h4>
+					</PDFormHeader>
+					<PDFormBody TItem="SampleModel">
+						<PDField TItem="SampleModel" Field="x => x.Name" Title="Full Name" />
+						<PDField TItem="SampleModel" Field="x => x.Email" Title="Email Address" />
+					</PDFormBody>
+					<PDFormFooter TItem="SampleModel">
+						<button class="btn btn-primary">Save</button>
+						<button class="btn btn-secondary">Cancel</button>
+					</PDFormFooter>
+				</PDForm>
+			</DemoContent>
+			<Description>
+				<p>
+					Use <code>PDFormHeader</code> and <code>PDFormFooter</code> to add custom content
+					above and below the form fields.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Event</th>
+					<th>Type</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>FieldUpdated</code></td>
+					<td><code>EventCallback&lt;FieldUpdateArgs&lt;TItem&gt;&gt;</code></td>
+					<td>Fired when a field value changes</td>
+				</tr>
+				<tr>
+					<td><code>Created</code></td>
+					<td><code>EventCallback&lt;TItem&gt;</code></td>
+					<td>Fired after item is created</td>
+				</tr>
+				<tr>
+					<td><code>Updated</code></td>
+					<td><code>EventCallback&lt;TItem&gt;</code></td>
+					<td>Fired after item is updated</td>
+				</tr>
+				<tr>
+					<td><code>Deleted</code></td>
+					<td><code>EventCallback&lt;TItem&gt;</code></td>
+					<td>Fired after item is deleted</td>
+				</tr>
+				<tr>
+					<td><code>Error</code></td>
+					<td><code>EventCallback&lt;string&gt;</code></td>
+					<td>Fired on validation/save error</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

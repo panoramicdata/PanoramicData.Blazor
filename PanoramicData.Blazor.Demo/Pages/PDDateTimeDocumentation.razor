@@ -1,0 +1,50 @@
+<div class="pd-datetime-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDDateTime</code> is a date and time picker component with calendar display,
+			time selection, and various format options.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Date Picker"
+					AnchorId="date-picker"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 100px;">
+			<DemoContent>
+				<div class="w-50">
+					<PDDateTime @bind-Value="_date" Format="yyyy-MM-dd" />
+					<p class="mt-2 text-muted">Selected: @_date.ToString("yyyy-MM-dd")</p>
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Bind to a <code>DateTime?</code> and specify the display <code>Format</code>.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Value</code></td><td><code>DateTime?</code></td><td>Current date/time value</td></tr>
+				<tr><td><code>Format</code></td><td><code>string</code></td><td>Display format string</td></tr>
+				<tr><td><code>MinDate</code></td><td><code>DateTime?</code></td><td>Earliest selectable date</td></tr>
+				<tr><td><code>MaxDate</code></td><td><code>DateTime?</code></td><td>Latest selectable date</td></tr>
+				<tr><td><code>ShowTime</code></td><td><code>bool</code></td><td>Show time picker</td></tr>
+				<tr><td><code>ShowToday</code></td><td><code>bool</code></td><td>Show "Today" button</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

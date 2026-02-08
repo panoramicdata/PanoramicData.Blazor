@@ -1,0 +1,64 @@
+<div class="pd-button-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDButton</code> is a versatile button component with support for icons, loading states,
+			keyboard shortcuts, and various Bootstrap styles.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Button Variants"
+					AnchorId="button-variants"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 80px;">
+			<DemoContent>
+				<div class="d-flex gap-2 flex-wrap">
+					<PDButton Text="Primary" CssClass="btn-primary" />
+					<PDButton Text="Secondary" CssClass="btn-secondary" />
+					<PDButton Text="Success" CssClass="btn-success" IconCssClass="fas fa-check" />
+					<PDButton Text="Danger" CssClass="btn-danger" IconCssClass="fas fa-trash" />
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Use <code>CssClass</code> with Bootstrap button classes. Add icons with <code>IconCssClass</code>.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Text</code></td><td><code>string</code></td><td>Button text</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td>CSS classes (btn-primary, etc.)</td></tr>
+				<tr><td><code>IconCssClass</code></td><td><code>string</code></td><td>Icon CSS class</td></tr>
+				<tr><td><code>IsEnabled</code></td><td><code>bool</code></td><td>Enable/disable button</td></tr>
+				<tr><td><code>IsBusy</code></td><td><code>bool</code></td><td>Show loading spinner</td></tr>
+				<tr><td><code>Size</code></td><td><code>ButtonSizes</code></td><td>Small, Medium, Large</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Event</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Click</code></td><td><code>EventCallback&lt;MouseEventArgs&gt;</code></td><td>Fired when button is clicked</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

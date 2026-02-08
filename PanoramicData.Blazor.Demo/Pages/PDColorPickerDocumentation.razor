@@ -1,0 +1,52 @@
+@using PanoramicData.Blazor.Models.ColorPicker
+
+<div class="pd-colorpicker-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDColorPicker</code> is a color selection component with palette display,
+			color input, and format support (HEX, RGB, HSL).
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Color Picker"
+					AnchorId="basic-colorpicker"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 100px;">
+			<DemoContent>
+				<div class="d-flex align-items-center gap-3">
+					<PDColorPicker @bind-Value="_color" Text="Pick Color" />
+					<div style="width: 40px; height: 40px; background-color: @_color; border: 1px solid #ccc;"></div>
+					<span class="text-muted">@_color</span>
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Bind to a color string with <code>@@bind-Value</code>. Colors are in hex format.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Value</code></td><td><code>string</code></td><td>Current color value (hex)</td></tr>
+				<tr><td><code>Text</code></td><td><code>string</code></td><td>Button text</td></tr>
+				<tr><td><code>Palette</code></td><td><code>PaletteColor[]</code></td><td>Available color swatches</td></tr>
+				<tr><td><code>Size</code></td><td><code>ButtonSizes</code></td><td>Button size</td></tr>
+				<tr><td><code>Options</code></td><td><code>ColorPickerOptions</code></td><td>Additional options</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

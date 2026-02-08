@@ -4,7 +4,11 @@
 <h3>PDTabSet Demo</h3>
 
 <DemoSourceView SourceFiles="Pages/PDTabSetPage.razor, Pages/PDTabSetPage.razor.cs">
-	<PDTabSet IsTabAdditionEnabled="true"
+<DocumentationContent>
+<PDTabSetDocumentation />
+</DocumentationContent>
+<ChildContent>
+<PDTabSet IsTabAdditionEnabled="true"
 			  IsTabClosingEnabled="true"
 			  IsTabRenamingEnabled="true"
 			  OnTabSelected="OnTabSelected"
@@ -21,4 +25,5 @@
 
 	<h5 class="mt-4">Event Log</h5>
 	<pre style="max-height:200px;overflow:auto;">@_eventLog</pre>
+	</ChildContent>
 </DemoSourceView>

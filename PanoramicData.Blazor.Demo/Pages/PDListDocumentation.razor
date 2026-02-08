@@ -1,0 +1,50 @@
+<div class="pd-list-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDList&lt;TItem&gt;</code> is a list component for displaying items with selection,
+			filtering, and custom templates. It supports virtualization for large datasets.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic List"
+					AnchorId="basic-list"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 150px;">
+			<DemoContent>
+				<p class="text-muted p-3">
+					See the full PDList demo for interactive examples.
+				</p>
+			</DemoContent>
+			<Description>
+				<p>
+					Provide items via the <code>Items</code> property. Use <code>TextField</code>
+					to specify display text for each item.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>TItem</code></td><td>Type parameter</td><td>Type of items</td></tr>
+				<tr><td><code>Items</code></td><td><code>IEnumerable&lt;TItem&gt;</code></td><td>Items to display</td></tr>
+				<tr><td><code>SelectedItem</code></td><td><code>TItem?</code></td><td>Currently selected item</td></tr>
+				<tr><td><code>TextField</code></td><td><code>Func&lt;TItem, string&gt;</code></td><td>Expression for display text</td></tr>
+				<tr><td><code>AllowSelection</code></td><td><code>bool</code></td><td>Enable item selection</td></tr>
+				<tr><td><code>ItemTemplate</code></td><td><code>RenderFragment&lt;TItem&gt;</code></td><td>Custom item template</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

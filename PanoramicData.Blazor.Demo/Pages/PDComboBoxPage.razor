@@ -3,8 +3,12 @@
 <h1>PDComboBox</h1>
 
 <DemoSourceView SourceFiles="Pages/PDComboBoxPage.razor, Pages/PDComboBoxPage.razor.cs">
+<DocumentationContent>
+<PDComboBoxDocumentation />
+</DocumentationContent>
+<ChildContent>
 
-	<p>ComboBox 1 : Minimal configuration</p>
+<p>ComboBox 1 : Minimal configuration</p>
 
 	<PDComboBox Items="_items"
 				Placeholder="Select a country..." />
@@ -86,4 +90,5 @@
     <button @onclick="() => { Combo4SelectedItem = null; StateHasChanged(); }">Clear Selection</button>
 	<EventView />
 
+	</ChildContent>
 </DemoSourceView>

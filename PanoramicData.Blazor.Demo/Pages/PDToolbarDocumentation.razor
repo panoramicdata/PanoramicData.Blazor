@@ -1,0 +1,226 @@
+<div class="pd-toolbar-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDToolbar</code> is a flexible toolbar component for creating command bars, action buttons,
+			dropdowns, and other interactive elements. It supports keyboard shortcuts, responsive layouts,
+			and various button styles.
+		</p>
+		<ul>
+			<li><strong>Buttons</strong> - Standard, toggle, and link buttons</li>
+			<li><strong>Dropdowns</strong> - Menu items with icons and nested items</li>
+			<li><strong>Textboxes</strong> - Search and input fields</li>
+			<li><strong>Separators</strong> - Visual dividers</li>
+			<li><strong>Keyboard shortcuts</strong> - Ctrl+key combinations</li>
+			<li><strong>Responsive</strong> - Show/hide based on screen size</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Toolbar"
+					AnchorId="basic-toolbar"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 80px;">
+			<DemoContent>
+				<PDToolbar>
+					<PDToolbarButton Text="New" CssClass="btn-primary" IconCssClass="fas fa-plus" />
+					<PDToolbarButton Text="Edit" CssClass="btn-secondary" IconCssClass="fas fa-edit" />
+					<PDToolbarButton Text="Delete" CssClass="btn-danger" IconCssClass="fas fa-trash" />
+				</PDToolbar>
+			</DemoContent>
+			<Description>
+				<p>
+					A toolbar contains <code>PDToolbarButton</code> and other toolbar item components.
+					Use <code>CssClass</code> for styling and <code>IconCssClass</code> for icons.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+
+		<h4>PDToolbar Parameters</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Type</th>
+					<th>Default</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>ButtonSize</code></td>
+					<td><code>ButtonSizes</code></td>
+					<td>Medium</td>
+					<td>Size of all buttons: Small, Medium, Large</td>
+				</tr>
+				<tr>
+					<td><code>CssClass</code></td>
+					<td><code>string</code></td>
+					<td>""</td>
+					<td>Additional CSS classes for the toolbar</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h4 class="mt-4">PDToolbarButton Parameters</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Type</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>Text</code></td>
+					<td><code>string</code></td>
+					<td>Button text (use && for underline)</td>
+				</tr>
+				<tr>
+					<td><code>Key</code></td>
+					<td><code>string</code></td>
+					<td>Unique identifier for the button</td>
+				</tr>
+				<tr>
+					<td><code>CssClass</code></td>
+					<td><code>string</code></td>
+					<td>Bootstrap button classes (btn-primary, etc.)</td>
+				</tr>
+				<tr>
+					<td><code>IconCssClass</code></td>
+					<td><code>string</code></td>
+					<td>Icon CSS classes (Font Awesome)</td>
+				</tr>
+				<tr>
+					<td><code>IsEnabled</code></td>
+					<td><code>bool</code></td>
+					<td>Enable/disable the button</td>
+				</tr>
+				<tr>
+					<td><code>IsVisible</code></td>
+					<td><code>bool</code></td>
+					<td>Show/hide the button</td>
+				</tr>
+				<tr>
+					<td><code>ShiftRight</code></td>
+					<td><code>bool</code></td>
+					<td>Push button to the right side</td>
+				</tr>
+				<tr>
+					<td><code>ShortcutKey</code></td>
+					<td><code>ShortcutKey</code></td>
+					<td>Keyboard shortcut</td>
+				</tr>
+				<tr>
+					<td><code>ToolTip</code></td>
+					<td><code>string</code></td>
+					<td>Hover tooltip text</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="examples">
+		<h2 class="doc-section">Examples</h2>
+
+		<DocExample Title="With Dropdowns"
+					AnchorId="with-dropdowns"
+					Code="@_example2Code"
+					Language="razor"
+					DemoStyle="min-height: 120px;">
+			<DemoContent>
+				<PDToolbar>
+					<PDToolbarDropdown Text="File" IconCssClass="fas fa-file">
+						<PDMenuItem Text="New" IconCssClass="fas fa-plus" />
+						<PDMenuItem Text="Open" IconCssClass="fas fa-folder-open" />
+						<PDMenuItem Text="Save" IconCssClass="fas fa-save" />
+						<PDMenuItemSeparator />
+						<PDMenuItem Text="Exit" IconCssClass="fas fa-times" />
+					</PDToolbarDropdown>
+					<PDToolbarDropdown Text="Edit" IconCssClass="fas fa-edit">
+						<PDMenuItem Text="Undo" IconCssClass="fas fa-undo" />
+						<PDMenuItem Text="Redo" IconCssClass="fas fa-redo" />
+					</PDToolbarDropdown>
+				</PDToolbar>
+			</DemoContent>
+			<Description>
+				<p>
+					Use <code>PDToolbarDropdown</code> with <code>PDMenuItem</code> children to create
+					dropdown menus. Add <code>PDMenuItemSeparator</code> for visual dividers.
+				</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="With Search Box"
+					AnchorId="with-search"
+					Code="@_example3Code"
+					Language="razor"
+					DemoStyle="min-height: 80px;">
+			<DemoContent>
+				<PDToolbar>
+					<PDToolbarButton Text="Refresh" CssClass="btn-primary" />
+					<PDToolbarSeparator />
+					<PDToolbarTextbox Label="Search:" 
+									  @bind-Value="_searchText" 
+									  ShowClearButton="true" />
+					<PDToolbarButton Text="Settings" CssClass="btn-secondary" ShiftRight="true" />
+				</PDToolbar>
+			</DemoContent>
+			<Description>
+				<p>
+					Add <code>PDToolbarTextbox</code> for search/input fields. Use <code>ShiftRight="true"</code>
+					to push items to the right side. <code>PDToolbarSeparator</code> adds visual dividers.
+				</p>
+			</Description>
+		</DocExample>
+
+	</section>
+
+	<section id="toolbar-items">
+		<h2 class="doc-section">Toolbar Items</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Component</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>PDToolbarButton</code></td>
+					<td>Standard clickable button</td>
+				</tr>
+				<tr>
+					<td><code>PDToolbarLinkButton</code></td>
+					<td>Button styled as a link (opens URL)</td>
+				</tr>
+				<tr>
+					<td><code>PDToolbarDropdown</code></td>
+					<td>Dropdown menu with items</td>
+				</tr>
+				<tr>
+					<td><code>PDToolbarTextbox</code></td>
+					<td>Text input field</td>
+				</tr>
+				<tr>
+					<td><code>PDToolbarSeparator</code></td>
+					<td>Visual divider</td>
+				</tr>
+				<tr>
+					<td><code>PDToolbarPlaceholder</code></td>
+					<td>Custom content container</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

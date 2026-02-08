@@ -61,3 +61,50 @@ public string MyParameter { get; set; }
 ```
 
 This automated process ensures that our documentation stays up-to-date with the codebase, making it easier for everyone to understand how to use our components. It will also help new team members get up to speed more quickly.
+
+## Demo Application Documentation
+
+The demo application includes comprehensive documentation for each component, accessible via the **Documentation** tab on each component's demo page.
+
+### Documentation Features
+
+- **Three-tab layout**: Demo | Source | Documentation
+- **Interactive examples**: Live component demos alongside code
+- **Progressive complexity**: Examples build from basic to advanced
+- **Deep linking**: Direct URLs to specific tabs and sections (e.g., `/pdtiles?tab=docs#row-curves`)
+- **Mobile responsive**: Code and demo stack vertically on narrow screens
+
+### Creating Documentation for New Components
+
+1. Create a `PDComponentDocumentation.razor` file in `Pages/`
+2. Use the `DocExample` component for each example:
+
+```razor
+<DocExample Title="Example Title"
+            AnchorId="unique-anchor"
+            Code="@_codeString"
+            Language="razor"
+            DemoStyle="height: 300px;">
+    <DemoContent>
+        <!-- Live component demo -->
+    </DemoContent>
+    <Description>
+        <p>Explanation of the example...</p>
+    </Description>
+</DocExample>
+```
+
+3. Add to the demo page:
+
+```razor
+<DemoSourceView SourceFiles="...">
+    <DocumentationContent>
+        <PDComponentDocumentation />
+    </DocumentationContent>
+    <ChildContent>
+        <!-- Existing demo content -->
+    </ChildContent>
+</DemoSourceView>
+```
+
+See `PDTilesDocumentation.razor` for a complete example.

@@ -4,7 +4,11 @@
 <h1>PDKnob Demo</h1>
 
 <DemoSourceView SourceFiles="Pages/PDKnobPage.razor,Pages/PDKnobPage.razor.cs">
-	<div style="display: flex; gap: 48px; align-items: flex-start;">
+<DocumentationContent>
+<PDKnobDocumentation />
+</DocumentationContent>
+<ChildContent>
+<div style="display: flex; gap: 48px; align-items: flex-start;">
 		<div>
 			<h3>Volume</h3>
 			<PDKnob Mode="PDKnobMode.Volume" @bind-Value="_volumeValue" MaxDisplay="@_maxVolume" CapColor="@_knobColor" ActiveColor="@_activeColor" Label="@_knobLabel" LabelPosition="@_labelPosition" LabelHeightPx="@_labelHeightPx" LabelCssClass="@_labelCssClass" />
@@ -62,4 +66,5 @@
 		<label>Label CSS Class</label>
 		<input type="text" @bind="_labelCssClass" />
 	</div>
+	</ChildContent>
 </DemoSourceView>

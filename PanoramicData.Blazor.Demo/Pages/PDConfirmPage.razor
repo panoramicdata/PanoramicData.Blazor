@@ -1,8 +1,12 @@
 ﻿@page "/pdconfirm"
 
 <DemoSourceView SourceFiles="Pages/PDConfirmPage.razor, Pages/PDConfirmPage.razor.cs">
+<DocumentationContent>
+<PDConfirmDocumentation />
+</DocumentationContent>
+<ChildContent>
 
-	<div>
+<div>
 		<p>Example 1: Display the basic confirm dialog using the Message and Title attributes</p>
 		<PDConfirm @ref="_confirmModal1"
 				   Message="Are you sure you want to proceed?"
@@ -79,4 +83,5 @@
 		<p>Result: @_result4</p>
 	</div>
 
+	</ChildContent>
 </DemoSourceView>

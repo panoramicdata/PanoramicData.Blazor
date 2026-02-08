@@ -1,0 +1,48 @@
+<div class="pd-clipboard-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDClipboard</code> provides a copy-to-clipboard button. Shows visual feedback
+			when text is copied and supports custom icons.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Copy Button"
+					AnchorId="copy-button"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 80px;">
+			<DemoContent>
+				<div class="p-3">
+					<span class="me-2">Click to copy:</span>
+					<PDClipboard Text="Hello World!" />
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Set the <code>Text</code> property to the value to copy. Click the button to copy.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Text</code></td><td><code>string</code></td><td>Text to copy</td></tr>
+				<tr><td><code>ReadyToCopyCssClass</code></td><td><code>string</code></td><td>Icon class before copy</td></tr>
+				<tr><td><code>TextCopiedCssClass</code></td><td><code>string</code></td><td>Icon class after copy</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td>Additional CSS classes</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

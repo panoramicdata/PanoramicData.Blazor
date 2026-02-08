@@ -1,11 +1,16 @@
-﻿@page "/pdclipboard"
+@page "/pdclipboard"
 
 <h1>PDClipboard</h1>
 
 <DemoSourceView SourceFiles="Pages/PDClipboardPage.razor, Pages/PDClipboardPage.razor.cs">
+	<DocumentationContent>
+		<PDClipboardDocumentation />
+	</DocumentationContent>
+	<ChildContent>
 	<p>
 		<div>Text value: @_text <PDClipboard Text="@_text" /></div>
 		<div>Text value: @_text2 <PDClipboard Text="@_text2" ReadyToCopyCssClass="fa fa-clipboard" TextCopiedCssClass="fas fa-check-double" /></div>
 		<div>Text value: @_text3 <PDClipboard Text="@_text3" CssClass="fa-2x" /></div>
 	</p>
+	</ChildContent>
 </DemoSourceView>

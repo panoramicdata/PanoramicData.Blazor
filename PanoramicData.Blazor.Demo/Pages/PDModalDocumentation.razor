@@ -1,0 +1,118 @@
+<div class="pd-modal-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDModal</code> is a modal dialog component for displaying content in an overlay.
+			It supports customizable headers, footers, sizes, and can be shown/hidden programmatically.
+		</p>
+		<ul>
+			<li><strong>Customizable</strong> - Header, body, and footer sections</li>
+			<li><strong>Sizes</strong> - Small, Medium, Large, Extra Large</li>
+			<li><strong>Programmatic control</strong> - Show/Hide via methods</li>
+			<li><strong>Backdrop</strong> - Click outside to close (optional)</li>
+			<li><strong>Keyboard</strong> - Escape key to close</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Modal"
+					AnchorId="basic-modal"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 100px;">
+			<DemoContent>
+				<button class="btn btn-primary" @onclick="ShowModal">Open Modal</button>
+				<PDModal @ref="_modal" Title="Example Modal">
+					<p>This is the modal content.</p>
+				</PDModal>
+			</DemoContent>
+			<Description>
+				<p>
+					Create a modal with a <code>Title</code> and content. Use the <code>ShowAsync()</code>
+					method to display it programmatically.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Type</th>
+					<th>Default</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>Title</code></td>
+					<td><code>string</code></td>
+					<td>""</td>
+					<td>Modal header title</td>
+				</tr>
+				<tr>
+					<td><code>Size</code></td>
+					<td><code>ModalSizes</code></td>
+					<td>Medium</td>
+					<td>Modal width: Small, Medium, Large, ExtraLarge</td>
+				</tr>
+				<tr>
+					<td><code>ShowClose</code></td>
+					<td><code>bool</code></td>
+					<td>true</td>
+					<td>Show the X close button</td>
+				</tr>
+				<tr>
+					<td><code>CloseOnBackdrop</code></td>
+					<td><code>bool</code></td>
+					<td>true</td>
+					<td>Close when clicking outside</td>
+				</tr>
+				<tr>
+					<td><code>CloseOnEscape</code></td>
+					<td><code>bool</code></td>
+					<td>true</td>
+					<td>Close when pressing Escape</td>
+				</tr>
+				<tr>
+					<td><code>Centered</code></td>
+					<td><code>bool</code></td>
+					<td>false</td>
+					<td>Vertically center the modal</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="methods">
+		<h2 class="doc-section">Public Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Method</th>
+					<th>Returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>ShowAsync()</code></td>
+					<td><code>Task</code></td>
+					<td>Display the modal</td>
+				</tr>
+				<tr>
+					<td><code>HideAsync()</code></td>
+					<td><code>Task</code></td>
+					<td>Hide the modal</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

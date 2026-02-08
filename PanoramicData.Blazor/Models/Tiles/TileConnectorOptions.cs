@@ -6,6 +6,16 @@ namespace PanoramicData.Blazor.Models.Tiles;
 public class TileConnectorOptions
 {
 	/// <summary>
+	/// Connection mode determining how connectors are drawn and validated.
+	/// </summary>
+	public ConnectionMode ConnectionMode { get; set; } = ConnectionMode.StraightLine;
+
+	/// <summary>
+	/// Curve tension for bezier connections (0-100). Higher = more curved.
+	/// </summary>
+	public int CurveTension { get; set; } = 50;
+
+	/// <summary>
 	/// Fill pattern for connectors.
 	/// </summary>
 	public ConnectorFillPattern FillPattern { get; set; } = ConnectorFillPattern.Random;

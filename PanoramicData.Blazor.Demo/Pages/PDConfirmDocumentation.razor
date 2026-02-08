@@ -1,0 +1,49 @@
+<div class="pd-confirm-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDConfirm</code> displays a confirmation dialog with customizable buttons.
+			Returns a result indicating the user's choice.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Confirmation Dialog"
+					AnchorId="basic-confirm"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 100px;">
+			<DemoContent>
+				<button class="btn btn-danger" @onclick="ShowConfirm">Delete Item</button>
+				<p class="mt-2 text-muted">Result: @_result</p>
+				<PDConfirm @ref="_confirm"
+						   Title="Confirm Delete"
+						   Message="Are you sure you want to delete this item?" />
+			</DemoContent>
+			<Description>
+				<p>
+					Call <code>ShowAsync()</code> to display. Returns a <code>ConfirmResult</code> with the button clicked.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Title</code></td><td><code>string</code></td><td>Dialog title</td></tr>
+				<tr><td><code>Message</code></td><td><code>string</code></td><td>Confirmation message</td></tr>
+				<tr><td><code>ConfirmText</code></td><td><code>string</code></td><td>Confirm button text (default: "Yes")</td></tr>
+				<tr><td><code>CancelText</code></td><td><code>string</code></td><td>Cancel button text (default: "No")</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

@@ -1,0 +1,68 @@
+<div class="pd-timeline-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDTimeline</code> is a time-based visualization component for displaying data points
+			across a date/time range. Supports zooming, panning, selection, and multiple time scales.
+		</p>
+		<ul>
+			<li><strong>Time scales</strong> - Years, Months, Days, Hours, Minutes</li>
+			<li><strong>Selection</strong> - Click-drag to select time ranges</li>
+			<li><strong>Zoom & Pan</strong> - Mouse wheel zoom, drag to pan</li>
+			<li><strong>Data points</strong> - Display events/data on the timeline</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Timeline"
+					AnchorId="basic-timeline"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="height: 150px;">
+			<DemoContent>
+				<PDTimeline MinDateTime="@_minDate"
+							MaxDateTime="@_maxDate"
+							Height="130px" />
+			</DemoContent>
+			<Description>
+				<p>
+					Set <code>MinDateTime</code> and <code>MaxDateTime</code> to define the visible range.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>MinDateTime</code></td><td><code>DateTime</code></td><td>Start of visible range</td></tr>
+				<tr><td><code>MaxDateTime</code></td><td><code>DateTime</code></td><td>End of visible range</td></tr>
+				<tr><td><code>Scale</code></td><td><code>TimelineScale</code></td><td>Initial time scale (Years, Months, etc.)</td></tr>
+				<tr><td><code>DataPoints</code></td><td><code>List&lt;DataPoint&gt;</code></td><td>Events to display</td></tr>
+				<tr><td><code>AllowSelection</code></td><td><code>bool</code></td><td>Enable range selection</td></tr>
+				<tr><td><code>AllowZoom</code></td><td><code>bool</code></td><td>Enable mouse wheel zoom</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Event</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>SelectionChanged</code></td><td><code>EventCallback&lt;TimeRange?&gt;</code></td><td>Fired when selection changes</td></tr>
+				<tr><td><code>RangeChanged</code></td><td><code>EventCallback&lt;TimeRange&gt;</code></td><td>Fired when visible range changes</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

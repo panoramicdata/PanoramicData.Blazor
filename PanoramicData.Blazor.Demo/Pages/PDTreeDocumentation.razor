@@ -1,0 +1,189 @@
+<div class="pd-tree-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDTree&lt;TItem&gt;</code> is a hierarchical tree view component for displaying nested data.
+			It supports lazy loading, keyboard navigation, drag-and-drop, inline editing, and customizable node templates.
+		</p>
+		<ul>
+			<li><strong>Lazy loading</strong> - Load child nodes on demand</li>
+			<li><strong>Selection</strong> - Single and multi-select modes</li>
+			<li><strong>Drag & drop</strong> - Reorder and move nodes</li>
+			<li><strong>Inline editing</strong> - Rename nodes in place</li>
+			<li><strong>Keyboard navigation</strong> - Arrow keys, Enter, Delete</li>
+			<li><strong>Custom icons</strong> - Per-node icon customization</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Tree"
+					AnchorId="basic-tree"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="height: 150px; overflow: auto;">
+			<DemoContent>
+				<p class="text-muted p-3">
+					See the full PDTree demo for interactive examples.
+					The tree requires a data provider implementing <code>IDataProviderService&lt;TItem&gt;</code>.
+				</p>
+			</DemoContent>
+			<Description>
+				<p>
+					A tree requires <code>TItem</code>, <code>DataProvider</code>, <code>KeyField</code>,
+					and <code>TextField</code>. Use <code>IsLeaf</code> to identify nodes without children.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Type</th>
+					<th>Default</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>TItem</code></td>
+					<td>Type parameter</td>
+					<td>-</td>
+					<td>The type of data item in each node</td>
+				</tr>
+				<tr>
+					<td><code>DataProvider</code></td>
+					<td><code>IDataProviderService&lt;TItem&gt;</code></td>
+					<td>null</td>
+					<td>Service for fetching tree data</td>
+				</tr>
+				<tr>
+					<td><code>KeyField</code></td>
+					<td><code>Func&lt;TItem, object&gt;</code></td>
+					<td>null</td>
+					<td>Expression to get the unique key for each node</td>
+				</tr>
+				<tr>
+					<td><code>TextField</code></td>
+					<td><code>Func&lt;TItem, string&gt;</code></td>
+					<td>null</td>
+					<td>Expression to get the display text</td>
+				</tr>
+				<tr>
+					<td><code>ParentKeyField</code></td>
+					<td><code>Func&lt;TItem, object?&gt;</code></td>
+					<td>null</td>
+					<td>Expression to get the parent key</td>
+				</tr>
+				<tr>
+					<td><code>IsLeaf</code></td>
+					<td><code>Func&lt;TItem, bool&gt;</code></td>
+					<td>null</td>
+					<td>Determines if a node is a leaf (no children)</td>
+				</tr>
+				<tr>
+					<td><code>ShowRoot</code></td>
+					<td><code>bool</code></td>
+					<td>true</td>
+					<td>Show/hide the root node</td>
+				</tr>
+				<tr>
+					<td><code>ShowLines</code></td>
+					<td><code>bool</code></td>
+					<td>false</td>
+					<td>Show connection lines between nodes</td>
+				</tr>
+				<tr>
+					<td><code>AllowEdit</code></td>
+					<td><code>bool</code></td>
+					<td>false</td>
+					<td>Enable inline node editing</td>
+				</tr>
+				<tr>
+					<td><code>AllowDrag</code></td>
+					<td><code>bool</code></td>
+					<td>false</td>
+					<td>Enable drag-and-drop</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Event</th>
+					<th>Type</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>SelectionChanged</code></td>
+					<td><code>EventCallback&lt;TItem?&gt;</code></td>
+					<td>Fired when selected node changes</td>
+				</tr>
+				<tr>
+					<td><code>NodeExpanded</code></td>
+					<td><code>EventCallback&lt;TItem&gt;</code></td>
+					<td>Fired when a node is expanded</td>
+				</tr>
+				<tr>
+					<td><code>NodeCollapsed</code></td>
+					<td><code>EventCallback&lt;TItem&gt;</code></td>
+					<td>Fired when a node is collapsed</td>
+				</tr>
+				<tr>
+					<td><code>NodeDoubleClick</code></td>
+					<td><code>EventCallback&lt;TItem&gt;</code></td>
+					<td>Fired on double-click</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="methods">
+		<h2 class="doc-section">Public Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Method</th>
+					<th>Returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>ExpandAll()</code></td>
+					<td><code>void</code></td>
+					<td>Expand all nodes</td>
+				</tr>
+				<tr>
+					<td><code>CollapseAll()</code></td>
+					<td><code>void</code></td>
+					<td>Collapse all nodes</td>
+				</tr>
+				<tr>
+					<td><code>BeginEdit()</code></td>
+					<td><code>void</code></td>
+					<td>Start editing the selected node</td>
+				</tr>
+				<tr>
+					<td><code>RefreshAsync()</code></td>
+					<td><code>Task</code></td>
+					<td>Reload tree data</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

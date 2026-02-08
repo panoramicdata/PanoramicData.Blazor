@@ -1,0 +1,53 @@
+<div class="pd-dropdown-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDDropDown</code> is a dropdown selection component with support for single/multi-select,
+			search filtering, and custom item templates.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Dropdown"
+					AnchorId="basic-dropdown"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 150px;">
+			<DemoContent>
+				<div class="w-50">
+					<PDDropDown TItem="string"
+								Items="_items"
+								@bind-SelectedItem="_selectedItem"
+								Placeholder="Select an option..." />
+					<p class="mt-2 text-muted">Selected: @_selectedItem</p>
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Provide <code>Items</code> and bind selection with <code>@@bind-SelectedItem</code>.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>TItem</code></td><td>Type parameter</td><td>Type of items in dropdown</td></tr>
+				<tr><td><code>Items</code></td><td><code>IEnumerable&lt;TItem&gt;</code></td><td>Items to display</td></tr>
+				<tr><td><code>SelectedItem</code></td><td><code>TItem?</code></td><td>Currently selected item</td></tr>
+				<tr><td><code>Placeholder</code></td><td><code>string</code></td><td>Placeholder when nothing selected</td></tr>
+				<tr><td><code>TextField</code></td><td><code>Func&lt;TItem, string&gt;</code></td><td>Expression for display text</td></tr>
+				<tr><td><code>AllowSearch</code></td><td><code>bool</code></td><td>Enable search filtering</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

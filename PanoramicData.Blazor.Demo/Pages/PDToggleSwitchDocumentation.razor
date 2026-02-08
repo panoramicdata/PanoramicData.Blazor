@@ -1,0 +1,47 @@
+<div class="pd-toggleswitch-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDToggleSwitch</code> is a boolean toggle switch component for on/off states.
+			Provides a more visual alternative to checkboxes.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Toggle"
+					AnchorId="basic-toggle"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 80px;">
+			<DemoContent>
+				<div class="d-flex align-items-center gap-3">
+					<PDToggleSwitch @bind-Value="_isEnabled" Label="Enable Feature" />
+					<span class="text-muted">Value: @_isEnabled</span>
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Bind to a <code>bool</code> with <code>@@bind-Value</code>. Use <code>Label</code> for text.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Value</code></td><td><code>bool</code></td><td>Current on/off state</td></tr>
+				<tr><td><code>Label</code></td><td><code>string</code></td><td>Text label</td></tr>
+				<tr><td><code>IsEnabled</code></td><td><code>bool</code></td><td>Enable/disable the switch</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

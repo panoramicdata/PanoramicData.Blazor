@@ -1,0 +1,62 @@
+<div class="pd-contextmenu-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDContextMenu</code> is a right-click context menu component with support for
+			icons, nested menus, separators, and keyboard navigation.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Context Menu"
+					AnchorId="basic-contextmenu"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 100px;">
+			<DemoContent>
+				<p class="text-muted p-3">
+					See the full PDContextMenu demo for interactive examples.
+					Wrap content with <code>PDContextMenu</code> to enable right-click menus.
+				</p>
+			</DemoContent>
+			<Description>
+				<p>
+					Wrap your content inside <code>PDContextMenu</code>. Provide menu items via
+					the <code>Items</code> property and handle clicks with <code>ItemClick</code>.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Items</code></td><td><code>List&lt;MenuItem&gt;</code></td><td>Menu items to display</td></tr>
+				<tr><td><code>ChildContent</code></td><td><code>RenderFragment</code></td><td>Content to wrap with the context menu</td></tr>
+				<tr><td><code>Enabled</code></td><td><code>bool</code></td><td>Enable/disable the menu</td></tr>
+				<tr><td><code>ShowOnMouseUp</code></td><td><code>bool</code></td><td>Show on mouse up instead of down</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Event</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>ItemClick</code></td><td><code>EventCallback&lt;MenuItem&gt;</code></td><td>Fired when a menu item is clicked</td></tr>
+				<tr><td><code>UpdateState</code></td><td><code>EventCallback&lt;MenuItemsEventArgs&gt;</code></td><td>Fired before showing, allows updating items</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

@@ -3,8 +3,12 @@
 <h1>PDDropDown</h1>
 
 <DemoSourceView SourceFiles="Pages/PDDropDownPage.razor, Pages/PDDropDownPage.razor.cs">
+<DocumentationContent>
+<PDDropDownDocumentation />
+</DocumentationContent>
+<ChildContent>
 
-	<p>Dropdown 1 : Example showing normal and programmatic behaviour</p>
+<p>Dropdown 1 : Example showing normal and programmatic behaviour</p>
 
 	<PDToolbar>
 		<PDToolbarButton Click="@(() => _dropdown.HideAsync())" Text="Hide" />
@@ -67,4 +71,5 @@
 
 	<EventView />
 
+	</ChildContent>
 </DemoSourceView>

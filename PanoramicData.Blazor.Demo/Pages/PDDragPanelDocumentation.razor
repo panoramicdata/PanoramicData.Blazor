@@ -1,0 +1,46 @@
+<div class="pd-dragpanel-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDDragPanel</code> enables drag-and-drop reordering of items in a list.
+			Works with <code>PDDragContainer</code> to manage item order and selection.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Reorderable List"
+					AnchorId="reorderable-list"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 100px;">
+			<DemoContent>
+				<p class="text-muted p-3">
+					See the full PDDragPanel demo for interactive examples.
+				</p>
+			</DemoContent>
+			<Description>
+				<p>
+					Wrap items in <code>PDDragContainer</code> and use <code>PDDragPanel</code>
+					to enable drag reordering.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>TItem</code></td><td>Type parameter</td><td>Type of items</td></tr>
+				<tr><td><code>ItemOrderChanged</code></td><td><code>EventCallback</code></td><td>Fired when order changes</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

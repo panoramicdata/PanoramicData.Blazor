@@ -251,6 +251,15 @@
 		var opacity = conn.Connector.Opacity / 100.0;
 		var color = conn.Connector.Color;
 		var pattern = conn.Connector.FillPattern;
+
+		// Use bezier curves for curve modes
+		if (UsesBezierCurves)
+		{
+			RenderBezierConnector(conn, color, opacity, pattern)(__builder);
+			return;
+		}
+
+		// Standard straight-line connector
 		var connectorData = GetConnectorData(conn);
 
 		if (connectorData == null)
@@ -303,6 +312,56 @@
 				  stroke="@color" stroke-width="1.5" stroke-opacity="@F(opacity)" />
 			<line x1="@F(b0.X)" y1="@F(b0.Y)" x2="@F(b1.X)" y2="@F(b1.Y)"
 				  stroke="@color" stroke-width="1.5" stroke-opacity="@F(opacity)" />
+		</g>
+	};
+
+	private RenderFragment RenderBezierConnector(ConnectorRenderInfo conn, string color, double opacity, ConnectorFillPattern pattern) => __builder =>
+	{
+		var bezierData = GetBezierConnectorData(conn);
+
+		if (bezierData == null)
+		{
+			return;
+		}
+
+		var clipId = $"{Id}-bezierClip-{conn.Name.GetHashCode():X8}";
+
+		<g class="connector connector-bezier"
+		   data-connector-name="@conn.Name"
+		   cursor="pointer"
+		   @onclick="() => OnConnectorClicked(conn)">
+
+			@* Clip path for connector pattern *@
+			<clipPath id="@clipId">
+				<path d="@bezierData.FillPath" />
+			</clipPath>
+
+			@* Base fill *@
+			<path d="@bezierData.FillPath"
+				  fill="@color"
+				  fill-opacity="@F(opacity * 0.15)"
+				  stroke="none" />
+
+			@* Solid fill for Solid pattern *@
+			@if (pattern == ConnectorFillPattern.Solid)
+			{
+				<path d="@bezierData.FillPath"
+					  fill="@color"
+					  fill-opacity="@F(opacity * 0.4)"
+					  stroke="none" />
+			}
+
+			@* Edge strokes - using bezier curves *@
+			<path d="@bezierData.TopStrokePath"
+				  fill="none"
+				  stroke="@color"
+				  stroke-width="1.5"
+				  stroke-opacity="@F(opacity)" />
+			<path d="@bezierData.BottomStrokePath"
+				  fill="none"
+				  stroke="@color"
+				  stroke-width="1.5"
+				  stroke-opacity="@F(opacity)" />
 		</g>
 	};
 

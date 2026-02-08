@@ -109,6 +109,13 @@ public partial class PDTilesPage
 		new() { Key = "DiagonalFrontBack", Text = "D-FB" }
 	];
 
+	private readonly List<MenuItem> _connectionModeItems =
+	[
+		new() { Key = "StraightLine", Text = "Straight" },
+		new() { Key = "RowCurves", Text = "Row Curves" },
+		new() { Key = "ColumnCurves", Text = "Col Curves" }
+	];
+
 	private readonly List<MenuItem> _perEdgeItems =
 	[
 		new() { Key = "", Text = "Rnd" },
@@ -201,6 +208,14 @@ public partial class PDTilesPage
 		ConnectorDirection.DiagonalLeftRight => "D-LR",
 		ConnectorDirection.DiagonalFrontBack => "D-FB",
 		_ => "All"
+	};
+
+	private string GetConnectionModeShortText() => _connectorOptions.ConnectionMode switch
+	{
+		ConnectionMode.StraightLine => "Line",
+		ConnectionMode.RowCurves => "Row",
+		ConnectionMode.ColumnCurves => "Col",
+		_ => "Line"
 	};
 
 	private string GetVerticalAlignShortText() => _connectorOptions.VerticalAlign switch
@@ -603,6 +618,11 @@ public partial class PDTilesPage
 		if (Enum.TryParse<ConnectorDirection>(key, out var v)) { _connectorOptions.Direction = v; OnRandomizeConnectors(); }
 	}
 
+	private void OnConnectionModeSelected(string key)
+	{
+		if (Enum.TryParse<ConnectionMode>(key, out var v)) { _connectorOptions.ConnectionMode = v; OnRandomizeConnectors(); }
+	}
+
 	private void OnPerEdgeSelected(string key)
 	{
 		_connectorOptions.PerEdge = string.IsNullOrEmpty(key) ? null : int.TryParse(key, out var v) ? v : null;
@@ -632,6 +652,11 @@ public partial class PDTilesPage
 	private void OnAnimSpeedSelected(string key)
 	{
 		if (int.TryParse(key, out var v)) { _connectorOptions.AnimationSpeed = v; OnOptionsChanged(); }
+	}
+
+	private void OnCurveTensionSelected(string key)
+	{
+		if (int.TryParse(key, out var v)) { _connectorOptions.CurveTension = v; OnOptionsChanged(); }
 	}
 
 	private void OnMaxWidthSelected(string key)

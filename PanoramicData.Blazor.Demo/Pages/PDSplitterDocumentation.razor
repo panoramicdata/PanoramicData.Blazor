@@ -1,0 +1,53 @@
+<div class="pd-splitter-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDSplitter</code> creates resizable split panels. Users can drag the divider to
+			resize panels. Supports horizontal and vertical orientations with min/max size constraints.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Horizontal Split"
+					AnchorId="horizontal-split"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="height: 200px;">
+			<DemoContent>
+				<PDSplitter Style="height: 180px;">
+					<Panel1>
+						<div class="p-2 bg-light h-100">Left Panel</div>
+					</Panel1>
+					<Panel2>
+						<div class="p-2 bg-secondary text-white h-100">Right Panel</div>
+					</Panel2>
+				</PDSplitter>
+			</DemoContent>
+			<Description>
+				<p>
+					Define <code>Panel1</code> and <code>Panel2</code> content. Drag the divider to resize.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Horizontal</code></td><td><code>bool</code></td><td>true</td><td>Horizontal (left/right) or vertical (top/bottom)</td></tr>
+				<tr><td><code>Panel1Size</code></td><td><code>string</code></td><td>"50%"</td><td>Initial size of first panel</td></tr>
+				<tr><td><code>Panel1MinSize</code></td><td><code>string</code></td><td>"10%"</td><td>Minimum size of first panel</td></tr>
+				<tr><td><code>Panel2MinSize</code></td><td><code>string</code></td><td>"10%"</td><td>Minimum size of second panel</td></tr>
+				<tr><td><code>GutterSize</code></td><td><code>int</code></td><td>4</td><td>Width of the draggable divider</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

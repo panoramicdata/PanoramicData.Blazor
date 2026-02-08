@@ -363,8 +363,9 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 					continue;
 				}
 
-				var adjacents = GetAdjacentTiles(col, row);
-				foreach (var adj in adjacents)
+				// Get connectable tiles based on connection mode
+				var connectables = GetConnectableTiles(col, row);
+				foreach (var adj in connectables)
 				{
 					// Skip if adjacent tile is invisible
 					var endId = adj.Row * Options.Columns + adj.Column;
@@ -373,7 +374,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 						continue;
 					}
 
-					if (!MatchesDirection(adj.Type, ConnectorOptions.Direction))
+					// For StraightLine mode, still apply direction filter
+					if (ConnectorOptions.ConnectionMode == ConnectionMode.StraightLine && !MatchesDirection(adj.Type, ConnectorOptions.Direction))
 					{
 						continue;
 					}
@@ -1010,6 +1012,280 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		ConnectorDirection.DiagonalFrontBack => type is "diag-front" or "diag-back",
 		_ => true
 	};
+
+	/// <summary>
+	/// Validates if a connection between two tiles is valid for the given connection mode.
+	/// </summary>
+	private static bool IsValidConnection(TileCoordinate start, TileCoordinate end, ConnectionMode mode)
+	{
+		var rowDiff = Math.Abs(end.Row - start.Row);
+		var colDiff = Math.Abs(end.Column - start.Column);
+
+		return mode switch
+		{
+		// StraightLine: only adjacent tiles (including diagonals) - row/col diff must be 0 or 1
+			ConnectionMode.StraightLine => rowDiff <= 1 && colDiff <= 1 && (rowDiff + colDiff > 0),
+			// RowCurves: adjacent rows (diff of 1), any column distance
+			ConnectionMode.RowCurves => rowDiff == 1 && colDiff >= 0,
+			// ColumnCurves: adjacent columns (diff of 1), any row distance
+			ConnectionMode.ColumnCurves => colDiff == 1 && rowDiff >= 0,
+			_ => true
+		};
+	}
+
+	/// <summary>
+	/// Gets the tiles that can be connected to in the current connection mode.
+	/// </summary>
+	private List<AdjacentTile> GetConnectableTiles(int col, int row)
+	{
+		return ConnectorOptions.ConnectionMode switch
+		{
+			ConnectionMode.RowCurves => GetRowConnectableTiles(col, row),
+			ConnectionMode.ColumnCurves => GetColumnConnectableTiles(col, row),
+			_ => GetAdjacentTiles(col, row) // StraightLine uses existing adjacent tile logic
+		};
+	}
+
+
+	private List<AdjacentTile> GetRowConnectableTiles(int col, int row)
+	{
+		var tiles = new List<AdjacentTile>();
+
+		// RowCurves: Connect to tiles in adjacent rows (row +/- 1), any column
+		// This creates horizontal-spanning curves between row levels
+		foreach (var targetRow in new[] { row - 1, row + 1 })
+		{
+			if (targetRow < 0 || targetRow >= Options.Rows)
+			{
+				continue;
+			}
+
+			for (var c = 0; c < Options.Columns; c++)
+			{
+				// Direction based on row: up for lower row, down for higher row
+				var direction = targetRow < row ? "curve-up" : "curve-down";
+				tiles.Add(new AdjacentTile(c, targetRow, direction));
+			}
+		}
+
+		return tiles;
+	}
+
+	private List<AdjacentTile> GetColumnConnectableTiles(int col, int row)
+	{
+		var tiles = new List<AdjacentTile>();
+
+		// ColumnCurves: Connect to tiles in adjacent columns (col +/- 1), any row
+		// This creates vertical-spanning curves between column levels
+		foreach (var targetCol in new[] { col - 1, col + 1 })
+		{
+			if (targetCol < 0 || targetCol >= Options.Columns)
+			{
+				continue;
+			}
+
+			for (var r = 0; r < Options.Rows; r++)
+			{
+				// Direction based on column: left for lower column, right for higher column
+				var direction = targetCol < col ? "curve-left" : "curve-right";
+				tiles.Add(new AdjacentTile(targetCol, r, direction));
+			}
+		}
+
+		return tiles;
+	}
+
+	/// <summary>
+	/// Determines if the current connection mode uses bezier curves.
+	/// </summary>
+	private bool UsesBezierCurves => ConnectorOptions.ConnectionMode is ConnectionMode.RowCurves or ConnectionMode.ColumnCurves;
+
+	/// <summary>
+	/// Gets the bezier curve path data for a curved connector.
+	/// </summary>
+	private BezierConnectorData? GetBezierConnectorData(ConnectorRenderInfo conn)
+	{
+		var tiles = GetSortedTiles();
+		var layout = CalculateLayout();
+
+		var startTile = tiles.FirstOrDefault(t => t.Column == conn.Connector.StartTile.Column && t.Row == conn.Connector.StartTile.Row);
+		var endTile = tiles.FirstOrDefault(t => t.Column == conn.Connector.EndTile.Column && t.Row == conn.Connector.EndTile.Row);
+
+
+		if (startTile == null || endTile == null)
+		{
+			return null;
+		}
+
+		var direction = conn.Connector.Direction;
+		var edgeIndex = conn.Connector.EdgeIndex;
+		var edgeTotal = conn.Connector.EdgeTotal;
+
+		// Get attachment points for curves
+		var startPoints = GetCurveAttachmentPoints(startTile, direction, true, edgeIndex, edgeTotal, layout);
+		var endPoints = GetCurveAttachmentPoints(endTile, GetOppositeCurveDirection(direction), false, edgeIndex, edgeTotal, layout);
+
+		// Calculate ribbon height
+		var connHeight = (conn.Connector.Height ?? ConnectorOptions.Height) / 100.0;
+		var vAlign = conn.Connector.VerticalAlign ?? ConnectorOptions.VerticalAlign;
+
+		var startRange = startPoints.Bottom - startPoints.Top;
+		var endRange = endPoints.Bottom - endPoints.Top;
+		var ribbonHeight = Math.Min(startRange, endRange) * connHeight;
+
+		double startTopY, startBottomY, endTopY, endBottomY;
+
+		switch (vAlign)
+		{
+			case ConnectorVerticalAlign.Top:
+				startTopY = startPoints.Top;
+				startBottomY = startPoints.Top + ribbonHeight;
+				endTopY = endPoints.Top;
+				endBottomY = endPoints.Top + ribbonHeight;
+				break;
+			case ConnectorVerticalAlign.Center:
+				var startMid = (startPoints.Top + startPoints.Bottom) / 2;
+				var endMid = (endPoints.Top + endPoints.Bottom) / 2;
+				startTopY = startMid - ribbonHeight / 2;
+				startBottomY = startMid + ribbonHeight / 2;
+				endTopY = endMid - ribbonHeight / 2;
+				endBottomY = endMid + ribbonHeight / 2;
+				break;
+			default: // Bottom
+				startTopY = startPoints.Bottom - ribbonHeight;
+				startBottomY = startPoints.Bottom;
+				endTopY = endPoints.Bottom - ribbonHeight;
+				endBottomY = endPoints.Bottom;
+			break;
+		}
+
+		// Calculate control point distance based on tension
+		var tension = ConnectorOptions.CurveTension / 100.0;
+		var midStartY = (startTopY + startBottomY) / 2;
+		var midEndY = (endTopY + endBottomY) / 2;
+		var distance = Math.Sqrt(Math.Pow(endPoints.X - startPoints.X, 2) + Math.Pow(midEndY - midStartY, 2));
+		var controlDistance = distance * tension * 0.6;
+
+		// Calculate direction vector from start to end (normalized)
+		var dx = endPoints.X - startPoints.X;
+		var dy = midEndY - midStartY;
+		var len = Math.Sqrt(dx * dx + dy * dy);
+		if (len < 0.001)
+		{
+			len = 1; // Avoid division by zero
+		}
+
+		var dirX = dx / len;
+		var dirY = dy / len;
+
+		// Control points should extend in the direction of travel
+		// Start control point goes toward the end
+		// End control point comes from the start direction
+		var startTopCtrl = (X: startPoints.X + dirX * controlDistance, Y: startTopY + dirY * controlDistance);
+		var endTopCtrl = (X: endPoints.X - dirX * controlDistance, Y: endTopY - dirY * controlDistance);
+
+		var startBottomCtrl = (X: startPoints.X + dirX * controlDistance, Y: startBottomY + dirY * controlDistance);
+		var endBottomCtrl = (X: endPoints.X - dirX * controlDistance, Y: endBottomY - dirY * controlDistance);
+
+		// Build SVG path
+		// Top edge: start -> end
+		// Right edge: end top -> end bottom (straight line)
+		// Bottom edge: end bottom -> start bottom (reversed curve)
+		// Left edge: start bottom -> start top (straight line)
+		var pathData = $"M {F(startPoints.X)},{F(startTopY)} " +
+					   $"C {F(startTopCtrl.X)},{F(startTopCtrl.Y)} {F(endTopCtrl.X)},{F(endTopCtrl.Y)} {F(endPoints.X)},{F(endTopY)} " +
+					   $"L {F(endPoints.X)},{F(endBottomY)} " +
+					   $"C {F(endBottomCtrl.X)},{F(endBottomCtrl.Y)} {F(startBottomCtrl.X)},{F(startBottomCtrl.Y)} {F(startPoints.X)},{F(startBottomY)} " +
+					   $"Z";
+
+
+		// Also generate stroke paths for top and bottom edges
+		var topStrokePath = $"M {F(startPoints.X)},{F(startTopY)} C {F(startTopCtrl.X)},{F(startTopCtrl.Y)} {F(endTopCtrl.X)},{F(endTopCtrl.Y)} {F(endPoints.X)},{F(endTopY)}";
+		var bottomStrokePath = $"M {F(startPoints.X)},{F(startBottomY)} C {F(startBottomCtrl.X)},{F(startBottomCtrl.Y)} {F(endBottomCtrl.X)},{F(endBottomCtrl.Y)} {F(endPoints.X)},{F(endBottomY)}";
+
+		return new BezierConnectorData(
+			pathData,
+			topStrokePath,
+			bottomStrokePath,
+			(startPoints.X, startTopY),
+			(endPoints.X, endTopY),
+			(startPoints.X, startBottomY),
+			(endPoints.X, endBottomY)
+		);
+	}
+
+	private CurveAttachmentPoints GetCurveAttachmentPoints(TileRenderInfo tile, string direction, bool isOutgoing, int edgeIndex, int edgeTotal, LayoutInfo layout)
+	{
+		const double connectorYNudge = 3;
+		var x = tile.X;
+		var y = tile.Y;
+		var tileDepth = GetTileProperty(tile.Column, tile.Row, t => t.Depth, Options.Depth);
+		var d = _tileWidth * (tileDepth / 100.0);
+
+		// Calculate handle position along the edge
+		var frac = isOutgoing
+			? (edgeIndex + 1.0) / (edgeTotal + 1.0)
+			: (edgeTotal - edgeIndex) / (edgeTotal + 1.0);
+
+		TilePoint p0, p1;
+
+		// In isometric view, the tile has 4 edges:
+		// - Front-Right edge: from Front to Right (used for "curve-right" - connects to tile on the right/same row)
+		// - Front-Left edge: from Left to Front (used for "curve-left" - connects to tile on the left/same row)
+		// - Back-Right edge: from Right to Back (used for "curve-up" - connects to tile above/same column)
+		// - Back-Left edge: from Back to Left (used for "curve-down" - connects to tile below/same column)
+		switch (direction)
+		{
+			case "curve-right":
+				// Front-Right edge: connects to tile on the right (same row, higher column)
+				p0 = _tileFront;
+				p1 = _tileRight;
+				break;
+			case "curve-left":
+				// Front-Left edge: connects to tile on the left (same row, lower column)
+				p0 = _tileLeft;
+				p1 = _tileFront;
+				break;
+			case "curve-up":
+				// Back-Right edge: connects to tile above (same column, lower row)
+				p0 = _tileRight;
+				p1 = _tileBack;
+				break;
+			case "curve-down":
+				// Front-Left edge going down: connects to tile below (same column, higher row)
+				p0 = _tileFront;
+				p1 = _tileLeft;
+				break;
+			default:
+				p0 = _tileFront;
+				p1 = _tileRight;
+				break;
+		}
+
+		var ptX = x + p0.X + (p1.X - p0.X) * frac;
+		var ptY = y + p0.Y + (p1.Y - p0.Y) * frac + connectorYNudge;
+		return new CurveAttachmentPoints(ptX, ptY, ptY + d, direction);
+	}
+
+	private static string GetOppositeCurveDirection(string direction) => direction switch
+	{
+		"curve-left" => "curve-right",
+		"curve-right" => "curve-left",
+		"curve-up" => "curve-down",
+		"curve-down" => "curve-up",
+		_ => direction
+	};
+
+	private sealed record CurveAttachmentPoints(double X, double Top, double Bottom, string Direction);
+	private sealed record BezierConnectorData(
+		string FillPath,
+		string TopStrokePath,
+		string BottomStrokePath,
+		(double X, double Y) StartTop,
+		(double X, double Y) EndTop,
+		(double X, double Y) StartBottom,
+		(double X, double Y) EndBottom
+	);
 
 	private static string GetOppositeDirection(string direction) => direction switch
 	{

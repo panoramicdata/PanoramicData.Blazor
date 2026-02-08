@@ -1,0 +1,50 @@
+<div class="pd-blockoverlay-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDBlockOverlay</code> displays a loading overlay with a spinner and message.
+			Use it to block UI interaction during async operations.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Block Overlay"
+					AnchorId="basic-overlay"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 150px; position: relative;">
+			<DemoContent>
+				<div style="position: relative; height: 130px; border: 1px solid #ddd;">
+					<p class="p-3">Content underneath the overlay</p>
+					<PDBlockOverlay IsVisible="@_isLoading" Message="Loading data..." />
+				</div>
+				<button class="btn btn-primary mt-2" @onclick="ToggleLoading">
+					@(_isLoading ? "Hide" : "Show") Overlay
+				</button>
+			</DemoContent>
+			<Description>
+				<p>
+					Set <code>IsVisible</code> to show/hide. The overlay covers its parent container.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>IsVisible</code></td><td><code>bool</code></td><td>Show/hide the overlay</td></tr>
+				<tr><td><code>Message</code></td><td><code>string</code></td><td>Loading message text</td></tr>
+				<tr><td><code>ShowSpinner</code></td><td><code>bool</code></td><td>Show the spinner animation</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

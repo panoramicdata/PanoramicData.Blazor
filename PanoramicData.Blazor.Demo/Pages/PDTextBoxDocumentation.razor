@@ -1,0 +1,63 @@
+<div class="pd-textbox-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDTextBox</code> is an enhanced text input component with debouncing, validation,
+			clear button, and prefix/suffix support.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic TextBox"
+					AnchorId="basic-textbox"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 100px;">
+			<DemoContent>
+				<div class="w-50">
+					<PDTextBox @bind-Value="_text" Placeholder="Enter text..." />
+					<p class="mt-2 text-muted">Value: @_text</p>
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Two-way bind with <code>@@bind-Value</code>. Use <code>Placeholder</code> for hint text.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Value</code></td><td><code>string</code></td><td>Current text value</td></tr>
+				<tr><td><code>Placeholder</code></td><td><code>string</code></td><td>Placeholder text</td></tr>
+				<tr><td><code>DebounceWait</code></td><td><code>int</code></td><td>Debounce delay in ms</td></tr>
+				<tr><td><code>ShowClearButton</code></td><td><code>bool</code></td><td>Show X button to clear</td></tr>
+				<tr><td><code>IsReadOnly</code></td><td><code>bool</code></td><td>Make input read-only</td></tr>
+				<tr><td><code>MaxLength</code></td><td><code>int?</code></td><td>Maximum character limit</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Event</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>ValueChanged</code></td><td><code>EventCallback&lt;string&gt;</code></td><td>Fired when value changes</td></tr>
+				<tr><td><code>Cleared</code></td><td><code>EventCallback</code></td><td>Fired when clear button clicked</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

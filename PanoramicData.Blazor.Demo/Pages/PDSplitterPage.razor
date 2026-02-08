@@ -20,8 +20,12 @@
 <p class="text-muted">The PDSplitter component requires inclusion of the <a href="https://split.js.org/">split.js</a> library (see source code for _Host.cshtml for example).</p>
 
 <DemoSourceView SourceFiles="Pages/PDSplitterPage.razor">
+<DocumentationContent>
+<PDSplitterDocumentation />
+</DocumentationContent>
+<ChildContent>
 
-	<div class="full-content-size">
+<div class="full-content-size">
 
 		<PDSplitter @ref="_mainSplitter"
 					Direction="SplitDirection.Horizontal"
@@ -66,4 +70,5 @@
 
 	</div>
 
+	</ChildContent>
 </DemoSourceView>

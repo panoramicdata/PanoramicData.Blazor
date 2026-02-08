@@ -1,10 +1,16 @@
-﻿<ul class="nav nav-pills p-2">
+<ul class="nav nav-pills p-2">
 	<li class="nav-item @(ActiveTab == "Demo" ? "" : "pd-pointer")" @onclick="@(() => OnChangeTab("Demo"))">
 		<span class="nav-link @(ActiveTab == "Demo" ? "active" : "")">Demo</span>
 	</li>
 	<li class="nav-item @(ActiveTab == "Source" ? "" : "pd-pointer")" @onclick="@(() => OnChangeTab("Source"))">
 		<span class="nav-link @(ActiveTab == "Source" ? "active" : "")">Source</span>
 	</li>
+	@if (DocumentationContent != null)
+	{
+		<li class="nav-item @(ActiveTab == "Documentation" ? "" : "pd-pointer")" @onclick="@(() => OnChangeTab("Documentation"))">
+			<span class="nav-link @(ActiveTab == "Documentation" ? "active" : "")">Documentation</span>
+		</li>
+	}
 </ul>
 
 <div class="demo-source-view">
@@ -12,6 +18,12 @@
 	{
 		<div>
 			@ChildContent
+		</div>
+	}
+	else if (ActiveTab == "Documentation" && DocumentationContent != null)
+	{
+		<div class="documentation-content p-3">
+			@DocumentationContent
 		</div>
 	}
 	else

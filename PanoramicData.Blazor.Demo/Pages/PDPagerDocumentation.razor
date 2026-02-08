@@ -1,0 +1,49 @@
+<div class="pd-pager-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDPager</code> is a pagination component for navigating through pages of data.
+			Supports page size selection, page number display, and navigation buttons.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Pager"
+					AnchorId="basic-pager"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 80px;">
+			<DemoContent>
+				<PDPager TotalItems="100"
+						 PageSize="10"
+						 @bind-CurrentPage="_currentPage" />
+				<p class="mt-2 text-muted">Current Page: @_currentPage</p>
+			</DemoContent>
+			<Description>
+				<p>
+					Set <code>TotalItems</code> and <code>PageSize</code>. Bind the current page with <code>@@bind-CurrentPage</code>.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>TotalItems</code></td><td><code>int</code></td><td>Total number of items</td></tr>
+				<tr><td><code>PageSize</code></td><td><code>int</code></td><td>Items per page</td></tr>
+				<tr><td><code>CurrentPage</code></td><td><code>int</code></td><td>Current page number (1-based)</td></tr>
+				<tr><td><code>ShowPageSize</code></td><td><code>bool</code></td><td>Show page size selector</td></tr>
+				<tr><td><code>PageSizeOptions</code></td><td><code>int[]</code></td><td>Available page size options</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

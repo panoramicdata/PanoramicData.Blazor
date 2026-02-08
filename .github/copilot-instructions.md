@@ -618,4 +618,93 @@ dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj
 
 ---
 
+## 📖 Component Documentation System
+
+Each component demo page has three tabs: **Demo**, **Source**, and **Documentation**.
+
+### Documentation Tab Structure
+
+The Documentation tab provides comprehensive component documentation with interactive examples.
+
+#### Required Components
+- **`DemoSourceView`** - The main wrapper that provides tab navigation
+- **`DocExample`** - Reusable component for code + live demo examples
+- **`PDComponentDocumentation.razor`** - Separate file for documentation content
+
+#### Creating Documentation for a Component
+
+1. **Create documentation component**: `PanoramicData.Blazor.Demo/Pages/PDComponentDocumentation.razor`
+
+2. **Structure the documentation**:
+```razor
+<div class="pd-component-documentation">
+    <section id="overview">
+        <h2 class="doc-section">Overview</h2>
+        <!-- Component description, key features -->
+    </section>
+
+    <section id="parameters">
+        <h2 class="doc-section">Parameters</h2>
+        <!-- Tables of all parameters with types and descriptions -->
+    </section>
+
+    <section id="examples">
+        <h2 class="doc-section">Examples</h2>
+        <!-- Progressive examples using DocExample component -->
+    </section>
+
+    <section id="events">
+        <h2 class="doc-section">Events</h2>
+        <!-- EventCallback documentation -->
+    </section>
+</div>
+```
+
+3. **Use DocExample for each example**:
+```razor
+<DocExample Title="Basic Usage"
+            AnchorId="basic-usage"
+            Code="@_exampleCode"
+            Language="razor"
+            DemoStyle="height: 250px;">
+    <DemoContent>
+        <PDComponent Options="@_exampleOptions" />
+    </DemoContent>
+    <Description>
+        <p>Explanation of what this example demonstrates...</p>
+    </Description>
+</DocExample>
+```
+
+4. **Add to demo page**:
+```razor
+<DemoSourceView SourceFiles="...">
+    <DocumentationContent>
+        <PDComponentDocumentation />
+    </DocumentationContent>
+    <ChildContent>
+        <!-- Existing demo content -->
+    </ChildContent>
+</DemoSourceView>
+```
+
+#### Documentation Guidelines
+
+- **Progressive complexity**: Start with minimal examples, build to advanced usage
+- **Interactive demos**: Where possible, make demo content interactive
+- **Code accuracy**: Ensure example code matches the live demo exactly
+- **Deep linking**: Use meaningful `AnchorId` values for URL bookmarking
+- **Mobile responsive**: Code stacks above demo on narrow screens
+- **Auto-sizing**: Monaco editor auto-sizes to fit code content
+
+#### URL Deep Linking
+
+Demo pages support deep linking to tabs and anchors:
+- `/pdtiles?tab=demo` - Demo tab
+- `/pdtiles?tab=source` - Source tab
+- `/pdtiles?tab=docs` - Documentation tab
+- `/pdtiles?tab=docs#row-curves` - Documentation tab, scrolled to anchor
+
+---
+
 **Last Updated**: Based on .NET 9, C# 12, current as of main branch

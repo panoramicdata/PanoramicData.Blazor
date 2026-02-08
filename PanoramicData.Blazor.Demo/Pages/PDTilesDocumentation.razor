@@ -1,0 +1,462 @@
+@using PanoramicData.Blazor.Models.Tiles
+
+<div class="pd-tiles-documentation">
+
+	@* Table of Contents *@
+	<nav class="doc-toc mb-4 d-none d-xl-block" style="position: fixed; right: 2rem; top: 6rem; width: 200px;">
+		<h6 class="text-muted">On This Page</h6>
+		<ul>
+			<li><a href="#overview">Overview</a></li>
+			<li><a href="#quick-start">Quick Start</a></li>
+			<li><a href="#parameters">Parameters</a></li>
+			<li><a href="#examples">Examples</a></li>
+			<li><a href="#events">Events</a></li>
+			<li><a href="#methods">Methods</a></li>
+		</ul>
+	</nav>
+
+	@* Overview Section *@
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDTiles</code> is an isometric tile grid component for displaying connected tiles with logos.
+			It renders a 3D-style grid using pure SVG with animated connectors, configurable appearance, and
+			interactive click events. The component is ideal for:
+		</p>
+		<ul>
+			<li>Product/service showcases with visual connections</li>
+			<li>Dashboard backgrounds with animated elements</li>
+			<li>Interactive diagrams showing relationships between items</li>
+			<li>Hero sections with dynamic visual effects</li>
+		</ul>
+
+		<h4>Key Features</h4>
+		<ul>
+			<li><strong>Isometric 3D rendering</strong> - Pure SVG-based rendering with no external dependencies</li>
+			<li><strong>Animated connectors</strong> - Bezier curves and straight lines with multiple fill patterns</li>
+			<li><strong>Per-tile customization</strong> - Override colors, depth, visibility for individual tiles</li>
+			<li><strong>Responsive scaling</strong> - Automatic or manual scaling with alignment options</li>
+			<li><strong>Child content overlay</strong> - Place HTML content over the tile grid</li>
+			<li><strong>Interactive</strong> - Click events for tiles and connectors</li>
+		</ul>
+	</section>
+
+	@* Quick Start Section *@
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Minimal Example"
+					AnchorId="minimal-example"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="height: 250px; background-color: #1a1a2e;">
+			<DemoContent>
+				<PDTiles Options="@_example1Options"
+						 Logos="@_basicLogos"
+						 Height="100%"
+						 Width="100%" />
+			</DemoContent>
+			<Description>
+				<p>
+					The simplest usage requires only the <code>Options</code> parameter with grid dimensions.
+					By default, tiles use a dark blue color and are arranged in an isometric grid.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	@* Parameters Section *@
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+
+		<h4>Main Component Parameters</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Type</th>
+					<th>Default</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>Options</code></td>
+					<td><code>TileGridOptions</code></td>
+					<td>new()</td>
+					<td>Configuration for the tile grid (columns, rows, colors, etc.)</td>
+				</tr>
+				<tr>
+					<td><code>ConnectorOptions</code></td>
+					<td><code>TileConnectorOptions</code></td>
+					<td>new()</td>
+					<td>Configuration for connectors (mode, pattern, animation)</td>
+				</tr>
+				<tr>
+					<td><code>Connectors</code></td>
+					<td><code>List&lt;TileConnector&gt;?</code></td>
+					<td>null</td>
+					<td>List of connectors between tiles</td>
+				</tr>
+				<tr>
+					<td><code>Tiles</code></td>
+					<td><code>List&lt;TileDefinition&gt;?</code></td>
+					<td>null</td>
+					<td>Optional per-tile overrides for color, depth, visibility</td>
+				</tr>
+				<tr>
+					<td><code>Logos</code></td>
+					<td><code>List&lt;string&gt;</code></td>
+					<td>[]</td>
+					<td>List of logo image URLs to display on tiles</td>
+				</tr>
+				<tr>
+					<td><code>Width</code></td>
+					<td><code>string</code></td>
+					<td>"100%"</td>
+					<td>CSS width of the component</td>
+				</tr>
+				<tr>
+					<td><code>Height</code></td>
+					<td><code>string</code></td>
+					<td>"100%"</td>
+					<td>CSS height of the component</td>
+				</tr>
+				<tr>
+					<td><code>ChildContent</code></td>
+					<td><code>RenderFragment?</code></td>
+					<td>null</td>
+					<td>HTML content to overlay on the tile grid</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h4 class="mt-4">TileGridOptions Properties</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Property</th>
+					<th>Type</th>
+					<th>Default</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>Columns</code></td>
+					<td><code>int</code></td>
+					<td>3</td>
+					<td>Number of columns in the grid</td>
+				</tr>
+				<tr>
+					<td><code>Rows</code></td>
+					<td><code>int</code></td>
+					<td>3</td>
+					<td>Number of rows in the grid</td>
+				</tr>
+				<tr>
+					<td><code>Depth</code></td>
+					<td><code>int</code></td>
+					<td>15</td>
+					<td>Tile depth as percentage (0-100)</td>
+				</tr>
+				<tr>
+					<td><code>Gap</code></td>
+					<td><code>int</code></td>
+					<td>100</td>
+					<td>Gap between tiles as percentage</td>
+				</tr>
+				<tr>
+					<td><code>Population</code></td>
+					<td><code>int</code></td>
+					<td>100</td>
+					<td>Percentage of tiles visible (0-100)</td>
+				</tr>
+				<tr>
+					<td><code>TileColor</code></td>
+					<td><code>string</code></td>
+					<td>"#2D3047"</td>
+					<td>Default tile color (hex)</td>
+				</tr>
+				<tr>
+					<td><code>BackgroundColor</code></td>
+					<td><code>string</code></td>
+					<td>"#1a1a2e"</td>
+					<td>Background color of the grid</td>
+				</tr>
+				<tr>
+					<td><code>LogoSize</code></td>
+					<td><code>int</code></td>
+					<td>75</td>
+					<td>Logo size as percentage of tile (0-100)</td>
+				</tr>
+				<tr>
+					<td><code>LogoRotation</code></td>
+					<td><code>int</code></td>
+					<td>-45</td>
+					<td>Logo rotation in degrees</td>
+				</tr>
+				<tr>
+					<td><code>Scale</code></td>
+					<td><code>int</code></td>
+					<td>100</td>
+					<td>Overall scale percentage</td>
+				</tr>
+				<tr>
+					<td><code>Glow</code></td>
+					<td><code>int</code></td>
+					<td>0</td>
+					<td>Glow intensity percentage (0-100)</td>
+				</tr>
+				<tr>
+					<td><code>Reflection</code></td>
+					<td><code>int</code></td>
+					<td>0</td>
+					<td>Reflection opacity percentage (0-100)</td>
+				</tr>
+				<tr>
+					<td><code>Alignment</code></td>
+					<td><code>GridAlignment</code></td>
+					<td>MiddleCenter</td>
+					<td>Grid alignment within container</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h4 class="mt-4">TileConnectorOptions Properties</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Property</th>
+					<th>Type</th>
+					<th>Default</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>ConnectionMode</code></td>
+					<td><code>ConnectionMode</code></td>
+					<td>StraightLine</td>
+					<td>How connectors are drawn: StraightLine, RowCurves, or ColumnCurves</td>
+				</tr>
+				<tr>
+					<td><code>FillPattern</code></td>
+					<td><code>ConnectorFillPattern</code></td>
+					<td>Random</td>
+					<td>Pattern: Random, Solid, Bars, or Chevrons</td>
+				</tr>
+				<tr>
+					<td><code>Direction</code></td>
+					<td><code>ConnectorDirection</code></td>
+					<td>All</td>
+					<td>Direction filter: All, Orthogonal, Diagonal, etc.</td>
+				</tr>
+				<tr>
+					<td><code>CurveTension</code></td>
+					<td><code>int</code></td>
+					<td>50</td>
+					<td>Bezier curve tension for curve modes (0-100)</td>
+				</tr>
+				<tr>
+					<td><code>Animation</code></td>
+					<td><code>bool</code></td>
+					<td>true</td>
+					<td>Enable/disable connector animation</td>
+				</tr>
+				<tr>
+					<td><code>AnimationSpeed</code></td>
+					<td><code>int</code></td>
+					<td>35</td>
+					<td>Animation speed (0 = off, 1-100)</td>
+				</tr>
+				<tr>
+					<td><code>Height</code></td>
+					<td><code>int</code></td>
+					<td>100</td>
+					<td>Connector height as percentage of tile depth</td>
+				</tr>
+				<tr>
+					<td><code>Opacity</code></td>
+					<td><code>int</code></td>
+					<td>80</td>
+					<td>Connector opacity percentage (0-100)</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+	@* Examples Section *@
+	<section id="examples">
+		<h2 class="doc-section">Examples</h2>
+
+		@* Example 2: Grid Configuration *@
+		<DocExample Title="Grid Size and Appearance"
+					AnchorId="grid-configuration"
+					Code="@_example2Code"
+					Language="razor"
+					DemoStyle="height: 300px; background-color: #0d1b2a;">
+			<DemoContent>
+				<PDTiles Options="@_example2Options"
+						 Logos="@_basicLogos"
+						 Height="100%"
+						 Width="100%" />
+			</DemoContent>
+			<Description>
+				<p>
+					Customize the grid with <code>Columns</code>, <code>Rows</code>, <code>Depth</code>, and <code>Gap</code>.
+					The <code>TileColor</code> sets the base color from which lighter/darker shades are generated
+					for the 3D effect.
+				</p>
+			</Description>
+		</DocExample>
+
+		@* Example 3: Straight Line Connectors *@
+		<DocExample Title="Straight Line Connectors"
+					AnchorId="straight-connectors"
+					Code="@_example3Code"
+					Language="razor"
+					DemoStyle="height: 300px; background-color: #1a1a2e;">
+			<DemoContent>
+				<PDTiles Options="@_example3Options"
+						 ConnectorOptions="@_example3ConnectorOptions"
+						 Connectors="@_example3Connectors"
+						 Logos="@_basicLogos"
+						 Height="100%"
+						 Width="100%" />
+			</DemoContent>
+			<Description>
+				<p>
+					<code>ConnectionMode.StraightLine</code> connects adjacent tiles (including diagonals) with
+					straight ribbon-like connectors. Use <code>FillPattern</code> to choose between Solid, Bars,
+					or Chevrons patterns.
+				</p>
+			</Description>
+		</DocExample>
+
+		@* Example 4: Bezier Curve Connectors (Row) *@
+		<DocExample Title="Bezier Curves - Row Mode"
+					AnchorId="row-curves"
+					Code="@_example4Code"
+					Language="razor"
+					DemoStyle="height: 300px; background-color: #1a1a2e;">
+			<DemoContent>
+				<PDTiles Options="@_example4Options"
+						 ConnectorOptions="@_example4ConnectorOptions"
+						 Connectors="@_example4Connectors"
+						 Logos="@_basicLogos"
+						 Height="100%"
+						 Width="100%" />
+			</DemoContent>
+			<Description>
+				<p>
+					<code>ConnectionMode.RowCurves</code> creates smooth bezier curves between tiles in adjacent rows.
+					Tiles can connect to any column in the adjacent row, creating flowing horizontal connections.
+					Adjust <code>CurveTension</code> (0-100) to control curve intensity.
+				</p>
+			</Description>
+		</DocExample>
+
+		@* Example 5: Effects (Glow, Reflection) *@
+		<DocExample Title="Visual Effects"
+					AnchorId="visual-effects"
+					Code="@_example5Code"
+					Language="razor"
+					DemoStyle="height: 300px; background-color: #0a0a14;">
+			<DemoContent>
+				<PDTiles Options="@_example5Options"
+						 Logos="@_basicLogos"
+						 Height="100%"
+						 Width="100%" />
+			</DemoContent>
+			<Description>
+				<p>
+					Add <code>Glow</code> for a radial light effect centered on the grid, and <code>Reflection</code>
+					for a mirror effect below tiles. Use <code>LineOpacity</code> to show/hide the background grid lines.
+				</p>
+			</Description>
+		</DocExample>
+
+		@* Example 6: Child Content *@
+		<DocExample Title="Child Content Overlay"
+					AnchorId="child-content"
+					Code="@_example6Code"
+					Language="razor"
+					DemoStyle="height: 350px; background-color: #1a1a2e;">
+			<DemoContent>
+				<PDTiles Options="@_example6Options"
+						 Logos="@_basicLogos"
+						 Height="100%"
+						 Width="100%">
+					<div style="position: absolute; left: 0; top: 0; width: 50%; height: 100%; padding: 1rem; color: white;">
+						<h3>Product Suite</h3>
+						<p style="font-size: 0.9rem; line-height: 1.5;">
+							Our integrated platform connects all your business processes
+							with seamless data flow and automation.
+						</p>
+					</div>
+				</PDTiles>
+			</DemoContent>
+			<Description>
+				<p>
+					The <code>ChildContent</code> render fragment allows you to overlay HTML content on the tile grid.
+					This is perfect for hero sections, product descriptions, or call-to-action overlays.
+				</p>
+			</Description>
+		</DocExample>
+
+	</section>
+
+	@* Events Section *@
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Event</th>
+					<th>Type</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>TileClick</code></td>
+					<td><code>EventCallback&lt;TileClickEventArgs&gt;</code></td>
+					<td>Fired when a tile is clicked. Provides Column, Row, and TileName.</td>
+				</tr>
+				<tr>
+					<td><code>ConnectorClick</code></td>
+					<td><code>EventCallback&lt;ConnectorClickEventArgs&gt;</code></td>
+					<td>Fired when a connector is clicked. Provides ConnectorName.</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+	@* Methods Section *@
+	<section id="methods">
+		<h2 class="doc-section">Public Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr>
+					<th>Method</th>
+					<th>Returns</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>Shuffle()</code></td>
+					<td><code>void</code></td>
+					<td>Randomly shuffles the logo positions on tiles</td>
+				</tr>
+				<tr>
+					<td><code>GenerateRandomConnectors()</code></td>
+					<td><code>List&lt;TileConnector&gt;</code></td>
+					<td>Generates random connectors based on current options</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

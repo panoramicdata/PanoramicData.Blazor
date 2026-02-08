@@ -1,0 +1,68 @@
+<div class="pd-tabset-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDTabSet</code> is a tabbed interface component for organizing content into
+			multiple panels. Supports closable tabs, icons, and dynamic tab management.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Tabs"
+					AnchorId="basic-tabs"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 150px;">
+			<DemoContent>
+				<PDTabSet>
+					<PDTab Title="Tab 1">
+						<p class="p-3">Content for Tab 1</p>
+					</PDTab>
+					<PDTab Title="Tab 2">
+						<p class="p-3">Content for Tab 2</p>
+					</PDTab>
+					<PDTab Title="Tab 3">
+						<p class="p-3">Content for Tab 3</p>
+					</PDTab>
+				</PDTabSet>
+			</DemoContent>
+			<Description>
+				<p>
+					Add <code>PDTab</code> components inside <code>PDTabSet</code>. Each tab has a <code>Title</code>.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+
+		<h4>PDTabSet Parameters</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>ActiveTab</code></td><td><code>PDTab?</code></td><td>Currently active tab</td></tr>
+				<tr><td><code>AllowClose</code></td><td><code>bool</code></td><td>Show close buttons on tabs</td></tr>
+			</tbody>
+		</table>
+
+		<h4 class="mt-4">PDTab Parameters</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Title</code></td><td><code>string</code></td><td>Tab header text</td></tr>
+				<tr><td><code>IconCssClass</code></td><td><code>string</code></td><td>Tab icon CSS class</td></tr>
+				<tr><td><code>IsVisible</code></td><td><code>bool</code></td><td>Show/hide the tab</td></tr>
+				<tr><td><code>CanClose</code></td><td><code>bool</code></td><td>Allow this tab to be closed</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

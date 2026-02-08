@@ -3,8 +3,12 @@
 <h1>PDTextBoxPage</h1>
 
 <DemoSourceView SourceFiles="Pages/PDTextBoxPage.razor, Pages/PDTextBoxPage.razor.cs">
+<DocumentationContent>
+<PDTextBoxDocumentation />
+</DocumentationContent>
+<ChildContent>
 
-	<PDToolbar>
+<PDToolbar>
 
 		<PDToolbarButton Text="@(Enabled ? "Disable" : "Enable")"
 						 Click="() => Enabled = !Enabled"
@@ -103,4 +107,5 @@
 
 	<EventView />
 
+	</ChildContent>
 </DemoSourceView>

@@ -1,0 +1,57 @@
+<div class="pd-fileexplorer-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDFileExplorer</code> is a file browser component that combines a tree view for directories
+			and a table view for files. It supports navigation, selection, context menus, and file operations.
+		</p>
+		<ul>
+			<li><strong>Tree navigation</strong> - Browse folder hierarchy</li>
+			<li><strong>Table view</strong> - View files with details</li>
+			<li><strong>Context menus</strong> - Right-click actions</li>
+			<li><strong>File operations</strong> - Copy, move, rename, delete</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic File Explorer"
+					AnchorId="basic-explorer"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 150px;">
+			<DemoContent>
+				<p class="text-muted p-3">
+					See the full PDFileExplorer demo for interactive examples.
+					The file explorer requires a data provider implementing the file system interface.
+				</p>
+			</DemoContent>
+			<Description>
+				<p>
+					The file explorer combines <code>PDTree</code> and <code>PDTable</code> components
+					with a custom data provider to enable file browsing.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>DataProvider</code></td><td><code>IFileExplorerDataProvider</code></td><td>File system data provider</td></tr>
+				<tr><td><code>AllowUpload</code></td><td><code>bool</code></td><td>Enable file upload</td></tr>
+				<tr><td><code>AllowDownload</code></td><td><code>bool</code></td><td>Enable file download</td></tr>
+				<tr><td><code>AllowDelete</code></td><td><code>bool</code></td><td>Enable file deletion</td></tr>
+				<tr><td><code>AllowRename</code></td><td><code>bool</code></td><td>Enable renaming</td></tr>
+				<tr><td><code>AllowNewFolder</code></td><td><code>bool</code></td><td>Enable folder creation</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

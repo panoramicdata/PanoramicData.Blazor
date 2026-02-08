@@ -1,0 +1,40 @@
+@using BlazorMonaco.Editor
+
+<div class="doc-example mb-5" id="@AnchorId">
+	<h4 class="doc-example-title">
+		<a href="#@AnchorId" class="anchor-link">#</a>
+		@Title
+	</h4>
+
+	<div class="row">
+		@* Code Panel - 6 columns on desktop, 12 on mobile *@
+		<div class="col-12 col-lg-6 mb-3 mb-lg-0">
+			<div class="doc-example-code">
+				<div class="d-flex justify-content-between align-items-center mb-2">
+					<span class="badge bg-secondary">@Language</span>
+					<button class="btn btn-sm btn-outline-secondary" @onclick="CopyCode" title="Copy code">
+						<i class="@(_copied ? "fas fa-check" : "fas fa-copy")"></i>
+					</button>
+				</div>
+				<StandaloneCodeEditor @ref="_editor"
+									  Id="@($"doc-example-{AnchorId}")"
+									  CssClass="doc-example-editor"
+									  ConstructionOptions="EditorConstructionOptions" />
+			</div>
+		</div>
+
+		@* Demo Panel - 6 columns on desktop, 12 on mobile *@
+		<div class="col-12 col-lg-6">
+			<div class="doc-example-demo @DemoCssClass" style="@DemoStyle">
+				@DemoContent
+			</div>
+		</div>
+	</div>
+
+	@if (Description != null)
+	{
+		<div class="doc-example-description mt-3">
+			@Description
+		</div>
+	}
+</div>

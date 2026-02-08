@@ -1,0 +1,48 @@
+<div class="pd-log-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDLog</code> is a log viewer component for displaying log entries with filtering,
+			severity levels, and auto-scrolling. Ideal for debug consoles and monitoring UIs.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Log Viewer"
+					AnchorId="basic-log"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 100px;">
+			<DemoContent>
+				<p class="text-muted p-3">
+					See the full PDLog demo for interactive examples.
+				</p>
+			</DemoContent>
+			<Description>
+				<p>
+					Add log entries using <code>AddEntry()</code> method. Supports severity levels
+					and timestamps.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>MaxEntries</code></td><td><code>int</code></td><td>Maximum entries to keep</td></tr>
+				<tr><td><code>AutoScroll</code></td><td><code>bool</code></td><td>Auto-scroll to latest entry</td></tr>
+				<tr><td><code>ShowTimestamp</code></td><td><code>bool</code></td><td>Display entry timestamps</td></tr>
+				<tr><td><code>ShowSeverity</code></td><td><code>bool</code></td><td>Display severity level</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

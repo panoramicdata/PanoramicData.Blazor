@@ -4,9 +4,13 @@
 <p class="text-muted">The PDFileExplorer component requires inclusion of the <a href="https://www.dropzonejs.com/">dropzone.js</a>, <a href="https://popper.js.org/">popper.js</a> and <a href="https://split.js.org/">split.js</a> libraries (see source code for _Host.cshtml for example).</p>
 
 <DemoSourceView SourceFiles="Pages/PDFileExplorerPage.razor, Pages/PDFileExplorerPage.razor.cs, Data/TestFileSystemDataProvider.cs">
+<DocumentationContent>
+<PDFileExplorerDocumentation />
+</DocumentationContent>
+<ChildContent>
 
-	<!-- PDSplitter works better when its parent element has a known size -->
-	<div style="height: calc(100vh - 286px)">
+<!-- PDSplitter works better when its parent element has a known size -->
+<div style="height: calc(100vh - 286px)">
 
 		<PDDragContext>
 			<PDFileExplorer @ref="FileExplorer"
@@ -43,4 +47,5 @@
 
 	</div>
 
+	</ChildContent>
 </DemoSourceView>

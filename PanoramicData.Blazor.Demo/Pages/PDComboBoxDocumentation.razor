@@ -1,0 +1,52 @@
+<div class="pd-combobox-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDComboBox</code> is a searchable dropdown component that allows both selection
+			from a list and free-text entry.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic ComboBox"
+					AnchorId="basic-combobox"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 150px;">
+			<DemoContent>
+				<div class="w-50">
+					<PDComboBox TItem="string"
+								Items="_items"
+								@bind-Value="_value"
+								Placeholder="Type or select..." />
+					<p class="mt-2 text-muted">Value: @_value</p>
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Combines dropdown selection with text input. Users can type to filter or enter custom values.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>TItem</code></td><td>Type parameter</td><td>Type of items</td></tr>
+				<tr><td><code>Items</code></td><td><code>IEnumerable&lt;TItem&gt;</code></td><td>Available items</td></tr>
+				<tr><td><code>Value</code></td><td><code>string</code></td><td>Current text value</td></tr>
+				<tr><td><code>Placeholder</code></td><td><code>string</code></td><td>Placeholder text</td></tr>
+				<tr><td><code>TextField</code></td><td><code>Func&lt;TItem, string&gt;</code></td><td>Display text expression</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

@@ -5,8 +5,12 @@
 <h1>PDLog</h1>
 
 <DemoSourceView SourceFiles="Pages/PDLogPage.razor, Pages/PDLogPage.razor.cs">
+<DocumentationContent>
+<PDLogDocumentation />
+</DocumentationContent>
+<ChildContent>
 
-	<PDToolbar>
+<PDToolbar>
 		<PDToolbarButton Text="Log Trace"
 						 Click="() => Log(LogLevel.Trace)"
 						 CssClass="btn-secondary" />
@@ -76,4 +80,5 @@
 		   UseLocalTime="@_useLocalTime"
 		   UtcTimestampFormat="@LogTimestampFormat" />
 
+	</ChildContent>
 </DemoSourceView>
