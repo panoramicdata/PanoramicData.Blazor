@@ -28,7 +28,7 @@ public class TileGridOptions
 	/// <summary>
 	/// Logo rotation in degrees.
 	/// </summary>
-	public int LogoRotation { get; set; } = 0;
+	public int LogoRotation { get; set; }
 
 	/// <summary>
 	/// Gap between tiles as percentage (0-300).
@@ -88,12 +88,12 @@ public class TileGridOptions
 	/// <summary>
 	/// Perspective tilt percentage (0-100).
 	/// </summary>
-	public int Perspective { get; set; } = 0;
+	public int Perspective { get; set; }
 
 	/// <summary>
 	/// Whether to show floating icons.
 	/// </summary>
-	public bool ShowFloating { get; set; } = false;
+	public bool ShowFloating { get; set; }
 
 	/// <summary>
 	/// Floating icons population percentage (0-100).

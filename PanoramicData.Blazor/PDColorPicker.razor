@@ -65,23 +65,45 @@
 				@* RGB Sliders *@
 				@if (Options.EnabledSelectors.HasFlag(ColorSpaceSelector.RGBSliders))
 				{
-					<div class="pd-color-sliders">
-						<div class="pd-color-slider-row">
-							<span class="pd-color-slider-label">R</span>
-							<input type="range" min="0" max="255" value="@_currentColor.R" @oninput="OnRedSliderChange" class="pd-color-slider pd-color-slider-red" />
-							<span class="pd-color-slider-value">@_currentColor.R</span>
-						</div>
-						<div class="pd-color-slider-row">
-							<span class="pd-color-slider-label">G</span>
-							<input type="range" min="0" max="255" value="@_currentColor.G" @oninput="OnGreenSliderChange" class="pd-color-slider pd-color-slider-green" />
-							<span class="pd-color-slider-value">@_currentColor.G</span>
-						</div>
-						<div class="pd-color-slider-row">
-							<span class="pd-color-slider-label">B</span>
-							<input type="range" min="0" max="255" value="@_currentColor.B" @oninput="OnBlueSliderChange" class="pd-color-slider pd-color-slider-blue" />
-							<span class="pd-color-slider-value">@_currentColor.B</span>
-						</div>
-					</div>
+				<div class="pd-color-sliders">
+				<div class="pd-color-slider-row">
+				<span class="pd-color-slider-label">R</span>
+				<input type="range" min="0" max="255" value="@_currentColor.R" @oninput="OnRedSliderChange" class="pd-color-slider pd-color-slider-red" />
+				<span class="pd-color-slider-text">@_currentColor.R</span>
+				</div>
+				<div class="pd-color-slider-row">
+				<span class="pd-color-slider-label">G</span>
+				<input type="range" min="0" max="255" value="@_currentColor.G" @oninput="OnGreenSliderChange" class="pd-color-slider pd-color-slider-green" />
+				<span class="pd-color-slider-text">@_currentColor.G</span>
+				</div>
+				<div class="pd-color-slider-row">
+				<span class="pd-color-slider-label">B</span>
+				<input type="range" min="0" max="255" value="@_currentColor.B" @oninput="OnBlueSliderChange" class="pd-color-slider pd-color-slider-blue" />
+				<span class="pd-color-slider-text">@_currentColor.B</span>
+				</div>
+				</div>
+				}
+
+				@* HSV Sliders *@
+				@if (Options.EnabledSelectors.HasFlag(ColorSpaceSelector.HSVSliders))
+				{
+				<div class="pd-color-sliders">
+				<div class="pd-color-slider-row">
+				<span class="pd-color-slider-label">H</span>
+				<input type="range" min="0" max="360" value="@((int)_currentColor.H)" @oninput="OnHueSliderChange" class="pd-color-slider pd-color-slider-hue" />
+				<span class="pd-color-slider-text">@((int)_currentColor.H)°</span>
+				</div>
+				<div class="pd-color-slider-row">
+				<span class="pd-color-slider-label">S</span>
+				<input type="range" min="0" max="100" value="@((int)(_currentColor.S * 100))" @oninput="OnSaturationSliderChange" class="pd-color-slider pd-color-slider-saturation" />
+				<span class="pd-color-slider-text">@((int)(_currentColor.S * 100))%</span>
+				</div>
+				<div class="pd-color-slider-row">
+				<span class="pd-color-slider-label">V</span>
+				<input type="range" min="0" max="100" value="@((int)(_currentColor.V * 100))" @oninput="OnValueSliderChange" class="pd-color-slider pd-color-slider-brightness" />
+				<span class="pd-color-slider-text">@((int)(_currentColor.V * 100))%</span>
+				</div>
+				</div>
 				}
 
 				@* Preview and inputs *@
@@ -99,7 +121,7 @@
 						{
 							<div class="pd-color-inputs">
 								<div class="pd-color-inputs-stack">
-									@if (_showRgbInputs && Options.EnabledModes.HasFlag(ColorMode.RGB))
+									@if (_inputMode == InputMode.RGB && Options.EnabledModes.HasFlag(ColorMode.RGB))
 									{
 										<div class="pd-color-input-row-rgb">
 											<div class="pd-color-input-cell">
@@ -123,7 +145,31 @@
 											}
 										</div>
 									}
-									@if (Options.EnabledModes.HasFlag(ColorMode.Hex))
+									@if (_inputMode == InputMode.HSV && Options.EnabledModes.HasFlag(ColorMode.HSV))
+									{
+									<div class="pd-color-input-row-rgb">
+									<div class="pd-color-input-cell">
+									<input type="number" class="pd-color-input" min="0" max="360" value="@((int)_currentColor.H)" @onchange="e => OnHsvInputChange(e, 'H')" />
+									<span class="pd-color-input-label">H</span>
+									</div>
+									<div class="pd-color-input-cell">
+									<input type="number" class="pd-color-input" min="0" max="100" value="@((int)(_currentColor.S * 100))" @onchange="e => OnHsvInputChange(e, 'S')" />
+									<span class="pd-color-input-label">S</span>
+									</div>
+									<div class="pd-color-input-cell">
+									<input type="number" class="pd-color-input" min="0" max="100" value="@((int)(_currentColor.V * 100))" @onchange="e => OnHsvInputChange(e, 'V')" />
+									<span class="pd-color-input-label">V</span>
+									</div>
+									@if (Options.AllowTransparency)
+									{
+									<div class="pd-color-input-cell">
+										<input type="number" class="pd-color-input" min="0" max="100" value="@((int)(_currentColor.A * 100))" @onchange="OnAlphaInputChange" />
+										<span class="pd-color-input-label">A</span>
+									</div>
+									}
+									</div>
+									}
+									@if (_inputMode == InputMode.Hex && Options.EnabledModes.HasFlag(ColorMode.Hex))
 									{
 										<div class="pd-color-input-row-hex">
 											<input type="text"

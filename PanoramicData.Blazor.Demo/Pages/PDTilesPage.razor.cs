@@ -430,7 +430,7 @@ public partial class PDTilesPage
 	}
 
 	// Helper property for binding nullable PerEdge
-	private string _perEdgeString
+	private string PerEdgeString
 	{
 		get => _connectorOptions.PerEdge?.ToString() ?? "";
 		set => _connectorOptions.PerEdge = string.IsNullOrEmpty(value) ? null : int.Parse(value);
@@ -648,8 +648,8 @@ public partial class PDTilesPage
 
 	// Helper to create menu items from values
 	private static List<MenuItem> CreateMenuItems(int[] values) =>
-		values.Select(v => new MenuItem { Key = v.ToString(), Text = v.ToString() }).ToList();
+		[.. values.Select(v => new MenuItem { Key = v.ToString(), Text = v.ToString() })];
 
 	private static List<MenuItem> CreateMenuItems<T>(params (string Key, string Text)[] items) =>
-		items.Select(i => new MenuItem { Key = i.Key, Text = i.Text }).ToList();
+		[.. items.Select(i => new MenuItem { Key = i.Key, Text = i.Text })];
 }

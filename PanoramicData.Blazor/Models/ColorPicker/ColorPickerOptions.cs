@@ -63,7 +63,7 @@ public class ColorPickerOptions
 	/// <summary>
 	/// Gets or sets whether to show a "No Color" option.
 	/// </summary>
-	public bool ShowNoColor { get; set; } = false;
+	public bool ShowNoColor { get; set; }
 
 	/// <summary>
 	/// Gets or sets the text for the "No Color" option.
@@ -88,7 +88,7 @@ public class ColorPickerOptions
 	/// <summary>
 	/// Gets or sets whether selecting a color closes the picker.
 	/// </summary>
-	public bool CloseOnSelect { get; set; } = false;
+	public bool CloseOnSelect { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether to show OK/Cancel buttons.

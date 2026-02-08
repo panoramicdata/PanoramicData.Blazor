@@ -199,7 +199,26 @@
 	background: linear-gradient(to right, #000, #00f);
 }
 
-.pd-color-slider-value {
+.pd-color-slider-hue {
+	background: linear-gradient(to right,
+			#ff0000 0%,
+			#ffff00 17%,
+			#00ff00 33%,
+			#00ffff 50%,
+			#0000ff 67%,
+			#ff00ff 83%,
+			#ff0000 100%);
+}
+
+.pd-color-slider-saturation {
+	background: linear-gradient(to right, #808080, #ff0000);
+}
+
+.pd-color-slider-brightness {
+	background: linear-gradient(to right, #000, #fff);
+}
+
+.pd-color-slider-text {
 	width: 32px;
 	font-size: 0.75rem;
 	text-align: right;

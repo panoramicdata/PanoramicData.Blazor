@@ -18,7 +18,7 @@ public class TileConnectorOptions
 	/// <summary>
 	/// Number of connectors per edge (null = random).
 	/// </summary>
-	public int? PerEdge { get; set; } = null;
+	public int? PerEdge { get; set; }
 
 	/// <summary>
 	/// Population percentage of eligible edges that get connectors (0-100).

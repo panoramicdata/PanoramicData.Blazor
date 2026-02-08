@@ -4,6 +4,16 @@ using PanoramicData.Blazor.Models.ColorPicker;
 namespace PanoramicData.Blazor;
 
 /// <summary>
+/// Input mode for the color picker.
+/// </summary>
+public enum InputMode
+{
+	RGB,
+	HSV,
+	Hex
+}
+
+/// <summary>
 /// A color picker component with support for multiple color modes,
 /// color space selectors, palettes, and recent colors.
 /// </summary>
@@ -14,7 +24,7 @@ public partial class PDColorPicker : IAsyncDisposable
 	private bool _isDraggingSv;
 	private bool _isDraggingHue;
 	private bool _isDraggingAlpha;
-	private bool _showRgbInputs;
+	private InputMode _inputMode = InputMode.RGB;
 	private ColorValue _currentColor = new();
 	private ColorValue _originalColor = new();
 	private DotNetObjectReference<PDColorPicker>? _objRef;
@@ -380,6 +390,37 @@ public partial class PDColorPicker : IAsyncDisposable
 
 	#endregion
 
+	#region HSV Sliders
+
+	private void OnHueSliderChange(ChangeEventArgs e)
+	{
+		if (double.TryParse(e.Value?.ToString(), out var value))
+		{
+			_currentColor.SetFromHsv(Math.Clamp(value, 0, 360), _currentColor.S, _currentColor.V);
+			NotifyColorChange();
+		}
+	}
+
+	private void OnSaturationSliderChange(ChangeEventArgs e)
+	{
+		if (double.TryParse(e.Value?.ToString(), out var value))
+		{
+			_currentColor.SetFromHsv(_currentColor.H, Math.Clamp(value / 100.0, 0, 1), _currentColor.V);
+			NotifyColorChange();
+		}
+	}
+
+	private void OnValueSliderChange(ChangeEventArgs e)
+	{
+		if (double.TryParse(e.Value?.ToString(), out var value))
+		{
+			_currentColor.SetFromHsv(_currentColor.H, _currentColor.S, Math.Clamp(value / 100.0, 0, 1));
+			NotifyColorChange();
+		}
+	}
+
+	#endregion
+
 	#region Input Handlers
 
 	private void OnHexInputChange(ChangeEventArgs e)
@@ -419,9 +460,53 @@ public partial class PDColorPicker : IAsyncDisposable
 		}
 	}
 
+	private void OnHsvInputChange(ChangeEventArgs e, char component)
+	{
+		if (double.TryParse(e.Value?.ToString(), out var value))
+		{
+			switch (component)
+			{
+				case 'H':
+					_currentColor.SetFromHsv(Math.Clamp(value, 0, 360), _currentColor.S, _currentColor.V);
+					break;
+				case 'S':
+					_currentColor.SetFromHsv(_currentColor.H, Math.Clamp(value / 100.0, 0, 1), _currentColor.V);
+					break;
+				case 'V':
+					_currentColor.SetFromHsv(_currentColor.H, _currentColor.S, Math.Clamp(value / 100.0, 0, 1));
+					break;
+			}
+
+			NotifyColorChange();
+		}
+	}
+
 	private void ToggleInputMode()
 	{
-		_showRgbInputs = !_showRgbInputs;
+		// Cycle through available modes: RGB -> HSV -> Hex -> RGB...
+		var modes = new List<InputMode>();
+		if (Options.EnabledModes.HasFlag(ColorMode.RGB))
+		{
+			modes.Add(InputMode.RGB);
+		}
+
+		if (Options.EnabledModes.HasFlag(ColorMode.HSV))
+		{
+			modes.Add(InputMode.HSV);
+		}
+
+		if (Options.EnabledModes.HasFlag(ColorMode.Hex))
+		{
+			modes.Add(InputMode.Hex);
+		}
+
+		if (modes.Count == 0)
+		{
+			return;
+		}
+
+		var currentIndex = modes.IndexOf(_inputMode);
+		_inputMode = modes[(currentIndex + 1) % modes.Count];
 	}
 
 	#endregion

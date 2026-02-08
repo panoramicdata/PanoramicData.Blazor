@@ -50,7 +50,7 @@ public partial class PDColorPickerPage
 
 	private readonly ColorPickerOptions _hsvOptions = new()
 	{
-		EnabledSelectors = ColorSpaceSelector.SaturationValueSquare | ColorSpaceSelector.HueStrip,
+		EnabledSelectors = ColorSpaceSelector.HSVSliders,
 		EnabledModes = ColorMode.HSV | ColorMode.Hex,
 		ShowPalette = false,
 		ShowButtons = false,
@@ -59,7 +59,7 @@ public partial class PDColorPickerPage
 
 	private readonly ColorPickerOptions _hsvaOptions = new()
 	{
-		EnabledSelectors = ColorSpaceSelector.SaturationValueSquare | ColorSpaceSelector.HueStrip | ColorSpaceSelector.AlphaSlider,
+		EnabledSelectors = ColorSpaceSelector.HSVSliders | ColorSpaceSelector.AlphaSlider,
 		EnabledModes = ColorMode.HSV | ColorMode.Hex,
 		AllowTransparency = true,
 		ShowPalette = false,

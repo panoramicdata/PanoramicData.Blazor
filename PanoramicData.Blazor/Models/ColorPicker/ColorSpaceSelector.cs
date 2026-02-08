@@ -42,7 +42,12 @@ public enum ColorSpaceSelector
 	HSLSliders = 32,
 
 	/// <summary>
+	/// HSV sliders for hue, saturation, value.
+	/// </summary>
+	HSVSliders = 64,
+
+	/// <summary>
 	/// All selectors enabled.
 	/// </summary>
-	All = SaturationValueSquare | HueWheel | HueStrip | AlphaSlider | RGBSliders | HSLSliders
+	All = SaturationValueSquare | HueWheel | HueStrip | AlphaSlider | RGBSliders | HSLSliders | HSVSliders
 }
