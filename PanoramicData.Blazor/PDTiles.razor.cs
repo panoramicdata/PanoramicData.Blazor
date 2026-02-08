@@ -1161,44 +1161,18 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 		// Calculate control point distance based on tension
 		var tension = ConnectorOptions.CurveTension / 100.0;
-		var midStartY = (startTopY + startBottomY) / 2;
-		var midEndY = (endTopY + endBottomY) / 2;
-		var distance = Math.Sqrt(Math.Pow(endPoints.X - startPoints.X, 2) + Math.Pow(midEndY - midStartY, 2));
-		
-		// For curves, we want control points that bow OUTWARD (perpendicular to line of travel)
-		// not along the line of travel
-		var bowAmount = distance * tension * 0.5;
+		var distance = Math.Sqrt(Math.Pow(endPoints.X - startPoints.X, 2) + Math.Pow(endTopY - startTopY, 2));
+		var controlDistance = distance * tension * 0.5;
 
-		// Calculate the midpoint between start and end
-		var midX = (startPoints.X + endPoints.X) / 2;
-		var midY = (midStartY + midEndY) / 2;
+		// Control points are PERPENDICULAR TO THE TILE EDGE, pointing outward
+		var startPerp = GetEdgeOutwardPerpendicular(direction, true);
+		var endPerp = GetEdgeOutwardPerpendicular(GetOppositeDirection(direction), false);
 
-		// Calculate perpendicular direction (rotate 90 degrees)
-		var dx = endPoints.X - startPoints.X;
-		var dy = midEndY - midStartY;
-		var len = Math.Sqrt(dx * dx + dy * dy);
-		if (len < 0.001)
-		{
-			len = 1; // Avoid division by zero
-		}
+		var startTopCtrl = (X: startPoints.X + startPerp.X * controlDistance, Y: startTopY + startPerp.Y * controlDistance);
+		var endTopCtrl = (X: endPoints.X + endPerp.X * controlDistance, Y: endTopY + endPerp.Y * controlDistance);
 
-		// Perpendicular vector (rotated 90 degrees counter-clockwise)
-		var perpX = -dy / len;
-		var perpY = dx / len;
-
-		// Control points bow outward from the midpoint
-		// For row curves (up/down), bow horizontally
-		// For column curves (left/right), bow vertically
-		var ctrlX = midX + perpX * bowAmount;
-		var ctrlY = midY + perpY * bowAmount;
-
-		// Use quadratic-style control point at the midpoint for both curves
-		// This creates a symmetric bow
-		var startTopCtrl = (X: ctrlX, Y: startTopY + (ctrlY - midStartY));
-		var endTopCtrl = (X: ctrlX, Y: endTopY + (ctrlY - midEndY));
-
-		var startBottomCtrl = (X: ctrlX, Y: startBottomY + (ctrlY - midStartY));
-		var endBottomCtrl = (X: ctrlX, Y: endBottomY + (ctrlY - midEndY));
+		var startBottomCtrl = (X: startPoints.X + startPerp.X * controlDistance, Y: startBottomY + startPerp.Y * controlDistance);
+		var endBottomCtrl = (X: endPoints.X + endPerp.X * controlDistance, Y: endBottomY + endPerp.Y * controlDistance);
 
 		// Build SVG path
 		// Top edge: start -> end
@@ -1225,6 +1199,31 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 			(startPoints.X, startBottomY),
 			(endPoints.X, endBottomY)
 		);
+	}
+
+	/// <summary>
+	/// Gets the outward perpendicular direction for a tile edge based on connector direction.
+	/// </summary>
+	private static (double X, double Y) GetEdgeOutwardPerpendicular(string direction, bool isOutgoing)
+	{
+		if (isOutgoing)
+		{
+			return direction switch
+			{
+				"right" or "up" => (0.447, 0.894),
+				"left" or "down" => (-0.447, 0.894),
+				_ => (0.0, 1.0)
+			};
+		}
+		else
+		{
+			return direction switch
+			{
+				"left" or "down" => (-0.484, -0.875),
+				"right" or "up" => (0.484, -0.875),
+				_ => (0.0, -1.0)
+			};
+		}
 	}
 
 	private sealed record BezierConnectorData(
