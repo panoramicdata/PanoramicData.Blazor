@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using PanoramicData.Blazor.Models;
+using PanoramicData.Blazor.Models.ColorPicker;
 using PanoramicData.Blazor.Models.Tiles;
 
 namespace PanoramicData.Blazor.Demo.Pages;
@@ -143,6 +144,36 @@ public partial class PDTilesPage
 		new() { Key = "75", Text = "75%" },
 		new() { Key = "100", Text = "100%" }
 	];
+
+	private readonly ColorPickerOptions _colorPickerOptions = new()
+	{
+		ShowPalette = true,
+		ShowRecentColors = false,
+		AllowTransparency = false,
+		EnabledSelectors = ColorSpaceSelector.SaturationValueSquare | ColorSpaceSelector.HueStrip,
+		PaletteColumns = 8,
+		SwatchSize = 24,
+		ShowButtons = false,
+		LivePreview = true,
+		CloseOnOutsideClick = true,
+		PopupWidth = 260,
+		SelectorHeight = 120
+	};
+
+	private readonly ColorPickerOptions _bgColorPickerOptions = new()
+	{
+		ShowPalette = true,
+		ShowRecentColors = false,
+		AllowTransparency = true,
+		EnabledSelectors = ColorSpaceSelector.SaturationValueSquare | ColorSpaceSelector.HueStrip | ColorSpaceSelector.AlphaSlider,
+		PaletteColumns = 8,
+		SwatchSize = 24,
+		ShowButtons = false,
+		LivePreview = true,
+		CloseOnOutsideClick = true,
+		PopupWidth = 260,
+		SelectorHeight = 120
+	};
 
 	private string _lastEvent = "None";
 	private string _lastEventIcon = "";
@@ -336,6 +367,53 @@ public partial class PDTilesPage
 	{
 		UpdateUrl();
 		StateHasChanged();
+	}
+
+	private void OnTileColorChanged(string color)
+	{
+		_options.TileColor = NormalizeColor(color);
+		OnOptionsChanged();
+	}
+
+	private void OnBackgroundColorChanged(string color)
+	{
+		// Keep rgba format for transparency support
+		_options.BackgroundColor = color;
+		OnOptionsChanged();
+	}
+
+	private void OnLineColorChanged(string color)
+	{
+		_options.LineColor = NormalizeColor(color);
+		OnOptionsChanged();
+	}
+
+	private static string NormalizeColor(string color)
+	{
+		// PDToolbarColorPicker may return rgba() format, convert to hex if needed
+		if (color.StartsWith("rgba(", StringComparison.OrdinalIgnoreCase) ||
+			color.StartsWith("rgb(", StringComparison.OrdinalIgnoreCase))
+		{
+			var colorValue = ColorValue.FromHex("#000000");
+			// Parse rgb/rgba format
+			var values = color
+				.Replace("rgba(", "", StringComparison.OrdinalIgnoreCase)
+				.Replace("rgb(", "", StringComparison.OrdinalIgnoreCase)
+				.Replace(")", "")
+				.Split(',');
+
+			if (values.Length >= 3 &&
+				byte.TryParse(values[0].Trim(), out var r) &&
+				byte.TryParse(values[1].Trim(), out var g) &&
+				byte.TryParse(values[2].Trim(), out var b))
+			{
+				colorValue.SetRgb(r, g, b);
+				return colorValue.ToHex();
+			}
+		}
+
+		// Already hex or other format
+		return color;
 	}
 
 	private void OnShuffle()

@@ -1,0 +1,202 @@
+@using PanoramicData.Blazor.Models.ColorPicker
+
+<div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "") @ItemCssClass">
+	<div class="pd-color-picker-container" id="@Id">
+		<button type="button"
+				class="pd-color-picker-button btn @CssClass @ButtonSizeCssClass"
+				disabled="@(!IsEnabled)"
+				title="@ToolTip"
+				@onclick="TogglePicker"
+				@onclick:stopPropagation="true">
+			<span class="pd-color-swatch" style="background-color: @GetSwatchBackground();"></span>
+			@if (!string.IsNullOrWhiteSpace(Text))
+			{
+				<span class="pd-color-text @TextCssClass">@Text</span>
+			}
+			<i class="ms-1 fas @(_isOpen ? "fa-angle-up" : "fa-angle-down")"></i>
+		</button>
+
+		@if (_isOpen)
+		{
+			<div class="pd-color-picker-popup" style="width: @(Options.PopupWidth)px;" @onclick:stopPropagation="true" @onmousedown:stopPropagation="true">
+				@* Color space selector *@
+				@if (Options.EnabledSelectors.HasFlag(ColorSpaceSelector.SaturationValueSquare))
+				{
+					<div class="pd-color-sv-container" style="height: @(Options.SelectorHeight)px;" @ref="_svContainerRef">
+						<div class="pd-color-sv-gradient"
+							 style="background-color: hsl(@(_currentColor.H), 100%, 50%);"
+							 @onpointerdown="OnSvPointerDown"
+							 @onpointermove="OnSvPointerMove"
+							 @onpointerup="OnSvPointerUp"
+							 @onpointerleave="OnSvPointerUp">
+							<div class="pd-color-sv-white"></div>
+							<div class="pd-color-sv-black"></div>
+							<div class="pd-color-sv-cursor"
+								 style="left: @(_currentColor.S * 100)%; top: @((1 - _currentColor.V) * 100)%;">
+							</div>
+						</div>
+					</div>
+				}
+
+				@* Hue strip *@
+				@if (Options.EnabledSelectors.HasFlag(ColorSpaceSelector.HueStrip))
+				{
+					<div class="pd-color-hue-strip" @ref="_hueStripRef"
+						 @onpointerdown="OnHuePointerDown"
+						 @onpointermove="OnHuePointerMove"
+						 @onpointerup="OnHuePointerUp"
+						 @onpointerleave="OnHuePointerUp">
+						<div class="pd-color-hue-cursor" style="left: @(_currentColor.H / 360 * 100)%;"></div>
+					</div>
+				}
+
+				@* Alpha slider *@
+				@if (Options.AllowTransparency && Options.EnabledSelectors.HasFlag(ColorSpaceSelector.AlphaSlider))
+				{
+					<div class="pd-color-alpha-strip"
+						 @onpointerdown="OnAlphaPointerDown"
+						 @onpointermove="OnAlphaPointerMove"
+						 @onpointerup="OnAlphaPointerUp">
+						<div class="pd-color-alpha-gradient" style="background: linear-gradient(to right, transparent, @(_currentColor.ToHex()));"></div>
+						<div class="pd-color-alpha-cursor" style="left: @(_currentColor.A * 100)%;"></div>
+					</div>
+				}
+
+				@* RGB Sliders *@
+				@if (Options.EnabledSelectors.HasFlag(ColorSpaceSelector.RGBSliders))
+				{
+					<div class="pd-color-sliders">
+						<div class="pd-color-slider-row">
+							<span class="pd-color-slider-label">R</span>
+							<input type="range" min="0" max="255" value="@_currentColor.R" @oninput="OnRedSliderChange" class="pd-color-slider pd-color-slider-red" />
+							<span class="pd-color-slider-value">@_currentColor.R</span>
+						</div>
+						<div class="pd-color-slider-row">
+							<span class="pd-color-slider-label">G</span>
+							<input type="range" min="0" max="255" value="@_currentColor.G" @oninput="OnGreenSliderChange" class="pd-color-slider pd-color-slider-green" />
+							<span class="pd-color-slider-value">@_currentColor.G</span>
+						</div>
+						<div class="pd-color-slider-row">
+							<span class="pd-color-slider-label">B</span>
+							<input type="range" min="0" max="255" value="@_currentColor.B" @oninput="OnBlueSliderChange" class="pd-color-slider pd-color-slider-blue" />
+							<span class="pd-color-slider-value">@_currentColor.B</span>
+						</div>
+					</div>
+				}
+
+				@* Preview and inputs *@
+			@if (Options.ShowPreview || Options.ShowInputs)
+				{
+					<div class="pd-color-preview-row">
+						@if (Options.ShowPreview)
+						{
+							<div class="pd-color-preview-container">
+								<div class="pd-color-preview-old" style="background-color: @_originalColor.ToCss();" title="Original color" @onclick="RevertColor"></div>
+								<div class="pd-color-preview-new" style="background-color: @_currentColor.ToCss();" title="New color"></div>
+							</div>
+						}
+						@if (Options.ShowInputs)
+						{
+							<div class="pd-color-inputs">
+								<div class="pd-color-inputs-stack">
+									@if (_showRgbInputs && Options.EnabledModes.HasFlag(ColorMode.RGB))
+									{
+										<div class="pd-color-input-row-rgb">
+											<div class="pd-color-input-cell">
+												<input type="number" class="pd-color-input" min="0" max="255" value="@_currentColor.R" @onchange="e => OnRgbInputChange(e, 'R')" />
+												<span class="pd-color-input-label">R</span>
+											</div>
+											<div class="pd-color-input-cell">
+												<input type="number" class="pd-color-input" min="0" max="255" value="@_currentColor.G" @onchange="e => OnRgbInputChange(e, 'G')" />
+												<span class="pd-color-input-label">G</span>
+											</div>
+											<div class="pd-color-input-cell">
+												<input type="number" class="pd-color-input" min="0" max="255" value="@_currentColor.B" @onchange="e => OnRgbInputChange(e, 'B')" />
+												<span class="pd-color-input-label">B</span>
+											</div>
+											@if (Options.AllowTransparency)
+											{
+												<div class="pd-color-input-cell">
+													<input type="number" class="pd-color-input" min="0" max="100" value="@((int)(_currentColor.A * 100))" @onchange="OnAlphaInputChange" />
+													<span class="pd-color-input-label">A</span>
+												</div>
+											}
+										</div>
+									}
+									@if (Options.EnabledModes.HasFlag(ColorMode.Hex))
+									{
+										<div class="pd-color-input-row-hex">
+											<input type="text"
+												   class="pd-color-input pd-color-input-hex"
+												   value="@GetHexInputValue()"
+												   @onchange="OnHexInputChange"
+												   maxlength="@(Options.AllowTransparency ? 9 : 7)"
+												   spellcheck="false" />
+											<span class="pd-color-input-label">Hex</span>
+										</div>
+									}
+								</div>
+								<button type="button" class="pd-color-mode-toggle" @onclick="ToggleInputMode" title="Toggle input mode">
+									<i class="fas fa-exchange-alt"></i>
+								</button>
+							</div>
+						}
+					</div>
+				}
+
+			@* Palette *@
+			@if (Options.ShowPalette && Palette?.Count > 0)
+			{
+				<div class="pd-color-palette-container">
+					<div class="pd-color-palette" style="grid-template-columns: repeat(@Options.PaletteColumns, @(Options.SwatchSize)px);">
+						@foreach (var color in Palette)
+						{
+							<div class="pd-color-palette-swatch @(IsSelectedPaletteColor(color.Color) ? "selected" : "")"
+								 style="width: @(Options.SwatchSize)px; height: @(Options.SwatchSize)px; background-color: @color.Color;"
+								 title="@(color.Name ?? color.Color)"
+								 @onclick="() => SelectPaletteColor(color.Color)">
+							</div>
+						}
+					</div>
+				</div>
+			}
+
+				@* Recent colors *@
+				@if (Options.ShowRecentColors && RecentColors?.Count > 0)
+				{
+					<div class="pd-color-recent">
+						<span class="pd-color-recent-label">Recent:</span>
+						<div class="pd-color-recent-swatches">
+							@foreach (var color in RecentColors.Take(Options.MaxRecentColors))
+							{
+								<div class="pd-color-recent-swatch"
+									 style="background-color: @color;"
+									 title="@color"
+									 @onclick="() => SelectPaletteColor(color)">
+								</div>
+							}
+						</div>
+					</div>
+				}
+
+				@* No color option *@
+				@if (Options.ShowNoColor)
+				{
+					<div class="pd-color-no-color" @onclick="SelectNoColor">
+						<i class="fas fa-ban me-1"></i>
+						@Options.NoColorText
+					</div>
+				}
+
+				@* Buttons *@
+				@if (Options.ShowButtons)
+				{
+					<div class="pd-color-buttons">
+						<button type="button" class="btn btn-sm btn-secondary" @onclick="CancelSelection">@Options.CancelButtonText</button>
+						<button type="button" class="btn btn-sm btn-primary" @onclick="ConfirmSelection">@Options.OkButtonText</button>
+					</div>
+				}
+			</div>
+		}
+	</div>
+</div>
