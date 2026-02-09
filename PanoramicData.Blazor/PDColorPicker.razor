@@ -9,7 +9,8 @@
 				@onclick="TogglePicker"
 				@onclick:stopPropagation="true">
 			<span class="pd-color-swatch">
-				<span style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: @GetSwatchBackground(); border-radius: 2px;"></span>
+				<span class="pd-color-swatch-checkerboard"></span>
+				<span class="pd-color-swatch-color" style="background-color: @GetSwatchBackground();"></span>
 			</span>
 			@if (!string.IsNullOrWhiteSpace(Text))
 			{
@@ -114,14 +115,16 @@
 					<div class="pd-color-preview-row">
 						@if (Options.ShowPreview)
 						{
-							<div class="pd-color-preview-container">
-								<div class="pd-color-preview-old" title="Original color" @onclick="RevertColor">
-									<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: @_originalColor.ToCss();"></div>
-								</div>
-								<div class="pd-color-preview-new" title="New color">
-									<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: @_currentColor.ToCss();"></div>
-								</div>
+						<div class="pd-color-preview-container">
+							<div class="pd-color-preview-old" title="Original color" @onclick="RevertColor">
+								<div class="pd-color-preview-checkerboard"></div>
+								<div class="pd-color-preview-color" style="background-color: @_originalColor.ToCss();"></div>
 							</div>
+							<div class="pd-color-preview-new" title="New color">
+								<div class="pd-color-preview-checkerboard"></div>
+								<div class="pd-color-preview-color" style="background-color: @_currentColor.ToCss();"></div>
+							</div>
+						</div>
 						}
 						@if (Options.ShowInputs)
 						{
