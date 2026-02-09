@@ -20,17 +20,7 @@ Write-Host "Fetching latest commits..."
 
 $branch= &git rev-parse --abbrev-ref HEAD
 if ($branch -ne $releaseBranch) {
-	$title = "Not on $releaseBranch branch - confirm that you want to merge the current branch into $releaseBranch and release."
-	$message = "Do you want to merge and publish?"
-	$yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Merges current branch to $releaseBranch and publishes."
-	$no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Aborts execution."
-	$options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
-	$result = $host.ui.PromptForChoice($title, $message, $options, 0)
-	switch ($result)
-    {
-		0 { Write-Host "Proceeding..." }
-		1 { Write-Host "ABORTED."; exit 1; }
-	}
+	Write-Host "Not on $releaseBranch branch - merging current branch into $releaseBranch and releasing..."
 
 	try {
 		Write-Host "Checking out $releaseBranch..."
@@ -87,17 +77,7 @@ try {
 	$versionString = @($major, $minor, $build) -join "."
 	Write-Host "Finished building version ${versionString}."
 
-	$title = "Create tag."
-	$message = "Do you want to create the tag '${versionString}'?"
-	$yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Creates the tag and pushes to origin."
-	$no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Aborts execution."
-	$options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
-	$result = $host.ui.PromptForChoice($title, $message, $options, 0)
-	switch ($result)
-	{
-		0 { Write-Host "Proceeding..." }
-		1 { Write-Host "ABORTED."; exit 1; }
-	}
+	Write-Host "Creating tag '${versionString}'..."
 
 	# Create the tag
 	Write-Host "Adding tag..."
