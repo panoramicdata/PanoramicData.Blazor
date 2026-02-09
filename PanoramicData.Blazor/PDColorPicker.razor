@@ -8,7 +8,9 @@
 				title="@ToolTip"
 				@onclick="TogglePicker"
 				@onclick:stopPropagation="true">
-			<span class="pd-color-swatch" style="background-color: @GetSwatchBackground();"></span>
+			<span class="pd-color-swatch">
+				<span class="pd-color-swatch-color" style="background-color: @GetSwatchBackground();"></span>
+			</span>
 			@if (!string.IsNullOrWhiteSpace(Text))
 			{
 				<span class="pd-color-text @TextCssClass">@Text</span>
