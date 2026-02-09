@@ -251,15 +251,14 @@
 		linear-gradient(-45deg, transparent 75%, #ccc 75%);
 	background-size: 6px 6px;
 	background-position: 0 0, 0 3px, 3px -3px, -3px 0px;
+	background-color: white;
 	position: relative;
+	overflow: hidden;
 }
 
-.pd-color-preview-old::after,
-.pd-color-preview-new::after {
-	content: '';
+.pd-color-preview-color {
 	position: absolute;
 	inset: 0;
-	background: inherit;
 }
 
 /* Inputs */

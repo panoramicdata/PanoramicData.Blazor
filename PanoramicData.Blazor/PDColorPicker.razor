@@ -115,8 +115,12 @@
 						@if (Options.ShowPreview)
 						{
 							<div class="pd-color-preview-container">
-								<div class="pd-color-preview-old" style="background-color: @_originalColor.ToCss();" title="Original color" @onclick="RevertColor"></div>
-								<div class="pd-color-preview-new" style="background-color: @_currentColor.ToCss();" title="New color"></div>
+								<div class="pd-color-preview-old" title="Original color" @onclick="RevertColor">
+									<div class="pd-color-preview-color" style="background-color: @_originalColor.ToCss();"></div>
+								</div>
+								<div class="pd-color-preview-new" title="New color">
+									<div class="pd-color-preview-color" style="background-color: @_currentColor.ToCss();"></div>
+								</div>
 							</div>
 						}
 						@if (Options.ShowInputs)
