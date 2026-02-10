@@ -2,6 +2,8 @@
 
 public partial class PDGlobalListenerPage : IDisposable
 {
+	private readonly ShortcutKey _ctrlS = new() { Key = "s", CtrlKey = true };
+
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	[Inject] public IGlobalEventService? GlobalEventService { get; set; }
@@ -12,6 +14,7 @@ public partial class PDGlobalListenerPage : IDisposable
 		{
 			GlobalEventService.KeyDownEvent += GlobalEventService_KeyDownEvent;
 			GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
+			GlobalEventService.RegisterShortcutKey(_ctrlS);
 		}
 	}
 
@@ -30,7 +33,8 @@ public partial class PDGlobalListenerPage : IDisposable
 		if (GlobalEventService != null)
 		{
 			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
-			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyDownEvent;
+			GlobalEventService.KeyDownEvent -= GlobalEventService_KeyDownEvent;
+			GlobalEventService.UnregisterShortcutKey(_ctrlS);
 		}
 
 		GC.SuppressFinalize(this);
