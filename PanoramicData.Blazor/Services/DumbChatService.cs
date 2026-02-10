@@ -310,6 +310,7 @@ public class DumbChatService : IChatService, IDisposable
 	public void Dispose()
 	{
 		_timer?.Dispose();
+		GC.SuppressFinalize(this);
 	}
 
 	public void ClearMessages()

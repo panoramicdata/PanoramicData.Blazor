@@ -8,26 +8,26 @@ namespace PanoramicData.Blazor;
 /// <typeparam name="TItem">The type of data items used to generate graph data.</typeparam>
 public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 {
-	private static int _idSequence;
-	private ElementReference _svgElement;
-	private GraphData? _graphData;
-	private readonly Dictionary<string, (double X, double Y)> _nodePositions = [];
-	private string _transformMatrix = "translate(0,0) scale(1)";
-	private bool _isLoading = true;
-	private bool _hasError;
-	private DotNetObjectReference<PDGraph<TItem>>? _objRef;
+private static int _idSequence;
+private ElementReference _svgElement;
+private GraphData? _graphData;
+private readonly Dictionary<string, (double X, double Y)> _nodePositions = [];
+private string _transformMatrix = "translate(0,0) scale(1)";
+private bool _isLoading = true;
+private bool _hasError;
+private DotNetObjectReference<PDGraph<TItem>>? _objRef;
 
-	// Add a flag to prevent re-initialization during selection updates
-	private bool _isUpdatingSelection = false;
+// Add a flag to prevent re-initialization during selection updates
+private bool _isUpdatingSelection;
 
-	// Add these fields to track parameter changes
-	private bool _isUpdatingParameters = false;
-	private GraphVisualizationConfig? _previousVisualizationConfig;
-	private GraphClusteringConfig? _previousClusteringConfig;
-	private double _previousConvergenceThreshold = 0.02;
-	private double _previousDamping = 0.95;
+// Add these fields to track parameter changes
+private bool _isUpdatingParameters;
+private GraphVisualizationConfig? _previousVisualizationConfig;
+private GraphClusteringConfig? _previousClusteringConfig;
+private double _previousConvergenceThreshold;
+private double _previousDamping;
 
-	/// <summary>
+/// <summary>
 	/// Gets the JavaScript module path for this component.
 	/// </summary>
 	protected override string ModulePath => "./_content/PanoramicData.Blazor/PDGraph.razor.js";
@@ -794,6 +794,7 @@ public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 		}
 
 		_objRef?.Dispose();
-		await base.DisposeAsync();
+		await base.DisposeAsync().ConfigureAwait(false);
+		GC.SuppressFinalize(this);
 	}
 }

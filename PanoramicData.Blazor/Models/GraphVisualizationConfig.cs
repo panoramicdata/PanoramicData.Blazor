@@ -160,22 +160,22 @@ public class GraphVisualizationDefaults
 {
 	// Node defaults
 	public double NodeSize { get; set; } = 0.5;
-	public double NodeShape { get; set; } = 0.0; // Circle by default
+	public double NodeShape { get; set; } // Circle by default (0.0)
 	public double NodeFillHue { get; set; } = 0.6; // Blue
 	public double NodeFillSaturation { get; set; } = 0.7;
 	public double NodeFillLuminance { get; set; } = 0.5;
 	public double NodeFillAlpha { get; set; } = 0.8;
 	public double NodeStrokeThickness { get; set; } = 0.5;
-	public double NodeStrokeHue { get; set; } = 0.0; // Black
-	public double NodeStrokeSaturation { get; set; } = 0.0;
-	public double NodeStrokeLuminance { get; set; } = 0.0;
+	public double NodeStrokeHue { get; set; } // Black (0.0)
+	public double NodeStrokeSaturation { get; set; }
+	public double NodeStrokeLuminance { get; set; }
 	public double NodeStrokeAlpha { get; set; } = 1.0;
 	public double NodeStrokePattern { get; set; } = 1.0; // Solid
 
 	// Edge defaults
 	public double EdgeThickness { get; set; } = 0.3;
-	public double EdgeHue { get; set; } = 0.0; // Black
-	public double EdgeSaturation { get; set; } = 0.0;
+	public double EdgeHue { get; set; } // Black (0.0)
+	public double EdgeSaturation { get; set; }
 	public double EdgeLuminance { get; set; } = 0.4;
 	public double EdgeAlpha { get; set; } = 0.6;
 	public double EdgePattern { get; set; } = 1.0; // Solid

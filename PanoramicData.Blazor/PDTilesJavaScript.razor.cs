@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Models.Tiles;
 
@@ -135,7 +136,7 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 			floatSize = Options.FloatSize,
 			connFillPattern = ConnectorOptions.FillPattern.ToString(),
 			connDirection = GetConnectorDirection(),
-			connPerEdge = ConnectorOptions.PerEdge?.ToString() ?? "random",
+			connPerEdge = ConnectorOptions.PerEdge?.ToString(CultureInfo.InvariantCulture) ?? "random",
 			connPopulation = ConnectorOptions.Population,
 			connHeight = ConnectorOptions.Height,
 			connVAlign = ConnectorOptions.VerticalAlign.ToString().ToLowerInvariant(),

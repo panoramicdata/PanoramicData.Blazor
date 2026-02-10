@@ -94,9 +94,8 @@ public partial class PDTabSet : ComponentBase
 
 	internal void CloseTab(PDTab tab, MouseEventArgs? e = null)
 	{
-		if (Tabs.Contains(tab))
+		if (Tabs.Remove(tab))
 		{
-			Tabs.Remove(tab);
 			if (ActiveTab == tab)
 			{
 				ActiveTab = Tabs.FirstOrDefault();

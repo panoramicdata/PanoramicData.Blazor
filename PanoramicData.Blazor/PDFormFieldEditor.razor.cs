@@ -296,7 +296,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		try
 		{
-			await Form!.SetFieldValueAsync(field, DateTime.SpecifyKind(Convert.ToDateTime(args.Value), DateTimeKind.Utc)).ConfigureAwait(true);
+			await Form!.SetFieldValueAsync(field, DateTime.SpecifyKind(Convert.ToDateTime(args.Value, CultureInfo.InvariantCulture), DateTimeKind.Utc)).ConfigureAwait(true);
 		}
 		catch
 		{
@@ -308,7 +308,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		try
 		{
-			await Form!.SetFieldValueAsync(field, DateTimeOffset.Parse(args.Value?.ToString() ?? string.Empty)).ConfigureAwait(true);
+			await Form!.SetFieldValueAsync(field, DateTimeOffset.Parse(args.Value?.ToString() ?? string.Empty, CultureInfo.InvariantCulture)).ConfigureAwait(true);
 		}
 		catch
 		{

@@ -68,10 +68,7 @@ public class PageCriteria
 		get { return _pageSize; }
 		set
 		{
-			if (value == 0)
-			{
-				throw new ArgumentOutOfRangeException("PageSize must be greater than 0");
-			}
+			ArgumentOutOfRangeException.ThrowIfZero(value);
 
 			if (_pageSize == value)
 			{

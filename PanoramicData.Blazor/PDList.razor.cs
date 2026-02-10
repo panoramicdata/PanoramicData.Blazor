@@ -407,11 +407,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 				}
 
 				// TItem might need to override Equals operator
-				if (Selection.Items.Contains(item))
-				{
-					Selection.Items.Remove(item);
-				}
-				else
+				if (!Selection.Items.Remove(item))
 				{
 					Selection.Items.Add(item);
 				}

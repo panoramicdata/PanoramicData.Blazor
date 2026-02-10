@@ -13,7 +13,7 @@ public partial class PDTable<TItem> :
 	private Timer? _editTimer;
 	private static int _idSequence;
 	private string? _lastSearchText;
-	private int _lastColumnCount = 0;
+	private int _lastColumnCount;
 	private IJSObjectReference? _commonModule;
 	private bool _mouseDownOriginatedFromTable;
 	private readonly string _idEditPrefix = "pd-table-edit-";

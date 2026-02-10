@@ -196,5 +196,6 @@ public partial class PDButton : IEnablable, IDisposable
 		}
 
 		GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
+		GC.SuppressFinalize(this);
 	}
 }

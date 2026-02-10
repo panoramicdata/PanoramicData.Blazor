@@ -237,7 +237,7 @@ public partial class PDColorPicker : IAsyncDisposable
 		}
 	}
 
-	private record ElementBounds(double Width, double Height, double Left, double Top);
+	private sealed record ElementBounds(double Width, double Height, double Left, double Top);
 
 	private string GetSwatchBackground()
 	{

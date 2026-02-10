@@ -233,7 +233,10 @@ public partial class PDChat : JSModuleComponentBase
 		{
 			var soundUrl = new Uri(soundUrlString, UriKind.RelativeOrAbsolute);
 			// Play the sound
-			Module?.InvokeVoidAsync("playSound", soundUrlString);
+			if (Module is not null)
+			{
+				await Module.InvokeVoidAsync("playSound", soundUrlString).ConfigureAwait(true);
+			}
 		}
 
 		await InvokeAsync(StateHasChanged);

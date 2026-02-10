@@ -48,5 +48,6 @@ public partial class PDBlockOverlay
 		// Unbind the actions
 		BlockOverlayService.OnShow -= Show;
 		BlockOverlayService.OnHide -= Hide;
+		GC.SuppressFinalize(this);
 	}
 }

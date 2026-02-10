@@ -13,12 +13,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	private PDGraphInfo<TItem>? _graphInfo;
 	private GraphNode? _selectedNode;
 	private GraphEdge? _selectedEdge;
-
-	// Add these fields to track parameter changes
-	private bool _isUpdatingParameters = false;
-	private readonly GraphVisualizationConfig? _previousVisualizationConfig;
-	private readonly GraphClusteringConfig? _previousClusteringConfig;
-	private readonly double _previousConvergenceThreshold = 0.02;
+	private bool _isUpdatingParameters;
 
 	/// <summary>
 	/// Gets or sets the data provider for the graph data.

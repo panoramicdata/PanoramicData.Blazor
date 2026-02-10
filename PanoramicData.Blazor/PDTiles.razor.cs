@@ -855,7 +855,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		return new AttachmentPoints(ptX2, ptY2, ptY2 + d);
 	}
 
-	private record AttachmentPoints(double X, double Top, double Bottom);
+	private sealed record AttachmentPoints(double X, double Top, double Bottom);
 
 	/// <summary>
 	/// Gets the animation offset for connector patterns.
@@ -1304,9 +1304,9 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	}).ConfigureAwait(true);
 
 	// Internal helper classes
-	private record TilePoint(double X, double Y);
+	private sealed record TilePoint(double X, double Y);
 
-	private class TileColors
+	private sealed class TileColors
 	{
 		public string Dark { get; set; } = "#000000";
 		public string Mid { get; set; } = "#333333";
@@ -1314,14 +1314,14 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		public string Light { get; set; } = "#999999";
 	}
 
-	private class TileGradientInfo
+	private sealed class TileGradientInfo
 	{
 		public string TopGradId { get; set; } = string.Empty;
 		public string FrontGradId { get; set; } = string.Empty;
 		public TileColors Colors { get; set; } = new();
 	}
 
-	private class LayoutInfo
+	private sealed class LayoutInfo
 	{
 		public double DepthPixels { get; set; }
 		public double IsoSpacingX { get; set; }
@@ -1340,7 +1340,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		public double ViewBoxHeight { get; set; }
 	}
 
-	private class TileRenderInfo
+	private sealed class TileRenderInfo
 	{
 		public int Id { get; set; }
 		public int Column { get; set; }
@@ -1352,14 +1352,14 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		public bool Visible { get; set; }
 	}
 
-	private class ConnectorRenderInfo
+	private sealed class ConnectorRenderInfo
 	{
 		public TileConnector Connector { get; set; } = new();
 		public string Name { get; set; } = string.Empty;
 		public int Depth { get; set; }
 	}
 
-	private class LineInfo
+	private sealed class LineInfo
 	{
 		public double X1 { get; set; }
 		public double Y1 { get; set; }
@@ -1367,7 +1367,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		public double Y2 { get; set; }
 	}
 
-	private record AdjacentTile(int Column, int Row, string Type);
+	private sealed record AdjacentTile(int Column, int Row, string Type);
 
 	public async ValueTask DisposeAsync()
 	{

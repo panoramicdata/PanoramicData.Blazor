@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace PanoramicData.Blazor;
 
 public partial class PDMessage
@@ -58,5 +60,5 @@ public partial class PDMessage
 		=> ShowMessageUserIcon || ShowMessageUserName || ShowMessageTimestamp;
 
 	private string GetFormattedTimestamp()
-		=> Message.Timestamp.ToLocalTime().ToString(MessageTimestampFormat);
+		=> Message.Timestamp.ToLocalTime().ToString(MessageTimestampFormat, CultureInfo.CurrentCulture);
 }

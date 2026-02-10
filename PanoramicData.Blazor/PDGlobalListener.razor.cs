@@ -53,11 +53,14 @@ public partial class PDGlobalListener : IAsyncDisposable
 		GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
 	}
 
-	private void GlobalEventService_ShortcutsChanged(object? sender, IEnumerable<ShortcutKey> shortcuts)
+	private async void GlobalEventService_ShortcutsChanged(object? sender, IEnumerable<ShortcutKey> shortcuts)
 	{
 		try
 		{
-			_module?.InvokeVoidAsync("registerShortcutKeys", shortcuts);
+			if (_module is not null)
+			{
+				await _module.InvokeVoidAsync("registerShortcutKeys", shortcuts).ConfigureAwait(true);
+			}
 		}
 		catch
 		{
