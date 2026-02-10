@@ -59,4 +59,9 @@ public class GlobalEventService : IGlobalEventService
 			ShortcutsChanged?.Invoke(this, [.. _registeredShortcuts.Values]);
 		}
 	}
+
+	/// <summary>
+	/// Gets the currently registered shortcut keys.
+	/// </summary>
+	public IEnumerable<ShortcutKey> GetRegisteredShortcuts() => [.. _registeredShortcuts.Values];
 }

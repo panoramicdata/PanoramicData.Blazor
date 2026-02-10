@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor;
+namespace PanoramicData.Blazor;
 
 public partial class PDGlobalListener : IAsyncDisposable
 {
@@ -31,6 +31,11 @@ public partial class PDGlobalListener : IAsyncDisposable
 		}
 	}
 
+	protected override void OnInitialized()
+	{
+		GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
+	}
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -42,6 +47,13 @@ public partial class PDGlobalListener : IAsyncDisposable
 				if (_module != null)
 				{
 					await _module.InvokeVoidAsync("initialize", _dotNetObjectReference).ConfigureAwait(true);
+
+					// Push any already-registered shortcuts to JS
+					var existingShortcuts = GlobalEventService.GetRegisteredShortcuts();
+					if (existingShortcuts.Any())
+					{
+						await _module.InvokeVoidAsync("registerShortcutKeys", existingShortcuts).ConfigureAwait(true);
+					}
 				}
 			}
 			catch
@@ -49,8 +61,6 @@ public partial class PDGlobalListener : IAsyncDisposable
 				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
-
-		GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
 	}
 
 	private async void GlobalEventService_ShortcutsChanged(object? sender, IEnumerable<ShortcutKey> shortcuts)

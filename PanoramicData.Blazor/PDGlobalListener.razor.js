@@ -1,4 +1,4 @@
-﻿var globalListenerReference = null;
+var globalListenerReference = null;
 var shortcutKeys = [];
 
 export function initialize(ref) {
@@ -21,7 +21,7 @@ export function isShortcutKeyMatch(keyInfo) {
 	var match = shortcutKeys.find((v) => v.altKey == keyInfo.altKey &&
 		v.ctrlKey == keyInfo.ctrlKey &&
 		v.shiftKey == keyInfo.shiftKey &&
-		(v.key.toLowerCase() == keyInfo.key.toLowerCase()) || (v.code.toLowerCase() == keyInfo.code.toLowerCase()));
+		((v.key.toLowerCase() == keyInfo.key.toLowerCase()) || (v.code.toLowerCase() == keyInfo.code.toLowerCase())));
 	return match ? true : false;
 }
 

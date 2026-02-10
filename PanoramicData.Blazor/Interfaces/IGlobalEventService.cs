@@ -44,4 +44,9 @@ public interface IGlobalEventService
 	/// </summary>
 	/// <param name="shortcut">Details of the shortcut key combination.</param>
 	void UnregisterShortcutKey(ShortcutKey shortcut);
+
+	/// <summary>
+	/// Gets the currently registered shortcut keys.
+	/// </summary>
+	IEnumerable<ShortcutKey> GetRegisteredShortcuts();
 }
