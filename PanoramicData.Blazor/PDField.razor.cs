@@ -25,6 +25,13 @@ public partial class PDField<TItem> where TItem : class
 	public string? Title { get; set; }
 
 	/// <summary>
+	/// Gets or sets a function that returns the title for the field.
+	/// </summary>
+	/// <remarks>When set, takes precedence over the <see cref="Title"/> property.</remarks>
+	[Parameter]
+	public Func<TItem?, string>? TitleFunc { get; set; }
+
+	/// <summary>
 	/// Gets or sets the autocomplete attribute value.
 	/// </summary>
 	[Parameter] public string AutoComplete { get; set; } = string.Empty;
@@ -162,9 +169,14 @@ public partial class PDField<TItem> where TItem : class
 	/// </summary>
 	[Parameter] public string? HelpUrl { get; set; }
 
-	public string GetTitle()
+	public string GetTitle(TItem? item = default)
 	{
-		if (Title != null)
+		if (TitleFunc is not null)
+		{
+			return TitleFunc(item);
+		}
+
+		if (Title is not null)
 		{
 			return Title;
 		}

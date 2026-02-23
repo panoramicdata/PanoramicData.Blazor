@@ -17,6 +17,18 @@ public class FieldGroup<TItem> where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Returns the group title, evaluating the first field's <see cref="FormField{TItem}.TitleFunc"/> if set.
+	/// </summary>
+	/// <param name="item">The current item.</param>
+	public string GetTitle(TItem? item = default)
+	{
+		var firstField = Fields.FirstOrDefault();
+		return string.IsNullOrWhiteSpace(firstField?.Group)
+			? (firstField?.GetTitle(item) ?? string.Empty)
+			: firstField.Group;
+	}
+
 	public bool HasErrors(PDForm<TItem>? form)
 	{
 		if (form != null)

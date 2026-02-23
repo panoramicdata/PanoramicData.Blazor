@@ -67,6 +67,27 @@ public class FormField<TItem> where TItem : class
 	public string Title { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Gets or sets a function that returns the title for the field.
+	/// </summary>
+	/// <remarks>When set, takes precedence over the <see cref="Title"/> property.</remarks>
+	public Func<TItem?, string>? TitleFunc { get; set; }
+
+	/// <summary>
+	/// Returns the title for the field, evaluating <see cref="TitleFunc"/> if set.
+	/// </summary>
+	/// <param name="item">The current item.</param>
+	/// <returns>The field title.</returns>
+	public string GetTitle(TItem? item = default)
+	{
+		if (TitleFunc is not null)
+		{
+			return TitleFunc(item);
+		}
+
+		return Title;
+	}
+
+	/// <summary>
 	/// Gets the fields name.
 	/// </summary>
 	public string Name

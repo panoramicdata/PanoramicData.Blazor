@@ -200,6 +200,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 				ShowInEdit = field.ShowInEdit,
 				EditTemplate = field.EditTemplate,
 				Title = field.GetTitle(),
+				TitleFunc = field.TitleFunc,
 				MaxLength = field.MaxLength,
 				MaxValue = field.MaxValue,
 				MinValue = field.MinValue,
