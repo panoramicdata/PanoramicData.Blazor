@@ -26,7 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Added "NewFolderName" parameter to PDFileExplorer, to enable overriding the default "New Folder".
+			Added "TitleFunc" function to PDColumn, so a function can be used to override Title.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

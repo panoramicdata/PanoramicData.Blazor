@@ -392,10 +392,17 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public string? ThClass { get; set; }
 
 	/// <summary>
-	/// If set will override the FieldExpression's name
+	/// If set will override the FieldExpression's name.
 	/// </summary>
 	[Parameter]
 	public string? Title { get; set; }
+
+	/// <summary>
+	/// Gets or sets a function that returns the title for the column.
+	/// </summary>
+	/// <remarks>When set, takes precedence over the <see cref="Title"/> property.</remarks>
+	[Parameter]
+	public Func<string>? TitleFunc { get; set; }
 
 	/// <summary>
 	/// Gets or sets an HTML template for the fields value.
@@ -420,7 +427,12 @@ public partial class PDColumn<TItem> where TItem : class
 
 	public string GetTitle()
 	{
-		if (Title != null)
+		if (TitleFunc is not null)
+		{
+			return TitleFunc();
+		}
+
+		if (Title is not null)
 		{
 			return Title;
 		}
