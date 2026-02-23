@@ -402,7 +402,7 @@ public partial class PDColumn<TItem> where TItem : class
 	/// </summary>
 	/// <remarks>When set, takes precedence over the <see cref="Title"/> property.</remarks>
 	[Parameter]
-	public Func<string>? TitleFunc { get; set; }
+	public Func<TItem?, string>? TitleFunc { get; set; }
 
 	/// <summary>
 	/// Gets or sets an HTML template for the fields value.
@@ -425,11 +425,11 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <remarks>When set to a null (default) will use Table property value.</remarks>
 	[Parameter] public bool? UserSelectable { get; set; }
 
-	public string GetTitle()
+	public string GetTitle(TItem? item = default)
 	{
 		if (TitleFunc is not null)
 		{
-			return TitleFunc();
+			return TitleFunc(item);
 		}
 
 		if (Title is not null)
