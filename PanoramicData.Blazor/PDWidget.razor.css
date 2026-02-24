@@ -1,0 +1,68 @@
+.pd-widget {
+	height: 100%;
+}
+
+.pd-widget .card {
+	border-color: var(--bs-border-color, #dee2e6);
+}
+
+.pd-widget-header {
+	padding: 0.375rem 0.75rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	background: var(--bs-tertiary-bg, #f8f9fa);
+	border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+}
+
+.pd-widget-title {
+	font-size: 0.8125rem;
+}
+
+.pd-widget-configure {
+	color: var(--bs-secondary-color, #6c757d);
+	font-size: 0.75rem;
+}
+
+.pd-widget-configure:hover {
+	color: var(--bs-primary, #0d6efd);
+}
+
+.pd-widget-refresh-indicator {
+	font-size: 0.625rem;
+	color: var(--bs-secondary-color, #6c757d);
+}
+
+.pd-widget-body {
+	min-height: 60px;
+}
+
+.pd-widget-loading,
+.pd-widget-error {
+	min-height: 80px;
+}
+
+/* Clock */
+.pd-widget-clock-time {
+	font-size: 2rem;
+	font-weight: 300;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.05em;
+}
+
+.pd-widget-clock-date {
+	font-size: 0.8125rem;
+}
+
+/* Image */
+.pd-widget-img {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+}
+
+/* HTML/URL content */
+.pd-widget-html,
+.pd-widget-url {
+	overflow: auto;
+	font-size: 0.875rem;
+}

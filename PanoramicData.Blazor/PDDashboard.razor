@@ -1,0 +1,68 @@
+@namespace PanoramicData.Blazor
+@inherits PDComponentBase
+
+@if (IsVisible)
+{
+	<div class="pd-dashboard @(CssClass) @Css" id="@Id">
+
+		@if (ShowTabs && !DisplayMode && Tabs.Count > 1)
+		{
+			<ul class="nav nav-tabs pd-dashboard-tabs">
+				@for (var i = 0; i < Tabs.Count; i++)
+				{
+					var index = i;
+					var tab = Tabs[index];
+					<li class="nav-item">
+						<button class="nav-link @(index == _activeTabIndex ? "active" : "")"
+								@onclick="() => SelectTabAsync(index)"
+								@onclick:preventDefault>
+							@tab.Name
+						</button>
+					</li>
+				}
+				@if (IsEditable)
+				{
+					<li class="nav-item">
+						<button class="nav-link pd-dashboard-tab-add" @onclick="AddTabAsync" title="Add tab">
+							<span class="fas fa-plus"></span>
+						</button>
+					</li>
+				}
+			</ul>
+		}
+
+		@if (Tabs.Count > 0 && _activeTabIndex >= 0 && _activeTabIndex < Tabs.Count)
+		{
+			var activeTab = Tabs[_activeTabIndex];
+			var cols = activeTab.ColumnCount ?? ColumnCount;
+			var rowHeight = activeTab.TileRowHeightPx ?? TileRowHeightPx;
+
+			<div class="pd-dashboard-grid @(activeTab.Css)"
+				 style="display: grid; grid-template-columns: repeat(@cols, 1fr); grid-auto-rows: @(rowHeight)px; gap: 0.5rem; padding: 0.5rem;">
+
+				@foreach (var tile in activeTab.Tiles)
+				{
+					var gridStyle = $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount};";
+
+					<div class="pd-dashboard-tile @(tile.Css)"
+						 style="@gridStyle"
+						 draggable="@(IsEditable ? "true" : "false")"
+						 @ondragstart="(e) => OnTileDragStart(e, tile)"
+						 @ondragover="(e) => OnTileDragOver(e, tile)"
+						 @ondragover:preventDefault="@IsEditable"
+						 @ondrop="(e) => OnTileDropAsync(e, tile)"
+						 @ondrop:preventDefault="@IsEditable"
+						 @ondragend="OnTileDragEnd">
+						@if (IsEditable)
+						{
+							<div class="pd-dashboard-tile-drag-handle">
+								<span class="fas fa-grip-vertical"></span>
+							</div>
+						}
+						@tile.ChildContent
+					</div>
+				}
+			</div>
+		}
+	</div>
+}

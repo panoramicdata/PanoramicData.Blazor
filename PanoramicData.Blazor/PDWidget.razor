@@ -1,0 +1,88 @@
+@namespace PanoramicData.Blazor
+@inherits PDComponentBase
+
+@if (IsVisible)
+{
+	<div class="pd-widget @(CssClass) @Css" id="@Id">
+		<div class="card h-100">
+
+			@if (ShowTitle && !string.IsNullOrWhiteSpace(Title))
+			{
+				<div class="card-header pd-widget-header d-flex align-items-center">
+					<span class="pd-widget-title flex-grow-1 text-truncate">@Title</span>
+					@if (IsEditable && OnConfigure.HasDelegate)
+					{
+						<button class="btn btn-sm btn-link pd-widget-configure p-0 ms-2" @onclick="OnConfigure" title="Configure">
+							<span class="fas fa-cog"></span>
+						</button>
+					}
+					@if (_isRefreshing)
+					{
+						<span class="fas fa-sync fa-spin ms-2 pd-widget-refresh-indicator" title="Refreshing..."></span>
+					}
+				</div>
+			}
+
+			<div class="card-body pd-widget-body p-0 position-relative overflow-hidden">
+				@if (_isLoading)
+				{
+					<div class="pd-widget-loading d-flex align-items-center justify-content-center h-100">
+						<div class="spinner-border spinner-border-sm text-secondary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
+				}
+				else if (_hasError)
+				{
+					<div class="pd-widget-error d-flex align-items-center justify-content-center h-100 text-danger p-3">
+						<div class="text-center">
+							<span class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></span>
+							<small>@_errorMessage</small>
+						</div>
+					</div>
+				}
+				else
+				{
+					@switch (WidgetType)
+					{
+						case PDWidgetType.Html:
+							<div class="pd-widget-content pd-widget-html p-2">
+								@((MarkupString)_sanitizedContent)
+							</div>
+							break;
+
+						case PDWidgetType.Url:
+							<div class="pd-widget-content pd-widget-url p-2">
+								@((MarkupString)_sanitizedContent)
+							</div>
+							break;
+
+						case PDWidgetType.Clock:
+							<div class="pd-widget-content pd-widget-clock d-flex align-items-center justify-content-center h-100">
+								<div class="text-center">
+									<div class="pd-widget-clock-time">@_clockTime</div>
+									<div class="pd-widget-clock-date text-muted small">@_clockDate</div>
+								</div>
+							</div>
+							break;
+
+						case PDWidgetType.Image:
+							<div class="pd-widget-content pd-widget-image d-flex align-items-center justify-content-center h-100 p-2">
+								@if (!string.IsNullOrWhiteSpace(_imageSource))
+								{
+									<img src="@_imageSource" alt="@Title" class="pd-widget-img" />
+								}
+							</div>
+							break;
+
+						case PDWidgetType.Custom:
+							<div class="pd-widget-content pd-widget-custom h-100">
+								@ChildContent
+							</div>
+							break;
+					}
+				}
+			</div>
+		</div>
+	</div>
+}

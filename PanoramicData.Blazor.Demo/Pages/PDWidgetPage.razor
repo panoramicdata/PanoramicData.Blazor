@@ -1,0 +1,61 @@
+@page "/pdwidget"
+
+<h1>PDWidget</h1>
+
+<DemoSourceView SourceFiles="Pages/PDWidgetPage.razor, Pages/PDWidgetPage.razor.cs">
+	<ChildContent>
+
+		<h4>HTML Widget</h4>
+		<div style="height: 200px; max-width: 400px;" class="mb-4">
+			<PDWidget Title="HTML Content"
+					  WidgetType="PDWidgetType.Html"
+					  Content="@_htmlContent" />
+		</div>
+
+		<h4>Clock Widget</h4>
+		<div style="height: 200px; max-width: 400px;" class="mb-4">
+			<PDWidget Title="Local Time"
+					  WidgetType="PDWidgetType.Clock" />
+		</div>
+
+		<h4>Clock Widget (UTC)</h4>
+		<div style="height: 200px; max-width: 400px;" class="mb-4">
+			<PDWidget Title="UTC Time"
+					  WidgetType="PDWidgetType.Clock"
+					  ClockTimeZone="TimeZoneInfo.Utc" />
+		</div>
+
+		<h4>Image Widget (URL)</h4>
+		<div style="height: 250px; max-width: 400px;" class="mb-4">
+			<PDWidget Title="Sample Image"
+					  WidgetType="PDWidgetType.Image"
+					  Content="https://via.placeholder.com/300x150?text=PDWidget" />
+		</div>
+
+		<h4>Custom Widget</h4>
+		<div style="height: 200px; max-width: 400px;" class="mb-4">
+			<PDWidget Title="Custom Content"
+					  WidgetType="PDWidgetType.Custom"
+					  IsEditable="true"
+					  OnConfigure="OnConfigureClicked">
+				<div class="p-3 d-flex align-items-center justify-content-center h-100">
+					<div class="text-center">
+						<span class="fas fa-puzzle-piece fa-3x text-primary mb-2 d-block"></span>
+						<p class="mb-0">This is a custom RenderFragment</p>
+						<small class="text-muted">@_configureMessage</small>
+					</div>
+				</div>
+			</PDWidget>
+		</div>
+
+		<h4>Widget without Title</h4>
+		<div style="height: 150px; max-width: 400px;" class="mb-4">
+			<PDWidget WidgetType="PDWidgetType.Html"
+					  ShowTitle="false"
+					  Content="<p><strong>No title bar</strong> - just content.</p>" />
+		</div>
+
+		<EventView />
+
+	</ChildContent>
+</DemoSourceView>
