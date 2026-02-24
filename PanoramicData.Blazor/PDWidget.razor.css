@@ -66,12 +66,10 @@
 }
 
 .pd-widget-body {
-	min-height: 60px;
 }
 
 .pd-widget-loading,
 .pd-widget-error {
-	min-height: 80px;
 }
 
 /* Clock */
@@ -96,6 +94,5 @@
 /* HTML/URL content */
 .pd-widget-html,
 .pd-widget-url {
-	overflow: auto;
 	font-size: 0.875rem;
 }

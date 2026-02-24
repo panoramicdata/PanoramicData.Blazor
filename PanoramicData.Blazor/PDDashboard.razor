@@ -44,9 +44,11 @@
 					{
 						var gridStyle = $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount}; display: grid;";
 						var tileClasses = $"pd-dashboard-tile {tile.Css} {(IsEditable ? "pd-dashboard-tile-editable" : "")} {(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")} {(_draggedTile == tile ? "pd-dashboard-tile-dragging" : "")} {(_dragOverTile == tile && _draggedTile != tile ? "pd-dashboard-tile-dragover" : "")}";
+						var resizeInfo = _resizingTile == tile ? $"{tile.ColumnSpanCount} × {tile.RowSpanCount}" : null;
 
 						<div class="@tileClasses"
 							 style="@gridStyle"
+							 data-resize-info="@resizeInfo"
 							 draggable="@(IsEditable && _resizingTile is null ? "true" : "false")"
 							 @ondragstart="(e) => OnTileDragStart(e, tile)"
 							 @ondragover="(e) => OnTileDragOver(e, tile)"

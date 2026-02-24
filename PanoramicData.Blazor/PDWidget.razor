@@ -21,7 +21,7 @@
 						else
 						{
 							<span class="pd-widget-title flex-grow-1 text-truncate @(IsEditable ? "pd-widget-title-editable" : "")"
-								  @ondblclick="StartRename">@Title</span>
+								  @onclick="StartRename">@Title</span>
 						}
 						@if (IsEditable && OnConfigure.HasDelegate)
 						{
@@ -36,7 +36,7 @@
 					</div>
 				}
 
-			<div class="card-body pd-widget-body p-0 position-relative overflow-hidden">
+			<div class="card-body pd-widget-body p-0 position-relative" style="@GetBodyOverflowStyle()">
 				@if (_isLoading)
 				{
 					<div class="pd-widget-loading d-flex align-items-center justify-content-center h-100">

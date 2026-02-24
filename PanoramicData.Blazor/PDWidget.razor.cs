@@ -83,6 +83,18 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	public bool ShowTitle { get; set; } = true;
 
 	/// <summary>
+	/// Gets or sets the vertical overflow behavior for widget content.
+	/// </summary>
+	[Parameter]
+	public OverflowBehavior VerticalOverflow { get; set; } = OverflowBehavior.Hidden;
+
+	/// <summary>
+	/// Gets or sets the horizontal overflow behavior for widget content.
+	/// </summary>
+	[Parameter]
+	public OverflowBehavior HorizontalOverflow { get; set; } = OverflowBehavior.Hidden;
+
+	/// <summary>
 	/// Gets or sets the child content for Custom widget type.
 	/// </summary>
 	[Parameter]
@@ -137,6 +149,13 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		{
 			Id = $"pd-widget-{++_idSequence}";
 		}
+	}
+
+	private string GetBodyOverflowStyle()
+	{
+		var overflowY = VerticalOverflow.ToString().ToLowerInvariant();
+		var overflowX = HorizontalOverflow.ToString().ToLowerInvariant();
+		return $"overflow-y: {overflowY}; overflow-x: {overflowX};";
 	}
 
 	private void StartRename()
