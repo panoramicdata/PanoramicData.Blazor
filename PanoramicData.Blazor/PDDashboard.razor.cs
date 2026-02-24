@@ -14,6 +14,13 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private PDDashboardTile? _draggedTile;
 	private bool _isUserInteracting;
 
+	// Resize state
+	private PDDashboardTile? _resizingTile;
+	private double _resizeStartX;
+	private double _resizeStartY;
+	private int _resizeOriginalColSpan;
+	private int _resizeOriginalRowSpan;
+
 	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
 	/// <summary>
@@ -75,6 +82,12 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	/// </summary>
 	[Parameter]
 	public EventCallback<(PDDashboardTile Tile, int NewRow, int NewColumn)> OnTileMove { get; set; }
+
+	/// <summary>
+	/// Fired when a tile is resized via the resize handle.
+	/// </summary>
+	[Parameter]
+	public EventCallback<(PDDashboardTile Tile, int NewRowSpan, int NewColumnSpan)> OnTileResize { get; set; }
 
 	/// <summary>
 	/// Fired when a tab is added.
@@ -237,6 +250,70 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private void OnTileDragEnd(DragEventArgs e)
 	{
 		_draggedTile = null;
+	}
+
+	// Resize via pointer events
+	private void OnResizePointerDown(PointerEventArgs e, PDDashboardTile tile)
+	{
+		_resizingTile = tile;
+		_resizeStartX = e.ClientX;
+		_resizeStartY = e.ClientY;
+		_resizeOriginalColSpan = tile.ColumnSpanCount;
+		_resizeOriginalRowSpan = tile.RowSpanCount;
+	}
+
+	private void OnResizePointerMove(PointerEventArgs e)
+	{
+		if (_resizingTile is null)
+		{
+			return;
+		}
+
+		var activeTab = (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count) ? Tabs[_activeTabIndex] : null;
+		if (activeTab is null)
+		{
+			return;
+		}
+
+		var cols = activeTab.ColumnCount ?? ColumnCount;
+		var rowHeight = activeTab.TileRowHeightPx ?? TileRowHeightPx;
+
+		// Estimate column width from row height and column count (assume roughly square-ish grid cells)
+		// Use rowHeight as a baseline since we know it precisely; column width depends on container
+		// A reasonable estimate: column width ≈ rowHeight (for typical dashboards)
+		var colWidth = rowHeight;
+
+		var deltaX = e.ClientX - _resizeStartX;
+		var deltaY = e.ClientY - _resizeStartY;
+
+		var newColSpan = Math.Max(1, _resizeOriginalColSpan + (int)Math.Round(deltaX / colWidth));
+		var newRowSpan = Math.Max(1, _resizeOriginalRowSpan + (int)Math.Round(deltaY / rowHeight));
+
+		// Clamp to grid bounds
+		newColSpan = Math.Min(newColSpan, cols - _resizingTile.ColumnIndex);
+
+		if (newColSpan != _resizingTile.ColumnSpanCount || newRowSpan != _resizingTile.RowSpanCount)
+		{
+			_resizingTile.ColumnSpanCount = newColSpan;
+			_resizingTile.RowSpanCount = newRowSpan;
+			StateHasChanged();
+		}
+	}
+
+	private async Task OnResizePointerUp(PointerEventArgs e)
+	{
+		if (_resizingTile is not null)
+		{
+			var tile = _resizingTile;
+			_resizingTile = null;
+
+			if (OnTileResize.HasDelegate)
+			{
+				await OnTileResize.InvokeAsync((tile, tile.RowSpanCount, tile.ColumnSpanCount)).ConfigureAwait(true);
+			}
+
+			StateHasChanged();
+		}
 	}
 
 	private async Task AddTabAsync()

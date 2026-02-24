@@ -44,9 +44,9 @@
 				{
 					var gridStyle = $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount};";
 
-					<div class="pd-dashboard-tile @(tile.Css)"
+					<div class="pd-dashboard-tile @(tile.Css) @(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")"
 						 style="@gridStyle"
-						 draggable="@(IsEditable ? "true" : "false")"
+						 draggable="@(IsEditable && _resizingTile is null ? "true" : "false")"
 						 @ondragstart="(e) => OnTileDragStart(e, tile)"
 						 @ondragover="(e) => OnTileDragOver(e, tile)"
 						 @ondragover:preventDefault="@IsEditable"
@@ -57,6 +57,14 @@
 						{
 							<div class="pd-dashboard-tile-drag-handle">
 								<span class="fas fa-grip-vertical"></span>
+							</div>
+							<div class="pd-dashboard-tile-resize-handle"
+								 @onpointerdown="(e) => OnResizePointerDown(e, tile)"
+								 @onpointerdown:stopPropagation
+								 @onpointermove="OnResizePointerMove"
+								 @onpointermove:preventDefault
+								 @onpointerup="OnResizePointerUp">
+								<span class="fas fa-arrows-alt"></span>
 							</div>
 						}
 						@tile.ChildContent

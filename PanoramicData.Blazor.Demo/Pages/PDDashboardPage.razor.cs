@@ -85,6 +85,13 @@ public partial class PDDashboardPage
 			new EventArgument("NewColumn", args.NewColumn)));
 	}
 
+	private void OnTileResized((PDDashboardTile Tile, int NewRowSpan, int NewColumnSpan) args)
+	{
+		EventManager?.Add(new Event("OnTileResize",
+			new EventArgument("NewRowSpan", args.NewRowSpan),
+			new EventArgument("NewColumnSpan", args.NewColumnSpan)));
+	}
+
 	private void OnTabAdded(PDDashboardTab tab)
 	{
 		EventManager?.Add(new Event("OnTabAdd", new EventArgument("Name", tab.Name)));
