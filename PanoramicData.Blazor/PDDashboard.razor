@@ -55,23 +55,31 @@
 							 @ondrop="(e) => OnTileDropAsync(e, tile)"
 							 @ondrop:preventDefault="@IsEditable"
 							 @ondragend="OnTileDragEnd">
-							@tile.ChildContent
-							@if (IsEditable)
-							{
-								<div class="pd-dashboard-tile-toolbar">
-									<button class="pd-dashboard-tile-btn" draggable="false" title="Maximize"
-											@onclick="() => MaximizeTile(tile)" @onclick:stopPropagation>
-										<span class="fas fa-expand"></span>
-									</button>
-								</div>
-								<div class="pd-dashboard-tile-resize-handle"
-									 @onpointerdown="(e) => OnResizePointerDown(e, tile)"
-									 @onpointerdown:stopPropagation
-									 @onpointerdown:preventDefault>
+									@tile.ChildContent
+									@if (IsEditable)
+									{
+										<div class="pd-dashboard-tile-toolbar">
+											<button class="pd-dashboard-tile-btn" draggable="false" title="Maximize"
+													@onclick="() => MaximizeTile(tile)" @onclick:stopPropagation>
+												<span class="fas fa-expand"></span>
+											</button>
+										</div>
+										<div class="pd-dashboard-tile-resize-handle"
+											 @onpointerdown="(e) => OnResizePointerDown(e, tile)"
+											 @onpointerdown:stopPropagation
+											 @onpointerdown:preventDefault>
+										</div>
+									}
 								</div>
 							}
-						</div>
-					}
+
+							@if (IsEditable && OnTileAdd.HasDelegate)
+							{
+								<div class="pd-dashboard-tile-add" @onclick="RequestAddTileAsync">
+									<span class="fas fa-plus fa-lg"></span>
+									<span class="pd-dashboard-tile-add-label">Add Widget</span>
+								</div>
+							}
 				</div>
 
 				@* Full-screen overlay to capture pointer events during resize *@

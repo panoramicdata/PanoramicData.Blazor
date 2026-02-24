@@ -100,6 +100,12 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	public EventCallback<(PDDashboardTile Tile, int NewRowSpan, int NewColumnSpan)> OnTileResize { get; set; }
 
 	/// <summary>
+	/// Fired when the user requests to add a new tile. The consumer should create the tile and add it to the active tab.
+	/// </summary>
+	[Parameter]
+	public EventCallback OnTileAdd { get; set; }
+
+	/// <summary>
 	/// Fired when a tab is added.
 	/// </summary>
 	[Parameter]
@@ -359,6 +365,15 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 
 		await SelectTabAsync(Tabs.Count - 1).ConfigureAwait(true);
+	}
+
+	private async Task RequestAddTileAsync()
+	{
+		if (OnTileAdd.HasDelegate)
+		{
+			await OnTileAdd.InvokeAsync().ConfigureAwait(true);
+			StateHasChanged();
+		}
 	}
 
 	/// <summary>

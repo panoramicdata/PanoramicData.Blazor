@@ -97,6 +97,32 @@ public partial class PDDashboardPage
 		EventManager?.Add(new Event("OnTabAdd", new EventArgument("Name", tab.Name)));
 	}
 
+	private void OnTileAddRequested()
+	{
+		// Find the next available row in the active tab
+		var activeTab = _tabs.FirstOrDefault();
+		if (activeTab is null)
+		{
+			return;
+		}
+
+		var nextRow = activeTab.Tiles.Count > 0
+			? activeTab.Tiles.Max(t => t.RowIndex + t.RowSpanCount)
+			: 0;
+
+		var newTile = new PDDashboardTile
+		{
+			RowIndex = nextRow,
+			ColumnIndex = 0,
+			ColumnSpanCount = 2,
+			RowSpanCount = 1,
+			ChildContent = BuildWidget("New Widget", PDWidgetType.Html, "<div class='p-3 text-center text-muted'><em>Configure this widget</em></div>")
+		};
+
+		activeTab.Tiles.Add(newTile);
+		EventManager?.Add(new Event("OnTileAdd", new EventArgument("Row", nextRow)));
+	}
+
 	private void OnActiveTabChanged(int index)
 	{
 		EventManager?.Add(new Event("ActiveTabChanged", new EventArgument("Index", index)));

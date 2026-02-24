@@ -17,6 +17,8 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	private bool _isLoading;
 	private bool _isRefreshing;
 	private bool _hasError;
+	private bool _isRenaming;
+	private string _renameValue = string.Empty;
 	private Timer? _refreshTimer;
 	private Timer? _clockTimer;
 
@@ -25,6 +27,12 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	/// </summary>
 	[Parameter]
 	public string? Title { get; set; }
+
+	/// <summary>
+	/// Gets or sets the callback fired when the title is renamed.
+	/// </summary>
+	[Parameter]
+	public EventCallback<string> TitleChanged { get; set; }
 
 	/// <summary>
 	/// Gets or sets the content type of the widget.
@@ -128,6 +136,43 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		if (Id == $"pd-component-{Sequence}")
 		{
 			Id = $"pd-widget-{++_idSequence}";
+		}
+	}
+
+	private void StartRename()
+	{
+		if (!IsEditable)
+		{
+			return;
+		}
+
+		_renameValue = Title ?? string.Empty;
+		_isRenaming = true;
+	}
+
+	private async Task CommitRenameAsync()
+	{
+		_isRenaming = false;
+		var newTitle = _renameValue.Trim();
+		if (!string.IsNullOrWhiteSpace(newTitle) && newTitle != Title)
+		{
+			Title = newTitle;
+			if (TitleChanged.HasDelegate)
+			{
+				await TitleChanged.InvokeAsync(newTitle).ConfigureAwait(true);
+			}
+		}
+	}
+
+	private async Task OnRenameKeyDown(KeyboardEventArgs e)
+	{
+		if (e.Key == "Enter")
+		{
+			await CommitRenameAsync().ConfigureAwait(true);
+		}
+		else if (e.Key == "Escape")
+		{
+			_isRenaming = false;
 		}
 	}
 

@@ -7,21 +7,34 @@
 		<div class="card h-100">
 
 			@if (ShowTitle && !string.IsNullOrWhiteSpace(Title))
-			{
-				<div class="card-header pd-widget-header d-flex align-items-center">
-					<span class="pd-widget-title flex-grow-1 text-truncate">@Title</span>
-					@if (IsEditable && OnConfigure.HasDelegate)
-					{
-						<button class="btn btn-sm btn-link pd-widget-configure p-0 ms-2" @onclick="OnConfigure" title="Configure">
-							<span class="fas fa-cog"></span>
-						</button>
-					}
-					@if (_isRefreshing)
-					{
-						<span class="fas fa-sync fa-spin ms-2 pd-widget-refresh-indicator" title="Refreshing..."></span>
-					}
-				</div>
-			}
+				{
+					<div class="card-header pd-widget-header d-flex align-items-center">
+						@if (_isRenaming)
+						{
+							<input class="pd-widget-title-input flex-grow-1"
+								   @bind="_renameValue"
+								   @bind:event="oninput"
+								   @onblur="CommitRenameAsync"
+								   @onkeydown="OnRenameKeyDown"
+								   autofocus />
+						}
+						else
+						{
+							<span class="pd-widget-title flex-grow-1 text-truncate @(IsEditable ? "pd-widget-title-editable" : "")"
+								  @ondblclick="StartRename">@Title</span>
+						}
+						@if (IsEditable && OnConfigure.HasDelegate)
+						{
+							<button class="btn btn-sm btn-link pd-widget-configure p-0 ms-2" @onclick="OnConfigure" title="Configure">
+								<span class="fas fa-cog"></span>
+							</button>
+						}
+						@if (_isRefreshing)
+						{
+							<span class="fas fa-sync fa-spin ms-2 pd-widget-refresh-indicator" title="Refreshing..."></span>
+						}
+					</div>
+				}
 
 			<div class="card-body pd-widget-body p-0 position-relative overflow-hidden">
 				@if (_isLoading)
