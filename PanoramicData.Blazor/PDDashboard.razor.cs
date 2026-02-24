@@ -25,6 +25,10 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	// Maximize state
 	private PDDashboardTile? _maximizedTile;
 
+	// Delete state
+	private PDDashboardTile? _pendingDeleteTile;
+	private PDConfirm? _confirmDelete;
+
 	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
 	/// <summary>
@@ -104,6 +108,18 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	/// </summary>
 	[Parameter]
 	public EventCallback OnTileAdd { get; set; }
+
+	/// <summary>
+	/// Fired when a tile is deleted. The tile has already been removed from the active tab.
+	/// </summary>
+	[Parameter]
+	public EventCallback<PDDashboardTile> OnTileDelete { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether tile deletion requires a confirmation dialog. Default true.
+	/// </summary>
+	[Parameter]
+	public bool ConfirmTileDelete { get; set; } = true;
 
 	/// <summary>
 	/// Fired when a tab is added.
@@ -374,6 +390,43 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			await OnTileAdd.InvokeAsync().ConfigureAwait(true);
 			StateHasChanged();
 		}
+	}
+
+	private async Task RequestDeleteTileAsync(PDDashboardTile tile)
+	{
+		if (ConfirmTileDelete && _confirmDelete is not null)
+		{
+			_pendingDeleteTile = tile;
+			var result = await _confirmDelete.ShowAndWaitResultAsync().ConfigureAwait(true);
+			if (result == PDConfirm.Outcomes.Yes)
+			{
+				await PerformDeleteTileAsync(_pendingDeleteTile).ConfigureAwait(true);
+			}
+
+			_pendingDeleteTile = null;
+		}
+		else
+		{
+			await PerformDeleteTileAsync(tile).ConfigureAwait(true);
+		}
+	}
+
+	private async Task PerformDeleteTileAsync(PDDashboardTile tile)
+	{
+		var activeTab = (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count) ? Tabs[_activeTabIndex] : null;
+		if (activeTab is null)
+		{
+			return;
+		}
+
+		activeTab.Tiles.Remove(tile);
+
+		if (OnTileDelete.HasDelegate)
+		{
+			await OnTileDelete.InvokeAsync(tile).ConfigureAwait(true);
+		}
+
+		StateHasChanged();
 	}
 
 	/// <summary>

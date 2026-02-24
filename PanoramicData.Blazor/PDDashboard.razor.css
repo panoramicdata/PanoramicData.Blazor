@@ -91,6 +91,10 @@
 	background: var(--bs-body-bg, #fff);
 }
 
+.pd-dashboard-tile-btn-danger:hover {
+	color: var(--bs-danger, #dc3545);
+}
+
 /* Resize handle (bottom-right corner triangle) */
 .pd-dashboard-tile-resize-handle {
 	position: absolute;

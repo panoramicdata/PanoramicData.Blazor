@@ -61,6 +61,10 @@
 									@if (IsEditable)
 									{
 										<div class="pd-dashboard-tile-toolbar">
+											<button class="pd-dashboard-tile-btn pd-dashboard-tile-btn-danger" draggable="false" title="Delete"
+													@onclick="() => RequestDeleteTileAsync(tile)" @onclick:stopPropagation>
+												<span class="fas fa-trash-alt"></span>
+											</button>
 											<button class="pd-dashboard-tile-btn" draggable="false" title="Maximize"
 													@onclick="() => MaximizeTile(tile)" @onclick:stopPropagation>
 												<span class="fas fa-expand"></span>
@@ -108,6 +112,13 @@
 					</div>
 				</div>
 			}
+		}
+
+		@if (IsEditable && ConfirmTileDelete)
+		{
+			<PDConfirm @ref="_confirmDelete"
+					   Title="Delete Widget"
+					   Message="Are you sure you want to delete this widget?" />
 		}
 	</div>
 }

@@ -127,4 +127,9 @@ public partial class PDDashboardPage
 	{
 		EventManager?.Add(new Event("ActiveTabChanged", new EventArgument("Index", index)));
 	}
+
+	private void OnTileDeleted(PDDashboardTile tile)
+	{
+		EventManager?.Add(new Event("OnTileDelete"));
+	}
 }
