@@ -463,6 +463,65 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		await SelectTabAsync(index).ConfigureAwait(true);
 	}
 
+	/// <summary>
+	/// Finds the next available grid position in the active tab that can fit a tile
+	/// with the given column and row span. Scans row-by-row, column-by-column.
+	/// </summary>
+	/// <param name="colSpan">Number of columns the tile needs.</param>
+	/// <param name="rowSpan">Number of rows the tile needs.</param>
+	/// <returns>The (RowIndex, ColumnIndex) for the tile, or the next empty row if no gap is found.</returns>
+	public (int RowIndex, int ColumnIndex) FindNextAvailablePosition(int colSpan = 1, int rowSpan = 1)
+	{
+		var activeTab = (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count) ? Tabs[_activeTabIndex] : null;
+		if (activeTab is null || activeTab.Tiles.Count == 0)
+		{
+			return (0, 0);
+		}
+
+		var cols = activeTab.ColumnCount ?? ColumnCount;
+		var maxRow = activeTab.Tiles.Max(t => t.RowIndex + t.RowSpanCount);
+
+		// Build an occupancy grid
+		var occupied = new HashSet<(int Row, int Col)>();
+		foreach (var tile in activeTab.Tiles)
+		{
+			for (var r = tile.RowIndex; r < tile.RowIndex + tile.RowSpanCount; r++)
+			{
+				for (var c = tile.ColumnIndex; c < tile.ColumnIndex + tile.ColumnSpanCount; c++)
+				{
+					occupied.Add((r, c));
+				}
+			}
+		}
+
+		// Scan for a gap that fits
+		for (var row = 0; row <= maxRow; row++)
+		{
+			for (var col = 0; col <= cols - colSpan; col++)
+			{
+				var fits = true;
+				for (var dr = 0; dr < rowSpan && fits; dr++)
+				{
+					for (var dc = 0; dc < colSpan && fits; dc++)
+					{
+						if (occupied.Contains((row + dr, col + dc)))
+						{
+							fits = false;
+						}
+					}
+				}
+
+				if (fits)
+				{
+					return (row, col);
+				}
+			}
+		}
+
+		// No gap found — place on the next row
+		return (maxRow, 0);
+	}
+
 	public ValueTask DisposeAsync()
 	{
 		_rotationTimer?.Dispose();

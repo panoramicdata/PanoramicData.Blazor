@@ -17,7 +17,8 @@
 		</div>
 
 		<div style="height: 600px; border: 1px solid var(--bs-border-color); border-radius: 0.375rem; overflow: hidden;">
-			<PDDashboard Tabs="_tabs"
+			<PDDashboard @ref="_dashboard"
+						 Tabs="_tabs"
 						 ColumnCount="4"
 						 TileRowHeightPx="140"
 						 IsEditable="_isEditable"

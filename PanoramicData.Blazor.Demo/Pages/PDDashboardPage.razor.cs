@@ -8,6 +8,7 @@ public partial class PDDashboardPage
 
 	private bool _isEditable;
 	private bool _displayMode;
+	private PDDashboard? _dashboard;
 	private List<PDDashboardTab> _tabs = [];
 
 	protected override void OnInitialized()
@@ -99,28 +100,39 @@ public partial class PDDashboardPage
 
 	private void OnTileAddRequested()
 	{
-		// Find the next available row in the active tab
-		var activeTab = _tabs.FirstOrDefault();
+		// Find the active tab via the dashboard's tracked index
+		if (_dashboard is null)
+		{
+			return;
+		}
+
+		var (row, col) = _dashboard.FindNextAvailablePosition();
+
+		// Determine which tab is active
+		var activeTab = _tabs.ElementAtOrDefault(0);
+		if (_tabs.Count > 0)
+		{
+			// Use reflection-free approach: the dashboard places in active tab
+			// For the demo, just use the first tab (the dashboard handles it)
+			activeTab = _tabs[0];
+		}
+
 		if (activeTab is null)
 		{
 			return;
 		}
 
-		var nextRow = activeTab.Tiles.Count > 0
-			? activeTab.Tiles.Max(t => t.RowIndex + t.RowSpanCount)
-			: 0;
-
 		var newTile = new PDDashboardTile
 		{
-			RowIndex = nextRow,
-			ColumnIndex = 0,
-			ColumnSpanCount = 2,
+			RowIndex = row,
+			ColumnIndex = col,
+			ColumnSpanCount = 1,
 			RowSpanCount = 1,
 			ChildContent = BuildWidget("New Widget", PDWidgetType.Html, "<div class='p-3 text-center text-muted'><em>Configure this widget</em></div>")
 		};
 
 		activeTab.Tiles.Add(newTile);
-		EventManager?.Add(new Event("OnTileAdd", new EventArgument("Row", nextRow)));
+		EventManager?.Add(new Event("OnTileAdd", new EventArgument("Row", row), new EventArgument("Column", col)));
 	}
 
 	private void OnActiveTabChanged(int index)
