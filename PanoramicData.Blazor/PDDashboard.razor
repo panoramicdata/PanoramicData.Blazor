@@ -42,7 +42,7 @@
 
 					@foreach (var tile in activeTab.Tiles)
 					{
-						var gridStyle = $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount};";
+						var gridStyle = $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount}; display: grid;";
 						var tileClasses = $"pd-dashboard-tile {tile.Css} {(IsEditable ? "pd-dashboard-tile-editable" : "")} {(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")} {(_draggedTile == tile ? "pd-dashboard-tile-dragging" : "")} {(_dragOverTile == tile && _draggedTile != tile ? "pd-dashboard-tile-dragover" : "")}";
 
 						<div class="@tileClasses"
