@@ -12,6 +12,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private int _activeTabIndex;
 	private Timer? _rotationTimer;
 	private PDDashboardTile? _draggedTile;
+	private PDDashboardTile? _dragOverTile;
 	private bool _isUserInteracting;
 
 	// Resize state
@@ -229,11 +230,21 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 
 	private void OnTileDragOver(DragEventArgs e, PDDashboardTile tile)
 	{
-		// Allow drop by preventing default (handled in markup)
+		if (_draggedTile is not null && _draggedTile != tile)
+		{
+			_dragOverTile = tile;
+		}
+	}
+
+	private void OnTileDragLeave(DragEventArgs e)
+	{
+		_dragOverTile = null;
 	}
 
 	private async Task OnTileDropAsync(DragEventArgs e, PDDashboardTile targetTile)
 	{
+		_dragOverTile = null;
+
 		if (!IsEditable || _draggedTile is null || _draggedTile == targetTile)
 		{
 			_draggedTile = null;
@@ -259,6 +270,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private void OnTileDragEnd(DragEventArgs e)
 	{
 		_draggedTile = null;
+		_dragOverTile = null;
 	}
 
 	// Resize via pointer events

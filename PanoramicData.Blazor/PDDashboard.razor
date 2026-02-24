@@ -38,44 +38,52 @@
 			var rowHeight = activeTab.TileRowHeightPx ?? TileRowHeightPx;
 
 			<div class="pd-dashboard-grid @(activeTab.Css)"
-				 style="display: grid; grid-template-columns: repeat(@cols, 1fr); grid-auto-rows: @(rowHeight)px; gap: 0.5rem; padding: 0.5rem;">
+					 style="display: grid; grid-template-columns: repeat(@cols, 1fr); grid-auto-rows: @(rowHeight)px; gap: 0.5rem; padding: 0.5rem;">
 
-				@foreach (var tile in activeTab.Tiles)
+					@foreach (var tile in activeTab.Tiles)
+					{
+						var gridStyle = $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount};";
+						var tileClasses = $"pd-dashboard-tile {tile.Css} {(IsEditable ? "pd-dashboard-tile-editable" : "")} {(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")} {(_draggedTile == tile ? "pd-dashboard-tile-dragging" : "")} {(_dragOverTile == tile && _draggedTile != tile ? "pd-dashboard-tile-dragover" : "")}";
+
+						<div class="@tileClasses"
+							 style="@gridStyle"
+							 draggable="@(IsEditable && _resizingTile is null ? "true" : "false")"
+							 @ondragstart="(e) => OnTileDragStart(e, tile)"
+							 @ondragover="(e) => OnTileDragOver(e, tile)"
+							 @ondragover:preventDefault="@IsEditable"
+							 @ondragleave="OnTileDragLeave"
+							 @ondrop="(e) => OnTileDropAsync(e, tile)"
+							 @ondrop:preventDefault="@IsEditable"
+							 @ondragend="OnTileDragEnd">
+							@tile.ChildContent
+							@if (IsEditable)
+							{
+								<div class="pd-dashboard-tile-toolbar">
+									<button class="pd-dashboard-tile-btn" draggable="false" title="Maximize"
+											@onclick="() => MaximizeTile(tile)" @onclick:stopPropagation>
+										<span class="fas fa-expand"></span>
+									</button>
+								</div>
+								<div class="pd-dashboard-tile-resize-handle"
+									 @onpointerdown="(e) => OnResizePointerDown(e, tile)"
+									 @onpointerdown:stopPropagation
+									 @onpointerdown:preventDefault>
+								</div>
+							}
+						</div>
+					}
+				</div>
+
+				@* Full-screen overlay to capture pointer events during resize *@
+				@if (_resizingTile is not null)
 				{
-					var gridStyle = $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount};";
-
-					<div class="pd-dashboard-tile @(tile.Css) @(IsEditable ? "pd-dashboard-tile-editable" : "") @(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")"
-						 style="@gridStyle"
-						 draggable="@(IsEditable && _resizingTile is null ? "true" : "false")"
-						 @ondragstart="(e) => OnTileDragStart(e, tile)"
-						 @ondragover="(e) => OnTileDragOver(e, tile)"
-						 @ondragover:preventDefault="@IsEditable"
-						 @ondrop="(e) => OnTileDropAsync(e, tile)"
-						 @ondrop:preventDefault="@IsEditable"
-						 @ondragend="OnTileDragEnd">
-						@tile.ChildContent
-						@if (IsEditable)
-						{
-							<div class="pd-dashboard-tile-toolbar">
-								<button class="pd-dashboard-tile-btn" draggable="false" title="Move" @onpointerdown:stopPropagation>
-									<span class="fas fa-grip-vertical"></span>
-								</button>
-								<button class="pd-dashboard-tile-btn" draggable="false" title="Maximize"
-										@onclick="() => MaximizeTile(tile)" @onclick:stopPropagation>
-									<span class="fas fa-expand"></span>
-								</button>
-							</div>
-							<div class="pd-dashboard-tile-resize-handle"
-								 @onpointerdown="(e) => OnResizePointerDown(e, tile)"
-								 @onpointerdown:stopPropagation
-								 @onpointermove="OnResizePointerMove"
-								 @onpointermove:preventDefault
-								 @onpointerup="OnResizePointerUp">
-							</div>
-						}
+					<div class="pd-dashboard-resize-overlay"
+						 @onpointermove="OnResizePointerMove"
+						 @onpointermove:preventDefault
+						 @onpointerup="OnResizePointerUp"
+						 @onpointerup:preventDefault>
 					</div>
 				}
-			</div>
 
 			@if (_maximizedTile is not null)
 			{
