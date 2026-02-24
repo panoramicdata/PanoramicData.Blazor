@@ -21,6 +21,9 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private int _resizeOriginalColSpan;
 	private int _resizeOriginalRowSpan;
 
+	// Maximize state
+	private PDDashboardTile? _maximizedTile;
+
 	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
 	/// <summary>
@@ -76,6 +79,12 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	/// </summary>
 	[Parameter]
 	public bool IsEditable { get; set; }
+
+	/// <summary>
+	/// Gets or sets the percentage of dashboard area used when a tile is maximized. Default 80.
+	/// </summary>
+	[Parameter]
+	public int MaximizePercent { get; set; } = 80;
 
 	/// <summary>
 	/// Fired when a tile is moved via drag-and-drop.
@@ -314,6 +323,17 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 
 			StateHasChanged();
 		}
+	}
+
+	// Maximize/Restore
+	private void MaximizeTile(PDDashboardTile tile)
+	{
+		_maximizedTile = tile;
+	}
+
+	private void RestoreTile()
+	{
+		_maximizedTile = null;
 	}
 
 	private async Task AddTabAsync()

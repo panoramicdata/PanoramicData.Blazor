@@ -44,7 +44,7 @@
 				{
 					var gridStyle = $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount};";
 
-					<div class="pd-dashboard-tile @(tile.Css) @(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")"
+					<div class="pd-dashboard-tile @(tile.Css) @(IsEditable ? "pd-dashboard-tile-editable" : "") @(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")"
 						 style="@gridStyle"
 						 draggable="@(IsEditable && _resizingTile is null ? "true" : "false")"
 						 @ondragstart="(e) => OnTileDragStart(e, tile)"
@@ -53,10 +53,17 @@
 						 @ondrop="(e) => OnTileDropAsync(e, tile)"
 						 @ondrop:preventDefault="@IsEditable"
 						 @ondragend="OnTileDragEnd">
+						@tile.ChildContent
 						@if (IsEditable)
 						{
-							<div class="pd-dashboard-tile-drag-handle">
-								<span class="fas fa-grip-vertical"></span>
+							<div class="pd-dashboard-tile-toolbar">
+								<button class="pd-dashboard-tile-btn" draggable="false" title="Move" @onpointerdown:stopPropagation>
+									<span class="fas fa-grip-vertical"></span>
+								</button>
+								<button class="pd-dashboard-tile-btn" draggable="false" title="Maximize"
+										@onclick="() => MaximizeTile(tile)" @onclick:stopPropagation>
+									<span class="fas fa-expand"></span>
+								</button>
 							</div>
 							<div class="pd-dashboard-tile-resize-handle"
 								 @onpointerdown="(e) => OnResizePointerDown(e, tile)"
@@ -64,13 +71,25 @@
 								 @onpointermove="OnResizePointerMove"
 								 @onpointermove:preventDefault
 								 @onpointerup="OnResizePointerUp">
-								<span class="fas fa-arrows-alt"></span>
 							</div>
 						}
-						@tile.ChildContent
 					</div>
 				}
 			</div>
+
+			@if (_maximizedTile is not null)
+			{
+				<div class="pd-dashboard-maximize-backdrop" @onclick="RestoreTile">
+					<div class="pd-dashboard-maximize-content"
+						 style="width: @(MaximizePercent)%; height: @(MaximizePercent)%;"
+						 @onclick:stopPropagation>
+						<button class="pd-dashboard-maximize-close" @onclick="RestoreTile" title="Restore">
+							<span class="fas fa-compress"></span>
+						</button>
+						@_maximizedTile.ChildContent
+					</div>
+				</div>
+			}
 		}
 	</div>
 }
