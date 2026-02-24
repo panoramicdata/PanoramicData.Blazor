@@ -145,6 +145,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	[Parameter]
 	public EventCallback<int> ActiveTabChanged { get; set; }
 
+	/// <summary>
+	/// Gets the index of the currently active tab.
+	/// </summary>
+	public int ActiveTabIndex => _activeTabIndex;
+
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -427,6 +432,13 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		{
 			var tile = _resizingTile;
 			_resizingTile = null;
+
+			// Compact other tiles around the resized tile
+			var activeTab = (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count) ? Tabs[_activeTabIndex] : null;
+			if (activeTab is not null)
+			{
+				CompactTiles(activeTab, tile);
+			}
 
 			if (OnTileResize.HasDelegate)
 			{

@@ -100,27 +100,18 @@ public partial class PDDashboardPage
 
 	private void OnTileAddRequested()
 	{
-		// Find the active tab via the dashboard's tracked index
 		if (_dashboard is null)
 		{
 			return;
 		}
 
-		var (row, col) = _dashboard.FindNextAvailablePosition();
-
-		// Determine which tab is active
-		var activeTab = _tabs.ElementAtOrDefault(0);
-		if (_tabs.Count > 0)
-		{
-			// Use reflection-free approach: the dashboard places in active tab
-			// For the demo, just use the first tab (the dashboard handles it)
-			activeTab = _tabs[0];
-		}
-
+		var activeTab = _tabs.ElementAtOrDefault(_dashboard.ActiveTabIndex);
 		if (activeTab is null)
 		{
 			return;
 		}
+
+		var (row, col) = _dashboard.FindNextAvailablePosition();
 
 		var newTile = new PDDashboardTile
 		{
