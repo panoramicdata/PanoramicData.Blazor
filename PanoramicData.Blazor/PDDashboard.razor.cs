@@ -273,12 +273,19 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			return;
 		}
 
-		// Swap positions
-		var (dragRow, dragCol) = (_draggedTile.RowIndex, _draggedTile.ColumnIndex);
+		var activeTab = (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count) ? Tabs[_activeTabIndex] : null;
+		if (activeTab is null)
+		{
+			_draggedTile = null;
+			return;
+		}
+
+		// Move dragged tile to target position
 		_draggedTile.RowIndex = targetTile.RowIndex;
 		_draggedTile.ColumnIndex = targetTile.ColumnIndex;
-		targetTile.RowIndex = dragRow;
-		targetTile.ColumnIndex = dragCol;
+
+		// Compact all other tiles to fill gaps
+		CompactTiles(activeTab, _draggedTile);
 
 		if (OnTileMove.HasDelegate)
 		{
@@ -287,6 +294,77 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 
 		_draggedTile = null;
 		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Compacts tiles to fill gaps by repositioning them to the earliest available positions.
+	/// The anchor tile (if any) keeps its position; all others reflow around it.
+	/// </summary>
+	private void CompactTiles(PDDashboardTab tab, PDDashboardTile? anchor = null)
+	{
+		var cols = tab.ColumnCount ?? ColumnCount;
+
+		// Order tiles: anchor first (to reserve its position), then by row then column
+		var ordered = tab.Tiles
+			.OrderBy(t => t == anchor ? 0 : 1)
+			.ThenBy(t => t.RowIndex)
+			.ThenBy(t => t.ColumnIndex)
+			.ToList();
+
+		// Build occupancy grid as we place each tile
+		var occupied = new HashSet<(int Row, int Col)>();
+
+		foreach (var tile in ordered)
+		{
+			if (tile == anchor)
+			{
+				// Reserve anchor's position
+				for (var r = tile.RowIndex; r < tile.RowIndex + tile.RowSpanCount; r++)
+				{
+					for (var c = tile.ColumnIndex; c < tile.ColumnIndex + tile.ColumnSpanCount; c++)
+					{
+						occupied.Add((r, c));
+					}
+				}
+
+				continue;
+			}
+
+			// Find earliest position for this tile
+			var placed = false;
+			for (var row = 0; !placed; row++)
+			{
+				for (var col = 0; col <= cols - tile.ColumnSpanCount && !placed; col++)
+				{
+					var fits = true;
+					for (var dr = 0; dr < tile.RowSpanCount && fits; dr++)
+					{
+						for (var dc = 0; dc < tile.ColumnSpanCount && fits; dc++)
+						{
+							if (occupied.Contains((row + dr, col + dc)))
+							{
+								fits = false;
+							}
+						}
+					}
+
+					if (fits)
+					{
+						tile.RowIndex = row;
+						tile.ColumnIndex = col;
+						for (var dr = 0; dr < tile.RowSpanCount; dr++)
+						{
+							for (var dc = 0; dc < tile.ColumnSpanCount; dc++)
+							{
+								occupied.Add((row + dr, col + dc));
+							}
+						}
+
+						placed = true;
+					}
+				}
+			}
+		}
 	}
 
 	private void OnTileDragEnd(DragEventArgs e)
@@ -420,6 +498,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 
 		activeTab.Tiles.Remove(tile);
+		CompactTiles(activeTab);
 
 		if (OnTileDelete.HasDelegate)
 		{

@@ -33,6 +33,7 @@
 	position: relative;
 	min-height: 0;
 	border-radius: 0.375rem;
+	overflow: hidden;
 }
 
 /* Tile - display:grid is set inline to stretch child content across CSS isolation */
