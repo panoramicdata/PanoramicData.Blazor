@@ -216,3 +216,99 @@
 .pd-dashboard-maximize-close:hover {
 	color: var(--bs-primary, #0d6efd);
 }
+
+/* Dashboard settings button */
+.pd-dashboard-settings-btn {
+	color: var(--bs-secondary-color, #6c757d);
+	font-size: 0.875rem;
+	padding: 0.375rem 0.75rem;
+	border: none;
+	background: none;
+	cursor: pointer;
+}
+
+.pd-dashboard-settings-btn:hover {
+	color: var(--bs-primary, #0d6efd);
+}
+
+/* Dashboard configuration dialog */
+.pd-dashboard-config-backdrop {
+	position: absolute;
+	inset: 0;
+	z-index: 100;
+	background: rgba(0, 0, 0, 0.4);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.pd-dashboard-config-dialog {
+	background: var(--bs-body-bg, #fff);
+	border-radius: 0.5rem;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+	width: 22rem;
+	max-width: 90%;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.pd-dashboard-config-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.75rem 1rem;
+	border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+}
+
+.pd-dashboard-config-header h6 {
+	font-size: 0.9375rem;
+}
+
+.pd-dashboard-config-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	padding: 0;
+	border: none;
+	border-radius: 0.25rem;
+	background: transparent;
+	color: var(--bs-secondary-color, #6c757d);
+	font-size: 0.75rem;
+	cursor: pointer;
+}
+
+.pd-dashboard-config-close:hover {
+	color: var(--bs-body-color, #212529);
+	background: var(--bs-tertiary-bg, #f8f9fa);
+}
+
+.pd-dashboard-config-body {
+	padding: 1rem;
+}
+
+.pd-dashboard-config-field {
+	margin-bottom: 0.75rem;
+}
+
+.pd-dashboard-config-field:last-child {
+	margin-bottom: 0;
+}
+
+.pd-dashboard-config-field label {
+	display: block;
+	font-size: 0.75rem;
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+	color: var(--bs-secondary-color, #6c757d);
+}
+
+.pd-dashboard-config-footer {
+	padding: 0.75rem 1rem;
+	border-top: 1px solid var(--bs-border-color, #dee2e6);
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+}

@@ -21,6 +21,11 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	private string _renameValue = string.Empty;
 	private Timer? _refreshTimer;
 	private Timer? _clockTimer;
+	private OverflowBehavior? _userVerticalOverflow;
+	private OverflowBehavior? _userHorizontalOverflow;
+	private ContentAlignment? _userContentAlignment;
+	private bool _isConfiguring;
+	private string _configContent = string.Empty;
 
 	/// <summary>
 	/// Gets or sets the widget title displayed in the header.
@@ -95,6 +100,12 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	public OverflowBehavior HorizontalOverflow { get; set; } = OverflowBehavior.Hidden;
 
 	/// <summary>
+	/// Gets or sets the vertical content alignment.
+	/// </summary>
+	[Parameter]
+	public ContentAlignment ContentAlignment { get; set; } = ContentAlignment.Top;
+
+	/// <summary>
 	/// Gets or sets the child content for Custom widget type.
 	/// </summary>
 	[Parameter]
@@ -111,6 +122,18 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	/// </summary>
 	[Parameter]
 	public EventCallback OnConfigure { get; set; }
+
+	/// <summary>
+	/// Fired when content is changed via the configuration panel.
+	/// </summary>
+	[Parameter]
+	public EventCallback<string?> ContentChanged { get; set; }
+
+	/// <summary>
+	/// Fired when the widget type is changed via the configuration panel.
+	/// </summary>
+	[Parameter]
+	public EventCallback<PDWidgetType> WidgetTypeChanged { get; set; }
 
 	/// <summary>
 	/// Gets or sets a delegate for fetching URL content. The string parameter is the URL.
@@ -142,6 +165,32 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	[Parameter]
 	public string ImageMimeType { get; set; } = "image/png";
 
+	[CascadingParameter(Name = "DashboardIsEditable")]
+	private bool DashboardIsEditable { get; set; }
+
+	private bool EffectiveIsEditable => IsEditable || DashboardIsEditable;
+
+	private OverflowBehavior EffectiveVerticalOverflow => _userVerticalOverflow ?? VerticalOverflow;
+
+	private OverflowBehavior EffectiveHorizontalOverflow => _userHorizontalOverflow ?? HorizontalOverflow;
+
+	private ContentAlignment EffectiveContentAlignment => _userContentAlignment ?? ContentAlignment;
+
+	private string ContentAlignmentCss => EffectiveContentAlignment switch
+	{
+		ContentAlignment.Center => "pd-widget-align-center",
+		ContentAlignment.Bottom => "pd-widget-align-bottom",
+		_ => ""
+	};
+
+	private string ConfigScrollMode => (EffectiveVerticalOverflow, EffectiveHorizontalOverflow) switch
+	{
+		(OverflowBehavior.Hidden, OverflowBehavior.Hidden) => "hidden",
+		(OverflowBehavior.Hidden, _) => "horizontal",
+		(_, OverflowBehavior.Hidden) => "vertical",
+		_ => "both"
+	};
+
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -153,14 +202,14 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 
 	private string GetBodyOverflowStyle()
 	{
-		var overflowY = VerticalOverflow.ToString().ToLowerInvariant();
-		var overflowX = HorizontalOverflow.ToString().ToLowerInvariant();
+		var overflowY = EffectiveVerticalOverflow.ToString().ToLowerInvariant();
+		var overflowX = EffectiveHorizontalOverflow.ToString().ToLowerInvariant();
 		return $"overflow-y: {overflowY}; overflow-x: {overflowX};";
 	}
 
 	private void StartRename()
 	{
-		if (!IsEditable)
+		if (!EffectiveIsEditable)
 		{
 			return;
 		}
@@ -192,6 +241,84 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		else if (e.Key == "Escape")
 		{
 			_isRenaming = false;
+		}
+	}
+
+	private void OpenConfiguration()
+	{
+		_configContent = Content ?? string.Empty;
+		_isConfiguring = true;
+	}
+
+	private async Task CloseConfigurationAsync()
+	{
+		_isConfiguring = false;
+		if (_configContent != (Content ?? string.Empty))
+		{
+			Content = _configContent;
+			_sanitizedContent = HtmlSanitizer.Sanitize(Content);
+			if (ContentChanged.HasDelegate)
+			{
+				await ContentChanged.InvokeAsync(Content).ConfigureAwait(true);
+			}
+		}
+
+		StateHasChanged();
+	}
+
+	private void OnConfigContentChanged(string value)
+	{
+		_configContent = value;
+	}
+
+	private void OnConfigScrollModeChanged(ChangeEventArgs e)
+	{
+		switch (e.Value?.ToString())
+		{
+			case "vertical":
+				_userVerticalOverflow = OverflowBehavior.Auto;
+				_userHorizontalOverflow = OverflowBehavior.Hidden;
+				break;
+			case "horizontal":
+				_userVerticalOverflow = OverflowBehavior.Hidden;
+				_userHorizontalOverflow = OverflowBehavior.Auto;
+				break;
+			case "both":
+				_userVerticalOverflow = OverflowBehavior.Auto;
+				_userHorizontalOverflow = OverflowBehavior.Auto;
+				break;
+			default:
+				_userVerticalOverflow = OverflowBehavior.Hidden;
+				_userHorizontalOverflow = OverflowBehavior.Hidden;
+				break;
+		}
+	}
+
+	private void OnConfigAlignmentChanged(ChangeEventArgs e)
+	{
+		if (Enum.TryParse<ContentAlignment>(e.Value?.ToString(), out var alignment))
+		{
+			_userContentAlignment = alignment;
+		}
+	}
+
+	private async Task OnConfigWidgetTypeChanged(ChangeEventArgs e)
+	{
+		if (Enum.TryParse<PDWidgetType>(e.Value?.ToString(), out var widgetType) && widgetType != WidgetType)
+		{
+			_clockTimer?.Dispose();
+			_clockTimer = null;
+			_refreshTimer?.Dispose();
+			_refreshTimer = null;
+
+			WidgetType = widgetType;
+			if (WidgetTypeChanged.HasDelegate)
+			{
+				await WidgetTypeChanged.InvokeAsync(widgetType).ConfigureAwait(true);
+			}
+
+			SetupTimers();
+			await LoadContentAsync().ConfigureAwait(true);
 		}
 	}
 

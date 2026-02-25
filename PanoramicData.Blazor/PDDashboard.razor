@@ -3,22 +3,25 @@
 
 @if (IsVisible)
 {
-	<div class="pd-dashboard @(CssClass) @Css" id="@Id">
+	<div class="pd-dashboard @(CssClass) @Css" id="@Id" tabindex="0" @onkeydown="OnDashboardKeyDown">
 
-		@if (ShowTabs && !DisplayMode && Tabs.Count > 1)
+		@if (!DisplayMode && ((ShowTabs && Tabs.Count > 1) || IsEditable))
 		{
 			<ul class="nav nav-tabs pd-dashboard-tabs">
-				@for (var i = 0; i < Tabs.Count; i++)
+				@if (ShowTabs && Tabs.Count > 1)
 				{
-					var index = i;
-					var tab = Tabs[index];
-					<li class="nav-item">
-						<button class="nav-link @(index == _activeTabIndex ? "active" : "")"
-								@onclick="() => SelectTabAsync(index)"
-								@onclick:preventDefault>
-							@tab.Name
-						</button>
-					</li>
+					@for (var i = 0; i < Tabs.Count; i++)
+					{
+						var index = i;
+						var tab = Tabs[index];
+						<li class="nav-item">
+							<button class="nav-link @(index == ActiveTabIndex ? "active" : "")"
+									@onclick="() => SelectTabAsync(index)"
+									@onclick:preventDefault>
+								@tab.Name
+							</button>
+						</li>
+					}
 				}
 				@if (IsEditable)
 				{
@@ -27,18 +30,27 @@
 							<span class="fas fa-plus"></span>
 						</button>
 					</li>
+					<li class="nav-item ms-auto">
+						<button class="nav-link pd-dashboard-settings-btn" @onclick="OpenDashboardConfig" title="Dashboard settings">
+							<span class="fas fa-cog"></span>
+						</button>
+					</li>
 				}
 			</ul>
 		}
 
-		@if (Tabs.Count > 0 && _activeTabIndex >= 0 && _activeTabIndex < Tabs.Count)
+		@if (Tabs.Count > 0 && ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count)
 		{
-			var activeTab = Tabs[_activeTabIndex];
+			var activeTab = Tabs[ActiveTabIndex];
 			var cols = activeTab.ColumnCount ?? ColumnCount;
 			var rowHeight = activeTab.TileRowHeightPx ?? TileRowHeightPx;
 
-			<div class="pd-dashboard-grid @(activeTab.Css)"
-					 style="display: grid; grid-template-columns: repeat(@cols, 1fr); grid-auto-rows: @(rowHeight)px; gap: 0.5rem; padding: 0.5rem;">
+				<CascadingValue Value="IsEditable" Name="DashboardIsEditable">
+				<div class="pd-dashboard-grid @(activeTab.Css)"
+					 style="display: grid; grid-template-columns: repeat(@cols, 1fr); grid-auto-rows: @(rowHeight)px; gap: 0.5rem; padding: 0.5rem;"
+					 @ondragover:preventDefault="@(IsEditable && _draggedTile is not null)"
+					 @ondrop="OnGridDropAsync"
+					 @ondrop:preventDefault="@(IsEditable && _draggedTile is not null)">
 
 					@foreach (var tile in activeTab.Tiles)
 					{
@@ -80,12 +92,15 @@
 							}
 
 							@if (IsEditable && OnTileAdd.HasDelegate)
-							{
-								<div class="pd-dashboard-tile-add" @onclick="RequestAddTileAsync">
-									<span class="fas fa-plus fa-lg"></span>
-									<span class="pd-dashboard-tile-add-label">Add Widget</span>
-								</div>
-							}
+									{
+										var addPosition = FindNextAvailablePosition();
+										<div class="pd-dashboard-tile-add"
+											 style="grid-column: @(addPosition.ColumnIndex + 1) / span 1; grid-row: @(addPosition.RowIndex + 1) / span 1;"
+											 @onclick="RequestAddTileAsync">
+											<span class="fas fa-plus fa-lg"></span>
+											<span class="pd-dashboard-tile-add-label">Add Widget</span>
+										</div>
+									}
 				</div>
 
 				@* Full-screen overlay to capture pointer events during resize *@
@@ -108,10 +123,43 @@
 						<button class="pd-dashboard-maximize-close" @onclick="RestoreTile" title="Restore">
 							<span class="fas fa-compress"></span>
 						</button>
-						@_maximizedTile.ChildContent
+									@_maximizedTile.ChildContent
+									</div>
+								</div>
+							}
+							</CascadingValue>
+						}
+
+		@if (_isConfiguringDashboard && ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count)
+		{
+			<div class="pd-dashboard-config-backdrop" @onclick="CancelDashboardConfig">
+				<div class="pd-dashboard-config-dialog" @onclick:stopPropagation>
+					<div class="pd-dashboard-config-header">
+						<h6 class="mb-0">Dashboard Settings</h6>
+						<button class="pd-dashboard-config-close" @onclick="CancelDashboardConfig" title="Close">
+							<span class="fas fa-times"></span>
+						</button>
+					</div>
+					<div class="pd-dashboard-config-body">
+						<div class="pd-dashboard-config-field">
+							<label>Tab Name</label>
+							<input type="text" class="form-control form-control-sm" @bind="_configTabName" />
+						</div>
+						<div class="pd-dashboard-config-field">
+							<label>Columns</label>
+							<input type="number" class="form-control form-control-sm" @bind="_configColumnCount" min="1" max="24" />
+						</div>
+						<div class="pd-dashboard-config-field">
+							<label>Row Height (px)</label>
+							<input type="number" class="form-control form-control-sm" @bind="_configRowHeight" min="40" max="500" />
+						</div>
+					</div>
+					<div class="pd-dashboard-config-footer">
+						<button class="btn btn-sm btn-outline-secondary" @onclick="CancelDashboardConfig">Cancel</button>
+						<button class="btn btn-sm btn-primary" @onclick="ApplyDashboardConfigAsync">Apply</button>
 					</div>
 				</div>
-			}
+			</div>
 		}
 
 		@if (IsEditable && ConfirmTileDelete)

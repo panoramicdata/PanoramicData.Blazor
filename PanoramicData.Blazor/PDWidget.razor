@@ -8,10 +8,11 @@
 
 			@if (ShowTitle && !string.IsNullOrWhiteSpace(Title))
 				{
-					<div class="card-header pd-widget-header d-flex align-items-center">
+					<div class="card-header pd-widget-header d-flex align-items-center @(EffectiveIsEditable ? "pd-widget-header-editable" : "")">
 						@if (_isRenaming)
 						{
 							<input class="pd-widget-title-input flex-grow-1"
+								   draggable="false"
 								   @bind="_renameValue"
 								   @bind:event="oninput"
 								   @onblur="CommitRenameAsync"
@@ -20,12 +21,15 @@
 						}
 						else
 						{
-							<span class="pd-widget-title flex-grow-1 text-truncate @(IsEditable ? "pd-widget-title-editable" : "")"
+							<span class="pd-widget-title flex-grow-1 text-truncate @(EffectiveIsEditable ? "pd-widget-title-editable" : "")"
 								  @onclick="StartRename">@Title</span>
 						}
-						@if (IsEditable && OnConfigure.HasDelegate)
+						@if (EffectiveIsEditable)
 						{
-							<button class="btn btn-sm btn-link pd-widget-configure p-0 ms-2" @onclick="OnConfigure" title="Configure">
+							<button class="btn btn-sm btn-link pd-widget-configure p-0 ms-2"
+									@onclick="OpenConfiguration" @onclick:stopPropagation
+									draggable="false"
+									title="Configure widget">
 								<span class="fas fa-cog"></span>
 							</button>
 						}
@@ -37,65 +41,117 @@
 				}
 
 			<div class="card-body pd-widget-body p-0 position-relative" style="@GetBodyOverflowStyle()">
-				@if (_isLoading)
-				{
-					<div class="pd-widget-loading d-flex align-items-center justify-content-center h-100">
-						<div class="spinner-border spinner-border-sm text-secondary" role="status">
-							<span class="visually-hidden">Loading...</span>
-						</div>
-					</div>
-				}
-				else if (_hasError)
-				{
-					<div class="pd-widget-error d-flex align-items-center justify-content-center h-100 text-danger p-3">
-						<div class="text-center">
-							<span class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></span>
-							<small>@_errorMessage</small>
-						</div>
-					</div>
-				}
-				else
-				{
-					@switch (WidgetType)
+					@if (_isConfiguring)
 					{
-						case PDWidgetType.Html:
-							<div class="pd-widget-content pd-widget-html p-2">
-								@((MarkupString)_sanitizedContent)
-							</div>
-							break;
-
-						case PDWidgetType.Url:
-							<div class="pd-widget-content pd-widget-url p-2">
-								@((MarkupString)_sanitizedContent)
-							</div>
-							break;
-
-						case PDWidgetType.Clock:
-							<div class="pd-widget-content pd-widget-clock d-flex align-items-center justify-content-center h-100">
-								<div class="text-center">
-									<div class="pd-widget-clock-time">@_clockTime</div>
-									<div class="pd-widget-clock-date text-muted small">@_clockDate</div>
+						<div class="pd-widget-config">
+							<div class="pd-widget-config-scroll">
+								<div class="pd-widget-config-field">
+									<label>Widget Type</label>
+									<select value="@WidgetType" @onchange="OnConfigWidgetTypeChanged"
+											class="form-select form-select-sm">
+										@foreach (var wt in Enum.GetValues<PDWidgetType>())
+										{
+											<option value="@wt">@wt</option>
+										}
+									</select>
+								</div>
+								@if (WidgetType is PDWidgetType.Html or PDWidgetType.Url)
+								{
+									<div class="pd-widget-config-field pd-widget-config-editor-field">
+										<label>@(WidgetType == PDWidgetType.Url ? "URL" : "HTML Content")</label>
+										<div class="pd-widget-config-editor">
+											<PDMonacoEditor Value="@_configContent"
+															ValueChanged="OnConfigContentChanged"
+															Language="@(WidgetType == PDWidgetType.Html ? "html" : "plaintext")" />
+										</div>
+									</div>
+								}
+								<div class="pd-widget-config-field">
+									<label>Overflow</label>
+									<select value="@ConfigScrollMode" @onchange="OnConfigScrollModeChanged"
+											class="form-select form-select-sm">
+										<option value="hidden">Hidden</option>
+										<option value="vertical">Vertical</option>
+										<option value="horizontal">Horizontal</option>
+										<option value="both">Both</option>
+									</select>
+								</div>
+								<div class="pd-widget-config-field">
+									<label>Vertical Alignment</label>
+									<select value="@EffectiveContentAlignment" @onchange="OnConfigAlignmentChanged"
+											class="form-select form-select-sm">
+										@foreach (var align in Enum.GetValues<ContentAlignment>())
+										{
+											<option value="@align">@align</option>
+										}
+									</select>
 								</div>
 							</div>
-							break;
-
-						case PDWidgetType.Image:
-							<div class="pd-widget-content pd-widget-image d-flex align-items-center justify-content-center h-100 p-2">
-								@if (!string.IsNullOrWhiteSpace(_imageSource))
-								{
-									<img src="@_imageSource" alt="@Title" class="pd-widget-img" />
-								}
+							<div class="pd-widget-config-actions">
+								<button class="btn btn-sm btn-primary" @onclick="CloseConfigurationAsync"
+										@onclick:stopPropagation draggable="false">Done</button>
 							</div>
-							break;
-
-						case PDWidgetType.Custom:
-							<div class="pd-widget-content pd-widget-custom h-100">
-								@ChildContent
-							</div>
-							break;
+						</div>
 					}
-				}
-			</div>
+					else if (_isLoading)
+					{
+						<div class="pd-widget-loading d-flex align-items-center justify-content-center h-100">
+							<div class="spinner-border spinner-border-sm text-secondary" role="status">
+								<span class="visually-hidden">Loading...</span>
+							</div>
+						</div>
+					}
+					else if (_hasError)
+					{
+						<div class="pd-widget-error d-flex align-items-center justify-content-center h-100 text-danger p-3">
+							<div class="text-center">
+								<span class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></span>
+								<small>@_errorMessage</small>
+							</div>
+						</div>
+					}
+					else
+					{
+						@switch (WidgetType)
+						{
+							case PDWidgetType.Html:
+								<div class="pd-widget-content pd-widget-html p-2 @ContentAlignmentCss">
+									@((MarkupString)_sanitizedContent)
+								</div>
+								break;
+
+							case PDWidgetType.Url:
+								<div class="pd-widget-content pd-widget-url p-2 @ContentAlignmentCss">
+									@((MarkupString)_sanitizedContent)
+								</div>
+								break;
+
+							case PDWidgetType.Clock:
+								<div class="pd-widget-content pd-widget-clock d-flex align-items-center justify-content-center h-100">
+									<div class="text-center">
+										<div class="pd-widget-clock-time">@_clockTime</div>
+										<div class="pd-widget-clock-date text-muted small">@_clockDate</div>
+									</div>
+								</div>
+								break;
+
+							case PDWidgetType.Image:
+								<div class="pd-widget-content pd-widget-image d-flex align-items-center justify-content-center h-100 p-2">
+									@if (!string.IsNullOrWhiteSpace(_imageSource))
+									{
+										<img src="@_imageSource" alt="@Title" class="pd-widget-img" />
+									}
+								</div>
+								break;
+
+							case PDWidgetType.Custom:
+								<div class="pd-widget-content pd-widget-custom h-100 @ContentAlignmentCss">
+									@ChildContent
+								</div>
+								break;
+						}
+					}
+				</div>
 		</div>
 	</div>
 }

@@ -9,11 +9,12 @@ namespace PanoramicData.Blazor;
 public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 {
 	private static int _idSequence;
-	private int _activeTabIndex;
 	private Timer? _rotationTimer;
 	private PDDashboardTile? _draggedTile;
 	private PDDashboardTile? _dragOverTile;
 	private bool _isUserInteracting;
+	private List<(PDDashboardTile Tile, int RowIndex, int ColumnIndex)>? _dragStartSnapshot;
+	private bool _dragDropCompleted;
 
 	// Resize state
 	private PDDashboardTile? _resizingTile;
@@ -148,7 +149,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	/// <summary>
 	/// Gets the index of the currently active tab.
 	/// </summary>
-	public int ActiveTabIndex => _activeTabIndex;
+	public int ActiveTabIndex { get; private set; }
 
 	protected override void OnInitialized()
 	{
@@ -164,11 +165,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			int.TryParse(tabValue, CultureInfo.InvariantCulture, out var tabIndex) &&
 			tabIndex >= 0 && tabIndex < Tabs.Count)
 		{
-			_activeTabIndex = tabIndex;
+			ActiveTabIndex = tabIndex;
 		}
 		else
 		{
-			_activeTabIndex = StartTab;
+			ActiveTabIndex = StartTab;
 		}
 	}
 
@@ -182,12 +183,12 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 
 	private async Task SelectTabAsync(int index)
 	{
-		if (index < 0 || index >= Tabs.Count || index == _activeTabIndex)
+		if (index < 0 || index >= Tabs.Count || index == ActiveTabIndex)
 		{
 			return;
 		}
 
-		_activeTabIndex = index;
+		ActiveTabIndex = index;
 		_isUserInteracting = true;
 
 		// Update URL with deep link
@@ -214,7 +215,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 				{
 					InvokeAsync(() =>
 					{
-						_activeTabIndex = (_activeTabIndex + 1) % Tabs.Count;
+						ActiveTabIndex = (ActiveTabIndex + 1) % Tabs.Count;
 						StateHasChanged();
 					});
 				}
@@ -232,9 +233,9 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 
 	private int GetEffectiveRotationInterval()
 	{
-		if (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count)
+		if (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count)
 		{
-			var tabOverride = Tabs[_activeTabIndex].TabRotationIntervalSecondsOverride;
+			var tabOverride = Tabs[ActiveTabIndex].TabRotationIntervalSecondsOverride;
 			if (tabOverride.HasValue)
 			{
 				return tabOverride.Value;
@@ -245,7 +246,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	}
 
 	// Drag-and-drop
-	private void OnTileDragStart(DragEventArgs e, PDDashboardTile tile)
+	private void OnTileDragStart(DragEventArgs _, PDDashboardTile tile)
 	{
 		if (!IsEditable)
 		{
@@ -253,51 +254,75 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 
 		_draggedTile = tile;
-	}
+		_dragDropCompleted = false;
 
-	private void OnTileDragOver(DragEventArgs e, PDDashboardTile tile)
-	{
-		if (_draggedTile is not null && _draggedTile != tile)
+		// Save snapshot of all tile positions for potential revert
+		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
+		if (activeTab is not null)
 		{
-			_dragOverTile = tile;
+			_dragStartSnapshot = activeTab.Tiles
+				.Select(t => (Tile: t, t.RowIndex, t.ColumnIndex))
+				.ToList();
 		}
 	}
 
-	private void OnTileDragLeave(DragEventArgs e)
+	private void OnTileDragOver(DragEventArgs _, PDDashboardTile tile)
+	{
+		if (_draggedTile is null || _draggedTile == tile || _dragOverTile == tile)
+		{
+			return;
+		}
+
+		_dragOverTile = tile;
+
+		// Live re-layout preview
+		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
+		if (activeTab is not null)
+		{
+			var cols = activeTab.ColumnCount ?? ColumnCount;
+			_draggedTile.RowIndex = tile.RowIndex;
+			_draggedTile.ColumnIndex = Math.Min(tile.ColumnIndex, Math.Max(0, cols - _draggedTile.ColumnSpanCount));
+			CompactTiles(activeTab, _draggedTile);
+			StateHasChanged();
+		}
+	}
+
+	private void OnTileDragLeave(DragEventArgs _)
 	{
 		_dragOverTile = null;
 	}
 
-	private async Task OnTileDropAsync(DragEventArgs e, PDDashboardTile targetTile)
+	private async Task OnTileDropAsync(DragEventArgs _, PDDashboardTile targetTile)
 	{
 		_dragOverTile = null;
+		_dragDropCompleted = true;
 
 		if (!IsEditable || _draggedTile is null || _draggedTile == targetTile)
 		{
+			// Drop on self or invalid — restore original positions if layout was previewed
+			if (_dragStartSnapshot is not null)
+			{
+				foreach (var (tile, rowIndex, columnIndex) in _dragStartSnapshot)
+				{
+					tile.RowIndex = rowIndex;
+					tile.ColumnIndex = columnIndex;
+				}
+			}
+
 			_draggedTile = null;
+			_dragStartSnapshot = null;
+			StateHasChanged();
 			return;
 		}
 
-		var activeTab = (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count) ? Tabs[_activeTabIndex] : null;
-		if (activeTab is null)
-		{
-			_draggedTile = null;
-			return;
-		}
-
-		// Move dragged tile to target position
-		_draggedTile.RowIndex = targetTile.RowIndex;
-		_draggedTile.ColumnIndex = targetTile.ColumnIndex;
-
-		// Compact all other tiles to fill gaps
-		CompactTiles(activeTab, _draggedTile);
-
+		// Layout was already applied during dragover preview
 		if (OnTileMove.HasDelegate)
 		{
 			await OnTileMove.InvokeAsync((_draggedTile, _draggedTile.RowIndex, _draggedTile.ColumnIndex)).ConfigureAwait(true);
 		}
 
 		_draggedTile = null;
+		_dragStartSnapshot = null;
 		StateHasChanged();
 	}
 
@@ -374,8 +399,60 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 
 	private void OnTileDragEnd(DragEventArgs e)
 	{
+		if (!_dragDropCompleted && _dragStartSnapshot is not null)
+		{
+			// Drag was cancelled (e.g., Escape pressed) — restore original positions
+			foreach (var (tile, rowIndex, columnIndex) in _dragStartSnapshot)
+			{
+				tile.RowIndex = rowIndex;
+				tile.ColumnIndex = columnIndex;
+			}
+		}
+
 		_draggedTile = null;
 		_dragOverTile = null;
+		_dragStartSnapshot = null;
+		_dragDropCompleted = false;
+		StateHasChanged();
+	}
+
+	private void OnDashboardKeyDown(KeyboardEventArgs e)
+	{
+		if (e.Key == "Escape" && _draggedTile is not null && _dragStartSnapshot is not null)
+		{
+			foreach (var (tile, rowIndex, columnIndex) in _dragStartSnapshot)
+			{
+				tile.RowIndex = rowIndex;
+				tile.ColumnIndex = columnIndex;
+			}
+
+			_draggedTile = null;
+			_dragOverTile = null;
+			_dragStartSnapshot = null;
+			_dragDropCompleted = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task OnGridDropAsync(DragEventArgs _)
+	{
+		// Handle drop on empty grid space — finalize the previewed layout
+		if (_dragDropCompleted || _draggedTile is null)
+		{
+			return;
+		}
+
+		_dragDropCompleted = true;
+		_dragOverTile = null;
+
+		if (OnTileMove.HasDelegate)
+		{
+			await OnTileMove.InvokeAsync((_draggedTile, _draggedTile.RowIndex, _draggedTile.ColumnIndex)).ConfigureAwait(true);
+		}
+
+		_draggedTile = null;
+		_dragStartSnapshot = null;
+		StateHasChanged();
 	}
 
 	// Resize via pointer events
@@ -395,7 +472,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			return;
 		}
 
-		var activeTab = (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count) ? Tabs[_activeTabIndex] : null;
+		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
 		if (activeTab is null)
 		{
 			return;
@@ -434,7 +511,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			_resizingTile = null;
 
 			// Compact other tiles around the resized tile
-			var activeTab = (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count) ? Tabs[_activeTabIndex] : null;
+			var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
 			if (activeTab is not null)
 			{
 				CompactTiles(activeTab, tile);
@@ -503,7 +580,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 
 	private async Task PerformDeleteTileAsync(PDDashboardTile tile)
 	{
-		var activeTab = (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count) ? Tabs[_activeTabIndex] : null;
+		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
 		if (activeTab is null)
 		{
 			return;
@@ -538,9 +615,9 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			await OnTabRemove.InvokeAsync(tab).ConfigureAwait(true);
 		}
 
-		if (_activeTabIndex >= Tabs.Count)
+		if (ActiveTabIndex >= Tabs.Count)
 		{
-			_activeTabIndex = Math.Max(0, Tabs.Count - 1);
+			ActiveTabIndex = Math.Max(0, Tabs.Count - 1);
 		}
 
 		StateHasChanged();
@@ -563,7 +640,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	/// <returns>The (RowIndex, ColumnIndex) for the tile, or the next empty row if no gap is found.</returns>
 	public (int RowIndex, int ColumnIndex) FindNextAvailablePosition(int colSpan = 1, int rowSpan = 1)
 	{
-		var activeTab = (_activeTabIndex >= 0 && _activeTabIndex < Tabs.Count) ? Tabs[_activeTabIndex] : null;
+		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
 		if (activeTab is null || activeTab.Tiles.Count == 0)
 		{
 			return (0, 0);
@@ -611,6 +688,51 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 
 		// No gap found — place on the next row
 		return (maxRow, 0);
+	}
+
+	// Dashboard configuration
+	private bool _isConfiguringDashboard;
+	private string _configTabName = string.Empty;
+	private int _configColumnCount;
+	private int _configRowHeight;
+
+	private void OpenDashboardConfig()
+	{
+		if (ActiveTabIndex < 0 || ActiveTabIndex >= Tabs.Count)
+		{
+			return;
+		}
+
+		var activeTab = Tabs[ActiveTabIndex];
+		_configTabName = activeTab.Name;
+		_configColumnCount = activeTab.ColumnCount ?? ColumnCount;
+		_configRowHeight = activeTab.TileRowHeightPx ?? TileRowHeightPx;
+		_isConfiguringDashboard = true;
+	}
+
+	private void CancelDashboardConfig()
+	{
+		_isConfiguringDashboard = false;
+	}
+
+	private async Task ApplyDashboardConfigAsync()
+	{
+		if (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count)
+		{
+			var activeTab = Tabs[ActiveTabIndex];
+			activeTab.Name = _configTabName;
+			activeTab.ColumnCount = _configColumnCount;
+			activeTab.TileRowHeightPx = _configRowHeight;
+		}
+
+		_isConfiguringDashboard = false;
+
+		if (OnSettingsChanged.HasDelegate)
+		{
+			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
+		}
+
+		StateHasChanged();
 	}
 
 	public ValueTask DisposeAsync()
