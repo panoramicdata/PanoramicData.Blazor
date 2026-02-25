@@ -260,9 +260,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
 		if (activeTab is not null)
 		{
-			_dragStartSnapshot = activeTab.Tiles
-				.Select(t => (Tile: t, t.RowIndex, t.ColumnIndex))
-				.ToList();
+			_dragStartSnapshot = [.. activeTab.Tiles.Select(t => (Tile: t, t.RowIndex, t.ColumnIndex))];
 		}
 	}
 
