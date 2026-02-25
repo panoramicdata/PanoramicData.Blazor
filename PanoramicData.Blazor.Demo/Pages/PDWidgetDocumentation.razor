@@ -1,0 +1,162 @@
+<div class="pd-widget-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDWidget</code> is a configurable content widget that supports multiple content types
+			including HTML, URL, clock, image, and custom <code>RenderFragment</code>. Widgets can be used
+			standalone or within a <code>PDDashboard</code>.
+		</p>
+		<ul>
+			<li>Multiple content types: HTML, URL, Clock, Image, Custom</li>
+			<li>Inline configuration panel with preview, save, and cancel</li>
+			<li>Title bar with icon, rename (in config mode), and refresh indicator</li>
+			<li>Overflow and content alignment control</li>
+			<li>Auto-refresh timer support</li>
+			<li>Key/value properties with dashboard-level inheritance</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="HTML Widget"
+					AnchorId="html-widget"
+					Code="@_htmlExample"
+					Language="razor"
+					DemoStyle="height: 180px;">
+			<DemoContent>
+				<div style="height: 150px; max-width: 400px;">
+					<PDWidget Title="HTML Content"
+							  WidgetType="PDWidgetType.Html"
+							  Content="@_sampleHtml"
+							  Icon="fas fa-code" />
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Set <code>WidgetType="PDWidgetType.Html"</code> and provide HTML via <code>Content</code>.
+					Content is sanitized to remove scripts and event handlers.
+				</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="Clock Widget"
+					AnchorId="clock-widget"
+					Code="@_clockExample"
+					Language="razor"
+					DemoStyle="height: 180px;">
+			<DemoContent>
+				<div style="height: 150px; max-width: 400px;">
+					<PDWidget Title="Local Time"
+							  WidgetType="PDWidgetType.Clock"
+							  Icon="fas fa-clock" />
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					The clock widget auto-updates every second. Use <code>ClockTimeZone</code> for a specific
+					timezone, or leave unset for local time. Format with <code>ClockTimeFormat</code> and
+					<code>ClockDateFormat</code>.
+				</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="Custom Widget"
+					AnchorId="custom-widget"
+					Code="@_customExample"
+					Language="razor"
+					DemoStyle="height: 180px;">
+			<DemoContent>
+				<div style="height: 150px; max-width: 400px;">
+					<PDWidget Title="Custom Content" WidgetType="PDWidgetType.Custom">
+						<div class="p-3 d-flex align-items-center justify-content-center h-100">
+							<div class="text-center">
+								<span class="fas fa-puzzle-piece fa-2x text-primary mb-2 d-block"></span>
+								<p class="mb-0">Custom RenderFragment</p>
+							</div>
+						</div>
+					</PDWidget>
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Use <code>WidgetType="PDWidgetType.Custom"</code> with <code>ChildContent</code>
+					to render any Blazor content inside the widget.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Title</code></td><td><code>string?</code></td><td><code>null</code></td><td>Title displayed in the header bar</td></tr>
+				<tr><td><code>WidgetType</code></td><td><code>PDWidgetType</code></td><td><code>Custom</code></td><td>Content type: Html, Url, Clock, Image, Custom</td></tr>
+				<tr><td><code>Content</code></td><td><code>string?</code></td><td><code>null</code></td><td>HTML content, URL, or image URL</td></tr>
+				<tr><td><code>ContentBytes</code></td><td><code>byte[]?</code></td><td><code>null</code></td><td>Binary content for image widgets</td></tr>
+				<tr><td><code>Icon</code></td><td><code>string?</code></td><td><code>null</code></td><td>Icon CSS class for header (e.g. "fas fa-clock")</td></tr>
+				<tr><td><code>ShowTitle</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show/hide the title bar</td></tr>
+				<tr><td><code>IsEditable</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show editing controls (config button)</td></tr>
+				<tr><td><code>VerticalOverflow</code></td><td><code>OverflowBehavior</code></td><td><code>Hidden</code></td><td>Vertical overflow: Hidden, Auto, Scroll</td></tr>
+				<tr><td><code>HorizontalOverflow</code></td><td><code>OverflowBehavior</code></td><td><code>Hidden</code></td><td>Horizontal overflow: Hidden, Auto, Scroll</td></tr>
+				<tr><td><code>ContentAlignment</code></td><td><code>ContentAlignment</code></td><td><code>Top</code></td><td>Vertical alignment: Top, Center, Bottom</td></tr>
+				<tr><td><code>RefreshIntervalSeconds</code></td><td><code>int</code></td><td><code>0</code></td><td>Auto-refresh interval (0 = disabled)</td></tr>
+				<tr><td><code>ClockTimeZone</code></td><td><code>TimeZoneInfo?</code></td><td><code>null</code></td><td>Timezone for clock (null = local)</td></tr>
+				<tr><td><code>ClockTimeFormat</code></td><td><code>string</code></td><td><code>"HH:mm:ss"</code></td><td>Time display format</td></tr>
+				<tr><td><code>ClockDateFormat</code></td><td><code>string</code></td><td><code>"dddd, dd MMMM yyyy"</code></td><td>Date display format</td></tr>
+				<tr><td><code>ImageMimeType</code></td><td><code>string</code></td><td><code>"image/png"</code></td><td>MIME type for binary image content</td></tr>
+				<tr><td><code>FetchContent</code></td><td><code>Func&lt;string, Task&lt;string&gt;&gt;?</code></td><td><code>null</code></td><td>Delegate for fetching URL content</td></tr>
+				<tr><td><code>Properties</code></td><td><code>Dictionary&lt;string, string&gt;?</code></td><td><code>null</code></td><td>Widget-level properties (override dashboard)</td></tr>
+				<tr><td><code>Css</code></td><td><code>string?</code></td><td><code>null</code></td><td>Additional CSS classes</td></tr>
+				<tr><td><code>HeaderCss</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS for header (overrides dashboard level)</td></tr>
+				<tr><td><code>BorderCss</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS for card border (overrides dashboard level)</td></tr>
+				<tr><td><code>ContentCss</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS for content area (overrides dashboard level)</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Event</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>TitleChanged</code></td><td><code>EventCallback&lt;string&gt;</code></td><td>Fired when the title is renamed</td></tr>
+				<tr><td><code>ContentChanged</code></td><td><code>EventCallback&lt;string?&gt;</code></td><td>Fired when content is saved via config panel</td></tr>
+				<tr><td><code>WidgetTypeChanged</code></td><td><code>EventCallback&lt;PDWidgetType&gt;</code></td><td>Fired when widget type changes via config</td></tr>
+				<tr><td><code>OnRefresh</code></td><td><code>EventCallback</code></td><td>Fired on content refresh</td></tr>
+				<tr><td><code>OnConfigure</code></td><td><code>EventCallback</code></td><td>Fired when configure button is clicked</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="methods">
+		<h2 class="doc-section">Public Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>RefreshAsync()</code></td><td><code>Task</code></td><td>Manually triggers a content refresh</td></tr>
+				<tr><td><code>GetProperty(string key)</code></td><td><code>string?</code></td><td>Gets a property by key (widget-level overrides dashboard-level)</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="properties-section">
+		<h2 class="doc-section">Properties (Key/Value)</h2>
+		<p>
+			Widgets support <code>Properties</code> (<code>Dictionary&lt;string, string&gt;</code>).
+			When used inside a <code>PDDashboard</code>, dashboard-level properties are automatically
+			cascaded. Call <code>GetProperty("key")</code> to retrieve a value — widget properties
+			take precedence over dashboard properties.
+		</p>
+	</section>
+
+</div>

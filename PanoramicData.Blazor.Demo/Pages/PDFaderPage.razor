@@ -2,7 +2,13 @@
 @using PanoramicData.Blazor.Enums
 @using Microsoft.Extensions.Logging
 
-<h1>PDFader Demo</h1>
+<h1>PDFader</h1>
+
+<DemoSourceView SourceFiles="Pages/PDFaderPage.razor, Pages/PDFaderPage.razor.cs">
+<DocumentationContent>
+	<PDFaderDocumentation />
+</DocumentationContent>
+<ChildContent>
 
 <div class="row">
 	<div class="col-md-2">
@@ -61,3 +67,6 @@
 		<PDLog @ref="_log" />
 	</div>
 </div>
+
+</ChildContent>
+</DemoSourceView>
