@@ -1,6 +1,6 @@
 ﻿@inherits PDComponentBase
 
-<div class="pddatetimeoffset @(IsVisible ? "" : "d-none ") w-100 @CssClass">
+<div class="pddatetimeoffset @(IsVisible ? "" : "d-none ") @CssClass">
 
 	<input @onblur="OnBlur"
 		   @oninput="OnDateInputAsync"

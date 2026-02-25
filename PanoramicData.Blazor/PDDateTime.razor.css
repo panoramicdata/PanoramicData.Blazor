@@ -4,7 +4,7 @@
 }
 
 .form-control.date {
-	width: 124px;
+	width: fit-content;
 }
 
 .form-control.time {

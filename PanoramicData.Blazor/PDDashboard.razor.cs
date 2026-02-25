@@ -15,6 +15,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private bool _isUserInteracting;
 	private List<(PDDashboardTile Tile, int RowIndex, int ColumnIndex)>? _dragStartSnapshot;
 	private bool _dragDropCompleted;
+	private bool _previousIsEditable;
 
 	// Resize state
 	private PDDashboardTile? _resizingTile;
@@ -57,6 +58,24 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	public string? Css { get; set; }
 
 	/// <summary>
+	/// Gets or sets CSS classes applied to all widget headers. Individual widgets can override via HeaderCss.
+	/// </summary>
+	[Parameter]
+	public string? WidgetHeaderCss { get; set; }
+
+	/// <summary>
+	/// Gets or sets CSS classes applied to all widget borders/cards. Individual widgets can override via BorderCss.
+	/// </summary>
+	[Parameter]
+	public string? WidgetBorderCss { get; set; }
+
+	/// <summary>
+	/// Gets or sets CSS classes applied to all widget content areas. Individual widgets can override via ContentCss.
+	/// </summary>
+	[Parameter]
+	public string? WidgetContentCss { get; set; }
+
+	/// <summary>
 	/// Gets or sets whether to show the tab bar.
 	/// </summary>
 	[Parameter]
@@ -91,6 +110,20 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	/// </summary>
 	[Parameter]
 	public int MaximizePercent { get; set; } = 80;
+
+	/// <summary>
+	/// Gets or sets whether the maximize button is shown in view mode.
+	/// Individual tiles can override this via their ShowMaximize property.
+	/// </summary>
+	[Parameter]
+	public bool ShowMaximize { get; set; }
+
+	/// <summary>
+	/// Gets or sets dashboard-level properties as string key/value pairs.
+	/// These are cascaded to all widgets and can be overridden at the widget level.
+	/// </summary>
+	[Parameter]
+	public Dictionary<string, string>? Properties { get; set; }
 
 	/// <summary>
 	/// Fired when a tile is moved via drag-and-drop.
@@ -147,6 +180,12 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	public EventCallback<int> ActiveTabChanged { get; set; }
 
 	/// <summary>
+	/// Fired when the IsEditable property changes value.
+	/// </summary>
+	[Parameter]
+	public EventCallback<bool> OnEditModeChanged { get; set; }
+
+	/// <summary>
 	/// Gets the index of the currently active tab.
 	/// </summary>
 	public int ActiveTabIndex { get; private set; }
@@ -159,6 +198,8 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			Id = $"pd-dashboard-{++_idSequence}";
 		}
 
+		_previousIsEditable = IsEditable;
+
 		// Read tab from URL deep link
 		var uri = new Uri(NavigationManager.Uri);
 		if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("tab", out var tabValue) &&
@@ -170,6 +211,18 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		else
 		{
 			ActiveTabIndex = StartTab;
+		}
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (_previousIsEditable != IsEditable)
+		{
+			_previousIsEditable = IsEditable;
+			if (OnEditModeChanged.HasDelegate)
+			{
+				await OnEditModeChanged.InvokeAsync(IsEditable).ConfigureAwait(true);
+			}
 		}
 	}
 
@@ -319,6 +372,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			await OnTileMove.InvokeAsync((_draggedTile, _draggedTile.RowIndex, _draggedTile.ColumnIndex)).ConfigureAwait(true);
 		}
 
+		if (OnSettingsChanged.HasDelegate)
+		{
+			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
+		}
+
 		_draggedTile = null;
 		_dragStartSnapshot = null;
 		StateHasChanged();
@@ -448,6 +506,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			await OnTileMove.InvokeAsync((_draggedTile, _draggedTile.RowIndex, _draggedTile.ColumnIndex)).ConfigureAwait(true);
 		}
 
+		if (OnSettingsChanged.HasDelegate)
+		{
+			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
+		}
+
 		_draggedTile = null;
 		_dragStartSnapshot = null;
 		StateHasChanged();
@@ -520,6 +583,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 				await OnTileResize.InvokeAsync((tile, tile.RowSpanCount, tile.ColumnSpanCount)).ConfigureAwait(true);
 			}
 
+			if (OnSettingsChanged.HasDelegate)
+			{
+				await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
+			}
+
 			StateHasChanged();
 		}
 	}
@@ -545,6 +613,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			await OnTabAdd.InvokeAsync(newTab).ConfigureAwait(true);
 		}
 
+		if (OnSettingsChanged.HasDelegate)
+		{
+			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
+		}
+
 		await SelectTabAsync(Tabs.Count - 1).ConfigureAwait(true);
 	}
 
@@ -553,6 +626,12 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		if (OnTileAdd.HasDelegate)
 		{
 			await OnTileAdd.InvokeAsync().ConfigureAwait(true);
+
+			if (OnSettingsChanged.HasDelegate)
+			{
+				await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
+			}
+
 			StateHasChanged();
 		}
 	}
@@ -592,6 +671,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			await OnTileDelete.InvokeAsync(tile).ConfigureAwait(true);
 		}
 
+		if (OnSettingsChanged.HasDelegate)
+		{
+			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
+		}
+
 		StateHasChanged();
 	}
 
@@ -611,6 +695,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		if (OnTabRemove.HasDelegate)
 		{
 			await OnTabRemove.InvokeAsync(tab).ConfigureAwait(true);
+		}
+
+		if (OnSettingsChanged.HasDelegate)
+		{
+			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
 		}
 
 		if (ActiveTabIndex >= Tabs.Count)

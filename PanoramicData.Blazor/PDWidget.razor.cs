@@ -25,7 +25,17 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	private OverflowBehavior? _userHorizontalOverflow;
 	private ContentAlignment? _userContentAlignment;
 	private bool _isConfiguring;
+	private bool _isPreviewing;
+	private bool _previousEffectiveIsEditable;
 	private string _configContent = string.Empty;
+	private PDConfirm? _confirmCancel;
+
+	// Snapshot state for cancel/revert
+	private string _snapshotContent = string.Empty;
+	private PDWidgetType _snapshotWidgetType;
+	private OverflowBehavior? _snapshotVerticalOverflow;
+	private OverflowBehavior? _snapshotHorizontalOverflow;
+	private ContentAlignment? _snapshotContentAlignment;
 
 	/// <summary>
 	/// Gets or sets the widget title displayed in the header.
@@ -68,6 +78,30 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	/// </summary>
 	[Parameter]
 	public string? Css { get; set; }
+
+	/// <summary>
+	/// Gets or sets the icon CSS class displayed in the header (e.g. "fas fa-chart-bar").
+	/// </summary>
+	[Parameter]
+	public string? Icon { get; set; }
+
+	/// <summary>
+	/// Gets or sets CSS classes applied to the widget header. Overrides dashboard-level WidgetHeaderCss.
+	/// </summary>
+	[Parameter]
+	public string? HeaderCss { get; set; }
+
+	/// <summary>
+	/// Gets or sets CSS classes applied to the widget border/card. Overrides dashboard-level WidgetBorderCss.
+	/// </summary>
+	[Parameter]
+	public string? BorderCss { get; set; }
+
+	/// <summary>
+	/// Gets or sets CSS classes applied to the widget content area. Overrides dashboard-level WidgetContentCss.
+	/// </summary>
+	[Parameter]
+	public string? ContentCss { get; set; }
 
 	/// <summary>
 	/// Gets or sets the auto-refresh interval in seconds. 0 = disabled.
@@ -165,10 +199,35 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	[Parameter]
 	public string ImageMimeType { get; set; } = "image/png";
 
+	/// <summary>
+	/// Gets or sets widget-level properties as string key/value pairs.
+	/// These override any dashboard-level properties with the same key.
+	/// </summary>
+	[Parameter]
+	public Dictionary<string, string>? Properties { get; set; }
+
 	[CascadingParameter(Name = "DashboardIsEditable")]
 	private bool DashboardIsEditable { get; set; }
 
+	[CascadingParameter(Name = "DashboardWidgetHeaderCss")]
+	private string? DashboardWidgetHeaderCss { get; set; }
+
+	[CascadingParameter(Name = "DashboardWidgetBorderCss")]
+	private string? DashboardWidgetBorderCss { get; set; }
+
+	[CascadingParameter(Name = "DashboardWidgetContentCss")]
+	private string? DashboardWidgetContentCss { get; set; }
+
+	[CascadingParameter(Name = "DashboardProperties")]
+	private Dictionary<string, string>? DashboardProperties { get; set; }
+
 	private bool EffectiveIsEditable => IsEditable || DashboardIsEditable;
+
+	private string? EffectiveHeaderCss => HeaderCss ?? DashboardWidgetHeaderCss;
+
+	private string? EffectiveBorderCss => BorderCss ?? DashboardWidgetBorderCss;
+
+	private string? EffectiveContentCss => ContentCss ?? DashboardWidgetContentCss;
 
 	private OverflowBehavior EffectiveVerticalOverflow => _userVerticalOverflow ?? VerticalOverflow;
 
@@ -198,6 +257,21 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		{
 			Id = $"pd-widget-{++_idSequence}";
 		}
+
+		_previousEffectiveIsEditable = EffectiveIsEditable;
+	}
+
+	protected override void OnParametersSet()
+	{
+		// When edit mode is turned off, close any open configuration or rename
+		if (_previousEffectiveIsEditable && !EffectiveIsEditable)
+		{
+			_isConfiguring = false;
+			_isPreviewing = false;
+			_isRenaming = false;
+		}
+
+		_previousEffectiveIsEditable = EffectiveIsEditable;
 	}
 
 	private string GetBodyOverflowStyle()
@@ -209,7 +283,7 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 
 	private void StartRename()
 	{
-		if (!EffectiveIsEditable)
+		if (!_isConfiguring)
 		{
 			return;
 		}
@@ -247,7 +321,76 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	private void OpenConfiguration()
 	{
 		_configContent = Content ?? string.Empty;
+		_snapshotContent = _configContent;
+		_snapshotWidgetType = WidgetType;
+		_snapshotVerticalOverflow = _userVerticalOverflow;
+		_snapshotHorizontalOverflow = _userHorizontalOverflow;
+		_snapshotContentAlignment = _userContentAlignment;
 		_isConfiguring = true;
+	}
+
+	private bool HasConfigChanges =>
+		_configContent != _snapshotContent ||
+		WidgetType != _snapshotWidgetType ||
+		_userVerticalOverflow != _snapshotVerticalOverflow ||
+		_userHorizontalOverflow != _snapshotHorizontalOverflow ||
+		_userContentAlignment != _snapshotContentAlignment;
+
+	private async Task CancelConfigurationAsync()
+	{
+		if (!HasConfigChanges)
+		{
+			_isConfiguring = false;
+			StateHasChanged();
+			return;
+		}
+
+		if (_confirmCancel is not null)
+		{
+			var result = await _confirmCancel.ShowAndWaitResultAsync().ConfigureAwait(true);
+			if (result != PDConfirm.Outcomes.Yes)
+			{
+				return;
+			}
+		}
+
+		// Revert all changes
+		_configContent = _snapshotContent;
+		Content = _snapshotContent;
+		_sanitizedContent = HtmlSanitizer.Sanitize(Content);
+
+		if (WidgetType != _snapshotWidgetType)
+		{
+			_clockTimer?.Dispose();
+			_clockTimer = null;
+			_refreshTimer?.Dispose();
+			_refreshTimer = null;
+			WidgetType = _snapshotWidgetType;
+			SetupTimers();
+			await LoadContentAsync().ConfigureAwait(true);
+		}
+
+		_userVerticalOverflow = _snapshotVerticalOverflow;
+		_userHorizontalOverflow = _snapshotHorizontalOverflow;
+		_userContentAlignment = _snapshotContentAlignment;
+
+		_isConfiguring = false;
+		_isPreviewing = false;
+		StateHasChanged();
+	}
+
+	private void OnPreviewStart()
+	{
+		_isPreviewing = true;
+	}
+
+	private void OnPreviewEnd()
+	{
+		if (_isPreviewing)
+		{
+			_isPreviewing = false;
+			StateHasChanged();
+		}
 	}
 
 	private async Task CloseConfigurationAsync()
@@ -472,6 +615,25 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		{
 			await OnRefresh.InvokeAsync().ConfigureAwait(true);
 		}
+	}
+
+	/// <summary>
+	/// Gets a property value by key. Widget-level properties take precedence
+	/// over dashboard-level properties. Returns null if not found at either level.
+	/// </summary>
+	public string? GetProperty(string key)
+	{
+		if (Properties is not null && Properties.TryGetValue(key, out var widgetValue))
+		{
+			return widgetValue;
+		}
+
+		if (DashboardProperties is not null && DashboardProperties.TryGetValue(key, out var dashboardValue))
+		{
+			return dashboardValue;
+		}
+
+		return null;
 	}
 
 	public ValueTask DisposeAsync()

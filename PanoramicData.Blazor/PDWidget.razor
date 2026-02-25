@@ -4,12 +4,16 @@
 @if (IsVisible)
 {
 	<div class="pd-widget @(CssClass) @Css" id="@Id">
-		<div class="card h-100">
+		<div class="card h-100 @EffectiveBorderCss">
 
 			@if (ShowTitle && !string.IsNullOrWhiteSpace(Title))
 				{
-					<div class="card-header pd-widget-header d-flex align-items-center @(EffectiveIsEditable ? "pd-widget-header-editable" : "")">
-						@if (_isRenaming)
+					<div class="card-header pd-widget-header d-flex align-items-center @(EffectiveIsEditable ? "pd-widget-header-editable" : "") @EffectiveHeaderCss">
+								@if (!string.IsNullOrWhiteSpace(Icon))
+								{
+									<span class="pd-widget-icon @Icon"></span>
+								}
+								@if (_isRenaming)
 						{
 							<input class="pd-widget-title-input flex-grow-1"
 								   draggable="false"
@@ -21,7 +25,7 @@
 						}
 						else
 						{
-							<span class="pd-widget-title flex-grow-1 text-truncate @(EffectiveIsEditable ? "pd-widget-title-editable" : "")"
+							<span class="pd-widget-title flex-grow-1 text-truncate @(_isConfiguring ? "pd-widget-title-editable" : "")"
 								  @onclick="StartRename">@Title</span>
 						}
 						@if (EffectiveIsEditable)
@@ -40,8 +44,8 @@
 					</div>
 				}
 
-			<div class="card-body pd-widget-body p-0 position-relative" style="@GetBodyOverflowStyle()">
-					@if (_isConfiguring)
+			<div class="card-body pd-widget-body p-0 position-relative @EffectiveContentCss" style="@GetBodyOverflowStyle()">
+					@if (_isConfiguring && !_isPreviewing)
 					{
 						<div class="pd-widget-config">
 							<div class="pd-widget-config-scroll">
@@ -86,10 +90,6 @@
 										}
 									</select>
 								</div>
-							</div>
-							<div class="pd-widget-config-actions">
-								<button class="btn btn-sm btn-primary" @onclick="CloseConfigurationAsync"
-										@onclick:stopPropagation draggable="false">Done</button>
 							</div>
 						</div>
 					}
@@ -151,6 +151,38 @@
 								break;
 						}
 					}
+
+					@if (_isConfiguring)
+						{
+							<div class="pd-widget-config-actions">
+								<button class="btn btn-sm btn-outline-secondary"
+										@onpointerdown="OnPreviewStart"
+										@onpointerdown:stopPropagation
+										@onpointerup="OnPreviewEnd"
+										@onpointerup:stopPropagation
+										@onpointerleave="OnPreviewEnd"
+										draggable="false"
+										title="Hold to preview">
+									<span class="fas fa-eye"></span> Preview
+								</button>
+								<button class="btn btn-sm btn-outline-danger"
+										@onclick="CancelConfigurationAsync"
+										@onclick:stopPropagation
+										draggable="false"
+										title="Cancel changes">
+									<span class="fas fa-times"></span> Cancel
+								</button>
+								<button class="btn btn-sm btn-primary"
+										disabled="@(!HasConfigChanges)"
+										@onclick="CloseConfigurationAsync"
+										@onclick:stopPropagation
+										draggable="false">Save</button>
+							</div>
+
+							<PDConfirm @ref="_confirmCancel"
+									   Title="Discard Changes"
+									   Message="Are you sure you want to discard your changes?" />
+						}
 				</div>
 		</div>
 	</div>

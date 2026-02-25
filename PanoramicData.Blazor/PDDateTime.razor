@@ -1,13 +1,14 @@
 ﻿@inherits PDComponentBase
 
-<div class="pddatetime @(IsVisible ? "" : "d-none ") w-100 @CssClass">
+<div class="pddatetime @(IsVisible ? "" : "d-none ") @CssClass">
 
 	<input @onblur="OnBlur"
 		   @oninput="OnDateInputAsync"
 		   class="form-control date @_dateCssClass"
 		   disabled="@(!IsEnabled)"
-		   type="date"
-		   value="@(Value.ToString("yyyy-MM-dd"))">
+		   type="@(UseNativeDatePicker ? "date" : "text")"
+		   value="@(Value.ToString(UseNativeDatePicker ? "yyyy-MM-dd" : DateFormat))"
+		   placeholder="@(UseNativeDatePicker ? null : DateFormat)">
 
 	@if (ShowTime)
 	{

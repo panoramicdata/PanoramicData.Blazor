@@ -12,6 +12,16 @@ public partial class PDDateTime
 	public EventCallback Blur { get; set; }
 
 	/// <summary>
+	/// Gets or sets the date format string used for display and parsing.
+	/// Defaults to "yyyy-MM-dd". When set to the default, the native browser date picker is used.
+	/// When set to a custom format, a text input is used instead.
+	/// </summary>
+	[Parameter]
+	public string DateFormat { get; set; } = "yyyy-MM-dd";
+
+	private bool UseNativeDatePicker => DateFormat == "yyyy-MM-dd";
+
+	/// <summary>
 	/// Gets or sets whether to show the time part of the value.
 	/// </summary>
 	[Parameter]
@@ -42,7 +52,8 @@ public partial class PDDateTime
 		try
 		{
 			var value = args.Value?.ToString();
-			if (value != null && DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
+			var parseFormat = UseNativeDatePicker ? "yyyy-MM-dd" : DateFormat;
+			if (value != null && DateTime.TryParseExact(value, parseFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
 			{
 				Value = dt.Date.Add(Value.TimeOfDay);
 				_dateCssClass = string.Empty;

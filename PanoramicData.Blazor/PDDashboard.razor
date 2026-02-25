@@ -46,6 +46,10 @@
 			var rowHeight = activeTab.TileRowHeightPx ?? TileRowHeightPx;
 
 				<CascadingValue Value="IsEditable" Name="DashboardIsEditable">
+				<CascadingValue Value="WidgetHeaderCss" Name="DashboardWidgetHeaderCss">
+				<CascadingValue Value="WidgetBorderCss" Name="DashboardWidgetBorderCss">
+				<CascadingValue Value="WidgetContentCss" Name="DashboardWidgetContentCss">
+				<CascadingValue Value="Properties" Name="DashboardProperties">
 				<div class="pd-dashboard-grid @(activeTab.Css)"
 					 style="display: grid; grid-template-columns: repeat(@cols, 1fr); grid-auto-rows: @(rowHeight)px; gap: 0.5rem; padding: 0.5rem;"
 					 @ondragover:preventDefault="@(IsEditable && _draggedTile is not null)"
@@ -53,41 +57,59 @@
 					 @ondrop:preventDefault="@(IsEditable && _draggedTile is not null)">
 
 					@foreach (var tile in activeTab.Tiles)
-					{
-						var gridStyle = $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount}; display: grid;";
-						var tileClasses = $"pd-dashboard-tile {tile.Css} {(IsEditable ? "pd-dashboard-tile-editable" : "")} {(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")} {(_draggedTile == tile ? "pd-dashboard-tile-dragging" : "")} {(_dragOverTile == tile && _draggedTile != tile ? "pd-dashboard-tile-dragover" : "")}";
-						var resizeInfo = _resizingTile == tile ? $"{tile.ColumnSpanCount} × {tile.RowSpanCount}" : null;
+						{
+							var isMaximized = _maximizedTile == tile;
+								var gridStyle = isMaximized
+									? $"width: {MaximizePercent}%; height: {MaximizePercent}%;"
+									: $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount}; display: grid;";
+							var tileClasses = $"pd-dashboard-tile {tile.Css} {(IsEditable ? "pd-dashboard-tile-editable" : "")} {(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")} {(_draggedTile == tile ? "pd-dashboard-tile-dragging" : "")} {(_dragOverTile == tile && _draggedTile != tile ? "pd-dashboard-tile-dragover" : "")} {(isMaximized ? "pd-dashboard-tile-maximized" : "")}";
+							var resizeInfo = _resizingTile == tile ? $"{tile.ColumnSpanCount} × {tile.RowSpanCount}" : null;
 
-						<div class="@tileClasses"
-							 style="@gridStyle"
-							 data-resize-info="@resizeInfo"
-							 draggable="@(IsEditable && _resizingTile is null ? "true" : "false")"
-							 @ondragstart="(e) => OnTileDragStart(e, tile)"
-							 @ondragover="(e) => OnTileDragOver(e, tile)"
-							 @ondragover:preventDefault="@IsEditable"
-							 @ondragleave="OnTileDragLeave"
-							 @ondrop="(e) => OnTileDropAsync(e, tile)"
-							 @ondrop:preventDefault="@IsEditable"
-							 @ondragend="OnTileDragEnd">
-									@tile.ChildContent
-									@if (IsEditable)
-									{
-										<div class="pd-dashboard-tile-toolbar">
-											<button class="pd-dashboard-tile-btn pd-dashboard-tile-btn-danger" draggable="false" title="Delete"
-													@onclick="() => RequestDeleteTileAsync(tile)" @onclick:stopPropagation>
-												<span class="fas fa-trash-alt"></span>
-											</button>
-											<button class="pd-dashboard-tile-btn" draggable="false" title="Maximize"
-													@onclick="() => MaximizeTile(tile)" @onclick:stopPropagation>
-												<span class="fas fa-expand"></span>
-											</button>
-										</div>
-										<div class="pd-dashboard-tile-resize-handle"
-											 @onpointerdown="(e) => OnResizePointerDown(e, tile)"
-											 @onpointerdown:stopPropagation
-											 @onpointerdown:preventDefault>
-										</div>
-									}
+							<div class="@tileClasses"
+								 style="@gridStyle"
+								 data-resize-info="@resizeInfo"
+								 draggable="@(IsEditable && _resizingTile is null && !isMaximized ? "true" : "false")"
+								 @ondragstart="(e) => OnTileDragStart(e, tile)"
+								 @ondragover="(e) => OnTileDragOver(e, tile)"
+								 @ondragover:preventDefault="@IsEditable"
+								 @ondragleave="OnTileDragLeave"
+								 @ondrop="(e) => OnTileDropAsync(e, tile)"
+								 @ondrop:preventDefault="@IsEditable"
+								 @ondragend="OnTileDragEnd">
+										@tile.ChildContent
+											@if (isMaximized)
+											{
+												<button class="pd-dashboard-maximize-close" @onclick="RestoreTile" @onclick:stopPropagation title="Restore">
+													<span class="fas fa-compress"></span>
+												</button>
+											}
+											@{
+												var canMaximize = tile.ShowMaximize ?? ShowMaximize;
+											}
+											@if (!isMaximized && (IsEditable || canMaximize))
+										{
+											<div class="pd-dashboard-tile-toolbar">
+												@if (IsEditable)
+												{
+													<button class="pd-dashboard-tile-btn pd-dashboard-tile-btn-danger" draggable="false" title="Delete"
+															@onclick="() => RequestDeleteTileAsync(tile)" @onclick:stopPropagation>
+														<span class="fas fa-trash-alt"></span>
+													</button>
+												}
+												<button class="pd-dashboard-tile-btn" draggable="false" title="Maximize"
+														@onclick="() => MaximizeTile(tile)" @onclick:stopPropagation>
+													<span class="fas fa-expand"></span>
+												</button>
+											</div>
+											@if (IsEditable)
+											{
+												<div class="pd-dashboard-tile-resize-handle"
+													 @onpointerdown="(e) => OnResizePointerDown(e, tile)"
+													 @onpointerdown:stopPropagation
+													 @onpointerdown:preventDefault>
+												</div>
+											}
+										}
 								</div>
 							}
 
@@ -116,17 +138,12 @@
 
 			@if (_maximizedTile is not null)
 			{
-				<div class="pd-dashboard-maximize-backdrop" @onclick="RestoreTile">
-					<div class="pd-dashboard-maximize-content"
-						 style="width: @(MaximizePercent)%; height: @(MaximizePercent)%;"
-						 @onclick:stopPropagation>
-						<button class="pd-dashboard-maximize-close" @onclick="RestoreTile" title="Restore">
-							<span class="fas fa-compress"></span>
-						</button>
-									@_maximizedTile.ChildContent
-									</div>
-								</div>
-							}
+				<div class="pd-dashboard-maximize-backdrop" @onclick="RestoreTile"></div>
+			}
+							</CascadingValue>
+							</CascadingValue>
+							</CascadingValue>
+							</CascadingValue>
 							</CascadingValue>
 						}
 

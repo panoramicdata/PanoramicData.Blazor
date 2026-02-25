@@ -31,6 +31,12 @@ public class PDDashboardTile
 	public string? Css { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether the maximize button is shown in view mode for this tile.
+	/// When null, inherits the dashboard-level ShowMaximize setting.
+	/// </summary>
+	public bool? ShowMaximize { get; set; }
+
+	/// <summary>
 	/// Gets or sets the render fragment for the tile content.
 	/// </summary>
 	public RenderFragment? ChildContent { get; set; }
