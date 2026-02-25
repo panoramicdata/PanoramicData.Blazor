@@ -76,6 +76,7 @@ public partial class PDDashboardPage
 		{
 			builder.AddAttribute(3, nameof(PDWidget.Content), content);
 		}
+
 		builder.CloseComponent();
 	};
 

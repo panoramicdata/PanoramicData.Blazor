@@ -359,6 +359,7 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 				{
 					await FetchUrlContentAsync(Content).ConfigureAwait(true);
 				}
+
 				break;
 
 			case PDWidgetType.Clock:
