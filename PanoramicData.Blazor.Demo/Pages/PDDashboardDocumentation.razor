@@ -1,0 +1,207 @@
+<div class="pd-dashboard-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDDashboard</code> is a tabbed dashboard container with CSS grid layout, kiosk/display mode,
+			tab rotation, and drag-and-drop tile editing. Tiles are positioned on a configurable grid and can contain
+			<code>PDWidget</code> components or any custom content.
+		</p>
+		<ul>
+			<li>Multi-tab support with add/remove/rename</li>
+			<li>CSS grid layout with configurable columns and row height</li>
+			<li>Drag-and-drop tile reordering with live preview</li>
+			<li>Tile resizing via drag handle</li>
+			<li>Tile maximize/restore (edit and view mode)</li>
+			<li>Display/kiosk mode with auto tab rotation</li>
+			<li>Dashboard and widget-level properties (string key/value pairs)</li>
+			<li>Settings persistence via <code>OnSettingsChanged</code> callback</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Dashboard"
+					AnchorId="basic-dashboard"
+					Code="@_basicExample"
+					Language="razor"
+					DemoStyle="height: 340px;">
+			<DemoContent>
+				<div style="height: 300px; border: 1px solid var(--bs-border-color); border-radius: 0.375rem; overflow: hidden;">
+					<PDDashboard Tabs="_basicTabs"
+								 ColumnCount="4"
+								 TileRowHeightPx="120" />
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					A minimal dashboard with a 4-column grid. Define tabs with <code>PDDashboardTab</code>
+					and tiles with <code>PDDashboardTile</code>. Each tile's <code>ChildContent</code> holds
+					the rendered content.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="edit-mode">
+		<h2 class="doc-section">Edit Mode</h2>
+
+		<DocExample Title="Editable Dashboard"
+					AnchorId="editable-dashboard"
+					Code="@_editableExample"
+					Language="razor"
+					DemoStyle="height: 340px;">
+			<DemoContent>
+				<div style="height: 300px; border: 1px solid var(--bs-border-color); border-radius: 0.375rem; overflow: hidden;">
+					<PDDashboard Tabs="_editTabs"
+								 ColumnCount="4"
+								 TileRowHeightPx="120"
+								 IsEditable="true"
+								 OnTileAdd="_onDocTileAdd" />
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Set <code>IsEditable="true"</code> to enable drag-and-drop reordering, tile resizing,
+					tile deletion, and the dashboard settings panel. The <code>IsEditable</code> state
+					is cascaded to all child <code>PDWidget</code> components.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="maximize">
+		<h2 class="doc-section">Maximize in View Mode</h2>
+
+		<DocExample Title="ShowMaximize"
+					AnchorId="show-maximize"
+					Code="@_maximizeExample"
+					Language="razor"
+					DemoStyle="height: 340px;">
+			<DemoContent>
+				<div style="height: 300px; border: 1px solid var(--bs-border-color); border-radius: 0.375rem; overflow: hidden;">
+					<PDDashboard Tabs="_maximizeTabs"
+								 ColumnCount="4"
+								 TileRowHeightPx="120"
+								 ShowMaximize="true" />
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Set <code>ShowMaximize="true"</code> on the dashboard to show the maximize button on all
+					tiles even in view mode. Individual tiles can override via <code>PDDashboardTile.ShowMaximize</code>
+					(<code>true</code> to force on, <code>false</code> to force off, <code>null</code> to inherit).
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">PDDashboard Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Tabs</code></td><td><code>List&lt;PDDashboardTab&gt;</code></td><td><code>[]</code></td><td>Dashboard tabs containing tiles</td></tr>
+				<tr><td><code>ColumnCount</code></td><td><code>int</code></td><td><code>12</code></td><td>Number of grid columns</td></tr>
+				<tr><td><code>TileRowHeightPx</code></td><td><code>int</code></td><td><code>120</code></td><td>Height of each grid row in pixels</td></tr>
+				<tr><td><code>IsEditable</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enable editing controls (drag, resize, delete)</td></tr>
+				<tr><td><code>DisplayMode</code></td><td><code>bool</code></td><td><code>false</code></td><td>Kiosk mode — hides all chrome</td></tr>
+				<tr><td><code>ShowTabs</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show the tab bar</td></tr>
+				<tr><td><code>ShowMaximize</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show maximize button in view mode</td></tr>
+				<tr><td><code>MaximizePercent</code></td><td><code>int</code></td><td><code>80</code></td><td>Percentage of area used when maximized</td></tr>
+				<tr><td><code>StartTab</code></td><td><code>int</code></td><td><code>0</code></td><td>Initially selected tab index</td></tr>
+				<tr><td><code>TabRotationIntervalSeconds</code></td><td><code>int</code></td><td><code>0</code></td><td>Auto-rotate tabs interval (0 = disabled)</td></tr>
+				<tr><td><code>ConfirmTileDelete</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show confirmation dialog before deleting tiles</td></tr>
+				<tr><td><code>Css</code></td><td><code>string?</code></td><td><code>null</code></td><td>Dashboard-level CSS classes</td></tr>
+				<tr><td><code>WidgetHeaderCss</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS for all widget headers (overridable per widget)</td></tr>
+				<tr><td><code>WidgetBorderCss</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS for all widget borders (overridable per widget)</td></tr>
+				<tr><td><code>WidgetContentCss</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS for all widget content areas (overridable per widget)</td></tr>
+				<tr><td><code>Properties</code></td><td><code>Dictionary&lt;string, string&gt;?</code></td><td><code>null</code></td><td>Key/value properties cascaded to widgets</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Event</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>OnTileMove</code></td><td><code>EventCallback&lt;(PDDashboardTile, int, int)&gt;</code></td><td>Fired when a tile is moved via drag-and-drop</td></tr>
+				<tr><td><code>OnTileResize</code></td><td><code>EventCallback&lt;(PDDashboardTile, int, int)&gt;</code></td><td>Fired when a tile is resized</td></tr>
+				<tr><td><code>OnTileAdd</code></td><td><code>EventCallback</code></td><td>Fired when the add tile button is clicked</td></tr>
+				<tr><td><code>OnTileDelete</code></td><td><code>EventCallback&lt;PDDashboardTile&gt;</code></td><td>Fired after a tile is deleted</td></tr>
+				<tr><td><code>OnTabAdd</code></td><td><code>EventCallback&lt;PDDashboardTab&gt;</code></td><td>Fired when a tab is added</td></tr>
+				<tr><td><code>OnTabRemove</code></td><td><code>EventCallback&lt;PDDashboardTab&gt;</code></td><td>Fired when a tab is removed</td></tr>
+				<tr><td><code>ActiveTabChanged</code></td><td><code>EventCallback&lt;int&gt;</code></td><td>Fired when the active tab changes</td></tr>
+				<tr><td><code>OnEditModeChanged</code></td><td><code>EventCallback&lt;bool&gt;</code></td><td>Fired when edit mode toggles</td></tr>
+				<tr><td><code>OnSettingsChanged</code></td><td><code>EventCallback</code></td><td>Fired after any layout change (move, resize, add, delete, config)</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="models">
+		<h2 class="doc-section">Models</h2>
+
+		<h4>PDDashboardTab</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Name</code></td><td><code>string</code></td><td><code>""</code></td><td>Tab display name</td></tr>
+				<tr><td><code>Css</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS classes for the tab content area</td></tr>
+				<tr><td><code>ColumnCount</code></td><td><code>int?</code></td><td><code>null</code></td><td>Override column count (null = dashboard default)</td></tr>
+				<tr><td><code>TileRowHeightPx</code></td><td><code>int?</code></td><td><code>null</code></td><td>Override row height (null = dashboard default)</td></tr>
+				<tr><td><code>Tiles</code></td><td><code>List&lt;PDDashboardTile&gt;</code></td><td><code>[]</code></td><td>Tiles within this tab</td></tr>
+			</tbody>
+		</table>
+
+		<h4 class="mt-3">PDDashboardTile</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>RowIndex</code></td><td><code>int</code></td><td><code>0</code></td><td>Zero-based row index</td></tr>
+				<tr><td><code>ColumnIndex</code></td><td><code>int</code></td><td><code>0</code></td><td>Zero-based column index</td></tr>
+				<tr><td><code>RowSpanCount</code></td><td><code>int</code></td><td><code>1</code></td><td>Number of rows to span</td></tr>
+				<tr><td><code>ColumnSpanCount</code></td><td><code>int</code></td><td><code>1</code></td><td>Number of columns to span</td></tr>
+				<tr><td><code>Css</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS classes for this tile</td></tr>
+				<tr><td><code>ShowMaximize</code></td><td><code>bool?</code></td><td><code>null</code></td><td>Override maximize visibility (null = inherit)</td></tr>
+				<tr><td><code>ChildContent</code></td><td><code>RenderFragment?</code></td><td><code>null</code></td><td>Tile content (typically a PDWidget)</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="persistence">
+		<h2 class="doc-section">Persistence</h2>
+		<p>
+			The <code>OnSettingsChanged</code> event fires after every layout-changing operation
+			(tile move, resize, add, delete, tab add/remove, and dashboard config changes).
+			Subscribe to this single callback to persist the dashboard state.
+		</p>
+		<p>
+			To persist, serialize the <code>Tabs</code> collection (tile positions, spans, and any
+			custom metadata) and restore it on next load.
+		</p>
+	</section>
+
+	<section id="properties">
+		<h2 class="doc-section">Properties (Key/Value)</h2>
+		<p>
+			Both <code>PDDashboard</code> and <code>PDWidget</code> support <code>Properties</code>
+			(<code>Dictionary&lt;string, string&gt;</code>). Dashboard properties are cascaded to all
+			widgets. Widget properties override dashboard properties for the same key.
+		</p>
+		<p>
+			Access via <code>widget.GetProperty("key")</code> which returns the widget value if set,
+			then the dashboard value, or <code>null</code> if neither exists.
+		</p>
+	</section>
+
+</div>
