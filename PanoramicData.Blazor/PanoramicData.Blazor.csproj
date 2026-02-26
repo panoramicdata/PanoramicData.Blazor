@@ -26,7 +26,8 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			Added "TitleFunc" function to PDColumn, so a function can be used to override Title.
+			PDDashboard: optional name row above tabs; display-mode header with dashboard/tab name and rotation controls (pause/resume, prev/next); properties editor in settings dialog; view-mode per-session property overrides (AllowViewModePropertyEdit); fix EffectiveProperties cascade.
+			PDSplitterDocumentation: fix example to use PDSplitPanel children; correct parameters table.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

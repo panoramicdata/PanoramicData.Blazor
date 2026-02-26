@@ -17,35 +17,50 @@
 					Language="razor"
 					DemoStyle="height: 200px;">
 			<DemoContent>
-				<PDSplitter Style="height: 180px;">
-					<Panel1>
+				<PDSplitter>
+					<PDSplitPanel Size="1">
 						<div class="p-2 bg-light h-100">Left Panel</div>
-					</Panel1>
-					<Panel2>
+					</PDSplitPanel>
+					<PDSplitPanel Size="1">
 						<div class="p-2 bg-secondary text-white h-100">Right Panel</div>
-					</Panel2>
+					</PDSplitPanel>
 				</PDSplitter>
 			</DemoContent>
 			<Description>
 				<p>
-					Define <code>Panel1</code> and <code>Panel2</code> content. Drag the divider to resize.
+					Add any number of <code>PDSplitPanel</code> children. Each panel's <code>Size</code> is
+					proportional to the sum of all siblings — two panels with <code>Size="1"</code> split evenly.
 				</p>
 			</Description>
 		</DocExample>
 	</section>
 
 	<section id="parameters">
-		<h2 class="doc-section">Parameters</h2>
+		<h2 class="doc-section">PDSplitter Parameters</h2>
 		<table class="table table-sm doc-props-table">
 			<thead>
 				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
 			</thead>
 			<tbody>
-				<tr><td><code>Horizontal</code></td><td><code>bool</code></td><td>true</td><td>Horizontal (left/right) or vertical (top/bottom)</td></tr>
-				<tr><td><code>Panel1Size</code></td><td><code>string</code></td><td>"50%"</td><td>Initial size of first panel</td></tr>
-				<tr><td><code>Panel1MinSize</code></td><td><code>string</code></td><td>"10%"</td><td>Minimum size of first panel</td></tr>
-				<tr><td><code>Panel2MinSize</code></td><td><code>string</code></td><td>"10%"</td><td>Minimum size of second panel</td></tr>
-				<tr><td><code>GutterSize</code></td><td><code>int</code></td><td>4</td><td>Width of the draggable divider</td></tr>
+				<tr><td><code>Direction</code></td><td><code>SplitDirection</code></td><td><code>Horizontal</code></td><td>Split axis: <code>Horizontal</code> (left/right) or <code>Vertical</code> (top/bottom)</td></tr>
+				<tr><td><code>ExpandToMin</code></td><td><code>bool</code></td><td><code>false</code></td><td>Expand panels to their minimum size on initial render</td></tr>
+				<tr><td><code>GutterSize</code></td><td><code>int</code></td><td><code>10</code></td><td>Width of the draggable divider in pixels</td></tr>
+				<tr><td><code>GutterAlign</code></td><td><code>string</code></td><td><code>"center"</code></td><td>Gutter alignment between elements</td></tr>
+				<tr><td><code>SnapOffset</code></td><td><code>int</code></td><td><code>30</code></td><td>Distance in pixels from minimum size at which the panel snaps</td></tr>
+				<tr><td><code>DragInterval</code></td><td><code>int</code></td><td><code>1</code></td><td>Number of pixels per drag step</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td><code>""</code></td><td>Additional CSS classes for the container element</td></tr>
+			</tbody>
+		</table>
+
+		<h2 class="doc-section mt-3">PDSplitPanel Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Size</code></td><td><code>int</code></td><td><code>1</code></td><td>Proportional size relative to all sibling panels (e.g. <code>Size="1"</code> and <code>Size="2"</code> gives 33%/67%)</td></tr>
+				<tr><td><code>MinSize</code></td><td><code>int</code></td><td><code>100</code></td><td>Minimum panel size in pixels</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td><code>""</code></td><td>Additional CSS classes for the panel element</td></tr>
 			</tbody>
 		</table>
 	</section>
