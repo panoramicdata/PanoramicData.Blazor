@@ -6,7 +6,6 @@ public partial class PDDashboardPage
 {
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	private bool _isEditable;
 	private bool _displayMode;
 	private bool _showMaximize;
 	private bool _clockShowMaximize;
@@ -125,34 +124,6 @@ public partial class PDDashboardPage
 	private void OnTabAdded(PDDashboardTab tab)
 	{
 		EventManager?.Add(new Event("OnTabAdd", new EventArgument("Name", tab.Name)));
-	}
-
-	private void OnTileAddRequested()
-	{
-		if (_dashboard is null)
-		{
-			return;
-		}
-
-		var activeTab = _tabs.ElementAtOrDefault(_dashboard.ActiveTabIndex);
-		if (activeTab is null)
-		{
-			return;
-		}
-
-		var (row, col) = _dashboard.FindNextAvailablePosition();
-
-		var newTile = new PDDashboardTile
-		{
-			RowIndex = row,
-			ColumnIndex = col,
-			ColumnSpanCount = 1,
-			RowSpanCount = 1,
-			ChildContent = BuildWidget("New Widget", PDWidgetType.Html, "<div class='p-3 text-center text-muted'><em>Configure this widget</em></div>")
-		};
-
-		activeTab.Tiles.Add(newTile);
-		EventManager?.Add(new Event("OnTileAdd", new EventArgument("Row", row), new EventArgument("Column", col)));
 	}
 
 	private void OnActiveTabChanged(int index)

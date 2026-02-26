@@ -10,10 +10,6 @@
 
 		<div class="mb-3 d-flex gap-2 align-items-center flex-wrap">
 			<div class="form-check form-switch">
-				<input class="form-check-input" type="checkbox" id="editMode" @bind="_isEditable" />
-				<label class="form-check-label" for="editMode">Edit Mode</label>
-			</div>
-			<div class="form-check form-switch">
 				<input class="form-check-input" type="checkbox" id="displayMode" @bind="_displayMode" />
 				<label class="form-check-label" for="displayMode">Display Mode</label>
 			</div>
@@ -32,12 +28,10 @@
 						 Tabs="_tabs"
 						 ColumnCount="4"
 						 TileRowHeightPx="140"
-						 IsEditable="_isEditable"
 						 DisplayMode="_displayMode"
 						 ShowMaximize="_showMaximize"
 						 OnTileMove="OnTileMoved"
 						 OnTileResize="OnTileResized"
-						 OnTileAdd="OnTileAddRequested"
 						 OnTileDelete="OnTileDeleted"
 						 OnTabAdd="OnTabAdded"
 						 ActiveTabChanged="OnActiveTabChanged"

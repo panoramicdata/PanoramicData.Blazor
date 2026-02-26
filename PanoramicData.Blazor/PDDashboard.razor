@@ -5,7 +5,7 @@
 {
 	<div class="pd-dashboard @(CssClass) @Css" id="@Id" tabindex="0" @onkeydown="OnDashboardKeyDown">
 
-		@if (!DisplayMode && ((ShowTabs && Tabs.Count > 1) || IsEditable))
+		@if (!DisplayMode && ((ShowTabs && Tabs.Count > 1) || EffectiveIsEditable || ShowEditButton))
 		{
 			<ul class="nav nav-tabs pd-dashboard-tabs">
 				@if (ShowTabs && Tabs.Count > 1)
@@ -23,7 +23,7 @@
 						</li>
 					}
 				}
-				@if (IsEditable)
+				@if (EffectiveIsEditable)
 				{
 					<li class="nav-item">
 						<button class="nav-link pd-dashboard-tab-add" @onclick="AddTabAsync" title="Add tab">
@@ -36,6 +36,16 @@
 						</button>
 					</li>
 				}
+				@if (ShowEditButton && !IsEditable)
+				{
+					<li class="nav-item @(!EffectiveIsEditable ? "ms-auto" : "")">
+						<button class="nav-link pd-dashboard-edit-btn @(EffectiveIsEditable ? "active" : "")"
+								@onclick="ToggleEditModeAsync"
+								title="@(EffectiveIsEditable ? "Done editing" : "Edit dashboard")">
+							<span class="fas @(EffectiveIsEditable ? "fa-check" : "fa-edit")"></span>
+						</button>
+					</li>
+				}
 			</ul>
 		}
 
@@ -45,16 +55,16 @@
 			var cols = activeTab.ColumnCount ?? ColumnCount;
 			var rowHeight = activeTab.TileRowHeightPx ?? TileRowHeightPx;
 
-				<CascadingValue Value="IsEditable" Name="DashboardIsEditable">
+				<CascadingValue Value="EffectiveIsEditable" Name="DashboardIsEditable">
 				<CascadingValue Value="WidgetHeaderCss" Name="DashboardWidgetHeaderCss">
 				<CascadingValue Value="WidgetBorderCss" Name="DashboardWidgetBorderCss">
 				<CascadingValue Value="WidgetContentCss" Name="DashboardWidgetContentCss">
 				<CascadingValue Value="Properties" Name="DashboardProperties">
 				<div class="pd-dashboard-grid @(activeTab.Css)"
 					 style="display: grid; grid-template-columns: repeat(@cols, 1fr); grid-auto-rows: @(rowHeight)px; gap: 0.5rem; padding: 0.5rem;"
-					 @ondragover:preventDefault="@(IsEditable && _draggedTile is not null)"
+					 @ondragover:preventDefault="@(EffectiveIsEditable && _draggedTile is not null)"
 					 @ondrop="OnGridDropAsync"
-					 @ondrop:preventDefault="@(IsEditable && _draggedTile is not null)">
+					 @ondrop:preventDefault="@(EffectiveIsEditable && _draggedTile is not null)">
 
 					@foreach (var tile in activeTab.Tiles)
 						{
@@ -62,19 +72,19 @@
 								var gridStyle = isMaximized
 									? $"width: {MaximizePercent}%; height: {MaximizePercent}%;"
 									: $"grid-column: {tile.ColumnIndex + 1} / span {tile.ColumnSpanCount}; grid-row: {tile.RowIndex + 1} / span {tile.RowSpanCount}; display: grid;";
-							var tileClasses = $"pd-dashboard-tile {tile.Css} {(IsEditable ? "pd-dashboard-tile-editable" : "")} {(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")} {(_draggedTile == tile ? "pd-dashboard-tile-dragging" : "")} {(_dragOverTile == tile && _draggedTile != tile ? "pd-dashboard-tile-dragover" : "")} {(isMaximized ? "pd-dashboard-tile-maximized" : "")}";
+							var tileClasses = $"pd-dashboard-tile {tile.Css} {(EffectiveIsEditable ? "pd-dashboard-tile-editable" : "")} {(_resizingTile == tile ? "pd-dashboard-tile-resizing" : "")} {(_draggedTile == tile ? "pd-dashboard-tile-dragging" : "")} {(_dragOverTile == tile && _draggedTile != tile ? "pd-dashboard-tile-dragover" : "")} {(isMaximized ? "pd-dashboard-tile-maximized" : "")}";
 							var resizeInfo = _resizingTile == tile ? $"{tile.ColumnSpanCount} × {tile.RowSpanCount}" : null;
 
 							<div class="@tileClasses"
 								 style="@gridStyle"
 								 data-resize-info="@resizeInfo"
-								 draggable="@(IsEditable && _resizingTile is null && !isMaximized ? "true" : "false")"
+								 draggable="@(EffectiveIsEditable && _resizingTile is null && !isMaximized ? "true" : "false")"
 								 @ondragstart="(e) => OnTileDragStart(e, tile)"
 								 @ondragover="(e) => OnTileDragOver(e, tile)"
-								 @ondragover:preventDefault="@IsEditable"
+								 @ondragover:preventDefault="@EffectiveIsEditable"
 								 @ondragleave="OnTileDragLeave"
 								 @ondrop="(e) => OnTileDropAsync(e, tile)"
-								 @ondrop:preventDefault="@IsEditable"
+								 @ondrop:preventDefault="@EffectiveIsEditable"
 								 @ondragend="OnTileDragEnd">
 										@tile.ChildContent
 											@if (isMaximized)
@@ -86,10 +96,10 @@
 											@{
 												var canMaximize = tile.ShowMaximize ?? ShowMaximize;
 											}
-											@if (!isMaximized && (IsEditable || canMaximize))
+											@if (!isMaximized && (EffectiveIsEditable || canMaximize))
 										{
 											<div class="pd-dashboard-tile-toolbar">
-												@if (IsEditable)
+												@if (EffectiveIsEditable)
 												{
 													<button class="pd-dashboard-tile-btn pd-dashboard-tile-btn-danger" draggable="false" title="Delete"
 															@onclick="() => RequestDeleteTileAsync(tile)" @onclick:stopPropagation>
@@ -101,7 +111,7 @@
 													<span class="fas fa-expand"></span>
 												</button>
 											</div>
-											@if (IsEditable)
+											@if (EffectiveIsEditable)
 											{
 												<div class="pd-dashboard-tile-resize-handle"
 													 @onpointerdown="(e) => OnResizePointerDown(e, tile)"
@@ -113,7 +123,7 @@
 								</div>
 							}
 
-							@if (IsEditable && OnTileAdd.HasDelegate)
+							@if (EffectiveIsEditable)
 									{
 										var addPosition = FindNextAvailablePosition();
 										<div class="pd-dashboard-tile-add"
@@ -179,7 +189,7 @@
 			</div>
 		}
 
-		@if (IsEditable && ConfirmTileDelete)
+		@if (EffectiveIsEditable && ConfirmTileDelete)
 		{
 			<PDConfirm @ref="_confirmDelete"
 					   Title="Delete Widget"

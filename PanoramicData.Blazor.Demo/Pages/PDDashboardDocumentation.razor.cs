@@ -111,8 +111,6 @@ public partial class PDDashboardDocumentation
 		}
 	];
 
-	private EventCallback _onDocTileAdd => EventCallback.Factory.Create(this, () => { });
-
 	private const string _basicExample = """
 		<PDDashboard Tabs="_tabs"
 		             ColumnCount="4"
@@ -147,15 +145,17 @@ public partial class PDDashboardDocumentation
 		""";
 
 	private const string _editableExample = """
+		@* Edit mode is built-in — click the ✏ Edit button in the tab bar *@
 		<PDDashboard Tabs="_tabs"
-		             ColumnCount="4"
-		             TileRowHeightPx="120"
-		             IsEditable="true"
-		             OnTileMove="OnTileMoved"
-		             OnTileResize="OnTileResized"
-		             OnTileAdd="OnTileAddRequested"
-		             OnTileDelete="OnTileDeleted"
-		             OnSettingsChanged="OnSettingsChanged" />
+					 ColumnCount="4"
+					 TileRowHeightPx="120"
+					 OnTileMove="OnTileMoved"
+					 OnTileResize="OnTileResized"
+					 OnTileDelete="OnTileDeleted"
+					 OnSettingsChanged="OnSettingsChanged" />
+
+		@* To force edit mode on externally, or hide the built-in toggle: *@
+		@* IsEditable="true" ShowEditButton="false" *@
 		""";
 
 	private const string _maximizeExample = """

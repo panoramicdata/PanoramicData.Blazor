@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Routing;
+using PanoramicData.Blazor.Enums;
 
 namespace PanoramicData.Blazor;
 
@@ -16,6 +17,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private List<(PDDashboardTile Tile, int RowIndex, int ColumnIndex)>? _dragStartSnapshot;
 	private bool _dragDropCompleted;
 	private bool _previousIsEditable;
+	private bool _isInternallyEditable;
 
 	// Resize state
 	private PDDashboardTile? _resizingTile;
@@ -119,6 +121,13 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	public bool ShowMaximize { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether to show the built-in edit mode toggle button.
+	/// Only shown when <see cref="IsEditable"/> is not forced on externally. Default true.
+	/// </summary>
+	[Parameter]
+	public bool ShowEditButton { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets dashboard-level properties as string key/value pairs.
 	/// These are cascaded to all widgets and can be overridden at the widget level.
 	/// </summary>
@@ -138,7 +147,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	public EventCallback<(PDDashboardTile Tile, int NewRowSpan, int NewColumnSpan)> OnTileResize { get; set; }
 
 	/// <summary>
-	/// Fired when the user requests to add a new tile. The consumer should create the tile and add it to the active tab.
+	/// Fired when the user requests to add a new tile. If no delegate is provided, a blank <see cref="PDWidget"/> tile is added automatically.
 	/// </summary>
 	[Parameter]
 	public EventCallback OnTileAdd { get; set; }
@@ -190,6 +199,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	/// </summary>
 	public int ActiveTabIndex { get; private set; }
 
+	/// <summary>
+	/// Gets whether the dashboard is currently in edit mode, either via the <see cref="IsEditable"/> parameter or the built-in toggle.
+	/// </summary>
+	public bool EffectiveIsEditable => IsEditable || _isInternallyEditable;
+
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -199,6 +213,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 
 		_previousIsEditable = IsEditable;
+
+		if (Tabs.Count == 0)
+		{
+			Tabs.Add(new PDDashboardTab { Name = "Dashboard" });
+		}
 
 		// Read tab from URL deep link
 		var uri = new Uri(NavigationManager.Uri);
@@ -221,7 +240,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			_previousIsEditable = IsEditable;
 			if (OnEditModeChanged.HasDelegate)
 			{
-				await OnEditModeChanged.InvokeAsync(IsEditable).ConfigureAwait(true);
+				await OnEditModeChanged.InvokeAsync(EffectiveIsEditable).ConfigureAwait(true);
 			}
 		}
 	}
@@ -490,6 +509,28 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 	}
 
+	private async Task ToggleEditModeAsync()
+	{
+		_isInternallyEditable = !_isInternallyEditable;
+
+		if (_isInternallyEditable)
+		{
+			_rotationTimer?.Dispose();
+			_rotationTimer = null;
+		}
+		else
+		{
+			SetupRotationTimer();
+		}
+
+		if (OnEditModeChanged.HasDelegate)
+		{
+			await OnEditModeChanged.InvokeAsync(EffectiveIsEditable).ConfigureAwait(true);
+		}
+
+		StateHasChanged();
+	}
+
 	private async Task OnGridDropAsync(DragEventArgs _)
 	{
 		// Handle drop on empty grid space — finalize the previewed layout
@@ -626,14 +667,36 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		if (OnTileAdd.HasDelegate)
 		{
 			await OnTileAdd.InvokeAsync().ConfigureAwait(true);
-
-			if (OnSettingsChanged.HasDelegate)
-			{
-				await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
-			}
-
-			StateHasChanged();
 		}
+		else
+		{
+			var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
+			if (activeTab is not null)
+			{
+				var (row, col) = FindNextAvailablePosition();
+				activeTab.Tiles.Add(new PDDashboardTile
+				{
+					RowIndex = row,
+					ColumnIndex = col,
+					ColumnSpanCount = 1,
+					RowSpanCount = 1,
+					ChildContent = builder =>
+					{
+						builder.OpenComponent<PDWidget>(0);
+						builder.AddAttribute(1, nameof(PDWidget.Title), "New Widget");
+						builder.AddAttribute(2, nameof(PDWidget.WidgetType), PDWidgetType.Html);
+						builder.CloseComponent();
+					}
+				});
+			}
+		}
+
+		if (OnSettingsChanged.HasDelegate)
+		{
+			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
+		}
+
+		StateHasChanged();
 	}
 
 	private async Task RequestDeleteTileAsync(PDDashboardTile tile)
