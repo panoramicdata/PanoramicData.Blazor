@@ -27,8 +27,9 @@ public class PDDashboardTab
 
 	/// <summary>
 	/// Gets or sets a tab-specific rotation interval override in seconds.
+	/// When set, overrides the dashboard-level <see cref="PDDashboard.RotationIntervalSeconds"/> for this tab. 0 = never rotate this tab.
 	/// </summary>
-	public int? TabRotationIntervalSecondsOverride { get; set; }
+	public int? RotationIntervalSecondsOverride { get; set; }
 
 	/// <summary>
 	/// Gets or sets the tiles within this tab.

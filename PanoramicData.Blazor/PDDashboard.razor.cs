@@ -90,10 +90,16 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	public int StartTab { get; set; }
 
 	/// <summary>
-	/// Gets or sets the tab auto-rotation interval in seconds. 0 = disabled.
+	/// Gets or sets whether automatic tab rotation is enabled.
 	/// </summary>
 	[Parameter]
-	public int TabRotationIntervalSeconds { get; set; }
+	public bool IsRotationEnabled { get; set; }
+
+	/// <summary>
+	/// Gets or sets the tab auto-rotation interval in seconds. 0 = never rotate. Requires <see cref="IsRotationEnabled"/> to be true.
+	/// </summary>
+	[Parameter]
+	public int RotationIntervalSeconds { get; set; } = 5;
 
 	/// <summary>
 	/// Gets or sets kiosk/display mode. When true, hides all editing chrome.
@@ -305,16 +311,21 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 
 	private int GetEffectiveRotationInterval()
 	{
+		if (!IsRotationEnabled)
+		{
+			return 0;
+		}
+
 		if (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count)
 		{
-			var tabOverride = Tabs[ActiveTabIndex].TabRotationIntervalSecondsOverride;
+			var tabOverride = Tabs[ActiveTabIndex].RotationIntervalSecondsOverride;
 			if (tabOverride.HasValue)
 			{
-				return tabOverride.Value;
+				return tabOverride.Value > 0 ? tabOverride.Value : 0;
 			}
 		}
 
-		return TabRotationIntervalSeconds;
+		return RotationIntervalSeconds > 0 ? RotationIntervalSeconds : 0;
 	}
 
 	// Drag-and-drop

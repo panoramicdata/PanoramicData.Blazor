@@ -13,7 +13,6 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	private PDGraphInfo<TItem>? _graphInfo;
 	private GraphNode? _selectedNode;
 	private GraphEdge? _selectedEdge;
-	private bool _isUpdatingParameters;
 
 	/// <summary>
 	/// Gets or sets the data provider for the graph data.
@@ -136,25 +135,17 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	// Update the OnConfigurationChanged method
 	public async Task UpdateConfigurationAsync((GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double Damping) config)
 	{
-		_isUpdatingParameters = true;
-		try
-		{
-			VisualizationConfig = config.Visualization;
-			ClusteringConfig = config.Clustering;
-			Damping = config.Damping;
+		VisualizationConfig = config.Visualization;
+		ClusteringConfig = config.Clustering;
+		Damping = config.Damping;
 
-			// ✅ FIXED: Use UpdateConfigurationAsync to preserve positions
-			if (_graph is not null)
-			{
-				await _graph.UpdateConfigurationAsync(config.Visualization, config.Clustering).ConfigureAwait(false);
-			}
-
-			await ConfigurationChanged.InvokeAsync(config).ConfigureAwait(false);
-		}
-		finally
+		// ✅ FIXED: Use UpdateConfigurationAsync to preserve positions
+		if (_graph is not null)
 		{
-			_isUpdatingParameters = false;
+			await _graph.UpdateConfigurationAsync(config.Visualization, config.Clustering).ConfigureAwait(false);
 		}
+
+		await ConfigurationChanged.InvokeAsync(config).ConfigureAwait(false);
 	}
 
 	private async Task OnConfigurationChanged((GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double Damping) config)

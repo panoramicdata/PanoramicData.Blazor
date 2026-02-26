@@ -113,7 +113,9 @@
 					<tr><td><code>ShowMaximize</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show maximize button in view mode</td></tr>
 				<tr><td><code>MaximizePercent</code></td><td><code>int</code></td><td><code>80</code></td><td>Percentage of area used when maximized</td></tr>
 				<tr><td><code>StartTab</code></td><td><code>int</code></td><td><code>0</code></td><td>Initially selected tab index</td></tr>
-				<tr><td><code>TabRotationIntervalSeconds</code></td><td><code>int</code></td><td><code>0</code></td><td>Auto-rotate tabs interval (0 = disabled)</td></tr>
+				<tr><td><code>IsRotationEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enable automatic tab rotation</td></tr>
+					<tr><td><code>RotationIntervalSeconds</code></td><td><code>int</code></td><td><code>5</code></td><td>Seconds between tab rotations (0 = never rotate). Requires <code>IsRotationEnabled</code></td></tr>
+					<tr><td><code>PDDashboardTab.RotationIntervalSecondsOverride</code></td><td><code>int?</code></td><td><code>null</code></td><td>Per-tab override for rotation interval. 0 = never rotate this tab</td></tr>
 				<tr><td><code>ConfirmTileDelete</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show confirmation dialog before deleting tiles</td></tr>
 				<tr><td><code>Css</code></td><td><code>string?</code></td><td><code>null</code></td><td>Dashboard-level CSS classes</td></tr>
 				<tr><td><code>WidgetHeaderCss</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS for all widget headers (overridable per widget)</td></tr>

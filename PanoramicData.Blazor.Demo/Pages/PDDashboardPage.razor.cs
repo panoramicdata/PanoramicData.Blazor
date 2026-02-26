@@ -7,6 +7,8 @@ public partial class PDDashboardPage
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	private bool _displayMode;
+	private bool _isRotationEnabled;
+	private int _rotationIntervalSeconds = 5;
 	private bool _showMaximize;
 	private bool _clockShowMaximize;
 	private PDDashboard? _dashboard;
