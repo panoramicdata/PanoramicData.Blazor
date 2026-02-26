@@ -27,6 +27,7 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	private bool _isConfiguring;
 	private bool _isPreviewing;
 	private bool _previousEffectiveIsEditable;
+	private bool _isInternallyEditable;
 	private string _configContent = string.Empty;
 	private PDConfirm? _confirmCancel;
 
@@ -114,6 +115,13 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	/// </summary>
 	[Parameter]
 	public bool IsEditable { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether to show a built-in ✏ / ✓ edit toggle button in the widget header.
+	/// Useful for standalone widgets not hosted in a <see cref="PDDashboard"/>. Default false.
+	/// </summary>
+	[Parameter]
+	public bool ShowEditButton { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether the title bar is shown.
@@ -221,7 +229,7 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	[CascadingParameter(Name = "DashboardProperties")]
 	private Dictionary<string, string>? DashboardProperties { get; set; }
 
-	private bool EffectiveIsEditable => IsEditable || DashboardIsEditable;
+	private bool EffectiveIsEditable => IsEditable || DashboardIsEditable || _isInternallyEditable;
 
 	private string? EffectiveHeaderCss => HeaderCss ?? DashboardWidgetHeaderCss;
 
@@ -272,6 +280,19 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		}
 
 		_previousEffectiveIsEditable = EffectiveIsEditable;
+	}
+
+	private void ToggleInternalEdit()
+	{
+		_isInternallyEditable = !_isInternallyEditable;
+		if (!_isInternallyEditable)
+		{
+			_isConfiguring = false;
+			_isPreviewing = false;
+			_isRenaming = false;
+		}
+
+		StateHasChanged();
 	}
 
 	private string GetBodyOverflowStyle()

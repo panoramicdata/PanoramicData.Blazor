@@ -37,6 +37,15 @@
 								<span class="fas fa-cog"></span>
 							</button>
 						}
+						@if (ShowEditButton && !IsEditable && !DashboardIsEditable)
+						{
+							<button class="btn btn-sm btn-link pd-widget-edit-toggle p-0 ms-1"
+									@onclick="ToggleInternalEdit" @onclick:stopPropagation
+									draggable="false"
+									title="@(_isInternallyEditable ? "Done editing" : "Edit widget")">
+								<span class="fas @(_isInternallyEditable ? "fa-check" : "fa-edit")"></span>
+							</button>
+						}
 						@if (_isRefreshing)
 						{
 							<span class="fas fa-sync fa-spin ms-2 pd-widget-refresh-indicator" title="Refreshing..."></span>
