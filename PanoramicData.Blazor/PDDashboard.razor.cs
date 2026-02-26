@@ -21,6 +21,11 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private bool _previousIsRotationEnabled;
 	private int _previousRotationIntervalSeconds;
 	private bool _rotationTimerInitialized;
+	private bool _isRotationPaused;
+
+	// View-mode property overrides (session-level, not persisted)
+	private Dictionary<string, string> _viewModePropertyOverrides = [];
+	private bool _isEditingViewModeProperties;
 
 	// Resize state
 	private PDDashboardTile? _resizingTile;
@@ -130,6 +135,30 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	public bool ShowMaximize { get; set; }
 
 	/// <summary>
+	/// Gets or sets the dashboard display name.
+	/// </summary>
+	[Parameter]
+	public string? Name { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether to show the dashboard name in a header row above the tab bar.
+	/// </summary>
+	[Parameter]
+	public bool ShowName { get; set; }
+
+	/// <summary>
+	/// Gets or sets what to display in the header row when in display mode.
+	/// </summary>
+	[Parameter]
+	public DisplayModeHeaderContent DisplayModeHeader { get; set; } = DisplayModeHeaderContent.None;
+
+	/// <summary>
+	/// Gets or sets whether users in regular view (not display mode or edit mode) can override property values for their session.
+	/// </summary>
+	[Parameter]
+	public bool AllowViewModePropertyEdit { get; set; }
+
+	/// <summary>
 	/// Gets or sets whether to show the built-in edit mode toggle button.
 	/// Only shown when <see cref="IsEditable"/> is not forced on externally. Default true.
 	/// </summary>
@@ -212,6 +241,30 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	/// Gets whether the dashboard is currently in edit mode, either via the <see cref="IsEditable"/> parameter or the built-in toggle.
 	/// </summary>
 	public bool EffectiveIsEditable => IsEditable || _isInternallyEditable;
+
+	/// <summary>
+	/// Gets the effective properties dictionary, merging <see cref="Properties"/> with any session-level view mode overrides.
+	/// </summary>
+	private Dictionary<string, string>? EffectiveProperties
+	{
+		get
+		{
+			if (_viewModePropertyOverrides.Count == 0)
+			{
+				return Properties;
+			}
+
+			var merged = Properties is not null
+				? new Dictionary<string, string>(Properties)
+				: [];
+			foreach (var (k, v) in _viewModePropertyOverrides)
+			{
+				merged[k] = v;
+			}
+
+			return merged;
+		}
+	}
 
 	protected override void OnInitialized()
 	{
@@ -305,7 +358,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		{
 			_rotationTimer = new Timer(_ =>
 			{
-				if (!_isUserInteracting)
+				if (!_isUserInteracting && !_isRotationPaused)
 				{
 					InvokeAsync(() =>
 					{
@@ -556,6 +609,25 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 
 		StateHasChanged();
+	}
+
+	private async Task ToggleRotationPauseAsync()
+	{
+		_isRotationPaused = !_isRotationPaused;
+		StateHasChanged();
+		await Task.CompletedTask.ConfigureAwait(true);
+	}
+
+	private async Task NavigatePreviousTabAsync()
+	{
+		var prev = (ActiveTabIndex - 1 + Tabs.Count) % Tabs.Count;
+		await SelectTabAsync(prev).ConfigureAwait(true);
+	}
+
+	private async Task NavigateNextTabAsync()
+	{
+		var next = (ActiveTabIndex + 1) % Tabs.Count;
+		await SelectTabAsync(next).ConfigureAwait(true);
 	}
 
 	private async Task OnGridDropAsync(DragEventArgs _)
@@ -869,9 +941,13 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 
 	// Dashboard configuration
 	private bool _isConfiguringDashboard;
+	private string _configName = string.Empty;
 	private string _configTabName = string.Empty;
 	private int _configColumnCount;
 	private int _configRowHeight;
+	private Dictionary<string, string> _configProperties = [];
+	private string _newPropertyKey = string.Empty;
+	private string _newPropertyValue = string.Empty;
 
 	private void OpenDashboardConfig()
 	{
@@ -881,9 +957,15 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 
 		var activeTab = Tabs[ActiveTabIndex];
+		_configName = Name ?? string.Empty;
 		_configTabName = activeTab.Name;
 		_configColumnCount = activeTab.ColumnCount ?? ColumnCount;
 		_configRowHeight = activeTab.TileRowHeightPx ?? TileRowHeightPx;
+		_configProperties = Properties is not null
+			? new Dictionary<string, string>(Properties)
+			: [];
+		_newPropertyKey = string.Empty;
+		_newPropertyValue = string.Empty;
 		_isConfiguringDashboard = true;
 	}
 
@@ -902,6 +984,9 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 			activeTab.TileRowHeightPx = _configRowHeight;
 		}
 
+		Name = string.IsNullOrWhiteSpace(_configName) ? null : _configName.Trim();
+		Properties = _configProperties.Count > 0 ? new Dictionary<string, string>(_configProperties) : null;
+
 		_isConfiguringDashboard = false;
 
 		if (OnSettingsChanged.HasDelegate)
@@ -910,6 +995,46 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 
 		StateHasChanged();
+	}
+
+	private void AddConfigProperty()
+	{
+		if (!string.IsNullOrWhiteSpace(_newPropertyKey))
+		{
+			_configProperties[_newPropertyKey.Trim()] = _newPropertyValue;
+			_newPropertyKey = string.Empty;
+			_newPropertyValue = string.Empty;
+		}
+	}
+
+	private void RemoveConfigProperty(string key)
+	{
+		_configProperties.Remove(key);
+	}
+
+	private void UpdateConfigProperty(string key, string value)
+	{
+		_configProperties[key] = value;
+	}
+
+	private void OpenViewModePropertyEdit()
+	{
+		_isEditingViewModeProperties = true;
+	}
+
+	private void CloseViewModePropertyEdit()
+	{
+		_isEditingViewModeProperties = false;
+	}
+
+	private void SetViewModePropertyOverride(string key, string value)
+	{
+		_viewModePropertyOverrides[key] = value;
+	}
+
+	private void ResetViewModeProperties()
+	{
+		_viewModePropertyOverrides.Clear();
 	}
 
 	public ValueTask DisposeAsync()

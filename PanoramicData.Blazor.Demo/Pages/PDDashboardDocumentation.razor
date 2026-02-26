@@ -104,24 +104,28 @@
 			</thead>
 			<tbody>
 				<tr><td><code>Tabs</code></td><td><code>List&lt;PDDashboardTab&gt;</code></td><td><code>[]</code></td><td>Dashboard tabs containing tiles</td></tr>
+				<tr><td><code>Name</code></td><td><code>string?</code></td><td><code>null</code></td><td>Display name of the dashboard</td></tr>
+				<tr><td><code>ShowName</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show the dashboard name in a header row above the tab bar (normal view only)</td></tr>
+				<tr><td><code>DisplayModeHeader</code></td><td><code>DisplayModeHeaderContent</code></td><td><code>None</code></td><td>What to show in the display-mode header: None, DashboardName, TabName, or Both. When rotation is enabled, prev/pause/next controls are also shown.</td></tr>
 				<tr><td><code>ColumnCount</code></td><td><code>int</code></td><td><code>12</code></td><td>Number of grid columns</td></tr>
 				<tr><td><code>TileRowHeightPx</code></td><td><code>int</code></td><td><code>120</code></td><td>Height of each grid row in pixels</td></tr>
 				<tr><td><code>IsEditable</code></td><td><code>bool</code></td><td><code>false</code></td><td>Force edit mode on externally (e.g. based on user role)</td></tr>
-					<tr><td><code>ShowEditButton</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show the built-in ✏ Edit / ✓ Done toggle in the tab bar</td></tr>
-					<tr><td><code>DisplayMode</code></td><td><code>bool</code></td><td><code>false</code></td><td>Kiosk mode — hides all chrome</td></tr>
-					<tr><td><code>ShowTabs</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show the tab bar (always shown when tabs &gt; 1 or ShowEditButton)</td></tr>
-					<tr><td><code>ShowMaximize</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show maximize button in view mode</td></tr>
+				<tr><td><code>ShowEditButton</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show the built-in ✏ Edit / ✓ Done toggle in the tab bar</td></tr>
+				<tr><td><code>DisplayMode</code></td><td><code>bool</code></td><td><code>false</code></td><td>Kiosk mode — hides all chrome</td></tr>
+				<tr><td><code>ShowTabs</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show the tab bar (always shown when tabs &gt; 1 or ShowEditButton)</td></tr>
+				<tr><td><code>ShowMaximize</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show maximize button in view mode</td></tr>
 				<tr><td><code>MaximizePercent</code></td><td><code>int</code></td><td><code>80</code></td><td>Percentage of area used when maximized</td></tr>
 				<tr><td><code>StartTab</code></td><td><code>int</code></td><td><code>0</code></td><td>Initially selected tab index</td></tr>
 				<tr><td><code>IsRotationEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enable automatic tab rotation</td></tr>
-					<tr><td><code>RotationIntervalSeconds</code></td><td><code>int</code></td><td><code>5</code></td><td>Seconds between tab rotations (0 = never rotate). Requires <code>IsRotationEnabled</code></td></tr>
-					<tr><td><code>PDDashboardTab.RotationIntervalSecondsOverride</code></td><td><code>int?</code></td><td><code>null</code></td><td>Per-tab override for rotation interval. 0 = never rotate this tab</td></tr>
+				<tr><td><code>RotationIntervalSeconds</code></td><td><code>int</code></td><td><code>5</code></td><td>Seconds between tab rotations (0 = never rotate). Requires <code>IsRotationEnabled</code></td></tr>
+				<tr><td><code>PDDashboardTab.RotationIntervalSecondsOverride</code></td><td><code>int?</code></td><td><code>null</code></td><td>Per-tab override for rotation interval. 0 = never rotate this tab</td></tr>
+				<tr><td><code>AllowViewModePropertyEdit</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show a ⊞ button in the tab bar so regular-view users can override property values for their session (not persisted)</td></tr>
 				<tr><td><code>ConfirmTileDelete</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show confirmation dialog before deleting tiles</td></tr>
 				<tr><td><code>Css</code></td><td><code>string?</code></td><td><code>null</code></td><td>Dashboard-level CSS classes</td></tr>
 				<tr><td><code>WidgetHeaderCss</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS for all widget headers (overridable per widget)</td></tr>
 				<tr><td><code>WidgetBorderCss</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS for all widget borders (overridable per widget)</td></tr>
 				<tr><td><code>WidgetContentCss</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS for all widget content areas (overridable per widget)</td></tr>
-				<tr><td><code>Properties</code></td><td><code>Dictionary&lt;string, string&gt;?</code></td><td><code>null</code></td><td>Key/value properties cascaded to widgets</td></tr>
+				<tr><td><code>Properties</code></td><td><code>Dictionary&lt;string, string&gt;?</code></td><td><code>null</code></td><td>Key/value properties cascaded to widgets. In edit mode these are managed via the Settings ⚙ dialog. In view mode users can override them per-session when <code>AllowViewModePropertyEdit</code> is true.</td></tr>
 			</tbody>
 		</table>
 	</section>

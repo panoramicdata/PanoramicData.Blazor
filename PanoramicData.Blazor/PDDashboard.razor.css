@@ -315,3 +315,116 @@
 	justify-content: flex-end;
 	gap: 0.5rem;
 }
+
+/* Dashboard name header row (normal view) */
+.pd-dashboard-name-row {
+	flex-shrink: 0;
+	padding: 0.375rem 0.75rem;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	color: var(--bs-body-color, #212529);
+	border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+	background: var(--bs-body-bg, #fff);
+}
+
+/* Display mode header */
+.pd-dashboard-display-header {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.5rem 0.75rem;
+	background: var(--bs-dark, #212529);
+	color: var(--bs-light, #f8f9fa);
+	gap: 0.5rem;
+}
+
+.pd-dashboard-display-title {
+	flex: 1;
+	text-align: center;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pd-dashboard-display-separator {
+	opacity: 0.5;
+}
+
+.pd-dashboard-display-tabname {
+	opacity: 0.85;
+}
+
+.pd-dashboard-display-controls {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.pd-dashboard-display-nav {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	padding: 0;
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 0.25rem;
+	background: transparent;
+	color: var(--bs-light, #f8f9fa);
+	font-size: 0.75rem;
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s;
+}
+
+.pd-dashboard-display-nav:hover {
+	background: rgba(255, 255, 255, 0.15);
+	border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Properties-override button in the tab bar */
+.pd-dashboard-props-btn {
+	color: var(--bs-secondary-color, #6c757d);
+	font-size: 0.875rem;
+	padding: 0.375rem 0.75rem;
+}
+
+.pd-dashboard-props-btn:hover,
+.pd-dashboard-props-btn.active {
+	color: var(--bs-primary, #0d6efd);
+}
+
+/* Key/value property rows in config dialog */
+.pd-dashboard-config-property-row {
+	display: flex;
+	gap: 0.375rem;
+	align-items: center;
+	margin-bottom: 0.375rem;
+}
+
+.pd-dashboard-config-property-row .form-control {
+	flex: 1;
+	min-width: 0;
+}
+
+/* Section separator inside the config dialog */
+.pd-dashboard-config-separator {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0.75rem 0 0.5rem;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--bs-secondary-color, #6c757d);
+}
+
+.pd-dashboard-config-separator::after {
+	content: '';
+	flex: 1;
+	height: 1px;
+	background: var(--bs-border-color, #dee2e6);
+}

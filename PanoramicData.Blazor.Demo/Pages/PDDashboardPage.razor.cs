@@ -7,13 +7,22 @@ public partial class PDDashboardPage
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	private bool _displayMode;
+	private bool _showName = true;
+	private DisplayModeHeaderContent _displayModeHeader = DisplayModeHeaderContent.Both;
 	private bool _isRotationEnabled;
 	private int _rotationIntervalSeconds = 5;
 	private bool _showMaximize;
 	private bool _clockShowMaximize;
+	private bool _allowViewModePropertyEdit;
 	private PDDashboard? _dashboard;
 	private PDDashboardTile? _clockTile;
 	private List<PDDashboardTab> _tabs = [];
+
+	private Dictionary<string, string> _dashboardProperties = new()
+	{
+		["theme"] = "light",
+		["region"] = "us-east"
+	};
 
 	protected override void OnAfterRender(bool firstRender)
 	{
