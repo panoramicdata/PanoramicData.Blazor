@@ -18,6 +18,9 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private bool _dragDropCompleted;
 	private bool _previousIsEditable;
 	private bool _isInternallyEditable;
+	private bool _previousIsRotationEnabled;
+	private int _previousRotationIntervalSeconds;
+	private bool _rotationTimerInitialized;
 
 	// Resize state
 	private PDDashboardTile? _resizingTile;
@@ -249,12 +252,25 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 				await OnEditModeChanged.InvokeAsync(EffectiveIsEditable).ConfigureAwait(true);
 			}
 		}
+
+		if (_rotationTimerInitialized &&
+			(_previousIsRotationEnabled != IsRotationEnabled || _previousRotationIntervalSeconds != RotationIntervalSeconds))
+		{
+			_previousIsRotationEnabled = IsRotationEnabled;
+			_previousRotationIntervalSeconds = RotationIntervalSeconds;
+			_rotationTimer?.Dispose();
+			_rotationTimer = null;
+			SetupRotationTimer();
+		}
 	}
 
 	protected override void OnAfterRender(bool firstRender)
 	{
 		if (firstRender)
 		{
+			_previousIsRotationEnabled = IsRotationEnabled;
+			_previousRotationIntervalSeconds = RotationIntervalSeconds;
+			_rotationTimerInitialized = true;
 			SetupRotationTimer();
 		}
 	}
