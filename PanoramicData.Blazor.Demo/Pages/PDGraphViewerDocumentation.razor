@@ -1,16 +1,89 @@
 <div class="pd-graphviewer-documentation">
+
 	<section id="overview">
 		<h2 class="doc-section">Overview</h2>
-		<p><code>PDGraphViewer</code> displays node-edge graph visualizations with interactive layout.</p>
+		<p>
+			<code>PDGraphViewer&lt;TItem&gt;</code> is a comprehensive graph visualization component with
+			a physics-based force-directed layout, interactive nodes and edges, configurable clustering,
+			dark mode support, and a built-in info/controls side panel.
+		</p>
+		<ul>
+			<li>Force-directed physics simulation with configurable damping and convergence</li>
+			<li>Multi-dimensional visualization — map data dimensions to node size, color, and shape</li>
+			<li>Clustering support with configurable grouping rules</li>
+			<li>Interactive node and edge selection with selection events</li>
+			<li>Resizable split panel: graph on one side, info/controls on the other</li>
+			<li>Programmatic control: center on node, fit to view, refresh</li>
+		</ul>
 	</section>
+
 	<section id="parameters">
 		<h2 class="doc-section">Parameters</h2>
 		<table class="table table-sm doc-props-table">
-			<thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
 			<tbody>
-				<tr><td><code>Nodes</code></td><td><code>List&lt;GraphNode&gt;</code></td><td>Graph nodes</td></tr>
-				<tr><td><code>Edges</code></td><td><code>List&lt;GraphEdge&gt;</code></td><td>Graph edges</td></tr>
+				<tr><td><code>DataProvider</code> <span class="badge bg-danger">required</span></td><td><code>IDataProviderService&lt;GraphData&gt;</code></td><td>—</td><td>Provides the graph data (nodes and edges)</td></tr>
+				<tr><td><code>SplitDirection</code></td><td><code>SplitDirection</code></td><td><code>Horizontal</code></td><td>Orientation of the graph / info panel split</td></tr>
+				<tr><td><code>ShowInfo</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show the information side panel</td></tr>
+				<tr><td><code>ShowControls</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show the controls section within the info panel</td></tr>
+				<tr><td><code>ReadOnlyControls</code></td><td><code>bool</code></td><td><code>false</code></td><td>Make the controls panel read-only</td></tr>
+				<tr><td><code>VisualizationConfig</code></td><td><code>GraphVisualizationConfig</code></td><td><code>new()</code></td><td>Maps data dimensions to visual properties (size, color, shape)</td></tr>
+				<tr><td><code>ClusteringConfig</code></td><td><code>GraphClusteringConfig</code></td><td><code>new()</code></td><td>Configures node clustering/grouping rules</td></tr>
+				<tr><td><code>ConvergenceThreshold</code></td><td><code>double</code></td><td><code>0.02</code></td><td>Physics simulation stops when energy drops below this value</td></tr>
+				<tr><td><code>Damping</code></td><td><code>double</code></td><td><code>0.98</code></td><td>Velocity damping factor — higher values settle faster</td></tr>
 			</tbody>
 		</table>
 	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Event</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>NodeClick</code></td><td><code>EventCallback&lt;GraphNode&gt;</code></td><td>Fired when a node is clicked</td></tr>
+				<tr><td><code>EdgeClick</code></td><td><code>EventCallback&lt;GraphEdge&gt;</code></td><td>Fired when an edge is clicked</td></tr>
+				<tr><td><code>SelectionChanged</code></td><td><code>EventCallback&lt;(GraphNode?, GraphEdge?)&gt;</code></td><td>Fired when the selected node or edge changes</td></tr>
+				<tr><td><code>ConfigurationChanged</code></td><td><code>EventCallback&lt;(GraphVisualizationConfig, GraphClusteringConfig, double)&gt;</code></td><td>Fired when visualization/clustering config or damping changes</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="methods">
+		<h2 class="doc-section">Public Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>RefreshAsync(CancellationToken)</code></td><td><code>Task</code></td><td>Reload graph data from the data provider</td></tr>
+				<tr><td><code>CenterOnNodeAsync(string nodeId)</code></td><td><code>Task</code></td><td>Pan and zoom to center the specified node</td></tr>
+				<tr><td><code>FitToViewAsync()</code></td><td><code>Task</code></td><td>Fit all nodes within the visible viewport</td></tr>
+				<tr><td><code>UpdateConfigurationAsync(...)</code></td><td><code>Task</code></td><td>Apply updated visualization/clustering config while preserving node positions</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="data-model">
+		<h2 class="doc-section">Data Model</h2>
+		<p>
+			Supply data via an <code>IDataProviderService&lt;GraphData&gt;</code>. The <code>GraphData</code>
+			object contains a list of <code>GraphNode</code> and <code>GraphEdge</code> items.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Class</th><th>Key Properties</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>GraphNode</code></td><td><code>Id</code>, <code>Label</code>, <code>Group</code>, <code>Size</code>, <code>Color</code>, <code>Properties</code></td></tr>
+				<tr><td><code>GraphEdge</code></td><td><code>Id</code>, <code>Source</code>, <code>Target</code>, <code>Label</code>, <code>Weight</code>, <code>Properties</code></td></tr>
+				<tr><td><code>GraphData</code></td><td><code>Nodes</code> (List&lt;GraphNode&gt;), <code>Edges</code> (List&lt;GraphEdge&gt;)</td></tr>
+			</tbody>
+		</table>
+	</section>
+
 </div>
+
