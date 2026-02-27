@@ -340,5 +340,5 @@ ASALocalRun/
 healthchecksdb
 
 appsettings.json
-/PanoramicData.Blazor/nuget-api-key.txt
+/nuget-api-key.txt
 /PanoramicData.Blazor.Web/Data/TestFileSystemDataProvider2.cs
