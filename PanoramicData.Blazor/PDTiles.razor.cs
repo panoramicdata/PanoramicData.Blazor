@@ -333,6 +333,20 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 			_tileVisible.Add(isVisible);
 		}
+
+		// Pre-populate per-tile color gradients so <defs> are available on first render.
+		// Without this, the gradient <linearGradient> elements would be missing on the first
+		// render pass because EnsureGradients() is called during tile rendering which occurs
+		// after the <defs> section in the markup.
+		_tileColorGradients.Clear();
+		EnsureGradients(Options.TileColor, -1);
+		foreach (var tileDef in _tileOverrides.Values)
+		{
+			if (!string.IsNullOrEmpty(tileDef.Color))
+			{
+				EnsureGradients(tileDef.Color, -1);
+			}
+		}
 	}
 
 	/// <summary>
