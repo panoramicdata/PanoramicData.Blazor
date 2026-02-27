@@ -4,7 +4,7 @@
     <File Path=".github/workflows/main.yml" />
     <File Path="global.json" />
     <File Path="PanoramicData.Blazor.dic" />
-    <File Path="PanoramicData.Blazor/publish-nuget.ps1" />
+    <File Path="publish-nuget.ps1" />
     <File Path="README.md" />
     <File Path="version.json" />
   </Folder>
