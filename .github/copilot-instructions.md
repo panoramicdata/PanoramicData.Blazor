@@ -4,7 +4,7 @@
 
 **PanoramicData.Blazor** is a comprehensive Blazor component library providing rich UI controls for data visualization, forms, and user interaction.
 
-**Repository**: .NET 9 solution with Blazor WebAssembly, Razor Pages demo applications, and a reusable component library.
+**Repository**: .NET 10 solution with Blazor WebAssembly, Razor Pages demo applications, and a reusable component library.
 
 ---
 
@@ -23,7 +23,7 @@ dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj
 dotnet test PanoramicData.Blazor.Test/PanoramicData.Blazor.Test.csproj
 
 # ⚠️ USE SPARINGLY: Full solution build
-dotnet build PanoramicData.Blazor.sln
+dotnet build PanoramicData.Blazor.slnx
 ```
 
 ---
@@ -616,6 +616,30 @@ dotnet test PanoramicData.Blazor.Test/PanoramicData.Blazor.Test.csproj
 dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj
 ```
 
+### NuGet Publishing
+
+The publish script and API key file live in the **solution root** (not inside a project subfolder):
+
+```
+/publish-nuget.ps1        # Publish script — builds, packs, pushes, tags
+/nuget-api-key.txt        # API key (git-ignored, never commit)
+```
+
+**To publish a new version:**
+
+```sh
+# From the solution root
+.\publish-nuget.ps1
+```
+
+The script will:
+1. Merge your branch into `main` (if not already on `main`)
+2. `dotnet build` + `dotnet pack` the component library in Release
+3. `dotnet nuget push` the `.nupkg` to nuget.org using the key in `nuget-api-key.txt`
+4. Create and push a git tag matching the version (e.g. `10.0.68`)
+
+Versioning is handled automatically by **Nerdbank.GitVersioning** — the patch number is the git commit height. See `version.json` in the repo root.
+
 ---
 
 ## 📖 Component Documentation System
@@ -707,4 +731,4 @@ Demo pages support deep linking to tabs and anchors:
 
 ---
 
-**Last Updated**: Based on .NET 9, C# 12, current as of main branch
+**Last Updated**: Based on .NET 10, C# 14, current as of main branch
