@@ -28,7 +28,7 @@ public partial class PDToolbarDocumentation
 		                    IconCssClass="fas fa-folder-open" />
 		        <PDMenuItem Text="Save" 
 		                    IconCssClass="fas fa-save" />
-		        <PDMenuItemSeparator />
+				<PDMenuItem IsSeparator="true" />
 		        <PDMenuItem Text="Exit" 
 		                    IconCssClass="fas fa-times" />
 		    </PDToolbarDropdown>
