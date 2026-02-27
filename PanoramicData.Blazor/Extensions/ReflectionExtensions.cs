@@ -51,7 +51,7 @@ public static class ReflectionExtensions
 			name = parameterInfo.GetCustomAttributes().OfType<DisplayNameAttribute>().SingleOrDefault()?.DisplayName;
 		}
 
-		return name ?? parameterInfo.Name;
+		return name ?? parameterInfo.Name ?? string.Empty;
 	}
 
 	/// <summary>

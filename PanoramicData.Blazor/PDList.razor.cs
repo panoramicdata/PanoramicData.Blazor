@@ -173,8 +173,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		var text = _compiledTextExpression is null
 			? (item.ToString() ?? string.Empty)
 			: _compiledTextExpression.Invoke(item);
-		return text.ToLower(CultureInfo.InvariantCulture)
-				   .Contains(_filterText.ToLower(CultureInfo.InvariantCulture));
+		return text.Contains(_filterText, StringComparison.OrdinalIgnoreCase);
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)

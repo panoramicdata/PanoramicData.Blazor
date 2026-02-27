@@ -58,7 +58,6 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// Gets or sets the data provider for the graph data.
 	/// </summary>
 	[Parameter]
-	[EditorRequired]
 	public IDataProviderService<GraphData>? DataProvider { get; set; }
 
 	/// <summary>
@@ -555,7 +554,9 @@ for(let i = 0; i < 10; i++) {
 	private void LogToComponent(LogLevel level, string message, params object[] args)
 	{
 		// Log to standard logger
+#pragma warning disable CA2254 // Logging wrapper intentionally forwards variable message templates
 		Logger.Log(level, message, args);
+#pragma warning restore CA2254
 
 		// Also log to PDLog component if available
 		LogRef?.Log(level, default, message, null, (msg, ex) => string.Format(CultureInfo.InvariantCulture, msg, args));

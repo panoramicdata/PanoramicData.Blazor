@@ -87,7 +87,7 @@ public partial class PDStackedBar : IEnablable
 			}
 		}
 
-		sb.Append($"{DataPoint.CountLabel}: ").AppendLine(DataPoint!.Count.ToString(CultureInfo.InvariantCulture));
+		sb.Append(CultureInfo.InvariantCulture, $"{DataPoint.CountLabel}: ").AppendLine(DataPoint!.Count.ToString(CultureInfo.InvariantCulture));
 		return sb.ToString();
 	}
 }

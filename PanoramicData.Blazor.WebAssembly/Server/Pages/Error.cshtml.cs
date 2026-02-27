@@ -1,7 +1,7 @@
 ﻿namespace PanoramicData.Blazor.WebAssembly.Server.Pages;
 
 [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-public class ErrorModel(ILogger<ErrorModel> logger) : PageModel
+public class ErrorModel : PageModel
 {
 	public string RequestId { get; set; }
 

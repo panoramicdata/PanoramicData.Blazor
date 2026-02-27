@@ -161,7 +161,9 @@ public partial class PDTabSet : ComponentBase
 	{
 		if (tab.TempTitle != tab.Title)
 		{
+#pragma warning disable BL0005 // Parent component manages tab title during rename
 			tab.Title = tab.TempTitle;
+#pragma warning restore BL0005
 
 			if (OnTabRenamed.HasDelegate)
 			{

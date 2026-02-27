@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor;
 
-public partial class PDCardDeckLoadingIcon
+public partial class PDCardDeckLoadingIcon : IDisposable
 {
 	private DateTime _loadStart = DateTime.UtcNow;
 	private int _currentLoadTime;
@@ -42,5 +42,6 @@ public partial class PDCardDeckLoadingIcon
 		IsActive = false;
 		_cts?.Cancel();
 		_cts?.Dispose();
+		GC.SuppressFinalize(this);
 	}
 }

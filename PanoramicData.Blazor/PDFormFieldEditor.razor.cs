@@ -166,8 +166,11 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
-		Form?.RegisterFieldEditor(this);
-		Form.ResetRequested += Form_ResetRequested;
+		if (Form is not null)
+		{
+			Form.RegisterFieldEditor(this);
+			Form.ResetRequested += Form_ResetRequested;
+		}
 		Field.ValueChanged += Field_ValueChanged;
 	}
 

@@ -228,7 +228,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="ex">Exception that has been raised.</param>
 	public async Task HandleExceptionAsync(Exception ex)
 	{
-		Logger.LogError(ex, ex.Message);
+		Logger.LogError(ex, "Exception occurred: {ErrorMessage}", ex.Message);
 		await ExceptionHandler.InvokeAsync(ex).ConfigureAwait(true);
 	}
 

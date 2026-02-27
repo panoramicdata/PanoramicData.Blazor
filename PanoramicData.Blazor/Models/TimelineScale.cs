@@ -1,6 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+#pragma warning disable CA1036 // Comparison operators not needed for model class
 public class TimelineScale : IComparable
+#pragma warning restore CA1036
 {
 	private readonly CultureInfo _cultureInfo;
 	private readonly Calendar _calendar;

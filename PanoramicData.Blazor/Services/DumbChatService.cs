@@ -318,31 +318,31 @@ public class DumbChatService : IChatService, IDisposable
 		_messages.Clear();
 	}
 
-	public void SendMessage(ChatMessage message)
+	public void SendMessage(ChatMessage chatMessage)
 	{
 		// Add message to service's message collection
-		var existing = _messages.FirstOrDefault(m => m.Id == message.Id);
+		var existing = _messages.FirstOrDefault(m => m.Id == chatMessage.Id);
 		if (existing != null)
 		{
 			// Update existing message
-			existing.Message = message.Message;
-			existing.Type = message.Type;
-			existing.Title = message.Title;
-			existing.Timestamp = message.Timestamp;
-			existing.IsTitleHtml = message.IsTitleHtml;
-			existing.IsMessageHtml = message.IsMessageHtml;
+			existing.Message = chatMessage.Message;
+			existing.Type = chatMessage.Type;
+			existing.Title = chatMessage.Title;
+			existing.Timestamp = chatMessage.Timestamp;
+			existing.IsTitleHtml = chatMessage.IsTitleHtml;
+			existing.IsMessageHtml = chatMessage.IsMessageHtml;
 		}
 		else
 		{
 			// Add new message
-			_messages.Add(message);
+			_messages.Add(chatMessage);
 		}
 
 		// Invoke the user message immediately
-		OnMessageReceived?.Invoke(message);
+		OnMessageReceived?.Invoke(chatMessage);
 
 		// Kick off the async reply workflow
-		_ = RespondAsync(message);
+		_ = RespondAsync(chatMessage);
 	}
 
 	private async Task RespondAsync(ChatMessage userMessage)

@@ -34,7 +34,7 @@ public partial class PDQuestVisualizer
 	[Parameter]
 	public int QuestActionRadius { get; set; } = 20;
 
-	protected List<PositionedAction> PositionedActions = [];
+	protected List<PositionedAction> PositionedActions { get; set; } = [];
 
 	protected override void OnParametersSet()
 	{

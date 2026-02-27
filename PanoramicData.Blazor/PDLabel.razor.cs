@@ -80,7 +80,7 @@ public partial class PDLabel
 	[Parameter]
 	public string ToolTip { get; set; } = string.Empty;
 
-	private static IDictionary<string, object> GetCheckboxAttributes(ISelectable item)
+	private static Dictionary<string, object> GetCheckboxAttributes(ISelectable item)
 	{
 		var dict = new Dictionary<string, object>
 		{

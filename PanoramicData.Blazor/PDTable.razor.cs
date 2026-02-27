@@ -1585,7 +1585,7 @@ public partial class PDTable<TItem> :
 
 			foreach (var key in Selection)
 			{
-				var item = ItemsToDisplay.Find(x => KeyField(x).ToString() == key);
+				var item = ItemsToDisplay.Find(x => KeyField!(x)?.ToString() == key);
 				if (item != null)
 				{
 					items.Add(item);

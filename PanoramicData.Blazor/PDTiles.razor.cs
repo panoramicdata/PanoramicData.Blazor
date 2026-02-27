@@ -298,7 +298,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 		// Initialize logos - shuffle and assign
 		_tileLogos = [];
-		var shuffledLogos = Logos.OrderBy(_ => _random.Next()).ToList();
+		var shuffledLogos = (Logos ?? []).OrderBy(_ => _random.Next()).ToList();
 		for (var i = 0; i < totalTiles; i++)
 		{
 			// Check for per-tile logo override

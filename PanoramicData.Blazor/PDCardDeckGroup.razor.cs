@@ -3,7 +3,7 @@
 
 namespace PanoramicData.Blazor;
 
-public partial class PDCardDeckGroup<TCard> where TCard : ICard
+public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 {
 	/// <summary>
 	/// A unique sequence number for each instance of this component.`
@@ -318,5 +318,11 @@ public partial class PDCardDeckGroup<TCard> where TCard : ICard
 		_destinations.Clear();
 		_sourceDeck = null!;
 		await InvokeAsync(StateHasChanged);
+	}
+
+	public void Dispose()
+	{
+		_loadingIcon?.Dispose();
+		GC.SuppressFinalize(this);
 	}
 }

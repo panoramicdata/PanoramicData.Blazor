@@ -3,7 +3,9 @@
 /// <summary>
 /// The TreeNode class is used to describe a single node of a hierarchical data structure.
 /// </summary>
-public class TreeNode<T> : IComparable where T : class
+#pragma warning disable CA1036 // Comparison operators not needed for model class
+public class TreeNode<T> : IComparable
+#pragma warning restore CA1036
 {
 	private static int _idSequence;
 
@@ -311,6 +313,6 @@ public class TreeNode<T> : IComparable where T : class
 		}
 
 		var item = (TreeNode<T>)obj;
-		return Text.CompareTo(item.Text);
+		return string.Compare(Text, item.Text, StringComparison.Ordinal);
 	}
 }

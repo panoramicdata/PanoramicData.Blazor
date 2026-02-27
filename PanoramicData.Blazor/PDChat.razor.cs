@@ -409,6 +409,7 @@ public partial class PDChat : JSModuleComponentBase
 	{
 		if (_tabSetRef is not null)
 		{
+#pragma warning disable BL0005 // Setting component parameters directly when building tabs programmatically
 			var newTab = new PDTab
 			{
 				Title = "New Tab",
@@ -430,6 +431,7 @@ public partial class PDChat : JSModuleComponentBase
 						builder.CloseComponent();
 					}
 			};
+#pragma warning restore BL0005
 
 			_tabSetRef.AddTab(newTab);
 			_tabSetRef.StartRenamingTab(newTab);

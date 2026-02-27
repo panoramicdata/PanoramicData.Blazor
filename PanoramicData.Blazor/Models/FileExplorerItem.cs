@@ -1,6 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+#pragma warning disable CA1036 // Comparison operators not needed for model class
 public class FileExplorerItem : IComparable
+#pragma warning restore CA1036
 {
 	/// <summary>
 	/// Gets or sets whether this item has the Hidden attribute set.

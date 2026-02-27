@@ -250,13 +250,17 @@ public class FormField<TItem> where TItem : class
 	/// Simple function that returns true.
 	/// </summary>
 	[Obsolete("Please use Contstants.Functions.True")]
+#pragma warning disable CA1000 // Obsolete static member on generic type, kept for backward compatibility
 	public static Func<TItem?, bool> True => Constants.Functions.True;
+#pragma warning restore CA1000
 
 	/// <summary>
 	/// Simple function that returns false.
 	/// </summary>
 	[Obsolete("Please use Contstants.Functions.False")]
+#pragma warning disable CA1000 // Obsolete static member on generic type, kept for backward compatibility
 	public static Func<TItem?, bool> False => Constants.Functions.False;
+#pragma warning restore CA1000
 
 	/// <summary>
 	/// Gets or sets the maximum length for entered text.
