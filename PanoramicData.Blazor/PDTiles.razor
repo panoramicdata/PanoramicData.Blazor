@@ -370,16 +370,16 @@
 			}
 			else if (pattern == ConnectorFillPattern.Bars)
 			{
-				@* Bars pattern - use bezier endpoints and clip to curve shape *@
+				@* Bars pattern - follow the bezier curve *@
 				<g clip-path="url(#@clipId)">
-					@RenderBarsPattern(bezierData.StartTop, bezierData.EndTop, bezierData.StartBottom, bezierData.EndBottom, color, opacity)
+					@RenderBezierBarsPattern(bezierData, color, opacity)
 				</g>
 			}
 			else if (pattern == ConnectorFillPattern.Chevrons)
 			{
-				@* Chevrons pattern - use bezier endpoints and clip to curve shape *@
+				@* Chevrons pattern - follow the bezier curve *@
 				<g clip-path="url(#@clipId)">
-					@RenderChevronsPattern(bezierData.StartTop, bezierData.EndTop, bezierData.StartBottom, bezierData.EndBottom, color, opacity)
+					@RenderBezierChevronsPattern(bezierData, color, opacity)
 				</g>
 			}
 
@@ -466,4 +466,83 @@
 		var bottom = Lerp(b0, b1, t);
 		return ((top.X + bottom.X) / 2, (top.Y + bottom.Y) / 2);
 	}
+
+	/// <summary>
+	/// Evaluates a cubic bezier curve at parameter t (0..1).
+	/// </summary>
+	private static (double X, double Y) CubicBezier(
+		(double X, double Y) p0, (double X, double Y) c0,
+		(double X, double Y) c1, (double X, double Y) p1, double t)
+	{
+		var u = 1 - t;
+		var tt = t * t;
+		var uu = u * u;
+		var uuu = uu * u;
+		var ttt = tt * t;
+		return (
+			uuu * p0.X + 3 * uu * t * c0.X + 3 * u * tt * c1.X + ttt * p1.X,
+			uuu * p0.Y + 3 * uu * t * c0.Y + 3 * u * tt * c1.Y + ttt * p1.Y
+		);
+	}
+
+	private RenderFragment RenderBezierBarsPattern(BezierConnectorData data, string color, double opacity) => __builder =>
+	{
+		// Estimate arc length from the top curve for consistent bar spacing
+		var chordLen = Math.Sqrt(Math.Pow(data.EndTop.X - data.StartTop.X, 2) + Math.Pow(data.EndTop.Y - data.StartTop.Y, 2));
+		var barCount = Math.Max(3, (int)(chordLen / 30));
+		var offset = _animationOffset;
+
+		for (var i = -1; i <= barCount; i++)
+		{
+			var f0 = (i + offset) / barCount;
+			var f1 = (i + offset + 0.5) / barCount;
+
+			var tl = CubicBezier(data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop, f0);
+			var tr = CubicBezier(data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop, f1);
+			var bl = CubicBezier(data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom, f0);
+			var br = CubicBezier(data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom, f1);
+
+			<polygon points="@($"{F(bl.X)},{F(bl.Y)} {F(br.X)},{F(br.Y)} {F(tr.X)},{F(tr.Y)} {F(tl.X)},{F(tl.Y)}")"
+					 fill="@color"
+					 fill-opacity="@F(opacity * 0.4)"
+					 stroke="none" />
+		}
+	};
+
+	private RenderFragment RenderBezierChevronsPattern(BezierConnectorData data, string color, double opacity) => __builder =>
+	{
+		var chordLen = Math.Sqrt(Math.Pow(data.EndTop.X - data.StartTop.X, 2) + Math.Pow(data.EndTop.Y - data.StartTop.Y, 2));
+		var chevronCount = Math.Max(2, (int)(chordLen / 45));
+		var chevronWidth = 0.6;
+		var pointDepth = 0.3;
+		var notchDepth = 0.3;
+		var offset = _animationOffset;
+
+		for (var i = -1; i <= chevronCount; i++)
+		{
+			var fTrail = (i + offset) / chevronCount;
+			var fNotch = (i + offset + notchDepth) / chevronCount;
+			var fBody = (i + offset + chevronWidth) / chevronCount;
+			var fPoint = (i + offset + chevronWidth + pointDepth) / chevronCount;
+
+			var tl = CubicBezier(data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop, fTrail);
+			var bl = CubicBezier(data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom, fTrail);
+			var tr = CubicBezier(data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop, fBody);
+			var br = CubicBezier(data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom, fBody);
+
+			// Notch and point are midpoints between the top and bottom curves at their respective t values
+			var nTop = CubicBezier(data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop, fNotch);
+			var nBot = CubicBezier(data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom, fNotch);
+			var nm = (X: (nTop.X + nBot.X) / 2, Y: (nTop.Y + nBot.Y) / 2);
+
+			var pTop = CubicBezier(data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop, fPoint);
+			var pBot = CubicBezier(data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom, fPoint);
+			var pm = (X: (pTop.X + pBot.X) / 2, Y: (pTop.Y + pBot.Y) / 2);
+
+			<polygon points="@($"{F(bl.X)},{F(bl.Y)} {F(br.X)},{F(br.Y)} {F(pm.X)},{F(pm.Y)} {F(tr.X)},{F(tr.Y)} {F(tl.X)},{F(tl.Y)} {F(nm.X)},{F(nm.Y)}")"
+					 fill="@color"
+					 fill-opacity="@F(opacity * 0.4)"
+					 stroke="none" />
+		}
+	};
 }

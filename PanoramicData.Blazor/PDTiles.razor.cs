@@ -1242,7 +1242,11 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 			(startPoints.X, startTopY),
 			(endPoints.X, endTopY),
 			(startPoints.X, startBottomY),
-			(endPoints.X, endBottomY)
+			(endPoints.X, endBottomY),
+			startTopCtrl,
+			endTopCtrl,
+			startBottomCtrl,
+			endBottomCtrl
 		);
 	}
 
@@ -1278,7 +1282,11 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		(double X, double Y) StartTop,
 		(double X, double Y) EndTop,
 		(double X, double Y) StartBottom,
-		(double X, double Y) EndBottom
+		(double X, double Y) EndBottom,
+		(double X, double Y) StartTopCtrl,
+		(double X, double Y) EndTopCtrl,
+		(double X, double Y) StartBottomCtrl,
+		(double X, double Y) EndBottomCtrl
 	);
 
 	private static string GetOppositeDirection(string direction) => direction switch
