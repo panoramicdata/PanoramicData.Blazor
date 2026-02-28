@@ -1,0 +1,1279 @@
+/* _content/PanoramicData.Blazor.Demo/Pages/Installation.razor.rz.scp.css */
+.deprecated[b-gjvwlh6iaa] {
+	background-color: var(--bs-secondary-bg, whitesmoke);
+	border-radius: 5px;
+	padding: 5px;
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDCardDeckPage.razor.rz.scp.css */
+.multiple-card-decks[b-avop7ognpt]
+{
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	justify-content: center;
+}
+
+.deck-title[b-avop7ognpt]{
+	font-weight: bold;
+	text-align: center;
+	padding: 1em;
+	color: var(--bs-body-color);
+}
+
+.deck-disclaimer[b-avop7ognpt]{
+	font-style: italic;
+	padding: 0.5em;
+	text-align: center;
+	color: var(--bs-body-color);
+}
+
+.priority[b-avop7ognpt]{
+	font-weight: bold;
+	font-size: 1.25em;
+	color: var(--bs-body-color);
+}
+
+/* Dark mode - ensure good contrast for text on animated card deck */
+[data-bs-theme="dark"] .pdcarddeck-animated .deck-title[b-avop7ognpt] {
+	color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .pdcarddeck-animated .deck-disclaimer[b-avop7ognpt] {
+	color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .pdcarddeck-animated .priority[b-avop7ognpt] {
+	color: #e9ecef;
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDContextMenuPage.razor.rz.scp.css */
+/* Demo area styling with theme support */
+.demo-context-area[b-cxreivp82d] {
+	width: 100%;
+	height: 500px;
+	background-color: var(--bs-secondary-bg, #eee);
+	border: 1px solid var(--bs-border-color);
+	border-radius: 0.25rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--bs-body-color);
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .demo-context-area[b-cxreivp82d] {
+	background-color: var(--bs-secondary-bg, #2b2f33);
+	border-color: var(--bs-border-color, #495057);
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDDragPanelPage.razor.rz.scp.css */
+[b-ft0t6q9n9c] .can-drop {
+	border: 1px solid green;
+}
+
+[b-ft0t6q9n9c] .no-drop {
+	border: 1px solid red;
+}
+
+[b-ft0t6q9n9c] .pd-dragpanel {
+	background-color: whitesmoke;
+}
+
+[b-ft0t6q9n9c] .pd-dragitem {
+	background-color: white;
+	margin: 4px;
+}
+
+[b-ft0t6q9n9c] .pd-dragitem.dragging {
+	background-color: inherit;
+	border: 1px solid whitesmoke;
+}
+
+/* _content/PanoramicData.Blazor.Demo/Pages/PDFormPage2.razor.rz.scp.css */
+[b-xb076wj9uu] .modal-body {
+	max-height: calc(100vh - 260px);
+	overflow: auto;
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDFormPage4.razor.rz.scp.css */
+[b-3jposaqtpl] .c-docx {
+	color: DodgerBlue !important;
+}
+
+[b-3jposaqtpl] .c-html {
+	color: red !important;
+}
+
+[b-3jposaqtpl] .c-pdf {
+	color: purple !important;
+}
+
+[b-3jposaqtpl] .c-xlsx {
+	color: limegreen !important;
+}
+
+[b-3jposaqtpl] .pdtoggleswitch.docx .switch {
+	stroke: DodgerBlue;
+}
+
+[b-3jposaqtpl] .pdtoggleswitch.docx .switch.on {
+	fill: DodgerBlue;
+}
+
+[b-3jposaqtpl] .pdtoggleswitch.html .switch {
+	stroke: red;
+}
+
+[b-3jposaqtpl] .pdtoggleswitch.html .switch.on {
+	fill: red;
+}
+
+[b-3jposaqtpl] .pdtoggleswitch.pdf .switch {
+	stroke: purple;
+}
+
+[b-3jposaqtpl] .pdtoggleswitch.pdf .switch.on {
+	fill: purple;
+}
+
+[b-3jposaqtpl] .pdtoggleswitch.xlsx .switch {
+	stroke: limegreen;
+}
+
+[b-3jposaqtpl] .pdtoggleswitch.xlsx .switch.on {
+	fill: limegreen;
+}
+
+[b-3jposaqtpl] .fix-margin-10 {
+	margin-left: -10px !important;
+}
+
+[b-3jposaqtpl] .fix-margin-18 {
+	margin-left: -18px !important;
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDFormPage5.razor.rz.scp.css */
+/* _content/PanoramicData.Blazor.Demo/Pages/PDGraphViewerPage.razor.rz.scp.css */
+.graph-demo[b-3i207p8w80] {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem; /* ? REDUCED: Even smaller gap */
+}
+
+.demo-toolbar[b-3i207p8w80] {
+	background: #e9ecef;
+	padding: 0.5rem; /* ? REDUCED: Smaller padding */
+	border-radius: 0.25rem; /* ? REDUCED: Smaller border radius */
+	margin-bottom: 0.5rem; /* ? REDUCED: Less margin */
+	flex-shrink: 0;
+	z-index: 10;
+}
+
+.toolbar[b-3i207p8w80] {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem; /* ? REDUCED: Smaller gap */
+	padding: 0.5rem; /* ? REDUCED: Smaller padding */
+	background-color: var(--bs-secondary-bg, #e9ecef);
+	border: 1px solid var(--bs-border-color, #dee2e6);
+	border-radius: 0.25rem; /* ? REDUCED: Smaller border radius */
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* ? REDUCED: Smaller shadow */
+}
+
+.toolbar-group[b-3i207p8w80] {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem; /* ? REDUCED: Much smaller gap */
+}
+
+.toolbar-group label[b-3i207p8w80] {
+	font-size: 0.75rem; /* ? REDUCED: Even smaller font */
+	font-weight: 500;
+	margin: 0;
+	color: var(--bs-body-color, #212529);
+	line-height: 1.1; /* ? REDUCED: Tighter line height */
+}
+
+.demo-toolbar .toolbar-group label[b-3i207p8w80] {
+	font-size: 0.75rem; /* ? REDUCED: Smaller font */
+	margin: 0;
+	font-weight: 500;
+	color: #495057; /* ? Fix: Proper dark text color */
+}
+
+.form-check-label[b-3i207p8w80] {
+	color: #495057 !important; /* ? Fix: Force dark text for checkboxes */
+}
+
+.toolbar-group .form-select[b-3i207p8w80],
+.toolbar-group .btn[b-3i207p8w80] {
+	min-width: 80px; /* ? REDUCED: Smaller width */
+	font-size: 0.75rem; /* ? REDUCED: Smaller font */
+	padding: 0.25rem 0.375rem; /* ? REDUCED: Much smaller padding */
+	line-height: 1.2; /* ? ADDED: Compact line height */
+}
+
+.toolbar-group .form-check-input[b-3i207p8w80] {
+	margin-top: 0.125rem; /* ? REDUCED: Better alignment */
+	transform: scale(0.9); /* ? ADDED: Smaller checkboxes */
+}
+
+.graph-container[b-3i207p8w80] {
+	flex: 1;
+	height: 100%;
+	border: 1px solid var(--bs-border-color, #dee2e6);
+	border-radius: var(--bs-border-radius, 0.375rem);
+	overflow: hidden;
+	background-color: var(--bs-body-bg, #ffffff);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	position: relative;
+}
+
+/* Ensure the PDGraphViewer fills the container properly */
+.graph-container > *[b-3i207p8w80] {
+	height: 100%;
+	width: 100%;
+}
+
+/* Selection info styling improvements */
+.graph-demo .alert[b-3i207p8w80] {
+	margin-top: 0.75rem; /* Reduced margin */
+	border-radius: var(--bs-border-radius, 0.375rem);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	z-index: 5;
+	position: relative;
+	padding: 0.75rem; /* Compact padding */
+}
+
+.graph-demo .alert h6[b-3i207p8w80] {
+	margin-bottom: 0.5rem;
+	font-weight: 600;
+}
+
+.graph-demo .badge[b-3i207p8w80] {
+	font-size: 0.75rem;
+	margin-right: 0.25rem;
+	margin-bottom: 0.25rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+	.toolbar[b-3i207p8w80] {
+		background-color: var(--bs-dark-bg-subtle, #2d3436);
+		border-color: var(--bs-secondary, #6c757d);
+		color: var(--bs-light, #f8f9fa);
+		box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+	}
+	
+	.toolbar-group label[b-3i207p8w80] {
+		color: var(--bs-light, #f8f9fa);
+	}
+	
+	.graph-container[b-3i207p8w80] {
+		border-color: var(--bs-secondary, #6c757d);
+		background-color: var(--bs-dark, #212529);
+		box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+	}
+
+	.graph-demo .alert[b-3i207p8w80] {
+		box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+	}
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+	.graph-demo[b-3i207p8w80] {
+		gap: 0.5rem;
+	}
+
+	.toolbar[b-3i207p8w80] {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.5rem;
+		padding: 0.5rem;
+	}
+	
+	.toolbar-group[b-3i207p8w80] {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	
+	.toolbar-group .form-select[b-3i207p8w80],
+	.toolbar-group .btn[b-3i207p8w80] {
+		min-width: auto;
+		flex: 1;
+		max-width: 150px;
+		font-size: 0.8rem;
+	}
+
+	.graph-demo .alert[b-3i207p8w80] {
+		margin-top: 0.5rem;
+		padding: 0.5rem;
+	}
+
+	.graph-demo .badge[b-3i207p8w80] {
+		font-size: 0.7rem;
+	}
+}
+
+@media (max-width: 576px) {
+	.toolbar-group[b-3i207p8w80] {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.25rem;
+	}
+
+	.toolbar-group .form-select[b-3i207p8w80],
+	.toolbar-group .btn[b-3i207p8w80] {
+		max-width: none;
+	}
+}
+
+.toolbar-group[b-3i207p8w80] {
+	min-width: fit-content;
+}
+
+	.toolbar-group label.form-label[b-3i207p8w80] {
+		margin-bottom: 0.25rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+
+	.toolbar-group .form-range[b-3i207p8w80] {
+		width: 150px;
+	}
+
+@media (max-width: 768px) {
+	.row .col-md-6[b-3i207p8w80] {
+		margin-bottom: 1rem;
+	}
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDListPage.razor.rz.scp.css */
+.list1[b-0p2mp4mlld] {
+	margin-top: 0.5rem;
+}
+
+.list1[b-0p2mp4mlld]  ul {
+	height: 100px;
+}
+
+.list2[b-0p2mp4mlld] {
+}
+
+.list3[b-0p2mp4mlld] {
+	max-height: 150px;
+	overflow-y: auto;
+}
+
+/* Striping for list4 using Bootstrap dark mode variables */
+.list4[b-0p2mp4mlld]  li:nth-child(2n+1) {
+	background-color: var(--bs-tertiary-bg);
+}
+
+.list4[b-0p2mp4mlld]  li:nth-child(2n) {
+	background-color: var(--bs-body-bg);
+}
+
+.list5[b-0p2mp4mlld]  .dropdown-menu {
+	width: 250px;
+}
+
+.list5[b-0p2mp4mlld]  ul{
+	height: 250px;
+}
+
+
+h2[b-0p2mp4mlld], h3[b-0p2mp4mlld] {
+	margin: 0px;
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDModalPage.razor.rz.scp.css */
+.special-offers[b-6lmv71xcil] {
+	background-color: #0d6efd;
+	border-radius: 0.25em;
+	color: #fff;
+	border:none;
+	padding: 0.25em;
+
+	transition: background-color linear 0.2s;
+}
+
+	.special-offers:hover[b-6lmv71xcil] {
+		background-color: #0d2ffd;
+	}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDMonaco.razor.rz.scp.css */
+[b-wk9fhibf2h] .monaco-editor-container {
+	height: 400px !important;
+}
+
+.output[b-wk9fhibf2h] {
+	border: 1px solid silver;
+	font-family: 'Courier New';
+	margin-top: 20px;
+	white-space: break-spaces;
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDRangePage.razor.rz.scp.css */
+[b-dvb6bpq41l] form {
+	display: flex;
+	justify-content: space-between;
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDStudioDemo.razor.rz.scp.css */
+.ncalc-results[b-02zueuoxpr] {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.5;
+}
+
+.ncalc-results .success[b-02zueuoxpr] {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.ncalc-results .error[b-02zueuoxpr] {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.ncalc-results .error-detail[b-02zueuoxpr] {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.ncalc-results .info[b-02zueuoxpr] {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 0.85em;
+}
+
+.ncalc-results .result-section[b-02zueuoxpr] {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.ncalc-results .result-section h4[b-02zueuoxpr] {
+    margin: 0 0 12px 0;
+    color: #495057;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.ncalc-results .result-value[b-02zueuoxpr] {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #007bff;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 8px;
+    word-break: break-all;
+}
+
+.ncalc-results .result-type[b-02zueuoxpr] {
+    font-size: 0.85em;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.ncalc-results .expression-info[b-02zueuoxpr] {
+    border-top: 1px solid #dee2e6;
+    padding-top: 12px;
+    margin-top: 16px;
+}
+
+.ncalc-results .error-results[b-02zueuoxpr] {
+    border-left: 4px solid #dc3545;
+    padding-left: 16px;
+}
+
+/* Specific styling for different error types */
+.ncalc-results .error-results .error:has-text("Invalid Code")[b-02zueuoxpr] {
+    border-left-color: #fd7e14; /* Orange for invalid code */
+}
+
+.ncalc-results .error-results .error:has-text("Runtime Error")[b-02zueuoxpr] {
+    border-left-color: #dc3545; /* Red for runtime errors */
+}
+
+.ncalc-results .error-results .error:has-text("Timed Out")[b-02zueuoxpr] {
+    border-left-color: #ffc107; /* Yellow for timeouts */
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffeaa7;
+}
+
+.ncalc-results .error-help[b-02zueuoxpr] {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.ncalc-results .error-help h5[b-02zueuoxpr] {
+    color: #495057;
+    font-size: 1em;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.ncalc-results .error-help ul[b-02zueuoxpr] {
+    margin: 0 0 16px 0;
+    padding-left: 20px;
+}
+
+.ncalc-results .error-help li[b-02zueuoxpr] {
+    margin-bottom: 4px;
+}
+
+.ncalc-results .error-help code[b-02zueuoxpr] {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 0.9em;
+}
+
+/* Special styling for timeout errors */
+.ncalc-results .timeout-error[b-02zueuoxpr] {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+.ncalc-results .timeout-error .error[b-02zueuoxpr] {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+/* Invalid code styling */
+.ncalc-results .invalid-code-error[b-02zueuoxpr] {
+    background-color: #ffeaa0;
+    border-color: #fd7e14;
+}
+
+.ncalc-results .invalid-code-error .error[b-02zueuoxpr] {
+    background-color: #ffeaa0;
+    border-color: #fd7e14;
+    color: #8a4a00;
+}
+
+/* Runtime error styling */
+.ncalc-results .runtime-error[b-02zueuoxpr] {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+}
+
+.ncalc-results .runtime-error .error[b-02zueuoxpr] {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+/* PDStudio Demo Page Styling */
+
+/* Demo container for PDStudio */
+.pd-studio-demo-container[b-02zueuoxpr] {
+    height: 70vh;
+    min-height: 500px; /* Minimum height for usability */
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure PDStudio fills the demo container */
+.pd-studio-demo-container .pd-studio[b-02zueuoxpr] {
+    height: 100%;
+    width: 100%;
+    flex: 1;
+}
+
+/* Fix any splitter issues within the demo container */
+.pd-studio-demo-container .pd-splitter[b-02zueuoxpr] {
+    height: 100%;
+    flex: 1;
+}
+
+.pd-studio-demo-container .pd-split-panel[b-02zueuoxpr] {
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Enhanced responsive design for demo */
+@media (max-width: 992px) {
+    .pd-studio-demo-container[b-02zueuoxpr] {
+        height: 60vh;
+        min-height: 450px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pd-studio-demo-container[b-02zueuoxpr] {
+        height: 55vh;
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 576px) {
+    .pd-studio-demo-container[b-02zueuoxpr] {
+        height: 50vh;
+        min-height: 350px;
+    }
+}
+
+/* Demo page specific overrides */
+.container-fluid .row .col-12 .pd-studio-demo-container[b-02zueuoxpr] {
+    margin: 0; /* Remove any unwanted margins */
+    padding: 0; /* Remove any unwanted padding */
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDTimelinePage.razor.rz.scp.css */
+.toolbar[b-f8iiae2bxk] {
+	align-items: center;
+	display: flex;
+	margin-bottom: 5px;
+}
+/* _content/PanoramicData.Blazor.Demo/Pages/PDToggleSwitchPage.razor.rz.scp.css */
+.horz-switches[b-w5egltv960] {
+	display: flex;
+}
+
+.vert-switches[b-w5egltv960]
+{
+	display: flex;
+	flex-direction: column;
+}
+
+.vert-switches .pdtoggleswitch[b-w5egltv960] {
+	width: 500px;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-1 .switch {
+	stroke: red !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-1 .switch.on {
+	fill: red !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-2 .switch {
+	stroke: orange !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-2 .switch.on {
+	fill: orange !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-3 .switch {
+	stroke: goldenrod !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-3 .switch.on {
+	fill: goldenrod !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-4 .switch {
+	stroke: limegreen !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-4 .switch.on {
+	fill: limegreen !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-5 .switch {
+	stroke: steelblue !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-5 .switch.on {
+	fill: steelblue !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-6 .switch {
+	stroke: purple !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-6 .switch.on {
+	fill: purple !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-7 .switch {
+	stroke: black !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-7 .switch.on {
+	fill: black !important;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-power .switch {
+	stroke: silver;
+	stroke-width: 1;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-power .switch.on {
+	fill: green;
+}
+
+[b-w5egltv960] .pdtoggleswitch.sw-power .switch.off {
+	fill: red;
+}
+/* _content/PanoramicData.Blazor.Demo/Shared/DocExample.razor.rz.scp.css */
+.doc-example[b-jwuhaokm4h] {
+	border-left: 3px solid var(--bs-primary);
+	padding-left: 1rem;
+}
+
+.doc-example-title[b-jwuhaokm4h] {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.doc-example-title .anchor-link[b-jwuhaokm4h] {
+	color: var(--bs-secondary);
+	text-decoration: none;
+	opacity: 0;
+	transition: opacity 0.2s;
+}
+
+.doc-example:hover .anchor-link[b-jwuhaokm4h] {
+	opacity: 1;
+}
+
+.anchor-link:hover[b-jwuhaokm4h] {
+	color: var(--bs-primary);
+}
+
+.doc-example-code[b-jwuhaokm4h] {
+	background-color: var(--bs-dark);
+	border-radius: 0.375rem;
+	padding: 0.75rem;
+	height: 100%;
+}
+
+.doc-example-editor[b-jwuhaokm4h] {
+	border-radius: 0.25rem;
+	overflow: hidden;
+}
+
+.doc-example-demo[b-jwuhaokm4h] {
+	background-color: var(--bs-body-bg);
+	border: 1px solid var(--bs-border-color);
+	border-radius: 0.375rem;
+	padding: 1rem;
+	min-height: 150px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.doc-example-description[b-jwuhaokm4h] {
+	color: var(--bs-secondary-color);
+	font-size: 0.9rem;
+	line-height: 1.6;
+}
+
+.doc-example-description code[b-jwuhaokm4h] {
+	background-color: var(--bs-tertiary-bg);
+	padding: 0.125rem 0.375rem;
+	border-radius: 0.25rem;
+	font-size: 0.85em;
+}
+
+/* Property tables */
+.doc-props-table[b-jwuhaokm4h] {
+	font-size: 0.9rem;
+}
+
+.doc-props-table th[b-jwuhaokm4h] {
+	background-color: var(--bs-tertiary-bg);
+}
+
+.doc-props-table code[b-jwuhaokm4h] {
+	background-color: var(--bs-dark);
+	color: var(--bs-info);
+	padding: 0.125rem 0.375rem;
+	border-radius: 0.25rem;
+	font-size: 0.85em;
+}
+
+/* Section headers */
+.doc-section[b-jwuhaokm4h] {
+	margin-top: 2rem;
+	margin-bottom: 1rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid var(--bs-border-color);
+}
+
+.doc-section:first-of-type[b-jwuhaokm4h] {
+	margin-top: 0;
+}
+
+/* Table of contents */
+.doc-toc[b-jwuhaokm4h] {
+	position: sticky;
+	top: 1rem;
+	max-height: calc(100vh - 2rem);
+	overflow-y: auto;
+}
+
+.doc-toc ul[b-jwuhaokm4h] {
+	list-style: none;
+	padding-left: 0;
+}
+
+.doc-toc li[b-jwuhaokm4h] {
+	margin-bottom: 0.25rem;
+}
+
+.doc-toc a[b-jwuhaokm4h] {
+	color: var(--bs-secondary-color);
+	text-decoration: none;
+	font-size: 0.875rem;
+}
+
+.doc-toc a:hover[b-jwuhaokm4h] {
+	color: var(--bs-primary);
+}
+
+.doc-toc a.active[b-jwuhaokm4h] {
+	color: var(--bs-primary);
+	font-weight: 500;
+}
+/* _content/PanoramicData.Blazor.Demo/Shared/ExampleTicket.razor.rz.scp.css */
+.example-ticket[b-2iab0w6iw7] {
+	padding: 0.25em;
+}
+
+.title-section[b-2iab0w6iw7] {
+	display: flex;
+	width: 100%;
+	font-size: 1.2em;
+	font-weight: bold;
+	padding-bottom: 1em;
+}
+
+.body-section[b-2iab0w6iw7] {
+	padding: 0.5em;
+	font-size: 1em;
+	padding-bottom: 2em;
+}
+
+.description-section[b-2iab0w6iw7] {
+	display: flex;
+	align-items: center;
+}
+
+.footer-right[b-2iab0w6iw7]{
+	position: absolute;
+	bottom: 0.25em;
+	right: 0.25em;
+	padding: 0.25em;
+}
+
+/* _content/PanoramicData.Blazor.Demo/Shared/MainLayout.razor.rz.scp.css */
+.page[b-k59ojh430t] {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100vh; /* Ensure full height for proper layout */
+	overflow: hidden; /* Prevent page-level scrolling */
+}
+
+.main[b-k59ojh430t] {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0; /* Allow flex child to shrink */
+	height: 100%; /* Ensure main takes full height */
+}
+
+.sidebar[b-k59ojh430t] {
+	background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+}
+
+.top-row[b-k59ojh430t] {
+	background-color: #f7f7f7;
+	border-bottom: 1px solid #d6d5d5;
+	justify-content: flex-end;
+	height: 3.5rem;
+	display: flex;
+	align-items: center;
+	flex-shrink: 0; /* Prevent top row from shrinking */
+}
+
+	.top-row[b-k59ojh430t]  a, .top-row .btn-link[b-k59ojh430t] {
+		white-space: nowrap;
+		margin-left: 1.5rem;
+	}
+
+	.top-row a:first-child[b-k59ojh430t] {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	/* Chat controls in top bar */
+	.top-row[b-k59ojh430t]  .form-check-label {
+		color: #333;
+		font-size: 0.875rem;
+	}
+
+	.top-row[b-k59ojh430t]  .form-select-sm {
+		font-size: 0.775rem;
+	}
+
+/* CRITICAL: Ensure PDChatContainer takes full remaining height */
+.main[b-k59ojh430t]  .pdchat-container-wrapper {
+	height: 100% !important; /* Force full height */
+	flex: 1 !important; /* Take all remaining space */
+	min-height: 0 !important; /* Allow shrinking */
+	display: flex !important; /* Ensure flex behavior */
+	flex-direction: column !important; /* Column layout */
+}
+
+/* Ensure the splitter within PDChatContainer takes full height */
+.main[b-k59ojh430t]  .pdchat-container-splitter {
+	height: 100% !important;
+	flex: 1 !important;
+	min-height: 0 !important;
+}
+
+/* Basic content styling - let PDChatContainer handle the height */
+.content[b-k59ojh430t] {
+	flex: 1;
+	min-height: 0;
+	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+	/* Remove explicit height - let the split panel handle it */
+}
+
+	/* SPECIAL HANDLING FOR GRAPH VIEWER PAGES */
+	.content[b-k59ojh430t]  .graph-demo {
+		height: calc(100vh - 6rem) !important; /* ✅ REDUCED: Less space for toolbar */
+		min-height: 600px !important;
+		display: flex !important;
+		flex-direction: column !important;
+	}
+
+	.content[b-k59ojh430t]  .graph-container {
+		flex: 1 !important;
+		height: auto !important; /* Let flex handle the height */
+		min-height: 500px !important;
+		overflow: hidden !important;
+	}
+
+	/* Ensure PDGraphViewer takes full container height */
+	.content[b-k59ojh430t]  .pd-graph-viewer {
+		height: 100% !important;
+		min-height: 500px !important;
+	}
+
+		/* Ensure PDSplitter in graphs works properly */
+		.content[b-k59ojh430t]  .pd-graph-viewer .pd-splitter {
+			height: 100% !important;
+			width: 100% !important;
+		}
+
+		.content[b-k59ojh430t]  .pd-graph-viewer .pd-split-panel {
+			height: 100% !important;
+			overflow: hidden !important;
+		}
+
+	/* Ensure PDGraph SVG takes full height */
+	.content[b-k59ojh430t]  .pd-graph {
+		height: 100% !important;
+		min-height: 400px !important;
+	}
+
+	.content[b-k59ojh430t]  .graph-svg {
+		height: 100% !important;
+		width: 100% !important;
+	}
+
+@media (max-width: 767.98px) {
+	.top-row:not(.auth)[b-k59ojh430t] {
+		display: none;
+	}
+
+	.top-row.auth[b-k59ojh430t] {
+		justify-content: space-between;
+	}
+
+	.top-row a[b-k59ojh430t], .top-row .btn-link[b-k59ojh430t] {
+		margin-left: 0;
+	}
+
+	/* Hide dock mode selector on mobile to save space */
+	.top-row[b-k59ojh430t]  .me-3 {
+		display: none;
+	}
+
+	/* Ensure PDChatContainer takes full height on mobile */
+	.main[b-k59ojh430t]  .pdchat-container-wrapper {
+		height: 100% !important;
+	}
+
+	/* Adjust graph demo for mobile */
+	.content[b-k59ojh430t]  .graph-demo {
+		height: calc(100vh - 6rem) !important; /* Less space on mobile */
+		min-height: 400px !important;
+	}
+
+	.content[b-k59ojh430t]  .graph-container {
+		min-height: 350px !important;
+	}
+
+	.content[b-k59ojh430t]  .pd-graph {
+		min-height: 300px !important;
+	}
+}
+
+@media (min-width: 768px) {
+	.page[b-k59ojh430t] {
+		flex-direction: row;
+		height: 100vh; /* Maintain full height in row layout */
+	}
+
+	.sidebar[b-k59ojh430t] {
+		width: 250px;
+		height: 100vh;
+		position: sticky;
+		top: 0;
+		flex-shrink: 0; /* Prevent sidebar from shrinking */
+	}
+
+	.main[b-k59ojh430t] {
+		flex: 1;
+		min-width: 0; /* Allow main to shrink if needed */
+		height: 100vh; /* Ensure main takes full viewport height */
+	}
+
+	.top-row[b-k59ojh430t] {
+		position: sticky;
+		top: 0;
+		z-index: 1;
+	}
+
+	/* CRITICAL: Account for top row height in desktop layout */
+	.main[b-k59ojh430t] >  .pdchat-container-wrapper {
+		height: calc(100vh - 3.5rem) !important; /* Account for top row height */
+		flex: 1 !important;
+		min-height: 0 !important;
+	}
+
+	.main .content[b-k59ojh430t] {
+		padding-left: 2rem !important;
+		padding-right: 1.5rem !important;
+		/* Let PDChatContainer and PDSplitPanel handle the height and scrolling */
+		box-sizing: border-box;
+	}
+
+	/* Desktop graph demo adjustments */
+	.content[b-k59ojh430t]  .graph-demo {
+		height: calc(100vh - 8rem) !important; /* ✅ REDUCED: Less space for desktop toolbar */
+		min-height: 600px !important;
+	}
+
+	.content[b-k59ojh430t]  .graph-container {
+		min-height: 500px !important;
+	}
+
+	.content[b-k59ojh430t]  .pd-graph {
+		min-height: 450px !important;
+	}
+}
+/* _content/PanoramicData.Blazor.Demo/Shared/NavMenu.razor.rz.scp.css */
+.navbar-toggler[b-su83adlrxd] {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.top-row[b-su83adlrxd] {
+	height: 3.5rem;
+	background-color: rgba(0,0,0,0.4);
+}
+
+.navbar-brand[b-su83adlrxd] {
+	font-size: 1.1rem;
+}
+
+.oi[b-su83adlrxd] {
+	width: 2rem;
+	font-size: 1.1rem;
+	vertical-align: text-top;
+	top: -2px;
+}
+
+.nav-item[b-su83adlrxd] {
+	font-size: 0.9rem;
+}
+
+.nav-item:first-of-type[b-su83adlrxd] {
+	padding-top: 1rem;
+}
+
+.nav-item:last-of-type[b-su83adlrxd] {
+	padding-bottom: 1rem;
+}
+
+.nav-item[b-su83adlrxd]  a {
+	color: #d7d7d7;
+	border-radius: 4px;
+	height: 2rem;
+	display: flex;
+	align-items: center;
+	line-height: 2rem;
+}
+
+.nav-item[b-su83adlrxd]  a.active {
+	background-color: rgba(255,255,255,0.25);
+	color: white;
+}
+
+.nav-item[b-su83adlrxd]  a:hover {
+	background-color: rgba(255,255,255,0.1);
+	color: white;
+}
+
+ul.nav[b-su83adlrxd] {
+	flex-direction: row;
+	overflow-y: auto;
+	height: calc(100vh - 56px);
+}
+
+@media (max-width: 767px) {
+	ul.nav[b-su83adlrxd] {
+		overflow-y: auto;
+		flex-direction: column;
+	}
+}
+
+@media (min-width: 768px) {
+	.navbar-toggler[b-su83adlrxd] {
+		display: none;
+	}
+
+	.collapse[b-su83adlrxd] {
+		/* Never collapse the sidebar for wide screens */
+		display: block;
+	}
+}
+/* _content/PanoramicData.Blazor.Demo/Shared/SettingsIcon.razor.rz.scp.css */
+.icon[b-u87n6rjvok] {
+	font-size: 1.5em;
+	transition: 
+		transform 0.3s ease,
+		color 0.1s ease;
+}
+
+.icon:hover[b-u87n6rjvok] {
+	transform: rotate(90deg) scale(1.2);
+	color: #2196f3;
+	cursor: pointer;
+}
+/* _content/PanoramicData.Blazor.Demo/Shared/SeverityIcon.razor.rz.scp.css */
+.severity-icon[b-32dwtojho2] {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 1.5em;
+	padding: 0.25em;
+	transition: color 0.2s;
+}
+
+/* Animation keyframes (anything greater than or equal to Major */
+@keyframes expand-b-32dwtojho2 {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(1.12);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+
+@keyframes rattle-b-32dwtojho2 {
+	0% {
+		transform: translateX(0);
+	}
+
+	20% {
+		transform: translateX(-4px);
+	}
+
+	40% {
+		transform: translateX(4px);
+	}
+
+	60% {
+		transform: translateX(-4px);
+	}
+
+	80% {
+		transform: translateX(4px);
+	}
+
+	100% {
+		transform: translateX(0);
+	}
+}
+
+.trivial.animate[b-32dwtojho2],
+.minor.animate[b-32dwtojho2] {
+	animation: expand-b-32dwtojho2 0.4s ease-in-out;
+}
+
+.major.animate[b-32dwtojho2],
+.critical.animate[b-32dwtojho2],
+.blocker.animate[b-32dwtojho2] {
+	animation: rattle-b-32dwtojho2 0.4s ease-in-out;
+}
+
+.trivial[b-32dwtojho2] {
+	color: grey;
+}
+
+.minor[b-32dwtojho2] {
+	color: rgb(243 228 54);
+}
+
+.major[b-32dwtojho2] {
+	color: orange;
+}
+
+.critical[b-32dwtojho2] {
+	color: red;
+}
+
+.blocker[b-32dwtojho2] {
+	color: darkred;
+}

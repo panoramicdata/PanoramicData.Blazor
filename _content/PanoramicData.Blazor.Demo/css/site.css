@@ -1,0 +1,292 @@
+/* Tenorite Font - Temporarily disabled
+@font-face {
+	font-family: 'Tenorite';
+	src: url('../fonts/Tenorite.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+*/
+
+html, body {
+	/* Using system fonts (Tenorite temporarily disabled) */
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+a, .btn-link {
+	color: #0366d6;
+}
+
+.btn-primary {
+	color: #fff;
+	background-color: #1b6ec2;
+	border-color: #1861ac;
+}
+
+.content {
+	padding-top: 10px;
+	overflow-y: auto;
+	height: 100%;
+}
+
+.icon-sharepoint {
+	background: url("/_content/PanoramicData.Blazor.Demo/svg/sharepoint.svg");
+	background-size: 18px;
+	background-repeat: no-repeat;
+	display: inline-block;
+	transform: translate(2px, 2px);
+	height: 18px;
+	width: 18px;
+}
+
+	.icon-sharepoint.fa-4x {
+		transform: scale(4) translate(0, -5px);
+		margin-top: 50px;
+	}
+
+.navbar-toggler {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.valid.modified:not([type=checkbox]) {
+	outline: 1px solid #26b050;
+}
+
+/*.invalid {
+	outline: 1px solid red;
+}
+*/
+.validation-message {
+	color: red;
+}
+
+#blazor-error-ui {
+	background: lightyellow;
+	bottom: 0;
+	box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+	display: none;
+	left: 0;
+	padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+	position: fixed;
+	width: 100%;
+	z-index: 1000;
+}
+
+	#blazor-error-ui .dismiss {
+		cursor: pointer;
+		position: absolute;
+		right: 0.75rem;
+		top: 0.5rem;
+	}
+
+.rotate {
+	transform: rotate(-90deg);
+	/* Legacy vendor prefixes that you probably don't need... */
+	/* Safari */
+	-webkit-transform: rotate(-90deg);
+	/* Firefox */
+	-moz-transform: rotate(-90deg);
+	/* IE */
+	-ms-transform: rotate(-90deg);
+	/* Opera */
+	-o-transform: rotate(-90deg);
+	/* Internet Explorer */
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}
+
+.demo-source-view {
+	border: solid 1px silver;
+	border-radius: 10px;
+	padding: 20px;
+}
+
+	.demo-source-view pre {
+		font-size: 0.75em;
+	}
+
+.source-files-list {
+	background-color: var(--bs-secondary-bg);
+}
+
+.source-code {
+	background-color: var(--bs-secondary-bg);
+}
+
+.event-view {
+	background-color: var(--bs-secondary-bg);
+	border: 1px solid var(--bs-border-color);
+	border-radius: 10px;
+	padding: 10px;
+}
+
+.event-view-list {
+	height: 200px;
+	overflow-x: auto;
+}
+
+@media (max-width: 767.98px) {
+	.main .top-row:not(.auth) {
+		display: none;
+	}
+
+	.main .top-row.auth {
+		justify-content: space-between;
+	}
+
+	.main .top-row a, .main .top-row .btn-link {
+		margin-left: 0;
+	}
+}
+
+@media (min-width: 768px) {
+	app {
+		flex-direction: row;
+	}
+
+	.sidebar {
+		width: 250px;
+		min-width: 250px;
+		height: 100vh;
+		position: sticky;
+		top: 0;
+	}
+
+	.main .top-row {
+		position: sticky;
+		top: 0;
+	}
+
+	.main > div {
+		padding-left: 2rem !important;
+		padding-right: 1.5rem !important;
+	}
+
+	.navbar-toggler {
+		display: none;
+	}
+
+	.sidebar .collapse {
+		/* Never collapse the sidebar for wide screens */
+		display: block;
+	}
+
+	.pdfileexplorer .pdtreenode_content:hover, .pdfileexplorer .pdtablerow:hover {
+		background-color: var(--bs-tertiary-bg);
+	}
+
+	.pdfileexplorer .pdtreenode_content.selected:hover, .pdfileexplorer .pdtablerow.selected:hover {
+		background-color: #007bff;
+	}
+
+	.drop-zone {
+		color: var(--bs-secondary-color);
+		border: 2px solid var(--bs-border-color);
+		border-radius: 10px;
+		height: 100px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background-color: var(--bs-body-bg);
+	}
+
+		.drop-zone.good {
+			color: green;
+			border: 2px solid green;
+			background-color: #e8ffe8
+		}
+
+		.drop-zone.bad {
+			color: red;
+			border: 2px solid red;
+		}
+}
+
+/* file explorer icon colours */
+.fa-folder, .fa-file-archive {
+	color: #f1cc45;
+}
+
+.fa-file-excel {
+	color: #107c41;
+}
+
+.fa-file-word {
+	color: #185abd;
+}
+
+.fa-file-pdf {
+	color: #ce0404;
+}
+
+.pdcard {
+	min-height: 4em;
+	margin-bottom: 5px;
+	border-left: 0.7vw solid;
+	border-radius: 0.35vw;
+	padding: 0.5em;
+	user-select: none;
+}
+
+.pdcard-trivial {
+	border-left-color: grey;
+}
+
+.pdcard-minor {
+	border-left-color: rgb(243 228 54);
+}
+
+.pdcard-major {
+	border-left-color: orange;
+}
+
+.pdcard-critical {
+	border-left-color: red;
+}
+
+.pdcard-blocker {
+	border-left-color: darkred;
+}
+
+.pd-carddeck-area {
+	min-width: 20%;
+	min-height: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+	padding: 1em;
+	border: solid 0.15em;
+	border-radius: 0.5em;
+}
+
+.pd-kanbanboard{
+	display: flex;
+	gap: 1em;
+	padding: 1em;
+	justify-content: center;
+}
+
+.pdcarddeck-animated {
+	border: 2px solid #1b6ec2;
+	border-radius: 1em;
+	box-shadow: 0 4px 16px rgba(27, 110, 194, 0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+	padding: 1.5em 2em;
+	transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.pdcarddeck-animated:hover {
+	border-color: #0366d6;
+	box-shadow: 0 8px 32px rgba(27, 110, 194, 0.16), 0 3px 8px rgba(0,0,0,0.08);
+}
+
+/* Dark mode support for animated card deck */
+[data-bs-theme="dark"] .pdcarddeck-animated {
+	border-color: #4a90e2;
+	background: linear-gradient(135deg, #2d3339 0%, #1a1d23 100%);
+	box-shadow: 0 4px 16px rgba(74, 144, 226, 0.12), 0 1.5px 4px rgba(0,0,0,0.2);
+}
+
+[data-bs-theme="dark"] .pdcarddeck-animated:hover {
+	border-color: #5ba4fc;
+	box-shadow: 0 8px 32px rgba(74, 144, 226, 0.24), 0 3px 8px rgba(0,0,0,0.3);
+}
