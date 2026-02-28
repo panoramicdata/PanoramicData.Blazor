@@ -11,7 +11,7 @@
 			 viewBox="@ViewBox"
 			 preserveAspectRatio="@PreserveAspectRatio"
 			 overflow="visible"
-			 style="width: 100%; height: 100%;@(Options.ShowBackground ? $" background-color: {Options.BackgroundColor};" : "")">
+			 style="@GetSvgElementStyle()">
 
 		<defs>
 			@* Gradients for tile faces *@
@@ -111,9 +111,9 @@
 
 		@foreach (var depth in allDepths)
 			{
-				@if (UsesBezierCurves)
+				@if (UsesBezierCurves && ConnectorOptions.ConnectionMode != ConnectionMode.ColumnCurves)
 				{
-					@* For curve modes: render tiles first, then connectors (curves go on top of their source row) *@
+					@* For row curve modes: render tiles first, then connectors (curves go on top of their source row) *@
 					@foreach (var tile in tiles.Where(t => t.Depth == depth))
 					{
 						@RenderTile(tile)
@@ -129,7 +129,7 @@
 				}
 				else
 				{
-					@* For straight-line mode: render connectors first (behind tiles at this depth) *@
+					@* For straight-line mode and column curves: render connectors first (behind tiles at this depth) *@
 					@if (connectorsByDepth.TryGetValue(depth, out var depthConnectors))
 					{
 						@foreach (var conn in depthConnectors)
@@ -149,9 +149,17 @@
 	</div>
 
 	@* Child content - overlaid on top of the tile grid *@
-	@if (ChildContent != null)
+	@if (ChildContent != null && !Options.ContentWrapping)
 	{
 		<div class="pd-tiles-content" style="@GetChildContentStyle()">
+			@ChildContent
+		</div>
+	}
+	else if (ChildContent != null && Options.ContentWrapping)
+	{
+		<div class="pd-tiles-content-wrap" style="@GetChildContentWrapStyle()">
+			@* Invisible float spacer matching the grid area *@
+			<div class="pd-tiles-float-spacer" style="@GetFloatSpacerStyle()"></div>
 			@ChildContent
 		</div>
 	}
@@ -308,13 +316,13 @@
 			@if (pattern == ConnectorFillPattern.Bars)
 			{
 				<g clip-path="url(#@clipId)">
-					@RenderBarsPattern(t0, t1, b0, b1, color, opacity)
+					@RenderBarsPattern(t0, t1, b0, b1, color, opacity, conn.Connector.Reversed)
 				</g>
 			}
 			else if (pattern == ConnectorFillPattern.Chevrons)
 			{
 				<g clip-path="url(#@clipId)">
-					@RenderChevronsPattern(t0, t1, b0, b1, color, opacity)
+					@RenderChevronsPattern(t0, t1, b0, b1, color, opacity, conn.Connector.Reversed)
 				</g>
 			}
 			else if (pattern == ConnectorFillPattern.Solid)
@@ -372,14 +380,14 @@
 			{
 				@* Bars pattern - follow the bezier curve *@
 				<g clip-path="url(#@clipId)">
-					@RenderBezierBarsPattern(bezierData, color, opacity)
+					@RenderBezierBarsPattern(bezierData, color, opacity, conn.Connector.Reversed)
 				</g>
 			}
 			else if (pattern == ConnectorFillPattern.Chevrons)
 			{
 				@* Chevrons pattern - follow the bezier curve *@
 				<g clip-path="url(#@clipId)">
-					@RenderBezierChevronsPattern(bezierData, color, opacity)
+					@RenderBezierChevronsPattern(bezierData, color, opacity, conn.Connector.Reversed)
 				</g>
 			}
 
@@ -398,11 +406,11 @@
 	};
 
 	private RenderFragment RenderBarsPattern((double X, double Y) t0, (double X, double Y) t1,
-		(double X, double Y) b0, (double X, double Y) b1, string color, double opacity) => __builder =>
+		(double X, double Y) b0, (double X, double Y) b1, string color, double opacity, bool reversed) => __builder =>
 	{
 		var length = Math.Sqrt(Math.Pow(t1.X - t0.X, 2) + Math.Pow(t1.Y - t0.Y, 2));
 		var barCount = Math.Max(3, (int)(length / 30));
-		var offset = _animationOffset;
+		var offset = reversed ? 1.0 - _animationOffset : _animationOffset;
 
 		for (var i = -1; i <= barCount; i++)
 		{
@@ -422,14 +430,16 @@
 	};
 
 	private RenderFragment RenderChevronsPattern((double X, double Y) t0, (double X, double Y) t1,
-		(double X, double Y) b0, (double X, double Y) b1, string color, double opacity) => __builder =>
+		(double X, double Y) b0, (double X, double Y) b1, string color, double opacity, bool reversed) => __builder =>
 	{
-		var length = Math.Sqrt(Math.Pow(t1.X - t0.X, 2) + Math.Pow(t1.Y - t0.Y, 2));
+		// When reversed, swap start/end so chevrons point the opposite direction
+		var (at0, at1, ab0, ab1) = reversed ? (t1, t0, b1, b0) : (t0, t1, b0, b1);
+		var length = Math.Sqrt(Math.Pow(at1.X - at0.X, 2) + Math.Pow(at1.Y - at0.Y, 2));
 		var chevronCount = Math.Max(2, (int)(length / 45));
 		var chevronWidth = 0.6;
 		var pointDepth = 0.3;
 		var notchDepth = 0.3;
-		var offset = _animationOffset;
+		var offset = reversed ? 1.0 - _animationOffset : _animationOffset;
 
 		for (var i = -1; i <= chevronCount; i++)
 		{
@@ -438,12 +448,12 @@
 			var fBody = (i + offset + chevronWidth) / chevronCount;
 			var fPoint = (i + offset + chevronWidth + pointDepth) / chevronCount;
 
-			var bl = Lerp(b0, b1, fTrail);
-			var tl = Lerp(t0, t1, fTrail);
-			var nm = LerpMid(t0, t1, b0, b1, fNotch);
-			var br = Lerp(b0, b1, fBody);
-			var tr = Lerp(t0, t1, fBody);
-			var pm = LerpMid(t0, t1, b0, b1, fPoint);
+			var bl = Lerp(ab0, ab1, fTrail);
+			var tl = Lerp(at0, at1, fTrail);
+			var nm = LerpMid(at0, at1, ab0, ab1, fNotch);
+			var br = Lerp(ab0, ab1, fBody);
+			var tr = Lerp(at0, at1, fBody);
+			var pm = LerpMid(at0, at1, ab0, ab1, fPoint);
 
 			<polygon points="@($"{F(bl.X)},{F(bl.Y)} {F(br.X)},{F(br.Y)} {F(pm.X)},{F(pm.Y)} {F(tr.X)},{F(tr.Y)} {F(tl.X)},{F(tl.Y)} {F(nm.X)},{F(nm.Y)}")"
 					 fill="@color"
@@ -485,12 +495,12 @@
 		);
 	}
 
-	private RenderFragment RenderBezierBarsPattern(BezierConnectorData data, string color, double opacity) => __builder =>
+	private RenderFragment RenderBezierBarsPattern(BezierConnectorData data, string color, double opacity, bool reversed) => __builder =>
 	{
 		// Estimate arc length from the top curve for consistent bar spacing
 		var chordLen = Math.Sqrt(Math.Pow(data.EndTop.X - data.StartTop.X, 2) + Math.Pow(data.EndTop.Y - data.StartTop.Y, 2));
 		var barCount = Math.Max(3, (int)(chordLen / 30));
-		var offset = _animationOffset;
+		var offset = reversed ? 1.0 - _animationOffset : _animationOffset;
 
 		for (var i = -1; i <= barCount; i++)
 		{
@@ -509,14 +519,22 @@
 		}
 	};
 
-	private RenderFragment RenderBezierChevronsPattern(BezierConnectorData data, string color, double opacity) => __builder =>
+	private RenderFragment RenderBezierChevronsPattern(BezierConnectorData data, string color, double opacity, bool reversed) => __builder =>
 	{
-		var chordLen = Math.Sqrt(Math.Pow(data.EndTop.X - data.StartTop.X, 2) + Math.Pow(data.EndTop.Y - data.StartTop.Y, 2));
+		// When reversed, evaluate bezier from end?start to flip chevron direction
+		var (sTop, sTopCtrl, eTopCtrl, eTop) = reversed
+			? (data.EndTop, data.EndTopCtrl, data.StartTopCtrl, data.StartTop)
+			: (data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop);
+		var (sBot, sBotCtrl, eBotCtrl, eBot) = reversed
+			? (data.EndBottom, data.EndBottomCtrl, data.StartBottomCtrl, data.StartBottom)
+			: (data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom);
+
+		var chordLen = Math.Sqrt(Math.Pow(eTop.X - sTop.X, 2) + Math.Pow(eTop.Y - sTop.Y, 2));
 		var chevronCount = Math.Max(2, (int)(chordLen / 45));
 		var chevronWidth = 0.6;
 		var pointDepth = 0.3;
 		var notchDepth = 0.3;
-		var offset = _animationOffset;
+		var offset = reversed ? 1.0 - _animationOffset : _animationOffset;
 
 		for (var i = -1; i <= chevronCount; i++)
 		{
@@ -525,18 +543,18 @@
 			var fBody = (i + offset + chevronWidth) / chevronCount;
 			var fPoint = (i + offset + chevronWidth + pointDepth) / chevronCount;
 
-			var tl = CubicBezier(data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop, fTrail);
-			var bl = CubicBezier(data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom, fTrail);
-			var tr = CubicBezier(data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop, fBody);
-			var br = CubicBezier(data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom, fBody);
+			var tl = CubicBezier(sTop, sTopCtrl, eTopCtrl, eTop, fTrail);
+			var bl = CubicBezier(sBot, sBotCtrl, eBotCtrl, eBot, fTrail);
+			var tr = CubicBezier(sTop, sTopCtrl, eTopCtrl, eTop, fBody);
+			var br = CubicBezier(sBot, sBotCtrl, eBotCtrl, eBot, fBody);
 
 			// Notch and point are midpoints between the top and bottom curves at their respective t values
-			var nTop = CubicBezier(data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop, fNotch);
-			var nBot = CubicBezier(data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom, fNotch);
+			var nTop = CubicBezier(sTop, sTopCtrl, eTopCtrl, eTop, fNotch);
+			var nBot = CubicBezier(sBot, sBotCtrl, eBotCtrl, eBot, fNotch);
 			var nm = (X: (nTop.X + nBot.X) / 2, Y: (nTop.Y + nBot.Y) / 2);
 
-			var pTop = CubicBezier(data.StartTop, data.StartTopCtrl, data.EndTopCtrl, data.EndTop, fPoint);
-			var pBot = CubicBezier(data.StartBottom, data.StartBottomCtrl, data.EndBottomCtrl, data.EndBottom, fPoint);
+			var pTop = CubicBezier(sTop, sTopCtrl, eTopCtrl, eTop, fPoint);
+			var pBot = CubicBezier(sBot, sBotCtrl, eBotCtrl, eBot, fPoint);
 			var pm = (X: (pTop.X + pBot.X) / 2, Y: (pTop.Y + pBot.Y) / 2);
 
 			<polygon points="@($"{F(bl.X)},{F(bl.Y)} {F(br.X)},{F(br.Y)} {F(pm.X)},{F(pm.Y)} {F(tr.X)},{F(tr.Y)} {F(tl.X)},{F(tl.Y)} {F(nm.X)},{F(nm.Y)}")"

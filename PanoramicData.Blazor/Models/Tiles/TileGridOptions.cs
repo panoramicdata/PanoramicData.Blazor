@@ -134,4 +134,11 @@ public class TileGridOptions
 	/// Maximum grid height as percentage of container height (1-100). Null means no limit.
 	/// </summary>
 	public int? MaxGridHeightPercent { get; set; }
+
+	/// <summary>
+	/// When true and ChildContent is provided, text wraps around the tile grid
+	/// in a newspaper-style layout using CSS float, instead of overlaying the grid.
+	/// Requires MaxGridWidthPercent to be set so the grid doesn't fill the full width.
+	/// </summary>
+	public bool ContentWrapping { get; set; }
 }

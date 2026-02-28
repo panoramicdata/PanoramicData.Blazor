@@ -36,7 +36,8 @@ public partial class PDTilesPage
 		ReflectionDepth = 150,
 		Scale = 100,
 		Padding = 5,
-		Alignment = GridAlignment.MiddleRight
+		Alignment = GridAlignment.MiddleRight,
+		ContentWrapping = true
 	};
 
 	private readonly TileConnectorOptions _connectorOptions = new()
@@ -277,6 +278,7 @@ public partial class PDTilesPage
 		TryParseNullableInt(query, "maxW", v => _options.MaxGridWidthPercent = v);
 		TryParseNullableInt(query, "maxH", v => _options.MaxGridHeightPercent = v);
 		TryParseBool(query, "content", v => _showChildContent = v);
+		TryParseBool(query, "wrap", v => _options.ContentWrapping = v);
 
 		// Connector options
 		TryParseEnum<ConnectorFillPattern>(query, "cPat", v => _connectorOptions.FillPattern = v);
@@ -362,6 +364,7 @@ public partial class PDTilesPage
 			["maxW"] = _options.MaxGridWidthPercent?.ToString() ?? "",
 			["maxH"] = _options.MaxGridHeightPercent?.ToString() ?? "",
 			["content"] = _showChildContent ? "true" : "false",
+			["wrap"] = _options.ContentWrapping ? "true" : "false",
 
 			// Connector options
 			["cPat"] = _connectorOptions.FillPattern.ToString(),

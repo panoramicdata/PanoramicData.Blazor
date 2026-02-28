@@ -189,7 +189,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	{
 		if (ChildContent != null)
 		{
-			// Position absolutely but allow pointer events on SVG elements (tiles/connectors handle their own events)
+			// Position absolutely so the SVG fills the entire container as a background layer.
+			// In wrapping mode, grid lines/glow/background show through behind the content text.
 			return "position: absolute; top: 0; left: 0; width: 100%; height: 100%;";
 		}
 
@@ -197,9 +198,48 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
+	/// Gets the inline style for the SVG element itself.
+	/// In wrapping mode the height is omitted so the SVG auto-sizes from its viewBox aspect ratio.
+	/// </summary>
+	private string GetSvgElementStyle()
+	{
+		var style = "width: 100%; height: 100%;";
+
+		if (Options.ShowBackground)
+		{
+			style += $" background-color: {Options.BackgroundColor};";
+		}
+
+		return style;
+	}
+
+	/// <summary>
 	/// Gets the style for the child content container.
 	/// </summary>
 	private static string GetChildContentStyle() => "position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: auto; z-index: 1; pointer-events: none;";
+
+	/// <summary>
+	/// Gets the style for the wrapping child content container (newspaper-style).
+	/// </summary>
+	private static string GetChildContentWrapStyle() => "position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: auto; z-index: 1; pointer-events: none;";
+
+	/// <summary>
+	/// Gets the style for the invisible float spacer that forces content to wrap around the grid.
+	/// The spacer fills the full container height to ensure content never overlaps the tile area.
+	/// </summary>
+	private string GetFloatSpacerStyle()
+	{
+		var floatSide = Options.Alignment switch
+		{
+			GridAlignment.TopLeft or GridAlignment.MiddleLeft or GridAlignment.BottomLeft => "left",
+			_ => "right"
+		};
+
+		// Use MaxGridWidthPercent if set, otherwise default to 50%
+		var widthPercent = Options.MaxGridWidthPercent ?? 50;
+
+		return $"float: {floatSide}; width: {widthPercent}%; height: 100%;";
+	}
 
 	protected override void OnInitialized()
 	{
@@ -477,10 +517,17 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 		// Expand the viewBox to respect MaxGridWidthPercent and MaxGridHeightPercent
 		// If MaxGridWidthPercent is 50%, the viewBox should be twice as wide so the grid
-		// occupies only 50% of the container width (positioned by alignment)
-		if (Options.MaxGridWidthPercent.HasValue && Options.MaxGridWidthPercent.Value > 0 && Options.MaxGridWidthPercent.Value < 100)
+		// occupies only 50% of the container width (positioned by alignment).
+		// When ContentWrapping is active, auto-constrain to 50% so tiles stay on one side.
+		var effectiveMaxWidthPercent = Options.MaxGridWidthPercent;
+		if (!effectiveMaxWidthPercent.HasValue && Options.ContentWrapping && ChildContent != null)
 		{
-			viewBoxWidth = constrainedWidth * (100.0 / Options.MaxGridWidthPercent.Value);
+			effectiveMaxWidthPercent = 50;
+		}
+
+		if (effectiveMaxWidthPercent.HasValue && effectiveMaxWidthPercent.Value > 0 && effectiveMaxWidthPercent.Value < 100)
+		{
+			viewBoxWidth = constrainedWidth * (100.0 / effectiveMaxWidthPercent.Value);
 		}
 
 		if (Options.MaxGridHeightPercent.HasValue && Options.MaxGridHeightPercent.Value > 0 && Options.MaxGridHeightPercent.Value < 100)
@@ -1259,8 +1306,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		{
 			return direction switch
 			{
-				"right" or "up" => (0.447, 0.894),
-				"left" or "down" => (-0.447, 0.894),
+				"right" or "up" => (0.707, 0.707),
+				"left" or "down" => (-0.707, 0.707),
 				_ => (0.0, 1.0)
 			};
 		}
@@ -1268,8 +1315,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		{
 			return direction switch
 			{
-				"left" or "down" => (-0.484, -0.875),
-				"right" or "up" => (0.484, -0.875),
+				"left" or "down" => (-0.707, -0.707),
+				"right" or "up" => (0.707, -0.707),
 				_ => (0.0, -1.0)
 			};
 		}

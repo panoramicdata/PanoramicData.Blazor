@@ -66,6 +66,7 @@
 		<PDToolbarDropdown Text="@($"MaxW:{_options.MaxGridWidthPercent?.ToString() ?? "-"}%")" Items="@_maxSizeItems" Click="OnMaxWidthSelected" ToolTip="Max Grid Width %" />
 		<PDToolbarDropdown Text="@($"MaxH:{_options.MaxGridHeightPercent?.ToString() ?? "-"}%")" Items="@_maxSizeItems" Click="OnMaxHeightSelected" ToolTip="Max Grid Height %" />
 		<PDToggleSwitch @bind-Value="_showChildContent" @bind-Value:after="OnOptionsChanged" Label="Content" />
+		<PDToggleSwitch @bind-Value="_options.ContentWrapping" @bind-Value:after="OnOptionsChanged" Label="Wrap" />
 	</PDToolbar>
 
 	<h3 class="mt-3">Connector Options</h3>
@@ -143,13 +144,7 @@
 
 <style>
 	.pd-tiles-child-content {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 50%;
-		height: 100%;
 		padding: 2rem;
-		overflow: auto;
 		color: white;
 		text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 		pointer-events: auto;
