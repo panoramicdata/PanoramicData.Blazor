@@ -1,9 +1,9 @@
-﻿.pdfilemodalexplorer .pdfileexplorer
+﻿.pdfilemodalexplorer ::deep .pdfileexplorer
 {
 	height: 100%;
 }
 
-.pdfilemodalexplorer .pdfileexplorer ::deep .pdsplitter
+.pdfilemodalexplorer ::deep .pdsplitter
 {
 	flex-grow: 1;
 }
