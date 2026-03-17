@@ -35,6 +35,11 @@ public partial class PDFileModal
 	[Parameter] public string[] ExcludedPaths { get; set; } = [];
 
 	/// <summary>
+	/// Gets or sets the CSS height of the file explorer area.
+	/// </summary>
+	[Parameter] public string Height { get; set; } = "400px";
+
+	/// <summary>
 	/// A function to get the CSS class for a given file explorer item.
 	/// </summary>
 	[Parameter] public Func<FileExplorerItem, string>? GetItemIconCssClass { get; set; }
@@ -45,9 +50,19 @@ public partial class PDFileModal
 	[Parameter] public string OpenButtonText { get; set; } = "Open";
 
 	/// <summary>
+	/// Gets or sets the icon CSS class for the 'Open' button.
+	/// </summary>
+	[Parameter] public string OpenButtonIconCssClass { get; set; } = "fas fa-fw fa-folder-open";
+
+	/// <summary>
 	/// Gets or sets the text for the 'Save' button.
 	/// </summary>
 	[Parameter] public string SaveButtonText { get; set; } = "Save";
+
+	/// <summary>
+	/// Gets or sets the icon CSS class for the 'Save' button.
+	/// </summary>
+	[Parameter] public string SaveButtonIconCssClass { get; set; } = "fas fa-fw fa-save";
 
 	/// <summary>
 	/// Gets or sets whether to show the context menu in the file explorer.
@@ -147,9 +162,9 @@ public partial class PDFileModal
 			_okButton.Text = OpenButtonText;
 		}
 
-		if (_okButton.IconCssClass != "fas fa-fw fa-folder-open")
+		if (_okButton.IconCssClass != OpenButtonIconCssClass)
 		{
-			_okButton.IconCssClass = "fas fa-fw fa-folder-open";
+			_okButton.IconCssClass = OpenButtonIconCssClass;
 		}
 
 		StateHasChanged();
@@ -190,9 +205,9 @@ public partial class PDFileModal
 			_okButton.Text = OpenButtonText;
 		}
 
-		if (_okButton.IconCssClass != "fas fa-fw fa-folder-open")
+		if (_okButton.IconCssClass != OpenButtonIconCssClass)
 		{
-			_okButton.IconCssClass = "fas fa-fw fa-folder-open";
+			_okButton.IconCssClass = OpenButtonIconCssClass;
 		}
 
 		StateHasChanged();
@@ -237,9 +252,9 @@ public partial class PDFileModal
 			_okButton.Text = SaveButtonText;
 		}
 
-		if (_okButton.IconCssClass != "fas fa-fw fa-save")
+		if (_okButton.IconCssClass != SaveButtonIconCssClass)
 		{
-			_okButton.IconCssClass = "fas fa-fw fa-save";
+			_okButton.IconCssClass = SaveButtonIconCssClass;
 		}
 
 		StateHasChanged();
@@ -282,9 +297,9 @@ public partial class PDFileModal
 			_okButton.Text = SaveButtonText;
 		}
 
-		if (_okButton.IconCssClass != "fas fa-fw fa-save")
+		if (_okButton.IconCssClass != SaveButtonIconCssClass)
 		{
-			_okButton.IconCssClass = "fas fa-fw fa-save";
+			_okButton.IconCssClass = SaveButtonIconCssClass;
 		}
 
 		StateHasChanged();

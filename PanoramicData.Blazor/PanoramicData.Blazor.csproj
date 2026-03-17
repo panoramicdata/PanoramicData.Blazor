@@ -27,8 +27,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			PDDashboard: optional name row above tabs; display-mode header with dashboard/tab name and rotation controls (pause/resume, prev/next); properties editor in settings dialog; view-mode per-session property overrides (AllowViewModePropertyEdit); fix EffectiveProperties cascade.
-			PDSplitterDocumentation: fix example to use PDSplitPanel children; correct parameters table.
+			- PDFileModal: Added configurable Height, OpenButtonIconCssClass, and SaveButtonIconCssClass parameters. Fixed file explorer not filling available space when toolbar is hidden.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
