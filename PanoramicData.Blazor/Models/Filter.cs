@@ -341,11 +341,16 @@ public class Filter
 			filterType = FilterTypes.Equals;
 		}
 
-		// strip quotes
-		//if (value.StartsWith("\"") && value.EndsWith("\""))
-		//{
-		//	value = value.Substring(1, value.Length - 2);
-		//}
+		// strip quotes added by ToString() to protect multi-word values during tokenisation
+		if (value.StartsWith('"') && value.EndsWith('"') && value.Length >= 2)
+		{
+			value = value[1..^1];
+		}
+
+		if (value2.StartsWith('"') && value2.EndsWith('"') && value2.Length >= 2)
+		{
+			value2 = value2[1..^1];
+		}
 
 		return new Filter(filterType, key, value, value2) { PropertyName = propertyName };
 	}

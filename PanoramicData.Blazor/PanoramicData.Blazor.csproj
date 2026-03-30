@@ -27,7 +27,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			- PDFileModal: Added configurable Height, OpenButtonIconCssClass, and SaveButtonIconCssClass parameters. Fixed file explorer not filling available space when toolbar is hidden.
+			- Fix Parse(string) to strip balanced quotes from values, so multi-word filters like status:"Ready for Test" resolve to the actual value instead of retaining literal " characters.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
