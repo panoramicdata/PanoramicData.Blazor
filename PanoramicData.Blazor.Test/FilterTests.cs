@@ -382,6 +382,26 @@ public class FilterTests
 	}
 
 	[Fact]
+	public void Parse_InWithQuotedMultiWordItems_PreservesQuotes()
+	{
+		var filter = Filter.Parse("name:In(\"Chain Test I\"|\"A - Test Schedule\")");
+
+		filter.Key.ShouldBe("name");
+		filter.FilterType.ShouldBe(FilterTypes.In);
+		filter.Value.ShouldBe("\"Chain Test I\"|\"A - Test Schedule\"");
+	}
+
+	[Fact]
+	public void Parse_NotInWithQuotedMultiWordItems_PreservesQuotes()
+	{
+		var filter = Filter.Parse("name:!In(\"Chain Test I\"|\"A - Test Schedule\")");
+
+		filter.Key.ShouldBe("name");
+		filter.FilterType.ShouldBe(FilterTypes.NotIn);
+		filter.Value.ShouldBe("\"Chain Test I\"|\"A - Test Schedule\"");
+	}
+
+	[Fact]
 	public void Parse_GreaterThan_ParsesCorrectly()
 	{
 		var filter = Filter.Parse("price:>100");

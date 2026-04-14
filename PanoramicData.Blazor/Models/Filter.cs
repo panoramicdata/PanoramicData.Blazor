@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor.Models;
+namespace PanoramicData.Blazor.Models;
 
 public class Filter
 {
@@ -342,7 +342,8 @@ public class Filter
 		}
 
 		// strip quotes added by ToString() to protect multi-word values during tokenisation
-		if (value.StartsWith('"') && value.EndsWith('"') && value.Length >= 2)
+		// skip for In/NotIn as quotes belong to individual pipe-separated items
+		if (filterType != FilterTypes.In && filterType != FilterTypes.NotIn && value.StartsWith('"') && value.EndsWith('"') && value.Length >= 2)
 		{
 			value = value[1..^1];
 		}
