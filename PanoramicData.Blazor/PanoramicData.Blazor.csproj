@@ -27,8 +27,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			- Fix Parse(string) to strip balanced quotes from values, so multi-word filters like status:"Ready for Test" resolve to the actual value instead of retaining literal " characters.
-			- Skip quote-stripping for In/NotIn filters to preserve individually quoted pipe-separated items (e.g., status:"Chain Test I"|"A - Test Schedule").
+			- Update NuGet packages to latest patch versions.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
