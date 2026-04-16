@@ -2099,6 +2099,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 		catch
 		{
+			// Too bad...
 		}
 	}
 }

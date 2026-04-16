@@ -210,12 +210,10 @@ public partial class PDModal : IAsyncDisposable
 
 			return false;
 		});
-		if (btn != null)
+
+		if (btn != null && _commonModule != null)
 		{
-			if (_commonModule != null)
-			{
-				await _commonModule.InvokeVoidAsync("focus", cancellationToken, $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
-			}
+			await _commonModule.InvokeVoidAsync("focus", cancellationToken, $"pd-tbr-btn-{btn.Key}").ConfigureAwait(true);
 		}
 
 		_userChoice = new TaskCompletionSource<string>();

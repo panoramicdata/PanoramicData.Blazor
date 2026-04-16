@@ -300,23 +300,20 @@ public class MethodCache
 	public IEnumerable<SignatureInformation> GetSignatures(string language, string name)
 	{
 		var signatures = new List<SignatureInformation>();
-		if (!string.IsNullOrWhiteSpace(name))
+		if (!string.IsNullOrWhiteSpace(name) && _languageDict.TryGetValue(language, out MethodDictionary? methodDict))
 		{
-			if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
+			var methods = methodDict.Values.SelectMany(overloads => overloads.Where(method => method.IsMatch(name))).ToArray();
+			foreach (var method in methods)
 			{
-				var methods = methodDict.Values.SelectMany(overloads => overloads.Where(method => method.IsMatch(name))).ToArray();
-				foreach (var method in methods)
+				signatures.Add(new SignatureInformation
 				{
-					signatures.Add(new SignatureInformation
-					{
-						Label = method.ToString(Options),
-						Parameters = [.. method.Parameters.Select(p => new ParameterInformation
+					Label = method.ToString(Options),
+					Parameters = [.. method.Parameters.Select(p => new ParameterInformation
 						{
 							Label = p.ToString(Options),
 							Documentation = p.Description
 						})]
-					});
-				}
+				});
 			}
 		}
 

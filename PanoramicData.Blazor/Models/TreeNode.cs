@@ -4,7 +4,9 @@
 /// The TreeNode class is used to describe a single node of a hierarchical data structure.
 /// </summary>
 #pragma warning disable CA1036 // Comparison operators not needed for model class
+#pragma warning disable S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
 public class TreeNode<T> : IComparable
+#pragma warning restore S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
 #pragma warning restore CA1036
 {
 	private static int _idSequence;

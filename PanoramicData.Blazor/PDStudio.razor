@@ -64,7 +64,7 @@
 
 						<!-- Monaco Editor Container -->
 						<div class="pd-studio-editor-container">
-							<PDMonacoEditor @ref="EditorRef"
+							<PDMonacoEditor @ref="_editorRef"
 											Language="@Options.Language"
 											Theme="@Options.Theme"
 											Value="@_currentCode"
@@ -90,7 +90,7 @@
 
 				<!-- Right Section: Results -->
 				<PDSplitPanel Size="@((int)Options.TopSplitSizes[1])">
-					<PDStudioResults @ref="ResultsRef"
+					<PDStudioResults @ref="_resultsRef"
 									 Content="@_resultsContent"
 									 IsExecuting="@_isExecuting"
 									 ExecutionStatus="@_executionStatus"
@@ -104,7 +104,7 @@
 		<PDSplitPanel Size="@(Options.IsLoggingVisible ? (int)Options.MainSplitSizes[1] : 0)">
 			@if (Options.IsLoggingVisible)
 			{
-				<PDLog @ref="LogRef"
+				<PDLog @ref="_logRef"
 					   ShowTimestamp="true"
 					   ShowIcon="true"
 					   WordWrap="true" />

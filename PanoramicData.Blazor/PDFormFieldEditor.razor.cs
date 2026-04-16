@@ -42,36 +42,26 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	[Parameter]
 	public string Id { get; set; } = $"field-editor-{++_idSeq}";
 
-	private Dictionary<string, object> GetNullEditorAttributes()
-	{
-		return new Dictionary<string, object>
-		{
-			{ "class", "form-check-input ms-nullable me-1 mb-2" },
-			{ "type", "checkbox" },
-			{ "checked", _hasValue }
-		};
-	}
-
 	public string GetEditorClass(FormField<TItem> field)
 		=> $"{(Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "")} {field.DisplayOptions?.CssClass}";
 
 	private OptionInfo[] GetEnumValues(FormField<TItem> field)
 	{
 		var options = new List<OptionInfo>();
-		if (field.Field?.GetPropertyMemberInfo() is PropertyInfo propInfo)
+		if (field.Field?.GetPropertyMemberInfo() is PropertyInfo)
 		{
 			var enumType = field.GetFieldType();
 			if (enumType != null)
 			{
 				string[] names = Enum.GetNames(enumType);
 				Array values = Enum.GetValues(enumType);
+
 				for (var i = 0; i < values.Length; i++)
 				{
-
 					var displayName = enumType.GetMember($"{names[i]}")
-								   ?.First()
-								   .GetCustomAttribute<DisplayAttribute>()
-								   ?.Name ?? names[i];
+						?[0].GetCustomAttribute<DisplayAttribute>()
+						?.Name ?? names[i];
+
 					options.Add(new OptionInfo
 					{
 						Text = displayName,
@@ -131,35 +121,36 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		// mark as having value (writable) - unless is nullable type, nulls are allowed and value is null
 		_hasValue = Field == null ||
 					Field.DisplayOptions?.AllowNulls == false ||
-					Field.GetFieldIsNullable() == false ||
+					!Field.GetFieldIsNullable() ||
 					Form.GetFieldValue(Field, true) != null;
 	}
 
 	private async Task OnHasNullValueChanged(bool hasValue)
 	{
-		if (Field != null)
+		if (Field is null)
 		{
-			_hasValue = hasValue;
-			if (!_hasValue && Field.GetFieldIsNullable())
+			return;
+		}
+
+		_hasValue = hasValue;
+		if (!_hasValue && Field.GetFieldIsNullable())
+		{
+			await Form.SetFieldValueAsync(Field, null).ConfigureAwait(true);
+			return;
+		}
+
+		if (Field.GetFieldType() is Type dt)
+		{
+			object defaultValue = dt.FullName switch
 			{
-				await Form.SetFieldValueAsync(Field, null).ConfigureAwait(true);
-			}
-			else
-			{
-				if (Field.GetFieldType() is Type dt)
-				{
-					object defaultValue = dt.FullName switch
-					{
-						"System.String" => string.Empty,
-						"System.Boolean" => false,
-						"System.DateTime" => DateTime.Today,
-						"System.DateTimeOffset" => DateTime.Today,
-						"System.Guid" => Guid.Empty,
-						_ => 0
-					};
-					await Form.SetFieldValueAsync(Field, defaultValue).ConfigureAwait(true);
-				}
-			}
+				"System.String" => string.Empty,
+				"System.Boolean" => false,
+				"System.DateTime" => DateTime.Today,
+				"System.DateTimeOffset" => DateTime.Today,
+				"System.Guid" => Guid.Empty,
+				_ => 0
+			};
+			await Form.SetFieldValueAsync(Field, defaultValue).ConfigureAwait(true);
 		}
 	}
 
@@ -184,7 +175,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 
 	private async void Field_ValueChanged(object? sender, object? value)
 	{
-		// for most editors the value will be reflected in the UI immediately due to
+		// For most editors the value will be reflected in the UI immediately due to
 		// data binding - however the Monaco Editor requires a manual update
 		if (_monacoEditor != null && Field.DisplayOptions is FieldStringOptions fso && fso.Editor == FieldStringOptions.Editors.Monaco)
 		{
@@ -209,10 +200,10 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		if (_monacoEditor != null && Form != null && Field != null)
 		{
-			 // Only update if a debounce is outstanding
+			 // Only update if a de-bounce is outstanding
 			if (DebounceWait > 0 && _monacoDebounceCts != null)
 			{
-				_monacoDebounceCts.Cancel();
+				await _monacoDebounceCts.CancelAsync();
 				_monacoDebounceCts.Dispose();
 				_monacoDebounceCts = null;
 
@@ -230,8 +221,13 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		if (_monacoEditor != null && Form != null && Field != null)
 		{
 			// Cancel any pending update
-			_monacoDebounceCts?.Cancel();
-			_monacoDebounceCts?.Dispose();
+			if (_monacoDebounceCts != null)
+			{
+				await _monacoDebounceCts.CancelAsync();
+				_monacoDebounceCts.Dispose();
+				_monacoDebounceCts = null;
+			}
+
 			_monacoDebounceCts = new CancellationTokenSource();
 			var token = _monacoDebounceCts.Token;
 
@@ -241,9 +237,12 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 				if (!token.IsCancellationRequested)
 				{
 					// Cancel and dispose after use
-					_monacoDebounceCts.Cancel();
-					_monacoDebounceCts.Dispose();
-					_monacoDebounceCts = null;
+					if (_monacoDebounceCts != null)
+					{
+						await _monacoDebounceCts.CancelAsync();
+						_monacoDebounceCts.Dispose();
+						_monacoDebounceCts = null;
+					}
 
 					var model = await _monacoEditor.GetModel();
 					var value = await model.GetValue(EndOfLinePreference.LF, true);
@@ -252,7 +251,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 			}
 			catch (TaskCanceledException)
 			{
-				// Ignore, another keyup event occurred
+				// Ignore, another key-up event occurred
 			}
 		}
 	}
@@ -324,39 +323,42 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		try
 		{
 			var fieldType = field.GetFieldType();
-			if (fieldType != null)
+			if (fieldType is null)
 			{
-				// handle nullable types
-				object? newValue = null;
-				if (Nullable.GetUnderlyingType(fieldType) is Type ut)
+				return;
+			}
+
+			// handle nullable types
+			object? newValue = null;
+			if (Nullable.GetUnderlyingType(fieldType) is Type ut)
+			{
+				if (args.Value is null)
 				{
-					if (args.Value is null)
-					{
-						newValue = null;
-					}
-					else if (ut.Name == "System.String")
-					{
-						newValue = args.Value.ToString();
-					}
-					else if (args.Value.ToString() == string.Empty)
-					{
-						newValue = null;
-					}
-					else
-					{
-						newValue = Convert.ChangeType(args.Value, ut, CultureInfo.InvariantCulture);
-					}
+					newValue = null;
+				}
+				else if (ut.Name == "System.String")
+				{
+					newValue = args.Value.ToString();
+				}
+				else if (args.Value.ToString() == string.Empty)
+				{
+					newValue = null;
 				}
 				else
 				{
-					newValue = Convert.ChangeType(args.Value ?? string.Empty, fieldType, CultureInfo.InvariantCulture);
+					newValue = Convert.ChangeType(args.Value, ut, CultureInfo.InvariantCulture);
 				}
-
-				await Form!.SetFieldValueAsync(field, newValue).ConfigureAwait(true);
 			}
+			else
+			{
+				newValue = Convert.ChangeType(args.Value ?? string.Empty, fieldType, CultureInfo.InvariantCulture);
+			}
+
+			await Form!.SetFieldValueAsync(field, newValue).ConfigureAwait(true);
 		}
 		catch
 		{
+			// Nothing to do...
 		}
 	}
 
@@ -382,22 +384,12 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 				_monacoDebounceCts = null;
 			}
 
-			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
-			// TODO: set large fields to null
 			_disposedValue = true;
 		}
 	}
 
-	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-	// ~PDFormFieldEditor()
-	// {
-	//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-	//     Dispose(disposing: false);
-	// }
-
 	public void Dispose()
 	{
-		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
 	}

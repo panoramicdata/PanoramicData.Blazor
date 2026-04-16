@@ -155,15 +155,12 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	protected override void OnParametersSet()
 	{
 		// update state of default buttons
-		if (Form != null)
+		if (Form != null && !_formSet)
 		{
-			if (!_formSet)
-			{
-				_formSet = true;
+			_formSet = true;
 
-				// listen for error changes
-				Form.ErrorsChanged += Form_ErrorsChanged;
-			}
+			// listen for error changes
+			Form.ErrorsChanged += Form_ErrorsChanged;
 		}
 	}
 

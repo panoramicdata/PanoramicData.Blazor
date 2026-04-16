@@ -16,7 +16,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 					}
 					else
 					{
-						@CreateTitle.Replace("{0}", GetItemDescription());
+						@CreateTitle.Replace("{0}", GetItemDescription())
 					}
 					@if (Form.HasChanges)
 					{
@@ -36,7 +36,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 				}
 				else
 				{
-					@CancelTitle.Replace("{0}", GetItemDescription());
+					@CancelTitle.Replace("{0}", GetItemDescription())
 				}
 			}
 			else if (Form.Mode == FormModes.Delete)
@@ -47,7 +47,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 				}
 				else
 				{
-					@DeleteTitle.Replace("{0}", GetItemDescription());
+					@DeleteTitle.Replace("{0}", GetItemDescription())
 				}
 			}
 			else

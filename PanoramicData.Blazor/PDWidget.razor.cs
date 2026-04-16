@@ -382,10 +382,19 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 
 		if (WidgetType != _snapshotWidgetType)
 		{
-			_clockTimer?.Dispose();
-			_clockTimer = null;
-			_refreshTimer?.Dispose();
-			_refreshTimer = null;
+			if (_clockTimer is not null)
+			{
+				await _clockTimer.DisposeAsync().ConfigureAwait(true);
+				_clockTimer = null;
+
+			}
+
+			if (_refreshTimer is not null)
+			{
+				await _refreshTimer.DisposeAsync().ConfigureAwait(true);
+				_refreshTimer = null;
+			}
+
 			WidgetType = _snapshotWidgetType;
 			SetupTimers();
 			await LoadContentAsync().ConfigureAwait(true);
@@ -470,10 +479,17 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	{
 		if (Enum.TryParse<PDWidgetType>(e.Value?.ToString(), out var widgetType) && widgetType != WidgetType)
 		{
-			_clockTimer?.Dispose();
-			_clockTimer = null;
-			_refreshTimer?.Dispose();
-			_refreshTimer = null;
+			if (_clockTimer is not null)
+			{
+				await _clockTimer.DisposeAsync().ConfigureAwait(true);
+				_clockTimer = null;
+			}
+
+			if (_refreshTimer is not null)
+			{
+				await _refreshTimer.DisposeAsync().ConfigureAwait(true);
+				_refreshTimer = null;
+			}
 
 			WidgetType = widgetType;
 			if (WidgetTypeChanged.HasDelegate)

@@ -12,6 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 	Scope = "namespaceanddescendants",
 	Target = "~N:PanoramicData.Blazor"
 )]
+
 [assembly: SuppressMessage(
 	"Performance",
 	"CA1848:Use the LoggerMessage delegates",
@@ -19,3 +20,8 @@ using System.Diagnostics.CodeAnalysis;
 	Scope = "namespaceanddescendants",
 	Target = "~N:PanoramicData.Blazor"
 )]
+
+[assembly: SuppressMessage(
+	"Naming",
+	"VSSpell001:Spell Check",
+	Justification = "That is how we want to spell it")]

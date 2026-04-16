@@ -792,7 +792,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		if (Item != null && field.Field != null)
 		{
 			var memberInfo = field.Field.GetPropertyMemberInfo();
-			if (memberInfo != null && memberInfo is PropertyInfo propInfo)
+			if (memberInfo is PropertyInfo propInfo)
 			{
 				try
 				{

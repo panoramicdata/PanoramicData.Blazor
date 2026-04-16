@@ -4,7 +4,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDDashboardDocumentation
 {
-	private List<PDDashboardTab> _basicTabs =
+	private readonly List<PDDashboardTab> _basicTabs =
 	[
 		new PDDashboardTab
 		{
@@ -39,7 +39,7 @@ public partial class PDDashboardDocumentation
 		}
 	];
 
-	private List<PDDashboardTab> _editTabs =
+	private readonly List<PDDashboardTab> _editTabs =
 	[
 		new PDDashboardTab
 		{
@@ -74,7 +74,7 @@ public partial class PDDashboardDocumentation
 		}
 	];
 
-	private List<PDDashboardTab> _maximizeTabs =
+	private readonly List<PDDashboardTab> _maximizeTabs =
 	[
 		new PDDashboardTab
 		{

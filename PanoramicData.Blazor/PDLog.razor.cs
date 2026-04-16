@@ -24,9 +24,6 @@ public partial class PDLog : ILogger
 	[Parameter]
 	public LogLevel LogLevel { get; set; } = LogLevel.Information;
 
-	//[Parameter]
-	//public bool Tail { get; set; } = true;
-
 	/// <summary>
 	/// Gets or sets the maximum number of log entries to keep.
 	/// </summary>

@@ -83,11 +83,11 @@ else if (Form.Mode != FormModes.Hidden)
 						@* validation messages *@
 						@if (!string.IsNullOrWhiteSpace(fieldDescription)
 								&& (Form!.Mode == FormModes.Create || Form.Mode == FormModes.Edit)
-								&& (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp == true)))
+								&& (Form.HelpTextMode == HelpTextMode.Shown || (Form.HelpTextMode == HelpTextMode.Toggle && Form.ShowHelp)))
 						{
 							<div class="small text-muted">@fieldDescription</div>
 						}
-						@if (Form != null && fieldGroup.Fields.Any(x => !x.SuppressErrors) && fieldName != null && fieldGroup.HasErrors(Form) == true)
+						@if (Form != null && fieldGroup.Fields.Any(x => !x.SuppressErrors) && fieldName != null && fieldGroup.HasErrors(Form))
 						{
 							foreach (var field in fieldGroup.Fields)
 							{

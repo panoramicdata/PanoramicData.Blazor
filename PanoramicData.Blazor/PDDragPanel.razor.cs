@@ -99,16 +99,12 @@ public partial class PDDragPanel<TItem> where TItem : class
 
 	private void OnDragEnter(DragEventArgs args, TItem? item)
 	{
-		if (item != null && Container?.Payload != null)
+		if (item != null && Container?.Payload != null && CanChangeOrder && Container.Payload != item)
 		{
-			// re-order?
-			if (CanChangeOrder && Container.Payload != item)
-			{
-				// new location depends on whether dragging up or down?
-				_localItems.Remove(Container.Payload);
-				_localItems.Insert(_localItems.IndexOf(item) + (args.ClientY > _lastY ? 1 : 0), Container.Payload);
-				_lastY = args.ClientY;
-			}
+			// new location depends on whether dragging up or down?
+			_localItems.Remove(Container.Payload);
+			_localItems.Insert(_localItems.IndexOf(item) + (args.ClientY > _lastY ? 1 : 0), Container.Payload);
+			_lastY = args.ClientY;
 		}
 	}
 

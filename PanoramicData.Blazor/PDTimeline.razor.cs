@@ -856,7 +856,6 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 				var points = await DataProvider(start, end, Scale, _refreshCancellationToken.Token).ConfigureAwait(true);
 				foreach (var point in points)
 				{
-					//point.PeriodIndex =  point.StartTime.TotalPeriodsSince(MinDateTime, Scale);
 					point.PeriodIndex = Scale.PeriodsBetween(RoundedMinDateTime, point.StartTime);
 					_dataPoints.TryAdd(point.PeriodIndex, point);
 				}

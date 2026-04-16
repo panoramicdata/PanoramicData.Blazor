@@ -176,7 +176,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		if (firstRender && JSRuntime != null)
 		{
 			_objRef = DotNetObjectReference.Create(this);
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDMonacoEditor.razor.js").ConfigureAwait(true); ;
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDMonacoEditor.razor.js").ConfigureAwait(true);
 			if (_module != null)
 			{
 				await _module.InvokeVoidAsync("initialize", _objRef);

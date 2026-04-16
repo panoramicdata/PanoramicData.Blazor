@@ -175,8 +175,9 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 				Status = CurrentStatus.ToDisplayString(),
 				Exception = ex
 			});
-			logger.LogWarning("Invalid NCalc expression: {Message}", ex.Message);
-			return GenerateNCalcInvalidCodeOutput(ex, code);
+
+			logger.LogWarning(ex, "Invalid NCalc expression: {Message}", ex.Message);
+			return GenerateNCalcInvalidCodeOutput(ex);
 		}
 		catch (NCalcEvaluationException ex) when (language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
 		{
@@ -188,8 +189,9 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 				Status = CurrentStatus.ToDisplayString(),
 				Exception = ex
 			});
-			logger.LogWarning("NCalc runtime error: {Message}", ex.Message);
-			return GenerateNCalcRuntimeErrorOutput(ex, code);
+
+			logger.LogWarning(ex, "NCalc runtime error: {Message}", ex.Message);
+			return GenerateNCalcRuntimeErrorOutput(ex);
 		}
 		catch (Exception ex)
 		{
@@ -205,7 +207,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 			// For NCalc, return error result instead of throwing
 			if (language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
 			{
-				return GenerateNCalcErrorOutput(ex, code);
+				return GenerateNCalcErrorOutput(ex);
 			}
 
 			throw;
@@ -340,7 +342,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 			_ => result.ToString() ?? "null"
 		};
 
-	private static string GenerateNCalcInvalidCodeOutput(Exception ex, string code)
+	private static string GenerateNCalcInvalidCodeOutput(Exception ex)
 	{
 		var errorBuilder = new StringBuilder();
 		errorBuilder.AppendLine("<div class='ncalc-results error-results'>");
@@ -367,7 +369,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 		return errorBuilder.ToString();
 	}
 
-	private static string GenerateNCalcRuntimeErrorOutput(Exception ex, string code)
+	private static string GenerateNCalcRuntimeErrorOutput(Exception ex)
 	{
 		var errorBuilder = new StringBuilder();
 		errorBuilder.AppendLine("<div class='ncalc-results error-results'>");
@@ -421,7 +423,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 		return errorBuilder.ToString();
 	}
 
-	private static string GenerateNCalcErrorOutput(Exception ex, string code)
+	private static string GenerateNCalcErrorOutput(Exception ex)
 	{
 		var errorBuilder = new StringBuilder();
 		errorBuilder.AppendLine("<div class='ncalc-results error-results'>");

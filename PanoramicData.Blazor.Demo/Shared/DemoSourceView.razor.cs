@@ -79,6 +79,7 @@ public partial class DemoSourceView : IDisposable
 				}
 				catch
 				{
+					// Nothing to do...
 				}
 			}
 

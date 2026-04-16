@@ -228,15 +228,12 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task ExpandAllAsync() => await RootNode.WalkAsync(async (n) =>
   {
-      if (!n.IsExpanded && !n.Isleaf)
-      {
-          if (ExpandOnExpandAll == null || ExpandOnExpandAll(n))
-          {
-              await ToggleNodeIsExpandedAsync(n).ConfigureAwait(true);
-          }
-      }
+	  if (!n.IsExpanded && !n.Isleaf && (ExpandOnExpandAll == null || ExpandOnExpandAll(n)))
+	  {
+		  await ToggleNodeIsExpandedAsync(n).ConfigureAwait(true);
+	  }
 
-      return true;
+	  return true;
   }).ConfigureAwait(true);
 
     /// <summary>

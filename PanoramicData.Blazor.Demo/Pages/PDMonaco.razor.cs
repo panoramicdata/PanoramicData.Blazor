@@ -35,6 +35,7 @@ public partial class PDMonaco : IAsyncDisposable
 		}
 		catch
 		{
+			// Nothing to do...
 		}
 	}
 

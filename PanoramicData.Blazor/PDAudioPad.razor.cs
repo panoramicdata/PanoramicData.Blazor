@@ -4,7 +4,6 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 {
 	private CancellationTokenSource? _cts;
 	private DateTime _lastEventEmitTime = DateTime.MinValue;
-	private const int ThrottleMilliseconds = 100; // Throttle decay events to every 100ms
 
 	[Parameter] public string ActiveColor { get; set; } = "#ff0";
 	[Parameter] public string InactiveColor { get; set; } = "#444";

@@ -37,9 +37,6 @@ public partial class PDFilePreview
 
 		try
 		{
-			//if (PreviewProvider.IsDelayedPreview(Item))
-			//{
-
 			// only show basic info with spinner is download takes more than N ms
 			var minTimeTask = Task.Delay(PreviewProvider.SpinnerTriggerMs);
 			var previewTask = PreviewProvider.GetPreviewInfoAsync(Item);

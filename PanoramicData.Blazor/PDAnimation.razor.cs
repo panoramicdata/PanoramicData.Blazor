@@ -157,19 +157,10 @@ public partial class PDAnimation : IDisposable
 				_positions.Clear();
 				_module = null;
 			}
-			// Free unmanaged resources (unmanaged objects) and override finalizer
-			// Set large fields to null
 			Element = default!;
 			_disposedValue = true;
 		}
 	}
-
-	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-	// ~PDAnimation()
-	// {
-	//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-	//     Dispose(disposing: false);
-	// }
 
 	public void Dispose()
 	{

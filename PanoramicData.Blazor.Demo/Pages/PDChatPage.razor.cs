@@ -7,7 +7,7 @@ public partial class PDChatPage : IDisposable
 	[Inject] private IChatService ChatService { get; set; } = default!;
 
 	// This property will be synced with the global dock mode
-	private PDChatDockMode _currentDockMode
+	private PDChatDockMode CurrentDockMode
 	{
 		get => ChatService.PreferredDockMode;
 		set => ChatService.PreferredDockMode = value;

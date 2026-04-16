@@ -1,7 +1,7 @@
 @inherits ComponentBase
 
 <div class="pdchat-panel-flex">
-	<div class="pdchat-messages" @ref="_messagesContainer">
+	<div class="pdchat-messages" @ref="MessagesContainer">
 		@if (Messages != null)
 		{
 			foreach (var message in Messages)

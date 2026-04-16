@@ -67,11 +67,11 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 				}
 			}
 		}
-		else if (_previousSnapPoints == null)
+		else
 		{
-			_previousSnapPoints = SnapPoints;
+			_previousSnapPoints ??= SnapPoints;
 		}
-		
+
 		await base.OnParametersSetAsync();
 	}
 

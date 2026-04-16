@@ -1257,13 +1257,13 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 		// Control points are PERPENDICULAR TO THE TILE EDGE, pointing outward
 		// This makes curves exit/enter the tile edge at right angles
-		var startPerp = GetEdgeOutwardPerpendicular(direction, true);
+		var (X, Y) = GetEdgeOutwardPerpendicular(direction, true);
 		var endPerp = GetEdgeOutwardPerpendicular(GetOppositeDirection(direction), false);
 
-		var startTopCtrl = (X: startPoints.X + startPerp.X * controlDistance, Y: startTopY + startPerp.Y * controlDistance);
+		var startTopCtrl = (X: startPoints.X + X * controlDistance, Y: startTopY + Y * controlDistance);
 		var endTopCtrl = (X: endPoints.X + endPerp.X * controlDistance, Y: endTopY + endPerp.Y * controlDistance);
 
-		var startBottomCtrl = (X: startPoints.X + startPerp.X * controlDistance, Y: startBottomY + startPerp.Y * controlDistance);
+		var startBottomCtrl = (X: startPoints.X + X * controlDistance, Y: startBottomY + Y * controlDistance);
 		var endBottomCtrl = (X: endPoints.X + endPerp.X * controlDistance, Y: endBottomY + endPerp.Y * controlDistance);
 
 		// Build SVG path

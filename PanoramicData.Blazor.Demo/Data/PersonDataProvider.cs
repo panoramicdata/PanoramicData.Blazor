@@ -77,11 +77,12 @@ public class PersonDataProvider : DataProviderBase<Person>
 			{
 				if (AddDelay)
 				{
-					await Task.Delay(10000, cancellationToken).ConfigureAwait(false);
+					await Task.Delay(10_000, cancellationToken).ConfigureAwait(false);
 				}
 			}
 			catch (TaskCanceledException)
 			{
+				// Nothing to do...
 			}
 		}
 

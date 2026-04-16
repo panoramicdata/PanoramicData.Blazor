@@ -1,7 +1,9 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
 #pragma warning disable CA1036 // Comparison operators not needed for model class
+#pragma warning disable S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
 public class TimelineScale : IComparable
+#pragma warning restore S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
 #pragma warning restore CA1036
 {
 	private readonly CultureInfo _cultureInfo;

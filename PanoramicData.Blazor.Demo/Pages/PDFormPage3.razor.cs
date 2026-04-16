@@ -106,12 +106,9 @@ public partial class PDFormPage3
 		if (args.Item != null)
 		{
 			var fieldName = args.Field.GetName();
-			if (fieldName == "Initials")
+			if (fieldName == "Initials" && args.Item.Initials == "L.O.L")
 			{
-				if (args.Item.Initials == "L.O.L")
-				{
-					args.AddErrorMessages.Add("Initials", "Laugh out loud - really?");
-				}
+				args.AddErrorMessages.Add("Initials", "Laugh out loud - really?");
 			}
 
 			if (fieldName == "Location" || fieldName == "Department")

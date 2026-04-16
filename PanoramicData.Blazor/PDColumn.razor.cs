@@ -499,16 +499,11 @@ public partial class PDColumn<TItem> where TItem : class
 	{
 		var memberInfo = Field?.GetPropertyMemberInfo();
 
-		if (Field is MemberExpression me)
+		if (Field is MemberExpression me && Nullable.GetUnderlyingType(me.Type) != null)
 		{
-			if (Nullable.GetUnderlyingType(me.Type) != null)
-			{
-				// If the member expression type is nullable, return its underlying type
-				var t = Nullable.GetUnderlyingType(me.Type);
-
-			}
+			// If the member expression type is nullable, return its underlying type
+			var t = Nullable.GetUnderlyingType(me.Type);
 		}
-
 
 		if (memberInfo is PropertyInfo propInfo)
 		{

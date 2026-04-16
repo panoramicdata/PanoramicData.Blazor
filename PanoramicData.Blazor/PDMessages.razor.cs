@@ -68,8 +68,7 @@ public partial class PDMessages
 	/// </summary>
 	[Parameter] public string MessageTimestampFormat { get; set; } = "HH:mm:ss";
 
-	private ElementReference _messagesContainer { get; set; }
-
+	private ElementReference MessagesContainer { get; set; }
 	private IJSObjectReference? _module;
 	private ElementReference _inputRef;
 	private string _textareaKey = Guid.NewGuid().ToString();
@@ -108,7 +107,7 @@ public partial class PDMessages
 
 		try
 		{
-			await _module.InvokeVoidAsync("scrollToBottom", _messagesContainer);
+			await _module.InvokeVoidAsync("scrollToBottom", MessagesContainer);
 		}
 		catch (Exception)
 		{

@@ -130,6 +130,7 @@ public partial class PDContextMenu : IAsyncDisposable
 		}
 		catch
 		{
+			// Too bad...
 		}
 	}
 }

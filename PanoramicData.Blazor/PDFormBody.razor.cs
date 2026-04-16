@@ -223,11 +223,6 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		{
 			return "alert-warning";
 		}
-		// check if field is required
-		//		else if (Form != null && field.GetIsRequired() && string.IsNullOrWhiteSpace(Form?.GetFieldValue(field)?.ToString()))
-		//		{
-		//			return "alert-warning";
-		//		}
 		else
 		{
 			return "alert-success";

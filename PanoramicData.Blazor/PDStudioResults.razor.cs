@@ -5,7 +5,8 @@
 /// </summary>
 public partial class PDStudioResults : PDComponentBase
 {
-	private ElementReference ResultsIframe;
+	private ElementReference _resultsIframe;
+
 	private string _lastContent = string.Empty;
 
 	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;

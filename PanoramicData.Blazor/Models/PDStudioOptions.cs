@@ -18,12 +18,12 @@ public class PDStudioOptions
 	/// <summary>
 	/// Gets or sets the splitter sizes for main split (Top panel vs Log panel).
 	/// </summary>
-	public double[] MainSplitSizes { get; set; } = new[] { 75.0, 25.0 };
+	public double[] MainSplitSizes { get; set; } = [75.0, 25.0];
 
 	/// <summary>
 	/// Gets or sets the splitter sizes for top split (Editor vs Results).
 	/// </summary>
-	public double[] TopSplitSizes { get; set; } = new[] { 50.0, 50.0 };
+	public double[] TopSplitSizes { get; set; } = [50.0, 50.0];
 
 	/// <summary>
 	/// Gets or sets whether the logging panel is visible at initialization.
@@ -65,5 +65,5 @@ public class PDStudioOptions
 	/// <summary>
 	/// Gets or sets custom properties for extensibility.
 	/// </summary>
-	public Dictionary<string, object> CustomProperties { get; set; } = new();
+	public Dictionary<string, object> CustomProperties { get; set; } = [];
 }

@@ -467,7 +467,7 @@ public partial class PDTable<TItem> :
 		try
 		{
 			// improve on default column id - this will improve state persistence
-			if (Regex.IsMatch(column.Id, @"^col-\d+$"))
+			if (ColumnIdRegex().IsMatch(column.Id))
 			{
 				var name = string.IsNullOrEmpty(column.Name) ? column.GetTitle() : column.Name;
 				if (!string.IsNullOrWhiteSpace(name))
@@ -1723,6 +1723,9 @@ public partial class PDTable<TItem> :
 		IsEnabled = isEnabled;
 		StateHasChanged();
 	}
+
+	[GeneratedRegex(@"^col-\d+$")]
+	private static partial Regex ColumnIdRegex();
 
 	#endregion
 }

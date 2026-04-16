@@ -3,7 +3,7 @@ using Markdig;
 
 namespace PanoramicData.Blazor.PreviewProviders;
 
-public class DefaultPreviewProvider : IPreviewProvider
+public partial class DefaultPreviewProvider : IPreviewProvider
 {
 	private static readonly string[] _downloadableFileTypes = ["html", "htm", "url", "md", "txt"];
 
@@ -46,7 +46,7 @@ public class DefaultPreviewProvider : IPreviewProvider
 					}
 					else if (item.FileExtension == "url")
 					{
-						var match = Regex.Match(contentString, "URL=(.+)\r?");
+						var match = UrlRegex().Match(contentString);
 						if (match.Success && match.Groups.Count > 1)
 						{
 							return new PreviewInfo
@@ -139,4 +139,7 @@ public class DefaultPreviewProvider : IPreviewProvider
 			$"<span class=\"text-small text-muted user-select-none\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>"
 		];
 	}
+
+	[GeneratedRegex("URL=(.+)\r?")]
+	private static partial Regex UrlRegex();
 }

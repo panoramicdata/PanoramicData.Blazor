@@ -33,6 +33,7 @@ public partial class PDQuestVisualizerPage : IAsyncDisposable
 		}
 		catch
 		{
+			// Nothing to do...
 		}
 	}
 

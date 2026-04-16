@@ -172,6 +172,7 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 		}
 		catch
 		{
+			// Too bad...
 		}
 	}
 

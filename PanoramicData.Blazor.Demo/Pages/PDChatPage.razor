@@ -47,7 +47,7 @@
 				<div class="card-body p-3">
 					<div class="mb-3">
 						<label class="form-label small">Chat Dock Mode:</label>
-						<select @bind="_currentDockMode" @bind:after="OnDockModeChangedFromDropdown" class="form-select form-select-sm">
+						<select @bind="CurrentDockMode" @bind:after="OnDockModeChangedFromDropdown" class="form-select form-select-sm">
 							<option value="@PDChatDockMode.Minimized">Minimized</option>
 							<option value="@PDChatDockMode.BottomRight">Bottom Right</option>
 							<option value="@PDChatDockMode.TopRight">Top Right</option>
@@ -58,19 +58,19 @@
 							<option value="@PDChatDockMode.Right">Right (Split)</option>
 						</select>
 						<div class="form-text">
-							@if (IsCornerMode(_currentDockMode))
+							@if (IsCornerMode(CurrentDockMode))
 							{
 								<span class="text-info">
 									<i class="fas fa-info-circle me-1"></i>Corner mode: Fixed 350x500px (desktop), 300x400px (mobile)
 								</span>
 							}
-							else if (IsSplitMode(_currentDockMode))
+							else if (IsSplitMode(CurrentDockMode))
 							{
 								<span class="text-primary">
 									<i class="fas fa-arrows-alt-h me-1"></i>Split mode: Chat shares space with main content
 								</span>
 							}
-							else if (_currentDockMode == PDChatDockMode.FullScreen)
+							else if (CurrentDockMode == PDChatDockMode.FullScreen)
 							{
 								<span class="text-warning">
 									<i class="fas fa-expand me-1"></i>Full screen mode: Chat takes entire view

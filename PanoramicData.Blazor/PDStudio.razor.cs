@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using PanoramicData.Blazor.Models.Monaco;
+﻿using PanoramicData.Blazor.Models.Monaco;
 
 namespace PanoramicData.Blazor;
 
@@ -8,9 +7,9 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDStudio : PDComponentBase, IDisposable
 {
-	private PDMonacoEditor? EditorRef;
-	private PDStudioResults? ResultsRef;
-	private PDLog? LogRef;
+	private PDMonacoEditor? _editorRef;
+	private PDStudioResults? _resultsRef;
+	private PDLog? _logRef;
 	private CancellationTokenSource? _cancellationTokenSource;
 
 	private bool _isExecuting;
@@ -22,6 +21,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	private readonly ShortcutKey _executeShortcut = ShortcutKey.Create("ctrl-enter");
 
 	[Inject] private ILogger<PDStudio> Logger { get; set; } = null!;
+
 	[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;
 
 	/// <summary>
@@ -52,7 +52,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	/// <summary>
 	/// Gets the PDLog component reference for logging integration.
 	/// </summary>
-	public PDLog? LogComponent => LogRef;
+	public PDLog? LogComponent => _logRef;
 
 	/// <summary>
 	/// Gets or sets the data provider for the graph data.
@@ -124,7 +124,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		options.Folding = true;
 		options.MatchBrackets = "always";
 
-		// Configure scrolling behavior for better user experience
+		// Configure scrolling behaviour for better user experience
 		options.SmoothScrolling = true;
 		options.MouseWheelScrollSensitivity = 1;
 	}
@@ -151,12 +151,12 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			GlobalEventService.RegisterShortcutKey(_executeShortcut);
 
 			// Disable Ctrl+Enter in Monaco editor to prevent conflicts (with delay to ensure initialization)
-			if (EditorRef != null)
+			if (_editorRef != null)
 			{
 				_ = Task.Run(async () =>
 				{
 					await Task.Delay(500); // Wait for Monaco to fully initialize
-					await EditorRef.DisableKeyBindingAsync(13, ctrlKey: true);
+					await _editorRef.DisableKeyBindingAsync(13, ctrlKey: true);
 				});
 			}
 		}
@@ -201,9 +201,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 
 				case StudioExecutionEventType.UpdateOutput:
 					_resultsContent = e.Output;
-					if (ResultsRef != null)
+					if (_resultsRef != null)
 					{
-						await ResultsRef.UpdateResults(e.Output);
+						await _resultsRef.UpdateResults(e.Output);
 					}
 					// If we have a specific status (like timeout), keep it instead of overriding
 					if (!string.IsNullOrWhiteSpace(e.Status))
@@ -296,9 +296,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 
 			// Clear previous results
 			_resultsContent = string.Empty;
-			if (ResultsRef != null)
+			if (_resultsRef != null)
 			{
-				await ResultsRef.ClearResults();
+				await _resultsRef.ClearResults();
 			}
 
 			// Execute code with timeout from options
@@ -310,9 +310,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 				_cancellationTokenSource.Token);
 
 			_resultsContent = result;
-			if (ResultsRef != null)
+			if (_resultsRef != null)
 			{
-				await ResultsRef.UpdateResults(result);
+				await _resultsRef.UpdateResults(result);
 			}
 
 			if (OnCodeExecuted.HasDelegate)
@@ -345,27 +345,12 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	{
 		if (_cancellationTokenSource != null)
 		{
-			_cancellationTokenSource.Cancel();
+			await _cancellationTokenSource.CancelAsync();
 			_executionStatus = StudioExecutionStatus.Cancelling.ToDisplayString();
 			StateHasChanged();
 			await Task.Delay(100); // Brief delay to show cancelling status
 		}
 	}
-
-	private async Task OnToggleConsoleClick()
-	{
-		Options.IsLoggingVisible = !Options.IsLoggingVisible;
-
-		LogInformation("Console {0}", Options.IsLoggingVisible ? "shown" : "hidden");
-
-		if (OnLoggingVisibilityChanged.HasDelegate)
-		{
-			await OnLoggingVisibilityChanged.InvokeAsync(Options.IsLoggingVisible);
-		}
-
-		StateHasChanged();
-	}
-
 	private void OnCodeChanged(string code)
 	{
 		_currentCode = code;
@@ -375,15 +360,15 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	private async Task OnNewClick()
 	{
 		_currentCode = string.Empty;
-		if (EditorRef != null)
+		if (_editorRef != null)
 		{
-			await EditorRef.SetMonacoValueAsync(string.Empty);
+			await _editorRef.SetMonacoValueAsync(string.Empty);
 		}
 
 		_resultsContent = string.Empty;
-		if (ResultsRef != null)
+		if (_resultsRef != null)
 		{
-			await ResultsRef.ClearResults();
+			await _resultsRef.ClearResults();
 		}
 
 		LogInformation("New document created");
@@ -393,9 +378,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	{
 		var example = GetExample1();
 		_currentCode = example;
-		if (EditorRef != null)
+		if (_editorRef != null)
 		{
-			await EditorRef.SetMonacoValueAsync(example);
+			await _editorRef.SetMonacoValueAsync(example);
 		}
 
 		LogInformation("Example 1 loaded");
@@ -405,9 +390,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	{
 		var example = GetExample2();
 		_currentCode = example;
-		if (EditorRef != null)
+		if (_editorRef != null)
 		{
-			await EditorRef.SetMonacoValueAsync(example);
+			await _editorRef.SetMonacoValueAsync(example);
 		}
 
 		LogInformation("Example 2 loaded");
@@ -559,7 +544,7 @@ for(let i = 0; i < 10; i++) {
 #pragma warning restore CA2254
 
 		// Also log to PDLog component if available
-		LogRef?.Log(level, default, message, null, (msg, ex) => string.Format(CultureInfo.InvariantCulture, msg, args));
+		_logRef?.Log(level, default, message, null, (msg, ex) => string.Format(CultureInfo.InvariantCulture, msg, args));
 	}
 
 	/// <summary>
@@ -592,9 +577,9 @@ for(let i = 0; i < 10; i++) {
 	/// </summary>
 	public async Task RefreshEditorLayoutAsync()
 	{
-		if (EditorRef != null)
+		if (_editorRef != null)
 		{
-			await EditorRef.ForceLayoutUpdateAsync();
+			await _editorRef.ForceLayoutUpdateAsync();
 		}
 	}
 

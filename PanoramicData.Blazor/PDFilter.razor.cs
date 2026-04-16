@@ -232,16 +232,13 @@ public partial class PDFilter : IAsyncDisposable
 			_value1 = tempValue1.QuoteIfContainsWhitespace();
 		}
 
-		if (doubleOptions.Contains(_filterType))
+		if (doubleOptions.Contains(_filterType) && tempValue2 != null)
 		{
-			if (tempValue2 != null)
-			{
-				_selectedValues.Add(tempValue2);
-				_value2 = tempValue2.QuoteIfContainsWhitespace();
-			}
+			_selectedValues.Add(tempValue2);
+			_value2 = tempValue2.QuoteIfContainsWhitespace();
 		}
 
-		if(_filterType is FilterTypes.NotIn or FilterTypes.In)
+		if (_filterType is FilterTypes.NotIn or FilterTypes.In)
 		{
 			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
 			_value2 = string.Empty;

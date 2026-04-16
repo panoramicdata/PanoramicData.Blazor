@@ -114,7 +114,7 @@ public static class ReflectionExtensions
 
 			default:
 				throw new ArgumentException("MemberInfo must be if type FieldInfo, PropertyInfo or EventInfo", nameof(member));
-		};
+		}
 	}
 
 	/// <summary>

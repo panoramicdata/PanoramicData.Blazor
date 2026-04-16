@@ -24,7 +24,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private bool _isRotationPaused;
 
 	// View-mode property overrides (session-level, not persisted)
-	private Dictionary<string, string> _viewModePropertyOverrides = [];
+	private readonly Dictionary<string, string> _viewModePropertyOverrides = [];
 	private bool _isEditingViewModeProperties;
 
 	// Resize state

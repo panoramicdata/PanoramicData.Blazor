@@ -71,6 +71,7 @@ public partial class PDButtonPage : IAsyncDisposable
 		}
 		catch
 		{
+			// Nothing to do...
 		}
 	}
 }

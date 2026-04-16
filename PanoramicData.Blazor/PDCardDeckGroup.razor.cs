@@ -34,7 +34,7 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	/// <summary>
 	/// Check if any of the decks in this group have cards that are currently being dragged.
 	/// </summary>
-	private bool _isDragging
+	private bool IsDragging
 		=> _decks.Any(deck => deck.DragState.IsDragging);
 
 	#region Parameters
@@ -132,7 +132,7 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	public void RegisterDestination(PDCardDeck<TCard> deck)
 	{
 		// Prevents interference between card deck groups
-		if (!_isDragging)
+		if (!IsDragging)
 		{
 			return;
 		}

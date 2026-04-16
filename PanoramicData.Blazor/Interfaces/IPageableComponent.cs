@@ -7,11 +7,6 @@
 public interface IPageableComponent
 {
 	/// <summary>
-	/// Gets the current page size.
-	/// </summary>
-	//int PageSize { get; }
-
-	/// <summary>
 	/// Instructs the component to show a specified page.
 	/// </summary>
 	/// <param name="pageCriteria">Details of the page to be displayed.</param>
