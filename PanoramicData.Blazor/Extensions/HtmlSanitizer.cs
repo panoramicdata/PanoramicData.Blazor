@@ -44,7 +44,11 @@ public static partial class HtmlSanitizer
 		html = EventHandlerRegex().Replace(html, "$1");
 
 		// Remove javascript: URLs
-		html = JavaScriptUrlRegex().Replace(html, "$1\"\"");
+		html = JavaScriptUrlRegex().Replace(html, match =>
+		{
+			var prefix = match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value;
+			return $"{prefix}\"\"";
+		});
 
 		// Remove disallowed tags but keep their content
 		html = DisallowedTagRegex().Replace(html, match =>
@@ -62,7 +66,7 @@ public static partial class HtmlSanitizer
 	[GeneratedRegex(@"(<[^>]*)\s+on\w+\s*=\s*([""'][^""']*[""']|[^\s>]+)", RegexOptions.IgnoreCase)]
 	private static partial Regex EventHandlerRegex();
 
-	[GeneratedRegex(@"(<[^>]*(?:href|src)\s*=\s*)([""'])javascript:[^""']*\2", RegexOptions.IgnoreCase)]
+	[GeneratedRegex(@"(<[^>]*(?:href|src)\s*=\s*)""\s*javascript:[^""]*""|(<[^>]*(?:href|src)\s*=\s*)'\s*javascript:[^']*'", RegexOptions.IgnoreCase)]
 	private static partial Regex JavaScriptUrlRegex();
 
 	[GeneratedRegex(@"</?(\w+)[^>]*>", RegexOptions.IgnoreCase)]
