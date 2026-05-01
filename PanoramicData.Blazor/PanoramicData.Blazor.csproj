@@ -27,7 +27,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			- Update NuGet packages to latest patch versions.
+			- Added optional ButtonText and ButtonTextCssClass parameters to PDClipboard component.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

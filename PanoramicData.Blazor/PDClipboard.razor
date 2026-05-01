@@ -1,3 +1,7 @@
 ﻿<a @onclick="() => CopyTextToClipboardAsync()" title="@ToolTip" @onmouseup:stopPropagation="true">
 	<i class="pdClipboard-button fa-fw @_buttonClass @CssClass" />
+	@if (!string.IsNullOrWhiteSpace(ButtonText))
+	{
+		<span class="pdClipboard-button-text @ButtonTextCssClass">@ButtonText</span>
+	}
 </a>
