@@ -9,8 +9,86 @@
 </DocumentationContent>
 <ChildContent>
 
+<!-- Demo controls for Read-Only indicator -->
+<div class="alert border-secondary mb-3">
+	<h5 class="mb-2">Read-Only File Indicator</h5>
+
+	<div class="mb-3">
+		<strong>Position:</strong>
+		<div class="form-check form-check-inline ms-3">
+			<input class="form-check-input" type="radio" name="indicatorPosition" id="positionAfter" 
+				   checked="@(_indicatorPosition == ReadOnlyIndicatorPosition.After)" 
+				   @onchange="@(() => _indicatorPosition = ReadOnlyIndicatorPosition.After)" />
+			<label class="form-check-label" for="positionAfter">
+				After filename (e.g., "file.txt 🔒")
+			</label>
+		</div>
+		<div class="form-check form-check-inline">
+			<input class="form-check-input" type="radio" name="indicatorPosition" id="positionBefore" 
+				   checked="@(_indicatorPosition == ReadOnlyIndicatorPosition.Before)" 
+				   @onchange="@(() => _indicatorPosition = ReadOnlyIndicatorPosition.Before)" />
+			<label class="form-check-label" for="positionBefore">
+				Before filename (e.g., "🔒 file.txt")
+			</label>
+		</div>
+	</div>
+
+	<div class="mb-3">
+		<strong>Inline Indicator Style:</strong>
+		<div class="form-check form-check-inline ms-3">
+			<input class="form-check-input" type="radio" name="readonlyMode" id="readonlyText" 
+				   checked="@(_readOnlyMode == ReadOnlyMode.Text)" 
+				   @onchange="@(() => SetReadOnlyMode(ReadOnlyMode.Text))" />
+			<label class="form-check-label" for="readonlyText">
+				Text: "(ro)"
+			</label>
+		</div>
+		<div class="form-check form-check-inline">
+			<input class="form-check-input" type="radio" name="readonlyMode" id="readonlyLock" 
+				   checked="@(_readOnlyMode == ReadOnlyMode.IconLock)" 
+				   @onchange="@(() => SetReadOnlyMode(ReadOnlyMode.IconLock))" />
+			<label class="form-check-label" for="readonlyLock">
+				Icon: <i class="fa fa-solid fa-lock text-warning"></i> Lock
+			</label>
+		</div>
+		<div class="form-check form-check-inline">
+			<input class="form-check-input" type="radio" name="readonlyMode" id="readonlyEye" 
+				   checked="@(_readOnlyMode == ReadOnlyMode.IconEye)" 
+				   @onchange="@(() => SetReadOnlyMode(ReadOnlyMode.IconEye))" />
+			<label class="form-check-label" for="readonlyEye">
+				Icon: <i class="fa fa-solid fa-eye"></i> Eye
+			</label>
+		</div>
+		<div class="form-check form-check-inline">
+			<input class="form-check-input" type="radio" name="readonlyMode" id="readonlyBan" 
+				   checked="@(_readOnlyMode == ReadOnlyMode.IconBan)" 
+				   @onchange="@(() => SetReadOnlyMode(ReadOnlyMode.IconBan))" />
+			<label class="form-check-label" for="readonlyBan">
+				Icon: <i class="fa fa-solid fa-ban text-danger"></i> Ban
+			</label>
+		</div>
+	</div>
+
+	<div>
+		<strong>Badge Overlay (on file icon):</strong>
+		<div class="form-check form-check-inline ms-3">
+			<input class="form-check-input" type="checkbox" id="showBadge" 
+				   checked="@_showBadge" 
+				   @onchange="@(() => { _showBadge = !_showBadge; })" />
+			<label class="form-check-label" for="showBadge">
+				Show badge <i class="fa fa-solid fa-ban text-danger"></i> overlay on file icon
+			</label>
+		</div>
+	</div>
+
+	<p class="small text-muted mt-2 mb-0">
+		Navigate to <code>/Library/Templates/</code> or <code>/Sharepoint/Public/</code> to see read-only files. 
+		Try different combinations to compare: position (before/after), style (text/icon), and badge overlay.
+	</p>
+</div>
+
 <!-- PDSplitter works better when its parent element has a known size -->
-<div style="height: calc(100vh - 286px)">
+<div style="height: calc(100vh - 380px)">
 
 		<PDDragContext>
 			<PDFileExplorer @ref="FileExplorer"
@@ -21,11 +99,13 @@
 							DownloadUrlFunc="GetDownloadUrl"
 							FolderChanged="OnFolderChanged"
 							GetItemCssClass="GetCssClass"
-							GetItemBadgeCssClass="GetBadgeIconCssClass"
+							GetItemBadgeCssClass="GetBadgeIconCssClassToggleable"
 							GetItemIconCssClass="GetIconCssClass"
 							UpdateTableContextState="OnUpdateTableContextMenuState"
 							UpdateToolbarState="OnUpdateToolbarState"
-							ReadOnlyPostfix="(ro)"
+							ReadOnlyPostfix="@_readOnlyPostfix"
+							ReadOnlyIconClass="@_readOnlyIconClass"
+							ReadOnlyIndicatorPosition="@_indicatorPosition"
 							PreviewPanel="FilePreviewModes.OptionalOn"
 							PreviewProvider="_previewProvider"
 							Ready="OnReady"

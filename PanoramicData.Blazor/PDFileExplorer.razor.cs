@@ -60,10 +60,15 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	public string SessionId { get; private set; } = Guid.NewGuid().ToString();
 
-	public string GetItemDisplayName(FileExplorerItem? item) =>
+	public static string GetItemDisplayName(FileExplorerItem? item) =>
 		item is null
 			? string.Empty
-			: $"{item.Name} {(item.Name != ".." && item.IsReadOnly ? $" {ReadOnlyPostfix}" : string.Empty)}".Trim();
+			: item.Name;
+
+	public static bool ShouldShowReadOnlyIndicator(FileExplorerItem? item) =>
+		item is not null && item.Name != ".." && item.IsReadOnly;
+
+	public bool UseReadOnlyIcon() => !string.IsNullOrWhiteSpace(ReadOnlyIconClass);
 
 
 	#region Inject
@@ -233,6 +238,19 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Gets or sets string to append after a Read-Only items name.
 	/// </summary>
 	[Parameter] public string ReadOnlyPostfix { get; set; } = "(ro)";
+
+	/// <summary>
+	/// Gets or sets the CSS class for the read-only icon (e.g., "fa fa-solid fa-lock").
+	/// When set, this icon is used instead of ReadOnlyPostfix text.
+	/// </summary>
+	[Parameter] public string? ReadOnlyIconClass { get; set; }
+
+	/// <summary>
+	/// Gets or sets the position of the read-only indicator relative to the file/folder name.
+	/// Default is After for backward compatibility with the text postfix behavior.
+	/// Use Before for better visual alignment when multiple items have indicators.
+	/// </summary>
+	[Parameter] public ReadOnlyIndicatorPosition ReadOnlyIndicatorPosition { get; set; } = ReadOnlyIndicatorPosition.After;
 
 	/// <summary>
 	/// Gets or sets an event callback raised when the component has perform all it initialization.

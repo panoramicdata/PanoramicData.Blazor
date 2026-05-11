@@ -27,7 +27,9 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			- Added optional ButtonText and ButtonTextCssClass parameters to PDClipboard component.
+			- Added ReadOnlyIconClass and ReadOnlyIndicatorPosition parameters to PDFileExplorer for customizable read-only file indicators.
+			- Improved vertical alignment of icons and text in PDFileExplorer tree view.
+			- Fixed badge overlay positioning to not affect tree item height.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
