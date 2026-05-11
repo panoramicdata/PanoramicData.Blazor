@@ -27,7 +27,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			- Added ReadOnlyIconClass and ReadOnlyIndicatorPosition parameters to PDFileExplorer for customizable read-only file indicators.
+			- Added ReadOnlyIconClass and ReadOnlyIndicatorPosition parameters to PDFileExplorer and PDFileModal for customizable read-only file indicators.
 			- Improved vertical alignment of icons and text in PDFileExplorer tree view.
 			- Fixed badge overlay positioning to not affect tree item height.
 		</PackageReleaseNotes>
