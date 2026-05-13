@@ -989,6 +989,71 @@ public class FilterTests
 
 	#endregion
 
+	#region GetMemberName Tests
+
+	[Fact]
+	public void GetMemberName_DisplayName_ReturnsMemberName()
+	{
+		var result = Filter.GetMemberName(typeof(EnumWithDisplay), "Needs Improvement");
+
+		result.ShouldBe("NeedsImprovement");
+	}
+
+	[Fact]
+	public void GetMemberName_AnotherDisplayName_ReturnsMemberName()
+	{
+		var result = Filter.GetMemberName(typeof(EnumWithDisplay), "In Progress");
+
+		result.ShouldBe("InProgress");
+	}
+
+	[Fact]
+	public void GetMemberName_RawMemberName_ReturnsUnchanged()
+	{
+		var result = Filter.GetMemberName(typeof(EnumWithDisplay), "NeedsImprovement");
+
+		result.ShouldBe("NeedsImprovement");
+	}
+
+	[Fact]
+	public void GetMemberName_NoDisplayAttribute_ReturnsUnchanged()
+	{
+		var result = Filter.GetMemberName(typeof(EnumWithDisplay), "Simple");
+
+		result.ShouldBe("Simple");
+	}
+
+	[Fact]
+	public void GetMemberName_EnumWithNoDisplayAttributes_ReturnsUnchanged()
+	{
+		var result = Filter.GetMemberName(typeof(EnumWithoutDisplay), "SecondValue");
+
+		result.ShouldBe("SecondValue");
+	}
+
+	[Fact]
+	public void GetMemberName_UnknownValue_ReturnsUnchanged()
+	{
+		var result = Filter.GetMemberName(typeof(EnumWithDisplay), "not a match");
+
+		result.ShouldBe("not a match");
+	}
+
+	[Theory]
+	[InlineData("Needs Improvement", "NeedsImprovement")]
+	[InlineData("In Progress", "InProgress")]
+	[InlineData("Simple", "Simple")]
+	[InlineData("NeedsImprovement", "NeedsImprovement")]
+	public void GetMemberName_RoundTrip_FormatThenGetMemberName(string displayName, string expectedMemberName)
+	{
+		// Simulate the round-trip: Format() produces the display name, GetMemberName() reverses it
+		var result = Filter.GetMemberName(typeof(EnumWithDisplay), displayName);
+
+		result.ShouldBe(expectedMemberName);
+	}
+
+	#endregion
+
 }
 
 internal enum EnumWithoutDisplay

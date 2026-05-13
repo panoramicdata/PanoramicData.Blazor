@@ -28,6 +28,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
 			- Fixed Filter.Format() to honour [Display] attributes on enum values in PDFilter suggested values dropdown.
+			- Fixed ApplyFilter to translate [Display] names back to enum member names for dynamic LINQ predicate matching.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 
