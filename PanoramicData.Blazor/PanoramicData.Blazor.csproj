@@ -27,7 +27,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			- Fixed PDFileModal parameter binding for ReadOnlyIconClass and ReadOnlyIndicatorPosition.
+			- Fixed Filter.Format() to honour [Display] attributes on enum values in PDFilter suggested values dropdown.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

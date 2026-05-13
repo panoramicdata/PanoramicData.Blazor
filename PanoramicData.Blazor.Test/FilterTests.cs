@@ -1,5 +1,6 @@
 ﻿using PanoramicData.Blazor.Models;
 using Shouldly;
+using System.ComponentModel.DataAnnotations;
 
 namespace PanoramicData.Blazor.Test;
 
@@ -264,6 +265,62 @@ public class FilterTests
 		result.ShouldBe("42");
 	}
 
+	[Fact]
+	public void Format_EnumWithoutDisplayAttribute_ReturnsToString()
+	{
+		var result = Filter.Format(EnumWithoutDisplay.SecondValue);
+
+		result.ShouldBe("SecondValue");
+	}
+
+	[Fact]
+	public void Format_EnumWithDisplayAttribute_ReturnsDisplayName()
+	{
+		var result = Filter.Format(EnumWithDisplay.NeedsImprovement);
+
+		result.ShouldBe("Needs Improvement");
+	}
+
+	[Fact]
+	public void Format_EnumWithDisplayAttributeNoName_ReturnsToString()
+	{
+		var result = Filter.Format(EnumWithDisplay.Simple);
+
+		result.ShouldBe("Simple");
+	}
+
+	[Fact]
+	public void Format_EnumWithDisplayAttribute_AllValuesFormattedCorrectly()
+	{
+		Filter.Format(EnumWithDisplay.NeedsImprovement).ShouldBe("Needs Improvement");
+		Filter.Format(EnumWithDisplay.InProgress).ShouldBe("In Progress");
+		Filter.Format(EnumWithDisplay.Simple).ShouldBe("Simple");
+	}
+
+	[Fact]
+	public void Format_UnspecifiedDateTime_TreatedAsLocal_ConvertsToUtc()
+	{
+		// When unspecifiedDateTimesAreUtc is false (the default), Unspecified is treated as local
+		// and converted via ToUniversalTime() — result still ends with Z
+		var unspecifiedDateTime = new DateTime(2023, 8, 15, 12, 0, 0, DateTimeKind.Unspecified);
+
+		var result = Filter.Format(unspecifiedDateTime, unspecifiedDateTimesAreUtc: false);
+
+		result.ShouldEndWith("Z");
+	}
+
+	[Fact]
+	public void Format_DefaultOverload_TreatsUnspecifiedAsLocal()
+	{
+		// The no-arg overload passes false for unspecifiedDateTimesAreUtc
+		var unspecifiedDateTime = new DateTime(2023, 8, 15, 12, 0, 0, DateTimeKind.Unspecified);
+		var explicitResult = Filter.Format(unspecifiedDateTime, unspecifiedDateTimesAreUtc: false);
+
+		var defaultResult = Filter.Format(unspecifiedDateTime);
+
+		defaultResult.ShouldBe(explicitResult);
+	}
+
 	#endregion
 
 	#region IsDateTime Tests
@@ -305,6 +362,43 @@ public class FilterTests
 
 		result.ShouldBeFalse();
 		dateTime.ShouldBe(DateTime.MinValue);
+	}
+
+	[Fact]
+	public void IsDateTime_NullInput_ReturnsFalse()
+	{
+		var result = Filter.IsDateTime(null, out var dateTime, out var format, out var precision);
+
+		result.ShouldBeFalse();
+		dateTime.ShouldBe(DateTime.MinValue);
+		format.ShouldBe(string.Empty);
+	}
+
+	[Fact]
+	public void IsDateTime_DateWithTime_ReturnsMinutePrecision()
+	{
+		var result = Filter.IsDateTime("15/08/2023 21:26", out _, out _, out var precision);
+
+		result.ShouldBeTrue();
+		precision.ShouldBe(DatePrecision.Minute);
+	}
+
+	[Fact]
+	public void IsDateTime_DateWithMilliseconds_ReturnsMillisecondPrecision()
+	{
+		var result = Filter.IsDateTime("2023-08-15 21:26:07.123", out _, out _, out var precision);
+
+		result.ShouldBeTrue();
+		precision.ShouldBe(DatePrecision.Millisecond);
+	}
+
+	[Fact]
+	public void IsDateTime_DateWithSeconds_ReturnsSecondPrecision()
+	{
+		var result = Filter.IsDateTime("2023-08-15 21:26:07", out _, out _, out var precision);
+
+		result.ShouldBeTrue();
+		precision.ShouldBe(DatePrecision.Second);
 	}
 
 	#endregion
@@ -851,5 +945,65 @@ public class FilterTests
 		filter.Value.ShouldBe("Open");
 	}
 
+	[Fact]
+	public void UpdateFrom_NullText_ClearsFilter()
+	{
+		var filter = new Filter(FilterTypes.Contains, "name", "test");
+
+		filter.UpdateFrom(null!);
+
+		filter.FilterType.ShouldBe(FilterTypes.Equals);
+		filter.Value.ShouldBe(string.Empty);
+	}
+
+	[Fact]
+	public void UpdateFrom_WhitespaceText_ClearsFilter()
+	{
+		var filter = new Filter(FilterTypes.Contains, "name", "test");
+
+		filter.UpdateFrom("   ");
+
+		filter.FilterType.ShouldBe(FilterTypes.Equals);
+		filter.Value.ShouldBe(string.Empty);
+	}
+
 	#endregion
+
+	#region Constructor Tests
+
+	[Fact]
+	public void Constructor_ObjectValue_UsesToString()
+	{
+		var filter = new Filter(FilterTypes.Equals, "status", (object)42);
+
+		filter.Value.ShouldBe("42");
+	}
+
+	[Fact]
+	public void Constructor_NullObjectValue_UsesEmptyString()
+	{
+		var filter = new Filter(FilterTypes.Equals, "status", (object)null!);
+
+		filter.Value.ShouldBe(string.Empty);
+	}
+
+	#endregion
+
+}
+
+internal enum EnumWithoutDisplay
+{
+	FirstValue,
+	SecondValue,
+}
+
+internal enum EnumWithDisplay
+{
+	[Display(Name = "Needs Improvement")]
+	NeedsImprovement,
+
+	[Display(Name = "In Progress")]
+	InProgress,
+
+	Simple,
 }

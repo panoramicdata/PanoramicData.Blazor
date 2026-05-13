@@ -223,6 +223,19 @@ public class Filter
 			return $"{dto.ToUniversalTime():yyyy-MM-dd}T{dto.ToUniversalTime():HH:mm:ss}Z";
 		}
 
+		var type = value.GetType();
+		if (type.IsEnum)
+		{
+			var displayName = type.GetMember($"{value}")
+				?.FirstOrDefault()
+				?.GetCustomAttribute<DisplayAttribute>()
+				?.Name;
+			if (displayName is not null)
+			{
+				return displayName;
+			}
+		}
+
 		return value.ToString() ?? string.Empty;
 	}
 
