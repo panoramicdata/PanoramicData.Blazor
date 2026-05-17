@@ -131,13 +131,10 @@
 						@if (ShowSelectAll && _values.Length > 0)
 						{
 							<div class="values-select-all" @onclick="OnSelectAllClicked">
-								<input type="checkbox"
-									   class="values-select-all-checkbox"
-									   checked="@(_selectedValues.Count > 0)"
-									   @ref="_selectAllCheckbox"
-									   @onclick:stopPropagation />
-								<span class="values-select-all-label">Select all</span>
-								<span class="values-select-all-count text-muted">(@_selectedValues.Count of @_values.Length)</span>
+								<PDLabel CssClass="pd-pointer"
+										 IconCssClass="@(_selectedValues.Count == _values.Length ? "fas fa-check-square" : _selectedValues.Count > 0 ? "fas fa-minus-square" : "far fa-square")"
+										 Text="Select all" />
+								<span class="values-select-all-count text-muted">@_selectedValues.Count / @_values.Length</span>
 							</div>
 						}
 						<div class="values-list">
