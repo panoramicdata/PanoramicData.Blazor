@@ -5,6 +5,7 @@ public partial class PDFilter : IAsyncDisposable
 	private static int _sequence;
 	private readonly string _id = $"filter-button-{(++_sequence)}";
 	private PDDropDown _dropDown = null!;
+	private ElementReference _selectAllCheckbox;
 	private string[] _values = [];
 	private string _value1 = string.Empty;
 	private string _value2 = string.Empty;
@@ -72,6 +73,12 @@ public partial class PDFilter : IAsyncDisposable
 	public bool ShowValues { get; set; } = true;
 
 	/// <summary>
+	/// Gets or sets whether to show the select all / deselect all row above the values list.
+	/// </summary>
+	[Parameter]
+	public bool ShowSelectAll { get; set; }
+
+	/// <summary>
 	/// Gets or sets the size of the filter button.
 	/// </summary>
 	[Parameter]
@@ -117,6 +124,20 @@ public partial class PDFilter : IAsyncDisposable
 				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
 			}
 		}
+
+		// Set the indeterminate state on the select-all checkbox (can only be done via JS)
+		if (_commonModule is not null && _values.Length > 0)
+		{
+			try
+			{
+				var indeterminate = _selectedValues.Count > 0 && _selectedValues.Count < _values.Length;
+				await _commonModule.InvokeVoidAsync("setProperty", _selectAllCheckbox, "indeterminate", indeterminate).ConfigureAwait(true);
+			}
+			catch
+			{
+				// Element may not be rendered yet
+			}
+		}
 	}
 
 	private async Task OnClear()
@@ -128,6 +149,24 @@ public partial class PDFilter : IAsyncDisposable
 		Filter.Clear();
 		await _dropDown.HideAsync().ConfigureAwait(true);
 		await FilterChanged.InvokeAsync(Filter).ConfigureAwait(true);
+	}
+
+	private void OnSelectAllClicked()
+	{
+		if (_selectedValues.Count == _values.Length)
+		{
+			// all selected -> deselect all
+			_selectedValues.Clear();
+			_value1 = string.Empty;
+		}
+		else
+		{
+			// none or some selected -> select all visible
+			_selectedValues.Clear();
+			_selectedValues.AddRange(_values);
+			_filterType = FilterTypes.In;
+			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()));
+		}
 	}
 
 	private async Task OnDropDownShown()

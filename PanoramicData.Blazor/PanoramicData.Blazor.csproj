@@ -27,8 +27,11 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>
-			- Fixed Filter.Format() to honour [Display] attributes on enum values in PDFilter suggested values dropdown.
-			- Fixed ApplyFilter to translate [Display] names back to enum member names for dynamic LINQ predicate matching.
+			- Fixed PDDropDown popup clipping when inside overflow:hidden/auto ancestors by using Popper.js strategy 'fixed'.
+			- Improved PDFilter toolbar buttons to fill available width equally with consistent 5px padding and gap.
+			- Added Select All / Deselect All row to PDFilter values list with tri-state checkbox and selection count.
+			- Added ShowSelectAll parameter to PDFilter (opt-in, defaults to false).
+			- Added FilterShowSelectAll parameter to PDColumn, wired through PDTable to PDFilter.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

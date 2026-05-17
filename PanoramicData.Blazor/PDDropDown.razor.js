@@ -51,6 +51,13 @@
 			});
 		}
 
-		return new bootstrap.Dropdown(el, opt);
+		// Use 'fixed' strategy so Popper.js positions relative to the viewport.
+		// Without this, dropdowns inside overflow:hidden/auto ancestors (e.g. fixed-height
+		// table wrappers) are clipped and disappear. 'fixed' escapes any overflow context.
+		const popperConfig = (defaultConfig) => ({
+			...defaultConfig,
+			strategy: 'fixed'
+		});
+		return new bootstrap.Dropdown(el, { ...opt, popperConfig });
 	}
 }

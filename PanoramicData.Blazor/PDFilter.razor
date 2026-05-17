@@ -115,30 +115,42 @@
 			}
 
 			@if (ShowValues)
-			{
-				<div class="filter-values">
-					@if (DataType == FilterDataTypes.Text)
-					{
-						<div class="values-filter">
-							<PDTextBox CssClass="form-control-sm"
-									   DebounceWait="500"
-									   ShowClearButton=false
-									   Placeholder="filter"
-									   Value="@_valuesFilter"
-									   ValueChanged="OnValuesFilterTextChange" />
-						</div>
-					}
-					<div class="values-list">
-						@foreach (var value in _values)
+				{
+					<div class="filter-values">
+						@if (DataType == FilterDataTypes.Text)
 						{
-							<PDLabel CssClass="pd-pointer"
-									 MouseDown="@(() => OnValueClicked(value))"
-									 IconCssClass="@(_selectedValues.Contains(value) ? "fas fa-check-square" : "far fa-square")"
-									 Text="@value" />
+							<div class="values-filter">
+								<PDTextBox CssClass="form-control-sm"
+										   DebounceWait="500"
+										   ShowClearButton=false
+										   Placeholder="filter"
+										   Value="@_valuesFilter"
+										   ValueChanged="OnValuesFilterTextChange" />
+							</div>
 						}
+						@if (ShowSelectAll && _values.Length > 0)
+						{
+							<div class="values-select-all" @onclick="OnSelectAllClicked">
+								<input type="checkbox"
+									   class="values-select-all-checkbox"
+									   checked="@(_selectedValues.Count > 0)"
+									   @ref="_selectAllCheckbox"
+									   @onclick:stopPropagation />
+								<span class="values-select-all-label">Select all</span>
+								<span class="values-select-all-count text-muted">(@_selectedValues.Count of @_values.Length)</span>
+							</div>
+						}
+						<div class="values-list">
+							@foreach (var value in _values)
+							{
+								<PDLabel CssClass="pd-pointer"
+										 MouseDown="@(() => OnValueClicked(value))"
+										 IconCssClass="@(_selectedValues.Contains(value) ? "fas fa-check-square" : "far fa-square")"
+										 Text="@value" />
+							}
+						</div>
 					</div>
-				</div>
-			}
+				}
 		</div>
 
 		<div class="filter-toolbar">
