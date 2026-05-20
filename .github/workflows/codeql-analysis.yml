@@ -39,7 +39,7 @@ jobs:
         languages: ${{ matrix.language }}
         
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v5
 
     - name: Build
       shell: pwsh
