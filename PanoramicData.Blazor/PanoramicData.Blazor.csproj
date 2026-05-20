@@ -29,8 +29,13 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-			- Update NuGet packages to latest patch versions.
-		</PackageReleaseNotes>
+      - Fixed PDDropDown popup clipping when inside overflow:hidden/auto ancestors by using Popper.js strategy 'fixed'.
+      - Improved PDFilter toolbar buttons to fill available width equally with consistent 5px padding and gap.
+      - Added Select All / Deselect All row to PDFilter values list with tri-state checkbox and selection count.
+      - Added ShowSelectAll parameter to PDFilter (opt-in, defaults to false).
+      - Added FilterShowSelectAll parameter to PDColumn, wired through PDTable to PDFilter.
+      - Update NuGet packages to latest patch versions.
+    </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="\" />

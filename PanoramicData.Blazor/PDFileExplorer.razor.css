@@ -83,7 +83,6 @@ font-size: 10px;
 }
 
 ::deep .pdtreenode span.item-icon {
-	height: 20px;
 	min-width: 30px;
 }
 
@@ -141,17 +140,49 @@ font-size: 10px;
 
 .item-icon {
 	display: flex;
+	align-items: center;
+	position: relative;
 }
 
 .pd-badge {
+	position: absolute;
 	background-color: white;
 	border-radius: 11px;
 	color: black;
 	height: 22px;
-	margin-left: -12px;
-	margin-top: 4px;
 	padding-left: 2px;
 	padding-top: 3px;
 	transform: scale(0.7);
 	width: 22px;
+}
+
+/* Badge positioning in tree view */
+::deep .pdtreenode .pd-badge {
+	top: 6px;
+	right: 0;
+}
+
+/* Badge positioning in table view */
+.pdfileexplorer .table .pd-badge {
+	top: 3px;
+	right: -10px;
+}
+
+/* Icon sizing - default for table */
+.pdfe-readonly-icon {
+	font-size: 1rem;
+}
+
+/* BEFORE position - space on the right */
+.pdfe-readonly-icon.pdfe-readonly-before,
+.pdfe-readonly-text.pdfe-readonly-before {
+	margin-left: 0;
+	margin-right: 0.5em;
+}
+
+/* AFTER position - space on the left */
+.pdfe-readonly-icon.pdfe-readonly-after,
+.pdfe-readonly-text.pdfe-readonly-after {
+	margin-left: 0.75em;
+	margin-right: 0;
 }

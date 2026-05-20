@@ -203,9 +203,15 @@ export function onTableDragStart(id) {
 }
 
 export function clearInlineStyle(element) {
-    if (element && element.style) {
-        element.style.cssText = '';
-    }
+	if (element && element.style) {
+		element.style.cssText = '';
+	}
+}
+
+export function setProperty(element, property, value) {
+	if (element) {
+		element[property] = value;
+	}
 }
 
 function scrollToBottom(element) {

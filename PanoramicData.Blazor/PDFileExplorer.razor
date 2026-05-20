@@ -184,7 +184,31 @@
 										<i class="pd-badge @info.CssCls" title="@info.ToolTip"></i>
 									}
 								</span>
-								<span class="item-text">@GetItemDisplayName(context?.Data)</span>
+								<span class="item-text">
+									@if (ShouldShowReadOnlyIndicator(context?.Data) && ReadOnlyIndicatorPosition == ReadOnlyIndicatorPosition.Before)
+									{
+										@if (UseReadOnlyIcon())
+										{
+											<i class="pdfe-readonly-icon pdfe-readonly-before @ReadOnlyIconClass" title="Read-only"></i>
+										}
+										else
+										{
+											<span class="pdfe-readonly-text pdfe-readonly-before">@ReadOnlyPostfix</span>
+										}
+									}
+									@GetItemDisplayName(context?.Data)
+									@if (ShouldShowReadOnlyIndicator(context?.Data) && ReadOnlyIndicatorPosition == ReadOnlyIndicatorPosition.After)
+									{
+										@if (UseReadOnlyIcon())
+										{
+											<i class="pdfe-readonly-icon pdfe-readonly-after @ReadOnlyIconClass" title="Read-only"></i>
+										}
+										else
+										{
+											<span class="pdfe-readonly-text pdfe-readonly-after">@ReadOnlyPostfix</span>
+										}
+									}
+								</span>
 							</span>
 						</NodeTemplate>
 					</PDTree>
@@ -273,13 +297,61 @@
 								@if (context.IsUploading)
 								{
 									<div style="width: 100%">
-										<span class="@(GetCssClass(context))">@GetItemDisplayName(context)</span>
+										<span class="@(GetCssClass(context))">
+											@if (ShouldShowReadOnlyIndicator(context) && ReadOnlyIndicatorPosition == ReadOnlyIndicatorPosition.Before)
+											{
+												@if (UseReadOnlyIcon())
+												{
+													<i class="pdfe-readonly-icon pdfe-readonly-before @ReadOnlyIconClass" title="Read-only"></i>
+												}
+												else
+												{
+													<span class="pdfe-readonly-text pdfe-readonly-before">@ReadOnlyPostfix</span>
+												}
+											}
+											@GetItemDisplayName(context)
+											@if (ShouldShowReadOnlyIndicator(context) && ReadOnlyIndicatorPosition == ReadOnlyIndicatorPosition.After)
+											{
+												@if (UseReadOnlyIcon())
+												{
+													<i class="pdfe-readonly-icon pdfe-readonly-after @ReadOnlyIconClass" title="Read-only"></i>
+												}
+												else
+												{
+													<span class="pdfe-readonly-text pdfe-readonly-after">@ReadOnlyPostfix</span>
+												}
+											}
+										</span>
 										<div class="upload-progress-bar" style="width: @($"{Math.Round(context.UploadProgress, 2)}%");"></div>
 									</div>
 								}
 								else
 								{
-									<span class="@(GetCssClass(context))">@GetItemDisplayName(context)</span>
+									<span class="@(GetCssClass(context))">
+										@if (ShouldShowReadOnlyIndicator(context) && ReadOnlyIndicatorPosition == ReadOnlyIndicatorPosition.Before)
+										{
+											@if (UseReadOnlyIcon())
+											{
+												<i class="pdfe-readonly-icon pdfe-readonly-before @ReadOnlyIconClass" title="Read-only"></i>
+											}
+											else
+											{
+												<span class="pdfe-readonly-text pdfe-readonly-before">@ReadOnlyPostfix</span>
+											}
+										}
+										@GetItemDisplayName(context)
+										@if (ShouldShowReadOnlyIndicator(context) && ReadOnlyIndicatorPosition == ReadOnlyIndicatorPosition.After)
+										{
+											@if (UseReadOnlyIcon())
+											{
+												<i class="pdfe-readonly-icon pdfe-readonly-after @ReadOnlyIconClass" title="Read-only"></i>
+											}
+											else
+											{
+												<span class="pdfe-readonly-text pdfe-readonly-after">@ReadOnlyPostfix</span>
+											}
+										}
+									</span>
 								}
 							</Template>
 						</PDColumn>

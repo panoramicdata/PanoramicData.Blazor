@@ -1,3 +1,11 @@
-﻿.pdClipboard-button {
+﻿.pdClipboard-button,
+.pdClipboard-button-text
+{
 	cursor: pointer;
+}
+
+.pdClipboard-button-text
+{
+	margin-left: .25rem;
+	user-select: none;
 }

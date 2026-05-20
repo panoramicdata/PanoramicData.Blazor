@@ -10,6 +10,14 @@ public partial class PDFileExplorerPage
 	private readonly TestFileSystemDataProvider _dataProvider = _testFileSystemDataProvider;
 	private IPreviewProvider? _previewProvider;
 
+	// Read-only indicator demo state
+	private enum ReadOnlyMode { Text, IconLock, IconEye, IconBan }
+	private ReadOnlyMode _readOnlyMode = ReadOnlyMode.IconLock;
+	private string _readOnlyPostfix = "(ro)";
+	private string? _readOnlyIconClass = "fa fa-solid fa-lock text-warning";
+	private bool _showBadge = true;
+	private ReadOnlyIndicatorPosition _indicatorPosition = ReadOnlyIndicatorPosition.Before;
+
 	private PDFileExplorer? FileExplorer { get; set; }
 
 	/// <summary>
@@ -23,6 +31,30 @@ public partial class PDFileExplorerPage
 	[Inject] protected NavigationManager NavigationManager { get; set; } = null!;
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
+
+	private void SetReadOnlyMode(ReadOnlyMode mode)
+	{
+		_readOnlyMode = mode;
+		switch (mode)
+		{
+			case ReadOnlyMode.Text:
+				_readOnlyPostfix = "(ro)";
+				_readOnlyIconClass = null;
+				break;
+			case ReadOnlyMode.IconLock:
+				_readOnlyPostfix = "(ro)";
+				_readOnlyIconClass = "fa fa-solid fa-lock text-warning";
+				break;
+			case ReadOnlyMode.IconEye:
+				_readOnlyPostfix = "(ro)";
+				_readOnlyIconClass = "fa fa-solid fa-eye";
+				break;
+			case ReadOnlyMode.IconBan:
+				_readOnlyPostfix = "(ro)";
+				_readOnlyIconClass = "fa fa-solid fa-ban text-danger";
+				break;
+		}
+	}
 
 	private string GetDownloadUrl(FileExplorerItem item)
 	{
@@ -221,6 +253,11 @@ public partial class PDFileExplorerPage
 		return item.IsReadOnly
 			? new IconInfo { CssCls = "fas fa-fw fa-ban text-danger", ToolTip = "Read Only" }
 			: null;
+	}
+
+	private IconInfo? GetBadgeIconCssClassToggleable(FileExplorerItem item)
+	{
+		return _showBadge ? GetBadgeIconCssClass(item) : null;
 	}
 
 	private static string GetCssClass(FileExplorerItem _) => string.Empty;

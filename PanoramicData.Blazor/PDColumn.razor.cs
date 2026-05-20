@@ -111,6 +111,12 @@ public partial class PDColumn<TItem> where TItem : class
 	public bool FilterShowSuggestedValues { get; set; } = true;
 
 	/// <summary>
+	/// Gets or sets whether to show the select all / deselect all row in the filter values list.
+	/// </summary>
+	[Parameter]
+	public bool FilterShowSelectAll { get; set; }
+
+	/// <summary>
 	/// Gets or sets the suggested values for the filter.
 	/// </summary>
 	[Parameter]

@@ -5,6 +5,16 @@ public partial class PDClipboard
 	[Inject] IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
+	/// The text to show next to (on the right) of the copy button. If not set, only the button will be shown
+	/// </summary>
+	[Parameter] public string ButtonText { get; set; } = string.Empty;
+
+	/// <summary>
+	/// The CSS class to apply to the text next to the copy button. If not set, no CSS class will be applied
+	/// </summary>
+	[Parameter] public string ButtonTextCssClass { get; set; } = string.Empty;
+
+	/// <summary>
 	/// General CSS Class to apply
 	/// </summary>
 	[Parameter] public string CssClass { get; set; } = string.Empty;

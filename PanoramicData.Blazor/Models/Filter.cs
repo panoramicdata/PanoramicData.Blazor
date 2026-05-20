@@ -205,6 +205,25 @@ public class Filter
 
 	public static string Format(object value) => Format(value, false);
 
+	/// <summary>
+	/// Reverse of Format() for enum types: translates a display name (from [Display(Name = ...)]) back
+	/// to the actual enum member name needed by dynamic LINQ. If the value already matches a member
+	/// name, or no matching display name is found, the original value is returned unchanged.
+	/// </summary>
+	public static string GetMemberName(Type enumType, string displayNameOrMemberName)
+	{
+		foreach (var member in enumType.GetMembers(BindingFlags.Public | BindingFlags.Static))
+		{
+			var displayName = member.GetCustomAttribute<DisplayAttribute>()?.Name;
+			if (displayName == displayNameOrMemberName)
+			{
+				return member.Name;
+			}
+		}
+
+		return displayNameOrMemberName;
+	}
+
 	public static string Format(object value, bool unspecifiedDateTimesAreUtc)
 	{
 		if (value is null)
@@ -221,6 +240,19 @@ public class Filter
 		else if (value is DateTimeOffset dto)
 		{
 			return $"{dto.ToUniversalTime():yyyy-MM-dd}T{dto.ToUniversalTime():HH:mm:ss}Z";
+		}
+
+		var type = value.GetType();
+		if (type.IsEnum)
+		{
+			var displayName = type.GetMember($"{value}")
+				?.FirstOrDefault()
+				?.GetCustomAttribute<DisplayAttribute>()
+				?.Name;
+			if (displayName is not null)
+			{
+				return displayName;
+			}
 		}
 
 		return value.ToString() ?? string.Empty;

@@ -72,6 +72,12 @@ public partial class PDFilter : IAsyncDisposable
 	public bool ShowValues { get; set; } = true;
 
 	/// <summary>
+	/// Gets or sets whether to show the select all / deselect all row above the values list.
+	/// </summary>
+	[Parameter]
+	public bool ShowSelectAll { get; set; }
+
+	/// <summary>
 	/// Gets or sets the size of the filter button.
 	/// </summary>
 	[Parameter]
@@ -128,6 +134,24 @@ public partial class PDFilter : IAsyncDisposable
 		Filter.Clear();
 		await _dropDown.HideAsync().ConfigureAwait(true);
 		await FilterChanged.InvokeAsync(Filter).ConfigureAwait(true);
+	}
+
+	private void OnSelectAllClicked()
+	{
+		if (_selectedValues.Count == _values.Length)
+		{
+			// all selected -> deselect all
+			_selectedValues.Clear();
+			_value1 = string.Empty;
+		}
+		else
+		{
+			// none or some selected -> select all visible
+			_selectedValues.Clear();
+			_selectedValues.AddRange(_values);
+			_filterType = FilterTypes.In;
+			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()));
+		}
 	}
 
 	private async Task OnDropDownShown()

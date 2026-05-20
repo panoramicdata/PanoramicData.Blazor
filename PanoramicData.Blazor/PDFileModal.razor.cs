@@ -109,6 +109,18 @@ public partial class PDFileModal
 	/// </summary>
 	[Parameter] public Comparison<FileExplorerItem>? TreeSort { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS class for the read-only icon (e.g., "fa fa-solid fa-lock").
+	/// When set, this icon is used instead of ReadOnlyPostfix text.
+	/// </summary>
+	[Parameter] public string? ReadOnlyIconClass { get; set; }
+
+	/// <summary>
+	/// Gets or sets the position of the read-only indicator relative to the filename.
+	/// Default is After for backward compatibility.
+	/// </summary>
+	[Parameter] public ReadOnlyIndicatorPosition ReadOnlyIndicatorPosition { get; set; } = ReadOnlyIndicatorPosition.After;
+
 	private string GetOpenResult() => _folderSelect
 			? (FileExplorer.SelectedFilesAndFolders.Length == 1 ? FileExplorer.SelectedFilesAndFolders[0] : FileExplorer.FolderPath)
 			: $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";

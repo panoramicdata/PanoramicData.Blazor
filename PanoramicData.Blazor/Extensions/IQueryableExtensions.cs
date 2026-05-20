@@ -45,14 +45,30 @@ public static class IQueryableExtensions
 			{
 				string[] separatorArray = ["|"];
 				object[] parameters = filter.FilterType switch
-				{
-					FilterTypes.In => [.. filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
-					FilterTypes.NotIn => [.. filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
-					FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
-					FilterTypes.IsEmpty => [string.Empty],
-					FilterTypes.IsNotEmpty => [string.Empty],
-					_ => [filter.Value.RemoveQuotes()]
-				};
+					{
+						FilterTypes.In => [.. filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
+						FilterTypes.NotIn => [.. filter.Value.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
+						FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
+						FilterTypes.IsEmpty => [string.Empty],
+						FilterTypes.IsNotEmpty => [string.Empty],
+						_ => [filter.Value.RemoveQuotes()]
+					};
+
+					// for enum properties, translate display names back to member names for dynamic LINQ
+					if (filter.FilterType is FilterTypes.Equals or FilterTypes.In or FilterTypes.NotIn or FilterTypes.DoesNotEqual)
+					{
+						var propInfo = typeof(T).GetProperty(filter.PropertyName);
+						var propType = propInfo?.PropertyType;
+						if (propType != null)
+						{
+							// unwrap Nullable<TEnum> if needed
+							propType = Nullable.GetUnderlyingType(propType) ?? propType;
+							if (propType.IsEnum)
+							{
+								parameters = [.. parameters.Select(p => p is string s ? Filter.GetMemberName(propType, s) : p)];
+							}
+						}
+					}
 
 				// build dynamic predicate
 				var propertyName = filter.PropertyName;
