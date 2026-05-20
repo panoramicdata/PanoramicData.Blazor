@@ -276,3 +276,4 @@ vsspell_include_in_project_spell_check = false
 [Themes.razor]
 vsspell_spell_check_as_you_type = false
 vsspell_include_in_project_spell_check = false
+csharp_style_namespace_declarations = file_scoped:error

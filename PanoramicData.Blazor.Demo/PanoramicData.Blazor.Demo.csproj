@@ -1,90 +1,77 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-
-	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<UserSecretsId>49933e5c-b6ca-4a76-8b2a-09d0868ee051</UserSecretsId>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<None Remove="TestMarkdown.md" />
-		<None Remove="TestText.txt" />
-		<None Remove="TestVideo.webm" />
-		<None Remove="TestWeb.html" />
-		<None Remove="TestWeb.url" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<EmbeddedResource Include="TestText.txt" />
-		<EmbeddedResource Include="TestVideo.webm" />
-		<EmbeddedResource Include="TestMarkdown.md" />
-		<EmbeddedResource Include="TestWeb.html" />
-		<EmbeddedResource Include="TestWeb.url" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Resource Include="TestVideo.webm">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Resource>
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<PackageReference Include="BlazorMonaco" Version="3.4.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.6" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.6" />
-		<PackageReference Include="PanoramicData.NCalcExtensions" Version="5.8.30" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<Folder Include="Components\" />
-		<Folder Include="wwwroot\lib\bootstrap\dist\js\" />
-		<Folder Include="wwwroot\src\" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<Compile Update="Pages\PDBlockOverlayPage.razor.cs">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</Compile>
-		<Compile Update="Pages\PDTreePage3 - Copy.razor.cs">
-			<DependentUpon>PDTreePage3.razor.cs</DependentUpon>
-		</Compile>
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<UpToDateCheckInput Remove="Pages\PDRangePage.razor" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<_ContentIncludedByDefault Remove="Pages\PDMonaco.razor" />
-		<_ContentIncludedByDefault Remove="Pages\PDRangePage.razor" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<None Include="wwwroot\html\TestWeb.html" />
-		<None Include="wwwroot\sounds\tick.mp3" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<UpToDateCheckInput Remove="Pages\PDMonaco.razor" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<Content Update="Pages\PDLogPage.razor">
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-		</Content>
-	</ItemGroup>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>49933e5c-b6ca-4a76-8b2a-09d0868ee051</UserSecretsId>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor</RepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>PanoramicData.Blazor.Demo</PackageId>
+    <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="TestMarkdown.md" />
+    <None Remove="TestText.txt" />
+    <None Remove="TestVideo.webm" />
+    <None Remove="TestWeb.html" />
+    <None Remove="TestWeb.url" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TestText.txt" />
+    <EmbeddedResource Include="TestVideo.webm" />
+    <EmbeddedResource Include="TestMarkdown.md" />
+    <EmbeddedResource Include="TestWeb.html" />
+    <EmbeddedResource Include="TestWeb.url" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="TestVideo.webm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BlazorMonaco" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+    <PackageReference Include="PanoramicData.NCalcExtensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Components\" />
+    <Folder Include="wwwroot\lib\bootstrap\dist\js\" />
+    <Folder Include="wwwroot\src\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Pages\PDBlockOverlayPage.razor.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Pages\PDTreePage3 - Copy.razor.cs">
+      <DependentUpon>PDTreePage3.razor.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\PDRangePage.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\PDMonaco.razor" />
+    <_ContentIncludedByDefault Remove="Pages\PDRangePage.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\html\TestWeb.html" />
+    <None Include="wwwroot\sounds\tick.mp3" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\PDMonaco.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="Pages\PDLogPage.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
 </Project>

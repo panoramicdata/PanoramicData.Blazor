@@ -1,36 +1,39 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
-	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<WarningLevel>0</WarningLevel>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<Compile Remove="wwwroot\js\**" />
-		<Content Remove="wwwroot\js\**" />
-		<EmbeddedResource Remove="wwwroot\js\**" />
-		<None Remove="wwwroot\js\**" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\PanoramicData.Blazor.Demo\PanoramicData.Blazor.Demo.csproj" />
-		<ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Pages\" />
-		<Folder Include="wwwroot\css\" />
-	</ItemGroup>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor</RepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>PanoramicData.Blazor.Web</PackageId>
+    <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>0</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="wwwroot\js\**" />
+    <Content Remove="wwwroot\js\**" />
+    <EmbeddedResource Remove="wwwroot\js\**" />
+    <None Remove="wwwroot\js\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PanoramicData.Blazor.Demo\PanoramicData.Blazor.Demo.csproj" />
+    <ProjectReference Include="..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Pages\" />
+    <Folder Include="wwwroot\css\" />
+  </ItemGroup>
 </Project>

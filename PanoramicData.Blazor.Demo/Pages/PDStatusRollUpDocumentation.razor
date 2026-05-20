@@ -1,0 +1,173 @@
+<div class="pd-statusrollup-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDStatusRollUp</code> renders a single status icon (Red / Amber / Green / Gray) that, when
+			clicked, opens a cascading pop-over showing the full health hierarchy described by the
+			<code>Node</code> parameter.  Up to three levels of detail can be browsed without leaving the page.
+		</p>
+		<ul>
+			<li>Leaf nodes show status, title, summary, and optional monospace detail.</li>
+			<li>Nodes with children show a drillable list; items with a chevron open a sub-popup.</li>
+			<li>Multiple <code>PDStatusRollUp</code> instances on the same page share a single set of overlay DOM elements.</li>
+			<li>Keyboard accessible: <kbd>Enter</kbd> / <kbd>Space</kbd> opens the popup, <kbd>Esc</kbd> closes it.</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Simple status icon"
+					AnchorId="simple-status"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 60px;">
+			<DemoContent>
+				<div class="p-3 d-flex gap-3">
+					<PDStatusRollUp Node="_ex1" />
+					<PDStatusRollUp Node="_ex2" Label="Disk" />
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Pass a <code>PDStatusRollUpNode</code> to the <code>Node</code> parameter.
+					The optional <code>Label</code> parameter renders a text label beside the icon.
+				</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="Node with children"
+					AnchorId="children"
+					Code="@_example2Code"
+					Language="csharp"
+					DemoStyle="min-height: 60px;">
+			<DemoContent>
+				<div class="p-3">
+					<PDStatusRollUp Node="_ex3" Label="srv-prod-01" />
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Populate <code>Children</code> on the root node to show a list of checks in the popup.
+					Children that have their own children add a <i class="fa-solid fa-chevron-right fa-xs"></i> chevron
+					and open a deeper cascade when clicked.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>Node</code></td>
+					<td><code>PDStatusRollUpNode?</code></td>
+					<td><em>null</em></td>
+					<td>The root status node.  When null the icon is rendered but no popup is shown.</td>
+				</tr>
+				<tr>
+					<td><code>Label</code></td>
+					<td><code>string?</code></td>
+					<td><em>null</em></td>
+					<td>Optional text label rendered beside the icon.</td>
+				</tr>
+				<tr>
+					<td><code>RedIconClass</code></td>
+					<td><code>string</code></td>
+					<td><code>fa-solid fa-circle-xmark</code></td>
+					<td>Icon CSS class applied when <code>Status</code> is <code>Red</code>.</td>
+				</tr>
+				<tr>
+					<td><code>AmberIconClass</code></td>
+					<td><code>string</code></td>
+					<td><code>fa-solid fa-triangle-exclamation</code></td>
+					<td>Icon CSS class applied when <code>Status</code> is <code>Amber</code>.</td>
+				</tr>
+				<tr>
+					<td><code>GreenIconClass</code></td>
+					<td><code>string</code></td>
+					<td><code>fa-solid fa-circle-check</code></td>
+					<td>Icon CSS class applied when <code>Status</code> is <code>Green</code>.</td>
+				</tr>
+				<tr>
+					<td><code>GrayIconClass</code></td>
+					<td><code>string</code></td>
+					<td><code>fa-solid fa-circle-question</code></td>
+					<td>Icon CSS class applied when <code>Status</code> is <code>Gray</code>.</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="pdstatusrollupnode">
+		<h2 class="doc-section">PDStatusRollUpNode</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Property</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Status</code></td><td><code>RollUpStatus</code></td><td>Red / Amber / Green / Gray</td></tr>
+				<tr><td><code>Title</code></td><td><code>string</code></td><td>Short name shown in the popup header and item rows.</td></tr>
+				<tr><td><code>Summary</code></td><td><code>string</code></td><td>One-line explanation shown below the title.</td></tr>
+				<tr><td><code>Detail</code></td><td><code>string?</code></td><td>Optional monospace detail (e.g. error message, stack trace). Shown on leaf nodes and as a tooltip on child rows.</td></tr>
+				<tr><td><code>Children</code></td><td><code>List&lt;PDStatusRollUpNode&gt;</code></td><td>Child checks.  Children with their own children are drillable.</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>
+
+@code {
+	private readonly PDStatusRollUpNode _ex1 = new()
+	{
+		Status = RollUpStatus.Green,
+		Title = "API Gateway",
+		Summary = "All endpoints healthy."
+	};
+
+	private readonly PDStatusRollUpNode _ex2 = new()
+	{
+		Status = RollUpStatus.Amber,
+		Title = "Disk",
+		Summary = "Only 9 GB free (6 %).",
+		Detail = "Threshold: 15 GB"
+	};
+
+	private readonly PDStatusRollUpNode _ex3 = new()
+	{
+		Status = RollUpStatus.Amber,
+		Title = "srv-prod-01",
+		Summary = "Disk space is low.",
+		Children =
+		[
+			new() { Status = RollUpStatus.Green, Title = "Connectivity", Summary = "HTTP 200 in 41 ms" },
+			new() { Status = RollUpStatus.Amber, Title = "Disk",         Summary = "9 GB free (6 %)",   Detail = "Threshold: 15 GB" },
+			new() { Status = RollUpStatus.Green, Title = "Version",      Summary = "v4.2.1104" }
+		]
+	};
+
+	private const string _example1Code = """
+		<PDStatusRollUp Node="_greenNode" />
+		<PDStatusRollUp Node="_amberNode" Label="Disk" />
+		""";
+
+	private const string _example2Code = """
+		private readonly PDStatusRollUpNode _server = new()
+		{
+		    Status = RollUpStatus.Amber,
+		    Title = "srv-prod-01",
+		    Summary = "Disk space is low.",
+		    Children =
+		    [
+		        new() { Status = RollUpStatus.Green, Title = "Connectivity", Summary = "HTTP 200 in 41 ms" },
+		        new() { Status = RollUpStatus.Amber, Title = "Disk",         Summary = "9 GB free (6 %)",   Detail = "Threshold: 15 GB" },
+		        new() { Status = RollUpStatus.Green, Title = "Version",      Summary = "v4.2.1104" }
+		    ]
+		};
+		""";
+}

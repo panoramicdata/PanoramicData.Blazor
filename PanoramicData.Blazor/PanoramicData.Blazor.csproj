@@ -1,68 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Razor">
-
-	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<LangVersion>latest</LangVersion>
-		<AnalysisLevel>latest-recommended</AnalysisLevel>
-		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<Authors>Panoramic Data Limited</Authors>
-		<Copyright>Copyright © Panoramic Data Limited 2020-2026</Copyright>
-		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<PackageIcon>Panoramic Data.png</PackageIcon>
-		<PackageTags>blazor components</PackageTags>
-		<Title>PanoramicData.Blazor</Title>
-		<Description>Blazor components</Description>
-		<Summary>A library of components for Blazor projects</Summary>
-		<Company>Panoramic Data Limited</Company>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<RepositoryType>git</RepositoryType>
-		<PackageProjectUrl>https://github.com/panoramicdata/PanoramicData.Blazor</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor/</RepositoryUrl>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>PanoramicData.Blazor</PackageId>
+    <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Authors>Panoramic Data Limited</Authors>
+    <Copyright>Copyright © Panoramic Data Limited 2020-2026</Copyright>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageIcon>Panoramic Data.png</PackageIcon>
+    <PackageTags>blazor components</PackageTags>
+    <Title>PanoramicData.Blazor</Title>
+    <Description>Blazor components</Description>
+    <Summary>A library of components for Blazor projects</Summary>
+    <Company>Panoramic Data Limited</Company>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/panoramicdata/PanoramicData.Blazor</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor/</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>
 			- Update NuGet packages to latest patch versions.
 		</PackageReleaseNotes>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<None Include="..\README.md" Pack="true" PackagePath="\" />
-		<Content Remove="compilerconfig.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="BlazorMonaco" Version="3.4.0" />
-		<PackageReference Include="FluentValidation" Version="12.1.1" />
-		<PackageReference Include="Humanizer.Core" Version="3.0.10" />
-		<PackageReference Include="Markdig" Version="0.44.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.6" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.6" />
-		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.6" />
-		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.4.0" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="PanoramicData.DeepCloner" Version="1.0.6" />
-		<PackageReference Include="System.Drawing.Common" Version="10.0.6" />
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.2" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Remove="Panoramic Data.png" />
-		<!--<_ContentIncludedByDefault Remove="wwwroot\css\main.css" />-->
-		<None Include="compilerconfig.json" />
-		<None Include="Panoramic Data.png" Pack="true" PackagePath="" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Attributes\" />
-	</ItemGroup>
-
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <Content Remove="compilerconfig.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BlazorMonaco" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Humanizer.Core" />
+    <PackageReference Include="Markdig" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" />
+    <PackageReference Include="Nerdbank.GitVersioning">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="PanoramicData.DeepCloner" />
+    <PackageReference Include="System.Drawing.Common" />
+    <PackageReference Include="System.Linq.Dynamic.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Panoramic Data.png" />
+    <!--<_ContentIncludedByDefault Remove="wwwroot\css\main.css" />-->
+    <None Include="compilerconfig.json" />
+    <None Include="Panoramic Data.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Attributes\" />
+  </ItemGroup>
 </Project>

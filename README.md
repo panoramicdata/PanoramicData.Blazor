@@ -1,3 +1,9 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+[![NuGet version](https://img.shields.io/nuget/v/PanoramicData.Blazor.svg)](https://www.nuget.org/packages/PanoramicData.Blazor/)
+
+[![Codacy Badge](https://app.codacy.com/project/badge/grade/PanoramicData.Blazor)](https://app.codacy.com/gh/panoramicdata/PanoramicData.Blazor/dashboard)
+
 # PanoramicData.Blazor
 
 UI components for Blazor.  Try it out on our [Demo page](https://panoramicdata.github.io/PanoramicData.Blazor/)!

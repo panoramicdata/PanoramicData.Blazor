@@ -342,3 +342,4 @@ healthchecksdb
 appsettings.json
 /nuget-api-key.txt
 /PanoramicData.Blazor.Web/Data/TestFileSystemDataProvider2.cs
+nuget-key.txt

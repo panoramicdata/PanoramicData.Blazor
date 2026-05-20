@@ -1,0 +1,47 @@
+@page "/pdstatusrollup"
+@using PanoramicData.Blazor.Enums
+
+<h1>PDStatusRollUp</h1>
+
+<DemoSourceView SourceFiles="Pages/PDStatusRollUpPage.razor, Pages/PDStatusRollUpPage.razor.cs">
+	<DocumentationContent>
+		<PDStatusRollUpDocumentation />
+	</DocumentationContent>
+	<ChildContent>
+
+		<h5 class="mt-3">Status icons — all states</h5>
+		<p class="text-muted small">Click any icon to open its cascade pop-over.</p>
+		<div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+			<PDStatusRollUp Node="_greenLeaf" Label="All OK" />
+			<PDStatusRollUp Node="_amberLeaf" Label="Warning" />
+			<PDStatusRollUp Node="_redLeaf" Label="Error" />
+			<PDStatusRollUp Node="_grayLeaf" Label="Unknown" />
+		</div>
+
+		<h5 class="mt-4">Status with child items</h5>
+		<p class="text-muted small">Click to see a popup with a list of child checks.</p>
+		<div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+			<PDStatusRollUp Node="_serverOk" Label="srv-prod-01" />
+			<PDStatusRollUp Node="_serverWarn" Label="srv-prod-02" />
+			<PDStatusRollUp Node="_serverError" Label="srv-prod-03" />
+		</div>
+
+		<h5 class="mt-4">Deep cascade (3 levels)</h5>
+		<p class="text-muted small">
+			Items with a <i class="fa-solid fa-chevron-right text-muted fa-xs"></i> can be clicked to drill down a further level.
+		</p>
+		<div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+			<PDStatusRollUp Node="_deepTree" Label="Infrastructure" />
+		</div>
+
+		<h5 class="mt-4">Status bar — multiple triggers in a row</h5>
+		<p class="text-muted small">Each trigger is an independent component sharing the same JS popup infrastructure.</p>
+		<div class="d-inline-flex align-items-center gap-1 border rounded px-2 py-1" style="background:#f8f9fa;">
+			@foreach (var node in _statusBar)
+			{
+				<PDStatusRollUp Node="node" />
+			}
+		</div>
+
+	</ChildContent>
+</DemoSourceView>

@@ -1,18 +1,24 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
-
-	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.6" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.6" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.Build.Framework" Version="18.4.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\PanoramicData.Blazor.Demo\PanoramicData.Blazor.Demo.csproj" />
-		<ProjectReference Include="..\..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
-	</ItemGroup>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor</RepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>PanoramicData.Blazor.WebAssembly.Client</PackageId>
+    <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Build.Framework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\PanoramicData.Blazor.Demo\PanoramicData.Blazor.Demo.csproj" />
+    <ProjectReference Include="..\..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
+  </ItemGroup>
 </Project>

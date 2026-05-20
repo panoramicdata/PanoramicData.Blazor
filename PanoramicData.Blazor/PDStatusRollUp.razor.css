@@ -1,0 +1,36 @@
+/* PDStatusRollUp — trigger element styles (component-scoped) */
+
+.pdsr-trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: .3rem;
+	cursor: pointer;
+	user-select: none;
+	outline: none;
+	border-radius: .25rem;
+	padding: .1rem .2rem;
+	line-height: 1;
+	transition: background .12s ease;
+}
+
+.pdsr-trigger:hover,
+.pdsr-trigger:focus-visible {
+	background: rgba(0, 0, 0, .07);
+}
+
+.pdsr-trigger i {
+	flex-shrink: 0;
+	font-size: .85rem;
+	line-height: 1;
+}
+
+.pdsr-label {
+	font-size: .8rem;
+	white-space: nowrap;
+}
+
+/* Status colours — used for the trigger icon */
+.pdsr-icon-red   { color: #dc3545; }
+.pdsr-icon-amber { color: #fd7e14; }
+.pdsr-icon-green { color: #198754; }
+.pdsr-icon-gray  { color: #6c757d; }
