@@ -29,12 +29,12 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - Fixed PDDropDown popup clipping when inside overflow:hidden/auto ancestors by using Popper.js strategy 'fixed'.
-      - Improved PDFilter toolbar buttons to fill available width equally with consistent 5px padding and gap.
-      - Added Select All / Deselect All row to PDFilter values list with tri-state checkbox and selection count.
-      - Added ShowSelectAll parameter to PDFilter (opt-in, defaults to false).
-      - Added FilterShowSelectAll parameter to PDColumn, wired through PDTable to PDFilter.
-      - Update NuGet packages to latest patch versions.
+      - Add PDSection collapsible section component (fixes #30): smooth CSS grid animation, accessible markup, two-way bindable IsCollapsed, TitleTemplate and HeaderActions slots, HeadingLevel support, IsDisabled parameter, ExpandAsync/CollapseAsync/ToggleAsync API, borderless/flush variants, fully themeable via --pd-section-* CSS custom properties.
+      - Fix PDTable selected row highlight: target td cells, use Bootstrap CSS variables, protect inputs and .text-danger from forced white text.
+      - Expand PDFileModal demo with labelled examples: await-result, event-callback, custom button text/icons, excluded paths, read-only indicator, and extra-large size.
+      - Fix PDModal close button Bootstrap 4 to 5 markup and remove focus outline; expand demo page with size, centred, custom buttons, await result and ESC-disabled examples.
+      - Fix PDModal CloseOnEscape and HideOnBackgroundClick by using camelCase Bootstrap modal options (#32).
+      - Fix PDTree drag ghost image for custom NodeTemplate (#38).
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
