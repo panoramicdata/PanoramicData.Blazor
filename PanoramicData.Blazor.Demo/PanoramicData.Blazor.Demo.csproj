@@ -15,6 +15,7 @@
     <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="/" />
     <None Remove="TestMarkdown.md" />
     <None Remove="TestText.txt" />
     <None Remove="TestVideo.webm" />
