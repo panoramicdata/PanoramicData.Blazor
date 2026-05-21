@@ -802,6 +802,23 @@ This component has no public parameters.
 
 ---
 
+## PDStatusRollUp
+
+Displays a status icon that, when clicked, opens a cascading pop-over showing the full health hierarchy described by the Node parameter.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Node | PDStatusRollUpNode? | Gets or sets the status tree root node. |
+| Label | string? | Gets or sets an optional text label rendered beside the icon. |
+| RedIconClass | string | Gets or sets the CSS icon class used when Status is Red. Default: `fas fa-times-circle`. |
+| AmberIconClass | string | Gets or sets the CSS icon class used when Status is Amber. Default: `fas fa-exclamation-triangle`. |
+| GreenIconClass | string | Gets or sets the CSS icon class used when Status is Green. Default: `fas fa-check-circle`. |
+| GrayIconClass | string | Gets or sets the CSS icon class used when Status is Gray (unknown). Default: `fas fa-question-circle`. |
+
+---
+
 ## PDStudio
 
 **Parameters:**
@@ -981,6 +998,40 @@ This component has no public parameters.
 | Name | Type | Description |
 |------|------|-------------|
 | Errors | object? | Gets or sets the collection of validation errors. |
+
+---
+
+## PDWidget
+
+A configurable content widget that supports multiple content types including HTML, URL content, clock, image, and custom RenderFragment content.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Title | string? | Gets or sets the widget title displayed in the header. |
+| WidgetType | PDWidgetType | Gets or sets the content type of the widget (Html, Url, Clock, Image, Custom). |
+| Content | string? | Gets or sets the HTML content or URL depending on the widget type. |
+| ContentBytes | byte[]? | Gets or sets binary content for image widgets. |
+| Configuration | string? | Gets or sets a JSON configuration string for the widget. |
+| Css | string? | Gets or sets per-widget CSS classes. |
+| Icon | string? | Gets or sets the icon CSS class displayed in the header. |
+| HeaderCss | string? | Gets or sets CSS classes applied to the widget header. |
+| BorderCss | string? | Gets or sets CSS classes applied to the widget border/card. |
+| ContentCss | string? | Gets or sets CSS classes applied to the widget content area. |
+| RefreshIntervalSeconds | int | Gets or sets the auto-refresh interval in seconds. 0 = disabled. |
+| IsEditable | bool | Gets or sets whether editing controls are shown. |
+| ShowEditButton | bool | Gets or sets whether a built-in edit toggle button is shown in the header. |
+| ShowTitle | bool | Gets or sets whether the title bar is shown. |
+| VerticalOverflow | OverflowBehavior | Gets or sets the vertical overflow behavior for widget content. |
+| HorizontalOverflow | OverflowBehavior | Gets or sets the horizontal overflow behavior for widget content. |
+| ContentAlignment | ContentAlignment | Gets or sets the vertical content alignment. |
+| ChildContent | RenderFragment? | Gets or sets the child content for the Custom widget type. |
+| OnRefresh | EventCallback | Fired on content refresh. |
+| OnConfigure | EventCallback | Fired when the configure button is clicked. |
+| ContentChanged | EventCallback<string?> | Fired when content is changed via the configuration panel. |
+| WidgetTypeChanged | EventCallback<PDWidgetType> | Fired when the widget type is changed via the configuration panel. |
+| TitleChanged | EventCallback<string> | Fired when the title is renamed. |
 
 ---
 
