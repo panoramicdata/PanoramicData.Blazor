@@ -28,16 +28,16 @@ public partial class PDStatusRollUp : IAsyncDisposable
 	[Parameter] public string? Label { get; set; }
 
 	/// <summary>Gets or sets the CSS icon class used when Status is Red.</summary>
-	[Parameter] public string RedIconClass { get; set; } = "fa-solid fa-circle-xmark";
+	[Parameter] public string RedIconClass { get; set; } = "fas fa-times-circle";
 
 	/// <summary>Gets or sets the CSS icon class used when Status is Amber.</summary>
-	[Parameter] public string AmberIconClass { get; set; } = "fa-solid fa-triangle-exclamation";
+	[Parameter] public string AmberIconClass { get; set; } = "fas fa-exclamation-triangle";
 
 	/// <summary>Gets or sets the CSS icon class used when Status is Green.</summary>
-	[Parameter] public string GreenIconClass { get; set; } = "fa-solid fa-circle-check";
+	[Parameter] public string GreenIconClass { get; set; } = "fas fa-check-circle";
 
 	/// <summary>Gets or sets the CSS icon class used when Status is Gray (unknown).</summary>
-	[Parameter] public string GrayIconClass { get; set; } = "fa-solid fa-circle-question";
+	[Parameter] public string GrayIconClass { get; set; } = "fas fa-question-circle";
 
 	private string GetIconClass() => Node?.Status switch
 	{

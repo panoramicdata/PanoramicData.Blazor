@@ -172,7 +172,7 @@ function _renderPopup(depth, node, anchorEl, iconMap) {
 				html += `<i class="fa-solid fa-circle-info pdsr-item-aside" title="${_esc(child.detail)}" aria-label="Has detail"></i>`;
 			}
 			if (drillable) {
-				html += `<i class="fa-solid fa-chevron-right pdsr-item-chevron" aria-hidden="true"></i>`;
+				html += `<i class="fas fa-chevron-right pdsr-item-chevron" aria-hidden="true"></i>`;
 			}
 
 			html += `</div>`;
