@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build PanoramicData.Blazor.Demo",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build PanoramicData.Blazor.WebAssembly.Server",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/PanoramicData.Blazor.WebAssembly/Server/PanoramicData.Blazor.WebAssembly.Server.csproj"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build PanoramicData.Blazor.Web",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/PanoramicData.Blazor.Web/PanoramicData.Blazor.Web.csproj"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

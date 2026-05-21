@@ -47,7 +47,7 @@ public static class StringExtensions
 	/// <summary>
 	/// Returns a markup string that highlight (underline) the shortcut key.
 	/// </summary>
-	/// <param name="text">The text containing a double ampersand (&&) before the character to highlight.</param>
+	/// <param name="text">The text containing a double ampersand (&amp;&amp;) before the character to highlight.</param>
 	/// <returns>A new MarkupString instance containing the markup text.</returns>
 	public static MarkupString GetShortcutMarkup(this string text)
 	{

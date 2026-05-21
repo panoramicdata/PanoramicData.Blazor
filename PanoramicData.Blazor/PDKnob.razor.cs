@@ -2,6 +2,9 @@ using PanoramicData.Blazor.Enums;
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Audio knob control that renders an SVG dial with configurable range, labels, and ticks.
+/// </summary>
 public partial class PDKnob : PDAudioControl
 {
 	/// <summary>
@@ -58,25 +61,57 @@ public partial class PDKnob : PDAudioControl
 
 	private ElementReference _svgRef;
 
-	// Geometry - adjusted for better fit
+	/// <summary>
+	/// Gets the center coordinate of the knob.
+	/// </summary>
 	protected double Center => SizePx / 2.0;
+	/// <summary>
+	/// Gets the dial radius.
+	/// </summary>
 	protected double Radius => SizePx * 0.25; // Reduced from 0.3 to 0.25 to leave more room for labels
+	/// <summary>
+	/// Gets the total sweep angle of the knob.
+	/// </summary>
 	protected double ArcAngle => EndAngle - StartAngle;
 
-	// Markings
+	/// <summary>
+	/// Gets the computed text markings around the knob.
+	/// </summary>
 	protected List<Mark> Markings => GetMarkings();
+	/// <summary>
+	/// Represents a text mark rendered around the knob.
+	/// </summary>
 	protected record Mark(double X, double Y, string Label);
+	/// <summary>
+	/// Represents a tick segment rendered around the knob.
+	/// </summary>
 	protected record Tick(double X1, double Y1, double X2, double Y2);
+	/// <summary>
+	/// Gets the computed tick marks around the knob.
+	/// </summary>
 	protected List<Tick> Ticks => GetTicks();
 
-	// SVG Arc Path
+	/// <summary>
+	/// Gets the SVG path for the active arc.
+	/// </summary>
 	protected string ArcPath => DescribeArc(Center, Center, Radius, StartAngle, StartAngle + ArcAngle * Value);
 
-	// Indicator
+	/// <summary>
+	/// Gets the current indicator angle in degrees.
+	/// </summary>
 	protected double IndicatorAngle => StartAngle + ArcAngle * Value;
+	/// <summary>
+	/// Gets the indicator X coordinate.
+	/// </summary>
 	protected double IndicatorX => Center + Radius * Math.Sin(Deg2Rad(IndicatorAngle));
+	/// <summary>
+	/// Gets the indicator Y coordinate.
+	/// </summary>
 	protected double IndicatorY => Center - Radius * Math.Cos(Deg2Rad(IndicatorAngle));
 
+	/// <summary>
+	/// Applies mode-specific parameter behavior before rendering.
+	/// </summary>
 	protected override void OnParametersSet()
 	{
 		// Only auto-set SnapPoints for Volume mode if custom labels aren't being used
@@ -88,6 +123,11 @@ public partial class PDKnob : PDAudioControl
 		base.OnParametersSet();
 	}
 
+	/// <summary>
+	/// Converts pointer coordinates to an angle clamped to the knob range.
+	/// </summary>
+	/// <param name="e">The pointer event arguments.</param>
+	/// <returns>The clamped angle in degrees.</returns>
 	protected double GetAngleFromPointer(PointerEventArgs e)
 	{
 		var x = e.OffsetX - Center;
@@ -107,8 +147,22 @@ public partial class PDKnob : PDAudioControl
 		return angle;
 	}
 
+	/// <summary>
+	/// Converts degrees to radians.
+	/// </summary>
+	/// <param name="deg">The angle in degrees.</param>
+	/// <returns>The angle in radians.</returns>
 	protected static double Deg2Rad(double deg) => deg * Math.PI / 180.0;
 
+	/// <summary>
+	/// Builds an SVG arc path between two angles.
+	/// </summary>
+	/// <param name="cx">Center X coordinate.</param>
+	/// <param name="cy">Center Y coordinate.</param>
+	/// <param name="r">Arc radius.</param>
+	/// <param name="startAngle">Start angle in degrees.</param>
+	/// <param name="endAngle">End angle in degrees.</param>
+	/// <returns>An SVG path string.</returns>
 	protected static string DescribeArc(double cx, double cy, double r, double startAngle, double endAngle)
 	{
 		var (startX, startY) = PolarToCartesian(cx, cy, r, endAngle);
@@ -118,12 +172,24 @@ public partial class PDKnob : PDAudioControl
 			   $"A {r.ToString(CultureInfo.InvariantCulture)} {r.ToString(CultureInfo.InvariantCulture)} 0 {largeArcFlag} 0 {endX.ToString(CultureInfo.InvariantCulture)} {endY.ToString(CultureInfo.InvariantCulture)}";
 	}
 
+	/// <summary>
+	/// Converts polar coordinates to cartesian coordinates.
+	/// </summary>
+	/// <param name="cx">Center X coordinate.</param>
+	/// <param name="cy">Center Y coordinate.</param>
+	/// <param name="r">Radius.</param>
+	/// <param name="angleDeg">Angle in degrees.</param>
+	/// <returns>The corresponding cartesian coordinate.</returns>
 	protected static (double X, double Y) PolarToCartesian(double cx, double cy, double r, double angleDeg)
 	{
 		var angleRad = Deg2Rad(angleDeg);
 		return (cx + r * Math.Sin(angleRad), cy - r * Math.Cos(angleRad));
 	}
 
+	/// <summary>
+	/// Computes all label markings for the current knob mode.
+	/// </summary>
+	/// <returns>A list of label markings.</returns>
 	protected List<Mark> GetMarkings()
 	{
 		var marks = new List<Mark>();
@@ -193,6 +259,10 @@ public partial class PDKnob : PDAudioControl
 		return marks;
 	}
 
+	/// <summary>
+	/// Computes tick marks for the current knob mode.
+	/// </summary>
+	/// <returns>A list of tick marks.</returns>
 	protected List<Tick> GetTicks()
 	{
 		var ticks = new List<Tick>();
@@ -225,5 +295,8 @@ public partial class PDKnob : PDAudioControl
 		return ticks;
 	}
 
+	/// <summary>
+	/// Gets the JavaScript module path used by this control.
+	/// </summary>
 	protected override string JsFileName => "./_content/PanoramicData.Blazor/PDKnob.razor.js";
 }

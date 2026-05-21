@@ -2,6 +2,9 @@ using PanoramicData.Blazor.Enums;
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Vertical audio fader control with configurable value range, labels, and styling.
+/// </summary>
 public partial class PDFader : PDAudioControl
 {
 	/// <summary>
@@ -44,24 +47,63 @@ public partial class PDFader : PDAudioControl
 	/// </summary>
 	[Parameter] public PDFaderLabelPosition FaderLabelPosition { get; set; } = PDFaderLabelPosition.Both;
 
+	/// <summary>
+	/// Gets the JavaScript module path used by this control.
+	/// </summary>
 	protected override string JsFileName => "./_content/PanoramicData.Blazor/PDFader.razor.js";
 
 	// Geometry
 
+	/// <summary>
+	/// Gets fader grip height.
+	/// </summary>
 	protected static double GripHeight => 20;
+	/// <summary>
+	/// Gets fader grip width.
+	/// </summary>
 	protected double GripWidth => Width * 0.75;
+	/// <summary>
+	/// Gets grip corner radius.
+	/// </summary>
 	protected static double GripRx => 2;
+	/// <summary>
+	/// Gets grip X position.
+	/// </summary>
 	protected double GripX => (Width - GripWidth) / 2;
+	/// <summary>
+	/// Gets grip Y position.
+	/// </summary>
 	protected double GripY => (Height - GripHeight) * (1 - Value);
+	/// <summary>
+	/// Gets right edge X position of the grip.
+	/// </summary>
 	protected double GripX2 => GripX + GripWidth;
+	/// <summary>
+	/// Gets center line Y position.
+	/// </summary>
 	protected double CenterLineY => GripY + (GripHeight / 2.0);
+	/// <summary>
+	/// Gets highlight color used by the grip.
+	/// </summary>
 	protected static string HighlightColor => "#aaa";
+	/// <summary>
+	/// Gets shadow color used by the grip.
+	/// </summary>
 	protected static string ShadowColor => "#666";
 
 	// Markings
+	/// <summary>
+	/// Gets rendered fader markings.
+	/// </summary>
 	protected List<Mark> Markings => GetMarkings();
+	/// <summary>
+	/// Represents a single fader mark.
+	/// </summary>
 	protected record Mark(double Y, string Label);
 
+	/// <summary>
+	/// Applies parameter-driven defaults for the fader.
+	/// </summary>
 	protected override void OnParametersSet()
 	{
 		// Only set SnapPoints if not already set by the user (i.e., SnapPoints is null)
@@ -70,6 +112,10 @@ public partial class PDFader : PDAudioControl
 		base.OnParametersSet();
 	}
 
+	/// <summary>
+	/// Builds mark positions and labels for the current range.
+	/// </summary>
+	/// <returns>Mark definitions.</returns>
 	protected List<Mark> GetMarkings()
 	{
 		var marks = new List<Mark>();

@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Displays text, icon, and selectable state with optional mouse event callbacks.
+/// </summary>
 public partial class PDLabel
 {
 	/// <summary>

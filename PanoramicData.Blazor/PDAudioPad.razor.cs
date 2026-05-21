@@ -1,24 +1,63 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Audio pad control with toggle or decay-based activation behavior.
+/// </summary>
 public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 {
 	private CancellationTokenSource? _cts;
 	private DateTime _lastEventEmitTime = DateTime.MinValue;
 
+	/// <summary>
+	/// Gets or sets active color used when pad value is high.
+	/// </summary>
 	[Parameter] public string ActiveColor { get; set; } = "#ff0";
+	/// <summary>
+	/// Gets or sets inactive color used when pad value is low.
+	/// </summary>
 	[Parameter] public string InactiveColor { get; set; } = "#444";
 
 	private string DisplayColor => ColorExtensions.Interpolate(InactiveColor, ActiveColor, Value);
 
+	/// <summary>
+	/// Gets or sets decay behavior mode.
+	/// </summary>
 	[Parameter] public DecayMode DecayMode { get; set; } = DecayMode.Toggle;
+	/// <summary>
+	/// Gets or sets whether activation starts on press or release.
+	/// </summary>
 	[Parameter] public DecayUpon DecayUpon { get; set; } = DecayUpon.Press;
+	/// <summary>
+	/// Gets or sets half-life duration used by exponential and linear decay.
+	/// </summary>
 	[Parameter] public TimeSpan DecayHalfLife { get; set; } = TimeSpan.FromMilliseconds(250);
+	/// <summary>
+	/// Gets or sets threshold below which values are treated as zero during decay.
+	/// </summary>
 	[Parameter] public double? ZeroBelow { get; set; } = 0.01;
+	/// <summary>
+	/// Gets or sets minimum output value for this pad.
+	/// </summary>
 	[Parameter] public double MinValue { get; set; } = 0.0;
+	/// <summary>
+	/// Gets or sets the pad width in pixels.
+	/// </summary>
 	[Parameter] public int Width { get; set; } = 60;
+	/// <summary>
+	/// Gets or sets the pad height in pixels.
+	/// </summary>
 	[Parameter] public int Height { get; set; } = 60;
+	/// <summary>
+	/// Gets or sets an optional symbol rendered on the pad.
+	/// </summary>
 	[Parameter] public Symbol? Symbol { get; set; }
+	/// <summary>
+	/// Gets or sets optional symbol color override.
+	/// </summary>
 	[Parameter] public string? SymbolColor { get; set; } = null;
+	/// <summary>
+	/// Gets or sets optional overlay label color override.
+	/// </summary>
 	[Parameter] public string? LabelColor { get; set; } = null;
 
 	/// <summary>
@@ -38,6 +77,9 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 
 	private string OverlayLabelColor => LabelColor ?? "black";
 
+	/// <summary>
+	/// Gets the JavaScript module path used by the base audio control.
+	/// </summary>
 	protected override string JsFileName => string.Empty;
 
 	private async void Activate()
@@ -148,6 +190,9 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Handles press interaction and triggers activation when configured for press behavior.
+	/// </summary>
 	protected void HandlePress()
 	{
 		if (DecayUpon == DecayUpon.Press)
@@ -156,6 +201,9 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Handles release interaction and triggers activation when configured for release behavior.
+	/// </summary>
 	protected void HandleRelease()
 	{
 		if (DecayUpon == DecayUpon.Release)
@@ -173,6 +221,9 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 		_ => string.Empty
 	};
 
+	/// <summary>
+	/// Disposes resources used by this audio pad.
+	/// </summary>
 	public new async ValueTask DisposeAsync()
 	{
 		_cts?.Cancel();

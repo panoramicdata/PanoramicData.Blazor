@@ -1,7 +1,18 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Timeline component that supports zooming, panning, range selection, and data-provider driven rendering.
+/// </summary>
 public partial class PDTimeline : IAsyncDisposable, IEnablable
 {
+	/// <summary>
+	/// Delegate used to fetch timeline data for a date range and scale.
+	/// </summary>
+	/// <param name="start">Start of requested range.</param>
+	/// <param name="end">End of requested range.</param>
+	/// <param name="scale">Timeline scale for the request.</param>
+	/// <param name="cancellationToken">Cancellation token.</param>
+	/// <returns>Data points for the requested range.</returns>
 	public delegate ValueTask<DataPoint[]> DataProviderDelegate(DateTime start, DateTime end, TimelineScale scale, CancellationToken cancellationToken);
 
 	private static int _seq;
@@ -51,6 +62,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	private DateTime _lastQueryStart = DateTime.MinValue;
 	private TimelineScale _lastQueryScale = TimelineScale.Years;
 
+	/// <summary>
+	/// Gets or sets the JavaScript runtime used by this component.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
@@ -167,7 +181,10 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	[Parameter]
 	public Func<double, double> YValueTransform { get; set; } = (v) => v;
 
-
+	/// <summary>
+	/// Determines whether zoom-in is currently possible.
+	/// </summary>
+	/// <returns>True when a finer scale is available and the component is enabled.</returns>
 	public bool CanZoomIn()
 	{
 		if (IsEnabled)
@@ -186,6 +203,10 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		return false;
 	}
 
+	/// <summary>
+	/// Determines whether zoom-out is currently possible.
+	/// </summary>
+	/// <returns>True when a broader scale is available and allowed.</returns>
 	public bool CanZoomOut()
 	{
 		if (IsEnabled)
@@ -212,6 +233,10 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		return false;
 	}
 
+	/// <summary>
+	/// Clears cached data and optionally clears the current selection.
+	/// </summary>
+	/// <param name="clearSelection">True to clear selection state; otherwise false.</param>
 	public async Task Clear(bool clearSelection = true)
 	{
 		_dataPoints.Clear();
@@ -221,6 +246,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Clears the current selection and raises selection-changed with null.
+	/// </summary>
 	public async Task ClearSelection()
 	{
 		if (_selectionRange != null)
@@ -231,6 +259,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Disposes JavaScript resources and object references used by the timeline.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -256,6 +287,12 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		return index < 0 ? 0 : index;
 	}
 
+	/// <summary>
+	/// Returns the smallest configured scale that fits the provided date range in the viewport.
+	/// </summary>
+	/// <param name="date1">Optional start date. Defaults to rounded minimum date.</param>
+	/// <param name="date2">Optional end date. Defaults to rounded maximum date.</param>
+	/// <returns>The fitting scale, or the first configured scale when none fit.</returns>
 	public TimelineScale? GetScaleToFit(DateTime? date1 = null, DateTime? date2 = null)
 	{
 		date1 ??= RoundedMinDateTime;
@@ -275,6 +312,10 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		return Options.General.Scales.FirstOrDefault();
 	}
 
+	/// <summary>
+	/// Gets the current selection range.
+	/// </summary>
+	/// <returns>The selected range, or null when no selection exists.</returns>
 	public TimeRange? GetSelection()
 	{
 		return _selectionRange;
@@ -344,6 +385,10 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		_columnOffset = (int)Math.Floor(_panHandleX / _canvasWidth * _totalColumns);
 	}
 
+	/// <summary>
+	/// Initializes JavaScript interop and initial component sizing after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -629,6 +674,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Applies parameter-driven refresh and reset behavior.
+	/// </summary>
 	protected async override Task OnParametersSetAsync()
 	{
 		if (Options.General.AutoRefresh)
@@ -656,6 +704,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// JavaScript callback used to handle resize updates.
+	/// </summary>
 	[JSInvokable("PanoramicData.Blazor.PDTimeline.OnResize")]
 	public async Task OnResize()
 	{
@@ -669,6 +720,11 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 	}
 
+	/// <summary>
+	/// Determines whether a client X coordinate lies within the current selection.
+	/// </summary>
+	/// <param name="clientX">Client X coordinate.</param>
+	/// <returns>True when the point is within the selected range.</returns>
 	[JSInvokable("PanoramicData.Blazor.PDTimeline.IsPointInSelection")]
 	public bool IsPointInSelection(double clientX)
 	{
@@ -794,9 +850,18 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Pans the viewport to the specified date using centered positioning.
+	/// </summary>
+	/// <param name="dateTime">Target date to pan to.</param>
 	public void PanTo(DateTime dateTime)
 		=> PanTo(dateTime, TimelinePositions.Center);
 
+	/// <summary>
+	/// Pans the viewport so the specified date appears at the requested position.
+	/// </summary>
+	/// <param name="dateTime">Target date to pan to.</param>
+	/// <param name="position">Position within the viewport for the target date.</param>
 	public void PanTo(DateTime dateTime, TimelinePositions position)
 	{
 		if (dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
@@ -832,6 +897,10 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		_panHandleX = (_columnOffset / (double)_totalColumns) * (double)_canvasWidth;
 	}
 
+	/// <summary>
+	/// Refreshes data from the configured provider.
+	/// </summary>
+	/// <param name="force">True to force a refresh even if query parameters are unchanged.</param>
 	public async Task RefreshAsync(bool force = false)
 	{
 		if (DataProvider != null && MinDateTime != DateTime.MinValue)
@@ -868,14 +937,23 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Resets cached data and selection state.
+	/// </summary>
 	public async Task Reset()
 	{
 		await Clear().ConfigureAwait(true);
 		await ClearSelection().ConfigureAwait(true);
 	}
 
+	/// <summary>
+	/// Gets the rounded maximum date for the current scale.
+	/// </summary>
 	public DateTime RoundedMaxDateTime => Scale.PeriodEnd(MaxDateTime ?? DateTime.Now);
 
+	/// <summary>
+	/// Gets the rounded minimum date for the current scale.
+	/// </summary>
 	public DateTime RoundedMinDateTime
 	{
 		get
@@ -890,12 +968,24 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 
 	private double SelectionEndX => ((Math.Max(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width) + Options.Bar.Width;
 
+	/// <summary>
+	/// Sets the minimum and maximum date bounds.
+	/// </summary>
+	/// <param name="min">Minimum date.</param>
+	/// <param name="max">Maximum date.</param>
 	public void SetDates(DateTime min, DateTime max)
 	{
 		MinDateTime = min;
 		MaxDateTime = max;
 	}
 
+	/// <summary>
+	/// Sets timeline scale and recomputes viewport, selection, and data as needed.
+	/// </summary>
+	/// <param name="scale">New scale to apply.</param>
+	/// <param name="forceRefresh">True to force data refresh.</param>
+	/// <param name="dateTime">Optional focus date for repositioning.</param>
+	/// <param name="reposition">Viewport position used when applying <paramref name="dateTime"/>.</param>
 	public async Task SetScale(TimelineScale scale, bool forceRefresh = false, DateTime? dateTime = null, TimelinePositions reposition = TimelinePositions.Center)
 	{
 		if (scale != _previousScale || forceRefresh)
@@ -968,6 +1058,11 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Sets the current selection range.
+	/// </summary>
+	/// <param name="start">Selection start.</param>
+	/// <param name="end">Selection end.</param>
 	public async Task SetSelection(DateTime start, DateTime end)
 	{
 		// quit if no change
@@ -1140,6 +1235,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Zooms in by one configured scale step.
+	/// </summary>
 	public async Task ZoomInAsync()
 	{
 		var scale = Options.General.Scales.FirstOrDefault(x => x.Name == Scale.Name);
@@ -1153,6 +1251,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Zooms out by one configured scale step.
+	/// </summary>
 	public async Task ZoomOutAsync()
 	{
 		var scale = Options.General.Scales.FirstOrDefault(x => x.Name == Scale.Name);
@@ -1166,9 +1267,20 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Zooms to fit the specified range using centered positioning.
+	/// </summary>
+	/// <param name="date1">Start date.</param>
+	/// <param name="date2">End date.</param>
 	public async Task ZoomToAsync(DateTime date1, DateTime date2)
 		=> await ZoomToAsync(date1, date2, TimelinePositions.Center);
 
+	/// <summary>
+	/// Zooms to fit the specified range and repositions according to the requested position.
+	/// </summary>
+	/// <param name="date1">Start date.</param>
+	/// <param name="date2">End date.</param>
+	/// <param name="position">Target position for the end date.</param>
 	public async Task ZoomToAsync(DateTime date1, DateTime date2, TimelinePositions position)
 	{
 		if (_canvasWidth > 0)
@@ -1181,7 +1293,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
-
+	/// <summary>
+	/// Zooms to a scale that fits the full timeline and positions at the end.
+	/// </summary>
 	public async Task ZoomToEndAsync()
 	{
 		if (_canvasWidth > 0)
@@ -1194,6 +1308,10 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Zooms to a scale that fits the current selection.
+	/// </summary>
+	/// <param name="forceRefresh">True to force data refresh.</param>
 	public async Task ZoomToSelectionAsync(bool forceRefresh = false)
 	{
 		if (_canvasWidth > 0 && _selectionRange != null)
@@ -1206,6 +1324,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Zooms to a scale that fits the full timeline and positions at the start.
+	/// </summary>
 	public async Task ZoomToStartAsync()
 	{
 		if (_canvasWidth > 0)
@@ -1218,26 +1339,48 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Disables timeline interaction.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Enables timeline interaction.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether timeline interaction is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable interaction; otherwise false.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Utility methods used by timeline rendering helpers.
+	/// </summary>
 	public static class Utilities
 	{
+		/// <summary>
+		/// Builds an SVG arc path between two angles.
+		/// </summary>
+		/// <param name="x">Center X.</param>
+		/// <param name="y">Center Y.</param>
+		/// <param name="radius">Arc radius.</param>
+		/// <param name="startAngle">Start angle in degrees.</param>
+		/// <param name="endAngle">End angle in degrees.</param>
+		/// <returns>SVG path data.</returns>
 		public static string DescribeArc(double x, double y, double radius, double startAngle, double endAngle)
 		{
 			var sp = PolarToCartesian(x, y, radius, endAngle);
@@ -1259,6 +1402,14 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			return d;
 		}
 
+		/// <summary>
+		/// Converts polar coordinates to cartesian coordinates.
+		/// </summary>
+		/// <param name="centerX">Center X.</param>
+		/// <param name="centerY">Center Y.</param>
+		/// <param name="radius">Radius.</param>
+		/// <param name="angleInDegrees">Angle in degrees.</param>
+		/// <returns>Cartesian coordinates.</returns>
 		public static (double x, double y) PolarToCartesian(double centerX, double centerY, double radius, double angleInDegrees)
 		{
 			var angleInRadians = angleInDegrees * Math.PI / 180.0;
@@ -1267,6 +1418,15 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			return (x, y);
 		}
 
+		/// <summary>
+		/// Generates an SVG arrow path.
+		/// </summary>
+		/// <param name="x">X origin.</param>
+		/// <param name="boundsHeight">Bounding height.</param>
+		/// <param name="boundsWidth">Bounding width.</param>
+		/// <param name="padding">Inner padding.</param>
+		/// <param name="faceLeft">True to draw left-facing arrow; otherwise right-facing.</param>
+		/// <returns>SVG path data.</returns>
 		public static string ArrowPath(double x, double boundsHeight, double boundsWidth, double padding, bool faceLeft)
 		{
 			var cy = boundsHeight / 2;
@@ -1290,11 +1450,26 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Label positioning metadata used when rendering timeline text.
+	/// </summary>
 	public class TextInfo
 	{
+		/// <summary>
+		/// Horizontal text offset.
+		/// </summary>
 		public int OffsetX { get; set; } = 3;
+		/// <summary>
+		/// Vertical text offset.
+		/// </summary>
 		public int OffsetY { get; set; } = 14;
+		/// <summary>
+		/// Number of items to skip before rendering next label.
+		/// </summary>
 		public int Skip { get; set; }
+		/// <summary>
+		/// Text value.
+		/// </summary>
 		public string Text { get; set; } = string.Empty;
 	}
 }

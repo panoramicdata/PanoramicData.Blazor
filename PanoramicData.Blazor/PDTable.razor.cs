@@ -2,6 +2,10 @@
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Data table component with sorting, filtering, paging, selection, editing, and state persistence support.
+/// </summary>
+/// <typeparam name="TItem">Row item type.</typeparam>
 public partial class PDTable<TItem> :
 	ISortableComponent,
 	IPageableComponent,
@@ -24,16 +28,34 @@ public partial class PDTable<TItem> :
 
 	private ManualResetEvent BeginEditEvent { get; set; } = new ManualResetEvent(false);
 
+	/// <summary>
+	/// Gets or sets logger used by the component.
+	/// </summary>
 	[Inject] protected ILogger<PDTable<TItem>> Logger { get; set; } = new NullLogger<PDTable<TItem>>();
 
+	/// <summary>
+	/// Gets or sets navigation manager.
+	/// </summary>
 	[Inject] protected NavigationManager NavigationManager { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets JavaScript runtime used by the component.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets block overlay service used during data operations.
+	/// </summary>
 	[Inject] protected IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets drag context for row drag-and-drop operations.
+	/// </summary>
 	[CascadingParameter] public PDDragContext? DragContext { get; set; }
 
+	/// <summary>
+	/// Gets or sets state manager used for table state persistence.
+	/// </summary>
 	[CascadingParameter] public IAsyncStateManager? StateManager { get; set; }
 
 	#region Parameters
@@ -215,6 +237,9 @@ public partial class PDTable<TItem> :
 	/// </summary>
 	[Parameter] public int FilterMaxValues { get; set; } = 50;
 
+	/// <summary>
+	/// Gets or sets whether table interaction is enabled.
+	/// </summary>
 	[Parameter] public bool IsEnabled { get; set; } = true;
 
 	/// <summary>
@@ -539,9 +564,12 @@ public partial class PDTable<TItem> :
 	/// <summary>
 	/// Refresh the grid by performing a re-query.
 	/// </summary>
-	/// <param name="searchText">Optional override for the search text.</param>
 	public Task RefreshAsync() => RefreshAsync(null);
 
+	/// <summary>
+	/// Refresh the grid by performing a re-query.
+	/// </summary>
+	/// <param name="searchText">Optional override for the search text.</param>
 	public Task RefreshAsync(string? searchText)
 		=> GetDataAsync(searchText);
 
@@ -574,11 +602,13 @@ public partial class PDTable<TItem> :
 	/// <summary>
 	/// Requests data from the data provider using the current settings.
 	/// </summary>
-	/// <param name="searchText">Optional override for the search text.</param>
-
 	protected async Task GetDataAsync()
 		=> await GetDataAsync(null);
 
+	/// <summary>
+	/// Requests data from the data provider using the current settings.
+	/// </summary>
+	/// <param name="searchText">Optional override for the search text.</param>
 	protected async Task GetDataAsync(string? searchText)
 	{
 		try
@@ -662,6 +692,11 @@ public partial class PDTable<TItem> :
 		await SortByAsync(column, null);
 	}
 
+	/// <summary>
+	/// Sorts the data by the specified column and optional direction override.
+	/// </summary>
+	/// <param name="column">The column to sort.</param>
+	/// <param name="direction">Optional direction override.</param>
 	protected async Task SortByAsync(PDColumn<TItem> column, SortDirection? direction)
 	{
 		if (column.Sortable && !string.IsNullOrWhiteSpace(column.Id))
@@ -758,8 +793,18 @@ public partial class PDTable<TItem> :
 		}
 	}
 
+	/// <summary>
+	/// Captures an edit value for a column.
+	/// </summary>
+	/// <param name="column">The edited column.</param>
+	/// <param name="value">Edited value.</param>
 	public void OnEditInput(PDColumn<TItem> column, object? value) => _editValues[column.Id] = value;
 
+	/// <summary>
+	/// Captures an edit value for a column id.
+	/// </summary>
+	/// <param name="columnId">Column id.</param>
+	/// <param name="value">Edited value.</param>
 	public void OnEditInput(string columnId, object? value) => _editValues[columnId] = value;
 
 	private async Task OnFilterChanged(Filter filter)
@@ -937,6 +982,9 @@ public partial class PDTable<TItem> :
 	/// <param name="criteria">New sort criteria.</param>
 	public void SetSortCriteria(SortCriteria criteria) => SortCriteria = criteria;
 
+	/// <summary>
+	/// Disposes timers, event subscriptions, and JavaScript resources.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -961,6 +1009,10 @@ public partial class PDTable<TItem> :
 		}
 	}
 
+	/// <summary>
+	/// Initializes component resources and performs first-load behavior.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -1148,6 +1200,9 @@ public partial class PDTable<TItem> :
 				: string.Format(CultureInfo.CurrentCulture, "{0:" + column.Format + "}", x)).Distinct()];
 	}
 
+	/// <summary>
+	/// Applies parameter updates, including filter synchronization and validation.
+	/// </summary>
 	protected override void OnParametersSet()
 	{
 		var currentColumnCount = ActualColumnsToDisplay.Count;
@@ -1193,6 +1248,9 @@ public partial class PDTable<TItem> :
 		_mouseDownOriginatedFromTable = false;
 	}
 
+	/// <summary>
+	/// Commits edit mode when focus leaves all edit inputs.
+	/// </summary>
 	public async Task OnEditBlurAsync()
 	{
 		// if focus has moved to another editor then continue editing otherwise end edit
@@ -1434,6 +1492,10 @@ public partial class PDTable<TItem> :
 		}
 	}
 
+	/// <summary>
+	/// Toggles selection for all currently displayed rows.
+	/// </summary>
+	/// <param name="on">True to select all; false to clear selection.</param>
 	public async Task OnToggleAllSelection(bool on)
 	{
 		if (IsEnabled && KeyField != null)
@@ -1465,6 +1527,11 @@ public partial class PDTable<TItem> :
 		}
 	}
 
+	/// <summary>
+	/// Toggles selection for a specific row.
+	/// </summary>
+	/// <param name="item">Row item.</param>
+	/// <param name="on">True to select; false to deselect.</param>
 	public async Task OnToggleSelection(TItem item, bool on)
 	{
 		if (IsEnabled && KeyField != null && RowIsEnabled(item))
@@ -1547,6 +1614,11 @@ public partial class PDTable<TItem> :
 		return false;
 	}
 
+	/// <summary>
+	/// Determines whether a row item is selected.
+	/// </summary>
+	/// <param name="item">Row item.</param>
+	/// <returns>True when selected.</returns>
 	public bool IsSelected(TItem item)
 	{
 		if (SelectionMode != TableSelectionMode.None && KeyField != null)
@@ -1614,6 +1686,12 @@ public partial class PDTable<TItem> :
 		}
 	}
 
+	/// <summary>
+	/// Selects a row item key using current selection mode semantics.
+	/// </summary>
+	/// <param name="key">Row key value.</param>
+	/// <param name="shiftKey">True when shift range-selection behavior should be applied.</param>
+	/// <param name="ctrlKey">True when ctrl toggle-selection behavior should be applied.</param>
 	public async Task SelectItemAsync(string key, bool shiftKey = false, bool ctrlKey = false)
 	{
 		if (string.IsNullOrWhiteSpace(key))
@@ -1692,6 +1770,9 @@ public partial class PDTable<TItem> :
 		}
 	}
 
+	/// <summary>
+	/// Saves current table state via the configured state manager.
+	/// </summary>
 	public async Task SaveStateAsync()
 	{
 		// table must have id
@@ -1706,18 +1787,28 @@ public partial class PDTable<TItem> :
 		}
 	}
 
+	/// <summary>
+	/// Disables table interaction.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Enables table interaction.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether table interaction is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable interaction; otherwise false.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;

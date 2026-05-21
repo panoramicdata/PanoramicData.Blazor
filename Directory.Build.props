@@ -3,7 +3,9 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateDocumentationFile Condition="'$(Configuration)' == 'Release'">true</GenerateDocumentationFile>
+    <GenerateDocumentationFile Condition="'$(Configuration)' != 'Release'">false</GenerateDocumentationFile>
+    <NoWarn Condition="'$(Configuration)' == 'Release'">$(NoWarn);CS1591</NoWarn>
     <Copyright>Copyright © Panoramic Data Limited</Copyright>
     <Authors>Panoramic Data Limited</Authors>
     <Company>Panoramic Data Limited</Company>

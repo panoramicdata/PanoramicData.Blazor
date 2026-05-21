@@ -14,7 +14,6 @@ internal sealed class PDCardDeckSelectionHelper<TCard> where TCard : ICard
 	/// <summary>
 	/// Toggles the membership of a given card in the selection list.
 	/// </summary>
-	/// <typeparam name="TCard"></typeparam>
 	/// <param name="card"></param>
 	/// <param name="selection"></param>
 	/// <returns></returns>
@@ -33,7 +32,9 @@ internal sealed class PDCardDeckSelectionHelper<TCard> where TCard : ICard
 	/// <summary>
 	/// Adds a range of cards to the selection based on the Shift+Click action.
 	/// </summary>
-	/// <param name="currentCard"></param>
+	/// <param name="selection">The current selection list.</param>
+	/// <param name="cards">All available cards in the deck.</param>
+	/// <param name="currentCard">The card that was clicked.</param>
 	internal List<TCard> HandleAddRange(List<TCard> selection, List<TCard> cards, TCard currentCard)
 	{
 		// For accessibility, on Shift+Click, select all cards from start to the current card if there is no multi-selection pivot set.

@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Drop zone component that manages file selection and upload workflows.
+/// </summary>
 public partial class PDDropZone : IAsyncDisposable
 {
 	private static int _idSequence;
@@ -8,6 +11,9 @@ public partial class PDDropZone : IAsyncDisposable
 	private int _batchProgress;
 	private IJSObjectReference? _module;
 
+	/// <summary>
+	/// Gets or sets JavaScript runtime used by this component.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 
@@ -111,6 +117,9 @@ public partial class PDDropZone : IAsyncDisposable
 	/// </summary>
 	[Parameter] public string Id { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Cancels all in-progress uploads for this drop zone.
+	/// </summary>
 	public async Task CancelAsync()
 	{
 		if (_module != null)
@@ -119,6 +128,9 @@ public partial class PDDropZone : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Clears queued and displayed files from this drop zone.
+	/// </summary>
 	public async Task ClearAsync()
 	{
 		if (_module != null)
@@ -127,6 +139,9 @@ public partial class PDDropZone : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Initializes default identifiers for the component.
+	/// </summary>
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -136,6 +151,10 @@ public partial class PDDropZone : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Initializes JavaScript drop-zone behavior after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -170,6 +189,11 @@ public partial class PDDropZone : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Handles dropped files and allows cancellation/metadata enrichment.
+	/// </summary>
+	/// <param name="files">Dropped files.</param>
+	/// <returns>Drop processing result for JavaScript uploader flow.</returns>
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnDrop")]
 	public async Task<object> OnDrop(DropZoneFile[] files)
 	{
@@ -190,6 +214,11 @@ public partial class PDDropZone : IAsyncDisposable
 		return KeyDown.InvokeAsync(args);
 	}
 
+	/// <summary>
+	/// Handles the beginning of an upload for a single file.
+	/// </summary>
+	/// <param name="file">File metadata.</param>
+	/// <returns>Optional additional form fields.</returns>
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadBegin")]
 	public async Task<string[]> OnUploadBeginAsync(DropZoneFile file)
 	{
@@ -227,6 +256,10 @@ public partial class PDDropZone : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Handles progress updates for a single file upload.
+	/// </summary>
+	/// <param name="file">Upload progress payload.</param>
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadProgress")]
 	public void OnUploadProgress(DropZoneFileUploadProgress file)
 	{
@@ -245,6 +278,10 @@ public partial class PDDropZone : IAsyncDisposable
 		UploadProgress.InvokeAsync(new DropZoneUploadProgressEventArgs(file.Path, file.Name, file.Size, file.Key, file.SessionId, file.Progress));
 	}
 
+	/// <summary>
+	/// Handles completion of a single file upload.
+	/// </summary>
+	/// <param name="file">Upload completion payload.</param>
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnUploadEnd")]
 	public void OnUploadEnd(DropZoneFileUploadOutcome file)
 	{
@@ -274,6 +311,10 @@ public partial class PDDropZone : IAsyncDisposable
 		UploadCompleted.InvokeAsync(args);
 	}
 
+	/// <summary>
+	/// Handles pre-upload batch processing when all queued files are ready.
+	/// </summary>
+	/// <param name="files">Queued files.</param>
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsReady")]
 	public async Task OnAllUploadsReadyAsync(DropZoneFile[] files)
 	{
@@ -317,6 +358,9 @@ public partial class PDDropZone : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Handles completion of all uploads in the current batch.
+	/// </summary>
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsComplete")]
 	public async Task OnAllUploadsComplete()
 	{
@@ -334,6 +378,12 @@ public partial class PDDropZone : IAsyncDisposable
 		await AllUploadsComplete.InvokeAsync(null).ConfigureAwait(true);
 	}
 
+	/// <summary>
+	/// Handles aggregate progress updates for all uploads in the current batch.
+	/// </summary>
+	/// <param name="uploadProgress">Overall progress percentage.</param>
+	/// <param name="totalBytes">Total bytes in batch.</param>
+	/// <param name="totalBytesSent">Bytes uploaded so far.</param>
 	[JSInvokable("PanoramicData.Blazor.PDDropZone.OnAllUploadsProgress")]
 	public void OnAllUploadsProgress(double uploadProgress, long totalBytes, long totalBytesSent) => AllUploadsProgress.InvokeAsync(new DropZoneAllProgressEventArgs
 	{
@@ -342,6 +392,9 @@ public partial class PDDropZone : IAsyncDisposable
 		UploadProgress = uploadProgress
 	});
 
+	/// <summary>
+	/// Disposes JavaScript resources and .NET object references.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try

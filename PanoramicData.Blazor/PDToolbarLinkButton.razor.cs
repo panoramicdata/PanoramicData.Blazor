@@ -64,7 +64,7 @@ public partial class PDToolbarLinkButton : IEnablable
 	[Parameter] public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
 
 	/// <summary>
-	/// Sets where to display the linked URL, as the name for a browsing context (a tab, window, or <iframe>).
+	/// Sets where to display the linked URL, as the name for a browsing context (a tab, window, or &lt;iframe&gt;).
 	/// The following keywords have special meanings for where to load the URL:
 	/// _self: the current browsing context. (Default)
 	/// _blank: usually a new tab, but users can configure browsers to open a new window instead.

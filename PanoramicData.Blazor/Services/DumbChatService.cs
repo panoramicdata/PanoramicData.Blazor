@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Services;
 
+/// <summary>
+/// Demo chat service that simulates responses and online/offline behavior.
+/// </summary>
 public class DumbChatService : IChatService, IDisposable
 {
 	private static readonly Random _random = new();
@@ -27,14 +30,21 @@ public class DumbChatService : IChatService, IDisposable
 
 	private readonly List<ChatMessage> _messages = [];
 
+	/// <inheritdoc />
 	public event Action<ChatMessage>? OnMessageReceived;
+	/// <inheritdoc />
 	public event Action<bool>? OnLiveStatusChanged;
+	/// <inheritdoc />
 	public event Action<PDChatDockMode>? OnDockModeChanged;
+	/// <inheritdoc />
 	public event Action<bool>? OnMuteStatusChanged;
+	/// <inheritdoc />
 	public event Action? OnConfigurationChanged;
 
+	/// <inheritdoc />
 	public IReadOnlyList<ChatMessage> Messages => _messages;
 
+	/// <inheritdoc />
 	public PDChatDockMode PreferredDockMode
 	{
 		get => _preferredDockMode;
@@ -48,6 +58,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public PDChatDockMode RestoreMode
 	{
 		get => _restoreMode;
@@ -61,6 +72,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public PDChatButtonPosition MinimizedButtonPosition
 	{
 		get => _minimizedButtonPosition;
@@ -74,6 +86,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public bool IsMuted
 	{
 		get => _isMuted;
@@ -87,6 +100,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public string Title
 	{
 		get => _title;
@@ -100,6 +114,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public bool IsMaximizePermitted
 	{
 		get => _isMaximizePermitted;
@@ -113,6 +128,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public bool IsCanvasUsePermitted
 	{
 		get => _isCanvasUsePermitted;
@@ -126,6 +142,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public bool IsClearPermitted
 	{
 		get => _isClearPermitted;
@@ -139,6 +156,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public bool AutoRestoreOnNewMessage
 	{
 		get => _autoRestoreOnNewMessage;
@@ -152,6 +170,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public bool UseFullWidthMessages
 	{
 		get => _useFullWidthMessages;
@@ -165,6 +184,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public MessageMetadataDisplayMode MessageMetadataDisplayMode
 	{
 		get => _messageMetadataDisplayMode;
@@ -178,6 +198,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public bool ShowMessageUserIcon
 	{
 		get => _showMessageUserIcon;
@@ -191,6 +212,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public bool ShowMessageUserName
 	{
 		get => _showMessageUserName;
@@ -204,6 +226,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public bool ShowMessageTimestamp
 	{
 		get => _showMessageTimestamp;
@@ -217,6 +240,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public string MessageTimestampFormat
 	{
 		get => _messageTimestampFormat;
@@ -230,6 +254,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public bool ShowLastMessage
 	{
 		get => _showLastMessage;
@@ -243,6 +268,7 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public double ShowLastMessageDurationSeconds
 	{
 		get => _showLastMessageDurationSeconds;
@@ -256,6 +282,9 @@ public class DumbChatService : IChatService, IDisposable
 		}
 	}
 
+	/// <summary>
+	/// Gets the predefined sender used for periodic time-check messages.
+	/// </summary>
 	public static ChatMessageSender TimeBot { get; } = new()
 	{
 		Name = "TimeBot",
@@ -264,6 +293,9 @@ public class DumbChatService : IChatService, IDisposable
 		IsSupport = false
 	};
 
+	/// <summary>
+	/// Gets the predefined sender used for automated demo replies.
+	/// </summary>
 	public static ChatMessageSender DumbBot { get; } = new()
 	{
 		Name = "DumbBot",
@@ -272,6 +304,7 @@ public class DumbChatService : IChatService, IDisposable
 		IsSupport = false
 	};
 
+	/// <inheritdoc />
 	public void Initialize()
 	{
 		if (_isInitialized)
@@ -285,8 +318,10 @@ public class DumbChatService : IChatService, IDisposable
 		_isOnline = true;
 	}
 
+	/// <inheritdoc />
 	public bool IsLive => _isInitialized && _isOnline;
 
+	/// <inheritdoc />
 	public PDChatDockMode DockMode { get; set; }
 
 	private void SendTimeCheck(object? state)
@@ -307,17 +342,20 @@ public class DumbChatService : IChatService, IDisposable
 		OnMessageReceived?.Invoke(message);
 	}
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		_timer?.Dispose();
 		GC.SuppressFinalize(this);
 	}
 
+	/// <inheritdoc />
 	public void ClearMessages()
 	{
 		_messages.Clear();
 	}
 
+	/// <inheritdoc />
 	public void SendMessage(ChatMessage chatMessage)
 	{
 		// Add message to service's message collection
@@ -448,6 +486,11 @@ public class DumbChatService : IChatService, IDisposable
 		OnMessageReceived?.Invoke(finalResponse);
 	}
 
+	/// <summary>
+	/// Updates the dock mode and raises the dock-mode-changed event when needed.
+	/// </summary>
+	/// <param name="newMode">The requested dock mode.</param>
+	/// <returns>A completed task.</returns>
 	public Task SetDockModeAsync(PDChatDockMode newMode)
 	{
 		if (DockMode == newMode)

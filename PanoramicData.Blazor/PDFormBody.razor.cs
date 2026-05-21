@@ -1,5 +1,9 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Renders grouped form fields for a <see cref="PDForm{TItem}"/> instance.
+/// </summary>
+/// <typeparam name="TItem">Form model type.</typeparam>
 public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 {
 	private IJSObjectReference? _commonModule;
@@ -50,6 +54,9 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 			? $"--title-width: {TitleWidth}px;"
 			: string.Empty;
 
+	/// <summary>
+	/// Disposes JavaScript interop resources used by this component.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -65,6 +72,11 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Groups fields by their configured group identifier while preserving declaration order.
+	/// </summary>
+	/// <param name="fields">Fields to group.</param>
+	/// <returns>Grouped field collection.</returns>
 	public List<FieldGroup<TItem>> Group(IEnumerable<FormField<TItem>> fields)
 	{
 		var index = 0;
@@ -102,6 +114,10 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		return groups;
 	}
 
+	/// <summary>
+	/// Loads JavaScript helpers after the first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -117,6 +133,9 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Populates form fields from linked table column definitions when needed.
+	/// </summary>
 	protected override void OnParametersSet()
 	{
 		// set fields from table columns
@@ -159,8 +178,19 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Determines whether a field should be shown for the current form mode.
+	/// </summary>
+	/// <param name="field">Field metadata.</param>
+	/// <returns>True when the field is visible.</returns>
 	public bool IsShown(FormField<TItem> field) => IsShown(field, null);
 
+	/// <summary>
+	/// Determines whether a field should be shown for a specific form mode.
+	/// </summary>
+	/// <param name="field">Field metadata.</param>
+	/// <param name="mode">Optional mode override.</param>
+	/// <returns>True when the field is visible.</returns>
 	public bool IsShown(FormField<TItem> field, FormModes? mode)
 	{
 		mode ??= Form?.Mode;
@@ -170,6 +200,11 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 			(mode == FormModes.Delete && field.ShowInDelete(Form?.GetItemWithUpdates()));
 	}
 
+	/// <summary>
+	/// Determines whether a field is read-only for the current form mode.
+	/// </summary>
+	/// <param name="field">Field metadata.</param>
+	/// <returns>True when the field is read-only.</returns>
 	public bool IsReadOnly(FormField<TItem> field) =>
 		(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(Form?.GetItemWithUpdates())) ||
 		(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(Form?.GetItemWithUpdates())) ||
@@ -177,6 +212,11 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		Form?.Mode == FormModes.Cancel ||
 		Form?.Mode == FormModes.ReadOnly;
 
+	/// <summary>
+	/// Gets editor CSS class values based on field validation state.
+	/// </summary>
+	/// <param name="field">Field metadata.</param>
+	/// <returns>CSS class string.</returns>
 	public string GetEditorClass(FormField<TItem> field) => Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "";
 
 	private async Task OnHelperClick(FormField<TItem> field)

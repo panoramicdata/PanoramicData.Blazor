@@ -6,33 +6,48 @@
     "configurations": [
         {
             "name": "PanoramicData.Blazor.Demo",
-            "type": "blazorwasm",
+            "type": "coreclr",
             "request": "launch",
-            "hosted": true,
-            "program": "${workspaceFolder}/PanoramicData.Blazor.Demo/bin/Debug/net9.0/PanoramicData.Blazor.Demo.dll",
+            "preLaunchTask": "build PanoramicData.Blazor.Demo",
+            "program": "${workspaceFolder}/PanoramicData.Blazor.Demo/bin/Debug/net10.0/PanoramicData.Blazor.Demo.dll",
             "cwd": "${workspaceFolder}/PanoramicData.Blazor.Demo",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
         },
         {
             "name": "PanoramicData.Blazor.WebAssembly",
-            "type": "blazorwasm",
+            "type": "coreclr",
             "request": "launch",
-            "hosted": true,
-            "program": "${workspaceFolder}/PanoramicData.Blazor.WebAssembly/Server/bin/Debug/net9.0/PanoramicData.Blazor.WebAssembly.Server.dll",
+            "preLaunchTask": "build PanoramicData.Blazor.WebAssembly.Server",
+            "program": "${workspaceFolder}/PanoramicData.Blazor.WebAssembly/Server/bin/Debug/net10.0/PanoramicData.Blazor.WebAssembly.Server.dll",
             "cwd": "${workspaceFolder}/PanoramicData.Blazor.WebAssembly/Server",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
         },
         {
             "name": "PanoramicData.Blazor.Web",
-            "type": "blazorwasm",
+            "type": "coreclr",
             "request": "launch",
-            "hosted": true,
-            "program": "${workspaceFolder}/PanoramicData.Blazor.Web/bin/Debug/net9.0/PanoramicData.Blazor.Web.dll",
+            "preLaunchTask": "build PanoramicData.Blazor.Web",
+            "program": "${workspaceFolder}/PanoramicData.Blazor.Web/bin/Debug/net10.0/PanoramicData.Blazor.Web.dll",
             "cwd": "${workspaceFolder}/PanoramicData.Blazor.Web",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }

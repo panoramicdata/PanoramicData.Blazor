@@ -5,6 +5,9 @@ using Range = BlazorMonaco.Range;
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Hosts a Monaco editor instance with optional language registration, completion support, and value synchronization.
+/// </summary>
 public partial class PDMonacoEditor : IAsyncDisposable
 {
 	private static int _seq;
@@ -15,6 +18,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	private DotNetObjectReference<PDMonacoEditor>? _objRef;
 	private static readonly MethodCache _methodCache = new();
 
+	/// <summary>
+	/// Gets or sets the JavaScript runtime used to initialize and interact with Monaco.
+	/// </summary>
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
 
@@ -108,6 +114,12 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	[Parameter]
 	public EventCallback<Selection> SelectionChanged { get; set; }
 
+	/// <summary>
+	/// Applies one or more edit operations to the current editor model.
+	/// </summary>
+	/// <param name="source">An identifier describing the source of the edits.</param>
+	/// <param name="edits">The edit operations to execute.</param>
+	/// <param name="endCursorState">Optional cursor selections to apply after edits complete.</param>
 	public async Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits, List<Selection>? endCursorState = null)
 	{
 		if (_monacoEditor != null)
@@ -116,6 +128,12 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Returns completion items for the provided function context.
+	/// </summary>
+	/// <param name="range">The range where completion is requested.</param>
+	/// <param name="functionName">The function name used to resolve completion candidates.</param>
+	/// <returns>The completion items available for the current language and function.</returns>
 	[JSInvokable]
 	public CompletionItem[] GetCompletions(Range range, string functionName)
 		=> ShowSuggestions ? [.. _methodCache.GetCompletionItems(Language, functionName)] : [];
@@ -133,6 +151,12 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		return options;
 	}
 
+	/// <summary>
+	/// Gets the full editor value using the specified end-of-line and BOM options.
+	/// </summary>
+	/// <param name="endOfLinePreference">The end-of-line representation to use in the returned text.</param>
+	/// <param name="preserveBOM">True to preserve a byte order mark when available; otherwise false.</param>
+	/// <returns>The editor text, or an empty string when the editor is not initialized.</returns>
 	public async Task<string> GetMonacoValueAsync(EndOfLinePreference endOfLinePreference, bool preserveBOM)
 	{
 		if (_monacoEditor != null)
@@ -145,6 +169,12 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		return string.Empty;
 	}
 
+	/// <summary>
+	/// Gets editor text for a specific range.
+	/// </summary>
+	/// <param name="range">The model range to read.</param>
+	/// <param name="endOfLinePreference">The end-of-line representation to use in the returned text.</param>
+	/// <returns>The text in the supplied range, or an empty string when the editor is not initialized.</returns>
 	public async Task<string> GetMonacoValueAsync(Range range, EndOfLinePreference endOfLinePreference)
 	{
 		if (_monacoEditor != null)
@@ -157,6 +187,10 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		return string.Empty;
 	}
 
+	/// <summary>
+	/// Gets the current editor selection.
+	/// </summary>
+	/// <returns>The current selection, or null when the editor is not initialized.</returns>
 	public async Task<Selection?> GetSelection()
 	{
 		if (_monacoEditor != null)
@@ -167,10 +201,19 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		return null;
 	}
 
+	/// <summary>
+	/// Returns signature help entries for the provided function.
+	/// </summary>
+	/// <param name="functionName">The function name used to resolve signature information.</param>
+	/// <returns>Signature information entries for the current language and function.</returns>
 	[JSInvokable]
 	public SignatureInformation[] GetSignatures(string functionName)
 		=> ShowSuggestions ? [.. _methodCache.GetSignatures(Language, functionName)] : [];
 
+	/// <summary>
+	/// Initializes Monaco integration and custom language registrations after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime != null)
@@ -233,6 +276,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		return SelectionChanged.InvokeAsync(evt.Selection);
 	}
 
+	/// <summary>
+	/// Applies parameter-driven updates such as theme changes to the underlying editor.
+	/// </summary>
 	protected override async Task OnParametersSetAsync()
 	{
 		try
@@ -259,6 +305,10 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Resolves and caches completion metadata for the requested method.
+	/// </summary>
+	/// <param name="methodName">The method name to resolve.</param>
 	[JSInvokable]
 	public async Task ResolveCompletionAsync(string methodName)
 	{
@@ -268,6 +318,10 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Replaces the entire editor value.
+	/// </summary>
+	/// <param name="value">The text to set in the editor.</param>
 	public async Task SetMonacoValueAsync(string value)
 	{
 		if (_monacoEditor != null)
@@ -277,6 +331,11 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Sets the editor selection.
+	/// </summary>
+	/// <param name="selection">The selection to apply.</param>
+	/// <param name="source">An optional source identifier for the selection change.</param>
 	public async Task SetSelectionAsync(Selection selection, string source = "")
 	{
 		if (_monacoEditor != null)
@@ -285,7 +344,10 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
-
+	/// <summary>
+	/// Updates editor options on the live Monaco instance.
+	/// </summary>
+	/// <param name="options">The option values to apply.</param>
 	public async Task UpdateOptions(EditorUpdateOptions options)
 	{
 		if (_monacoEditor != null)
@@ -338,6 +400,9 @@ public partial class PDMonacoEditor : IAsyncDisposable
 
 	#region IAsyncDisposable
 
+	/// <summary>
+	/// Releases JavaScript references and editor state held by this component.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try

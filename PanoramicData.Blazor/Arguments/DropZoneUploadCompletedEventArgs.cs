@@ -11,6 +11,8 @@ public class DropZoneUploadCompletedEventArgs : DropZoneUploadEventArgs
 	/// <param name="path">The path where the file is being uploaded.</param>
 	/// <param name="name">The name of the file being uploaded.</param>
 	/// <param name="size">The size of the file being uploaded.</param>
+	/// <param name="key">The key identifying the upload.</param>
+	/// <param name="sessionId">The session identifier for the upload.</param>
 	public DropZoneUploadCompletedEventArgs(string path, string name, long size, string key, string sessionId)
 		: base(path, name, size, key, sessionId)
 	{
@@ -23,6 +25,8 @@ public class DropZoneUploadCompletedEventArgs : DropZoneUploadEventArgs
 	/// <param name="path">The path where the file is being uploaded.</param>
 	/// <param name="name">The name of the file being uploaded.</param>
 	/// <param name="size">The size of the file being uploaded.</param>
+	/// <param name="key">The key identifying the upload.</param>
+	/// <param name="sessionId">The session identifier for the upload.</param>
 	/// <param name="reason">Reason for the upload failure.</param>
 	public DropZoneUploadCompletedEventArgs(string path, string name, long size, string key, string sessionId, string reason)
 		: base(path, name, size, key, sessionId)

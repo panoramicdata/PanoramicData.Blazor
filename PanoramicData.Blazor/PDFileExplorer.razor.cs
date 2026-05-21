@@ -2,6 +2,9 @@
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// File explorer component with tree/table navigation, uploads, preview, and context actions.
+/// </summary>
 public partial class PDFileExplorer : IAsyncDisposable
 {
 	private static int _idSequence;
@@ -46,34 +49,69 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private FileExplorerItem? _previewItem;
 	private double[] _lastSplitSizes = [20, 60, 20];
 
+	/// <summary>
+	/// Gets or sets the current folder path.
+	/// </summary>
 	public string FolderPath { get; set; } = string.Empty;
 
 	private int InitialPreviewSize => PreviewPanel == FilePreviewModes.OptionalOff ? 0 : 1;
 
 	private static bool IsParentDirectoryItem(FileExplorerItem item) => item.EntryType == FileExplorerItemType.Directory && item.Name == "..";
 
+	/// <summary>
+	/// Gets the unique component identifier.
+	/// </summary>
 	public string Id { get; private set; } = string.Empty;
 
+	/// <summary>
+	/// Gets whether a navigation operation is currently in progress.
+	/// </summary>
 	public bool IsNavigating { get; private set; }
 
+	/// <summary>
+	/// Gets whether the preview panel is currently visible.
+	/// </summary>
 	public bool PreviewPanelVisible { get; private set; } = true;
 
+	/// <summary>
+	/// Gets the logical session identifier used by this component instance.
+	/// </summary>
 	public string SessionId { get; private set; } = Guid.NewGuid().ToString();
 
+	/// <summary>
+	/// Returns display text for a file explorer item.
+	/// </summary>
+	/// <param name="item">Item to render.</param>
+	/// <returns>Display name.</returns>
 	public static string GetItemDisplayName(FileExplorerItem? item) =>
 		item is null
 			? string.Empty
 			: item.Name;
 
+	/// <summary>
+	/// Determines whether the read-only indicator should be shown for an item.
+	/// </summary>
+	/// <param name="item">Item to evaluate.</param>
+	/// <returns>True when read-only indicator should be displayed.</returns>
 	public static bool ShouldShowReadOnlyIndicator(FileExplorerItem? item) =>
 		item is not null && item.Name != ".." && item.IsReadOnly;
 
+	/// <summary>
+	/// Determines whether read-only items should use icon-based indicators.
+	/// </summary>
+	/// <returns>True when a read-only icon class is configured.</returns>
 	public bool UseReadOnlyIcon() => !string.IsNullOrWhiteSpace(ReadOnlyIconClass);
 
 
 	#region Inject
+	/// <summary>
+	/// Gets or sets the overlay service used during long-running operations.
+	/// </summary>
 	[Inject] public IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets JavaScript runtime used by this component.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	#endregion
@@ -403,6 +441,9 @@ public partial class PDFileExplorer : IAsyncDisposable
 
 	#endregion
 
+	/// <summary>
+	/// Validates parameter constraints.
+	/// </summary>
 	protected override void OnParametersSet()
 	{
 		if (string.IsNullOrWhiteSpace(NewFolderName))
@@ -411,6 +452,10 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Initializes static menu and identifier state.
+	/// </summary>
+	/// <returns>A completed task.</returns>
 	protected override Task OnInitializedAsync()
 	{
 		Id = $"pdfe{++_idSequence}";
@@ -450,6 +495,10 @@ public partial class PDFileExplorer : IAsyncDisposable
 		return Task.CompletedTask;
 	}
 
+	/// <summary>
+	/// Initializes JavaScript modules and first-render UI state.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -2029,6 +2078,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 		return defaultCss;
 	}
 
+	/// <summary>
+	/// Returns icon CSS class for a file explorer item.
+	/// </summary>
+	/// <param name="item">Item to evaluate.</param>
+	/// <returns>CSS class string for the item icon.</returns>
 	public string GetIconCssClass(FileExplorerItem? item)
 	{
 		if (item != null)
@@ -2105,6 +2159,9 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Disposes JavaScript resources held by the component.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try

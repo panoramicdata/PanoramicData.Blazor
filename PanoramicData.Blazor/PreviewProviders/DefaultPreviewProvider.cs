@@ -3,18 +3,35 @@ using Markdig;
 
 namespace PanoramicData.Blazor.PreviewProviders;
 
+/// <summary>
+/// Default implementation of <see cref="IPreviewProvider"/> used by file explorer previews.
+/// </summary>
 public partial class DefaultPreviewProvider : IPreviewProvider
 {
 	private static readonly string[] _downloadableFileTypes = ["html", "htm", "url", "md", "txt"];
 
+	/// <summary>
+	/// Gets or sets date-time format used in preview metadata.
+	/// </summary>
 	public string DateTimeFormat { get; set; } = "dd/MM/yy HH:mm:ss";
 
+	/// <summary>
+	/// Gets or sets delay in milliseconds before the loading spinner is shown.
+	/// </summary>
 	public int SpinnerTriggerMs { get; set; } = 500;
 
+	/// <summary>
+	/// Gets or sets minimum display time in milliseconds once the spinner is shown.
+	/// </summary>
 	public int SpinnerMinDisplayMs { get; set; } = 1000;
 
 	#region IPreviewProvider
 
+	/// <summary>
+	/// Builds preview information for a file explorer item.
+	/// </summary>
+	/// <param name="item">Item to preview.</param>
+	/// <returns>Preview metadata and content.</returns>
 	public virtual async Task<PreviewInfo> GetPreviewInfoAsync(FileExplorerItem? item)
 	{
 		if (item == null || (item.EntryType == FileExplorerItemType.Directory && item.Name == ".."))
@@ -80,6 +97,12 @@ public partial class DefaultPreviewProvider : IPreviewProvider
 		return await GetBasicPreviewInfoAsync(item);
 	}
 
+	/// <summary>
+	/// Builds a basic metadata-only preview.
+	/// </summary>
+	/// <param name="item">Item to preview.</param>
+	/// <param name="spinner">True to include spinner HTML.</param>
+	/// <returns>Preview metadata and content.</returns>
 	public virtual Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item, bool spinner = false)
 	{
 		var info = new PreviewInfo();
@@ -104,6 +127,10 @@ public partial class DefaultPreviewProvider : IPreviewProvider
 		return Task.FromResult(info);
 	}
 
+	/// <summary>
+	/// Gets spinner HTML used while loading preview content.
+	/// </summary>
+	/// <returns>Spinner markup.</returns>
 	public virtual string GetSpinnerHtml()
 	{
 		return "<i class=\"mt-2 fas fa-2x fa-fw fa-spin fa-spinner \" />";
@@ -111,12 +138,22 @@ public partial class DefaultPreviewProvider : IPreviewProvider
 
 	#endregion
 
+	/// <summary>
+	/// Downloads raw bytes for a file to support richer previews.
+	/// </summary>
+	/// <param name="item">File item to download.</param>
+	/// <returns>File bytes.</returns>
 	protected virtual Task<byte[]> DownloadContentAsync(FileExplorerItem item)
 	{
 		// default assumes path is full path
 		return Task.FromResult(Array.Empty<byte>());
 	}
 
+	/// <summary>
+	/// Builds metadata rows shown in the basic preview.
+	/// </summary>
+	/// <param name="item">Item to describe.</param>
+	/// <returns>HTML detail rows.</returns>
 	protected virtual List<string> GetFileDetails(FileExplorerItem item)
 	{
 		if (item.EntryType == FileExplorerItemType.Directory)

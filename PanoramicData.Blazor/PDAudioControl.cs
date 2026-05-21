@@ -2,32 +2,74 @@ using PanoramicData.Blazor.Enums;
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Base class for interactive audio controls with drag, snap, and label behavior.
+/// </summary>
 public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 {
+	/// <summary>
+	/// Gets or sets current normalized value in the range 0..1.
+	/// </summary>
 	[Parameter] public double Value { get; set; } = 0.5;
 
+	/// <summary>
+	/// Gets or sets callback invoked when <see cref="Value"/> changes.
+	/// </summary>
 	[Parameter] public EventCallback<double> ValueChanged { get; set; }
 
+	/// <summary>
+	/// Gets or sets value used when resetting via double-click.
+	/// </summary>
 	[Parameter] public double? DefaultValue { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether control interaction is enabled.
+	/// </summary>
 	[Parameter] public bool IsEnabled { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets current snap increment for value quantization.
+	/// </summary>
 	[Parameter] public double SnapIncrement { get; set; }
 
+	/// <summary>
+	/// Gets or sets number of snap points used to quantize control values.
+	/// </summary>
 	[Parameter] public int? SnapPoints { get; set; }
 
+	/// <summary>
+	/// Gets or sets optional label text.
+	/// </summary>
 	[Parameter] public string? Label { get; set; }
 
+	/// <summary>
+	/// Gets or sets label container height in pixels.
+	/// </summary>
 	[Parameter] public int LabelHeightPx { get; set; } = 20;
 
+	/// <summary>
+	/// Gets or sets optional CSS class for label styling.
+	/// </summary>
 	[Parameter] public string? LabelCssClass { get; set; }
 
+	/// <summary>
+	/// Gets or sets label position relative to the control.
+	/// </summary>
 	[Parameter] public PDLabelPosition LabelPosition { get; set; } = PDLabelPosition.Below;
 
+	/// <summary>
+	/// Gets or sets optional CSS class applied to the control container.
+	/// </summary>
 	[Parameter] public string? CssClass { get; set; } // Allow user to override CSS
 
+	/// <summary>
+	/// Gets or sets JavaScript runtime used by this control.
+	/// </summary>
 	[Inject] protected IJSRuntime JS { get; set; } = default!;
 
+	/// <summary>
+	/// Gets or sets logger used by audio controls.
+	/// </summary>
 	[Inject] protected ILogger<PDAudioControl> Logger { get; set; } = default!;
 
 	private bool _isDragging;
@@ -36,8 +78,15 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 	private DotNetObjectReference<PDAudioControl>? _dotNetRef;
 	private IJSObjectReference? _jsModule;
 	private int? _previousSnapPoints;
+	/// <summary>
+	/// Gets the JavaScript module path used to register pointer events.
+	/// </summary>
 	protected virtual string JsFileName => string.Empty;
 
+	/// <summary>
+	/// Applies parameter-driven defaults and snap-point behavior.
+	/// </summary>
+	/// <returns>An update task.</returns>
 	protected override async Task OnParametersSetAsync()
 	{
 		DefaultValue ??= 0.5;
@@ -75,6 +124,11 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 		await base.OnParametersSetAsync();
 	}
 
+	/// <summary>
+	/// Handles pointer-down and registers drag listeners via JavaScript.
+	/// </summary>
+	/// <param name="e">Pointer event args.</param>
+	/// <returns>A registration task.</returns>
 	protected async Task OnPointerDown(PointerEventArgs e)
 	{
 		if (!IsEnabled || _isDragging)
@@ -95,6 +149,11 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Handles pointer move updates from JavaScript while dragging.
+	/// </summary>
+	/// <param name="clientY">Current client Y position.</param>
+	/// <returns>An update task.</returns>
 	[JSInvokable]
 	public async Task OnPointerMove(double clientY)
 	{
@@ -119,12 +178,19 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Handles pointer-up event from JavaScript and ends dragging.
+	/// </summary>
+	/// <param name="clientY">Current client Y position.</param>
 	[JSInvokable]
 	public void OnPointerUp(double clientY)
 	{
 		_isDragging = false;
 	}
 
+	/// <summary>
+	/// Resets value to default when double-clicked.
+	/// </summary>
 	protected async void OnDoubleClick()
 	{
 		var newValue = DefaultValue ?? 0.5;
@@ -136,6 +202,11 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 		await ValueChanged.InvokeAsync(newValue);
 	}
 
+	/// <summary>
+	/// Calculates a readable marking step for a value range.
+	/// </summary>
+	/// <param name="maxVolume">Maximum value in the range.</param>
+	/// <returns>Suggested step interval.</returns>
 	protected static int CalculateMarkingStep(int maxVolume)
 	{
 		if (maxVolume <= 12)
@@ -160,6 +231,10 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 	}
 
 	// Render label above or below
+	/// <summary>
+	/// Renders the control label when one is configured.
+	/// </summary>
+	/// <returns>Label fragment.</returns>
 	protected RenderFragment RenderLabel() => builder =>
 	{
 		if (!string.IsNullOrEmpty(Label))
@@ -172,6 +247,9 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 		}
 	};
 
+	/// <summary>
+	/// Disposes JavaScript resources used by this control.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		_dotNetRef?.Dispose();

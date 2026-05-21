@@ -1,5 +1,9 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Generic list component with filtering, sorting, and selectable item behavior.
+/// </summary>
+/// <typeparam name="TItem">Item type.</typeparam>
 public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 {
 	private TItem? _lastSelectedItem;
@@ -7,6 +11,9 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	private Func<TItem, string>? _compiledTextExpression;
 	private IEnumerable<TItem> _allItems = [];
 
+	/// <summary>
+	/// Gets or sets optional state manager used to persist selection state.
+	/// </summary>
 	[CascadingParameter]
 	public IAsyncStateManager? StateManager { get; set; }
 
@@ -149,6 +156,10 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		return request;
 	}
 
+	/// <summary>
+	/// Clears all selected items.
+	/// </summary>
+	/// <returns>A task that completes when selection updates are propagated.</returns>
 	public Task ClearAllAsync()
 	{
 		Selection.Items.Clear();
@@ -156,6 +167,11 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		return OnSelectionUpdatedAsync();
 	}
 
+	/// <summary>
+	/// Determines whether an item is visible under the current filter.
+	/// </summary>
+	/// <param name="item">Item to test.</param>
+	/// <returns>True if the item should be shown.</returns>
 	public bool ItemVisible(TItem item)
 	{
 		if (string.IsNullOrWhiteSpace(_filterText))
@@ -176,6 +192,10 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		return text.Contains(_filterText, StringComparison.OrdinalIgnoreCase);
 	}
 
+	/// <summary>
+	/// Restores persisted selection state after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		// load previous state?
@@ -263,6 +283,9 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Initializes default selection behavior.
+	/// </summary>
 	protected override void OnInitialized()
 	{
 		if (DefaultToSelectAll)
@@ -271,6 +294,10 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Compiles expressions and refreshes list data for current parameters.
+	/// </summary>
+	/// <returns>A refresh task.</returns>
 	protected override Task OnParametersSetAsync()
 	{
 		if (TextExpression != null)
@@ -308,6 +335,10 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 	}
 
+	/// <summary>
+	/// Refreshes list data from the configured data provider.
+	/// </summary>
+	/// <param name="cancellationToken">Cancellation token.</param>
 	public async Task RefreshAsync(CancellationToken cancellationToken)
 	{
 		if (DataProvider != null)
@@ -321,6 +352,10 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Selects all visible items.
+	/// </summary>
+	/// <returns>A task that completes when selection updates are propagated.</returns>
 	public Task SelectAllAsync()
 	{
 		Selection.Items.Clear();
@@ -445,6 +480,11 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 	#region Attributes
 
+	/// <summary>
+	/// Builds checkbox element attributes for an item.
+	/// </summary>
+	/// <param name="item">Item used to derive checkbox state.</param>
+	/// <returns>Attribute dictionary.</returns>
 	public Dictionary<string, object> CheckBoxAttributes(TItem item)
 	{
 		var iconCls = Selection.AllSelected || Selection.Items.Contains(item)
@@ -457,6 +497,11 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		return dict;
 	}
 
+	/// <summary>
+	/// Builds attributes for a rendered list item.
+	/// </summary>
+	/// <param name="item">List item, if available.</param>
+	/// <returns>Attribute dictionary.</returns>
 	public Dictionary<string, object> ItemAttributes(TItem? item)
 	{
 		var selectedCss = item is not null && !ShowCheckBoxes && (Selection.AllSelected || Selection.Items.Contains(item));
@@ -467,6 +512,10 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		return dict;
 	}
 
+	/// <summary>
+	/// Builds attributes for the list container.
+	/// </summary>
+	/// <returns>Attribute dictionary.</returns>
 	public Dictionary<string, object> ListAttributes()
 	{
 		var dict = new Dictionary<string, object>()
@@ -482,6 +531,9 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 	#region IAsyncDisposable
 
+	/// <summary>
+	/// Disposes component resources.
+	/// </summary>
 	public ValueTask DisposeAsync()
 	{
 		try

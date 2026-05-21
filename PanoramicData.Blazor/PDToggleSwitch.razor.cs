@@ -2,6 +2,9 @@
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Toggle switch component with optional labels and JS-based text measurement.
+/// </summary>
 public partial class PDToggleSwitch : IAsyncDisposable
 {
 	private static int _sequence;
@@ -10,6 +13,9 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	private IJSObjectReference? _module;
 	private readonly string _textCache = string.Empty;
 
+	/// <summary>
+	/// Gets or sets JavaScript runtime used by this component.
+	/// </summary>
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -107,6 +113,9 @@ public partial class PDToggleSwitch : IAsyncDisposable
 
 	#endregion
 
+	/// <summary>
+	/// Disposes JS resources associated with this component.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -123,6 +132,10 @@ public partial class PDToggleSwitch : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Builds SVG attributes for the switch background.
+	/// </summary>
+	/// <returns>Attribute dictionary.</returns>
 	public IDictionary<string, object> GetBackgroundAttributes() => new Dictionary<string, object>
 		{
 			{ "class", $"switch {(Value ? "on" : "off")}"},
@@ -134,6 +147,10 @@ public partial class PDToggleSwitch : IAsyncDisposable
 			{ "ry", (Rounded ?? Options.Rounded) ? CalculatedHeight / 2 : 0 }
 		};
 
+	/// <summary>
+	/// Builds SVG attributes for the switch text.
+	/// </summary>
+	/// <returns>Attribute dictionary.</returns>
 	public IDictionary<string, object> GetTextAttributes() => new Dictionary<string, object>
 		{
 			{ "class", $"text {(Value ? "on" : "off")}"},
@@ -142,6 +159,10 @@ public partial class PDToggleSwitch : IAsyncDisposable
 			{ "y", InnerHeight / 2 + (InnerHeight / 2) + TextYOffset }
 		};
 
+	/// <summary>
+	/// Builds SVG attributes for the toggle thumb.
+	/// </summary>
+	/// <returns>Attribute dictionary.</returns>
 	public IDictionary<string, object> GetToggleAttributes() => new Dictionary<string, object>
 		{
 			{ "class", $"toggle {(Value ? "on" : "off")}"},
@@ -153,6 +174,10 @@ public partial class PDToggleSwitch : IAsyncDisposable
 			{ "ry", Rounded ?? Options.Rounded ? CalculatedHeight / 2 : 0 }
 		};
 
+	/// <summary>
+	/// Loads JS module and performs first-render measurements.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -169,6 +194,10 @@ public partial class PDToggleSwitch : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Refreshes derived text width when parameters change.
+	/// </summary>
+	/// <returns>A refresh task.</returns>
 	protected override async Task OnParametersSetAsync() => await RefreshTextWidthAsync().ConfigureAwait(true);
 
 	private async Task OnClickAsync()
@@ -189,6 +218,10 @@ public partial class PDToggleSwitch : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Measures on/off text and updates rendered switch width when required.
+	/// </summary>
+	/// <returns>A measurement task.</returns>
 	protected async Task RefreshTextWidthAsync()
 	{
 		try

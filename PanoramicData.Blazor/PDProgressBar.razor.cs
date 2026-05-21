@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Renders a progress bar based on a current value and total value.
+/// </summary>
 public partial class PDProgressBar
 {
 	/// <summary>
@@ -32,6 +35,10 @@ public partial class PDProgressBar
 	[Parameter]
 	public double Value { get; set; }
 
+	/// <summary>
+	/// Gets the completion percentage represented by <see cref="Value"/> and <see cref="Total"/>.
+	/// </summary>
+	/// <returns>The percentage value rounded to <see cref="DecimalPlaces"/>.</returns>
 	public double GetPercentage()
 	{
 		if (Total == 0)

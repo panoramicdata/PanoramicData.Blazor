@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Text input component with optional speech recognition, debouncing, and keyboard events.
+/// </summary>
 public partial class PDTextBox : IAsyncDisposable
 {
 	private static int _seq;
@@ -9,34 +12,40 @@ public partial class PDTextBox : IAsyncDisposable
 	private static string _activeListener = string.Empty;
 
 	/// <summary>
-	/// Injected javascript interop object.
+	/// Gets or sets JavaScript runtime used by this component.
 	/// </summary>
-	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
+	[Inject]
+	public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
 	/// Gets or sets the autocomplete attribute value.
 	/// </summary>
-	[Parameter] public string AutoComplete { get; set; } = string.Empty;
+	[Parameter]
+	public string AutoComplete { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Event raised when the text box loses focus.
 	/// </summary>
-	[Parameter] public EventCallback Blur { get; set; }
+	[Parameter]
+	public EventCallback Blur { get; set; }
 
 	/// <summary>
 	/// Gets or sets the textbox sizes.
 	/// </summary>
-	[Parameter] public ButtonSizes? Size { get; set; }
+	[Parameter]
+	public ButtonSizes? Size { get; set; }
 
 	/// <summary>
 	/// Gets or sets CSS classes for the text box.
 	/// </summary>
-	[Parameter] public string CssClass { get; set; } = "";
+	[Parameter]
+	public string CssClass { get; set; } = string.Empty;
 
 	/// <summary>
-	/// The input type
+	/// Gets or sets the input type.
 	/// </summary>
-	[Parameter] public PDInputType Type { get; set; } = PDInputType.Text;
+	[Parameter]
+	public PDInputType Type { get; set; } = PDInputType.Text;
 
 	private string TypeString => Type switch
 	{
@@ -45,86 +54,104 @@ public partial class PDTextBox : IAsyncDisposable
 	};
 
 	/// <summary>
-	/// Gets whether Keypress events are raised.
+	/// Gets whether keypress events are raised.
 	/// </summary>
-	[Parameter] public bool KeypressEvent { get; set; }
+	[Parameter]
+	public bool KeypressEvent { get; set; }
 
 	/// <summary>
 	/// Gets or sets the speech recognition language. Leave empty for browser default.
 	/// </summary>
-	[Parameter] public string SpeechLang { get; set; } = string.Empty;
+	[Parameter]
+	public string SpeechLang { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets or sets the tooltip for the toolbar item.
 	/// </summary>
-	[Parameter] public string ToolTip { get; set; } = string.Empty;
+	[Parameter]
+	public string ToolTip { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets or sets whether the content is read only.
 	/// </summary>
-	[Parameter] public bool IsReadOnly { get; set; }
+	[Parameter]
+	public bool IsReadOnly { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether the toolbar item is visible.
 	/// </summary>
-	[Parameter] public bool IsVisible { get; set; } = true;
+	[Parameter]
+	public bool IsVisible { get; set; } = true;
 
 	/// <summary>
 	/// Gets or sets whether the toolbar item is enabled.
 	/// </summary>
-	[Parameter] public bool IsEnabled { get; set; } = true;
+	[Parameter]
+	public bool IsEnabled { get; set; } = true;
 
 	/// <summary>
 	/// Sets the width of the containing div element.
 	/// </summary>
-	[Parameter] public string Width { get; set; } = "Auto";
+	[Parameter]
+	public string Width { get; set; } = "Auto";
 
 	/// <summary>
 	/// Gets or sets placeholder text for the text box.
 	/// </summary>
-	[Parameter] public string Placeholder { get; set; } = string.Empty;
+	[Parameter]
+	public string Placeholder { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Sets the initial text value.
 	/// </summary>
-	[Parameter] public string Value { get; set; } = string.Empty;
+	[Parameter]
+	public string Value { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Event raised whenever the text value changes.
 	/// </summary>
-	[Parameter] public EventCallback<string> ValueChanged { get; set; }
-
+	[Parameter]
+	public EventCallback<string> ValueChanged { get; set; }
 
 	/// <summary>
-	/// Gets or sets the event that triggers binding, e.g. oninput, onchange.
+	/// Gets or sets the event that triggers binding, e.g. oninput or onchange.
 	/// </summary>
-	[Parameter] public string BindEvent { get; set; } = "oninput";
+	[Parameter]
+	public string BindEvent { get; set; } = "oninput";
 
 	/// <summary>
 	/// Event raised whenever a key is pressed.
 	/// </summary>
-	[Parameter] public EventCallback<KeyboardEventArgs> Keypress { get; set; }
+	[Parameter]
+	public EventCallback<KeyboardEventArgs> Keypress { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether the clear button is displayed.
 	/// </summary>
-	[Parameter] public bool ShowClearButton { get; set; } = true;
+	[Parameter]
+	public bool ShowClearButton { get; set; } = true;
 
 	/// <summary>
 	/// Gets or sets whether the user may use speech to populate the textbox.
 	/// </summary>
-	[Parameter] public bool ShowSpeechButton { get; set; }
+	[Parameter]
+	public bool ShowSpeechButton { get; set; }
 
 	/// <summary>
 	/// Sets the debounce wait period in milliseconds.
 	/// </summary>
-	[Parameter] public int DebounceWait { get; set; }
+	[Parameter]
+	public int DebounceWait { get; set; }
 
 	/// <summary>
 	/// Event raised when the user clicks on the clear button.
 	/// </summary>
-	[Parameter] public EventCallback Cleared { get; set; }
+	[Parameter]
+	public EventCallback Cleared { get; set; }
 
+	/// <summary>
+	/// Gets the unique identifier for this text box instance.
+	/// </summary>
 	public string Id { get; set; } = $"pd-textbox-{++_seq}";
 
 	private string ButtonSizeCssClass
@@ -153,6 +180,10 @@ public partial class PDTextBox : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Initializes JavaScript helpers and optional debounced input/speech support.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -182,15 +213,6 @@ public partial class PDTextBox : IAsyncDisposable
 		}
 	}
 
-	//private async Task OnInput(ChangeEventArgs args)
-	//{
-	//	if (DebounceWait <= 0)
-	//	{
-	//		Value = args.Value.ToString();
-	//		await ValueChanged.InvokeAsync(args.Value.ToString()).ConfigureAwait(true);
-	//	}
-	//}
-
 	private async Task OnBlur(FocusEventArgs args) => await Blur.InvokeAsync().ConfigureAwait(true);
 
 	private async Task OnChange(ChangeEventArgs args)
@@ -198,7 +220,7 @@ public partial class PDTextBox : IAsyncDisposable
 		if (DebounceWait <= 0)
 		{
 			Value = args.Value?.ToString() ?? string.Empty;
-			await ValueChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty).ConfigureAwait(true);
+			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 		}
 	}
 
@@ -214,6 +236,10 @@ public partial class PDTextBox : IAsyncDisposable
 		await Cleared.InvokeAsync(null).ConfigureAwait(true);
 	}
 
+	/// <summary>
+	/// Receives debounced input updates from JavaScript.
+	/// </summary>
+	/// <param name="value">Updated text value.</param>
 	[JSInvokable]
 	public async Task OnDebouncedInput(string value)
 	{
@@ -234,12 +260,10 @@ public partial class PDTextBox : IAsyncDisposable
 		{
 			if (_activeListener == Id)
 			{
-				// abort listener
 				await _module.InvokeVoidAsync("abortListenForSpeech", _objRef).ConfigureAwait(true);
 			}
 			else
 			{
-				// abort any active listener then shoer delay before listening
 				await _module.InvokeVoidAsync("abortListenForSpeech", _objRef).ConfigureAwait(true);
 				await Task.Delay(100).ConfigureAwait(true);
 				_activeListener = Id;
@@ -248,6 +272,10 @@ public partial class PDTextBox : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Receives speech recognition results from JavaScript.
+	/// </summary>
+	/// <param name="value">Recognized text.</param>
 	[JSInvokable]
 	public async Task OnSpeechResult(string value)
 	{
@@ -256,9 +284,15 @@ public partial class PDTextBox : IAsyncDisposable
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Indicates that speech recognition has started.
+	/// </summary>
 	[JSInvokable]
 	public void OnListeningStarted() => StateHasChanged();
 
+	/// <summary>
+	/// Indicates that speech recognition has stopped.
+	/// </summary>
 	[JSInvokable]
 	public void OnListeningStopped()
 	{
@@ -266,6 +300,9 @@ public partial class PDTextBox : IAsyncDisposable
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Disposes JavaScript resources and event references used by this component.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try

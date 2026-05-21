@@ -398,8 +398,6 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	/// <summary>
 	/// Removes the currently selected cards in this deck and  updates card positions accordingly.
 	/// </summary>
-	/// <param name="selection"></param>
-	/// <returns></returns>
 	/// <remarks>
 	/// Used for migrating cards between decks in the  <see cref="PDCardDeckGroup{TCard}"/> component.
 	/// </remarks>

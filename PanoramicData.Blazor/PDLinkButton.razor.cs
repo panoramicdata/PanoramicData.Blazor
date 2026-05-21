@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Button component that navigates to a URL and supports keyboard shortcuts.
+/// </summary>
 public partial class PDLinkButton : IAsyncDisposable, IEnablable
 {
 	private static int _sequence;
@@ -8,6 +11,9 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 	#region Inject
 	[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets the JavaScript runtime used by this component.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 	#endregion
 
@@ -48,7 +54,7 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 	[Parameter] public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
 
 	/// <summary>
-	/// Sets where to display the linked URL, as the name for a browsing context (a tab, window, or <iframe>).
+	/// Sets where to display the linked URL, as the name for a browsing context (a tab, window, or &lt;iframe&gt;).
 	/// The following keywords have special meanings for where to load the URL:
 	/// _self: the current browsing context. (Default)
 	/// _blank: usually a new tab, but users can configure browsers to open a new window instead.
@@ -90,6 +96,9 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Unregisters event handlers and disposes JavaScript resources.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -111,6 +120,9 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Registers global shortcut handlers for this button.
+	/// </summary>
 	protected override void OnInitialized()
 	{
 		GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
@@ -120,6 +132,10 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Loads shared JavaScript helpers after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -145,6 +161,9 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Invokes a click on the underlying button element.
+	/// </summary>
 	public async Task ClickAsync()
 	{
 		if (_commonModule != null)
@@ -153,18 +172,28 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Enables the button.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Disables the button.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether the button is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable the button; otherwise false.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;

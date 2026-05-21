@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Multi-line text input component with optional debounce, selection tracking, and JS interop helpers.
+/// </summary>
 public partial class PDTextArea : IAsyncDisposable, IEnablable
 {
 	private static int _seq;
@@ -99,8 +102,14 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 	/// </summary>
 	[Parameter] public EventCallback Cleared { get; set; }
 
+	/// <summary>
+	/// Gets the unique identifier for this text area instance.
+	/// </summary>
 	public string Id { get; set; } = $"pd-textarea-{++_seq}";
 
+	/// <summary>
+	/// Disposes JavaScript resources and object references used by this component.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -124,6 +133,10 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Gets the current text selection state.
+	/// </summary>
+	/// <returns>The current selection.</returns>
 	public TextAreaSelection GetSelection() => _selection;
 
 	private Task OnAfter()
@@ -137,6 +150,10 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		return Task.CompletedTask;
 	}
 
+	/// <summary>
+	/// Initializes JavaScript behaviors after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -180,6 +197,10 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		await Blur.InvokeAsync().ConfigureAwait(true);
 	}
 
+	/// <summary>
+	/// Receives debounced input updates from JavaScript.
+	/// </summary>
+	/// <param name="value">The updated text value.</param>
 	[JSInvokable]
 	public async Task OnDebouncedInput(string value)
 	{
@@ -212,6 +233,12 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Receives selection updates from JavaScript and raises selection changed callbacks.
+	/// </summary>
+	/// <param name="start">Selection start index.</param>
+	/// <param name="end">Selection end index.</param>
+	/// <param name="value">Current text value.</param>
 	[JSInvokable]
 	public async Task OnSelectionChanged(int start, int end, string value)
 	{
@@ -227,6 +254,11 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Sets the current text selection.
+	/// </summary>
+	/// <param name="start">Selection start index.</param>
+	/// <param name="end">Selection end index.</param>
 	public async Task SetSelectionAsync(int start, int end)
 	{
 		if (_module != null)
@@ -235,6 +267,10 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Sets the text area value via JavaScript interop.
+	/// </summary>
+	/// <param name="value">The value to set.</param>
 	public async Task SetValueAsync(string value)
 	{
 		if (_commonModule != null)
@@ -243,6 +279,9 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Scrolls the text area to the end of its content.
+	/// </summary>
 	public async Task ScrollToEndAsync()
 	{
 		if (_commonModule != null)
@@ -251,18 +290,28 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Disables the text area.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Enables the text area.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether the text area is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable; otherwise false.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;

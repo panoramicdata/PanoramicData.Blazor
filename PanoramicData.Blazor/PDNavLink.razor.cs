@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A navigation link component with active-state styling and optional navigation-cancel checks.
+/// </summary>
 public partial class PDNavLink : IAsyncDisposable
 {
 	private const string _defaultActiveClass = "active";
@@ -49,6 +52,9 @@ public partial class PDNavLink : IAsyncDisposable
 	[Parameter]
 	public NavLinkMatch Match { get; set; }
 
+	/// <summary>
+	/// Releases JS resources and detaches location change handlers.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -80,12 +86,19 @@ public partial class PDNavLink : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Subscribes to navigation change events required to update the active link state.
+	/// </summary>
 	protected override void OnInitialized()
 	{
 		// We'll consider re-rendering on each location change
 		NavigationManager.LocationChanged += OnLocationChanged;
 	}
 
+	/// <summary>
+	/// Loads shared JavaScript module references after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)

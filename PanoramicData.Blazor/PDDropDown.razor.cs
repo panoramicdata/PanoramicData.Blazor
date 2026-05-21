@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Dropdown component with JS interop-backed show/hide behavior.
+/// </summary>
 public partial class PDDropDown : IAsyncDisposable, IEnablable
 {
 	private bool _shown;
@@ -8,14 +11,32 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	private IJSObjectReference? _dropdownObj;
 	private DotNetObjectReference<PDDropDown>? _objRef;
 
+	/// <summary>
+	/// Defines auto-close behavior for the dropdown menu.
+	/// </summary>
 	public enum CloseOptions
 	{
+		/// <summary>
+		/// Close only when clicking inside the dropdown menu.
+		/// </summary>
 		Inside,
+		/// <summary>
+		/// Close only when clicking outside the dropdown menu.
+		/// </summary>
 		Outside,
+		/// <summary>
+		/// Close when clicking either inside or outside the dropdown menu.
+		/// </summary>
 		InsideOrOutside,
+		/// <summary>
+		/// Manual close only.
+		/// </summary>
 		Manual
 	}
 
+	/// <summary>
+	/// Gets or sets JavaScript runtime used by this component.
+	/// </summary>
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -139,6 +160,9 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	[Parameter]
 	public bool Visible { get; set; } = true;
 
+	/// <summary>
+	/// Gets the CSS class fragment that represents the configured button size.
+	/// </summary>
 	protected string ButtonSizeClass
 		=> Size switch
 		{
@@ -147,6 +171,9 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 			_ => string.Empty
 		};
 
+	/// <summary>
+	/// Disposes JavaScript resources used by the dropdown.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -176,8 +203,14 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Gets the id of the dropdown menu element.
+	/// </summary>
 	public string DropdownId => $"{Id}-dropdown";
 
+	/// <summary>
+	/// Hides the dropdown.
+	/// </summary>
 	public async Task HideAsync()
 	{
 		try
@@ -193,6 +226,10 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Initializes JavaScript dropdown behavior after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -222,6 +259,9 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Callback raised when the dropdown is shown.
+	/// </summary>
 	[JSInvokable]
 	public async Task OnDropDownShown()
 	{
@@ -237,6 +277,9 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Callback raised when the dropdown is hidden.
+	/// </summary>
 	[JSInvokable]
 	public async Task OnDropDownHidden()
 	{
@@ -252,6 +295,10 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Callback raised when a key is pressed while the dropdown is active.
+	/// </summary>
+	/// <param name="keyCode">Pressed key code.</param>
 	[JSInvokable]
 	public async Task OnKeyPressed(int keyCode)
 	{
@@ -265,6 +312,9 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Shows the dropdown.
+	/// </summary>
 	public async Task ShowAsync()
 	{
 		try
@@ -283,10 +333,16 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	private Task OnMouseEnter(MouseEventArgs args)
 		=> IsEnabled && ShowOnMouseEnter ? ShowAsync() : Task.CompletedTask;
 
+	/// <summary>
+	/// Mouse leave callback used for hover-open behavior.
+	/// </summary>
 	[JSInvokable]
 	public Task OnMouseLeave()
 		=> IsEnabled && ShowOnMouseEnter ? HideAsync() : Task.CompletedTask;
 
+	/// <summary>
+	/// Toggles the dropdown open/closed state.
+	/// </summary>
 	public async Task ToggleAsync()
 	{
 		try
@@ -302,23 +358,36 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 		}
 	}
 
+	/// <summary>
+	/// Enables dropdown interaction.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Disables dropdown interaction.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether dropdown interaction is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable interaction; otherwise false.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Gets the id of the dropdown toggle element.
+	/// </summary>
 	public string ToggleId => $"{Id}-toggle";
 }

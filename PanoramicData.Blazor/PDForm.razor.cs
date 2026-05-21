@@ -2,6 +2,10 @@
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Form component for create/edit/delete workflows with field tracking, validation, and delta updates.
+/// </summary>
+/// <typeparam name="TItem">Model type edited by the form.</typeparam>
 public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 {
 	private static int _seq;
@@ -9,8 +13,14 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	private IJSObjectReference? _module;
 	private readonly List<PDFormFieldEditor<TItem>> _fieldEditors = [];
 
+	/// <summary>
+	/// Raised when validation errors change.
+	/// </summary>
 	public event EventHandler? ErrorsChanged;
 
+	/// <summary>
+	/// Raised when a reset is requested.
+	/// </summary>
 	public event EventHandler? ResetRequested;
 
 	[Inject] private IJSRuntime JSRuntime { get; set; } = default!;
@@ -153,12 +163,19 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	public FormModes PreviousMode { get; private set; }
 
+	/// <summary>
+	/// Initializes component state and navigation guard subscriptions.
+	/// </summary>
 	protected override void OnInitialized()
 	{
 		Mode = DefaultMode;
 		NavigationCancelService.BeforeNavigate += NavigationService_BeforeNavigate;
 	}
 
+	/// <summary>
+	/// Loads JavaScript resources after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -280,6 +297,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Sets the current mode of the form.
 	/// </summary>
 	/// <param name="mode">The new mode for the form.</param>
+	/// <param name="resetChanges">When true, pending changes are reset when entering Create or Edit mode.</param>
 	[Obsolete("SetMode is deprecated, please use EditItemAsync instead.")]
 	public void SetMode(FormModes mode, bool resetChanges = true)
 	{
@@ -412,7 +430,6 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Attempts to get the requested fields current or original value and cast to the required type.
 	/// </summary>
 	/// <param name="fieldName">The name of the field whose value is to be fetched.</param>
-	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
 
@@ -421,6 +438,12 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		return GetFieldValue(fieldName, true);
 	}
 
+	/// <summary>
+	/// Attempts to get a field value by name.
+	/// </summary>
+	/// <param name="fieldName">Field name.</param>
+	/// <param name="updatedValue">True to prefer current delta value; false for original value.</param>
+	/// <returns>Field value or null.</returns>
 	public object? GetFieldValue(string fieldName, bool updatedValue)
 	{
 		return GetFieldValue(GetField(fieldName), updatedValue);
@@ -431,13 +454,18 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Attempts to get the requested fields current or original value and cast to the required type.
 	/// </summary>
 	/// <param name="field">The field whose value is to be fetched.</param>
-	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
 	///
 
 	public object? GetFieldValue(FormField<TItem> field)
 		=> GetFieldValue(field, true);
+	/// <summary>
+	/// Attempts to get a field value from a field definition.
+	/// </summary>
+	/// <param name="field">Field definition.</param>
+	/// <param name="updatedValue">True to prefer current delta value; false for original value.</param>
+	/// <returns>Field value or null.</returns>
 	public object? GetFieldValue(FormField<TItem> field, bool updatedValue)
 	{
 		// point to relevant TItem instance
@@ -472,13 +500,19 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Attempts to get the requested fields current or original value and cast to the required type.
 	/// </summary>
 	/// <param name="fieldName">The name of the field whose value is to be fetched.</param>
-	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
 
 	public T GetFieldValue<T>(string fieldName) where T : struct
 		=> GetFieldValue<T>(fieldName, true);
 
+	/// <summary>
+	/// Attempts to get and convert a field value by name.
+	/// </summary>
+	/// <typeparam name="T">Target value type.</typeparam>
+	/// <param name="fieldName">Field name.</param>
+	/// <param name="updatedValue">True to prefer current delta value; false for original value.</param>
+	/// <returns>Converted value, or default when unavailable.</returns>
 	public T GetFieldValue<T>(string fieldName, bool updatedValue) where T : struct
 	{
 		var field = GetField(fieldName);
@@ -489,12 +523,18 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Attempts to get the requested fields current or original value and cast to the required type.
 	/// </summary>
 	/// <param name="field">The field whose value is to be fetched.</param>
-	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
 	/// <remarks>Use this method for Struct types only, use GetFieldStringValue() for String fields.</remarks>
 
 	public T GetFieldValue<T>(FormField<TItem> field) where T : struct
 		=> GetFieldValue<T>(field, true);
+	/// <summary>
+	/// Attempts to get and convert a field value from a field definition.
+	/// </summary>
+	/// <typeparam name="T">Target value type.</typeparam>
+	/// <param name="field">Field definition.</param>
+	/// <param name="updatedValue">True to prefer current delta value; false for original value.</param>
+	/// <returns>Converted value, or default when unavailable.</returns>
 	public T GetFieldValue<T>(FormField<TItem> field, bool updatedValue) where T : struct
 	{
 		// point to relevant TItem instance
@@ -528,22 +568,38 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Attempts to get the requested fields current or original value and cast to the required type.
 	/// </summary>
 	/// <param name="fieldName">The name of the field whose value is to be fetched.</param>
-	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
-	/// <remarks>Use this method for String fields only, use GetFieldValue<T>() for Struct values.</remarks>
+	/// <remarks>Use this method for String fields only, use GetFieldValue&lt;T&gt;() for Struct values.</remarks>
 
 	public string GetFieldStringValue(string fieldName)
 		=> GetFieldStringValue(fieldName, true);
 
+	/// <summary>
+	/// Attempts to get a string field value by name.
+	/// </summary>
+	/// <param name="fieldName">Field name.</param>
+	/// <param name="updatedValue">True to prefer current delta value; false for original value.</param>
+	/// <returns>String value.</returns>
 	public string GetFieldStringValue(string fieldName, bool updatedValue)
 	{
 		var field = GetField(fieldName);
 		return field is null ? string.Empty : GetFieldStringValue(field, updatedValue);
 	}
 
+	/// <summary>
+	/// Gets tab-delimited string values for the supplied fields.
+	/// </summary>
+	/// <param name="fields">Fields to read.</param>
+	/// <returns>Tab-delimited string values.</returns>
 	public string GetFieldStringValue(IEnumerable<FormField<TItem>> fields)
 		=> GetFieldStringValue(fields, true);
 
+	/// <summary>
+	/// Gets tab-delimited string values for the supplied fields.
+	/// </summary>
+	/// <param name="fields">Fields to read.</param>
+	/// <param name="updatedValue">True to prefer current delta values; false for original values.</param>
+	/// <returns>Tab-delimited string values.</returns>
 	public string GetFieldStringValue(IEnumerable<FormField<TItem>> fields, bool updatedValue)
 	{
 		var sb = new StringBuilder();
@@ -564,13 +620,19 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// Attempts to get the requested fields current or original value and cast to the required type.
 	/// </summary>
 	/// <param name="field">The field whose value is to be fetched.</param>
-	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
 	/// <returns>The current or original field value cat to the appropriate type.</returns>
-	/// <remarks>Use this method for String fields only, use GetFieldValue<T>() for Struct values.</remarks>
+	/// <remarks>Use this method for String fields only, use GetFieldValue&lt;T&gt;() for Struct values.</remarks>
 
 	public string GetFieldStringValue(FormField<TItem> field)
 		=> GetFieldStringValue(field, true);
 
+	/// <summary>
+	/// Attempts to get the requested fields current or original value and cast to the required type.
+	/// </summary>
+	/// <param name="field">The field whose value is to be fetched.</param>
+	/// <param name="updatedValue">Should the current / updated value be returned or the original value?</param>
+	/// <returns>The current or original field value cat to the appropriate type.</returns>
+	/// <remarks>Use this method for String fields only, use GetFieldValue&lt;T&gt;() for Struct values.</remarks>
 	public string GetFieldStringValue(FormField<TItem> field, bool updatedValue)
 	{
 		// point to relevant TItem instance
@@ -907,8 +969,16 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		OnErrorsChanged(EventArgs.Empty);
 	}
 
+	/// <summary>
+	/// Raises the <see cref="ErrorsChanged"/> event.
+	/// </summary>
+	/// <param name="e">Event args.</param>
 	protected virtual void OnErrorsChanged(EventArgs e) => ErrorsChanged?.Invoke(this, e);
 
+	/// <summary>
+	/// Raises the <see cref="ResetRequested"/> event.
+	/// </summary>
+	/// <param name="e">Event args.</param>
 	protected virtual void OnResetRequested(EventArgs e) => ResetRequested?.Invoke(this, e);
 
 	private void NavigationService_BeforeNavigate(object? sender, BeforeNavigateEventArgs e)
@@ -961,6 +1031,10 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		await ResetAllEditorCssAsync();
 	}
 
+	/// <summary>
+	/// Registers a field editor instance for coordinated form operations.
+	/// </summary>
+	/// <param name="editor">Editor to register.</param>
 	public void RegisterFieldEditor(PDFormFieldEditor<TItem> editor)
 	{
 		if (!_fieldEditors.Contains(editor))
@@ -969,6 +1043,10 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Unregisters a field editor instance.
+	/// </summary>
+	/// <param name="editor">Editor to unregister.</param>
 	public void UnregisterFieldEditor(PDFormFieldEditor<TItem> editor)
 	{
 		_fieldEditors.Remove(editor);
@@ -982,6 +1060,9 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Disposes JavaScript resources and unsubscribes navigation handlers.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try

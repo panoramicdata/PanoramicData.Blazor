@@ -11,8 +11,6 @@ public class DropEventArgs
 	/// <param name="target">Details on where the drop occurred.</param>
 	/// <param name="payload">Payload of the drop.</param>
 	/// <param name="ctrl">Was the control key pressed during the drop?</param>
-	/// <param name="before">Is the drop operation before or after the selection item?</param>
-
 	public DropEventArgs(object? target, object? payload, bool ctrl)
 	{
 		Target = target;

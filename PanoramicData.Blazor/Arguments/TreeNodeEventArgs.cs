@@ -50,6 +50,8 @@ public class TreeNodeBeforeEditEventArgs<TItem>(TreeNode<TItem> node) : TreeNode
 /// Initializes a new instance of the TreeNodeBeforeEditEventArgs class.
 /// </remarks>
 /// <param name="node">The node the event relates to.</param>
+/// <param name="oldValue">The original text value before editing.</param>
+/// <param name="newValue">The updated text value after editing.</param>
 public class TreeNodeAfterEditEventArgs<TItem>(TreeNode<TItem> node, string oldValue, string newValue) : TreeNodeCancelEventArgs<TItem>(node) where TItem : class
 {
 

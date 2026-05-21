@@ -1,5 +1,9 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Renders and manages editing UI for a single <see cref="FormField{TItem}"/>.
+/// </summary>
+/// <typeparam name="TItem">Form model type.</typeparam>
 public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 {
 	private static int _idSeq;
@@ -13,6 +17,9 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	private ElementReference _editorDiv;
 	private IJSObjectReference? _commonModule;
 
+	/// <summary>
+	/// Gets or sets JavaScript runtime used by this editor.
+	/// </summary>
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -42,6 +49,11 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	[Parameter]
 	public string Id { get; set; } = $"field-editor-{++_idSeq}";
 
+	/// <summary>
+	/// Gets CSS classes for the editor container based on validation and field options.
+	/// </summary>
+	/// <param name="field">Field metadata.</param>
+	/// <returns>CSS class string.</returns>
 	public string GetEditorClass(FormField<TItem> field)
 		=> $"{(Form?.Errors.ContainsKey(field.GetName() ?? "") == true ? "invalid" : "")} {field.DisplayOptions?.CssClass}";
 
@@ -108,6 +120,11 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		return string.Empty;
 	}
 
+	/// <summary>
+	/// Determines whether the field should be rendered read-only for the current form mode.
+	/// </summary>
+	/// <param name="field">Field metadata.</param>
+	/// <returns>True if read-only.</returns>
 	public bool IsReadOnly(FormField<TItem> field) =>
 		!_hasValue ||
 		(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(Form?.GetItemWithUpdates())) ||
@@ -116,6 +133,9 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		Form?.Mode == FormModes.Cancel ||
 		Form?.Mode == FormModes.ReadOnly;
 
+	/// <summary>
+	/// Applies parameter-driven editor state.
+	/// </summary>
 	protected override void OnParametersSet()
 	{
 		// mark as having value (writable) - unless is nullable type, nulls are allowed and value is null
@@ -154,6 +174,9 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Registers with the parent form and subscribes to field reset/value events.
+	/// </summary>
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -165,6 +188,10 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		Field.ValueChanged += Field_ValueChanged;
 	}
 
+	/// <summary>
+	/// Loads JavaScript helpers after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -265,6 +292,11 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Handles select input changes and writes the updated value to the form.
+	/// </summary>
+	/// <param name="args">Change event args.</param>
+	/// <param name="field">Target field.</param>
 	public async Task OnSelectInputChanged(ChangeEventArgs args, FormField<TItem> field)
 	{
 		if (Form != null && args.Value != null)
@@ -362,6 +394,9 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Clears inline editor styles for this field editor.
+	/// </summary>
 	public async Task ResetEditorCssAsync()
 	{
 		_commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
@@ -370,6 +405,10 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 
 	#region IDisposable
 
+	/// <summary>
+	/// Disposes managed resources.
+	/// </summary>
+	/// <param name="disposing">True when called from Dispose.</param>
 	protected virtual void Dispose(bool disposing)
 	{
 		if (!_disposedValue)
@@ -388,6 +427,9 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Disposes this editor instance.
+	/// </summary>
 	public void Dispose()
 	{
 		Dispose(disposing: true);

@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A modal dialog component with configurable size, buttons, and lifecycle callbacks.
+/// </summary>
 public partial class PDModal : IAsyncDisposable
 {
 	private static int _sequence;
@@ -9,6 +12,9 @@ public partial class PDModal : IAsyncDisposable
 	private IJSObjectReference? _commonModule;
 	private DotNetObjectReference<PDModal>? _dotNetReference;
 
+	/// <summary>
+	/// Gets or sets the JavaScript runtime used by modal interop.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
@@ -106,6 +112,9 @@ public partial class PDModal : IAsyncDisposable
 	/// </summary>
 	[Parameter] public string Id { get; set; } = $"pd-modal-{++_sequence}";
 
+	/// <summary>
+	/// Gets or sets whether the modal footer is rendered.
+	/// </summary>
 	[Parameter] public bool ShowFooter { get; set; } = true;
 
 	/// <summary>
@@ -124,6 +133,10 @@ public partial class PDModal : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Handles footer button clicks and either resolves awaiting callers or forwards the click event.
+	/// </summary>
+	/// <param name="args">The clicked button args.</param>
 	public async Task OnButtonClick(KeyedEventArgs<MouseEventArgs> args)
 	{
 		// are we waiting for using response?
@@ -138,6 +151,10 @@ public partial class PDModal : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Initializes JavaScript interop for the modal after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -164,9 +181,15 @@ public partial class PDModal : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Invoked from JavaScript when the modal has been shown.
+	/// </summary>
 	[JSInvokable]
 	public async Task OnModalShown() => await Shown.InvokeAsync(null).ConfigureAwait(true);
 
+	/// <summary>
+	/// Invoked from JavaScript when the modal has been hidden.
+	/// </summary>
 	[JSInvokable]
 	public async Task OnModalHidden() => await Hidden.InvokeAsync(null).ConfigureAwait(true);
 
@@ -232,6 +255,9 @@ public partial class PDModal : IAsyncDisposable
 		return result;
 	}
 
+	/// <summary>
+	/// Releases JavaScript object references associated with this modal.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try

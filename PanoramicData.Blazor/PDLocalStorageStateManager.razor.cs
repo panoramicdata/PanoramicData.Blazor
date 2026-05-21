@@ -2,10 +2,16 @@ using System.Text.Json;
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// State manager component that persists keyed state in browser local storage.
+/// </summary>
 public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisposable
 {
 	private IJSObjectReference? _module;
 
+	/// <summary>
+	/// Gets or sets JavaScript runtime used for local-storage interop.
+	/// </summary>
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
 
@@ -17,6 +23,10 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 
 	#region IAsyncStateManager
 
+	/// <summary>
+	/// Initializes JavaScript module references required by this state manager.
+	/// </summary>
+	/// <returns>An initialization task.</returns>
 	public async Task InitializeAsync()
 	{
 		if (_module is null && JSRuntime != null)
@@ -25,6 +35,10 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		}
 	}
 
+	/// <summary>
+	/// Performs first-render initialization.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -33,6 +47,12 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		}
 	}
 
+	/// <summary>
+	/// Loads state for the supplied key from local storage.
+	/// </summary>
+	/// <typeparam name="T">State type.</typeparam>
+	/// <param name="key">State key.</param>
+	/// <returns>Deserialized state value, or default when key is missing.</returns>
 	public async Task<T?> LoadStateAsync<T>(string key)
 	{
 		try
@@ -56,6 +76,11 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		}
 	}
 
+	/// <summary>
+	/// Removes state for the supplied key from local storage.
+	/// </summary>
+	/// <param name="key">State key.</param>
+	/// <returns>A removal task.</returns>
 	public async Task RemoveStateAsync(string key)
 	{
 		try
@@ -73,6 +98,12 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 		}
 	}
 
+	/// <summary>
+	/// Saves state for the supplied key to local storage.
+	/// </summary>
+	/// <param name="key">State key.</param>
+	/// <param name="state">State object to serialize and store.</param>
+	/// <returns>A save task.</returns>
 	public async Task SaveStateAsync(string key, object state)
 	{
 		try
@@ -95,6 +126,9 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 
 	#region IAsyncDisposable
 
+	/// <summary>
+	/// Disposes JavaScript module resources.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
 		try

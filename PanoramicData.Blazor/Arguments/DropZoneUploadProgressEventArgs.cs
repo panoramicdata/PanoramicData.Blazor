@@ -9,6 +9,9 @@
 /// <param name="path">The path where the file is being uploaded.</param>
 /// <param name="name">The name of the file being uploaded.</param>
 /// <param name="size">The size of the file being uploaded.</param>
+/// <param name="key">The key identifying the upload.</param>
+/// <param name="sessionId">The session identifier for the upload.</param>
+/// <param name="progress">Initial upload progress value.</param>
 public class DropZoneUploadProgressEventArgs(string path, string name, long size, string key, string sessionId, double progress) : DropZoneUploadEventArgs(path, name, size, key, sessionId)
 {
 

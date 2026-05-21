@@ -21,7 +21,7 @@ public class TableEventArgs<TItem>(TItem item) where TItem : class
 /// <remarks>
 /// Initializes a new instance of the TableCancelEventArgs class.
 /// </remarks>
-/// <param name="node">The node the event relates to.</param>
+/// <param name="item">The item the event relates to.</param>
 public class TableCancelEventArgs<TItem>(TItem item) : TableEventArgs<TItem>(item) where TItem : class
 {
 	/// <summary>

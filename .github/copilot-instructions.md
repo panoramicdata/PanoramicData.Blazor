@@ -99,7 +99,7 @@ dotnet build PanoramicData.Blazor/PanoramicData.Blazor.csproj
 # 3. Run demo to verify
 dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj
 
-# 4. Navigate to: https://localhost:5001/component-name
+# 4. Navigate to: https://localhost:5301/component-name
 ```
 
 ### 2. Adding New Components

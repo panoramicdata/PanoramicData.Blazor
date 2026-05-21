@@ -1,5 +1,9 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Defines metadata and behavior for a table column bound to <typeparamref name="TItem"/>.
+/// </summary>
+/// <typeparam name="TItem">Row item type.</typeparam>
 public partial class PDColumn<TItem> where TItem : class
 {
 	private static int _idSequence = 1;
@@ -9,6 +13,9 @@ public partial class PDColumn<TItem> where TItem : class
 	private Func<TItem, object>? _compiledFunc;
 	private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
 
+	/// <summary>
+	/// Gets the mutable runtime state for this column.
+	/// </summary>
 	public ColumnState State { get; internal set; } = new();
 
 	/// <summary>
@@ -90,6 +97,9 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter]
 	public string FilterIcon { get; set; } = "fas fa-filter";
 
+	/// <summary>
+	/// Gets the active filter model associated with this column.
+	/// </summary>
 	public Filter Filter { get; private set; } = new Filter();
 
 	/// <summary>
@@ -128,6 +138,10 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter]
 	public int? FilterMaxValues { get; set; }
 
+	/// <summary>
+	/// Gets the bound property name for the column field expression.
+	/// </summary>
+	/// <returns>Property name when available; otherwise an empty string.</returns>
 	public string GetPropertyName()
 		=> Field != null ? Field.GetPropertyName() : string.Empty;
 
@@ -272,7 +286,6 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public Func<FormField<TItem>, TItem?, Task<OptionInfo[]>>? OptionsAsync { get; set; }
 
 	/// <summary>
-	/// <summary>
 	/// Gets or sets the preferred ordinal position of the column (from left to right).
 	/// </summary>
 	/// <remarks>The default is 1000 for all columns, columns of equal ordinality will remain in their defined order.</remarks>
@@ -324,11 +337,20 @@ public partial class PDColumn<TItem> where TItem : class
 	/// </summary>
 	[Parameter] public bool ShowValidationResult { get; set; } = true;
 
+	/// <summary>
+	/// Sets the column identifier.
+	/// </summary>
+	/// <param name="id">Column identifier.</param>
 	public void SetId(string id)
 	{
 		Id = id;
 	}
 
+	/// <summary>
+	/// Sets the field value on the supplied row item.
+	/// </summary>
+	/// <param name="item">Row item to update.</param>
+	/// <param name="value">New field value.</param>
 	public void SetValue(TItem? item, object? value)
 	{
 		// a null item can occur when an async operation completes and the item reference is no longer valid
@@ -431,6 +453,11 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <remarks>When set to a null (default) will use Table property value.</remarks>
 	[Parameter] public bool? UserSelectable { get; set; }
 
+	/// <summary>
+	/// Gets the display title for this column.
+	/// </summary>
+	/// <param name="item">Optional row item for title functions that depend on row context.</param>
+	/// <returns>Resolved title text.</returns>
 	public string GetTitle(TItem? item = default)
 	{
 		if (TitleFunc is not null)
@@ -449,6 +476,10 @@ public partial class PDColumn<TItem> where TItem : class
 			: memberInfo?.Name ?? string.Empty;
 	}
 
+	/// <summary>
+	/// Initializes column state and registers the column with the parent table.
+	/// </summary>
+	/// <returns>An initialization task.</returns>
 	protected override async Task OnInitializedAsync()
 	{
 		if (Table == null)
@@ -466,6 +497,9 @@ public partial class PDColumn<TItem> where TItem : class
 		await Table.AddColumnAsync(this).ConfigureAwait(true);
 	}
 
+	/// <summary>
+	/// Applies parameter-driven derived values such as field type metadata.
+	/// </summary>
 	protected override void OnParametersSet()
 	{
 		// Validate that enough parameters have been set correctly
@@ -477,30 +511,50 @@ public partial class PDColumn<TItem> where TItem : class
 		PropertyInfo = typeof(TItem).GetProperties().SingleOrDefault(p => p.Name == Field?.GetPropertyMemberInfo()?.Name);
 	}
 
+	/// <summary>
+	/// Sets the runtime ordinal for this column.
+	/// </summary>
+	/// <param name="ordinal">Display order value.</param>
 	public void SetOrdinal(int ordinal)
 	{
 		State.Ordinal = ordinal;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether this column should be shown in list displays.
+	/// </summary>
+	/// <param name="showInList">True to show in list mode; otherwise false.</param>
 	public void SetShowInList(bool showInList)
 	{
 		ShowInList = showInList;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets a runtime title override for this column.
+	/// </summary>
+	/// <param name="title">Title text.</param>
 	public void SetTitle(string title)
 	{
 		_title = title;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets runtime visibility for this column.
+	/// </summary>
+	/// <param name="isVisible">True to show; false to hide.</param>
 	public void SetVisible(bool isVisible)
 	{
 		State.Visible = isVisible;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Gets the filter data type inferred from the bound field.
+	/// </summary>
+	/// <returns>Filter data type.</returns>
 	public FilterDataTypes GetFilterDataType()
 	{
 		var memberInfo = Field?.GetPropertyMemberInfo();
@@ -541,6 +595,10 @@ public partial class PDColumn<TItem> where TItem : class
 		return FilterDataTypes.Numeric;
 	}
 
+	/// <summary>
+	/// Determines whether the filter value type can be null.
+	/// </summary>
+	/// <returns>True when filter values are nullable.</returns>
 	public bool GetFilterIsNullable()
 	{
 		var memberInfo = Field?.GetPropertyMemberInfo();
@@ -557,6 +615,10 @@ public partial class PDColumn<TItem> where TItem : class
 		return false;
 	}
 
+	/// <summary>
+	/// Gets the filter key path for this column.
+	/// </summary>
+	/// <returns>Filter key string.</returns>
 	public string GetFilterKey()
 	{
 		if (Field != null)

@@ -2,12 +2,18 @@
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// In-memory log viewer component that also implements <see cref="ILogger"/>.
+/// </summary>
 public partial class PDLog : ILogger
 {
 	private readonly List<LogEntry> _logEntries = [];
 
 	private ElementReference _logContainer;
 
+	/// <summary>
+	/// Gets or sets JavaScript runtime used for scrolling interop.
+	/// </summary>
 	[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 	private IJSObjectReference? _commonModule;
@@ -82,6 +88,10 @@ public partial class PDLog : ILogger
 
 	private List<LogEntry> OrderedEntries => (Reverse ? [.. _logEntries.OrderByDescending(x => x.Timestamp)] : _logEntries);
 
+	/// <summary>
+	/// Loads JavaScript helpers after first render.
+	/// </summary>
+	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -97,12 +107,18 @@ public partial class PDLog : ILogger
 		}
 	}
 
+	/// <summary>
+	/// Clears all buffered log entries.
+	/// </summary>
 	public void Clear()
 	{
 		_logEntries.Clear();
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Normalizes parameter values and enforces log capacity limits.
+	/// </summary>
 	protected override void OnParametersSet()
 	{
 		if (Capacity < 1)
@@ -118,10 +134,30 @@ public partial class PDLog : ILogger
 		base.OnParametersSet();
 	}
 
+	/// <summary>
+	/// Begins a logging scope. This implementation does not maintain scopes.
+	/// </summary>
+	/// <typeparam name="TState">Scope state type.</typeparam>
+	/// <param name="state">Scope state.</param>
+	/// <returns>Always returns null.</returns>
 	public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 
+	/// <summary>
+	/// Determines whether the specified level is enabled for display.
+	/// </summary>
+	/// <param name="logLevel">Log level to test.</param>
+	/// <returns>True when enabled.</returns>
 	public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel;
 
+	/// <summary>
+	/// Appends a log entry when the requested level is enabled.
+	/// </summary>
+	/// <typeparam name="TState">Structured state type.</typeparam>
+	/// <param name="logLevel">Entry severity.</param>
+	/// <param name="eventId">Event identifier.</param>
+	/// <param name="state">Structured state payload.</param>
+	/// <param name="exception">Optional exception payload.</param>
+	/// <param name="formatter">Formatter used to produce message text.</param>
 	public void Log<TState>(
 		LogLevel logLevel,
 		EventId eventId,

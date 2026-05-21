@@ -25,8 +25,7 @@ public class PDSplitterException : PDBlazorException
 	/// message and a reference to the inner exception that is the cause of this exception.
 	/// </summary>
 	/// <param name="message">The message that describes the error.</param>
-	/// <param name="innerException">The exception that is the cause of the current exception, or a null reference
-	//  if no inner exception is specified.</param>
+	/// <param name="innerException">The exception that is the cause of the current exception, or a null reference if no inner exception is specified.</param>
 	public PDSplitterException(string message, Exception innerException) : base(message, innerException)
 	{
 	}
