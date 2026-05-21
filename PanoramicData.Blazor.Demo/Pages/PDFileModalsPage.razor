@@ -6,47 +6,38 @@
 	</DocumentationContent>
 	<ChildContent>
 
-	<div>
-		<p>The following buttons will display the Modal using Async methods that will wait for, and return a result.</p>
-		<PDToolbar>
+	<h4>Await Result</h4>
+	<p class="text-muted">Use the <code>ShowOpenAndWaitResultAsync</code> / <code>ShowSaveAsAndWaitResultAsync</code> methods to await the user's choice inline.</p>
+	<PDToolbar>
+		<PDToolbarButton Text="Select any file"
+						 CssClass="btn-primary"
+						 ToolTip="Allow the user to pick any file"
+						 Click="ShowFileOpenModalAndWaitResult" />
+		<PDToolbarButton Text="Select DOCX or XLSX file"
+						 CssClass="btn-secondary"
+						 ToolTip="Allow the user to pick only DOCX and XLSX files"
+						 Click="ShowFileOpenFilteredModalAndWaitResult" />
+		<PDToolbarButton Text="Select any folder"
+						 CssClass="btn-secondary"
+						 ToolTip="Allow the user to pick only folders"
+						 Click="ShowFolderOpenModalAndWaitResult" />
+		<PDToolbarButton Text="Save As"
+						 CssClass="btn-secondary"
+						 ToolTip="Allow the user to pick any filename to save as"
+						 Click="ShowFileSaveAsModalAndWaitResult" />
+	</PDToolbar>
 
-			<PDToolbarButton Text="Select any file"
-							 CssClass="btn-primary"
-							 ToolTip="Allow the user to pick any file"
-							 Click="ShowFileOpenModalAndWaitResult" />
-
-			<PDToolbarButton Text="Select DOCX or XLSX file"
-							 CssClass="btn-secondary"
-							 ToolTip="Allow the user to pick only DOCX and XLSX files"
-							 Click="ShowFileOpenFilteredModalAndWaitResult" />
-
-			<PDToolbarButton Text="Select any folder"
-							 CssClass="btn-secondary"
-							 ToolTip="Allow the user to pick only folders"
-							 Click="ShowFolderOpenModalAndWaitResult" />
-
-			<PDToolbarButton Text="Select Save As filename"
-							 CssClass="btn-secondary"
-							 ToolTip="Allow the user to pick any filename to save as"
-							 Click="ShowFileSaveAsModalAndWaitResult" />
-		</PDToolbar>
-	</div>
-
-	<div class="mt-2">
-		<p>The following buttons will display the Modal using Async methods that simply setup and display the Modal. Results are retrieved by hooking into the ModalHidden event callback.</p>
-		<PDToolbar>
-
-			<PDToolbarButton Text="Show Open Dialog"
-							 CssClass="btn-secondary"
-							 ToolTip="Hide the File Open dialog"
-							 Click="ShowFileOpenModal" />
-
-			<PDToolbarButton Text="Show Save As Dialog"
-							 CssClass="btn-secondary"
-							 ToolTip="Hide the File Open dialog"
-							 Click="ShowFileSaveAsModal" />
-		</PDToolbar>
-	</div>
+	<hr />
+	<h4>Event Callback</h4>
+	<p class="text-muted">Use <code>ShowOpenAsync</code> / <code>ShowSaveAsAsync</code> to display the modal without waiting, and handle results via the <code>ModalHidden</code> event callback.</p>
+	<PDToolbar>
+		<PDToolbarButton Text="Show Open Dialog"
+						 CssClass="btn-secondary"
+						 Click="ShowFileOpenModal" />
+		<PDToolbarButton Text="Show Save As Dialog"
+						 CssClass="btn-secondary"
+						 Click="ShowFileSaveAsModal" />
+	</PDToolbar>
 
 	<PDFileModal @ref="_fileModal"
 				 CloseOnEscape="false"
@@ -60,14 +51,104 @@
 				 ShowToolbar="true"
 				 TreeSort="OnTreeSort" />
 
-	<div class="mt-4">
-		<div>
-			<span>Open Result: @_openResult</span>
-		</div>
-		<div>
-			<span>Save As Result: @_saveAsResult</span>
-		</div>
+	<div class="mt-3">
+		<div><span class="text-muted">Open result:</span> <strong>@_openResult</strong></div>
+		<div><span class="text-muted">Save As result:</span> <strong>@_saveAsResult</strong></div>
 	</div>
+
+	<hr />
+	<h4>Customised Button Text and Icons</h4>
+	<p class="text-muted">
+		Use <code>OpenButtonText</code>, <code>OpenButtonIconCssClass</code>, <code>SaveButtonText</code>, and <code>SaveButtonIconCssClass</code>
+		to replace the default button labels and icons.
+	</p>
+	<PDToolbar>
+		<PDToolbarButton Text="Custom Open"
+						 CssClass="btn-secondary"
+						 Click="ShowCustomOpenAndWait" />
+		<PDToolbarButton Text="Custom Save As"
+						 CssClass="btn-secondary"
+						 Click="ShowCustomSaveAsAndWait" />
+	</PDToolbar>
+
+	<PDFileModal @ref="_customButtonModal"
+				 DataProvider="_dataProvider"
+				 OpenButtonText="Pick this file"
+				 OpenButtonIconCssClass="fas fa-fw fa-check"
+				 SaveButtonText="Write here"
+				 SaveButtonIconCssClass="fas fa-fw fa-pen"
+				 OpenTitle="Custom Open Title"
+				 SaveTitle="Custom Save Title" />
+
+	<div class="mt-3">
+		<div><span class="text-muted">Custom result:</span> <strong>@_customResult</strong></div>
+	</div>
+
+	<hr />
+	<h4>Excluded Paths</h4>
+	<p class="text-muted">
+		Use <code>ExcludedPaths</code> to hide specific folders from the tree. The <code>/Library</code> and <code>/Temp</code> paths are excluded below.
+	</p>
+	<PDToolbar>
+		<PDToolbarButton Text="Open (Library and Temp hidden)"
+						 CssClass="btn-secondary"
+						 Click="ShowExcludedPathsOpenAndWait" />
+	</PDToolbar>
+
+	<PDFileModal @ref="_excludedPathsModal"
+				 DataProvider="_dataProvider"
+				 ExcludedPaths="@(new[] { "/Library", "/Temp" })"
+				 OpenTitle="Pick a file (restricted)" />
+
+	<div class="mt-3">
+		<div><span class="text-muted">Result:</span> <strong>@_excludedResult</strong></div>
+	</div>
+
+	<hr />
+	<h4>Read-Only Indicator</h4>
+	<p class="text-muted">
+		Use <code>ReadOnlyIconClass</code> and <code>ReadOnlyIndicatorPosition</code> to control how read-only files are marked.
+		Below, a lock icon is shown <em>before</em> the filename for read-only items.
+	</p>
+	<PDToolbar>
+		<PDToolbarButton Text="Open (read-only icon)"
+						 CssClass="btn-secondary"
+						 Click="ShowReadOnlyOpenAndWait" />
+	</PDToolbar>
+
+	<PDFileModal @ref="_readOnlyModal"
+				 DataProvider="_readOnlyDataProvider"
+				 ReadOnlyIconClass="fas fa-fw fa-lock"
+				 ReadOnlyIndicatorPosition="ReadOnlyIndicatorPosition.Before"
+				 OpenTitle="Pick a file" />
+
+	<div class="mt-3">
+		<div><span class="text-muted">Result:</span> <strong>@_readOnlyResult</strong></div>
+	</div>
+
+	<hr />
+	<h4>Custom Height and Size</h4>
+	<p class="text-muted">
+		Use <code>Height</code> to control the file explorer area height, and <code>Size</code> to control the modal size.
+		Below uses <code>Size="ModalSizes.ExtraLarge"</code> and <code>Height="600px"</code>.
+	</p>
+	<PDToolbar>
+		<PDToolbarButton Text="Open (extra large)"
+						 CssClass="btn-secondary"
+						 Click="ShowLargeOpenAndWait" />
+	</PDToolbar>
+
+	<PDFileModal @ref="_largeModal"
+				 DataProvider="_dataProvider"
+				 Size="ModalSizes.ExtraLarge"
+				 Height="600px"
+				 OpenTitle="Large File Picker" />
+
+	<div class="mt-3">
+		<div><span class="text-muted">Result:</span> <strong>@_largeResult</strong></div>
+	</div>
+
+	<EventView />
 
 	</ChildContent>
 </DemoSourceView>
