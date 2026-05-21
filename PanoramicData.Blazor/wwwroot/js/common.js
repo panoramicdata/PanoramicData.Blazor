@@ -208,6 +208,17 @@ export function clearInlineStyle(element) {
 	}
 }
 
+export function initDragImage(id) {
+	var el = document.getElementById(id);
+	if (!el || el._dragImageInitialized) return;
+	el._dragImageInitialized = true;
+	el.addEventListener('dragstart', function (e) {
+		if (e.dataTransfer) {
+			e.dataTransfer.setDragImage(el, 0, 0);
+		}
+	}, { capture: true });
+}
+
 export function setProperty(element, property, value) {
 	if (element) {
 		element[property] = value;

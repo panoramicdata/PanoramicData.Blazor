@@ -93,6 +93,13 @@ public partial class PDTreeNode<TItem> where TItem : class
 
 				Node.BeginEditEvent.Reset();
 			}
+
+			// Fix #38: register a native dragstart listener so we can call setDragImage on
+			// the real dataTransfer object (Blazor DragEventArgs doesn't carry it)
+			if (AllowDrag && _commonModule != null)
+			{
+				await _commonModule.InvokeVoidAsync("initDragImage", $"pdtnc-{Node.Id}").ConfigureAwait(true);
+			}
 		}
 	}
 
