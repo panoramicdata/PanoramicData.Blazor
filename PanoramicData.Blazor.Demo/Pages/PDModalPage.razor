@@ -28,6 +28,21 @@
 		</Footer>
 	</PDModal>
 
+	<hr />
+	<h4>CloseOnEscape / HideOnBackgroundClick test <small class="text-muted">(issue #32)</small></h4>
+	<p class="text-muted">This modal has <code>CloseOnEscape="false"</code> and <code>HideOnBackgroundClick="false"</code> - pressing ESC or clicking the backdrop should <strong>not</strong> close it.</p>
+	<button class="btn btn-secondary" @onclick="() => _noEscapeModal.ShowAsync()">Open modal (ESC disabled)</button>
+
+	<PDModal @ref="_noEscapeModal" CloseOnEscape="false" HideOnBackgroundClick="false" Title="ESC is disabled">
+		<ChildContent>
+			<p>Try pressing <kbd>ESC</kbd> or clicking outside this modal - neither should close it.</p>
+			<p>Only the Close button below should work.</p>
+		</ChildContent>
+		<Footer>
+			<PDButton Click="() => _noEscapeModal.HideAsync()">Close</PDButton>
+		</Footer>
+	</PDModal>
+
 
 	</ChildContent>
 </DemoSourceView>

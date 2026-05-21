@@ -5,6 +5,7 @@ public partial class PDModalPage
 	private readonly CarDataProvider _dataProvider = new();
 
 	private PDModal _modalPopup = null!;
+	private PDModal _noEscapeModal = null!;
 
 	private Task OnClick(MouseEventArgs e)
 		=> _modalPopup.ShowAsync();

@@ -168,9 +168,9 @@ public partial class PDModal : IAsyncDisposable
 				{
 					_modalObj = await _module.InvokeAsync<IJSObjectReference>("initialize", Id, new
 					{
-						Backdrop = HideOnBackgroundClick ? (object)true : "static",
-						Focus = true,
-						Keyboard = CloseOnEscape
+						backdrop = HideOnBackgroundClick ? (object)true : "static",
+						focus = true,
+						keyboard = CloseOnEscape
 					}, _dotNetReference).ConfigureAwait(true);
 				}
 			}
