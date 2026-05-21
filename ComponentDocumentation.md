@@ -223,6 +223,34 @@ This component has no public parameters.
 
 ---
 
+## PDColorPicker
+
+A color picker component with support for multiple color modes, color space selectors, palettes, and recent colors.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Id | string | Gets or sets the unique identifier. |
+| Value | string | Gets or sets the current color value (hex format). |
+| ValueChanged | EventCallback<string> | Raised when the color value changes. |
+| ColorSelected | EventCallback<string> | Raised when a color is selected (after confirmation if buttons shown). |
+| Size | ButtonSizes? | Gets or sets the button size. |
+| Text | string | Gets or sets the text displayed on the button. |
+| CssClass | string | Gets or sets CSS classes for the button. |
+| ItemCssClass | string | Gets or sets CSS classes for the toolbar item. |
+| TextCssClass | string | Gets or sets CSS classes for the text. |
+| ToolTip | string | Gets or sets the tooltip. |
+| IsVisible | bool | Gets or sets whether the toolbar item is visible. |
+| IsEnabled | bool | Gets or sets whether the toolbar item is enabled. |
+| ShiftRight | bool | Gets or sets whether the toolbar item is positioned further to the right. |
+| Options | ColorPickerOptions | Gets or sets the color picker options. |
+| Palette | List<PaletteColor>? | Gets or sets the color palette to display. |
+| RecentColors | List<string>? | Gets or sets the recently chosen colors. |
+| RecentColorsChanged | EventCallback<List<string>> | Raised when recent colors should be updated. |
+
+---
+
 ## PDContextMenu
 
 This component has no public parameters.
@@ -255,6 +283,48 @@ This component has no public parameters.
 | TimeStepSecs | int | Gets or sets the step in seconds for the time input. |
 | Value | DateTimeOffset | Gets or sets the current value. |
 | ValueChanged | EventCallback<DateTimeOffset> | An event callback that is invoked when the value changes. |
+
+---
+
+## PDDashboard
+
+A tabbed dashboard container with CSS grid layout, kiosk/display mode, tab rotation, and drag-and-drop tile editing.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Tabs | List<PDDashboardTab> | Gets or sets the dashboard tabs. |
+| ColumnCount | int | Gets or sets the number of grid columns. Default 12. |
+| TileRowHeightPx | int | Gets or sets the height of each grid row in pixels. |
+| Css | string? | Gets or sets dashboard-level CSS classes. |
+| WidgetHeaderCss | string? | Gets or sets CSS classes applied to all widget headers. |
+| WidgetBorderCss | string? | Gets or sets CSS classes applied to all widget borders/cards. |
+| WidgetContentCss | string? | Gets or sets CSS classes applied to all widget content areas. |
+| ShowTabs | bool | Gets or sets whether to show the tab bar. |
+| StartTab | int | Gets or sets the index of the initially selected tab. |
+| IsRotationEnabled | bool | Gets or sets whether automatic tab rotation is enabled. |
+| RotationIntervalSeconds | int | Gets or sets the tab auto-rotation interval in seconds. |
+| DisplayMode | bool | Gets or sets kiosk/display mode - hides all editing chrome when true. |
+| IsEditable | bool | Gets or sets whether editing controls are enabled. |
+| MaximizePercent | int | Gets or sets the percentage of dashboard area used when a tile is maximized. Default 80. |
+| ShowMaximize | bool | Gets or sets whether the maximize button is shown in view mode. |
+| Name | string? | Gets or sets the dashboard display name. |
+| ShowName | bool | Gets or sets whether to show the dashboard name in a header row. |
+| DisplayModeHeader | DisplayModeHeaderContent | Gets or sets what to display in the header row when in display mode. |
+| AllowViewModePropertyEdit | bool | Gets or sets whether users in regular view can override property values for their session. |
+| ShowEditButton | bool | Gets or sets whether to show the built-in edit mode toggle button. |
+| Properties | Dictionary<string, string>? | Gets or sets dashboard-level properties cascaded to all widgets. |
+| ConfirmTileDelete | bool | Gets or sets whether tile deletion requires a confirmation dialog. Default true. |
+| OnTileMove | EventCallback | Fired when a tile is moved via drag-and-drop. |
+| OnTileResize | EventCallback | Fired when a tile is resized. |
+| OnTileAdd | EventCallback | Fired when the user requests to add a new tile. |
+| OnTileDelete | EventCallback<PDDashboardTile> | Fired when a tile is deleted. |
+| OnTabAdd | EventCallback<PDDashboardTab> | Fired when a tab is added. |
+| OnTabRemove | EventCallback<PDDashboardTab> | Fired when a tab is removed. |
+| OnSettingsChanged | EventCallback | Fired when settings change. |
+| ActiveTabChanged | EventCallback<int> | Fired when the active tab changes. |
+| OnEditModeChanged | EventCallback<bool> | Fired when the IsEditable property changes value. |
 
 ---
 
@@ -865,6 +935,30 @@ This component has no public parameters.
 
 ---
 
+## PDTiles
+
+An isometric tile grid component rendered as pure Blazor SVG, supporting connectors, animations, logos, and custom tile definitions.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Id | string | Gets or sets the unique identifier. |
+| CssClass | string | Gets or sets the CSS class for the component. |
+| Style | string | Gets or sets additional inline styles. |
+| Width | string | Gets or sets the width of the component. Default `100%`. |
+| Height | string | Gets or sets the height of the component. Default `400px`. |
+| Options | TileGridOptions | Gets or sets the grid options. |
+| ConnectorOptions | TileConnectorOptions | Gets or sets the connector options. |
+| Tiles | List<TileDefinition>? | Gets or sets custom tile definitions with per-tile overrides. |
+| Connectors | List<TileConnector>? | Gets or sets custom connector definitions. |
+| Logos | List<string> | Gets or sets the list of logo paths to display on tiles. |
+| ChildContent | RenderFragment? | Gets or sets child content rendered on top of the tiles. |
+| TileClick | EventCallback<TileClickEventArgs> | Invoked when a tile is clicked. |
+| ConnectorClick | EventCallback<ConnectorClickEventArgs> | Invoked when a connector is clicked. |
+
+---
+
 ## PDTextArea
 
 This component has no public parameters.
@@ -964,6 +1058,14 @@ This component has no public parameters.
 ## PDToolbarPlaceholder
 
 This component has no public parameters.
+
+---
+
+## PDToolbarColorPicker
+
+A toolbar-hosted color picker button. Wraps `PDColorPicker` for use within a `PDToolbar`. See `PDColorPicker` for the full parameter reference.
+
+This component has no additional public parameters beyond those inherited from `PDColorPicker`.
 
 ---
 
