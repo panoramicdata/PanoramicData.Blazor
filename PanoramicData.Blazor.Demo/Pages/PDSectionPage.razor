@@ -1,0 +1,111 @@
+@page "/pdsection"
+
+<PageTitle>PDSection</PageTitle>
+
+<DemoSourceView SourceFiles="Pages/PDSectionPage.razor, Pages/PDSectionPage.razor.cs">
+    <DocumentationContent>
+        <PDSectionDocumentation />
+    </DocumentationContent>
+    <ChildContent>
+
+        <h4>Basic</h4>
+        <PDSection Title="Section Title" @bind-IsCollapsed="_collapsed1" Toggled="OnToggled">
+            <p>This is the body content. It smoothly animates open and closed.</p>
+            <p>The header background, border colour, animation duration and all other styles can be overridden via <code>--pd-section-*</code> CSS custom properties.</p>
+        </PDSection>
+
+        <div class="mt-2">
+            <button class="btn btn-sm btn-outline-secondary" @onclick="() => _collapsed1 = !_collapsed1">
+                Toggle from outside (@(_collapsed1 ? "collapsed" : "expanded"))
+            </button>
+        </div>
+
+        <h4 class="mt-4">Secondary title</h4>
+        <PDSection Title="Connections" SecondaryTitle="(12 active)">
+            <p>A secondary title appears beside the primary title in a muted, smaller weight.</p>
+        </PDSection>
+
+        <h4 class="mt-4">Heading level</h4>
+        <PDSection Title="H3 Heading Section" HeadingLevel="3" IsCollapsed="true">
+            <p>The title is rendered as an <code>&lt;h3&gt;</code> element for correct document outline semantics.</p>
+        </PDSection>
+
+        <h4 class="mt-4">Templated title</h4>
+        <PDSection>
+            <TitleTemplate>
+                <span class="fw-bold">Custom Template</span>
+                <span class="badge bg-primary ms-2">New</span>
+                <span class="badge bg-warning text-dark ms-1">Beta</span>
+            </TitleTemplate>
+            <ChildContent>
+                <p>The <code>TitleTemplate</code> render fragment gives full control over the header content.</p>
+            </ChildContent>
+        </PDSection>
+
+        <h4 class="mt-4">Header actions</h4>
+        <PDSection Title="Section with actions" @bind-IsCollapsed="_collapsed2">
+            <HeaderActions>
+                <button class="btn btn-sm btn-primary" @onclick="OnActionClicked">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+                <button class="btn btn-sm btn-secondary" @onclick="OnActionClicked">
+                    <i class="fas fa-ellipsis-h"></i>
+                </button>
+            </HeaderActions>
+            <ChildContent>
+                <p>Buttons in <code>HeaderActions</code> do not trigger collapse - their click events are stopped from propagating.</p>
+                @if (!string.IsNullOrEmpty(_actionMessage))
+                {
+                    <div class="alert alert-info py-1 mb-0 mt-2">@_actionMessage</div>
+                }
+            </ChildContent>
+        </PDSection>
+
+        <h4 class="mt-4">Initially collapsed</h4>
+        <PDSection Title="Advanced Options" IsCollapsed="true">
+            <p>Start collapsed by setting <code>IsCollapsed="true"</code>.</p>
+        </PDSection>
+
+        <h4 class="mt-4">Borderless variant</h4>
+        <PDSection Title="Borderless" CssClass="pd-section-borderless">
+            <p>Use <code>CssClass="pd-section-borderless"</code> for a lighter style - just an underline header, no outer box.</p>
+        </PDSection>
+
+        <h4 class="mt-4">Flush variant</h4>
+        <PDSection Title="First Item" CssClass="pd-section-flush">
+            <p>The flush variant removes the outer border and left padding.</p>
+        </PDSection>
+        <PDSection Title="Second Item" CssClass="pd-section-flush" IsCollapsed="true">
+            <p>Flush sections can be stacked to create an accordion-like appearance.</p>
+        </PDSection>
+        <PDSection Title="Third Item" CssClass="pd-section-flush" IsCollapsed="true">
+            <p>Each section still collapses independently.</p>
+        </PDSection>
+
+        <h4 class="mt-4">Custom CSS variable override</h4>
+        <PDSection Title="Custom Themed Section"
+                   style="--pd-section-header-bg: #4a1942; --pd-section-header-color: #ffffff; --pd-section-chevron-color: #ffffff; --pd-section-border-color: #4a1942;">
+            <p>Override any <code>--pd-section-*</code> custom property on the element via the <code>style</code> attribute or a parent CSS rule. No <code>!important</code> needed.</p>
+        </PDSection>
+
+        <h4 class="mt-4">Disabled</h4>
+        <PDSection Title="Locked Section" IsDisabled="true">
+            <p>When <code>IsDisabled="true"</code> the header toggle is disabled - the content is visible but the user cannot collapse it.</p>
+        </PDSection>
+
+        <h4 class="mt-4">Programmatic control</h4>
+        <PDSection @ref="_refSection" Title="Programmatically Controlled Section">
+            <p>Call <code>ExpandAsync()</code>, <code>CollapseAsync()</code> or <code>ToggleAsync()</code> on a component reference.</p>
+        </PDSection>
+        <div class="mt-2 d-flex gap-2">
+            <button class="btn btn-sm btn-success" @onclick="() => _refSection!.ExpandAsync()">Expand</button>
+            <button class="btn btn-sm btn-danger" @onclick="() => _refSection!.CollapseAsync()">Collapse</button>
+            <button class="btn btn-sm btn-secondary" @onclick="() => _refSection!.ToggleAsync()">Toggle</button>
+        </div>
+
+        <div class="mt-4">
+            <EventView />
+        </div>
+
+    </ChildContent>
+</DemoSourceView>

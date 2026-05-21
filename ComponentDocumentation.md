@@ -838,6 +838,67 @@ This component has no public parameters.
 
 ---
 
+## PDSection
+
+A collapsible section component with a smooth CSS animation, accessible markup, and fully overridable theming via CSS custom properties.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Title | string | Primary title text. Ignored when TitleTemplate is set. |
+| SecondaryTitle | string | Optional secondary title rendered beside the primary in muted smaller text. |
+| HeadingLevel | int? | Render title as H1-H6. When null (default), renders as a plain span. |
+| TitleTemplate | RenderFragment | Full control over the title area content. Overrides Title, SecondaryTitle and HeadingLevel. |
+| HeaderActions | RenderFragment | Content rendered on the right side of the header. Clicks do not propagate to the toggle. |
+| ChildContent | RenderFragment | The body content shown when expanded. |
+| IsCollapsed | bool | Whether the section is currently collapsed. Supports two-way binding via @bind-IsCollapsed. |
+| IsDisabled | bool | When true, the header toggle button is disabled and the section cannot be collapsed. |
+| IsCollapsedChanged | EventCallback&lt;bool&gt; | Raised when IsCollapsed changes (two-way binding support). |
+| Toggled | EventCallback&lt;bool&gt; | Raised after toggle, with the new IsCollapsed value. |
+| ExpanderTooltip | string | Tooltip on the header button. |
+| Id | string | HTML id attribute. Auto-generated if not provided. |
+| CssClass | string | Extra CSS classes on the outer container. |
+| HeaderCssClass | string | Extra CSS classes on the header button. |
+| BodyCssClass | string | Extra CSS classes on the body inner div. |
+| TitleCssClass | string | Extra CSS classes on the title element. |
+| SecondaryTitleCssClass | string | Extra CSS classes on the secondary title element. |
+
+**Methods:**
+
+| Method | Description |
+|--------|-------------|
+| ExpandAsync() | Expands the section if currently collapsed. |
+| CollapseAsync() | Collapses the section if currently expanded. |
+| ToggleAsync() | Toggles the section regardless of current state. |
+
+**Built-in CSS class variants** (applied via `CssClass`):
+
+| Class | Description |
+|-------|-------------|
+| *(default)* | Boxed with rounded corners and a shaded header background. |
+| `pd-section-borderless` | No outer border; header uses only an underline. Ideal for page-level sections. |
+| `pd-section-flush` | No outer border, no left padding. Stack multiple for an accordion-like layout. |
+
+**CSS Custom Properties** (all overridable without `!important`):
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `--pd-section-border-color` | `--bs-border-color` | Outer and header bottom border colour. |
+| `--pd-section-border-radius` | `--bs-border-radius` | Corner radius. |
+| `--pd-section-header-bg` | `--bs-tertiary-bg` | Header background. |
+| `--pd-section-header-bg-hover` | `--bs-secondary-bg` | Header background on hover/focus. |
+| `--pd-section-header-color` | `--bs-body-color` | Header text colour. |
+| `--pd-section-header-padding` | `0.5rem 0.75rem` | Header padding. |
+| `--pd-section-body-padding` | `0.75rem` | Body content padding. |
+| `--pd-section-chevron-color` | `--bs-secondary-color` | Chevron icon colour. |
+| `--pd-section-chevron-size` | `0.75rem` | Chevron icon font size. |
+| `--pd-section-title-font-size` | `inherit` | Title font size. |
+| `--pd-section-title-font-weight` | `600` | Title font weight. |
+| `--pd-section-animate-duration` | `0.2s` | Collapse/expand animation duration. Set to `0s` to disable. |
+
+---
+
 ## PDResizePane
 
 No code-behind file found for this component.

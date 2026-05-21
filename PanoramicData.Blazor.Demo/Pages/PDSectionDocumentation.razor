@@ -1,0 +1,91 @@
+<div class="pd-component-documentation">
+    <section id="overview">
+        <h2 class="doc-section">Overview</h2>
+        <p>
+            <strong>PDSection</strong> is a collapsible section component with a smooth CSS animation,
+            accessible markup, and fully overridable theming via CSS custom properties.
+        </p>
+        <ul>
+            <li>Smooth collapse/expand using the CSS <code>grid-template-rows</code> trick - no JavaScript needed</li>
+            <li>Accessible: uses <code>&lt;button&gt;</code> with <code>aria-expanded</code> / <code>aria-controls</code></li>
+            <li>Two-way bindable <code>IsCollapsed</code></li>
+            <li>Templatable title via <code>TitleTemplate</code></li>
+            <li>Optional heading level (H1-H6) for correct document outline</li>
+            <li>Header actions slot with click-propagation guard</li>
+            <li>Three built-in variants: default (boxed), borderless, flush</li>
+            <li>All colours and dimensions overridable via <code>--pd-section-*</code> CSS custom properties</li>
+        </ul>
+    </section>
+
+    <section id="parameters">
+        <h2 class="doc-section">Parameters</h2>
+        <table class="table table-sm">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>Title</code></td><td>string</td><td>""</td><td>Primary title text. Ignored when TitleTemplate is set.</td></tr>
+                <tr><td><code>SecondaryTitle</code></td><td>string</td><td>""</td><td>Optional secondary title rendered beside the primary in muted smaller text.</td></tr>
+                <tr><td><code>HeadingLevel</code></td><td>int?</td><td>null</td><td>Render title as H1-H6. When null, renders as a span.</td></tr>
+                <tr><td><code>TitleTemplate</code></td><td>RenderFragment</td><td>null</td><td>Full control over the title area content.</td></tr>
+                <tr><td><code>HeaderActions</code></td><td>RenderFragment</td><td>null</td><td>Content rendered on the right side of the header. Clicks do not propagate to the toggle.</td></tr>
+                <tr><td><code>ChildContent</code></td><td>RenderFragment</td><td>null</td><td>The body content shown when expanded.</td></tr>
+                <tr><td><code>IsCollapsed</code></td><td>bool</td><td>false</td><td>Whether the section is currently collapsed. Supports two-way binding.</td></tr>
+                <tr><td><code>IsDisabled</code></td><td>bool</td><td>false</td><td>When true, the header toggle button is disabled and the section cannot be collapsed.</td></tr>
+                <tr><td><code>IsCollapsedChanged</code></td><td>EventCallback&lt;bool&gt;</td><td>-</td><td>Raised when IsCollapsed changes (two-way binding support).</td></tr>
+                <tr><td><code>Toggled</code></td><td>EventCallback&lt;bool&gt;</td><td>-</td><td>Raised after toggle, with the new IsCollapsed value.</td></tr>
+                <tr><td><code>ExpanderTooltip</code></td><td>string</td><td>"Click to expand or collapse"</td><td>Tooltip on the header button.</td></tr>
+                <tr><td><code>Id</code></td><td>string</td><td>auto</td><td>HTML id attribute. Auto-generated if not provided.</td></tr>
+                <tr><td><code>CssClass</code></td><td>string</td><td>""</td><td>Extra CSS classes on the outer container.</td></tr>
+                <tr><td><code>HeaderCssClass</code></td><td>string</td><td>""</td><td>Extra CSS classes on the header button.</td></tr>
+                <tr><td><code>BodyCssClass</code></td><td>string</td><td>""</td><td>Extra CSS classes on the body inner div.</td></tr>
+                <tr><td><code>TitleCssClass</code></td><td>string</td><td>""</td><td>Extra CSS classes on the title element.</td></tr>
+                <tr><td><code>SecondaryTitleCssClass</code></td><td>string</td><td>"text-muted ms-2 fw-normal"</td><td>Extra CSS classes on the secondary title element.</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="methods">
+        <h2 class="doc-section">Methods</h2>
+        <table class="table table-sm">
+            <thead><tr><th>Method</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>ExpandAsync()</code></td><td>Expands the section if currently collapsed.</td></tr>
+                <tr><td><code>CollapseAsync()</code></td><td>Collapses the section if currently expanded.</td></tr>
+                <tr><td><code>ToggleAsync()</code></td><td>Toggles the section regardless of current state.</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="theming">
+        <h2 class="doc-section">CSS Custom Properties</h2>
+        <p>Override any of these on <code>.pd-section</code> or a parent selector to theme without <code>!important</code>.</p>
+        <table class="table table-sm">
+            <thead><tr><th>Property</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>--pd-section-border-color</code></td><td>--bs-border-color</td><td>Outer border and header bottom border colour.</td></tr>
+                <tr><td><code>--pd-section-border-radius</code></td><td>--bs-border-radius</td><td>Corner radius of the outer container.</td></tr>
+                <tr><td><code>--pd-section-header-bg</code></td><td>--bs-tertiary-bg</td><td>Header background colour.</td></tr>
+                <tr><td><code>--pd-section-header-bg-hover</code></td><td>--bs-secondary-bg</td><td>Header background on hover/focus.</td></tr>
+                <tr><td><code>--pd-section-header-color</code></td><td>--bs-body-color</td><td>Header text colour.</td></tr>
+                <tr><td><code>--pd-section-header-padding</code></td><td>0.5rem 0.75rem</td><td>Header padding.</td></tr>
+                <tr><td><code>--pd-section-body-padding</code></td><td>0.75rem</td><td>Body content padding.</td></tr>
+                <tr><td><code>--pd-section-chevron-color</code></td><td>--bs-secondary-color</td><td>Chevron icon colour.</td></tr>
+                <tr><td><code>--pd-section-chevron-size</code></td><td>0.75rem</td><td>Chevron icon font size.</td></tr>
+                <tr><td><code>--pd-section-title-font-size</code></td><td>inherit</td><td>Title font size.</td></tr>
+                <tr><td><code>--pd-section-title-font-weight</code></td><td>600</td><td>Title font weight.</td></tr>
+                <tr><td><code>--pd-section-animate-duration</code></td><td>0.2s</td><td>Collapse/expand animation duration. Set to 0s to disable.</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="variants">
+        <h2 class="doc-section">Built-in Variants</h2>
+        <table class="table table-sm">
+            <thead><tr><th>CssClass</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>(default)</td><td>Boxed with rounded corners, shaded header background.</td></tr>
+                <tr><td><code>pd-section-borderless</code></td><td>No outer border; header is just an underline. Ideal for page sections.</td></tr>
+                <tr><td><code>pd-section-flush</code></td><td>No outer border, no left padding. Stack multiple for an accordion-like layout.</td></tr>
+            </tbody>
+        </table>
+    </section>
+</div>
