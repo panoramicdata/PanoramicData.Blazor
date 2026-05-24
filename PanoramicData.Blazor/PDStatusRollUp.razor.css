@@ -15,7 +15,7 @@
 
 .pdsr-trigger:hover,
 .pdsr-trigger:focus-visible {
-	background: rgba(0, 0, 0, .07);
+	background: var(--bs-tertiary-bg, rgba(0, 0, 0, .07));
 }
 
 .pdsr-trigger i {
@@ -27,6 +27,7 @@
 .pdsr-label {
 	font-size: .8rem;
 	white-space: nowrap;
+	color: var(--bs-body-color, inherit);
 }
 
 /* Status colours — used for the trigger icon */

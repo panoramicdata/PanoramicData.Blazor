@@ -291,10 +291,11 @@ function _globalStyles() {
 	position: fixed;
 	z-index: 1050;
 	width: 280px;
-	background: #fff;
-	border: 1px solid rgba(0,0,0,.15);
+	background: var(--bs-body-bg, #fff);
+	color: var(--bs-body-color, #212529);
+	border: 1px solid var(--bs-border-color, rgba(0,0,0,.15));
 	border-radius: .375rem;
-	box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+	box-shadow: 0 .5rem 1rem var(--bs-border-color-translucent, rgba(0,0,0,.15));
 	font-size: .875rem;
 	overflow: hidden;
 }
@@ -303,8 +304,8 @@ function _globalStyles() {
 }
 .pdsr-popup-head {
 	padding: .6rem .75rem .5rem;
-	border-bottom: 1px solid rgba(0,0,0,.08);
-	background: rgba(0,0,0,.025);
+	border-bottom: 1px solid var(--bs-border-color, rgba(0,0,0,.08));
+	background: var(--bs-tertiary-bg, rgba(0,0,0,.025));
 }
 .pdsr-popup-title-row {
 	display: flex;
@@ -323,13 +324,13 @@ function _globalStyles() {
 .pdsr-popup-summary {
 	margin: .35rem 0 0;
 	font-size: .8rem;
-	color: #6c757d;
+	color: var(--bs-secondary-color, #6c757d);
 	line-height: 1.4;
 }
 .pdsr-popup-detail {
 	margin: .25rem 0 0;
 	font-size: .75rem;
-	color: #868e96;
+	color: var(--bs-secondary-color, #868e96);
 	font-family: monospace;
 	word-break: break-all;
 	line-height: 1.4;
@@ -340,7 +341,7 @@ function _globalStyles() {
 	align-items: flex-start;
 	gap: .5rem;
 	padding: .45rem .75rem;
-	border-bottom: 1px solid rgba(0,0,0,.06);
+	border-bottom: 1px solid var(--bs-border-color, rgba(0,0,0,.06));
 	cursor: default;
 }
 .pdsr-item:last-child {
@@ -357,10 +358,10 @@ function _globalStyles() {
 	transition: background .12s;
 }
 .pdsr-item--drillable:hover {
-	background: rgba(0,0,0,.04);
+	background: var(--bs-tertiary-bg, rgba(0,0,0,.04));
 }
 .pdsr-item--active {
-	background: rgba(0,0,0,.06);
+	background: var(--bs-secondary-bg, rgba(0,0,0,.06));
 }
 .pdsr-item-body {
 	flex: 1;
@@ -378,17 +379,17 @@ function _globalStyles() {
 }
 .pdsr-item-summary {
 	font-size: .75rem;
-	color: #6c757d;
+	color: var(--bs-secondary-color, #6c757d);
 	line-height: 1.35;
 }
 .pdsr-item-aside {
-	color: #adb5bd;
+	color: var(--bs-secondary-color, #adb5bd);
 	font-size: .7rem;
 	margin-top: .2rem;
 	flex-shrink: 0;
 }
 .pdsr-item-chevron {
-	color: #adb5bd;
+	color: var(--bs-secondary-color, #adb5bd);
 	font-size: .7rem;
 	margin-top: .2rem;
 	flex-shrink: 0;
