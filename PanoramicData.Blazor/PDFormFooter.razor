@@ -6,6 +6,13 @@
 else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 {
 	<div class="pd-form-footer">
+		@if (ShowErrorCount && ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit) && _errorCount > 0)
+		{
+			<div class="pd-form-footer-errors text-danger user-select-none">
+				<i class="fas fa-exclamation-triangle me-1"></i>
+				<span>@(string.Format(ErrorCountMessage, _errorCount, _errorCount == 1 ? "" : "s", _errorFieldNames))</span>
+			</div>
+		}
 		<PDToolbar>
 
 			<PDToolbarButton CssClass="btn-danger"
@@ -34,15 +41,6 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 Size="Size"
 							 Text="@NoButtonText" />
 
-			@* RB: Shift Right needs to only be done if visible, or it makes the Yes and No buttons in the wrong place *@
-			<PDToolbarPlaceholder ItemCssClass="text-danger"
-								  IsVisible="ShowErrorCount && ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit) && _errorCount > 0"
-								  ShiftRight="ShowErrorCount && ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit) && _errorCount > 0">
-				<div class="d-flex flex-column">
-					<span>@(string.Format(ErrorCountMessage, _errorCount, _errorCount == 1 ? "" : "s", _errorFieldNames))</span>
-				</div>
-			</PDToolbarPlaceholder>
-
 			<PDToolbarButton CssClass="@SaveButtonCssClass"
 							 IconCssClass="@SaveButtonIconCssClass"
 							 IsEnabled="_errorCount == 0"
@@ -50,7 +48,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 Key="Save"
 							 Operation="OnSaveAsync"
 							 OperationIconCssClass="fas fa-fw fa-circle-notch fa-spin"
-							 ShiftRight="@(_errorCount == 0)"
+							 ShiftRight="true"
 							 Size="Size"
 							 Text="@SaveButtonText" />
 
@@ -59,6 +57,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 IsVisible="ShowCancel && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit || (Form.Mode == FormModes.ReadOnly && ShowCancelWhenReadOnly))"
 							 Key="Cancel"
 							 Operation="OnCancelAsync"
+							 ShiftRight="@(Form.Mode == FormModes.ReadOnly)"
 							 Size="Size"
 							 Text="@(Form.Mode == FormModes.ReadOnly ? CloseButtonText : CancelButtonText)" />
 		</PDToolbar>
