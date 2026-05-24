@@ -783,10 +783,11 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		{
 			// Use cached canvas position from drag start to avoid JS interop on every move
 			var index = GetColumnIndexAtPoint(args.ClientX);
-			
-			if (index >= _selectionStartIndex)
+			// Use Math.Min of stored indices so right-to-left selections don't block the end handle
+			var fixedStart = Math.Min(_selectionStartIndex, _selectionEndIndex);
+			if (index >= fixedStart)
 			{
-				_ = SetSelectionFromDrag(_selectionStartIndex, index).ConfigureAwait(true);
+				_ = SetSelectionFromDrag(fixedStart, index).ConfigureAwait(true);
 			}
 		}
 	}
@@ -830,10 +831,11 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		if (_isSelectionStartDragging)
 		{
 			var index = GetColumnIndexAtPoint(args.ClientX);
-			
-			if (index <= _selectionEndIndex)
+			// Use Math.Max of stored indices so right-to-left selections don't block the start handle
+			var fixedEnd = Math.Max(_selectionStartIndex, _selectionEndIndex);
+			if (index <= fixedEnd)
 			{
-				_ = SetSelectionFromDrag(index, _selectionEndIndex).ConfigureAwait(true);
+				_ = SetSelectionFromDrag(index, fixedEnd).ConfigureAwait(true);
 			}
 		}
 	}
