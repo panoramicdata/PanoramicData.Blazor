@@ -990,6 +990,11 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// <param name="reposition">Viewport position used when applying <paramref name="dateTime"/>.</param>
 	public async Task SetScale(TimelineScale scale, bool forceRefresh = false, DateTime? dateTime = null, TimelinePositions reposition = TimelinePositions.Center)
 	{
+		if (MinDateTime == DateTime.MinValue)
+		{
+			return;
+		}
+
 		if (scale != _previousScale || forceRefresh)
 		{
 			var previousCenter = _previousScale.AddPeriods(_previousScale.PeriodStart(RoundedMinDateTime), _columnOffset + (_viewportColumns / 2));
