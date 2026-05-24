@@ -30,6 +30,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
       - Fix PDTimeline crash when zoom is clicked before data is loaded.
+      - Add PDFormFooter Close button when form is in ReadOnly mode; add CloseButtonText parameter.
+      - Add ReadOnly modal form demo to PDFormPage2.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

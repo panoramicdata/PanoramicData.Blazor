@@ -8,7 +8,7 @@
 	<PDToolbar>
 
 		<PDToolbarPlaceholder>
-			<span>Example 2: Form displayed within Dialog</span>
+			<span>Example 2: Form displayed within Dialog (Edit or View in ReadOnly mode)</span>
 		</PDToolbarPlaceholder>
 
 		<PDToolbarButton Text="Create Person"
@@ -23,8 +23,9 @@
 		<div class="d-flex">
 			@foreach (var person in People)
 			{
-				<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPersonAsync(person)">
-					<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
+				<div class="person-list @(person == SelectedPerson ? "selected" : "")">
+					<span @onclick="(_) => OnEditPersonAsync(person)" style="cursor:pointer">@person.FirstName&nbsp;@person.LastName</span>
+					<button class="btn btn-sm btn-secondary ms-2" @onclick="(_) => OnViewPersonAsync(person)">View</button>
 				</div>
 			}
 		</div>
@@ -107,6 +108,7 @@
 								  SaveButtonCssClass="btn-success"
 								  SaveButtonIconCssClass="fas fa-check"
 								  ShowDelete="false"
+								  ShowCancelWhenReadOnly="true"
 								  TItem="Person"
 								  Click="OnFooterClick" />
 				</Footer>

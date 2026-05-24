@@ -60,7 +60,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 Key="Cancel"
 							 Operation="OnCancelAsync"
 							 Size="Size"
-							 Text="@CancelButtonText" />
+							 Text="@(Form.Mode == FormModes.ReadOnly ? CloseButtonText : CancelButtonText)" />
 		</PDToolbar>
 	</div>
 }
