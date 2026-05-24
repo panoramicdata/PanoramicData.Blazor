@@ -1,11 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".github/workflows/main.yml" />
     <File Path="global.json" />
     <File Path="PanoramicData.Blazor.dic" />
-    <File Path="publish-nuget.ps1" />
     <File Path="README.md" />
     <File Path="version.json" />
     <File Path=".gitignore" />
