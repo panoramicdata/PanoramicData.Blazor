@@ -2,6 +2,28 @@
 	width: 100%;
 }
 
+/* BS5 alert-* classes only define CSS variables; without .alert they are not applied.
+   Apply colour and background directly so dark mode works without touching layout.
+   !important needed to override .input-group-text's own color/background-color rules. */
+::deep .title-box.alert-danger,
+::deep .input-group-text.alert-danger {
+	color: var(--bs-danger-text-emphasis) !important;
+	background-color: var(--bs-danger-bg-subtle) !important;
+}
+
+::deep .title-box.alert-warning,
+::deep .input-group-text.alert-warning {
+	color: var(--bs-warning-text-emphasis) !important;
+	background-color: var(--bs-warning-bg-subtle) !important;
+}
+
+::deep .title-box.alert-success,
+::deep .input-group-text.alert-success {
+	color: var(--bs-success-text-emphasis) !important;
+	background-color: var(--bs-success-bg-subtle) !important;
+}
+
+
 .pd-form-body .form-control:disabled, .pd-form-body .form-control.disabled {
 	background-color: #f9f9f9;
 	color: #999;

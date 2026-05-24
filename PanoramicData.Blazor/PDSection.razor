@@ -1,0 +1,73 @@
+<div class="pd-section @CssClass" id="@Id" @attributes="AdditionalAttributes">
+    <button type="button"
+            id="@($"{Id}-header")"
+            class="pd-section-header @HeaderCssClass @(IsDisabled ? "pd-section-header--disabled" : "")"
+            aria-expanded="@(!IsCollapsed)"
+            aria-controls="@($"{Id}-body")"
+            title="@ExpanderTooltip"
+            disabled="@IsDisabled"
+            @onclick="OnHeaderClickAsync">
+        <span class="pd-section-chevron" aria-hidden="true">
+            <i class="fas @(IsCollapsed ? "fa-chevron-right" : "fa-chevron-down")"></i>
+        </span>
+        <span class="pd-section-title-area">
+            @if (TitleTemplate != null)
+            {
+                @TitleTemplate
+            }
+            else if (HeadingLevel is >= 1 and <= 6)
+            {
+                @switch (HeadingLevel)
+                {
+                    case 1:
+                        <h1 class="pd-section-title @TitleCssClass">@Title@SecondaryTitleMarkup</h1>
+                        break;
+                    case 2:
+                        <h2 class="pd-section-title @TitleCssClass">@Title@SecondaryTitleMarkup</h2>
+                        break;
+                    case 3:
+                        <h3 class="pd-section-title @TitleCssClass">@Title@SecondaryTitleMarkup</h3>
+                        break;
+                    case 4:
+                        <h4 class="pd-section-title @TitleCssClass">@Title@SecondaryTitleMarkup</h4>
+                        break;
+                    case 5:
+                        <h5 class="pd-section-title @TitleCssClass">@Title@SecondaryTitleMarkup</h5>
+                        break;
+                    default:
+                        <h6 class="pd-section-title @TitleCssClass">@Title@SecondaryTitleMarkup</h6>
+                        break;
+                }
+            }
+            else
+            {
+                <span class="pd-section-title @TitleCssClass">@Title</span>
+                @if (!string.IsNullOrEmpty(SecondaryTitle))
+                {
+                    <span class="pd-section-secondary-title @SecondaryTitleCssClass">@SecondaryTitle</span>
+                }
+            }
+        </span>
+        @if (HeaderActions != null)
+        {
+            <span class="pd-section-header-actions" @onclick:stopPropagation="true">
+                @HeaderActions
+            </span>
+        }
+    </button>
+
+    <div class="pd-section-body @(IsCollapsed ? "pd-section-body--collapsed" : "")"
+         id="@($"{Id}-body")"
+         role="region"
+         aria-labelledby="@($"{Id}-header")">
+        <div class="pd-section-body-inner @BodyCssClass">
+            @ChildContent
+        </div>
+    </div>
+</div>
+
+@code {
+    private RenderFragment? SecondaryTitleMarkup => string.IsNullOrEmpty(SecondaryTitle)
+        ? null
+        : @<span class="pd-section-secondary-title @SecondaryTitleCssClass">@SecondaryTitle</span>;
+}

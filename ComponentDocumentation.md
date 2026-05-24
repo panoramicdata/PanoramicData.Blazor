@@ -223,6 +223,34 @@ This component has no public parameters.
 
 ---
 
+## PDColorPicker
+
+A color picker component with support for multiple color modes, color space selectors, palettes, and recent colors.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Id | string | Gets or sets the unique identifier. |
+| Value | string | Gets or sets the current color value (hex format). |
+| ValueChanged | EventCallback<string> | Raised when the color value changes. |
+| ColorSelected | EventCallback<string> | Raised when a color is selected (after confirmation if buttons shown). |
+| Size | ButtonSizes? | Gets or sets the button size. |
+| Text | string | Gets or sets the text displayed on the button. |
+| CssClass | string | Gets or sets CSS classes for the button. |
+| ItemCssClass | string | Gets or sets CSS classes for the toolbar item. |
+| TextCssClass | string | Gets or sets CSS classes for the text. |
+| ToolTip | string | Gets or sets the tooltip. |
+| IsVisible | bool | Gets or sets whether the toolbar item is visible. |
+| IsEnabled | bool | Gets or sets whether the toolbar item is enabled. |
+| ShiftRight | bool | Gets or sets whether the toolbar item is positioned further to the right. |
+| Options | ColorPickerOptions | Gets or sets the color picker options. |
+| Palette | List<PaletteColor>? | Gets or sets the color palette to display. |
+| RecentColors | List<string>? | Gets or sets the recently chosen colors. |
+| RecentColorsChanged | EventCallback<List<string>> | Raised when recent colors should be updated. |
+
+---
+
 ## PDContextMenu
 
 This component has no public parameters.
@@ -255,6 +283,48 @@ This component has no public parameters.
 | TimeStepSecs | int | Gets or sets the step in seconds for the time input. |
 | Value | DateTimeOffset | Gets or sets the current value. |
 | ValueChanged | EventCallback<DateTimeOffset> | An event callback that is invoked when the value changes. |
+
+---
+
+## PDDashboard
+
+A tabbed dashboard container with CSS grid layout, kiosk/display mode, tab rotation, and drag-and-drop tile editing.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Tabs | List<PDDashboardTab> | Gets or sets the dashboard tabs. |
+| ColumnCount | int | Gets or sets the number of grid columns. Default 12. |
+| TileRowHeightPx | int | Gets or sets the height of each grid row in pixels. |
+| Css | string? | Gets or sets dashboard-level CSS classes. |
+| WidgetHeaderCss | string? | Gets or sets CSS classes applied to all widget headers. |
+| WidgetBorderCss | string? | Gets or sets CSS classes applied to all widget borders/cards. |
+| WidgetContentCss | string? | Gets or sets CSS classes applied to all widget content areas. |
+| ShowTabs | bool | Gets or sets whether to show the tab bar. |
+| StartTab | int | Gets or sets the index of the initially selected tab. |
+| IsRotationEnabled | bool | Gets or sets whether automatic tab rotation is enabled. |
+| RotationIntervalSeconds | int | Gets or sets the tab auto-rotation interval in seconds. |
+| DisplayMode | bool | Gets or sets kiosk/display mode - hides all editing chrome when true. |
+| IsEditable | bool | Gets or sets whether editing controls are enabled. |
+| MaximizePercent | int | Gets or sets the percentage of dashboard area used when a tile is maximized. Default 80. |
+| ShowMaximize | bool | Gets or sets whether the maximize button is shown in view mode. |
+| Name | string? | Gets or sets the dashboard display name. |
+| ShowName | bool | Gets or sets whether to show the dashboard name in a header row. |
+| DisplayModeHeader | DisplayModeHeaderContent | Gets or sets what to display in the header row when in display mode. |
+| AllowViewModePropertyEdit | bool | Gets or sets whether users in regular view can override property values for their session. |
+| ShowEditButton | bool | Gets or sets whether to show the built-in edit mode toggle button. |
+| Properties | Dictionary<string, string>? | Gets or sets dashboard-level properties cascaded to all widgets. |
+| ConfirmTileDelete | bool | Gets or sets whether tile deletion requires a confirmation dialog. Default true. |
+| OnTileMove | EventCallback | Fired when a tile is moved via drag-and-drop. |
+| OnTileResize | EventCallback | Fired when a tile is resized. |
+| OnTileAdd | EventCallback | Fired when the user requests to add a new tile. |
+| OnTileDelete | EventCallback<PDDashboardTile> | Fired when a tile is deleted. |
+| OnTabAdd | EventCallback<PDDashboardTab> | Fired when a tab is added. |
+| OnTabRemove | EventCallback<PDDashboardTab> | Fired when a tab is removed. |
+| OnSettingsChanged | EventCallback | Fired when settings change. |
+| ActiveTabChanged | EventCallback<int> | Fired when the active tab changes. |
+| OnEditModeChanged | EventCallback<bool> | Fired when the IsEditable property changes value. |
 
 ---
 
@@ -768,6 +838,67 @@ This component has no public parameters.
 
 ---
 
+## PDSection
+
+A collapsible section component with a smooth CSS animation, accessible markup, and fully overridable theming via CSS custom properties.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Title | string | Primary title text. Ignored when TitleTemplate is set. |
+| SecondaryTitle | string | Optional secondary title rendered beside the primary in muted smaller text. |
+| HeadingLevel | int? | Render title as H1-H6. When null (default), renders as a plain span. |
+| TitleTemplate | RenderFragment | Full control over the title area content. Overrides Title, SecondaryTitle and HeadingLevel. |
+| HeaderActions | RenderFragment | Content rendered on the right side of the header. Clicks do not propagate to the toggle. |
+| ChildContent | RenderFragment | The body content shown when expanded. |
+| IsCollapsed | bool | Whether the section is currently collapsed. Supports two-way binding via @bind-IsCollapsed. |
+| IsDisabled | bool | When true, the header toggle button is disabled and the section cannot be collapsed. |
+| IsCollapsedChanged | EventCallback&lt;bool&gt; | Raised when IsCollapsed changes (two-way binding support). |
+| Toggled | EventCallback&lt;bool&gt; | Raised after toggle, with the new IsCollapsed value. |
+| ExpanderTooltip | string | Tooltip on the header button. |
+| Id | string | HTML id attribute. Auto-generated if not provided. |
+| CssClass | string | Extra CSS classes on the outer container. |
+| HeaderCssClass | string | Extra CSS classes on the header button. |
+| BodyCssClass | string | Extra CSS classes on the body inner div. |
+| TitleCssClass | string | Extra CSS classes on the title element. |
+| SecondaryTitleCssClass | string | Extra CSS classes on the secondary title element. |
+
+**Methods:**
+
+| Method | Description |
+|--------|-------------|
+| ExpandAsync() | Expands the section if currently collapsed. |
+| CollapseAsync() | Collapses the section if currently expanded. |
+| ToggleAsync() | Toggles the section regardless of current state. |
+
+**Built-in CSS class variants** (applied via `CssClass`):
+
+| Class | Description |
+|-------|-------------|
+| *(default)* | Boxed with rounded corners and a shaded header background. |
+| `pd-section-borderless` | No outer border; header uses only an underline. Ideal for page-level sections. |
+| `pd-section-flush` | No outer border, no left padding. Stack multiple for an accordion-like layout. |
+
+**CSS Custom Properties** (all overridable without `!important`):
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `--pd-section-border-color` | `--bs-border-color` | Outer and header bottom border colour. |
+| `--pd-section-border-radius` | `--bs-border-radius` | Corner radius. |
+| `--pd-section-header-bg` | `--bs-tertiary-bg` | Header background. |
+| `--pd-section-header-bg-hover` | `--bs-secondary-bg` | Header background on hover/focus. |
+| `--pd-section-header-color` | `--bs-body-color` | Header text colour. |
+| `--pd-section-header-padding` | `0.5rem 0.75rem` | Header padding. |
+| `--pd-section-body-padding` | `0.75rem` | Body content padding. |
+| `--pd-section-chevron-color` | `--bs-secondary-color` | Chevron icon colour. |
+| `--pd-section-chevron-size` | `0.75rem` | Chevron icon font size. |
+| `--pd-section-title-font-size` | `inherit` | Title font size. |
+| `--pd-section-title-font-weight` | `600` | Title font weight. |
+| `--pd-section-animate-duration` | `0.2s` | Collapse/expand animation duration. Set to `0s` to disable. |
+
+---
+
 ## PDResizePane
 
 No code-behind file found for this component.
@@ -799,6 +930,23 @@ This component has no public parameters.
 | MaxValue | double | Gets or sets the maximum value for the bar. |
 | Options | TimelineOptions | Gets or sets the timeline options. |
 | X | double | Gets or sets the X coordinate of the bar. |
+
+---
+
+## PDStatusRollUp
+
+Displays a status icon that, when clicked, opens a cascading pop-over showing the full health hierarchy described by the Node parameter.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Node | PDStatusRollUpNode? | Gets or sets the status tree root node. |
+| Label | string? | Gets or sets an optional text label rendered beside the icon. |
+| RedIconClass | string | Gets or sets the CSS icon class used when Status is Red. Default: `fas fa-times-circle`. |
+| AmberIconClass | string | Gets or sets the CSS icon class used when Status is Amber. Default: `fas fa-exclamation-triangle`. |
+| GreenIconClass | string | Gets or sets the CSS icon class used when Status is Green. Default: `fas fa-check-circle`. |
+| GrayIconClass | string | Gets or sets the CSS icon class used when Status is Gray (unknown). Default: `fas fa-question-circle`. |
 
 ---
 
@@ -845,6 +993,30 @@ This component has no public parameters.
 ## PDTabSet
 
 This component has no public parameters.
+
+---
+
+## PDTiles
+
+An isometric tile grid component rendered as pure Blazor SVG, supporting connectors, animations, logos, and custom tile definitions.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Id | string | Gets or sets the unique identifier. |
+| CssClass | string | Gets or sets the CSS class for the component. |
+| Style | string | Gets or sets additional inline styles. |
+| Width | string | Gets or sets the width of the component. Default `100%`. |
+| Height | string | Gets or sets the height of the component. Default `400px`. |
+| Options | TileGridOptions | Gets or sets the grid options. |
+| ConnectorOptions | TileConnectorOptions | Gets or sets the connector options. |
+| Tiles | List<TileDefinition>? | Gets or sets custom tile definitions with per-tile overrides. |
+| Connectors | List<TileConnector>? | Gets or sets custom connector definitions. |
+| Logos | List<string> | Gets or sets the list of logo paths to display on tiles. |
+| ChildContent | RenderFragment? | Gets or sets child content rendered on top of the tiles. |
+| TileClick | EventCallback<TileClickEventArgs> | Invoked when a tile is clicked. |
+| ConnectorClick | EventCallback<ConnectorClickEventArgs> | Invoked when a connector is clicked. |
 
 ---
 
@@ -950,6 +1122,14 @@ This component has no public parameters.
 
 ---
 
+## PDToolbarColorPicker
+
+A toolbar-hosted color picker button. Wraps `PDColorPicker` for use within a `PDToolbar`. See `PDColorPicker` for the full parameter reference.
+
+This component has no additional public parameters beyond those inherited from `PDColorPicker`.
+
+---
+
 ## PDToolbarSeparator
 
 This component has no public parameters.
@@ -981,6 +1161,40 @@ This component has no public parameters.
 | Name | Type | Description |
 |------|------|-------------|
 | Errors | object? | Gets or sets the collection of validation errors. |
+
+---
+
+## PDWidget
+
+A configurable content widget that supports multiple content types including HTML, URL content, clock, image, and custom RenderFragment content.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Title | string? | Gets or sets the widget title displayed in the header. |
+| WidgetType | PDWidgetType | Gets or sets the content type of the widget (Html, Url, Clock, Image, Custom). |
+| Content | string? | Gets or sets the HTML content or URL depending on the widget type. |
+| ContentBytes | byte[]? | Gets or sets binary content for image widgets. |
+| Configuration | string? | Gets or sets a JSON configuration string for the widget. |
+| Css | string? | Gets or sets per-widget CSS classes. |
+| Icon | string? | Gets or sets the icon CSS class displayed in the header. |
+| HeaderCss | string? | Gets or sets CSS classes applied to the widget header. |
+| BorderCss | string? | Gets or sets CSS classes applied to the widget border/card. |
+| ContentCss | string? | Gets or sets CSS classes applied to the widget content area. |
+| RefreshIntervalSeconds | int | Gets or sets the auto-refresh interval in seconds. 0 = disabled. |
+| IsEditable | bool | Gets or sets whether editing controls are shown. |
+| ShowEditButton | bool | Gets or sets whether a built-in edit toggle button is shown in the header. |
+| ShowTitle | bool | Gets or sets whether the title bar is shown. |
+| VerticalOverflow | OverflowBehavior | Gets or sets the vertical overflow behavior for widget content. |
+| HorizontalOverflow | OverflowBehavior | Gets or sets the horizontal overflow behavior for widget content. |
+| ContentAlignment | ContentAlignment | Gets or sets the vertical content alignment. |
+| ChildContent | RenderFragment? | Gets or sets the child content for the Custom widget type. |
+| OnRefresh | EventCallback | Fired on content refresh. |
+| OnConfigure | EventCallback | Fired when the configure button is clicked. |
+| ContentChanged | EventCallback<string?> | Fired when content is changed via the configuration panel. |
+| WidgetTypeChanged | EventCallback<PDWidgetType> | Fired when the widget type is changed via the configuration panel. |
+| TitleChanged | EventCallback<string> | Fired when the title is renamed. |
 
 ---
 

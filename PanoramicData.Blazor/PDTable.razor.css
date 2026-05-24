@@ -37,8 +37,12 @@
 	filter: grayscale(1);
 }
 
-.pdtablerow.selected {
-	background-color: #007bff;
+.pdtablerow.selected td {
+	background-color: var(--pd-selected-bg, var(--bs-primary));
+}
+
+.pdtablerow.selected td *:not(input):not(.text-danger) {
+	color: var(--pd-selected-color, var(--bs-white));
 }
 
 .pdtable:focus {

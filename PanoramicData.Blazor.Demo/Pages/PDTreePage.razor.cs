@@ -86,4 +86,10 @@ public partial class PDTreePage
 			await Tree.ScrollNodeIntoViewAsync(node);
 		}
 	}
+
+	private void OnDragDrop(DropEventArgs args) =>
+		EventManager?.Add(new Event("Drag Drop", new EventArgument("Dropped", (args.Payload as List<FileExplorerItem>)?.FirstOrDefault()?.Name ?? "?"), new EventArgument("Onto", (args.Target as TreeNode<FileExplorerItem>)?.Data?.Name ?? "?")));
+
+	private void OnDragTreeDelete(FileExplorerItem? item) =>
+		EventManager?.Add(new Event("Delete clicked", new EventArgument("Path", item?.Path ?? "?")));
 }

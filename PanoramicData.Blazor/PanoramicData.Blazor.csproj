@@ -29,12 +29,10 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - Fixed PDDropDown popup clipping when inside overflow:hidden/auto ancestors by using Popper.js strategy 'fixed'.
-      - Improved PDFilter toolbar buttons to fill available width equally with consistent 5px padding and gap.
-      - Added Select All / Deselect All row to PDFilter values list with tri-state checkbox and selection count.
-      - Added ShowSelectAll parameter to PDFilter (opt-in, defaults to false).
-      - Added FilterShowSelectAll parameter to PDColumn, wired through PDTable to PDFilter.
-      - Update NuGet packages to latest patch versions.
+      - Add PDFormFooter Close button when form is in ReadOnly mode; add CloseButtonText parameter.
+      - Expand PDFormPage2 demo with multiple modal form examples covering ReadOnly, Delete, custom buttons, no-cancel, and immediate validation.
+      - Fix PDFormFooter error banner layout: stacked above buttons, warning icon, user-select-none, improved spacing.
+      - Fix PDForm validation field labels and indicators not showing correct colours in dark mode (Bootstrap 5 CSS variable support).
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

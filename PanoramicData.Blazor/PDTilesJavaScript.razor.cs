@@ -1,5 +1,3 @@
-using System.Globalization;
-using Microsoft.JSInterop;
 using PanoramicData.Blazor.Models.Tiles;
 
 namespace PanoramicData.Blazor;

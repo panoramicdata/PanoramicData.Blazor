@@ -5,135 +5,196 @@
 
 <DemoSourceView SourceFiles="Pages/PDFormPage2.razor, Pages/PDFormPage2.razor.cs, Data/PersonDataProvider.cs">
 
-	<PDToolbar>
-
-		<PDToolbarPlaceholder>
-			<span>Example 2: Form displayed within Dialog</span>
-		</PDToolbarPlaceholder>
-
-		<PDToolbarButton Text="Create Person"
-						 ShiftRight="true"
-						 CssClass="btn-primary"
-						 Click="OnCreatePersonAsync" />
-
-	</PDToolbar>
-
-	<div>
-
-		<div class="d-flex">
+	@* Shared person list *@
+	<div class="mb-3">
+		<strong>Select a person:</strong>
+		<div class="d-flex flex-wrap mt-1">
 			@foreach (var person in People)
 			{
-				<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPersonAsync(person)">
-					<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
+				<div class="person-list">
+					<span>@person.FirstName&nbsp;@person.LastName</span>
+					<button class="btn btn-sm btn-outline-primary ms-2"   @onclick="(_) => OnExample1EditAsync(person)">Ex1</button>
+					<button class="btn btn-sm btn-outline-secondary ms-1" @onclick="(_) => OnExample2ViewAsync(person)">Ex2</button>
+					<button class="btn btn-sm btn-outline-danger ms-1"    @onclick="(_) => OnExample3DeleteAsync(person)">Ex3</button>
+					<button class="btn btn-sm btn-outline-success ms-1"   @onclick="(_) => OnExample4ApproveAsync(person)">Ex4</button>
+					<button class="btn btn-sm btn-outline-warning ms-1"   @onclick="(_) => OnExample5NoCancelAsync(person)">Ex5</button>
+					<button class="btn btn-sm btn-outline-info ms-1"      @onclick="(_) => OnExample6ValidateAsync(person)">Ex6</button>
 				</div>
 			}
+			<div class="person-list">
+				<button class="btn btn-sm btn-primary" @onclick="OnExample1CreateAsync">+ Create (Ex1)</button>
+			</div>
 		</div>
-
-		<PDForm @ref="Form"
-				TItem="Person"
-				Item="SelectedPerson"
-				DataProvider="_personDataProvider"
-				Error="OnError"
-				ConfirmCancel="false"
-				Deleted="OnPersonDeletedAsync"
-				Updated="OnPersonUpdatedAsync"
-				Created="OnPersonCreatedAsync">
-
-			<PDModal @ref="Modal">
-				<Header>
-					<PDFormHeader TItem="Person"
-								  ItemDescription="@((x) => $"{x.FirstName} {x.LastName}")" />
-				</Header>
-				<ChildContent>
-					<PDFormBody TItem="Person">
-						<PDField TItem="Person"
-								 Field="x => x.Id"
-								 ShowInDelete="_ => true"
-								 ShowInCreate="_ => false"
-								 ReadOnlyInEdit="_ => true" />
-
-						<PDField TItem="Person"
-								 Field="x => x.FirstName"
-								 Title="First Name"
-								 ShowInDelete="_ => true" />
-
-						<PDField TItem="Person"
-								 Field="x => x.LastName"
-								 Title="Last Name"
-								 MaxLength="20"
-								 ShowInDelete="_ => true" />
-
-						<PDField TItem="Person"
-								 Field="x => x.Dob" />
-
-						<PDField TItem="Person"
-								 ShowValidationResult="false"
-								 Field="x => x.Department" />
-
-						<PDField TItem="Person"
-								 Field="x => x.AllowLogin"
-								 Title="Login?" />
-
-						<PDField TItem="Person"
-								 Field="x => x.Target" />
-
-						<PDField TItem="Person"
-								 Field="x => x.Comments"
-								 IsTextArea="true" />
-
-						<PDField TItem="Person"
-								 Field="x => x.DateCreated"
-								 ReadOnlyInCreate="_ => true"
-								 ReadOnlyInEdit="_ => true" />
-
-						<PDField TItem="Person"
-								 Field="x => x.DateModified"
-								 ShowInCreate="_ => false"
-								 ReadOnlyInEdit="_ => true" />
-
-						<PDField TItem="Person"
-								 Field="x => x.HomeTel" />
-
-						<PDField TItem="Person"
-								 Field="x => x.MobileTel" />
-
-						<PDField TItem="Person"
-								 Field="x => x.WorkTel" />
-
-					</PDFormBody>
-				</ChildContent>
-				<Footer>
-					<PDFormFooter SaveButtonText="Submit"
-								  SaveButtonCssClass="btn-success"
-								  SaveButtonIconCssClass="fas fa-check"
-								  ShowDelete="false"
-								  TItem="Person"
-								  Click="OnFooterClick" />
-				</Footer>
-			</PDModal>
-
-		</PDForm>
-
 	</div>
+
+	<table class="table table-sm table-bordered mb-3" style="max-width:600px">
+		<thead><tr><th>Example</th><th>Description</th></tr></thead>
+		<tbody>
+			<tr><td>1</td><td>Standard Edit / Create with Submit + Cancel</td></tr>
+			<tr><td>2</td><td>ReadOnly - Close button only</td></tr>
+			<tr><td>3</td><td>Edit + Delete button with Yes/No confirmation</td></tr>
+			<tr><td>4</td><td>Custom button text and style (Approve / Reject)</td></tr>
+			<tr><td>5</td><td>Edit with no Cancel button</td></tr>
+			<tr><td>6</td><td>Create with all validation errors shown immediately on open</td></tr>
+		</tbody>
+	</table>
+
+	@* ── Example 1: Standard Edit / Create ── *@
+	<PDForm @ref="_form1"
+			TItem="Person"
+			Item="_selected1"
+			DataProvider="_personDataProvider"
+			Error="OnError"
+			ConfirmCancel="false"
+			Deleted="OnPersonDeletedAsync"
+			Updated="@(p => OnPersonSavedAsync(p, _modal1))"
+			Created="@(p => OnPersonSavedAsync(p, _modal1))">
+		<PDModal @ref="_modal1">
+			<Header><PDFormHeader TItem="Person" ItemDescription="@(x => $"{x.FirstName} {x.LastName}")" /></Header>
+			<ChildContent><PDFormBody TItem="Person">@PersonFields()</PDFormBody></ChildContent>
+			<Footer>
+				<PDFormFooter TItem="Person"
+							  ShowDelete="false"
+							  ShowCancelWhenReadOnly="true"
+							  Click="@(k => OnFooterClickAsync(k, _modal1))" />
+			</Footer>
+		</PDModal>
+	</PDForm>
+
+	@* ── Example 2: ReadOnly – Close button only ── *@
+	<PDForm @ref="_form2"
+			TItem="Person"
+			Item="_selected2"
+			DataProvider="_personDataProvider"
+			Error="OnError">
+		<PDModal @ref="_modal2">
+			<Header><PDFormHeader TItem="Person" ItemDescription="@(x => $"{x.FirstName} {x.LastName}")" /></Header>
+			<ChildContent><PDFormBody TItem="Person">@PersonFields()</PDFormBody></ChildContent>
+			<Footer>
+				<PDFormFooter TItem="Person"
+							  ShowDelete="false"
+							  ShowCancelWhenReadOnly="true"
+							  Click="@(k => OnFooterClickAsync(k, _modal2))" />
+			</Footer>
+		</PDModal>
+	</PDForm>
+
+	@* ── Example 3: Edit + Delete (with confirmation) ── *@
+	<PDForm @ref="_form3"
+			TItem="Person"
+			Item="_selected3"
+			DataProvider="_personDataProvider"
+			Error="OnError"
+			ConfirmCancel="false"
+			Deleted="OnPersonDeletedAsync"
+			Updated="@(p => OnPersonSavedAsync(p, _modal3))">
+		<PDModal @ref="_modal3">
+			<Header><PDFormHeader TItem="Person" ItemDescription="@(x => $"{x.FirstName} {x.LastName}")" /></Header>
+			<ChildContent><PDFormBody TItem="Person">@PersonFields()</PDFormBody></ChildContent>
+			<Footer>
+				<PDFormFooter TItem="Person"
+							  ShowDelete="true"
+							  Click="@(k => OnFooterClickAsync(k, _modal3))" />
+			</Footer>
+		</PDModal>
+	</PDForm>
+
+	@* ── Example 4: Custom button text/style (Approve / Reject) ── *@
+	<PDForm @ref="_form4"
+			TItem="Person"
+			Item="_selected4"
+			DataProvider="_personDataProvider"
+			Error="OnError"
+			ConfirmCancel="false"
+			Updated="@(p => OnPersonSavedAsync(p, _modal4))">
+		<PDModal @ref="_modal4">
+			<Header><PDFormHeader TItem="Person" ItemDescription="@(x => $"{x.FirstName} {x.LastName}")" /></Header>
+			<ChildContent><PDFormBody TItem="Person">@PersonFields()</PDFormBody></ChildContent>
+			<Footer>
+				<PDFormFooter TItem="Person"
+							  ShowDelete="false"
+							  SaveButtonText="Approve"
+							  SaveButtonCssClass="btn-success"
+							  SaveButtonIconCssClass="fas fa-fw fa-thumbs-up"
+							  CancelButtonText="Reject"
+							  CancelButtonCssClass="btn-danger"
+							  CancelButtonIconCssClass="fas fa-fw fa-thumbs-down"
+							  Click="@(k => OnFooterClickAsync(k, _modal4))" />
+			</Footer>
+		</PDModal>
+	</PDForm>
+
+	@* ── Example 5: No Cancel button ── *@
+	<PDForm @ref="_form5"
+			TItem="Person"
+			Item="_selected5"
+			DataProvider="_personDataProvider"
+			Error="OnError"
+			ConfirmCancel="false"
+			Updated="@(p => OnPersonSavedAsync(p, _modal5))">
+		<PDModal @ref="_modal5">
+			<Header><PDFormHeader TItem="Person" ItemDescription="@(x => $"{x.FirstName} {x.LastName}")" /></Header>
+			<ChildContent><PDFormBody TItem="Person">@PersonFields()</PDFormBody></ChildContent>
+			<Footer>
+				<PDFormFooter TItem="Person"
+							  ShowDelete="false"
+							  ShowCancel="false"
+							  Click="@(k => OnFooterClickAsync(k, _modal5))" />
+			</Footer>
+		</PDModal>
+	</PDForm>
+
+	@* ── Example 6: Validation shown immediately on open ── *@
+	<PDForm @ref="_form6"
+			TItem="Person"
+			Item="_selected6"
+			DataProvider="_personDataProvider"
+			Error="OnError"
+			ConfirmCancel="false"
+			SuppressInitialErrors="false"
+			Updated="@(p => OnPersonSavedAsync(p, _modal6))">
+		<PDModal @ref="_modal6">
+			<Header><PDFormHeader TItem="Person" ItemDescription="@(x => $"{x.FirstName} {x.LastName}")" /></Header>
+			<ChildContent><PDFormBody TItem="Person">@PersonFields()</PDFormBody></ChildContent>
+			<Footer>
+				<PDFormFooter TItem="Person" ShowDelete="false" Click="@(k => OnFooterClickAsync(k, _modal6))" />
+			</Footer>
+		</PDModal>
+	</PDForm>
 
 	<EventView />
 
 </DemoSourceView>
 
+@* Shared field definitions as a local render fragment *@
+@code {
+	private RenderFragment PersonFields() =>
+		@<text>
+			<PDField TItem="Person" Field="x => x.Id"        ShowInDelete="_ => true" ShowInCreate="_ => false" ReadOnlyInEdit="_ => true" />
+			<PDField TItem="Person" Field="x => x.FirstName" Title="First Name"        ShowInDelete="_ => true" />
+			<PDField TItem="Person" Field="x => x.LastName"  Title="Last Name"         ShowInDelete="_ => true" MaxLength="20" />
+			<PDField TItem="Person" Field="x => x.Dob" />
+			<PDField TItem="Person" Field="x => x.Department" ShowValidationResult="false" />
+			<PDField TItem="Person" Field="x => x.AllowLogin" Title="Login?" />
+			<PDField TItem="Person" Field="x => x.Target" />
+			<PDField TItem="Person" Field="x => x.Comments"   IsTextArea="true" />
+			<PDField TItem="Person" Field="x => x.HomeTel" />
+			<PDField TItem="Person" Field="x => x.MobileTel" />
+			<PDField TItem="Person" Field="x => x.WorkTel" />
+		</text>;
+}
+
 <style>
 	.pd-form-header, .pd-form-footer {
-		margin: 0 0 0 0;
+		margin: 0;
 	}
 
 	.person-list {
 		border-radius: .3rem;
 		border: 1px solid #ced4da;
-		padding: 3px;
-		margin: 0px 5px 5px 5px;
-		cursor: pointer;
+		padding: 4px 6px;
+		margin: 0 5px 5px 0;
+		display: flex;
+		align-items: center;
 	}
-
-		.person-list.selected {
-			background-color: lightgray;
-		}
 </style>

@@ -1,3 +1,17 @@
 ﻿.pd-form-footer {
 	width: 100%;
 }
+
+.pd-form-footer-errors {
+	font-size: 0.875rem;
+	padding: 0.25rem 0;
+	margin-bottom: 0.75rem;
+	border-bottom: 1px solid currentColor;
+}
+
+/* No padding needed - modal-footer / page context already provides it */
+.pd-form-footer ::deep .pdtoolbar {
+	flex-wrap: nowrap;
+	padding: 0;
+	flex-shrink: 0;
+}

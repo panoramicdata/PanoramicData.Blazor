@@ -5,29 +5,132 @@
 	</DocumentationContent>
 	<ChildContent>
 
-	<div class="main-view">
-		<h1>Stock View</h1>
+	<h4>Basic Modal</h4>
+	<p class="text-muted">A simple modal with a custom header, body, and footer.</p>
+	<button class="btn btn-primary" @onclick="() => _basicModal.ShowAsync()">Open</button>
 
-		<button class="special-offers" @onclick="OnClick">Special Offers</button>
-
-		<p>Modal dialogs are useful for separating information from the main view of a web-page
-			and allowing users to focus their attention. Click the special offers button to
-			see an example of this!
-		</p>
-	</div>
-
-	<PDModal @ref="_modalPopup" >
+	<PDModal @ref="_basicModal">
 		<Header>Special Offers</Header>
-
 		<ChildContent>
 			Unfortunately there are no special offers this time...
 		</ChildContent>
-
 		<Footer>
-			<PDButton Click="CloseModal">Close</PDButton>
+			<PDButton Click="() => _basicModal.HideAsync()">Close</PDButton>
 		</Footer>
 	</PDModal>
 
+	<hr />
+	<h4>Sizes</h4>
+	<p class="text-muted">Modals are available in four sizes.</p>
+	<div class="d-flex gap-2 flex-wrap">
+		<button class="btn btn-secondary" @onclick="() => _smallModal.ShowAsync()">Small</button>
+		<button class="btn btn-secondary" @onclick="() => _mediumModal.ShowAsync()">Medium (default)</button>
+		<button class="btn btn-secondary" @onclick="() => _largeModal.ShowAsync()">Large</button>
+		<button class="btn btn-secondary" @onclick="() => _xlModal.ShowAsync()">Extra Large</button>
+	</div>
+
+	<PDModal @ref="_smallModal" Size="ModalSizes.Small" Title="Small Modal">
+		<ChildContent>This is a small modal.</ChildContent>
+		<Footer><PDButton Click="() => _smallModal.HideAsync()">Close</PDButton></Footer>
+	</PDModal>
+
+	<PDModal @ref="_mediumModal" Size="ModalSizes.Medium" Title="Medium Modal">
+		<ChildContent>This is a medium (default) modal.</ChildContent>
+		<Footer><PDButton Click="() => _mediumModal.HideAsync()">Close</PDButton></Footer>
+	</PDModal>
+
+	<PDModal @ref="_largeModal" Size="ModalSizes.Large" Title="Large Modal">
+		<ChildContent>This is a large modal.</ChildContent>
+		<Footer><PDButton Click="() => _largeModal.HideAsync()">Close</PDButton></Footer>
+	</PDModal>
+
+	<PDModal @ref="_xlModal" Size="ModalSizes.ExtraLarge" Title="Extra Large Modal">
+		<ChildContent>This is an extra large modal.</ChildContent>
+		<Footer><PDButton Click="() => _xlModal.HideAsync()">Close</PDButton></Footer>
+	</PDModal>
+
+	<hr />
+	<h4>Centered Vertically</h4>
+	<p class="text-muted">Use <code>CenterVertically="true"</code> to center the modal in the viewport.</p>
+	<button class="btn btn-secondary" @onclick="() => _centeredModal.ShowAsync()">Open centered</button>
+
+	<PDModal @ref="_centeredModal" Title="Centered Modal" CenterVertically="true">
+		<ChildContent>This modal is centered vertically in the viewport.</ChildContent>
+		<Footer><PDButton Click="() => _centeredModal.HideAsync()">Close</PDButton></Footer>
+	</PDModal>
+
+	<hr />
+	<h4>Show Close Button</h4>
+	<p class="text-muted">Use <code>ShowClose="true"</code> to show an X button in the top-right corner of the header.</p>
+	<button class="btn btn-secondary" @onclick="() => _closeButtonModal.ShowAsync()">Open with X button</button>
+
+	<PDModal @ref="_closeButtonModal" Title="Close Button Modal" ShowClose="true">
+		<ChildContent>This modal has a close (X) button in the header.</ChildContent>
+		<Footer><PDButton Click="() => _closeButtonModal.HideAsync()">Close</PDButton></Footer>
+	</PDModal>
+
+	<hr />
+	<h4>No Footer</h4>
+	<p class="text-muted">Use <code>ShowFooter="false"</code> for a content-only modal with no button bar.</p>
+	<button class="btn btn-secondary" @onclick="() => _noFooterModal.ShowAsync()">Open no-footer modal</button>
+
+	<PDModal @ref="_noFooterModal" Title="No Footer" ShowFooter="false" ShowClose="true">
+		<ChildContent>
+			<p>This modal has no footer. Use <code>ShowClose="true"</code> or <code>CloseOnEscape="true"</code> to allow dismissal.</p>
+		</ChildContent>
+	</PDModal>
+
+	<hr />
+	<h4>Custom Buttons</h4>
+	<p class="text-muted">Replace the default Yes/No buttons with custom labelled buttons. The last clicked button key is shown below.</p>
+	<button class="btn btn-secondary" @onclick="() => _customButtonsModal.ShowAsync()">Open</button>
+	@if (_customButtonResult != null)
+	{
+		<span class="ms-3 text-muted">Last result: <strong>@_customButtonResult</strong></span>
+	}
+
+	<PDModal @ref="_customButtonsModal" Title="Save Changes?" ButtonClick="OnCustomButtonClick"
+		Buttons="@(new List<ToolbarItem> {
+			new ToolbarButton { Key = "save", Text = "Save", CssClass = "btn-primary", ShiftRight = true },
+			new ToolbarButton { Key = "discard", Text = "Discard", CssClass = "btn-warning" },
+			new ToolbarButton { Key = "cancel", Text = "Cancel", CssClass = "btn-secondary" }
+		})">
+		<ChildContent>Do you want to save your changes before closing?</ChildContent>
+	</PDModal>
+
+	<hr />
+	<h4>Await User Choice</h4>
+	<p class="text-muted">Use <code>ShowAndWaitResultAsync()</code> to await the user's button choice inline. The result is shown below after you respond.</p>
+	<button class="btn btn-secondary" @onclick="OnConfirmClick">Open and await result</button>
+	@if (_awaitedResult != null)
+	{
+		<span class="ms-3 text-muted">User chose: <strong>@_awaitedResult</strong></span>
+	}
+
+	<PDModal @ref="_awaitModal" Title="Confirm Action"
+		Buttons="@(new List<ToolbarItem> {
+			new ToolbarButton { Key = "yes", Text = "Yes, proceed", CssClass = "btn-primary", ShiftRight = true },
+			new ToolbarButton { Key = "no", Text = "Cancel", CssClass = "btn-secondary" }
+		})">
+		<ChildContent>Are you sure you want to proceed with this action?</ChildContent>
+	</PDModal>
+
+	<hr />
+	<h4>CloseOnEscape / HideOnBackgroundClick disabled</h4>
+	<p class="text-muted">With <code>CloseOnEscape="false"</code> and <code>HideOnBackgroundClick="false"</code>, pressing ESC or clicking the backdrop should <strong>not</strong> close the modal.</p>
+	<button class="btn btn-secondary" @onclick="() => _noEscapeModal.ShowAsync()">Open (ESC disabled)</button>
+
+	<PDModal @ref="_noEscapeModal" CloseOnEscape="false" HideOnBackgroundClick="false" Title="ESC is disabled">
+		<ChildContent>
+			<p>Try pressing <kbd>ESC</kbd> or clicking outside this modal - neither should close it.</p>
+			<p>Only the Close button below should work.</p>
+		</ChildContent>
+		<Footer>
+			<PDButton Click="() => _noEscapeModal.HideAsync()">Close</PDButton>
+		</Footer>
+	</PDModal>
+
+	<EventView />
 
 	</ChildContent>
 </DemoSourceView>

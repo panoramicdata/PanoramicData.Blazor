@@ -84,5 +84,41 @@
 
 	<EventView />
 
+	<hr />
+	<h4>Drag and Drop with Custom NodeTemplate <small class="text-muted">(issue #38)</small></h4>
+	<p class="text-muted">Drag a node - the ghost image should show only the dragged node, not the whole tree.</p>
+
+	<PDDragContext>
+		<PDTree TItem="FileExplorerItem"
+				DataProvider="_dataProvider"
+				KeyField="x => x.Path"
+				ParentKeyField="x => x.ParentPath"
+				TextField="x => x.Name"
+				AllowDrag="true"
+				AllowDrop="true"
+				AllowSelection="true"
+				ShowRoot="true"
+				Drop="OnDragDrop">
+			<NodeTemplate>
+				@if (context?.Data?.EntryType == FileExplorerItemType.File)
+				{
+					<i class="far fa-fw fa-file me-1"></i>
+					<span>@context?.Data?.Name</span>
+				}
+				else
+				{
+					<i class="far fa-fw fa-folder me-1"></i>
+					<span>@context?.Data?.Name</span>
+				}
+				<button class="btn btn-sm btn-outline-danger ms-2 py-0"
+						@onclick:stopPropagation
+						@onmousedown:stopPropagation
+						@onclick="() => OnDragTreeDelete(context?.Data)">
+					<i class="fas fa-times"></i>
+				</button>
+			</NodeTemplate>
+		</PDTree>
+	</PDDragContext>
+
 	</ChildContent>
 </DemoSourceView>

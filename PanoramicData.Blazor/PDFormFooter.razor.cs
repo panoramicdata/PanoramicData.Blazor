@@ -72,6 +72,11 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	[Parameter] public string CancelButtonText { get; set; } = "Cancel";
 
 	/// <summary>
+	/// Sets the text shown on the cancel button when the form is in ReadOnly mode.
+	/// </summary>
+	[Parameter] public string CloseButtonText { get; set; } = "Close";
+
+	/// <summary>
 	/// Sets the icon CSS classes for the cancel button.
 	/// </summary>
 	[Parameter] public string CancelButtonCssClass { get; set; } = "btn-secondary";
