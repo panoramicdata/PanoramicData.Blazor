@@ -40,6 +40,12 @@ public partial class PDStatusRollUp : IAsyncDisposable
 	/// <summary>Gets or sets the CSS icon class used when Status is Gray (unknown).</summary>
 	[Parameter] public string GrayIconClass { get; set; } = "fas fa-question-circle";
 
+	/// <summary>Gets or sets the CSS font-size for the trigger icon (e.g. "1rem", "16px"). When null (default), inherits naturally.</summary>
+	[Parameter] public string? TriggerIconSize { get; set; }
+
+	/// <summary>Gets or sets the tooltip text shown when hovering over the trigger icon before the popup opens.</summary>
+	[Parameter] public string TriggerTitle { get; set; } = "Click to view status";
+
 	/// <summary>
 	/// Optional callback invoked just before a node's popup is shown (including drill-downs).
 	/// Receives the node about to be expanded; return an updated node to replace it, or null to

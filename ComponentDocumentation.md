@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-05-26 11:30:16
+Generated on: 2026-05-26 12:38:39
 
 ## PDAnimation
 
@@ -1437,6 +1437,8 @@ No code-behind file found for this component.
 | AmberIconClass | string | Gets or sets the CSS icon class used when Status is Amber. |
 | GreenIconClass | string | Gets or sets the CSS icon class used when Status is Green. |
 | GrayIconClass | string | Gets or sets the CSS icon class used when Status is Gray (unknown). |
+| TriggerIconSize | string? | Gets or sets the CSS font-size for the trigger icon (e.g. "1rem", "16px"). When null (default), inherits naturally. |
+| TriggerTitle | string | Gets or sets the tooltip text shown when hovering over the trigger icon before the popup opens. |
 | OnBeforeExpand | Func<PDStatusRollUpNode, Task<PDStatusRollUpNode?>>? | Optional callback invoked just before a node's popup is shown (including drill-downs). Receives the node about to be expanded; return an updated node to replace it, or null to use the existing node unchanged. When not set the component behaves exactly as before. |
 
 ---

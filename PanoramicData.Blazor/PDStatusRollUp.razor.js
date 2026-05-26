@@ -358,6 +358,7 @@ function _globalStyles() {
 	padding: .6rem .75rem .5rem;
 	border-bottom: 1px solid var(--bs-border-color, rgba(0,0,0,.08));
 	background: var(--bs-tertiary-bg, rgba(0,0,0,.025));
+	user-select: none;
 }
 .pdsr-popup-title-row {
 	display: flex;
@@ -395,6 +396,7 @@ function _globalStyles() {
 	padding: .45rem .75rem;
 	border-bottom: 1px solid var(--bs-border-color, rgba(0,0,0,.06));
 	cursor: default;
+	user-select: none;
 }
 .pdsr-item:last-child {
 	border-bottom: none;

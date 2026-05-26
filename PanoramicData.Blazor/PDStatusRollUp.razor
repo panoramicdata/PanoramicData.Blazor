@@ -4,8 +4,12 @@
 	  tabindex="0"
 	  aria-expanded="false"
 	  aria-label="@(Node?.Title ?? Label ?? "Status")"
-	  title="@(Node?.Summary ?? "")">
-	<i class="@GetIconClass() @GetColorClass()" aria-hidden="true"></i>
+	  title="@TriggerTitle"
+	  @onmousedown:stopPropagation
+	  @onmouseup:stopPropagation>
+	<i class="@GetIconClass() @GetColorClass()" 
+	   aria-hidden="true"
+	   style="@(TriggerIconSize is null ? null : $"font-size: {TriggerIconSize}")"></i>
 	@if (!string.IsNullOrEmpty(Label))
 	{
 		<span class="pdsr-label">@Label</span>
