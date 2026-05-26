@@ -34,6 +34,24 @@
 			<PDStatusRollUp Node="_deepTree" Label="Infrastructure" />
 		</div>
 
+		<h5 class="mt-4">Lazy-loaded children (simulated API call)</h5>
+		<p class="text-muted small">
+			Children are fetched on demand via <code>OnBeforeExpand</code> — a spinner appears while the callback runs.
+			Click the icon to see a 1-second simulated API delay before the popup is populated.
+		</p>
+		<div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+			<PDStatusRollUp Node="_lazyRoot" Label="Live Services" OnBeforeExpand="OnLazyExpandAsync" />
+		</div>
+
+		<h5 class="mt-4">Lazy-loaded — all 3 levels fetched independently</h5>
+		<p class="text-muted small">
+			Each level triggers a separate simulated API call with its own delay.
+			Open the root, then drill into a cluster, then drill into a node — each step shows a spinner.
+		</p>
+		<div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+			<PDStatusRollUp Node="_lazyDeepRoot" Label="Data Centres" OnBeforeExpand="OnLazyDeepExpandAsync" />
+		</div>
+
 		<h5 class="mt-4">Status bar — multiple triggers in a row</h5>
 		<p class="text-muted small">Each trigger is an independent component sharing the same JS popup infrastructure.</p>
 		<div class="d-inline-flex align-items-center gap-1 border rounded px-2 py-1" style="background:#f8f9fa;">

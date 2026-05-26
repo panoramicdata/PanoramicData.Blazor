@@ -71,42 +71,73 @@ foreach ($razorFile in $razorFiles) {
         $paramObjects = @()
 
         for ($i = 0; $i -lt $lines.Length; $i++) {
-            if ($lines[$i].Trim() -eq "[Parameter]") {
-                # Found a parameter, now find the property definition
-                for ($j = $i + 1; $j -lt $lines.Length; $j++) {
-                    if ($lines[$j] -match "public\s+([^ ]+)\s+([^ ]+)\s*\{") {
-                        $paramType = $Matches[1]
-                        $paramName = $Matches[2]
+            $trimmed = $lines[$i].Trim()
 
-                        # Look for summary comments above the [Parameter] attribute
-                        $comment = ""
-                        for ($k = $i - 1; $k -ge 0; $k--) {
-                            $line = $lines[$k].Trim()
-                            if ($line.StartsWith("/// <summary>")) {
-                                # Found the start of the summary, now extract it
-                                for ($l = $k + 1; $l -lt $i; $l++) {
+            # Match standalone [Parameter] on its own line
+            $isStandaloneParam = ($trimmed -eq "[Parameter]")
+
+            # Match inline [Parameter] public Type Name { ... } on a single line
+            $isInlineParam = ($trimmed -match "^\[Parameter\]\s+public\s+.+\s+\w+\s*\{")
+
+            if ($isStandaloneParam -or $isInlineParam) {
+                $paramType = $null
+                $paramName = $null
+                $commentSearchBase = $i  # line index where [Parameter] appears
+
+                if ($isInlineParam) {
+                    # Type may contain generics so: strip '[Parameter] public ', then
+                    # the last word before ' {' is the name and everything before it is the type.
+                    $inner = $trimmed -replace "^\[Parameter\]\s+public\s+", ""
+                    if ($inner -match "^(.*)\s+(\w+)\s*\{") {
+                        $paramType = $Matches[1].Trim()
+                        $paramName = $Matches[2].Trim()
+                    }
+                } else {
+                    # Standalone [Parameter] — property is on a following line
+                    for ($j = $i + 1; $j -lt $lines.Length; $j++) {
+                        $inner = $lines[$j].Trim() -replace "^public\s+", ""
+                        if ($lines[$j] -match "public\s+" -and $inner -match "^(.*)\s+(\w+)\s*\{") {
+                            $paramType = $Matches[1].Trim()
+                            $paramName = $Matches[2].Trim()
+                            $i = $j
+                            break
+                        }
+                    }
+                }
+
+                if ($paramType -and $paramName) {
+                    # Look backwards from the [Parameter] line for /// <summary> comments
+                    $comment = ""
+                    for ($k = $commentSearchBase - 1; $k -ge 0; $k--) {
+                        $line = $lines[$k].Trim()
+                        if ($line.StartsWith("/// <summary>")) {
+                            # Single-line: /// <summary>text</summary>
+                            if ($line -match "/// <summary>(.*?)</summary>") {
+                                $comment = $Matches[1].Trim()
+                            } else {
+                                # Multi-line: collect lines until </summary>
+                                for ($l = $k + 1; $l -lt $commentSearchBase; $l++) {
                                     $summaryLine = $lines[$l].Trim()
                                     if ($summaryLine.StartsWith("/// </summary>")) {
                                         break
                                     }
                                     if ($summaryLine.StartsWith("///")) {
-                                        $comment += ($summaryLine -replace "///", "").Trim() + " "
+                                        $comment += ($summaryLine -replace "^///\s*", "").Trim() + " "
                                     }
                                 }
-                                break
+                                $comment = $comment.Trim()
                             }
-                            if (!$line.StartsWith("///")) {
-                                break
-                            }
+                            break
                         }
-                        
-                        $paramObjects += [pscustomobject]@{
-                            Name = $paramName
-                            Type = $paramType
-                            Description = $comment.Trim()
+                        if (!$line.StartsWith("///")) {
+                            break
                         }
-                        $i = $j # Continue searching from after the property
-                        break
+                    }
+
+                    $paramObjects += [pscustomobject]@{
+                        Name        = $paramName
+                        Type        = $paramType
+                        Description = $comment.Trim()
                     }
                 }
             }

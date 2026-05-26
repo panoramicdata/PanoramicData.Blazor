@@ -1,13 +1,13 @@
 // =================================================================
 // PDStatusRollUp.razor.js — Blazor JS module
 // Cascade pop-over engine.  Three exported functions:
-//   init(triggerId, nodeJson, iconMap)
+//   init(triggerId, nodeJson, iconMap, dotNetRef?)
 //   dispose(triggerId)
 // =================================================================
 
 const MAX_DEPTH = 2;
 
-// Per-trigger state: triggerId → { node, iconMap, el, abortCtrl }
+// Per-trigger state: triggerId → { node, iconMap, el, abortCtrl, dotNetRef? }
 const _triggers = new Map();
 
 // Shared DOM infrastructure (created once on first init)
@@ -18,7 +18,7 @@ let _activeId = null;
 
 // ── Public API ────────────────────────────────────────────────────
 
-export function init(triggerId, nodeJson, iconMap) {
+export function init(triggerId, nodeJson, iconMap, dotNetRef) {
 	_ensureInfra();
 
 	const el = document.getElementById(triggerId);
@@ -28,15 +28,15 @@ export function init(triggerId, nodeJson, iconMap) {
 	const abortCtrl = new AbortController();
 	const opts = { signal: abortCtrl.signal };
 
-	_triggers.set(triggerId, { node, iconMap, el, abortCtrl });
+	_triggers.set(triggerId, { node, iconMap, el, abortCtrl, dotNetRef: dotNetRef ?? null });
 
-	el.addEventListener('click', e => {
+	el.addEventListener('click', async e => {
 		e.stopPropagation();
 		if (_activeId === triggerId) {
 			_closeAll();
 		} else {
 			_closeAll();
-			_open(triggerId);
+			await _open(triggerId);
 		}
 	}, opts);
 
@@ -93,14 +93,16 @@ function _ensureInfra() {
 
 // ── Open / Close ──────────────────────────────────────────────────
 
-function _open(triggerId) {
+async function _open(triggerId) {
 	const entry = _triggers.get(triggerId);
 	if (!entry) return;
 
 	_activeId = triggerId;
 	entry.el.setAttribute('aria-expanded', 'true');
 	_infra.overlay.classList.add('pdsr-overlay--active');
-	_renderPopup(0, entry.node, entry.el, entry.iconMap);
+
+	const node = await _maybeExpand(entry, entry.node, '', entry.el);
+	_renderPopup(0, node, entry.el, entry.iconMap, entry, '');
 }
 
 function _closeAll() {
@@ -126,9 +128,36 @@ function _closeFrom(depth) {
 	}
 }
 
+// ── Lazy expansion helper ─────────────────────────────────────────
+
+// Shows a spinner in the popup at `depth` while the .NET callback runs.
+// Returns the (possibly updated) node.
+async function _maybeExpand(entry, node, nodePath, anchorEl) {
+	if (!entry.dotNetRef) return node;
+
+	const depth = nodePath === '' ? 0 : nodePath.split('.').length;
+	const popup = _infra.popups[Math.min(depth, MAX_DEPTH)];
+
+	// Show spinner while awaiting, positioned next to the element that was clicked
+	popup.innerHTML = `<div class="pdsr-spinner"><i class="fas fa-spinner fa-spin"></i></div>`;
+	_positionPopup(popup, anchorEl, depth);
+	popup.classList.add('pdsr-popup--open');
+
+	try {
+		const json = await entry.dotNetRef.invokeMethodAsync('ExpandNodeAsync', nodePath);
+		if (json) {
+			return JSON.parse(json);
+		}
+	} catch {
+		// Ignore — fall through to render with existing node
+	}
+
+	return node;
+}
+
 // ── Popup Rendering ───────────────────────────────────────────────
 
-function _renderPopup(depth, node, anchorEl, iconMap) {
+function _renderPopup(depth, node, anchorEl, iconMap, entry, nodePath) {
 	if (depth > MAX_DEPTH) return;
 
 	const popup = _infra.popups[depth];
@@ -159,7 +188,11 @@ function _renderPopup(depth, node, anchorEl, iconMap) {
 			const hasChildren = child.children && child.children.length > 0;
 			const cIconCls = _iconClass(child.status, iconMap);
 			const cColorCls = _colorClass(child.status);
-			const drillable = hasChildren && depth < MAX_DEPTH;
+			// Expandable tri-state: true=force on, false=force off, null/undefined=auto (has children)
+			const drillable = depth < MAX_DEPTH && (
+				child.expandable === true ||
+				(child.expandable !== false && hasChildren)
+			);
 
 			html += `<div class="pdsr-item${drillable ? ' pdsr-item--drillable' : ''}" data-idx="${idx}" role="${drillable ? 'button' : 'listitem'}"${drillable ? ' tabindex="0"' : ''}>
 				<i class="${cIconCls} ${cColorCls}" aria-hidden="true"></i>
@@ -186,13 +219,19 @@ function _renderPopup(depth, node, anchorEl, iconMap) {
 	if (node.children) {
 		popup.querySelectorAll('.pdsr-item--drillable').forEach(item => {
 			const idx = parseInt(item.dataset.idx, 10);
+			const childPath = nodePath === '' ? `${idx}` : `${nodePath}.${idx}`;
 
-			const drill = e => {
-				e.stopPropagation();
-				_closeFrom(depth + 1);
-				popup.querySelectorAll('.pdsr-item').forEach(i => i.classList.remove('pdsr-item--active'));
-				item.classList.add('pdsr-item--active');
-				_renderPopup(depth + 1, node.children[idx], item, iconMap);
+			const drill = async e => {
+					e.stopPropagation();
+					_closeFrom(depth + 1);
+					popup.querySelectorAll('.pdsr-item').forEach(i => i.classList.remove('pdsr-item--active'));
+					item.classList.add('pdsr-item--active');
+					const childNode = await _maybeExpand(entry, node.children[idx], childPath, item);
+					// Update the in-memory child so subsequent opens reflect the fetched status
+					node.children[idx] = childNode;
+					// Patch the row icon/colour in the parent popup to reflect the resolved status
+					_updateItemIcon(item, childNode.status, iconMap);
+					_renderPopup(depth + 1, childNode, item, iconMap, entry, childPath);
 			};
 
 			item.addEventListener('click', drill);
@@ -205,6 +244,10 @@ function _renderPopup(depth, node, anchorEl, iconMap) {
 	// ── Position and show ──
 	_positionPopup(popup, anchorEl, depth);
 	popup.classList.add('pdsr-popup--open');
+}
+
+function _positionPopupNear(popup, anchor) {
+	_positionPopup(popup, anchor, 0);
 }
 
 function _positionPopup(popup, anchor, depth) {
@@ -245,6 +288,15 @@ function _positionPopup(popup, anchor, depth) {
 
 // ── Helpers ───────────────────────────────────────────────────────
 
+// Patches the icon element inside a .pdsr-item row to reflect a newly resolved status.
+// Called after _maybeExpand returns so the parent popup row updates without a full re-render.
+function _updateItemIcon(itemEl, status, iconMap) {
+	const icon = itemEl.querySelector('i:first-child');
+	if (!icon) return;
+	// Strip existing colour and icon classes, then apply the resolved ones
+	icon.className = `${_iconClass(status, iconMap)} ${_colorClass(status)}`;
+}
+
 function _iconClass(status, iconMap) {
 	switch ((status || '').toLowerCase()) {
 		case 'red':   return (iconMap && iconMap.red)   || 'fa-solid fa-circle-xmark';
@@ -256,10 +308,10 @@ function _iconClass(status, iconMap) {
 
 function _colorClass(status) {
 	switch ((status || '').toLowerCase()) {
-		case 'red':   return 'pdsr-icon-red';
+		case 'red':   return 'text-danger';
 		case 'amber': return 'pdsr-icon-amber';
-		case 'green': return 'pdsr-icon-green';
-		default:      return 'pdsr-icon-gray';
+		case 'green': return 'text-success';
+		default:      return 'text-secondary';
 	}
 }
 
@@ -394,10 +446,16 @@ function _globalStyles() {
 	margin-top: .2rem;
 	flex-shrink: 0;
 }
-/* Status colours (popup context) */
-.pdsr-icon-red   { color: #dc3545; }
-.pdsr-icon-amber { color: #fd7e14; }
-.pdsr-icon-green { color: #198754; }
-.pdsr-icon-gray  { color: #6c757d; }
+/* Amber is the only custom status colour — Bootstrap text-warning is too pale for icons.
+   Override with --pdsr-color-amber on any ancestor element if needed. */
+.pdsr-icon-amber { color: var(--pdsr-color-amber, #fd7e14); }
+/* Loading spinner shown during lazy expansion */
+.pdsr-spinner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+	color: var(--bs-secondary-color, #6c757d);
+}
 `;
 }

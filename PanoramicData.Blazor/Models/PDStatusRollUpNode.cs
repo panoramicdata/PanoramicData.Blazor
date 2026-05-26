@@ -19,4 +19,12 @@ public class PDStatusRollUpNode
 
 	/// <summary>Gets or sets child nodes. Children with their own children open a deeper cascade.</summary>
 	public List<PDStatusRollUpNode> Children { get; set; } = [];
+
+	/// <summary>
+	/// Controls whether this node shows a drill-down chevron when used inside a lazy-loaded popup.
+	/// <c>true</c> forces drillable (e.g. children will arrive via OnBeforeExpand);
+	/// <c>false</c> forces non-drillable (leaf node that will never have children);
+	/// <c>null</c> (default) auto-detects — drillable only when Children is non-empty.
+	/// </summary>
+	public bool? Expandable { get; set; }
 }

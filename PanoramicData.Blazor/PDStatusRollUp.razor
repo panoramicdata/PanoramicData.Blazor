@@ -1,10 +1,10 @@
 <span id="@_triggerId"
-	 class="pdsr-trigger"
-	 role="button"
-	 tabindex="0"
-	 aria-expanded="false"
-	 aria-label="@(Node?.Title ?? Label ?? "Status")"
-	 title="@(Node?.Summary ?? "")">
+	  class="pdsr-trigger"
+	  role="button"
+	  tabindex="0"
+	  aria-expanded="false"
+	  aria-label="@(Node?.Title ?? Label ?? "Status")"
+	  title="@(Node?.Summary ?? "")">
 	<i class="@GetIconClass() @GetColorClass()" aria-hidden="true"></i>
 	@if (!string.IsNullOrEmpty(Label))
 	{

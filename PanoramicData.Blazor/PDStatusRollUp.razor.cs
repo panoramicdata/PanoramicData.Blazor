@@ -12,6 +12,7 @@ public partial class PDStatusRollUp : IAsyncDisposable
 	private static int _idSequence;
 	private readonly string _triggerId = $"pdsr-{++_idSequence}";
 	private IJSObjectReference? _module;
+	private DotNetObjectReference<PDStatusRollUp>? _dotNetRef;
 
 	private static readonly JsonSerializerOptions _jsonOptions = new()
 	{
@@ -39,6 +40,13 @@ public partial class PDStatusRollUp : IAsyncDisposable
 	/// <summary>Gets or sets the CSS icon class used when Status is Gray (unknown).</summary>
 	[Parameter] public string GrayIconClass { get; set; } = "fas fa-question-circle";
 
+	/// <summary>
+	/// Optional callback invoked just before a node's popup is shown (including drill-downs).
+	/// Receives the node about to be expanded; return an updated node to replace it, or null to
+	/// use the existing node unchanged. When not set the component behaves exactly as before.
+	/// </summary>
+	[Parameter] public Func<PDStatusRollUpNode, Task<PDStatusRollUpNode?>>? OnBeforeExpand { get; set; }
+
 	private string GetIconClass() => Node?.Status switch
 	{
 		RollUpStatus.Red => RedIconClass,
@@ -49,11 +57,104 @@ public partial class PDStatusRollUp : IAsyncDisposable
 
 	private string GetColorClass() => Node?.Status switch
 	{
-		RollUpStatus.Red => "pdsr-icon-red",
+		RollUpStatus.Red => "text-danger",
 		RollUpStatus.Amber => "pdsr-icon-amber",
-		RollUpStatus.Green => "pdsr-icon-green",
-		_ => "pdsr-icon-gray"
+		RollUpStatus.Green => "text-success",
+		_ => "text-secondary"
 	};
+
+	/// <summary>
+	/// Called from JavaScript when a node is about to be expanded.
+	/// The nodePath is a dot-separated index path (e.g. "" = root, "0" = first child, "1.2" = second child's third child).
+	/// Returns updated node JSON, or null if unchanged.
+	/// </summary>
+	[JSInvokable]
+	public async Task<string?> ExpandNodeAsync(string nodePath)
+	{
+		if (OnBeforeExpand is null || Node is null)
+		{
+			return null;
+		}
+
+		var target = ResolveNode(Node, nodePath);
+		if (target is null)
+		{
+			return null;
+		}
+
+		var updated = await OnBeforeExpand(target).ConfigureAwait(true);
+		if (updated is null)
+		{
+			return null;
+		}
+
+		// Patch the live tree so future expansions see updated data.
+		// For the root (empty path) we copy the updated properties onto the existing Node
+		// instance and trigger a Blazor re-render so the trigger icon/label reflects the
+		// new status without the consumer having to manage that themselves.
+		if (string.IsNullOrEmpty(nodePath))
+		{
+			Node.Status = updated.Status;
+			Node.Title = updated.Title;
+			Node.Summary = updated.Summary;
+			Node.Detail = updated.Detail;
+			Node.Children = updated.Children;
+			await InvokeAsync(StateHasChanged).ConfigureAwait(true);
+		}
+		else
+		{
+			PatchNode(Node, nodePath, updated);
+		}
+
+		return JsonSerializer.Serialize(updated, _jsonOptions);
+	}
+
+	private static PDStatusRollUpNode? ResolveNode(PDStatusRollUpNode root, string path)
+	{
+		if (string.IsNullOrEmpty(path))
+		{
+			return root;
+		}
+
+		var node = root;
+		foreach (var segment in path.Split('.'))
+		{
+			if (!int.TryParse(segment, out var idx) || idx < 0 || idx >= node.Children.Count)
+			{
+				return null;
+			}
+
+			node = node.Children[idx];
+		}
+
+		return node;
+	}
+
+	private static void PatchNode(PDStatusRollUpNode root, string path, PDStatusRollUpNode replacement)
+	{
+		if (string.IsNullOrEmpty(path))
+		{
+			// Root replacement not supported - callers update root externally.
+			return;
+		}
+
+		var segments = path.Split('.');
+		var node = root;
+		for (var i = 0; i < segments.Length - 1; i++)
+		{
+			if (!int.TryParse(segments[i], out var idx) || idx < 0 || idx >= node.Children.Count)
+			{
+				return;
+			}
+
+			node = node.Children[idx];
+		}
+
+		if (int.TryParse(segments[^1], out var lastIdx) && lastIdx >= 0 && lastIdx < node.Children.Count)
+		{
+			node.Children[lastIdx] = replacement;
+		}
+	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -73,7 +174,14 @@ public partial class PDStatusRollUp : IAsyncDisposable
 					gray = GrayIconClass
 				};
 
-				await _module.InvokeVoidAsync("init", _triggerId, nodeJson, iconMap);
+				DotNetObjectReference<PDStatusRollUp>? dotNetRef = null;
+				if (OnBeforeExpand is not null)
+				{
+					_dotNetRef = DotNetObjectReference.Create(this);
+					dotNetRef = _dotNetRef;
+				}
+
+				await _module.InvokeVoidAsync("init", _triggerId, nodeJson, iconMap, dotNetRef);
 			}
 			catch
 			{
@@ -91,9 +199,13 @@ public partial class PDStatusRollUp : IAsyncDisposable
 				await _module.InvokeVoidAsync("dispose", _triggerId);
 				await _module.DisposeAsync();
 			}
-			catch { }
+			catch
+			{
+				// JS interop can fail during fast page navigation - safe to ignore.
+			}
 		}
 
+		_dotNetRef?.Dispose();
 		GC.SuppressFinalize(this);
 	}
 }

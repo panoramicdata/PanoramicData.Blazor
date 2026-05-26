@@ -29,10 +29,11 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - Add PDFormFooter Close button when form is in ReadOnly mode; add CloseButtonText parameter.
-      - Expand PDFormPage2 demo with multiple modal form examples covering ReadOnly, Delete, custom buttons, no-cancel, and immediate validation.
-      - Fix PDFormFooter error banner layout: stacked above buttons, warning icon, user-select-none, improved spacing.
-      - Fix PDForm validation field labels and indicators not showing correct colours in dark mode (Bootstrap 5 CSS variable support).
+      - Add PDStatusRollUp lazy-loading support via optional OnBeforeExpand callback: fires before each node is expanded, receives the target node, returns an updated node or null to leave unchanged. Backwards compatible - existing static trees are unaffected.
+      - Add PDStatusRollUpNode.Expandable (bool?) tri-state: true forces drillable chevron (for nodes whose children arrive lazily), false forces non-drillable, null (default) auto-detects from Children.
+      - Fix PDStatusRollUp trigger icon not updating after lazy root expansion - root node properties and StateHasChanged now called after OnBeforeExpand resolves for the root.
+      - Fix PDStatusRollUp spinner positioning on deeper levels - spinner now appears next to the clicked item rather than always at the root trigger.
+      - Fix PDStatusRollUp parent row icon not reflecting resolved status after drill-down.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
