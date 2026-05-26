@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-05-26 12:38:39
+Generated on: 2026-05-26 14:24:44
 
 ## PDAnimation
 
@@ -1422,6 +1422,20 @@ No code-behind file found for this component.
 | Options | TimelineOptions | Gets or sets the timeline options. |
 | X | double | Gets or sets the X coordinate of the bar. |
 | YValueTransform | Func<double, double> | A function to transform the Y value of data points. |
+
+---
+
+## PDStatusCascade
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Node | PDStatusCascadeNode? | Gets or sets the status tree root node. |
+| Label | string? | Gets or sets an optional text label rendered beside the trigger icon. |
+| TriggerIconSize | string? | Gets or sets the CSS font-size for the trigger icon (e.g. "1rem", "16px"). When null (default), inherits naturally. |
+| TriggerTitle | string | Gets or sets the tooltip text shown when hovering over the trigger icon. |
+| OnBeforeExpand | Func<PDStatusCascadeNode, Task<PDStatusCascadeNode?>>? | Optional callback invoked just before a node's popup is shown (including drill-downs). Receives the node about to be expanded; return an updated node to replace it, or null to leave it unchanged. When not set the component behaves as a static tree. |
 
 ---
 

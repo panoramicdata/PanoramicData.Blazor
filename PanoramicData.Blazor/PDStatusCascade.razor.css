@@ -1,0 +1,31 @@
+/* PDStatusCascade — trigger element styles (component-scoped) */
+
+.pdsc-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    border-radius: .25rem;
+    padding: .1rem .2rem;
+    line-height: 1;
+    transition: background .12s ease;
+}
+
+.pdsc-trigger:hover,
+.pdsc-trigger:focus-visible {
+    background: var(--bs-tertiary-bg, rgba(0, 0, 0, .07));
+}
+
+.pdsc-trigger i {
+    flex-shrink: 0;
+    font-size: .85rem;
+    line-height: 1;
+}
+
+.pdsc-label {
+    font-size: .8rem;
+    white-space: nowrap;
+    color: var(--bs-body-color, inherit);
+}

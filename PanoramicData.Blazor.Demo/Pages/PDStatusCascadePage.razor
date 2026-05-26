@@ -1,0 +1,84 @@
+@page "/pdstatuscascade"
+@using PanoramicData.Blazor.Models
+
+<h1>PDStatusCascade</h1>
+
+<p>
+    <code>PDStatusCascade</code> is an alternative to <a href="/pdstatusrollup">PDStatusRollUp</a> — it works in the
+    same way (click a trigger icon to open a cascading pop-over showing a health hierarchy), and existing callers of
+    <code>PDStatusRollUp</code> are completely unaffected. The difference is that <code>PDStatusCascade</code> replaces
+    the fixed <code>RollUpStatus</code> enum with the open <code>StatusType</code> value object, so consumers can
+    define any number of additional statuses — Running, Pending, Paused, Cancelled, or whatever domain states make
+    sense — each with its own icon and colour, using <code>StatusType.Custom(name, iconClass, colorClass)</code>.
+    All other features (lazy loading via <code>OnBeforeExpand</code>, <code>Expandable</code> tri-state, <code>TriggerIconSize</code>,
+    <code>TriggerTitle</code>, and stop-propagation) are identical.
+</p>
+
+<DemoSourceView SourceFiles="Pages/PDStatusCascadePage.razor, Pages/PDStatusCascadePage.razor.cs">
+    <ChildContent>
+
+        <h5 class="mt-3">Built-in statuses</h5>
+        <p class="text-muted small">
+            The four built-in <code>StatusType</code> statics — <code>StatusType.Green</code>, <code>StatusType.Amber</code>,
+            <code>StatusType.Red</code>, and <code>StatusType.Gray</code> — behave the same as the classic component.
+        </p>
+        <div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+            <PDStatusCascade Node="_greenLeaf" Label="All OK" />
+            <PDStatusCascade Node="_amberLeaf" Label="Warning" />
+            <PDStatusCascade Node="_redLeaf" Label="Error" />
+            <PDStatusCascade Node="_grayLeaf" Label="Unknown" />
+        </div>
+
+        <h5 class="mt-4">Custom statuses</h5>
+        <p class="text-muted small">
+            Custom statuses are created with <code>StatusType.Custom(name, iconClass, colorClass)</code>.
+            Any Font Awesome icon and Bootstrap (or custom) CSS colour class can be used.
+            These examples model states from a job-execution engine.
+        </p>
+        <div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+            <PDStatusCascade Node="_runningNode"   Label="Running" />
+            <PDStatusCascade Node="_pendingNode"   Label="Pending" />
+            <PDStatusCascade Node="_pausedNode"    Label="Paused" />
+            <PDStatusCascade Node="_cancelledNode" Label="Cancelled" />
+            <PDStatusCascade Node="_deferredNode"  Label="Deferred" />
+            <PDStatusCascade Node="_stoppedNode"   Label="Stopped" />
+        </div>
+
+        <h5 class="mt-4">Mixed — custom statuses in a hierarchy</h5>
+        <p class="text-muted small">
+            Custom statuses compose freely with built-in ones in a tree.
+            Drill into the cluster below to see individual job states.
+        </p>
+        <div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+            <PDStatusCascade Node="_jobCluster" Label="Nightly Jobs" />
+        </div>
+
+        <h5 class="mt-4">Lazy-loaded custom statuses</h5>
+        <p class="text-muted small">
+            <code>OnBeforeExpand</code> works exactly as in PDStatusRollUp. Here the child nodes carry
+            custom statuses that arrive after a simulated API call.
+        </p>
+        <div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+            <PDStatusCascade Node="_lazyJobRoot" Label="Report Jobs" OnBeforeExpand="OnLazyJobExpandAsync" />
+        </div>
+
+        <h5 class="mt-4">Lazy-loaded — all 3 levels fetched independently</h5>
+        <p class="text-muted small">
+            Each level triggers a separate simulated API call. Open the root to load pipelines, drill into a
+            pipeline to load its jobs, then drill into a job to load its individual step results.
+            Custom statuses (<em>Running</em>, <em>Pending</em>, <em>Stopped</em>) appear at every level alongside the built-ins.
+        </p>
+        <div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+            <PDStatusCascade Node="_lazyDeepRoot" Label="Pipelines" OnBeforeExpand="OnLazyDeepExpandAsync" />
+        </div>
+
+        <h5 class="mt-4">Custom icon sizes</h5>
+        <p class="text-muted small">Use <code>TriggerIconSize</code> to match surrounding layout.</p>
+        <div class="d-flex align-items-center gap-3 flex-wrap p-2 border rounded">
+            <PDStatusCascade Node="_greenLeaf" TriggerIconSize=".75rem" Label="Small" />
+            <PDStatusCascade Node="_amberLeaf" Label="Default" />
+            <PDStatusCascade Node="_runningNode" TriggerIconSize="1.4rem" Label="Large" />
+        </div>
+
+    </ChildContent>
+</DemoSourceView>

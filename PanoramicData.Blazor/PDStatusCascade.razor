@@ -1,0 +1,17 @@
+<span id="@_triggerId"
+      class="pdsc-trigger"
+      role="button"
+      tabindex="0"
+      aria-expanded="false"
+      aria-label="@(Node?.Title ?? Label ?? "Status")"
+      title="@TriggerTitle"
+      @onmousedown:stopPropagation
+      @onmouseup:stopPropagation>
+    <i class="@GetIconClass() @GetColorClass()"
+       aria-hidden="true"
+       style="@(TriggerIconSize is null ? null : $"font-size: {TriggerIconSize}")"></i>
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <span class="pdsc-label">@Label</span>
+    }
+</span>
