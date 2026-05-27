@@ -13,6 +13,13 @@
 	line-height: 1.5; /* ? ADDED: Consistent line height to fix text alignment */
 }
 
+/* Maintain consistent button height when text span is hidden (e.g. d-none at narrow widths),
+   matching the behaviour of PDButton which always keeps line-height on its inner spans. */
+.pd-dropdown button > span
+{
+	line-height: 1.5;
+}
+
 .pd-dropdown .dropdown-toggle::after
 {
 	display: none; /* Hide Bootstrap's default caret since we use our own */
