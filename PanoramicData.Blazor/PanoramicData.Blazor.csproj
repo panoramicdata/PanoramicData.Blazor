@@ -30,6 +30,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
       - Fix PDTableColumnSelector dropdown clipping: add max-height: 70vh and overflow-y: auto so the column list scrolls internally rather than overflowing the viewport.
+      - Fix PDDropDown button styling: hardcode btn and dropdown-toggle on the button element so CssClass only needs a variant (e.g. btn-secondary); removes the previous workaround CSS hacks from PDTableColumnSelector.
+      - Add PDStatusCascade component: alternative to PDStatusRollUp using StatusType value object instead of fixed RollUpStatus enum, allowing consumers to define custom statuses with their own icon and colour via StatusType.Custom(name, iconClass, colorClass). Existing PDStatusRollUp callers are unaffected.
+      - Add StatusType and PDStatusCascadeNode models supporting the new PDStatusCascade component.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

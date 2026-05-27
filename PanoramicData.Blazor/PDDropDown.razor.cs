@@ -59,10 +59,12 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	public CloseOptions CloseOption { get; set; } = CloseOptions.Outside;
 
 	/// <summary>
-	/// Gets or sets the CSS class for the dropdown.
+	/// Gets or sets additional CSS classes applied to the button alongside the always-present
+	/// <c>btn</c> and <c>dropdown-toggle</c> classes. Typically a Bootstrap variant such as
+	/// <c>btn-secondary</c> or <c>btn-primary</c>, plus any custom classes needed.
 	/// </summary>
 	[Parameter]
-	public string CssClass { get; set; } = "btn btn-primary dropdown-toggle";
+	public string CssClass { get; set; } = "btn-secondary";
 
 	/// <summary>
 	/// Gets or sets the direction the dropdown will open.

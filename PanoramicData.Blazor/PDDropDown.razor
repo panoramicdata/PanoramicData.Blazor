@@ -2,7 +2,7 @@
 
 	<button type="button"
 			id="@ToggleId"
-			class="@($"{CssClass} {ButtonSizeClass}")"
+			class="btn dropdown-toggle @($"{CssClass} {ButtonSizeClass}".Trim())"
 			disabled="@(!IsEnabled)"
 			data-bs-toggle="dropdown"
 			data-bs-offset="0,-3"
