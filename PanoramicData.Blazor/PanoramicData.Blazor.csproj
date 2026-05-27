@@ -33,10 +33,6 @@
       - Fix PDDropDown CSS: remove dead table/row rounding rules, merge duplicate li rules, fix ::deep scoping on ul/li/PDLabel selectors so list bullets and padding apply correctly to child-rendered content.
       - Fix PDTableColumnSelector checkbox spacing: remove margin:0 override that was suppressing Bootstrap me-1; change to me-2 in PDLabel for comfortable checkbox-to-text gap.
       - Fix PDFilter filter-values background: replace hardcoded #f5f5f5 with var(--bs-tertiary-bg) for correct light/dark theme support.
-      - Fix PDTableColumnSelector dropdown clipping: add max-height: 70vh and overflow-y: auto so the column list scrolls internally rather than overflowing the viewport.
-      - Fix PDDropDown button styling: hardcode btn and dropdown-toggle on the button element so CssClass only needs a variant (e.g. btn-secondary); removes the previous workaround CSS hacks from PDTableColumnSelector.
-      - Add PDStatusCascade component: alternative to PDStatusRollUp using StatusType value object instead of fixed RollUpStatus enum, allowing consumers to define custom statuses with their own icon and colour via StatusType.Custom(name, iconClass, colorClass). Existing PDStatusRollUp callers are unaffected.
-      - Add StatusType and PDStatusCascadeNode models supporting the new PDStatusCascade component.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
