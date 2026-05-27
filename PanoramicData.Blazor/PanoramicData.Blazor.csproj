@@ -29,17 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - Add PDStatusRollUp lazy-loading support via optional OnBeforeExpand callback: fires before each node is expanded, receives the target node, returns an updated node or null to leave unchanged. Backwards compatible - existing static trees are unaffected.
-      - Add PDStatusRollUpNode.Expandable (bool?) tri-state: true forces drillable chevron (for nodes whose children arrive lazily), false forces non-drillable, null (default) auto-detects from Children.
-      - Add PDStatusRollUp.TriggerIconSize parameter (string?) for custom icon sizing (e.g. "1rem", "16px"); defaults to .85rem baseline via CSS for backwards compatibility.
-      - Add PDStatusRollUp.TriggerTitle parameter (string, default "Click to view status") for customisable hover tooltip on the trigger.
-      - Add onmousedown/onmouseup stopPropagation to PDStatusRollUp trigger to prevent accidental row selection in parent PDTable components.
-      - Add user-select: none to PDStatusRollUp popup header and item rows so text cannot be accidentally selected.
-      - Replace hardcoded PDStatusRollUp icon colours with Bootstrap text utilities (text-danger, text-success, text-secondary); amber kept as --pdsr-color-amber CSS variable (default #fd7e14, overridable).
-      - Fix PDStatusRollUp trigger icon not updating after lazy root expansion.
-      - Fix PDStatusRollUp spinner positioning on deeper drill levels.
-      - Fix PDStatusRollUp parent row icon not reflecting resolved status after drill-down.
-      - Fix GenerateDocs.ps1 to handle inline [Parameter] attributes and generic type signatures.
+      - Fix PDTableColumnSelector dropdown clipping: add max-height: 70vh and overflow-y: auto so the column list scrolls internally rather than overflowing the viewport.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
