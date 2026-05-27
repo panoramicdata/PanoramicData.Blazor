@@ -42,7 +42,7 @@
 
 .filter-values
 {
-	background-color: #f5f5f585;
+	background-color: var(--bs-tertiary-bg);
 	font-size: 0.9rem;
 	padding: 5px;
 }

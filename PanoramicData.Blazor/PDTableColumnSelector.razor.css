@@ -43,7 +43,6 @@
 .pd-column-selector ::deep .pd-dragitem input[type="checkbox"] {
 	width: 1rem;
 	height: 1rem;
-	margin: 0;
 	cursor: pointer;
 	flex-shrink: 0;
 }

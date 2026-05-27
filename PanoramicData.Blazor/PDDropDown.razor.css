@@ -1,16 +1,13 @@
 ﻿.pd-dropdown
 {
 	display: inline-block;
-	position: relative; /* ? ADDED: Establish positioning context for dropdown menu */
 }
 
 .pd-dropdown button
 {
 	align-items: center;
-	display: inline-flex; /* ? CHANGED: Use inline-flex for proper alignment */
+	display: inline-flex;
 	gap: 0.25rem;
-	border-radius: var(--bs-border-radius, 0.375rem); /* ? ADDED: Rounded corners for all dropdown buttons */
-	line-height: 1.5; /* ? ADDED: Consistent line height to fix text alignment */
 }
 
 /* Maintain consistent button height when text span is hidden (e.g. d-none at narrow widths),
@@ -27,72 +24,43 @@
 
 .pd-dropdown .dropdown-menu
 {
-	border-radius: var(--bs-border-radius, 0.375rem); /* Bootstrap standard rounded corners */
-	overflow: hidden; /* Ensure content respects rounded corners */
-	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Add shadow for better visibility */
-	padding: .25rem 0;	/* Restore padding so buttons and things are not right up against the edge*/
-	z-index: 1050; /* Ensure dropdown appears above toolbar and other content */
-	min-width: 200px; /* Minimum width for dropdowns */
-}
-
-/* Ensure table inside dropdown menu respects rounded corners */
-.pd-dropdown .dropdown-menu table
-{
-	border-radius: inherit;
+	border-radius: var(--bs-border-radius, 0.375rem);
 	overflow: hidden;
-	margin: 0;
+	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+	padding: .25rem 0;
+	z-index: 1050;
+	min-width: 200px;
 }
 
-/* Round the first and last rows */
-.pd-dropdown .dropdown-menu table tr:first-child td
-{
-	border-top-left-radius: var(--bs-border-radius, 0.375rem);
-	border-top-right-radius: var(--bs-border-radius, 0.375rem);
-}
-
-.pd-dropdown .dropdown-menu table tr:last-child td
-{
-	border-bottom-left-radius: var(--bs-border-radius, 0.375rem);
-	border-bottom-right-radius: var(--bs-border-radius, 0.375rem);
-}
-
-/* Ensure divs inside dropdown menu respect rounded corners */
 .pd-dropdown .dropdown-menu > div
 {
 	border-radius: inherit;
-	overflow: auto; /* ? ADDED: Allow scrolling if content is too long */
-	max-height: 400px; /* ? ADDED: Maximum height before scrolling */
+	overflow: auto;
+	max-height: 400px;
 }
 
-/* Remove list styling from dropdown menus */
-.pd-dropdown .dropdown-menu ul
+.pd-dropdown .dropdown-menu ::deep ul
 {
 	list-style: none;
 	padding: 0;
 	margin: 0;
 }
 
-.pd-dropdown .dropdown-menu li
+.pd-dropdown .dropdown-menu ::deep li
 {
 	list-style: none;
 	padding: 0;
 	margin: 0;
-}
-
-/* Style dropdown items */
-.pd-dropdown .dropdown-menu li
-{
 	cursor: pointer;
 	transition: background-color 0.15s ease-in-out;
 }
 
-.pd-dropdown .dropdown-menu li:hover
+.pd-dropdown .dropdown-menu ::deep li:hover
 {
 	background-color: var(--bs-secondary-bg);
 }
 
-/* Ensure PDLabel inside dropdown items takes full width and has proper padding */
-.pd-dropdown .dropdown-menu li ::deep .pd-label
+.pd-dropdown .dropdown-menu ::deep li .pd-label
 {
 	display: block;
 	padding: 0.5rem 1rem;
@@ -102,13 +70,7 @@
 	width: 100%;
 }
 
-.pd-dropdown .dropdown-menu li:hover ::deep .pd-label
-{
-	background-color: transparent;
-}
-
 /* Style for PDButton items in dropdown */
-.pd-dropdown .dropdown-menu > div > button,
 .pd-dropdown .dropdown-menu > div ::deep button
 {
 	width: 100%;
@@ -118,7 +80,6 @@
 	margin: 0;
 }
 
-.pd-dropdown .dropdown-menu > div > button:hover,
 .pd-dropdown .dropdown-menu > div ::deep button:hover
 {
 	background-color: var(--bs-secondary-bg);

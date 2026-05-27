@@ -87,7 +87,7 @@ public partial class PDLabel
 	{
 		var dict = new Dictionary<string, object>
 		{
-			{ "class", "me-1" },
+			{ "class", "me-2" },
 			{ "type", "checkbox" }
 		};
 		if (item.IsSelected)
