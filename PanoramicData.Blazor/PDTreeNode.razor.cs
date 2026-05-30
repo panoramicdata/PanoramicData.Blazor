@@ -3,6 +3,7 @@
 public partial class PDTreeNode<TItem> where TItem : class
 {
 	private IJSObjectReference? _commonModule;
+	private int _dragOverCount;
 
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -157,9 +158,32 @@ public partial class PDTreeNode<TItem> where TItem : class
 		}
 	}
 
+	private bool IsDragOverValid => Node?.Data is null
+		|| Tree?.IsDropValid is null
+		|| Tree.IsDropValid(Node.Data, DragContext?.Payload);
+
+	private void OnDragEnter(DragEventArgs _)
+	{
+		if (AllowDrop)
+		{
+			_dragOverCount++;
+			StateHasChanged();
+		}
+	}
+
+	private void OnDragLeave(DragEventArgs _)
+	{
+		if (AllowDrop)
+		{
+			_dragOverCount = Math.Max(0, _dragOverCount - 1);
+			StateHasChanged();
+		}
+	}
+
 	private async Task OnDragDrop(MouseEventArgs args)
 	{
-		if (DragContext != null && Node != null)
+		_dragOverCount = 0;
+		if (DragContext != null && Node != null && IsDragOverValid)
 		{
 			await Drop.InvokeAsync(new DropEventArgs(Node, DragContext.Payload, args.CtrlKey)).ConfigureAwait(true);
 		}

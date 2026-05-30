@@ -163,6 +163,7 @@
 							DataProvider="DataProvider"
 							Drop="OnDropAsync"
 							ExceptionHandler="OnException"
+							IsDropValid="@((item, _) => item.CanAddItems)"
 							IsLeaf="x => x.EntryType == FileExplorerItemType.File || x.HasSubFolders == false"
 							ItemsLoaded="OnTreeItemsLoaded"
 							KeyDown="OnTreeKeyDownAsync"

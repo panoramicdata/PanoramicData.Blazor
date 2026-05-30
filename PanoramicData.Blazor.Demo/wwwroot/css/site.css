@@ -170,14 +170,6 @@ a, .btn-link {
 		display: block;
 	}
 
-	.pdfileexplorer .pdtreenode_content:hover, .pdfileexplorer .pdtablerow:hover {
-		background-color: var(--bs-tertiary-bg);
-	}
-
-	.pdfileexplorer .pdtreenode_content.selected:hover, .pdfileexplorer .pdtablerow.selected:hover {
-		background-color: #007bff;
-	}
-
 	.drop-zone {
 		color: var(--bs-secondary-color);
 		border: 2px solid var(--bs-border-color);

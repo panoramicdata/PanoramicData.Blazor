@@ -24,6 +24,10 @@
 	margin-left: 3px;
 }
 
+.pdtreenode .pdtreenode_content:not(.selected):hover {
+	background-color: var(--bs-tertiary-bg, rgba(128, 128, 128, 0.15));
+}
+
 .pdtreenode_edit {
 	width: 100%;
 }
@@ -32,4 +36,16 @@
 .pdtree_lines {
 	border-left: 1px dashed grey;
 	padding-left: 0px !important;
+}
+
+.pdtreenode .pdtreenode_content.drag-over {
+	background-color: var(--bs-success-bg-subtle, #d1e7dd);
+	outline: 1px dashed var(--bs-success, #198754);
+	border-radius: 3px;
+}
+
+.pdtreenode .pdtreenode_content.drag-over-invalid {
+	background-color: var(--bs-danger-bg-subtle, #f8d7da);
+	outline: 1px dashed var(--bs-danger, #dc3545);
+	border-radius: 3px;
 }

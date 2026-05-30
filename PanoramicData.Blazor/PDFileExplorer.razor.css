@@ -52,6 +52,13 @@
 	padding-right: .5rem !important;
 }
 
+/* Suppress the whole-panel Dropzone.js hover highlight on the tree side;
+   individual node highlighting is handled by PDTreeNode.drag-over instead. */
+.pdfileexplorer ::deep .pddropzone.dz-drag-hover {
+	background-color: unset;
+	border-color: transparent;
+}
+
 #upload-progress-modal {
 	z-index: 1060;
 }
@@ -76,6 +83,15 @@ font-size: 10px;
 
 .pdtreenode .pdtreenode_content {
 	padding: 2px 3px 2px 3px;
+}
+
+.pdfileexplorer ::deep .pdtablerow:hover td
+{
+	background-color: var(--bs-tertiary-bg, rgba(128, 128, 128, 0.15));
+}
+
+.pdfileexplorer ::deep .pdtablerow.selected:hover td {
+	background-color: var(--pd-selected-bg, var(--bs-primary));
 }
 
 ::deep .pdtreenode span.item-text {

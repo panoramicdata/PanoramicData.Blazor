@@ -95,6 +95,13 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
     [Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
     /// <summary>
+    /// Optional predicate that determines whether dropping the current drag payload onto a given node is valid.
+    /// Return <c>true</c> for a valid drop (green highlight), <c>false</c> for an invalid drop (red highlight).
+    /// When <c>null</c>, all drops are treated as valid.
+    /// </summary>
+    [Parameter] public Func<TItem, object?, bool>? IsDropValid { get; set; }
+
+    /// <summary>
     /// Gets or sets a delegate to be called if an exception occurs.
     /// </summary>
     [Parameter] public EventCallback<Exception> ExceptionHandler { get; set; }

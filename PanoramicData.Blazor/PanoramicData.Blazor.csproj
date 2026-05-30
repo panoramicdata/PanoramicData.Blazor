@@ -29,10 +29,10 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - Fix PDDropDown button height at narrow widths when text is hidden via d-none (e.g. TextCssClass="d-none d-xl-inline"): wrap icon in a span so line-height is always applied, matching PDButton behaviour.
-      - Fix PDDropDown CSS: remove dead table/row rounding rules, merge duplicate li rules, fix ::deep scoping on ul/li/PDLabel selectors so list bullets and padding apply correctly to child-rendered content.
-      - Fix PDTableColumnSelector checkbox spacing: remove margin:0 override that was suppressing Bootstrap me-1; change to me-2 in PDLabel for comfortable checkbox-to-text gap.
-      - Fix PDFilter filter-values background: replace hardcoded #f5f5f5 with var(--bs-tertiary-bg) for correct light/dark theme support.
+      - Fix PDFileExplorer tree drag-over: highlight individual nodes green/red instead of the whole tree panel; red highlight and blocked drop for read-only folders via new PDTree.IsDropValid parameter.
+      - Add theme-aware hover styling to PDTreeNode (Bootstrap 5.3+ with rgba fallback for older versions, light and dark mode compatible).
+      - Add theme-aware row hover styling to PDFileExplorer right-hand panel.
+      - Remove duplicate hover rules from demo site.css (now owned by the library).
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

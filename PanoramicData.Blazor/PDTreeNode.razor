@@ -11,10 +11,12 @@
         {
             <i class="far @(Node.IsExpanded ? "fa-minus-square" : "fa-plus-square") pd-pointer" @onclick="OnToggleExpandAsync"></i>
         }
-        <div id="@($"pdtnc-{Node?.Id}")" class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null)"
+        <div id="@($"pdtnc-{Node?.Id}")" class="pdtreenode_content @((Node?.IsSelected ?? false) ? "selected" : null) @(AllowDrop && _dragOverCount > 0 ? (IsDragOverValid ? "drag-over" : "drag-over-invalid") : null)"
              @oncontextmenu:preventDefault
              @oncontextmenu="() => { }"
              @onmousedown="OnContentMouseDown"
+             @ondragenter="OnDragEnter"
+             @ondragleave="OnDragLeave"
              @ondragover:preventDefault="AllowDrop"
              @ondrop="OnDragDrop"
              @ondragstart="OnDragStart"
