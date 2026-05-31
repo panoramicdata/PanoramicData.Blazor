@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-05-26 14:24:44
+Generated on: 2026-05-31 13:40:57
 
 ## PDAnimation
 
@@ -546,7 +546,7 @@ This component has no public parameters.
 | Click | EventCallback<MouseEventArgs> | An event callback that is invoked when the dropdown is clicked. |
 | ChildContent | RenderFragment? | Gets or sets the child content of the dropdown. |
 | CloseOption | CloseOptions | Gets or sets when the dropdown should close. |
-| CssClass | string | Gets or sets the CSS class for the dropdown. |
+| CssClass | string | Gets or sets additional CSS classes applied to the button alongside the always-present <c>btn</c> and <c>dropdown-toggle</c> classes. Typically a Bootstrap variant such as <c>btn-secondary</c> or <c>btn-primary</c>, plus any custom classes needed. |
 | DropdownDirection | Directions | Gets or sets the direction the dropdown will open. |
 | DropDownHidden | EventCallback | An event callback that is invoked when the dropdown is hidden. |
 | DropDownShown | EventCallback | An event callback that is invoked when the dropdown is shown. |
@@ -1954,6 +1954,7 @@ This component has no public parameters.
 | ClearOnCollapse | bool | Should a node clear its child content on collapse? Doing so will force a re-load of child nodes if it is re-expanded. Only applicable when LoadOnDemand = true. |
 | DataProvider | IDataProviderService<TItem> | Gets or sets the <see cref="IDataProviderService{TItem}"/> instance to use to fetch data. |
 | Drop | EventCallback<DropEventArgs> | Callback fired whenever a drag operation ends on a node within the tree. |
+| IsDropValid | Func<TItem, object?, bool>? | Optional predicate that determines whether dropping the current drag payload onto a given node is valid. Return <c>true</c> for a valid drop (green highlight), <c>false</c> for an invalid drop (red highlight). When <c>null</c>, all drops are treated as valid. |
 | ExceptionHandler | EventCallback<Exception> | Gets or sets a delegate to be called if an exception occurs. |
 | ExpandOnExpandAll | Predicate<TreeNode<TItem>>? | Predicate used to determine whether a node should be expanded when ExpandAll is called. |
 | IconCssClass | Func<TItem, int, string>? | A function that calculates the CSS classes used to show an icon for the given node. |
@@ -2041,6 +2042,60 @@ This component has no public parameters.
 | ClockDateFormat | string | Gets or sets the clock date format string. |
 | ImageMimeType | string | Gets or sets the MIME type for image content bytes. |
 | Properties | Dictionary<string, string>? | Gets or sets widget-level properties as string key/value pairs. These override any dashboard-level properties with the same key. |
+
+---
+
+## PDWizard
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Id | string | Gets the unique identifier of this wizard instance. |
+| ChildContent | RenderFragment? | Gets or sets the child content (PDWizardStep components). |
+| CssClass | string | Gets or sets additional CSS classes applied to the root element. |
+| IndicatorCssClass | string | Gets or sets additional CSS classes applied to the step indicator bar. |
+| BodyCssClass | string | Gets or sets additional CSS classes applied to the wizard body. |
+| FooterCssClass | string | Gets or sets additional CSS classes applied to the wizard footer. |
+| StepIndicatorStyle | WizardStepIndicatorStyle | Gets or sets the visual style of the step progress indicator. |
+| ShowStepTitles | bool | Gets or sets whether step titles are shown beneath the step circles (Numbers style only). |
+| ShowIndicator | bool | Gets or sets whether the step progress indicator bar is rendered. |
+| ShowFooter | bool | Gets or sets whether the wizard footer is rendered. |
+| AllowStepNavigation | bool | Gets or sets whether completed steps in the indicator are clickable for backwards navigation. |
+| TitleTemplate | RenderFragment<PDWizardStep?>? | Gets or sets an optional template rendered as the left-side title above the wizard body. Receives the current <see cref="PDWizardStep"/> as context. When null no title bar is rendered. |
+| TitleAddon | RenderFragment<PDWizardStep?>? | Gets or sets an optional template rendered on the right side of the title bar. Receives the current <see cref="PDWizardStep"/> as context. Automatically pushed to the right. |
+| TitleAddonCssClass | string | Gets or sets additional CSS classes applied to the right-side title addon element. Defaults to "text-secondary". |
+| BackButtonText | string | Gets or sets the label for the Back button. |
+| NextButtonText | string | Gets or sets the label for the Next button. |
+| FinishButtonText | string | Gets or sets the label for the Finish button (shown on the last step). |
+| CancelButtonText | string | Gets or sets the label for the Cancel button. |
+| CancelIcon | string? | Gets or sets the FontAwesome icon class for the Cancel button. Set to null to suppress the icon. |
+| BackIcon | string? | Gets or sets the FontAwesome icon class for the Back button. Set to null to suppress the icon. |
+| NextIcon | string? | Gets or sets the FontAwesome icon class for the Next button. Set to null to suppress the icon. |
+| FinishIcon | string? | Gets or sets the FontAwesome icon class for the Finish button. Set to null to suppress the icon. |
+| Footer | RenderFragment? | Gets or sets optional content to replace the default footer entirely. |
+| ExtraButton | RenderFragment? | Gets or sets an optional extra button rendered in the footer between the Cancel button and the Back/Next/Finish group. Use this for secondary actions such as "Save as Draft". |
+| StepChanged | EventCallback<int> | An event callback invoked when the step changes. Argument is the new zero-based step index. |
+| OnComplete | EventCallback | An event callback invoked when the user clicks Finish on the last step. |
+| OnCancel | EventCallback | An event callback invoked when the user clicks Cancel. |
+
+---
+
+## PDWizardStep
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Title | string | Gets or sets the display title of this step. |
+| Icon | string? | Gets or sets an optional FontAwesome icon class (e.g. "fa-solid fa-upload") shown in the step indicator. |
+| CssClass | string | Gets or sets additional CSS classes applied to this step's body container. |
+| IsVisible | bool | Gets or sets whether this step is visible. When false the step is skipped entirely. |
+| CanProceed | Func<bool>? | Gets or sets an optional predicate evaluated before allowing the user to proceed past this step. Return false to keep the Next/Finish button disabled. |
+| OnEnterAsync | Func<Task>? | Gets or sets an async callback invoked when this step becomes active (e.g. to load data). While running, a loading overlay is shown. |
+| OnLeaveAsync | Func<Task>? | Gets or sets an async callback invoked when the user leaves this step (before moving forward). |
+| LoadingContent | RenderFragment? | Gets or sets optional content shown while <see cref="OnEnterAsync"/> is running. When null a default spinner is shown. |
+| ChildContent | RenderFragment? | Gets or sets the content of this step. |
 
 ---
 

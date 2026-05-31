@@ -1,0 +1,189 @@
+@{
+	var visibleSteps = _steps.Where(s => s.IsVisible).ToList();
+	var currentStep = visibleSteps.ElementAtOrDefault(_activeStepIndex);
+	var isFirst = _activeStepIndex == 0;
+	var isLast = _activeStepIndex == visibleSteps.Count - 1;
+	var canProceed = currentStep?.CanProceed == null || currentStep.CanProceed();
+	var isLoading = currentStep?.IsLoading ?? false;
+	var navigableClass = AllowStepNavigation ? " pd-wizard--navigable" : string.Empty;
+}
+
+<CascadingValue Name="Wizard" Value="this" IsFixed="false">
+	<div id="@Id" class="pd-wizard @CssClass @navigableClass" @attributes="AdditionalAttributes">
+
+		@* ── Step indicator ────────────────────────────────────────────────── *@
+		@if (ShowIndicator && visibleSteps.Count > 1)
+		{
+			<div class="pd-wizard-indicator pd-wizard-indicator--@StepIndicatorStyle.ToString().ToLowerInvariant() user-select-none @IndicatorCssClass">
+				@for (var i = 0; i < visibleSteps.Count; i++)
+				{
+					var step = visibleSteps[i];
+					var idx = i;
+					var stepState = idx < _activeStepIndex ? "completed" : idx == _activeStepIndex ? "active" : "pending";
+
+					@if (StepIndicatorStyle == WizardStepIndicatorStyle.Dots)
+					{
+						<span class="pd-wizard-dot pd-wizard-dot--@stepState"
+							  title="@step.Title"
+							  @onclick="() => OnIndicatorClickAsync(idx)"></span>
+					}
+					else if (StepIndicatorStyle == WizardStepIndicatorStyle.Numbers)
+					{
+						<div class="pd-wizard-step-node pd-wizard-step-node--@stepState"
+							 @onclick="() => OnIndicatorClickAsync(idx)">
+							<div class="pd-wizard-step-circle">
+								@if (stepState == "completed")
+								{
+									<i class="fa fa-solid fa-check"></i>
+								}
+								else
+								{
+									<span>@(idx + 1)</span>
+								}
+							</div>
+							@if (ShowStepTitles)
+							{
+								<span class="pd-wizard-step-label">@step.Title</span>
+							}
+						</div>
+						@if (idx < visibleSteps.Count - 1)
+						{
+							<div class="pd-wizard-connector pd-wizard-connector--@(idx < _activeStepIndex ? "completed" : "pending")"></div>
+						}
+					}
+					else @* Breadcrumb *@
+					{
+						<div class="pd-wizard-crumb pd-wizard-crumb--@stepState"
+							 @onclick="() => OnIndicatorClickAsync(idx)">
+							@if (step.Icon != null)
+							{
+								<i class="@step.Icon me-1"></i>
+							}
+							<span>@step.Title</span>
+						</div>
+						@if (idx < visibleSteps.Count - 1)
+						{
+							<i class="fa fa-solid fa-chevron-right pd-wizard-crumb-sep"></i>
+						}
+					}
+				}
+			</div>
+		}
+
+		@* ── Title bar (optional) ─────────────────────────────────────────── *@
+		@if (TitleTemplate != null || TitleAddon != null)
+		{
+			<div class="pd-wizard-titlebar user-select-none">
+				@if (TitleTemplate != null)
+				{
+					<div class="pd-wizard-titlebar-main">
+						@TitleTemplate(CurrentStep)
+					</div>
+				}
+				@if (TitleAddon != null)
+				{
+					<div class="pd-wizard-titlebar-addon ms-auto @TitleAddonCssClass">
+						@TitleAddon(CurrentStep)
+					</div>
+				}
+			</div>
+		}
+
+		@* ── Body ─────────────────────────────────────────────────────────── *@
+		<div class="pd-wizard-body @BodyCssClass">
+			@* ChildContent is always in the render tree so PDWizardStep components
+			   never unmount and re-register. The loading overlay is positioned on top. *@
+			<div class="@(isLoading ? "pd-wizard-body-content pd-wizard-body-content--hidden" : "pd-wizard-body-content")">
+				@ChildContent
+			</div>
+			@if (isLoading)
+			{
+				<div class="pd-wizard-loading">
+					@if (currentStep?.LoadingContent != null)
+					{
+						@currentStep.LoadingContent
+					}
+					else
+					{
+						<div class="spinner-border text-secondary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+						<span class="ms-3 text-secondary">Please wait...</span>
+					}
+				</div>
+			}
+		</div>
+
+		@* ── Footer ───────────────────────────────────────────────────────── *@
+		@if (ShowFooter)
+		{
+			<div class="pd-wizard-footer @FooterCssClass">
+				@if (Footer != null)
+				{
+					@Footer
+				}
+				else
+				{
+					<div class="d-flex w-100 align-items-center">
+						@* Left side: Cancel *@
+						<button class="btn btn-secondary btn-sm"
+								disabled="@isLoading"
+								@onclick="OnCancelClickAsync">
+							@if (CancelIcon != null)
+							{
+								<i class="@CancelIcon me-1"></i>
+							}
+							@CancelButtonText
+						</button>
+
+						@* Extra button (optional) *@
+						@if (ExtraButton != null)
+						{
+							@ExtraButton
+						}
+
+						@* Right side: Back / Next / Finish *@
+						<div class="ms-auto d-flex gap-2">
+							@if (!isFirst)
+							{
+								<button class="btn btn-secondary btn-sm"
+										disabled="@isLoading"
+										@onclick="BackAsync">
+									@if (BackIcon != null)
+									{
+										<i class="@BackIcon me-1"></i>
+									}
+									@BackButtonText
+								</button>
+							}
+							@if (!isLast)
+							{
+								<button class="btn btn-primary btn-sm"
+										disabled="@(isLoading || !canProceed)"
+										@onclick="NextAsync">
+									@NextButtonText
+									@if (NextIcon != null)
+									{
+										<i class="@NextIcon ms-1"></i>
+									}
+								</button>
+							}
+							else
+							{
+								<button class="btn btn-success btn-sm"
+										disabled="@(isLoading || !canProceed)"
+										@onclick="OnFinishClickAsync">
+									@if (FinishIcon != null)
+									{
+										<i class="@FinishIcon me-1"></i>
+									}
+									@FinishButtonText
+								</button>
+							}
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</div>
+</CascadingValue>

@@ -1,0 +1,253 @@
+/* ── CSS custom properties ─────────────────────────────────────────────── */
+.pd-wizard {
+    --pd-wizard-active-color: var(--bs-primary, #0d6efd);
+    --pd-wizard-completed-color: var(--bs-success, #198754);
+    --pd-wizard-pending-color: var(--bs-secondary, #6c757d);
+    --pd-wizard-border-color: var(--bs-border-color, #dee2e6);
+    --pd-wizard-indicator-bg: var(--bs-body-bg, #fff);
+    --pd-wizard-titlebar-bg: var(--bs-body-bg, #fff);
+    --pd-wizard-footer-bg: var(--bs-body-bg, #fff);
+    --pd-wizard-connector-height: 2px;
+    --pd-wizard-circle-size: 2rem;
+    --pd-wizard-circle-font-size: 0.9rem;
+    --pd-wizard-label-font-size: 0.75rem;
+    --pd-wizard-body-min-height: 120px;
+    --pd-wizard-body-max-height: unset;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+}
+
+/* ── Title bar ─────────────────────────────────────────────────────────── */
+.pd-wizard-titlebar {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--pd-wizard-border-color);
+    background: var(--pd-wizard-titlebar-bg);
+}
+
+.pd-wizard-titlebar-main {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* ── Indicator bar shared ──────────────────────────────────────────────── */
+.pd-wizard-indicator {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--pd-wizard-border-color);
+    background: var(--pd-wizard-indicator-bg);
+}
+
+/* ── Numbers style ─────────────────────────────────────────────────────── */
+.pd-wizard-indicator--numbers {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.pd-wizard-step-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.pd-wizard-step-node--active .pd-wizard-step-circle {
+    background: var(--pd-wizard-active-color);
+    border-color: var(--pd-wizard-active-color);
+    color: #fff;
+}
+
+.pd-wizard-step-node--completed .pd-wizard-step-circle {
+    background: var(--pd-wizard-completed-color);
+    border-color: var(--pd-wizard-completed-color);
+    color: #fff;
+}
+
+.pd-wizard-step-node--pending .pd-wizard-step-circle {
+    background: transparent;
+    border-color: var(--pd-wizard-pending-color);
+    color: var(--pd-wizard-pending-color);
+}
+
+.pd-wizard-step-circle {
+    width: var(--pd-wizard-circle-size);
+    height: var(--pd-wizard-circle-size);
+    border-radius: 50%;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--pd-wizard-circle-font-size, 0.9rem);
+    font-weight: 600;
+    line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.pd-wizard-step-circle i {
+    display: block;
+    font-size: 1rem;
+    line-height: 1;
+    width: 1em;
+    text-align: center;
+}
+
+.pd-wizard-step-label {
+    font-size: var(--pd-wizard-label-font-size);
+    white-space: nowrap;
+    color: inherit;
+}
+
+.pd-wizard-step-node--active .pd-wizard-step-label {
+    color: var(--pd-wizard-active-color);
+    font-weight: 600;
+}
+
+.pd-wizard-step-node--completed .pd-wizard-step-label {
+    color: var(--pd-wizard-completed-color);
+}
+
+.pd-wizard-step-node--pending .pd-wizard-step-label {
+    color: var(--pd-wizard-pending-color);
+}
+
+.pd-wizard-connector {
+    flex: 1;
+    height: var(--pd-wizard-connector-height);
+    min-width: 1rem;
+    margin-bottom: calc(var(--pd-wizard-label-font-size) + 0.5rem);
+    transition: background 0.2s;
+}
+
+.pd-wizard-connector--completed {
+    background: var(--pd-wizard-completed-color);
+}
+
+.pd-wizard-connector--pending {
+    background: var(--pd-wizard-pending-color);
+    opacity: 0.35;
+}
+
+/* Clickable nodes when AllowStepNavigation is on */
+.pd-wizard--navigable .pd-wizard-step-node--completed {
+    cursor: pointer;
+}
+
+.pd-wizard--navigable .pd-wizard-dot--completed {
+    cursor: pointer;
+}
+
+/* ── Dots style ────────────────────────────────────────────────────────── */
+.pd-wizard-indicator--dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.pd-wizard-dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    border: 2px solid var(--pd-wizard-pending-color);
+    background: transparent;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    cursor: default;
+}
+
+.pd-wizard-dot--active {
+    background: var(--pd-wizard-active-color);
+    border-color: var(--pd-wizard-active-color);
+    transform: scale(1.4);
+}
+
+.pd-wizard-dot--completed {
+    background: var(--pd-wizard-completed-color);
+    border-color: var(--pd-wizard-completed-color);
+}
+
+/* ── Breadcrumb style ──────────────────────────────────────────────────── */
+.pd-wizard-indicator--breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.pd-wizard-crumb {
+    font-size: 0.85rem;
+    padding: 0.1rem 0.25rem;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.pd-wizard-crumb--active {
+    color: var(--pd-wizard-active-color);
+    font-weight: 600;
+}
+
+.pd-wizard-crumb--completed {
+    color: var(--pd-wizard-completed-color);
+    cursor: pointer;
+}
+
+.pd-wizard-crumb--pending {
+    color: var(--pd-wizard-pending-color);
+    opacity: 0.6;
+}
+
+.pd-wizard-crumb-sep {
+    font-size: 0.65rem;
+    color: var(--pd-wizard-pending-color);
+    opacity: 0.5;
+}
+
+/* ── Body ──────────────────────────────────────────────────────────────── */
+.pd-wizard-body {
+    flex: 1;
+    padding: 1rem;
+    min-height: var(--pd-wizard-body-min-height);
+    max-height: var(--pd-wizard-body-max-height);
+    overflow-y: auto;
+    position: relative;
+}
+
+.pd-wizard-body-content {
+    /* intentionally no special style - just a passthrough wrapper */
+}
+
+.pd-wizard-body-content--hidden {
+    visibility: hidden;
+}
+
+/* ── Loading state ─────────────────────────────────────────────────────── */
+.pd-wizard-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--pd-wizard-indicator-bg);
+    min-height: var(--pd-wizard-body-min-height);
+}
+
+/* ── Footer ────────────────────────────────────────────────────────────── */
+.pd-wizard-footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--pd-wizard-border-color);
+    background: var(--pd-wizard-footer-bg);
+}
+
+/* ── Modal integration ─────────────────────────────────────────────────── */
+/* When used inside a PDModal, remove the extra padding from the modal-body */
+.modal-body > .pd-wizard {
+    margin: -1rem;
+}
+
+.modal-body > .pd-wizard .pd-wizard-footer {
+    border-radius: 0 0 calc(0.3rem - 1px) calc(0.3rem - 1px);
+}

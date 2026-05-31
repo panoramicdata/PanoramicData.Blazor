@@ -1,0 +1,392 @@
+@page "/pdwizard"
+
+<DemoSourceView SourceFiles="Pages/PDWizardPage.razor, Pages/PDWizardPage.razor.cs">
+    <ChildContent>
+
+    <h4>Basic Wizard (Numbers)</h4>
+    <p class="text-muted">Default style with numbered step circles and titles.</p>
+
+    <PDWizard OnComplete="OnBasicComplete" OnCancel="OnBasicCancel" CssClass="border rounded">
+        <PDWizardStep Title="Welcome" Icon="fa fa-solid fa-hand-wave">
+            <h6>Welcome to the wizard</h6>
+            <p class="text-muted">This is step 1. Click Next to continue.</p>
+        </PDWizardStep>
+        <PDWizardStep Title="Configure" Icon="fa fa-solid fa-sliders">
+            <h6>Configure your settings</h6>
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input class="form-control form-control-sm" @bind="_basicName" placeholder="Enter a name" />
+            </div>
+        </PDWizardStep>
+        <PDWizardStep Title="Confirm" Icon="fa fa-solid fa-check-circle"
+                      CanProceed="@(() => !string.IsNullOrWhiteSpace(_basicName))">
+            <h6>Confirm your choices</h6>
+            <p>Name: <strong>@_basicName</strong></p>
+            @if (string.IsNullOrWhiteSpace(_basicName))
+            {
+                <p class="text-warning small"><i class="fa fa-solid fa-triangle-exclamation me-1"></i>Go back and enter a name to enable Finish.</p>
+            }
+        </PDWizardStep>
+    </PDWizard>
+
+    @if (_basicResult != null)
+    {
+        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_basicResult</p>
+    }
+
+    <hr />
+    <h4>Breadcrumb Style</h4>
+    <p class="text-muted">Use <code>StepIndicatorStyle="WizardStepIndicatorStyle.Breadcrumb"</code>.</p>
+
+    <PDWizard StepIndicatorStyle="WizardStepIndicatorStyle.Breadcrumb"
+              OnComplete="OnBreadcrumbComplete"
+              OnCancel="OnBreadcrumbCancel"
+              CssClass="border rounded">
+        <PDWizardStep Title="Upload" Icon="fa fa-solid fa-upload">
+            <p class="text-muted">Step 1 - Upload your file here.</p>
+        </PDWizardStep>
+        <PDWizardStep Title="Preview">
+            <p class="text-muted">Step 2 - Preview the content.</p>
+        </PDWizardStep>
+        <PDWizardStep Title="Finish">
+            <p class="text-muted">Step 3 - All done!</p>
+        </PDWizardStep>
+    </PDWizard>
+
+    @if (_breadcrumbResult != null)
+    {
+        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_breadcrumbResult</p>
+    }
+
+    <hr />
+    <h4>Dots Style</h4>
+    <p class="text-muted">Use <code>StepIndicatorStyle="WizardStepIndicatorStyle.Dots"</code> for a minimal indicator.</p>
+
+    <PDWizard StepIndicatorStyle="WizardStepIndicatorStyle.Dots"
+              OnComplete="OnDotsComplete"
+              OnCancel="OnDotsCancel"
+              CssClass="border rounded">
+        <PDWizardStep Title="Step One">
+            <p class="text-muted">Step 1 content.</p>
+        </PDWizardStep>
+        <PDWizardStep Title="Step Two">
+            <p class="text-muted">Step 2 content.</p>
+        </PDWizardStep>
+        <PDWizardStep Title="Step Three">
+            <p class="text-muted">Step 3 content.</p>
+        </PDWizardStep>
+    </PDWizard>
+
+    @if (_dotsResult != null)
+    {
+        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_dotsResult</p>
+    }
+
+    <hr />
+    <h4>Async Loading Step</h4>
+    <p class="text-muted">Use <code>OnEnterAsync</code> on a step to show a spinner while data loads.</p>
+
+    <PDWizard OnComplete="OnAsyncComplete"
+              OnCancel="OnAsyncCancel"
+              CssClass="border rounded">
+        <PDWizardStep Title="Start">
+            <p class="text-muted">Click Next to trigger a simulated async load on the next step.</p>
+        </PDWizardStep>
+        <PDWizardStep Title="Loading Data" OnEnterAsync="SimulateLoadAsync">
+            <p class="text-muted">Data loaded successfully! @_asyncData</p>
+        </PDWizardStep>
+        <PDWizardStep Title="Done">
+            <p class="text-muted">All finished.</p>
+        </PDWizardStep>
+    </PDWizard>
+
+    @if (_asyncResult != null)
+    {
+        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_asyncResult</p>
+    }
+
+    <hr />
+    <h4>Conditional Step Visibility</h4>
+    <p class="text-muted">Toggle the checkbox to show or hide an optional step. Use <code>IsVisible</code> on <code>PDWizardStep</code>.</p>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="showOptional" @bind="_showOptionalStep" />
+        <label class="form-check-label" for="showOptional">Show optional step</label>
+    </div>
+
+    <PDWizard OnComplete="OnConditionalComplete"
+              OnCancel="OnConditionalCancel"
+              CssClass="border rounded">
+        <PDWizardStep Title="First">
+            <p class="text-muted">This is always shown.</p>
+        </PDWizardStep>
+        <PDWizardStep Title="Optional" Icon="fa fa-solid fa-star" IsVisible="@_showOptionalStep">
+            <p class="text-muted">This step is optional - it only appears when the checkbox above is ticked.</p>
+        </PDWizardStep>
+        <PDWizardStep Title="Last">
+            <p class="text-muted">This is always shown.</p>
+        </PDWizardStep>
+    </PDWizard>
+
+    @if (_conditionalResult != null)
+    {
+        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_conditionalResult</p>
+    }
+
+    <hr />
+    <h4>Inside a Modal</h4>
+    <p class="text-muted">
+        <code>PDWizard</code> works seamlessly inside <code>PDModal</code>. Set <code>ShowFooter="false"</code> on the modal so the wizard's own footer is used.
+    </p>
+
+    <button class="btn btn-primary" @onclick="() => _simpleModalWizard.ShowAsync()">Open Wizard Modal</button>
+
+    <PDModal @ref="_simpleModalWizard" Title="Setup Wizard" Size="ModalSizes.Large" ShowFooter="false">
+        <ChildContent>
+            <PDWizard OnComplete="OnSimpleModalComplete" OnCancel="OnSimpleModalCancel">
+                <PDWizardStep Title="Welcome" Icon="fa fa-solid fa-hand-wave">
+                    <h6>Welcome!</h6>
+                    <p class="text-muted">This wizard is running inside a PDModal with the default title bar.</p>
+                </PDWizardStep>
+                <PDWizardStep Title="Details" Icon="fa fa-solid fa-circle-info">
+                    <h6>Enter details</h6>
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input class="form-control form-control-sm" @bind="_simpleModalName" placeholder="Enter a name" />
+                    </div>
+                </PDWizardStep>
+                <PDWizardStep Title="Done" Icon="fa fa-solid fa-flag-checkered">
+                    <h6>All done!</h6>
+                    <p class="text-muted">Name: <strong>@_simpleModalName</strong></p>
+                </PDWizardStep>
+            </PDWizard>
+        </ChildContent>
+    </PDModal>
+
+    @if (_simpleModalResult != null)
+    {
+        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_simpleModalResult</p>
+    }
+
+    <hr />
+    <h4>Inside a Modal (with custom header)</h4>
+    <p class="text-muted">
+        Use <code>PDModal</code>'s <code>Header</code> render fragment to build a fully custom flex title bar.
+        Grab the wizard via <code>@@ref</code> and wire <code>StepChanged</code> to <code>StateHasChanged</code> so the modal title updates live as you navigate.
+    </p>
+
+    <button class="btn btn-primary" @onclick="() => _wizardModal.ShowAsync()">Open Wizard Modal</button>
+
+    <PDModal @ref="_wizardModal" Size="ModalSizes.Large" ShowFooter="false">
+        <Header>
+            <div class="d-flex align-items-center w-100">
+                <h5 class="modal-title user-select-none mb-0">
+                    <i class="fa fa-solid fa-wand-magic-sparkles me-2 text-primary"></i>
+                    @(_modalWizard?.CurrentStep?.Title ?? "Setup Wizard")
+                </h5>
+                <span class="ms-auto text-secondary small user-select-none">
+                    <i class="fa fa-solid fa-layer-group me-1"></i>@_modalJobCount report jobs
+                </span>
+                <button type="button" class="btn-close ms-3" aria-label="Close" @onclick="() => _wizardModal.HideAsync()"></button>
+            </div>
+        </Header>
+        <ChildContent>
+            <PDWizard @ref="_modalWizard"
+                      OnComplete="OnModalWizardComplete"
+                      OnCancel="OnModalWizardCancel"
+                      StepChanged="@(_ => StateHasChanged())">
+                <PDWizardStep Title="Welcome" Icon="fa fa-solid fa-wand-magic-sparkles">
+                    <h6>Welcome!</h6>
+                    <p class="text-muted">This wizard is running inside a PDModal. The modal title shows the current step name and a job count addon - both update as you navigate.</p>
+                    <div class="mt-2">
+                        <label class="form-label">Report jobs</label>
+                        <input type="number" class="form-control form-control-sm" style="width:90px"
+                               @bind="_modalJobCount" min="1" />
+                    </div>
+                </PDWizardStep>
+                <PDWizardStep Title="Details" Icon="fa fa-solid fa-circle-info">
+                    <h6>Enter details</h6>
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input class="form-control form-control-sm" @bind="_modalDescription" placeholder="Enter a name" />
+                    </div>
+                </PDWizardStep>
+                <PDWizardStep Title="Done" Icon="fa fa-solid fa-flag-checkered">
+                    <h6>All done!</h6>
+                    <p class="text-muted">Name: <strong>@_modalDescription</strong></p>
+                </PDWizardStep>
+            </PDWizard>
+        </ChildContent>
+    </PDModal>
+
+    @if (_modalResult != null)
+    {
+        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_modalResult</p>
+    }
+
+	<hr />
+	<h4>CSS Custom Properties</h4>
+	<p class="text-muted">Override <code>--pd-wizard-*</code> variables for custom theming. Available variables include <code>--pd-wizard-active-color</code>, <code>--pd-wizard-completed-color</code>, <code>--pd-wizard-pending-color</code>, <code>--pd-wizard-border-color</code>, <code>--pd-wizard-indicator-bg</code>, <code>--pd-wizard-footer-bg</code>, <code>--pd-wizard-circle-size</code>, <code>--pd-wizard-circle-font-size</code>, <code>--pd-wizard-body-min-height</code> and <code>--pd-wizard-body-max-height</code>.</p>
+
+	<PDWizard OnComplete="OnThemingComplete"
+			  OnCancel="OnThemingCancel"
+			  CssClass="border rounded"
+			  style="--pd-wizard-active-color: #6f42c1; --pd-wizard-completed-color: #fd7e14; --pd-wizard-indicator-bg: #f8f5ff; --pd-wizard-footer-bg: #f8f5ff; --pd-wizard-border-color: #d0bfff;">
+		<PDWizardStep Title="One">
+			<p class="text-muted">Custom purple active / orange completed colours, tinted indicator and footer background, and custom border colour - all via CSS variables.</p>
+		</PDWizardStep>
+		<PDWizardStep Title="Two">
+			<p class="text-muted">Step 2 content.</p>
+		</PDWizardStep>
+		<PDWizardStep Title="Three">
+			<p class="text-muted">Step 3 content.</p>
+		</PDWizardStep>
+	</PDWizard>
+
+	@if (_themingResult != null)
+	{
+		<p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_themingResult</p>
+	}
+
+	<hr />
+	<h4>Fixed Body Height (inside a Modal)</h4>
+	<p class="text-muted">
+		Set <code>--pd-wizard-body-min-height</code> and <code>--pd-wizard-body-max-height</code> to the same value to lock the modal to a consistent size regardless of step content.
+		The body scrolls automatically if a step's content overflows. Click through to the "Tall Step" to see the modal stay the same size.
+	</p>
+
+	<button class="btn btn-primary" @onclick="() => _fixedHeightModal.ShowAsync()">Open Fixed Height Modal</button>
+
+	<PDModal @ref="_fixedHeightModal" Title="Fixed Height Wizard" Size="ModalSizes.Large" ShowFooter="false">
+		<ChildContent>
+			<PDWizard OnComplete="OnFixedHeightComplete"
+					  OnCancel="OnFixedHeightCancel"
+					  style="--pd-wizard-body-min-height: 200px; --pd-wizard-body-max-height: 200px;">
+				<PDWizardStep Title="Short Step">
+					<p class="text-muted">This step has minimal content - the modal stays the same height.</p>
+				</PDWizardStep>
+				<PDWizardStep Title="Tall Step">
+					<p class="text-muted">This step has much more content - the body scrolls but the modal does not resize.</p>
+					<ul>
+						@for (var i = 1; i <= 8; i++)
+						{
+							<li>Item @i</li>
+						}
+					</ul>
+				</PDWizardStep>
+				<PDWizardStep Title="Done">
+					<p class="text-muted">The modal stayed the same size throughout.</p>
+				</PDWizardStep>
+			</PDWizard>
+		</ChildContent>
+	</PDModal>
+
+	@if (_fixedHeightResult != null)
+	{
+		<p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_fixedHeightResult</p>
+	}
+
+	<hr />
+	<h4>Custom Button Icons</h4>
+	<p class="text-muted">Override button icons via <code>BackIcon</code>, <code>NextIcon</code>, <code>FinishIcon</code> and <code>CancelIcon</code>. Set to <code>null</code> to suppress an icon entirely.</p>
+
+	<PDWizard OnComplete="OnIconDemoComplete"
+			  OnCancel="OnIconDemoCancel"
+			  CssClass="border rounded"
+			  CancelIcon="fa fa-solid fa-xmark"
+			  BackIcon="fa fa-solid fa-chevron-left"
+			  NextIcon="fa fa-solid fa-chevron-right"
+			  FinishIcon="fa fa-solid fa-rocket">
+		<PDWizardStep Title="Step One">
+			<p class="text-muted">This wizard uses custom icons on all four buttons.</p>
+		</PDWizardStep>
+		<PDWizardStep Title="Step Two">
+			<p class="text-muted">Step 2 content.</p>
+		</PDWizardStep>
+		<PDWizardStep Title="Done">
+			<p class="text-muted">Click Finish to complete.</p>
+		</PDWizardStep>
+	</PDWizard>
+
+	@if (_iconDemoResult != null)
+	{
+		<p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_iconDemoResult</p>
+	}
+
+	<hr />
+	<h4>Extra Footer Button</h4>
+	<p class="text-muted">
+		Use the <code>ExtraButton</code> render fragment to inject an additional button into the footer, placed between <em>Cancel</em> and <em>Back/Next/Finish</em>.
+		This is useful for secondary actions like "Save as Draft" that should be available on any step without replacing the whole footer.
+	</p>
+
+	<PDWizard OnComplete="OnExtraButtonComplete"
+			  OnCancel="OnExtraButtonCancel"
+			  CssClass="border rounded">
+		<ExtraButton>
+			<button class="btn btn-secondary btn-sm ms-2"
+					@onclick="OnExtraButtonSaveDraft">
+				<i class="fa fa-solid fa-floppy-disk me-1"></i>Save as Draft
+			</button>
+		</ExtraButton>
+		<ChildContent>
+			<PDWizardStep Title="Step One">
+				<p class="text-muted">Click <strong>Save as Draft</strong> at any step to save progress without finishing.</p>
+			</PDWizardStep>
+			<PDWizardStep Title="Step Two">
+				<p class="text-muted">Step 2 content. The extra button is always visible.</p>
+			</PDWizardStep>
+			<PDWizardStep Title="Done">
+				<p class="text-muted">Click Finish to complete, or Save as Draft to keep for later.</p>
+			</PDWizardStep>
+		</ChildContent>
+	</PDWizard>
+
+	@if (_extraButtonSaveResult != null)
+	{
+		<p class="mt-1 text-info small"><i class="fa fa-solid fa-floppy-disk me-1"></i>@_extraButtonSaveResult</p>
+	}
+	@if (_extraButtonResult != null)
+	{
+		<p class="mt-1 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_extraButtonResult</p>
+	}
+
+	<hr />
+	<h4>Title Bar and Indicator Toggle</h4>
+	<p class="text-muted">
+		Use <code>ShowIndicator="false"</code> to hide the step progress bar, and <code>TitleTemplate</code>/<code>TitleAddon</code> to render a step-aware title row with an optional right-aligned contextual value.
+		Both templates receive the active <code>PDWizardStep</code> as context and update automatically as you navigate.
+	</p>
+
+	<PDWizard OnComplete="OnTitleDemoComplete"
+			  OnCancel="OnTitleDemoCancel"
+			  CssClass="border rounded"
+			  ShowIndicator="false">
+		<TitleTemplate Context="step">
+			<span><i class="fa fa-solid fa-wand-magic-sparkles me-2 text-primary"></i>@step?.Title</span>
+		</TitleTemplate>
+		<TitleAddon Context="step">
+			<span><i class="fa fa-solid fa-layer-group me-1"></i>@_titleDemoItemCount items selected</span>
+		</TitleAddon>
+		<ChildContent>
+			<PDWizardStep Title="Select Items">
+				<p class="text-muted">Adjust the item count below to see the title addon update as you navigate.</p>
+				<div class="d-flex align-items-center gap-2 mt-2">
+					<label class="form-label mb-0">Item count</label>
+					<input type="number" class="form-control form-control-sm" style="width:90px"
+						   @bind="_titleDemoItemCount" min="0" />
+				</div>
+			</PDWizardStep>
+			<PDWizardStep Title="Review">
+				<p class="text-muted">You have selected <strong>@_titleDemoItemCount</strong> items. Click Finish to confirm.</p>
+			</PDWizardStep>
+		</ChildContent>
+	</PDWizard>
+
+	@if (_titleDemoResult != null)
+	{
+		<p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_titleDemoResult</p>
+	}
+
+	</ChildContent>
+</DemoSourceView>

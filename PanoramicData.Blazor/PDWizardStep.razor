@@ -1,0 +1,5 @@
+@* PDWizardStep renders its content only when it is the active step *@
+@if (Wizard != null && Wizard.IsActiveStep(this))
+{
+    @ChildContent
+}
