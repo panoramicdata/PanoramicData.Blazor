@@ -89,6 +89,13 @@ public partial class PDWizard : ComponentBase
     [Parameter] public string TitleAddonCssClass { get; set; } = "text-secondary";
 
     /// <summary>
+    /// Gets or sets the FontAwesome icon class shown in a completed step circle in the Numbers indicator.
+    /// If the completed step has its own Icon set that will be used instead.
+    /// Defaults to a checkmark.
+    /// </summary>
+    [Parameter] public string CompletedStepIcon { get; set; } = "fa fa-solid fa-check";
+
+    /// <summary>
     /// Gets or sets the label for the Back button.
     /// </summary>
     [Parameter] public string BackButtonText { get; set; } = "Back";

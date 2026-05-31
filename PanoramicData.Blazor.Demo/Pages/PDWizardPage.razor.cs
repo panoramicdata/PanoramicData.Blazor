@@ -93,6 +93,12 @@ public partial class PDWizardPage
     private void OnTitleDemoComplete() => _titleDemoResult = "Completed!";
     private void OnTitleDemoCancel() => _titleDemoResult = "Cancelled";
 
+    // Custom completed step icons demo
+    private string? _customIconResult;
+
+    private void OnCustomIconComplete() => _customIconResult = "Completed!";
+    private void OnCustomIconCancel() => _customIconResult = "Cancelled";
+
     private async Task SimulateLoadAsync()
     {
         await Task.Delay(1500).ConfigureAwait(true);

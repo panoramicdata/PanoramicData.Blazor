@@ -7,31 +7,31 @@
     <p class="text-muted">Default style with numbered step circles and titles.</p>
 
     <PDWizard OnComplete="OnBasicComplete" OnCancel="OnBasicCancel" CssClass="border rounded">
-        <PDWizardStep Title="Welcome" Icon="fa fa-solid fa-hand-wave">
+        <PDWizardStep Title="Welcome">
             <h6>Welcome to the wizard</h6>
             <p class="text-muted">This is step 1. Click Next to continue.</p>
         </PDWizardStep>
-        <PDWizardStep Title="Configure" Icon="fa fa-solid fa-sliders">
+        <PDWizardStep Title="Configure">
             <h6>Configure your settings</h6>
             <div class="mb-3">
                 <label class="form-label">Name</label>
                 <input class="form-control form-control-sm" @bind="_basicName" placeholder="Enter a name" />
             </div>
         </PDWizardStep>
-        <PDWizardStep Title="Confirm" Icon="fa fa-solid fa-check-circle"
+        <PDWizardStep Title="Confirm"
                       CanProceed="@(() => !string.IsNullOrWhiteSpace(_basicName))">
             <h6>Confirm your choices</h6>
             <p>Name: <strong>@_basicName</strong></p>
             @if (string.IsNullOrWhiteSpace(_basicName))
             {
-                <p class="text-warning small"><i class="fa fa-solid fa-triangle-exclamation me-1"></i>Go back and enter a name to enable Finish.</p>
+                <p class="text-warning small"><i class="fas fa-exclamation-triangle me-1"></i>Go back and enter a name to enable Finish.</p>
             }
         </PDWizardStep>
     </PDWizard>
 
     @if (_basicResult != null)
     {
-        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_basicResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_basicResult</p>
     }
 
     <hr />
@@ -42,7 +42,7 @@
               OnComplete="OnBreadcrumbComplete"
               OnCancel="OnBreadcrumbCancel"
               CssClass="border rounded">
-        <PDWizardStep Title="Upload" Icon="fa fa-solid fa-upload">
+        <PDWizardStep Title="Upload">
             <p class="text-muted">Step 1 - Upload your file here.</p>
         </PDWizardStep>
         <PDWizardStep Title="Preview">
@@ -55,7 +55,7 @@
 
     @if (_breadcrumbResult != null)
     {
-        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_breadcrumbResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_breadcrumbResult</p>
     }
 
     <hr />
@@ -79,7 +79,7 @@
 
     @if (_dotsResult != null)
     {
-        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_dotsResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_dotsResult</p>
     }
 
     <hr />
@@ -102,7 +102,7 @@
 
     @if (_asyncResult != null)
     {
-        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_asyncResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_asyncResult</p>
     }
 
     <hr />
@@ -120,7 +120,7 @@
         <PDWizardStep Title="First">
             <p class="text-muted">This is always shown.</p>
         </PDWizardStep>
-        <PDWizardStep Title="Optional" Icon="fa fa-solid fa-star" IsVisible="@_showOptionalStep">
+        <PDWizardStep Title="Optional" IsVisible="@_showOptionalStep">
             <p class="text-muted">This step is optional - it only appears when the checkbox above is ticked.</p>
         </PDWizardStep>
         <PDWizardStep Title="Last">
@@ -130,7 +130,7 @@
 
     @if (_conditionalResult != null)
     {
-        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_conditionalResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_conditionalResult</p>
     }
 
     <hr />
@@ -144,18 +144,18 @@
     <PDModal @ref="_simpleModalWizard" Title="Setup Wizard" Size="ModalSizes.Large" ShowFooter="false">
         <ChildContent>
             <PDWizard OnComplete="OnSimpleModalComplete" OnCancel="OnSimpleModalCancel">
-                <PDWizardStep Title="Welcome" Icon="fa fa-solid fa-hand-wave">
+                <PDWizardStep Title="Welcome">
                     <h6>Welcome!</h6>
                     <p class="text-muted">This wizard is running inside a PDModal with the default title bar.</p>
                 </PDWizardStep>
-                <PDWizardStep Title="Details" Icon="fa fa-solid fa-circle-info">
+                <PDWizardStep Title="Details">
                     <h6>Enter details</h6>
                     <div class="mb-3">
                         <label class="form-label">Name</label>
                         <input class="form-control form-control-sm" @bind="_simpleModalName" placeholder="Enter a name" />
                     </div>
                 </PDWizardStep>
-                <PDWizardStep Title="Done" Icon="fa fa-solid fa-flag-checkered">
+                <PDWizardStep Title="Done">
                     <h6>All done!</h6>
                     <p class="text-muted">Name: <strong>@_simpleModalName</strong></p>
                 </PDWizardStep>
@@ -165,7 +165,7 @@
 
     @if (_simpleModalResult != null)
     {
-        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_simpleModalResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_simpleModalResult</p>
     }
 
     <hr />
@@ -181,11 +181,11 @@
         <Header>
             <div class="d-flex align-items-center w-100">
                 <h5 class="modal-title user-select-none mb-0">
-                    <i class="fa fa-solid fa-wand-magic-sparkles me-2 text-primary"></i>
+                    <i class="fas fa-tag me-2 text-primary"></i>
                     @(_modalWizard?.CurrentStep?.Title ?? "Setup Wizard")
                 </h5>
                 <span class="ms-auto text-secondary small user-select-none">
-                    <i class="fa fa-solid fa-layer-group me-1"></i>@_modalJobCount report jobs
+                    <i class="fas fa-layer-group me-1"></i>@_modalJobCount report jobs
                 </span>
                 <button type="button" class="btn-close ms-3" aria-label="Close" @onclick="() => _wizardModal.HideAsync()"></button>
             </div>
@@ -195,7 +195,7 @@
                       OnComplete="OnModalWizardComplete"
                       OnCancel="OnModalWizardCancel"
                       StepChanged="@(_ => StateHasChanged())">
-                <PDWizardStep Title="Welcome" Icon="fa fa-solid fa-wand-magic-sparkles">
+                <PDWizardStep Title="Welcome">
                     <h6>Welcome!</h6>
                     <p class="text-muted">This wizard is running inside a PDModal. The modal title shows the current step name and a job count addon - both update as you navigate.</p>
                     <div class="mt-2">
@@ -204,14 +204,14 @@
                                @bind="_modalJobCount" min="1" />
                     </div>
                 </PDWizardStep>
-                <PDWizardStep Title="Details" Icon="fa fa-solid fa-circle-info">
+                <PDWizardStep Title="Details">
                     <h6>Enter details</h6>
                     <div class="mb-3">
                         <label class="form-label">Name</label>
                         <input class="form-control form-control-sm" @bind="_modalDescription" placeholder="Enter a name" />
                     </div>
                 </PDWizardStep>
-                <PDWizardStep Title="Done" Icon="fa fa-solid fa-flag-checkered">
+                <PDWizardStep Title="Done">
                     <h6>All done!</h6>
                     <p class="text-muted">Name: <strong>@_modalDescription</strong></p>
                 </PDWizardStep>
@@ -221,7 +221,7 @@
 
     @if (_modalResult != null)
     {
-        <p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_modalResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_modalResult</p>
     }
 
 	<hr />
@@ -245,7 +245,7 @@
 
 	@if (_themingResult != null)
 	{
-		<p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_themingResult</p>
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_themingResult</p>
 	}
 
 	<hr />
@@ -283,7 +283,7 @@
 
 	@if (_fixedHeightResult != null)
 	{
-		<p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_fixedHeightResult</p>
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_fixedHeightResult</p>
 	}
 
 	<hr />
@@ -293,10 +293,10 @@
 	<PDWizard OnComplete="OnIconDemoComplete"
 			  OnCancel="OnIconDemoCancel"
 			  CssClass="border rounded"
-			  CancelIcon="fa fa-solid fa-xmark"
-			  BackIcon="fa fa-solid fa-chevron-left"
-			  NextIcon="fa fa-solid fa-chevron-right"
-			  FinishIcon="fa fa-solid fa-rocket">
+			  CancelIcon="fas fa-times"
+			  BackIcon="fas fa-chevron-left"
+			  NextIcon="fas fa-chevron-right"
+			  FinishIcon="fas fa-rocket">
 		<PDWizardStep Title="Step One">
 			<p class="text-muted">This wizard uses custom icons on all four buttons.</p>
 		</PDWizardStep>
@@ -310,7 +310,7 @@
 
 	@if (_iconDemoResult != null)
 	{
-		<p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_iconDemoResult</p>
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_iconDemoResult</p>
 	}
 
 	<hr />
@@ -326,7 +326,7 @@
 		<ExtraButton>
 			<button class="btn btn-secondary btn-sm ms-2"
 					@onclick="OnExtraButtonSaveDraft">
-				<i class="fa fa-solid fa-floppy-disk me-1"></i>Save as Draft
+				<i class="fas fa-save me-1"></i>Save as Draft
 			</button>
 		</ExtraButton>
 		<ChildContent>
@@ -344,11 +344,11 @@
 
 	@if (_extraButtonSaveResult != null)
 	{
-		<p class="mt-1 text-info small"><i class="fa fa-solid fa-floppy-disk me-1"></i>@_extraButtonSaveResult</p>
+		<p class="mt-1 text-info small"><i class="fas fa-save me-1"></i>@_extraButtonSaveResult</p>
 	}
 	@if (_extraButtonResult != null)
 	{
-		<p class="mt-1 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_extraButtonResult</p>
+		<p class="mt-1 text-success small"><i class="fas fa-check me-1"></i>@_extraButtonResult</p>
 	}
 
 	<hr />
@@ -363,10 +363,10 @@
 			  CssClass="border rounded"
 			  ShowIndicator="false">
 		<TitleTemplate Context="step">
-			<span><i class="fa fa-solid fa-wand-magic-sparkles me-2 text-primary"></i>@step?.Title</span>
+			<span><i class="fas fa-tag me-2 text-primary"></i>@step?.Title</span>
 		</TitleTemplate>
 		<TitleAddon Context="step">
-			<span><i class="fa fa-solid fa-layer-group me-1"></i>@_titleDemoItemCount items selected</span>
+			<span><i class="fas fa-layer-group me-1"></i>@_titleDemoItemCount items selected</span>
 		</TitleAddon>
 		<ChildContent>
 			<PDWizardStep Title="Select Items">
@@ -385,7 +385,39 @@
 
 	@if (_titleDemoResult != null)
 	{
-		<p class="mt-2 text-success small"><i class="fa fa-solid fa-check me-1"></i>@_titleDemoResult</p>
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_titleDemoResult</p>
+	}
+
+
+	<hr />
+	<h4>Custom Completed Step Icons</h4>
+	<p class="text-muted">
+		Use <code>Icon</code> on individual <code>PDWizardStep</code> to override the completed-step indicator for that step,
+		or use <code>CompletedStepIcon</code> on <code>PDWizard</code> to change the default icon used for all completed steps.
+		Navigate through the wizard to see different icons appear in the indicator as each step completes.
+	</p>
+
+	<PDWizard OnComplete="OnCustomIconComplete"
+			  OnCancel="OnCustomIconCancel"
+			  CssClass="border rounded"
+			  CompletedStepIcon="fas fa-check-circle">
+		<PDWizardStep Title="Upload" Icon="fas fa-upload">
+			<p class="text-muted">This step uses a custom <code>Icon="fas fa-upload"</code> - click Next and it will appear in the indicator instead of the default check.</p>
+		</PDWizardStep>
+		<PDWizardStep Title="Review" Icon="fas fa-eye">
+			<p class="text-muted">This step uses <code>Icon="fas fa-eye"</code>. The Upload step now shows its upload icon in the indicator.</p>
+		</PDWizardStep>
+		<PDWizardStep Title="Confirm" Icon="fas fa-thumbs-up">
+			<p class="text-muted">This step uses <code>Icon="fas fa-thumbs-up"</code>. Steps without a custom icon fall back to the wizard-level <code>CompletedStepIcon</code> (a filled check-circle here).</p>
+		</PDWizardStep>
+		<PDWizardStep Title="Done">
+			<p class="text-muted">No <code>Icon</code> set - this step will use <code>CompletedStepIcon</code> when completed. Click Finish.</p>
+		</PDWizardStep>
+	</PDWizard>
+
+	@if (_customIconResult != null)
+	{
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_customIconResult</p>
 	}
 
 	</ChildContent>

@@ -29,10 +29,14 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - Fix PDFileExplorer tree drag-over: highlight individual nodes green/red instead of the whole tree panel; red highlight and blocked drop for read-only folders via new PDTree.IsDropValid parameter.
-      - Add theme-aware hover styling to PDTreeNode (Bootstrap 5.3+ with rgba fallback for older versions, light and dark mode compatible).
-      - Add theme-aware row hover styling to PDFileExplorer right-hand panel.
-      - Remove duplicate hover rules from demo site.css (now owned by the library).
+      - Added PDWizard component with compound PDWizardStep children
+      - Supports Numbers, Dots and Breadcrumb step indicator styles
+      - Optional step indicators, async step loading, conditional step visibility
+      - Customisable footer buttons (text, icons) and optional extra footer button
+      - Custom title bar via TitleTemplate and TitleAddon render fragments
+      - Per-step and wizard-level completed-step icon customisation via CompletedStepIcon
+      - CSS custom properties for colours, circle size, font sizes and body min/max height
+      - Fixed Font Awesome icon classes throughout demo page (FA5 free icons)
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

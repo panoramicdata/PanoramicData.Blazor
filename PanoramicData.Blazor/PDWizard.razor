@@ -33,9 +33,9 @@
 							 @onclick="() => OnIndicatorClickAsync(idx)">
 							<div class="pd-wizard-step-circle">
 								@if (stepState == "completed")
-								{
-									<i class="fa fa-solid fa-check"></i>
-								}
+									{
+										<i class="@(step.Icon ?? CompletedStepIcon)"></i>
+									}
 								else
 								{
 									<span>@(idx + 1)</span>

@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-05-31 13:40:57
+Generated on: 2026-05-31 14:09:11
 
 ## PDAnimation
 
@@ -2065,6 +2065,7 @@ This component has no public parameters.
 | TitleTemplate | RenderFragment<PDWizardStep?>? | Gets or sets an optional template rendered as the left-side title above the wizard body. Receives the current <see cref="PDWizardStep"/> as context. When null no title bar is rendered. |
 | TitleAddon | RenderFragment<PDWizardStep?>? | Gets or sets an optional template rendered on the right side of the title bar. Receives the current <see cref="PDWizardStep"/> as context. Automatically pushed to the right. |
 | TitleAddonCssClass | string | Gets or sets additional CSS classes applied to the right-side title addon element. Defaults to "text-secondary". |
+| CompletedStepIcon | string | Gets or sets the FontAwesome icon class shown in a completed step circle in the Numbers indicator. If the completed step has its own Icon set that will be used instead. Defaults to a checkmark. |
 | BackButtonText | string | Gets or sets the label for the Back button. |
 | NextButtonText | string | Gets or sets the label for the Next button. |
 | FinishButtonText | string | Gets or sets the label for the Finish button (shown on the last step). |
