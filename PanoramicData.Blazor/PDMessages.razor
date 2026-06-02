@@ -19,15 +19,14 @@
 	</div>
 	<div class="chat-input-container">
 		<textarea
-			@key="@_textareaKey"
+			@key="_inputKey"
 			@ref="_inputRef"
-			value="@CurrentInput"
+			value="@_localInput"
 			@oninput="OnInputChanged"
-			@onkeydown="OnInputKeyDown"
 			placeholder="Type a message..."
 			rows="3"
 			disabled="@(!IsLive)"></textarea>
-		<button class="submit-button @(CanSend ? string.Empty : "submit-button-disabled")" @onclick="OnSendClickedInternal" disabled="@(!CanSend)">Send</button>
+		<button class="submit-button @(CanSendLocal ? string.Empty : "submit-button-disabled")" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
 	</div>
 </div>
 

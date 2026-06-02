@@ -1,5 +1,6 @@
 namespace PanoramicData.Blazor;
-public partial class PDMessages
+
+public partial class PDMessages : IAsyncDisposable
 {
 	[Inject] public required IJSRuntime JSRuntime { get; set; }
 
@@ -71,11 +72,33 @@ public partial class PDMessages
 	private ElementReference MessagesContainer { get; set; }
 	private IJSObjectReference? _module;
 	private ElementReference _inputRef;
-	private string _textareaKey = Guid.NewGuid().ToString();
+	private string _localInput = string.Empty;
+	private string _inputKey = Guid.NewGuid().ToString();
+	private DotNetObjectReference<PDMessages>? _dotNetRef;
+
+	private bool CanSendLocal => IsLive && !string.IsNullOrWhiteSpace(_localInput);
+
+	/// <summary>
+	/// Clears the textarea. Called by the parent after a message is sent.
+	/// </summary>
+	public void ClearInput()
+	{
+		_localInput = string.Empty;
+		_inputKey = Guid.NewGuid().ToString();
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Called from JavaScript when Enter is pressed in the textarea.
+	/// </summary>
+	[JSInvokable]
+	public async Task OnEnterPressed()
+	{
+		await OnSendClickedInternal();
+	}
 
 	protected override async Task OnParametersSetAsync()
 	{
-		// Always try to scroll to bottom when parameters change (new messages)
 		await ScrollToBottomAsync();
 	}
 
@@ -83,15 +106,48 @@ public partial class PDMessages
 	{
 		if (firstRender)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDMessages.razor.js").ConfigureAwait(true);
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
+				"import", "./_content/PanoramicData.Blazor/PDMessages.razor.js").ConfigureAwait(true);
 		}
 
 		await ScrollToBottomAsync();
 
-
-		if (_inputRef.Context != null)
+		if (_module is not null && _inputRef.Context != null)
 		{
+			_dotNetRef ??= DotNetObjectReference.Create(this);
+			await _module.InvokeVoidAsync("attachEnterHandler", _inputRef, _dotNetRef);
 			await _inputRef.FocusAsync();
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		GC.SuppressFinalize(this);
+
+		try
+		{
+			if (_module is not null && _inputRef.Context != null)
+			{
+				await _module.InvokeVoidAsync("detachEnterHandler", _inputRef);
+			}
+		}
+		catch (Exception)
+		{
+			// Do nothing - if the module or element is already gone, we can't detach the handler, but that's not a big deal
+		}
+
+		_dotNetRef?.Dispose();
+
+		try
+		{
+			if (_module is not null)
+			{
+				await _module.DisposeAsync();
+			}
+		}
+		catch (Exception)
+		{
+			// Do nothing - if the module is already gone, we can't dispose it, but that's not a big deal
 		}
 	}
 
@@ -102,7 +158,6 @@ public partial class PDMessages
 			return;
 		}
 
-		// Small delay to ensure DOM is updated
 		await Task.Delay(10);
 
 		try
@@ -111,53 +166,24 @@ public partial class PDMessages
 		}
 		catch (Exception)
 		{
-			// Ignore JavaScript errors if the element is not available
+			// Ignore JS errors if element is not yet available
 		}
 	}
 
-	private async Task OnInputChanged(ChangeEventArgs e)
+	private void OnInputChanged(ChangeEventArgs e)
 	{
-		var eventValue = e.Value?.ToString() ?? string.Empty;
-		if (CurrentInput == eventValue.TrimEnd())
-		{
-			return; // No change, do nothing
-		}
-
-		var value = eventValue;
-		// Remove single return character
-		if (value == "\n" || value == "\r" || value == "\r\n")
-		{
-			value = string.Empty;
-		}
-
-		CurrentInput = value;
-		await CurrentInputChanged.InvokeAsync(value);
+		_localInput = e.Value?.ToString() ?? string.Empty;
 	}
 
 	private async Task OnSendClickedInternal()
 	{
-		if (!CanSend || !OnSendClicked.HasDelegate)
+		if (!CanSendLocal || !OnSendClicked.HasDelegate)
 		{
 			return;
 		}
 
-		// Force textarea to re-render with a new key (C#-only double buffering)
-		_textareaKey = Guid.NewGuid().ToString();
-		CurrentInput = string.Empty;
-
-		// Force a re-render to create a new textarea element
-		StateHasChanged();
-
+		// Push current text to parent before invoking send
+		await CurrentInputChanged.InvokeAsync(_localInput);
 		await OnSendClicked.InvokeAsync();
-	}
-
-	private async Task OnInputKeyDown(KeyboardEventArgs e)
-	{
-		if (e.Key != "Enter" || e.ShiftKey || e.AltKey || e.CtrlKey)
-		{
-			return;
-		}
-
-		await OnSendClickedInternal();
 	}
 }

@@ -97,7 +97,8 @@
 						@if (ChatService.DockMode == PDChatDockMode.Left)
 						{
 							<PDSplitPanel Size="2" MinSize="200">
-								<PDMessages Messages="_messages"
+								<PDMessages @ref="_messagesComponent"
+											Messages="_messages"
 											CurrentInput="@_currentInput"
 											CurrentInputChanged="@((string v) => _currentInput = v)"
 											IsLive="@ChatService.IsLive"
@@ -135,7 +136,8 @@
 								</div>
 							</PDSplitPanel>
 							<PDSplitPanel Size="2" MinSize="200">
-								<PDMessages Messages="_messages"
+								<PDMessages @ref="_messagesComponent"
+											Messages="_messages"
 											CurrentInput="@_currentInput"
 											CurrentInputChanged="@((string v) => _currentInput = v)"
 											IsLive="@ChatService.IsLive"
@@ -154,7 +156,8 @@
 				}
 				else
 				{
-					<PDMessages Messages="_messages"
+					<PDMessages @ref="_messagesComponent"
+								Messages="_messages"
 								CurrentInput="@_currentInput"
 								CurrentInputChanged="@((string v) => _currentInput = v)"
 								IsLive="@ChatService.IsLive"

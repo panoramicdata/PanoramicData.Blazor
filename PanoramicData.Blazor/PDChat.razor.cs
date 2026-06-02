@@ -107,6 +107,7 @@ public partial class PDChat : JSModuleComponentBase
 	private readonly List<ChatMessage> _messages = [];
 	private PDTabSet? _tabSetRef;
 	private PDChatDockMode? _restoreDockMode;
+	private PDMessages? _messagesComponent;
 
 	protected override string ModulePath => "./_content/PanoramicData.Blazor/PDChat.razor.js";
 
@@ -245,7 +246,10 @@ public partial class PDChat : JSModuleComponentBase
 	private async Task ShowMessagePreviewAsync(ChatMessage message)
 	{
 		// Cancel any existing timer
-		_messagePreviewTimer?.Dispose();
+		if (_messagePreviewTimer is not null)
+		{
+			await _messagePreviewTimer.DisposeAsync();
+		}
 
 		// Set the message to show
 		_lastMessage = message;
@@ -399,8 +403,14 @@ public partial class PDChat : JSModuleComponentBase
 			await OnMessageSent.InvokeAsync(message);
 		}
 
-		// Clear input
+		// Clear input locally
 		_currentInput = string.Empty;
+
+		// Clear the PDMessages component's textarea
+		if (_messagesComponent is not null)
+		{
+			_messagesComponent.ClearInput();
+		}
 	}
 
 	private bool CanSend => ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);
@@ -573,7 +583,10 @@ public partial class PDChat : JSModuleComponentBase
 		ChatService.OnConfigurationChanged -= OnServiceConfigurationChanged;
 
 		// Clean up timer
-		_messagePreviewTimer?.Dispose();
+		if (_messagePreviewTimer is not null)
+		{
+			await _messagePreviewTimer.DisposeAsync();
+		}
 
 		await base.DisposeAsync();
 
