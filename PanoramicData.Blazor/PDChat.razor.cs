@@ -483,6 +483,7 @@ public partial class PDChat : JSModuleComponentBase
 			MessageType.Error => "pdchat-error",
 			MessageType.Warning => "pdchat-warning",
 			MessageType.Normal => "pdchat-info",
+			MessageType.Success => "pdchat-success",
 			MessageType.Typing => string.Empty,
 			_ => string.Empty
 		};
@@ -600,6 +601,7 @@ public partial class PDChat : JSModuleComponentBase
 			MessageType.Warning => "preview-warning",
 			MessageType.Error => "preview-error",
 			MessageType.Critical => "preview-critical",
+			MessageType.Success => "preview-success",
 			_ => "preview-normal"
 		};
 	}

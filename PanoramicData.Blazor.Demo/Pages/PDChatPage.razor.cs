@@ -114,6 +114,19 @@ public partial class PDChatPage : IDisposable
 		ChatService.SendMessage(message);
 	}
 
+	private void SendSuccessMessage()
+	{
+		var message = new ChatMessage
+		{
+			Id = Guid.NewGuid(),
+			Message = "✅ This is a success message! Everything is working as expected. The global chat now has proper size constraints and works seamlessly across the entire application!",
+			Sender = Bot,
+			Type = MessageType.Success,
+			Timestamp = DateTime.UtcNow
+		};
+		ChatService.SendMessage(message);
+	}
+
 	private void SendErrorMessage()
 	{
 		var message = new ChatMessage

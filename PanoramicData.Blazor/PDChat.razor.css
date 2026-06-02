@@ -140,6 +140,11 @@ body:has(.pdchat-container.dock-fullscreen) {
 	background-color: #0dcaf0; /* Bootstrap info color */
 }
 
+.pdchat-toggle-collapsed.pdchat-success
+{
+	background-color: #198754; /* Bootstrap success color */
+}
+
 .pdchat-toggle-collapsed.pdchat-warning {
 	background-color: #ffc107; /* Bootstrap warning color */
 	color: #212529; /* Dark text for better contrast on yellow */
@@ -727,6 +732,13 @@ body:has(.pdchat-container.dock-fullscreen) {
 	box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
 }
 
+.pdchat-message-preview.preview-success
+{
+	background-color: #d1e7dd;
+	border-color: #198754;
+	box-shadow: 0 4px 12px rgba(25, 135, 84, 0.25);
+}
+
 .pdchat-message-preview.preview-normal {
 	background-color: #e6f3ff;
 	border-color: #0078d4;
@@ -799,10 +811,10 @@ body:has(.pdchat-container.dock-fullscreen) {
 		border-color: #dc3545;
 	}
 	
-	.pdchat-message-preview.preview-critical {
-		background-color: #3d1a1a;
-		border-color: #dc3545;
-		box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+	.pdchat-message-preview.preview-success {
+		background-color: #1a3d2e;
+		border-color: #198754;
+		box-shadow: 0 4px 12px rgba(25, 135, 84, 0.4);
 	}
 	
 	.pdchat-message-preview.preview-normal {

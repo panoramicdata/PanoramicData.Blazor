@@ -6,5 +6,6 @@ public enum MessageType
 	Normal = 1,
 	Warning = 2,
 	Error = 3,
-	Critical = 4
+	Critical = 4,
+	Success = 5
 }
