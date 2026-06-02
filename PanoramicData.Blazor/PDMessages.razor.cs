@@ -75,6 +75,7 @@ public partial class PDMessages : IAsyncDisposable
 	private string _localInput = string.Empty;
 	private string _inputKey = Guid.NewGuid().ToString();
 	private DotNetObjectReference<PDMessages>? _dotNetRef;
+	private bool _enterHandlerAttached;
 
 	private bool CanSendLocal => IsLive && !string.IsNullOrWhiteSpace(_localInput);
 
@@ -85,6 +86,7 @@ public partial class PDMessages : IAsyncDisposable
 	{
 		_localInput = string.Empty;
 		_inputKey = Guid.NewGuid().ToString();
+		_enterHandlerAttached = false;
 		StateHasChanged();
 	}
 
@@ -106,17 +108,28 @@ public partial class PDMessages : IAsyncDisposable
 	{
 		if (firstRender)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
-				"import", "./_content/PanoramicData.Blazor/PDMessages.razor.js").ConfigureAwait(true);
+			_module =
+				await JSRuntime.InvokeAsync<IJSObjectReference>(
+					"import",
+					"./_content/PanoramicData.Blazor/PDMessages.razor.js")
+				.ConfigureAwait(true);
 		}
 
 		await ScrollToBottomAsync();
 
-		if (_module is not null && _inputRef.Context != null)
+		if (!_enterHandlerAttached && _module is not null && _inputRef.Context != null)
 		{
-			_dotNetRef ??= DotNetObjectReference.Create(this);
-			await _module.InvokeVoidAsync("attachEnterHandler", _inputRef, _dotNetRef);
-			await _inputRef.FocusAsync();
+			try
+			{
+				_dotNetRef ??= DotNetObjectReference.Create(this);
+				await _module.InvokeVoidAsync("attachEnterHandler", _inputRef, _dotNetRef);
+				_enterHandlerAttached = true;
+				await _inputRef.FocusAsync();
+			}
+			catch (Exception)
+			{
+				// Ignore JS errors if the module or element is not yet available; will retry on next render
+			}
 		}
 	}
 

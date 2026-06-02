@@ -15,6 +15,10 @@ export function scrollToBottom(element) {
 // Enter newline BEFORE Blazor's oninput fires, then calls back into .NET to send.
 export function attachEnterHandler(textarea, dotNetRef) {
 	if (!textarea) return;
+	// Remove any existing handler before attaching to avoid duplicates
+	if (textarea._pdEnterHandler) {
+		textarea.removeEventListener('keydown', textarea._pdEnterHandler);
+	}
 	textarea._pdEnterHandler = async (e) => {
 		if (e.key === 'Enter' && !e.shiftKey && !e.altKey && !e.ctrlKey) {
 			e.preventDefault();
