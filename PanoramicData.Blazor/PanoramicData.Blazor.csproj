@@ -29,13 +29,8 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChat: added Success message type with distinct preview styling
-      - PDChat: fixed dark-mode success preview pop-out background (green tint)
-      - PDChat: fixed textarea not clearing after send via button click or Enter key
-      - PDMessages: input state now owned locally; CanSend evaluated per-keystroke
-      - PDMessages: Enter key handled via native JS preventDefault to block browser newline insertion
-      - PDMessages: textarea forced to recreate via @key rotation on ClearInput
-      - PDMessages: implemented IAsyncDisposable with JSDisconnectedException/TaskCanceledException guards
+      - PDTable: fixed AddColumnAsync throwing ArgumentException on re-render when child components call StateHasChanged
+      - Filter: fixed ToString() not quoting multi-word values, causing ParseMany to split them on whitespace and lose the filter
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

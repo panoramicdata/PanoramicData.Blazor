@@ -522,9 +522,8 @@ public partial class PDTable<TItem> :
 				// update mapping
 				if (DataProvider is IFilterProviderService<TItem> fs)
 				{
-					fs.KeyPropertyMappings.Add(column.Filter.Key, column.Filter.PropertyName);
+					fs.KeyPropertyMappings[column.Filter.Key] = column.Filter.PropertyName;
 				}
-
 			}
 
 			StateHasChanged();

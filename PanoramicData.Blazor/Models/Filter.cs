@@ -151,21 +151,25 @@ public class Filter
 
 	public override string ToString()
 	{
+		// Quote values that contain whitespace so that ParseMany's whitespace tokeniser
+		// does not split them into separate tokens. Parse() already strips these quotes.
+		var v = QuoteIfNeeded(Value);
+		var v2 = QuoteIfNeeded(Value2);
 		return FilterType switch
 		{
-			FilterTypes.Equals => $"{Key}:{Value}",
-			FilterTypes.DoesNotEqual => $"{Key}:!{Value}",
-			FilterTypes.StartsWith => $"{Key}:{Value}*",
-			FilterTypes.EndsWith => $"{Key}:*{Value}",
-			FilterTypes.Contains => $"{Key}:*{Value}*",
-			FilterTypes.DoesNotContain => $"{Key}:!*{Value}*",
+			FilterTypes.Equals => $"{Key}:{v}",
+			FilterTypes.DoesNotEqual => $"{Key}:!{v}",
+			FilterTypes.StartsWith => $"{Key}:{v}*",
+			FilterTypes.EndsWith => $"{Key}:*{v}",
+			FilterTypes.Contains => $"{Key}:*{v}*",
+			FilterTypes.DoesNotContain => $"{Key}:!*{v}*",
 			FilterTypes.In => $"{Key}:In({Value})",
 			FilterTypes.NotIn => $"{Key}:!In({Value})",
-			FilterTypes.GreaterThan => $"{Key}:>{Value}",
-			FilterTypes.GreaterThanOrEqual => $"{Key}:>={Value}",
-			FilterTypes.LessThan => $"{Key}:<{Value}",
-			FilterTypes.LessThanOrEqual => $"{Key}:<={Value}",
-			FilterTypes.Range => $"{Key}:>{Value}|{Value2}<",
+			FilterTypes.GreaterThan => $"{Key}:>{v}",
+			FilterTypes.GreaterThanOrEqual => $"{Key}:>={v}",
+			FilterTypes.LessThan => $"{Key}:<{v}",
+			FilterTypes.LessThanOrEqual => $"{Key}:<={v}",
+			FilterTypes.Range => $"{Key}:>{v}|{v2}<",
 			FilterTypes.IsNull => $"{Key}:(null)",
 			FilterTypes.IsNotNull => $"{Key}:!(null)",
 			FilterTypes.IsEmpty => $"{Key}:(empty)",
@@ -173,6 +177,9 @@ public class Filter
 			_ => string.Empty,
 		};
 	}
+
+	private static string QuoteIfNeeded(string value) =>
+		value.Contains(' ') ? $"\"{value}\"" : value;
 
 	public void UpdateFrom(string text)
 	{

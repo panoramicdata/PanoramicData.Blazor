@@ -823,6 +823,18 @@ public class FilterTests
 	[InlineData(FilterTypes.IsNotNull, "status", "", "", "status:!(null)")]
 	[InlineData(FilterTypes.IsEmpty, "status", "", "", "status:(empty)")]
 	[InlineData(FilterTypes.IsNotEmpty, "status", "", "", "status:!(empty)")]
+	// multi-word values must be quoted so ParseMany's whitespace tokeniser does not split them
+	[InlineData(FilterTypes.Equals, "name", "one two three", "", "name:\"one two three\"")]
+	[InlineData(FilterTypes.DoesNotEqual, "name", "one two", "", "name:!\"one two\"")]
+	[InlineData(FilterTypes.StartsWith, "name", "On Microsoft", "", "name:\"On Microsoft\"*")]
+	[InlineData(FilterTypes.EndsWith, "name", "On Microsoft", "", "name:*\"On Microsoft\"")]
+	[InlineData(FilterTypes.Contains, "name", "On Microsoft", "", "name:*\"On Microsoft\"*")]
+	[InlineData(FilterTypes.DoesNotContain, "name", "On Microsoft", "", "name:!*\"On Microsoft\"*")]
+	[InlineData(FilterTypes.GreaterThan, "name", "a b", "", "name:>\"a b\"")]
+	[InlineData(FilterTypes.GreaterThanOrEqual, "name", "a b", "", "name:>=\"a b\"")]
+	[InlineData(FilterTypes.LessThan, "name", "a b", "", "name:<\"a b\"")]
+	[InlineData(FilterTypes.LessThanOrEqual, "name", "a b", "", "name:<=\"a b\"")]
+	[InlineData(FilterTypes.Range, "name", "a b", "c d", "name:>\"a b\"|\"c d\"<")]
 	public void ToString_AllFilterTypes_ProducesExpectedFormat(FilterTypes filterType, string key, string value, string value2, string expected)
 	{
 		var filter = new Filter(filterType, key, value, value2);
@@ -848,6 +860,18 @@ public class FilterTests
 	[InlineData(FilterTypes.IsNotNull, "status", "", "")]
 	[InlineData(FilterTypes.IsEmpty, "status", "", "")]
 	[InlineData(FilterTypes.IsNotEmpty, "status", "", "")]
+	// multi-word values: ToString() must quote them; Parse() must strip the quotes
+	[InlineData(FilterTypes.Equals, "name", "one two three", "")]
+	[InlineData(FilterTypes.DoesNotEqual, "name", "one two", "")]
+	[InlineData(FilterTypes.StartsWith, "name", "On Microsoft", "")]
+	[InlineData(FilterTypes.EndsWith, "name", "On Microsoft", "")]
+	[InlineData(FilterTypes.Contains, "name", "On Microsoft Schedule", "")]
+	[InlineData(FilterTypes.DoesNotContain, "name", "On Microsoft", "")]
+	[InlineData(FilterTypes.GreaterThan, "name", "a b", "")]
+	[InlineData(FilterTypes.GreaterThanOrEqual, "name", "a b", "")]
+	[InlineData(FilterTypes.LessThan, "name", "a b", "")]
+	[InlineData(FilterTypes.LessThanOrEqual, "name", "a b", "")]
+	[InlineData(FilterTypes.Range, "name", "a b", "c d")]
 	public void ToStringThenParse_RoundTrip_PreservesFilterProperties(FilterTypes filterType, string key, string value, string value2)
 	{
 		var original = new Filter(filterType, key, value, value2);
@@ -858,6 +882,33 @@ public class FilterTests
 		roundTripped.FilterType.ShouldBe(original.FilterType);
 		roundTripped.Value.ShouldBe(original.Value);
 		roundTripped.Value2.ShouldBe(original.Value2);
+	}
+
+	[Theory]
+	[InlineData(FilterTypes.Equals, "name", "one two three", "")]
+	[InlineData(FilterTypes.DoesNotEqual, "name", "one two", "")]
+	[InlineData(FilterTypes.StartsWith, "name", "On Microsoft", "")]
+	[InlineData(FilterTypes.EndsWith, "name", "On Microsoft", "")]
+	[InlineData(FilterTypes.Contains, "name", "On Microsoft Schedule", "")]
+	[InlineData(FilterTypes.DoesNotContain, "name", "On Microsoft", "")]
+	[InlineData(FilterTypes.GreaterThan, "name", "a b", "")]
+	[InlineData(FilterTypes.GreaterThanOrEqual, "name", "a b", "")]
+	[InlineData(FilterTypes.LessThan, "name", "a b", "")]
+	[InlineData(FilterTypes.LessThanOrEqual, "name", "a b", "")]
+	[InlineData(FilterTypes.Range, "name", "a b", "c d")]
+	public void ToStringThenParseMany_MultiWordValue_RoundTripProducesExactlyOneFilter(FilterTypes filterType, string key, string value, string value2)
+	{
+		// Regression: before the fix, ToString() did not quote multi-word values, so ParseMany's
+		// whitespace tokeniser would split them and only the first word was kept as a keyed filter.
+		var original = new Filter(filterType, key, value, value2);
+
+		var filters = Filter.ParseMany(original.ToString()).ToList();
+
+		filters.Count.ShouldBe(1);
+		filters[0].Key.ShouldBe(original.Key);
+		filters[0].FilterType.ShouldBe(original.FilterType);
+		filters[0].Value.ShouldBe(original.Value);
+		filters[0].Value2.ShouldBe(original.Value2);
 	}
 
 	#endregion
