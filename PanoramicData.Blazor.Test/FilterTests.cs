@@ -801,6 +801,65 @@ public class FilterTests
 		filters[0].Value.ShouldBe("#unterminated#");
 	}
 
+	[Fact]
+	public void ParseMany_InFilterWithMultipleItems_ParsedAsOneFilter()
+	{
+		// The tokeniser must not split In(...) even though it contains a comma and no spaces
+		var filters = Filter.ParseMany("status:In(A,B,C)").ToList();
+
+		filters.Count.ShouldBe(1);
+		filters[0].FilterType.ShouldBe(FilterTypes.In);
+		filters[0].Value.ShouldBe("A,B,C");
+	}
+
+	[Fact]
+	public void ParseMany_InFilterWithQuotedMultiWordItems_ParsedAsOneFilter()
+	{
+		// Each pipe-delimited item may be individually quoted; the tokeniser must not split on the
+		// spaces inside the outer In(...) token because the quotes are tracked
+		var filters = Filter.ParseMany("name:In(\"On Microsoft Schedule\"|\"Chain Test I\")").ToList();
+
+		filters.Count.ShouldBe(1);
+		filters[0].FilterType.ShouldBe(FilterTypes.In);
+		filters[0].Value.ShouldBe("\"On Microsoft Schedule\"|\"Chain Test I\"");
+	}
+
+	[Fact]
+	public void ParseMany_NotInFilterWithQuotedMultiWordItems_ParsedAsOneFilter()
+	{
+		var filters = Filter.ParseMany("name:!In(\"On Microsoft Schedule\"|\"Chain Test I\")").ToList();
+
+		filters.Count.ShouldBe(1);
+		filters[0].FilterType.ShouldBe(FilterTypes.NotIn);
+		filters[0].Value.ShouldBe("\"On Microsoft Schedule\"|\"Chain Test I\"");
+	}
+
+	[Fact]
+	public void ToStringThenParseMany_InWithMultiWordValues_RoundTripProducesExactlyOneFilter()
+	{
+		var original = new Filter(FilterTypes.In, "name", "\"On Microsoft Schedule\"|\"Chain Test I\"");
+
+		var filters = Filter.ParseMany(original.ToString()).ToList();
+
+		filters.Count.ShouldBe(1);
+		filters[0].Key.ShouldBe("name");
+		filters[0].FilterType.ShouldBe(FilterTypes.In);
+		filters[0].Value.ShouldBe("\"On Microsoft Schedule\"|\"Chain Test I\"");
+	}
+
+	[Fact]
+	public void ToStringThenParseMany_NotInWithMultiWordValues_RoundTripProducesExactlyOneFilter()
+	{
+		var original = new Filter(FilterTypes.NotIn, "name", "\"On Microsoft Schedule\"|\"Chain Test I\"");
+
+		var filters = Filter.ParseMany(original.ToString()).ToList();
+
+		filters.Count.ShouldBe(1);
+		filters[0].Key.ShouldBe("name");
+		filters[0].FilterType.ShouldBe(FilterTypes.NotIn);
+		filters[0].Value.ShouldBe("\"On Microsoft Schedule\"|\"Chain Test I\"");
+	}
+
 	#endregion
 
 	#region ToString Tests
@@ -911,6 +970,26 @@ public class FilterTests
 		filters[0].Value2.ShouldBe(original.Value2);
 	}
 
+	[Theory]
+	[InlineData(FilterTypes.Equals, "name", "On Microsoft Schedule", "name:\"On Microsoft Schedule\"")]
+	[InlineData(FilterTypes.DoesNotEqual, "name", "On Microsoft Schedule", "name:!\"On Microsoft Schedule\"")]
+	[InlineData(FilterTypes.GreaterThan, "name", "a b", "name:>\"a b\"")]
+	[InlineData(FilterTypes.LessThan, "name", "a b", "name:<\"a b\"")]
+	[InlineData(FilterTypes.Range, "name", "a b", "c d")]
+	public void ToString_WhenValueAlreadyQuoted_DoesNotDoubleQuote(FilterTypes filterType, string key, string value, string value2)
+	{
+		// Regression: PDFilter was storing pre-quoted values (e.g. "\"On Microsoft Schedule\"") into
+		// Filter.Value, then ToString() wrapped them in quotes again, producing doubled quotes like
+		// name:""On Microsoft Schedule"". Filter.Value must always hold the raw unquoted value.
+		var preQuoted = value.Contains(' ') ? $"\"{value}\"" : value;
+		var preQuoted2 = value2.Contains(' ') ? $"\"{value2}\"" : value2;
+		var filter = new Filter(filterType, key, preQuoted, preQuoted2);
+
+		var result = filter.ToString();
+
+		result.ShouldNotContain("\"\"");
+	}
+
 	#endregion
 
 	#region IsValid Tests
@@ -946,6 +1025,17 @@ public class FilterTests
 
 		filter.FilterType.ShouldBe(FilterTypes.Equals);
 		filter.Value.ShouldBe(string.Empty);
+	}
+
+	[Fact]
+	public void Clear_ResetsValue2()
+	{
+		// Regression: Clear() previously left Value2 intact, which could cause stale Range state
+		var filter = new Filter(FilterTypes.Range, "price", "10", "50");
+
+		filter.Clear();
+
+		filter.Value2.ShouldBe(string.Empty);
 	}
 
 	#endregion
@@ -1016,6 +1106,29 @@ public class FilterTests
 
 		filter.FilterType.ShouldBe(FilterTypes.Equals);
 		filter.Value.ShouldBe(string.Empty);
+	}
+
+	[Fact]
+	public void UpdateFrom_MultiWordValue_PreservesValue()
+	{
+		// Regression: UpdateFrom must correctly round-trip quoted multi-word values from search text
+		var filter = new Filter { Key = "name" };
+
+		filter.UpdateFrom("name:\"On Microsoft Schedule\"");
+
+		filter.FilterType.ShouldBe(FilterTypes.Equals);
+		filter.Value.ShouldBe("On Microsoft Schedule");
+	}
+
+	[Fact]
+	public void UpdateFrom_MultiWordDoesNotEqualValue_PreservesValue()
+	{
+		var filter = new Filter { Key = "name" };
+
+		filter.UpdateFrom("name:!\"On Microsoft Schedule\"");
+
+		filter.FilterType.ShouldBe(FilterTypes.DoesNotEqual);
+		filter.Value.ShouldBe("On Microsoft Schedule");
 	}
 
 	#endregion

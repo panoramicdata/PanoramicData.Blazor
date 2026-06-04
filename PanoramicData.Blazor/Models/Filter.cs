@@ -137,6 +137,7 @@ public class Filter
 	{
 		FilterType = FilterTypes.Equals;
 		Value = string.Empty;
+		Value2 = string.Empty;
 	}
 
 	public bool IsValid => FilterType switch
@@ -178,8 +179,16 @@ public class Filter
 		};
 	}
 
-	private static string QuoteIfNeeded(string value) =>
-		value.Contains(' ') ? $"\"{value}\"" : value;
+	private static string QuoteIfNeeded(string value)
+	{
+		// Already quoted - don't double-quote. This guards against callers that pre-quoted the value.
+		if (value.Length >= 2 && value.StartsWith('"') && value.EndsWith('"'))
+		{
+			return value;
+		}
+
+		return value.Contains(' ') ? $"\"{value}\"" : value;
+	}
 
 	public void UpdateFrom(string text)
 	{

@@ -209,10 +209,6 @@ public partial class PDFilter : IAsyncDisposable
 			_selectedValues.Clear();
 			_selectedValues.AddRange([.. _value1.Split(_separator, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())]);
 		}
-		else if (_filterType == FilterTypes.Equals)
-		{
-			_value1 = _value1.QuoteIfContainsWhitespace();
-		}
 	}
 
 	private void OnValue2TextChange(string value) => _value2 = value;
@@ -253,13 +249,13 @@ public partial class PDFilter : IAsyncDisposable
 		{
 			_selectedValues.Clear();
 			_selectedValues.Add(tempValue1);
-			_value1 = tempValue1.QuoteIfContainsWhitespace();
+			_value1 = tempValue1;
 		}
 
 		if (doubleOptions.Contains(_filterType) && tempValue2 != null)
 		{
 			_selectedValues.Add(tempValue2);
-			_value2 = tempValue2.QuoteIfContainsWhitespace();
+			_value2 = tempValue2;
 		}
 
 		if (_filterType is FilterTypes.NotIn or FilterTypes.In)
@@ -298,14 +294,14 @@ public partial class PDFilter : IAsyncDisposable
 
 		if (_selectedValues.Count == 1 && ops.Contains(_filterType))
 		{
-			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();
+			_value1 = _selectedValues[0];
 			_value2 = string.Empty;
 		}
 		else if (_selectedValues.Count == 2 && _filterType == FilterTypes.Range)
 		{
 			_selectedValues.Sort();
-			_value1 = _selectedValues[0].QuoteIfContainsWhitespace();
-			_value2 = _selectedValues[1].QuoteIfContainsWhitespace();
+			_value1 = _selectedValues[0];
+			_value2 = _selectedValues[1];
 		}
 		else if (_selectedValues.Count == 0)
 		{// do nothing if unselected the last one

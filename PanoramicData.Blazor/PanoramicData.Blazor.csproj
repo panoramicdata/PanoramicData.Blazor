@@ -29,8 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDTable: fixed AddColumnAsync throwing ArgumentException on re-render when child components call StateHasChanged
-      - Filter: fixed ToString() not quoting multi-word values, causing ParseMany to split them on whitespace and lose the filter
+      - Filter/PDFilter: fixed Equals (and similar) filter values containing spaces producing doubled quotes in search text (e.g. name:""On Microsoft Schedule"" instead of name:"On Microsoft Schedule"); Filter.Value now always stores the raw unquoted value and Filter.ToString() is the sole quoting authority; also fixed Filter.Clear() not resetting Value2
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
