@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-05-31 14:09:11
+Generated on: 2026-06-05 11:03:38
 
 ## PDAnimation
 
@@ -1772,6 +1772,7 @@ No code-behind file found for this component.
 | LabelBefore | bool? | Gets or sets whether the label should be displayed before the switch. |
 | OffText | string? | Gets or sets the text to display when the switch is in the 'off' state. |
 | OnText | string? | Gets or sets the text to display when the switch is in the 'on' state. |
+| TextCssClass | string? | Gets or sets additional CSS classes applied to the SVG text element. |
 | Options | PDToggleSwitchOptions | Gets or sets the options for the toggle switch. |
 | Rounded | bool? | Gets or sets whether the switch is rounded. |
 | Value | bool | Gets or sets the current value of the switch. |

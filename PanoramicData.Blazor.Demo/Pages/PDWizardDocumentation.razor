@@ -1,0 +1,143 @@
+<div class="pd-wizard-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDWizard</code> is a multi-step workflow component. Steps are declared as child
+			<code>PDWizardStep</code> components and can be shown, hidden, validated, or loaded
+			asynchronously. Three built-in indicator styles are available: Numbers, Breadcrumb, and Dots.
+		</p>
+		<ul>
+			<li><strong>Flexible indicators</strong> — Numbers, Breadcrumb, or Dots</li>
+			<li><strong>Step validation</strong> — gate Next/Finish with <code>CanProceed</code></li>
+			<li><strong>Async loading</strong> — show a spinner while a step loads data</li>
+			<li><strong>Conditional steps</strong> — hide steps dynamically with <code>IsVisible</code></li>
+			<li><strong>Theming</strong> — full CSS variable support via <code>--pd-wizard-*</code></li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Wizard"
+					AnchorId="basic-wizard"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 200px;">
+			<DemoContent>
+				<PDWizard CssClass="border rounded">
+					<PDWizardStep Title="Welcome">
+						<p class="text-muted">Step 1 — click Next to continue.</p>
+					</PDWizardStep>
+					<PDWizardStep Title="Details">
+						<p class="text-muted">Step 2 — enter your details.</p>
+					</PDWizardStep>
+					<PDWizardStep Title="Done">
+						<p class="text-muted">Step 3 — click Finish.</p>
+					</PDWizardStep>
+				</PDWizard>
+			</DemoContent>
+			<Description>
+				<p>
+					Nest <code>PDWizardStep</code> components inside <code>PDWizard</code>. The wizard
+					renders a step indicator, body, and footer automatically.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="pdwizard-parameters">
+		<h2 class="doc-section">PDWizard Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>ChildContent</code></td><td><code>RenderFragment</code></td><td>—</td><td>The <code>PDWizardStep</code> child components</td></tr>
+				<tr><td><code>StepIndicatorStyle</code></td><td><code>WizardStepIndicatorStyle</code></td><td>Numbers</td><td>Visual style of the progress indicator: Numbers, Breadcrumb, or Dots</td></tr>
+				<tr><td><code>ShowIndicator</code></td><td><code>bool</code></td><td>true</td><td>Show or hide the step indicator bar</td></tr>
+				<tr><td><code>ShowStepTitles</code></td><td><code>bool</code></td><td>true</td><td>Show step titles beneath circles (Numbers style only)</td></tr>
+				<tr><td><code>ShowFooter</code></td><td><code>bool</code></td><td>true</td><td>Show or hide the footer button bar</td></tr>
+				<tr><td><code>AllowStepNavigation</code></td><td><code>bool</code></td><td>true</td><td>Allow clicking completed steps in the indicator to navigate back</td></tr>
+				<tr><td><code>CompletedStepIcon</code></td><td><code>string</code></td><td>fa-check</td><td>FontAwesome class for the completed-step icon (Numbers style)</td></tr>
+				<tr><td><code>TitleTemplate</code></td><td><code>RenderFragment&lt;PDWizardStep?&gt;</code></td><td>null</td><td>Left-side title bar rendered above the body; receives the active step as context</td></tr>
+				<tr><td><code>TitleAddon</code></td><td><code>RenderFragment&lt;PDWizardStep?&gt;</code></td><td>null</td><td>Right-side content in the title bar; requires <code>TitleTemplate</code></td></tr>
+				<tr><td><code>TitleAddonCssClass</code></td><td><code>string</code></td><td>text-secondary</td><td>CSS classes applied to the title addon element</td></tr>
+				<tr><td><code>ExtraButton</code></td><td><code>RenderFragment</code></td><td>null</td><td>Extra button rendered in the footer between Cancel and Back/Next/Finish</td></tr>
+				<tr><td><code>Footer</code></td><td><code>RenderFragment</code></td><td>null</td><td>Replaces the default footer entirely</td></tr>
+				<tr><td><code>CancelButtonText</code></td><td><code>string</code></td><td>Cancel</td><td>Label for the Cancel button</td></tr>
+				<tr><td><code>BackButtonText</code></td><td><code>string</code></td><td>Back</td><td>Label for the Back button</td></tr>
+				<tr><td><code>NextButtonText</code></td><td><code>string</code></td><td>Next</td><td>Label for the Next button</td></tr>
+				<tr><td><code>FinishButtonText</code></td><td><code>string</code></td><td>Finish</td><td>Label for the Finish button (last step)</td></tr>
+				<tr><td><code>CancelIcon</code></td><td><code>string?</code></td><td>null</td><td>FontAwesome class for the Cancel button icon; null suppresses it</td></tr>
+				<tr><td><code>BackIcon</code></td><td><code>string?</code></td><td>fa-arrow-left</td><td>FontAwesome class for the Back button icon; null suppresses it</td></tr>
+				<tr><td><code>NextIcon</code></td><td><code>string?</code></td><td>fa-arrow-right</td><td>FontAwesome class for the Next button icon; null suppresses it</td></tr>
+				<tr><td><code>FinishIcon</code></td><td><code>string?</code></td><td>fa-check</td><td>FontAwesome class for the Finish button icon; null suppresses it</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td>""</td><td>Additional CSS classes on the root element</td></tr>
+				<tr><td><code>IndicatorCssClass</code></td><td><code>string</code></td><td>""</td><td>Additional CSS classes on the indicator bar</td></tr>
+				<tr><td><code>BodyCssClass</code></td><td><code>string</code></td><td>""</td><td>Additional CSS classes on the body area</td></tr>
+				<tr><td><code>FooterCssClass</code></td><td><code>string</code></td><td>""</td><td>Additional CSS classes on the footer</td></tr>
+				<tr><td><code>OnComplete</code></td><td><code>EventCallback</code></td><td>—</td><td>Fired when the user clicks Finish on the last step</td></tr>
+				<tr><td><code>OnCancel</code></td><td><code>EventCallback</code></td><td>—</td><td>Fired when the user clicks Cancel</td></tr>
+				<tr><td><code>StepChanged</code></td><td><code>EventCallback&lt;int&gt;</code></td><td>—</td><td>Fired when the active step changes; argument is the new zero-based index</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="pdwizardstep-parameters">
+		<h2 class="doc-section">PDWizardStep Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Title</code></td><td><code>string</code></td><td>""</td><td>Display title shown in the indicator and optional title bar</td></tr>
+				<tr><td><code>Icon</code></td><td><code>string?</code></td><td>null</td><td>FontAwesome class shown in the completed indicator circle for this step</td></tr>
+				<tr><td><code>IsVisible</code></td><td><code>bool</code></td><td>true</td><td>Hide this step entirely when false; the wizard skips it</td></tr>
+				<tr><td><code>CanProceed</code></td><td><code>Func&lt;bool&gt;?</code></td><td>null</td><td>Predicate evaluated before allowing the user to move past this step</td></tr>
+				<tr><td><code>OnEnterAsync</code></td><td><code>Func&lt;Task&gt;?</code></td><td>null</td><td>Async callback invoked when the step becomes active; shows a spinner while running</td></tr>
+				<tr><td><code>OnLeaveAsync</code></td><td><code>Func&lt;Task&gt;?</code></td><td>null</td><td>Async callback invoked when the user leaves this step moving forward</td></tr>
+				<tr><td><code>LoadingContent</code></td><td><code>RenderFragment?</code></td><td>null</td><td>Custom content shown while <code>OnEnterAsync</code> runs; default is a spinner</td></tr>
+				<tr><td><code>ChildContent</code></td><td><code>RenderFragment?</code></td><td>—</td><td>The step body content</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td>""</td><td>Additional CSS classes on the step body container</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="methods">
+		<h2 class="doc-section">Public Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>NextAsync()</code></td><td><code>Task</code></td><td>Advance to the next visible step</td></tr>
+				<tr><td><code>BackAsync()</code></td><td><code>Task</code></td><td>Return to the previous visible step</td></tr>
+				<tr><td><code>GoToStepAsync(int)</code></td><td><code>Task</code></td><td>Navigate to a specific zero-based visible-step index</td></tr>
+				<tr><td><code>ResetAsync()</code></td><td><code>Task</code></td><td>Reset the wizard back to the first step</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="css-variables">
+		<h2 class="doc-section">CSS Variables</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>--pd-wizard-active-color</code></td><td>--bs-primary</td><td>Colour of the active step indicator and connector line</td></tr>
+				<tr><td><code>--pd-wizard-completed-color</code></td><td>--bs-primary</td><td>Colour of completed step indicators</td></tr>
+				<tr><td><code>--pd-wizard-pending-color</code></td><td>--bs-secondary</td><td>Colour of pending (not yet reached) step indicators</td></tr>
+				<tr><td><code>--pd-wizard-border-color</code></td><td>--bs-border-color</td><td>Border colour around the wizard</td></tr>
+				<tr><td><code>--pd-wizard-indicator-bg</code></td><td>--bs-body-bg</td><td>Background of the indicator bar</td></tr>
+				<tr><td><code>--pd-wizard-footer-bg</code></td><td>--bs-body-bg</td><td>Background of the footer</td></tr>
+				<tr><td><code>--pd-wizard-circle-size</code></td><td>2rem</td><td>Diameter of the step circles (Numbers style)</td></tr>
+				<tr><td><code>--pd-wizard-circle-font-size</code></td><td>0.85rem</td><td>Font size inside step circles</td></tr>
+				<tr><td><code>--pd-wizard-body-min-height</code></td><td>unset</td><td>Minimum height of the step body area</td></tr>
+				<tr><td><code>--pd-wizard-body-max-height</code></td><td>unset</td><td>Maximum height of the step body area; body scrolls when exceeded</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

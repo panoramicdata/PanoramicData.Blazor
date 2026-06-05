@@ -13,12 +13,17 @@ public class PDToggleSwitchOptions
 	public string CssClass { get; set; } = "";
 
 	/// <summary>
+	/// Sets CSS classes applied to the SVG text element.
+	/// </summary>
+	public string TextCssClass { get; set; } = "";
+
+	/// <summary>
 	/// Sets the height of the component.
 	/// </summary>
 	public int? Height { get; set; }
 
 	/// <summary>
-	/// Gets or sets whther the label should be displayed before the toggle switch.
+	/// Gets or sets whether the label should be displayed before the toggle switch.
 	/// </summary>
 	public bool LabelBefore { get; set; }
 

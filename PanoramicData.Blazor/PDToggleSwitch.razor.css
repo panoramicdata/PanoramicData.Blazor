@@ -45,25 +45,33 @@
 }
 
 .pdtoggleswitch .switch {
-	stroke: var(--bs-primary, #1b6ec2);
 	stroke-width: 2;
 }
 
 .pdtoggleswitch text {
 	stroke-width: 0;
-	fill: var(--bs-body-bg, white);
+}
+
+.pdtoggleswitch text.on {
+	fill: var(--pd-toggle-on-text-color, white);
+}
+
+.pdtoggleswitch text.off {
+	fill: var(--pd-toggle-off-text-color, white);
 }
 
 .pdtoggleswitch .toggle {
-	fill: var(--bs-body-bg, white);
+	fill: white;
 }
 
 .pdtoggleswitch .switch.on {
-	fill: var(--bs-primary, #1b6ec2);
+	stroke: var(--pd-toggle-on-color, var(--bs-primary, #1b6ec2));
+	fill: var(--pd-toggle-on-color, var(--bs-primary, #1b6ec2));
 }
 
 .pdtoggleswitch .switch.off {
-	fill: var(--bs-secondary-bg, silver);
+	stroke: var(--pd-toggle-off-color, #adb5bd);
+	fill: var(--pd-toggle-off-color, #adb5bd);
 }
 
 .pdtoggleswitch.disabled svg {

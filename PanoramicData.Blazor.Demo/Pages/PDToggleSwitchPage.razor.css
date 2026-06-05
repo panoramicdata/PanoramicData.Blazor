@@ -80,3 +80,8 @@
 ::deep .pdtoggleswitch.sw-power .switch.off {
 	fill: red;
 }
+
+::deep .pdtoggleswitch .sw-custom-text {
+	font-weight: bold;
+	font-size: 0.75rem;
+}

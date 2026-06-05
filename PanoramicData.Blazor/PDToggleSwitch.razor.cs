@@ -55,6 +55,11 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	[Parameter] public string? OnText { get; set; }
 
 	/// <summary>
+	/// Gets or sets additional CSS classes applied to the SVG text element.
+	/// </summary>
+	[Parameter] public string? TextCssClass { get; set; }
+
+	/// <summary>
 	/// Gets or sets the options for the toggle switch.
 	/// </summary>
 	[Parameter] public PDToggleSwitchOptions Options { get; set; } = new();
@@ -153,7 +158,7 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	/// <returns>Attribute dictionary.</returns>
 	public IDictionary<string, object> GetTextAttributes() => new Dictionary<string, object>
 		{
-			{ "class", $"text {(Value ? "on" : "off")}"},
+			{ "class", $"text {(Value ? "on" : "off")} {TextCssClass ?? Options.TextCssClass}".TrimEnd()},
 			{ "text-anchor",  Value ? "start" : "end" },
 			{ "x", Value ? (BorderWidth ?? Options.BorderWidth) * 3 : CalculatedWidth - (BorderWidth ?? Options.BorderWidth) * 3 },
 			{ "y", InnerHeight / 2 + (InnerHeight / 2) + TextYOffset }

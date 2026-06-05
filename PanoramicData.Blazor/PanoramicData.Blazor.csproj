@@ -29,7 +29,8 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - Filter/PDFilter: fixed Equals (and similar) filter values containing spaces producing doubled quotes in search text (e.g. name:""On Microsoft Schedule"" instead of name:"On Microsoft Schedule"); Filter.Value now always stores the raw unquoted value and Filter.ToString() is the sole quoting authority; also fixed Filter.Clear() not resetting Value2
+      - PDToggleSwitch: fixed text colour in dark mode; switch colours now use CSS variables (--pd-toggle-on-color, --pd-toggle-off-color, --pd-toggle-on-text-color, --pd-toggle-off-text-color) for easy theming without Bootstrap version dependency
+      - PDToggleSwitch: added TextCssClass parameter (and PDToggleSwitchOptions.TextCssClass) to apply custom CSS classes to the SVG text element
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

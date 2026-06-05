@@ -4,8 +4,15 @@
 		<h2 class="doc-section">Overview</h2>
 		<p>
 			<code>PDToggleSwitch</code> is a boolean toggle switch component for on/off states.
-			Provides a more visual alternative to checkboxes.
+			Provides a more visual alternative to checkboxes, with optional on/off labels inside
+			the switch, rounded corners, three sizes, and full CSS variable theming.
 		</p>
+		<ul>
+			<li><strong>Sizes</strong> — Small, Medium, Large</li>
+			<li><strong>Labels</strong> — optional text inside the switch and/or an external label</li>
+			<li><strong>Rounded</strong> — pill-shaped toggle via <code>Rounded="true"</code></li>
+			<li><strong>Theming</strong> — CSS variable support via <code>--pd-toggle-*</code></li>
+		</ul>
 	</section>
 
 	<section id="quick-start">
@@ -24,7 +31,23 @@
 			</DemoContent>
 			<Description>
 				<p>
-					Bind to a <code>bool</code> with <code>@@bind-Value</code>. Use <code>Label</code> for text.
+					Bind to a <code>bool</code> with <code>@@bind-Value</code>. Use <code>Label</code> for an external text label.
+				</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="With On/Off Text"
+					AnchorId="onoff-text"
+					Code="@_example2Code"
+					Language="razor"
+					DemoStyle="min-height: 80px;">
+			<DemoContent>
+				<PDToggleSwitch @bind-Value="_isEnabled" OnText="ON" OffText="OFF" Rounded="true" />
+			</DemoContent>
+			<Description>
+				<p>
+					Use <code>OnText</code> and <code>OffText</code> to display labels inside the switch track.
+					<code>Rounded="true"</code> gives a pill shape.
 				</p>
 			</Description>
 		</DocExample>
@@ -34,14 +57,73 @@
 		<h2 class="doc-section">Parameters</h2>
 		<table class="table table-sm doc-props-table">
 			<thead>
-				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
 			</thead>
 			<tbody>
-				<tr><td><code>Value</code></td><td><code>bool</code></td><td>Current on/off state</td></tr>
-				<tr><td><code>Label</code></td><td><code>string</code></td><td>Text label</td></tr>
-				<tr><td><code>IsEnabled</code></td><td><code>bool</code></td><td>Enable/disable the switch</td></tr>
+				<tr><td><code>Value</code></td><td><code>bool</code></td><td>false</td><td>Current on/off state</td></tr>
+				<tr><td><code>ValueChanged</code></td><td><code>EventCallback&lt;bool&gt;</code></td><td>—</td><td>Fired when the switch is toggled; use with <code>@@bind-Value</code></td></tr>
+				<tr><td><code>Label</code></td><td><code>string</code></td><td>""</td><td>External text label rendered alongside the switch</td></tr>
+				<tr><td><code>LabelBefore</code></td><td><code>bool?</code></td><td>false</td><td>Place the label before (left of) the switch</td></tr>
+				<tr><td><code>OnText</code></td><td><code>string?</code></td><td>null</td><td>Text displayed inside the switch when on</td></tr>
+				<tr><td><code>OffText</code></td><td><code>string?</code></td><td>null</td><td>Text displayed inside the switch when off</td></tr>
+				<tr><td><code>TextCssClass</code></td><td><code>string?</code></td><td>null</td><td>Additional CSS classes applied to the SVG text element (useful for font weight, size, or custom colour)</td></tr>
+				<tr><td><code>Rounded</code></td><td><code>bool?</code></td><td>false</td><td>Render the switch with pill-shaped (fully rounded) ends</td></tr>
+				<tr><td><code>Width</code></td><td><code>int?</code></td><td>auto</td><td>Override the switch width in pixels</td></tr>
+				<tr><td><code>Height</code></td><td><code>int?</code></td><td>auto</td><td>Override the switch height in pixels</td></tr>
+				<tr><td><code>BorderWidth</code></td><td><code>int?</code></td><td>2</td><td>Width of the switch border in pixels</td></tr>
+				<tr><td><code>Options</code></td><td><code>PDToggleSwitchOptions</code></td><td>new()</td><td>Options object for setting defaults; individual parameters take precedence</td></tr>
+				<tr><td><code>IsEnabled</code></td><td><code>bool</code></td><td>true</td><td>Enable or disable the switch</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td>""</td><td>Additional CSS classes on the root element</td></tr>
 			</tbody>
 		</table>
+	</section>
+
+	<section id="options">
+		<h2 class="doc-section">PDToggleSwitchOptions</h2>
+		<p>
+			Pass a <code>PDToggleSwitchOptions</code> instance to <code>Options</code> to share settings
+			across multiple switches. Any directly set parameter overrides the corresponding option.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>OnText</code></td><td><code>string</code></td><td>""</td><td>Default on text</td></tr>
+				<tr><td><code>OffText</code></td><td><code>string</code></td><td>""</td><td>Default off text</td></tr>
+				<tr><td><code>TextCssClass</code></td><td><code>string</code></td><td>""</td><td>Default CSS classes for the SVG text element</td></tr>
+				<tr><td><code>Rounded</code></td><td><code>bool</code></td><td>false</td><td>Default rounded setting</td></tr>
+				<tr><td><code>LabelBefore</code></td><td><code>bool</code></td><td>false</td><td>Default label position</td></tr>
+				<tr><td><code>Size</code></td><td><code>ButtonSizes</code></td><td>Medium</td><td>Default size: Small, Medium, or Large</td></tr>
+				<tr><td><code>BorderWidth</code></td><td><code>int</code></td><td>2</td><td>Default border width in pixels</td></tr>
+				<tr><td><code>Width</code></td><td><code>int?</code></td><td>null</td><td>Default width override</td></tr>
+				<tr><td><code>Height</code></td><td><code>int?</code></td><td>null</td><td>Default height override</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td>""</td><td>Default additional CSS classes</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="css-variables">
+		<h2 class="doc-section">CSS Variables</h2>
+		<p>
+			Set these variables on a parent element or directly via <code>style</code> on a wrapper
+			<code>&lt;div&gt;</code> to override colours without writing component-specific CSS.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>--pd-toggle-on-color</code></td><td>--bs-primary (#1b6ec2)</td><td>Fill and stroke colour of the switch in the on state</td></tr>
+				<tr><td><code>--pd-toggle-off-color</code></td><td>#adb5bd</td><td>Fill and stroke colour of the switch in the off state</td></tr>
+				<tr><td><code>--pd-toggle-on-text-color</code></td><td>white</td><td>Colour of the on-state text inside the switch</td></tr>
+				<tr><td><code>--pd-toggle-off-text-color</code></td><td>white</td><td>Colour of the off-state text inside the switch</td></tr>
+			</tbody>
+		</table>
+		<p>Example — custom colours via a wrapper div:</p>
+		<pre><code>&lt;div style="--pd-toggle-on-color: #198754; --pd-toggle-off-color: #dc3545;"&gt;
+    &lt;PDToggleSwitch OnText="YES" OffText="NO" Rounded="true" /&gt;
+&lt;/div&gt;</code></pre>
 	</section>
 
 </div>
