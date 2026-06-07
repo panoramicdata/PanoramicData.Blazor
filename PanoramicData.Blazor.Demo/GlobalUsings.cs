@@ -6,6 +6,7 @@ global using Microsoft.JSInterop;
 global using PanoramicData.Blazor.Arguments;
 global using PanoramicData.Blazor.Attributes;
 global using PanoramicData.Blazor.Demo.Data;
+global using PanoramicData.Blazor.Enums;
 global using PanoramicData.Blazor.Extensions;
 global using PanoramicData.Blazor.Interfaces;
 global using PanoramicData.Blazor.Models;

@@ -27,6 +27,14 @@ public static class ServiceExtensions
 		=> services.AddScoped<INavigationCancelService, NavigationCancelService>();
 
 	/// <summary>
+	/// Add the ListenerService service to allow injection of the IListenerService.
+	/// </summary>
+	/// <param name="services">Service collection to add service to.</param>
+	/// <returns>The IServiceCollection for further adds</returns>
+	public static IServiceCollection AddListenerService(this IServiceCollection services)
+		=> services.AddScoped<IListenerService, ListenerService>();
+
+	/// <summary>
 	/// Adds all the required services from the PanoramicData.Blazor library.
 	/// </summary>
 	/// <param name="services">Service collection to add service to.</param>
@@ -36,6 +44,7 @@ public static class ServiceExtensions
 		services.AddScoped<IBlockOverlayService, BlockOverlayService>();
 		services.AddScoped<IGlobalEventService, GlobalEventService>();
 		services.AddScoped<INavigationCancelService, NavigationCancelService>();
+		services.AddScoped<IListenerService, ListenerService>();
 		return services;
 	}
 }

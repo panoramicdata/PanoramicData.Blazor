@@ -1,0 +1,63 @@
+@page "/pdvoicelistener"
+
+<h1>PDVoiceListener</h1>
+
+<DemoSourceView SourceFiles="Pages/PDVoiceListenerPage.razor, Pages/PDVoiceListenerPage.razor.cs, Pages/PDVoiceListenerDocumentation.razor">
+    <DocumentationContent>
+        <PDVoiceListenerDocumentation />
+    </DocumentationContent>
+    <ChildContent>
+        <div class="mb-3">
+            <label class="form-label" for="listener-mode">Listener Mode</label>
+            <select id="listener-mode" class="form-select" @bind="SelectedMode">
+                @foreach (ListenerMode mode in Enum.GetValues<ListenerMode>())
+                {
+                    <option value="@mode">@mode</option>
+                }
+            </select>
+        </div>
+
+        @if (SelectedMode == ListenerMode.KeywordActivation)
+        {
+            <div class="mb-3">
+                <label class="form-label" for="listener-keyword">Keyword</label>
+                <input id="listener-keyword" class="form-control" @bind="Keyword" />
+            </div>
+        }
+
+        @if (SelectedMode == ListenerMode.ManualActivation)
+        {
+            <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-primary" @onclick="StartManualAsync">Start</button>
+                <button class="btn btn-secondary" @onclick="StopManualAsync">Stop</button>
+            </div>
+        }
+
+        <p><strong>Status:</strong> @CurrentState</p>
+
+        <PDVoiceListener @ref="ListenerComponent"
+                         Mode="SelectedMode"
+                         Keyword="Keyword"
+                         KeywordSilenceTimeout="KeywordSilenceTimeout"
+                         KeywordTimeoutToken="[SILENCE]"
+                         ManualStartToken="[START]"
+                         ManualStopToken="[STOP]"
+                         RunInBackground="true"
+                         AutoStart="true" />
+
+        <h3>Transcript</h3>
+        <ul class="list-group">
+            @foreach (ListenerInput item in Transcript)
+            {
+                <li class="list-group-item">
+                    <span class="me-2 text-muted">@item.Timestamp.LocalDateTime.ToLongTimeString()</span>
+                    <span>@item.Text</span>
+                    @if (item.IsInjected)
+                    {
+                        <span class="badge bg-secondary ms-2">Injected</span>
+                    }
+                </li>
+            }
+        </ul>
+    </ChildContent>
+</DemoSourceView>

@@ -185,6 +185,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 			Form.RegisterFieldEditor(this);
 			Form.ResetRequested += Form_ResetRequested;
 		}
+
 		Field.ValueChanged += Field_ValueChanged;
 	}
 

@@ -157,6 +157,7 @@ public partial class PDAnimation : IDisposable
 				_positions.Clear();
 				_module = null;
 			}
+
 			Element = default!;
 			_disposedValue = true;
 		}

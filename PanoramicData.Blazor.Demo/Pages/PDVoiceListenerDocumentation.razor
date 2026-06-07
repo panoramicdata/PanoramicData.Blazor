@@ -1,0 +1,17 @@
+<div class="pd-voice-listener-documentation">
+    <section id="overview">
+        <h2 class="doc-section">Overview</h2>
+        <p>
+            <code>PDVoiceListener</code> captures browser speech recognition input and publishes timestamped stream items via <code>IListenerService</code>.
+        </p>
+    </section>
+
+    <section id="modes">
+        <h2 class="doc-section">Modes</h2>
+        <ul>
+            <li><code>ManualActivation</code> emits text only between start/stop actions.</li>
+            <li><code>KeywordActivation</code> requires an exact keyword and falls back to <code>ActiveAwaitingKeyword</code> after silence.</li>
+            <li><code>Continuous</code> emits all recognized phrases continuously.</li>
+        </ul>
+    </section>
+</div>
