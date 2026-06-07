@@ -2,20 +2,24 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # Ensure we are on the main branch
-$branch = (& git rev-parse --abbrev-ref HEAD).Trim()
+$branch = [string](& git rev-parse --abbrev-ref HEAD)
 if ($LASTEXITCODE -ne 0) {
 	throw "Failed to determine current git branch."
 }
+
+$branch = $branch.Trim()
 
 if ($branch -ne 'main') {
 	throw "Not on main branch. Current branch: $branch"
 }
 
 # Ensure working tree is clean
-$status = (& git status --porcelain).Trim()
+$status = [string](& git status --porcelain)
 if ($LASTEXITCODE -ne 0) {
 	throw "Failed to check git working tree status."
 }
+
+$status = $status.Trim()
 
 if (-not [string]::IsNullOrWhiteSpace($status)) {
 	throw "Working tree is not clean."
@@ -27,10 +31,12 @@ if ($LASTEXITCODE -ne 0) {
 	throw "Failed to fetch origin/main."
 }
 
-$behindText = (& git rev-list --count HEAD..origin/main).Trim()
+$behindText = [string](& git rev-list --count HEAD..origin/main)
 if ($LASTEXITCODE -ne 0) {
 	throw "Failed to compare local branch with origin/main."
 }
+
+$behindText = $behindText.Trim()
 
 $behind = 0
 if (-not [int]::TryParse($behindText, [ref]$behind)) {
@@ -63,10 +69,12 @@ if ([string]::IsNullOrWhiteSpace($version)) {
 Write-Host "Version: $version"
 
 # Check if tag already exists
-$existingTag = (& git tag -l $version).Trim()
+$existingTag = [string](& git tag -l $version)
 if ($LASTEXITCODE -ne 0) {
 	throw "Failed to query existing tags."
 }
+
+$existingTag = $existingTag.Trim()
 
 if (-not [string]::IsNullOrWhiteSpace($existingTag)) {
 	throw "Tag $version already exists."
