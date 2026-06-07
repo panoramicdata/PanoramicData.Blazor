@@ -3,7 +3,7 @@
 <div id="@Id"
 	 class="pd-tiles @CssClass"
 	 style="width: @Width; height: @Height; position: relative; overflow: hidden; @Style">
-	
+
 	@* SVG tile grid - positioned absolutely if there's child content *@
 	<div style="@GetSvgContainerStyle()">
 		<svg @ref="_svgElement"
@@ -84,7 +84,7 @@
 			@* Calculate glow radius as percentage of grid width *@
 			var glowRadius = layout.GridWidth * (Options.GlowFalloff / 100.0);
 			var glowCenterY = anchorY + layout.DepthPixels / 2;
-			
+
 			<radialGradient id="@($"{Id}-bgGlow-abs")" gradientUnits="userSpaceOnUse"
 							cx="@F(anchorX)" cy="@F(glowCenterY)" r="@F(glowRadius)">
 				<stop offset="0%" style="stop-color:rgba(255,255,255,0.35)" />
@@ -92,9 +92,9 @@
 				<stop offset="60%" style="stop-color:rgba(255,255,255,0.08)" />
 				<stop offset="100%" style="stop-color:rgba(255,255,255,0)" />
 			</radialGradient>
-			
+
 			@* Use large rect to ensure glow never clips at edges *@
-			<rect x="@F(-layout.ViewBoxWidth)" y="@F(-layout.ViewBoxHeight)" 
+			<rect x="@F(-layout.ViewBoxWidth)" y="@F(-layout.ViewBoxHeight)"
 				  width="@F(layout.ViewBoxWidth * 3)" height="@F(layout.ViewBoxHeight * 3)"
 				  fill="url(#@($"{Id}-bgGlow-abs"))"
 				  opacity="@F(Options.Glow / 100.0)"
