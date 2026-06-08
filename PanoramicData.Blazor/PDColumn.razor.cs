@@ -133,6 +133,13 @@ public partial class PDColumn<TItem> where TItem : class
 	public IEnumerable<object> FilterSuggestedValues { get; set; } = [];
 
 	/// <summary>
+	/// Gets or sets a function that transforms a raw filter value into a display label.
+	/// The raw value is still used for filtering; only the displayed text changes.
+	/// </summary>
+	[Parameter]
+	public Func<string, string>? FilterValueDisplayFunc { get; set; }
+
+	/// <summary>
 	/// Gets or sets the maximum number of values to show in the filter.
 	/// </summary>
 	[Parameter]

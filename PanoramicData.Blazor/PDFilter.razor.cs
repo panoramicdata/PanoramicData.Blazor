@@ -42,6 +42,13 @@ public partial class PDFilter : IAsyncDisposable
 	public Func<Filter, Task<string[]>>? FetchValuesAsync { get; set; }
 
 	/// <summary>
+	/// An optional function that transforms a raw filter value into a display label.
+	/// The raw value is still used for filtering; only the displayed text changes.
+	/// </summary>
+	[Parameter]
+	public Func<string, string>? FilterValueDisplayFunc { get; set; }
+
+	/// <summary>
 	/// Gets or sets the CSS class for the icon.
 	/// </summary>
 	[Parameter]

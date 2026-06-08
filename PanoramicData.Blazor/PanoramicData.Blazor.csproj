@@ -29,8 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDToggleSwitch: fixed text colour in dark mode; switch colours now use CSS variables (--pd-toggle-on-color, --pd-toggle-off-color, --pd-toggle-on-text-color, --pd-toggle-off-text-color) for easy theming without Bootstrap version dependency
-      - PDToggleSwitch: added TextCssClass parameter (and PDToggleSwitchOptions.TextCssClass) to apply custom CSS classes to the SVG text element
+      - PDColumn: added FilterValueDisplayFunc parameter (Func&lt;string, string&gt;) to transform filter dropdown display labels without affecting the raw value used for filtering
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

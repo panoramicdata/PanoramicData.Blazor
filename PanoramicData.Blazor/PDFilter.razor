@@ -143,7 +143,7 @@
 								<PDLabel CssClass="pd-pointer"
 										 MouseDown="@(() => OnValueClicked(value))"
 										 IconCssClass="@(_selectedValues.Contains(value) ? "fas fa-check-square" : "far fa-square")"
-										 Text="@value" />
+										 Text="@(FilterValueDisplayFunc?.Invoke(value) ?? value)" />
 							}
 						</div>
 					</div>

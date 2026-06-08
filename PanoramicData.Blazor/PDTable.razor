@@ -111,7 +111,8 @@ else
 											  ShowValues="@column.FilterShowSuggestedValues"
 											  ShowSelectAll="@column.FilterShowSelectAll"
 											  DataType="@column.GetFilterDataType()"
-											  Nullable="@column.GetFilterIsNullable()" />
+											  Nullable="@column.GetFilterIsNullable()"
+											  FilterValueDisplayFunc="column.FilterValueDisplayFunc" />
 								}
 								@if (column.Sortable)
 								{
