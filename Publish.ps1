@@ -5,7 +5,7 @@ function ConvertTo-TrimmedString([object]$value)
 {
 	if ($null -eq $value)
 	{
-		return string.Empty
+		return ''
 	}
 
 	if ($value -is [System.Array])
