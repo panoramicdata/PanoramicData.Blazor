@@ -116,4 +116,24 @@ public class FileExplorerItemTests
 
         item.ToString().ShouldBe("/folder/file.txt");
     }
+
+    [Theory]
+    [InlineData("/file.html", "*.html", true)]
+    [InlineData("/file.htm", "*.htm", true)]
+    [InlineData("/file.htm", "*.html;*.htm", true)]
+    [InlineData("/file.html", "*.html;*.htm", true)]
+    [InlineData("/file.HTML", "*.html", true)]             // case-insensitive
+    [InlineData("/file.xlsx", "*.xlsx", true)]
+    [InlineData("/folder/file.html", "*.html", true)]      // path with folder
+    [InlineData("/file.html", "", true)]                   // empty pattern matches all
+    [InlineData("/Web HTML Only.docx", "*.html", false)]   // name contains "html" but wrong extension
+    [InlineData("/Web HTML Only.docx", "*.html;*.htm", false)]
+    [InlineData("/file.html.bak", "*.html", false)]        // extension is .bak not .html
+    [InlineData("/file.xlsx", "*.html;*.htm", false)]
+    public void WhenCheckingIsNameMatchThenReturnsCorrectResult(string path, string pattern, bool expected)
+    {
+        var item = new FileExplorerItem { Path = path };
+
+        item.IsNameMatch(pattern).ShouldBe(expected);
+    }
 }

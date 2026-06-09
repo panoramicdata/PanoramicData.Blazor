@@ -201,8 +201,13 @@ public class FileExplorerItem : IComparable
 		var name = GetNameFromPath(Path);
 
 		// match any provided pattern?
+		// Regex.Escape handles literal dots/special chars; then restore wildcards; anchor so *.html doesn't match foo.html.bak
 		return pattern
 			.Split(';')
-			.Any(x => Regex.IsMatch(name, x.Replace("*", ".*").Replace("?", "."), RegexOptions.IgnoreCase));
+			.Any(x =>
+			{
+				var regexPattern = "^" + Regex.Escape(x).Replace(@"\*", ".*").Replace(@"\?", ".") + "$";
+				return Regex.IsMatch(name, regexPattern, RegexOptions.IgnoreCase);
+			});
 	}
 }

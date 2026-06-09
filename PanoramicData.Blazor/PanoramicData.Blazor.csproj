@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDFileModal: added CanSelectFolder parameter (Func&lt;FileExplorerItem, bool&gt;?) to allow callers to prevent selection of folders that do not meet a condition (e.g. read-only folders); the current folder item is now tracked internally to support deselection scenarios
+      - FileExplorerItem.IsNameMatch: fixed glob-to-regex conversion to use anchored, dot-escaped patterns so that e.g. *.html no longer matches filenames that merely contain "html" (such as "Report HTML Summary.docx")
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
