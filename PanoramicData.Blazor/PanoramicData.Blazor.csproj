@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDColumn: added FilterValueDisplayFunc parameter (Func&lt;string, string&gt;) to transform filter dropdown display labels without affecting the raw value used for filtering
+      - PDTable: preserve explicit KeyPropertyMappings set by data providers; PDTable no longer overwrites navigation property path mappings (e.g. Tenant.Name) with the ViewModel property name
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

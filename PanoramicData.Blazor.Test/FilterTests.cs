@@ -792,6 +792,25 @@ public class FilterTests
 	}
 
 	[Fact]
+	public void ParseMany_WithNavigationPropertyPathMapping_SetsEntityPathAsPropertyName()
+	{
+		// Regression guard: when a data provider explicitly maps a FilterKey to a navigation
+		// property path (e.g. "Tenant.Name"), ParseMany must preserve the full dotted path
+		// as PropertyName, NOT collapse it to the ViewModel property name ("TenantName").
+		// The PDTable component derives "TenantName" from the column Field expression and
+		// must not overwrite an explicit mapping that was registered by the data provider.
+		var mappings = new Dictionary<string, string> { ["tenant-name"] = "Tenant.Name" };
+
+		var filters = Filter.ParseMany("tenant-name:*Panoramic*", mappings).ToList();
+
+		filters.Count.ShouldBe(1);
+		filters[0].Key.ShouldBe("tenant-name");
+		filters[0].PropertyName.ShouldBe("Tenant.Name");
+		filters[0].FilterType.ShouldBe(FilterTypes.Contains);
+		filters[0].Value.ShouldBe("Panoramic");
+	}
+
+	[Fact]
 	public void ParseMany_UnterminatedHash_AutoClosesAndParses()
 	{
 		var filters = Filter.ParseMany("name:#unterminated").ToList();

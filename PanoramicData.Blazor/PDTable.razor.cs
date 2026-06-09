@@ -519,8 +519,10 @@ public partial class PDTable<TItem> :
 				// determine property name
 				column.Filter.PropertyName = column.GetPropertyName();
 
-				// update mapping
-				if (DataProvider is IFilterProviderService<TItem> fs)
+				// update mapping - only set if not already explicitly mapped by the data provider,
+				// as the ViewModel property name may differ from the entity property path
+				// (e.g. TenantName on the VM vs Tenant.Name as a navigation property path)
+				if (DataProvider is IFilterProviderService<TItem> fs && !fs.KeyPropertyMappings.ContainsKey(column.Filter.Key))
 				{
 					fs.KeyPropertyMappings[column.Filter.Key] = column.Filter.PropertyName;
 				}
