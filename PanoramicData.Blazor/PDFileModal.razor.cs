@@ -8,6 +8,7 @@ public partial class PDFileModal
 	private bool _showFiles = true;
 	private bool _folderSelect;
 	private string _filenamePattern = string.Empty;
+	private FileExplorerItem? _currentFolderItem;
 	private PDModal ModalConfirm { get; set; } = null!;
 	private string _modalTitle = string.Empty;
 	private PDFileExplorer FileExplorer { get; set; } = null!;
@@ -18,6 +19,11 @@ public partial class PDFileModal
 	private readonly List<ToolbarItem> _confirmToolbarItems = [];
 	private readonly ToolbarButton _overwriteButton = new() { Key = "Yes", Text = "Yes - Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true };
 	private readonly ToolbarButton _noButton = new() { Key = "No", Text = "No", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" };
+
+	/// <summary>
+	/// When set, called for each folder the user navigates to or selects. Return false to prevent selection.
+	/// </summary>
+	[Parameter] public Func<FileExplorerItem, bool>? CanSelectFolder { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether the modal should close when the escape key is pressed.
@@ -127,9 +133,12 @@ public partial class PDFileModal
 
 	private void OnFolderChanged(FileExplorerItem item)
 	{
+		_currentFolderItem = item;
 		if (!_showFiles)
 		{
-			_okButton.IsEnabled = !string.IsNullOrEmpty(FileExplorer.FolderPath);
+			_okButton.IsEnabled =
+				!string.IsNullOrEmpty(FileExplorer.FolderPath) &&
+				(CanSelectFolder == null || CanSelectFolder(item));
 		}
 	}
 
@@ -404,8 +413,11 @@ public partial class PDFileModal
 		}
 		else
 		{
-			_okButton.IsEnabled = (!string.IsNullOrEmpty(FileExplorer.FolderPath) && selection.Length == 0) ||
-								  (selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory && selection[0].Name != "..");
+			_okButton.IsEnabled =
+				(!string.IsNullOrEmpty(FileExplorer.FolderPath) && selection.Length == 0 &&
+				 (CanSelectFolder == null || (_currentFolderItem != null && CanSelectFolder(_currentFolderItem)))) ||
+				(selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory &&
+				 selection[0].Name != ".." && (CanSelectFolder == null || CanSelectFolder(selection[0])));
 		}
 	}
 

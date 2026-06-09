@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDTable: preserve explicit KeyPropertyMappings set by data providers; PDTable no longer overwrites navigation property path mappings (e.g. Tenant.Name) with the ViewModel property name
+      - PDFileModal: added CanSelectFolder parameter (Func&lt;FileExplorerItem, bool&gt;?) to allow callers to prevent selection of folders that do not meet a condition (e.g. read-only folders); the current folder item is now tracked internally to support deselection scenarios
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
