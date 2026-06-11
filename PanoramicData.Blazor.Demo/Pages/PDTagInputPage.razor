@@ -1,0 +1,140 @@
+@page "/pdtaginput"
+
+<h1>PDTagInput</h1>
+
+<DemoSourceView SourceFiles="Pages/PDTagInputPage.razor, Pages/PDTagInputPage.razor.cs">
+<DocumentationContent>
+<PDTagInputDocumentation />
+</DocumentationContent>
+<ChildContent>
+
+	<h4>Basic</h4>
+	<p class="text-muted">
+		Free-text tags with two-way binding via <code>@@bind-Values</code>.
+		Commit a tag with <kbd>Enter</kbd> or <kbd>,</kbd> - remove with the chip button or <kbd>Backspace</kbd> on an empty input.
+	</p>
+
+	<PDTagInput @bind-Values="_basicTags" Placeholder="Type a tag and press Enter..." />
+
+	<p class="small text-muted mt-2">
+		Bound values: @(_basicTags.Count == 0 ? "(none)" : string.Join(", ", _basicTags))
+	</p>
+
+	<hr />
+	<h4>Suggestions</h4>
+	<p class="text-muted">
+		Provide <code>Suggestions</code> for an autocomplete dropdown. Focus the input or press <kbd>ArrowDown</kbd> to browse.
+		Free text outside the suggestions is still allowed here, and typed text is canonicalised to the suggestion's casing
+		(try typing <code>production</code>).
+	</p>
+
+	<PDTagInput @bind-Values="_suggestionTags"
+				Suggestions="_scheduleSuggestions"
+				Placeholder="Production, Development, Test..."
+				TagAdded="@(tag => OnLogEvent($"TagAdded: {tag}"))"
+				TagRemoved="@(tag => OnLogEvent($"TagRemoved: {tag}"))" />
+
+	<hr />
+	<h4>Suggestions Only</h4>
+	<p class="text-muted">
+		With <code>AllowFreeText="false"</code> only suggested values can be added.
+		Anything else fires <code>TagRejected</code> with reason <code>NotInSuggestions</code>.
+	</p>
+
+	<PDTagInput @bind-Values="_restrictedTags"
+				Suggestions="_scheduleSuggestions"
+				AllowFreeText="false"
+				Placeholder="Suggestions only..."
+				TagRejected="OnTagRejected" />
+
+	<hr />
+	<h4>Limits</h4>
+	<p class="text-muted">
+		<code>MaxTags="5"</code> and <code>MaxTagLength="10"</code>.
+		Violations fire <code>TagRejected</code> and briefly outline the control in red.
+	</p>
+
+	<PDTagInput @bind-Values="_limitedTags"
+				MaxTags="5"
+				MaxTagLength="10"
+				Placeholder="Max 5 tags, 10 chars each..."
+				TagRejected="OnTagRejected" />
+
+	<hr />
+	<h4>Read-Only and Disabled</h4>
+	<p class="text-muted">
+		Read-only shows tags without editing. Disabled greys out the whole control.
+	</p>
+
+	<div class="row">
+		<div class="col-md-6 mb-2">
+			<label class="form-label small">IsReadOnly="true"</label>
+			<PDTagInput Values="_fixedTags" IsReadOnly="true" />
+		</div>
+		<div class="col-md-6 mb-2">
+			<label class="form-label small">IsEnabled="false"</label>
+			<PDTagInput Values="_fixedTags" IsEnabled="false" />
+		</div>
+	</div>
+
+	<hr />
+	<h4>Custom Tag Template</h4>
+	<p class="text-muted">
+		Use <code>TagTemplate</code> to customise chip content. The remove button is rendered automatically.
+	</p>
+
+	<PDTagInput @bind-Values="_templateTags" Suggestions="_scheduleSuggestions">
+		<TagTemplate Context="tag">
+			<i class="fas fa-tag me-1"></i><span>@tag.ToUpperInvariant()</span>
+		</TagTemplate>
+	</PDTagInput>
+
+	<hr />
+	<h4>Custom Theming</h4>
+	<p class="text-muted">
+		Every colour and metric is exposed as a <code>--pd-taginput-*</code> CSS variable, themed from
+		Bootstrap variables by default so light/dark mode just works. Override them inline or in CSS.
+	</p>
+
+	<PDTagInput @bind-Values="_themedTags"
+				Suggestions="_scheduleSuggestions"
+				Placeholder="Pill-shaped, custom colours..."
+				style="--pd-taginput-tag-bg: var(--bs-success-bg-subtle);
+					   --pd-taginput-tag-color: var(--bs-success-text-emphasis);
+					   --pd-taginput-tag-border-color: var(--bs-success-border-subtle);
+					   --pd-taginput-tag-border-radius: 1rem;
+					   --pd-taginput-border-radius: 1rem;
+					   --pd-taginput-dropdown-active-bg: var(--bs-success);" />
+
+	<hr />
+	<h4>Inside a PDWizard</h4>
+	<p class="text-muted">
+		PDTagInput is a plain value editor, so it drops straight into a form or a wizard step.
+	</p>
+
+	<PDWizard CssClass="border rounded" OnComplete="OnWizardComplete" OnCancel="OnWizardCancel">
+		<PDWizardStep Title="Name">
+			<div class="mb-2">
+				<label class="form-label">Name</label>
+				<input class="form-control form-control-sm" @bind="_wizardName" placeholder="Enter a name" />
+			</div>
+			<div class="mb-2">
+				<label class="form-label">Tags</label>
+				<PDTagInput @bind-Values="_wizardTags" Suggestions="_scheduleSuggestions" />
+			</div>
+		</PDWizardStep>
+		<PDWizardStep Title="Review">
+			<p>Name: <strong>@_wizardName</strong></p>
+			<p>Tags: <strong>@(_wizardTags.Count == 0 ? "(none)" : string.Join(", ", _wizardTags))</strong></p>
+		</PDWizardStep>
+	</PDWizard>
+
+	@if (_wizardResult != null)
+	{
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_wizardResult</p>
+	}
+
+	<EventView />
+
+</ChildContent>
+</DemoSourceView>

@@ -1,0 +1,153 @@
+<div class="pd-taginput-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDTagInput</code> is an input component for entering multiple short text values (tags).
+			Tags are rendered as removable chips, with optional autocomplete suggestions, free-text entry,
+			validation limits and full keyboard support. It is a plain value editor - bind a
+			<code>List&lt;string&gt;</code> with <code>@@bind-Values</code> and it has no other dependencies,
+			so it drops into forms, wizards and dialogs alike.
+		</p>
+		<ul>
+			<li><strong>Two-way binding</strong> — <code>@@bind-Values</code> with a <code>List&lt;string&gt;</code></li>
+			<li><strong>Suggestions</strong> — optional autocomplete dropdown, excluding already-added tags</li>
+			<li><strong>Validation</strong> — max length, max count, duplicates, suggestions-only mode; rejections raise <code>TagRejected</code></li>
+			<li><strong>Keyboard</strong> — Enter/comma to commit, Backspace to remove, arrows to navigate suggestions, Escape to dismiss</li>
+			<li><strong>Paste-friendly</strong> — pasted comma-separated text is split into tags</li>
+			<li><strong>Theming</strong> — full CSS variable support via <code>--pd-taginput-*</code>, light/dark aware out of the box</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic Tag Input"
+					AnchorId="basic-taginput"
+					Code="@_example1Code"
+					Language="razor"
+					DemoStyle="min-height: 100px;">
+			<DemoContent>
+				<PDTagInput @bind-Values="_quickStartTags"
+							Suggestions="@(new[] { "Production", "Development", "Test" })" />
+			</DemoContent>
+			<Description>
+				<p>
+					Bind a <code>List&lt;string&gt;</code> with <code>@@bind-Values</code>. A new list instance
+					is supplied on every change, so plain property setters and change detection both work.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Values</code></td><td><code>List&lt;string&gt;</code></td><td>empty</td><td>The current tags; supports two-way binding via <code>@@bind-Values</code></td></tr>
+				<tr><td><code>Suggestions</code></td><td><code>IEnumerable&lt;string&gt;?</code></td><td>null</td><td>Autocomplete suggestions; already-added tags are not offered again</td></tr>
+				<tr><td><code>AllowFreeText</code></td><td><code>bool</code></td><td>true</td><td>Permit tags outside the suggestions list</td></tr>
+				<tr><td><code>AddOnBlur</code></td><td><code>bool</code></td><td>true</td><td>Commit pending typed text as a tag when the input loses focus (free text only)</td></tr>
+				<tr><td><code>CaseSensitive</code></td><td><code>bool</code></td><td>false</td><td>Case sensitivity for duplicate detection and suggestion matching</td></tr>
+				<tr><td><code>MaxTagLength</code></td><td><code>int</code></td><td>0</td><td>Maximum length of a single tag; zero means unlimited</td></tr>
+				<tr><td><code>MaxTags</code></td><td><code>int</code></td><td>0</td><td>Maximum number of tags; zero means unlimited</td></tr>
+				<tr><td><code>IsEnabled</code></td><td><code>bool</code></td><td>true</td><td>When false the input is hidden and tags cannot be changed</td></tr>
+				<tr><td><code>IsReadOnly</code></td><td><code>bool</code></td><td>false</td><td>Tags are displayed but cannot be added or removed</td></tr>
+				<tr><td><code>Placeholder</code></td><td><code>string</code></td><td>Add tag...</td><td>Placeholder text shown when no tags are present</td></tr>
+				<tr><td><code>TagTemplate</code></td><td><code>RenderFragment&lt;string&gt;?</code></td><td>null</td><td>Custom chip content; receives the tag text as context</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td>""</td><td>Additional CSS classes on the root element</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Event</th><th>Argument</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>ValuesChanged</code></td><td><code>List&lt;string&gt;</code></td><td>Fired whenever the tags change; a new list instance is supplied</td></tr>
+				<tr><td><code>TagAdded</code></td><td><code>string</code></td><td>Fired when a tag is added</td></tr>
+				<tr><td><code>TagRemoved</code></td><td><code>string</code></td><td>Fired when a tag is removed</td></tr>
+				<tr><td><code>TagRejected</code></td><td><code>TagRejectedEventArgs</code></td><td>Fired when an attempted tag is rejected; includes the tag and a <code>TagRejectionReason</code> (Duplicate, TooLong, MaxTagsReached, NotInSuggestions)</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="methods">
+		<h2 class="doc-section">Public Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>FocusAsync()</code></td><td><code>Task</code></td><td>Moves focus to the tag input element</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="keyboard">
+		<h2 class="doc-section">Keyboard Support</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Key</th><th>Action</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><kbd>Enter</kbd></td><td>Add the highlighted suggestion, or commit the typed text</td></tr>
+				<tr><td><kbd>,</kbd></td><td>Commit the typed text (pasted comma-separated lists are split)</td></tr>
+				<tr><td><kbd>Backspace</kbd></td><td>Remove the last tag when the input is empty</td></tr>
+				<tr><td><kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd></td><td>Open the suggestions dropdown and move the highlight</td></tr>
+				<tr><td><kbd>Escape</kbd></td><td>Close the suggestions dropdown</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="css-variables">
+		<h2 class="doc-section">CSS Variables</h2>
+		<p>
+			All colours default to Bootstrap theme variables, so the component follows light/dark mode
+			automatically. Override any variable on the component (inline <code>style</code>) or in a stylesheet.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>--pd-taginput-bg</code></td><td>--bs-body-bg</td><td>Background of the control</td></tr>
+				<tr><td><code>--pd-taginput-color</code></td><td>--bs-body-color</td><td>Text colour of the control</td></tr>
+				<tr><td><code>--pd-taginput-border-color</code></td><td>--bs-border-color</td><td>Border colour of the control</td></tr>
+				<tr><td><code>--pd-taginput-border-radius</code></td><td>0.375rem</td><td>Border radius of the control and dropdown</td></tr>
+				<tr><td><code>--pd-taginput-focus-border-color</code></td><td>#86b7fe</td><td>Border colour when focused</td></tr>
+				<tr><td><code>--pd-taginput-focus-shadow</code></td><td>Bootstrap focus ring</td><td>Box shadow when focused</td></tr>
+				<tr><td><code>--pd-taginput-invalid-border-color</code></td><td>--bs-danger</td><td>Border colour after a rejected tag</td></tr>
+				<tr><td><code>--pd-taginput-disabled-bg</code></td><td>--bs-secondary-bg</td><td>Background when disabled</td></tr>
+				<tr><td><code>--pd-taginput-readonly-bg</code></td><td>--bs-tertiary-bg</td><td>Background when read-only</td></tr>
+				<tr><td><code>--pd-taginput-gap</code></td><td>0.25rem</td><td>Gap between chips</td></tr>
+				<tr><td><code>--pd-taginput-min-height</code></td><td>form-control height</td><td>Minimum height of the control</td></tr>
+				<tr><td><code>--pd-taginput-padding</code></td><td>0.25rem 0.5rem</td><td>Padding of the control</td></tr>
+				<tr><td><code>--pd-taginput-placeholder-color</code></td><td>--bs-secondary-color</td><td>Placeholder text colour</td></tr>
+				<tr><td><code>--pd-taginput-tag-bg</code></td><td>--bs-primary-bg-subtle</td><td>Chip background</td></tr>
+				<tr><td><code>--pd-taginput-tag-color</code></td><td>--bs-primary-text-emphasis</td><td>Chip text colour</td></tr>
+				<tr><td><code>--pd-taginput-tag-border-color</code></td><td>--bs-primary-border-subtle</td><td>Chip border colour</td></tr>
+				<tr><td><code>--pd-taginput-tag-border-radius</code></td><td>0.25rem</td><td>Chip border radius (1rem makes pills)</td></tr>
+				<tr><td><code>--pd-taginput-tag-font-size</code></td><td>0.875em</td><td>Chip font size</td></tr>
+				<tr><td><code>--pd-taginput-tag-padding</code></td><td>0.1rem 0.4rem</td><td>Chip padding</td></tr>
+				<tr><td><code>--pd-taginput-remove-hover-bg</code></td><td>rgba(0,0,0,.15)</td><td>Remove button hover background</td></tr>
+				<tr><td><code>--pd-taginput-dropdown-bg</code></td><td>--bs-body-bg</td><td>Dropdown background</td></tr>
+				<tr><td><code>--pd-taginput-dropdown-color</code></td><td>--bs-body-color</td><td>Dropdown text colour</td></tr>
+				<tr><td><code>--pd-taginput-dropdown-border-color</code></td><td>--bs-border-color</td><td>Dropdown border colour</td></tr>
+				<tr><td><code>--pd-taginput-dropdown-hover-bg</code></td><td>--bs-tertiary-bg</td><td>Dropdown item hover background</td></tr>
+				<tr><td><code>--pd-taginput-dropdown-active-bg</code></td><td>--bs-primary</td><td>Highlighted dropdown item background</td></tr>
+				<tr><td><code>--pd-taginput-dropdown-active-color</code></td><td>#fff</td><td>Highlighted dropdown item text colour</td></tr>
+				<tr><td><code>--pd-taginput-dropdown-shadow</code></td><td>Bootstrap shadow</td><td>Dropdown box shadow</td></tr>
+				<tr><td><code>--pd-taginput-dropdown-max-height</code></td><td>14rem</td><td>Maximum dropdown height before scrolling</td></tr>
+				<tr><td><code>--pd-taginput-input-min-width</code></td><td>8ch</td><td>Minimum width of the inline text input</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+</div>

@@ -1,0 +1,164 @@
+/* ── CSS custom properties ─────────────────────────────────────────────── */
+.pd-taginput {
+	--pd-taginput-bg: var(--bs-body-bg, #fff);
+	--pd-taginput-color: var(--bs-body-color, #212529);
+	--pd-taginput-border-color: var(--bs-border-color, #dee2e6);
+	--pd-taginput-border-radius: 0.375rem;
+	--pd-taginput-focus-border-color: #86b7fe;
+	--pd-taginput-focus-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+	--pd-taginput-invalid-border-color: var(--bs-danger, #dc3545);
+	--pd-taginput-disabled-bg: var(--bs-secondary-bg, #e9ecef);
+	--pd-taginput-readonly-bg: var(--bs-tertiary-bg, #f8f9fa);
+	--pd-taginput-gap: 0.25rem;
+	--pd-taginput-min-height: calc(1.5em + 0.75rem + 2px);
+	--pd-taginput-padding: 0.25rem 0.5rem;
+	--pd-taginput-placeholder-color: var(--bs-secondary-color, #6c757d);
+	--pd-taginput-tag-bg: var(--bs-primary-bg-subtle, #cfe2ff);
+	--pd-taginput-tag-color: var(--bs-primary-text-emphasis, #052c65);
+	--pd-taginput-tag-border-color: var(--bs-primary-border-subtle, #9ec5fe);
+	--pd-taginput-tag-border-radius: 0.25rem;
+	--pd-taginput-tag-font-size: 0.875em;
+	--pd-taginput-tag-padding: 0.1rem 0.4rem;
+	--pd-taginput-remove-hover-bg: rgba(0, 0, 0, 0.15);
+	--pd-taginput-dropdown-bg: var(--bs-body-bg, #fff);
+	--pd-taginput-dropdown-color: var(--bs-body-color, #212529);
+	--pd-taginput-dropdown-border-color: var(--bs-border-color, #dee2e6);
+	--pd-taginput-dropdown-hover-bg: var(--bs-tertiary-bg, #f8f9fa);
+	--pd-taginput-dropdown-active-bg: var(--bs-primary, #0d6efd);
+	--pd-taginput-dropdown-active-color: #fff;
+	--pd-taginput-dropdown-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+	--pd-taginput-dropdown-max-height: 14rem;
+	--pd-taginput-input-min-width: 8ch;
+
+	position: relative;
+}
+
+/* ── Control (chips + input) ───────────────────────────────────────────── */
+.pd-taginput-control {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--pd-taginput-gap);
+	min-height: var(--pd-taginput-min-height);
+	padding: var(--pd-taginput-padding);
+	background: var(--pd-taginput-bg);
+	color: var(--pd-taginput-color);
+	border: 1px solid var(--pd-taginput-border-color);
+	border-radius: var(--pd-taginput-border-radius);
+	cursor: text;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.pd-taginput-control:focus-within {
+	border-color: var(--pd-taginput-focus-border-color);
+	box-shadow: var(--pd-taginput-focus-shadow);
+}
+
+.pd-taginput-control.pd-taginput--invalid {
+	border-color: var(--pd-taginput-invalid-border-color);
+}
+
+.pd-taginput-control.pd-taginput--disabled {
+	background: var(--pd-taginput-disabled-bg);
+	cursor: not-allowed;
+	opacity: 0.65;
+}
+
+.pd-taginput-control.pd-taginput--readonly {
+	background: var(--pd-taginput-readonly-bg);
+	cursor: default;
+}
+
+/* ── Tag chips ─────────────────────────────────────────────────────────── */
+.pd-taginput-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	max-width: 100%;
+	padding: var(--pd-taginput-tag-padding);
+	background: var(--pd-taginput-tag-bg);
+	color: var(--pd-taginput-tag-color);
+	border: 1px solid var(--pd-taginput-tag-border-color);
+	border-radius: var(--pd-taginput-tag-border-radius);
+	font-size: var(--pd-taginput-tag-font-size);
+	line-height: 1.4;
+	user-select: none;
+}
+
+.pd-taginput-tag-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pd-taginput-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1rem;
+	height: 1rem;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 50%;
+	color: inherit;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.pd-taginput-remove:hover {
+	background: var(--pd-taginput-remove-hover-bg);
+}
+
+/* ── Inline text input ─────────────────────────────────────────────────── */
+.pd-taginput-input {
+	flex: 1;
+	min-width: var(--pd-taginput-input-min-width);
+	padding: 0;
+	background: transparent;
+	border: none;
+	outline: none;
+	color: inherit;
+	font: inherit;
+}
+
+.pd-taginput-input::placeholder {
+	color: var(--pd-taginput-placeholder-color);
+	opacity: 1;
+}
+
+/* ── Suggestions dropdown ──────────────────────────────────────────────── */
+.pd-taginput-dropdown {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	z-index: 1050;
+	margin: 0.125rem 0 0;
+	padding: 0.25rem 0;
+	list-style: none;
+	background: var(--pd-taginput-dropdown-bg);
+	color: var(--pd-taginput-dropdown-color);
+	border: 1px solid var(--pd-taginput-dropdown-border-color);
+	border-radius: var(--pd-taginput-border-radius);
+	box-shadow: var(--pd-taginput-dropdown-shadow);
+	max-height: var(--pd-taginput-dropdown-max-height);
+	overflow-y: auto;
+}
+
+.pd-taginput-dropdown li {
+	padding: 0.25rem 0.75rem;
+	cursor: pointer;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pd-taginput-dropdown li:hover {
+	background: var(--pd-taginput-dropdown-hover-bg);
+}
+
+.pd-taginput-dropdown li.active {
+	background: var(--pd-taginput-dropdown-active-bg);
+	color: var(--pd-taginput-dropdown-active-color);
+}

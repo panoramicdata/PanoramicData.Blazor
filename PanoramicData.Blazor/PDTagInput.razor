@@ -1,0 +1,70 @@
+@{
+	var stateClasses = (IsEnabled ? string.Empty : " pd-taginput--disabled")
+		+ (IsReadOnly ? " pd-taginput--readonly" : string.Empty)
+		+ (_isInvalid ? " pd-taginput--invalid" : string.Empty);
+}
+
+<div id="@Id" class="pd-taginput @CssClass" @attributes="AdditionalAttributes">
+
+	<div class="pd-taginput-control@(stateClasses)" @onclick="OnContainerClickAsync">
+
+		@foreach (var tag in _values)
+		{
+			<span class="pd-taginput-tag" title="@tag">
+				@if (TagTemplate is not null)
+				{
+					@TagTemplate(tag)
+				}
+				else
+				{
+					<span class="pd-taginput-tag-label">@tag</span>
+				}
+				@if (IsEnabled && !IsReadOnly)
+				{
+					<button type="button"
+							class="pd-taginput-remove"
+							aria-label="@($"Remove {tag}")"
+							tabindex="-1"
+							@onclick="() => RemoveTagAsync(tag)"
+							@onclick:stopPropagation>
+						<svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+							<path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+						</svg>
+					</button>
+				}
+			</span>
+		}
+
+		@if (IsEnabled && !IsReadOnly)
+		{
+			<input type="text"
+				   class="pd-taginput-input"
+				   value="@_text"
+				   placeholder="@(_values.Count == 0 ? Placeholder : string.Empty)"
+				   @oninput="OnInputAsync"
+				   @onkeydown="OnKeyDownAsync"
+				   @onfocus="OnFocus"
+				   @onblur="OnBlurAsync"
+				   @ref="_inputRef" />
+		}
+	</div>
+
+	@if (_showDropdown && _filteredSuggestions.Count > 0)
+	{
+		<ul class="pd-taginput-dropdown" role="listbox">
+			@for (var i = 0; i < _filteredSuggestions.Count; i++)
+			{
+				var suggestion = _filteredSuggestions[i];
+				var index = i;
+				<li class="@(index == _activeIndex ? "active" : null)"
+					role="option"
+					aria-selected="@(index == _activeIndex)"
+					@onmousedown:preventDefault
+					@onclick="() => OnSuggestionClickAsync(suggestion)"
+					@onmouseover="() => _activeIndex = index">
+					@suggestion
+				</li>
+			}
+		</ul>
+	}
+</div>
