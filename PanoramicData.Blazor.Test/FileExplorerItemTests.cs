@@ -130,6 +130,21 @@ public class FileExplorerItemTests
     [InlineData("/Web HTML Only.docx", "*.html;*.htm", false)]
     [InlineData("/file.html.bak", "*.html", false)]        // extension is .bak not .html
     [InlineData("/file.xlsx", "*.html;*.htm", false)]
+    [InlineData("/file.ncalc", ".ncalc", true)]             // bare extension means *.ncalc
+    [InlineData("/folder/file.NCALC", ".ncalc", true)]      // bare extension, case-insensitive, path with folder
+    [InlineData("/file.txt", ".ncalc", false)]
+    [InlineData("/myncalc.txt", ".ncalc", false)]           // name contains "ncalc" but wrong extension
+    [InlineData("/file.docx", ".docx$", true)]              // legacy regex-style end anchor
+    [InlineData("/file.rmscript", ".docx$;.rmscript$", true)]
+    [InlineData("/file.txt", ".docx$;.rmscript$", false)]
+    [InlineData("/Web HTML Only.docx", ".html$", false)]    // legacy anchor still must not match wrong extension
+    [InlineData("/file.html", "*.html;", true)]             // trailing semicolon ignored
+    [InlineData("/file.xlsx", "*.html;", false)]            // empty segment must not match all
+    [InlineData("/file.html", "*.html; *.htm", true)]       // whitespace around segments ignored
+    [InlineData("/readme.txt", "readme.txt", true)]         // exact filename
+    [InlineData("/myreadme.txt", "readme.txt", false)]      // exact filename must not suffix-match
+    [InlineData("/file1.txt", "file?.txt", true)]           // single-char wildcard
+    [InlineData("/file12.txt", "file?.txt", false)]
     public void WhenCheckingIsNameMatchThenReturnsCorrectResult(string path, string pattern, bool expected)
     {
         var item = new FileExplorerItem { Path = path };

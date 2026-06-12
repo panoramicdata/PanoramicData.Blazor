@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - Added PDTagInput: a tag input component rendering values as removable chips, with optional autocomplete suggestions, free-text entry, validation limits (MaxTags, MaxTagLength, suggestions-only mode) and full keyboard support. Supports two-way binding via @bind-Values (List of string), TagAdded/TagRemoved/TagRejected events, a custom TagTemplate, and theming via --pd-taginput-* CSS variables (light/dark aware via Bootstrap theme variables)
+      - FileExplorerItem.IsNameMatch: restored backward compatibility for pre-10.0.145 filename patterns while keeping the anchored glob fix. A bare extension such as ".docx" is now treated as "*.docx", a legacy trailing '$' regex end-anchor is ignored, and empty/whitespace pattern segments are skipped instead of matching everything
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

@@ -188,7 +188,8 @@ public class FileExplorerItem : IComparable
 	/// <summary>
 	/// Is the file item name a match with any of the given wild card patterns?
 	/// </summary>
-	/// <param name="pattern">A search pattern containing * (match 0 or more chars) and ? (match 1 char).</param>
+	/// <param name="pattern">One or more semicolon-delimited search patterns containing * (match 0 or more chars) and ? (match 1 char).
+	/// A bare extension such as ".docx" is treated as "*.docx"; a trailing '$' (legacy regex end-anchor) is ignored.</param>
 	/// <returns>true if the name is a match, otherwise false.</returns>
 	public bool IsNameMatch(string pattern)
 	{
@@ -203,10 +204,19 @@ public class FileExplorerItem : IComparable
 		// match any provided pattern?
 		// Regex.Escape handles literal dots/special chars; then restore wildcards; anchor so *.html doesn't match foo.html.bak
 		return pattern
-			.Split(';')
+			.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
 			.Any(x =>
 			{
-				var regexPattern = "^" + Regex.Escape(x).Replace(@"\*", ".*").Replace(@"\?", ".") + "$";
+				// pre-v10.0.145 patterns were raw regex, so callers passed a trailing '$' end-anchor; anchoring is now implicit
+				var glob = x.EndsWith('$') ? x[..^1] : x;
+
+				// a bare extension such as ".docx" means "*.docx"
+				if (glob.StartsWith('.') && !glob.Contains('*') && !glob.Contains('?'))
+				{
+					glob = "*" + glob;
+				}
+
+				var regexPattern = "^" + Regex.Escape(glob).Replace(@"\*", ".*").Replace(@"\?", ".") + "$";
 				return Regex.IsMatch(name, regexPattern, RegexOptions.IgnoreCase);
 			});
 	}
