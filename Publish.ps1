@@ -64,24 +64,16 @@ if ($behind -gt 0)
 	throw "Local branch is behind origin/main by $behind commit(s)."
 }
 
-# Get version from Nerdbank.GitVersioning
-$versionJsonText = $null
-if (Get-Command nbgv -ErrorAction SilentlyContinue)
+# Get version from Nerdbank.GitVersioning via the project's MSBuild targets (the
+# referenced NuGet package), so this does not depend on the global 'nbgv' CLI tool.
+$project = Join-Path $PSScriptRoot 'PanoramicData.Blazor/PanoramicData.Blazor.csproj'
+$buildOutput = dotnet build $project -t:GetBuildVersion --getProperty:NuGetPackageVersion -nologo -v:quiet -p:TreatWarningsAsErrors=false
+if ($LASTEXITCODE -ne 0)
 {
-	$versionJsonText = (& nbgv get-version -f json)
-}
-else
-{
-	$versionJsonText = (& dotnet nbgv get-version -f json)
+	throw "Failed to determine version from Nerdbank.GitVersioning.`n$buildOutput"
 }
 
-if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($versionJsonText))
-{
-	throw "Failed to get version from Nerdbank.GitVersioning. Ensure 'nbgv' or 'dotnet nbgv' is available."
-}
-
-$versionJson = $versionJsonText | ConvertFrom-Json
-$version = ConvertTo-TrimmedString $versionJson.NuGetPackageVersion
+$version = ConvertTo-TrimmedString ($buildOutput | Select-Object -Last 1)
 if ([string]::IsNullOrWhiteSpace($version))
 {
 	throw "NuGetPackageVersion was empty."
