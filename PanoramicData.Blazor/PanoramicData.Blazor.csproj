@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - FileExplorerItem.IsNameMatch: restored backward compatibility for pre-10.0.145 filename patterns while keeping the anchored glob fix. A bare extension such as ".docx" is now treated as "*.docx", a legacy trailing '$' regex end-anchor is ignored, and empty/whitespace pattern segments are skipped instead of matching everything
+      - PDChat: circuit-teardown exceptions (TaskCanceledException / JSDisconnectedException) from the playSound JS interop in OnMessageReceived are no longer surfaced as Blazor's "An unhandled error has occurred". The async void handler now swallows teardown-only exceptions while still letting genuine errors surface
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

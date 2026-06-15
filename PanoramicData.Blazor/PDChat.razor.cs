@@ -172,7 +172,25 @@ public partial class PDChat : JSModuleComponentBase
 		_ = InvokeAsync(StateHasChanged);
 	}
 
+	// This is an async void method because it is a synchronous event handler for
+	// ChatService.OnMessageReceived. Exceptions thrown here cannot be observed by the caller and
+	// would otherwise be posted to the renderer's synchronization context, surfacing as Blazor's
+	// "An unhandled error has occurred". During circuit teardown (page navigation or a dropped
+	// WebSocket) the JS interop calls below throw TaskCanceledException / JSDisconnectedException,
+	// so those teardown exceptions are swallowed here rather than crashing the circuit. See MS-24383.
 	private async void OnMessageReceived(ChatMessage message)
+	{
+		try
+		{
+			await OnMessageReceivedAsync(message);
+		}
+		catch (Exception ex) when (ex is JSDisconnectedException or OperationCanceledException or ObjectDisposedException)
+		{
+			// Expected when the Blazor circuit / JS runtime is being torn down; nothing to do.
+		}
+	}
+
+	private async Task OnMessageReceivedAsync(ChatMessage message)
 	{
 		var existing = _messages.FirstOrDefault(m => m.Id == message.Id);
 		var isNewMessage = existing == null;
@@ -230,13 +248,17 @@ public partial class PDChat : JSModuleComponentBase
 
 		// Get the sound to play, if any
 		var soundUrlString = SoundSelector?.Invoke(message);
-		if (!string.IsNullOrWhiteSpace(soundUrlString) && !_isMuted)
+		if (!string.IsNullOrWhiteSpace(soundUrlString) && !_isMuted && Module is not null)
 		{
-			var soundUrl = new Uri(soundUrlString, UriKind.RelativeOrAbsolute);
-			// Play the sound
-			if (Module is not null)
+			try
 			{
+				// Play the sound
 				await Module.InvokeVoidAsync("playSound", soundUrlString).ConfigureAwait(true);
+			}
+			catch (Exception ex) when (ex is JSDisconnectedException or OperationCanceledException or ObjectDisposedException)
+			{
+				// The circuit / JS runtime is gone (e.g. the tab was closed). Ignore and continue
+				// so the remaining state update is still attempted. See MS-24383.
 			}
 		}
 
@@ -407,10 +429,7 @@ public partial class PDChat : JSModuleComponentBase
 		_currentInput = string.Empty;
 
 		// Clear the PDMessages component's textarea
-		if (_messagesComponent is not null)
-		{
-			_messagesComponent.ClearInput();
-		}
+		_messagesComponent?.ClearInput();
 	}
 
 	private bool CanSend => ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);
