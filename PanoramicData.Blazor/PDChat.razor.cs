@@ -488,10 +488,28 @@ public partial class PDChat : JSModuleComponentBase
 			return;
 		}
 
+		// Rank by severity explicitly rather than relying on the raw MessageType enum order.
+		// The enum's numeric order is not a severity order: Success = 5 is the highest value,
+		// so a plain .Max() would let a success message mask an unread warning/error/critical.
 		_highestPriorityUnreadMessage = unreadNonTypingMessages
 			.Select(m => m.Type)
-			.Max(); // MessageType enum values are ordered by priority
+			.OrderByDescending(GetSeverityRank)
+			.First();
 	}
+
+	// Maps a message type to a severity rank (higher = more severe) so the minimized badge
+	// reflects the worst unread message. Deliberately independent of the MessageType enum's
+	// numeric values, which are not ordered by severity (Success is the highest enum value).
+	private static int GetSeverityRank(MessageType type) => type switch
+	{
+		MessageType.Critical => 5,
+		MessageType.Error => 4,
+		MessageType.Warning => 3,
+		MessageType.Normal => 2,
+		MessageType.Success => 1,
+		MessageType.Typing => 0,
+		_ => 0,
+	};
 
 	// Helper method to get the bootstrap color class based on message priority
 	private string GetBootstrapColorClass()

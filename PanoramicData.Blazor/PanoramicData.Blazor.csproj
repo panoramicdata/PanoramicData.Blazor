@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChat: circuit-teardown exceptions (TaskCanceledException / JSDisconnectedException) from the playSound JS interop in OnMessageReceived are no longer surfaced as Blazor's "An unhandled error has occurred". The async void handler now swallows teardown-only exceptions while still letting genuine errors surface
+      - PDChat: the minimized badge now reflects the most severe unread message. Severity is ranked explicitly (Critical &gt; Error &gt; Warning &gt; Normal &gt; Success) instead of relying on the MessageType enum's numeric order, so a Success message no longer masks an unread Warning, Error or Critical
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
