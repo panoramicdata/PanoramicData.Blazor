@@ -10,5 +10,10 @@
     <Authors>Panoramic Data Limited</Authors>
     <Company>Panoramic Data Limited</Company>
     <NuGetAuditMode>All</NuGetAuditMode>
+    <!-- Keep auditing on, but don't fail the build on low/moderate transitive-dependency advisories
+         (they remain visible as warnings). High (NU1903) and critical (NU1904) still break the build.
+         Currently covers NCalc.Core / NCalcSync 5.12.0 pulled in by PanoramicData.NCalcExtensions in the
+         demo app only (GHSA-3w5p-95mh-gq75); the shipped PanoramicData.Blazor package is unaffected. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902</WarningsNotAsErrors>
   </PropertyGroup>
 </Project>
