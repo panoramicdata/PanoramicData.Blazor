@@ -1,0 +1,135 @@
+@page "/pdcolumngrouper"
+@using PanoramicData.Blazor.Demo.Data
+
+<h1>PDColumnGrouper</h1>
+
+<style>
+	.pdcg-branded {
+		--pd-cg-active-bg: #0d9488;
+		--pd-cg-active-fg: #ffffff;
+		--pd-cg-idle-fg: #0f766e;
+		--pd-cg-idle-border: #99f6e4;
+		--pd-cg-hover-bg: #f0fdfa;
+		--pd-cg-count-bg: #ccfbf1;
+		--pd-cg-active-count-bg: rgba(255, 255, 255, 0.3);
+		--pd-cg-radius: 0.375rem;
+		--pd-cg-font-size: 0.72rem;
+	}
+
+	.pdcg-branded .pdcg-text {
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+</style>
+
+<DemoSourceView SourceFiles="Pages/PDColumnGrouperPage.razor, Pages/PDColumnGrouperPage.razor.cs">
+	<DocumentationContent>
+		<PDColumnGrouperDocumentation />
+	</DocumentationContent>
+	<ChildContent>
+
+		<h4>Default styling</h4>
+		<div class="d-flex align-items-center gap-3 mb-2">
+			<div>
+				<label class="form-label mb-0 me-1">Variant:</label>
+				<select class="form-select form-select-sm d-inline-block w-auto" @bind="_variant">
+					<option value="@PDColumnGroupVariant.Segmented">Segmented</option>
+					<option value="@PDColumnGroupVariant.Pills">Pills</option>
+				</select>
+			</div>
+			<PDToggleSwitch @bind-Value="_showCounts" Label="Show counts" />
+			<span class="text-muted small">Last name and First name are ungrouped, so they stay pinned across every facet.</span>
+		</div>
+
+		<div class="d-flex justify-content-center mb-2">
+			<PDColumnGrouper TItem="Person"
+							 Table="_table"
+							 Variant="_variant"
+							 ShowCounts="_showCounts" />
+		</div>
+
+		<PDTable @ref="_table"
+				 TItem="Person"
+				 DataProvider="_personDataProvider"
+				 Id="ColumnGrouperTable"
+				 KeyField="x => x.Id"
+				 PageCriteria="_pageCriteria"
+				 PagerPosition="PagerPositions.Top"
+				 SortCriteria="_sortCriteria"
+				 PageSizeChoices="new uint[] { 10, 20, 50 }">
+			@RenderPersonColumns()
+		</PDTable>
+
+		<hr class="my-4" />
+
+		<h4>Custom CSS</h4>
+		<p class="text-muted small mb-2">
+			The same component, restyled by overriding its <code>--pd-cg-*</code> CSS variables on a custom class
+			(<code>pdcg-branded</code>) passed via <code>CssClass</code> &mdash; teal accent, squared-off pills and
+			upper-cased labels. No component changes, just CSS, and it works at single-class specificity because the
+			component only ever reads the public variables.
+		</p>
+
+		<div class="d-flex justify-content-center mb-2">
+			<PDColumnGrouper TItem="Person"
+							 Table="_brandedTable"
+							 Variant="PDColumnGroupVariant.Pills"
+							 ShowCounts="true"
+							 CssClass="pdcg-branded" />
+		</div>
+
+		<PDTable @ref="_brandedTable"
+				 TItem="Person"
+				 DataProvider="_brandedDataProvider"
+				 Id="ColumnGrouperBrandedTable"
+				 KeyField="x => x.Id"
+				 PageCriteria="_brandedPageCriteria"
+				 PagerPosition="PagerPositions.Top"
+				 SortCriteria="_brandedSortCriteria"
+				 PageSizeChoices="new uint[] { 5, 10 }">
+			@RenderPersonColumns()
+		</PDTable>
+
+	</ChildContent>
+</DemoSourceView>
+
+@code {
+	// Shared column definitions, rendered into both tables. Each table builds its own column / group
+	// instances from this fragment via its cascading Table reference.
+	private RenderFragment RenderPersonColumns()
+	{
+		RenderFragment fragment =
+			@<text>
+				@* Ungrouped / pinned identity columns - always shown regardless of the active facet *@
+				<PDColumn TItem="Person" Field="x => x.LastName" Filterable="true" />
+				<PDColumn TItem="Person" Field="x => x.FirstName" Filterable="true" />
+
+				<PDColumnGroup Name="Identity" Icon="fas fa-id-card" Ordinal="10">
+					<PDColumn TItem="Person" Field="x => x.Initials" />
+					<PDColumn TItem="Person" Field="x => x.Email" Filterable="true" TdClass="text-nowrap" />
+					<PDColumn TItem="Person" Field="x => x.Username" />
+				</PDColumnGroup>
+
+				<PDColumnGroup Name="Contact" Icon="fas fa-phone" Ordinal="20">
+					<PDColumn TItem="Person" Field="x => x.MobileTel" Title="Mobile" />
+					<PDColumn TItem="Person" Field="x => x.HomeTel" Title="Home" />
+					<PDColumn TItem="Person" Field="x => x.WorkTel" Title="Work" />
+				</PDColumnGroup>
+
+				<PDColumnGroup Name="Employment" Icon="fas fa-briefcase" Ordinal="30">
+					<PDColumn TItem="Person" Field="x => x.Department" Filterable="true" />
+					<PDColumn TItem="Person" Field="x => x.Location" Filterable="true" />
+					<PDColumn TItem="Person" Field="x => x.Target" Title="Target" Format="C0" />
+					<PDColumn TItem="Person" Field="x => x.IsFirstAider" Title="First aider?" />
+				</PDColumnGroup>
+
+				<PDColumnGroup Name="Dates" Icon="fas fa-calendar" Ordinal="40">
+					<PDColumn TItem="Person" Field="x => x.Dob" Title="Date of birth" Format="yyyy-MM-dd" />
+					<PDColumn TItem="Person" Field="x => x.DateCreated" Title="Created" Format="yyyy-MM-dd" />
+					<PDColumn TItem="Person" Field="x => x.DateModified" Title="Modified" Format="yyyy-MM-dd" />
+				</PDColumnGroup>
+			</text>;
+
+		return fragment;
+	}
+}

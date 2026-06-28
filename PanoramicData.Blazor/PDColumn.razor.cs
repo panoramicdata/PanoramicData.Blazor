@@ -283,6 +283,15 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public string Name { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Gets or sets the name of the column group this column belongs to, used by
+	/// <see cref="PDColumnGrouper{TItem}"/> facets. A null or empty value means the column is ungrouped
+	/// and is always shown regardless of the active facet.
+	/// </summary>
+	/// <remarks>When this column is wrapped in a <see cref="PDColumnGroup"/> the group name is inherited
+	/// automatically; an explicit value set here takes precedence.</remarks>
+	[Parameter] public string? Group { get; set; }
+
+	/// <summary>
 	/// Gets a function that returns available value choices.
 	/// </summary>
 	[Parameter] public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
@@ -417,6 +426,18 @@ public partial class PDColumn<TItem> where TItem : class
 	public PDTable<TItem> Table { get; set; } = null!;
 
 	/// <summary>
+	/// Optional enclosing column group metadata supplied by a <see cref="PDColumnGroup"/> wrapper.
+	/// </summary>
+	[CascadingParameter(Name = "ColumnGroup")]
+	private ColumnGroupContext? GroupContext { get; set; }
+
+	/// <summary>
+	/// Gets the effective column group name: an explicit <see cref="Group"/> if set, otherwise the name
+	/// inherited from an enclosing <see cref="PDColumnGroup"/>. Null or empty means the column is ungrouped.
+	/// </summary>
+	public string? GroupName => !string.IsNullOrEmpty(Group) ? Group : GroupContext?.Name;
+
+	/// <summary>
 	/// Optional CSS class for the column cell.
 	/// </summary>
 	[Parameter] public string? TdClass { get; set; }
@@ -499,6 +520,12 @@ public partial class PDColumn<TItem> where TItem : class
 		// default state
 		State.Visible = IsVisible;
 		State.Ordinal = Ordinal;
+
+		// register any column group metadata declared via an enclosing PDColumnGroup
+		if (GroupContext is not null)
+		{
+			Table.RegisterColumnGroup(GroupContext);
+		}
 
 		// register with table
 		await Table.AddColumnAsync(this).ConfigureAwait(true);

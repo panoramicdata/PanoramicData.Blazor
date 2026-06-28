@@ -1,0 +1,28 @@
+@typeparam TItem
+@inherits PDComponentBase
+
+@if (IsVisible)
+{
+	<div id="@Id"
+		 class="pd-column-grouper @VariantCssClass @CssClass"
+		 role="group">
+		@foreach (var pill in GetRenderPills())
+		{
+			<button type="button"
+					class="pdcg-pill @(IsActive(pill.Group) ? $"active {ActivePillCssClass}" : "") @PillCssClass"
+					title="@pill.Description"
+					disabled="@(!IsEnabled)"
+					@onclick="() => OnPillClicked(pill.Group)">
+				@if (!string.IsNullOrEmpty(pill.Icon))
+				{
+					<i class="pdcg-icon @pill.Icon @IconCssClass" aria-hidden="true"></i>
+				}
+				<span class="pdcg-text @TextCssClass">@pill.Text</span>
+				@if (ShowCounts)
+				{
+					<span class="pdcg-count">@pill.Count</span>
+				}
+			</button>
+		}
+	</div>
+}
