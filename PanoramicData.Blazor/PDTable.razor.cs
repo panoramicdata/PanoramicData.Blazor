@@ -453,7 +453,8 @@ public partial class PDTable<TItem> :
 				?? Columns;
 
 			return [.. columns
-				.Where(c => c.ShowInList && c.State.Visible)
+				.Where(c => c.ShowInList && c.State.Visible
+					&& ColumnGroupHelper.IsInActiveGroup(c.GroupName, ActiveColumnGroup))
 				.OrderBy(c => c.State.Ordinal)];
 		}
 	}
@@ -529,12 +530,66 @@ public partial class PDTable<TItem> :
 			}
 
 			StateHasChanged();
+			GroupsChanged?.Invoke(this, EventArgs.Empty);
 		}
 		catch (Exception ex)
 		{
 			await HandleExceptionAsync(ex).ConfigureAwait(false);
 		}
 	}
+
+	#region Column groups
+
+	/// <summary>
+	/// Gets the column groups registered via <see cref="PDColumnGroup"/> wrappers, in registration order.
+	/// </summary>
+	public List<ColumnGroupContext> ColumnGroups { get; } = [];
+
+	/// <summary>
+	/// Gets the active column group facet, or null when all groups are shown. This is transient view state
+	/// and is intentionally not persisted with column visibility.
+	/// </summary>
+	public string? ActiveColumnGroup { get; private set; }
+
+	/// <summary>
+	/// Raised when a column or column group is registered, so a <see cref="PDColumnGrouper{TItem}"/> can
+	/// refresh its facets.
+	/// </summary>
+	public event EventHandler? GroupsChanged;
+
+	/// <summary>
+	/// Sets the active column group facet. Columns whose group does not match are hidden; ungrouped columns
+	/// remain visible. Pass null or empty to show all groups.
+	/// </summary>
+	/// <param name="group">The group to show, or null/empty for all.</param>
+	public void SetActiveColumnGroup(string? group)
+	{
+		ActiveColumnGroup = string.IsNullOrEmpty(group) ? null : group;
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Registers column group metadata (icon, order, tooltip) declared by a <see cref="PDColumnGroup"/>.
+	/// Ignored when a group with the same name is already registered.
+	/// </summary>
+	/// <param name="context">The column group metadata to register.</param>
+	public void RegisterColumnGroup(ColumnGroupContext context)
+	{
+		ArgumentNullException.ThrowIfNull(context);
+
+		if (string.IsNullOrEmpty(context.Name))
+		{
+			return;
+		}
+
+		if (!ColumnGroups.Any(g => string.Equals(g.Name, context.Name, StringComparison.Ordinal)))
+		{
+			ColumnGroups.Add(context);
+			GroupsChanged?.Invoke(this, EventArgs.Empty);
+		}
+	}
+
+	#endregion
 
 	/// <summary>
 	/// Cancels the current operation.

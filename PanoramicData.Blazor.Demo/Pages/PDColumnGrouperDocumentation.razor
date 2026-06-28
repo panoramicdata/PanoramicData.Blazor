@@ -1,0 +1,118 @@
+<div class="pd-column-grouper-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDColumnGrouper</code> renders a single-select set of facet pills for the column groups of a
+			<code>PDTable</code>. Selecting a facet shows only that group's columns (plus any ungrouped, pinned
+			columns) and hides the rest &mdash; ideal for wide tables with dozens of columns where the column
+			chooser dropdown becomes unwieldy.
+		</p>
+		<p>
+			It is a transient view filter: it does not change, overwrite or persist the per-column visibility
+			owned by the column chooser. The two compose &mdash; the chooser decides which columns are yours, the
+			grouper decides which facet you are looking at right now.
+		</p>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+		<p>Declare groups with <code>PDColumnGroup</code>, then place a <code>PDColumnGrouper</code> anywhere and
+			point it at the table's <code>@@ref</code>. Columns left outside a group are always shown.</p>
+		<pre class="border rounded p-3 bg-light"><code>&lt;PDColumnGrouper TItem="Device" Table="_table" Variant="PDColumnGroupVariant.Segmented" ShowCounts="true" /&gt;
+
+&lt;PDTable @@ref="_table" TItem="Device" ...&gt;
+
+    &lt;PDColumn Field="x =&gt; x.Name" /&gt;            @* ungrouped - always shown *@
+
+    &lt;PDColumnGroup Name="Meraki stats" Icon="fas fa-chart-bar" Ordinal="30"&gt;
+        &lt;PDColumn Field="x =&gt; x.Latency" IsVisible="false" /&gt;
+        &lt;PDColumn Field="x =&gt; x.Loss" IsVisible="false" /&gt;
+    &lt;/PDColumnGroup&gt;
+
+&lt;/PDTable&gt;</code></pre>
+		<p class="text-muted small">
+			Because the table is supplied via <code>@@ref</code> (assigned after the first render), call
+			<code>StateHasChanged()</code> once in <code>OnAfterRender(firstRender)</code> on the host page so the
+			grouper picks up the reference. After that it refreshes itself as columns register.
+		</p>
+	</section>
+
+	<section id="variants">
+		<h2 class="doc-section">Variants and options</h2>
+		<p>
+			Two visual styles are provided via <code>Variant</code>: <code>Segmented</code> (a joined control,
+			the default) and <code>Pills</code> (separated, rounded pills). A per-group <code>Icon</code> and the
+			<code>ShowCounts</code> flag are independent options that work with either variant. The active facet
+			uses the Bootstrap primary colour and everything is overridable with CSS variables
+			(<code>--pd-cg-active-bg</code>, <code>--pd-cg-idle-fg</code>, <code>--pd-cg-idle-border</code>, &hellip;),
+			working in light and dark mode and on older Bootstrap versions.
+		</p>
+	</section>
+
+	<section id="custom-styling">
+		<h2 class="doc-section">Custom styling</h2>
+		<p>
+			Override the public <code>--pd-cg-*</code> variables on a class passed via <code>CssClass</code>. The
+			component only ever <em>reads</em> these variables (falling back to its theme defaults), so a
+			single-class override takes effect without any specificity battle. The demo's "Custom CSS" example uses:
+		</p>
+		<pre class="border rounded p-3 bg-light"><code>.pdcg-branded {
+    --pd-cg-active-bg: #0d9488;
+    --pd-cg-idle-fg: #0f766e;
+    --pd-cg-idle-border: #99f6e4;
+    --pd-cg-radius: 0.375rem;   /* squared-off pills */
+}</code></pre>
+		<p class="text-muted small mb-0">
+			Variables: <code>--pd-cg-active-bg</code>, <code>--pd-cg-active-fg</code>, <code>--pd-cg-idle-fg</code>,
+			<code>--pd-cg-idle-bg</code>, <code>--pd-cg-idle-border</code>, <code>--pd-cg-hover-bg</code>,
+			<code>--pd-cg-count-bg</code>, <code>--pd-cg-active-count-bg</code>, <code>--pd-cg-radius</code>,
+			<code>--pd-cg-segmented-radius</code>, <code>--pd-cg-gap</code>, <code>--pd-cg-font-size</code>. For
+			structural changes use the <code>PillCssClass</code> / <code>ActivePillCssClass</code> /
+			<code>TextCssClass</code> / <code>IconCssClass</code> hooks.
+		</p>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">PDColumnGrouper parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Table</code></td><td><code>PDTable&lt;TItem&gt;</code></td><td>The target table (supply its <code>@@ref</code>). Required.</td></tr>
+				<tr><td><code>Variant</code></td><td><code>PDColumnGroupVariant</code></td><td><code>Segmented</code> (default) or <code>Pills</code>.</td></tr>
+				<tr><td><code>ShowCounts</code></td><td><code>bool</code></td><td>Show a column count badge on each facet. Default <code>false</code>.</td></tr>
+				<tr><td><code>ShowAllPill</code></td><td><code>bool</code></td><td>Show a leading "all columns" facet. Default <code>true</code>.</td></tr>
+				<tr><td><code>AllText</code></td><td><code>string</code></td><td>Label for the "all columns" facet. Default <code>"All"</code>.</td></tr>
+				<tr><td><code>AllIcon</code></td><td><code>string?</code></td><td>Optional icon for the "all columns" facet.</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string?</code></td><td>Classes for the root element (e.g. <code>d-flex justify-content-center</code>).</td></tr>
+				<tr><td><code>PillCssClass</code></td><td><code>string?</code></td><td>Extra classes for every pill.</td></tr>
+				<tr><td><code>ActivePillCssClass</code></td><td><code>string?</code></td><td>Extra classes for the active pill.</td></tr>
+				<tr><td><code>TextCssClass</code></td><td><code>string?</code></td><td>Extra classes for the pill text.</td></tr>
+				<tr><td><code>IconCssClass</code></td><td><code>string?</code></td><td>Extra classes for the pill icon.</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="group-parameters">
+		<h2 class="doc-section">PDColumnGroup parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Name</code></td><td><code>string</code></td><td>Unique group name and pill label. Required.</td></tr>
+				<tr><td><code>Icon</code></td><td><code>string?</code></td><td>Optional icon CSS class for the pill.</td></tr>
+				<tr><td><code>Ordinal</code></td><td><code>int</code></td><td>Pill order, lower first. Default <code>1000</code>.</td></tr>
+				<tr><td><code>Description</code></td><td><code>string?</code></td><td>Optional pill tooltip.</td></tr>
+			</tbody>
+		</table>
+		<p class="text-muted small">
+			Alternatively set <code>Group="..."</code> directly on a <code>PDColumn</code> instead of wrapping it
+			&mdash; useful for one-off columns. An explicit <code>Group</code> takes precedence over a wrapping
+			<code>PDColumnGroup</code>.
+		</p>
+	</section>
+
+</div>

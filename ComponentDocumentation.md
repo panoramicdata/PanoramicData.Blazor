@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-06-05 11:03:38
+Generated on: 2026-06-28 11:44:42
 
 ## PDAnimation
 
@@ -324,6 +324,7 @@ This component has no public parameters.
 | FilterShowSuggestedValues | bool | Gets or sets whether to show suggested values in the filter. |
 | FilterShowSelectAll | bool | Gets or sets whether to show the select all / deselect all row in the filter values list. |
 | FilterSuggestedValues | IEnumerable<object> | Gets or sets the suggested values for the filter. |
+| FilterValueDisplayFunc | Func<string, string>? | Gets or sets a function that transforms a raw filter value into a display label. The raw value is still used for filtering; only the displayed text changes. |
 | FilterMaxValues | int? | Gets or sets the maximum number of values to show in the filter. |
 | HeaderTemplate | RenderFragment? | Gets or sets an HTML template for the header content. |
 | Helper | FormFieldHelper<TItem>? | Gets or sets an optional helper for filling in the field. |
@@ -339,6 +340,7 @@ This component has no public parameters.
 | MaxLength | int? | Gets or sets the maximum length for entered text. |
 | MaxValue | double? | Gets or sets the maximum value for numeric values. |
 | Name | string | Gets or sets an optional name for the column. Useful for calculated columns that have no header text / title. |
+| Group | string? | Gets or sets the name of the column group this column belongs to, used by <see cref="PDColumnGrouper{TItem}"/> facets. A null or empty value means the column is ungrouped and is always shown regardless of the active facet. |
 | Options | Func<FormField<TItem>, TItem?, OptionInfo[]>? | Gets a function that returns available value choices. |
 | OptionsAsync | Func<FormField<TItem>, TItem?, Task<OptionInfo[]>>? | Gets an asynchronous function that returns available value choices. |
 | Ordinal | int | Gets or sets the preferred ordinal position of the column (from left to right). |
@@ -359,6 +361,39 @@ This component has no public parameters.
 | TextAreaRows | int | Gets or sets the number of rows of text displayed by default in a text area., |
 | Type | Type? | The data type of the columns field value. |
 | UserSelectable | bool? | Gets or sets whether the contents of this cell are user selectable. |
+
+---
+
+## PDColumnGroup
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Name | string | Gets or sets the unique name of the column group. Also used as the facet pill label. |
+| Icon | string? | Gets or sets an optional icon CSS class shown on the facet pill (e.g. "fas fa-chart-bar"). |
+| Ordinal | int | Gets or sets the order in which the facet pill appears. Lower values appear first. |
+| Description | string? | Gets or sets an optional description used as the facet pill tooltip. |
+| ChildContent | RenderFragment? | Gets or sets the columns that belong to this group. |
+
+---
+
+## PDColumnGrouper
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Table | PDTable<TItem> | Gets or sets the table whose column groups are presented. Supply the table's <c>@ref</c>. |
+| Variant | PDColumnGroupVariant | Gets or sets the visual style of the facet control. |
+| ShowCounts | bool | Gets or sets whether each facet shows a count of the columns it contains. |
+| ShowAllPill | bool | Gets or sets whether a leading facet that shows all columns is displayed. |
+| AllText | string | Gets or sets the label of the "all columns" facet. |
+| AllIcon | string? | Gets or sets an optional icon CSS class for the "all columns" facet. |
+| PillCssClass | string? | Gets or sets additional CSS classes applied to each facet pill. |
+| ActivePillCssClass | string? | Gets or sets additional CSS classes applied to the active facet pill. |
+| TextCssClass | string? | Gets or sets additional CSS classes applied to the text within each facet pill. |
+| IconCssClass | string? | Gets or sets additional CSS classes applied to the icon within each facet pill. |
 
 ---
 
@@ -728,6 +763,7 @@ This component has no public parameters.
 
 | Name | Type | Description |
 |------|------|-------------|
+| CanSelectFolder | Func<FileExplorerItem, bool>? | When set, called for each folder the user navigates to or selects. Return false to prevent selection. |
 | CloseOnEscape | bool | Gets or sets whether the modal should close when the escape key is pressed. |
 | DataProvider | IDataProviderService<FileExplorerItem> | Gets or sets the data provider for the file explorer. |
 | ExcludedPaths | string[] | Gets or sets a collection of paths to exclude from the file explorer. |
@@ -773,6 +809,7 @@ This component has no public parameters.
 | Filter | Filter | Gets or sets the filter object. |
 | FilterChanged | EventCallback<Filter> | An event callback that is invoked when the filter changes. |
 | FetchValuesAsync | Func<Filter, Task<string[]>>? | A function to fetch the values for the filter. |
+| FilterValueDisplayFunc | Func<string, string>? | An optional function that transforms a raw filter value into a display label. The raw value is still used for filtering; only the displayed text changes. |
 | IconCssClass | string | Gets or sets the CSS class for the icon. |
 | DataType | FilterDataTypes | Gets or sets the data type for the filter. |
 | Nullable | bool | Gets or sets whether the value can be null. |
@@ -1619,6 +1656,32 @@ No code-behind file found for this component.
 
 ---
 
+## PDTagInput
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Id | string | Gets the unique identifier of this component instance. |
+| CssClass | string | Gets or sets additional CSS classes applied to the root element. |
+| Values | List<string> | Gets or sets the current tag values. Supports two-way binding via @bind-Values. |
+| ValuesChanged | EventCallback<List<string>> | An event callback invoked whenever the tag values change. A new list instance is supplied. |
+| Suggestions | IEnumerable<string>? | Gets or sets the optional autocomplete suggestions offered while typing. Suggestions already present in Values are not offered again. |
+| AllowFreeText | bool | Gets or sets whether tags outside the Suggestions list may be entered. Defaults to true. |
+| AddOnBlur | bool | Gets or sets whether pending typed text is committed as a tag when the input loses focus. Only applies when AllowFreeText is true. Defaults to true. |
+| CaseSensitive | bool | Gets or sets whether duplicate detection and suggestion matching are case sensitive. Defaults to false. |
+| MaxTagLength | int | Gets or sets the maximum permitted length of a single tag. Zero means unlimited. |
+| MaxTags | int | Gets or sets the maximum number of tags. Zero means unlimited. |
+| IsEnabled | bool | Gets or sets whether the component is enabled. When false the input is hidden and tags cannot be added or removed. |
+| IsReadOnly | bool | Gets or sets whether the component is read-only. Tags are displayed but cannot be added or removed. |
+| Placeholder | string | Gets or sets the placeholder text shown in the input when no tags are present. |
+| TagTemplate | RenderFragment<string>? | Gets or sets an optional template used to render each tag's content. Receives the tag text as context. The remove button is rendered separately. |
+| TagAdded | EventCallback<string> | An event callback invoked when a tag is added. Argument is the added tag. |
+| TagRemoved | EventCallback<string> | An event callback invoked when a tag is removed. Argument is the removed tag. |
+| TagRejected | EventCallback<TagRejectedEventArgs> | An event callback invoked when an attempted tag is rejected (duplicate, too long, max tags reached, or not in the suggestions list when free text is disabled). |
+
+---
+
 ## PDTextArea
 
 **Parameters:**
@@ -2005,6 +2068,25 @@ This component has no public parameters.
 | Name | Type | Description |
 |------|------|-------------|
 | Errors | object? | Gets or sets the collection of validation errors. |
+
+---
+
+## PDVoiceListener
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| ChildContent | RenderFragment? | Gets or sets optional child content. |
+| Mode | ListenerMode | Gets or sets the listener mode. |
+| Keyword | string | Gets or sets the keyword used for keyword activation mode. |
+| KeywordSilenceTimeout | TimeSpan | Gets or sets timeout after silence before keyword is required again. |
+| KeywordTimeoutToken | string? | Gets or sets optional token emitted when keyword mode times out. |
+| ManualStartToken | string? | Gets or sets optional manual start token. |
+| ManualStopToken | string? | Gets or sets optional manual stop token. |
+| RunInBackground | bool | Gets or sets whether listener should run in background for active modes. |
+| AutoStart | bool | Gets or sets whether recognition should auto start for non-manual modes. |
+| ListenerService | IListenerService? | Gets or sets an explicit listener service instance. |
 
 ---
 

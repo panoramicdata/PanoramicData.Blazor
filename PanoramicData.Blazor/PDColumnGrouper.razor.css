@@ -1,0 +1,126 @@
+.pd-column-grouper {
+	/* Theme defaults (shifted for dark mode below). Consumers override the PUBLIC --pd-cg-* variables
+	   instead of these; every property reads var(--pd-cg-X, <default>), and the component never sets the
+	   public vars itself, so an override takes effect at any specificity - even a single class. */
+	--pd-cg-default-active-bg: var(--bs-primary, #0d6efd);
+	--pd-cg-default-active-fg: #fff;
+	--pd-cg-default-idle-fg: var(--bs-secondary-color, #495057);
+	--pd-cg-default-idle-bg: transparent;
+	--pd-cg-default-idle-border: var(--bs-border-color, #ced4da);
+	--pd-cg-default-hover-bg: var(--bs-tertiary-bg, rgba(13, 110, 253, 0.06));
+	--pd-cg-default-count-bg: rgba(0, 0, 0, 0.08);
+	--pd-cg-default-active-count-bg: rgba(255, 255, 255, 0.28);
+	--pd-cg-default-radius: 50rem;
+	--pd-cg-default-segmented-radius: var(--bs-border-radius, 0.375rem);
+	--pd-cg-default-gap: 0.5rem;
+	--pd-cg-default-font-size: 0.8125rem;
+
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--pd-cg-gap, var(--pd-cg-default-gap));
+}
+
+.pdcg-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 0;
+	padding: 0.31rem 0.85rem;
+	font-size: var(--pd-cg-font-size, var(--pd-cg-default-font-size));
+	line-height: 1.25;
+	color: var(--pd-cg-idle-fg, var(--pd-cg-default-idle-fg));
+	background-color: var(--pd-cg-idle-bg, var(--pd-cg-default-idle-bg));
+	border: 1px solid var(--pd-cg-idle-border, var(--pd-cg-default-idle-border));
+	border-radius: var(--pd-cg-radius, var(--pd-cg-default-radius));
+	cursor: pointer;
+	white-space: nowrap;
+	user-select: none;
+	transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.pdcg-pill:hover:not(.active):not(:disabled) {
+	color: var(--pd-cg-active-bg, var(--pd-cg-default-active-bg));
+	border-color: var(--pd-cg-active-bg, var(--pd-cg-default-active-bg));
+}
+
+.pdcg-pill:focus-visible {
+	outline: 0;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.35);
+}
+
+.pdcg-pill:disabled {
+	opacity: 0.55;
+	cursor: default;
+}
+
+.pdcg-pill.active {
+	color: var(--pd-cg-active-fg, var(--pd-cg-default-active-fg));
+	background-color: var(--pd-cg-active-bg, var(--pd-cg-default-active-bg));
+	border-color: var(--pd-cg-active-bg, var(--pd-cg-default-active-bg));
+	font-weight: 500;
+}
+
+.pdcg-count {
+	padding: 0 0.4rem;
+	font-size: 0.6875rem;
+	line-height: 1.4;
+	border-radius: 50rem;
+	background-color: var(--pd-cg-count-bg, var(--pd-cg-default-count-bg));
+}
+
+.pdcg-pill.active .pdcg-count {
+	color: var(--pd-cg-active-fg, var(--pd-cg-default-active-fg));
+	background-color: var(--pd-cg-active-count-bg, var(--pd-cg-default-active-count-bg));
+}
+
+/* Segmented: a single joined control */
+.pd-column-grouper.segmented {
+	gap: 0;
+	border: 1px solid var(--pd-cg-idle-border, var(--pd-cg-default-idle-border));
+	border-radius: var(--pd-cg-segmented-radius, var(--pd-cg-default-segmented-radius));
+	overflow: hidden;
+}
+
+.pd-column-grouper.segmented .pdcg-pill {
+	border: 0;
+	border-right: 1px solid var(--pd-cg-idle-border, var(--pd-cg-default-idle-border));
+	border-radius: 0;
+}
+
+.pd-column-grouper.segmented .pdcg-pill:last-child {
+	border-right: 0;
+}
+
+.pd-column-grouper.segmented .pdcg-pill:hover:not(.active):not(:disabled) {
+	color: var(--pd-cg-idle-fg, var(--pd-cg-default-idle-fg));
+	background-color: var(--pd-cg-hover-bg, var(--pd-cg-default-hover-bg));
+}
+
+/* Explicit light theme - keeps light defaults even when the OS prefers dark */
+[data-bs-theme="light"] .pd-column-grouper,
+[data-theme="light"] .pd-column-grouper {
+	--pd-cg-default-idle-fg: var(--bs-secondary-color, #495057);
+	--pd-cg-default-idle-border: var(--bs-border-color, #ced4da);
+	--pd-cg-default-hover-bg: var(--bs-tertiary-bg, rgba(13, 110, 253, 0.06));
+	--pd-cg-default-count-bg: rgba(0, 0, 0, 0.08);
+}
+
+/* Dark mode: shift the theme defaults (public --pd-cg-* overrides still win) */
+[data-bs-theme="dark"] .pd-column-grouper,
+[data-theme="dark"] .pd-column-grouper {
+	--pd-cg-default-idle-fg: #c7c7cc;
+	--pd-cg-default-idle-border: #3a3a40;
+	--pd-cg-default-hover-bg: rgba(255, 255, 255, 0.06);
+	--pd-cg-default-count-bg: rgba(255, 255, 255, 0.12);
+}
+
+/* Fallback for apps that only follow the OS colour-scheme preference */
+@media (prefers-color-scheme: dark) {
+	.pd-column-grouper {
+		--pd-cg-default-idle-fg: #c7c7cc;
+		--pd-cg-default-idle-border: #3a3a40;
+		--pd-cg-default-hover-bg: rgba(255, 255, 255, 0.06);
+		--pd-cg-default-count-bg: rgba(255, 255, 255, 0.12);
+	}
+}

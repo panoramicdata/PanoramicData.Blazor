@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChat: the minimized badge now reflects the most severe unread message. Severity is ranked explicitly (Critical &gt; Error &gt; Warning &gt; Normal &gt; Success) instead of relying on the MessageType enum's numeric order, so a Success message no longer masks an unread Warning, Error or Critical
+      - PDColumnGrouper: a new component (paired with PDColumnGroup) that turns a wide PDTable's column groups into a single-select facet bar. Selecting a facet shows just that group's columns plus any ungrouped, pinned columns, making tables with dozens of columns manageable without wrestling with the column chooser. Choose the Segmented (default) or Pills style, optionally show per-group icons and column counts, and restyle everything through --pd-cg-* CSS variables in light or dark mode and on older Bootstrap. Additive and opt-in, so existing tables are unaffected
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
