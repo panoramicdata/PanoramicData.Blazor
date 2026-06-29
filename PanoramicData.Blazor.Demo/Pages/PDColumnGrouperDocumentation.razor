@@ -109,10 +109,33 @@
 			</tbody>
 		</table>
 		<p class="text-muted small">
-			Alternatively set <code>Group="..."</code> directly on a <code>PDColumn</code> instead of wrapping it
-			&mdash; useful for one-off columns. An explicit <code>Group</code> takes precedence over a wrapping
+			An explicit <code>Group</code> on a <code>PDColumn</code> takes precedence over a wrapping
 			<code>PDColumnGroup</code>.
 		</p>
+
+		<p>
+			<strong>Declaring a group inline on columns.</strong> Instead of the <code>PDColumnGroup</code> wrapper you
+			can set the group &mdash; and its pill metadata &mdash; directly on each <code>PDColumn</code> via
+			<code>Group</code>, <code>GroupIcon</code>, <code>GroupOrdinal</code> and <code>GroupDescription</code>.
+			This keeps the columns as direct children of the table (no wrapping element), which matters when another
+			feature enumerates the table's columns &mdash; for example a <code>PDForm</code> whose fields are
+			auto-generated from the column definitions. The icon, order and tooltip only need setting on one column of
+			the group; the table de-duplicates by group name.
+		</p>
+		<pre class="border rounded p-3 bg-light"><code>&lt;PDColumn Field="x =&gt; x.Latency"
+          Group="Meraki stats" GroupIcon="fas fa-chart-bar" GroupOrdinal="30" /&gt;
+&lt;PDColumn Field="x =&gt; x.Loss" Group="Meraki stats" /&gt;</code></pre>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>PDColumn parameter</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>Group</code></td><td><code>string?</code></td><td>Group name / pill label the column belongs to. Empty means ungrouped (always shown).</td></tr>
+				<tr><td><code>GroupIcon</code></td><td><code>string?</code></td><td>Icon CSS class for the group's pill (set on one column of the group).</td></tr>
+				<tr><td><code>GroupOrdinal</code></td><td><code>int?</code></td><td>Pill order for the group; lower appears first.</td></tr>
+				<tr><td><code>GroupDescription</code></td><td><code>string?</code></td><td>Tooltip shown when hovering the group's pill.</td></tr>
+			</tbody>
+		</table>
 	</section>
 
 </div>

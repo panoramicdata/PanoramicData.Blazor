@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-06-28 11:44:42
+Generated on: 2026-06-29 13:51:27
 
 ## PDAnimation
 
@@ -341,6 +341,9 @@ This component has no public parameters.
 | MaxValue | double? | Gets or sets the maximum value for numeric values. |
 | Name | string | Gets or sets an optional name for the column. Useful for calculated columns that have no header text / title. |
 | Group | string? | Gets or sets the name of the column group this column belongs to, used by <see cref="PDColumnGrouper{TItem}"/> facets. A null or empty value means the column is ungrouped and is always shown regardless of the active facet. |
+| GroupIcon | string? | Gets or sets an optional icon CSS class (e.g. "fas fa-chart-bar") for this column's group facet pill, letting the group's metadata be declared inline via <see cref="Group"/> without a <see cref="PDColumnGroup"/> wrapper. Only needs setting on one column of the group. |
+| GroupOrdinal | int? | Gets or sets the order of this column's group facet pill (lower appears first) when declared inline via <see cref="Group"/>. Only needs setting on one column of the group. |
+| GroupDescription | string? | Gets or sets an optional tooltip description for this column's group facet pill when declared inline via <see cref="Group"/>. Only needs setting on one column of the group. |
 | Options | Func<FormField<TItem>, TItem?, OptionInfo[]>? | Gets a function that returns available value choices. |
 | OptionsAsync | Func<FormField<TItem>, TItem?, Task<OptionInfo[]>>? | Gets an asynchronous function that returns available value choices. |
 | Ordinal | int | Gets or sets the preferred ordinal position of the column (from left to right). |

@@ -292,6 +292,25 @@ public partial class PDColumn<TItem> where TItem : class
 	[Parameter] public string? Group { get; set; }
 
 	/// <summary>
+	/// Gets or sets an optional icon CSS class (e.g. "fas fa-chart-bar") for this column's group facet pill,
+	/// letting the group's metadata be declared inline via <see cref="Group"/> without a
+	/// <see cref="PDColumnGroup"/> wrapper. Only needs setting on one column of the group.
+	/// </summary>
+	[Parameter] public string? GroupIcon { get; set; }
+
+	/// <summary>
+	/// Gets or sets the order of this column's group facet pill (lower appears first) when declared inline
+	/// via <see cref="Group"/>. Only needs setting on one column of the group.
+	/// </summary>
+	[Parameter] public int? GroupOrdinal { get; set; }
+
+	/// <summary>
+	/// Gets or sets an optional tooltip description for this column's group facet pill when declared inline
+	/// via <see cref="Group"/>. Only needs setting on one column of the group.
+	/// </summary>
+	[Parameter] public string? GroupDescription { get; set; }
+
+	/// <summary>
 	/// Gets a function that returns available value choices.
 	/// </summary>
 	[Parameter] public Func<FormField<TItem>, TItem?, OptionInfo[]>? Options { get; set; }
@@ -525,6 +544,17 @@ public partial class PDColumn<TItem> where TItem : class
 		if (GroupContext is not null)
 		{
 			Table.RegisterColumnGroup(GroupContext);
+		}
+		else if (!string.IsNullOrEmpty(Group) && (GroupIcon is not null || GroupOrdinal is not null || GroupDescription is not null))
+		{
+			// group metadata declared inline on the column (no PDColumnGroup wrapper); de-duped by name in the table
+			Table.RegisterColumnGroup(new ColumnGroupContext
+			{
+				Name = Group,
+				Icon = GroupIcon,
+				Ordinal = GroupOrdinal ?? 1000,
+				Description = GroupDescription
+			});
 		}
 
 		// register with table

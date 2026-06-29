@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDColumnGrouper: a new component (paired with PDColumnGroup) that turns a wide PDTable's column groups into a single-select facet bar. Selecting a facet shows just that group's columns plus any ungrouped, pinned columns, making tables with dozens of columns manageable without wrestling with the column chooser. Choose the Segmented (default) or Pills style, optionally show per-group icons and column counts, and restyle everything through --pd-cg-* CSS variables in light or dark mode and on older Bootstrap. Additive and opt-in, so existing tables are unaffected
+      - PDColumn: a column's PDColumnGrouper facet can now be declared inline on the column via the existing Group parameter plus new GroupIcon, GroupOrdinal and GroupDescription parameters - no PDColumnGroup wrapper required. Because the columns then stay direct children of the table, they remain visible to features that enumerate the table's columns - for example a PDForm whose fields are auto-generated from the column definitions, which the wrapper element could otherwise hide. The icon, order and tooltip only need setting on one column of the group; the table de-duplicates by group name. Additive and opt-in.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
