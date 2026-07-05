@@ -8,9 +8,9 @@ namespace PanoramicData.Blazor;
 /// <remarks>
 /// The PDChatContainer uses isolated CSS to automatically provide proper scrolling
 /// behavior for content placed within it. This eliminates the need for consumers
-	/// to add custom CSS for layout and overflow handling.
-	/// </remarks>
-	public partial class PDChatContainer : ComponentBase
+/// to add custom CSS for layout and overflow handling.
+/// </remarks>
+public partial class PDChatContainer : ComponentBase
 {
 	/// <summary>
 	/// Gets or sets the main content of the container.
