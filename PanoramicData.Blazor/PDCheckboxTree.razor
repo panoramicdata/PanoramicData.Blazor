@@ -1,0 +1,41 @@
+@typeparam TItem where TItem : class
+@inherits PDComponentBase
+
+@if (IsVisible)
+{
+	<div id="@Id" class="pdcheckboxtree @CssClass">
+		<PDTree @ref="Tree"
+				TItem="TItem"
+				DataProvider="DataProvider"
+				KeyField="KeyField"
+				ParentKeyField="ParentKeyField"
+				TextField="TextField"
+				IsLeaf="IsLeaf"
+				LoadOnDemand="LoadOnDemand"
+				ShowRoot="ShowRoot"
+				ShowLines="ShowLines"
+				Sort="Sort"
+				Ready="Ready"
+				ExceptionHandler="ExceptionHandler">
+			<NodeTemplate Context="node">
+				@{
+					var disabled = IsDisabled(node);
+				}
+				<label class="pdcheckboxtree-item @(disabled ? "pdcheckboxtree-item-disabled" : "")"
+					   @onmousedown:stopPropagation
+					   @onclick:stopPropagation>
+					<input type="checkbox"
+						   class="pdcheckboxtree-checkbox"
+						   checked="@IsChecked(node)"
+						   disabled="@disabled"
+						   @onchange="e => OnCheckboxChangedAsync(node, e)" />
+					@if (IconCssClass is not null && node.Data is not null)
+					{
+						<i class="@IconCssClass(node.Data, 0)"></i>
+					}
+					<span class="pdcheckboxtree-text">@node.Text</span>
+				</label>
+			</NodeTemplate>
+		</PDTree>
+	</div>
+}

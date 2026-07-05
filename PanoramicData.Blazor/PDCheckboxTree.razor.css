@@ -1,0 +1,27 @@
+.pdcheckboxtree {
+	height: 100%;
+	width: 100%;
+}
+
+.pdcheckboxtree-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	cursor: pointer;
+	margin-bottom: 0;
+	font-weight: inherit;
+}
+
+.pdcheckboxtree-item-disabled {
+	cursor: default;
+	opacity: 0.55;
+}
+
+.pdcheckboxtree-checkbox {
+	cursor: inherit;
+	margin: 0;
+}
+
+.pdcheckboxtree-text {
+	white-space: nowrap;
+}

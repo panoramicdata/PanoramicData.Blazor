@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-06-29 13:51:27
+Generated on: 2026-07-05 15:32:57
 
 ## PDAnimation
 
@@ -243,6 +243,31 @@ This component has no public parameters.
 | ChatMinSize | int | Gets or sets the minimum size of the chat panel. |
 | ContentMinSize | int | Gets or sets the minimum size of the main content. |
 | ChatService | required IChatService | Gets or sets the chat service for the container. |
+
+---
+
+## PDCheckboxTree
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| DataProvider | IDataProviderService<TItem> | Gets or sets the data provider that supplies the tree items. |
+| KeyField | Func<TItem, object>? | Gets or sets the function that selects the unique key of an item. The string form of this key is the currency of <see cref="CheckedKeys"/>. |
+| ParentKeyField | Func<TItem, object>? | Gets or sets the function that selects the parent key of an item. |
+| TextField | Func<TItem, object>? | Gets or sets the function that selects the display text of an item. |
+| IsLeaf | Func<TItem, bool>? | Gets or sets the function that determines whether an item is a leaf node. |
+| IconCssClass | Func<TItem, int, string>? | Gets or sets an optional function returning the icon CSS class for an item. The icon is rendered between the checkbox and the item text. |
+| LoadOnDemand | bool | Gets or sets whether child nodes are fetched only when a node is first expanded. |
+| ShowRoot | bool | Gets or sets whether the root node is displayed. |
+| ShowLines | bool | Gets or sets whether connecting lines are displayed between nodes. |
+| Sort | Comparison<TItem>? | Gets or sets an optional comparison used to sort sibling items. |
+| Ready | EventCallback | Gets or sets an optional callback invoked once the tree has first loaded. |
+| ExceptionHandler | EventCallback<Exception> | Gets or sets an optional callback invoked when an exception occurs while fetching items. |
+| CheckedKeys | List<string> | Gets or sets the keys of the currently checked items. Bindable with <c>@bind-CheckedKeys</c>. |
+| CheckedKeysChanged | EventCallback<List<string>> | Gets or sets the callback invoked whenever the set of checked keys changes. |
+| IsCheckDisabled | Func<TItem, bool>? | Gets or sets an optional function that disables the checkbox of an item. The item remains visible and expandable; only its checkbox is disabled. |
+| IsCheckImplied | Func<TItem, bool>? | Gets or sets an optional function that marks an item as implicitly checked: its checkbox is rendered checked and disabled, but its key is NOT part of <see cref="CheckedKeys"/>. Typically used for descendants of a checked folder, where checking the parent implies the whole subtree. |
 
 ---
 

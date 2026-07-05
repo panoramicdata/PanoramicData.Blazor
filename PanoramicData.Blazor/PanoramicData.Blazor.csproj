@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDColumn: a column's PDColumnGrouper facet can now be declared inline on the column via the existing Group parameter plus new GroupIcon, GroupOrdinal and GroupDescription parameters - no PDColumnGroup wrapper required. Because the columns then stay direct children of the table, they remain visible to features that enumerate the table's columns - for example a PDForm whose fields are auto-generated from the column definitions, which the wrapper element could otherwise hide. The icon, order and tooltip only need setting on one column of the group; the table de-duplicates by group name. Additive and opt-in.
+      - New component PDCheckboxTree: a hierarchical multi-select picker - a PDTree whose nodes each carry a checkbox, composed via the tree's NodeTemplate so no tree internals change. Checked state is exposed as node keys, bindable with @bind-CheckedKeys. IsCheckDisabled disables individual checkboxes; IsCheckImplied renders items as checked-and-disabled without adding them to CheckedKeys - typically descendants of a checked folder, where checking the parent implies the whole subtree. Icons render between checkbox and text via IconCssClass; Sort accepts a Comparison for deterministic ordering; the underlying tree is exposed for expand/refresh operations. Demo page includes a files-and-folders example and an access-control-style folder picker.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
