@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Describes a text-box toolbar item used in a <see cref="PanoramicData.Blazor.PDToolbar"/>.
+/// </summary>
 public class ToolbarTextBox : ToolbarItem
 {
 	/// <summary>

@@ -1,11 +1,19 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// An <see cref="IDataProviderService{TItem}"/> implementation that delegates each CRUD operation to caller-supplied <see cref="Func{T, TResult}"/> delegates.
+/// </summary>
+/// <typeparam name="TItem">The entity type provided by this service.</typeparam>
 [Obsolete("DelegatedDataProvider is obsolete. Please use PanoramicData.Blazor.Services.DelegatedDataProviderService instead.")]
 public class DelegatedDataProvider<TItem> : IDataProviderService<TItem>
 {
+	/// <summary>Gets or sets the delegate invoked by <see cref="IDataProviderService{TItem}.CreateAsync"/>.</summary>
 	public Func<TItem, CancellationToken, Task<OperationResponse>>? CreateAsync { get; set; }
+	/// <summary>Gets or sets the delegate invoked by <see cref="IDataProviderService{TItem}.DeleteAsync"/>.</summary>
 	public Func<TItem, CancellationToken, Task<OperationResponse>>? DeleteAsync { get; set; }
+	/// <summary>Gets or sets the delegate invoked by <see cref="IDataProviderService{TItem}.UpdateAsync"/>.</summary>
 	public Func<TItem, IDictionary<string, object?>, CancellationToken, Task<OperationResponse>>? UpdateAsync { get; set; }
+	/// <summary>Gets or sets the delegate invoked by <see cref="IDataProviderService{TItem}.GetDataAsync"/>.</summary>
 	public Func<DataRequest<TItem>, CancellationToken, Task<DataResponse<TItem>>>? GetDataAsync { get; set; }
 
 	#region IDataProviderService<TItem> members

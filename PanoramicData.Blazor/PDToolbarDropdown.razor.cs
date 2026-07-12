@@ -2,6 +2,9 @@
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a dropdown button for use within a <see cref="PDToolbar"/>.
+/// </summary>
 public partial class PDToolbarDropdown : IDisposable, IEnablable
 {
 	#region Inject
@@ -90,6 +93,10 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 	/// </summary>
 	[Parameter] public string ToolTip { get; set; } = string.Empty;
 
+	/// <summary>
+	/// Adds a menu item to the dropdown.
+	/// </summary>
+	/// <param name="item">The menu item to add.</param>
 	public void AddMenuItem(PDMenuItem item)
 	{
 		Items.Add(new MenuItem
@@ -119,6 +126,7 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
@@ -143,6 +151,7 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 		}
 	}
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		foreach (var item in Items)
@@ -160,18 +169,28 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 
 	private async Task OnClick(string itemKey) => await Click.InvokeAsync(itemKey).ConfigureAwait(true);
 
+	/// <summary>
+	/// Disables the dropdown button.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Enables the dropdown button.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether the dropdown button is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable; false to disable.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;

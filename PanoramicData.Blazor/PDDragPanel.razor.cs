@@ -1,5 +1,9 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that renders a list of draggable items and supports reordering via drag-and-drop.
+/// </summary>
+/// <typeparam name="TItem">The type of item in the panel.</typeparam>
 public partial class PDDragPanel<TItem> where TItem : class
 {
 	private static int _sequence;
@@ -9,6 +13,9 @@ public partial class PDDragPanel<TItem> where TItem : class
 	//private IJSObjectReference? _module;
 	//private bool _disposedValue;
 
+	/// <summary>
+	/// Gets the injected JavaScript runtime.
+	/// </summary>
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -24,6 +31,9 @@ public partial class PDDragPanel<TItem> where TItem : class
 	[Parameter]
 	public bool CanDrag { get; set; } = true;
 
+	/// <summary>
+	/// Gets or sets the cascading parent drag container.
+	/// </summary>
 	[CascadingParameter]
 	public PDDragContainer<TItem>? Container { get; set; }
 
@@ -80,6 +90,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 	//	}
 	//}
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		if (Container != null)

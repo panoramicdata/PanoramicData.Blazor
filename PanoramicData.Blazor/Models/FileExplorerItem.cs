@@ -2,6 +2,9 @@
 
 #pragma warning disable CA1036 // Comparison operators not needed for model class
 #pragma warning disable S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
+/// <summary>
+/// Represents a file or folder entry within a <see cref="PDFileExplorer"/>, including its path, size, dates, and permission flags.
+/// </summary>
 public class FileExplorerItem : IComparable
 #pragma warning restore S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
 #pragma warning restore CA1036
@@ -140,6 +143,7 @@ public class FileExplorerItem : IComparable
 	/// </summary>
 	public override string ToString() => Path;
 
+	/// <inheritdoc />
 	public int CompareTo(object? obj)
 	{
 		if (obj is null)
@@ -158,6 +162,10 @@ public class FileExplorerItem : IComparable
 	public string FileExtension
 		=> string.IsNullOrWhiteSpace(System.IO.Path.GetExtension(Path)) ? "" : System.IO.Path.GetExtension(Path)[1..];
 
+	/// <summary>
+	/// Creates a shallow copy of this <see cref="FileExplorerItem"/>.
+	/// </summary>
+	/// <returns>A new <see cref="FileExplorerItem"/> with the same property values.</returns>
 	public FileExplorerItem Clone() => new()
 	{
 		CanCopyMove = CanCopyMove,
@@ -174,6 +182,11 @@ public class FileExplorerItem : IComparable
 		UploadProgress = UploadProgress
 	};
 
+	/// <summary>
+	/// Extracts the file or folder name from the final segment of a path string.
+	/// </summary>
+	/// <param name="path">A forward-slash-delimited path string.</param>
+	/// <returns>The last path segment, or an empty string if <paramref name="path"/> is null or has no segments.</returns>
 	public static string GetNameFromPath(string? path)
 	{
 		if (path == null)

@@ -20,6 +20,7 @@ public partial class PDGraphSelectionInfo<TItem> : PDComponentBase where TItem :
 	[Parameter]
 	public GraphEdge? SelectedEdge { get; set; }
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();

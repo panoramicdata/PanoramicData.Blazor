@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Extensions;
 
+/// <summary>
+/// Extension methods for <see cref="string"/> values.
+/// </summary>
 public static class StringExtensions
 {
 	/// <summary>
@@ -73,14 +76,29 @@ public static class StringExtensions
 		return (MarkupString)sb.ToString();
 	}
 
+	/// <summary>
+	/// Returns a copy of the string with its first character converted to lower case, or the original string when it is <c>null</c>, empty, or whitespace.
+	/// </summary>
+	/// <param name="text">The string to transform.</param>
+	/// <returns>The string with a lower-case first character.</returns>
 	public static string LowerFirstChar(this string text) => string.IsNullOrWhiteSpace(text)
 		? text
 		: text[0].ToString().ToLowerInvariant() + text[1..];
 
+	/// <summary>
+	/// Returns a copy of the string with its first character converted to upper case, or the original string when it is <c>null</c>, empty, or whitespace.
+	/// </summary>
+	/// <param name="text">The string to transform.</param>
+	/// <returns>The string with an upper-case first character.</returns>
 	public static string UpperFirstChar(this string text) => string.IsNullOrWhiteSpace(text)
 		? text
 		: text[0].ToString().ToUpperInvariant() + text[1..];
 
+	/// <summary>
+	/// Returns the string wrapped in double quotes when it contains whitespace and is not already quoted or prefixed with <c>#</c>; otherwise returns the original string.
+	/// </summary>
+	/// <param name="text">The string to conditionally quote.</param>
+	/// <returns>A double-quoted copy of the string, or the original string.</returns>
 	public static string QuoteIfContainsWhitespace(this string text)
 	{
 		if (text.Length > 0)
@@ -97,6 +115,11 @@ public static class StringExtensions
 		return text;
 	}
 
+	/// <summary>
+	/// Removes a surrounding pair of double-quote characters from the string, if present.
+	/// </summary>
+	/// <param name="text">The string to strip.</param>
+	/// <returns>The string without its surrounding double quotes, or the original string.</returns>
 	public static string RemoveQuotes(this string text)
 	{
 		if (text.StartsWith('"') && text.EndsWith('"'))
@@ -107,6 +130,11 @@ public static class StringExtensions
 		return text;
 	}
 
+	/// <summary>
+	/// Returns a new string containing only the letter and digit characters from the input.
+	/// </summary>
+	/// <param name="text">The string to filter.</param>
+	/// <returns>A string consisting only of alphanumeric characters, or an empty string when <paramref name="text"/> is whitespace.</returns>
 	public static string ExtractAlphanumericChars(this string text)
 	{
 		if (string.IsNullOrWhiteSpace(text))

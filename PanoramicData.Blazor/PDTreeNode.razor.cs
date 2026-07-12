@@ -1,10 +1,16 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that renders a single node within a <see cref="PDTree{TItem}"/> hierarchy.
+/// </summary>
 public partial class PDTreeNode<TItem> where TItem : class
 {
 	private IJSObjectReference? _commonModule;
 	private int _dragOverCount;
 
+	/// <summary>
+	/// Gets the injected JavaScript runtime.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
@@ -68,6 +74,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 	/// </summary>
 	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
+	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)

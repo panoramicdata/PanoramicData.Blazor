@@ -266,6 +266,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -295,6 +296,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnParametersSetAsync()
 	{
 		if (_previousIsEditable != IsEditable)
@@ -317,6 +319,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override void OnAfterRender(bool firstRender)
 	{
 		if (firstRender)
@@ -1037,6 +1040,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		_viewModePropertyOverrides.Clear();
 	}
 
+	/// <inheritdoc />
 	public ValueTask DisposeAsync()
 	{
 		_rotationTimer?.Dispose();

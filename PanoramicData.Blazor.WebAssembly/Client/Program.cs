@@ -10,8 +10,15 @@ using System.Threading.Tasks;
 
 namespace PanoramicData.Blazor.WebAssembly.Client;
 
+/// <summary>
+/// Entry point for the Blazor WebAssembly client application.
+/// </summary>
 public static class Program
 {
+	/// <summary>
+	/// Configures services and launches the WebAssembly host.
+	/// </summary>
+	/// <param name="args">Command-line arguments.</param>
 	public static async Task Main(string[] args)
 	{
 		var builder = WebAssemblyHostBuilder.CreateDefault(args);

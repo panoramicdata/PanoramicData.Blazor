@@ -168,6 +168,7 @@ public class ListenerService : IListenerService, IDisposable
 		SetState(ListenerState.Error, errorCode, message);
 	}
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		StopKeywordTimeoutTimer();

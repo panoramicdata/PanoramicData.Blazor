@@ -3,10 +3,16 @@ using System.Net.Http;
 
 namespace PanoramicData.Blazor.PreviewProviders;
 
+/// <summary>
+/// A <see cref="DefaultPreviewProvider"/> that integrates with a <see cref="PDFileExplorer"/> to download
+/// file content and generate richer detail panels including file icons, names, type, size, and timestamps.
+/// </summary>
 public class FileExplorerPreviewProvider : DefaultPreviewProvider
 {
+	/// <summary>Gets or sets the <see cref="PDFileExplorer"/> instance used to obtain download URLs and format settings.</summary>
 	public PDFileExplorer? FileExplorer { get; set; }
 
+	/// <inheritdoc />
 	protected override async Task<byte[]> DownloadContentAsync(FileExplorerItem item)
 	{
 		if (FileExplorer == null)
@@ -37,6 +43,7 @@ public class FileExplorerPreviewProvider : DefaultPreviewProvider
 		return bytes;
 	}
 
+	/// <inheritdoc />
 	protected override List<string> GetFileDetails(FileExplorerItem item)
 	{
 		if (FileExplorer is null)

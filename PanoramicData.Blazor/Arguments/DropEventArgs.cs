@@ -19,6 +19,13 @@ public class DropEventArgs
 		Before = null;
 	}
 
+	/// <summary>
+	/// Initializes a new instance of the DropEventArgs class with ordering information.
+	/// </summary>
+	/// <param name="target">Details on where the drop occurred.</param>
+	/// <param name="payload">Payload of the drop.</param>
+	/// <param name="ctrl">Was the control key pressed during the drop?</param>
+	/// <param name="before">Whether the item was dropped before (<c>true</c>), after (<c>false</c>), or in an unordered position (<c>null</c>) relative to the target.</param>
 	public DropEventArgs(object? target, object? payload, bool ctrl, bool? before)
 	{
 		Target = target;

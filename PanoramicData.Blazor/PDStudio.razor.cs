@@ -129,6 +129,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		options.MouseWheelScrollSensitivity = 1;
 	}
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		// Subscribe to service events if available
@@ -143,6 +144,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		base.OnInitialized();
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -165,6 +167,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		// Update execution state if service is available
@@ -583,6 +586,7 @@ for(let i = 0; i < 10; i++) {
 		}
 	}
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		if (StudioService != null)

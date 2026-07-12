@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Models.Monaco;
 
+/// <summary>
+/// Describes a Monaco editor language configuration, controlling completion behaviour, delimiters, and signature-help triggers.
+/// </summary>
 public class Language
 {
 	/// <summary>

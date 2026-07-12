@@ -66,9 +66,13 @@ public class TileConnectorOptions
 /// </summary>
 public enum ConnectorFillPattern
 {
+	/// <summary>Randomly chosen fill pattern.</summary>
 	Random,
+	/// <summary>Solid fill with no gaps.</summary>
 	Solid,
+	/// <summary>Horizontal bar fill pattern.</summary>
 	Bars,
+	/// <summary>Chevron fill pattern.</summary>
 	Chevrons
 }
 
@@ -94,7 +98,10 @@ public enum ConnectorDirection
 /// </summary>
 public enum ConnectorVerticalAlign
 {
+	/// <summary>Align connectors to the bottom of the tile depth.</summary>
 	Bottom,
+	/// <summary>Align connectors to the center of the tile depth.</summary>
 	Center,
+	/// <summary>Align connectors to the top of the tile depth.</summary>
 	Top
 }

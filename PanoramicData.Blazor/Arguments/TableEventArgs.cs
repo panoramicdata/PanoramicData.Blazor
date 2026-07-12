@@ -36,7 +36,7 @@ public class TableCancelEventArgs<TItem>(TItem item) : TableEventArgs<TItem>(ite
 /// <remarks>
 /// Initializes a new instance of the TableBeforeEditEventArgs class.
 /// </remarks>
-/// <param item="">The item the event relates to.</param>
+/// <param name="item">The item the event relates to.</param>
 public class TableBeforeEditEventArgs<TItem>(TItem item) : TableCancelEventArgs<TItem>(item) where TItem : class
 {
 	/// <summary>
@@ -64,6 +64,10 @@ public class TableAfterEditEventArgs<TItem>(TItem item) : TableCancelEventArgs<T
 	/// </summary>
 	public Dictionary<string, object?> NewValues { get; set; } = [];
 
+	/// <summary>
+	/// Returns a string describing the pending edit field changes.
+	/// </summary>
+	/// <returns>A comma-separated list of key=value pairs.</returns>
 	public override string ToString()
 	{
 		var sb = new StringBuilder();
@@ -92,10 +96,14 @@ public class TableAfterEditEventArgs<TItem>(TItem item) : TableCancelEventArgs<T
 public class TableAfterEditCommittedEventArgs<TItem>(TItem item) : TableEventArgs<TItem>(item) where TItem : class
 {
 	/// <summary>
-	/// Gets or sets the new values.
+	/// Gets or sets the committed new values.
 	/// </summary>
 	public Dictionary<string, object?> NewValues { get; set; } = [];
 
+	/// <summary>
+	/// Returns a string describing the committed field changes.
+	/// </summary>
+	/// <returns>A comma-separated list of key=value pairs.</returns>
 	public override string ToString()
 	{
 		var sb = new StringBuilder();

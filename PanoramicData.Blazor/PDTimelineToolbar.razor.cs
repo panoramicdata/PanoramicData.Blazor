@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a toolbar with controls for navigating and configuring a <see cref="PDTimeline"/> component.
+/// </summary>
 public partial class PDTimelineToolbar : IEnablable
 {
 	/// <summary>
@@ -45,18 +48,28 @@ public partial class PDTimelineToolbar : IEnablable
 
 	private string SelectionStartTimeDisplay => (Timeline?.GetSelection()?.StartTime ?? DateTime.MinValue).ToString($"{Timeline?.Options.General.DateFormat ?? "d"} HH:mm:ss", CultureInfo.InvariantCulture);
 
+	/// <summary>
+	/// Disables the toolbar.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Enables the toolbar.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether the toolbar is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable; false to disable.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;

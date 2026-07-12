@@ -3,8 +3,10 @@ using Shouldly;
 
 namespace PanoramicData.Blazor.Test;
 
+/// <summary>Tests for the ColorValue class.</summary>
 public class ColorValueTests
 {
+    /// <summary>Verifies that the default constructor creates a black color with RGB (0, 0, 0) and full alpha.</summary>
     [Fact]
     public void WhenDefaultConstructorThenBlack()
     {
@@ -16,6 +18,7 @@ public class ColorValueTests
         color.A.ShouldBe(1.0);
     }
 
+    /// <summary>Verifies that constructing a color with RGB values sets the R, G, B components and defaults alpha to 1.0.</summary>
     [Fact]
     public void WhenConstructedWithRgbThenValuesAreSet()
     {
@@ -27,6 +30,7 @@ public class ColorValueTests
         color.A.ShouldBe(1.0);
     }
 
+    /// <summary>Verifies that a six-character hex string is parsed to the correct RGB components.</summary>
     [Fact]
     public void WhenFromHex6ThenParsesCorrectly()
     {
@@ -38,6 +42,7 @@ public class ColorValueTests
         color.A.ShouldBe(1.0);
     }
 
+    /// <summary>Verifies that a three-character hex string is expanded to the correct full RGB components.</summary>
     [Fact]
     public void WhenFromHex3ThenExpandsCorrectly()
     {
@@ -48,6 +53,7 @@ public class ColorValueTests
         color.B.ShouldBe((byte)0x00);
     }
 
+    /// <summary>Verifies that an eight-character hex string including an alpha component is parsed correctly.</summary>
     [Fact]
     public void WhenFromHex8ThenIncludesAlpha()
     {
@@ -59,6 +65,7 @@ public class ColorValueTests
         color.A.ShouldBe(128 / 255.0, 0.01);
     }
 
+    /// <summary>Verifies that a hex string without a leading hash character is parsed correctly.</summary>
     [Fact]
     public void WhenFromHexWithoutHashThenParsesCorrectly()
     {
@@ -69,6 +76,7 @@ public class ColorValueTests
         color.B.ShouldBe((byte)0);
     }
 
+    /// <summary>Verifies that an invalid hex string leaves the color at its default black values.</summary>
     [Fact]
     public void WhenFromHexInvalidThenKeepsDefaults()
     {
@@ -79,6 +87,7 @@ public class ColorValueTests
         color.B.ShouldBe((byte)0);
     }
 
+    /// <summary>Verifies that an empty hex string leaves the color at its default black values.</summary>
     [Fact]
     public void WhenFromHexEmptyThenKeepsDefaults()
     {
@@ -87,6 +96,7 @@ public class ColorValueTests
         color.R.ShouldBe((byte)0);
     }
 
+    /// <summary>Verifies that ToHex formats the color as an uppercase six-character hex string.</summary>
     [Fact]
     public void WhenToHexThenFormatsCorrectly()
     {
@@ -95,6 +105,7 @@ public class ColorValueTests
         color.ToHex().ShouldBe("#FF8000");
     }
 
+    /// <summary>Verifies that ToHexWithAlpha produces a nine-character hex string that includes the alpha component.</summary>
     [Fact]
     public void WhenToHexWithAlphaThenIncludesAlpha()
     {
@@ -106,6 +117,7 @@ public class ColorValueTests
         hex.Length.ShouldBe(9); // #RRGGBBAA
     }
 
+    /// <summary>Verifies that ToRgb returns the CSS rgb() function string with the correct component values.</summary>
     [Fact]
     public void WhenToRgbThenFormatsCss()
     {
@@ -114,6 +126,7 @@ public class ColorValueTests
         color.ToRgb().ShouldBe("rgb(255, 128, 0)");
     }
 
+    /// <summary>Verifies that ToRgba returns the CSS rgba() function string including the alpha value.</summary>
     [Fact]
     public void WhenToRgbaThenIncludesAlpha()
     {
@@ -122,6 +135,7 @@ public class ColorValueTests
         color.ToRgba().ShouldBe("rgba(255, 128, 0, 0.50)");
     }
 
+    /// <summary>Verifies that ToCss returns a hex string when the color has full opacity.</summary>
     [Fact]
     public void WhenToCssWithFullAlphaThenReturnsHex()
     {
@@ -130,6 +144,7 @@ public class ColorValueTests
         color.ToCss().ShouldBe("#FF0000");
     }
 
+    /// <summary>Verifies that ToCss returns an rgba() string when the color has partial opacity.</summary>
     [Fact]
     public void WhenToCssWithPartialAlphaThenReturnsRgba()
     {
@@ -138,6 +153,7 @@ public class ColorValueTests
         color.ToCss().ShouldStartWith("rgba(");
     }
 
+    /// <summary>Verifies that cloning a color produces a copy with identical RGBA values.</summary>
     [Fact]
     public void WhenClonedThenValuesMatch()
     {
@@ -151,6 +167,7 @@ public class ColorValueTests
         clone.A.ShouldBe(original.A);
     }
 
+    /// <summary>Verifies that modifying a cloned color does not affect the original color's values.</summary>
     [Fact]
     public void WhenClonedThenChangingCloneDoesNotAffectOriginal()
     {
@@ -162,6 +179,7 @@ public class ColorValueTests
         original.R.ShouldBe((byte)100);
     }
 
+    /// <summary>Verifies that pure red has an HSV hue of 0, saturation of 1, and value of 1.</summary>
     [Fact]
     public void WhenPureRedThenHsvHueIsZero()
     {
@@ -172,6 +190,7 @@ public class ColorValueTests
         color.V.ShouldBe(1.0, 0.01);
     }
 
+    /// <summary>Verifies that pure green has an HSV hue of 120.</summary>
     [Fact]
     public void WhenPureGreenThenHsvHueIs120()
     {
@@ -180,6 +199,7 @@ public class ColorValueTests
         color.H.ShouldBe(120, 0.1);
     }
 
+    /// <summary>Verifies that pure blue has an HSV hue of 240.</summary>
     [Fact]
     public void WhenPureBlueThenHsvHueIs240()
     {
@@ -188,6 +208,7 @@ public class ColorValueTests
         color.H.ShouldBe(240, 0.1);
     }
 
+    /// <summary>Verifies that white has HSV saturation of 0 and value of 1.</summary>
     [Fact]
     public void WhenWhiteThenSaturationIsZero()
     {
@@ -197,6 +218,7 @@ public class ColorValueTests
         color.V.ShouldBe(1.0, 0.01);
     }
 
+    /// <summary>Verifies that black has an HSV value of 0.</summary>
     [Fact]
     public void WhenBlackThenValueIsZero()
     {
@@ -205,6 +227,7 @@ public class ColorValueTests
         color.V.ShouldBe(0, 0.01);
     }
 
+    /// <summary>Verifies that creating a color from HSV (0, 1, 1) produces pure red with R=255, G=0, B=0.</summary>
     [Fact]
     public void WhenFromHsvRedThenRgbIsCorrect()
     {
@@ -215,6 +238,7 @@ public class ColorValueTests
         color.B.ShouldBe((byte)0);
     }
 
+    /// <summary>Verifies that converting a hex string to a ColorValue and back to hex preserves the original string.</summary>
     [Fact]
     public void WhenRoundTripHexThenValuesPreserved()
     {
@@ -224,6 +248,7 @@ public class ColorValueTests
         color.ToHex().ShouldBe(original);
     }
 
+    /// <summary>Verifies that converting RGB to HSV and back to RGB preserves the original component values.</summary>
     [Fact]
     public void WhenRoundTripHsvThenRgbPreserved()
     {
@@ -239,6 +264,7 @@ public class ColorValueTests
         roundTrip.B.ShouldBe(color.B);
     }
 
+    /// <summary>Verifies that two colors with identical RGBA values are considered equal.</summary>
     [Fact]
     public void WhenEqualColorsThenEqualsReturnsTrue()
     {
@@ -248,6 +274,7 @@ public class ColorValueTests
         a.Equals(b).ShouldBeTrue();
     }
 
+    /// <summary>Verifies that two colors with differing component values are not considered equal.</summary>
     [Fact]
     public void WhenDifferentColorsThenEqualsReturnsFalse()
     {
@@ -257,6 +284,7 @@ public class ColorValueTests
         a.Equals(b).ShouldBeFalse();
     }
 
+    /// <summary>Verifies that setting an alpha value greater than 1.0 clamps it to 1.0.</summary>
     [Fact]
     public void WhenAlphaClamped_ThenStaysInRange()
     {

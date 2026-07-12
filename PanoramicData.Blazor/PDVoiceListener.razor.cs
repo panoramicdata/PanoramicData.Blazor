@@ -1,5 +1,8 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides voice recognition input via the browser's speech recognition API.
+/// </summary>
 public partial class PDVoiceListener : IAsyncDisposable
 {
 	private DotNetObjectReference<PDVoiceListener>? _dotNetObjectReference;
@@ -60,10 +63,14 @@ public partial class PDVoiceListener : IAsyncDisposable
 
 	[Inject] private IListenerService DefaultListenerService { get; set; } = null!;
 
+	/// <summary>
+	/// Gets the injected JavaScript runtime.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	private IListenerService ActiveListenerService => ListenerService ?? DefaultListenerService;
 
+	/// <inheritdoc />
 	protected override async Task OnParametersSetAsync()
 	{
 		ConfigureServiceIfChanged();
@@ -78,6 +85,7 @@ public partial class PDVoiceListener : IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender || JSRuntime is null)
@@ -122,6 +130,11 @@ public partial class PDVoiceListener : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Called from JavaScript when voice recognition produces text.
+	/// </summary>
+	/// <param name="text">The recognised text.</param>
+	/// <param name="timestamp">The ISO-8601 timestamp of the recognition event.</param>
 	[JSInvokable]
 	public void OnRecognizedText(string text, string timestamp)
 	{
@@ -134,21 +147,39 @@ public partial class PDVoiceListener : IAsyncDisposable
 		ActiveListenerService.HandleRecognizedText(text, parsedTimestamp);
 	}
 
+	/// <summary>
+	/// Called from JavaScript when voice listening starts.
+	/// </summary>
 	[JSInvokable]
 	public void OnListeningStarted() => ActiveListenerService.HandleListeningStarted();
 
+	/// <summary>
+	/// Called from JavaScript when voice listening stops.
+	/// </summary>
 	[JSInvokable]
 	public void OnListeningStopped() => ActiveListenerService.HandleListeningStopped();
 
+	/// <summary>
+	/// Called from JavaScript when speech recognition is not supported by the browser.
+	/// </summary>
 	[JSInvokable]
 	public void OnUnsupported() => ActiveListenerService.HandleUnsupported();
 
+	/// <summary>
+	/// Called from JavaScript when microphone permission is denied.
+	/// </summary>
 	[JSInvokable]
 	public void OnPermissionDenied() => ActiveListenerService.HandlePermissionDenied();
 
+	/// <summary>
+	/// Called from JavaScript when a voice listener error occurs.
+	/// </summary>
+	/// <param name="errorCode">The error code from the speech recognition API.</param>
+	/// <param name="message">A human-readable error message.</param>
 	[JSInvokable]
 	public void OnListenerError(string? errorCode, string? message) => ActiveListenerService.HandleError(errorCode, message);
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		try

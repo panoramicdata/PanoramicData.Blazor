@@ -1,7 +1,13 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a single tab within a <see cref="PDTabSet"/>.
+/// </summary>
 public partial class PDTab : ComponentBase
 {
+	/// <summary>
+	/// Gets or sets the parent tab set.
+	/// </summary>
 	[CascadingParameter(Name = "TabSet")] public PDTabSet TabSet { get; set; } = default!;
 
 	/// <summary>
@@ -43,6 +49,7 @@ public partial class PDTab : ComponentBase
 	internal bool IsRenaming { get; set; }
 	internal string TempTitle { get; set; } = string.Empty;
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		if (Id == Guid.Empty)
@@ -54,6 +61,7 @@ public partial class PDTab : ComponentBase
 		TabSet?.AddTab(this);
 	}
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		// Keep TempTitle in sync with Title if not renaming
@@ -63,6 +71,13 @@ public partial class PDTab : ComponentBase
 		}
 	}
 
+	/// <summary>
+	/// Gets the display title of the tab.
+	/// </summary>
 	public string GetTitle() => Title;
+
+	/// <summary>
+	/// Gets the child content of the tab.
+	/// </summary>
 	public RenderFragment? GetChildContent() => ChildContent;
 }

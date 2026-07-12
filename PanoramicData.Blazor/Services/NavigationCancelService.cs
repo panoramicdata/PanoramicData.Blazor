@@ -1,5 +1,9 @@
 ﻿namespace PanoramicData.Blazor.Services;
 
+/// <summary>
+/// Default implementation of <see cref="INavigationCancelService"/> that raises a browser confirmation dialog when observers request cancellation.
+/// </summary>
+/// <param name="jsRuntime">The <see cref="IJSRuntime"/> used to invoke the browser confirmation dialog.</param>
 public class NavigationCancelService(IJSRuntime jsRuntime) : INavigationCancelService
 {
     private readonly Task<IJSObjectReference>? _loadCommonJsTask = jsRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).AsTask();

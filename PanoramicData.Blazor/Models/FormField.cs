@@ -1,13 +1,21 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Describes a single data-bound field displayed within a <see cref="PDForm{TItem}"/>, including its binding expression,
+/// display options, validation rules, and visibility/read-only behaviour.
+/// </summary>
+/// <typeparam name="TItem">The model type the field is bound to.</typeparam>
 public class FormField<TItem> where TItem : class
 {
 	private Func<TItem, object>? _compiledFieldFunc;
 
 	internal Func<TItem, object>? CompiledFieldFunc => _compiledFieldFunc ??= Field?.Compile();
 
+	/// <summary>Raised whenever the field value changes in the form editor.</summary>
 	public event EventHandler<object?>? ValueChanged;
 
+	/// <summary>Raises the <see cref="ValueChanged"/> event with the supplied value.</summary>
+	/// <param name="value">The new field value.</param>
 	public void OnValueChanged(object? value)
 	{
 		ValueChanged?.Invoke(this, value);
@@ -230,6 +238,10 @@ public class FormField<TItem> where TItem : class
 		return dataType;
 	}
 
+	/// <summary>
+	/// Returns true if the field's underlying property type accepts null values
+	/// (i.e. it is a <see langword="string"/>, a nullable value type, or a reference type).
+	/// </summary>
 	public bool GetFieldIsNullable()
 	{
 		var memberInfo = Field?.GetPropertyMemberInfo();

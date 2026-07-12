@@ -2,6 +2,9 @@ using PanoramicData.Blazor.Enums;
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that animates an element's position changes using CSS transitions and JavaScript interop.
+/// </summary>
 public partial class PDAnimation : IDisposable
 {
 	private static int _sequence;
@@ -37,6 +40,7 @@ public partial class PDAnimation : IDisposable
 	private readonly List<ElementPosition> _positions = [];
 
 	// Java script Interop
+	/// <summary>Gets the injected JavaScript runtime used for JS interop calls.</summary>
 	[Inject] IJSRuntime JSRuntime { get; set; } = null!;
 
 	private IJSObjectReference? _module;
@@ -47,6 +51,7 @@ public partial class PDAnimation : IDisposable
 	private TimeSpan _lastAnimationTrigger = TimeSpan.Zero;
 	private bool _disposedValue;
 
+	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		// Load the Javascript module
@@ -118,12 +123,18 @@ public partial class PDAnimation : IDisposable
 		}
 	}
 
+	/// <summary>
+	/// Clears all cached element positions.
+	/// </summary>
 	public void ClearPositions()
 	{
-
 		_positions.Clear();
 	}
 
+	/// <summary>
+	/// Cancels any in-progress CSS animation on the element via JavaScript interop.
+	/// </summary>
+	/// <returns>A task that completes when the animation has been cancelled.</returns>
 	public async Task CancelAnimationAsync()
 	{
 		if (_module is not null)
@@ -147,6 +158,10 @@ public partial class PDAnimation : IDisposable
 			_ => "ease-in-out"
 		};
 
+	/// <summary>
+	/// Releases managed and unmanaged resources used by this component.
+	/// </summary>
+	/// <param name="disposing"><c>true</c> to release managed resources; <c>false</c> to release only unmanaged resources.</param>
 	protected virtual void Dispose(bool disposing)
 	{
 		if (!_disposedValue)
@@ -163,6 +178,7 @@ public partial class PDAnimation : IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method

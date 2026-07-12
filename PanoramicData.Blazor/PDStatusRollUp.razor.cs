@@ -20,6 +20,9 @@ public partial class PDStatusRollUp : IAsyncDisposable
 		Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
 	};
 
+	/// <summary>
+	/// Gets the injected JavaScript runtime.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>Gets or sets the status tree root node.</summary>
@@ -162,6 +165,7 @@ public partial class PDStatusRollUp : IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && Node is not null)
@@ -196,6 +200,7 @@ public partial class PDStatusRollUp : IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		if (_module is not null)

@@ -3,10 +3,12 @@ using Shouldly;
 
 namespace PanoramicData.Blazor.Test;
 
+/// <summary>Tests for the ColumnGroupHelper class.</summary>
 public class ColumnGroupHelperTests
 {
 	#region IsInActiveGroup
 
+	/// <summary>Verifies that when there is no active group, all columns are shown regardless of their group assignment.</summary>
 	[Fact]
 	public void IsInActiveGroup_NoActiveGroup_ShowsEverything()
 	{
@@ -15,6 +17,7 @@ public class ColumnGroupHelperTests
 		ColumnGroupHelper.IsInActiveGroup(null, null).ShouldBeTrue();
 	}
 
+	/// <summary>Verifies that ungrouped columns are always shown even when a specific group is active.</summary>
 	[Fact]
 	public void IsInActiveGroup_UngroupedColumn_AlwaysShown()
 	{
@@ -22,6 +25,7 @@ public class ColumnGroupHelperTests
 		ColumnGroupHelper.IsInActiveGroup("", "Stats").ShouldBeTrue();
 	}
 
+	/// <summary>Verifies that a grouped column is shown only when its group name matches the active group.</summary>
 	[Fact]
 	public void IsInActiveGroup_GroupedColumn_ShownOnlyWhenMatchingActiveGroup()
 	{
@@ -29,6 +33,7 @@ public class ColumnGroupHelperTests
 		ColumnGroupHelper.IsInActiveGroup("Stats", "Identity").ShouldBeFalse();
 	}
 
+	/// <summary>Verifies that group name comparison is case-sensitive.</summary>
 	[Fact]
 	public void IsInActiveGroup_IsCaseSensitive()
 		=> ColumnGroupHelper.IsInActiveGroup("Stats", "stats").ShouldBeFalse();
@@ -37,6 +42,7 @@ public class ColumnGroupHelperTests
 
 	#region BuildPills
 
+	/// <summary>Verifies that BuildPills returns groups ordered by their registered ordinal value.</summary>
 	[Fact]
 	public void BuildPills_OrdersRegisteredGroupsByOrdinalThenRegistration()
 	{
@@ -53,6 +59,7 @@ public class ColumnGroupHelperTests
 		pills.Select(p => p.Name).ShouldBe(["Identity", "Contact", "Dates"]);
 	}
 
+	/// <summary>Verifies that BuildPills counts the number of listable columns belonging to each group.</summary>
 	[Fact]
 	public void BuildPills_CountsListableColumnsPerGroup()
 	{
@@ -64,6 +71,7 @@ public class ColumnGroupHelperTests
 		pills.Single(p => p.Name == "Identity").Count.ShouldBe(3);
 	}
 
+	/// <summary>Verifies that groups not in the registered list are appended after registered groups in first-seen order.</summary>
 	[Fact]
 	public void BuildPills_IncludesStringOnlyGroupsAfterRegistered_InFirstSeenOrder()
 	{
@@ -75,10 +83,12 @@ public class ColumnGroupHelperTests
 		pills.Select(p => p.Name).ShouldBe(["Identity", "Zeta", "Alpha"]);
 	}
 
+	/// <summary>Verifies that null and empty group strings are excluded from the built pills.</summary>
 	[Fact]
 	public void BuildPills_IgnoresUngroupedColumns()
 		=> ColumnGroupHelper.BuildPills([], [null, "", null]).ShouldBeEmpty();
 
+	/// <summary>Verifies that the icon and description from the registered group are preserved in the resulting pill.</summary>
 	[Fact]
 	public void BuildPills_CarriesIconAndDescriptionFromRegisteredGroup()
 	{
@@ -93,6 +103,7 @@ public class ColumnGroupHelperTests
 		pill.Description.ShouldBe("Metrics");
 	}
 
+	/// <summary>Verifies that duplicate registrations of the same group name produce only a single pill.</summary>
 	[Fact]
 	public void BuildPills_DeduplicatesRegisteredGroupsByName()
 	{

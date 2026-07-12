@@ -29,6 +29,9 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	private DateTime _lastAnimationTime;
 	private bool _isDisposed;
 
+	/// <summary>
+	/// Gets the injected JavaScript runtime.
+	/// </summary>
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -241,6 +244,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		return $"float: {floatSide}; width: {widthPercent}%; height: 100%;";
 	}
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -249,6 +253,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		StartAnimationIfNeeded();
 	}
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
@@ -1438,6 +1443,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 
 	private sealed record AdjacentTile(int Column, int Row, string Type);
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		_isDisposed = true;

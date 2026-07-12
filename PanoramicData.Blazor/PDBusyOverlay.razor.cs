@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that displays a busy/loading overlay over its child content while an operation is in progress.
+/// </summary>
 public partial class PDBusyOverlay
 {
 	/// <summary>

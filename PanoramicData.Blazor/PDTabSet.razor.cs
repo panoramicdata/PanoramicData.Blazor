@@ -1,12 +1,21 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Specifies where the create-tab button is rendered within a <see cref="PDTabSet"/>.
+/// </summary>
 public enum CreateTabPosition
 {
+	/// <summary>Render the create-tab button at the start (left) of the tab strip.</summary>
 	Start,
+	/// <summary>Render the create-tab button at the end (right) of the tab strip.</summary>
 	End,
+	/// <summary>Render the create-tab button at both ends of the tab strip.</summary>
 	Both
 }
 
+/// <summary>
+/// A Blazor component that provides a tabbed container supporting dynamic tab management.
+/// </summary>
 public partial class PDTabSet : ComponentBase
 {
 	internal List<PDTab> Tabs { get; } = [];

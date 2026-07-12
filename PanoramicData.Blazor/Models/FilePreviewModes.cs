@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Specifies whether and how a preview panel is displayed in the file explorer.
+/// </summary>
 public enum FilePreviewModes
 {
 	/// <summary>

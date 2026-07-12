@@ -8,8 +8,11 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public enum InputMode
 {
+	/// <summary>Red, Green, Blue colour model.</summary>
 	RGB,
+	/// <summary>Hue, Saturation, Value colour model.</summary>
 	HSV,
+	/// <summary>Six-digit hexadecimal colour notation.</summary>
 	Hex
 }
 
@@ -146,6 +149,7 @@ public partial class PDColorPicker : IAsyncDisposable
 		_ => string.Empty
 	};
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		_currentColor.SetFromHex(Value);
@@ -153,6 +157,7 @@ public partial class PDColorPicker : IAsyncDisposable
 		_objRef = DotNetObjectReference.Create(this);
 	}
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		if (!_isOpen)
@@ -162,6 +167,7 @@ public partial class PDColorPicker : IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -598,6 +604,7 @@ public partial class PDColorPicker : IAsyncDisposable
 
 	#endregion
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		if (_module != null)

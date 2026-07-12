@@ -3,8 +3,10 @@ using Shouldly;
 
 namespace PanoramicData.Blazor.Test;
 
+/// <summary>Tests for the ColorExtensions extension methods.</summary>
 public class ColorExtensionsTests
 {
+    /// <summary>Verifies that interpolating at position 0.0 returns the first color unchanged.</summary>
     [Fact]
     public void WhenInterpolatingAtZeroThenReturnsFirstColor()
     {
@@ -13,6 +15,7 @@ public class ColorExtensionsTests
         result.ShouldBe("#000000");
     }
 
+    /// <summary>Verifies that interpolating at position 1.0 returns the second color unchanged.</summary>
     [Fact]
     public void WhenInterpolatingAtOneThenReturnsSecondColor()
     {
@@ -21,6 +24,7 @@ public class ColorExtensionsTests
         result.ShouldBe("#FFFFFF");
     }
 
+    /// <summary>Verifies that interpolating at position 0.5 returns a color at the midpoint between the two inputs.</summary>
     [Fact]
     public void WhenInterpolatingAtHalfThenReturnsMidpoint()
     {
@@ -30,6 +34,7 @@ public class ColorExtensionsTests
         result.ShouldBeOneOf("#7F7F7F", "#808080");
     }
 
+    /// <summary>Verifies that when the second color string is invalid, interpolation returns the first color.</summary>
     [Fact]
     public void WhenInvalidColorThenReturnsFirstColor()
     {

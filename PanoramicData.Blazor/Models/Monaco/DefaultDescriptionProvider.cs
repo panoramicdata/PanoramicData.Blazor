@@ -1,7 +1,11 @@
 ﻿namespace PanoramicData.Blazor.Models.Monaco;
 
+/// <summary>
+/// A built-in <see cref="MethodCache.IDescriptionProvider"/> that adds English descriptions for <c>System.Math</c> methods.
+/// </summary>
 public class DefaultDescriptionProvider : MethodCache.IDescriptionProvider
 {
+	/// <inheritdoc />
 	public void AddDescriptions(MethodCache.Method method)
 	{
 		var methodDescription = method.Fullname switch

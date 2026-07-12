@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a visual separator for use within a <see cref="PDToolbar"/>.
+/// </summary>
 public partial class PDToolbarSeparator : IToolbarItem, IEnablable
 {
 	/// <summary>
@@ -37,18 +40,28 @@ public partial class PDToolbarSeparator : IToolbarItem, IEnablable
 	/// </summary>
 	[Parameter] public bool ShiftRight { get; set; }
 
+	/// <summary>
+	/// Disables the separator.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Enables the separator.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether the separator is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable; false to disable.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;

@@ -45,6 +45,7 @@ public partial class PDGraphControls<TItem> : PDComponentBase where TItem : clas
 	[Parameter]
 	public EventCallback<(GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double damping)> ConfigurationChanged { get; set; }
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -55,6 +56,7 @@ public partial class PDGraphControls<TItem> : PDComponentBase where TItem : clas
 		}
 	}
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();

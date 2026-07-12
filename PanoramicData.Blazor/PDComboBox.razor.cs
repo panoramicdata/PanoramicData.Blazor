@@ -1,5 +1,9 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a combo box with type-ahead filtering and dropdown selection.
+/// </summary>
+/// <typeparam name="TItem">The type of item in the combo box.</typeparam>
 public partial class PDComboBox<TItem> : IAsyncDisposable
 {
 	// Mandatory parameters
@@ -105,6 +109,9 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	private bool _suppressOnInput;
 	private ElementReference _inputRef;
 
+	/// <summary>
+	/// Gets or sets the CSS class for the combo box container.
+	/// </summary>
 	public string CssClass { get; set; } = "default-combobox";
 
 	private IJSObjectReference? _jsModule;
@@ -113,6 +120,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 
 	[Inject] private IJSRuntime JS { get; set; } = default!;
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -122,6 +130,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		if (SelectedItem is null)
@@ -374,6 +383,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 
 	#region IAsyncDisposable
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		GC.SuppressFinalize(this);

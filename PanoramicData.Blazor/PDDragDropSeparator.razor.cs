@@ -1,7 +1,13 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that renders a visual separator that accepts drag-and-drop operations.
+/// </summary>
 public partial class PDDragDropSeparator
 {
+	/// <summary>
+	/// Gets or sets the cascading drag context.
+	/// </summary>
 	[CascadingParameter] public PDDragContext? DragContext { get; set; }
 
 	/// <summary>
@@ -24,6 +30,9 @@ public partial class PDDragDropSeparator
 	/// </summary>
 	[Parameter] public EventCallback<DropEventArgs> Drop { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the separator is currently in a drag-over state.
+	/// </summary>
 	public bool DragOver { get; set; }
 
 	private void OnDragOver() => DragOver = true;

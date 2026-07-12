@@ -3,8 +3,10 @@ using Shouldly;
 
 namespace PanoramicData.Blazor.Test;
 
+/// <summary>Tests for the DateTimeExtensions extension methods.</summary>
 public class DateTimeExtensionsTests
 {
+    /// <summary>Verifies that TotalMonthsSince returns the correct number of complete months between two dates.</summary>
     [Theory]
     [InlineData("2020-01-01", "2020-01-31", 0)]   // same month
     [InlineData("2020-01-01", "2020-02-01", 1)]   // exactly one month
@@ -20,6 +22,7 @@ public class DateTimeExtensionsTests
         end.TotalMonthsSince(start).ShouldBe(expected);
     }
 
+    /// <summary>Verifies that TotalMonthsSince returns zero when the end date is before the start date.</summary>
     [Fact]
     public void WhenEndIsBeforeStartThenTotalMonthsSinceReturnsZero()
     {
@@ -29,6 +32,7 @@ public class DateTimeExtensionsTests
         end.TotalMonthsSince(start).ShouldBe(0);
     }
 
+    /// <summary>Verifies that TotalYearsSince returns the correct number of complete years between two dates.</summary>
     [Theory]
     [InlineData("2020-01-01", "2020-12-31", 0)]   // same year
     [InlineData("2020-01-01", "2021-01-01", 1)]   // exactly one year
@@ -43,6 +47,7 @@ public class DateTimeExtensionsTests
         end.TotalYearsSince(start).ShouldBe(expected);
     }
 
+    /// <summary>Verifies that TotalYearsSince returns zero when the end date is before the start date.</summary>
     [Fact]
     public void WhenEndIsBeforeStartThenTotalYearsSinceReturnsZero()
     {
@@ -52,6 +57,7 @@ public class DateTimeExtensionsTests
         end.TotalYearsSince(start).ShouldBe(0);
     }
 
+    /// <summary>Verifies that TotalMonthsSince returns zero when both dates are the same.</summary>
     [Fact]
     public void WhenSameDateThenTotalMonthsSinceReturnsZero()
     {
@@ -60,6 +66,7 @@ public class DateTimeExtensionsTests
         date.TotalMonthsSince(date).ShouldBe(0);
     }
 
+    /// <summary>Verifies that TotalYearsSince returns zero when both dates are the same.</summary>
     [Fact]
     public void WhenSameDateThenTotalYearsSinceReturnsZero()
     {

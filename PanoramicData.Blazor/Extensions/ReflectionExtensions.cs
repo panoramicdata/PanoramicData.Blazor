@@ -1,7 +1,15 @@
 ﻿namespace PanoramicData.Blazor.Extensions;
 
+/// <summary>
+/// Extension methods for reflection types such as <see cref="System.Reflection.MethodInfo"/> and <see cref="System.Reflection.ParameterInfo"/>.
+/// </summary>
 public static class ReflectionExtensions
 {
+	/// <summary>
+	/// Returns the description for the given method, first checking <see cref="System.ComponentModel.DataAnnotations.DisplayAttribute.Description"/> then <see cref="System.ComponentModel.DescriptionAttribute.Description"/>.
+	/// </summary>
+	/// <param name="methodInfo">The method to inspect.</param>
+	/// <returns>The description string, or an empty string when no description attribute is found.</returns>
 	public static string GetDescription(this MethodInfo methodInfo)
 	{
 		// look for Display attribute
@@ -15,6 +23,11 @@ public static class ReflectionExtensions
 		return description ?? string.Empty;
 	}
 
+	/// <summary>
+	/// Returns the description for the given parameter, first checking <see cref="System.ComponentModel.DataAnnotations.DisplayAttribute.Description"/> then <see cref="System.ComponentModel.DescriptionAttribute.Description"/>.
+	/// </summary>
+	/// <param name="parameterInfo">The parameter to inspect.</param>
+	/// <returns>The description string, or an empty string when no description attribute is found.</returns>
 	public static string GetDescription(this ParameterInfo parameterInfo)
 	{
 		// look for Display attribute
@@ -28,6 +41,11 @@ public static class ReflectionExtensions
 		return description ?? string.Empty;
 	}
 
+	/// <summary>
+	/// Returns the display name for the given method, first checking <see cref="System.ComponentModel.DataAnnotations.DisplayAttribute.Name"/> then <see cref="System.ComponentModel.DisplayNameAttribute.DisplayName"/>. Falls back to the method's declared name.
+	/// </summary>
+	/// <param name="methodInfo">The method to inspect.</param>
+	/// <returns>The display name, or the method's declared name when no display attribute is found.</returns>
 	public static string GetName(this MethodInfo methodInfo)
 	{
 		// look for Display attribute
@@ -41,6 +59,11 @@ public static class ReflectionExtensions
 		return name ?? methodInfo.Name;
 	}
 
+	/// <summary>
+	/// Returns the display name for the given parameter, first checking <see cref="System.ComponentModel.DataAnnotations.DisplayAttribute.Name"/> then <see cref="System.ComponentModel.DisplayNameAttribute.DisplayName"/>. Falls back to the parameter's declared name.
+	/// </summary>
+	/// <param name="parameterInfo">The parameter to inspect.</param>
+	/// <returns>The display name, or the parameter's declared name when no display attribute is found.</returns>
 	public static string GetName(this ParameterInfo parameterInfo)
 	{
 		// look for Display attribute
@@ -125,6 +148,11 @@ public static class ReflectionExtensions
 	public static Type GetNonNullableType(this Type type)
 		=> Nullable.GetUnderlyingType(type) ?? type;
 
+	/// <summary>
+	/// Returns a human-readable type name, resolving generic arguments and mapping primitive CLR types to their C# keyword equivalents (e.g. <c>int</c>, <c>string</c>).
+	/// </summary>
+	/// <param name="type">The type to format.</param>
+	/// <returns>A friendly name string such as <c>List&lt;int&gt;</c> or <c>string</c>.</returns>
 	public static string GetFriendlyTypeName(this Type type)
 	{
 		if (type.IsGenericType)

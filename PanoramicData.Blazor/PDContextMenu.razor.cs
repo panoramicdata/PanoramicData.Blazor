@@ -1,11 +1,17 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that displays a context menu when the user right-clicks on the wrapped content.
+/// </summary>
 public partial class PDContextMenu : IAsyncDisposable
 {
 	private static int _idSequence;
 	private IJSObjectReference? _module;
 	private IJSObjectReference? _commonModule;
 
+	/// <summary>
+	/// Gets the injected JavaScript runtime.
+	/// </summary>
 	[Inject] public IJSRuntime? JSRuntime { get; set; }
 
 	/// <summary>
@@ -44,6 +50,7 @@ public partial class PDContextMenu : IAsyncDisposable
 	/// </summary>
 	public string Id { get; private set; } = string.Empty;
 
+	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -69,6 +76,9 @@ public partial class PDContextMenu : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Handles a click on a context menu item, hiding the menu and invoking the <see cref="ItemClick"/> callback.
+	/// </summary>
 	public async Task ClickHandler(MenuItem item)
 	{
 		if (!item.IsDisabled)
@@ -117,6 +127,7 @@ public partial class PDContextMenu : IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		try

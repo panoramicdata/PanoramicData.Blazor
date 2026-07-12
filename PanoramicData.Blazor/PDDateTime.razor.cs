@@ -1,5 +1,8 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a date and optional time input.
+/// </summary>
 public partial class PDDateTime
 {
 	private string _dateCssClass = string.Empty;

@@ -1,5 +1,8 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a date, time, and time zone offset input for <see cref="DateTimeOffset"/> values.
+/// </summary>
 public partial class PDDateTimeOffset : IDisposable
 {
 	private static readonly IReadOnlyList<TimeZoneInfo> _timeZones = TimeZoneInfo.GetSystemTimeZones();

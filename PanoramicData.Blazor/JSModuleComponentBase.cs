@@ -6,8 +6,10 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public abstract class JSModuleComponentBase : ComponentBase, IAsyncDisposable
 {
+	/// <summary>Gets the <see cref="IJSRuntime"/> injected by the Blazor framework.</summary>
 	[Inject] protected IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <summary>Gets the loaded JavaScript module reference, or <c>null</c> before the module has been imported.</summary>
 	protected IJSObjectReference? Module { get; private set; }
 
 	/// <summary>
@@ -29,6 +31,7 @@ public abstract class JSModuleComponentBase : ComponentBase, IAsyncDisposable
 	/// <param name="firstRender">True if this is the first render of the component.</param>
 	protected virtual Task OnAfterRenderWithModuleAsync(bool firstRender) => Task.CompletedTask;
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -57,6 +60,9 @@ public abstract class JSModuleComponentBase : ComponentBase, IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Disposes the loaded JavaScript module and suppresses the finalizer.
+	/// </summary>
 	public virtual async ValueTask DisposeAsync()
 	{
 		try

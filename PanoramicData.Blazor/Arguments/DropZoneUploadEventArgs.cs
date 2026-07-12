@@ -54,6 +54,9 @@ public class DropZoneUploadEventArgs(string path, string name, long size, string
 	/// </summary>
 	public int BatchProgress { get; set; }
 
+	/// <summary>
+	/// Gets the full path of the file, combining <see cref="Path"/> and <see cref="Name"/>.
+	/// </summary>
 	public string FullPath
 	{
 		get

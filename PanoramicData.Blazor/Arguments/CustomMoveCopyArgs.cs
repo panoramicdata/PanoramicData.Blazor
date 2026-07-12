@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Arguments;
 
+/// <summary>
+/// Provides arguments for a move or copy operation and allows the default action to be cancelled.
+/// </summary>
 public class CustomMoveCopyArgs : MoveCopyArgs
 {
 	/// <summary>

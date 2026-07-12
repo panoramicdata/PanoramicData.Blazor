@@ -1,13 +1,20 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Holds information about a DOM element, including its tag, CSS classes, and parent chain, as returned from JavaScript interop.
+/// </summary>
 public class ElementInfo
 {
+	/// <summary>Gets or sets the list of CSS classes applied to this element.</summary>
 	public string[] ClassList { get; set; } = [];
 
+	/// <summary>Gets or sets the <c>id</c> attribute value of this element.</summary>
 	public string Id { get; set; } = string.Empty;
 
+	/// <summary>Gets or sets the parent element, or <c>null</c> when this is the root element.</summary>
 	public ElementInfo? Parent { get; set; }
 
+	/// <summary>Gets or sets the HTML tag name of this element (e.g. <c>"div"</c>).</summary>
 	public string Tag { get; set; } = string.Empty;
 
 	/// <summary>

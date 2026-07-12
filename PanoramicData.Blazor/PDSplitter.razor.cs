@@ -1,12 +1,21 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a resizable split-panel layout powered by split.js.
+/// </summary>
 public partial class PDSplitter : IAsyncDisposable
 {
 	private static int _idSequence;
 	private IJSObjectReference? _module;
 
+	/// <summary>
+	/// Gets the unique identifier of this splitter instance.
+	/// </summary>
 	public string Id { get; private set; } = $"pdsplit-{++_idSequence}";
 
+	/// <summary>
+	/// Gets or sets the injected JavaScript runtime.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
@@ -64,6 +73,7 @@ public partial class PDSplitter : IAsyncDisposable
 		StateHasChanged();
 	}
 
+	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -103,6 +113,10 @@ public partial class PDSplitter : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Returns the current sizes of the panels as percentages.
+	/// </summary>
+	/// <returns>An array of percentage sizes, one per panel.</returns>
 	public async Task<double[]> GetSizesAsync()
 	{
 		if (_module != null)
@@ -113,6 +127,10 @@ public partial class PDSplitter : IAsyncDisposable
 		return [];
 	}
 
+	/// <summary>
+	/// Sets the sizes of the panels as percentages.
+	/// </summary>
+	/// <param name="sizes">An array of percentage sizes to apply, one per panel.</param>
 	public async Task SetSizesAsync(double[] sizes)
 	{
 		if (_module != null)
@@ -121,6 +139,7 @@ public partial class PDSplitter : IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		try

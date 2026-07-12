@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A versatile button component supporting icons, text, shortcut keys, async operations, and URL navigation.
+/// </summary>
 public partial class PDButton : IEnablable, IDisposable
 {
 	private bool _operationInProgress;
@@ -153,6 +156,7 @@ public partial class PDButton : IEnablable, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
@@ -170,24 +174,35 @@ public partial class PDButton : IEnablable, IDisposable
 		}
 	}
 
+	/// <summary>
+	/// Enables the button so it can be clicked.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Disables the button so it cannot be clicked.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets the enabled state of the button.
+	/// </summary>
+	/// <param name="isEnabled"><c>true</c> to enable the button; <c>false</c> to disable it.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;
 		StateHasChanged();
 	}
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		if (ShortcutKey.HasValue)

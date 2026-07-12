@@ -151,6 +151,10 @@ public class TreeNode<T> : IComparable
 		return true;
 	}
 
+	/// <summary>
+	/// Returns a string that represents the current node, including its key and optionally its data.
+	/// </summary>
+	/// <returns>A formatted string describing this node.</returns>
 	public override string ToString() => Data is null ? $"key: {Key}" : $"key: {Key}, data: {Data}";
 	internal void BeginEdit()
 	{
@@ -307,6 +311,7 @@ public class TreeNode<T> : IComparable
 		return text;
 	}
 
+	/// <inheritdoc />
 	public int CompareTo(object? obj)
 	{
 		if (obj is null)

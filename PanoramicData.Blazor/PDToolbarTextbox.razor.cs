@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a text input for use within a <see cref="PDToolbar"/>.
+/// </summary>
 public partial class PDToolbarTextbox : IEnablable
 {
 	/// <summary>
@@ -97,6 +100,9 @@ public partial class PDToolbarTextbox : IEnablable
 	/// </summary>
 	[Parameter] public int DebounceWait { get; set; }
 
+	/// <summary>
+	/// Gets the inline style for the toolbar item container, setting the width.
+	/// </summary>
 	public string ItemStyle => $"width: {Width}";
 
 	private async Task OnKeypress(KeyboardEventArgs args) => await Keypress.InvokeAsync(args).ConfigureAwait(true);
@@ -116,18 +122,28 @@ public partial class PDToolbarTextbox : IEnablable
 			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 		}
 	}
+	/// <summary>
+	/// Disables the text box.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Enables the text box.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether the text box is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable; false to disable.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;

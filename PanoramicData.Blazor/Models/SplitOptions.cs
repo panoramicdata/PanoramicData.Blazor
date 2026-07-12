@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Configuration options for the <see cref="PanoramicData.Blazor.PDSplitter"/> component, passed to the underlying Split.js library.
+/// </summary>
 public class SplitOptions
 {
 	/// <summary>

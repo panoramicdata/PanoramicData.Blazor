@@ -5,6 +5,9 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDWizardStep : ComponentBase
 {
+    /// <summary>
+    /// Gets or sets the parent wizard component.
+    /// </summary>
     [CascadingParameter(Name = "Wizard")] public PDWizard Wizard { get; set; } = default!;
 
     /// <summary>
@@ -60,6 +63,7 @@ public partial class PDWizardStep : ComponentBase
     /// </summary>
     internal bool IsLoading { get; set; }
 
+    /// <inheritdoc />
     protected override void OnInitialized()
     {
         Wizard?.AddStep(this);

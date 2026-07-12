@@ -36,6 +36,7 @@ public partial class PDStudioResults : PDComponentBase
 	/// </summary>
 	[Parameter] public EventCallback<string> ContentChanged { get; set; }
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		// Update iframe content if it changed

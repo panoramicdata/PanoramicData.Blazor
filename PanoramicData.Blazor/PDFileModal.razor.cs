@@ -1,7 +1,13 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a modal file open/save dialog backed by a <see cref="PDFileExplorer"/>.
+/// </summary>
 public partial class PDFileModal
 {
+	/// <summary>
+	/// Gets the underlying modal dialog component.
+	/// </summary>
 	public PDModal Modal { get; private set; } = null!;
 
 	private bool _showOpen;
@@ -142,6 +148,7 @@ public partial class PDFileModal
 		}
 	}
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		// create toolbar contents
@@ -164,6 +171,9 @@ public partial class PDFileModal
 
 	private string? GetItemIconCssClassInternal(FileExplorerItem item) => GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
 
+	/// <summary>
+	/// Shows the dialog in Open mode and returns once the user has dismissed it.
+	/// </summary>
 	public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "", string initialFolder = "")
 	{
 		_showOpen = true;
@@ -207,6 +217,9 @@ public partial class PDFileModal
 		}
 	}
 
+	/// <summary>
+	/// Shows the dialog in Open mode and waits for the user to select a file, returning the selected path.
+	/// </summary>
 	public async Task<string> ShowOpenAndWaitResultAsync(bool folderSelect = false, string filenamePattern = "")
 	{
 		_showOpen = true;
@@ -251,6 +264,9 @@ public partial class PDFileModal
 	/// </summary>
 	public async Task RefreshFileExplorerAsync() => await FileExplorer.RefreshAllAsync().ConfigureAwait(true);
 
+	/// <summary>
+	/// Shows the dialog in Save As mode and returns once the user has dismissed it.
+	/// </summary>
 	public async Task ShowSaveAsAsync(string initialFilename = "", string filenamePattern = "")
 	{
 		_showOpen = false;
@@ -295,6 +311,9 @@ public partial class PDFileModal
 		}
 	}
 
+	/// <summary>
+	/// Shows the dialog in Save As mode and waits for the user to confirm a filename, returning the selected path.
+	/// </summary>
 	public async Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename = "", string filenamePattern = "")
 	{
 		_showOpen = false;

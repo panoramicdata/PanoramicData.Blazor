@@ -1,7 +1,13 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that represents a single item within a <see cref="PDToolbarDropdown"/> menu.
+/// </summary>
 public partial class PDMenuItem
 {
+	/// <summary>
+	/// Gets or sets the parent toolbar dropdown this item belongs to.
+	/// </summary>
 	[CascadingParameter(Name = "ToolbarDropdown")]
 	public PDToolbarDropdown ToolbarDropdown { get; set; } = null!;
 
@@ -53,5 +59,6 @@ public partial class PDMenuItem
 	[Parameter]
 	public ShortcutKey ShortcutKey { get; set; } = new ShortcutKey();
 
+	/// <inheritdoc />
 	protected override void OnInitialized() => ToolbarDropdown?.AddMenuItem(this);
 }

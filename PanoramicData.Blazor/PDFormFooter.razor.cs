@@ -1,5 +1,9 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that renders a footer for a <see cref="PDForm{TItem}"/>, including action buttons and optional error count display.
+/// </summary>
+/// <typeparam name="TItem">The type of the item being displayed or edited in the form.</typeparam>
 public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 {
 	private bool _formSet;
@@ -131,6 +135,8 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 	/// </summary>
 	[Parameter] public string NoButtonIconCssClass { get; set; } = "fas fa-fw fa-times";
 
+	/// <inheritdoc />
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		if (Form != null)
@@ -157,6 +163,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		InvokeAsync(() => { StateHasChanged(); }).ConfigureAwait(true);
 	}
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		// update state of default buttons

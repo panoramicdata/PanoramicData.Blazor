@@ -258,6 +258,7 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		_ => "both"
 	};
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -269,6 +270,7 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		_previousEffectiveIsEditable = EffectiveIsEditable;
 	}
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		// When edit mode is turned off, close any open configuration or rename
@@ -502,6 +504,7 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -511,6 +514,7 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnParametersSetAsync()
 	{
 		if (WidgetType == PDWidgetType.Clock)
@@ -673,6 +677,7 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 		return null;
 	}
 
+	/// <inheritdoc />
 	public ValueTask DisposeAsync()
 	{
 		_refreshTimer?.Dispose();

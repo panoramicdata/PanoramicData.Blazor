@@ -1,5 +1,8 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that listens for global keyboard events and forwards them to the <see cref="IGlobalEventService"/>.
+/// </summary>
 public partial class PDGlobalListener : IAsyncDisposable
 {
 	private DotNetObjectReference<PDGlobalListener>? _dotNetObjectReference;
@@ -12,8 +15,12 @@ public partial class PDGlobalListener : IAsyncDisposable
 
 	[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;
 
+	/// <summary>
+	/// Gets or sets the injected JavaScript runtime.
+	/// </summary>
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -31,11 +38,13 @@ public partial class PDGlobalListener : IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -78,9 +87,17 @@ public partial class PDGlobalListener : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Invoked by JavaScript when a key-down event occurs.
+	/// </summary>
+	/// <param name="keyboardInfo">Information about the key that was pressed.</param>
 	[JSInvokable]
 	public void OnKeyDown(KeyboardInfo keyboardInfo) => GlobalEventService?.KeyDown(keyboardInfo);
 
+	/// <summary>
+	/// Invoked by JavaScript when a key-up event occurs.
+	/// </summary>
+	/// <param name="keyboardInfo">Information about the key that was released.</param>
 	[JSInvokable]
 	public void OnKeyUp(KeyboardInfo keyboardInfo) => GlobalEventService?.KeyUp(keyboardInfo);
 }

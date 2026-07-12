@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Options;
 
+/// <summary>
+/// Configuration options for the <see cref="PanoramicData.Blazor.PDToggleSwitch"/> component.
+/// </summary>
 public class PDToggleSwitchOptions
 {
 	/// <summary>

@@ -1,5 +1,8 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a mixing-desk style container for audio channel controls.
+/// </summary>
 public partial class PDMixingDesk
 {
 	/// <summary>

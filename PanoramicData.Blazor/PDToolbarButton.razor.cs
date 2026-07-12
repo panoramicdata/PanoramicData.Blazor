@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a clickable button for use within a <see cref="PDToolbar"/>.
+/// </summary>
 public partial class PDToolbarButton : IToolbarItem, IEnablable
 {
 	/// <summary>
@@ -90,6 +93,7 @@ public partial class PDToolbarButton : IToolbarItem, IEnablable
 
 	private Dictionary<string, object> Attributes { get; set; } = [];
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		if (!string.IsNullOrEmpty(Key))
@@ -101,18 +105,22 @@ public partial class PDToolbarButton : IToolbarItem, IEnablable
 
 	private async Task OnClick(MouseEventArgs args) => await Click.InvokeAsync(new KeyedEventArgs<MouseEventArgs>(Key, args)).ConfigureAwait(true);
 
+	/// <summary>Disables this toolbar button and triggers a UI update.</summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>Enables this toolbar button and triggers a UI update.</summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>Sets whether this toolbar button is enabled or disabled and triggers a UI update.</summary>
+	/// <param name="isEnabled">When <c>true</c>, the button is enabled; otherwise it is disabled.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;

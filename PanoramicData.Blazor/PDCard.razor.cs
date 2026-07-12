@@ -1,5 +1,9 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component representing an individual card within a <see cref="PDCardDeck{TCard}"/>, supporting drag-and-drop, selection, and optional position animation.
+/// </summary>
+/// <typeparam name="TCard">The type of card data displayed by this component. Must implement <see cref="ICard"/>.</typeparam>
 public partial class PDCard<TCard> where TCard : ICard
 {
 

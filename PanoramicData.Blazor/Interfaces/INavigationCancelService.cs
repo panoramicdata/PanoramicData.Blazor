@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Interfaces;
 
+/// <summary>
+/// Defines a service that intercepts navigation events and gives registered observers a chance to cancel them.
+/// </summary>
 public interface INavigationCancelService
 {
 	/// <summary>

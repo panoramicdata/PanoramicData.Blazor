@@ -3,8 +3,10 @@ using Shouldly;
 
 namespace PanoramicData.Blazor.Test;
 
+/// <summary>Tests for the PageCriteria class.</summary>
 public class PageCriteriaTests
 {
+    /// <summary>Verifies that default construction sets Page to 1, PageSize to 10, and TotalCount to 0.</summary>
     [Fact]
     public void WhenConstructedWithDefaultsThenPageIsOne()
     {
@@ -15,6 +17,7 @@ public class PageCriteriaTests
         pc.TotalCount.ShouldBe(0u);
     }
 
+    /// <summary>Verifies that constructing with explicit values sets all Page, PageSize, and TotalCount properties correctly.</summary>
     [Fact]
     public void WhenConstructedWithValuesThenPropertiesAreSet()
     {
@@ -25,6 +28,7 @@ public class PageCriteriaTests
         pc.TotalCount.ShouldBe(100u);
     }
 
+    /// <summary>Verifies that PageCount is calculated correctly for various total counts and page sizes.</summary>
     [Theory]
     [InlineData(100u, 10u, 10u)]
     [InlineData(101u, 10u, 11u)]
@@ -38,6 +42,7 @@ public class PageCriteriaTests
         pc.PageCount.ShouldBe(expectedPageCount);
     }
 
+    /// <summary>Verifies that IsFirstPage is true and IsLastPage is false on the first page.</summary>
     [Fact]
     public void WhenOnFirstPageThenIsFirstPageIsTrue()
     {
@@ -47,6 +52,7 @@ public class PageCriteriaTests
         pc.IsLastPage.ShouldBeFalse();
     }
 
+    /// <summary>Verifies that IsLastPage is true and IsFirstPage is false on the last page.</summary>
     [Fact]
     public void WhenOnLastPageThenIsLastPageIsTrue()
     {
@@ -56,6 +62,7 @@ public class PageCriteriaTests
         pc.IsFirstPage.ShouldBeFalse();
     }
 
+    /// <summary>Verifies that PageRangeStart and PageRangeEnd return the correct item index bounds for each page.</summary>
     [Theory]
     [InlineData(1u, 10u, 50u, 1u, 10u)]
     [InlineData(2u, 10u, 50u, 11u, 20u)]
@@ -70,6 +77,7 @@ public class PageCriteriaTests
         pc.PageRangeEnd.ShouldBe(expectedEnd);
     }
 
+    /// <summary>Verifies that setting Page to a value beyond the available page count leaves the page unchanged.</summary>
     [Fact]
     public void WhenSettingPageBeyondPageCountThenPageIsNotChanged()
     {
@@ -81,6 +89,7 @@ public class PageCriteriaTests
 		pc.Page.ShouldBe(1u);
     }
 
+    /// <summary>Verifies that setting Page to zero leaves the page unchanged.</summary>
     [Fact]
     public void WhenSettingPageToZeroThenPageIsNotChanged()
     {
@@ -92,6 +101,7 @@ public class PageCriteriaTests
 		pc.Page.ShouldBe(2u);
     }
 
+    /// <summary>Verifies that setting PageSize to zero throws an ArgumentOutOfRangeException.</summary>
     [Fact]
     public void WhenSettingPageSizeToZeroThenThrows()
     {
@@ -100,6 +110,7 @@ public class PageCriteriaTests
         Should.Throw<ArgumentOutOfRangeException>(() => pc.PageSize = 0);
     }
 
+    /// <summary>Verifies that when page size increases and the current page exceeds the new page count, the page is adjusted to the last valid page.</summary>
     [Fact]
     public void WhenPageSizeIncreasesAndPageExceedsNewPageCountThenPageIsAdjusted()
     {
@@ -111,6 +122,7 @@ public class PageCriteriaTests
 		pc.Page.ShouldBe(2u);
     }
 
+    /// <summary>Verifies that when total count decreases and the current page exceeds the new page count, the page is adjusted.</summary>
     [Fact]
     public void WhenTotalCountDecreasesAndPageExceedsNewPageCountThenPageIsAdjusted()
     {
@@ -122,6 +134,7 @@ public class PageCriteriaTests
 		pc.Page.ShouldBe(2u);
     }
 
+    /// <summary>Verifies that setting total count to zero resets the page to 1.</summary>
     [Fact]
     public void WhenTotalCountSetToZeroThenPageResetsToOne()
     {
@@ -133,6 +146,7 @@ public class PageCriteriaTests
 		pc.Page.ShouldBe(1u);
     }
 
+    /// <summary>Verifies that the PageChanged event is raised when the page number changes.</summary>
     [Fact]
     public void WhenPageChangedThenEventIsFired()
     {
@@ -145,6 +159,7 @@ public class PageCriteriaTests
         fired.ShouldBeTrue();
     }
 
+    /// <summary>Verifies that the PageSizeChanged event is raised when the page size changes.</summary>
     [Fact]
     public void WhenPageSizeChangedThenEventIsFired()
     {
@@ -157,6 +172,7 @@ public class PageCriteriaTests
         fired.ShouldBeTrue();
     }
 
+    /// <summary>Verifies that the TotalCountChanged event is raised when the total count changes.</summary>
     [Fact]
     public void WhenTotalCountChangedThenEventIsFired()
     {
@@ -169,6 +185,7 @@ public class PageCriteriaTests
         fired.ShouldBeTrue();
     }
 
+    /// <summary>Verifies that PreviousItems returns the correct count of items before the current page.</summary>
     [Fact]
     public void WhenPreviousItemsThenReturnsCorrectCount()
     {

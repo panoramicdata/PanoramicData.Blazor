@@ -93,6 +93,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	[Parameter]
 	public EventCallback<(GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double Damping)> ConfigurationChanged { get; set; }
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
@@ -133,6 +134,10 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	}
 
 	// Update the OnConfigurationChanged method
+	/// <summary>
+	/// Updates the visualization and clustering configuration, preserving current node positions.
+	/// </summary>
+	/// <param name="config">A tuple containing the new visualization configuration, clustering configuration, and damping value.</param>
 	public async Task UpdateConfigurationAsync((GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double Damping) config)
 	{
 		VisualizationConfig = config.Visualization;
@@ -154,6 +159,10 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	}
 
 	// ✅ KEEP: Only the methods that are called externally
+	/// <summary>
+	/// Refreshes the graph data from the data provider.
+	/// </summary>
+	/// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
 	public async Task RefreshAsync(CancellationToken cancellationToken = default)
 	{
 		if (_graph is not null)
@@ -162,6 +171,10 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Centers the graph view on the specified node.
+	/// </summary>
+	/// <param name="nodeId">The ID of the node to center on.</param>
 	public async Task CenterOnNodeAsync(string nodeId)
 	{
 		if (_graph is not null)
@@ -170,6 +183,9 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Fits the entire graph into the current viewport.
+	/// </summary>
 	public async Task FitToViewAsync()
 	{
 		if (_graph is not null)

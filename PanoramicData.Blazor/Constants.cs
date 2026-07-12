@@ -1,12 +1,23 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// Library-wide constants used across multiple components.
+/// </summary>
 public static class Constants
 {
-
+	/// <summary>
+	/// Token used to represent the "select all" option in filter and combo-box components.
+	/// </summary>
 	public const string TokenAll = "(All)";
 
+	/// <summary>
+	/// Token used to represent the "select none" or "no value" option in filter and combo-box components.
+	/// </summary>
 	public const string TokenNone = "(None)";
 
+	/// <summary>
+	/// Provides standard predicate and accessor helper functions for use with <see cref="PanoramicData.Blazor.PDForm{TItem}"/> field configuration.
+	/// </summary>
 	public static class Functions
 	{
 		/// <summary>

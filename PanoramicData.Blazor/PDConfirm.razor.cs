@@ -1,11 +1,17 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that displays a modal confirmation dialog with Yes, No, and optional Cancel buttons.
+/// </summary>
 public partial class PDConfirm : PDModalBase
 {
 	private readonly ToolbarButton _cancelButton = new() { Key = ModalResults.CANCEL, Text = "Cancel", IsVisible = false };
 	private readonly ToolbarButton _noButton = new() { Key = ModalResults.NO, Text = "No" };
 	private readonly ToolbarButton _yesButton = new() { Key = ModalResults.YES, Text = "Yes", CssClass = "btn-primary", ShiftRight = true };
 
+	/// <summary>
+	/// Initializes a new instance of <see cref="PDConfirm"/> with default button configuration.
+	/// </summary>
 	public PDConfirm()
 	{
 		// override modal standard defaults
@@ -63,6 +69,7 @@ public partial class PDConfirm : PDModalBase
 	[Parameter]
 	public string YesText { get; set; } = "Yes";
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		// update Yes, No and Cancel text?
@@ -136,13 +143,14 @@ public partial class PDConfirm : PDModalBase
 		};
 	}
 
-	/// <summary>
-	/// Enumeration of possible Confirm dialog outcomes.
-	/// </summary>
+	/// <summary>Specifies possible outcomes of the confirmation dialog.</summary>
 	public enum Outcomes
 	{
+		/// <summary>The user clicked Yes.</summary>
 		Yes,
+		/// <summary>The user clicked No.</summary>
 		No,
+		/// <summary>The user clicked Cancel or dismissed the dialog.</summary>
 		Cancel
 	}
 }

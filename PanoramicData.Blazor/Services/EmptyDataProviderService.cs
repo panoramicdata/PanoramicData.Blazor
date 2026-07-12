@@ -8,15 +8,19 @@
 /// by calling apps.</remarks>
 public class EmptyDataProviderService<TItem> : IDataProviderService<TItem>
 {
+	/// <inheritdoc />
 	public Task<OperationResponse> CreateAsync(TItem item, CancellationToken cancellationToken)
 		=> Task.FromResult(new OperationResponse { Success = true });
 
+	/// <inheritdoc />
 	public Task<OperationResponse> DeleteAsync(TItem item, CancellationToken cancellationToken)
 		=> Task.FromResult(new OperationResponse { Success = true });
 
+	/// <inheritdoc />
 	public Task<DataResponse<TItem>> GetDataAsync(DataRequest<TItem> request, CancellationToken cancellationToken)
 		=> Task.FromResult(new DataResponse<TItem>([], 0));
 
+	/// <inheritdoc />
 	public Task<OperationResponse> UpdateAsync(TItem item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
 		=> Task.FromResult(new OperationResponse { Success = true });
 }

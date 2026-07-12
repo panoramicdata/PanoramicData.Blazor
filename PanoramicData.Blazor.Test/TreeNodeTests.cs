@@ -3,6 +3,7 @@ using Shouldly;
 
 namespace PanoramicData.Blazor.Test;
 
+/// <summary>Tests for the TreeNode&lt;T&gt; class.</summary>
 public class TreeNodeTests
 {
     private static TreeNode<string> CreateTree()
@@ -27,6 +28,7 @@ public class TreeNodeTests
         return root;
     }
 
+    /// <summary>Verifies that Find returns the node with the specified key.</summary>
     [Fact]
     public void WhenFindingExistingKeyThenNodeIsReturned()
     {
@@ -38,6 +40,7 @@ public class TreeNodeTests
         result.Text.ShouldBe("A2");
     }
 
+    /// <summary>Verifies that Find returns null when the key does not exist in the tree.</summary>
     [Fact]
     public void WhenFindingMissingKeyThenNullIsReturned()
     {
@@ -48,6 +51,7 @@ public class TreeNodeTests
         result.ShouldBeNull();
     }
 
+    /// <summary>Verifies that Walk visits all nodes in the tree in depth-first order.</summary>
     [Fact]
     public void WhenWalkingThenAllNodesAreVisited()
     {
@@ -63,6 +67,7 @@ public class TreeNodeTests
         visited.ShouldBe(["root", "a", "a1", "a2", "b", "b1"]);
     }
 
+    /// <summary>Verifies that Walk stops tree traversal when the callback returns false.</summary>
     [Fact]
     public void WhenWalkReturnsFalseThenWalkStopsEarly()
     {
@@ -78,6 +83,7 @@ public class TreeNodeTests
         visited.ShouldBe(["root", "a", "a1"]);
     }
 
+    /// <summary>Verifies that IsLeaf is true for a node that has no children.</summary>
     [Fact]
     public void WhenNodeHasNoChildrenThenIsLeafIsTrue()
     {
@@ -86,6 +92,7 @@ public class TreeNodeTests
         leaf.Isleaf.ShouldBeTrue();
     }
 
+    /// <summary>Verifies that IsLeaf is false for a node that has at least one child.</summary>
     [Fact]
     public void WhenNodeHasChildrenThenIsLeafIsFalse()
     {
@@ -98,6 +105,7 @@ public class TreeNodeTests
 		parent.Isleaf.ShouldBeFalse();
     }
 
+    /// <summary>Verifies that GetNext returns the first child node when the current node is expanded and has children.</summary>
     [Fact]
     public void WhenGetNextOnExpandedNodeThenFirstChildIsReturned()
     {
@@ -110,6 +118,7 @@ public class TreeNodeTests
         next.Key.ShouldBe("a1");
     }
 
+    /// <summary>Verifies that GetNext returns the next sibling of the parent when the node is the last child in its subtree.</summary>
     [Fact]
     public void WhenGetNextOnLastChildThenNextSiblingOfParentIsReturned()
     {
@@ -122,6 +131,7 @@ public class TreeNodeTests
         next.Key.ShouldBe("b");
     }
 
+    /// <summary>Verifies that GetNext returns null for the last node in the entire tree.</summary>
     [Fact]
     public void WhenGetNextOnLastNodeThenNullIsReturned()
     {
@@ -133,6 +143,7 @@ public class TreeNodeTests
         next.ShouldBeNull();
     }
 
+    /// <summary>Verifies that GetPrevious returns the parent node when the current node is the first child.</summary>
     [Fact]
     public void WhenGetPreviousOnFirstChildThenParentIsReturned()
     {
@@ -145,6 +156,7 @@ public class TreeNodeTests
         prev.Key.ShouldBe("a");
     }
 
+    /// <summary>Verifies that GetPrevious returns the last descendant of the preceding sibling when traversing backward.</summary>
     [Fact]
     public void WhenGetPreviousOnSecondSiblingThenFirstSiblingIsReturned()
     {
@@ -157,6 +169,7 @@ public class TreeNodeTests
         prev.Key.ShouldBe("a2");
     }
 
+    /// <summary>Verifies that CompareTo compares nodes alphabetically by their Text property.</summary>
     [Fact]
     public void WhenCompareToThenComparesTextAlphabetically()
     {
@@ -168,6 +181,7 @@ public class TreeNodeTests
         apple.CompareTo(apple).ShouldBe(0);
     }
 
+    /// <summary>Verifies that CompareTo throws an InvalidOperationException when comparing against null.</summary>
     [Fact]
     public void WhenCompareToNullThenThrows()
     {
@@ -176,6 +190,7 @@ public class TreeNodeTests
         Should.Throw<InvalidOperationException>(() => node.CompareTo(null));
     }
 
+    /// <summary>Verifies that ToString includes the node's key in its string representation.</summary>
     [Fact]
     public void WhenToStringWithDataThenIncludesKey()
     {
@@ -184,6 +199,7 @@ public class TreeNodeTests
         node.ToString().ShouldContain("k1");
     }
 
+    /// <summary>Verifies that ToString returns "key: {Key}" for a node with only a key set.</summary>
     [Fact]
     public void WhenToStringWithoutDataThenShowsKeyOnly()
     {

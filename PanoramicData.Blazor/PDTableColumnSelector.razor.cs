@@ -1,5 +1,8 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a column selector UI for a <see cref="PDTable{TItem}"/>, allowing users to reorder and toggle column visibility.
+/// </summary>
 public partial class PDTableColumnSelector<TItem> where TItem : class
 {
 	private readonly List<IDisplayItem> _items = [];
@@ -23,6 +26,10 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 	[Parameter]
 	public bool CanChangeVisible { get; set; } = true;
 
+	/// <summary>
+	/// Handles column reordering when the drag order changes.
+	/// </summary>
+	/// <param name="args">The drag order change arguments containing the new item order.</param>
 	public async Task OnOrderChanged(DragOrderChangeArgs<IDisplayItem> args)
 	{
 		// commit ordering change
@@ -55,6 +62,7 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 		}
 	}
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		if (Table != null)
@@ -86,6 +94,10 @@ public partial class PDTableColumnSelector<TItem> where TItem : class
 		}
 	}
 
+	/// <summary>
+	/// Handles column visibility changes when the selection changes.
+	/// </summary>
+	/// <param name="selection">The currently selected (visible) items.</param>
 	public async Task OnSelectionChanged(IEnumerable<IDisplayItem> selection)
 	{
 		// update column visibilities

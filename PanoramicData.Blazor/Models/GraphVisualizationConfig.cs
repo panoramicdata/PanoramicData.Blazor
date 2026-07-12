@@ -159,24 +159,42 @@ public class GraphEdgeVisualization
 public class GraphVisualizationDefaults
 {
 	// Node defaults
+	/// <summary>Gets or sets the default node size (0.0–1.0 normalized scale).</summary>
 	public double NodeSize { get; set; } = 0.5;
+	/// <summary>Gets or sets the default node shape (0.0 = Circle, 0.2 = Oval, 0.4 = Diamond, 0.6 = Octagon, 0.8 = Square, 1.0 = Rectangle).</summary>
 	public double NodeShape { get; set; } // Circle by default (0.0)
+	/// <summary>Gets or sets the default node fill hue (0.0–1.0). Default is 0.6 (blue).</summary>
 	public double NodeFillHue { get; set; } = 0.6; // Blue
+	/// <summary>Gets or sets the default node fill saturation (0.0–1.0).</summary>
 	public double NodeFillSaturation { get; set; } = 0.7;
+	/// <summary>Gets or sets the default node fill luminance (0.0–1.0).</summary>
 	public double NodeFillLuminance { get; set; } = 0.5;
+	/// <summary>Gets or sets the default node fill alpha (0.0–1.0).</summary>
 	public double NodeFillAlpha { get; set; } = 0.8;
+	/// <summary>Gets or sets the default node stroke thickness (0.0–1.0 normalized scale).</summary>
 	public double NodeStrokeThickness { get; set; } = 0.5;
+	/// <summary>Gets or sets the default node stroke hue (0.0–1.0). Default is 0.0 (black).</summary>
 	public double NodeStrokeHue { get; set; } // Black (0.0)
+	/// <summary>Gets or sets the default node stroke saturation (0.0–1.0).</summary>
 	public double NodeStrokeSaturation { get; set; }
+	/// <summary>Gets or sets the default node stroke luminance (0.0–1.0).</summary>
 	public double NodeStrokeLuminance { get; set; }
+	/// <summary>Gets or sets the default node stroke alpha (0.0–1.0).</summary>
 	public double NodeStrokeAlpha { get; set; } = 1.0;
+	/// <summary>Gets or sets the default node stroke pattern (0.0 = dashed, 1.0 = solid).</summary>
 	public double NodeStrokePattern { get; set; } = 1.0; // Solid
 
 	// Edge defaults
+	/// <summary>Gets or sets the default edge thickness (0.0–1.0 normalized scale).</summary>
 	public double EdgeThickness { get; set; } = 0.3;
+	/// <summary>Gets or sets the default edge hue (0.0–1.0). Default is 0.0 (black).</summary>
 	public double EdgeHue { get; set; } // Black (0.0)
+	/// <summary>Gets or sets the default edge saturation (0.0–1.0).</summary>
 	public double EdgeSaturation { get; set; }
+	/// <summary>Gets or sets the default edge luminance (0.0–1.0).</summary>
 	public double EdgeLuminance { get; set; } = 0.4;
+	/// <summary>Gets or sets the default edge alpha (0.0–1.0).</summary>
 	public double EdgeAlpha { get; set; } = 0.6;
+	/// <summary>Gets or sets the default edge stroke pattern (0.0 = dashed, 1.0 = solid).</summary>
 	public double EdgePattern { get; set; } = 1.0; // Solid
 }

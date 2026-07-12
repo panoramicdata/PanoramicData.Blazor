@@ -22,6 +22,11 @@ public class SortCriteria
 		Direction = SortDirection.Ascending;
 	}
 
+	/// <summary>
+	/// Initializes a new instance of the SortCriteria class.
+	/// </summary>
+	/// <param name="key">Identifier of the field the sort operation is performed upon.</param>
+	/// <param name="direction">The sort direction.</param>
 	public SortCriteria(string key, SortDirection direction)
 	{
 		Key = key;

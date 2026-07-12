@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Extensions;
 
+/// <summary>
+/// Extension methods for <see cref="System.Uri"/>.
+/// </summary>
 public static class UriExtensions
 {
 	/// <summary>

@@ -1,11 +1,20 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Represents a named group of <see cref="FormField{TItem}"/> instances displayed together within a <see cref="PDForm{TItem}"/>.
+/// </summary>
+/// <typeparam name="TItem">The model type that the form fields are bound to.</typeparam>
 public class FieldGroup<TItem> where TItem : class
 {
+	/// <summary>Gets or sets the unique identifier for this group.</summary>
 	public string Id { get; set; } = string.Empty;
 
+	/// <summary>Gets or sets the list of form fields that belong to this group.</summary>
 	public List<FormField<TItem>> Fields { get; set; } = [];
 
+	/// <summary>
+	/// Gets the display title of the group, taken from the first field's <see cref="FormField{TItem}.Group"/> or <see cref="FormField{TItem}.Title"/>.
+	/// </summary>
 	public string Title
 	{
 		get
@@ -29,6 +38,10 @@ public class FieldGroup<TItem> where TItem : class
 			: firstField.Group;
 	}
 
+	/// <summary>
+	/// Returns true if the supplied form has at least one validation error for any field in this group.
+	/// </summary>
+	/// <param name="form">The form instance whose error dictionary is inspected.</param>
 	public bool HasErrors(PDForm<TItem>? form)
 	{
 		if (form != null)

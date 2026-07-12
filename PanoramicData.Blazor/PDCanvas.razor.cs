@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that renders an HTML canvas element with configurable dimensions and additional attributes.
+/// </summary>
 public partial class PDCanvas
 {
 	private static int _seq;

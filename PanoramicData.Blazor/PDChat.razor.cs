@@ -1,11 +1,20 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a chat interface with support for docking, muting, and message history.
+/// </summary>
 public partial class PDChat : JSModuleComponentBase
 {
+	/// <summary>
+	/// Gets or sets the chat service used to send and receive messages.
+	/// </summary>
 	[EditorRequired]
 	[Parameter]
 	public required IChatService ChatService { get; set; }
 
+	/// <summary>
+	/// Gets or sets the sender identity for the current user.
+	/// </summary>
 	[EditorRequired]
 	[Parameter]
 	public required ChatMessageSender User { get; set; }
@@ -109,8 +118,10 @@ public partial class PDChat : JSModuleComponentBase
 	private PDChatDockMode? _restoreDockMode;
 	private PDMessages? _messagesComponent;
 
+	/// <summary>Gets the JavaScript module path for this component.</summary>
 	protected override string ModulePath => "./_content/PanoramicData.Blazor/PDChat.razor.js";
 
+	/// <inheritdoc />
 	protected override Task OnInitializedAsync()
 	{
 		// Load existing messages from the service
@@ -610,6 +621,7 @@ public partial class PDChat : JSModuleComponentBase
 		};
 	}
 
+	/// <inheritdoc />
 	public override async ValueTask DisposeAsync()
 	{
 		// Clean up event handlers

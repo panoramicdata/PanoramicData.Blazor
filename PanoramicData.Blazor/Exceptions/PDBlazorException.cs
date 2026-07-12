@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Exceptions;
 
+/// <summary>
+/// Represents errors that occur within PanoramicData.Blazor components.
+/// </summary>
 public class PDBlazorException : Exception
 {
 	/// <summary>

@@ -3,8 +3,10 @@ using Shouldly;
 
 namespace PanoramicData.Blazor.Test;
 
+/// <summary>Tests for the FileExplorerItem class.</summary>
 public class FileExplorerItemTests
 {
+    /// <summary>Verifies that ParentPath returns the correct parent directory path for various path formats.</summary>
     [Theory]
     [InlineData("/", "")]
     [InlineData("/abc.txt", "/")]
@@ -17,6 +19,7 @@ public class FileExplorerItemTests
         item.ParentPath.ShouldBe(expectedParent);
     }
 
+    /// <summary>Verifies that Rename updates both the Path and Name properties of the item.</summary>
     [Fact]
     public void WhenRenamingThenPathAndNameAreUpdated()
     {
@@ -28,6 +31,7 @@ public class FileExplorerItemTests
         item.Name.ShouldBe("new.txt");
     }
 
+    /// <summary>Verifies that renaming the root item leaves the path unchanged.</summary>
     [Fact]
     public void WhenRenamingRootThenNothingChanges()
     {
@@ -38,6 +42,7 @@ public class FileExplorerItemTests
         item.Path.ShouldBe("/");
     }
 
+    /// <summary>Verifies that FileExtension returns the file extension without a leading dot.</summary>
     [Theory]
     [InlineData("/file.txt", "txt")]
     [InlineData("/file.tar.gz", "gz")]
@@ -50,6 +55,7 @@ public class FileExplorerItemTests
         item.FileExtension.ShouldBe(expectedExt);
     }
 
+    /// <summary>Verifies that a read-only item reports CanAddItems and CanRemoveItems as false.</summary>
     [Fact]
     public void WhenReadOnlyThenCanAddItemsIsFalse()
     {
@@ -59,6 +65,7 @@ public class FileExplorerItemTests
         item.CanRemoveItems.ShouldBeFalse();
     }
 
+    /// <summary>Verifies that a non-read-only item reports CanAddItems and CanRemoveItems as true.</summary>
     [Fact]
     public void WhenNotReadOnlyThenCanAddItemsIsTrue()
     {
@@ -68,6 +75,7 @@ public class FileExplorerItemTests
         item.CanRemoveItems.ShouldBeTrue();
     }
 
+    /// <summary>Verifies that cloning an item produces a copy with identical property values.</summary>
     [Fact]
     public void WhenClonedThenCopiedPropertiesMatch()
     {
@@ -91,6 +99,7 @@ public class FileExplorerItemTests
         clone.IsSystem.ShouldBe(original.IsSystem);
     }
 
+    /// <summary>Verifies that CompareTo compares items alphabetically by their Name property.</summary>
     [Fact]
     public void WhenCompareToThenComparesByName()
     {
@@ -101,6 +110,7 @@ public class FileExplorerItemTests
         b.CompareTo(a).ShouldBeGreaterThan(0);
     }
 
+    /// <summary>Verifies that CompareTo throws an InvalidOperationException when comparing against null.</summary>
     [Fact]
     public void WhenCompareToNullThenThrows()
     {
@@ -109,6 +119,7 @@ public class FileExplorerItemTests
         Should.Throw<InvalidOperationException>(() => item.CompareTo(null));
     }
 
+    /// <summary>Verifies that ToString returns the item's full path.</summary>
     [Fact]
     public void WhenToStringThenReturnsPath()
     {
@@ -117,6 +128,7 @@ public class FileExplorerItemTests
         item.ToString().ShouldBe("/folder/file.txt");
     }
 
+    /// <summary>Verifies that IsNameMatch correctly matches or rejects file names against various glob and extension patterns.</summary>
     [Theory]
     [InlineData("/file.html", "*.html", true)]
     [InlineData("/file.htm", "*.htm", true)]

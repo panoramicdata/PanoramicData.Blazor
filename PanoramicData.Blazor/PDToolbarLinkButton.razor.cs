@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a link button for use within a <see cref="PDToolbar"/>.
+/// </summary>
 public partial class PDToolbarLinkButton : IEnablable
 {
 	/// <summary>
@@ -80,6 +83,7 @@ public partial class PDToolbarLinkButton : IEnablable
 
 	private Dictionary<string, object> Attributes { get; set; } = [];
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		if (!string.IsNullOrEmpty(Key))
@@ -88,18 +92,28 @@ public partial class PDToolbarLinkButton : IEnablable
 			Attributes.Add("Id", $"pd-tbr-btn-{Key}");
 		}
 	}
+	/// <summary>
+	/// Disables the link button.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Enables the link button.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether the link button is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable; false to disable.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;

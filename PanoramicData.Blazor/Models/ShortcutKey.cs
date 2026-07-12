@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Describes a keyboard shortcut consisting of an optional modifier combination and a key or code.
+/// </summary>
 public class ShortcutKey
 {
 	/// <summary>
@@ -130,6 +133,8 @@ public class ShortcutKey
 		};
 	}
 
+	/// <summary>Explicitly converts a <see cref="ShortcutKey"/> to its string representation by calling <see cref="ToString"/>.</summary>
 	public static explicit operator string(ShortcutKey shortcut) => shortcut.ToString();
+	/// <summary>Explicitly creates a <see cref="ShortcutKey"/> from a shortcut abbreviation string by calling <see cref="Create"/>.</summary>
 	public static explicit operator ShortcutKey(string text) => Create(text);
 }

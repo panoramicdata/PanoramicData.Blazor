@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a stacked bar visualization for timeline data points.
+/// </summary>
 public partial class PDStackedBar : IEnablable
 {
 	/// <summary>
@@ -50,18 +53,28 @@ public partial class PDStackedBar : IEnablable
 	[Parameter]
 	public Func<double, double> YValueTransform { get; set; } = (v) => v;
 
+	/// <summary>
+	/// Disables the component.
+	/// </summary>
 	public void Disable()
 	{
 		IsEnabled = false;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Enables the component.
+	/// </summary>
 	public void Enable()
 	{
 		IsEnabled = true;
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Sets whether the component is enabled.
+	/// </summary>
+	/// <param name="isEnabled">True to enable; false to disable.</param>
 	public void SetEnabled(bool isEnabled)
 	{
 		IsEnabled = isEnabled;

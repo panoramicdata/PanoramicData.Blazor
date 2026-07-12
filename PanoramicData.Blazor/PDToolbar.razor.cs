@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a toolbar container for hosting toolbar items and buttons.
+/// </summary>
 public partial class PDToolbar
 {
 	/// <summary>

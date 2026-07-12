@@ -1,20 +1,29 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Abstract base class providing a default implementation of <see cref="IDataProviderService{T}"/> and
+/// <see cref="IFilterProviderService{T}"/> that subclasses can override to supply data from any source.
+/// </summary>
+/// <typeparam name="T">The entity type provided by this service.</typeparam>
 public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProviderService<T>
 {
 	private readonly Dictionary<string, string> _keyMappings = [];
 
 	#region IDataProviderService<T> Members
 
+	/// <inheritdoc />
 	public virtual Task<OperationResponse> CreateAsync(T item, CancellationToken cancellationToken)
 		=> throw new NotImplementedException();
 
+	/// <inheritdoc />
 	public virtual Task<OperationResponse> DeleteAsync(T item, CancellationToken cancellationToken)
 		=> throw new NotImplementedException();
 
+	/// <inheritdoc />
 	public virtual Task<DataResponse<T>> GetDataAsync(DataRequest<T> request, CancellationToken cancellationToken)
 		=> throw new NotImplementedException();
 
+	/// <inheritdoc />
 	public virtual Task<OperationResponse> UpdateAsync(T item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
 		=> throw new NotImplementedException();
 
@@ -22,6 +31,11 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 	#region IFilterProviderService<T> Members
 
+	/// <summary>
+	/// Applies each key/value pair in <paramref name="delta"/> to the corresponding property of <paramref name="item"/> via reflection.
+	/// </summary>
+	/// <param name="item">The entity to update.</param>
+	/// <param name="delta">A dictionary of property names to new values.</param>
 	protected virtual void ApplyDelta(T item, IDictionary<string, object?> delta)
 	{
 		var itemType = typeof(T);
@@ -39,8 +53,13 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		}
 	}
 
+	/// <summary>Gets the dictionary that maps filter key names to entity property names used when building LINQ predicates.</summary>
 	public IDictionary<string, string> KeyPropertyMappings => _keyMappings;
 
+	/// <summary>
+	/// Returns distinct, ordered, non-null values for the specified field by delegating to <see cref="GetDataAsync"/>.
+	/// </summary>
+	/// <inheritdoc />
 	public virtual async Task<object[]> GetDistinctValuesAsync(DataRequest<T> request, Expression<Func<T, object>> field)
 	{
 		// use main data provider - take has to be applied on base query
@@ -83,6 +102,12 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 	#endregion
 
+	/// <summary>
+	/// Applies a single <see cref="Filter"/> to an <see cref="IQueryable{T}"/> using the configured key/property mappings.
+	/// </summary>
+	/// <param name="query">The query to filter.</param>
+	/// <param name="filter">The filter to apply.</param>
+	/// <returns>The filtered query.</returns>
 	public virtual IQueryable<T> ApplyFilter(IQueryable<T> query, Filter filter)
 	{
 		if (!filter.IsValid)
@@ -93,9 +118,22 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		return query.ApplyFilter(filter, _keyMappings);
 	}
 
+	/// <summary>
+	/// Builds or combines a LINQ predicate expression for the given <see cref="Filter"/> using the configured key/property mappings.
+	/// </summary>
+	/// <param name="existingPredicate">An optional predicate to AND with the new condition.</param>
+	/// <param name="filter">The filter to translate into a predicate.</param>
+	/// <returns>The combined predicate expression.</returns>
 	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T, bool>>? existingPredicate, Filter filter)
 		=> ApplyFilter(existingPredicate, filter, null);
 
+	/// <summary>
+	/// Builds or combines a LINQ predicate expression for the given <see cref="Filter"/> using an explicit key/property mapping dictionary.
+	/// </summary>
+	/// <param name="existingPredicate">An optional predicate to AND with the new condition.</param>
+	/// <param name="filter">The filter to translate into a predicate.</param>
+	/// <param name="keyPropertyMappings">Optional key-to-property mappings that override the instance-level mappings.</param>
+	/// <returns>The combined predicate expression.</returns>
 	public virtual Expression<Func<T, bool>> ApplyFilter(Expression<Func<T, bool>>? existingPredicate, Filter filter, IDictionary<string, string>? keyPropertyMappings)
 	{
 		if (!filter.IsValid)
@@ -349,6 +387,13 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		return existingPredicate is null ? newPredicate : PredicateBuilderService.And(existingPredicate, newPredicate);
 	}
 
+	/// <summary>
+	/// Applies multiple filters to a query, skipping any that are invalid or whose keys are in <paramref name="exclude"/>.
+	/// </summary>
+	/// <param name="query">The base query to filter.</param>
+	/// <param name="filters">The set of filters to apply.</param>
+	/// <param name="exclude">Keys of filters to skip.</param>
+	/// <returns>The filtered query.</returns>
 	public virtual IQueryable<T> ApplyFilters(IQueryable<T> query, IEnumerable<Filter> filters, params string[] exclude)
 	{
 		var output = query;
@@ -360,6 +405,13 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		return output;
 	}
 
+	/// <summary>
+	/// Builds a combined LINQ predicate from multiple filters, skipping any that are invalid or whose keys are in <paramref name="exclude"/>.
+	/// Returns an always-true predicate when no valid filters are provided.
+	/// </summary>
+	/// <param name="filters">The set of filters to translate.</param>
+	/// <param name="exclude">Keys of filters to skip.</param>
+	/// <returns>A combined predicate expression, or a predicate that always returns true.</returns>
 	public virtual Expression<Func<T, bool>> ApplyFilters(IEnumerable<Filter> filters, params string[] exclude)
 	{
 		Expression<Func<T, bool>>? predicate = null;

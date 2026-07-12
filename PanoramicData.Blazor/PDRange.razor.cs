@@ -1,5 +1,8 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a dual-handle range slider for selecting a numeric range.
+/// </summary>
 public partial class PDRange : IAsyncDisposable
 {
 	private const double _handleWidth = 10;
@@ -16,6 +19,9 @@ public partial class PDRange : IAsyncDisposable
 
 	#region Injected
 
+	/// <summary>
+	/// Gets or sets the injected JavaScript runtime.
+	/// </summary>
 	[Inject]
 	public IJSRuntime? JSRuntime { get; set; }
 
@@ -133,6 +139,7 @@ public partial class PDRange : IAsyncDisposable
 
 	#endregion
 
+	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -282,6 +289,7 @@ public partial class PDRange : IAsyncDisposable
 		}
 	}
 
+	/// <summary>Validates and clamps the current range values to the configured min, max, and step constraints.</summary>
 	protected override void Validate()
 	{
 		// snap to step size?
@@ -332,6 +340,7 @@ public partial class PDRange : IAsyncDisposable
 
 	#region IAsyncDisposable
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		try

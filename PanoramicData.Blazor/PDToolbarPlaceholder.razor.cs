@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a placeholder slot for custom content within a <see cref="PDToolbar"/>.
+/// </summary>
 public partial class PDToolbarPlaceholder
 {
 	/// <summary>

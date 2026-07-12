@@ -30,6 +30,7 @@ private double _previousDamping;
 /// <summary>
 	/// Gets the JavaScript module path for this component.
 	/// </summary>
+	/// <summary>Gets the JavaScript module path for the graph component.</summary>
 	protected override string ModulePath => "./_content/PanoramicData.Blazor/PDGraph.razor.js";
 
 	/// <summary>
@@ -132,6 +133,7 @@ private double _previousDamping;
 		Rectangle = 5
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnParametersSetAsync()
 	{
 		await base.OnParametersSetAsync();
@@ -204,6 +206,7 @@ private double _previousDamping;
 		}
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnModuleLoadedAsync(bool firstRender)
 	{
 		if (firstRender && Module != null)
@@ -728,6 +731,10 @@ private double _previousDamping;
 		}
 	}
 
+	/// <summary>
+	/// Called from JavaScript to update the stored positions of all graph nodes.
+	/// </summary>
+	/// <param name="positions">A dictionary mapping node identifiers to their x/y coordinate objects.</param>
 	[JSInvokable]
 	public void UpdateNodePositions(Dictionary<string, object> positions)
 	{
@@ -745,6 +752,10 @@ private double _previousDamping;
 		// The positions will be updated when the next render cycle occurs naturally
 	}
 
+	/// <summary>
+	/// Called from JavaScript to update the SVG transform matrix string used for pan and zoom state.
+	/// </summary>
+	/// <param name="transform">The current SVG transform matrix as a string (e.g. <c>"matrix(1,0,0,1,0,0)"</c>).</param>
 	[JSInvokable]
 	public void UpdateTransform(string transform)
 	{
@@ -786,6 +797,7 @@ private double _previousDamping;
 		}
 	}
 
+	/// <inheritdoc />
 	public override async ValueTask DisposeAsync()
 	{
 		if (Module != null)

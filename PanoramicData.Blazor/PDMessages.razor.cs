@@ -1,7 +1,13 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that displays a list of chat messages with a send input area.
+/// </summary>
 public partial class PDMessages : IAsyncDisposable
 {
+	/// <summary>
+	/// Gets or sets the injected JavaScript runtime.
+	/// </summary>
 	[Inject] public required IJSRuntime JSRuntime { get; set; }
 
 	/// <summary>
@@ -99,11 +105,13 @@ public partial class PDMessages : IAsyncDisposable
 		await OnSendClickedInternal();
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnParametersSetAsync()
 	{
 		await ScrollToBottomAsync();
 	}
 
+	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -133,6 +141,7 @@ public partial class PDMessages : IAsyncDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		GC.SuppressFinalize(this);

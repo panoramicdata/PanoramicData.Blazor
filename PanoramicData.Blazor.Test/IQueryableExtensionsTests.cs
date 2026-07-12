@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PanoramicData.Blazor.Test;
 
+/// <summary>Tests for the IQueryable extension methods.</summary>
 public class IQueryableExtensionsTests
 {
     #region Test model
@@ -43,6 +44,7 @@ public class IQueryableExtensionsTests
 
     #region Enum Equals - display name round-trip (the core bug fix)
 
+    /// <summary>Verifies that filtering an enum property by its Display attribute name returns the matching items.</summary>
     [Fact]
     public void ApplyFilter_EnumEquals_DisplayName_FiltersCorrectly()
     {
@@ -54,6 +56,7 @@ public class IQueryableExtensionsTests
         result.ShouldAllBe(x => x.Rating == Rating.NeedsImprovement);
     }
 
+    /// <summary>Verifies that filtering an enum property by its raw member name returns the matching items.</summary>
     [Fact]
     public void ApplyFilter_EnumEquals_RawMemberName_FiltersCorrectly()
     {
@@ -66,6 +69,7 @@ public class IQueryableExtensionsTests
         result.ShouldAllBe(x => x.Rating == Rating.NeedsImprovement);
     }
 
+    /// <summary>Verifies that filtering an enum value with no Display attribute filters by its member name.</summary>
     [Fact]
     public void ApplyFilter_EnumEquals_NoDisplayAttribute_FiltersCorrectly()
     {
@@ -81,6 +85,7 @@ public class IQueryableExtensionsTests
 
     #region Enum In - display name round-trip
 
+    /// <summary>Verifies that an In filter using pipe-separated enum display names returns all matching items.</summary>
     [Fact]
     public void ApplyFilter_EnumIn_DisplayNames_FiltersCorrectly()
     {
@@ -93,6 +98,7 @@ public class IQueryableExtensionsTests
         result.ShouldAllBe(x => x.Rating == Rating.NeedsImprovement || x.Rating == Rating.InProgress);
     }
 
+    /// <summary>Verifies that a NotIn filter using an enum display name excludes all matching items.</summary>
     [Fact]
     public void ApplyFilter_EnumNotIn_DisplayName_FiltersCorrectly()
     {
@@ -108,6 +114,7 @@ public class IQueryableExtensionsTests
 
     #region Enum DoesNotEqual - display name round-trip
 
+    /// <summary>Verifies that a DoesNotEqual filter using an enum display name excludes items with that enum value.</summary>
     [Fact]
     public void ApplyFilter_EnumDoesNotEqual_DisplayName_FiltersCorrectly()
     {
@@ -123,6 +130,7 @@ public class IQueryableExtensionsTests
 
     #region Nullable enum
 
+    /// <summary>Verifies that filtering a nullable enum by its Display attribute name returns only the matching item.</summary>
     [Fact]
     public void ApplyFilter_NullableEnumEquals_DisplayName_FiltersCorrectly()
     {
@@ -134,6 +142,7 @@ public class IQueryableExtensionsTests
         result[0].Id.ShouldBe(1);
     }
 
+    /// <summary>Verifies that an IsNull filter on a nullable enum returns only items where the enum property is null.</summary>
     [Fact]
     public void ApplyFilter_NullableEnum_IsNull_FiltersCorrectly()
     {
@@ -149,6 +158,7 @@ public class IQueryableExtensionsTests
 
     #region String filters (regression - non-enum paths still work)
 
+    /// <summary>Verifies that an Equals filter on a string property returns only the exact matching item.</summary>
     [Fact]
     public void ApplyFilter_StringEquals_FiltersCorrectly()
     {
@@ -160,6 +170,7 @@ public class IQueryableExtensionsTests
         result[0].Name.ShouldBe("Alpha");
     }
 
+    /// <summary>Verifies that a Contains filter on a string property returns all items whose value contains the substring.</summary>
     [Fact]
     public void ApplyFilter_StringContains_FiltersCorrectly()
     {
@@ -170,6 +181,7 @@ public class IQueryableExtensionsTests
         result.Count.ShouldBe(4); // Alpha, Beta, Gamma, Delta
     }
 
+    /// <summary>Verifies that an IsNull filter on a nullable string property returns only items with a null value.</summary>
     [Fact]
     public void ApplyFilter_StringIsNull_FiltersCorrectly()
     {
@@ -181,6 +193,7 @@ public class IQueryableExtensionsTests
         result[0].Id.ShouldBe(3);
     }
 
+    /// <summary>Verifies that an IsEmpty filter returns only items with an empty string value.</summary>
     [Fact]
     public void ApplyFilter_StringIsEmpty_FiltersCorrectly()
     {
@@ -196,6 +209,7 @@ public class IQueryableExtensionsTests
 
     #region Numeric filters (regression)
 
+    /// <summary>Verifies that a GreaterThan filter on a numeric property returns items with values above the threshold.</summary>
     [Fact]
     public void ApplyFilter_NumericGreaterThan_FiltersCorrectly()
     {
@@ -206,6 +220,7 @@ public class IQueryableExtensionsTests
         result.Count.ShouldBe(3); // 30, 40, 50
     }
 
+    /// <summary>Verifies that a Range filter on a numeric property returns items within the inclusive range.</summary>
     [Fact]
     public void ApplyFilter_NumericRange_FiltersCorrectly()
     {
@@ -220,6 +235,7 @@ public class IQueryableExtensionsTests
 
     #region Edge cases
 
+    /// <summary>Verifies that a filter with an empty key returns all items without filtering.</summary>
     [Fact]
     public void ApplyFilter_EmptyKey_ReturnsAllItems()
     {
@@ -230,6 +246,7 @@ public class IQueryableExtensionsTests
         result.Count.ShouldBe(5);
     }
 
+    /// <summary>Verifies that multiple filters are combined with AND logic, returning only items that match all criteria.</summary>
     [Fact]
     public void ApplyFilters_MultipleFilters_CombinesCorrectly()
     {

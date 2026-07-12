@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Holds the current zoom level and pan offset for a zoomable component such as <see cref="PanoramicData.Blazor.PDZoomBar"/>.
+/// </summary>
 public class ZoombarValue
 {
 	private const int _decimalPlaces = 2;

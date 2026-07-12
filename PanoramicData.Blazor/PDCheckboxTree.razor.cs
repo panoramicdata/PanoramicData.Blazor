@@ -104,6 +104,7 @@ public partial class PDCheckboxTree<TItem> : PDComponentBase where TItem : class
 	/// </summary>
 	public PDTree<TItem>? Tree { get; private set; }
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		_checkedKeys.Clear();

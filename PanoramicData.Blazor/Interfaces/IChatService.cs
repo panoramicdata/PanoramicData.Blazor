@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Interfaces;
 
+/// <summary>
+/// Defines the contract for a chat service consumed by the <see cref="PanoramicData.Blazor.PDChat"/> component.
+/// </summary>
 public interface IChatService
 {
 	/// <summary>

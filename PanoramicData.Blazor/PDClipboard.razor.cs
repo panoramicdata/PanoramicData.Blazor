@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a button to copy text to the clipboard.
+/// </summary>
 public partial class PDClipboard
 {
 	[Inject] IJSRuntime JSRuntime { get; set; } = null!;
@@ -41,6 +44,7 @@ public partial class PDClipboard
 
 	private string _buttonClass = string.Empty;
 
+	/// <inheritdoc />
 	protected override void OnInitialized() => _buttonClass = ReadyToCopyCssClass;
 
 	private async Task CopyTextToClipboardAsync()

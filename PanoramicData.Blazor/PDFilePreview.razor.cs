@@ -2,6 +2,9 @@ using PanoramicData.Blazor.PreviewProviders;
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that displays a preview of a file selected in a file explorer.
+/// </summary>
 public partial class PDFilePreview
 {
 	private string? _lastPreviewPath;
@@ -25,6 +28,7 @@ public partial class PDFilePreview
 	[Parameter]
 	public IPreviewProvider PreviewProvider { get; set; } = new DefaultPreviewProvider();
 
+	/// <inheritdoc />
 	protected override async Task OnParametersSetAsync()
 	{
 		// cache last preview by path

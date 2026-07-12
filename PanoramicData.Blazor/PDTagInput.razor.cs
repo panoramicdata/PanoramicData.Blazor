@@ -119,6 +119,7 @@ public partial class PDTagInput : ComponentBase, IDisposable
 
 	private StringComparison Comparison => CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		// Only resync internal state when the parent supplies a genuinely new list instance.
@@ -352,6 +353,7 @@ public partial class PDTagInput : ComponentBase, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		_blurToken?.Cancel();

@@ -3,6 +3,10 @@ using System.Collections.Concurrent;
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that renders a deck of draggable, selectable cards loaded via a data function, with optional animation and group-level card migration support.
+/// </summary>
+/// <typeparam name="TCard">The type of card data rendered in this deck. Must implement <see cref="ICard"/>.</typeparam>
 public partial class PDCardDeck<TCard> where TCard : ICard
 {
 	private static int _sequence;
@@ -46,8 +50,10 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	private ElementReference _elementRef;
 	private DotNetObjectReference<PDCardDeck<TCard>>? _dotNetRef;
 
+	/// <summary>Gets the injected logger for this component.</summary>
 	[Inject] private ILogger<PDCardDeck<TCard>> Logger { get; set; } = null!;
 
+	/// <summary>Gets the injected JavaScript runtime used for JS interop calls.</summary>
 	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
 
 	#region Parameters
@@ -131,6 +137,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		return $"{CssClass ?? "pdcarddeck"} {(IsEnabled ? "" : " disabled")}";
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)

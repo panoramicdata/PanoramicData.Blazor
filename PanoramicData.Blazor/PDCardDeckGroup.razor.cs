@@ -3,6 +3,10 @@
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that groups multiple <see cref="PDCardDeck{TCard}"/> components, coordinating cross-deck card drag-and-drop, validation, and transformation.
+/// </summary>
+/// <typeparam name="TCard">The type of card data managed by the decks in this group. Must implement <see cref="ICard"/>.</typeparam>
 public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 {
 	/// <summary>
@@ -92,10 +96,12 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 
 	#endregion
 
+	/// <summary>Gets the injected block overlay service used to show a loading overlay while data is being fetched.</summary>
 	[Inject] IBlockOverlayService BlockOverlayService { get; set; } = null!;
 
 	private IDataProviderService<TCard> _dataProviderService = new EmptyDataProviderService<TCard>();
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		if (DataProvider == _dataProviderService)
@@ -129,6 +135,10 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 
 	#region UI Indicators for Migration
 
+	/// <summary>
+	/// Registers a deck as a potential drop destination during a drag operation, tracking the last two destinations for migration logic.
+	/// </summary>
+	/// <param name="deck">The deck being registered as a destination.</param>
 	public void RegisterDestination(PDCardDeck<TCard> deck)
 	{
 		// Prevents interference between card deck groups
@@ -320,6 +330,7 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 		await InvokeAsync(StateHasChanged);
 	}
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		_loadingIcon?.Dispose();

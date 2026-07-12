@@ -1,5 +1,9 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that renders a header for a <see cref="PDForm{TItem}"/>, including a title and optional help text.
+/// </summary>
+/// <typeparam name="TItem">The type of the item being displayed or edited in the form.</typeparam>
 public partial class PDFormHeader<TItem> where TItem : class
 {
 	/// <summary>

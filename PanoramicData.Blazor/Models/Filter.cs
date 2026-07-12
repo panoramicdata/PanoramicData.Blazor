@@ -1,5 +1,9 @@
 namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Represents a single query filter consisting of a key, a comparison operator (<see cref="FilterTypes"/>), and one or two values.
+/// Filters can be serialised to and parsed from a compact string notation (e.g. <c>Name:*foo*</c>).
+/// </summary>
 public class Filter
 {
 	private static readonly string[] _formatsWithTimeZone =
@@ -92,10 +96,15 @@ public class Filter
 		"MM'/'yy'/'yyyy",
 	];
 
+	/// <summary>Initializes a new, empty <see cref="Filter"/> with default values.</summary>
 	public Filter()
 	{
 	}
 
+	/// <summary>Initializes a new <see cref="Filter"/> with a string value.</summary>
+	/// <param name="filterType">The comparison operator to apply.</param>
+	/// <param name="key">The field key (column name) this filter targets.</param>
+	/// <param name="value">The comparison value.</param>
 	public Filter(FilterTypes filterType, string key, string value)
 	{
 		FilterType = filterType;
@@ -103,6 +112,10 @@ public class Filter
 		Value = value;
 	}
 
+	/// <summary>Initializes a new <see cref="Filter"/> converting the value to its string representation.</summary>
+	/// <param name="filterType">The comparison operator to apply.</param>
+	/// <param name="key">The field key (column name) this filter targets.</param>
+	/// <param name="value">The comparison value; converted to string via <see cref="object.ToString"/>.</param>
 	public Filter(FilterTypes filterType, string key, object value)
 	{
 		FilterType = filterType;
@@ -111,6 +124,11 @@ public class Filter
 	}
 
 
+	/// <summary>Initializes a new <see cref="Filter"/> with two values (used for range comparisons).</summary>
+	/// <param name="filterType">The comparison operator to apply.</param>
+	/// <param name="key">The field key (column name) this filter targets.</param>
+	/// <param name="value">The lower bound or primary comparison value.</param>
+	/// <param name="value2">The upper bound value used by <see cref="FilterTypes.Range"/>.</param>
 	public Filter(FilterTypes filterType, string key, string value, string value2)
 	{
 		FilterType = filterType;
@@ -119,20 +137,28 @@ public class Filter
 		Value2 = value2;
 	}
 
+	/// <summary>Gets or sets the comparison operator applied by this filter.</summary>
 	public FilterTypes FilterType { get; set; }
 
+	/// <summary>Gets or sets the field key (column name) this filter targets.</summary>
 	public string Key { get; set; } = string.Empty;
 
+	/// <summary>Gets or sets the resolved property name on the model type, used when building LINQ predicates.</summary>
 	public string PropertyName { get; set; } = string.Empty;
 
+	/// <summary>Gets or sets the primary comparison value.</summary>
 	public string Value { get; set; } = string.Empty;
 
+	/// <summary>Gets or sets the secondary comparison value used by <see cref="FilterTypes.Range"/>.</summary>
 	public string Value2 { get; set; } = string.Empty;
 
+	/// <summary>Gets or sets an additional key/value pair of filter parameters.</summary>
 	public KeyValuePair<string, object> Values { get; set; }
 
+	/// <summary>Gets or sets whether <see cref="DateTimeKind.Unspecified"/> date/time values are treated as UTC when formatting filter values.</summary>
 	public bool UnspecifiedDateTimesAreUtc { get; set; } = true;
 
+	/// <summary>Resets the filter to an Equals comparison with empty values.</summary>
 	public void Clear()
 	{
 		FilterType = FilterTypes.Equals;
@@ -140,6 +166,7 @@ public class Filter
 		Value2 = string.Empty;
 	}
 
+	/// <summary>Gets whether the filter has sufficient values set to be applied to a query.</summary>
 	public bool IsValid => FilterType switch
 	{
 		FilterTypes.Range => !string.IsNullOrWhiteSpace(Value) && !string.IsNullOrWhiteSpace(Value2),
@@ -150,6 +177,10 @@ public class Filter
 		_ => !string.IsNullOrWhiteSpace(Value)
 	};
 
+	/// <summary>
+	/// Returns a compact string representation of this filter in the notation parsed by <see cref="Parse(string)"/>.
+	/// Values containing whitespace are quoted to allow round-trip parsing via <see cref="ParseMany"/>.
+	/// </summary>
 	public override string ToString()
 	{
 		// Quote values that contain whitespace so that ParseMany's whitespace tokeniser
@@ -190,6 +221,11 @@ public class Filter
 		return value.Contains(' ') ? $"\"{value}\"" : value;
 	}
 
+	/// <summary>
+	/// Updates this filter's type and values by parsing <paramref name="text"/> and finding the token whose key matches <see cref="Key"/>.
+	/// Clears the filter if no matching token is found or <paramref name="text"/> is empty.
+	/// </summary>
+	/// <param name="text">A filter string in the notation produced by <see cref="ParseMany"/>.</param>
 	public void UpdateFrom(string text)
 	{
 		if (string.IsNullOrWhiteSpace(text))
@@ -219,6 +255,9 @@ public class Filter
 
 	#region Class Members
 
+	/// <summary>Formats <paramref name="value"/> into a filter-compatible string, treating unspecified <see cref="DateTime"/> values as local time.</summary>
+	/// <param name="value">The value to format.</param>
+	/// <returns>A string representation suitable for use as a filter value.</returns>
 	public static string Format(object value) => Format(value, false);
 
 	/// <summary>
@@ -240,6 +279,13 @@ public class Filter
 		return displayNameOrMemberName;
 	}
 
+	/// <summary>
+	/// Formats <paramref name="value"/> into a filter-compatible UTC ISO-8601 string.
+	/// Enum values are mapped through their <see cref="System.ComponentModel.DataAnnotations.DisplayAttribute"/> name when present.
+	/// </summary>
+	/// <param name="value">The value to format.</param>
+	/// <param name="unspecifiedDateTimesAreUtc">When true, <see cref="DateTimeKind.Unspecified"/> date/times are treated as UTC.</param>
+	/// <returns>A formatted string suitable for use as a filter value.</returns>
 	public static string Format(object value, bool unspecifiedDateTimesAreUtc)
 	{
 		if (value is null)
@@ -274,8 +320,15 @@ public class Filter
 		return value.ToString() ?? string.Empty;
 	}
 
+	/// <summary>Parses a single filter token (e.g. <c>Name:*foo*</c>) into a <see cref="Filter"/> instance.</summary>
+	/// <param name="token">The token string to parse.</param>
+	/// <returns>A <see cref="Filter"/> representing the parsed token, or an empty filter if the token is invalid.</returns>
 	public static Filter Parse(string token) => Parse(token, null);
 
+	/// <summary>Parses a single filter token with optional key-to-property-name mappings.</summary>
+	/// <param name="token">The token string to parse.</param>
+	/// <param name="keyMappings">Optional dictionary mapping filter keys to model property names.</param>
+	/// <returns>A <see cref="Filter"/> representing the parsed token, or an empty filter if the token is invalid.</returns>
 	public static Filter Parse(string token, IDictionary<string, string>? keyMappings)
 	{
 		var value2 = string.Empty;
@@ -426,6 +479,13 @@ public class Filter
 		//return value;
 	}
 
+	/// <summary>
+	/// Parses a whitespace-delimited string of filter tokens into a sequence of <see cref="Filter"/> instances.
+	/// Tokens containing spaces must be quoted. Returns an empty sequence if <paramref name="text"/> is blank or contains no colon.
+	/// </summary>
+	/// <param name="text">A string containing one or more filter tokens.</param>
+	/// <param name="keyMappings">Optional dictionary mapping filter keys to model property names.</param>
+	/// <returns>A sequence of parsed <see cref="Filter"/> instances.</returns>
 	public static IEnumerable<Filter> ParseMany(string text, IDictionary<string, string>? keyMappings = null)
 	{
 		if (string.IsNullOrWhiteSpace(text) || !text.Contains(':'))
@@ -493,6 +553,15 @@ public class Filter
 		}
 	}
 
+	/// <summary>
+	/// Attempts to parse <paramref name="dateTimeString"/> as a <see cref="DateTime"/> using a set of recognised formats.
+	/// Also returns the detected precision level and the matched format string.
+	/// </summary>
+	/// <param name="dateTimeString">The string to parse.</param>
+	/// <param name="dateTime">The parsed <see cref="DateTime"/> value, or <see cref="DateTime.MinValue"/> on failure.</param>
+	/// <param name="formatFound">The format string that matched, or an empty string on failure.</param>
+	/// <param name="datePrecision">The temporal precision of the parsed value.</param>
+	/// <returns>True if the string was successfully parsed; otherwise false.</returns>
 	public static bool IsDateTime(string? dateTimeString, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
 	{
 		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).Concat(["yyyy-MM-ddTHH:mm:ssZ"]).ToArray();
@@ -549,13 +618,23 @@ public class Filter
 	#endregion
 }
 
+/// <summary>
+/// Specifies the temporal precision of a parsed date/time filter value.
+/// </summary>
 public enum DatePrecision
 {
+	/// <summary>Year-only precision.</summary>
 	Year,
+	/// <summary>Month precision (year and month).</summary>
 	Month,
+	/// <summary>Day precision (date only).</summary>
 	Day,
+	/// <summary>Hour precision.</summary>
 	Hour,
+	/// <summary>Minute precision.</summary>
 	Minute,
+	/// <summary>Second precision.</summary>
 	Second,
+	/// <summary>Millisecond precision.</summary>
 	Millisecond
 }

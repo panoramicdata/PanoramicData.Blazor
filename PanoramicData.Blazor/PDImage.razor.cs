@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that displays an image from a URL with configurable size and visibility.
+/// </summary>
 public partial class PDImage
 {
 	/// <summary>

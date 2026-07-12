@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Extensions;
 
+/// <summary>
+/// Extension methods for <see cref="Microsoft.AspNetCore.Components.NavigationManager"/>.
+/// </summary>
 public static class NavigationManagerExtensions
 {
 	/// <summary>

@@ -1,13 +1,20 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that displays an animated loading indicator with an elapsed-time counter while card deck data is being fetched.
+/// </summary>
 public partial class PDCardDeckLoadingIcon : IDisposable
 {
 	private DateTime _loadStart = DateTime.UtcNow;
 	private int _currentLoadTime;
 	private CancellationTokenSource? _cts;
 
+	/// <summary>
+	/// Gets a value indicating whether the loading icon is currently active and visible.
+	/// </summary>
 	public bool IsActive { get; private set; }
 
+	/// <inheritdoc />
 	protected override async Task OnInitializedAsync()
 	{
 		_loadStart = DateTime.UtcNow;
@@ -37,6 +44,7 @@ public partial class PDCardDeckLoadingIcon : IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		IsActive = false;

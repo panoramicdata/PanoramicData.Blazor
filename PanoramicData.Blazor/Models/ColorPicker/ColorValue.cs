@@ -397,6 +397,7 @@ public class ColorValue : IEquatable<ColorValue>
 		return p;
 	}
 
+	/// <inheritdoc />
 	public bool Equals(ColorValue? other)
 	{
 		if (other is null)
@@ -407,10 +408,13 @@ public class ColorValue : IEquatable<ColorValue>
 		return R == other.R && G == other.G && B == other.B && Math.Abs(A - other.A) < 0.001;
 	}
 
+	/// <inheritdoc />
 	public override bool Equals(object? obj) => Equals(obj as ColorValue);
 
+	/// <inheritdoc />
 	public override int GetHashCode() => HashCode.Combine(R, G, B, A);
 
+	/// <summary>Returns true when two <see cref="ColorValue"/> instances represent the same color.</summary>
 	public static bool operator ==(ColorValue? left, ColorValue? right)
 	{
 		if (left is null)
@@ -421,5 +425,6 @@ public class ColorValue : IEquatable<ColorValue>
 		return left.Equals(right);
 	}
 
+	/// <summary>Returns true when two <see cref="ColorValue"/> instances represent different colors.</summary>
 	public static bool operator !=(ColorValue? left, ColorValue? right) => !(left == right);
 }

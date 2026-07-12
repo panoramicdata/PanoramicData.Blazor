@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a cascading drag-and-drop context for child components.
+/// </summary>
 public partial class PDDragContext
 {
 		/// <summary>

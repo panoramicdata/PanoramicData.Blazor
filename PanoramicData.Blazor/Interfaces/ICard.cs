@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Interfaces;
 
+/// <summary>
+/// Defines the minimum contract for items that can be displayed inside a card deck component.
+/// </summary>
 public interface ICard
 {
 	/// <summary>

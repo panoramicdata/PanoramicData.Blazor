@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a zoom bar control for pan and zoom navigation.
+/// </summary>
 public partial class PDZoomBar : IAsyncDisposable
 {
 	private static int _seq;
@@ -7,6 +10,9 @@ public partial class PDZoomBar : IAsyncDisposable
 	private DotNetObjectReference<PDZoomBar>? _objRef;
 	private IJSObjectReference? _module;
 
+	/// <summary>
+	/// Gets the injected JavaScript runtime.
+	/// </summary>
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -48,6 +54,7 @@ public partial class PDZoomBar : IAsyncDisposable
 
 	private bool CanZoomOut() => Options.ZoomSteps.Length > 0 && Value.Zoom != Options.ZoomSteps.Last();
 
+	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -98,6 +105,10 @@ public partial class PDZoomBar : IAsyncDisposable
 		}
 	}
 
+	/// <summary>
+	/// Invoked from JavaScript when the zoom or pan value changes.
+	/// </summary>
+	/// <param name="value">The new zoom/pan value reported by the JavaScript zoom bar.</param>
 	[JSInvokable]
 	public async Task OnValueChanged(ZoombarValue value)
 	{
@@ -105,6 +116,7 @@ public partial class PDZoomBar : IAsyncDisposable
 		await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 	}
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		try

@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a configurable filter UI for a single data column.
+/// </summary>
 public partial class PDFilter : IAsyncDisposable
 {
 	private static int _sequence;
@@ -14,6 +17,9 @@ public partial class PDFilter : IAsyncDisposable
 	private IJSObjectReference? _commonModule;
 	private static readonly char[] _separator = ['|'];
 
+	/// <summary>
+	/// Gets the injected JavaScript runtime.
+	/// </summary>
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -91,6 +97,7 @@ public partial class PDFilter : IAsyncDisposable
 	public ButtonSizes Size { get; set; } = ButtonSizes.Small;
 
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		try
@@ -115,6 +122,7 @@ public partial class PDFilter : IAsyncDisposable
 		_ => !string.IsNullOrWhiteSpace(Filter.Value)
 	};
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)

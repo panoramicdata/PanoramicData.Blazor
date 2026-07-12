@@ -20,7 +20,9 @@ public partial class PDStatusCascade : IAsyncDisposable
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Converters = { new StatusTypeJsonConverter() }
     };
-
+    /// <summary>
+    /// Gets the injected JavaScript runtime.
+    /// </summary>
     [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
     /// <summary>Gets or sets the status tree root node.</summary>
@@ -133,6 +135,7 @@ public partial class PDStatusCascade : IAsyncDisposable
         }
     }
 
+    /// <inheritdoc />
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && Node is not null)
@@ -160,6 +163,7 @@ public partial class PDStatusCascade : IAsyncDisposable
         }
     }
 
+    /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);

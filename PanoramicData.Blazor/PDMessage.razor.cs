@@ -2,6 +2,9 @@ using System.Globalization;
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that renders a single chat message with optional user icon, name, and timestamp.
+/// </summary>
 public partial class PDMessage
 {
 	/// <summary>

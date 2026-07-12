@@ -1,5 +1,9 @@
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that acts as a container for drag-and-drop items, tracking the current drag payload and selection.
+/// </summary>
+/// <typeparam name="TItem">The type of item being dragged.</typeparam>
 public partial class PDDragContainer<TItem> where TItem : class
 {
 	/// <summary>
@@ -20,8 +24,14 @@ public partial class PDDragContainer<TItem> where TItem : class
 	[Parameter]
 	public EventCallback<IEnumerable<TItem>> SelectionChanged { get; set; }
 
+	/// <summary>
+	/// Gets or sets the item currently being dragged.
+	/// </summary>
 	public TItem? Payload { get; set; }
 
+	/// <summary>
+	/// Raises the <see cref="SelectionChanged"/> callback with the currently selected items.
+	/// </summary>
 	public async Task OnSelectionChangedAsync()
 	{
 		var selection = (from item in Items

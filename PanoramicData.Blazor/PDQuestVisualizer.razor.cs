@@ -2,6 +2,9 @@
 
 namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that renders an SVG-based visualization of quests and their actions.
+/// </summary>
 public partial class PDQuestVisualizer
 {
 	/// <summary>
@@ -34,13 +37,22 @@ public partial class PDQuestVisualizer
 	[Parameter]
 	public int QuestActionRadius { get; set; } = 20;
 
+	/// <summary>
+	/// Gets or sets the positioned quest actions computed during rendering.
+	/// </summary>
 	protected List<PositionedAction> PositionedActions { get; set; } = [];
 
+	/// <inheritdoc />
 	protected override void OnParametersSet()
 	{
 		PositionedActions = AssignLanes();
 	}
 
+	/// <summary>
+	/// Gets the X coordinate for the given quest action in the SVG layout.
+	/// </summary>
+	/// <param name="action">The quest action to calculate the position for.</param>
+	/// <returns>The X pixel coordinate.</returns>
 	protected int GetX(QuestAction action)
 	{
 		var index = QuestActions
@@ -50,6 +62,11 @@ public partial class PDQuestVisualizer
 		return 100 + index * 130;
 	}
 
+	/// <summary>
+	/// Gets the Y coordinate for the given quest ID in the SVG layout.
+	/// </summary>
+	/// <param name="questId">The quest identifier.</param>
+	/// <returns>The Y pixel coordinate for the quest lane.</returns>
 	protected int GetQuestY(int questId)
 		=> questId * (QuestHeight + QuestMargin);
 
@@ -115,5 +132,8 @@ public partial class PDQuestVisualizer
 		return result;
 	}
 
+	/// <summary>
+	/// Gets the total SVG height based on the number of quests.
+	/// </summary>
 	protected string SvgHeight => $"{((QuestHeight + QuestMargin) * Quests.Count)}px";
 }

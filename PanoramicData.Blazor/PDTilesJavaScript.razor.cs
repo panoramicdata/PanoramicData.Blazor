@@ -13,6 +13,9 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 	private IJSObjectReference? _module;
 	private DotNetObjectReference<PDTilesJavaScript>? _objRef;
 
+	/// <summary>
+	/// Gets the injected JavaScript runtime.
+	/// </summary>
 	[Inject]
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
@@ -90,6 +93,7 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 	[Parameter]
 	public EventCallback<ConnectorClickEventArgs> ConnectorClick { get; set; }
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && JSRuntime is not null)
@@ -264,6 +268,7 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 		}).ConfigureAwait(true);
 	}
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		if (_module != null)

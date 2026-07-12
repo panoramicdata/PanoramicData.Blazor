@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that provides a styled checkbox with an optional label.
+/// </summary>
 public partial class PDFormCheckBox
 {
 	/// <summary>

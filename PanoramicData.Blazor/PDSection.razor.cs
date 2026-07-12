@@ -120,9 +120,9 @@ public partial class PDSection : ComponentBase
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
+    /// <inheritdoc />
     protected override void OnInitialized()
     {
-        if (string.IsNullOrEmpty(Id))
         {
             Id = $"pd-section-{Interlocked.Increment(ref _idCounter)}";
         }

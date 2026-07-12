@@ -283,6 +283,7 @@ public class TimelineScale : IComparable
 
 	#region IComparable
 
+	/// <inheritdoc />
 	public int CompareTo(object? obj)
 	{
 		if (obj is TimelineScale ts)

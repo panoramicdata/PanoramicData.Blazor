@@ -4,10 +4,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PanoramicData.Blazor.Test;
 
+/// <summary>Tests for the Filter class.</summary>
 public class FilterTests
 {
 	#region ParseMany Tests - Values are preserved as-is
 
+	/// <summary>Verifies that ParseMany preserves a datetime string with timezone offset as the original value.</summary>
 	[Fact]
 	public void ParseMany_DateTimeWithTimeZone_PreservesOriginalValue()
 	{
@@ -19,6 +21,7 @@ public class FilterTests
 		firstFilter.Value.ShouldBe("15/08/2023 21:26:07 +01:00");
 	}
 
+	/// <summary>Verifies that ParseMany preserves a datetime string without timezone offset as the original value.</summary>
 	[Fact]
 	public void ParseMany_DateTimeWithoutTimeZone_PreservesOriginalValue()
 	{
@@ -30,6 +33,7 @@ public class FilterTests
 		firstFilter.Value.ShouldBe("15/08/2023 21:26:07.000");
 	}
 
+	/// <summary>Verifies that ParseMany preserves a date-only string as the original value.</summary>
 	[Fact]
 	public void ParseMany_DateOnly_PreservesOriginalValue()
 	{
@@ -41,6 +45,7 @@ public class FilterTests
 		firstFilter.Value.ShouldBe("15/08/2023");
 	}
 
+	/// <summary>Verifies that ParseMany preserves a date string in an alternative format as the original value.</summary>
 	[Fact]
 	public void ParseMany_DateOnlyAlternativeFormat_PreservesOriginalValue()
 	{
@@ -52,6 +57,7 @@ public class FilterTests
 		firstFilter.Value.ShouldBe("15-08-2023");
 	}
 
+	/// <summary>Verifies that ParseMany preserves a date and time string as the original value.</summary>
 	[Fact]
 	public void ParseMany_DateAndTime_PreservesOriginalValue()
 	{
@@ -63,6 +69,7 @@ public class FilterTests
 		firstFilter.Value.ShouldBe("15/08/2023 21:00:00");
 	}
 
+	/// <summary>Verifies that ParseMany preserves a double value string and that it is parseable as a double.</summary>
 	[Fact]
 	public void ParseMany_Double_PreservesOriginalValue()
 	{
@@ -75,6 +82,7 @@ public class FilterTests
 		double.TryParse(firstFilter.Value, out double _).ShouldBeTrue();
 	}
 
+	/// <summary>Verifies that ParseMany preserves an integer value string and that it is parseable as an integer.</summary>
 	[Fact]
 	public void ParseMany_Integer_PreservesOriginalValue()
 	{
@@ -87,6 +95,7 @@ public class FilterTests
 		int.TryParse(firstFilter.Value, out int _).ShouldBeTrue();
 	}
 
+	/// <summary>Verifies that ParseMany preserves a string value as the original value.</summary>
 	[Fact]
 	public void ParseMany_String_PreservesOriginalValue()
 	{
@@ -98,6 +107,7 @@ public class FilterTests
 		firstFilter.Value.ShouldBe("A string");
 	}
 
+	/// <summary>Verifies that ParseMany preserves a boolean value string and that it is parseable as a bool.</summary>
 	[Fact]
 	public void ParseMany_Boolean_PreservesOriginalValue()
 	{
@@ -114,6 +124,7 @@ public class FilterTests
 
 	#region Parse Quote-Stripping Tests
 
+	/// <summary>Verifies that Parse returns a single-word value without modification.</summary>
 	[Fact]
 	public void Parse_SingleWordValue_ReturnsValueUnchanged()
 	{
@@ -124,6 +135,7 @@ public class FilterTests
 		filter.Value.ShouldBe("Closed");
 	}
 
+	/// <summary>Verifies that Parse strips surrounding double quotes from a quoted multi-word value.</summary>
 	[Fact]
 	public void Parse_QuotedMultiWordValue_StripsQuotes()
 	{
@@ -134,6 +146,7 @@ public class FilterTests
 		filter.Value.ShouldBe("Ready for Test");
 	}
 
+	/// <summary>Verifies that ParseMany strips quotes from both filters when parsing multiple filters with quoted values.</summary>
 	[Fact]
 	public void ParseMany_MultipleFiltersWithQuotedValue_StripsQuotesFromBoth()
 	{
@@ -146,6 +159,7 @@ public class FilterTests
 		filters[1].Value.ShouldBe("Bug");
 	}
 
+	/// <summary>Verifies that Parse strips quotes from both Value and Value2 in a range filter with quoted values.</summary>
 	[Fact]
 	public void Parse_RangeWithQuotedValues_StripsQuotesFromBoth()
 	{
@@ -157,6 +171,7 @@ public class FilterTests
 		filter.Value2.ShouldBe("20");
 	}
 
+	/// <summary>Verifies that Parse leaves the value unchanged when only a leading quote is present.</summary>
 	[Fact]
 	public void Parse_OnlyLeadingQuote_LeavesValueUnchanged()
 	{
@@ -166,6 +181,7 @@ public class FilterTests
 		filter.Value.ShouldBe("\"OpenOnly");
 	}
 
+	/// <summary>Verifies that Parse leaves the value unchanged when only a trailing quote is present.</summary>
 	[Fact]
 	public void Parse_OnlyTrailingQuote_LeavesValueUnchanged()
 	{
@@ -175,6 +191,7 @@ public class FilterTests
 		filter.Value.ShouldBe("OpenOnly\"");
 	}
 
+	/// <summary>Verifies that Parse strips balanced double quotes from an empty quoted value, producing an empty string.</summary>
 	[Fact]
 	public void Parse_EmptyQuotedValue_StripsQuotes()
 	{
@@ -188,6 +205,7 @@ public class FilterTests
 
 	#region Format Tests - DateTime formatting for filter application
 
+	/// <summary>Verifies that Format returns an ISO 8601 UTC string for a UTC DateTime.</summary>
 	[Fact]
 	public void Format_UtcDateTime_ReturnsIsoFormat()
 	{
@@ -198,6 +216,7 @@ public class FilterTests
 		result.ShouldBe("2023-08-15T21:26:07Z");
 	}
 
+	/// <summary>Verifies that Format treats an Unspecified DateTime as UTC when unspecifiedDateTimesAreUtc is true.</summary>
 	[Fact]
 	public void Format_UnspecifiedDateTime_TreatedAsUtcByDefault()
 	{
@@ -208,6 +227,7 @@ public class FilterTests
 		result.ShouldBe("2023-08-15T21:26:07Z");
 	}
 
+	/// <summary>Verifies that Format converts a local DateTime to UTC, producing a string ending with Z.</summary>
 	[Fact]
 	public void Format_LocalDateTime_ConvertsToUtc()
 	{
@@ -220,6 +240,7 @@ public class FilterTests
 		result.ShouldStartWith("2023-08-");
 	}
 
+	/// <summary>Verifies that Format converts a DateTimeOffset with a non-zero offset to the equivalent UTC string.</summary>
 	[Fact]
 	public void Format_DateTimeOffset_ConvertsToUtc()
 	{
@@ -231,6 +252,7 @@ public class FilterTests
 		result.ShouldBe("2023-08-15T20:26:07Z");
 	}
 
+	/// <summary>Verifies that Format returns an ISO 8601 UTC string for a UTC DateTimeOffset.</summary>
 	[Fact]
 	public void Format_DateTimeOffsetUtc_ReturnsIsoFormat()
 	{
@@ -241,6 +263,7 @@ public class FilterTests
 		result.ShouldBe("2023-08-15T21:26:07Z");
 	}
 
+	/// <summary>Verifies that Format returns an empty string for a null value.</summary>
 	[Fact]
 	public void Format_NullValue_ReturnsEmptyString()
 	{
@@ -249,6 +272,7 @@ public class FilterTests
 		result.ShouldBe("");
 	}
 
+	/// <summary>Verifies that Format returns the original string value unchanged.</summary>
 	[Fact]
 	public void Format_StringValue_ReturnsOriginalString()
 	{
@@ -257,6 +281,7 @@ public class FilterTests
 		result.ShouldBe("test string");
 	}
 
+	/// <summary>Verifies that Format returns the string representation of an integer value.</summary>
 	[Fact]
 	public void Format_IntegerValue_ReturnsStringRepresentation()
 	{
@@ -265,6 +290,7 @@ public class FilterTests
 		result.ShouldBe("42");
 	}
 
+	/// <summary>Verifies that Format returns the ToString value for an enum without a Display attribute.</summary>
 	[Fact]
 	public void Format_EnumWithoutDisplayAttribute_ReturnsToString()
 	{
@@ -273,6 +299,7 @@ public class FilterTests
 		result.ShouldBe("SecondValue");
 	}
 
+	/// <summary>Verifies that Format returns the Display attribute name for an enum value that has one.</summary>
 	[Fact]
 	public void Format_EnumWithDisplayAttribute_ReturnsDisplayName()
 	{
@@ -281,6 +308,7 @@ public class FilterTests
 		result.ShouldBe("Needs Improvement");
 	}
 
+	/// <summary>Verifies that Format returns the ToString value for an enum with a Display attribute that has no Name set.</summary>
 	[Fact]
 	public void Format_EnumWithDisplayAttributeNoName_ReturnsToString()
 	{
@@ -289,6 +317,7 @@ public class FilterTests
 		result.ShouldBe("Simple");
 	}
 
+	/// <summary>Verifies that Format returns the correct display name for all enum values that have Display attributes.</summary>
 	[Fact]
 	public void Format_EnumWithDisplayAttribute_AllValuesFormattedCorrectly()
 	{
@@ -297,6 +326,7 @@ public class FilterTests
 		Filter.Format(EnumWithDisplay.Simple).ShouldBe("Simple");
 	}
 
+	/// <summary>Verifies that Format treats an Unspecified DateTime as local time and converts it to UTC when unspecifiedDateTimesAreUtc is false.</summary>
 	[Fact]
 	public void Format_UnspecifiedDateTime_TreatedAsLocal_ConvertsToUtc()
 	{
@@ -309,6 +339,7 @@ public class FilterTests
 		result.ShouldEndWith("Z");
 	}
 
+	/// <summary>Verifies that the default Format overload treats an Unspecified DateTime the same as passing false for unspecifiedDateTimesAreUtc.</summary>
 	[Fact]
 	public void Format_DefaultOverload_TreatsUnspecifiedAsLocal()
 	{
@@ -325,6 +356,7 @@ public class FilterTests
 
 	#region IsDateTime Tests
 
+	/// <summary>Verifies that IsDateTime returns true and parses an ISO 8601 UTC date string with second precision.</summary>
 	[Fact]
 	public void IsDateTime_ValidIsoFormat_ReturnsTrue()
 	{
@@ -337,6 +369,7 @@ public class FilterTests
 		precision.ShouldBe(DatePrecision.Second);
 	}
 
+	/// <summary>Verifies that IsDateTime strips surrounding quotes before parsing a date string.</summary>
 	[Fact]
 	public void IsDateTime_QuotedValue_ParsesCorrectly()
 	{
@@ -346,6 +379,7 @@ public class FilterTests
 		dateTime.Year.ShouldBe(2023);
 	}
 
+	/// <summary>Verifies that IsDateTime returns Day precision for a date-only string.</summary>
 	[Fact]
 	public void IsDateTime_DateOnly_ReturnsDayPrecision()
 	{
@@ -355,6 +389,7 @@ public class FilterTests
 		precision.ShouldBe(DatePrecision.Day);
 	}
 
+	/// <summary>Verifies that IsDateTime returns false and outputs DateTime.MinValue for a non-date string.</summary>
 	[Fact]
 	public void IsDateTime_InvalidValue_ReturnsFalse()
 	{
@@ -364,6 +399,7 @@ public class FilterTests
 		dateTime.ShouldBe(DateTime.MinValue);
 	}
 
+	/// <summary>Verifies that IsDateTime returns false and outputs DateTime.MinValue and empty format for a null input.</summary>
 	[Fact]
 	public void IsDateTime_NullInput_ReturnsFalse()
 	{
@@ -374,6 +410,7 @@ public class FilterTests
 		format.ShouldBe(string.Empty);
 	}
 
+	/// <summary>Verifies that IsDateTime returns Minute precision for a date and time string without seconds.</summary>
 	[Fact]
 	public void IsDateTime_DateWithTime_ReturnsMinutePrecision()
 	{
@@ -383,6 +420,7 @@ public class FilterTests
 		precision.ShouldBe(DatePrecision.Minute);
 	}
 
+	/// <summary>Verifies that IsDateTime returns Millisecond precision for a date and time string with milliseconds.</summary>
 	[Fact]
 	public void IsDateTime_DateWithMilliseconds_ReturnsMillisecondPrecision()
 	{
@@ -392,6 +430,7 @@ public class FilterTests
 		precision.ShouldBe(DatePrecision.Millisecond);
 	}
 
+	/// <summary>Verifies that IsDateTime returns Second precision for a date and time string with seconds but no milliseconds.</summary>
 	[Fact]
 	public void IsDateTime_DateWithSeconds_ReturnsSecondPrecision()
 	{
@@ -405,6 +444,7 @@ public class FilterTests
 
 	#region Parse - All Filter Types
 
+	/// <summary>Verifies that Parse correctly identifies a DoesNotEqual filter from the ! prefix.</summary>
 	[Fact]
 	public void Parse_DoesNotEqual_ParsesCorrectly()
 	{
@@ -415,6 +455,7 @@ public class FilterTests
 		filter.Value.ShouldBe("Closed");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies a StartsWith filter from a trailing wildcard.</summary>
 	[Fact]
 	public void Parse_StartsWith_ParsesCorrectly()
 	{
@@ -425,6 +466,7 @@ public class FilterTests
 		filter.Value.ShouldBe("John");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies an EndsWith filter from a leading wildcard.</summary>
 	[Fact]
 	public void Parse_EndsWith_ParsesCorrectly()
 	{
@@ -435,6 +477,7 @@ public class FilterTests
 		filter.Value.ShouldBe("son");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies a Contains filter from surrounding wildcards.</summary>
 	[Fact]
 	public void Parse_Contains_ParsesCorrectly()
 	{
@@ -445,6 +488,7 @@ public class FilterTests
 		filter.Value.ShouldBe("oh");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies a DoesNotContain filter from the !* prefix and trailing wildcard.</summary>
 	[Fact]
 	public void Parse_DoesNotContain_ParsesCorrectly()
 	{
@@ -455,6 +499,7 @@ public class FilterTests
 		filter.Value.ShouldBe("test");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies an In filter from the In() syntax.</summary>
 	[Fact]
 	public void Parse_In_ParsesCorrectly()
 	{
@@ -465,6 +510,7 @@ public class FilterTests
 		filter.Value.ShouldBe("A,B,C");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies a NotIn filter from the !In() syntax.</summary>
 	[Fact]
 	public void Parse_NotIn_ParsesCorrectly()
 	{
@@ -475,6 +521,7 @@ public class FilterTests
 		filter.Value.ShouldBe("A,B");
 	}
 
+	/// <summary>Verifies that Parse preserves quotes around multi-word items within an In() filter.</summary>
 	[Fact]
 	public void Parse_InWithQuotedMultiWordItems_PreservesQuotes()
 	{
@@ -485,6 +532,7 @@ public class FilterTests
 		filter.Value.ShouldBe("\"Chain Test I\"|\"A - Test Schedule\"");
 	}
 
+	/// <summary>Verifies that Parse preserves quotes around multi-word items within a !In() filter.</summary>
 	[Fact]
 	public void Parse_NotInWithQuotedMultiWordItems_PreservesQuotes()
 	{
@@ -495,6 +543,7 @@ public class FilterTests
 		filter.Value.ShouldBe("\"Chain Test I\"|\"A - Test Schedule\"");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies a GreaterThan filter from the > prefix.</summary>
 	[Fact]
 	public void Parse_GreaterThan_ParsesCorrectly()
 	{
@@ -505,6 +554,7 @@ public class FilterTests
 		filter.Value.ShouldBe("100");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies a GreaterThanOrEqual filter from the >= prefix.</summary>
 	[Fact]
 	public void Parse_GreaterThanOrEqual_ParsesCorrectly()
 	{
@@ -515,6 +565,7 @@ public class FilterTests
 		filter.Value.ShouldBe("100");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies a LessThan filter from the &lt; prefix.</summary>
 	[Fact]
 	public void Parse_LessThan_ParsesCorrectly()
 	{
@@ -525,6 +576,7 @@ public class FilterTests
 		filter.Value.ShouldBe("50");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies a LessThanOrEqual filter from the &lt;= prefix.</summary>
 	[Fact]
 	public void Parse_LessThanOrEqual_ParsesCorrectly()
 	{
@@ -535,6 +587,7 @@ public class FilterTests
 		filter.Value.ShouldBe("50");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies a Range filter, populating both Value and Value2.</summary>
 	[Fact]
 	public void Parse_Range_ParsesCorrectly()
 	{
@@ -546,6 +599,7 @@ public class FilterTests
 		filter.Value2.ShouldBe("100");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies an IsNull filter from the (null) syntax.</summary>
 	[Fact]
 	public void Parse_IsNull_ParsesCorrectly()
 	{
@@ -556,6 +610,7 @@ public class FilterTests
 		filter.Value.ShouldBe(string.Empty);
 	}
 
+	/// <summary>Verifies that Parse correctly identifies an IsNotNull filter from the !(null) syntax.</summary>
 	[Fact]
 	public void Parse_IsNotNull_ParsesCorrectly()
 	{
@@ -566,6 +621,7 @@ public class FilterTests
 		filter.Value.ShouldBe(string.Empty);
 	}
 
+	/// <summary>Verifies that Parse correctly identifies an IsEmpty filter from the (empty) syntax.</summary>
 	[Fact]
 	public void Parse_IsEmpty_ParsesCorrectly()
 	{
@@ -576,6 +632,7 @@ public class FilterTests
 		filter.Value.ShouldBe(string.Empty);
 	}
 
+	/// <summary>Verifies that Parse correctly identifies an IsNotEmpty filter from the !(empty) syntax.</summary>
 	[Fact]
 	public void Parse_IsNotEmpty_ParsesCorrectly()
 	{
@@ -590,6 +647,7 @@ public class FilterTests
 
 	#region Parse - Structural Edge Cases
 
+	/// <summary>Verifies that Parse returns an empty filter when there is no colon separator in the input.</summary>
 	[Fact]
 	public void Parse_NoColon_ReturnsEmptyFilter()
 	{
@@ -600,6 +658,7 @@ public class FilterTests
 		filter.Value.ShouldBe(string.Empty);
 	}
 
+	/// <summary>Verifies that Parse splits on only the first colon, preserving additional colons as part of the value.</summary>
 	[Fact]
 	public void Parse_ValueContainingColon_SplitsOnFirstColon()
 	{
@@ -610,6 +669,7 @@ public class FilterTests
 		filter.Value.ShouldBe("https://example.com");
 	}
 
+	/// <summary>Verifies that Parse sets PropertyName from a key mappings dictionary when the key is found.</summary>
 	[Fact]
 	public void Parse_WithKeyMappings_SetsPropertyName()
 	{
@@ -622,6 +682,7 @@ public class FilterTests
 		filter.Value.ShouldBe("Open");
 	}
 
+	/// <summary>Verifies that Parse correctly identifies an In filter from a lowercase "in" keyword.</summary>
 	[Fact]
 	public void Parse_InCaseInsensitive_ParsesCorrectly()
 	{
@@ -635,6 +696,7 @@ public class FilterTests
 
 	#region Parse - Quote Stripping Combined with Operators
 
+	/// <summary>Verifies that Parse strips quotes from the value of a DoesNotEqual filter.</summary>
 	[Fact]
 	public void Parse_DoesNotEqualWithQuotes_StripsQuotes()
 	{
@@ -644,6 +706,7 @@ public class FilterTests
 		filter.Value.ShouldBe("Ready for Test");
 	}
 
+	/// <summary>Verifies that Parse strips quotes from the value of a GreaterThanOrEqual filter.</summary>
 	[Fact]
 	public void Parse_GreaterThanOrEqualWithQuotes_StripsQuotes()
 	{
@@ -653,6 +716,7 @@ public class FilterTests
 		filter.Value.ShouldBe("10.5");
 	}
 
+	/// <summary>Verifies that Parse strips quotes from the value of a LessThan filter.</summary>
 	[Fact]
 	public void Parse_LessThanWithQuotes_StripsQuotes()
 	{
@@ -662,6 +726,7 @@ public class FilterTests
 		filter.Value.ShouldBe("99");
 	}
 
+	/// <summary>Verifies that Parse strips quotes from the value of a Contains filter.</summary>
 	[Fact]
 	public void Parse_ContainsWithQuotes_StripsQuotes()
 	{
@@ -671,6 +736,7 @@ public class FilterTests
 		filter.Value.ShouldBe("test value");
 	}
 
+	/// <summary>Verifies that Parse strips quotes from the value of a StartsWith filter.</summary>
 	[Fact]
 	public void Parse_StartsWithWithQuotes_StripsQuotes()
 	{
@@ -680,6 +746,7 @@ public class FilterTests
 		filter.Value.ShouldBe("test value");
 	}
 
+	/// <summary>Verifies that Parse strips quotes from the value of an EndsWith filter.</summary>
 	[Fact]
 	public void Parse_EndsWithWithQuotes_StripsQuotes()
 	{
@@ -689,6 +756,7 @@ public class FilterTests
 		filter.Value.ShouldBe("test value");
 	}
 
+	/// <summary>Verifies that Parse strips quotes from the value of a DoesNotContain filter.</summary>
 	[Fact]
 	public void Parse_DoesNotContainWithQuotes_StripsQuotes()
 	{
@@ -698,6 +766,7 @@ public class FilterTests
 		filter.Value.ShouldBe("test value");
 	}
 
+	/// <summary>Verifies that Parse strips quotes from the value of a LessThanOrEqual filter.</summary>
 	[Fact]
 	public void Parse_LessThanOrEqualWithQuotes_StripsQuotes()
 	{
@@ -707,6 +776,7 @@ public class FilterTests
 		filter.Value.ShouldBe("50");
 	}
 
+	/// <summary>Verifies that Parse strips quotes from the value of a GreaterThan filter.</summary>
 	[Fact]
 	public void Parse_GreaterThanWithQuotes_StripsQuotes()
 	{
@@ -720,6 +790,7 @@ public class FilterTests
 
 	#region ParseMany - Edge Cases
 
+	/// <summary>Verifies that ParseMany yields no filters for an empty string.</summary>
 	[Fact]
 	public void ParseMany_EmptyString_YieldsNoFilters()
 	{
@@ -728,6 +799,7 @@ public class FilterTests
 		filters.Count.ShouldBe(0);
 	}
 
+	/// <summary>Verifies that ParseMany yields no filters for a null string.</summary>
 	[Fact]
 	public void ParseMany_NullString_YieldsNoFilters()
 	{
@@ -736,6 +808,7 @@ public class FilterTests
 		filters.Count.ShouldBe(0);
 	}
 
+	/// <summary>Verifies that ParseMany yields no filters for a whitespace-only string.</summary>
 	[Fact]
 	public void ParseMany_WhitespaceOnly_YieldsNoFilters()
 	{
@@ -744,6 +817,7 @@ public class FilterTests
 		filters.Count.ShouldBe(0);
 	}
 
+	/// <summary>Verifies that ParseMany yields no filters when the input contains no colon separator.</summary>
 	[Fact]
 	public void ParseMany_NoColon_YieldsNoFilters()
 	{
@@ -752,6 +826,7 @@ public class FilterTests
 		filters.Count.ShouldBe(0);
 	}
 
+	/// <summary>Verifies that ParseMany preserves the entire hash-delimited value including internal spaces.</summary>
 	[Fact]
 	public void ParseMany_HashDelimitedValue_PreservesSpaces()
 	{
@@ -762,6 +837,7 @@ public class FilterTests
 		filters[0].Value.ShouldBe("#value with spaces#");
 	}
 
+	/// <summary>Verifies that ParseMany auto-closes an unterminated quoted value and strips the balanced pair.</summary>
 	[Fact]
 	public void ParseMany_UnterminatedQuote_AutoClosesAndParses()
 	{
@@ -773,6 +849,7 @@ public class FilterTests
 		filters[0].Value.ShouldBe("unterminated");
 	}
 
+	/// <summary>Verifies that ParseMany sets PropertyName from a key mappings dictionary for multiple filters.</summary>
 	[Fact]
 	public void ParseMany_WithKeyMappings_SetsPropertyNames()
 	{
@@ -791,6 +868,7 @@ public class FilterTests
 		filters[1].PropertyName.ShouldBe("Price");
 	}
 
+	/// <summary>Verifies that ParseMany preserves a full navigation property path mapping as the PropertyName.</summary>
 	[Fact]
 	public void ParseMany_WithNavigationPropertyPathMapping_SetsEntityPathAsPropertyName()
 	{
@@ -810,6 +888,7 @@ public class FilterTests
 		filters[0].Value.ShouldBe("Panoramic");
 	}
 
+	/// <summary>Verifies that ParseMany auto-closes an unterminated hash-delimited value.</summary>
 	[Fact]
 	public void ParseMany_UnterminatedHash_AutoClosesAndParses()
 	{
@@ -820,6 +899,7 @@ public class FilterTests
 		filters[0].Value.ShouldBe("#unterminated#");
 	}
 
+	/// <summary>Verifies that ParseMany treats an In() expression as a single filter token without splitting on commas.</summary>
 	[Fact]
 	public void ParseMany_InFilterWithMultipleItems_ParsedAsOneFilter()
 	{
@@ -831,6 +911,7 @@ public class FilterTests
 		filters[0].Value.ShouldBe("A,B,C");
 	}
 
+	/// <summary>Verifies that ParseMany treats an In() expression with quoted multi-word items as a single filter token.</summary>
 	[Fact]
 	public void ParseMany_InFilterWithQuotedMultiWordItems_ParsedAsOneFilter()
 	{
@@ -843,6 +924,7 @@ public class FilterTests
 		filters[0].Value.ShouldBe("\"On Microsoft Schedule\"|\"Chain Test I\"");
 	}
 
+	/// <summary>Verifies that ParseMany treats a !In() expression with quoted multi-word items as a single filter token.</summary>
 	[Fact]
 	public void ParseMany_NotInFilterWithQuotedMultiWordItems_ParsedAsOneFilter()
 	{
@@ -853,6 +935,7 @@ public class FilterTests
 		filters[0].Value.ShouldBe("\"On Microsoft Schedule\"|\"Chain Test I\"");
 	}
 
+	/// <summary>Verifies that an In filter with multi-word values round-trips through ToString and ParseMany as exactly one filter.</summary>
 	[Fact]
 	public void ToStringThenParseMany_InWithMultiWordValues_RoundTripProducesExactlyOneFilter()
 	{
@@ -866,6 +949,7 @@ public class FilterTests
 		filters[0].Value.ShouldBe("\"On Microsoft Schedule\"|\"Chain Test I\"");
 	}
 
+	/// <summary>Verifies that a NotIn filter with multi-word values round-trips through ToString and ParseMany as exactly one filter.</summary>
 	[Fact]
 	public void ToStringThenParseMany_NotInWithMultiWordValues_RoundTripProducesExactlyOneFilter()
 	{
@@ -883,6 +967,7 @@ public class FilterTests
 
 	#region ToString Tests
 
+	/// <summary>Verifies that ToString produces the expected filter string format for all supported filter types and quote-wraps multi-word values.</summary>
 	[Theory]
 	[InlineData(FilterTypes.Equals, "status", "Open", "", "status:Open")]
 	[InlineData(FilterTypes.DoesNotEqual, "status", "Open", "", "status:!Open")]
@@ -920,6 +1005,7 @@ public class FilterTests
 		filter.ToString().ShouldBe(expected);
 	}
 
+	/// <summary>Verifies that a filter serialized by ToString and deserialized by Parse preserves all filter properties for all filter types.</summary>
 	[Theory]
 	[InlineData(FilterTypes.Equals, "status", "Open", "")]
 	[InlineData(FilterTypes.DoesNotEqual, "status", "Open", "")]
@@ -962,6 +1048,7 @@ public class FilterTests
 		roundTripped.Value2.ShouldBe(original.Value2);
 	}
 
+	/// <summary>Verifies that a filter with a multi-word value round-trips through ToString and ParseMany as exactly one filter for all filter types.</summary>
 	[Theory]
 	[InlineData(FilterTypes.Equals, "name", "one two three", "")]
 	[InlineData(FilterTypes.DoesNotEqual, "name", "one two", "")]
@@ -989,6 +1076,7 @@ public class FilterTests
 		filters[0].Value2.ShouldBe(original.Value2);
 	}
 
+	/// <summary>Verifies that ToString does not double-quote values that are already quoted, preventing malformed output.</summary>
 	[Theory]
 	[InlineData(FilterTypes.Equals, "name", "On Microsoft Schedule", "name:\"On Microsoft Schedule\"")]
 	[InlineData(FilterTypes.DoesNotEqual, "name", "On Microsoft Schedule", "name:!\"On Microsoft Schedule\"")]
@@ -1013,6 +1101,7 @@ public class FilterTests
 
 	#region IsValid Tests
 
+	/// <summary>Verifies that IsValid returns the expected result for various filter type and value combinations.</summary>
 	[Theory]
 	[InlineData(FilterTypes.Equals, "test", "", true)]
 	[InlineData(FilterTypes.Equals, "", "", false)]
@@ -1035,6 +1124,7 @@ public class FilterTests
 
 	#region Clear Tests
 
+	/// <summary>Verifies that Clear resets the FilterType to Equals and clears the Value.</summary>
 	[Fact]
 	public void Clear_ResetsFilterTypeAndValue()
 	{
@@ -1046,6 +1136,7 @@ public class FilterTests
 		filter.Value.ShouldBe(string.Empty);
 	}
 
+	/// <summary>Verifies that Clear also resets Value2, preventing stale range state.</summary>
 	[Fact]
 	public void Clear_ResetsValue2()
 	{
@@ -1061,6 +1152,7 @@ public class FilterTests
 
 	#region UpdateFrom Tests
 
+	/// <summary>Verifies that UpdateFrom parses filter text and updates properties when the key matches.</summary>
 	[Fact]
 	public void UpdateFrom_MatchingKey_UpdatesFilterProperties()
 	{
@@ -1072,6 +1164,7 @@ public class FilterTests
 		filter.Value.ShouldBe("Open");
 	}
 
+	/// <summary>Verifies that UpdateFrom clears the filter when no matching key is found in the filter text.</summary>
 	[Fact]
 	public void UpdateFrom_NoMatchingKey_ClearsFilter()
 	{
@@ -1083,6 +1176,7 @@ public class FilterTests
 		filter.Value.ShouldBe(string.Empty);
 	}
 
+	/// <summary>Verifies that UpdateFrom clears the filter when given an empty string.</summary>
 	[Fact]
 	public void UpdateFrom_EmptyText_ClearsFilter()
 	{
@@ -1094,6 +1188,7 @@ public class FilterTests
 		filter.Value.ShouldBe(string.Empty);
 	}
 
+	/// <summary>Verifies that UpdateFrom matches filter keys case-insensitively.</summary>
 	[Fact]
 	public void UpdateFrom_CaseInsensitiveKeyMatch_UpdatesFilter()
 	{
@@ -1105,6 +1200,7 @@ public class FilterTests
 		filter.Value.ShouldBe("Open");
 	}
 
+	/// <summary>Verifies that UpdateFrom clears the filter when given a null string.</summary>
 	[Fact]
 	public void UpdateFrom_NullText_ClearsFilter()
 	{
@@ -1116,6 +1212,7 @@ public class FilterTests
 		filter.Value.ShouldBe(string.Empty);
 	}
 
+	/// <summary>Verifies that UpdateFrom clears the filter when given a whitespace-only string.</summary>
 	[Fact]
 	public void UpdateFrom_WhitespaceText_ClearsFilter()
 	{
@@ -1127,6 +1224,7 @@ public class FilterTests
 		filter.Value.ShouldBe(string.Empty);
 	}
 
+	/// <summary>Verifies that UpdateFrom correctly round-trips a quoted multi-word value, preserving the unquoted value.</summary>
 	[Fact]
 	public void UpdateFrom_MultiWordValue_PreservesValue()
 	{
@@ -1139,6 +1237,7 @@ public class FilterTests
 		filter.Value.ShouldBe("On Microsoft Schedule");
 	}
 
+	/// <summary>Verifies that UpdateFrom correctly handles a DoesNotEqual filter with a quoted multi-word value.</summary>
 	[Fact]
 	public void UpdateFrom_MultiWordDoesNotEqualValue_PreservesValue()
 	{
@@ -1154,6 +1253,7 @@ public class FilterTests
 
 	#region Constructor Tests
 
+	/// <summary>Verifies that the constructor converts an object value to its string representation via ToString.</summary>
 	[Fact]
 	public void Constructor_ObjectValue_UsesToString()
 	{
@@ -1162,6 +1262,7 @@ public class FilterTests
 		filter.Value.ShouldBe("42");
 	}
 
+	/// <summary>Verifies that the constructor uses an empty string for a null object value.</summary>
 	[Fact]
 	public void Constructor_NullObjectValue_UsesEmptyString()
 	{
@@ -1174,6 +1275,7 @@ public class FilterTests
 
 	#region GetMemberName Tests
 
+	/// <summary>Verifies that GetMemberName returns the enum member name for a given Display attribute name.</summary>
 	[Fact]
 	public void GetMemberName_DisplayName_ReturnsMemberName()
 	{
@@ -1182,6 +1284,7 @@ public class FilterTests
 		result.ShouldBe("NeedsImprovement");
 	}
 
+	/// <summary>Verifies that GetMemberName returns the enum member name for a second Display attribute name.</summary>
 	[Fact]
 	public void GetMemberName_AnotherDisplayName_ReturnsMemberName()
 	{
@@ -1190,6 +1293,7 @@ public class FilterTests
 		result.ShouldBe("InProgress");
 	}
 
+	/// <summary>Verifies that GetMemberName returns a raw enum member name unchanged when passed directly.</summary>
 	[Fact]
 	public void GetMemberName_RawMemberName_ReturnsUnchanged()
 	{
@@ -1198,6 +1302,7 @@ public class FilterTests
 		result.ShouldBe("NeedsImprovement");
 	}
 
+	/// <summary>Verifies that GetMemberName returns the value unchanged for an enum member with a Display attribute that has no Name set.</summary>
 	[Fact]
 	public void GetMemberName_NoDisplayAttribute_ReturnsUnchanged()
 	{
@@ -1206,6 +1311,7 @@ public class FilterTests
 		result.ShouldBe("Simple");
 	}
 
+	/// <summary>Verifies that GetMemberName returns the value unchanged for an enum type that has no Display attributes at all.</summary>
 	[Fact]
 	public void GetMemberName_EnumWithNoDisplayAttributes_ReturnsUnchanged()
 	{
@@ -1214,6 +1320,7 @@ public class FilterTests
 		result.ShouldBe("SecondValue");
 	}
 
+	/// <summary>Verifies that GetMemberName returns the value unchanged when no enum member matches the given string.</summary>
 	[Fact]
 	public void GetMemberName_UnknownValue_ReturnsUnchanged()
 	{
@@ -1222,6 +1329,7 @@ public class FilterTests
 		result.ShouldBe("not a match");
 	}
 
+	/// <summary>Verifies that calling Format then GetMemberName round-trips display names back to their member names.</summary>
 	[Theory]
 	[InlineData("Needs Improvement", "NeedsImprovement")]
 	[InlineData("In Progress", "InProgress")]

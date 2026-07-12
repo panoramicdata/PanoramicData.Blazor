@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Models;
 
+/// <summary>
+/// Manages pager state including the current page, page size, and total item count, and raises events when any of these values change.
+/// </summary>
 public class PageCriteria
 {
 	private uint _page;
@@ -161,9 +164,12 @@ public class PageCriteria
 	/// </summary>
 	public uint PreviousItems => (_page - 1) * _pageSize;
 
+	/// <summary>Raises the <see cref="PageChanged"/> event.</summary>
 	protected void OnPageChanged() => PageChanged?.Invoke(this, EventArgs.Empty);
 
+	/// <summary>Raises the <see cref="PageSizeChanged"/> event.</summary>
 	protected void OnPageSizeChanged() => PageSizeChanged?.Invoke(this, EventArgs.Empty);
 
+	/// <summary>Raises the <see cref="TotalCountChanged"/> event.</summary>
 	protected void OnTotalCountChanged() => TotalCountChanged?.Invoke(this, EventArgs.Empty);
 }

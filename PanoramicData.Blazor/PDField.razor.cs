@@ -1,5 +1,9 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component that represents a single field within a <see cref="PDForm{TItem}"/>.
+/// </summary>
+/// <typeparam name="TItem">The form model type.</typeparam>
 public partial class PDField<TItem> where TItem : class
 {
 	/// <summary>
@@ -169,6 +173,10 @@ public partial class PDField<TItem> where TItem : class
 	/// </summary>
 	[Parameter] public string? HelpUrl { get; set; }
 
+	/// <summary>
+	/// Gets the resolved display title for this field, evaluating <see cref="TitleFunc"/>, <see cref="Title"/>,
+	/// or the property's <see cref="System.ComponentModel.DataAnnotations.DisplayAttribute"/> in that order.
+	/// </summary>
 	public string GetTitle(TItem? item = default)
 	{
 		if (TitleFunc is not null)
@@ -187,6 +195,7 @@ public partial class PDField<TItem> where TItem : class
 			: memberInfo?.Name ?? string.Empty;
 	}
 
+	/// <inheritdoc />
 	protected override async Task OnInitializedAsync()
 	{
 		if (FormBody is null || FormBody.Form is null)

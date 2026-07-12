@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor;
 
+/// <summary>
+/// A Blazor component representing an individual panel within a <see cref="PDSplitter"/> layout.
+/// </summary>
 public partial class PDSplitPanel
 {
 	private static int _idSequence;
@@ -36,6 +39,7 @@ public partial class PDSplitPanel
 	/// </summary>
 	public string Id { get; private set; } = string.Empty;
 
+	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
 		Id = $"pdsp{++_idSequence}";

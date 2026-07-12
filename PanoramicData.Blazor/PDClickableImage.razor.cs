@@ -1,4 +1,8 @@
 namespace PanoramicData.Blazor;
+
+/// <summary>
+/// A Blazor component that displays a clickable image that can be expanded to full screen.
+/// </summary>
 public partial class PDClickableImage
 {
 	/// <summary>

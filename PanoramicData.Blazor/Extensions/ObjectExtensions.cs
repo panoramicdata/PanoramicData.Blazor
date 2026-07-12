@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.Blazor.Extensions;
 
+/// <summary>
+/// Extension methods for <see cref="object"/> values.
+/// </summary>
 public static class ObjectExtensions
 {
 	/// <summary>
