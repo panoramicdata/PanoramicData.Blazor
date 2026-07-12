@@ -60,6 +60,18 @@
 							  ValueChanged="OnValue6Changed" />
 		</p>
 
+		<p>
+			<div>DateTimeOffset picker - "Now" toggle and named time zones (live-updating)</div>
+			<div class="text-muted">Checked = follows the live clock; uncheck to pin an instant and pick any system time zone (daylight saving applied).</div>
+			<PDDateTimeOffset ShowNow="true"
+							  ShowTime="true"
+							  ShowTimeZones="true"
+							  @bind-IsNow="_value7IsNow"
+							  @bind-TimeZoneId="_value7TimeZoneId"
+							  Value="_value7"
+							  ValueChanged="OnValue7Changed" />
+		</p>
+
 		<EventView />
 
 		</ChildContent>

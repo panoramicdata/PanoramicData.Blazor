@@ -1,11 +1,23 @@
-﻿@inherits PDComponentBase
+@inherits PDComponentBase
 
 <div class="pddatetimeoffset @(IsVisible ? "" : "d-none ") @CssClass">
+
+	@if (ShowNow)
+	{
+		<label class="form-check pdnow me-1">
+			<input class="form-check-input"
+				   type="checkbox"
+				   disabled="@(!IsEnabled)"
+				   checked="@IsNow"
+				   @onchange="OnNowToggledAsync" />
+			<span class="form-check-label ms-1">Now</span>
+		</label>
+	}
 
 	<input @onblur="OnBlur"
 		   @oninput="OnDateInputAsync"
 		   class="form-control date @_dateCssClass"
-		   disabled="@(!IsEnabled)"
+		   disabled="@(!IsEnabled || IsNow)"
 		   type="date"
 		   value="@(Value.ToString("yyyy-MM-dd"))">
 
@@ -14,14 +26,27 @@
 		<input @onblur="OnBlur"
 			   @oninput="OnTimeInputAsync"
 			   class="form-control ms-1 time @_timeCssClass"
-			   disabled="@(!IsEnabled)"
+			   disabled="@(!IsEnabled || IsNow)"
 			   step="@TimeStepSecs"
 			   type="time"
 			   value="@(Value.ToString("HH:mm:ss"))" />
 
-		@if (ShowOffset)
+		@if (ShowTimeZones)
+		{
+			<select class="form-select ms-1 timezone"
+					disabled="@(!IsEnabled || IsNow)"
+					@onblur="OnBlur"
+					@onchange="OnTimeZoneInputAsync">
+				@foreach (var timeZone in TimeZones)
+				{
+					<option value="@timeZone.Id" selected="@(timeZone.Id == SelectedTimeZone.Id)">@timeZone.DisplayName</option>
+				}
+			</select>
+		}
+		else if (ShowOffset)
 		{
 			<select class="form-select ms-1 offset"
+					disabled="@(!IsEnabled || IsNow)"
 					@onblur="OnBlur"
 					@oninput="OnOffsetInputAsync">
 				@for (double i = -11; i <= 14; i = i + 0.5)

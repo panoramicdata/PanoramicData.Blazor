@@ -15,6 +15,18 @@
 	width: 100px;
 }
 
+.form-select.timezone {
+	width: auto;
+	min-width: 220px;
+}
+
+.pddatetimeoffset .form-check.pdnow {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0;
+	white-space: nowrap;
+}
+
 
 .invalid {
 	color: var(--bs-danger);

@@ -10,6 +10,9 @@ public partial class PDDateTimePage
 	private DateTime _value4 = DateTime.Today.AddHours(DateTime.Now.Hour);
 	private DateTimeOffset _value5 = DateTime.Now;
 	private DateTimeOffset _value6 = DateTime.Now;
+	private DateTimeOffset _value7 = DateTimeOffset.Now;
+	private bool _value7IsNow = true;
+	private string? _value7TimeZoneId = TimeZoneInfo.Local.Id;
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
@@ -47,5 +50,11 @@ public partial class PDDateTimePage
 	{
 		_value6 = dateTime;
 		EventManager?.Add(new Event("ValueChanged", new EventArgument("Value6", dateTime.ToString())));
+	}
+
+	private void OnValue7Changed(DateTimeOffset dateTime)
+	{
+		_value7 = dateTime;
+		EventManager?.Add(new Event("ValueChanged", new EventArgument("Value7", dateTime.ToString())));
 	}
 }
