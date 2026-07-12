@@ -15,7 +15,8 @@
 	width: 100px;
 }
 
-.form-select.timezone {
+.form-select.timezone,
+.form-select.offset {
 	width: auto;
 	min-width: 220px;
 }

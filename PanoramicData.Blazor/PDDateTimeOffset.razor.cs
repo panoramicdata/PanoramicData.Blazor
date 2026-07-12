@@ -3,6 +3,7 @@ namespace PanoramicData.Blazor;
 public partial class PDDateTimeOffset : IDisposable
 {
 	private static readonly IReadOnlyList<TimeZoneInfo> _timeZones = TimeZoneInfo.GetSystemTimeZones();
+	private static readonly Dictionary<double, string> _offsetZoneNames = BuildOffsetZoneNames();
 
 	private string _dateCssClass = string.Empty;
 	private string _timeCssClass = string.Empty;
@@ -123,12 +124,45 @@ public partial class PDDateTimeOffset : IDisposable
 		}
 	}
 
+	/// <summary>
+	/// Builds a lookup of UTC-offset (in hours) to a representative system time zone display name, so the numeric
+	/// offset selector can also show a recognisable time zone name. The first system zone with a matching base
+	/// (standard) offset is used as the representative.
+	/// </summary>
+	private static Dictionary<double, string> BuildOffsetZoneNames()
+	{
+		var map = new Dictionary<double, string>();
+		foreach (var timeZone in _timeZones)
+		{
+			var hours = timeZone.BaseUtcOffset.TotalHours;
+			if (!map.ContainsKey(hours))
+			{
+				map[hours] = timeZone.DisplayName;
+			}
+		}
+
+		return map;
+	}
+
+	private static string StripUtcPrefix(string displayName)
+	{
+		// System time zone display names look like "(UTC+01:00) Amsterdam, Berlin, ...";
+		// strip the leading "(UTC...) " so it is not shown twice alongside the numeric offset.
+		var closeIndex = displayName.IndexOf(") ", StringComparison.Ordinal);
+		return closeIndex >= 0 && closeIndex + 2 < displayName.Length
+			? displayName[(closeIndex + 2)..]
+			: displayName;
+	}
+
 	private static string OffsetDisplay(double offset)
 	{
 		var plusMinus = offset < 0 ? "-" : (offset > 0 ? "+" : " ");
 		var hours = Math.Floor(Math.Abs(offset));
 		var minutes = offset % 1 == 0 ? "00" : "30";
-		return $"{plusMinus}{hours:00}:{minutes}";
+		var label = $"{plusMinus}{hours:00}:{minutes}";
+		return _offsetZoneNames.TryGetValue(offset, out var displayName)
+			? $"{label}  {StripUtcPrefix(displayName)}"
+			: label;
 	}
 
 	/// <summary>
@@ -207,12 +241,9 @@ public partial class PDDateTimeOffset : IDisposable
 		try
 		{
 			var value = Convert.ToDouble(args.Value, CultureInfo.InvariantCulture);
-			if (value != 0)
-			{
-				var ts = TimeSpan.FromHours(value);
-				Value = new DateTimeOffset(Value.DateTime, ts);
-				return ValueChanged.InvokeAsync(Value);
-			}
+			var ts = TimeSpan.FromHours(value);
+			Value = new DateTimeOffset(Value.DateTime, ts);
+			return ValueChanged.InvokeAsync(Value);
 		}
 		catch
 		{
