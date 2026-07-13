@@ -128,6 +128,15 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	public DataProviderDelegate? DataProvider { get; set; }
 
 	/// <summary>
+	/// When true (the default, preserving the original behaviour) a browser resize forces a full data re-fetch.
+	/// When false a resize only re-lays-out the timeline; data is re-fetched only if the visible range actually
+	/// changed (the normal unchanged-range guard still applies). Set this to false for timelines that fetch the
+	/// whole window, where a resize never changes what data is needed.
+	/// </summary>
+	[Parameter]
+	public bool RefetchDataOnResize { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets the unique identifier for the component.
 	/// </summary>
 	[Parameter]
@@ -716,7 +725,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			_canvasWidth = (int)await _commonModule.InvokeAsync<double>("getWidth", _svgPlotElement).ConfigureAwait(true);
 		}
 
-		await SetScale(Scale, true).ConfigureAwait(true);
+		await SetScale(Scale, true, refreshData: RefetchDataOnResize).ConfigureAwait(true);
 		await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 	}
 
@@ -988,7 +997,8 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// <param name="forceRefresh">True to force data refresh.</param>
 	/// <param name="dateTime">Optional focus date for repositioning.</param>
 	/// <param name="reposition">Viewport position used when applying <paramref name="dateTime"/>.</param>
-	public async Task SetScale(TimelineScale scale, bool forceRefresh = false, DateTime? dateTime = null, TimelinePositions reposition = TimelinePositions.Center)
+	/// <param name="refreshData">When false, a forced refresh re-lays-out the timeline without clearing the data cache or forcing a re-fetch; the unchanged-range guard in RefreshAsync still applies. Defaults to true, preserving the original behaviour.</param>
+	public async Task SetScale(TimelineScale scale, bool forceRefresh = false, DateTime? dateTime = null, TimelinePositions reposition = TimelinePositions.Center, bool refreshData = true)
 	{
 		if (MinDateTime == DateTime.MinValue)
 		{
@@ -1021,7 +1031,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 				return;
 			}
 
-			if (scaleChanged || forceRefresh)
+			if (scaleChanged || (forceRefresh && refreshData))
 			{
 				_dataPoints.Clear();
 			}
@@ -1057,8 +1067,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			// re-position viewport?
 			PanTo(dateTime ?? previousCenter, reposition);
 
-			// refresh data for new scale?
-			await RefreshAsync(forceRefresh).ConfigureAwait(true);
+			// refresh data for new scale? (a pure resize with RefetchDataOnResize=false only re-lays-out - the
+			// unchanged-range guard in RefreshAsync still re-fetches if the visible range genuinely changed)
+			await RefreshAsync(forceRefresh && refreshData).ConfigureAwait(true);
 
 			// mark state as changed
 			StateHasChanged();

@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <!-- Demo/sample app, not a published API: do not generate XML docs (Directory.Build.props forces them on,
+         which would otherwise require documenting every demo page/service). -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <UserSecretsId>49933e5c-b6ca-4a76-8b2a-09d0868ee051</UserSecretsId>
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
