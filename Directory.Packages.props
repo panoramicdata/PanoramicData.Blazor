@@ -18,7 +18,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.9" />
     <PackageVersion Include="Microsoft.Build.Framework" Version="18.7.1" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.7.1" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.10.85" />
     <PackageVersion Include="PanoramicData.DeepCloner" Version="1.0.8" />
     <PackageVersion Include="PanoramicData.NCalcExtensions" Version="5.8.53" />
