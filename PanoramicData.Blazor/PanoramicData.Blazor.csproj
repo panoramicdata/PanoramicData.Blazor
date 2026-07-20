@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChat: now follows the host application's own theme (Bootstrap variables, native [data-bs-theme], or custom theme classes) instead of only the OS/browser dark-mode preference, with new --pd-chat-* CSS custom properties exposing full control over colours, the header accent, and message spacing/sizing; the Send button is now a standard Bootstrap button; fixed missing dark-mode styling for Critical message previews and for Success/Normal message types, and unified Critical message colouring with the toggle button's purple.
+      - PDChat: border and priority-message colours (Info/Warning/Error/Critical/Success/Typing) no longer depend on prefers-color-scheme, closing a gap where the previous theme fix still broke down whenever a host's chosen theme and the OS/browser preference disagreed; they're now selected by a host's own theme class or Bootstrap's [data-bs-theme], and use plain static values rather than color-mix() so they stay compatible with screenshot/rasterisation tools such as html2canvas, which cannot parse CSS Color 4 functions.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

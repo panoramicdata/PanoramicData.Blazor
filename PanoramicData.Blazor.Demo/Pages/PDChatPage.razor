@@ -416,8 +416,36 @@ ChatService.MinimizedButtonPosition = PDChatButtonPosition.None;
 /* PDChat's header background picks up --accent automatically - nothing else to do */</code></pre>
 
 					<ol start="3">
-						<li><strong>Full theme integration</strong> - the chat window, messages, and input area follow your app's existing Bootstrap variables (<code>--bs-body-bg</code>, <code>--bs-body-color</code>, <code>--bs-border-color</code>, <code>--bs-secondary-bg</code>) automatically, whether set by Bootstrap 5.3's native <code>[data-bs-theme]</code> or your own theme classes - no configuration required unless you want to override them.</li>
+						<li><strong>Full theme integration for the window/messages/input</strong> - these follow your app's existing Bootstrap variables (<code>--bs-body-bg</code>, <code>--bs-body-color</code>, <code>--bs-secondary-bg</code>) automatically, whether set by Bootstrap 5.3's native <code>[data-bs-theme]</code> or your own theme classes - no configuration required unless you want to override them.</li>
 					</ol>
+
+					<ol start="4">
+						<li><strong>Borders and priority colours (Info/Warning/Error/Critical/Success/Typing) work differently</strong> - deliberately <em>not</em> aliased to any Bootstrap variable, and never blended with <code>color-mix()</code>. Screenshot/rasterisation tools such as <code>html2canvas</code> run their own simplified CSS engine that cannot parse <code>color-mix()</code>/<code>color()</code> and silently keep a stale value when they hit one - a real risk for a component that can appear on every page of a host app. These colours are plain static values instead, picked by a light-mode default plus a dark-mode override block keyed off common host theme conventions (a <code>theme-dark</code>/<code>theme-lime</code>/<code>theme-orange</code>-style class, or Bootstrap's native <code>[data-bs-theme="dark"]</code>) - never <code>prefers-color-scheme</code>, so your app's actual theme choice always wins over the OS preference:</li>
+					</ol>
+					<pre class="bg-light text-dark p-3 rounded"><code>/* Simplified - this is what PDChat.razor.css itself does internally */
+.pdchat-container {
+    --pd-chat-border: #ced4da;          /* light-mode default */
+    --pd-chat-warning-bg: #fff3cd;
+}
+body.theme-dark .pdchat-container,
+body.theme-lime .pdchat-container,
+body.theme-orange .pdchat-container,
+[data-bs-theme="dark"] .pdchat-container {
+    --pd-chat-border: #495057;          /* dark-flavoured override */
+    --pd-chat-warning-bg: #4a3d1a;
+}</code></pre>
+
+					<div class="alert alert-warning mt-3" role="alert">
+						<i class="fas fa-exclamation-triangle me-2"></i>
+						<strong>Gotcha:</strong> because of that, overriding a border/priority variable on plain <code>.pdchat-container</code> (as in step 1) only takes effect in light mode - PDChat's own dark-theme block above is more specific and wins once a dark-flavoured theme is active. To override in every theme, target the same selectors PDChat uses internally:
+						<pre class="bg-light text-dark p-3 rounded mt-2 mb-0"><code>.pdchat-container,
+body.theme-dark .pdchat-container,
+body.theme-lime .pdchat-container,
+body.theme-orange .pdchat-container,
+[data-bs-theme="dark"] .pdchat-container {
+    --pd-chat-warning-bg: #fff3e0;
+}</code></pre>
+					</div>
 
 					<div class="alert alert-info mt-3" role="alert">
 						<i class="fas fa-info-circle me-2"></i>

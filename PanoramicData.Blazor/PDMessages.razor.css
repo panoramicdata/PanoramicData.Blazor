@@ -24,6 +24,26 @@
 	color: var(--pd-chat-color, #212529);
 	min-height: 0;
 	scroll-behavior: smooth;
+	scrollbar-width: thin;
+	scrollbar-color: var(--pd-chat-muted-color, #6c757d) var(--pd-chat-secondary-bg, #f9f9f9);
+}
+
+/* Webkit scrollbar styling — theme-aware via --pd-chat-* variables above */
+.pdchat-messages::-webkit-scrollbar {
+	width: 8px;
+}
+
+.pdchat-messages::-webkit-scrollbar-track {
+	background: var(--pd-chat-secondary-bg, #f9f9f9);
+}
+
+.pdchat-messages::-webkit-scrollbar-thumb {
+	background-color: var(--pd-chat-muted-color, #6c757d);
+	border-radius: 4px;
+}
+
+.pdchat-messages::-webkit-scrollbar-thumb:hover {
+	background-color: var(--pd-chat-color, #495057);
 }
 
 /* When there are no messages or minimal content, ensure messages area still takes available space */
@@ -83,8 +103,8 @@
 
 .chat-input-container textarea:focus {
 	outline: none;
-	border-color: #4a90e2;
-	box-shadow: 0 0 5px #4a90e2aa;
+	border-color: var(--pd-chat-info-border, #4a90e2);
+	box-shadow: 0 0 5px var(--pd-chat-focus-shadow, rgba(74, 144, 226, 0.4));
 }
 
 /* Send button is a standard Bootstrap .btn.btn-sm.btn-secondary — no custom colours/padding,
@@ -93,42 +113,5 @@
 	flex-shrink: 0;
 }
 
-/* ==============================================
-   DARK MODE - Messages Area and Input Styling
-   ============================================== */
-
-/* Dark mode for messages area and text input */
-@media (prefers-color-scheme: dark) {
-	/* Background/text are now theme-aware via --pd-chat-* variables above — see MS-21655.
-	   The send button is a standard Bootstrap .btn now, themed by Bootstrap itself.
-	   Scrollbar colours still need an OS-preference fallback, for hosts with no theme
-	   system of their own. */
-	.pdchat-messages {
-		/* Dark scrollbar styling for Webkit browsers (Chrome, Safari, Edge) */
-		scrollbar-width: thin;
-		scrollbar-color: #495057 #2b2f33;
-	}
-	
-	/* Webkit scrollbar styling for dark mode */
-	.pdchat-messages::-webkit-scrollbar {
-		width: 8px;
-	}
-	
-	.pdchat-messages::-webkit-scrollbar-track {
-		background: #2b2f33;
-	}
-	
-	.pdchat-messages::-webkit-scrollbar-thumb {
-		background-color: #495057;
-		border-radius: 4px;
-	}
-	
-	.pdchat-messages::-webkit-scrollbar-thumb:hover {
-		background-color: #6c757d;
-	}
-	
-	.chat-input-container textarea:focus {
-		border-color: #0d6efd;
-		box-shadow: 0 0 5px #0d6efdaa;
-	}
-}
+/* Scrollbar and focus-ring colours are theme-aware via --pd-chat-* variables above now.
+   No prefers-color-scheme block needed. */
