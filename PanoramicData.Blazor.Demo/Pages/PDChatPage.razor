@@ -133,11 +133,98 @@
 						<div class="form-text">Examples: HH:mm:ss, yyyy-MM-dd HH:mm, dd/MM/yyyy HH:mm:ss</div>
 					</div>
 
-					<div class="mb-3">
-						<label class="form-label small">Show Last Message Duration (seconds):</label>
-						<input type="number" @bind="ChatService.ShowLastMessageDurationSeconds" min="1" max="30" step="0.5" class="form-control form-control-sm" placeholder="5">
-						<div class="form-text">How long the message preview shows when the chat is minimized (1-30 seconds)</div>
+					<hr />
+					<h6 class="small text-uppercase text-muted mb-2"><i class="fas fa-bell me-1"></i>Toast Notifications</h6>
+					<div class="form-text mb-2">PDChat can double as a toast surface: messages arriving while the chat is closed animate in (and, when the chat button is hidden, appear headless). Minimize the chat, then use the buttons on the right.</div>
+
+					<div class="row">
+						<div class="col-6 mb-3">
+							<label class="form-label small">Entry Animation:</label>
+							<select @bind="ChatService.ToastEntryAnimation" class="form-select form-select-sm">
+								<option value="@PDChatToastAnimation.Grow">Grow</option>
+								<option value="@PDChatToastAnimation.Shrink">Shrink</option>
+								<option value="@PDChatToastAnimation.Fade">Fade</option>
+								<option value="@PDChatToastAnimation.Slide">Slide</option>
+								<option value="@PDChatToastAnimation.None">None</option>
+							</select>
+						</div>
+						<div class="col-6 mb-3">
+							<label class="form-label small">Exit Animation:</label>
+							<select @bind="ChatService.ToastExitAnimation" class="form-select form-select-sm">
+								<option value="@PDChatToastAnimation.Shrink">Shrink</option>
+								<option value="@PDChatToastAnimation.Grow">Grow</option>
+								<option value="@PDChatToastAnimation.Fade">Fade</option>
+								<option value="@PDChatToastAnimation.Slide">Slide</option>
+								<option value="@PDChatToastAnimation.None">None</option>
+							</select>
+						</div>
 					</div>
+
+					<div class="row">
+						<div class="col-6 mb-3">
+							<label class="form-label small">Animation Time (ms):</label>
+							<input type="number" @bind="ChatService.ToastAnimationDurationMs" min="0" max="2000" step="50" class="form-control form-control-sm">
+						</div>
+						<div class="col-6 mb-3">
+							<label class="form-label small">Display Duration (seconds):</label>
+							<input type="number" @bind="ChatService.ToastDisplayDurationSeconds" min="0.5" max="60" step="0.5" class="form-control form-control-sm">
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-6 mb-3">
+							<label class="form-label small">Min / Max Width:</label>
+							<div class="input-group input-group-sm">
+								<input type="text" @bind="ChatService.ToastMinWidth" class="form-control" placeholder="200px">
+								<input type="text" @bind="ChatService.ToastMaxWidth" class="form-control" placeholder="300px">
+							</div>
+						</div>
+						<div class="col-6 mb-3">
+							<label class="form-label small">Min / Max Height:</label>
+							<div class="input-group input-group-sm">
+								<input type="text" @bind="ChatService.ToastMinHeight" class="form-control" placeholder="(auto)">
+								<input type="text" @bind="ChatService.ToastMaxHeight" class="form-control" placeholder="(auto)">
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-6 mb-3">
+							<label class="form-label small">Max Visible Toasts:</label>
+							<input type="number" @bind="ChatService.ToastMaxVisible" min="1" max="10" step="1" class="form-control form-control-sm">
+						</div>
+						<div class="col-6 mb-3">
+							<label class="form-label small">Headless Anchor (button = None):</label>
+							<select @bind="ChatService.ToastAnchor" class="form-select form-select-sm">
+								<option value="@PDChatButtonPosition.BottomRight">Bottom Right</option>
+								<option value="@PDChatButtonPosition.BottomLeft">Bottom Left</option>
+								<option value="@PDChatButtonPosition.TopRight">Top Right</option>
+								<option value="@PDChatButtonPosition.TopLeft">Top Left</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.ToastEnabled" id="toastEnabledCheck">
+								<label class="form-check-label small" for="toastEnabledCheck">Enable Toasts</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.ToastAutoDismiss" id="toastAutoDismissCheck">
+								<label class="form-check-label small" for="toastAutoDismissCheck">Auto-Dismiss</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.ToastShowTitle" id="toastShowTitleCheck">
+								<label class="form-check-label small" for="toastShowTitleCheck">Show Title in Toast</label>
+							</div>
+						</div>
+					</div>
+					<hr />
 
 					<div class="row">
 						<div class="col-6">
@@ -160,6 +247,12 @@
 						</div>
 						<div class="col-6">
 							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.IsInputPermitted" id="inputPermittedCheck">
+								<label class="form-check-label small" for="inputPermittedCheck">Enable Message Input</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
 								<input class="form-check-input" type="checkbox" @bind="ChatService.AutoRestoreOnNewMessage" @bind:after="OnAutoRestoreChanged" id="autoRestoreCheck">
 								<label class="form-check-label small" for="autoRestoreCheck">Auto-Restore</label>
 							</div>
@@ -168,12 +261,6 @@
 							<div class="form-check">
 								<input class="form-check-input" type="checkbox" @bind="ChatService.UseFullWidthMessages" id="fullWidthCheck">
 								<label class="form-check-label small" for="fullWidthCheck">Full Width Messages</label>
-							</div>
-						</div>
-						<div class="col-6">
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" @bind="ChatService.ShowLastMessage" id="showLastMessageCheck">
-								<label class="form-check-label small" for="showLastMessageCheck">Show Last Message Preview</label>
 							</div>
 						</div>
 						<div class="col-6">
@@ -194,6 +281,12 @@
 								<label class="form-check-label small" for="showTimestampCheck">Show Timestamp</label>
 							</div>
 						</div>
+					</div>
+
+					<div class="mb-3 mt-2">
+						<label class="form-label small">Input Disabled Message (shown at the bottom when input is off):</label>
+						<input type="text" @bind="ChatService.InputDisabledMessage" @bind:event="oninput" class="form-control form-control-sm" placeholder="(blank = notifications-only, nothing shown)">
+						<div class="form-text">Uncheck "Enable Message Input" above to see this. Leave blank for pure toast-only mode (the input simply disappears with no message).</div>
 					</div>
 				</div>
 			</div>
@@ -250,7 +343,17 @@
 						</div>
 						<div class="col-12">
 							<button class="btn btn-outline-primary btn-sm w-100 mb-2" @onclick="TestMessagePreview">
-								<i class="fas fa-eye me-1"></i>Test Message Preview
+								<i class="fas fa-eye me-1"></i>Test Toast (single)
+							</button>
+						</div>
+						<div class="col-12">
+							<button class="btn btn-outline-info btn-sm w-100 mb-2" @onclick="TestToastStack">
+								<i class="fas fa-layer-group me-1"></i>Test Toast Stack (mixed durations)
+							</button>
+						</div>
+						<div class="col-12">
+							<button class="btn btn-outline-warning btn-sm w-100 mb-2" @onclick="TestToastOverride">
+								<i class="fas fa-sliders-h me-1"></i>Test Per-Message Override (slide, 12s)
 							</button>
 						</div>
 						<div class="col-12">

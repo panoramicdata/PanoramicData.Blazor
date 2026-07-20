@@ -15,6 +15,8 @@ public class DumbChatService : IChatService, IDisposable
 	private bool _isMaximizePermitted = true;
 	private bool _isCanvasUsePermitted = true;
 	private bool _isClearPermitted = true;
+	private bool _isInputPermitted = true;
+	private string? _inputDisabledMessage;
 	private bool _autoRestoreOnNewMessage;
 	private bool _useFullWidthMessages = true;
 	private MessageMetadataDisplayMode _messageMetadataDisplayMode = MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft;
@@ -25,8 +27,19 @@ public class DumbChatService : IChatService, IDisposable
 	private string _title = "Demo Chat";
 	private PDChatDockMode _restoreMode = PDChatDockMode.BottomRight;
 	private PDChatButtonPosition _minimizedButtonPosition = PDChatButtonPosition.BottomRight;
-	private bool _showLastMessage = true;
-	private double _showLastMessageDurationSeconds = 5.0;
+	private bool _toastEnabled = true;
+	private double _toastDisplayDurationSeconds = 5.0;
+	private PDChatToastAnimation _toastEntryAnimation = PDChatToastAnimation.Grow;
+	private PDChatToastAnimation _toastExitAnimation = PDChatToastAnimation.Shrink;
+	private double _toastAnimationDurationMs = 250d;
+	private bool _toastAutoDismiss = true;
+	private bool _toastShowTitle = true;
+	private string _toastMinWidth = "200px";
+	private string _toastMaxWidth = "300px";
+	private string _toastMinHeight = string.Empty;
+	private string _toastMaxHeight = string.Empty;
+	private int _toastMaxVisible = 5;
+	private PDChatButtonPosition _toastAnchor = PDChatButtonPosition.BottomRight;
 
 	private readonly List<ChatMessage> _messages = [];
 
@@ -157,6 +170,34 @@ public class DumbChatService : IChatService, IDisposable
 	}
 
 	/// <inheritdoc />
+	public bool IsInputPermitted
+	{
+		get => _isInputPermitted;
+		set
+		{
+			if (_isInputPermitted != value)
+			{
+				_isInputPermitted = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public string? InputDisabledMessage
+	{
+		get => _inputDisabledMessage;
+		set
+		{
+			if (_inputDisabledMessage != value)
+			{
+				_inputDisabledMessage = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
 	public bool AutoRestoreOnNewMessage
 	{
 		get => _autoRestoreOnNewMessage;
@@ -255,28 +296,198 @@ public class DumbChatService : IChatService, IDisposable
 	}
 
 	/// <inheritdoc />
+	[Obsolete("Superseded by ToastEnabled.")]
 	public bool ShowLastMessage
 	{
-		get => _showLastMessage;
+		get => ToastEnabled;
+		set => ToastEnabled = value;
+	}
+
+	/// <inheritdoc />
+	[Obsolete("Superseded by ToastDisplayDurationSeconds.")]
+	public double ShowLastMessageDurationSeconds
+	{
+		get => ToastDisplayDurationSeconds;
+		set => ToastDisplayDurationSeconds = value;
+	}
+
+	/// <inheritdoc />
+	public bool ToastEnabled
+	{
+		get => _toastEnabled;
 		set
 		{
-			if (_showLastMessage != value)
+			if (_toastEnabled != value)
 			{
-				_showLastMessage = value;
+				_toastEnabled = value;
 				OnConfigurationChanged?.Invoke();
 			}
 		}
 	}
 
 	/// <inheritdoc />
-	public double ShowLastMessageDurationSeconds
+	public double ToastDisplayDurationSeconds
 	{
-		get => _showLastMessageDurationSeconds;
+		get => _toastDisplayDurationSeconds;
 		set
 		{
-			if (Math.Abs(_showLastMessageDurationSeconds - value) > 0.001)
+			if (Math.Abs(_toastDisplayDurationSeconds - value) > 0.001)
 			{
-				_showLastMessageDurationSeconds = value;
+				_toastDisplayDurationSeconds = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public PDChatToastAnimation ToastEntryAnimation
+	{
+		get => _toastEntryAnimation;
+		set
+		{
+			if (_toastEntryAnimation != value)
+			{
+				_toastEntryAnimation = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public PDChatToastAnimation ToastExitAnimation
+	{
+		get => _toastExitAnimation;
+		set
+		{
+			if (_toastExitAnimation != value)
+			{
+				_toastExitAnimation = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public double ToastAnimationDurationMs
+	{
+		get => _toastAnimationDurationMs;
+		set
+		{
+			if (Math.Abs(_toastAnimationDurationMs - value) > 0.001)
+			{
+				_toastAnimationDurationMs = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public bool ToastAutoDismiss
+	{
+		get => _toastAutoDismiss;
+		set
+		{
+			if (_toastAutoDismiss != value)
+			{
+				_toastAutoDismiss = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public bool ToastShowTitle
+	{
+		get => _toastShowTitle;
+		set
+		{
+			if (_toastShowTitle != value)
+			{
+				_toastShowTitle = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public string ToastMinWidth
+	{
+		get => _toastMinWidth;
+		set
+		{
+			if (_toastMinWidth != value)
+			{
+				_toastMinWidth = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public string ToastMaxWidth
+	{
+		get => _toastMaxWidth;
+		set
+		{
+			if (_toastMaxWidth != value)
+			{
+				_toastMaxWidth = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public string ToastMinHeight
+	{
+		get => _toastMinHeight;
+		set
+		{
+			if (_toastMinHeight != value)
+			{
+				_toastMinHeight = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public string ToastMaxHeight
+	{
+		get => _toastMaxHeight;
+		set
+		{
+			if (_toastMaxHeight != value)
+			{
+				_toastMaxHeight = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public int ToastMaxVisible
+	{
+		get => _toastMaxVisible;
+		set
+		{
+			if (_toastMaxVisible != value)
+			{
+				_toastMaxVisible = value;
+				OnConfigurationChanged?.Invoke();
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public PDChatButtonPosition ToastAnchor
+	{
+		get => _toastAnchor;
+		set
+		{
+			if (_toastAnchor != value)
+			{
+				_toastAnchor = value;
 				OnConfigurationChanged?.Invoke();
 			}
 		}

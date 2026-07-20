@@ -201,16 +201,71 @@ public partial class PDChatPage : IDisposable
 		// Force chat to minimized state first
 		ChatService.PreferredDockMode = PDChatDockMode.Minimized;
 		await Task.Delay(100);
-		
+
 		var message = new ChatMessage
 		{
 			Id = Guid.NewGuid(),
-			Message = "👀 This message demonstrates the message preview feature! If enabled, you should see this message slide out from the chat button for a few seconds.",
+			Message = "👀 This message demonstrates the toast feature! With the chat closed, it animates in using the configured entry animation and auto-dismisses after the display duration.",
 			Sender = Bot,
 			Type = MessageType.Normal,
 			Timestamp = DateTime.UtcNow
 		};
 		ChatService.SendMessage(message);
+	}
+
+	// Sends three toasts in quick succession with different display durations to demonstrate the
+	// stacking behaviour: oldest at the top, each dismissing on its own independent timer.
+	private async Task TestToastStack()
+	{
+		ChatService.PreferredDockMode = PDChatDockMode.Minimized;
+		await Task.Delay(100);
+
+		var specs = new (string Text, MessageType Type, double Seconds)[]
+		{
+			("🥇 First toast — stays 12 seconds (oldest, at the top).", MessageType.Normal, 12),
+			("🥈 Second toast — stays 6 seconds.", MessageType.Warning, 6),
+			("🥉 Third toast — stays 2 seconds (dismisses first, de-stacking the others).", MessageType.Success, 2),
+		};
+
+		foreach (var spec in specs)
+		{
+			ChatService.SendMessage(new ChatMessage
+			{
+				Id = Guid.NewGuid(),
+				Message = spec.Text,
+				Sender = Bot,
+				Type = spec.Type,
+				Timestamp = DateTime.UtcNow,
+				ToastOptions = new ChatToastOptions { DisplayDurationSeconds = spec.Seconds }
+			});
+
+			await Task.Delay(300);
+		}
+	}
+
+	// Sends a single toast that overrides the service defaults on a per-message basis.
+	private async Task TestToastOverride()
+	{
+		ChatService.PreferredDockMode = PDChatDockMode.Minimized;
+		await Task.Delay(100);
+
+		ChatService.SendMessage(new ChatMessage
+		{
+			Id = Guid.NewGuid(),
+			Title = "Per-message override",
+			Message = "This toast overrides the defaults: it slides in and out, stays for 12 seconds, and uses a wider max-width — regardless of the service-level toast settings.",
+			Sender = Bot,
+			Type = MessageType.Normal,
+			Timestamp = DateTime.UtcNow,
+			ToastOptions = new ChatToastOptions
+			{
+				EntryAnimation = PDChatToastAnimation.Slide,
+				ExitAnimation = PDChatToastAnimation.Slide,
+				DisplayDurationSeconds = 12,
+				AnimationDurationMs = 350,
+				MaxWidth = "360px"
+			}
+		});
 	}
 
 	private void SendHtmlMessage()

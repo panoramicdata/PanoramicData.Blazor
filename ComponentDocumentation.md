@@ -225,6 +225,8 @@ This component has no public parameters.
 | OnMessageReceivedEvent | EventCallback<ChatMessage> | An event callback that is invoked when a message is received. |
 | OnAutoRestored | EventCallback | An event callback that is invoked when the chat window is automatically restored. |
 
+**Toast notifications:** PDChat can double as a toast surface. When a message arrives while the chat is closed (minimized, or fully hidden when `MinimizedButtonPosition` is `None`), it animates into view and, if auto-dismiss is enabled, animates out after a configurable time. Toasts stack (oldest at the top) and each runs its own independent dismiss timer. Defaults are set on `IChatService` via the `Toast*` members (`ToastEnabled`, `ToastEntryAnimation`, `ToastExitAnimation`, `ToastAnimationDurationMs`, `ToastAutoDismiss`, `ToastDisplayDurationSeconds`, `ToastShowTitle`, `ToastMinWidth`/`ToastMaxWidth`/`ToastMinHeight`/`ToastMaxHeight`, `ToastMaxVisible`, `ToastAnchor`) and can be overridden per message via `ChatMessage.ToastOptions`. The legacy `ShowLastMessage` / `ShowLastMessageDurationSeconds` members are obsolete and map onto `ToastEnabled` / `ToastDisplayDurationSeconds`.
+
 ---
 
 ## PDChatContainer

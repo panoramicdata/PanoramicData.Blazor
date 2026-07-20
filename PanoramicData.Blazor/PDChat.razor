@@ -17,36 +17,54 @@
 							<span class="pdchat-priority-indicator">@GetPriorityIndicator()</span>
 						}
 					</button>
-					
-					@if (_showMessagePreview && _lastMessage != null && ChatService.ShowLastMessage)
+				</div>
+			}
+
+			@* Toast stack: shown whenever there are live toasts, whether or not the minimized button
+			   is visible. When the button is hidden (MinimizedButtonPosition.None) this is a headless toast. *@
+			@if (_toasts.Count > 0)
+			{
+				<div class="pdchat-toast-stack @GetToastAnchorClass()">
+					@foreach (var toast in _toasts)
 					{
-						<div class="pdchat-message-preview @(IsPositionOnRight() ? "slide-left" : "slide-right") @GetPreviewAnimationClass()">
+						<div @key="toast.Key"
+							 class="pdchat-message-preview pdchat-toast @GetToastClasses(toast)"
+							 style="@GetToastStyle(toast)"
+							 role="@(toast.Message.Type is MessageType.Error or MessageType.Critical ? "alert" : "status")"
+							 aria-live="@GetToastAriaLive(toast.Message.Type)"
+							 @onclick="OnToastClickedAsync"
+							 @onmouseenter="() => PauseToast(toast)"
+							 @onmouseleave="() => ResumeToast(toast)">
+							<button class="pdchat-toast-close"
+									@onclick="() => BeginDismiss(toast)"
+									@onclick:stopPropagation="true"
+									title="Dismiss">×</button>
 							<div class="pdchat-preview-header">
-								<span class="pdchat-preview-sender">@_lastMessage.Sender.Name</span>
-								<span class="pdchat-preview-timestamp">@_lastMessage.Timestamp.ToString("HH:mm")</span>
+								<span class="pdchat-preview-sender">@toast.Message.Sender.Name</span>
+								<span class="pdchat-preview-timestamp">@toast.Message.Timestamp.ToString("HH:mm")</span>
 							</div>
-							@if (!string.IsNullOrEmpty(_lastMessage.Title))
+							@if (toast.ShowTitle && !string.IsNullOrEmpty(toast.Message.Title))
 							{
 								<div class="pdchat-preview-title">
-									@if (_lastMessage.IsTitleHtml)
+									@if (toast.Message.IsTitleHtml)
 									{
-										@((MarkupString)_lastMessage.Title)
+										@((MarkupString)toast.Message.Title)
 									}
 									else
 									{
-										@_lastMessage.Title
+										@toast.Message.Title
 									}
 								</div>
 							}
 							<div class="pdchat-preview-content">
-                                @if (_lastMessage.IsMessageHtml)
-                                {
-                                    @((MarkupString)_lastMessage.Message)
-                                }
-                                else
-                                {
-                                    @_lastMessage.Message
-                                }
+								@if (toast.Message.IsMessageHtml)
+								{
+									@((MarkupString)toast.Message.Message)
+								}
+								else
+								{
+									@toast.Message.Message
+								}
 							</div>
 						</div>
 					}
@@ -103,6 +121,8 @@
 											CurrentInputChanged="@((string v) => _currentInput = v)"
 											IsLive="@ChatService.IsLive"
 											CanSend="@CanSend"
+											IsInputPermitted="@ChatService.IsInputPermitted"
+											InputDisabledMessage="@ChatService.InputDisabledMessage"
 											OnSendClicked="SendCurrentMessageAsync"
 											UserIconSelector="UserIconSelector"
 											UseFullWidthMessages="@ChatService.UseFullWidthMessages"
@@ -142,6 +162,8 @@
 											CurrentInputChanged="@((string v) => _currentInput = v)"
 											IsLive="@ChatService.IsLive"
 											CanSend="@CanSend"
+											IsInputPermitted="@ChatService.IsInputPermitted"
+											InputDisabledMessage="@ChatService.InputDisabledMessage"
 											OnSendClicked="SendCurrentMessageAsync"
 											UserIconSelector="UserIconSelector"
 											UseFullWidthMessages="@ChatService.UseFullWidthMessages"
@@ -162,6 +184,8 @@
 								CurrentInputChanged="@((string v) => _currentInput = v)"
 								IsLive="@ChatService.IsLive"
 								CanSend="@CanSend"
+								IsInputPermitted="@ChatService.IsInputPermitted"
+								InputDisabledMessage="@ChatService.InputDisabledMessage"
 								OnSendClicked="SendCurrentMessageAsync"
 								UserIconSelector="UserIconSelector"
 								UseFullWidthMessages="@ChatService.UseFullWidthMessages"

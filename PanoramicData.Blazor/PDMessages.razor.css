@@ -116,6 +116,20 @@
 	background-color: #6c757d;
 }
 
+/* Message shown in place of the input when input is not permitted (IsInputPermitted = false) */
+.chat-input-disabled {
+	flex-shrink: 0;
+	margin-top: auto;
+	padding: 12px 16px;
+	font-size: 0.85rem;
+	font-style: italic;
+	line-height: 1.35;
+	text-align: center;
+	color: #6c757d;
+	background: #f5f7fa;
+	border-top: 1px solid rgb(0 0 0 / 0.1);
+}
+
 /* ==============================================
    DARK MODE - Messages Area and Input Styling
    ============================================== */
@@ -191,5 +205,11 @@
 	
 	.submit-button-disabled:hover {
 		background-color: #343a40 !important;
+	}
+
+	.chat-input-disabled {
+		color: #adb5bd;
+		background: #373b3e;
+		border-top-color: rgb(255 255 255 / 0.1);
 	}
 }
