@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChat: fixed border/priority-message colours staying on their light-mode default when a host app has no explicit theme set (e.g. an "Auto" option with no theme class and no Bootstrap data-bs-theme attribute) and the OS/browser prefers dark - they now fall back to prefers-color-scheme in that specific case, guarded so an explicit host theme choice still always takes priority over the OS preference.
+      - PDChatContainer: stopped disposing and recreating the host page's entire content every time the chat's dock mode changes (e.g. opening chat from minimized into a side-docked view, or closing it again) - content and chat panels now stay permanently mounted, so in-progress page state is no longer lost on a dock-mode change.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

@@ -18,6 +18,38 @@
 	min-height: 0; /* Allow shrinking */
 }
 
+/* Non-split dock modes (Minimized, the four corners, FullScreen): the chat panel and its
+   drag gutter are collapsed to nothing rather than removed from the tree - see the
+   accompanying comment in PDChatContainer.razor for why the splitter stays mounted at all
+   times. PDChat renders itself through its own fixed-position dock-mode CSS in this state
+   (see PDChat.razor.css, .pdchat-container is position:fixed by default), so it floats
+   correctly irrespective of this collapsed layout slot. split.js sets an inline width on
+   each panel ONCE (at first render) and never updates it again on its own - the two panels'
+   widths are independent, so collapsing the chat panel does NOT make the content panel
+   expand to fill the freed space by itself. Both panels need their own !important override
+   here. The direct-child gutter selector (rather than a bare .gutter) deliberately avoids
+   hiding PDChat's own unrelated internal FullScreen canvas-splitter gutter, which is nested
+   deeper inside ChatContent. */
+.pdchat-container-wrapper.pdchat-split-inactive ::deep .pdchat-chat-panel {
+	flex: 0 0 0% !important;
+	width: 0 !important;
+	min-width: 0 !important;
+	padding: 0 !important;
+	border: none !important;
+	overflow: hidden !important;
+}
+
+.pdchat-container-wrapper.pdchat-split-inactive ::deep .pdchat-content-panel {
+	flex: 1 1 100% !important;
+	width: 100% !important;
+}
+
+.pdchat-container-wrapper.pdchat-split-inactive ::deep .pdchat-container-splitter > .gutter {
+	display: none !important;
+	width: 0 !important;
+	min-width: 0 !important;
+}
+
 /* Override PDChat positioning when in container split mode */
 .pdchat-container-wrapper ::deep .pdchat-container.dock-left,
 .pdchat-container-wrapper ::deep .pdchat-container.dock-right {
