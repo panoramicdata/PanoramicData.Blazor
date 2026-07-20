@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChat: border and priority-message colours (Info/Warning/Error/Critical/Success/Typing) no longer depend on prefers-color-scheme, closing a gap where the previous theme fix still broke down whenever a host's chosen theme and the OS/browser preference disagreed; they're now selected by a host's own theme class or Bootstrap's [data-bs-theme], and use plain static values rather than color-mix() so they stay compatible with screenshot/rasterisation tools such as html2canvas, which cannot parse CSS Color 4 functions.
+      - PDChat: fixed border/priority-message colours staying on their light-mode default when a host app has no explicit theme set (e.g. an "Auto" option with no theme class and no Bootstrap data-bs-theme attribute) and the OS/browser prefers dark - they now fall back to prefers-color-scheme in that specific case, guarded so an explicit host theme choice still always takes priority over the OS preference.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

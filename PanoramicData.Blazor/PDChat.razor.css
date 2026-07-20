@@ -98,6 +98,33 @@ body.theme-orange .pdchat-container,
 	--pd-chat-focus-shadow: rgba(91, 164, 252, 0.4);
 }
 
+/* "Auto"/unthemed hosts: when a host app has no opinion at all (no theme class, no
+   data-bs-theme), fall back to the OS/browser preference — same as the base surface
+   colours already do via plain Bootstrap variable inheritance from :root. The :not()
+   guard is what keeps this safe: it only matches when NONE of the explicit-theme
+   selectors above could have matched, so an explicit host theme choice still always
+   wins over the OS preference — this never re-opens that gap, it only covers the case
+   where the host genuinely has no explicit choice to defer to. Values duplicated from
+   the block above; keep both in sync if the dark palette changes. */
+@media (prefers-color-scheme: dark) {
+	body:not(.theme-light):not(.theme-dark):not(.theme-lime):not(.theme-orange):not([data-bs-theme]) .pdchat-container {
+		--pd-chat-border: #495057;
+		--pd-chat-info-border: #5ba4fc;
+		--pd-chat-info-bg: #1e3a5f;
+		--pd-chat-warning-border: #ffab00;
+		--pd-chat-warning-bg: #4a3d1a;
+		--pd-chat-error-border: #dc3545;
+		--pd-chat-error-bg: #3d1a1a;
+		--pd-chat-critical-border: #6f42c1;
+		--pd-chat-critical-bg: #2d1f47;
+		--pd-chat-success-border: #198754;
+		--pd-chat-success-bg: #1a3d2e;
+		--pd-chat-typing-border: #6c757d;
+		--pd-chat-typing-bg: #2c3034;
+		--pd-chat-focus-shadow: rgba(91, 164, 252, 0.4);
+	}
+}
+
 /* ==============================================
    Prevent Body Scroll When Fullscreen
    ============================================== */
