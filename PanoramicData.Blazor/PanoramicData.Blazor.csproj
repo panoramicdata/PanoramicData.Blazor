@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDTimeline: added a RefetchDataOnResize parameter. When true (the default, preserving existing behaviour) a browser resize forces a full data re-fetch; when false a resize only re-lays-out the timeline and data is re-fetched only if the visible range actually changed (the existing unchanged-range guard still applies). Set it to false for whole-window timelines, where a resize never changes which data is needed, to avoid a redundant re-query on every resize. SetScale gains a matching optional refreshData parameter (default true).
+      - PDChat: now follows the host application's own theme (Bootstrap variables, native [data-bs-theme], or custom theme classes) instead of only the OS/browser dark-mode preference, with new --pd-chat-* CSS custom properties exposing full control over colours, the header accent, and message spacing/sizing; the Send button is now a standard Bootstrap button; fixed missing dark-mode styling for Critical message previews and for Success/Normal message types, and unified Critical message colouring with the toggle button's purple.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

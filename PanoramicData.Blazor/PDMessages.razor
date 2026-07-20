@@ -26,7 +26,7 @@
 			placeholder="Type a message..."
 			rows="3"
 			disabled="@(!IsLive)"></textarea>
-		<button class="submit-button @(CanSendLocal ? string.Empty : "submit-button-disabled")" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
+		<button class="btn btn-sm btn-secondary" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
 	</div>
 </div>
 

@@ -15,12 +15,13 @@
 	flex: 1 1 auto;
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	padding: 10px;
+	gap: var(--pd-chat-messages-gap, 8px);
+	padding: var(--pd-chat-messages-padding, 10px);
 	overflow-y: auto;
 	overflow-x: hidden;
 	font-size: 14px;
-	background: #f9f9f9;
+	background: var(--pd-chat-secondary-bg, #f9f9f9);
+	color: var(--pd-chat-color, #212529);
 	min-height: 0;
 	scroll-behavior: smooth;
 }
@@ -51,9 +52,8 @@
 	align-items: center;
 	gap: 8px;
 	padding: 8px;
-	background: #f5f7fa;
-	border-radius: 8px;
-	box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+	background: var(--pd-chat-secondary-bg, #f5f7fa);
+	border-top: 1px solid var(--pd-chat-border, #dee2e6);
 	flex-shrink: 0;
 	min-height: 0;
 	margin-top: auto; /* Push to bottom when messages area has minimal content */
@@ -69,7 +69,9 @@
 	flex: 1;
 	resize: vertical;
 	padding: 8px 12px;
-	border: 1px solid #ccc;
+	background: var(--pd-chat-bg, #fff);
+	color: var(--pd-chat-color, #212529);
+	border: 1px solid var(--pd-chat-border, #ccc);
 	border-radius: 6px;
 	font-size: 1rem;
 	font-family: inherit;
@@ -85,35 +87,10 @@
 	box-shadow: 0 0 5px #4a90e2aa;
 }
 
-.submit-button {
-	background-color: #4a90e2;
-	border: none;
-	color: white;
-	padding: 10px 20px;
-	border-radius: 6px;
-	font-weight: 600;
-	font-size: 1rem;
-	cursor: pointer;
-	transition: background-color 0.2s ease;
-	user-select: none;
+/* Send button is a standard Bootstrap .btn.btn-sm.btn-secondary — no custom colours/padding,
+   Bootstrap handles hover/active/disabled/theming. Only layout is protected here. */
+.chat-input-container .btn {
 	flex-shrink: 0;
-}
-
-.submit-button:hover {
-	background-color: #357abd;
-}
-
-.submit-button:active {
-	background-color: #2a5d9f;
-}
-
-.submit-button-disabled {
-	background-color: #6c757d;
-	cursor: not-allowed;
-}
-
-.submit-button-disabled:hover {
-	background-color: #6c757d;
 }
 
 /* ==============================================
@@ -122,10 +99,11 @@
 
 /* Dark mode for messages area and text input */
 @media (prefers-color-scheme: dark) {
+	/* Background/text are now theme-aware via --pd-chat-* variables above — see MS-21655.
+	   The send button is a standard Bootstrap .btn now, themed by Bootstrap itself.
+	   Scrollbar colours still need an OS-preference fallback, for hosts with no theme
+	   system of their own. */
 	.pdchat-messages {
-		background: #2b2f33;
-		color: #ffffff;
-		
 		/* Dark scrollbar styling for Webkit browsers (Chrome, Safari, Edge) */
 		scrollbar-width: thin;
 		scrollbar-color: #495057 #2b2f33;
@@ -149,47 +127,8 @@
 		background-color: #6c757d;
 	}
 	
-	.chat-input-container {
-		background: #373b3e;
-		box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
-	}
-	
-	.chat-input-container textarea {
-		background: #2b2f33;
-		color: #ffffff;
-		border-color: #495057;
-	}
-	
 	.chat-input-container textarea:focus {
 		border-color: #0d6efd;
 		box-shadow: 0 0 5px #0d6efdaa;
-	}
-	
-	/* Fixed Send button styling for dark mode - prevent conflicts */
-	.submit-button:not(.submit-button-disabled) {
-		background-color: #6c757d !important;
-		color: #ffffff !important;
-		border: none !important;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-	}
-	
-	.submit-button:not(.submit-button-disabled):hover {
-		background-color: #5a6268 !important;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
-	}
-	
-	.submit-button:not(.submit-button-disabled):active {
-		background-color: #495057 !important;
-	}
-	
-	.submit-button-disabled {
-		background-color: #343a40 !important;
-		color: #6c757d !important;
-		cursor: not-allowed !important;
-		box-shadow: none !important;
-	}
-	
-	.submit-button-disabled:hover {
-		background-color: #343a40 !important;
 	}
 }

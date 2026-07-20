@@ -5,10 +5,11 @@
 .pdchat-message {
     position: relative;
     margin-bottom: 10px;
-    border-radius: 8px;
+    border-radius: var(--pd-chat-message-radius, 8px);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    background: white;
-    border: 1px solid #e9ecef;
+    background: var(--pd-chat-bg, #fff);
+    color: var(--pd-chat-color, #212529);
+    border: 1px solid var(--pd-chat-border, #e9ecef);
     /* Remove overflow: hidden to allow content to expand vertically */
     min-height: fit-content;
 }
@@ -20,8 +21,8 @@
 .pdchat-message.full-width {
     display: flex;
     width: 100%;
-    padding: 12px;
-    gap: 12px;
+    padding: var(--pd-chat-message-padding, 12px);
+    gap: var(--pd-chat-message-gap, 12px);
     /* Ensure full-width messages can expand vertically */
     min-height: fit-content;
     /* Always use row direction since DOM order is correct */
@@ -60,6 +61,7 @@
     flex-shrink: 0;
     width: 60px;
     text-align: center;
+    user-select: none;
 }
 
 .pdchat-message.full-width .pdchat-details {
@@ -77,14 +79,14 @@
 .pdchat-message.full-width .pdchat-username {
     font-weight: 600;
     font-size: 0.8em;
-    color: #495057;
+    color: var(--pd-chat-muted-color, #495057);
     margin-bottom: 2px;
     word-break: break-word;
 }
 
 .pdchat-message.full-width .pdchat-timestamp {
     font-size: 0.7em;
-    color: #6c757d;
+    color: var(--pd-chat-muted-color, #6c757d);
     word-break: break-word;
 }
 
@@ -103,14 +105,24 @@
 }
 
 .pdchat-message.full-width.meta-on-left.priority-critical {
-    border-left-color: #dc3545;
-    background-color: #f8d7da;
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+    border-left-color: #6f42c1;
+    background-color: #e2d9f5;
+    box-shadow: 0 4px 8px rgba(111, 66, 193, 0.2);
 }
 
 .pdchat-message.full-width.meta-on-left.priority-typing {
     border-left-color: #6c757d;
     background-color: #f8f9fa;
+}
+
+.pdchat-message.full-width.meta-on-left.priority-success {
+    border-left-color: #198754;
+    background-color: #d1e7dd;
+}
+
+.pdchat-message.full-width.meta-on-left.priority-normal {
+    border-left-color: #0078d4;
+    background-color: #e6f3ff;
 }
 
 /* ==============================================
@@ -128,14 +140,24 @@
 }
 
 .pdchat-message.full-width.meta-on-right.priority-critical {
-    border-right-color: #dc3545;
-    background-color: #f8d7da;
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+    border-right-color: #6f42c1;
+    background-color: #e2d9f5;
+    box-shadow: 0 4px 8px rgba(111, 66, 193, 0.2);
 }
 
 .pdchat-message.full-width.meta-on-right.priority-typing {
     border-right-color: #6c757d;
     background-color: #f8f9fa;
+}
+
+.pdchat-message.full-width.meta-on-right.priority-success {
+    border-right-color: #198754;
+    background-color: #d1e7dd;
+}
+
+.pdchat-message.full-width.meta-on-right.priority-normal {
+    border-right-color: #0078d4;
+    background-color: #e6f3ff;
 }
 
 /* ==============================================
@@ -144,7 +166,7 @@
 
 .pdchat-message.bubble {
     padding: 38px 14px 12px 14px;
-    background: #f4f8fb;
+    background: var(--pd-chat-secondary-bg, #f4f8fb);
     /* Ensure bubble messages can expand vertically */
     min-height: fit-content;
 }
@@ -185,7 +207,7 @@
 
 .pdchat-text {
     font-size: 1em;
-    color: #212529;
+    color: var(--pd-chat-color, #212529);
     line-height: 1.4;
     white-space: pre-line;
     word-wrap: break-word;
@@ -217,16 +239,26 @@
 }
 
 .pdchat-message.bubble.priority-critical {
-    background-color: #f8d7da;
-    border-color: #dc3545;
+    background-color: #e2d9f5;
+    border-color: #6f42c1;
     font-weight: bold;
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+    box-shadow: 0 4px 8px rgba(111, 66, 193, 0.2);
 }
 
 .pdchat-message.bubble.priority-typing {
     background-color: #f8f9fa;
     border-color: #6c757d;
     font-style: italic;
+}
+
+.pdchat-message.bubble.priority-success {
+    background-color: #d1e7dd;
+    border-color: #198754;
+}
+
+.pdchat-message.bubble.priority-normal {
+    background-color: #e6f3ff;
+    border-color: #0078d4;
 }
 
 /* ==============================================
@@ -242,14 +274,14 @@
 
 .pdchat-message.bubble .pdchat-username {
     font-weight: 600;
-    color: #495057;
+    color: var(--pd-chat-muted-color, #495057);
     margin-right: 8px;
     font-size: 1em;
 }
 
 .pdchat-message.bubble .pdchat-timestamp {
     font-size: 0.85em;
-    color: #6c757d;
+    color: var(--pd-chat-muted-color, #6c757d);
     margin-left: auto;
 }
 
@@ -258,13 +290,14 @@
    ============================================== */
 
 .pdchat-title-bar {
-    background: #e9ecef;
-    color: #495057;
+    background: var(--pd-chat-secondary-bg, #e9ecef);
+    color: var(--pd-chat-color, #495057);
     font-weight: 700;
     font-size: 0.9em;
     padding: 8px 12px;
     margin: -12px -12px 8px -12px;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--pd-chat-border, #dee2e6);
+    user-select: none;
 }
 
 .pdchat-message.bubble .pdchat-title-bar {
@@ -322,36 +355,12 @@
    ============================================== */
 
 @media (prefers-color-scheme: dark) {
-    /* Default message background and text */
-    .pdchat-message {
-        background: #3a3f44;
-        border-color: #495057;
-        color: #e0e0e0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-    
-    /* Dark mode text color */
-    .pdchat-text {
-        color: #e0e0e0;
-    }
-    
-    /* Dark mode username and timestamp colors */
-    .pdchat-message.full-width .pdchat-username {
-        color: #ced4da;
-    }
-    
-    .pdchat-message.full-width .pdchat-timestamp {
-        color: #adb5bd;
-    }
-    
-    .pdchat-message.bubble .pdchat-username {
-        color: #ced4da;
-    }
-    
-    .pdchat-message.bubble .pdchat-timestamp {
-        color: #adb5bd;
-    }
-    
+    /* Base surface (background/border/text, including username/timestamp) is now
+       theme-aware via --pd-chat-* variables above, sourced from the host's Bootstrap
+       variables — see MS-21655. Only the priority-specific variants and the bubble
+       title-bar accent still need an OS-preference fallback, for hosts with no theme
+       system of their own. */
+
     /* Warning messages - dark yellow/amber background */
     .pdchat-message.full-width.meta-on-left.priority-warning,
     .pdchat-message.full-width.meta-on-right.priority-warning,
@@ -370,13 +379,13 @@
         box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
     }
     
-    /* Critical messages - darker red background with stronger shadow */
+    /* Critical messages - dark purple background, matches the toggle button's pdchat-critical colour */
     .pdchat-message.full-width.meta-on-left.priority-critical,
     .pdchat-message.full-width.meta-on-right.priority-critical,
     .pdchat-message.bubble.priority-critical {
-        background-color: #3d1a1a;
-        border-color: #dc3545;
-        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+        background-color: #2d1f47;
+        border-color: #6f42c1;
+        box-shadow: 0 4px 8px rgba(111, 66, 193, 0.4);
     }
     
     /* Typing messages - neutral dark background */
@@ -387,14 +396,26 @@
         border-color: #6c757d;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
-    
-    /* Title bar dark mode */
-    .pdchat-title-bar {
-        background: #495057;
-        color: #e9ecef;
-        border-bottom-color: #6c757d;
+
+    /* Success messages - dark green background (matches .preview-success in PDChat.razor.css) */
+    .pdchat-message.full-width.meta-on-left.priority-success,
+    .pdchat-message.full-width.meta-on-right.priority-success,
+    .pdchat-message.bubble.priority-success {
+        background-color: #1a3d2e;
+        border-color: #198754;
+        box-shadow: 0 2px 4px rgba(25, 135, 84, 0.2);
     }
-    
+
+    /* Normal/"Info" messages - dark blue background (matches .preview-normal in PDChat.razor.css) */
+    .pdchat-message.full-width.meta-on-left.priority-normal,
+    .pdchat-message.full-width.meta-on-right.priority-normal,
+    .pdchat-message.bubble.priority-normal {
+        background-color: #1e3a5f;
+        border-color: #5ba4fc;
+        box-shadow: 0 2px 4px rgba(91, 164, 252, 0.2);
+    }
+
+    /* Bubble mode title bar keeps its own fixed accent look in both themes */
     .pdchat-message.bubble .pdchat-title-bar {
         background: #1e3a5f;
         color: #93c5fd;
