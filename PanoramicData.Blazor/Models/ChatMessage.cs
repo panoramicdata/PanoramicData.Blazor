@@ -30,4 +30,12 @@ public class ChatMessage()
 
 	/// <summary>Gets or sets the UTC timestamp when the message was created. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</summary>
 	public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+
+	/// <summary>
+	/// Gets or sets optional per-message overrides for the toast shown when this message arrives while the
+	/// chat is closed. When <c>null</c>, the service-level <c>Toast*</c> defaults on
+	/// <see cref="Interfaces.IChatService"/> are used. Individual override properties that are left <c>null</c>
+	/// also fall back to the service defaults.
+	/// </summary>
+	public ChatToastOptions? ToastOptions { get; set; }
 }

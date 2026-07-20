@@ -13,4 +13,46 @@
 			</tbody>
 		</table>
 	</section>
+	<section id="toasts">
+		<h2 class="doc-section">Toast notifications</h2>
+		<p>
+			<code>PDChat</code> can double as a toast surface. When a message arrives while the chat is
+			<em>closed</em> &mdash; minimized to its button, or fully hidden when
+			<code>MinimizedButtonPosition</code> is <code>None</code> (a headless toast) &mdash; the message
+			animates into view. It stays for a configurable time and then, if auto-dismiss is enabled,
+			animates out again.
+		</p>
+		<p>
+			Multiple toasts <strong>stack</strong> (oldest at the top, newest at the bottom) and each runs
+			its own independent dismiss timer, so a longer-lived toast can outlast a later, shorter one.
+			While more than one toast is present, a dismissing toast leaves via a fixed de-stack animation;
+			the last remaining toast uses its own configured exit animation. Clicking a toast opens the
+			chat; hovering pauses its dismiss timer.
+		</p>
+		<p>
+			Defaults are configured on <code>IChatService</code> via the <code>Toast*</code> members and can
+			be overridden per message with <code>ChatMessage.ToastOptions</code> (any unset override falls
+			back to the service default).
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>IChatService member</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>ToastEnabled</code></td><td><code>bool</code></td><td><code>true</code></td><td>Master switch (supersedes <code>ShowLastMessage</code>).</td></tr>
+				<tr><td><code>ToastEntryAnimation</code></td><td><code>PDChatToastAnimation</code></td><td><code>Grow</code></td><td>Animation used when a toast appears.</td></tr>
+				<tr><td><code>ToastExitAnimation</code></td><td><code>PDChatToastAnimation</code></td><td><code>Shrink</code></td><td>Animation used when a toast is dismissed.</td></tr>
+				<tr><td><code>ToastAnimationDurationMs</code></td><td><code>double</code></td><td><code>250</code></td><td>Entry / exit transition time in milliseconds.</td></tr>
+				<tr><td><code>ToastAutoDismiss</code></td><td><code>bool</code></td><td><code>true</code></td><td>Whether toasts auto-dismiss after the display duration.</td></tr>
+				<tr><td><code>ToastDisplayDurationSeconds</code></td><td><code>double</code></td><td><code>5</code></td><td>Dwell time before auto-dismiss (supersedes <code>ShowLastMessageDurationSeconds</code>).</td></tr>
+				<tr><td><code>ToastShowTitle</code></td><td><code>bool</code></td><td><code>true</code></td><td>Whether the message title is shown in the toast.</td></tr>
+				<tr><td><code>ToastMinWidth</code> / <code>ToastMaxWidth</code></td><td><code>string</code></td><td><code>200px</code> / <code>300px</code></td><td>Toast width constraints (any CSS length).</td></tr>
+				<tr><td><code>ToastMinHeight</code> / <code>ToastMaxHeight</code></td><td><code>string</code></td><td>(auto)</td><td>Toast height constraints (any CSS length).</td></tr>
+				<tr><td><code>ToastMaxVisible</code></td><td><code>int</code></td><td><code>5</code></td><td>Max toasts shown at once; the oldest is dismissed to make room.</td></tr>
+				<tr><td><code>ToastAnchor</code></td><td><code>PDChatButtonPosition</code></td><td><code>BottomRight</code></td><td>Corner the stack anchors to when the button is hidden (otherwise it follows the button).</td></tr>
+			</tbody>
+		</table>
+		<p class="text-muted small">
+			<code>ShowLastMessage</code> and <code>ShowLastMessageDurationSeconds</code> are obsolete and map onto
+			<code>ToastEnabled</code> / <code>ToastDisplayDurationSeconds</code> for backward compatibility.
+		</p>
+	</section>
 </div>

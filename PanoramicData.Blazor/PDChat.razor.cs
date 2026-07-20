@@ -109,9 +109,13 @@ public partial class PDChat : JSModuleComponentBase
 	private MessageType _highestPriorityUnreadMessage = MessageType.Normal;
 	private DateTimeOffset _lastReadTimestamp = DateTimeOffset.UtcNow;
 	private string _currentInput = "";
-	private bool _showMessagePreview;
-	private ChatMessage? _lastMessage;
-	private Timer? _messagePreviewTimer;
+
+	// Fixed duration, in milliseconds, of the "de-stack" animation used when a toast leaves a stack
+	// that still contains other toasts. Deliberately uniform and independent of any per-message
+	// animation configuration (see the toast stacking rules).
+	private const double DeStackDurationMs = 250d;
+
+	private readonly List<ToastItem> _toasts = [];
 
 	private readonly List<ChatMessage> _messages = [];
 	private PDTabSet? _tabSetRef;
@@ -236,15 +240,13 @@ public partial class PDChat : JSModuleComponentBase
 				UpdateHighestPriorityUnreadMessage();
 			}
 
-			// Show message preview if enabled and it's a new non-typing message
-			if (ChatService.ShowLastMessage && isNewMessage && message.Type != MessageType.Typing)
-			{
-				await ShowMessagePreviewAsync(message);
-			}
+			var isToastable = isNewMessage && message.Type != MessageType.Typing;
 
-			// Optionally auto-restore the chat when new messages arrive
-			if (ChatService.AutoRestoreOnNewMessage && isNewMessage && message.Type != MessageType.Typing)
+			// Auto-restore takes priority over toasts: if the chat is going to open anyway there is no
+			// point showing a toast for the same message.
+			if (ChatService.AutoRestoreOnNewMessage && isToastable)
 			{
+				ClearToasts();
 				await ChangeDockModeAsync(ChatService.RestoreMode);
 				_unreadMessages = false;
 				_highestPriorityUnreadMessage = MessageType.Normal;
@@ -254,6 +256,12 @@ public partial class PDChat : JSModuleComponentBase
 				{
 					await OnAutoRestored.InvokeAsync();
 				}
+			}
+			else if (ChatService.ToastEnabled && isToastable)
+			{
+				// Show the message as an animated toast. This works whether or not the minimized
+				// button is visible (MinimizedButtonPosition.None => headless toast).
+				await ShowToastAsync(message);
 			}
 		}
 
@@ -276,40 +284,157 @@ public partial class PDChat : JSModuleComponentBase
 		await InvokeAsync(StateHasChanged);
 	}
 
-	private async Task ShowMessagePreviewAsync(ChatMessage message)
+	/// <summary>
+	/// Adds a new toast for the supplied message, resolving per-message overrides against the
+	/// service-level defaults, enforcing the visible-toast cap, and starting its auto-dismiss timer.
+	/// </summary>
+	private async Task ShowToastAsync(ChatMessage message)
 	{
-		// Cancel any existing timer
-		if (_messagePreviewTimer is not null)
+		var o = message.ToastOptions;
+
+		var item = new ToastItem
 		{
-			await _messagePreviewTimer.DisposeAsync();
+			Message = message,
+			EntryAnimation = o?.EntryAnimation ?? ChatService.ToastEntryAnimation,
+			ExitAnimation = o?.ExitAnimation ?? ChatService.ToastExitAnimation,
+			AnimationDurationMs = o?.AnimationDurationMs ?? ChatService.ToastAnimationDurationMs,
+			AutoDismiss = o?.AutoDismiss ?? ChatService.ToastAutoDismiss,
+			DisplayDurationSeconds = o?.DisplayDurationSeconds ?? ChatService.ToastDisplayDurationSeconds,
+			ShowTitle = o?.ShowTitle ?? ChatService.ToastShowTitle,
+			MinWidth = o?.MinWidth ?? ChatService.ToastMinWidth,
+			MaxWidth = o?.MaxWidth ?? ChatService.ToastMaxWidth,
+			MinHeight = o?.MinHeight ?? ChatService.ToastMinHeight,
+			MaxHeight = o?.MaxHeight ?? ChatService.ToastMaxHeight,
+		};
+
+		// Enforce the visible-toast cap by dismissing the oldest still-present toasts.
+		var maxVisible = Math.Max(1, ChatService.ToastMaxVisible);
+		var overflow = _toasts.Count(t => !t.IsExiting) - (maxVisible - 1);
+		for (var i = 0; overflow > 0 && i < _toasts.Count; i++)
+		{
+			if (!_toasts[i].IsExiting)
+			{
+				BeginDismiss(_toasts[i]);
+				overflow--;
+			}
 		}
 
-		// Set the message to show
-		_lastMessage = message;
-		_showMessagePreview = true;
+		// Newest is added at the bottom of the stack (oldest remains at the top).
+		_toasts.Add(item);
 		await InvokeAsync(StateHasChanged);
 
-		// Set a timer to hide the message after the configured duration
-		_messagePreviewTimer = new Timer(_ =>
+		if (item.AutoDismiss && item.DisplayDurationSeconds > 0)
 		{
-			// Use InvokeAsync to ensure we're on the UI thread
-			_ = InvokeAsync(() =>
+			StartDismissTimer(item, item.DisplayDurationSeconds * 1000d);
+		}
+	}
+
+	// (Re)starts the auto-dismiss timer for a toast, tracking the start time so hover-pause can
+	// compute the remaining time accurately.
+	private void StartDismissTimer(ToastItem item, double remainingMs)
+	{
+		item.DismissTimer?.Dispose();
+		item.RemainingMs = remainingMs;
+		item.StartedTicks = Environment.TickCount64;
+		item.Paused = false;
+		item.DismissTimer = new Timer(
+			_ => _ = InvokeAsync(() => BeginDismiss(item)),
+			null,
+			TimeSpan.FromMilliseconds(remainingMs),
+			Timeout.InfiniteTimeSpan);
+	}
+
+	// Pauses a toast's auto-dismiss countdown (e.g. while the pointer hovers over it).
+	private static void PauseToast(ToastItem item)
+	{
+		if (item.IsExiting || item.Paused || item.DismissTimer is null)
+		{
+			return;
+		}
+
+		var elapsed = Environment.TickCount64 - item.StartedTicks;
+		item.RemainingMs = Math.Max(0, item.RemainingMs - elapsed);
+		item.DismissTimer.Dispose();
+		item.DismissTimer = null;
+		item.Paused = true;
+	}
+
+	// Resumes a paused toast's auto-dismiss countdown from where it left off.
+	private void ResumeToast(ToastItem item)
+	{
+		if (item.IsExiting || !item.Paused)
+		{
+			return;
+		}
+
+		if (item.RemainingMs <= 0)
+		{
+			BeginDismiss(item);
+			return;
+		}
+
+		StartDismissTimer(item, item.RemainingMs);
+	}
+
+	// Begins the exit of a toast. If other toasts remain in the stack it leaves via the fixed
+	// de-stack animation; if it is the last one it uses its own configured exit animation.
+	private void BeginDismiss(ToastItem item)
+	{
+		if (item.IsExiting)
+		{
+			return;
+		}
+
+		item.DismissTimer?.Dispose();
+		item.DismissTimer = null;
+
+		var othersRemain = _toasts.Any(t => t != item && !t.IsExiting);
+		item.IsExiting = true;
+		item.IsDeStacking = othersRemain;
+
+		var exitMs = othersRemain ? DeStackDurationMs : item.AnimationDurationMs;
+
+		item.RemovalTimer?.Dispose();
+		item.RemovalTimer = new Timer(
+			_ => _ = InvokeAsync(() =>
 			{
-				_showMessagePreview = false;
-				_lastMessage = null;
+				item.RemovalTimer?.Dispose();
+				item.RemovalTimer = null;
+				_toasts.Remove(item);
 				StateHasChanged();
-			});
-		}, null, TimeSpan.FromSeconds(ChatService.ShowLastMessageDurationSeconds), Timeout.InfiniteTimeSpan);
+			}),
+			null,
+			TimeSpan.FromMilliseconds(Math.Max(1, exitMs)),
+			Timeout.InfiniteTimeSpan);
+
+		_ = InvokeAsync(StateHasChanged);
+	}
+
+	// Disposes every toast timer and clears the stack immediately (no exit animation).
+	private void ClearToasts()
+	{
+		foreach (var t in _toasts)
+		{
+			t.DismissTimer?.Dispose();
+			t.RemovalTimer?.Dispose();
+		}
+
+		_toasts.Clear();
+	}
+
+	// Invoked when a toast is clicked: opens the chat and clears the stack.
+	private async Task OnToastClickedAsync()
+	{
+		ClearToasts();
+		await ToggleChatAsync();
 	}
 
 	private async Task ToggleChatAsync()
 	{
 		if (ChatService.DockMode == PDChatDockMode.Minimized)
 		{
-			// Hide message preview when opening chat
-			_showMessagePreview = false;
-			_lastMessage = null;
-			_messagePreviewTimer?.Dispose();
+			// Dismiss any toasts when opening chat
+			ClearToasts();
 
 			// Restore to last normal state
 			await ChangeDockModeAsync(ChatService.RestoreMode);
@@ -443,7 +568,7 @@ public partial class PDChat : JSModuleComponentBase
 		_messagesComponent?.ClearInput();
 	}
 
-	private bool CanSend => ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);
+	private bool CanSend => ChatService.IsInputPermitted && ChatService.IsLive && !string.IsNullOrWhiteSpace(_currentInput);
 
 	private void OnTabAdded()
 	{
@@ -631,40 +756,116 @@ public partial class PDChat : JSModuleComponentBase
 		ChatService.OnMuteStatusChanged -= OnServiceMuteStatusChanged;
 		ChatService.OnConfigurationChanged -= OnServiceConfigurationChanged;
 
-		// Clean up timer
-		if (_messagePreviewTimer is not null)
-		{
-			await _messagePreviewTimer.DisposeAsync();
-		}
+		// Clean up toast timers
+		ClearToasts();
 
 		await base.DisposeAsync();
 
 		GC.SuppressFinalize(this);
 	}
 
-	// Helper method to determine if position is on the right side
-	private bool IsPositionOnRight()
+	// Maps a message type to its toast colour-scheme class (shared with the legacy preview styles).
+	private static string GetToastTypeClass(MessageType type) => type switch
 	{
-		return ChatService.MinimizedButtonPosition is
-			PDChatButtonPosition.BottomRight or
-			PDChatButtonPosition.TopRight;
+		MessageType.Warning => "preview-warning",
+		MessageType.Error => "preview-error",
+		MessageType.Critical => "preview-critical",
+		MessageType.Success => "preview-success",
+		_ => "preview-normal"
+	};
+
+	// Builds the full class list for a toast card: colour scheme, anchor side, and the current
+	// entry / exit / de-stack animation state.
+	private static string GetToastClasses(ToastItem item)
+	{
+		var animationClass = item.IsDeStacking
+			? "toast-destack"
+			: item.IsExiting
+				? $"toast-exit-{GetAnimationName(item.ExitAnimation)}"
+				: $"toast-enter-{GetAnimationName(item.EntryAnimation)}";
+
+		return $"{GetToastTypeClass(item.Message.Type)} {animationClass}";
 	}
 
-	// Helper method to get preview animation class based on priority
-	private string GetPreviewAnimationClass()
+	// Inline style carrying the resolved dimensions and the per-toast animation duration.
+	private static string GetToastStyle(ToastItem item)
 	{
-		if (_lastMessage == null)
-		{
-			return string.Empty;
-		}
+		var durationMs = item.IsDeStacking ? DeStackDurationMs : item.AnimationDurationMs;
+		var sb = new System.Text.StringBuilder();
+		sb.Append("--pdchat-toast-anim-ms:").Append(durationMs.ToString(System.Globalization.CultureInfo.InvariantCulture)).Append("ms;");
+		AppendStyle(sb, "min-width", item.MinWidth);
+		AppendStyle(sb, "max-width", item.MaxWidth);
+		AppendStyle(sb, "min-height", item.MinHeight);
+		AppendStyle(sb, "max-height", item.MaxHeight);
+		return sb.ToString();
+	}
 
-		return _lastMessage.Type switch
+	private static void AppendStyle(System.Text.StringBuilder sb, string name, string? value)
+	{
+		if (!string.IsNullOrWhiteSpace(value))
 		{
-			MessageType.Warning => "preview-warning",
-			MessageType.Error => "preview-error",
-			MessageType.Critical => "preview-critical",
-			MessageType.Success => "preview-success",
-			_ => "preview-normal"
+			sb.Append(name).Append(':').Append(value).Append(';');
+		}
+	}
+
+	private static string GetAnimationName(PDChatToastAnimation animation) => animation switch
+	{
+		PDChatToastAnimation.None => "none",
+		PDChatToastAnimation.Fade => "fade",
+		PDChatToastAnimation.Grow => "grow",
+		PDChatToastAnimation.Shrink => "shrink",
+		PDChatToastAnimation.Slide => "slide",
+		_ => "grow"
+	};
+
+	// Resolves the corner the toast stack anchors to: follow the minimized button when it is shown,
+	// otherwise fall back to the configured headless anchor.
+	private string GetToastAnchorClass()
+	{
+		var anchor = ChatService.MinimizedButtonPosition == PDChatButtonPosition.None
+			? ChatService.ToastAnchor
+			: ChatService.MinimizedButtonPosition;
+
+		return anchor switch
+		{
+			PDChatButtonPosition.TopLeft => "toast-anchor-top-left",
+			PDChatButtonPosition.TopRight => "toast-anchor-top-right",
+			PDChatButtonPosition.BottomLeft => "toast-anchor-bottom-left",
+			PDChatButtonPosition.BottomRight => "toast-anchor-bottom-right",
+			PDChatButtonPosition.None => "toast-anchor-bottom-right",
+			_ => "toast-anchor-bottom-right"
 		};
+	}
+
+	// aria-live politeness: escalate to assertive for the most severe message types.
+	private static string GetToastAriaLive(MessageType type)
+		=> type is MessageType.Error or MessageType.Critical ? "assertive" : "polite";
+
+	/// <summary>
+	/// Represents a single live toast instance in the stack, together with its resolved presentation
+	/// options and auto-dismiss timers.
+	/// </summary>
+	private sealed class ToastItem
+	{
+		public Guid Key { get; } = Guid.NewGuid();
+		public required ChatMessage Message { get; init; }
+		public PDChatToastAnimation EntryAnimation { get; init; }
+		public PDChatToastAnimation ExitAnimation { get; init; }
+		public double AnimationDurationMs { get; init; }
+		public bool AutoDismiss { get; init; }
+		public double DisplayDurationSeconds { get; init; }
+		public bool ShowTitle { get; init; }
+		public string? MinWidth { get; init; }
+		public string? MaxWidth { get; init; }
+		public string? MinHeight { get; init; }
+		public string? MaxHeight { get; init; }
+
+		public bool IsExiting { get; set; }
+		public bool IsDeStacking { get; set; }
+		public Timer? DismissTimer { get; set; }
+		public Timer? RemovalTimer { get; set; }
+		public bool Paused { get; set; }
+		public double RemainingMs { get; set; }
+		public long StartedTicks { get; set; }
 	}
 }

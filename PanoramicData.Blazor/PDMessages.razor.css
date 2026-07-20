@@ -113,5 +113,20 @@
 	flex-shrink: 0;
 }
 
+/* Message shown in place of the input when input is not permitted (IsInputPermitted = false).
+   Theme-aware via the --pd-chat-* variables. */
+.chat-input-disabled {
+	flex-shrink: 0;
+	margin-top: auto;
+	padding: 12px 16px;
+	font-size: 0.85rem;
+	font-style: italic;
+	line-height: 1.35;
+	text-align: center;
+	color: var(--pd-chat-muted-color, #6c757d);
+	background: var(--pd-chat-secondary-bg, #f5f7fa);
+	border-top: 1px solid var(--pd-chat-border, #dee2e6);
+}
+
 /* Scrollbar and focus-ring colours are theme-aware via --pd-chat-* variables above now.
    No prefers-color-scheme block needed. */

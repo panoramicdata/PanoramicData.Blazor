@@ -17,17 +17,24 @@
 			}
 		}
 	</div>
-	<div class="chat-input-container">
-		<textarea
-			@key="_inputKey"
-			@ref="_inputRef"
-			value="@_localInput"
-			@oninput="OnInputChanged"
-			placeholder="Type a message..."
-			rows="3"
-			disabled="@(!IsLive)"></textarea>
-		<button class="btn btn-sm btn-secondary" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
-	</div>
+	@if (IsInputPermitted)
+	{
+		<div class="chat-input-container">
+			<textarea
+				@key="_inputKey"
+				@ref="_inputRef"
+				value="@_localInput"
+				@oninput="OnInputChanged"
+				placeholder="Type a message..."
+				rows="3"
+				disabled="@(!IsLive)"></textarea>
+			<button class="btn btn-sm btn-secondary" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
+		</div>
+	}
+	else if (!string.IsNullOrWhiteSpace(InputDisabledMessage))
+	{
+		<div class="chat-input-disabled" role="note">@InputDisabledMessage</div>
+	}
 </div>
 
 

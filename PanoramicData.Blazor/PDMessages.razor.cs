@@ -36,6 +36,20 @@ public partial class PDMessages : IAsyncDisposable
 	[Parameter] public bool CanSend { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether the message input (text area and send button) is rendered.
+	/// When false, the input is hidden and, if <see cref="InputDisabledMessage"/> is set,
+	/// that message is shown in its place. Defaults to true.
+	/// </summary>
+	[Parameter] public bool IsInputPermitted { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets an optional message shown where the input would normally appear when
+	/// <see cref="IsInputPermitted"/> is false. When null or empty, nothing is rendered in
+	/// place of the input. Rendered as plain text.
+	/// </summary>
+	[Parameter] public string? InputDisabledMessage { get; set; }
+
+	/// <summary>
 	/// An event callback that is invoked when the send button is clicked.
 	/// </summary>
 	[Parameter] public EventCallback OnSendClicked { get; set; }
@@ -83,7 +97,7 @@ public partial class PDMessages : IAsyncDisposable
 	private DotNetObjectReference<PDMessages>? _dotNetRef;
 	private bool _enterHandlerAttached;
 
-	private bool CanSendLocal => IsLive && !string.IsNullOrWhiteSpace(_localInput);
+	private bool CanSendLocal => IsInputPermitted && IsLive && !string.IsNullOrWhiteSpace(_localInput);
 
 	/// <summary>
 	/// Clears the textarea. Called by the parent after a message is sent.
