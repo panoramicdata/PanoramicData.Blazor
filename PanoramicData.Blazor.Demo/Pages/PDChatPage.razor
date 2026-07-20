@@ -386,7 +386,7 @@
 					<ol>
 						<li><strong>Use dedicated button positioning enum</strong> for clean, focused options:</li>
 					</ol>
-					<pre class="bg-light p-3 rounded"><code>public enum PDChatButtonPosition
+					<pre class="bg-light text-dark p-3 rounded"><code>public enum PDChatButtonPosition
 {
     None,          // No button - provide your own trigger
     TopLeft,       // Button in top-left corner
@@ -398,7 +398,7 @@
 					<ol start="2">
 						<li><strong>Configure independent positioning</strong> in IChatService:</li>
 					</ol>
-					<pre class="bg-light p-3 rounded"><code>public interface IChatService 
+					<pre class="bg-light text-dark p-3 rounded"><code>public interface IChatService 
 {
     PDChatDockMode RestoreMode { get; set; }              // Where chat opens
     PDChatButtonPosition MinimizedButtonPosition { get; set; } // Where button appears
@@ -408,11 +408,11 @@
 					<ol start="3">
 						<li><strong>Custom trigger integration</strong> - set position to None and provide your own button:</li>
 					</ol>
-					<pre class="bg-light p-3 rounded"><code>// Hide built-in button and use custom trigger
+					<pre class="bg-light text-dark p-3 rounded"><code>// Hide built-in button and use custom trigger
 ChatService.MinimizedButtonPosition = PDChatButtonPosition.None;
 
 // Your custom button can trigger chat restore
-&amp;lt;button @@onclick="OpenChat"&amp;gt;?? Support&amp;lt;/button&amp;gt;
+&amp;lt;button @@onclick="OpenChat"&amp;gt;💬 Support&amp;lt;/button&amp;gt;
 
 @@code {
     private void OpenChat() {
@@ -436,11 +436,11 @@ ChatService.MinimizedButtonPosition = PDChatButtonPosition.None;
 						<i class="fas fa-check-circle me-2"></i>
 						<strong>Try the enhanced pin/unpin functionality and message preview:</strong> 
 						<ul class="mb-0 mt-2">
-							<li><strong>? Dock Button</strong> - appears in corner modes, docks chat to left/right side</li>
-							<li><strong>?? Undock Button</strong> - appears in split modes, returns to saved corner position</li>
-							<li><strong>?? Message Preview</strong> - when enabled, new messages slide out from the minimized button</li>
-							<li><strong>?? Configurable Duration</strong> - control how long the preview shows (1-30 seconds)</li>
-							<li><strong>?? Priority Styling</strong> - previews are styled based on message priority</li>
+							<li><strong>▷ Dock Button</strong> - appears in corner modes, docks chat to left/right side</li>
+							<li><strong>🗗 Undock Button</strong> - appears in split modes, returns to saved corner position</li>
+							<li><strong>👁️ Message Preview</strong> - when enabled, new messages slide out from the minimized button</li>
+							<li><strong>⏱️ Configurable Duration</strong> - control how long the preview shows (1-30 seconds)</li>
+							<li><strong>🎨 Priority Styling</strong> - previews are styled based on message priority</li>
 							<li><strong>Smart button logic</strong> - only relevant buttons are shown based on current mode</li>
 							<li><strong>Automatic preference saving</strong> - corner position is saved when docking to side</li>
 							<li>Test different corner positions (Top Left, Top Right, Bottom Left, Bottom Right)</li>
@@ -449,6 +449,110 @@ ChatService.MinimizedButtonPosition = PDChatButtonPosition.None;
 							<li>Perfect for integrating custom chat triggers into your existing UI</li>
 							<li>All settings work independently for maximum customization</li>
 						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row g-3">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header py-2">
+					<h6 class="card-title mb-0">
+						<i class="fas fa-palette me-2"></i>CSS Customization
+					</h6>
+				</div>
+				<div class="card-body">
+					<h6>PDChat exposes CSS custom properties so you can theme it without editing the component:</h6>
+
+					<style>
+						body:has(#customThemeToggle:checked) .pdchat-container {
+							--pd-chat-header-bg: #7c3aed;
+							--pd-chat-bg: #faf5ff;
+							--pd-chat-color: #2e1065;
+							--pd-chat-border: #c4b5fd;
+							--pd-chat-secondary-bg: #f3e8ff;
+							--pd-chat-muted-color: #8b5cf6;
+							--pd-chat-message-padding: 16px;
+							--pd-chat-message-gap: 16px;
+							--pd-chat-message-radius: 14px;
+							--pd-chat-messages-gap: 12px;
+							--pd-chat-messages-padding: 16px;
+						}
+					</style>
+					<div class="form-check form-switch mb-3">
+						<input class="form-check-input" type="checkbox" id="customThemeToggle">
+						<label class="form-check-label" for="customThemeToggle">
+							🎨 Try a custom theme live - open the chat panel and toggle this to see the variables below actually applied
+						</label>
+					</div>
+
+					<ol>
+						<li><strong>Override individual variables</strong> to hard-code specific colours and spacing, regardless of your app's own theme (this is exactly what the live toggle above does):</li>
+					</ol>
+					<pre class="bg-light text-dark p-3 rounded"><code>/* In your own stylesheet - no need to touch PDChat.razor.css */
+.pdchat-container {
+    --pd-chat-header-bg: #7c3aed;        /* Title bar background */
+    --pd-chat-bg: #faf5ff;               /* Chat window / message background */
+    --pd-chat-color: #2e1065;            /* Chat window / message text */
+    --pd-chat-border: #c4b5fd;           /* Borders */
+    --pd-chat-secondary-bg: #f3e8ff;     /* Message bubbles, chat input, title bars */
+    --pd-chat-muted-color: #8b5cf6;      /* Usernames, timestamps */
+
+    --pd-chat-message-padding: 16px;     /* Padding inside each message */
+    --pd-chat-message-gap: 16px;         /* Gap between icon and content in a message */
+    --pd-chat-message-radius: 14px;      /* Message corner rounding */
+    --pd-chat-messages-gap: 12px;        /* Gap between messages in the list */
+    --pd-chat-messages-padding: 16px;    /* Padding of the scrollable message area */
+}</code></pre>
+
+					<ol start="2">
+						<li><strong>Or let it inherit automatically</strong> - the title bar defaults to <code>var(--accent, var(--bs-primary, #0078d4))</code>, so if your app already defines an accent colour (or uses Bootstrap's own <code>--bs-primary</code>), PDChat's header just follows it, no CSS needed:</li>
+					</ol>
+					<pre class="bg-light text-dark p-3 rounded"><code>/* A host app defines its own accent colour per theme, e.g: */
+.theme-light  { --accent: #1751a2; }
+.theme-dark   { --accent: #1f47ff; }
+.theme-lime   { --accent: #68bf03; }
+.theme-orange { --accent: #ef862c; }
+
+/* PDChat's header background picks up --accent automatically - nothing else to do */</code></pre>
+
+					<ol start="3">
+						<li><strong>Full theme integration for the window/messages/input</strong> - these follow your app's existing Bootstrap variables (<code>--bs-body-bg</code>, <code>--bs-body-color</code>, <code>--bs-secondary-bg</code>) automatically, whether set by Bootstrap 5.3's native <code>[data-bs-theme]</code> or your own theme classes - no configuration required unless you want to override them.</li>
+					</ol>
+
+					<ol start="4">
+						<li><strong>Borders and priority colours (Info/Warning/Error/Critical/Success/Typing) work differently</strong> - deliberately <em>not</em> aliased to any Bootstrap variable, and never blended with <code>color-mix()</code>. Screenshot/rasterisation tools such as <code>html2canvas</code> run their own simplified CSS engine that cannot parse <code>color-mix()</code>/<code>color()</code> and silently keep a stale value when they hit one - a real risk for a component that can appear on every page of a host app. These colours are plain static values instead, picked by a light-mode default plus a dark-mode override block keyed off common host theme conventions (a <code>theme-dark</code>/<code>theme-lime</code>/<code>theme-orange</code>-style class, or Bootstrap's native <code>[data-bs-theme="dark"]</code>) - never <code>prefers-color-scheme</code>, so your app's actual theme choice always wins over the OS preference:</li>
+					</ol>
+					<pre class="bg-light text-dark p-3 rounded"><code>/* Simplified - this is what PDChat.razor.css itself does internally */
+.pdchat-container {
+    --pd-chat-border: #ced4da;          /* light-mode default */
+    --pd-chat-warning-bg: #fff3cd;
+}
+body.theme-dark .pdchat-container,
+body.theme-lime .pdchat-container,
+body.theme-orange .pdchat-container,
+[data-bs-theme="dark"] .pdchat-container {
+    --pd-chat-border: #495057;          /* dark-flavoured override */
+    --pd-chat-warning-bg: #4a3d1a;
+}</code></pre>
+
+					<div class="alert alert-warning mt-3" role="alert">
+						<i class="fas fa-exclamation-triangle me-2"></i>
+						<strong>Gotcha:</strong> because of that, overriding a border/priority variable on plain <code>.pdchat-container</code> (as in step 1) only takes effect in light mode - PDChat's own dark-theme block above is more specific and wins once a dark-flavoured theme is active. To override in every theme, target the same selectors PDChat uses internally:
+						<pre class="bg-light text-dark p-3 rounded mt-2 mb-0"><code>.pdchat-container,
+body.theme-dark .pdchat-container,
+body.theme-lime .pdchat-container,
+body.theme-orange .pdchat-container,
+[data-bs-theme="dark"] .pdchat-container {
+    --pd-chat-warning-bg: #fff3e0;
+}</code></pre>
+					</div>
+
+					<div class="alert alert-info mt-3" role="alert">
+						<i class="fas fa-info-circle me-2"></i>
+						All <code>--pd-chat-*</code> variables (colours <strong>and</strong> spacing/sizing - padding, gaps, corner radius) can be scoped to <code>.pdchat-container</code> globally, or to a specific dock mode (e.g. <code>.pdchat-container.dock-left</code>) for mode-specific styling.
 					</div>
 				</div>
 			</div>

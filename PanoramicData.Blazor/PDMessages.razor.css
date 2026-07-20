@@ -15,14 +15,35 @@
 	flex: 1 1 auto;
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	padding: 10px;
+	gap: var(--pd-chat-messages-gap, 8px);
+	padding: var(--pd-chat-messages-padding, 10px);
 	overflow-y: auto;
 	overflow-x: hidden;
 	font-size: 14px;
-	background: #f9f9f9;
+	background: var(--pd-chat-secondary-bg, #f9f9f9);
+	color: var(--pd-chat-color, #212529);
 	min-height: 0;
 	scroll-behavior: smooth;
+	scrollbar-width: thin;
+	scrollbar-color: var(--pd-chat-muted-color, #6c757d) var(--pd-chat-secondary-bg, #f9f9f9);
+}
+
+/* Webkit scrollbar styling — theme-aware via --pd-chat-* variables above */
+.pdchat-messages::-webkit-scrollbar {
+	width: 8px;
+}
+
+.pdchat-messages::-webkit-scrollbar-track {
+	background: var(--pd-chat-secondary-bg, #f9f9f9);
+}
+
+.pdchat-messages::-webkit-scrollbar-thumb {
+	background-color: var(--pd-chat-muted-color, #6c757d);
+	border-radius: 4px;
+}
+
+.pdchat-messages::-webkit-scrollbar-thumb:hover {
+	background-color: var(--pd-chat-color, #495057);
 }
 
 /* When there are no messages or minimal content, ensure messages area still takes available space */
@@ -51,9 +72,8 @@
 	align-items: center;
 	gap: 8px;
 	padding: 8px;
-	background: #f5f7fa;
-	border-radius: 8px;
-	box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+	background: var(--pd-chat-secondary-bg, #f5f7fa);
+	border-top: 1px solid var(--pd-chat-border, #dee2e6);
 	flex-shrink: 0;
 	min-height: 0;
 	margin-top: auto; /* Push to bottom when messages area has minimal content */
@@ -69,7 +89,9 @@
 	flex: 1;
 	resize: vertical;
 	padding: 8px 12px;
-	border: 1px solid #ccc;
+	background: var(--pd-chat-bg, #fff);
+	color: var(--pd-chat-color, #212529);
+	border: 1px solid var(--pd-chat-border, #ccc);
 	border-radius: 6px;
 	font-size: 1rem;
 	font-family: inherit;
@@ -81,42 +103,18 @@
 
 .chat-input-container textarea:focus {
 	outline: none;
-	border-color: #4a90e2;
-	box-shadow: 0 0 5px #4a90e2aa;
+	border-color: var(--pd-chat-info-border, #4a90e2);
+	box-shadow: 0 0 5px var(--pd-chat-focus-shadow, rgba(74, 144, 226, 0.4));
 }
 
-.submit-button {
-	background-color: #4a90e2;
-	border: none;
-	color: white;
-	padding: 10px 20px;
-	border-radius: 6px;
-	font-weight: 600;
-	font-size: 1rem;
-	cursor: pointer;
-	transition: background-color 0.2s ease;
-	user-select: none;
+/* Send button is a standard Bootstrap .btn.btn-sm.btn-secondary — no custom colours/padding,
+   Bootstrap handles hover/active/disabled/theming. Only layout is protected here. */
+.chat-input-container .btn {
 	flex-shrink: 0;
 }
 
-.submit-button:hover {
-	background-color: #357abd;
-}
-
-.submit-button:active {
-	background-color: #2a5d9f;
-}
-
-.submit-button-disabled {
-	background-color: #6c757d;
-	cursor: not-allowed;
-}
-
-.submit-button-disabled:hover {
-	background-color: #6c757d;
-}
-
-/* Message shown in place of the input when input is not permitted (IsInputPermitted = false) */
+/* Message shown in place of the input when input is not permitted (IsInputPermitted = false).
+   Theme-aware via the --pd-chat-* variables. */
 .chat-input-disabled {
 	flex-shrink: 0;
 	margin-top: auto;
@@ -125,91 +123,10 @@
 	font-style: italic;
 	line-height: 1.35;
 	text-align: center;
-	color: #6c757d;
-	background: #f5f7fa;
-	border-top: 1px solid rgb(0 0 0 / 0.1);
+	color: var(--pd-chat-muted-color, #6c757d);
+	background: var(--pd-chat-secondary-bg, #f5f7fa);
+	border-top: 1px solid var(--pd-chat-border, #dee2e6);
 }
 
-/* ==============================================
-   DARK MODE - Messages Area and Input Styling
-   ============================================== */
-
-/* Dark mode for messages area and text input */
-@media (prefers-color-scheme: dark) {
-	.pdchat-messages {
-		background: #2b2f33;
-		color: #ffffff;
-		
-		/* Dark scrollbar styling for Webkit browsers (Chrome, Safari, Edge) */
-		scrollbar-width: thin;
-		scrollbar-color: #495057 #2b2f33;
-	}
-	
-	/* Webkit scrollbar styling for dark mode */
-	.pdchat-messages::-webkit-scrollbar {
-		width: 8px;
-	}
-	
-	.pdchat-messages::-webkit-scrollbar-track {
-		background: #2b2f33;
-	}
-	
-	.pdchat-messages::-webkit-scrollbar-thumb {
-		background-color: #495057;
-		border-radius: 4px;
-	}
-	
-	.pdchat-messages::-webkit-scrollbar-thumb:hover {
-		background-color: #6c757d;
-	}
-	
-	.chat-input-container {
-		background: #373b3e;
-		box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
-	}
-	
-	.chat-input-container textarea {
-		background: #2b2f33;
-		color: #ffffff;
-		border-color: #495057;
-	}
-	
-	.chat-input-container textarea:focus {
-		border-color: #0d6efd;
-		box-shadow: 0 0 5px #0d6efdaa;
-	}
-	
-	/* Fixed Send button styling for dark mode - prevent conflicts */
-	.submit-button:not(.submit-button-disabled) {
-		background-color: #6c757d !important;
-		color: #ffffff !important;
-		border: none !important;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-	}
-	
-	.submit-button:not(.submit-button-disabled):hover {
-		background-color: #5a6268 !important;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
-	}
-	
-	.submit-button:not(.submit-button-disabled):active {
-		background-color: #495057 !important;
-	}
-	
-	.submit-button-disabled {
-		background-color: #343a40 !important;
-		color: #6c757d !important;
-		cursor: not-allowed !important;
-		box-shadow: none !important;
-	}
-	
-	.submit-button-disabled:hover {
-		background-color: #343a40 !important;
-	}
-
-	.chat-input-disabled {
-		color: #adb5bd;
-		background: #373b3e;
-		border-top-color: rgb(255 255 255 / 0.1);
-	}
-}
+/* Scrollbar and focus-ring colours are theme-aware via --pd-chat-* variables above now.
+   No prefers-color-scheme block needed. */

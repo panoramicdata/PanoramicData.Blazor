@@ -1,45 +1,41 @@
 @inherits ComponentBase
 
-@if (IsSplitMode)
-{
-	<div class="pdchat-container-wrapper">
-		<PDSplitter @key="@($"chat-splitter-{ChatService.DockMode}")"
-					Direction="@SplitDirection.Horizontal"
-					GutterSize="@GutterSize"
-					CssClass="pdchat-container-splitter">
-			@if (ChatService.DockMode == PDChatDockMode.Left)
-			{
-				<PDSplitPanel @key="@($"chat-panel-{ChatService.DockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
-					<CascadingValue Value="this" Name="ChatContainer">
-						@ChatContent
-					</CascadingValue>
-				</PDSplitPanel>
-				<PDSplitPanel @key="@($"content-panel-{ChatService.DockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
-					@ChildContent
-				</PDSplitPanel>
-			}
-			else
-			{
-				<PDSplitPanel @key="@($"content-panel-{ChatService.DockMode}")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize">
-					@ChildContent
-				</PDSplitPanel>
-				<PDSplitPanel @key="@($"chat-panel-{ChatService.DockMode}")" Size="@ChatPanelSize" MinSize="@ChatMinSize">
-					<CascadingValue Value="this" Name="ChatContainer">
-						@ChatContent
-					</CascadingValue>
-				</PDSplitPanel>
-			}
-		</PDSplitter>
-	</div>
-}
-else
-{
-	@* For non-split modes (corners, fullscreen, minimized), render content normally with chat as overlay *@
-	<div class="pdchat-container-wrapper">
-		@ChildContent
-		<CascadingValue Value="this" Name="ChatContainer">
-			@ChatContent
-		</CascadingValue>
-	</div>
-}
+@* The splitter/panels below are ALWAYS mounted, regardless of dock mode - never behind an
+   @if branch. @ChildContent's parent chain must never change shape across a dock-mode
+   change, or Blazor cannot reconcile the render tree and disposes/reconstructs everything
+   under it (the page goes blank / loses state). For non-split modes the chat panel is
+   collapsed to zero width via CSS (pdchat-split-inactive below) rather than removed from
+   the tree; PDChat renders itself through its own fixed-position dock-mode CSS in that
+   state, so it floats correctly regardless of its zero-width layout slot. @key values are
+   stable role names (not DockMode-embedded) so Left/Right reordering moves the existing
+   panels instead of recreating them. *@
+<div class="pdchat-container-wrapper @(IsSplitMode ? "" : "pdchat-split-inactive")">
+	<PDSplitter @key="@("chat-splitter")"
+				Direction="@SplitDirection.Horizontal"
+				GutterSize="@GutterSize"
+				CssClass="pdchat-container-splitter">
+		@if (ChatService.DockMode == PDChatDockMode.Left)
+		{
+			<PDSplitPanel @key="@("chat-panel")" Size="@ChatPanelSize" MinSize="@ChatMinSize" CssClass="pdchat-chat-panel">
+				<CascadingValue Value="this" Name="ChatContainer">
+					@ChatContent
+				</CascadingValue>
+			</PDSplitPanel>
+			<PDSplitPanel @key="@("content-panel")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize" CssClass="pdchat-content-panel">
+				@ChildContent
+			</PDSplitPanel>
+		}
+		else
+		{
+			<PDSplitPanel @key="@("content-panel")" Size="@(TotalSize - ChatPanelSize)" MinSize="@ContentMinSize" CssClass="pdchat-content-panel">
+				@ChildContent
+			</PDSplitPanel>
+			<PDSplitPanel @key="@("chat-panel")" Size="@ChatPanelSize" MinSize="@ChatMinSize" CssClass="pdchat-chat-panel">
+				<CascadingValue Value="this" Name="ChatContainer">
+					@ChatContent
+				</CascadingValue>
+			</PDSplitPanel>
+		}
+	</PDSplitter>
+</div>
 

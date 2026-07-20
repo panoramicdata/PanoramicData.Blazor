@@ -29,6 +29,100 @@
 	position: fixed;
 	z-index: 10000;
 	font-family: Arial, sans-serif;
+
+	/* Theme-aware surface colours. Alias onto the host's own Bootstrap variables (many host
+	   apps override these per custom theme class, and Bootstrap 5.3's native [data-bs-theme]
+	   dark mode also sets them) so PDChat follows whichever theme system the host app
+	   actually uses, instead of only the OS/browser preference. */
+	--pd-chat-bg: var(--bs-body-bg, #fff);
+	--pd-chat-color: var(--bs-body-color, #212529);
+	--pd-chat-secondary-bg: var(--bs-secondary-bg, #f8f9fa);
+	--pd-chat-muted-color: var(--bs-secondary-color, #6c757d);
+	/* Some host apps define --accent directly (not a --bs-* override) for their own brand
+	   colour per theme. Bootstrap's own --bs-primary is tried first for hosts with neither. */
+	--pd-chat-header-bg: var(--accent, var(--bs-primary, #0078d4));
+
+	/* Border and priority colours — DELIBERATELY plain static values, no color-mix() or any
+	   other CSS Color 4 function. Screenshot/rasterisation tools such as html2canvas run
+	   their own simplified CSS engine that cannot parse color-mix()/color() and silently
+	   keep a stale value when they hit one — a real risk for a component that can appear on
+	   every page of a host app. Plain values sidestep that entirely, no fallback trickery
+	   needed. Light-mode values are the default below; dark-flavoured themes override them
+	   via the selector block further down. */
+	--pd-chat-border: #ced4da;
+	--pd-chat-info-border: #0078d4;
+	--pd-chat-info-bg: #e6f3ff;
+	--pd-chat-warning-border: #ffc107;
+	--pd-chat-warning-bg: #fff3cd;
+	--pd-chat-error-border: #dc3545;
+	--pd-chat-error-bg: #f8d7da;
+	--pd-chat-critical-border: #6f42c1;
+	--pd-chat-critical-bg: #e2d9f5;
+	--pd-chat-success-border: #198754;
+	--pd-chat-success-bg: #d1e7dd;
+	--pd-chat-typing-border: #6c757d;
+	--pd-chat-typing-bg: #f8f9fa;
+	--pd-chat-focus-shadow: rgba(0, 120, 212, 0.4);
+
+	/* Spacing/sizing — not theme-aliased (no host convention to inherit from), just plain
+	   defaults a consumer can override directly, e.g. .pdchat-container { --pd-chat-message-padding: 16px; } */
+	--pd-chat-message-padding: 12px;
+	--pd-chat-message-gap: 12px;
+	--pd-chat-message-radius: 8px;
+	--pd-chat-messages-gap: 8px;
+	--pd-chat-messages-padding: 10px;
+}
+
+/* Dark-flavoured themes (a host app's own theme classes, or Bootstrap 5.3's native
+   attribute for hosts using that instead) override the light-mode defaults above.
+   Selected explicitly by the host's ACTUAL theme choice, never prefers-color-scheme:
+   a host's chosen theme and the OS/browser preference are not guaranteed to agree, and
+   the explicit choice should always win. */
+body.theme-dark .pdchat-container,
+body.theme-lime .pdchat-container,
+body.theme-orange .pdchat-container,
+[data-bs-theme="dark"] .pdchat-container {
+	--pd-chat-border: #495057;
+	--pd-chat-info-border: #5ba4fc;
+	--pd-chat-info-bg: #1e3a5f;
+	--pd-chat-warning-border: #ffab00;
+	--pd-chat-warning-bg: #4a3d1a;
+	--pd-chat-error-border: #dc3545;
+	--pd-chat-error-bg: #3d1a1a;
+	--pd-chat-critical-border: #6f42c1;
+	--pd-chat-critical-bg: #2d1f47;
+	--pd-chat-success-border: #198754;
+	--pd-chat-success-bg: #1a3d2e;
+	--pd-chat-typing-border: #6c757d;
+	--pd-chat-typing-bg: #2c3034;
+	--pd-chat-focus-shadow: rgba(91, 164, 252, 0.4);
+}
+
+/* "Auto"/unthemed hosts: when a host app has no opinion at all (no theme class, no
+   data-bs-theme), fall back to the OS/browser preference — same as the base surface
+   colours already do via plain Bootstrap variable inheritance from :root. The :not()
+   guard is what keeps this safe: it only matches when NONE of the explicit-theme
+   selectors above could have matched, so an explicit host theme choice still always
+   wins over the OS preference — this never re-opens that gap, it only covers the case
+   where the host genuinely has no explicit choice to defer to. Values duplicated from
+   the block above; keep both in sync if the dark palette changes. */
+@media (prefers-color-scheme: dark) {
+	body:not(.theme-light):not(.theme-dark):not(.theme-lime):not(.theme-orange):not([data-bs-theme]) .pdchat-container {
+		--pd-chat-border: #495057;
+		--pd-chat-info-border: #5ba4fc;
+		--pd-chat-info-bg: #1e3a5f;
+		--pd-chat-warning-border: #ffab00;
+		--pd-chat-warning-bg: #4a3d1a;
+		--pd-chat-error-border: #dc3545;
+		--pd-chat-error-bg: #3d1a1a;
+		--pd-chat-critical-border: #6f42c1;
+		--pd-chat-critical-bg: #2d1f47;
+		--pd-chat-success-border: #198754;
+		--pd-chat-success-bg: #1a3d2e;
+		--pd-chat-typing-border: #6c757d;
+		--pd-chat-typing-bg: #2c3034;
+		--pd-chat-focus-shadow: rgba(91, 164, 252, 0.4);
+	}
 }
 
 /* ==============================================
@@ -245,7 +339,8 @@ body:has(.pdchat-container.dock-fullscreen) {
    ============================================== */
 
 .pdchat-window {
-	background-color: white;
+	background-color: var(--pd-chat-bg);
+	color: var(--pd-chat-color);
 	width: 90vw;
 	max-width: 400px;
 	height: 70vh;
@@ -374,7 +469,7 @@ body:has(.pdchat-container.dock-fullscreen) {
    ============================================== */
 
 .pdchat-header {
-	background-color: #0078d4;
+	background-color: var(--pd-chat-header-bg);
 	color: white;
 	display: flex;
 	justify-content: space-between;
@@ -411,6 +506,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 	font-weight: bold;
 	font-size: 16px;
 	flex: 1;
+	user-select: none;
 }
 
 .pdchat-header-btn,
@@ -614,18 +710,6 @@ body:has(.pdchat-container.dock-fullscreen) {
 }
 
 /* ==============================================
-   DARK MODE - Simple Background and Text Override
-   ============================================== */
-
-/* Only override the main window background and text color in dark mode */
-@media (prefers-color-scheme: dark) {
-	.pdchat-window {
-		background-color: #2d3436;
-		color: #ffffff;
-	}
-}
-
-/* ==============================================
    Message Preview Styles
    ============================================== */
 
@@ -639,8 +723,9 @@ body:has(.pdchat-container.dock-fullscreen) {
 	position: absolute;
 	top: 50%;
 	transform: translateY(-50%);
-	background: white;
-	border: 1px solid #e9ecef;
+	background: var(--pd-chat-bg);
+	color: var(--pd-chat-color);
+	border: 1px solid var(--pd-chat-border);
 	border-radius: 8px;
 	box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 	padding: 8px 12px;
@@ -682,18 +767,18 @@ body:has(.pdchat-container.dock-fullscreen) {
 	align-items: center;
 	margin-bottom: 4px;
 	padding-bottom: 2px;
-	border-bottom: 1px solid #f1f3f4;
+	border-bottom: 1px solid var(--pd-chat-border);
 }
 
 .pdchat-preview-sender {
 	font-weight: 600;
-	color: #0078d4;
+	color: var(--pd-chat-info-border, #0078d4);
 	font-size: 0.85em;
 }
 
 .pdchat-preview-timestamp {
 	font-size: 0.75em;
-	color: #6c757d;
+	color: var(--pd-chat-muted-color);
 }
 
 .pdchat-preview-title {
@@ -705,7 +790,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 }
 
 .pdchat-preview-content {
-	color: #212529;
+	color: var(--pd-chat-color);
 	line-height: 1.3;
 	word-wrap: break-word;
 	overflow: hidden;
@@ -715,33 +800,34 @@ body:has(.pdchat-container.dock-fullscreen) {
 	text-overflow: ellipsis;
 }
 
-/* Priority-based preview styles */
+/* Priority-based preview styles — theme-aware via the --pd-chat-*-bg/border variables
+   declared on .pdchat-container above, same reasoning as the message list. */
 .pdchat-message-preview.preview-warning {
-	background-color: #fff3cd;
-	border-color: #ffc107;
+	background-color: var(--pd-chat-warning-bg, #fff3cd);
+	border-color: var(--pd-chat-warning-border, #ffc107);
 }
 
 .pdchat-message-preview.preview-error {
-	background-color: #f8d7da;
-	border-color: #dc3545;
+	background-color: var(--pd-chat-error-bg, #f8d7da);
+	border-color: var(--pd-chat-error-border, #dc3545);
 }
 
 .pdchat-message-preview.preview-critical {
-	background-color: #f8d7da;
-	border-color: #dc3545;
-	box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+	background-color: var(--pd-chat-critical-bg, #e2d9f5);
+	border-color: var(--pd-chat-critical-border, #6f42c1);
+	box-shadow: 0 4px 12px rgba(111, 66, 193, 0.25);
 }
 
 .pdchat-message-preview.preview-success
 {
-	background-color: #d1e7dd;
-	border-color: #198754;
+	background-color: var(--pd-chat-success-bg, #d1e7dd);
+	border-color: var(--pd-chat-success-border, #198754);
 	box-shadow: 0 4px 12px rgba(25, 135, 84, 0.25);
 }
 
 .pdchat-message-preview.preview-normal {
-	background-color: #e6f3ff;
-	border-color: #0078d4;
+	background-color: var(--pd-chat-info-bg, #e6f3ff);
+	border-color: var(--pd-chat-info-border, #0078d4);
 }
 
 /* Slide-in animation */
@@ -772,56 +858,6 @@ body:has(.pdchat-container.dock-fullscreen) {
 	}
 }
 
-/* ==============================================
-   Dark Mode - Message Preview
-   ============================================== */
-
-@media (prefers-color-scheme: dark) {
-	.pdchat-message-preview {
-		background: #3a3f44;
-		border-color: #495057;
-		color: #e0e0e0;
-		box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-	}
-	
-	.pdchat-preview-header {
-		border-bottom-color: #495057;
-	}
-	
-	.pdchat-preview-sender {
-		color: #5ba4fc;
-	}
-	
-	.pdchat-preview-timestamp {
-		color: #adb5bd;
-	}
-	
-	.pdchat-preview-content {
-		color: #e0e0e0;
-	}
-	
-	/* Dark mode priority styles */
-	.pdchat-message-preview.preview-warning {
-		background-color: #4a3d1a;
-		border-color: #ffab00;
-	}
-	
-	.pdchat-message-preview.preview-error {
-		background-color: #3d1a1a;
-		border-color: #dc3545;
-	}
-	
-	.pdchat-message-preview.preview-success {
-		background-color: #1a3d2e;
-		border-color: #198754;
-		box-shadow: 0 4px 12px rgba(25, 135, 84, 0.4);
-	}
-	
-	.pdchat-message-preview.preview-normal {
-		background-color: #1e3a5f;
-		border-color: #5ba4fc;
-	}
-}
 /* ==============================================
    Toast Stack (PDChat as a toast surface)
    ============================================== */
@@ -1027,3 +1063,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 		animation-name: pdchat-toast-fade-out;
 	}
 }
+
+/* Base surface, the sender-name accent, and every priority variant above are all
+   theme-aware via --pd-chat-* variables now. No prefers-color-scheme block needed:
+   those variables already follow whichever theme is actually active. */
