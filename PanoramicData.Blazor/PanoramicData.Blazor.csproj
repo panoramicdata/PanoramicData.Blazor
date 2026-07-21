@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChatContainer: stopped disposing and recreating the host page's entire content every time the chat's dock mode changes (e.g. opening chat from minimized into a side-docked view, or closing it again) - content and chat panels now stay permanently mounted, so in-progress page state is no longer lost on a dock-mode change.
+      - PDChat: fixed "Unpin from Side" doing nothing when the panel was docked directly into a split RestoreMode (its usual starting point) rather than reached via "Dock to Side" - it now always falls back to a corner position instead of one that could equal the current mode.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
