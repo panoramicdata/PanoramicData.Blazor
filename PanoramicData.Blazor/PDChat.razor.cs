@@ -149,7 +149,14 @@ public partial class PDChat : JSModuleComponentBase
 	/// </summary>
 	private async Task ChangeDockModeAsync(PDChatDockMode newMode)
 	{
-		if (ChatService.DockMode is not PDChatDockMode.Minimized and not PDChatDockMode.FullScreen)
+		// Only remember genuine corner positions here - _restoreDockMode exists purely so
+		// UnpinFromSideAsync can return to "wherever the panel was before it got pinned to a
+		// side". Capturing Left/Right too (as this used to) meant a minimize/reopen or
+		// fullscreen/restore round-trip while docked would leave it holding the *current*
+		// split mode, silently turning the next "Unpin from Side" click back into the exact
+		// no-op MS-24840 fixed - reproducibly, not just intermittently.
+		if (ChatService.DockMode is PDChatDockMode.TopLeft or PDChatDockMode.TopRight
+			or PDChatDockMode.BottomLeft or PDChatDockMode.BottomRight)
 		{
 			_restoreDockMode = ChatService.DockMode;
 		}
