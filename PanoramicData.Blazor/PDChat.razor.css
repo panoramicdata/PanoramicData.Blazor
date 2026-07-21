@@ -770,6 +770,14 @@ body:has(.pdchat-container.dock-fullscreen) {
 	border-bottom: 1px solid var(--pd-chat-border);
 }
 
+/* Only ever used inside a toast (.pdchat-preview-header has no other caller), but scoped
+   explicitly since that's the reason for the reserved space: .pdchat-toast-close sits at
+   top:2px/right:4px, absolutely positioned over this same top-right corner. Without this, the
+   right-aligned timestamp in the header runs straight under the dismiss button. */
+.pdchat-toast .pdchat-preview-header {
+	padding-right: 10px;
+}
+
 .pdchat-preview-sender {
 	font-weight: 600;
 	color: var(--pd-chat-info-border, #0078d4);
@@ -920,13 +928,12 @@ body:has(.pdchat-container.dock-fullscreen) {
 
 .pdchat-toast-close {
 	position: absolute;
-	top: 2px;
-	right: 4px;
+	top: -4px;
+	right: 0;
 	background: none;
 	border: none;
 	color: inherit;
 	font-size: 16px;
-	line-height: 1;
 	cursor: pointer;
 	opacity: 0.5;
 	padding: 2px 4px;
