@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChat: fixed "Unpin from Side" going back to doing nothing after a minimize/reopen or fullscreen/restore cycle while docked to a side - the remembered restore position was being overwritten with the current split mode on any dock-mode change, not just when leaving a corner, silently defeating the previous fix's fallback.
+      - PDModal: fixed an intermittent "Cannot access a disposed object" exception from HideAsync/ShowAsync, and Blazor Server circuit crashes in consuming apps, caused by DisposeAsync not being idempotent - a second dispose pass (e.g. Blazor's own child-component teardown racing a caller's explicit Hide-then-Dispose sequence) tried to dispose already-disposed JS object references. DisposeAsync is now idempotent and HideAsync/ShowAsync/DisposeAsync all treat an already-disposed JS reference as benign instead of throwing.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

@@ -11,6 +11,7 @@ public partial class PDModal : IAsyncDisposable
 	private IJSObjectReference? _modalObj;
 	private IJSObjectReference? _commonModule;
 	private DotNetObjectReference<PDModal>? _dotNetReference;
+	private bool _disposed;
 
 	/// <summary>
 	/// Gets or sets the JavaScript runtime used by modal interop.
@@ -127,9 +128,24 @@ public partial class PDModal : IAsyncDisposable
 	/// </summary>
 	public async Task HideAsync(CancellationToken cancellationToken)
 	{
-		if (_modalObj != null)
+		if (_disposed || _modalObj is null)
+		{
+			return;
+		}
+
+		try
 		{
 			await _modalObj.InvokeVoidAsync("hide", cancellationToken).ConfigureAwait(true);
+		}
+		catch (ObjectDisposedException)
+		{
+			// The modal's JS reference was already disposed (e.g. Blazor tore down this
+			// component's own child-component tree concurrently with a caller's explicit
+			// teardown sequence). Nothing to hide - benign; ignore.
+		}
+		catch (JSDisconnectedException)
+		{
+			// The Blazor circuit has already disconnected. Nothing to hide - benign; ignore.
 		}
 	}
 
@@ -203,9 +219,22 @@ public partial class PDModal : IAsyncDisposable
 	/// </summary>
 	public async Task ShowAsync(CancellationToken cancellationToken)
 	{
-		if (_modalObj != null)
+		if (_disposed || _modalObj is null)
+		{
+			return;
+		}
+
+		try
 		{
 			await _modalObj.InvokeVoidAsync("show", cancellationToken).ConfigureAwait(true);
+		}
+		catch (ObjectDisposedException)
+		{
+			// The modal's JS reference was already disposed. Nothing to show - benign; ignore.
+		}
+		catch (JSDisconnectedException)
+		{
+			// The Blazor circuit has already disconnected. Nothing to show - benign; ignore.
 		}
 	}
 
@@ -260,27 +289,46 @@ public partial class PDModal : IAsyncDisposable
 	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
+		if (_disposed)
+		{
+			return;
+		}
+
+		_disposed = true;
+		GC.SuppressFinalize(this);
+
 		try
 		{
-			GC.SuppressFinalize(this);
 			if (_commonModule != null)
 			{
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
+				_commonModule = null;
 			}
 
 			if (_module != null)
 			{
 				await _module.DisposeAsync().ConfigureAwait(true);
+				_module = null;
 			}
 
 			if (_modalObj != null)
 			{
 				await _modalObj.DisposeAsync().ConfigureAwait(true);
+				_modalObj = null;
 			}
 		}
-		catch
+		catch (ObjectDisposedException)
 		{
+			// Already disposed via a concurrent teardown path (e.g. Blazor's own child-component
+			// disposal racing this call). Benign; ignore.
 		}
+		catch (JSDisconnectedException)
+		{
+			// The Blazor circuit has already disconnected. Benign; ignore.
+		}
+
+		_dotNetReference?.Dispose();
+		_dotNetReference = null;
 	}
 
 	private string ModalCssClass
