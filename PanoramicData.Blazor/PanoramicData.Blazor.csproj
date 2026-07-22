@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDModal: fixed an intermittent "Cannot access a disposed object" exception from HideAsync/ShowAsync, and Blazor Server circuit crashes in consuming apps, caused by DisposeAsync not being idempotent - a second dispose pass (e.g. Blazor's own child-component teardown racing a caller's explicit Hide-then-Dispose sequence) tried to dispose already-disposed JS object references. DisposeAsync is now idempotent and HideAsync/ShowAsync/DisposeAsync all treat an already-disposed JS reference as benign instead of throwing.
+      - PDGlobalListener: fixed uncaught "(in promise)" errors ("Cannot send data if the connection is not in the 'Connected' State") logged from onKeyDown/onKeyUp after a Blazor Server circuit disconnects - invokeMethodAsync returns a Promise that rejects asynchronously, so wrapping the call in a synchronous try/catch alone never observed the rejection. The returned promise is now also given a no-op .catch(), so a disconnected circuit no longer spams the browser console after a page reload/navigation.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
