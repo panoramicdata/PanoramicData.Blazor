@@ -4,17 +4,34 @@ public partial class PDTabSetPage
 {
 	private readonly List<TabInfo> _tabs =
 	[
-		new TabInfo { Title = "Tab 1", Content = "This is the first tab." },
-		new TabInfo { Title = "Tab 2", Content = "This is the second tab." }
+		new TabInfo { Title = "Overview",  IconCssClass = "bi bi-house-fill",    Content = "This is the overview tab." },
+		new TabInfo { Title = "Settings",  IconCssClass = "bi bi-gear-fill",     Content = "This is the settings tab." },
+		new TabInfo { Title = "Reports",   IconCssClass = "bi bi-bar-chart-fill", Content = "This is the reports tab." },
 	];
 
-	private int _tabCounter = 3;
+	private int _tabCounter = 4;
 	private string _eventLog = string.Empty;
 
-	private void OnTabSelected(PDTab tab)
+	// Control-panel bindings
+	private bool _isReorderingEnabled = true;
+	private bool _isClosingEnabled    = true;
+	private bool _isRenamingEnabled   = true;
+	private bool _isAddingEnabled     = true;
+	private string _tabMinWidth = "100px";
+	private string _tabMaxWidth = "200px";
+
+	private void AddTab()
 	{
-		LogEvent($"Selected: {tab.Title}");
+		var newTab = new TabInfo
+		{
+			Title   = $"Tab {_tabCounter++}",
+			Content = $"Content for tab {_tabCounter - 1}."
+		};
+		_tabs.Add(newTab);
+		LogEvent($"Added: {newTab.Title}");
 	}
+
+	private void OnTabSelected(PDTab tab) => LogEvent($"Selected: {tab.Title}");
 
 	private void OnTabClosed(PDTab tab)
 	{
@@ -26,15 +43,24 @@ public partial class PDTabSetPage
 		}
 	}
 
-	private void OnTabAdded()
+	private void OnTabAdded(CreateTabPosition position)
 	{
 		var newTab = new TabInfo
 		{
-			Title = $"Tab {_tabCounter++}",
-			Content = $"This is tab {_tabCounter - 1}."
+			Title   = $"Tab {_tabCounter++}",
+			Content = $"Content for tab {_tabCounter - 1}."
 		};
-		_tabs.Add(newTab);
-		LogEvent($"Added: {newTab.Title}");
+
+		if (position == CreateTabPosition.Start)
+		{
+			_tabs.Insert(0, newTab);
+		}
+		else
+		{
+			_tabs.Add(newTab);
+		}
+
+		LogEvent($"Added: {newTab.Title} ({position})");
 	}
 
 	private void OnTabRenamed(PDTab tab)
@@ -43,8 +69,21 @@ public partial class PDTabSetPage
 		if (tabInfo != null)
 		{
 			tabInfo.Title = tab.Title;
-			LogEvent($"Renamed: {tab.Title}");
+			LogEvent($"Renamed to: {tab.Title}");
 		}
+	}
+
+	private void OnTabsReordered(IReadOnlyList<PDTab> tabs)
+	{
+		// Mirror the new order back into _tabs so the controls panel stays in sync.
+		var reordered = tabs
+			.Select(t => _tabs.FirstOrDefault(ti => ti.Id == t.Id))
+			.OfType<TabInfo>()
+			.ToList();
+
+		_tabs.Clear();
+		_tabs.AddRange(reordered);
+		LogEvent("Tabs reordered: " + string.Join(", ", reordered.Select(t => t.Title)));
 	}
 
 	private void LogEvent(string message)
@@ -52,10 +91,11 @@ public partial class PDTabSetPage
 		_eventLog = $"{DateTime.Now:T}: {message}\n{_eventLog}";
 	}
 
-	private class TabInfo
+	private sealed class TabInfo
 	{
-		public Guid Id { get; set; } = Guid.NewGuid();
-		public string Title { get; set; } = string.Empty;
-		public string Content { get; set; } = string.Empty;
+		public Guid   Id          { get; init; } = Guid.NewGuid();
+		public string Title       { get; set;  } = string.Empty;
+		public string Content     { get; set;  } = string.Empty;
+		public string? IconCssClass { get; init; }
 	}
 }

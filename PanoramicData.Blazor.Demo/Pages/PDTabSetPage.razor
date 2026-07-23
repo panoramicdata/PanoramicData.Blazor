@@ -8,22 +8,124 @@
 <PDTabSetDocumentation />
 </DocumentationContent>
 <ChildContent>
-<PDTabSet IsTabAdditionEnabled="true"
-			  IsTabClosingEnabled="true"
-			  IsTabRenamingEnabled="true"
-			  OnTabSelected="OnTabSelected"
-			  OnTabClosed="OnTabClosed"
-			  OnTabAdded="OnTabAdded"
-			  OnTabRenamed="OnTabRenamed">
-		@foreach (var tab in _tabs)
-		{
-			<PDTab Id="@tab.Id" Title="@tab.Title">
-				<div>@tab.Content</div>
-			</PDTab>
-		}
-	</PDTabSet>
+<div class="row g-4">
 
-	<h5 class="mt-4">Event Log</h5>
-	<pre style="max-height:200px;overflow:auto;">@_eventLog</pre>
-	</ChildContent>
+	<!-- ── Controls panel ── -->
+	<div class="col-xl-3 col-lg-4">
+		<div class="card h-100">
+			<div class="card-header fw-semibold">Controls</div>
+			<div class="card-body">
+
+				<h6 class="text-muted text-uppercase small mb-2">Behaviour</h6>
+				<div class="form-check form-switch mb-2">
+					<input class="form-check-input" type="checkbox" id="chkReorder" @bind="_isReorderingEnabled" />
+					<label class="form-check-label" for="chkReorder">Allow drag to reorder</label>
+				</div>
+				<div class="form-check form-switch mb-2">
+					<input class="form-check-input" type="checkbox" id="chkClose" @bind="_isClosingEnabled" />
+					<label class="form-check-label" for="chkClose">Allow close</label>
+				</div>
+				<div class="form-check form-switch mb-2">
+					<input class="form-check-input" type="checkbox" id="chkRename" @bind="_isRenamingEnabled" />
+					<label class="form-check-label" for="chkRename">Allow rename (dbl-click)</label>
+				</div>
+				<div class="form-check form-switch mb-3">
+					<input class="form-check-input" type="checkbox" id="chkAdd" @bind="_isAddingEnabled" />
+					<label class="form-check-label" for="chkAdd">Allow add tab</label>
+				</div>
+
+				<h6 class="text-muted text-uppercase small mb-2">Dimensions</h6>
+				<div class="mb-2">
+					<label class="form-label small mb-1">Min width</label>
+					<input class="form-control form-control-sm" @bind="_tabMinWidth" @bind:event="oninput" placeholder="e.g. 80px" />
+				</div>
+				<div class="mb-3">
+					<label class="form-label small mb-1">Max width</label>
+					<input class="form-control form-control-sm" @bind="_tabMaxWidth" @bind:event="oninput" placeholder="e.g. 240px" />
+				</div>
+
+				<h6 class="text-muted text-uppercase small mb-2">Tabs</h6>
+				@foreach (var tab in _tabs)
+				{
+					<div class="d-flex align-items-center gap-1 mb-1" style="min-width:0;overflow:hidden;">
+						@if (!string.IsNullOrEmpty(tab.IconCssClass))
+						{
+							<i class="@tab.IconCssClass text-muted small flex-shrink-0"></i>
+						}
+						<span class="text-truncate small" style="min-width:0;">@tab.Title</span>
+					</div>
+				}
+				<div class="d-flex gap-2 mt-2">
+					<button class="btn btn-sm btn-outline-primary" @onclick="AddTab">+ Add tab</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- ── Main content ── -->
+	<div class="col-xl-9 col-lg-8">
+
+		<div style="border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;overflow:hidden;">
+			<PDTabSet IsTabReorderingEnabled="@_isReorderingEnabled"
+					  IsTabClosingEnabled="@_isClosingEnabled"
+					  IsTabRenamingEnabled="@_isRenamingEnabled"
+					  IsTabAdditionEnabled="@_isAddingEnabled"
+					  TabMinWidth="@_tabMinWidth"
+					  TabMaxWidth="@_tabMaxWidth"
+					  OnTabSelected="OnTabSelected"
+					  OnTabClosed="OnTabClosed"
+					  OnTabAdded="OnTabAdded"
+					  OnTabRenamed="OnTabRenamed"
+					  OnTabsReordered="OnTabsReordered">
+				@foreach (var tab in _tabs)
+				{
+					<PDTab @key="@tab.Id" Id="@tab.Id" Title="@tab.Title" IconCssClass="@tab.IconCssClass">
+						<div class="p-2">@tab.Content</div>
+					</PDTab>
+				}
+			</PDTabSet>
+		</div>
+
+		<h5 class="mt-4 mb-1">CSS-Styled Tabs</h5>
+		<p class="text-muted small mb-2">
+			Apply a <code>CssClass</code> to individual <code>PDTab</code> instances to customise border colour,
+			background fill and font. Use <code>IconCssClass</code> to add an icon before the tab title.
+		</p>
+		<div style="border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;overflow:hidden;">
+			<PDTabSet>
+				<PDTab Title="Default">
+					<div class="p-3">Standard tab — no extra CSS class applied.</div>
+				</PDTab>
+				<PDTab Title="Success" CssClass="tab-success" IconCssClass="bi bi-check-circle-fill">
+					<div class="p-3">
+						Green success styling via <code>.tab-success</code>.<br />
+						<code>CssClass="tab-success"</code> &amp; <code>IconCssClass="bi bi-check-circle-fill"</code>
+					</div>
+				</PDTab>
+				<PDTab Title="Warning" CssClass="tab-warning" IconCssClass="bi bi-exclamation-triangle-fill">
+					<div class="p-3">
+						Amber warning styling via <code>.tab-warning</code>.<br />
+						<code>CssClass="tab-warning"</code> &amp; <code>IconCssClass="bi bi-exclamation-triangle-fill"</code>
+					</div>
+				</PDTab>
+				<PDTab Title="Danger" CssClass="tab-danger" IconCssClass="bi bi-x-octagon-fill">
+					<div class="p-3">
+						Red danger styling via <code>.tab-danger</code>.<br />
+						<code>CssClass="tab-danger"</code> &amp; <code>IconCssClass="bi bi-x-octagon-fill"</code>
+					</div>
+				</PDTab>
+				<PDTab Title="Custom Font" CssClass="tab-serif">
+					<div class="p-3">
+						Serif font and italic style via <code>.tab-serif</code>.<br />
+						<code>CssClass="tab-serif"</code>
+					</div>
+				</PDTab>
+			</PDTabSet>
+		</div>
+
+		<h5 class="mt-4 mb-1">Event Log</h5>
+		<pre style="max-height:200px;overflow:auto;font-size:0.8rem;">@_eventLog</pre>
+	</div>
+</div>
+</ChildContent>
 </DemoSourceView>

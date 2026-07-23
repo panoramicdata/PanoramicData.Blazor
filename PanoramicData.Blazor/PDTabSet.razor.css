@@ -41,8 +41,22 @@
 
 .pdtabset-tab-title {
     flex: 1 1 auto;
+    min-width: 0;
     text-align: left;
     padding-right: 0.5em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Narrow add-tab (+) button */
+.pdtabset-addtab {
+    min-width: unset;
+    width: 34px;
+    padding-left: 6px;
+    padding-right: 6px;
+    flex-shrink: 0;
+    justify-content: center;
 }
 
 .pdtabset-tab.active {
@@ -109,4 +123,30 @@
 .pdtabset-tab-rename-input:focus {
     border-color: var(--bs-primary, #205081);
     background: var(--bs-body-bg, #fff);
+}
+
+/* Icon inside a tab */
+.pdtabset-tab-icon {
+    margin-right: 0.35em;
+    flex-shrink: 0;
+    font-size: 0.9em;
+    line-height: 1;
+}
+
+/* Drag-to-reorder */
+.pdtabset-tabs.reordering .pdtabset-tab-container {
+    cursor: grab;
+}
+
+.pdtabset-tabs.reordering .pdtabset-tab-container:active {
+    cursor: grabbing;
+}
+
+.pdtabset-tab.dragging {
+    opacity: 0.45;
+}
+
+.pdtabset-tab-container.drag-over {
+    box-shadow: -3px 0 0 0 var(--bs-primary, #0078d4);
+    border-radius: 2px 0 0 0;
 }

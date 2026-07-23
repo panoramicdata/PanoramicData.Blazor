@@ -3,8 +3,9 @@
 	<section id="overview">
 		<h2 class="doc-section">Overview</h2>
 		<p>
-			<code>PDTabSet</code> is a tabbed interface component for organizing content into
-			multiple panels. Supports closable tabs, icons, and dynamic tab management.
+			<code>PDTabSet</code> is a tabbed interface component for organising content into
+			multiple panels. It supports closable, renameable, and drag-reorderable tabs,
+			tab icons, and dynamic tab management.
 		</p>
 	</section>
 
@@ -31,7 +32,53 @@
 			</DemoContent>
 			<Description>
 				<p>
-					Add <code>PDTab</code> components inside <code>PDTabSet</code>. Each tab has a <code>Title</code>.
+					Add <code>PDTab</code> components inside <code>PDTabSet</code>. Each tab requires a <code>Title</code>.
+				</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="Tabs with Icons"
+					AnchorId="tabs-with-icons"
+					Code="@_example2Code"
+					Language="razor"
+					DemoStyle="min-height: 150px;">
+			<DemoContent>
+				<PDTabSet>
+					<PDTab Title="Home" IconCssClass="bi bi-house-fill">
+						<p class="p-3">Home content</p>
+					</PDTab>
+					<PDTab Title="Settings" IconCssClass="bi bi-gear-fill">
+						<p class="p-3">Settings content</p>
+					</PDTab>
+					<PDTab Title="Reports" IconCssClass="bi bi-bar-chart-fill">
+						<p class="p-3">Reports content</p>
+					</PDTab>
+				</PDTabSet>
+			</DemoContent>
+			<Description>
+				<p>
+					Set <code>IconCssClass</code> on any <code>PDTab</code> to render an icon before the title.
+					Bootstrap Icons (<code>bi bi-*</code>) and Font Awesome classes both work.
+				</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="Drag to Reorder"
+					AnchorId="drag-reorder"
+					Code="@_example3Code"
+					Language="razor"
+					DemoStyle="min-height: 150px;">
+			<DemoContent>
+				<PDTabSet IsTabReorderingEnabled="true" OnTabsReordered="(tabs) => { }">
+					<PDTab Title="First"><p class="p-3">Drag the tabs to reorder them.</p></PDTab>
+					<PDTab Title="Second"><p class="p-3">Second tab content</p></PDTab>
+					<PDTab Title="Third"><p class="p-3">Third tab content</p></PDTab>
+				</PDTabSet>
+			</DemoContent>
+			<Description>
+				<p>
+					Enable <code>IsTabReorderingEnabled</code> to let users drag tabs into a new order.
+					The <code>OnTabsReordered</code> callback fires after each drop with the updated ordered list.
 				</p>
 			</Description>
 		</DocExample>
@@ -43,26 +90,75 @@
 		<h4>PDTabSet Parameters</h4>
 		<table class="table table-sm doc-props-table">
 			<thead>
-				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
 			</thead>
 			<tbody>
-				<tr><td><code>ActiveTab</code></td><td><code>PDTab?</code></td><td>Currently active tab</td></tr>
-				<tr><td><code>AllowClose</code></td><td><code>bool</code></td><td>Show close buttons on tabs</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td><code>""</code></td><td>Additional CSS class(es) applied to the root element</td></tr>
+				<tr><td><code>TabMinWidth</code></td><td><code>string</code></td><td><code>"100px"</code></td><td>Minimum width of each tab button</td></tr>
+				<tr><td><code>TabMaxWidth</code></td><td><code>string</code></td><td><code>"240px"</code></td><td>Maximum width of each tab button</td></tr>
+				<tr><td><code>IsTabClosingEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show close (✖) buttons on all tabs</td></tr>
+				<tr><td><code>IsTabRenamingEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Allow double-click rename on all tabs</td></tr>
+				<tr><td><code>IsTabAdditionEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show the + add-tab button</td></tr>
+				<tr><td><code>CreateTabPosition</code></td><td><code>CreateTabPosition</code></td><td><code>End</code></td><td>Position of the add-tab button (<code>Start</code>, <code>End</code>, <code>Both</code>)</td></tr>
+				<tr><td><code>IsTabReorderingEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Allow drag-and-drop tab reordering</td></tr>
+			</tbody>
+		</table>
+
+		<h4 class="mt-4">PDTabSet Events</h4>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Event</th><th>Type</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>OnTabSelected</code></td><td><code>EventCallback&lt;PDTab&gt;</code></td><td>Fires when a tab is clicked</td></tr>
+				<tr><td><code>OnTabClosed</code></td><td><code>EventCallback&lt;PDTab&gt;</code></td><td>Fires when a tab is closed</td></tr>
+				<tr><td><code>OnTabAdded</code></td><td><code>EventCallback&lt;CreateTabPosition&gt;</code></td><td>Fires when the + button is clicked; the argument indicates which end (<code>Start</code> or <code>End</code>) was pressed so callers can insert at the correct position</td></tr>
+				<tr><td><code>OnTabRenamed</code></td><td><code>EventCallback&lt;PDTab&gt;</code></td><td>Fires when a tab rename is committed</td></tr>
+				<tr><td><code>OnTabsReordered</code></td><td><code>EventCallback&lt;IReadOnlyList&lt;PDTab&gt;&gt;</code></td><td>Fires after a drag-reorder; provides the new ordered list</td></tr>
 			</tbody>
 		</table>
 
 		<h4 class="mt-4">PDTab Parameters</h4>
 		<table class="table table-sm doc-props-table">
 			<thead>
-				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+				<tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
 			</thead>
 			<tbody>
-				<tr><td><code>Title</code></td><td><code>string</code></td><td>Tab header text</td></tr>
-				<tr><td><code>IconCssClass</code></td><td><code>string</code></td><td>Tab icon CSS class</td></tr>
-				<tr><td><code>IsVisible</code></td><td><code>bool</code></td><td>Show/hide the tab</td></tr>
-				<tr><td><code>CanClose</code></td><td><code>bool</code></td><td>Allow this tab to be closed</td></tr>
+				<tr><td><code>Title</code></td><td><code>string</code></td><td><code>""</code></td><td>Text displayed in the tab header</td></tr>
+				<tr><td><code>IconCssClass</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS class(es) for an icon rendered before the title (e.g. <code>"bi bi-star"</code>)</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td><code>""</code></td><td>Additional CSS class applied to the tab button — use for custom styling</td></tr>
+				<tr><td><code>IsClosingEnabled</code></td><td><code>bool?</code></td><td><code>null</code></td><td>Overrides the parent <code>IsTabClosingEnabled</code> for this tab</td></tr>
+				<tr><td><code>IsRenamingEnabled</code></td><td><code>bool?</code></td><td><code>null</code></td><td>Overrides the parent <code>IsTabRenamingEnabled</code> for this tab</td></tr>
+				<tr><td><code>OnSelected</code></td><td><code>EventCallback</code></td><td>—</td><td>Fires when this specific tab is selected</td></tr>
 			</tbody>
 		</table>
+	</section>
+
+	<section id="css-styling">
+		<h2 class="doc-section">CSS Styling</h2>
+		<p>
+			Set <code>CssClass</code> on a <code>PDTab</code> to apply a custom class to the tab button.
+			Use <code>::deep</code> in a scoped CSS file (or plain global CSS) to target the tab elements:
+		</p>
+		<pre><code>/* In your page's .razor.css — ::deep pierces Blazor isolation */
+::deep .pdtabset-tab.my-custom-tab {
+    color: #155724;
+    border-color: #28a745;
+}
+::deep .pdtabset-tab.my-custom-tab.active {
+    background: #d4edda;
+    border-bottom-color: #28a745;
+}
+
+/* Font customisation */
+::deep .pdtabset-tab.tab-serif {
+    font-family: Georgia, serif;
+    font-style: italic;
+}</code></pre>
+		<p>
+			The demo page shows four ready-made examples: <code>.tab-success</code>, <code>.tab-warning</code>,
+			<code>.tab-danger</code>, and <code>.tab-serif</code>.
+		</p>
 	</section>
 
 </div>

@@ -1,0 +1,84 @@
+/* ──────────────────────────────────────────────────────────────
+   Custom tab-styling examples for the PDTabSet demo page.
+   CSS classes are applied to individual PDTab via CssClass="...".
+   ::deep is required to pierce Blazor CSS isolation on PDTabSet.
+   ────────────────────────────────────────────────────────────── */
+
+/* ── Success (green) ── */
+::deep .pdtabset-tab.tab-success {
+    color: #155724;
+    border-color: #28a745;
+}
+
+::deep .pdtabset-tab.tab-success:hover:not(.active) {
+    background: #d4edda;
+    border-color: #28a745;
+    border-bottom-color: transparent;
+}
+
+::deep .pdtabset-tab.tab-success.active {
+    background: #d4edda;
+    color: #155724;
+    border-color: #28a745;
+    border-bottom-color: #28a745;
+}
+
+/* ── Warning (amber) ── */
+::deep .pdtabset-tab.tab-warning {
+    color: #856404;
+    border-color: #ffc107;
+}
+
+::deep .pdtabset-tab.tab-warning:hover:not(.active) {
+    background: #fff3cd;
+    border-color: #ffc107;
+    border-bottom-color: transparent;
+}
+
+::deep .pdtabset-tab.tab-warning.active {
+    background: #fff3cd;
+    color: #856404;
+    border-color: #ffc107;
+    border-bottom-color: #ffc107;
+}
+
+/* ── Danger (red) ── */
+::deep .pdtabset-tab.tab-danger {
+    color: #721c24;
+    border-color: #dc3545;
+}
+
+::deep .pdtabset-tab.tab-danger:hover:not(.active) {
+    background: #f8d7da;
+    border-color: #dc3545;
+    border-bottom-color: transparent;
+}
+
+::deep .pdtabset-tab.tab-danger.active {
+    background: #f8d7da;
+    color: #721c24;
+    border-color: #dc3545;
+    border-bottom-color: #dc3545;
+}
+
+/* ── Serif / custom font ── */
+::deep .pdtabset-tab.tab-serif {
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+    letter-spacing: 0.02em;
+    color: #4a235a;
+    border-color: #9b59b6;
+}
+
+::deep .pdtabset-tab.tab-serif:hover:not(.active) {
+    background: #f5eef8;
+    border-color: #9b59b6;
+    border-bottom-color: transparent;
+}
+
+::deep .pdtabset-tab.tab-serif.active {
+    background: #f5eef8;
+    color: #4a235a;
+    border-color: #9b59b6;
+    border-bottom-color: #9b59b6;
+}

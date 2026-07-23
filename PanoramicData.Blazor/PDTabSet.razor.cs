@@ -21,6 +21,11 @@ public partial class PDTabSet : ComponentBase
 	internal List<PDTab> Tabs { get; } = [];
 	internal PDTab? ActiveTab { get; set; }
 
+	private PDTab? _dragTab;
+	private PDTab? _dragOverTab;
+	/// <summary>Index at which the next <see cref="AddTab"/> call should insert; -1 means append.</summary>
+	private int _pendingInsertIndex = -1;
+
 	/// <summary>
 	/// Gets or sets the child content of the component.
 	/// </summary>
@@ -54,12 +59,22 @@ public partial class PDTabSet : ComponentBase
 	/// <summary>
 	/// Gets or sets the position of the create tab button.
 	/// </summary>
-	[Parameter] public CreateTabPosition CreateTabPosition { get; set; } = CreateTabPosition.End;
+	[Parameter] public CreateTabPosition CreateTabPosition { get; set; } = CreateTabPosition.Start;
 
 	/// <summary>
 	/// Gets or sets whether tabs can be renamed.
 	/// </summary>
 	[Parameter] public bool IsTabRenamingEnabled { get; set; } = false;
+
+	/// <summary>
+	/// Gets or sets whether tabs can be reordered by dragging. When enabled, the underlying <see cref="Tabs"/> list order is updated on drop.
+	/// </summary>
+	[Parameter] public bool IsTabReorderingEnabled { get; set; } = false;
+
+	/// <summary>
+	/// An event callback that is invoked when the tab order changes after a drag-reorder operation.
+	/// </summary>
+	[Parameter] public EventCallback<IReadOnlyList<PDTab>> OnTabsReordered { get; set; }
 
 	/// <summary>
 	/// An event callback that is invoked when a tab is selected.
@@ -73,8 +88,9 @@ public partial class PDTabSet : ComponentBase
 
 	/// <summary>
 	/// An event callback that is invoked when a new tab is added.
+	/// The <see cref="CreateTabPosition"/> argument indicates which + button was pressed.
 	/// </summary>
-	[Parameter] public EventCallback OnTabAdded { get; set; }
+	[Parameter] public EventCallback<CreateTabPosition> OnTabAdded { get; set; }
 
 	/// <summary>
 	/// An event callback that is invoked when a tab is renamed.
@@ -83,9 +99,17 @@ public partial class PDTabSet : ComponentBase
 
 	internal void AddTab(PDTab tab)
 	{
-		Tabs.Add(tab);
-		ActiveTab ??= tab;
+		if (_pendingInsertIndex >= 0 && _pendingInsertIndex <= Tabs.Count)
+		{
+			Tabs.Insert(_pendingInsertIndex, tab);
+		}
+		else
+		{
+			Tabs.Add(tab);
+		}
 
+		_pendingInsertIndex = -1;
+		ActiveTab ??= tab;
 		StateHasChanged();
 	}
 
@@ -125,12 +149,70 @@ public partial class PDTabSet : ComponentBase
 	internal bool GetTabCanBeRenamed(PDTab tab)
 		=> tab.IsRenamingEnabled ?? IsTabRenamingEnabled;
 
-	internal void OnAddTabClicked()
+	internal void OnDragStart(PDTab tab)
 	{
+		_dragTab = tab;
+		StateHasChanged();
+	}
+
+	internal void OnDragOver(PDTab tab)
+	{
+		if (_dragTab == null || object.ReferenceEquals(_dragTab, tab))
+		{
+			return;
+		}
+
+		if (!object.ReferenceEquals(_dragOverTab, tab))
+		{
+			_dragOverTab = tab;
+			StateHasChanged();
+		}
+	}
+
+	internal void OnDrop(PDTab tab)
+	{
+		if (_dragTab != null && !object.ReferenceEquals(_dragTab, tab))
+		{
+			var fromIndex = Tabs.IndexOf(_dragTab);
+			var toIndex = Tabs.IndexOf(tab);
+			if (fromIndex >= 0 && toIndex >= 0)
+			{
+				Tabs.RemoveAt(fromIndex);
+				Tabs.Insert(toIndex, _dragTab);
+				if (OnTabsReordered.HasDelegate)
+				{
+					_ = OnTabsReordered.InvokeAsync(Tabs.AsReadOnly());
+				}
+			}
+		}
+
+		_dragTab = null;
+		_dragOverTab = null;
+		StateHasChanged();
+	}
+
+	internal void OnDragEnd()
+	{
+		_dragTab = null;
+		_dragOverTab = null;
+		StateHasChanged();
+	}
+
+	internal void OnAddTabClicked(CreateTabPosition position)
+	{
+		_pendingInsertIndex = position == CreateTabPosition.Start ? 0 : -1;
 		if (OnTabAdded.HasDelegate)
 		{
-			OnTabAdded.InvokeAsync();
+			_ = OnTabAdded.InvokeAsync(position);
 		}
+	}
+
+	/// <inheritdoc />
+	protected override Task OnAfterRenderAsync(bool firstRender)
+	{
+		// Clear any stale pending insert index once the render cycle completes.
+		_pendingInsertIndex = -1;
+		return base.OnAfterRenderAsync(firstRender);
 	}
 
 	internal void StartRenamingTab(PDTab tab)

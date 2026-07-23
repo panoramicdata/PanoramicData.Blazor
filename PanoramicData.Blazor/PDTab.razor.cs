@@ -31,6 +31,11 @@ public partial class PDTab : ComponentBase
 	[Parameter] public string CssClass { get; set; } = string.Empty;
 
 	/// <summary>
+	/// Gets or sets an icon CSS class to display before the tab title (e.g. "bi bi-star" for Bootstrap Icons).
+	/// </summary>
+	[Parameter] public string? IconCssClass { get; set; }
+
+	/// <summary>
 	/// Gets or sets whether the tab can be closed. This overrides the parent TabSet's setting.
 	/// </summary>
 	[Parameter] public bool? IsClosingEnabled { get; set; }

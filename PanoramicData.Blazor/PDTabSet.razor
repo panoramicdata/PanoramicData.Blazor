@@ -5,16 +5,23 @@
 
 <CascadingValue Value="this" Name="TabSet">
 	<div class="pdtabset @CssClass">
-		<div class="pdtabset-tabs">
+		<div class="pdtabset-tabs @(IsTabReorderingEnabled ? "reordering" : null)">
 			@if (IsTabAdditionEnabled && (CreateTabPosition == CreateTabPosition.Start || CreateTabPosition == CreateTabPosition.Both))
 			{
 				<div class="pdtabset-tab-container pdtabset-addtab-container">
-					<button class="pdtabset-tab pdtabset-addtab" @onclick="OnAddTabClicked" title="Add tab">+</button>
+					<button class="pdtabset-tab pdtabset-addtab" @onclick="() => OnAddTabClicked(CreateTabPosition.Start)" title="Add tab">+</button>
 				</div>
 			}
 			@foreach (var tab in Tabs)
 			{
-				<div class="pdtabset-tab-container" style="min-width:@TabMinWidth;max-width:@TabMaxWidth;">
+				<div class="pdtabset-tab-container @(IsTabReorderingEnabled && object.ReferenceEquals(tab, _dragOverTab) ? "drag-over" : null)"
+					 style="min-width:@TabMinWidth;max-width:@TabMaxWidth;"
+					 draggable="@(IsTabReorderingEnabled ? "true" : "false")"
+					 @ondragstart="() => OnDragStart(tab)"
+					 @ondragover:preventDefault="IsTabReorderingEnabled"
+					 @ondragover="() => OnDragOver(tab)"
+					 @ondrop="() => OnDrop(tab)"
+					 @ondragend="() => OnDragEnd()">
 					@if (GetTabCanBeRenamed(tab))
 					{
 						@if (tab.IsRenaming)
@@ -23,10 +30,14 @@
 						}
 						else
 						{
-							<button class="pdtabset-tab @(object.ReferenceEquals(tab, ActiveTab) ? "active" : null) @tab.CssClass"
+							<button class="pdtabset-tab @(object.ReferenceEquals(tab, ActiveTab) ? "active" : null) @(IsTabReorderingEnabled && object.ReferenceEquals(tab, _dragTab) ? "dragging" : null) @tab.CssClass"
 									@onclick="() => SelectTab(tab)"
 									@ondblclick="() => StartRenamingTab(tab)"
 									style="min-width:@TabMinWidth;max-width:@TabMaxWidth;">
+								@if (!string.IsNullOrEmpty(tab.IconCssClass))
+								{
+									<i class="pdtabset-tab-icon @tab.IconCssClass"></i>
+								}
 								<span class="pdtabset-tab-title">@tab.Title</span>
 								@if (GetTabCanBeClosed(tab))
 								{
@@ -37,9 +48,13 @@
 					}
 					else
 					{
-						<button class="pdtabset-tab @(object.ReferenceEquals(tab, ActiveTab) ? "active" : null) @tab.CssClass"
+						<button class="pdtabset-tab @(object.ReferenceEquals(tab, ActiveTab) ? "active" : null) @(IsTabReorderingEnabled && object.ReferenceEquals(tab, _dragTab) ? "dragging" : null) @tab.CssClass"
 								@onclick="() => SelectTab(tab)"
 								style="min-width:@TabMinWidth;max-width:@TabMaxWidth;">
+							@if (!string.IsNullOrEmpty(tab.IconCssClass))
+							{
+								<i class="pdtabset-tab-icon @tab.IconCssClass"></i>
+							}
 							<span class="pdtabset-tab-title">@tab.Title</span>
 							@if (GetTabCanBeClosed(tab))
 							{
@@ -52,7 +67,7 @@
 			@if (IsTabAdditionEnabled && (CreateTabPosition == CreateTabPosition.End || CreateTabPosition == CreateTabPosition.Both))
 			{
 				<div class="pdtabset-tab-container pdtabset-addtab-container">
-					<button class="pdtabset-tab pdtabset-addtab" @onclick="OnAddTabClicked" title="Add tab">+</button>
+					<button class="pdtabset-tab pdtabset-addtab" @onclick="() => OnAddTabClicked(CreateTabPosition.End)" title="Add tab">+</button>
 				</div>
 			}
 		</div>
