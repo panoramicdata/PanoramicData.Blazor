@@ -4,9 +4,9 @@ public partial class PDTabSetPage
 {
 	private readonly List<TabInfo> _tabs =
 	[
-		new TabInfo { Title = "Overview",  IconCssClass = "bi bi-house-fill",    Content = "This is the overview tab." },
-		new TabInfo { Title = "Settings",  IconCssClass = "bi bi-gear-fill",     Content = "This is the settings tab." },
-		new TabInfo { Title = "Reports",   IconCssClass = "bi bi-bar-chart-fill", Content = "This is the reports tab." },
+		new TabInfo { Title = "Overview",  IconCssClass = "fas fa-home",      Content = "This is the overview tab." },
+		new TabInfo { Title = "Settings",  IconCssClass = "fas fa-cog",       Content = "This is the settings tab." },
+		new TabInfo { Title = "Reports",   IconCssClass = "fas fa-chart-bar", Content = "This is the reports tab." },
 	];
 
 	private int _tabCounter = 4;

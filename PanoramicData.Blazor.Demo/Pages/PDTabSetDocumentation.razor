@@ -44,13 +44,13 @@
 					DemoStyle="min-height: 150px;">
 			<DemoContent>
 				<PDTabSet>
-					<PDTab Title="Home" IconCssClass="bi bi-house-fill">
+					<PDTab Title="Home" IconCssClass="fas fa-home">
 						<p class="p-3">Home content</p>
 					</PDTab>
-					<PDTab Title="Settings" IconCssClass="bi bi-gear-fill">
+					<PDTab Title="Settings" IconCssClass="fas fa-cog">
 						<p class="p-3">Settings content</p>
 					</PDTab>
-					<PDTab Title="Reports" IconCssClass="bi bi-bar-chart-fill">
+					<PDTab Title="Reports" IconCssClass="fas fa-chart-bar">
 						<p class="p-3">Reports content</p>
 					</PDTab>
 				</PDTabSet>
@@ -58,7 +58,8 @@
 			<Description>
 				<p>
 					Set <code>IconCssClass</code> on any <code>PDTab</code> to render an icon before the title.
-					Bootstrap Icons (<code>bi bi-*</code>) and Font Awesome classes both work.
+					Font Awesome (<code>fas fa-*</code>) and Bootstrap Icons (<code>bi bi-*</code>) both work when the
+					corresponding CSS is included in the app.
 				</p>
 			</Description>
 		</DocExample>
@@ -125,7 +126,7 @@
 			</thead>
 			<tbody>
 				<tr><td><code>Title</code></td><td><code>string</code></td><td><code>""</code></td><td>Text displayed in the tab header</td></tr>
-				<tr><td><code>IconCssClass</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS class(es) for an icon rendered before the title (e.g. <code>"bi bi-star"</code>)</td></tr>
+				<tr><td><code>IconCssClass</code></td><td><code>string?</code></td><td><code>null</code></td><td>CSS class(es) for an icon rendered before the title (e.g. <code>"fas fa-home"</code> for Font Awesome or <code>"bi bi-star"</code> for Bootstrap Icons)</td></tr>
 				<tr><td><code>CssClass</code></td><td><code>string</code></td><td><code>""</code></td><td>Additional CSS class applied to the tab button — use for custom styling</td></tr>
 				<tr><td><code>IsClosingEnabled</code></td><td><code>bool?</code></td><td><code>null</code></td><td>Overrides the parent <code>IsTabClosingEnabled</code> for this tab</td></tr>
 				<tr><td><code>IsRenamingEnabled</code></td><td><code>bool?</code></td><td><code>null</code></td><td>Overrides the parent <code>IsTabRenamingEnabled</code> for this tab</td></tr>

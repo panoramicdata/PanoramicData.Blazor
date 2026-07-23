@@ -1,8 +1,6 @@
 @* PDTab.razor *@
-@if (TabSet?.ActiveTab == this)
-{
-    @GetChildContent()
-}
+@* PDTab registers itself with the parent PDTabSet via OnInitialized.
+   The active tab's content is rendered by PDTabSet in its pdtabset-content area. *@
 
 @code {
     // Parameters and logic are in code-behind only

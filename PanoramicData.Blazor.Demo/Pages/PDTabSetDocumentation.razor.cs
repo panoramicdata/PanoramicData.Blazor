@@ -18,13 +18,13 @@ public partial class PDTabSetDocumentation
 
 	private const string _example2Code = """
 		<PDTabSet>
-		    <PDTab Title="Home" IconCssClass="bi bi-house-fill">
+		    <PDTab Title="Home" IconCssClass="fas fa-home">
 		        <p class="p-3">Home content</p>
 		    </PDTab>
-		    <PDTab Title="Settings" IconCssClass="bi bi-gear-fill">
+		    <PDTab Title="Settings" IconCssClass="fas fa-cog">
 		        <p class="p-3">Settings content</p>
 		    </PDTab>
-		    <PDTab Title="Reports" IconCssClass="bi bi-bar-chart-fill">
+		    <PDTab Title="Reports" IconCssClass="fas fa-chart-bar">
 		        <p class="p-3">Reports content</p>
 		    </PDTab>
 		</PDTabSet>
