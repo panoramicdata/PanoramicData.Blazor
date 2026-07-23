@@ -1,6 +1,19 @@
 ﻿@page "/pdtabset"
 @using PanoramicData.Blazor
 
+<HeadContent>
+	<style>
+		/* Scope: PDTabSet demo page only.
+		   Removes DemoSourceView's default silver border so the two-column
+		   layout flows cleanly without a redundant outer container. */
+		.pdtabset-page .demo-source-view {
+			border: none;
+			border-radius: 0;
+			padding: 0;
+		}
+	</style>
+</HeadContent>
+
 <div class="pdtabset-page">
 <h3>PDTabSet Demo</h3>
 
@@ -13,9 +26,9 @@
 
 	<!-- ── Controls panel ── -->
 	<div class="col-xl-3 col-lg-4">
-		<div class="card h-100">
-			<div class="card-header fw-semibold">Controls</div>
-			<div class="card-body" style="overflow-y:auto;">
+<div class="card">
+				<div class="card-header fw-semibold">Controls</div>
+				<div class="card-body">
 
 				<h6 class="text-muted text-uppercase small mb-2">Behaviour</h6>
 				<div class="form-check form-switch mb-2">

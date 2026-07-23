@@ -1,11 +1,3 @@
-/* Remove DemoSourceView's outer border/padding so the two-column layout
-   uses the full available width without a redundant outer container. */
-::deep .demo-source-view {
-    border: none;
-    border-radius: 0;
-    padding: 0;
-}
-
 /* ──────────────────────────────────────────────────────────────
    Custom tab-styling examples for the PDTabSet demo page.
    CSS classes are applied to individual PDTab via CssClass="...".
