@@ -33,7 +33,12 @@ function onKeyDown(e) {
 			e.preventDefault();
 		}
 		try {
-			globalListenerReference.invokeMethodAsync("OnKeyDown", keyInfo);
+			// MS-24862: invokeMethodAsync returns a Promise that rejects asynchronously (e.g.
+			// "Cannot send data if the connection is not in the 'Connected' State" once the
+			// circuit has disconnected) - a synchronous try/catch alone does not observe that
+			// rejection, so it must be handled on the returned promise too, or it surfaces as an
+			// uncaught (in promise) error.
+			globalListenerReference.invokeMethodAsync("OnKeyDown", keyInfo).catch(() => { });
 		} catch {
 			// BC-85: Circuit may be disconnected
 		}
@@ -48,7 +53,8 @@ function onKeyUp(e) {
 			e.preventDefault();
 		}
 		try {
-			globalListenerReference.invokeMethodAsync("OnKeyUp", keyInfo);
+			// MS-24862: see onKeyDown - guard against the async rejection, not just a sync throw.
+			globalListenerReference.invokeMethodAsync("OnKeyUp", keyInfo).catch(() => { });
 		} catch {
 			// BC-85: Circuit may be disconnected
 		}

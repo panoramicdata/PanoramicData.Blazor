@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDChatContainer: stopped disposing and recreating the host page's entire content every time the chat's dock mode changes (e.g. opening chat from minimized into a side-docked view, or closing it again) - content and chat panels now stay permanently mounted, so in-progress page state is no longer lost on a dock-mode change.
+      - PDGlobalListener: fixed uncaught "(in promise)" errors ("Cannot send data if the connection is not in the 'Connected' State") logged from onKeyDown/onKeyUp after a Blazor Server circuit disconnects - invokeMethodAsync returns a Promise that rejects asynchronously, so wrapping the call in a synchronous try/catch alone never observed the rejection. The returned promise is now also given a no-op .catch(), so a disconnected circuit no longer spams the browser console after a page reload/navigation.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

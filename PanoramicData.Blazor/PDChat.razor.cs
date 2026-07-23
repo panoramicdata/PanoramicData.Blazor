@@ -113,7 +113,7 @@ public partial class PDChat : JSModuleComponentBase
 	// Fixed duration, in milliseconds, of the "de-stack" animation used when a toast leaves a stack
 	// that still contains other toasts. Deliberately uniform and independent of any per-message
 	// animation configuration (see the toast stacking rules).
-	private const double DeStackDurationMs = 250d;
+	private const double _deStackDurationMs = 250d;
 
 	private readonly List<ToastItem> _toasts = [];
 
@@ -149,7 +149,14 @@ public partial class PDChat : JSModuleComponentBase
 	/// </summary>
 	private async Task ChangeDockModeAsync(PDChatDockMode newMode)
 	{
-		if (ChatService.DockMode is not PDChatDockMode.Minimized and not PDChatDockMode.FullScreen)
+		// Only remember genuine corner positions here - _restoreDockMode exists purely so
+		// UnpinFromSideAsync can return to "wherever the panel was before it got pinned to a
+		// side". Capturing Left/Right too (as this used to) meant a minimize/reopen or
+		// fullscreen/restore round-trip while docked would leave it holding the *current*
+		// split mode, silently turning the next "Unpin from Side" click back into the exact
+		// no-op MS-24840 fixed - reproducibly, not just intermittently.
+		if (ChatService.DockMode is PDChatDockMode.TopLeft or PDChatDockMode.TopRight
+			or PDChatDockMode.BottomLeft or PDChatDockMode.BottomRight)
 		{
 			_restoreDockMode = ChatService.DockMode;
 		}
@@ -392,7 +399,7 @@ public partial class PDChat : JSModuleComponentBase
 		item.IsExiting = true;
 		item.IsDeStacking = othersRemain;
 
-		var exitMs = othersRemain ? DeStackDurationMs : item.AnimationDurationMs;
+		var exitMs = othersRemain ? _deStackDurationMs : item.AnimationDurationMs;
 
 		item.RemovalTimer?.Dispose();
 		item.RemovalTimer = new Timer(
@@ -527,14 +534,28 @@ public partial class PDChat : JSModuleComponentBase
 
 	private async Task UnpinFromSideAsync()
 	{
-		// Restore to last normal state (should be a corner position)
-		await ChangeDockModeAsync(_restoreDockMode ?? ChatService.RestoreMode);
+		// Restore to wherever the panel was docked before it was pinned to a side. If that was
+		// never recorded (e.g. the panel opened directly into a split RestoreMode from Minimized,
+		// so there is no prior non-split mode to remember), ChatService.RestoreMode is not a safe
+		// fallback here - it commonly *is* the current split mode, which would make this a no-op.
+		// Fall back to the corner the minimized button already lives in instead, which is always
+		// a corner position and never equal to the current (split) mode.
+		await ChangeDockModeAsync(_restoreDockMode ?? GetFallbackCornerDockMode());
 
 		if (OnChatRestored.HasDelegate)
 		{
 			await OnChatRestored.InvokeAsync();
 		}
 	}
+
+	private PDChatDockMode GetFallbackCornerDockMode()
+		=> ChatService.MinimizedButtonPosition switch
+		{
+			PDChatButtonPosition.TopLeft => PDChatDockMode.TopLeft,
+			PDChatButtonPosition.TopRight => PDChatDockMode.TopRight,
+			PDChatButtonPosition.BottomLeft => PDChatDockMode.BottomLeft,
+			_ => PDChatDockMode.BottomRight
+		};
 
 	private async Task SendCurrentMessageAsync()
 	{
@@ -790,7 +811,7 @@ public partial class PDChat : JSModuleComponentBase
 	// Inline style carrying the resolved dimensions and the per-toast animation duration.
 	private static string GetToastStyle(ToastItem item)
 	{
-		var durationMs = item.IsDeStacking ? DeStackDurationMs : item.AnimationDurationMs;
+		var durationMs = item.IsDeStacking ? _deStackDurationMs : item.AnimationDurationMs;
 		var sb = new System.Text.StringBuilder();
 		sb.Append("--pdchat-toast-anim-ms:").Append(durationMs.ToString(System.Globalization.CultureInfo.InvariantCulture)).Append("ms;");
 		AppendStyle(sb, "min-width", item.MinWidth);
