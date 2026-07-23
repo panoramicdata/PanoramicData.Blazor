@@ -131,4 +131,25 @@ public partial class DocExample
 			// Clipboard API may not be available
 		}
 	}
+
+	/// <inheritdoc />
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender).ConfigureAwait(true);
+		if (firstRender)
+		{
+			try
+			{
+				// Sync Monaco editor theme with Bootstrap's data-bs-theme attribute.
+				var bsTheme = await JSRuntime
+					.InvokeAsync<string?>("eval", "document.documentElement.getAttribute('data-bs-theme')")
+					.ConfigureAwait(true);
+				await Global.SetTheme(JSRuntime, bsTheme == "dark" ? "vs-dark" : "vs").ConfigureAwait(true);
+			}
+			catch
+			{
+				// Monaco may not yet be initialised; default theme applies.
+			}
+		}
+	}
 }

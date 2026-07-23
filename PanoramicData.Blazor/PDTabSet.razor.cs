@@ -178,7 +178,10 @@ public partial class PDTabSet : ComponentBase
 			if (fromIndex >= 0 && toIndex >= 0)
 			{
 				Tabs.RemoveAt(fromIndex);
-				Tabs.Insert(toIndex, _dragTab);
+				// When dragging right, removing the source shifts all subsequent
+				// indices down by one, so compensate to land in the correct slot.
+				var insertIndex = toIndex > fromIndex ? toIndex - 1 : toIndex;
+				Tabs.Insert(insertIndex, _dragTab);
 				if (OnTabsReordered.HasDelegate)
 				{
 					_ = OnTabsReordered.InvokeAsync(Tabs.AsReadOnly());
