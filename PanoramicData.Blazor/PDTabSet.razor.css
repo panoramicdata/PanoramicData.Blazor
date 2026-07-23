@@ -71,8 +71,9 @@
 
 /* Dark mode: give the active tab a distinct blue-tinted fill so it stands out
    against the dark tab strip, mirroring the contrast approach used by the
-   CSS-styled tabs (tab-success, tab-warning, etc.). */
-[data-bs-theme="dark"] .pdtabset-tab.active {
+   CSS-styled tabs (tab-success, tab-warning, etc.).
+   :where() carries zero specificity so any custom CssClass active rule wins. */
+:where([data-bs-theme="dark"]) .pdtabset-tab.active {
     background: rgba(var(--bs-primary-rgb), 0.22);
     color: var(--bs-primary-text-emphasis, #6ea8fe);
     border-color: var(--bs-primary-text-emphasis, #6ea8fe);

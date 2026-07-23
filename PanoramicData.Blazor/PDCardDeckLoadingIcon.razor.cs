@@ -48,8 +48,10 @@ public partial class PDCardDeckLoadingIcon : IDisposable
 	public void Dispose()
 	{
 		IsActive = false;
-		_cts?.Cancel();
-		_cts?.Dispose();
+		var cts = _cts;
+		_cts = null;
+		cts?.Cancel();
+		cts?.Dispose();
 		GC.SuppressFinalize(this);
 	}
 }

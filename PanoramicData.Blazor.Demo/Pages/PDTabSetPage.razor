@@ -1,23 +1,10 @@
 ﻿@page "/pdtabset"
 @using PanoramicData.Blazor
 
-<HeadContent>
-	<style>
-		/* Scope: PDTabSet demo page only.
-		   Removes DemoSourceView's default silver border so the two-column
-		   layout flows cleanly without a redundant outer container. */
-		.pdtabset-page .demo-source-view {
-			border: none;
-			border-radius: 0;
-			padding: 0;
-		}
-	</style>
-</HeadContent>
-
 <div class="pdtabset-page">
 <h3>PDTabSet Demo</h3>
 
-<DemoSourceView SourceFiles="Pages/PDTabSetPage.razor, Pages/PDTabSetPage.razor.cs">
+<DemoSourceView NoBorder="true" SourceFiles="Pages/PDTabSetPage.razor, Pages/PDTabSetPage.razor.cs">
 <DocumentationContent>
 <PDTabSetDocumentation />
 </DocumentationContent>

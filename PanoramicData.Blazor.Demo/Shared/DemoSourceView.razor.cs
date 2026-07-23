@@ -39,6 +39,12 @@ public partial class DemoSourceView : IDisposable
 	/// </summary>
 	[Parameter] public string SourceFiles { get; set; } = string.Empty;
 
+	/// <summary>
+	/// When <c>true</c>, removes the default silver border and padding from the container
+	/// so the demo content can provide its own layout without an extra visual frame.
+	/// </summary>
+	[Parameter] public bool NoBorder { get; set; }
+
 	protected override void OnInitialized()
 	{
 		NavigationManager.LocationChanged += OnLocationChanged;
