@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDGlobalListener: fixed uncaught "(in promise)" errors ("Cannot send data if the connection is not in the 'Connected' State") logged from onKeyDown/onKeyUp after a Blazor Server circuit disconnects - invokeMethodAsync returns a Promise that rejects asynchronously, so wrapping the call in a synchronous try/catch alone never observed the rejection. The returned promise is now also given a no-op .catch(), so a disconnected circuit no longer spams the browser console after a page reload/navigation.
+      - PDModal: fixed a Bootstrap .modal-backdrop being left orphaned on the page when a modal was open and the user navigated away (e.g. browser Back), which dimmed the page, prevented scrolling and blocked all interaction. Bootstrap only removes the backdrop on its animated hidden.bs.modal event, which loses the race against Blazor's page teardown. PDModal now hides itself on navigation (new HideOnNavigation parameter, default true) and synchronously clears any stray backdrop and restores the body via a new cleanupBackdrops() interop, so cleanup no longer depends on the animation completing. Set HideOnNavigation="false" to keep a modal open across navigation.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

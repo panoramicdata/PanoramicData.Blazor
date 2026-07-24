@@ -19,6 +19,11 @@ public partial class PDModal : IAsyncDisposable
 	[Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
+	/// Gets or sets the navigation manager, used to auto-hide the modal on navigation.
+	/// </summary>
+	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
+
+	/// <summary>
 	/// Sets the modal button sizes in the footer
 	/// </summary>
 	[Parameter] public ButtonSizes ButtonSize { get; set; } = ButtonSizes.Medium;
@@ -119,6 +124,12 @@ public partial class PDModal : IAsyncDisposable
 	[Parameter] public bool ShowFooter { get; set; } = true;
 
 	/// <summary>
+	/// Automatically hide the modal when the user navigates to a new location, so a dialog (and its
+	/// backdrop) is never left open after navigation. Defaults to true.
+	/// </summary>
+	[Parameter] public bool HideOnNavigation { get; set; } = true;
+
+	/// <summary>
 	/// Hides the Modal Dialog.
 	/// </summary>
 	public Task HideAsync() => HideAsync(default);
@@ -146,6 +157,30 @@ public partial class PDModal : IAsyncDisposable
 		catch (JSDisconnectedException)
 		{
 			// The Blazor circuit has already disconnected. Nothing to hide - benign; ignore.
+		}
+	}
+
+	/// <summary>
+	/// Hides the modal when the user navigates away, so a dialog and its backdrop are not left open.
+	/// Controlled by <see cref="HideOnNavigation"/>. Fully guarded so it can never interrupt navigation.
+	/// </summary>
+	private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+	{
+		try
+		{
+			await HideAsync().ConfigureAwait(true);
+
+			// The animated Bootstrap hide can lose the race against a page teardown, orphaning the
+			// backdrop on <body>. Sweep it synchronously so hide-on-navigation is deterministic.
+			if (_module is not null)
+			{
+				await _module.InvokeVoidAsync("cleanupBackdrops").ConfigureAwait(true);
+			}
+		}
+		catch
+		{
+			// HideAsync already swallows the benign teardown exceptions; this is a final safety net so
+			// an async-void handler can never surface an unhandled exception during navigation.
 		}
 	}
 
@@ -193,6 +228,11 @@ public partial class PDModal : IAsyncDisposable
 			catch
 			{
 				// BC-40 - fast page switching in Server Side blazor can lead to OnAfterRender call after page / objects disposed
+			}
+
+			if (HideOnNavigation && NavigationManager is not null)
+			{
+				NavigationManager.LocationChanged += OnLocationChanged;
 			}
 		}
 	}
@@ -296,6 +336,11 @@ public partial class PDModal : IAsyncDisposable
 
 		_disposed = true;
 		GC.SuppressFinalize(this);
+
+		if (NavigationManager is not null)
+		{
+			NavigationManager.LocationChanged -= OnLocationChanged;
+		}
 
 		try
 		{
