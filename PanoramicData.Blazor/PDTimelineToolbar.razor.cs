@@ -36,6 +36,12 @@ public partial class PDTimelineToolbar : IEnablable
 	public bool ShowZoomButtons { get; set; } = true;
 
 	/// <summary>
+	/// Gets or sets whether to show the opt-in Follow Now toggle.
+	/// </summary>
+	[Parameter]
+	public bool ShowFollowNow { get; set; }
+
+	/// <summary>
 	/// A reference to the PDTimeline component.
 	/// </summary>
 	[Parameter]
@@ -43,10 +49,27 @@ public partial class PDTimelineToolbar : IEnablable
 
 	private string MinDateTimeDisplay => (Timeline?.MinDateTime ?? DateTime.Now).ToString($"{Timeline?.Options.General.DateFormat ?? "d"} HH:mm:ss", CultureInfo.InvariantCulture);
 
-	private string MaxDateTimeDisplay => (Timeline?.MaxDateTime ?? DateTime.Now).ToString($"{Timeline?.Options.General.DateFormat ?? "d"} HH:mm:ss", CultureInfo.InvariantCulture);
+	private string MaxDateTimeDisplay => (Timeline?.RoundedMaxDateTime ?? DateTime.Now).ToString($"{Timeline?.Options.General.DateFormat ?? "d"} HH:mm:ss", CultureInfo.InvariantCulture);
 	private string SelectionEndTimeDisplay => (Timeline?.GetSelection()?.EndTime ?? DateTime.MinValue).ToString($"{Timeline?.Options.General.DateFormat ?? "d"} HH:mm:ss", CultureInfo.InvariantCulture);
 
 	private string SelectionStartTimeDisplay => (Timeline?.GetSelection()?.StartTime ?? DateTime.MinValue).ToString($"{Timeline?.Options.General.DateFormat ?? "d"} HH:mm:ss", CultureInfo.InvariantCulture);
+
+	private async Task ToggleFollowNowAsync()
+	{
+		if (Timeline is null)
+		{
+			return;
+		}
+
+		if (Timeline.IsFollowingNow)
+		{
+			await Timeline.SuspendFollowNowAsync().ConfigureAwait(true);
+		}
+		else
+		{
+			await Timeline.ResumeFollowNowAsync().ConfigureAwait(true);
+		}
+	}
 
 	/// <summary>
 	/// Disables the toolbar.

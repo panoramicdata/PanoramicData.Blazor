@@ -61,6 +61,16 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	private DateTime _lastQueryEnd = DateTime.MinValue;
 	private DateTime _lastQueryStart = DateTime.MinValue;
 	private TimelineScale _lastQueryScale = TimelineScale.Years;
+	private CancellationTokenSource? _followNowCancellationTokenSource;
+	private Task? _followNowTask;
+	private TimeSpan _activeFollowNowRefreshInterval;
+	private TimeProvider? _activeFollowNowClock;
+	private bool _isFollowingNow;
+	private bool _followNowSuspendedByUser;
+	private bool? _lastFollowNowParameter;
+	private DateTime _lastFollowNowBoundary = DateTime.MinValue;
+	private TimeSpan? _followNowSelectionDuration;
+	private bool _disposed;
 
 	/// <summary>
 	/// Gets or sets the JavaScript runtime used by this component.
@@ -90,6 +100,38 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// </summary>
 	[Parameter]
 	public bool IsEnabled { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets whether the right-hand edge should remain anchored to the current time.
+	/// This is opt-in and defaults to false to preserve the existing static timeline behaviour.
+	/// Direct user navigation suspends following until <see cref="ResumeFollowNowAsync"/> is called.
+	/// </summary>
+	[Parameter]
+	public bool FollowNow { get; set; }
+
+	/// <summary>
+	/// An event callback that is invoked when following is resumed or suspended.
+	/// </summary>
+	[Parameter]
+	public EventCallback<bool> FollowNowChanged { get; set; }
+
+	/// <summary>
+	/// Gets or sets how frequently the component checks whether the current scale has advanced.
+	/// </summary>
+	[Parameter]
+	public TimeSpan FollowNowRefreshInterval { get; set; } = TimeSpan.FromSeconds(1);
+
+	/// <summary>
+	/// Gets or sets whether an existing selection should roll forward while following now.
+	/// </summary>
+	[Parameter]
+	public bool FollowNowSelection { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets the clock used by live following. The default is the system clock.
+	/// </summary>
+	[Parameter]
+	public TimeProvider Clock { get; set; } = TimeProvider.System;
 
 	/// <summary>
 	/// Gets or sets the current scale of the timeline.
@@ -276,6 +318,15 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		try
 		{
 			GC.SuppressFinalize(this);
+			_disposed = true;
+			_followNowCancellationTokenSource?.Cancel();
+			_refreshCancellationToken?.Cancel();
+			if (_followNowTask is not null)
+			{
+				await _followNowTask.ConfigureAwait(true);
+			}
+
+			_followNowCancellationTokenSource?.Dispose();
 			if (_module != null)
 			{
 				await _module.InvokeVoidAsync("dispose", Id).ConfigureAwait(true);
@@ -425,6 +476,10 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 				}
 				// notify app
 				await Initialized.InvokeAsync().ConfigureAwait(true);
+				if (_isFollowingNow)
+				{
+					await RefreshFollowNowAsync(true).ConfigureAwait(true);
+				}
 			}
 			catch
 			{
@@ -439,6 +494,8 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			&& !_isSelectionStartDragging && !_isSelectionEndDragging
 			&& MinDateTime != DateTime.MinValue)
 		{
+			await SuspendFollowNowAsync().ConfigureAwait(true);
+
 			// Refresh canvas position before starting drag in case timeline moved
 			if (_commonModule != null)
 			{
@@ -607,6 +664,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	{
 		if (IsEnabled && args.CtrlKey)
 		{
+			await SuspendFollowNowAsync().ConfigureAwait(true);
 			var index = Array.FindIndex(Options.General.Scales, x => x.Name == Scale.Name);
 			if (args.DeltaY < 0)
 			{
@@ -631,6 +689,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	{
 		if (IsEnabled && !_isPanDragging)
 		{
+			await SuspendFollowNowAsync().ConfigureAwait(true);
 			_panDragOrigin = args.ClientX;
 			if (_commonModule != null)
 			{
@@ -688,6 +747,11 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// </summary>
 	protected async override Task OnParametersSetAsync()
 	{
+		if (FollowNowRefreshInterval <= TimeSpan.Zero)
+		{
+			throw new ArgumentOutOfRangeException(nameof(FollowNowRefreshInterval), "The follow-now refresh interval must be greater than zero.");
+		}
+
 		if (Options.General.AutoRefresh)
 		{
 			if (_canvasWidth > 0)
@@ -710,6 +774,38 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 				await Reset().ConfigureAwait(true);
 				await SetScale(Scale, true).ConfigureAwait(true);
 			}
+		}
+
+		var followNowParameterChanged = _lastFollowNowParameter != FollowNow;
+		if (followNowParameterChanged)
+		{
+			_lastFollowNowParameter = FollowNow;
+			if (FollowNow)
+			{
+				_followNowSuspendedByUser = false;
+			}
+		}
+
+		if (!FollowNow)
+		{
+			if (_isFollowingNow)
+			{
+				await SetFollowNowAsync(false, false).ConfigureAwait(true);
+			}
+		}
+		else if (MaxDateTime is not null)
+		{
+			await SetFollowNowAsync(false, followNowParameterChanged || _isFollowingNow).ConfigureAwait(true);
+		}
+		else if (MinDateTime != DateTime.MinValue && !_followNowSuspendedByUser
+			&& (followNowParameterChanged || !_isFollowingNow))
+		{
+			await SetFollowNowAsync(true, false).ConfigureAwait(true);
+		}
+		else if (_isFollowingNow
+			&& (_activeFollowNowRefreshInterval != FollowNowRefreshInterval || !ReferenceEquals(_activeFollowNowClock, Clock)))
+		{
+			StartFollowNowTimer();
 		}
 	}
 
@@ -769,6 +865,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	{
 		if (IsEnabled && Options.Selection.CanChangeEnd && !_isSelectionStartDragging)
 		{
+			await SuspendFollowNowAsync().ConfigureAwait(true);
 			_isSelectionEndDragging = true;
 
 			// Refresh canvas position before starting drag in case timeline moved
@@ -818,6 +915,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	{
 		if (IsEnabled && Options.Selection.CanChangeStart && !_isSelectionEndDragging)
 		{
+			await SuspendFollowNowAsync().ConfigureAwait(true);
 			_isSelectionStartDragging = true;
 
 			// Refresh canvas position before starting drag in case timeline moved
@@ -875,9 +973,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// <param name="position">Position within the viewport for the target date.</param>
 	public void PanTo(DateTime dateTime, TimelinePositions position)
 	{
-		if (dateTime < MinDateTime || dateTime > (MaxDateTime ?? DateTime.Now))
+		if (dateTime < MinDateTime || dateTime > (MaxDateTime ?? CurrentDateTime))
 		{
-			dateTime = MaxDateTime ?? DateTime.Now;
+			dateTime = MaxDateTime ?? CurrentDateTime;
 		}
 
 		var maxOffset = Scale.PeriodsBetween(RoundedMinDateTime, RoundedMaxDateTime) - _viewportColumns;
@@ -960,7 +1058,133 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// <summary>
 	/// Gets the rounded maximum date for the current scale.
 	/// </summary>
-	public DateTime RoundedMaxDateTime => Scale.PeriodEnd(MaxDateTime ?? DateTime.Now);
+	public DateTime RoundedMaxDateTime => Scale.PeriodEnd(MaxDateTime ?? CurrentDateTime);
+
+	private DateTime CurrentDateTime => ReferenceEquals(Clock, TimeProvider.System)
+		? DateTime.Now
+		: Clock.GetLocalNow().DateTime;
+
+	/// <summary>
+	/// Gets whether the timeline is actively following the current time.
+	/// </summary>
+	public bool IsFollowingNow => _isFollowingNow;
+
+	/// <summary>
+	/// Resumes live following at the right-hand edge. A fixed <see cref="MaxDateTime"/> cannot be followed.
+	/// </summary>
+	public async Task ResumeFollowNowAsync()
+	{
+		_followNowSuspendedByUser = false;
+		FollowNow = true;
+		_lastFollowNowParameter = true;
+		await SetFollowNowAsync(true, true).ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Suspends live following, leaving the current viewport and selection in place.
+	/// </summary>
+	public async Task SuspendFollowNowAsync()
+	{
+		_followNowSuspendedByUser = true;
+		FollowNow = false;
+		await SetFollowNowAsync(false, true).ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Advances a following timeline to the current scale boundary.
+	/// </summary>
+	/// <param name="force">True to update even when the rounded boundary has not changed.</param>
+	public async Task RefreshFollowNowAsync(bool force = false)
+	{
+		if (!_isFollowingNow || MaxDateTime is not null || MinDateTime == DateTime.MinValue || _canvasWidth <= 0)
+		{
+			return;
+		}
+
+		var boundary = RoundedMaxDateTime;
+		if (!force && boundary <= _lastFollowNowBoundary)
+		{
+			return;
+		}
+
+		if (FollowNowSelection && _followNowSelectionDuration is null && _selectionRange is not null)
+		{
+			_followNowSelectionDuration = _selectionRange.EndTime - _selectionRange.StartTime;
+		}
+
+		_lastFollowNowBoundary = boundary;
+		var refreshAllData = Options.General.RightAlign && _totalColumns < _viewportColumns;
+		await SetScale(Scale, true, boundary, TimelinePositions.End, refreshData: refreshAllData).ConfigureAwait(true);
+
+		if (FollowNowSelection && _followNowSelectionDuration > TimeSpan.Zero)
+		{
+			var selection = TimelineFollowNowCalculator.CreateRollingSelection(
+				boundary,
+				_followNowSelectionDuration.Value,
+				RoundedMinDateTime);
+			await SetSelection(selection.StartTime, selection.EndTime).ConfigureAwait(true);
+		}
+
+		StateHasChanged();
+	}
+
+	private async Task SetFollowNowAsync(bool follow, bool notify)
+	{
+		var canFollow = follow && MaxDateTime is null && MinDateTime != DateTime.MinValue;
+		var changed = _isFollowingNow != canFollow;
+		_isFollowingNow = canFollow;
+
+		if (canFollow)
+		{
+			_followNowSelectionDuration = FollowNowSelection && _selectionRange is not null
+				? _selectionRange.EndTime - _selectionRange.StartTime
+				: null;
+			_lastFollowNowBoundary = DateTime.MinValue;
+			StartFollowNowTimer();
+			await RefreshFollowNowAsync(true).ConfigureAwait(true);
+		}
+		else
+		{
+			_followNowCancellationTokenSource?.Cancel();
+			_followNowSelectionDuration = null;
+		}
+
+		if (notify && (changed || FollowNow != canFollow))
+		{
+			FollowNow = canFollow;
+			await FollowNowChanged.InvokeAsync(canFollow).ConfigureAwait(true);
+		}
+
+		if (!_disposed)
+		{
+			StateHasChanged();
+		}
+	}
+
+	private void StartFollowNowTimer()
+	{
+		_followNowCancellationTokenSource?.Cancel();
+		_followNowCancellationTokenSource?.Dispose();
+		_followNowCancellationTokenSource = new CancellationTokenSource();
+		_activeFollowNowRefreshInterval = FollowNowRefreshInterval;
+		_activeFollowNowClock = Clock;
+		_followNowTask = RunFollowNowTimerAsync(_followNowCancellationTokenSource.Token);
+	}
+
+	private async Task RunFollowNowTimerAsync(CancellationToken cancellationToken)
+	{
+		try
+		{
+			using var timer = new PeriodicTimer(FollowNowRefreshInterval, Clock);
+			while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(true))
+			{
+				await InvokeAsync(() => RefreshFollowNowAsync()).ConfigureAwait(true);
+			}
+		}
+		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+		{
+		}
+	}
 
 	/// <summary>
 	/// Gets the rounded minimum date for the current scale.
@@ -1258,6 +1482,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// </summary>
 	public async Task ZoomInAsync()
 	{
+		await SuspendFollowNowAsync().ConfigureAwait(true);
 		var scale = Options.General.Scales.FirstOrDefault(x => x.Name == Scale.Name);
 		if (scale != null)
 		{
@@ -1274,6 +1499,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// </summary>
 	public async Task ZoomOutAsync()
 	{
+		await SuspendFollowNowAsync().ConfigureAwait(true);
 		var scale = Options.General.Scales.FirstOrDefault(x => x.Name == Scale.Name);
 		if (scale != null)
 		{
@@ -1301,6 +1527,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// <param name="position">Target position for the end date.</param>
 	public async Task ZoomToAsync(DateTime date1, DateTime date2, TimelinePositions position)
 	{
+		await SuspendFollowNowAsync().ConfigureAwait(true);
 		if (_canvasWidth > 0)
 		{
 			var scale = GetScaleToFit(date1, date2);
@@ -1316,9 +1543,10 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// </summary>
 	public async Task ZoomToEndAsync()
 	{
+		await SuspendFollowNowAsync().ConfigureAwait(true);
 		if (_canvasWidth > 0)
 		{
-			var scale = GetScaleToFit(MinDateTime, MaxDateTime ?? DateTime.Now);
+			var scale = GetScaleToFit(MinDateTime, MaxDateTime ?? CurrentDateTime);
 			if (scale != null)
 			{
 				await SetScale(scale, true, MaxDateTime, TimelinePositions.End).ConfigureAwait(true);
@@ -1332,6 +1560,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// <param name="forceRefresh">True to force data refresh.</param>
 	public async Task ZoomToSelectionAsync(bool forceRefresh = false)
 	{
+		await SuspendFollowNowAsync().ConfigureAwait(true);
 		if (_canvasWidth > 0 && _selectionRange != null)
 		{
 			var scale = GetScaleToFit(_selectionRange.StartTime, _selectionRange.EndTime);
@@ -1347,6 +1576,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// </summary>
 	public async Task ZoomToStartAsync()
 	{
+		await SuspendFollowNowAsync().ConfigureAwait(true);
 		if (_canvasWidth > 0)
 		{
 			var scale = GetScaleToFit();

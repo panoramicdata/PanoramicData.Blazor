@@ -1819,6 +1819,11 @@ No code-behind file found for this component.
 | DisableBefore | DateTime | Gets or sets the date and time before which the timeline is disabled. |
 | Initialized | EventCallback | An event callback that is invoked when the component has been initialized. |
 | IsEnabled | bool | Gets or sets whether the timeline is enabled. |
+| FollowNow | bool | Gets or sets whether the right-hand edge remains anchored to the current time. Defaults to false for backward compatibility. |
+| FollowNowChanged | EventCallback<bool> | Invoked when following is resumed or suspended. |
+| FollowNowRefreshInterval | TimeSpan | Gets or sets how frequently the timeline checks for a new scale boundary. |
+| FollowNowSelection | bool | Gets or sets whether an existing selection rolls forward while following. |
+| Clock | TimeProvider | Gets or sets the clock used by live following. Defaults to TimeProvider.System. |
 | Scale | TimelineScale | Gets or sets the current scale of the timeline. |
 | ScaleChanged | EventCallback<TimelineScale> | An event callback that is invoked when the timeline scale changes. |
 | Refreshed | EventCallback | An event callback that is invoked when the timeline has been refreshed. |
@@ -1848,6 +1853,7 @@ No code-behind file found for this component.
 | ShowScale | bool | Gets or sets whether to show the scale controls. |
 | ShowSelection | bool | Gets or sets whether to show the current selection details. |
 | ShowZoomButtons | bool | Gets or sets whether to show the zoom in/out buttons. |
+| ShowFollowNow | bool | Gets or sets whether to show the opt-in Follow Now toggle. |
 | Timeline | PDTimeline? | A reference to the PDTimeline component. |
 
 ---

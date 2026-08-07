@@ -5,6 +5,38 @@ public partial class PDTimelinePage
 	private readonly List<ConfigChange> _data = [];
 	private PDTimeline _timeline = null!;
 	private readonly TimelinePageModel _model = new();
+	private PDTimeline _liveTimeline = null!;
+	private bool _liveFollowNow = true;
+	private TimeRange? _liveSelection;
+	private readonly DateTime _liveMinDate = DateTime.Now.AddMinutes(-2);
+	private readonly TimelineOptions _liveTimelineOptions = new()
+	{
+		Bar = new TimelineBarOptions
+		{
+			Width = 36,
+			Padding = 3
+		},
+		General = new TimelineGeneralOptions
+		{
+			DateFormat = "yyyy-MM-dd",
+			RightAlign = true,
+			Scales = [TimelineScale.Seconds, TimelineScale.Minutes]
+		},
+		Series =
+		[
+			new TimelineSeries
+			{
+				Label = "Live activity",
+				Colour = "#0d6efd"
+			}
+		],
+		Selection = new TimelineSelectionOptions
+		{
+			Enabled = true,
+			CanChangeStart = true,
+			CanChangeEnd = true
+		}
+	};
 	private TimeRange? _selection;
 	private bool _isEnabled = true;
 	private readonly TimelineOptions _timelineOptions = new()
@@ -107,6 +139,37 @@ public partial class PDTimelinePage
 	}
 
 	private void OnScaleChanged(TimelineScale scale) => _model.Scale = scale;
+
+	private async Task OnLiveTimelineInitializedAsync()
+	{
+		var end = _liveTimeline.RoundedMaxDateTime;
+		await _liveTimeline.SetSelection(end.AddSeconds(-15), end).ConfigureAwait(true);
+	}
+
+	private void OnLiveSelectionChanged(TimeRange? selection)
+	{
+		_liveSelection = selection;
+	}
+
+	private static ValueTask<DataPoint[]> GetLiveTimelineData(DateTime start, DateTime end, TimelineScale scale, CancellationToken cancellationToken)
+	{
+		var now = DateTime.Now;
+		var points = new List<DataPoint>();
+		for (var pointTime = scale.PeriodStart(start);
+			pointTime < end && pointTime <= now && !cancellationToken.IsCancellationRequested;
+			pointTime = scale.AddPeriods(pointTime, 1))
+		{
+			var pulse = 4 + (3 * Math.Sin(pointTime.TimeOfDay.TotalSeconds / 2));
+			points.Add(new DataPoint
+			{
+				StartTime = pointTime,
+				Count = 1,
+				SeriesValues = [Math.Max(1, pulse)]
+			});
+		}
+
+		return ValueTask.FromResult(points.ToArray());
+	}
 
 	private void OnSelectionChanged(TimeRange? range) => _selection = range;
 

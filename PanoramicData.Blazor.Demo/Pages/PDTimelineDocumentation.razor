@@ -4,13 +4,15 @@
 		<h2 class="doc-section">Overview</h2>
 		<p>
 			<code>PDTimeline</code> is a time-based visualization component for displaying data points
-			across a date/time range. Supports zooming, panning, selection, and multiple time scales.
+			across a date/time range. Supports zooming, panning, selection, multiple time scales,
+			and an opt-in live mode that keeps the right edge anchored to the current time.
 		</p>
 		<ul>
 			<li><strong>Time scales</strong> - Years, Months, Days, Hours, Minutes</li>
 			<li><strong>Selection</strong> - Click-drag to select time ranges</li>
 			<li><strong>Zoom & Pan</strong> - Mouse wheel zoom, drag to pan</li>
 			<li><strong>Data points</strong> - Display events/data on the timeline</li>
+			<li><strong>Follow Now</strong> - Keep a live viewport and selection advancing until the user navigates into history</li>
 		</ul>
 	</section>
 
@@ -43,11 +45,13 @@
 			</thead>
 			<tbody>
 				<tr><td><code>MinDateTime</code></td><td><code>DateTime</code></td><td>Start of visible range</td></tr>
-				<tr><td><code>MaxDateTime</code></td><td><code>DateTime</code></td><td>End of visible range</td></tr>
+				<tr><td><code>MaxDateTime</code></td><td><code>DateTime?</code></td><td>End of the range; leave null when using Follow Now</td></tr>
 				<tr><td><code>Scale</code></td><td><code>TimelineScale</code></td><td>Initial time scale (Years, Months, etc.)</td></tr>
-				<tr><td><code>DataPoints</code></td><td><code>List&lt;DataPoint&gt;</code></td><td>Events to display</td></tr>
-				<tr><td><code>AllowSelection</code></td><td><code>bool</code></td><td>Enable range selection</td></tr>
-				<tr><td><code>AllowZoom</code></td><td><code>bool</code></td><td>Enable mouse wheel zoom</td></tr>
+				<tr><td><code>DataProvider</code></td><td><code>DataProviderDelegate?</code></td><td>Loads data for the requested viewport and scale</td></tr>
+				<tr><td><code>Options</code></td><td><code>TimelineOptions</code></td><td>Configures selection, scales, bars, axes, and navigation</td></tr>
+				<tr><td><code>FollowNow</code></td><td><code>bool</code></td><td>Opt-in live mode; false by default for backward compatibility</td></tr>
+				<tr><td><code>FollowNowRefreshInterval</code></td><td><code>TimeSpan</code></td><td>How often to check for a new scale boundary</td></tr>
+				<tr><td><code>FollowNowSelection</code></td><td><code>bool</code></td><td>Preserves and rolls an existing selection width; true by default</td></tr>
 			</tbody>
 		</table>
 	</section>
@@ -60,7 +64,7 @@
 			</thead>
 			<tbody>
 				<tr><td><code>SelectionChanged</code></td><td><code>EventCallback&lt;TimeRange?&gt;</code></td><td>Fired when selection changes</td></tr>
-				<tr><td><code>RangeChanged</code></td><td><code>EventCallback&lt;TimeRange&gt;</code></td><td>Fired when visible range changes</td></tr>
+				<tr><td><code>FollowNowChanged</code></td><td><code>EventCallback&lt;bool&gt;</code></td><td>Fired when following is resumed or suspended</td></tr>
 			</tbody>
 		</table>
 	</section>

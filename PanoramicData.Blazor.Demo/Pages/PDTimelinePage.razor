@@ -16,6 +16,40 @@
 <PDTimelineDocumentation />
 </DocumentationContent>
 <ChildContent>
+	<section class="border rounded p-3 mb-4">
+		<div class="d-flex align-items-center justify-content-between mb-2">
+			<div>
+				<h4 class="mb-1">Live Follow Now</h4>
+				<div class="text-muted">Seconds are deliberately wide so the right edge and rolling 15-second selection visibly advance.</div>
+			</div>
+			<span class="badge @(_liveFollowNow ? "bg-success" : "bg-secondary")">
+				@(_liveFollowNow ? "Following Now" : "History paused")
+			</span>
+		</div>
+
+		<PDTimelineToolbar Timeline="_liveTimeline"
+			ShowFollowNow="true"
+			ShowRange="true"
+			ShowScale="true"
+			ShowSelection="true" />
+
+		<div style="height: 180px;">
+			<PDTimeline @ref="_liveTimeline"
+				@bind-FollowNow="_liveFollowNow"
+				DataProvider="GetLiveTimelineData"
+				FollowNowRefreshInterval="TimeSpan.FromMilliseconds(250)"
+				Initialized="OnLiveTimelineInitializedAsync"
+				MinDateTime="_liveMinDate"
+				Options="_liveTimelineOptions"
+				Scale="TimelineScale.Seconds"
+				SelectionChanged="OnLiveSelectionChanged" />
+		</div>
+
+		<small class="text-muted d-block">
+			Rolling selection: @(_liveSelection is null ? "none" : $"{_liveSelection.StartTime:HH:mm:ss} - {_liveSelection.EndTime:HH:mm:ss}")
+		</small>
+		<small class="text-muted">Pan, select, or zoom to pause. Use the clock button to re-anchor the viewport and selection to Now.</small>
+	</section>
 
 <div>
 		<div class="toolbar">

@@ -1,6 +1,16 @@
 ﻿<div class="pd-timeline-toolbar">
 
     <div class="scale-bar">
+		@if (ShowFollowNow)
+		{
+			<PDButton Click="ToggleFollowNowAsync"
+				CssClass="@(Timeline?.IsFollowingNow == true ? "btn-primary ms-1" : "btn-outline-primary ms-1")"
+				IconCssClass="fas fa-clock"
+				IsEnabled="IsEnabled && Timeline is not null && Timeline.MaxDateTime is null"
+				Size="ButtonSizes.Small"
+				ToolTip="@(Timeline?.IsFollowingNow == true ? "Pause live following" : "Follow Now")" />
+		}
+
         @if(ShowZoomButtons)
         {
             <PDButton Click="@(() => Timeline?.ZoomInAsync() ?? Task.CompletedTask)"
