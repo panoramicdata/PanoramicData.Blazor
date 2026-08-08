@@ -19,7 +19,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'dotnet run --project PanoramicData.Blazor.Demo/PanoramicData.Blazor.Demo.csproj',
+    command: 'dotnet run --project PanoramicData.Blazor.Web/PanoramicData.Blazor.Web.csproj --no-launch-profile -- --urls http://localhost:5000',
+    env: {
+      ASPNETCORE_ENVIRONMENT: 'Development',
+    },
     url: 'http://localhost:5000',
     reuseExistingServer: !process.env.CI,
   },

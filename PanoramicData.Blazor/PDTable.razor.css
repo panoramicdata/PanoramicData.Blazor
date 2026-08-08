@@ -21,7 +21,11 @@
 }
 
 .pdtable {
+	box-sizing: border-box;
 	height: 100%;
+	max-width: 100%;
+	min-width: 0;
+	overflow-x: auto;
 	width: 100%;
 }
 
@@ -112,4 +116,8 @@ th.text-left .hdr {
 .pdtable-container {
 	display: flex;
 	flex-direction: column;
+	max-width: 100%;
+	min-width: 0;
+	overflow: hidden;
+	width: 100%;
 }
