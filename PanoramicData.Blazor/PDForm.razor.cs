@@ -1071,6 +1071,21 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			NavigationCancelService.BeforeNavigate -= NavigationService_BeforeNavigate;
 			if (_module != null)
 			{
+				if (ConfirmOnUnload)
+				{
+					try
+					{
+						// The beforeunload listener is shared, module-level state keyed by form id and
+						// outlives this component - without this disarm, a dirty form disposed by
+						// navigation leaves the "Exit and lose changes?" prompt armed for the whole tab.
+						await _module.InvokeVoidAsync("setUnloadListener", Id, false).ConfigureAwait(true);
+					}
+					catch (JSDisconnectedException)
+					{
+						// The Blazor circuit has already disconnected. The page and its listener are gone - benign; ignore.
+					}
+				}
+
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
 		}
