@@ -17,7 +17,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Build.Framework" Version="18.8.2" />
+    <PackageVersion Include="Microsoft.Build.Framework" Version="18.9.6" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.8.2" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.10.91" />
