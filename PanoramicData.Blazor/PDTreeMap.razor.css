@@ -1,0 +1,161 @@
+.pdtm {
+	--pd-treemap-border: var(--pd-treemap-default-border);
+	--pd-treemap-stroke: var(--pd-treemap-default-stroke);
+	--pd-treemap-label: var(--pd-treemap-default-label);
+	--pd-treemap-label-shadow: var(--pd-treemap-default-label-shadow);
+	--pd-treemap-focus: var(--pd-treemap-default-focus);
+	--pd-treemap-muted: var(--pd-treemap-default-muted);
+
+	/* Light is the base definition, so a host that sets no theme at all still gets a complete palette. */
+	--pd-treemap-default-border: rgba(0, 0, 0, 0.15);
+	--pd-treemap-default-stroke: rgba(255, 255, 255, 0.65);
+	--pd-treemap-default-label: #ffffff;
+	--pd-treemap-default-label-shadow: rgba(0, 0, 0, 0.55);
+	--pd-treemap-default-focus: #ffffff;
+	--pd-treemap-default-muted: var(--bs-secondary-color, #6c757d);
+
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+}
+
+[data-bs-theme="light"] .pdtm,
+[data-theme="light"] .pdtm {
+	--pd-treemap-default-border: rgba(0, 0, 0, 0.15);
+	--pd-treemap-default-stroke: rgba(255, 255, 255, 0.65);
+	--pd-treemap-default-label: #ffffff;
+	--pd-treemap-default-label-shadow: rgba(0, 0, 0, 0.55);
+	--pd-treemap-default-focus: #ffffff;
+}
+
+[data-bs-theme="dark"] .pdtm,
+[data-theme="dark"] .pdtm {
+	--pd-treemap-default-border: rgba(255, 255, 255, 0.18);
+	--pd-treemap-default-stroke: rgba(0, 0, 0, 0.45);
+	--pd-treemap-default-label: #f8f9fa;
+	--pd-treemap-default-label-shadow: rgba(0, 0, 0, 0.8);
+	--pd-treemap-default-focus: #ffffff;
+}
+
+/* Hosts that set no theme attribute at all still follow the operating system. */
+@media (prefers-color-scheme: dark) {
+	.pdtm:not([data-bs-theme="light"]):not([data-theme="light"]) {
+		--pd-treemap-default-border: rgba(255, 255, 255, 0.18);
+		--pd-treemap-default-stroke: rgba(0, 0, 0, 0.45);
+		--pd-treemap-default-label: #f8f9fa;
+		--pd-treemap-default-label-shadow: rgba(0, 0, 0, 0.8);
+	}
+}
+
+.pdtm-breadcrumb {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.15rem;
+	padding: 0.25rem 0;
+	font-size: 0.875rem;
+}
+
+.pdtm-crumb {
+	padding: 0.1rem 0.35rem;
+	border: none;
+	border-radius: 0.2rem;
+	background: transparent;
+	color: var(--bs-link-color, #0d6efd);
+	cursor: pointer;
+}
+
+.pdtm-crumb:hover:not(:disabled) {
+	background: var(--bs-tertiary-bg, rgba(0, 0, 0, 0.07));
+	text-decoration: underline;
+}
+
+.pdtm-crumb-current,
+.pdtm-crumb:disabled {
+	color: var(--bs-body-color, inherit);
+	cursor: default;
+	font-weight: 600;
+}
+
+.pdtm-crumb-separator {
+	color: var(--pd-treemap-muted);
+}
+
+.pdtm-canvas {
+	position: relative;
+	flex: 1 1 auto;
+	min-height: 0;
+	min-width: 0;
+	overflow: hidden;
+	border: 1px solid var(--pd-treemap-border);
+	border-radius: 0.25rem;
+}
+
+.pdtm-svg {
+	display: block;
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.pdtm-labels {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.pdtm-svg:focus-visible {
+	outline: 2px solid var(--bs-focus-ring-color, #0d6efd);
+	outline-offset: -2px;
+}
+
+.pdtm-node {
+	cursor: pointer;
+}
+
+.pdtm-rect {
+	stroke: var(--pd-treemap-stroke);
+	stroke-width: 1;
+	transition: opacity 0.12s ease-in-out;
+}
+
+.pdtm-node:hover .pdtm-rect {
+	opacity: 0.82;
+}
+
+.pdtm-node-focused .pdtm-rect {
+	stroke: var(--pd-treemap-focus);
+	stroke-width: 2.5;
+}
+
+/* A rectangle standing in for a subtree that was not drawn, so the user can tell there is more below. */
+.pdtm-node-aggregated .pdtm-rect {
+	stroke-dasharray: 3 2;
+}
+
+.pdtm-label {
+	position: absolute;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	pointer-events: none;
+	user-select: none;
+	line-height: 1.2;
+	color: var(--pd-treemap-label);
+	text-shadow: 0 0 3px var(--pd-treemap-label-shadow), 0 1px 1px var(--pd-treemap-label-shadow);
+	font-family: var(--bs-body-font-family, sans-serif);
+}
+
+.pdtm-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	min-height: 6rem;
+	color: var(--pd-treemap-muted);
+	font-style: italic;
+}

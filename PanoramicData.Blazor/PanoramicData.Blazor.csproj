@@ -29,6 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      - PDTreeMap: new component rendering a hierarchy as an area-proportional tree map (WizTree / WinDirStat style) with nested drill-down, click-to-zoom and a breadcrumb. Layout is computed in C# by TreeMapLayoutEngine using the squarified algorithm and rendered as inline SVG, so no charting dependency is taken; the only JavaScript is a ResizeObserver reporting container size, which is skipped entirely when Width and Height are supplied. Four colour modes (Category, Depth, Heat, Custom), a SizeMode switch for sources that already report subtree totals, and keyboard navigation (BC-93).
       - PDForm: fixed the browser "Exit and lose changes?" prompt outliving the form. A form with unsaved edits (ConfirmOnUnload, default true) arms a shared beforeunload listener, but disposing the form never disarmed it, so navigating away from a dirty form left the prompt installed on the whole tab until a full page reload, prompting on every subsequent tab close. PDForm now disarms the listener on dispose (#86).
     </PackageReleaseNotes>
   </PropertyGroup>

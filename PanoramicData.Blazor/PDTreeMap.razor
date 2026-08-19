@@ -1,0 +1,85 @@
+@typeparam TItem where TItem : class
+
+<div class="pdtm" id="@Id">
+
+	@if (ShowBreadcrumb && _breadcrumb.Count > 1)
+	{
+		<nav class="pdtm-breadcrumb" aria-label="Tree map location">
+			@for (var i = 0; i < _breadcrumb.Count; i++)
+			{
+				var index = i;
+				var node = _breadcrumb[index];
+				var isLast = index == _breadcrumb.Count - 1;
+
+				<button type="button"
+						class="pdtm-crumb @(isLast ? "pdtm-crumb-current" : string.Empty)"
+						disabled="@isLast"
+						@onclick="@(() => ZoomToAsync(node))">
+					@GetText(node)
+				</button>
+
+				if (!isLast)
+				{
+					<span class="pdtm-crumb-separator" aria-hidden="true">/</span>
+				}
+			}
+		</nav>
+	}
+
+	<div class="pdtm-canvas" @ref="_canvasElement">
+		@if (_rects.Count == 0)
+		{
+			<div class="pdtm-empty">@EmptyText</div>
+		}
+		else
+		{
+			<svg class="pdtm-svg"
+				 viewBox="@ViewBox"
+				 preserveAspectRatio="none"
+				 role="tree"
+				 tabindex="0"
+				 aria-label="@AriaLabel"
+				 @onkeydown="OnKeyDownAsync"
+				 @onkeydown:preventDefault="_preventDefaultKey">
+
+				@for (var i = 0; i < _rects.Count; i++)
+				{
+					var index = i;
+					var rect = _rects[index];
+
+					<g class="pdtm-node @(index == _focusedIndex ? "pdtm-node-focused" : string.Empty) @(rect.IsAggregated ? "pdtm-node-aggregated" : string.Empty)"
+					   role="treeitem"
+					   aria-level="@(rect.Depth + 1)"
+					   aria-label="@GetAccessibleName(rect)"
+					   aria-selected="@(ReferenceEquals(_selected, rect.Item) ? "true" : "false")"
+					   @onclick="@(() => OnNodeClickAsync(index))"
+					   @ondblclick="@(() => OnNodeDoubleClickAsync(rect.Item))">
+
+						<rect x="@F(rect.X)"
+							  y="@F(rect.Y)"
+							  width="@F(rect.Width)"
+							  height="@F(rect.Height)"
+							  rx="@F(CornerRadius)"
+							  fill="@GetColour(rect)"
+							  class="pdtm-rect" />
+
+						<title>@GetTooltip(rect)</title>
+					</g>
+				}
+			</svg>
+
+			@* Labels are HTML layered over the SVG rather than SVG text, so that CSS can ellipsise
+			   them honestly instead of the component guessing at glyph widths. They ignore pointer
+			   events so that clicks still reach the rectangle beneath. *@
+			<div class="pdtm-labels" aria-hidden="true">
+				@foreach (var rect in _rects)
+				{
+					if (ShowLabel(rect))
+					{
+						<div class="pdtm-label" style="@GetLabelStyle(rect)">@GetText(rect.Item)</div>
+					}
+				}
+			</div>
+		}
+	</div>
+</div>

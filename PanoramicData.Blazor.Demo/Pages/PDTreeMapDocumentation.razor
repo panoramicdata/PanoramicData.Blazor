@@ -1,0 +1,127 @@
+<div class="pd-treemap-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDTreeMap</code> renders a hierarchy as an area-proportional tree map, in the style of
+			WizTree or WinDirStat. The area of every rectangle is proportional to a size metric you supply,
+			so whatever is consuming the most of a resource is the largest thing on screen.
+		</p>
+		<ul>
+			<li>Layout is computed in C# by <code>TreeMapLayoutEngine</code> using the squarified algorithm, and rendered as inline SVG. There is no charting dependency.</li>
+			<li>Children are drawn nested inside their parent, down to <code>MaxRenderDepth</code>.</li>
+			<li>Clicking a branch zooms into it; a breadcrumb takes you back out.</li>
+			<li>Four colour modes, plus an explicit <code>ColourSelector</code> that overrides them all.</li>
+			<li>Keyboard accessible: arrow keys move, <kbd>Enter</kbd> zooms in, <kbd>Backspace</kbd> or <kbd>Esc</kbd> zooms out.</li>
+		</ul>
+		<p>
+			The component renders the tree map <em>only</em>. To reproduce the full WizTree experience, pair it
+			with a <code>PDTable</code> bound to the same data and cross-select using <code>SelectionChanged</code>
+			and <code>ZoomRoot</code>. Keeping the grid out of this component avoids duplicating
+			<code>PDTable</code> and avoids baking a layout opinion into the library.
+		</p>
+	</section>
+
+	<section id="required">
+		<h2 class="doc-section">The three things you must supply</h2>
+		<p>
+			Everything else has a sensible default. <code>PDTreeMap</code> is generic over your own type, so
+			there is no node model to convert into.
+		</p>
+		<ul>
+			<li><code>Root</code> — the top of your hierarchy. The root itself is not drawn; its children fill the area.</li>
+			<li><code>ChildrenSelector</code> — returns an item's children, or <code>null</code> for a leaf.</li>
+			<li><code>SizeSelector</code> — returns an item's size. This determines area.</li>
+		</ul>
+	</section>
+
+	<section id="size-mode">
+		<h2 class="doc-section">SizeMode — read this one before you use it</h2>
+		<p>
+			<code>SizeMode</code> is the parameter most likely to give you a wrong-looking map, because the
+			right answer depends entirely on where your data came from.
+		</p>
+		<ul>
+			<li>
+				<code>TreeMapSizeMode.Aggregate</code> (the default) treats a branch's size as its own size
+				<em>plus every descendant</em>. This is what you want for a file system, where a directory
+				listing reports zero bytes for the directory itself and the size only becomes meaningful once
+				its contents are summed.
+			</li>
+			<li>
+				<code>TreeMapSizeMode.Explicit</code> takes a branch's size as exactly what
+				<code>SizeSelector</code> returned, ignoring descendants. This is what you want for a database
+				size query, where each row already reports a subtree total. Leaving this on
+				<code>Aggregate</code> would count the same bytes twice at every level.
+			</li>
+		</ul>
+		<p class="text-muted small">
+			Either way, only the proportions between siblings matter at each level, because the children of a
+			node always fill that node's rectangle.
+		</p>
+	</section>
+
+	<section id="depth">
+		<h2 class="doc-section">Depth and totals</h2>
+		<p>
+			<code>MaxRenderDepth</code> caps how many levels are drawn nested at once. An item at the cut that
+			still has children is drawn as a single rectangle, marked with a dashed border, and its
+			<code>Size</code> still accounts for its <em>whole</em> subtree.
+		</p>
+		<p>
+			That matters: it means the total of what is displayed always reconciles with the true total, so a
+			capped map never quietly under-reports. Zooming into such an item reveals the levels below it.
+		</p>
+	</section>
+
+	<section id="colour">
+		<h2 class="doc-section">Colour modes</h2>
+		<ul>
+			<li><code>Category</code> — a built-in categorical palette keyed off <code>CategorySelector</code>. Hashing is deterministic, so a key always gets the same colour, including across a server and client render.</li>
+			<li><code>Depth</code> — progressive shades of one hue, emphasising hierarchy over category.</li>
+			<li><code>Heat</code> — a sequential scale driven by <code>HeatSelector</code>, letting you show a second metric (age, percentage of quota, cost) independently of size.</li>
+			<li><code>Custom</code> — you supply the colours.</li>
+		</ul>
+		<p>
+			<code>ColourSelector</code> always wins when it returns a non-empty value, whatever
+			<code>ColourMode</code> is set to, so you can override individual items without giving up a
+			built-in scheme for the rest.
+		</p>
+	</section>
+
+	<section id="sizing">
+		<h2 class="doc-section">Sizing and the one piece of JavaScript</h2>
+		<p>
+			Squarification optimises rectangle aspect ratios, so it has to know the aspect ratio of the area it
+			is filling. When <code>Width</code> and <code>Height</code> are not both supplied, a small
+			<code>ResizeObserver</code> module reports the container size and the map re-lays-out when it
+			changes. Set both parameters and no observer is attached at all.
+		</p>
+		<p class="text-muted small">
+			Give the containing element a height. A tree map fills its container, and a container with no
+			height gives it nothing to fill.
+		</p>
+	</section>
+
+	<section id="labels">
+		<h2 class="doc-section">Labels</h2>
+		<p>
+			Labels are HTML positioned over the SVG rather than SVG text, so the browser ellipsises them
+			properly rather than the component guessing at glyph widths. They ignore pointer events, so clicks
+			pass through to the rectangle beneath. Rectangles smaller than <code>MinLabelPx</code> carry no
+			label, which is what stops a dense map turning into unreadable noise.
+		</p>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<ul>
+			<li><code>Click</code> and <code>DoubleClick</code> — the item interacted with.</li>
+			<li><code>SelectionChanged</code> — raised after the selection moves; read <code>Selection</code>.</li>
+			<li><code>ZoomRoot</code> / <code>ZoomRootChanged</code> — two-way bindable, so a paired table can re-root itself in step with the map.</li>
+			<li><code>BeforeZoomChange</code> — cancellable; set <code>Cancel</code> on the arguments to refuse a zoom.</li>
+			<li><code>ExceptionHandler</code> — raised if a selector throws, rather than tearing down the render.</li>
+		</ul>
+	</section>
+
+</div>
