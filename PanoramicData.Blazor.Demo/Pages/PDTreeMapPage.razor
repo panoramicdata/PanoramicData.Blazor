@@ -1,0 +1,135 @@
+@page "/pdtreemap"
+@using PanoramicData.Blazor.Enums
+
+<h1>PDTreeMap</h1>
+
+<DemoSourceView SourceFiles="Pages/PDTreeMapPage.razor, Pages/PDTreeMapPage.razor.cs">
+	<DocumentationContent>
+		<PDTreeMapDocumentation />
+	</DocumentationContent>
+	<ChildContent>
+
+		<h5 class="mt-3">Disk usage — the WizTree case</h5>
+		<p class="text-muted small">
+			Rectangle area is proportional to size. Click a folder to zoom into it, then use the breadcrumb
+			to come back out. Sizes here are reported only for files, so <code>SizeMode</code> is left at
+			its default of <code>Aggregate</code> and folder sizes are summed from their contents.
+		</p>
+		<div class="border rounded p-2" style="height: 460px;">
+			<PDTreeMap TItem="DiskNode"
+					   Root="_disk"
+					   ChildrenSelector="n => n.Children"
+					   SizeSelector="n => n.Bytes"
+					   TextSelector="n => n.Name"
+					   TooltipSelector="GetTooltip"
+					   CategorySelector="n => n.Category"
+					   ColourMode="TreeMapColourMode.Category"
+					   MaxRenderDepth="_maxDepth"
+					   Click="OnNodeClicked"
+					   @bind-ZoomRoot="_zoom" />
+		</div>
+
+		<div class="d-flex align-items-center gap-3 flex-wrap mt-2">
+			<label class="form-label mb-0">
+				Max render depth
+				<input type="range" class="form-range align-middle" style="width: 160px;"
+					   min="1" max="5" @bind="_maxDepth" @bind:event="oninput" />
+				<span class="badge bg-secondary">@_maxDepth</span>
+			</label>
+			<span class="text-muted small">
+				Selected: <strong>@(_lastClicked?.Name ?? "none")</strong>
+			</span>
+			<button class="btn btn-sm btn-outline-secondary" @onclick="() => _zoom = null">Reset zoom</button>
+		</div>
+
+		<h5 class="mt-4">Colour modes</h5>
+		<p class="text-muted small">
+			The same data under each <code>TreeMapColourMode</code>. <code>ColourSelector</code>, when supplied,
+			overrides all of them.
+		</p>
+		<div class="row g-2">
+			@foreach (var mode in _colourModes)
+			{
+				<div class="col-12 col-md-6 col-xl-3">
+					<div class="border rounded p-1">
+						<div class="small fw-bold px-1">@mode</div>
+						<div style="height: 220px;">
+							<PDTreeMap TItem="DiskNode"
+									   Root="_disk"
+									   ChildrenSelector="n => n.Children"
+									   SizeSelector="n => n.Bytes"
+									   TextSelector="n => n.Name"
+									   CategorySelector="n => n.Category"
+									   HeatSelector="n => n.AgeDays"
+									   ColourSelector="GetColourSelector(mode)"
+									   ColourMode="mode"
+									   ShowBreadcrumb="false"
+									   MaxRenderDepth="2" />
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+
+		<h5 class="mt-4">Explicit sizes — the database case</h5>
+		<p class="text-muted small">
+			Here the source already reports subtree totals, as a database size query would, so
+			<code>SizeMode</code> is set to <code>Explicit</code> to stop descendants being counted twice.
+		</p>
+		<div class="border rounded p-2" style="height: 300px;">
+			<PDTreeMap TItem="DiskNode"
+					   Root="_database"
+					   ChildrenSelector="n => n.Children"
+					   SizeSelector="n => n.Bytes"
+					   TextSelector="n => n.Name"
+					   SizeMode="TreeMapSizeMode.Explicit"
+					   ColourMode="TreeMapColourMode.Depth"
+					   MaxRenderDepth="3" />
+		</div>
+
+		<h5 class="mt-4">Cancelling a zoom</h5>
+		<p class="text-muted small">
+			<code>BeforeZoomChange</code> is cancellable. This map refuses to zoom into anything named
+			"Locked".
+		</p>
+		<div class="border rounded p-2" style="height: 260px;">
+			<PDTreeMap TItem="DiskNode"
+					   Root="_locked"
+					   ChildrenSelector="n => n.Children"
+					   SizeSelector="n => n.Bytes"
+					   TextSelector="n => n.Name"
+					   BeforeZoomChange="OnBeforeZoom"
+					   MaxRenderDepth="2" />
+		</div>
+		@if (!string.IsNullOrEmpty(_zoomMessage))
+		{
+			<div class="alert alert-warning py-1 px-2 mt-2 mb-0 small">@_zoomMessage</div>
+		}
+
+		<h5 class="mt-4">Large tree — 10,000 leaves</h5>
+		<p class="text-muted small">
+			100 branches of 100 leaves each, laid out and rendered in one pass. Labels are suppressed on
+			anything smaller than <code>MinLabelPx</code>, so slivers stay clean.
+		</p>
+		<div class="border rounded p-2" style="height: 420px;">
+			<PDTreeMap TItem="DiskNode"
+					   Root="_large"
+					   ChildrenSelector="n => n.Children"
+					   SizeSelector="n => n.Bytes"
+					   TextSelector="n => n.Name"
+					   CategorySelector="n => n.Category"
+					   MaxRenderDepth="2" />
+		</div>
+
+		<h5 class="mt-4">Empty state</h5>
+		<div class="border rounded p-2" style="height: 120px;">
+			<PDTreeMap TItem="DiskNode"
+					   Root="_empty"
+					   ChildrenSelector="n => n.Children"
+					   SizeSelector="n => n.Bytes"
+					   TextSelector="n => n.Name"
+					   EmptyText="Nothing to show — this tenant has no files" />
+		</div>
+
+	</ChildContent>
+</DemoSourceView>
