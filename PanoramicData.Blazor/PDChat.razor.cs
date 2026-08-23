@@ -225,6 +225,16 @@ public partial class PDChat : JSModuleComponentBase
 			existing.Timestamp = message.Timestamp;
 			existing.IsTitleHtml = message.IsTitleHtml;
 			existing.IsMessageHtml = message.IsMessageHtml;
+
+			// Issue #98: the in-progress fields have to be copied too. This list is hand-maintained,
+			// which is a trap - a field added to ChatMessage and not added here is silently dropped on
+			// every update after the first, and the symptom is baffling: the title changes, so the
+			// update is clearly arriving, while the content it was carrying never appears. That is
+			// exactly how these three were first missed.
+			existing.ProgressSteps = message.ProgressSteps;
+			existing.Thoughts = message.Thoughts;
+			existing.PartialMessage = message.PartialMessage;
+			existing.ToastOptions = message.ToastOptions;
 		}
 		else
 		{

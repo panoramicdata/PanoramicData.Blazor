@@ -21,7 +21,7 @@
 				<div class="pdchat-text">
 					@if (Message.Type == MessageType.Typing)
 					{
-						<span class="typing-ellipsis">&nbsp;</span>
+						@RenderProgress
 					}
 					else if (Message.IsMessageHtml)
 					{
@@ -90,7 +90,7 @@
 				<div class="pdchat-text">
 					@if (Message.Type == MessageType.Typing)
 					{
-						<span class="typing-ellipsis">&nbsp;</span>
+						@RenderProgress
 					}
 					else if (Message.IsMessageHtml)
 					{
@@ -137,7 +137,7 @@
 		<div class="pdchat-text">
 			@if (Message.Type == MessageType.Typing)
 			{
-				<span class="typing-ellipsis">&nbsp;</span>
+				@RenderProgress
 			}
 			else if (Message.IsMessageHtml)
 			{
@@ -151,4 +151,49 @@
 	}
 </div>
 
+@* Issue #98: what an in-progress message shows while it is being composed. Previously this was a
+   bare ellipsis, which is indistinguishable from a hung request - and for an agentic reply that
+   takes a minute or more, that is most of the user's experience of the product. *@
+@code {
+	private RenderFragment RenderProgress => __builder =>
+	{
+		<div class="pdchat-progress">
+			@if (Message.ProgressSteps is { Count: > 0 })
+			{
+				<ul class="pdchat-progress-steps">
+					@foreach (var step in Message.ProgressSteps)
+					{
+						<li>@step</li>
+					}
+				</ul>
+			}
 
+			@if (Message.Thoughts is { Count: > 0 })
+			{
+				@foreach (var thought in Message.Thoughts)
+				{
+					<details class="pdchat-thought">
+						<summary>@thought.Title</summary>
+						<div class="pdchat-thought-text">@thought.Text</div>
+					</details>
+				}
+			}
+
+			@if (!string.IsNullOrWhiteSpace(Message.PartialMessage))
+			{
+				var partial = PartialMarkdown.Trim(Message.PartialMessage);
+
+				@if (partial.Content.Length > 0)
+				{
+					<div class="pdchat-partial">@partial.Content</div>
+				}
+				@if (partial.Writing is not null)
+				{
+					<div class="pdchat-partial-writing">writing @partial.Writing&hellip;</div>
+				}
+			}
+
+			<span class="typing-ellipsis">&nbsp;</span>
+		</div>
+	};
+}

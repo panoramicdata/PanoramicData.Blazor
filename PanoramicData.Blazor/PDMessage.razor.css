@@ -357,3 +357,50 @@
    an OS-preference fallback for hosts with neither). A media-query pair here would only
    be correct when the OS preference happens to match the host's explicit theme choice,
    which the previous implementation assumed but cannot rely on. */
+/* Issue #98: progressive feedback while a reply is being composed. */
+
+.pdchat-progress {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.pdchat-progress-steps {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	font-size: 0.85em;
+	opacity: 0.8;
+}
+
+.pdchat-progress-steps li::before {
+	/* A leading marker rather than a bullet, so the list reads as activity rather than content. */
+	content: "\2026\00a0";
+}
+
+.pdchat-thought {
+	font-size: 0.85em;
+	opacity: 0.85;
+}
+
+.pdchat-thought > summary {
+	cursor: pointer;
+	/* Collapsed by default and quiet: this is available detail, not the answer. */
+	font-style: italic;
+}
+
+.pdchat-thought-text {
+	margin: 0.25rem 0 0.25rem 1rem;
+	white-space: pre-wrap;
+	opacity: 0.9;
+}
+
+.pdchat-partial {
+	white-space: pre-wrap;
+}
+
+.pdchat-partial-writing {
+	font-size: 0.85em;
+	font-style: italic;
+	opacity: 0.7;
+}
