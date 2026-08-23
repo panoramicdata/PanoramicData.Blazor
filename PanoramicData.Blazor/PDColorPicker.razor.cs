@@ -1,4 +1,4 @@
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 using PanoramicData.Blazor.Models.ColorPicker;
 
 namespace PanoramicData.Blazor;
@@ -557,9 +557,20 @@ public partial class PDColorPicker : IAsyncDisposable
 		ClosePicker();
 	}
 
-	private void CancelSelection()
+	private async Task CancelSelection()
 	{
 		_currentColor = _originalColor.Clone();
+
+		// Issue #99: live preview has already pushed intermediate values to the caller as the
+		// user dragged, so cancelling has to send the original back. Restoring only the local
+		// state left the component reverted and the caller holding the colour that was being
+		// dragged towards - which, for a caller that renders on every change, meant cancelling
+		// kept the abandoned colour.
+		if (Options.LivePreview)
+		{
+			await ValueChanged.InvokeAsync(GetOutputColorValue()).ConfigureAwait(true);
+		}
+
 		ClosePicker();
 	}
 
