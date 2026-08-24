@@ -260,6 +260,103 @@ public interface IChatService
 	/// </summary>
 	IReadOnlyList<ChatMessage> Messages { get; }
 
+	// ==========================================================================================
+	// Conversation-addressed API
+	//
+	// Everything above is singular: one Messages list, one SendMessage, one OnMessageReceived. A host that
+	// wants several conversations open at once - tabs, say - has no way to say which conversation a message
+	// belongs to, so a reply arriving from any of them appends to whichever transcript happens to be selected.
+	// That failure is intermittent, depends on timing, and presents as a rendering bug.
+	//
+	// The members below address a conversation explicitly. All carry default interface implementations that map
+	// onto the singular members using a single implicit conversation, so every existing implementation compiles
+	// and behaves identically - the same technique the toast API above already uses.
+	//
+	// The defaults deliberately REFUSE an unrecognised conversation id rather than falling back to the single
+	// conversation. Serving the one transcript a service has, for an id it has never heard of, would be the
+	// misdelivery bug moved out of the UI and into the interface, where it is harder to see.
+	//
+	// TRAP WHEN OPTING IN FROM A DERIVED CLASS. If a base class already implements IChatService, adding these
+	// members to a class derived from it is NOT enough - the interface mapping was fixed at the base, so the new
+	// members are ordinary class members and a caller holding an IChatService still gets the defaults. Nothing
+	// warns about it: the type compiles, the members exist, and SupportsConversations reads true off the concrete
+	// type and false off the interface. Re-state the interface in the derived type's base list
+	// (class MyService : MyServiceBase, IChatService) so that the members bind.
+	// ==========================================================================================
+
+	/// <summary>
+	/// Gets a value indicating whether this service can hold more than one conversation at a time.
+	/// Defaults to <c>false</c>.
+	/// </summary>
+	/// <remarks>
+	/// A consumer must check this before relying on <see cref="OnConversationMessageReceived"/>, whose default
+	/// implementation accepts subscriptions and never fires. Without the flag a consumer would subscribe, see
+	/// nothing, and have no way to tell that from a service that simply had no traffic.
+	/// </remarks>
+	bool SupportsConversations => false;
+
+	/// <summary>
+	/// Gets or sets the conversation currently being shown. Defaults to
+	/// <see cref="ChatConversation.ImplicitConversationId"/>, and the setter is ignored, for a service that does
+	/// not support conversations.
+	/// </summary>
+	Guid ActiveConversationId
+	{
+		get => ChatConversation.ImplicitConversationId;
+		set { }
+	}
+
+	/// <summary>
+	/// Gets the messages belonging to one conversation, or an empty list if this service does not have it.
+	/// </summary>
+	/// <remarks>
+	/// An unrecognised id yields nothing rather than <see cref="Messages"/>. Returning the wrong transcript
+	/// would be indistinguishable, to a caller, from the conversation genuinely containing those messages.
+	/// </remarks>
+	IReadOnlyList<ChatMessage> GetMessages(Guid conversationId)
+		=> conversationId == ActiveConversationId ? Messages : [];
+
+	/// <summary>
+	/// Sends a message to a specific conversation.
+	/// </summary>
+	/// <param name="conversationId">The conversation to send to.</param>
+	/// <param name="chatMessage">The message to send.</param>
+	/// <exception cref="InvalidOperationException">
+	/// Thrown when this service does not have the requested conversation.
+	/// </exception>
+	/// <remarks>
+	/// Throwing is deliberate. A caller addressing a conversation the service does not have has a bug, and it
+	/// should surface where it happened rather than as a message appearing in an unrelated conversation several
+	/// seconds later.
+	/// </remarks>
+	void SendMessage(Guid conversationId, ChatMessage chatMessage)
+	{
+		if (conversationId != ActiveConversationId)
+		{
+			throw new InvalidOperationException(
+				$"This chat service does not have conversation {conversationId}. " +
+				$"It supports a single conversation ({ActiveConversationId}); check {nameof(SupportsConversations)} " +
+				"before addressing conversations individually.");
+		}
+
+		SendMessage(chatMessage);
+	}
+
+	/// <summary>
+	/// Raised when a message arrives, reporting the conversation it belongs to so that a consumer can route it
+	/// without guessing at "the current one".
+	/// </summary>
+	/// <remarks>
+	/// The default implementation accepts subscriptions and never raises, because a service that does not
+	/// support conversations has nothing to disambiguate. Check <see cref="SupportsConversations"/> and fall
+	/// back to <see cref="OnMessageReceived"/> when it is <c>false</c>.
+	/// </remarks>
+	event Action<Guid, ChatMessage>? OnConversationMessageReceived
+	{
+		add { }
+		remove { }
+	}
+
 	/// <summary>
 	/// Event triggered when a new message is received.
 	/// </summary>
