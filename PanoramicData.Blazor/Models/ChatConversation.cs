@@ -29,6 +29,18 @@ public class ChatConversation
 	public const string UntitledDisplayName = "New conversation";
 
 	/// <summary>
+	/// The identifier standing for the single conversation held by a chat service that does not support
+	/// conversations - see <c>IChatService.SupportsConversations</c>.
+	/// </summary>
+	/// <remarks>
+	/// A fixed, well-known value so that a consumer written against the conversation-addressed API has one id it
+	/// can always address, whether or not the service behind it knows what a conversation is. It is
+	/// deliberately not <see cref="Guid.Empty"/>: empty is what an uninitialised field holds, so a bug that
+	/// forgot to set an id would silently address the implicit conversation and appear to work.
+	/// </remarks>
+	public static readonly Guid ImplicitConversationId = new("9f2a4c3e-7b1d-4a6f-8c05-1e3d5a7b9c11");
+
+	/// <summary>
 	/// Gets the conversation's unique identifier.
 	/// </summary>
 	/// <remarks>
