@@ -837,6 +837,42 @@ public class DumbChatService : IChatService, IDisposable
 			},
 			new ChatFormQuestion
 			{
+				Id = "when",
+				Header = "When",
+				Question = "When did you last have some?",
+				Kind = ChatFormAnswerKind.DateTime
+			},
+			new ChatFormQuestion
+			{
+				Id = "scoops",
+				Header = "How many",
+				Question = "How many scoops is the right number?",
+				Kind = ChatFormAnswerKind.Number,
+				Number = new ChatFormNumber { Minimum = 1, Maximum = 10, Unit = "scoops" }
+			},
+			new ChatFormQuestion
+			{
+				Id = "order",
+				Header = "Order",
+				Question = "Put these in order, best first.",
+				Kind = ChatFormAnswerKind.Ranking,
+				Options =
+				[
+					new ChatFormOption { Label = "Vanilla" },
+					new ChatFormOption { Label = "Pistachio" },
+					new ChatFormOption { Label = "Rum and raisin" }
+				]
+			},
+			new ChatFormQuestion
+			{
+				Id = "ack",
+				Header = "Agreed",
+				Question = "One last thing.",
+				Kind = ChatFormAnswerKind.Acknowledgement,
+				Options = [new ChatFormOption { Label = "I accept that ice cream is not a breakfast food." }]
+			},
+			new ChatFormQuestion
+			{
 				Id = "shop",
 				Header = "Shop",
 				Question = "Which shop do you buy it from?",

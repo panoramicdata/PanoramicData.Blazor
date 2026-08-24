@@ -81,9 +81,65 @@ public partial class PDFormMessage
 	/// </remarks>
 	private readonly Dictionary<string, string> _otherText = [];
 
+	/// <summary>
+	/// The order the user has put a ranking question's options into.
+	/// </summary>
+	/// <remarks>
+	/// Seeded from the question's own order the first time it is touched, so an untouched ranking is
+	/// recorded as skipped rather than as an endorsement of whatever order the asker happened to
+	/// list.
+	/// </remarks>
+	private readonly Dictionary<string, List<string>> _rankings = [];
+
 	private int _activeIndex;
 	private bool _isClosed;
 	private string _closedMessage = string.Empty;
+
+	/// <summary>
+	/// The options in their current ranked order.
+	/// </summary>
+	private List<string> RankedOptions(ChatFormQuestion question)
+		=> _rankings.TryGetValue(question.Id, out var ranked)
+			? ranked
+			: [.. question.Options.Select(option => option.Label)];
+
+	/// <summary>
+	/// Moves one option up or down a ranking.
+	/// </summary>
+	private void Move(ChatFormQuestion question, int index, int offset)
+	{
+		var ranked = RankedOptions(question);
+		var target = index + offset;
+
+		if (target < 0 || target >= ranked.Count)
+		{
+			return;
+		}
+
+		(ranked[index], ranked[target]) = (ranked[target], ranked[index]);
+
+		// Stored on first move, which is also what marks the question answered.
+		_rankings[question.Id] = ranked;
+	}
+
+	/// <summary>
+	/// Records or clears an acknowledgement.
+	/// </summary>
+	/// <remarks>
+	/// Unticking removes the entry entirely rather than storing "false": an acknowledgement is either
+	/// given or it is not, and "not given" is a skip, not a negative answer.
+	/// </remarks>
+	private void Acknowledge(string questionId, bool isAcknowledged)
+	{
+		if (isAcknowledged)
+		{
+			_values[questionId] = "Acknowledged";
+
+			return;
+		}
+
+		_ = _values.Remove(questionId);
+	}
 
 	private bool IsChosen(string questionId, string label)
 		=> _selections.TryGetValue(questionId, out var set)
@@ -161,6 +217,11 @@ public partial class PDFormMessage
 		if (_selections.TryGetValue(question.Id, out var set) && set.Count > 0)
 		{
 			return true;
+		}
+
+		if (question.Kind == ChatFormAnswerKind.Ranking)
+		{
+			return _rankings.ContainsKey(question.Id);
 		}
 
 		if (_otherChosen.Contains(question.Id)
@@ -259,6 +320,28 @@ public partial class PDFormMessage
 
 		var hasOther = !string.IsNullOrWhiteSpace(otherText);
 
+		if (question.Kind == ChatFormAnswerKind.Ranking)
+		{
+			// Only an order the user actually arranged is reported. An untouched ranking is a skip:
+			// the asker's own listing order is not an answer.
+			var ranked = _rankings.TryGetValue(question.Id, out var order) ? order : null;
+
+			return new ChatFormAnswer
+			{
+				QuestionId = question.Id,
+				Question = question.Question,
+				Value = ranked is null
+					? null
+					: string.Join(
+						", ",
+						ranked.Select((label, position) => string.Create(
+							CultureInfo.InvariantCulture,
+							$"{position + 1}. {label}"))),
+				Values = ranked,
+				WasSkipped = ranked is null
+			};
+		}
+
 		if (question.Kind == ChatFormAnswerKind.MultipleChoice)
 		{
 			// Ordered as the question offered them, not alphabetically. The asker chose that order -
@@ -316,6 +399,14 @@ public partial class PDFormMessage
 			{
 				value = label;
 			}
+		}
+
+		// The unit travels with the number, so "20" is never left needing a key.
+		if (question.Kind == ChatFormAnswerKind.Number
+			&& !string.IsNullOrWhiteSpace(value)
+			&& !string.IsNullOrWhiteSpace(question.Number?.Unit))
+		{
+			value = string.Create(CultureInfo.InvariantCulture, $"{value} {question.Number.Unit}");
 		}
 
 		return new ChatFormAnswer

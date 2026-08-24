@@ -101,6 +101,20 @@ public class ChatFormQuestion
 	public bool IsMultiline { get; init; }
 
 	/// <summary>
+	/// The bounds and unit, for <see cref="ChatFormAnswerKind.Number"/>.
+	/// </summary>
+	public ChatFormNumber? Number { get; init; }
+
+	/// <summary>
+	/// Whether a <see cref="ChatFormAnswerKind.DateTime"/> question asks for a time as well as a date.
+	/// </summary>
+	/// <remarks>
+	/// Off by default: most questions want a day, and asking for a time the asker does not need
+	/// invites a made-up one.
+	/// </remarks>
+	public bool IncludeTime { get; init; }
+
+	/// <summary>
 	/// Text to pre-fill a text answer with, for the user to edit.
 	/// </summary>
 	/// <remarks>
@@ -143,7 +157,44 @@ public enum ChatFormAnswerKind
 	/// "likes several". Kept as a separate kind rather than a flag on SingleChoice so a renderer
 	/// cannot accidentally show radios where checkboxes were meant.
 	/// </remarks>
-	MultipleChoice = 3
+	MultipleChoice = 3,
+
+	/// <summary>
+	/// A date, optionally with a time.
+	/// </summary>
+	/// <remarks>
+	/// "When did this start?" answered as free text gets "last Tuesday", which then has to be
+	/// resolved against a timezone the reader is guessing at. A picker removes that whole class of
+	/// wrong answer.
+	/// </remarks>
+	DateTime = 4,
+
+	/// <summary>
+	/// A number, optionally bounded and with a unit.
+	/// </summary>
+	/// <remarks>
+	/// "How many users are affected?" is not a scale - it is unbounded - and as free text it comes
+	/// back as "about twenty".
+	/// </remarks>
+	Number = 5,
+
+	/// <summary>
+	/// The options put into an order.
+	/// </summary>
+	/// <remarks>
+	/// Different from multiple choice: it captures relative strength, which is what "what should I do
+	/// first?" actually asks.
+	/// </remarks>
+	Ranking = 6,
+
+	/// <summary>
+	/// A single statement to accept or leave unaccepted.
+	/// </summary>
+	/// <remarks>
+	/// "I understand this will restart the service." Deliberately not a two-option choice: there is
+	/// no "No" to pick, only an acknowledgement given or withheld, and withholding is a skip.
+	/// </remarks>
+	Acknowledgement = 7
 }
 
 /// <summary>
@@ -326,4 +377,37 @@ public class ChatFormSubmission
 	/// One entry per question, including the skipped ones.
 	/// </summary>
 	public required IReadOnlyList<ChatFormAnswer> Answers { get; init; }
+}
+
+/// <summary>
+/// The bounds and unit for a numeric answer.
+/// </summary>
+public class ChatFormNumber
+{
+	/// <summary>
+	/// Smallest permitted value, if any.
+	/// </summary>
+	public double? Minimum { get; init; }
+
+	/// <summary>
+	/// Largest permitted value, if any.
+	/// </summary>
+	public double? Maximum { get; init; }
+
+	/// <summary>
+	/// Step between permitted values. Defaults to whole numbers.
+	/// </summary>
+	/// <remarks>
+	/// Whole numbers by default because most such questions count things. A question that wants
+	/// fractions has to say so, which is the safer way round.
+	/// </remarks>
+	public double Step { get; init; } = 1;
+
+	/// <summary>
+	/// What is being counted - "users", "GB", "minutes".
+	/// </summary>
+	/// <remarks>
+	/// Shown beside the box and recorded with the answer, so "20" is not left needing a key.
+	/// </remarks>
+	public string? Unit { get; init; }
 }

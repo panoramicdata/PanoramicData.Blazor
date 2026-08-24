@@ -213,3 +213,61 @@
 	padding: 0.4rem 0.75rem 0.6rem;
 	font-style: italic;
 }
+
+/* ---------- number, ranking ---------- */
+
+.pdchat-form-number {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.pdchat-form-number .pdchat-form-text {
+	/* Narrower than a text answer: a count is a few characters, and a full-width box invites prose. */
+	width: 9rem;
+	margin-right: 0;
+}
+
+.pdchat-form-unit {
+	font-size: 0.9em;
+	color: var(--pd-chat-muted-color, #6c757d);
+}
+
+.pdchat-form-ranking {
+	margin: 0.25rem 0 0.5rem;
+	padding-left: 2.25rem;
+}
+
+.pdchat-form-ranking li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding: 0.25rem 0.75rem 0.25rem 0;
+}
+
+.pdchat-form-rank-buttons {
+	display: flex;
+	gap: 0.15rem;
+	flex-shrink: 0;
+}
+
+.pdchat-form-rank-buttons button {
+	border: 1px solid var(--pd-chat-border, #dee2e6);
+	background: var(--pd-chat-bg, #fff);
+	color: var(--pd-chat-color, #212529);
+	border-radius: 3px;
+	cursor: pointer;
+	line-height: 1;
+	padding: 0.15rem 0.4rem;
+	font-size: 0.9em;
+}
+
+.pdchat-form-rank-buttons button:disabled {
+	opacity: 0.35;
+	cursor: default;
+}
+
+.pdchat-form-rank-buttons button:hover:not(:disabled) {
+	background: var(--pd-chat-secondary-bg, #f4f8fb);
+}

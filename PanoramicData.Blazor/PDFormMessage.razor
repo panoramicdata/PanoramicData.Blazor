@@ -105,6 +105,65 @@
 					</div>
 					break;
 
+				case ChatFormAnswerKind.DateTime:
+					<input class="pdchat-form-text"
+						   type="@(active.IncludeTime ? "datetime-local" : "date")"
+						   value="@_values.GetValueOrDefault(active.Id)"
+						   @oninput="e => _values[active.Id] = e.Value?.ToString() ?? string.Empty" />
+					break;
+
+				case ChatFormAnswerKind.Number:
+					<div class="pdchat-form-number">
+						<input class="pdchat-form-text"
+							   type="number"
+							   min="@active.Number?.Minimum"
+							   max="@active.Number?.Maximum"
+							   step="@(active.Number?.Step ?? 1)"
+							   value="@_values.GetValueOrDefault(active.Id)"
+							   @oninput="e => _values[active.Id] = e.Value?.ToString() ?? string.Empty" />
+						@if (!string.IsNullOrWhiteSpace(active.Number?.Unit))
+						{
+							<span class="pdchat-form-unit">@active.Number.Unit</span>
+						}
+					</div>
+					break;
+
+				case ChatFormAnswerKind.Ranking:
+					var ordered = RankedOptions(active);
+
+					<ol class="pdchat-form-ranking">
+						@for (var rank = 0; rank < ordered.Count; rank++)
+						{
+							var position = rank;
+
+							<li>
+								<span class="pdchat-form-option-label">@ordered[position]</span>
+								<span class="pdchat-form-rank-buttons">
+									<button type="button"
+											title="Move up"
+											disabled="@(position == 0)"
+											@onclick="() => Move(active, position, -1)">&uarr;</button>
+									<button type="button"
+											title="Move down"
+											disabled="@(position == ordered.Count - 1)"
+											@onclick="() => Move(active, position, 1)">&darr;</button>
+								</span>
+							</li>
+						}
+					</ol>
+					break;
+
+				case ChatFormAnswerKind.Acknowledgement:
+					<label class="pdchat-form-option @(_values.ContainsKey(active.Id) ? "selected" : string.Empty)">
+						<input type="checkbox"
+							   checked="@_values.ContainsKey(active.Id)"
+							   @onchange="e => Acknowledge(active.Id, e.Value is true)" />
+						<span class="pdchat-form-option-body">
+							<span class="pdchat-form-option-label">@(active.Options.Count > 0 ? active.Options[0].Label : "I understand")</span>
+						</span>
+					</label>
+					break;
+
 				case ChatFormAnswerKind.Text:
 					@if (active.IsMultiline)
 					{
