@@ -404,3 +404,68 @@
 	font-style: italic;
 	opacity: 0.7;
 }
+
+/* ==============================================
+   Rendered Markdown (issue #101)
+   ============================================== */
+
+/* .pdchat-text sets white-space: pre-line so a PLAIN TEXT message keeps the line breaks the
+   sender typed. When the message is HTML - which every Merlin reply is, because the markdown
+   is run through Markdig before it gets here - that same rule also preserves the newlines
+   Markdig puts BETWEEN block elements:
+
+       <p>...</p>\n<ul>\n<li>One</li>\n<li>Two</li>\n</ul>
+
+   Each of those newlines rendered as a line break ON TOP OF the margins those elements already
+   carry, which is the doubled spacing: a blank line before the list, and one between every item.
+
+   ::deep is not optional here. MarkupString content carries no CSS-isolation scope attribute, so
+   a plain descendant selector would be rewritten to "... p[b-xxxxx]" and never match the injected
+   markup. ::deep moves the scope onto .pdchat-text and leaves the descendant free.
+
+   <pre> is deliberately absent: its UA default of white-space: pre must keep winning, or fenced
+   code blocks lose their indentation. */
+.pdchat-text ::deep p,
+.pdchat-text ::deep ul,
+.pdchat-text ::deep ol,
+.pdchat-text ::deep li,
+.pdchat-text ::deep blockquote,
+.pdchat-text ::deep table,
+.pdchat-text ::deep h1,
+.pdchat-text ::deep h2,
+.pdchat-text ::deep h3,
+.pdchat-text ::deep h4,
+.pdchat-text ::deep h5,
+.pdchat-text ::deep h6 {
+	white-space: normal;
+}
+
+/* Tighter than a browser's document defaults: a chat reply is read as a dense exchange, not a
+   page. Margins are in em so they track the message font size. */
+.pdchat-text ::deep p {
+	margin: 0 0 0.5em;
+}
+
+.pdchat-text ::deep ul,
+.pdchat-text ::deep ol {
+	margin: 0.25em 0 0.5em;
+	/* Enough to hold the marker without the deep indent a browser applies by default. */
+	padding-left: 1.5em;
+}
+
+.pdchat-text ::deep li + li {
+	margin-top: 0.15em;
+}
+
+/* Markdig wraps each item's content in <p> for a "loose" list - one with blank lines between
+   items - so without this every bullet carries a paragraph margin inside itself as well. */
+.pdchat-text ::deep li > p {
+	margin: 0;
+}
+
+/* No trailing gap inside the message bubble. */
+.pdchat-text ::deep p:last-child,
+.pdchat-text ::deep ul:last-child,
+.pdchat-text ::deep ol:last-child {
+	margin-bottom: 0;
+}
