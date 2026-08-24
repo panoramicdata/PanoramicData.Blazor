@@ -196,6 +196,42 @@ public class ChatFormScale
 	public required string MaximumLabel { get; init; }
 
 	/// <summary>
+	/// A label for every point on the scale, low to high.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// Optional. With it, a 1..4 agreement scale reads "Strongly agree, Agree, Disagree, Strongly
+	/// disagree" rather than "1, 2, 3, 4" - and, more importantly, the recorded answer reads
+	/// "Agree" instead of "2", which is the difference between a transcript that means something
+	/// later and one that does not.
+	/// </para>
+	/// <para>
+	/// Must contain exactly one entry per point, or it is ignored: a mislabelled scale is worse than
+	/// an unlabelled one, because the reader has no way to tell it is wrong.
+	/// </para>
+	/// </remarks>
+	public IReadOnlyList<string>? PointLabels { get; init; }
+
+	/// <summary>
+	/// The label for one point, or null when the scale is not labelled point by point.
+	/// </summary>
+	public string? LabelFor(int value)
+	{
+		if (PointLabels is null || !HasUsablePointLabels || value < Minimum || value > Maximum)
+		{
+			return null;
+		}
+
+		return PointLabels[value - Minimum];
+	}
+
+	/// <summary>
+	/// Whether there is exactly one label per point.
+	/// </summary>
+	public bool HasUsablePointLabels
+		=> PointLabels is not null && PointLabels.Count == Maximum - Minimum + 1;
+
+	/// <summary>
 	/// Whether the range is usable.
 	/// </summary>
 	/// <remarks>

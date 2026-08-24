@@ -26,5 +26,15 @@ public enum MessageType
 	/// sets the payload but leaves the type as Normal still gets a form. This value exists so a
 	/// consumer can style or filter form messages without inspecting the payload.
 	/// </remarks>
-	Form = 6
+	Form = 6,
+
+	/// <summary>
+	/// A message that is genuinely informational, rather than ordinary conversation.
+	/// </summary>
+	/// <remarks>
+	/// Tinted, where Normal is not. Before this existed, Normal itself carried the tint - which meant
+	/// every message in a conversation was coloured, so the colour said nothing and a real FYI had no
+	/// way to stand out.
+	/// </remarks>
+	Information = 7
 }

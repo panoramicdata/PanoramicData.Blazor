@@ -600,6 +600,29 @@ public class DumbChatService : IChatService, IDisposable
 	private async Task RespondAsync(ChatMessage userMessage)
 	{
 		// Ignore messages not from the user
+		// Issue #106: answers to a form are not a fresh request, so they are acknowledged rather than
+		// run through the keyword dispatch below. Echoing them back is merely noisy, but the dispatch
+		// is worse: a question whose text happened to contain "form" or "question" would spawn another
+		// form on submission, and then another. A submission must never be re-read as a new request.
+		if (userMessage.FormSubmission is not null)
+		{
+			var answered = userMessage.FormSubmission.Answers.Count(answer => !answer.WasSkipped);
+
+			var acknowledgement = new ChatMessage
+			{
+				Id = Guid.NewGuid(),
+				Sender = DumbBot,
+				Message = $"Thanks - I got {answered} of {userMessage.FormSubmission.Answers.Count} answers.",
+				Type = MessageType.Success,
+				Timestamp = DateTime.UtcNow
+			};
+
+			_messages.Add(acknowledgement);
+			OnMessageReceived?.Invoke(acknowledgement);
+
+			return;
+		}
+
 		if (!userMessage.Sender.IsUser)
 		{
 			return;
@@ -791,7 +814,10 @@ public class DumbChatService : IChatService, IDisposable
 					Minimum = 1,
 					Maximum = 4,
 					MinimumLabel = "Strongly disagree",
-					MaximumLabel = "Strongly agree"
+					MaximumLabel = "Strongly agree",
+
+					// Named point by point, so the answer records "Agree" rather than "2".
+					PointLabels = ["Strongly disagree", "Disagree", "Agree", "Strongly agree"]
 				}
 			},
 			new ChatFormQuestion
@@ -805,7 +831,8 @@ public class DumbChatService : IChatService, IDisposable
 					Minimum = 0,
 					Maximum = 1,
 					MinimumLabel = "No",
-					MaximumLabel = "Yes"
+					MaximumLabel = "Yes",
+					PointLabels = ["No", "Yes"]
 				}
 			},
 			new ChatFormQuestion

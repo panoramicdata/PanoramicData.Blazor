@@ -120,7 +120,16 @@
     background-color: var(--pd-chat-success-bg, #d1e7dd);
 }
 
+/* Ordinary conversation is NOT tinted. A colour applied to every message carries no information -
+   it is chrome - and it leaves nothing to distinguish a message that genuinely is informational.
+   Sender identity is already carried by the left/right border strip, so the background is free to
+   mean something. Blue now belongs to MessageType.Information. */
 .pdchat-message.full-width.meta-on-left.priority-normal {
+    border-left-color: var(--pd-chat-info-border, #0078d4);
+    background-color: var(--pd-chat-bg, #fff);
+}
+
+.pdchat-message.full-width.meta-on-left.priority-information {
     border-left-color: var(--pd-chat-info-border, #0078d4);
     background-color: var(--pd-chat-info-bg, #e6f3ff);
 }
@@ -156,6 +165,11 @@
 }
 
 .pdchat-message.full-width.meta-on-right.priority-normal {
+    border-right-color: var(--pd-chat-info-border, #0078d4);
+    background-color: var(--pd-chat-bg, #fff);
+}
+
+.pdchat-message.full-width.meta-on-right.priority-information {
     border-right-color: var(--pd-chat-info-border, #0078d4);
     background-color: var(--pd-chat-info-bg, #e6f3ff);
 }
@@ -257,6 +271,12 @@
 }
 
 .pdchat-message.bubble.priority-normal {
+    /* The bubble layout already tints by sender (user green, bot blue), so normal keeps that
+       rather than being overridden to a single colour. */
+    border-color: var(--pd-chat-info-border, #0078d4);
+}
+
+.pdchat-message.bubble.priority-information {
     background-color: var(--pd-chat-info-bg, #e6f3ff);
     border-color: var(--pd-chat-info-border, #0078d4);
 }

@@ -15,10 +15,16 @@ namespace PanoramicData.Blazor;
 /// order.
 /// </para>
 /// <para>
-/// <b>Skipping is a first-class outcome.</b> Submit is always enabled, unanswered questions are
-/// reported as skipped rather than omitted, and the form can be dismissed entirely without sending
-/// anything. A form that will not let a conversation continue until it is filled in is worse than no
-/// form.
+/// <b>Skipping is a first-class outcome.</b> Unanswered questions are reported as skipped rather
+/// than omitted, and the form can be dismissed entirely without sending anything. A form that will
+/// not let a conversation continue until it is filled in is worse than no form.
+/// </para>
+/// <para>
+/// <b>Submit appears only on the last tab; every other tab offers Next.</b> With a submit button on
+/// every question most people press it on the first one - they have done exactly what the button
+/// told them to - and the asker receives a form that is one-sixth answered. Advancing is the
+/// expected path, so that is what the primary button does. Submitting early is still one click on
+/// the last tab, which makes it a deliberate act rather than an accident.
 /// </para>
 /// <para>
 /// State lives here and is intentionally not persisted. If the page reloads the form is gone, which
@@ -172,6 +178,33 @@ public partial class PDFormMessage
 			&& !string.IsNullOrWhiteSpace(question.SuggestedValue);
 	}
 
+	/// <summary>
+	/// Whether the active tab is the last one, and so the one that submits.
+	/// </summary>
+	/// <remarks>
+	/// The primary button is "Next" everywhere else. With a Submit on every tab, most people press it
+	/// on the first question and send a form that is one-sixth answered - they have done what the
+	/// button told them to, and the asker gets far less than they asked for. Moving through the
+	/// questions is the expected path, so that is what the button does; jumping straight to the end
+	/// and submitting early is still one click on the last tab, which is a deliberate act rather than
+	/// an accidental one.
+	/// </remarks>
+	private bool IsLastQuestion => Form is null || _activeIndex >= Form.Questions.Count - 1;
+
+	/// <summary>
+	/// Where the user is, shown while there are still questions ahead.
+	/// </summary>
+	/// <remarks>
+	/// Position rather than the answered count: before the end, what matters is how much is left,
+	/// and the consequence of skipping is only worth stating at the point of submitting.
+	/// </remarks>
+	private string ProgressSummary()
+		=> Form is null
+			? string.Empty
+			: string.Create(
+				CultureInfo.InvariantCulture,
+				$"Question {_activeIndex + 1} of {Form.Questions.Count} - or pick a tab to jump");
+
 	private string AnsweredSummary()
 	{
 		if (Form is null)
@@ -186,6 +219,30 @@ public partial class PDFormMessage
 			: string.Create(
 				CultureInfo.InvariantCulture,
 				$"{answered} of {Form.Questions.Count} answered - the rest will be reported as skipped");
+	}
+
+	/// <summary>
+	/// What to show under the slider: the point's label where there is one, else the number.
+	/// </summary>
+	private string ScaleValueText(ChatFormQuestion question)
+	{
+		if (!_values.TryGetValue(question.Id, out var raw) || string.IsNullOrWhiteSpace(raw))
+		{
+			return "not answered";
+		}
+
+		if (question.Scale is not null
+			&& int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+		{
+			var label = question.Scale.LabelFor(value);
+
+			if (!string.IsNullOrWhiteSpace(label))
+			{
+				return label;
+			}
+		}
+
+		return raw;
 	}
 
 	private static string Midpoint(ChatFormScale scale)
@@ -204,8 +261,13 @@ public partial class PDFormMessage
 
 		if (question.Kind == ChatFormAnswerKind.MultipleChoice)
 		{
+			// Ordered as the question offered them, not alphabetically. The asker chose that order -
+			// often most to least likely - and re-sorting throws that away and reads oddly besides.
 			var selected = _selections.TryGetValue(question.Id, out var set)
-				? set.OrderBy(label => label, StringComparer.Ordinal).ToList()
+				? question.Options
+					.Select(option => option.Label)
+					.Where(set.Contains)
+					.ToList()
 				: [];
 
 			var readable = new List<string>(selected);
@@ -242,6 +304,20 @@ public partial class PDFormMessage
 			value = otherText;
 		}
 
+		// A labelled scale records "Agree" rather than "2". The number is not lost - it stays in
+		// ScaleDescription - but the answer itself should be readable without a key.
+		if (question.Kind == ChatFormAnswerKind.Scale
+			&& question.Scale is not null
+			&& int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var point))
+		{
+			var label = question.Scale.LabelFor(point);
+
+			if (!string.IsNullOrWhiteSpace(label))
+			{
+				value = label;
+			}
+		}
+
 		return new ChatFormAnswer
 		{
 			QuestionId = question.Id,
@@ -251,9 +327,7 @@ public partial class PDFormMessage
 			WasOther = hasOther,
 			WasSkipped = string.IsNullOrWhiteSpace(value),
 			ScaleDescription = question.Kind == ChatFormAnswerKind.Scale && question.Scale is not null
-				? string.Create(
-					CultureInfo.InvariantCulture,
-					$"{question.Scale.Minimum} = {question.Scale.MinimumLabel}, {question.Scale.Maximum} = {question.Scale.MaximumLabel}")
+				? DescribeScale(question.Scale, value)
 				: null
 		};
 	}
@@ -293,5 +367,29 @@ public partial class PDFormMessage
 		_closedMessage = "No problem - these questions were dismissed.";
 
 		await OnDismissed.InvokeAsync(Form.Id).ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Records what the scale meant, so the answer is interpretable without the form.
+	/// </summary>
+	/// <remarks>
+	/// Always includes the number actually chosen, even when the answer itself is a label: the label
+	/// is what a person reads, the number is what anything counting or averaging needs.
+	/// </remarks>
+	internal static string DescribeScale(ChatFormScale scale, string? chosen)
+	{
+		var points = scale.HasUsablePointLabels && scale.PointLabels is not null
+			? string.Join(
+				", ",
+				scale.PointLabels.Select((label, offset) => string.Create(
+					CultureInfo.InvariantCulture,
+					$"{scale.Minimum + offset} = {label}")))
+			: string.Create(
+				CultureInfo.InvariantCulture,
+				$"{scale.Minimum} = {scale.MinimumLabel}, {scale.Maximum} = {scale.MaximumLabel}");
+
+		return string.IsNullOrWhiteSpace(chosen)
+			? points
+			: string.Create(CultureInfo.InvariantCulture, $"{points} (chosen: {chosen})");
 	}
 }

@@ -92,7 +92,7 @@
 						<div class="pdchat-form-scale-ends">
 							<span>@active.Scale.MinimumLabel</span>
 							<span class="pdchat-form-scale-value">
-								@(_values.TryGetValue(active.Id, out var chosen) ? chosen : "not answered")
+								@ScaleValueText(active)
 							</span>
 							<span>@active.Scale.MaximumLabel</span>
 						</div>
@@ -156,10 +156,20 @@
 			}
 
 			<div class="pdchat-form-footer">
-				<button type="button" class="pdchat-form-submit" @onclick="SubmitAsync">
-					@Form.SubmitLabel
-				</button>
-				<span class="pdchat-form-hint">@AnsweredSummary()</span>
+				@if (IsLastQuestion)
+				{
+					<button type="button" class="pdchat-form-submit" @onclick="SubmitAsync">
+						@Form.SubmitLabel
+					</button>
+					<span class="pdchat-form-hint">@AnsweredSummary()</span>
+				}
+				else
+				{
+					<button type="button" class="pdchat-form-submit" @onclick="() => _activeIndex++">
+						Next
+					</button>
+					<span class="pdchat-form-hint">@ProgressSummary()</span>
+				}
 			</div>
 		}
 	</div>
