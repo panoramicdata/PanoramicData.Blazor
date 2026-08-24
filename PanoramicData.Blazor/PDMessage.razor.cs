@@ -13,6 +13,16 @@ public partial class PDMessage
 	[Parameter] public ChatMessage Message { get; set; } = default!;
 
 	/// <summary>
+	/// Where an inline form's answers go, supplied by the enclosing chat (issue #106).
+	/// </summary>
+	/// <remarks>
+	/// Optional: a PDMessage rendered outside a PDChat still shows its form, it simply has nowhere
+	/// to report the outcome.
+	/// </remarks>
+	[CascadingParameter]
+	public ChatFormContext? FormContext { get; set; }
+
+	/// <summary>
 	/// A function to select a user icon for a given message.
 	/// </summary>
 	[Parameter] public Func<ChatMessage, string?>? UserIconSelector { get; set; }

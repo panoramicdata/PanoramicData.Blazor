@@ -1,6 +1,9 @@
-﻿@using static PanoramicData.Blazor.PDResizePane
+@using static PanoramicData.Blazor.PDResizePane
 @inherits JSModuleComponentBase
 
+@* Issue #106: one cascade for the whole component, rather than threading a callback through
+   PDMessages three times - once per dock mode - and PDMessage besides. *@
+<CascadingValue Value="FormContext" IsFixed="true">
 <div class="pdchat-container @GetDockModeClasses() @( ChatService.DockMode != PDChatDockMode.Minimized ? "open" : "" )">
 	@switch (ChatService.DockMode)
 	{
@@ -199,3 +202,4 @@
 			break;
 	}
 </div>
+</CascadingValue>

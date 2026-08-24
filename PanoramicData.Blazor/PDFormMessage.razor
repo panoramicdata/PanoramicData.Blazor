@@ -1,0 +1,177 @@
+@namespace PanoramicData.Blazor
+@using PanoramicData.Blazor.Models
+
+@if (Form is not null && Form.Questions.Count > 0)
+{
+	<div class="pdchat-form">
+
+		<div class="pdchat-form-tabs" role="tablist">
+			@for (var index = 0; index < Form.Questions.Count; index++)
+			{
+				var questionIndex = index;
+				var question = Form.Questions[questionIndex];
+				var isActive = questionIndex == _activeIndex;
+
+				<button type="button"
+						role="tab"
+						class="pdchat-form-tab @(isActive ? "active" : string.Empty) @(IsAnswered(question) ? "answered" : string.Empty)"
+						aria-selected="@isActive"
+						disabled="@_isClosed"
+						@onclick="() => _activeIndex = questionIndex">
+					@question.Header
+				</button>
+			}
+
+			@if (!_isClosed)
+			{
+				<button type="button"
+						class="pdchat-form-dismiss"
+						title="Dismiss these questions"
+						aria-label="Dismiss these questions"
+						@onclick="DismissAsync">
+					&times;
+				</button>
+			}
+		</div>
+
+		@if (_isClosed)
+		{
+			<div class="pdchat-form-done">@_closedMessage</div>
+		}
+		else
+		{
+			var active = Form.Questions[_activeIndex];
+
+			@if (!string.IsNullOrWhiteSpace(Form.Title) && _activeIndex == 0)
+			{
+				<div class="pdchat-form-title">@Form.Title</div>
+			}
+
+			<div class="pdchat-form-question">@active.Question</div>
+
+			@switch (active.Kind)
+			{
+				case ChatFormAnswerKind.SingleChoice:
+					@foreach (var option in active.Options)
+					{
+						var label = option.Label;
+
+						<label class="pdchat-form-option @(IsChosen(active.Id, label) ? "selected" : string.Empty)">
+							<input type="radio"
+								   name="@($"q-{Form.Id}-{active.Id}")"
+								   checked="@IsChosen(active.Id, label)"
+								   @onchange="() => ChooseOne(active.Id, label)" />
+							@RenderOption(option)
+						</label>
+					}
+					break;
+
+				case ChatFormAnswerKind.MultipleChoice:
+					@foreach (var option in active.Options)
+					{
+						var label = option.Label;
+
+						<label class="pdchat-form-option @(IsChosen(active.Id, label) ? "selected" : string.Empty)">
+							<input type="checkbox"
+								   checked="@IsChosen(active.Id, label)"
+								   @onchange="e => ToggleMany(active.Id, label, e.Value is true)" />
+							@RenderOption(option)
+						</label>
+					}
+					break;
+
+				case ChatFormAnswerKind.Scale when active.Scale?.IsValid == true:
+					<div class="pdchat-form-scale">
+						<input type="range"
+							   min="@active.Scale.Minimum"
+							   max="@active.Scale.Maximum"
+							   step="1"
+							   value="@(_values.GetValueOrDefault(active.Id) ?? Midpoint(active.Scale))"
+							   @oninput="e => _values[active.Id] = e.Value?.ToString() ?? string.Empty" />
+
+						<div class="pdchat-form-scale-ends">
+							<span>@active.Scale.MinimumLabel</span>
+							<span class="pdchat-form-scale-value">
+								@(_values.TryGetValue(active.Id, out var chosen) ? chosen : "not answered")
+							</span>
+							<span>@active.Scale.MaximumLabel</span>
+						</div>
+					</div>
+					break;
+
+				case ChatFormAnswerKind.Scale:
+					<div class="pdchat-form-invalid">
+						This question could not be shown: its scale is not a usable range.
+					</div>
+					break;
+
+				case ChatFormAnswerKind.Text:
+					@if (active.IsMultiline)
+					{
+						<textarea class="pdchat-form-text pdchat-form-textarea"
+								  rows="5"
+								  placeholder="Your answer"
+								  @oninput="e => _values[active.Id] = e.Value?.ToString() ?? string.Empty">@TextValue(active)</textarea>
+					}
+					else
+					{
+						<input class="pdchat-form-text"
+							   placeholder="Your answer"
+							   value="@TextValue(active)"
+							   @oninput="e => _values[active.Id] = e.Value?.ToString() ?? string.Empty" />
+					}
+					break;
+			}
+
+			@* "Other" applies to both choice kinds, so it is rendered once here rather than twice above. *@
+			@if (active.AllowOther
+				&& active.Kind is ChatFormAnswerKind.SingleChoice or ChatFormAnswerKind.MultipleChoice)
+			{
+				<label class="pdchat-form-option @(_otherChosen.Contains(active.Id) ? "selected" : string.Empty)">
+					@if (active.Kind == ChatFormAnswerKind.SingleChoice)
+					{
+						<input type="radio"
+							   name="@($"q-{Form.Id}-{active.Id}")"
+							   checked="@_otherChosen.Contains(active.Id)"
+							   @onchange="() => ChooseOther(active.Id)" />
+					}
+					else
+					{
+						<input type="checkbox"
+							   checked="@_otherChosen.Contains(active.Id)"
+							   @onchange="e => ToggleOther(active.Id, e.Value is true)" />
+					}
+					<span class="pdchat-form-option-body">
+						<span class="pdchat-form-option-label">Other</span>
+					</span>
+				</label>
+
+				@if (_otherChosen.Contains(active.Id))
+				{
+					<input class="pdchat-form-text"
+						   placeholder="Tell us more"
+						   value="@_otherText.GetValueOrDefault(active.Id)"
+						   @oninput="e => _otherText[active.Id] = e.Value?.ToString() ?? string.Empty" />
+				}
+			}
+
+			<div class="pdchat-form-footer">
+				<button type="button" class="pdchat-form-submit" @onclick="SubmitAsync">
+					@Form.SubmitLabel
+				</button>
+				<span class="pdchat-form-hint">@AnsweredSummary()</span>
+			</div>
+		}
+	</div>
+}
+
+@code {
+	private RenderFragment RenderOption(ChatFormOption option) =>
+	@<span class="pdchat-form-option-body">
+		<span class="pdchat-form-option-label">@option.Label</span>
+		@if (!string.IsNullOrWhiteSpace(option.Description))
+		{
+			<span class="pdchat-form-option-description">@option.Description</span>
+		}
+	</span>;
+}

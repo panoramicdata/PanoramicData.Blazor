@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor.Models;
+namespace PanoramicData.Blazor.Models;
 
 /// <summary>
 /// Represents a single message in a chat conversation.
@@ -76,4 +76,23 @@ public class ChatMessage()
 	/// also fall back to the service defaults.
 	/// </summary>
 	public ChatToastOptions? ToastOptions { get; set; }
+
+	/// <summary>
+	/// Questions to ask inline, rendered as a tabbed form (issue #106).
+	/// </summary>
+	/// <remarks>
+	/// When set, the message renders a form instead of - or as well as - its text. Answering it
+	/// raises a new message carrying <see cref="FormSubmission"/>.
+	/// </remarks>
+	public ChatForm? Form { get; set; }
+
+	/// <summary>
+	/// The answers to a form, on the message that reports them.
+	/// </summary>
+	/// <remarks>
+	/// Present alongside a readable rendering in <see cref="Message"/> rather than instead of it: the
+	/// transcript has to read naturally to a human, and the consumer needs the structure. Carrying
+	/// only one of the two would force somebody to reconstruct the other.
+	/// </remarks>
+	public ChatFormSubmission? FormSubmission { get; set; }
 }

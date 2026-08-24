@@ -1,0 +1,66 @@
+@page "/pdformmessage"
+@using PanoramicData.Blazor.Models
+
+<h1>PDFormMessage</h1>
+
+<p>
+	An inline question form for <code>PDChat</code>. One question per tab, answered in any order, one
+	submit. Every question is optional, and the whole form can be dismissed - a form that will not let
+	a conversation continue until it is filled in is worse than no form.
+</p>
+
+<div class="alert alert-info">
+	<strong>Try it in the chat:</strong> type <code>form</code> (or <code>question</code>) into the chat
+	on this page and the fake chat service will always reply with a form covering every answer kind.
+	Answer some, skip some, and submit - the answers come back as an ordinary chat message, so they sit
+	in the transcript in order.
+</div>
+
+<h2>Answer kinds</h2>
+
+<table class="table table-sm">
+	<thead>
+		<tr><th>Kind</th><th>Renders as</th><th>Notes</th></tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><code>SingleChoice</code></td>
+			<td>Radio buttons</td>
+			<td>"Which is your <em>favourite</em>?" Choices are alternatives. Options carry a label and an optional description.</td>
+		</tr>
+		<tr>
+			<td><code>MultipleChoice</code></td>
+			<td>Checkboxes</td>
+			<td>"Which do you <em>like</em>?" A different question, kept as a separate kind so a renderer cannot show radios where checkboxes were meant.</td>
+		</tr>
+		<tr>
+			<td><code>Scale</code></td>
+			<td>Slider with named ends</td>
+			<td>1..4, 1..5, 0..1. The end labels travel with the answer, because a bare "3" is meaningless a month later.</td>
+		</tr>
+		<tr>
+			<td><code>Text</code></td>
+			<td>Input or textarea</td>
+			<td>Optionally pre-filled with a suggested draft to edit. Submitting the suggestion unchanged still counts as answered.</td>
+		</tr>
+	</tbody>
+</table>
+
+<p>
+	Either choice kind can offer <strong>Other</strong>, revealing a free-text box. On a multiple-choice
+	question "Other" sits <em>alongside</em> the real selections rather than replacing them.
+</p>
+
+<h2>Standalone</h2>
+
+<p>The component works outside a chat too. This one reports its outcome below.</p>
+
+<div style="max-width: 620px;">
+	<PDFormMessage Form="_form" OnSubmitted="OnSubmittedAsync" OnDismissed="OnDismissedAsync" />
+</div>
+
+@if (_outcome is not null)
+{
+	<h3 class="mt-3">Outcome</h3>
+	<pre class="p-2 border rounded">@_outcome</pre>
+}

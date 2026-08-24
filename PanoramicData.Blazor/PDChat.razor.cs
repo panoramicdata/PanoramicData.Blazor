@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor;
+namespace PanoramicData.Blazor;
 
 /// <summary>
 /// A Blazor component that provides a chat interface with support for docking, muting, and message history.
@@ -18,6 +18,17 @@ public partial class PDChat : JSModuleComponentBase
 	[EditorRequired]
 	[Parameter]
 	public required ChatMessageSender User { get; set; }
+
+	/// <summary>
+	/// Handed to descendant messages so an inline form can report its outcome (issue #106).
+	/// </summary>
+	private ChatFormContext FormContext => _formContext ??= new ChatFormContext
+	{
+		OnSubmitted = OnFormSubmittedAsync,
+		OnDismissed = OnFormDismissedAsync
+	};
+
+	private ChatFormContext? _formContext;
 
 	/// <summary>
 	/// Cascading parameter to get the parent chat container, if any.
@@ -235,6 +246,11 @@ public partial class PDChat : JSModuleComponentBase
 			existing.Thoughts = message.Thoughts;
 			existing.PartialMessage = message.PartialMessage;
 			existing.ToastOptions = message.ToastOptions;
+			// Issue #106. Every field here is copied by hand, so a new payload on ChatMessage that is
+			// not added to this list is silently dropped - which has already caught out ProgressSteps
+			// and Thoughts once.
+			existing.Form = message.Form;
+			existing.FormSubmission = message.FormSubmission;
 		}
 		else
 		{
@@ -898,5 +914,75 @@ public partial class PDChat : JSModuleComponentBase
 		public bool Paused { get; set; }
 		public double RemainingMs { get; set; }
 		public long StartedTicks { get; set; }
+	}
+
+	/// <summary>
+	/// Turns a completed form into an ordinary outbound message (issue #106).
+	/// </summary>
+	/// <remarks>
+	/// Deliberately the same path a typed message takes - ChatService.SendMessage plus
+	/// OnMessageSent - so a consumer needs no new wiring to receive answers, and the transcript
+	/// keeps them in order alongside everything else.
+	/// </remarks>
+	private async Task OnFormSubmittedAsync(ChatFormSubmission submission)
+	{
+		var message = new ChatMessage
+		{
+			Id = Guid.NewGuid(),
+			Message = DescribeSubmission(submission),
+			Sender = User,
+			Type = MessageType.Normal,
+			Timestamp = DateTime.UtcNow,
+			FormSubmission = submission
+		};
+
+		ChatService.SendMessage(message);
+
+		if (OnMessageSent.HasDelegate)
+		{
+			await OnMessageSent.InvokeAsync(message);
+		}
+
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Records that a form was dismissed, without sending anything.
+	/// </summary>
+	/// <remarks>
+	/// Nothing goes to the chat service on purpose. Declining to answer is not a contribution to the
+	/// conversation, and a message saying "the user ignored your questions" would invite the asker to
+	/// press the point - which is exactly what making the form optional was meant to avoid.
+	/// </remarks>
+	private Task OnFormDismissedAsync(Guid formId)
+	{
+		_ = formId;
+
+		StateHasChanged();
+
+		return Task.CompletedTask;
+	}
+
+	/// <summary>
+	/// Renders a submission as the plain text a human reads in the transcript.
+	/// </summary>
+	internal static string DescribeSubmission(ChatFormSubmission submission)
+	{
+		ArgumentNullException.ThrowIfNull(submission);
+
+		var lines = new List<string>();
+
+		foreach (var answer in submission.Answers)
+		{
+			// Skipped questions are listed rather than omitted, so the reader can see what was asked
+			// and declined - the absence of a line would look like the question was never put.
+			lines.Add(answer.WasSkipped
+				? $"{answer.Question} - skipped"
+				: $"{answer.Question} - {answer.Value}");
+		}
+
+		return lines.Count == 0
+			? "(no answers)"
+			: string.Join(Environment.NewLine, lines);
 	}
 }

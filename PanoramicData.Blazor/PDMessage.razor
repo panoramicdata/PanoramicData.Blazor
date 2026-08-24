@@ -1,4 +1,4 @@
-﻿@inherits ComponentBase
+@inherits ComponentBase
 
 <div class="pdchat-message @(Message.Sender.IsUser ? "user" : "bot") @(UseFullWidthMessages ? "full-width" : "bubble") @GetMetaPositionClass() priority-@Message.Type.ToString().ToLower()">
 	@if (UseFullWidthMessages)
@@ -31,6 +31,7 @@
 					{
 						<span>@Message.Message</span>
 					}
+					@RenderForm
 				</div>
 			</div>
 			@if (ShouldShowAnyMetadata())
@@ -100,6 +101,7 @@
 					{
 						<span>@Message.Message</span>
 					}
+					@RenderForm
 				</div>
 			</div>
 		}
@@ -147,6 +149,7 @@
 			{
 				<span class="@(Message.Sender.IsUser ? "right" : "left")">@Message.Message</span>
 			}
+			@RenderForm
 		</div>
 	}
 </div>
@@ -155,6 +158,24 @@
    bare ellipsis, which is indistinguishable from a hung request - and for an agentic reply that
    takes a minute or more, that is most of the user's experience of the product. *@
 @code {
+	/// <summary>
+	/// Renders an inline question form when the message carries one (issue #106).
+	/// </summary>
+	/// <remarks>
+	/// Driven by the payload rather than by MessageType, so a consumer that sets Form but leaves the
+	/// type alone still gets a form. Without a cascaded context - a PDMessage used outside a PDChat -
+	/// the form still renders; it simply has nowhere to send the answers.
+	/// </remarks>
+	private RenderFragment RenderForm => __builder =>
+	{
+		if (Message.Form is not null)
+		{
+			<PDFormMessage Form="Message.Form"
+						   OnSubmitted="@(async (ChatFormSubmission s) => { if (FormContext?.OnSubmitted is not null) { await FormContext.OnSubmitted(s); } })"
+						   OnDismissed="@(async (Guid id) => { if (FormContext?.OnDismissed is not null) { await FormContext.OnDismissed(id); } })" />
+		}
+	};
+
 	private RenderFragment RenderProgress => __builder =>
 	{
 		<div class="pdchat-progress">

@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor.Services;
+namespace PanoramicData.Blazor.Services;
 
 /// <summary>
 /// Demo chat service that simulates responses and online/offline behavior.
@@ -580,6 +580,9 @@ public class DumbChatService : IChatService, IDisposable
 			existing.Timestamp = chatMessage.Timestamp;
 			existing.IsTitleHtml = chatMessage.IsTitleHtml;
 			existing.IsMessageHtml = chatMessage.IsMessageHtml;
+			// Issue #106: copied by hand like the rest, so a new payload must be added here too.
+			existing.Form = chatMessage.Form;
+			existing.FormSubmission = chatMessage.FormSubmission;
 		}
 		else
 		{
@@ -666,6 +669,27 @@ public class DumbChatService : IChatService, IDisposable
 			return;
 		}
 
+		// Issue #106: "form" always produces a question form, so the inline form can be exercised
+		// without an AI behind the chat.
+		if (userMessage.Message.Contains("form", StringComparison.OrdinalIgnoreCase)
+			|| userMessage.Message.Contains("question", StringComparison.OrdinalIgnoreCase))
+		{
+			var formMessage = new ChatMessage
+			{
+				Id = Guid.NewGuid(),
+				Sender = DumbBot,
+				Message = "A few quick questions - answer what you like and skip the rest.",
+				Type = MessageType.Form,
+				Timestamp = DateTime.UtcNow,
+				Form = BuildDemonstrationForm()
+			};
+
+			_messages.Add(formMessage);
+			OnMessageReceived?.Invoke(formMessage);
+
+			return;
+		}
+
 		if (userMessage.Message.Contains("help", StringComparison.OrdinalIgnoreCase))
 		{
 			// Provide a list of commands
@@ -713,4 +737,94 @@ public class DumbChatService : IChatService, IDisposable
 		OnDockModeChanged?.Invoke(DockMode);
 		return Task.CompletedTask;
 	}
+
+	/// <summary>
+	/// A form exercising every answer kind, for the demo (issue #106).
+	/// </summary>
+	/// <remarks>
+	/// Deliberately one of each: single choice with descriptions, multiple choice with "Other", two
+	/// differently-shaped scales, and both text sizes including a pre-filled draft. If a change to
+	/// the form renderer breaks any kind, typing "form" into the demo shows it immediately.
+	/// </remarks>
+	public static ChatForm BuildDemonstrationForm() => new()
+	{
+		Id = Guid.NewGuid(),
+		Title = "Tell us about ice cream",
+		Questions =
+		[
+			new ChatFormQuestion
+			{
+				Id = "flavours",
+				Header = "Flavours",
+				Question = "Which flavours of ice cream do you like?",
+				Kind = ChatFormAnswerKind.MultipleChoice,
+				AllowOther = true,
+				Options =
+				[
+					new ChatFormOption { Label = "Vanilla", Description = "The one everything else is measured against" },
+					new ChatFormOption { Label = "Pistachio", Description = "Green, expensive, worth it" },
+					new ChatFormOption { Label = "Rum and raisin", Description = "Divisive" }
+				]
+			},
+			new ChatFormQuestion
+			{
+				Id = "favourite",
+				Header = "Favourite",
+				Question = "Which is your favourite?",
+				Kind = ChatFormAnswerKind.SingleChoice,
+				AllowOther = true,
+				Options =
+				[
+					new ChatFormOption { Label = "Vanilla", Description = "Reliable" },
+					new ChatFormOption { Label = "Pistachio", Description = "Green, expensive, worth it" },
+					new ChatFormOption { Label = "Rum and raisin", Description = "Divisive" }
+				]
+			},
+			new ChatFormQuestion
+			{
+				Id = "agreement",
+				Header = "Agreement",
+				Question = "Ice cream is better than cake.",
+				Kind = ChatFormAnswerKind.Scale,
+				Scale = new ChatFormScale
+				{
+					Minimum = 1,
+					Maximum = 4,
+					MinimumLabel = "Strongly disagree",
+					MaximumLabel = "Strongly agree"
+				}
+			},
+			new ChatFormQuestion
+			{
+				Id = "again",
+				Header = "Yes/No",
+				Question = "Would you eat ice cream again today?",
+				Kind = ChatFormAnswerKind.Scale,
+				Scale = new ChatFormScale
+				{
+					Minimum = 0,
+					Maximum = 1,
+					MinimumLabel = "No",
+					MaximumLabel = "Yes"
+				}
+			},
+			new ChatFormQuestion
+			{
+				Id = "shop",
+				Header = "Shop",
+				Question = "Which shop do you buy it from?",
+				Kind = ChatFormAnswerKind.Text
+			},
+			new ChatFormQuestion
+			{
+				Id = "summary",
+				Header = "Summary",
+				Question = "Here is a suggested summary - please edit it.",
+				Kind = ChatFormAnswerKind.Text,
+				IsMultiline = true,
+				SuggestedValue = "I like several flavours, pistachio most of all, and I would happily "
+					+ "eat more today."
+			}
+		]
+	};
 }
