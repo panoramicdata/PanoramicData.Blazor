@@ -415,8 +415,65 @@
 	opacity: 0.9;
 }
 
+/* The partial is now rendered markdown rather than raw text (issue #98), so it needs the same
+   treatment as .pdchat-text: pre-wrap would preserve the newlines between block elements and
+   double-space the very thing that was just fixed. ::deep because the HTML is injected and carries
+   no scope attribute. */
 .pdchat-partial {
 	white-space: pre-wrap;
+}
+
+.pdchat-partial ::deep p,
+.pdchat-partial ::deep ul,
+.pdchat-partial ::deep ol,
+.pdchat-partial ::deep li,
+.pdchat-partial ::deep table,
+.pdchat-partial ::deep blockquote,
+.pdchat-partial ::deep h1,
+.pdchat-partial ::deep h2,
+.pdchat-partial ::deep h3,
+.pdchat-partial ::deep h4,
+.pdchat-partial ::deep h5,
+.pdchat-partial ::deep h6 {
+	white-space: normal;
+}
+
+.pdchat-partial ::deep p {
+	margin: 0 0 0.5em;
+}
+
+.pdchat-partial ::deep ul,
+.pdchat-partial ::deep ol {
+	margin: 0.25em 0 0.5em;
+	padding-left: 1.5em;
+}
+
+.pdchat-partial ::deep li + li {
+	margin-top: 0.15em;
+}
+
+.pdchat-partial ::deep li > p {
+	margin: 0;
+}
+
+.pdchat-partial ::deep p:last-child,
+.pdchat-partial ::deep ul:last-child,
+.pdchat-partial ::deep ol:last-child {
+	margin-bottom: 0;
+}
+
+/* A table appearing row by row is the most distracting thing on screen while an answer streams, so
+   it is kept compact and quiet until the answer settles. */
+.pdchat-partial ::deep table {
+	border-collapse: collapse;
+	font-size: 0.95em;
+}
+
+.pdchat-partial ::deep th,
+.pdchat-partial ::deep td {
+	border: 1px solid var(--pd-chat-border, #dee2e6);
+	padding: 0.15rem 0.4rem;
+	text-align: left;
 }
 
 .pdchat-partial-writing {

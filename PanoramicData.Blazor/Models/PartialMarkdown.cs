@@ -1,3 +1,4 @@
+using Markdig;
 using System.Text.RegularExpressions;
 
 namespace PanoramicData.Blazor.Models;
@@ -36,6 +37,36 @@ public static partial class PartialMarkdown
 	/// or null when nothing needed trimming.
 	/// </param>
 	public sealed record Result(string Content, string? Writing);
+
+	/// <summary>
+	/// The pipeline used for streamed fragments. Built once - constructing one per keystroke of a
+	/// streamed answer would be wasteful, and it holds no per-call state.
+	/// </summary>
+	private static readonly MarkdownPipeline _pipeline = new MarkdownPipelineBuilder()
+		.UseAdvancedExtensions()
+		.Build();
+
+	/// <summary>
+	/// Renders a trimmed fragment as HTML.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// <see cref="Trim"/> makes a fragment structurally safe; this is what makes it <i>look</i> like
+	/// the finished answer. Without it a streamed reply shows its own markup - literal asterisks
+	/// around bold text, pipe characters where a table will be - and then snaps into a rendered
+	/// answer when the stream ends. The trimmer was always meant to feed a renderer; that half was
+	/// missing.
+	/// </para>
+	/// <para>
+	/// Only ever called on the output of <see cref="Trim"/>, which is why it can afford to be a
+	/// plain conversion: the fragment has already had its half-finished structures removed, so there
+	/// is no unclosed fence or partial table row left for the parser to make a mess of.
+	/// </para>
+	/// </remarks>
+	public static string ToHtml(string? content)
+		=> string.IsNullOrWhiteSpace(content)
+			? string.Empty
+			: Markdown.ToHtml(content, _pipeline);
 
 	/// <summary>
 	/// Trims a partial markdown fragment to the last point it was structurally complete.

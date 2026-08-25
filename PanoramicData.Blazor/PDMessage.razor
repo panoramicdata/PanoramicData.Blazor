@@ -206,7 +206,7 @@
 
 				@if (partial.Content.Length > 0)
 				{
-					<div class="pdchat-partial">@partial.Content</div>
+					<div class="pdchat-partial">@((MarkupString)PartialMarkdown.ToHtml(partial.Content))</div>
 				}
 				@if (partial.Writing is not null)
 				{
