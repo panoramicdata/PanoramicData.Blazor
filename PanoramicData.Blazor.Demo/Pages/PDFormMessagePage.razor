@@ -18,38 +18,128 @@
 
 <h2>Answer kinds</h2>
 
+<p>Eight, each chosen to remove a specific way a free-text answer goes wrong.</p>
+
 <table class="table table-sm">
 	<thead>
-		<tr><th>Kind</th><th>Renders as</th><th>Notes</th></tr>
+		<tr><th style="width: 9rem;">Kind</th><th style="width: 11rem;">Renders as</th><th>What it is for</th></tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td><code>SingleChoice</code></td>
 			<td>Radio buttons</td>
-			<td>"Which is your <em>favourite</em>?" Choices are alternatives. Options carry a label and an optional description.</td>
+			<td>
+				&quot;Which is your <em>favourite</em>?&quot; The choices are alternatives, so picking one rules
+				out the rest. Each option carries a label and an optional description - a bare list of labels
+				makes the reader guess at the trade-off, which is the thing they are being asked about.
+			</td>
 		</tr>
 		<tr>
 			<td><code>MultipleChoice</code></td>
 			<td>Checkboxes</td>
-			<td>"Which do you <em>like</em>?" A different question, kept as a separate kind so a renderer cannot show radios where checkboxes were meant.</td>
+			<td>
+				&quot;Which do you <em>like</em>?&quot; A genuinely different question, kept as a separate kind
+				rather than a flag so a renderer cannot show radios where checkboxes were meant. Answers are
+				reported in the order the question offered them, not alphabetically.
+			</td>
 		</tr>
 		<tr>
 			<td><code>Scale</code></td>
-			<td>Slider with named ends</td>
-			<td>1..4, 1..5, 0..1. The end labels travel with the answer, because a bare "3" is meaningless a month later.</td>
+			<td>Slider</td>
+			<td>
+				1..4, 1..5, 0..1. Name <strong>every</strong> point - &quot;Strongly disagree, Disagree, Agree,
+				Strongly agree&quot; - and the answer records <em>Agree</em> rather than <em>2</em>. The numeric
+				value is still kept alongside, so anything counting or averaging can. A bare &quot;3&quot; is
+				meaningless a month later: three out of what, and which end is good?
+			</td>
 		</tr>
 		<tr>
 			<td><code>Text</code></td>
 			<td>Input or textarea</td>
-			<td>Optionally pre-filled with a suggested draft to edit. Submitting the suggestion unchanged still counts as answered.</td>
+			<td>
+				Single or multi-line. Optionally <strong>pre-filled with a suggested draft</strong> for the user
+				to edit - &quot;here is a draft, change what is wrong&quot; asks far less of someone than
+				&quot;write this&quot;, and gets a better answer. Submitting the suggestion unchanged still
+				counts as answered: accepting a draft is a decision, not an absence of one.
+			</td>
+		</tr>
+		<tr>
+			<td><code>DateTime</code></td>
+			<td>Date picker</td>
+			<td>
+				&quot;When did this start?&quot; as free text gets &quot;last Tuesday&quot;, which then has to be
+				resolved against a timezone somebody is guessing at. <code>IncludeTime</code> adds a time and is
+				off by default: most questions want a day, and asking for a time the asker does not need invites
+				a made-up one.
+			</td>
+		</tr>
+		<tr>
+			<td><code>Number</code></td>
+			<td>Number input</td>
+			<td>
+				&quot;How many users are affected?&quot; is not a scale, because it is unbounded, and as free
+				text it comes back as &quot;about twenty&quot;. Optional minimum, maximum and unit. The unit
+				travels with the answer, so &quot;20&quot; is never left needing a key.
+			</td>
+		</tr>
+		<tr>
+			<td><code>Ranking</code></td>
+			<td>Ordered list</td>
+			<td>
+				&quot;Put these in priority order.&quot; Different from multiple choice: it captures relative
+				strength, which is what &quot;what should I do first?&quot; actually asks. Moved with up/down
+				buttons rather than drag, so it stays usable by keyboard. An untouched ranking is reported as
+				<em>skipped</em>, not as the order the options happened to be listed in - treating a default
+				order as an answer would manufacture a preference nobody expressed.
+			</td>
+		</tr>
+		<tr>
+			<td><code>Acknowledgement</code></td>
+			<td>Single checkbox</td>
+			<td>
+				&quot;I understand this will restart the service.&quot; Deliberately not a two-option choice:
+				there is no &quot;No&quot; to pick, only an acknowledgement given or withheld, and withholding is
+				a skip. The statement goes in the first option's label.
+			</td>
 		</tr>
 	</tbody>
 </table>
 
 <p>
 	Either choice kind can offer <strong>Other</strong>, revealing a free-text box. On a multiple-choice
-	question "Other" sits <em>alongside</em> the real selections rather than replacing them.
+	question &quot;Other&quot; sits <em>alongside</em> the real selections rather than replacing them -
+	someone can like vanilla, pistachio, and one more the list did not offer. On a single choice it
+	clears the previous pick, so the box does not start pre-filled with an answer just rejected.
 </p>
+
+<h2>How it behaves</h2>
+
+<ul>
+	<li>
+		<strong>Every question is optional, and so is the whole form.</strong> Skipping is recorded
+		explicitly rather than inferred from a missing entry, so the asker can tell &quot;declined to
+		answer&quot; from &quot;never asked&quot;.
+	</li>
+	<li>
+		<strong>Submit appears only on the last tab; every other tab offers Next.</strong> With a submit
+		button on every question most people press it on the first one - they have done exactly what the
+		button told them to - and the asker receives a form that is one-sixth answered. Submitting early
+		is still one click on the last tab, which makes it deliberate rather than accidental.
+	</li>
+	<li>
+		<strong>Dismissing sends nothing at all.</strong> Not an empty submission - a message saying
+		&quot;the user ignored your questions&quot; would invite the asker to press the point, which is
+		what making the form optional was meant to avoid.
+	</li>
+	<li>
+		<strong>The dot on a tab marks an answer, quietly.</strong> Not a tick: with every question
+		optional, a tick implies the unanswered ones are wrong.
+	</li>
+	<li>
+		<strong>Answers arrive as an ordinary chat message</strong> carrying both a readable rendering and
+		the structured submission, so a consumer needs no new wiring and the transcript stays in order.
+	</li>
+</ul>
 
 <h2>Standalone</h2>
 
