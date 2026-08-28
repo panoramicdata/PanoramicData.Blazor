@@ -22,11 +22,28 @@
 
 .pdtable {
 	box-sizing: border-box;
-	height: 100%;
+	height: auto;
 	max-width: 100%;
 	min-width: 0;
 	overflow-x: auto;
 	width: 100%;
+}
+
+/* BC-81 added overflow-x to contain wide columns, but left overflow-y unset. Per the CSS
+   overflow spec, pairing overflow-x:auto with an overflow-y left at its initial "visible"
+   forces the browser to compute overflow-y as auto too - so every .pdtable became implicitly
+   vertically scrollable as an unreviewed side effect. That was invisible here because
+   height was 100%, which only clips when an ancestor supplies a definite height; wherever it
+   did (e.g. a PDTable placed directly under a page element with no intervening auto-height
+   wrapper - see MS-25891 in the ReportMagic Schedules page), the table self-clipped and grew
+   its own inner vertical scrollbar on top of the page's own outer one. height:auto on the base
+   rule means the table box always matches its own content height, so it can never have "extra"
+   vertical content of its own to hide or scroll - overflow-x still works as BC-81 intended,
+   since horizontal scrolling only needs a bounded width. The opt-in MaxHeight/StickyHeader/
+   StickyPager scrollable-table mode (see PDTableStickyPage) still needs the table to fill and
+   self-scroll within its constrained .pdtable-container, so that mode keeps height:100% below. */
+.pdtable-container .pdtable {
+	height: 100%;
 }
 
 .noselect {
