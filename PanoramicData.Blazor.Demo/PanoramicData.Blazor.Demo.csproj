@@ -12,7 +12,7 @@
     <RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor</RepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageId>PanoramicData.Blazor.Demo</PackageId>
     <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
@@ -58,7 +58,6 @@
     <Compile Update="Pages\PDTreePage3 - Copy.razor.cs">
       <DependentUpon>PDTreePage3.razor.cs</DependentUpon>
     </Compile>
-
   </ItemGroup>
   <ItemGroup>
     <UpToDateCheckInput Remove="Pages\PDRangePage.razor" />
