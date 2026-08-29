@@ -3,7 +3,7 @@ namespace PanoramicData.Blazor;
 /// <summary>
 /// A Blazor component that provides a single tab within a <see cref="PDTabSet"/>.
 /// </summary>
-public partial class PDTab : ComponentBase
+public partial class PDTab : ComponentBase, IDisposable
 {
 	/// <summary>
 	/// Gets or sets the parent tab set.
@@ -85,4 +85,27 @@ public partial class PDTab : ComponentBase
 	/// Gets the child content of the tab.
 	/// </summary>
 	public RenderFragment? GetChildContent() => ChildContent;
+
+	/// <summary>
+	/// Removes this tab from its parent when it leaves the render tree.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// A tab registers itself with its <see cref="PDTabSet"/> in <see cref="OnInitialized"/>, so without the
+	/// matching removal here it stayed in the parent's list for ever. That is invisible for the declarative
+	/// case these components were written for - a fixed set of tabs written out in markup, none of which ever
+	/// leaves - and wrong the moment tabs are rendered from a collection that changes: removing an item
+	/// disposed its <see cref="PDTab"/> while the parent went on rendering a tab for it, so a closed tab
+	/// stayed in the strip and clicking it showed content belonging to nothing.
+	/// </para>
+	/// <para>
+	/// Removal is deliberately not a close: <see cref="PDTabSet.OnTabClosed"/> reports a user closing a tab,
+	/// and raising it here would fire again for every tab on the way down when the whole tab set is disposed.
+	/// </para>
+	/// </remarks>
+	public void Dispose()
+	{
+		TabSet?.RemoveTab(this);
+		GC.SuppressFinalize(this);
+	}
 }

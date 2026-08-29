@@ -1141,71 +1141,44 @@ body:has(.pdchat-container.dock-fullscreen) {
 	cursor: default;
 }
 
-.pdchat-conversation-tabs {
-	display: flex;
-	flex-direction: row;
-	align-items: stretch;
-	gap: 2px;
-	padding: 4px 6px 0 6px;
-	overflow-x: auto;
+/* Conversation tabs are PDTabSet's markup, not ours, so these reach into the child component with
+   ::deep. Only the bits specific to conversations are set here - the tab strip's own look stays
+   PDTabSet's business, which is the point of using it rather than a second tab implementation. */
+.pdchat-conversation-tabset {
 	flex: 0 0 auto;
-	border-bottom: 1px solid var(--pd-chat-border, #ced4da);
-}
-
-.pdchat-conversation-tab {
-	display: flex;
-	align-items: center;
-	max-width: 200px;
-	border: 1px solid var(--pd-chat-border, #ced4da);
-	border-bottom: none;
-	border-radius: 4px 4px 0 0;
-	background: transparent;
-}
-
-.pdchat-conversation-tab.selected {
-	background: var(--pd-chat-info-bg, #e6f3ff);
-	border-color: var(--pd-chat-info-border, #0078d4);
-}
-
-.pdchat-conversation-tab-select {
-	display: flex;
-	align-items: center;
-	gap: 4px;
 	min-width: 0;
-	padding: 4px 6px;
-	border: none;
-	background: transparent;
-	color: inherit;
-	font-size: 0.8125rem;
-	cursor: pointer;
 }
 
-.pdchat-conversation-tab-name {
-	white-space: nowrap;
+/* The tab set's content area is where the transcript lives, so it takes the remaining height and
+   scrolls internally rather than pushing the message input off the bottom. */
+.pdchat-conversation-main ::deep .pdchat-conversation-tabset {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.pdchat-conversation-main ::deep .pdchat-conversation-tabset .pdtabset-content {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
 	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 /* The unread marker is what makes "ask, switch away, come back" work: a reply arriving for a tab the
-   user is not reading marks it rather than stealing focus. */
-.pdchat-conversation-tab-unread {
-	flex: 0 0 auto;
+   user is not reading marks it rather than stealing focus. Rendered as a leading dot via ::before so
+   that it needs no extra element inside PDTabSet's own tab markup. */
+.pdchat-conversation-main ::deep .pdtabset-tab.pdchat-conversation-tab-unread::before {
+	content: "CF";
+	margin-right: 4px;
 	font-size: 0.625rem;
 	line-height: 1;
 	color: var(--pd-chat-info-border, #0078d4);
 }
 
-.pdchat-conversation-tab-close {
-	padding: 2px 6px;
-	border: none;
-	background: transparent;
-	color: var(--pd-chat-muted-color, #6c757d);
-	font-size: 0.75rem;
-	cursor: pointer;
-}
-
-.pdchat-conversation-tab-close:hover {
-	color: var(--pd-chat-error-border, #dc3545);
+.pdchat-conversation-main ::deep .pdtabset-tab.pdchat-conversation-tab-unread .pdtabset-tab-title {
+	font-weight: 600;
 }
 
 .pdchat-conversation-none-open {

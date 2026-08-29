@@ -186,7 +186,9 @@ public partial class PDChat : JSModuleComponentBase
 	private readonly HashSet<Guid> _unreadConversationIds = [];
 
 	private PDChatConversationSidebar? _conversationSidebar;
+	private PDTabSet? _conversationTabSet;
 	private Guid? _selectedConversationId;
+	private Guid? _conversationTabToSelect;
 	private bool _isConversationSidebarCollapsed;
 
 	/// <summary>Gets the JavaScript module path for this component.</summary>
@@ -748,9 +750,84 @@ public partial class PDChat : JSModuleComponentBase
 		if (!_openConversations.Any(open => open.Id == conversation.Id))
 		{
 			_openConversations.Add(conversation);
+
+			// The PDTab for a conversation only exists after the next render, so the selection is deferred to
+			// OnAfterRenderAsync rather than attempted against a tab set that has not seen it yet.
+			_conversationTabToSelect = conversation.Id;
 		}
 
 		await SelectConversationAsync(conversation.Id);
+	}
+
+	/// <inheritdoc />
+	protected override async Task OnAfterRenderWithModuleAsync(bool firstRender)
+	{
+		SelectPendingConversationTab();
+		await base.OnAfterRenderWithModuleAsync(firstRender);
+	}
+
+	/// <summary>
+	/// Moves PDTabSet's own selection onto a tab that has only just been rendered.
+	/// </summary>
+	/// <remarks>
+	/// PDTabSet owns which tab is active - a PDTab registers itself on initialisation and the set selects the
+	/// first one it is given. Opening a second conversation therefore has to ask it to move, and can only do
+	/// so once the new tab exists.
+	/// </remarks>
+	private void SelectPendingConversationTab()
+	{
+		if (_conversationTabToSelect is not { } pending || _conversationTabSet is null)
+		{
+			return;
+		}
+
+		if (_conversationTabSet.SelectTabById(pending))
+		{
+			_conversationTabToSelect = null;
+		}
+	}
+
+	/// <summary>Handles the user clicking a tab.</summary>
+	private async Task OnConversationTabSelectedAsync(PDTab tab)
+	{
+		if (tab.Id != _selectedConversationId)
+		{
+			await SelectConversationAsync(tab.Id);
+		}
+	}
+
+	/// <summary>Handles the user closing a tab. Closing neither archives nor deletes.</summary>
+	private async Task OnConversationTabClosedAsync(PDTab tab) => await CloseConversationTabAsync(tab.Id);
+
+	/// <summary>Handles the tab set's add button.</summary>
+	private async Task OnConversationTabAddedAsync(CreateTabPosition position) => await NewConversationAsync();
+
+	/// <summary>
+	/// Handles a tab being renamed, writing the new title through to the conversation store.
+	/// </summary>
+	/// <remarks>
+	/// PDTabSet already supports renaming by double-click, and the conversation contract already has
+	/// RenameAsync - which nothing called until now. Wiring the two together is the whole feature.
+	/// </remarks>
+	private async Task OnConversationTabRenamedAsync(PDTab tab)
+	{
+		if (ConversationService is null)
+		{
+			return;
+		}
+
+		await ConversationService.RenameAsync(tab.Id, tab.Title, CancellationToken.None);
+
+		var open = _openConversations.FirstOrDefault(conversation => conversation.Id == tab.Id);
+		if (open is not null)
+		{
+			open.Title = tab.Title;
+		}
+
+		if (_conversationSidebar is not null)
+		{
+			await _conversationSidebar.ReloadAsync();
+		}
 	}
 
 	/// <summary>
