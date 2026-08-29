@@ -16,6 +16,9 @@ builder.Services.AddRazorComponents()
 
 // PanoramicData.Blazor services
 builder.Services.AddPanoramicDataBlazor();
+// Must match PanoramicData.Blazor.WebAssembly/Client/Program.cs - see issue #119: the published
+// GitHub Pages demo is built from that project, so a service registered only here is one the
+// public demo does not have.
 // One DumbChatService instance seen through three registrations rather than three instances: the
 // conversation history reads the transcripts the chat service holds, so resolving a second
 // DumbChatService for it would give the sidebar a store nothing was ever written to.
