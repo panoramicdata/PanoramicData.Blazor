@@ -144,6 +144,26 @@ public class DumbChatService : IChatService, IDisposable
 	public IReadOnlyList<ChatMessage> GetMessages(Guid conversationId)
 		=> _conversations.TryGetValue(conversationId, out var messages) ? messages : [];
 
+	/// <summary>
+	/// Adds a message to a conversation's transcript without answering it or announcing it.
+	/// </summary>
+	/// <param name="conversationId">The conversation to add to; created if it does not exist.</param>
+	/// <param name="chatMessage">The message to record.</param>
+	/// <remarks>
+	/// For building a conversation that is supposed to look as though it already happened - a demo history,
+	/// or a test's starting state. Deliberately not <see cref="SendMessage(Guid, ChatMessage)"/>: that starts
+	/// the simulated reply workflow, so seeding a past exchange through it would have the bot answer every
+	/// seeded question with "You said: ..." a second after the page loaded.
+	///
+	/// It also raises no events, because nothing was received - a subscriber told about a message from last
+	/// Tuesday would reasonably toast it.
+	/// </remarks>
+	public void SeedMessage(Guid conversationId, ChatMessage chatMessage)
+	{
+		EnsureConversation(conversationId);
+		_conversations[conversationId].Add(chatMessage);
+	}
+
 	/// <inheritdoc />
 	public PDChatDockMode PreferredDockMode
 	{
@@ -682,7 +702,30 @@ public class DumbChatService : IChatService, IDisposable
 	private void Deliver(Guid conversationId, ChatMessage chatMessage)
 	{
 		EnsureConversation(conversationId);
-		_conversations[conversationId].Add(chatMessage);
+		var messages = _conversations[conversationId];
+
+		// A message id is an identity, not a sequence number: a "Typing..." placeholder and the answer that
+		// replaces it deliberately share one, so that a consumer can swap the first for the second. The
+		// service therefore has to replace in place too. Appending both left the placeholder in the stored
+		// transcript for ever - invisible while PDChat kept its own de-duplicated copy, and plainly wrong the
+		// moment a conversation tab read the transcript back from here.
+		var existing = messages.FirstOrDefault(message => message.Id == chatMessage.Id);
+		if (existing is null)
+		{
+			messages.Add(chatMessage);
+		}
+		else
+		{
+			existing.Message = chatMessage.Message;
+			existing.Type = chatMessage.Type;
+			existing.Title = chatMessage.Title;
+			existing.Timestamp = chatMessage.Timestamp;
+			existing.IsTitleHtml = chatMessage.IsTitleHtml;
+			existing.IsMessageHtml = chatMessage.IsMessageHtml;
+			// Issue #106: copied by hand like the rest, so a new payload must be added here too.
+			existing.Form = chatMessage.Form;
+			existing.FormSubmission = chatMessage.FormSubmission;
+		}
 
 		OnConversationMessageReceived?.Invoke(conversationId, chatMessage);
 
@@ -703,41 +746,16 @@ public class DumbChatService : IChatService, IDisposable
 	/// </remarks>
 	public void SendMessage(Guid conversationId, ChatMessage chatMessage)
 	{
-		if (!_conversations.TryGetValue(conversationId, out var messages))
+		if (!_conversations.ContainsKey(conversationId))
 		{
 			throw new InvalidOperationException(
 				$"This chat service does not have conversation {conversationId}. " +
 				$"Create it with {nameof(CreateConversation)} or {nameof(EnsureConversation)} first.");
 		}
 
-		// Add message to the conversation's message collection
-		var existing = messages.FirstOrDefault(m => m.Id == chatMessage.Id);
-		if (existing != null)
-		{
-			// Update existing message
-			existing.Message = chatMessage.Message;
-			existing.Type = chatMessage.Type;
-			existing.Title = chatMessage.Title;
-			existing.Timestamp = chatMessage.Timestamp;
-			existing.IsTitleHtml = chatMessage.IsTitleHtml;
-			existing.IsMessageHtml = chatMessage.IsMessageHtml;
-			// Issue #106: copied by hand like the rest, so a new payload must be added here too.
-			existing.Form = chatMessage.Form;
-			existing.FormSubmission = chatMessage.FormSubmission;
-
-			// An update is not a new message, so it is announced without being appended again.
-			OnConversationMessageReceived?.Invoke(conversationId, chatMessage);
-
-			if (conversationId == _activeConversationId)
-			{
-				OnMessageReceived?.Invoke(chatMessage);
-			}
-		}
-		else
-		{
-			// Invoke the user message immediately
-			Deliver(conversationId, chatMessage);
-		}
+		// Record the user's message and tell subscribers immediately. Deliver handles the add-or-update, so
+		// there is one implementation of what a repeated message id means rather than two that can disagree.
+		Deliver(conversationId, chatMessage);
 
 		// Kick off the async reply workflow, on the conversation the message was sent to. Threading the id
 		// through is what makes a slow reply arrive back where it was asked for: without it, a reply landed

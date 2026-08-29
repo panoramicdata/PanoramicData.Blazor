@@ -221,6 +221,45 @@ public class DumbChatServiceConversationTests
 	}
 
 	/// <summary>
+	/// Verifies that a message re-sent under the same id replaces the first rather than joining it.
+	/// </summary>
+	/// <remarks>
+	/// A message id is an identity, not a sequence number: a "Typing..." placeholder and the answer that
+	/// replaces it deliberately share one. The service used to append both, which was invisible while PDChat
+	/// kept its own de-duplicated copy and plainly wrong the moment a conversation tab read the transcript
+	/// back from the service - the placeholder sat in the transcript below the answer, for ever.
+	/// </remarks>
+	[Fact]
+	public void A_message_resent_under_the_same_id_replaces_the_first()
+	{
+		var service = new DumbChatService();
+		var conversation = service.CreateConversation();
+		var id = Guid.NewGuid();
+
+		service.SendMessage(conversation, new ChatMessage
+		{
+			Id = id,
+			Sender = DumbChatService.DumbBot,
+			Title = "Typing...",
+			Message = "...",
+			Type = MessageType.Typing
+		});
+
+		service.SendMessage(conversation, new ChatMessage
+		{
+			Id = id,
+			Sender = DumbChatService.DumbBot,
+			Message = "Events is open. The other two are WPA2.",
+			Type = MessageType.Normal
+		});
+
+		var messages = service.GetMessages(conversation);
+		messages.Should().ContainSingle("the answer replaces its placeholder rather than appearing beneath it");
+		messages[0].Message.Should().Be("Events is open. The other two are WPA2.");
+		messages[0].Type.Should().Be(MessageType.Normal);
+	}
+
+	/// <summary>
 	/// A message from the bot rather than the user, so that the service records it without starting its
 	/// simulated reply workflow - these tests are about where a message lands, not about what answers it.
 	/// </summary>

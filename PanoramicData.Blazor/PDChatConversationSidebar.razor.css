@@ -1,0 +1,170 @@
+/* Conversation sidebar (issue #111, MS-25787).
+
+   Theme-aware through the --pd-chat-* variables PDChat already defines, so this follows whichever theme
+   system the host app uses without a prefers-color-scheme block of its own. Plain static colours only - no
+   color-mix() - for the same reason the rest of PDChat avoids it: screenshot/rasterisation tools run a
+   simplified CSS engine that silently keeps a stale value when it cannot parse one. */
+
+.pdchat-conversation-sidebar {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	overflow: hidden;
+	background: var(--pd-chat-bg, var(--bs-body-bg, #fff));
+	color: var(--pd-chat-color, var(--bs-body-color, #212529));
+	border-right: 1px solid var(--pd-chat-border, #ced4da);
+}
+
+.pdchat-conversation-sidebar-search {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 8px;
+	border-bottom: 1px solid var(--pd-chat-border, #ced4da);
+	flex: 0 0 auto;
+}
+
+.pdchat-conversation-search-input {
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid var(--pd-chat-border, #ced4da);
+	border-radius: 4px;
+	background: var(--pd-chat-bg, var(--bs-body-bg, #fff));
+	color: inherit;
+	font-size: 0.875rem;
+}
+
+.pdchat-conversation-search-input:focus {
+	outline: none;
+	box-shadow: 0 0 0 3px var(--pd-chat-focus-shadow, rgba(0, 120, 212, 0.4));
+}
+
+.pdchat-conversation-search-modes {
+	display: flex;
+	gap: 4px;
+}
+
+.pdchat-conversation-search-mode {
+	flex: 1 1 0;
+	padding: 3px 6px;
+	font-size: 0.75rem;
+	border: 1px solid var(--pd-chat-border, #ced4da);
+	border-radius: 4px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.pdchat-conversation-search-mode.selected {
+	background: var(--pd-chat-info-bg, #e6f3ff);
+	border-color: var(--pd-chat-info-border, #0078d4);
+}
+
+.pdchat-conversation-include-archived {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 0.75rem;
+	color: var(--pd-chat-muted-color, #6c757d);
+	cursor: pointer;
+	margin: 0;
+}
+
+/* The list is the only scrolling region, so the search box stays put and the list can never push the
+   message input off the bottom of the chat. */
+.pdchat-conversation-sidebar-list {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 4px;
+}
+
+.pdchat-conversation-row {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 2px;
+	width: 100%;
+	padding: 6px 8px;
+	margin-bottom: 2px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	background: transparent;
+	color: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.pdchat-conversation-row:hover {
+	background: var(--pd-chat-typing-bg, #f8f9fa);
+}
+
+.pdchat-conversation-row.selected {
+	background: var(--pd-chat-info-bg, #e6f3ff);
+	border-color: var(--pd-chat-info-border, #0078d4);
+}
+
+.pdchat-conversation-row.archived .pdchat-conversation-row-name {
+	font-style: italic;
+	color: var(--pd-chat-muted-color, #6c757d);
+}
+
+/* One line per conversation. A wrapping title would make rows different heights, which makes a list of
+   twenty conversations much harder to scan than the truncation costs. */
+.pdchat-conversation-row-name {
+	font-size: 0.875rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.pdchat-conversation-row-meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	font-size: 0.7rem;
+	color: var(--pd-chat-muted-color, #6c757d);
+}
+
+.pdchat-conversation-row-archived {
+	padding: 0 4px;
+	border: 1px solid var(--pd-chat-border, #ced4da);
+	border-radius: 3px;
+}
+
+.pdchat-conversation-empty,
+.pdchat-conversation-error {
+	padding: 12px 8px;
+	font-size: 0.8125rem;
+	color: var(--pd-chat-muted-color, #6c757d);
+	text-align: center;
+}
+
+.pdchat-conversation-error {
+	color: var(--pd-chat-error-border, #dc3545);
+}
+
+.pdchat-conversation-error-text {
+	margin-bottom: 6px;
+	word-break: break-word;
+}
+
+.pdchat-conversation-retry,
+.pdchat-conversation-more {
+	width: 100%;
+	padding: 4px 8px;
+	font-size: 0.75rem;
+	border: 1px solid var(--pd-chat-border, #ced4da);
+	border-radius: 4px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.pdchat-conversation-more:disabled {
+	cursor: default;
+	opacity: 0.6;
+}

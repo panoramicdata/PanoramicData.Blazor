@@ -1,0 +1,88 @@
+@namespace PanoramicData.Blazor
+
+<div class="pdchat-conversation-sidebar">
+
+	<div class="pdchat-conversation-sidebar-search">
+		<input type="search"
+			   class="pdchat-conversation-search-input"
+			   placeholder="Search conversations"
+			   aria-label="Search conversations"
+			   value="@_searchText"
+			   @oninput="OnSearchTextChangedAsync" />
+
+		@* Hidden, not disabled, when the store has no embedding model: a control that is permanently
+		   greyed teaches the reader nothing about why. *@
+		@if (ConversationService.SupportsSemanticSearch)
+		{
+			<div class="pdchat-conversation-search-modes" role="group" aria-label="Search mode">
+				<button type="button"
+						class="pdchat-conversation-search-mode @(_searchMode == ChatConversationSearchMode.Keyword ? "selected" : "")"
+						title="Match the words you type"
+						@onclick="@(() => SetSearchModeAsync(ChatConversationSearchMode.Keyword))">
+					Keyword
+				</button>
+				<button type="button"
+						class="pdchat-conversation-search-mode @(_searchMode == ChatConversationSearchMode.Semantic ? "selected" : "")"
+						title="Match on meaning rather than wording"
+						@onclick="@(() => SetSearchModeAsync(ChatConversationSearchMode.Semantic))">
+					Semantic
+				</button>
+			</div>
+		}
+
+		<label class="pdchat-conversation-include-archived">
+			<input type="checkbox" checked="@_includeArchived" @onchange="OnIncludeArchivedChangedAsync" />
+			<span>Include archived</span>
+		</label>
+	</div>
+
+	<div class="pdchat-conversation-sidebar-list" role="list">
+		@if (_loadFailureMessage is not null)
+		{
+			@* A failed list degrades to a visible message and leaves the active conversation usable -
+			   the transcript beside this is untouched by anything that happens here. *@
+			<div class="pdchat-conversation-error" role="alert">
+				<div class="pdchat-conversation-error-text">@_loadFailureMessage</div>
+				<button type="button" class="pdchat-conversation-retry" @onclick="() => ReloadAsync()">Try again</button>
+			</div>
+		}
+		else if (_isLoading && _conversations.Count == 0)
+		{
+			<div class="pdchat-conversation-empty">Loading…</div>
+		}
+		else if (_conversations.Count == 0)
+		{
+			@* Zero results is an ordinary outcome, not a failure, and says which of the two it is. *@
+			<div class="pdchat-conversation-empty">
+				@(_hasSearchText ? "No conversations match your search." : "No conversations yet.")
+			</div>
+		}
+		else
+		{
+			@foreach (var conversation in _conversations)
+			{
+				<button type="button"
+						role="listitem"
+						class="pdchat-conversation-row @(conversation.Id == SelectedConversationId ? "selected" : "") @(conversation.IsArchived ? "archived" : "")"
+						title="@conversation.DisplayName"
+						@onclick="@(() => OnConversationSelected.InvokeAsync(conversation))">
+					<span class="pdchat-conversation-row-name">@conversation.DisplayName</span>
+					<span class="pdchat-conversation-row-meta">
+						<span class="pdchat-conversation-row-time">@FormatLastActivity(conversation.LastMessageUtc)</span>
+						@if (conversation.IsArchived)
+						{
+							<span class="pdchat-conversation-row-archived" title="Archived">Archived</span>
+						}
+					</span>
+				</button>
+			}
+
+			@if (_hasMore)
+			{
+				<button type="button" class="pdchat-conversation-more" disabled="@_isLoading" @onclick="LoadMoreAsync">
+					@(_isLoading ? "Loading…" : "Show more")
+				</button>
+			}
+		}
+	</div>
+</div>
