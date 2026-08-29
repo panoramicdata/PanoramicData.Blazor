@@ -250,6 +250,8 @@ Three things about it are deliberate and worth knowing before you implement one:
 - **Scoping results to the current user is yours to do.** The component has no notion of who is signed in and will render whatever it is handed, without error. An implementation that returns unscoped rows will show one user another user's transcripts.
 - **It is a parameter, not an injected service**, matching `ChatService` beside it. Acquiring the two by different routes would let a host pass a bespoke chat service and silently receive a conversation store from the container that knows nothing about it.
 
+`DumbChatService`, the demo service shipped with the library, implements the conversation-addressed API in full (`SupportsConversations` is `true`) and is the worked example to copy: it keys transcripts by conversation id, raises `OnConversationMessageReceived` for every message, and raises the singular `OnMessageReceived` only for the active conversation, because a consumer using the singular event has no way to tell which conversation it was handed.
+
 `ChatConversationQuery` carries `SearchText` (use `HasSearchText`, which ignores whitespace), `SearchMode` (`Keyword` by default, `Semantic` only where `SupportsSemanticSearch` is true), `IncludeArchived` (**false** by default — archived means hidden from the default list), and `Skip`/`Take` (defaulting to `ChatConversationQuery.DefaultTake`). `ListAsync` returns a `ChatConversationPage`; a search matching nothing returns `ChatConversationPage.Empty` rather than throwing. On that page, `HasMore` is stated by the implementer rather than inferred from a short result set, and `TotalCount` is nullable, where `null` means *not counted* and is distinct from `0`, meaning *counted, and there are none*.
 
 ---

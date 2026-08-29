@@ -41,10 +41,27 @@ public class DumbChatService : IChatService, IDisposable
 	private int _toastMaxVisible = 5;
 	private PDChatButtonPosition _toastAnchor = PDChatButtonPosition.BottomRight;
 
-	private readonly List<ChatMessage> _messages = [];
+	/// <summary>
+	/// One transcript per conversation, keyed by conversation id (issue #110).
+	/// </summary>
+	/// <remarks>
+	/// Replaces the single message list this service used to hold. Keying by conversation is what lets the
+	/// full-screen chat show several conversations at once: with one list, a reply arriving for any of them
+	/// appended to whichever transcript happened to be selected, which is a misdelivery that depends on timing
+	/// and presents as a rendering bug.
+	/// </remarks>
+	private readonly Dictionary<Guid, List<ChatMessage>> _conversations = new()
+	{
+		[ChatConversation.ImplicitConversationId] = []
+	};
+
+	private Guid _activeConversationId = ChatConversation.ImplicitConversationId;
 
 	/// <inheritdoc />
 	public event Action<ChatMessage>? OnMessageReceived;
+
+	/// <inheritdoc />
+	public event Action<Guid, ChatMessage>? OnConversationMessageReceived;
 	/// <inheritdoc />
 	public event Action<bool>? OnLiveStatusChanged;
 	/// <inheritdoc />
@@ -55,7 +72,77 @@ public class DumbChatService : IChatService, IDisposable
 	public event Action? OnConfigurationChanged;
 
 	/// <inheritdoc />
-	public IReadOnlyList<ChatMessage> Messages => _messages;
+	public IReadOnlyList<ChatMessage> Messages => GetMessages(_activeConversationId);
+
+	/// <inheritdoc />
+	/// <remarks>
+	/// True, which is what makes this the worked example for the conversation-addressed API rather than a
+	/// demonstration of the singular pattern that API exists to replace.
+	/// </remarks>
+	public bool SupportsConversations => true;
+
+	/// <inheritdoc />
+	/// <remarks>
+	/// Setting this to a conversation the service does not have creates it, so that a consumer can select a
+	/// conversation it has just learned about without a separate registration step. The alternative - throwing
+	/// - would make the obvious call order wrong for no benefit, since a demo service has nothing to protect.
+	/// </remarks>
+	public Guid ActiveConversationId
+	{
+		get => _activeConversationId;
+		set
+		{
+			EnsureConversation(value);
+			_activeConversationId = value;
+		}
+	}
+
+	/// <summary>
+	/// Gets the ids of every conversation this service currently holds, oldest first.
+	/// </summary>
+	/// <remarks>
+	/// Exposed so that a conversation history built over this service can list what exists without keeping a
+	/// second, drifting copy of the same set.
+	/// </remarks>
+	public IReadOnlyCollection<Guid> ConversationIds => [.. _conversations.Keys];
+
+	/// <summary>
+	/// Creates a new, empty conversation and returns its id. Does not select it.
+	/// </summary>
+	/// <remarks>
+	/// Selection is left to the caller because creating a conversation and switching to it are separate
+	/// decisions: a conversation opened in a background tab is created but not selected.
+	/// </remarks>
+	public Guid CreateConversation()
+	{
+		var id = Guid.NewGuid();
+		_conversations[id] = [];
+		return id;
+	}
+
+	/// <summary>
+	/// Ensures a conversation exists, creating an empty one if it does not.
+	/// </summary>
+	/// <param name="conversationId">The conversation to ensure.</param>
+	/// <returns><c>true</c> if a conversation was created; <c>false</c> if it already existed.</returns>
+	public bool EnsureConversation(Guid conversationId)
+	{
+		if (_conversations.ContainsKey(conversationId))
+		{
+			return false;
+		}
+
+		_conversations[conversationId] = [];
+		return true;
+	}
+
+	/// <inheritdoc />
+	/// <remarks>
+	/// An unrecognised id yields nothing rather than the active transcript. Returning the wrong conversation
+	/// would be indistinguishable, to a caller, from that conversation genuinely containing those messages.
+	/// </remarks>
+	public IReadOnlyList<ChatMessage> GetMessages(Guid conversationId)
+		=> _conversations.TryGetValue(conversationId, out var messages) ? messages : [];
 
 	/// <inheritdoc />
 	public PDChatDockMode PreferredDockMode
@@ -547,10 +634,9 @@ public class DumbChatService : IChatService, IDisposable
 			Timestamp = DateTimeOffset.Now
 		};
 
-		// Add to service's message collection
-		_messages.Add(message);
-
-		OnMessageReceived?.Invoke(message);
+		// The periodic time check is ambient rather than a reply, so it lands in whatever conversation the
+		// user is currently looking at.
+		Deliver(_activeConversationId, message);
 	}
 
 	/// <inheritdoc />
@@ -561,16 +647,71 @@ public class DumbChatService : IChatService, IDisposable
 	}
 
 	/// <inheritdoc />
+	/// <remarks>
+	/// Clears the active conversation only. Clearing every conversation would make the button in one tab's
+	/// header silently empty the others.
+	/// </remarks>
 	public void ClearMessages()
 	{
-		_messages.Clear();
+		if (_conversations.TryGetValue(_activeConversationId, out var messages))
+		{
+			messages.Clear();
+		}
+	}
+
+	/// <summary>
+	/// Records a message against one conversation and tells subscribers about it.
+	/// </summary>
+	/// <param name="conversationId">The conversation the message belongs to.</param>
+	/// <param name="chatMessage">The message.</param>
+	/// <remarks>
+	/// <para>
+	/// The single place a message is delivered, so that the conversation it lands in and the conversation it
+	/// is announced against cannot disagree. Every path that used to do
+	/// <c>_messages.Add(x); OnMessageReceived?.Invoke(x);</c> goes through here instead - and there were nine
+	/// of them, which is exactly how a reply ends up in the wrong transcript when one is edited and the others
+	/// are not.
+	/// </para>
+	/// <para>
+	/// <see cref="OnConversationMessageReceived"/> is raised for every message, whichever conversation it
+	/// belongs to. <see cref="OnMessageReceived"/> is raised only for the active one, because a consumer using
+	/// the singular API has no way to tell which conversation it was handed and would append a background
+	/// conversation's reply to whatever it is showing.
+	/// </para>
+	/// </remarks>
+	private void Deliver(Guid conversationId, ChatMessage chatMessage)
+	{
+		EnsureConversation(conversationId);
+		_conversations[conversationId].Add(chatMessage);
+
+		OnConversationMessageReceived?.Invoke(conversationId, chatMessage);
+
+		if (conversationId == _activeConversationId)
+		{
+			OnMessageReceived?.Invoke(chatMessage);
+		}
 	}
 
 	/// <inheritdoc />
-	public void SendMessage(ChatMessage chatMessage)
+	public void SendMessage(ChatMessage chatMessage) => SendMessage(_activeConversationId, chatMessage);
+
+	/// <inheritdoc />
+	/// <remarks>
+	/// Throws for a conversation this service does not have, rather than falling back to the active one. A
+	/// caller addressing a conversation that does not exist has a bug, and it should surface where it happened
+	/// rather than as a message appearing in an unrelated conversation several seconds later.
+	/// </remarks>
+	public void SendMessage(Guid conversationId, ChatMessage chatMessage)
 	{
-		// Add message to service's message collection
-		var existing = _messages.FirstOrDefault(m => m.Id == chatMessage.Id);
+		if (!_conversations.TryGetValue(conversationId, out var messages))
+		{
+			throw new InvalidOperationException(
+				$"This chat service does not have conversation {conversationId}. " +
+				$"Create it with {nameof(CreateConversation)} or {nameof(EnsureConversation)} first.");
+		}
+
+		// Add message to the conversation's message collection
+		var existing = messages.FirstOrDefault(m => m.Id == chatMessage.Id);
 		if (existing != null)
 		{
 			// Update existing message
@@ -583,21 +724,29 @@ public class DumbChatService : IChatService, IDisposable
 			// Issue #106: copied by hand like the rest, so a new payload must be added here too.
 			existing.Form = chatMessage.Form;
 			existing.FormSubmission = chatMessage.FormSubmission;
+
+			// An update is not a new message, so it is announced without being appended again.
+			OnConversationMessageReceived?.Invoke(conversationId, chatMessage);
+
+			if (conversationId == _activeConversationId)
+			{
+				OnMessageReceived?.Invoke(chatMessage);
+			}
 		}
 		else
 		{
-			// Add new message
-			_messages.Add(chatMessage);
+			// Invoke the user message immediately
+			Deliver(conversationId, chatMessage);
 		}
 
-		// Invoke the user message immediately
-		OnMessageReceived?.Invoke(chatMessage);
-
-		// Kick off the async reply workflow
-		_ = RespondAsync(chatMessage);
+		// Kick off the async reply workflow, on the conversation the message was sent to. Threading the id
+		// through is what makes a slow reply arrive back where it was asked for: without it, a reply landed
+		// wherever the user happened to be looking by the time it finished, which is precisely the case
+		// conversation tabs make visible.
+		_ = RespondAsync(conversationId, userMessage: chatMessage);
 	}
 
-	private async Task RespondAsync(ChatMessage userMessage)
+	private async Task RespondAsync(Guid conversationId, ChatMessage userMessage)
 	{
 		// Ignore messages not from the user
 		// Issue #106: answers to a form are not a fresh request, so they are acknowledged rather than
@@ -617,8 +766,7 @@ public class DumbChatService : IChatService, IDisposable
 				Timestamp = DateTime.UtcNow
 			};
 
-			_messages.Add(acknowledgement);
-			OnMessageReceived?.Invoke(acknowledgement);
+			Deliver(conversationId, acknowledgement);
 
 			return;
 		}
@@ -645,8 +793,7 @@ public class DumbChatService : IChatService, IDisposable
 		await Task.Delay(_random.Next(500, 3000));
 
 		// Add typing message to collection temporarily
-		_messages.Add(typingMessage);
-		OnMessageReceived?.Invoke(typingMessage);
+		Deliver(conversationId, typingMessage);
 
 		// Wait for 1-2 seconds to simulate "typing"
 		await Task.Delay(_random.Next(1000, 2000));
@@ -671,8 +818,7 @@ public class DumbChatService : IChatService, IDisposable
 				Message = "I'm going offline for a short break. Please wait...",
 				Type = MessageType.Warning
 			};
-			_messages.Add(offlineMessage);
-			OnMessageReceived?.Invoke(offlineMessage);
+			Deliver(conversationId, offlineMessage);
 
 			await Task.Delay(10000);
 
@@ -687,8 +833,7 @@ public class DumbChatService : IChatService, IDisposable
 				Message = "I'm back online! How can I assist you?",
 				Type = MessageType.Normal
 			};
-			_messages.Add(backOnlineMessage);
-			OnMessageReceived?.Invoke(backOnlineMessage);
+			Deliver(conversationId, backOnlineMessage);
 			return;
 		}
 
@@ -707,8 +852,7 @@ public class DumbChatService : IChatService, IDisposable
 				Form = BuildDemonstrationForm()
 			};
 
-			_messages.Add(formMessage);
-			OnMessageReceived?.Invoke(formMessage);
+			Deliver(conversationId, formMessage);
 
 			return;
 		}
@@ -726,8 +870,7 @@ public class DumbChatService : IChatService, IDisposable
 				IsMessageHtml = true,
 				Type = MessageType.Normal
 			};
-			_messages.Add(helpMessage);
-			OnMessageReceived?.Invoke(helpMessage);
+			Deliver(conversationId, helpMessage);
 			return; // No further response needed
 		}
 
@@ -740,8 +883,7 @@ public class DumbChatService : IChatService, IDisposable
 			Message = $"You said: \"{userMessage.Message}\"",
 			Type = _messageTypes[_random.Next(_messageTypes.Length)]
 		};
-		_messages.Add(finalResponse);
-		OnMessageReceived?.Invoke(finalResponse);
+		Deliver(conversationId, finalResponse);
 	}
 
 	/// <summary>
