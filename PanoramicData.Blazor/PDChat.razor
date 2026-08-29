@@ -144,6 +144,19 @@
 										@onclick="ArchiveSelectedConversationAsync">
 									Archive
 								</button>
+
+								@* Hidden rather than disabled when the conversation is not archived: un-archiving
+								   something that was never archived is meaningless, not merely unavailable, and a
+								   permanently greyed control teaches the reader nothing about when it would apply. *@
+								@if (SelectedConversationIsArchived)
+								{
+									<button type="button"
+											class="pdchat-conversation-toolbar-btn"
+											title="Un-archive this conversation, returning it to the default list"
+											@onclick="UnarchiveSelectedConversationAsync">
+										Un-archive
+									</button>
+								}
 							</div>
 
 							@* One tab per OPEN conversation, using the library's own PDTabSet rather than a bespoke

@@ -76,9 +76,20 @@ public class ChatConversation
 	/// Gets or sets a value indicating whether the conversation has been archived.
 	/// </summary>
 	/// <remarks>
-	/// Archived means hidden from the default list, never removed and never unreadable. Interacting with an
-	/// archived conversation is expected to un-archive it, so that picking a conversation back up does not need
-	/// a second deliberate action.
+	/// <para>
+	/// Archived means hidden from the default list, never removed and never unreadable. An archived
+	/// conversation can be listed (<c>ChatConversationQuery.IncludeArchived</c>), opened, read and replied to;
+	/// archiving hides it, it does not close it off.
+	/// </para>
+	/// <para>
+	/// <b>Opening an archived conversation does not un-archive it.</b> An earlier version of this remark said
+	/// the opposite - that interacting with one should un-archive it, so picking a conversation back up needed
+	/// no second action. That cannot coexist with an un-archive control, which by definition acts on a
+	/// conversation that is open and still archived: auto-un-archiving on open means the control can never
+	/// appear. It also made the archived filter self-defeating, since merely looking at an archived
+	/// conversation would drag it back into the default list. Un-archiving is now an explicit act - see
+	/// <c>IChatConversationService.UnarchiveAsync</c>.
+	/// </para>
 	/// </remarks>
 	public bool IsArchived { get; set; }
 

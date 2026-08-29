@@ -261,7 +261,7 @@ Three things about it are deliberate and worth knowing before you implement one:
 - **Unread markers** — a reply arriving for a tab the user is not looking at marks that tab and does **not** steal focus. This is what makes tabs worth having when an answer can take minutes: ask, switch away, come back.
 Tabs are also renamable by double-click, which writes through to `IChatConversationService.RenameAsync`, and `PDTabSet`'s own **+** creates a new conversation.
 
-- **Toolbar** — collapse/expand the sidebar and archive the selected conversation. Archiving closes the tab, because leaving an archived conversation open and re-activating it on the next keystroke is a confusing pair of behaviours. There is no delete control, because there is no delete.
+- **Toolbar** — collapse/expand the sidebar, archive the selected conversation, and **un-archive** it. Archiving closes the tab; un-archiving deliberately does not, because the user has just said they want that conversation back. The un-archive control is *hidden* rather than disabled when the conversation is not archived — un-archiving something never archived is meaningless, not merely unavailable. **Opening an archived conversation does not un-archive it**: it stays archived until un-archived explicitly, so the archived filter is browsable rather than self-defeating. Archiving closes the tab, because leaving an archived conversation open and re-activating it on the next keystroke is a confusing pair of behaviours. There is no delete control, because there is no delete.
 
 A failing `ListAsync` degrades to a visible message in the sidebar with a retry, and leaves the transcript beside it usable.
 
