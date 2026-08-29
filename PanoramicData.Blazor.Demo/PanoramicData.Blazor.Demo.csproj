@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -12,7 +12,11 @@
     <RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor</RepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!-- Deliberately false. version.json makes only main a public release ref, so Nerdbank.GitVersioning
+         stamps a prerelease version everywhere else; packing on every build then trips NU5104 (a stable
+         package must not carry a prerelease dependency) on every feature branch, and so on every PR build.
+         main is unaffected, which is what let this through. See issue #114. -->
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageId>PanoramicData.Blazor.Demo</PackageId>
     <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
