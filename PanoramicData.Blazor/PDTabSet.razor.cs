@@ -113,6 +113,56 @@ public partial class PDTabSet : ComponentBase
 		StateHasChanged();
 	}
 
+	/// <summary>
+	/// Removes a tab that has left the render tree, without treating it as a user closing it.
+	/// </summary>
+	/// <param name="tab">The tab being disposed.</param>
+	/// <remarks>
+	/// The counterpart to the self-registration in <see cref="PDTab.OnInitialized"/>. Without it a tab set
+	/// driven from a changing collection accumulated tabs for items that no longer existed. It does not raise
+	/// <see cref="OnTabClosed"/>, which means a user closed a tab - firing that here would raise it once per
+	/// tab when the whole tab set is torn down.
+	/// </remarks>
+	internal void RemoveTab(PDTab tab)
+	{
+		if (!Tabs.Remove(tab))
+		{
+			return;
+		}
+
+		if (ReferenceEquals(ActiveTab, tab))
+		{
+			ActiveTab = Tabs.FirstOrDefault();
+		}
+
+		// Queued rather than called directly. This runs while Blazor is disposing the child component, part
+		// way through a render it has already produced for the old tab list - so without asking for another
+		// one the removed tab stays on screen until something else happens to trigger a render, and calling
+		// StateHasChanged synchronously here would re-enter the renderer mid-teardown.
+		_ = InvokeAsync(StateHasChanged);
+	}
+
+	/// <summary>
+	/// Selects the tab carrying a given <see cref="PDTab.Id"/>, if it is present.
+	/// </summary>
+	/// <param name="id">The tab id to select.</param>
+	/// <returns><c>true</c> if a tab with that id was found and selected.</returns>
+	/// <remarks>
+	/// Lets a host that owns the collection behind the tabs select one by the identity it already holds,
+	/// rather than having to keep a reference to a component instance it did not create.
+	/// </remarks>
+	internal bool SelectTabById(Guid id)
+	{
+		var tab = Tabs.FirstOrDefault(candidate => candidate.Id == id);
+		if (tab is null || ReferenceEquals(tab, ActiveTab))
+		{
+			return tab is not null;
+		}
+
+		SelectTab(tab);
+		return true;
+	}
+
 	internal void SelectTab(PDTab tab)
 	{
 		ActiveTab = tab;

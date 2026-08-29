@@ -112,7 +112,98 @@
 					<button class="pdchat-close" @onclick="ToggleChatAsync" title="Minimize">🗕</button>
 				</div>
 
-				@if (ChatService.DockMode == PDChatDockMode.FullScreen && ChatService.IsCanvasUsePermitted)
+				@* Conversation history: full-screen only, and only when the host supplied a store to back it
+				   (issues #111 and #112). Takes precedence over the canvas layout below because both want the
+				   same space, and a conversation list with nowhere to open a conversation into is useless. *@
+				@if (ChatService.DockMode == PDChatDockMode.FullScreen && HasConversationHistory)
+				{
+					<div class="pdchat-conversation-layout">
+						@if (!_isConversationSidebarCollapsed)
+						{
+							<div class="pdchat-conversation-sidebar-pane">
+								<PDChatConversationSidebar @ref="_conversationSidebar"
+														   ConversationService="ConversationService!"
+														   SelectedConversationId="_selectedConversationId"
+														   OnConversationSelected="OpenConversationAsync"
+														   OnConversationsLoaded="OnConversationsLoadedAsync" />
+							</div>
+						}
+
+						<div class="pdchat-conversation-main">
+							<div class="pdchat-conversation-toolbar">
+								<button type="button"
+										class="pdchat-conversation-toolbar-btn"
+										title="@(_isConversationSidebarCollapsed ? "Show conversations" : "Hide conversations")"
+										@onclick="ToggleConversationSidebarAsync">
+									@(_isConversationSidebarCollapsed ? "▶" : "◀")
+								</button>
+								<button type="button"
+										class="pdchat-conversation-toolbar-btn"
+										title="@(_selectedConversationId is null ? "Select a conversation to archive it" : "Archive this conversation")"
+										disabled="@(_selectedConversationId is null)"
+										@onclick="ArchiveSelectedConversationAsync">
+									Archive
+								</button>
+							</div>
+
+							@* One tab per OPEN conversation, using the library's own PDTabSet rather than a bespoke
+							   strip: a second tab implementation in the same component library would drift from the
+							   first within one release. Open is not the same as exists - the sidebar lists
+							   everything, tabs hold what the user is currently working on. *@
+							<PDTabSet @ref="_conversationTabSet"
+									  CssClass="pdchat-conversation-tabset"
+									  IsTabClosingEnabled="true"
+									  IsTabAdditionEnabled="true"
+									  IsTabRenamingEnabled="true"
+									  CreateTabPosition="CreateTabPosition.End"
+									  TabMinWidth="120px"
+									  TabMaxWidth="220px"
+									  OnTabSelected="OnConversationTabSelectedAsync"
+									  OnTabClosed="OnConversationTabClosedAsync"
+									  OnTabAdded="OnConversationTabAddedAsync"
+									  OnTabRenamed="OnConversationTabRenamedAsync">
+								@foreach (var open in _openConversations)
+								{
+									<PDTab @key="open.Id"
+										   Id="open.Id"
+										   Title="@open.DisplayName"
+										   CssClass="@(_unreadConversationIds.Contains(open.Id) ? "pdchat-conversation-tab-unread" : string.Empty)">
+										@* Only the active tab's content is rendered, so this is one transcript on
+										   screen at a time rather than one per open conversation. *@
+										<PDMessages @ref="_messagesComponent"
+													Messages="_messages"
+													CurrentInput="@_currentInput"
+													CurrentInputChanged="@((string v) => _currentInput = v)"
+													IsLive="@ChatService.IsLive"
+													CanSend="@CanSend"
+													IsInputPermitted="@ChatService.IsInputPermitted"
+													InputDisabledMessage="@ChatService.InputDisabledMessage"
+													OnSendClicked="SendCurrentMessageAsync"
+													UserIconSelector="UserIconSelector"
+													UseFullWidthMessages="@ChatService.UseFullWidthMessages"
+													MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
+													ShowMessageUserIcon="@ChatService.ShowMessageUserIcon"
+													ShowMessageUserName="@ChatService.ShowMessageUserName"
+													ShowMessageTimestamp="@ChatService.ShowMessageTimestamp"
+													MessageTimestampFormat="@ChatService.MessageTimestampFormat" />
+									</PDTab>
+								}
+							</PDTabSet>
+
+							@if (_openConversations.Count == 0)
+							{
+								@* An empty state offering a new conversation, rather than a blank pane. *@
+								<div class="pdchat-conversation-none-open">
+									<p>No conversation open.</p>
+									<button type="button" class="pdchat-conversation-retry" @onclick="NewConversationAsync">
+										Start a new conversation
+									</button>
+								</div>
+							}
+						</div>
+					</div>
+				}
+				else if (ChatService.DockMode == PDChatDockMode.FullScreen && ChatService.IsCanvasUsePermitted)
 				{
 					<PDSplitter Direction="@(SplitDirection.Horizontal)" GutterSize="6" CssClass="pdchat-splitter">
 						@if (ChatService.DockMode == PDChatDockMode.Left)

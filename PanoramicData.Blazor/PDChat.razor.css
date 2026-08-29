@@ -1074,3 +1074,130 @@ body:has(.pdchat-container.dock-fullscreen) {
 /* Base surface, the sender-name accent, and every priority variant above are all
    theme-aware via --pd-chat-* variables now. No prefers-color-scheme block needed:
    those variables already follow whichever theme is actually active. */
+
+/* ==========================================================================================
+   Conversation history layout: sidebar | (toolbar + tabs + transcript)
+   Issues #111 and #112 (MS-25787 / MS-25788). Full-screen only - none of this is reachable in
+   the docked, minimised or toast modes, which are deliberately unchanged by the feature.
+   ========================================================================================== */
+
+.pdchat-conversation-layout {
+	display: flex;
+	flex-direction: row;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* A fixed-width sidebar rather than a proportional one: the transcript is the thing being read, so
+   it takes the slack as the window grows. Capped as a percentage as well so the list cannot squeeze
+   the transcript at 1280px, which is the narrowest supported full-screen width. */
+.pdchat-conversation-sidebar-pane {
+	flex: 0 0 260px;
+	max-width: 32%;
+	min-width: 0;
+	display: flex;
+	overflow: hidden;
+}
+
+.pdchat-conversation-main {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.pdchat-conversation-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 6px;
+	border-bottom: 1px solid var(--pd-chat-border, #ced4da);
+	flex: 0 0 auto;
+}
+
+.pdchat-conversation-toolbar-btn {
+	padding: 2px 8px;
+	font-size: 0.875rem;
+	line-height: 1.4;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.pdchat-conversation-toolbar-btn:hover:not(:disabled) {
+	background: var(--pd-chat-typing-bg, #f8f9fa);
+	border-color: var(--pd-chat-border, #ced4da);
+}
+
+/* Disabled rather than hidden, with the reason on the title attribute: a control that disappears
+   teaches the user nothing about when it would be available. */
+.pdchat-conversation-toolbar-btn:disabled {
+	opacity: 0.45;
+	cursor: default;
+}
+
+/* Conversation tabs are PDTabSet's markup, not ours, so these reach into the child component with
+   ::deep. Only the bits specific to conversations are set here - the tab strip's own look stays
+   PDTabSet's business, which is the point of using it rather than a second tab implementation. */
+.pdchat-conversation-tabset {
+	flex: 0 0 auto;
+	min-width: 0;
+}
+
+/* The tab set's content area is where the transcript lives, so it takes the remaining height and
+   scrolls internally rather than pushing the message input off the bottom. */
+.pdchat-conversation-main ::deep .pdchat-conversation-tabset {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.pdchat-conversation-main ::deep .pdchat-conversation-tabset .pdtabset-content {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* The unread marker is what makes "ask, switch away, come back" work: a reply arriving for a tab the
+   user is not reading marks it rather than stealing focus. Rendered as a leading dot via ::before so
+   that it needs no extra element inside PDTabSet's own tab markup. */
+.pdchat-conversation-main ::deep .pdtabset-tab.pdchat-conversation-tab-unread::before {
+	content: "CF";
+	margin-right: 4px;
+	font-size: 0.625rem;
+	line-height: 1;
+	color: var(--pd-chat-info-border, #0078d4);
+}
+
+.pdchat-conversation-main ::deep .pdtabset-tab.pdchat-conversation-tab-unread .pdtabset-tab-title {
+	font-weight: 600;
+}
+
+.pdchat-conversation-none-open {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	flex: 1 1 auto;
+	color: var(--pd-chat-muted-color, #6c757d);
+	font-size: 0.875rem;
+}
+
+.pdchat-conversation-none-open .pdchat-conversation-retry {
+	width: auto;
+	padding: 4px 12px;
+	border: 1px solid var(--pd-chat-border, #ced4da);
+	border-radius: 4px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}

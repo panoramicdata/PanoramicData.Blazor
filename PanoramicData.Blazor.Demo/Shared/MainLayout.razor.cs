@@ -1,10 +1,21 @@
-﻿namespace PanoramicData.Blazor.Demo.Shared;
+namespace PanoramicData.Blazor.Demo.Shared;
 
 public partial class MainLayout : LayoutComponentBase, IDisposable
 {
 	private readonly EventManager _eventManager = new();
 
 	[Inject] private IChatService ChatService { get; set; } = default!;
+
+	/// <summary>
+	/// The demo conversation history, handed to PDChat so the full-screen chat can list, search and open
+	/// conversations (issue #111).
+	/// </summary>
+	/// <remarks>
+	/// Injected here and passed down as a parameter rather than injected by PDChat itself, which is how the
+	/// component takes it - see PDChat.ConversationService for why the two halves of a conversation must be
+	/// acquired the same way.
+	/// </remarks>
+	[Inject] private IChatConversationService ConversationService { get; set; } = default!;
 
 	private static ChatMessageSender User => new()
 	{

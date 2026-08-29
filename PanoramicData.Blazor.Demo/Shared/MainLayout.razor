@@ -1,4 +1,4 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 @implements IDisposable
 
 <div class="page">
@@ -37,6 +37,7 @@
 						 GutterSize="6">
 			<ChatContent>
 				<PDChat ChatService="ChatService"
+						ConversationService="ConversationService"
 						UserIconSelector="GetUserIcon"
 						PriorityIconSelector="GetPriorityIcon"
 						SoundSelector="GetSoundUrl"

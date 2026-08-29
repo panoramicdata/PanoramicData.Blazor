@@ -53,6 +53,32 @@
 			deliberately distinct from <code>0</code>, meaning <em>counted, and there are none</em>.
 		</p>
 	</section>
+	<section id="conversation-fullscreen">
+		<h2 class="doc-section">Full-screen conversation UI</h2>
+		<p>
+			Supplying <code>ConversationService</code> is what turns full-screen into a multi-conversation
+			workspace. <strong>Try it on this page:</strong> open the chat, click the maximise button, then pick
+			a conversation from the sidebar. The demo is backed by an in-memory
+			<code>DemoChatConversationService</code> over the same <code>DumbChatService</code> that holds the
+			transcripts, seeded with a few conversations including an archived one.
+		</p>
+		<ul>
+			<li><strong>Sidebar</strong> &mdash; conversations newest-first, with search that is debounced and
+				cancellable so a superseded query cannot overwrite a newer result. The semantic/keyword toggle is
+				<em>hidden</em> rather than greyed when the store has no embedding model, which is why you will not
+				see it here.</li>
+			<li><strong>Tabs</strong> &mdash; one per <em>open</em> conversation. Opening one already open selects
+				its tab rather than duplicating it. Closing a tab neither archives nor deletes.</li>
+			<li><strong>Unread markers</strong> &mdash; send a message, switch to another tab, and wait: the reply
+				marks the tab it belongs to and does not drag you back to it.</li>
+			<li><strong>Include archived</strong> &mdash; unchecked by default. Tick it to reveal the seeded
+				archived conversation.</li>
+		</ul>
+		<p>
+			None of this appears in the docked, minimised or toast modes: the feature deliberately leaves the chat
+			most users see most of the time completely unchanged.
+		</p>
+	</section>
 	<section id="toasts">
 		<h2 class="doc-section">Toast notifications</h2>
 		<p>
