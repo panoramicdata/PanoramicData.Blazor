@@ -13,6 +13,46 @@
 			</tbody>
 		</table>
 	</section>
+	<section id="conversation-history">
+		<h2 class="doc-section">Conversation history</h2>
+		<p>
+			A host that can store conversations implements <code>IChatConversationService</code> and passes it
+			as <code>ConversationService</code>. That is what makes a conversation list, conversation tabs and
+			their toolbar available. A host that passes nothing gets exactly the chat described above &mdash;
+			no conversation UI, and no code path that could show it.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>Member</th><th>Returns</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>SupportsSemanticSearch</code></td><td><code>bool</code></td><td>Whether this store can match on meaning as well as wording. Defaults to <code>false</code>; the semantic option is hidden rather than disabled when it is.</td></tr>
+				<tr><td><code>ListAsync</code></td><td><code>Task&lt;ChatConversationPage&gt;</code></td><td>The conversations matching a <code>ChatConversationQuery</code>. Matching nothing returns <code>ChatConversationPage.Empty</code>, not an error.</td></tr>
+				<tr><td><code>GetMessagesAsync</code></td><td><code>Task&lt;IReadOnlyList&lt;ChatMessage&gt;&gt;</code></td><td>One conversation's transcript, oldest first. Separate from the list so that listing 200 conversations does not fetch 200 transcripts.</td></tr>
+				<tr><td><code>CreateAsync</code></td><td><code>Task&lt;ChatConversation&gt;</code></td><td>A new, empty conversation. Call it lazily &mdash; on the first message, not when the user clicks <em>new</em>.</td></tr>
+				<tr><td><code>RenameAsync</code></td><td><code>Task</code></td><td>Sets a title. Renaming to blank titles it as blank; it does not return it to the untitled state.</td></tr>
+				<tr><td><code>ArchiveAsync</code> / <code>UnarchiveAsync</code></td><td><code>Task</code></td><td>Hides a conversation from a list that has not asked for archived ones, and puts it back.</td></tr>
+			</tbody>
+		</table>
+		<p>
+			<strong>There is no <code>DeleteAsync</code>, and there will not be one.</strong> A transcript is a
+			record of what an assistant told somebody, so a conversation is archived and never removed. The
+			guarantee is the absence of the method rather than a UI that hides a button &mdash; a UI-only
+			guarantee lasts until the next person adds a convenience call.
+		</p>
+		<p>
+			<strong>Scoping results to the current user is the implementer's job.</strong> The component has no
+			notion of who is signed in and will render whatever it is handed, without error. An implementation
+			that returns unscoped rows will show one user another user's transcripts.
+		</p>
+		<p>
+			<code>ChatConversationQuery</code> carries <code>SearchText</code> (test it with
+			<code>HasSearchText</code>, which ignores whitespace), <code>SearchMode</code>, an
+			<code>IncludeArchived</code> that defaults to <strong>false</strong>, and
+			<code>Skip</code>/<code>Take</code>. On the returned <code>ChatConversationPage</code>,
+			<code>HasMore</code> is stated by the implementer rather than inferred from a short page, and
+			<code>TotalCount</code> is nullable: <code>null</code> means <em>not counted</em>, which is
+			deliberately distinct from <code>0</code>, meaning <em>counted, and there are none</em>.
+		</p>
+	</section>
 	<section id="toasts">
 		<h2 class="doc-section">Toast notifications</h2>
 		<p>

@@ -20,6 +20,37 @@ public partial class PDChat : JSModuleComponentBase
 	public required ChatMessageSender User { get; set; }
 
 	/// <summary>
+	/// Gets or sets an optional conversation history: the list of previous conversations that can be searched,
+	/// opened and archived (issue #108). <c>null</c> - the default - means the host has no such store.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// <b>Null means the capability is absent, not merely hidden.</b> Without one there is no sidebar, no
+	/// conversation tabs and no toolbar, and <see cref="HasConversationHistory"/> is the single test that says
+	/// so. A host that supplies nothing gets exactly the chat it has today.
+	/// </para>
+	/// <para>
+	/// A parameter rather than an injected service, matching <see cref="ChatService"/> beside it. Acquiring
+	/// the two by different routes would let a host pass a bespoke chat service and silently receive a
+	/// conversation store from the container that knows nothing about it - two halves of one conversation,
+	/// disagreeing. A host that does keep this in its container passes it through as
+	/// <c>ConversationService="@ConversationService"</c>.
+	/// </para>
+	/// </remarks>
+	[Parameter]
+	public IChatConversationService? ConversationService { get; set; }
+
+	/// <summary>
+	/// Gets a value indicating whether a conversation history is available to show.
+	/// </summary>
+	/// <remarks>
+	/// The single place the question is asked, so that the sidebar, the conversation tabs and the toolbar
+	/// cannot end up disagreeing about whether the capability is present - which would show, for instance, a
+	/// toolbar whose every control is dead.
+	/// </remarks>
+	private bool HasConversationHistory => ConversationService is not null;
+
+	/// <summary>
 	/// Handed to descendant messages so an inline form can report its outcome (issue #106).
 	/// </summary>
 	private ChatFormContext FormContext => _formContext ??= new ChatFormContext

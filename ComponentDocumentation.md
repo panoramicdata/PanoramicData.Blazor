@@ -211,6 +211,7 @@ This component has no public parameters.
 |------|------|-------------|
 | ChatService | required IChatService |  |
 | User | required ChatMessageSender |  |
+| ConversationService | IChatConversationService? | Optional conversation history. `null` (the default) means the host has no conversation store, and no conversation UI is rendered. |
 | ChatDockPosition | PDChatDockPosition | Gets or sets the dock position of the chat window. |
 | CollapsedIcon | string | Gets or sets the icon to display when the chat window is collapsed. |
 | UserIconSelector | Func<ChatMessage, string?>? | A function to select a user icon for a given message. |
@@ -226,6 +227,30 @@ This component has no public parameters.
 | OnAutoRestored | EventCallback | An event callback that is invoked when the chat window is automatically restored. |
 
 **Toast notifications:** PDChat can double as a toast surface. When a message arrives while the chat is closed (minimized, or fully hidden when `MinimizedButtonPosition` is `None`), it animates into view and, if auto-dismiss is enabled, animates out after a configurable time. Toasts stack (oldest at the top) and each runs its own independent dismiss timer. Defaults are set on `IChatService` via the `Toast*` members (`ToastEnabled`, `ToastEntryAnimation`, `ToastExitAnimation`, `ToastAnimationDurationMs`, `ToastAutoDismiss`, `ToastDisplayDurationSeconds`, `ToastShowTitle`, `ToastMinWidth`/`ToastMaxWidth`/`ToastMinHeight`/`ToastMaxHeight`, `ToastMaxVisible`, `ToastAnchor`) and can be overridden per message via `ChatMessage.ToastOptions`. The legacy `ShowLastMessage` / `ShowLastMessageDurationSeconds` members are obsolete and map onto `ToastEnabled` / `ToastDisplayDurationSeconds`.
+
+**Conversation history (optional):** a host that can store conversations implements `IChatConversationService` and passes it as `ConversationService`. Doing so is what makes a conversation list, conversation tabs and their toolbar available; a host that passes nothing gets exactly the chat described above, with no conversation UI and no code path that could show it.
+
+```csharp
+public interface IChatConversationService
+{
+    bool SupportsSemanticSearch => false;
+
+    Task<ChatConversationPage> ListAsync(ChatConversationQuery query, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(Guid id, CancellationToken cancellationToken);
+    Task<ChatConversation> CreateAsync(CancellationToken cancellationToken);
+    Task RenameAsync(Guid id, string title, CancellationToken cancellationToken);
+    Task ArchiveAsync(Guid id, CancellationToken cancellationToken);
+    Task UnarchiveAsync(Guid id, CancellationToken cancellationToken);
+}
+```
+
+Three things about it are deliberate and worth knowing before you implement one:
+
+- **There is no `DeleteAsync`, and there will not be one.** A transcript is a record of what an assistant told somebody, so a conversation is archived (`ArchiveAsync`, reversed by `UnarchiveAsync`) and never removed. The guarantee is the absence of the method rather than a UI that hides a button — a UI-only guarantee lasts until the next person adds a convenience call.
+- **Scoping results to the current user is yours to do.** The component has no notion of who is signed in and will render whatever it is handed, without error. An implementation that returns unscoped rows will show one user another user's transcripts.
+- **It is a parameter, not an injected service**, matching `ChatService` beside it. Acquiring the two by different routes would let a host pass a bespoke chat service and silently receive a conversation store from the container that knows nothing about it.
+
+`ChatConversationQuery` carries `SearchText` (use `HasSearchText`, which ignores whitespace), `SearchMode` (`Keyword` by default, `Semantic` only where `SupportsSemanticSearch` is true), `IncludeArchived` (**false** by default — archived means hidden from the default list), and `Skip`/`Take` (defaulting to `ChatConversationQuery.DefaultTake`). `ListAsync` returns a `ChatConversationPage`; a search matching nothing returns `ChatConversationPage.Empty` rather than throwing. On that page, `HasMore` is stated by the implementer rather than inferred from a short result set, and `TotalCount` is nullable, where `null` means *not counted* and is distinct from `0`, meaning *counted, and there are none*.
 
 ---
 
