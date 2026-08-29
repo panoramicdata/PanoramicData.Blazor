@@ -897,6 +897,57 @@ public partial class PDChat : JSModuleComponentBase
 	}
 
 	/// <summary>
+	/// Gets a value indicating whether the conversation currently shown is archived.
+	/// </summary>
+	/// <remarks>
+	/// Read from the open conversation rather than re-queried, so that the control appears and disappears in
+	/// step with the archive and un-archive actions without a round trip to the store.
+	/// </remarks>
+	private bool SelectedConversationIsArchived
+		=> _selectedConversationId is { } id
+			&& _openConversations.FirstOrDefault(conversation => conversation.Id == id)?.IsArchived == true;
+
+	/// <summary>
+	/// Returns the selected conversation to the default list.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// The counterpart to <see cref="ArchiveSelectedConversationAsync"/>, and the reason archiving is not a
+	/// disguised delete: whatever archiving hid can be brought back.
+	/// </para>
+	/// <para>
+	/// Unlike archiving, this deliberately leaves the tab open. Archiving closes the tab because leaving an
+	/// archived conversation open and re-activating it on the next keystroke is a confusing pair of
+	/// behaviours; un-archiving has no such tension - the user has just said they want this conversation
+	/// back, so taking it off their screen would be perverse.
+	/// </para>
+	/// </remarks>
+	private async Task UnarchiveSelectedConversationAsync()
+	{
+		if (ConversationService is null || _selectedConversationId is not { } conversationId)
+		{
+			return;
+		}
+
+		await ConversationService.UnarchiveAsync(conversationId, CancellationToken.None);
+
+		// Update the open copy so the control disappears immediately, rather than waiting for the sidebar
+		// reload to come back and tell us what we already know.
+		var open = _openConversations.FirstOrDefault(conversation => conversation.Id == conversationId);
+		if (open is not null)
+		{
+			open.IsArchived = false;
+		}
+
+		if (_conversationSidebar is not null)
+		{
+			await _conversationSidebar.ReloadAsync();
+		}
+
+		await InvokeAsync(StateHasChanged);
+	}
+
+	/// <summary>
 	/// Archives the selected conversation and closes its tab.
 	/// </summary>
 	/// <remarks>
