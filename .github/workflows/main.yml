@@ -8,13 +8,13 @@ jobs:
     steps:
 
     # Uses GitHub's checkout action to checkout code form the main branch
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
     # Sets up .NET Core SDK 10.x
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v5.0.0
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10.x
 
