@@ -10,6 +10,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/panoramicdata/PanoramicData.Blazor</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <!-- Deliberately false. version.json makes only main a public release ref, so Nerdbank.GitVersioning
