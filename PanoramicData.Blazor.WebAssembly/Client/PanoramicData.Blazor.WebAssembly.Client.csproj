@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/panoramicdata/PanoramicData.Blazor</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/panoramicdata/PanoramicData.Blazor</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
