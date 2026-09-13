@@ -6,7 +6,10 @@
 /// <param name="jsRuntime">The <see cref="IJSRuntime"/> used to invoke the browser confirmation dialog.</param>
 public class NavigationCancelService(IJSRuntime jsRuntime) : INavigationCancelService
 {
-    private readonly Task<IJSObjectReference>? _loadCommonJsTask = jsRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).AsTask();
+    // Loaded lazily on first use: starting the import here (a constructor field initialiser) faults
+    // during Blazor Server prerendering, where JS interop is unavailable, and the unawaited task then
+    // surfaces as a TaskScheduler.UnobservedTaskException on every page load. See issue #123.
+    private Task<IJSObjectReference>? _loadCommonJsTask;
 
 	/// <summary>
 	/// Event raised before a navigation occurs.
@@ -31,8 +34,11 @@ public class NavigationCancelService(IJSRuntime jsRuntime) : INavigationCancelSe
         // ask listening code if operation should be canceled
         var args = new BeforeNavigateEventArgs { Target = target };
         BeforeNavigate?.Invoke(this, args);
-        if (args.Cancel && _loadCommonJsTask != null)
+        if (args.Cancel)
         {
+            // by the time a listener cancels a navigation the circuit is interactive, so JS interop is safe
+            _loadCommonJsTask ??= jsRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).AsTask();
+
             // allow user option to override and perform operation regardless
             var commonModule = await _loadCommonJsTask.ConfigureAwait(true);
             if (commonModule != null)
