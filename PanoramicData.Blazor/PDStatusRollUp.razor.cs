@@ -13,6 +13,7 @@ public partial class PDStatusRollUp : IAsyncDisposable
 	private readonly string _triggerId = $"pdsr-{++_idSequence}";
 	private IJSObjectReference? _module;
 	private DotNetObjectReference<PDStatusRollUp>? _dotNetRef;
+	private string? _sentNodeJson;
 
 	private static readonly JsonSerializerOptions _jsonOptions = new()
 	{
@@ -165,17 +166,33 @@ public partial class PDStatusRollUp : IAsyncDisposable
 		}
 	}
 
-	/// <inheritdoc />
+	/// <summary>
+	/// Keeps the JavaScript module's copy of <see cref="Node"/> in step with the one Blazor renders.
+	/// </summary>
+	/// <remarks>
+	/// The trigger icon is rendered from <see cref="Node"/> on every render, but the pop-over is drawn
+	/// by the module from a serialized snapshot. Sending that snapshot only once - as this did until
+	/// issue #139 - leaves a node that changes afterwards showing a live icon beside a pop-over
+	/// describing the state the component started in.
+	/// </remarks>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender && Node is not null)
+		if (Node is null)
 		{
-			try
+			return;
+		}
+
+		var nodeJson = JsonSerializer.Serialize(Node, _jsonOptions);
+
+		try
+		{
+			// Not keyed on firstRender: a component whose node arrives later still needs initialising,
+			// and until then there is nothing to show a pop-over for.
+			if (_module is null)
 			{
 				_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
 					"import", "./_content/PanoramicData.Blazor/PDStatusRollUp.razor.js");
 
-				var nodeJson = JsonSerializer.Serialize(Node, _jsonOptions);
 				var iconMap = new
 				{
 					red = RedIconClass,
@@ -192,11 +209,21 @@ public partial class PDStatusRollUp : IAsyncDisposable
 				}
 
 				await _module.InvokeVoidAsync("init", _triggerId, nodeJson, iconMap, dotNetRef);
+				_sentNodeJson = nodeJson;
+				return;
 			}
-			catch
+
+			// Consumers commonly rebuild their node on every render, so compare what it serializes to
+			// rather than the instance: an unchanged status must not chatter across the interop boundary.
+			if (nodeJson != _sentNodeJson)
 			{
-				// Fast page switching may dispose the module before init completes.
+				_sentNodeJson = nodeJson;
+				await _module.InvokeVoidAsync("update", _triggerId, nodeJson);
 			}
+		}
+		catch
+		{
+			// Fast page switching may dispose the module before the call completes.
 		}
 	}
 

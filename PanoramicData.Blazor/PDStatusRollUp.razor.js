@@ -2,6 +2,7 @@
 // PDStatusRollUp.razor.js — Blazor JS module
 // Cascade pop-over engine.  Three exported functions:
 //   init(triggerId, nodeJson, iconMap, dotNetRef?)
+//   update(triggerId, nodeJson)
 //   dispose(triggerId)
 // =================================================================
 
@@ -44,6 +45,24 @@ export function init(triggerId, nodeJson, iconMap, dotNetRef) {
 		if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
 		if (e.key === 'Escape') _closeAll();
 	}, opts);
+}
+
+// Replaces the snapshot the pop-over is drawn from. The trigger icon is rendered by Blazor and so
+// follows the node on every render; without this the pop-over would go on describing the node as it
+// was when the component first rendered, which reads as an icon and a pop-over that disagree.
+export function update(triggerId, nodeJson) {
+	const entry = _triggers.get(triggerId);
+	if (!entry) return;
+
+	entry.node = typeof nodeJson === 'string' ? JSON.parse(nodeJson) : nodeJson;
+
+	// Redraw an open pop-over from the root, so a status that changes while someone is looking at it
+	// is not left showing the superseded verdict. Any drill-down is closed by this, which is the
+	// honest outcome: the children it was showing may no longer exist.
+	if (_activeId === triggerId) {
+		_closeFrom(1);
+		_renderPopup(0, entry.node, entry.el, entry.iconMap, entry, '');
+	}
 }
 
 export function dispose(triggerId) {
