@@ -13,11 +13,17 @@
     <PackageProjectUrl>https://github.com/panoramicdata/PanoramicData.Blazor</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <!-- Deliberately false. version.json makes only main a public release ref, so Nerdbank.GitVersioning
-         stamps a prerelease version everywhere else; packing on every build then trips NU5104 (a stable
-         package must not carry a prerelease dependency) on every feature branch, and so on every PR build.
-         main is unaffected, which is what let this through. See issue #114. -->
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!-- This is a sample app, not a shipped package, and it must not pack.
+         version.json makes only main a public release ref, so Nerdbank.GitVersioning stamps a prerelease
+         version everywhere else; packing then trips NU5104 (a stable package must not carry a prerelease
+         dependency) on every feature branch, and so on every PR build. main is unaffected, which is what
+         let this through originally (issue #114) and again when a governance sweep reset
+         GeneratePackageOnBuild to true while leaving the comment saying it was false (issue #142).
+         IsPackable is the load-bearing setting: it makes the project non-packable outright rather than
+         merely declining to pack on build, and PackagingGuard in PanoramicData.Blazor.Test fails if
+         either is flipped back. -->
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageId>PanoramicData.Blazor.Demo</PackageId>
     <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
