@@ -18,15 +18,12 @@
     <PackageVersion Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Build.Framework" Version="18.10.1" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.10.1" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.0" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.10.94" />
     <PackageVersion Include="PanoramicData.DeepCloner" Version="1.0.8" />
     <PackageVersion Include="PanoramicData.NCalcExtensions" Version="6.1.37" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="System.Drawing.Common" Version="10.0.12" />
     <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.7.4" />
-    <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
     <PackageVersion Include="xunit.v3" Version="4.0.1" />
     <PackageVersion Include="bunit" Version="2.10.3" />
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.11.2" />
