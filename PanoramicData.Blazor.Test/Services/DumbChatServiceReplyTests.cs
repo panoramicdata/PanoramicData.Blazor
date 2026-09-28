@@ -11,7 +11,9 @@ namespace PanoramicData.Blazor.Test.Services;
 /// </summary>
 public sealed class DumbChatServiceReplyTests : IDisposable
 {
-	private static readonly TimeSpan _replyTimeout = TimeSpan.FromSeconds(30);
+	// The service offers no way to inject time or shorten its delays, so the waits are real. Each wait is
+	// bounded at four times the longest simulated delay, so a loaded machine cannot fail it but nothing can hang.
+	private static readonly TimeSpan _replyTimeout = TimeSpan.FromSeconds(60);
 	private static readonly ChatMessageSender _user = new() { Name = "Me", IsUser = true, IsHuman = true };
 
 	private readonly DumbChatService _service = new();

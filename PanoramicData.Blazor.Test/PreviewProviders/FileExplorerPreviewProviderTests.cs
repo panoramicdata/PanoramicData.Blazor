@@ -81,6 +81,12 @@ public class FileExplorerPreviewProviderTests : BunitContext
 	/// With the panel shown, the content is downloaded from the URL at the end of the explorer's
 	/// "type:name:url" download string, and previewed.
 	/// </summary>
+	/// <remarks>
+	/// The provider creates its own <see cref="System.Net.Http.HttpClient"/>, so there is no handler to replace
+	/// and a real socket is needed. The server holds its port from bind to disposal, is addressed by IP rather
+	/// than "localhost", and answers on a dedicated thread, and the call is bounded so that a stall fails in
+	/// seconds rather than at the client's 100 second default timeout.
+	/// </remarks>
 	[Fact]
 	public async Task VisiblePreviewPanel_DownloadsAndPreviewsContent()
 	{
@@ -88,59 +94,91 @@ public class FileExplorerPreviewProviderTests : BunitContext
 		var explorer = RenderExplorer(FilePreviewModes.On, item => $"text/markdown:{item.Name}:{server.Url}");
 		var provider = new FileExplorerPreviewProvider { FileExplorer = explorer };
 
-		var info = await provider.GetPreviewInfoAsync(Item("/notes.md"));
+		var info = await provider.GetPreviewInfoAsync(Item("/notes.md"))
+			.WaitAsync(TimeSpan.FromSeconds(15), Xunit.TestContext.Current.CancellationToken);
 
 		info.CssClass.Should().Be("md");
 		info.HtmlContent.Value.Should().Contain("<h1>Downloaded</h1>");
+		server.RequestCount.Should().Be(1);
 	}
 
-	/// <summary>Serves one fixed response on a free local port, on a background loop.</summary>
+	/// <summary>
+	/// A minimal HTTP server on a loopback port that it owns exclusively for its whole lifetime, answering
+	/// every request with one fixed body on a dedicated thread, so that neither port reuse nor thread pool
+	/// starvation can leave a request unanswered.
+	/// </summary>
 	private sealed class ContentServer : IDisposable
 	{
-		private readonly HttpListener _listener = new();
+		private readonly TcpListener _listener = new(IPAddress.Loopback, 0) { ExclusiveAddressUse = true };
+		private readonly byte[] _response;
+		private readonly Thread _thread;
+		private int _requestCount;
 
 		public ContentServer(string content)
 		{
-			var port = FreePort();
-			Url = $"http://localhost:{port}/content";
-			_listener.Prefixes.Add($"http://localhost:{port}/");
-			_listener.Start();
 			var body = Encoding.UTF8.GetBytes(content);
-			_ = Task.Run(() => ServeAsync(body));
+			var header = Encoding.ASCII.GetBytes(
+				$"HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: {body.Length}\r\nConnection: close\r\n\r\n");
+			_response = [.. header, .. body];
+			_listener.Start();
+			Url = $"http://127.0.0.1:{((IPEndPoint)_listener.LocalEndpoint).Port}/content";
+			_thread = new Thread(Serve) { IsBackground = true, Name = nameof(ContentServer) };
+			_thread.Start();
 		}
 
 		public string Url { get; }
 
-		public void Dispose() => _listener.Close();
+		public int RequestCount => Volatile.Read(ref _requestCount);
 
-		private static int FreePort()
+		public void Dispose()
 		{
-			var probe = new TcpListener(IPAddress.Loopback, 0);
-			probe.Start();
-			var port = ((IPEndPoint)probe.LocalEndpoint).Port;
-			probe.Stop();
-			return port;
+			_listener.Stop();
+			_thread.Join(TimeSpan.FromSeconds(5));
 		}
 
-		private async Task ServeAsync(byte[] body)
+		private void Serve()
 		{
 			try
 			{
-				while (_listener.IsListening)
+				while (true)
 				{
-					var context = await _listener.GetContextAsync().ConfigureAwait(false);
-					context.Response.ContentLength64 = body.Length;
-					await context.Response.OutputStream.WriteAsync(body).ConfigureAwait(false);
-					context.Response.Close();
+					using var client = _listener.AcceptTcpClient();
+					client.ReceiveTimeout = 5000;
+					client.SendTimeout = 5000;
+					using var stream = client.GetStream();
+					ReadRequestHeaders(stream);
+					stream.Write(_response);
+					Interlocked.Increment(ref _requestCount);
 				}
 			}
-			catch (HttpListenerException)
+			catch (SocketException)
 			{
-				// The listener was closed.
+				// The listener was stopped.
+			}
+			catch (IOException)
+			{
+				// The client went away; there is nothing further to serve.
 			}
 			catch (ObjectDisposedException)
 			{
 				// The listener was disposed.
+			}
+		}
+
+		private static void ReadRequestHeaders(NetworkStream stream)
+		{
+			// Read up to the blank line that ends the request headers; a GET has no body to consume.
+			byte[] terminator = [13, 10, 13, 10];
+			var matched = 0;
+			while (matched < terminator.Length)
+			{
+				var next = stream.ReadByte();
+				if (next < 0)
+				{
+					return;
+				}
+
+				matched = next == terminator[matched] ? matched + 1 : (next == 13 ? 1 : 0);
 			}
 		}
 	}
