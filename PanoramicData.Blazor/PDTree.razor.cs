@@ -178,6 +178,15 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
     [Parameter] public bool RightClickSelectsItem { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets whether <see cref="RefreshAsync"/> raises <see cref="SelectionChange"/> for a selected node that
+    /// survives the refresh. True by default, matching earlier versions, where a refresh always re-announced the
+    /// selection; a consumer that reloads a detail view on that event keeps working. Set false for an
+    /// auto-refreshing tree, so the selection is not re-announced (and the detail view not reloaded) on every
+    /// refresh. A selected node that is removed by the refresh is always announced (issue #152).
+    /// </summary>
+    [Parameter] public bool RaiseSelectionChangeOnRefresh { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets an event callback raised whenever the selection changes.
     /// </summary>
     [Parameter] public EventCallback<TreeNode<TItem>> SelectionChange { get; set; }
@@ -471,8 +480,9 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
     /// <remarks>
     /// Fetched items are merged into the existing nodes by key (issue #152): a node whose key is still
     /// present keeps its object, its expanded state and its loaded children; new keys are added and gone
-    /// keys removed. The selected node therefore stays selected without <see cref="SelectionChange"/> being
-    /// raised. If it has gone, its nearest surviving ancestor is selected and the change raised once.
+    /// keys removed. The selected node therefore stays selected (the same object). It is re-announced through
+    /// <see cref="SelectionChange"/> only when <see cref="RaiseSelectionChangeOnRefresh"/> is true (the default). If it
+    /// has gone, its nearest surviving ancestor is selected and the change raised once.
     /// With <see cref="LoadOnDemand"/>, every node whose children have been loaded is re-queried.
     /// </remarks>
     public async Task RefreshAsync()
@@ -502,6 +512,11 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
                 .Select(RootNode.Find)
                 .FirstOrDefault(node => node != null) ?? RootNode;
             await SelectNode(survivor, false).ConfigureAwait(true);
+        }
+        else if (selected != null && RaiseSelectionChangeOnRefresh)
+        {
+            // the same node object is still selected; re-announce it as earlier versions did
+            await SelectionChange.InvokeAsync(selected).ConfigureAwait(true);
         }
 
         StateHasChanged();

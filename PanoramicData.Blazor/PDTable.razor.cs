@@ -325,6 +325,20 @@ public partial class PDTable<TItem> :
 	[Parameter] public bool RetainSelectionOnPage { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether a refresh keeps the selection (issue #151). A refresh is a fetch for the same
+	/// search text, sort and page as the previous one, such as <see cref="RefreshAsync()"/> on an
+	/// auto-refreshing page. When true, the selection is kept, keys whose rows have gone are dropped, and
+	/// <see cref="SelectionChanged"/> is raised only if that changed the selection. When false (the default),
+	/// every fetch clears the selection unless <see cref="RetainSelectionOnPage"/> is set, as before.
+	/// </summary>
+	/// <remarks>
+	/// Off by default because callers that cache the selected row and rely on a refresh to clear it would
+	/// otherwise keep a stale copy. With this on, read the selection back with <see cref="GetSelectedItems"/>
+	/// after a refresh rather than holding row objects across it.
+	/// </remarks>
+	[Parameter] public bool RetainSelectionOnRefresh { get; set; }
+
+	/// <summary>
 	/// Gets whether right-clicking selects a row versus left-clicking.
 	/// </summary>
 	[Parameter] public bool RightClickSelectsRow { get; set; } = true;
@@ -734,7 +748,7 @@ public partial class PDTable<TItem> :
 			// it keeps the selection rather than clearing it (issue #151). Clearing it on every refresh
 			// deselected the user's row each time an auto-refreshing page re-queried.
 			var viewKey = GetViewKey(request.SearchText, sortColumn);
-			var isRefresh = viewKey == _lastViewKey;
+			var isRefresh = RetainSelectionOnRefresh && viewKey == _lastViewKey;
 
 			// Clear selection
 			if (!isRefresh && !RetainSelectionOnPage)
