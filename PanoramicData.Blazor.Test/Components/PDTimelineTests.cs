@@ -21,6 +21,10 @@ public class PDTimelineTests : BunitContext
 	private static readonly DateTime _min = new(2026, 1, 1);
 	private static readonly DateTime _max = new(2026, 3, 1);
 
+	// Waits cover asynchronous continuations only (the timer tick and first-render interop), never real time;
+	// they are generous so a loaded thread pool cannot fail them, and return as soon as they pass.
+	private static readonly TimeSpan _wait = TimeSpan.FromSeconds(30);
+
 	private readonly BunitJSModuleInterop _module;
 	private readonly BunitJSModuleInterop _common;
 	private readonly List<(DateTime Start, DateTime End, string Scale)> _queries = [];
@@ -73,7 +77,7 @@ public class PDTimelineTests : BunitContext
 				.Add(p => p.ScaleChanged, (TimelineScale s) => _scaleChanges.Add(s.Name));
 			configure?.Invoke(parameters);
 		});
-		timeline.WaitForState(() => _initialized);
+		timeline.WaitForState(() => _initialized, _wait);
 		_scaleChanges.Clear();
 		_queries.Clear();
 		return timeline;
@@ -117,7 +121,7 @@ public class PDTimelineTests : BunitContext
 			.Add(p => p.Refreshed, () => _refreshes++)
 			.Add(p => p.Initialized, () => _initialized = true));
 
-		timeline.WaitForState(() => _initialized);
+		timeline.WaitForState(() => _initialized, _wait);
 
 		_module.VerifyInvoke("initialize").Arguments[0].Should().Be("tl-1");
 		_queries[^1].Should().Be((Day(1), Day(22), "Days"));
@@ -1053,7 +1057,7 @@ public class PDTimelineTests : BunitContext
 
 		clock.Advance(TimeSpan.FromDays(1));
 
-		timeline.WaitForAssertion(() => _queries.Should().NotBeEmpty());
+		timeline.WaitForAssertion(() => _queries.Should().NotBeEmpty(), _wait);
 		timeline.Instance.RoundedMaxDateTime.Should().Be(_now.Date.AddDays(2));
 		timeline.Instance.IsFollowingNow.Should().BeTrue();
 	}
@@ -1125,7 +1129,7 @@ public class PDTimelineTests : BunitContext
 		clock.Advance(TimeSpan.FromDays(1));
 
 		timeline.WaitForAssertion(() => timeline.Instance.GetSelection()
-			.Should().BeEquivalentTo(Range(end.AddDays(-2), end.AddDays(1))));
+			.Should().BeEquivalentTo(Range(end.AddDays(-2), end.AddDays(1))), _wait);
 	}
 
 	/// <summary>
