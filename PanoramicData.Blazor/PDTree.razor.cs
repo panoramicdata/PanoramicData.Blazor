@@ -636,15 +636,26 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
             return node;
         }
 
-        node = new TreeNode<TItem>
-        {
-            Key = key,
-            IsExpanded = false,
-            Nodes = !LoadOnDemand || (IsLeaf != null && IsLeaf(item)) ? [] : null
-        };
+        node = CreateNode(key, item);
         (parentNode.Nodes ??= []).Add(node);
         return node;
     }
+
+    /// <summary>
+    /// Creates a collapsed node for a newly fetched item. With <see cref="LoadOnDemand"/> its children are
+    /// unloaded (null) unless <see cref="IsLeaf"/> says it has none.
+    /// </summary>
+    private TreeNode<TItem> CreateNode(string key, TItem item) => new()
+    {
+        Key = key,
+        IsExpanded = false,
+        Nodes = !LoadOnDemand || IsLeafItemData(item) ? [] : null
+    };
+
+    /// <summary>
+    /// Whether <see cref="IsLeaf"/> declares an item a leaf.
+    /// </summary>
+    private bool IsLeafItemData(TItem item) => IsLeaf != null && IsLeaf(item);
 
     /// <summary>
     /// Copies an item's current values onto its node.
