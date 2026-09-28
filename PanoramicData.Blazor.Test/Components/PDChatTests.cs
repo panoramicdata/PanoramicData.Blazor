@@ -595,22 +595,49 @@ public class PDChatTests : BunitContext
 		component.FindAll(".pdchat-toast").Should().BeEmpty();
 	}
 
-	/// <summary>Verifies that dismissing the only toast uses its exit animation and then removes it.</summary>
+	/// <summary>Verifies that dismissing the only toast plays its own exit animation.</summary>
+	/// <remarks>
+	/// The exit lasts as long as the animation, after which a timer removes the toast. The animation here is
+	/// a minute long so that the exit state is still on screen when it is asserted, however busy the machine.
+	/// </remarks>
 	[Fact]
-	public async Task Dismissing_the_only_toast_exits_then_removes_it()
+	public async Task Dismissing_the_only_toast_plays_its_exit_animation()
 	{
 		var service = Toasting();
 		service.ToastExitAnimation = PDChatToastAnimation.Fade;
+		service.ToastAnimationDurationMs = 60_000;
 		var component = RenderChat(service);
 		await component.InvokeAsync(() => service.Receive(Message("Bye")));
 
 		await component.Find(".pdchat-toast-close").ClickAsync(new());
 
-		component.Find(".pdchat-toast").ClassList.Should().Contain("toast-exit-fade");
+		var toast = component.Find(".pdchat-toast");
+		toast.ClassList.Should().Contain("toast-exit-fade");
+		toast.GetAttribute("style").Should().StartWith("--pdchat-toast-anim-ms:60000ms;");
+	}
+
+	/// <summary>Verifies that a dismissed toast is removed once its exit animation has finished.</summary>
+	[Fact]
+	public async Task A_dismissed_toast_is_removed_after_its_exit_animation()
+	{
+		var service = Toasting();
+		var component = RenderChat(service);
+		await component.InvokeAsync(() => service.Receive(Message("Bye")));
+
+		await component.Find(".pdchat-toast-close").ClickAsync(new());
+
 		component.WaitForAssertion(() => component.FindAll(".pdchat-toast").Should().BeEmpty());
 	}
 
-	/// <summary>Verifies that dismissing a toast while others remain de-stacks it with the fixed duration.</summary>
+	/// <summary>
+	/// Verifies that dismissing a toast while others remain de-stacks it with the fixed duration, and that
+	/// dismissing it again while it is leaving changes nothing.
+	/// </summary>
+	/// <remarks>
+	/// The de-stack lasts a fixed 250ms that no setting changes, and its removal timer can only take effect
+	/// through the renderer's dispatcher. Clicking and reading the markup inside one synchronous dispatcher
+	/// call therefore sees the de-stack state before that timer can possibly remove it.
+	/// </remarks>
 	[Fact]
 	public async Task Dismissing_one_of_several_toasts_de_stacks_it()
 	{
@@ -618,13 +645,23 @@ public class PDChatTests : BunitContext
 		var component = RenderChat(service);
 		await component.InvokeAsync(() => service.Receive(Message("First")));
 		await component.InvokeAsync(() => service.Receive(Message("Second")));
+		string[] firstClasses = [];
+		string[] secondClasses = [];
+		string? firstStyle = null;
 
-		await component.FindAll(".pdchat-toast-close")[0].ClickAsync(new());
-		await component.FindAll(".pdchat-toast-close")[0].ClickAsync(new());
+		await component.InvokeAsync(() =>
+		{
+			component.FindAll(".pdchat-toast-close")[0].Click();
+			component.FindAll(".pdchat-toast-close")[0].Click();
+			var toasts = component.FindAll(".pdchat-toast");
+			firstClasses = [.. toasts[0].ClassList];
+			firstStyle = toasts[0].GetAttribute("style");
+			secondClasses = [.. toasts[1].ClassList];
+		});
 
-		var first = component.FindAll(".pdchat-toast")[0];
-		first.ClassList.Should().Contain("toast-destack");
-		first.GetAttribute("style").Should().StartWith("--pdchat-toast-anim-ms:250ms;");
+		firstClasses.Should().Contain("toast-destack");
+		firstStyle.Should().StartWith("--pdchat-toast-anim-ms:250ms;");
+		secondClasses.Should().Contain("toast-enter-grow").And.NotContain("toast-destack");
 		component.WaitForAssertion(() => component.FindAll(".pdchat-toast").Should().ContainSingle());
 	}
 
