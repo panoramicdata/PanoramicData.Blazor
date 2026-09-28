@@ -12,13 +12,13 @@ public class PDFormCheckBoxTests : BunitContext
 {
 	/// <summary>Verifies that clicking an unchecked box checks it and reports the new value.</summary>
 	[Fact]
-	public void Clicking_toggles_the_value_and_raises_ValueChanged()
+	public async Task Clicking_toggles_the_value_and_raises_ValueChanged()
 	{
 		var reported = new List<bool>();
 		var component = Render<PDFormCheckBox>(parameters => parameters
 			.Add(p => p.ValueChanged, (bool value) => reported.Add(value)));
 
-		component.Find("i.fa-square").Click();
+		await component.Find("i.fa-square").ClickAsync(new MouseEventArgs());
 
 		reported.Should().Equal(true);
 		component.Find("i").ClassList.Should().Contain("fa-check-square");
@@ -26,14 +26,14 @@ public class PDFormCheckBoxTests : BunitContext
 
 	/// <summary>Verifies that clicking a checked box unchecks it.</summary>
 	[Fact]
-	public void Clicking_a_checked_box_unchecks_it()
+	public async Task Clicking_a_checked_box_unchecks_it()
 	{
 		var reported = new List<bool>();
 		var component = Render<PDFormCheckBox>(parameters => parameters
 			.Add(p => p.Value, true)
 			.Add(p => p.ValueChanged, (bool value) => reported.Add(value)));
 
-		component.Find("i.fa-check-square").Click();
+		await component.Find("i.fa-check-square").ClickAsync(new MouseEventArgs());
 
 		reported.Should().Equal(false);
 		component.Find("i").ClassList.Should().Contain("fa-square");
@@ -43,26 +43,26 @@ public class PDFormCheckBoxTests : BunitContext
 	[Theory]
 	[InlineData("Space")]
 	[InlineData("Enter")]
-	public void Space_and_Enter_toggle_the_value(string code)
+	public async Task Space_and_Enter_toggle_the_value(string code)
 	{
 		var reported = new List<bool>();
 		var component = Render<PDFormCheckBox>(parameters => parameters
 			.Add(p => p.ValueChanged, (bool value) => reported.Add(value)));
 
-		component.Find(".pdformcheckbox").KeyPress(new KeyboardEventArgs { Code = code });
+		await component.Find(".pdformcheckbox").KeyPressAsync(new KeyboardEventArgs { Code = code });
 
 		reported.Should().Equal(true);
 	}
 
 	/// <summary>Verifies that other keys do not toggle the value.</summary>
 	[Fact]
-	public void Other_keys_do_not_toggle_the_value()
+	public async Task Other_keys_do_not_toggle_the_value()
 	{
 		var reported = new List<bool>();
 		var component = Render<PDFormCheckBox>(parameters => parameters
 			.Add(p => p.ValueChanged, (bool value) => reported.Add(value)));
 
-		component.Find(".pdformcheckbox").KeyPress(new KeyboardEventArgs { Code = "KeyA" });
+		await component.Find(".pdformcheckbox").KeyPressAsync(new KeyboardEventArgs { Code = "KeyA" });
 
 		reported.Should().BeEmpty();
 		component.Find("i").ClassList.Should().Contain("fa-square");
@@ -73,15 +73,15 @@ public class PDFormCheckBoxTests : BunitContext
 	/// the tab order.
 	/// </summary>
 	[Fact]
-	public void A_disabled_box_ignores_input_and_leaves_the_tab_order()
+	public async Task A_disabled_box_ignores_input_and_leaves_the_tab_order()
 	{
 		var reported = new List<bool>();
 		var component = Render<PDFormCheckBox>(parameters => parameters
 			.Add(p => p.Disabled, true)
 			.Add(p => p.ValueChanged, (bool value) => reported.Add(value)));
 
-		component.Find("i").Click();
-		component.Find(".pdformcheckbox").KeyPress(new KeyboardEventArgs { Code = "Space" });
+		await component.Find("i").ClickAsync(new MouseEventArgs());
+		await component.Find(".pdformcheckbox").KeyPressAsync(new KeyboardEventArgs { Code = "Space" });
 
 		reported.Should().BeEmpty();
 		var root = component.Find(".pdformcheckbox");

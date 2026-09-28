@@ -52,11 +52,11 @@ public class PDDragPanelTests : BunitContext
 
 	/// <summary>Verifies that the dragged item shows as a blank placeholder marked as dragging.</summary>
 	[Fact]
-	public void The_dragged_item_becomes_a_placeholder()
+	public async Task The_dragged_item_becomes_a_placeholder()
 	{
 		var component = RenderPanel(Items("A", "B"));
 
-		component.FindAll(".pd-dragitem")[0].DragStart(new DragEventArgs { ClientY = 0 });
+		await component.FindAll(".pd-dragitem")[0].DragStartAsync(new DragEventArgs { ClientY = 0 });
 
 		var first = component.FindAll(".pd-dragitem")[0];
 		first.ClassList.Should().Contain("dragging");
@@ -65,27 +65,27 @@ public class PDDragPanelTests : BunitContext
 
 	/// <summary>Verifies that a placeholder template replaces the default blank placeholder.</summary>
 	[Fact]
-	public void A_placeholder_template_renders_for_the_dragged_item()
+	public async Task A_placeholder_template_renders_for_the_dragged_item()
 	{
 		var component = RenderPanel(Items("A", "B"), panel => panel
 			.Add(p => p.PlaceholderTemplate, item => (RenderFragment)(b => b.AddContent(0, $"moving {item.Text}"))));
 
-		component.FindAll(".pd-dragitem")[0].DragStart(new DragEventArgs { ClientY = 0 });
+		await component.FindAll(".pd-dragitem")[0].DragStartAsync(new DragEventArgs { ClientY = 0 });
 
 		component.FindAll(".pd-dragitem")[0].TextContent.Should().Be("moving A");
 	}
 
 	/// <summary>Verifies that dragging an item downwards over another places it after that item and reports the order.</summary>
 	[Fact]
-	public void Dragging_down_places_the_item_after_the_target()
+	public async Task Dragging_down_places_the_item_after_the_target()
 	{
 		var changes = new List<DragOrderChangeArgs<Item>>();
 		var component = RenderPanel(Items("A", "B", "C"), panel => panel
 			.Add(p => p.ItemOrderChanged, (DragOrderChangeArgs<Item> args) => changes.Add(args)));
 
-		component.FindAll(".pd-dragitem")[0].DragStart(new DragEventArgs { ClientY = 0 });
-		component.FindAll(".pd-dragitem")[2].DragEnter(new DragEventArgs { ClientY = 20 });
-		component.FindAll(".pd-dragitem")[2].DragEnd(new DragEventArgs());
+		await component.FindAll(".pd-dragitem")[0].DragStartAsync(new DragEventArgs { ClientY = 0 });
+		await component.FindAll(".pd-dragitem")[2].DragEnterAsync(new DragEventArgs { ClientY = 20 });
+		await component.FindAll(".pd-dragitem")[2].DragEndAsync(new DragEventArgs());
 
 		var change = changes.Should().ContainSingle().Subject;
 		change.Items.Select(i => i.Text).Should().Equal("B", "C", "A");
@@ -95,30 +95,30 @@ public class PDDragPanelTests : BunitContext
 
 	/// <summary>Verifies that dragging an item upwards over another places it before that item.</summary>
 	[Fact]
-	public void Dragging_up_places_the_item_before_the_target()
+	public async Task Dragging_up_places_the_item_before_the_target()
 	{
 		var changes = new List<DragOrderChangeArgs<Item>>();
 		var component = RenderPanel(Items("A", "B", "C"), panel => panel
 			.Add(p => p.ItemOrderChanged, (DragOrderChangeArgs<Item> args) => changes.Add(args)));
 
-		component.FindAll(".pd-dragitem")[2].DragStart(new DragEventArgs { ClientY = 20 });
-		component.FindAll(".pd-dragitem")[0].DragEnter(new DragEventArgs { ClientY = 0 });
-		component.FindAll(".pd-dragitem")[0].DragEnd(new DragEventArgs());
+		await component.FindAll(".pd-dragitem")[2].DragStartAsync(new DragEventArgs { ClientY = 20 });
+		await component.FindAll(".pd-dragitem")[0].DragEnterAsync(new DragEventArgs { ClientY = 0 });
+		await component.FindAll(".pd-dragitem")[0].DragEndAsync(new DragEventArgs());
 
 		changes.Should().ContainSingle().Which.Items.Select(i => i.Text).Should().Equal("C", "A", "B");
 	}
 
 	/// <summary>Verifies that a drag that ends where it began reports nothing and clears the placeholder.</summary>
 	[Fact]
-	public void A_drag_that_changes_nothing_reports_nothing()
+	public async Task A_drag_that_changes_nothing_reports_nothing()
 	{
 		var changes = new List<DragOrderChangeArgs<Item>>();
 		var component = RenderPanel(Items("A", "B"), panel => panel
 			.Add(p => p.ItemOrderChanged, (DragOrderChangeArgs<Item> args) => changes.Add(args)));
 
-		component.FindAll(".pd-dragitem")[0].DragStart(new DragEventArgs { ClientY = 0 });
-		component.FindAll(".pd-dragitem")[0].DragEnter(new DragEventArgs { ClientY = 0 });
-		component.FindAll(".pd-dragitem")[0].DragEnd(new DragEventArgs());
+		await component.FindAll(".pd-dragitem")[0].DragStartAsync(new DragEventArgs { ClientY = 0 });
+		await component.FindAll(".pd-dragitem")[0].DragEnterAsync(new DragEventArgs { ClientY = 0 });
+		await component.FindAll(".pd-dragitem")[0].DragEndAsync(new DragEventArgs());
 
 		changes.Should().BeEmpty();
 		component.FindAll(".pd-dragitem.dragging").Should().BeEmpty();
@@ -126,16 +126,16 @@ public class PDDragPanelTests : BunitContext
 
 	/// <summary>Verifies that CanChangeOrder false keeps the order fixed and reports nothing.</summary>
 	[Fact]
-	public void CanChangeOrder_false_keeps_the_order()
+	public async Task CanChangeOrder_false_keeps_the_order()
 	{
 		var changes = new List<DragOrderChangeArgs<Item>>();
 		var component = RenderPanel(Items("A", "B", "C"), panel => panel
 			.Add(p => p.CanChangeOrder, false)
 			.Add(p => p.ItemOrderChanged, (DragOrderChangeArgs<Item> args) => changes.Add(args)));
 
-		component.FindAll(".pd-dragitem")[0].DragStart(new DragEventArgs { ClientY = 0 });
-		component.FindAll(".pd-dragitem")[2].DragEnter(new DragEventArgs { ClientY = 20 });
-		component.FindAll(".pd-dragitem")[2].DragEnd(new DragEventArgs());
+		await component.FindAll(".pd-dragitem")[0].DragStartAsync(new DragEventArgs { ClientY = 0 });
+		await component.FindAll(".pd-dragitem")[2].DragEnterAsync(new DragEventArgs { ClientY = 20 });
+		await component.FindAll(".pd-dragitem")[2].DragEndAsync(new DragEventArgs());
 
 		changes.Should().BeEmpty();
 		component.FindAll(".pd-dragitem").Select(i => i.TextContent.Trim()).Should().Equal("A", "B", "C");
@@ -143,25 +143,25 @@ public class PDDragPanelTests : BunitContext
 
 	/// <summary>Verifies that entering an item with no drag in progress changes nothing.</summary>
 	[Fact]
-	public void Entering_without_a_drag_changes_nothing()
+	public async Task Entering_without_a_drag_changes_nothing()
 	{
 		var component = RenderPanel(Items("A", "B"));
 
-		component.FindAll(".pd-dragitem")[1].DragEnter(new DragEventArgs { ClientY = 20 });
-		component.FindAll(".pd-dragitem")[1].DragEnd(new DragEventArgs());
+		await component.FindAll(".pd-dragitem")[1].DragEnterAsync(new DragEventArgs { ClientY = 20 });
+		await component.FindAll(".pd-dragitem")[1].DragEndAsync(new DragEventArgs());
 
 		component.FindAll(".pd-dragitem").Select(i => i.TextContent.Trim()).Should().Equal("A", "B");
 	}
 
 	/// <summary>Verifies that ticking an item's checkbox reports the container's new selection.</summary>
 	[Fact]
-	public void Ticking_an_item_reports_the_selection()
+	public async Task Ticking_an_item_reports_the_selection()
 	{
 		var items = Items("A", "B");
 		var selections = new List<Item[]>();
 		var component = RenderPanel(items, selectionChanged: selection => selections.Add([.. selection]));
 
-		component.FindAll(".pd-dragitem input[type=checkbox]")[1].Input(new ChangeEventArgs { Value = true });
+		await component.FindAll(".pd-dragitem input[type=checkbox]")[1].InputAsync(new ChangeEventArgs { Value = true });
 
 		selections.Should().ContainSingle().Which.Select(i => i.Text).Should().Equal("B");
 	}

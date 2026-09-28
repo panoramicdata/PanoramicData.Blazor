@@ -65,36 +65,36 @@ public class PDCardTests : BunitContext
 
 	/// <summary>Verifies that releasing the mouse on a card selects it when the deck allows selection.</summary>
 	[Fact]
-	public void Releasing_the_mouse_selects_the_card()
+	public async Task Releasing_the_mouse_selects_the_card()
 	{
 		var deck = RenderDeck(Cards("One", "Two"), parameters => parameters.Add(p => p.MultipleSelection, true));
 
-		deck.FindAll(".card")[1].MouseUp(new MouseEventArgs());
+		await deck.FindAll(".card")[1].MouseUpAsync(new MouseEventArgs());
 
 		deck.FindAll(".card").Select(c => c.ClassList.Contains("selected")).Should().Equal(false, true);
 	}
 
 	/// <summary>Verifies that a deck without selection enabled leaves a released card unselected.</summary>
 	[Fact]
-	public void Without_selection_a_released_card_stays_unselected()
+	public async Task Without_selection_a_released_card_stays_unselected()
 	{
 		var deck = RenderDeck(Cards("One"));
 
-		deck.Find(".card").MouseUp(new MouseEventArgs());
+		await deck.Find(".card").MouseUpAsync(new MouseEventArgs());
 
 		deck.Find(".card").ClassList.Should().NotContain("selected");
 	}
 
 	/// <summary>Verifies that starting a drag marks the card as selected and dragging, and ending it clears dragging.</summary>
 	[Fact]
-	public void Dragging_a_card_marks_it_until_the_drag_ends()
+	public async Task Dragging_a_card_marks_it_until_the_drag_ends()
 	{
 		var deck = RenderDeck(Cards("One", "Two"));
 
-		deck.FindAll(".card")[0].DragStart(new DragEventArgs());
+		await deck.FindAll(".card")[0].DragStartAsync(new DragEventArgs());
 		deck.FindAll(".card")[0].ClassList.Should().Contain("selected").And.Contain("dragging");
 
-		deck.FindAll(".card")[0].DragEnd(new DragEventArgs());
+		await deck.FindAll(".card")[0].DragEndAsync(new DragEventArgs());
 		deck.FindAll(".card")[0].ClassList.Should().NotContain("dragging");
 	}
 

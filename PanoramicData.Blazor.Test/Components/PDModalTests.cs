@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Extensions;
@@ -46,12 +47,12 @@ public class PDModalTests : BunitContext
 
 	/// <summary>Verifies that the close button is shown on request and hides the dialog.</summary>
 	[Fact]
-	public void The_close_button_hides_the_dialog()
+	public async Task The_close_button_hides_the_dialog()
 	{
 		var modal = SetupModalObject();
 		var component = Render<PDModal>(parameters => parameters.Add(p => p.ShowClose, true));
 
-		component.Find(".btn-close").Click();
+		await component.Find(".btn-close").ClickAsync(new MouseEventArgs());
 
 		modal.VerifyInvoke("hide");
 	}
@@ -133,13 +134,13 @@ public class PDModalTests : BunitContext
 
 	/// <summary>Verifies that a footer button click is forwarded with its key when no caller is waiting.</summary>
 	[Fact]
-	public void A_button_click_is_forwarded_with_its_key()
+	public async Task A_button_click_is_forwarded_with_its_key()
 	{
 		var keys = new List<string>();
 		var component = Render<PDModal>(parameters => parameters
 			.Add(p => p.ButtonClick, (string key) => keys.Add(key)));
 
-		FooterButton(component, "No").Click();
+		await FooterButton(component, "No").ClickAsync(new MouseEventArgs());
 
 		keys.Should().Equal(ModalResults.NO);
 	}

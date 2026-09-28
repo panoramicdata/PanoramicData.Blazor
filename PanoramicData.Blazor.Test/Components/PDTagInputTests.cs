@@ -81,12 +81,12 @@ public class PDTagInputTests : BunitContext
 
 	/// <summary>Verifies that Enter commits the trimmed typed text as a tag and reports it.</summary>
 	[Fact]
-	public void Enter_commits_the_typed_text()
+	public async Task Enter_commits_the_typed_text()
 	{
 		var component = RenderInput();
 
-		Type(component, "  gamma ");
-		Press(component, "Enter");
+		await TypeAsync(component, "  gamma ");
+		await PressAsync(component, "Enter");
 
 		Tags(component).Should().Equal("gamma");
 		_emitted.Should().ContainSingle().Which.Should().Equal("gamma");
@@ -96,12 +96,12 @@ public class PDTagInputTests : BunitContext
 
 	/// <summary>Verifies that Enter with only whitespace typed adds nothing.</summary>
 	[Fact]
-	public void Enter_with_blank_text_adds_nothing()
+	public async Task Enter_with_blank_text_adds_nothing()
 	{
 		var component = RenderInput();
 
-		Type(component, "   ");
-		Press(component, "Enter");
+		await TypeAsync(component, "   ");
+		await PressAsync(component, "Enter");
 
 		Tags(component).Should().BeEmpty();
 		_emitted.Should().BeEmpty();
@@ -109,11 +109,11 @@ public class PDTagInputTests : BunitContext
 
 	/// <summary>Verifies that commas commit each complete part and leave the remainder being typed.</summary>
 	[Fact]
-	public void Commas_commit_each_complete_part()
+	public async Task Commas_commit_each_complete_part()
 	{
 		var component = RenderInput();
 
-		Type(component, "one, two,,thr");
+		await TypeAsync(component, "one, two,,thr");
 
 		Tags(component).Should().Equal("one", "two");
 		component.Find(".pd-taginput-input").GetAttribute("value").Should().Be("thr");
@@ -121,31 +121,31 @@ public class PDTagInputTests : BunitContext
 
 	/// <summary>Verifies that a duplicate is rejected regardless of case, marking the input invalid until typing resumes.</summary>
 	[Fact]
-	public void A_duplicate_is_rejected_until_typing_resumes()
+	public async Task A_duplicate_is_rejected_until_typing_resumes()
 	{
 		var component = RenderInput(p => p.Add(x => x.Values, ["Alpha"]));
 
-		Type(component, "alpha");
-		Press(component, "Enter");
+		await TypeAsync(component, "alpha");
+		await PressAsync(component, "Enter");
 
 		_rejected.Should().ContainSingle().Which.Reason.Should().Be(TagRejectionReason.Duplicate);
 		_rejected[0].Tag.Should().Be("alpha");
 		component.Find(".pd-taginput-control").ClassList.Should().Contain("pd-taginput--invalid");
 
-		Type(component, "alph");
+		await TypeAsync(component, "alph");
 		component.Find(".pd-taginput-control").ClassList.Should().NotContain("pd-taginput--invalid");
 	}
 
 	/// <summary>Verifies that a case-sensitive input treats differently cased text as a different tag.</summary>
 	[Fact]
-	public void A_case_sensitive_input_allows_different_casing()
+	public async Task A_case_sensitive_input_allows_different_casing()
 	{
 		var component = RenderInput(p => p
 			.Add(x => x.Values, ["Alpha"])
 			.Add(x => x.CaseSensitive, true));
 
-		Type(component, "alpha");
-		Press(component, "Enter");
+		await TypeAsync(component, "alpha");
+		await PressAsync(component, "Enter");
 
 		Tags(component).Should().Equal("Alpha", "alpha");
 		_rejected.Should().BeEmpty();
@@ -155,15 +155,15 @@ public class PDTagInputTests : BunitContext
 	[Theory]
 	[InlineData(1, 0, "second", TagRejectionReason.MaxTagsReached)]
 	[InlineData(0, 3, "long", TagRejectionReason.TooLong)]
-	public void Limits_reject_what_exceeds_them(int maxTags, int maxLength, string text, TagRejectionReason reason)
+	public async Task Limits_reject_what_exceeds_them(int maxTags, int maxLength, string text, TagRejectionReason reason)
 	{
 		var component = RenderInput(p => p
 			.Add(x => x.Values, ["one"])
 			.Add(x => x.MaxTags, maxTags)
 			.Add(x => x.MaxTagLength, maxLength));
 
-		Type(component, text);
-		Press(component, "Enter");
+		await TypeAsync(component, text);
+		await PressAsync(component, "Enter");
 
 		_rejected.Should().ContainSingle().Which.Reason.Should().Be(reason);
 		Tags(component).Should().Equal("one");
@@ -173,18 +173,18 @@ public class PDTagInputTests : BunitContext
 	/// Verifies that without free text only suggestions are accepted, and a match takes the suggestion's casing.
 	/// </summary>
 	[Fact]
-	public void Without_free_text_only_suggestions_are_accepted()
+	public async Task Without_free_text_only_suggestions_are_accepted()
 	{
 		var component = RenderInput(p => p
 			.Add(x => x.AllowFreeText, false)
 			.Add(x => x.Suggestions, ["Red", "Green"]));
 
-		Type(component, "blue");
-		Press(component, "Escape");
-		Press(component, "Enter");
-		Type(component, "green");
-		Press(component, "Escape");
-		Press(component, "Enter");
+		await TypeAsync(component, "blue");
+		await PressAsync(component, "Escape");
+		await PressAsync(component, "Enter");
+		await TypeAsync(component, "green");
+		await PressAsync(component, "Escape");
+		await PressAsync(component, "Enter");
 
 		_rejected.Should().ContainSingle().Which.Reason.Should().Be(TagRejectionReason.NotInSuggestions);
 		Tags(component).Should().Equal("Green");
@@ -192,11 +192,11 @@ public class PDTagInputTests : BunitContext
 
 	/// <summary>Verifies that the remove button removes its tag and reports the removal.</summary>
 	[Fact]
-	public void The_remove_button_removes_its_tag()
+	public async Task The_remove_button_removes_its_tag()
 	{
 		var component = RenderInput(p => p.Add(x => x.Values, ["alpha", "beta"]));
 
-		component.FindAll(".pd-taginput-remove")[0].Click();
+		await component.FindAll(".pd-taginput-remove")[0].ClickAsync(new MouseEventArgs());
 
 		Tags(component).Should().Equal("beta");
 		_removed.Should().Equal("alpha");
@@ -205,29 +205,29 @@ public class PDTagInputTests : BunitContext
 
 	/// <summary>Verifies that Backspace in an empty input removes the last tag, but not while text is typed.</summary>
 	[Fact]
-	public void Backspace_removes_the_last_tag_only_when_nothing_is_typed()
+	public async Task Backspace_removes_the_last_tag_only_when_nothing_is_typed()
 	{
 		var component = RenderInput(p => p.Add(x => x.Values, ["alpha", "beta"]));
 
-		Type(component, "x");
-		Press(component, "Backspace");
+		await TypeAsync(component, "x");
+		await PressAsync(component, "Backspace");
 		Tags(component).Should().Equal("alpha", "beta");
 
-		Type(component, string.Empty);
-		Press(component, "Backspace");
+		await TypeAsync(component, string.Empty);
+		await PressAsync(component, "Backspace");
 		Tags(component).Should().Equal("alpha");
 		_removed.Should().Equal("beta");
 	}
 
 	/// <summary>Verifies that focusing offers every unused suggestion, with the first active.</summary>
 	[Fact]
-	public void Focusing_offers_the_unused_suggestions()
+	public async Task Focusing_offers_the_unused_suggestions()
 	{
 		var component = RenderInput(p => p
 			.Add(x => x.Values, ["Red"])
 			.Add(x => x.Suggestions, ["Red", "Green", "Blue"]));
 
-		component.Find(".pd-taginput-input").Focus();
+		await component.Find(".pd-taginput-input").FocusAsync(new FocusEventArgs());
 
 		Suggestions(component).Should().Equal("Green", "Blue");
 		ActiveSuggestion(component).Should().Be("Green");
@@ -235,39 +235,39 @@ public class PDTagInputTests : BunitContext
 
 	/// <summary>Verifies that typing filters the suggestions to those containing the text.</summary>
 	[Fact]
-	public void Typing_filters_the_suggestions()
+	public async Task Typing_filters_the_suggestions()
 	{
 		var component = RenderInput(p => p.Add(x => x.Suggestions, ["Green", "Grey", "Blue"]));
 
-		Type(component, "gr");
+		await TypeAsync(component, "gr");
 
 		Suggestions(component).Should().Equal("Green", "Grey");
 	}
 
 	/// <summary>Verifies that typing text matching no suggestion hides the list.</summary>
 	[Fact]
-	public void Typing_text_matching_nothing_hides_the_suggestions()
+	public async Task Typing_text_matching_nothing_hides_the_suggestions()
 	{
 		var component = RenderInput(p => p.Add(x => x.Suggestions, ["Green"]));
 
-		Type(component, "zzz");
+		await TypeAsync(component, "zzz");
 
 		component.FindAll(".pd-taginput-dropdown").Should().BeEmpty();
 	}
 
 	/// <summary>Verifies that the arrow keys move the active suggestion, wrapping at both ends, and Enter adds it.</summary>
 	[Fact]
-	public void Arrow_keys_move_the_active_suggestion_and_Enter_adds_it()
+	public async Task Arrow_keys_move_the_active_suggestion_and_Enter_adds_it()
 	{
 		var component = RenderInput(p => p.Add(x => x.Suggestions, ["Red", "Green", "Blue"]));
-		component.Find(".pd-taginput-input").Focus();
+		await component.Find(".pd-taginput-input").FocusAsync(new FocusEventArgs());
 
-		Press(component, "ArrowUp");
+		await PressAsync(component, "ArrowUp");
 		ActiveSuggestion(component).Should().Be("Blue");
-		Press(component, "ArrowDown");
+		await PressAsync(component, "ArrowDown");
 		ActiveSuggestion(component).Should().Be("Red");
-		Press(component, "ArrowDown");
-		Press(component, "Enter");
+		await PressAsync(component, "ArrowDown");
+		await PressAsync(component, "Enter");
 
 		Tags(component).Should().Equal("Green");
 		Suggestions(component).Should().Equal("Red", "Blue");
@@ -275,26 +275,26 @@ public class PDTagInputTests : BunitContext
 
 	/// <summary>Verifies that Escape hides the suggestions and ArrowDown brings them back.</summary>
 	[Fact]
-	public void Escape_hides_and_ArrowDown_reopens_the_suggestions()
+	public async Task Escape_hides_and_ArrowDown_reopens_the_suggestions()
 	{
 		var component = RenderInput(p => p.Add(x => x.Suggestions, ["Red"]));
-		component.Find(".pd-taginput-input").Focus();
+		await component.Find(".pd-taginput-input").FocusAsync(new FocusEventArgs());
 
-		Press(component, "Escape");
+		await PressAsync(component, "Escape");
 		component.FindAll(".pd-taginput-dropdown").Should().BeEmpty();
 
-		Press(component, "ArrowDown");
+		await PressAsync(component, "ArrowDown");
 		Suggestions(component).Should().Equal("Red");
 	}
 
 	/// <summary>Verifies that adding the last remaining suggestion closes the list.</summary>
 	[Fact]
-	public void Adding_the_last_suggestion_closes_the_list()
+	public async Task Adding_the_last_suggestion_closes_the_list()
 	{
 		var component = RenderInput(p => p.Add(x => x.Suggestions, ["Red"]));
-		component.Find(".pd-taginput-input").Focus();
+		await component.Find(".pd-taginput-input").FocusAsync(new FocusEventArgs());
 
-		Press(component, "Enter");
+		await PressAsync(component, "Enter");
 
 		Tags(component).Should().Equal("Red");
 		component.FindAll(".pd-taginput-dropdown").Should().BeEmpty();
@@ -302,14 +302,14 @@ public class PDTagInputTests : BunitContext
 
 	/// <summary>Verifies that hovering a suggestion makes it active, and clicking it adds it and refocuses.</summary>
 	[Fact]
-	public void Hovering_and_clicking_a_suggestion_adds_it()
+	public async Task Hovering_and_clicking_a_suggestion_adds_it()
 	{
 		var component = RenderInput(p => p.Add(x => x.Suggestions, ["Red", "Green"]));
-		component.Find(".pd-taginput-input").Focus();
+		await component.Find(".pd-taginput-input").FocusAsync(new FocusEventArgs());
 
-		component.FindAll(".pd-taginput-dropdown li")[1].MouseOver();
+		await component.FindAll(".pd-taginput-dropdown li")[1].MouseOverAsync(new MouseEventArgs());
 		ActiveSuggestion(component).Should().Be("Green");
-		component.FindAll(".pd-taginput-dropdown li")[1].Click();
+		await component.FindAll(".pd-taginput-dropdown li")[1].ClickAsync(new MouseEventArgs());
 
 		Tags(component).Should().Equal("Green");
 		JSInterop.Invocations.Should().Contain(i => i.Identifier.EndsWith("focus", StringComparison.Ordinal));
@@ -319,38 +319,38 @@ public class PDTagInputTests : BunitContext
 	[Theory]
 	[InlineData(true, true)]
 	[InlineData(false, false)]
-	public void Clicking_the_control_focuses_an_editable_input(bool isEnabled, bool expectFocus)
+	public async Task Clicking_the_control_focuses_an_editable_input(bool isEnabled, bool expectFocus)
 	{
 		var component = RenderInput(p => p.Add(x => x.IsEnabled, isEnabled));
 
-		component.Find(".pd-taginput-control").Click();
+		await component.Find(".pd-taginput-control").ClickAsync(new MouseEventArgs());
 
 		JSInterop.Invocations.Any(i => i.Identifier.EndsWith("focus", StringComparison.Ordinal)).Should().Be(expectFocus);
 	}
 
 	/// <summary>Verifies that leaving the input commits the pending text once the blur delay has passed.</summary>
 	[Fact]
-	public void Leaving_the_input_commits_the_pending_text()
+	public async Task Leaving_the_input_commits_the_pending_text()
 	{
 		var component = RenderInput();
 
-		Type(component, "pending");
-		component.Find(".pd-taginput-input").Blur();
+		await TypeAsync(component, "pending");
+		await component.Find(".pd-taginput-input").BlurAsync(new FocusEventArgs());
 
 		component.WaitForAssertion(() => Tags(component).Should().Equal("pending"));
 	}
 
 	/// <summary>Verifies that leaving the input hides the suggestion list without adding, when AddOnBlur is off.</summary>
 	[Fact]
-	public void Leaving_without_AddOnBlur_only_hides_the_suggestions()
+	public async Task Leaving_without_AddOnBlur_only_hides_the_suggestions()
 	{
 		var component = RenderInput(p => p
 			.Add(x => x.AddOnBlur, false)
 			.Add(x => x.Suggestions, ["pending tag"]));
 
-		Type(component, "pending");
+		await TypeAsync(component, "pending");
 		component.Find(".pd-taginput-dropdown").Should().NotBeNull();
-		component.Find(".pd-taginput-input").Blur();
+		await component.Find(".pd-taginput-input").BlurAsync(new FocusEventArgs());
 
 		component.WaitForAssertion(() => component.FindAll(".pd-taginput-dropdown").Should().BeEmpty());
 		Tags(component).Should().BeEmpty();
@@ -362,9 +362,9 @@ public class PDTagInputTests : BunitContext
 	{
 		var component = RenderInput(p => p.Add(x => x.Suggestions, ["pending tag"]));
 
-		Type(component, "pending");
+		await TypeAsync(component, "pending");
 		var blur = component.Find(".pd-taginput-input").BlurAsync(new FocusEventArgs());
-		component.Find(".pd-taginput-input").Focus();
+		await component.Find(".pd-taginput-input").FocusAsync(new FocusEventArgs());
 
 		await blur;
 		Tags(component).Should().BeEmpty();
@@ -387,12 +387,12 @@ public class PDTagInputTests : BunitContext
 	/// list instance supplied again is not re-read either.
 	/// </summary>
 	[Fact]
-	public void An_echoed_or_repeated_list_is_not_re_read()
+	public async Task An_echoed_or_repeated_list_is_not_re_read()
 	{
 		var supplied = new List<string> { "alpha" };
 		var component = RenderInput(p => p.Add(x => x.Values, supplied));
-		Type(component, "beta");
-		Press(component, "Enter");
+		await TypeAsync(component, "beta");
+		await PressAsync(component, "Enter");
 
 		component.Render(p => p.Add(x => x.Values, _emitted[^1]));
 		component.Render(p => p.Add(x => x.Values, _emitted[^1]));
@@ -412,11 +412,11 @@ public class PDTagInputTests : BunitContext
 			configure?.Invoke(parameters);
 		});
 
-	private static void Type(IRenderedComponent<PDTagInput> component, string text)
-		=> component.Find(".pd-taginput-input").Input(new ChangeEventArgs { Value = text });
+	private static Task TypeAsync(IRenderedComponent<PDTagInput> component, string text)
+		=> component.Find(".pd-taginput-input").InputAsync(new ChangeEventArgs { Value = text });
 
-	private static void Press(IRenderedComponent<PDTagInput> component, string key)
-		=> component.Find(".pd-taginput-input").KeyDown(new KeyboardEventArgs { Key = key });
+	private static Task PressAsync(IRenderedComponent<PDTagInput> component, string key)
+		=> component.Find(".pd-taginput-input").KeyDownAsync(new KeyboardEventArgs { Key = key });
 
 	private static List<string> Tags(IRenderedComponent<PDTagInput> component)
 		=> [.. component.FindAll(".pd-taginput-tag").Select(t => t.GetAttribute("title")!)];

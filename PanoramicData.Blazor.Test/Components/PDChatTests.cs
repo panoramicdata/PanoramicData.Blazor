@@ -110,7 +110,7 @@ public class PDChatTests : BunitContext
 
 	/// <summary>Verifies that minimising and restoring move the service between modes and raise the events.</summary>
 	[Fact]
-	public void Minimising_and_restoring_raise_their_events()
+	public async Task Minimising_and_restoring_raise_their_events()
 	{
 		var events = new List<string>();
 		var service = new FakeChatService { DockMode = PDChatDockMode.TopLeft, RestoreMode = PDChatDockMode.TopLeft };
@@ -118,9 +118,9 @@ public class PDChatTests : BunitContext
 			.Add(x => x.OnChatMinimized, () => events.Add("minimised"))
 			.Add(x => x.OnChatRestored, () => events.Add("restored")));
 
-		component.Find(".pdchat-close").Click();
+		await component.Find(".pdchat-close").ClickAsync(new MouseEventArgs());
 		service.DockMode.Should().Be(PDChatDockMode.Minimized);
-		component.Find(".pdchat-toggle-collapsed").Click();
+		await component.Find(".pdchat-toggle-collapsed").ClickAsync(new MouseEventArgs());
 
 		service.DockMode.Should().Be(PDChatDockMode.TopLeft);
 		events.Should().Equal("minimised", "restored");
@@ -128,7 +128,7 @@ public class PDChatTests : BunitContext
 
 	/// <summary>Verifies that full screen and back raise the maximised and restored events.</summary>
 	[Fact]
-	public void Full_screen_and_back_raise_their_events()
+	public async Task Full_screen_and_back_raise_their_events()
 	{
 		var events = new List<string>();
 		var service = new FakeChatService { IsCanvasUsePermitted = false };
@@ -136,10 +136,10 @@ public class PDChatTests : BunitContext
 			.Add(x => x.OnChatMaximized, () => events.Add("maximised"))
 			.Add(x => x.OnChatRestored, () => events.Add("restored")));
 
-		HeaderButton(component, "Fullscreen").Click();
+		await HeaderButton(component, "Fullscreen").ClickAsync(new MouseEventArgs());
 		service.DockMode.Should().Be(PDChatDockMode.FullScreen);
 		component.Find(".pdchat-window").ClassList.Should().Contain("fullscreen");
-		HeaderButton(component, "Restore").Click();
+		await HeaderButton(component, "Restore").ClickAsync(new MouseEventArgs());
 
 		service.DockMode.Should().Be(PDChatDockMode.BottomRight);
 		events.Should().Equal("maximised", "restored");
@@ -160,12 +160,12 @@ public class PDChatTests : BunitContext
 	[InlineData(PDChatDockMode.BottomRight, PDChatDockMode.Right)]
 	[InlineData(PDChatDockMode.TopLeft, PDChatDockMode.Left)]
 	[InlineData(PDChatDockMode.BottomLeft, PDChatDockMode.Left)]
-	public void Docking_to_a_side_follows_the_corner(PDChatDockMode corner, PDChatDockMode expected)
+	public async Task Docking_to_a_side_follows_the_corner(PDChatDockMode corner, PDChatDockMode expected)
 	{
 		var service = new FakeChatService { DockMode = corner };
 		var component = RenderChat(service);
 
-		HeaderButton(component, "Dock to Side").Click();
+		await HeaderButton(component, "Dock to Side").ClickAsync(new MouseEventArgs());
 
 		service.DockMode.Should().Be(expected);
 		component.FindAll(".pdchat-header-btn[title='Dock to Side']").Should().BeEmpty();
@@ -173,14 +173,14 @@ public class PDChatTests : BunitContext
 
 	/// <summary>Verifies that unpinning returns the chat to the corner it was docked from.</summary>
 	[Fact]
-	public void Unpinning_returns_to_the_previous_corner()
+	public async Task Unpinning_returns_to_the_previous_corner()
 	{
 		var restored = 0;
 		var service = new FakeChatService { DockMode = PDChatDockMode.TopLeft };
 		var component = RenderChat(service, p => p.Add(x => x.OnChatRestored, () => restored++));
 
-		HeaderButton(component, "Dock to Side").Click();
-		HeaderButton(component, "Unpin from Side").Click();
+		await HeaderButton(component, "Dock to Side").ClickAsync(new MouseEventArgs());
+		await HeaderButton(component, "Unpin from Side").ClickAsync(new MouseEventArgs());
 
 		service.DockMode.Should().Be(PDChatDockMode.TopLeft);
 		restored.Should().Be(1);
@@ -195,12 +195,12 @@ public class PDChatTests : BunitContext
 	[InlineData(PDChatButtonPosition.TopRight, PDChatDockMode.TopRight)]
 	[InlineData(PDChatButtonPosition.BottomLeft, PDChatDockMode.BottomLeft)]
 	[InlineData(PDChatButtonPosition.BottomRight, PDChatDockMode.BottomRight)]
-	public void Unpinning_without_a_previous_corner_uses_the_button_corner(PDChatButtonPosition button, PDChatDockMode expected)
+	public async Task Unpinning_without_a_previous_corner_uses_the_button_corner(PDChatButtonPosition button, PDChatDockMode expected)
 	{
 		var service = new FakeChatService { DockMode = PDChatDockMode.Right, MinimizedButtonPosition = button };
 		var component = RenderChat(service);
 
-		HeaderButton(component, "Unpin from Side").Click();
+		await HeaderButton(component, "Unpin from Side").ClickAsync(new MouseEventArgs());
 
 		service.DockMode.Should().Be(expected);
 	}
@@ -219,7 +219,7 @@ public class PDChatTests : BunitContext
 
 	/// <summary>Verifies that a chat inside a split container hands dock changes to the container.</summary>
 	[Fact]
-	public void A_chat_in_a_container_hands_dock_changes_to_it()
+	public async Task A_chat_in_a_container_hands_dock_changes_to_it()
 	{
 		var service = new FakeChatService { DockMode = PDChatDockMode.Right };
 
@@ -237,7 +237,7 @@ public class PDChatTests : BunitContext
 			})));
 
 		container.Find(".pdchat-container").ClassList.Should().Contain("dock-split-panel");
-		HeaderButton(container, "Unpin from Side").Click();
+		await HeaderButton(container, "Unpin from Side").ClickAsync(new MouseEventArgs());
 
 		service.DockMode.Should().Be(PDChatDockMode.BottomRight);
 		dockChanges.Should().Equal(PDChatDockMode.BottomRight);
@@ -249,13 +249,13 @@ public class PDChatTests : BunitContext
 
 	/// <summary>Verifies that the mute button toggles the service's mute state and raises the event.</summary>
 	[Fact]
-	public void Mute_toggles_the_service_and_raises_the_event()
+	public async Task Mute_toggles_the_service_and_raises_the_event()
 	{
 		var toggles = 0;
 		var service = new FakeChatService();
 		var component = RenderChat(service, p => p.Add(x => x.OnMuteToggled, () => toggles++));
 
-		HeaderButton(component, "Mute").Click();
+		await HeaderButton(component, "Mute").ClickAsync(new MouseEventArgs());
 
 		service.IsMuted.Should().BeTrue();
 		HeaderButton(component, "Unmute").TextContent.Should().Contain("🔇");
@@ -291,14 +291,14 @@ public class PDChatTests : BunitContext
 
 	/// <summary>Verifies that Clear empties the transcript and the service and raises the event.</summary>
 	[Fact]
-	public void Clear_empties_the_transcript_and_the_service()
+	public async Task Clear_empties_the_transcript_and_the_service()
 	{
 		var cleared = 0;
 		var service = new FakeChatService();
 		service.Store.Add(Message("Old"));
 		var component = RenderChat(service, p => p.Add(x => x.OnChatCleared, () => cleared++));
 
-		HeaderButton(component, "Clear Chat").Click();
+		await HeaderButton(component, "Clear Chat").ClickAsync(new MouseEventArgs());
 
 		component.FindAll(".pdchat-message").Should().BeEmpty();
 		service.ClearCount.Should().Be(1);

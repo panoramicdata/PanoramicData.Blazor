@@ -43,7 +43,7 @@ public class PDFileModalTests : BunitContext
 		var component = RenderModal();
 		await ShowOpenAsync(component);
 
-		Row(component, "/readme.txt").MouseUp(new MouseEventArgs());
+		await Row(component, "/readme.txt").MouseUpAsync(new MouseEventArgs());
 		OkButton(component).HasAttribute("disabled").Should().BeFalse();
 		await OkButton(component).ClickAsync(new());
 
@@ -57,7 +57,7 @@ public class PDFileModalTests : BunitContext
 		var component = RenderModal();
 		await ShowOpenAsync(component);
 
-		Row(component, "/Docs").MouseUp(new MouseEventArgs());
+		await Row(component, "/Docs").MouseUpAsync(new MouseEventArgs());
 
 		OkButton(component).HasAttribute("disabled").Should().BeTrue();
 	}
@@ -122,7 +122,7 @@ public class PDFileModalTests : BunitContext
 		await ShowFolderOpenAsync(component, show);
 		component.WaitForAssertion(() => Row(component, "/Docs"));
 
-		Row(component, "/Docs").MouseUp(new MouseEventArgs());
+		await Row(component, "/Docs").MouseUpAsync(new MouseEventArgs());
 		await OkButton(component).ClickAsync(new());
 
 		_results.Should().Equal("/Docs");
@@ -137,7 +137,7 @@ public class PDFileModalTests : BunitContext
 		await ShowFolderOpenAsync(component, show);
 		component.WaitForAssertion(() => Row(component, "/Docs"));
 
-		Row(component, "/Docs").MouseUp(new MouseEventArgs());
+		await Row(component, "/Docs").MouseUpAsync(new MouseEventArgs());
 
 		OkButton(component).HasAttribute("disabled").Should().BeTrue();
 	}
@@ -241,7 +241,7 @@ public class PDFileModalTests : BunitContext
 		await ShowOpenAsync(component);
 
 		var result = component.InvokeAsync(() => component.Instance.ShowOpenAndWaitResultAsync());
-		Row(component, "/readme.txt").MouseUp(new MouseEventArgs());
+		await Row(component, "/readme.txt").MouseUpAsync(new MouseEventArgs());
 		await OkButton(component).ClickAsync(new());
 
 		(await result).Should().Be("/readme.txt");
