@@ -459,11 +459,11 @@ public class PDTreeTests : BunitContext
 
 	/// <summary>A single mouse down selects the node once the double-click window has passed.</summary>
 	[Fact]
-	public void SingleMouseDown_SelectsTheNode()
+	public async Task SingleMouseDown_SelectsTheNode()
 	{
 		var tree = RenderItemTree();
 
-		tree.FindAll(".pdtreenode_content")[1].MouseDown(new MouseEventArgs { Button = 0 });
+		await tree.FindAll(".pdtreenode_content")[1].MouseDownAsync(new MouseEventArgs { Button = 0 });
 
 		tree.WaitForAssertion(() => tree.Instance.SelectedNode.Should().NotBeNull(), TimeSpan.FromSeconds(5));
 		tree.Instance.SelectedNode!.Key.Should().Be("b");
@@ -471,14 +471,21 @@ public class PDTreeTests : BunitContext
 	}
 
 	/// <summary>Two quick mouse downs on the same node select it and toggle its expansion.</summary>
+	/// <remarks>
+	/// Both presses are made in one dispatcher call so that they always fall inside the tree's 250ms
+	/// double-click window, however loaded the machine running the tests is.
+	/// </remarks>
 	[Fact]
-	public void DoubleMouseDown_SelectsAndExpands()
+	public async Task DoubleMouseDown_SelectsAndExpands()
 	{
 		var tree = RenderItemTree();
-		var content = tree.FindAll(".pdtreenode_content")[1];
+		var node = Node(tree, "b");
 
-		content.MouseDown(new MouseEventArgs { Button = 0 });
-		content.MouseDown(new MouseEventArgs { Button = 0 });
+		await tree.InvokeAsync(() =>
+		{
+			tree.Instance.NodeMouseDown(node, new MouseEventArgs { Button = 0 });
+			tree.Instance.NodeMouseDown(node, new MouseEventArgs { Button = 0 });
+		});
 
 		tree.WaitForAssertion(() => Node(tree, "b").IsExpanded.Should().BeTrue(), TimeSpan.FromSeconds(5));
 		tree.Instance.SelectedNode!.Key.Should().Be("b");
@@ -486,12 +493,15 @@ public class PDTreeTests : BunitContext
 
 	/// <summary>A right click is ignored when right clicks do not select.</summary>
 	[Fact]
-	public void RightClick_IsIgnored_WhenRightClickDoesNotSelect()
+	public async Task RightClick_IsIgnored_WhenRightClickDoesNotSelect()
 	{
 		var tree = RenderItemTree(p => p.Add(x => x.RightClickSelectsItem, false));
 
-		tree.Instance.NodeMouseDown(Node(tree, "b"), new MouseEventArgs { Button = 2 });
-		tree.Instance.NodeMouseDown(Node(tree, "a"), new MouseEventArgs { Button = 0 });
+		await tree.InvokeAsync(() =>
+		{
+			tree.Instance.NodeMouseDown(Node(tree, "b"), new MouseEventArgs { Button = 2 });
+			tree.Instance.NodeMouseDown(Node(tree, "a"), new MouseEventArgs { Button = 0 });
+		});
 
 		tree.WaitForAssertion(() => _selections.Should().NotBeEmpty(), TimeSpan.FromSeconds(5));
 		_selections.Select(n => n.Key).Should().Equal("a");
