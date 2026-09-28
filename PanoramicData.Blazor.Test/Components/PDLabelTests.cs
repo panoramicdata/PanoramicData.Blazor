@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Interfaces;
 
@@ -107,7 +108,7 @@ public class PDLabelTests : BunitContext
 	/// Verifies that ticking the checkbox selects the item and raises <see cref="PDLabel.SelectedChanged"/> with it.
 	/// </summary>
 	[Fact]
-	public void TickingTheCheckbox_SelectsTheItemAndRaisesSelectedChanged()
+	public async Task TickingTheCheckbox_SelectsTheItemAndRaisesSelectedChanged()
 	{
 		var item = new Item { Text = "Item" };
 		var raised = new List<ISelectable>();
@@ -115,7 +116,7 @@ public class PDLabelTests : BunitContext
 			.Add(p => p.DataItem, item)
 			.Add(p => p.SelectedChanged, selectable => raised.Add(selectable)));
 
-		component.Find("input").Input(true);
+		await component.Find("input").InputAsync(new ChangeEventArgs { Value = true });
 
 		item.IsSelected.Should().BeTrue();
 		raised.Should().ContainSingle().Which.Should().BeSameAs(item);
@@ -125,7 +126,7 @@ public class PDLabelTests : BunitContext
 	/// Verifies that reporting the state the item already has changes nothing and raises nothing.
 	/// </summary>
 	[Fact]
-	public void ReportingTheCurrentState_RaisesNothing()
+	public async Task ReportingTheCurrentState_RaisesNothing()
 	{
 		var item = new Item { Text = "Item", IsSelected = true };
 		var raised = 0;
@@ -133,7 +134,7 @@ public class PDLabelTests : BunitContext
 			.Add(p => p.DataItem, item)
 			.Add(p => p.SelectedChanged, _ => raised++));
 
-		component.Find("input").Input(true);
+		await component.Find("input").InputAsync(new ChangeEventArgs { Value = true });
 
 		item.IsSelected.Should().BeTrue();
 		raised.Should().Be(0);
@@ -143,7 +144,7 @@ public class PDLabelTests : BunitContext
 	/// Verifies that click, mouse down and mouse enter are each raised from the label.
 	/// </summary>
 	[Fact]
-	public void MouseEvents_AreRaised()
+	public async Task MouseEvents_AreRaised()
 	{
 		var events = new List<string>();
 		var component = Render<PDLabel>(parameters => parameters
@@ -153,9 +154,9 @@ public class PDLabelTests : BunitContext
 			.Add(p => p.MouseEnter, _ => events.Add("enter")));
 
 		var label = component.Find("div.pd-label");
-		label.MouseEnter();
-		label.MouseDown();
-		label.Click(new MouseEventArgs());
+		await label.MouseEnterAsync(new MouseEventArgs());
+		await label.MouseDownAsync(new MouseEventArgs());
+		await label.ClickAsync(new MouseEventArgs());
 
 		events.Should().Equal("enter", "down", "click");
 	}

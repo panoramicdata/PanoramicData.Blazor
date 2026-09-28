@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Models;
 
@@ -29,12 +30,12 @@ public class PDRangeTests : BunitContext
 			more?.Invoke(parameters);
 		});
 
-	private static void Drag(IRenderedComponent<PDRange> range, string handle, double from, double to)
+	private static async Task DragAsync(IRenderedComponent<PDRange> range, string handle, double from, double to)
 	{
 		var element = range.Find($"rect.handle.{handle}");
-		element.PointerDown(new PointerEventArgs { OffsetX = from, PointerId = 1 });
-		range.Find($"rect.handle.{handle}").PointerMove(new PointerEventArgs { OffsetX = to });
-		range.Find($"rect.handle.{handle}").PointerUp(new PointerEventArgs());
+		await element.PointerDownAsync(new PointerEventArgs { OffsetX = from, PointerId = 1 });
+		await range.Find($"rect.handle.{handle}").PointerMoveAsync(new PointerEventArgs { OffsetX = to });
+		await range.Find($"rect.handle.{handle}").PointerUpAsync(new PointerEventArgs());
 	}
 
 	/// <summary>
@@ -158,13 +159,13 @@ public class PDRangeTests : BunitContext
 	[InlineData(100, 0, 0, 80)]
 	[InlineData(100, 0, 10, 70)]
 	[InlineData(13, 5, 0, 35)]
-	public void DraggingTheStartHandle_MovesTheStart(double pixels, double step, double minGap, double expectedStart)
+	public async Task DraggingTheStartHandle_MovesTheStart(double pixels, double step, double minGap, double expectedStart)
 	{
 		var range = RenderRange(new NumericRange(20, 80), p => p
 			.Add(x => x.Step, step)
 			.Add(x => x.MinGap, minGap));
 
-		Drag(range, "start", 50, 50 + pixels);
+		await DragAsync(range, "start", 50, 50 + pixels);
 
 		_changes.Should().Equal((expectedStart, 80d));
 	}
@@ -178,13 +179,13 @@ public class PDRangeTests : BunitContext
 	[InlineData(-100, 0, 10, 30)]
 	[InlineData(40, 0, 0, 100)]
 	[InlineData(-13, 5, 0, 65)]
-	public void DraggingTheEndHandle_MovesTheEnd(double pixels, double step, double minGap, double expectedEnd)
+	public async Task DraggingTheEndHandle_MovesTheEnd(double pixels, double step, double minGap, double expectedEnd)
 	{
 		var range = RenderRange(new NumericRange(20, 80), p => p
 			.Add(x => x.Step, step)
 			.Add(x => x.MinGap, minGap));
 
-		Drag(range, "end", 50, 50 + pixels);
+		await DragAsync(range, "end", 50, 50 + pixels);
 
 		_changes.Should().Equal((20d, expectedEnd));
 	}
@@ -193,15 +194,15 @@ public class PDRangeTests : BunitContext
 	/// Verifies that moving a handle without first pressing on it, or after releasing it, changes nothing.
 	/// </summary>
 	[Fact]
-	public void MovingWithoutAPress_ChangesNothing()
+	public async Task MovingWithoutAPress_ChangesNothing()
 	{
 		var range = RenderRange(new NumericRange(20, 80));
 
-		range.Find("rect.handle.start").PointerMove(new PointerEventArgs { OffsetX = 90 });
-		range.Find("rect.handle.end").PointerMove(new PointerEventArgs { OffsetX = 90 });
-		range.Find("rect.handle.end").PointerUp(new PointerEventArgs());
-		Drag(range, "start", 50, 60);
-		range.Find("rect.handle.start").PointerMove(new PointerEventArgs { OffsetX = 90 });
+		await range.Find("rect.handle.start").PointerMoveAsync(new PointerEventArgs { OffsetX = 90 });
+		await range.Find("rect.handle.end").PointerMoveAsync(new PointerEventArgs { OffsetX = 90 });
+		await range.Find("rect.handle.end").PointerUpAsync(new PointerEventArgs());
+		await DragAsync(range, "start", 50, 60);
+		await range.Find("rect.handle.start").PointerMoveAsync(new PointerEventArgs { OffsetX = 90 });
 
 		_changes.Should().Equal((30d, 80d));
 	}
@@ -210,12 +211,12 @@ public class PDRangeTests : BunitContext
 	/// Verifies that a disabled slider cannot be dragged.
 	/// </summary>
 	[Fact]
-	public void DisabledSlider_CannotBeDragged()
+	public async Task DisabledSlider_CannotBeDragged()
 	{
 		var range = RenderRange(new NumericRange(20, 80), p => p.Add(x => x.IsEnabled, false));
 
-		Drag(range, "start", 50, 60);
-		Drag(range, "end", 50, 60);
+		await DragAsync(range, "start", 50, 60);
+		await DragAsync(range, "end", 50, 60);
 
 		_changes.Should().BeEmpty();
 	}
@@ -224,14 +225,14 @@ public class PDRangeTests : BunitContext
 	/// Verifies that pressing a handle captures the pointer, so a drag continues outside the handle.
 	/// </summary>
 	[Fact]
-	public void PressingAHandle_CapturesThePointer()
+	public async Task PressingAHandle_CapturesThePointer()
 	{
 		var module = JSInterop.SetupModule(JSInteropVersionHelper.CommonJsUrl);
 		module.SetupVoid("setPointerCapture", _ => true).SetVoidResult();
 		var range = RenderRange(new NumericRange(20, 80));
 
-		Drag(range, "start", 50, 60);
-		Drag(range, "end", 50, 60);
+		await DragAsync(range, "start", 50, 60);
+		await DragAsync(range, "end", 50, 60);
 
 		module.Invocations["setPointerCapture"].Select(i => i.Arguments[0]).Should().Equal(1L, 1L);
 	}

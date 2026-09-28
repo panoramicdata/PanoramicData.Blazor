@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Models;
@@ -73,14 +74,14 @@ public class PDToolbarTests : BunitContext
 	/// Verifies that clicking an item button raises <see cref="PDToolbar.ButtonClick"/> with that button's key.
 	/// </summary>
 	[Fact]
-	public void ClickingAButton_RaisesButtonClickWithItsKey()
+	public async Task ClickingAButton_RaisesButtonClickWithItsKey()
 	{
 		var keys = new List<string>();
 		var component = Render<PDToolbar>(parameters => parameters
 			.Add(p => p.Items, [new ToolbarButton { Key = "save", Text = "Save" }])
 			.Add(p => p.ButtonClick, args => keys.Add(args.Key)));
 
-		component.Find("button").Click();
+		await component.Find("button").ClickAsync(new MouseEventArgs());
 
 		keys.Should().Equal("save");
 	}
