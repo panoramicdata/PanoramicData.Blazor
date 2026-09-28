@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components;
 
 namespace PanoramicData.Blazor.Test.Components;
 
@@ -284,13 +285,13 @@ public class PDDateTimeOffsetTests : BunitContext
 
 	/// <summary>Ticking Now raises IsNowChanged, jumps to the current instant, disables the inputs and keeps ticking.</summary>
 	[Fact]
-	public void TickingNow_FollowsTheLiveClock()
+	public async Task TickingNow_FollowsTheLiveClock()
 	{
 		var nowChanges = new List<bool>();
 		var component = RenderNow(false, nowChanges);
 		var before = DateTimeOffset.UtcNow;
 
-		component.Find("input[type=checkbox]").Change(true);
+		await component.Find("input[type=checkbox]").ChangeAsync(new ChangeEventArgs { Value = true });
 
 		nowChanges.Should().Equal(true);
 		_changes.Should().NotBeEmpty();
@@ -302,12 +303,14 @@ public class PDDateTimeOffsetTests : BunitContext
 
 	/// <summary>Unticking Now raises IsNowChanged and re-enables the inputs.</summary>
 	[Fact]
-	public void UntickingNow_ReenablesTheInputs()
+	public async Task UntickingNow_ReenablesTheInputs()
 	{
 		var nowChanges = new List<bool>();
 		var component = RenderNow(true, nowChanges);
 
-		component.Find("input[type=checkbox]").Change("false");
+		// awaited: the live clock is already ticking, and the synchronous Change returns before the handler
+		// runs whenever a tick holds the renderer's dispatcher
+		await component.Find("input[type=checkbox]").ChangeAsync(new ChangeEventArgs { Value = "false" });
 
 		nowChanges.Should().Equal(false);
 		component.Find("input.date").HasAttribute("disabled").Should().BeFalse();
@@ -316,12 +319,12 @@ public class PDDateTimeOffsetTests : BunitContext
 
 	/// <summary>A checkbox value that is neither a boolean nor readable as one counts as unticked.</summary>
 	[Fact]
-	public void UnreadableNowValue_CountsAsUnticked()
+	public async Task UnreadableNowValue_CountsAsUnticked()
 	{
 		var nowChanges = new List<bool>();
 		var component = RenderNow(false, nowChanges);
 
-		component.Find("input[type=checkbox]").Change("on");
+		await component.Find("input[type=checkbox]").ChangeAsync(new ChangeEventArgs { Value = "on" });
 
 		nowChanges.Should().Equal(false);
 		_changes.Should().BeEmpty();
