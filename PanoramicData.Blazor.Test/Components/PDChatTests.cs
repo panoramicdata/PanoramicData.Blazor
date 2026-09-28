@@ -15,6 +15,12 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public class PDChatTests : BunitContext
 {
+	/// <summary>
+	/// How long to wait for a render that another thread or a timer brings about. Generous because a busy
+	/// machine (the whole suite under coverage) can hold the renderer's dispatcher well past bUnit's default.
+	/// </summary>
+	private static readonly TimeSpan Patience = TimeSpan.FromSeconds(10);
+
 	private const string ModulePath = "./_content/PanoramicData.Blazor/PDChat.razor.js";
 
 	private static readonly ChatMessageSender _user = new() { Name = "Tester", IsUser = true, IsHuman = true };
@@ -214,7 +220,7 @@ public class PDChatTests : BunitContext
 
 		await component.InvokeAsync(() => service.AnnounceDockMode(PDChatDockMode.Minimized));
 
-		component.WaitForAssertion(() => component.Find(".pdchat-toggle-collapsed").Should().NotBeNull());
+		component.WaitForAssertion(() => component.Find(".pdchat-toggle-collapsed").Should().NotBeNull(), Patience);
 	}
 
 	/// <summary>Verifies that a chat inside a split container hands dock changes to the container.</summary>
@@ -271,7 +277,7 @@ public class PDChatTests : BunitContext
 
 		await component.InvokeAsync(() => service.AnnounceMute(true));
 
-		component.WaitForAssertion(() => HeaderButton(component, "Unmute").Should().NotBeNull());
+		component.WaitForAssertion(() => HeaderButton(component, "Unmute").Should().NotBeNull(), Patience);
 	}
 
 	/// <summary>Verifies that live-status and configuration announcements re-render the chat.</summary>
@@ -282,11 +288,11 @@ public class PDChatTests : BunitContext
 		var component = RenderChat(service);
 
 		await component.InvokeAsync(() => service.AnnounceLive(false));
-		component.WaitForAssertion(() => component.Find(".pdchat-title").TextContent.Should().EndWith("(Offline)"));
+		component.WaitForAssertion(() => component.Find(".pdchat-title").TextContent.Should().EndWith("(Offline)"), Patience);
 
 		service.Title = "Renamed";
 		await component.InvokeAsync(service.AnnounceConfiguration);
-		component.WaitForAssertion(() => component.Find(".pdchat-title").TextContent.Should().StartWith("Renamed"));
+		component.WaitForAssertion(() => component.Find(".pdchat-title").TextContent.Should().StartWith("Renamed"), Patience);
 	}
 
 	/// <summary>Verifies that Clear empties the transcript and the service and raises the event.</summary>
@@ -351,7 +357,7 @@ public class PDChatTests : BunitContext
 		await component.InvokeAsync(() => service.Receive(message));
 		await component.InvokeAsync(() => service.Receive(Update(message, "Done")));
 
-		component.WaitForAssertion(() => component.FindAll(".pdchat-message").Should().ContainSingle());
+		component.WaitForAssertion(() => component.FindAll(".pdchat-message").Should().ContainSingle(), Patience);
 		component.Find(".pdchat-text").TextContent.Should().Contain("Done");
 		received.Should().ContainSingle();
 	}
@@ -382,7 +388,7 @@ public class PDChatTests : BunitContext
 
 		await component.InvokeAsync(() => service.Receive(Message("Ping")));
 
-		component.WaitForAssertion(() => component.Find(".pdchat-text").TextContent.Should().Contain("Ping"));
+		component.WaitForAssertion(() => component.Find(".pdchat-text").TextContent.Should().Contain("Ping"), Patience);
 	}
 
 	/// <summary>Verifies that disposing unsubscribes from the service.</summary>
@@ -626,7 +632,7 @@ public class PDChatTests : BunitContext
 
 		await component.Find(".pdchat-toast-close").ClickAsync(new());
 
-		component.WaitForAssertion(() => component.FindAll(".pdchat-toast").Should().BeEmpty());
+		component.WaitForAssertion(() => component.FindAll(".pdchat-toast").Should().BeEmpty(), Patience);
 	}
 
 	/// <summary>
@@ -662,22 +668,29 @@ public class PDChatTests : BunitContext
 		firstClasses.Should().Contain("toast-destack");
 		firstStyle.Should().StartWith("--pdchat-toast-anim-ms:250ms;");
 		secondClasses.Should().Contain("toast-enter-grow").And.NotContain("toast-destack");
-		component.WaitForAssertion(() => component.FindAll(".pdchat-toast").Should().ContainSingle());
+		component.WaitForAssertion(() => component.FindAll(".pdchat-toast").Should().ContainSingle(), Patience);
 	}
 
 	/// <summary>Verifies that the visible-toast cap dismisses the oldest toast when a new one arrives.</summary>
+	/// <remarks>
+	/// The animation is a minute long so the dismissed toast is still on screen, leaving, when it is asserted:
+	/// the check does not depend on a removal timer firing in time on a busy machine.
+	/// </remarks>
 	[Fact]
 	public async Task The_visible_cap_dismisses_the_oldest()
 	{
 		var service = Toasting();
 		service.ToastMaxVisible = 1;
+		service.ToastAnimationDurationMs = 60_000;
 		var component = RenderChat(service);
 
 		await component.InvokeAsync(() => service.Receive(Message("Old")));
 		await component.InvokeAsync(() => service.Receive(Message("New")));
 
-		component.WaitForAssertion(() => component.FindAll(".pdchat-toast .pdchat-preview-content")
-			.Select(t => t.TextContent.Trim()).Should().Equal("New"));
+		var toasts = component.FindAll(".pdchat-toast");
+		toasts.Select(t => t.QuerySelector(".pdchat-preview-content")!.TextContent.Trim()).Should().Equal("Old", "New");
+		toasts[0].ClassList.Should().Contain("toast-exit-grow");
+		toasts[1].ClassList.Should().Contain("toast-enter-grow");
 	}
 
 	/// <summary>Verifies that an auto-dismissing toast leaves on its own once its display time is up.</summary>
@@ -691,7 +704,7 @@ public class PDChatTests : BunitContext
 
 		await component.InvokeAsync(() => service.Receive(Message("Brief")));
 
-		component.WaitForAssertion(() => component.FindAll(".pdchat-toast").Should().BeEmpty(), TimeSpan.FromSeconds(5));
+		component.WaitForAssertion(() => component.FindAll(".pdchat-toast").Should().BeEmpty(), Patience);
 	}
 
 	/// <summary>Verifies that hovering pauses a toast's countdown and leaving resumes it to dismissal.</summary>
@@ -804,7 +817,7 @@ public class PDChatTests : BunitContext
 	{
 		var (component, store, _) = RenderConversations();
 
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 		component.Find(".pdchat-text").TextContent.Should().Contain("First message");
 		store.MessageRequests.Should().Contain(store.First.Id);
 	}
@@ -814,11 +827,11 @@ public class PDChatTests : BunitContext
 	public async Task Opening_another_conversation_adds_and_selects_its_tab()
 	{
 		var (component, store, service) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 
 		await SidebarRow(component, "Second").ClickAsync(new());
 
-		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"));
+		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"), Patience);
 		TabTitles(component).Should().Equal("First", "Second");
 		service.ActiveConversationId.Should().Be(store.Second.Id);
 	}
@@ -828,7 +841,7 @@ public class PDChatTests : BunitContext
 	public async Task Opening_an_open_conversation_does_not_duplicate_it()
 	{
 		var (component, _, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 
 		await SidebarRow(component, "First").ClickAsync(new());
 
@@ -840,13 +853,13 @@ public class PDChatTests : BunitContext
 	public async Task Selecting_a_tab_shows_its_transcript()
 	{
 		var (component, _, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 		await SidebarRow(component, "Second").ClickAsync(new());
-		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"));
+		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"), Patience);
 
 		await Tab(component, "First").ClickAsync(new());
 
-		component.WaitForAssertion(() => component.Find(".pdchat-text").TextContent.Should().Contain("First message"));
+		component.WaitForAssertion(() => component.Find(".pdchat-text").TextContent.Should().Contain("First message"), Patience);
 	}
 
 	/// <summary>Verifies that a reply for a conversation in the background marks its tab unread until selected.</summary>
@@ -854,19 +867,19 @@ public class PDChatTests : BunitContext
 	public async Task A_background_reply_marks_its_tab_unread()
 	{
 		var (component, store, service) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 		await SidebarRow(component, "Second").ClickAsync(new());
-		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"));
+		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"), Patience);
 
 		await component.InvokeAsync(() => service.ReceiveFor(store.First.Id, Message("Answer")));
 
 		// The tab strip is drawn by PDTabSet before the PDTab beneath it receives its new CssClass, so the
 		// marker only shows on the render after the one the reply caused (reported separately as a defect).
 		component.Render();
-		component.WaitForAssertion(() => Tab(component, "First").ClassList.Should().Contain("pdchat-conversation-tab-unread"));
+		component.WaitForAssertion(() => Tab(component, "First").ClassList.Should().Contain("pdchat-conversation-tab-unread"), Patience);
 
 		await Tab(component, "First").ClickAsync(new());
-		component.WaitForAssertion(() => Tab(component, "First").ClassList.Should().NotContain("pdchat-conversation-tab-unread"));
+		component.WaitForAssertion(() => Tab(component, "First").ClassList.Should().NotContain("pdchat-conversation-tab-unread"), Patience);
 	}
 
 	/// <summary>Verifies that replies for the conversation on screen, or for one not open, mark nothing.</summary>
@@ -874,7 +887,7 @@ public class PDChatTests : BunitContext
 	public async Task Replies_for_the_current_or_an_unopened_conversation_mark_nothing()
 	{
 		var (component, store, service) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 
 		await component.InvokeAsync(() => service.ReceiveFor(store.First.Id, Message("Here")));
 		await component.InvokeAsync(() => service.ReceiveFor(store.Second.Id, Message("Elsewhere")));
@@ -887,15 +900,15 @@ public class PDChatTests : BunitContext
 	public async Task Closing_tabs_falls_back_then_shows_the_empty_state()
 	{
 		var (component, _, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 		await SidebarRow(component, "Second").ClickAsync(new());
-		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"));
+		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"), Patience);
 
 		await Tab(component, "Second").QuerySelector(".pdtabset-tab-close")!.ClickAsync(new());
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 		await Tab(component, "First").QuerySelector(".pdtabset-tab-close")!.ClickAsync(new());
 
-		component.WaitForAssertion(() => component.Find(".pdchat-conversation-none-open").Should().NotBeNull());
+		component.WaitForAssertion(() => component.Find(".pdchat-conversation-none-open").Should().NotBeNull(), Patience);
 		component.FindAll(".pdchat-message").Should().BeEmpty();
 	}
 
@@ -904,13 +917,13 @@ public class PDChatTests : BunitContext
 	public async Task Closing_a_background_tab_keeps_the_selection()
 	{
 		var (component, _, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 		await SidebarRow(component, "Second").ClickAsync(new());
-		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"));
+		component.WaitForAssertion(() => ActiveTabTitle(component).Should().Be("Second"), Patience);
 
 		await Tab(component, "First").QuerySelector(".pdtabset-tab-close")!.ClickAsync(new());
 
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("Second"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("Second"), Patience);
 		ActiveTabTitle(component).Should().Be("Second");
 	}
 
@@ -919,12 +932,12 @@ public class PDChatTests : BunitContext
 	public async Task The_empty_state_starts_a_new_conversation()
 	{
 		var (component, store, service) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 		await Tab(component, "First").QuerySelector(".pdtabset-tab-close")!.ClickAsync(new());
 
 		await component.Find(".pdchat-conversation-none-open button").ClickAsync(new());
 
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal(ChatConversation.UntitledDisplayName));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal(ChatConversation.UntitledDisplayName), Patience);
 		store.Created.Should().ContainSingle();
 		service.ActiveConversationId.Should().Be(store.Created[0].Id);
 	}
@@ -934,11 +947,11 @@ public class PDChatTests : BunitContext
 	public async Task The_add_tab_button_starts_a_new_conversation()
 	{
 		var (component, store, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 
 		await component.Find(".pdchat-conversation-tabset .pdtabset-addtab").ClickAsync(new());
 
-		component.WaitForAssertion(() => store.Created.Should().ContainSingle());
+		component.WaitForAssertion(() => store.Created.Should().ContainSingle(), Patience);
 	}
 
 	/// <summary>Verifies that renaming a tab writes the title through to the store.</summary>
@@ -946,13 +959,13 @@ public class PDChatTests : BunitContext
 	public async Task Renaming_a_tab_writes_through_to_the_store()
 	{
 		var (component, store, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 
 		await Tab(component, "First").DoubleClickAsync(new MouseEventArgs());
 		await component.Find(".pdtabset-tab-rename-input").InputAsync(new ChangeEventArgs { Value = "Renamed" });
 		await component.Find(".pdtabset-tab-rename-input").BlurAsync(new FocusEventArgs());
 
-		component.WaitForAssertion(() => store.Renamed.Should().ContainSingle().Which.Should().Be((store.First.Id, "Renamed")));
+		component.WaitForAssertion(() => store.Renamed.Should().ContainSingle().Which.Should().Be((store.First.Id, "Renamed")), Patience);
 		store.First.Title.Should().Be("Renamed");
 	}
 
@@ -961,12 +974,12 @@ public class PDChatTests : BunitContext
 	public async Task Archiving_archives_and_closes_the_tab()
 	{
 		var (component, store, _) = RenderConversations();
-		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"));
+		component.WaitForAssertion(() => TabTitles(component).Should().Equal("First"), Patience);
 
 		await ToolbarButton(component, "Archive").ClickAsync(new());
 
 		store.Archived.Should().Equal(store.First.Id);
-		component.WaitForAssertion(() => TabTitles(component).Should().BeEmpty());
+		component.WaitForAssertion(() => TabTitles(component).Should().BeEmpty(), Patience);
 		ToolbarButton(component, "Archive").HasAttribute("disabled").Should().BeTrue();
 	}
 
@@ -989,7 +1002,7 @@ public class PDChatTests : BunitContext
 	{
 		var (component, _, _) = RenderConversations(storeFails: true);
 
-		component.WaitForAssertion(() => component.Find(".pdchat-text").TextContent.Should().Contain("From the service"));
+		component.WaitForAssertion(() => component.Find(".pdchat-text").TextContent.Should().Contain("From the service"), Patience);
 	}
 
 	// ------------------------------------------------------------------------------------------

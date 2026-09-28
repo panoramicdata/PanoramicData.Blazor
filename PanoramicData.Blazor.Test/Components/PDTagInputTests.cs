@@ -13,6 +13,12 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public class PDTagInputTests : BunitContext
 {
+	/// <summary>
+	/// How long to wait for a render that another thread or a timer brings about. Generous because a busy
+	/// machine (the whole suite under coverage) can hold the renderer's dispatcher well past bUnit's default.
+	/// </summary>
+	private static readonly TimeSpan Patience = TimeSpan.FromSeconds(10);
+
 	private readonly List<List<string>> _emitted = [];
 	private readonly List<string> _added = [];
 	private readonly List<string> _removed = [];
@@ -337,7 +343,7 @@ public class PDTagInputTests : BunitContext
 		await TypeAsync(component, "pending");
 		await component.Find(".pd-taginput-input").BlurAsync(new FocusEventArgs());
 
-		component.WaitForAssertion(() => Tags(component).Should().Equal("pending"));
+		component.WaitForAssertion(() => Tags(component).Should().Equal("pending"), Patience);
 	}
 
 	/// <summary>Verifies that leaving the input hides the suggestion list without adding, when AddOnBlur is off.</summary>
@@ -352,7 +358,7 @@ public class PDTagInputTests : BunitContext
 		component.Find(".pd-taginput-dropdown").Should().NotBeNull();
 		await component.Find(".pd-taginput-input").BlurAsync(new FocusEventArgs());
 
-		component.WaitForAssertion(() => component.FindAll(".pd-taginput-dropdown").Should().BeEmpty());
+		component.WaitForAssertion(() => component.FindAll(".pd-taginput-dropdown").Should().BeEmpty(), Patience);
 		Tags(component).Should().BeEmpty();
 	}
 

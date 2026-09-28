@@ -16,6 +16,12 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public class PDModalTests : BunitContext
 {
+	/// <summary>
+	/// How long to wait for a render that another thread or a timer brings about. Generous because a busy
+	/// machine (the whole suite under coverage) can hold the renderer's dispatcher well past bUnit's default.
+	/// </summary>
+	private static readonly TimeSpan Patience = TimeSpan.FromSeconds(10);
+
 	private const string ModulePath = "./_content/PanoramicData.Blazor/PDModal.razor.js";
 
 	/// <summary>Sets up the rendering context.</summary>
@@ -159,7 +165,7 @@ public class PDModalTests : BunitContext
 			.Add(p => p.ButtonClick, (string key) => forwarded.Add(key)));
 
 		var choice = component.InvokeAsync(component.Instance.ShowAndWaitResultAsync);
-		component.WaitForAssertion(() => common.VerifyInvoke("focus").Arguments[0].Should().Be("pd-tbr-btn-Yes"));
+		component.WaitForAssertion(() => common.VerifyInvoke("focus").Arguments[0].Should().Be("pd-tbr-btn-Yes"), Patience);
 		await FooterButton(component, "Yes").ClickAsync(new());
 
 		(await choice).Should().Be(ModalResults.YES);
@@ -177,7 +183,7 @@ public class PDModalTests : BunitContext
 		using var cancellation = new CancellationTokenSource();
 
 		var choice = component.InvokeAsync(() => component.Instance.ShowAndWaitResultAsync(cancellation.Token));
-		component.WaitForAssertion(() => modal.VerifyInvoke("show"));
+		component.WaitForAssertion(() => modal.VerifyInvoke("show"), Patience);
 		await cancellation.CancelAsync();
 
 		(await choice).Should().BeEmpty();

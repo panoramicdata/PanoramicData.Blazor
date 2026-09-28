@@ -14,6 +14,12 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public class PDFormFooterTests : BunitContext
 {
+	/// <summary>
+	/// How long to wait for a render that another thread or a timer brings about. Generous because a busy
+	/// machine (the whole suite under coverage) can hold the renderer's dispatcher well past bUnit's default.
+	/// </summary>
+	private static readonly TimeSpan Patience = TimeSpan.FromSeconds(10);
+
 	/// <summary>Sets up the rendering context.</summary>
 	public PDFormFooterTests()
 	{
@@ -130,7 +136,7 @@ public class PDFormFooterTests : BunitContext
 		var messages = Enumerable.Range(1, errorCount).Select(i => $"Problem {i}").ToArray();
 		await form.InvokeAsync(() => form.Instance.SetFieldErrors("Name", messages));
 
-		form.WaitForAssertion(() => form.Find(".pd-form-footer-errors span").TextContent.Should().Be(expected));
+		form.WaitForAssertion(() => form.Find(".pd-form-footer-errors span").TextContent.Should().Be(expected), Patience);
 	}
 
 	/// <summary>Verifies that ShowErrorCount false suppresses the message but still disables Save.</summary>
@@ -143,7 +149,7 @@ public class PDFormFooterTests : BunitContext
 
 		await form.InvokeAsync(() => form.Instance.SetFieldErrors("Name", "Required"));
 
-		form.WaitForAssertion(() => ButtonFor(form, "Save").HasAttribute("disabled").Should().BeTrue());
+		form.WaitForAssertion(() => ButtonFor(form, "Save").HasAttribute("disabled").Should().BeTrue(), Patience);
 		form.FindAll(".pd-form-footer-errors").Should().BeEmpty();
 	}
 
@@ -157,7 +163,7 @@ public class PDFormFooterTests : BunitContext
 
 		await form.InvokeAsync(() => form.Instance.ClearErrors("Name"));
 
-		form.WaitForAssertion(() => form.FindAll(".pd-form-footer-errors").Should().BeEmpty());
+		form.WaitForAssertion(() => form.FindAll(".pd-form-footer-errors").Should().BeEmpty(), Patience);
 		ButtonFor(form, "Save").HasAttribute("disabled").Should().BeFalse();
 	}
 
