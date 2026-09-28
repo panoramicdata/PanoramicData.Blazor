@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Enums;
 
 namespace PanoramicData.Blazor.Test.Components;
@@ -113,12 +114,12 @@ public class PDAudioPadTests : BunitContext
 
 	/// <summary>In toggle mode each press flips the pad on and off, raising both events every time.</summary>
 	[Fact]
-	public void Toggle_FlipsOnEachPress()
+	public async Task Toggle_FlipsOnEachPress()
 	{
 		var component = RenderPad(p => p.Add(x => x.Value, 0.0).Add(x => x.MinValue, 0.1));
 
-		component.Find("svg").MouseDown();
-		component.Find("svg").MouseDown();
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
 
 		_values.Should().Equal(1.0, 0.1);
 		_events.Select(e => e.IsActive).Should().Equal(true, false);
@@ -132,24 +133,24 @@ public class PDAudioPadTests : BunitContext
 
 	/// <summary>Configured for release, the pad ignores the press and acts on the release.</summary>
 	[Fact]
-	public void DecayUponRelease_ActsOnMouseUpOnly()
+	public async Task DecayUponRelease_ActsOnMouseUpOnly()
 	{
 		var component = RenderPad(p => p.Add(x => x.Value, 0.0).Add(x => x.DecayUpon, DecayUpon.Release));
 
-		component.Find("svg").MouseDown();
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
 		_values.Should().BeEmpty();
 
-		component.Find("svg").MouseUp();
+		await component.Find("svg").MouseUpAsync(new MouseEventArgs());
 		_values.Should().Equal(1.0);
 	}
 
 	/// <summary>Configured for press, a release does nothing.</summary>
 	[Fact]
-	public void DecayUponPress_IgnoresMouseUp()
+	public async Task DecayUponPress_IgnoresMouseUp()
 	{
 		var component = RenderPad();
 
-		component.Find("svg").MouseUp();
+		await component.Find("svg").MouseUpAsync(new MouseEventArgs());
 
 		_values.Should().BeEmpty();
 	}
@@ -158,7 +159,7 @@ public class PDAudioPadTests : BunitContext
 	[Theory]
 	[InlineData(DecayMode.Exponential)]
 	[InlineData(DecayMode.Linear)]
-	public void Decay_JumpsToFull_ThenDecaysToTheMinimum(DecayMode mode)
+	public async Task Decay_JumpsToFull_ThenDecaysToTheMinimum(DecayMode mode)
 	{
 		var component = RenderPad(p => p
 			.Add(x => x.Value, 0.0)
@@ -166,7 +167,7 @@ public class PDAudioPadTests : BunitContext
 			.Add(x => x.DecayHalfLife, TimeSpan.FromMilliseconds(40))
 			.Add(x => x.EventThrottleMs, 10000));
 
-		component.Find("svg").MouseDown();
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
 
 		component.WaitForAssertion(() => component.Instance.Value.Should().Be(0.0), TimeSpan.FromSeconds(5));
 		_values[0].Should().Be(1.0);
@@ -179,7 +180,7 @@ public class PDAudioPadTests : BunitContext
 
 	/// <summary>An exponential decay, throttled, reports the activation and the final inactive state.</summary>
 	[Fact]
-	public void ExponentialDecay_Throttled_ReportsActivationAndCompletion()
+	public async Task ExponentialDecay_Throttled_ReportsActivationAndCompletion()
 	{
 		var component = RenderPad(p => p
 			.Add(x => x.Value, 0.0)
@@ -187,7 +188,7 @@ public class PDAudioPadTests : BunitContext
 			.Add(x => x.DecayHalfLife, TimeSpan.FromMilliseconds(40))
 			.Add(x => x.EventThrottleMs, 10000));
 
-		component.Find("svg").MouseDown();
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
 
 		component.WaitForAssertion(() => component.Instance.Value.Should().Be(0.0), TimeSpan.FromSeconds(5));
 		_events.Select(e => e.Value).Should().Equal(1.0, 0.0);
@@ -196,7 +197,7 @@ public class PDAudioPadTests : BunitContext
 
 	/// <summary>With no throttle, the decay reports intermediate values as well.</summary>
 	[Fact]
-	public void Decay_WithoutThrottle_ReportsIntermediateValues()
+	public async Task Decay_WithoutThrottle_ReportsIntermediateValues()
 	{
 		var component = RenderPad(p => p
 			.Add(x => x.Value, 0.0)
@@ -204,7 +205,7 @@ public class PDAudioPadTests : BunitContext
 			.Add(x => x.DecayHalfLife, TimeSpan.FromMilliseconds(60))
 			.Add(x => x.EventThrottleMs, 0));
 
-		component.Find("svg").MouseDown();
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
 
 		component.WaitForAssertion(() => component.Instance.Value.Should().Be(0.0), TimeSpan.FromSeconds(5));
 		_events.Count.Should().BeGreaterThan(2);
@@ -213,7 +214,7 @@ public class PDAudioPadTests : BunitContext
 
 	/// <summary>A linear decay stops at a raised minimum rather than at zero.</summary>
 	[Fact]
-	public void LinearDecay_StopsAtTheMinimum()
+	public async Task LinearDecay_StopsAtTheMinimum()
 	{
 		var component = RenderPad(p => p
 			.Add(x => x.Value, 0.0)
@@ -222,15 +223,19 @@ public class PDAudioPadTests : BunitContext
 			.Add(x => x.ZeroBelow, null)
 			.Add(x => x.DecayHalfLife, TimeSpan.FromMilliseconds(40)));
 
-		component.Find("svg").MouseDown();
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
 
 		component.WaitForAssertion(() => _values[^1].Should().Be(0.25), TimeSpan.FromSeconds(5));
 		_values.Should().AllSatisfy(v => v.Should().BeGreaterThanOrEqualTo(0.25));
 	}
 
 	/// <summary>Pressing again during a decay restarts it from full.</summary>
+	/// <remarks>
+	/// The presses are awaited: the decay loop from the first press runs on the renderer's dispatcher, and
+	/// a synchronous press dispatched while it holds the dispatcher returns before the handler has run.
+	/// </remarks>
 	[Fact]
-	public void PressDuringDecay_RestartsFromFull()
+	public async Task PressDuringDecay_RestartsFromFull()
 	{
 		var component = RenderPad(p => p
 			.Add(x => x.Value, 0.0)
@@ -238,8 +243,8 @@ public class PDAudioPadTests : BunitContext
 			.Add(x => x.DecayHalfLife, TimeSpan.FromSeconds(30))
 			.Add(x => x.EventThrottleMs, 10000));
 
-		component.Find("svg").MouseDown();
-		component.Find("svg").MouseDown();
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
 
 		_events.Select(e => e.Value).Should().Equal(1.0, 1.0);
 		component.Instance.Value.Should().BeGreaterThan(0.9);
@@ -252,7 +257,7 @@ public class PDAudioPadTests : BunitContext
 		var component = RenderPad(p => p
 			.Add(x => x.DecayMode, DecayMode.Linear)
 			.Add(x => x.DecayHalfLife, TimeSpan.FromSeconds(30)));
-		component.Find("svg").MouseDown();
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
 
 		var act = () => component.InvokeAsync(() => component.Instance.DisposeAsync().AsTask());
 
