@@ -8,7 +8,8 @@ using PanoramicData.Blazor.Models;
 namespace PanoramicData.Blazor.Test;
 
 /// <summary>
-/// Tests that <see cref="PDTable{TItem}"/> keeps its selection across a plain refresh (issue #151).
+/// Tests that <see cref="PDTable{TItem}"/> keeps its selection across a plain refresh when
+/// <see cref="PDTable{TItem}.RetainSelectionOnRefresh"/> is set, and behaves as before when it is not (issue #151).
 /// </summary>
 /// <remarks>
 /// Every fetch used to clear the selection and raise <see cref="PDTable{TItem}.SelectionChanged"/> unless
@@ -29,13 +30,14 @@ public class PDTableRefreshSelectionTests : BunitContext
 		Services.AddPanoramicDataBlazor();
 	}
 
-	private IRenderedComponent<PDTable<Row>> RenderTable(bool retainSelectionOnPage = false, PageCriteria? pageCriteria = null)
+	private IRenderedComponent<PDTable<Row>> RenderTable(bool retainSelectionOnPage = false, PageCriteria? pageCriteria = null, bool retainSelectionOnRefresh = true)
 	{
 		var table = Render<PDTable<Row>>(parameters => parameters
 			.Add(p => p.DataProvider, _provider)
 			.Add(p => p.KeyField, row => row.Id)
 			.Add(p => p.SelectionMode, TableSelectionMode.Single)
 			.Add(p => p.RetainSelectionOnPage, retainSelectionOnPage)
+			.Add(p => p.RetainSelectionOnRefresh, retainSelectionOnRefresh)
 			.Add(p => p.PageCriteria, pageCriteria)
 			.Add(p => p.ShowPager, false)
 			.Add(p => p.SelectionChanged, () => _selectionChangedCount++)
@@ -170,6 +172,28 @@ public class PDTableRefreshSelectionTests : BunitContext
 		table.Instance.Selection.Should().Equal("2");
 		_selectionChangedCount.Should().Be(0);
 	}
+
+	/// <summary>
+	/// Without <see cref="PDTable{TItem}.RetainSelectionOnRefresh"/> (the default), a refresh still clears the
+	/// selection and raises <see cref="PDTable{TItem}.SelectionChanged"/>, exactly as earlier versions did, so
+	/// consumers that cache the selected row and rely on a refresh to clear it are unaffected.
+	/// </summary>
+	[Fact]
+	public async Task Refresh_ByDefault_StillClearsTheSelection_AsBefore()
+	{
+		var table = RenderTable(retainSelectionOnRefresh: false);
+		Select(table, "Beta");
+
+		await table.InvokeAsync(() => table.Instance.RefreshAsync());
+
+		table.Instance.Selection.Should().BeEmpty();
+		_selectionChangedCount.Should().Be(1);
+	}
+
+	/// <summary>The opt-in is off unless a consumer sets it.</summary>
+	[Fact]
+	public void RetainSelectionOnRefresh_IsOffByDefault()
+		=> new PDTable<Row>().RetainSelectionOnRefresh.Should().BeFalse();
 
 	/// <summary>A row in the table under test.</summary>
 	/// <param name="Id">Key.</param>

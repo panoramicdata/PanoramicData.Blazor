@@ -7,7 +7,8 @@ using PanoramicData.Blazor.Models;
 namespace PanoramicData.Blazor.Test;
 
 /// <summary>
-/// Tests that <see cref="PDTree{TItem}.RefreshAsync"/> refreshes the tree in place (issue #152).
+/// Tests that <see cref="PDTree{TItem}.RefreshAsync"/> refreshes the tree in place (issue #152). Most tests set
+/// <see cref="PDTree{TItem}.RaiseSelectionChangeOnRefresh"/> to false; the default is pinned separately.
 /// </summary>
 /// <remarks>
 /// Refresh used to collapse each node on the selected path, discard its children and reload them, then
@@ -27,7 +28,7 @@ public class PDTreeRefreshTests : BunitContext
 		Services.AddPanoramicDataBlazor();
 	}
 
-	private IRenderedComponent<PDTree<Item>> RenderItemTree(bool loadOnDemand = false)
+	private IRenderedComponent<PDTree<Item>> RenderItemTree(bool loadOnDemand = false, bool raiseSelectionChangeOnRefresh = false)
 	{
 		_provider.LoadOnDemand = loadOnDemand;
 		var tree = Render<PDTree<Item>>(parameters => parameters
@@ -37,6 +38,7 @@ public class PDTreeRefreshTests : BunitContext
 			.Add(p => p.TextField, item => item.Name)
 			.Add(p => p.LoadOnDemand, loadOnDemand)
 			.Add(p => p.AllowSelection, true)
+			.Add(p => p.RaiseSelectionChangeOnRefresh, raiseSelectionChangeOnRefresh)
 			.Add(p => p.SelectionChange, node => _selectionChanges.Add(node)));
 
 		tree.WaitForAssertion(() => tree.Instance.RootNode.Nodes.Should().NotBeNullOrEmpty());
@@ -168,6 +170,33 @@ public class PDTreeRefreshTests : BunitContext
 		tree.Markup.Should().Contain("Charlie");
 		_selectionChanges.Should().BeEmpty();
 	}
+
+	/// <summary>
+	/// By default a refresh still re-announces a selected node that survives it, as earlier versions did, so a
+	/// consumer that reloads a detail view on <see cref="PDTree{TItem}.SelectionChange"/> keeps working. It is now
+	/// announced once, with the same node object, and the tree is not collapsed.
+	/// </summary>
+	[Theory]
+	[InlineData(false)]
+	[InlineData(true)]
+	public async Task Refresh_ByDefault_ReannouncesTheSurvivingSelection_Once(bool loadOnDemand)
+	{
+		var tree = RenderItemTree(loadOnDemand, raiseSelectionChangeOnRefresh: true);
+		await ExpandAsync(tree, "a", "a1", "b");
+		await SelectAsync(tree, "a1x");
+		var selectedBefore = tree.Instance.SelectedNode;
+
+		await RefreshAsync(tree);
+
+		tree.Instance.SelectedNode.Should().BeSameAs(selectedBefore);
+		_selectionChanges.Should().ContainSingle().Which.Should().BeSameAs(selectedBefore);
+		Node(tree, "b").IsExpanded.Should().BeTrue();
+	}
+
+	/// <summary>Re-announcing the selection on refresh is the default, for compatibility.</summary>
+	[Fact]
+	public void RaiseSelectionChangeOnRefresh_IsOnByDefault()
+		=> new PDTree<Item>().RaiseSelectionChangeOnRefresh.Should().BeTrue();
 
 	/// <summary>An item in the tree under test.</summary>
 	/// <param name="Id">Key.</param>
