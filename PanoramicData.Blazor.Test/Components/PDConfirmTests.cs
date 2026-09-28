@@ -1,5 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
 
 namespace PanoramicData.Blazor.Test.Components;
@@ -82,7 +84,7 @@ public class PDConfirmTests : BunitContext
 		Task<PDConfirm.Outcomes>? pending = null;
 
 		await confirm.InvokeAsync(() => { pending = confirm.Instance.ShowAndWaitResultAsync(); });
-		Button(confirm, button).Click();
+		await Button(confirm, button).ClickAsync(new MouseEventArgs());
 
 		(await pending!).Should().Be(expected);
 	}
@@ -99,7 +101,7 @@ public class PDConfirmTests : BunitContext
 		await confirm.InvokeAsync(() => { pending = confirm.Instance.ShowAndWaitResultAsync("Overwrite the file?"); });
 
 		confirm.Find(".confirm-message").TextContent.Should().Be("Overwrite the file?");
-		Button(confirm, "No").Click();
+		await Button(confirm, "No").ClickAsync(new MouseEventArgs());
 		(await pending!).Should().Be(PDConfirm.Outcomes.No);
 	}
 
@@ -116,7 +118,7 @@ public class PDConfirmTests : BunitContext
 
 		confirm.Find(".modal-title").TextContent.Should().Be("Overwrite");
 		confirm.Find(".confirm-message").TextContent.Should().Be("Overwrite the file?");
-		Button(confirm, "Yes").Click();
+		await Button(confirm, "Yes").ClickAsync(new MouseEventArgs());
 		(await pending!).Should().Be(PDConfirm.Outcomes.Yes);
 	}
 
@@ -131,11 +133,11 @@ public class PDConfirmTests : BunitContext
 		Task<PDConfirm.Outcomes>? second = null;
 
 		await confirm.InvokeAsync(() => { first = confirm.Instance.ShowAndWaitResultAsync(CancellationToken.None); });
-		Button(confirm, "Yes").Click();
+		await Button(confirm, "Yes").ClickAsync(new MouseEventArgs());
 		(await first!).Should().Be(PDConfirm.Outcomes.Yes);
 
 		await confirm.InvokeAsync(() => { second = confirm.Instance.ShowAndWaitResultAsync("Sure?", CancellationToken.None); });
-		Button(confirm, "No").Click();
+		await Button(confirm, "No").ClickAsync(new MouseEventArgs());
 		(await second!).Should().Be(PDConfirm.Outcomes.No);
 	}
 

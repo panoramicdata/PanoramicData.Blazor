@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Extensions;
@@ -141,11 +142,11 @@ public class PDCardDeckTests : BunitContext
 	/// Verifies that without multiple selection a click selects nothing.
 	/// </summary>
 	[Fact]
-	public void Click_WithoutMultipleSelection_SelectsNothing()
+	public async Task Click_WithoutMultipleSelection_SelectsNothing()
 	{
 		var deck = RenderDeck();
 
-		CardElement(deck, "Bravo").MouseUp(new MouseEventArgs());
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").MouseUpAsync(new MouseEventArgs()));
 
 		deck.Instance.Selection.Should().BeEmpty();
 	}
@@ -154,21 +155,21 @@ public class PDCardDeckTests : BunitContext
 	/// Verifies that with multiple selection a click selects one card, Ctrl toggles and Shift selects a run.
 	/// </summary>
 	[Fact]
-	public void Click_WithMultipleSelection_SelectsOneTogglesOrSelectsARun()
+	public async Task Click_WithMultipleSelection_SelectsOneTogglesOrSelectsARun()
 	{
 		var deck = RenderDeck(more: p => p.Add(x => x.MultipleSelection, true));
 
-		CardElement(deck, "Alpha").MouseUp(new MouseEventArgs());
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").MouseUpAsync(new MouseEventArgs()));
 		deck.Instance.Selection.Select(c => c.Name).Should().Equal("Alpha");
 		CardElement(deck, "Alpha").ClassList.Should().Contain("selected");
 
-		CardElement(deck, "Charlie").MouseUp(new MouseEventArgs { CtrlKey = true });
+		await deck.InvokeAsync(() => CardElement(deck, "Charlie").MouseUpAsync(new MouseEventArgs { CtrlKey = true }));
 		deck.Instance.Selection.Select(c => c.Name).Should().Equal("Alpha", "Charlie");
 
-		CardElement(deck, "Alpha").MouseUp(new MouseEventArgs { CtrlKey = true });
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").MouseUpAsync(new MouseEventArgs { CtrlKey = true }));
 		deck.Instance.Selection.Select(c => c.Name).Should().Equal("Charlie");
 
-		CardElement(deck, "Alpha").MouseUp(new MouseEventArgs { ShiftKey = true });
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").MouseUpAsync(new MouseEventArgs { ShiftKey = true }));
 		deck.Instance.Selection.Select(c => c.Name).Should().Equal("Alpha", "Bravo", "Charlie");
 	}
 
@@ -176,11 +177,11 @@ public class PDCardDeckTests : BunitContext
 	/// Verifies that Shift with no earlier click selects from the first card.
 	/// </summary>
 	[Fact]
-	public void ShiftClick_WithNoEarlierClick_SelectsFromTheStart()
+	public async Task ShiftClick_WithNoEarlierClick_SelectsFromTheStart()
 	{
 		var deck = RenderDeck(more: p => p.Add(x => x.MultipleSelection, true));
 
-		CardElement(deck, "Bravo").MouseUp(new MouseEventArgs { ShiftKey = true });
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").MouseUpAsync(new MouseEventArgs { ShiftKey = true }));
 
 		deck.Instance.Selection.Select(c => c.Name).Should().Equal("Alpha", "Bravo");
 	}
@@ -189,17 +190,17 @@ public class PDCardDeckTests : BunitContext
 	/// Verifies that starting to drag a card selects it and marks it as dragging, and ending the drag clears that.
 	/// </summary>
 	[Fact]
-	public void Dragging_SelectsAndMarksTheCard()
+	public async Task Dragging_SelectsAndMarksTheCard()
 	{
 		var deck = RenderDeck();
 
-		CardElement(deck, "Bravo").DragStart();
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragStartAsync(new DragEventArgs()));
 
 		deck.Instance.DragState.IsDragging.Should().BeTrue();
 		deck.Instance.Selection.Select(c => c.Name).Should().Equal("Bravo");
 		CardElement(deck, "Bravo").ClassList.Should().Contain("dragging").And.Contain("selected");
 
-		CardElement(deck, "Bravo").DragEnd();
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragEndAsync(new DragEventArgs()));
 
 		deck.Instance.DragState.IsDragging.Should().BeFalse();
 		deck.Instance.DragState.TargetIndex.Should().Be(-1);
@@ -209,13 +210,13 @@ public class PDCardDeckTests : BunitContext
 	/// Verifies that dragging a card that is part of a multiple selection keeps the whole selection.
 	/// </summary>
 	[Fact]
-	public void DraggingASelectedCard_KeepsTheSelection()
+	public async Task DraggingASelectedCard_KeepsTheSelection()
 	{
 		var deck = RenderDeck(more: p => p.Add(x => x.MultipleSelection, true));
-		CardElement(deck, "Alpha").MouseUp(new MouseEventArgs());
-		CardElement(deck, "Bravo").MouseUp(new MouseEventArgs { CtrlKey = true });
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").MouseUpAsync(new MouseEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").MouseUpAsync(new MouseEventArgs { CtrlKey = true }));
 
-		CardElement(deck, "Bravo").DragStart();
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragStartAsync(new DragEventArgs()));
 
 		deck.Instance.Selection.Select(c => c.Name).Should().Equal("Alpha", "Bravo");
 	}
@@ -228,8 +229,8 @@ public class PDCardDeckTests : BunitContext
 	{
 		var deck = RenderDeck();
 
-		CardElement(deck, "Alpha").DragStart();
-		await CardElement(deck, "Charlie").DragOverAsync(new DragEventArgs());
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Charlie").DragOverAsync(new DragEventArgs()));
 
 		Names(deck).Should().Equal("Bravo", "Charlie", "Alpha");
 		deck.Instance.DragState.TargetIndex.Should().Be(2);
@@ -243,9 +244,9 @@ public class PDCardDeckTests : BunitContext
 	{
 		var deck = RenderDeck();
 
-		CardElement(deck, "Charlie").DragStart();
-		await CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs());
-		await CardElement(deck, "Alpha").DragOverAsync(new DragEventArgs());
+		await deck.InvokeAsync(() => CardElement(deck, "Charlie").DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragOverAsync(new DragEventArgs()));
 
 		Names(deck).Should().Equal("Charlie", "Alpha", "Bravo");
 	}
@@ -258,9 +259,9 @@ public class PDCardDeckTests : BunitContext
 	{
 		var deck = RenderDeck();
 
-		await CardElement(deck, "Charlie").DragOverAsync(new DragEventArgs());
-		CardElement(deck, "Bravo").DragStart();
-		await CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs());
+		await deck.InvokeAsync(() => CardElement(deck, "Charlie").DragOverAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragOverAsync(new DragEventArgs()));
 
 		Names(deck).Should().Equal("Alpha", "Bravo", "Charlie");
 	}
@@ -272,11 +273,11 @@ public class PDCardDeckTests : BunitContext
 	public async Task DraggingAContiguousSelectionDown_MovesItAsABlock()
 	{
 		var deck = RenderDeck([new("A", 0), new("B", 1), new("C", 2), new("D", 3)], p => p.Add(x => x.MultipleSelection, true));
-		CardElement(deck, "A").MouseUp(new MouseEventArgs());
-		CardElement(deck, "B").MouseUp(new MouseEventArgs { ShiftKey = true });
+		await deck.InvokeAsync(() => CardElement(deck, "A").MouseUpAsync(new MouseEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "B").MouseUpAsync(new MouseEventArgs { ShiftKey = true }));
 
-		CardElement(deck, "A").DragStart();
-		await CardElement(deck, "D").DragOverAsync(new DragEventArgs());
+		await deck.InvokeAsync(() => CardElement(deck, "A").DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "D").DragOverAsync(new DragEventArgs()));
 
 		Names(deck).Should().Equal("C", "D", "A", "B");
 	}
@@ -288,12 +289,12 @@ public class PDCardDeckTests : BunitContext
 	public async Task DropAndEndOfDrag_EndTheDrag()
 	{
 		var deck = RenderDeck();
-		CardElement(deck, "Bravo").DragStart();
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragStartAsync(new DragEventArgs()));
 
-		deck.Find($"#{deck.Instance.Id}").Drop();
+		await deck.InvokeAsync(() => deck.Find($"#{deck.Instance.Id}").DropAsync(new DragEventArgs()));
 		deck.Instance.DragState.IsDragging.Should().BeFalse();
 
-		CardElement(deck, "Bravo").DragStart();
+		await deck.InvokeAsync(() => CardElement(deck, "Bravo").DragStartAsync(new DragEventArgs()));
 		await deck.InvokeAsync(deck.Instance.EndDragOperationAsync);
 		deck.Instance.DragState.IsDragging.Should().BeFalse();
 	}
@@ -321,8 +322,8 @@ public class PDCardDeckTests : BunitContext
 		var deck = RenderDeck(more: p => p.Add(x => x.IsAnimated, true));
 
 		deck.FindComponents<PDAnimation>().Should().HaveCount(3);
-		CardElement(deck, "Alpha").DragStart();
-		await CardElement(deck, "Charlie").DragOverAsync(new DragEventArgs());
+		await deck.InvokeAsync(() => CardElement(deck, "Alpha").DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "Charlie").DragOverAsync(new DragEventArgs()));
 
 		Names(deck).Should().Equal("Bravo", "Charlie", "Alpha");
 	}
@@ -389,12 +390,12 @@ public class PDCardDeckTests : BunitContext
 	/// Verifies that selecting in one deck of a group clears the selection in the others.
 	/// </summary>
 	[Fact]
-	public void Group_SelectingInOneDeck_ClearsTheOthers()
+	public async Task Group_SelectingInOneDeck_ClearsTheOthers()
 	{
 		var group = RenderGroup(new Board());
 
-		group.FindAll("#left div.card")[0].MouseUp(new MouseEventArgs());
-		group.FindAll("#right div.card")[0].MouseUp(new MouseEventArgs());
+		await group.InvokeAsync(() => group.FindAll("#left div.card")[0].MouseUpAsync(new MouseEventArgs()));
+		await group.InvokeAsync(() => group.FindAll("#right div.card")[0].MouseUpAsync(new MouseEventArgs()));
 
 		Deck(group, "left").Instance.Selection.Should().BeEmpty();
 		Deck(group, "right").Instance.Selection.Select(c => c.Name).Should().Equal("C");
@@ -409,13 +410,13 @@ public class PDCardDeckTests : BunitContext
 		var board = new Board();
 		var group = RenderGroup(board);
 
-		group.FindAll("#left div.card")[0].DragStart();
-		await group.Find("#right").DragEnterAsync(new DragEventArgs());
+		await group.InvokeAsync(() => group.FindAll("#left div.card")[0].DragStartAsync(new DragEventArgs()));
+		await group.InvokeAsync(() => group.Find("#right").DragEnterAsync(new DragEventArgs()));
 
 		Deck(group, "right").Instance.Cards.Select(c => c.Name).Should().Equal("A", "C");
 		Deck(group, "left").Instance.Cards.Select(c => c.Name).Should().Equal("B");
 
-		await group.Find("#right").DragEnterAsync(new DragEventArgs());
+		await group.InvokeAsync(() => group.Find("#right").DragEnterAsync(new DragEventArgs()));
 		await group.InvokeAsync(Deck(group, "right").Instance.InitiateTransformAsync);
 
 		board.Transforms.Should().ContainSingle();
@@ -435,8 +436,8 @@ public class PDCardDeckTests : BunitContext
 	{
 		var group = RenderGroup(new Board(), (_, _) => false);
 
-		group.FindAll("#left div.card")[0].DragStart();
-		await group.Find("#right").DragEnterAsync(new DragEventArgs());
+		await group.InvokeAsync(() => group.FindAll("#left div.card")[0].DragStartAsync(new DragEventArgs()));
+		await group.InvokeAsync(() => group.Find("#right").DragEnterAsync(new DragEventArgs()));
 
 		Deck(group, "left").Instance.Cards.Select(c => c.Name).Should().Equal("A", "B");
 		Deck(group, "right").Instance.Cards.Select(c => c.Name).Should().Equal("C");
@@ -451,7 +452,7 @@ public class PDCardDeckTests : BunitContext
 		var board = new Board();
 		var group = RenderGroup(board);
 
-		group.FindAll("#left div.card")[0].DragStart();
+		await group.InvokeAsync(() => group.FindAll("#left div.card")[0].DragStartAsync(new DragEventArgs()));
 		board.Decks["left"].Add(new Card("D", 2));
 		await group.InvokeAsync(Deck(group, "left").Instance.EndDragOperationAsync);
 

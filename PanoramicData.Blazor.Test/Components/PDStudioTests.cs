@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using BlazorMonaco.Editor;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PanoramicData.Blazor.Extensions;
@@ -120,7 +122,7 @@ public class PDStudioTests : BunitContext
 		_service.Result = "<p>42 rows</p>";
 
 		await TypeAsync(studio, "SELECT 1");
-		PlayButton(studio).Click();
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
 
 		studio.WaitForAssertion(() => executed.Should().Equal("SELECT 1"));
 		_service.Calls.Should().Equal(("SELECT 1", "sql", 7));
@@ -136,11 +138,11 @@ public class PDStudioTests : BunitContext
 	public async Task Execute_WithoutCodeOrService_DoesNothing()
 	{
 		var studio = RenderStudio();
-		PlayButton(studio).Click();
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
 
 		var serviceless = Render<PDStudio>();
 		await TypeAsync(serviceless, "1 + 1");
-		PlayButton(serviceless).Click();
+		await PlayButton(serviceless).ClickAsync(new MouseEventArgs());
 
 		_service.Calls.Should().BeEmpty();
 		Status(serviceless).Should().Be("Ready");
@@ -156,7 +158,7 @@ public class PDStudioTests : BunitContext
 		_service.Failure = new InvalidOperationException("boom");
 
 		await TypeAsync(studio, "1 +");
-		PlayButton(studio).Click();
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
 
 		studio.WaitForAssertion(() => Status(studio).Should().Be("Error: boom"));
 		LogMessages(studio).Should().Contain("Error executing code: boom");
@@ -337,7 +339,7 @@ public class PDStudioTests : BunitContext
 		var studio = RenderStudio(new PDStudioOptions { Language = language });
 
 		await MenuAsync(studio, "File", example);
-		PlayButton(studio).Click();
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
 
 		studio.WaitForAssertion(() => _service.Calls.Should().ContainSingle().Which.Code.Should().Contain(expected));
 	}
@@ -352,7 +354,7 @@ public class PDStudioTests : BunitContext
 		await TypeAsync(studio, "<p>Hi</p>");
 
 		await MenuAsync(studio, "File", "New");
-		PlayButton(studio).Click();
+		await PlayButton(studio).ClickAsync(new MouseEventArgs());
 
 		_service.Calls.Should().BeEmpty();
 		studio.WaitForAssertion(() => LogMessages(studio).Should().Contain("New document created"));
