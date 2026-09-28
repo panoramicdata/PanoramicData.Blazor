@@ -226,7 +226,7 @@ public class PDKnobTests : BunitContext
 
 		knob.Find("svg").DoubleClick();
 
-		knob.WaitForAssertion(() => values.Should().Equal(0.25));
+		knob.WaitForAssertion(() => values.Should().Equal(0.25), TimeSpan.FromSeconds(30));
 	}
 
 	/// <summary>

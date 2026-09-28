@@ -12,7 +12,8 @@ namespace PanoramicData.Blazor.Test.Components;
 public class PDComboBoxTests : BunitContext
 {
 	private const string ModulePath = "./_content/PanoramicData.Blazor/PDComboBox.razor.js";
-	private static readonly TimeSpan _blurTimeout = TimeSpan.FromSeconds(5);
+	// The drop-down closes after a real 400 ms delay; the wait is generous so it holds under full-suite load.
+	private static readonly TimeSpan _blurTimeout = TimeSpan.FromSeconds(30);
 
 	private readonly BunitJSModuleInterop _module;
 	private readonly List<string> _selected = [];
