@@ -466,63 +466,188 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
     }
 
     /// <summary>
-    /// Refreshes the entire tree.
+    /// Refreshes the entire tree in place.
     /// </summary>
-    /// <remarks>Refreshes all expanded nodes, from top down. Will try to maintain selected node.</remarks>
+    /// <remarks>
+    /// Fetched items are merged into the existing nodes by key (issue #152): a node whose key is still
+    /// present keeps its object, its expanded state and its loaded children; new keys are added and gone
+    /// keys removed. The selected node therefore stays selected without <see cref="SelectionChange"/> being
+    /// raised. If it has gone, its nearest surviving ancestor is selected and the change raised once.
+    /// With <see cref="LoadOnDemand"/>, every node whose children have been loaded is re-queried.
+    /// </remarks>
     public async Task RefreshAsync()
     {
-        // find selected node path
-        var path = new Stack<string>();
-        var node = SelectedNode;
-        while (node != null && node != RootNode)
+        // remember the selected node's ancestry, nearest first, in case it does not survive
+        var selected = SelectedNode;
+        var ancestorKeys = new List<string>();
+        for (var ancestor = selected?.ParentNode; ancestor != null && ancestor != RootNode; ancestor = ancestor.ParentNode)
         {
-            path.Push(node.Key);
-            node = node.ParentNode;
+            ancestorKeys.Add(ancestor.Key);
         }
 
-        // node should now be root node
-        if (node == RootNode)
+        if (LoadOnDemand)
         {
-            // refresh from top down
-            while (path.Count > 0)
-            {
-                // find previous selected node
-                var key = path.Pop();
-                var nextNode = node.Nodes?.FirstOrDefault(x => x.Key == key);
-                if (nextNode is null)
-                {
-                    break;
-                }
+            await RefreshLoadedChildrenAsync(RootNode).ConfigureAwait(true);
+        }
+        else
+        {
+            var items = await GetDataAsync().ConfigureAwait(true);
+            MergeModel(items, RootNode, wholeTree: true);
+            await NodeUpdated.InvokeAsync(RootNode).ConfigureAwait(true);
+        }
 
-                node = nextNode;
+        if (selected != null && RootNode.Find(selected.Key) != selected)
+        {
+            var survivor = ancestorKeys
+                .Select(RootNode.Find)
+                .FirstOrDefault(node => node != null) ?? RootNode;
+            await SelectNode(survivor, false).ConfigureAwait(true);
+        }
 
-                // refresh node
-                await RefreshNodeAsync(node).ConfigureAwait(true);
-            }
+        StateHasChanged();
+    }
 
-            // re-select last refreshed node
-            await SelectNode(node).ConfigureAwait(true);
+    /// <summary>
+    /// Re-queries the children of a node loaded on demand, merges them in place, then does the same for
+    /// every child whose own children have been loaded.
+    /// </summary>
+    /// <param name="node">The node whose children to refresh.</param>
+    private async Task RefreshLoadedChildrenAsync(TreeNode<TItem> node)
+    {
+        var key = node.Data is null ? null : KeyField!(node.Data).ToString();
+        var items = await GetDataAsync(key).ConfigureAwait(true);
+        MergeModel(items, node, wholeTree: false);
+        await NodeUpdated.InvokeAsync(node).ConfigureAwait(true);
+
+        foreach (var child in node.Nodes!.Where(child => child.Nodes != null && !IsLeafItem(child)).ToList())
+        {
+            await RefreshLoadedChildrenAsync(child).ConfigureAwait(true);
         }
     }
 
     /// <summary>
-    /// Recursively refreshes all expanded child nodes of the specified node.
+    /// Whether a node's item is declared a leaf by <see cref="IsLeaf"/>, so has no children to query.
     /// </summary>
-    /// <param name="node">The node whose children to refresh.</param>
-    private async Task RefreshRecurse(TreeNode<TItem> node)
-    {
-        // refresh each expanded child node
-        if (node?.Nodes != null)
-        {
-            foreach (var childNode in node.Nodes.Where(x => !x.Isleaf && x.IsExpanded))
-            {
-                // collaspe, refresh node and re-expand
-                await RefreshNodeAsync(childNode).ConfigureAwait(true);
-                childNode.IsExpanded = true;
+    private bool IsLeafItem(TreeNode<TItem> node)
+        => IsLeaf != null && node.Data != null && IsLeaf(node.Data);
 
-                // recurse down tree
-                await RefreshRecurse(childNode).ConfigureAwait(true);
+    /// <summary>
+    /// Merges fetched items into the existing nodes by key, keeping the node objects, expanded state and
+    /// loaded children of every key still present, adding new keys and removing keys that have gone.
+    /// </summary>
+    /// <param name="items">The fetched items.</param>
+    /// <param name="scope">The node being refreshed: the root for a whole-tree fetch, otherwise the parent whose children were fetched.</param>
+    /// <param name="wholeTree">True when <paramref name="items"/> is every item in the tree; false when it is the direct children of <paramref name="scope"/>.</param>
+    private void MergeModel(IEnumerable<TItem> items, TreeNode<TItem> scope, bool wholeTree)
+    {
+        // the nodes this fetch is authoritative for: anything among them not fetched again has gone
+        var existing = new Dictionary<string, TreeNode<TItem>>();
+        if (wholeTree)
+        {
+            scope.Walk(node =>
+            {
+                if (node != scope)
+                {
+                    existing.TryAdd(node.Key, node);
+                }
+
+                return true;
+            });
+        }
+        else
+        {
+            foreach (var node in scope.Nodes ?? [])
+            {
+                existing.TryAdd(node.Key, node);
             }
+        }
+
+        var seen = new Dictionary<string, TreeNode<TItem>>();
+        var modifiedParents = new HashSet<TreeNode<TItem>>();
+
+        foreach (var item in items)
+        {
+            var key = KeyField!(item)?.ToString();
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new PDTreeException("Items must supply a key value.");
+            }
+
+            var parentKey = ParentKeyField?.Invoke(item)?.ToString();
+            TreeNode<TItem>? parentNode;
+            if (!wholeTree)
+            {
+                parentNode = scope;
+            }
+            else if (string.IsNullOrWhiteSpace(parentKey))
+            {
+                parentNode = RootNode;
+            }
+            else
+            {
+                parentNode = seen.TryGetValue(parentKey, out var fetchedParent) ? fetchedParent : RootNode.Find(parentKey);
+            }
+
+            if (parentNode == null)
+            {
+                throw new PDTreeException($"A parent item with key '{parentKey}' could not be found");
+            }
+
+            if (existing.TryGetValue(key, out var node))
+            {
+                // same key: keep the node object, its expanded state and its loaded children
+                if (node.ParentNode != parentNode)
+                {
+                    node.ParentNode?.Nodes?.Remove(node);
+                    (parentNode.Nodes ??= []).Add(node);
+                    modifiedParents.Add(parentNode);
+                }
+            }
+            else
+            {
+                node = new TreeNode<TItem>
+                {
+                    Key = key,
+                    IsExpanded = false,
+                    Nodes = LoadOnDemand ? null : []
+                };
+
+                if (LoadOnDemand && IsLeaf != null && IsLeaf(item))
+                {
+                    node.Nodes = [];
+                }
+
+                (parentNode.Nodes ??= []).Add(node);
+                modifiedParents.Add(parentNode);
+            }
+
+            node.Text = TextField is null
+                ? item?.ToString() ?? string.Empty
+                : TextField.Invoke(item).ToString() ?? item.ToString() ?? string.Empty;
+            node.Data = item;
+            node.ParentNode = parentNode;
+            node.Level = parentNode.Level + 1;
+            node.IconCssClass = IconCssClass is null || item is null
+                ? string.Empty
+                : IconCssClass.Invoke(item, parentNode.Level + 1);
+
+            seen[key] = node;
+            modifiedParents.Add(parentNode);
+        }
+
+        // remove nodes this fetch no longer returns
+        foreach (var (key, node) in existing)
+        {
+            if (!seen.ContainsKey(key))
+            {
+                node.ParentNode?.Nodes?.Remove(node);
+            }
+        }
+
+        scope.Nodes ??= [];
+        foreach (var parent in modifiedParents)
+        {
+            parent.Nodes?.Sort(NodeSort);
         }
     }
 

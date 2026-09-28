@@ -17,6 +17,7 @@ public partial class PDTable<TItem> :
 	private Timer? _editTimer;
 	private static int _idSequence;
 	private string? _lastSearchText;
+	private string? _lastViewKey;
 	private int _lastColumnCount;
 	private IJSObjectReference? _commonModule;
 	private bool _mouseDownOriginatedFromTable;
@@ -662,6 +663,38 @@ public partial class PDTable<TItem> :
 		=> await GetDataAsync(null);
 
 	/// <summary>
+	/// Identifies the view a fetch is for: its search text, sort and page. Two fetches with the same key
+	/// differ only in when they ran, so the second is a refresh.
+	/// </summary>
+	private string GetViewKey(string? searchText, PDColumn<TItem>? sortColumn)
+		=> $"{searchText}\u001f{sortColumn?.Id}\u001f{sortColumn?.SortDirection}\u001f{PageCriteria?.Page}\u001f{PageCriteria?.PageSize}";
+
+	/// <summary>
+	/// After a refresh, drops selected keys whose rows are no longer present, raising
+	/// <see cref="SelectionChanged"/> only when that actually changed the selection.
+	/// </summary>
+	/// <remarks>
+	/// Skipped when <see cref="RetainSelectionOnPage"/> is set: that selection deliberately spans pages, so
+	/// a key missing from the current page is not evidence that its row has gone.
+	/// </remarks>
+	private async Task PruneSelectionAsync()
+	{
+		if (RetainSelectionOnPage || KeyField is null || Selection.Count == 0)
+		{
+			return;
+		}
+
+		var presentKeys = ItemsToDisplay
+			.Select(x => KeyField(x)?.ToString() ?? string.Empty)
+			.ToHashSet(StringComparer.Ordinal);
+
+		if (Selection.RemoveAll(key => !presentKeys.Contains(key)) > 0)
+		{
+			await SelectionChanged.InvokeAsync(null).ConfigureAwait(true);
+		}
+	}
+
+	/// <summary>
 	/// Requests data from the data provider using the current settings.
 	/// </summary>
 	/// <param name="searchText">Optional override for the search text.</param>
@@ -697,8 +730,14 @@ public partial class PDTable<TItem> :
 				request.Skip = (int)PageCriteria.PreviousItems;
 			}
 
+			// A fetch for the same search, sort and page as the last one is a refresh, not a new view:
+			// it keeps the selection rather than clearing it (issue #151). Clearing it on every refresh
+			// deselected the user's row each time an auto-refreshing page re-queried.
+			var viewKey = GetViewKey(request.SearchText, sortColumn);
+			var isRefresh = viewKey == _lastViewKey;
+
 			// Clear selection
-			if (!RetainSelectionOnPage)
+			if (!isRefresh && !RetainSelectionOnPage)
 			{
 				await ClearSelectionAsync().ConfigureAwait(true);
 			}
@@ -712,6 +751,12 @@ public partial class PDTable<TItem> :
 			var items = new List<TItem>(response.Items);
 			ItemsLoaded?.Invoke(items); // must use an action here and not an EventCallaback as that leads to infinite loop and 100% CPU
 			ItemsToDisplay = items;
+			_lastViewKey = viewKey;
+
+			if (isRefresh)
+			{
+				await PruneSelectionAsync().ConfigureAwait(true);
+			}
 
 			// Update pager state
 			if (PageCriteria != null)
