@@ -540,28 +540,7 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
     /// <param name="wholeTree">True when <paramref name="items"/> is every item in the tree; false when it is the direct children of <paramref name="scope"/>.</param>
     private void MergeModel(IEnumerable<TItem> items, TreeNode<TItem> scope, bool wholeTree)
     {
-        // the nodes this fetch is authoritative for: anything among them not fetched again has gone
-        var existing = new Dictionary<string, TreeNode<TItem>>();
-        if (wholeTree)
-        {
-            scope.Walk(node =>
-            {
-                if (node != scope)
-                {
-                    existing.TryAdd(node.Key, node);
-                }
-
-                return true;
-            });
-        }
-        else
-        {
-            foreach (var node in scope.Nodes ?? [])
-            {
-                existing.TryAdd(node.Key, node);
-            }
-        }
-
+        var existing = GetNodesInScope(scope, wholeTree);
         var seen = new Dictionary<string, TreeNode<TItem>>();
         var modifiedParents = new HashSet<TreeNode<TItem>>();
 
@@ -573,75 +552,18 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
                 throw new PDTreeException("Items must supply a key value.");
             }
 
-            var parentKey = ParentKeyField?.Invoke(item)?.ToString();
-            TreeNode<TItem>? parentNode;
-            if (!wholeTree)
-            {
-                parentNode = scope;
-            }
-            else if (string.IsNullOrWhiteSpace(parentKey))
-            {
-                parentNode = RootNode;
-            }
-            else
-            {
-                parentNode = seen.TryGetValue(parentKey, out var fetchedParent) ? fetchedParent : RootNode.Find(parentKey);
-            }
-
-            if (parentNode == null)
-            {
-                throw new PDTreeException($"A parent item with key '{parentKey}' could not be found");
-            }
-
-            if (existing.TryGetValue(key, out var node))
-            {
-                // same key: keep the node object, its expanded state and its loaded children
-                if (node.ParentNode != parentNode)
-                {
-                    node.ParentNode?.Nodes?.Remove(node);
-                    (parentNode.Nodes ??= []).Add(node);
-                    modifiedParents.Add(parentNode);
-                }
-            }
-            else
-            {
-                node = new TreeNode<TItem>
-                {
-                    Key = key,
-                    IsExpanded = false,
-                    Nodes = LoadOnDemand ? null : []
-                };
-
-                if (LoadOnDemand && IsLeaf != null && IsLeaf(item))
-                {
-                    node.Nodes = [];
-                }
-
-                (parentNode.Nodes ??= []).Add(node);
-                modifiedParents.Add(parentNode);
-            }
-
-            node.Text = TextField is null
-                ? item?.ToString() ?? string.Empty
-                : TextField.Invoke(item).ToString() ?? item.ToString() ?? string.Empty;
-            node.Data = item;
-            node.ParentNode = parentNode;
-            node.Level = parentNode.Level + 1;
-            node.IconCssClass = IconCssClass is null || item is null
-                ? string.Empty
-                : IconCssClass.Invoke(item, parentNode.Level + 1);
+            var parentNode = wholeTree ? FindParentNode(item, seen) : scope;
+            var node = PlaceNode(key, item, parentNode, existing);
+            ApplyItem(node, item, parentNode);
 
             seen[key] = node;
             modifiedParents.Add(parentNode);
         }
 
         // remove nodes this fetch no longer returns
-        foreach (var (key, node) in existing)
+        foreach (var node in existing.Where(pair => !seen.ContainsKey(pair.Key)).Select(pair => pair.Value))
         {
-            if (!seen.ContainsKey(key))
-            {
-                node.ParentNode?.Nodes?.Remove(node);
-            }
+            node.ParentNode?.Nodes?.Remove(node);
         }
 
         scope.Nodes ??= [];
@@ -649,6 +571,95 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
         {
             parent.Nodes?.Sort(NodeSort);
         }
+    }
+
+    /// <summary>
+    /// The nodes a fetch is authoritative for, by key: every descendant of the root for a whole-tree fetch,
+    /// otherwise the scope's direct children. Any of them not fetched again has gone.
+    /// </summary>
+    private static Dictionary<string, TreeNode<TItem>> GetNodesInScope(TreeNode<TItem> scope, bool wholeTree)
+    {
+        var existing = new Dictionary<string, TreeNode<TItem>>();
+        if (!wholeTree)
+        {
+            foreach (var node in scope.Nodes ?? [])
+            {
+                existing.TryAdd(node.Key, node);
+            }
+
+            return existing;
+        }
+
+        scope.Walk(node =>
+        {
+            if (node != scope)
+            {
+                existing.TryAdd(node.Key, node);
+            }
+
+            return true;
+        });
+
+        return existing;
+    }
+
+    /// <summary>
+    /// Finds the parent node for an item of a whole-tree fetch, from its <see cref="ParentKeyField"/>.
+    /// </summary>
+    private TreeNode<TItem> FindParentNode(TItem item, Dictionary<string, TreeNode<TItem>> seen)
+    {
+        var parentKey = ParentKeyField?.Invoke(item)?.ToString();
+        if (string.IsNullOrWhiteSpace(parentKey))
+        {
+            return RootNode;
+        }
+
+        var parentNode = seen.TryGetValue(parentKey, out var fetchedParent) ? fetchedParent : RootNode.Find(parentKey);
+        return parentNode ?? throw new PDTreeException($"A parent item with key '{parentKey}' could not be found");
+    }
+
+    /// <summary>
+    /// Returns the existing node for a key, moved under <paramref name="parentNode"/> if its parent changed,
+    /// or a new node added to <paramref name="parentNode"/>.
+    /// </summary>
+    private TreeNode<TItem> PlaceNode(string key, TItem item, TreeNode<TItem> parentNode, Dictionary<string, TreeNode<TItem>> existing)
+    {
+        if (existing.TryGetValue(key, out var node))
+        {
+            // same key: keep the node object, its expanded state and its loaded children
+            if (node.ParentNode != parentNode)
+            {
+                node.ParentNode?.Nodes?.Remove(node);
+                (parentNode.Nodes ??= []).Add(node);
+            }
+
+            return node;
+        }
+
+        node = new TreeNode<TItem>
+        {
+            Key = key,
+            IsExpanded = false,
+            Nodes = !LoadOnDemand || (IsLeaf != null && IsLeaf(item)) ? [] : null
+        };
+        (parentNode.Nodes ??= []).Add(node);
+        return node;
+    }
+
+    /// <summary>
+    /// Copies an item's current values onto its node.
+    /// </summary>
+    private void ApplyItem(TreeNode<TItem> node, TItem item, TreeNode<TItem> parentNode)
+    {
+        node.Text = TextField is null
+            ? item?.ToString() ?? string.Empty
+            : TextField.Invoke(item).ToString() ?? item.ToString() ?? string.Empty;
+        node.Data = item;
+        node.ParentNode = parentNode;
+        node.Level = parentNode.Level + 1;
+        node.IconCssClass = IconCssClass is null || item is null
+            ? string.Empty
+            : IconCssClass.Invoke(item, parentNode.Level + 1);
     }
 
     /// <summary>
