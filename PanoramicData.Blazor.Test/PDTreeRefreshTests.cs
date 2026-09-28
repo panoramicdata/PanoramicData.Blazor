@@ -2,6 +2,7 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test;
@@ -179,7 +180,7 @@ public class PDTreeRefreshTests : BunitContext
 	/// A provider that returns every item, or with load on demand only the children of the key in
 	/// <see cref="DataRequest{TItem}.SearchText"/>, which is how <see cref="PDTree{TItem}"/> asks for them.
 	/// </summary>
-	private sealed class ItemProvider : DataProviderBase<Item>
+	private sealed class ItemProvider : IDataProviderService<Item>
 	{
 		public bool LoadOnDemand { get; set; }
 
@@ -192,14 +193,21 @@ public class PDTreeRefreshTests : BunitContext
 			new("b1", "b", "Bravo one")
 		];
 
-		public override Task<DataResponse<Item>> GetDataAsync(DataRequest<Item> request, CancellationToken cancellationToken)
+		public Task<DataResponse<Item>> GetDataAsync(DataRequest<Item> request, CancellationToken cancellationToken)
 		{
-			cancellationToken.ThrowIfCancellationRequested();
 			var items = LoadOnDemand
 				? Items.Where(i => (i.ParentId ?? string.Empty) == (request.SearchText ?? string.Empty)).ToList()
 				: [.. Items];
 			return Task.FromResult(new DataResponse<Item>(items, items.Count));
 		}
 
+		public Task<OperationResponse> CreateAsync(Item item, CancellationToken cancellationToken)
+			=> Task.FromResult(new OperationResponse());
+
+		public Task<OperationResponse> UpdateAsync(Item item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
+			=> Task.FromResult(new OperationResponse());
+
+		public Task<OperationResponse> DeleteAsync(Item item, CancellationToken cancellationToken)
+			=> Task.FromResult(new OperationResponse());
 	}
 }

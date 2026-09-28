@@ -3,6 +3,7 @@ using Bunit;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test;
@@ -177,13 +178,12 @@ public class PDTableRefreshSelectionTests : BunitContext
 	public sealed record Row(int Id, string Name);
 
 	/// <summary>An in-memory provider that honours search text, sort and paging, as a real one does.</summary>
-	private sealed class RowProvider : DataProviderBase<Row>
+	private sealed class RowProvider : IDataProviderService<Row>
 	{
 		public List<Row> Rows { get; set; } = [new(1, "Alpha"), new(2, "Beta"), new(3, "Gamma"), new(4, "Delta")];
 
-		public override Task<DataResponse<Row>> GetDataAsync(DataRequest<Row> request, CancellationToken cancellationToken)
+		public Task<DataResponse<Row>> GetDataAsync(DataRequest<Row> request, CancellationToken cancellationToken)
 		{
-			cancellationToken.ThrowIfCancellationRequested();
 			IEnumerable<Row> rows = Rows;
 			if (!string.IsNullOrWhiteSpace(request.SearchText))
 			{
@@ -211,5 +211,13 @@ public class PDTableRefreshSelectionTests : BunitContext
 			return Task.FromResult(new DataResponse<Row>([.. page], all.Count));
 		}
 
+		public Task<OperationResponse> CreateAsync(Row item, CancellationToken cancellationToken)
+			=> Task.FromResult(new OperationResponse());
+
+		public Task<OperationResponse> UpdateAsync(Row item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
+			=> Task.FromResult(new OperationResponse());
+
+		public Task<OperationResponse> DeleteAsync(Row item, CancellationToken cancellationToken)
+			=> Task.FromResult(new OperationResponse());
 	}
 }
