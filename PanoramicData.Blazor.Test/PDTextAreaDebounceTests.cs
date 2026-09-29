@@ -95,6 +95,9 @@ public class PDTextAreaDebounceTests : BunitContext
 		DisplayedValue(component).ShouldBe("abc");
 	}
 
+	/// <summary>
+	/// With nothing typed, a new value from the parent is simply shown.
+	/// </summary>
 	[Fact]
 	public void ParentChangesTheValue_WhenNotTyping_TheParentsValueIsShown()
 	{
