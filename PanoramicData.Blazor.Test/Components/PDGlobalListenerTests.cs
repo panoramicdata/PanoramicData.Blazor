@@ -159,4 +159,33 @@ public class PDGlobalListenerTests : BunitContext
 		EventService.RegisterShortcutKey(new ShortcutKey { Key = "m", CtrlKey = true });
 		module.Invocations["registerShortcutKeys"].Should().BeEmpty();
 	}
+
+	/// <summary>Disposal releases the .NET object reference handed to JavaScript, so it does not leak (#156).</summary>
+	[Fact]
+	public async Task DisposeAsync_DisposesTheDotNetObjectReference()
+	{
+		var module = JSInterop.SetupModule(ModulePath);
+		var cut = Render<PDGlobalListener>();
+		var reference = (DotNetObjectReference<PDGlobalListener>)module.VerifyInvoke("initialize").Arguments[0]!;
+
+		await cut.Instance.DisposeAsync();
+
+		reference.Invoking(r => r.Value).Should().Throw<ObjectDisposedException>();
+	}
+
+	/// <summary>
+	/// The .NET object reference is released on disposal even when the JavaScript module's dispose call fails (#156).
+	/// </summary>
+	[Fact]
+	public async Task DisposeAsync_DisposesTheDotNetObjectReference_WhenModuleDisposeFails()
+	{
+		var module = JSInterop.SetupModule(ModulePath);
+		module.SetupVoid("dispose").SetException(new JSException("gone"));
+		var cut = Render<PDGlobalListener>();
+		var reference = (DotNetObjectReference<PDGlobalListener>)module.VerifyInvoke("initialize").Arguments[0]!;
+
+		await cut.Instance.DisposeAsync();
+
+		reference.Invoking(r => r.Value).Should().Throw<ObjectDisposedException>();
+	}
 }

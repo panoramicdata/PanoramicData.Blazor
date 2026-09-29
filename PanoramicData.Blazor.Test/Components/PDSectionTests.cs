@@ -245,4 +245,69 @@ public class PDSectionTests : BunitContext
 
 		toggled.Should().Equal(true, false, true);
 	}
+
+	/// <summary>
+	/// Verifies that a supplied id is kept, and used for the header and body ids (#158).
+	/// </summary>
+	[Fact]
+	public void SuppliedId_IsKept()
+	{
+		var component = Render<PDSection>(parameters => parameters.Add(p => p.Id, "mine"));
+
+		component.Instance.Id.Should().Be("mine");
+		component.Find("div.pd-section").Id.Should().Be("mine");
+		component.Find("button.pd-section-header").Id.Should().Be("mine-header");
+		component.Find("div.pd-section-body").Id.Should().Be("mine-body");
+	}
+
+	/// <summary>
+	/// Verifies that the generated id survives a re-render that does not supply one (#158).
+	/// </summary>
+	[Fact]
+	public void GeneratedId_IsStableAcrossRenders()
+	{
+		var component = Render<PDSection>();
+		var id = component.Instance.Id;
+
+		component.Render(parameters => parameters.Add(p => p.Title, "Changed"));
+
+		component.Instance.Id.Should().Be(id);
+		component.Find("div.pd-section").Id.Should().Be(id);
+	}
+
+	/// <summary>
+	/// Verifies that aria-expanded carries the literal strings "true" and "false", which assistive technology
+	/// requires (#158).
+	/// </summary>
+	[Theory]
+	[InlineData(false, "true")]
+	[InlineData(true, "false")]
+	public void AriaExpanded_IsTheLiteralString(bool isCollapsed, string expected)
+	{
+		var component = Render<PDSection>(parameters => parameters.Add(p => p.IsCollapsed, isCollapsed));
+
+		component.Find("button").GetAttribute("aria-expanded").Should().Be(expected);
+	}
+
+	/// <summary>
+	/// Verifies that the public collapse, expand and toggle methods re-render the section themselves, with no
+	/// parent re-render (#158).
+	/// </summary>
+	[Fact]
+	public async Task CollapseExpandToggle_ReRenderTheMarkup()
+	{
+		var component = Render<PDSection>();
+		var section = component.Instance;
+
+		await component.InvokeAsync(section.CollapseAsync);
+		component.Find(".pd-section-body").ClassList.Should().Contain("pd-section-body--collapsed");
+		component.Find("button").GetAttribute("aria-expanded").Should().Be("false");
+
+		await component.InvokeAsync(section.ExpandAsync);
+		component.Find(".pd-section-body").ClassList.Should().NotContain("pd-section-body--collapsed");
+		component.Find("button").GetAttribute("aria-expanded").Should().Be("true");
+
+		await component.InvokeAsync(section.ToggleAsync);
+		component.Find(".pd-section-body").ClassList.Should().Contain("pd-section-body--collapsed");
+	}
 }

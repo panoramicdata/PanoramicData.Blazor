@@ -93,21 +93,37 @@ public class TileGridOptions
 	/// <summary>
 	/// Whether to show floating icons.
 	/// </summary>
+	/// <remarks>
+	/// Floating icons are drawn only by <see cref="PDTilesJavaScript"/>, which passes this to its JavaScript
+	/// grid library. <see cref="PDTiles"/> does not draw floating icons and ignores this option.
+	/// </remarks>
 	public bool ShowFloating { get; set; }
 
 	/// <summary>
 	/// Floating icons population percentage (0-100).
 	/// </summary>
+	/// <remarks>
+	/// Floating icons are drawn only by <see cref="PDTilesJavaScript"/>, which passes this to its JavaScript
+	/// grid library. <see cref="PDTiles"/> does not draw floating icons and ignores this option.
+	/// </remarks>
 	public int FloatingPopulation { get; set; } = 50;
 
 	/// <summary>
 	/// Floating icons height percentage (0-100).
 	/// </summary>
+	/// <remarks>
+	/// Floating icons are drawn only by <see cref="PDTilesJavaScript"/>, which passes this to its JavaScript
+	/// grid library. <see cref="PDTiles"/> does not draw floating icons and ignores this option.
+	/// </remarks>
 	public int FloatHeight { get; set; } = 80;
 
 	/// <summary>
 	/// Floating icons size percentage (0-100).
 	/// </summary>
+	/// <remarks>
+	/// Floating icons are drawn only by <see cref="PDTilesJavaScript"/>, which passes this to its JavaScript
+	/// grid library. <see cref="PDTiles"/> does not draw floating icons and ignores this option.
+	/// </remarks>
 	public int FloatSize { get; set; } = 60;
 
 	/// <summary>

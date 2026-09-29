@@ -51,7 +51,8 @@ public class TileConnectorOptions
 	public int Opacity { get; set; } = 80;
 
 	/// <summary>
-	/// Whether connector animation is enabled.
+	/// Whether connector animation is enabled. Connectors animate only when this is true and
+	/// <see cref="AnimationSpeed"/> is greater than zero.
 	/// </summary>
 	public bool Animation { get; set; } = true;
 

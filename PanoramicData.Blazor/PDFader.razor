@@ -6,10 +6,7 @@
 	private double CenterX => ControlWidth / 2.0;
 	private double TrackWidth => ControlWidth * 0.4; // 40% of total width
 	private double TrackX => (ControlWidth - TrackWidth) / 2.0;
-	private double LabelWidth => 35;
-	private double LabelPadding => 5;
 	private double LabelFontSize => 12;
-	private double LabelVCenterOffset => LabelFontSize / 3.0; // SVG text baseline correction
 }
 
 <div class="pd-fader @(IsEnabled ? "" : "disabled")" style="display:inline-block; width:@($"{ControlWidth}px"); touch-action:none; user-select:none;">

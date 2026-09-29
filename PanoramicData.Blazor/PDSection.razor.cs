@@ -7,6 +7,7 @@ namespace PanoramicData.Blazor;
 public partial class PDSection : ComponentBase
 {
     private static int _idCounter;
+    private string? _generatedId;
 
     /// <summary>
     /// Gets or sets additional CSS classes applied to the outer container element.
@@ -120,11 +121,19 @@ public partial class PDSection : ComponentBase
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
+    /// <summary>
+    /// Gets the value of the aria-expanded attribute: the literal string "true" or "false", as assistive
+    /// technology requires. A bool attribute would render as an empty value, or not at all.
+    /// </summary>
+    private string AriaExpanded => IsCollapsed ? "false" : "true";
+
     /// <inheritdoc />
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
+        // Generate an id only when none is supplied, and keep the same one across renders
+        if (string.IsNullOrWhiteSpace(Id))
         {
-            Id = $"pd-section-{Interlocked.Increment(ref _idCounter)}";
+            Id = _generatedId ??= $"pd-section-{Interlocked.Increment(ref _idCounter)}";
         }
     }
 
@@ -135,6 +144,12 @@ public partial class PDSection : ComponentBase
         await Toggled.InvokeAsync(IsCollapsed).ConfigureAwait(true);
     }
 
+    private async Task ToggleAndRenderAsync()
+    {
+        await OnHeaderClickAsync().ConfigureAwait(true);
+        StateHasChanged();
+    }
+
     /// <summary>
     /// Collapses the section.
     /// </summary>
@@ -142,7 +157,7 @@ public partial class PDSection : ComponentBase
     {
         if (!IsCollapsed)
         {
-            await OnHeaderClickAsync().ConfigureAwait(true);
+            await ToggleAndRenderAsync().ConfigureAwait(true);
         }
     }
 
@@ -153,12 +168,12 @@ public partial class PDSection : ComponentBase
     {
         if (IsCollapsed)
         {
-            await OnHeaderClickAsync().ConfigureAwait(true);
+            await ToggleAndRenderAsync().ConfigureAwait(true);
         }
     }
 
     /// <summary>
     /// Toggles the section between collapsed and expanded.
     /// </summary>
-    public Task ToggleAsync() => OnHeaderClickAsync();
+    public Task ToggleAsync() => ToggleAndRenderAsync();
 }

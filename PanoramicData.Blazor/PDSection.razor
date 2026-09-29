@@ -2,7 +2,7 @@
     <button type="button"
             id="@($"{Id}-header")"
             class="pd-section-header @HeaderCssClass @(IsDisabled ? "pd-section-header--disabled" : "")"
-            aria-expanded="@(!IsCollapsed)"
+            aria-expanded="@AriaExpanded"
             aria-controls="@($"{Id}-body")"
             title="@ExpanderTooltip"
             disabled="@IsDisabled"

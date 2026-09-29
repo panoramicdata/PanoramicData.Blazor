@@ -38,4 +38,36 @@ public class PDMixingDeskTests : BunitContext
 		component.Instance.CssClass.Should().BeEmpty();
 		component.Instance.MinHeight.Should().Be("600px");
 	}
+
+	/// <summary>Additional CSS classes are applied to the container (#164).</summary>
+	[Fact]
+	public void CssClass_IsAppliedToTheContainer()
+	{
+		var component = Render<PDMixingDesk>(parameters => parameters.Add(p => p.CssClass, "x"));
+
+		var desk = component.Find("div.pd-mixing-desk");
+		desk.ClassList.Should().Contain("x");
+	}
+
+	/// <summary>The minimum height, default or supplied, is applied to the container (#164).</summary>
+	[Theory]
+	[InlineData(null, "min-height: 600px")]
+	[InlineData("250px", "min-height: 250px")]
+	public void MinHeight_IsAppliedToTheContainer(string? minHeight, string expectedStyle)
+	{
+		var component = minHeight is null
+			? Render<PDMixingDesk>()
+			: Render<PDMixingDesk>(parameters => parameters.Add(p => p.MinHeight, minHeight));
+
+		component.Find("div.pd-mixing-desk").GetAttribute("style").Should().Be(expectedStyle);
+	}
+
+	/// <summary>An empty minimum height writes no style at all (#164).</summary>
+	[Fact]
+	public void EmptyMinHeight_WritesNoStyle()
+	{
+		var component = Render<PDMixingDesk>(parameters => parameters.Add(p => p.MinHeight, string.Empty));
+
+		component.Find("div.pd-mixing-desk").HasAttribute("style").Should().BeFalse();
+	}
 }

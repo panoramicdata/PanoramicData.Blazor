@@ -22,4 +22,9 @@ public partial class PDMixingDesk
 	/// </summary>
 	[Parameter]
 	public string MinHeight { get; set; } = "600px";
+
+	/// <summary>
+	/// Gets the inline style for the container, or null (no style attribute) when there is no minimum height.
+	/// </summary>
+	private string? Style => string.IsNullOrWhiteSpace(MinHeight) ? null : $"min-height: {MinHeight}";
 }
