@@ -57,6 +57,42 @@ public class PDRangeTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that with a non-zero Min the handles are placed relative to Min, so Min is the left end of the
+	/// track and Max the right end (#179).
+	/// </summary>
+	[Fact]
+	public void NonZeroMin_HandlesArePlacedRelativeToMin()
+	{
+		var range = RenderRange(new NumericRange(50, 100), p => p
+			.Add(x => x.Min, 50)
+			.Add(x => x.Max, 100));
+
+		range.Find("rect.handle.start").GetAttribute("x").Should().Be("1");
+		range.Find("rect.handle.end").GetAttribute("x").Should().Be("101");
+
+		var middle = RenderRange(new NumericRange(60, 90), p => p
+			.Add(x => x.Min, 50)
+			.Add(x => x.Max, 100));
+
+		middle.Find("rect.handle.start").GetAttribute("x").Should().Be("21");
+		middle.Find("rect.handle.end").GetAttribute("x").Should().Be("81");
+	}
+
+	/// <summary>
+	/// Verifies that with a non-zero Min the major ticks start at the left end of the track (#179).
+	/// </summary>
+	[Fact]
+	public void NonZeroMin_TicksArePlacedRelativeToMin()
+	{
+		var range = RenderRange(new NumericRange(50, 100), p => p
+			.Add(x => x.Min, 50)
+			.Add(x => x.Max, 100)
+			.Add(x => x.TickMajor, 25));
+
+		range.FindAll("line.tick.major").Select(t => t.GetAttribute("x1")).Should().Equal("6", "56", "106");
+	}
+
+	/// <summary>
 	/// Verifies that inverting marks both tracks, and disabling marks the component.
 	/// </summary>
 	[Fact]
