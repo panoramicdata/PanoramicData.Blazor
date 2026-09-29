@@ -30,6 +30,29 @@ public partial class PDChatTests
 		component.Find(".pdchat-text").TextContent.Should().Contain("In the split");
 	}
 
+	/// <summary>
+	/// Verifies that adding a canvas tab opens a renamable tab holding a C# Monaco editor with the minimap off,
+	/// rather than throwing on the editor's InitializeOptions (#190).
+	/// </summary>
+	[Fact]
+	public async Task Adding_a_canvas_tab_opens_an_editor()
+	{
+		var service = new FakeChatService { DockMode = PDChatDockMode.FullScreen };
+		var component = RenderChat(service);
+
+		await component.Find(".pdchat-canvas-flex .pdtabset-addtab").ClickAsync(new());
+
+		component.WaitForAssertion(() => component.Find(".pdchat-canvas-flex .pdtabset-tab-rename-input").GetAttribute("value").Should().Be("New Tab"), Patience);
+		var editor = component.FindComponent<PDMonacoEditor>().Instance;
+		editor.Language.Should().Be("csharp");
+		editor.Theme.Should().Be("vs-dark");
+		editor.Value.Should().StartWith("// Welcome to the Monaco Editor!");
+		var options = new BlazorMonaco.Editor.StandaloneEditorConstructionOptions();
+		editor.InitializeOptions.Should().NotBeNull();
+		editor.InitializeOptions!(options);
+		options.Minimap.Enabled.Should().BeFalse();
+	}
+
 	// ------------------------------------------------------------------------------------------
 	// Inline forms
 	// ------------------------------------------------------------------------------------------
@@ -147,9 +170,7 @@ public partial class PDChatTests
 
 		await component.InvokeAsync(() => service.ReceiveFor(store.First.Id, Message("Answer")));
 
-		// The tab strip is drawn by PDTabSet before the PDTab beneath it receives its new CssClass, so the
-		// marker only shows on the render after the one the reply caused (reported separately as a defect).
-		component.Render();
+		// No extra render: the marker must show from the render the reply itself caused (#190).
 		component.WaitForAssertion(() => Tab(component, "First").ClassList.Should().Contain("pdchat-conversation-tab-unread"), Patience);
 
 		await Tab(component, "First").ClickAsync(new());

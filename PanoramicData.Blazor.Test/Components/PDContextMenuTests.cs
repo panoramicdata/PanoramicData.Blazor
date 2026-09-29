@@ -11,7 +11,7 @@ namespace PanoramicData.Blazor.Test;
 /// Tests that <see cref="PDContextMenu"/> renders its items, shows the menu on a right mouse button
 /// press (or release), lets the application update or cancel it first, and raises item clicks.
 /// </summary>
-public class PDContextMenuTests : BunitContext
+public partial class PDContextMenuTests : BunitContext
 {
 	private const string ModulePath = "./_content/PanoramicData.Blazor/PDContextMenu.razor.js";
 

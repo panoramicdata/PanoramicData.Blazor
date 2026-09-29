@@ -334,7 +334,11 @@ public partial class PDChat : JSModuleComponentBase
 
 		if (ChatService.DockMode == PDChatDockMode.Minimized)
 		{
-			_unreadMessages = true;
+			// A typing indicator is not something to read, so on its own it must not light the badge (#190).
+			if (message.Type != MessageType.Typing)
+			{
+				_unreadMessages = true;
+			}
 
 			// Update the highest priority unread message type
 			if (isNewMessage && message.Type != MessageType.Typing)
@@ -1014,18 +1018,14 @@ public partial class PDChat : JSModuleComponentBase
 				IsRenamingEnabled = true,
 				ChildContent = builder =>
 					{
+						// PDMonacoEditor already sets the language, theme, value and automatic layout on the
+						// options it builds, and InitializeOptions is an Action that adjusts them (#190).
 						builder.OpenComponent<PDMonacoEditor>(0);
-						builder.AddAttribute(1, "Language", "csharp");
-						builder.AddAttribute(2, "Theme", "vs-dark");
-						builder.AddAttribute(3, "InitializeOptions", new Func<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(() =>
-							new BlazorMonaco.Editor.StandaloneEditorConstructionOptions
-							{
-								AutomaticLayout = true,
-								Language = "csharp",
-								Theme = "vs-dark",
-								Value = "// Welcome to the Monaco Editor!\n// Start coding here...\n",
-								Minimap = new BlazorMonaco.Editor.EditorMinimapOptions { Enabled = false }
-							}));
+						builder.AddAttribute(1, nameof(PDMonacoEditor.Language), "csharp");
+						builder.AddAttribute(2, nameof(PDMonacoEditor.Theme), "vs-dark");
+						builder.AddAttribute(3, nameof(PDMonacoEditor.Value), "// Welcome to the Monaco Editor!\n// Start coding here...\n");
+						builder.AddAttribute(4, nameof(PDMonacoEditor.InitializeOptions), new Action<BlazorMonaco.Editor.StandaloneEditorConstructionOptions>(options =>
+							options.Minimap = new BlazorMonaco.Editor.EditorMinimapOptions { Enabled = false }));
 						builder.CloseComponent();
 					}
 			};

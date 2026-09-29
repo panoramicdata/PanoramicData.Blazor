@@ -41,6 +41,25 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	public IJSRuntime JSRuntime { get; set; } = null!;
 
 	/// <summary>
+	/// Gets or sets the logger to which exceptions thrown by the consumer's callbacks are written.
+	/// </summary>
+	[Inject]
+	private ILogger<PDDropDown> Logger { get; set; } = null!;
+
+	/// <summary>
+	/// An optional event callback that receives any exception thrown by the <see cref="DropDownShown"/>,
+	/// <see cref="DropDownHidden"/> or <see cref="KeyPress"/> callbacks.
+	/// </summary>
+	/// <remarks>
+	/// Those callbacks are raised from JavaScript, so an exception thrown by them is not propagated: that
+	/// would fail the JavaScript call rather than surface anywhere useful. Instead the exception is always
+	/// logged as an error through <see cref="ILogger{TCategoryName}"/>, and is also passed to this
+	/// callback when one is set.
+	/// </remarks>
+	[Parameter]
+	public EventCallback<Exception> ExceptionHandler { get; set; }
+
+	/// <summary>
 	/// An event callback that is invoked when the dropdown is clicked.
 	/// </summary>
 	[Parameter]
@@ -267,16 +286,9 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	[JSInvokable]
 	public async Task OnDropDownShown()
 	{
-		try
-		{
-			_shown = true;
-			await DropDownShown.InvokeAsync(null).ConfigureAwait(true);
-			StateHasChanged();
-		}
-		catch
-		{
-			// Nothing to do
-		}
+		_shown = true;
+		await InvokeConsumerCallbackAsync(nameof(DropDownShown), () => DropDownShown.InvokeAsync(null)).ConfigureAwait(true);
+		Refresh();
 	}
 
 	/// <summary>
@@ -285,16 +297,9 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	[JSInvokable]
 	public async Task OnDropDownHidden()
 	{
-		try
-		{
-			_shown = false;
-			await DropDownHidden.InvokeAsync(null).ConfigureAwait(true);
-			StateHasChanged();
-		}
-		catch
-		{
-			// Nothing to do
-		}
+		_shown = false;
+		await InvokeConsumerCallbackAsync(nameof(DropDownHidden), () => DropDownHidden.InvokeAsync(null)).ConfigureAwait(true);
+		Refresh();
 	}
 
 	/// <summary>
@@ -302,15 +307,56 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 	/// </summary>
 	/// <param name="keyCode">Pressed key code.</param>
 	[JSInvokable]
-	public async Task OnKeyPressed(int keyCode)
+	public Task OnKeyPressed(int keyCode)
+		=> InvokeConsumerCallbackAsync(nameof(KeyPress), () => KeyPress.InvokeAsync(keyCode));
+
+	/// <summary>
+	/// Invokes one of the consumer's callbacks. An exception it throws is not propagated back to
+	/// JavaScript: it is logged and passed to <see cref="ExceptionHandler"/> instead.
+	/// </summary>
+	private async Task InvokeConsumerCallbackAsync(string callbackName, Func<Task> callback)
 	{
 		try
 		{
-			await KeyPress.InvokeAsync(keyCode).ConfigureAwait(true);
+			await callback().ConfigureAwait(true);
 		}
-		catch
+		catch (Exception ex)
 		{
-			// Nothing to do
+			Logger.LogError(ex, "The {CallbackName} callback of drop down {DropDownId} threw an exception.", callbackName, Id);
+			await ReportExceptionAsync(ex).ConfigureAwait(true);
+		}
+	}
+
+	private async Task ReportExceptionAsync(Exception exception)
+	{
+		if (!ExceptionHandler.HasDelegate)
+		{
+			return;
+		}
+
+		try
+		{
+			await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "The ExceptionHandler callback of drop down {DropDownId} threw an exception.", Id);
+		}
+	}
+
+	private void Refresh()
+	{
+		try
+		{
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			// BC-40 - the callback can arrive from JavaScript after the page has been disposed
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(ex, "Drop down {DropDownId} could not re-render after a JavaScript callback.", Id);
+			}
 		}
 	}
 

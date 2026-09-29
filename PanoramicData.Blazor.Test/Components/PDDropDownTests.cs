@@ -11,7 +11,7 @@ namespace PanoramicData.Blazor.Test;
 /// Tests that <see cref="PDDropDown"/> renders its toggle button, initialises its JavaScript dropdown with
 /// the chosen close behaviour, forwards show/hide/toggle to it, and reflects the shown state it is told of.
 /// </summary>
-public class PDDropDownTests : BunitContext
+public partial class PDDropDownTests : BunitContext
 {
 	private const string ModulePath = "./_content/PanoramicData.Blazor/PDDropDown.razor.js";
 
