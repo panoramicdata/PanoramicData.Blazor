@@ -148,7 +148,7 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 		}
 	}
 
-	private async Task DecayAsync(CancellationToken cancellationToken)
+	internal async Task DecayAsync(CancellationToken cancellationToken)
 	{
 		var startTime = DateTime.UtcNow;
 		var initialValue = Value;
@@ -182,6 +182,13 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 			await ValueChanged.InvokeAsync(Value);
 			await EmitValueChangedEvent(); // Throttled emission
 			await InvokeAsync(StateHasChanged);
+		}
+
+		// A newer press superseded this decay: that press owns the value now, so do not settle it at the
+		// minimum or report the pad inactive while the new decay is running (issue #219).
+		if (cancellationToken.IsCancellationRequested)
+		{
+			return;
 		}
 
 		if (Value != MinValue)
