@@ -305,6 +305,24 @@ public partial class PDFileExplorerTests
 		_exceptions.Should().BeEmpty();
 	}
 
+	/// <summary>
+	/// Renaming a folder by changing only its case is not a clash with itself: the rename is sent to the provider,
+	/// as the table allows for case-only renames (#174).
+	/// </summary>
+	[Fact]
+	public async Task TreeAfterEdit_CaseOnlyChange_RenamesFolder()
+	{
+		var cut = RenderExplorer();
+		await NavigateAsync(cut, "/Docs/Sub");
+
+		var args = await AfterTreeEditAsync(cut, "Sub", "SUB");
+
+		args.Cancel.Should().BeFalse();
+		_exceptions.Should().BeEmpty();
+		_provider.Updates.Should().ContainSingle().Which.Delta["Path"].Should().Be("/Docs/SUB");
+		cut.Instance.FolderPath.Should().Be("/Docs/SUB");
+	}
+
 	/// <summary>A valid tree rename is sent to the provider and the folder's nodes take the new path.</summary>
 	[Fact]
 	public async Task TreeAfterEdit_ValidName_RenamesFolderAndDescendants()

@@ -263,9 +263,12 @@ public partial class PDFileExplorer : IAsyncDisposable
 	[Parameter] public string NewFolderName { get; set; } = "New Folder";
 
 	/// <summary>
-	/// Gets or sets an optional File Preview provider.
+	/// Gets or sets an optional File Preview provider. Defaults to a <see cref="FileExplorerPreviewProvider"/>
+	/// bound to this explorer. A supplied <see cref="FileExplorerPreviewProvider"/> whose
+	/// <see cref="FileExplorerPreviewProvider.FileExplorer"/> is not set is bound to this explorer when it
+	/// initializes; any other supplied provider is used as given.
 	/// </summary>
-	[Parameter] public IPreviewProvider PreviewProvider { get; set; } = new DefaultPreviewProvider();
+	[Parameter] public IPreviewProvider PreviewProvider { get; set; } = new FileExplorerPreviewProvider();
 
 	/// <summary>
 	/// Preview Panel mode.
@@ -460,10 +463,12 @@ public partial class PDFileExplorer : IAsyncDisposable
 	{
 		Id = $"pdfe{++_idSequence}";
 
-		PreviewProvider = new FileExplorerPreviewProvider()
+		// bind the default provider (or a supplied, unbound FileExplorerPreviewProvider) to this explorer,
+		// and use any other supplied provider exactly as given
+		if (PreviewProvider is FileExplorerPreviewProvider { FileExplorer: null } fileExplorerPreviewProvider)
 		{
-			FileExplorer = this
-		};
+			fileExplorerPreviewProvider.FileExplorer = this;
+		}
 
 		TableContextItems.AddRange(
 		[
@@ -800,16 +805,17 @@ public partial class PDFileExplorer : IAsyncDisposable
 				await OnException(new PDFileExplorerException($"Names may not begin with a period (.)")).ConfigureAwait(true);
 				return;
 			}
-			else if (Tree.SelectedNode.HasSiblingWithText(args.NewValue))
+			else if (string.Equals(args.NewValue, args.OldValue, StringComparison.Ordinal))
 			{
+				// unchanged, so nothing to do and nothing to report
 				args.Cancel = true;
-
-				// do not warning if is its original name
-				if (!string.Equals(args.NewValue, args.OldValue, StringComparison.OrdinalIgnoreCase))
-				{
-					await OnException(new PDFileExplorerException($"A Folder named '{args.NewValue}' already exists")).ConfigureAwait(true);
-				}
-
+				return;
+			}
+			else if (HasOtherSiblingWithText(Tree.SelectedNode, args.NewValue))
+			{
+				// another folder already has the name; the node itself does not count, so a case-only rename is allowed
+				args.Cancel = true;
+				await OnException(new PDFileExplorerException($"A Folder named '{args.NewValue}' already exists")).ConfigureAwait(true);
 				return;
 			}
 
@@ -825,6 +831,9 @@ public partial class PDFileExplorer : IAsyncDisposable
 			}
 		}
 	}
+
+	private static bool HasOtherSiblingWithText(TreeNode<FileExplorerItem> node, string text)
+		=> node.ParentNode?.Nodes?.Any(x => x != node && string.Equals(x.Text, text, StringComparison.OrdinalIgnoreCase)) == true;
 
 	private void OnTableItemsLoaded(List<FileExplorerItem> items)
 	{
@@ -1461,7 +1470,8 @@ public partial class PDFileExplorer : IAsyncDisposable
 		}
 
 		// source and target are file items - and target is folder?
-		if (args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory)
+		// and the folder accepts new items (the tree checks this before a drop, the table does not)?
+		if (args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory && CanDropInto(target))
 		{
 			List<FileExplorerItem> payload = [];
 			if (args.Payload is List<FileExplorerItem> mfe)
@@ -1490,6 +1500,15 @@ public partial class PDFileExplorer : IAsyncDisposable
 			await MoveCopyFilesAsync(payload, targetPath, args.Ctrl).ConfigureAwait(true);
 		}
 	}
+	/// <summary>
+	/// Whether a drop may add items to the given folder. The ".." row is always read-only itself, so it defers to
+	/// the parent folder it stands for.
+	/// </summary>
+	private bool CanDropInto(FileExplorerItem folder)
+		=> IsParentDirectoryItem(folder)
+			? _selectedNode?.ParentNode?.Data?.CanAddItems != false
+			: folder.CanAddItems;
+
 	private async Task OnException(Exception exception) => await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
 
 	private bool IsValidSelection()

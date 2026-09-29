@@ -124,7 +124,7 @@ public partial class PDDropZone : IAsyncDisposable
 	{
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("cancel", Id).ConfigureAwait(true);
+			await _module.InvokeVoidAsync("cancel", $"#{Id}").ConfigureAwait(true);
 		}
 	}
 
@@ -135,7 +135,7 @@ public partial class PDDropZone : IAsyncDisposable
 	{
 		if (_module != null)
 		{
-			await _module.InvokeVoidAsync("clear", Id).ConfigureAwait(true);
+			await _module.InvokeVoidAsync("clear", $"#{Id}").ConfigureAwait(true);
 		}
 	}
 
