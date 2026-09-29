@@ -79,6 +79,12 @@ public partial class PDChatConversationSidebarTests
 
 		public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
 		{
+			// Task.Delay only ever asks for a one-shot timer; anything periodic would be a test mistake.
+			if (period != Timeout.InfiniteTimeSpan)
+			{
+				throw new NotSupportedException($"This clock only drives one-shot timers, not a period of {period}.");
+			}
+
 			lock (_lock)
 			{
 				var timer = new ManualTimer(this, callback, state);
