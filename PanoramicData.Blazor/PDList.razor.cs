@@ -212,11 +212,15 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 					}
 					else
 					{
-						var ids = state.Split(',', StringSplitOptions.RemoveEmptyEntries);
+						// Without an ItemKeyFunction the selection was saved as Selection.ToString(), which separates
+						// the items with ", ", so each id is trimmed or every item after the first fails to match.
+						var ids = ItemKeyFunction is null
+							? state.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+							: state.Split(',', StringSplitOptions.RemoveEmptyEntries);
 						foreach (var item in _allItems.Where(x => ItemVisible(x)))
 						{
 							var itemKey = ItemKeyFunction is null
-								? item.ToString() ?? string.Empty
+								? item.ToString()?.Trim() ?? string.Empty
 								: ItemKeyFunction(item).ToString();
 							if (ids.Contains(itemKey))
 							{
@@ -327,12 +331,6 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 
 		// selection has been updated
 		await SelectionChanged.InvokeAsync(Selection).ConfigureAwait(true);
-	}
-
-	private async void PageInfo_PageChanged(object? sender, EventArgs e)
-	{
-		await RefreshAsync(default).ConfigureAwait(true);
-		await InvokeAsync(() => StateHasChanged()).ConfigureAwait(true);
 	}
 
 	/// <summary>

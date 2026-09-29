@@ -366,6 +366,51 @@ public class PDListTests : BunitContext
 		list.Instance.Selection.Items.Select(f => f.Id).Should().Equal(expectedIds);
 	}
 
+	/// <summary>
+	/// Verifies that without an ItemKeyFunction a saved multiple selection is restored in full, not just its
+	/// first item (#181). The selection is saved as <see cref="Selection{TItem}.ToString"/>, which separates
+	/// the items with a comma and a space.
+	/// </summary>
+	[Fact]
+	public void StateManager_WithoutKeyFunction_RestoresEverySavedItem()
+	{
+		var state = new StateManager();
+		state.Saved["l"] = new Selection<string> { Items = ["Apple", "Cherry"] }.ToString();
+
+		var list = Render<PDList<string>>(p => p
+			.Add(x => x.Id, "l")
+			.Add(x => x.DataProvider, new ListDataProviderService<string>(["Apple", "Banana", "Cherry"]))
+			.Add(x => x.SelectionMode, TableSelectionMode.Multiple)
+			.AddCascadingValue<IAsyncStateManager>(state));
+
+		list.Instance.Selection.Items.Should().Equal("Apple", "Cherry");
+	}
+
+	/// <summary>
+	/// Verifies that without an ItemKeyFunction a selection saved by one list is restored by the next (#181).
+	/// </summary>
+	[Fact]
+	public async Task StateManager_WithoutKeyFunction_RoundTripsTheSelection()
+	{
+		var state = new StateManager();
+		var items = new ListDataProviderService<string>(["Apple", "Banana", "Cherry"]);
+		var first = Render<PDList<string>>(p => p
+			.Add(x => x.Id, "l")
+			.Add(x => x.DataProvider, items)
+			.Add(x => x.SelectionMode, TableSelectionMode.Multiple)
+			.AddCascadingValue<IAsyncStateManager>(state));
+		await first.InvokeAsync(() => first.FindAll("li.list-item")[0].ClickAsync(new MouseEventArgs()));
+		await first.InvokeAsync(() => first.FindAll("li.list-item")[2].ClickAsync(new MouseEventArgs { CtrlKey = true }));
+
+		var second = Render<PDList<string>>(p => p
+			.Add(x => x.Id, "l")
+			.Add(x => x.DataProvider, items)
+			.Add(x => x.SelectionMode, TableSelectionMode.Multiple)
+			.AddCascadingValue<IAsyncStateManager>(state));
+
+		second.Instance.Selection.Items.Should().Equal("Apple", "Cherry");
+	}
+
 	/// <summary>A listed item.</summary>
 	/// <param name="Id">Key.</param>
 	/// <param name="Name">Display name.</param>
