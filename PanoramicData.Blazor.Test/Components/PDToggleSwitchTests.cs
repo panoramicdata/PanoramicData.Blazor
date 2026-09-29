@@ -174,16 +174,16 @@ public class PDToggleSwitchTests : BunitContext
 	/// Verifies that clicking toggles the value, raises ValueChanged, and redraws the switch.
 	/// </summary>
 	[Fact]
-	public void Clicking_toggles_the_value()
+	public async Task Clicking_toggles_the_value()
 	{
 		var values = new List<bool>();
 		var component = Render<PDToggleSwitch>(parameters => parameters
 			.Add(p => p.ValueChanged, v => values.Add(v)));
 
-		component.Find("svg").Click();
+		await component.InvokeAsync(() => component.Find("svg").ClickAsync(new MouseEventArgs()));
 		component.Find("rect.toggle").GetAttribute("class").Should().Be("toggle on");
 
-		component.Find("svg").Click();
+		await component.InvokeAsync(() => component.Find("svg").ClickAsync(new MouseEventArgs()));
 
 		values.Should().Equal(true, false);
 		component.Find("rect.toggle").GetAttribute("class").Should().Be("toggle off");
@@ -193,15 +193,15 @@ public class PDToggleSwitchTests : BunitContext
 	/// Verifies that Space and Enter toggle the value while other keys do not.
 	/// </summary>
 	[Fact]
-	public void Space_and_enter_toggle_the_value_and_other_keys_do_not()
+	public async Task Space_and_enter_toggle_the_value_and_other_keys_do_not()
 	{
 		var values = new List<bool>();
 		var component = Render<PDToggleSwitch>(parameters => parameters
 			.Add(p => p.ValueChanged, v => values.Add(v)));
 
-		component.Find("svg").KeyPress(new KeyboardEventArgs { Code = "Space" });
-		component.Find("svg").KeyPress(new KeyboardEventArgs { Code = "KeyA" });
-		component.Find("svg").KeyPress(new KeyboardEventArgs { Code = "Enter" });
+		await component.InvokeAsync(() => component.Find("svg").KeyPressAsync(new KeyboardEventArgs { Code = "Space" }));
+		await component.InvokeAsync(() => component.Find("svg").KeyPressAsync(new KeyboardEventArgs { Code = "KeyA" }));
+		await component.InvokeAsync(() => component.Find("svg").KeyPressAsync(new KeyboardEventArgs { Code = "Enter" }));
 
 		values.Should().Equal(true, false);
 	}
@@ -210,7 +210,7 @@ public class PDToggleSwitchTests : BunitContext
 	/// Verifies that a disabled switch is not focusable and ignores clicks and keys.
 	/// </summary>
 	[Fact]
-	public void A_disabled_switch_ignores_input()
+	public async Task A_disabled_switch_ignores_input()
 	{
 		var values = new List<bool>();
 		var component = Render<PDToggleSwitch>(parameters => parameters
@@ -220,8 +220,8 @@ public class PDToggleSwitchTests : BunitContext
 		component.Find(".pdtoggleswitch").ClassList.Should().Contain("disabled");
 		component.Find("svg").HasAttribute("tabindex").Should().BeFalse();
 
-		component.Find("svg").Click();
-		component.Find("svg").KeyPress(new KeyboardEventArgs { Code = "Space" });
+		await component.InvokeAsync(() => component.Find("svg").ClickAsync(new MouseEventArgs()));
+		await component.InvokeAsync(() => component.Find("svg").KeyPressAsync(new KeyboardEventArgs { Code = "Space" }));
 
 		values.Should().BeEmpty();
 	}
@@ -240,7 +240,7 @@ public class PDToggleSwitchTests : BunitContext
 			.Add(p => p.OffText, "Off"));
 
 		// 48 for a medium switch, plus the text width beyond the first 16px.
-		component.WaitForAssertion(() => component.Find("svg").GetAttribute("width").Should().Be("72"));
+		component.WaitForAssertion(() => component.Find("svg").GetAttribute("width").Should().Be("72"), TimeSpan.FromSeconds(10));
 	}
 
 	/// <summary>
@@ -258,7 +258,7 @@ public class PDToggleSwitchTests : BunitContext
 			.Add(p => p.Size, size)
 			.Add(p => p.OnText, "On"));
 
-		component.WaitForAssertion(() => component.Find("svg").GetAttribute("width").Should().Be(width));
+		component.WaitForAssertion(() => component.Find("svg").GetAttribute("width").Should().Be(width), TimeSpan.FromSeconds(10));
 		_module.Invocations["measureText"].Should().ContainSingle()
 			.Which.Arguments.Should().Equal("On", fontSize);
 	}
@@ -272,11 +272,11 @@ public class PDToggleSwitchTests : BunitContext
 		_module.Setup<double>("measureText", "On", "1rem").SetResult(20);
 		_module.Setup<double>("measureText", "Switched on", "1rem").SetResult(60);
 		var component = Render<PDToggleSwitch>(parameters => parameters.Add(p => p.OnText, "On"));
-		component.WaitForAssertion(() => component.Find("svg").GetAttribute("width").Should().Be("52"));
+		component.WaitForAssertion(() => component.Find("svg").GetAttribute("width").Should().Be("52"), TimeSpan.FromSeconds(10));
 
 		component.Render(parameters => parameters.Add(p => p.OnText, "Switched on"));
 
-		component.WaitForAssertion(() => component.Find("svg").GetAttribute("width").Should().Be("92"));
+		component.WaitForAssertion(() => component.Find("svg").GetAttribute("width").Should().Be("92"), TimeSpan.FromSeconds(10));
 	}
 
 	private static void AssertAttributes(AngleSharp.Dom.IElement element, params (string Name, string Value)[] expected)

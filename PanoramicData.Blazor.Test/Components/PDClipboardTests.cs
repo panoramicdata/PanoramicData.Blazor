@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor.Test;
 
@@ -68,17 +69,17 @@ public class PDClipboardTests : BunitContext
 			.Add(p => p.Text, "secret-value")
 			.Add(p => p.TextCopiedCssClass, "copied-icon"));
 
-		// Not awaited yet: the handler holds the copied icon for a second before reverting.
-		var click = component.Find("a").ClickAsync(new());
+		var iconStates = new List<string>();
+		component.OnMarkupUpdated += (_, _) => iconStates.Add(component.Find("i.pdClipboard-button").ClassName ?? string.Empty);
+
+		// Awaited: the handler shows the copied icon, holds it for a second, then reverts.
+		await component.InvokeAsync(() => component.Find("a").ClickAsync(new MouseEventArgs()));
 
 		var invocation = JSInterop.VerifyInvoke("navigator.clipboard.writeText");
 		invocation.Arguments.Should().ContainSingle().Which.Should().Be("secret-value");
-		component.WaitForAssertion(
-			() => component.Find("i.pdClipboard-button").ClassList.Should().Contain("copied-icon"));
-
-		await click;
-
-		component.WaitForAssertion(
-			() => component.Find("i.pdClipboard-button").ClassList.Should().Contain("fa-copy").And.NotContain("copied-icon"));
+		iconStates.Should().HaveCountGreaterThanOrEqualTo(2);
+		iconStates[0].Should().Contain("copied-icon");
+		iconStates[^1].Should().Contain("fa-copy").And.NotContain("copied-icon");
+		component.Find("i.pdClipboard-button").ClassList.Should().Contain("fa-copy").And.NotContain("copied-icon");
 	}
 }

@@ -64,14 +64,14 @@ public class PDContextMenuTests : BunitContext
 	/// pointer, then shows the menu at the pointer.
 	/// </summary>
 	[Fact]
-	public void A_right_press_updates_state_then_shows_the_menu_at_the_pointer()
+	public async Task A_right_press_updates_state_then_shows_the_menu_at_the_pointer()
 	{
 		var element = new ElementInfo { Tag = "DIV", Id = "clicked" };
 		_commonModule.Setup<ElementInfo>("getElementAtPoint", 15d, 25d).SetResult(element);
 		MenuItemsEventArgs? raised = null;
 		var component = RenderMenu(null, updateState: args => raised = args);
 
-		component.Find(".pdcontextmenuhost").MouseDown(new MouseEventArgs { Button = 2, ClientX = 15, ClientY = 25 });
+		await component.InvokeAsync(() => component.Find(".pdcontextmenuhost").MouseDownAsync(new MouseEventArgs { Button = 2, ClientX = 15, ClientY = 25 }));
 
 		raised.Should().NotBeNull();
 		raised!.MenuItems.Should().HaveCount(5);
@@ -86,15 +86,14 @@ public class PDContextMenuTests : BunitContext
 	/// Verifies that the left button, a release by default, and a disabled menu all leave the menu hidden.
 	/// </summary>
 	[Fact]
-	public void Other_buttons_releases_and_a_disabled_menu_do_not_show_it()
+	public async Task Other_buttons_releases_and_a_disabled_menu_do_not_show_it()
 	{
 		var component = RenderMenu(null);
-		var host = component.Find(".pdcontextmenuhost");
 
-		host.MouseDown(new MouseEventArgs { Button = 0 });
-		host.MouseUp(new MouseEventArgs { Button = 2 });
+		await component.InvokeAsync(() => component.Find(".pdcontextmenuhost").MouseDownAsync(new MouseEventArgs { Button = 0 }));
+		await component.InvokeAsync(() => component.Find(".pdcontextmenuhost").MouseUpAsync(new MouseEventArgs { Button = 2 }));
 		component.Render(parameters => parameters.Add(p => p.Enabled, false));
-		component.Find(".pdcontextmenuhost").MouseDown(new MouseEventArgs { Button = 2 });
+		await component.InvokeAsync(() => component.Find(".pdcontextmenuhost").MouseDownAsync(new MouseEventArgs { Button = 2 }));
 
 		_module.Invocations["showMenu"].Should().BeEmpty();
 	}
@@ -103,15 +102,14 @@ public class PDContextMenuTests : BunitContext
 	/// Verifies that with ShowOnMouseUp the menu is shown on release rather than on press.
 	/// </summary>
 	[Fact]
-	public void ShowOnMouseUp_shows_the_menu_on_release_only()
+	public async Task ShowOnMouseUp_shows_the_menu_on_release_only()
 	{
 		var component = RenderMenu(null, showOnMouseUp: true);
-		var host = component.Find(".pdcontextmenuhost");
 
-		host.MouseDown(new MouseEventArgs { Button = 2 });
+		await component.InvokeAsync(() => component.Find(".pdcontextmenuhost").MouseDownAsync(new MouseEventArgs { Button = 2 }));
 		_module.Invocations["showMenu"].Should().BeEmpty();
 
-		component.Find(".pdcontextmenuhost").MouseUp(new MouseEventArgs { Button = 2, ClientX = 1, ClientY = 2 });
+		await component.InvokeAsync(() => component.Find(".pdcontextmenuhost").MouseUpAsync(new MouseEventArgs { Button = 2, ClientX = 1, ClientY = 2 }));
 		_module.VerifyInvoke("showMenu").Arguments.Should().Equal(component.Instance.Id, 1d, 2d);
 	}
 
@@ -119,11 +117,11 @@ public class PDContextMenuTests : BunitContext
 	/// Verifies that cancelling in UpdateState prevents the menu being shown.
 	/// </summary>
 	[Fact]
-	public void Cancelling_in_UpdateState_prevents_the_menu()
+	public async Task Cancelling_in_UpdateState_prevents_the_menu()
 	{
 		var component = RenderMenu(null, updateState: args => args.Cancel = true);
 
-		component.Find(".pdcontextmenuhost").MouseDown(new MouseEventArgs { Button = 2 });
+		await component.InvokeAsync(() => component.Find(".pdcontextmenuhost").MouseDownAsync(new MouseEventArgs { Button = 2 }));
 
 		_module.Invocations["showMenu"].Should().BeEmpty();
 	}
@@ -132,12 +130,12 @@ public class PDContextMenuTests : BunitContext
 	/// Verifies that clicking an enabled item hides the menu and raises ItemClick with that item.
 	/// </summary>
 	[Fact]
-	public void Clicking_an_enabled_item_hides_the_menu_and_raises_ItemClick()
+	public async Task Clicking_an_enabled_item_hides_the_menu_and_raises_ItemClick()
 	{
 		MenuItem? clicked = null;
 		var component = RenderMenu(item => clicked = item);
 
-		component.FindAll(".pdcontextmenuitem")[0].Click();
+		await component.InvokeAsync(() => component.FindAll(".pdcontextmenuitem")[0].ClickAsync(new MouseEventArgs()));
 
 		clicked.Should().NotBeNull();
 		clicked!.Key.Should().Be("cut");
@@ -148,12 +146,12 @@ public class PDContextMenuTests : BunitContext
 	/// Verifies that clicking a disabled item does nothing.
 	/// </summary>
 	[Fact]
-	public void Clicking_a_disabled_item_does_nothing()
+	public async Task Clicking_a_disabled_item_does_nothing()
 	{
 		MenuItem? clicked = null;
 		var component = RenderMenu(item => clicked = item);
 
-		component.FindAll(".pdcontextmenuitem")[1].Click();
+		await component.InvokeAsync(() => component.FindAll(".pdcontextmenuitem")[1].ClickAsync(new MouseEventArgs()));
 
 		clicked.Should().BeNull();
 		_module.Invocations["hideMenu"].Should().BeEmpty();

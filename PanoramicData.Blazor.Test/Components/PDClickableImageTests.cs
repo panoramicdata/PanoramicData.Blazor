@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace PanoramicData.Blazor.Test;
 
@@ -30,11 +31,11 @@ public class PDClickableImageTests : BunitContext
 	/// Verifies that clicking the inline image opens a full-screen dialog showing the same image.
 	/// </summary>
 	[Fact]
-	public void Clicking_the_image_opens_the_full_screen_dialog()
+	public async Task Clicking_the_image_opens_the_full_screen_dialog()
 	{
 		var component = RenderImage();
 
-		component.Find(".image-container").Click();
+		await component.InvokeAsync(() => component.Find(".image-container").ClickAsync(new MouseEventArgs()));
 
 		var dialogImage = component.Find(".fullscreen-dialog img");
 		dialogImage.GetAttribute("src").Should().Be("picture.png");
@@ -46,12 +47,12 @@ public class PDClickableImageTests : BunitContext
 	/// Verifies that the close button dismisses the full-screen dialog.
 	/// </summary>
 	[Fact]
-	public void The_close_button_dismisses_the_dialog()
+	public async Task The_close_button_dismisses_the_dialog()
 	{
 		var component = RenderImage();
-		component.Find(".image-container").Click();
+		await component.InvokeAsync(() => component.Find(".image-container").ClickAsync(new MouseEventArgs()));
 
-		component.Find(".fullscreen-dialog .close-btn").Click();
+		await component.InvokeAsync(() => component.Find(".fullscreen-dialog .close-btn").ClickAsync(new MouseEventArgs()));
 
 		component.FindAll(".fullscreen-dialog").Should().BeEmpty();
 		component.FindAll("img").Should().ContainSingle();

@@ -130,7 +130,7 @@ public class PDTreeMapTests : BunitContext
 	/// Verifies that clicking a rectangle selects and focuses it and raises SelectionChanged and Click.
 	/// </summary>
 	[Fact]
-	public void Clicking_a_rectangle_selects_it_and_raises_events()
+	public async Task Clicking_a_rectangle_selects_it_and_raises_events()
 	{
 		var events = new List<string>();
 		var component = RenderMap(p => p
@@ -138,7 +138,7 @@ public class PDTreeMapTests : BunitContext
 			.Add(x => x.Click, n => events.Add($"click:{n.Name}")));
 		var index = IndexOf(component, _b);
 
-		component.FindAll("g.pdtm-node")[index].Click();
+		await component.InvokeAsync(() => component.FindAll("g.pdtm-node")[index].ClickAsync(new MouseEventArgs()));
 
 		events.Should().Equal("selection", "click:B");
 		component.Instance.Selection.Should().BeSameAs(_b);
@@ -151,14 +151,14 @@ public class PDTreeMapTests : BunitContext
 	/// Verifies that double-clicking a branch zooms into it and shows the breadcrumb.
 	/// </summary>
 	[Fact]
-	public void Double_clicking_a_branch_zooms_into_it()
+	public async Task Double_clicking_a_branch_zooms_into_it()
 	{
 		var events = new List<string>();
 		var component = RenderMap(p => p
 			.Add(x => x.DoubleClick, n => events.Add($"double:{n.Name}"))
 			.Add(x => x.ZoomRootChanged, n => events.Add($"zoom:{n?.Name}")));
 
-		component.FindAll("g.pdtm-node")[IndexOf(component, _a)].DoubleClick();
+		await component.InvokeAsync(() => component.FindAll("g.pdtm-node")[IndexOf(component, _a)].DoubleClickAsync(new MouseEventArgs()));
 
 		events.Should().Equal("double:A", "zoom:A");
 		component.Instance.Rectangles.Select(r => r.Item.Name).Should().BeEquivalentTo(["A1", "A2"]);
@@ -173,13 +173,13 @@ public class PDTreeMapTests : BunitContext
 	/// Verifies that clicking the root breadcrumb zooms back out to the whole hierarchy.
 	/// </summary>
 	[Fact]
-	public void The_root_breadcrumb_zooms_back_out()
+	public async Task The_root_breadcrumb_zooms_back_out()
 	{
 		var zooms = new List<Node?>();
 		var component = RenderMap(p => p.Add(x => x.ZoomRootChanged, n => zooms.Add(n)));
-		component.FindAll("g.pdtm-node")[IndexOf(component, _a)].DoubleClick();
+		await component.InvokeAsync(() => component.FindAll("g.pdtm-node")[IndexOf(component, _a)].DoubleClickAsync(new MouseEventArgs()));
 
-		component.FindAll(".pdtm-crumb")[0].Click();
+		await component.InvokeAsync(() => component.FindAll(".pdtm-crumb")[0].ClickAsync(new MouseEventArgs()));
 
 		zooms.Should().Equal(_a, null);
 		component.FindAll(".pdtm-breadcrumb").Should().BeEmpty();
@@ -190,7 +190,7 @@ public class PDTreeMapTests : BunitContext
 	/// Verifies that double-clicking a leaf raises DoubleClick but does not zoom.
 	/// </summary>
 	[Fact]
-	public void Double_clicking_a_leaf_does_not_zoom()
+	public async Task Double_clicking_a_leaf_does_not_zoom()
 	{
 		var zooms = new List<Node?>();
 		Node? doubleClicked = null;
@@ -198,7 +198,7 @@ public class PDTreeMapTests : BunitContext
 			.Add(x => x.DoubleClick, n => doubleClicked = n)
 			.Add(x => x.ZoomRootChanged, n => zooms.Add(n)));
 
-		component.FindAll("g.pdtm-node")[IndexOf(component, _b)].DoubleClick();
+		await component.InvokeAsync(() => component.FindAll("g.pdtm-node")[IndexOf(component, _b)].DoubleClickAsync(new MouseEventArgs()));
 
 		doubleClicked.Should().BeSameAs(_b);
 		zooms.Should().BeEmpty();
@@ -275,23 +275,23 @@ public class PDTreeMapTests : BunitContext
 	/// Verifies that arrow, Home and End keys move the focus and selection through the rectangles.
 	/// </summary>
 	[Fact]
-	public void Arrow_home_and_end_keys_move_the_selection()
+	public async Task Arrow_home_and_end_keys_move_the_selection()
 	{
 		var selections = 0;
 		var component = RenderMap(p => p.Add(x => x.SelectionChanged, () => selections++));
 		var rects = component.Instance.Rectangles;
 
-		PressKey(component, "ArrowRight");
+		await PressKeyAsync(component, "ArrowRight");
 		component.Instance.Selection.Should().BeSameAs(rects[0].Item);
-		PressKey(component, "ArrowDown");
+		await PressKeyAsync(component, "ArrowDown");
 		component.Instance.Selection.Should().BeSameAs(rects[1].Item);
-		PressKey(component, "ArrowUp");
+		await PressKeyAsync(component, "ArrowUp");
 		component.Instance.Selection.Should().BeSameAs(rects[0].Item);
-		PressKey(component, "End");
+		await PressKeyAsync(component, "End");
 		component.Instance.Selection.Should().BeSameAs(rects[^1].Item);
-		PressKey(component, "ArrowLeft");
+		await PressKeyAsync(component, "ArrowLeft");
 		component.Instance.Selection.Should().BeSameAs(rects[^2].Item);
-		PressKey(component, "Home");
+		await PressKeyAsync(component, "Home");
 		component.Instance.Selection.Should().BeSameAs(rects[0].Item);
 
 		selections.Should().Be(6);
@@ -302,16 +302,16 @@ public class PDTreeMapTests : BunitContext
 	/// Verifies that the arrow keys stop at the first and last rectangles.
 	/// </summary>
 	[Fact]
-	public void Arrow_keys_stop_at_the_ends()
+	public async Task Arrow_keys_stop_at_the_ends()
 	{
 		var component = RenderMap();
 		var rects = component.Instance.Rectangles;
 
-		PressKey(component, "ArrowLeft");
+		await PressKeyAsync(component, "ArrowLeft");
 		component.Instance.Selection.Should().BeSameAs(rects[0].Item);
 
-		PressKey(component, "End");
-		PressKey(component, "ArrowRight");
+		await PressKeyAsync(component, "End");
+		await PressKeyAsync(component, "ArrowRight");
 		component.Instance.Selection.Should().BeSameAs(rects[^1].Item);
 	}
 
@@ -319,18 +319,18 @@ public class PDTreeMapTests : BunitContext
 	/// Verifies that Enter clicks and zooms into the focused branch, and Backspace zooms back out.
 	/// </summary>
 	[Fact]
-	public void Enter_zooms_into_the_focused_branch_and_backspace_zooms_out()
+	public async Task Enter_zooms_into_the_focused_branch_and_backspace_zooms_out()
 	{
 		var zooms = new List<Node?>();
 		var component = RenderMap(p => p.Add(x => x.ZoomRootChanged, n => zooms.Add(n)));
 		var index = IndexOf(component, _a);
 		for (var i = 0; i <= index; i++)
 		{
-			PressKey(component, "ArrowRight");
+			await PressKeyAsync(component, "ArrowRight");
 		}
 
-		PressKey(component, "Enter");
-		PressKey(component, "Backspace");
+		await PressKeyAsync(component, "Enter");
+		await PressKeyAsync(component, "Backspace");
 
 		zooms.Should().Equal(_a, null);
 	}
@@ -339,17 +339,17 @@ public class PDTreeMapTests : BunitContext
 	/// Verifies that Enter with nothing focused, Escape at the root, and other keys do nothing.
 	/// </summary>
 	[Fact]
-	public void Keys_with_nothing_to_act_on_do_nothing()
+	public async Task Keys_with_nothing_to_act_on_do_nothing()
 	{
 		var events = new List<string>();
 		var component = RenderMap(p => p
 			.Add(x => x.SelectionChanged, () => events.Add("selection"))
 			.Add(x => x.ZoomRootChanged, _ => events.Add("zoom")));
 
-		PressKey(component, "Enter");
-		PressKey(component, " ");
-		PressKey(component, "Escape");
-		PressKey(component, "x");
+		await PressKeyAsync(component, "Enter");
+		await PressKeyAsync(component, " ");
+		await PressKeyAsync(component, "Escape");
+		await PressKeyAsync(component, "x");
 
 		events.Should().BeEmpty();
 		component.Instance.Selection.Should().BeNull();
@@ -574,8 +574,8 @@ public class PDTreeMapTests : BunitContext
 	private static string? FillOf(IRenderedComponent<PDTreeMap<Node>> component, Node node)
 		=> component.FindAll("g.pdtm-node")[IndexOf(component, node)].QuerySelector("rect")!.GetAttribute("fill");
 
-	private static void PressKey(IRenderedComponent<PDTreeMap<Node>> component, string key)
-		=> component.Find("svg").KeyDown(new KeyboardEventArgs { Key = key });
+	private static Task PressKeyAsync(IRenderedComponent<PDTreeMap<Node>> component, string key)
+		=> component.InvokeAsync(() => component.Find("svg").KeyDownAsync(new KeyboardEventArgs { Key = key }));
 
 	/// <summary>
 	/// A node in the test hierarchy.

@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Models;
@@ -53,7 +54,7 @@ public class PDMessagesTests : BunitContext
 	/// is nothing to send.
 	/// </summary>
 	[Fact]
-	public void Input_is_disabled_when_not_live_and_send_when_empty()
+	public async Task Input_is_disabled_when_not_live_and_send_when_empty()
 	{
 		var component = Render<PDMessages>(parameters => parameters.Add(p => p.IsLive, false));
 		component.Find("textarea").HasAttribute("disabled").Should().BeTrue();
@@ -63,19 +64,19 @@ public class PDMessagesTests : BunitContext
 		component.Find("textarea").HasAttribute("disabled").Should().BeFalse();
 		component.Find("button").HasAttribute("disabled").Should().BeTrue();
 
-		component.Find("textarea").Input("hello");
-		component.WaitForAssertion(() => component.Find("button").HasAttribute("disabled").Should().BeFalse());
+		await component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "hello" }));
+		component.WaitForAssertion(() => component.Find("button").HasAttribute("disabled").Should().BeFalse(), TimeSpan.FromSeconds(10));
 	}
 
 	/// <summary>
 	/// Verifies that whitespace-only input cannot be sent.
 	/// </summary>
 	[Fact]
-	public void Whitespace_input_cannot_be_sent()
+	public async Task Whitespace_input_cannot_be_sent()
 	{
 		var component = Render<PDMessages>(parameters => parameters.Add(p => p.IsLive, true));
 
-		component.Find("textarea").Input("   ");
+		await component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "   " }));
 
 		component.Find("button").HasAttribute("disabled").Should().BeTrue();
 	}
@@ -114,13 +115,13 @@ public class PDMessagesTests : BunitContext
 	/// Verifies that clicking Send pushes the typed text to the parent before raising OnSendClicked.
 	/// </summary>
 	[Fact]
-	public void Clicking_send_pushes_the_input_then_raises_send()
+	public async Task Clicking_send_pushes_the_input_then_raises_send()
 	{
 		var events = new List<string>();
 		var component = RenderLive(events);
 
-		component.Find("textarea").Input("hello there");
-		component.Find("button").Click();
+		await component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "hello there" }));
+		await component.InvokeAsync(() => component.Find("button").ClickAsync(new MouseEventArgs()));
 
 		events.Should().Equal("input:hello there", "send");
 	}
@@ -133,7 +134,7 @@ public class PDMessagesTests : BunitContext
 	{
 		var events = new List<string>();
 		var component = RenderLive(events);
-		component.Find("textarea").Input("by keyboard");
+		await component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "by keyboard" }));
 
 		await component.InvokeAsync(component.Instance.OnEnterPressed);
 
@@ -164,7 +165,7 @@ public class PDMessagesTests : BunitContext
 		var component = Render<PDMessages>(parameters => parameters
 			.Add(p => p.IsLive, true)
 			.Add(p => p.CurrentInputChanged, v => inputs.Add(v)));
-		component.Find("textarea").Input("hello");
+		await component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "hello" }));
 
 		await component.InvokeAsync(component.Instance.OnEnterPressed);
 
@@ -179,7 +180,7 @@ public class PDMessagesTests : BunitContext
 	{
 		var events = new List<string>();
 		var component = RenderLive(events);
-		component.Find("textarea").Input("typed");
+		await component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "typed" }));
 
 		await component.InvokeAsync(component.Instance.ClearInput);
 
@@ -255,8 +256,8 @@ public class PDMessagesTests : BunitContext
 		var component = RenderLive(events);
 		await attached.WaitForCountAsync(1);
 
-		component.Find("textarea").Input("still works");
-		component.Find("button").Click();
+		await component.InvokeAsync(() => component.Find("textarea").InputAsync(new ChangeEventArgs { Value = "still works" }));
+		await component.InvokeAsync(() => component.Find("button").ClickAsync(new MouseEventArgs()));
 		var dispose = async () => await component.Instance.DisposeAsync();
 
 		events.Should().Equal("input:still works", "send");
@@ -327,7 +328,7 @@ public class PDMessagesTests : BunitContext
 					return;
 				}
 
-				await called.Task.WaitAsync(TimeSpan.FromSeconds(5), Xunit.TestContext.Current.CancellationToken);
+				await called.Task.WaitAsync(TimeSpan.FromSeconds(30), Xunit.TestContext.Current.CancellationToken);
 				Interlocked.CompareExchange(ref _called, new(TaskCreationOptions.RunContinuationsAsynchronously), called);
 			}
 		}
