@@ -64,7 +64,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	/// Example: Overriding default Id.
 	/// </remarks>
 	[Parameter]
-	public override string Id { get; set; } = $"pd-list-{++Sequence}";
+	public override string Id { get; set; } = $"pd-list-{PDListSequence.Next()}";
 
 	/// <summary>
 	/// A function to get the key for a given item.
@@ -547,4 +547,19 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	}
 
 	#endregion
+}
+
+/// <summary>
+/// The counter behind <see cref="PDList{TItem}"/>'s default ids (issue #159). It is thread safe, and it is not
+/// generic, so lists of different item types never share an id.
+/// </summary>
+internal static class PDListSequence
+{
+	private static int _value;
+
+	/// <summary>
+	/// Returns the next value, atomically.
+	/// </summary>
+	/// <returns>The next sequence value.</returns>
+	internal static int Next() => Interlocked.Increment(ref _value);
 }

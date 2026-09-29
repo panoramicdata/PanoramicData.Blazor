@@ -411,6 +411,22 @@ public class PDListTests : BunitContext
 		second.Instance.Selection.Items.Should().Equal("Apple", "Cherry");
 	}
 
+	/// <summary>
+	/// Verifies that default ids are unique when lists are created on many threads at once, and across item
+	/// types, and keep the "pd-list-" format (#159).
+	/// </summary>
+	[Fact]
+	public void DefaultIds_AreUnique_AcrossThreadsAndItemTypes()
+	{
+		var ids = new System.Collections.Concurrent.ConcurrentBag<string>();
+
+		Parallel.For(0, 2000, new ParallelOptions { CancellationToken = Xunit.TestContext.Current.CancellationToken }, i =>
+			ids.Add(i % 2 == 0 ? new PDList<string>().Id : new PDList<Fruit>().Id));
+
+		ids.Should().HaveCount(2000).And.OnlyHaveUniqueItems();
+		ids.Should().AllSatisfy(id => id.Should().MatchRegex("^pd-list-[0-9]+$"));
+	}
+
 	/// <summary>A listed item.</summary>
 	/// <param name="Id">Key.</param>
 	/// <param name="Name">Display name.</param>
