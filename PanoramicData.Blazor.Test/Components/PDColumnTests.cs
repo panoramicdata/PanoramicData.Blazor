@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using AwesomeAssertions;
 using Bunit;
 using PanoramicData.Blazor.Attributes;
+using PanoramicData.Blazor.Exceptions;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Models;
 
@@ -158,9 +159,10 @@ public class PDColumnTests : BunitContext
 		await table.InvokeAsync(() => column.SetOrdinal(4));
 		await table.InvokeAsync(() => column.SetVisible(false));
 		await table.InvokeAsync(() => column.SetShowInList(false));
-		await table.InvokeAsync(() => column.SetTitle("ignored"));
+		await table.InvokeAsync(() => column.SetTitle("Runtime"));
 		column.SetId("new-id");
 
+		column.GetTitle().Should().Be("Runtime");
 		column.State.Ordinal.Should().Be(4);
 		column.State.Visible.Should().BeFalse();
 		column.ShowInList.Should().BeFalse();
@@ -350,6 +352,49 @@ public class PDColumnTests : BunitContext
 		Column(null).SetValue(row, "other");
 
 		row.Name.Should().Be("same");
+	}
+
+	/// <summary>A runtime title set with SetTitle overrides the Title parameter and TitleFunc (#172).</summary>
+	[Fact]
+	public async Task SetTitle_OverridesTheDeclaredTitle()
+	{
+		var table = RenderTable(c => c.Add(x => x.Field, r => r.Name).Add(x => x.Title, "Declared").Add(x => x.TitleFunc, _ => "Func"));
+		var column = table.Instance.Columns[0];
+
+		await table.InvokeAsync(() => column.SetTitle(string.Empty));
+
+		column.GetTitle().Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// A computed field with no member registers without error: it has no derived type, property or
+	/// member-based title, and filters as numeric (#171).
+	/// </summary>
+	[Fact]
+	public void ComputedField_HasNoMemberMetadata()
+	{
+		var column = Column(r => r.Name + "!");
+
+		column.Type.Should().BeNull();
+		column.PropertyInfo.Should().BeNull();
+		column.GetTitle().Should().BeEmpty();
+		column.GetFilterDataType().Should().Be(FilterDataTypes.Numeric);
+		column.GetFilterIsNullable().Should().BeFalse();
+		column.GetRenderValue(new Row { Name = "a" }).Should().Be("a!");
+	}
+
+	/// <summary>SetValue on a computed field reports that it cannot be written rather than recursing (#171).</summary>
+	[Fact]
+	public void SetValue_ComputedField_Throws()
+	{
+		var boxed = Column(r => r.GetHashCode());
+		var unboxed = Column(r => r.Name.Trim());
+
+		var actBoxed = () => boxed.SetValue(new Row(), 1);
+		var actUnboxed = () => unboxed.SetValue(new Row(), "x");
+
+		actBoxed.Should().Throw<PDTableException>();
+		actUnboxed.Should().Throw<PDTableException>();
 	}
 
 	/// <summary>SetValue rejects a null item.</summary>

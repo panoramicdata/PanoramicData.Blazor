@@ -522,7 +522,7 @@ public partial class PDTable<TItem> :
 			}
 
 			Columns.Add(column);
-			if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
+			if (IsSortColumn(column))
 			{
 				column.SortDirection = SortCriteria!.Direction;
 			}
@@ -727,7 +727,7 @@ public partial class PDTable<TItem> :
 			await BeforeFetch.InvokeAsync();
 
 			//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
-			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
+			var sortColumn = Columns.Find(IsSortColumn);
 			var request = new DataRequest<TItem>
 			{
 				Skip = 0,
@@ -824,13 +824,13 @@ public partial class PDTable<TItem> :
 			else
 			{
 				// If column already sorted then reverse direction
-				if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
+				if (IsSortColumn(column))
 				{
 					column.SortDirection = column.SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
 				}
 				else
 				{
-					var previousCol = Columns.FirstOrDefault(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
+					var previousCol = Columns.Find(IsSortColumn);
 					if (previousCol != null)
 					{
 						previousCol.SortDirection = SortDirection.None;
@@ -1279,7 +1279,7 @@ public partial class PDTable<TItem> :
 		}
 
 		// Base request on current filter and sort
-		var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
+		var sortColumn = Columns.Find(IsSortColumn);
 		var request = new DataRequest<TItem>
 		{
 			Take = 1000,
@@ -1497,45 +1497,6 @@ public partial class PDTable<TItem> :
 		await KeyDown.InvokeAsync(args).ConfigureAwait(true);
 	}
 
-	private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
-	{
-		// quit if selection not allowed
-		if (!IsEnabled || SelectionMode == TableSelectionMode.None || !RowIsEnabled(item))
-		{
-			return;
-		}
-
-		// if right-click on row then only select if clicked on label
-		var selectRow = args.Button == 0;
-		if (args.Button == 2 && RightClickSelectsRow && _commonModule != null)
-		{
-			var sourceEl = await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
-			if (sourceEl != null)
-			{
-				selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
-			}
-		}
-
-		if (selectRow)
-		{
-			var key = KeyField!(item)?.ToString();
-			if (key != null)
-			{
-				var alreadySelected = Selection.Contains(key);
-
-				// begin edit mode?
-				if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0 && !EditOnDoubleClick)
-				{
-					_editTimer?.Change(100, Timeout.Infinite);
-				}
-				else
-				{
-					await SelectItemAsync(key, args.ShiftKey, args.CtrlKey).ConfigureAwait(true);
-				}
-			}
-		}
-	}
-
 	private async Task OnRowMouseUpAsync(MouseEventArgs args, TItem item)
 	{
 		// quit if selection not allowed
@@ -1715,11 +1676,26 @@ public partial class PDTable<TItem> :
 		return sb.ToString().Trim();
 	}
 
+	/// <summary>
+	/// Determines whether the given column is the one named by the current sort key, by id or by title. An
+	/// empty or null key means no sort has been chosen, so it matches no column, not even one with an empty title.
+	/// </summary>
+	private bool IsSortColumn(PDColumn<TItem> column)
+	{
+		var key = SortCriteria?.Key;
+		return !string.IsNullOrEmpty(key) && (column.Id == key || column.GetTitle() == key);
+	}
 	private bool IsColumnInEditMode(PDColumn<TItem> column, TItem item)
 	{
 		// is editing current row?
 		if (IsEditing && item == EditItem)
 		{
+			// a computed field has no member to write to, so only an edit template can edit it
+			if (column.IsComputed && column.EditTemplate is null)
+			{
+				return false;
+			}
+
 			var editable = column.Editable;
 			// override with dynamic config?
 			var config = ColumnsConfig?.Find(x => x.Id == column.Id);

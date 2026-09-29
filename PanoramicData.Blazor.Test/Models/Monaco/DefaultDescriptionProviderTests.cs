@@ -57,6 +57,7 @@ public class DefaultDescriptionProviderTests
 	[InlineData("Sqrt", "Returns the square root of a specified number.")]
 	[InlineData("Tan", "Returns the tangent of the specified angle.")]
 	[InlineData("Tanh", "Returns the hyperbolic tangent of the specified angle.")]
+	[InlineData("Truncate", "Calculates the integral part of a specified number.")]
 	public void AddDescriptions_DescribesMathMethods(string name, string expected)
 	{
 		DescribeMathMethod(name).Should().Be(expected);

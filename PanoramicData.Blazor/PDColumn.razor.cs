@@ -8,7 +8,7 @@ public partial class PDColumn<TItem> where TItem : class
 {
 	private static int _idSequence = 1;
 
-	private string _title = string.Empty;
+	private string? _title;
 
 	private Func<TItem, object>? _compiledFunc;
 	private Func<TItem, object>? CompiledFunc => _compiledFunc ??= Field?.Compile();
@@ -74,7 +74,7 @@ public partial class PDColumn<TItem> where TItem : class
 	/// </summary>
 	[Parameter] public Expression<Func<TItem, object>>? Field { get; set; }
 
-	private PropertyInfo? GetPropertyInfo(object value)
+	private static PropertyInfo? GetPropertyInfo(Expression value)
 	{
 		if (value is MemberExpression memberExpr)
 		{
@@ -83,13 +83,19 @@ public partial class PDColumn<TItem> where TItem : class
 				return propInfo;
 			}
 		}
-		else if (Field!.Body is UnaryExpression unaryExpr)
+		else if (value is UnaryExpression unaryExpr)
 		{
 			return GetPropertyInfo(unaryExpr.Operand);
 		}
 
 		return null;
 	}
+
+	/// <summary>
+	/// Gets whether the column's field is a computed value (for example <c>r =&gt; r.Name + "!"</c>) that selects
+	/// no member, so it can be displayed but never written back.
+	/// </summary>
+	internal bool IsComputed => Field is not null && Field.GetPropertyMemberInfo() is null;
 
 	/// <summary>
 	/// Gets or sets the CSS class for the filter icon.
@@ -505,8 +511,15 @@ public partial class PDColumn<TItem> where TItem : class
 	/// </summary>
 	/// <param name="item">Optional row item for title functions that depend on row context.</param>
 	/// <returns>Resolved title text.</returns>
+	/// <remarks>A runtime title set with <see cref="SetTitle(string)"/>, for example from a
+	/// <see cref="PDColumnConfig.Title"/>, takes precedence over <see cref="TitleFunc"/> and <see cref="Title"/>.</remarks>
 	public string GetTitle(TItem? item = default)
 	{
+		if (_title is not null)
+		{
+			return _title;
+		}
+
 		if (TitleFunc is not null)
 		{
 			return TitleFunc(item);
@@ -596,7 +609,8 @@ public partial class PDColumn<TItem> where TItem : class
 	}
 
 	/// <summary>
-	/// Sets a runtime title override for this column.
+	/// Sets a runtime title override for this column, which takes precedence over <see cref="TitleFunc"/> and
+	/// <see cref="Title"/>.
 	/// </summary>
 	/// <param name="title">Title text.</param>
 	public void SetTitle(string title)
@@ -622,13 +636,6 @@ public partial class PDColumn<TItem> where TItem : class
 	public FilterDataTypes GetFilterDataType()
 	{
 		var memberInfo = Field?.GetPropertyMemberInfo();
-
-		if (Field is MemberExpression me && Nullable.GetUnderlyingType(me.Type) != null)
-		{
-			// If the member expression type is nullable, return its underlying type
-			var t = Nullable.GetUnderlyingType(me.Type);
-		}
-
 		if (memberInfo is PropertyInfo propInfo)
 		{
 			// nullable?

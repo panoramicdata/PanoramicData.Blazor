@@ -52,7 +52,7 @@ public class DefaultDescriptionProvider : MethodCache.IDescriptionProvider
 			"System.Math.Sqrt" => "Returns the square root of a specified number.",
 			"System.Math.Tan" => "Returns the tangent of the specified angle.",
 			"System.Math.Tanh" => "Returns the hyperbolic tangent of the specified angle.",
-			"System.Math.Truncate(" => "Calculates the integral part of a specified number.",
+			"System.Math.Truncate" => "Calculates the integral part of a specified number.",
 			_ => string.Empty
 		};
 		if (!string.IsNullOrEmpty(methodDescription))
