@@ -49,17 +49,28 @@ public class PDMixingDeskTests : BunitContext
 		desk.ClassList.Should().Contain("x");
 	}
 
-	/// <summary>The minimum height, default or supplied, is applied to the container (#164).</summary>
+	/// <summary>An explicitly set minimum height is applied to the container (#164).</summary>
 	[Theory]
-	[InlineData(null, "min-height: 600px")]
-	[InlineData("250px", "min-height: 250px")]
-	public void MinHeight_IsAppliedToTheContainer(string? minHeight, string expectedStyle)
+	[InlineData("250px")]
+	[InlineData("600px")]
+	public void ExplicitMinHeight_IsAppliedToTheContainer(string minHeight)
 	{
-		var component = minHeight is null
-			? Render<PDMixingDesk>()
-			: Render<PDMixingDesk>(parameters => parameters.Add(p => p.MinHeight, minHeight));
+		var component = Render<PDMixingDesk>(parameters => parameters.Add(p => p.MinHeight, minHeight));
 
-		component.Find("div.pd-mixing-desk").GetAttribute("style").Should().Be(expectedStyle);
+		component.Find("div.pd-mixing-desk").GetAttribute("style").Should().Be($"min-height: {minHeight}");
+	}
+
+	/// <summary>
+	/// With MinHeight left unset, no min-height is applied, so existing desks keep their height, while the
+	/// property still reports its documented default (#164).
+	/// </summary>
+	[Fact]
+	public void UnsetMinHeight_WritesNoStyle_AndReportsTheDefault()
+	{
+		var component = Render<PDMixingDesk>();
+
+		component.Find("div.pd-mixing-desk").HasAttribute("style").Should().BeFalse();
+		component.Instance.MinHeight.Should().Be("600px");
 	}
 
 	/// <summary>An empty minimum height writes no style at all (#164).</summary>
