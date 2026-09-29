@@ -32,10 +32,6 @@ public static class ObjectExtensions
 		{
 			return (int?)int.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
-		else if (type.FullName?.StartsWith("System.Nullable`1[[System.Guid", StringComparison.InvariantCultureIgnoreCase) == true)
-		{
-			return (Guid?)Guid.Parse(value.ToString() ?? string.Empty);
-		}
 		else if (actualType.FullName == "System.DateTime")
 		{
 			return DateTime.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
@@ -44,17 +40,9 @@ public static class ObjectExtensions
 		{
 			return (DateTimeOffset?)DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
-		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTime", StringComparison.InvariantCultureIgnoreCase) == true)
-		{
-			return (DateTime?)DateTime.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
-		}
 		else if (actualType.FullName == "System.DateTimeOffset")
 		{
 			return DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
-		}
-		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTimeOffset", StringComparison.InvariantCultureIgnoreCase) == true)
-		{
-			return (DateTimeOffset?)DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
 		}
 
 		return Convert.ChangeType(value, actualType, CultureInfo.CurrentCulture);

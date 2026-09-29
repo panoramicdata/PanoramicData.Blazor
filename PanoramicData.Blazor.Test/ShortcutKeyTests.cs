@@ -115,6 +115,46 @@ public class ShortcutKeyTests
         sk1.IsMatch(sk2).ShouldBeTrue();
     }
 
+    /// <summary>A key-only shortcut does not match a different key just because neither has a Code (#170).</summary>
+    [Fact]
+    public void WhenIsMatchWithDifferentKeyAndBothCodesEmptyThenReturnsFalse()
+    {
+        var sk = ShortcutKey.Create("ctrl-s");
+
+        sk.IsMatch("x", "", altKey: false, ctrlKey: true, shiftKey: false).ShouldBeFalse();
+        sk.IsMatch(ShortcutKey.Create("ctrl-x")).ShouldBeFalse();
+    }
+
+    /// <summary>A code-only shortcut does not match a different code just because neither has a Key (#170).</summary>
+    [Fact]
+    public void WhenIsMatchWithDifferentCodeAndBothKeysEmptyThenReturnsFalse()
+    {
+        var sk = ShortcutKey.Create("ctrl-enter");
+
+        sk.IsMatch("", "Escape", altKey: false, ctrlKey: true, shiftKey: false).ShouldBeFalse();
+        sk.IsMatch(ShortcutKey.Create("ctrl-escape")).ShouldBeFalse();
+    }
+
+    /// <summary>An empty shortcut matches nothing, not even an event with no Key and no Code (#170).</summary>
+    [Fact]
+    public void WhenIsMatchWithEmptyShortcutThenReturnsFalse()
+    {
+        var sk = new ShortcutKey();
+
+        sk.IsMatch("", "", altKey: false, ctrlKey: false, shiftKey: false).ShouldBeFalse();
+        sk.IsMatch(new ShortcutKey()).ShouldBeFalse();
+    }
+
+    /// <summary>A shortcut still matches on its Code when the event also carries a Key, whatever the case.</summary>
+    [Fact]
+    public void WhenIsMatchWithMatchingCodeThenReturnsTrue()
+    {
+        var sk = ShortcutKey.Create("ctrl-KeyS");
+
+        sk.IsMatch("s", "KeyS", altKey: false, ctrlKey: true, shiftKey: false).ShouldBeTrue();
+        sk.IsMatch("S", "keys", altKey: false, ctrlKey: true, shiftKey: false).ShouldBeTrue();
+    }
+
     /// <summary>Verifies that explicitly casting a ShortcutKey to string returns the same result as ToString.</summary>
     [Fact]
     public void WhenExplicitCastToStringThenReturnsToString()

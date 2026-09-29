@@ -89,8 +89,7 @@ public class ShortcutKey
 	public bool IsMatch(string key, string code, bool altKey, bool ctrlKey, bool shiftKey) => AltKey == altKey &&
 			CtrlKey == ctrlKey &&
 			ShiftKey == shiftKey &&
-			(string.Equals(Key, key, StringComparison.OrdinalIgnoreCase) ||
-			 string.Equals(Code, code, StringComparison.OrdinalIgnoreCase));
+			IsKeyOrCodeMatch(key, code);
 
 	/// <summary>
 	/// Determines whether this shortcut key is a match with the given shortcut key.
@@ -100,8 +99,16 @@ public class ShortcutKey
 	public bool IsMatch(ShortcutKey shortcutKey) => AltKey == shortcutKey.AltKey &&
 			CtrlKey == shortcutKey.CtrlKey &&
 			ShiftKey == shortcutKey.ShiftKey &&
-			(string.Equals(Key, shortcutKey.Key, StringComparison.OrdinalIgnoreCase) ||
-			 string.Equals(Code, shortcutKey.Code, StringComparison.OrdinalIgnoreCase));
+			IsKeyOrCodeMatch(shortcutKey.Key, shortcutKey.Code);
+
+	/// <summary>
+	/// Matches on Key or on Code, but only on a value this shortcut actually has: an empty Key or Code is "not
+	/// part of this shortcut", not a value to compare, so it must not match an event whose Key or Code is also
+	/// empty (#170).
+	/// </summary>
+	private bool IsKeyOrCodeMatch(string key, string code) =>
+		(!string.IsNullOrEmpty(Key) && string.Equals(Key, key, StringComparison.OrdinalIgnoreCase)) ||
+		(!string.IsNullOrEmpty(Code) && string.Equals(Code, code, StringComparison.OrdinalIgnoreCase));
 
 	/// <summary>
 	/// Returns whether this instance represents a valid shortcut key.
