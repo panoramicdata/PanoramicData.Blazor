@@ -590,7 +590,7 @@ public class Filter
 	/// <param name="formatFound">The format string that matched, or an empty string on failure.</param>
 	/// <param name="datePrecision">The temporal precision of the parsed value.</param>
 	/// <returns>True if the string was successfully parsed; otherwise false.</returns>
-	public static bool IsDateTime(string? dateTimeString, bool includeYearAndMonthFormats, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
+	internal static bool IsDateTime(string? dateTimeString, bool includeYearAndMonthFormats, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
 	{
 		var value = dateTimeString?.RemoveQuotes();
 		var dateTimeFormats = includeYearAndMonthFormats ? _dateTimeFormatsWithYearAndMonth : _dateTimeFormats;
