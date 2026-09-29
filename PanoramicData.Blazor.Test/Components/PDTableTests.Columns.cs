@@ -44,13 +44,52 @@ public partial class PDTableTests
 
 		await table.InvokeAsync(() => table.Find("th#col-shout span.pd-sort").ClickAsync(new MouseEventArgs()));
 
+		computed.SortDirection.Should().Be(SortDirection.Descending);
 		_provider.Requests[^1].SortFieldExpression.Should().BeSameAs(computed.Field);
-		string[] expected = computed.SortDirection == SortDirection.Descending ? ["Gamma", "Beta", "Alpha"] : ["Alpha", "Beta", "Gamma"];
-		table.WaitForAssertion(() => Names(table).Should().Equal(expected));
+		table.WaitForAssertion(() => Names(table).Should().Equal("Gamma", "Beta", "Alpha"));
 
 		await table.InvokeAsync(() => table.Find("th#col-shout span.pd-sort").ClickAsync(new MouseEventArgs()));
 
-		table.WaitForAssertion(() => Names(table).Should().Equal(expected.Reverse()));
+		table.WaitForAssertion(() => Names(table).Should().Equal("Alpha", "Beta", "Gamma"));
+	}
+
+	/// <summary>
+	/// With no sort chosen, the default empty sort key matches no column, so a column with an empty title is
+	/// not silently sorted on and the provider's own order is kept (#211).
+	/// </summary>
+	[Fact]
+	public void An_empty_sort_key_does_not_sort_by_an_empty_titled_column()
+	{
+		var table = RenderTable(columns:
+		[
+			new Col("col-rank", x => -x.Score) { Extra = { [nameof(PDColumn<Item>.Title)] = string.Empty } },
+			new Col("col-name", x => x.Name)
+		]);
+
+		_provider.Requests.Should().NotBeEmpty().And.OnlyContain(r => r.SortFieldExpression == null);
+		Names(table).Should().Equal("Alpha", "Beta", "Gamma");
+		table.Instance.Columns.Should().OnlyContain(c => c.SortDirection == SortDirection.None);
+	}
+
+	/// <summary>
+	/// The first click on a sortable column with an empty title applies its default direction rather than
+	/// treating the column as already sorted by the empty key (#211).
+	/// </summary>
+	[Fact]
+	public async Task The_first_click_on_an_empty_titled_column_applies_its_default_direction()
+	{
+		var table = RenderTable(columns:
+		[
+			new Col("col-name", x => x.Name)
+			{
+				Extra = { [nameof(PDColumn<Item>.Title)] = string.Empty, [nameof(PDColumn<Item>.DefaultSortDirection)] = SortDirection.Descending }
+			}
+		]);
+
+		await table.InvokeAsync(() => table.Find("th#col-name span.pd-sort").ClickAsync(new MouseEventArgs()));
+
+		table.Instance.Columns.Single().SortDirection.Should().Be(SortDirection.Descending);
+		table.WaitForAssertion(() => Names(table).Should().Equal("Gamma", "Beta", "Alpha"));
 	}
 
 	/// <summary>

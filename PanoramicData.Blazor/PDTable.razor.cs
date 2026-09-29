@@ -522,7 +522,7 @@ public partial class PDTable<TItem> :
 			}
 
 			Columns.Add(column);
-			if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
+			if (IsSortColumn(column))
 			{
 				column.SortDirection = SortCriteria!.Direction;
 			}
@@ -727,7 +727,7 @@ public partial class PDTable<TItem> :
 			await BeforeFetch.InvokeAsync();
 
 			//var sortColumn = Columns.SingleOrDefault(c => c.SortColumn);
-			var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
+			var sortColumn = Columns.Find(IsSortColumn);
 			var request = new DataRequest<TItem>
 			{
 				Skip = 0,
@@ -824,13 +824,13 @@ public partial class PDTable<TItem> :
 			else
 			{
 				// If column already sorted then reverse direction
-				if (column.Id == SortCriteria?.Key || column.GetTitle() == SortCriteria?.Key)
+				if (IsSortColumn(column))
 				{
 					column.SortDirection = column.SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
 				}
 				else
 				{
-					var previousCol = Columns.FirstOrDefault(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
+					var previousCol = Columns.Find(IsSortColumn);
 					if (previousCol != null)
 					{
 						previousCol.SortDirection = SortDirection.None;
@@ -1279,7 +1279,7 @@ public partial class PDTable<TItem> :
 		}
 
 		// Base request on current filter and sort
-		var sortColumn = Columns.Find(x => x.Id == SortCriteria?.Key || x.GetTitle() == SortCriteria?.Key);
+		var sortColumn = Columns.Find(IsSortColumn);
 		var request = new DataRequest<TItem>
 		{
 			Take = 1000,
@@ -1676,6 +1676,15 @@ public partial class PDTable<TItem> :
 		return sb.ToString().Trim();
 	}
 
+	/// <summary>
+	/// Determines whether the given column is the one named by the current sort key, by id or by title. An
+	/// empty or null key means no sort has been chosen, so it matches no column, not even one with an empty title.
+	/// </summary>
+	private bool IsSortColumn(PDColumn<TItem> column)
+	{
+		var key = SortCriteria?.Key;
+		return !string.IsNullOrEmpty(key) && (column.Id == key || column.GetTitle() == key);
+	}
 	private bool IsColumnInEditMode(PDColumn<TItem> column, TItem item)
 	{
 		// is editing current row?
