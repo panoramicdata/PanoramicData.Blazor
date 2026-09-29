@@ -25,9 +25,9 @@ public partial class PDGraphSelectionInfo<TItem> : PDComponentBase where TItem :
 	{
 		base.OnInitialized();
 		// Set a unique ID if not provided
-		if (Id == $"pd-component-{Sequence}")
+		if (HasDefaultId)
 		{
-			Id = $"pd-graph-selection-info-{++_idSequence}";
+			Id = $"pd-graph-selection-info-{Interlocked.Increment(ref _idSequence)}";
 		}
 	}
 

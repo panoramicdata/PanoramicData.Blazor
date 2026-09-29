@@ -262,9 +262,9 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
-		if (Id == $"pd-component-{Sequence}")
+		if (HasDefaultId)
 		{
-			Id = $"pd-widget-{++_idSequence}";
+			Id = $"pd-widget-{Interlocked.Increment(ref _idSequence)}";
 		}
 
 		_previousEffectiveIsEditable = EffectiveIsEditable;

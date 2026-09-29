@@ -98,9 +98,9 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	{
 		base.OnInitialized();
 		// Set a unique ID if not provided
-		if (Id == $"pd-component-{Sequence}")
+		if (HasDefaultId)
 		{
-			Id = $"pd-graph-viewer-{++_idSequence}";
+			Id = $"pd-graph-viewer-{Interlocked.Increment(ref _idSequence)}";
 		}
 	}
 
@@ -111,8 +111,8 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 
 		_graphInfo?.SetSelection(node, null);
 
-		await NodeClick.InvokeAsync(node).ConfigureAwait(false);
-		await SelectionChanged.InvokeAsync((node, null)).ConfigureAwait(false);
+		await NodeClick.InvokeAsync(node).ConfigureAwait(true);
+		await SelectionChanged.InvokeAsync((node, null)).ConfigureAwait(true);
 	}
 
 	private async Task OnEdgeClick(GraphEdge edge)
@@ -122,15 +122,15 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 
 		_graphInfo?.SetSelection(null, edge);
 
-		await EdgeClick.InvokeAsync(edge).ConfigureAwait(false);
-		await SelectionChanged.InvokeAsync((null, edge)).ConfigureAwait(false);
+		await EdgeClick.InvokeAsync(edge).ConfigureAwait(true);
+		await SelectionChanged.InvokeAsync((null, edge)).ConfigureAwait(true);
 	}
 
 	private async Task OnSelectionChanged((GraphNode? Node, GraphEdge? Edge) selection)
 	{
 		_selectedNode = selection.Node;
 		_selectedEdge = selection.Edge;
-		await SelectionChanged.InvokeAsync(selection).ConfigureAwait(false);
+		await SelectionChanged.InvokeAsync(selection).ConfigureAwait(true);
 	}
 
 	// Update the OnConfigurationChanged method
@@ -147,15 +147,15 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		// ✅ FIXED: Use UpdateConfigurationAsync to preserve positions
 		if (_graph is not null)
 		{
-			await _graph.UpdateConfigurationAsync(config.Visualization, config.Clustering).ConfigureAwait(false);
+			await _graph.UpdateConfigurationAsync(config.Visualization, config.Clustering).ConfigureAwait(true);
 		}
 
-		await ConfigurationChanged.InvokeAsync(config).ConfigureAwait(false);
+		await ConfigurationChanged.InvokeAsync(config).ConfigureAwait(true);
 	}
 
 	private async Task OnConfigurationChanged((GraphVisualizationConfig Visualization, GraphClusteringConfig Clustering, double Damping) config)
 	{
-		await UpdateConfigurationAsync(config).ConfigureAwait(false);
+		await UpdateConfigurationAsync(config).ConfigureAwait(true);
 	}
 
 	// ✅ KEEP: Only the methods that are called externally
@@ -167,7 +167,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	{
 		if (_graph is not null)
 		{
-			await _graph.RefreshAsync(cancellationToken).ConfigureAwait(false);
+			await _graph.RefreshAsync(cancellationToken).ConfigureAwait(true);
 		}
 	}
 
@@ -179,7 +179,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	{
 		if (_graph is not null)
 		{
-			await _graph.CenterOnNodeAsync(nodeId).ConfigureAwait(false);
+			await _graph.CenterOnNodeAsync(nodeId).ConfigureAwait(true);
 		}
 	}
 
@@ -190,7 +190,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	{
 		if (_graph is not null)
 		{
-			await _graph.FitToViewAsync().ConfigureAwait(false);
+			await _graph.FitToViewAsync().ConfigureAwait(true);
 		}
 	}
 }

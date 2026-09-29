@@ -66,7 +66,7 @@ public partial class PDDashboardTests : BunitContext
 		var dashboard = RenderDashboard(tabs);
 
 		tabs.Should().ContainSingle().Which.Name.Should().Be("Dashboard");
-		// The generated id's prefix is not asserted: it depends on the static PDComponentBase.Sequence (issue #159).
+		dashboard.Instance.Id.Should().MatchRegex("^pd-dashboard-[0-9]+$");
 		dashboard.Find(".pd-dashboard").Id.Should().Be(dashboard.Instance.Id);
 		dashboard.FindAll(".pd-dashboard-tile").Should().BeEmpty();
 	}

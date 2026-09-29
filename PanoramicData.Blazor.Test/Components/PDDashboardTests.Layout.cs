@@ -34,6 +34,29 @@ public partial class PDDashboardTests
 		_events.Should().Equal("settings");
 	}
 
+	/// <summary>
+	/// Dragging a tile moves it when edit mode was entered with the built-in edit button rather than the
+	/// IsEditable parameter (issue #168).
+	/// </summary>
+	[Fact]
+	public async Task DragAndDrop_MovesATile_InEditModeFromTheEditButton()
+	{
+		var tabs = TwoTabs();
+		var moves = new List<(int Row, int Col)>();
+		var dashboard = RenderDashboard(tabs, p => p
+			.Add(x => x.OnTileMove, ((PDDashboardTile Tile, int NewRow, int NewColumn) m) => moves.Add((m.NewRow, m.NewColumn))));
+		await ToggleEditAsync(dashboard);
+		dashboard.Instance.EffectiveIsEditable.Should().BeTrue();
+
+		await TileElement(dashboard, "A").DragStartAsync(new DragEventArgs());
+		await TileElement(dashboard, "B").DragOverAsync(new DragEventArgs());
+		await TileElement(dashboard, "B").DropAsync(new DragEventArgs());
+
+		tabs[0].Tiles[0].ColumnIndex.Should().Be(1);
+		tabs[0].Tiles[1].ColumnIndex.Should().Be(0);
+		moves.Should().Equal((0, 1));
+	}
+
 	/// <summary>Dropping a tile on itself restores the original layout and raises no move.</summary>
 	[Fact]
 	public async Task DropOnSelf_RestoresTheLayout()

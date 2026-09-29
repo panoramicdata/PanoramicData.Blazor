@@ -1,4 +1,5 @@
-﻿using PanoramicData.Blazor.Models.Quests;
+﻿using System.Runtime.CompilerServices;
+using PanoramicData.Blazor.Models.Quests;
 
 namespace PanoramicData.Blazor;
 
@@ -16,6 +17,10 @@ public partial class PDQuestVisualizer
 	/// <summary>
 	/// Gets or sets the list of quest actions to be visualized.
 	/// </summary>
+	/// <remarks>
+	/// Actions are laid out after their prerequisites. Prerequisites that form a cycle are still drawn, the
+	/// prerequisite that closes the cycle simply being ignored when the actions are ordered.
+	/// </remarks>
 	[Parameter]
 	public List<QuestAction> QuestActions { get; set; } = [];
 
@@ -99,6 +104,16 @@ public partial class PDQuestVisualizer
 		return positioned;
 	}
 
+	/// <summary>
+	/// Orders the actions so that each comes after its prerequisites, where the prerequisites allow it.
+	/// </summary>
+	/// <remarks>
+	/// Prerequisites that form a cycle (including an action listing itself) cannot all be satisfied. The
+	/// prerequisite that would close each cycle is ignored for ordering only, so every action is still laid out
+	/// exactly once and every listed prerequisite still gets its arrow.
+	/// </remarks>
+	/// <param name="actions">The actions to order.</param>
+	/// <returns>The actions in dependency order.</returns>
 	private static List<QuestAction> TopoSort(List<QuestAction> actions)
 	{
 		var result = new List<QuestAction>();
@@ -107,7 +122,11 @@ public partial class PDQuestVisualizer
 
 		void Visit(QuestAction a)
 		{
-			if (visited.Contains(a.Id))
+			RuntimeHelpers.EnsureSufficientExecutionStack();
+
+			// Marking the action before visiting its prerequisites means that a prerequisite leading back to
+			// it (a cycle) finds it already visited and is ignored, instead of recursing forever.
+			if (!visited.Add(a.Id))
 			{
 				return;
 			}
@@ -120,7 +139,6 @@ public partial class PDQuestVisualizer
 				}
 			}
 
-			visited.Add(a.Id);
 			result.Add(a);
 		}
 

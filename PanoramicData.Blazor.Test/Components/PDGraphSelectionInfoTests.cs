@@ -20,17 +20,13 @@ public class PDGraphSelectionInfoTests : BunitContext
 		component.FindAll(".selection-item").Should().BeEmpty();
 	}
 
-	/// <summary>A component given no id renders with the id it was assigned.</summary>
-	/// <remarks>
-	/// The generated id's prefix is not asserted: it depends on the static PDComponentBase.Sequence, which
-	/// other components advance concurrently when tests run in parallel (issue #159).
-	/// </remarks>
+	/// <summary>A component given no id is assigned one of its own form and renders it.</summary>
 	[Fact]
 	public void A_default_id_is_rendered_on_the_element()
 	{
 		var component = Render<PDGraphSelectionInfo<object>>();
 
-		component.Instance.Id.Should().NotBeNullOrWhiteSpace();
+		component.Instance.Id.Should().MatchRegex("^pd-graph-selection-info-[0-9]+$");
 		component.Find(".pd-graph-selection-info").Id.Should().Be(component.Instance.Id);
 	}
 

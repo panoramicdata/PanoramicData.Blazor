@@ -23,8 +23,8 @@ public class PDGraphInfoTests : BunitContext
 		component.FindAll(".pdsplitpanel").Should().HaveCount(2);
 		component.FindComponents<PDGraphControls<object>>().Should().ContainSingle();
 		component.FindComponents<PDGraphSelectionInfo<object>>().Should().ContainSingle();
-		// The generated Id is not asserted: it is read from the static PDComponentBase.Sequence, which
-		// other components advance concurrently when tests run in parallel (a defect raised separately).
+		component.Instance.Id.Should().MatchRegex("^pd-graph-info-[0-9]+$");
+		component.Find(".pd-graph-info").Id.Should().Be(component.Instance.Id);
 	}
 
 	/// <summary>A horizontal split direction renders a horizontal splitter.</summary>
