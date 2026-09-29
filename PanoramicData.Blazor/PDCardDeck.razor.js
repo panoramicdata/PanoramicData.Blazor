@@ -14,7 +14,7 @@ function addDocumentListener(element, type, handler) {
 }
 
 export function registerValidDragOperationListeners(element, dotNetRef) {
-	addDocumentListener(element, "drop", function (_) {
+	addDocumentListener(element, "drop", function () {
 		dotNetRef.invokeMethodAsync("InitiateTransformAsync");
 	});
 }
@@ -26,11 +26,11 @@ export function registerInvalidDragOperationListeners(element, dotNetRef) {
 		}
 	});
 
-	addDocumentListener(element, "mouseup", function (_) {
+	addDocumentListener(element, "mouseup", function () {
 		dotNetRef.invokeMethodAsync("EndDragOperationAsync");
 	});
 
-	addDocumentListener(element, "mouseleave", function (_) {
+	addDocumentListener(element, "mouseleave", function () {
 		dotNetRef.invokeMethodAsync("EndDragOperationAsync");
 	});
 }
