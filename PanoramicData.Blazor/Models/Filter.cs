@@ -83,19 +83,26 @@ public class Filter
 		"dd'/'MM'/'yyyy HH:mm:ss.fff K",
 		"dd'/'MM'/'yyyy",
 
-		"MM'/'yy'/'yyyy HH:m",
-		"MM'/'yy'/'yyyy HH:mm",
-		"MM'/'yy'/'yyyy HH:mm:ss",
-		"MM'/'yy'/'yyyy HH:mm:ss K",
-		"MM'/'yy'/'yyyy",
+		// US order (#197). No "K" variants here: a US date with an offset or Z is matched by the time zone
+		// formats, and a "K" variant would match it first and report a different format.
+		"MM'/'dd'/'yyyy HH:m",
+		"MM'/'dd'/'yyyy HH:mm",
+		"MM'/'dd'/'yyyy HH:mm:ss",
+		"MM'/'dd'/'yyyy",
 
-		"MM'/'yy'/'yyyy HH:m.fff",
-		"MM'/'yy'/'yyyy HH:mm.fff",
-		"MM'/'yy'/'yyyy HH:mm:ss.fff",
-		"MM'/'yy'/'yyyy HH:mm:ss.fff K",
-		"MM'/'yy'/'yyyy",
+		"MM'/'dd'/'yyyy HH:m.fff",
+		"MM'/'dd'/'yyyy HH:mm.fff",
+		"MM'/'dd'/'yyyy HH:mm:ss.fff",
+
+		// Hour precision (#197)
+		"yyyy'-'MM'-'dd HH",
 	];
 
+	// Every format tried by IsDateTime, in order. Built once rather than on every call.
+	private static readonly string[] _dateTimeFormats = [.. _formatsWithoutTimeZone, .. _formatsWithTimeZone, "yyyy-MM-ddTHH:mm:ssZ"];
+
+	// Year and month precision (#197), tried last and only on request: see IsDateTime.
+	private static readonly string[] _dateTimeFormatsWithYearAndMonth = [.. _dateTimeFormats, "yyyy'-'MM", "yyyy"];
 	/// <summary>Initializes a new, empty <see cref="Filter"/> with default values.</summary>
 	public Filter()
 	{
@@ -563,51 +570,41 @@ public class Filter
 	/// <param name="datePrecision">The temporal precision of the parsed value.</param>
 	/// <returns>True if the string was successfully parsed; otherwise false.</returns>
 	public static bool IsDateTime(string? dateTimeString, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
+		=> IsDateTime(dateTimeString, false, out dateTime, out formatFound, out datePrecision);
+
+	/// <summary>
+	/// Attempts to parse <paramref name="dateTimeString"/> as a <see cref="DateTime"/> using a set of recognised formats,
+	/// optionally also recognising a year on its own (<c>2026</c>) and a year and month (<c>2026-03</c>).
+	/// Also returns the detected precision level and the matched format string.
+	/// </summary>
+	/// <remarks>
+	/// The year and month formats are tried only after every other format, so they never change how any other
+	/// string parses. They are opt-in because a bare four-digit number is also a valid value for a numeric or
+	/// text field: pass true only when the value is known to be compared against a date.
+	/// </remarks>
+	/// <param name="dateTimeString">The string to parse.</param>
+	/// <param name="includeYearAndMonthFormats">
+	/// True to also recognise <c>yyyy</c> (<see cref="DatePrecision.Year"/>) and <c>yyyy-MM</c> (<see cref="DatePrecision.Month"/>).
+	/// </param>
+	/// <param name="dateTime">The parsed <see cref="DateTime"/> value, or <see cref="DateTime.MinValue"/> on failure.</param>
+	/// <param name="formatFound">The format string that matched, or an empty string on failure.</param>
+	/// <param name="datePrecision">The temporal precision of the parsed value.</param>
+	/// <returns>True if the string was successfully parsed; otherwise false.</returns>
+	public static bool IsDateTime(string? dateTimeString, bool includeYearAndMonthFormats, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
 	{
-		var dateTimeFormats = _formatsWithoutTimeZone.Concat(_formatsWithTimeZone).Concat(["yyyy-MM-ddTHH:mm:ssZ"]).ToArray();
+		var value = dateTimeString?.RemoveQuotes();
+		var dateTimeFormats = includeYearAndMonthFormats ? _dateTimeFormatsWithYearAndMonth : _dateTimeFormats;
 
 		foreach (var format in dateTimeFormats)
 		{
-			if (DateTime.TryParseExact(dateTimeString?.RemoveQuotes(), format, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+			if (DateTime.TryParseExact(value, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
 			{
-				if (format.Contains("fff"))
-				{
-					datePrecision = DatePrecision.Millisecond;
-				}
-				else if (format.Contains("ss"))
-				{
-					datePrecision = DatePrecision.Second;
-				}
-				else if (format.Contains('m'))
-				{
-					datePrecision = DatePrecision.Minute;
-				}
-				else if (format.Contains("HH"))
-				{
-					datePrecision = DatePrecision.Hour;
-				}
-				else if (format.Contains("dd"))
-				{
-					datePrecision = DatePrecision.Day;
-				}
-				else if (format.Contains("MM"))
-				{
-					datePrecision = DatePrecision.Month;
-				}
-				else if (format.Contains("yyyy"))
-				{
-					datePrecision = DatePrecision.Year;
-				}
-				else
-				{
-					// default to second
-					datePrecision = DatePrecision.Second;
-				}
-				// format found
+				datePrecision = GetPrecision(format);
 				formatFound = format;
 				return true;
 			}
 		}
+
 		// format not found
 		datePrecision = DatePrecision.Second;
 		formatFound = string.Empty;
@@ -615,6 +612,35 @@ public class Filter
 		return false;
 	}
 
+	private static DatePrecision GetPrecision(string format)
+	{
+		if (format.Contains("fff"))
+		{
+			return DatePrecision.Millisecond;
+		}
+
+		if (format.Contains("ss"))
+		{
+			return DatePrecision.Second;
+		}
+
+		if (format.Contains('m'))
+		{
+			return DatePrecision.Minute;
+		}
+
+		if (format.Contains("HH"))
+		{
+			return DatePrecision.Hour;
+		}
+
+		if (format.Contains("dd"))
+		{
+			return DatePrecision.Day;
+		}
+
+		return format.Contains("MM") ? DatePrecision.Month : DatePrecision.Year;
+	}
 	#endregion
 }
 

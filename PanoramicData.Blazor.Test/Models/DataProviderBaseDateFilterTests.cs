@@ -6,10 +6,8 @@ namespace PanoramicData.Blazor.Test.Models;
 
 /// <summary>Tests for the date handling of <see cref="DataProviderBase{T}"/> predicates.</summary>
 /// <remarks>
-/// Every event is at midday, well away from the day boundaries. The boundaries the provider builds are
-/// currently shifted by the machine's UTC offset (reported separately as a suspected defect), so values near
-/// midnight would make these tests depend on the time zone of whoever runs them. Midday keeps them about which
-/// days the operators select, which is what they are for.
+/// Every event is at midday, well away from the day boundaries, so these tests are about which days the
+/// operators select. Where exactly the boundaries fall is covered by <see cref="DataProviderBaseDateBoundaryTests"/>.
 /// </remarks>
 public class DataProviderBaseDateFilterTests
 {
