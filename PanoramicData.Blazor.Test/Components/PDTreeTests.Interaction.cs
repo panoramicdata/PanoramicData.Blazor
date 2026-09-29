@@ -153,6 +153,50 @@ public partial class PDTreeTests
 		events.Should().Equal("+b", "-b");
 	}
 
+	/// <summary>Expanding and collapsing a node from code re-renders the tree without any other render (#183).</summary>
+	[Fact]
+	public async Task ToggleNodeIsExpandedAsync_FromCode_ReRendersTheTree()
+	{
+		var tree = RenderItemTree();
+		var a1 = $"#tree-node-{Node(tree, "a1").Id}";
+		tree.FindAll(a1).Should().BeEmpty("a is collapsed");
+
+		await tree.InvokeAsync(() => tree.Instance.ToggleNodeIsExpandedAsync(Node(tree, "a")));
+		tree.FindAll(a1).Should().ContainSingle("expanding a shows its child");
+
+		await tree.InvokeAsync(() => tree.Instance.ToggleNodeIsExpandedAsync(Node(tree, "a")));
+		tree.FindAll(a1).Should().BeEmpty("collapsing a hides its child again");
+	}
+
+	/// <summary>ExpandAllAsync from code re-renders the tree, showing every expanded node (#183).</summary>
+	[Fact]
+	public async Task ExpandAllAsync_FromCode_ReRendersTheTree()
+	{
+		var tree = RenderItemTree();
+
+		await tree.InvokeAsync(tree.Instance.ExpandAllAsync);
+
+		foreach (var key in new[] { "a1", "a1x", "b1" })
+		{
+			tree.FindAll($"#tree-node-{Node(tree, key).Id}").Should().ContainSingle(key + " is shown");
+		}
+	}
+
+	/// <summary>
+	/// Expanding a node from outside the renderer's dispatcher (for example from a background task) does not
+	/// throw: the re-render is marshalled onto the dispatcher (#183).
+	/// </summary>
+	[Fact]
+	public async Task ToggleNodeIsExpandedAsync_OffTheDispatcher_DoesNotThrow()
+	{
+		var tree = RenderItemTree();
+		var a = Node(tree, "a");
+
+		await Task.Run(() => tree.Instance.ToggleNodeIsExpandedAsync(a), Xunit.TestContext.Current.CancellationToken);
+
+		tree.WaitForAssertion(() => tree.FindAll($"#tree-node-{Node(tree, "a1").Id}").Should().ContainSingle(), TimeSpan.FromSeconds(10));
+	}
+
 	/// <summary>Loading on demand fetches a node's children when it is first expanded, and leaf items are marked leaves.</summary>
 	[Fact]
 	public async Task LoadOnDemand_FetchesChildrenOnFirstExpand()

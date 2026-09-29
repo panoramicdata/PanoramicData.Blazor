@@ -117,9 +117,9 @@ public partial class PDRange : IAsyncDisposable
 
 	#region Calculated Properties
 
-	private double CalcStartHandleX => 1 + Math.Round((Range.Start / Max) * CalcTrackWidth, 2);
+	private double CalcStartHandleX => 1 + Math.Round(CalcFraction(Range.Start) * CalcTrackWidth, 2);
 
-	private double CalcEndHandleX => 1 + Math.Round((Range.End / Max) * CalcTrackWidth, 2);
+	private double CalcEndHandleX => 1 + Math.Round(CalcFraction(Range.End) * CalcTrackWidth, 2);
 
 	private double CalcHandleHeight => ShowLabels ? Height * _trackSplit : Height;
 
@@ -138,6 +138,16 @@ public partial class PDRange : IAsyncDisposable
 		: (Height / 2) - (CalcTrackHeight / 2);
 
 	#endregion
+
+	/// <summary>
+	/// The position of a value along the track as a fraction of the Min to Max span, so Min is at 0 and Max at 1.
+	/// </summary>
+	private double CalcFraction(double value) => Max > Min ? (value - Min) / (Max - Min) : 0;
+
+	/// <summary>
+	/// The x position of the major tick for a value.
+	/// </summary>
+	private double CalcTickX(double value) => CalcTrackStart + (CalcRangePixels * (value - Min));
 
 	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)

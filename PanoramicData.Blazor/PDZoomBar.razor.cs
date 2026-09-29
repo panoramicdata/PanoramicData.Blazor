@@ -77,32 +77,33 @@ public partial class PDZoomBar : IAsyncDisposable
 
 	private async Task OnZoomIn()
 	{
-		var idx = Array.IndexOf(Options.ZoomSteps, Value.Zoom);
-		if (idx > 0)
+		// the nearest smaller step, so a zoom that is not itself a step still moves by one step (issue #173)
+		var smaller = Options.ZoomSteps.Where(step => step < Value.Zoom).ToArray();
+		if (smaller.Length > 0)
 		{
-			Value.Zoom = Options.ZoomSteps[idx - 1];
-			if (_module != null)
-			{
-				await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
-			}
-
-			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
+			await SetZoomAsync(smaller[^1]).ConfigureAwait(true);
 		}
 	}
 
 	private async Task OnZoomOut()
 	{
-		var idx = Array.IndexOf(Options.ZoomSteps, Value.Zoom);
-		if (idx < Options.ZoomSteps.Length - 1)
+		// the nearest larger step, so a zoom that is not itself a step still moves by one step (issue #173)
+		var larger = Options.ZoomSteps.Where(step => step > Value.Zoom).ToArray();
+		if (larger.Length > 0)
 		{
-			Value.Zoom = Options.ZoomSteps[idx + 1];
-			if (_module != null)
-			{
-				await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
-			}
-
-			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
+			await SetZoomAsync(larger[0]).ConfigureAwait(true);
 		}
+	}
+
+	private async Task SetZoomAsync(double zoom)
+	{
+		Value.Zoom = zoom;
+		if (_module != null)
+		{
+			await _module.InvokeVoidAsync("setValue", CanvasId, Value).ConfigureAwait(true);
+		}
+
+		await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 	}
 
 	/// <summary>

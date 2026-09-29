@@ -95,10 +95,17 @@ public partial class PDToggleSwitch : IAsyncDisposable
 
 	private double CalculatedWidth => Width ?? Options.Width ?? (Size ?? Options.Size) switch
 	{
-		ButtonSizes.Small => 32 + (_textWidth > 8 ? _textWidth - 8 : _textWidth),
-		ButtonSizes.Large => 64 + (_textWidth > 24 ? _textWidth - 24 : _textWidth),
-		_ => 48 + (_textWidth > 16 ? _textWidth - 16 : _textWidth),
+		ButtonSizes.Small => 32 + TextWidthBeyond(8),
+		ButtonSizes.Large => 64 + TextWidthBeyond(24),
+		_ => 48 + TextWidthBeyond(16),
 	};
+
+	/// <summary>
+	/// The measured text width beyond the room the base width already leaves for text, never negative, so a
+	/// longer text never makes the switch narrower (issue #188).
+	/// </summary>
+	/// <param name="room">The text width the base width already accommodates.</param>
+	private double TextWidthBeyond(double room) => Math.Max(0, _textWidth - room);
 
 	private double InnerHeight => CalculatedHeight - 2 - (BorderWidth ?? Options.BorderWidth) * 2;
 

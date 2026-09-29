@@ -18,7 +18,7 @@ namespace PanoramicData.Blazor.Test;
 /// defect was entirely in what it handed back - so these assert on the values the caller
 /// receives rather than on the markup.
 /// </remarks>
-public class PDColorPickerTests : BunitContext
+public partial class PDColorPickerTests : BunitContext
 {
 	/// <summary>
 	/// Sets up the rendering context.

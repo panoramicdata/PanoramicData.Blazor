@@ -366,6 +366,67 @@ public class PDListTests : BunitContext
 		list.Instance.Selection.Items.Select(f => f.Id).Should().Equal(expectedIds);
 	}
 
+	/// <summary>
+	/// Verifies that without an ItemKeyFunction a saved multiple selection is restored in full, not just its
+	/// first item (#181). The selection is saved as <see cref="Selection{TItem}.ToString"/>, which separates
+	/// the items with a comma and a space.
+	/// </summary>
+	[Fact]
+	public void StateManager_WithoutKeyFunction_RestoresEverySavedItem()
+	{
+		var state = new StateManager();
+		state.Saved["l"] = new Selection<string> { Items = ["Apple", "Cherry"] }.ToString();
+
+		var list = Render<PDList<string>>(p => p
+			.Add(x => x.Id, "l")
+			.Add(x => x.DataProvider, new ListDataProviderService<string>(["Apple", "Banana", "Cherry"]))
+			.Add(x => x.SelectionMode, TableSelectionMode.Multiple)
+			.AddCascadingValue<IAsyncStateManager>(state));
+
+		list.Instance.Selection.Items.Should().Equal("Apple", "Cherry");
+	}
+
+	/// <summary>
+	/// Verifies that without an ItemKeyFunction a selection saved by one list is restored by the next (#181).
+	/// </summary>
+	[Fact]
+	public async Task StateManager_WithoutKeyFunction_RoundTripsTheSelection()
+	{
+		var state = new StateManager();
+		var items = new ListDataProviderService<string>(["Apple", "Banana", "Cherry"]);
+		var first = Render<PDList<string>>(p => p
+			.Add(x => x.Id, "l")
+			.Add(x => x.DataProvider, items)
+			.Add(x => x.SelectionMode, TableSelectionMode.Multiple)
+			.AddCascadingValue<IAsyncStateManager>(state));
+		await first.InvokeAsync(() => first.FindAll("li.list-item")[0].ClickAsync(new MouseEventArgs()));
+		await first.InvokeAsync(() => first.FindAll("li.list-item")[2].ClickAsync(new MouseEventArgs { CtrlKey = true }));
+
+		var second = Render<PDList<string>>(p => p
+			.Add(x => x.Id, "l")
+			.Add(x => x.DataProvider, items)
+			.Add(x => x.SelectionMode, TableSelectionMode.Multiple)
+			.AddCascadingValue<IAsyncStateManager>(state));
+
+		second.Instance.Selection.Items.Should().Equal("Apple", "Cherry");
+	}
+
+	/// <summary>
+	/// Verifies that default ids are unique when lists are created on many threads at once, and across item
+	/// types, and keep the "pd-list-" format (#159).
+	/// </summary>
+	[Fact]
+	public void DefaultIds_AreUnique_AcrossThreadsAndItemTypes()
+	{
+		var ids = new System.Collections.Concurrent.ConcurrentBag<string>();
+
+		Parallel.For(0, 2000, new ParallelOptions { CancellationToken = Xunit.TestContext.Current.CancellationToken }, i =>
+			ids.Add(i % 2 == 0 ? new PDList<string>().Id : new PDList<Fruit>().Id));
+
+		ids.Should().HaveCount(2000).And.OnlyHaveUniqueItems();
+		ids.Should().AllSatisfy(id => id.Should().MatchRegex("^pd-list-[0-9]+$"));
+	}
+
 	/// <summary>A listed item.</summary>
 	/// <param name="Id">Key.</param>
 	/// <param name="Name">Display name.</param>
