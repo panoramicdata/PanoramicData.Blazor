@@ -12,6 +12,12 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public class PDFilePreviewTests : BunitContext
 {
+	/// <summary>
+	/// How long to wait for a render that another thread or a timer brings about. Generous because a busy
+	/// machine (the whole suite under coverage) can hold the renderer's dispatcher well past bUnit's default.
+	/// </summary>
+	private static readonly TimeSpan Patience = TimeSpan.FromSeconds(10);
+
 	private static readonly FileExplorerItem _item = new() { Path = "/docs/readme.md", Name = "readme.md" };
 
 	/// <summary>Verifies that a preview with a URL is shown in a sandboxed iframe pointing at it.</summary>
@@ -115,12 +121,12 @@ public class PDFilePreviewTests : BunitContext
 			.Add(p => p.PreviewProvider, provider)
 			.Add(p => p.Item, _item));
 
-		component.WaitForAssertion(() => component.Find(".pdfilepreview.basic .spinner").Should().NotBeNull());
+		component.WaitForAssertion(() => component.Find(".pdfilepreview.basic .spinner").Should().NotBeNull(), Patience);
 		provider.SpinnerRequests.Should().Be(1);
 
 		pending.SetResult(new PreviewInfo { CssClass = "md", HtmlContent = new MarkupString("<p>done</p>") });
 
-		component.WaitForAssertion(() => component.Find(".pdfilepreview.md p").TextContent.Should().Be("done"));
+		component.WaitForAssertion(() => component.Find(".pdfilepreview.md p").TextContent.Should().Be("done"), Patience);
 	}
 
 	/// <summary>
@@ -139,7 +145,7 @@ public class PDFilePreviewTests : BunitContext
 			.Add(p => p.ExceptionHandler, (Exception ex) => reported.Add(ex))
 			.Add(p => p.Item, _item));
 
-		component.WaitForAssertion(() => reported.Should().ContainSingle().Which.Should().BeSameAs(failure));
+		component.WaitForAssertion(() => reported.Should().ContainSingle().Which.Should().BeSameAs(failure), Patience);
 		component.Find(".pdfilepreview.basic .basic-content").Should().NotBeNull();
 	}
 

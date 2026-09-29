@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Extensions;
@@ -15,6 +16,12 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public class PDModalTests : BunitContext
 {
+	/// <summary>
+	/// How long to wait for a render that another thread or a timer brings about. Generous because a busy
+	/// machine (the whole suite under coverage) can hold the renderer's dispatcher well past bUnit's default.
+	/// </summary>
+	private static readonly TimeSpan Patience = TimeSpan.FromSeconds(10);
+
 	private const string ModulePath = "./_content/PanoramicData.Blazor/PDModal.razor.js";
 
 	/// <summary>Sets up the rendering context.</summary>
@@ -46,12 +53,12 @@ public class PDModalTests : BunitContext
 
 	/// <summary>Verifies that the close button is shown on request and hides the dialog.</summary>
 	[Fact]
-	public void The_close_button_hides_the_dialog()
+	public async Task The_close_button_hides_the_dialog()
 	{
 		var modal = SetupModalObject();
 		var component = Render<PDModal>(parameters => parameters.Add(p => p.ShowClose, true));
 
-		component.Find(".btn-close").Click();
+		await component.Find(".btn-close").ClickAsync(new MouseEventArgs());
 
 		modal.VerifyInvoke("hide");
 	}
@@ -133,13 +140,13 @@ public class PDModalTests : BunitContext
 
 	/// <summary>Verifies that a footer button click is forwarded with its key when no caller is waiting.</summary>
 	[Fact]
-	public void A_button_click_is_forwarded_with_its_key()
+	public async Task A_button_click_is_forwarded_with_its_key()
 	{
 		var keys = new List<string>();
 		var component = Render<PDModal>(parameters => parameters
 			.Add(p => p.ButtonClick, (string key) => keys.Add(key)));
 
-		FooterButton(component, "No").Click();
+		await FooterButton(component, "No").ClickAsync(new MouseEventArgs());
 
 		keys.Should().Equal(ModalResults.NO);
 	}
@@ -158,7 +165,7 @@ public class PDModalTests : BunitContext
 			.Add(p => p.ButtonClick, (string key) => forwarded.Add(key)));
 
 		var choice = component.InvokeAsync(component.Instance.ShowAndWaitResultAsync);
-		component.WaitForAssertion(() => common.VerifyInvoke("focus").Arguments[0].Should().Be("pd-tbr-btn-Yes"));
+		component.WaitForAssertion(() => common.VerifyInvoke("focus").Arguments[0].Should().Be("pd-tbr-btn-Yes"), Patience);
 		await FooterButton(component, "Yes").ClickAsync(new());
 
 		(await choice).Should().Be(ModalResults.YES);
@@ -176,7 +183,7 @@ public class PDModalTests : BunitContext
 		using var cancellation = new CancellationTokenSource();
 
 		var choice = component.InvokeAsync(() => component.Instance.ShowAndWaitResultAsync(cancellation.Token));
-		component.WaitForAssertion(() => modal.VerifyInvoke("show"));
+		component.WaitForAssertion(() => modal.VerifyInvoke("show"), Patience);
 		await cancellation.CancelAsync();
 
 		(await choice).Should().BeEmpty();

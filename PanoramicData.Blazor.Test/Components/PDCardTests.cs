@@ -65,36 +65,36 @@ public class PDCardTests : BunitContext
 
 	/// <summary>Verifies that releasing the mouse on a card selects it when the deck allows selection.</summary>
 	[Fact]
-	public void Releasing_the_mouse_selects_the_card()
+	public async Task Releasing_the_mouse_selects_the_card()
 	{
 		var deck = RenderDeck(Cards("One", "Two"), parameters => parameters.Add(p => p.MultipleSelection, true));
 
-		deck.FindAll(".card")[1].MouseUp(new MouseEventArgs());
+		await deck.InvokeAsync(() => deck.FindAll(".card")[1].MouseUpAsync(new MouseEventArgs()));
 
 		deck.FindAll(".card").Select(c => c.ClassList.Contains("selected")).Should().Equal(false, true);
 	}
 
 	/// <summary>Verifies that a deck without selection enabled leaves a released card unselected.</summary>
 	[Fact]
-	public void Without_selection_a_released_card_stays_unselected()
+	public async Task Without_selection_a_released_card_stays_unselected()
 	{
 		var deck = RenderDeck(Cards("One"));
 
-		deck.Find(".card").MouseUp(new MouseEventArgs());
+		await deck.InvokeAsync(() => deck.Find(".card").MouseUpAsync(new MouseEventArgs()));
 
 		deck.Find(".card").ClassList.Should().NotContain("selected");
 	}
 
 	/// <summary>Verifies that starting a drag marks the card as selected and dragging, and ending it clears dragging.</summary>
 	[Fact]
-	public void Dragging_a_card_marks_it_until_the_drag_ends()
+	public async Task Dragging_a_card_marks_it_until_the_drag_ends()
 	{
 		var deck = RenderDeck(Cards("One", "Two"));
 
-		deck.FindAll(".card")[0].DragStart(new DragEventArgs());
+		await deck.InvokeAsync(() => deck.FindAll(".card")[0].DragStartAsync(new DragEventArgs()));
 		deck.FindAll(".card")[0].ClassList.Should().Contain("selected").And.Contain("dragging");
 
-		deck.FindAll(".card")[0].DragEnd(new DragEventArgs());
+		await deck.InvokeAsync(() => deck.FindAll(".card")[0].DragEndAsync(new DragEventArgs()));
 		deck.FindAll(".card")[0].ClassList.Should().NotContain("dragging");
 	}
 
@@ -104,8 +104,8 @@ public class PDCardTests : BunitContext
 	{
 		var deck = RenderDeck(Cards("One", "Two", "Three"));
 
-		await deck.FindAll(".card")[0].DragStartAsync(new DragEventArgs());
-		await deck.FindAll(".card")[2].DragOverAsync(new DragEventArgs());
+		await deck.InvokeAsync(() => deck.FindAll(".card")[0].DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => deck.FindAll(".card")[2].DragOverAsync(new DragEventArgs()));
 
 		deck.WaitForAssertion(() => deck.FindAll(".card").Select(c => c.TextContent.Trim())
 			.Should().Equal("Two", "Three", "One"));
@@ -117,7 +117,7 @@ public class PDCardTests : BunitContext
 	{
 		var deck = RenderDeck(Cards("One", "Two"));
 
-		await deck.FindAll(".card")[1].DragOverAsync(new DragEventArgs());
+		await deck.InvokeAsync(() => deck.FindAll(".card")[1].DragOverAsync(new DragEventArgs()));
 
 		deck.FindAll(".card").Select(c => c.TextContent.Trim()).Should().Equal("One", "Two");
 	}
@@ -150,8 +150,8 @@ public class PDCardTests : BunitContext
 	{
 		var deck = RenderDeck(Cards("One", "Two", "Three"), parameters => parameters.Add(p => p.IsAnimated, true));
 
-		await deck.FindAll(".card")[0].DragStartAsync(new DragEventArgs());
-		await deck.FindAll(".card")[2].DragOverAsync(new DragEventArgs());
+		await deck.InvokeAsync(() => deck.FindAll(".card")[0].DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => deck.FindAll(".card")[2].DragOverAsync(new DragEventArgs()));
 
 		deck.WaitForAssertion(() => deck.FindAll(".card").Select(c => c.TextContent.Trim())
 			.Should().Equal("Two", "Three", "One"));
@@ -168,7 +168,7 @@ public class PDCardTests : BunitContext
 		});
 		// A deck outside a group loads its cards after first render but does not re-render itself once they
 		// arrive (reported separately as a PDCardDeck defect), so render it again once the data is in.
-		deck.WaitForState(() => deck.Instance.DataLoaded);
+		deck.WaitForState(() => deck.Instance.DataLoaded, TimeSpan.FromSeconds(10));
 		deck.Render();
 		deck.FindAll(".card").Should().HaveCount(cards.Count);
 		return deck;

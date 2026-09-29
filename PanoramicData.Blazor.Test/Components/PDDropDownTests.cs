@@ -164,13 +164,13 @@ public class PDDropDownTests : BunitContext
 
 	/// <summary>Verifies that clicking the button raises Click.</summary>
 	[Fact]
-	public void Clicking_the_button_raises_click()
+	public async Task Clicking_the_button_raises_click()
 	{
 		var clicks = 0;
 		var component = Render<PDDropDown>(parameters => parameters
 			.Add(p => p.Click, (MouseEventArgs _) => clicks++));
 
-		component.Find("button").Click();
+		await component.Find("button").ClickAsync(new MouseEventArgs());
 
 		clicks.Should().Be(1);
 	}

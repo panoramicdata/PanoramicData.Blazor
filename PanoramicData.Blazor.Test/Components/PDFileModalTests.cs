@@ -13,6 +13,12 @@ namespace PanoramicData.Blazor.Test;
 /// </summary>
 public class PDFileModalTests : BunitContext
 {
+	/// <summary>
+	/// How long to wait for a render that another thread or a timer brings about. Generous because a busy
+	/// machine (the whole suite under coverage) can hold the renderer's dispatcher well past bUnit's default.
+	/// </summary>
+	private static readonly TimeSpan Patience = TimeSpan.FromSeconds(10);
+
 	private readonly List<string> _results = [];
 
 	/// <summary>Sets up the rendering context.</summary>
@@ -43,7 +49,7 @@ public class PDFileModalTests : BunitContext
 		var component = RenderModal();
 		await ShowOpenAsync(component);
 
-		Row(component, "/readme.txt").MouseUp(new MouseEventArgs());
+		await Row(component, "/readme.txt").MouseUpAsync(new MouseEventArgs());
 		OkButton(component).HasAttribute("disabled").Should().BeFalse();
 		await OkButton(component).ClickAsync(new());
 
@@ -57,7 +63,7 @@ public class PDFileModalTests : BunitContext
 		var component = RenderModal();
 		await ShowOpenAsync(component);
 
-		Row(component, "/Docs").MouseUp(new MouseEventArgs());
+		await Row(component, "/Docs").MouseUpAsync(new MouseEventArgs());
 
 		OkButton(component).HasAttribute("disabled").Should().BeTrue();
 	}
@@ -106,7 +112,7 @@ public class PDFileModalTests : BunitContext
 		var component = RenderModal();
 
 		await ShowFolderOpenAsync(component, show, "/Docs");
-		component.WaitForAssertion(() => OkButton(component).HasAttribute("disabled").Should().BeFalse());
+		component.WaitForAssertion(() => OkButton(component).HasAttribute("disabled").Should().BeFalse(), Patience);
 		component.FindAll("tr[id='/Docs/notes.md']").Should().BeEmpty();
 		await OkButton(component).ClickAsync(new());
 
@@ -120,9 +126,9 @@ public class PDFileModalTests : BunitContext
 		var show = SetupPendingShow();
 		var component = RenderModal();
 		await ShowFolderOpenAsync(component, show);
-		component.WaitForAssertion(() => Row(component, "/Docs"));
+		component.WaitForAssertion(() => Row(component, "/Docs"), Patience);
 
-		Row(component, "/Docs").MouseUp(new MouseEventArgs());
+		await Row(component, "/Docs").MouseUpAsync(new MouseEventArgs());
 		await OkButton(component).ClickAsync(new());
 
 		_results.Should().Equal("/Docs");
@@ -135,9 +141,9 @@ public class PDFileModalTests : BunitContext
 		var show = SetupPendingShow();
 		var component = RenderModal(p => p.Add(x => x.CanSelectFolder, item => item.Path != "/Docs" && item.Path != "/"));
 		await ShowFolderOpenAsync(component, show);
-		component.WaitForAssertion(() => Row(component, "/Docs"));
+		component.WaitForAssertion(() => Row(component, "/Docs"), Patience);
 
-		Row(component, "/Docs").MouseUp(new MouseEventArgs());
+		await Row(component, "/Docs").MouseUpAsync(new MouseEventArgs());
 
 		OkButton(component).HasAttribute("disabled").Should().BeTrue();
 	}
@@ -163,7 +169,7 @@ public class PDFileModalTests : BunitContext
 	{
 		var component = RenderModal();
 		await component.InvokeAsync(() => component.Instance.ShowSaveAsAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"));
+		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
 
 		await TypeFilenameAsync(component, "new.md");
 		await OkButton(component).ClickAsync(new());
@@ -191,12 +197,12 @@ public class PDFileModalTests : BunitContext
 	{
 		var component = RenderModal();
 		await component.InvokeAsync(() => component.Instance.ShowSaveAsAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"));
+		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
 
 		await TypeFilenameAsync(component, "new.md");
 		await FilenameBox(component).KeyUpAsync(new KeyboardEventArgs { Code = "Enter", Key = "Enter" });
 
-		component.WaitForAssertion(() => _results.Should().Equal("/new.md"));
+		component.WaitForAssertion(() => _results.Should().Equal("/new.md"), Patience);
 	}
 
 	/// <summary>Verifies that saving over an existing file asks first, and confirming reports the path.</summary>
@@ -205,11 +211,11 @@ public class PDFileModalTests : BunitContext
 	{
 		var component = RenderModal();
 		await component.InvokeAsync(() => component.Instance.ShowSaveAsAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"));
+		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
 		await TypeFilenameAsync(component, "readme.txt");
 
 		var save = OkButton(component).ClickAsync(new());
-		component.WaitForAssertion(() => _results.Should().BeEmpty());
+		component.WaitForAssertion(() => _results.Should().BeEmpty(), Patience);
 		await ConfirmButton(component, "Yes").ClickAsync(new());
 		await save;
 
@@ -223,7 +229,7 @@ public class PDFileModalTests : BunitContext
 	{
 		var component = RenderModal();
 		await component.InvokeAsync(() => component.Instance.ShowSaveAsAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"));
+		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
 		await TypeFilenameAsync(component, "readme.txt");
 
 		var save = OkButton(component).ClickAsync(new());
@@ -241,7 +247,7 @@ public class PDFileModalTests : BunitContext
 		await ShowOpenAsync(component);
 
 		var result = component.InvokeAsync(() => component.Instance.ShowOpenAndWaitResultAsync());
-		Row(component, "/readme.txt").MouseUp(new MouseEventArgs());
+		await Row(component, "/readme.txt").MouseUpAsync(new MouseEventArgs());
 		await OkButton(component).ClickAsync(new());
 
 		(await result).Should().Be("/readme.txt");
@@ -268,7 +274,7 @@ public class PDFileModalTests : BunitContext
 		var component = RenderModal();
 
 		var result = component.InvokeAsync(() => component.Instance.ShowSaveAsAndWaitResultAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"));
+		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
 		await TypeFilenameAsync(component, "readme.txt");
 		await OkButton(component).ClickAsync(new());
 		await ConfirmButton(component, "No").ClickAsync(new());
@@ -285,7 +291,7 @@ public class PDFileModalTests : BunitContext
 		var component = RenderModal();
 
 		var result = component.InvokeAsync(() => component.Instance.ShowSaveAsAndWaitResultAsync("/readme.txt"));
-		component.WaitForAssertion(() => Row(component, "/readme.txt"));
+		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
 		await OkButton(component).ClickAsync(new());
 		await ConfirmButton(component, "Yes").ClickAsync(new());
 
@@ -299,7 +305,7 @@ public class PDFileModalTests : BunitContext
 		var component = RenderModal();
 
 		var result = component.InvokeAsync(() => component.Instance.ShowSaveAsAndWaitResultAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"));
+		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
 		await FooterButton(component, "Cancel").ClickAsync(new());
 
 		(await result).Should().BeEmpty();
@@ -363,7 +369,7 @@ public class PDFileModalTests : BunitContext
 	private static async Task ShowOpenAsync(IRenderedComponent<PDFileModal> component)
 	{
 		await component.InvokeAsync(() => component.Instance.ShowOpenAsync());
-		component.WaitForAssertion(() => Row(component, "/readme.txt"));
+		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
 	}
 
 	/// <summary>Types a filename as a user does: the text box reports its value on key up.</summary>
