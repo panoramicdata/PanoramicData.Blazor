@@ -136,10 +136,13 @@ public class PDCardDeckLoadingIconTests : BunitContext
 
 		public override DateTimeOffset GetUtcNow() => Now;
 
+		/// <summary>Whether a timer with these times would never fire.</summary>
+		public static bool IsDisarmed(TimeSpan dueTime, TimeSpan period)
+			=> dueTime == Timeout.InfiniteTimeSpan && period == Timeout.InfiniteTimeSpan;
+
 		public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
 		{
-			var timer = new StepTimer(callback, state);
-			timer.Change(dueTime, period);
+			var timer = new StepTimer(callback, state, IsDisarmed(dueTime, period));
 			_timers.Add(timer);
 			return timer;
 		}
@@ -157,19 +160,19 @@ public class PDCardDeckLoadingIconTests : BunitContext
 	/// <summary>
 	/// A one-shot timer that fires when its clock tells it to, then counts as spent.
 	/// </summary>
-	private sealed class StepTimer(TimerCallback callback, object? state) : ITimer
+	private sealed class StepTimer(TimerCallback callback, object? state, bool disarmed) : ITimer
 	{
-		public bool IsDisposed { get; private set; }
+		public bool IsDisposed { get; private set; } = disarmed;
 
 		/// <summary>Re-arms the timer, or disarms it when both times are infinite.</summary>
-		public bool Change(TimeSpan dueTime, TimeSpan period)
+		bool ITimer.Change(TimeSpan dueTime, TimeSpan period)
 		{
 			if (IsDisposed)
 			{
 				return false;
 			}
 
-			IsDisposed = dueTime == Timeout.InfiniteTimeSpan && period == Timeout.InfiniteTimeSpan;
+			IsDisposed = StepClock.IsDisarmed(dueTime, period);
 			return true;
 		}
 
