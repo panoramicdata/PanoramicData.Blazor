@@ -290,6 +290,32 @@ public class PDAudioPadTests : BunitContext
 		component.Instance.Value.Should().BeGreaterThan(0.9);
 	}
 
+	/// <summary>
+	/// A decay that ends because a newer press superseded it leaves the value alone and reports nothing
+	/// (issue #219).
+	/// </summary>
+	/// <remarks>
+	/// In real use the race is timing-dependent: the old decay's token is cancelled just after one of its
+	/// delays completes, so it leaves its loop through the cancellation check rather than inside the delay.
+	/// An already-cancelled token takes exactly that path every time, which makes the case deterministic.
+	/// </remarks>
+	[Fact]
+	public async Task SupersededDecay_LeavesTheValueAndReportsNothing()
+	{
+		var component = RenderPad(p => p
+			.Add(x => x.Value, 0.8)
+			.Add(x => x.DecayMode, DecayMode.Exponential)
+			.Add(x => x.DecayHalfLife, TimeSpan.FromSeconds(30)));
+		using var superseded = new CancellationTokenSource();
+		await superseded.CancelAsync();
+
+		await component.InvokeAsync(() => component.Instance.DecayAsync(superseded.Token));
+
+		component.Instance.Value.Should().Be(0.8);
+		_values.Should().BeEmpty();
+		_events.Should().BeEmpty();
+	}
+
 	/// <summary>Disposing during a decay does not throw.</summary>
 	[Fact]
 	public async Task Dispose_DuringADecay_DoesNotThrow()
