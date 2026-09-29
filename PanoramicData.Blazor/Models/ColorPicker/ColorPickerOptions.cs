@@ -10,10 +10,28 @@ public class ColorPickerOptions
 	/// </summary>
 	public ColorMode EnabledModes { get; set; } = ColorMode.All;
 
+	private ColorMode? _defaultMode;
+
 	/// <summary>
 	/// Gets or sets the default color mode to display.
 	/// </summary>
-	public ColorMode DefaultMode { get; set; } = ColorMode.Hex;
+	/// <remarks>
+	/// The picker opens with the inputs for this mode: <see cref="ColorMode.RGB"/> or <see cref="ColorMode.RGBA"/>
+	/// show the RGB inputs, <see cref="ColorMode.HSV"/> or <see cref="ColorMode.HSL"/> the HSV inputs, and
+	/// <see cref="ColorMode.Hex"/> the hex input. Any other value shows the RGB inputs.
+	/// The property reads <see cref="ColorMode.Hex"/> until it is set, but it only takes effect once it has been set:
+	/// a picker whose options never set it opens with the RGB inputs, as it always has.
+	/// </remarks>
+	public ColorMode DefaultMode
+	{
+		get => _defaultMode ?? ColorMode.Hex;
+		set => _defaultMode = value;
+	}
+
+	/// <summary>
+	/// Gets whether <see cref="DefaultMode"/> has been set explicitly.
+	/// </summary>
+	internal bool IsDefaultModeSet => _defaultMode.HasValue;
 
 	/// <summary>
 	/// Gets or sets the enabled color space selectors.

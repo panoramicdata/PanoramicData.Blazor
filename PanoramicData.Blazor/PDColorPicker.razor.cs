@@ -152,9 +152,29 @@ public partial class PDColorPicker : IAsyncDisposable
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
+		_inputMode = GetInitialInputMode();
 		_currentColor.SetFromHex(Value);
 		_originalColor = _currentColor.Clone();
 		_objRef = DotNetObjectReference.Create(this);
+	}
+
+	/// <summary>
+	/// The input mode the picker opens with: the one for <see cref="ColorPickerOptions.DefaultMode"/> when that has
+	/// been set (issue #177), otherwise RGB, which is what the picker has always opened with.
+	/// </summary>
+	private InputMode GetInitialInputMode()
+	{
+		if (!Options.IsDefaultModeSet)
+		{
+			return InputMode.RGB;
+		}
+
+		return Options.DefaultMode switch
+		{
+			ColorMode.HSV or ColorMode.HSL => InputMode.HSV,
+			ColorMode.Hex => InputMode.Hex,
+			_ => InputMode.RGB
+		};
 	}
 
 	/// <inheritdoc />
