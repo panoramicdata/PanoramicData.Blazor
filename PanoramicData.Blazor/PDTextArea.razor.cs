@@ -1,4 +1,4 @@
-﻿namespace PanoramicData.Blazor;
+namespace PanoramicData.Blazor;
 
 /// <summary>
 /// Multi-line text input component with optional debounce, selection tracking, and JS interop helpers.
@@ -11,6 +11,15 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 	private IJSObjectReference? _commonModule;
 	private TextAreaSelection _selection = new();
 	private DotNetObjectReference<PDTextArea>? _objRef;
+
+	// With a debounce the parent learns of typing late, so its Value lags what is on screen. These
+	// let a parent render that only repeats a value this text area has already seen leave the
+	// user's newer typing alone (see OnParametersSet).
+	private bool _hasParameterValue;
+	private string? _lastParameterValue;
+	private string? _lastReportedValue;
+	private string _valueBeforeParameters = string.Empty;
+	private bool _keepTypedValue;
 
 	/// <summary>
 	/// Injected javascript interop object.
@@ -134,6 +143,55 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 	}
 
 	/// <summary>
+	/// Records what the parent passed, so <see cref="OnParametersSet"/> can tell a new value from a
+	/// repeat of one this text area has already seen.
+	/// </summary>
+	/// <param name="parameters">The parameters supplied by the parent.</param>
+	public override Task SetParametersAsync(ParameterView parameters)
+	{
+		_valueBeforeParameters = Value;
+		_keepTypedValue = false;
+
+		if (parameters.TryGetValue<string>(nameof(Value), out var incoming))
+		{
+			// The parent is repeating itself, or echoing a value this text area reported before the
+			// user typed more. Either way it is older than what is on screen.
+			_keepTypedValue = incoming != _valueBeforeParameters
+				&& ((_hasParameterValue && incoming == _lastParameterValue) || (_lastReportedValue is not null && incoming == _lastReportedValue));
+
+			if (!_keepTypedValue)
+			{
+				// The parent's value is being taken, so an earlier report is no longer an echo of
+				// anything on screen and must not hold back a later value that happens to match it.
+				_lastReportedValue = null;
+			}
+
+			_lastParameterValue = incoming;
+			_hasParameterValue = true;
+		}
+
+		return base.SetParametersAsync(parameters);
+	}
+
+	/// <summary>
+	/// While a debounced edit has not yet reached the parent, keeps the user's typing rather than
+	/// replacing it with the parent's older value.
+	/// </summary>
+	/// <remarks>
+	/// Without this, any parent render between a keystroke and the debounce firing wiped what the
+	/// user had typed: in Magic Suite's NCalc 101 variable dialog, typing "typed123" left "ed123"
+	/// (MS-26860). A value the parent genuinely changes (another record, a cleared form) still
+	/// applies, and without a debounce the parent is told on every keystroke, so nothing changes.
+	/// </remarks>
+	protected override void OnParametersSet()
+	{
+		if (DebounceWait > 0 && _keepTypedValue)
+		{
+			Value = _valueBeforeParameters;
+		}
+	}
+
+	/// <summary>
 	/// Gets the current text selection state.
 	/// </summary>
 	/// <returns>The current selection.</returns>
@@ -190,6 +248,7 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 			// TODO: if running within a PDForm then need to block from
 			// switching to another Item until completes
 			var val = await _commonModule.InvokeAsync<string>("getValue", Id);
+			_lastReportedValue = val;
 			await ValueChanged.InvokeAsync(val).ConfigureAwait(true);
 
 		}
@@ -207,6 +266,7 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		if (DebounceWait > 0 && !_cancelDebounce)
 		{
 			Value = value;
+			_lastReportedValue = value;
 			await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
 		}
 
