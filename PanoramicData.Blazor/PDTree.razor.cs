@@ -473,8 +473,8 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
             await NodeExpanded.InvokeAsync(node).ConfigureAwait(true);
         }
 
-        // re-render, so expanding or collapsing from code (not only from the expander icon) updates the page;
-        // marshalled onto the dispatcher, as a caller may be on another thread (issue #183)
+        // Re-render so that expanding or collapsing from code, not only from the expander icon, updates the page.
+        // This goes through the dispatcher because a caller may be on another thread (issue #183).
         await InvokeAsync(StateHasChanged).ConfigureAwait(true);
     }
 
