@@ -106,9 +106,10 @@ public static class ReflectionExtensions
 			}
 
 		}
-		// TODO - Use pattern matching
-		UnaryExpression ubody = (UnaryExpression)expression.Body;
-		return (ubody.Operand as MemberExpression)?.Member;
+
+		// a boxed member access (x => x.Age) is a Convert over the member; any other selector, such as a
+		// computed value (x => x.Name + "!") or a constant, selects no member
+		return expression.Body is UnaryExpression { Operand: MemberExpression ume } ? ume.Member : null;
 	}
 
 	/// <summary>
@@ -152,9 +153,15 @@ public static class ReflectionExtensions
 	/// Returns a human-readable type name, resolving generic arguments and mapping primitive CLR types to their C# keyword equivalents (e.g. <c>int</c>, <c>string</c>).
 	/// </summary>
 	/// <param name="type">The type to format.</param>
-	/// <returns>A friendly name string such as <c>List&lt;int&gt;</c> or <c>string</c>.</returns>
+	/// <returns>A friendly name string such as <c>List&lt;int&gt;</c>, <c>string</c> or <c>int[,]</c>.</returns>
 	public static string GetFriendlyTypeName(this Type type)
 	{
+		if (type.IsArray)
+		{
+			// name arrays from their friendly element type, keeping the rank (e.g. string[], int[,], double[][])
+			return $"{type.GetElementType()!.GetFriendlyTypeName()}[{new string(',', type.GetArrayRank() - 1)}]";
+		}
+
 		if (type.IsGenericType)
 		{
 			// get the name of the generic type without the arity suffix (e.g., `List` instead of `List`1`)
@@ -169,7 +176,6 @@ public static class ReflectionExtensions
 
 		return type switch
 		{
-			Type t when t.IsGenericType => "",
 			Type t when t == typeof(int) => "int",
 			Type t when t == typeof(short) => "short",
 			Type t when t == typeof(long) => "long",
@@ -184,7 +190,6 @@ public static class ReflectionExtensions
 			Type t when t == typeof(byte) => "byte",
 			Type t when t == typeof(sbyte) => "sbyte",
 			Type t when t == typeof(object) => "object",
-			Type t when t == typeof(object[]) => "object[]",
 			_ => type.Name
 		};
 	}

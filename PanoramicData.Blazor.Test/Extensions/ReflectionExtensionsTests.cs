@@ -76,6 +76,21 @@ public class ReflectionExtensionsTests
 		computed.GetPropertyMemberInfo().Should().BeNull();
 	}
 
+	/// <summary>A selector that is neither a member access nor a boxed one yields no member rather than throwing (#171).</summary>
+	[Fact]
+	public void GetPropertyMemberInfo_UnboxedNonMember_IsNull()
+	{
+		Expression<Func<Item, object>> literal = x => "literal";
+		Expression<Func<Item, object>> concatenated = x => x.Name + "!";
+		Expression<Func<Item, object>> called = x => x.Name.Trim();
+		Expression<Func<Item, object>> conditional = x => x.Age > 0 ? "a" : "b";
+
+		literal.GetPropertyMemberInfo().Should().BeNull();
+		concatenated.GetPropertyMemberInfo().Should().BeNull();
+		called.GetPropertyMemberInfo().Should().BeNull();
+		conditional.GetPropertyMemberInfo().Should().BeNull();
+	}
+
 	/// <summary>The underlying type is the type of a field, property or event.</summary>
 	[Fact]
 	public void GetMemberUnderlyingType_ForFieldPropertyAndEvent()
@@ -131,6 +146,17 @@ public class ReflectionExtensionsTests
 	{
 		typeof(List<int>).GetFriendlyTypeName().Should().Be("List<int>");
 		typeof(Dictionary<string, List<double?>>).GetFriendlyTypeName().Should().Be("Dictionary<string, List<Nullable<double>>>");
+	}
+
+	/// <summary>Arrays are named from their friendly element type, with their rank (#199).</summary>
+	[Fact]
+	public void GetFriendlyTypeName_FormatsArrays()
+	{
+		typeof(string[]).GetFriendlyTypeName().Should().Be("string[]");
+		typeof(int[,]).GetFriendlyTypeName().Should().Be("int[,]");
+		typeof(double[][]).GetFriendlyTypeName().Should().Be("double[][]");
+		typeof(List<int>[]).GetFriendlyTypeName().Should().Be("List<int>[]");
+		typeof(DateTime[]).GetFriendlyTypeName().Should().Be("DateTime[]");
 	}
 
 	private static class Functions

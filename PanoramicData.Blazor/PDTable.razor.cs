@@ -1497,45 +1497,6 @@ public partial class PDTable<TItem> :
 		await KeyDown.InvokeAsync(args).ConfigureAwait(true);
 	}
 
-	private async Task OnRowMouseDownAsync(MouseEventArgs args, TItem item)
-	{
-		// quit if selection not allowed
-		if (!IsEnabled || SelectionMode == TableSelectionMode.None || !RowIsEnabled(item))
-		{
-			return;
-		}
-
-		// if right-click on row then only select if clicked on label
-		var selectRow = args.Button == 0;
-		if (args.Button == 2 && RightClickSelectsRow && _commonModule != null)
-		{
-			var sourceEl = await _commonModule.InvokeAsync<ElementInfo>("getElementAtPoint", args.ClientX, args.ClientY).ConfigureAwait(true);
-			if (sourceEl != null)
-			{
-				selectRow = sourceEl.Tag == "SPAN" || sourceEl.Tag == "IMG";
-			}
-		}
-
-		if (selectRow)
-		{
-			var key = KeyField!(item)?.ToString();
-			if (key != null)
-			{
-				var alreadySelected = Selection.Contains(key);
-
-				// begin edit mode?
-				if (AllowEdit && !IsEditing && Selection.Count == 1 && alreadySelected && !args.CtrlKey && args.Button == 0 && !EditOnDoubleClick)
-				{
-					_editTimer?.Change(100, Timeout.Infinite);
-				}
-				else
-				{
-					await SelectItemAsync(key, args.ShiftKey, args.CtrlKey).ConfigureAwait(true);
-				}
-			}
-		}
-	}
-
 	private async Task OnRowMouseUpAsync(MouseEventArgs args, TItem item)
 	{
 		// quit if selection not allowed
@@ -1720,6 +1681,12 @@ public partial class PDTable<TItem> :
 		// is editing current row?
 		if (IsEditing && item == EditItem)
 		{
+			// a computed field has no member to write to, so only an edit template can edit it
+			if (column.IsComputed && column.EditTemplate is null)
+			{
+				return false;
+			}
+
 			var editable = column.Editable;
 			// override with dynamic config?
 			var config = ColumnsConfig?.Find(x => x.Id == column.Id);
