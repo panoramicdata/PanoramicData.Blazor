@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace PanoramicData.Blazor.Test.Components;
 
@@ -8,12 +9,12 @@ namespace PanoramicData.Blazor.Test.Components;
 /// Tests the markup of <see cref="PDResizePane"/>: the resize handle's corner class and the child content.
 /// </summary>
 /// <remarks>
-/// The JavaScript side is deliberately not asserted on here. The component calls a global <c>init</c>
-/// function that its collocated module neither exports nor is ever loaded as, which is reported as a
-/// suspected defect rather than pinned by a test.
+/// The component must import its collocated module and call the module's exported <c>init</c>: before #163 it
+/// called a global <c>init</c> that nothing defined, which in a browser threw and took down the circuit.
 /// </remarks>
 public class PDResizePaneTests : BunitContext
 {
+	private const string ModulePath = "./_content/PanoramicData.Blazor/PDResizePane.razor.js";
 	/// <summary>Sets up the rendering context.</summary>
 	public PDResizePaneTests() => JSInterop.Mode = JSRuntimeMode.Loose;
 
@@ -59,8 +60,62 @@ public class PDResizePaneTests : BunitContext
 		component.Instance.Corner.Should().Be(PDResizePane.ResizeCorner.TopLeft);
 		component.Find(".pdresizepane-content em").TextContent.Should().Be("inner");
 
-		// Disposal holds no resources, so it must complete without touching anything.
 		await component.Instance.DisposeAsync();
 		component.Find(".pdresizepane-content em").TextContent.Should().Be("inner");
+	}
+
+	/// <summary>
+	/// Verifies that the first render imports the module and initialises it with the container, the handle and
+	/// the corner class (#163). Strict mode means a call to an unset-up global function would fail the render.
+	/// </summary>
+	[Fact]
+	public void FirstRender_ImportsTheModule_AndInitialisesIt()
+	{
+		JSInterop.Mode = JSRuntimeMode.Strict;
+		var module = JSInterop.SetupModule(ModulePath);
+		module.SetupVoid("init", _ => true).SetVoidResult();
+
+		Render<PDResizePane>(parameters => parameters.Add(p => p.Corner, PDResizePane.ResizeCorner.BottomRight));
+
+		var init = module.VerifyInvoke("init");
+		init.Arguments.Should().HaveCount(3);
+		init.Arguments[0].Should().BeOfType<ElementReference>();
+		init.Arguments[1].Should().BeOfType<ElementReference>();
+		init.Arguments[2].Should().Be("handle-br");
+		JSInterop.Invocations.Where(i => i.Identifier == "import").Should().ContainSingle()
+			.Which.Arguments.Should().Equal(ModulePath);
+	}
+
+	/// <summary>
+	/// Verifies that disposal removes the handle's listeners through the module and then releases the module
+	/// (#163).
+	/// </summary>
+	[Fact]
+	public async Task DisposeAsync_TearsDownTheModule()
+	{
+		var module = JSInterop.SetupModule(ModulePath);
+		var component = Render<PDResizePane>();
+
+		await component.InvokeAsync(async () => await component.Instance.DisposeAsync());
+
+		var dispose = module.VerifyInvoke("dispose");
+		dispose.Arguments.Should().ContainSingle().Which.Should().BeOfType<ElementReference>();
+	}
+
+	/// <summary>
+	/// Verifies that a circuit which has gone away during initialisation or disposal does not throw (#163).
+	/// </summary>
+	[Fact]
+	public async Task DisconnectedCircuit_IsTolerated()
+	{
+		var module = JSInterop.SetupModule(ModulePath);
+		module.SetupVoid("init", _ => true).SetException(new JSDisconnectedException("gone"));
+		module.SetupVoid("dispose", _ => true).SetException(new JSDisconnectedException("gone"));
+
+		var component = Render<PDResizePane>();
+		var dispose = async () => await component.InvokeAsync(async () => await component.Instance.DisposeAsync());
+
+		await dispose.Should().NotThrowAsync();
+		module.VerifyInvoke("init");
 	}
 }

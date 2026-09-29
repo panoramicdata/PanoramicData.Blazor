@@ -195,6 +195,46 @@ public class PDAudioPadTests : BunitContext
 		_events[^1].IsActive.Should().BeFalse();
 	}
 
+	/// <summary>
+	/// A linear decay, throttled, reports the activation and the final inactive state, as the exponential decay
+	/// does (#166).
+	/// </summary>
+	[Fact]
+	public async Task LinearDecay_Throttled_ReportsActivationAndCompletion()
+	{
+		var component = RenderPad(p => p
+			.Add(x => x.Value, 0.0)
+			.Add(x => x.DecayMode, DecayMode.Linear)
+			.Add(x => x.DecayHalfLife, TimeSpan.FromMilliseconds(40))
+			.Add(x => x.EventThrottleMs, 10000));
+
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
+
+		component.WaitForAssertion(() => _events.Select(e => e.Value).Should().Equal(1.0, 0.0), TimeSpan.FromSeconds(5));
+		_events[^1].IsActive.Should().BeFalse();
+		component.Instance.Value.Should().Be(0.0);
+	}
+
+	/// <summary>
+	/// A linear decay with no throttle reports the final inactive state exactly once, not a duplicate forced
+	/// event after the throttled one (#166).
+	/// </summary>
+	[Fact]
+	public async Task LinearDecay_WithoutThrottle_ReportsTheFinalStateOnce()
+	{
+		var component = RenderPad(p => p
+			.Add(x => x.Value, 0.0)
+			.Add(x => x.DecayMode, DecayMode.Linear)
+			.Add(x => x.DecayHalfLife, TimeSpan.FromMilliseconds(40))
+			.Add(x => x.EventThrottleMs, 0));
+
+		await component.Find("svg").MouseDownAsync(new MouseEventArgs());
+
+		component.WaitForAssertion(() => _events[^1].Value.Should().Be(0.0), TimeSpan.FromSeconds(5));
+		await component.InvokeAsync(() => Task.CompletedTask);
+		_events.Count(e => e.Value == 0.0).Should().Be(1);
+	}
+
 	/// <summary>With no throttle, the decay reports intermediate values as well.</summary>
 	[Fact]
 	public async Task Decay_WithoutThrottle_ReportsIntermediateValues()

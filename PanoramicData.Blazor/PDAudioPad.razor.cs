@@ -7,6 +7,7 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 {
 	private CancellationTokenSource? _cts;
 	private DateTime _lastEventEmitTime = DateTime.MinValue;
+	private double _lastEmittedValue = double.NaN;
 
 	/// <summary>
 	/// Gets or sets active color used when pad value is high.
@@ -120,6 +121,7 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 			}
 
 			_lastEventEmitTime = DateTime.UtcNow;
+			_lastEmittedValue = Value;
 			return;
 		}
 
@@ -142,6 +144,7 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 			}
 
 			_lastEventEmitTime = now;
+			_lastEmittedValue = Value;
 		}
 	}
 
@@ -186,6 +189,13 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 			Value = MinValue;
 			await ValueChanged.InvokeAsync(Value);
 			await EmitValueChangedEvent(forceEmit: true); // Emit final event when decay completes
+			await InvokeAsync(StateHasChanged);
+		}
+		else if (!_lastEmittedValue.Equals(Value))
+		{
+			// The loop already reached the minimum (Linear decay clamps to it), but throttling may have
+			// suppressed that emission: report the final state so a listener always sees the pad go inactive
+			await EmitValueChangedEvent(forceEmit: true);
 			await InvokeAsync(StateHasChanged);
 		}
 	}

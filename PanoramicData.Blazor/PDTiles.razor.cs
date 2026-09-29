@@ -13,8 +13,12 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	private TileColors _colors = new();
 	private readonly Dictionary<string, TileGradientInfo> _tileColorGradients = [];
 	private readonly Dictionary<string, TileDefinition> _tileOverrides = [];
-	private List<string> _tileLogos = [];
+	private List<string?> _tileLogos = [];
 	private List<bool> _tileVisible = [];
+
+	// The generated (random) logo and visibility of each tile, before per-tile overrides are applied
+	private List<string?> _generatedLogos = [];
+	private List<bool> _generatedVisible = [];
 	private readonly Random _random = new();
 
 	// Track last known grid configuration to avoid re-randomizing on every render
@@ -153,7 +157,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		get
 		{
 			var layout = CalculateLayout();
-			return $"0 0 {layout.ViewBoxWidth} {layout.ViewBoxHeight}";
+			return $"0 0 {F(layout.ViewBoxWidth)} {F(layout.ViewBoxHeight)}";
 		}
 	}
 
@@ -265,7 +269,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	private void StartAnimationIfNeeded()
 	{
 		var hasConnectors = Connectors?.Count > 0;
-		var animationEnabled = ConnectorOptions.AnimationSpeed > 0;
+		var animationEnabled = ConnectorOptions.Animation && ConnectorOptions.AnimationSpeed > 0;
 
 		if (hasConnectors && animationEnabled && _animationTimer == null)
 		{
@@ -280,6 +284,11 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 			StopAnimation();
 		}
 	}
+
+	/// <summary>
+	/// Gets whether the connector animation timer is running.
+	/// </summary>
+	internal bool IsAnimating => _animationTimer != null;
 
 	private void StopAnimation()
 	{
@@ -313,25 +322,48 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		var totalTiles = Options.Columns * Options.Rows;
 		var logoCount = Logos?.Count ?? 0;
 
-		// Check if the grid configuration has changed
+		// Only re-randomize the generated state when the grid configuration changes
 		var configChanged = _lastColumns != Options.Columns ||
 							_lastRows != Options.Rows ||
 							_lastPopulation != Options.Population ||
 							_lastLogoCount != logoCount;
 
-		// If configuration hasn't changed, don't re-randomize
-		if (!configChanged && _tileVisible.Count == totalTiles && _tileLogos.Count == totalTiles)
+		if (configChanged || _generatedVisible.Count != totalTiles || _generatedLogos.Count != totalTiles)
 		{
-			return;
+			_lastColumns = Options.Columns;
+			_lastRows = Options.Rows;
+			_lastPopulation = Options.Population;
+			_lastLogoCount = logoCount;
+			GenerateTiles(totalTiles);
 		}
 
-		// Update tracking fields
-		_lastColumns = Options.Columns;
-		_lastRows = Options.Rows;
-		_lastPopulation = Options.Population;
-		_lastLogoCount = logoCount;
+		// Overrides are re-applied on every parameter set, so tile definitions supplied, removed or changed
+		// after the first render take effect without re-randomizing the other tiles
+		ApplyTileOverrides(totalTiles);
+	}
 
-		// Initialize tile overrides map
+	private void GenerateTiles(int totalTiles)
+	{
+		// Logos: shuffle and assign. With no logos the tiles are drawn without one.
+		var shuffledLogos = (Logos ?? []).OrderBy(_ => _random.Next()).ToList();
+		_generatedLogos = [];
+		for (var i = 0; i < totalTiles; i++)
+		{
+			_generatedLogos.Add(shuffledLogos.Count == 0 ? null : shuffledLogos[i % shuffledLogos.Count]);
+		}
+
+		// Visibility based on population
+		_generatedVisible = [];
+		var visibleCount = (int)Math.Ceiling(totalTiles * (Options.Population / 100.0));
+		var indices = Enumerable.Range(0, totalTiles).OrderBy(_ => _random.Next()).ToList();
+		for (var i = 0; i < totalTiles; i++)
+		{
+			_generatedVisible.Add(indices.IndexOf(i) < visibleCount);
+		}
+	}
+
+	private void ApplyTileOverrides(int totalTiles)
+	{
 		_tileOverrides.Clear();
 		if (Tiles != null)
 		{
@@ -341,42 +373,15 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 			}
 		}
 
-		// Initialize logos - shuffle and assign
 		_tileLogos = [];
-		var shuffledLogos = (Logos ?? []).OrderBy(_ => _random.Next()).ToList();
-		for (var i = 0; i < totalTiles; i++)
-		{
-			// Check for per-tile logo override
-			var col = i % Options.Columns;
-			var row = i / Options.Columns;
-			var key = $"{col},{row}";
-			if (_tileOverrides.TryGetValue(key, out var tileDef) && !string.IsNullOrEmpty(tileDef.Logo))
-			{
-				_tileLogos.Add(tileDef.Logo);
-			}
-			else
-			{
-				_tileLogos.Add(shuffledLogos[i % shuffledLogos.Count]);
-			}
-		}
-
-		// Initialize visibility based on population
 		_tileVisible = [];
-		var visibleCount = (int)Math.Ceiling(totalTiles * (Options.Population / 100.0));
-		var indices = Enumerable.Range(0, totalTiles).OrderBy(_ => _random.Next()).ToList();
 		for (var i = 0; i < totalTiles; i++)
 		{
-			var isVisible = indices.IndexOf(i) < visibleCount;
-			// Check for per-tile visibility override
 			var col = i % Options.Columns;
 			var row = i / Options.Columns;
-			var key = $"{col},{row}";
-			if (_tileOverrides.TryGetValue(key, out var tileDef))
-			{
-				isVisible = tileDef.Visible;
-			}
-
-			_tileVisible.Add(isVisible);
+			_tileOverrides.TryGetValue($"{col},{row}", out var tileDef);
+			_tileLogos.Add(string.IsNullOrEmpty(tileDef?.Logo) ? _generatedLogos[i] : tileDef.Logo);
+			_tileVisible.Add(tileDef?.Visible ?? _generatedVisible[i]);
 		}
 
 		// Pre-populate per-tile color gradients so <defs> are available on first render.
@@ -384,12 +389,12 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		// render pass because EnsureGradients() is called during tile rendering which occurs
 		// after the <defs> section in the markup.
 		_tileColorGradients.Clear();
-		EnsureGradients(Options.TileColor, -1);
+		EnsureGradients(Options.TileColor);
 		foreach (var tileDef in _tileOverrides.Values)
 		{
 			if (!string.IsNullOrEmpty(tileDef.Color))
 			{
-				EnsureGradients(tileDef.Color, -1);
+				EnsureGradients(tileDef.Color);
 			}
 		}
 	}
@@ -400,6 +405,8 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	public void Shuffle()
 	{
 		_tileLogos = [.. _tileLogos.OrderBy(_ => _random.Next())];
+		// Keep the shuffled order when the overrides are next re-applied
+		_generatedLogos = [.. _tileLogos];
 		StateHasChanged();
 	}
 
@@ -780,7 +787,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		}
 
 		var tiltDegrees = Options.Perspective * 0.2;
-		return $"transform: perspective(1000px) rotateX({tiltDegrees}deg);";
+		return $"transform: perspective(1000px) rotateX({F(tiltDegrees)}deg);";
 	}
 
 	private static string GetFrontFacePath(int depthPercent)
@@ -854,7 +861,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 				break;
 		}
 
-		return $"{startPoints.X},{t0Y} {endPoints.X},{t1Y} {endPoints.X},{b1Y} {startPoints.X},{b0Y}";
+		return $"{F(startPoints.X)},{F(t0Y)} {F(endPoints.X)},{F(t1Y)} {F(endPoints.X)},{F(b1Y)} {F(startPoints.X)},{F(b0Y)}";
 	}
 
 	private AttachmentPoints GetTileAttachmentPoints(TileRenderInfo tile, string direction, bool isOutgoing, int edgeIndex, int edgeTotal, LayoutInfo layout)
@@ -983,13 +990,32 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		return defaultValue;
 	}
 
+	/// <summary>
+	/// Gets the glow filter for a tile's top face. Without a <see cref="TileDefinition.Glow"/> override the
+	/// shared filter is used; an override of zero or less removes the glow; any other override gets the tile
+	/// its own filter at that intensity (percentage, capped at 100).
+	/// </summary>
+	private TopFaceFilter GetTopFaceFilter(TileRenderInfo tile)
+	{
+		if (!_tileOverrides.TryGetValue($"{tile.Column},{tile.Row}", out var tileDef) || tileDef.Glow is not { } glow)
+		{
+			return new TopFaceFilter($"{Id}-glow", null);
+		}
+
+		return glow <= 0
+			? new TopFaceFilter(null, null)
+			: new TopFaceFilter($"{Id}-glow-{tile.Id}", Math.Min(glow, 100) / 100.0);
+	}
+
+	private sealed record TopFaceFilter(string? Id, double? Glow);
+
 	private string? GetTileLogo(int col, int row)
 	{
 		var id = row * Options.Columns + col;
 		return _tileLogos.Count > id ? _tileLogos[id] : null;
 	}
 
-	private TileGradientInfo EnsureGradients(string color, int tileId)
+	private TileGradientInfo EnsureGradients(string color)
 	{
 		if (!_tileColorGradients.TryGetValue(color, out var gradInfo))
 		{
@@ -1018,13 +1044,27 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		};
 	}
 
+	/// <summary>
+	/// Parses a hex colour in the #RRGGBB or short #RGB form (the leading # is optional).
+	/// </summary>
+	/// <exception cref="ArgumentException">The value is not a hex colour in either form.</exception>
 	private static (int r, int g, int b) ParseHexColor(string hex)
 	{
-		hex = hex.TrimStart('#');
+		var digits = (hex ?? string.Empty).TrimStart('#');
+		if (digits.Length == 3)
+		{
+			digits = string.Concat(digits.Select(c => new string(c, 2)));
+		}
+
+		if (digits.Length != 6 || !digits.All(Uri.IsHexDigit))
+		{
+			throw new ArgumentException($"'{hex}' is not a valid colour: PDTiles accepts hex colours in the form #RGB or #RRGGBB.", nameof(hex));
+		}
+
 		return (
-			Convert.ToInt32(hex[..2], 16),
-			Convert.ToInt32(hex.Substring(2, 2), 16),
-			Convert.ToInt32(hex.Substring(4, 2), 16)
+			Convert.ToInt32(digits[..2], 16),
+			Convert.ToInt32(digits.Substring(2, 2), 16),
+			Convert.ToInt32(digits.Substring(4, 2), 16)
 		);
 	}
 
@@ -1033,7 +1073,7 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	private static string HexToRgba(string hex, double alpha)
 	{
 		var (r, g, b) = ParseHexColor(hex);
-		return $"rgba({r}, {g}, {b}, {alpha})";
+		return $"rgba({r}, {g}, {b}, {F(alpha)})";
 	}
 
 	private static string GetTileName(string? logoPath)
@@ -1107,26 +1147,6 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 		ConnectorDirection.DiagonalFrontBack => type is "diag-front" or "diag-back",
 		_ => true
 	};
-
-	/// <summary>
-	/// Validates if a connection between two tiles is valid for the given connection mode.
-	/// </summary>
-	private static bool IsValidConnection(TileCoordinate start, TileCoordinate end, ConnectionMode mode)
-	{
-		var rowDiff = Math.Abs(end.Row - start.Row);
-		var colDiff = Math.Abs(end.Column - start.Column);
-
-		return mode switch
-		{
-		// StraightLine: only adjacent tiles (including diagonals) - row/col diff must be 0 or 1
-			ConnectionMode.StraightLine => rowDiff <= 1 && colDiff <= 1 && (rowDiff + colDiff > 0),
-			// RowCurves: adjacent rows (diff of 1), any column distance
-			ConnectionMode.RowCurves => rowDiff == 1 && colDiff >= 0,
-			// ColumnCurves: adjacent columns (diff of 1), any row distance
-			ConnectionMode.ColumnCurves => colDiff == 1 && rowDiff >= 0,
-			_ => true
-		};
-	}
 
 	/// <summary>
 	/// Gets the tiles that can be connected to in the current connection mode.

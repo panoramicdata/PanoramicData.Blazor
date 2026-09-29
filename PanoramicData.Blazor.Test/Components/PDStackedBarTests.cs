@@ -139,4 +139,21 @@ public class PDStackedBarTests : BunitContext
 		await component.InvokeAsync(() => component.Instance.SetEnabled(true));
 		component.Find("svg").ClassList.Should().NotContain("disabled");
 	}
+
+	/// <summary>
+	/// Verifies that a point with fewer values than there are series renders, and its tooltip lists only the
+	/// series that have a value (#157).
+	/// </summary>
+	[Fact]
+	public void FewerValuesThanSeries_TitleListsOnlyTheSeriesWithValues()
+	{
+		var component = Render<PDStackedBar>(parameters => parameters
+			.Add(p => p.Options, TwoSeriesOptions())
+			.Add(p => p.Height, 50)
+			.Add(p => p.DataPoint, new DataPoint { StartTime = _start, Count = 2, SeriesValues = [10] }));
+
+		var lines = component.Find("title").TextContent
+			.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+		lines.Should().Equal("04/03/26 05:06", "Alpha: 10", $"{DataPoint.CountLabel}: 2");
+	}
 }

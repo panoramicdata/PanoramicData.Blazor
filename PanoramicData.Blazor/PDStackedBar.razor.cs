@@ -92,7 +92,9 @@ public partial class PDStackedBar : IEnablable
 		sb.AppendLine(DataPoint.StartTime.ToString(DateFormat, CultureInfo.InvariantCulture));
 		if (DataPoint != null && DataPoint.SeriesValues.Length > 0)
 		{
-			for (var i = 0; i < Options.Series.Length; i++)
+			// A point may carry fewer values than there are series: only the series with a value are listed
+			var count = Math.Min(Options.Series.Length, DataPoint.SeriesValues.Length);
+			for (var i = 0; i < count; i++)
 			{
 				sb.Append(Options.Series[i].Label)
 				  .Append(": ")

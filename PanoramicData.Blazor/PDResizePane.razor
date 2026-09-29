@@ -1,4 +1,6 @@
-﻿<div @ref="_container" class="pdresizepane-container" style="position: relative;">
+@implements IAsyncDisposable
+
+<div @ref="_container" class="pdresizepane-container" style="position: relative;">
 	<div @ref="_handle" class="pdresizepane-handle @CornerClass"></div>
 	<div class="pdresizepane-content">
 		@ChildContent
@@ -28,18 +30,49 @@
 	private ElementReference _container;
 	private ElementReference _handle;
 
+	private IJSObjectReference? _module;
+
 	[Inject] private IJSRuntime JS { get; set; } = default!;
 
+	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
-			await JS.InvokeVoidAsync("init", _container, _handle, CornerClass);
+			try
+			{
+				_module = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDResizePane.razor.js").ConfigureAwait(true);
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync("init", _container, _handle, CornerClass).ConfigureAwait(true);
+				}
+			}
+			catch (JSDisconnectedException)
+			{
+				// The circuit has gone (fast page switching), so there is nothing to initialise
+			}
 		}
 	}
 
+	/// <summary>
+	/// Removes the resize handle's listeners and releases the JavaScript module.
+	/// </summary>
 	public async ValueTask DisposeAsync()
 	{
+		try
+		{
+			if (_module != null)
+			{
+				await _module.InvokeVoidAsync("dispose", _handle).ConfigureAwait(true);
+				await _module.DisposeAsync().ConfigureAwait(true);
+			}
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit has gone, taking the JavaScript side with it
+		}
+
+		GC.SuppressFinalize(this);
 	}
 
 	public enum ResizeCorner

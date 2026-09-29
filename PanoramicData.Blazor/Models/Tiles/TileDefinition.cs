@@ -51,8 +51,10 @@ public class TileDefinition
 	public int? ReflectionDepth { get; set; }
 
 	/// <summary>
-	/// Optional glow override (percentage).
+	/// Optional glow override (percentage, 0-100) for this tile's top face. When null the tile uses the shared
+	/// glow; 0 removes the glow; a higher value gives the tile a stronger, wider glow.
 	/// </summary>
+	/// <remarks>Honoured by <see cref="PDTiles"/>. <see cref="PDTilesJavaScript"/> does not take tile definitions.</remarks>
 	public int? Glow { get; set; }
 
 	/// <summary>
