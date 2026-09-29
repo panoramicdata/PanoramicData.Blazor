@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Models;
@@ -111,6 +112,45 @@ public class PDZoomBarTests : BunitContext
 
 		_changes.Should().Equal(60);
 		module.Invocations["setValue"].Should().ContainSingle();
+	}
+
+	/// <summary>
+	/// Zooming out from a zoom that is not one of the steps moves to the next larger step,
+	/// not to the smallest step (#173).
+	/// </summary>
+	[Fact]
+	public async Task ZoomOut_FromValueBetweenSteps_MovesToNextLargerStep()
+	{
+		var cut = RenderZoomBar(55);
+
+		await cut.InvokeAsync(() => cut.FindAll("button")[0].ClickAsync(new MouseEventArgs()));
+
+		_changes.Should().Equal(60);
+		cut.Instance.Value.Zoom.Should().Be(60);
+	}
+
+	/// <summary>Zooming in from a zoom that is not one of the steps moves to the next smaller step (#173).</summary>
+	[Fact]
+	public async Task ZoomIn_FromValueBetweenSteps_MovesToNextSmallerStep()
+	{
+		var cut = RenderZoomBar(55);
+
+		await cut.InvokeAsync(() => cut.FindAll("button")[1].ClickAsync(new MouseEventArgs()));
+
+		_changes.Should().Equal(50);
+		cut.Instance.Value.Zoom.Should().Be(50);
+	}
+
+	/// <summary>Zooming out from beyond the largest step does nothing, as there is no larger step.</summary>
+	[Fact]
+	public async Task ZoomOut_FromBeyondLastStep_DoesNothing()
+	{
+		var cut = RenderZoomBar(150);
+
+		await cut.InvokeAsync(() => cut.FindAll("button")[0].ClickAsync(new MouseEventArgs()));
+
+		_changes.Should().BeEmpty();
+		cut.Instance.Value.Zoom.Should().Be(150);
 	}
 
 	/// <summary>On first render the module is initialised with the canvas id, value and options.</summary>
