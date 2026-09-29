@@ -63,7 +63,7 @@ export function init(container, handle, cornerClass) {
 export function dispose(handle) {
 	const state = handle?._pdResizePane;
 	if (!state) return;
-	handle.removeEventListener('pointerdown', state.onPointerDown);
+	handle.removeEventListener("pointerdown", state.onPointerDown);
 	state.onPointerUp();
 	delete handle._pdResizePane;
 }
