@@ -196,7 +196,10 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 		await source.RemoveSelectedCardsAsync();
 		await destination.AddCardsAsync(movingCards);
 
+		// The moving cards are now in the destination deck, so it becomes the start of any further move,
+		// and a drop straight away still finds the deck to transform into.
 		_destinations.Clear();
+		_destinations.Add(destination.Id);
 
 		await InvokeAsync(StateHasChanged);
 	}

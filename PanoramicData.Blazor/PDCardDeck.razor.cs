@@ -525,11 +525,8 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		Cards = newOrder;
 		DataLoaded = true;
 
-		// Refresh will be performed on the Group level, no need to invoke StateHasChanged here.
-		if (Parent is not null)
-		{
-			await InvokeAsync(StateHasChanged);
-		}
+		// Always re-render: a deck outside a group has nothing else to render it once its data arrives.
+		await InvokeAsync(StateHasChanged);
 	}
 
 	#endregion

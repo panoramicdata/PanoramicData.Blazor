@@ -13,10 +13,6 @@ namespace PanoramicData.Blazor.Test.Components;
 /// <summary>
 /// Tests for <see cref="PDCardDeck{TCard}"/>: loading, rendering, selection, reordering by drag, and moving cards between decks in a group.
 /// </summary>
-/// <remarks>
-/// A deck on its own loads its cards after its first render but does not re-render itself when they arrive
-/// (see the suspected defect in the batch report), so these tests re-render once the data has loaded.
-/// </remarks>
 public class PDCardDeckTests : BunitContext
 {
 	private const string ModulePath = "./_content/PanoramicData.Blazor/PDCardDeck.razor.js";
@@ -41,7 +37,6 @@ public class PDCardDeckTests : BunitContext
 			more?.Invoke(parameters);
 		});
 		deck.WaitForState(() => deck.Instance.DataLoaded);
-		deck.Render();
 		return deck;
 	}
 
@@ -61,6 +56,22 @@ public class PDCardDeckTests : BunitContext
 
 		Names(deck).Should().Equal("Alpha", "Bravo", "Charlie");
 		deck.Instance.Cards.Select(c => c.Name).Should().Equal("Alpha", "Bravo", "Charlie");
+		deck.FindAll(".pd-carddeck-loading").Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// Verifies that a deck outside a group shows its cards once they have loaded, without anything else
+	/// forcing it to render again (#175, #204).
+	/// </summary>
+	[Fact]
+	public void Standalone_ShowsItsCards_WithoutAnExtraRender()
+	{
+		var cards = Cards();
+		var deck = Render<PDCardDeck<Card>>(parameters => parameters
+			.Add(p => p.DataFunction, () => Task.FromResult(new DataResponse<Card>(cards, cards.Count))));
+
+		deck.WaitForAssertion(() => deck.FindAll("div.card").Should().HaveCount(cards.Count), TimeSpan.FromSeconds(10));
+		deck.Instance.DataLoaded.Should().BeTrue();
 		deck.FindAll(".pd-carddeck-loading").Should().BeEmpty();
 	}
 
@@ -416,7 +427,7 @@ public class PDCardDeckTests : BunitContext
 		Deck(group, "right").Instance.Cards.Select(c => c.Name).Should().Equal("A", "C");
 		Deck(group, "left").Instance.Cards.Select(c => c.Name).Should().Equal("B");
 
-		await group.InvokeAsync(() => group.Find("#right").DragEnterAsync(new DragEventArgs()));
+		// Dropped straight after entering the destination, with no further drag-enter in between (#175).
 		await group.InvokeAsync(Deck(group, "right").Instance.InitiateTransformAsync);
 
 		board.Transforms.Should().ContainSingle();
