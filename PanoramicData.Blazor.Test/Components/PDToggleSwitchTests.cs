@@ -264,6 +264,28 @@ public class PDToggleSwitchTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that the width never goes backwards as the text gets longer (#188): text that fits in the room
+	/// the base width leaves adds nothing, and only the width beyond that room is added.
+	/// </summary>
+	[Theory]
+	[InlineData(ButtonSizes.Small, "0.5rem", 7, "32")]
+	[InlineData(ButtonSizes.Small, "0.5rem", 9, "33")]
+	[InlineData(ButtonSizes.Medium, "1rem", 16, "48")]
+	[InlineData(ButtonSizes.Medium, "1rem", 17, "49")]
+	[InlineData(ButtonSizes.Large, "1.5rem", 23, "64")]
+	[InlineData(ButtonSizes.Large, "1.5rem", 25, "65")]
+	public void Width_does_not_jump_backwards_around_the_text_room(ButtonSizes size, string fontSize, double measured, string width)
+	{
+		_module.Setup<double>("measureText", "On", fontSize).SetResult(measured);
+
+		var component = Render<PDToggleSwitch>(parameters => parameters
+			.Add(p => p.Size, size)
+			.Add(p => p.OnText, "On"));
+
+		component.WaitForAssertion(() => component.Find("svg").GetAttribute("width").Should().Be(width), TimeSpan.FromSeconds(10));
+	}
+
+	/// <summary>
 	/// Verifies that new, longer text supplied after first render widens the switch again.
 	/// </summary>
 	[Fact]
