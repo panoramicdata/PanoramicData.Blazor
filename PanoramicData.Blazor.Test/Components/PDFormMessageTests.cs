@@ -178,7 +178,7 @@ public class PDFormMessageTests : BunitContext
 		component.Find(".pdchat-form-scale-value").TextContent.Trim().Should().Be("Agree");
 		var answer = Submit(component);
 		answer.Value.Should().Be("Agree");
-		answer.ScaleDescription.Should().StartWith("1 = Disagree, 2 = Neutral, 3 = Agree");
+		answer.ScaleDescription.Should().Be("1 = Disagree, 2 = Neutral, 3 = Agree (chosen: 3)", "the description records the number chosen, not its label (#185)");
 	}
 
 	/// <summary>An unlabelled scale reports the number and describes the ends of the scale.</summary>

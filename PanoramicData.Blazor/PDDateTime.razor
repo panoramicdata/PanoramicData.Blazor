@@ -7,7 +7,7 @@
 		   class="form-control date @_dateCssClass"
 		   disabled="@(!IsEnabled)"
 		   type="@(UseNativeDatePicker ? "date" : "text")"
-		   value="@(Value.ToString(UseNativeDatePicker ? "yyyy-MM-dd" : DateFormat))"
+		   value="@DateText"
 		   placeholder="@(UseNativeDatePicker ? null : DateFormat)">
 
 	@if (ShowTime)
@@ -18,7 +18,7 @@
 			   disabled="@(!IsEnabled)"
 			   step="@TimeStepSecs"
 			   type="time"
-			   value="@(Value.ToString("HH:mm:ss"))" />
+			   value="@TimeText" />
 	}
 
 </div>

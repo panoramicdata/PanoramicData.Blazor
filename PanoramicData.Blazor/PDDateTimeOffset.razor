@@ -19,7 +19,7 @@
 		   class="form-control date @_dateCssClass"
 		   disabled="@(!IsEnabled || IsNow)"
 		   type="date"
-		   value="@(Value.ToString("yyyy-MM-dd"))">
+		   value="@DateText">
 
 	@if (ShowTime)
 	{
@@ -29,7 +29,7 @@
 			   disabled="@(!IsEnabled || IsNow)"
 			   step="@TimeStepSecs"
 			   type="time"
-			   value="@(Value.ToString("HH:mm:ss"))" />
+			   value="@TimeText" />
 
 		@if (ShowTimeZones)
 		{
@@ -37,9 +37,18 @@
 					disabled="@(!IsEnabled || IsNow)"
 					@onblur="OnBlur"
 					@onchange="OnTimeZoneInputAsync">
+				@{
+					var selectedZone = SelectedTimeZone;
+					var selectedId = ResolveListedTimeZoneId(selectedZone, TimeZones);
+				}
+				@if (selectedId is null)
+				{
+					@* The zone in use is not listed and has no listed equivalent, so it is offered on its own *@
+					<option value="@selectedZone.Id" selected>@selectedZone.DisplayName</option>
+				}
 				@foreach (var timeZone in TimeZones)
 				{
-					<option value="@timeZone.Id" selected="@(timeZone.Id == SelectedTimeZone.Id)">@timeZone.DisplayName</option>
+					<option value="@timeZone.Id" selected="@(timeZone.Id == selectedId)">@timeZone.DisplayName</option>
 				}
 			</select>
 		}
@@ -51,7 +60,7 @@
 					@oninput="OnOffsetInputAsync">
 				@for (double i = -11; i <= 14; i = i + 0.5)
 				{
-					<option value="@i" selected="@(Value.Offset.TotalHours == i)">@(OffsetDisplay(i))</option>
+					<option value="@(i.ToString(System.Globalization.CultureInfo.InvariantCulture))" selected="@(Value.Offset.TotalHours == i)">@(OffsetDisplay(i))</option>
 				}
 			</select>
 		}

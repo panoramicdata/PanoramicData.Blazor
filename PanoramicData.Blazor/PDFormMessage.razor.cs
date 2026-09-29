@@ -387,6 +387,9 @@ public partial class PDFormMessage
 			value = otherText;
 		}
 
+		// Captured before any label replaces it: ScaleDescription must report the number chosen.
+		var chosen = value;
+
 		// A labelled scale records "Agree" rather than "2". The number is not lost - it stays in
 		// ScaleDescription - but the answer itself should be readable without a key.
 		if (question.Kind == ChatFormAnswerKind.Scale
@@ -418,7 +421,7 @@ public partial class PDFormMessage
 			WasOther = hasOther,
 			WasSkipped = string.IsNullOrWhiteSpace(value),
 			ScaleDescription = question.Kind == ChatFormAnswerKind.Scale && question.Scale is not null
-				? DescribeScale(question.Scale, value)
+				? DescribeScale(question.Scale, chosen)
 				: null
 		};
 	}

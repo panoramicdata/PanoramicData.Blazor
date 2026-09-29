@@ -327,30 +327,6 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	private async Task UpdateDateTimeValue(ChangeEventArgs args, FormField<TItem> field)
-	{
-		try
-		{
-			await Form!.SetFieldValueAsync(field, DateTime.SpecifyKind(Convert.ToDateTime(args.Value, CultureInfo.InvariantCulture), DateTimeKind.Utc)).ConfigureAwait(true);
-		}
-		catch
-		{
-			Form!.SetFieldErrors(field.GetName() ?? "", "Invalid Date");
-		}
-	}
-
-	private async Task UpdateDateTimeOffsetValue(ChangeEventArgs args, FormField<TItem> field)
-	{
-		try
-		{
-			await Form!.SetFieldValueAsync(field, DateTimeOffset.Parse(args.Value?.ToString() ?? string.Empty, CultureInfo.InvariantCulture)).ConfigureAwait(true);
-		}
-		catch
-		{
-			Form!.SetFieldErrors(field.GetName() ?? "", "Invalid Date");
-		}
-	}
-
 	private async Task UpdateValueViaCastAsync(ChangeEventArgs args, FormField<TItem> field)
 	{
 		try
@@ -361,31 +337,13 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 				return;
 			}
 
-			// handle nullable types
-			object? newValue = null;
-			if (Nullable.GetUnderlyingType(fieldType) is Type ut)
-			{
-				if (args.Value is null)
-				{
-					newValue = null;
-				}
-				else if (ut.Name == "System.String")
-				{
-					newValue = args.Value.ToString();
-				}
-				else if (args.Value.ToString() == string.Empty)
-				{
-					newValue = null;
-				}
-				else
-				{
-					newValue = Convert.ChangeType(args.Value, ut, CultureInfo.InvariantCulture);
-				}
-			}
-			else
-			{
-				newValue = Convert.ChangeType(args.Value ?? string.Empty, fieldType, CultureInfo.InvariantCulture);
-			}
+			// GetFieldType has already unwrapped Nullable<T>, so whether the field can hold null is asked of
+			// the field itself. An empty entry clears a nullable value type; strings are kept as typed.
+			object? newValue = fieldType != typeof(string)
+				&& field.GetFieldIsNullable()
+				&& string.IsNullOrEmpty(args.Value?.ToString())
+					? null
+					: Convert.ChangeType(args.Value ?? string.Empty, fieldType, CultureInfo.InvariantCulture);
 
 			await Form!.SetFieldValueAsync(field, newValue).ConfigureAwait(true);
 		}

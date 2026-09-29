@@ -147,6 +147,39 @@ public partial class PDDateTimeOffset : IDisposable
 		return map;
 	}
 
+	/// <summary>
+	/// The text shown in the native date input, which needs an ISO date whatever the culture's calendar.
+	/// </summary>
+	private string DateText => Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+	/// <summary>
+	/// The text shown in the native time input, which needs HH:mm:ss whatever the culture's time separator.
+	/// </summary>
+	private string TimeText => Value.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+
+	/// <summary>
+	/// Finds the listed option that stands for a zone. A zone can be valid yet unlisted: on Linux with the
+	/// machine zone Etc/UTC, <see cref="TimeZoneInfo.Local"/> has the id "Etc/UTC" while
+	/// <see cref="TimeZoneInfo.GetSystemTimeZones()"/> lists it only as "UTC". Such a zone is matched to a listed
+	/// zone with the same Windows id and the same rules.
+	/// </summary>
+	/// <param name="zone">The zone to find.</param>
+	/// <param name="listed">The zones offered as options.</param>
+	/// <returns>The id of the listed zone that stands for <paramref name="zone"/>, or null when none does.</returns>
+	internal static string? ResolveListedTimeZoneId(TimeZoneInfo zone, IReadOnlyList<TimeZoneInfo> listed)
+	{
+		if (listed.Any(listedZone => listedZone.Id == zone.Id))
+		{
+			return zone.Id;
+		}
+
+		var windowsId = ToWindowsId(zone.Id);
+		return listed.FirstOrDefault(listedZone => ToWindowsId(listedZone.Id) == windowsId && listedZone.HasSameRules(zone))?.Id;
+	}
+
+	private static string ToWindowsId(string id)
+		=> TimeZoneInfo.TryConvertIanaIdToWindowsId(id, out var windowsId) ? windowsId : id;
+
 	private static string StripUtcPrefix(string displayName)
 	{
 		// System time zone display names look like "(UTC+01:00) Amsterdam, Berlin, ...";

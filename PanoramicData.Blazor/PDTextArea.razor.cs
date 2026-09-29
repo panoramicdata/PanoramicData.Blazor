@@ -273,17 +273,6 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		_cancelDebounce = false;
 	}
 
-
-	private async Task OnInput(ChangeEventArgs args)
-	{
-		if (DebounceWait <= 0)
-		{
-			Value = args.Value?.ToString() ?? string.Empty;
-			await ValueChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty).ConfigureAwait(true);
-		}
-	}
-
-
 	private async Task OnKeypress(KeyboardEventArgs args)
 	{
 		if (DebounceWait <= 0)

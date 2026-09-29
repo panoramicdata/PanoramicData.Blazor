@@ -25,6 +25,40 @@ public partial class PDDateTime
 	private bool UseNativeDatePicker => DateFormat == "yyyy-MM-dd";
 
 	/// <summary>
+	/// The text shown in the date input. The native picker needs an ISO date whatever the culture; a custom
+	/// format is shown in the current culture, which is also the culture it is read back in.
+	/// </summary>
+	private string DateText => UseNativeDatePicker
+		? Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+		: Value.ToString(DateFormat, CultureInfo.CurrentCulture);
+
+	/// <summary>
+	/// The text shown in the native time input, which needs HH:mm:ss whatever the culture's time separator.
+	/// </summary>
+	private string TimeText => Value.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+
+	/// <summary>
+	/// Reads a date typed into the date input: as an ISO date for the native picker, otherwise in the custom
+	/// format in the current culture (as displayed) and then, for compatibility, the invariant culture.
+	/// </summary>
+	private bool TryParseDate(string? text, out DateTime date)
+	{
+		date = default;
+		if (text is null)
+		{
+			return false;
+		}
+
+		if (UseNativeDatePicker)
+		{
+			return DateTime.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
+		}
+
+		return DateTime.TryParseExact(text, DateFormat, CultureInfo.CurrentCulture, DateTimeStyles.None, out date)
+			|| DateTime.TryParseExact(text, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
+	}
+
+	/// <summary>
 	/// Gets or sets whether to show the time part of the value.
 	/// </summary>
 	[Parameter]
@@ -54,9 +88,7 @@ public partial class PDDateTime
 	{
 		try
 		{
-			var value = args.Value?.ToString();
-			var parseFormat = UseNativeDatePicker ? "yyyy-MM-dd" : DateFormat;
-			if (value != null && DateTime.TryParseExact(value, parseFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
+			if (TryParseDate(args.Value?.ToString(), out var dt))
 			{
 				Value = dt.Date.Add(Value.TimeOfDay);
 				_dateCssClass = string.Empty;

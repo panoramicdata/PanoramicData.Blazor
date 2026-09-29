@@ -125,7 +125,9 @@ public partial class PDTagInput : ComponentBase, IDisposable
 		// Only resync internal state when the parent supplies a genuinely new list instance.
 		// This keeps unbound usage working (the same instance is supplied every render) and
 		// avoids resyncing when a bound parent simply echoes back the list we just emitted.
-		if (ReferenceEquals(Values, _suppliedValues) || ReferenceEquals(Values, _emittedValues))
+		// A null is never an echo: before anything is emitted _emittedValues is also null, and a
+		// parent that clears the tags by supplying null must be honoured.
+		if (ReferenceEquals(Values, _suppliedValues) || (Values is not null && ReferenceEquals(Values, _emittedValues)))
 		{
 			_suppliedValues = Values;
 			return;

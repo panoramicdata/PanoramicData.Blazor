@@ -424,7 +424,11 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	/// <param name="name">Name of the field to return.</param>
 	/// <returns>A FormField instance if found, otherwise null.</returns>
-	public FormField<TItem> GetField(string name) => Fields.First(x => x.Name == name);
+	/// <remarks>
+	/// The return type is not annotated as nullable, so that existing callers compiled with nullable warnings
+	/// treated as errors are not broken; check the result for null when the name may be unknown.
+	/// </remarks>
+	public FormField<TItem> GetField(string name) => Fields.FirstOrDefault(x => x.Name == name)!;
 
 	/// <summary>
 	/// Attempts to get the requested fields current or original value and cast to the required type.
@@ -446,7 +450,8 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <returns>Field value or null.</returns>
 	public object? GetFieldValue(string fieldName, bool updatedValue)
 	{
-		return GetFieldValue(GetField(fieldName), updatedValue);
+		var field = GetField(fieldName);
+		return field is null ? null : GetFieldValue(field, updatedValue);
 	}
 
 
@@ -751,9 +756,10 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 			// Convert value to the correct type if needed and add/update Delta
 			object? typedValue = value is null ? null
 				: (propInfo.PropertyType == value.GetType() ? value : value.Cast(propInfo.PropertyType));
+			var wasUnchanged = Delta.Count == 0;
 			Delta[memberInfo.Name] = typedValue;
 			// If this is the first change, update unload listener
-			if (Delta.Count == 1 && ConfirmOnUnload && _module != null)
+			if (wasUnchanged && ConfirmOnUnload && _module != null)
 			{
 				await _module.InvokeVoidAsync("setUnloadListener", Id, true).ConfigureAwait(true);
 			}
