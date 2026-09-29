@@ -11,7 +11,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// callbacks.
 /// </summary>
 /// <remarks>Dynamic add and remove of tabs from a collection is covered by <see cref="PDTabSetDynamicTabsTests"/>.</remarks>
-public class PDTabSetTests : BunitContext
+public partial class PDTabSetTests : BunitContext
 {
 	/// <summary>Sets up the rendering context.</summary>
 	public PDTabSetTests() => JSInterop.Mode = JSRuntimeMode.Loose;

@@ -145,7 +145,7 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 		{
 			if (item.ShortcutKey.IsMatch(e.Key, e.Code, e.AltKey, e.CtrlKey, e.ShiftKey))
 			{
-				await InvokeAsync(async () => await OnClick(item.GetKeyOrText()).ConfigureAwait(true)).ConfigureAwait(true);
+				await InvokeAsync(async () => await OnItemClick(item).ConfigureAwait(true)).ConfigureAwait(true);
 				break;
 			}
 		}
@@ -167,7 +167,16 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 		GC.SuppressFinalize(this);
 	}
 
-	private async Task OnClick(string itemKey) => await Click.InvokeAsync(itemKey).ConfigureAwait(true);
+	private async Task OnItemClick(MenuItem item)
+	{
+		// A disabled item is shown greyed out and must not raise its click, whether clicked or by shortcut.
+		if (item.IsDisabled)
+		{
+			return;
+		}
+
+		await Click.InvokeAsync(item.GetKeyOrText()).ConfigureAwait(true);
+	}
 
 	/// <summary>
 	/// Disables the dropdown button.

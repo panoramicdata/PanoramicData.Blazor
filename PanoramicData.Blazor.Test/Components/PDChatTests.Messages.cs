@@ -124,6 +124,18 @@ public partial class PDChatTests
 		component.Find(".pdchat-toggle-collapsed").ClassList.Should().Contain("pdchat-success");
 	}
 
+	/// <summary>Verifies that a typing indicator on its own leaves the minimised badge unmarked (#190).</summary>
+	[Fact]
+	public async Task A_typing_indicator_does_not_mark_the_badge_unread()
+	{
+		var service = Minimised();
+		var component = RenderChat(service);
+
+		await component.InvokeAsync(() => service.Receive(Message("...", MessageType.Typing)));
+
+		component.Find(".pdchat-toggle-collapsed").ClassList.Should().NotContain(["pdchat-info", "pulsate"]);
+	}
+
 	/// <summary>Verifies that a typing indicator does not raise a toast.</summary>
 	[Fact]
 	public async Task A_typing_indicator_raises_no_toast()

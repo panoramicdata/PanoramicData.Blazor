@@ -114,6 +114,17 @@ public partial class PDTabSet : ComponentBase
 	}
 
 	/// <summary>
+	/// Redraws the tab strip after one of the tabs received new values for its title, CSS class, icon or
+	/// closing/renaming overrides.
+	/// </summary>
+	/// <remarks>
+	/// The strip is rendered from each tab's values before the tabs themselves, which are part of the child
+	/// content, receive their new parameters; without this the change only showed on the next render.
+	/// Only a tab whose values actually changed calls this, so the extra render does not repeat.
+	/// </remarks>
+	internal void OnTabAppearanceChanged() => StateHasChanged();
+
+	/// <summary>
 	/// Removes a tab that has left the render tree, without treating it as a user closing it.
 	/// </summary>
 	/// <param name="tab">The tab being disposed.</param>

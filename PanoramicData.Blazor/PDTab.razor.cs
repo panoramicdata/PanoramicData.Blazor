@@ -74,7 +74,26 @@ public partial class PDTab : ComponentBase, IDisposable
 		{
 			TempTitle = Title;
 		}
+
+		// The tab set draws the tab strip from these values before this tab receives its new parameters,
+		// so without a further render of the set a change only appeared on the next unrelated render (#190).
+		var appearance = GetAppearance();
+		if (_appearance is not null && _appearance != appearance)
+		{
+			TabSet?.OnTabAppearanceChanged();
+		}
+
+		_appearance = appearance;
 	}
+
+	private TabAppearance? _appearance;
+
+	private TabAppearance GetAppearance() => new(Title, CssClass, IconCssClass, IsClosingEnabled, IsRenamingEnabled);
+
+	/// <summary>
+	/// The parameters of a tab that the tab set draws in its tab strip.
+	/// </summary>
+	private sealed record TabAppearance(string Title, string CssClass, string? IconCssClass, bool? IsClosingEnabled, bool? IsRenamingEnabled);
 
 	/// <summary>
 	/// Gets the display title of the tab.

@@ -78,6 +78,38 @@ public class PDToolbarDropdownTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that clicking a disabled item raises no click (#180).
+	/// </summary>
+	[Fact]
+	public async Task ClickingADisabledItem_RaisesNothing()
+	{
+		var component = RenderDropdown(StandardItems());
+
+		await component.Find("tr.pddropdownmenuitem.disabled").ClickAsync(new());
+
+		_clicks.Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// Verifies that the shortcut key of a disabled item raises no click (#180).
+	/// </summary>
+	[Fact]
+	public void PressingTheShortcutOfADisabledItem_RaisesNothing()
+	{
+		var component = RenderDropdown(
+		[
+			new MenuItem { Key = "off", Text = "Off", IsDisabled = true, ShortcutKey = ShortcutKey.Create("ctrl-q") },
+			new MenuItem { Key = "open", Text = "Open", ShortcutKey = ShortcutKey.Create("ctrl-o") }
+		]);
+
+		Events.KeyUp(new KeyboardInfo { Key = "q", Code = "KeyQ", CtrlKey = true });
+		Events.KeyUp(new KeyboardInfo { Key = "o", Code = "KeyO", CtrlKey = true });
+
+		// The shortcuts are dispatched in order, so a click from the disabled item would arrive first.
+		component.WaitForAssertion(() => _clicks.Should().Equal("open"), TimeSpan.FromSeconds(10));
+	}
+
+	/// <summary>
 	/// Verifies that the button carries the configured text, classes and size, and the item container
 	/// carries the positioning and visibility classes.
 	/// </summary>

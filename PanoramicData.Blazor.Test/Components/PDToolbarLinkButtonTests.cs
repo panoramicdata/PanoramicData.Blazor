@@ -40,6 +40,17 @@ public class PDToolbarLinkButtonTests : BunitContext
 		anchor.TextContent.Trim().Should().Be("Docs");
 	}
 
+	/// <summary>The text CSS class is applied to the text span of the inner link button (#165).</summary>
+	[Fact]
+	public void TextCssClass_IsAppliedToTheText()
+	{
+		var component = Render<PDToolbarLinkButton>(parameters => parameters
+			.Add(p => p.Text, "T")
+			.Add(p => p.TextCssClass, "tc"));
+
+		component.FindAll("a span.tc").Should().ContainSingle().Which.TextContent.Should().Be("T");
+	}
+
 	/// <summary>The tooltip falls back to the text when no tooltip is given.</summary>
 	[Fact]
 	public void Tooltip_FallsBackToTheText()
