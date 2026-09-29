@@ -7,7 +7,7 @@ namespace PanoramicData.Blazor;
 /// A Blazor component that renders a deck of draggable, selectable cards loaded via a data function, with optional animation and group-level card migration support.
 /// </summary>
 /// <typeparam name="TCard">The type of card data rendered in this deck. Must implement <see cref="ICard"/>.</typeparam>
-public partial class PDCardDeck<TCard> where TCard : ICard
+public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 {
 	private static int _sequence;
 
@@ -49,6 +49,7 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 	private IJSObjectReference? _jsModule;
 	private ElementReference _elementRef;
 	private DotNetObjectReference<PDCardDeck<TCard>>? _dotNetRef;
+	private bool _disposed;
 
 	/// <summary>Gets the injected logger for this component.</summary>
 	[Inject] private ILogger<PDCardDeck<TCard>> Logger { get; set; } = null!;
@@ -145,6 +146,13 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 			_dotNetRef = DotNetObjectReference.Create(this);
 			_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
 				"import", "./_content/PanoramicData.Blazor/PDCardDeck.razor.js");
+
+			// Disposed while the module was loading: register nothing that would outlive the deck.
+			if (_disposed)
+			{
+				await DisposeAsync().ConfigureAwait(true);
+				return;
+			}
 
 			if (_jsModule != null)
 			{
@@ -538,6 +546,35 @@ public partial class PDCardDeck<TCard> where TCard : ICard
 		{
 			var card = Cards[index];
 			card.DeckPosition = index;
+		}
+	}
+
+	/// <summary>
+	/// Removes the document-level listeners the deck's script registered for this deck, then releases the
+	/// script module and the reference the script held back to this deck.
+	/// </summary>
+	/// <returns>A task that completes when the deck's resources have been released.</returns>
+	public async ValueTask DisposeAsync()
+	{
+		_disposed = true;
+		GC.SuppressFinalize(this);
+		try
+		{
+			if (_jsModule is not null)
+			{
+				await _jsModule.InvokeVoidAsync("unregisterListeners", _elementRef).ConfigureAwait(true);
+				await _jsModule.DisposeAsync().ConfigureAwait(true);
+			}
+		}
+		catch (JSDisconnectedException)
+		{
+			// The circuit has gone, and the browser dropped the listeners with the page.
+		}
+		finally
+		{
+			_jsModule = null;
+			_dotNetRef?.Dispose();
+			_dotNetRef = null;
 		}
 	}
 

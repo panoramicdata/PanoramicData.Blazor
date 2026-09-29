@@ -13,7 +13,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// <summary>
 /// Tests for <see cref="PDCardDeck{TCard}"/>: loading, rendering, selection, reordering by drag, and moving cards between decks in a group.
 /// </summary>
-public class PDCardDeckTests : BunitContext
+public partial class PDCardDeckTests : BunitContext
 {
 	private const string ModulePath = "./_content/PanoramicData.Blazor/PDCardDeck.razor.js";
 
