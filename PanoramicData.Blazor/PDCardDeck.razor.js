@@ -14,22 +14,25 @@ function addDocumentListener(element, type, handler) {
 }
 
 export function registerValidDragOperationListeners(element, dotNetRef) {
-	addDocumentListener(element, 'drop',
-		function (_) { dotNetRef.invokeMethodAsync("InitiateTransformAsync") });
+	addDocumentListener(element, "drop", function (_) {
+		dotNetRef.invokeMethodAsync("InitiateTransformAsync");
+	});
 }
 
 export function registerInvalidDragOperationListeners(element, dotNetRef) {
-	addDocumentListener(element, 'dragstart', function (event) {
+	addDocumentListener(element, "dragstart", function (event) {
 		if (isOutsideElement(event)) {
-			dotNetRef.invokeMethodAsync('EndDragOperationAsync');
+			dotNetRef.invokeMethodAsync("EndDragOperationAsync");
 		}
 	});
 
-	addDocumentListener(element, 'mouseup',
-		function (_) { dotNetRef.invokeMethodAsync("EndDragOperationAsync") });
+	addDocumentListener(element, "mouseup", function (_) {
+		dotNetRef.invokeMethodAsync("EndDragOperationAsync");
+	});
 
-	addDocumentListener(element, 'mouseleave',
-		function (_) { dotNetRef.invokeMethodAsync("EndDragOperationAsync") });
+	addDocumentListener(element, "mouseleave", function (_) {
+		dotNetRef.invokeMethodAsync("EndDragOperationAsync");
+	});
 }
 
 // Removes every document-level listener registered for the given deck element.
