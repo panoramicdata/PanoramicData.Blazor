@@ -8,7 +8,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// Tests that <see cref="PDDateTimeOffset"/> edits the date, time, offset and time zone of a value, and
 /// follows the live clock while "Now" is ticked.
 /// </summary>
-public class PDDateTimeOffsetTests : BunitContext
+public partial class PDDateTimeOffsetTests : BunitContext
 {
 	private static readonly DateTimeOffset _value = new(2026, 3, 14, 15, 9, 26, TimeSpan.FromHours(2));
 	private readonly List<DateTimeOffset> _changes = [];
@@ -100,10 +100,8 @@ public class PDDateTimeOffsetTests : BunitContext
 
 	/// <summary>An unknown or missing time zone id falls back to the local zone for the value it produces.</summary>
 	/// <remarks>
-	/// Asserted through the offset the component applies, not through which dropdown option is selected: on Linux
-	/// with the machine zone Etc/UTC (Ubuntu servers, CI runners, most containers) the local zone's id is not in
-	/// <see cref="TimeZoneInfo.GetSystemTimeZones()"/>, so no option is selected at all. That is a component defect,
-	/// raised separately, and this test must not depend on it.
+	/// Asserted through the offset the component applies; which option is selected is covered by
+	/// <see cref="NoOrUnknownTimeZone_SelectsTheLocalZonesOption"/>.
 	/// </remarks>
 	[Theory]
 	[InlineData("Not/A_Zone")]

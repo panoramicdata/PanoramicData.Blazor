@@ -11,7 +11,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// Tests that <see cref="PDFormFieldEditor{TItem}"/> chooses the right editor for a field's type and
 /// options, writes edits back to its form, and is read-only in the modes that require it.
 /// </summary>
-public class PDFormFieldEditorTests : BunitContext
+public partial class PDFormFieldEditorTests : BunitContext
 {
 	private readonly Person _person = new();
 

@@ -95,6 +95,42 @@ public partial class PDFormTests
 	}
 
 	/// <summary>
+	/// Verifies that asking for a field the form does not have returns null, as documented, and that the
+	/// name-based value reads then return an empty or default value rather than throwing (#182).
+	/// </summary>
+	[Fact]
+	public async Task GetField_ForAnUnknownName_ReturnsNull()
+	{
+		var form = RenderForm();
+		AddField(form, p => p.Name);
+		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+
+		form.Instance.GetField("Nope").Should().BeNull();
+		form.Instance.GetFieldValue("Nope").Should().BeNull();
+		form.Instance.GetFieldValue<int>("Nope").Should().Be(0);
+		form.Instance.GetFieldStringValue("Nope").Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// Verifies that the unload guard is armed once, on the first change, and not again on every later edit
+	/// while one field is dirty (#182).
+	/// </summary>
+	[Fact]
+	public async Task SetFieldValueAsync_ArmsTheUnloadGuardOnlyOnTheFirstChange()
+	{
+		var form = RenderForm();
+		var field = AddField(form, p => p.Name);
+		await EditAsync(form, new Person { Name = "Ann" }, FormModes.Edit);
+		var armedBefore = UnloadListenerCalls(true);
+
+		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Bob"));
+		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Cy"));
+		await form.InvokeAsync(() => form.Instance.SetFieldValueAsync(field, "Di"));
+
+		UnloadListenerCalls(true).Should().Be(armedBefore + 1);
+	}
+
+	/// <summary>
 	/// Verifies that a clone with the edits applied is returned without changing the item, and none without an item.
 	/// </summary>
 	[Fact]

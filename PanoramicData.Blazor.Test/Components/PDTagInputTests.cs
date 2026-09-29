@@ -388,6 +388,30 @@ public class PDTagInputTests : BunitContext
 		Tags(component).Should().Equal("beta", "gamma");
 	}
 
+	/// <summary>Verifies that a null list from the parent, before anything was emitted, clears the tags (#192).</summary>
+	[Fact]
+	public void A_null_list_from_the_parent_clears_the_tags()
+	{
+		var component = RenderInput(p => p.Add(x => x.Values, ["alpha"]));
+
+		component.Render(p => p.Add(x => x.Values, null!));
+
+		Tags(component).Should().BeEmpty();
+	}
+
+	/// <summary>Verifies that a null list from the parent clears the tags after the user has added one too.</summary>
+	[Fact]
+	public async Task A_null_list_from_the_parent_clears_the_tags_after_an_edit()
+	{
+		var component = RenderInput(p => p.Add(x => x.Values, ["alpha"]));
+		await TypeAsync(component, "beta");
+		await PressAsync(component, "Enter");
+
+		component.Render(p => p.Add(x => x.Values, null!));
+
+		Tags(component).Should().BeEmpty();
+	}
+
 	/// <summary>
 	/// Verifies that the parent echoing back the list just emitted does not reset the input, and that the same
 	/// list instance supplied again is not re-read either.

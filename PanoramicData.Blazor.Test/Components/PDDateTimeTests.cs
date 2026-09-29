@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components;
 
 namespace PanoramicData.Blazor.Test.Components;
 
@@ -156,6 +157,63 @@ public class PDDateTimeTests : BunitContext
 
 		component.Find("input.time").ClassList.Should().Contain("invalid");
 		_changes.Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// A custom format is shown and read in the same culture, so the date the component displays is a date it
+	/// can read back, whatever the culture's date separator and month names (#169).
+	/// </summary>
+	[Theory]
+	[InlineData("en-GB", "dd/MM/yyyy", "14/03/2026")]
+	[InlineData("en-US", "dd/MM/yyyy", "14/03/2026")]
+	[InlineData("de-DE", "dd/MM/yyyy", "14.03.2026")]
+	[InlineData("fi-FI", "dd/MM/yyyy", "14.03.2026")]
+	[InlineData("de-DE", "dd MMM yyyy", "14 März 2026")]
+	public async Task CustomFormat_ReadsBackWhatItDisplays(string culture, string format, string expectedText)
+	{
+		using var scope = new CultureScope(culture);
+		var component = RenderDateTime(format);
+		var input = component.Find("input.date");
+		var shown = input.GetAttribute("value");
+		shown.Should().Be(expectedText);
+
+		await input.InputAsync(new ChangeEventArgs { Value = shown });
+
+		component.Find("input.date").ClassList.Should().NotContain("invalid");
+		_changes.Should().Equal(_value);
+	}
+
+	/// <summary>
+	/// A custom-format date typed with the invariant culture's separators is still accepted where the current
+	/// culture uses different ones, as it was before the culture fix.
+	/// </summary>
+	[Fact]
+	public async Task CustomFormat_StillAcceptsTheInvariantForm()
+	{
+		using var scope = new CultureScope("de-DE");
+		var component = RenderDateTime("dd/MM/yyyy");
+
+		await component.Find("input.date").InputAsync(new ChangeEventArgs { Value = "02/01/2027" });
+
+		_changes.Should().Equal(new DateTime(2027, 1, 2, 15, 9, 26));
+	}
+
+	/// <summary>
+	/// The native date and time inputs always get ISO values, which the browser requires, even in a culture
+	/// with another calendar or time separator.
+	/// </summary>
+	[Theory]
+	[InlineData("th-TH")]
+	[InlineData("fi-FI")]
+	[InlineData("de-DE")]
+	public void NativeInputs_UseIsoValues_InAnyCulture(string culture)
+	{
+		using var scope = new CultureScope(culture);
+
+		var component = RenderDateTime(showTime: true);
+
+		component.Find("input.date").GetAttribute("value").Should().Be("2026-03-14");
+		component.Find("input.time").GetAttribute("value").Should().Be("15:09:26");
 	}
 
 	/// <summary>Leaving either input raises Blur.</summary>
