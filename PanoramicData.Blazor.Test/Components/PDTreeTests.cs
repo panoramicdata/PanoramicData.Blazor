@@ -132,7 +132,7 @@ public partial class PDTreeTests : BunitContext
 	[Fact]
 	public void ProviderFailure_IsReportedThroughExceptionHandler()
 	{
-		_provider.Failure = new InvalidOperationException("boom");
+		_provider.FailWith(new InvalidOperationException("boom"));
 
 		var tree = Render<PDTree<Item>>(parameters => parameters
 			.Add(p => p.DataProvider, _provider)
@@ -280,9 +280,15 @@ public partial class PDTreeTests : BunitContext
 	/// </summary>
 	private sealed class ItemProvider : DataProviderBase<Item>
 	{
-		public bool LoadOnDemand { get; set; }
+		private bool _loadOnDemand;
 
-		public Exception? Failure { get; set; }
+		/// <summary>Answers each request with only the children of the requested key, as load on demand asks.</summary>
+		public void UseLoadOnDemand() => _loadOnDemand = true;
+
+		private Exception? _failure;
+
+		/// <summary>Makes every later request throw <paramref name="failure"/>.</summary>
+		public void FailWith(Exception failure) => _failure = failure;
 
 		public List<string?> Requests { get; } = [];
 
@@ -299,12 +305,12 @@ public partial class PDTreeTests : BunitContext
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 			Requests.Add(request.SearchText);
-			if (Failure != null)
+			if (_failure != null)
 			{
-				throw Failure;
+				throw _failure;
 			}
 
-			var items = LoadOnDemand
+			var items = _loadOnDemand
 				? Items.Where(i => (i.ParentId ?? string.Empty) == (request.SearchText ?? string.Empty)).ToList()
 				: [.. Items];
 			return Task.FromResult(new DataResponse<Item>(items, items.Count));

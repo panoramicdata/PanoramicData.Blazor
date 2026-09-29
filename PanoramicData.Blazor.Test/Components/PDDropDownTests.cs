@@ -297,10 +297,10 @@ public class PDDropDownTests : BunitContext
 	private sealed class OfflineRuntime : IJSRuntime
 	{
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> throw new JSException($"{identifier} failed: offline");
+			=> throw new JSException($"{identifier} ({args?.Length ?? 0} args) failed: offline");
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-			=> throw new JSException($"{identifier} failed: offline");
+			=> throw new JSException($"{identifier} ({args?.Length ?? 0} args) failed: offline");
 	}
 
 	/// <summary>A JS object that hands itself back on initialise and fails everything else.</summary>
@@ -311,7 +311,7 @@ public class PDDropDownTests : BunitContext
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
 			=> identifier == "initialize"
 				? ValueTask.FromResult((TValue)(object)this)
-				: throw new JSDisconnectedException(identifier);
+				: throw new JSDisconnectedException($"{identifier} ({args?.Length ?? 0} args)");
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 			=> InvokeAsync<TValue>(identifier, args);

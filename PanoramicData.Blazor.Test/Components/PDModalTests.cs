@@ -331,12 +331,14 @@ public class PDModalTests : BunitContext
 		public FailingObject Module { get; } = new(failure);
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> ValueTask.FromResult((TValue)(object)Module);
+			=> identifier == "import"
+				? ValueTask.FromResult((TValue)(object)Module)
+				: throw new InvalidOperationException($"Unexpected JS call '{identifier}' with {args?.Length ?? 0} args.");
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			return ValueTask.FromResult((TValue)(object)Module);
+			return InvokeAsync<TValue>(identifier, args);
 		}
 	}
 

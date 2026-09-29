@@ -64,6 +64,9 @@ public partial class PDTimelineTests : BunitContext
 	private DateTime? _renderMax = _max;
 	private TimelineScale _renderScale = TimelineScale.Days;
 
+	/// <summary>Sets the scale the next <see cref="RenderTimeline"/> renders with.</summary>
+	private void UseScale(TimelineScale scale) => _renderScale = scale;
+
 	private IRenderedComponent<PDTimeline> RenderTimeline(Action<ComponentParameterCollectionBuilder<PDTimeline>>? configure = null)
 	{
 		var timeline = Render<PDTimeline>(parameters =>

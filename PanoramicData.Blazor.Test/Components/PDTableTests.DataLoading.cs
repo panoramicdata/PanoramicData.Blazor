@@ -46,7 +46,7 @@ public partial class PDTableTests
 	[Fact]
 	public void A_provider_failure_reaches_the_exception_handler()
 	{
-		_provider.Failure = new InvalidOperationException("boom");
+		_provider.FailWith(new InvalidOperationException("boom"));
 		Exception? caught = null;
 		RenderTable(p => p.Add(x => x.ExceptionHandler, ex => caught = ex), waitForRows: false);
 
@@ -106,14 +106,14 @@ public partial class PDTableTests
 	public async Task CancelAsync_cancels_the_fetch_in_progress()
 	{
 		var table = RenderTable();
-		_provider.Gate = new TaskCompletionSource();
+		var gate = _provider.HoldFetches();
 
 		var refresh = table.InvokeAsync(table.Instance.RefreshAsync);
 		table.WaitForAssertion(() => table.Instance.IsBusy.Should().BeTrue());
 		await table.InvokeAsync(table.Instance.CancelAsync);
 		table.Instance.IsCancelled.Should().BeTrue();
 
-		_provider.Gate.SetResult();
+		gate.SetResult();
 		await refresh;
 		_provider.LastToken.IsCancellationRequested.Should().BeTrue();
 		table.Instance.IsBusy.Should().BeFalse();

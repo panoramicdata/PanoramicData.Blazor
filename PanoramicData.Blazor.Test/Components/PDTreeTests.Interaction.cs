@@ -157,7 +157,7 @@ public partial class PDTreeTests
 	[Fact]
 	public async Task LoadOnDemand_FetchesChildrenOnFirstExpand()
 	{
-		_provider.LoadOnDemand = true;
+		_provider.UseLoadOnDemand();
 		var tree = RenderItemTree(p => p
 			.Add(x => x.LoadOnDemand, true)
 			.Add(x => x.IsLeaf, item => item.Id == "b"));
@@ -175,7 +175,7 @@ public partial class PDTreeTests
 	[Fact]
 	public async Task ClearOnCollapse_DiscardsChildren()
 	{
-		_provider.LoadOnDemand = true;
+		_provider.UseLoadOnDemand();
 		var tree = RenderItemTree(p => p.Add(x => x.LoadOnDemand, true).Add(x => x.ClearOnCollapse, true));
 		var a = Node(tree, "a");
 
@@ -191,7 +191,7 @@ public partial class PDTreeTests
 	[Fact]
 	public async Task RefreshNodeAsync_ReloadsChildren()
 	{
-		_provider.LoadOnDemand = true;
+		_provider.UseLoadOnDemand();
 		var tree = RenderItemTree(p => p.Add(x => x.LoadOnDemand, true));
 		var b = Node(tree, "b");
 		await tree.InvokeAsync(() => tree.Instance.ToggleNodeIsExpandedAsync(b));

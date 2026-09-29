@@ -336,7 +336,7 @@ public partial class PDChatTests : BunitContext
 
 	private (IRenderedComponent<PDChat> Component, FakeConversationStore Store, FakeChatService Service) RenderConversations(bool storeFails = false)
 	{
-		var store = new FakeConversationStore { FailTranscripts = storeFails };
+		var store = new FakeConversationStore(failTranscripts: storeFails);
 		var service = new FakeChatService
 		{
 			DockMode = PDChatDockMode.FullScreen,

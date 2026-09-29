@@ -82,14 +82,14 @@ public partial class PDTimelineTests
 	[Fact]
 	public void CtrlWheel_StopsAtTheEnds()
 	{
-		_renderScale = TimelineScale.Seconds;
+		UseScale(TimelineScale.Seconds);
 		_renderMin = new DateTime(2026, 1, 1, 12, 0, 0);
 		_renderMax = new DateTime(2026, 1, 1, 12, 5, 0);
 		var timeline = RenderTimeline();
 		timeline.Find("div.pd-timeline").Wheel(new WheelEventArgs { DeltaY = -1, CtrlKey = true });
 
 		_initialized = false;
-		_renderScale = TimelineScale.Years;
+		UseScale(TimelineScale.Years);
 		_renderMin = new DateTime(2000, 1, 1);
 		var years = RenderTimeline();
 		years.Find("div.pd-timeline").Wheel(new WheelEventArgs { DeltaY = 1, CtrlKey = true });

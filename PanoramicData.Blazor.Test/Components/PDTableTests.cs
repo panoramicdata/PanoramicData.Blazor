@@ -383,9 +383,15 @@ public partial class PDTableTests : BunitContext
 
 		public List<IDictionary<string, object?>> Updates { get; } = [];
 
-		public Exception? Failure { get; set; }
+		private Exception? _failure;
 
-		public TaskCompletionSource? Gate { get; set; }
+		private TaskCompletionSource? _gate;
+
+		/// <summary>Makes every later fetch throw <paramref name="failure"/>.</summary>
+		public void FailWith(Exception failure) => _failure = failure;
+
+		/// <summary>Makes later fetches wait until the returned gate is released.</summary>
+		public TaskCompletionSource HoldFetches() => _gate = new TaskCompletionSource();
 
 		public CancellationToken LastToken { get; private set; }
 
@@ -393,12 +399,12 @@ public partial class PDTableTests : BunitContext
 		{
 			Requests.Add(request);
 			LastToken = cancellationToken;
-			if (Gate is { } gate)
+			if (_gate is { } gate)
 			{
 				await gate.Task;
 			}
 
-			if (Failure is { } failure)
+			if (_failure is { } failure)
 			{
 				throw failure;
 			}

@@ -170,12 +170,14 @@ public class PDLocalStorageStateManagerTests : BunitContext
 	private sealed class ModuleOnlyRuntime(IJSObjectReference module) : IJSRuntime
 	{
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> ValueTask.FromResult((TValue)module);
+			=> identifier == "import"
+				? ValueTask.FromResult((TValue)module)
+				: throw new InvalidOperationException($"Unexpected JS call '{identifier}' with {args?.Length ?? 0} args.");
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			return ValueTask.FromResult((TValue)module);
+			return InvokeAsync<TValue>(identifier, args);
 		}
 	}
 

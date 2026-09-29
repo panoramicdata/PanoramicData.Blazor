@@ -154,11 +154,10 @@ public partial class PDChatTests
 	}
 
 	/// <summary>A conversation store holding two conversations and recording what was asked of it.</summary>
-	private sealed class FakeConversationStore : IChatConversationService
+	private sealed class FakeConversationStore(bool failTranscripts = false) : IChatConversationService
 	{
 		public ChatConversation First { get; } = new() { Id = Guid.NewGuid(), Title = "First" };
 		public ChatConversation Second { get; } = new() { Id = Guid.NewGuid(), Title = "Second" };
-		public bool FailTranscripts { get; init; }
 		public List<Guid> MessageRequests { get; } = [];
 		public List<ChatConversation> Created { get; } = [];
 		public List<(Guid Id, string Title)> Renamed { get; } = [];
@@ -176,7 +175,7 @@ public partial class PDChatTests
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 			MessageRequests.Add(id);
-			if (FailTranscripts)
+			if (failTranscripts)
 			{
 				throw new InvalidOperationException("Store offline");
 			}
