@@ -44,6 +44,12 @@ public partial class PDChatConversationSidebar : ComponentBase, IDisposable
 	private string? _loadFailureMessage;
 	private bool _isDisposed;
 
+	/// <summary>
+	/// Gets or sets the clock the search debounce waits on: the system clock unless a test replaces it, so
+	/// that the order of a debounce elapsing and a newer keystroke can be fixed rather than raced.
+	/// </summary>
+	internal TimeProvider Clock { get; set; } = TimeProvider.System;
+
 	/// <summary>Gets or sets the conversation store to list.</summary>
 	[EditorRequired]
 	[Parameter]
@@ -121,11 +127,19 @@ public partial class PDChatConversationSidebar : ComponentBase, IDisposable
 
 		try
 		{
-			await Task.Delay(SearchDebounceMilliseconds, cancellation.Token);
+			await Task.Delay(TimeSpan.FromMilliseconds(SearchDebounceMilliseconds), Clock, cancellation.Token);
 		}
 		catch (TaskCanceledException)
 		{
 			// Superseded by a later keystroke, which is the normal path while somebody is typing.
+			return;
+		}
+
+		// The delay can finish just before a newer keystroke cancels it, with this continuation still queued
+		// behind that keystroke. It is superseded all the same, and its token source is already disposed, so
+		// it must neither clear the list the newer search is filling nor read the token (issue #218).
+		if (cancellation.IsCancellationRequested)
+		{
 			return;
 		}
 

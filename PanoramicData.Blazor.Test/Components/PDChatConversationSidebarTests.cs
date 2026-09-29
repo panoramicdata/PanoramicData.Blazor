@@ -12,7 +12,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// Tests that <see cref="PDChatConversationSidebar"/> lists, searches, filters and pages conversations, and
 /// degrades to a visible message when the store fails.
 /// </summary>
-public class PDChatConversationSidebarTests : BunitContext
+public partial class PDChatConversationSidebarTests : BunitContext
 {
 	/// <summary>
 	/// How long to wait for a render that follows the 300ms search debounce or a store call. Generous on
@@ -134,9 +134,8 @@ public class PDChatConversationSidebarTests : BunitContext
 	/// <remarks>
 	/// Both keystrokes are dispatched in one turn of the renderer's dispatcher, so the first debounce's
 	/// continuation, which needs that dispatcher, cannot run until the second keystroke has cancelled it.
-	/// If the first timer has already elapsed by then, the component still calls the store, but with a
-	/// token that is already cancelled, so the test asks which texts were searched with a live token rather
-	/// than counting calls.
+	/// Whether or not the first timer has elapsed by then, its search is abandoned (issue #218), so exactly
+	/// two searches reach the store; the elapsed case is pinned by the manual-clock test in the Debounce file.
 	/// </remarks>
 	[Fact]
 	public async Task A_superseded_keystroke_is_not_searched()
@@ -152,7 +151,7 @@ public class PDChatConversationSidebarTests : BunitContext
 		});
 
 		component.WaitForAssertion(() => component.FindAll(".pdchat-conversation-row").Should().ContainSingle(), DebounceTimeout);
-		_service.LiveQueries.Select(q => q.SearchText).Should().Equal(string.Empty, "Alp");
+		_service.Queries.Select(q => q.SearchText).Should().Equal(string.Empty, "Alp");
 	}
 
 	/// <summary>An input event with no value searches for empty text.</summary>
@@ -347,17 +346,9 @@ public class PDChatConversationSidebarTests : BunitContext
 
 		public bool SupportsSemanticSearch => Semantic;
 
-		/// <summary>The queries whose token had not been cancelled when the store was called.</summary>
-		public List<ChatConversationQuery> LiveQueries { get; } = [];
-
 		public async Task<ChatConversationPage> ListAsync(ChatConversationQuery query, CancellationToken cancellationToken)
 		{
 			Queries.Add(query);
-			if (!cancellationToken.IsCancellationRequested)
-			{
-				LiveQueries.Add(query);
-			}
-
 			if (Gate is { } gate)
 			{
 				await gate.Task;
