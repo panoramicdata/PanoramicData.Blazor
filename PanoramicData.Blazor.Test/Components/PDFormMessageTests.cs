@@ -104,7 +104,7 @@ public class PDFormMessageTests : BunitContext
 	[Fact]
 	public void Single_choice_other_uses_the_typed_text()
 	{
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.SingleChoice, Colours, allowOther: true));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.SingleChoice, Colours, new() { AllowOther = true }));
 
 		component.FindAll("input[type=radio]")[0].Change(true);
 		component.FindAll("input[type=radio]")[3].Change(true);
@@ -120,7 +120,7 @@ public class PDFormMessageTests : BunitContext
 	[Fact]
 	public void Other_without_text_is_a_skip()
 	{
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.SingleChoice, Colours, allowOther: true));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.SingleChoice, Colours, new() { AllowOther = true }));
 
 		component.FindAll("input[type=radio]")[3].Change(true);
 
@@ -131,7 +131,7 @@ public class PDFormMessageTests : BunitContext
 	[Fact]
 	public void Multiple_choice_reports_in_question_order_with_other()
 	{
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.MultipleChoice, Colours, allowOther: true));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.MultipleChoice, Colours, new() { AllowOther = true }));
 		var boxes = component.FindAll("input[type=checkbox]");
 
 		boxes[2].Change(true);
@@ -151,7 +151,7 @@ public class PDFormMessageTests : BunitContext
 	[Fact]
 	public void Multiple_choice_unticking_other_drops_it()
 	{
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.MultipleChoice, Colours, allowOther: true));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.MultipleChoice, Colours, new() { AllowOther = true }));
 
 		component.FindAll("input[type=checkbox]")[3].Change(true);
 		component.Find("input[placeholder='Tell us more']").Input("Pink");
@@ -168,7 +168,7 @@ public class PDFormMessageTests : BunitContext
 	public void A_labelled_scale_reports_the_label()
 	{
 		var scale = new ChatFormScale { Minimum = 1, Maximum = 3, MinimumLabel = "Low", MaximumLabel = "High", PointLabels = ["Disagree", "Neutral", "Agree"] };
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Scale, scale: scale));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Scale, extras: new() { Scale = scale }));
 		var slider = component.Find("input[type=range]");
 		slider.GetAttribute("value").Should().Be("2");
 		component.Find(".pdchat-form-scale-value").TextContent.Trim().Should().Be("not answered");
@@ -186,7 +186,7 @@ public class PDFormMessageTests : BunitContext
 	public void An_unlabelled_scale_reports_the_number()
 	{
 		var scale = new ChatFormScale { Minimum = 0, Maximum = 10, MinimumLabel = "Never", MaximumLabel = "Always" };
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Scale, scale: scale));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Scale, extras: new() { Scale = scale }));
 
 		component.Find("input[type=range]").Input("7");
 
@@ -201,7 +201,7 @@ public class PDFormMessageTests : BunitContext
 	public void An_untouched_scale_is_skipped()
 	{
 		var scale = new ChatFormScale { Minimum = 1, Maximum = 5, MinimumLabel = "Low", MaximumLabel = "High" };
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Scale, scale: scale));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Scale, extras: new() { Scale = scale }));
 
 		var answer = Submit(component);
 
@@ -214,7 +214,7 @@ public class PDFormMessageTests : BunitContext
 	public void An_invalid_scale_is_explained()
 	{
 		var scale = new ChatFormScale { Minimum = 5, Maximum = 5, MinimumLabel = "a", MaximumLabel = "b" };
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Scale, scale: scale));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Scale, extras: new() { Scale = scale }));
 
 		component.FindAll("input[type=range]").Should().BeEmpty();
 		component.Find(".pdchat-form-invalid").TextContent.Should().Contain("not a usable range");
@@ -226,7 +226,7 @@ public class PDFormMessageTests : BunitContext
 	[InlineData(true, "datetime-local")]
 	public void Date_questions_use_the_right_input(bool includeTime, string type)
 	{
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.DateTime, includeTime: includeTime));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.DateTime, extras: new() { IncludeTime = includeTime }));
 		var input = component.Find("input.pdchat-form-text");
 		input.GetAttribute("type").Should().Be(type);
 
@@ -239,7 +239,7 @@ public class PDFormMessageTests : BunitContext
 	[Fact]
 	public void A_number_is_reported_with_its_unit()
 	{
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Number, number: new ChatFormNumber { Minimum = 0, Maximum = 100, Step = 5, Unit = "kg" }));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Number, extras: new() { Number = new ChatFormNumber { Minimum = 0, Maximum = 100, Step = 5, Unit = "kg" } }));
 		var input = component.Find("input[type=number]");
 		input.GetAttribute("step").Should().Be("5");
 		component.Find(".pdchat-form-unit").TextContent.Should().Be("kg");
@@ -305,7 +305,7 @@ public class PDFormMessageTests : BunitContext
 	[Fact]
 	public void A_suggested_text_is_the_answer_when_untouched()
 	{
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Text, suggested: "Draft reply"));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Text, extras: new() { Suggested = "Draft reply" }));
 		component.Find("input.pdchat-form-text").GetAttribute("value").Should().Be("Draft reply");
 		component.Find(".pdchat-form-tab").ClassList.Should().Contain("answered");
 
@@ -316,7 +316,7 @@ public class PDFormMessageTests : BunitContext
 	[Fact]
 	public void Multiline_text_uses_a_text_area()
 	{
-		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Text, multiline: true));
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Text, extras: new() { Multiline = true }));
 
 		component.Find("textarea").Input("Line one");
 
@@ -359,28 +359,44 @@ public class PDFormMessageTests : BunitContext
 		return _submission!.Answers[0];
 	}
 
-	private static ChatFormQuestion Q(
-		string id,
-		ChatFormAnswerKind kind,
-		ChatFormOption[]? options = null,
-		bool allowOther = false,
-		ChatFormScale? scale = null,
-		ChatFormNumber? number = null,
-		bool includeTime = false,
-		bool multiline = false,
-		string? suggested = null)
-		=> new()
+	private static ChatFormQuestion Q(string id, ChatFormAnswerKind kind, ChatFormOption[]? options = null, QuestionExtras? extras = null)
+	{
+		var settings = extras ?? new QuestionExtras();
+		return new()
 		{
 			Id = id,
 			Header = $"Header {id}",
 			Question = $"Question {id}?",
 			Kind = kind,
 			Options = options ?? [],
-			AllowOther = allowOther,
-			Scale = scale,
-			Number = number,
-			IncludeTime = includeTime,
-			IsMultiline = multiline,
-			SuggestedValue = suggested
+			AllowOther = settings.AllowOther,
+			Scale = settings.Scale,
+			Number = settings.Number,
+			IncludeTime = settings.IncludeTime,
+			IsMultiline = settings.Multiline,
+			SuggestedValue = settings.Suggested
 		};
+	}
+
+	/// <summary>The less common settings of a question under test, each defaulting to off or absent.</summary>
+	private sealed record QuestionExtras
+	{
+		/// <summary>Gets whether a final "Other" choice is offered.</summary>
+		public bool AllowOther { get; init; }
+
+		/// <summary>Gets the scale, for a scale question.</summary>
+		public ChatFormScale? Scale { get; init; }
+
+		/// <summary>Gets the number settings, for a number question.</summary>
+		public ChatFormNumber? Number { get; init; }
+
+		/// <summary>Gets whether a date question also asks for a time.</summary>
+		public bool IncludeTime { get; init; }
+
+		/// <summary>Gets whether a text answer is multi-line.</summary>
+		public bool Multiline { get; init; }
+
+		/// <summary>Gets the suggested answer.</summary>
+		public string? Suggested { get; init; }
+	}
 }

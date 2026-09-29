@@ -376,16 +376,16 @@ public class PDFormBodyTests : BunitContext
 
 	private static void AddFields(RenderTreeBuilder builder, FieldSpec[] fields)
 	{
-		foreach (var field in fields)
+		foreach (var spec in fields)
 		{
 			builder.OpenComponent<PDField<Person>>(0);
-			builder.AddComponentParameter(1, nameof(PDField<Person>.Field), field.Field);
-			if (field.Label is not null)
+			builder.AddComponentParameter(1, nameof(PDField<Person>.Field), spec.Property);
+			if (spec.Label is not null)
 			{
-				builder.AddComponentParameter(2, nameof(PDField<Person>.Title), field.Label);
+				builder.AddComponentParameter(2, nameof(PDField<Person>.Title), spec.Label);
 			}
 
-			foreach (var (name, value) in field.Extra)
+			foreach (var (name, value) in spec.Extra)
 			{
 				builder.AddComponentParameter(3, name, value);
 			}
@@ -394,14 +394,14 @@ public class PDFormBodyTests : BunitContext
 		}
 	}
 
-	private static FieldSpec Field(Expression<Func<Person, object>> field, string? label = null, Dictionary<string, object?>? extra = null)
-		=> new(field, label, extra ?? []);
+	private static FieldSpec Field(Expression<Func<Person, object>> property, string? label = null, Dictionary<string, object?>? extra = null)
+		=> new(property, label, extra ?? []);
 
 	/// <summary>Describes a field to render.</summary>
-	/// <param name="Field">The property the field edits.</param>
+	/// <param name="Property">The property the field edits.</param>
 	/// <param name="Label">An optional title shown in the label box.</param>
 	/// <param name="Extra">Further field parameters.</param>
-	private sealed record FieldSpec(Expression<Func<Person, object>> Field, string? Label, Dictionary<string, object?> Extra);
+	private sealed record FieldSpec(Expression<Func<Person, object>> Property, string? Label, Dictionary<string, object?> Extra);
 
 	/// <summary>The model edited by the form under test.</summary>
 	public sealed class Person

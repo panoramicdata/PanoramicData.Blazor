@@ -36,8 +36,11 @@ public class PDCardDeckGroupTests : BunitContext
 		overlay.OnHide += () => _hides++;
 	}
 
-	private IRenderedComponent<PDCardDeckGroup<Card>> RenderGroup(
-		Action<ComponentParameterCollectionBuilder<PDCardDeckGroup<Card>>>? configure = null,
+	private IRenderedComponent<PDCardDeckGroup<Card>> RenderGroup(params string[] deckIds)
+		=> RenderConfiguredGroup(null, deckIds);
+
+	private IRenderedComponent<PDCardDeckGroup<Card>> RenderConfiguredGroup(
+		Action<ComponentParameterCollectionBuilder<PDCardDeckGroup<Card>>>? configure,
 		params string[] deckIds)
 	{
 		var group = Render<PDCardDeckGroup<Card>>(parameters =>
@@ -100,7 +103,7 @@ public class PDCardDeckGroupTests : BunitContext
 	[Fact]
 	public void LoadedDecks_AreRendered_AndTheOverlayIsHidden()
 	{
-		var group = RenderGroup(null, "todo", "done");
+		var group = RenderGroup("todo", "done");
 
 		var container = group.Find("div.pd-carddeck-group-default");
 		container.Id.Should().Be(group.Instance.Id);
@@ -116,7 +119,7 @@ public class PDCardDeckGroupTests : BunitContext
 	[Fact]
 	public void CssClass_ReplacesTheDefaultClass()
 	{
-		var group = RenderGroup(p => p.Add(x => x.CssClass, "board"), "todo");
+		var group = RenderConfiguredGroup(p => p.Add(x => x.CssClass, "board"), "todo");
 
 		group.Find("div").ClassName.Should().Be("board");
 	}
@@ -143,7 +146,7 @@ public class PDCardDeckGroupTests : BunitContext
 	[Fact]
 	public async Task DraggingIntoAnotherDeck_MovesTheCard()
 	{
-		var group = RenderGroup(null, "todo", "done");
+		var group = RenderGroup("todo", "done");
 		await StartDragAsync(group, "todo", "Two");
 
 		await group.InvokeAsync(() => Deck(group, "done").RegisterDestination());
@@ -160,7 +163,7 @@ public class PDCardDeckGroupTests : BunitContext
 	public async Task RefusedMove_LeavesTheDecksUnchanged()
 	{
 		var validations = new List<(string Source, string Destination)>();
-		var group = RenderGroup(p => p.Add(x => x.ValidateCardMove, (source, destination) =>
+		var group = RenderConfiguredGroup(p => p.Add(x => x.ValidateCardMove, (source, destination) =>
 		{
 			validations.Add((source.Id, destination.Id));
 			return false;
@@ -180,7 +183,7 @@ public class PDCardDeckGroupTests : BunitContext
 	[Fact]
 	public async Task RegisterDestination_WithoutADragOrTwiceInARow_MovesNothing()
 	{
-		var group = RenderGroup(null, "todo", "done");
+		var group = RenderGroup("todo", "done");
 
 		await group.InvokeAsync(() => Deck(group, "done").RegisterDestination());
 		await StartDragAsync(group, "todo", "One");
@@ -196,7 +199,7 @@ public class PDCardDeckGroupTests : BunitContext
 	[Fact]
 	public async Task StartingADrag_ClearsTheOtherDecksSelection()
 	{
-		var group = RenderGroup(null, "todo", "done");
+		var group = RenderGroup("todo", "done");
 		await StartDragAsync(group, "done", "Four");
 		Deck(group, "done").Selection.Should().ContainSingle();
 
@@ -214,7 +217,7 @@ public class PDCardDeckGroupTests : BunitContext
 	public async Task Drop_RunsTheTransformation_ThenReloadsTheDecks()
 	{
 		(IDataProviderService<Card> Provider, string Source, string Destination, List<string> Cards)? call = null;
-		var group = RenderGroup(p => p.Add(x => x.Transformation, (provider, source, destination, cards) =>
+		var group = RenderConfiguredGroup(p => p.Add(x => x.Transformation, (provider, source, destination, cards) =>
 		{
 			call = (provider, source.Id, destination.Id, [.. cards.Select(c => c.Name)]);
 			_store["todo"].RemoveAll(c => c.Name == "One");
@@ -238,14 +241,14 @@ public class PDCardDeckGroupTests : BunitContext
 	public async Task Drop_WithoutATransformationOrADrag_DoesNothing()
 	{
 		var calls = 0;
-		var withTransformation = RenderGroup(p => p.Add(x => x.Transformation, (_, _, _, _) =>
+		var withTransformation = RenderConfiguredGroup(p => p.Add(x => x.Transformation, (_, _, _, _) =>
 		{
 			calls++;
 			return Task.CompletedTask;
 		}), "todo");
 		await withTransformation.InvokeAsync(() => Deck(withTransformation, "todo").InitiateTransformAsync());
 
-		var withoutTransformation = RenderGroup(null, "done");
+		var withoutTransformation = RenderGroup("done");
 		await StartDragAsync(withoutTransformation, "done", "Four");
 		await withoutTransformation.InvokeAsync(() => Deck(withoutTransformation, "done").InitiateTransformAsync());
 
@@ -259,7 +262,7 @@ public class PDCardDeckGroupTests : BunitContext
 	[Fact]
 	public async Task EndDragOperation_ReloadsTheSourceDeck()
 	{
-		var group = RenderGroup(null, "todo", "done");
+		var group = RenderGroup("todo", "done");
 		await StartDragAsync(group, "todo", "One");
 		_store["todo"].Add(new Card("Five", 3));
 
@@ -275,7 +278,7 @@ public class PDCardDeckGroupTests : BunitContext
 	[Fact]
 	public void Dispose_IsRepeatable()
 	{
-		var group = RenderGroup(null, "todo");
+		var group = RenderGroup("todo");
 
 		group.Instance.Dispose();
 		var again = () => group.Instance.Dispose();

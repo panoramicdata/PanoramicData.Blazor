@@ -51,7 +51,7 @@ public partial class PDFileExplorerTests
 	[Fact]
 	public async Task DeleteFiles_ApplicationConfirms_DeletesEachAndReportsFailures()
 	{
-		_provider.ThrowOnDeletePath = "/Docs/a.docx";
+		_provider.ThrowOnDelete("/Docs/a.docx");
 		DeleteArgs? request = null;
 		var cut = RenderExplorer(p => p.Add(x => x.DeleteRequest, (DeleteArgs a) => { request = a; a.Resolution = DeleteArgs.DeleteResolutions.Delete; }));
 		await NavigateAsync(cut, "/Docs");
@@ -113,7 +113,7 @@ public partial class PDFileExplorerTests
 	[Fact]
 	public async Task DeleteFolder_ProviderThrows_IsReported()
 	{
-		_provider.ThrowOnDeletePath = "/Docs/Sub";
+		_provider.ThrowOnDelete("/Docs/Sub");
 		var cut = RenderExplorer(p => p.Add(x => x.DeleteRequest, (DeleteArgs a) => a.Resolution = DeleteArgs.DeleteResolutions.Delete));
 		await NavigateAsync(cut, "/Docs/Sub");
 

@@ -277,7 +277,8 @@ public class PDModalTests : BunitContext
 	public async Task A_departed_javascript_side_is_tolerated(bool disconnected)
 	{
 		Exception failure = disconnected ? new JSDisconnectedException("gone") : new ObjectDisposedException("modal");
-		Services.AddSingleton<IJSRuntime>(new FailingRuntime(failure));
+		var runtime = new FailingRuntime(failure);
+		Services.AddSingleton<IJSRuntime>(runtime);
 		var component = Render<PDModal>();
 
 		var act = async () =>
@@ -289,6 +290,7 @@ public class PDModalTests : BunitContext
 		};
 
 		await act.Should().NotThrowAsync();
+		runtime.Module.Calls.Select(call => call.Identifier).Should().Contain(["initialize", "show"]);
 	}
 
 	/// <summary>Verifies that a failed module import leaves a dialog that renders and ignores show requests.</summary>
@@ -325,29 +327,39 @@ public class PDModalTests : BunitContext
 	/// <summary>A runtime whose modules initialise but then fail every call with the given exception.</summary>
 	private sealed class FailingRuntime(Exception failure) : IJSRuntime
 	{
-		private readonly FailingObject _module = new(failure);
+		/// <summary>Gets the module handed out on every import.</summary>
+		public FailingObject Module { get; } = new(failure);
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> ValueTask.FromResult((TValue)(object)_module);
+			=> ValueTask.FromResult((TValue)(object)Module);
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			return ValueTask.FromResult((TValue)(object)_module);
+			return ValueTask.FromResult((TValue)(object)Module);
 		}
 	}
 
 	/// <summary>A JS object that hands itself back on initialise and fails everything else.</summary>
 	private sealed class FailingObject(Exception failure) : IJSObjectReference
 	{
+		/// <summary>Gets each call made on this object, with the number of arguments it was given.</summary>
+		public List<(string Identifier, int ArgumentCount)> Calls { get; } = [];
+
 		public ValueTask DisposeAsync() => ValueTask.FromException(failure);
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> identifier == "initialize"
+		{
+			Calls.Add((identifier, args?.Length ?? 0));
+			return identifier == "initialize"
 				? ValueTask.FromResult((TValue)(object)this)
 				: ValueTask.FromException<TValue>(failure);
+		}
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-			=> InvokeAsync<TValue>(identifier, args);
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			return InvokeAsync<TValue>(identifier, args);
+		}
 	}
 }

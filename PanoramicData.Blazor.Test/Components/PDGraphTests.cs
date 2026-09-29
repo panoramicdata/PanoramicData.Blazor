@@ -509,9 +509,9 @@ public class PDGraphTests : BunitContext
 		component.Render();
 	}
 
-	private static JsonElement Json(string json)
+	private static JsonElement Json(string text)
 	{
-		using var document = JsonDocument.Parse(json);
+		using var document = JsonDocument.Parse(text);
 		return document.RootElement.Clone();
 	}
 
@@ -540,6 +540,7 @@ public class PDGraphTests : BunitContext
 		/// <inheritdoc />
 		public override Task<DataResponse<GraphData>> GetDataAsync(DataRequest<GraphData> request, CancellationToken cancellationToken)
 		{
+			ArgumentNullException.ThrowIfNull(request);
 			cancellationToken.ThrowIfCancellationRequested();
 			if (data is null)
 			{

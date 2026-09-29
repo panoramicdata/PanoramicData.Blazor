@@ -88,7 +88,7 @@ public class PDFilePreviewTests : BunitContext
 		component.Render(parameters => parameters
 			.Add(p => p.Item, new FileExplorerItem { Path = _item.Path }));
 
-		provider.PreviewRequests.Should().Be(1);
+		provider.PreviewedPaths.Should().Equal(_item.Path);
 	}
 
 	/// <summary>Verifies that a different item is previewed.</summary>
@@ -104,7 +104,7 @@ public class PDFilePreviewTests : BunitContext
 		component.Render(parameters => parameters
 			.Add(p => p.Item, new FileExplorerItem { Path = "/other.txt" }));
 
-		provider.PreviewRequests.Should().Be(2);
+		provider.PreviewedPaths.Should().Equal(_item.Path, "/other.txt");
 	}
 
 	/// <summary>
@@ -150,7 +150,7 @@ public class PDFilePreviewTests : BunitContext
 	}
 
 	/// <summary>
-	/// A preview provider returning a fixed result, recording how often each kind of preview is asked for.
+	/// A preview provider returning a fixed result, recording which items are previewed and how often a spinner is asked for.
 	/// Both timings are zero so the spinner path is decided by whether the preview task has completed.
 	/// </summary>
 	private sealed class FakePreviewProvider(Task<PreviewInfo> preview) : IPreviewProvider
@@ -160,7 +160,7 @@ public class PDFilePreviewTests : BunitContext
 		{
 		}
 
-		public int PreviewRequests { get; private set; }
+		public List<string?> PreviewedPaths { get; } = [];
 
 		public int SpinnerRequests { get; private set; }
 
@@ -183,7 +183,7 @@ public class PDFilePreviewTests : BunitContext
 
 		public Task<PreviewInfo> GetPreviewInfoAsync(FileExplorerItem? item)
 		{
-			PreviewRequests++;
+			PreviewedPaths.Add(item?.Path);
 			return preview;
 		}
 	}

@@ -78,6 +78,7 @@ public class DataProviderBaseDateFilterTests
 	{
 		public override Task<DataResponse<Event>> GetDataAsync(DataRequest<Event> request, CancellationToken cancellationToken)
 		{
+			ArgumentNullException.ThrowIfNull(request);
 			cancellationToken.ThrowIfCancellationRequested();
 			return Task.FromResult(new DataResponse<Event>([.. _events], _events.Length));
 		}

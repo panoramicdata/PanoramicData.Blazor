@@ -11,7 +11,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// </summary>
 public class JSModuleComponentBaseTests : BunitContext
 {
-	private const string ModulePath = "./test-module.js";
+	private const string ProbeModulePath = "./test-module.js";
 
 	/// <summary>Sets up the rendering context.</summary>
 	public JSModuleComponentBaseTests() => JSInterop.Mode = JSRuntimeMode.Loose;
@@ -20,11 +20,11 @@ public class JSModuleComponentBaseTests : BunitContext
 	[Fact]
 	public void FirstRender_ImportsModuleAndCallsLoadHook()
 	{
-		JSInterop.SetupModule(ModulePath);
+		JSInterop.SetupModule(ProbeModulePath);
 
 		var cut = Render<ProbeComponent>();
 
-		JSInterop.VerifyInvoke("import").Arguments.Should().Equal(ModulePath);
+		JSInterop.VerifyInvoke("import").Arguments.Should().Equal(ProbeModulePath);
 		cut.Instance.ModuleValue.Should().NotBeNull();
 		cut.Instance.Calls.Should().Equal("loaded:True", "after:True");
 	}
@@ -33,7 +33,7 @@ public class JSModuleComponentBaseTests : BunitContext
 	[Fact]
 	public void SubsequentRenders_CallOnlyThePerRenderHook()
 	{
-		JSInterop.SetupModule(ModulePath);
+		JSInterop.SetupModule(ProbeModulePath);
 		var cut = Render<ProbeComponent>();
 
 		cut.Render();
@@ -47,7 +47,7 @@ public class JSModuleComponentBaseTests : BunitContext
 	[Fact]
 	public void PerRenderHookFailure_IsSwallowed()
 	{
-		JSInterop.SetupModule(ModulePath);
+		JSInterop.SetupModule(ProbeModulePath);
 		var cut = Render<ProbeComponent>(p => p.Add(x => x.ThrowAfterRender, true));
 
 		cut.Render();
@@ -73,7 +73,7 @@ public class JSModuleComponentBaseTests : BunitContext
 	[Fact]
 	public void LoadHookFailure_IsSwallowed_AndModuleIsKept()
 	{
-		JSInterop.SetupModule(ModulePath);
+		JSInterop.SetupModule(ProbeModulePath);
 
 		var cut = Render<ProbeComponent>(p => p.Add(x => x.ThrowOnLoad, true));
 
@@ -85,7 +85,7 @@ public class JSModuleComponentBaseTests : BunitContext
 	[Fact]
 	public async Task DisposeAsync_ReleasesModule()
 	{
-		JSInterop.SetupModule(ModulePath);
+		JSInterop.SetupModule(ProbeModulePath);
 		var cut = Render<ProbeComponent>();
 
 		await cut.Instance.DisposeAsync();
@@ -118,7 +118,7 @@ public class JSModuleComponentBaseTests : BunitContext
 
 		public IJSObjectReference? ModuleValue => Module;
 
-		protected override string ModulePath => JSModuleComponentBaseTests.ModulePath;
+		protected override string ModulePath => ProbeModulePath;
 
 		protected override Task OnModuleLoadedAsync(bool firstRender)
 		{

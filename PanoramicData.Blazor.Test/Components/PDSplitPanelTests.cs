@@ -58,10 +58,10 @@ public class PDSplitPanelTests : BunitContext
 		panels[1].MinSize.Should().Be(50);
 	}
 
-	private static RenderFragment Panels(params (string CssClass, string Text)[] panels) => builder =>
+	private static RenderFragment Panels(params (string CssClass, string Text)[] specs) => builder =>
 	{
 		var sequence = 0;
-		foreach (var (cssClass, text) in panels)
+		foreach (var (cssClass, text) in specs)
 		{
 			builder.OpenComponent<PDSplitPanel>(sequence++);
 			builder.AddComponentParameter(sequence++, nameof(PDSplitPanel.CssClass), cssClass);

@@ -119,6 +119,8 @@ public class MethodCacheTests
 		join.Parameters.Select(p => p.ToString()).Take(2).Should().Equal("string separator", "[int count]");
 		join.Parameters[2].ToString().Should().StartWith("params ").And.EndWith(" parts");
 		join.Parameters[0].Description.Should().Be("The separator");
+		cache.FindMethod(Lang, $"{typeof(Sample).Namespace}.Sample.Nothing").Should().ContainSingle()
+			.Which.Parameters.Should().BeEmpty();
 	}
 
 	/// <summary>Without binding flags every public method is reflected, including inherited ones.</summary>
@@ -213,6 +215,8 @@ public class MethodCacheTests
 
 		public static void Nothing()
 		{
+			// Deliberately empty: this method exists only to be reflected over, as the void-returning
+			// counterpart to Join, and doing anything here would add nothing the tests look at.
 		}
 	}
 }

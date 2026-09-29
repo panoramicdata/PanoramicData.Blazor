@@ -212,6 +212,7 @@ public class DataProviderBaseTests
 
 		public override Task<DataResponse<Item>> GetDataAsync(DataRequest<Item> request, CancellationToken cancellationToken)
 		{
+			ArgumentNullException.ThrowIfNull(request);
 			cancellationToken.ThrowIfCancellationRequested();
 			List<Item> items = IncludeNullItem ? [.. _items, null!] : [.. _items];
 			return Task.FromResult(new DataResponse<Item>(items, items.Count));

@@ -19,8 +19,8 @@ public partial class PDFileExplorerTests
 	private static IRenderedComponent<PDDropZone> DropZone(IRenderedComponent<PDFileExplorer> cut, string id)
 		=> cut.FindComponents<PDDropZone>().Single(z => z.Instance.Id == id);
 
-	private static DropZoneUploadProgressEventArgs Progress(string path, string name, double progress)
-		=> new(path, name, 10, "k", "s", progress);
+	private static DropZoneUploadProgressEventArgs Progress(string path, string name, double percent)
+		=> new(path, name, 10, "k", "s", percent);
 
 	private IRenderedComponent<PDFileExplorer> RenderUploader(Action<ComponentParameterCollectionBuilder<PDFileExplorer>>? configure = null)
 		=> RenderExplorer(p =>

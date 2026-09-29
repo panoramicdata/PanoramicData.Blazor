@@ -211,12 +211,18 @@ public class PDNavLinkTests : BunitContext
 
 		public List<string> Targets { get; } = [];
 
-		public event EventHandler<BeforeNavigateEventArgs> BeforeNavigate = delegate { };
+		private EventHandler<BeforeNavigateEventArgs>? _beforeNavigate;
+
+		public event EventHandler<BeforeNavigateEventArgs> BeforeNavigate
+		{
+			add => _beforeNavigate += value;
+			remove => _beforeNavigate -= value;
+		}
 
 		public Task<bool> ProceedAsync(string target = "")
 		{
 			Targets.Add(target);
-			BeforeNavigate(this, new BeforeNavigateEventArgs { Target = target });
+			_beforeNavigate?.Invoke(this, new BeforeNavigateEventArgs { Target = target });
 			return Task.FromResult(Proceed);
 		}
 	}

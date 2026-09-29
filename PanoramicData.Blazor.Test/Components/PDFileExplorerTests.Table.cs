@@ -292,7 +292,7 @@ public partial class PDFileExplorerTests
 	[Fact]
 	public async Task AfterEdit_ProviderRefuses_IsCancelled()
 	{
-		_provider.FailUpdates = true;
+		_provider.RefuseUpdates();
 		var cut = RenderExplorer();
 		await NavigateAsync(cut, "/Docs");
 

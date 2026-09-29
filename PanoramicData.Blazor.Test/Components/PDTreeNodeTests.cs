@@ -276,6 +276,7 @@ public class PDTreeNodeTests : BunitContext
 
 		public override Task<DataResponse<Item>> GetDataAsync(DataRequest<Item> request, CancellationToken cancellationToken)
 		{
+			ArgumentNullException.ThrowIfNull(request);
 			cancellationToken.ThrowIfCancellationRequested();
 			return Task.FromResult(new DataResponse<Item>([.. _items], _items.Count));
 		}

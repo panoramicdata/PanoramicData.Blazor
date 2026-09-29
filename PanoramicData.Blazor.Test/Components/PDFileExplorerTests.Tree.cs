@@ -196,7 +196,7 @@ public partial class PDFileExplorerTests
 	[Fact]
 	public async Task TreeMenu_NewFolder_WhenCreateFails_StaysOnFolder()
 	{
-		_provider.FailCreates = true;
+		_provider.RefuseCreates();
 		var cut = RenderExplorer();
 		await NavigateAsync(cut, "/Docs");
 
@@ -325,7 +325,7 @@ public partial class PDFileExplorerTests
 	[Fact]
 	public async Task TreeAfterEdit_ProviderRefuses_LeavesFolder()
 	{
-		_provider.FailUpdates = true;
+		_provider.RefuseUpdates();
 		var cut = RenderExplorer();
 		await NavigateAsync(cut, "/Docs");
 

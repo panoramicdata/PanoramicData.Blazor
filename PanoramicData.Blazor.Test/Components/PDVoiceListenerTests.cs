@@ -239,6 +239,21 @@ public class PDVoiceListenerTests : BunitContext
 		_module.VerifyInvoke("dispose");
 	}
 
+	/// <summary>
+	/// Verifies that the component leaves no handler attached to the listener service's events once it has
+	/// been disposed, so a long-lived service cannot keep a disposed component alive.
+	/// </summary>
+	[Fact]
+	public async Task Disposing_leaves_no_handlers_on_the_service()
+	{
+		var component = Render<PDVoiceListener>();
+
+		await component.Instance.DisposeAsync();
+
+		_defaultService.InputReceivedSubscribers.Should().Be(0);
+		_defaultService.StatusChangedSubscribers.Should().Be(0);
+	}
+
 	private static object? ReadProperty(object? source, string name)
 		=> source!.GetType().GetProperty(name)!.GetValue(source);
 
@@ -256,18 +271,27 @@ public class PDVoiceListenerTests : BunitContext
 		/// <summary>Gets the recognised text received, in order.</summary>
 		public List<(string Text, DateTimeOffset Timestamp)> Recognised { get; } = [];
 
+		/// <summary>Gets the number of handlers currently attached to <see cref="InputReceived"/>.</summary>
+		public int InputReceivedSubscribers => _inputReceived?.GetInvocationList().Length ?? 0;
+
+		/// <summary>Gets the number of handlers currently attached to <see cref="StatusChanged"/>.</summary>
+		public int StatusChangedSubscribers => _statusChanged?.GetInvocationList().Length ?? 0;
+
+		private EventHandler<ListenerInput>? _inputReceived;
+		private EventHandler<ListenerStatusChangedEventArgs>? _statusChanged;
+
 		/// <inheritdoc />
 		public event EventHandler<ListenerInput>? InputReceived
 		{
-			add { }
-			remove { }
+			add => _inputReceived += value;
+			remove => _inputReceived -= value;
 		}
 
 		/// <inheritdoc />
 		public event EventHandler<ListenerStatusChangedEventArgs>? StatusChanged
 		{
-			add { }
-			remove { }
+			add => _statusChanged += value;
+			remove => _statusChanged -= value;
 		}
 
 		/// <inheritdoc />

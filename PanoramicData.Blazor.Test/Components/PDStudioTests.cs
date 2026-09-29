@@ -437,7 +437,13 @@ public class PDStudioTests : BunitContext
 
 	private sealed class FakeStudioService : IPDStudioService
 	{
-		public event EventHandler<StudioExecutionEventArgs>? ExecutionEvent;
+		private EventHandler<StudioExecutionEventArgs>? _executionEvent;
+
+		public event EventHandler<StudioExecutionEventArgs>? ExecutionEvent
+		{
+			add => _executionEvent += value;
+			remove => _executionEvent -= value;
+		}
 
 		public List<(string Code, string Language, int Timeout)> Calls { get; } = [];
 
@@ -451,9 +457,9 @@ public class PDStudioTests : BunitContext
 
 		public StudioExecutionStatus CurrentStatus { get; set; } = StudioExecutionStatus.Ready;
 
-		public bool HasListeners => ExecutionEvent is not null;
+		public bool HasListeners => _executionEvent is not null;
 
-		public void Raise(StudioExecutionEventArgs args) => ExecutionEvent?.Invoke(this, args);
+		public void Raise(StudioExecutionEventArgs args) => _executionEvent?.Invoke(this, args);
 
 		public IEnumerable<string> GetSupportedLanguages() => ["html"];
 

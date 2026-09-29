@@ -209,6 +209,7 @@ public class PDGraphViewerTests : BunitContext
 
 		public override Task<DataResponse<GraphData>> GetDataAsync(DataRequest<GraphData> request, CancellationToken cancellationToken)
 		{
+			ArgumentNullException.ThrowIfNull(request);
 			cancellationToken.ThrowIfCancellationRequested();
 			Requests++;
 			var graph = new GraphData

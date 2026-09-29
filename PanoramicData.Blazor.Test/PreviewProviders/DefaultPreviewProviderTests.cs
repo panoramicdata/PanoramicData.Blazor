@@ -143,6 +143,10 @@ public class DefaultPreviewProviderTests
 
 	private sealed class ContentProvider(string content) : DefaultPreviewProvider
 	{
-		protected override Task<byte[]> DownloadContentAsync(FileExplorerItem item) => Task.FromResult(Encoding.UTF8.GetBytes(content));
+		protected override Task<byte[]> DownloadContentAsync(FileExplorerItem item)
+		{
+			ArgumentNullException.ThrowIfNull(item);
+			return Task.FromResult(Encoding.UTF8.GetBytes(content));
+		}
 	}
 }

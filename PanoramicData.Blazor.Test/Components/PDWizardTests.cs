@@ -106,7 +106,7 @@ public class PDWizardTests : BunitContext
 	public void Finish_RaisesOnComplete_AndResets()
 	{
 		var events = new List<string>();
-		var steps = new Step[] { new("One"), new("Two") { OnLeaveAsync = () => { events.Add("leave"); return Task.CompletedTask; } } };
+		Step[] steps = [new("One"), new("Two") { OnLeaveAsync = () => { events.Add("leave"); return Task.CompletedTask; } }];
 		var wizard = RenderWizard(steps, p => p.Add(x => x.OnComplete, () => events.Add("complete")));
 		FooterButton(wizard, "Next").Click();
 
@@ -146,7 +146,7 @@ public class PDWizardTests : BunitContext
 	{
 		string? bodyWhenLeaving = null;
 		IRenderedComponent<PDWizard>? wizard = null;
-		var steps = new Step[] { new("One") { OnLeaveAsync = () => { bodyWhenLeaving = Body(wizard!); return Task.CompletedTask; } }, new("Two") };
+		Step[] steps = [new("One") { OnLeaveAsync = () => { bodyWhenLeaving = Body(wizard!); return Task.CompletedTask; } }, new("Two")];
 		wizard = RenderWizard(steps);
 
 		FooterButton(wizard, "Next").Click();

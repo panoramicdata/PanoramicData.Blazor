@@ -15,7 +15,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// </summary>
 public class PDAudioControlTests : BunitContext
 {
-	private const string ModulePath = "./test-audio.js";
+	private const string AudioModulePath = "./test-audio.js";
 
 	private readonly List<double> _values = [];
 
@@ -92,8 +92,8 @@ public class PDAudioControlTests : BunitContext
 	[Fact]
 	public void PointerDown_RegistersDragEventsWithTheModule()
 	{
-		var module = JSInterop.SetupModule(ModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, ModulePath));
+		var module = JSInterop.SetupModule(AudioModulePath);
+		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath));
 
 		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
 
@@ -105,8 +105,8 @@ public class PDAudioControlTests : BunitContext
 	[Fact]
 	public void PointerDown_WhileDragging_DoesNotRegisterAgain()
 	{
-		var module = JSInterop.SetupModule(ModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, ModulePath));
+		var module = JSInterop.SetupModule(AudioModulePath);
+		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath));
 
 		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
 		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
@@ -118,8 +118,8 @@ public class PDAudioControlTests : BunitContext
 	[Fact]
 	public void PointerDown_WhenDisabled_DoesNothing()
 	{
-		var module = JSInterop.SetupModule(ModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, ModulePath).Add(x => x.IsEnabled, false));
+		var module = JSInterop.SetupModule(AudioModulePath);
+		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath).Add(x => x.IsEnabled, false));
 
 		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
 
@@ -142,8 +142,8 @@ public class PDAudioControlTests : BunitContext
 	[Fact]
 	public async Task PointerMove_DuringDrag_ChangesValueByDistance()
 	{
-		JSInterop.SetupModule(ModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, ModulePath).Add(x => x.Value, 0.2));
+		JSInterop.SetupModule(AudioModulePath);
+		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath).Add(x => x.Value, 0.2));
 
 		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
 		await cut.InvokeAsync(() => cut.Instance.OnPointerMove(70));
@@ -158,8 +158,8 @@ public class PDAudioControlTests : BunitContext
 	[Fact]
 	public async Task PointerMove_WithSnapping_QuantisesTheValue()
 	{
-		JSInterop.SetupModule(ModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, ModulePath).Add(x => x.Value, 0).Add(x => x.SnapPoints, 5));
+		JSInterop.SetupModule(AudioModulePath);
+		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath).Add(x => x.Value, 0).Add(x => x.SnapPoints, 5));
 
 		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
 		await cut.InvokeAsync(() => cut.Instance.OnPointerMove(80));
@@ -171,8 +171,8 @@ public class PDAudioControlTests : BunitContext
 	[Fact]
 	public async Task PointerMove_WithNoChange_ReportsNothing()
 	{
-		JSInterop.SetupModule(ModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, ModulePath).Add(x => x.Value, 0.5));
+		JSInterop.SetupModule(AudioModulePath);
+		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath).Add(x => x.Value, 0.5));
 
 		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
 		await cut.InvokeAsync(() => cut.Instance.OnPointerMove(100));
@@ -184,8 +184,8 @@ public class PDAudioControlTests : BunitContext
 	[Fact]
 	public async Task PointerUp_EndsTheDrag()
 	{
-		JSInterop.SetupModule(ModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, ModulePath));
+		JSInterop.SetupModule(AudioModulePath);
+		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath));
 
 		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
 		cut.Instance.OnPointerUp(100);
@@ -257,8 +257,8 @@ public class PDAudioControlTests : BunitContext
 	[Fact]
 	public async Task Dispose_AfterDrag_DoesNotThrow()
 	{
-		JSInterop.SetupModule(ModulePath);
-		var cut = RenderControl(p => p.Add(x => x.ModulePath, ModulePath));
+		JSInterop.SetupModule(AudioModulePath);
+		var cut = RenderControl(p => p.Add(x => x.ModulePath, AudioModulePath));
 		cut.Find("div.audio").PointerDown(new PointerEventArgs { ClientY = 100 });
 
 		var act = async () => await cut.Instance.DisposeAsync();

@@ -166,6 +166,7 @@ public class PDTableColumnSelectorTests : BunitContext
 	{
 		public override Task<DataResponse<Row>> GetDataAsync(DataRequest<Row> request, CancellationToken cancellationToken)
 		{
+			ArgumentNullException.ThrowIfNull(request);
 			cancellationToken.ThrowIfCancellationRequested();
 			List<Row> rows = [new Row { Id = 1, Name = "Alpha" }];
 			return Task.FromResult(new DataResponse<Row>(rows, rows.Count));

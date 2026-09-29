@@ -120,15 +120,14 @@ public class IChatServiceTests
 
 	private sealed class MinimalChatService : TestChatServiceBase
 	{
-		public int Sent { get; private set; }
+		private readonly List<ChatMessage> _sent = [];
+
+		public int Sent => _sent.Count;
 
 		public override IReadOnlyList<ChatMessage> Messages => [];
 
-		public override void SendMessage(ChatMessage chatMessage) => Sent++;
+		public override void SendMessage(ChatMessage chatMessage) => _sent.Add(chatMessage);
 
-		public override void ClearMessages()
-		{
-			Sent = 0;
-		}
+		public override void ClearMessages() => _sent.Clear();
 	}
 }

@@ -282,16 +282,18 @@ public class PDDropDownTests : BunitContext
 		private readonly DisconnectedObject _module = new();
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> ValueTask.FromResult((TValue)(object)_module);
+			=> identifier == "import"
+				? ValueTask.FromResult((TValue)(object)_module)
+				: throw new InvalidOperationException($"Unexpected runtime call '{identifier}'.");
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			return ValueTask.FromResult((TValue)(object)_module);
+			return InvokeAsync<TValue>(identifier, args);
 		}
 	}
 
-/// <summary>A runtime that cannot import anything.</summary>
+	/// <summary>A runtime that cannot import anything.</summary>
 	private sealed class OfflineRuntime : IJSRuntime
 	{
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)

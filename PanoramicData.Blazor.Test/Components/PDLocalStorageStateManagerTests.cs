@@ -191,10 +191,13 @@ public class PDLocalStorageStateManagerTests : BunitContext
 		}
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> throw new JSDisconnectedException(identifier);
+			=> throw new JSDisconnectedException($"{identifier} with {args?.Length ?? 0} argument(s): the circuit has disconnected.");
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-			=> throw new JSDisconnectedException(identifier);
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			return InvokeAsync<TValue>(identifier, args);
+		}
 	}
 
 	/// <summary>Captures the cascaded state manager.</summary>

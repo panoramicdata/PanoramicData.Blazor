@@ -49,7 +49,7 @@ public class PDBlockOverlayTests : BunitContext
 	{
 		var cut = Render<PDBlockOverlay>();
 
-		await cut.InvokeAsync(() => _service.Show(null));
+		await cut.InvokeAsync(() => _service.Show());
 
 		cut.Find("div").ClassList.Should().Contain("blockoverlay_show");
 		cut.FindAll(".text-box").Should().BeEmpty();

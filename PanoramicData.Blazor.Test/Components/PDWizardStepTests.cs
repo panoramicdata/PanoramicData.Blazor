@@ -58,10 +58,10 @@ public class PDWizardStepTests : BunitContext
 		component.Markup.Trim().Should().BeEmpty();
 	}
 
-	private static RenderFragment Steps(params (string Title, bool Visible)[] steps) => builder =>
+	private static RenderFragment Steps(params (string Title, bool Visible)[] specs) => builder =>
 	{
 		var sequence = 0;
-		foreach (var (title, visible) in steps)
+		foreach (var (title, visible) in specs)
 		{
 			builder.OpenComponent<PDWizardStep>(sequence++);
 			builder.AddComponentParameter(sequence++, nameof(PDWizardStep.Title), title);

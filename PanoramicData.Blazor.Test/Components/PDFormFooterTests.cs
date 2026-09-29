@@ -423,7 +423,10 @@ public class PDFormFooterTests : BunitContext
 			=> Record(Created, item, cancellationToken);
 
 		public override Task<OperationResponse> UpdateAsync(Person item, IDictionary<string, object?> delta, CancellationToken cancellationToken)
-			=> Record(Updated, item, cancellationToken);
+		{
+			ArgumentNullException.ThrowIfNull(delta);
+			return Record(Updated, item, cancellationToken);
+		}
 
 		public override Task<OperationResponse> DeleteAsync(Person item, CancellationToken cancellationToken)
 			=> Record(Deleted, item, cancellationToken);
