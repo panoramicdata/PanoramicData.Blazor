@@ -203,17 +203,16 @@ public partial class PDFileModal
 		// show the modal
 		await Modal.ShowAsync().ConfigureAwait(true);
 
-		// default folder?
-		if (!string.IsNullOrWhiteSpace(initialFolder))
+		// default to the given folder, or the root
+		var folder = string.IsNullOrWhiteSpace(initialFolder) ? "/" : initialFolder;
+		if (string.Equals(FileExplorer.FolderPath, folder, StringComparison.Ordinal))
 		{
-			// default to given folder
-			await FileExplorer.NavigateToAsync(initialFolder).ConfigureAwait(true);
+			// navigating to the current folder does nothing, so reload it to apply the new file / folder mode
+			await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
 		}
 		else
 		{
-			// default to root
-			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
-			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
+			await FileExplorer.NavigateToAsync(folder).ConfigureAwait(true);
 		}
 	}
 

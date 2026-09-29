@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
 using PanoramicData.Blazor.Models;
+using PanoramicData.Blazor.PreviewProviders;
 
 namespace PanoramicData.Blazor.Test.Components;
 
@@ -72,6 +73,40 @@ public partial class PDFileExplorerTests
 
 		cut.Instance.PreviewPanelVisible.Should().BeFalse();
 		ToolbarButton(cut, "preview").Should().NotBeNull();
+	}
+
+	/// <summary>Without a PreviewProvider parameter the explorer previews through a provider bound to itself.</summary>
+	[Fact]
+	public void PreviewProvider_Default_IsBoundToTheExplorer()
+	{
+		var cut = RenderExplorer();
+
+		cut.Instance.PreviewProvider.Should().BeOfType<FileExplorerPreviewProvider>()
+			.Which.FileExplorer.Should().BeSameAs(cut.Instance);
+	}
+
+	/// <summary>A supplied PreviewProvider is used, not replaced (#174).</summary>
+	[Fact]
+	public void PreviewProvider_Supplied_IsUsed()
+	{
+		var supplied = new DefaultPreviewProvider { DateTimeFormat = "yyyy" };
+
+		var cut = RenderExplorer(p => p.Add(x => x.PreviewProvider, supplied).Add(x => x.PreviewPanel, FilePreviewModes.On));
+
+		cut.Instance.PreviewProvider.Should().BeSameAs(supplied);
+		cut.FindComponent<PDFilePreview>().Instance.PreviewProvider.Should().BeSameAs(supplied);
+	}
+
+	/// <summary>A supplied FileExplorerPreviewProvider that is not yet bound to an explorer is bound to this one.</summary>
+	[Fact]
+	public void PreviewProvider_SuppliedUnboundFileExplorerProvider_IsBound()
+	{
+		var supplied = new FileExplorerPreviewProvider();
+
+		var cut = RenderExplorer(p => p.Add(x => x.PreviewProvider, supplied));
+
+		cut.Instance.PreviewProvider.Should().BeSameAs(supplied);
+		supplied.FileExplorer.Should().BeSameAs(cut.Instance);
 	}
 
 	/// <summary>The preview key does nothing when the preview is not optional.</summary>

@@ -239,6 +239,26 @@ public class PDFileModalTests : BunitContext
 		_results.Should().BeEmpty();
 	}
 
+	/// <summary>
+	/// Verifies that opening in folder mode while the explorer is already at the root stops listing files: the
+	/// navigation to the root does nothing there, so the table has to be reloaded instead (#191).
+	/// </summary>
+	[Fact]
+	public async Task Folder_mode_at_the_root_hides_files_already_listed()
+	{
+		var show = SetupPendingShow();
+		var component = RenderModal();
+		var opening = component.InvokeAsync(() => component.Instance.ShowOpenAsync());
+		show.SetVoidResult();
+		await opening;
+		component.WaitForAssertion(() => Row(component, "/readme.txt"), Patience);
+
+		await ShowFolderOpenAsync(component, show);
+
+		component.WaitForAssertion(() => component.FindAll("tr[id='/readme.txt']").Should().BeEmpty(), Patience);
+		component.FindAll("tr[id='/Docs']").Should().ContainSingle();
+	}
+
 	/// <summary>Verifies that waiting for an open returns the selected file's path.</summary>
 	[Fact]
 	public async Task Waiting_for_an_open_returns_the_selected_path()

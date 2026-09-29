@@ -278,7 +278,28 @@ public class PDDropZoneTests : BunitContext
 		progress.TotalBytesSent.Should().Be(100);
 	}
 
-	/// <summary>Disposing destroys the uploader in the module.</summary>
+	/// <summary>
+	/// CancelAsync and ClearAsync pass the module a CSS selector for the zone, which is what its
+	/// <c>document.querySelector</c> needs; the bare id would look for an element named after it (#184).
+	/// </summary>
+	[Fact]
+	public async Task Cancel_and_clear_select_the_zone_by_id()
+	{
+		var component = Render<PDDropZone>(parameters => parameters
+			.Add(p => p.Id, "zone")
+			.Add(p => p.UploadUrl, "/upload"));
+
+		await component.InvokeAsync(() => component.Instance.CancelAsync());
+		await component.InvokeAsync(() => component.Instance.ClearAsync());
+
+		_module.VerifyInvoke("cancel").Arguments.Should().Equal("#zone");
+		_module.VerifyInvoke("clear").Arguments.Should().Equal("#zone");
+	}
+
+	/// <summary>
+	/// Disposing destroys the uploader in the module. The module's <c>dispose</c> looks the zone up with
+	/// <c>document.getElementById</c>, so it is given the bare id, unlike the selector-based functions.
+	/// </summary>
 	[Fact]
 	public async Task Dispose_destroys_the_uploader()
 	{
