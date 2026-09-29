@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using PanoramicData.Blazor.Interfaces;
 
@@ -32,11 +33,11 @@ public class PDBlockOverlayTests : BunitContext
 
 	/// <summary>A show request through the service makes the overlay visible and renders the supplied HTML as markup.</summary>
 	[Fact]
-	public void ServiceShow_WithHtml_ShowsOverlayAndRendersMarkup()
+	public async Task ServiceShow_WithHtml_ShowsOverlayAndRendersMarkup()
 	{
 		var cut = Render<PDBlockOverlay>();
 
-		cut.InvokeAsync(() => _service.Show("<b>Please wait</b>"));
+		await cut.InvokeAsync(() => _service.Show("<b>Please wait</b>"));
 
 		cut.Find("div").ClassList.Should().Contain("blockoverlay_show");
 		cut.Find(".text-box b").TextContent.Should().Be("Please wait");
@@ -44,11 +45,11 @@ public class PDBlockOverlayTests : BunitContext
 
 	/// <summary>A show request without HTML makes the overlay visible without a text box.</summary>
 	[Fact]
-	public void ServiceShow_WithoutHtml_ShowsOverlayWithoutTextBox()
+	public async Task ServiceShow_WithoutHtml_ShowsOverlayWithoutTextBox()
 	{
 		var cut = Render<PDBlockOverlay>();
 
-		cut.InvokeAsync(() => _service.Show(null));
+		await cut.InvokeAsync(() => _service.Show(null));
 
 		cut.Find("div").ClassList.Should().Contain("blockoverlay_show");
 		cut.FindAll(".text-box").Should().BeEmpty();
@@ -56,11 +57,11 @@ public class PDBlockOverlayTests : BunitContext
 
 	/// <summary>The parameterless public <see cref="PDBlockOverlay.Show()"/> shows the overlay with no content.</summary>
 	[Fact]
-	public void PublicShow_Parameterless_ShowsOverlay()
+	public async Task PublicShow_Parameterless_ShowsOverlay()
 	{
 		var cut = Render<PDBlockOverlay>();
 
-		cut.InvokeAsync(() => cut.Instance.Show());
+		await cut.InvokeAsync(() => cut.Instance.Show());
 
 		cut.Find("div").ClassList.Should().Contain("blockoverlay_show");
 		cut.FindAll(".text-box").Should().BeEmpty();
@@ -68,12 +69,12 @@ public class PDBlockOverlayTests : BunitContext
 
 	/// <summary>A hide request after a show hides the overlay again and removes the shown text.</summary>
 	[Fact]
-	public void ServiceHide_AfterShow_HidesOverlayAndClearsText()
+	public async Task ServiceHide_AfterShow_HidesOverlayAndClearsText()
 	{
 		var cut = Render<PDBlockOverlay>();
-		cut.InvokeAsync(() => _service.Show("Busy"));
+		await cut.InvokeAsync(() => _service.Show("Busy"));
 
-		cut.InvokeAsync(_service.Hide);
+		await cut.InvokeAsync(_service.Hide);
 
 		cut.Find("div").ClassList.Should().Contain("blockoverlay_hide");
 		cut.Markup.Should().NotContain("Busy");
@@ -81,12 +82,12 @@ public class PDBlockOverlayTests : BunitContext
 
 	/// <summary>A right-click on the overlay is absorbed without changing its state.</summary>
 	[Fact]
-	public void ContextMenu_IsAbsorbed_WithoutChangingState()
+	public async Task ContextMenu_IsAbsorbed_WithoutChangingState()
 	{
 		var cut = Render<PDBlockOverlay>();
-		cut.InvokeAsync(() => _service.Show("Busy"));
+		await cut.InvokeAsync(() => _service.Show("Busy"));
 
-		cut.Find("div").ContextMenu();
+		await cut.Find("div").ContextMenuAsync(new MouseEventArgs());
 
 		cut.Find("div").ClassList.Should().Contain("blockoverlay_show");
 		cut.Find(".text-box").TextContent.Trim().Should().Be("Busy");
