@@ -46,11 +46,8 @@ public class PDTreeNodeTests : BunitContext
 	private static AngleSharp.Dom.IElement Content(IRenderedComponent<PDTree<Item>> tree, string key)
 		=> tree.Find($"#pdtnc-{Node(tree, key).Id}");
 
-	private static async Task ExpandAsync(IRenderedComponent<PDTree<Item>> tree, string key)
-	{
-		await tree.InvokeAsync(() => tree.Instance.ToggleNodeIsExpandedAsync(Node(tree, key)));
-		tree.Render();
-	}
+	private static Task ExpandAsync(IRenderedComponent<PDTree<Item>> tree, string key)
+		=> tree.InvokeAsync(() => tree.Instance.ToggleNodeIsExpandedAsync(Node(tree, key)));
 
 	/// <summary>A branch shows a clickable expander that toggles its children; a leaf shows a hidden one.</summary>
 	[Fact]
