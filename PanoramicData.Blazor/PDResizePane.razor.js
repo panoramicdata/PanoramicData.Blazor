@@ -1,4 +1,4 @@
-function init(container, handle, cornerClass) {
+export function init(container, handle, cornerClass) {
 	if (!container || !handle) return;
 
 	let resizing = false;
@@ -57,4 +57,13 @@ function init(container, handle, cornerClass) {
 
 	handle.style.touchAction = 'none'; // prevent scrolling on touch devices
 	handle.addEventListener('pointerdown', onPointerDown);
+	handle._pdResizePane = { onPointerDown, onPointerUp };
+}
+
+export function dispose(handle) {
+	const state = handle?._pdResizePane;
+	if (!state) return;
+	handle.removeEventListener('pointerdown', state.onPointerDown);
+	state.onPointerUp();
+	delete handle._pdResizePane;
 }
