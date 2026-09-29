@@ -318,10 +318,9 @@ public class PDModalTests : BunitContext
 	private sealed class OfflineRuntime : IJSRuntime
 	{
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> throw new JSException($"{identifier} failed: offline");
+			=> throw new JSException($"{identifier} ({args?.Length ?? 0} args) failed: offline");
 
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-			=> throw new JSException($"{identifier} failed: offline");
+
 	}
 
 	/// <summary>A runtime whose modules initialise but then fail every call with the given exception.</summary>
@@ -335,11 +334,7 @@ public class PDModalTests : BunitContext
 				? ValueTask.FromResult((TValue)(object)Module)
 				: throw new InvalidOperationException($"Unexpected JS call '{identifier}' with {args?.Length ?? 0} args.");
 
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			return InvokeAsync<TValue>(identifier, args);
-		}
+
 	}
 
 	/// <summary>A JS object that hands itself back on initialise and fails everything else.</summary>
@@ -358,10 +353,6 @@ public class PDModalTests : BunitContext
 				: ValueTask.FromException<TValue>(failure);
 		}
 
-		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			return InvokeAsync<TValue>(identifier, args);
-		}
+
 	}
 }

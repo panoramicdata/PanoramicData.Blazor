@@ -284,7 +284,7 @@ public class PDDropDownTests : BunitContext
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
 			=> identifier == "import"
 				? ValueTask.FromResult((TValue)(object)_module)
-				: throw new InvalidOperationException($"Unexpected runtime call '{identifier}'.");
+				: throw new InvalidOperationException($"Unexpected runtime call '{identifier}' with {args?.Length ?? 0} args.");
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
 		{
@@ -300,7 +300,10 @@ public class PDDropDownTests : BunitContext
 			=> throw new JSException($"{identifier} ({args?.Length ?? 0} args) failed: offline");
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-			=> throw new JSException($"{identifier} ({args?.Length ?? 0} args) failed: offline");
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			return InvokeAsync<TValue>(identifier, args);
+		}
 	}
 
 	/// <summary>A JS object that hands itself back on initialise and fails everything else.</summary>
@@ -314,6 +317,9 @@ public class PDDropDownTests : BunitContext
 				: throw new JSDisconnectedException($"{identifier} ({args?.Length ?? 0} args)");
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-			=> InvokeAsync<TValue>(identifier, args);
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			return InvokeAsync<TValue>(identifier, args);
+		}
 	}
 }
