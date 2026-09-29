@@ -90,6 +90,7 @@ public partial class PDSplitter : IAsyncDisposable
 					ExpandToMin = ExpandToMin,
 					Sizes = pcts,
 					GutterSize = GutterSize,
+					GutterAlign = GutterAlign,
 					SnapOffset = SnapOffset,
 					DragInterval = DragInterval,
 					Cursor = Direction == SplitDirection.Horizontal ? "col-resize" : "row-resize"

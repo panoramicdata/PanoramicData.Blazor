@@ -86,6 +86,39 @@ public class PDSplitterTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that the gutter alignment is passed to split.js (#178), and defaults to "center".
+	/// </summary>
+	[Theory]
+	[InlineData("start")]
+	[InlineData("end")]
+	public void GutterAlign_IsPassedToSplitJs(string align)
+	{
+		var module = SetupModule();
+
+		Render<PDSplitter>(parameters => parameters
+			.Add(p => p.GutterAlign, align)
+			.AddChildContent<PDSplitPanel>(panel => panel.Add(p => p.Size, 1))
+			.AddChildContent<PDSplitPanel>(panel => panel.Add(p => p.Size, 1)));
+
+		var options = module.VerifyInvoke("initialize").Arguments[2].Should().BeOfType<SplitOptions>().Subject;
+		options.GutterAlign.Should().Be(align);
+	}
+
+	/// <summary>
+	/// Verifies that without a GutterAlign split.js is asked to centre the gutter, as before.
+	/// </summary>
+	[Fact]
+	public void GutterAlign_DefaultsToCenter()
+	{
+		var module = SetupModule();
+
+		RenderSplitter();
+
+		var options = module.VerifyInvoke("initialize").Arguments[2].Should().BeOfType<SplitOptions>().Subject;
+		options.GutterAlign.Should().Be("center");
+	}
+
+	/// <summary>
 	/// Verifies that a vertical splitter asks for a row resize cursor.
 	/// </summary>
 	[Fact]
