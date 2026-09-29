@@ -121,7 +121,8 @@ public class TimelineScale : IComparable
 		TimelineUnits.Days => dateTime.Day == 1,
 		TimelineUnits.Hours => UnitCount < 12 ? dateTime.Hour == 0 : dateTime.Hour == 0 && (dateTime.DayOfYear) % 2 == 0,
 		TimelineUnits.Minutes => dateTime.Minute == 0,
-		TimelineUnits.Milliseconds => dateTime.Second == 0,
+		TimelineUnits.Seconds => dateTime.Second == 0,
+		TimelineUnits.Milliseconds => dateTime.Millisecond == 0,
 		_ => false
 	};
 

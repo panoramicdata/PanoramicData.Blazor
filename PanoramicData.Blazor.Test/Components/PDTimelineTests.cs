@@ -84,7 +84,6 @@ public partial class PDTimelineTests : BunitContext
 			configure?.Invoke(parameters);
 		});
 		timeline.WaitForState(() => _initialized, _wait);
-		_scaleChanges.Clear();
 		_queries.Clear();
 		return timeline;
 	}
@@ -129,7 +128,11 @@ public partial class PDTimelineTests : BunitContext
 
 		timeline.WaitForState(() => _initialized, _wait);
 
-		_module.VerifyInvoke("initialize").Arguments[0].Should().Be("tl-1");
+		// initialize(id, options, ref): the object reference is the third argument, and there is no fourth
+		var initialize = _module.VerifyInvoke("initialize");
+		initialize.Arguments.Should().HaveCount(3);
+		initialize.Arguments[0].Should().Be("tl-1");
+		initialize.Arguments[2].Should().BeOfType<Microsoft.JSInterop.DotNetObjectReference<PDTimeline>>();
 		_queries[^1].Should().Be((Day(1), Day(22), "Days"));
 		_refreshes.Should().BePositive();
 		var bars = timeline.FindComponents<PDStackedBar>();

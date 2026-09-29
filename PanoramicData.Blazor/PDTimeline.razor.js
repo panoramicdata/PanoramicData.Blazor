@@ -20,6 +20,13 @@ class Timeline {
 	shiftKeyDown = false;
 	lastMouseX = 0;
 	resizeObserver = null;
+	data = null;
+
+	// bound once, so that term() removes exactly the functions the constructor added
+	boundKeyDown = this.onKeyDown.bind(this);
+	boundKeyUp = this.onKeyUp.bind(this);
+	boundMouseMove = this.onMouseMove.bind(this);
+	boundMouseLeave = this.onMouseLeave.bind(this);
 
 	constructor(id, options, ref) {
 		var el = document.getElementById(id);
@@ -34,13 +41,13 @@ class Timeline {
 			window.addEventListener("resize", this.debouncedResizeHandler, { passive: false });
 			
 			// Add key event listeners for cursor management
-			window.addEventListener('keydown', this.onKeyDown.bind(this));
-			window.addEventListener('keyup', this.onKeyUp.bind(this));
-			
+			window.addEventListener("keydown", this.boundKeyDown);
+			window.addEventListener("keyup", this.boundKeyUp);
+
 			// Add mouse move listener on plot element to track position
 			if (this.plotElement) {
-				this.plotElement.addEventListener('mousemove', this.onMouseMove.bind(this));
-				this.plotElement.addEventListener('mouseleave', this.onMouseLeave.bind(this));
+				this.plotElement.addEventListener("mousemove", this.boundMouseMove);
+				this.plotElement.addEventListener("mouseleave", this.boundMouseLeave);
 			}
 			
 			// Add ResizeObserver to detect container size changes (e.g., when splitter is adjusted)
@@ -136,18 +143,28 @@ class Timeline {
 		if (this.el) {
 			this.el.removeEventListener("wheel", this.onWheel);
 			window.removeEventListener("resize", this.debouncedResizeHandler);
-			window.removeEventListener('keydown', this.onKeyDown);
-			window.removeEventListener('keyup', this.onKeyUp);
+			window.removeEventListener("keydown", this.boundKeyDown);
+			window.removeEventListener("keyup", this.boundKeyUp);
 			if (this.plotElement) {
-				this.plotElement.removeEventListener('mousemove', this.onMouseMove);
-				this.plotElement.removeEventListener('mouseleave', this.onMouseLeave);
+				this.plotElement.removeEventListener("mousemove", this.boundMouseMove);
+				this.plotElement.removeEventListener(
+					"mouseleave",
+					this.boundMouseLeave,
+				);
 			}
 			if (this.resizeObserver) {
 				this.resizeObserver.disconnect();
 				this.resizeObserver = null;
 			}
-			this.log("term timeline: ", this.canvasId);
+			// a debounced resize still pending must not call back into the disposed component
+			this.ref = null;
+			this.log("term timeline: ", this.el.id);
 		}
+	}
+
+	// the component draws the data itself; the latest data set is kept for script callers of setData
+	setData(data) {
+		this.data = data;
 	}
 }
 
@@ -169,11 +186,14 @@ export function dispose(id) {
 	var tl = timelines[id];
 	if (tl) {
 		tl.term();
+		delete timelines[id];
 	}
 }
 
-export function initialize(id, options, data, ref) {
-	timelines[id] = new Timeline(id, options, data, ref);
+export function initialize(id, options, ref) {
+	// initialising an id twice must not leave the first instance's listeners attached
+	dispose(id);
+	timelines[id] = new Timeline(id, options, ref);
 }
 
 export function setData(id, data) {

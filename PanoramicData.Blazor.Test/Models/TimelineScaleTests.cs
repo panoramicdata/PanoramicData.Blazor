@@ -93,7 +93,11 @@ public class TimelineScaleTests
 	[InlineData(TimelineUnits.Hours, 12, "2024-01-01 00:00", false)]
 	[InlineData(TimelineUnits.Minutes, 5, "2024-01-01 07:00", true)]
 	[InlineData(TimelineUnits.Minutes, 5, "2024-01-01 07:05", false)]
+	[InlineData(TimelineUnits.Seconds, 1, "2024-01-01 07:05:00", true)]
+	[InlineData(TimelineUnits.Seconds, 10, "2024-01-01 07:05:30", false)]
 	[InlineData(TimelineUnits.Milliseconds, 100, "2024-01-01 07:05", true)]
+	[InlineData(TimelineUnits.Milliseconds, 100, "2024-01-01 07:05:01", true)]
+	[InlineData(TimelineUnits.Milliseconds, 100, "2024-01-01 07:05:00.500", false)]
 	public void IsMajorTick_AtStartOfLargerUnit(TimelineUnits unit, int count, string when, bool expected)
 	{
 		Scale(unit, count).IsMajorTick(DateTime.Parse(when, System.Globalization.CultureInfo.InvariantCulture)).Should().Be(expected);
