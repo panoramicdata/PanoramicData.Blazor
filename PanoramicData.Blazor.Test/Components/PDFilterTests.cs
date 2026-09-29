@@ -1,5 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Models;
 
@@ -166,8 +168,8 @@ public class PDFilterTests : BunitContext
 		var component = RenderFilter(FilterDataTypes.Text);
 		await OpenAsync(component);
 
-		ValueTextBoxes(component)[0].Change("typed");
-		ClickFilter(component);
+		await TypeValueAsync(component, 0, "typed");
+		await ClickFilterAsync(component);
 
 		var filter = _changes.Should().ContainSingle().Subject;
 		filter.FilterType.Should().Be(FilterTypes.Equals);
@@ -184,10 +186,10 @@ public class PDFilterTests : BunitContext
 		var component = RenderFilter(FilterDataTypes.Text);
 		await OpenAsync(component);
 
-		ValueLabels(component)[0].MouseDown();
+		await ClickValueAsync(component, 0);
 		TickedValues(component).Should().Equal("Alpha");
-		ValueLabels(component)[2].MouseDown();
-		ClickFilter(component);
+		await ClickValueAsync(component, 2);
+		await ClickFilterAsync(component);
 
 		var filter = _changes.Should().ContainSingle().Subject;
 		filter.FilterType.Should().Be(FilterTypes.In);
@@ -203,9 +205,9 @@ public class PDFilterTests : BunitContext
 		var component = RenderFilter(FilterDataTypes.Text, filter: new Filter(FilterTypes.DoesNotEqual, "name", string.Empty));
 		await OpenAsync(component);
 
-		ValueLabels(component)[0].MouseDown();
-		ValueLabels(component)[1].MouseDown();
-		ClickFilter(component);
+		await ClickValueAsync(component, 0);
+		await ClickValueAsync(component, 1);
+		await ClickFilterAsync(component);
 
 		var filter = _changes.Should().ContainSingle().Subject;
 		filter.FilterType.Should().Be(FilterTypes.NotIn);
@@ -221,9 +223,9 @@ public class PDFilterTests : BunitContext
 		var component = RenderFilter(FilterDataTypes.Text);
 		await OpenAsync(component);
 
-		ValueLabels(component)[1].MouseDown();
-		ValueLabels(component)[1].MouseDown();
-		ClickFilter(component);
+		await ClickValueAsync(component, 1);
+		await ClickValueAsync(component, 1);
+		await ClickFilterAsync(component);
 
 		TickedValues(component).Should().BeEmpty();
 		_changes.Should().ContainSingle().Which.Value.Should().BeEmpty();
@@ -238,9 +240,9 @@ public class PDFilterTests : BunitContext
 		var component = RenderFilter(FilterDataTypes.Text, options: FilterOptions.SingleValue());
 		await OpenAsync(component);
 
-		ValueLabels(component)[0].MouseDown();
-		ValueLabels(component)[1].MouseDown();
-		ClickFilter(component);
+		await ClickValueAsync(component, 0);
+		await ClickValueAsync(component, 1);
+		await ClickFilterAsync(component);
 
 		TickedValues(component).Should().Equal("Beta");
 		_changes.Should().ContainSingle().Which.Value.Should().Be("Beta");
@@ -256,8 +258,8 @@ public class PDFilterTests : BunitContext
 		await OpenAsync(component);
 		TickedValues(component).Should().Equal("Alpha");
 
-		ValueLabels(component)[1].MouseDown();
-		ClickFilter(component);
+		await ClickValueAsync(component, 1);
+		await ClickFilterAsync(component);
 
 		TickedValues(component).Should().Equal("Beta");
 		var filter = _changes.Should().ContainSingle().Subject;
@@ -275,9 +277,9 @@ public class PDFilterTests : BunitContext
 		await OpenAsync(component);
 		component.FindAll(".filter-body input").Should().HaveCount(2, "a range has from and to boxes");
 
-		ValueLabels(component)[2].MouseDown();
-		ValueLabels(component)[0].MouseDown();
-		ClickFilter(component);
+		await ClickValueAsync(component, 2);
+		await ClickValueAsync(component, 0);
+		await ClickFilterAsync(component);
 
 		var filter = _changes.Should().ContainSingle().Subject;
 		filter.FilterType.Should().Be(FilterTypes.Range);
@@ -295,9 +297,9 @@ public class PDFilterTests : BunitContext
 		await OpenAsync(component);
 		TickedValues(component).Should().Equal("Alpha", "Beta");
 
-		ValueTextBoxes(component)[0].Change("1");
-		ValueTextBoxes(component)[1].Change("9");
-		ClickFilter(component);
+		await TypeValueAsync(component, 0, "1");
+		await TypeValueAsync(component, 1, "9");
+		await ClickFilterAsync(component);
 
 		var filter = _changes.Should().ContainSingle().Subject;
 		filter.Value.Should().Be("1");
@@ -326,7 +328,7 @@ public class PDFilterTests : BunitContext
 		var component = RenderFilter(FilterDataTypes.Text, filter: new Filter(FilterTypes.In, "name", string.Empty));
 		await OpenAsync(component);
 
-		ValueTextBoxes(component)[0].Change("Alpha|\"Gamma Ray\"");
+		await TypeValueAsync(component, 0, "Alpha|\"Gamma Ray\"");
 
 		TickedValues(component).Should().Equal("Alpha", "Gamma Ray");
 	}
@@ -340,8 +342,8 @@ public class PDFilterTests : BunitContext
 		var component = RenderFilter(FilterDataTypes.Text, filter: new Filter(FilterTypes.In, "name", "Alpha|Beta"));
 		await OpenAsync(component);
 
-		component.Find("select").Change(nameof(FilterTypes.NotIn));
-		ClickFilter(component);
+		await component.InvokeAsync(() => component.Find("select").ChangeAsync(new ChangeEventArgs { Value = nameof(FilterTypes.NotIn) }));
+		await ClickFilterAsync(component);
 
 		var filter = _changes.Should().ContainSingle().Subject;
 		filter.FilterType.Should().Be(FilterTypes.NotIn);
@@ -357,8 +359,8 @@ public class PDFilterTests : BunitContext
 		var component = RenderFilter(FilterDataTypes.Text, filter: new Filter(FilterTypes.In, "name", "Beta|Alpha"));
 		await OpenAsync(component);
 
-		component.Find("select").Change(nameof(FilterTypes.Equals));
-		ClickFilter(component);
+		await component.InvokeAsync(() => component.Find("select").ChangeAsync(new ChangeEventArgs { Value = nameof(FilterTypes.Equals) }));
+		await ClickFilterAsync(component);
 
 		TickedValues(component).Should().Equal("Beta");
 		_changes.Should().ContainSingle().Which.Value.Should().Be("Beta");
@@ -373,8 +375,8 @@ public class PDFilterTests : BunitContext
 		var component = RenderFilter(FilterDataTypes.Numeric, filter: new Filter(FilterTypes.In, "size", "Gamma Ray|Alpha"));
 		await OpenAsync(component);
 
-		component.Find("select").Change(nameof(FilterTypes.Range));
-		ClickFilter(component);
+		await component.InvokeAsync(() => component.Find("select").ChangeAsync(new ChangeEventArgs { Value = nameof(FilterTypes.Range) }));
+		await ClickFilterAsync(component);
 
 		var filter = _changes.Should().ContainSingle().Subject;
 		filter.Value.Should().Be("Alpha");
@@ -391,14 +393,14 @@ public class PDFilterTests : BunitContext
 		await OpenAsync(component);
 		component.Find(".values-select-all-count").TextContent.Should().Be("0 / 3");
 
-		component.Find(".values-select-all").Click();
+		await component.InvokeAsync(() => component.Find(".values-select-all").ClickAsync(new MouseEventArgs()));
 		component.Find(".values-select-all-count").TextContent.Should().Be("3 / 3");
-		ClickFilter(component);
+		await ClickFilterAsync(component);
 		_changes[^1].FilterType.Should().Be(FilterTypes.In);
 		_changes[^1].Value.Should().Be("Alpha|Beta|\"Gamma Ray\"");
 
 		await OpenAsync(component);
-		component.Find(".values-select-all").Click();
+		await component.InvokeAsync(() => component.Find(".values-select-all").ClickAsync(new MouseEventArgs()));
 		TickedValues(component).Should().BeEmpty();
 	}
 
@@ -441,7 +443,7 @@ public class PDFilterTests : BunitContext
 		var component = RenderFilter(FilterDataTypes.Text, filter: filter);
 		await OpenAsync(component);
 
-		component.Find(".filter-toolbar .btn-secondary").Click();
+		await component.InvokeAsync(() => component.Find(".filter-toolbar .btn-secondary").ClickAsync(new MouseEventArgs()));
 
 		_changes.Should().ContainSingle().Which.Should().BeSameAs(filter);
 		filter.FilterType.Should().Be(FilterTypes.Equals);
@@ -496,8 +498,14 @@ public class PDFilterTests : BunitContext
 	private static Task OpenAsync(IRenderedComponent<PDFilter> component)
 		=> component.InvokeAsync(() => component.FindComponent<PDDropDown>().Instance.OnDropDownShown());
 
-	private static void ClickFilter(IRenderedComponent<PDFilter> component)
-		=> component.Find(".filter-toolbar .btn-primary").Click();
+	private static Task ClickFilterAsync(IRenderedComponent<PDFilter> component)
+		=> component.InvokeAsync(() => component.Find(".filter-toolbar .btn-primary").ClickAsync(new MouseEventArgs()));
+
+	private static Task ClickValueAsync(IRenderedComponent<PDFilter> component, int index)
+		=> component.InvokeAsync(() => ValueLabels(component)[index].MouseDownAsync(new MouseEventArgs()));
+
+	private static Task TypeValueAsync(IRenderedComponent<PDFilter> component, int index, string text)
+		=> component.InvokeAsync(() => ValueTextBoxes(component)[index].ChangeAsync(new ChangeEventArgs { Value = text }));
 
 	private static List<string> OptionValues(IRenderedComponent<PDFilter> component)
 		=> [.. component.FindAll("select option").Select(o => o.GetAttribute("value") ?? string.Empty)];

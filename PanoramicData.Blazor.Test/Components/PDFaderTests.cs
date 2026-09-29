@@ -122,7 +122,7 @@ public class PDFaderTests : BunitContext
 	/// Verifies that double-clicking resets to the default value, snapped to the whole-value steps.
 	/// </summary>
 	[Fact]
-	public void Double_clicking_resets_to_the_snapped_default_value()
+	public async Task Double_clicking_resets_to_the_snapped_default_value()
 	{
 		var values = new List<double>();
 		var component = Render<PDFader>(parameters => parameters
@@ -130,7 +130,7 @@ public class PDFaderTests : BunitContext
 			.Add(p => p.DefaultValue, 0.73)
 			.Add(p => p.ValueChanged, v => values.Add(v)));
 
-		component.Find("svg").DoubleClick();
+		await component.InvokeAsync(() => component.Find("svg").DoubleClickAsync(new MouseEventArgs()));
 
 		values.Should().ContainSingle().Which.Should().BeApproximately(0.7, 0.0001);
 	}
@@ -147,7 +147,7 @@ public class PDFaderTests : BunitContext
 			.Add(p => p.Value, 0.5)
 			.Add(p => p.ValueChanged, v => values.Add(v)));
 
-		component.Find("svg").PointerDown(new PointerEventArgs { ClientY = 100 });
+		await component.InvokeAsync(() => component.Find("svg").PointerDownAsync(new PointerEventArgs { ClientY = 100 }));
 
 		module.VerifyInvoke("registerAudioControlEvents");
 
@@ -172,7 +172,7 @@ public class PDFaderTests : BunitContext
 			.Add(p => p.Value, 0.5)
 			.Add(p => p.ValueChanged, v => values.Add(v)));
 
-		component.Find("svg").PointerDown(new PointerEventArgs { ClientY = 500 });
+		await component.InvokeAsync(() => component.Find("svg").PointerDownAsync(new PointerEventArgs { ClientY = 500 }));
 		await component.InvokeAsync(() => component.Instance.OnPointerMove(0));
 
 		values.Should().ContainSingle().Which.Should().Be(1);
@@ -182,13 +182,13 @@ public class PDFaderTests : BunitContext
 	/// Verifies that a disabled fader does not start a drag.
 	/// </summary>
 	[Fact]
-	public void A_disabled_fader_does_not_start_a_drag()
+	public async Task A_disabled_fader_does_not_start_a_drag()
 	{
 		var module = JSInterop.SetupModule(ModulePath);
 		var component = Render<PDFader>(parameters => parameters
 			.Add(p => p.IsEnabled, false));
 
-		component.Find("svg").PointerDown(new PointerEventArgs { ClientY = 100 });
+		await component.InvokeAsync(() => component.Find("svg").PointerDownAsync(new PointerEventArgs { ClientY = 100 }));
 
 		module.Invocations["registerAudioControlEvents"].Should().BeEmpty();
 	}

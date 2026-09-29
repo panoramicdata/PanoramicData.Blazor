@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test;
@@ -249,7 +250,7 @@ public class PDGraphTests : BunitContext
 			.Add(x => x.SelectionChanged, s => selection = s), data);
 		await ReportPositionsAsync(component, ("n1", 0, 0), ("n2", 1, 1));
 
-		component.FindAll("g.graph-node")[1].Click();
+		await component.InvokeAsync(() => component.FindAll("g.graph-node")[1].ClickAsync(new MouseEventArgs()));
 
 		clicked.Should().BeSameAs(data.Nodes[1]);
 		selection.Node.Should().BeSameAs(data.Nodes[1]);
@@ -275,7 +276,7 @@ public class PDGraphTests : BunitContext
 			.Add(x => x.SelectionChanged, s => selection = s), data);
 		await ReportPositionsAsync(component, ("n1", 0, 0), ("n2", 1, 1));
 
-		component.Find("line.graph-edge").Click();
+		await component.InvokeAsync(() => component.Find("line.graph-edge").ClickAsync(new MouseEventArgs()));
 
 		clicked.Should().BeSameAs(data.Edges[0]);
 		selection.Edge.Should().BeSameAs(data.Edges[0]);
