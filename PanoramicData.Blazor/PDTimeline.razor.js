@@ -172,8 +172,8 @@ export function dispose(id) {
 	}
 }
 
-export function initialize(id, options, data, ref) {
-	timelines[id] = new Timeline(id, options, data, ref);
+export function initialize(id, options, ref) {
+	timelines[id] = new Timeline(id, options, ref);
 }
 
 export function setData(id, data) {

@@ -323,6 +323,21 @@ public partial class PDTimelineTests
 	}
 
 	/// <summary>
+	/// Verifies that a set selection starting before the timeline is clamped to the timeline's start, not moved
+	/// past its own end (#161).
+	/// </summary>
+	[Fact]
+	public async Task SetSelection_BeforeTheStart_ClampsToTheStart()
+	{
+		var timeline = RenderTimeline();
+
+		await timeline.InvokeAsync(() => timeline.Instance.SetSelection(new DateTime(2025, 12, 1), Day(5)));
+
+		_selections[^1].Should().BeEquivalentTo(Range(Day(1), Day(5)));
+		timeline.Instance.GetSelection().Should().BeEquivalentTo(Range(Day(1), Day(5)));
+	}
+
+	/// <summary>
 	/// Verifies that a set selection is clipped to the enabled range unless selecting disabled ranges is allowed.
 	/// </summary>
 	[Fact]

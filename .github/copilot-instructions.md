@@ -247,7 +247,7 @@ dotNetRef.invokeMethodAsync('MethodName', arg1, arg2);
 2. ✅ Made the fix: `start = RoundedMinDateTime;`
 3. ✅ Built and verified: `dotnet build PanoramicData.Blazor/PanoramicData.Blazor.csproj`
 4. ✅ Tested in demo application
-5. ⚠️ **Missing**: Unit test to prevent regression
+5. ✅ Added the regression test `PDTimelineTests.SetSelection_BeforeTheStart_ClampsToTheStart` (#161)
 
 **Best Practice**: Add unit tests for bug fixes to prevent regression.
 

@@ -51,6 +51,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	private ElementReference _svgPanElement;
 	private DotNetObjectReference<PDTimeline>? _objRef;
 	private TimelineScale _previousScale = TimelineScale.Years;
+	private bool _scaleApplied;
 	private CancellationTokenSource? _refreshCancellationToken;
 	private bool _loading;
 	private DateTime _lastMinDateTime;
@@ -142,6 +143,10 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	/// <summary>
 	/// An event callback that is invoked when the timeline scale changes.
 	/// </summary>
+	/// <remarks>
+	/// It is not raised when the timeline first lays itself out at the <see cref="Scale"/> it was given, since
+	/// that is not a change. Use <see cref="Initialized"/> to learn when the timeline is ready.
+	/// </remarks>
 	[Parameter]
 	public EventCallback<TimelineScale> ScaleChanged { get; set; }
 
@@ -721,7 +726,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			_isPanDragging = false;
 			refresh = true;
 		}
-		else
+		else if (IsEnabled)
 		{
 			// move entire viewport along?
 			if ((args.ClientX - _canvasX) < _panHandleX)
@@ -986,7 +991,12 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		else
 		{
 			var newOffset = 0;
-			if (position == TimelinePositions.Center)
+			if (position == TimelinePositions.Start)
+			{
+				// as far left as the timeline allows: a date in the last viewport cannot be the first column
+				newOffset = Math.Min(Scale.PeriodsBetween(RoundedMinDateTime, Scale.PeriodStart(dateTime)), maxOffset);
+			}
+			else if (position == TimelinePositions.Center)
 			{
 				newOffset = Scale.PeriodsBetween(RoundedMinDateTime, dateTime) - (_viewportColumns / 2);
 			}
@@ -1235,6 +1245,9 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 			var scaleChanged = scale != _previousScale;
 			var previousScale = _previousScale;
 
+			// the first layout applies the Scale parameter the consumer supplied: that is not a change to announce
+			var raiseScaleChanged = scaleChanged && (_scaleApplied || !ReferenceEquals(scale, Scale));
+
 			// should we restrict zoom out?
 			var restrictCheck = scaleChanged && Options.General.RestrictZoomOut
 				&& (scale.UnitType > _previousScale.UnitType || (scale.UnitType == _previousScale.UnitType && scale.UnitCount > _previousScale.UnitCount));
@@ -1255,12 +1268,14 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 				return;
 			}
 
+			_scaleApplied = true;
+
 			if (scaleChanged || (forceRefresh && refreshData))
 			{
 				_dataPoints.Clear();
 			}
 
-			if (scaleChanged)
+			if (raiseScaleChanged)
 			{
 				await ScaleChanged.InvokeAsync(Scale).ConfigureAwait(true);
 			}
@@ -1316,7 +1331,7 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 		// validate range
 		if (start < RoundedMinDateTime)
 		{
-			start = RoundedMaxDateTime;
+			start = RoundedMinDateTime;
 		}
 
 		if (end > RoundedMaxDateTime)

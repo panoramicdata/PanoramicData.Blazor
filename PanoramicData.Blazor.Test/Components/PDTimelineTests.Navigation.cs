@@ -259,6 +259,76 @@ public partial class PDTimelineTests
 	}
 
 	/// <summary>
+	/// Verifies that panning to a date at the start makes it the first visible column, and a date too near the
+	/// end to be first pans as far as the timeline allows (#161).
+	/// </summary>
+	[Fact]
+	public async Task PanTo_Start_MakesTheDateFirst()
+	{
+		var timeline = RenderTimeline();
+
+		await timeline.InvokeAsync(() => timeline.Instance.PanTo(Day(30), TimelinePositions.Start));
+		timeline.Render();
+		timeline.FindComponents<PDStackedBar>()[0].Instance.DataPoint.StartTime.Should().Be(Day(30));
+
+		await timeline.InvokeAsync(() => timeline.Instance.PanTo(Day(58), TimelinePositions.Start));
+		timeline.Render();
+		timeline.FindComponents<PDStackedBar>()[0].Instance.DataPoint.StartTime.Should().Be(Day(41));
+	}
+
+	/// <summary>
+	/// Verifies that clicking the pan track of a disabled timeline neither pages the viewport nor fetches (#161).
+	/// </summary>
+	[Fact]
+	public async Task PanClick_WhenDisabled_DoesNothing()
+	{
+		var timeline = RenderTimeline(p => p.Add(x => x.IsEnabled, false));
+
+		await timeline.Find("svg.tl-pan").PointerUpAsync(new PointerEventArgs { ClientX = 310 });
+
+		_queries.Should().BeEmpty();
+		timeline.FindComponents<PDStackedBar>()[0].Instance.DataPoint.StartTime.Should().Be(Day(1));
+	}
+
+	/// <summary>
+	/// Verifies that laying out at the given scale, or at the default one, does not raise
+	/// <see cref="PDTimeline.ScaleChanged"/>, while a real change still does (#161).
+	/// </summary>
+	[Fact]
+	public async Task FirstLayout_DoesNotRaiseScaleChanged()
+	{
+		var timeline = RenderTimeline();
+		_scaleChanges.Should().BeEmpty();
+		await timeline.InvokeAsync(timeline.Instance.ZoomOutAsync);
+		_scaleChanges.Should().Equal("Weeks");
+
+		_initialized = false;
+		_scaleChanges.Clear();
+		Render<PDTimeline>(parameters => parameters
+			.Add(p => p.MinDateTime, new DateTime(2000, 1, 1))
+			.Add(p => p.MaxDateTime, _max)
+			.Add(p => p.Initialized, () => _initialized = true)
+			.Add(p => p.ScaleChanged, (TimelineScale s) => _scaleChanges.Add(s.Name)))
+			.WaitForState(() => _initialized, _wait);
+		_scaleChanges.Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// Verifies that without auto-refresh, where the timeline never lays itself out, the first scale change
+	/// asked for is still raised.
+	/// </summary>
+	[Fact]
+	public async Task WithoutAutoRefresh_FirstZoomRaisesScaleChanged()
+	{
+		var manual = new TimelineOptions { General = new TimelineGeneralOptions { AutoRefresh = false } };
+		var timeline = RenderTimeline(p => p.Add(x => x.Options, manual));
+
+		await timeline.InvokeAsync(timeline.Instance.ZoomOutAsync);
+
+		_scaleChanges.Should().Equal("Weeks");
+	}
+
+	/// <summary>
 	/// Verifies that a timeline shorter than the viewport always pans to its start.
 	/// </summary>
 	[Fact]
