@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Models;
 using System.Globalization;
@@ -15,6 +16,9 @@ public class PDTimelineToolbarTests : BunitContext
 {
 	private static readonly DateTime _min = new(2026, 1, 1);
 	private static readonly DateTime _max = new(2026, 1, 31);
+
+	/// <summary>A generous wait for renders that can queue behind the timeline's own follow-now timer.</summary>
+	private static readonly TimeSpan _wait = TimeSpan.FromSeconds(30);
 
 	/// <summary>Sets up the rendering context, giving the timeline a measurable plot area.</summary>
 	public PDTimelineToolbarTests()
@@ -88,19 +92,19 @@ public class PDTimelineToolbarTests : BunitContext
 
 	/// <summary>The zoom buttons step the timeline one configured scale finer or coarser.</summary>
 	[Fact]
-	public void ZoomButtons_StepTheTimelineScale()
+	public async Task ZoomButtons_StepTheTimelineScale()
 	{
 		var timeline = RenderTimeline(_max).Instance;
 		var cut = RenderToolbar(timeline);
 
-		cut.Find("button[title='Zoom In']").Click();
+		await cut.Find("button[title='Zoom In']").ClickAsync(new MouseEventArgs());
 		timeline.Scale.Name.Should().Be("12 Hours");
 
 		cut.Render();
 		cut.Find(".scale-label").TextContent.Should().Be("12 Hours");
 
-		cut.Find("button[title='Zoom Out']").Click();
-		cut.Find("button[title='Zoom Out']").Click();
+		await cut.Find("button[title='Zoom Out']").ClickAsync(new MouseEventArgs());
+		await cut.Find("button[title='Zoom Out']").ClickAsync(new MouseEventArgs());
 		timeline.Scale.Name.Should().Be("Weeks");
 	}
 
@@ -118,7 +122,7 @@ public class PDTimelineToolbarTests : BunitContext
 
 		cut.Find(".selection-bar .range-min-label").TextContent.Should().Be(Format(selection.StartTime));
 		cut.Find(".selection-bar .range-max-label").TextContent.Should().Be(Format(selection.EndTime));
-		cut.Find("button[title='Zoom to selection']").Click();
+		await cut.Find("button[title='Zoom to selection']").ClickAsync(new MouseEventArgs());
 		timeline.Instance.Scale.Name.Should().Be(expectedScale.Name);
 	}
 
@@ -142,18 +146,18 @@ public class PDTimelineToolbarTests : BunitContext
 
 	/// <summary>The Follow Now toggle starts live following, then pauses it, updating its style and tooltip.</summary>
 	[Fact]
-	public void FollowNowToggle_StartsThenPausesLiveFollowing()
+	public async Task FollowNowToggle_StartsThenPausesLiveFollowing()
 	{
 		var timeline = RenderTimeline(null).Instance;
 		var cut = RenderToolbar(timeline, showFollowNow: true);
 		timeline.IsFollowingNow.Should().BeFalse();
 
-		cut.Find("button[title='Follow Now']").Click();
+		await cut.Find("button[title='Follow Now']").ClickAsync(new MouseEventArgs());
 		timeline.IsFollowingNow.Should().BeTrue();
 		cut.Render();
 		cut.Find("button[title='Pause live following']").ClassList.Should().Contain("btn-primary");
 
-		cut.Find("button[title='Pause live following']").Click();
+		await cut.Find("button[title='Pause live following']").ClickAsync(new MouseEventArgs());
 		timeline.IsFollowingNow.Should().BeFalse();
 		cut.Render();
 		cut.Find("button[title='Follow Now']").ClassList.Should().Contain("btn-outline-primary");
@@ -172,20 +176,20 @@ public class PDTimelineToolbarTests : BunitContext
 
 	/// <summary>Disable, Enable and SetEnabled switch the toolbar's own enabled state, which gates the Follow Now toggle.</summary>
 	[Fact]
-	public void EnableDisable_GateTheFollowNowToggle()
+	public async Task EnableDisable_GateTheFollowNowToggle()
 	{
 		var timeline = RenderTimeline(null).Instance;
 		var cut = RenderToolbar(timeline, showFollowNow: true);
 		IsFollowNowDisabled(cut).Should().BeFalse();
 
-		cut.InvokeAsync(cut.Instance.Disable);
+		await cut.InvokeAsync(cut.Instance.Disable);
 		cut.Instance.IsEnabled.Should().BeFalse();
 		IsFollowNowDisabled(cut).Should().BeTrue();
 
-		cut.InvokeAsync(cut.Instance.Enable);
+		await cut.InvokeAsync(cut.Instance.Enable);
 		IsFollowNowDisabled(cut).Should().BeFalse();
 
-		cut.InvokeAsync(() => cut.Instance.SetEnabled(false));
+		await cut.InvokeAsync(() => cut.Instance.SetEnabled(false));
 		IsFollowNowDisabled(cut).Should().BeTrue();
 	}
 

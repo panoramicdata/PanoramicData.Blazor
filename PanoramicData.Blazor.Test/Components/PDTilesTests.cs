@@ -1,6 +1,7 @@
 using AngleSharp.Dom;
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Models.Tiles;
 
 namespace PanoramicData.Blazor.Test.Components;
@@ -374,7 +375,7 @@ public class PDTilesTests : BunitContext
 
 	/// <summary>Clicking a tile raises <see cref="PDTiles.TileClick"/> with its position, name and override definition.</summary>
 	[Fact]
-	public void TileClick_RaisesEventWithTileDetails()
+	public async Task TileClick_RaisesEventWithTileDetails()
 	{
 		var definition = new TileDefinition { Column = 1, Row = 0, Tag = "tag" };
 		var clicks = new List<TileClickEventArgs>();
@@ -385,8 +386,8 @@ public class PDTilesTests : BunitContext
 			.Add(x => x.Tiles, [definition])
 			.Add(x => x.TileClick, args => clicks.Add(args)));
 
-		cut.Find($"g#{Id}-tile-1").Click();
-		cut.Find($"g#{Id}-tile-0").Click();
+		await cut.Find($"g#{Id}-tile-1").ClickAsync(new MouseEventArgs());
+		await cut.Find($"g#{Id}-tile-0").ClickAsync(new MouseEventArgs());
 
 		clicks.Should().HaveCount(2);
 		clicks[0].TileId.Should().Be(1);
@@ -708,7 +709,7 @@ public class PDTilesTests : BunitContext
 	[Theory]
 	[InlineData(ConnectionMode.StraightLine)]
 	[InlineData(ConnectionMode.RowCurves)]
-	public void ConnectorClick_RaisesEventWithConnectorDetails(ConnectionMode mode)
+	public async Task ConnectorClick_RaisesEventWithConnectorDetails(ConnectionMode mode)
 	{
 		var connector = Connector(0, 0, 1, 1, "down");
 		ConnectorClickEventArgs? received = null;
@@ -719,7 +720,7 @@ public class PDTilesTests : BunitContext
 			.Add(x => x.Connectors, [connector])
 			.Add(x => x.ConnectorClick, args => received = args));
 
-		cut.Find("g.connector").Click();
+		await cut.Find("g.connector").ClickAsync(new MouseEventArgs());
 
 		received.Should().NotBeNull();
 		received!.ConnectorName.Should().Be("Alpha?Alpha#0");
@@ -729,31 +730,51 @@ public class PDTilesTests : BunitContext
 	}
 
 	/// <summary>
+	/// How long to wait for the animation timer. The wait returns as soon as the condition holds, so this is only
+	/// reached when something is wrong; it is long because the timer's ticks share the thread pool and the
+	/// renderer's dispatcher with the whole suite, and under full-suite load with coverage the first tick and
+	/// the check that observes it were seen to take longer than bUnit's one-second default.
+	/// </summary>
+	private static readonly TimeSpan _timerWait = TimeSpan.FromSeconds(30);
+
+	/// <summary>
+	/// Renders the cheapest grid that can hold a connector, with animation on. Every tick of the 60 fps timer
+	/// re-renders the whole component on the dispatcher, so a cheap render keeps those ticks from queuing up
+	/// ahead of the test's own checks and parameter changes.
+	/// </summary>
+	private IRenderedComponent<PDTiles> RenderAnimated()
+		=> Render<PDTiles>(p => p
+			.Add(x => x.Options, new TileGridOptions { Columns = 2, Rows = 1, LineOpacity = 0, Glow = 0, Reflection = 0 })
+			.Add(x => x.ConnectorOptions, new TileConnectorOptions { AnimationSpeed = 100 })
+			.Add(x => x.Logos, [string.Empty])
+			.Add(x => x.Connectors, [Connector(0, 0, 1, 0, "right")]));
+
+	/// <summary>
 	/// With connectors and a non-zero speed the pattern animates; removing the connectors stops it, and the
 	/// component disposes cleanly.
 	/// </summary>
 	[Fact]
 	public async Task Animation_RunsWithConnectors_AndStopsWithoutThem()
 	{
-		var options = new TileConnectorOptions { AnimationSpeed = 100 };
-		var cut = RenderWithConnectors(options, Connector(0, 0, 1, 0, "right", ConnectorFillPattern.Bars));
+		var cut = RenderAnimated();
 
-		cut.WaitForAssertion(() => cut.Instance.AnimationOffset.Should().BeGreaterThan(0));
+		cut.WaitForAssertion(() => cut.Instance.AnimationOffset.Should().BeGreaterThan(0), _timerWait);
 
 		cut.Render(p => p.Add(x => x.Connectors, null));
-		cut.FindAll("g.connector").Should().BeEmpty();
-		await cut.Instance.DisposeAsync();
+		cut.WaitForAssertion(() => cut.FindAll("g.connector").Should().BeEmpty(), _timerWait);
+		await cut.InvokeAsync(async () => await cut.Instance.DisposeAsync());
 	}
 
-	/// <summary>Turning the animation speed to zero while connectors are shown also stops the animation.</summary>
+	/// <summary>Turning the animation speed to zero while connectors are shown stops the animation but keeps the connector.</summary>
 	[Fact]
-	public void Animation_SpeedSetToZero_Stops()
+	public void Animation_SpeedSetToZero_KeepsTheConnector()
 	{
-		var cut = RenderWithConnectors(new TileConnectorOptions { AnimationSpeed = 100 }, Connector(0, 0, 1, 0, "right"));
-		cut.WaitForAssertion(() => cut.Instance.AnimationOffset.Should().BeGreaterThan(0));
+		var cut = RenderAnimated();
+		cut.WaitForAssertion(() => cut.Instance.AnimationOffset.Should().BeGreaterThan(0), _timerWait);
 
 		cut.Render(p => p.Add(x => x.ConnectorOptions, StillConnectors()));
 
+		cut.WaitForAssertion(() => cut.Instance.ConnectorOptions.AnimationSpeed.Should().Be(0), _timerWait);
 		cut.FindAll("g.connector").Should().ContainSingle();
 	}
 
