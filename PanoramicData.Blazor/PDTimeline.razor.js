@@ -41,13 +41,13 @@ class Timeline {
 			window.addEventListener("resize", this.debouncedResizeHandler, { passive: false });
 			
 			// Add key event listeners for cursor management
-			window.addEventListener('keydown', this.boundKeyDown);
-			window.addEventListener('keyup', this.boundKeyUp);
+			window.addEventListener("keydown", this.boundKeyDown);
+			window.addEventListener("keyup", this.boundKeyUp);
 
 			// Add mouse move listener on plot element to track position
 			if (this.plotElement) {
-				this.plotElement.addEventListener('mousemove', this.boundMouseMove);
-				this.plotElement.addEventListener('mouseleave', this.boundMouseLeave);
+				this.plotElement.addEventListener("mousemove", this.boundMouseMove);
+				this.plotElement.addEventListener("mouseleave", this.boundMouseLeave);
 			}
 			
 			// Add ResizeObserver to detect container size changes (e.g., when splitter is adjusted)
@@ -143,11 +143,14 @@ class Timeline {
 		if (this.el) {
 			this.el.removeEventListener("wheel", this.onWheel);
 			window.removeEventListener("resize", this.debouncedResizeHandler);
-			window.removeEventListener('keydown', this.boundKeyDown);
-			window.removeEventListener('keyup', this.boundKeyUp);
+			window.removeEventListener("keydown", this.boundKeyDown);
+			window.removeEventListener("keyup", this.boundKeyUp);
 			if (this.plotElement) {
-				this.plotElement.removeEventListener('mousemove', this.boundMouseMove);
-				this.plotElement.removeEventListener('mouseleave', this.boundMouseLeave);
+				this.plotElement.removeEventListener("mousemove", this.boundMouseMove);
+				this.plotElement.removeEventListener(
+					"mouseleave",
+					this.boundMouseLeave,
+				);
 			}
 			if (this.resizeObserver) {
 				this.resizeObserver.disconnect();
