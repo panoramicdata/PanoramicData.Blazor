@@ -64,9 +64,9 @@ public partial class PDGraphInfo<TItem> : PDComponentBase where TItem : class
 	{
 		base.OnInitialized();
 		// Set a unique ID if not provided
-		if (Id == $"pd-component-{Sequence}")
+		if (HasDefaultId)
 		{
-			Id = $"pd-graph-info-{++_idSequence}";
+			Id = $"pd-graph-info-{Interlocked.Increment(ref _idSequence)}";
 		}
 	}
 
@@ -89,6 +89,6 @@ public partial class PDGraphInfo<TItem> : PDComponentBase where TItem : class
 	{
 		VisualizationConfig = config.Visualization;
 		ClusteringConfig = config.Clustering;
-		await ConfigurationChanged.InvokeAsync(config).ConfigureAwait(false);
+		await ConfigurationChanged.InvokeAsync(config).ConfigureAwait(true);
 	}
 }

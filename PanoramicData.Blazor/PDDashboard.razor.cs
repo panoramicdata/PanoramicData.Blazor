@@ -270,9 +270,9 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
-		if (Id == $"pd-component-{Sequence}")
+		if (HasDefaultId)
 		{
-			Id = $"pd-dashboard-{++_idSequence}";
+			Id = $"pd-dashboard-{Interlocked.Increment(ref _idSequence)}";
 		}
 
 		_previousIsEditable = IsEditable;
@@ -403,7 +403,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	// Drag-and-drop
 	private void OnTileDragStart(DragEventArgs _, PDDashboardTile tile)
 	{
-		if (!IsEditable)
+		if (!EffectiveIsEditable)
 		{
 			return;
 		}
@@ -450,9 +450,9 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		_dragOverTile = null;
 		_dragDropCompleted = true;
 
-		if (!IsEditable || _draggedTile is null || _draggedTile == targetTile)
+		if (!EffectiveIsEditable || _draggedTile is null || _draggedTile == targetTile)
 		{
-			// Drop on self or invalid — restore original positions if layout was previewed
+			// Drop on self or invalid: restore original positions if layout was previewed
 			if (_dragStartSnapshot is not null)
 			{
 				foreach (var (tile, rowIndex, columnIndex) in _dragStartSnapshot)

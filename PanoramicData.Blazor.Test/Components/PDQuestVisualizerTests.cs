@@ -141,6 +141,36 @@ public class PDQuestVisualizerTests : BunitContext
 		component.FindAll("path").Should().ContainSingle();
 	}
 
+	/// <summary>
+	/// Verifies that prerequisites forming a cycle, including an action listing itself, are drawn rather than
+	/// recursing forever (issue #189): every action gets one node and every listed prerequisite its arrow,
+	/// the edge that closes each cycle being ignored only when ordering the actions.
+	/// </summary>
+	/// <remarks>
+	/// Before the fix this overflowed the stack, which kills the test host rather than failing the test.
+	/// The ordering now checks for sufficient stack as it descends, so a regression throws an
+	/// <see cref="InsufficientExecutionStackException"/> that fails this test instead.
+	/// </remarks>
+	[Fact]
+	public void Cyclic_prerequisites_are_drawn()
+	{
+		var quests = new List<Quest> { CreateQuest(0, "Only", "#00ff00") };
+		var actions = new List<QuestAction>
+		{
+			CreateAction(1, 0, "First", false, 2),
+			CreateAction(2, 0, "Second", false, 1),
+			CreateAction(3, 0, "Self", false, 3)
+		};
+
+		var component = Render<PDQuestVisualizer>(parameters => parameters
+			.Add(p => p.Quests, quests)
+			.Add(p => p.QuestActions, actions));
+
+		component.FindAll("circle").Should().HaveCount(3);
+		component.FindAll("text[text-anchor=middle]").Select(t => t.TextContent).Should().BeEquivalentTo(["First", "Second", "Self"]);
+		component.FindAll("path").Should().HaveCount(3);
+	}
+
 	private IRenderedComponent<PDQuestVisualizer> RenderQuests(int questHeight, int questMargin, int radius = 20)
 	{
 		var quests = new List<Quest>

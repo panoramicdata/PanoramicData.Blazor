@@ -12,7 +12,7 @@ namespace PanoramicData.Blazor.Test;
 /// edges styled from their dimensions at the positions JavaScript reports, raises selection events, and
 /// forwards its view and configuration commands to the module.
 /// </summary>
-public class PDGraphTests : BunitContext
+public partial class PDGraphTests : BunitContext
 {
 	private const string ModulePath = "./_content/PanoramicData.Blazor/PDGraph.razor.js";
 	private const string GraphId = "graph";

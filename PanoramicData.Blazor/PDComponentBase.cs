@@ -7,10 +7,41 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public class PDComponentBase : ComponentBase, IEnablable
 {
+	private static int _sequence;
+
+	private readonly string _defaultId;
+
+	private string _id;
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="PDComponentBase"/> class, giving it a unique default
+	/// <see cref="Id"/> of the form <c>pd-component-N</c>.
+	/// </summary>
+	public PDComponentBase()
+	{
+		_defaultId = $"pd-component-{Interlocked.Increment(ref _sequence)}";
+		_id = _defaultId;
+	}
+
 	/// <summary>
 	/// Shared sequence used when generating default component identifiers.
 	/// </summary>
-	protected static int Sequence { get; set; }
+	/// <remarks>
+	/// The base class advances this atomically when it generates a default <see cref="Id"/>. Do not compare
+	/// <see cref="Id"/> with a value built from it to detect whether an id was supplied: another component may
+	/// be constructed in between. Use <see cref="HasDefaultId"/> instead.
+	/// </remarks>
+	protected static int Sequence
+	{
+		get => Volatile.Read(ref _sequence);
+		set => Volatile.Write(ref _sequence, value);
+	}
+
+	/// <summary>
+	/// Gets whether <see cref="Id"/> still holds the default generated for this instance when it was
+	/// constructed, meaning that no id has been supplied or assigned since.
+	/// </summary>
+	protected bool HasDefaultId => Id == _defaultId;
 
 	/// <summary>
 	/// Gets or sets CSS classes for the component.
@@ -22,7 +53,11 @@ public class PDComponentBase : ComponentBase, IEnablable
 	/// Gets or sets the unique identifier for this component instance.
 	/// </summary>
 	[Parameter]
-	public virtual string Id { get; set; } = $"pd-component-{++Sequence}";
+	public virtual string Id
+	{
+		get => _id;
+		set => _id = value;
+	}
 
 	/// <summary>
 	/// Gets or sets whether the component is enabled.

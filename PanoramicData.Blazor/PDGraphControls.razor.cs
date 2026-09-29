@@ -50,9 +50,9 @@ public partial class PDGraphControls<TItem> : PDComponentBase where TItem : clas
 	{
 		base.OnInitialized();
 		// Set a unique ID if not provided
-		if (Id == $"pd-component-{Sequence}")
+		if (HasDefaultId)
 		{
-			Id = $"pd-graph-controls-{++_idSequence}";
+			Id = $"pd-graph-controls-{Interlocked.Increment(ref _idSequence)}";
 		}
 	}
 
@@ -60,24 +60,22 @@ public partial class PDGraphControls<TItem> : PDComponentBase where TItem : clas
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
-		_availableDimensions = AvailableDimensions ?? [];
-
-		// Add meaningful dimensions for the innovation knowledge graph
-		if (_availableDimensions.Count == 0)
-		{
-			_availableDimensions.AddRange(
+		// Copy rather than keep the caller's list, so that offering the built-in dimensions never fills it in.
+		_availableDimensions = AvailableDimensions is { Count: > 0 }
+			? [.. AvailableDimensions]
+			:
 			[
+				// Meaningful dimensions for the innovation knowledge graph
 				"Influence", "Fame", "Creativity", "Era", "Category",
 				"ConnectionStrength", "RelationshipType", "Certainty"
-			]);
-		}
+			];
 	}
 
 	private async Task OnConfigurationChanged()
 	{
 		if (!IsReadOnly)
 		{
-			await ConfigurationChanged.InvokeAsync((VisualizationConfig, ClusteringConfig, Damping)).ConfigureAwait(false);
+			await ConfigurationChanged.InvokeAsync((VisualizationConfig, ClusteringConfig, Damping)).ConfigureAwait(true);
 		}
 	}
 }

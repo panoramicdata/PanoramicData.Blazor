@@ -31,15 +31,11 @@ public class PDGraphControlsTests : BunitContext
 	/// Verifies that a control with no explicit id still has one on its root element, and an explicit id is kept
 	/// and used to build the ids of its inputs.
 	/// </summary>
-	/// <remarks>
-	/// The generated id's exact prefix is not asserted: it depends on a static counter shared with every other
-	/// <see cref="PDComponentBase"/>, so it varies with whatever else is being constructed concurrently.
-	/// </remarks>
 	[Fact]
 	public void Id_IsGeneratedOrKept()
 	{
 		var generated = Render<PDGraphControls<Node>>();
-		generated.Instance.Id.Should().NotBeNullOrWhiteSpace();
+		generated.Instance.Id.Should().MatchRegex("^pd-graph-controls-[0-9]+$");
 		generated.Find("div.pd-graph-controls").Id.Should().Be(generated.Instance.Id);
 
 		var explicitId = Render<PDGraphControls<Node>>(parameters => parameters.Add(p => p.Id, "my-controls"));
@@ -84,6 +80,23 @@ public class PDGraphControlsTests : BunitContext
 		var options = component.FindAll("select")[0].QuerySelectorAll("option").Select(o => o.TextContent);
 		options.Should().Equal("None", "Influence", "Fame", "Creativity", "Era", "Category",
 			"ConnectionStrength", "RelationshipType", "Certainty");
+	}
+
+	/// <summary>
+	/// Verifies that offering the built-in dimensions leaves the caller's empty list, and the parameter's own
+	/// default list, untouched (issue #160).
+	/// </summary>
+	[Fact]
+	public void DefaultDimensions_DoNotFillTheCallersList()
+	{
+		var supplied = new List<string>();
+		var withEmptyList = Render<PDGraphControls<Node>>(parameters => parameters.Add(p => p.AvailableDimensions, supplied));
+		var withDefault = Render<PDGraphControls<Node>>();
+
+		supplied.Should().BeEmpty();
+		withDefault.Instance.AvailableDimensions.Should().BeEmpty();
+		withEmptyList.FindAll("select")[0].QuerySelectorAll("option").Should().HaveCount(9);
+		withDefault.FindAll("select")[0].QuerySelectorAll("option").Should().HaveCount(9);
 	}
 
 	/// <summary>

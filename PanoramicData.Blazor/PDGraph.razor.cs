@@ -156,7 +156,7 @@ private double _previousDamping;
 			_previousConvergenceThreshold = ConvergenceThreshold;
 			_previousDamping = Damping;
 
-			await RefreshAsync().ConfigureAwait(false);
+			await RefreshAsync().ConfigureAwait(true);
 			return;
 		}
 
@@ -188,7 +188,7 @@ private double _previousDamping;
 				Console.WriteLine("PDGraph: Updating configuration via JavaScript");
 				if (Module != null && _graphData != null)
 				{
-					await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData, ClusteringConfig).ConfigureAwait(false);
+					await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData, ClusteringConfig).ConfigureAwait(true);
 				}
 			}
 			else if (hasConvergenceChanged || hasDampingChanged)
@@ -196,7 +196,7 @@ private double _previousDamping;
 				Console.WriteLine($"PDGraph: Updating physics parameters to Convergence: {ConvergenceThreshold:F3}, Damping: {Damping:F3}");
 				if (Module != null)
 				{
-					await Module.InvokeVoidAsync("updatePhysicsParameters", Id, ConvergenceThreshold, Damping).ConfigureAwait(false);
+					await Module.InvokeVoidAsync("updatePhysicsParameters", Id, ConvergenceThreshold, Damping).ConfigureAwait(true);
 				}
 			}
 		}
@@ -213,12 +213,12 @@ private double _previousDamping;
 		{
 			// Create a DotNet object reference for JavaScript interop
 			_objRef = DotNetObjectReference.Create(this);
-			await Module.InvokeVoidAsync("initialize", Id, _objRef, ClusteringConfig).ConfigureAwait(false);
+			await Module.InvokeVoidAsync("initialize", Id, _objRef, ClusteringConfig).ConfigureAwait(true);
 
 			// If we have data already, initialize the layout after module loads
 			if (_graphData?.Nodes != null)
 			{
-				await InitializeLayout().ConfigureAwait(false);
+				await InitializeLayout().ConfigureAwait(true);
 			}
 		}
 	}
@@ -232,6 +232,8 @@ private double _previousDamping;
 	{
 		if (DataProvider == null)
 		{
+			// Nothing to load, so there is nothing to wait for either.
+			_isLoading = false;
 			return;
 		}
 
@@ -242,7 +244,7 @@ private double _previousDamping;
 			StateHasChanged();
 
 			var request = new DataRequest<GraphData>();
-			var response = await DataProvider.GetDataAsync(request, cancellationToken).ConfigureAwait(false);
+			var response = await DataProvider.GetDataAsync(request, cancellationToken).ConfigureAwait(true);
 
 			if (response.Items.Any())
 			{
@@ -251,7 +253,7 @@ private double _previousDamping;
 				// Only initialize layout if module is loaded
 				if (Module != null)
 				{
-					await InitializeLayout().ConfigureAwait(false);
+					await InitializeLayout().ConfigureAwait(true);
 				}
 			}
 			else
@@ -281,7 +283,7 @@ private double _previousDamping;
 	{
 		if (Module != null && _nodePositions.TryGetValue(nodeId, out var position))
 		{
-			await Module.InvokeVoidAsync("centerOnNode", Id, position.X, position.Y).ConfigureAwait(false);
+			await Module.InvokeVoidAsync("centerOnNode", Id, position.X, position.Y).ConfigureAwait(true);
 		}
 	}
 
@@ -293,7 +295,7 @@ private double _previousDamping;
 	{
 		if (Module != null)
 		{
-			await Module.InvokeVoidAsync("fitToView", Id).ConfigureAwait(false);
+			await Module.InvokeVoidAsync("fitToView", Id).ConfigureAwait(true);
 		}
 	}
 
@@ -317,7 +319,7 @@ private double _previousDamping;
 			ConvergenceThreshold = convergenceThreshold;
 			if (Module != null)
 			{
-				await Module.InvokeVoidAsync("updatePhysicsParameters", Id, convergenceThreshold).ConfigureAwait(false);
+				await Module.InvokeVoidAsync("updatePhysicsParameters", Id, convergenceThreshold).ConfigureAwait(true);
 			}
 		}
 		finally
@@ -354,7 +356,7 @@ private double _previousDamping;
 			// ✅ FIXED: Use updateConfiguration to preserve positions while updating styling
 			if (Module != null && _graphData != null)
 			{
-				await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData).ConfigureAwait(false);
+				await Module.InvokeVoidAsync("updateConfiguration", Id, _graphData).ConfigureAwait(true);
 			}
 
 			StateHasChanged();
@@ -385,7 +387,7 @@ private double _previousDamping;
 		if (Module != null)
 		{
 			// Pass the convergence threshold parameter
-			await Module.InvokeVoidAsync("regenerateLayout", Id, _graphData, ConvergenceThreshold, ClusteringConfig).ConfigureAwait(false);
+			await Module.InvokeVoidAsync("regenerateLayout", Id, _graphData, ConvergenceThreshold, ClusteringConfig).ConfigureAwait(true);
 		}
 	}
 
@@ -672,12 +674,12 @@ private double _previousDamping;
 			// ✅ FIXED: Update selection in JavaScript without regenerating layout
 			if (Module != null)
 			{
-				await Module.InvokeVoidAsync("updateSelection", Id, node.Id, "node").ConfigureAwait(false);
-				await Module.InvokeVoidAsync("setFocusNode", Id, node.Id).ConfigureAwait(false);
+				await Module.InvokeVoidAsync("updateSelection", Id, node.Id, "node").ConfigureAwait(true);
+				await Module.InvokeVoidAsync("setFocusNode", Id, node.Id).ConfigureAwait(true);
 			}
 
-			await NodeClick.InvokeAsync(node).ConfigureAwait(false);
-			await SelectionChanged.InvokeAsync((node, null)).ConfigureAwait(false);
+			await NodeClick.InvokeAsync(node).ConfigureAwait(true);
+			await SelectionChanged.InvokeAsync((node, null)).ConfigureAwait(true);
 
 			// ✅ FIXED: Don't call StateHasChanged() here to avoid triggering refresh
 		}
@@ -717,11 +719,11 @@ private double _previousDamping;
 			// ✅ FIXED: Update selection in JavaScript without regenerating layout
 			if (Module != null)
 			{
-				await Module.InvokeVoidAsync("updateSelection", Id, edge.Id, "edge").ConfigureAwait(false);
+				await Module.InvokeVoidAsync("updateSelection", Id, edge.Id, "edge").ConfigureAwait(true);
 			}
 
-			await EdgeClick.InvokeAsync(edge).ConfigureAwait(false);
-			await SelectionChanged.InvokeAsync((null, edge)).ConfigureAwait(false);
+			await EdgeClick.InvokeAsync(edge).ConfigureAwait(true);
+			await SelectionChanged.InvokeAsync((null, edge)).ConfigureAwait(true);
 
 			// ✅ FIXED: Don't call StateHasChanged() here to avoid triggering refresh
 		}
@@ -783,7 +785,7 @@ private double _previousDamping;
 				if (node != null)
 				{
 					Console.WriteLine($"Found node: {node.Label}, invoking click handler");
-					await OnNodeClick(node).ConfigureAwait(false);
+					await OnNodeClick(node).ConfigureAwait(true);
 				}
 				else
 				{
@@ -802,11 +804,11 @@ private double _previousDamping;
 	{
 		if (Module != null)
 		{
-			await Module.InvokeVoidAsync("destroy", Id).ConfigureAwait(false);
+			await Module.InvokeVoidAsync("destroy", Id).ConfigureAwait(true);
 		}
 
 		_objRef?.Dispose();
-		await base.DisposeAsync().ConfigureAwait(false);
+		await base.DisposeAsync().ConfigureAwait(true);
 		GC.SuppressFinalize(this);
 	}
 }
