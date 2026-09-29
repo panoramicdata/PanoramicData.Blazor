@@ -1,6 +1,8 @@
 using System.Globalization;
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
 
@@ -12,6 +14,12 @@ namespace PanoramicData.Blazor.Test.Components;
 /// </summary>
 public class PDChatConversationSidebarTests : BunitContext
 {
+	/// <summary>
+	/// How long to wait for a render that follows the 300ms search debounce or a store call. Generous on
+	/// purpose: a loaded CI runner can take well over bUnit's one-second default to run a timer continuation.
+	/// </summary>
+	private static readonly TimeSpan DebounceTimeout = TimeSpan.FromSeconds(10);
+
 	private readonly FakeConversationService _service = new();
 
 	/// <summary>Sets up the rendering context.</summary>
@@ -19,14 +27,14 @@ public class PDChatConversationSidebarTests : BunitContext
 
 	/// <summary>Each conversation renders a row with its name, relative time and archived marker.</summary>
 	[Fact]
-	public void Rows_show_name_time_selection_and_archived_state()
+	public async Task Rows_show_name_time_selection_and_archived_state()
 	{
 		var selected = Add("Selected", TimeSpan.Zero);
 		Add("Old", TimeSpan.FromMinutes(5), archived: true);
 		var component = RenderSidebar(p => p.Add(x => x.SelectedConversationId, selected.Id));
 		component.FindAll(".pdchat-conversation-row").Should().ContainSingle("archived conversations are excluded by default");
 
-		component.Find(".pdchat-conversation-include-archived input").Change(true);
+		await component.Find(".pdchat-conversation-include-archived input").ChangeAsync(new ChangeEventArgs { Value = true });
 
 		var rows = component.FindAll(".pdchat-conversation-row");
 		rows.Should().HaveCount(2);
@@ -59,13 +67,13 @@ public class PDChatConversationSidebarTests : BunitContext
 
 	/// <summary>Clicking a row raises OnConversationSelected with that conversation.</summary>
 	[Fact]
-	public void Clicking_a_row_selects_the_conversation()
+	public async Task Clicking_a_row_selects_the_conversation()
 	{
 		var target = Add("Target", TimeSpan.Zero);
 		ChatConversation? picked = null;
 		var component = RenderSidebar(p => p.Add(x => x.OnConversationSelected, c => picked = c));
 
-		component.Find(".pdchat-conversation-row").Click();
+		await component.Find(".pdchat-conversation-row").ClickAsync(new MouseEventArgs());
 
 		picked.Should().BeSameAs(target);
 	}
@@ -100,48 +108,63 @@ public class PDChatConversationSidebarTests : BunitContext
 		component.Find(".pdchat-conversation-empty").TextContent.Should().Be("Loading…");
 
 		_service.Gate.SetResult();
-		component.WaitForAssertion(() => component.Find(".pdchat-conversation-empty").TextContent.Trim().Should().Be("No conversations yet."));
+		component.WaitForAssertion(() => component.Find(".pdchat-conversation-empty").TextContent.Trim().Should().Be("No conversations yet."), DebounceTimeout);
 	}
 
 	/// <summary>Typing searches after the debounce and passes the text; no match says so.</summary>
+	/// <remarks>
+	/// The input handler awaits the debounce and then the search, so awaiting the event is awaiting the
+	/// search itself: nothing here depends on how long the debounce timer takes to fire. The explicit wait
+	/// is a backstop for the render; it once failed on a loaded CI runner at bUnit's default of one second.
+	/// </remarks>
 	[Fact]
-	public void Typing_searches_after_a_debounce()
+	public async Task Typing_searches_after_a_debounce()
 	{
 		Add("Alpha", TimeSpan.Zero);
 		var component = RenderSidebar();
 
-		component.Find("input[type=search]").Input("zzz");
+		await component.Find("input[type=search]").InputAsync(new ChangeEventArgs { Value = "zzz" });
 
 		component.WaitForAssertion(() => component.Find(".pdchat-conversation-empty").TextContent.Trim()
-			.Should().Be("No conversations match your search."));
+			.Should().Be("No conversations match your search."), DebounceTimeout);
 		_service.Queries.Last().SearchText.Should().Be("zzz");
 	}
 
 	/// <summary>A keystroke that supersedes another within the debounce means only the last text is searched.</summary>
+	/// <remarks>
+	/// Both keystrokes are dispatched in one turn of the renderer's dispatcher, so the first debounce's
+	/// continuation, which needs that dispatcher, cannot run until the second keystroke has cancelled it.
+	/// If the first timer has already elapsed by then, the component still calls the store, but with a
+	/// token that is already cancelled, so the test asks which texts were searched with a live token rather
+	/// than counting calls.
+	/// </remarks>
 	[Fact]
-	public void A_superseded_keystroke_is_not_searched()
+	public async Task A_superseded_keystroke_is_not_searched()
 	{
 		Add("Alpha", TimeSpan.Zero);
 		var component = RenderSidebar();
 
-		component.Find("input[type=search]").Input("Al");
-		component.Find("input[type=search]").Input("Alp");
+		await component.InvokeAsync(() =>
+		{
+			var first = component.Find("input[type=search]").InputAsync(new ChangeEventArgs { Value = "Al" });
+			var second = component.Find("input[type=search]").InputAsync(new ChangeEventArgs { Value = "Alp" });
+			return Task.WhenAll(first, second);
+		});
 
-		component.WaitForAssertion(() => _service.Queries.Should().HaveCount(2));
-		_service.Queries.Last().SearchText.Should().Be("Alp");
-		component.FindAll(".pdchat-conversation-row").Should().ContainSingle();
+		component.WaitForAssertion(() => component.FindAll(".pdchat-conversation-row").Should().ContainSingle(), DebounceTimeout);
+		_service.LiveQueries.Select(q => q.SearchText).Should().Equal(string.Empty, "Alp");
 	}
 
 	/// <summary>An input event with no value searches for empty text.</summary>
 	[Fact]
-	public void A_null_input_value_searches_for_everything()
+	public async Task A_null_input_value_searches_for_everything()
 	{
 		Add("Alpha", TimeSpan.Zero);
 		var component = RenderSidebar();
 
-		component.Find("input[type=search]").Input((object?)null!);
+		await component.Find("input[type=search]").InputAsync(new ChangeEventArgs { Value = null });
 
-		component.WaitForAssertion(() => _service.Queries.Should().HaveCount(2));
+		component.WaitForAssertion(() => _service.Queries.Should().HaveCount(2), DebounceTimeout);
 		_service.Queries.Last().SearchText.Should().BeEmpty();
 	}
 
@@ -156,17 +179,17 @@ public class PDChatConversationSidebarTests : BunitContext
 
 	/// <summary>Choosing semantic search re-queries in that mode; choosing the current mode again does nothing.</summary>
 	[Fact]
-	public void Switching_search_mode_requeries()
+	public async Task Switching_search_mode_requeries()
 	{
 		_service.Semantic = true;
 		var component = RenderSidebar();
 		var modes = component.FindAll(".pdchat-conversation-search-mode");
 		modes[0].ClassList.Should().Contain("selected");
 
-		modes[0].Click();
+		await modes[0].ClickAsync(new MouseEventArgs());
 		_service.Queries.Should().ContainSingle();
 
-		component.FindAll(".pdchat-conversation-search-mode")[1].Click();
+		await component.FindAll(".pdchat-conversation-search-mode")[1].ClickAsync(new MouseEventArgs());
 
 		_service.Queries.Should().HaveCount(2);
 		_service.Queries.Last().SearchMode.Should().Be(ChatConversationSearchMode.Semantic);
@@ -175,20 +198,20 @@ public class PDChatConversationSidebarTests : BunitContext
 
 	/// <summary>Ticking include archived re-queries with archived conversations included.</summary>
 	[Fact]
-	public void Include_archived_requeries()
+	public async Task Include_archived_requeries()
 	{
 		var component = RenderSidebar();
 
-		component.Find(".pdchat-conversation-include-archived input").Change(true);
+		await component.Find(".pdchat-conversation-include-archived input").ChangeAsync(new ChangeEventArgs { Value = true });
 		_service.Queries.Last().IncludeArchived.Should().BeTrue();
 
-		component.Find(".pdchat-conversation-include-archived input").Change(false);
+		await component.Find(".pdchat-conversation-include-archived input").ChangeAsync(new ChangeEventArgs { Value = false });
 		_service.Queries.Last().IncludeArchived.Should().BeFalse();
 	}
 
 	/// <summary>Show more loads the next page after the rows already listed.</summary>
 	[Fact]
-	public void Show_more_loads_the_next_page()
+	public async Task Show_more_loads_the_next_page()
 	{
 		for (var i = 0; i < 3; i++)
 		{
@@ -199,16 +222,16 @@ public class PDChatConversationSidebarTests : BunitContext
 		var component = RenderSidebar();
 		component.FindAll(".pdchat-conversation-row").Should().HaveCount(2);
 
-		component.Find(".pdchat-conversation-more").Click();
+		await component.Find(".pdchat-conversation-more").ClickAsync(new MouseEventArgs());
 
-		component.WaitForAssertion(() => component.FindAll(".pdchat-conversation-row").Should().HaveCount(3));
+		component.WaitForAssertion(() => component.FindAll(".pdchat-conversation-row").Should().HaveCount(3), DebounceTimeout);
 		_service.Queries.Last().Skip.Should().Be(2);
 		component.FindAll(".pdchat-conversation-more").Should().BeEmpty();
 	}
 
 	/// <summary>While a further page loads, the more button is disabled and says it is loading.</summary>
 	[Fact]
-	public void Show_more_is_disabled_while_loading()
+	public async Task Show_more_is_disabled_while_loading()
 	{
 		for (var i = 0; i < 3; i++)
 		{
@@ -219,17 +242,22 @@ public class PDChatConversationSidebarTests : BunitContext
 		var component = RenderSidebar();
 		_service.Gate = new TaskCompletionSource();
 
-		component.Find(".pdchat-conversation-more").Click();
+		// Not awaited yet: the click completes only when the gated store returns.
+		var click = component.Find(".pdchat-conversation-more").ClickAsync(new MouseEventArgs());
 
-		var more = component.Find(".pdchat-conversation-more");
-		more.HasAttribute("disabled").Should().BeTrue();
-		more.TextContent.Trim().Should().Be("Loading…");
+		component.WaitForAssertion(() =>
+		{
+			var more = component.Find(".pdchat-conversation-more");
+			more.HasAttribute("disabled").Should().BeTrue();
+			more.TextContent.Trim().Should().Be("Loading…");
+		}, DebounceTimeout);
 		_service.Gate.SetResult();
+		await click;
 	}
 
 	/// <summary>A store failure shows the message, and Try again reloads the list.</summary>
 	[Fact]
-	public void A_failure_shows_a_message_and_retry_reloads()
+	public async Task A_failure_shows_a_message_and_retry_reloads()
 	{
 		_service.Failure = new InvalidOperationException("store down");
 		var component = RenderSidebar();
@@ -238,9 +266,9 @@ public class PDChatConversationSidebarTests : BunitContext
 
 		_service.Failure = null;
 		Add("Back", TimeSpan.Zero);
-		component.Find(".pdchat-conversation-retry").Click();
+		await component.Find(".pdchat-conversation-retry").ClickAsync(new MouseEventArgs());
 
-		component.WaitForAssertion(() => component.FindAll(".pdchat-conversation-row").Should().ContainSingle());
+		component.WaitForAssertion(() => component.FindAll(".pdchat-conversation-row").Should().ContainSingle(), DebounceTimeout);
 		component.FindAll(".pdchat-conversation-error").Should().BeEmpty();
 	}
 
@@ -319,9 +347,17 @@ public class PDChatConversationSidebarTests : BunitContext
 
 		public bool SupportsSemanticSearch => Semantic;
 
+		/// <summary>The queries whose token had not been cancelled when the store was called.</summary>
+		public List<ChatConversationQuery> LiveQueries { get; } = [];
+
 		public async Task<ChatConversationPage> ListAsync(ChatConversationQuery query, CancellationToken cancellationToken)
 		{
 			Queries.Add(query);
+			if (!cancellationToken.IsCancellationRequested)
+			{
+				LiveQueries.Add(query);
+			}
+
 			if (Gate is { } gate)
 			{
 				await gate.Task;
