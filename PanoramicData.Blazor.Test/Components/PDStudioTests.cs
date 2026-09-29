@@ -189,6 +189,26 @@ public class PDStudioTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that once a cancel has completed the status reads "Cancelled", not "Cancelling..." (#176).
+	/// </summary>
+	[Fact]
+	public async Task Cancel_WhenComplete_StatusIsCancelled()
+	{
+		var studio = RenderStudio();
+		_service.Block = true;
+		await TypeAsync(studio, "sleep(10)");
+
+		var running = PlayButton(studio).ClickAsync(new());
+		studio.WaitForAssertion(() => PlayButton(studio).TextContent.Should().Contain("Cancel"));
+
+		await PlayButton(studio).ClickAsync(new());
+		await running;
+
+		PlayButton(studio).TextContent.Should().Contain("Execute");
+		Status(studio).Should().Be("Cancelled");
+	}
+
+	/// <summary>
 	/// Verifies that Ctrl+Enter anywhere executes the code, and other keys do not.
 	/// </summary>
 	[Fact]
