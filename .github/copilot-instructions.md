@@ -129,7 +129,7 @@ dotnet test --filter "FullyQualifiedName~FilterTests"
 dotnet test PanoramicData.Blazor.Test/PanoramicData.Blazor.Test.csproj -v detailed
 ```
 
-**Note**: Currently, test coverage is minimal (only `FilterTests.cs` exists). Consider adding tests when fixing bugs or adding features.
+**Note**: The suite has over 3,000 bUnit and unit tests (about 96% line coverage since #154). Add or extend tests when fixing bugs or adding features.
 
 ---
 
@@ -364,39 +364,73 @@ PDComponent.razor.js  ← Must be here, not in wwwroot/
 ## 🧪 Testing Guidelines
 
 ### Current State
-- **Existing Tests**: Minimal (only `FilterTests.cs`)
-- **Framework**: xUnit + bUnit (Blazor component testing)
-- **Opportunity**: Most components lack unit tests
+- **Existing Tests**: Over 3,000, in `PanoramicData.Blazor.Test/Components`, `Models`, `Services` and `Extensions`
+- **Framework**: xUnit v3 + bUnit (`BunitContext`) + AwesomeAssertions
+- **Large classes**: split into partial files named `<Class>Tests.<Area>.cs` (for example `PDTimelineTests.Selection.cs`)
 
 ### Adding Tests (Recommended)
 
 ```csharp
+using AwesomeAssertions;
 using Bunit;
-using Xunit;
+using Microsoft.AspNetCore.Components.Web;
+using PanoramicData.Blazor.Extensions;
+using PanoramicData.Blazor.Models;
 
-public class PDTimelineTests : TestContext
+namespace PanoramicData.Blazor.Test.Components;
+
+public class PDTimelineExampleTests : BunitContext
 {
-    [Fact]
-    public void SetSelection_BelowMinimum_ClampsToMinimum()
-    {
-        // Arrange
-        var component = RenderComponent<PDTimeline>(parameters => parameters
-            .Add(p => p.MinDateTime, new DateTime(2020, 1, 1))
-            .Add(p => p.MaxDateTime, new DateTime(2020, 12, 31))
-        );
-        
-        // Act
-        await component.Instance.SetSelection(
-            new DateTime(2019, 6, 1),  // Before min
-            new DateTime(2020, 6, 1)
-        );
-        
-        // Assert
-        var selection = component.Instance.GetSelection();
-        Assert.Equal(new DateTime(2020, 1, 1), selection.StartTime);
-    }
+	private static readonly TimeSpan _wait = TimeSpan.FromSeconds(30);
+	private bool _initialized;
+
+	public PDTimelineExampleTests()
+	{
+		JSInterop.Mode = JSRuntimeMode.Loose;
+		Services.AddPanoramicDataBlazor();
+
+		// the timeline measures its canvas through the common module: report a 400-pixel-wide plot
+		var common = JSInterop.SetupModule(JSInteropVersionHelper.CommonJsUrl);
+		common.Setup<double>("getWidth", _ => true).SetResult(400);
+	}
+
+	private IRenderedComponent<PDTimeline> RenderTimeline() => Render<PDTimeline>(parameters => parameters
+		.Add(p => p.Scale, TimelineScale.Days)
+		.Add(p => p.MinDateTime, new DateTime(2026, 1, 1))
+		.Add(p => p.MaxDateTime, new DateTime(2026, 3, 1))
+		.Add(p => p.Initialized, () => _initialized = true));
+
+	[Fact]
+	public async Task SetSelection_BeforeTheStart_ClampsToTheStart()
+	{
+		// Arrange: wait for first-render interop to finish, with a generous timeout
+		var timeline = RenderTimeline();
+		timeline.WaitForState(() => _initialized, _wait);
+
+		// Act: call component methods on the renderer's dispatcher
+		await timeline.InvokeAsync(() => timeline.Instance.SetSelection(new DateTime(2025, 12, 1), new DateTime(2026, 1, 5)));
+
+		// Assert
+		timeline.Instance.GetSelection()!.StartTime.Should().Be(new DateTime(2026, 1, 1));
+	}
+
+	[Fact]
+	public async Task PanClick_WhenDisabled_DoesNotPage()
+	{
+		var timeline = RenderTimeline();
+		timeline.WaitForState(() => _initialized, _wait);
+		timeline.Render(p => p.Add(x => x.IsEnabled, false));
+
+		// use the awaited event forms (ClickAsync, ChangeAsync, PointerUpAsync...): the synchronous ones can
+		// return before the handler has run
+		await timeline.Find("svg.tl-pan").PointerUpAsync(new PointerEventArgs { ClientX = 310 });
+
+		timeline.FindComponents<PDStackedBar>()[0].Instance.DataPoint.StartTime.Should().Be(new DateTime(2026, 1, 1));
+	}
 }
 ```
+
+The real versions of these tests are in `PanoramicData.Blazor.Test/Components/PDTimelineTests*.cs`.
 
 ---
 
