@@ -243,6 +243,7 @@
 }
 
 /* ── Modal integration ─────────────────────────────────────────────────── */
+
 /* When used inside a PDModal, remove the extra padding from the modal-body */
 .modal-body > .pd-wizard {
     margin: -1rem;

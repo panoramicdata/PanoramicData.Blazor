@@ -9,9 +9,4 @@
 	border-bottom: 1px solid currentColor;
 }
 
-/* No padding needed - modal-footer / page context already provides it */
-.pd-form-footer ::deep .pdtoolbar {
-	flex-wrap: nowrap;
-	padding: 0;
-	flex-shrink: 0;
-}
+/* The footer's PDToolbar is styled in wwwroot/css/main.scss. */

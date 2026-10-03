@@ -1,6 +1,6 @@
 ﻿@using PanoramicData.Blazor.Extensions
 
-<div class="pdtoolbaritem @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "") @ItemCssClass">
+<div class="pdtoolbaritem pdtoolbardropdown @(IsVisible ? "" : "pd-hidden") @(ShiftRight ? "align-right" : "") @ItemCssClass">
 
     <PDDropDown CloseOption="CloseOption"
                 CssClass="@($"btn {CssClass} dropdown-toggle {ButtonSizeCssClass}")"

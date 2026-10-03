@@ -112,12 +112,12 @@
 	border-bottom-right-radius: 0.375rem;
 }
 
-.pd-dashboard-tile:hover .pd-dashboard-tile-resize-handle {
-	opacity: 0.8;
-}
-
 .pd-dashboard-tile-resize-handle:hover {
 	opacity: 1;
+}
+
+.pd-dashboard-tile:hover .pd-dashboard-tile-resize-handle {
+	opacity: 0.8;
 }
 
 .pd-dashboard-tile-resizing {

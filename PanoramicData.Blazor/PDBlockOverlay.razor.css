@@ -2,11 +2,11 @@
 	height: 100%;
 	width: 100%;
 	overflow-x: hidden;
-	z-index: 2000; /* in font of modal dialogs (1050)*/
+	z-index: 2000; /* in font of modal dialogs (1050) */
 	background-color: rgba(0,0,0,0.3);
 	position: fixed;
-	left: 0px;
-	top: 0px;
+	left: 0;
+	top: 0;
 	text-align: center;
 	cursor: wait;
 }

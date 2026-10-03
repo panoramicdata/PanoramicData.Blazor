@@ -7,12 +7,12 @@
 
 .pdtoolbaritem:first-child
 {
-	padding-left: 0px;
+	padding-left: 0;
 }
 
 .pdtoolbaritem:last-child
 {
-	padding-right: 0px;
+	padding-right: 0;
 }
 
 .pdtoolbaritem.align-right

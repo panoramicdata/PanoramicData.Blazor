@@ -12,22 +12,14 @@
 	flex-direction: column;
 }
 
-::deep .gutter {
-	background-color: #eee;
-}
-
-::deep .gutter-vertical {
-	cursor: row-resize;
-}
-
-::deep .gutter-horizontal {
-	cursor: col-resize;
-}
+/* The gutters are created by split.js, so they are styled in wwwroot/css/main.scss. */
 
 .pdsplitpanel
 {
 	height: 100%;
+
 	/* Changed from auto to hidden - let children handle scrolling */
+
 	/* Roland: changed back to auto for now. Commented out for now to fix LOTS of broken CSS issues in magic suite apps. Have blanket-commented out rules likely
 	to have been affecting things. Magic Suite apps now appear OK, and PDChat is STILL OK, as far as we can see
 */

@@ -39,11 +39,6 @@
 	transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
 }
 
-.pdcg-pill:hover:not(.active):not(:disabled) {
-	color: var(--pd-cg-active-bg, var(--pd-cg-default-active-bg));
-	border-color: var(--pd-cg-active-bg, var(--pd-cg-default-active-bg));
-}
-
 .pdcg-pill:focus-visible {
 	outline: 0;
 	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.35);
@@ -86,6 +81,11 @@
 	border: 0;
 	border-right: 1px solid var(--pd-cg-idle-border, var(--pd-cg-default-idle-border));
 	border-radius: 0;
+}
+
+.pdcg-pill:hover:not(.active):not(:disabled) {
+	color: var(--pd-cg-active-bg, var(--pd-cg-default-active-bg));
+	border-color: var(--pd-cg-active-bg, var(--pd-cg-default-active-bg));
 }
 
 .pd-column-grouper.segmented .pdcg-pill:last-child {

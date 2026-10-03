@@ -10,15 +10,7 @@
 	padding: 2px 4px 1px 4px;
 }
 
-.pdfileexplorer ::deep .pdtable {
-	/* RM-14062 MG */
-	/* BC-73 removed again to fix the table height*/
-	/* height: 0px !important;*/
-}
-
-.pdfileexplorer ::deep .pdtree {
-	height: 0px;
-}
+/* Rules for the child components (PDTree, PDSplitter, PDDropZone, PDTable) live in wwwroot/css/main.scss. */
 
 .pdfileexplorer .file-hidden, .pdfileexplorer .file-system {
 	color: #ccc;
@@ -31,10 +23,6 @@
 
 .pdfileexplorer .pdfe-toolbar {
 	height: 50px;
-}
-
-.pdfileexplorer ::deep .pdsplitter.horizontal {
-	height: calc(100% - 50px);
 }
 
 .pdfileexplorer .preview-header {
@@ -50,13 +38,6 @@
 {
 	padding-left: .5rem !important;
 	padding-right: .5rem !important;
-}
-
-/* Suppress the whole-panel Dropzone.js hover highlight on the tree side;
-   individual node highlighting is handled by PDTreeNode.drag-over instead. */
-.pdfileexplorer ::deep .pddropzone.dz-drag-hover {
-	background-color: unset;
-	border-color: transparent;
 }
 
 #upload-progress-modal {
@@ -85,20 +66,11 @@ font-size: 10px;
 	padding: 2px 3px 2px 3px;
 }
 
-.pdfileexplorer ::deep .pdtablerow:hover td
-{
-	background-color: var(--bs-tertiary-bg, rgba(128, 128, 128, 0.15));
-}
-
-.pdfileexplorer ::deep .pdtablerow.selected:hover td {
-	background-color: var(--pd-selected-bg, var(--bs-primary));
-}
-
-::deep .pdtreenode span.item-text {
+.pdtreenode span.item-text {
 	margin-top: 2px;
 }
 
-::deep .pdtreenode span.item-icon {
+.pdtreenode span.item-icon {
 	min-width: 30px;
 }
 
@@ -173,7 +145,7 @@ font-size: 10px;
 }
 
 /* Badge positioning in tree view */
-::deep .pdtreenode .pd-badge {
+.pdtreenode .pd-badge {
 	top: 6px;
 	right: 0;
 }

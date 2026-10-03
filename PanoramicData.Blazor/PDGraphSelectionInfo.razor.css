@@ -1,7 +1,7 @@
 .pd-graph-selection-info {
 	height: 100%;
 	width: 100%;
-	background-color: var(--bs-body-bg, #ffffff);
+	background-color: var(--bs-body-bg, #fff);
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;

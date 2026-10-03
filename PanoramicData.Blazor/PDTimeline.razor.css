@@ -1,7 +1,7 @@
 ﻿.pd-timeline {
 	border: 1px solid silver;
 	display: inline-grid;
-	font-family: 'Courier, inherit';
+	font-family: serif; /* Was the single, non-existent family 'Courier, inherit', which renders in the browser's default (serif) font. */
 	overflow-x: auto;
 	user-select: none;
 	width: 100%;
@@ -12,10 +12,7 @@
 	filter: grayscale(1);
 }
 
-.pd-timeline ::deep svg.disabled {
-	background-color: #d3d3d3;
-	filter: grayscale(1);
-}
+/* The bars are PDStackedBar SVGs; their disabled style lives in wwwroot/css/main.scss. */
 
 .tl-ind-l, .tl-ind-r {
 	cursor: pointer;

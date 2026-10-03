@@ -64,7 +64,7 @@
     font-size: 1.2em;
     font-weight: bold;
     color: #007bff;
-    background-color: #ffffff;
+    background-color: #fff;
     border: 1px solid #ced4da;
     border-radius: 4px;
     padding: 12px;
@@ -87,22 +87,6 @@
 .ncalc-results .error-results {
     border-left: 4px solid #dc3545;
     padding-left: 16px;
-}
-
-/* Specific styling for different error types */
-.ncalc-results .error-results .error:has-text("Invalid Code") {
-    border-left-color: #fd7e14; /* Orange for invalid code */
-}
-
-.ncalc-results .error-results .error:has-text("Runtime Error") {
-    border-left-color: #dc3545; /* Red for runtime errors */
-}
-
-.ncalc-results .error-results .error:has-text("Timed Out") {
-    border-left-color: #ffc107; /* Yellow for timeouts */
-    background-color: #fff3cd;
-    color: #856404;
-    border-color: #ffeaa7;
 }
 
 .ncalc-results .error-help {

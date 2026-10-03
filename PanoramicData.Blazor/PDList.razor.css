@@ -2,30 +2,22 @@
 	display: flex;
 }
 
-	.filter ::deep input {
-		border-top-right-radius: 0px !important;
-		border-bottom-right-radius: 0px !important;
-	}
-
-	.filter ::deep .input-group-text {
-		border-top-left-radius: 0px !important;
-		border-bottom-left-radius: 0px !important;
-	}
+/* The filter's input is PDTextBox markup, so its styles live in wwwroot/css/main.scss. */
 
 .footer {
 	border-top: 1px solid silver;
 	display: flex;
 	justify-content: flex-end;
-	padding: 5px 0px;
+	padding: 5px 0;
 }
 
 .header {
 	border-bottom: 1px solid silver;
-	padding: 5px 0px;
+	padding: 5px 0;
 }
 
 .pd-list {
-	margin: 0px 5px;
+	margin: 0 5px;
 	user-select: none;
 }
 
@@ -39,7 +31,7 @@ hr {
 
 li {
 	list-style: none;
-	padding: 0px 2px;
+	padding: 0 2px;
 }
 
 li.selected {
@@ -48,7 +40,7 @@ li.selected {
 
 ul {
 	height: 150px;
-	padding-left: 0px;
-	margin-bottom: 0px;
+	padding-left: 0;
+	margin-bottom: 0;
 	overflow-y: auto;
 }
