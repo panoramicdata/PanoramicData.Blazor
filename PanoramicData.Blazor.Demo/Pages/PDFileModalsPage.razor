@@ -1,6 +1,6 @@
 @page "/pdfilemodals"
 
-<DemoSourceView SourceFiles="Pages/PDFileModalsPage.razor, Pages/PDFileModalsPage.razor.cs">
+<DemoSourceView SourceFiles="Pages/PDFileModalsPage.razor, Pages/PDFileModalsPage.razor.cs, Data/ReadOnlyDemoDataProvider.cs">
 	<DocumentationContent>
 		<PDFileModalsDocumentation />
 	</DocumentationContent>
@@ -12,19 +12,19 @@
 		<PDToolbarButton Text="Select any file"
 						 CssClass="btn-primary"
 						 ToolTip="Allow the user to pick any file"
-						 Click="ShowFileOpenModalAndWaitResult" />
+						 Click="@(() => WaitForResultAsync("open", "OpenResult", FileModal.ShowOpenAndWaitResultAsync()))" />
 		<PDToolbarButton Text="Select DOCX or XLSX file"
 						 CssClass="btn-secondary"
 						 ToolTip="Allow the user to pick only DOCX and XLSX files"
-						 Click="ShowFileOpenFilteredModalAndWaitResult" />
+						 Click="@(() => WaitForResultAsync("open", "OpenResult (filtered)", FileModal.ShowOpenAndWaitResultAsync(false, "*.docx;*.xlsx")))" />
 		<PDToolbarButton Text="Select any folder"
 						 CssClass="btn-secondary"
 						 ToolTip="Allow the user to pick only folders"
-						 Click="ShowFolderOpenModalAndWaitResult" />
+						 Click="@(() => WaitForResultAsync("open", "FolderResult", FileModal.ShowOpenAndWaitResultAsync(true)))" />
 		<PDToolbarButton Text="Save As"
 						 CssClass="btn-secondary"
 						 ToolTip="Allow the user to pick any filename to save as"
-						 Click="ShowFileSaveAsModalAndWaitResult" />
+						 Click="@(() => WaitForResultAsync("saveAs", "SaveAsResult", FileModal.ShowSaveAsAndWaitResultAsync("NewFile.html")))" />
 	</PDToolbar>
 
 	<hr />
@@ -52,8 +52,8 @@
 				 TreeSort="OnTreeSort" />
 
 	<div class="mt-3">
-		<div><span class="text-muted">Open result:</span> <strong>@_openResult</strong></div>
-		<div><span class="text-muted">Save As result:</span> <strong>@_saveAsResult</strong></div>
+		<div><span class="text-muted">Open result:</span> <strong>@GetResult("open")</strong></div>
+		<div><span class="text-muted">Save As result:</span> <strong>@GetResult("saveAs")</strong></div>
 	</div>
 
 	<hr />
@@ -65,10 +65,10 @@
 	<PDToolbar>
 		<PDToolbarButton Text="Custom Open"
 						 CssClass="btn-secondary"
-						 Click="ShowCustomOpenAndWait" />
+						 Click="@(() => WaitForResultAsync("custom", "CustomOpen", CustomButtonModal.ShowOpenAndWaitResultAsync()))" />
 		<PDToolbarButton Text="Custom Save As"
 						 CssClass="btn-secondary"
-						 Click="ShowCustomSaveAsAndWait" />
+						 Click="@(() => WaitForResultAsync("custom", "CustomSaveAs", CustomButtonModal.ShowSaveAsAndWaitResultAsync()))" />
 	</PDToolbar>
 
 	<PDFileModal @ref="CustomButtonModal"
@@ -81,7 +81,7 @@
 				 SaveTitle="Custom Save Title" />
 
 	<div class="mt-3">
-		<div><span class="text-muted">Custom result:</span> <strong>@_customResult</strong></div>
+		<div><span class="text-muted">Custom result:</span> <strong>@GetResult("custom")</strong></div>
 	</div>
 
 	<hr />
@@ -92,7 +92,7 @@
 	<PDToolbar>
 		<PDToolbarButton Text="Open (Library and Temp hidden)"
 						 CssClass="btn-secondary"
-						 Click="ShowExcludedPathsOpenAndWait" />
+						 Click="@(() => WaitForResultAsync("excluded", "ExcludedOpen", ExcludedPathsModal.ShowOpenAndWaitResultAsync()))" />
 	</PDToolbar>
 
 	<PDFileModal @ref="ExcludedPathsModal"
@@ -101,7 +101,7 @@
 				 OpenTitle="Pick a file (restricted)" />
 
 	<div class="mt-3">
-		<div><span class="text-muted">Result:</span> <strong>@_excludedResult</strong></div>
+		<div><span class="text-muted">Result:</span> <strong>@GetResult("excluded")</strong></div>
 	</div>
 
 	<hr />
@@ -113,7 +113,7 @@
 	<PDToolbar>
 		<PDToolbarButton Text="Open (read-only icon)"
 						 CssClass="btn-secondary"
-						 Click="ShowReadOnlyOpenAndWait" />
+						 Click="@(() => WaitForResultAsync("readOnly", "ReadOnlyOpen", ReadOnlyModal.ShowOpenAndWaitResultAsync()))" />
 	</PDToolbar>
 
 	<PDFileModal @ref="ReadOnlyModal"
@@ -123,7 +123,7 @@
 				 OpenTitle="Pick a file" />
 
 	<div class="mt-3">
-		<div><span class="text-muted">Result:</span> <strong>@_readOnlyResult</strong></div>
+		<div><span class="text-muted">Result:</span> <strong>@GetResult("readOnly")</strong></div>
 	</div>
 
 	<hr />
@@ -135,7 +135,7 @@
 	<PDToolbar>
 		<PDToolbarButton Text="Open (extra large)"
 						 CssClass="btn-secondary"
-						 Click="ShowLargeOpenAndWait" />
+						 Click="@(() => WaitForResultAsync("large", "LargeOpen", LargeModal.ShowOpenAndWaitResultAsync()))" />
 	</PDToolbar>
 
 	<PDFileModal @ref="LargeModal"
@@ -145,7 +145,7 @@
 				 OpenTitle="Large File Picker" />
 
 	<div class="mt-3">
-		<div><span class="text-muted">Result:</span> <strong>@_largeResult</strong></div>
+		<div><span class="text-muted">Result:</span> <strong>@GetResult("large")</strong></div>
 	</div>
 
 	<EventView />

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
 using PanoramicData.Blazor.Models.Tiles;
 
 namespace PanoramicData.Blazor.Demo.Pages;
@@ -11,79 +12,62 @@ public partial class PDTilesPage
 		var query = QueryHelpers.ParseQuery(uri.Query);
 
 		// Grid options
-		TryParseInt(query, "cols", v => _options.Columns = v);
-		TryParseInt(query, "rows", v => _options.Rows = v);
-		TryParseInt(query, "depth", v => _options.Depth = v);
-		TryParseInt(query, "gap", v => _options.Gap = v);
-		TryParseInt(query, "pop", v => _options.Population = v);
-		TryParseInt(query, "logoSize", v => _options.LogoSize = v);
-		TryParseInt(query, "logoRot", v => _options.LogoRotation = v);
-		TryParseHexColor(query, "tile", v => _options.TileColor = v);
-		TryParseHexColor(query, "bg", v => _options.BackgroundColor = v);
-		TryParseHexColor(query, "lineColor", v => _options.LineColor = v);
-		TryParseInt(query, "lineOp", v => _options.LineOpacity = v);
-		TryParseInt(query, "glow", v => _options.Glow = v);
-		TryParseInt(query, "glowFO", v => _options.GlowFalloff = v);
-		TryParseInt(query, "persp", v => _options.Perspective = v);
-		TryParseInt(query, "refl", v => _options.Reflection = v);
-		TryParseInt(query, "reflD", v => _options.ReflectionDepth = v);
-		TryParseInt(query, "scale", v => _options.Scale = v);
-		TryParseInt(query, "pad", v => _options.Padding = v);
-		TryParseEnum<GridAlignment>(query, "align", v => _options.Alignment = v);
-		TryParseNullableInt(query, "maxW", v => _options.MaxGridWidthPercent = v);
-		TryParseNullableInt(query, "maxH", v => _options.MaxGridHeightPercent = v);
-		TryParseBool(query, "content", v => ShowChildContent = v);
-		TryParseBool(query, "wrap", v => _options.ContentWrapping = v);
+		Apply<int>(query, int.TryParse, "cols", v => _options.Columns = v);
+		Apply<int>(query, int.TryParse, "rows", v => _options.Rows = v);
+		Apply<int>(query, int.TryParse, "depth", v => _options.Depth = v);
+		Apply<int>(query, int.TryParse, "gap", v => _options.Gap = v);
+		Apply<int>(query, int.TryParse, "pop", v => _options.Population = v);
+		Apply<int>(query, int.TryParse, "logoSize", v => _options.LogoSize = v);
+		Apply<int>(query, int.TryParse, "logoRot", v => _options.LogoRotation = v);
+		Apply<string>(query, TryParseHexColor, "tile", v => _options.TileColor = v);
+		Apply<string>(query, TryParseHexColor, "bg", v => _options.BackgroundColor = v);
+		Apply<string>(query, TryParseHexColor, "lineColor", v => _options.LineColor = v);
+		Apply<int>(query, int.TryParse, "lineOp", v => _options.LineOpacity = v);
+		Apply<int>(query, int.TryParse, "glow", v => _options.Glow = v);
+		Apply<int>(query, int.TryParse, "glowFO", v => _options.GlowFalloff = v);
+		Apply<int>(query, int.TryParse, "persp", v => _options.Perspective = v);
+		Apply<int>(query, int.TryParse, "refl", v => _options.Reflection = v);
+		Apply<int>(query, int.TryParse, "reflD", v => _options.ReflectionDepth = v);
+		Apply<int>(query, int.TryParse, "scale", v => _options.Scale = v);
+		Apply<int>(query, int.TryParse, "pad", v => _options.Padding = v);
+		Apply<GridAlignment>(query, Enum.TryParse, "align", v => _options.Alignment = v);
+		Apply<int?>(query, TryParseNullableInt, "maxW", v => _options.MaxGridWidthPercent = v);
+		Apply<int?>(query, TryParseNullableInt, "maxH", v => _options.MaxGridHeightPercent = v);
+		Apply<bool>(query, bool.TryParse, "content", v => ShowChildContent = v);
+		Apply<bool>(query, bool.TryParse, "wrap", v => _options.ContentWrapping = v);
 
 		// Connector options
-		TryParseEnum<ConnectorFillPattern>(query, "cPat", v => _connectorOptions.FillPattern = v);
-		TryParseEnum<ConnectorDirection>(query, "cDir", v => _connectorOptions.Direction = v);
-		TryParseNullableInt(query, "cN", v => _connectorOptions.PerEdge = v);
-		TryParseInt(query, "cPop", v => _connectorOptions.Population = v);
-		TryParseInt(query, "cH", v => _connectorOptions.Height = v);
-		TryParseEnum<ConnectorVerticalAlign>(query, "cV", v => _connectorOptions.VerticalAlign = v);
-		TryParseInt(query, "cOp", v => _connectorOptions.Opacity = v);
-		TryParseInt(query, "cAnim", v => _connectorOptions.AnimationSpeed = v);
+		Apply<ConnectorFillPattern>(query, Enum.TryParse, "cPat", v => _connectorOptions.FillPattern = v);
+		Apply<ConnectorDirection>(query, Enum.TryParse, "cDir", v => _connectorOptions.Direction = v);
+		Apply<int?>(query, TryParseNullableInt, "cN", v => _connectorOptions.PerEdge = v);
+		Apply<int>(query, int.TryParse, "cPop", v => _connectorOptions.Population = v);
+		Apply<int>(query, int.TryParse, "cH", v => _connectorOptions.Height = v);
+		Apply<ConnectorVerticalAlign>(query, Enum.TryParse, "cV", v => _connectorOptions.VerticalAlign = v);
+		Apply<int>(query, int.TryParse, "cOp", v => _connectorOptions.Opacity = v);
+		Apply<int>(query, int.TryParse, "cAnim", v => _connectorOptions.AnimationSpeed = v);
 	}
 
-	private static void TryParseInt(Dictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key, Action<int> setter)
+	private delegate bool TryParser<T>(string text, out T result);
+
+	private static void Apply<T>(Dictionary<string, StringValues> query, TryParser<T> tryParse, string key, Action<T> setter)
 	{
-		if (query.TryGetValue(key, out var value) && int.TryParse(value, out var parsed))
+		if (query.TryGetValue(key, out var value) && tryParse(value.ToString(), out var parsed))
 		{
 			setter(parsed);
 		}
 	}
 
-	private static void TryParseBool(Dictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key, Action<bool> setter)
+	private static bool TryParseHexColor(string text, out string result)
 	{
-		if (query.TryGetValue(key, out var value) && bool.TryParse(value, out var parsed))
-		{
-			setter(parsed);
-		}
+		result = "#" + text;
+		return true;
 	}
 
-	private static void TryParseEnum<TEnum>(Dictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key, Action<TEnum> setter) where TEnum : struct, Enum
+	// An empty or non-numeric value clears the setting
+	private static bool TryParseNullableInt(string text, out int? result)
 	{
-		if (query.TryGetValue(key, out var value) && Enum.TryParse<TEnum>(value, out var parsed))
-		{
-			setter(parsed);
-		}
-	}
-
-	private static void TryParseHexColor(Dictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key, Action<string> setter)
-	{
-		if (query.TryGetValue(key, out var value))
-		{
-			setter("#" + value.ToString());
-		}
-	}
-
-	private static void TryParseNullableInt(Dictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key, Action<int?> setter)
-	{
-		if (query.TryGetValue(key, out var value))
-		{
-			setter(string.IsNullOrEmpty(value) ? null : int.TryParse(value, out var parsed) ? parsed : null);
-		}
+		result = int.TryParse(text, out var parsed) ? parsed : null;
+		return true;
 	}
 
 	private void UpdateUrl()
@@ -101,12 +85,17 @@ public partial class PDTilesPage
 		}
 
 		var newUrl = QueryHelpers.AddQueryString(NavigationManager.Uri.Split('?')[0], queryParams!);
-		NavigationManager.NavigateTo(newUrl, replace: true);
+
+		// Navigating while prerendering redirects, so navigating to the current URL would redirect forever
+		if (newUrl != NavigationManager.Uri)
+		{
+			NavigationManager.NavigateTo(newUrl, replace: true);
+		}
 	}
 
-	private static string FormatNullable(int? value) => value?.ToString() ?? "";
+	private static string FormatNullable(int? value) => $"{value}";
 
-	private static string FormatBool(bool value) => value ? "true" : "false";
+	private static string FormatBool(bool value) => value.ToString().ToLowerInvariant();
 
 	private Dictionary<string, string?> GetGridQueryParameters()
 		=> new()
