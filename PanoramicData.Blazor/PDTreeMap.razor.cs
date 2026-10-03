@@ -18,9 +18,8 @@ namespace PanoramicData.Blazor;
 /// </remarks>
 public partial class PDTreeMap<TItem> : IAsyncDisposable where TItem : class
 {
-	private static int _idSequence;
 
-	private readonly string _id = $"pdtm-{++_idSequence}";
+	private readonly string _id = $"pdtm-{ComponentIdSequence.Next()}";
 	private readonly List<TItem> _breadcrumb = [];
 
 	private IJSObjectReference? _module;

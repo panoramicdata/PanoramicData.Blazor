@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor;
+﻿using PanoramicData.Blazor.Helpers;
+
+namespace PanoramicData.Blazor;
 
 /// <summary>
 /// Defines metadata and behavior for a table column bound to <typeparamref name="TItem"/>.
@@ -6,7 +8,6 @@
 /// <typeparam name="TItem">Row item type.</typeparam>
 public partial class PDColumn<TItem> where TItem : class
 {
-	private static int _idSequence = 1;
 
 	private string? _title;
 
@@ -238,7 +239,7 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <summary>
 	/// The Id - this should be unique per column in a table
 	/// </summary>
-	[Parameter] public string Id { get; set; } = $"col-{_idSequence++}";
+	[Parameter] public string Id { get; set; } = $"col-{ComponentIdSequence.Next()}";
 
 	/// <summary>
 	/// Gets whether this field contains passwords or other sensitive information.

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using PanoramicData.Blazor.Helpers;
+using System.Text.Json;
 
 namespace PanoramicData.Blazor;
 
@@ -8,7 +9,6 @@ namespace PanoramicData.Blazor;
 /// <typeparam name="TItem">The type of data items used to generate graph data.</typeparam>
 public partial class PDGraph<TItem> : JSModuleComponentBase where TItem : class
 {
-private static int _idSequence;
 private ElementReference _svgElement;
 private GraphData? _graphData;
 private readonly Dictionary<string, (double X, double Y)> _nodePositions = [];
@@ -37,7 +37,7 @@ private double _previousDamping;
 	/// Gets or sets the unique identifier for this component.
 	/// </summary>
 	[Parameter]
-	public string Id { get; set; } = $"pd-graph-{++_idSequence}";
+	public string Id { get; set; } = $"pd-graph-{ComponentIdSequence.Next()}";
 
 	/// <summary>
 	/// Gets or sets the CSS class for styling.

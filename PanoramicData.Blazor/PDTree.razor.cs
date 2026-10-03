@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor;
+﻿using PanoramicData.Blazor.Helpers;
+
+namespace PanoramicData.Blazor;
 
 /// <summary>
 /// Represents a tree component for displaying hierarchical data with support for selection, editing, drag-and-drop, and on-demand loading.
@@ -8,7 +10,6 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
 {
     private const string _idPrefix = "pd-tree-";
     private IJSObjectReference? _commonModule;
-    private static int _idSequence;
     private int _clickCount;
     private Timer? _clickTimer;
     private TreeNode<TItem>? _clickedNode;
@@ -923,7 +924,7 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
     /// </summary>
     protected override void OnInitialized()
     {
-        Id = $"{_idPrefix}{++_idSequence}";
+        Id = $"{_idPrefix}{ComponentIdSequence.Next()}";
     }
 
     /// <summary>

@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor;
+﻿using PanoramicData.Blazor.Helpers;
+
+namespace PanoramicData.Blazor;
 
 /// <summary>
 /// A comprehensive graph visualization component that supports multi-dimensional data visualization
@@ -7,7 +9,6 @@
 /// <typeparam name="TItem">The type of data items that will be used to generate the graph data.</typeparam>
 public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 {
-	private static int _idSequence;
 	private PDSplitter? _splitter;
 	private PDGraph<TItem>? _graph;
 	private PDGraphInfo<TItem>? _graphInfo;
@@ -100,7 +101,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		// Set a unique ID if not provided
 		if (HasDefaultId)
 		{
-			Id = $"pd-graph-viewer-{Interlocked.Increment(ref _idSequence)}";
+			Id = $"pd-graph-viewer-{ComponentIdSequence.Next()}";
 		}
 	}
 

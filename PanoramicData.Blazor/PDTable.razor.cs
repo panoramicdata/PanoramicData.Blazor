@@ -1,4 +1,5 @@
-﻿using System.Reflection.Metadata;
+﻿using PanoramicData.Blazor.Helpers;
+using System.Reflection.Metadata;
 
 namespace PanoramicData.Blazor;
 
@@ -15,7 +16,6 @@ public partial class PDTable<TItem> :
 {
 	private bool _dragging;
 	private Timer? _editTimer;
-	private static int _idSequence;
 	private string? _lastSearchText;
 	private string? _lastViewKey;
 	private int _lastColumnCount;
@@ -226,7 +226,7 @@ public partial class PDTable<TItem> :
 	/// <summary>
 	/// Gets or sets the unique identifier for the component.
 	/// </summary>
-	[Parameter] public string Id { get; set; } = $"pd-table-{++_idSequence}";
+	[Parameter] public string Id { get; set; } = $"pd-table-{ComponentIdSequence.Next()}";
 
 	/// <summary>
 	/// Gets or sets whether the table is currently loading data.
