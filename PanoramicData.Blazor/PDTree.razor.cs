@@ -232,51 +232,6 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
     public TreeNode<TItem>? SelectedNode { get; private set; }
 
     /// <summary>
-    /// Expands all the branch nodes in the tree.
-    /// </summary>
-    public void ExpandAll() => RootNode.Walk((n) => { n.IsExpanded = !n.Isleaf; return true; });
-
-    /// <summary>
-    /// Expands all the branch nodes in the tree asynchronously.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task ExpandAllAsync() => await RootNode.WalkAsync(async (n) =>
-  {
-	  if (!n.IsExpanded && !n.Isleaf && (ExpandOnExpandAll == null || ExpandOnExpandAll(n)))
-	  {
-		  await ToggleNodeIsExpandedAsync(n).ConfigureAwait(true);
-	  }
-
-	  return true;
-  }).ConfigureAwait(true);
-
-    /// <summary>
-    /// Collapses all the branch nodes in the tree.
-    /// </summary>
-    public void CollapseAll() => RootNode.Walk((n) => { n.IsExpanded = false; return true; });
-
-    /// <summary>
-    /// Searches all nodes until the given criteria is first matched.
-    /// </summary>
-    /// <param name="predicate">The predicate to match nodes.</param>
-    /// <returns>The first matching <see cref="TreeNode{TItem}"/>, or null if not found.</returns>
-    public TreeNode<TItem>? Search(Predicate<TreeNode<TItem>> predicate)
-    {
-        TreeNode<TItem>? found = null;
-        RootNode.Walk((n) =>
-        {
-            if (predicate(n))
-            {
-                found = n;
-                return false;
-            }
-
-            return true;
-        });
-        return found;
-    }
-
-    /// <summary>
     /// Scrolls the node with the specified ID into view using JavaScript interop.
     /// </summary>
     /// <param name="nodeId">The ID of the node to scroll into view.</param>
