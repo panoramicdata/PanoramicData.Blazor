@@ -106,11 +106,6 @@
 	border-color: var(--pd-chat-info-border, #0078d4);
 }
 
-.pdchat-conversation-row.archived .pdchat-conversation-row-name {
-	font-style: italic;
-	color: var(--pd-chat-muted-color, #6c757d);
-}
-
 /* One line per conversation. A wrapping title would make rows different heights, which makes a list of
    twenty conversations much harder to scan than the truncation costs. */
 .pdchat-conversation-row-name {
@@ -118,6 +113,11 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+.pdchat-conversation-row.archived .pdchat-conversation-row-name {
+	font-style: italic;
+	color: var(--pd-chat-muted-color, #6c757d);
 }
 
 .pdchat-conversation-row-meta {

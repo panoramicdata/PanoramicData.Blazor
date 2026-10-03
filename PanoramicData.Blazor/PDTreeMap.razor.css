@@ -9,9 +9,9 @@
 	/* Light is the base definition, so a host that sets no theme at all still gets a complete palette. */
 	--pd-treemap-default-border: rgba(0, 0, 0, 0.15);
 	--pd-treemap-default-stroke: rgba(255, 255, 255, 0.65);
-	--pd-treemap-default-label: #ffffff;
+	--pd-treemap-default-label: #fff;
 	--pd-treemap-default-label-shadow: rgba(0, 0, 0, 0.55);
-	--pd-treemap-default-focus: #ffffff;
+	--pd-treemap-default-focus: #fff;
 	--pd-treemap-default-muted: var(--bs-secondary-color, #6c757d);
 
 	display: flex;
@@ -25,9 +25,9 @@
 [data-theme="light"] .pdtm {
 	--pd-treemap-default-border: rgba(0, 0, 0, 0.15);
 	--pd-treemap-default-stroke: rgba(255, 255, 255, 0.65);
-	--pd-treemap-default-label: #ffffff;
+	--pd-treemap-default-label: #fff;
 	--pd-treemap-default-label-shadow: rgba(0, 0, 0, 0.55);
-	--pd-treemap-default-focus: #ffffff;
+	--pd-treemap-default-focus: #fff;
 }
 
 [data-bs-theme="dark"] .pdtm,
@@ -36,7 +36,7 @@
 	--pd-treemap-default-stroke: rgba(0, 0, 0, 0.45);
 	--pd-treemap-default-label: #f8f9fa;
 	--pd-treemap-default-label-shadow: rgba(0, 0, 0, 0.8);
-	--pd-treemap-default-focus: #ffffff;
+	--pd-treemap-default-focus: #fff;
 }
 
 /* Hosts that set no theme attribute at all still follow the operating system. */
@@ -67,16 +67,16 @@
 	cursor: pointer;
 }
 
-.pdtm-crumb:hover:not(:disabled) {
-	background: var(--bs-tertiary-bg, rgba(0, 0, 0, 0.07));
-	text-decoration: underline;
-}
-
 .pdtm-crumb-current,
 .pdtm-crumb:disabled {
 	color: var(--bs-body-color, inherit);
 	cursor: default;
 	font-weight: 600;
+}
+
+.pdtm-crumb:hover:not(:disabled) {
+	background: var(--bs-tertiary-bg, rgba(0, 0, 0, 0.07));
+	text-decoration: underline;
 }
 
 .pdtm-crumb-separator {
@@ -122,10 +122,6 @@
 	transition: opacity 0.12s ease-in-out;
 }
 
-.pdtm-node:hover .pdtm-rect {
-	opacity: 0.82;
-}
-
 .pdtm-node-focused .pdtm-rect {
 	stroke: var(--pd-treemap-focus);
 	stroke-width: 2.5;
@@ -134,6 +130,10 @@
 /* A rectangle standing in for a subtree that was not drawn, so the user can tell there is more below. */
 .pdtm-node-aggregated .pdtm-rect {
 	stroke-dasharray: 3 2;
+}
+
+.pdtm-node:hover .pdtm-rect {
+	opacity: 0.82;
 }
 
 .pdtm-label {

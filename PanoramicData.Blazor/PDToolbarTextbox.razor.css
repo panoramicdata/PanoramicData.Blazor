@@ -15,7 +15,7 @@
 .pdtoolbartextbox label {
 	white-space: nowrap;
 	margin: 0;
-	margin-bottom: 0px;
+	margin-bottom: 0;
 	font-weight: 500; /* Slightly bold for better visibility */
 	flex-shrink: 0; /* Prevent label from shrinking */
 }
@@ -25,11 +25,8 @@
 	flex: 1 1 auto; /* Allow input to grow */
 }
 
-/* Ensure the textbox input itself can shrink */
-.pdtoolbartextbox ::deep input {
-	min-width: 0;
-	width: 100%;
-}
+/* The textbox input itself is PDTextBox markup; the rule that lets it shrink lives in
+   wwwroot/css/main.scss. */
 
 .pdttb-clear-btn {
 	position: absolute;

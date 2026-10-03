@@ -29,22 +29,4 @@
 	justify-self: start;
 }
 
-::deep .direction-buttons button:nth-child(1)
-{
-	border-radius: .25rem 0px 0px .25rem;
-}
-
-::deep .direction-buttons button:nth-child(2)
-{
-	border-radius: 0px;
-}
-
-::deep .direction-buttons button:nth-child(4)
-{
-	border-radius: 0px;
-}
-
-::deep .direction-buttons button:nth-child(5)
-{
-	border-radius: 0px .25rem .25rem 0px;
-}
+/* The direction buttons are PDButtons, so their border radii are set in wwwroot/css/main.scss. */

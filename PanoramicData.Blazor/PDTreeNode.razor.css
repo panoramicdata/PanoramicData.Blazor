@@ -35,7 +35,7 @@
 /* lines that help show nested levels */
 .pdtree_lines {
 	border-left: 1px dashed grey;
-	padding-left: 0px !important;
+	padding-left: 0 !important;
 }
 
 .pdtreenode .pdtreenode_content.drag-over {

@@ -11,16 +11,6 @@
     z-index: auto !important;
 }
 
-.pdchat-container.dock-split-panel .pdchat-window {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    max-height: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    position: static !important;
-}
-
 /* ==============================================
    PDChat Component - Clean Layout Architecture
    ============================================== */
@@ -38,6 +28,7 @@
 	--pd-chat-color: var(--bs-body-color, #212529);
 	--pd-chat-secondary-bg: var(--bs-secondary-bg, #f8f9fa);
 	--pd-chat-muted-color: var(--bs-secondary-color, #6c757d);
+
 	/* Some host apps define --accent directly (not a --bs-* override) for their own brand
 	   colour per theme. Bootstrap's own --bs-primary is tried first for hosts with neither. */
 	--pd-chat-header-bg: var(--accent, var(--bs-primary, #0078d4));
@@ -78,10 +69,10 @@
    Selected explicitly by the host's ACTUAL theme choice, never prefers-color-scheme:
    a host's chosen theme and the OS/browser preference are not guaranteed to agree, and
    the explicit choice should always win. */
+[data-bs-theme="dark"] .pdchat-container,
 body.theme-dark .pdchat-container,
 body.theme-lime .pdchat-container,
-body.theme-orange .pdchat-container,
-[data-bs-theme="dark"] .pdchat-container {
+body.theme-orange .pdchat-container {
 	--pd-chat-border: #495057;
 	--pd-chat-info-border: #5ba4fc;
 	--pd-chat-info-bg: #1e3a5f;
@@ -188,25 +179,12 @@ body:has(.pdchat-container.dock-fullscreen) {
    Minimized State
    ============================================== */
 
-.pdchat-container.dock-minimized .pdchat-window {
-	display: none;
-}
-
-.pdchat-container.dock-none .pdchat-toggle-collapsed {
-	display: none; /* Hide button when position is set to None */
-}
-
 .pdchat-toggle-collapsed {
 	display: block;
 }
 
-.pdchat-container.open .pdchat-toggle-collapsed {
-	display: none;
-}
-
-.pdchat-container.dock-fullscreen .pdchat-toggle-collapsed {
-	display: none;
-}
+/* The rules that hide the window and the toggle button in particular dock states follow the
+   base toggle button and window rules below, so they come after the less specific rules. */
 
 /* ==============================================
    Toggle Button Styles
@@ -279,13 +257,25 @@ body:has(.pdchat-container.dock-fullscreen) {
 	background-color: #5d369a;
 }
 
+/* Toggle button visibility in particular dock states */
+.pdchat-container.dock-none .pdchat-toggle-collapsed {
+	display: none; /* Hide button when position is set to None */
+}
+
+.pdchat-container.open .pdchat-toggle-collapsed {
+	display: none;
+}
+
+.pdchat-container.dock-fullscreen .pdchat-toggle-collapsed {
+	display: none;
+}
+
 /* ==============================================
    Priority Indicator Container and Icons
    ============================================== */
 
 .pdchat-icon-container {
 	position: relative;
-	display: inline-block;
 	width: 100%;
 	height: 100%;
 	display: flex;
@@ -350,6 +340,22 @@ body:has(.pdchat-container.dock-fullscreen) {
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
+}
+
+/* Chat split panel mode - when inside PDChatContainer split layout */
+.pdchat-container.dock-split-panel .pdchat-window {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    position: static !important;
+}
+
+/* Minimized: only the toggle button shows */
+.pdchat-container.dock-minimized .pdchat-window {
+	display: none;
 }
 
 /* ==============================================
@@ -565,14 +571,15 @@ body:has(.pdchat-container.dock-fullscreen) {
 /* Roland: commented out for now to fix LOTS of broken CSS issues in magic suite apps. Have blanket-commented out rules likely
 	to have been affecting things. Magic Suite apps now appear OK, and PDChat is STILL OK, as far as we can see
 */
-/*.pdsplitpanel {
+
+/* .pdsplitpanel {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
 	min-width: 0;
 	min-height: 0;
 	overflow: hidden;
-}*/
+} */
 
 /* ==============================================
    Canvas Panel Layout
@@ -662,9 +669,11 @@ body:has(.pdchat-container.dock-fullscreen) {
 	0% {
 		box-shadow: 0 0 0 0 rgba(13, 202, 240, 0.7);
 	}
+
 	70% {
 		box-shadow: 0 0 0 10px rgba(13, 202, 240, 0);
 	}
+
 	100% {
 		box-shadow: 0 0 0 0 rgba(13, 202, 240, 0);
 	}
@@ -675,9 +684,11 @@ body:has(.pdchat-container.dock-fullscreen) {
 	0% {
 		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
 	}
+
 	70% {
 		box-shadow: 0 0 0 12px rgba(255, 193, 7, 0);
 	}
+
 	100% {
 		box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
 	}
@@ -688,9 +699,11 @@ body:has(.pdchat-container.dock-fullscreen) {
 	0% {
 		box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.8);
 	}
+
 	70% {
 		box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
 	}
+
 	100% {
 		box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
 	}
@@ -701,9 +714,11 @@ body:has(.pdchat-container.dock-fullscreen) {
 	0% {
 		box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.9);
 	}
+
 	70% {
 		box-shadow: 0 0 0 20px rgba(111, 66, 193, 0);
 	}
+
 	100% {
 		box-shadow: 0 0 0 0 rgba(111, 66, 193, 0);
 	}
@@ -759,6 +774,7 @@ body:has(.pdchat-container.dock-fullscreen) {
 
 .pdchat-message-preview.slide-right {
 	left: 60px; /* Position to the right of the button */
+	animation: slideInFromRight 0.3s ease-out forwards; /* Slide-in from right animation */
 }
 
 .pdchat-preview-header {
@@ -844,22 +860,20 @@ body:has(.pdchat-container.dock-fullscreen) {
 		opacity: 0;
 		transform: translateX(-10px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateX(0);
 	}
 }
 
-/* Slide-in from right animation */
-.pdchat-message-preview.slide-right {
-	animation: slideInFromRight 0.3s ease-out forwards;
-}
-
+/* Slide-in from right animation (used by .pdchat-message-preview.slide-right) */
 @keyframes slideInFromRight {
 	from {
 		opacity: 0;
 		transform: translateX(10px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateX(0);
@@ -1005,23 +1019,51 @@ body:has(.pdchat-container.dock-fullscreen) {
 }
 
 @keyframes pdchat-toast-grow-in {
-	from { opacity: 0; transform: scale(0.6); }
-	to { opacity: 1; transform: scale(1); }
+	from {
+		opacity: 0;
+		transform: scale(0.6);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
 }
 
 @keyframes pdchat-toast-grow-out {
-	from { opacity: 1; transform: scale(1); }
-	to { opacity: 0; transform: scale(1.3); }
+	from {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(1.3);
+	}
 }
 
 @keyframes pdchat-toast-shrink-in {
-	from { opacity: 0; transform: scale(1.3); }
-	to { opacity: 1; transform: scale(1); }
+	from {
+		opacity: 0;
+		transform: scale(1.3);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
 }
 
 @keyframes pdchat-toast-shrink-out {
-	from { opacity: 1; transform: scale(1); }
-	to { opacity: 0; transform: scale(0.6); }
+	from {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(0.6);
+	}
 }
 
 @keyframes pdchat-toast-fade-in {
@@ -1035,28 +1077,63 @@ body:has(.pdchat-container.dock-fullscreen) {
 }
 
 @keyframes pdchat-toast-slide-in-right {
-	from { opacity: 0; transform: translateX(30px); }
-	to { opacity: 1; transform: translateX(0); }
+	from {
+		opacity: 0;
+		transform: translateX(30px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 @keyframes pdchat-toast-slide-out-right {
-	from { opacity: 1; transform: translateX(0); }
-	to { opacity: 0; transform: translateX(30px); }
+	from {
+		opacity: 1;
+		transform: translateX(0);
+	}
+
+	to {
+		opacity: 0;
+		transform: translateX(30px);
+	}
 }
 
 @keyframes pdchat-toast-slide-in-left {
-	from { opacity: 0; transform: translateX(-30px); }
-	to { opacity: 1; transform: translateX(0); }
+	from {
+		opacity: 0;
+		transform: translateX(-30px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 @keyframes pdchat-toast-slide-out-left {
-	from { opacity: 1; transform: translateX(0); }
-	to { opacity: 0; transform: translateX(-30px); }
+	from {
+		opacity: 1;
+		transform: translateX(0);
+	}
+
+	to {
+		opacity: 0;
+		transform: translateX(-30px);
+	}
 }
 
 @keyframes pdchat-toast-destack {
-	from { opacity: 1; transform: scale(1); }
-	to { opacity: 0; transform: scale(0.85) translateY(-6px); }
+	from {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(0.85) translateY(-6px);
+	}
 }
 
 /* Respect reduced-motion: collapse all toast animations to a simple fade. */
@@ -1129,11 +1206,6 @@ body:has(.pdchat-container.dock-fullscreen) {
 	cursor: pointer;
 }
 
-.pdchat-conversation-toolbar-btn:hover:not(:disabled) {
-	background: var(--pd-chat-typing-bg, #f8f9fa);
-	border-color: var(--pd-chat-border, #ced4da);
-}
-
 /* Disabled rather than hidden, with the reason on the title attribute: a control that disappears
    teaches the user nothing about when it would be available. */
 .pdchat-conversation-toolbar-btn:disabled {
@@ -1141,44 +1213,18 @@ body:has(.pdchat-container.dock-fullscreen) {
 	cursor: default;
 }
 
-/* Conversation tabs are PDTabSet's markup, not ours, so these reach into the child component with
-   ::deep. Only the bits specific to conversations are set here - the tab strip's own look stays
-   PDTabSet's business, which is the point of using it rather than a second tab implementation. */
+.pdchat-conversation-toolbar-btn:hover:not(:disabled) {
+	background: var(--pd-chat-typing-bg, #f8f9fa);
+	border-color: var(--pd-chat-border, #ced4da);
+}
+
+/* Conversation tabs are PDTabSet's markup, not ours, so the rules that reach into the child component
+   live in wwwroot/css/main.scss. Only the bits specific to conversations are set there - the tab strip's
+   own look stays PDTabSet's business, which is the point of using it rather than a second tab
+   implementation. */
 .pdchat-conversation-tabset {
 	flex: 0 0 auto;
 	min-width: 0;
-}
-
-/* The tab set's content area is where the transcript lives, so it takes the remaining height and
-   scrolls internally rather than pushing the message input off the bottom. */
-.pdchat-conversation-main ::deep .pdchat-conversation-tabset {
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 auto;
-	min-height: 0;
-}
-
-.pdchat-conversation-main ::deep .pdchat-conversation-tabset .pdtabset-content {
-	flex: 1 1 auto;
-	min-height: 0;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-}
-
-/* The unread marker is what makes "ask, switch away, come back" work: a reply arriving for a tab the
-   user is not reading marks it rather than stealing focus. Rendered as a leading dot via ::before so
-   that it needs no extra element inside PDTabSet's own tab markup. */
-.pdchat-conversation-main ::deep .pdtabset-tab.pdchat-conversation-tab-unread::before {
-	content: "CF";
-	margin-right: 4px;
-	font-size: 0.625rem;
-	line-height: 1;
-	color: var(--pd-chat-info-border, #0078d4);
-}
-
-.pdchat-conversation-main ::deep .pdtabset-tab.pdchat-conversation-tab-unread .pdtabset-tab-title {
-	font-weight: 600;
 }
 
 .pdchat-conversation-none-open {

@@ -39,48 +39,5 @@
 	max-height: 400px;
 }
 
-.pd-dropdown .dropdown-menu ::deep ul
-{
-	list-style: none;
-	padding: 0;
-	margin: 0;
-}
+/* The menu items are the caller's ChildContent, so their styles live in wwwroot/css/main.scss. */
 
-.pd-dropdown .dropdown-menu ::deep li
-{
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	cursor: pointer;
-	transition: background-color 0.15s ease-in-out;
-}
-
-.pd-dropdown .dropdown-menu ::deep li:hover
-{
-	background-color: var(--bs-secondary-bg);
-}
-
-.pd-dropdown .dropdown-menu ::deep li .pd-label
-{
-	display: block;
-	padding: 0.5rem 1rem;
-	color: var(--bs-body-color);
-	text-decoration: none;
-	white-space: nowrap;
-	width: 100%;
-}
-
-/* Style for PDButton items in dropdown */
-.pd-dropdown .dropdown-menu > div ::deep button
-{
-	width: 100%;
-	text-align: left;
-	border: none;
-	border-radius: 0;
-	margin: 0;
-}
-
-.pd-dropdown .dropdown-menu > div ::deep button:hover
-{
-	background-color: var(--bs-secondary-bg);
-}

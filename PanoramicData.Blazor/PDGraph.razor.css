@@ -2,7 +2,7 @@
 	height: 100%;
 	width: 100%;
 	position: relative;
-	background-color: var(--bs-body-bg, #ffffff);
+	background-color: var(--bs-body-bg, #fff);
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
@@ -12,7 +12,7 @@
 	height: 100%;
 	width: 100%;
 	display: block;
-	background-color: var(--bs-body-bg, #ffffff);
+	background-color: var(--bs-body-bg, #fff);
 	cursor: grab;
 	flex: 1;
 	min-height: 0;
@@ -30,7 +30,7 @@
 	justify-content: center;
 	height: 100%;
 	color: var(--bs-text-muted, #6c757d);
-	background-color: var(--bs-body-bg, #ffffff);
+	background-color: var(--bs-body-bg, #fff);
 }
 
 .pd-graph-loading .spinner-border {
@@ -51,7 +51,7 @@
 	justify-content: center;
 	height: 100%;
 	padding: 1rem;
-	background-color: var(--bs-body-bg, #ffffff);
+	background-color: var(--bs-body-bg, #fff);
 }
 
 /* SVG elements */
@@ -66,6 +66,7 @@
 /* Nodes - REMOVED ALL HOVER TRANSFORMS */
 .graph-node {
 	cursor: pointer;
+
 	/* Removed transition and hover transform that was causing movement */
 }
 
@@ -74,9 +75,7 @@
 	filter: drop-shadow(0 0 6px rgba(66, 133, 244, 0.7));
 }
 
-.node-shape {
-	/* Removed transition that could interfere with physics */
-}
+/* .node-shape: no transition, as it could interfere with physics */
 
 .node-label {
 	font-family: var(--bs-font-sans-serif, system-ui);
@@ -86,6 +85,12 @@
 	user-select: none;
 	dominant-baseline: central;
 	text-anchor: middle;
+
+	/* Better text readability */
+	paint-order: stroke fill;
+	stroke: rgba(255, 255, 255, 0.3);
+	stroke-width: 0.5px;
+	stroke-linejoin: round;
 }
 
 /* Edges - KEPT MINIMAL HOVER EFFECT */
@@ -119,14 +124,6 @@ marker {
 
 marker polygon {
 	/* Removed transition that could interfere */
-}
-
-/* Better text readability */
-.node-label {
-	paint-order: stroke fill;
-	stroke: rgba(255, 255, 255, 0.3);
-	stroke-width: 0.5px;
-	stroke-linejoin: round;
 }
 
 /* Dark mode support */

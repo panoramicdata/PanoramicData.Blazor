@@ -3,7 +3,7 @@
 @{
 	var fieldType = Field.GetFieldType();
 }
-<div @ref="EditorDiv" class="editor @(GetResizeableCssCls()) @(Form?.Mode == FormModes.ReadOnly || Form?.Mode == FormModes.Cancel ? "readonly" : "")">
+<div @ref="EditorDiv" class="editor pd-form-field-editor @(GetResizeableCssCls()) @(Form?.Mode == FormModes.ReadOnly || Form?.Mode == FormModes.Cancel ? "readonly" : "")">
 
 	@if (Field.GetFieldIsNullable() && Field.DisplayOptions?.AllowNulls == true)
 	{

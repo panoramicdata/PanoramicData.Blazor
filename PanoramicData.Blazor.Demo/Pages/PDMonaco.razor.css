@@ -1,10 +1,8 @@
-::deep .monaco-editor-container {
-	height: 400px !important;
-}
+/* The Monaco editors' height is set in wwwroot/css/site.css, as the container is BlazorMonaco markup. */
 
 .output {
 	border: 1px solid silver;
-	font-family: 'Courier New';
+	font-family: 'Courier New', monospace;
 	margin-top: 20px;
 	white-space: break-spaces;
 }

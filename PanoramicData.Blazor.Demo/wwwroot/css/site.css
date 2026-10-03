@@ -52,7 +52,7 @@ a, .btn-link {
 	outline: 1px solid #26b050;
 }
 
-/*.invalid {
+/* .invalid {
 	outline: 1px solid red;
 }
 */
@@ -81,17 +81,13 @@ a, .btn-link {
 
 .rotate {
 	transform: rotate(-90deg);
+
 	/* Legacy vendor prefixes that you probably don't need... */
-	/* Safari */
-	-webkit-transform: rotate(-90deg);
-	/* Firefox */
-	-moz-transform: rotate(-90deg);
-	/* IE */
-	-ms-transform: rotate(-90deg);
-	/* Opera */
-	-o-transform: rotate(-90deg);
-	/* Internet Explorer */
-	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+	-webkit-transform: rotate(-90deg); /* Safari */
+	-moz-transform: rotate(-90deg); /* Firefox */
+	-ms-transform: rotate(-90deg); /* IE */
+	-o-transform: rotate(-90deg); /* Opera */
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3); /* Internet Explorer */
 }
 
 .demo-source-view {
@@ -139,10 +135,6 @@ a, .btn-link {
 }
 
 @media (min-width: 768px) {
-	app {
-		flex-direction: row;
-	}
-
 	.sidebar {
 		width: 250px;
 		min-width: 250px;
@@ -281,4 +273,407 @@ a, .btn-link {
 [data-bs-theme="dark"] .pdcarddeck-animated:hover {
 	border-color: #5ba4fc;
 	box-shadow: 0 8px 32px rgba(74, 144, 226, 0.24), 0 3px 8px rgba(0,0,0,0.3);
+}
+
+/* ==============================================
+   Demo page styles that reach into child components
+   ==============================================
+   These rules style markup that the page or layout does not render itself (library components,
+   EditForm, Monaco). Blazor CSS isolation cannot reach that markup from a .razor.css without the
+   non-standard ::deep combinator, so the rules live here, anchored to a class on the page's own
+   markup. Where the scoped rule's scope attribute sat on an element that already appears in the
+   selector, that element's class is repeated (e.g. .list1.list1) so the rule keeps exactly the
+   specificity it had as a scoped rule. */
+
+/* PDDragPanelPage */
+.pddragpanel-page .can-drop {
+	border: 1px solid green;
+}
+
+.pddragpanel-page .no-drop {
+	border: 1px solid red;
+}
+
+.pddragpanel-page .pd-dragpanel {
+	background-color: whitesmoke;
+}
+
+.pddragpanel-page .pd-dragitem {
+	background-color: white;
+	margin: 4px;
+}
+
+.pddragpanel-page .pd-dragitem.dragging {
+	background-color: inherit;
+	border: 1px solid whitesmoke;
+}
+
+/* PDFormPage4 */
+.pdform4-page .c-docx {
+	color: DodgerBlue !important;
+}
+
+.pdform4-page .c-html {
+	color: red !important;
+}
+
+.pdform4-page .c-pdf {
+	color: purple !important;
+}
+
+.pdform4-page .c-xlsx {
+	color: limegreen !important;
+}
+
+.pdform4-page .pdtoggleswitch.docx .switch {
+	stroke: DodgerBlue;
+}
+
+.pdform4-page .pdtoggleswitch.docx .switch.on {
+	fill: DodgerBlue;
+}
+
+.pdform4-page .pdtoggleswitch.html .switch {
+	stroke: red;
+}
+
+.pdform4-page .pdtoggleswitch.html .switch.on {
+	fill: red;
+}
+
+.pdform4-page .pdtoggleswitch.pdf .switch {
+	stroke: purple;
+}
+
+.pdform4-page .pdtoggleswitch.pdf .switch.on {
+	fill: purple;
+}
+
+.pdform4-page .pdtoggleswitch.xlsx .switch {
+	stroke: limegreen;
+}
+
+.pdform4-page .pdtoggleswitch.xlsx .switch.on {
+	fill: limegreen;
+}
+
+.pdform4-page .fix-margin-10 {
+	margin-left: -10px !important;
+}
+
+.pdform4-page .fix-margin-18 {
+	margin-left: -18px !important;
+}
+
+/* PDListPage */
+.list1.list1 ul {
+	height: 100px;
+}
+
+/* Striping for list4 using Bootstrap dark mode variables */
+.list4.list4 li:nth-child(2n+1) {
+	background-color: var(--bs-tertiary-bg);
+}
+
+.list4.list4 li:nth-child(2n) {
+	background-color: var(--bs-body-bg);
+}
+
+.list5.list5 .dropdown-menu {
+	width: 250px;
+}
+
+.list5.list5 ul {
+	height: 250px;
+}
+
+/* PDMonaco */
+.pdmonaco-page .monaco-editor-container {
+	height: 400px !important;
+}
+
+/* PDRangePage */
+.pdrange-page form {
+	display: flex;
+	justify-content: space-between;
+}
+
+/* PDTabSetPage - custom tab-styling examples. The CSS classes are applied to individual PDTab
+   components via CssClass="...". */
+
+/* Success (green) */
+.pdtabset-page .pdtabset-tab.tab-success {
+	color: #155724;
+	border-color: #28a745;
+}
+
+.pdtabset-page .pdtabset-tab.tab-success:hover:not(.active) {
+	background: #d4edda;
+	border-color: #28a745;
+	border-bottom-color: transparent;
+}
+
+.pdtabset-page .pdtabset-tab.tab-success.active {
+	background: #d4edda;
+	color: #155724;
+	border-color: #28a745;
+	border-bottom-color: #28a745;
+}
+
+/* Warning (amber) */
+.pdtabset-page .pdtabset-tab.tab-warning {
+	color: #856404;
+	border-color: #ffc107;
+}
+
+.pdtabset-page .pdtabset-tab.tab-warning:hover:not(.active) {
+	background: #fff3cd;
+	border-color: #ffc107;
+	border-bottom-color: transparent;
+}
+
+.pdtabset-page .pdtabset-tab.tab-warning.active {
+	background: #fff3cd;
+	color: #856404;
+	border-color: #ffc107;
+	border-bottom-color: #ffc107;
+}
+
+/* Danger (red) */
+.pdtabset-page .pdtabset-tab.tab-danger {
+	color: #721c24;
+	border-color: #dc3545;
+}
+
+.pdtabset-page .pdtabset-tab.tab-danger:hover:not(.active) {
+	background: #f8d7da;
+	border-color: #dc3545;
+	border-bottom-color: transparent;
+}
+
+.pdtabset-page .pdtabset-tab.tab-danger.active {
+	background: #f8d7da;
+	color: #721c24;
+	border-color: #dc3545;
+	border-bottom-color: #dc3545;
+}
+
+/* Serif / custom font */
+.pdtabset-page .pdtabset-tab.tab-serif {
+	font-family: Georgia, "Times New Roman", serif;
+	font-style: italic;
+	letter-spacing: 0.02em;
+	color: #4a235a;
+	border-color: #9b59b6;
+}
+
+.pdtabset-page .pdtabset-tab.tab-serif:hover:not(.active) {
+	background: #f5eef8;
+	border-color: #9b59b6;
+	border-bottom-color: transparent;
+}
+
+.pdtabset-page .pdtabset-tab.tab-serif.active {
+	background: #f5eef8;
+	color: #4a235a;
+	border-color: #9b59b6;
+	border-bottom-color: #9b59b6;
+}
+
+/* PDToggleSwitchPage */
+.pdtoggleswitch-page .pdtoggleswitch.sw-1 .switch {
+	stroke: red !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-1 .switch.on {
+	fill: red !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-2 .switch {
+	stroke: orange !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-2 .switch.on {
+	fill: orange !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-3 .switch {
+	stroke: goldenrod !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-3 .switch.on {
+	fill: goldenrod !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-4 .switch {
+	stroke: limegreen !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-4 .switch.on {
+	fill: limegreen !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-5 .switch {
+	stroke: steelblue !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-5 .switch.on {
+	fill: steelblue !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-6 .switch {
+	stroke: purple !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-6 .switch.on {
+	fill: purple !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-7 .switch {
+	stroke: black !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-7 .switch.on {
+	fill: black !important;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-power .switch {
+	stroke: silver;
+	stroke-width: 1;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-power .switch.on {
+	fill: green;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch.sw-power .switch.off {
+	fill: red;
+}
+
+.pdtoggleswitch-page .pdtoggleswitch .sw-custom-text {
+	font-weight: bold;
+	font-size: 0.75rem;
+}
+
+/* MainLayout - PDChatContainer takes the full remaining height */
+.page .main .pdchat-container-wrapper {
+	height: 100% !important; /* Force full height */
+	flex: 1 !important; /* Take all remaining space */
+	min-height: 0 !important; /* Allow shrinking */
+	display: flex !important; /* Ensure flex behavior */
+	flex-direction: column !important; /* Column layout */
+}
+
+/* Ensure the splitter within PDChatContainer takes full height */
+.page .main .pdchat-container-splitter {
+	height: 100% !important;
+	flex: 1 !important;
+	min-height: 0 !important;
+}
+
+/* Special handling for graph viewer pages */
+.page .content .graph-demo {
+	height: calc(100vh - 6rem) !important; /* Less space for toolbar */
+	min-height: 600px !important;
+	display: flex !important;
+	flex-direction: column !important;
+}
+
+.page .content .graph-container {
+	flex: 1 !important;
+	height: auto !important; /* Let flex handle the height */
+	min-height: 500px !important;
+	overflow: hidden !important;
+}
+
+/* Ensure PDGraphViewer takes full container height */
+.page .content .pd-graph-viewer {
+	height: 100% !important;
+	min-height: 500px !important;
+}
+
+/* Ensure PDSplitter in graphs works properly */
+.page .content .pd-graph-viewer .pd-splitter {
+	height: 100% !important;
+	width: 100% !important;
+}
+
+.page .content .pd-graph-viewer .pd-split-panel {
+	height: 100% !important;
+	overflow: hidden !important;
+}
+
+/* Ensure PDGraph SVG takes full height */
+.page .content .pd-graph {
+	height: 100% !important;
+	min-height: 400px !important;
+}
+
+.page .content .graph-svg {
+	height: 100% !important;
+	width: 100% !important;
+}
+
+@media (max-width: 767.98px) {
+	/* Ensure PDChatContainer takes full height on mobile */
+	.page .main .pdchat-container-wrapper {
+		height: 100% !important;
+	}
+
+	/* Adjust graph demo for mobile */
+	.page .content .graph-demo {
+		height: calc(100vh - 6rem) !important; /* Less space on mobile */
+		min-height: 400px !important;
+	}
+
+	.page .content .graph-container {
+		min-height: 350px !important;
+	}
+
+	.page .content .pd-graph {
+		min-height: 300px !important;
+	}
+}
+
+@media (min-width: 768px) {
+	/* Account for top row height in desktop layout */
+	.page .main > .pdchat-container-wrapper {
+		height: calc(100vh - 3.5rem) !important;
+		flex: 1 !important;
+		min-height: 0 !important;
+	}
+
+	/* Desktop graph demo adjustments */
+	.page .content .graph-demo {
+		height: calc(100vh - 8rem) !important; /* Less space for desktop toolbar */
+		min-height: 600px !important;
+	}
+
+	.page .content .graph-container {
+		min-height: 500px !important;
+	}
+
+	.page .content .pd-graph {
+		min-height: 450px !important;
+	}
+}
+
+/* NavMenu - the links are PDNavLink markup */
+.sidebar .nav-item a {
+	color: #d7d7d7;
+	border-radius: 4px;
+	height: 2rem;
+	display: flex;
+	align-items: center;
+	line-height: 2rem;
+}
+
+.sidebar .nav-item a.active {
+	background-color: rgba(255, 255, 255, 0.25);
+	color: white;
+}
+
+.sidebar .nav-item a:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+	color: white;
 }

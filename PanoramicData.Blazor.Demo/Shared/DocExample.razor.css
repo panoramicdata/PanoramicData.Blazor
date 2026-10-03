@@ -17,12 +17,12 @@
 	transition: opacity 0.2s;
 }
 
-.doc-example:hover .anchor-link {
-	opacity: 1;
-}
-
 .anchor-link:hover {
 	color: var(--bs-primary);
+}
+
+.doc-example:hover .anchor-link {
+	opacity: 1;
 }
 
 .doc-example-code {

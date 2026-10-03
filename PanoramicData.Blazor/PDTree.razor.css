@@ -8,7 +8,7 @@
 
 /* negates the indent on the top level nodes */
 .pdtree > .pdtreenode {
-	padding-left: 0rem;
+	padding-left: 0;
 }
 
 .pdtree:focus {

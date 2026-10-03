@@ -40,7 +40,6 @@
     -webkit-appearance: none;
     background: none;
     border: none;
-    padding: 0;
     margin: 0;
     font: inherit;
     cursor: pointer;
@@ -184,11 +183,6 @@
     padding-right: 0;
 }
 
-.pd-section-borderless .pd-section-header:hover,
-.pd-section-borderless .pd-section-header:focus-visible {
-    background-color: transparent;
-}
-
 .pd-section-borderless .pd-section-body-inner {
     padding-left: 0;
     padding-right: 0;
@@ -209,6 +203,12 @@
     background-color: transparent;
     border-bottom: none;
     padding-left: 0;
+}
+
+/* Borderless variant hover - after the flush header rule to keep specificity ascending */
+.pd-section-borderless .pd-section-header:hover,
+.pd-section-borderless .pd-section-header:focus-visible {
+    background-color: transparent;
 }
 
 .pd-section-flush .pd-section-header:hover,

@@ -29,7 +29,7 @@
 		linear-gradient(45deg, transparent 75%, #ccc 75%),
 		linear-gradient(-45deg, transparent 75%, #ccc 75%);
 	background-size: 8px 8px;
-	background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+	background-position: 0 0, 0 4px, 4px -4px, -4px 0;
 	background-color: white;
 }
 
@@ -96,13 +96,13 @@
 	height: 14px;
 	border-radius: 4px;
 	background: linear-gradient(to right,
-			#ff0000 0%,
-			#ffff00 17%,
-			#00ff00 33%,
-			#00ffff 50%,
-			#0000ff 67%,
-			#ff00ff 83%,
-			#ff0000 100%);
+			#f00 0%,
+			#ff0 17%,
+			#0f0 33%,
+			#0ff 50%,
+			#00f 67%,
+			#f0f 83%,
+			#f00 100%);
 	cursor: pointer;
 	margin-bottom: 0.5rem;
 }
@@ -130,7 +130,7 @@
 		linear-gradient(45deg, transparent 75%, #ccc 75%),
 		linear-gradient(-45deg, transparent 75%, #ccc 75%);
 	background-size: 8px 8px;
-	background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+	background-position: 0 0, 0 4px, 4px -4px, -4px 0;
 	cursor: pointer;
 	margin-bottom: 0.75rem;
 	overflow: hidden;
@@ -207,17 +207,17 @@
 
 .pd-color-slider-hue {
 	background: linear-gradient(to right,
-			#ff0000 0%,
-			#ffff00 17%,
-			#00ff00 33%,
-			#00ffff 50%,
-			#0000ff 67%,
-			#ff00ff 83%,
-			#ff0000 100%);
+			#f00 0%,
+			#ff0 17%,
+			#0f0 33%,
+			#0ff 50%,
+			#00f 67%,
+			#f0f 83%,
+			#f00 100%);
 }
 
 .pd-color-slider-saturation {
-	background: linear-gradient(to right, #808080, #ff0000);
+	background: linear-gradient(to right, #808080, #f00);
 }
 
 .pd-color-slider-brightness {
@@ -264,7 +264,7 @@
 		linear-gradient(45deg, transparent 75%, #ccc 75%),
 		linear-gradient(-45deg, transparent 75%, #ccc 75%);
 	background-size: 6px 6px;
-	background-position: 0 0, 0 3px, 3px -3px, -3px 0px;
+	background-position: 0 0, 0 3px, 3px -3px, -3px 0;
 	background-color: white;
 }
 
@@ -303,6 +303,16 @@
 	min-width: 0;
 }
 
+.pd-color-input {
+	padding: 0.25rem 0.25rem;
+	font-size: 0.75rem;
+	border: 1px solid var(--bs-border-color, #dee2e6);
+	border-radius: 3px;
+	text-align: center;
+	background: var(--bs-body-bg, #fff);
+	color: var(--bs-body-color, #212529);
+}
+
 .pd-color-input-cell .pd-color-input {
 	width: 100%;
 	min-width: 0;
@@ -332,16 +342,6 @@
 
 .pd-color-input-group-rgb .pd-color-input {
 	width: 36px;
-}
-
-.pd-color-input {
-	padding: 0.25rem 0.25rem;
-	font-size: 0.75rem;
-	border: 1px solid var(--bs-border-color, #dee2e6);
-	border-radius: 3px;
-	text-align: center;
-	background: var(--bs-body-bg, #fff);
-	color: var(--bs-body-color, #212529);
 }
 
 /* Hide number input spinners */

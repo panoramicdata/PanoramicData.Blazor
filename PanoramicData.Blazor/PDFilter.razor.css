@@ -3,27 +3,13 @@
 	display: inline-block;
 }
 
-.pd-filter:not(.filtered) ::deep .filter-icon
-{
-	opacity: 0.3;
-}
-
-.pd-filter ::deep .filter-icon
-{
-	color: var(--bs-primary) !important;
-}
-
-/* This rule prevents the filter icons looking like buttons */
-.pd-filter ::deep .pd-dropdown > button
-{
-	border: none !important;
-	background: unset !important;
-}
+/* The filter icon and button are PDDropDown's markup, and the toolbar buttons are PDButtons, so
+   their styles live in wwwroot/css/main.scss. */
 
 .filter-body
 {
 	font-weight: normal;
-	padding: 0px 5px;
+	padding: 0 5px;
 	width: 210px;
 }
 
@@ -33,11 +19,6 @@
 	gap: 5px;
 	padding: 5px 5px 0 5px;
 	margin-top: 0;
-}
-
-.filter-toolbar ::deep .pd-button
-{
-	flex: 1;
 }
 
 .filter-values
