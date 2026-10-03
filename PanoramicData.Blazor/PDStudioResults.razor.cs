@@ -5,8 +5,6 @@
 /// </summary>
 public partial class PDStudioResults : PDComponentBase
 {
-	private ElementReference _resultsIframe;
-
 	private string _lastContent = string.Empty;
 
 	[Inject] private IJSRuntime JSRuntime { get; set; } = null!;
@@ -85,16 +83,12 @@ public partial class PDStudioResults : PDComponentBase
 	}
 
 	/// <summary>
-	/// Gets the appropriate icon for the current execution status.
+	/// Gets the appropriate icon for the current execution status. Only shown while not executing: a spinner
+	/// takes its place during execution.
 	/// </summary>
 	/// <returns>Font Awesome icon class.</returns>
 	private string GetStatusIcon()
 	{
-		if (IsExecuting)
-		{
-			return "fas fa-spinner fa-spin";
-		}
-
 		var status = ExecutionStatus.ToLowerInvariant();
 
 		return status switch
@@ -111,86 +105,33 @@ public partial class PDStudioResults : PDComponentBase
 	}
 
 	/// <summary>
-	/// Gets safe HTML content for iframe display.
+	/// Gets safe HTML content for iframe display. Only rendered when there is content to show.
 	/// </summary>
 	/// <returns>Safe HTML content wrapped in a basic HTML document.</returns>
-	private string GetSafeHtmlContent()
-	{
-		if (string.IsNullOrWhiteSpace(Content))
-		{
-			return string.Empty;
-		}
+	private string GetSafeHtmlContent() => $$"""
 
-		// Wrap content in a basic HTML document structure
-		return $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset=""utf-8"">
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1"">
-    <title>Results</title>
-    <style>
-        body {{ 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            padding: 1rem;
-            line-height: 1.5;
-            color: #333;
-        }}
-        table {{ 
-            border-collapse: collapse; 
-            width: 100%; 
-            margin: 1rem 0;
-        }}
-        th, td {{ 
-            border: 1px solid #ddd; 
-            padding: 8px; 
-            text-align: left; 
-        }}
-        th {{ 
-            background-color: #f5f5f5; 
-            font-weight: bold; 
-        }}
-        pre {{ 
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 0.25rem;
-            padding: 1rem;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }}
-        .error {{ 
-            color: #dc3545; 
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 0.25rem;
-            padding: 0.75rem;
-            margin: 1rem 0;
-        }}
-        .success {{ 
-            color: #155724; 
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            border-radius: 0.25rem;
-            padding: 0.75rem;
-            margin: 1rem 0;
-        }}
-        .info {{ 
-            color: #0c5460; 
-            background-color: #d1ecf1;
-            border: 1px solid #bee5eb;
-            border-radius: 0.25rem;
-            padding: 0.75rem;
-            margin: 1rem 0;
-        }}
-    </style>
-</head>
-<body>
-{Content}
-</body>
-</html>";
-	}
+		<!DOCTYPE html>
+		<html>
+		<head>
+		    <meta charset="utf-8">
+		    <meta name="viewport" content="width=device-width, initial-scale=1">
+		    <title>Results</title>
+		    <style>
+		        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 1rem; line-height: 1.5; color: #333; }
+		        table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+		        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+		        th { background-color: #f5f5f5; font-weight: bold; }
+		        pre { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 0.25rem; padding: 1rem; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; }
+		        .error { color: #dc3545; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 0.25rem; padding: 0.75rem; margin: 1rem 0; }
+		        .success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 0.25rem; padding: 0.75rem; margin: 1rem 0; }
+		        .info { color: #0c5460; background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 0.25rem; padding: 0.75rem; margin: 1rem 0; }
+		    </style>
+		</head>
+		<body>
+		{{Content}}
+		</body>
+		</html>
+		""";
 
 	/// <summary>
 	/// Clears the current results content.

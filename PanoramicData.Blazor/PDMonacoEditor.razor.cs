@@ -119,8 +119,16 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// </summary>
 	/// <param name="source">An identifier describing the source of the edits.</param>
 	/// <param name="edits">The edit operations to execute.</param>
-	/// <param name="endCursorState">Optional cursor selections to apply after edits complete.</param>
-	public async Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits, List<Selection>? endCursorState = null)
+	public Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits)
+		=> ExecuteEdits(source, edits, null);
+
+	/// <summary>
+	/// Applies one or more edit operations to the current editor model.
+	/// </summary>
+	/// <param name="source">An identifier describing the source of the edits.</param>
+	/// <param name="edits">The edit operations to execute.</param>
+	/// <param name="endCursorState">Cursor selections to apply after edits complete, or null for none.</param>
+	public async Task ExecuteEdits(string source, List<IdentifiedSingleEditOperation> edits, List<Selection>? endCursorState)
 	{
 		if (_monacoEditor != null)
 		{
@@ -138,7 +146,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	public CompletionItem[] GetCompletions(Range range, string functionName)
 		=> ShowSuggestions ? [.. _methodCache.GetCompletionItems(Language, functionName)] : [];
 
-	private StandaloneEditorConstructionOptions GetOptions(StandaloneCodeEditor editor)
+	private StandaloneEditorConstructionOptions GetOptions()
 	{
 		var options = new StandaloneEditorConstructionOptions
 		{
@@ -223,29 +231,33 @@ public partial class PDMonacoEditor : IAsyncDisposable
 			if (_module != null)
 			{
 				await _module.InvokeVoidAsync("initialize", _objRef);
-
-				// allow custom languages to be registered
-				var languages = new List<Language>();
-				RegisterLanguages?.Invoke(languages);
-				foreach (var language in languages)
-				{
-					var registered = await _module.InvokeAsync<bool>("registerLanguage", language.Id, language);
-					if (registered)
-					{
-						InitializeLanguage?.Invoke(language);
-
-						if (InitializeLanguageAsync != null)
-						{
-							await InitializeLanguageAsync(language).ConfigureAwait(true);
-						}
-					}
-				}
+				await RegisterCustomLanguagesAsync(_module).ConfigureAwait(true);
 
 				InitializeCache?.Invoke(_methodCache);
 
 				if (InitializeCacheAsync != null)
 				{
 					await InitializeCacheAsync(_methodCache).ConfigureAwait(true);
+				}
+			}
+		}
+	}
+
+	// Allows custom languages to be registered, initialising each one the script accepts.
+	private async Task RegisterCustomLanguagesAsync(IJSObjectReference module)
+	{
+		var languages = new List<Language>();
+		RegisterLanguages?.Invoke(languages);
+		foreach (var language in languages)
+		{
+			var registered = await module.InvokeAsync<bool>("registerLanguage", language.Id, language);
+			if (registered)
+			{
+				InitializeLanguage?.Invoke(language);
+
+				if (InitializeLanguageAsync != null)
+				{
+					await InitializeLanguageAsync(language).ConfigureAwait(true);
 				}
 			}
 		}
@@ -261,7 +273,7 @@ public partial class PDMonacoEditor : IAsyncDisposable
 		}
 	}
 
-	private async Task OnMonacoEditorContentChangedAsync(ModelContentChangedEvent args)
+	private async Task OnMonacoEditorContentChangedAsync()
 	{
 		if (_monacoEditor != null && !UpdateValueOnBlur)
 		{
@@ -335,8 +347,14 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// Sets the editor selection.
 	/// </summary>
 	/// <param name="selection">The selection to apply.</param>
-	/// <param name="source">An optional source identifier for the selection change.</param>
-	public async Task SetSelectionAsync(Selection selection, string source = "")
+	public Task SetSelectionAsync(Selection selection) => SetSelectionAsync(selection, string.Empty);
+
+	/// <summary>
+	/// Sets the editor selection.
+	/// </summary>
+	/// <param name="selection">The selection to apply.</param>
+	/// <param name="source">A source identifier for the selection change.</param>
+	public async Task SetSelectionAsync(Selection selection, string source)
 	{
 		if (_monacoEditor != null)
 		{
@@ -372,10 +390,31 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// Disables a specific key binding combination in the Monaco editor.
 	/// </summary>
 	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
+	public Task DisableKeyBindingAsync(int keyCode) => DisableKeyBindingAsync(keyCode, false, false, false);
+
+	/// <summary>
+	/// Disables a specific key binding combination in the Monaco editor.
+	/// </summary>
+	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
+	/// <param name="ctrlKey">Whether Ctrl key is required</param>
+	public Task DisableKeyBindingAsync(int keyCode, bool ctrlKey) => DisableKeyBindingAsync(keyCode, ctrlKey, false, false);
+
+	/// <summary>
+	/// Disables a specific key binding combination in the Monaco editor.
+	/// </summary>
+	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
+	/// <param name="ctrlKey">Whether Ctrl key is required</param>
+	/// <param name="altKey">Whether Alt key is required</param>
+	public Task DisableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey) => DisableKeyBindingAsync(keyCode, ctrlKey, altKey, false);
+
+	/// <summary>
+	/// Disables a specific key binding combination in the Monaco editor.
+	/// </summary>
+	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
 	/// <param name="ctrlKey">Whether Ctrl key is required</param>
 	/// <param name="altKey">Whether Alt key is required</param>
 	/// <param name="shiftKey">Whether Shift key is required</param>
-	public async Task DisableKeyBindingAsync(int keyCode, bool ctrlKey = false, bool altKey = false, bool shiftKey = false)
+	public async Task DisableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey, bool shiftKey)
 	{
 		if (_module != null)
 		{
@@ -387,10 +426,31 @@ public partial class PDMonacoEditor : IAsyncDisposable
 	/// Enables a previously disabled key binding combination in the Monaco editor.
 	/// </summary>
 	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
+	public Task EnableKeyBindingAsync(int keyCode) => EnableKeyBindingAsync(keyCode, false, false, false);
+
+	/// <summary>
+	/// Enables a previously disabled key binding combination in the Monaco editor.
+	/// </summary>
+	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
+	/// <param name="ctrlKey">Whether Ctrl key is required</param>
+	public Task EnableKeyBindingAsync(int keyCode, bool ctrlKey) => EnableKeyBindingAsync(keyCode, ctrlKey, false, false);
+
+	/// <summary>
+	/// Enables a previously disabled key binding combination in the Monaco editor.
+	/// </summary>
+	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
+	/// <param name="ctrlKey">Whether Ctrl key is required</param>
+	/// <param name="altKey">Whether Alt key is required</param>
+	public Task EnableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey) => EnableKeyBindingAsync(keyCode, ctrlKey, altKey, false);
+
+	/// <summary>
+	/// Enables a previously disabled key binding combination in the Monaco editor.
+	/// </summary>
+	/// <param name="keyCode">The key code (e.g., 13 for Enter)</param>
 	/// <param name="ctrlKey">Whether Ctrl key is required</param>
 	/// <param name="altKey">Whether Alt key is required</param>
 	/// <param name="shiftKey">Whether Shift key is required</param>
-	public async Task EnableKeyBindingAsync(int keyCode, bool ctrlKey = false, bool altKey = false, bool shiftKey = false)
+	public async Task EnableKeyBindingAsync(int keyCode, bool ctrlKey, bool altKey, bool shiftKey)
 	{
 		if (_module != null)
 		{

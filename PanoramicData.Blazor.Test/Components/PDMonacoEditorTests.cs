@@ -200,7 +200,7 @@ public class PDMonacoEditorTests : BunitContext
 		await component.InvokeAsync(editor.ForceLayoutUpdateAsync);
 		await component.InvokeAsync(() => editor.ExecuteEdits("test", [new IdentifiedSingleEditOperation { Text = "x" }]));
 		await component.InvokeAsync(() => editor.DisableKeyBindingAsync(13, ctrlKey: true));
-		await component.InvokeAsync(() => editor.EnableKeyBindingAsync(13, shiftKey: true));
+		await component.InvokeAsync(() => editor.EnableKeyBindingAsync(13, false, false, shiftKey: true));
 
 		var identifiers = JSInterop.Invocations.Select(i => i.Identifier).ToList();
 		identifiers.Should().Contain("blazorMonaco.editor.model.setValue")
@@ -210,6 +210,26 @@ public class PDMonacoEditorTests : BunitContext
 			.And.Contain("blazorMonaco.editor.executeEdits");
 		_module.VerifyInvoke("disableKeyBinding").Arguments.Should().Equal(13, true, false, false);
 		_module.VerifyInvoke("enableKeyBinding").Arguments.Should().Equal(13, false, false, true);
+	}
+
+	/// <summary>Each key-binding overload passes the modifiers it was given, and no others, to the module.</summary>
+	[Fact]
+	public async Task Key_binding_overloads_pass_only_the_modifiers_given()
+	{
+		var component = Render<PDMonacoEditor>();
+		var editor = component.Instance;
+
+		await component.InvokeAsync(() => editor.DisableKeyBindingAsync(13));
+		await component.InvokeAsync(() => editor.DisableKeyBindingAsync(14, true, true));
+		await component.InvokeAsync(() => editor.EnableKeyBindingAsync(15, true));
+		await component.InvokeAsync(() => editor.EnableKeyBindingAsync(16, false, true));
+
+		_module.Invocations["disableKeyBinding"].Select(i => i.Arguments).Should().BeEquivalentTo(
+			[new object[] { 13, false, false, false }, new object[] { 14, true, true, false }],
+			options => options.WithStrictOrdering());
+		_module.Invocations["enableKeyBinding"].Select(i => i.Arguments).Should().BeEquivalentTo(
+			[new object[] { 15, true, false, false }, new object[] { 16, false, true, false }],
+			options => options.WithStrictOrdering());
 	}
 
 	/// <summary>A theme change after the editor exists is applied to it once, and an unchanged theme is not re-sent.</summary>

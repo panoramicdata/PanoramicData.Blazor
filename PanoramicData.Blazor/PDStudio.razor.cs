@@ -7,10 +7,8 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDStudio : PDComponentBase, IDisposable
 {
-	private PDMonacoEditor? _editorRef;
-	private PDStudioResults? _resultsRef;
-	private PDLog? _logRef;
 	private CancellationTokenSource? _cancellationTokenSource;
+	private readonly EventHandler<KeyboardInfo> _onGlobalKeyDown;
 
 	private bool _isExecuting;
 	private string _executionStatus = StudioExecutionStatus.Ready.ToDisplayString();
@@ -50,9 +48,24 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	[Parameter] public EventCallback<bool> OnLoggingVisibilityChanged { get; set; }
 
 	/// <summary>
-	/// Gets the PDLog component reference for logging integration.
+	/// Initializes a new instance of the <see cref="PDStudio"/> class.
 	/// </summary>
-	public PDLog? LogComponent => _logRef;
+	public PDStudio()
+	{
+		// Which object raised the key press is of no interest, only which keys it was.
+		_onGlobalKeyDown = (_, keyboardInfo) => OnGlobalKeyDown(keyboardInfo);
+	}
+
+	/// <summary>
+	/// Gets the PDLog component reference for logging integration; set by the markup's <c>@ref</c>.
+	/// </summary>
+	public PDLog? LogComponent { get; internal set; }
+
+	/// <summary>Gets or sets the code editor; set by the markup's <c>@ref</c>.</summary>
+	internal PDMonacoEditor? EditorRef { get; set; }
+
+	/// <summary>Gets or sets the results pane; set by the markup's <c>@ref</c>.</summary>
+	internal PDStudioResults? ResultsRef { get; set; }
 
 	/// <summary>
 	/// Gets or sets the data provider for the graph data.
@@ -139,7 +152,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		}
 
 		// Subscribe to global keyboard events
-		GlobalEventService.KeyDownEvent += OnGlobalKeyDown;
+		GlobalEventService.KeyDownEvent += _onGlobalKeyDown;
 
 		base.OnInitialized();
 	}
@@ -153,12 +166,12 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			GlobalEventService.RegisterShortcutKey(_executeShortcut);
 
 			// Disable Ctrl+Enter in Monaco editor to prevent conflicts (with delay to ensure initialization)
-			if (_editorRef != null)
+			if (EditorRef != null)
 			{
 				_ = Task.Run(async () =>
 				{
 					await Task.Delay(500); // Wait for Monaco to fully initialize
-					await _editorRef.DisableKeyBindingAsync(13, ctrlKey: true);
+					await EditorRef.DisableKeyBindingAsync(13, ctrlKey: true);
 				});
 			}
 		}
@@ -180,7 +193,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		base.OnParametersSet();
 	}
 
-	private void OnGlobalKeyDown(object? sender, KeyboardInfo keyboardInfo)
+	private void OnGlobalKeyDown(KeyboardInfo keyboardInfo)
 	{
 		// Check if the pressed key combination matches our execute shortcut
 		if (_executeShortcut.IsMatch(keyboardInfo.Key, keyboardInfo.Code, keyboardInfo.AltKey, keyboardInfo.CtrlKey, keyboardInfo.ShiftKey))
@@ -194,75 +207,98 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	{
 		InvokeAsync(async () =>
 		{
-			switch (e.EventType)
-			{
-				case StudioExecutionEventType.Started:
-					_isExecuting = true;
-					_executionStatus = e.Status;
-					LogInformation("Execution started: {0}", e.Status);
-					break;
-
-				case StudioExecutionEventType.UpdateOutput:
-					_resultsContent = e.Output;
-					if (_resultsRef != null)
-					{
-						await _resultsRef.UpdateResults(e.Output);
-					}
-					// If we have a specific status (like timeout), keep it instead of overriding
-					if (!string.IsNullOrWhiteSpace(e.Status))
-					{
-						_executionStatus = e.Status;
-					}
-
-					break;
-
-				case StudioExecutionEventType.Progress:
-					_executionStatus = e.Status;
-					break;
-
-				case StudioExecutionEventType.Log:
-					LogToComponent(e.LogLevel, e.Status);
-					break;
-
-				case StudioExecutionEventType.Error:
-					_isExecuting = false; // End execution on error
-										  // For timeout errors, use the specific timeout message
-					if (e.Status.Contains("Timed out after"))
-					{
-						_executionStatus = e.Status;
-					}
-					else
-					{
-						_executionStatus = $"Error: {e.Status}";
-					}
-
-					LogError("Execution error: {0}", e.Status);
-
-					if (OnExecutionStateChanged.HasDelegate)
-					{
-						await OnExecutionStateChanged.InvokeAsync(_isExecuting);
-					}
-
-					break;
-
-				case StudioExecutionEventType.Completed:
-				case StudioExecutionEventType.Cancelled:
-					_isExecuting = false;
-					_executionStatus = e.EventType == StudioExecutionEventType.Completed ?
-						StudioExecutionStatus.Complete.ToDisplayString() :
-						StudioExecutionStatus.Cancelled.ToDisplayString();
-					LogInformation("Execution {0}: {1}", e.EventType, e.Status);
-
-					if (OnExecutionStateChanged.HasDelegate)
-					{
-						await OnExecutionStateChanged.InvokeAsync(_isExecuting);
-					}
-
-					break;
-			}
-
+			await ApplyExecutionEventAsync(e);
 			StateHasChanged();
 		});
+	}
+
+	private async Task ApplyExecutionEventAsync(StudioExecutionEventArgs e)
+	{
+		switch (e.EventType)
+		{
+			case StudioExecutionEventType.Started:
+				_isExecuting = true;
+				_executionStatus = e.Status;
+				LogInformation("Execution started: {0}", e.Status);
+				break;
+
+			case StudioExecutionEventType.UpdateOutput:
+				await ShowOutputAsync(e);
+				break;
+
+			case StudioExecutionEventType.Progress:
+				_executionStatus = e.Status;
+				break;
+
+			case StudioExecutionEventType.Log:
+				LogToComponent(e.LogLevel, e.Status);
+				break;
+
+			case StudioExecutionEventType.Error:
+				await EndExecutionWithErrorAsync(e);
+				break;
+
+			case StudioExecutionEventType.Completed:
+			case StudioExecutionEventType.Cancelled:
+				await EndExecutionAsync(e);
+				break;
+
+			default:
+				// OutputComplete changes nothing here: the output has already been shown as it arrived.
+				break;
+		}
+	}
+
+	private async Task ShowOutputAsync(StudioExecutionEventArgs e)
+	{
+		await ShowResultsAsync(e.Output);
+
+		// If we have a specific status (like timeout), keep it instead of overriding
+		if (!string.IsNullOrWhiteSpace(e.Status))
+		{
+			_executionStatus = e.Status;
+		}
+	}
+
+	private async Task EndExecutionWithErrorAsync(StudioExecutionEventArgs e)
+	{
+		_isExecuting = false; // End execution on error
+
+		// For timeout errors, use the specific timeout message
+		_executionStatus = e.Status.Contains("Timed out after") ? e.Status : $"Error: {e.Status}";
+
+		LogError("Execution error: {0}", e.Status);
+
+		await NotifyExecutionStateChangedAsync();
+	}
+
+	private async Task EndExecutionAsync(StudioExecutionEventArgs e)
+	{
+		_isExecuting = false;
+		_executionStatus = e.EventType == StudioExecutionEventType.Completed ?
+			StudioExecutionStatus.Complete.ToDisplayString() :
+			StudioExecutionStatus.Cancelled.ToDisplayString();
+		LogInformation("Execution {0}: {1}", e.EventType, e.Status);
+
+		await NotifyExecutionStateChangedAsync();
+	}
+
+	private async Task NotifyExecutionStateChangedAsync()
+	{
+		if (OnExecutionStateChanged.HasDelegate)
+		{
+			await OnExecutionStateChanged.InvokeAsync(_isExecuting);
+		}
+	}
+
+	// Shows output in the results pane, replacing whatever it held.
+	private async Task ShowResultsAsync(string output)
+	{
+		_resultsContent = output;
+		if (ResultsRef != null)
+		{
+			await ResultsRef.UpdateResults(output);
+		}
 	}
 
 	private async Task OnPlayCancelClick()
@@ -290,40 +326,11 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			_isExecuting = true;
 			_executionStatus = StudioExecutionStatus.Starting.ToDisplayString();
 
-			if (OnExecutionStateChanged.HasDelegate)
-			{
-				await OnExecutionStateChanged.InvokeAsync(_isExecuting);
-			}
+			await NotifyExecutionStateChangedAsync();
 
 			StateHasChanged();
 
-			// Clear previous results
-			_resultsContent = string.Empty;
-			if (_resultsRef != null)
-			{
-				await _resultsRef.ClearResults();
-			}
-
-			// Execute code with timeout from options
-			var result = await StudioService.ExecuteCodeAsync(
-				_currentCode,
-				Options.Language,
-				null,
-				Options.ExecutionTimeoutSeconds,
-				_cancellationTokenSource.Token);
-
-			_resultsContent = result;
-			if (_resultsRef != null)
-			{
-				await _resultsRef.UpdateResults(result);
-			}
-
-			if (OnCodeExecuted.HasDelegate)
-			{
-				await OnCodeExecuted.InvokeAsync(_currentCode);
-			}
-
-			LogInformation("Code execution completed successfully");
+			await RunCodeAsync(StudioService, _cancellationTokenSource.Token);
 		}
 		catch (OperationCanceledException)
 		{
@@ -341,6 +348,37 @@ public partial class PDStudio : PDComponentBase, IDisposable
 			_cancellationTokenSource?.Dispose();
 			_cancellationTokenSource = null;
 			StateHasChanged();
+		}
+	}
+
+	// Clears the previous results, executes the code with the timeout from the options, and shows what it returns.
+	private async Task RunCodeAsync(IPDStudioService studioService, CancellationToken cancellationToken)
+	{
+		await ClearResultsAsync();
+
+		var result = await studioService.ExecuteCodeAsync(
+			_currentCode,
+			Options.Language,
+			null,
+			Options.ExecutionTimeoutSeconds,
+			cancellationToken);
+
+		await ShowResultsAsync(result);
+
+		if (OnCodeExecuted.HasDelegate)
+		{
+			await OnCodeExecuted.InvokeAsync(_currentCode);
+		}
+
+		LogInformation("Code execution completed successfully");
+	}
+
+	private async Task ClearResultsAsync()
+	{
+		_resultsContent = string.Empty;
+		if (ResultsRef != null)
+		{
+			await ResultsRef.ClearResults();
 		}
 	}
 
@@ -365,16 +403,12 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	private async Task OnNewClick()
 	{
 		_currentCode = string.Empty;
-		if (_editorRef != null)
+		if (EditorRef != null)
 		{
-			await _editorRef.SetMonacoValueAsync(string.Empty);
+			await EditorRef.SetMonacoValueAsync(string.Empty);
 		}
 
-		_resultsContent = string.Empty;
-		if (_resultsRef != null)
-		{
-			await _resultsRef.ClearResults();
-		}
+		await ClearResultsAsync();
 
 		LogInformation("New document created");
 	}
@@ -383,9 +417,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	{
 		var example = GetExample1();
 		_currentCode = example;
-		if (_editorRef != null)
+		if (EditorRef != null)
 		{
-			await _editorRef.SetMonacoValueAsync(example);
+			await EditorRef.SetMonacoValueAsync(example);
 		}
 
 		LogInformation("Example 1 loaded");
@@ -395,9 +429,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 	{
 		var example = GetExample2();
 		_currentCode = example;
-		if (_editorRef != null)
+		if (EditorRef != null)
 		{
-			await _editorRef.SetMonacoValueAsync(example);
+			await EditorRef.SetMonacoValueAsync(example);
 		}
 
 		LogInformation("Example 2 loaded");
@@ -425,6 +459,7 @@ public partial class PDStudio : PDComponentBase, IDisposable
 		await Task.CompletedTask;
 	}
 
+	// Handles a click on an item of the File menu; a key that names no item does nothing.
 	private async Task OnFileMenuClick(string key)
 	{
 		switch (key)
@@ -443,6 +478,9 @@ public partial class PDStudio : PDComponentBase, IDisposable
 				break;
 			case "Save":
 				await OnSaveClick();
+				break;
+			default:
+				// Not a File menu item: nothing to do.
 				break;
 		}
 	}
@@ -549,7 +587,7 @@ for(let i = 0; i < 10; i++) {
 #pragma warning restore CA2254
 
 		// Also log to PDLog component if available
-		_logRef?.Log(level, default, message, null, (msg, ex) => string.Format(CultureInfo.InvariantCulture, msg, args));
+		LogComponent?.Log(level, default, message, null, (msg, _) => string.Format(CultureInfo.InvariantCulture, msg, args));
 	}
 
 	/// <summary>
@@ -558,14 +596,6 @@ for(let i = 0; i < 10; i++) {
 	private void LogInformation(string message, params object[] args)
 	{
 		LogToComponent(LogLevel.Information, message, args);
-	}
-
-	/// <summary>
-	/// Logs a warning message to both loggers.
-	/// </summary>
-	private void LogWarning(string message, params object[] args)
-	{
-		LogToComponent(LogLevel.Warning, message, args);
 	}
 
 	/// <summary>
@@ -582,9 +612,9 @@ for(let i = 0; i < 10; i++) {
 	/// </summary>
 	public async Task RefreshEditorLayoutAsync()
 	{
-		if (_editorRef != null)
+		if (EditorRef != null)
 		{
-			await _editorRef.ForceLayoutUpdateAsync();
+			await EditorRef.ForceLayoutUpdateAsync();
 		}
 	}
 
@@ -597,7 +627,7 @@ for(let i = 0; i < 10; i++) {
 		}
 
 		// Unsubscribe from global keyboard events
-		GlobalEventService.KeyDownEvent -= OnGlobalKeyDown;
+		GlobalEventService.KeyDownEvent -= _onGlobalKeyDown;
 
 		// Unregister the shortcut key
 		GlobalEventService.UnregisterShortcutKey(_executeShortcut);
