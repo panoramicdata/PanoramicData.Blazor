@@ -8,7 +8,6 @@ namespace PanoramicData.Blazor;
 /// <typeparam name="TItem">Model type edited by the form.</typeparam>
 public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 {
-	private static int _seq;
 	private bool _showHelp;
 	private IJSObjectReference? _module;
 	private readonly List<PDFormFieldEditor<TItem>> _fieldEditors = [];
@@ -60,7 +59,7 @@ public partial class PDForm<TItem> : IAsyncDisposable where TItem : class
 	/// <summary>
 	/// Gets or sets the item being created / edited / deleted.
 	/// </summary>
-	[Parameter] public string Id { get; set; } = $"pd-form-{++_seq}";
+	[Parameter] public string Id { get; set; } = $"pd-form-{GenericTypeIds.NextFormId()}";
 
 	/// <summary>
 	/// Gets or sets the item being created / edited / deleted.

@@ -217,7 +217,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 		var from = ZeroOutDateParts(date.Date, date.Precision);
 		var to = GetDateRangeEnd(from, date.Precision);
-		return Parse($"{context.Property} >= @0 || {context.Property} < @1", context.ToParameter(to), context.ToParameter(from));
+		return Parse($"{context.Property} >= @0 || {context.Property} < @1", context.ToQueryParameter(to), context.ToQueryParameter(from));
 	}
 
 	private static Expression<Func<T, bool>> BuildEquals(PredicateContext context)
@@ -229,27 +229,27 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 		var from = ZeroOutDateParts(date.Date, date.Precision);
 		var to = GetDateRangeEnd(from, date.Precision);
-		return Parse($"{context.Property} >= @0 && {context.Property} < @1", context.ToParameter(from), context.ToParameter(to));
+		return Parse($"{context.Property} >= @0 && {context.Property} < @1", context.ToQueryParameter(from), context.ToQueryParameter(to));
 	}
 
 	private static Expression<Func<T, bool>> BuildGreaterThan(PredicateContext context)
 		=> context.ParseDate(context.Filter.Value) is { } date
-			? Parse($"{context.Property} >= @0", context.ToParameter(GetDateRangeEnd(date.Date, date.Precision)))
+			? Parse($"{context.Property} >= @0", context.ToQueryParameter(GetDateRangeEnd(date.Date, date.Precision)))
 			: Parse($"{context.Property} > @0", context.Parameters);
 
 	private static Expression<Func<T, bool>> BuildGreaterThanOrEqual(PredicateContext context)
 		=> context.ParseDate(context.Filter.Value) is { } date
-			? Parse($"{context.Property} >= @0", context.ToParameter(date.Date))
+			? Parse($"{context.Property} >= @0", context.ToQueryParameter(date.Date))
 			: Parse($"{context.Property} >= @0", context.Parameters);
 
 	private static Expression<Func<T, bool>> BuildLessThan(PredicateContext context)
 		=> context.ParseDate(context.Filter.Value) is { } date
-			? Parse($"{context.Property} < @0", context.ToParameter(ZeroOutDateParts(date.Date, date.Precision)))
+			? Parse($"{context.Property} < @0", context.ToQueryParameter(ZeroOutDateParts(date.Date, date.Precision)))
 			: Parse($"{context.Property} < @0", context.Parameters);
 
 	private static Expression<Func<T, bool>> BuildLessThanOrEqual(PredicateContext context)
 		=> context.ParseDate(context.Filter.Value) is { } date
-			? Parse($"{context.Property} < @0", context.ToParameter(GetDateRangeEnd(date.Date, date.Precision)))
+			? Parse($"{context.Property} < @0", context.ToQueryParameter(GetDateRangeEnd(date.Date, date.Precision)))
 			: Parse($"{context.Property} <= @0", context.Parameters);
 
 	private static Expression<Func<T, bool>> BuildRange(PredicateContext context)
@@ -269,7 +269,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 
 		rangeFrom = ZeroOutDateParts(rangeFrom, from.Precision);
 		rangeTo = GetDateRangeEnd(rangeTo, to.Precision);
-		return Parse($"{context.Property} >= @0 && {context.Property} < @1", context.ToParameter(rangeFrom), context.ToParameter(rangeTo));
+		return Parse($"{context.Property} >= @0 && {context.Property} < @1", context.ToQueryParameter(rangeFrom), context.ToQueryParameter(rangeTo));
 	}
 
 	private static Expression<Func<T, bool>> BuildMembership(PredicateContext context, bool negate)
@@ -285,7 +285,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		var boundaries = dates.SelectMany(d =>
 		{
 			var start = ZeroOutDateParts(d!.Value.Date, d.Value.Precision);
-			return new object[] { context.ToParameter(start), context.ToParameter(GetDateRangeEnd(start, d.Value.Precision)) };
+			return new object[] { context.ToQueryParameter(start), context.ToQueryParameter(GetDateRangeEnd(start, d.Value.Precision)) };
 		}).ToArray();
 		var not = negate ? "!" : string.Empty;
 		var query = string.Join(joiner, dates.Select((_, i) => $"{not}(it.{context.Property} >= @{i * 2} && it.{context.Property} < @{i * 2 + 1})"));
@@ -329,7 +329,7 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 		public (DateTime Date, DatePrecision Precision)? ParseDate(string? value)
 			=> Filter.IsDateTime(value, _isDateProperty, out var date, out _, out var precision) ? (date, precision) : null;
 
-		public string ToParameter(DateTime boundary) => DataProviderBase<T>.ToParameter(boundary, _propertyType);
+		public string ToQueryParameter(DateTime boundary) => ToParameter(boundary, _propertyType);
 	}
 
 	/// <summary>

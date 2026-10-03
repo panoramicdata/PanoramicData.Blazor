@@ -12,7 +12,7 @@ public class FormField<TItem> where TItem : class
 	internal Func<TItem, object>? CompiledFieldFunc => _compiledFieldFunc ??= Field?.Compile();
 
 	/// <summary>Raised whenever the field value changes in the form editor.</summary>
-	public event EventHandler<object?>? ValueChanged;
+	public event System.EventHandler<object?>? ValueChanged;
 
 	/// <summary>Raises the <see cref="ValueChanged"/> event with the supplied value.</summary>
 	/// <param name="value">The new field value.</param>
@@ -81,11 +81,17 @@ public class FormField<TItem> where TItem : class
 	public Func<TItem?, string>? TitleFunc { get; set; }
 
 	/// <summary>
+	/// Returns the title for the field, evaluating <see cref="TitleFunc"/> without an item if set.
+	/// </summary>
+	/// <returns>The field title.</returns>
+	public string GetTitle() => GetTitle(default);
+
+	/// <summary>
 	/// Returns the title for the field, evaluating <see cref="TitleFunc"/> if set.
 	/// </summary>
 	/// <param name="item">The current item.</param>
 	/// <returns>The field title.</returns>
-	public string GetTitle(TItem? item = default)
+	public string GetTitle(TItem? item)
 	{
 		if (TitleFunc is not null)
 		{

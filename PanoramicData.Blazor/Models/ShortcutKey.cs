@@ -57,24 +57,27 @@ public class ShortcutKey
 			sb.Append("Alt-");
 		}
 
-		if (Code.Length > 0 && Code.StartsWith("key", StringComparison.OrdinalIgnoreCase))
+		return sb.Append(GetKeyText()).ToString();
+	}
+
+	private string GetKeyText()
+	{
+		if (Code.Length == 0)
 		{
-			sb.Append(Code[3..].ToUpperInvariant());
-		}
-		else if (Code.Length > 0 && Code.StartsWith("digit", StringComparison.OrdinalIgnoreCase))
-		{
-			sb.Append(Code[5..].ToUpperInvariant());
-		}
-		else if (Code.Length > 0)
-		{
-			sb.Append(Code.ToUpperInvariant());
-		}
-		else
-		{
-			sb.Append(Key.ToUpperInvariant());
+			return Key.ToUpperInvariant();
 		}
 
-		return sb.ToString();
+		if (Code.StartsWith("key", StringComparison.OrdinalIgnoreCase))
+		{
+			return Code[3..].ToUpperInvariant();
+		}
+
+		if (Code.StartsWith("digit", StringComparison.OrdinalIgnoreCase))
+		{
+			return Code[5..].ToUpperInvariant();
+		}
+
+		return Code.ToUpperInvariant();
 	}
 
 	/// <summary>

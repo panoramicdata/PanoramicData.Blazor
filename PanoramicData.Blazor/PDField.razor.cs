@@ -177,18 +177,25 @@ public partial class PDField<TItem> where TItem : class
 	/// Gets the resolved display title for this field, evaluating <see cref="TitleFunc"/>, <see cref="Title"/>,
 	/// or the property's <see cref="System.ComponentModel.DataAnnotations.DisplayAttribute"/> in that order.
 	/// </summary>
-	public string GetTitle(TItem? item = default)
+	public string GetTitle() => GetTitle(default);
+
+	/// <summary>
+	/// Gets the resolved display title for this field and item, evaluating <see cref="TitleFunc"/>, <see cref="Title"/>,
+	/// or the property's <see cref="System.ComponentModel.DataAnnotations.DisplayAttribute"/> in that order.
+	/// </summary>
+	/// <param name="item">The item passed to <see cref="TitleFunc"/>.</param>
+	public string GetTitle(TItem? item)
 	{
 		if (TitleFunc is not null)
 		{
 			return TitleFunc(item);
 		}
 
-		if (Title is not null)
-		{
-			return Title;
-		}
+		return Title ?? GetPropertyTitle();
+	}
 
+	private string GetPropertyTitle()
+	{
 		var memberInfo = Field?.GetPropertyMemberInfo();
 		return memberInfo is PropertyInfo propInfo
 			? propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name

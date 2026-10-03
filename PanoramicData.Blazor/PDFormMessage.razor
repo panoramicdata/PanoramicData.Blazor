@@ -17,7 +17,7 @@
 						class="pdchat-form-tab @(isActive ? "active" : string.Empty) @(IsAnswered(question) ? "answered" : string.Empty)"
 						aria-selected="@isActive"
 						disabled="@_isClosed"
-						@onclick="() => _activeIndex = questionIndex">
+						@onclick="() => ShowQuestion(questionIndex)">
 					@question.Header
 				</button>
 			}
@@ -224,7 +224,7 @@
 				}
 				else
 				{
-					<button type="button" class="pdchat-form-submit" @onclick="() => _activeIndex++">
+					<button type="button" class="pdchat-form-submit" @onclick="ShowNextQuestion">
 						Next
 					</button>
 					<span class="pdchat-form-hint">@ProgressSummary()</span>

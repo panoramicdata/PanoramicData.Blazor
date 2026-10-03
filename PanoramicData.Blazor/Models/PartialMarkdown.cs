@@ -84,7 +84,7 @@ public static partial class PartialMarkdown
 		// checked first. An odd number of fences means one is still open.
 		var fenceCount = lines.Count(line => line.TrimStart().StartsWith("```", StringComparison.Ordinal));
 
-		if (fenceCount % 2 == 1)
+		if (fenceCount % 2 != 0)
 		{
 			var lastFence = Array.FindLastIndex(lines, line => line.TrimStart().StartsWith("```", StringComparison.Ordinal));
 

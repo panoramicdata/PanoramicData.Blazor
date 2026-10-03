@@ -105,14 +105,7 @@ public class FileExplorerPreviewProvider : DefaultPreviewProvider
 	/// are recycled periodically so that a long-lived client still sees DNS changes.
 	/// </summary>
 	private static HttpClient CreateSharedHttpClient()
-	{
-		if (OperatingSystem.IsBrowser())
-		{
-			return new HttpClient();
-		}
-
-		return new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) });
-	}
+		=> OperatingSystem.IsBrowser() ? new HttpClient() : new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) });
 
 	/// <inheritdoc />
 	protected override List<string> GetFileDetails(FileExplorerItem item)

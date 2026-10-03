@@ -104,6 +104,16 @@ public partial class PDFormMessage
 			: [.. question.Options.Select(option => option.Label)];
 
 	/// <summary>
+	/// Makes the question at the given position the one shown.
+	/// </summary>
+	private void ShowQuestion(int index) => _activeIndex = index;
+
+	/// <summary>
+	/// Moves on to the next question.
+	/// </summary>
+	private void ShowNextQuestion() => _activeIndex++;
+
+	/// <summary>
 	/// Moves one option up or down a ranking.
 	/// </summary>
 	private void Move(ChatFormQuestion question, int index, int offset)
@@ -224,19 +234,30 @@ public partial class PDFormMessage
 			return _rankings.ContainsKey(question.Id);
 		}
 
-		if (_otherChosen.Contains(question.Id)
-			&& !string.IsNullOrWhiteSpace(_otherText.GetValueOrDefault(question.Id)))
-		{
-			return true;
-		}
+		return !string.IsNullOrWhiteSpace(GetOtherText(question))
+			|| !string.IsNullOrWhiteSpace(GetTypedOrSuggestedValue(question));
+	}
 
-		if (_values.TryGetValue(question.Id, out var value) && !string.IsNullOrWhiteSpace(value))
-		{
-			return true;
-		}
+	/// <summary>
+	/// The text typed for "Other", or null when "Other" is not chosen.
+	/// </summary>
+	private string? GetOtherText(ChatFormQuestion question)
+		=> _otherChosen.Contains(question.Id)
+			? _otherText.GetValueOrDefault(question.Id)
+			: null;
 
-		return question.Kind == ChatFormAnswerKind.Text
-			&& !string.IsNullOrWhiteSpace(question.SuggestedValue);
+	/// <summary>
+	/// The value typed for a question, or else, for a text question, its suggested value: a suggested value
+	/// the user never touched is still their answer.
+	/// </summary>
+	private string? GetTypedOrSuggestedValue(ChatFormQuestion question)
+	{
+		var value = _values.GetValueOrDefault(question.Id);
+		return string.IsNullOrWhiteSpace(value)
+			&& question.Kind == ChatFormAnswerKind.Text
+			&& !string.IsNullOrWhiteSpace(question.SuggestedValue)
+				? question.SuggestedValue
+				: value;
 	}
 
 	/// <summary>
@@ -312,105 +333,74 @@ public partial class PDFormMessage
 	/// <summary>
 	/// Builds the answer for one question.
 	/// </summary>
-	internal ChatFormAnswer BuildAnswer(ChatFormQuestion question)
+	internal ChatFormAnswer BuildAnswer(ChatFormQuestion question) => question.Kind switch
 	{
-		var otherText = _otherChosen.Contains(question.Id)
-			? _otherText.GetValueOrDefault(question.Id)
-			: null;
+		ChatFormAnswerKind.Ranking => BuildRankingAnswer(question),
+		ChatFormAnswerKind.MultipleChoice => BuildMultipleChoiceAnswer(question, GetOtherText(question)),
+		_ => BuildValueAnswer(question, GetOtherText(question))
+	};
 
+	private ChatFormAnswer BuildRankingAnswer(ChatFormQuestion question)
+	{
+		// Only an order the user actually arranged is reported. An untouched ranking is a skip:
+		// the asker's own listing order is not an answer.
+		var ranked = _rankings.TryGetValue(question.Id, out var order) ? order : null;
+
+		return new ChatFormAnswer
+		{
+			QuestionId = question.Id,
+			Question = question.Question,
+			Value = ranked is null
+				? null
+				: string.Join(
+					", ",
+					ranked.Select((label, position) => string.Create(
+						CultureInfo.InvariantCulture,
+						$"{position + 1}. {label}"))),
+			Values = ranked,
+			WasSkipped = ranked is null
+		};
+	}
+
+	private ChatFormAnswer BuildMultipleChoiceAnswer(ChatFormQuestion question, string? otherText)
+	{
 		var hasOther = !string.IsNullOrWhiteSpace(otherText);
 
-		if (question.Kind == ChatFormAnswerKind.Ranking)
-		{
-			// Only an order the user actually arranged is reported. An untouched ranking is a skip:
-			// the asker's own listing order is not an answer.
-			var ranked = _rankings.TryGetValue(question.Id, out var order) ? order : null;
+		// Ordered as the question offered them, not alphabetically. The asker chose that order -
+		// often most to least likely - and re-sorting throws that away and reads oddly besides.
+		var selected = _selections.TryGetValue(question.Id, out var set)
+			? question.Options
+				.Select(option => option.Label)
+				.Where(set.Contains)
+				.ToList()
+			: [];
 
-			return new ChatFormAnswer
-			{
-				QuestionId = question.Id,
-				Question = question.Question,
-				Value = ranked is null
-					? null
-					: string.Join(
-						", ",
-						ranked.Select((label, position) => string.Create(
-							CultureInfo.InvariantCulture,
-							$"{position + 1}. {label}"))),
-				Values = ranked,
-				WasSkipped = ranked is null
-			};
-		}
-
-		if (question.Kind == ChatFormAnswerKind.MultipleChoice)
-		{
-			// Ordered as the question offered them, not alphabetically. The asker chose that order -
-			// often most to least likely - and re-sorting throws that away and reads oddly besides.
-			var selected = _selections.TryGetValue(question.Id, out var set)
-				? question.Options
-					.Select(option => option.Label)
-					.Where(set.Contains)
-					.ToList()
-				: [];
-
-			var readable = new List<string>(selected);
-
-			if (hasOther)
-			{
-				readable.Add($"Other: {otherText}");
-			}
-
-			return new ChatFormAnswer
-			{
-				QuestionId = question.Id,
-				Question = question.Question,
-				Value = readable.Count > 0 ? string.Join(", ", readable) : null,
-				Values = selected.Count > 0 ? selected : null,
-				OtherText = otherText,
-				WasOther = hasOther,
-				WasSkipped = readable.Count == 0
-			};
-		}
-
-		var value = _values.GetValueOrDefault(question.Id);
-
-		// A suggested value the user never touched is still their answer.
-		if (string.IsNullOrWhiteSpace(value)
-			&& question.Kind == ChatFormAnswerKind.Text
-			&& !string.IsNullOrWhiteSpace(question.SuggestedValue))
-		{
-			value = question.SuggestedValue;
-		}
+		var readable = new List<string>(selected);
 
 		if (hasOther)
 		{
-			value = otherText;
+			readable.Add($"Other: {otherText}");
 		}
+
+		return new ChatFormAnswer
+		{
+			QuestionId = question.Id,
+			Question = question.Question,
+			Value = readable.Count > 0 ? string.Join(", ", readable) : null,
+			Values = selected.Count > 0 ? selected : null,
+			OtherText = otherText,
+			WasOther = hasOther,
+			WasSkipped = readable.Count == 0
+		};
+	}
+
+	private ChatFormAnswer BuildValueAnswer(ChatFormQuestion question, string? otherText)
+	{
+		var hasOther = !string.IsNullOrWhiteSpace(otherText);
 
 		// Captured before any label replaces it: ScaleDescription must report the number chosen.
-		var chosen = value;
-
-		// A labelled scale records "Agree" rather than "2". The number is not lost - it stays in
-		// ScaleDescription - but the answer itself should be readable without a key.
-		if (question.Kind == ChatFormAnswerKind.Scale
-			&& question.Scale is not null
-			&& int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var point))
-		{
-			var label = question.Scale.LabelFor(point);
-
-			if (!string.IsNullOrWhiteSpace(label))
-			{
-				value = label;
-			}
-		}
-
-		// The unit travels with the number, so "20" is never left needing a key.
-		if (question.Kind == ChatFormAnswerKind.Number
-			&& !string.IsNullOrWhiteSpace(value)
-			&& !string.IsNullOrWhiteSpace(question.Number?.Unit))
-		{
-			value = string.Create(CultureInfo.InvariantCulture, $"{value} {question.Number.Unit}");
-		}
+		var chosen = hasOther ? otherText : GetTypedOrSuggestedValue(question);
+		var value = AppendUnit(question, ApplyScaleLabel(question, chosen));
 
 		return new ChatFormAnswer
 		{
@@ -425,6 +415,33 @@ public partial class PDFormMessage
 				: null
 		};
 	}
+
+	/// <summary>
+	/// A labelled scale records "Agree" rather than "2". The number is not lost - it stays in
+	/// ScaleDescription - but the answer itself should be readable without a key.
+	/// </summary>
+	private static string? ApplyScaleLabel(ChatFormQuestion question, string? value)
+	{
+		if (question.Kind != ChatFormAnswerKind.Scale
+			|| question.Scale is null
+			|| !int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var point))
+		{
+			return value;
+		}
+
+		var label = question.Scale.LabelFor(point);
+		return string.IsNullOrWhiteSpace(label) ? value : label;
+	}
+
+	/// <summary>
+	/// The unit travels with the number, so "20" is never left needing a key.
+	/// </summary>
+	private static string? AppendUnit(ChatFormQuestion question, string? value)
+		=> question.Kind == ChatFormAnswerKind.Number
+			&& !string.IsNullOrWhiteSpace(value)
+			&& !string.IsNullOrWhiteSpace(question.Number?.Unit)
+				? string.Create(CultureInfo.InvariantCulture, $"{value} {question.Number.Unit}")
+				: value;
 
 	private async Task SubmitAsync()
 	{

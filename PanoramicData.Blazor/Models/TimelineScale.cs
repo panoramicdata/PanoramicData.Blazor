@@ -9,7 +9,6 @@ public class TimelineScale : IComparable
 #pragma warning restore S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
 #pragma warning restore CA1036
 {
-	private readonly CultureInfo _cultureInfo;
 	private readonly Calendar _calendar;
 
 	/// <summary>
@@ -26,8 +25,7 @@ public class TimelineScale : IComparable
 			throw new ArgumentOutOfRangeException(nameof(unitCount), "Unit Count can only be 1 when Unit Type is greater than hours");
 		}
 
-		_cultureInfo = CultureInfo.CurrentUICulture;
-		_calendar = _cultureInfo.Calendar;
+		_calendar = CultureInfo.CurrentUICulture.Calendar;
 		Name = name;
 		UnitType = unitType;
 		UnitCount = unitCount;

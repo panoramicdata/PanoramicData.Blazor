@@ -5,7 +5,7 @@ namespace PanoramicData.Blazor.Models.ColorPicker;
 /// <summary>
 /// Represents a color value with support for multiple color spaces.
 /// </summary>
-public class ColorValue : IEquatable<ColorValue>
+public class ColorValue : System.IEquatable<ColorValue>
 {
 	/// <summary>
 	/// Red component (0-255).
@@ -419,13 +419,18 @@ public class ColorValue : IEquatable<ColorValue>
 	}
 
 	/// <inheritdoc />
-	bool IEquatable<ColorValue>.Equals(ColorValue? other) => IsSameColor(other);
+	public bool Equals(ColorValue? other)
+	{
+		if (other is null)
+		{
+			return false;
+		}
+
+		return R == other.R && G == other.G && B == other.B && Math.Abs(A - other.A) < 0.001;
+	}
 
 	/// <inheritdoc />
-	public override bool Equals(object? obj) => IsSameColor(obj as ColorValue);
-
-	private bool IsSameColor(ColorValue? other)
-		=> other is not null && R == other.R && G == other.G && B == other.B && Math.Abs(A - other.A) < 0.001;
+	public override bool Equals(object? obj) => Equals(obj as ColorValue);
 
 	/// <inheritdoc />
 	public override int GetHashCode() => HashCode.Combine(R, G, B, A);

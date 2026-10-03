@@ -42,54 +42,14 @@ public partial class DefaultPreviewProvider : IPreviewProvider
 				CssClass = "basic"
 			};
 		}
-		else if (item.EntryType == FileExplorerItemType.File)
+
+		// download content for better preview?
+		if (item.EntryType == FileExplorerItemType.File && _downloadableFileTypes.Contains(item.FileExtension))
 		{
-			// download content for better preview?
-			if (_downloadableFileTypes.Contains(item.FileExtension))
+			var contentBytes = await DownloadContentAsync(item);
+			if (contentBytes.Length > 0 && GetContentPreview(item.FileExtension, Encoding.UTF8.GetString(contentBytes)) is { } contentPreview)
 			{
-				// download bytes
-				var contentBytes = await DownloadContentAsync(item);
-				if (contentBytes.Length > 0)
-				{
-					// convert to string and process
-					var contentString = Encoding.UTF8.GetString(contentBytes);
-					if (item.FileExtension == "html" || item.FileExtension == "htm")
-					{
-						return new PreviewInfo
-						{
-							HtmlContent = new MarkupString(contentString),
-							CssClass = "html"
-						};
-					}
-					else if (item.FileExtension == "url")
-					{
-						var match = UrlRegex().Match(contentString);
-						if (match.Success && match.Groups.Count > 1)
-						{
-							return new PreviewInfo
-							{
-								Url = match.Groups[1].Value,
-								CssClass = "url"
-							};
-						}
-					}
-					else if (item.FileExtension == "md")
-					{
-						return new PreviewInfo
-						{
-							HtmlContent = new MarkupString(Markdown.ToHtml(contentString)),
-							CssClass = "md"
-						};
-					}
-					else if (item.FileExtension == "txt")
-					{
-						return new PreviewInfo
-						{
-							HtmlContent = new MarkupString(contentString),
-							CssClass = "txt"
-						};
-					}
-				}
+				return contentPreview;
 			}
 		}
 
@@ -98,12 +58,20 @@ public partial class DefaultPreviewProvider : IPreviewProvider
 	}
 
 	/// <summary>
+	/// Builds a basic metadata-only preview, without a spinner.
+	/// </summary>
+	/// <param name="item">Item to preview.</param>
+	/// <returns>Preview metadata and content.</returns>
+	public Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item)
+		=> GetBasicPreviewInfoAsync(item, false);
+
+	/// <summary>
 	/// Builds a basic metadata-only preview.
 	/// </summary>
 	/// <param name="item">Item to preview.</param>
 	/// <param name="spinner">True to include spinner HTML.</param>
 	/// <returns>Preview metadata and content.</returns>
-	public virtual Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item, bool spinner = false)
+	public virtual Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item, bool spinner)
 	{
 		var info = new PreviewInfo();
 		var sb = new StringBuilder();
@@ -175,6 +143,25 @@ public partial class DefaultPreviewProvider : IPreviewProvider
 			$"<span class=\"text-small text-muted user-select-none\">Created: {item.DateCreated?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>",
 			$"<span class=\"text-small text-muted user-select-none\">Modified: {item.DateModified?.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}</span>"
 		];
+	}
+
+	/// <summary>
+	/// Builds the preview of a downloaded file's content, or returns null when the content does not give one.
+	/// </summary>
+	private static PreviewInfo? GetContentPreview(string fileExtension, string content) => fileExtension switch
+	{
+		"html" or "htm" => new PreviewInfo { HtmlContent = new MarkupString(content), CssClass = "html" },
+		"url" => GetUrlPreview(content),
+		"md" => new PreviewInfo { HtmlContent = new MarkupString(Markdown.ToHtml(content)), CssClass = "md" },
+
+		// txt, the only other downloadable type
+		_ => new PreviewInfo { HtmlContent = new MarkupString(content), CssClass = "txt" }
+	};
+
+	private static PreviewInfo? GetUrlPreview(string content)
+	{
+		var match = UrlRegex().Match(content);
+		return match.Success ? new PreviewInfo { Url = match.Groups[1].Value, CssClass = "url" } : null;
 	}
 
 	[GeneratedRegex("URL=(.+)\r?")]

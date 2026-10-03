@@ -9,8 +9,6 @@ public class TreeNode<T> : IComparable
 #pragma warning restore S1210 // "Equals" and the comparison operators should be overridden when implementing "IComparable"
 #pragma warning restore CA1036
 {
-	private static int _idSequence;
-
 	internal int Id { get; }
 
 	internal string EditText { get; set; } = string.Empty;
@@ -79,7 +77,7 @@ public class TreeNode<T> : IComparable
 	/// </summary>
 	public TreeNode()
 	{
-		Id = ++_idSequence;
+		Id = GenericTypeIds.NextTreeNodeId();
 	}
 
 	/// <summary>

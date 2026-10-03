@@ -6,16 +6,24 @@
 /// <typeparam name="TItem">Form model type.</typeparam>
 public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 {
-	private static int _idSeq;
 	private bool _disposedValue;
 	private bool _hasValue = true;
-	private StandaloneCodeEditor? _monacoEditor;
+	private EventHandler<object?>? _fieldValueChangedHandler;
 
 	// Debounce support
 	private CancellationTokenSource? _monacoDebounceCts;
 
-	private ElementReference _editorDiv;
 	private IJSObjectReference? _commonModule;
+
+	/// <summary>
+	/// Gets the Monaco editor, when the field is edited with one, set by the markup.
+	/// </summary>
+	internal StandaloneCodeEditor? MonacoEditor { get; set; }
+
+	/// <summary>
+	/// Gets the element containing the editor, set by the markup.
+	/// </summary>
+	internal ElementReference EditorDiv { get; set; }
 
 	/// <summary>
 	/// Gets or sets JavaScript runtime used by this editor.
@@ -47,7 +55,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	/// Gets or sets the unique identifier for the editor.
 	/// </summary>
 	[Parameter]
-	public string Id { get; set; } = $"field-editor-{++_idSeq}";
+	public string Id { get; set; } = $"field-editor-{GenericTypeIds.NextFormFieldEditorId()}";
 
 	/// <summary>
 	/// Gets CSS classes for the editor container based on validation and field options.
@@ -59,33 +67,23 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 
 	private OptionInfo[] GetEnumValues(FormField<TItem> field)
 	{
-		var options = new List<OptionInfo>();
-		if (field.Field?.GetPropertyMemberInfo() is PropertyInfo)
+		if (field.Field?.GetPropertyMemberInfo() is not PropertyInfo || field.GetFieldType() is not Type enumType)
 		{
-			var enumType = field.GetFieldType();
-			if (enumType != null)
-			{
-				string[] names = Enum.GetNames(enumType);
-				Array values = Enum.GetValues(enumType);
-
-				for (var i = 0; i < values.Length; i++)
-				{
-					var displayName = enumType.GetMember($"{names[i]}")
-						?[0].GetCustomAttribute<DisplayAttribute>()
-						?.Name ?? names[i];
-
-					options.Add(new OptionInfo
-					{
-						Text = displayName,
-						Value = values.GetValue(i),
-						IsSelected = Form?.GetFieldStringValue(field) == values.GetValue(i)?.ToString()
-					});
-				}
-			}
+			return [];
 		}
 
-		return [.. options];
+		var selectedValue = Form?.GetFieldStringValue(field);
+		var values = Enum.GetValues(enumType);
+		return [.. Enum.GetNames(enumType).Select((name, i) => new OptionInfo
+		{
+			Text = GetEnumDisplayName(enumType, name),
+			Value = values.GetValue(i),
+			IsSelected = selectedValue == values.GetValue(i)?.ToString()
+		})];
 	}
+
+	private static string GetEnumDisplayName(Type enumType, string name)
+		=> enumType.GetMember(name)[0].GetCustomAttribute<DisplayAttribute>()?.Name ?? name;
 
 	private static StandaloneEditorConstructionOptions GetMonacoOptionsReadOnly(FieldStringOptions fso, StandaloneCodeEditor editor)
 	{
@@ -125,13 +123,15 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	/// </summary>
 	/// <param name="field">Field metadata.</param>
 	/// <returns>True if read-only.</returns>
-	public bool IsReadOnly(FormField<TItem> field) =>
-		!_hasValue ||
-		(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(Form?.GetItemWithUpdates())) ||
-		(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(Form?.GetItemWithUpdates())) ||
-		Form?.Mode == FormModes.Delete ||
-		Form?.Mode == FormModes.Cancel ||
-		Form?.Mode == FormModes.ReadOnly;
+	public bool IsReadOnly(FormField<TItem> field) => !_hasValue || IsReadOnlyInMode(field);
+
+	private bool IsReadOnlyInMode(FormField<TItem> field) => Form?.Mode switch
+	{
+		FormModes.Create => field.ReadOnlyInCreate(Form.GetItemWithUpdates()),
+		FormModes.Edit => field.ReadOnlyInEdit(Form.GetItemWithUpdates()),
+		FormModes.Delete or FormModes.Cancel or FormModes.ReadOnly => true,
+		_ => false
+	};
 
 	/// <summary>
 	/// Applies parameter-driven editor state.
@@ -186,7 +186,8 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 			Form.ResetRequested += Form_ResetRequested;
 		}
 
-		Field.ValueChanged += Field_ValueChanged;
+		_fieldValueChangedHandler = async (_, value) => await OnFieldValueChangedAsync(value);
+		Field.ValueChanged += _fieldValueChangedHandler;
 	}
 
 	/// <summary>
@@ -201,11 +202,11 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	private async void Field_ValueChanged(object? sender, object? value)
+	private async Task OnFieldValueChangedAsync(object? value)
 	{
 		// For most editors the value will be reflected in the UI immediately due to
 		// data binding - however the Monaco Editor requires a manual update
-		if (_monacoEditor != null && Field.DisplayOptions is FieldStringOptions fso && fso.Editor == FieldStringOptions.Editors.Monaco)
+		if (MonacoEditor != null && Field.DisplayOptions is FieldStringOptions fso && fso.Editor == FieldStringOptions.Editors.Monaco)
 		{
 			await SetMonacoValueAsync(value?.ToString() ?? string.Empty);
 		}
@@ -214,10 +215,10 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	private async void Form_ResetRequested(object? sender, EventArgs e)
 	{
 		// reset data to any Monaco editors
-		if (_monacoEditor != null && Form != null && Field != null)
+		if (MonacoEditor != null && Form != null && Field != null)
 		{
 			var value = Form.GetFieldStringValue(Field);
-			var model = await _monacoEditor.GetModel();
+			var model = await MonacoEditor.GetModel();
 			// when re-creating Monaco Editor (i.e toggling to/from ReadOnly)
 			// this can cause an crash - do NOT ResetChanges on Form.SetEditItem
 			await model.SetValue(value);
@@ -226,16 +227,14 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 
 	private async Task OnMonacoEditorBlurAsync()
 	{
-		if (_monacoEditor != null && Form != null && Field != null)
+		if (MonacoEditor != null && Form != null && Field != null)
 		{
-			 // Only update if a de-bounce is outstanding
+			// Only update if a de-bounce is outstanding
 			if (DebounceWait > 0 && _monacoDebounceCts != null)
 			{
-				await _monacoDebounceCts.CancelAsync();
-				_monacoDebounceCts.Dispose();
-				_monacoDebounceCts = null;
+				await CancelPendingUpdateAsync();
 
-				var model = await _monacoEditor.GetModel();
+				var model = await MonacoEditor.GetModel();
 				var value = await model.GetValue(EndOfLinePreference.LF, true);
 				await Form.SetFieldValueAsync(Field, value);
 			}
@@ -244,49 +243,51 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	private async Task OnMonacoEditorKeyUpAsync(BlazorMonaco.KeyboardEvent args)
+	private async Task OnMonacoEditorKeyUpAsync()
 	{
-		if (_monacoEditor != null && Form != null && Field != null)
+		if (MonacoEditor is null || Form is null || Field is null)
 		{
-			// Cancel any pending update
-			if (_monacoDebounceCts != null)
-			{
-				await _monacoDebounceCts.CancelAsync();
-				_monacoDebounceCts.Dispose();
-				_monacoDebounceCts = null;
-			}
+			return;
+		}
 
-			_monacoDebounceCts = new CancellationTokenSource();
-			var token = _monacoDebounceCts.Token;
+		// Cancel any pending update
+		await CancelPendingUpdateAsync();
 
-			try
-			{
-				await Task.Delay(DebounceWait > 0 ? DebounceWait : 0, token);
-				if (!token.IsCancellationRequested)
-				{
-					// Cancel and dispose after use
-					if (_monacoDebounceCts != null)
-					{
-						await _monacoDebounceCts.CancelAsync();
-						_monacoDebounceCts.Dispose();
-						_monacoDebounceCts = null;
-					}
+		_monacoDebounceCts = new CancellationTokenSource();
+		var token = _monacoDebounceCts.Token;
 
-					var model = await _monacoEditor.GetModel();
-					var value = await model.GetValue(EndOfLinePreference.LF, true);
-					await Form.SetFieldValueAsync(Field, value, false);
-				}
-			}
-			catch (TaskCanceledException)
+		try
+		{
+			await Task.Delay(DebounceWait > 0 ? DebounceWait : 0, token);
+			if (!token.IsCancellationRequested)
 			{
-				// Ignore, another key-up event occurred
+				// Cancel and dispose after use
+				await CancelPendingUpdateAsync();
+
+				var model = await MonacoEditor.GetModel();
+				var value = await model.GetValue(EndOfLinePreference.LF, true);
+				await Form.SetFieldValueAsync(Field, value, false);
 			}
+		}
+		catch (TaskCanceledException)
+		{
+			// Ignore, another key-up event occurred
+		}
+	}
+
+	private async Task CancelPendingUpdateAsync()
+	{
+		if (_monacoDebounceCts != null)
+		{
+			await _monacoDebounceCts.CancelAsync();
+			_monacoDebounceCts.Dispose();
+			_monacoDebounceCts = null;
 		}
 	}
 
 	private async Task OnMonacoInitAsync()
 	{
-		if (_monacoEditor != null && Form != null)
+		if (MonacoEditor != null && Form != null)
 		{
 			var value = Form.GetFieldStringValue(Field);
 			await SetMonacoValueAsync(value);
@@ -310,9 +311,9 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	{
 		try
 		{
-			if (_monacoEditor != null && Form != null)
+			if (MonacoEditor != null && Form != null)
 			{
-				var model = await _monacoEditor.GetModel();
+				var model = await MonacoEditor.GetModel();
 				var oldValue = await model.GetValue(EndOfLinePreference.LF, true);
 				// only update if it is different to what we have or it will move cursor to the beginning of the editor
 				if (oldValue != value)
@@ -337,15 +338,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 				return;
 			}
 
-			// GetFieldType has already unwrapped Nullable<T>, so whether the field can hold null is asked of
-			// the field itself. An empty entry clears a nullable value type; strings are kept as typed.
-			object? newValue = fieldType != typeof(string)
-				&& field.GetFieldIsNullable()
-				&& string.IsNullOrEmpty(args.Value?.ToString())
-					? null
-					: Convert.ChangeType(args.Value ?? string.Empty, fieldType, CultureInfo.InvariantCulture);
-
-			await Form!.SetFieldValueAsync(field, newValue).ConfigureAwait(true);
+			await Form!.SetFieldValueAsync(field, ConvertEnteredValue(args.Value, fieldType, field)).ConfigureAwait(true);
 		}
 		catch
 		{
@@ -354,12 +347,22 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 	}
 
 	/// <summary>
+	/// Converts an entered value to the field's type. GetFieldType has already unwrapped Nullable&lt;T&gt;, so whether
+	/// the field can hold null is asked of the field itself. An empty entry clears a nullable value type; strings
+	/// are kept as typed.
+	/// </summary>
+	private static object? ConvertEnteredValue(object? value, Type fieldType, FormField<TItem> field)
+		=> fieldType != typeof(string) && field.GetFieldIsNullable() && string.IsNullOrEmpty(value?.ToString())
+			? null
+			: Convert.ChangeType(value ?? string.Empty, fieldType, CultureInfo.InvariantCulture);
+
+	/// <summary>
 	/// Clears inline editor styles for this field editor.
 	/// </summary>
 	public async Task ResetEditorCssAsync()
 	{
 		_commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl);
-		await _commonModule.InvokeVoidAsync("clearInlineStyle", _editorDiv);
+		await _commonModule.InvokeVoidAsync("clearInlineStyle", EditorDiv);
 	}
 
 	#region IDisposable
@@ -374,7 +377,7 @@ public partial class PDFormFieldEditor<TItem> : IDisposable where TItem : class
 		{
 			if (disposing)
 			{
-				Field.ValueChanged -= Field_ValueChanged;
+				Field.ValueChanged -= _fieldValueChangedHandler;
 				Form.ResetRequested -= Form_ResetRequested;
 				Form?.UnregisterFieldEditor(this);
 				_monacoDebounceCts?.Cancel();
