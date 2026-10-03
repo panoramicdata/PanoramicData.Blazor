@@ -12,7 +12,7 @@ const MAX_DEPTH = 2;
 const _triggers = new Map();
 
 // Shared DOM infrastructure (created once on first init)
-let _infra = null;  // { overlay, popups[] }
+let _infra = null; // { overlay, popups[] }
 
 // The trigger ID whose popup stack is currently open
 let _activeId = null;
@@ -25,26 +25,43 @@ export function init(triggerId, nodeJson, iconMap, dotNetRef) {
 	const el = document.getElementById(triggerId);
 	if (!el) return;
 
-	const node = typeof nodeJson === 'string' ? JSON.parse(nodeJson) : nodeJson;
+	const node = typeof nodeJson === "string" ? JSON.parse(nodeJson) : nodeJson;
 	const abortCtrl = new AbortController();
 	const opts = { signal: abortCtrl.signal };
 
-	_triggers.set(triggerId, { node, iconMap, el, abortCtrl, dotNetRef: dotNetRef ?? null });
+	_triggers.set(triggerId, {
+		node,
+		iconMap,
+		el,
+		abortCtrl,
+		dotNetRef: dotNetRef ?? null,
+	});
 
-	el.addEventListener('click', async e => {
-		e.stopPropagation();
-		if (_activeId === triggerId) {
-			_closeAll();
-		} else {
-			_closeAll();
-			await _open(triggerId);
-		}
-	}, opts);
+	el.addEventListener(
+		"click",
+		async (e) => {
+			e.stopPropagation();
+			if (_activeId === triggerId) {
+				_closeAll();
+			} else {
+				_closeAll();
+				await _open(triggerId);
+			}
+		},
+		opts,
+	);
 
-	el.addEventListener('keydown', e => {
-		if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
-		if (e.key === 'Escape') _closeAll();
-	}, opts);
+	el.addEventListener(
+		"keydown",
+		(e) => {
+			if (e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				el.click();
+			}
+			if (e.key === "Escape") _closeAll();
+		},
+		opts,
+	);
 }
 
 // Replaces the snapshot the pop-over is drawn from. The trigger icon is rendered by Blazor and so
@@ -54,14 +71,14 @@ export function update(triggerId, nodeJson) {
 	const entry = _triggers.get(triggerId);
 	if (!entry) return;
 
-	entry.node = typeof nodeJson === 'string' ? JSON.parse(nodeJson) : nodeJson;
+	entry.node = typeof nodeJson === "string" ? JSON.parse(nodeJson) : nodeJson;
 
 	// Redraw an open pop-over from the root, so a status that changes while someone is looking at it
 	// is not left showing the superseded verdict. Any drill-down is closed by this, which is the
 	// honest outcome: the children it was showing may no longer exist.
 	if (_activeId === triggerId) {
 		_closeFrom(1);
-		_renderPopup(0, entry.node, entry.el, entry.iconMap, entry, '');
+		_renderPopup(0, entry.node, entry.el, entry.iconMap, entry, "");
 	}
 }
 
@@ -80,29 +97,31 @@ function _ensureInfra() {
 	if (_infra) return;
 
 	// Inject popup styles once
-	if (!document.getElementById('pdsr-global-styles')) {
-		const style = document.createElement('style');
-		style.id = 'pdsr-global-styles';
-		style.textContent = _globalStyles();
+	if (!document.getElementById("pdsr-global-styles")) {
+		const style = document.createElement("style");
+		style.id = "pdsr-global-styles";
+		style.textContent = _GLOBAL_STYLES;
 		document.head.appendChild(style);
 	}
 
 	// Transparent overlay — click dismisses the popup stack
-	const overlay = document.createElement('div');
-	overlay.id = 'pdsr-overlay';
-	overlay.className = 'pdsr-overlay';
-	overlay.addEventListener('click', () => _closeAll());
-	overlay.addEventListener('keydown', e => { if (e.key === 'Escape') _closeAll(); });
+	const overlay = document.createElement("div");
+	overlay.id = "pdsr-overlay";
+	overlay.className = "pdsr-overlay";
+	overlay.addEventListener("click", () => _closeAll());
+	overlay.addEventListener("keydown", (e) => {
+		if (e.key === "Escape") _closeAll();
+	});
 	document.body.appendChild(overlay);
 
 	// Three popup layers (depth 0, 1, 2)
 	const popups = [];
 	for (let i = 0; i <= MAX_DEPTH; i++) {
-		const popup = document.createElement('div');
-		popup.className = 'pdsr-popup';
+		const popup = document.createElement("div");
+		popup.className = "pdsr-popup";
 		popup.dataset.depth = i;
-		popup.setAttribute('role', i === 0 ? 'dialog' : 'region');
-		popup.addEventListener('click', e => e.stopPropagation());
+		popup.setAttribute("role", i === 0 ? "dialog" : "region");
+		popup.addEventListener("click", (e) => e.stopPropagation());
 		document.body.appendChild(popup);
 		popups.push(popup);
 	}
@@ -117,24 +136,24 @@ async function _open(triggerId) {
 	if (!entry) return;
 
 	_activeId = triggerId;
-	entry.el.setAttribute('aria-expanded', 'true');
-	_infra.overlay.classList.add('pdsr-overlay--active');
+	entry.el.setAttribute("aria-expanded", "true");
+	_infra.overlay.classList.add("pdsr-overlay--active");
 
-	const node = await _maybeExpand(entry, entry.node, '', entry.el);
-	_renderPopup(0, node, entry.el, entry.iconMap, entry, '');
+	const node = await _maybeExpand(entry, entry.node, "", entry.el);
+	_renderPopup(0, node, entry.el, entry.iconMap, entry, "");
 }
 
 function _closeAll() {
 	if (_activeId) {
 		const entry = _triggers.get(_activeId);
-		if (entry) entry.el.setAttribute('aria-expanded', 'false');
+		if (entry) entry.el.setAttribute("aria-expanded", "false");
 		_activeId = null;
 	}
 	if (_infra) {
-		_infra.overlay.classList.remove('pdsr-overlay--active');
-		_infra.popups.forEach(p => {
-			p.classList.remove('pdsr-popup--open');
-			p.innerHTML = '';
+		_infra.overlay.classList.remove("pdsr-overlay--active");
+		_infra.popups.forEach((p) => {
+			p.classList.remove("pdsr-popup--open");
+			p.textContent = "";
 		});
 	}
 }
@@ -142,8 +161,8 @@ function _closeAll() {
 function _closeFrom(depth) {
 	if (!_infra) return;
 	for (let i = depth; i <= MAX_DEPTH; i++) {
-		_infra.popups[i].classList.remove('pdsr-popup--open');
-		_infra.popups[i].innerHTML = '';
+		_infra.popups[i].classList.remove("pdsr-popup--open");
+		_infra.popups[i].textContent = "";
 	}
 }
 
@@ -154,16 +173,20 @@ function _closeFrom(depth) {
 async function _maybeExpand(entry, node, nodePath, anchorEl) {
 	if (!entry.dotNetRef) return node;
 
-	const depth = nodePath === '' ? 0 : nodePath.split('.').length;
+	const depth = nodePath === "" ? 0 : nodePath.split(".").length;
 	const popup = _infra.popups[Math.min(depth, MAX_DEPTH)];
 
 	// Show spinner while awaiting, positioned next to the element that was clicked
-	popup.innerHTML = `<div class="pdsr-spinner"><i class="fas fa-spinner fa-spin"></i></div>`;
+	popup.textContent = "";
+	popup.appendChild(_createSpinner());
 	_positionPopup(popup, anchorEl, depth);
-	popup.classList.add('pdsr-popup--open');
+	popup.classList.add("pdsr-popup--open");
 
 	try {
-		const json = await entry.dotNetRef.invokeMethodAsync('ExpandNodeAsync', nodePath);
+		const json = await entry.dotNetRef.invokeMethodAsync(
+			"ExpandNodeAsync",
+			nodePath,
+		);
 		if (json) {
 			return JSON.parse(json);
 		}
@@ -176,103 +199,156 @@ async function _maybeExpand(entry, node, nodePath, anchorEl) {
 
 // ── Popup Rendering ───────────────────────────────────────────────
 
+function _text(value) {
+	return value ? String(value) : "";
+}
+
+function _createElement(tagName, className, text) {
+	const element = document.createElement(tagName);
+	if (className) element.className = className;
+	if (text !== undefined) element.textContent = _text(text);
+	return element;
+}
+
+function _createIcon(className) {
+	const icon = _createElement("i", className);
+	icon.setAttribute("aria-hidden", "true");
+	return icon;
+}
+
+function _statusIconClass(status, iconMap) {
+	return `${_iconClass(status, iconMap)} ${_colorClass(status)}`;
+}
+
+function _createSpinner() {
+	const spinner = _createElement("div", "pdsr-spinner");
+	spinner.appendChild(_createElement("i", "fas fa-spinner fa-spin"));
+	return spinner;
+}
+
+function _createHeader(node, iconMap) {
+	const head = _createElement("div", "pdsr-popup-head");
+
+	const titleRow = _createElement("div", "pdsr-popup-title-row");
+	titleRow.appendChild(_createIcon(_statusIconClass(node.status, iconMap)));
+	titleRow.appendChild(_createElement("span", "pdsr-popup-title", node.title));
+	head.appendChild(titleRow);
+
+	if (node.summary) {
+		head.appendChild(_createElement("p", "pdsr-popup-summary", node.summary));
+	}
+	if (node.detail) {
+		head.appendChild(_createElement("p", "pdsr-popup-detail", node.detail));
+	}
+	return head;
+}
+
+// Expandable tri-state: true=force on, false=force off, null/undefined=auto (has children)
+function _isDrillable(child, depth) {
+	if (depth >= MAX_DEPTH) return false;
+	if (child.expandable === true) return true;
+	const hasChildren = child.children && child.children.length > 0;
+	return child.expandable !== false && hasChildren;
+}
+
+function _createItem(child, idx, drillable, iconMap) {
+	const item = _createElement(
+		"div",
+		drillable ? "pdsr-item pdsr-item--drillable" : "pdsr-item",
+	);
+	item.dataset.idx = idx;
+	item.setAttribute("role", drillable ? "button" : "listitem");
+	if (drillable) item.setAttribute("tabindex", "0");
+
+	item.appendChild(_createIcon(_statusIconClass(child.status, iconMap)));
+
+	const body = _createElement("div", "pdsr-item-body");
+	body.appendChild(_createElement("span", "pdsr-item-label", child.title));
+	if (child.summary) {
+		body.appendChild(
+			_createElement("span", "pdsr-item-summary", child.summary),
+		);
+	}
+	item.appendChild(body);
+
+	if (child.detail) {
+		const aside = _createElement(
+			"i",
+			"fa-solid fa-circle-info pdsr-item-aside",
+		);
+		aside.setAttribute("title", _text(child.detail));
+		aside.setAttribute("aria-label", "Has detail");
+		item.appendChild(aside);
+	}
+	if (drillable) {
+		item.appendChild(_createIcon("fas fa-chevron-right pdsr-item-chevron"));
+	}
+	return item;
+}
+
+function _attachDrillHandler(popup, item, context) {
+	const { depth, node, iconMap, entry, nodePath } = context;
+	const idx = parseInt(item.dataset.idx, 10);
+	const childPath = nodePath === "" ? `${idx}` : `${nodePath}.${idx}`;
+
+	const drill = async (e) => {
+		e.stopPropagation();
+		_closeFrom(depth + 1);
+		popup
+			.querySelectorAll(".pdsr-item")
+			.forEach((i) => i.classList.remove("pdsr-item--active"));
+		item.classList.add("pdsr-item--active");
+		const childNode = await _maybeExpand(
+			entry,
+			node.children[idx],
+			childPath,
+			item,
+		);
+		// Update the in-memory child so subsequent opens reflect the fetched status
+		node.children[idx] = childNode;
+		// Patch the row icon/colour in the parent popup to reflect the resolved status
+		_updateItemIcon(item, childNode.status, iconMap);
+		_renderPopup(depth + 1, childNode, item, iconMap, entry, childPath);
+	};
+
+	item.addEventListener("click", drill);
+	item.addEventListener("keydown", (e) => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			drill(e);
+		}
+	});
+}
+
 function _renderPopup(depth, node, anchorEl, iconMap, entry, nodePath) {
 	if (depth > MAX_DEPTH) return;
 
 	const popup = _infra.popups[depth];
+	popup.textContent = "";
+	popup.appendChild(_createHeader(node, iconMap));
 
-	// ── Header ──
-	const iconCls = _iconClass(node.status, iconMap);
-	const colorCls = _colorClass(node.status);
-
-	let html = `<div class="pdsr-popup-head">
-		<div class="pdsr-popup-title-row">
-			<i class="${iconCls} ${colorCls}" aria-hidden="true"></i>
-			<span class="pdsr-popup-title">${_esc(node.title)}</span>
-		</div>`;
-
-	if (node.summary) {
-		html += `<p class="pdsr-popup-summary">${_esc(node.summary)}</p>`;
-	}
-	if (node.detail) {
-		html += `<p class="pdsr-popup-detail">${_esc(node.detail)}</p>`;
-	}
-
-	html += `</div>`;
-
-	// ── Children ──
+	// ── Children (with drill-down handlers) ──
 	if (node.children && node.children.length > 0) {
-		html += `<div class="pdsr-popup-body">`;
+		const body = _createElement("div", "pdsr-popup-body");
+		const context = { depth, node, iconMap, entry, nodePath };
 		node.children.forEach((child, idx) => {
-			const hasChildren = child.children && child.children.length > 0;
-			const cIconCls = _iconClass(child.status, iconMap);
-			const cColorCls = _colorClass(child.status);
-			// Expandable tri-state: true=force on, false=force off, null/undefined=auto (has children)
-			const drillable = depth < MAX_DEPTH && (
-				child.expandable === true ||
-				(child.expandable !== false && hasChildren)
-			);
-
-			html += `<div class="pdsr-item${drillable ? ' pdsr-item--drillable' : ''}" data-idx="${idx}" role="${drillable ? 'button' : 'listitem'}"${drillable ? ' tabindex="0"' : ''}>
-				<i class="${cIconCls} ${cColorCls}" aria-hidden="true"></i>
-				<div class="pdsr-item-body">
-					<span class="pdsr-item-label">${_esc(child.title)}</span>
-					${child.summary ? `<span class="pdsr-item-summary">${_esc(child.summary)}</span>` : ''}
-				</div>`;
-
-			if (child.detail) {
-				html += `<i class="fa-solid fa-circle-info pdsr-item-aside" title="${_esc(child.detail)}" aria-label="Has detail"></i>`;
-			}
-			if (drillable) {
-				html += `<i class="fas fa-chevron-right pdsr-item-chevron" aria-hidden="true"></i>`;
-			}
-
-			html += `</div>`;
+			const drillable = _isDrillable(child, depth);
+			const item = _createItem(child, idx, drillable, iconMap);
+			if (drillable) _attachDrillHandler(popup, item, context);
+			body.appendChild(item);
 		});
-		html += `</div>`;
-	}
-
-	popup.innerHTML = html;
-
-	// ── Drill-down handlers ──
-	if (node.children) {
-		popup.querySelectorAll('.pdsr-item--drillable').forEach(item => {
-			const idx = parseInt(item.dataset.idx, 10);
-			const childPath = nodePath === '' ? `${idx}` : `${nodePath}.${idx}`;
-
-			const drill = async e => {
-					e.stopPropagation();
-					_closeFrom(depth + 1);
-					popup.querySelectorAll('.pdsr-item').forEach(i => i.classList.remove('pdsr-item--active'));
-					item.classList.add('pdsr-item--active');
-					const childNode = await _maybeExpand(entry, node.children[idx], childPath, item);
-					// Update the in-memory child so subsequent opens reflect the fetched status
-					node.children[idx] = childNode;
-					// Patch the row icon/colour in the parent popup to reflect the resolved status
-					_updateItemIcon(item, childNode.status, iconMap);
-					_renderPopup(depth + 1, childNode, item, iconMap, entry, childPath);
-			};
-
-			item.addEventListener('click', drill);
-			item.addEventListener('keydown', e => {
-				if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); drill(e); }
-			});
-		});
+		popup.appendChild(body);
 	}
 
 	// ── Position and show ──
 	_positionPopup(popup, anchorEl, depth);
-	popup.classList.add('pdsr-popup--open');
-}
-
-function _positionPopupNear(popup, anchor) {
-	_positionPopup(popup, anchor, 0);
+	popup.classList.add("pdsr-popup--open");
 }
 
 function _positionPopup(popup, anchor, depth) {
 	// Measure before making visible
-	popup.style.visibility = 'hidden';
-	popup.style.display = 'block';
+	popup.style.visibility = "hidden";
+	popup.style.display = "block";
 
 	const rect = anchor.getBoundingClientRect();
 	const pw = popup.offsetWidth || 280;
@@ -301,8 +377,8 @@ function _positionPopup(popup, anchor, depth) {
 
 	popup.style.left = `${left}px`;
 	popup.style.top = `${top}px`;
-	popup.style.visibility = '';
-	popup.style.display = '';
+	popup.style.visibility = "";
+	popup.style.display = "";
 }
 
 // ── Helpers ───────────────────────────────────────────────────────
@@ -310,43 +386,53 @@ function _positionPopup(popup, anchor, depth) {
 // Patches the icon element inside a .pdsr-item row to reflect a newly resolved status.
 // Called after _maybeExpand returns so the parent popup row updates without a full re-render.
 function _updateItemIcon(itemEl, status, iconMap) {
-	const icon = itemEl.querySelector('i:first-child');
+	const icon = itemEl.querySelector("i:first-child");
 	if (!icon) return;
 	// Strip existing colour and icon classes, then apply the resolved ones
-	icon.className = `${_iconClass(status, iconMap)} ${_colorClass(status)}`;
+	icon.className = _statusIconClass(status, iconMap);
+}
+
+// Status name → { icon map key, default icon, colour class }; anything else is shown as gray
+const _STATUS_STYLES = new Map([
+	[
+		"red",
+		{ key: "red", icon: "fa-solid fa-circle-xmark", color: "text-danger" },
+	],
+	[
+		"amber",
+		{
+			key: "amber",
+			icon: "fa-solid fa-triangle-exclamation",
+			color: "pdsr-icon-amber",
+		},
+	],
+	[
+		"green",
+		{ key: "green", icon: "fa-solid fa-circle-check", color: "text-success" },
+	],
+]);
+const _GRAY_STYLE = {
+	key: "gray",
+	icon: "fa-solid fa-circle-question",
+	color: "text-secondary",
+};
+
+function _statusStyle(status) {
+	return _STATUS_STYLES.get((status || "").toLowerCase()) || _GRAY_STYLE;
 }
 
 function _iconClass(status, iconMap) {
-	switch ((status || '').toLowerCase()) {
-		case 'red':   return (iconMap && iconMap.red)   || 'fa-solid fa-circle-xmark';
-		case 'amber': return (iconMap && iconMap.amber) || 'fa-solid fa-triangle-exclamation';
-		case 'green': return (iconMap && iconMap.green) || 'fa-solid fa-circle-check';
-		default:      return (iconMap && iconMap.gray)  || 'fa-solid fa-circle-question';
-	}
+	const style = _statusStyle(status);
+	return (iconMap && iconMap[style.key]) || style.icon;
 }
 
 function _colorClass(status) {
-	switch ((status || '').toLowerCase()) {
-		case 'red':   return 'text-danger';
-		case 'amber': return 'pdsr-icon-amber';
-		case 'green': return 'text-success';
-		default:      return 'text-secondary';
-	}
-}
-
-function _esc(text) {
-	if (!text) return '';
-	return text
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;');
+	return _statusStyle(status).color;
 }
 
 // ── Global popup styles (injected once) ───────────────────────────
 
-function _globalStyles() {
-	return `
+const _GLOBAL_STYLES = `
 /* PDStatusRollUp — popup styles */
 .pdsr-overlay {
 	display: none;
@@ -479,4 +565,3 @@ function _globalStyles() {
 	color: var(--bs-secondary-color, #6c757d);
 }
 `;
-}

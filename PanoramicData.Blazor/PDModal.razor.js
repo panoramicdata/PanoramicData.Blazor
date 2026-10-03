@@ -1,7 +1,6 @@
 ﻿export function initialize(id, opt, ref) {
 	var el = document.getElementById(id);
 	if (el) {
-
 		el.addEventListener("shown.bs.modal", function () {
 			if (ref) {
 				ref.invokeMethodAsync("OnModalShown");
@@ -14,7 +13,7 @@
 			}
 		});
 
-		return new bootstrap.Modal(el, opt);
+		return new window.bootstrap.Modal(el, opt);
 	}
 }
 
@@ -23,7 +22,9 @@ export function cleanupBackdrops() {
 	// the race against a page teardown - orphaning the backdrop on <body> so it blocks the whole page.
 	// Sweep any stray backdrops and restore <body> synchronously so hide-on-navigation is deterministic.
 	try {
-		document.querySelectorAll("body > .modal-backdrop").forEach(function (el) { el.remove(); });
+		document.querySelectorAll("body > .modal-backdrop").forEach(function (el) {
+			el.remove();
+		});
 		document.body.classList.remove("modal-open");
 		document.body.style.removeProperty("overflow");
 		document.body.style.removeProperty("padding-right");

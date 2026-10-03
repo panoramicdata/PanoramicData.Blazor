@@ -16,16 +16,16 @@ export function showMenu(menuId, x, y) {
 					top: y,
 					bottom: y,
 					left: x,
-					right: x
+					right: x,
 				};
-			}
+			},
 		};
 		var options = {
-			placement: 'bottom-start',
-			positionFixed: true
+			placement: "bottom-start",
+			positionFixed: true,
 		};
 		menuEl.classList.add("show");
-		popper = Popper.createPopper(reference, menuEl, options); // this is popper v2.4.4 syntax
+		popper = window.Popper.createPopper(reference, menuEl, options); // this is popper v2.4.4 syntax
 		document.addEventListener("mousedown", documentMouseDown);
 	}
 }

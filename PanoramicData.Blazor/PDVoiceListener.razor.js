@@ -9,6 +9,14 @@ function getSpeechRecognitionConstructor() {
 	return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
 
+// Returns the transcript of a final recognition result, or null
+function getFinalTranscript(result) {
+	if (!result || !result.isFinal || !result[0]) {
+		return null;
+	}
+	return result[0].transcript || null;
+}
+
 function createRecognition() {
 	const SpeechRecognitionCtor = getSpeechRecognitionConstructor();
 	if (!SpeechRecognitionCtor) {
@@ -35,12 +43,16 @@ function createRecognition() {
 		}
 
 		for (let i = event.resultIndex; i < event.results.length; i++) {
-			const result = event.results[i];
-			if (!result || !result.isFinal || !result[0] || !result[0].transcript) {
+			const transcript = getFinalTranscript(event.results[i]);
+			if (!transcript) {
 				continue;
 			}
 
-			listenerReference.invokeMethodAsync("OnRecognizedText", result[0].transcript, new Date().toISOString());
+			listenerReference.invokeMethodAsync(
+				"OnRecognizedText",
+				transcript,
+				new Date().toISOString(),
+			);
 		}
 	};
 
@@ -77,13 +89,19 @@ function createRecognition() {
 export function initialize(ref, options) {
 	listenerReference = ref;
 	mode = options && options.mode ? options.mode : "ManualActivation";
-	runInBackground = options && options.runInBackground !== undefined ? options.runInBackground : true;
+	runInBackground =
+		options && options.runInBackground !== undefined
+			? options.runInBackground
+			: true;
 	recognition = createRecognition();
 }
 
 export function configure(options) {
 	mode = options && options.mode ? options.mode : mode;
-	runInBackground = options && options.runInBackground !== undefined ? options.runInBackground : runInBackground;
+	runInBackground =
+		options && options.runInBackground !== undefined
+			? options.runInBackground
+			: runInBackground;
 }
 
 export function startListening() {
@@ -102,6 +120,7 @@ export function startListening() {
 	try {
 		recognition.start();
 	} catch {
+		// start() throws if recognition is already running; nothing more to do
 	}
 }
 
@@ -114,6 +133,7 @@ export function stopListening() {
 	try {
 		recognition.stop();
 	} catch {
+		// stop() throws if recognition has already ended; nothing more to do
 	}
 }
 
@@ -127,6 +147,7 @@ export function dispose() {
 			recognition.onend = null;
 			recognition.abort();
 		} catch {
+			// Disposal is best effort; the instance is discarded below either way
 		}
 	}
 

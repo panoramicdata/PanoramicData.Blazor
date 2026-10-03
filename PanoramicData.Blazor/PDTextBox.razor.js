@@ -18,9 +18,9 @@ export function initSpeech(lang) {
 			if (lang && lang != "") {
 				_recognition.lang = lang; // "en-GB"
 			}
-			_recognition.addEventListener('result', onSpeechResult);
-			_recognition.addEventListener('audiostart', onAudioStart);
-			_recognition.addEventListener('audioend', onAudioEnd);
+			_recognition.addEventListener("result", onSpeechResult);
+			_recognition.addEventListener("audiostart", onAudioStart);
+			_recognition.addEventListener("audioend", onAudioEnd);
 		}
 	}
 }
@@ -30,8 +30,8 @@ export function startListenForSpeech(ref) {
 		try {
 			_ref = ref;
 			_recognition.start();
-		} catch
-		{
+		} catch {
+			// start() throws if recognition is already running; nothing more to do
 		}
 	}
 }
@@ -39,9 +39,9 @@ export function startListenForSpeech(ref) {
 export function termSpeech() {
 	if (_recognition) {
 		_recognition.abort();
-		_recognition.removeEventListener('result', onSpeechResult);
-		_recognition.removeEventListener('audiostart', onAudioStart);
-		_recognition.removeEventListener('audioend', onAudioEnd);
+		_recognition.removeEventListener("result", onSpeechResult);
+		_recognition.removeEventListener("audiostart", onAudioStart);
+		_recognition.removeEventListener("audioend", onAudioEnd);
 	}
 }
 
@@ -57,11 +57,21 @@ function onAudioStart() {
 	}
 }
 
+// Returns the transcript of the first alternative of the first result, if any
+function getFirstTranscript(evt) {
+	if (!evt || !evt.results || !(evt.results.length > 0)) {
+		return null;
+	}
+	var results = evt.results[0];
+	return results.length > 0 ? results[0].transcript : null;
+}
+
 function onSpeechResult(evt) {
-	if (_ref && evt && evt.results && evt.results.length && evt.results.length > 0) {
-		var results = evt.results[0];
-		if (results.length && results.length > 0 && results[0].transcript) {
-			_ref.invokeMethodAsync("OnSpeechResult", results[0].transcript);
-		}
+	if (!_ref) {
+		return;
+	}
+	var transcript = getFirstTranscript(evt);
+	if (transcript) {
+		_ref.invokeMethodAsync("OnSpeechResult", transcript);
 	}
 }

@@ -2,18 +2,18 @@ export function initTextArea(id, ref) {
 	const textarea = document.getElementById(id);
 	if (textarea) {
 		textarea.ref = ref;
-		textarea.addEventListener('input', checkSelection);
-		textarea.addEventListener('mouseup', checkSelection);
-		textarea.addEventListener('keyup', checkSelection);
+		textarea.addEventListener("input", checkSelection);
+		textarea.addEventListener("mouseup", checkSelection);
+		textarea.addEventListener("keyup", checkSelection);
 	}
 }
 
 export function termTextArea(id) {
 	const textarea = document.getElementById(id);
 	if (textarea) {
-		textarea.removeEventListener('input', checkSelection);
-		textarea.removeEventListener('mouseup', checkSelection);
-		textarea.removeEventListener('keyup', checkSelection);
+		textarea.removeEventListener("input", checkSelection);
+		textarea.removeEventListener("mouseup", checkSelection);
+		textarea.removeEventListener("keyup", checkSelection);
 		delete textarea.ref;
 	}
 }
@@ -25,12 +25,22 @@ function checkSelection(evt) {
 		const selectionEnd = textarea.selectionEnd;
 		if (selectionStart == selectionEnd) {
 			if (textarea.ref) {
-				textarea.ref.invokeMethodAsync("OnSelectionChanged", selectionStart, selectionEnd, "");
+				textarea.ref.invokeMethodAsync(
+					"OnSelectionChanged",
+					selectionStart,
+					selectionEnd,
+					"",
+				);
 			}
 		} else {
 			var value = textarea.value.substring(selectionStart, selectionEnd);
 			if (textarea.ref) {
-				textarea.ref.invokeMethodAsync("OnSelectionChanged", selectionStart, selectionEnd, value);
+				textarea.ref.invokeMethodAsync(
+					"OnSelectionChanged",
+					selectionStart,
+					selectionEnd,
+					value,
+				);
 			}
 		}
 	}
