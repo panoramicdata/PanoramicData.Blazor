@@ -78,14 +78,9 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 	/// <param name="expression">The expression to be evaluated</param>
 	/// <param name="target">The target against which to execute the expression</param>
 	/// <returns>Boolean true if the evaluation of an expression results in a non-null result, otherwise false</returns>
-	private static bool NonNullExpressionResult(Func<T, object>? expression, T target)
+	private static bool NonNullExpressionResult(Func<T, object> expression, T target)
 	{
 		if (target is null)
-		{
-			return false;
-		}
-
-		if (expression is null)
 		{
 			return false;
 		}
@@ -141,254 +136,13 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 			throw new InvalidOperationException($"Filter is not valid: {filter.Key}");
 		}
 
-		Expression<Func<T, bool>> newPredicate = x => true;
-
 		// determine property name to use in query
 		if (string.IsNullOrEmpty(filter.PropertyName))
 		{
-			if (keyPropertyMappings != null && keyPropertyMappings.TryGetValue(filter.Key, out string? value))
-			{
-				filter.PropertyName = value;
-			}
-			else
-			{
-				// search entity properties for matching key attribute
-				// Note - currently this does NOT perform a nested search
-				var entityProperties = typeof(T).GetProperties();
-				var propertyInfo = entityProperties.SingleOrDefault(x => x.GetFilterKey() == filter.Key || x.GetDisplayShortName() == filter.Key);
-				if (propertyInfo != null)
-				{
-					filter.PropertyName = propertyInfo.Name;
-				}
-				else
-				{
-					// fallback is to simply use key
-					filter.PropertyName = filter.Key.UpperFirstChar();
-				}
-			}
+			filter.PropertyName = IQueryableExtensions.ResolvePropertyName<T>(filter.Key, keyPropertyMappings);
 		}
 
-		var property = filter.PropertyName;
-
-		// The type the value is compared with decides how a date value becomes a query parameter (#193), and
-		// whether a bare year or year and month may be read as a date at all (#197).
-		var propertyType = GetPropertyType(property);
-		var isDateProperty = IsDateType(propertyType);
-
-		object[] parameters = filter.FilterType switch
-		{
-			FilterTypes.In => [.. filter.Value.Split(["|"], StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
-			FilterTypes.NotIn => [.. filter.Value.Split(["|"], StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
-			FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
-			FilterTypes.IsEmpty => [string.Empty],
-			FilterTypes.IsNotEmpty => [string.Empty],
-			_ => [filter.Value.RemoveQuotes()]
-		};
-
-		switch (filter.FilterType)
-		{
-			case FilterTypes.Contains:
-				// TODO: allow for case insensitivity
-				//var lowerParams = parameters.Where(x => x != null).Select(x => x.ToString()!.ToLowerInvariant()).ToArray();
-				//newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"({property}.ToLower()).Contains(@0)", lowerParams);
-				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"({property}).Contains(@0)", parameters);
-				break;
-
-			case FilterTypes.DoesNotContain:
-				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"!{property}.Contains(@0)", parameters);
-				break;
-
-			case FilterTypes.IsNotEmpty:
-			case FilterTypes.DoesNotEqual:
-				{
-					if (Filter.IsDateTime(filter.Value, isDateProperty, out var from, out var format, out var datePrecision))
-					{
-						from = ZeroOutDateParts(from, datePrecision);
-						var equalsToUTC = ToParameter(GetDateRangeEnd(from, datePrecision), propertyType);
-						var equalsFromUTC = ToParameter(from, propertyType);
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 || {property} < @1", equalsToUTC, equalsFromUTC);
-					}
-					else
-					{
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} != @0", parameters);
-					}
-
-					break;
-				}
-			case FilterTypes.EndsWith:
-				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property}.EndsWith(@0)", parameters);
-				break;
-
-			case FilterTypes.GreaterThan:
-				{
-					if (Filter.IsDateTime(filter.Value, isDateProperty, out var gtDateTime, out var format, out var datePrecision))
-					{
-						gtDateTime = GetDateRangeEnd(gtDateTime, datePrecision);
-						var addedASecond = ToParameter(gtDateTime, propertyType);
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", addedASecond);
-					}
-					else
-					{
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} > @0", parameters);
-					}
-
-					break;
-				}
-			case FilterTypes.GreaterThanOrEqual:
-				{
-					if (Filter.IsDateTime(filter.Value, isDateProperty, out var gteqDateTime, out var formatFound, out var datePrecision))
-					{
-						var addedASecond = ToParameter(gteqDateTime, propertyType);
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", addedASecond);
-					}
-					else
-					{
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0", parameters);
-					}
-
-					break;
-				}
-			case FilterTypes.In:
-				{
-					var allDateTimes = Array.TrueForAll(parameters, p => Filter.IsDateTime(p.ToString(), isDateProperty, out _, out var _, out var _));
-					if (allDateTimes)
-					{
-						var dateTimeParameters = parameters.Select(p =>
-						{
-							Filter.IsDateTime(p.ToString(), isDateProperty, out var dt, out var formatFound, out var datePrecision);
-							dt = ZeroOutDateParts(dt, datePrecision);
-							var dtTo = GetDateRangeEnd(dt, datePrecision);
-							return new { Start = ToParameter(dt, propertyType), End = ToParameter(dtTo, propertyType) };
-						}).ToArray();
-
-						var query = string.Join(" || ", dateTimeParameters.Select((p, i) => $"(it.{property} >= @{i * 2} && it.{property} < @{i * 2 + 1})").ToArray());
-						var dateTimeValues = dateTimeParameters.SelectMany(p => new object[] { p.Start, p.End }).ToArray();
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, dateTimeValues);
-					}
-					else
-					{
-						var query = string.Join(" || ", parameters.Select((x, i) => $"it.{property} == @{i}").ToArray());
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, parameters);
-					}
-				}
-
-				break;
-
-			case FilterTypes.NotIn:
-				{
-					var allDateTimes = Array.TrueForAll(parameters, p => Filter.IsDateTime(p.ToString(), isDateProperty, out _, out var _, out var _));
-					if (allDateTimes)
-					{
-						var dateTimeParameters = parameters.Select(p =>
-						{
-							Filter.IsDateTime(p.ToString(), isDateProperty, out var dt, out var format, out var datePrecision);
-							dt = ZeroOutDateParts(dt, datePrecision);
-							var dtTo = GetDateRangeEnd(dt, datePrecision);
-							return new { Start = ToParameter(dt, propertyType), End = ToParameter(dtTo, propertyType) };
-						}).ToArray();
-
-						var query = string.Join(" && ", dateTimeParameters.Select((p, i) => $"!(it.{property} >= @{i * 2} && it.{property} < @{i * 2 + 1})").ToArray());
-						var dateTimeValues = dateTimeParameters.SelectMany(p => new object[] { p.Start, p.End }).ToArray();
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, dateTimeValues);
-					}
-					else
-					{
-						var query = string.Join(" && ", parameters.Select((x, i) => $"it.{property} != @{i}").ToArray());
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, query, parameters);
-					}
-				}
-
-				break;
-
-			case FilterTypes.LessThan:
-				{
-					if (Filter.IsDateTime(filter.Value, isDateProperty, out var ltDateTime, out var format, out var datePrecision))
-					{
-						ltDateTime = ZeroOutDateParts(ltDateTime, datePrecision);
-						var addedASecond = ToParameter(ltDateTime, propertyType);
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} < @0", addedASecond);
-					}
-					else
-					{
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} < @0", parameters);
-					}
-
-					break;
-				}
-			case FilterTypes.LessThanOrEqual:
-				{
-					if (Filter.IsDateTime(filter.Value, isDateProperty, out var lteqDateTime, out var formatFound, out var datePrecision))
-					{
-						lteqDateTime = ZeroOutDateParts(lteqDateTime, datePrecision);
-						lteqDateTime = GetDateRangeEnd(lteqDateTime, datePrecision);
-						var addedASecondUTC = ToParameter(lteqDateTime, propertyType);
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} < @0", addedASecondUTC);
-					}
-					else
-					{
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} <= @0", parameters);
-					}
-
-					break;
-				}
-			case FilterTypes.Range:
-				if (Filter.IsDateTime(filter.Value, isDateProperty, out var rangeFrom, out var fromFormat, out var fromDatePrecision) &&
-						Filter.IsDateTime(filter.Value2, isDateProperty, out var rangeTo, out var toFormat, out var toDatePrecision))
-				{
-					if (rangeFrom > rangeTo)
-					{
-						(rangeTo, rangeFrom) = (rangeFrom, rangeTo);
-					}
-
-					rangeFrom = ZeroOutDateParts(rangeFrom, fromDatePrecision);
-					rangeTo = GetDateRangeEnd(rangeTo, toDatePrecision);
-					var equalsToUTC = ToParameter(rangeTo, propertyType);
-					var equalsFromUTC = ToParameter(rangeFrom, propertyType);
-
-					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} < @1", equalsFromUTC, equalsToUTC);
-				}
-				else
-				{
-					newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} <= @1", parameters);
-				}
-
-				break;
-
-			case FilterTypes.StartsWith:
-				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property}.StartsWith(@0)", parameters);
-				break;
-
-			case FilterTypes.IsNull:
-				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} == null");
-				break;
-
-			case FilterTypes.IsNotNull:
-				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} != null");
-				break;
-
-			case FilterTypes.IsEmpty:
-			case FilterTypes.Equals:
-				{
-					if (Filter.IsDateTime(filter.Value, isDateProperty, out var equalsFrom, out var formatFound, out var datePrecision))
-					{
-						equalsFrom = ZeroOutDateParts(equalsFrom, datePrecision);
-						var equalsTo = GetDateRangeEnd(equalsFrom, datePrecision);
-						var equalsToUTC = ToParameter(equalsTo, propertyType);
-						var equalsFromUTC = ToParameter(equalsFrom, propertyType);
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} >= @0 && {property} < @1", equalsFromUTC, equalsToUTC);
-					}
-					else
-					{
-						newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} == @0", parameters);
-					}
-
-					break;
-				}
-			default:
-				newPredicate = DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, $"{property} == @0", parameters);
-				break;
-		}
-
+		var newPredicate = BuildPredicate(new PredicateContext(filter));
 		return existingPredicate is null ? newPredicate : PredicateBuilderService.And(existingPredicate, newPredicate);
 	}
 
@@ -425,12 +179,157 @@ public abstract class DataProviderBase<T> : IDataProviderService<T>, IFilterProv
 			predicate = ApplyFilter(predicate, filter);
 		}
 
-		if (predicate is null)
+		return predicate ?? (x => true);
+	}
+
+	private static Expression<Func<T, bool>> BuildPredicate(PredicateContext context)
+	{
+		var property = context.Property;
+		var parameters = context.Parameters;
+		return context.Filter.FilterType switch
 		{
-			return x => true;
+			// TODO: allow for case insensitivity
+			FilterTypes.Contains => Parse($"({property}).Contains(@0)", parameters),
+			FilterTypes.DoesNotContain => Parse($"!{property}.Contains(@0)", parameters),
+			FilterTypes.IsNotEmpty or FilterTypes.DoesNotEqual => BuildDoesNotEqual(context),
+			FilterTypes.EndsWith => Parse($"{property}.EndsWith(@0)", parameters),
+			FilterTypes.GreaterThan => BuildGreaterThan(context),
+			FilterTypes.GreaterThanOrEqual => BuildGreaterThanOrEqual(context),
+			FilterTypes.In => BuildMembership(context, false),
+			FilterTypes.NotIn => BuildMembership(context, true),
+			FilterTypes.LessThan => BuildLessThan(context),
+			FilterTypes.LessThanOrEqual => BuildLessThanOrEqual(context),
+			FilterTypes.Range => BuildRange(context),
+			FilterTypes.StartsWith => Parse($"{property}.StartsWith(@0)", parameters),
+			FilterTypes.IsNull => Parse($"{property} == null"),
+			FilterTypes.IsNotNull => Parse($"{property} != null"),
+			FilterTypes.IsEmpty or FilterTypes.Equals => BuildEquals(context),
+			_ => Parse($"{property} == @0", parameters)
+		};
+	}
+
+	private static Expression<Func<T, bool>> BuildDoesNotEqual(PredicateContext context)
+	{
+		if (context.ParseDate(context.Filter.Value) is not { } date)
+		{
+			return Parse($"{context.Property} != @0", context.Parameters);
 		}
 
-		return predicate ?? PredicateBuilderService.True<T>();
+		var from = ZeroOutDateParts(date.Date, date.Precision);
+		var to = GetDateRangeEnd(from, date.Precision);
+		return Parse($"{context.Property} >= @0 || {context.Property} < @1", context.ToParameter(to), context.ToParameter(from));
+	}
+
+	private static Expression<Func<T, bool>> BuildEquals(PredicateContext context)
+	{
+		if (context.ParseDate(context.Filter.Value) is not { } date)
+		{
+			return Parse($"{context.Property} == @0", context.Parameters);
+		}
+
+		var from = ZeroOutDateParts(date.Date, date.Precision);
+		var to = GetDateRangeEnd(from, date.Precision);
+		return Parse($"{context.Property} >= @0 && {context.Property} < @1", context.ToParameter(from), context.ToParameter(to));
+	}
+
+	private static Expression<Func<T, bool>> BuildGreaterThan(PredicateContext context)
+		=> context.ParseDate(context.Filter.Value) is { } date
+			? Parse($"{context.Property} >= @0", context.ToParameter(GetDateRangeEnd(date.Date, date.Precision)))
+			: Parse($"{context.Property} > @0", context.Parameters);
+
+	private static Expression<Func<T, bool>> BuildGreaterThanOrEqual(PredicateContext context)
+		=> context.ParseDate(context.Filter.Value) is { } date
+			? Parse($"{context.Property} >= @0", context.ToParameter(date.Date))
+			: Parse($"{context.Property} >= @0", context.Parameters);
+
+	private static Expression<Func<T, bool>> BuildLessThan(PredicateContext context)
+		=> context.ParseDate(context.Filter.Value) is { } date
+			? Parse($"{context.Property} < @0", context.ToParameter(ZeroOutDateParts(date.Date, date.Precision)))
+			: Parse($"{context.Property} < @0", context.Parameters);
+
+	private static Expression<Func<T, bool>> BuildLessThanOrEqual(PredicateContext context)
+		=> context.ParseDate(context.Filter.Value) is { } date
+			? Parse($"{context.Property} < @0", context.ToParameter(GetDateRangeEnd(date.Date, date.Precision)))
+			: Parse($"{context.Property} <= @0", context.Parameters);
+
+	private static Expression<Func<T, bool>> BuildRange(PredicateContext context)
+	{
+		if (context.ParseDate(context.Filter.Value) is not { } from || context.ParseDate(context.Filter.Value2) is not { } to)
+		{
+			return Parse($"{context.Property} >= @0 && {context.Property} <= @1", context.Parameters);
+		}
+
+		// the values are swapped when given in the wrong order, but each keeps the precision it was written with
+		var rangeFrom = from.Date;
+		var rangeTo = to.Date;
+		if (rangeFrom > rangeTo)
+		{
+			(rangeTo, rangeFrom) = (rangeFrom, rangeTo);
+		}
+
+		rangeFrom = ZeroOutDateParts(rangeFrom, from.Precision);
+		rangeTo = GetDateRangeEnd(rangeTo, to.Precision);
+		return Parse($"{context.Property} >= @0 && {context.Property} < @1", context.ToParameter(rangeFrom), context.ToParameter(rangeTo));
+	}
+
+	private static Expression<Func<T, bool>> BuildMembership(PredicateContext context, bool negate)
+	{
+		var joiner = negate ? " && " : " || ";
+		var dates = Array.ConvertAll(context.Parameters, p => context.ParseDate(p.ToString()));
+		if (!Array.TrueForAll(dates, d => d.HasValue))
+		{
+			var comparison = negate ? "!=" : "==";
+			return Parse(string.Join(joiner, context.Parameters.Select((_, i) => $"it.{context.Property} {comparison} @{i}")), context.Parameters);
+		}
+
+		var boundaries = dates.SelectMany(d =>
+		{
+			var start = ZeroOutDateParts(d!.Value.Date, d.Value.Precision);
+			return new object[] { context.ToParameter(start), context.ToParameter(GetDateRangeEnd(start, d.Value.Precision)) };
+		}).ToArray();
+		var not = negate ? "!" : string.Empty;
+		var query = string.Join(joiner, dates.Select((_, i) => $"{not}(it.{context.Property} >= @{i * 2} && it.{context.Property} < @{i * 2 + 1})"));
+		return Parse(query, boundaries);
+	}
+
+	private static Expression<Func<T, bool>> Parse(string expression, params object[] values)
+		=> DynamicExpressionParser.ParseLambda<T, bool>(ParsingConfig.Default, false, expression, values);
+
+	/// <summary>
+	/// What a predicate is built from: the filter, the property it compares, and that property's type, which decides
+	/// how a date value becomes a query parameter (#193) and whether a bare year or year and month may be read as a
+	/// date at all (#197).
+	/// </summary>
+	private sealed class PredicateContext
+	{
+		private readonly Type? _propertyType;
+		private readonly bool _isDateProperty;
+
+		public PredicateContext(Filter filter)
+		{
+			Filter = filter;
+			Property = filter.PropertyName;
+			_propertyType = GetPropertyType(Property);
+			_isDateProperty = IsDateType(_propertyType);
+			Parameters = filter.FilterType switch
+			{
+				FilterTypes.In or FilterTypes.NotIn => [.. filter.Value.Split('|', StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
+				FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
+				FilterTypes.IsEmpty or FilterTypes.IsNotEmpty => [string.Empty],
+				_ => [filter.Value.RemoveQuotes()]
+			};
+		}
+
+		public Filter Filter { get; }
+
+		public string Property { get; }
+
+		public object[] Parameters { get; }
+
+		public (DateTime Date, DatePrecision Precision)? ParseDate(string? value)
+			=> Filter.IsDateTime(value, _isDateProperty, out var date, out _, out var precision) ? (date, precision) : null;
+
+		public string ToParameter(DateTime boundary) => DataProviderBase<T>.ToParameter(boundary, _propertyType);
 	}
 
 	/// <summary>

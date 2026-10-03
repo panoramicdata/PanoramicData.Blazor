@@ -26,7 +26,7 @@ public class ChatConversation
 	/// Exposed rather than inlined so that a caller wanting to sort or filter untitled conversations, or a test
 	/// asserting on one, does not have to hard-code the same string and drift from it later.
 	/// </remarks>
-	public const string UntitledDisplayName = "New conversation";
+	public static string UntitledDisplayName => "New conversation";
 
 	/// <summary>
 	/// The identifier standing for the single conversation held by a chat service that does not support

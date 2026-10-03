@@ -57,9 +57,17 @@ public class ColorValue : IEquatable<ColorValue>
 	}
 
 	/// <summary>
+	/// Creates a new, fully opaque ColorValue from RGB values.
+	/// </summary>
+	public ColorValue(byte r, byte g, byte b)
+		: this(r, g, b, 1.0)
+	{
+	}
+
+	/// <summary>
 	/// Creates a new ColorValue from RGB values.
 	/// </summary>
-	public ColorValue(byte r, byte g, byte b, double a = 1.0)
+	public ColorValue(byte r, byte g, byte b, double a)
 	{
 		R = r;
 		G = g;
@@ -80,9 +88,15 @@ public class ColorValue : IEquatable<ColorValue>
 	}
 
 	/// <summary>
+	/// Creates a fully opaque ColorValue from HSV values.
+	/// </summary>
+	public static ColorValue FromHsv(double h, double s, double v)
+		=> FromHsv(h, s, v, 1.0);
+
+	/// <summary>
 	/// Creates a ColorValue from HSV values.
 	/// </summary>
-	public static ColorValue FromHsv(double h, double s, double v, double a = 1.0)
+	public static ColorValue FromHsv(double h, double s, double v, double a)
 	{
 		var color = new ColorValue { A = Math.Clamp(a, 0, 1) };
 		color.SetFromHsv(h, s, v);
@@ -90,9 +104,15 @@ public class ColorValue : IEquatable<ColorValue>
 	}
 
 	/// <summary>
+	/// Creates a fully opaque ColorValue from HSL values.
+	/// </summary>
+	public static ColorValue FromHsl(double h, double s, double l)
+		=> FromHsl(h, s, l, 1.0);
+
+	/// <summary>
 	/// Creates a ColorValue from HSL values.
 	/// </summary>
-	public static ColorValue FromHsl(double h, double s, double l, double a = 1.0)
+	public static ColorValue FromHsl(double h, double s, double l, double a)
 	{
 		var color = new ColorValue { A = Math.Clamp(a, 0, 1) };
 		color.SetFromHsl(h, s, l);
@@ -352,7 +372,8 @@ public class ColorValue : IEquatable<ColorValue>
 
 	private void UpdateRgbFromHsl(double saturation)
 	{
-		if (saturation == 0)
+		// saturation is clamped to 0-1, so anything not above zero is achromatic
+		if (saturation <= 0)
 		{
 			var gray = (byte)Math.Round(L * 255);
 			R = G = B = gray;
@@ -398,18 +419,13 @@ public class ColorValue : IEquatable<ColorValue>
 	}
 
 	/// <inheritdoc />
-	public bool Equals(ColorValue? other)
-	{
-		if (other is null)
-		{
-			return false;
-		}
-
-		return R == other.R && G == other.G && B == other.B && Math.Abs(A - other.A) < 0.001;
-	}
+	bool IEquatable<ColorValue>.Equals(ColorValue? other) => IsSameColor(other);
 
 	/// <inheritdoc />
-	public override bool Equals(object? obj) => Equals(obj as ColorValue);
+	public override bool Equals(object? obj) => IsSameColor(obj as ColorValue);
+
+	private bool IsSameColor(ColorValue? other)
+		=> other is not null && R == other.R && G == other.G && B == other.B && Math.Abs(A - other.A) < 0.001;
 
 	/// <inheritdoc />
 	public override int GetHashCode() => HashCode.Combine(R, G, B, A);
