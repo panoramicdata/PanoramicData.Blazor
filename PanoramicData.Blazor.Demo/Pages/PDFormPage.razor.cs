@@ -74,21 +74,9 @@ public partial class PDFormPage
 		}
 	}
 
-	private void OnPersonCreated(Person person)
+	private void OnPersonChanged(string eventName, Person person)
 	{
-		EventManager?.Add(new Event("PersonCreated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-		RefreshPeople();
-	}
-
-	private void OnPersonUpdated(Person person)
-	{
-		EventManager?.Add(new Event("PersonUpdated", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
-		RefreshPeople();
-	}
-
-	private void OnPersonDeleted(Person person)
-	{
-		EventManager?.Add(new Event("PersonDeleted", new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
+		EventManager?.Add(new Event(eventName, new EventArgument("Forename", person.FirstName), new EventArgument("Surname", person.LastName)));
 		RefreshPeople();
 	}
 
@@ -113,21 +101,13 @@ public partial class PDFormPage
 			InvokeAsync(() => StateHasChanged());
 		}
 	}
-	private async Task OnEditPerson(Person? person)
+
+	private async Task EditPersonAsync(Person person, FormModes mode)
 	{
 		if (await NavigationCancelService.ProceedAsync().ConfigureAwait(true))
 		{
 			SelectedPerson = person;
-			await Form.EditItemAsync(SelectedPerson, FormModes.Edit).ConfigureAwait(true);
-		}
-	}
-
-	private async Task OnCreatePerson()
-	{
-		if (await NavigationCancelService.ProceedAsync().ConfigureAwait(true))
-		{
-			SelectedPerson = new Person();
-			await Form.EditItemAsync(SelectedPerson, FormModes.Create).ConfigureAwait(true);
+			await Form.EditItemAsync(SelectedPerson, mode).ConfigureAwait(true);
 		}
 	}
 }

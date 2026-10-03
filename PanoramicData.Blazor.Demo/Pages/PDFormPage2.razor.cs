@@ -19,13 +19,8 @@ public partial class PDFormPage2
 	protected PDForm<Person> Form5 { get; set; } = null!;
 	protected PDForm<Person> Form6 { get; set; } = null!;
 
-	// Per-example selected person
-	private Person? _selected1;
-	private Person? _selected2;
-	private Person? _selected3;
-	private Person? _selected4;
-	private Person? _selected5;
-	private Person? _selected6;
+	// Per-example selected person (index = example number - 1)
+	private readonly Person?[] _selected = new Person?[6];
 
 	private List<Person> People { get; set; } = [];
 
@@ -36,59 +31,12 @@ public partial class PDFormPage2
 		RefreshPeople();
 	}
 
-	// ── Example 1: Standard Edit / Create ──
-	private async Task OnExample1EditAsync(Person person)
+	// ── Opens an example's form in its modal ──
+	private async Task ShowExampleAsync(int example, PDForm<Person> form, PDModal modal, Person person, FormModes mode, bool? validate)
 	{
-		_selected1 = person;
-		await Form1.EditItemAsync(_selected1, FormModes.Edit).ConfigureAwait(true);
-		await Modal1.ShowAsync().ConfigureAwait(true);
-	}
-
-	private async Task OnExample1CreateAsync()
-	{
-		_selected1 = new Person();
-		await Form1.EditItemAsync(_selected1, FormModes.Create).ConfigureAwait(true);
-		await Modal1.ShowAsync().ConfigureAwait(true);
-	}
-
-	// ── Example 2: ReadOnly ──
-	private async Task OnExample2ViewAsync(Person person)
-	{
-		_selected2 = person;
-		await Form2.EditItemAsync(_selected2, FormModes.ReadOnly).ConfigureAwait(true);
-		await Modal2.ShowAsync().ConfigureAwait(true);
-	}
-
-	// ── Example 3: Edit + Delete ──
-	private async Task OnExample3DeleteAsync(Person person)
-	{
-		_selected3 = person;
-		await Form3.EditItemAsync(_selected3, FormModes.Edit).ConfigureAwait(true);
-		await Modal3.ShowAsync().ConfigureAwait(true);
-	}
-
-	// ── Example 4: Custom button text (Approve / Reject) ──
-	private async Task OnExample4ApproveAsync(Person person)
-	{
-		_selected4 = person;
-		await Form4.EditItemAsync(_selected4, FormModes.Edit).ConfigureAwait(true);
-		await Modal4.ShowAsync().ConfigureAwait(true);
-	}
-
-	// ── Example 5: No Cancel button ──
-	private async Task OnExample5NoCancelAsync(Person person)
-	{
-		_selected5 = person;
-		await Form5.EditItemAsync(_selected5, FormModes.Edit).ConfigureAwait(true);
-		await Modal5.ShowAsync().ConfigureAwait(true);
-	}
-
-	// ── Example 6: Immediate validation on a blank Create form ──
-	private async Task OnExample6ValidateAsync()
-	{
-		_selected6 = new Person(); // completely empty - all required fields will show errors immediately
-		await Form6.EditItemAsync(_selected6, FormModes.Create, validate: true).ConfigureAwait(true);
-		await Modal6.ShowAsync().ConfigureAwait(true);
+		_selected[example - 1] = person;
+		await form.EditItemAsync(person, mode, validate).ConfigureAwait(true);
+		await modal.ShowAsync().ConfigureAwait(true);
 	}
 
 	// ── Shared handlers ──

@@ -23,7 +23,7 @@
 		<PDToolbarButton Text="Create Person"
 						 ShiftRight="true"
 						 CssClass="btn-primary"
-						 Click="OnCreatePerson" />
+						 Click="@(() => EditPersonAsync(new Person(), FormModes.Create))" />
 
 	</PDToolbar>
 
@@ -32,7 +32,7 @@
 		<div class="pe-4">
 			@foreach (var person in People)
 			{
-				<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => OnEditPerson(person)">
+				<div class="person-list @(person == SelectedPerson ? "selected" : "")" @onclick="(_) => EditPersonAsync(person, FormModes.Edit)">
 					<span>@person.FirstName</span>&nbsp;<span>@person.LastName</span>
 				</div>
 			}
@@ -47,9 +47,9 @@
 				DataProvider="_personDataProvider"
 				Error="OnError"
 				FieldUpdated="OnFieldUpdated"
-				Deleted="OnPersonDeleted"
-				Updated="OnPersonUpdated"
-				Created="OnPersonCreated">
+				Deleted="@(p => OnPersonChanged("PersonDeleted", p))"
+				Updated="@(p => OnPersonChanged("PersonUpdated", p))"
+				Created="@(p => OnPersonChanged("PersonCreated", p))">
 
 			<PDFormHeader TItem="Person"
 						  CreateTitle="Create New Person"
