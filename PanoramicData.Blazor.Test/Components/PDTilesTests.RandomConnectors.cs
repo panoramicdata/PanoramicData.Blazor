@@ -100,6 +100,23 @@ public partial class PDTilesTests
 		Generate(EveryEdge(), gridPopulation: 0).Should().BeEmpty();
 	}
 
+	/// <summary>A tile hidden by its definition gets no connectors, while its visible neighbours stay connected.</summary>
+	[Fact]
+	public void Random_HiddenTile_GetsNoConnectors()
+	{
+		var cut = Render<PDTiles>(p => p
+			.Add(x => x.Options, new TileGridOptions { Columns = 2, Rows = 2 })
+			.Add(x => x.ConnectorOptions, EveryEdge())
+			.Add(x => x.Logos, ["tiles/Alpha Logo.svg"])
+			.Add(x => x.Tiles, [new TileDefinition { Column = 1, Row = 1, Visible = false }]));
+
+		var connectors = cut.Instance.GenerateRandomConnectors();
+
+		// Of the six neighbouring pairs, the three that include the hidden tile are skipped
+		connectors.Should().HaveCount(3)
+			.And.OnlyContain(c => !(c.StartTile.Column == 1 && c.StartTile.Row == 1) && !(c.EndTile.Column == 1 && c.EndTile.Row == 1));
+	}
+
 	/// <summary>Generated connectors take their settings from the options and their colours from the palette in turn.</summary>
 	[Fact]
 	public void Random_CopiesOptions_AndCyclesThePalette()
