@@ -1,62 +1,43 @@
-﻿export function initialize(id, toggleId, dropdownId, ref, opt) {
+﻿// Calls a .NET method on the component reference, ignoring a disconnected circuit
+function invokeDotNet(ref, method, ...args) {
+	try {
+		ref.invokeMethodAsync(method, ...args);
+	} catch {
+		// BC-85: Circuit may be disconnected
+	}
+}
+
+// Whether the pointer has left for an element outside the drop down with the given id
+function isLeavingDropDown(ev, id) {
+	return ev.relatedTarget?.parentElement?.id != id;
+}
+
+export function initialize(id, toggleId, dropdownId, ref, opt) {
 	var el = document.getElementById(toggleId);
 	if (ref && el) {
 		el.parentElement.addEventListener("keypress", function (ev) {
 			if (ev.keyCode === 13) {
-				try {
-					ref.invokeMethodAsync("OnKeyPressed", 13);
-				} catch {
-					// BC-85: Circuit may be disconnected
-				}
+				invokeDotNet(ref, "OnKeyPressed", 13);
 			}
 		});
 
 		el.addEventListener("shown.bs.dropdown", function () {
-			try {
-				ref.invokeMethodAsync("OnDropDownShown");
-			} catch {
-				// BC-85: Circuit may be disconnected
-			}
+			invokeDotNet(ref, "OnDropDownShown");
 		});
 
 		el.addEventListener("hidden.bs.dropdown", function () {
-			try {
-				ref.invokeMethodAsync("OnDropDownHidden");
-			} catch {
-				// BC-85: Circuit may be disconnected
-			}
+			invokeDotNet(ref, "OnDropDownHidden");
 		});
 
-		el.addEventListener("mouseleave", function (ev) {
-			if (
-				!ev.relatedTarget ||
-				!ev.relatedTarget.parentElement ||
-				ev.relatedTarget.parentElement.id != id
-			) {
-				try {
-					ref.invokeMethodAsync("OnMouseLeave");
-				} catch {
-					// BC-85: Circuit may be disconnected
-				}
+		const onMouseLeave = function (ev) {
+			if (isLeavingDropDown(ev, id)) {
+				invokeDotNet(ref, "OnMouseLeave");
 			}
-		});
-
-		var dropdownEl = document.getElementById(dropdownId);
-		if (dropdownEl) {
-			dropdownEl.addEventListener("mouseleave", function (ev) {
-				if (
-					!ev.relatedTarget ||
-					!ev.relatedTarget.parentElement ||
-					ev.relatedTarget.parentElement.id != id
-				) {
-					try {
-						ref.invokeMethodAsync("OnMouseLeave");
-					} catch {
-						// BC-85: Circuit may be disconnected
-					}
-				}
-			});
-		}
+		};
+		el.addEventListener("mouseleave", onMouseLeave);
+		document
+			.getElementById(dropdownId)
+			?.addEventListener("mouseleave", onMouseLeave);
 
 		// Use 'fixed' strategy so Popper.js positions relative to the viewport.
 		// Without this, dropdowns inside overflow:hidden/auto ancestors (e.g. fixed-height

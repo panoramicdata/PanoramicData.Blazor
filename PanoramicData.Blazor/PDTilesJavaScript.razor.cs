@@ -96,7 +96,7 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender && JSRuntime is not null)
+		if (firstRender)
 		{
 			_objRef = DotNetObjectReference.Create(this);
 			_module = await JSRuntime.InvokeAsync<IJSObjectReference>(
@@ -110,11 +110,6 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 
 	private async Task InitializeGrid()
 	{
-		if (_module == null)
-		{
-			return;
-		}
-
 		var config = new
 		{
 			cols = Options.Columns,
@@ -148,7 +143,7 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 			logos = Logos
 		};
 
-		await _module.InvokeVoidAsync("initialize", Id, config, _objRef).ConfigureAwait(true);
+		await InvokeModuleAsync("initialize", Id, config, _objRef).ConfigureAwait(true);
 	}
 
 	private string GetConnectorDirection()
@@ -169,11 +164,6 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 	/// </summary>
 	public async Task UpdateAsync()
 	{
-		if (_module == null)
-		{
-			return;
-		}
-
 		var config = new
 		{
 			cols = Options.Columns,
@@ -197,7 +187,7 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 			floatSize = Options.FloatSize
 		};
 
-		await _module.InvokeVoidAsync("update", Id, config).ConfigureAwait(true);
+		await InvokeModuleAsync("update", Id, config).ConfigureAwait(true);
 	}
 
 	/// <summary>
@@ -205,12 +195,7 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 	/// </summary>
 	public async Task ShuffleAsync()
 	{
-		if (_module == null)
-		{
-			return;
-		}
-
-		await _module.InvokeVoidAsync("shuffle", Id).ConfigureAwait(true);
+		await InvokeModuleAsync("shuffle", Id).ConfigureAwait(true);
 	}
 
 	/// <summary>
@@ -218,12 +203,7 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 	/// </summary>
 	public async Task RandomizeConnectorsAsync()
 	{
-		if (_module == null)
-		{
-			return;
-		}
-
-		await _module.InvokeVoidAsync("randomizeConnectors", Id).ConfigureAwait(true);
+		await InvokeModuleAsync("randomizeConnectors", Id).ConfigureAwait(true);
 	}
 
 	/// <summary>
@@ -231,12 +211,16 @@ public partial class PDTilesJavaScript : ComponentBase, IAsyncDisposable
 	/// </summary>
 	public async Task ClearConnectorsAsync()
 	{
-		if (_module == null)
-		{
-			return;
-		}
+		await InvokeModuleAsync("clearConnectors", Id).ConfigureAwait(true);
+	}
 
-		await _module.InvokeVoidAsync("clearConnectors", Id).ConfigureAwait(true);
+	// Calls the JavaScript module, once it has been loaded
+	private async Task InvokeModuleAsync(string identifier, params object?[] args)
+	{
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync(identifier, args).ConfigureAwait(true);
+		}
 	}
 
 	/// <summary>
