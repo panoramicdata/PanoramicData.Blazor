@@ -7,19 +7,19 @@ public partial class PDFileExplorer
 {
 	private async Task OnTogglePreviewPanelAsync()
 	{
-		if (_splitter != null)
+		if (Splitter != null)
 		{
 			if (PreviewPanelVisible)
 			{
-				_lastSplitSizes = await _splitter.GetSizesAsync().ConfigureAwait(true);
+				_lastSplitSizes = await Splitter.GetSizesAsync().ConfigureAwait(true);
 				if (_lastSplitSizes.Length > 2)
 				{
-					await _splitter.SetSizesAsync([_lastSplitSizes[0], _lastSplitSizes[1] + _lastSplitSizes[2], 0]).ConfigureAwait(true);
+					await Splitter.SetSizesAsync([_lastSplitSizes[0], _lastSplitSizes[1] + _lastSplitSizes[2], 0]).ConfigureAwait(true);
 				}
 			}
 			else
 			{
-				await _splitter.SetSizesAsync(_lastSplitSizes).ConfigureAwait(true);
+				await Splitter.SetSizesAsync(_lastSplitSizes).ConfigureAwait(true);
 			}
 
 			PreviewPanelVisible = !PreviewPanelVisible;
@@ -29,99 +29,63 @@ public partial class PDFileExplorer
 	}
 
 	private async Task OnToolbarButtonClickAsync(KeyedEventArgs<MouseEventArgs> args)
-	{
-		switch (args.Key)
+		=> await (args.Key switch
 		{
-			case "navigate-up":
-				await NavigateUpAsync().ConfigureAwait(true);
-				break;
+			"navigate-up" => NavigateUpAsync(),
+			"open" => OpenSelectedFolderAsync(),
+			"create-folder" => CreateNewFolderAsync(false),
+			"delete" => DeleteFilesAsync(),
+			"upload" => ShowUploadDialogAsync(),
+			"refresh" => RefreshAllAsync(),
+			"preview" when PreviewPanel is FilePreviewModes.OptionalOff or FilePreviewModes.OptionalOn => OnTogglePreviewPanelAsync(),
+			"preview" => Task.CompletedTask,
+			_ => ToolbarClick.InvokeAsync(args.Key)
+		}).ConfigureAwait(true);
 
-			case "open":
-				var selectedFolderPath = Table?.Selection[0];
-				if (selectedFolderPath != null)
-				{
-					await NavigateFolderAsync(selectedFolderPath).ConfigureAwait(true);
-				}
-
-				break;
-
-			case "create-folder":
-				await CreateNewFolderAsync(false).ConfigureAwait(true);
-				break;
-
-			case "delete":
-				await DeleteFilesAsync().ConfigureAwait(true);
-				break;
-
-			case "upload":
-				if (UploadDialog != null)
-				{
-					await UploadDialog.ShowAsync().ConfigureAwait(true);
-				}
-
-				break;
-
-			case "refresh":
-				await RefreshAllAsync().ConfigureAwait(true);
-				break;
-
-			case "preview":
-				if (PreviewPanel == FilePreviewModes.OptionalOff || PreviewPanel == FilePreviewModes.OptionalOn)
-				{
-					await OnTogglePreviewPanelAsync().ConfigureAwait(true);
-				}
-
-				break;
-
-			default:
-				await ToolbarClick.InvokeAsync(args.Key).ConfigureAwait(true);
-				break;
+	private async Task OpenSelectedFolderAsync()
+	{
+		var selectedFolderPath = Table?.Selection[0];
+		if (selectedFolderPath != null)
+		{
+			await NavigateFolderAsync(selectedFolderPath).ConfigureAwait(true);
 		}
 	}
 
 	private async Task OnDropAsync(DropEventArgs args)
 	{
 		// unwrap FileExplorerItem
-		if (args.Target is null)
+		args.Target = args.Target switch
 		{
-			args.Target = _selectedNode?.Data;
-		}
-		else if (args.Target is TreeNode<FileExplorerItem> node)
-		{
-			args.Target = node.Data;
-		}
+			null => _selectedNode?.Data,
+			TreeNode<FileExplorerItem> node => node.Data,
+			var other => other
+		};
 
 		// source and target are file items - and target is folder?
 		// and the folder accepts new items (the tree checks this before a drop, the table does not)?
-		if (args.Target is FileExplorerItem target && target.EntryType == FileExplorerItemType.Directory && CanDropInto(target))
+		if (args.Target is not FileExplorerItem { EntryType: FileExplorerItemType.Directory } target || !CanDropInto(target))
 		{
-			List<FileExplorerItem> payload = [];
-			if (args.Payload is List<FileExplorerItem> mfe)
-			{
-				payload = mfe;
-			}
-			else if (args.Payload is FileExplorerItem sfe)
-			{
-				payload.Add(sfe);
-			}
-
-			// check not dropping an item onto itself (or sub folder)
-			if (payload.Any(x => x.Path == target.Path || target.Path.StartsWith(x.Path, StringComparison.InvariantCultureIgnoreCase)))
-			{
-				return;
-			}
-
-			// check can move/copy all items
-			if (payload.Any(x => !x.CanCopyMove))
-			{
-				return;
-			}
-
-			// move items into folder
-			var targetPath = target.Path;
-			await MoveCopyFilesAsync(payload, targetPath, args.Ctrl).ConfigureAwait(true);
+			return;
 		}
+
+		var payload = args.Payload switch
+		{
+			List<FileExplorerItem> items => items,
+			FileExplorerItem item => [item],
+			_ => new List<FileExplorerItem>()
+		};
+
+		// check not dropping an item onto itself (or sub folder), and can move/copy all items
+		if (payload.Any(x => x.Path == target.Path || target.Path.StartsWith(x.Path, StringComparison.InvariantCultureIgnoreCase))
+			|| payload.Any(x => !x.CanCopyMove))
+		{
+			return;
+		}
+
+		// move items into folder
+		await MoveCopyFilesAsync(payload, target.Path, args.Ctrl).ConfigureAwait(true);
 	}
+
 	/// <summary>
 	/// Whether a drop may add items to the given folder. The ".." row is always read-only itself, so it defers to
 	/// the parent folder it stands for.
@@ -130,6 +94,40 @@ public partial class PDFileExplorer
 		=> IsParentDirectoryItem(folder)
 			? _selectedNode?.ParentNode?.Data?.CanAddItems != false
 			: folder.CanAddItems;
+
+	/// <summary>
+	/// Replaces the payload of a later paste with the given items.
+	/// </summary>
+	/// <param name="items">The items to copy or move.</param>
+	/// <param name="move">True when the items are cut, to be moved by the paste rather than copied.</param>
+	/// <returns>A completed task, so that this can be one of several menu or key actions.</returns>
+	private Task SetCopyPayload(IEnumerable<FileExplorerItem> items, bool move)
+	{
+		_copyPayload.Clear();
+		_copyPayload.AddRange(items);
+		_moveCopyPayload = move;
+		return Task.CompletedTask;
+	}
+
+	/// <summary>
+	/// Copies or moves the payload into the given folder.
+	/// </summary>
+	private async Task PasteAsync(string targetPath)
+	{
+		await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
+		if (_moveCopyPayload) // clear copy payload only if move
+		{
+			_copyPayload.Clear();
+		}
+	}
+
+	private async Task ShowUploadDialogAsync()
+	{
+		if (UploadDialog != null)
+		{
+			await UploadDialog.ShowAsync().ConfigureAwait(true);
+		}
+	}
 
 	private async Task OnException(Exception exception) => await ExceptionHandler.InvokeAsync(exception).ConfigureAwait(true);
 
@@ -173,148 +171,185 @@ public partial class PDFileExplorer
 
 	private async Task CreateNewFolderAsync(bool createInTree = true)
 	{
-		if (Tree?.SelectedNode?.Data != null)
+		if (Tree?.SelectedNode?.Data is not { } folder)
 		{
-			// determine default name
-			var newFolderName = NewFolderName;
-			if (createInTree)
-			{
-				// current logic uses tree node sub-items to create a new folder with a unique name
-				// ensure that the node is expanded so all sub-items are fetched.
-				if (!Tree.SelectedNode.IsExpanded)
-				{
-					await Tree.ToggleNodeIsExpandedAsync(Tree.SelectedNode).ConfigureAwait(true);
-				}
+			return;
+		}
 
-				newFolderName = Tree!.SelectedNode.MakeUniqueText(NewFolderName) ?? NewFolderName;
-			}
-			else
-			{
-				for (var count = 2; Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newFolderName, StringComparison.OrdinalIgnoreCase)); count++)
-				{
-					newFolderName = $"{NewFolderName} ({count})";
-				}
-			}
+		// determine default name
+		var newFolderName = createInTree
+			? await GetUniqueTreeFolderNameAsync(Tree.SelectedNode).ConfigureAwait(true)
+			: GetUniqueTableFolderName();
 
-			// create new folder via api
-			var newPath = $"{Tree.SelectedNode.Data.Path.TrimEnd('/')}/{newFolderName}";
-			var newItem = new FileExplorerItem
-			{
-				EntryType = FileExplorerItemType.Directory,
-				Name = newFolderName,
-				Path = newPath,
-				HasSubFolders = false
-			};
-			var result = await DataProvider.CreateAsync(newItem, CancellationToken.None).ConfigureAwait(true);
-			if (result.Success)
-			{
-				// refresh current node, select new node and finally begin edit mode
-				await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
+		// create new folder via api
+		var newItem = new FileExplorerItem
+		{
+			EntryType = FileExplorerItemType.Directory,
+			Name = newFolderName,
+			Path = $"{folder.Path.TrimEnd('/')}/{newFolderName}",
+			HasSubFolders = false
+		};
+		var result = await DataProvider.CreateAsync(newItem, CancellationToken.None).ConfigureAwait(true);
+		if (!result.Success)
+		{
+			return;
+		}
 
-				if (createInTree)
-				{
-					var newNode = Tree.RootNode.Find(newItem.Path);
-					if (newNode != null)
-					{
-						await Tree.SelectNode(newNode).ConfigureAwait(true);
-						await Tree.BeginEdit().ConfigureAwait(true);
-					}
-				}
-				else
-				{
-					// refresh table, select new folder row and begin edit
-					await Table!.RefreshAsync().ConfigureAwait(true);
-					var row = Table!.ItemsToDisplay.FirstOrDefault(x => x.Name == newFolderName);
-					if (row != null && Table!.KeyField!(row)?.ToString() is string key)
-					{
-						await Table!.SelectItemAsync(key).ConfigureAwait(true);
-						await Table!.BeginEditAsync().ConfigureAwait(true);
-					}
-				}
-			}
+		// refresh current node, select new node and finally begin edit mode
+		await Tree.RefreshNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
+		if (createInTree)
+		{
+			await EditNewTreeFolderAsync(newItem.Path).ConfigureAwait(true);
+		}
+		else
+		{
+			await EditNewTableFolderAsync(newFolderName).ConfigureAwait(true);
+		}
+	}
+
+	/// <summary>
+	/// Returns a name for a new folder that no sub-folder of the given node has.
+	/// </summary>
+	private async Task<string> GetUniqueTreeFolderNameAsync(TreeNode<FileExplorerItem> node)
+	{
+		// current logic uses tree node sub-items to create a new folder with a unique name
+		// ensure that the node is expanded so all sub-items are fetched.
+		if (!node.IsExpanded)
+		{
+			await Tree!.ToggleNodeIsExpandedAsync(node).ConfigureAwait(true);
+		}
+
+		return node.MakeUniqueText(NewFolderName) ?? NewFolderName;
+	}
+
+	/// <summary>
+	/// Returns a name for a new folder that no item in the table has.
+	/// </summary>
+	private string GetUniqueTableFolderName()
+	{
+		var newFolderName = NewFolderName;
+		var count = 2;
+		while (Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newFolderName, StringComparison.OrdinalIgnoreCase)))
+		{
+			newFolderName = $"{NewFolderName} ({count++})";
+		}
+
+		return newFolderName;
+	}
+
+	private async Task EditNewTreeFolderAsync(string path)
+	{
+		var newNode = Tree!.RootNode.Find(path);
+		if (newNode != null)
+		{
+			await Tree.SelectNode(newNode).ConfigureAwait(true);
+			await Tree.BeginEdit().ConfigureAwait(true);
+		}
+	}
+
+	private async Task EditNewTableFolderAsync(string name)
+	{
+		// refresh table, select new folder row and begin edit
+		await Table!.RefreshAsync().ConfigureAwait(true);
+		var row = Table.ItemsToDisplay.FirstOrDefault(x => x.Name == name);
+		if (row != null && Table.KeyField!(row)?.ToString() is string key)
+		{
+			await Table.SelectItemAsync(key).ConfigureAwait(true);
+			await Table.BeginEditAsync().ConfigureAwait(true);
 		}
 	}
 
 	private async Task DeleteFolderAsync()
 	{
-		if (_selectedNode?.Data != null && DeleteDialog != null)
+		if (_selectedNode?.Data is not { } folder || DeleteDialog == null)
 		{
-			var deleteArgs = new DeleteArgs
-			{
-				Items = [_selectedNode.Data],
-				Resolution = DeleteArgs.DeleteResolutions.Prompt
-			};
+			return;
+		}
 
-			await DeleteRequest.InvokeAsync(deleteArgs).ConfigureAwait(true);
+		var deleteArgs = await RequestDeleteAsync([folder], items => $"Are you sure you wish to delete '{items[0].Name}'?").ConfigureAwait(true);
+		if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Delete && deleteArgs.Items.Length > 0)
+		{
+			await DeleteTreeFolderAsync(deleteArgs.Items[0]).ConfigureAwait(true);
+		}
+	}
 
-			if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Prompt)
+	/// <summary>
+	/// Deletes a folder, removing the selected tree node once it is gone.
+	/// </summary>
+	private async Task DeleteTreeFolderAsync(FileExplorerItem folder)
+	{
+		try
+		{
+			var result = await DataProvider.DeleteAsync(folder, CancellationToken.None).ConfigureAwait(true);
+			if (result.Success && Tree?.SelectedNode != null)
 			{
-				_deleteDialogMessage = $"Are you sure you wish to delete '{deleteArgs.Items[0].Name}'?";
-				StateHasChanged();
-				var choice = await DeleteDialog.ShowAndWaitResultAsync().ConfigureAwait(true);
-				deleteArgs.Resolution = choice == "yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
+				await Tree.RemoveNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
 			}
-
-			if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Delete && deleteArgs.Items.Length > 0)
-			{
-				try
-				{
-					var result = await DataProvider.DeleteAsync(deleteArgs.Items[0], CancellationToken.None).ConfigureAwait(true);
-					if (result.Success && Tree?.SelectedNode != null)
-					{
-						await Tree.RemoveNodeAsync(Tree.SelectedNode).ConfigureAwait(true);
-					}
-				}
-				catch (Exception ex)
-				{
-					await OnException(ex).ConfigureAwait(true);
-				}
-			}
+		}
+		catch (Exception ex)
+		{
+			await OnException(ex).ConfigureAwait(true);
 		}
 	}
 
 	private async Task DeleteFilesAsync()
 	{
-		if (Table?.Selection != null && DeleteDialog != null)
+		if (Table?.Selection == null || DeleteDialog == null)
 		{
-			var deleteArgs = new DeleteArgs
-			{
-				Items = Table.GetSelectedItems(),
-				Resolution = DeleteArgs.DeleteResolutions.Prompt
-			};
+			return;
+		}
 
-			await DeleteRequest.InvokeAsync(deleteArgs).ConfigureAwait(true);
+		var deleteArgs = await RequestDeleteAsync(Table.GetSelectedItems(), items => items.Length == 1
+			? $"Are you sure you wish to delete '{items[0].Name}'?"
+			: $"Are you sure you wish to delete these {items.Length} items?").ConfigureAwait(true);
+		if (deleteArgs.Resolution != DeleteArgs.DeleteResolutions.Delete)
+		{
+			return;
+		}
 
-			if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Prompt)
+		foreach (var item in deleteArgs.Items)
+		{
+			try
 			{
-				_deleteDialogMessage = deleteArgs.Items.Length == 1
-					? $"Are you sure you wish to delete '{deleteArgs.Items[0].Name}'?"
-					: $"Are you sure you wish to delete these {deleteArgs.Items.Length} items?";
-				StateHasChanged();
-				var choice = await DeleteDialog.ShowAndWaitResultAsync().ConfigureAwait(true);
-				deleteArgs.Resolution = choice == "yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
+				await DataProvider.DeleteAsync(item, CancellationToken.None).ConfigureAwait(true);
 			}
-
-			if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Delete)
+			catch (Exception ex)
 			{
-				foreach (var item in deleteArgs.Items)
-				{
-					try
-					{
-						await DataProvider.DeleteAsync(item, CancellationToken.None).ConfigureAwait(true);
-					}
-					catch (Exception ex)
-					{
-						await OnException(ex).ConfigureAwait(true);
-					}
-				}
-
-				// refresh tree, table and toolbar
-				await RefreshTreeAsync().ConfigureAwait(true);
-				await RefreshTableAsync().ConfigureAwait(true);
-				await RefreshToolbarAsync().ConfigureAwait(true);
+				await OnException(ex).ConfigureAwait(true);
 			}
 		}
+
+		// refresh tree, table and toolbar
+		await RefreshTreeAsync().ConfigureAwait(true);
+		await RefreshTableAsync().ConfigureAwait(true);
+		await RefreshToolbarAsync().ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Lets the application decide on deleting the given items, and asks the user when it leaves that to them.
+	/// </summary>
+	/// <param name="items">The items to delete.</param>
+	/// <param name="getPrompt">Gives the question to ask the user about the items left to delete.</param>
+	/// <returns>The delete arguments, resolved to delete or cancel unless the application chose otherwise.</returns>
+	private async Task<DeleteArgs> RequestDeleteAsync(FileExplorerItem[] items, Func<FileExplorerItem[], string> getPrompt)
+	{
+		var deleteArgs = new DeleteArgs
+		{
+			Items = items,
+			Resolution = DeleteArgs.DeleteResolutions.Prompt
+		};
+
+		await DeleteRequest.InvokeAsync(deleteArgs).ConfigureAwait(true);
+
+		if (deleteArgs.Resolution == DeleteArgs.DeleteResolutions.Prompt)
+		{
+			_deleteDialogMessage = getPrompt(deleteArgs.Items);
+			StateHasChanged();
+			var choice = await DeleteDialog!.ShowAndWaitResultAsync().ConfigureAwait(true);
+			deleteArgs.Resolution = choice == "yes" ? DeleteArgs.DeleteResolutions.Delete : DeleteArgs.DeleteResolutions.Cancel;
+		}
+
+		return deleteArgs;
 	}
 
 	private async Task MoveCopyFilesAsync(List<FileExplorerItem> payload, string targetPath, bool isCopy)
@@ -343,115 +378,154 @@ public partial class PDFileExplorer
 
 		if (conflictArgs.Conflicts.Count > 0)
 		{
-			// allow application to process conflicts
-			await MoveCopyConflict.InvokeAsync(conflictArgs).ConfigureAwait(true);
+			await ResolveMoveCopyConflictsAsync(conflictArgs, payload, targetPath).ConfigureAwait(true);
+		}
 
-			// if any source and target path are the same then user is copy/moving from same folder - so hide overwrite option
-			var showOverwrite = !conflictArgs.Payload.Any(x => conflictArgs.Conflicts.Any(y => y.Path == x.Path));
+		if (conflictArgs.Conflicts.Count > 0 && conflictArgs.ConflictResolution == ConflictResolutions.Cancel)
+		{
+			return;
+		}
 
-			if (conflictArgs.ConflictResolution == ConflictResolutions.Prompt)
+		// allow app to perform custom move / copy, else perform default move / copy behaviour
+		if (!await IsMoveCopyDoneByApplicationAsync(conflictArgs, targetPath, isCopy).ConfigureAwait(true))
+		{
+			foreach (var source in conflictArgs.Payload.ToArray())
 			{
-				// check if target folder is source folder?
-				var parentPaths = payload.Select(x => x.ParentPath).Distinct().ToArray();
-				conflictArgs.ConflictResolution = parentPaths.Any(x => x == targetPath)
-					? await PromptUserForConflictResolution([], false, AllowRenameConflicts, "The source and destination filenames are the same.").ConfigureAwait(true)
-					: await PromptUserForConflictResolution([.. conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path))], showOverwrite).ConfigureAwait(true);
+				await MoveCopyItemAsync(source, conflictArgs).ConfigureAwait(true);
 			}
 		}
 
-		if (conflictArgs.Conflicts.Count == 0 || conflictArgs.ConflictResolution != ConflictResolutions.Cancel)
+		await ShowMoveCopyResultAsync(payload, targetPath, isCopy, pathsToRefresh).ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Lets the application process move / copy conflicts, asking the user how to resolve them when it leaves that to them.
+	/// </summary>
+	private async Task ResolveMoveCopyConflictsAsync(MoveCopyArgs conflictArgs, List<FileExplorerItem> payload, string targetPath)
+	{
+		// allow application to process conflicts
+		await MoveCopyConflict.InvokeAsync(conflictArgs).ConfigureAwait(true);
+		if (conflictArgs.ConflictResolution != ConflictResolutions.Prompt)
 		{
-			// allow app to perform custom move / copy
-			var performMoveCopy = true;
-			if (CustomMoveCopy.HasDelegate)
+			return;
+		}
+
+		// if any source and target path are the same then user is copy/moving from same folder - so hide overwrite option
+		var showOverwrite = !conflictArgs.Payload.Any(x => conflictArgs.Conflicts.Any(y => y.Path == x.Path));
+
+		// check if target folder is source folder?
+		conflictArgs.ConflictResolution = payload.Any(x => x.ParentPath == targetPath)
+			? await PromptUserForConflictResolution([], false, AllowRenameConflicts, "The source and destination filenames are the same.").ConfigureAwait(true)
+			: await PromptUserForConflictResolution([.. conflictArgs.Conflicts.Select(x => FileExplorerItem.GetNameFromPath(x.Path))], showOverwrite).ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Lets the application perform the move / copy itself, returning whether it did so instead of the default.
+	/// </summary>
+	private async Task<bool> IsMoveCopyDoneByApplicationAsync(MoveCopyArgs conflictArgs, string targetPath, bool isCopy)
+	{
+		if (!CustomMoveCopy.HasDelegate)
+		{
+			return false;
+		}
+
+		var customArgs = new CustomMoveCopyArgs
+		{
+			ConflictResolution = conflictArgs.ConflictResolution,
+			Payload = conflictArgs.Payload,
+			Conflicts = conflictArgs.Conflicts,
+			IsCopy = isCopy,
+			TargetPath = targetPath
+		};
+		await CustomMoveCopy.InvokeAsync(customArgs).ConfigureAwait(true);
+		return customArgs.CancelDefault;
+	}
+
+	/// <summary>
+	/// Moves or copies one item into the target folder, resolving any conflict as chosen.
+	/// </summary>
+	private async Task MoveCopyItemAsync(FileExplorerItem source, MoveCopyArgs conflictArgs)
+	{
+		if (conflictArgs.ConflictResolution == ConflictResolutions.Rename)
+		{
+			// get a unique name
+			var uniquePath = $"{conflictArgs.TargetPath.TrimEnd('/')}/{GetUniqueName(source, conflictArgs.TargetItems)}";
+			await DataProvider.UpdateAsync(source, GetMoveCopyDelta(uniquePath, conflictArgs.IsCopy), CancellationToken.None).ConfigureAwait(true);
+			return;
+		}
+
+		var newPath = $"{conflictArgs.TargetPath}/{source.Name}";
+		var overwrite = conflictArgs.ConflictResolution == ConflictResolutions.Overwrite;
+		var isConflict = conflictArgs.Conflicts.Any(x => x.Name == source.Name);
+
+		// delete conflicting target file?
+		if (overwrite && isConflict)
+		{
+			// check source and destination are not same file
+			if (newPath == source.Path)
 			{
-				var customArgs = new CustomMoveCopyArgs
-				{
-					ConflictResolution = conflictArgs.ConflictResolution,
-					Payload = conflictArgs.Payload,
-					Conflicts = conflictArgs.Conflicts,
-					IsCopy = isCopy,
-					TargetPath = targetPath
-				};
-				await CustomMoveCopy.InvokeAsync(customArgs).ConfigureAwait(true);
-				performMoveCopy = !customArgs.CancelDefault;
+				await ExceptionHandler.InvokeAsync(new InvalidOperationException("Operation Failed: Source and Destination are the same")).ConfigureAwait(true);
+				return;
 			}
 
-			// perform default move / copy behaviour?
-			if (performMoveCopy)
-			{
-				foreach (var source in conflictArgs.Payload.ToArray())
-				{
-					if (conflictArgs.ConflictResolution == ConflictResolutions.Rename)
-					{
-						// get a unique name
-						var newPath = $"{conflictArgs.TargetPath.TrimEnd('/')}/{GetUniqueName(source, conflictArgs.TargetItems)}";
-						var delta = new Dictionary<string, object?>
-						{
-							{  "Path", newPath },
-							{  "Copy", conflictArgs.IsCopy }
-						};
-						var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
-					}
-					else
-					{
-						// delete conflicting target file?
-						var newPath = $"{conflictArgs.TargetPath}/{source.Name}";
-						if (conflictArgs.ConflictResolution == ConflictResolutions.Overwrite && conflictArgs.Conflicts.Any(x => x.Name == source.Name))
-						{
-							// check source and destination are not same file
-							if (newPath == source.Path)
-							{
-								await ExceptionHandler.InvokeAsync(new InvalidOperationException("Operation Failed: Source and Destination are the same")).ConfigureAwait(true);
-								continue;
-							}
-							else
-							{
-								var target = new FileExplorerItem { EntryType = source.EntryType, Path = newPath };
-								var result = await DataProvider.DeleteAsync(target, CancellationToken.None).ConfigureAwait(true);
-							}
-						}
+			var target = new FileExplorerItem { EntryType = source.EntryType, Path = newPath };
+			await DataProvider.DeleteAsync(target, CancellationToken.None).ConfigureAwait(true);
+		}
 
-						// move or copy entry if no conflict or overwrite chosen
-						if (conflictArgs.ConflictResolution == ConflictResolutions.Overwrite || !conflictArgs.Conflicts.Any(x => x.Name == source.Name))
-						{
-							var delta = new Dictionary<string, object?>
-							{
-								{  "Path", newPath },
-								{  "Copy", conflictArgs.IsCopy }
-							};
-							var result = await DataProvider.UpdateAsync(source, delta, CancellationToken.None).ConfigureAwait(true);
-						}
-					}
-				}
-			}
+		// move or copy entry if no conflict or overwrite chosen
+		if (overwrite || !isConflict)
+		{
+			await DataProvider.UpdateAsync(source, GetMoveCopyDelta(newPath, conflictArgs.IsCopy), CancellationToken.None).ConfigureAwait(true);
+		}
+	}
 
-			// RM-12291 - API: moving a folder between a Sharepoint filesystem and a ReportMagic filesystem(when target folder is expanded) shows an API error(but succeeds)
-			// determine whether to refresh the table or select the target node
-			var selectedItem = Tree?.SelectedNode?.Data;
-			if (isCopy || (selectedItem != null && !payload.Contains(selectedItem)))
-			{
-				await Table!.RefreshAsync().ConfigureAwait(true);
-			}
-			else
-			{
-				// switch to target path
-				var node = Tree?.Search(x => x.Data?.Path == targetPath);
-				if (Tree != null && node != null)
-				{
-					await Tree.SelectNode(node).ConfigureAwait(true);
-				}
-			}
+	private static Dictionary<string, object?> GetMoveCopyDelta(string newPath, bool isCopy) => new()
+	{
+		{ "Path", newPath },
+		{ "Copy", isCopy }
+	};
 
-			// refresh affected tree nodes
-			foreach (var path in pathsToRefresh)
+	/// <summary>
+	/// Shows the outcome of a move / copy: the table is refreshed, or the target folder selected, and the affected
+	/// tree nodes refreshed.
+	/// </summary>
+	private async Task ShowMoveCopyResultAsync(List<FileExplorerItem> payload, string targetPath, bool isCopy, List<string> pathsToRefresh)
+	{
+		await RefreshTableOrSelectTargetAsync(payload, targetPath, isCopy).ConfigureAwait(true);
+
+		// refresh affected tree nodes
+		foreach (var path in pathsToRefresh)
+		{
+			var node = Tree!.Search((x) => x?.Data?.Path == path);
+			if (node != null)
 			{
-				var node = Tree!.Search((x) => x?.Data?.Path == path);
-				if (node != null)
-				{
-					await Tree.RefreshNodeAsync(node).ConfigureAwait(true);
-				}
+				await Tree.RefreshNodeAsync(node).ConfigureAwait(true);
 			}
+		}
+	}
+
+	private async Task RefreshTableOrSelectTargetAsync(List<FileExplorerItem> payload, string targetPath, bool isCopy)
+	{
+		// RM-12291 - API: moving a folder between a Sharepoint filesystem and a ReportMagic filesystem(when target folder is expanded) shows an API error(but succeeds)
+		// determine whether to refresh the table or select the target node
+		var selectedItem = Tree?.SelectedNode?.Data;
+		if (isCopy || (selectedItem != null && !payload.Contains(selectedItem)))
+		{
+			await Table!.RefreshAsync().ConfigureAwait(true);
+		}
+		else
+		{
+			// switch to target path
+			await SelectTreeFolderAsync(targetPath).ConfigureAwait(true);
+		}
+	}
+
+	private async Task SelectTreeFolderAsync(string path)
+	{
+		var node = Tree?.Search(x => x.Data?.Path == path);
+		if (Tree != null && node != null)
+		{
+			await Tree.SelectNode(node).ConfigureAwait(true);
 		}
 	}
 

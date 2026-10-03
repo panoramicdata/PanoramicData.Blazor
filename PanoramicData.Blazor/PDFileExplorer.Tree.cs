@@ -44,27 +44,31 @@ public partial class PDFileExplorer
 
 	private async Task OnTreeContextMenuUpdateStateAsync(MenuItemsEventArgs args)
 	{
-		var parentPath = _selectedNode?.Data?.ParentPath ?? string.Empty;
 		var selectedFolder = _selectedNode?.Data;
-		var selectedPath = _selectedNode?.Data?.Path ?? string.Empty;
-		var isRoot = string.IsNullOrEmpty(parentPath);
-		var folderSelected = !string.IsNullOrWhiteSpace(selectedPath);
-
-		_menuNewFolder.IsVisible = folderSelected && selectedFolder?.CanAddItems == true;
-		_menuUploadFiles.IsVisible = folderSelected && selectedFolder?.CanAddItems == true;
-		_menuRename.IsVisible = folderSelected && !isRoot && selectedFolder?.CanRename == true;
-		_menuDelete.IsVisible = folderSelected && !isRoot && selectedFolder?.CanDelete == true;
-		_menuCopy.IsVisible = folderSelected && !isRoot;
-		_menuCut.IsVisible = folderSelected && !isRoot && selectedFolder?.CanDelete == true;
-		_menuPaste.IsVisible = folderSelected && selectedFolder?.CanAddItems == true && _copyPayload.Count > 0;
-		_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
-		_menuSep3.IsVisible = ShowSeparator(_menuSep3, TreeContextItems);
-		_menuSep2.IsVisible = ShowSeparator(_menuSep2, TreeContextItems);
-		_menuSep1.IsVisible = ShowSeparator(_menuSep1, TreeContextItems);
+		UpdateTreeMenuItems(string.IsNullOrWhiteSpace(selectedFolder?.Path) ? null : selectedFolder);
+		UpdateSeparators(TreeContextItems);
 
 		// allow application to alter tree context menu state
 		args.Context = selectedFolder;
 		await UpdateTreeContextState.InvokeAsync(args).ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Shows the tree's menu items that apply to the selected folder, if any. The root folder cannot be renamed,
+	/// deleted, copied or cut.
+	/// </summary>
+	private void UpdateTreeMenuItems(FileExplorerItem? folder)
+	{
+		var canAdd = folder?.CanAddItems == true;
+		var isChangeable = folder is not null && !string.IsNullOrEmpty(folder.ParentPath);
+
+		_menuNewFolder.IsVisible = canAdd;
+		_menuUploadFiles.IsVisible = canAdd;
+		_menuRename.IsVisible = isChangeable && folder!.CanRename;
+		_menuDelete.IsVisible = isChangeable && folder!.CanDelete;
+		_menuCopy.IsVisible = isChangeable;
+		_menuCut.IsVisible = _menuDelete.IsVisible;
+		_menuPaste.IsVisible = canAdd && _copyPayload.Count > 0;
 	}
 
 	private async Task OnTreeContextMenuItemClickAsync(MenuItem item)
@@ -73,94 +77,64 @@ public partial class PDFileExplorer
 		var args = new MenuItemEventArgs(Tree!, item);
 		await TreeContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
 
-		if (!args.Cancel && Tree?.SelectedNode?.Data != null)
+		if (args.Cancel || Tree?.SelectedNode?.Data is not { } folder)
 		{
-			if (item.Text == "Delete")
-			{
-				await DeleteFolderAsync().ConfigureAwait(true);
-			}
-			else if (item.Text == "Rename")
-			{
-				await Tree.BeginEdit().ConfigureAwait(true);
-			}
-			else if (item.Text == "New Folder")
-			{
-				await CreateNewFolderAsync().ConfigureAwait(true);
-			}
-			else if (item.Text == "Upload Files")
-			{
-				if (UploadDialog != null)
-				{
-					await UploadDialog.ShowAsync().ConfigureAwait(true);
-				}
-			}
-			else if (item.Text == "Copy" || item.Text == "Cut")
-			{
-				_copyPayload.Clear();
-				_copyPayload.Add(Tree.SelectedNode.Data);
-				_moveCopyPayload = item.Text == "Cut";
-			}
-			else if (item.Text == "Paste")
-			{
-				var targetPath = Tree.SelectedNode.Data.Path;
-				await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
-				if (_moveCopyPayload) // clear copy payload only if move
-				{
-					_copyPayload.Clear();
-				}
-			}
+			return;
 		}
+
+		await (item.Text switch
+		{
+			"Delete" => DeleteFolderAsync(),
+			"Rename" => Tree.BeginEdit(),
+			"New Folder" => CreateNewFolderAsync(),
+			"Upload Files" => ShowUploadDialogAsync(),
+			"Copy" or "Cut" => SetCopyPayload([folder], item.Text == "Cut"),
+			"Paste" => PasteAsync(folder.Path),
+			_ => Task.CompletedTask
+		}).ConfigureAwait(true);
 	}
 
 	private async Task OnTreeKeyDownAsync(KeyboardEventArgs args)
 	{
-		if (Tree?.SelectedNode?.IsEditing != true)
+		var node = Tree?.SelectedNode;
+		if (node?.IsEditing == true || node?.Data is not { } folder)
 		{
-			if (args.Code == "Delete" && Tree?.SelectedNode?.Data?.CanDelete == true)
-			{
-				await DeleteFolderAsync().ConfigureAwait(true);
-			}
-			else if (args.Code == "KeyC" && args.CtrlKey && Tree!.SelectedNode?.Data != null)
-			{
-				_copyPayload.Clear();
-				_copyPayload.Add(Tree!.SelectedNode.Data);
-				_moveCopyPayload = false;
-			}
-			else if (args.Code == "KeyX" && args.CtrlKey && Tree!.SelectedNode?.Data != null && Tree!.SelectedNode?.Data?.CanDelete == true)
-			{
-				_copyPayload.Clear();
-				_copyPayload.Add(Tree!.SelectedNode.Data);
-				_moveCopyPayload = true;
-			}
-			else if (args.Code == "KeyV" && args.CtrlKey && Tree!.SelectedNode?.Data != null)
-			{
-				var targetPath = Tree.SelectedNode.Data.Path;
-				await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
-				if (_moveCopyPayload) // clear copy payload only if move
-				{
-					_copyPayload.Clear();
-				}
-			}
+			return;
 		}
+
+		await ((args.Code, args.CtrlKey) switch
+		{
+			("Delete", _) when folder.CanDelete => DeleteFolderAsync(),
+			("KeyC", true) => SetCopyPayload([folder], false),
+			("KeyX", true) when folder.CanDelete => SetCopyPayload([folder], true),
+			("KeyV", true) => PasteAsync(folder.Path),
+			_ => Task.CompletedTask
+		}).ConfigureAwait(true);
 	}
 
 	private async Task OnTreeBeforeEdit(TreeNodeBeforeEditEventArgs<FileExplorerItem> args)
 	{
-		if (args != null)
+		if (args.Node.Data != null)
 		{
-			if (args.Node.Data != null)
-			{
-				var renameArgs = new RenameArgs { Item = args.Node.Data };
-				await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
-				args.Cancel = renameArgs.Cancel;
-			}
+			var renameArgs = new RenameArgs { Item = args.Node.Data };
+			await BeforeRename.InvokeAsync(renameArgs).ConfigureAwait(true);
+			args.Cancel = renameArgs.Cancel;
+		}
 
-			if (!AllowRename || args.Node.ParentNode == null || args.Node?.Data?.CanRename == false || string.IsNullOrEmpty(args.Node?.Data?.ParentPath))
-			{
-				args.Cancel = true;
-			}
+		if (!CanRenameInTree(args.Node))
+		{
+			args.Cancel = true;
 		}
 	}
+
+	/// <summary>
+	/// Whether a folder may be renamed in the tree: neither the root nor a folder that cannot be renamed.
+	/// </summary>
+	private bool CanRenameInTree(TreeNode<FileExplorerItem> node)
+		=> AllowRename
+			&& node.ParentNode != null
+			&& node.Data?.CanRename != false
+			&& !string.IsNullOrEmpty(node.Data?.ParentPath);
 
 	private async Task OnTreeAfterEditAsync(TreeNodeAfterEditEventArgs<FileExplorerItem> args)
 	{

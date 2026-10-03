@@ -8,16 +8,9 @@ public partial class PDFileExplorer
 	private void OnTableItemsLoaded(List<FileExplorerItem> items)
 	{
 		// insert special .. folder?
-		if (_selectedNode != null && ShowParentFolder && _selectedNode.ParentNode?.Data?.Path != null && _selectedNode.Data?.Path != "/")
+		if (GetParentFolderItem() is { } parentFolder)
 		{
-			items.Insert(0, new FileExplorerItem
-			{
-				Name = "..",
-				Path = $"{_selectedNode.ParentNode.Data.Path}",
-				EntryType = FileExplorerItemType.Directory,
-				CanCopyMove = false,
-				IsReadOnly = true
-			});
+			items.Insert(0, parentFolder);
 		}
 
 		// remove any paths to exclude
@@ -34,20 +27,28 @@ public partial class PDFileExplorer
 		}
 
 		// filter files displayed
-		foreach (var item in items.Where(x => x.EntryType == FileExplorerItemType.File).ToArray())
+		items.RemoveAll(x => x.EntryType == FileExplorerItemType.File && (!ShowFiles || !x.IsNameMatch(FilenamePattern)));
+	}
+
+	/// <summary>
+	/// Returns the special ".." item leading up from the selected folder, when it is wanted and there is a parent.
+	/// </summary>
+	private FileExplorerItem? GetParentFolderItem()
+	{
+		var parentPath = _selectedNode?.ParentNode?.Data?.Path;
+		if (!ShowParentFolder || parentPath is null || _selectedNode!.Data?.Path == "/")
 		{
-			if (ShowFiles)
-			{
-				if (!item.IsNameMatch(FilenamePattern))
-				{
-					items.Remove(item);
-				}
-			}
-			else
-			{
-				items.Remove(item);
-			}
+			return null;
 		}
+
+		return new FileExplorerItem
+		{
+			Name = "..",
+			Path = parentPath,
+			EntryType = FileExplorerItemType.Directory,
+			CanCopyMove = false,
+			IsReadOnly = true
+		};
 	}
 
 	private async Task OnTableDoubleClickAsync(FileExplorerItem item)
@@ -85,101 +86,113 @@ public partial class PDFileExplorer
 
 	private async Task OnTableKeyDownAsync(KeyboardEventArgs args)
 	{
-		if (Table?.IsEditing != true)
+		if (Table?.IsEditing == true)
 		{
-			if (args.Code == "Delete")
-			{
-				await DeleteFilesAsync().ConfigureAwait(true);
-			}
-			else if ((args.Code == "KeyC" || args.Code == "KeyX") && args.CtrlKey)
-			{
-				_copyPayload.Clear();
-				_copyPayload.AddRange(Table!.GetSelectedItems());
-				_moveCopyPayload = args.Code == "KeyX";
-			}
-			else if (args.Code == "KeyV" && args.CtrlKey)
-			{
-				var selection = Table!.GetSelectedItems();
-				var targetPath = selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
-				await MoveCopyFilesAsync(_copyPayload, targetPath, !_moveCopyPayload).ConfigureAwait(true);
-				if (_moveCopyPayload) // clear copy payload only if move
-				{
-					_copyPayload.Clear();
-				}
-			}
+			return;
 		}
+
+		await ((args.Code, args.CtrlKey) switch
+		{
+			("Delete", _) => DeleteFilesAsync(),
+			("KeyC" or "KeyX", true) => SetCopyPayload(Table!.GetSelectedItems(), args.Code == "KeyX"),
+			("KeyV", true) => PasteAsync(GetSelectedFolderOrCurrentPath()),
+			_ => Task.CompletedTask
+		}).ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// The path of the single selected folder, or else of the current folder.
+	/// </summary>
+	private string GetSelectedFolderOrCurrentPath()
+	{
+		var selection = Table!.GetSelectedItems();
+		return selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory ? selection[0].Path : FolderPath;
 	}
 
 	private async Task OnTableAfterEditAsync(TableAfterEditEventArgs<FileExplorerItem> args)
 	{
-		// cancel if new name is empty
-		if (args.NewValues.TryGetValue("Name", out object? value))
+		if (!args.NewValues.TryGetValue("Name", out object? value))
 		{
-			var newName = value?.ToString();
-			if (newName == args.Item.Name)
-			{
-				args.Cancel = true;
-			}
-			else if (string.IsNullOrWhiteSpace(newName))
-			{
-				args.Cancel = true;
-				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("A value is required")).ConfigureAwait(true);
-			}
-			else if (newName.StartsWith('.'))
-			{
-				args.Cancel = true;
-				await ExceptionHandler.InvokeAsync(new PDFileExplorerException("Names may not begin with a period (.)")).ConfigureAwait(true);
-			}
-			else
-			{
-				var previousPath = args.Item.Path;
-				var newPath = $"{args.Item.ParentPath}/{newName}";
-				if (newPath.StartsWith("//", StringComparison.Ordinal))
-				{
-					newPath = newPath[1..];
-				}
-
-				// check for duplicate name, ignoring case for renaming same file changing case
-				var justChangingCase = string.Equals(args.Item.Name, newName, StringComparison.OrdinalIgnoreCase);
-				var hasSameFullPath = Table!.ItemsToDisplay.Any(x => x.Path == newPath);
-				var hasExistingNameIgnoringCase = Table!.ItemsToDisplay.Any(x => string.Equals(x.Name, newName, StringComparison.OrdinalIgnoreCase));
-				if (!justChangingCase && (hasSameFullPath || hasExistingNameIgnoringCase))
-				{
-					args.Cancel = true;
-					await OnException(new PDFileExplorerException($"An item named '{newName}' already exists")).ConfigureAwait(true);
-				}
-				else
-				{
-					// inform data provider
-					var delta = new Dictionary<string, object?>
-					{
-						{  "Path", newPath }
-					};
-					var result = await DataProvider.UpdateAsync(args.Item, delta, CancellationToken.None).ConfigureAwait(true);
-					if (result.Success)
-					{
-						// if folder renamed then update nodes
-						if (args.Item.EntryType == FileExplorerItemType.Directory)
-						{
-							await DirectoryRenameAsync(previousPath, newPath).ConfigureAwait(true);
-						}
-						else
-						{
-							args.Item.Name = newName!;
-							args.Item.Path = newPath;
-						}
-					}
-					else
-					{
-						args.Cancel = true;
-					}
-
-					// replace selection with new path
-					Table.Selection.Clear();
-					Table.Selection.Add(newPath);
-				}
-			}
+			return;
 		}
+
+		var newName = value?.ToString();
+		if (newName == args.Item.Name)
+		{
+			args.Cancel = true;
+			return;
+		}
+
+		// cancel if new name is empty or hidden
+		if (string.IsNullOrWhiteSpace(newName) || newName.StartsWith('.'))
+		{
+			args.Cancel = true;
+			var message = string.IsNullOrWhiteSpace(newName) ? "A value is required" : "Names may not begin with a period (.)";
+			await ExceptionHandler.InvokeAsync(new PDFileExplorerException(message)).ConfigureAwait(true);
+			return;
+		}
+
+		await RenameTableItemAsync(args, newName).ConfigureAwait(true);
+	}
+
+	private async Task RenameTableItemAsync(TableAfterEditEventArgs<FileExplorerItem> args, string newName)
+	{
+		var previousPath = args.Item.Path;
+		var newPath = $"{args.Item.ParentPath}/{newName}";
+		if (newPath.StartsWith("//", StringComparison.Ordinal))
+		{
+			newPath = newPath[1..];
+		}
+
+		if (IsNameTaken(args.Item, newName, newPath))
+		{
+			args.Cancel = true;
+			await OnException(new PDFileExplorerException($"An item named '{newName}' already exists")).ConfigureAwait(true);
+			return;
+		}
+
+		// inform data provider
+		var delta = new Dictionary<string, object?>
+		{
+			{  "Path", newPath }
+		};
+		var result = await DataProvider.UpdateAsync(args.Item, delta, CancellationToken.None).ConfigureAwait(true);
+		if (!result.Success)
+		{
+			args.Cancel = true;
+		}
+		else if (args.Item.EntryType == FileExplorerItemType.Directory)
+		{
+			// if folder renamed then update nodes
+			await DirectoryRenameAsync(previousPath, newPath).ConfigureAwait(true);
+		}
+		else
+		{
+			args.Item.Name = newName;
+			args.Item.Path = newPath;
+		}
+
+		// replace selection with new path
+		Table!.Selection.Clear();
+		Table.Selection.Add(newPath);
+	}
+
+	/// <summary>
+	/// Whether another item already has the new name or path, ignoring case for renaming same file changing case.
+	/// </summary>
+	private bool IsNameTaken(FileExplorerItem item, string newName, string newPath)
+		=> !string.Equals(item.Name, newName, StringComparison.OrdinalIgnoreCase)
+			&& Table!.ItemsToDisplay.Any(x => x.Path == newPath || string.Equals(x.Name, newName, StringComparison.OrdinalIgnoreCase));
+
+	/// <summary>
+	/// Shows each separator of a context menu only where it separates visible items.
+	/// </summary>
+	private void UpdateSeparators(IEnumerable<MenuItem> items)
+	{
+		_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
+		_menuSep3.IsVisible = ShowSeparator(_menuSep3, items);
+		_menuSep2.IsVisible = ShowSeparator(_menuSep2, items);
+		_menuSep1.IsVisible = ShowSeparator(_menuSep1, items);
 	}
 
 	private static bool ShowSeparator(MenuItem separator, IEnumerable<MenuItem> items)
@@ -198,75 +211,84 @@ public partial class PDFileExplorer
 	{
 		var selectedItems = Table!.GetSelectedItems() ?? [];
 		var validSelection = IsValidSelection();
-		var selectedFolder = _selectedNode?.Data;
 
-		// determine whether paste is allowed?
-		var canPaste = validSelection && _copyPayload.Count > 0;
-
-		// if still okay to paste then determine target
-		if (canPaste)
-		{
-			// did user right click in selected row?
-			if (args.SourceElement?.HasAncestor("TR", "selected") == true ||
-				 (args.SourceElement?.Find("TR") is ElementInfo trEl && Table.Selection.Contains(trEl.Id)))
-			{
-				// can only paste if selected item is a folder
-				if (selectedItems![0].EntryType == FileExplorerItemType.Directory)
-				{
-					_pasteTarget = selectedItems![0].Path;
-				}
-				else
-				{
-					canPaste = false;
-				}
-			}
-			else
-			{
-				// if user right clicked in whitespace then use current folder
-				if (args.SourceElement?.Tag == "TD" || args.SourceElement?.Tag == "DIV")
-				{
-					_pasteTarget = FolderPath;
-				}
-				else
-				{
-					// find the row clicked on by using id
-					if (args.SourceElement?.Find("TR") is ElementInfo parentTrElement
-						&& Table.ItemsToDisplay.Find(x => x.Path == parentTrElement.Id) is FileExplorerItem row
-						&& row.EntryType == FileExplorerItemType.Directory)
-					{
-						_pasteTarget = row.Path;
-					}
-					else
-					{
-						// use current folder
-						_pasteTarget = FolderPath;
-					}
-				}
-			}
-		}
-		else
-		{
-			_pasteTarget = string.Empty;
-		}
-
-		_menuOpen.IsVisible = selectedItems?.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
-		_menuDownload.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
-		_menuNewFolder.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
-		_menuUploadFiles.IsVisible = selectedItems?.Length == 0 && selectedFolder?.CanAddItems == true;
-		_menuRename.IsVisible = validSelection && selectedItems?.Length == 1 && selectedItems[0].CanRename && !IsParentDirectoryItem(selectedItems[0]);
-		_menuDelete.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete) && !selectedItems.Any(x => IsParentDirectoryItem(x));
-		_menuCopy.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanCopyMove) && !selectedItems.Any(x => IsParentDirectoryItem(x));
-		_menuCut.IsVisible = validSelection && selectedItems?.Length > 0 && selectedItems.All(x => x.CanDelete) && !selectedItems.Any(x => IsParentDirectoryItem(x));
-		_menuPaste.IsVisible = canPaste;
-		_menuSep3.IsVisible = _menuSep2.IsVisible = _menuSep1.IsVisible = true;
-		_menuSep3.IsVisible = ShowSeparator(_menuSep3, TableContextItems);
-		_menuSep2.IsVisible = ShowSeparator(_menuSep2, TableContextItems);
-		_menuSep1.IsVisible = ShowSeparator(_menuSep1, TableContextItems);
+		UpdateTableFolderMenuItems(selectedItems);
+		UpdateTableSelectionMenuItems(selectedItems, validSelection);
+		_menuPaste.IsVisible = UpdatePasteTarget(args.SourceElement, selectedItems, validSelection);
+		UpdateSeparators(TableContextItems);
 
 		// allow application to alter table context menu state
 		args.Context = selectedItems;
 		await UpdateTableContextState.InvokeAsync(args).ConfigureAwait(true);
 	}
+
+	private void UpdateTableFolderMenuItems(FileExplorerItem[] selectedItems)
+	{
+		var canAddToFolder = selectedItems.Length == 0 && _selectedNode?.Data?.CanAddItems == true;
+		_menuOpen.IsVisible = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
+		_menuNewFolder.IsVisible = canAddToFolder;
+		_menuUploadFiles.IsVisible = canAddToFolder;
+	}
+
+	private void UpdateTableSelectionMenuItems(FileExplorerItem[] selectedItems, bool validSelection)
+	{
+		var hasSelection = validSelection && selectedItems.Length > 0;
+		var isChangeable = hasSelection && !selectedItems.Any(IsParentDirectoryItem);
+		_menuDownload.IsVisible = hasSelection && selectedItems.All(x => x.EntryType == FileExplorerItemType.File);
+		_menuRename.IsVisible = isChangeable && selectedItems.Length == 1 && selectedItems[0].CanRename;
+		_menuDelete.IsVisible = isChangeable && selectedItems.All(x => x.CanDelete);
+		_menuCopy.IsVisible = isChangeable && selectedItems.All(x => x.CanCopyMove);
+		_menuCut.IsVisible = _menuDelete.IsVisible;
+	}
+
+	/// <summary>
+	/// Determines whether the payload can be pasted, and where to, recording the target for the Paste menu item.
+	/// </summary>
+	/// <returns>True when the payload can be pasted.</returns>
+	private bool UpdatePasteTarget(ElementInfo? sourceElement, FileExplorerItem[] selectedItems, bool validSelection)
+	{
+		if (!validSelection || _copyPayload.Count == 0)
+		{
+			_pasteTarget = string.Empty;
+			return false;
+		}
+
+		if (GetPasteTarget(sourceElement, selectedItems) is not { } pasteTarget)
+		{
+			return false;
+		}
+
+		_pasteTarget = pasteTarget;
+		return true;
+	}
+
+	/// <summary>
+	/// Returns the folder a paste from the context menu goes into, or null when the menu was opened on a file.
+	/// </summary>
+	private string? GetPasteTarget(ElementInfo? sourceElement, FileExplorerItem[] selectedItems)
+	{
+		// did user right click in selected row? - can only paste if selected item is a folder
+		if (IsInSelectedRow(sourceElement))
+		{
+			return selectedItems[0].EntryType == FileExplorerItemType.Directory ? selectedItems[0].Path : null;
+		}
+
+		// if user right clicked in whitespace then use current folder
+		if (sourceElement?.Tag is "TD" or "DIV")
+		{
+			return FolderPath;
+		}
+
+		// find the row clicked on by using id, else use current folder
+		return sourceElement?.Find("TR") is ElementInfo parentTrElement
+			&& Table!.ItemsToDisplay.Find(x => x.Path == parentTrElement.Id) is { EntryType: FileExplorerItemType.Directory } row
+				? row.Path
+				: FolderPath;
+	}
+
+	private bool IsInSelectedRow(ElementInfo? sourceElement)
+		=> sourceElement?.HasAncestor("TR", "selected") == true
+			|| (sourceElement?.Find("TR") is ElementInfo trEl && Table!.Selection.Contains(trEl.Id));
 
 	private async Task OnTableContextMenuItemClickAsync(MenuItem menuItem)
 	{
@@ -278,50 +300,25 @@ public partial class PDFileExplorer
 		// notify application and allow cancel
 		var args = new MenuItemEventArgs(Table, menuItem);
 		await TableContextMenuClick.InvokeAsync(args).ConfigureAwait(true);
-		var selection = Table!.GetSelectedItems();
+		var selection = Table.GetSelectedItems();
 
-		if (!args.Cancel)
+		if (args.Cancel)
 		{
-			if (menuItem.Text == "Open" && selection.Length == 1)
-			{
-				await NavigateFolderAsync(selection[0].Path).ConfigureAwait(true);
-			}
-			else if (menuItem.Text == "Delete")
-			{
-				await DeleteFilesAsync().ConfigureAwait(true);
-			}
-			else if (menuItem.Text == "Rename")
-			{
-				await Table!.BeginEditAsync().ConfigureAwait(true);
-			}
-			else if (menuItem.Text == "Download")
-			{
-				var downloadArgs = new TableSelectionEventArgs<FileExplorerItem>(Table.GetSelectedItems());
-				await TableDownloadRequest.InvokeAsync(downloadArgs).ConfigureAwait(true);
-			}
-			else if (menuItem.Text == "Copy" || menuItem.Text == "Cut")
-			{
-				_copyPayload.Clear();
-				_copyPayload.AddRange(Table!.GetSelectedItems());
-				_moveCopyPayload = menuItem.Text == "Cut";
-			}
-			else if (menuItem.Text == "Paste")
-			{
-				await MoveCopyFilesAsync(_copyPayload, _pasteTarget, !_moveCopyPayload).ConfigureAwait(true);
-				if (_moveCopyPayload) // clear copy payload only if move
-				{
-					_copyPayload.Clear();
-				}
-			}
-			else if (menuItem.Text == "New Folder")
-			{
-				await CreateNewFolderAsync(false).ConfigureAwait(true);
-			}
-			else if (menuItem.Text == "Upload Files" && UploadDialog != null)
-			{
-				await UploadDialog.ShowAsync().ConfigureAwait(true);
-			}
+			return;
 		}
+
+		await (menuItem.Text switch
+		{
+			"Open" when selection.Length == 1 => NavigateFolderAsync(selection[0].Path),
+			"Delete" => DeleteFilesAsync(),
+			"Rename" => Table.BeginEditAsync(),
+			"Download" => TableDownloadRequest.InvokeAsync(new TableSelectionEventArgs<FileExplorerItem>(Table.GetSelectedItems())),
+			"Copy" or "Cut" => SetCopyPayload(Table.GetSelectedItems(), menuItem.Text == "Cut"),
+			"Paste" => PasteAsync(_pasteTarget),
+			"New Folder" => CreateNewFolderAsync(false),
+			"Upload Files" => ShowUploadDialogAsync(),
+			_ => Task.CompletedTask
+		}).ConfigureAwait(true);
 	}
 
 	private async Task OnTableSelectionChangedAsync()

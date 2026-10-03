@@ -35,17 +35,11 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private bool _moveCopyPayload;
 	private string _pasteTarget = string.Empty;
 	private TreeNode<FileExplorerItem>? _selectedNode;
-	private PDTree<FileExplorerItem>? Tree { get; set; }
-	private PDTable<FileExplorerItem>? Table { get; set; }
 	private PDModal? DeleteDialog { get; set; } = null!;
 	private PDModal? ConflictDialog { get; set; } = null!;
 	private PDModal? ProgressDialog { get; set; } = null!;
-	private PDModal? UploadDialog { get; set; }
-	private PDDropZone _dropZone1 = null!;
-	private PDDropZone _dropZone2 = null!;
 	private IJSObjectReference? _commonModule;
 	private ToolbarButton? _previewPanelButton;
-	private PDSplitter? _splitter;
 	private FileExplorerItem? _previewItem;
 	private double[] _lastSplitSizes = [20, 60, 20];
 
@@ -53,6 +47,36 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// Gets or sets the current folder path.
 	/// </summary>
 	public string FolderPath { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Gets the folder tree, set by the markup.
+	/// </summary>
+	internal PDTree<FileExplorerItem>? Tree { get; set; }
+
+	/// <summary>
+	/// Gets the file table, set by the markup.
+	/// </summary>
+	internal PDTable<FileExplorerItem>? Table { get; set; }
+
+	/// <summary>
+	/// Gets the upload dialog, set by the markup.
+	/// </summary>
+	internal PDModal? UploadDialog { get; set; }
+
+	/// <summary>
+	/// Gets the drop zone of the upload dialog, set by the markup.
+	/// </summary>
+	internal PDDropZone DropZone1 { get; set; } = null!;
+
+	/// <summary>
+	/// Gets the drop zone over the file table, set by the markup.
+	/// </summary>
+	internal PDDropZone DropZone2 { get; set; } = null!;
+
+	/// <summary>
+	/// Gets the splitter between the tree, table and preview panels, set by the markup.
+	/// </summary>
+	internal PDSplitter? Splitter { get; set; }
 
 	private int InitialPreviewSize => PreviewPanel == FilePreviewModes.OptionalOff ? 0 : 1;
 
@@ -136,7 +160,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <summary>
 	/// Determines whether the to rename items when conflicting with existing items.
 	/// </summary>
-	[Parameter] public bool AllowRenameConflicts { get; set; } = false;
+	[Parameter] public bool AllowRenameConflicts { get; set; }
 
 	/// <summary>
 	/// Determines whether the first node is automatically expanded on load.
@@ -461,7 +485,7 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <returns>A completed task.</returns>
 	protected override Task OnInitializedAsync()
 	{
-		Id = $"pdfe{++_idSequence}";
+		Id = $"pdfe{Interlocked.Increment(ref _idSequence)}";
 
 		// bind the default provider (or a supplied, unbound FileExplorerPreviewProvider) to this explorer,
 		// and use any other supplied provider exactly as given
@@ -506,84 +530,102 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
+		if (!firstRender)
 		{
-			try
+			return;
+		}
+
+		try
+		{
+			_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).ConfigureAwait(true);
+		}
+		catch
+		{
+			// Do nothing
+		}
+
+		var isTouchDevice = _commonModule != null && await _commonModule.InvokeAsync<bool>("isTouchDevice").ConfigureAwait(true);
+
+		AddToolbarItems(isTouchDevice);
+
+		if (PreviewPanel == FilePreviewModes.OptionalOff)
+		{
+			PreviewPanelVisible = false;
+		}
+
+		SetUpDialogButtons();
+
+		await RefreshToolbarAsync().ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Adds the explorer's own toolbar buttons, and its upload menu items when uploads are possible.
+	/// </summary>
+	private void AddToolbarItems(bool isTouchDevice)
+	{
+		ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline", IsVisible = ShowNavigateUpButton });
+		if (isTouchDevice)
+		{
+			ToolbarItems.Add(new ToolbarButton { Key = "open", Text = "Open", ToolTip = "Navigate into folder", IconCssClass = "fas fa-fw fa-folder-open", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+		}
+
+		ToolbarItems.Add(new ToolbarButton { Key = "refresh", Text = "Refresh", ToolTip = "Refreshes the current folder", IconCssClass = "fas fa-fw fa-sync-alt", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+
+		if (PreviewPanel == FilePreviewModes.OptionalOff || PreviewPanel == FilePreviewModes.OptionalOn)
+		{
+			_previewPanelButton = new ToolbarButton { Key = "preview", Text = "Preview", ToolTip = "Toggles display of the Preview panel", IconCssClass = "fas fa-fw fa-eye", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" };
+			ToolbarItems.Add(_previewPanelButton);
+		}
+
+		ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+		ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
+
+		if (!string.IsNullOrWhiteSpace(UploadUrl))
+		{
+			TableContextItems.Insert(1, _menuUploadFiles);
+			TreeContextItems.Insert(0, _menuUploadFiles);
+			ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
+		}
+	}
+
+	/// <summary>
+	/// Gives the delete, conflict and upload dialogs the buttons the explorer needs.
+	/// </summary>
+	private void SetUpDialogButtons()
+	{
+		if (DeleteDialog != null)
+		{
+			DeleteDialog.Buttons.Clear();
+			DeleteDialog.Buttons.AddRange(
+			[
+				new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check", ShiftRight = true },
+				new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
+			]);
+		}
+
+		// add third button needed for conflict resolution
+		if (ConflictDialog != null)
+		{
+			ConflictDialog.Buttons.Clear();
+			ConflictDialog.Buttons.AddRange(
+			[
+				new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
+				new ToolbarButton { Text = "Rename", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-pen-square" },
+				new ToolbarButton { Text = "Skip", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-forward" },
+				new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
+			]);
+		}
+
+		// set up buttons on upload dialog
+		if (UploadDialog != null)
+		{
+			UploadDialog!.Buttons.First(x => x.Key == "Yes").IsVisible = false;
+			if (UploadDialog!.Buttons.First(x => x.Key == "No") is ToolbarButton btn)
 			{
-				_commonModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).ConfigureAwait(true);
+				btn.ShiftRight = true;
+				btn.Text = "Close";
+				btn.CssClass = "btn-primary";
 			}
-			catch
-			{
-				// Do nothing
-			}
-
-			var isTouchDevice = _commonModule != null && await _commonModule.InvokeAsync<bool>("isTouchDevice").ConfigureAwait(true);
-
-			ToolbarItems.Add(new ToolbarButton { Key = "navigate-up", ToolTip = "Navigate up to parent folder", IconCssClass = "fas fa-fw fa-arrow-up", CssClass = "btn-secondary d-none d-lg-inline", TextCssClass = "d-none d-lg-inline", IsVisible = ShowNavigateUpButton });
-			if (isTouchDevice)
-			{
-				ToolbarItems.Add(new ToolbarButton { Key = "open", Text = "Open", ToolTip = "Navigate into folder", IconCssClass = "fas fa-fw fa-folder-open", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
-			}
-
-			ToolbarItems.Add(new ToolbarButton { Key = "refresh", Text = "Refresh", ToolTip = "Refreshes the current folder", IconCssClass = "fas fa-fw fa-sync-alt", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
-
-			if (PreviewPanel == FilePreviewModes.OptionalOff || PreviewPanel == FilePreviewModes.OptionalOn)
-			{
-				_previewPanelButton = new ToolbarButton { Key = "preview", Text = "Preview", ToolTip = "Toggles display of the Preview panel", IconCssClass = "fas fa-fw fa-eye", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" };
-				ToolbarItems.Add(_previewPanelButton);
-			}
-
-			ToolbarItems.Add(new ToolbarButton { Key = "create-folder", Text = "New Folder", ToolTip = "Create a new folder", IconCssClass = "fas fa-fw fa-folder-plus", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
-			ToolbarItems.Add(new ToolbarButton { Key = "delete", Text = "Delete", ToolTip = "Delete the selected files and folders", IconCssClass = "fas fa-fw fa-trash-alt", CssClass = "btn-danger", ShiftRight = true, TextCssClass = "d-none d-lg-inline" });
-
-			if (!string.IsNullOrWhiteSpace(UploadUrl))
-			{
-				TableContextItems.Insert(1, _menuUploadFiles);
-				TreeContextItems.Insert(0, _menuUploadFiles);
-				ToolbarItems.Insert(2, new ToolbarButton { Key = "upload", Text = "Upload", ToolTip = "Upload one or more files", IconCssClass = "fas fa-fw fa-upload", CssClass = "btn-secondary", TextCssClass = "d-none d-lg-inline" });
-			}
-
-			if (PreviewPanel == FilePreviewModes.OptionalOff)
-			{
-				PreviewPanelVisible = false;
-			}
-
-			if (DeleteDialog != null)
-			{
-				DeleteDialog.Buttons.Clear();
-				DeleteDialog.Buttons.AddRange(
-				[
-					new ToolbarButton { Key="yes", Text = "Yes", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-check", ShiftRight = true },
-					new ToolbarButton { Key="no", Text = "No", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-times" },
-				]);
-			}
-
-			// add third button needed for conflict resolution
-			if (ConflictDialog != null)
-			{
-				ConflictDialog.Buttons.Clear();
-				ConflictDialog.Buttons.AddRange(
-				[
-					new ToolbarButton { Text = "Overwrite", CssClass = "btn-danger", IconCssClass = "fas fa-fw fa-save", ShiftRight = true },
-					new ToolbarButton { Text = "Rename", CssClass = "btn-primary", IconCssClass = "fas fa-fw fa-pen-square" },
-					new ToolbarButton { Text = "Skip", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-forward" },
-					new ToolbarButton { Text = "Cancel", CssClass = "btn-secondary", IconCssClass = "fas fa-fw fa-times" }
-				]);
-			}
-
-			// set up buttons on upload dialog
-			if (UploadDialog != null)
-			{
-				UploadDialog!.Buttons.First(x => x.Key == "Yes").IsVisible = false;
-				if (UploadDialog!.Buttons.First(x => x.Key == "No") is ToolbarButton btn)
-				{
-					btn.ShiftRight = true;
-					btn.Text = "Close";
-					btn.CssClass = "btn-primary";
-				}
-			}
-
-			await RefreshToolbarAsync().ConfigureAwait(true);
 		}
 	}
 
@@ -670,45 +712,8 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// </summary>
 	public async Task RefreshToolbarAsync()
 	{
-		var selectedItems = Table!.GetSelectedItems();
-
-		// up button
-		var upButton = ToolbarItems.Find(x => x.Key == "navigate-up");
-		if (upButton != null)
-		{
-			upButton.IsEnabled = Tree?.SelectedNode?.ParentNode?.ParentNode != null;
-			upButton.IsVisible = ShowNavigateUpButton;
-		}
-
-		// open button
-		var openButton = ToolbarItems.Find(x => x.Key == "open");
-		if (openButton != null)
-		{
-			openButton.IsEnabled = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
-		}
-
-		// create folder button - acts on selected folder
-		var createFolderButton = ToolbarItems.Find(x => x.Key == "create-folder");
-		if (createFolderButton != null)
-		{
-			createFolderButton.IsEnabled = (Tree?.SelectedNode?.Data) != null && Tree.SelectedNode.Data.CanAddItems;
-		}
-
-		// upload button
-		var uploadButton = ToolbarItems.Find(x => x.Key == "upload");
-		if (uploadButton != null)
-		{
-			uploadButton.IsEnabled = Tree?.SelectedNode?.Data?.CanAddItems == true;
-		}
-
-		// delete button
-		var deleteButton = ToolbarItems.Find(x => x.Key == "delete");
-		if (deleteButton != null)
-		{
-			deleteButton.IsEnabled = Table!.Selection.Count > 0
-				&& selectedItems.All(x => x.CanDelete)
-				&& !selectedItems.Any(x => IsParentDirectoryItem(x));
-		}
+		UpdateSelectionToolbarItems(Table!.GetSelectedItems());
+		UpdateFolderToolbarItems(Tree?.SelectedNode);
 
 		// preview button
 		if (_previewPanelButton != null)
@@ -719,6 +724,47 @@ public partial class PDFileExplorer : IAsyncDisposable
 		// allow application to alter toolbar state
 		await UpdateToolbarState.InvokeAsync(ToolbarItems).ConfigureAwait(true);
 	}
+
+	private void UpdateSelectionToolbarItems(FileExplorerItem[] selectedItems)
+	{
+		// open button
+		if (FindToolbarItem("open") is { } openButton)
+		{
+			openButton.IsEnabled = selectedItems.Length == 1 && selectedItems[0].EntryType == FileExplorerItemType.Directory;
+		}
+
+		// delete button
+		if (FindToolbarItem("delete") is { } deleteButton)
+		{
+			deleteButton.IsEnabled = Table!.Selection.Count > 0
+				&& selectedItems.All(x => x.CanDelete)
+				&& !selectedItems.Any(IsParentDirectoryItem);
+		}
+	}
+
+	private void UpdateFolderToolbarItems(TreeNode<FileExplorerItem>? selectedNode)
+	{
+		// up button
+		if (FindToolbarItem("navigate-up") is { } upButton)
+		{
+			upButton.IsEnabled = selectedNode?.ParentNode?.ParentNode != null;
+			upButton.IsVisible = ShowNavigateUpButton;
+		}
+
+		// create folder and upload buttons - act on selected folder
+		var canAddToFolder = selectedNode?.Data?.CanAddItems == true;
+		if (FindToolbarItem("create-folder") is { } createFolderButton)
+		{
+			createFolderButton.IsEnabled = canAddToFolder;
+		}
+
+		if (FindToolbarItem("upload") is { } uploadButton)
+		{
+			uploadButton.IsEnabled = canAddToFolder;
+		}
+	}
+
+	private ToolbarItem? FindToolbarItem(string key) => ToolbarItems.Find(x => x.Key == key);
 
 	/// <summary>
 	/// Gets the paths of all currently selected files and folders in the table view.

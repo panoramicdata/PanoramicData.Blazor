@@ -197,58 +197,42 @@ public partial class PDFileExplorer
 	private async Task GetUploadConflictsAsync(MoveCopyArgs args)
 	{
 		var conflicts = new List<FileExplorerItem>();
+
 		// group files by parent directory
-		var folders = args.Payload.GroupBy(x => x.ParentPath).ToArray();
-		if (folders != null)
+		foreach (var folder in args.Payload.GroupBy(x => x.ParentPath))
 		{
-			foreach (var folder in folders)
-			{
-				var folderPath = folder.Key;
-				CachedResult<Task<DataResponse<FileExplorerItem>>>? cachedTask = null;
-				lock (_conflictCache)
-				{
-					if (_conflictCache.TryGetValue(folderPath, out CachedResult<Task<DataResponse<FileExplorerItem>>>? value) && value.HasExpired)
-					{
-						_conflictCache.Remove(folderPath);
-					}
-
-					if (_conflictCache.TryGetValue(folderPath, out CachedResult<Task<DataResponse<FileExplorerItem>>>? value2))
-					{
-						cachedTask = value2;
-					}
-					else
-					{
-						var task = DataProvider.GetDataAsync(new DataRequest<FileExplorerItem>() { SearchText = folderPath }, default);
-						cachedTask = new CachedResult<Task<DataResponse<FileExplorerItem>>>(folderPath, task)
-						{
-							Expiry = DateTimeOffset.UtcNow.AddSeconds(30)
-						};
-						_conflictCache.Add(folderPath, cachedTask);
-					}
-				}
-
-				if (cachedTask != null)
-				{
-					// wait for cache to load
-					var result = await cachedTask.Result.ConfigureAwait(true);
-					var names = folder.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToArray();
-					args.TargetItems = [.. result.Items];
-					foreach (var folderItem in folder)
-					{
-						var match = args.TargetItems.FirstOrDefault(x => FileExplorerItem.GetNameFromPath(x.Path) == FileExplorerItem.GetNameFromPath(folderItem.Path));
-						if (match != null)
-						{
-							conflicts.Add(folderItem);
-						}
-					}
-				}
-			}
+			// wait for cache to load
+			var result = await GetCachedFolderItemsAsync(folder.Key).ConfigureAwait(true);
+			args.TargetItems = [.. result.Items];
+			var targetNames = args.TargetItems.Select(x => FileExplorerItem.GetNameFromPath(x.Path)).ToHashSet();
+			conflicts.AddRange(folder.Where(folderItem => targetNames.Contains(FileExplorerItem.GetNameFromPath(folderItem.Path))));
 		}
 
 		args.Conflicts = [.. conflicts.OrderBy(x => x.Path)];
 	}
 
-	private async Task OnHideUploadDialog(string _)
+	/// <summary>
+	/// Returns the request for the items of a folder, made at most once every 30 seconds however many uploads ask.
+	/// </summary>
+	private Task<DataResponse<FileExplorerItem>> GetCachedFolderItemsAsync(string folderPath)
+	{
+		lock (_conflictCache)
+		{
+			if (_conflictCache.TryGetValue(folderPath, out var cachedTask) && !cachedTask.HasExpired)
+			{
+				return cachedTask.Result;
+			}
+
+			var task = DataProvider.GetDataAsync(new DataRequest<FileExplorerItem> { SearchText = folderPath }, default);
+			_conflictCache[folderPath] = new CachedResult<Task<DataResponse<FileExplorerItem>>>(folderPath, task)
+			{
+				Expiry = DateTimeOffset.UtcNow.AddSeconds(30)
+			};
+			return task;
+		}
+	}
+
+	private async Task OnHideUploadDialog()
 	{
 		if (UploadDialog != null)
 		{
@@ -265,8 +249,8 @@ public partial class PDFileExplorer
 
 		var tasks = new List<Task>
 		{
-			_dropZone1.ClearAsync(),
-			_dropZone2.ClearAsync()
+			DropZone1.ClearAsync(),
+			DropZone2.ClearAsync()
 		};
 
 		await Task.WhenAll(tasks).ConfigureAwait(true);
@@ -277,8 +261,8 @@ public partial class PDFileExplorer
 		BlockOverlayService.Show();
 		var tasks = new List<Task>
 		{
-			_dropZone1.CancelAsync(),
-			_dropZone2.CancelAsync()
+			DropZone1.CancelAsync(),
+			DropZone2.CancelAsync()
 		};
 		await Task.WhenAll(tasks).ConfigureAwait(true);
 	}
