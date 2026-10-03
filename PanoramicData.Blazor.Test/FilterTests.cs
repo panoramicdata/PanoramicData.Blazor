@@ -354,92 +354,75 @@ public partial class FilterTests
 
 	#endregion
 
-	#region IsDateTime Tests
+	#region ParseDateTime Tests
 
-	/// <summary>Verifies that IsDateTime returns true and parses an ISO 8601 UTC date string with second precision.</summary>
+	/// <summary>Verifies that ParseDateTime parses an ISO 8601 UTC date string with second precision.</summary>
 	[Fact]
-	public void IsDateTime_ValidIsoFormat_ReturnsTrue()
+	public void ParseDateTime_ValidIsoFormat_ParsesWithSecondPrecision()
 	{
-		var result = Filter.IsDateTime("2023-08-15T21:26:07Z", out var dateTime, out var format, out var precision);
+		var parsed = Filter.ParseDateTime("2023-08-15T21:26:07Z");
 
-		result.ShouldBeTrue();
-		dateTime.Year.ShouldBe(2023);
-		dateTime.Month.ShouldBe(8);
+		parsed.ShouldNotBeNull();
+		parsed.Value.Year.ShouldBe(2023);
+		parsed.Value.Month.ShouldBe(8);
 		// Note: Day may vary based on local timezone conversion
-		precision.ShouldBe(DatePrecision.Second);
+		parsed.Precision.ShouldBe(DatePrecision.Second);
 	}
 
-	/// <summary>Verifies that IsDateTime strips surrounding quotes before parsing a date string.</summary>
+	/// <summary>Verifies that ParseDateTime strips surrounding quotes before parsing a date string.</summary>
 	[Fact]
-	public void IsDateTime_QuotedValue_ParsesCorrectly()
+	public void ParseDateTime_QuotedValue_ParsesCorrectly()
 	{
-		var result = Filter.IsDateTime("\"2023-08-15T21:26:07Z\"", out var dateTime, out var format, out var precision);
+		var parsed = Filter.ParseDateTime("\"2023-08-15T21:26:07Z\"");
 
-		result.ShouldBeTrue();
-		dateTime.Year.ShouldBe(2023);
+		parsed.ShouldNotBeNull();
+		parsed.Value.Year.ShouldBe(2023);
 	}
 
-	/// <summary>Verifies that IsDateTime returns Day precision for a date-only string.</summary>
+	/// <summary>Verifies that ParseDateTime returns Day precision for a date-only string.</summary>
 	[Fact]
-	public void IsDateTime_DateOnly_ReturnsDayPrecision()
+	public void ParseDateTime_DateOnly_ReturnsDayPrecision()
 	{
-		var result = Filter.IsDateTime("15/08/2023", out var dateTime, out var format, out var precision);
+		var parsed = Filter.ParseDateTime("15/08/2023");
 
-		result.ShouldBeTrue();
-		precision.ShouldBe(DatePrecision.Day);
+		parsed.ShouldNotBeNull();
+		parsed.Precision.ShouldBe(DatePrecision.Day);
 	}
 
-	/// <summary>Verifies that IsDateTime returns false and outputs DateTime.MinValue for a non-date string.</summary>
+	/// <summary>Verifies that ParseDateTime returns null for a non-date string.</summary>
 	[Fact]
-	public void IsDateTime_InvalidValue_ReturnsFalse()
+	public void ParseDateTime_InvalidValue_ReturnsNull()
 	{
-		var result = Filter.IsDateTime("not a date", out var dateTime, out var format, out var precision);
-
-		result.ShouldBeFalse();
-		dateTime.ShouldBe(DateTime.MinValue);
+		Filter.ParseDateTime("not a date").ShouldBeNull();
 	}
 
-	/// <summary>Verifies that IsDateTime returns false and outputs DateTime.MinValue and empty format for a null input.</summary>
+	/// <summary>Verifies that ParseDateTime returns null for a null input.</summary>
 	[Fact]
-	public void IsDateTime_NullInput_ReturnsFalse()
+	public void ParseDateTime_NullInput_ReturnsNull()
 	{
-		var result = Filter.IsDateTime(null, out var dateTime, out var format, out var precision);
-
-		result.ShouldBeFalse();
-		dateTime.ShouldBe(DateTime.MinValue);
-		format.ShouldBe(string.Empty);
+		Filter.ParseDateTime(null).ShouldBeNull();
 	}
 
-	/// <summary>Verifies that IsDateTime returns Minute precision for a date and time string without seconds.</summary>
+	/// <summary>Verifies that ParseDateTime returns Minute precision for a date and time string without seconds.</summary>
 	[Fact]
-	public void IsDateTime_DateWithTime_ReturnsMinutePrecision()
+	public void ParseDateTime_DateWithTime_ReturnsMinutePrecision()
 	{
-		var result = Filter.IsDateTime("15/08/2023 21:26", out _, out _, out var precision);
-
-		result.ShouldBeTrue();
-		precision.ShouldBe(DatePrecision.Minute);
+		Filter.ParseDateTime("15/08/2023 21:26")!.Precision.ShouldBe(DatePrecision.Minute);
 	}
 
-	/// <summary>Verifies that IsDateTime returns Millisecond precision for a date and time string with milliseconds.</summary>
+	/// <summary>Verifies that ParseDateTime returns Millisecond precision for a date and time string with milliseconds.</summary>
 	[Fact]
-	public void IsDateTime_DateWithMilliseconds_ReturnsMillisecondPrecision()
+	public void ParseDateTime_DateWithMilliseconds_ReturnsMillisecondPrecision()
 	{
-		var result = Filter.IsDateTime("2023-08-15 21:26:07.123", out _, out _, out var precision);
-
-		result.ShouldBeTrue();
-		precision.ShouldBe(DatePrecision.Millisecond);
+		Filter.ParseDateTime("2023-08-15 21:26:07.123")!.Precision.ShouldBe(DatePrecision.Millisecond);
 	}
 
-	/// <summary>Verifies that IsDateTime returns Second precision for a date and time string with seconds but no milliseconds.</summary>
+	/// <summary>Verifies that ParseDateTime returns Second precision for a date and time string with seconds but no milliseconds.</summary>
 	[Fact]
-	public void IsDateTime_DateWithSeconds_ReturnsSecondPrecision()
+	public void ParseDateTime_DateWithSeconds_ReturnsSecondPrecision()
 	{
-		var result = Filter.IsDateTime("2023-08-15 21:26:07", out _, out _, out var precision);
-
-		result.ShouldBeTrue();
-		precision.ShouldBe(DatePrecision.Second);
+		Filter.ParseDateTime("2023-08-15 21:26:07")!.Precision.ShouldBe(DatePrecision.Second);
 	}
-
 	#endregion
 }
 

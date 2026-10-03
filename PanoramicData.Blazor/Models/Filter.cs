@@ -438,8 +438,19 @@ public class Filter
 	/// <param name="formatFound">The format string that matched, or an empty string on failure.</param>
 	/// <param name="datePrecision">The temporal precision of the parsed value.</param>
 	/// <returns>True if the string was successfully parsed; otherwise false.</returns>
+	[Obsolete("Use ParseDateTime, which returns the parsed value, format and precision instead of using out parameters.")]
 	public static bool IsDateTime(string? dateTimeString, out DateTime dateTime, out string formatFound, out DatePrecision datePrecision)
 		=> IsDateTime(dateTimeString, false, out dateTime, out formatFound, out datePrecision);
+
+	/// <summary>
+	/// Parses <paramref name="dateTimeString"/> as a <see cref="DateTime"/> using a set of recognised formats.
+	/// </summary>
+	/// <param name="dateTimeString">The string to parse; surrounding quotes are ignored.</param>
+	/// <returns>The parsed value with the format that matched and its precision, or null if no format matched.</returns>
+	public static ParsedDateTime? ParseDateTime(string? dateTimeString)
+		=> IsDateTime(dateTimeString, false, out var dateTime, out var format, out var precision)
+			? new ParsedDateTime(dateTime, format, precision)
+			: null;
 
 	/// <summary>
 	/// Attempts to parse <paramref name="dateTimeString"/> as a <see cref="DateTime"/> using a set of recognised formats,
