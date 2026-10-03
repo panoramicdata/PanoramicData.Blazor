@@ -147,9 +147,9 @@ export function scrollIntoViewEx(selector, behaviour, block, inline) {
 	const el = document.querySelector(selector);
 	if (el) {
 		el.scrollIntoView({
-			behavior: "smooth", // or 'auto' for immediate scrolling
-			block: "nearest", // aligns vertically (not usually needed for columns)
-			inline: "center", // aligns horizontally
+			behavior: behaviour, // e.g. "smooth", or "auto" for immediate scrolling
+			block: block, // vertical alignment, e.g. "nearest"
+			inline: inline, // horizontal alignment, e.g. "center"
 		});
 	}
 }
@@ -227,7 +227,7 @@ export function setProperty(element, property, value) {
 	}
 }
 
-function scrollToBottom(element) {
+export function scrollToBottom(element) {
 	element.scrollTop = element.scrollHeight;
 }
 

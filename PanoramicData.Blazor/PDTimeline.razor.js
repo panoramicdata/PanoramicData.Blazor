@@ -78,7 +78,7 @@ class Timeline {
 		this.updateCursor(ev.clientX);
 	}
 
-	onMouseLeave(ev) {
+	onMouseLeave() {
 		// Remove cursor class when mouse leaves the plot area
 		if (this.plotElement) {
 			this.plotElement.classList.remove("shift-move-cursor");
@@ -124,7 +124,7 @@ class Timeline {
 		};
 	}
 
-	log(data) {
+	log() {
 		//console.log(...arguments);
 	}
 
@@ -170,18 +170,6 @@ class Timeline {
 }
 
 //export { Timeline };
-
-function debounce(func, wait) {
-	let timeout;
-	return function executedFunction(...args) {
-		const later = () => {
-			timeout = null;
-			func(...args);
-		};
-		clearTimeout(timeout);
-		timeout = setTimeout(later, wait);
-	};
-}
 
 export function dispose(id) {
 	var tl = timelines[id];

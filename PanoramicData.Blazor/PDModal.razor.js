@@ -13,7 +13,7 @@
 			}
 		});
 
-		return new bootstrap.Modal(el, opt);
+		return new window.bootstrap.Modal(el, opt);
 	}
 }
 

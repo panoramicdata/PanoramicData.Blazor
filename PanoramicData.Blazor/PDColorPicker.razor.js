@@ -29,10 +29,11 @@ export function dispose(id) {
 export function getElementBounds(element) {
 	if (!element) return null;
 	const rect = element.getBoundingClientRect();
-	return {
+	const bounds = {
 		width: rect.width,
 		height: rect.height,
 		left: rect.left,
 		top: rect.top,
 	};
+	return bounds;
 }

@@ -1,11 +1,11 @@
 ﻿var splits = {};
 
 export function hasSplitJs() {
-	return typeof Split !== "undefined";
+	return typeof window.Split !== "undefined";
 }
 
 export function initialize(id, ids, options) {
-	splits[id] = Split(ids, options);
+	splits[id] = window.Split(ids, options);
 }
 
 export function getSizes(id) {

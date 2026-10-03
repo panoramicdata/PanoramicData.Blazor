@@ -9,6 +9,14 @@ function getSpeechRecognitionConstructor() {
 	return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
 
+// Returns the transcript of a final recognition result, or null
+function getFinalTranscript(result) {
+	if (!result || !result.isFinal || !result[0]) {
+		return null;
+	}
+	return result[0].transcript || null;
+}
+
 function createRecognition() {
 	const SpeechRecognitionCtor = getSpeechRecognitionConstructor();
 	if (!SpeechRecognitionCtor) {
@@ -35,14 +43,14 @@ function createRecognition() {
 		}
 
 		for (let i = event.resultIndex; i < event.results.length; i++) {
-			const result = event.results[i];
-			if (!result || !result.isFinal || !result[0] || !result[0].transcript) {
+			const transcript = getFinalTranscript(event.results[i]);
+			if (!transcript) {
 				continue;
 			}
 
 			listenerReference.invokeMethodAsync(
 				"OnRecognizedText",
-				result[0].transcript,
+				transcript,
 				new Date().toISOString(),
 			);
 		}
@@ -111,7 +119,9 @@ export function startListening() {
 	shouldRestart = true;
 	try {
 		recognition.start();
-	} catch {}
+	} catch {
+		// start() throws if recognition is already running; nothing more to do
+	}
 }
 
 export function stopListening() {
@@ -122,7 +132,9 @@ export function stopListening() {
 
 	try {
 		recognition.stop();
-	} catch {}
+	} catch {
+		// stop() throws if recognition has already ended; nothing more to do
+	}
 }
 
 export function dispose() {
@@ -134,7 +146,9 @@ export function dispose() {
 			recognition.onerror = null;
 			recognition.onend = null;
 			recognition.abort();
-		} catch {}
+		} catch {
+			// Disposal is best effort; the instance is discarded below either way
+		}
 	}
 
 	recognition = null;

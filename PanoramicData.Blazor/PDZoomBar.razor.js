@@ -60,7 +60,7 @@ class Zoombar {
 		}
 	}
 
-	log(data) {
+	log() {
 		//console.log(...arguments);
 	}
 

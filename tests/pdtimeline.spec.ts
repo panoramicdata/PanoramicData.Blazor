@@ -24,7 +24,7 @@ test.describe("Data Visualization Components", () => {
 
 		const zoomOutButton = page
 			.locator("button")
-			.filter({ hasText: /zoom.*out|\-/i })
+			.filter({ hasText: /zoom.*out|-/i })
 			.first();
 		if (await zoomOutButton.isVisible()) {
 			await zoomOutButton.click();

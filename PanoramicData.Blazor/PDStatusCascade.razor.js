@@ -80,7 +80,7 @@ function _ensureInfra() {
 	if (!document.getElementById("pdsc-global-styles")) {
 		const style = document.createElement("style");
 		style.id = "pdsc-global-styles";
-		style.textContent = _globalStyles();
+		style.textContent = _GLOBAL_STYLES;
 		document.head.appendChild(style);
 	}
 
@@ -131,7 +131,7 @@ function _closeAll() {
 		_infra.overlay.classList.remove("pdsc-overlay--active");
 		_infra.popups.forEach((p) => {
 			p.classList.remove("pdsc-popup--open");
-			p.innerHTML = "";
+			p.textContent = "";
 		});
 	}
 }
@@ -140,7 +140,7 @@ function _closeFrom(depth) {
 	if (!_infra) return;
 	for (let i = depth; i <= MAX_DEPTH; i++) {
 		_infra.popups[i].classList.remove("pdsc-popup--open");
-		_infra.popups[i].innerHTML = "";
+		_infra.popups[i].textContent = "";
 	}
 }
 
@@ -152,7 +152,8 @@ async function _maybeExpand(entry, node, nodePath, anchorEl) {
 	const depth = nodePath === "" ? 0 : nodePath.split(".").length;
 	const popup = _infra.popups[Math.min(depth, MAX_DEPTH)];
 
-	popup.innerHTML = `<div class="pdsc-spinner"><i class="fas fa-spinner fa-spin"></i></div>`;
+	popup.textContent = "";
+	popup.appendChild(_createSpinner());
 	_positionPopup(popup, anchorEl, depth);
 	popup.classList.add("pdsc-popup--open");
 
@@ -173,95 +174,146 @@ async function _maybeExpand(entry, node, nodePath, anchorEl) {
 
 // ── Popup Rendering ───────────────────────────────────────────────
 
+const DEFAULT_ICON = "fas fa-question-circle";
+const DEFAULT_COLOR = "text-secondary";
+
+function _text(value) {
+	return value ? String(value) : "";
+}
+
+function _createElement(tagName, className, text) {
+	const element = document.createElement(tagName);
+	if (className) element.className = className;
+	if (text !== undefined) element.textContent = _text(text);
+	return element;
+}
+
+function _createIcon(className) {
+	const icon = _createElement("i", className);
+	icon.setAttribute("aria-hidden", "true");
+	return icon;
+}
+
+function _statusIconClass(status) {
+	const s = status || {};
+	return `${s.iconClass || DEFAULT_ICON} ${s.colorClass || DEFAULT_COLOR}`;
+}
+
+function _createSpinner() {
+	const spinner = _createElement("div", "pdsc-spinner");
+	spinner.appendChild(_createElement("i", "fas fa-spinner fa-spin"));
+	return spinner;
+}
+
+function _createHeader(node) {
+	const head = _createElement("div", "pdsc-popup-head");
+
+	const titleRow = _createElement("div", "pdsc-popup-title-row");
+	titleRow.appendChild(_createIcon(_statusIconClass(node.status)));
+	titleRow.appendChild(_createElement("span", "pdsc-popup-title", node.title));
+	head.appendChild(titleRow);
+
+	if (node.summary) {
+		head.appendChild(_createElement("p", "pdsc-popup-summary", node.summary));
+	}
+	if (node.detail) {
+		head.appendChild(_createElement("p", "pdsc-popup-detail", node.detail));
+	}
+	return head;
+}
+
+function _isDrillable(child, depth) {
+	if (depth >= MAX_DEPTH) return false;
+	if (child.expandable === true) return true;
+	const hasChildren = child.children && child.children.length > 0;
+	return child.expandable !== false && hasChildren;
+}
+
+function _createItem(child, idx, drillable) {
+	const item = _createElement(
+		"div",
+		drillable ? "pdsc-item pdsc-item--drillable" : "pdsc-item",
+	);
+	item.dataset.idx = idx;
+	item.setAttribute("role", drillable ? "button" : "listitem");
+	if (drillable) item.setAttribute("tabindex", "0");
+
+	item.appendChild(_createIcon(_statusIconClass(child.status)));
+
+	const body = _createElement("div", "pdsc-item-body");
+	body.appendChild(_createElement("span", "pdsc-item-label", child.title));
+	if (child.summary) {
+		body.appendChild(
+			_createElement("span", "pdsc-item-summary", child.summary),
+		);
+	}
+	item.appendChild(body);
+
+	if (child.detail) {
+		const aside = _createElement(
+			"i",
+			"fa-solid fa-circle-info pdsc-item-aside",
+		);
+		aside.setAttribute("title", _text(child.detail));
+		aside.setAttribute("aria-label", "Has detail");
+		item.appendChild(aside);
+	}
+	if (drillable) {
+		item.appendChild(_createIcon("fas fa-chevron-right pdsc-item-chevron"));
+	}
+	return item;
+}
+
+function _attachDrillHandler(popup, item, context) {
+	const { depth, node, entry, nodePath } = context;
+	const idx = parseInt(item.dataset.idx, 10);
+	const childPath = nodePath === "" ? `${idx}` : `${nodePath}.${idx}`;
+
+	const drill = async (e) => {
+		e.stopPropagation();
+		_closeFrom(depth + 1);
+		popup
+			.querySelectorAll(".pdsc-item")
+			.forEach((i) => i.classList.remove("pdsc-item--active"));
+		item.classList.add("pdsc-item--active");
+		const childNode = await _maybeExpand(
+			entry,
+			node.children[idx],
+			childPath,
+			item,
+		);
+		node.children[idx] = childNode;
+		_updateItemIcon(item, childNode.status);
+		_renderPopup(depth + 1, childNode, item, entry, childPath);
+	};
+
+	item.addEventListener("click", drill);
+	item.addEventListener("keydown", (e) => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			drill(e);
+		}
+	});
+}
+
 function _renderPopup(depth, node, anchorEl, entry, nodePath) {
 	if (depth > MAX_DEPTH) return;
 
 	const popup = _infra.popups[depth];
-	const status = node.status || {};
-	const iconCls = status.iconClass || "fas fa-question-circle";
-	const colorCls = status.colorClass || "text-secondary";
+	popup.textContent = "";
+	popup.appendChild(_createHeader(node));
 
-	// ── Header ──
-	let html = `<div class="pdsc-popup-head">
-        <div class="pdsc-popup-title-row">
-            <i class="${_esc(iconCls)} ${_esc(colorCls)}" aria-hidden="true"></i>
-            <span class="pdsc-popup-title">${_esc(node.title)}</span>
-        </div>`;
-
-	if (node.summary) {
-		html += `<p class="pdsc-popup-summary">${_esc(node.summary)}</p>`;
-	}
-	if (node.detail) {
-		html += `<p class="pdsc-popup-detail">${_esc(node.detail)}</p>`;
-	}
-	html += `</div>`;
-
-	// ── Children ──
+	// ── Children (with drill-down handlers) ──
 	if (node.children && node.children.length > 0) {
-		html += `<div class="pdsc-popup-body">`;
+		const body = _createElement("div", "pdsc-popup-body");
+		const context = { depth, node, entry, nodePath };
 		node.children.forEach((child, idx) => {
-			const hasChildren = child.children && child.children.length > 0;
-			const cStatus = child.status || {};
-			const cIcon = cStatus.iconClass || "fas fa-question-circle";
-			const cColor = cStatus.colorClass || "text-secondary";
-			const drillable =
-				depth < MAX_DEPTH &&
-				(child.expandable === true ||
-					(child.expandable !== false && hasChildren));
-
-			html += `<div class="pdsc-item${drillable ? " pdsc-item--drillable" : ""}" data-idx="${idx}" role="${drillable ? "button" : "listitem"}"${drillable ? ' tabindex="0"' : ""}>
-                <i class="${_esc(cIcon)} ${_esc(cColor)}" aria-hidden="true"></i>
-                <div class="pdsc-item-body">
-                    <span class="pdsc-item-label">${_esc(child.title)}</span>
-                    ${child.summary ? `<span class="pdsc-item-summary">${_esc(child.summary)}</span>` : ""}
-                </div>`;
-
-			if (child.detail) {
-				html += `<i class="fa-solid fa-circle-info pdsc-item-aside" title="${_esc(child.detail)}" aria-label="Has detail"></i>`;
-			}
-			if (drillable) {
-				html += `<i class="fas fa-chevron-right pdsc-item-chevron" aria-hidden="true"></i>`;
-			}
-
-			html += `</div>`;
+			const drillable = _isDrillable(child, depth);
+			const item = _createItem(child, idx, drillable);
+			if (drillable) _attachDrillHandler(popup, item, context);
+			body.appendChild(item);
 		});
-		html += `</div>`;
-	}
-
-	popup.innerHTML = html;
-
-	// ── Drill-down handlers ──
-	if (node.children) {
-		popup.querySelectorAll(".pdsc-item--drillable").forEach((item) => {
-			const idx = parseInt(item.dataset.idx, 10);
-			const childPath = nodePath === "" ? `${idx}` : `${nodePath}.${idx}`;
-
-			const drill = async (e) => {
-				e.stopPropagation();
-				_closeFrom(depth + 1);
-				popup
-					.querySelectorAll(".pdsc-item")
-					.forEach((i) => i.classList.remove("pdsc-item--active"));
-				item.classList.add("pdsc-item--active");
-				const childNode = await _maybeExpand(
-					entry,
-					node.children[idx],
-					childPath,
-					item,
-				);
-				node.children[idx] = childNode;
-				_updateItemIcon(item, childNode.status);
-				_renderPopup(depth + 1, childNode, item, entry, childPath);
-			};
-
-			item.addEventListener("click", drill);
-			item.addEventListener("keydown", (e) => {
-				if (e.key === "Enter" || e.key === " ") {
-					e.preventDefault();
-					drill(e);
-				}
-			});
-		});
+		popup.appendChild(body);
 	}
 
 	_positionPopup(popup, anchorEl, depth);
@@ -273,8 +325,7 @@ function _renderPopup(depth, node, anchorEl, entry, nodePath) {
 function _updateItemIcon(itemEl, status) {
 	const icon = itemEl.querySelector("i:first-child");
 	if (!icon) return;
-	const s = status || {};
-	icon.className = `${s.iconClass || "fas fa-question-circle"} ${s.colorClass || "text-secondary"}`;
+	icon.className = _statusIconClass(status);
 }
 
 function _positionPopup(popup, anchor, depth) {
@@ -307,19 +358,9 @@ function _positionPopup(popup, anchor, depth) {
 	popup.style.display = "";
 }
 
-function _esc(text) {
-	if (!text) return "";
-	return text
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;");
-}
-
 // ── Global popup styles (injected once) ───────────────────────────
 
-function _globalStyles() {
-	return `
+const _GLOBAL_STYLES = `
 /* PDStatusCascade — popup styles */
 .pdsc-overlay {
     display: none;
@@ -444,4 +485,3 @@ function _globalStyles() {
    Override --pdsc-color-amber on any ancestor element if needed. */
 .pdsc-icon-amber { color: var(--pdsc-color-amber, #fd7e14); }
 `;
-}

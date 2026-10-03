@@ -26,15 +26,18 @@ export function init(id, element, dotNetRef) {
 		}
 	};
 
-	const observer = new ResizeObserver((entries) => {
-		for (const entry of entries) {
-			const box = entry.contentRect;
-			report(box.width, box.height);
-		}
-	});
+	// Browsers without ResizeObserver only get the initial size below
+	if (typeof ResizeObserver !== "undefined") {
+		const observer = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				const box = entry.contentRect;
+				report(box.width, box.height);
+			}
+		});
 
-	observer.observe(element);
-	instances.set(id, observer);
+		observer.observe(element);
+		instances.set(id, observer);
+	}
 
 	// Report the initial size immediately; ResizeObserver fires on observe in most browsers, but
 	// relying on that would leave the map blank where it does not.

@@ -49,7 +49,7 @@ export function init(container, handle, cornerClass) {
 		}
 	};
 
-	const onPointerUp = (e) => {
+	const onPointerUp = () => {
 		resizing = false;
 		document.removeEventListener("pointermove", onPointerMove);
 		document.removeEventListener("pointerup", onPointerUp);

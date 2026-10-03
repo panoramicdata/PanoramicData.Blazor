@@ -65,6 +65,6 @@
 			...defaultConfig,
 			strategy: "fixed",
 		});
-		return new bootstrap.Dropdown(el, { ...opt, popperConfig });
+		return new window.bootstrap.Dropdown(el, { ...opt, popperConfig });
 	}
 }

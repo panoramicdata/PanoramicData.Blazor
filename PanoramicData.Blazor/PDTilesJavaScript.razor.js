@@ -19,7 +19,7 @@ export function initialize(id, config, dotNetRef) {
 	}
 
 	// Check if IsometricTileGrid is available
-	if (typeof IsometricTileGrid === "undefined") {
+	if (typeof window.IsometricTileGrid === "undefined") {
 		console.error(
 			"PDTilesJavaScript: IsometricTileGrid library not loaded. Please include tile-grid.js",
 		);
@@ -57,11 +57,11 @@ export function initialize(id, config, dotNetRef) {
 	// Generate initial random connectors if animation is enabled
 	if (config.connAnimation && config.connAnimSpeed > 0) {
 		extendedConfig.connectors =
-			IsometricTileGrid.generateRandomConnectors(extendedConfig);
+			window.IsometricTileGrid.generateRandomConnectors(extendedConfig);
 	}
 
 	// Create the grid
-	const grid = new IsometricTileGrid(container, extendedConfig);
+	const grid = new window.IsometricTileGrid(container, extendedConfig);
 	grids.set(id, { grid, dotNetRef });
 }
 
@@ -96,7 +96,7 @@ export function randomizeConnectors(id) {
 	const entry = grids.get(id);
 	if (entry && entry.grid) {
 		const cfg = entry.grid.getConfig();
-		const connectors = IsometricTileGrid.generateRandomConnectors(cfg);
+		const connectors = window.IsometricTileGrid.generateRandomConnectors(cfg);
 		entry.grid.setConnectors(connectors);
 	}
 }

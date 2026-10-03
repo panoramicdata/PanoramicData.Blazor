@@ -48,18 +48,18 @@ test.describe("Core Navigation and Layout", () => {
 	}) => {
 		await page.goto("/");
 		const links = [
-			{ name: "Timeline", urlPart: "timeline" },
-			{ name: "Table", urlPart: "table" },
-			{ name: "Tree", urlPart: "tree" },
-			{ name: "Form", urlPart: "form" },
-			{ name: "Splitter", urlPart: "splitter" },
-			{ name: "Monaco Editor", urlPart: "monaco" },
+			{ name: "Timeline", urlPattern: /timeline/i },
+			{ name: "Table", urlPattern: /table/i },
+			{ name: "Tree", urlPattern: /tree/i },
+			{ name: "Form", urlPattern: /form/i },
+			{ name: "Splitter", urlPattern: /splitter/i },
+			{ name: "Monaco Editor", urlPattern: /monaco/i },
 		];
-		for (const { name, urlPart } of links) {
+		for (const { name, urlPattern } of links) {
 			const link = page.getByRole("link", { name });
 			await expect(link).toBeVisible();
 			await link.click();
-			await expect(page).toHaveURL(new RegExp(urlPart, "i"));
+			await expect(page).toHaveURL(urlPattern);
 			await page.goBack();
 		}
 	});

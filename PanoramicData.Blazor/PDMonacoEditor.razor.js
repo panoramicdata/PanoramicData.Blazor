@@ -3,25 +3,60 @@ var _disabledKeys = new Set();
 var _keyEventListeners = new Map(); // Track event listeners for cleanup
 var languageOptions = {};
 
+// Characters that may start a (dotted) function name: ASCII letters, "_" and "$"
+function isIdentifierStart(ch) {
+	return (
+		(ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z") || ch === "_" || ch === "$"
+	);
+}
+
+// Characters that may continue a (dotted) function name: the above plus digits and "."
+function isIdentifierPart(ch) {
+	return isIdentifierStart(ch) || (ch >= "0" && ch <= "9") || ch === ".";
+}
+
+// Same set of characters as the regular expression class \s
+function isWhitespace(ch) {
+	return ch !== undefined && ch.length === 1 && ch.trim() === "";
+}
+
+// Monaco is loaded by the host page as a global script
+function getMonaco() {
+	return window.monaco;
+}
+
 export function initialize(objRef) {
 	if (objRef) {
 		_objRef = objRef;
 	}
 }
 
+function toKeyId(binding) {
+	return `${binding.keyCode}-${binding.ctrlKey}-${binding.altKey}-${binding.shiftKey}`;
+}
+
+function fromKeyId(keyId) {
+	const [keyCode, ctrlKey, altKey, shiftKey] = keyId.split("-");
+	return {
+		keyCode: parseInt(keyCode, 10),
+		ctrlKey: ctrlKey === "true",
+		altKey: altKey === "true",
+		shiftKey: shiftKey === "true",
+	};
+}
+
 export function disableKeyBinding(keyCode, ctrlKey, altKey, shiftKey) {
 	// Create a key identifier for the combination
-	const keyId = `${keyCode}-${ctrlKey}-${altKey}-${shiftKey}`;
+	const binding = { keyCode, ctrlKey, altKey, shiftKey };
+	const keyId = toKeyId(binding);
 	_disabledKeys.add(keyId);
 
 	// Wait for Monaco to be ready and then intercept the key events
+	const monaco = getMonaco();
 	if (monaco && monaco.editor) {
-		// Get all Monaco editor instances
-		const editors = monaco.editor.getEditors();
-
 		// Apply to all existing editors
-		editors.forEach((editor) => {
-			interceptKeyboardEvent(editor, keyCode, ctrlKey, altKey, shiftKey, keyId);
+		monaco.editor.getEditors().forEach((editor) => {
+			interceptKeyboardEvent(editor, binding, keyId);
 		});
 
 		// Also intercept for any new editors that might be created
@@ -32,10 +67,11 @@ export function disableKeyBinding(keyCode, ctrlKey, altKey, shiftKey) {
 
 				// Apply all currently disabled key combinations to new editor
 				_disabledKeys.forEach((disabledKeyId) => {
-					const [kc, ctrl, alt, shift] = disabledKeyId
-						.split("-")
-						.map((v, i) => (i === 0 ? parseInt(v) : v === "true"));
-					interceptKeyboardEvent(editor, kc, ctrl, alt, shift, disabledKeyId);
+					interceptKeyboardEvent(
+						editor,
+						fromKeyId(disabledKeyId),
+						disabledKeyId,
+					);
 				});
 
 				return editor;
@@ -45,14 +81,32 @@ export function disableKeyBinding(keyCode, ctrlKey, altKey, shiftKey) {
 	}
 }
 
-function interceptKeyboardEvent(
-	editor,
-	keyCode,
-	ctrlKey,
-	altKey,
-	shiftKey,
-	keyId,
-) {
+function findEditorInputElement(domNode) {
+	return (
+		domNode.querySelector(".monaco-editor textarea") ||
+		domNode.querySelector(".monaco-editor input") ||
+		domNode.querySelector(".view-lines")
+	);
+}
+
+function createKeyEventHandler(binding, keyId) {
+	return function (event) {
+		const matches =
+			event.keyCode === binding.keyCode &&
+			event.ctrlKey === binding.ctrlKey &&
+			event.altKey === binding.altKey &&
+			event.shiftKey === binding.shiftKey;
+
+		if (matches) {
+			console.log(`Intercepted disabled key combination: ${keyId}`);
+			event.preventDefault();
+			event.stopPropagation();
+			event.stopImmediatePropagation();
+		}
+	};
+}
+
+function interceptKeyboardEvent(editor, binding, keyId) {
 	if (!editor) return;
 
 	try {
@@ -60,34 +114,14 @@ function interceptKeyboardEvent(
 		if (!domNode) return;
 
 		// Find the actual editor textarea/input element
-		const editorElement =
-			domNode.querySelector(".monaco-editor textarea") ||
-			domNode.querySelector(".monaco-editor input") ||
-			domNode.querySelector(".view-lines");
-
+		const editorElement = findEditorInputElement(domNode);
 		if (!editorElement) {
 			console.warn("Could not find Monaco editor input element");
 			return;
 		}
 
-		// Create the event listener function
-		const keyEventHandler = function (event) {
-			const matches =
-				event.keyCode === keyCode &&
-				event.ctrlKey === ctrlKey &&
-				event.altKey === altKey &&
-				event.shiftKey === shiftKey;
-
-			if (matches) {
-				console.log(`Intercepted disabled key combination: ${keyId}`);
-				event.preventDefault();
-				event.stopPropagation();
-				event.stopImmediatePropagation();
-				return false;
-			}
-		};
-
 		// Add the event listener with capture=true to intercept before Monaco
+		const keyEventHandler = createKeyEventHandler(binding, keyId);
 		editorElement.addEventListener("keydown", keyEventHandler, true);
 
 		// Store the listener for cleanup
@@ -105,15 +139,14 @@ function interceptKeyboardEvent(
 }
 
 export function enableKeyBinding(keyCode, ctrlKey, altKey, shiftKey) {
-	const keyId = `${keyCode}-${ctrlKey}-${altKey}-${shiftKey}`;
+	const keyId = toKeyId({ keyCode, ctrlKey, altKey, shiftKey });
 
 	// Remove from disabled keys
 	_disabledKeys.delete(keyId);
 
 	// Remove all event listeners for this key combination
 	if (_keyEventListeners.has(keyId)) {
-		const editorListeners = _keyEventListeners.get(keyId);
-		editorListeners.forEach(({ element, handler }, editor) => {
+		_keyEventListeners.get(keyId).forEach(({ element, handler }) => {
 			element.removeEventListener("keydown", handler, true);
 		});
 		_keyEventListeners.delete(keyId);
@@ -122,58 +155,45 @@ export function enableKeyBinding(keyCode, ctrlKey, altKey, shiftKey) {
 }
 
 export function registerLanguage(id, language) {
-	if (monaco) {
-		// does language already exist?
-		var languages = monaco.languages.getLanguages();
-		const exists = languages.some((obj) => obj.id === id);
-		if (exists) {
-			return false;
-		}
-		monaco.languages.register({ id: id });
-		if (language.showCompletions) {
-			monaco.languages.registerCompletionItemProvider(id, {
-				provideCompletionItems: getCompletions,
-				resolveCompletionItem: resolveCompletionItem,
+	const monaco = getMonaco();
+	if (!monaco) {
+		return false;
+	}
+
+	// does language already exist?
+	const exists = monaco.languages.getLanguages().some((obj) => obj.id === id);
+	if (exists) {
+		return false;
+	}
+	monaco.languages.register({ id: id });
+	if (language.showCompletions) {
+		monaco.languages.registerCompletionItemProvider(id, {
+			provideCompletionItems: getCompletions,
+			resolveCompletionItem: resolveCompletionItem,
+		});
+		if (language.signatureHelpTriggers) {
+			monaco.languages.registerSignatureHelpProvider(id, {
+				provideSignatureHelp: getSignatureHelp,
+				signatureHelpTriggerCharacters: language.signatureHelpTriggers,
 			});
-			if (language.signatureHelpTriggers) {
-				monaco.languages.registerSignatureHelpProvider(id, {
-					provideSignatureHelp: getSignatureHelp,
-					signatureHelpTriggerCharacters: language.signatureHelpTriggers,
-				});
-			}
 		}
-
-		languageOptions[id] = language;
-		return true;
 	}
+
+	languageOptions[id] = language;
+	return true;
 }
 
-function findParameter(functionsArray, property, value) {
+function findParameterIndex(functionsArray, property, value) {
 	for (const func of functionsArray) {
-		const match = func.parameters.find(
-			(param) =>
-				param[property] === value || param[property] === "[" + value + "]",
-		);
-		if (match) {
-			return match;
-		}
-	}
-	return null; // No match found
-}
-
-function findParameterWithIndex(functionsArray, property, value) {
-	for (let i = 0; i < functionsArray.length; i++) {
-		const func = functionsArray[i];
 		const index = func.parameters.findIndex(
 			(param) =>
 				param[property] === value || param[property] === "[" + value + "]",
 		);
 		if (index !== -1) {
-			// If a matching parameter is found
-			return { parameter: func.parameters[index], index: index };
+			return index;
 		}
 	}
-	return null; // No match found
+	return -1; // No match found
 }
 
 function getActiveParameter(model, position, language, signatures) {
@@ -192,9 +212,9 @@ function getActiveParameter(model, position, language, signatures) {
 			optionalPostfix,
 		);
 		if (paramName) {
-			var result = findParameterWithIndex(signatures, "label", paramName);
-			if (result) {
-				return result.index;
+			const index = findParameterIndex(signatures, "label", paramName);
+			if (index !== -1) {
+				return index;
 			}
 		}
 	}
@@ -219,13 +239,17 @@ function getActiveSignature(signatures, activeParameter) {
 	return 0; // unknown - return first
 }
 
-async function getCompletions(model, position) {
-	var textUntilPosition = model.getValueInRange({
+function getTextUntilPosition(model, position) {
+	return model.getValueInRange({
 		startLineNumber: 1,
 		startColumn: 1,
 		endLineNumber: position.lineNumber,
 		endColumn: position.column,
 	});
+}
+
+async function getCompletions(model, position) {
+	var textUntilPosition = getTextUntilPosition(model, position);
 
 	var language = model.getLanguageId();
 	var functionName = getLastFunctionName(textUntilPosition, language);
@@ -252,32 +276,63 @@ async function getCompletions(model, position) {
 	return { suggestions: items };
 }
 
-function getFirstWordBeforeChar(text, char) {
-	const regex = new RegExp(`\\b(\\w+)\\s*\\${char}`);
-	const match = text.match(regex);
-	return match ? match[1] : null;
+// Index of the first character at or after index that does not satisfy the predicate
+function skipWhile(text, index, predicate) {
+	let end = index;
+	while (end < text.length && predicate(text[end])) {
+		end++;
+	}
+	return end;
+}
+
+// Index just after the delimiter that follows position nameEnd (optionally after whitespace), or -1
+function findDelimiterEnd(text, nameEnd, delimiter) {
+	// Prefer the most whitespace before the delimiter
+	const whitespaceEnd = skipWhile(text, nameEnd, isWhitespace);
+	for (let index = whitespaceEnd; index >= nameEnd; index--) {
+		if (text[index] === delimiter) {
+			return index + 1;
+		}
+	}
+	return -1;
+}
+
+/**
+ * Tries to match "identifier, optional whitespace, delimiter" starting at index start
+ * (the identifier may contain dots). Returns { name, end } or null.
+ */
+function matchFunctionCallAt(text, start, delimiter) {
+	if (!isIdentifierStart(text[start])) {
+		return null;
+	}
+
+	// Prefer the longest identifier
+	const identifierEnd = skipWhile(text, start + 1, isIdentifierPart);
+	for (let nameEnd = identifierEnd; nameEnd > start; nameEnd--) {
+		const end = findDelimiterEnd(text, nameEnd, delimiter);
+		if (end !== -1) {
+			return { name: text.slice(start, nameEnd), end };
+		}
+	}
+
+	return null;
 }
 
 function getLastFunctionName(text, language) {
-	// regular expression to match function names followed by an opening delimiter
-	var delimiter = languageOptions[language].functionDelimiter;
-	var regexString = needsEscaping(delimiter)
-		? "([a-zA-Z_$][0-9a-zA-Z_\\.$]*)\\s*\\" + delimiter
-		: "([a-zA-Z_$][0-9a-zA-Z_\\.$]*)\\s*" + delimiter;
-	const functionRegex = new RegExp(regexString, "g");
-	let match;
+	// find the last function name followed by the language's opening delimiter
+	const delimiter = languageOptions[language].functionDelimiter;
 	let lastFunctionName = null;
-	// iterate over all matches and store the last one
-	while ((match = functionRegex.exec(text)) !== null) {
-		lastFunctionName = match[1];
+	let index = 0;
+	while (index < text.length) {
+		const match = matchFunctionCallAt(text, index, delimiter);
+		if (match) {
+			lastFunctionName = match.name;
+			index = match.end;
+		} else {
+			index++;
+		}
 	}
 	return lastFunctionName;
-}
-
-function getLastWordBeforeChar(text, char) {
-	const regex = new RegExp(`(\\b\\w+)\\s*(?=${char})`, "g");
-	const matches = text.match(regex);
-	return matches ? matches[matches.length - 1] : null;
 }
 
 function getLastWordBeforeCharSinceComma(text, postfix) {
@@ -306,16 +361,11 @@ function getLastWordBeforeCharSinceComma(text, postfix) {
 	return match ? match[1] : null;
 }
 
-async function getSignatureHelp(model, position, token, context) {
+async function getSignatureHelp(model, position) {
 	var language = model.getLanguageId();
 
 	// determine current function
-	var textUntilPosition = model.getValueInRange({
-		startLineNumber: 1,
-		startColumn: 1,
-		endLineNumber: position.lineNumber,
-		endColumn: position.column,
-	});
+	var textUntilPosition = getTextUntilPosition(model, position);
 	var functionName = getLastFunctionName(textUntilPosition, language);
 
 	// call out to C# to fetch signatures
@@ -324,41 +374,21 @@ async function getSignatureHelp(model, position, token, context) {
 		signatures = await _objRef.invokeMethodAsync("GetSignatures", functionName);
 	}
 
+	let activeParameter;
+	let activeSignature;
 	if (signatures.length > 0) {
-		// determine active parameter
-		var activeParameter = getActiveParameter(
-			model,
-			position,
-			language,
-			signatures,
-		);
-
-		// determine active signature
-		var activeSignature = getActiveSignature(signatures, activeParameter);
+		activeParameter = getActiveParameter(model, position, language, signatures);
+		activeSignature = getActiveSignature(signatures, activeParameter);
 	}
 
 	// return result
-	return {
-		value: {
-			signatures: signatures,
-			activeSignature: activeSignature,
-			activeParameter: activeParameter,
-		},
-		dispose: function () {},
-	};
+	const value = { signatures, activeSignature, activeParameter };
+	const result = { value, dispose: function () {} };
+	return result;
 }
 
-function needsEscaping(char) {
-	const specialChars = /[.*+?^${}()|[\]\\]/;
-	return specialChars.test(char);
-}
-
-async function resolveCompletionItem(item, token) {
+async function resolveCompletionItem(item) {
 	if (_objRef) {
 		await _objRef.invokeMethodAsync("ResolveCompletionAsync", item.label);
 	}
-}
-
-function stripNonWordChars(str) {
-	return str.replace(/^\W+|\W+$/g, "");
 }
