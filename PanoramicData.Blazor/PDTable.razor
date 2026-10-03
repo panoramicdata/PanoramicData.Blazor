@@ -134,8 +134,8 @@ else
 							@oncontextmenu:preventDefault
 							@ondragover:preventDefault="AllowDrop"
 							@onmouseup="@((args) => OnRowMouseUpAsync(args, item))"
-							@onclick="@((args) => OnRowClick(args, item))"
-							@ondblclick="@((args) => OnRowDoubleClick(args, item))"
+							@onclick="@(() => OnRowClick(item))"
+							@ondblclick="@(() => OnRowDoubleClick(item))"
 							@ondragstart="@((args) => OnRowDragStart(args, item))"
 							@ondragend="OnDragEnd"
 							@ondrop:stopPropagation
@@ -158,7 +158,7 @@ else
 							@foreach (var column in ActualColumnsToDisplay)
 							{
 								var row = ItemsToDisplay.IndexOf(item);
-								<td class="@GetDynamicCellClasses(column, item)">
+								<td class="@GetDynamicCellClasses(column)">
 									@if (IsColumnInEditMode(column, item) && column.Field != null)
 									{
 										if (column.EditTemplate == null)

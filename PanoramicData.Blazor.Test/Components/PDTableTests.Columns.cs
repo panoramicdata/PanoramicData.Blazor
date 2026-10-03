@@ -117,4 +117,26 @@ public partial class PDTableTests
 		caught.Should().BeNull();
 		_provider.Items[0].Score.Should().Be(10);
 	}
+
+	/// <summary>
+	/// Registering a column group raises GroupsChanged once; a group without a name, or with the name of a
+	/// group already registered, is ignored and raises nothing.
+	/// </summary>
+	[Fact]
+	public async Task Only_a_new_named_column_group_is_registered()
+	{
+		var table = RenderTable();
+		var raised = 0;
+		table.Instance.GroupsChanged += (_, _) => raised++;
+
+		await table.InvokeAsync(() => table.Instance.RegisterColumnGroup(new ColumnGroupContext()));
+		raised.Should().Be(0);
+		table.Instance.ColumnGroups.Should().BeEmpty();
+
+		await table.InvokeAsync(() => table.Instance.RegisterColumnGroup(new ColumnGroupContext { Name = "Metrics" }));
+		await table.InvokeAsync(() => table.Instance.RegisterColumnGroup(new ColumnGroupContext { Name = "Metrics" }));
+
+		raised.Should().Be(1);
+		table.Instance.ColumnGroups.Select(g => g.Name).Should().Equal("Metrics");
+	}
 }
