@@ -9,7 +9,7 @@ namespace PanoramicData.Blazor.PreviewProviders;
 /// </summary>
 public class FileExplorerPreviewProvider : DefaultPreviewProvider
 {
-	private static readonly Lazy<HttpClient> _sharedHttpClient = new(CreateSharedHttpClient);
+	private static readonly Lazy<HttpClient> _sharedHttpClient = new(() => CreateSharedHttpClient(OperatingSystem.IsBrowser()));
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="FileExplorerPreviewProvider"/> class that downloads content
@@ -104,8 +104,16 @@ public class FileExplorerPreviewProvider : DefaultPreviewProvider
 	/// Creates the client shared by providers that are not given one. Outside the browser its pooled connections
 	/// are recycled periodically so that a long-lived client still sees DNS changes.
 	/// </summary>
-	private static HttpClient CreateSharedHttpClient()
-		=> OperatingSystem.IsBrowser() ? new HttpClient() : new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) });
+	/// <param name="isBrowser">Whether the code is running in the browser, where the platform supplies the handler.</param>
+	internal static HttpClient CreateSharedHttpClient(bool isBrowser)
+	{
+		if (isBrowser)
+		{
+			return new HttpClient();
+		}
+
+		return new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) });
+	}
 
 	/// <inheritdoc />
 	protected override List<string> GetFileDetails(FileExplorerItem item)

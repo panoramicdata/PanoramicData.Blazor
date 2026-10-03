@@ -13,9 +13,25 @@ public class MenuItem
 	}
 
 	/// <summary>
+	/// Initializes a new, enabled and visible instance of the MenuItem class.
+	/// </summary>
+	public MenuItem(string key, string text, string iconCssClass)
+		: this(key, text, iconCssClass, true, true)
+	{
+	}
+
+	/// <summary>
+	/// Initializes a new, visible instance of the MenuItem class.
+	/// </summary>
+	public MenuItem(string key, string text, string iconCssClass, bool enabled)
+		: this(key, text, iconCssClass, enabled, true)
+	{
+	}
+
+	/// <summary>
 	/// Initializes a new instance of the MenuItem class.
 	/// </summary>
-	public MenuItem(string key, string text, string iconCssClass, bool enabled = true, bool visible = true)
+	public MenuItem(string key, string text, string iconCssClass, bool enabled, bool visible)
 	{
 		Key = key;
 		Text = text;
