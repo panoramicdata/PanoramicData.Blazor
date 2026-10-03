@@ -2,6 +2,29 @@ namespace PanoramicData.Blazor;
 
 public partial class PDTable<TItem>
 {
+	private CancellationTokenSource? _cancellationTokenSource;
+
+	/// <summary>
+	/// Gets whether the component is currently busy.
+	/// </summary>
+	public bool IsBusy => _cancellationTokenSource != null;
+
+	/// <summary>
+	/// Gets whether the component is has been cancelled.
+	/// </summary>
+	public bool IsCancelled => _cancellationTokenSource?.IsCancellationRequested == true;
+
+	/// <summary>
+	/// Cancels the current operation.
+	/// </summary>
+	public async Task CancelAsync()
+	{
+		if (_cancellationTokenSource?.IsCancellationRequested == false)
+		{
+			await _cancellationTokenSource.CancelAsync();
+		}
+	}
+
 	/// <summary>
 	/// Refresh the grid by performing a re-query.
 	/// </summary>

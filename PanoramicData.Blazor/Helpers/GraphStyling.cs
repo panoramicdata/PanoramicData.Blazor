@@ -1,15 +1,15 @@
-namespace PanoramicData.Blazor;
+namespace PanoramicData.Blazor.Helpers;
 
 /// <summary>
 /// The node and edge styling of <see cref="PDGraph{TItem}"/>: maps the configured dimensions onto sizes,
 /// colours, shapes and stroke patterns, and renders node shapes and labels.
 /// </summary>
-public partial class PDGraph<TItem>
+internal static class GraphStyling
 {
 	/// <summary>
-	/// Internal model classes for styling.
+	/// The resolved appearance of one graph node.
 	/// </summary>
-	private sealed class NodeStyle
+	internal sealed class NodeStyle
 	{
 		public double Size { get; set; }
 		public string FillColor { get; set; } = "#4a90e2";
@@ -22,7 +22,10 @@ public partial class PDGraph<TItem>
 		public NodeShape Shape { get; set; } = NodeShape.Circle;
 	}
 
-	private sealed class EdgeStyle
+	/// <summary>
+	/// The resolved appearance of one graph edge.
+	/// </summary>
+	internal sealed class EdgeStyle
 	{
 		public double Thickness { get; set; } = 1.0;
 		public string Color { get; set; } = "#666666";
@@ -30,7 +33,10 @@ public partial class PDGraph<TItem>
 		public string Pattern { get; set; } = "none";
 	}
 
-	private enum NodeShape
+	/// <summary>
+	/// The shapes a graph node can be drawn as.
+	/// </summary>
+	internal enum NodeShape
 	{
 		Circle = 0,
 		Oval = 1,
@@ -40,10 +46,10 @@ public partial class PDGraph<TItem>
 		Rectangle = 5
 	}
 
-	private NodeStyle GetNodeStyle(GraphNode node)
+	internal static NodeStyle GetNodeStyle(GraphNode node, GraphVisualizationConfig visualizationConfig)
 	{
-		var config = VisualizationConfig.NodeVisualization;
-		var defaults = VisualizationConfig.Defaults;
+		var config = visualizationConfig.NodeVisualization;
+		var defaults = visualizationConfig.Defaults;
 
 		var style = new NodeStyle();
 
@@ -95,7 +101,7 @@ public partial class PDGraph<TItem>
 		};
 	}
 
-	private static RenderFragment RenderNodeShape(NodeStyle style) => builder =>
+	internal static RenderFragment RenderNodeShape(NodeStyle style) => builder =>
 	{
 		switch (style.Shape)
 		{
@@ -191,7 +197,7 @@ public partial class PDGraph<TItem>
 		}
 	};
 
-	private static RenderFragment RenderNodeLabel(GraphNode node, NodeStyle style) => builder =>
+	internal static RenderFragment RenderNodeLabel(GraphNode node, NodeStyle style) => builder =>
 	{
 		if (!string.IsNullOrEmpty(node.Label))
 		{
@@ -211,10 +217,10 @@ public partial class PDGraph<TItem>
 		}
 	};
 
-	private EdgeStyle GetEdgeStyle(GraphEdge edge)
+	internal static EdgeStyle GetEdgeStyle(GraphEdge edge, GraphVisualizationConfig visualizationConfig)
 	{
-		var config = VisualizationConfig.EdgeVisualization;
-		var defaults = VisualizationConfig.Defaults;
+		var config = visualizationConfig.EdgeVisualization;
+		var defaults = visualizationConfig.Defaults;
 
 		var style = new EdgeStyle();
 

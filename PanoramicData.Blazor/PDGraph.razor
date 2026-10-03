@@ -1,5 +1,6 @@
 @inherits JSModuleComponentBase
 @typeparam TItem where TItem : class
+@using PanoramicData.Blazor.Helpers
 
 <div class="pd-graph @CssClass @(IsVisible ? "" : " d-none")" id="@Id">
 	@if (_isLoading)
@@ -61,7 +62,7 @@
 						{
 							var fromPos = _nodePositions[edge.FromNodeId];
 							var toPos = _nodePositions[edge.ToNodeId];
-							var edgeStyle = GetEdgeStyle(edge);
+							var edgeStyle = GraphStyling.GetEdgeStyle(edge, VisualizationConfig);
 							
 							<line class="graph-edge @(edge.IsSelected ? "selected" : "")"
 								  x1="@fromPos.X" y1="@fromPos.Y"
@@ -93,17 +94,17 @@
 						@if (_nodePositions.ContainsKey(node.Id))
 						{
 							var pos = _nodePositions[node.Id];
-							var nodeStyle = GetNodeStyle(node);
+							var nodeStyle = GraphStyling.GetNodeStyle(node, VisualizationConfig);
 							
 							<g class="graph-node @(node.IsSelected ? "selected" : "")"
 							   transform="@($"translate({pos.X},{pos.Y})")"
 							   data-node-id="@node.Id"
 							   @onclick="() => OnNodeClick(node)">
 								
-								@RenderNodeShape(nodeStyle)
+								@GraphStyling.RenderNodeShape(nodeStyle)
 								
 								@* Always render node label inside the node *@
-								@RenderNodeLabel(node, nodeStyle)
+								@GraphStyling.RenderNodeLabel(node, nodeStyle)
 								
 								@* SVG title for accessibility and additional info *@
 								@if (!string.IsNullOrEmpty(node.Label))

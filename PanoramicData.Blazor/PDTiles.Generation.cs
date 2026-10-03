@@ -8,6 +8,19 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDTiles
 {
+	private List<string?> _tileLogos = [];
+	private List<bool> _tileVisible = [];
+
+	// The generated (random) logo and visibility of each tile, before per-tile overrides are applied
+	private List<string?> _generatedLogos = [];
+	private List<bool> _generatedVisible = [];
+
+	// Track last known grid configuration to avoid re-randomizing on every render
+	private int _lastColumns;
+	private int _lastRows;
+	private int _lastPopulation;
+	private int _lastLogoCount;
+
 	/// <summary>
 	/// The neighbours of a tile in straight-line mode, in the order they are offered for connection.
 	/// </summary>

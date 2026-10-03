@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor;
 
-public partial class PDTable<TItem>
+public partial class PDTable<TItem> where TItem : class
 {
 	private async Task OnRowDragStart(DragEventArgs args, TItem? rowItem)
 	{

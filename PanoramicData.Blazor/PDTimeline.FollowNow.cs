@@ -5,6 +5,16 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDTimeline
 {
+	private CancellationTokenSource? _followNowCancellationTokenSource;
+	private Task? _followNowTask;
+	private TimeSpan _activeFollowNowRefreshInterval;
+	private TimeProvider? _activeFollowNowClock;
+	private bool _isFollowingNow;
+	private bool _followNowSuspendedByUser;
+	private bool? _lastFollowNowParameter;
+	private DateTime _lastFollowNowBoundary = DateTime.MinValue;
+	private TimeSpan? _followNowSelectionDuration;
+
 	/// <summary>
 	/// Gets whether the timeline is actively following the current time.
 	/// </summary>

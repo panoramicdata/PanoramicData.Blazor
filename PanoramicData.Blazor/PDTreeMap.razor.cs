@@ -395,20 +395,13 @@ public partial class PDTreeMap<TItem> : IAsyncDisposable where TItem : class
 			return;
 		}
 
-		switch (args.Key)
+		if (args.Key is "Enter" or " ")
 		{
-			case "Enter":
-			case " ":
-				await ActivateFocusedAsync().ConfigureAwait(true);
-				break;
-
-			case "Backspace":
-			case "Escape":
-				await ZoomOutAsync().ConfigureAwait(true);
-				break;
-
-			default:
-				break;
+			await ActivateFocusedAsync().ConfigureAwait(true);
+		}
+		else if (args.Key is "Backspace" or "Escape")
+		{
+			await ZoomOutAsync().ConfigureAwait(true);
 		}
 	}
 

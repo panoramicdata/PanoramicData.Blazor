@@ -10,9 +10,6 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
 {
     private const string _idPrefix = "pd-tree-";
     private IJSObjectReference? _commonModule;
-    private int _clickCount;
-    private Timer? _clickTimer;
-    private TreeNode<TItem>? _clickedNode;
 
     #region Injected Parameters
 
