@@ -9,8 +9,6 @@ namespace PanoramicData.Blazor;
 /// <typeparam name="TCard">The type of card data rendered in this deck. Must implement <see cref="ICard"/>.</typeparam>
 public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 {
-	private static int _sequence;
-
 	/// <summary>
 	/// Whether this card deck has valid data
 	/// </summary>
@@ -30,10 +28,22 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	/// </summary>
 	private readonly ConcurrentBag<PDCard<TCard>> _cards = [];
 
+	private PDCard<TCard>? _lastCard;
+
 	/// <summary>
 	/// Reference to each PDCardComponent in the Deck. This is used for animations, without this, the cards will not animate correctly.
+	/// Setting it registers a card with the deck; reading it returns the card registered most recently.
 	/// </summary>
-	public PDCard<TCard> Ref { set => _cards.Add(value); }
+	/// <exception cref="InvalidOperationException">Thrown when read before any card has been registered.</exception>
+	public PDCard<TCard> Ref
+	{
+		get => _lastCard ?? throw new InvalidOperationException("No card has been registered with this deck yet.");
+		set
+		{
+			_cards.Add(value);
+			_lastCard = value;
+		}
+	}
 
 	/// <summary>
 	/// The Card(s) that have been selected by the user
@@ -47,7 +57,10 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 
 	// Javascript Interop
 	private IJSObjectReference? _jsModule;
-	private ElementReference _elementRef;
+
+	/// <summary>Gets or sets the deck's root element; set by the markup's <c>@ref</c>.</summary>
+	internal ElementReference DeckElement { get; set; }
+
 	private DotNetObjectReference<PDCardDeck<TCard>>? _dotNetRef;
 	private bool _disposed;
 
@@ -63,7 +76,7 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	/// Unique identifier for this Card Deck. If not set, a unique ID will be generated.
 	/// </summary>
 	[Parameter]
-	public override string Id { get; set; } = $"pd-carddeck-{++_sequence}";
+	public override string Id { get; set; } = PDCardDeckIdSequence.NextDeckId();
 
 	/// <summary>
 	/// Function used to get data for the Cards in this deck
@@ -156,8 +169,8 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 
 			if (_jsModule != null)
 			{
-				await _jsModule.InvokeVoidAsync("registerValidDragOperationListeners", _elementRef, _dotNetRef);
-				await _jsModule.InvokeVoidAsync("registerInvalidDragOperationListeners", _elementRef, _dotNetRef);
+				await _jsModule.InvokeVoidAsync("registerValidDragOperationListeners", DeckElement, _dotNetRef);
+				await _jsModule.InvokeVoidAsync("registerInvalidDragOperationListeners", DeckElement, _dotNetRef);
 			}
 
 			await RefreshAsync();
@@ -562,7 +575,7 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 		{
 			if (_jsModule is not null)
 			{
-				await _jsModule.InvokeVoidAsync("unregisterListeners", _elementRef).ConfigureAwait(true);
+				await _jsModule.InvokeVoidAsync("unregisterListeners", DeckElement).ConfigureAwait(true);
 				await _jsModule.DisposeAsync().ConfigureAwait(true);
 			}
 		}

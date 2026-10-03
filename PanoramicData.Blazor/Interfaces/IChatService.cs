@@ -3,7 +3,11 @@
 /// <summary>
 /// Defines the contract for a chat service consumed by the <see cref="PanoramicData.Blazor.PDChat"/> component.
 /// </summary>
-public interface IChatService
+/// <remarks>
+/// The service is <see cref="IDisposable"/>: whatever owns it - typically the dependency injection container -
+/// disposes it when it is no longer needed.
+/// </remarks>
+public interface IChatService : IDisposable
 {
 	/// <summary>
 	/// Returns true if the chat service is active and ready to send/receive messages.
@@ -68,8 +72,8 @@ public interface IChatService
 	/// </summary>
 	bool IsInputPermitted
 	{
-		get => true;
-		set { }
+		get => ChatServiceDefaultState.For(this).IsInputPermitted;
+		set => ChatServiceDefaultState.For(this).IsInputPermitted = value;
 	}
 
 	/// <summary>
@@ -80,8 +84,8 @@ public interface IChatService
 	/// </summary>
 	string? InputDisabledMessage
 	{
-		get => null;
-		set { }
+		get => ChatServiceDefaultState.For(this).InputDisabledMessage;
+		set => ChatServiceDefaultState.For(this).InputDisabledMessage = value;
 	}
 
 	/// <summary>
@@ -143,7 +147,8 @@ public interface IChatService
 	// All members below carry default interface implementations so existing IChatService
 	// implementations continue to compile without change. ToastEnabled / ToastDisplayDurationSeconds
 	// default to the legacy ShowLastMessage / ShowLastMessageDurationSeconds members so that the
-	// previous behaviour is preserved for consumers that have not yet migrated.
+	// previous behaviour is preserved for consumers that have not yet migrated. The other defaults are
+	// remembered per service instance, so setting one on a service that does not implement it takes effect.
 	// ==========================================================================================
 
 	/// <summary>
@@ -161,29 +166,29 @@ public interface IChatService
 	/// <summary>Gets or sets the default animation used when a toast appears. Defaults to <see cref="PDChatToastAnimation.Grow"/>.</summary>
 	PDChatToastAnimation ToastEntryAnimation
 	{
-		get => PDChatToastAnimation.Grow;
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastEntryAnimation;
+		set => ChatServiceDefaultState.For(this).ToastEntryAnimation = value;
 	}
 
 	/// <summary>Gets or sets the default animation used when a toast is dismissed. Defaults to <see cref="PDChatToastAnimation.Shrink"/>.</summary>
 	PDChatToastAnimation ToastExitAnimation
 	{
-		get => PDChatToastAnimation.Shrink;
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastExitAnimation;
+		set => ChatServiceDefaultState.For(this).ToastExitAnimation = value;
 	}
 
 	/// <summary>Gets or sets the default duration, in milliseconds, of the toast entry / exit transitions. Defaults to 250ms.</summary>
 	double ToastAnimationDurationMs
 	{
-		get => 250d;
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastAnimationDurationMs;
+		set => ChatServiceDefaultState.For(this).ToastAnimationDurationMs = value;
 	}
 
 	/// <summary>Gets or sets whether toasts auto-dismiss after <see cref="ToastDisplayDurationSeconds"/>. Defaults to true.</summary>
 	bool ToastAutoDismiss
 	{
-		get => true;
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastAutoDismiss;
+		set => ChatServiceDefaultState.For(this).ToastAutoDismiss = value;
 	}
 
 	/// <summary>
@@ -201,36 +206,36 @@ public interface IChatService
 	/// <summary>Gets or sets whether the message title is shown in toasts by default. Defaults to true.</summary>
 	bool ToastShowTitle
 	{
-		get => true;
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastShowTitle;
+		set => ChatServiceDefaultState.For(this).ToastShowTitle = value;
 	}
 
 	/// <summary>Gets or sets the default toast minimum width (any valid CSS length). Defaults to "200px".</summary>
 	string ToastMinWidth
 	{
-		get => "200px";
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastMinWidth;
+		set => ChatServiceDefaultState.For(this).ToastMinWidth = value;
 	}
 
 	/// <summary>Gets or sets the default toast maximum width (any valid CSS length). Defaults to "300px".</summary>
 	string ToastMaxWidth
 	{
-		get => "300px";
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastMaxWidth;
+		set => ChatServiceDefaultState.For(this).ToastMaxWidth = value;
 	}
 
 	/// <summary>Gets or sets the default toast minimum height (any valid CSS length). Empty means unconstrained.</summary>
 	string ToastMinHeight
 	{
-		get => string.Empty;
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastMinHeight;
+		set => ChatServiceDefaultState.For(this).ToastMinHeight = value;
 	}
 
 	/// <summary>Gets or sets the default toast maximum height (any valid CSS length). Empty means unconstrained.</summary>
 	string ToastMaxHeight
 	{
-		get => string.Empty;
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastMaxHeight;
+		set => ChatServiceDefaultState.For(this).ToastMaxHeight = value;
 	}
 
 	/// <summary>
@@ -239,8 +244,8 @@ public interface IChatService
 	/// </summary>
 	int ToastMaxVisible
 	{
-		get => 5;
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastMaxVisible;
+		set => ChatServiceDefaultState.For(this).ToastMaxVisible = value;
 	}
 
 	/// <summary>
@@ -251,8 +256,8 @@ public interface IChatService
 	/// </summary>
 	PDChatButtonPosition ToastAnchor
 	{
-		get => PDChatButtonPosition.BottomRight;
-		set { }
+		get => ChatServiceDefaultState.For(this).ToastAnchor;
+		set => ChatServiceDefaultState.For(this).ToastAnchor = value;
 	}
 
 	/// <summary>
@@ -296,14 +301,31 @@ public interface IChatService
 	bool SupportsConversations => false;
 
 	/// <summary>
-	/// Gets or sets the conversation currently being shown. Defaults to
-	/// <see cref="ChatConversation.ImplicitConversationId"/>, and the setter is ignored, for a service that does
-	/// not support conversations.
+	/// Gets or sets the conversation currently being shown. For a service that does not support conversations
+	/// this is always <see cref="ChatConversation.ImplicitConversationId"/>: selecting that id is accepted and
+	/// changes nothing.
 	/// </summary>
+	/// <exception cref="InvalidOperationException">
+	/// Thrown, by the default implementation, when selecting any other conversation.
+	/// </exception>
+	/// <remarks>
+	/// Refusing an unknown id follows the same rule as <see cref="SendMessage(Guid, ChatMessage)"/>: a caller that
+	/// selected a conversation the service does not have would otherwise go on to be shown the single transcript
+	/// under the wrong id.
+	/// </remarks>
 	Guid ActiveConversationId
 	{
 		get => ChatConversation.ImplicitConversationId;
-		set { }
+		set
+		{
+			if (value != ChatConversation.ImplicitConversationId)
+			{
+				throw new InvalidOperationException(
+					$"This chat service does not have conversation {value}. " +
+					$"It supports a single conversation ({ChatConversation.ImplicitConversationId}); check {nameof(SupportsConversations)} " +
+					"before selecting conversations individually.");
+			}
+		}
 	}
 
 	/// <summary>
@@ -353,8 +375,8 @@ public interface IChatService
 	/// </remarks>
 	event Action<Guid, ChatMessage>? OnConversationMessageReceived
 	{
-		add { }
-		remove { }
+		add => ChatServiceDefaultState.For(this).ConversationMessageReceived += value;
+		remove => ChatServiceDefaultState.For(this).ConversationMessageReceived -= value;
 	}
 
 	/// <summary>
@@ -391,11 +413,6 @@ public interface IChatService
 	/// Optionally called by UI to initialize the service.
 	/// </summary>
 	void Initialize();
-
-	/// <summary>
-	/// Optionally called by UI to dispose of the service.
-	/// </summary>
-	void Dispose();
 
 	/// <summary>
 	/// Clears all chat messages.

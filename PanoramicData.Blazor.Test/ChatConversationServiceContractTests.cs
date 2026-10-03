@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using AwesomeAssertions;
 using PanoramicData.Blazor.Interfaces;
@@ -207,37 +208,55 @@ public class ChatConversationServiceContractTests
 	[Fact]
 	public void Semantic_search_is_absent_unless_an_implementation_claims_it()
 	{
-		IChatConversationService service = new MinimalConversationService();
+		IChatConversationService service = new InMemoryChatConversationService();
 
 		service.SupportsSemanticSearch.Should().BeFalse();
 	}
 
 	/// <summary>
-	/// The smallest thing that can implement the contract, standing for a host that stores conversations and
-	/// nothing more - no embeddings, no counting.
+	/// Verifies that the required operations alone are enough to keep a history: create, rename, archive out of
+	/// the default list and back again, with nothing deleted along the way.
 	/// </summary>
-	/// <remarks>
-	/// Its purpose is to prove the interface is implementable without the optional parts. If this class ever
-	/// has to grow to keep compiling, the contract has acquired a requirement it should not have.
-	/// </remarks>
-	private sealed class MinimalConversationService : IChatConversationService
+	[Fact]
+	public async Task The_required_operations_alone_keep_a_complete_history()
 	{
-		public Task<ChatConversationPage> ListAsync(ChatConversationQuery query, CancellationToken cancellationToken)
-			=> Task.FromResult(ChatConversationPage.Empty);
+		IChatConversationService service = new InMemoryChatConversationService();
+		var cancellationToken = TestContext.Current.CancellationToken;
 
-		public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(Guid id, CancellationToken cancellationToken)
-			=> Task.FromResult<IReadOnlyList<ChatMessage>>([]);
+		var conversation = await service.CreateAsync(cancellationToken);
+		await service.RenameAsync(conversation.Id, "Ice cream", cancellationToken);
+		await service.ArchiveAsync(conversation.Id, cancellationToken);
+		var hidden = await service.ListAsync(new ChatConversationQuery(), cancellationToken);
+		var archived = await service.ListAsync(new ChatConversationQuery { IncludeArchived = true, SearchText = "ice" }, cancellationToken);
+		await service.UnarchiveAsync(conversation.Id, cancellationToken);
+		var restored = await service.ListAsync(new ChatConversationQuery(), cancellationToken);
 
-		public Task<ChatConversation> CreateAsync(CancellationToken cancellationToken)
-			=> Task.FromResult(new ChatConversation { Id = Guid.NewGuid() });
+		hidden.Conversations.Should().BeEmpty();
+		archived.Conversations.Should().ContainSingle().Which.Title.Should().Be("Ice cream");
+		restored.Conversations.Should().ContainSingle().Which.IsArchived.Should().BeFalse();
+		(await service.GetMessagesAsync(conversation.Id, cancellationToken)).Should().BeEmpty();
+	}
 
-		public Task RenameAsync(Guid id, string title, CancellationToken cancellationToken)
-			=> Task.CompletedTask;
+	/// <summary>Verifies that a store refuses a conversation it does not hold rather than inventing one.</summary>
+	[Fact]
+	public async Task A_store_refuses_a_conversation_it_does_not_hold()
+	{
+		IChatConversationService service = new InMemoryChatConversationService();
 
-		public Task ArchiveAsync(Guid id, CancellationToken cancellationToken)
-			=> Task.CompletedTask;
+		var act = () => service.GetMessagesAsync(Guid.NewGuid(), TestContext.Current.CancellationToken);
 
-		public Task UnarchiveAsync(Guid id, CancellationToken cancellationToken)
-			=> Task.CompletedTask;
+		await act.Should().ThrowAsync<InvalidOperationException>();
+	}
+
+	/// <summary>Verifies that a cancelled request is not carried out.</summary>
+	[Fact]
+	public async Task A_cancelled_request_is_not_carried_out()
+	{
+		var service = new InMemoryChatConversationService();
+
+		var act = () => service.CreateAsync(new CancellationToken(canceled: true));
+
+		await act.Should().ThrowAsync<OperationCanceledException>();
+		service.Conversations.Should().BeEmpty();
 	}
 }

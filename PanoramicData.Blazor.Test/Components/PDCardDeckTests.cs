@@ -294,6 +294,64 @@ public partial class PDCardDeckTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that a selection made out of deck order is dragged in the order it was selected, with no
+	/// adjustment for a contiguous block.
+	/// </summary>
+	[Fact]
+	public async Task DraggingASelectionMadeOutOfOrder_MovesItInSelectionOrder()
+	{
+		var deck = RenderDeck([new("A", 0), new("B", 1), new("C", 2), new("D", 3)], p => p.Add(x => x.MultipleSelection, true));
+		await deck.InvokeAsync(() => CardElement(deck, "C").MouseUpAsync(new MouseEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "A").MouseUpAsync(new MouseEventArgs { CtrlKey = true }));
+
+		await deck.InvokeAsync(() => CardElement(deck, "A").DragStartAsync(new DragEventArgs()));
+		await deck.InvokeAsync(() => CardElement(deck, "D").DragOverAsync(new DragEventArgs()));
+
+		Names(deck).Should().Equal("B", "D", "C", "A");
+	}
+
+	/// <summary>
+	/// Verifies that each rendered card registers itself with the deck through <see cref="PDCardDeck{TCard}.Ref"/>,
+	/// which then reads back as the card registered last.
+	/// </summary>
+	[Fact]
+	public void Ref_ReadsBackTheCardRegisteredLast()
+	{
+		var deck = RenderDeck();
+
+		deck.Instance.Ref.Should().BeOneOf(deck.FindComponents<PDCard<Card>>().Select(c => c.Instance));
+	}
+
+	/// <summary>
+	/// Verifies that reading <see cref="PDCardDeck{TCard}.Ref"/> before any card is registered says so, rather
+	/// than returning nothing.
+	/// </summary>
+	[Fact]
+	public void Ref_BeforeAnyCardIsRegistered_Throws()
+	{
+		var deck = RenderDeck(more: p => p
+			.Add(x => x.DeckTemplate, d => builder => builder.AddMarkupContent(0, "<p>no cards</p>")));
+
+		var act = () => deck.Instance.Ref;
+
+		act.Should().Throw<InvalidOperationException>();
+	}
+
+	/// <summary>
+	/// Verifies that every deck gets its own default id, whatever its card type.
+	/// </summary>
+	[Fact]
+	public void DefaultIds_AreUniqueAcrossCardTypes()
+	{
+		var first = RenderDeck();
+		var other = Render<PDCardDeck<OtherCard>>(parameters => parameters
+			.Add(p => p.DataFunction, () => Task.FromResult(new DataResponse<OtherCard>([], 0))));
+
+		first.Instance.Id.Should().StartWith("pd-carddeck-");
+		other.Instance.Id.Should().StartWith("pd-carddeck-").And.NotBe(first.Instance.Id);
+	}
+
+	/// <summary>
 	/// Verifies that dropping on the deck ends the drag, and the script's end-of-drag notification does the same.
 	/// </summary>
 	[Fact]
@@ -480,5 +538,12 @@ public partial class PDCardDeckTests : BunitContext
 		public string Name { get; } = name;
 
 		public override string ToString() => Name;
+	}
+
+	private sealed class OtherCard : ICard
+	{
+		public Guid Id { get; set; } = Guid.NewGuid();
+
+		public int? DeckPosition { get; set; }
 	}
 }

@@ -11,11 +11,7 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 {
 	private static int _idSequence;
 	private Timer? _rotationTimer;
-	private PDDashboardTile? _draggedTile;
-	private PDDashboardTile? _dragOverTile;
 	private bool _isUserInteracting;
-	private List<(PDDashboardTile Tile, int RowIndex, int ColumnIndex)>? _dragStartSnapshot;
-	private bool _dragDropCompleted;
 	private bool _previousIsEditable;
 	private bool _isInternallyEditable;
 	private bool _previousIsRotationEnabled;
@@ -23,23 +19,8 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	private bool _rotationTimerInitialized;
 	private bool _isRotationPaused;
 
-	// View-mode property overrides (session-level, not persisted)
-	private readonly Dictionary<string, string> _viewModePropertyOverrides = [];
-	private bool _isEditingViewModeProperties;
-
-	// Resize state
-	private PDDashboardTile? _resizingTile;
-	private double _resizeStartX;
-	private double _resizeStartY;
-	private int _resizeOriginalColSpan;
-	private int _resizeOriginalRowSpan;
-
 	// Maximize state
 	private PDDashboardTile? _maximizedTile;
-
-	// Delete state
-	private PDDashboardTile? _pendingDeleteTile;
-	private PDConfirm? _confirmDelete;
 
 	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
@@ -242,30 +223,6 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	/// </summary>
 	public bool EffectiveIsEditable => IsEditable || _isInternallyEditable;
 
-	/// <summary>
-	/// Gets the effective properties dictionary, merging <see cref="Properties"/> with any session-level view mode overrides.
-	/// </summary>
-	private Dictionary<string, string>? EffectiveProperties
-	{
-		get
-		{
-			if (_viewModePropertyOverrides.Count == 0)
-			{
-				return Properties;
-			}
-
-			var merged = Properties is not null
-				? new Dictionary<string, string>(Properties)
-				: [];
-			foreach (var (k, v) in _viewModePropertyOverrides)
-			{
-				merged[k] = v;
-			}
-
-			return merged;
-		}
-	}
-
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
@@ -381,215 +338,20 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		SetupRotationTimer();
 	}
 
-	private int GetEffectiveRotationInterval()
+	/// <summary>
+	/// Gets the rotation interval, in seconds, for the active tab: its own override if it has one, otherwise
+	/// <see cref="RotationIntervalSeconds"/>. Zero, meaning never rotate, when rotation is off or the interval is
+	/// not positive.
+	/// </summary>
+	internal int GetEffectiveRotationInterval()
 	{
 		if (!IsRotationEnabled)
 		{
 			return 0;
 		}
 
-		if (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count)
-		{
-			var tabOverride = Tabs[ActiveTabIndex].RotationIntervalSecondsOverride;
-			if (tabOverride.HasValue)
-			{
-				return tabOverride.Value > 0 ? tabOverride.Value : 0;
-			}
-		}
-
-		return RotationIntervalSeconds > 0 ? RotationIntervalSeconds : 0;
-	}
-
-	// Drag-and-drop
-	private void OnTileDragStart(DragEventArgs _, PDDashboardTile tile)
-	{
-		if (!EffectiveIsEditable)
-		{
-			return;
-		}
-
-		_draggedTile = tile;
-		_dragDropCompleted = false;
-
-		// Save snapshot of all tile positions for potential revert
-		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
-		if (activeTab is not null)
-		{
-			_dragStartSnapshot = [.. activeTab.Tiles.Select(t => (Tile: t, t.RowIndex, t.ColumnIndex))];
-		}
-	}
-
-	private void OnTileDragOver(DragEventArgs _, PDDashboardTile tile)
-	{
-		if (_draggedTile is null || _draggedTile == tile || _dragOverTile == tile)
-		{
-			return;
-		}
-
-		_dragOverTile = tile;
-
-		// Live re-layout preview
-		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
-		if (activeTab is not null)
-		{
-			var cols = activeTab.ColumnCount ?? ColumnCount;
-			_draggedTile.RowIndex = tile.RowIndex;
-			_draggedTile.ColumnIndex = Math.Min(tile.ColumnIndex, Math.Max(0, cols - _draggedTile.ColumnSpanCount));
-			CompactTiles(activeTab, _draggedTile);
-			StateHasChanged();
-		}
-	}
-
-	private void OnTileDragLeave(DragEventArgs _)
-	{
-		_dragOverTile = null;
-	}
-
-	private async Task OnTileDropAsync(DragEventArgs _, PDDashboardTile targetTile)
-	{
-		_dragOverTile = null;
-		_dragDropCompleted = true;
-
-		if (!EffectiveIsEditable || _draggedTile is null || _draggedTile == targetTile)
-		{
-			// Drop on self or invalid: restore original positions if layout was previewed
-			if (_dragStartSnapshot is not null)
-			{
-				foreach (var (tile, rowIndex, columnIndex) in _dragStartSnapshot)
-				{
-					tile.RowIndex = rowIndex;
-					tile.ColumnIndex = columnIndex;
-				}
-			}
-
-			_draggedTile = null;
-			_dragStartSnapshot = null;
-			StateHasChanged();
-			return;
-		}
-
-		// Layout was already applied during dragover preview
-		if (OnTileMove.HasDelegate)
-		{
-			await OnTileMove.InvokeAsync((_draggedTile, _draggedTile.RowIndex, _draggedTile.ColumnIndex)).ConfigureAwait(true);
-		}
-
-		if (OnSettingsChanged.HasDelegate)
-		{
-			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
-		}
-
-		_draggedTile = null;
-		_dragStartSnapshot = null;
-		StateHasChanged();
-	}
-
-	/// <summary>
-	/// Compacts tiles to fill gaps by repositioning them to the earliest available positions.
-	/// The anchor tile (if any) keeps its position; all others reflow around it.
-	/// </summary>
-	private void CompactTiles(PDDashboardTab tab, PDDashboardTile? anchor = null)
-	{
-		var cols = tab.ColumnCount ?? ColumnCount;
-
-		// Order tiles: anchor first (to reserve its position), then by row then column
-		var ordered = tab.Tiles
-			.OrderBy(t => t == anchor ? 0 : 1)
-			.ThenBy(t => t.RowIndex)
-			.ThenBy(t => t.ColumnIndex)
-			.ToList();
-
-		// Build occupancy grid as we place each tile
-		var occupied = new HashSet<(int Row, int Col)>();
-
-		foreach (var tile in ordered)
-		{
-			if (tile == anchor)
-			{
-				// Reserve anchor's position
-				for (var r = tile.RowIndex; r < tile.RowIndex + tile.RowSpanCount; r++)
-				{
-					for (var c = tile.ColumnIndex; c < tile.ColumnIndex + tile.ColumnSpanCount; c++)
-					{
-						occupied.Add((r, c));
-					}
-				}
-
-				continue;
-			}
-
-			// Find earliest position for this tile
-			var placed = false;
-			for (var row = 0; !placed; row++)
-			{
-				for (var col = 0; col <= cols - tile.ColumnSpanCount && !placed; col++)
-				{
-					var fits = true;
-					for (var dr = 0; dr < tile.RowSpanCount && fits; dr++)
-					{
-						for (var dc = 0; dc < tile.ColumnSpanCount && fits; dc++)
-						{
-							if (occupied.Contains((row + dr, col + dc)))
-							{
-								fits = false;
-							}
-						}
-					}
-
-					if (fits)
-					{
-						tile.RowIndex = row;
-						tile.ColumnIndex = col;
-						for (var dr = 0; dr < tile.RowSpanCount; dr++)
-						{
-							for (var dc = 0; dc < tile.ColumnSpanCount; dc++)
-							{
-								occupied.Add((row + dr, col + dc));
-							}
-						}
-
-						placed = true;
-					}
-				}
-			}
-		}
-	}
-
-	private void OnTileDragEnd(DragEventArgs e)
-	{
-		if (!_dragDropCompleted && _dragStartSnapshot is not null)
-		{
-			// Drag was cancelled (e.g., Escape pressed) — restore original positions
-			foreach (var (tile, rowIndex, columnIndex) in _dragStartSnapshot)
-			{
-				tile.RowIndex = rowIndex;
-				tile.ColumnIndex = columnIndex;
-			}
-		}
-
-		_draggedTile = null;
-		_dragOverTile = null;
-		_dragStartSnapshot = null;
-		_dragDropCompleted = false;
-		StateHasChanged();
-	}
-
-	private void OnDashboardKeyDown(KeyboardEventArgs e)
-	{
-		if (e.Key == "Escape" && _draggedTile is not null && _dragStartSnapshot is not null)
-		{
-			foreach (var (tile, rowIndex, columnIndex) in _dragStartSnapshot)
-			{
-				tile.RowIndex = rowIndex;
-				tile.ColumnIndex = columnIndex;
-			}
-
-			_draggedTile = null;
-			_dragOverTile = null;
-			_dragStartSnapshot = null;
-			_dragDropCompleted = false;
-			StateHasChanged();
-		}
+		var interval = ActiveTab?.RotationIntervalSecondsOverride ?? RotationIntervalSeconds;
+		return interval > 0 ? interval : 0;
 	}
 
 	private async Task ToggleEditModeAsync()
@@ -633,108 +395,6 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		await SelectTabAsync(next).ConfigureAwait(true);
 	}
 
-	private async Task OnGridDropAsync(DragEventArgs _)
-	{
-		// Handle drop on empty grid space — finalize the previewed layout
-		if (_dragDropCompleted || _draggedTile is null)
-		{
-			return;
-		}
-
-		_dragDropCompleted = true;
-		_dragOverTile = null;
-
-		if (OnTileMove.HasDelegate)
-		{
-			await OnTileMove.InvokeAsync((_draggedTile, _draggedTile.RowIndex, _draggedTile.ColumnIndex)).ConfigureAwait(true);
-		}
-
-		if (OnSettingsChanged.HasDelegate)
-		{
-			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
-		}
-
-		_draggedTile = null;
-		_dragStartSnapshot = null;
-		StateHasChanged();
-	}
-
-	// Resize via pointer events
-	private void OnResizePointerDown(PointerEventArgs e, PDDashboardTile tile)
-	{
-		_resizingTile = tile;
-		_resizeStartX = e.ClientX;
-		_resizeStartY = e.ClientY;
-		_resizeOriginalColSpan = tile.ColumnSpanCount;
-		_resizeOriginalRowSpan = tile.RowSpanCount;
-	}
-
-	private void OnResizePointerMove(PointerEventArgs e)
-	{
-		if (_resizingTile is null)
-		{
-			return;
-		}
-
-		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
-		if (activeTab is null)
-		{
-			return;
-		}
-
-		var cols = activeTab.ColumnCount ?? ColumnCount;
-		var rowHeight = activeTab.TileRowHeightPx ?? TileRowHeightPx;
-
-		// Estimate column width from row height and column count (assume roughly square-ish grid cells)
-		// Use rowHeight as a baseline since we know it precisely; column width depends on container
-		// A reasonable estimate: column width ≈ rowHeight (for typical dashboards)
-		var colWidth = rowHeight;
-
-		var deltaX = e.ClientX - _resizeStartX;
-		var deltaY = e.ClientY - _resizeStartY;
-
-		var newColSpan = Math.Max(1, _resizeOriginalColSpan + (int)Math.Round(deltaX / colWidth));
-		var newRowSpan = Math.Max(1, _resizeOriginalRowSpan + (int)Math.Round(deltaY / rowHeight));
-
-		// Clamp to grid bounds
-		newColSpan = Math.Min(newColSpan, cols - _resizingTile.ColumnIndex);
-
-		if (newColSpan != _resizingTile.ColumnSpanCount || newRowSpan != _resizingTile.RowSpanCount)
-		{
-			_resizingTile.ColumnSpanCount = newColSpan;
-			_resizingTile.RowSpanCount = newRowSpan;
-			StateHasChanged();
-		}
-	}
-
-	private async Task OnResizePointerUp(PointerEventArgs e)
-	{
-		if (_resizingTile is not null)
-		{
-			var tile = _resizingTile;
-			_resizingTile = null;
-
-			// Compact other tiles around the resized tile
-			var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
-			if (activeTab is not null)
-			{
-				CompactTiles(activeTab, tile);
-			}
-
-			if (OnTileResize.HasDelegate)
-			{
-				await OnTileResize.InvokeAsync((tile, tile.RowSpanCount, tile.ColumnSpanCount)).ConfigureAwait(true);
-			}
-
-			if (OnSettingsChanged.HasDelegate)
-			{
-				await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
-			}
-
-			StateHasChanged();
-		}
-	}
-
 	// Maximize/Restore
 	private void MaximizeTile(PDDashboardTile tile)
 	{
@@ -762,86 +422,6 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 		}
 
 		await SelectTabAsync(Tabs.Count - 1).ConfigureAwait(true);
-	}
-
-	private async Task RequestAddTileAsync()
-	{
-		if (OnTileAdd.HasDelegate)
-		{
-			await OnTileAdd.InvokeAsync().ConfigureAwait(true);
-		}
-		else
-		{
-			var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
-			if (activeTab is not null)
-			{
-				var (row, col) = FindNextAvailablePosition();
-				activeTab.Tiles.Add(new PDDashboardTile
-				{
-					RowIndex = row,
-					ColumnIndex = col,
-					ColumnSpanCount = 1,
-					RowSpanCount = 1,
-					ChildContent = builder =>
-					{
-						builder.OpenComponent<PDWidget>(0);
-						builder.AddAttribute(1, nameof(PDWidget.Title), "New Widget");
-						builder.AddAttribute(2, nameof(PDWidget.WidgetType), PDWidgetType.Html);
-						builder.CloseComponent();
-					}
-				});
-			}
-		}
-
-		if (OnSettingsChanged.HasDelegate)
-		{
-			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
-		}
-
-		StateHasChanged();
-	}
-
-	private async Task RequestDeleteTileAsync(PDDashboardTile tile)
-	{
-		if (ConfirmTileDelete && _confirmDelete is not null)
-		{
-			_pendingDeleteTile = tile;
-			var result = await _confirmDelete.ShowAndWaitResultAsync().ConfigureAwait(true);
-			if (result == PDConfirm.Outcomes.Yes)
-			{
-				await PerformDeleteTileAsync(_pendingDeleteTile).ConfigureAwait(true);
-			}
-
-			_pendingDeleteTile = null;
-		}
-		else
-		{
-			await PerformDeleteTileAsync(tile).ConfigureAwait(true);
-		}
-	}
-
-	private async Task PerformDeleteTileAsync(PDDashboardTile tile)
-	{
-		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
-		if (activeTab is null)
-		{
-			return;
-		}
-
-		activeTab.Tiles.Remove(tile);
-		CompactTiles(activeTab);
-
-		if (OnTileDelete.HasDelegate)
-		{
-			await OnTileDelete.InvokeAsync(tile).ConfigureAwait(true);
-		}
-
-		if (OnSettingsChanged.HasDelegate)
-		{
-			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
-		}
-
-		StateHasChanged();
 	}
 
 	/// <summary>
@@ -881,163 +461,6 @@ public partial class PDDashboard : PDComponentBase, IAsyncDisposable
 	public async Task GoToTabAsync(int index)
 	{
 		await SelectTabAsync(index).ConfigureAwait(true);
-	}
-
-	/// <summary>
-	/// Finds the next available grid position in the active tab that can fit a tile
-	/// with the given column and row span. Scans row-by-row, column-by-column.
-	/// </summary>
-	/// <param name="colSpan">Number of columns the tile needs.</param>
-	/// <param name="rowSpan">Number of rows the tile needs.</param>
-	/// <returns>The (RowIndex, ColumnIndex) for the tile, or the next empty row if no gap is found.</returns>
-	public (int RowIndex, int ColumnIndex) FindNextAvailablePosition(int colSpan = 1, int rowSpan = 1)
-	{
-		var activeTab = (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count) ? Tabs[ActiveTabIndex] : null;
-		if (activeTab is null || activeTab.Tiles.Count == 0)
-		{
-			return (0, 0);
-		}
-
-		var cols = activeTab.ColumnCount ?? ColumnCount;
-		var maxRow = activeTab.Tiles.Max(t => t.RowIndex + t.RowSpanCount);
-
-		// Build an occupancy grid
-		var occupied = new HashSet<(int Row, int Col)>();
-		foreach (var tile in activeTab.Tiles)
-		{
-			for (var r = tile.RowIndex; r < tile.RowIndex + tile.RowSpanCount; r++)
-			{
-				for (var c = tile.ColumnIndex; c < tile.ColumnIndex + tile.ColumnSpanCount; c++)
-				{
-					occupied.Add((r, c));
-				}
-			}
-		}
-
-		// Scan for a gap that fits
-		for (var row = 0; row <= maxRow; row++)
-		{
-			for (var col = 0; col <= cols - colSpan; col++)
-			{
-				var fits = true;
-				for (var dr = 0; dr < rowSpan && fits; dr++)
-				{
-					for (var dc = 0; dc < colSpan && fits; dc++)
-					{
-						if (occupied.Contains((row + dr, col + dc)))
-						{
-							fits = false;
-						}
-					}
-				}
-
-				if (fits)
-				{
-					return (row, col);
-				}
-			}
-		}
-
-		// No gap found — place on the next row
-		return (maxRow, 0);
-	}
-
-	// Dashboard configuration
-	private bool _isConfiguringDashboard;
-	private string _configName = string.Empty;
-	private string _configTabName = string.Empty;
-	private int _configColumnCount;
-	private int _configRowHeight;
-	private Dictionary<string, string> _configProperties = [];
-	private string _newPropertyKey = string.Empty;
-	private string _newPropertyValue = string.Empty;
-
-	private void OpenDashboardConfig()
-	{
-		if (ActiveTabIndex < 0 || ActiveTabIndex >= Tabs.Count)
-		{
-			return;
-		}
-
-		var activeTab = Tabs[ActiveTabIndex];
-		_configName = Name ?? string.Empty;
-		_configTabName = activeTab.Name;
-		_configColumnCount = activeTab.ColumnCount ?? ColumnCount;
-		_configRowHeight = activeTab.TileRowHeightPx ?? TileRowHeightPx;
-		_configProperties = Properties is not null
-			? new Dictionary<string, string>(Properties)
-			: [];
-		_newPropertyKey = string.Empty;
-		_newPropertyValue = string.Empty;
-		_isConfiguringDashboard = true;
-	}
-
-	private void CancelDashboardConfig()
-	{
-		_isConfiguringDashboard = false;
-	}
-
-	private async Task ApplyDashboardConfigAsync()
-	{
-		if (ActiveTabIndex >= 0 && ActiveTabIndex < Tabs.Count)
-		{
-			var activeTab = Tabs[ActiveTabIndex];
-			activeTab.Name = _configTabName;
-			activeTab.ColumnCount = _configColumnCount;
-			activeTab.TileRowHeightPx = _configRowHeight;
-		}
-
-		Name = string.IsNullOrWhiteSpace(_configName) ? null : _configName.Trim();
-		Properties = _configProperties.Count > 0 ? new Dictionary<string, string>(_configProperties) : null;
-
-		_isConfiguringDashboard = false;
-
-		if (OnSettingsChanged.HasDelegate)
-		{
-			await OnSettingsChanged.InvokeAsync().ConfigureAwait(true);
-		}
-
-		StateHasChanged();
-	}
-
-	private void AddConfigProperty()
-	{
-		if (!string.IsNullOrWhiteSpace(_newPropertyKey))
-		{
-			_configProperties[_newPropertyKey.Trim()] = _newPropertyValue;
-			_newPropertyKey = string.Empty;
-			_newPropertyValue = string.Empty;
-		}
-	}
-
-	private void RemoveConfigProperty(string key)
-	{
-		_configProperties.Remove(key);
-	}
-
-	private void UpdateConfigProperty(string key, string value)
-	{
-		_configProperties[key] = value;
-	}
-
-	private void OpenViewModePropertyEdit()
-	{
-		_isEditingViewModeProperties = true;
-	}
-
-	private void CloseViewModePropertyEdit()
-	{
-		_isEditingViewModeProperties = false;
-	}
-
-	private void SetViewModePropertyOverride(string key, string value)
-	{
-		_viewModePropertyOverrides[key] = value;
-	}
-
-	private void ResetViewModeProperties()
-	{
-		_viewModePropertyOverrides.Clear();
 	}
 
 	/// <inheritdoc />

@@ -15,12 +15,19 @@ public interface IPreviewProvider
 	int SpinnerMinDisplayMs { get; set; }
 
 	/// <summary>
+	/// Returns basic (lightweight) preview information for the given file explorer item, without a loading spinner.
+	/// </summary>
+	/// <param name="item">The file explorer item to preview, or <c>null</c> to obtain an empty preview.</param>
+	/// <returns>A <see cref="PreviewInfo"/> object describing the preview content.</returns>
+	Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item) => GetBasicPreviewInfoAsync(item, false);
+
+	/// <summary>
 	/// Returns basic (lightweight) preview information for the given file explorer item.
 	/// </summary>
 	/// <param name="item">The file explorer item to preview, or <c>null</c> to obtain an empty preview.</param>
 	/// <param name="spinner">When <c>true</c>, shows a loading spinner if the operation exceeds <see cref="SpinnerTriggerMs"/>.</param>
 	/// <returns>A <see cref="PreviewInfo"/> object describing the preview content.</returns>
-	Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item, bool spinner = false);
+	Task<PreviewInfo> GetBasicPreviewInfoAsync(FileExplorerItem? item, bool spinner);
 
 	/// <summary>
 	/// Returns full preview information for the given file explorer item, which may include rich content.

@@ -22,8 +22,13 @@ public interface IBlockOverlayService
 	void Hide();
 
 	/// <summary>
+	/// Display the BlockOverlay without custom HTML content.
+	/// </summary>
+	void Show() => Show(null);
+
+	/// <summary>
 	/// Display the BlockOverlay
 	/// </summary>
 	/// <param name="html">The html to include</param>
-	void Show(string? html = null);
+	void Show(string? html);
 }

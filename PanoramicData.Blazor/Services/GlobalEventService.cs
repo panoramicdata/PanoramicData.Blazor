@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor.Services;
+﻿using System;
+
+namespace PanoramicData.Blazor.Services;
 
 /// <summary>
 /// The GlobalEventService provides a concrete implementation of the IGlobalEventService interface.
@@ -43,7 +45,7 @@ public class GlobalEventService : IGlobalEventService
 		if (!_registeredShortcuts.ContainsKey(shortcut.ToString()))
 		{
 			_registeredShortcuts.Add(shortcut.ToString(), shortcut);
-			ShortcutsChanged?.Invoke(this, [.. _registeredShortcuts.Values]);
+			ShortcutsChanged?.Invoke(this, GetRegisteredShortcuts());
 		}
 	}
 
@@ -56,7 +58,7 @@ public class GlobalEventService : IGlobalEventService
 		if (_registeredShortcuts.ContainsKey(shortcut.ToString()))
 		{
 			_registeredShortcuts.Remove(shortcut.ToString());
-			ShortcutsChanged?.Invoke(this, [.. _registeredShortcuts.Values]);
+			ShortcutsChanged?.Invoke(this, GetRegisteredShortcuts());
 		}
 	}
 
