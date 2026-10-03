@@ -15,22 +15,26 @@ public class IChatServiceTests
 
 	private IChatService Service => _concrete;
 
-	/// <summary>Input is permitted by default, and the setter is ignored.</summary>
+	/// <summary>Input is permitted by default, and a value set is remembered.</summary>
 	[Fact]
-	public void IsInputPermitted_DefaultsToTrueAndIgnoresSetter()
+	public void IsInputPermitted_DefaultsToTrueAndRemembersSetter()
 	{
+		Service.IsInputPermitted.Should().BeTrue();
+
 		Service.IsInputPermitted = false;
 
-		Service.IsInputPermitted.Should().BeTrue();
+		Service.IsInputPermitted.Should().BeFalse();
 	}
 
-	/// <summary>There is no input-disabled message by default, and the setter is ignored.</summary>
+	/// <summary>There is no input-disabled message by default, and a value set is remembered.</summary>
 	[Fact]
-	public void InputDisabledMessage_DefaultsToNullAndIgnoresSetter()
+	public void InputDisabledMessage_DefaultsToNullAndRemembersSetter()
 	{
+		Service.InputDisabledMessage.Should().BeNull();
+
 		Service.InputDisabledMessage = "Read only";
 
-		Service.InputDisabledMessage.Should().BeNull();
+		Service.InputDisabledMessage.Should().Be("Read only");
 	}
 
 	/// <summary>The toast defaults describe a growing, auto-dismissing, titled toast anchored bottom right.</summary>
@@ -50,9 +54,9 @@ public class IChatServiceTests
 		Service.ToastAnchor.Should().Be(PDChatButtonPosition.BottomRight);
 	}
 
-	/// <summary>The fixed toast defaults ignore their setters.</summary>
+	/// <summary>The toast defaults remember a value set on them.</summary>
 	[Fact]
-	public void ToastDefaults_IgnoreSetters()
+	public void ToastDefaults_RememberSetters()
 	{
 		Service.ToastEntryAnimation = PDChatToastAnimation.Fade;
 		Service.ToastExitAnimation = PDChatToastAnimation.Slide;
@@ -66,17 +70,30 @@ public class IChatServiceTests
 		Service.ToastMaxVisible = 1;
 		Service.ToastAnchor = PDChatButtonPosition.TopLeft;
 
-		Service.ToastEntryAnimation.Should().Be(PDChatToastAnimation.Grow);
-		Service.ToastExitAnimation.Should().Be(PDChatToastAnimation.Shrink);
-		Service.ToastAnimationDurationMs.Should().Be(250d);
-		Service.ToastAutoDismiss.Should().BeTrue();
-		Service.ToastShowTitle.Should().BeTrue();
-		Service.ToastMinWidth.Should().Be("200px");
-		Service.ToastMaxWidth.Should().Be("300px");
-		Service.ToastMinHeight.Should().BeEmpty();
-		Service.ToastMaxHeight.Should().BeEmpty();
-		Service.ToastMaxVisible.Should().Be(5);
-		Service.ToastAnchor.Should().Be(PDChatButtonPosition.BottomRight);
+		Service.ToastEntryAnimation.Should().Be(PDChatToastAnimation.Fade);
+		Service.ToastExitAnimation.Should().Be(PDChatToastAnimation.Slide);
+		Service.ToastAnimationDurationMs.Should().Be(1);
+		Service.ToastAutoDismiss.Should().BeFalse();
+		Service.ToastShowTitle.Should().BeFalse();
+		Service.ToastMinWidth.Should().Be("1px");
+		Service.ToastMaxWidth.Should().Be("2px");
+		Service.ToastMinHeight.Should().Be("3px");
+		Service.ToastMaxHeight.Should().Be("4px");
+		Service.ToastMaxVisible.Should().Be(1);
+		Service.ToastAnchor.Should().Be(PDChatButtonPosition.TopLeft);
+	}
+
+	/// <summary>A value set through the defaults belongs to that service instance, not to every service.</summary>
+	[Fact]
+	public void DefaultSetters_AreRememberedPerInstance()
+	{
+		IChatService other = new MinimalChatService();
+
+		Service.ToastMaxVisible = 2;
+		Service.IsInputPermitted = false;
+
+		other.ToastMaxVisible.Should().Be(5);
+		other.IsInputPermitted.Should().BeTrue();
 	}
 
 	/// <summary>Toast enabling and duration read and write the legacy last-message members.</summary>
@@ -94,12 +111,27 @@ public class IChatServiceTests
 		Service.ToastDisplayDurationSeconds.Should().Be(9);
 	}
 
-	/// <summary>Selecting a conversation is ignored by a service that does not support conversations.</summary>
+	/// <summary>Selecting the implicit conversation is accepted by a service that does not support conversations.</summary>
 	[Fact]
-	public void ActiveConversationId_SetterIsIgnored()
+	public void ActiveConversationId_AcceptsTheImplicitConversation()
 	{
-		Service.ActiveConversationId = Guid.NewGuid();
+		Service.ActiveConversationId = ChatConversation.ImplicitConversationId;
 
+		Service.ActiveConversationId.Should().Be(ChatConversation.ImplicitConversationId);
+	}
+
+	/// <summary>
+	/// Selecting any other conversation is refused, rather than leaving the caller believing it is now looking at
+	/// a conversation the service does not have.
+	/// </summary>
+	[Fact]
+	public void ActiveConversationId_RefusesAnUnknownConversation()
+	{
+		var unknown = Guid.NewGuid();
+
+		var act = () => Service.ActiveConversationId = unknown;
+
+		act.Should().Throw<InvalidOperationException>().WithMessage($"*{unknown}*");
 		Service.ActiveConversationId.Should().Be(ChatConversation.ImplicitConversationId);
 	}
 

@@ -161,6 +161,26 @@ public sealed class ListenerServiceTests : IDisposable
 		_inputs.Should().ContainSingle().Which.Text.Should().Be("[timeout]");
 	}
 
+	/// <summary>
+	/// A silence timer that fires after the listener has already gone back to awaiting the keyword (or left
+	/// keyword mode) changes nothing and injects nothing.
+	/// </summary>
+	[Theory]
+	[InlineData(ListenerMode.KeywordActivation)]
+	[InlineData(ListenerMode.Continuous)]
+	public void KeywordTimeout_WhenNotListeningForKeywordFollowUp_DoesNothing(ListenerMode mode)
+	{
+		Configure(mode);
+		var stateBefore = _service.State;
+		_statuses.Clear();
+
+		_service.OnKeywordTimeout();
+
+		_service.State.Should().Be(stateBefore);
+		_statuses.Should().BeEmpty();
+		_inputs.Should().BeEmpty();
+	}
+
 	/// <summary>A zero silence timeout keeps keyword mode listening indefinitely.</summary>
 	[Fact]
 	public void KeywordMode_ZeroTimeout_KeepsListening()

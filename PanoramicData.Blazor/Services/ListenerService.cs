@@ -1,3 +1,5 @@
+using System;
+
 namespace PanoramicData.Blazor.Services;
 
 /// <summary>
@@ -103,7 +105,8 @@ public class ListenerService : IListenerService, IDisposable
 			case ListenerMode.KeywordActivation:
 				HandleKeywordModeText(text, timestamp);
 				break;
-			case ListenerMode.Continuous:
+			default:
+				// ListenerMode.Continuous: everything heard is input.
 				EmitInput(new ListenerInput { Text = text, Timestamp = timestamp });
 				SetState(ListenerState.Listening, null, null);
 				break;
@@ -192,27 +195,27 @@ public class ListenerService : IListenerService, IDisposable
 		StartKeywordTimeoutTimer();
 	}
 
+	// Only reached from keyword-mode text handling, so the mode needs no re-checking here.
 	private void StartKeywordTimeoutTimer()
 	{
-		if (Mode != ListenerMode.KeywordActivation)
-		{
-			return;
-		}
-
 		if (_configuration.KeywordSilenceTimeout <= TimeSpan.Zero)
 		{
 			StopKeywordTimeoutTimer();
 			return;
 		}
 
-		_keywordTimeoutTimer ??= new Timer(OnKeywordTimeout);
+		_keywordTimeoutTimer ??= new Timer(_ => OnKeywordTimeout());
 
 		_keywordTimeoutTimer.Change(_configuration.KeywordSilenceTimeout, Timeout.InfiniteTimeSpan);
 	}
 
 	private void StopKeywordTimeoutTimer() => _keywordTimeoutTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
-	private void OnKeywordTimeout(object? state)
+	/// <summary>
+	/// Handles the keyword silence timer firing: returns to awaiting the keyword, unless the listener has already
+	/// left the listening state (or keyword mode) by the time the timer gets to run.
+	/// </summary>
+	internal void OnKeywordTimeout()
 	{
 		if (Mode != ListenerMode.KeywordActivation || State != ListenerState.Listening)
 		{

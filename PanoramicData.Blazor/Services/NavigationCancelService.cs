@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor.Services;
+﻿using System;
+
+namespace PanoramicData.Blazor.Services;
 
 /// <summary>
 /// Default implementation of <see cref="INavigationCancelService"/> that raises a browser confirmation dialog when observers request cancellation.
