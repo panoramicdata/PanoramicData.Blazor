@@ -5,6 +5,9 @@
 /// </summary>
 public class ShortcutKey
 {
+	// The prefixes of key codes that are dropped when displaying them, e.g. "KeyA" displays as "A"
+	private static readonly string[] _displayedCodePrefixes = ["key", "digit"];
+
 	/// <summary>
 	/// Gets or sets the string key code to match.
 	/// </summary>
@@ -36,28 +39,15 @@ public class ShortcutKey
 	/// <returns>A new string instance containing the shortcut abbreviation.</returns>
 	public override string ToString()
 	{
-		if (string.IsNullOrWhiteSpace(Key) && string.IsNullOrWhiteSpace(Code))
+		if (!HasValue)
 		{
 			return string.Empty;
 		}
 
-		var sb = new StringBuilder();
-		if (CtrlKey)
-		{
-			sb.Append("Ctrl-");
-		}
-
-		if (ShiftKey)
-		{
-			sb.Append("Shift-");
-		}
-
-		if (AltKey)
-		{
-			sb.Append("Alt-");
-		}
-
-		return sb.Append(GetKeyText()).ToString();
+		var modifiers = new (bool IsPressed, string Text)[] { (CtrlKey, "Ctrl-"), (ShiftKey, "Shift-"), (AltKey, "Alt-") }
+			.Where(modifier => modifier.IsPressed)
+			.Select(modifier => modifier.Text);
+		return string.Concat(modifiers) + GetKeyText();
 	}
 
 	private string GetKeyText()
@@ -67,17 +57,8 @@ public class ShortcutKey
 			return Key.ToUpperInvariant();
 		}
 
-		if (Code.StartsWith("key", StringComparison.OrdinalIgnoreCase))
-		{
-			return Code[3..].ToUpperInvariant();
-		}
-
-		if (Code.StartsWith("digit", StringComparison.OrdinalIgnoreCase))
-		{
-			return Code[5..].ToUpperInvariant();
-		}
-
-		return Code.ToUpperInvariant();
+		var prefix = _displayedCodePrefixes.FirstOrDefault(p => Code.StartsWith(p, StringComparison.OrdinalIgnoreCase)) ?? string.Empty;
+		return Code[prefix.Length..].ToUpperInvariant();
 	}
 
 	/// <summary>
@@ -89,20 +70,16 @@ public class ShortcutKey
 	/// <param name="ctrlKey">Whether the control key was also pressed.</param>
 	/// <param name="shiftKey">Whether the shift key was also pressed.</param>
 	/// <returns>true if it is a match, otherwise false.</returns>
-	public bool IsMatch(string key, string code, bool altKey, bool ctrlKey, bool shiftKey) => AltKey == altKey &&
-			CtrlKey == ctrlKey &&
-			ShiftKey == shiftKey &&
-			IsKeyOrCodeMatch(key, code);
+	public bool IsMatch(string key, string code, bool altKey, bool ctrlKey, bool shiftKey)
+		=> (AltKey, CtrlKey, ShiftKey) == (altKey, ctrlKey, shiftKey) && IsKeyOrCodeMatch(key, code);
 
 	/// <summary>
 	/// Determines whether this shortcut key is a match with the given shortcut key.
 	/// </summary>
 	/// <param name="shortcutKey">ShortcutKey instance to match with.</param>
 	/// <returns>true if it is a match, otherwise false.</returns>
-	public bool IsMatch(ShortcutKey shortcutKey) => AltKey == shortcutKey.AltKey &&
-			CtrlKey == shortcutKey.CtrlKey &&
-			ShiftKey == shortcutKey.ShiftKey &&
-			IsKeyOrCodeMatch(shortcutKey.Key, shortcutKey.Code);
+	public bool IsMatch(ShortcutKey shortcutKey)
+		=> IsMatch(shortcutKey.Key, shortcutKey.Code, shortcutKey.AltKey, shortcutKey.CtrlKey, shortcutKey.ShiftKey);
 
 	/// <summary>
 	/// Matches on Key or on Code, but only on a value this shortcut actually has: an empty Key or Code is "not
@@ -132,14 +109,14 @@ public class ShortcutKey
 		}
 
 		var codes = shortcutKey.Split(['-'], StringSplitOptions.RemoveEmptyEntries);
-		var lastCode = codes.LastOrDefault();
+		var lastCode = codes.LastOrDefault() ?? string.Empty;
 		return new ShortcutKey
 		{
 			AltKey = codes.Any(x => string.Equals(x, "alt", StringComparison.OrdinalIgnoreCase)),
 			CtrlKey = codes.Any(x => string.Equals(x, "ctrl", StringComparison.OrdinalIgnoreCase)),
 			ShiftKey = codes.Any(x => string.Equals(x, "shift", StringComparison.OrdinalIgnoreCase)),
-			Code = lastCode?.Length > 1 ? lastCode : string.Empty,   // KeyA or Digit1 or Quote etc
-			Key = lastCode?.Length == 1 ? lastCode : string.Empty       // a or b etc
+			Code = lastCode.Length > 1 ? lastCode : string.Empty,   // KeyA or Digit1 or Quote etc
+			Key = lastCode.Length == 1 ? lastCode : string.Empty       // a or b etc
 		};
 	}
 

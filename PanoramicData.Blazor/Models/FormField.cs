@@ -5,7 +5,7 @@
 /// display options, validation rules, and visibility/read-only behaviour.
 /// </summary>
 /// <typeparam name="TItem">The model type the field is bound to.</typeparam>
-public class FormField<TItem> where TItem : class
+public partial class FormField<TItem> where TItem : class
 {
 	private Func<TItem, object>? _compiledFieldFunc;
 
@@ -104,14 +104,7 @@ public class FormField<TItem> where TItem : class
 	/// <summary>
 	/// Gets the fields name.
 	/// </summary>
-	public string Name
-	{
-		get
-		{
-			var memberInfo = Field?.GetPropertyMemberInfo();
-			return memberInfo?.Name ?? string.Empty;
-		}
-	}
+	public string Name => GetName() ?? string.Empty;
 
 	/// <summary>
 	/// Gets or sets whether a 'copy to clipboard' button is displayed for the field.
@@ -192,77 +185,6 @@ public class FormField<TItem> where TItem : class
 	/// Gets or sets a URL to an external context sensitive help page.
 	/// </summary>
 	public string? HelpUrl { get; set; }
-
-	/// <summary>
-	/// Returns the value to be rendered in the user interface.
-	/// </summary>
-	/// <param name="item">The current TItem instance where to obtain the current field value.</param>
-	/// <returns>A value that can be rendered in the user interface.</returns>
-	public object? GetRenderValue(TItem? item)
-	{
-		if (item == null)
-		{
-			return null;
-		}
-
-		var value = CompiledFieldFunc?.Invoke(item);
-		if (value != null)
-		{
-			if (value is DateTimeOffset dto)
-			{
-				// return simple date time string
-				return dto.DateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-			}
-
-			if (value is DateTime dt)
-			{
-				// return date time string
-				return dt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-			}
-		}
-
-		return value;
-	}
-
-	/// <summary>
-	/// Returns the field data type.
-	/// </summary>
-	/// <returns></returns>
-	public Type? GetFieldType()
-	{
-		if (Field is null)
-		{
-			return null;
-		}
-
-		var dataType = Field?.GetPropertyMemberInfo()?.GetMemberUnderlyingType();
-		if (dataType != null)
-		{
-			return Nullable.GetUnderlyingType(dataType) ?? dataType;
-		}
-
-		return dataType;
-	}
-
-	/// <summary>
-	/// Returns true if the field's underlying property type accepts null values
-	/// (i.e. it is a <see langword="string"/>, a nullable value type, or a reference type).
-	/// </summary>
-	public bool GetFieldIsNullable()
-	{
-		var memberInfo = Field?.GetPropertyMemberInfo();
-		if (memberInfo is PropertyInfo propInfo)
-		{
-			if (propInfo.PropertyType.FullName == "System.String")
-			{
-				return true;
-			}
-
-			return Nullable.GetUnderlyingType(propInfo.PropertyType) != null;
-		}
-
-		return false;
-	}
 
 	/// <summary>
 	/// Simple function that returns true.

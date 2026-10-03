@@ -198,18 +198,10 @@ public partial class PDWizard : ComponentBase
     /// </summary>
     public async Task NextAsync()
     {
-        var visible = _steps.Where(s => s.IsVisible).ToList();
-        var current = visible.ElementAtOrDefault(_activeStepIndex);
+        await LeaveCurrentStepAsync().ConfigureAwait(true);
 
-        if (current?.OnLeaveAsync != null)
-        {
-            await current.OnLeaveAsync().ConfigureAwait(true);
-        }
-
-        if (_activeStepIndex < visible.Count - 1)
-        {
-            await GoToStepAsync(_activeStepIndex + 1).ConfigureAwait(true);
-        }
+        // GoToStepAsync ignores an index past the last visible step
+        await GoToStepAsync(_activeStepIndex + 1).ConfigureAwait(true);
     }
 
     /// <summary>
@@ -217,10 +209,8 @@ public partial class PDWizard : ComponentBase
     /// </summary>
     public async Task BackAsync()
     {
-        if (_activeStepIndex > 0)
-        {
-            await GoToStepAsync(_activeStepIndex - 1).ConfigureAwait(true);
-        }
+        // GoToStepAsync ignores an index before the first step
+        await GoToStepAsync(_activeStepIndex - 1).ConfigureAwait(true);
     }
 
     /// <summary>
@@ -228,8 +218,7 @@ public partial class PDWizard : ComponentBase
     /// </summary>
     public async Task GoToStepAsync(int index)
     {
-        var visible = _steps.Where(s => s.IsVisible).ToList();
-        if (index < 0 || index >= visible.Count)
+        if (_steps.Where(s => s.IsVisible).ElementAtOrDefault(index) is not { } step)
         {
             return;
         }
@@ -237,7 +226,6 @@ public partial class PDWizard : ComponentBase
         _activeStepIndex = index;
         await StepChanged.InvokeAsync(_activeStepIndex).ConfigureAwait(true);
 
-        var step = visible[index];
         if (step.OnEnterAsync != null)
         {
             step.IsLoading = true;
@@ -284,16 +272,17 @@ public partial class PDWizard : ComponentBase
 
     private async Task OnFinishClickAsync()
     {
-        var visible = _steps.Where(s => s.IsVisible).ToList();
-        var current = visible.ElementAtOrDefault(_activeStepIndex);
-
-        if (current?.OnLeaveAsync != null)
-        {
-            await current.OnLeaveAsync().ConfigureAwait(true);
-        }
-
+        await LeaveCurrentStepAsync().ConfigureAwait(true);
         await OnComplete.InvokeAsync().ConfigureAwait(true);
         await ResetAsync().ConfigureAwait(true);
+    }
+
+    private async Task LeaveCurrentStepAsync()
+    {
+        if (CurrentStep?.OnLeaveAsync is { } onLeaveAsync)
+        {
+            await onLeaveAsync().ConfigureAwait(true);
+        }
     }
 
     private async Task OnCancelClickAsync()

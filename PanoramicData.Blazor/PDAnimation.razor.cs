@@ -74,14 +74,8 @@ public partial class PDAnimation : IDisposable
 		{
 			var newPosition = await _module.InvokeAsync<ElementPosition?>("getPosition", Id);
 
-			// Could not find position
-			if (newPosition is null)
-			{
-				return;
-			}
-
-			// Same position as the last moved one, no need to update
-			if (_positions.Count != 0 && newPosition.Equals(_positions[^1]))
+			// Could not find position, or same position as the last moved one: no need to update
+			if (newPosition is null || newPosition.Equals(_positions.LastOrDefault()))
 			{
 				return;
 			}
@@ -109,18 +103,16 @@ public partial class PDAnimation : IDisposable
 
 		await UpdatePositionAsync();
 
+		// Positions are only recorded while the module is loaded (Dispose clears both together)
 		if (_positions.Count < 2)
 		{
 			return;
 		}
 
-		if (_module is not null)
-		{
-			_lastAnimationTrigger = DateTime.Now.TimeOfDay;
-			await _module.InvokeVoidAsync("animate", Id, _positions[^2], _positions[^1], AnimationTime, GetAnimationStyle());
+		_lastAnimationTrigger = DateTime.Now.TimeOfDay;
+		await _module!.InvokeVoidAsync("animate", Id, _positions[^2], _positions[^1], AnimationTime, GetAnimationStyle());
 
-			_positions.Clear();
-		}
+		_positions.Clear();
 	}
 
 	/// <summary>
