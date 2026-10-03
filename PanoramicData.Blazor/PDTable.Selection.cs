@@ -200,12 +200,25 @@ public partial class PDTable<TItem>
 	}
 
 	/// <summary>
+	/// Selects a row item key using current selection mode semantics, as a plain click would.
+	/// </summary>
+	/// <param name="key">Row key value.</param>
+	public Task SelectItemAsync(string key) => SelectItemAsync(key, false, false);
+
+	/// <summary>
+	/// Selects a row item key using current selection mode semantics, optionally as a shift-click.
+	/// </summary>
+	/// <param name="key">Row key value.</param>
+	/// <param name="shiftKey">True when shift range-selection behavior should be applied.</param>
+	public Task SelectItemAsync(string key, bool shiftKey) => SelectItemAsync(key, shiftKey, false);
+
+	/// <summary>
 	/// Selects a row item key using current selection mode semantics.
 	/// </summary>
 	/// <param name="key">Row key value.</param>
 	/// <param name="shiftKey">True when shift range-selection behavior should be applied.</param>
 	/// <param name="ctrlKey">True when ctrl toggle-selection behavior should be applied.</param>
-	public async Task SelectItemAsync(string key, bool shiftKey = false, bool ctrlKey = false)
+	public async Task SelectItemAsync(string key, bool shiftKey, bool ctrlKey)
 	{
 		if (string.IsNullOrWhiteSpace(key))
 		{
