@@ -26,7 +26,7 @@ export function init(id, element, dotNetRef) {
 		}
 	};
 
-	const observer = new ResizeObserver(entries => {
+	const observer = new ResizeObserver((entries) => {
 		for (const entry of entries) {
 			const box = entry.contentRect;
 			report(box.width, box.height);

@@ -40,7 +40,11 @@ function createRecognition() {
 				continue;
 			}
 
-			listenerReference.invokeMethodAsync("OnRecognizedText", result[0].transcript, new Date().toISOString());
+			listenerReference.invokeMethodAsync(
+				"OnRecognizedText",
+				result[0].transcript,
+				new Date().toISOString(),
+			);
 		}
 	};
 
@@ -77,13 +81,19 @@ function createRecognition() {
 export function initialize(ref, options) {
 	listenerReference = ref;
 	mode = options && options.mode ? options.mode : "ManualActivation";
-	runInBackground = options && options.runInBackground !== undefined ? options.runInBackground : true;
+	runInBackground =
+		options && options.runInBackground !== undefined
+			? options.runInBackground
+			: true;
 	recognition = createRecognition();
 }
 
 export function configure(options) {
 	mode = options && options.mode ? options.mode : mode;
-	runInBackground = options && options.runInBackground !== undefined ? options.runInBackground : runInBackground;
+	runInBackground =
+		options && options.runInBackground !== undefined
+			? options.runInBackground
+			: runInBackground;
 }
 
 export function startListening() {
@@ -101,8 +111,7 @@ export function startListening() {
 	shouldRestart = true;
 	try {
 		recognition.start();
-	} catch {
-	}
+	} catch {}
 }
 
 export function stopListening() {
@@ -113,8 +122,7 @@ export function stopListening() {
 
 	try {
 		recognition.stop();
-	} catch {
-	}
+	} catch {}
 }
 
 export function dispose() {
@@ -126,8 +134,7 @@ export function dispose() {
 			recognition.onerror = null;
 			recognition.onend = null;
 			recognition.abort();
-		} catch {
-		}
+		} catch {}
 	}
 
 	recognition = null;

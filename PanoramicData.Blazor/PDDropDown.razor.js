@@ -1,7 +1,6 @@
 ﻿export function initialize(id, toggleId, dropdownId, ref, opt) {
 	var el = document.getElementById(toggleId);
 	if (ref && el) {
-
 		el.parentElement.addEventListener("keypress", function (ev) {
 			if (ev.keyCode === 13) {
 				try {
@@ -29,7 +28,11 @@
 		});
 
 		el.addEventListener("mouseleave", function (ev) {
-			if (!ev.relatedTarget || !ev.relatedTarget.parentElement || ev.relatedTarget.parentElement.id != id) {
+			if (
+				!ev.relatedTarget ||
+				!ev.relatedTarget.parentElement ||
+				ev.relatedTarget.parentElement.id != id
+			) {
 				try {
 					ref.invokeMethodAsync("OnMouseLeave");
 				} catch {
@@ -41,7 +44,11 @@
 		var dropdownEl = document.getElementById(dropdownId);
 		if (dropdownEl) {
 			dropdownEl.addEventListener("mouseleave", function (ev) {
-				if (!ev.relatedTarget || !ev.relatedTarget.parentElement || ev.relatedTarget.parentElement.id != id) {
+				if (
+					!ev.relatedTarget ||
+					!ev.relatedTarget.parentElement ||
+					ev.relatedTarget.parentElement.id != id
+				) {
 					try {
 						ref.invokeMethodAsync("OnMouseLeave");
 					} catch {
@@ -56,7 +63,7 @@
 		// table wrappers) are clipped and disappear. 'fixed' escapes any overflow context.
 		const popperConfig = (defaultConfig) => ({
 			...defaultConfig,
-			strategy: 'fixed'
+			strategy: "fixed",
 		});
 		return new bootstrap.Dropdown(el, { ...opt, popperConfig });
 	}

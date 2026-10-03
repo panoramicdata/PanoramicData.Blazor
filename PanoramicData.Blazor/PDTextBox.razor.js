@@ -18,9 +18,9 @@ export function initSpeech(lang) {
 			if (lang && lang != "") {
 				_recognition.lang = lang; // "en-GB"
 			}
-			_recognition.addEventListener('result', onSpeechResult);
-			_recognition.addEventListener('audiostart', onAudioStart);
-			_recognition.addEventListener('audioend', onAudioEnd);
+			_recognition.addEventListener("result", onSpeechResult);
+			_recognition.addEventListener("audiostart", onAudioStart);
+			_recognition.addEventListener("audioend", onAudioEnd);
 		}
 	}
 }
@@ -30,18 +30,16 @@ export function startListenForSpeech(ref) {
 		try {
 			_ref = ref;
 			_recognition.start();
-		} catch
-		{
-		}
+		} catch {}
 	}
 }
 
 export function termSpeech() {
 	if (_recognition) {
 		_recognition.abort();
-		_recognition.removeEventListener('result', onSpeechResult);
-		_recognition.removeEventListener('audiostart', onAudioStart);
-		_recognition.removeEventListener('audioend', onAudioEnd);
+		_recognition.removeEventListener("result", onSpeechResult);
+		_recognition.removeEventListener("audiostart", onAudioStart);
+		_recognition.removeEventListener("audioend", onAudioEnd);
 	}
 }
 
@@ -58,7 +56,13 @@ function onAudioStart() {
 }
 
 function onSpeechResult(evt) {
-	if (_ref && evt && evt.results && evt.results.length && evt.results.length > 0) {
+	if (
+		_ref &&
+		evt &&
+		evt.results &&
+		evt.results.length &&
+		evt.results.length > 0
+	) {
 		var results = evt.results[0];
 		if (results.length && results.length > 0 && results[0].transcript) {
 			_ref.invokeMethodAsync("OnSpeechResult", results[0].transcript);

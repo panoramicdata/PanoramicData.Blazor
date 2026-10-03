@@ -8,11 +8,15 @@
 	const rect = el.getBoundingClientRect();
 
 	return { top: rect.top, left: rect.left };
-
 }
 
-
-export function animate(id, prevPosition, currentPosition, animationDuration, animationTimingFunction) {
+export function animate(
+	id,
+	prevPosition,
+	currentPosition,
+	animationDuration,
+	animationTimingFunction,
+) {
 	const el = document.getElementById(id);
 
 	// If any of these are null, cancel the animation
@@ -39,7 +43,6 @@ export function animate(id, prevPosition, currentPosition, animationDuration, an
 }
 
 export function cancelAnimation(id) {
-
 	const el = document.getElementById(id);
 
 	// If any of these are null, cannot continue

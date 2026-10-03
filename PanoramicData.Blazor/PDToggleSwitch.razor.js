@@ -1,5 +1,5 @@
 export function measureText(pText, pFontSize, pStyle) {
-	var lDiv = document.createElement('div');
+	var lDiv = document.createElement("div");
 
 	document.body.appendChild(lDiv);
 
@@ -15,7 +15,7 @@ export function measureText(pText, pFontSize, pStyle) {
 
 	var lResult = {
 		width: lDiv.clientWidth,
-		height: lDiv.clientHeight
+		height: lDiv.clientHeight,
 	};
 
 	document.body.removeChild(lDiv);

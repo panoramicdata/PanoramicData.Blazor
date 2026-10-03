@@ -1,7 +1,6 @@
 ﻿var zoombars = {};
 
 class Zoombar {
-
 	data = [];
 	options = {
 		zoomSteps: [25, 50, 75],
@@ -9,12 +8,12 @@ class Zoombar {
 			background: "White",
 			border: "Silver",
 			handleBackground: "Green",
-			handleForeground: "White"
-		}
+			handleForeground: "White",
+		},
 	};
 	value = {
 		zoom: 100,
-		pan: 0
+		pan: 0,
 	};
 	canvas = null;
 	dragOriginX = 0;
@@ -31,11 +30,27 @@ class Zoombar {
 			this.canvasId = id;
 			this.value = value || this.value;
 			this.options = options || this.options;
-			this.canvas.addEventListener("mousedown", this.onMouseDown.bind(this), false);
+			this.canvas.addEventListener(
+				"mousedown",
+				this.onMouseDown.bind(this),
+				false,
+			);
 			this.canvas.addEventListener("mouseup", this.onMouseUp.bind(this), false);
-			this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this), false);
-			this.canvas.addEventListener("mouseout", this.onMouseOut.bind(this), false);
-			this.canvas.addEventListener("wheel", this.onMouseWheel.bind(this), false);
+			this.canvas.addEventListener(
+				"mousemove",
+				this.onMouseMove.bind(this),
+				false,
+			);
+			this.canvas.addEventListener(
+				"mouseout",
+				this.onMouseOut.bind(this),
+				false,
+			);
+			this.canvas.addEventListener(
+				"wheel",
+				this.onMouseWheel.bind(this),
+				false,
+			);
 			this.handleBounds.w = (this.canvas.width / 100) * this.value.zoom;
 			this.handleBounds.x = (this.canvas.width / 100) * this.value.pan;
 			this.handleBounds.h = this.canvas.height;
@@ -52,7 +67,10 @@ class Zoombar {
 	onMouseDown(ev) {
 		if (!this.dragging) {
 			// mouse down on handle?
-			if (this.value.zoom < 100 && this.handleBounds.contains(ev.offsetX, ev.offsetY)) {
+			if (
+				this.value.zoom < 100 &&
+				this.handleBounds.contains(ev.offsetX, ev.offsetY)
+			) {
 				this.dragging = true;
 				this.dragOriginX = ev.offsetX;
 				this.dragOriginY = ev.offsetY;
@@ -67,7 +85,7 @@ class Zoombar {
 			var newX = ev.offsetX - this.dragOffset;
 			if (newX < 0) {
 				newX = 0;
-			} else if ((newX + this.handleBounds.w) > this.canvas.width) {
+			} else if (newX + this.handleBounds.w > this.canvas.width) {
 				newX = this.canvas.width - this.handleBounds.w;
 			}
 			if (this.handleBounds.x !== newX) {
@@ -94,10 +112,11 @@ class Zoombar {
 	onMouseWheel(ev) {
 		// re-position handle
 		if (this.value.zoom < 100) {
-			var newX = this.handleBounds.x + ((this.canvas.width / 10) * (ev.deltaY * 0.01));
+			var newX =
+				this.handleBounds.x + (this.canvas.width / 10) * (ev.deltaY * 0.01);
 			if (newX < 0) {
 				newX = 0;
-			} else if ((newX + this.handleBounds.w) > this.canvas.width) {
+			} else if (newX + this.handleBounds.w > this.canvas.width) {
 				newX = this.canvas.width - this.handleBounds.w;
 			}
 			if (this.handleBounds.x != newX) {
@@ -132,13 +151,22 @@ class Zoombar {
 
 			// draw handle
 			ctx.fillStyle = this.options.colours.handleBackground;
-			ctx.fillRect(this.handleBounds.x, this.handleBounds.y, this.handleBounds.w, this.handleBounds.h);
+			ctx.fillRect(
+				this.handleBounds.x,
+				this.handleBounds.y,
+				this.handleBounds.w,
+				this.handleBounds.h,
+			);
 
 			// show handle
 			var text = `${this.value.zoom}%`;
 			let textInfo = ctx.measureText(text);
 			ctx.fillStyle = this.options.colours.handleForeground;
-			ctx.fillText(text, this.handleBounds.xm() - (textInfo.width / 2), this.canvas.height - 6);
+			ctx.fillText(
+				text,
+				this.handleBounds.xm() - textInfo.width / 2,
+				this.canvas.height - 6,
+			);
 
 			// draw border
 			ctx.strokeStyle = this.options.colours.border;
@@ -177,21 +205,23 @@ class Rect {
 	w = 0;
 	h = 0;
 	xm() {
-		return this.x + (this.w / 2);
+		return this.x + this.w / 2;
 	}
 	x2() {
 		return this.x + this.w;
 	}
 	contains(x, y) {
-		return x >= this.x && x <= (this.x + this.w) && y >= this.y && y <= (this.y + this.h);
+		return (
+			x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h
+		);
 	}
 }
 
-export function initialize (id, value, options, ref) {
+export function initialize(id, value, options, ref) {
 	zoombars[id] = new Zoombar(id, value, options, ref);
 }
 
-export function setValue (id, v) {
+export function setValue(id, v) {
 	var zb = zoombars[id];
 	if (zb) {
 		return zb.setValue(v);
@@ -199,7 +229,7 @@ export function setValue (id, v) {
 	return 0;
 }
 
-export function dispose (id) {
+export function dispose(id) {
 	var zb = zoombars[id];
 	if (zb) {
 		zb.term();

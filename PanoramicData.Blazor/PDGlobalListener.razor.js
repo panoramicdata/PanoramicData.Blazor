@@ -18,10 +18,14 @@ export function registerShortcutKeys(shortcuts) {
 }
 
 export function isShortcutKeyMatch(keyInfo) {
-	var match = shortcutKeys.find((v) => v.altKey == keyInfo.altKey &&
-		v.ctrlKey == keyInfo.ctrlKey &&
-		v.shiftKey == keyInfo.shiftKey &&
-		((v.key.toLowerCase() == keyInfo.key.toLowerCase()) || (v.code.toLowerCase() == keyInfo.code.toLowerCase())));
+	var match = shortcutKeys.find(
+		(v) =>
+			v.altKey == keyInfo.altKey &&
+			v.ctrlKey == keyInfo.ctrlKey &&
+			v.shiftKey == keyInfo.shiftKey &&
+			(v.key.toLowerCase() == keyInfo.key.toLowerCase() ||
+				v.code.toLowerCase() == keyInfo.code.toLowerCase()),
+	);
 	return match ? true : false;
 }
 
@@ -38,7 +42,9 @@ function onKeyDown(e) {
 			// circuit has disconnected) - a synchronous try/catch alone does not observe that
 			// rejection, so it must be handled on the returned promise too, or it surfaces as an
 			// uncaught (in promise) error.
-			globalListenerReference.invokeMethodAsync("OnKeyDown", keyInfo).catch(() => { });
+			globalListenerReference
+				.invokeMethodAsync("OnKeyDown", keyInfo)
+				.catch(() => {});
 		} catch {
 			// BC-85: Circuit may be disconnected
 		}
@@ -54,7 +60,9 @@ function onKeyUp(e) {
 		}
 		try {
 			// MS-24862: see onKeyDown - guard against the async rejection, not just a sync throw.
-			globalListenerReference.invokeMethodAsync("OnKeyUp", keyInfo).catch(() => { });
+			globalListenerReference
+				.invokeMethodAsync("OnKeyUp", keyInfo)
+				.catch(() => {});
 		} catch {
 			// BC-85: Circuit may be disconnected
 		}

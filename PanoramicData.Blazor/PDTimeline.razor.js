@@ -1,18 +1,17 @@
 ﻿var timelines = {};
 
 class Timeline {
-
 	el = null;
 	options = {
 		bar: {
 			padding: 2,
-			width: 20
+			width: 20,
 		},
 		colours: {
 			background: "White",
-			border: "Silver"
+			border: "Silver",
 		},
-		series: []
+		series: [],
 	};
 	ref = null;
 	debouncedResizeHandler = null;
@@ -34,12 +33,14 @@ class Timeline {
 			this.el = el;
 			this.ref = ref;
 			this.options = options || this.options;
-			this.plotElement = el.querySelector('.tl-plot-area');
+			this.plotElement = el.querySelector(".tl-plot-area");
 			this.debouncedResizeHandler = this.debounce(() => this.onResize(), 500);
 			this.log("init timeline: ", arguments);
-			el.addEventListener('wheel', this.onWheel, { passive: false });
-			window.addEventListener("resize", this.debouncedResizeHandler, { passive: false });
-			
+			el.addEventListener("wheel", this.onWheel, { passive: false });
+			window.addEventListener("resize", this.debouncedResizeHandler, {
+				passive: false,
+			});
+
 			// Add key event listeners for cursor management
 			window.addEventListener("keydown", this.boundKeyDown);
 			window.addEventListener("keyup", this.boundKeyUp);
@@ -49,9 +50,9 @@ class Timeline {
 				this.plotElement.addEventListener("mousemove", this.boundMouseMove);
 				this.plotElement.addEventListener("mouseleave", this.boundMouseLeave);
 			}
-			
+
 			// Add ResizeObserver to detect container size changes (e.g., when splitter is adjusted)
-			if (typeof ResizeObserver !== 'undefined') {
+			if (typeof ResizeObserver !== "undefined") {
 				this.resizeObserver = new ResizeObserver(this.debouncedResizeHandler);
 				this.resizeObserver.observe(el);
 			}
@@ -59,14 +60,14 @@ class Timeline {
 	}
 
 	onKeyDown(ev) {
-		if (ev.key === 'Shift' && !this.shiftKeyDown) {
+		if (ev.key === "Shift" && !this.shiftKeyDown) {
 			this.shiftKeyDown = true;
 			this.updateCursor(this.lastMouseX);
 		}
 	}
 
 	onKeyUp(ev) {
-		if (ev.key === 'Shift' && this.shiftKeyDown) {
+		if (ev.key === "Shift" && this.shiftKeyDown) {
 			this.shiftKeyDown = false;
 			this.updateCursor(this.lastMouseX);
 		}
@@ -80,7 +81,7 @@ class Timeline {
 	onMouseLeave(ev) {
 		// Remove cursor class when mouse leaves the plot area
 		if (this.plotElement) {
-			this.plotElement.classList.remove('shift-move-cursor');
+			this.plotElement.classList.remove("shift-move-cursor");
 		}
 	}
 
@@ -94,20 +95,20 @@ class Timeline {
 			try {
 				const isInSelection = await this.ref.invokeMethodAsync(
 					"PanoramicData.Blazor.PDTimeline.IsPointInSelection",
-					clientX
+					clientX,
 				);
-				
+
 				if (isInSelection) {
-					this.plotElement.classList.add('shift-move-cursor');
+					this.plotElement.classList.add("shift-move-cursor");
 				} else {
-					this.plotElement.classList.remove('shift-move-cursor');
+					this.plotElement.classList.remove("shift-move-cursor");
 				}
 			} catch (e) {
 				// Handle case where component might be disposed
-				this.plotElement.classList.remove('shift-move-cursor');
+				this.plotElement.classList.remove("shift-move-cursor");
 			}
 		} else {
-			this.plotElement.classList.remove('shift-move-cursor');
+			this.plotElement.classList.remove("shift-move-cursor");
 		}
 	}
 

@@ -20,22 +20,22 @@ class GraphRenderer {
 
 		// Force simulation parameters
 		this.params = {
-			repulsionStrength: 800,      // ✅ INCREASED: Much stronger repulsion to spread nodes
-			attractionStrength: 0.05,    // ✅ DECREASED: Weaker attraction to allow spreading
-			damping: 0.95,               // ✅ INCREASED: More damping for faster settling
-			velocityDecay: 0.05,         // ✅ INCREASED: More decay to maintain movement
-			minDistance: 80,             // ✅ INCREASED: Larger minimum distance between nodes
-			maxDistance: 500,            // ✅ INCREASED: Larger max distance for forces
-			iterations: 600,             // ✅ INCREASED: More iterations for longer physics
-			convergenceThreshold: 0.02,  // ✅ MUCH LOWER: Allow physics to continue longer
-			centerForce: 0.005,          // ✅ DECREASED: Weaker center force to allow spreading
-			focusForce: 0.03             // ✅ DECREASED: Weaker focus force
+			repulsionStrength: 800, // ✅ INCREASED: Much stronger repulsion to spread nodes
+			attractionStrength: 0.05, // ✅ DECREASED: Weaker attraction to allow spreading
+			damping: 0.95, // ✅ INCREASED: More damping for faster settling
+			velocityDecay: 0.05, // ✅ INCREASED: More decay to maintain movement
+			minDistance: 80, // ✅ INCREASED: Larger minimum distance between nodes
+			maxDistance: 500, // ✅ INCREASED: Larger max distance for forces
+			iterations: 600, // ✅ INCREASED: More iterations for longer physics
+			convergenceThreshold: 0.02, // ✅ MUCH LOWER: Allow physics to continue longer
+			centerForce: 0.005, // ✅ DECREASED: Weaker center force to allow spreading
+			focusForce: 0.03, // ✅ DECREASED: Weaker focus force
 		};
 
 		// Animation parameters
 		this.animationParams = {
 			duration: 2000, // 2 seconds
-			easing: 'easeInOutCubic'
+			easing: "easeInOutCubic",
 		};
 	}
 
@@ -43,7 +43,7 @@ class GraphRenderer {
 		const container = document.getElementById(this.elementId);
 		if (!container) return;
 
-		this.svg = container.querySelector('.graph-svg');
+		this.svg = container.querySelector(".graph-svg");
 		if (!this.svg) return;
 
 		this.setupEventListeners();
@@ -55,18 +55,18 @@ class GraphRenderer {
 
 		// ✅ FIXED: Proper method binding to avoid undefined errors
 		// Mouse/touch interactions for pan and zoom
-		this.svg.addEventListener('mousedown', (e) => this.onMouseDown(e));
-		this.svg.addEventListener('mousemove', (e) => this.onMouseMove(e));
-		this.svg.addEventListener('mouseup', (e) => this.onMouseUp(e));
-		this.svg.addEventListener('wheel', (e) => this.onWheel(e));
+		this.svg.addEventListener("mousedown", (e) => this.onMouseDown(e));
+		this.svg.addEventListener("mousemove", (e) => this.onMouseMove(e));
+		this.svg.addEventListener("mouseup", (e) => this.onMouseUp(e));
+		this.svg.addEventListener("wheel", (e) => this.onWheel(e));
 
 		// Touch events for mobile
-		this.svg.addEventListener('touchstart', (e) => this.onTouchStart(e));
-		this.svg.addEventListener('touchmove', (e) => this.onTouchMove(e));
-		this.svg.addEventListener('touchend', (e) => this.onTouchEnd(e));
+		this.svg.addEventListener("touchstart", (e) => this.onTouchStart(e));
+		this.svg.addEventListener("touchmove", (e) => this.onTouchMove(e));
+		this.svg.addEventListener("touchend", (e) => this.onTouchEnd(e));
 
 		// Prevent context menu
-		this.svg.addEventListener('contextmenu', e => e.preventDefault());
+		this.svg.addEventListener("contextmenu", (e) => e.preventDefault());
 	}
 
 	startForceSimulation(graphData) {
@@ -78,21 +78,21 @@ class GraphRenderer {
 		const centerY = rect.height / 2;
 
 		// ✅ FIXED: Much larger spread considering viewport aspect ratio
-		const radiusX = rect.width * 0.4; // ✅ INCREASED: 40% of width for better spread  
+		const radiusX = rect.width * 0.4; // ✅ INCREASED: 40% of width for better spread
 		const radiusY = rect.height * 0.4; // ✅ INCREASED: 40% of height for better spread
 		const averageRadius = (radiusX + radiusY) / 2;
 
 		// Check if this is initial load or just an update
 		const isInitialLoad = this.nodes.length === 0;
-		const needsRepositioning = this.nodes.length > 0 &&
-			this.nodes.every(n => n.x === 0 && n.y === 0);
+		const needsRepositioning =
+			this.nodes.length > 0 && this.nodes.every((n) => n.x === 0 && n.y === 0);
 
 		if (isInitialLoad || needsRepositioning) {
 			// Generate diverse initial positions using golden ratio spiral with proper spacing
 			this.nodes = graphData.nodes.map((node, index) => {
 				// Use golden ratio spiral for beautiful, diverse positioning
 				const goldenRatio = (1 + Math.sqrt(5)) / 2;
-				const angle = index * 2 * Math.PI / goldenRatio; // True golden angle
+				const angle = (index * 2 * Math.PI) / goldenRatio; // True golden angle
 
 				// ✅ FIXED: Better distance progression with aspect ratio consideration
 				const distance = Math.sqrt(index + 1) * 60; // Increased from 40 to 60 for more spread
@@ -110,34 +110,38 @@ class GraphRenderer {
 				return {
 					id: node.id,
 					label: node.label,
-					x: centerX + Math.cos(finalAngle) * (xDistance + randomDistanceOffset),
-					y: centerY + Math.sin(finalAngle) * (yDistance + randomDistanceOffset),
+					x:
+						centerX + Math.cos(finalAngle) * (xDistance + randomDistanceOffset),
+					y:
+						centerY + Math.sin(finalAngle) * (yDistance + randomDistanceOffset),
 					vx: (Math.random() - 0.5) * 6, // ✅ Larger initial velocity for more movement
-					vy: (Math.random() - 0.5) * 6, // ✅ Larger initial velocity for more movement  
+					vy: (Math.random() - 0.5) * 6, // ✅ Larger initial velocity for more movement
 					fx: node.isFixed ? node.x : null,
 					fy: node.isFixed ? node.y : null,
 					dimensions: node.dimensions || {},
-					originalNode: node
+					originalNode: node,
 				};
 			});
 
-			this.edges = (graphData.edges || []).map(edge => ({
+			this.edges = (graphData.edges || []).map((edge) => ({
 				id: edge.id,
 				source: edge.fromNodeId,
 				target: edge.toNodeId,
 				strength: edge.strength || 1.0,
 				dimensions: edge.dimensions || {},
-				originalEdge: edge
+				originalEdge: edge,
 			}));
 
 			// Extract unique dimensions for multi-dimensional calculations
 			this.extractDimensions();
 
-			console.log(`Generated initial positions for ${this.nodes.length} nodes with spread: ${radiusX.toFixed(0)}x${radiusY.toFixed(0)}`);
+			console.log(
+				`Generated initial positions for ${this.nodes.length} nodes with spread: ${radiusX.toFixed(0)}x${radiusY.toFixed(0)}`,
+			);
 		} else {
 			// Just update existing nodes with new data, preserve positions
-			this.nodes.forEach(node => {
-				const updatedNode = graphData.nodes.find(n => n.id === node.id);
+			this.nodes.forEach((node) => {
+				const updatedNode = graphData.nodes.find((n) => n.id === node.id);
 				if (updatedNode) {
 					node.dimensions = updatedNode.dimensions || {};
 					node.originalNode = updatedNode;
@@ -146,8 +150,8 @@ class GraphRenderer {
 			});
 
 			// Update edges too
-			this.edges.forEach(edge => {
-				const updatedEdge = graphData.edges.find(e => e.id === edge.id);
+			this.edges.forEach((edge) => {
+				const updatedEdge = graphData.edges.find((e) => e.id === edge.id);
 				if (updatedEdge) {
 					edge.dimensions = updatedEdge.dimensions || {};
 					edge.originalEdge = updatedEdge;
@@ -164,16 +168,16 @@ class GraphRenderer {
 	extractDimensions() {
 		const dimensionSet = new Set();
 
-		this.nodes.forEach(node => {
-			Object.keys(node.dimensions).forEach(dim => dimensionSet.add(dim));
+		this.nodes.forEach((node) => {
+			Object.keys(node.dimensions).forEach((dim) => dimensionSet.add(dim));
 		});
 
-		this.edges.forEach(edge => {
-			Object.keys(edge.dimensions).forEach(dim => dimensionSet.add(dim));
+		this.edges.forEach((edge) => {
+			Object.keys(edge.dimensions).forEach((dim) => dimensionSet.add(dim));
 		});
 
 		this.dimensions = Array.from(dimensionSet);
-		console.log('Extracted dimensions:', this.dimensions);
+		console.log("Extracted dimensions:", this.dimensions);
 	}
 
 	runSimulation() {
@@ -197,12 +201,16 @@ class GraphRenderer {
 			// Check convergence
 			const totalKineticEnergy = this.calculateKineticEnergy();
 			if (iteration < 10 || iteration % 50 === 0) {
-				console.log(`Iteration ${iteration}: Kinetic Energy = ${totalKineticEnergy.toFixed(3)}`);
+				console.log(
+					`Iteration ${iteration}: Kinetic Energy = ${totalKineticEnergy.toFixed(3)}`,
+				);
 			}
 
 			if (totalKineticEnergy < this.params.convergenceThreshold) {
 				this.isRunning = false;
-				console.log(`Simulation converged after ${iteration} iterations (energy: ${totalKineticEnergy.toFixed(3)})`);
+				console.log(
+					`Simulation converged after ${iteration} iterations (energy: ${totalKineticEnergy.toFixed(3)})`,
+				);
 				return;
 			}
 
@@ -214,7 +222,14 @@ class GraphRenderer {
 	}
 
 	updateForces() {
-		const { repulsionStrength, attractionStrength, minDistance, maxDistance, centerForce, focusForce } = this.params;
+		const {
+			repulsionStrength,
+			attractionStrength,
+			minDistance,
+			maxDistance,
+			centerForce,
+			focusForce,
+		} = this.params;
 
 		// Multi-dimensional repulsion forces
 		for (let i = 0; i < this.nodes.length; i++) {
@@ -229,12 +244,17 @@ class GraphRenderer {
 				if (isNaN(distance) || distance === 0) continue; // Skip if distance is invalid or zero
 
 				// Stronger repulsion at very close distances (like a strong nuclear force)
-				const effectiveRepulsionStrength = repulsionStrength * (distance < minDistance ? 5 : 1); // 5x stronger if overlapping
+				const effectiveRepulsionStrength =
+					repulsionStrength * (distance < minDistance ? 5 : 1); // 5x stronger if overlapping
 
 				if (distance > 0 && distance < maxDistance) {
 					// Calculate dimensional similarity (closer in dimensional space = stronger repulsion)
-					const dimensionalSimilarity = this.calculateDimensionalSimilarity(nodeA, nodeB);
-					const adjustedRepulsion = effectiveRepulsionStrength * (1 + dimensionalSimilarity * 0.5);
+					const dimensionalSimilarity = this.calculateDimensionalSimilarity(
+						nodeA,
+						nodeB,
+					);
+					const adjustedRepulsion =
+						effectiveRepulsionStrength * (1 + dimensionalSimilarity * 0.5);
 
 					const force = adjustedRepulsion / (distance * distance + 10); // Add small constant to prevent singularities
 					const fx = (dx / distance) * force;
@@ -253,9 +273,9 @@ class GraphRenderer {
 		}
 
 		// Enhanced attraction forces based on edge strength and dimensional similarity
-		this.edges.forEach(edge => {
-			const source = this.nodes.find(n => n.id === edge.source);
-			const target = this.nodes.find(n => n.id === edge.target);
+		this.edges.forEach((edge) => {
+			const source = this.nodes.find((n) => n.id === edge.source);
+			const target = this.nodes.find((n) => n.id === edge.target);
 
 			if (!source || !target) return;
 
@@ -265,7 +285,8 @@ class GraphRenderer {
 
 			// ✅ FIXED: Spring-like behavior with natural length
 			const edgeDimensionalWeight = this.calculateEdgeDimensionalWeight(edge);
-			const adjustedAttraction = attractionStrength * edge.strength * edgeDimensionalWeight;
+			const adjustedAttraction =
+				attractionStrength * edge.strength * edgeDimensionalWeight;
 
 			// ✅ IMPROVED: Natural length based on edge strength and viewport size
 			const rect = this.svg.getBoundingClientRect();
@@ -299,7 +320,10 @@ class GraphRenderer {
 				const dx = nodeB.x - nodeA.x;
 				const dy = nodeB.y - nodeA.y;
 				const distance = Math.sqrt(dx * dx + dy * dy);
-				const minDistance = (this.calculateNodeStyle(nodeA).size + this.calculateNodeStyle(nodeB).size) * 1.2; // 20% buffer
+				const minDistance =
+					(this.calculateNodeStyle(nodeA).size +
+						this.calculateNodeStyle(nodeB).size) *
+					1.2; // 20% buffer
 
 				if (distance < minDistance) {
 					const overlap = minDistance - distance;
@@ -325,7 +349,7 @@ class GraphRenderer {
 			const clusterPoints = {};
 
 			// Find the center of each cluster
-			this.nodes.forEach(node => {
+			this.nodes.forEach((node) => {
 				const clusterValue = node.dimensions[clusterDimension];
 				if (clusterValue !== undefined) {
 					if (!clusterPoints[clusterValue]) {
@@ -337,13 +361,13 @@ class GraphRenderer {
 				}
 			});
 
-			Object.values(clusterPoints).forEach(cp => {
+			Object.values(clusterPoints).forEach((cp) => {
 				cp.x /= cp.count;
 				cp.y /= cp.count;
 			});
 
 			// Pull nodes towards their cluster center
-			this.nodes.forEach(node => {
+			this.nodes.forEach((node) => {
 				const clusterValue = node.dimensions[clusterDimension];
 				if (clusterValue !== undefined) {
 					const clusterPoint = clusterPoints[clusterValue];
@@ -356,12 +380,16 @@ class GraphRenderer {
 		}
 
 		// Apply clustering force
-		if (this.clusteringConfig && this.clusteringConfig.isEnabled && this.clusteringConfig.clusterByDimension) {
+		if (
+			this.clusteringConfig &&
+			this.clusteringConfig.isEnabled &&
+			this.clusteringConfig.clusterByDimension
+		) {
 			const clusterDimension = this.clusteringConfig.clusterByDimension;
 			const clusterPoints = {};
 
 			// Find the center of each cluster
-			this.nodes.forEach(node => {
+			this.nodes.forEach((node) => {
 				const clusterValue = node.dimensions[clusterDimension];
 				if (clusterValue !== undefined) {
 					if (!clusterPoints[clusterValue]) {
@@ -373,13 +401,13 @@ class GraphRenderer {
 				}
 			});
 
-			Object.values(clusterPoints).forEach(cp => {
+			Object.values(clusterPoints).forEach((cp) => {
 				cp.x /= cp.count;
 				cp.y /= cp.count;
 			});
 
 			// Pull nodes towards their cluster center
-			this.nodes.forEach(node => {
+			this.nodes.forEach((node) => {
 				const clusterValue = node.dimensions[clusterDimension];
 				if (clusterValue !== undefined) {
 					const clusterPoint = clusterPoints[clusterValue];
@@ -397,7 +425,7 @@ class GraphRenderer {
 		const actualCenterY = rect.height / 2;
 		const forceStrength = this.focusNode ? focusForce : centerForce;
 
-		this.nodes.forEach(node => {
+		this.nodes.forEach((node) => {
 			if (node.fx === null && node.fy === null) {
 				if (this.focusNode && node.id === this.focusNode.id) {
 					// Strong force to center the focus node
@@ -405,7 +433,10 @@ class GraphRenderer {
 					node.vy += (actualCenterY - node.y) * forceStrength * 3;
 				} else if (this.focusNode) {
 					// Position other nodes based on dimensional proximity to focus node
-					const proximity = this.calculateDimensionalSimilarity(node, this.focusNode);
+					const proximity = this.calculateDimensionalSimilarity(
+						node,
+						this.focusNode,
+					);
 					const angle = this.calculateDimensionalAngle(node, this.focusNode);
 					const idealDistance = 100 + (1 - proximity) * 180; // Closer in dimensional space = physically closer
 
@@ -429,7 +460,7 @@ class GraphRenderer {
 		let similarity = 0;
 		let count = 0;
 
-		this.dimensions.forEach(dim => {
+		this.dimensions.forEach((dim) => {
 			const valueA = nodeA.dimensions[dim] || 0;
 			const valueB = nodeB.dimensions[dim] || 0;
 			similarity += 1 - Math.abs(valueA - valueB); // Higher similarity for closer values
@@ -443,7 +474,7 @@ class GraphRenderer {
 		if (this.dimensions.length === 0) return 1;
 
 		let weight = 1;
-		this.dimensions.forEach(dim => {
+		this.dimensions.forEach((dim) => {
 			const value = edge.dimensions[dim] || 0.5;
 			weight += value * 0.5; // Edge dimensions boost connection strength
 		});
@@ -460,7 +491,7 @@ class GraphRenderer {
 			const nodeValue = node.dimensions[dim] || 0;
 			const focusValue = focusNode.dimensions[dim] || 0;
 			const difference = nodeValue - focusValue;
-			angle += difference * (index + 1) * Math.PI / 2;
+			angle += (difference * (index + 1) * Math.PI) / 2;
 		});
 
 		return angle;
@@ -470,7 +501,7 @@ class GraphRenderer {
 		const { damping, velocityDecay } = this.params;
 		const rect = this.svg.getBoundingClientRect();
 
-		this.nodes.forEach(node => {
+		this.nodes.forEach((node) => {
 			// ✅ FIXED: Validate and fix any NaN values
 			if (isNaN(node.x) || isNaN(node.y)) {
 				console.warn(`Fixing NaN position for node ${node.id}`);
@@ -514,7 +545,9 @@ class GraphRenderer {
 
 			// ✅ FIXED: Final validation after position updates
 			if (isNaN(node.x) || isNaN(node.y)) {
-				console.error(`Node ${node.id} still has NaN position after update, resetting`);
+				console.error(
+					`Node ${node.id} still has NaN position after update, resetting`,
+				);
 				node.x = rect.width / 2;
 				node.y = rect.height / 2;
 				node.vx = 0;
@@ -537,29 +570,39 @@ class GraphRenderer {
 	renderNodesSVG() {
 		if (!this.svg) return;
 
-		const nodesGroup = this.svg.querySelector('.nodes-group');
+		const nodesGroup = this.svg.querySelector(".nodes-group");
 		if (!nodesGroup) return;
 
 		// Clear existing nodes
-		nodesGroup.innerHTML = '';
+		nodesGroup.innerHTML = "";
 
 		// ✅ FIXED: Filter out invalid nodes before rendering
-		const validNodes = this.nodes.filter(node => {
-			const isValid = !isNaN(node.x) && !isNaN(node.y) && 
-				node.x !== undefined && node.y !== undefined &&
-				isFinite(node.x) && isFinite(node.y);
+		const validNodes = this.nodes.filter((node) => {
+			const isValid =
+				!isNaN(node.x) &&
+				!isNaN(node.y) &&
+				node.x !== undefined &&
+				node.y !== undefined &&
+				isFinite(node.x) &&
+				isFinite(node.y);
 			if (!isValid) {
-				console.warn(`Skipping invalid node: ${node.id}`, { x: node.x, y: node.y });
+				console.warn(`Skipping invalid node: ${node.id}`, {
+					x: node.x,
+					y: node.y,
+				});
 			}
 			return isValid;
 		});
 
 		// Render each valid node directly as SVG with multi-dimensional styling
-		validNodes.forEach(node => {
-			const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-			nodeGroup.setAttribute('class', 'graph-node');
-			nodeGroup.setAttribute('transform', `translate(${node.x},${node.y})`);
-			nodeGroup.setAttribute('data-node-id', node.id);
+		validNodes.forEach((node) => {
+			const nodeGroup = document.createElementNS(
+				"http://www.w3.org/2000/svg",
+				"g",
+			);
+			nodeGroup.setAttribute("class", "graph-node");
+			nodeGroup.setAttribute("transform", `translate(${node.x},${node.y})`);
+			nodeGroup.setAttribute("data-node-id", node.id);
 
 			// ✅ FIXED: Calculate multi-dimensional styling
 			const nodeStyle = this.calculateNodeStyle(node);
@@ -568,27 +611,39 @@ class GraphRenderer {
 			const shape = this.createNodeShape(nodeStyle);
 
 			// ✅ ADD click handler for node selection
-			shape.setAttribute('style', 'cursor: pointer;');
-			shape.addEventListener('click', (e) => {
+			shape.setAttribute("style", "cursor: pointer;");
+			shape.addEventListener("click", (e) => {
 				e.stopPropagation();
 				this.handleNodeClick(node);
 			});
-			
+
 			nodeGroup.appendChild(shape);
 
 			// Create label with contrasting color
 			if (node.label) {
-				const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-				text.setAttribute('text-anchor', 'middle');
-				text.setAttribute('dy', '.35em');
-				text.setAttribute('font-size', Math.max(8, Math.min(12, nodeStyle.size * 0.4)));
-				text.setAttribute('fill', this.getContrastingTextColor(nodeStyle.fillColor));
-				text.setAttribute('pointer-events', 'none');
-				text.setAttribute('user-select', 'none');
-				text.setAttribute('font-family', 'Arial, sans-serif');
-				text.setAttribute('font-weight', '500');
-				
-				const truncatedLabel = this.getTruncatedLabel(node.label, nodeStyle.size);
+				const text = document.createElementNS(
+					"http://www.w3.org/2000/svg",
+					"text",
+				);
+				text.setAttribute("text-anchor", "middle");
+				text.setAttribute("dy", ".35em");
+				text.setAttribute(
+					"font-size",
+					Math.max(8, Math.min(12, nodeStyle.size * 0.4)),
+				);
+				text.setAttribute(
+					"fill",
+					this.getContrastingTextColor(nodeStyle.fillColor),
+				);
+				text.setAttribute("pointer-events", "none");
+				text.setAttribute("user-select", "none");
+				text.setAttribute("font-family", "Arial, sans-serif");
+				text.setAttribute("font-weight", "500");
+
+				const truncatedLabel = this.getTruncatedLabel(
+					node.label,
+					nodeStyle.size,
+				);
 				text.textContent = truncatedLabel;
 				nodeGroup.appendChild(text);
 			}
@@ -601,35 +656,42 @@ class GraphRenderer {
 		// Default styling
 		const style = {
 			size: 20,
-			fillColor: '#4a90e2',
+			fillColor: "#4a90e2",
 			fillAlpha: 0.8,
-			strokeColor: '#333333',
+			strokeColor: "#333333",
 			strokeThickness: 2,
 			strokeAlpha: 1.0,
-			shape: 'circle' // circle, oval, diamond, octagon, square, rectangle
+			shape: "circle", // circle, oval, diamond, octagon, square, rectangle
 		};
 
 		// Apply dimensional styling if available
 		if (node.dimensions) {
 			// Size based on 'Influence' dimension
-			const influence = node.dimensions['Influence'] || 0.5;
-			style.size = 15 + (influence * 20); // 15-35px range
+			const influence = node.dimensions["Influence"] || 0.5;
+			style.size = 15 + influence * 20; // 15-35px range
 
 			// Color based on 'Era' dimension (hue)
-			const era = node.dimensions['Era'] || 0.5;
-			const fame = node.dimensions['Fame'] || 0.5;
-			const creativity = node.dimensions['Creativity'] || 0.5;
+			const era = node.dimensions["Era"] || 0.5;
+			const fame = node.dimensions["Fame"] || 0.5;
+			const creativity = node.dimensions["Creativity"] || 0.5;
 
 			const hue = era * 360; // 0-360 degrees
 			const saturation = fame * 100; // 0-100%
-			const luminance = 30 + (creativity * 40); // 30-70% range for good contrast
+			const luminance = 30 + creativity * 40; // 30-70% range for good contrast
 
 			style.fillColor = `hsl(${hue.toFixed(0)}, ${saturation.toFixed(0)}%, ${luminance.toFixed(0)}%)`;
 
 			// Shape based on 'Category' dimension
-			const category = node.dimensions['Category'] || 0.5;
+			const category = node.dimensions["Category"] || 0.5;
 			const shapeIndex = Math.floor(category * 6); // 0-5 range
-			const shapes = ['circle', 'oval', 'diamond', 'octagon', 'square', 'rectangle'];
+			const shapes = [
+				"circle",
+				"oval",
+				"diamond",
+				"octagon",
+				"square",
+				"rectangle",
+			];
 			style.shape = shapes[Math.min(shapeIndex, shapes.length - 1)];
 		}
 
@@ -638,86 +700,107 @@ class GraphRenderer {
 
 	createNodeShape(style) {
 		switch (style.shape) {
-			case 'circle':
-				const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-				circle.setAttribute('r', style.size);
-				circle.setAttribute('fill', style.fillColor);
-				circle.setAttribute('fill-opacity', style.fillAlpha);
-				circle.setAttribute('stroke', style.strokeColor);
-				circle.setAttribute('stroke-width', style.strokeThickness);
-				circle.setAttribute('stroke-opacity', style.strokeAlpha);
+			case "circle":
+				const circle = document.createElementNS(
+					"http://www.w3.org/2000/svg",
+					"circle",
+				);
+				circle.setAttribute("r", style.size);
+				circle.setAttribute("fill", style.fillColor);
+				circle.setAttribute("fill-opacity", style.fillAlpha);
+				circle.setAttribute("stroke", style.strokeColor);
+				circle.setAttribute("stroke-width", style.strokeThickness);
+				circle.setAttribute("stroke-opacity", style.strokeAlpha);
 				return circle;
 
-			case 'oval':
-				const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-				ellipse.setAttribute('rx', style.size * 1.4);
-				ellipse.setAttribute('ry', style.size * 0.8);
-				ellipse.setAttribute('fill', style.fillColor);
-				ellipse.setAttribute('fill-opacity', style.fillAlpha);
-				ellipse.setAttribute('stroke', style.strokeColor);
-				ellipse.setAttribute('stroke-width', style.strokeThickness);
+			case "oval":
+				const ellipse = document.createElementNS(
+					"http://www.w3.org/2000/svg",
+					"ellipse",
+				);
+				ellipse.setAttribute("rx", style.size * 1.4);
+				ellipse.setAttribute("ry", style.size * 0.8);
+				ellipse.setAttribute("fill", style.fillColor);
+				ellipse.setAttribute("fill-opacity", style.fillAlpha);
+				ellipse.setAttribute("stroke", style.strokeColor);
+				ellipse.setAttribute("stroke-width", style.strokeThickness);
 				return ellipse;
 
-			case 'diamond':
-				const diamond = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+			case "diamond":
+				const diamond = document.createElementNS(
+					"http://www.w3.org/2000/svg",
+					"polygon",
+				);
 				const diamondPoints = `0,${-style.size} ${style.size},0 0,${style.size} ${-style.size},0`;
-				diamond.setAttribute('points', diamondPoints);
-				diamond.setAttribute('fill', style.fillColor);
-				diamond.setAttribute('stroke', style.strokeColor);
-				diamond.setAttribute('stroke-width', style.strokeThickness);
+				diamond.setAttribute("points", diamondPoints);
+				diamond.setAttribute("fill", style.fillColor);
+				diamond.setAttribute("stroke", style.strokeColor);
+				diamond.setAttribute("stroke-width", style.strokeThickness);
 				return diamond;
 
-			case 'square':
-				const square = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-				square.setAttribute('x', -style.size);
-				square.setAttribute('y', -style.size);
-				square.setAttribute('width', style.size * 2);
-				square.setAttribute('height', style.size * 2);
-				square.setAttribute('fill', style.fillColor);
-				square.setAttribute('stroke', style.strokeColor);
-				square.setAttribute('stroke-width', style.strokeThickness);
+			case "square":
+				const square = document.createElementNS(
+					"http://www.w3.org/2000/svg",
+					"rect",
+				);
+				square.setAttribute("x", -style.size);
+				square.setAttribute("y", -style.size);
+				square.setAttribute("width", style.size * 2);
+				square.setAttribute("height", style.size * 2);
+				square.setAttribute("fill", style.fillColor);
+				square.setAttribute("stroke", style.strokeColor);
+				square.setAttribute("stroke-width", style.strokeThickness);
 				return square;
 
-			case 'rectangle':
-				const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-				rect.setAttribute('x', -style.size * 1.5);
-				rect.setAttribute('y', -style.size);
-				rect.setAttribute('width', style.size * 3);
-				rect.setAttribute('height', style.size * 2);
-				rect.setAttribute('fill', style.fillColor);
-				rect.setAttribute('stroke', style.strokeColor);
-				rect.setAttribute('stroke-width', style.strokeThickness);
+			case "rectangle":
+				const rect = document.createElementNS(
+					"http://www.w3.org/2000/svg",
+					"rect",
+				);
+				rect.setAttribute("x", -style.size * 1.5);
+				rect.setAttribute("y", -style.size);
+				rect.setAttribute("width", style.size * 3);
+				rect.setAttribute("height", style.size * 2);
+				rect.setAttribute("fill", style.fillColor);
+				rect.setAttribute("stroke", style.strokeColor);
+				rect.setAttribute("stroke-width", style.strokeThickness);
 				return rect;
 
-			case 'octagon':
-				const octagon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+			case "octagon":
+				const octagon = document.createElementNS(
+					"http://www.w3.org/2000/svg",
+					"polygon",
+				);
 				const octSize = style.size;
 				const octInner = octSize * 0.7;
 				const octagonPoints = `${-octInner},${-octSize} ${octInner},${-octSize} ${octSize},${-octInner} ${octSize},${octInner} ${octInner},${octSize} ${-octInner},${octSize} ${-octSize},${octInner} ${-octSize},${-octInner}`;
-				octagon.setAttribute('points', octagonPoints);
-				octagon.setAttribute('fill', style.fillColor);
-				octagon.setAttribute('stroke', style.strokeColor);
-				octagon.setAttribute('stroke-width', style.strokeThickness);
+				octagon.setAttribute("points", octagonPoints);
+				octagon.setAttribute("fill", style.fillColor);
+				octagon.setAttribute("stroke", style.strokeColor);
+				octagon.setAttribute("stroke-width", style.strokeThickness);
 				return octagon;
 
 			default:
 				// Fallback to circle
-				return this.createNodeShape({ ...style, shape: 'circle' });
+				return this.createNodeShape({ ...style, shape: "circle" });
 		}
 	}
 
 	getContrastingTextColor(backgroundColor) {
 		// For HSL colors, parse the luminance value
-		if (backgroundColor.startsWith('hsl(')) {
-			const values = backgroundColor.replace('hsl(', '').replace(')', '').split(',');
+		if (backgroundColor.startsWith("hsl(")) {
+			const values = backgroundColor
+				.replace("hsl(", "")
+				.replace(")", "")
+				.split(",");
 			if (values.length >= 3) {
-				const luminance = parseFloat(values[2].replace('%', '').trim());
+				const luminance = parseFloat(values[2].replace("%", "").trim());
 				// If luminance > 50%, use dark text, otherwise use light text
-				return luminance > 50 ? '#212529' : '#ffffff';
+				return luminance > 50 ? "#212529" : "#ffffff";
 			}
 		}
 		// Default to white text
-		return '#ffffff';
+		return "#ffffff";
 	}
 
 	getTruncatedLabel(label, nodeSize) {
@@ -729,7 +812,7 @@ class GraphRenderer {
 		if (nodeSize < 20) {
 			maxLength = Math.min(4, baseLength); // Very small nodes: max 4 chars
 		} else if (nodeSize < 30) {
-			maxLength = Math.min(8, baseLength); // Medium nodes: max 8 chars  
+			maxLength = Math.min(8, baseLength); // Medium nodes: max 8 chars
 		} else {
 			maxLength = Math.min(12, baseLength); // Large nodes: max 12 chars
 		}
@@ -740,10 +823,10 @@ class GraphRenderer {
 
 		// Smart truncation - try to keep meaningful parts
 		if (maxLength <= 4) {
-			return label.substring(0, maxLength - 1) + '…';
+			return label.substring(0, maxLength - 1) + "…";
 		} else {
 			// For longer labels, try to keep the beginning which is usually most meaningful
-			return label.substring(0, maxLength - 1) + '…';
+			return label.substring(0, maxLength - 1) + "…";
 		}
 	}
 
@@ -755,24 +838,28 @@ class GraphRenderer {
 		try {
 			const component = document.getElementById(this.elementId);
 			if (component && component.blazorComponent) {
-				component.blazorComponent.invokeMethodAsync('OnNodeClickedFromJS', node.originalNode)
-					.catch(error => console.error('Error invoking node click:', error));
+				component.blazorComponent
+					.invokeMethodAsync("OnNodeClickedFromJS", node.originalNode)
+					.catch((error) => console.error("Error invoking node click:", error));
 			}
 		} catch (error) {
-			console.error('Error handling node click:', error);
+			console.error("Error handling node click:", error);
 		}
 	}
 
 	// ? ADDED: Missing mouse and touch event handlers
-	onMouseDown(event,) {
-		if (event.target.closest('.graph-node') || event.target.closest('.graph-edge')) {
+	onMouseDown(event) {
+		if (
+			event.target.closest(".graph-node") ||
+			event.target.closest(".graph-edge")
+		) {
 			return; // Don't pan when clicking on nodes/edges
 		}
 
 		this.isDragging = true;
 		this.lastMouseX = event.clientX;
 		this.lastMouseY = event.clientY;
-		this.svg.style.cursor = 'grabbing';
+		this.svg.style.cursor = "grabbing";
 		event.preventDefault();
 	}
 
@@ -793,7 +880,7 @@ class GraphRenderer {
 
 	onMouseUp(event) {
 		this.isDragging = false;
-		this.svg.style.cursor = 'grab';
+		this.svg.style.cursor = "grab";
 	}
 
 	onWheel(event) {
@@ -808,8 +895,10 @@ class GraphRenderer {
 		const newScale = Math.max(0.1, Math.min(5, this.transform.k * scaleFactor));
 
 		// Zoom towards mouse position
-		this.transform.x = mouseX - (mouseX - this.transform.x) * (newScale / this.transform.k);
-		this.transform.y = mouseY - (mouseY - this.transform.y) * (newScale / this.transform.k);
+		this.transform.x =
+			mouseX - (mouseX - this.transform.x) * (newScale / this.transform.k);
+		this.transform.y =
+			mouseY - (mouseY - this.transform.y) * (newScale / this.transform.k);
 		this.transform.k = newScale;
 
 		this.updateTransform();
@@ -822,7 +911,7 @@ class GraphRenderer {
 				clientX: touch.clientX,
 				clientY: touch.clientY,
 				target: event.target,
-				preventDefault: () => event.preventDefault()
+				preventDefault: () => event.preventDefault(),
 			});
 		}
 	}
@@ -832,7 +921,7 @@ class GraphRenderer {
 			const touch = event.touches[0];
 			this.onMouseMove({
 				clientX: touch.clientX,
-				clientY: touch.clientY
+				clientY: touch.clientY,
 			});
 		}
 		event.preventDefault();
@@ -846,11 +935,11 @@ class GraphRenderer {
 		const transformString = `translate(${this.transform.x},${this.transform.y}) scale(${this.transform.k})`;
 
 		// Update transform on node and edge groups
-		const nodesGroup = this.svg.querySelector('.nodes-group');
-		const edgesGroup = this.svg.querySelector('.edges-group');
+		const nodesGroup = this.svg.querySelector(".nodes-group");
+		const edgesGroup = this.svg.querySelector(".edges-group");
 
-		if (nodesGroup) nodesGroup.setAttribute('transform', transformString);
-		if (edgesGroup) edgesGroup.setAttribute('transform', transformString);
+		if (nodesGroup) nodesGroup.setAttribute("transform", transformString);
+		if (edgesGroup) edgesGroup.setAttribute("transform", transformString);
 
 		this.notifyTransformChange(transformString);
 	}
@@ -859,7 +948,10 @@ class GraphRenderer {
 		try {
 			const component = document.getElementById(this.elementId);
 			if (component && component.blazorComponent) {
-				component.blazorComponent.invokeMethodAsync('UpdateTransform', transformString);
+				component.blazorComponent.invokeMethodAsync(
+					"UpdateTransform",
+					transformString,
+				);
 			}
 		} catch (error) {
 			// Ignore errors when updating transform
@@ -869,51 +961,72 @@ class GraphRenderer {
 	renderEdgesSVG() {
 		if (!this.svg) return;
 
-		const edgesGroup = this.svg.querySelector('.edges-group');
+		const edgesGroup = this.svg.querySelector(".edges-group");
 		if (!edgesGroup) return;
 
 		// Clear existing edges
-		edgesGroup.innerHTML = '';
+		edgesGroup.innerHTML = "";
 
 		// ✅ FIXED: Validate edge positions before rendering
-		this.edges.forEach(edge => {
-			const sourceNode = this.nodes.find(n => n.id === edge.source);
-			const targetNode = this.nodes.find(n => n.id === edge.target);
+		this.edges.forEach((edge) => {
+			const sourceNode = this.nodes.find((n) => n.id === edge.source);
+			const targetNode = this.nodes.find((n) => n.id === edge.target);
 
 			// ✅ FIXED: Validate both nodes exist and have valid positions
-			if (sourceNode && targetNode && 
-				!isNaN(sourceNode.x) && !isNaN(sourceNode.y) &&
-				!isNaN(targetNode.x) && !isNaN(targetNode.y) &&
-				isFinite(sourceNode.x) && isFinite(sourceNode.y) &&
-				isFinite(targetNode.x) && isFinite(targetNode.y)) {
-				
-				const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-				line.setAttribute('class', 'graph-edge');
-				line.setAttribute('x1', sourceNode.x);
-				line.setAttribute('y1', sourceNode.y);
-				line.setAttribute('x2', targetNode.x);
-				line.setAttribute('y2', targetNode.y);
+			if (
+				sourceNode &&
+				targetNode &&
+				!isNaN(sourceNode.x) &&
+				!isNaN(sourceNode.y) &&
+				!isNaN(targetNode.x) &&
+				!isNaN(targetNode.y) &&
+				isFinite(sourceNode.x) &&
+				isFinite(sourceNode.y) &&
+				isFinite(targetNode.x) &&
+				isFinite(targetNode.y)
+			) {
+				const line = document.createElementNS(
+					"http://www.w3.org/2000/svg",
+					"line",
+				);
+				line.setAttribute("class", "graph-edge");
+				line.setAttribute("x1", sourceNode.x);
+				line.setAttribute("y1", sourceNode.y);
+				line.setAttribute("x2", targetNode.x);
+				line.setAttribute("y2", targetNode.y);
 
 				// ? IMPROVED: Better edge styling for visibility
-				line.setAttribute('stroke', '#888'); // Lighter color for better visibility
-				line.setAttribute('stroke-width', Math.max(1, edge.strength * 2)); // Variable width based on strength
-				line.setAttribute('stroke-opacity', Math.max(0.4, edge.strength * 0.6)); // Variable opacity
-				line.setAttribute('data-edge-id', edge.id);
+				line.setAttribute("stroke", "#888"); // Lighter color for better visibility
+				line.setAttribute("stroke-width", Math.max(1, edge.strength * 2)); // Variable width based on strength
+				line.setAttribute("stroke-opacity", Math.max(0.4, edge.strength * 0.6)); // Variable opacity
+				line.setAttribute("data-edge-id", edge.id);
 
 				// ? Add hover effects
-				line.setAttribute('style', 'cursor: pointer; transition: stroke-opacity 0.2s ease;');
-				line.addEventListener('mouseenter', () => {
-					line.setAttribute('stroke-opacity', Math.min(1.0, (parseFloat(line.getAttribute('stroke-opacity')) || 0.4) + 0.3));
+				line.setAttribute(
+					"style",
+					"cursor: pointer; transition: stroke-opacity 0.2s ease;",
+				);
+				line.addEventListener("mouseenter", () => {
+					line.setAttribute(
+						"stroke-opacity",
+						Math.min(
+							1.0,
+							(parseFloat(line.getAttribute("stroke-opacity")) || 0.4) + 0.3,
+						),
+					);
 				});
-				line.addEventListener('mouseleave', () => {
-					line.setAttribute('stroke-opacity', Math.max(0.4, edge.strength * 0.6));
+				line.addEventListener("mouseleave", () => {
+					line.setAttribute(
+						"stroke-opacity",
+						Math.max(0.4, edge.strength * 0.6),
+					);
 				});
 
 				edgesGroup.appendChild(line);
 			} else {
 				console.warn(`Skipping invalid edge: ${edge.id}`, {
-					source: sourceNode ? { x: sourceNode.x, y: sourceNode.y } : 'missing',
-					target: targetNode ? { x: targetNode.x, y: targetNode.y } : 'missing'
+					source: sourceNode ? { x: sourceNode.x, y: sourceNode.y } : "missing",
+					target: targetNode ? { x: targetNode.x, y: targetNode.y } : "missing",
 				});
 			}
 		});
@@ -921,20 +1034,20 @@ class GraphRenderer {
 
 	// ? ADDED: Missing focus and layout methods
 	setFocusNode(nodeId) {
-		const node = this.nodes.find(n => n.id === nodeId);
+		const node = this.nodes.find((n) => n.id === nodeId);
 		if (!node) return;
 
 		console.log(`Setting focus to node: ${node.label || nodeId}`);
 
 		// Clear any previous fixed positions
-		this.nodes.forEach(n => {
+		this.nodes.forEach((n) => {
 			n.fx = null;
 			n.fy = null;
 		});
 
 		// Store current positions for animation
 		const currentPositions = {};
-		this.nodes.forEach(n => {
+		this.nodes.forEach((n) => {
 			currentPositions[n.id] = { x: n.x, y: n.y };
 		});
 
@@ -952,19 +1065,22 @@ class GraphRenderer {
 		this.focusNode.vy = 0;
 
 		const targetPositions = {};
-		this.nodes.forEach(n => {
+		this.nodes.forEach((n) => {
 			if (n.id === this.focusNode.id) {
 				// Focus node goes to center
 				targetPositions[n.id] = { x: centerX, y: centerY };
 			} else {
 				// Other nodes positioned based on dimensional similarity
-				const proximity = this.calculateDimensionalSimilarity(n, this.focusNode);
+				const proximity = this.calculateDimensionalSimilarity(
+					n,
+					this.focusNode,
+				);
 				const angle = this.calculateDimensionalAngle(n, this.focusNode);
 				const idealDistance = 100 + (1 - proximity) * 180; // Closer in dimensional space = physically closer
 
 				targetPositions[n.id] = {
 					x: centerX + Math.cos(angle) * idealDistance,
-					y: centerY + Math.sin(angle) * idealDistance
+					y: centerY + Math.sin(angle) * idealDistance,
 				};
 			}
 		});
@@ -990,12 +1106,13 @@ class GraphRenderer {
 			const progress = Math.min(elapsed / duration, 1);
 
 			// Cubic ease-in-out
-			const eased = progress < 0.5
-				? 4 * progress * progress * progress
-				: 1 - Math.pow(-2 * progress + 2, 3) / 2;
+			const eased =
+				progress < 0.5
+					? 4 * progress * progress * progress
+					: 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
 			// Update all node positions
-			this.nodes.forEach(node => {
+			this.nodes.forEach((node) => {
 				const fromPos = fromPositions[node.id];
 				const toPos = toPositions[node.id];
 
@@ -1034,7 +1151,7 @@ class GraphRenderer {
 		this.animateTransform(
 			{ x: this.transform.x, y: this.transform.y, k: this.transform.k },
 			{ x: targetX, y: targetY, k: targetScale },
-			this.animationParams.duration
+			this.animationParams.duration,
 		);
 	}
 
@@ -1049,9 +1166,10 @@ class GraphRenderer {
 			const progress = Math.min(elapsed / duration, 1);
 
 			// Cubic ease-in-out
-			const eased = progress < 0.5
-				? 4 * progress * progress * progress
-				: 1 - Math.pow(-2 * progress + 2, 3) / 2;
+			const eased =
+				progress < 0.5
+					? 4 * progress * progress * progress
+					: 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
 			// Interpolate transform values
 			this.transform.x = from.x + (to.x - from.x) * eased;
@@ -1081,11 +1199,13 @@ class GraphRenderer {
 		const padding = 60; // Reduced padding for better viewport usage
 		const rect = this.svg.getBoundingClientRect();
 
-		let minX = Infinity, maxX = -Infinity;
-		let minY = Infinity, maxY = -Infinity;
+		let minX = Infinity,
+			maxX = -Infinity;
+		let minY = Infinity,
+			maxY = -Infinity;
 
 		// ? IMPROVED: Include node radius in bounds calculation
-		this.nodes.forEach(node => {
+		this.nodes.forEach((node) => {
 			const nodeStyle = this.calculateNodeStyle(node);
 			const nodeRadius = nodeStyle.size;
 
@@ -1118,7 +1238,9 @@ class GraphRenderer {
 		const targetX = viewportCenterX - graphCenterX * targetScale;
 		const targetY = viewportCenterY - graphCenterY * targetScale;
 
-		console.log(`Fit to view: scale=${targetScale.toFixed(2)}, center=(${graphCenterX.toFixed(1)}, ${graphCenterY.toFixed(1)}), transform=(${targetX.toFixed(1)}, ${targetY.toFixed(1)})`);
+		console.log(
+			`Fit to view: scale=${targetScale.toFixed(2)}, center=(${graphCenterX.toFixed(1)}, ${graphCenterY.toFixed(1)}), transform=(${targetX.toFixed(1)}, ${targetY.toFixed(1)})`,
+		);
 
 		// Clear focus node when fitting to view
 		this.focusNode = null;
@@ -1126,7 +1248,7 @@ class GraphRenderer {
 		this.animateTransform(
 			{ x: this.transform.x, y: this.transform.y, k: this.transform.k },
 			{ x: targetX, y: targetY, k: targetScale },
-			this.animationParams.duration
+			this.animationParams.duration,
 		);
 	}
 
@@ -1168,13 +1290,20 @@ export function startForceSimulation(elementId, graphData) {
 	}
 }
 
-export function regenerateLayout(elementId, graphData, convergenceThreshold = 0.02, clusteringConfig) {
+export function regenerateLayout(
+	elementId,
+	graphData,
+	convergenceThreshold = 0.02,
+	clusteringConfig,
+) {
 	console.log(`regenerateLayout called for ${elementId}`, graphData);
 	const renderer = graphInstances.get(elementId);
 	if (renderer) {
 		// ✅ FIXED: Don't restart if simulation is already running
 		if (renderer.isRunning) {
-			console.log(`Simulation already running for ${elementId}, skipping regenerate`);
+			console.log(
+				`Simulation already running for ${elementId}, skipping regenerate`,
+			);
 			return;
 		}
 
@@ -1182,7 +1311,9 @@ export function regenerateLayout(elementId, graphData, convergenceThreshold = 0.
 		renderer.params.convergenceThreshold = convergenceThreshold;
 		renderer.clusteringConfig = clusteringConfig;
 
-		console.log(`Found renderer for ${elementId}, clearing nodes and starting simulation with convergence: ${convergenceThreshold}`);
+		console.log(
+			`Found renderer for ${elementId}, clearing nodes and starting simulation with convergence: ${convergenceThreshold}`,
+		);
 		// Force regeneration by clearing existing nodes
 		renderer.nodes = [];
 		renderer.edges = [];
@@ -1223,16 +1354,26 @@ export function destroy(elementId) {
 }
 
 // Add this function to the JavaScript file
-export function updatePhysicsParameters(elementId, convergenceThreshold, damping) {
+export function updatePhysicsParameters(
+	elementId,
+	convergenceThreshold,
+	damping,
+) {
 	const renderer = graphInstances.get(elementId);
 	if (renderer) {
 		const oldThreshold = renderer.params.convergenceThreshold;
 		renderer.params.convergenceThreshold = convergenceThreshold;
 		renderer.params.damping = damping;
-		console.log(`Updated physics parameters for ${elementId}: Threshold ${oldThreshold} -> ${convergenceThreshold}, Damping ${renderer.params.damping} -> ${damping}`);
-		
+		console.log(
+			`Updated physics parameters for ${elementId}: Threshold ${oldThreshold} -> ${convergenceThreshold}, Damping ${renderer.params.damping} -> ${damping}`,
+		);
+
 		// Don't restart simulation unless it's already stopped and threshold changed significantly
-		if (!renderer.isRunning && (Math.abs(oldThreshold - convergenceThreshold) > 0.01 || Math.abs(renderer.params.damping - damping) > 0.01)) {
+		if (
+			!renderer.isRunning &&
+			(Math.abs(oldThreshold - convergenceThreshold) > 0.01 ||
+				Math.abs(renderer.params.damping - damping) > 0.01)
+		) {
 			console.log(`Restarting simulation with new physics parameters`);
 			renderer.runSimulation();
 		}
@@ -1255,25 +1396,27 @@ export function updateConfiguration(elementId, graphData, clusteringConfig) {
 		return;
 	}
 
-	console.log(`Updating configuration with ${graphData.nodes.length} nodes and ${graphData.edges?.length || 0} edges`);
+	console.log(
+		`Updating configuration with ${graphData.nodes.length} nodes and ${graphData.edges?.length || 0} edges`,
+	);
 
 	// Update existing nodes data while preserving positions
-	renderer.nodes.forEach(node => {
-		const updatedNode = graphData.nodes.find(n => n.id === node.id);
+	renderer.nodes.forEach((node) => {
+		const updatedNode = graphData.nodes.find((n) => n.id === node.id);
 		if (updatedNode) {
 			// Only update the data properties, preserve all position and physics data
 			node.dimensions = updatedNode.dimensions || {};
 			node.originalNode = updatedNode;
 			node.label = updatedNode.label;
-			
+
 			// CRITICAL: Don't touch position or velocity data
 			// Keep existing: node.x, node.y, node.vx, node.vy, node.fx, node.fy
 		}
 	});
 
 	// Update existing edges
-	renderer.edges.forEach(edge => {
-		const updatedEdge = graphData.edges.find(e => e.id === edge.id);
+	renderer.edges.forEach((edge) => {
+		const updatedEdge = graphData.edges.find((e) => e.id === edge.id);
 		if (updatedEdge) {
 			// Only update the data properties
 			edge.dimensions = updatedEdge.dimensions || {};
@@ -1289,13 +1432,20 @@ export function updateConfiguration(elementId, graphData, clusteringConfig) {
 	renderer.updateDOM();
 
 	// If clustering configuration changed, restart simulation to apply new forces
-	if (JSON.stringify(renderer.clusteringConfig) !== JSON.stringify(clusteringConfig)) {
-		console.log(`Clustering configuration changed, restarting simulation for ${elementId}`);
+	if (
+		JSON.stringify(renderer.clusteringConfig) !==
+		JSON.stringify(clusteringConfig)
+	) {
+		console.log(
+			`Clustering configuration changed, restarting simulation for ${elementId}`,
+		);
 		renderer.clusteringConfig = clusteringConfig; // Ensure it's updated before restarting
 		renderer.runSimulation();
 	}
 
-	console.log(`Configuration updated for ${elementId}, ${renderer.nodes.length} nodes, positions preserved`);
+	console.log(
+		`Configuration updated for ${elementId}, ${renderer.nodes.length} nodes, positions preserved`,
+	);
 }
 
 // Add this function to update selection styling without regenerating layout
@@ -1306,59 +1456,73 @@ export function updateSelection(elementId, selectedId, selectionType) {
 	console.log(`Updating selection: ${selectionType} ${selectedId}`);
 
 	// Clear all existing selections
-	const nodesGroup = renderer.svg.querySelector('.nodes-group');
-	const edgesGroup = renderer.svg.querySelector('.edges-group');
+	const nodesGroup = renderer.svg.querySelector(".nodes-group");
+	const edgesGroup = renderer.svg.querySelector(".edges-group");
 
 	if (nodesGroup) {
-		nodesGroup.querySelectorAll('.graph-node').forEach(node => {
-			node.classList.remove('selected');
-			const shapes = node.querySelectorAll('circle, rect, ellipse, polygon');
-			shapes.forEach(shape => {
+		nodesGroup.querySelectorAll(".graph-node").forEach((node) => {
+			node.classList.remove("selected");
+			const shapes = node.querySelectorAll("circle, rect, ellipse, polygon");
+			shapes.forEach((shape) => {
 				// Remove selection styling
-				shape.removeAttribute('filter');
-				const strokeWidth = parseFloat(shape.getAttribute('stroke-width')) || 2;
-				if (strokeWidth > 4) { // If it was previously selected
-					shape.setAttribute('stroke-width', strokeWidth - 2);
+				shape.removeAttribute("filter");
+				const strokeWidth = parseFloat(shape.getAttribute("stroke-width")) || 2;
+				if (strokeWidth > 4) {
+					// If it was previously selected
+					shape.setAttribute("stroke-width", strokeWidth - 2);
 				}
-				if (shape.getAttribute('stroke') === '#ffff00') {
-					shape.setAttribute('stroke', shape.getAttribute('data-original-stroke') || '#333333');
+				if (shape.getAttribute("stroke") === "#ffff00") {
+					shape.setAttribute(
+						"stroke",
+						shape.getAttribute("data-original-stroke") || "#333333",
+					);
 				}
 			});
 		});
 	}
 
 	if (edgesGroup) {
-		edgesGroup.querySelectorAll('.graph-edge').forEach(edge => {
-			edge.classList.remove('selected');
+		edgesGroup.querySelectorAll(".graph-edge").forEach((edge) => {
+			edge.classList.remove("selected");
 			// Remove edge selection styling if needed
 		});
 	}
 
 	// Apply selection to the specified element
-	if (selectionType === 'node') {
-		const selectedNode = nodesGroup?.querySelector(`[data-node-id="${selectedId}"]`);
+	if (selectionType === "node") {
+		const selectedNode = nodesGroup?.querySelector(
+			`[data-node-id="${selectedId}"]`,
+		);
 		if (selectedNode) {
-			selectedNode.classList.add('selected');
-			const shapes = selectedNode.querySelectorAll('circle, rect, ellipse, polygon');
-			shapes.forEach(shape => {
+			selectedNode.classList.add("selected");
+			const shapes = selectedNode.querySelectorAll(
+				"circle, rect, ellipse, polygon",
+			);
+			shapes.forEach((shape) => {
 				// Store original stroke color
-				const originalStroke = shape.getAttribute('stroke') || '#333333';
-				shape.setAttribute('data-original-stroke', originalStroke);
+				const originalStroke = shape.getAttribute("stroke") || "#333333";
+				shape.setAttribute("data-original-stroke", originalStroke);
 
 				// Apply selection styling
-				shape.setAttribute('stroke', '#ffff00'); // Yellow selection border
-				const currentWidth = parseFloat(shape.getAttribute('stroke-width')) || 2;
-				shape.setAttribute('stroke-width', currentWidth + 2);
-				shape.setAttribute('filter', 'drop-shadow(0 0 8px rgba(255, 255, 0, 0.6))'); // Glow effect
+				shape.setAttribute("stroke", "#ffff00"); // Yellow selection border
+				const currentWidth =
+					parseFloat(shape.getAttribute("stroke-width")) || 2;
+				shape.setAttribute("stroke-width", currentWidth + 2);
+				shape.setAttribute(
+					"filter",
+					"drop-shadow(0 0 8px rgba(255, 255, 0, 0.6))",
+				); // Glow effect
 			});
 		}
-	} else if (selectionType === 'edge') {
-		const selectedEdge = edgesGroup?.querySelector(`[data-edge-id="${selectedId}"]`);
+	} else if (selectionType === "edge") {
+		const selectedEdge = edgesGroup?.querySelector(
+			`[data-edge-id="${selectedId}"]`,
+		);
 		if (selectedEdge) {
-			selectedEdge.classList.add('selected');
+			selectedEdge.classList.add("selected");
 			// Apply edge selection styling
-			selectedEdge.setAttribute('stroke', '#ffff00');
-			selectedEdge.setAttribute('stroke-width', '3');
+			selectedEdge.setAttribute("stroke", "#ffff00");
+			selectedEdge.setAttribute("stroke-width", "3");
 		}
 	}
 }

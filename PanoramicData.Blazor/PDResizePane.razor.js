@@ -11,8 +11,8 @@ export function init(container, handle, cornerClass) {
 		const style = getComputedStyle(container);
 		startWidth = parseInt(style.width, 10);
 		startHeight = parseInt(style.height, 10);
-		document.addEventListener('pointermove', onPointerMove);
-		document.addEventListener('pointerup', onPointerUp);
+		document.addEventListener("pointermove", onPointerMove);
+		document.addEventListener("pointerup", onPointerUp);
 		e.preventDefault();
 	};
 
@@ -23,26 +23,26 @@ export function init(container, handle, cornerClass) {
 		let dy = e.clientY - startY;
 
 		switch (cornerClass) {
-			case 'handle-tl':
+			case "handle-tl":
 				container.style.width = `${startWidth - dx}px`;
 				container.style.height = `${startHeight - dy}px`;
 				container.style.left = `${container.offsetLeft + dx}px`;
 				container.style.top = `${container.offsetTop + dy}px`;
 				break;
 
-			case 'handle-tr':
+			case "handle-tr":
 				container.style.width = `${startWidth + dx}px`;
 				container.style.height = `${startHeight - dy}px`;
 				container.style.top = `${container.offsetTop + dy}px`;
 				break;
 
-			case 'handle-bl':
+			case "handle-bl":
 				container.style.width = `${startWidth - dx}px`;
 				container.style.height = `${startHeight + dy}px`;
 				container.style.left = `${container.offsetLeft + dx}px`;
 				break;
 
-			case 'handle-br':
+			case "handle-br":
 				container.style.width = `${startWidth + dx}px`;
 				container.style.height = `${startHeight + dy}px`;
 				break;
@@ -51,12 +51,12 @@ export function init(container, handle, cornerClass) {
 
 	const onPointerUp = (e) => {
 		resizing = false;
-		document.removeEventListener('pointermove', onPointerMove);
-		document.removeEventListener('pointerup', onPointerUp);
+		document.removeEventListener("pointermove", onPointerMove);
+		document.removeEventListener("pointerup", onPointerUp);
 	};
 
-	handle.style.touchAction = 'none'; // prevent scrolling on touch devices
-	handle.addEventListener('pointerdown', onPointerDown);
+	handle.style.touchAction = "none"; // prevent scrolling on touch devices
+	handle.addEventListener("pointerdown", onPointerDown);
 	handle._pdResizePane = { onPointerDown, onPointerUp };
 }
 
