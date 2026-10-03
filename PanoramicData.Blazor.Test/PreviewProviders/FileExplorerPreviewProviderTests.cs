@@ -134,6 +134,21 @@ public class FileExplorerPreviewProviderTests : BunitContext
 		info.HtmlContent.Value.Should().Be("hello");
 	}
 
+	/// <summary>A download string with no colon is an address relative to the client's base address.</summary>
+	[Fact]
+	public async Task VisiblePreviewPanel_RelativeAddress_IsDownloadedFromTheBaseAddress()
+	{
+		var handler = new RecordingHandler("hello");
+		var explorer = RenderExplorer(FilePreviewModes.On, item => $"files/{item.Name}");
+		var client = new HttpClient(handler) { BaseAddress = new Uri("https://files.example/") };
+		var provider = new FileExplorerPreviewProvider(client) { FileExplorer = explorer };
+
+		var info = await provider.GetPreviewInfoAsync(Item("/notes.txt"));
+
+		handler.Requests.Should().Equal(new Uri("https://files.example/files/notes.txt"));
+		info.CssClass.Should().Be("txt");
+	}
+
 	/// <summary>
 	/// With no download URL (the explorer's default) nothing is downloaded and the basic details are shown,
 	/// rather than a request with no address being sent (#174).

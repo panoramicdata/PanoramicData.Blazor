@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using PanoramicData.Blazor.Models;
+using System.Globalization;
 
 namespace PanoramicData.Blazor.Test.Models;
 
@@ -230,5 +231,16 @@ public class TimelineScaleTests
 		scales.Select(s => s.Name).Should().Equal(
 			"Seconds", "Minutes", "5 Minutes", "10 Minutes", "15 Minutes", "Hours", "4 Hours", "6 Hours", "8 Hours", "12 Hours",
 			"Days", "Weeks", "Months", "Years");
+	}
+
+	/// <summary>A scale of an unknown unit has no major ticks and labels them in the general format.</summary>
+	[Fact]
+	public void UnknownUnit_HasNoMajorTicks()
+	{
+		var scale = new TimelineScale("Unknown", (TimelineUnits)99, 1);
+		var when = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+		scale.IsMajorTick(when).Should().BeFalse();
+		scale.TickLabelMajor(when).Should().Be(when.ToString(string.Empty, CultureInfo.InvariantCulture));
 	}
 }

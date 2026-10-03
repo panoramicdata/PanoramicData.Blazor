@@ -141,6 +141,17 @@ public class MethodCacheTests
 		cache.FindMethod("math", "System.Math.Sqrt").Should().OnlyContain(m => m.Description == "Returns the square root of a specified number.");
 	}
 
+	/// <summary>The public static helper adds methods without descriptions when given no provider.</summary>
+	[Fact]
+	public void AddPublicStaticTypeMethods_WithoutProvider_AddsUndescribedMethods()
+	{
+		var cache = new MethodCache();
+
+		cache.AddPublicStaticTypeMethods("math", typeof(Math)).Should().BeGreaterThan(0);
+
+		cache.FindMethod("math", "System.Math.Sqrt").Should().NotBeEmpty().And.OnlyContain(m => string.IsNullOrEmpty(m.Description));
+	}
+
 	/// <summary>Completion items list each method once, noting overloads and description.</summary>
 	[Fact]
 	public void GetCompletionItems_ListsMethods()

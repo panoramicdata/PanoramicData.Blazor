@@ -284,6 +284,16 @@ public partial class PDFormFieldEditorTests : BunitContext
 		editor.Instance.Form.Delta["Favourite"].Should().Be(Colour.Blue);
 	}
 
+	/// <summary>An enum field that is not a property offers no options, as its values cannot be written back.</summary>
+	[Fact]
+	public void EnumField_NotAProperty_ListsNoOptions()
+	{
+		var editor = RenderEditor(FieldFor(p => p.FavouriteField));
+
+		editor.Find("select").Should().NotBeNull();
+		editor.FindAll("select option").Should().BeEmpty();
+	}
+
 	/// <summary>A numeric field uses a number input with its limits, and a change is converted to the field's type.</summary>
 	[Fact]
 	public void NumericField_UsesANumberInput()
@@ -418,6 +428,7 @@ public partial class PDFormFieldEditorTests : BunitContext
 		RenderEditor(createOnly, FormModes.Edit).Instance.IsReadOnly(createOnly).Should().BeFalse();
 		RenderEditor(editOnly, FormModes.Edit).Instance.IsReadOnly(editOnly).Should().BeTrue();
 		RenderEditor(editOnly, FormModes.Create).Instance.IsReadOnly(editOnly).Should().BeFalse();
+		RenderEditor(createOnly, FormModes.Empty).Instance.IsReadOnly(createOnly).Should().BeFalse();
 	}
 
 	/// <summary>A field with errors on the form is given the invalid class, alongside its own CSS class.</summary>
@@ -522,6 +533,9 @@ public partial class PDFormFieldEditorTests : BunitContext
 
 		/// <summary>Gets or sets the favourite colour.</summary>
 		public Colour Favourite { get; set; } = Colour.SeaGreen;
+
+		/// <summary>A colour held in a field rather than a property.</summary>
+		internal Colour FavouriteField = Colour.Red;
 
 		/// <summary>Gets or sets a reference.</summary>
 		public Guid Reference { get; set; } = Guid.NewGuid();

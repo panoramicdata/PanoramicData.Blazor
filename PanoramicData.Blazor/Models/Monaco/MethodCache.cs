@@ -357,13 +357,9 @@ public class MethodCache
 		}
 
 		// iterate over each method, describing it by its first overload
-		foreach (var (name, overloads) in methodDict)
+		foreach (var (name, overloads) in methodDict.Where(x => x.Value.Count > 0))
 		{
-			if (overloads.FirstOrDefault() is not Method method)
-			{
-				continue;
-			}
-
+			var method = overloads[0];
 			items.Add(GetMethodCompletionItem(method, overloads.Count));
 
 			// add parameters?

@@ -5,6 +5,8 @@
 /// </summary>
 public partial class PDFileExplorer
 {
+	private string _pasteTarget = string.Empty;
+
 	private void OnTableItemsLoaded(List<FileExplorerItem> items)
 	{
 		// insert special .. folder?

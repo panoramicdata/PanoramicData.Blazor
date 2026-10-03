@@ -5,6 +5,11 @@
 /// </summary>
 public partial class PDFileExplorer
 {
+	private string _deleteDialogMessage = string.Empty;
+	private string _conflictDialogMessage = string.Empty;
+	private string[] _conflictDialogList = [];
+	private double[] _lastSplitSizes = [20, 60, 20];
+
 	private async Task OnTogglePreviewPanelAsync()
 	{
 		if (Splitter != null)

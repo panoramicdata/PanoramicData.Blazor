@@ -172,9 +172,25 @@ public partial class PDFileModal
 	private string? GetItemIconCssClassInternal(FileExplorerItem item) => GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
 
 	/// <summary>
+	/// Shows the dialog in Open mode for any file, starting at the root, and returns once the user has dismissed it.
+	/// </summary>
+	public Task ShowOpenAsync() => ShowOpenAsync(false, "", "");
+
+	/// <summary>
+	/// Shows the dialog in Open mode, for any file or for a folder, starting at the root, and returns once the user
+	/// has dismissed it.
+	/// </summary>
+	public Task ShowOpenAsync(bool folderSelect) => ShowOpenAsync(folderSelect, "", "");
+
+	/// <summary>
+	/// Shows the dialog in Open mode, starting at the root, and returns once the user has dismissed it.
+	/// </summary>
+	public Task ShowOpenAsync(bool folderSelect, string filenamePattern) => ShowOpenAsync(folderSelect, filenamePattern, "");
+
+	/// <summary>
 	/// Shows the dialog in Open mode and returns once the user has dismissed it.
 	/// </summary>
-	public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "", string initialFolder = "")
+	public async Task ShowOpenAsync(bool folderSelect, string filenamePattern, string initialFolder)
 	{
 		PrepareOpen(folderSelect, filenamePattern);
 
@@ -195,9 +211,20 @@ public partial class PDFileModal
 	}
 
 	/// <summary>
+	/// Shows the dialog in Open mode for any file and waits for the user to select one, returning the selected path.
+	/// </summary>
+	public Task<string> ShowOpenAndWaitResultAsync() => ShowOpenAndWaitResultAsync(false, "");
+
+	/// <summary>
+	/// Shows the dialog in Open mode, for any file or for a folder, and waits for the user to select one, returning
+	/// the selected path.
+	/// </summary>
+	public Task<string> ShowOpenAndWaitResultAsync(bool folderSelect) => ShowOpenAndWaitResultAsync(folderSelect, "");
+
+	/// <summary>
 	/// Shows the dialog in Open mode and waits for the user to select a file, returning the selected path.
 	/// </summary>
-	public async Task<string> ShowOpenAndWaitResultAsync(bool folderSelect = false, string filenamePattern = "")
+	public async Task<string> ShowOpenAndWaitResultAsync(bool folderSelect, string filenamePattern)
 	{
 		PrepareOpen(folderSelect, filenamePattern);
 
@@ -220,9 +247,19 @@ public partial class PDFileModal
 	public async Task RefreshFileExplorerAsync() => await FileExplorer.RefreshAllAsync().ConfigureAwait(true);
 
 	/// <summary>
+	/// Shows the dialog in Save As mode, with no initial file, and returns once the user has dismissed it.
+	/// </summary>
+	public Task ShowSaveAsAsync() => ShowSaveAsAsync("", "");
+
+	/// <summary>
+	/// Shows the dialog in Save As mode, for any file, and returns once the user has dismissed it.
+	/// </summary>
+	public Task ShowSaveAsAsync(string initialFilename) => ShowSaveAsAsync(initialFilename, "");
+
+	/// <summary>
 	/// Shows the dialog in Save As mode and returns once the user has dismissed it.
 	/// </summary>
-	public async Task ShowSaveAsAsync(string initialFilename = "", string filenamePattern = "")
+	public async Task ShowSaveAsAsync(string initialFilename, string filenamePattern)
 	{
 		PrepareSaveAs(initialFilename, filenamePattern);
 
@@ -232,9 +269,21 @@ public partial class PDFileModal
 	}
 
 	/// <summary>
+	/// Shows the dialog in Save As mode, with no initial file, and waits for the user to confirm a filename,
+	/// returning the selected path.
+	/// </summary>
+	public Task<string> ShowSaveAsAndWaitResultAsync() => ShowSaveAsAndWaitResultAsync("", "");
+
+	/// <summary>
+	/// Shows the dialog in Save As mode, for any file, and waits for the user to confirm a filename, returning the
+	/// selected path.
+	/// </summary>
+	public Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename) => ShowSaveAsAndWaitResultAsync(initialFilename, "");
+
+	/// <summary>
 	/// Shows the dialog in Save As mode and waits for the user to confirm a filename, returning the selected path.
 	/// </summary>
-	public async Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename = "", string filenamePattern = "")
+	public async Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename, string filenamePattern)
 	{
 		PrepareSaveAs(initialFilename, filenamePattern);
 

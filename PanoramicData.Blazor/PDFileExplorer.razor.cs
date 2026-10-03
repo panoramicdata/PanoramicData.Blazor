@@ -8,9 +8,6 @@ namespace PanoramicData.Blazor;
 public partial class PDFileExplorer : IAsyncDisposable
 {
 	private static int _idSequence;
-	private string _deleteDialogMessage = string.Empty;
-	private string _conflictDialogMessage = string.Empty;
-	private string[] _conflictDialogList = [];
 	private readonly SortCriteria _tableSort = new("Name", SortDirection.Ascending);
 	private readonly MenuItem _menuOpen = new() { Text = "Open", IconCssClass = "fas fa-fw fa-folder-open" };
 	private readonly MenuItem _menuDownload = new() { Text = "Download", IconCssClass = "fas fa-fw fa-file-download" };
@@ -33,7 +30,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private long _batchTotalBytesSent;
 	private readonly Dictionary<string, double> _batchFiles = [];
 	private bool _moveCopyPayload;
-	private string _pasteTarget = string.Empty;
 	private TreeNode<FileExplorerItem>? _selectedNode;
 	private PDModal? DeleteDialog { get; set; } = null!;
 	private PDModal? ConflictDialog { get; set; } = null!;
@@ -41,7 +37,6 @@ public partial class PDFileExplorer : IAsyncDisposable
 	private IJSObjectReference? _commonModule;
 	private ToolbarButton? _previewPanelButton;
 	private FileExplorerItem? _previewItem;
-	private double[] _lastSplitSizes = [20, 60, 20];
 
 	/// <summary>
 	/// Gets or sets the current folder path.
@@ -782,13 +777,8 @@ public partial class PDFileExplorer : IAsyncDisposable
 	/// </summary>
 	public FileExplorerItem? GetTreeSelectedFolder() => Tree?.SelectedNode?.Data;
 
-	private string GetCssClass(FileExplorerItem? item)
+	private string GetCssClass(FileExplorerItem item)
 	{
-		if (item is null)
-		{
-			return string.Empty;
-		}
-
 		var defaultCss = $"{(item.IsHidden ? "file-hidden" : "")} {(item.IsSystem ? "file-system" : "")} {(item.IsReadOnly ? "file-readonly" : "")}";
 		if (GetItemCssClass != null)
 		{

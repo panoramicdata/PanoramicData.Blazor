@@ -134,6 +134,42 @@ public class PDFileModalTests : BunitContext
 		_results.Should().Equal("/Docs");
 	}
 
+	/// <summary>
+	/// Verifies that in folder mode, with nothing selected, the current folder can be chosen unless CanSelectFolder
+	/// refuses it, and that a selection of several items cannot be chosen.
+	/// </summary>
+	[Theory]
+	[InlineData(false, 0, true)]
+	[InlineData(true, 0, false)]
+	[InlineData(false, 2, false)]
+	public async Task Folder_mode_enables_OK_for_the_current_folder_only_without_a_selection(bool refuseFolders, int selected, bool expectEnabled)
+	{
+		var show = SetupPendingShow();
+		var component = refuseFolders ? RenderModal(p => p.Add(x => x.CanSelectFolder, _ => false)) : RenderModal();
+		await ShowFolderOpenAsync(component, show);
+		component.WaitForAssertion(() => Row(component, "/Docs"), Patience);
+		var explorer = component.FindComponent<PDFileExplorer>();
+		var selection = Enumerable.Range(1, selected)
+			.Select(i => new FileExplorerItem { Path = $"/Folder{i}", Name = $"Folder{i}", EntryType = FileExplorerItemType.Directory })
+			.ToArray();
+
+		await explorer.InvokeAsync(() => explorer.Instance.SelectionChanged.InvokeAsync(selection));
+
+		component.WaitForAssertion(() => OkButton(component).HasAttribute("disabled").Should().Be(!expectEnabled), Patience);
+	}
+
+	/// <summary>Verifies that opening with a filename pattern shows only the files matching it.</summary>
+	[Fact]
+	public async Task Open_with_a_pattern_shows_only_matching_files()
+	{
+		var component = RenderModal();
+
+		await component.InvokeAsync(() => component.Instance.ShowOpenAsync(false, "*.md"));
+
+		component.WaitForAssertion(() => component.FindAll("tr[id='/readme.txt']").Should().BeEmpty(), Patience);
+		component.WaitForAssertion(() => Row(component, "/Docs"), Patience);
+	}
+
 	/// <summary>Verifies that CanSelectFolder can refuse a folder, keeping OK disabled.</summary>
 	[Fact]
 	public async Task CanSelectFolder_can_refuse_a_folder()
@@ -281,7 +317,7 @@ public class PDFileModalTests : BunitContext
 		var component = RenderModal();
 		await ShowOpenAsync(component);
 
-		var result = component.InvokeAsync(() => component.Instance.ShowOpenAndWaitResultAsync(folderSelect: true));
+		var result = component.InvokeAsync(() => component.Instance.ShowOpenAndWaitResultAsync(true));
 		await FooterButton(component, "Cancel").ClickAsync(new());
 
 		(await result).Should().BeEmpty();
@@ -381,7 +417,9 @@ public class PDFileModalTests : BunitContext
 
 	private static async Task ShowFolderOpenAsync(IRenderedComponent<PDFileModal> component, JSRuntimeInvocationHandler show, string initialFolder = "")
 	{
-		var opening = component.InvokeAsync(() => component.Instance.ShowOpenAsync(folderSelect: true, initialFolder: initialFolder));
+		var opening = initialFolder.Length == 0
+			? component.InvokeAsync(() => component.Instance.ShowOpenAsync(true))
+			: component.InvokeAsync(() => component.Instance.ShowOpenAsync(true, "", initialFolder));
 		show.SetVoidResult();
 		await opening;
 	}

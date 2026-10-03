@@ -287,20 +287,15 @@ public partial class PDFormMessage
 				CultureInfo.InvariantCulture,
 				$"Question {_activeIndex + 1} of {Form.Questions.Count} - or pick a tab to jump");
 
-	private string AnsweredSummary()
+	private string AnsweredSummary(ChatForm form)
 	{
-		if (Form is null)
-		{
-			return string.Empty;
-		}
+		var answered = form.Questions.Count(IsAnswered);
 
-		var answered = Form.Questions.Count(IsAnswered);
-
-		return answered == Form.Questions.Count
+		return answered == form.Questions.Count
 			? "All answered"
 			: string.Create(
 				CultureInfo.InvariantCulture,
-				$"{answered} of {Form.Questions.Count} answered - the rest will be reported as skipped");
+				$"{answered} of {form.Questions.Count} answered - the rest will be reported as skipped");
 	}
 
 	/// <summary>
