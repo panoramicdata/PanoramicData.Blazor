@@ -194,6 +194,37 @@ public class PDCardDeckGroupTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that when a second drag starts before the first has ended, only the two most recent decks count:
+	/// entering a deck then moves the newer drag's cards, not the abandoned one's.
+	/// </summary>
+	[Fact]
+	public async Task ARestartedDrag_MovesTheNewerDragsCards()
+	{
+		var group = RenderGroup("todo", "done");
+		await StartDragAsync(group, "todo", "One");
+		await StartDragAsync(group, "done", "Four");
+
+		await group.InvokeAsync(() => Deck(group, "todo").RegisterDestination());
+
+		Deck(group, "todo").Cards.Select(c => c.Name).Should().Contain("Four").And.Contain("One");
+		Deck(group, "done").Cards.Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// Verifies that a deck which is already part of the drag in progress is not registered with the group again.
+	/// </summary>
+	[Fact]
+	public async Task ADeckAlreadyInTheDrag_IsNotRegisteredAgain()
+	{
+		var group = RenderGroup("todo", "done");
+		await StartDragAsync(group, "todo", "One");
+
+		await group.InvokeAsync(() => group.Instance.RegisterDeckAsChild(Deck(group, "todo")));
+
+		group.Instance.Decks.Select(d => d.Id).Should().Equal("todo", "done");
+	}
+
+	/// <summary>
 	/// Verifies that starting a drag in one deck clears the selection held by the others.
 	/// </summary>
 	[Fact]
@@ -228,9 +259,10 @@ public class PDCardDeckGroupTests : BunitContext
 		await group.InvokeAsync(() => Deck(group, "todo").InitiateTransformAsync());
 
 		call.Should().NotBeNull();
-		call!.Value.Provider.Should().BeSameAs(_provider);
-		(call.Value.Source, call.Value.Destination).Should().Be(("todo", "todo"));
-		call.Value.Cards.Should().Equal("One");
+		var (provider, source, destination, cards) = call.GetValueOrDefault();
+		provider.Should().BeSameAs(_provider);
+		(source, destination).Should().Be(("todo", "todo"));
+		cards.Should().Equal("One");
 		group.WaitForAssertion(() => Deck(group, "todo").Cards.Select(c => c.Name).Should().Equal("Two", "Three"));
 	}
 

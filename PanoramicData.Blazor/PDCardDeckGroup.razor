@@ -4,7 +4,7 @@
 <div @attributes=@GetAttributes()>
 	@if (!AllDataLoaded())
     {
-        <PDCardDeckLoadingIcon @ref="_loadingIcon" />
+        <PDCardDeckLoadingIcon @ref="LoadingIcon" />
     }
 
     <CascadingValue Value="this">

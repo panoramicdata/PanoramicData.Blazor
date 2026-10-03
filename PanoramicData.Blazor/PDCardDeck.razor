@@ -1,7 +1,7 @@
 ﻿@inherits PDComponentBase
 @typeparam TCard
 
-<div @ref="_elementRef" @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
+<div @ref="DeckElement" @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
 
 	@if (!DataLoaded && Parent is null)
 	{
