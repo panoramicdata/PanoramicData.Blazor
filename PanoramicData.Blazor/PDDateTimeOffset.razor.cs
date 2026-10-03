@@ -10,7 +10,7 @@ public partial class PDDateTimeOffset : IDisposable
 
 	private string _dateCssClass = string.Empty;
 	private string _timeCssClass = string.Empty;
-	private System.Threading.Timer? _nowTimer;
+	private Timer? _nowTimer;
 	private bool _disposed;
 
 	/// <summary>
@@ -109,21 +109,10 @@ public partial class PDDateTimeOffset : IDisposable
 	{
 		get
 		{
-			if (!string.IsNullOrEmpty(TimeZoneId))
-			{
-				try
-				{
-					return TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
-				}
-				catch (TimeZoneNotFoundException)
-				{
-				}
-				catch (InvalidTimeZoneException)
-				{
-				}
-			}
-
-			return TimeZoneInfo.Local;
+			// An unknown or unreadable zone is not found, and falls back to the local zone
+			return !string.IsNullOrEmpty(TimeZoneId) && TimeZoneInfo.TryFindSystemTimeZoneById(TimeZoneId, out var timeZone)
+				? timeZone
+				: TimeZoneInfo.Local;
 		}
 	}
 
@@ -177,13 +166,28 @@ public partial class PDDateTimeOffset : IDisposable
 		return listed.FirstOrDefault(listedZone => ToWindowsId(listedZone.Id) == windowsId && listedZone.HasSameRules(zone))?.Id;
 	}
 
+	/// <summary>
+	/// Gets the zones offered by the named time zone selector: the listed zones, preceded by the zone in use when
+	/// that is not listed and has no listed equivalent, so that it can still be shown as selected.
+	/// </summary>
+	/// <param name="selected">The zone in use.</param>
+	/// <param name="listed">The zones offered as options.</param>
+	/// <returns>The zones to offer, and the id of the one to show as selected.</returns>
+	internal static (IReadOnlyList<TimeZoneInfo> Options, string SelectedId) GetTimeZoneOptions(TimeZoneInfo selected, IReadOnlyList<TimeZoneInfo> listed)
+	{
+		var selectedId = ResolveListedTimeZoneId(selected, listed);
+		return selectedId is null
+			? ([selected, .. listed], selected.Id)
+			: (listed, selectedId);
+	}
+
 	private static string ToWindowsId(string id)
 		=> TimeZoneInfo.TryConvertIanaIdToWindowsId(id, out var windowsId) ? windowsId : id;
 
 	private static string StripUtcPrefix(string displayName)
 	{
-		// System time zone display names look like "(UTC+01:00) Amsterdam, Berlin, ...";
-		// strip the leading "(UTC...) " so it is not shown twice alongside the numeric offset.
+		// System time zone display names start with the offset, as in "(UTC+01:00) Amsterdam, Berlin", so the
+		// leading "(UTC...) " is stripped to avoid showing the offset twice alongside the numeric one.
 		var closeIndex = displayName.IndexOf(") ", StringComparison.Ordinal);
 		return closeIndex >= 0 && closeIndex + 2 < displayName.Length
 			? displayName[(closeIndex + 2)..]
@@ -194,7 +198,7 @@ public partial class PDDateTimeOffset : IDisposable
 	{
 		var plusMinus = offset < 0 ? "-" : (offset > 0 ? "+" : " ");
 		var hours = Math.Floor(Math.Abs(offset));
-		var minutes = offset % 1 == 0 ? "00" : "30";
+		var minutes = (int)Math.Round(Math.Abs(offset) * 60) % 60 == 0 ? "00" : "30";
 		var label = $"{plusMinus}{hours:00}:{minutes}";
 		return _offsetZoneNames.TryGetValue(offset, out var displayName)
 			? $"{label}  {StripUtcPrefix(displayName)}"
@@ -210,7 +214,7 @@ public partial class PDDateTimeOffset : IDisposable
 		UpdateNowTimer();
 	}
 
-	private async Task OnBlur(FocusEventArgs args) => await Blur.InvokeAsync().ConfigureAwait(true);
+	private async Task OnBlur() => await Blur.InvokeAsync().ConfigureAwait(true);
 
 	private async Task OnNowToggledAsync(ChangeEventArgs args)
 	{
@@ -230,45 +234,29 @@ public partial class PDDateTimeOffset : IDisposable
 
 	private Task OnDateInputAsync(ChangeEventArgs args)
 	{
-		try
+		var value = args.Value?.ToString();
+		if (value != null && DateTimeOffset.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dt))
 		{
-			var value = args.Value?.ToString();
-			if (value != null && DateTimeOffset.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dt))
-			{
-				Value = BuildValue(dt.Date.Add(Value.TimeOfDay));
-				_dateCssClass = string.Empty;
-				return ValueChanged.InvokeAsync(Value);
-			}
-
-			_dateCssClass = "invalid";
-		}
-		catch
-		{
-			_dateCssClass = "invalid";
+			Value = BuildValue(dt.Date.Add(Value.TimeOfDay));
+			_dateCssClass = string.Empty;
+			return ValueChanged.InvokeAsync(Value);
 		}
 
+		_dateCssClass = "invalid";
 		return Task.CompletedTask;
 	}
 
 	private Task OnTimeInputAsync(ChangeEventArgs args)
 	{
-		try
+		var value = args.Value?.ToString();
+		if (value != null && DateTimeOffset.TryParseExact(value, "HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dt))
 		{
-			var value = args.Value?.ToString();
-			if (value != null && DateTimeOffset.TryParseExact(value, "HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dt))
-			{
-				Value = BuildValue(Value.Date.Add(dt.TimeOfDay));
-				_timeCssClass = string.Empty;
-				return ValueChanged.InvokeAsync(Value);
-			}
-
-			_timeCssClass = "invalid";
-		}
-		catch
-		{
-			_timeCssClass = "invalid";
+			Value = BuildValue(Value.Date.Add(dt.TimeOfDay));
+			_timeCssClass = string.Empty;
+			return ValueChanged.InvokeAsync(Value);
 		}
 
+		_timeCssClass = "invalid";
 		return Task.CompletedTask;
 	}
 
@@ -283,6 +271,7 @@ public partial class PDDateTimeOffset : IDisposable
 		}
 		catch
 		{
+			// Not an offset that can be applied (not a number, or out of range): keep the current one
 		}
 
 		return Task.CompletedTask;
@@ -321,7 +310,7 @@ public partial class PDDateTimeOffset : IDisposable
 		if (shouldRun && _nowTimer is null)
 		{
 			var interval = LiveUpdateIntervalMs > 0 ? LiveUpdateIntervalMs : 1000;
-			_nowTimer = new System.Threading.Timer(_ => _ = OnNowTickAsync(), null, 0, interval);
+			_nowTimer = new Timer(_ => OnNowTick(), null, 0, interval);
 		}
 		else if (!shouldRun && _nowTimer is not null)
 		{
@@ -330,8 +319,9 @@ public partial class PDDateTimeOffset : IDisposable
 		}
 	}
 
-	private async Task OnNowTickAsync()
-		=> await InvokeAsync(async () =>
+	// Each tick is marshalled onto the renderer, and the timer thread does not wait for it to finish
+	private void OnNowTick()
+		=> _ = InvokeAsync(async () =>
 		{
 			if (_disposed)
 			{
@@ -341,13 +331,15 @@ public partial class PDDateTimeOffset : IDisposable
 			Value = CurrentInstant();
 			await ValueChanged.InvokeAsync(Value).ConfigureAwait(true);
 			StateHasChanged();
-		}).ConfigureAwait(false);
+		});
 
 	/// <summary>
 	/// Releases resources used by the component.
 	/// </summary>
 	public void Dispose()
 	{
+		_nowTimer?.Dispose();
+		_nowTimer = null;
 		Dispose(true);
 		GC.SuppressFinalize(this);
 	}
@@ -357,18 +349,5 @@ public partial class PDDateTimeOffset : IDisposable
 	/// </summary>
 	/// <param name="disposing">True when called from <see cref="Dispose()"/>.</param>
 	protected virtual void Dispose(bool disposing)
-	{
-		if (_disposed)
-		{
-			return;
-		}
-
-		if (disposing)
-		{
-			_nowTimer?.Dispose();
-			_nowTimer = null;
-		}
-
-		_disposed = true;
-	}
+		=> _disposed = true;
 }

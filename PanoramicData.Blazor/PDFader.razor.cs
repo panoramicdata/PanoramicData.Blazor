@@ -35,7 +35,7 @@ public partial class PDFader : PDAudioControl
 	/// <summary>
 	/// Gets or sets the minimum value of the fader.
 	/// </summary>
-	[Parameter] public int MinValue { get; set; } = 0;
+	[Parameter] public int MinValue { get; set; }
 
 	/// <summary>
 	/// Gets or sets the maximum value of the fader.

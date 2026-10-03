@@ -41,7 +41,8 @@ public partial class PDProgressBar
 	/// <returns>The percentage value rounded to <see cref="DecimalPlaces"/>.</returns>
 	public double GetPercentage()
 	{
-		if (Total == 0)
+		// No total, so no way to divide it up
+		if (Math.Abs(Total) < double.Epsilon)
 		{
 			return 0;
 		}

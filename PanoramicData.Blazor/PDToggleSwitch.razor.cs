@@ -107,7 +107,13 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	/// <param name="room">The text width the base width already accommodates.</param>
 	private double TextWidthBeyond(double room) => Math.Max(0, _textWidth - room);
 
-	private double InnerHeight => CalculatedHeight - 2 - (BorderWidth ?? Options.BorderWidth) * 2;
+	private double InnerHeight => CalculatedHeight - 2 - EffectiveBorderWidth * 2;
+
+	private int EffectiveBorderWidth => BorderWidth ?? Options.BorderWidth;
+
+	private double CornerRadius => (Rounded ?? Options.Rounded) ? CalculatedHeight / 2 : 0;
+
+	private string StateCssClass => Value ? "on" : "off";
 
 	private string SizeCssClass => (Size ?? Options.Size) switch
 	{
@@ -141,6 +147,7 @@ public partial class PDToggleSwitch : IAsyncDisposable
 		}
 		catch
 		{
+			// BC-40 - the circuit may already be gone, in which case there is no JavaScript side left to tear down
 		}
 	}
 
@@ -150,13 +157,13 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	/// <returns>Attribute dictionary.</returns>
 	public IDictionary<string, object> GetBackgroundAttributes() => new Dictionary<string, object>
 		{
-			{ "class", $"switch {(Value ? "on" : "off")}"},
-			{ "height", CalculatedHeight - (BorderWidth ?? Options.BorderWidth)},
-			{ "width", CalculatedWidth - (BorderWidth ?? Options.BorderWidth) },
-			{ "x", (BorderWidth ?? Options.BorderWidth) / 2 },
-			{ "y", (BorderWidth ?? Options.BorderWidth) / 2 },
-			{ "rx", (Rounded ?? Options.Rounded) ? CalculatedHeight / 2 : 0 },
-			{ "ry", (Rounded ?? Options.Rounded) ? CalculatedHeight / 2 : 0 }
+			{ "class", $"switch {StateCssClass}"},
+			{ "height", CalculatedHeight - EffectiveBorderWidth},
+			{ "width", CalculatedWidth - EffectiveBorderWidth },
+			{ "x", EffectiveBorderWidth / 2 },
+			{ "y", EffectiveBorderWidth / 2 },
+			{ "rx", CornerRadius },
+			{ "ry", CornerRadius }
 		};
 
 	/// <summary>
@@ -165,9 +172,9 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	/// <returns>Attribute dictionary.</returns>
 	public IDictionary<string, object> GetTextAttributes() => new Dictionary<string, object>
 		{
-			{ "class", $"text {(Value ? "on" : "off")} {TextCssClass ?? Options.TextCssClass}".TrimEnd()},
+			{ "class", $"text {StateCssClass} {TextCssClass ?? Options.TextCssClass}".TrimEnd()},
 			{ "text-anchor",  Value ? "start" : "end" },
-			{ "x", Value ? (BorderWidth ?? Options.BorderWidth) * 3 : CalculatedWidth - (BorderWidth ?? Options.BorderWidth) * 3 },
+			{ "x", Value ? EffectiveBorderWidth * 3 : CalculatedWidth - EffectiveBorderWidth * 3 },
 			{ "y", InnerHeight / 2 + (InnerHeight / 2) + TextYOffset }
 		};
 
@@ -177,13 +184,13 @@ public partial class PDToggleSwitch : IAsyncDisposable
 	/// <returns>Attribute dictionary.</returns>
 	public IDictionary<string, object> GetToggleAttributes() => new Dictionary<string, object>
 		{
-			{ "class", $"toggle {(Value ? "on" : "off")}"},
+			{ "class", $"toggle {StateCssClass}"},
 			{ "height", InnerHeight},
-			{ "width", CalculatedHeight - (BorderWidth ?? Options.BorderWidth) - 2},
-			{ "x", Value ? CalculatedWidth - CalculatedHeight + (BorderWidth ?? Options.BorderWidth) - 1 : (BorderWidth ?? Options.BorderWidth) + 1 },
-			{ "y", (BorderWidth ?? Options.BorderWidth) + 1 },
-			{ "rx", Rounded ?? Options.Rounded ? CalculatedHeight / 2 : 0 },
-			{ "ry", Rounded ?? Options.Rounded ? CalculatedHeight / 2 : 0 }
+			{ "width", CalculatedHeight - EffectiveBorderWidth - 2},
+			{ "x", Value ? CalculatedWidth - CalculatedHeight + EffectiveBorderWidth - 1 : EffectiveBorderWidth + 1 },
+			{ "y", EffectiveBorderWidth + 1 },
+			{ "rx", CornerRadius },
+			{ "ry", CornerRadius }
 		};
 
 	/// <summary>
@@ -246,10 +253,8 @@ public partial class PDToggleSwitch : IAsyncDisposable
 					ButtonSizes.Large => "1.5rem",
 					_ => "1rem"
 				};
-				var onText = OnText ?? Options.OnText;
-				var offText = OffText ?? Options.OffText;
-				var onWidth = string.IsNullOrEmpty(onText) ? 0 : await _module.InvokeAsync<double>("measureText", onText, fontSize).ConfigureAwait(true);
-				var offWidth = string.IsNullOrEmpty(offText) ? 0 : await _module.InvokeAsync<double>("measureText", offText, fontSize).ConfigureAwait(true);
+				var onWidth = await MeasureTextAsync(_module, OnText ?? Options.OnText, fontSize).ConfigureAwait(true);
+				var offWidth = await MeasureTextAsync(_module, OffText ?? Options.OffText, fontSize).ConfigureAwait(true);
 				var newWidth = Math.Max(onWidth, offWidth);
 				if (newWidth > _textWidth)
 				{
@@ -263,4 +268,7 @@ public partial class PDToggleSwitch : IAsyncDisposable
 			// ignore object disposed exception
 		}
 	}
+
+	private static async Task<double> MeasureTextAsync(IJSObjectReference module, string? text, string fontSize)
+		=> string.IsNullOrEmpty(text) ? 0 : await module.InvokeAsync<double>("measureText", text, fontSize).ConfigureAwait(true);
 }

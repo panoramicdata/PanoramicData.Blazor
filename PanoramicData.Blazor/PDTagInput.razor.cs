@@ -14,7 +14,12 @@ public partial class PDTagInput : ComponentBase, IDisposable
 	private bool _showDropdown;
 	private bool _isInvalid;
 	private int _activeIndex = -1;
-	private ElementReference _inputRef;
+
+	/// <summary>
+	/// Gets or sets the tag text input element, set by the component markup.
+	/// </summary>
+	internal ElementReference InputRef { get; set; }
+
 	private CancellationTokenSource? _blurToken;
 	private List<string>? _suppliedValues;
 	private List<string>? _emittedValues;
@@ -144,7 +149,7 @@ public partial class PDTagInput : ComponentBase, IDisposable
 	/// <summary>
 	/// Moves focus to the tag input element.
 	/// </summary>
-	public async Task FocusAsync() => await _inputRef.FocusAsync().ConfigureAwait(true);
+	public async Task FocusAsync() => await InputRef.FocusAsync().ConfigureAwait(true);
 
 	private bool ContainsValue(string tag) => _values.Exists(v => string.Equals(v, tag, Comparison));
 
@@ -163,33 +168,10 @@ public partial class PDTagInput : ComponentBase, IDisposable
 			return false;
 		}
 
-		if (MaxTags > 0 && _values.Count >= MaxTags)
+		(tag, var rejection) = CheckTag(tag);
+		if (rejection.HasValue)
 		{
-			await RejectAsync(tag, TagRejectionReason.MaxTagsReached).ConfigureAwait(true);
-			return false;
-		}
-
-		if (MaxTagLength > 0 && tag.Length > MaxTagLength)
-		{
-			await RejectAsync(tag, TagRejectionReason.TooLong).ConfigureAwait(true);
-			return false;
-		}
-
-		// Canonicalise to the suggestion's casing when it matches one
-		var match = Suggestions?.FirstOrDefault(s => string.Equals(s, tag, Comparison));
-		if (match is not null)
-		{
-			tag = match;
-		}
-		else if (!AllowFreeText)
-		{
-			await RejectAsync(tag, TagRejectionReason.NotInSuggestions).ConfigureAwait(true);
-			return false;
-		}
-
-		if (ContainsValue(tag))
-		{
-			await RejectAsync(tag, TagRejectionReason.Duplicate).ConfigureAwait(true);
+			await RejectAsync(tag, rejection.Value).ConfigureAwait(true);
 			return false;
 		}
 
@@ -201,6 +183,41 @@ public partial class PDTagInput : ComponentBase, IDisposable
 		await TagAdded.InvokeAsync(tag).ConfigureAwait(true);
 		return true;
 	}
+
+	/// <summary>
+	/// Checks whether a tag can be added.
+	/// </summary>
+	/// <param name="tag">The trimmed, non-empty tag.</param>
+	/// <returns>The tag to add (in the matching suggestion's casing, if any), and why it cannot be added, if it cannot.</returns>
+	private (string Tag, TagRejectionReason? Rejection) CheckTag(string tag)
+	{
+		if (MaxTags > 0 && _values.Count >= MaxTags)
+		{
+			return (tag, TagRejectionReason.MaxTagsReached);
+		}
+
+		if (MaxTagLength > 0 && tag.Length > MaxTagLength)
+		{
+			return (tag, TagRejectionReason.TooLong);
+		}
+
+		// Canonicalise to the suggestion's casing when it matches one
+		var match = FindSuggestion(tag);
+		if (match is null)
+		{
+			if (!AllowFreeText)
+			{
+				return (tag, TagRejectionReason.NotInSuggestions);
+			}
+
+			match = tag;
+		}
+
+		return ContainsValue(match) ? (match, TagRejectionReason.Duplicate) : (match, null);
+	}
+
+	private string? FindSuggestion(string tag)
+		=> Suggestions?.FirstOrDefault(s => string.Equals(s, tag, Comparison));
 
 	private async Task RejectAsync(string tag, TagRejectionReason reason)
 	{
@@ -264,60 +281,80 @@ public partial class PDTagInput : ComponentBase, IDisposable
 		switch (e.Key)
 		{
 			case "Enter":
-				if (_showDropdown && _activeIndex >= 0 && _activeIndex < _filteredSuggestions.Count)
-				{
-					await TryAddTagAsync(_filteredSuggestions[_activeIndex]).ConfigureAwait(true);
-				}
-				else if (_text.Trim().Length > 0)
-				{
-					await TryAddTagAsync(_text).ConfigureAwait(true);
-				}
-
+				await OnEnterKeyAsync().ConfigureAwait(true);
 				break;
 
 			case "Backspace":
-				if (_text.Length == 0 && _values.Count > 0)
-				{
-					await RemoveTagAsync(_values[^1]).ConfigureAwait(true);
-				}
-
+				await OnBackspaceKeyAsync().ConfigureAwait(true);
 				break;
 
 			case "ArrowDown":
-				if (!_showDropdown)
-				{
-					ApplyFilter();
-					_showDropdown = _filteredSuggestions.Count > 0;
-				}
-				else if (_filteredSuggestions.Count > 0)
-				{
-					_activeIndex = (_activeIndex + 1) % _filteredSuggestions.Count;
-				}
-
+				OnArrowDownKey();
 				break;
 
 			case "ArrowUp":
-				if (_showDropdown && _filteredSuggestions.Count > 0)
-				{
-					_activeIndex = (_activeIndex - 1 + _filteredSuggestions.Count) % _filteredSuggestions.Count;
-				}
-
+				OnArrowUpKey();
 				break;
 
 			case "Escape":
 				_showDropdown = false;
 				break;
+
+			default:
+				// Any other key is ordinary typing, handled as input
+				break;
 		}
 	}
 
-	private void OnFocus(FocusEventArgs e)
+	private async Task OnEnterKeyAsync()
+	{
+		if (_showDropdown && _activeIndex >= 0 && _activeIndex < _filteredSuggestions.Count)
+		{
+			await TryAddTagAsync(_filteredSuggestions[_activeIndex]).ConfigureAwait(true);
+		}
+		else if (_text.Trim().Length > 0)
+		{
+			await TryAddTagAsync(_text).ConfigureAwait(true);
+		}
+	}
+
+	private async Task OnBackspaceKeyAsync()
+	{
+		if (_text.Length == 0 && _values.Count > 0)
+		{
+			await RemoveTagAsync(_values[^1]).ConfigureAwait(true);
+		}
+	}
+
+	private void OnArrowUpKey()
+	{
+		if (_showDropdown && _filteredSuggestions.Count > 0)
+		{
+			_activeIndex = (_activeIndex - 1 + _filteredSuggestions.Count) % _filteredSuggestions.Count;
+		}
+	}
+
+	private void OnArrowDownKey()
+	{
+		if (!_showDropdown)
+		{
+			ApplyFilter();
+			_showDropdown = _filteredSuggestions.Count > 0;
+		}
+		else if (_filteredSuggestions.Count > 0)
+		{
+			_activeIndex = (_activeIndex + 1) % _filteredSuggestions.Count;
+		}
+	}
+
+	private void OnFocus()
 	{
 		_blurToken?.Cancel();
 		ApplyFilter();
 		_showDropdown = _filteredSuggestions.Count > 0;
 	}
 
-	private async Task OnBlurAsync(FocusEventArgs e)
+	private async Task OnBlurAsync()
 	{
 		_blurToken?.Cancel();
 		_blurToken?.Dispose();

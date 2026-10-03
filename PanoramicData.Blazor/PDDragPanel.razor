@@ -8,7 +8,7 @@
 			 @key="item?.GetHashCode().ToString()"
 			 @ondragstart="(args) => OnDragStart(args, item)"
 			 @ondragenter="(args) => OnDragEnter(args, item)"
-			 @ondragend="(args) => OnDragEndAsync(args, item)"
+			 @ondragend="OnDragEndAsync"
 			 ondragover="event.preventDefault();">
 			@if (item == Container?.Payload)
 			{

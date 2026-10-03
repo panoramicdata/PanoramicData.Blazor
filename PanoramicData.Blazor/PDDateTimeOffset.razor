@@ -38,15 +38,9 @@
 					@onblur="OnBlur"
 					@onchange="OnTimeZoneInputAsync">
 				@{
-					var selectedZone = SelectedTimeZone;
-					var selectedId = ResolveListedTimeZoneId(selectedZone, TimeZones);
+					var (zoneOptions, selectedId) = GetTimeZoneOptions(SelectedTimeZone, TimeZones);
 				}
-				@if (selectedId is null)
-				{
-					@* The zone in use is not listed and has no listed equivalent, so it is offered on its own *@
-					<option value="@selectedZone.Id" selected>@selectedZone.DisplayName</option>
-				}
-				@foreach (var timeZone in TimeZones)
+				@foreach (var timeZone in zoneOptions)
 				{
 					<option value="@timeZone.Id" selected="@(timeZone.Id == selectedId)">@timeZone.DisplayName</option>
 				}

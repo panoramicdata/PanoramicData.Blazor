@@ -139,6 +139,7 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		}
 		catch
 		{
+			// BC-40 - the circuit may already be gone, in which case there is no JavaScript side left to tear down
 		}
 	}
 
@@ -238,7 +239,7 @@ public partial class PDTextArea : IAsyncDisposable, IEnablable
 		}
 	}
 
-	private async Task OnBlur(FocusEventArgs args)
+	private async Task OnBlur()
 	{
 		if (DebounceWait > 0 && _commonModule != null)
 		{

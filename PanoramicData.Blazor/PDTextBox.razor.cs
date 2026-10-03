@@ -47,11 +47,9 @@ public partial class PDTextBox : IAsyncDisposable
 	[Parameter]
 	public PDInputType Type { get; set; } = PDInputType.Text;
 
-	private string TypeString => Type switch
-	{
-		PDInputType.DateTimeLocal => "datetime-local",
-		_ => Type.ToString().ToLowerInvariant(),
-	};
+	private string TypeString => Type == PDInputType.DateTimeLocal
+		? "datetime-local"
+		: Type.ToString().ToLowerInvariant();
 
 	/// <summary>
 	/// Gets whether keypress events are raised.
@@ -213,7 +211,7 @@ public partial class PDTextBox : IAsyncDisposable
 		}
 	}
 
-	private async Task OnBlur(FocusEventArgs args) => await Blur.InvokeAsync().ConfigureAwait(true);
+	private async Task OnBlur() => await Blur.InvokeAsync().ConfigureAwait(true);
 
 	private async Task OnChange(ChangeEventArgs args)
 	{
@@ -224,7 +222,7 @@ public partial class PDTextBox : IAsyncDisposable
 		}
 	}
 
-	private async Task OnClear(MouseEventArgs _)
+	private async Task OnClear()
 	{
 		if (_commonModule != null)
 		{
@@ -266,7 +264,7 @@ public partial class PDTextBox : IAsyncDisposable
 			{
 				await _module.InvokeVoidAsync("abortListenForSpeech", _objRef).ConfigureAwait(true);
 				await Task.Delay(100).ConfigureAwait(true);
-				_activeListener = Id;
+				Volatile.Write(ref _activeListener, Id);
 				await _module.InvokeVoidAsync("startListenForSpeech", _objRef).ConfigureAwait(true);
 			}
 		}
@@ -296,7 +294,7 @@ public partial class PDTextBox : IAsyncDisposable
 	[JSInvokable]
 	public void OnListeningStopped()
 	{
-		_activeListener = string.Empty;
+		Volatile.Write(ref _activeListener, string.Empty);
 		StateHasChanged();
 	}
 
@@ -323,6 +321,7 @@ public partial class PDTextBox : IAsyncDisposable
 		}
 		catch
 		{
+			// BC-40 - the circuit may already be gone, in which case there is no JavaScript side left to tear down
 		}
 	}
 }

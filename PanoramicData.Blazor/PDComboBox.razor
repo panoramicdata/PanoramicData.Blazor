@@ -11,7 +11,7 @@
 			   @onkeydown="OnInputKeyDown"
 			   disabled="@IsDisabled"
 			   readonly="@IsReadOnly"
-			   @ref="_inputRef" />
+			   @ref="InputRef" />
         @if (!string.IsNullOrEmpty(_lastSearchText) && _lastSearchText == _searchText
                                                     && !IsReadOnly && !IsDisabled)
 		{

@@ -14,8 +14,16 @@ public partial class PDRange : IAsyncDisposable
 	private double _dragPixelOrigin;
 	private double _dragRangeOrigin;
 	private IJSObjectReference? _commonModule;
-	private ElementReference _svgRangeHandleStart;
-	private ElementReference _svgRangeHandleEnd;
+
+	/// <summary>
+	/// Gets or sets the start handle element, set by the component markup.
+	/// </summary>
+	internal ElementReference SvgRangeHandleStart { get; set; }
+
+	/// <summary>
+	/// Gets or sets the end handle element, set by the component markup.
+	/// </summary>
+	internal ElementReference SvgRangeHandleEnd { get; set; }
 
 	#region Injected
 
@@ -173,7 +181,7 @@ public partial class PDRange : IAsyncDisposable
 			_dragRangeOrigin = Range.End;
 			if (_commonModule != null)
 			{
-				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgRangeHandleEnd).ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, SvgRangeHandleEnd).ConfigureAwait(true);
 			}
 		}
 	}
@@ -228,7 +236,7 @@ public partial class PDRange : IAsyncDisposable
 			_dragRangeOrigin = Range.Start;
 			if (_commonModule != null)
 			{
-				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, _svgRangeHandleStart).ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("setPointerCapture", args.PointerId, SvgRangeHandleStart).ConfigureAwait(true);
 			}
 		}
 	}
@@ -273,7 +281,7 @@ public partial class PDRange : IAsyncDisposable
 		return Task.CompletedTask;
 	}
 
-	private void OnHandlePointerUp(PointerEventArgs args)
+	private void OnHandlePointerUp()
 	{
 		if (_isDragging)
 		{
@@ -315,17 +323,13 @@ public partial class PDRange : IAsyncDisposable
 			Range.Start = Min;
 		}
 
+		// which also keeps the end at or after the start
 		if (Range.Start > Range.End)
 		{
 			Range.Start = Range.End;
 		}
 
-		// constrain to end
-		if (Range.End < Range.Start)
-		{
-			Range.End = Range.Start;
-		}
-
+		// constrain end
 		if (Range.End > Max)
 		{
 			Range.End = Max;
@@ -363,6 +367,7 @@ public partial class PDRange : IAsyncDisposable
 		}
 		catch
 		{
+			// BC-40 - the circuit may already be gone, in which case there is no JavaScript side left to tear down
 		}
 	}
 

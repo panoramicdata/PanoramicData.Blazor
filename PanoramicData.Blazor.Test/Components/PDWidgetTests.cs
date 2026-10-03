@@ -147,6 +147,26 @@ public class PDWidgetTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that a spinner is shown while URL content is being fetched, and replaced by the content once it arrives.
+	/// </summary>
+	[Fact]
+	public void UrlContent_ShowsASpinnerWhileFetching()
+	{
+		var fetch = new TaskCompletionSource<string>();
+		var widget = RenderWidget(p => p
+			.Add(x => x.WidgetType, PDWidgetType.Url)
+			.Add(x => x.Content, "https://example.test/report")
+			.Add(x => x.FetchContent, _ => fetch.Task));
+
+		widget.WaitForAssertion(() => widget.FindAll(".pd-widget-loading .spinner-border").Should().ContainSingle());
+
+		fetch.SetResult("<em>Fetched</em>");
+
+		widget.WaitForAssertion(() => widget.Find(".pd-widget-url em").TextContent.Should().Be("Fetched"));
+		widget.FindAll(".pd-widget-loading").Should().BeEmpty();
+	}
+
+	/// <summary>
 	/// Verifies that a failed fetch, or a missing fetch delegate, is shown as an error in the widget.
 	/// </summary>
 	[Theory]

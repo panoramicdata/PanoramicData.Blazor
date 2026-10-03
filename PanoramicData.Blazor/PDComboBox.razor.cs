@@ -97,7 +97,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	/// Gets or sets whether to show the selected item at the top of the filtered list.
 	/// </summary>
 	[Parameter]
-	public bool ShowSelectedItemOnTop { get; set; } = false;
+	public bool ShowSelectedItemOnTop { get; set; }
 
 	// Internal state
 	private string _searchText = "";
@@ -106,8 +106,11 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	private bool _showDropdown;
 	private CancellationTokenSource? _blurToken;
 	private int _activeIndex = -1;
-	private bool _suppressOnInput;
-	private ElementReference _inputRef;
+
+	/// <summary>
+	/// Gets or sets the search input element, set by the component markup.
+	/// </summary>
+	internal ElementReference InputRef { get; set; }
 
 	/// <summary>
 	/// Gets or sets the CSS class for the combo box container.
@@ -147,7 +150,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	{
 		if (_jsModule is not null)
 		{
-			await _jsModule.InvokeVoidAsync("blurInput", _inputRef);
+			await _jsModule.InvokeVoidAsync("blurInput", InputRef);
 		}
 	}
 
@@ -194,11 +197,6 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 
 	private void FilterItems(ChangeEventArgs e)
 	{
-		if (_suppressOnInput)
-		{
-			return;
-		}
-
 		_searchText = e.Value?.ToString() ?? string.Empty;
 		_searchText = _searchText.Trim();
 		_lastSearchText = _searchText;
@@ -208,9 +206,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	private async Task SelectItem(TItem item)
 	{
 		SelectedItem = item;
-		_suppressOnInput = true;
 		_searchText = ItemToString(item);
-		_suppressOnInput = false;
 		_filteredItems.Clear();
 		_showDropdown = false;
 		_activeIndex = -1;
@@ -221,7 +217,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 	{
 		if (_jsModule is not null)
 		{
-			await _jsModule.InvokeVoidAsync("selectInputText", _inputRef);
+			await _jsModule.InvokeVoidAsync("selectInputText", InputRef);
 		}
 	}
 
@@ -230,7 +226,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		if (_showDropdown)
 		{
 			_showDropdown = false;
-			if (SelectedItem != null)
+			if (SelectedItem is not null)
 			{
 				_searchText = ItemToString(SelectedItem);
 			}
@@ -248,11 +244,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		await FocusInputAsync();
 	}
 
-	private async Task OnInputBlur(FocusEventArgs e)
-	{
-		await HideDropdownWithDelay();
-		await Task.CompletedTask;
-	}
+	private Task OnInputBlur() => HideDropdownWithDelay();
 
 	private async Task HideDropdownWithDelay()
 	{
@@ -271,7 +263,10 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 
 			await InvokeAsync(StateHasChanged);
 		}
-		catch (TaskCanceledException) { }
+		catch (TaskCanceledException)
+		{
+			// A later blur or a focus cancelled this hide, so the dropdown stays as it is
+		}
 	}
 
 	private async Task ClearInput()
@@ -294,64 +289,79 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 		// Always handle Escape to close the dropdown and revert to selected item
 		if (e.Key == "Escape")
 		{
-			_showDropdown = false;
-			_suppressOnInput = true;
-			_searchText = SelectedItem is not null ? ItemToString(SelectedItem) : "";
-			_suppressOnInput = false;
-			_filteredItems.Clear();
-			_activeIndex = -1;
-			StateHasChanged();
-			await BlurInputAsync();
-			return;
-		}
-
-		// If up/down is pressed and dropdown is not open, open and filter
-		if ((e.Key == "ArrowDown" || e.Key == "ArrowUp") && (!_showDropdown || _filteredItems.Count == 0))
-		{
-			FilterItems(new ChangeEventArgs { Value = _searchText });
-			_showDropdown = true;
-			_activeIndex = _filteredItems.Count > 0 ? 0 : -1;
-			StateHasChanged();
+			await CloseDropdownAndRevertAsync();
 			return;
 		}
 
 		if (!_showDropdown || _filteredItems.Count == 0)
 		{
+			// If up/down is pressed and dropdown is not open, open and filter
+			if (e.Key is "ArrowDown" or "ArrowUp")
+			{
+				OpenDropdownFromKeyboard();
+			}
+
 			return;
 		}
 
-		var shouldUpdate = false;
-
-		switch (e.Key)
-		{
-			case "ArrowDown":
-				_activeIndex = Math.Min(++_activeIndex, _filteredItems.Count - 1);
-				shouldUpdate = true;
-				break;
-			case "ArrowUp":
-				_activeIndex = Math.Max(--_activeIndex, 0);
-				shouldUpdate = true;
-				break;
-			case "Enter":
-				if (_activeIndex < 0 || _activeIndex >= _filteredItems.Count)
-				{
-					break;
-				}
-
-				await SelectItem(_filteredItems[_activeIndex]);
-				await BlurInputAsync();
-				shouldUpdate = true;
-
-				break;
-		}
-
-		if (shouldUpdate)
+		if (await HandleDropdownKeyAsync(e.Key))
 		{
 			StateHasChanged();
 		}
 	}
 
-	private async Task OnInputFocus(FocusEventArgs e)
+	private async Task CloseDropdownAndRevertAsync()
+	{
+		_showDropdown = false;
+		_searchText = SelectedItem is not null ? ItemToString(SelectedItem) : "";
+		_filteredItems.Clear();
+		_activeIndex = -1;
+		StateHasChanged();
+		await BlurInputAsync();
+	}
+
+	private void OpenDropdownFromKeyboard()
+	{
+		FilterItems(new ChangeEventArgs { Value = _searchText });
+		_showDropdown = true;
+		_activeIndex = _filteredItems.Count > 0 ? 0 : -1;
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Handles a key pressed while the dropdown is open with items in it.
+	/// </summary>
+	/// <returns><c>true</c> when the key changed the dropdown and it needs re-rendering.</returns>
+	private async Task<bool> HandleDropdownKeyAsync(string key)
+	{
+		switch (key)
+		{
+			case "ArrowDown":
+				_activeIndex = Math.Min(_activeIndex + 1, _filteredItems.Count - 1);
+				return true;
+			case "ArrowUp":
+				_activeIndex = Math.Max(_activeIndex - 1, 0);
+				return true;
+			case "Enter":
+				return await SelectActiveItemAsync();
+			default:
+				return false;
+		}
+	}
+
+	private async Task<bool> SelectActiveItemAsync()
+	{
+		if (_activeIndex < 0 || _activeIndex >= _filteredItems.Count)
+		{
+			return false;
+		}
+
+		await SelectItem(_filteredItems[_activeIndex]);
+		await BlurInputAsync();
+		return true;
+	}
+
+	private async Task OnInputFocus()
 	{
 		// Cancel any pending dropdown hide
 		_blurToken?.Cancel();
@@ -377,7 +387,7 @@ public partial class PDComboBox<TItem> : IAsyncDisposable
 
 		if (_jsModule is not null && !string.IsNullOrEmpty(_searchText))
 		{
-			await _jsModule.InvokeVoidAsync("selectInputText", _inputRef);
+			await _jsModule.InvokeVoidAsync("selectInputText", InputRef);
 		}
 	}
 

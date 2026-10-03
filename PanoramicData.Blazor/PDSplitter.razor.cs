@@ -154,6 +154,7 @@ public partial class PDSplitter : IAsyncDisposable
 		}
 		catch
 		{
+			// BC-40 - the circuit may already be gone, in which case there is no JavaScript side left to tear down
 		}
 	}
 }
