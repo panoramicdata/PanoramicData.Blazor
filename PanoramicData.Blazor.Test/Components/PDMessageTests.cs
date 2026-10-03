@@ -1,4 +1,3 @@
-using System.Globalization;
 using AwesomeAssertions;
 using Bunit;
 using PanoramicData.Blazor.Models;
@@ -9,7 +8,7 @@ namespace PanoramicData.Blazor.Test;
 /// Tests that <see cref="PDMessage"/> renders a chat message with its metadata on the configured side, as
 /// plain text or HTML, with progress while it is being composed and any inline form it carries.
 /// </summary>
-public class PDMessageTests : BunitContext
+public partial class PDMessageTests : BunitContext
 {
 	private static readonly DateTimeOffset Sent = new(2026, 9, 28, 14, 5, 6, TimeSpan.Zero);
 
@@ -34,80 +33,6 @@ public class PDMessageTests : BunitContext
 
 	private static List<string> TopLevelParts(IRenderedComponent<PDMessage> component)
 		=> [.. component.Find("div.pdchat-message").Children.Select(c => c.ClassName ?? string.Empty)];
-
-	/// <summary>
-	/// Verifies where each display mode puts the metadata for user and other senders, in the class and in
-	/// the order of the parts.
-	/// </summary>
-	[Theory]
-	[InlineData(MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft, true, true)]
-	[InlineData(MessageMetadataDisplayMode.UserOnlyOnRightOthersOnLeft, false, false)]
-	[InlineData(MessageMetadataDisplayMode.UserOnlyOnLeftOthersOnRight, true, false)]
-	[InlineData(MessageMetadataDisplayMode.UserOnlyOnLeftOthersOnRight, false, true)]
-	[InlineData(MessageMetadataDisplayMode.AlwaysOnLeft, true, false)]
-	[InlineData(MessageMetadataDisplayMode.AlwaysOnRight, false, true)]
-	[InlineData((MessageMetadataDisplayMode)99, true, true)]
-	public void DisplayMode_PlacesTheMetadata(MessageMetadataDisplayMode mode, bool fromUser, bool onRight)
-	{
-		var component = RenderMessage(Message(fromUser), p => p.Add(x => x.MessageMetadataDisplayMode, mode));
-
-		var root = component.Find("div.pdchat-message");
-		root.ClassList.Should().Contain([onRight ? "meta-on-right" : "meta-on-left", fromUser ? "user" : "bot", "full-width"]);
-		TopLevelParts(component).Should().Equal(onRight ? ["pdchat-content", "pdchat-meta"] : ["pdchat-meta", "pdchat-content"]);
-	}
-
-	/// <summary>
-	/// Verifies that the metadata shows the icon, sender name and formatted local timestamp.
-	/// </summary>
-	[Fact]
-	public void Metadata_ShowsIconNameAndTimestamp()
-	{
-		var component = RenderMessage(Message(false), p => p
-			.Add(x => x.UserIconSelector, m => m.Sender.Name == "Bot" ? "B" : null)
-			.Add(x => x.MessageTimestampFormat, "HH:mm"));
-
-		component.Find(".pdchat-icon").TextContent.Should().Be("B");
-		component.Find(".pdchat-username").TextContent.Should().Be("Bot");
-		component.Find(".pdchat-timestamp").TextContent.Should().Be(Sent.ToLocalTime().ToString("HH:mm", CultureInfo.CurrentCulture));
-	}
-
-	/// <summary>
-	/// Verifies that with every piece of metadata switched off, no metadata area is rendered in either layout.
-	/// </summary>
-	[Theory]
-	[InlineData(true, true)]
-	[InlineData(true, false)]
-	[InlineData(false, true)]
-	public void MetadataOff_RendersNoMetadataArea(bool fullWidth, bool fromUser)
-	{
-		var component = RenderMessage(Message(fromUser), p => p
-			.Add(x => x.UseFullWidthMessages, fullWidth)
-			.Add(x => x.ShowMessageUserIcon, false)
-			.Add(x => x.ShowMessageUserName, false)
-			.Add(x => x.ShowMessageTimestamp, false));
-
-		component.FindAll(".pdchat-meta, .pdchat-bubble-header").Should().BeEmpty();
-		component.Find(".pdchat-text").TextContent.Should().Contain("Hello there");
-	}
-
-	/// <summary>
-	/// Verifies that individual metadata pieces can be switched off in each layout, and the default icon is used
-	/// when no selector gives one.
-	/// </summary>
-	[Theory]
-	[InlineData(true, true)]
-	[InlineData(true, false)]
-	[InlineData(false, false)]
-	public void PartialMetadata_ShowsOnlyWhatIsSwitchedOn(bool fullWidth, bool fromUser)
-	{
-		var component = RenderMessage(Message(fromUser), p => p
-			.Add(x => x.UseFullWidthMessages, fullWidth)
-			.Add(x => x.ShowMessageUserName, false)
-			.Add(x => x.ShowMessageTimestamp, false));
-
-		component.FindAll(".pdchat-username, .pdchat-timestamp").Should().BeEmpty();
-		component.Find(".pdchat-icon").TextContent.Should().Be("\U0001F464");
-	}
 
 	/// <summary>
 	/// Verifies that a plain title and message are rendered as text in every layout, never as markup.
@@ -205,61 +130,5 @@ public class PDMessageTests : BunitContext
 
 		component.Find(".pdchat-progress .typing-ellipsis").Should().NotBeNull();
 		component.FindAll(".pdchat-progress-steps, .pdchat-thought, .pdchat-partial, .pdchat-partial-writing").Should().BeEmpty();
-	}
-
-	/// <summary>
-	/// Verifies that a message carrying a form renders it, and that dismissing and submitting it are reported
-	/// to the enclosing chat's form context.
-	/// </summary>
-	[Fact]
-	public async Task Form_IsRendered_AndItsOutcomeReachesTheContext()
-	{
-		Guid? dismissed = null;
-		ChatFormSubmission? submitted = null;
-		var message = MessageWithForm();
-		var context = new ChatFormContext
-		{
-			OnDismissed = id => { dismissed = id; return Task.CompletedTask; },
-			OnSubmitted = s => { submitted = s; return Task.CompletedTask; }
-		};
-		var component = RenderMessage(message, p => p.AddCascadingValue(context));
-		var submission = new ChatFormSubmission { FormId = message.Form!.Id, Answers = [] };
-
-		await component.InvokeAsync(() => component.FindComponent<PDFormMessage>().Instance.OnSubmitted.InvokeAsync(submission));
-		component.Find("button.pdchat-form-dismiss").Click();
-
-		submitted.Should().BeSameAs(submission);
-		dismissed.Should().Be(message.Form.Id);
-	}
-
-	/// <summary>
-	/// Verifies that outside a chat the form still renders and its outcome goes nowhere without error.
-	/// </summary>
-	[Fact]
-	public async Task Form_WithoutAContext_StillRenders()
-	{
-		var message = MessageWithForm();
-		var component = RenderMessage(message, p => p.Add(x => x.UseFullWidthMessages, false));
-
-		component.FindAll(".pdchat-form").Should().ContainSingle();
-		await component.InvokeAsync(() => component.FindComponent<PDFormMessage>().Instance.OnSubmitted.InvokeAsync(
-			new ChatFormSubmission { FormId = message.Form!.Id, Answers = [] }));
-		component.Find("button.pdchat-form-dismiss").Click();
-
-		component.FindAll(".pdchat-form").Should().ContainSingle();
-	}
-
-	private static ChatMessage MessageWithForm()
-	{
-		var message = Message(false, MessageType.Form, "A question for you");
-		message.Form = new ChatForm
-		{
-			Id = Guid.NewGuid(),
-			Questions =
-			[
-				new ChatFormQuestion { Id = "q1", Header = "Colour", Question = "Favourite colour?", Kind = ChatFormAnswerKind.Text }
-			]
-		};
-		return message;
 	}
 }
