@@ -7,9 +7,7 @@ public partial class PDTextBox : IAsyncDisposable
 {
 	private static int _seq;
 	private DotNetObjectReference<PDTextBox>? _objRef;
-	private IJSObjectReference? _module;
 	private IJSObjectReference? _commonModule;
-	private static string _activeListener = string.Empty;
 
 	/// <summary>
 	/// Gets or sets JavaScript runtime used by this component.
@@ -184,7 +182,7 @@ public partial class PDTextBox : IAsyncDisposable
 	/// <param name="firstRender">True on first render; otherwise false.</param>
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender && JSRuntime is not null)
+		if (firstRender)
 		{
 			try
 			{
@@ -197,11 +195,7 @@ public partial class PDTextBox : IAsyncDisposable
 
 				if (ShowSpeechButton)
 				{
-					_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDTextBox.razor.js").ConfigureAwait(true);
-					if (_module != null)
-					{
-						await _module.InvokeVoidAsync("initSpeech", SpeechLang).ConfigureAwait(true);
-					}
+					await InitializeSpeechAsync().ConfigureAwait(true);
 				}
 			}
 			catch
@@ -252,52 +246,6 @@ public partial class PDTextBox : IAsyncDisposable
 		await Keypress.InvokeAsync(args).ConfigureAwait(true);
 	}
 
-	private async Task OnListenForSpeech()
-	{
-		if (_module != null)
-		{
-			if (_activeListener == Id)
-			{
-				await _module.InvokeVoidAsync("abortListenForSpeech", _objRef).ConfigureAwait(true);
-			}
-			else
-			{
-				await _module.InvokeVoidAsync("abortListenForSpeech", _objRef).ConfigureAwait(true);
-				await Task.Delay(100).ConfigureAwait(true);
-				Volatile.Write(ref _activeListener, Id);
-				await _module.InvokeVoidAsync("startListenForSpeech", _objRef).ConfigureAwait(true);
-			}
-		}
-	}
-
-	/// <summary>
-	/// Receives speech recognition results from JavaScript.
-	/// </summary>
-	/// <param name="value">Recognized text.</param>
-	[JSInvokable]
-	public async Task OnSpeechResult(string value)
-	{
-		Value = value;
-		await ValueChanged.InvokeAsync(value).ConfigureAwait(true);
-		StateHasChanged();
-	}
-
-	/// <summary>
-	/// Indicates that speech recognition has started.
-	/// </summary>
-	[JSInvokable]
-	public void OnListeningStarted() => StateHasChanged();
-
-	/// <summary>
-	/// Indicates that speech recognition has stopped.
-	/// </summary>
-	[JSInvokable]
-	public void OnListeningStopped()
-	{
-		Volatile.Write(ref _activeListener, string.Empty);
-		StateHasChanged();
-	}
-
 	/// <summary>
 	/// Disposes JavaScript resources and event references used by this component.
 	/// </summary>
@@ -311,11 +259,7 @@ public partial class PDTextBox : IAsyncDisposable
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
 			}
 
-			if (_module != null)
-			{
-				await _module.InvokeVoidAsync("termSpeech").ConfigureAwait(true);
-				await _module.DisposeAsync().ConfigureAwait(true);
-			}
+			await DisposeSpeechAsync().ConfigureAwait(true);
 
 			_objRef?.Dispose();
 		}

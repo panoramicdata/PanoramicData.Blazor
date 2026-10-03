@@ -6,7 +6,6 @@ namespace PanoramicData.Blazor;
 /// <typeparam name="TItem">The type of item in the panel.</typeparam>
 public partial class PDDragPanel<TItem> where TItem : class
 {
-	private double _lastY;
 	private List<TItem> _localItems = [];
 
 	/// <summary>
@@ -63,7 +62,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 		{
 			{ "class", $"pd-dragitem {(item == Container?.Payload ? "dragging" : "")}" }
 		};
-		if (CanDrag && ((item is IDragItem dragItem && dragItem.CanDrag) || true))
+		if (CanDrag)
 		{
 			dict.Add("draggable", "true");
 			dict.Add("style", "cursor: move;");
@@ -80,45 +79,6 @@ public partial class PDDragPanel<TItem> where TItem : class
 		if (Container != null)
 		{
 			_localItems = [.. Container.Items]; // initial order
-		}
-	}
-
-	private void OnDragStart(DragEventArgs args, TItem? item)
-	{
-		if (Container != null && ((item is IDragItem dragItem && dragItem.CanDrag) || true))
-		{
-			Container.Payload = item;
-			_lastY = args.ClientY;
-		}
-	}
-
-	private void OnDragEnter(DragEventArgs args, TItem? item)
-	{
-		if (item != null && Container?.Payload != null && CanChangeOrder && Container.Payload != item)
-		{
-			// new location depends on whether dragging up or down?
-			_localItems.Remove(Container.Payload);
-			_localItems.Insert(_localItems.IndexOf(item) + (args.ClientY > _lastY ? 1 : 0), Container.Payload);
-			_lastY = args.ClientY;
-		}
-	}
-
-	private async Task OnDragEndAsync()
-	{
-		if (Container?.Payload != null)
-		{
-			// has order changed?
-			if (CanChangeOrder)
-			{
-				var originalOrder = Container.Items.ToArray();
-				if (!originalOrder.SequenceEqual([.. _localItems]))
-				{
-					await ItemOrderChanged.InvokeAsync(new DragOrderChangeArgs<TItem>(_localItems, Container.Payload));
-				}
-			}
-
-			// reset
-			Container.Payload = null;
 		}
 	}
 

@@ -134,17 +134,7 @@ public partial class PDKnob : PDAudioControl
 		var y = Center - e.OffsetY;
 		var angle = Math.Atan2(x, y) * 180 / Math.PI;
 		// Clamp to knob range
-		if (angle < StartAngle)
-		{
-			angle = StartAngle;
-		}
-
-		if (angle > EndAngle)
-		{
-			angle = EndAngle;
-		}
-
-		return angle;
+		return Math.Min(Math.Max(angle, StartAngle), EndAngle);
 	}
 
 	/// <summary>
@@ -222,30 +212,41 @@ public partial class PDKnob : PDAudioControl
 	}
 
 	/// <summary>
+	/// Gets the volume scale values to label and tick: every readable step, always including the maximum.
+	/// </summary>
+	private List<int> GetScaleValues()
+	{
+		var values = new List<int>();
+		int step = CalculateMarkingStep(MaxDisplay);
+		for (int i = 0; i <= MaxDisplay; i += step)
+		{
+			values.Add(i);
+		}
+
+		// The maximum is only missing when it is not a multiple of the step
+		if (MaxDisplay % step != 0 && MaxDisplay > 0)
+		{
+			values.Add(MaxDisplay);
+		}
+
+		return values;
+	}
+
+	/// <summary>
+	/// Gets the knob angle, in degrees, of a volume scale value.
+	/// </summary>
+	private double GetScaleAngle(int value) => StartAngle + ArcAngle * ((double)value / MaxDisplay);
+
+	/// <summary>
 	/// Labels the volume scale at a readable step, always including the maximum.
 	/// </summary>
 	private List<Mark> GetVolumeMarkings(double labelDistance)
 	{
 		var marks = new List<Mark>();
-		int step = CalculateMarkingStep(MaxDisplay);
-		for (int i = 0; i <= MaxDisplay; i += step)
+		foreach (var value in GetScaleValues())
 		{
-			double frac = (double)i / MaxDisplay;
-			double angle = StartAngle + ArcAngle * frac;
-			var (x, y) = PolarToCartesian(Center, Center, labelDistance, angle);
-			marks.Add(new Mark(x, y, i.ToString(CultureInfo.InvariantCulture)));
-		}
-
-		// Ensure the last mark (MaxVolume) is always included if not already
-		if (MaxDisplay % step != 0 && MaxDisplay > 0)
-		{
-			double frac = (double)MaxDisplay / MaxDisplay;
-			double angle = StartAngle + ArcAngle * frac;
-			var (x, y) = PolarToCartesian(Center, Center, labelDistance, angle);
-			if (!marks.Any(m => m.Label == MaxDisplay.ToString(CultureInfo.InvariantCulture)))
-			{
-				marks.Add(new Mark(x, y, MaxDisplay.ToString(CultureInfo.InvariantCulture)));
-			}
+			var (x, y) = PolarToCartesian(Center, Center, labelDistance, GetScaleAngle(value));
+			marks.Add(new Mark(x, y, value.ToString(CultureInfo.InvariantCulture)));
 		}
 
 		return marks;
@@ -260,27 +261,12 @@ public partial class PDKnob : PDAudioControl
 		var ticks = new List<Tick>();
 		if (ShowTicks && Mode == PDKnobMode.Volume)
 		{
-			int step = CalculateMarkingStep(MaxDisplay);
-			for (int i = 0; i <= MaxDisplay; i += step)
+			foreach (var value in GetScaleValues())
 			{
-				double frac = (double)i / MaxDisplay;
-				double angle = StartAngle + ArcAngle * frac;
+				var angle = GetScaleAngle(value);
 				var (x1, y1) = PolarToCartesian(Center, Center, Radius + 2, angle);
 				var (x2, y2) = PolarToCartesian(Center, Center, Radius + 6, angle);
 				ticks.Add(new Tick(x1, y1, x2, y2));
-			}
-
-			// Ensure the last tick (MaxVolume) is always included if not already
-			if (MaxDisplay % step != 0 && MaxDisplay > 0)
-			{
-				double frac = (double)MaxDisplay / MaxDisplay;
-				double angle = StartAngle + ArcAngle * frac;
-				var (x1, y1) = PolarToCartesian(Center, Center, Radius + 2, angle);
-				var (x2, y2) = PolarToCartesian(Center, Center, Radius + 6, angle);
-				if (!ticks.Any(t => Math.Abs(t.X1 - x1) < 0.01 && Math.Abs(t.Y1 - y1) < 0.01))
-				{
-					ticks.Add(new Tick(x1, y1, x2, y2));
-				}
 			}
 		}
 

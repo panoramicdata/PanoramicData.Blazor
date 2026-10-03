@@ -3,7 +3,7 @@
 /// <summary>
 /// Extension methods for <see cref="string"/> values.
 /// </summary>
-public static class StringExtensions
+public static partial class StringExtensions
 {
 	private static readonly char[] _whitespaceChars = [' ', '\t', '\r', '\n'];
 
@@ -32,51 +32,6 @@ public static class StringExtensions
 	/// <param name="comparisonList">A list of one or more comparison strings.</param>
 	/// <returns>true if the given string is contained within the given list, otherwise false.</returns>
 	public static bool In(this string value, params string[] comparisonList) => comparisonList.Contains(value);
-
-	/// <summary>
-	/// Appends the shortcut keys to the given text.
-	/// </summary>
-	/// <param name="text">The text to be appended.</param>
-	/// <param name="shortcutKey">The shortcut key combination.</param>
-	/// <returns>A new string contain the given text with the shortcut text appended.</returns>
-	public static string AppendShortcut(this string text, ShortcutKey shortcutKey)
-	{
-		if (string.IsNullOrEmpty(text) || !shortcutKey.HasValue)
-		{
-			return text;
-		}
-
-		return $"{text.Replace("&&", "")} ({shortcutKey})";
-	}
-
-	/// <summary>
-	/// Returns a markup string that highlight (underline) the shortcut key.
-	/// </summary>
-	/// <param name="text">The text containing a double ampersand (&amp;&amp;) before the character to highlight.</param>
-	/// <returns>A new MarkupString instance containing the markup text.</returns>
-	public static MarkupString GetShortcutMarkup(this string text)
-	{
-		if (string.IsNullOrEmpty(text))
-		{
-			return (MarkupString)text;
-		}
-
-		var ampIdx = text.IndexOf("&&", StringComparison.Ordinal);
-		if (ampIdx == -1)
-		{
-			return (MarkupString)text;
-		}
-
-		var sb = new StringBuilder();
-		sb.Append("<span>")
-			.Append(text[..ampIdx])
-			.Append("<u>")
-			.Append(text.AsSpan(ampIdx + 2, 1))
-			.Append("</u>")
-			.Append(text[(ampIdx + 3)..])
-			.Append("</span>");
-		return (MarkupString)sb.ToString();
-	}
 
 	/// <summary>
 	/// Returns a copy of the string with its first character converted to lower case, or the original string when it is <c>null</c>, empty, or whitespace.
@@ -137,15 +92,6 @@ public static class StringExtensions
 			return text;
 		}
 
-		var sb = new StringBuilder();
-		foreach (char ch in text)
-		{
-			if (char.IsLetter(ch) || char.IsDigit(ch))
-			{
-				sb.Append(ch);
-			}
-		}
-
-		return sb.ToString();
+		return string.Concat(text.Where(char.IsLetterOrDigit));
 	}
 }
