@@ -9,7 +9,7 @@
     <h4>Basic Wizard (Numbers)</h4>
     <p class="text-muted">Default style with numbered step circles and titles.</p>
 
-    <PDWizard OnComplete="OnBasicComplete" OnCancel="OnBasicCancel" CssClass="border rounded">
+    <PDWizard OnComplete="OnBasicComplete" OnCancel="@(() => Cancel("basic"))" CssClass="border rounded">
         <PDWizardStep Title="Welcome">
             <h6>Welcome to the wizard</h6>
             <p class="text-muted">This is step 1. Click Next to continue.</p>
@@ -32,9 +32,9 @@
         </PDWizardStep>
     </PDWizard>
 
-    @if (_basicResult != null)
+    @if (_results.TryGetValue("basic", out var basicResult))
     {
-        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_basicResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@basicResult</p>
     }
 
     <hr />
@@ -42,8 +42,8 @@
     <p class="text-muted">Use <code>StepIndicatorStyle="WizardStepIndicatorStyle.Breadcrumb"</code>.</p>
 
     <PDWizard StepIndicatorStyle="WizardStepIndicatorStyle.Breadcrumb"
-              OnComplete="OnBreadcrumbComplete"
-              OnCancel="OnBreadcrumbCancel"
+              OnComplete="@(() => Complete("breadcrumb"))"
+              OnCancel="@(() => Cancel("breadcrumb"))"
               CssClass="border rounded">
         <PDWizardStep Title="Upload">
             <p class="text-muted">Step 1 - Upload your file here.</p>
@@ -56,9 +56,9 @@
         </PDWizardStep>
     </PDWizard>
 
-    @if (_breadcrumbResult != null)
+    @if (_results.TryGetValue("breadcrumb", out var breadcrumbResult))
     {
-        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_breadcrumbResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@breadcrumbResult</p>
     }
 
     <hr />
@@ -66,8 +66,8 @@
     <p class="text-muted">Use <code>StepIndicatorStyle="WizardStepIndicatorStyle.Dots"</code> for a minimal indicator.</p>
 
     <PDWizard StepIndicatorStyle="WizardStepIndicatorStyle.Dots"
-              OnComplete="OnDotsComplete"
-              OnCancel="OnDotsCancel"
+              OnComplete="@(() => Complete("dots"))"
+              OnCancel="@(() => Cancel("dots"))"
               CssClass="border rounded">
         <PDWizardStep Title="Step One">
             <p class="text-muted">Step 1 content.</p>
@@ -80,17 +80,17 @@
         </PDWizardStep>
     </PDWizard>
 
-    @if (_dotsResult != null)
+    @if (_results.TryGetValue("dots", out var dotsResult))
     {
-        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_dotsResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@dotsResult</p>
     }
 
     <hr />
     <h4>Async Loading Step</h4>
     <p class="text-muted">Use <code>OnEnterAsync</code> on a step to show a spinner while data loads.</p>
 
-    <PDWizard OnComplete="OnAsyncComplete"
-              OnCancel="OnAsyncCancel"
+    <PDWizard OnComplete="@(() => Complete("async"))"
+              OnCancel="@(() => Cancel("async"))"
               CssClass="border rounded">
         <PDWizardStep Title="Start">
             <p class="text-muted">Click Next to trigger a simulated async load on the next step.</p>
@@ -103,9 +103,9 @@
         </PDWizardStep>
     </PDWizard>
 
-    @if (_asyncResult != null)
+    @if (_results.TryGetValue("async", out var asyncResult))
     {
-        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_asyncResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@asyncResult</p>
     }
 
     <hr />
@@ -117,8 +117,8 @@
         <label class="form-check-label" for="showOptional">Show optional step</label>
     </div>
 
-    <PDWizard OnComplete="OnConditionalComplete"
-              OnCancel="OnConditionalCancel"
+    <PDWizard OnComplete="@(() => Complete("conditional"))"
+              OnCancel="@(() => Cancel("conditional"))"
               CssClass="border rounded">
         <PDWizardStep Title="First">
             <p class="text-muted">This is always shown.</p>
@@ -131,9 +131,9 @@
         </PDWizardStep>
     </PDWizard>
 
-    @if (_conditionalResult != null)
+    @if (_results.TryGetValue("conditional", out var conditionalResult))
     {
-        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_conditionalResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@conditionalResult</p>
     }
 
     <hr />
@@ -166,9 +166,9 @@
         </ChildContent>
     </PDModal>
 
-    @if (_simpleModalResult != null)
+    @if (_results.TryGetValue("simpleModal", out var simpleModalResult))
     {
-        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_simpleModalResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@simpleModalResult</p>
     }
 
     <hr />
@@ -222,17 +222,17 @@
         </ChildContent>
     </PDModal>
 
-    @if (_modalResult != null)
+    @if (_results.TryGetValue("modal", out var modalResult))
     {
-        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_modalResult</p>
+        <p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@modalResult</p>
     }
 
 	<hr />
 	<h4>CSS Custom Properties</h4>
 	<p class="text-muted">Override <code>--pd-wizard-*</code> variables for custom theming. Available variables include <code>--pd-wizard-active-color</code>, <code>--pd-wizard-completed-color</code>, <code>--pd-wizard-pending-color</code>, <code>--pd-wizard-border-color</code>, <code>--pd-wizard-indicator-bg</code>, <code>--pd-wizard-footer-bg</code>, <code>--pd-wizard-circle-size</code>, <code>--pd-wizard-circle-font-size</code>, <code>--pd-wizard-body-min-height</code> and <code>--pd-wizard-body-max-height</code>.</p>
 
-	<PDWizard OnComplete="OnThemingComplete"
-			  OnCancel="OnThemingCancel"
+	<PDWizard OnComplete="@(() => Complete("theming"))"
+			  OnCancel="@(() => Cancel("theming"))"
 			  CssClass="border rounded"
 			  style="--pd-wizard-active-color: #6f42c1; --pd-wizard-completed-color: #fd7e14; --pd-wizard-indicator-bg: #f8f5ff; --pd-wizard-footer-bg: #f8f5ff; --pd-wizard-border-color: #d0bfff;">
 		<PDWizardStep Title="One">
@@ -246,9 +246,9 @@
 		</PDWizardStep>
 	</PDWizard>
 
-	@if (_themingResult != null)
+	@if (_results.TryGetValue("theming", out var themingResult))
 	{
-		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_themingResult</p>
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@themingResult</p>
 	}
 
 	<hr />
@@ -284,17 +284,17 @@
 		</ChildContent>
 	</PDModal>
 
-	@if (_fixedHeightResult != null)
+	@if (_results.TryGetValue("fixedHeight", out var fixedHeightResult))
 	{
-		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_fixedHeightResult</p>
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@fixedHeightResult</p>
 	}
 
 	<hr />
 	<h4>Custom Button Icons</h4>
 	<p class="text-muted">Override button icons via <code>BackIcon</code>, <code>NextIcon</code>, <code>FinishIcon</code> and <code>CancelIcon</code>. Set to <code>null</code> to suppress an icon entirely.</p>
 
-	<PDWizard OnComplete="OnIconDemoComplete"
-			  OnCancel="OnIconDemoCancel"
+	<PDWizard OnComplete="@(() => Complete("iconDemo"))"
+			  OnCancel="@(() => Cancel("iconDemo"))"
 			  CssClass="border rounded"
 			  CancelIcon="fas fa-times"
 			  BackIcon="fas fa-chevron-left"
@@ -311,9 +311,9 @@
 		</PDWizardStep>
 	</PDWizard>
 
-	@if (_iconDemoResult != null)
+	@if (_results.TryGetValue("iconDemo", out var iconDemoResult))
 	{
-		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_iconDemoResult</p>
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@iconDemoResult</p>
 	}
 
 	<hr />
@@ -323,8 +323,8 @@
 		This is useful for secondary actions like "Save as Draft" that should be available on any step without replacing the whole footer.
 	</p>
 
-	<PDWizard OnComplete="OnExtraButtonComplete"
-			  OnCancel="OnExtraButtonCancel"
+	<PDWizard OnComplete="@(() => Complete("extraButton"))"
+			  OnCancel="@(() => Cancel("extraButton"))"
 			  CssClass="border rounded">
 		<ExtraButton>
 			<button class="btn btn-secondary btn-sm ms-2"
@@ -349,9 +349,9 @@
 	{
 		<p class="mt-1 text-info small"><i class="fas fa-save me-1"></i>@_extraButtonSaveResult</p>
 	}
-	@if (_extraButtonResult != null)
+	@if (_results.TryGetValue("extraButton", out var extraButtonResult))
 	{
-		<p class="mt-1 text-success small"><i class="fas fa-check me-1"></i>@_extraButtonResult</p>
+		<p class="mt-1 text-success small"><i class="fas fa-check me-1"></i>@extraButtonResult</p>
 	}
 
 	<hr />
@@ -361,8 +361,8 @@
 		Both templates receive the active <code>PDWizardStep</code> as context and update automatically as you navigate.
 	</p>
 
-	<PDWizard OnComplete="OnTitleDemoComplete"
-			  OnCancel="OnTitleDemoCancel"
+	<PDWizard OnComplete="@(() => Complete("titleDemo"))"
+			  OnCancel="@(() => Cancel("titleDemo"))"
 			  CssClass="border rounded"
 			  ShowIndicator="false">
 		<TitleTemplate Context="step">
@@ -386,9 +386,9 @@
 		</ChildContent>
 	</PDWizard>
 
-	@if (_titleDemoResult != null)
+	@if (_results.TryGetValue("titleDemo", out var titleDemoResult))
 	{
-		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_titleDemoResult</p>
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@titleDemoResult</p>
 	}
 
 
@@ -400,8 +400,8 @@
 		Navigate through the wizard to see different icons appear in the indicator as each step completes.
 	</p>
 
-	<PDWizard OnComplete="OnCustomIconComplete"
-			  OnCancel="OnCustomIconCancel"
+	<PDWizard OnComplete="@(() => Complete("customIcon"))"
+			  OnCancel="@(() => Cancel("customIcon"))"
 			  CssClass="border rounded"
 			  CompletedStepIcon="fas fa-check-circle">
 		<PDWizardStep Title="Upload" Icon="fas fa-upload">
@@ -418,9 +418,9 @@
 		</PDWizardStep>
 	</PDWizard>
 
-	@if (_customIconResult != null)
+	@if (_results.TryGetValue("customIcon", out var customIconResult))
 	{
-		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@_customIconResult</p>
+		<p class="mt-2 text-success small"><i class="fas fa-check me-1"></i>@customIconResult</p>
 	}
 
 	</ChildContent>
