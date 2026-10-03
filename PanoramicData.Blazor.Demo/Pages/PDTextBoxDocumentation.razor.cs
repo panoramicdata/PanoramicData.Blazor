@@ -2,7 +2,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDTextBoxDocumentation
 {
-	private string _text = "";
+	protected string Text { get; set; } = "";
 
 	private const string _example1Code = """
 		<PDTextBox @bind-Value="_text" 

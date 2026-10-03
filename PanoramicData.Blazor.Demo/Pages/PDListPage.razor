@@ -61,7 +61,7 @@
 			<EditForm Model="this" class="toolbar">
 				<div class="">
 					<label class="form-check-label">Enabled</label>
-					<InputCheckbox @bind-Value="_isEnabled" />
+					<InputCheckbox @bind-Value="IsEnabled" />
 				</div>
 			</EditForm>
 		</div>
@@ -77,7 +77,7 @@
 						ShowAllCheckBox="true"
 						ShowCheckBoxes="true"
 						ShowFilter="true"
-						IsEnabled="_isEnabled"
+						IsEnabled="IsEnabled"
 						ItemKeyFunction="c => c.Id"
 						SortDirection="SortDirection.Ascending"
 						SortExpression="_sortExpression"
@@ -97,7 +97,7 @@
 		<span class="text-muted small">Example of how to create a drop down list, with width and height set by CSS and has a default selection</span>
 
 		<div class="list5">
-			<PDDropDown @ref="_dropdown"
+			<PDDropDown @ref="Dropdown"
 						CssClass="btn-primary"
 						Text="Cars...">
 				<PDList Apply="OnDropDownApplyAsync"

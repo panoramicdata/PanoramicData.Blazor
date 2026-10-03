@@ -5,14 +5,10 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDFormPage5
 {
-	private PDForm<DatabaseQueryModel>? _queryForm;
+	protected PDForm<DatabaseQueryModel>? QueryForm { get; set; }
 	private readonly DelegatedDataProviderService<DatabaseQueryModel> _dataProvider = new()
 	{
-		UpdateAsync = (model, delta, cancellationToken) =>
-		{
-			return Task.FromResult(new OperationResponse { Success = true });
-
-		}
+		UpdateAsync = (_, _, _) => Task.FromResult(new OperationResponse { Success = true })
 	};
 	private readonly DatabaseQueryModel _model = new()
 	{
@@ -40,20 +36,20 @@ public partial class PDFormPage5
 
 	private async Task OnBeginEditAsync()
 	{
-		if (_queryForm != null)
+		if (QueryForm != null)
 		{
-			await _queryForm.EditItemAsync(_model, FormModes.Edit, false);
+			await QueryForm.EditItemAsync(_model, FormModes.Edit, false);
 		}
 	}
 
 	private async Task OnFieldUpdatedAsync(FieldUpdateArgs<DatabaseQueryModel> args)
 	{
-		if (_queryForm != null && args.Field.Name == "EmailAddress")
+		if (QueryForm != null && args.Field.Name == "EmailAddress")
 		{
-			var field = _queryForm.Fields.FirstOrDefault(x => x.GetName() == "SqlQuery");
+			var field = QueryForm.Fields.FirstOrDefault(x => x.GetName() == "SqlQuery");
 			if (field != null)
 			{
-				await _queryForm.SetFieldValueAsync(field, $"SELECT *\r\n  FROM [Customers]\r\n WHERE [EmailAddress] = '{args.NewValue}'");
+				await QueryForm.SetFieldValueAsync(field, $"SELECT *\r\n  FROM [Customers]\r\n WHERE [EmailAddress] = '{args.NewValue}'");
 			}
 		}
 	}
@@ -61,14 +57,14 @@ public partial class PDFormPage5
 
 	private async Task OnFooterClick(string key)
 	{
-		if (_queryForm != null)
+		if (QueryForm != null)
 		{
 			if (key == "No")
 			{
 				return;
 			}
 
-			await _queryForm.EditItemAsync(null, FormModes.ReadOnly).ConfigureAwait(true);
+			await QueryForm.EditItemAsync(null, FormModes.ReadOnly).ConfigureAwait(true);
 		}
 	}
 }

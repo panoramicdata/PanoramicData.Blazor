@@ -8,7 +8,7 @@
 
 <div>
 		<p>Example 1: Display the basic confirm dialog using the Message and Title attributes</p>
-		<PDConfirm @ref="_confirmModal1"
+		<PDConfirm @ref="ConfirmModal1"
 				   Message="Are you sure you want to proceed?"
 				   Title="Do Some Action" />
 		<p>
@@ -24,7 +24,7 @@
 
 	<div>
 		<p>Example 2: Display the confirm dialog showing custom content and allowing manual cancellation of the CancellationToken</p>
-		<PDConfirm @ref="_confirmModal2"
+		<PDConfirm @ref="ConfirmModal2"
 				   Title="Do Some Action 2">
 			<p>Are you sure you want to proceed?</p>
 			<p>Click the button below to manually signal the CancellationToken used in the async ShowAndWaitResultAsync call</p>
@@ -49,7 +49,7 @@
 
 	<div>
 		<p>Example 3: Display the confirm dialog and pass in title and message options - this allows one element reference to be easily re-used</p>
-		<PDConfirm @ref="_confirmModal3" />
+		<PDConfirm @ref="ConfirmModal3" />
 		<p>
 			<PDButton Text="Do Some Action 3"
 					  CssClass="btn-primary"
@@ -67,7 +67,7 @@
 	<hr />
 	<div>
 		<p>Example 4: Display the Cancel button and alter the text all buttons</p>
-		<PDConfirm @ref="_confirmModal4"
+		<PDConfirm @ref="ConfirmModal4"
 				   CancelText="Cancel Operation"
 				   Message="Are you sure you want to proceed?"
 				   NoText="No thanks"

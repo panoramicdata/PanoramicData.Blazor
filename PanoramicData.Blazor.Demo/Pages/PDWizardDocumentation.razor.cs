@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDWizardDocumentation
+public partial class PDWizardDocumentation : ComponentBase
 {
 	private const string _example1Code = """
 		<PDWizard CssClass="border rounded">

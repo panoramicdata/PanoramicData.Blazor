@@ -2,9 +2,9 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDAudioButtonDemo
 {
-	private double _buttonValue1 = 0;
-	private double _buttonValue2 = 0;
-	private double _buttonValue3 = 0;
+	private double _buttonValue1;
+	private double _buttonValue2;
+	private double _buttonValue3;
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 

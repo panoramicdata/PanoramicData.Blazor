@@ -39,7 +39,7 @@
 						 Click="ShowFileSaveAsModal" />
 	</PDToolbar>
 
-	<PDFileModal @ref="_fileModal"
+	<PDFileModal @ref="FileModal"
 				 CloseOnEscape="false"
 				 DataProvider="_dataProvider"
 				 GetItemIconCssClass="GetIconCssClass"
@@ -71,7 +71,7 @@
 						 Click="ShowCustomSaveAsAndWait" />
 	</PDToolbar>
 
-	<PDFileModal @ref="_customButtonModal"
+	<PDFileModal @ref="CustomButtonModal"
 				 DataProvider="_dataProvider"
 				 OpenButtonText="Pick this file"
 				 OpenButtonIconCssClass="fas fa-fw fa-check"
@@ -95,7 +95,7 @@
 						 Click="ShowExcludedPathsOpenAndWait" />
 	</PDToolbar>
 
-	<PDFileModal @ref="_excludedPathsModal"
+	<PDFileModal @ref="ExcludedPathsModal"
 				 DataProvider="_dataProvider"
 				 ExcludedPaths="@(new[] { "/Library", "/Temp" })"
 				 OpenTitle="Pick a file (restricted)" />
@@ -116,7 +116,7 @@
 						 Click="ShowReadOnlyOpenAndWait" />
 	</PDToolbar>
 
-	<PDFileModal @ref="_readOnlyModal"
+	<PDFileModal @ref="ReadOnlyModal"
 				 DataProvider="_readOnlyDataProvider"
 				 ReadOnlyIconClass="fas fa-fw fa-lock"
 				 ReadOnlyIndicatorPosition="ReadOnlyIndicatorPosition.Before"
@@ -138,7 +138,7 @@
 						 Click="ShowLargeOpenAndWait" />
 	</PDToolbar>
 
-	<PDFileModal @ref="_largeModal"
+	<PDFileModal @ref="LargeModal"
 				 DataProvider="_dataProvider"
 				 Size="ModalSizes.ExtraLarge"
 				 Height="600px"

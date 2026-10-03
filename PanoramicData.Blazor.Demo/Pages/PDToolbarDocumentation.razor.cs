@@ -2,7 +2,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDToolbarDocumentation
 {
-	private string _searchText = "";
+	protected string SearchText { get; set; } = "";
 
 	private const string _example1Code = """
 		<PDToolbar>

@@ -1,11 +1,12 @@
-﻿namespace PanoramicData.Blazor.Demo.Data;
+﻿using System.Security.Cryptography;
+
+namespace PanoramicData.Blazor.Demo.Data;
 
 public class PersonDataProvider : DataProviderBase<Person>
 {
 	private static readonly string _loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce at leo eu risus faucibus facilisis quis in tortor. Phasellus gravida libero sit amet ullamcorper rhoncus. Ut at viverra lectus. Vestibulum mi eros, egestas vel nulla at, lacinia ornare mauris. Morbi a pulvinar lacus. Praesent ut convallis magna. Etiam est sem, feugiat a leo in, viverra scelerisque lectus. Vivamus dictum luctus eros non ultrices. Curabitur enim enim, porta eu lorem ut, varius venenatis sem.";
 	private static readonly string[] _firstNames = ["Alice", "Bob", "Carol", "David", "Eve", "Frank", "Grace", "Heidi", "Ivan", "Judy", "Mike"];
 	private static readonly string[] _lastNames = ["Smith", "Cooper", "Watkins", "Jenkins", "Van Holden", "Williams", "Jones", "Smithson", "Carter", "Miller", "Baker"];
-	private static readonly Random _random = new(System.Environment.TickCount);
 	private static readonly List<Person> _people = [];
 	public static readonly string[] Locations = ["Paris", "Rome", "Milan", "New York", "Peckham", "Sydney"];
 
@@ -28,40 +29,45 @@ public class PersonDataProvider : DataProviderBase<Person>
 		{
 			foreach (var id in Enumerable.Range(1, count))
 			{
-				var boss1 = new Person
-				{
-					FirstName = "Peter",
-					LastName = "Simmons"
-				};
-				var boss2 = new Person
-				{
-					FirstName = "Lucy",
-					LastName = "Waterman"
-				};
-				var person = new Person
-				{
-					Id = id,
-					AllowLogin = _random.Next(0, 2) == 1,
-					DateCreated = DateTimeOffset.Now.AddDays(_random.Next(-365, 0)),
-					DateModified = _random.Next(10) < 3 ? null : DateTimeOffset.Now.AddDays(_random.Next(-30, 0)),
-					Department = (Departments)_random.Next(0, 4),
-					FirstName = _random.Next(10) < 2 ? null : _firstNames[_random.Next(_firstNames.Length)],
-					LastName = _lastNames[_random.Next(_lastNames.Length)],
-					Location = _random.Next(Locations.Length),
-					Dob = DateTime.Today.AddYears(-_random.Next(20, 50)),
-					Comments = _loremIpsum[.._random.Next(0, _loremIpsum.Length)],
-					Password = "Password",
-					IsFirstAider = _random.Next(0, 4) switch { 0 => true, 1 => false, _ => null },
-					Dependents = _random.Next(0, 2) switch { 0 => (int?)null, _ => _random.Next(1, 4) },
-				};
-				var managers = new List<Person?>() { boss1, boss2, null };
-				person.Manager = managers[_random.Next(0, 3)]!;
-				person.Email = _random.Next(10) < 2
-					? string.Empty
-					: $"{person.FirstName?.ToLowerInvariant() ?? _firstNames[_random.Next(_firstNames.Length)].ToLowerInvariant()}.{person.LastName.ToLowerInvariant()}@acme.com";
-				_people.Add(person);
+				_people.Add(CreateRandomPerson(id));
 			}
 		}
+	}
+
+	private static Person CreateRandomPerson(int id)
+	{
+		var boss1 = new Person
+		{
+			FirstName = "Peter",
+			LastName = "Simmons"
+		};
+		var boss2 = new Person
+		{
+			FirstName = "Lucy",
+			LastName = "Waterman"
+		};
+		var person = new Person
+		{
+			Id = id,
+			AllowLogin = RandomNumberGenerator.GetInt32(0, 2) == 1,
+			DateCreated = DateTimeOffset.Now.AddDays(RandomNumberGenerator.GetInt32(-365, 0)),
+			DateModified = RandomNumberGenerator.GetInt32(10) < 3 ? null : DateTimeOffset.Now.AddDays(RandomNumberGenerator.GetInt32(-30, 0)),
+			Department = (Departments)RandomNumberGenerator.GetInt32(0, 4),
+			FirstName = RandomNumberGenerator.GetInt32(10) < 2 ? null : _firstNames[RandomNumberGenerator.GetInt32(_firstNames.Length)],
+			LastName = _lastNames[RandomNumberGenerator.GetInt32(_lastNames.Length)],
+			Location = RandomNumberGenerator.GetInt32(Locations.Length),
+			Dob = DateTime.Today.AddYears(-RandomNumberGenerator.GetInt32(20, 50)),
+			Comments = _loremIpsum[..RandomNumberGenerator.GetInt32(0, _loremIpsum.Length)],
+			Password = "Password",
+			IsFirstAider = RandomNumberGenerator.GetInt32(0, 4) switch { 0 => true, 1 => false, _ => null },
+			Dependents = RandomNumberGenerator.GetInt32(0, 2) == 0 ? null : RandomNumberGenerator.GetInt32(1, 4),
+		};
+		List<Person?> managers = [boss1, boss2, null];
+		person.Manager = managers[RandomNumberGenerator.GetInt32(0, 3)]!;
+		person.Email = RandomNumberGenerator.GetInt32(10) < 2
+			? string.Empty
+			: $"{person.FirstName?.ToLowerInvariant() ?? _firstNames[RandomNumberGenerator.GetInt32(_firstNames.Length)].ToLowerInvariant()}.{person.LastName.ToLowerInvariant()}@acme.com";
+		return person;
 	}
 
 	public bool SlowSearch { get; set; }
@@ -73,89 +79,83 @@ public class PersonDataProvider : DataProviderBase<Person>
 
 		if (SlowSearch)
 		{
-			try
-			{
-				if (AddDelay)
-				{
-					await Task.Delay(10_000, cancellationToken).ConfigureAwait(false);
-				}
-			}
-			catch (TaskCanceledException)
-			{
-				// Nothing to do...
-			}
+			await SimulateSlowSearchAsync(cancellationToken).ConfigureAwait(false);
 		}
 
 		await Task.Run(() =>
 		{
-			var query = _people.AsQueryable();
-
 			// apply search criteria and get a total count of matching items
-			if (!string.IsNullOrWhiteSpace(request.SearchText))
-			{
-				var filters = Filter.ParseMany(request.SearchText, KeyPropertyMappings).ToArray();
-				if (filters.Length == 0)
-				{
-					// basic filtering
-					query = query.Where(x => (x.FirstName != null && x.FirstName.Contains(request.SearchText)) || x.LastName.Contains(request.SearchText));
-				}
-				else
-				{
-					// column filtering
-					// example: 'last:Smith*' -> will search LastName property for values starting with Smith
-					// note: As derived from DataProviderBase all columns
-					// have their Id mapped to the Field name so we need to prevent user
-					// from being able to type a search term that will query the Password field
-					query = ApplyFilters(query, filters, "password");
-				}
-			}
+			var query = ApplySearch(_people.AsQueryable(), request.SearchText);
 
 			total = query.Count();
 
-			// apply sort
-			if (request.SortFieldExpression != null)
-			{
-				if (request.SortDirection != null && request.SortDirection == SortDirection.Descending)
-				{
-					query = query.OrderByDescending(request.SortFieldExpression);
-				}
-				else
-				{
-					query = query.OrderBy(request.SortFieldExpression);
-				}
-			}
-
-			// apply paging
-			if (request.Skip.HasValue)
-			{
-				query = query.Skip(request.Skip.Value);
-			}
-
-			if (request.Take.HasValue)
-			{
-				query = query.Take(request.Take.Value);
-			}
-
-			// realize query
-			items = [.. query];
+			// apply sort and paging, then realize query
+			items = [.. ApplySortAndPaging(query, request)];
 
 		}, cancellationToken).ConfigureAwait(false);
 		return new DataResponse<Person>(items, total);
 	}
 
-	//public override async Task<string[]> GetDistinctValuesAsync(DataRequest<Person> request, Expression<Func<Person, object>> field)
-	//{
-	//	var values = new List<string>();
-	//	var c = field.Compile();
-	//	await Task.Run(() =>
-	//	{
+	private async Task SimulateSlowSearchAsync(CancellationToken cancellationToken)
+	{
+		try
+		{
+			if (AddDelay)
+			{
+				await Task.Delay(10_000, cancellationToken).ConfigureAwait(false);
+			}
+		}
+		catch (TaskCanceledException)
+		{
+			// Nothing to do...
+		}
+	}
 
-	//		var values = _people.AsQueryable().Select(x => c.Invoke(x).ToString()).Distinct().Take(take).ToArray();
-	//		values.AddRange(values);
+	private IQueryable<Person> ApplySearch(IQueryable<Person> query, string? searchText)
+	{
+		if (string.IsNullOrWhiteSpace(searchText))
+		{
+			return query;
+		}
 
-	//	}).ConfigureAwait(true);
-	//	return values.ToArray();
-	//}
+		var filters = Filter.ParseMany(searchText, KeyPropertyMappings).ToArray();
+		if (filters.Length == 0)
+		{
+			// basic filtering
+			return query.Where(x => (x.FirstName != null && x.FirstName.Contains(searchText)) || x.LastName.Contains(searchText));
+		}
+
+		// column filtering
+		// example: 'last:Smith*' -> will search LastName property for values starting with Smith
+		// note: As derived from DataProviderBase all columns
+		// have their Id mapped to the Field name so we need to prevent user
+		// from being able to type a search term that will query the Password field
+		return ApplyFilters(query, filters, "password");
+	}
+
+	private static IQueryable<Person> ApplySortAndPaging(IQueryable<Person> query, DataRequest<Person> request)
+	{
+		// apply sort
+		if (request.SortFieldExpression != null)
+		{
+			query = request.SortDirection == SortDirection.Descending
+				? query.OrderByDescending(request.SortFieldExpression)
+				: query.OrderBy(request.SortFieldExpression);
+		}
+
+		// apply paging
+		if (request.Skip.HasValue)
+		{
+			query = query.Skip(request.Skip.Value);
+		}
+
+		if (request.Take.HasValue)
+		{
+			query = query.Take(request.Take.Value);
+		}
+
+		return query;
+	}
 
 	/// <summary>
 	/// Requests that the item is deleted.

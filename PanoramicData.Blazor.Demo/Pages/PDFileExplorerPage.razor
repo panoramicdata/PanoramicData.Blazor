@@ -17,16 +17,16 @@
 		<strong>Position:</strong>
 		<div class="form-check form-check-inline ms-3">
 			<input class="form-check-input" type="radio" name="indicatorPosition" id="positionAfter" 
-				   checked="@(_indicatorPosition == ReadOnlyIndicatorPosition.After)" 
-				   @onchange="@(() => _indicatorPosition = ReadOnlyIndicatorPosition.After)" />
+				   checked="@(IndicatorPosition == ReadOnlyIndicatorPosition.After)" 
+				   @onchange="@(() => IndicatorPosition = ReadOnlyIndicatorPosition.After)" />
 			<label class="form-check-label" for="positionAfter">
 				After filename (e.g., "file.txt 🔒")
 			</label>
 		</div>
 		<div class="form-check form-check-inline">
 			<input class="form-check-input" type="radio" name="indicatorPosition" id="positionBefore" 
-				   checked="@(_indicatorPosition == ReadOnlyIndicatorPosition.Before)" 
-				   @onchange="@(() => _indicatorPosition = ReadOnlyIndicatorPosition.Before)" />
+				   checked="@(IndicatorPosition == ReadOnlyIndicatorPosition.Before)" 
+				   @onchange="@(() => IndicatorPosition = ReadOnlyIndicatorPosition.Before)" />
 			<label class="form-check-label" for="positionBefore">
 				Before filename (e.g., "🔒 file.txt")
 			</label>
@@ -73,8 +73,8 @@
 		<strong>Badge Overlay (on file icon):</strong>
 		<div class="form-check form-check-inline ms-3">
 			<input class="form-check-input" type="checkbox" id="showBadge" 
-				   checked="@_showBadge" 
-				   @onchange="@(() => { _showBadge = !_showBadge; })" />
+				   checked="@ShowBadge" 
+				   @onchange="@(() => { ShowBadge = !ShowBadge; })" />
 			<label class="form-check-label" for="showBadge">
 				Show badge <i class="fa fa-solid fa-ban text-danger"></i> overlay on file icon
 			</label>
@@ -98,14 +98,14 @@
 							DataProvider=" _dataProvider"
 							DownloadUrlFunc="GetDownloadUrl"
 							FolderChanged="OnFolderChanged"
-							GetItemCssClass="GetCssClass"
+							GetItemCssClass="_ => string.Empty"
 							GetItemBadgeCssClass="GetBadgeIconCssClassToggleable"
 							GetItemIconCssClass="GetIconCssClass"
 							UpdateTableContextState="OnUpdateTableContextMenuState"
 							UpdateToolbarState="OnUpdateToolbarState"
 							ReadOnlyPostfix="@_readOnlyPostfix"
 							ReadOnlyIconClass="@_readOnlyIconClass"
-							ReadOnlyIndicatorPosition="@_indicatorPosition"
+							ReadOnlyIndicatorPosition="@IndicatorPosition"
 							PreviewPanel="FilePreviewModes.OptionalOn"
 							PreviewProvider="_previewProvider"
 							Ready="OnReady"

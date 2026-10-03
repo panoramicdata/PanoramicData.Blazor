@@ -16,7 +16,7 @@
 				AllowDropInBetween="true"
 				DataProvider="_treeDataProvider"
 				Drop="OnDrop"
-				IconCssClass="GetIconCssClass"
+				IconCssClass="(item, _) => GetIconCssClass(item)"
 				KeyField="x => x.Id"
 				ParentKeyField="x => x.ParentId"
 				Ready="OnReady"

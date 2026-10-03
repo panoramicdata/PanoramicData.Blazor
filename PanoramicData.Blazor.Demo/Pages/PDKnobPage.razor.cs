@@ -4,16 +4,16 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDKnobPage
 {
-	private double _volumeValue = 0.5;
-	private double _balanceValue = 0.5;
-	private double _gainValue = 0.5;
-	private double _snapValue = 0.5;
-	private int _maxVolume = 11;
+	protected double VolumeValue { get; set; } = 0.5;
+	protected double BalanceValue { get; set; } = 0.5;
+	protected double GainValue { get; set; } = 0.5;
+	protected double SnapValue { get; set; } = 0.5;
+	protected int MaxVolume { get; set; } = 11;
 	private readonly double _snapIncrement = 0.1;
-	private string _knobColor = "#eee";
-	private string _activeColor = "#2196f3";
-	private string _knobLabel = "Volume";
-	private PDLabelPosition _labelPosition = PDLabelPosition.Below;
+	protected string KnobColor { get; set; } = "#eee";
+	protected string ActiveColor { get; set; } = "#2196f3";
+	protected string KnobLabel { get; set; } = "Volume";
+	protected PDLabelPosition LabelPosition { get; set; } = PDLabelPosition.Below;
 	private readonly int _labelHeightPx = 20;
-	private string _labelCssClass = "";
+	protected string LabelCssClass { get; set; } = "";
 }

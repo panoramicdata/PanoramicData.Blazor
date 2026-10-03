@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDSplitterDocumentation
+public partial class PDSplitterDocumentation : ComponentBase
 {
 	private const string _example1Code = """
 		<PDSplitter>

@@ -3,7 +3,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDTreePage4
 {
-	private PDTree<TreeItem>? Tree { get; set; }
+	protected PDTree<TreeItem>? Tree { get; set; }
 	private readonly IDataProviderService<TreeItem> _treeDataProvider;
 
 	[CascadingParameter]
@@ -13,79 +13,32 @@ public partial class PDTreePage4
 	{
 		_treeDataProvider = new DelegatedDataProviderService<TreeItem>
 		{
-			GetDataAsync = (DataRequest, cancellationToken) =>
+			GetDataAsync = (_, _) =>
 			{
-				var items = new List<TreeItem>
-				{
-					new ()
-					{
-						Id = 1,
-						Name = "Search Engines",
-						IconCssClass = "fas fa-fw fa-search me-1",
-						IsGroup = true
-					},
-					new ()
-					{
-						Id = 101,
-						Name = "Bing",
-						ParentId = 1,
-						IconCssClass="fas fa-fw fa-external-link-alt me-1",
-
-					},
-					new ()
-					{
-						Id = 102,
-						Name = "DuckDuckGo",
-						ParentId = 1,
-						IconCssClass="fas fa-fw fa-external-link-alt me-1"
-					},
-					new ()
-					{
-						Id = 103,
-						Name = "Google",
-						ParentId = 1,
-						IconCssClass="fas fa-fw fa-external-link-alt me-1"
-					},
-					new ()
-					{
-						Id = 104,
-						Name = "Presearch",
-						ParentId = 1,
-						IconCssClass="fas fa-fw fa-external-link-alt me-1"
-					},
-					new ()
-					{
-						Id = 2,
-						Name = "Weather",
-						IconCssClass = "fas fa-fw fa-cloud-sun-rain me-1",
-						IsGroup = true
-					},
-					new ()
-					{
-						Id = 201,
-						Name = "BBC Weather",
-						ParentId = 2,
-						IconCssClass="fas fa-fw fa-external-link-square-alt me-1"
-					},
-					new ()
-					{
-						Id = 202,
-						Name = "MetOffice",
-						ParentId = 2,
-						IconCssClass="fas fa-fw fa-external-link-square-alt me-1"
-					},
-					new ()
-					{
-						Id = 203,
-						Name = "Weather.com",
-						ParentId = 2,
-						IconCssClass="fas fa-fw fa-external-link-square-alt me-1"
-					}
-				};
+				var items = CreateItems();
 				return Task.FromResult(new DataResponse<TreeItem>(items, items.Count));
 			}
 		};
 	}
+
+	private static List<TreeItem> CreateItems() =>
+	[
+		Group(1, "Search Engines", "fas fa-fw fa-search me-1"),
+		Link(101, "Bing", 1, "fas fa-fw fa-external-link-alt me-1"),
+		Link(102, "DuckDuckGo", 1, "fas fa-fw fa-external-link-alt me-1"),
+		Link(103, "Google", 1, "fas fa-fw fa-external-link-alt me-1"),
+		Link(104, "Presearch", 1, "fas fa-fw fa-external-link-alt me-1"),
+		Group(2, "Weather", "fas fa-fw fa-cloud-sun-rain me-1"),
+		Link(201, "BBC Weather", 2, "fas fa-fw fa-external-link-square-alt me-1"),
+		Link(202, "MetOffice", 2, "fas fa-fw fa-external-link-square-alt me-1"),
+		Link(203, "Weather.com", 2, "fas fa-fw fa-external-link-square-alt me-1")
+	];
+
+	private static TreeItem Group(int id, string name, string iconCssClass)
+		=> new() { Id = id, Name = name, IconCssClass = iconCssClass, IsGroup = true };
+
+	private static TreeItem Link(int id, string name, int parentId, string iconCssClass)
+		=> new() { Id = id, Name = name, ParentId = parentId, IconCssClass = iconCssClass };
 
 	private void OnReady() => Tree?.ExpandAll();
 }

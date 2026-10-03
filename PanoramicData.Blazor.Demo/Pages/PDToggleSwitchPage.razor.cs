@@ -2,7 +2,7 @@
 
 public partial class PDToggleSwitchPage
 {
-	private bool _toggle1;
+	protected bool Toggle1 { get; set; }
 
 	private readonly PDToggleSwitchOptions _options1 = new()
 	{

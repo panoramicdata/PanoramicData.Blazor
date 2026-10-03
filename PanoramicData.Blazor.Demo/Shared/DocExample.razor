@@ -16,10 +16,10 @@
 						<i class="@(_copied ? "fas fa-check" : "fas fa-copy")"></i>
 					</button>
 				</div>
-				<StandaloneCodeEditor @ref="_editor"
+				<StandaloneCodeEditor @ref="Editor"
 									  Id="@($"doc-example-{AnchorId}")"
 									  CssClass="doc-example-editor"
-									  ConstructionOptions="EditorConstructionOptions" />
+									  ConstructionOptions="_ => EditorConstructionOptions()" />
 			</div>
 		</div>
 

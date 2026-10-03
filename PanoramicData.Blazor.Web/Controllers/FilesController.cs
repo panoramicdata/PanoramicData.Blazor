@@ -29,7 +29,7 @@ public class FilesController : Controller
 			return GetResourceStream("PanoramicData.Blazor.Demo.TestText.txt");
 		}
 
-		if (Path.GetExtension(path) == ".url" || Path.GetExtension(path) == ".url")
+		if (Path.GetExtension(path) == ".url")
 		{
 			return GetResourceStream("PanoramicData.Blazor.Demo.TestWeb.url");
 		}

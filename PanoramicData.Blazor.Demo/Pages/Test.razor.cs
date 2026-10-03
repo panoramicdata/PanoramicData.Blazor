@@ -14,12 +14,12 @@ public partial class Test : IAsyncDisposable
 			GC.SuppressFinalize(this);
 			if (_module != null)
 			{
-				//await _module.InvokeVoidAsync("hideMenu", Id).ConfigureAwait(true);
 				await _module.DisposeAsync().ConfigureAwait(true);
 			}
 		}
-		catch
+		catch (JSDisconnectedException)
 		{
+			// The circuit has gone, so the browser has already released the module.
 		}
 	}
 

@@ -4,7 +4,7 @@ public partial class PDTreePage2
 {
 	private readonly IDataProviderService<FileExplorerItem> _dataProviderOnDemand = new TestFileSystemDataProvider();
 
-	private static string GetNodeIconCssClass(FileExplorerItem _, int level)
+	private static string GetNodeIconCssClass(int level)
 	{
 		var levelText = (level) switch
 		{

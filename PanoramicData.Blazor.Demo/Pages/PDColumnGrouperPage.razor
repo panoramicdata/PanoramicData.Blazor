@@ -32,23 +32,23 @@
 		<div class="d-flex align-items-center gap-3 mb-2">
 			<div>
 				<label class="form-label mb-0 me-1">Variant:</label>
-				<select class="form-select form-select-sm d-inline-block w-auto" @bind="_variant">
+				<select class="form-select form-select-sm d-inline-block w-auto" @bind="Variant">
 					<option value="@PDColumnGroupVariant.Segmented">Segmented</option>
 					<option value="@PDColumnGroupVariant.Pills">Pills</option>
 				</select>
 			</div>
-			<PDToggleSwitch @bind-Value="_showCounts" Label="Show counts" />
+			<PDToggleSwitch @bind-Value="ShowCounts" Label="Show counts" />
 			<span class="text-muted small">Last name and First name are ungrouped, so they stay pinned across every facet.</span>
 		</div>
 
 		<div class="d-flex justify-content-center mb-2">
 			<PDColumnGrouper TItem="Person"
-							 Table="_table"
-							 Variant="_variant"
-							 ShowCounts="_showCounts" />
+							 Table="Table"
+							 Variant="Variant"
+							 ShowCounts="ShowCounts" />
 		</div>
 
-		<PDTable @ref="_table"
+		<PDTable @ref="Table"
 				 TItem="Person"
 				 DataProvider="_personDataProvider"
 				 Id="ColumnGrouperTable"
@@ -72,13 +72,13 @@
 
 		<div class="d-flex justify-content-center mb-2">
 			<PDColumnGrouper TItem="Person"
-							 Table="_brandedTable"
+							 Table="BrandedTable"
 							 Variant="PDColumnGroupVariant.Pills"
 							 ShowCounts="true"
 							 CssClass="pdcg-branded" />
 		</div>
 
-		<PDTable @ref="_brandedTable"
+		<PDTable @ref="BrandedTable"
 				 TItem="Person"
 				 DataProvider="_brandedDataProvider"
 				 Id="ColumnGrouperBrandedTable"

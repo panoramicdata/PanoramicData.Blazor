@@ -11,11 +11,11 @@
 <p>Dropdown 1 : Example showing normal and programmatic behaviour</p>
 
 	<PDToolbar>
-		<PDToolbarButton Click="@(() => _dropdown.HideAsync())" Text="Hide" />
-		<PDToolbarButton Click="@(() => _dropdown.ShowAsync())" Text="Show" />
+		<PDToolbarButton Click="@(() => Dropdown.HideAsync())" Text="Hide" />
+		<PDToolbarButton Click="@(() => Dropdown.ShowAsync())" Text="Show" />
 	</PDToolbar>
 
-	<PDDropDown @ref="_dropdown"
+	<PDDropDown @ref="Dropdown"
 				DropDownHidden="@(() => OnLogEvent("Dropdown 1 Hidden"))"
 				DropDownShown="@(() => OnLogEvent("Dropdown 1 Shown"))"
 				Text="Click Me">

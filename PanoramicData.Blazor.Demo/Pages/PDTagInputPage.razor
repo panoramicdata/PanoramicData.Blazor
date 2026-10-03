@@ -14,10 +14,10 @@
 		Commit a tag with <kbd>Enter</kbd> or <kbd>,</kbd> - remove with the chip button or <kbd>Backspace</kbd> on an empty input.
 	</p>
 
-	<PDTagInput @bind-Values="_basicTags" Placeholder="Type a tag and press Enter..." />
+	<PDTagInput @bind-Values="BasicTags" Placeholder="Type a tag and press Enter..." />
 
 	<p class="small text-muted mt-2">
-		Bound values: @(_basicTags.Count == 0 ? "(none)" : string.Join(", ", _basicTags))
+		Bound values: @(BasicTags.Count == 0 ? "(none)" : string.Join(", ", BasicTags))
 	</p>
 
 	<hr />
@@ -28,7 +28,7 @@
 		(try typing <code>production</code>).
 	</p>
 
-	<PDTagInput @bind-Values="_suggestionTags"
+	<PDTagInput @bind-Values="SuggestionTags"
 				Suggestions="_scheduleSuggestions"
 				Placeholder="Production, Development, Test..."
 				TagAdded="@(tag => OnLogEvent($"TagAdded: {tag}"))"
@@ -41,7 +41,7 @@
 		Anything else fires <code>TagRejected</code> with reason <code>NotInSuggestions</code>.
 	</p>
 
-	<PDTagInput @bind-Values="_restrictedTags"
+	<PDTagInput @bind-Values="RestrictedTags"
 				Suggestions="_scheduleSuggestions"
 				AllowFreeText="false"
 				Placeholder="Suggestions only..."
@@ -54,7 +54,7 @@
 		Violations fire <code>TagRejected</code> and briefly outline the control in red.
 	</p>
 
-	<PDTagInput @bind-Values="_limitedTags"
+	<PDTagInput @bind-Values="LimitedTags"
 				MaxTags="5"
 				MaxTagLength="10"
 				Placeholder="Max 5 tags, 10 chars each..."
@@ -83,7 +83,7 @@
 		Use <code>TagTemplate</code> to customise chip content. The remove button is rendered automatically.
 	</p>
 
-	<PDTagInput @bind-Values="_templateTags" Suggestions="_scheduleSuggestions">
+	<PDTagInput @bind-Values="TemplateTags" Suggestions="_scheduleSuggestions">
 		<TagTemplate Context="tag">
 			<i class="fas fa-tag me-1"></i><span>@tag.ToUpperInvariant()</span>
 		</TagTemplate>
@@ -96,7 +96,7 @@
 		Bootstrap variables by default so light/dark mode just works. Override them inline or in CSS.
 	</p>
 
-	<PDTagInput @bind-Values="_themedTags"
+	<PDTagInput @bind-Values="ThemedTags"
 				Suggestions="_scheduleSuggestions"
 				Placeholder="Pill-shaped, custom colours..."
 				style="--pd-taginput-tag-bg: var(--bs-success-bg-subtle);
@@ -116,16 +116,16 @@
 		<PDWizardStep Title="Name">
 			<div class="mb-2">
 				<label class="form-label">Name</label>
-				<input class="form-control form-control-sm" @bind="_wizardName" placeholder="Enter a name" />
+				<input class="form-control form-control-sm" @bind="WizardName" placeholder="Enter a name" />
 			</div>
 			<div class="mb-2">
 				<label class="form-label">Tags</label>
-				<PDTagInput @bind-Values="_wizardTags" Suggestions="_scheduleSuggestions" />
+				<PDTagInput @bind-Values="WizardTags" Suggestions="_scheduleSuggestions" />
 			</div>
 		</PDWizardStep>
 		<PDWizardStep Title="Review">
-			<p>Name: <strong>@_wizardName</strong></p>
-			<p>Tags: <strong>@(_wizardTags.Count == 0 ? "(none)" : string.Join(", ", _wizardTags))</strong></p>
+			<p>Name: <strong>@WizardName</strong></p>
+			<p>Tags: <strong>@(WizardTags.Count == 0 ? "(none)" : string.Join(", ", WizardTags))</strong></p>
 		</PDWizardStep>
 	</PDWizard>
 

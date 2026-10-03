@@ -12,16 +12,16 @@
 
 <div class="row">
 	<div class="col-md-2">
-		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Left" FaderColor="@_faderColor" Label="Left" SnapPoints="@(_snap ? 21 : 0)" />
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Left" FaderColor="@FaderColor" Label="Left" SnapPoints="@(Snap ? 21 : 0)" />
 	</div>
 	<div class="col-md-2">
-		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Right" FaderColor="@_faderColor" Label="Right" SnapPoints="@(_snap ? 21 : 0)" />
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Right" FaderColor="@FaderColor" Label="Right" SnapPoints="@(Snap ? 21 : 0)" />
 	</div>
 	<div class="col-md-2">
-		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Both" FaderColor="@_faderColor" Label="Both" SnapPoints="@(_snap ? 21 : 0)" />
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.Both" FaderColor="@FaderColor" Label="Both" SnapPoints="@(Snap ? 21 : 0)" />
 	</div>
 	<div class="col-md-2">
-		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.None" FaderColor="@_faderColor" Label="None" SnapPoints="@(_snap ? 21 : 0)" />
+		<PDFader @bind-Value="_faderValue" MinValue="-10" MaxValue="10" FaderLabelPosition="PDFaderLabelPosition.None" FaderColor="@FaderColor" Label="None" SnapPoints="@(Snap ? 21 : 0)" />
 	</div>
 </div>
 <div class="row mt-3">
@@ -32,7 +32,7 @@
 						Mode="PDKnobMode.Gain"
 						MinLabel="-10"
 						MaxLabel="+10"
-						SnapPoints="@(_snap ? 21 : 0)" />
+						SnapPoints="@(Snap ? 21 : 0)" />
 			</div>
 			<div class="flex-grow-1">
 				<div class="mb-2">
@@ -55,11 +55,11 @@
 <div class="row mt-3">
 	<div class="col-md-4">
 		<label>Fader Color</label>
-		<PDColorPicker @bind-Value="_faderColor" CssClass="btn-outline-secondary" />
+		<PDColorPicker @bind-Value="FaderColor" CssClass="btn-outline-secondary" />
 	</div>
 	<div class="col-md-4">
 		<label class="d-block">Snap</label>
-		<PDToggleSwitch @bind-Value="_snap" />
+		<PDToggleSwitch @bind-Value="Snap" />
 	</div>
 </div>
 <div class="row mt-3">

@@ -6,7 +6,7 @@ public partial class PDVoiceListenerPage : IDisposable
 
 	[Inject] public IListenerService ListenerService { get; set; } = null!;
 
-	private PDVoiceListener? ListenerComponent { get; set; }
+	protected PDVoiceListener? ListenerComponent { get; set; }
 
 	private IReadOnlyList<ListenerInput> Transcript => _transcript;
 
@@ -32,9 +32,17 @@ public partial class PDVoiceListenerPage : IDisposable
 
 	private static TimeSpan KeywordSilenceTimeout => TimeSpan.FromSeconds(3);
 
+	private readonly EventHandler<ListenerInput> _inputReceivedHandler;
+
+	public PDVoiceListenerPage()
+	{
+		// the event sender is not needed, only the input received
+		_inputReceivedHandler = (_, e) => OnInputReceived(e);
+	}
+
 	protected override void OnInitialized()
 	{
-		ListenerService.InputReceived += ListenerService_InputReceived;
+		ListenerService.InputReceived += _inputReceivedHandler;
 		ListenerService.StatusChanged += ListenerService_StatusChanged;
 	}
 
@@ -54,7 +62,7 @@ public partial class PDVoiceListenerPage : IDisposable
 		}
 	}
 
-	private void ListenerService_InputReceived(object? sender, ListenerInput e)
+	private void OnInputReceived(ListenerInput e)
 	{
 		_transcript.Insert(0, e);
 		if (_transcript.Count > 50)
@@ -73,7 +81,7 @@ public partial class PDVoiceListenerPage : IDisposable
 
 	public void Dispose()
 	{
-		ListenerService.InputReceived -= ListenerService_InputReceived;
+		ListenerService.InputReceived -= _inputReceivedHandler;
 		ListenerService.StatusChanged -= ListenerService_StatusChanged;
 		GC.SuppressFinalize(this);
 	}

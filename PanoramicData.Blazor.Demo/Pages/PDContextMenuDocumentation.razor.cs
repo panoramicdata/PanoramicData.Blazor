@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDContextMenuDocumentation
+public partial class PDContextMenuDocumentation : ComponentBase
 {
 	private const string _example1Code = """
 		<PDContextMenu Items="_menuItems" 

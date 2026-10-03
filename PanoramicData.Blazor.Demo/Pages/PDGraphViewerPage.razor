@@ -21,28 +21,28 @@
 						<div class="d-flex flex-wrap gap-3">
 							<div class="toolbar-group">
 								<div class="form-check">
-									<InputCheckbox @bind-Value="_showInfo" class="form-check-input" id="showInfoPanel" />
+									<InputCheckbox @bind-Value="ShowInfo" class="form-check-input" id="showInfoPanel" />
 									<label class="form-check-label" for="showInfoPanel">Show Info Panel</label>
 								</div>
 							</div>
 
 							<div class="toolbar-group">
 								<div class="form-check">
-									<InputCheckbox @bind-Value="_showControls" class="form-check-input" id="showControls" />
+									<InputCheckbox @bind-Value="ShowControls" class="form-check-input" id="showControls" />
 									<label class="form-check-label" for="showControls">Show Controls</label>
 								</div>
 							</div>
 
 							<div class="toolbar-group">
 								<div class="form-check">
-									<InputCheckbox @bind-Value="_readOnlyControls" class="form-check-input" id="readOnlyControls" />
+									<InputCheckbox @bind-Value="ReadOnlyControls" class="form-check-input" id="readOnlyControls" />
 									<label class="form-check-label" for="readOnlyControls">Read-only Controls</label>
 								</div>
 							</div>
 
 							<div class="toolbar-group">
 								<label class="form-label">Split Direction</label>
-								<select class="form-select form-select-sm" @bind="_splitDirection">
+								<select class="form-select form-select-sm" @bind="SplitDirection">
 									<option value="@SplitDirection.Horizontal">Horizontal</option>
 									<option value="@SplitDirection.Vertical">Vertical</option>
 								</select>
@@ -90,13 +90,13 @@
 		</div>
 
 		<div class="graph-container">
-			<PDGraphViewer @ref="_graphViewer"
+			<PDGraphViewer @ref="GraphViewer"
 						   TItem="GraphDataItem"
 						   DataProvider="_dataProvider"
-						   SplitDirection="_splitDirection"
-						   ShowInfo="_showInfo"
-						   ShowControls="_showControls"
-						   ReadOnlyControls="_readOnlyControls"
+						   SplitDirection="SplitDirection"
+						   ShowInfo="ShowInfo"
+						   ShowControls="ShowControls"
+						   ReadOnlyControls="ReadOnlyControls"
 						   VisualizationConfig="_visualizationConfig"
 						   ClusteringConfig="_clusteringConfig"
 						   ConvergenceThreshold="_convergenceThreshold"

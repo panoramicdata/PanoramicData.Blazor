@@ -15,10 +15,10 @@ public partial class PDFileExplorerPage
 	private ReadOnlyMode _readOnlyMode = ReadOnlyMode.IconLock;
 	private string _readOnlyPostfix = "(ro)";
 	private string? _readOnlyIconClass = "fa fa-solid fa-lock text-warning";
-	private bool _showBadge = true;
-	private ReadOnlyIndicatorPosition _indicatorPosition = ReadOnlyIndicatorPosition.Before;
+	protected bool ShowBadge { get; set; } = true;
+	protected ReadOnlyIndicatorPosition IndicatorPosition { get; set; } = ReadOnlyIndicatorPosition.Before;
 
-	private PDFileExplorer? FileExplorer { get; set; }
+	protected PDFileExplorer? FileExplorer { get; set; }
 
 	/// <summary>
 	/// Injected javascript interop object.
@@ -35,33 +35,22 @@ public partial class PDFileExplorerPage
 	private void SetReadOnlyMode(ReadOnlyMode mode)
 	{
 		_readOnlyMode = mode;
-		switch (mode)
+		_readOnlyPostfix = "(ro)";
+		_readOnlyIconClass = mode switch
 		{
-			case ReadOnlyMode.Text:
-				_readOnlyPostfix = "(ro)";
-				_readOnlyIconClass = null;
-				break;
-			case ReadOnlyMode.IconLock:
-				_readOnlyPostfix = "(ro)";
-				_readOnlyIconClass = "fa fa-solid fa-lock text-warning";
-				break;
-			case ReadOnlyMode.IconEye:
-				_readOnlyPostfix = "(ro)";
-				_readOnlyIconClass = "fa fa-solid fa-eye";
-				break;
-			case ReadOnlyMode.IconBan:
-				_readOnlyPostfix = "(ro)";
-				_readOnlyIconClass = "fa fa-solid fa-ban text-danger";
-				break;
-		}
+			ReadOnlyMode.IconLock => "fa fa-solid fa-lock text-warning",
+			ReadOnlyMode.IconEye => "fa fa-solid fa-eye",
+			ReadOnlyMode.IconBan => "fa fa-solid fa-ban text-danger",
+			_ => null
+		};
 	}
 
 	private string GetDownloadUrl(FileExplorerItem item)
 	{
 		if (item.EntryType == FileExplorerItemType.File)
 		{
-			// in real world scenarios  you would calculate the download url as <mime>:<filename>:<url>
-			//return $"application/octet-stream:{item.Name}:" + NavigationManager.ToAbsoluteUri($"/files/Download?path={item.Path}").ToString();
+			// in real world scenarios you would calculate the download url as <mime>:<filename>:<url>
+			// using the real mime type and file name of the item.
 
 			// in this demo the content is either a webm or markdown reference file
 			if (Path.GetExtension(item.Path) == ".md")
@@ -89,7 +78,7 @@ public partial class PDFileExplorerPage
 	{
 		if (firstRender && FileExplorer != null)
 		{
-			_previewProvider = new DemoPreviewProvider() { FileExplorer = FileExplorer };
+			_previewProvider = new DemoPreviewProvider { FileExplorer = FileExplorer };
 		}
 	}
 
@@ -106,10 +95,9 @@ public partial class PDFileExplorerPage
 
 	public async Task OnTableDownloadRequest(TableSelectionEventArgs<FileExplorerItem> args)
 	{
-		// Method A: this method works up to file sizes of 125MB - limit imposed by System.Text.Json (04/08/20)
-		//var bytes = System.IO.File.ReadAllBytes("Download/TestVideo.webm");
-		//var base64 = System.Convert.ToBase64String(bytes);
-		//await JSRuntime.InvokeVoidAsync("downloadFile", $"{System.IO.Path.GetFileNameWithoutExtension(args.Item.Name)}.webm", base64).ConfigureAwait(true);
+		// Method A (not used): read the file bytes, convert them to base64 and pass them to the
+		// 'downloadFile' javascript function - this works up to file sizes of 125MB, a limit
+		// imposed by System.Text.Json (04/08/20)
 
 		// Method B: to avoid size limit and conversion to base64 - use javascript to get from controller method
 
@@ -257,10 +245,9 @@ public partial class PDFileExplorerPage
 
 	private IconInfo? GetBadgeIconCssClassToggleable(FileExplorerItem item)
 	{
-		return _showBadge ? GetBadgeIconCssClass(item) : null;
+		return ShowBadge ? GetBadgeIconCssClass(item) : null;
 	}
 
-	private static string GetCssClass(FileExplorerItem _) => string.Empty;
 
 	private static string GetIconCssClass(FileExplorerItem item)
 	{

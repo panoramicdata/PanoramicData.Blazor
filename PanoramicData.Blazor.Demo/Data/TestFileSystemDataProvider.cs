@@ -1,33 +1,53 @@
-﻿namespace PanoramicData.Blazor.Demo.Data;
+﻿using System.Security.Cryptography;
+
+namespace PanoramicData.Blazor.Demo.Data;
 
 public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 {
-	private readonly Random _random = new(System.Environment.TickCount);
-	private readonly DirectoryEntry _root = new(
+	private readonly DirectoryEntry _root = CreateRoot();
 
-		new DirectoryEntry("Library", true, false, false,
+	private static DirectoryEntry CreateRoot()
+	{
+		var root = new DirectoryEntry(
+			CreateLibrary(),
+			CreateUsers(),
+			CreateCDrive(),
+			CreateDDrive(),
+			CreateSharepoint());
+		root.Alias = "/";
+		return root;
+	}
+
+	private static DirectoryEntry CreateLibrary()
+		=> new("Library", true, false, false,
 			new DirectoryEntry("Templates", true, false, false,
 				new DirectoryEntry("web_template.html", FileExplorerItemType.File, 13000, true, false, false),
 				new DirectoryEntry("excel_template.xlsx", FileExplorerItemType.File, 7500, true, false, false),
 				new DirectoryEntry("word_template.docx", FileExplorerItemType.File, 10000, true, false, false)
 			)
-		),
-		new DirectoryEntry("Users", true, false, false,
-			new DirectoryEntry("1", false, false, false,
-				new DirectoryEntry("summary.xlsx", FileExplorerItemType.File, 5012, false),
-				new DirectoryEntry("instruction.docx", FileExplorerItemType.File, 4320, false),
-				new DirectoryEntry("example.md", FileExplorerItemType.File, 2647, false),
-				new DirectoryEntry("lorem_ipsum.txt", FileExplorerItemType.File, 1424, false),
-				new DirectoryEntry("simple_example.html", FileExplorerItemType.File, 21155, false),
-				new DirectoryEntry("web_shortcut.url", FileExplorerItemType.File, 55, false)
-			)
-			{ Alias = "Alice" },
-			new DirectoryEntry("2", false, false, false,
-				new DirectoryEntry("notes.docx", FileExplorerItemType.File, 2000, false)
-			)
-			{ Alias = "Bob" }
-		),
-		new DirectoryEntry("CDrive",
+		);
+
+	private static DirectoryEntry CreateUsers()
+	{
+		var alice = new DirectoryEntry("1", false, false, false,
+			new DirectoryEntry("summary.xlsx", FileExplorerItemType.File, 5012, false),
+			new DirectoryEntry("instruction.docx", FileExplorerItemType.File, 4320, false),
+			new DirectoryEntry("example.md", FileExplorerItemType.File, 2647, false),
+			new DirectoryEntry("lorem_ipsum.txt", FileExplorerItemType.File, 1424, false),
+			new DirectoryEntry("simple_example.html", FileExplorerItemType.File, 21155, false),
+			new DirectoryEntry("web_shortcut.url", FileExplorerItemType.File, 55, false)
+		);
+		alice.Alias = "Alice";
+		var bob = new DirectoryEntry("2", false, false, false,
+			new DirectoryEntry("notes.docx", FileExplorerItemType.File, 2000, false)
+		);
+		bob.Alias = "Bob";
+		return new DirectoryEntry("Users", true, false, false, alice, bob);
+	}
+
+	private static DirectoryEntry CreateCDrive()
+	{
+		var cDrive = new DirectoryEntry("CDrive",
 			new DirectoryEntry("ProgramData",
 				new DirectoryEntry("Acme",
 					new DirectoryEntry("UserGuide.pdf", FileExplorerItemType.File, 10304500),
@@ -36,19 +56,31 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				new DirectoryEntry("stats.txt", FileExplorerItemType.File, 60766)
 			),
 			new DirectoryEntry("Temp",
-				new DirectoryEntry("1gigabyte.tmp", FileExplorerItemType.File, 1096000000) { IsHidden = false },
-				new DirectoryEntry("1kilobyte.tmp", FileExplorerItemType.File, 1024) { IsHidden = false },
-				new DirectoryEntry("2kilobytes.tmp", FileExplorerItemType.File, 2048) { IsHidden = false },
-				new DirectoryEntry("4bytes.tmp", FileExplorerItemType.File, 4) { IsHidden = false },
-				new DirectoryEntry("empty.tmp", FileExplorerItemType.File, 0) { IsHidden = false }
+				VisibleFile("1gigabyte.tmp", 1096000000),
+				VisibleFile("1kilobyte.tmp", 1024),
+				VisibleFile("2kilobytes.tmp", 2048),
+				VisibleFile("4bytes.tmp", 4),
+				VisibleFile("empty.tmp", 0)
 			),
 			new DirectoryEntry("Cache",
 				new DirectoryEntry("document.docx", FileExplorerItemType.File, 4096),
 				new DirectoryEntry("spreadsheet.xlsx", FileExplorerItemType.File, 2048)
 			)
-		)
-		{ CanCopyMove = false },
-		new DirectoryEntry("DDrive",
+		);
+		cDrive.CanCopyMove = false;
+		return cDrive;
+	}
+
+	private static DirectoryEntry VisibleFile(string name, int size)
+	{
+		var file = new DirectoryEntry(name, FileExplorerItemType.File, size);
+		file.IsHidden = false;
+		return file;
+	}
+
+	private static DirectoryEntry CreateDDrive()
+	{
+		var dDrive = new DirectoryEntry("DDrive",
 			new DirectoryEntry("Logs",
 				new DirectoryEntry("20200502_agent.log", FileExplorerItemType.File, 600700),
 				new DirectoryEntry("20200430_agent.log", FileExplorerItemType.File, 156654000),
@@ -65,49 +97,21 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 				new DirectoryEntry("WeeklyStats.json", FileExplorerItemType.File, 23500),
 				new DirectoryEntry("MonthlyStats.json", FileExplorerItemType.File, 104999)
 			),
-			new DirectoryEntry("Folders",
-				new DirectoryEntry("Folder01"),
-				new DirectoryEntry("Folder02"),
-				new DirectoryEntry("Folder03"),
-				new DirectoryEntry("Folder04"),
-				new DirectoryEntry("Folder05"),
-				new DirectoryEntry("Folder06"),
-				new DirectoryEntry("Folder07"),
-				new DirectoryEntry("Folder08"),
-				new DirectoryEntry("Folder09"),
-				new DirectoryEntry("Folder10"),
-				new DirectoryEntry("Folder11"),
-				new DirectoryEntry("Folder12"),
-				new DirectoryEntry("Folder13"),
-				new DirectoryEntry("Folder14"),
-				new DirectoryEntry("Folder15"),
-				new DirectoryEntry("Folder16"),
-				new DirectoryEntry("Folder17"),
-				new DirectoryEntry("Folder18"),
-				new DirectoryEntry("Folder19"),
-				new DirectoryEntry("Folder20"),
-				new DirectoryEntry("Folder21"),
-				new DirectoryEntry("Folder22"),
-				new DirectoryEntry("Folder23"),
-				new DirectoryEntry("Folder24"),
-				new DirectoryEntry("Folder25"),
-				new DirectoryEntry("Folder26"),
-				new DirectoryEntry("Folder27"),
-				new DirectoryEntry("Folder28"),
-				new DirectoryEntry("Folder29")
-			),
+			new DirectoryEntry("Folders", [.. Enumerable.Range(1, 29).Select(i => new DirectoryEntry($"Folder{i:00}"))]),
 			new DirectoryEntry("Readme.txt", FileExplorerItemType.File, 3500)
-		)
-		{ CanCopyMove = false },
-		new DirectoryEntry("Sharepoint", true, false, false,
+		);
+		dDrive.CanCopyMove = false;
+		return dDrive;
+	}
+
+	private static DirectoryEntry CreateSharepoint()
+		=> new("Sharepoint", true, false, false,
 			new DirectoryEntry("Public", true, false, false,
 				new DirectoryEntry("web_template.html", FileExplorerItemType.File, 13000, true, false, false),
 				new DirectoryEntry("excel_template.xlsx", FileExplorerItemType.File, 7500, true, false, false),
 				new DirectoryEntry("word_template.docx", FileExplorerItemType.File, 10000, true, false, false)
 			)
-		)
-	)
-	{ Alias = "/" };
+		);
 
 	public TestFileSystemDataProvider()
 	{
@@ -116,7 +120,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 		{
 			for (var i = 0; i < 50; i++)
 			{
-				var childItem = new DirectoryEntry($"datafile-{i + 1:00}.dat", FileExplorerItemType.File, _random.Next(100000))
+				var childItem = new DirectoryEntry($"datafile-{i + 1:00}.dat", FileExplorerItemType.File, RandomNumberGenerator.GetInt32(100000))
 				{
 					Parent = itemNode
 				};
@@ -230,7 +234,7 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 		}
 
 		// add in some random latency
-		var delayMs = _random.Next(50, 800);
+		var delayMs = RandomNumberGenerator.GetInt32(50, 800);
 		await Task.Delay(delayMs, cancellationToken).ConfigureAwait(true);
 
 		return new DataResponse<FileExplorerItem>(items, total);
@@ -271,73 +275,101 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 
 		await Task.Run(() =>
 		{
-			if (!delta.TryGetValue("Path", out object? value))
+			var errorMessage = ApplyPathUpdate(item, delta);
+			if (errorMessage is null)
 			{
-				result.ErrorMessage = "Only Path property update supported";
-				return;
-			}
-
-			var tempPath = value?.ToString() ?? string.Empty;
-			var tempItem = new FileExplorerItem { Path = tempPath ?? string.Empty, Name = FileExplorerItem.GetNameFromPath(tempPath) };
-			var targetNode = _root.Where(x => x.Path() == tempItem.Path).FirstOrDefault();
-			var targetParentNode = targetNode is null ? _root.Where(x => x.Path() == tempItem.ParentPath).FirstOrDefault() : targetNode.Parent;
-			if (targetParentNode is null)
-			{
-				result.ErrorMessage = "Invalid Path: Parent item not found";
-				return;
-			}
-
-			var itemNode = _root.Where(x => x.Path() == item.Path).FirstOrDefault();
-			if (itemNode is null)
-			{
-				result.ErrorMessage = "Item not found";
-				return;
-			}
-
-			// if copy then create a deep clone of the copied item
-			var isCopy = delta.ContainsKey("Copy") && string.Equals(delta["Copy"]?.ToString(), "true", StringComparison.OrdinalIgnoreCase);
-			if (isCopy)
-			{
-				itemNode = itemNode.Clone();
-				itemNode.DateModified = DateTimeOffset.UtcNow;
-			}
-
-			// target path does not exist - move or rename
-			if (targetNode == null)
-			{
-				// simulate rename/move error
-				if (tempItem.Name.Contains(".."))
-				{
-					result.ErrorMessage = "Failed to move: Invalid name";
-					return;
-				}
-
-				itemNode.Parent?.Items.Remove(itemNode);
-
-				targetParentNode.Items.Add(itemNode);
-				itemNode.Parent = targetParentNode;
-				itemNode.Name = tempItem.Name;
+				result.Success = true;
 			}
 			else
 			{
-				// target path exists
-				if (targetNode.Type == FileExplorerItemType.File)
-				{
-					// conflict - file already exists
-					result.ErrorMessage = "Item already exists";
-					return;
-				}
-
-				// target is folder - so move item into
-				itemNode.Parent?.Items.Remove(itemNode);
-
-				targetNode.Items.Add(itemNode);
-				itemNode.Parent = targetNode;
+				result.ErrorMessage = errorMessage;
 			}
-
-			result.Success = true;
 		}, cancellationToken).ConfigureAwait(true);
 		return result;
+	}
+
+	private DirectoryEntry? FindNode(string path) => _root.Where(x => x.Path() == path).FirstOrDefault();
+
+	/// <summary>
+	/// Moves, renames or copies an item to the path given in the delta.
+	/// </summary>
+	/// <returns>null on success, otherwise an error message.</returns>
+	private string? ApplyPathUpdate(FileExplorerItem item, IDictionary<string, object?> delta)
+	{
+		if (!delta.TryGetValue("Path", out object? value))
+		{
+			return "Only Path property update supported";
+		}
+
+		var tempItem = CreatePathItem(value?.ToString());
+		var targetNode = FindNode(tempItem.Path);
+		var targetParentNode = GetTargetParentNode(targetNode, tempItem);
+		if (targetParentNode is null)
+		{
+			return "Invalid Path: Parent item not found";
+		}
+
+		var itemNode = FindNode(item.Path);
+		if (itemNode is null)
+		{
+			return "Item not found";
+		}
+
+		// if copy then create a deep clone of the copied item
+		if (IsCopy(delta))
+		{
+			itemNode = itemNode.Clone();
+			itemNode.DateModified = DateTimeOffset.UtcNow;
+		}
+
+		// target path does not exist - move or rename, otherwise move into the existing target
+		return targetNode is null
+			? MoveOrRename(itemNode, targetParentNode, tempItem.Name)
+			: MoveInto(itemNode, targetNode);
+	}
+
+	private static FileExplorerItem CreatePathItem(string? path)
+	{
+		var tempPath = path ?? string.Empty;
+		return new FileExplorerItem { Path = tempPath, Name = FileExplorerItem.GetNameFromPath(tempPath) };
+	}
+
+	private DirectoryEntry? GetTargetParentNode(DirectoryEntry? targetNode, FileExplorerItem tempItem)
+		=> targetNode is null ? FindNode(tempItem.ParentPath) : targetNode.Parent;
+
+	private static bool IsCopy(IDictionary<string, object?> delta)
+		=> delta.TryGetValue("Copy", out var copy) && string.Equals(copy?.ToString(), "true", StringComparison.OrdinalIgnoreCase);
+
+	private static string? MoveOrRename(DirectoryEntry itemNode, DirectoryEntry targetParentNode, string newName)
+	{
+		// simulate rename/move error
+		if (newName.Contains(".."))
+		{
+			return "Failed to move: Invalid name";
+		}
+
+		itemNode.Parent?.Items.Remove(itemNode);
+
+		targetParentNode.Items.Add(itemNode);
+		itemNode.Parent = targetParentNode;
+		itemNode.Name = newName;
+		return null;
+	}
+
+	private static string? MoveInto(DirectoryEntry itemNode, DirectoryEntry targetNode)
+	{
+		if (targetNode.Type == FileExplorerItemType.File)
+		{
+			// conflict - file already exists
+			return "Item already exists";
+		}
+
+		// target is folder - so move item into
+		itemNode.Parent?.Items.Remove(itemNode);
+
+		targetNode.Items.Add(itemNode);
+		itemNode.Parent = targetNode;
+		return null;
 	}
 
 	/// <summary>
@@ -346,70 +378,54 @@ public class TestFileSystemDataProvider : IDataProviderService<FileExplorerItem>
 	/// <param name="file">Details of the new file.</param>
 	public void AddFileItem(FileExplorerItem file)
 	{
+		var currentDir = EnsureParentFolders(file);
+
+		// finally add file / folder
+		var isDirectory = file.EntryType == FileExplorerItemType.Directory;
+		currentDir.Items.Add(new DirectoryEntry
+		{
+			Type = isDirectory ? FileExplorerItemType.Directory : FileExplorerItemType.File,
+			Name = file.Name,
+			Size = isDirectory ? 0 : file.FileSize,
+			CanCopyMove = file.CanCopyMove,
+			DateCreated = file.DateCreated ?? DateTimeOffset.UtcNow,
+			DateModified = file.DateModified ?? DateTimeOffset.UtcNow,
+			IsHidden = file.IsHidden,
+			IsReadOnly = file.IsReadOnly,
+			IsSystem = file.IsSystem,
+			Parent = currentDir
+		});
+	}
+
+	private DirectoryEntry EnsureParentFolders(FileExplorerItem file)
+	{
 		var currentDir = _root;
 
 		// file could be at any virtual sub folder - so descend from root creating folders as necessary
-		var folderPaths = file.ParentPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
-		if (folderPaths.Length > 0)
+		foreach (var folderName in file.ParentPath.Split('/', StringSplitOptions.RemoveEmptyEntries))
 		{
-			var queue = new Queue<string>(folderPaths);
-			while (queue.Count > 0)
+			var existingItem = currentDir.Items.Find(x => x.Name.Equals(folderName, StringComparison.InvariantCultureIgnoreCase));
+			if (existingItem is null)
 			{
-				var folderName = queue.Dequeue();
-				var existingItem = currentDir.Items.Find(x => x.Name.Equals(folderName, StringComparison.InvariantCultureIgnoreCase));
-				if (existingItem is null)
+				var newDir = new DirectoryEntry
 				{
-					var newDir = new DirectoryEntry
-					{
-						Type = FileExplorerItemType.Directory,
-						Name = folderName,
-						Parent = currentDir
-					};
-					currentDir.Items.Add(newDir);
-					currentDir = newDir;
-				}
-				else if (existingItem.Type == FileExplorerItemType.Directory)
-				{
-					currentDir = existingItem;
-				}
-				else
-				{
-					throw new Exception($"Invalid file path: {file.Path}");
-				}
+					Type = FileExplorerItemType.Directory,
+					Name = folderName,
+					Parent = currentDir
+				};
+				currentDir.Items.Add(newDir);
+				currentDir = newDir;
+			}
+			else if (existingItem.Type == FileExplorerItemType.Directory)
+			{
+				currentDir = existingItem;
+			}
+			else
+			{
+				throw new InvalidOperationException($"Invalid file path: {file.Path}");
 			}
 		}
 
-		// finally add file / folder
-		if (file.EntryType == FileExplorerItemType.Directory)
-		{
-			currentDir.Items.Add(new DirectoryEntry
-			{
-				Type = FileExplorerItemType.Directory,
-				Name = file.Name,
-				CanCopyMove = file.CanCopyMove,
-				DateCreated = file.DateCreated ?? DateTimeOffset.UtcNow,
-				DateModified = file.DateModified ?? DateTimeOffset.UtcNow,
-				IsHidden = file.IsHidden,
-				IsReadOnly = file.IsReadOnly,
-				IsSystem = file.IsSystem,
-				Parent = currentDir
-			});
-		}
-		else
-		{
-			currentDir.Items.Add(new DirectoryEntry
-			{
-				Type = FileExplorerItemType.File,
-				Name = file.Name,
-				Size = file.FileSize,
-				CanCopyMove = file.CanCopyMove,
-				DateCreated = file.DateCreated ?? DateTimeOffset.UtcNow,
-				DateModified = file.DateModified ?? DateTimeOffset.UtcNow,
-				IsHidden = file.IsHidden,
-				IsReadOnly = file.IsReadOnly,
-				IsSystem = file.IsSystem,
-				Parent = currentDir
-			});
-		}
+		return currentDir;
 	}
 }

@@ -2,7 +2,7 @@
 
 public partial class PDSplitterPage
 {
-	private PDSplitter _mainSplitter = null!;
+	protected PDSplitter MainSplitter { get; set; } = null!;
 	private double[] _lastSizes = [];
 	private bool _isCollapsed;
 
@@ -11,13 +11,13 @@ public partial class PDSplitterPage
 		if (_isCollapsed)
 		{
 			// restore
-			await _mainSplitter.SetSizesAsync(_lastSizes).ConfigureAwait(true);
+			await MainSplitter.SetSizesAsync(_lastSizes).ConfigureAwait(true);
 			_isCollapsed = false;
 		}
 		else
 		{
-			_lastSizes = await _mainSplitter.GetSizesAsync().ConfigureAwait(true);
-			await _mainSplitter.SetSizesAsync([_lastSizes[0] + _lastSizes[1], 0, _lastSizes[2]]).ConfigureAwait(true);
+			_lastSizes = await MainSplitter.GetSizesAsync().ConfigureAwait(true);
+			await MainSplitter.SetSizesAsync([_lastSizes[0] + _lastSizes[1], 0, _lastSizes[2]]).ConfigureAwait(true);
 			_isCollapsed = true;
 		}
 	}

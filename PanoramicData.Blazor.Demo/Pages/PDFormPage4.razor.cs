@@ -1,5 +1,4 @@
 ﻿using PanoramicData.Blazor.Services;
-using System.Diagnostics.CodeAnalysis;
 
 namespace PanoramicData.Blazor.Demo.Pages;
 
@@ -12,11 +11,7 @@ public partial class PDFormPage4
 
 	private readonly DelegatedDataProviderService<RegisterModel> _dataProvider = new()
 	{
-		CreateAsync = (model, cancellationToken) =>
-		{
-			var result = new OperationResponse();
-			return Task.FromResult(result);
-		}
+		CreateAsync = (_, _) => Task.FromResult(new OperationResponse())
 	};
 
 	private readonly FieldBooleanOptions _reportFormatDisplayOptions = new()
@@ -31,8 +26,7 @@ public partial class PDFormPage4
 
 	private readonly RegisterModel _model = new();
 
-	[AllowNull]
-	private PDForm<RegisterModel> _registerForm;
+	protected PDForm<RegisterModel>? RegisterForm { get; set; }
 
 	public PDFormPage4()
 	{
@@ -40,7 +34,7 @@ public partial class PDFormPage4
 		{
 			ClickAsync = async (x) =>
 			{
-				await _registerForm!.SetFieldValueAsync(x, !_registerForm.GetFieldValue<bool>(nameof(RegisterModel.ReportFormatDocx), true));
+				await RegisterForm!.SetFieldValueAsync(x, !RegisterForm.GetFieldValue<bool>(nameof(RegisterModel.ReportFormatDocx), true));
 				return new FormFieldResult();
 			},
 			IconCssClass = "fas -fa-fw fa-toggle-on c-docx"
@@ -49,7 +43,7 @@ public partial class PDFormPage4
 		{
 			ClickAsync = async (x) =>
 			{
-				await _registerForm!.SetFieldValueAsync(x, !_registerForm.GetFieldValue<bool>(nameof(RegisterModel.ReportFormatHtml), true));
+				await RegisterForm!.SetFieldValueAsync(x, !RegisterForm.GetFieldValue<bool>(nameof(RegisterModel.ReportFormatHtml), true));
 				return new FormFieldResult();
 			},
 			IconCssClass = "fas -fa-fw fa-toggle-on c-html"
@@ -58,7 +52,7 @@ public partial class PDFormPage4
 		{
 			ClickAsync = async (x) =>
 			{
-				await _registerForm!.SetFieldValueAsync(x, !_registerForm.GetFieldValue<bool>(nameof(RegisterModel.ReportFormatPdf), true));
+				await RegisterForm!.SetFieldValueAsync(x, !RegisterForm.GetFieldValue<bool>(nameof(RegisterModel.ReportFormatPdf), true));
 				return new FormFieldResult();
 			},
 			IconCssClass = "fas -fa-fw fa-toggle-on c-pdf"
@@ -67,7 +61,7 @@ public partial class PDFormPage4
 		{
 			ClickAsync = async (x) =>
 			{
-				await _registerForm!.SetFieldValueAsync(x, !_registerForm.GetFieldValue<bool>(nameof(RegisterModel.ReportFormatXlsx), true));
+				await RegisterForm!.SetFieldValueAsync(x, !RegisterForm.GetFieldValue<bool>(nameof(RegisterModel.ReportFormatXlsx), true));
 				return new FormFieldResult();
 			},
 			IconCssClass = "fas -fa-fw fa-toggle-on c-xlsx"
