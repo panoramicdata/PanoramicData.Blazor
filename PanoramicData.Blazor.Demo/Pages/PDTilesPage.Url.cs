@@ -32,7 +32,7 @@ public partial class PDTilesPage
 		TryParseEnum<GridAlignment>(query, "align", v => _options.Alignment = v);
 		TryParseNullableInt(query, "maxW", v => _options.MaxGridWidthPercent = v);
 		TryParseNullableInt(query, "maxH", v => _options.MaxGridHeightPercent = v);
-		TryParseBool(query, "content", v => _showChildContent = v);
+		TryParseBool(query, "content", v => ShowChildContent = v);
 		TryParseBool(query, "wrap", v => _options.ContentWrapping = v);
 
 		// Connector options
@@ -133,7 +133,7 @@ public partial class PDTilesPage
 			["align"] = _options.Alignment.ToString(),
 			["maxW"] = FormatNullable(_options.MaxGridWidthPercent),
 			["maxH"] = FormatNullable(_options.MaxGridHeightPercent),
-			["content"] = FormatBool(_showChildContent),
+			["content"] = FormatBool(ShowChildContent),
 			["wrap"] = FormatBool(_options.ContentWrapping)
 		};
 

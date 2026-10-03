@@ -65,7 +65,7 @@
 		<PDToolbarDropdown Text="@GetAlignmentShortText()" Items="@_alignmentItems" Click="OnAlignmentSelected" ToolTip="Alignment" />
 		<PDToolbarDropdown Text="@($"MaxW:{_options.MaxGridWidthPercent?.ToString() ?? "-"}%")" Items="@_maxSizeItems" Click="OnMaxWidthSelected" ToolTip="Max Grid Width %" />
 		<PDToolbarDropdown Text="@($"MaxH:{_options.MaxGridHeightPercent?.ToString() ?? "-"}%")" Items="@_maxSizeItems" Click="OnMaxHeightSelected" ToolTip="Max Grid Height %" />
-		<PDToggleSwitch @bind-Value="_showChildContent" @bind-Value:after="OnOptionsChanged" Label="Content" />
+		<PDToggleSwitch @bind-Value="ShowChildContent" @bind-Value:after="OnOptionsChanged" Label="Content" />
 		<PDToggleSwitch @bind-Value="_options.ContentWrapping" @bind-Value:after="OnOptionsChanged" Label="Wrap" />
 	</PDToolbar>
 
@@ -105,7 +105,7 @@
 				 Height="100%"
 				 TileClick="OnTileClick"
 				 ConnectorClick="OnConnectorClick">
-			@if (_showChildContent)
+			@if (ShowChildContent)
 			{
 				<div class="pd-tiles-child-content">
 					<h1>Magic Suite 2026</h1>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using NCalc;
 using NCalc.Exceptions;
+using System;
 using PanoramicData.NCalcExtensions;
 using System.Text;
 

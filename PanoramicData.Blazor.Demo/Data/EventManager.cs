@@ -1,4 +1,7 @@
-﻿namespace PanoramicData.Blazor.Demo.Data;
+﻿using System;
+using System.Collections.Generic;
+
+namespace PanoramicData.Blazor.Demo.Data;
 
 public class EventManager
 {

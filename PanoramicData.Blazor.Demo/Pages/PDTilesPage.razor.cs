@@ -13,7 +13,7 @@ public partial class PDTilesPage
 
 	protected PDTiles? TilesComponent { get; set; }
 	private bool _isInitialized;
-	private bool _showChildContent = true;
+	protected bool ShowChildContent { get; set; } = true;
 
 	private readonly TileGridOptions _options = new()
 	{
