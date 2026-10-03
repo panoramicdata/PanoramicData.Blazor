@@ -2,7 +2,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDComboBoxDocumentation
 {
-	private string _value = "";
+	protected string Value { get; set; } = "";
 	private readonly List<string> _items = ["Apple", "Banana", "Cherry", "Date", "Elderberry"];
 
 	private const string _example1Code = """

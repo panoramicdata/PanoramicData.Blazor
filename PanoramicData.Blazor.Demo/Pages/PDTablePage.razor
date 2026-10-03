@@ -214,7 +214,7 @@
 
 				<PDColumn TItem="Person"
 						  Field="x => x.Location"
-						  Options="GetLocationOptions"
+						  Options="(_, item) => GetLocationOptions(item)"
 						  Filterable="true" />
 
 				<PDColumn TItem="Person"

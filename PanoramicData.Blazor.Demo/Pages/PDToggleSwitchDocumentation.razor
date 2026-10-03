@@ -25,8 +25,8 @@
 					DemoStyle="min-height: 80px;">
 			<DemoContent>
 				<div class="d-flex align-items-center gap-3">
-					<PDToggleSwitch @bind-Value="_isEnabled" Label="Enable Feature" />
-					<span class="text-muted">Value: @_isEnabled</span>
+					<PDToggleSwitch @bind-Value="IsEnabled" Label="Enable Feature" />
+					<span class="text-muted">Value: @IsEnabled</span>
 				</div>
 			</DemoContent>
 			<Description>
@@ -42,7 +42,7 @@
 					Language="razor"
 					DemoStyle="min-height: 80px;">
 			<DemoContent>
-				<PDToggleSwitch @bind-Value="_isEnabled" OnText="ON" OffText="OFF" Rounded="true" />
+				<PDToggleSwitch @bind-Value="IsEnabled" OnText="ON" OffText="OFF" Rounded="true" />
 			</DemoContent>
 			<Description>
 				<p>

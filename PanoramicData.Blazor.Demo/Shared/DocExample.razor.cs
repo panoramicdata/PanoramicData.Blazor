@@ -7,7 +7,7 @@ namespace PanoramicData.Blazor.Demo.Shared;
 /// </summary>
 public partial class DocExample
 {
-	private StandaloneCodeEditor? _editor;
+	protected StandaloneCodeEditor? Editor { get; set; }
 	private bool _copied;
 
 	[Inject]
@@ -79,7 +79,7 @@ public partial class DocExample
 			.Replace(",", "");
 	}
 
-	private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor _)
+	private StandaloneEditorConstructionOptions EditorConstructionOptions()
 	{
 		// Count lines to auto-size editor
 		var lineCount = Code.Split('\n').Length;

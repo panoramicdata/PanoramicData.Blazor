@@ -11,10 +11,10 @@ public partial class PDCardDeckPage
 	private readonly ListDataProviderService<Todo> _todoList4 = new();
 
 
-	private PDCardDeck<Todo> _cardDeck1 = new();
-	private PDCardDeck<Todo> _cardDeck2 = new();
-	private PDCardDeck<Todo> _cardDeck3 = new();
-	private PDCardDeck<Todo> _cardDeck4 = new();
+	protected PDCardDeck<Todo> CardDeck1 { get; set; } = new();
+	protected PDCardDeck<Todo> CardDeck2 { get; set; } = new();
+	protected PDCardDeck<Todo> CardDeck3 { get; set; } = new();
+	protected PDCardDeck<Todo> CardDeck4 { get; set; } = new();
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 

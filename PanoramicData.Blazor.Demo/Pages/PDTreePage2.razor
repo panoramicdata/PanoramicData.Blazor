@@ -16,7 +16,7 @@
 			LoadOnDemand="true"
 			ShowLines="true"
 			Sort="ReverseSort"
-			IconCssClass="GetNodeIconCssClass"
+			IconCssClass="(_, level) => GetNodeIconCssClass(level)"
 			IsLeaf="x => x.EntryType == FileExplorerItemType.File"
 			ToolTip="(x) => x.Path">
 	</PDTree>

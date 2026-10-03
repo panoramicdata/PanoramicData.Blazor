@@ -95,7 +95,7 @@ public class Person : IComparable
 	{
 		if (obj is Person other)
 		{
-			return string.Compare(LastName, other.LastName);
+			return string.Compare(LastName, other.LastName, StringComparison.CurrentCulture);
 		}
 
 		return 1;

@@ -13,7 +13,7 @@ public partial class PDFormPage3
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	private static string GetIdDescription(FormField<Person> field, PDForm<Person> form)
+	private static string GetIdDescription(PDForm<Person> form)
 	{
 		if (form?.Item is null)
 		{
@@ -74,7 +74,7 @@ public partial class PDFormPage3
 		}
 	}
 
-	private static OptionInfo[] GetLocationOptions(FormField<Person> _, Person item)
+	private static OptionInfo[] GetLocationOptions(Person item)
 	{
 		var options = new List<OptionInfo>();
 		for (var i = 0; i < PersonDataProvider.Locations.Length; i++)
@@ -113,22 +113,20 @@ public partial class PDFormPage3
 
 			if (fieldName == "Location" || fieldName == "Department")
 			{
-				const string? errorMessage = "Peckham location only has Sales departments";
-				var locationField = Form.Fields.Find(x => x.Id == "location");
-				var isPeckham = locationField != null && Form.GetFieldStringValue(locationField) == "4";
-				var departmentField = Form.Fields.Find(x => x.Id == "department");
-				var isSales = departmentField != null && Form.GetFieldStringValue(departmentField) == "Sales";
-				if (isPeckham && !isSales)
-				{
-					args.AddErrorMessages.Add("Location", errorMessage);
-					args.AddErrorMessages.Add("Department", errorMessage);
-				}
-				else
-				{
-					args.RemoveErrorMessages.Add("Location", errorMessage);
-					args.RemoveErrorMessages.Add("Department", errorMessage);
-				}
+				ValidateLocationDepartment(args);
 			}
 		}
+	}
+
+	private void ValidateLocationDepartment(CustomValidateArgs<Person> args)
+	{
+		const string? errorMessage = "Peckham location only has Sales departments";
+		var locationField = Form.Fields.Find(x => x.Id == "location");
+		var isPeckham = locationField != null && Form.GetFieldStringValue(locationField) == "4";
+		var departmentField = Form.Fields.Find(x => x.Id == "department");
+		var isSales = departmentField != null && Form.GetFieldStringValue(departmentField) == "Sales";
+		var messages = isPeckham && !isSales ? args.AddErrorMessages : args.RemoveErrorMessages;
+		messages.Add("Location", errorMessage);
+		messages.Add("Department", errorMessage);
 	}
 }

@@ -28,7 +28,7 @@
                   IconCssClass="fas fa-fw fa-cog"
                   CssClass="btn btn-secondary"
                   ToolTip="@($"Click me to start long running operation")"
-                  Operation="DoLongRunningOperation"
+                  Operation="_ => DoLongRunningOperation()"
                   OperationIconCssClass="fas fa-fw fa-cog fa-spin">
         </PDButton>
     </div>
@@ -39,12 +39,12 @@
                       IconCssClass="@($"fas fa-fw fa-random")"
                       Text="Toggle button state >"
                       ToolTip="@($"Click me to enable/disable adjacent button")"
-                      Click="@(() => _buttonEnabled = !_buttonEnabled)">
+                      Click="@(() => ButtonEnabled = !ButtonEnabled)">
             </PDButton>
             <PDButton CssClass="btn btn-secondary ms-2"
-                      IconCssClass="@($"fas fa-fw {(_buttonEnabled ? "fa-toggle-on" : "fa-toggle-off")}")"
-                      IsEnabled="_buttonEnabled"
-                      Text="@(_buttonEnabled ? "Enabled" : "Disabled")"
+                      IconCssClass="@($"fas fa-fw {(ButtonEnabled ? "fa-toggle-on" : "fa-toggle-off")}")"
+                      IsEnabled="ButtonEnabled"
+                      Text="@(ButtonEnabled ? "Enabled" : "Disabled")"
                       ToolTip="@($"This button does nothing")">
             </PDButton>
         </div>

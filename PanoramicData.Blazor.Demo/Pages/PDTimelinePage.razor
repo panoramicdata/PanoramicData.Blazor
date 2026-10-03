@@ -22,20 +22,20 @@
 				<h4 class="mb-1">Live Follow Now</h4>
 				<div class="text-muted">Seconds are deliberately wide so the right edge and rolling 15-second selection visibly advance.</div>
 			</div>
-			<span class="badge @(_liveFollowNow ? "bg-success" : "bg-secondary")">
-				@(_liveFollowNow ? "Following Now" : "History paused")
+			<span class="badge @(LiveFollowNow ? "bg-success" : "bg-secondary")">
+				@(LiveFollowNow ? "Following Now" : "History paused")
 			</span>
 		</div>
 
-		<PDTimelineToolbar Timeline="_liveTimeline"
+		<PDTimelineToolbar Timeline="LiveTimeline"
 			ShowFollowNow="true"
 			ShowRange="true"
 			ShowScale="true"
 			ShowSelection="true" />
 
 		<div style="height: 180px;">
-			<PDTimeline @ref="_liveTimeline"
-				@bind-FollowNow="_liveFollowNow"
+			<PDTimeline @ref="LiveTimeline"
+				@bind-FollowNow="LiveFollowNow"
 				DataProvider="GetLiveTimelineData"
 				FollowNowRefreshInterval="TimeSpan.FromMilliseconds(250)"
 				Initialized="OnLiveTimelineInitializedAsync"
@@ -55,8 +55,8 @@
 		<div class="toolbar">
 
 			<div class="form-check me-2">
-				<input type="checkbox" class="form-check-input" id="enabledCheck" checked="_isEnabled"
-					   @oninput="(a) => _isEnabled = Convert.ToBoolean(a.Value)">
+				<input type="checkbox" class="form-check-input" id="enabledCheck" checked="IsEnabled"
+					   @oninput="(a) => IsEnabled = Convert.ToBoolean(a.Value)">
 				<label class="form-check-label" for="enabledCheck">Enabled</label>
 			</div>
 
@@ -92,15 +92,15 @@
 					  Text="Zoom End" />
 
 			<div class="form-check ms-2">
-				<input type="checkbox" class="form-check-input" id="moreDataCheck" checked="@_moreDataAvailable"
-					   @oninput="(a) => _moreDataAvailable = Convert.ToBoolean(a.Value)">
+				<input type="checkbox" class="form-check-input" id="moreDataCheck" checked="@MoreDataAvailable"
+					   @oninput="(a) => MoreDataAvailable = Convert.ToBoolean(a.Value)">
 				<label class="form-check-label" for="moreDataCheck">More Data</label>
 			</div>
 
 		</div>
 
 		<PDTimelineToolbar ShowRange="false"
-						   Timeline="_timeline" />
+						   Timeline="Timeline" />
 
 		<PDSplitter Direction="SplitDirection.Horizontal" ExpandToMin="true">
 			<PDSplitPanel Size="1" MinSize="200">
@@ -111,13 +111,13 @@
 				</div>
 			</PDSplitPanel>
 			<PDSplitPanel Size="1" MinSize="200">
-				<PDTimeline @ref="_timeline"
+				<PDTimeline @ref="Timeline"
 							DataProvider="GetTimelineData"
 							DisableAfter="_model.DisableAfter"
 							DisableBefore="_model.DisableBefore"
-							IsEnabled="_isEnabled"
-							NewMaxDateTimeAvailable="_moreDataAvailable"
-							NewMinDateTimeAvailable="_moreDataAvailable"
+							IsEnabled="IsEnabled"
+							NewMaxDateTimeAvailable="MoreDataAvailable"
+							NewMinDateTimeAvailable="MoreDataAvailable"
 							MaxDateTime="_maxDate"
 							MinDateTime="_minDate"
 							Options="_timelineOptions"

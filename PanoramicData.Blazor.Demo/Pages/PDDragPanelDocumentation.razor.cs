@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDDragPanelDocumentation
+public partial class PDDragPanelDocumentation : ComponentBase
 {
 	private const string _example1Code = """
 		<PDDragContainer Items="_items"

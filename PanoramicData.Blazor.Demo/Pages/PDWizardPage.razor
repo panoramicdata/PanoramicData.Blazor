@@ -18,14 +18,14 @@
             <h6>Configure your settings</h6>
             <div class="mb-3">
                 <label class="form-label">Name</label>
-                <input class="form-control form-control-sm" @bind="_basicName" placeholder="Enter a name" />
+                <input class="form-control form-control-sm" @bind="BasicName" placeholder="Enter a name" />
             </div>
         </PDWizardStep>
         <PDWizardStep Title="Confirm"
-                      CanProceed="@(() => !string.IsNullOrWhiteSpace(_basicName))">
+                      CanProceed="@(() => !string.IsNullOrWhiteSpace(BasicName))">
             <h6>Confirm your choices</h6>
-            <p>Name: <strong>@_basicName</strong></p>
-            @if (string.IsNullOrWhiteSpace(_basicName))
+            <p>Name: <strong>@BasicName</strong></p>
+            @if (string.IsNullOrWhiteSpace(BasicName))
             {
                 <p class="text-warning small"><i class="fas fa-exclamation-triangle me-1"></i>Go back and enter a name to enable Finish.</p>
             }
@@ -113,7 +113,7 @@
     <p class="text-muted">Toggle the checkbox to show or hide an optional step. Use <code>IsVisible</code> on <code>PDWizardStep</code>.</p>
 
     <div class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="showOptional" @bind="_showOptionalStep" />
+        <input class="form-check-input" type="checkbox" id="showOptional" @bind="ShowOptionalStep" />
         <label class="form-check-label" for="showOptional">Show optional step</label>
     </div>
 
@@ -123,7 +123,7 @@
         <PDWizardStep Title="First">
             <p class="text-muted">This is always shown.</p>
         </PDWizardStep>
-        <PDWizardStep Title="Optional" IsVisible="@_showOptionalStep">
+        <PDWizardStep Title="Optional" IsVisible="@ShowOptionalStep">
             <p class="text-muted">This step is optional - it only appears when the checkbox above is ticked.</p>
         </PDWizardStep>
         <PDWizardStep Title="Last">
@@ -142,9 +142,9 @@
         <code>PDWizard</code> works seamlessly inside <code>PDModal</code>. Set <code>ShowFooter="false"</code> on the modal so the wizard's own footer is used.
     </p>
 
-    <button class="btn btn-primary" @onclick="() => _simpleModalWizard.ShowAsync()">Open Wizard Modal</button>
+    <button class="btn btn-primary" @onclick="() => SimpleModalWizard.ShowAsync()">Open Wizard Modal</button>
 
-    <PDModal @ref="_simpleModalWizard" Title="Setup Wizard" Size="ModalSizes.Large" ShowFooter="false">
+    <PDModal @ref="SimpleModalWizard" Title="Setup Wizard" Size="ModalSizes.Large" ShowFooter="false">
         <ChildContent>
             <PDWizard OnComplete="OnSimpleModalComplete" OnCancel="OnSimpleModalCancel">
                 <PDWizardStep Title="Welcome">
@@ -155,12 +155,12 @@
                     <h6>Enter details</h6>
                     <div class="mb-3">
                         <label class="form-label">Name</label>
-                        <input class="form-control form-control-sm" @bind="_simpleModalName" placeholder="Enter a name" />
+                        <input class="form-control form-control-sm" @bind="SimpleModalName" placeholder="Enter a name" />
                     </div>
                 </PDWizardStep>
                 <PDWizardStep Title="Done">
                     <h6>All done!</h6>
-                    <p class="text-muted">Name: <strong>@_simpleModalName</strong></p>
+                    <p class="text-muted">Name: <strong>@SimpleModalName</strong></p>
                 </PDWizardStep>
             </PDWizard>
         </ChildContent>
@@ -178,23 +178,23 @@
         Grab the wizard via <code>@@ref</code> and wire <code>StepChanged</code> to <code>StateHasChanged</code> so the modal title updates live as you navigate.
     </p>
 
-    <button class="btn btn-primary" @onclick="() => _wizardModal.ShowAsync()">Open Wizard Modal</button>
+    <button class="btn btn-primary" @onclick="() => WizardModal.ShowAsync()">Open Wizard Modal</button>
 
-    <PDModal @ref="_wizardModal" Size="ModalSizes.Large" ShowFooter="false">
+    <PDModal @ref="WizardModal" Size="ModalSizes.Large" ShowFooter="false">
         <Header>
             <div class="d-flex align-items-center w-100">
                 <h5 class="modal-title user-select-none mb-0">
                     <i class="fas fa-tag me-2 text-primary"></i>
-                    @(_modalWizard?.CurrentStep?.Title ?? "Setup Wizard")
+                    @(ModalWizard?.CurrentStep?.Title ?? "Setup Wizard")
                 </h5>
                 <span class="ms-auto text-secondary small user-select-none">
-                    <i class="fas fa-layer-group me-1"></i>@_modalJobCount report jobs
+                    <i class="fas fa-layer-group me-1"></i>@ModalJobCount report jobs
                 </span>
-                <button type="button" class="btn-close ms-3" aria-label="Close" @onclick="() => _wizardModal.HideAsync()"></button>
+                <button type="button" class="btn-close ms-3" aria-label="Close" @onclick="() => WizardModal.HideAsync()"></button>
             </div>
         </Header>
         <ChildContent>
-            <PDWizard @ref="_modalWizard"
+            <PDWizard @ref="ModalWizard"
                       OnComplete="OnModalWizardComplete"
                       OnCancel="OnModalWizardCancel"
                       StepChanged="@(_ => StateHasChanged())">
@@ -204,19 +204,19 @@
                     <div class="mt-2">
                         <label class="form-label">Report jobs</label>
                         <input type="number" class="form-control form-control-sm" style="width:90px"
-                               @bind="_modalJobCount" min="1" />
+                               @bind="ModalJobCount" min="1" />
                     </div>
                 </PDWizardStep>
                 <PDWizardStep Title="Details">
                     <h6>Enter details</h6>
                     <div class="mb-3">
                         <label class="form-label">Name</label>
-                        <input class="form-control form-control-sm" @bind="_modalDescription" placeholder="Enter a name" />
+                        <input class="form-control form-control-sm" @bind="ModalDescription" placeholder="Enter a name" />
                     </div>
                 </PDWizardStep>
                 <PDWizardStep Title="Done">
                     <h6>All done!</h6>
-                    <p class="text-muted">Name: <strong>@_modalDescription</strong></p>
+                    <p class="text-muted">Name: <strong>@ModalDescription</strong></p>
                 </PDWizardStep>
             </PDWizard>
         </ChildContent>
@@ -258,9 +258,9 @@
 		The body scrolls automatically if a step's content overflows. Click through to the "Tall Step" to see the modal stay the same size.
 	</p>
 
-	<button class="btn btn-primary" @onclick="() => _fixedHeightModal.ShowAsync()">Open Fixed Height Modal</button>
+	<button class="btn btn-primary" @onclick="() => FixedHeightModal.ShowAsync()">Open Fixed Height Modal</button>
 
-	<PDModal @ref="_fixedHeightModal" Title="Fixed Height Wizard" Size="ModalSizes.Large" ShowFooter="false">
+	<PDModal @ref="FixedHeightModal" Title="Fixed Height Wizard" Size="ModalSizes.Large" ShowFooter="false">
 		<ChildContent>
 			<PDWizard OnComplete="OnFixedHeightComplete"
 					  OnCancel="OnFixedHeightCancel"
@@ -369,7 +369,7 @@
 			<span><i class="fas fa-tag me-2 text-primary"></i>@step?.Title</span>
 		</TitleTemplate>
 		<TitleAddon Context="step">
-			<span><i class="fas fa-layer-group me-1"></i>@_titleDemoItemCount items selected</span>
+			<span><i class="fas fa-layer-group me-1"></i>@TitleDemoItemCount items selected</span>
 		</TitleAddon>
 		<ChildContent>
 			<PDWizardStep Title="Select Items">
@@ -377,11 +377,11 @@
 				<div class="d-flex align-items-center gap-2 mt-2">
 					<label class="form-label mb-0">Item count</label>
 					<input type="number" class="form-control form-control-sm" style="width:90px"
-						   @bind="_titleDemoItemCount" min="0" />
+						   @bind="TitleDemoItemCount" min="0" />
 				</div>
 			</PDWizardStep>
 			<PDWizardStep Title="Review">
-				<p class="text-muted">You have selected <strong>@_titleDemoItemCount</strong> items. Click Finish to confirm.</p>
+				<p class="text-muted">You have selected <strong>@TitleDemoItemCount</strong> items. Click Finish to confirm.</p>
 			</PDWizardStep>
 		</ChildContent>
 	</PDWizard>

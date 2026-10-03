@@ -10,7 +10,7 @@
 	Pure Blazor implementation with animated connectors and SVG rendering.
 </p>
 
-<DemoSourceView SourceFiles="Pages/PDTilesPage.razor, Pages/PDTilesPage.razor.cs">
+<DemoSourceView SourceFiles="Pages/PDTilesPage.razor, Pages/PDTilesPage.razor.cs, Pages/PDTilesPage.Url.cs, Pages/PDTilesPage.Toolbar.cs">
 	<DocumentationContent>
 		<PDTilesDocumentation />
 	</DocumentationContent>
@@ -97,7 +97,7 @@
 	</div>
 
 	<div class="border rounded mt-2" style="background-color: @_options.BackgroundColor; overflow: hidden; resize: vertical; min-height: 300px; height: 500px;">
-		<PDTiles @ref="_tilesComponent"
+		<PDTiles @ref="TilesComponent"
 				 Options="_options"
 				 ConnectorOptions="_connectorOptions"
 				 Connectors="_connectors"

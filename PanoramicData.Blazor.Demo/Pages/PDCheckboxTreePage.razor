@@ -29,8 +29,8 @@
 
 	<h4>Files and folders</h4>
 	<div class="d-flex align-items-center gap-3 mb-2">
-		<PDToggleSwitch @bind-Value="_showLines" Label="Show lines" />
-		<PDToggleSwitch @bind-Value="_showRoot" Label="Show root" />
+		<PDToggleSwitch @bind-Value="ShowLines" Label="Show lines" />
+		<PDToggleSwitch @bind-Value="ShowRoot" Label="Show root" />
 	</div>
 
 	<div class="row">
@@ -42,10 +42,10 @@
 								ParentKeyField="x => x.ParentPath"
 								TextField="x => x.Name"
 								IsLeaf="x => x.EntryType == FileExplorerItemType.File"
-								IconCssClass="GetIconCssClass"
+								IconCssClass="(item, _) => GetIconCssClass(item)"
 								LoadOnDemand="true"
-								ShowLines="_showLines"
-								ShowRoot="_showRoot"
+								ShowLines="ShowLines"
+								ShowRoot="ShowRoot"
 								Sort="OnSort"
 								CheckedKeys="_checkedKeys"
 								CheckedKeysChanged="OnCheckedKeysChanged" />
@@ -89,25 +89,25 @@
 								KeyField="x => x.Path"
 								ParentKeyField="x => x.ParentPath"
 								TextField="x => x.Name"
-								IconCssClass="GetFolderIconCssClass"
+								IconCssClass="(_, _) => _folderIconCssClass"
 								IsCheckImplied="IsUnderCheckedFolder"
 								LoadOnDemand="true"
 								ShowRoot="true"
 								Sort="OnSort"
-								@bind-CheckedKeys="_checkedFolders" />
+								@bind-CheckedKeys="CheckedFolders" />
 			</div>
 		</div>
 		<div class="col-md-5">
 			<div class="demo-checked-box">
-				<h6>Selected folders (@_checkedFolders.Count)</h6>
-				@if (_checkedFolders.Count == 0)
+				<h6>Selected folders (@CheckedFolders.Count)</h6>
+				@if (CheckedFolders.Count == 0)
 				{
 					<span class="text-muted small">No folders selected.</span>
 				}
 				else
 				{
 					<ul class="small mb-0">
-						@foreach (var key in _checkedFolders.OrderBy(x => x))
+						@foreach (var key in CheckedFolders.OrderBy(x => x))
 						{
 							<li><code>@key</code> <span class="text-muted">(includes contents)</span></li>
 						}

@@ -1,12 +1,14 @@
-﻿namespace PanoramicData.Blazor.Demo.Pages;
+﻿using System.Security.Cryptography;
+
+namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDTimelinePage
 {
 	private readonly List<ConfigChange> _data = [];
-	private PDTimeline _timeline = null!;
+	protected PDTimeline Timeline { get; set; } = null!;
 	private readonly TimelinePageModel _model = new();
-	private PDTimeline _liveTimeline = null!;
-	private bool _liveFollowNow = true;
+	protected PDTimeline LiveTimeline { get; set; } = null!;
+	protected bool LiveFollowNow { get; set; } = true;
 	private TimeRange? _liveSelection;
 	private readonly DateTime _liveMinDate = DateTime.Now.AddMinutes(-2);
 	private readonly TimelineOptions _liveTimelineOptions = new()
@@ -38,8 +40,15 @@ public partial class PDTimelinePage
 		}
 	};
 	private TimeRange? _selection;
-	private bool _isEnabled = true;
-	private readonly TimelineOptions _timelineOptions = new()
+	protected bool IsEnabled { get; set; } = true;
+	private readonly TimelineOptions _timelineOptions = CreateTimelineOptions();
+	private DateTime _minDate;
+	private DateTime _maxDate;
+	protected bool MoreDataAvailable { get; set; }
+
+	[CascadingParameter] protected EventManager? EventManager { get; set; }
+
+	private static TimelineOptions CreateTimelineOptions() => new()
 	{
 		Bar = new TimelineBarOptions
 		{
@@ -51,41 +60,9 @@ public partial class PDTimelinePage
 			DateFormat = "yyyy-MM-dd",
 			RestrictZoomOut = false,
 			RightAlign = true,
-			Scales =
-			[
-				TimelineScale.Seconds,
-				TimelineScale.Minutes,
-				TimelineScale.Minutes5,
-				new TimelineScale("10 Minutes", TimelineUnits.Minutes, 10),
-				TimelineScale.Hours,
-				TimelineScale.Hours4,
-				TimelineScale.Hours6,
-				TimelineScale.Hours8,
-				TimelineScale.Hours12,
-				TimelineScale.Days,
-				TimelineScale.Weeks,
-				TimelineScale.Months,
-				TimelineScale.Years
-			]
+			Scales = CreateTimelineScales()
 		},
-		Series =
-		[
-			new TimelineSeries
-			{
-				Label = "Lines Deleted",
-				Colour = "Red"
-			},
-			new TimelineSeries
-			{
-				Label = "Lines Changed",
-				Colour = "Orange"
-			},
-			new TimelineSeries
-			{
-				Label = "Lines Added",
-				Colour = "Green"
-			}
-		],
+		Series = CreateTimelineSeries(),
 		Selection = new TimelineSelectionOptions
 		{
 			Enabled = true,
@@ -98,16 +75,46 @@ public partial class PDTimelinePage
 			ArcEnd = 360
 		}
 	};
-	private DateTime _minDate;
-	private DateTime _maxDate;
-	private bool _moreDataAvailable;
 
-	[CascadingParameter] protected EventManager? EventManager { get; set; }
+	private static TimelineScale[] CreateTimelineScales() =>
+	[
+		TimelineScale.Seconds,
+		TimelineScale.Minutes,
+		TimelineScale.Minutes5,
+		new TimelineScale("10 Minutes", TimelineUnits.Minutes, 10),
+		TimelineScale.Hours,
+		TimelineScale.Hours4,
+		TimelineScale.Hours6,
+		TimelineScale.Hours8,
+		TimelineScale.Hours12,
+		TimelineScale.Days,
+		TimelineScale.Weeks,
+		TimelineScale.Months,
+		TimelineScale.Years
+	];
 
-	private void GenerateData(int startYear = 2015, int endYear = 2020, int points = 10000)
+	private static TimelineSeries[] CreateTimelineSeries() =>
+	[
+		new TimelineSeries
+		{
+			Label = "Lines Deleted",
+			Colour = "Red"
+		},
+		new TimelineSeries
+		{
+			Label = "Lines Changed",
+			Colour = "Orange"
+		},
+		new TimelineSeries
+		{
+			Label = "Lines Added",
+			Colour = "Green"
+		}
+	];
+
+	private void GenerateData(int startYear, int endYear, int points)
 	{
 		// generate data
-		var random = new Random(System.Environment.TickCount);
 		var startDate = new DateTime(startYear, 1, 1);
 		var endDate = new DateTime(endYear, 12, 31);
 		var dayStart = new TimeSpan(9, 0, 0);
@@ -118,32 +125,25 @@ public partial class PDTimelinePage
 
 		for (var i = 0; i < points; i++)
 		{
-			var date = startDate.AddDays(random.Next((int)days + 1)).Add(dayStart).AddMinutes(random.Next((int)mins + 1));
+			var date = startDate.AddDays(RandomNumberGenerator.GetInt32((int)days + 1)).Add(dayStart).AddMinutes(RandomNumberGenerator.GetInt32((int)mins + 1));
 			_data.Add(new ConfigChange
 			{
 				DateChanged = date,
-				// high counts
-				//LinesAdded = random.Next(0, 50),
-				//LinesChanged = random.Next(20, 100),
-				//LinesDeleted = random.Next(0, 20),
-				// low counts
-				LinesAdded = random.Next(0, 5),
-				LinesChanged = random.Next(0, 5),
-				LinesDeleted = random.Next(0, 5),
+				// low counts (use ranges of up to 50, 100 and 20 respectively for high counts)
+				LinesAdded = RandomNumberGenerator.GetInt32(0, 5),
+				LinesChanged = RandomNumberGenerator.GetInt32(0, 5),
+				LinesDeleted = RandomNumberGenerator.GetInt32(0, 5),
 			});
 		}
 	}
 
-	protected override void OnInitialized()
-	{
-	}
 
 	private void OnScaleChanged(TimelineScale scale) => _model.Scale = scale;
 
 	private async Task OnLiveTimelineInitializedAsync()
 	{
-		var end = _liveTimeline.RoundedMaxDateTime;
-		await _liveTimeline.SetSelection(end.AddSeconds(-15), end).ConfigureAwait(true);
+		var end = LiveTimeline.RoundedMaxDateTime;
+		await LiveTimeline.SetSelection(end.AddSeconds(-15), end).ConfigureAwait(true);
 	}
 
 	private void OnLiveSelectionChanged(TimeRange? selection)
@@ -173,7 +173,7 @@ public partial class PDTimelinePage
 
 	private void OnSelectionChanged(TimeRange? range) => _selection = range;
 
-	private void OnSelectionChangeEnd() => EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", _timeline.GetSelection()?.StartTime), new EventArgument("end", _timeline.GetSelection()?.EndTime)));
+	private void OnSelectionChangeEnd() => EventManager?.Add(new Event("SelectionChangeEnd", new EventArgument("start", Timeline.GetSelection()?.StartTime), new EventArgument("end", Timeline.GetSelection()?.EndTime)));
 
 	private async Task OnClearData()
 	{
@@ -181,9 +181,9 @@ public partial class PDTimelinePage
 		_data.Clear();
 		_minDate = DateTime.MinValue;
 		_maxDate = DateTime.MinValue;
-		if (_timeline is not null)
+		if (Timeline is not null)
 		{
-			await _timeline.Reset().ConfigureAwait(true);
+			await Timeline.Reset().ConfigureAwait(true);
 		}
 	}
 
@@ -191,18 +191,16 @@ public partial class PDTimelinePage
 	{
 		// generate new data
 		_data.Clear();
-		// lots of points
-		//GenerateData(2015, 2020, 10000);
-		// fewer points
+		// fewer points (use 10,000 points to demonstrate a large data set)
 		GenerateData(2015, 2020, 100);
 
 		// update component parameters
 		_minDate = _data.Min(x => x.DateChanged);
 		_maxDate = _data.Max(x => x.DateChanged);
 
-		if (_timeline is not null)
+		if (Timeline is not null)
 		{
-			await _timeline.RefreshAsync().ConfigureAwait(true);
+			await Timeline.RefreshAsync().ConfigureAwait(true);
 		}
 	}
 
@@ -267,35 +265,35 @@ public partial class PDTimelinePage
 
 	private async Task OnZoomToEnd()
 	{
-		if (_timeline is null)
+		if (Timeline is null)
 		{
 			return;
 		}
 
-		await _timeline.ZoomToEndAsync().ConfigureAwait(true);
+		await Timeline.ZoomToEndAsync().ConfigureAwait(true);
 	}
 
 	private async Task OnZoomTo24h()
 	{
-		if (_timeline is null)
+		if (Timeline is null)
 		{
 			return;
 		}
 
-		await _timeline.ZoomToAsync(DateTime.Now.AddHours(-24), DateTime.Now, TimelinePositions.End).ConfigureAwait(true);
+		await Timeline.ZoomToAsync(DateTime.Now.AddHours(-24), DateTime.Now, TimelinePositions.End).ConfigureAwait(true);
 	}
 
 	private async Task OnRefreshed()
 	{
-		if (_timeline is null)
+		if (Timeline is null)
 		{
 			return;
 		}
 
 		// select last year
-		if (_timeline.GetSelection() is null)
+		if (Timeline.GetSelection() is null)
 		{
-			await _timeline.SetSelection(_maxDate.AddYears(-2), _maxDate).ConfigureAwait(true);
+			await Timeline.SetSelection(_maxDate.AddYears(-2), _maxDate).ConfigureAwait(true);
 		}
 	}
 

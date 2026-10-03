@@ -52,7 +52,7 @@
 					 SelectionChanged="OnSelectionChanged">
 
 				<PDColumn TItem="Person"
-						  DescriptionFunc="GetIdDescription"
+						  DescriptionFunc="(_, form) => GetIdDescription(form)"
 						  Field="x => x.Id"
 						  ShowInList="false"
 						  ShowInCreate="_ => false"
@@ -121,7 +121,7 @@
 				<PDColumn TItem="Person"
 						  Id="location"
 						  Field="x => x.Location"
-						  Options="GetLocationOptions" />
+						  Options="(_, item) => GetLocationOptions(item)" />
 
 				<PDColumn TItem="Person"
 						  Field="x => x.Target"

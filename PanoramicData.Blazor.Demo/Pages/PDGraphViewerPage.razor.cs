@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor.Demo.Pages;
+﻿using System.Security.Cryptography;
+
+namespace PanoramicData.Blazor.Demo.Pages;
 
 /// <summary>
 /// Dummy data item for graph demonstration.
@@ -11,7 +13,7 @@ public class GraphDataItem
 
 public partial class PDGraphViewerPage : ComponentBase, IDisposable
 {
-	private PDGraphViewer<GraphDataItem>? _graphViewer;
+	protected PDGraphViewer<GraphDataItem>? GraphViewer { get; set; }
 	private readonly GraphDataProvider _dataProvider = new();
 	private GraphVisualizationConfig _visualizationConfig = new();
 	private GraphClusteringConfig _clusteringConfig = new();
@@ -19,14 +21,14 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 	private GraphData? _currentGraphData; // To store the current graph data
 
 	// Demo configuration
-	private bool _showInfo = true;
-	private bool _showControls = true;
-	private bool _readOnlyControls = false;
-	private SplitDirection _splitDirection = SplitDirection.Horizontal;
+	protected bool ShowInfo { get; set; } = true;
+	protected bool ShowControls { get; set; } = true;
+	protected bool ReadOnlyControls { get; set; }
+	protected SplitDirection SplitDirection { get; set; } = SplitDirection.Horizontal;
 
 	// ✅ FIXED: Simple convergence threshold handling
 	private double _convergenceThreshold = 0.08;
-	private bool _isUpdatingControls = false;
+	private bool _isUpdatingControls;
 
 	// Selection state
 	private GraphNode? _selectedNode;
@@ -73,27 +75,13 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 			}
 
 			// Check if the set of nodes and edges has changed (by ID)
-			var nodesChanged = _currentGraphData == null ||
-				!_currentGraphData.Nodes.Select(n => n.Id).OrderBy(id => id).SequenceEqual(newGraphData.Nodes.Select(n => n.Id).OrderBy(id => id));
-			var edgesChanged = _currentGraphData == null ||
-				!_currentGraphData.Edges.Select(e => e.Id).OrderBy(id => id).SequenceEqual(newGraphData.Edges.Select(e => e.Id).OrderBy(id => id));
+			var structureChanged = HasStructureChanged(_currentGraphData, newGraphData);
 
 			_currentGraphData = newGraphData; // Update current data reference
 
-			if (_graphViewer != null)
+			if (GraphViewer != null)
 			{
-				if (nodesChanged || edgesChanged)
-				{
-					// If nodes or edges have changed, force a full refresh (regenerate layout)
-					Console.WriteLine("PDGraphViewerPage: Nodes or edges changed, performing full refresh.");
-					await _graphViewer.RefreshAsync().ConfigureAwait(false);
-				}
-				else
-				{
-					// If only data within existing nodes/edges changed, update configuration (preserve layout)
-					Console.WriteLine("PDGraphViewerPage: Only data changed, updating configuration.");
-					await _graphViewer.UpdateConfigurationAsync((_visualizationConfig, _clusteringConfig, _damping)).ConfigureAwait(false);
-				}
+				await RefreshGraphViewerAsync(GraphViewer, structureChanged).ConfigureAwait(false);
 			}
 
 			EventManager?.Add(new Event("Graph data refreshed"));
@@ -109,6 +97,30 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 		}
 	}
 
+	private static bool HasStructureChanged(GraphData? currentGraphData, GraphData newGraphData)
+		=> currentGraphData == null
+			|| !HaveSameIds(currentGraphData.Nodes.Select(n => n.Id), newGraphData.Nodes.Select(n => n.Id))
+			|| !HaveSameIds(currentGraphData.Edges.Select(e => e.Id), newGraphData.Edges.Select(e => e.Id));
+
+	private static bool HaveSameIds(IEnumerable<string> currentIds, IEnumerable<string> newIds)
+		=> currentIds.OrderBy(id => id).SequenceEqual(newIds.OrderBy(id => id));
+
+	private async Task RefreshGraphViewerAsync(PDGraphViewer<GraphDataItem> graphViewer, bool structureChanged)
+	{
+		if (structureChanged)
+		{
+			// If nodes or edges have changed, force a full refresh (regenerate layout)
+			Console.WriteLine("PDGraphViewerPage: Nodes or edges changed, performing full refresh.");
+			await graphViewer.RefreshAsync().ConfigureAwait(false);
+		}
+		else
+		{
+			// If only data within existing nodes/edges changed, update configuration (preserve layout)
+			Console.WriteLine("PDGraphViewerPage: Only data changed, updating configuration.");
+			await graphViewer.UpdateConfigurationAsync((_visualizationConfig, _clusteringConfig, _damping)).ConfigureAwait(false);
+		}
+	}
+
 	private async Task OnFitToView()
 	{
 		if (_isUpdatingControls)
@@ -119,9 +131,9 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 		_isUpdatingControls = true;
 		try
 		{
-			if (_graphViewer != null)
+			if (GraphViewer != null)
 			{
-				await _graphViewer.FitToViewAsync();
+				await GraphViewer.FitToViewAsync();
 			}
 
 			EventManager?.Add(new Event("Graph fitted to view"));
@@ -228,7 +240,123 @@ public partial class PDGraphViewerPage : ComponentBase, IDisposable
 /// </summary>
 public class GraphDataProvider : IDataProviderService<GraphData>
 {
-	private readonly Random _random = new();
+	private sealed record NodeSeed(string Id, string Label, double Era, double Fame, double Influence, double Creativity);
+
+	private sealed record EdgeSeed(string From, string To, double Type, double Strength, double Certainty, string Label);
+
+	// Categories for a more structured graph
+	private const double _personCategory = 0.1;
+	private const double _inventionCategory = 0.3;
+	private const double _organizationCategory = 0.5;
+	private const double _fieldCategory = 0.7;
+	private const double _conceptCategory = 0.9;
+
+	private static readonly NodeSeed[] _people =
+	[
+		new("einstein", "Albert Einstein", 0.3, 0.95, 0.9, 0.95),
+		new("davinci", "Leonardo da Vinci", 0.1, 0.9, 0.85, 1.0),
+		new("jobs", "Steve Jobs", 0.8, 0.9, 0.8, 0.85),
+		new("tesla", "Nikola Tesla", 0.25, 0.7, 0.75, 0.9),
+		new("curie", "Marie Curie", 0.3, 0.8, 0.7, 0.8),
+		new("wozniak", "Steve Wozniak", 0.7, 0.6, 0.65, 0.8),
+		new("turing", "Alan Turing", 0.4, 0.8, 0.85, 0.95),
+		new("lovelace", "Ada Lovelace", 0.2, 0.6, 0.7, 0.9),
+		new("newton", "Isaac Newton", 0.15, 0.9, 0.95, 0.9),
+		new("galileo", "Galileo Galilei", 0.1, 0.8, 0.8, 0.85)
+	];
+
+	private static readonly NodeSeed[] _inventions =
+	[
+		new("relativity", "Theory of Relativity", 0.3, 0.8, 0.9, 0.95),
+		new("iphone", "iPhone", 0.9, 0.95, 0.85, 0.8),
+		new("electricity", "AC Electricity", 0.25, 0.9, 1.0, 0.85),
+		new("flight", "Powered Flight", 0.3, 0.85, 0.9, 0.9),
+		new("internet", "Internet", 0.7, 0.9, 0.95, 0.8),
+		new("radioactivity", "Radioactivity", 0.3, 0.7, 0.8, 0.85),
+		new("turing_machine", "Turing Machine", 0.4, 0.7, 0.9, 0.95),
+		new("analytical_engine", "Analytical Engine", 0.2, 0.5, 0.8, 0.9),
+		new("calculus", "Calculus", 0.15, 0.8, 0.95, 0.9),
+		new("telescope", "Telescope", 0.1, 0.7, 0.8, 0.8)
+	];
+
+	private static readonly NodeSeed[] _organizations =
+	[
+		new("apple", "Apple Inc.", 0.8, 0.9, 0.8, 0.75),
+		new("princeton", "Princeton University", 0.4, 0.7, 0.75, 0.7),
+		new("mit", "MIT", 0.6, 0.8, 0.8, 0.85),
+		new("bell_labs", "Bell Labs", 0.5, 0.6, 0.7, 0.8),
+		new("bletchley_park", "Bletchley Park", 0.4, 0.7, 0.8, 0.9),
+		new("cambridge", "University of Cambridge", 0.2, 0.8, 0.85, 0.8),
+		new("xerox_parc", "Xerox PARC", 0.7, 0.7, 0.8, 0.85)
+	];
+
+	private static readonly NodeSeed[] _fields =
+	[
+		new("physics", "Physics", 0.5, 0.7, 0.9, 0.8),
+		new("art", "Renaissance Art", 0.1, 0.8, 0.7, 0.95),
+		new("engineering", "Engineering", 0.5, 0.6, 0.85, 0.75),
+		new("computer_science", "Computer Science", 0.7, 0.7, 0.9, 0.8),
+		new("mathematics", "Mathematics", 0.4, 0.8, 0.9, 0.85),
+		new("astronomy", "Astronomy", 0.3, 0.7, 0.8, 0.75),
+		new("cryptography", "Cryptography", 0.5, 0.6, 0.7, 0.8)
+	];
+
+	private static readonly NodeSeed[] _concepts =
+	[
+		new("innovation", "Innovation", 0.5, 0.6, 0.85, 0.9),
+		new("creativity", "Creativity", 0.5, 0.5, 0.7, 1.0),
+		new("computation", "Computation", 0.6, 0.7, 0.85, 0.8),
+		new("relativity_principle", "Principle of Relativity", 0.3, 0.8, 0.9, 0.9),
+		new("user_interface", "User Interface", 0.7, 0.6, 0.7, 0.8)
+	];
+
+	// A rich set of edges with semantic meaning
+	private static readonly EdgeSeed[] _edgeSeeds =
+	[
+		// Foundational relationships
+		new("newton", "calculus", 0.1, 0.95, 1.0, "developed"),
+		new("galileo", "telescope", 0.1, 0.9, 1.0, "improved"),
+		new("davinci", "art", 0.1, 0.95, 1.0, "mastered"),
+		new("davinci", "engineering", 0.2, 0.8, 0.8, "pioneered"),
+
+		// Physics and Math
+		new("einstein", "relativity", 0.1, 0.95, 1.0, "discovered"),
+		new("einstein", "physics", 0.2, 0.9, 1.0, "advanced"),
+		new("einstein", "newton", 0.7, 0.8, 0.9, "built upon work of"),
+		new("curie", "radioactivity", 0.1, 0.95, 1.0, "discovered"),
+		new("curie", "physics", 0.2, 0.8, 1.0, "contributed to"),
+		new("calculus", "physics", 0.8, 0.9, 1.0, "is fundamental to"),
+		new("relativity", "relativity_principle", 0.8, 0.9, 1.0, "is based on"),
+
+		// Computer Science
+		new("lovelace", "analytical_engine", 0.1, 0.8, 0.9, "wrote algorithm for"),
+		new("turing", "turing_machine", 0.1, 0.95, 1.0, "formalized"),
+		new("turing", "computer_science", 0.2, 0.9, 1.0, "is father of"),
+		new("turing", "cryptography", 0.2, 0.85, 0.9, "applied"),
+		new("turing_machine", "computation", 0.8, 0.9, 1.0, "defines"),
+		new("jobs", "apple", 0.5, 0.95, 1.0, "co-founded"),
+		new("wozniak", "apple", 0.5, 0.9, 1.0, "co-founded"),
+		new("jobs", "wozniak", 0.6, 0.8, 1.0, "partnered with"),
+		new("apple", "iphone", 0.1, 0.9, 1.0, "developed"),
+		new("xerox_parc", "user_interface", 0.1, 0.8, 0.9, "pioneered"),
+		new("apple", "xerox_parc", 0.7, 0.7, 0.8, "was influenced by"),
+
+		// Institutional connections
+		new("einstein", "princeton", 0.3, 0.8, 0.9, "worked at"),
+		new("turing", "cambridge", 0.3, 0.8, 0.9, "studied at"),
+		new("turing", "bletchley_park", 0.3, 0.9, 1.0, "worked at"),
+		new("newton", "cambridge", 0.3, 0.85, 1.0, "was a fellow of"),
+		new("bell_labs", "internet", 0.1, 0.7, 0.8, "contributed to"),
+		new("mit", "computer_science", 0.3, 0.85, 0.9, "is a leader in"),
+
+		// Conceptual links
+		new("creativity", "innovation", 0.7, 0.9, 0.8, "enables"),
+		new("art", "creativity", 0.7, 0.8, 0.9, "expresses"),
+		new("innovation", "iphone", 0.4, 0.8, 0.8, "produced"),
+		new("engineering", "flight", 0.8, 0.8, 1.0, "achieved"),
+		new("physics", "engineering", 0.7, 0.8, 0.9, "informs"),
+		new("mathematics", "computer_science", 0.7, 0.9, 1.0, "is the foundation of")
+	];
 
 	public Task<DataResponse<GraphData>> GetDataAsync(DataRequest<GraphData> request, CancellationToken cancellationToken)
 	{
@@ -252,231 +380,22 @@ public class GraphDataProvider : IDataProviderService<GraphData>
 		return Task.FromResult(new OperationResponse { Success = false, ErrorMessage = "Update not supported" });
 	}
 
-	private GraphData GenerateInnovationKnowledgeGraph()
+	private static GraphData GenerateInnovationKnowledgeGraph()
 	{
 		var nodes = new List<GraphNode>();
+		AddNodes(nodes, _people, _personCategory);
+		AddNodes(nodes, _inventions, _inventionCategory);
+		AddNodes(nodes, _organizations, _organizationCategory);
+		AddNodes(nodes, _fields, _fieldCategory);
+		AddNodes(nodes, _concepts, _conceptCategory);
+
 		var edges = new List<GraphEdge>();
-		var nodeConfigs = new List<dynamic>();
-
-		// Define categories for a more structured graph
-		var categories = new Dictionary<string, double>
-		{
-			{ "Person", 0.1 },
-			{ "Invention", 0.3 },
-			{ "Organization", 0.5 },
-			{ "Field", 0.7 },
-			{ "Concept", 0.9 }
-		};
-
-		// --- People ---
-		var people = new[]
-		{
-			new { Id = "einstein", Label = "Albert Einstein", Era = 0.3, Fame = 0.95, Influence = 0.9, Creativity = 0.95 },
-			new { Id = "davinci", Label = "Leonardo da Vinci", Era = 0.1, Fame = 0.9, Influence = 0.85, Creativity = 1.0 },
-			new { Id = "jobs", Label = "Steve Jobs", Era = 0.8, Fame = 0.9, Influence = 0.8, Creativity = 0.85 },
-			new { Id = "tesla", Label = "Nikola Tesla", Era = 0.25, Fame = 0.7, Influence = 0.75, Creativity = 0.9 },
-			new { Id = "curie", Label = "Marie Curie", Era = 0.3, Fame = 0.8, Influence = 0.7, Creativity = 0.8 },
-			new { Id = "wozniak", Label = "Steve Wozniak", Era = 0.7, Fame = 0.6, Influence = 0.65, Creativity = 0.8 },
-			new { Id = "turing", Label = "Alan Turing", Era = 0.4, Fame = 0.8, Influence = 0.85, Creativity = 0.95 },
-			new { Id = "lovelace", Label = "Ada Lovelace", Era = 0.2, Fame = 0.6, Influence = 0.7, Creativity = 0.9 },
-			new { Id = "newton", Label = "Isaac Newton", Era = 0.15, Fame = 0.9, Influence = 0.95, Creativity = 0.9 },
-			new { Id = "galileo", Label = "Galileo Galilei", Era = 0.1, Fame = 0.8, Influence = 0.8, Creativity = 0.85 }
-		};
-		foreach (var p in people)
-		{
-			nodeConfigs.Add(new { p.Id, p.Label, Category = categories["Person"], p.Era, p.Fame, p.Influence, p.Creativity });
-		}
-
-		// --- Inventions/Concepts ---
-		var inventions = new[]
-		{
-			new { Id = "relativity", Label = "Theory of Relativity", Era = 0.3, Fame = 0.8, Influence = 0.9, Creativity = 0.95 },
-			new { Id = "iphone", Label = "iPhone", Era = 0.9, Fame = 0.95, Influence = 0.85, Creativity = 0.8 },
-			new { Id = "electricity", Label = "AC Electricity", Era = 0.25, Fame = 0.9, Influence = 1.0, Creativity = 0.85 },
-			new { Id = "flight", Label = "Powered Flight", Era = 0.3, Fame = 0.85, Influence = 0.9, Creativity = 0.9 },
-			new { Id = "internet", Label = "Internet", Era = 0.7, Fame = 0.9, Influence = 0.95, Creativity = 0.8 },
-			new { Id = "radioactivity", Label = "Radioactivity", Era = 0.3, Fame = 0.7, Influence = 0.8, Creativity = 0.85 },
-			new { Id = "turing_machine", Label = "Turing Machine", Era = 0.4, Fame = 0.7, Influence = 0.9, Creativity = 0.95 },
-			new { Id = "analytical_engine", Label = "Analytical Engine", Era = 0.2, Fame = 0.5, Influence = 0.8, Creativity = 0.9 },
-			new { Id = "calculus", Label = "Calculus", Era = 0.15, Fame = 0.8, Influence = 0.95, Creativity = 0.9 },
-			new { Id = "telescope", Label = "Telescope", Era = 0.1, Fame = 0.7, Influence = 0.8, Creativity = 0.8 }
-		};
-		foreach (var i in inventions)
-		{
-			nodeConfigs.Add(new { i.Id, i.Label, Category = categories["Invention"], i.Era, i.Fame, i.Influence, i.Creativity });
-		}
-
-		// --- Organizations/Places ---
-		var organizations = new[]
-		{
-			new { Id = "apple", Label = "Apple Inc.", Era = 0.8, Fame = 0.9, Influence = 0.8, Creativity = 0.75 },
-			new { Id = "princeton", Label = "Princeton University", Era = 0.4, Fame = 0.7, Influence = 0.75, Creativity = 0.7 },
-			new { Id = "mit", Label = "MIT", Era = 0.6, Fame = 0.8, Influence = 0.8, Creativity = 0.85 },
-			new { Id = "bell_labs", Label = "Bell Labs", Era = 0.5, Fame = 0.6, Influence = 0.7, Creativity = 0.8 },
-			new { Id = "bletchley_park", Label = "Bletchley Park", Era = 0.4, Fame = 0.7, Influence = 0.8, Creativity = 0.9 },
-			new { Id = "cambridge", Label = "University of Cambridge", Era = 0.2, Fame = 0.8, Influence = 0.85, Creativity = 0.8 },
-			new { Id = "xerox_parc", Label = "Xerox PARC", Era = 0.7, Fame = 0.7, Influence = 0.8, Creativity = 0.85 }
-		};
-		foreach (var o in organizations)
-		{
-			nodeConfigs.Add(new { o.Id, o.Label, Category = categories["Organization"], o.Era, o.Fame, o.Influence, o.Creativity });
-		}
-
-		// --- Fields/Disciplines ---
-		var fields = new[]
-		{
-			new { Id = "physics", Label = "Physics", Era = 0.5, Fame = 0.7, Influence = 0.9, Creativity = 0.8 },
-			new { Id = "art", Label = "Renaissance Art", Era = 0.1, Fame = 0.8, Influence = 0.7, Creativity = 0.95 },
-			new { Id = "engineering", Label = "Engineering", Era = 0.5, Fame = 0.6, Influence = 0.85, Creativity = 0.75 },
-			new { Id = "computer_science", Label = "Computer Science", Era = 0.7, Fame = 0.7, Influence = 0.9, Creativity = 0.8 },
-			new { Id = "mathematics", Label = "Mathematics", Era = 0.4, Fame = 0.8, Influence = 0.9, Creativity = 0.85 },
-			new { Id = "astronomy", Label = "Astronomy", Era = 0.3, Fame = 0.7, Influence = 0.8, Creativity = 0.75 },
-			new { Id = "cryptography", Label = "Cryptography", Era = 0.5, Fame = 0.6, Influence = 0.7, Creativity = 0.8 }
-		};
-		foreach (var f in fields)
-		{
-			nodeConfigs.Add(new { f.Id, f.Label, Category = categories["Field"], f.Era, f.Fame, f.Influence, f.Creativity });
-		}
-
-		// --- Concepts/Ideas ---
-		var concepts = new[]
-		{
-			new { Id = "innovation", Label = "Innovation", Era = 0.5, Fame = 0.6, Influence = 0.85, Creativity = 0.9 },
-			new { Id = "creativity", Label = "Creativity", Era = 0.5, Fame = 0.5, Influence = 0.7, Creativity = 1.0 },
-			new { Id = "computation", Label = "Computation", Era = 0.6, Fame = 0.7, Influence = 0.85, Creativity = 0.8 },
-			new { Id = "relativity_principle", Label = "Principle of Relativity", Era = 0.3, Fame = 0.8, Influence = 0.9, Creativity = 0.9 },
-			new { Id = "user_interface", Label = "User Interface", Era = 0.7, Fame = 0.6, Influence = 0.7, Creativity = 0.8 }
-		};
-		foreach (var c in concepts)
-		{
-			nodeConfigs.Add(new { c.Id, c.Label, Category = categories["Concept"], c.Era, c.Fame, c.Influence, c.Creativity });
-		}
-
-		//// --- Generate a large number of additional "follower" nodes to test performance ---
-		//int followerCount = 50;
-		//for (int i = 0; i < followerCount; i++)
-		//{
-		//	var followerId = $"follower_{i}";
-		//	var connectedTo = nodeConfigs[_random.Next(nodeConfigs.Count)];
-		//	nodeConfigs.Add(new
-		//	{
-		//		Id = followerId,
-		//		Label = $"Follower {i + 1}",
-		//		Category = categories["Person"],
-		//		Era = AddNoise(connectedTo.Era, 0.1),
-		//		Fame = AddNoise(0.2, 0.1),
-		//		Influence = AddNoise(0.1, 0.1),
-		//		Creativity = AddNoise(0.3, 0.2)
-		//	});
-		//}
-
-		// --- Create all nodes ---
-		foreach (var config in nodeConfigs)
-		{
-			nodes.Add(new GraphNode
-			{
-				Id = config.Id,
-				Label = config.Label,
-				Dimensions = new Dictionary<string, double>
-				{
-					["Category"] = config.Category,
-					["Era"] = config.Era,
-					["Fame"] = AddNoise(config.Fame, 0.1),
-					["Influence"] = AddNoise(config.Influence, 0.1),
-					["Creativity"] = AddNoise(config.Creativity, 0.1)
-				}
-			});
-		}
-
-		// --- Create a rich set of edges with semantic meaning ---
-		var edgeConfigs = new List<dynamic>
-		{
-			// Foundational relationships
-			new { From = "newton", To = "calculus", Type = 0.1, Strength = 0.95, Certainty = 1.0, Label = "developed" },
-			new { From = "galileo", To = "telescope", Type = 0.1, Strength = 0.9, Certainty = 1.0, Label = "improved" },
-			new { From = "davinci", To = "art", Type = 0.1, Strength = 0.95, Certainty = 1.0, Label = "mastered" },
-			new { From = "davinci", To = "engineering", Type = 0.2, Strength = 0.8, Certainty = 0.8, Label = "pioneered" },
-
-			// Physics and Math
-			new { From = "einstein", To = "relativity", Type = 0.1, Strength = 0.95, Certainty = 1.0, Label = "discovered" },
-			new { From = "einstein", To = "physics", Type = 0.2, Strength = 0.9, Certainty = 1.0, Label = "advanced" },
-			new { From = "einstein", To = "newton", Type = 0.7, Strength = 0.8, Certainty = 0.9, Label = "built upon work of" },
-			new { From = "curie", To = "radioactivity", Type = 0.1, Strength = 0.95, Certainty = 1.0, Label = "discovered" },
-			new { From = "curie", To = "physics", Type = 0.2, Strength = 0.8, Certainty = 1.0, Label = "contributed to" },
-			new { From = "calculus", To = "physics", Type = 0.8, Strength = 0.9, Certainty = 1.0, Label = "is fundamental to" },
-			new { From = "relativity", To = "relativity_principle", Type = 0.8, Strength = 0.9, Certainty = 1.0, Label = "is based on" },
-
-			// Computer Science
-			new { From = "lovelace", To = "analytical_engine", Type = 0.1, Strength = 0.8, Certainty = 0.9, Label = "wrote algorithm for" },
-			new { From = "turing", To = "turing_machine", Type = 0.1, Strength = 0.95, Certainty = 1.0, Label = "formalized" },
-			new { From = "turing", To = "computer_science", Type = 0.2, Strength = 0.9, Certainty = 1.0, Label = "is father of" },
-			new { From = "turing", To = "cryptography", Type = 0.2, Strength = 0.85, Certainty = 0.9, Label = "applied" },
-			new { From = "turing_machine", To = "computation", Type = 0.8, Strength = 0.9, Certainty = 1.0, Label = "defines" },
-			new { From = "jobs", To = "apple", Type = 0.5, Strength = 0.95, Certainty = 1.0, Label = "co-founded" },
-			new { From = "wozniak", To = "apple", Type = 0.5, Strength = 0.9, Certainty = 1.0, Label = "co-founded" },
-			new { From = "jobs", To = "wozniak", Type = 0.6, Strength = 0.8, Certainty = 1.0, Label = "partnered with" },
-			new { From = "apple", To = "iphone", Type = 0.1, Strength = 0.9, Certainty = 1.0, Label = "developed" },
-			new { From = "xerox_parc", To = "user_interface", Type = 0.1, Strength = 0.8, Certainty = 0.9, Label = "pioneered" },
-			new { From = "apple", To = "xerox_parc", Type = 0.7, Strength = 0.7, Certainty = 0.8, Label = "was influenced by" },
-
-			// Institutional connections
-			new { From = "einstein", To = "princeton", Type = 0.3, Strength = 0.8, Certainty = 0.9, Label = "worked at" },
-			new { From = "turing", To = "cambridge", Type = 0.3, Strength = 0.8, Certainty = 0.9, Label = "studied at" },
-			new { From = "turing", To = "bletchley_park", Type = 0.3, Strength = 0.9, Certainty = 1.0, Label = "worked at" },
-			new { From = "newton", To = "cambridge", Type = 0.3, Strength = 0.85, Certainty = 1.0, Label = "was a fellow of" },
-			new { From = "bell_labs", To = "internet", Type = 0.1, Strength = 0.7, Certainty = 0.8, Label = "contributed to" },
-			new { From = "mit", To = "computer_science", Type = 0.3, Strength = 0.85, Certainty = 0.9, Label = "is a leader in" },
-
-			// Conceptual links
-			new { From = "creativity", To = "innovation", Type = 0.7, Strength = 0.9, Certainty = 0.8, Label = "enables" },
-			new { From = "art", To = "creativity", Type = 0.7, Strength = 0.8, Certainty = 0.9, Label = "expresses" },
-			new { From = "innovation", To = "iphone", Type = 0.4, Strength = 0.8, Certainty = 0.8, Label = "produced" },
-			new { From = "engineering", To = "flight", Type = 0.8, Strength = 0.8, Certainty = 1.0, Label = "achieved" },
-			new { From = "physics", To = "engineering", Type = 0.7, Strength = 0.8, Certainty = 0.9, Label = "informs" },
-			new { From = "mathematics", To = "computer_science", Type = 0.7, Strength = 0.9, Certainty = 1.0, Label = "is the foundation of" }
-		};
-
-		//// --- Add edges for "follower" nodes ---
-		//for (int i = 0; i < followerCount; i++)
-		//{
-		//	var followerId = $"follower_{i}";
-		//	// Connect each follower to 1-3 random core nodes
-		//	int connections = _random.Next(1, 4);
-		//	for (int j = 0; j < connections; j++)
-		//	{
-		//		var connectedTo = nodeConfigs[_random.Next(people.Length + inventions.Length)]; // Connect to people or inventions
-		//		edgeConfigs.Add(new
-		//		{
-		//			From = followerId,
-		//			To = connectedTo.Id,
-		//			Type = 0.6, // "follower of"
-		//			Strength = AddNoise(0.4, 0.2),
-		//			Certainty = AddNoise(0.7, 0.2),
-		//			Label = "is influenced by"
-		//		});
-		//	}
-		//}
-
-		// --- Create all edges ---
-		foreach (var config in edgeConfigs)
+		foreach (var seed in _edgeSeeds)
 		{
 			// Ensure edge doesn't already exist before adding
-			if (!edges.Any(e => e.FromNodeId == config.From && e.ToNodeId == config.To))
+			if (!edges.Any(e => e.FromNodeId == seed.From && e.ToNodeId == seed.To))
 			{
-				edges.Add(new GraphEdge
-				{
-					Id = $"edge_{config.From}_{config.To}",
-					FromNodeId = config.From,
-					ToNodeId = config.To,
-					Strength = config.Strength,
-					Label = config.Label,
-					Dimensions = new Dictionary<string, double>
-					{
-						["ConnectionStrength"] = AddNoise(config.Strength, 0.1),
-						["RelationshipType"] = config.Type,
-						["Certainty"] = AddNoise(config.Certainty, 0.05)
-					}
-				});
+				edges.Add(CreateEdge(seed));
 			}
 		}
 
@@ -487,8 +406,49 @@ public class GraphDataProvider : IDataProviderService<GraphData>
 		};
 	}
 
-	private double AddNoise(double value, double maxNoise)
+	private static void AddNodes(List<GraphNode> nodes, NodeSeed[] seeds, double category)
 	{
-		return Math.Clamp(value + (_random.NextDouble() - 0.5) * maxNoise * 2, 0.0, 1.0);
+		foreach (var seed in seeds)
+		{
+			nodes.Add(new GraphNode
+			{
+				Id = seed.Id,
+				Label = seed.Label,
+				Dimensions = new Dictionary<string, double>
+				{
+					["Category"] = category,
+					["Era"] = seed.Era,
+					["Fame"] = AddNoise(seed.Fame, 0.1),
+					["Influence"] = AddNoise(seed.Influence, 0.1),
+					["Creativity"] = AddNoise(seed.Creativity, 0.1)
+				}
+			});
+		}
+	}
+
+	private static GraphEdge CreateEdge(EdgeSeed seed)
+		=> new()
+		{
+			Id = $"edge_{seed.From}_{seed.To}",
+			FromNodeId = seed.From,
+			ToNodeId = seed.To,
+			Strength = seed.Strength,
+			Label = seed.Label,
+			Dimensions = new Dictionary<string, double>
+			{
+				["ConnectionStrength"] = AddNoise(seed.Strength, 0.1),
+				["RelationshipType"] = seed.Type,
+				["Certainty"] = AddNoise(seed.Certainty, 0.05)
+			}
+		};
+
+	/// <summary>
+	/// Returns a random value in the range [0, 1).
+	/// </summary>
+	private static double NextDouble() => RandomNumberGenerator.GetInt32(int.MaxValue) / (double)int.MaxValue;
+
+	private static double AddNoise(double value, double maxNoise)
+	{
+		return Math.Clamp(value + (NextDouble() - 0.5) * maxNoise * 2, 0.0, 1.0);
 	}
 }

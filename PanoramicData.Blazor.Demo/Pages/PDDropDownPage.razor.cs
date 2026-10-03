@@ -2,7 +2,7 @@
 
 public partial class PDDropDownPage
 {
-	private PDDropDown _dropdown = null!;
+	protected PDDropDown Dropdown { get; set; } = null!;
 
 	[CascadingParameter]
 	protected EventManager? EventManager { get; set; }

@@ -38,46 +38,46 @@
 	</PDToolbar>
 	<PDToolbar>
 		<PDLabel Text="Word Wrap" />
-		<PDToggleSwitch @bind-Value="_wordWrap" />
+		<PDToggleSwitch @bind-Value="WordWrap" />
 		<PDLabel Text="Reverse" />
-		<PDToggleSwitch @bind-Value="_reverse" />
+		<PDToggleSwitch @bind-Value="Reverse" />
 		<PDLabel Text="Show Icon" />
-		<PDToggleSwitch @bind-Value="_showIcon" />
+		<PDToggleSwitch @bind-Value="ShowIcon" />
 		<PDLabel Text="Show Exception" />
-		<PDToggleSwitch @bind-Value="_showException" />
+		<PDToggleSwitch @bind-Value="ShowException" />
 		<PDLabel Text="Tail" />
-		<PDToggleSwitch @bind-Value="_tail" />
+		<PDToggleSwitch @bind-Value="Tail" />
 		<PDLabel Text="Use Local Time" />
-		<PDToggleSwitch @bind-Value="_useLocalTime" />
+		<PDToggleSwitch @bind-Value="UseLocalTime" />
 		<PDLabel Text="Show Timestamp" />
-		<PDToggleSwitch @bind-Value="_showTimestamp" />
+		<PDToggleSwitch @bind-Value="ShowTimestamp" />
 		<PDToolbarTextbox Label="Timestamp Format"
 						  @bind-Value="@LogTimestampFormat" />
 		<PDToolbarButton Text="Clear"
 						 Click="Clear" />
 		<PDLabel Text="Rows" />
 		<PDToolbarTextbox Type="PDInputType.Number"
-						  @bind-Value="_rows" />
+						  @bind-Value="Rows" />
 		<PDLabel Text="Capacity" />
 		<PDToolbarTextbox Type="PDInputType.Number"
-						  @bind-Value="_capacity" />
+						  @bind-Value="Capacity" />
 		<PDLabel Text="Log Level" />
 		<PDToolbarDropdown Text="@_logLevel.ToString()"
 						   Items="LogLevelMenuItems"
 						   Click="OnLogLevelClick" />
 	</PDToolbar>
 
-	<PDLog @ref="_log"
-		   Rows="@int.Parse(_rows)"
-		   WordWrap="@_wordWrap"
-		   Reverse="@_reverse"
-		   Tail="@_tail"
+	<PDLog @ref="LogComponent"
+		   Rows="@int.Parse(Rows)"
+		   WordWrap="@WordWrap"
+		   Reverse="@Reverse"
+		   Tail="@Tail"
 		   LogLevel="@_logLevel"
-		   Capacity="@int.Parse(_capacity)"
-		   ShowTimestamp="@_showTimestamp"
-		   ShowIcon="@_showIcon"
-		   ShowException="@_showException"
-		   UseLocalTime="@_useLocalTime"
+		   Capacity="@int.Parse(Capacity)"
+		   ShowTimestamp="@ShowTimestamp"
+		   ShowIcon="@ShowIcon"
+		   ShowException="@ShowException"
+		   UseLocalTime="@UseLocalTime"
 		   UtcTimestampFormat="@LogTimestampFormat" />
 
 	</ChildContent>

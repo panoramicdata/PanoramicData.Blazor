@@ -7,10 +7,10 @@ public partial class PDTablePage
 	private SortCriteria _sortCriteria = new("Last Name", SortDirection.Descending);
 	private readonly PersonDataProvider _personDataProvider = new();
 	private object[] _ages = [];
-	private bool AllowDrag { get; set; }
-	private bool AllowDrop { get; set; }
+	protected bool AllowDrag { get; set; }
+	protected bool AllowDrop { get; set; }
 	private string DropZoneCss { get; set; } = "";
-	private PDDragContext? DragContext { get; set; }
+	protected PDDragContext? DragContext { get; set; }
 	private string DropMessage { get; set; } = "Drop Zone";
 	private bool Enabled { get; set; } = true;
 	private PDTable<Person> Table { get; set; } = null!;
@@ -30,11 +30,7 @@ public partial class PDTablePage
 		// Sort
 		if (query.TryGetValue("sort", out var requestedSortFields))
 		{
-			var sortFieldSpecs = requestedSortFields[0]?.Split('|') ?? [];
-			if (sortFieldSpecs.Length == 2)
-			{
-				_sortCriteria = new SortCriteria(sortFieldSpecs[0], sortFieldSpecs[1] == "desc" ? SortDirection.Descending : SortDirection.Ascending);
-			}
+			_sortCriteria = ParseSortCriteria(requestedSortFields[0]) ?? _sortCriteria;
 		}
 
 		// Page
@@ -44,10 +40,18 @@ public partial class PDTablePage
 		}
 
 		// Search
-		if (query?.TryGetValue("search", out var requestedSearch) ?? false)
+		if (query.TryGetValue("search", out var requestedSearch))
 		{
 			_searchText = requestedSearch.ToString();
 		}
+	}
+
+	private static SortCriteria? ParseSortCriteria(string? requestedSortField)
+	{
+		var sortFieldSpecs = requestedSortField?.Split('|') ?? [];
+		return sortFieldSpecs.Length == 2
+			? new SortCriteria(sortFieldSpecs[0], sortFieldSpecs[1] == "desc" ? SortDirection.Descending : SortDirection.Ascending)
+			: null;
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -132,7 +136,7 @@ public partial class PDTablePage
 		}
 	}
 
-	private void OnDragEnter(DragEventArgs _)
+	private void OnDragEnter()
 	{
 		if (DragContext?.Payload == null)
 		{
@@ -144,9 +148,9 @@ public partial class PDTablePage
 		}
 	}
 
-	private void OnDragLeave(DragEventArgs _) => DropZoneCss = "";
+	private void OnDragLeave() => DropZoneCss = "";
 
-	private void OnDragDrop(DragEventArgs _)
+	private void OnDragDrop()
 	{
 		// get item that was dragged (TestRow)
 		DropMessage = "Boom!";
@@ -171,11 +175,9 @@ public partial class PDTablePage
 		await SearchAsync().ConfigureAwait(true);
 	}
 
-	private async Task OnSearchCleared() =>
-		//_searchText = string.Empty;
-		await SearchAsync().ConfigureAwait(true);
+	private async Task OnSearchCleared() => await SearchAsync().ConfigureAwait(true);
 
-	private static OptionInfo[] GetLocationOptions(FormField<Person> _, Person item)
+	private static OptionInfo[] GetLocationOptions(Person item)
 	{
 		var options = new List<OptionInfo>();
 		for (var i = 0; i < PersonDataProvider.Locations.Length; i++)

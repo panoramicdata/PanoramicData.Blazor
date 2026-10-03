@@ -2,7 +2,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDPagerDocumentation
 {
-	private int _currentPage = 1;
+	protected int CurrentPage { get; set; } = 1;
 
 	private const string _example1Code = """
 		<PDPager TotalItems="100"

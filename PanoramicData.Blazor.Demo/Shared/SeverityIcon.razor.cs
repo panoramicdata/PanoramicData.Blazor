@@ -27,7 +27,7 @@ public partial class SeverityIcon
 		};
 	}
 
-	private bool _isHovered;
+	protected bool IsHovered { get; set; }
 
 	/// <summary>
 	/// Shows the user the color of the severity icon when hovered over.
@@ -37,7 +37,7 @@ public partial class SeverityIcon
 	/// <returns></returns>
 	private string GetHoverSeverityClass(Todo ticket, bool animate)
 	{
-		if (!_isHovered || !Interactable)
+		if (!IsHovered || !Interactable)
 		{
 			return string.Empty;
 		}

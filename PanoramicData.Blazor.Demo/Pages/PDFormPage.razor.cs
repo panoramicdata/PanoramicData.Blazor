@@ -12,14 +12,7 @@ public partial class PDFormPage
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
-	//private FieldStringOptions TextEditorOptions => new FieldStringOptions
-	//{
-	//	Editor = FieldStringOptions.Editors.TextArea,
-	//	Resize = true,
-	//	ResizeCssCls = "mh-150-px"
-	//};
-
-	// MONACO editor example
+	// MONACO editor example (a plain resizable TextArea editor can be used instead via FieldStringOptions.Editors.TextArea)
 
 	private static FieldStringOptions TextEditorOptions
 	{

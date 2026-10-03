@@ -221,17 +221,7 @@ public partial class PDStatusRollUpPage
 		if (node == _lazyDeepRoot)
 		{
 			await Task.Delay(600).ConfigureAwait(true);
-			return new PDStatusRollUpNode
-			{
-				Status = RollUpStatus.Red,
-				Title = "Data Centres",
-				Summary = "1 critical issue — fetched at " + DateTime.Now.ToString("HH:mm:ss"),
-				Children =
-				[
-					new() { Status = RollUpStatus.Red,   Title = "London",    Summary = "1 node critical — click to drill in",  Expandable = true },
-					new() { Status = RollUpStatus.Green, Title = "Amsterdam", Summary = "All nodes healthy — click to drill in", Expandable = true },
-				]
-			};
+			return CreateDataCentresNode();
 		}
 
 		// Level 1 — a cluster node opened: return its server members (500 ms delay)
@@ -254,19 +244,9 @@ public partial class PDStatusRollUpPage
 		{
 			await Task.Delay(800).ConfigureAwait(true);
 			var checks = _lazyChecks[map.CheckIndex];
-			var worstStatus = RollUpStatus.Green;
-			if (checks.Any(c => c.Status == RollUpStatus.Red))
-			{
-				worstStatus = RollUpStatus.Red;
-			}
-			else if (checks.Any(c => c.Status == RollUpStatus.Amber))
-			{
-				worstStatus = RollUpStatus.Amber;
-			}
-
 			return new PDStatusRollUpNode
 			{
-				Status = worstStatus,
+				Status = GetWorstStatus(checks),
 				Title = node.Title,
 				Summary = "Checks fetched at " + DateTime.Now.ToString("HH:mm:ss"),
 				Children = [.. checks]
@@ -275,6 +255,31 @@ public partial class PDStatusRollUpPage
 
 		// Leaf nodes (individual checks) — nothing further to load
 		return null;
+	}
+
+	private static PDStatusRollUpNode CreateDataCentresNode()
+	{
+		return new PDStatusRollUpNode
+		{
+			Status = RollUpStatus.Red,
+			Title = "Data Centres",
+			Summary = "1 critical issue — fetched at " + DateTime.Now.ToString("HH:mm:ss"),
+			Children =
+			[
+				new() { Status = RollUpStatus.Red,   Title = "London",    Summary = "1 node critical — click to drill in",  Expandable = true },
+				new() { Status = RollUpStatus.Green, Title = "Amsterdam", Summary = "All nodes healthy — click to drill in", Expandable = true },
+			]
+		};
+	}
+
+	private static RollUpStatus GetWorstStatus(IEnumerable<PDStatusRollUpNode> checks)
+	{
+		if (checks.Any(c => c.Status == RollUpStatus.Red))
+		{
+			return RollUpStatus.Red;
+		}
+
+		return checks.Any(c => c.Status == RollUpStatus.Amber) ? RollUpStatus.Amber : RollUpStatus.Green;
 	}
 
 	// ── Status bar ─────────────────────────────────────────────────

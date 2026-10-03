@@ -4,16 +4,16 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDColorPickerPage
 {
-	private string _color1 = "#3498db";
-	private string _color2 = "#E91E63";
-	private string _color3 = "rgba(52, 152, 219, 0.7)";
-	private string _color4 = "#27ae60";
-	private string _color5 = "#9b59b6";
-	private string _color6 = "#e74c3c";
-	private string _color7 = "#1abc9c";
-	private string _color8 = "#f39c12";
-	private string _colorHsv = "#ff6b35";
-	private string _colorHsva = "rgba(255, 107, 53, 0.8)";
+	protected string Color1 { get; set; } = "#3498db";
+	protected string Color2 { get; set; } = "#E91E63";
+	protected string Color3 { get; set; } = "rgba(52, 152, 219, 0.7)";
+	protected string Color4 { get; set; } = "#27ae60";
+	protected string Color5 { get; set; } = "#9b59b6";
+	protected string Color6 { get; set; } = "#e74c3c";
+	protected string Color7 { get; set; } = "#1abc9c";
+	protected string Color8 { get; set; } = "#f39c12";
+	protected string ColorHsv { get; set; } = "#ff6b35";
+	protected string ColorHsva { get; set; } = "rgba(255, 107, 53, 0.8)";
 
 	private readonly List<string> _recentColors = ["#FF5722", "#2196F3", "#4CAF50"];
 	private readonly List<string> _events = [];

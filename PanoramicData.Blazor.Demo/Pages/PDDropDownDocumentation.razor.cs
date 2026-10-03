@@ -2,7 +2,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDDropDownDocumentation
 {
-	private string? _selectedItem;
+	protected string? SelectedItem { get; set; }
 	private readonly List<string> _items = ["Option 1", "Option 2", "Option 3", "Option 4"];
 
 	private const string _example1Code = """

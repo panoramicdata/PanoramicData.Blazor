@@ -110,7 +110,9 @@ public class DirectoryEntry
 		Items.AddRange(items);
 	}
 
-	public DirectoryEntry Clone(bool deep = true)
+	public DirectoryEntry Clone() => Clone(true);
+
+	public DirectoryEntry Clone(bool deep)
 	{
 		var clone = new DirectoryEntry
 		{

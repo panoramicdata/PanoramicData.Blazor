@@ -11,8 +11,8 @@ public partial class PDDateTimePage
 	private DateTimeOffset _value5 = DateTime.Now;
 	private DateTimeOffset _value6 = DateTime.Now;
 	private DateTimeOffset _value7 = DateTimeOffset.Now;
-	private bool _value7IsNow = true;
-	private string? _value7TimeZoneId = TimeZoneInfo.Local.Id;
+	protected bool Value7IsNow { get; set; } = true;
+	protected string? Value7TimeZoneId { get; set; } = TimeZoneInfo.Local.Id;
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 

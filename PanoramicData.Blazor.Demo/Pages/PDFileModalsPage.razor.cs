@@ -2,11 +2,11 @@
 
 public partial class PDFileModalsPage
 {
-	private PDFileModal _fileModal = null!;
-	private PDFileModal _customButtonModal = null!;
-	private PDFileModal _excludedPathsModal = null!;
-	private PDFileModal _readOnlyModal = null!;
-	private PDFileModal _largeModal = null!;
+	protected PDFileModal FileModal { get; set; } = null!;
+	protected PDFileModal CustomButtonModal { get; set; } = null!;
+	protected PDFileModal ExcludedPathsModal { get; set; } = null!;
+	protected PDFileModal ReadOnlyModal { get; set; } = null!;
+	protected PDFileModal LargeModal { get; set; } = null!;
 
 	private string _openResult = string.Empty;
 	private string _saveAsResult = string.Empty;
@@ -28,10 +28,25 @@ public partial class PDFileModalsPage
 	{
 		if (item.EntryType == FileExplorerItemType.Directory && item.Name != "..")
 		{
-			if (item.Path == "/Library") return "fas fa-book";
-			if (item.Path == "/Users") return "fas fa-users";
-			if (item.Path == "/") return "fas fa-server";
-			if (item.ParentPath == "/") return "fas fa-hdd";
+			if (item.Path == "/Library")
+			{
+				return "fas fa-book";
+			}
+
+			if (item.Path == "/Users")
+			{
+				return "fas fa-users";
+			}
+
+			if (item.Path == "/")
+			{
+				return "fas fa-server";
+			}
+
+			if (item.ParentPath == "/")
+			{
+				return "fas fa-hdd";
+			}
 		}
 
 		return TestFileSystemDataProvider.GetIconClass(item);
@@ -39,83 +54,96 @@ public partial class PDFileModalsPage
 
 	private int OnTreeSort(FileExplorerItem item1, FileExplorerItem item2)
 	{
-		if (_virtualFolders.Contains(item1.Path) && !_virtualFolders.Contains(item2.Path)) return -1;
-		if (!_virtualFolders.Contains(item1.Path) && _virtualFolders.Contains(item2.Path)) return 1;
+		if (_virtualFolders.Contains(item1.Path) && !_virtualFolders.Contains(item2.Path))
+		{
+			return -1;
+		}
+
+		if (!_virtualFolders.Contains(item1.Path) && _virtualFolders.Contains(item2.Path))
+		{
+			return 1;
+		}
+
 		return item1.Name.CompareTo(item2.Name);
 	}
 
 	private void OnModalHidden(string result)
 	{
 		if (_showOpen)
+		{
 			_openResult = result;
+		}
 		else
+		{
 			_saveAsResult = result;
+		}
+
 		EventManager?.Add(new Event("ModalHidden", new EventArgument("Result", result)));
 	}
 
 	private async Task ShowFileOpenModalAndWaitResult()
 	{
-		_openResult = await _fileModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
+		_openResult = await FileModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
 		EventManager?.Add(new Event("OpenResult", new EventArgument("Path", _openResult)));
 	}
 
 	private async Task ShowFileOpenFilteredModalAndWaitResult()
 	{
-		_openResult = await _fileModal.ShowOpenAndWaitResultAsync(false, "*.docx;*.xlsx").ConfigureAwait(true);
+		_openResult = await FileModal.ShowOpenAndWaitResultAsync(false, "*.docx;*.xlsx").ConfigureAwait(true);
 		EventManager?.Add(new Event("OpenResult (filtered)", new EventArgument("Path", _openResult)));
 	}
 
 	private async Task ShowFolderOpenModalAndWaitResult()
 	{
-		_openResult = await _fileModal.ShowOpenAndWaitResultAsync(true).ConfigureAwait(true);
+		_openResult = await FileModal.ShowOpenAndWaitResultAsync(true).ConfigureAwait(true);
 		EventManager?.Add(new Event("FolderResult", new EventArgument("Path", _openResult)));
 	}
 
 	private async Task ShowFileSaveAsModalAndWaitResult()
 	{
-		_saveAsResult = await _fileModal.ShowSaveAsAndWaitResultAsync("NewFile.html").ConfigureAwait(true);
+		_saveAsResult = await FileModal.ShowSaveAsAndWaitResultAsync("NewFile.html").ConfigureAwait(true);
 		EventManager?.Add(new Event("SaveAsResult", new EventArgument("Path", _saveAsResult)));
 	}
 
 	private async Task ShowFileOpenModal()
 	{
 		_showOpen = true;
-		await _fileModal.ShowOpenAsync().ConfigureAwait(true);
+		await FileModal.ShowOpenAsync().ConfigureAwait(true);
 	}
 
 	private async Task ShowFileSaveAsModal()
 	{
 		_showOpen = false;
-		await _fileModal.ShowSaveAsAsync(_openResult).ConfigureAwait(true);
+		await FileModal.ShowSaveAsAsync(_openResult).ConfigureAwait(true);
 	}
 
 	private async Task ShowCustomOpenAndWait()
 	{
-		_customResult = await _customButtonModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
+		_customResult = await CustomButtonModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
 		EventManager?.Add(new Event("CustomOpen", new EventArgument("Path", _customResult)));
 	}
 
 	private async Task ShowCustomSaveAsAndWait()
 	{
-		_customResult = await _customButtonModal.ShowSaveAsAndWaitResultAsync().ConfigureAwait(true);
+		_customResult = await CustomButtonModal.ShowSaveAsAndWaitResultAsync().ConfigureAwait(true);
 		EventManager?.Add(new Event("CustomSaveAs", new EventArgument("Path", _customResult)));
 	}
 
 	private async Task ShowExcludedPathsOpenAndWait()
 	{
-		_excludedResult = await _excludedPathsModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
+		_excludedResult = await ExcludedPathsModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
 		EventManager?.Add(new Event("ExcludedOpen", new EventArgument("Path", _excludedResult)));
 	}
 
 	private async Task ShowReadOnlyOpenAndWait()
 	{
-		_readOnlyResult = await _readOnlyModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
+		_readOnlyResult = await ReadOnlyModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
 		EventManager?.Add(new Event("ReadOnlyOpen", new EventArgument("Path", _readOnlyResult)));
 	}
 
 	private async Task ShowLargeOpenAndWait()
 	{
-		_largeResult = await _largeModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
+		_largeResult = await LargeModal.ShowOpenAndWaitResultAsync().ConfigureAwait(true);
 		EventManager?.Add(new Event("LargeOpen", new EventArgument("Path", _largeResult)));
 	}
 }

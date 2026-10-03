@@ -4,8 +4,8 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDListPage
 {
-	private PDDropDown? _dropdown;
-	private bool _isEnabled = true;
+	protected PDDropDown? Dropdown { get; set; }
+	protected bool IsEnabled { get; set; } = true;
 	private readonly CarDataProvider _dataProvider = new();
 	private readonly Expression<Func<Car, object>> _sortExpression = (x) => x == null || x.ToString() == null ? string.Empty : x.ToString()!;
 	private readonly Selection<Car> _list5Selection = new();
@@ -27,13 +27,13 @@ public partial class PDListPage
 	private Task OnDropDownApplyAsync(Selection<Car> selection)
 	{
 		EventManager?.Add(new Event("Apply", new EventArgument("All", selection.AllSelected), new EventArgument("Items", string.Join(", ", selection.Items))));
-		return _dropdown!.HideAsync();
+		return Dropdown!.HideAsync();
 	}
 
 	private Task OnDropDownCancelAsync()
 	{
 		EventManager?.Add(new Event("Cancel"));
-		return _dropdown!.HideAsync();
+		return Dropdown!.HideAsync();
 	}
 
 	private void OnSelectionChanged(Selection<Car> selection)

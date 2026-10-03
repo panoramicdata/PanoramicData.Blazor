@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDTabSetDocumentation
+public partial class PDTabSetDocumentation : ComponentBase
 {
 	private const string _example1Code = """
 		<PDTabSet>

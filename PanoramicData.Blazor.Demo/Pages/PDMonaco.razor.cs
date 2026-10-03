@@ -6,11 +6,11 @@ namespace PanoramicData.Blazor.Demo.Pages;
 public partial class PDMonaco : IAsyncDisposable
 {
 	private string _theme = "vs";
-	private PDMonacoEditor? _editor;
+	protected PDMonacoEditor? Editor { get; set; }
 	private string _language = "sql";
 	private MethodCache? _methodCache;
 	private IJSObjectReference? _module;
-	private bool _showSuggestions = true;
+	protected bool ShowSuggestions { get; set; } = true;
 	private string _themePreference = "light";
 	private string _selectionText = string.Empty;
 	private string _value = "SELECT 10 * 10\n  FROM [Temp]";
@@ -99,88 +99,102 @@ public partial class PDMonaco : IAsyncDisposable
 		return Task.CompletedTask;
 	}
 
+	private static readonly Dictionary<string, Func<MethodCache.Parameter[]>> _rmscriptMacroParameters = new()
+	{
+		["List.Add"] = GetListAddParameters,
+		["Color"] = GetColorParameters,
+		["String"] = GetStringParameters
+	};
+
 	private static void AddRmscriptMacroParameters(MethodCache.Method method)
 	{
-		if (method.MethodName == "List.Add")
+		// use this static method to add parameters - ensures unspecified positions are calculated
+		if (_rmscriptMacroParameters.TryGetValue(method.MethodName, out var getParameters))
 		{
-			// use this static method to add parameters - ensures unspecified positions are calculated
-			MethodCache.AddMethodParameters(method,
-			[
-				new MethodCache.Parameter {
-					Name = "concat",
-					Description = "When adding lists to a list, this will add each individual item onto the end of the list, rather than adding the list itself onto the existing list."
-				},
-				new MethodCache.Parameter {
-					Name = "listDelimiter",
-					Description = "In Legacy Mode only, the delimiter to use between multiple items in the output."
-				},
-				new MethodCache.Parameter {
-					Name = "value",
-					Description = "The value to add."
-				}
-			]);
-		}
-
-		if (method.MethodName == "Color")
-		{
-			// use this static method to add parameters - ensures unspecified positions are calculated
-			MethodCache.AddMethodParameters(method,
-			[
-				new MethodCache.Parameter {
-					Name = "value",
-					Description = "The colour to use to increase intensity of the input colour.",
-					Type = typeof(string),
-				},
-				new MethodCache.Parameter {
-					Name = "intensifyColor",
-					Description = "The colour to use to increase intensity of the input colour.",
-					Type = typeof(string),
-				},
-				new MethodCache.Parameter {
-					Name = "intensifyPercent",
-					Description = "The percentage intensity to apply.",
-					Type = typeof(double),
-				}
-			]);
-		}
-
-		if (method.MethodName == "String")
-		{
-			// use this static method to add parameters - ensures unspecified positions are calculated
-			MethodCache.AddMethodParameters(method,
-			[
-				new MethodCache.Parameter {
-					Name = "value",
-					Description = "The string value.",
-					Type = typeof(string),
-				},
-				new MethodCache.Parameter {
-					Name = "selectDistinct",
-					Description = "Whether to select distinct values in a string list.",
-					IsOptional = true
-				},
-				new MethodCache.Parameter {
-					Name = "find",
-					Description = "The string value(s) to find in the value."
-				},
-				new MethodCache.Parameter {
-					Name = "replaceWith",
-					Description = "The string value(s) to use to replace the string specified in the find parameter."
-				},
-				new MethodCache.Parameter {
-					Name = "regexFind",
-					Description = "The Regex pattern(s) to find in the value."
-				},
-				new MethodCache.Parameter {
-					Name = "regexReplaceWith",
-					Description = "The Regex string value(s) to use to replace the string specified in the regexFind parameter."
-				}
-			]);
+			MethodCache.AddMethodParameters(method, getParameters());
 		}
 
 		// common parameters
-		// use this static method to add parameters - ensures unspecified positions are calculated
-		MethodCache.AddMethodParameters(method,
+		MethodCache.AddMethodParameters(method, [.. GetCommonRmscriptParameters(), .. GetCommonRmscriptEvaluationParameters()]);
+	}
+
+	private static MethodCache.Parameter[] GetListAddParameters()
+	{
+		return
+		[
+			new MethodCache.Parameter {
+				Name = "concat",
+				Description = "When adding lists to a list, this will add each individual item onto the end of the list, rather than adding the list itself onto the existing list."
+			},
+			new MethodCache.Parameter {
+				Name = "listDelimiter",
+				Description = "In Legacy Mode only, the delimiter to use between multiple items in the output."
+			},
+			new MethodCache.Parameter {
+				Name = "value",
+				Description = "The value to add."
+			}
+		];
+	}
+
+	private static MethodCache.Parameter[] GetColorParameters()
+	{
+		return
+		[
+			new MethodCache.Parameter {
+				Name = "value",
+				Description = "The colour to use to increase intensity of the input colour.",
+				Type = typeof(string),
+			},
+			new MethodCache.Parameter {
+				Name = "intensifyColor",
+				Description = "The colour to use to increase intensity of the input colour.",
+				Type = typeof(string),
+			},
+			new MethodCache.Parameter {
+				Name = "intensifyPercent",
+				Description = "The percentage intensity to apply.",
+				Type = typeof(double),
+			}
+		];
+	}
+
+	private static MethodCache.Parameter[] GetStringParameters()
+	{
+		return
+		[
+			new MethodCache.Parameter {
+				Name = "value",
+				Description = "The string value.",
+				Type = typeof(string),
+			},
+			new MethodCache.Parameter {
+				Name = "selectDistinct",
+				Description = "Whether to select distinct values in a string list.",
+				IsOptional = true
+			},
+			new MethodCache.Parameter {
+				Name = "find",
+				Description = "The string value(s) to find in the value."
+			},
+			new MethodCache.Parameter {
+				Name = "replaceWith",
+				Description = "The string value(s) to use to replace the string specified in the find parameter."
+			},
+			new MethodCache.Parameter {
+				Name = "regexFind",
+				Description = "The Regex pattern(s) to find in the value."
+			},
+			new MethodCache.Parameter {
+				Name = "regexReplaceWith",
+				Description = "The Regex string value(s) to use to replace the string specified in the regexFind parameter."
+			}
+		];
+	}
+
+	private static MethodCache.Parameter[] GetCommonRmscriptParameters()
+	{
+		return
 		[
 			new MethodCache.Parameter {
 				Name = "comment",
@@ -205,7 +219,14 @@ public partial class PDMonaco : IAsyncDisposable
 				Description = "Obfuscation type. Use obfuscation to write reports where sensitive data is hidden.",
 				IsOptional = true,
 				Type = typeof(string),
-			},
+			}
+		];
+	}
+
+	private static MethodCache.Parameter[] GetCommonRmscriptEvaluationParameters()
+	{
+		return
+		[
 			new MethodCache.Parameter {
 				Name = "mode",
 				Description = "The mode in which variables are stored. In the legacy mode (default for Schedules), the variable created is a string and formatted.",
@@ -230,7 +251,7 @@ public partial class PDMonaco : IAsyncDisposable
 				IsOptional = true,
 				Type = typeof(bool),
 			}
-		]);
+		];
 	}
 
 	private static void InitializeOptions(StandaloneEditorConstructionOptions options)
@@ -250,7 +271,7 @@ public partial class PDMonaco : IAsyncDisposable
 		// this needs to be performed in javascript
 		if (_module is null && JSRuntime != null)
 		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor.Demo/Pages/PDMonaco.razor.js").ConfigureAwait(true); ;
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor.Demo/Pages/PDMonaco.razor.js").ConfigureAwait(true);
 		}
 
 		if (_module != null)
@@ -262,15 +283,15 @@ public partial class PDMonaco : IAsyncDisposable
 	private async Task OnGetSelection()
 	{
 		_selectionText = string.Empty;
-		if (_editor != null)
+		if (Editor != null)
 		{
-			var s = await _editor.GetSelection();
+			var s = await Editor.GetSelection();
 			if (s != null)
 			{
 				var r = new BlazorMonaco.Range(s.StartLineNumber, s.StartColumn, s.EndLineNumber, s.EndColumn);
 				if (r != null)
 				{
-					var v = await _editor.GetMonacoValueAsync(r, EndOfLinePreference.TextDefined);
+					var v = await Editor.GetMonacoValueAsync(r, EndOfLinePreference.TextDefined);
 					_selectionText = $"{v} ({s.StartLineNumber},{s.StartColumn} - {s.EndLineNumber},{s.EndColumn})";
 				}
 			}
@@ -288,7 +309,7 @@ public partial class PDMonaco : IAsyncDisposable
 
 	private async Task OnSetSelection()
 	{
-		if (_editor != null)
+		if (Editor != null)
 		{
 			var selection = new Selection
 			{
@@ -297,7 +318,7 @@ public partial class PDMonaco : IAsyncDisposable
 				PositionColumn = 14,
 				PositionLineNumber = 2,
 			};
-			await _editor.SetSelectionAsync(selection);
+			await Editor.SetSelectionAsync(selection);
 		}
 	}
 
