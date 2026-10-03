@@ -26,7 +26,7 @@ public class ChatConversationQuery
 	/// Enough to fill a sidebar at any supported height without a second round trip, and few enough that a
 	/// user with years of history does not pay for all of it to open a list.
 	/// </remarks>
-	public const int DefaultTake = 50;
+	public static int DefaultTake => 50;
 
 	/// <summary>
 	/// Gets the text to match, or <c>null</c> when the caller wants the unfiltered list.

@@ -6,7 +6,7 @@
 public class TimelineOptions
 {
 	/// <summary>The default colour used across multiple sub-option defaults.</summary>
-	public const string MainColor = "#404040d1";
+	public static string MainColor => "#404040d1";
 
 	/// <summary>Gets or sets bar rendering options.</summary>
 	public TimelineBarOptions Bar { get; set; } = new TimelineBarOptions();

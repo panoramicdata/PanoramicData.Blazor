@@ -19,7 +19,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 IconCssClass="@DeleteButtonIconCssClass"
 							 IsVisible="ShowDelete && Form.Mode == FormModes.Edit"
 							 Key="Delete"
-							 Operation="OnDeleteAsync"
+							 Operation="@(_ => OnDeleteAsync())"
 							 Size="Size"
 							 Text="@DeleteButtonText" />
 
@@ -27,7 +27,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 IconCssClass="@YesButtonIconCssClass"
 							 IsVisible="Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel"
 							 Key="Yes"
-							 Operation="OnYesAsync"
+							 Operation="@(_ => OnYesAsync())"
 							 OperationIconCssClass="fas fa-fw fa-circle-notch fa-spin"
 							 ShiftRight="true"
 							 Size="Size"
@@ -37,7 +37,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 IconCssClass="@NoButtonIconCssClass"
 							 IsVisible="Form.Mode == FormModes.Delete || Form.Mode == FormModes.Cancel"
 							 Key="No"
-							 Operation="OnNoAsync"
+							 Operation="@(_ => OnNoAsync())"
 							 Size="Size"
 							 Text="@NoButtonText" />
 
@@ -46,7 +46,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 IsEnabled="_errorCount == 0"
 							 IsVisible="ShowSave && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit)"
 							 Key="Save"
-							 Operation="OnSaveAsync"
+							 Operation="@(_ => OnSaveAsync())"
 							 OperationIconCssClass="fas fa-fw fa-circle-notch fa-spin"
 							 ShiftRight="true"
 							 Size="Size"
@@ -56,7 +56,7 @@ else if (Form.Mode != FormModes.Hidden && Form.Mode != FormModes.Empty)
 							 IconCssClass="@CancelButtonIconCssClass"
 							 IsVisible="ShowCancel && (Form.Mode == FormModes.Create || Form.Mode == FormModes.Edit || (Form.Mode == FormModes.ReadOnly && ShowCancelWhenReadOnly))"
 							 Key="Cancel"
-							 Operation="OnCancelAsync"
+							 Operation="@(_ => OnCancelAsync())"
 							 ShiftRight="@(Form.Mode == FormModes.ReadOnly)"
 							 Size="Size"
 							 Text="@(Form.Mode == FormModes.ReadOnly ? CloseButtonText : CancelButtonText)" />

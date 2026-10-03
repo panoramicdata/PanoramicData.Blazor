@@ -28,9 +28,17 @@ public class PaletteColor
 	}
 
 	/// <summary>
-	/// Creates a new PaletteColor with the specified color.
+	/// Creates a new, unnamed PaletteColor with the specified color.
 	/// </summary>
-	public PaletteColor(string color, string? name = null)
+	public PaletteColor(string color)
+		: this(color, null)
+	{
+	}
+
+	/// <summary>
+	/// Creates a new PaletteColor with the specified color and name.
+	/// </summary>
+	public PaletteColor(string color, string? name)
 	{
 		Color = color;
 		Name = name;

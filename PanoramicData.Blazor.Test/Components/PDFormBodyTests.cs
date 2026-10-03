@@ -299,7 +299,7 @@ public class PDFormBodyTests : BunitContext
 		var form = FormOf(host);
 
 		var results = new List<(FormModes, bool, bool)>();
-		foreach (var mode in new[] { FormModes.Create, FormModes.Edit, FormModes.Delete, FormModes.ReadOnly })
+		foreach (var mode in new[] { FormModes.Create, FormModes.Edit, FormModes.Delete, FormModes.ReadOnly, FormModes.Empty })
 		{
 			await Edit(host, mode);
 			results.Add((mode, body.IsReadOnly(form.Fields[0]), body.IsReadOnly(form.Fields[1])));
@@ -309,7 +309,8 @@ public class PDFormBodyTests : BunitContext
 			(FormModes.Create, true, false),
 			(FormModes.Edit, false, false),
 			(FormModes.Delete, true, true),
-			(FormModes.ReadOnly, true, true));
+			(FormModes.ReadOnly, true, true),
+			(FormModes.Empty, false, false));
 		body.IsShown(form.Fields[1], FormModes.ReadOnly).Should().BeTrue();
 		body.IsShown(form.Fields[1], FormModes.Hidden).Should().BeFalse();
 	}

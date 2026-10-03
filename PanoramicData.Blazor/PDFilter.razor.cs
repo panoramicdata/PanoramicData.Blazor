@@ -7,7 +7,6 @@ public partial class PDFilter : IAsyncDisposable
 {
 	private static int _sequence;
 	private readonly string _id = $"filter-button-{(++_sequence)}";
-	private PDDropDown _dropDown = null!;
 	private string[] _values = [];
 	private string _value1 = string.Empty;
 	private string _value2 = string.Empty;
@@ -16,6 +15,17 @@ public partial class PDFilter : IAsyncDisposable
 	private readonly List<string> _selectedValues = [];
 	private IJSObjectReference? _commonModule;
 	private static readonly char[] _separator = ['|'];
+
+	// operators that compare with a single selected value (or, for a range, the first of two)
+	private static readonly FilterTypes[] _singleValueTypes = [FilterTypes.Equals, FilterTypes.DoesNotEqual, FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual, FilterTypes.Range];
+
+	// operators that never change to a multiple value operator when a further value is clicked
+	private static readonly FilterTypes[] _singleOnlyTypes = [FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual];
+
+	/// <summary>
+	/// Gets the drop down holding the filter editor, set by the markup.
+	/// </summary>
+	internal PDDropDown DropDown { get; set; } = null!;
 
 	/// <summary>
 	/// Gets the injected JavaScript runtime.
@@ -110,6 +120,7 @@ public partial class PDFilter : IAsyncDisposable
 		}
 		catch
 		{
+			// the module may already be gone with the circuit, and there is nothing left to release
 		}
 	}
 
@@ -147,7 +158,7 @@ public partial class PDFilter : IAsyncDisposable
 		_value2 = string.Empty;
 		_selectedValues.Clear();
 		Filter.Clear();
-		await _dropDown.HideAsync().ConfigureAwait(true);
+		await DropDown.HideAsync().ConfigureAwait(true);
 		await FilterChanged.InvokeAsync(Filter).ConfigureAwait(true);
 	}
 
@@ -165,7 +176,7 @@ public partial class PDFilter : IAsyncDisposable
 			_selectedValues.Clear();
 			_selectedValues.AddRange(_values);
 			_filterType = FilterTypes.In;
-			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()));
+			_value1 = JoinSelectedValues();
 		}
 	}
 
@@ -212,7 +223,7 @@ public partial class PDFilter : IAsyncDisposable
 		Filter.FilterType = _filterType;
 		Filter.Value = _value1;
 		Filter.Value2 = _value2;
-		await _dropDown.HideAsync().ConfigureAwait(true);
+		await DropDown.HideAsync().ConfigureAwait(true);
 		await FilterChanged.InvokeAsync(Filter).ConfigureAwait(true);
 	}
 
@@ -236,38 +247,25 @@ public partial class PDFilter : IAsyncDisposable
 
 	private void OnFilterTypeBindAfter()
 	{
-		// if single selection and compatible operator - simple copy value
-		var singleOptions = new[] { FilterTypes.Equals, FilterTypes.DoesNotEqual, FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual, FilterTypes.Range };
-		var doubleOptions = new[] { FilterTypes.Range };
-
-		string? tempValue1 = null;
-		string? tempValue2 = null;
-		
-		if(_filterType == FilterTypes.Range)
+		if (_filterType == FilterTypes.Range)
 		{
 			// ranges should be in order
 			_selectedValues.Sort();
 		}
 
 		// store the temp values
-		if (_selectedValues.Count > 0)
-		{
-			tempValue1 = _selectedValues[0];
-		}
+		var tempValue1 = _selectedValues.ElementAtOrDefault(0);
+		var tempValue2 = _selectedValues.ElementAtOrDefault(1);
 
-		if (_selectedValues.Count > 1)
-		{
-			tempValue2 = _selectedValues[1];
-		}
-
-		if (singleOptions.Contains(_filterType) && tempValue1 != null)
+		// if single selection and compatible operator - simple copy value
+		if (tempValue1 != null && _singleValueTypes.Contains(_filterType))
 		{
 			_selectedValues.Clear();
 			_selectedValues.Add(tempValue1);
 			_value1 = tempValue1;
 		}
 
-		if (doubleOptions.Contains(_filterType) && tempValue2 != null)
+		if (tempValue2 != null && _filterType == FilterTypes.Range)
 		{
 			_selectedValues.Add(tempValue2);
 			_value2 = tempValue2;
@@ -275,7 +273,7 @@ public partial class PDFilter : IAsyncDisposable
 
 		if (_filterType is FilterTypes.NotIn or FilterTypes.In)
 		{
-			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
+			_value1 = JoinSelectedValues();
 			_value2 = string.Empty;
 		}
 	}
@@ -291,23 +289,31 @@ public partial class PDFilter : IAsyncDisposable
 			return;
 		}
 
-		// if single selection and compatible operator - simple copy value
-		var ops = new[] { FilterTypes.Equals, FilterTypes.DoesNotEqual, FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual, FilterTypes.Range };
-		var singleOnlyOps = new[] { FilterTypes.GreaterThan, FilterTypes.GreaterThanOrEqual, FilterTypes.LessThan, FilterTypes.LessThanOrEqual };
+		ToggleSelectedValue(value);
+		UpdateValuesFromSelection();
+	}
 
+	private void ToggleSelectedValue(string value)
+	{
 		// toggle clicked value from selected items
-		if (!_selectedValues.Remove(value))
+		if (_selectedValues.Remove(value))
 		{
-			// Clear existing if not auto change to multi
-			if(singleOnlyOps.Contains(_filterType))  
-			{
-				_selectedValues.Clear();
-			}
-
-			_selectedValues.Add(value);
+			return;
 		}
 
-		if (_selectedValues.Count == 1 && ops.Contains(_filterType))
+		// Clear existing if not auto change to multi
+		if (_singleOnlyTypes.Contains(_filterType))
+		{
+			_selectedValues.Clear();
+		}
+
+		_selectedValues.Add(value);
+	}
+
+	private void UpdateValuesFromSelection()
+	{
+		// if single selection and compatible operator - simple copy value
+		if (_selectedValues.Count == 1 && _singleValueTypes.Contains(_filterType))
 		{
 			_value1 = _selectedValues[0];
 			_value2 = string.Empty;
@@ -319,9 +325,10 @@ public partial class PDFilter : IAsyncDisposable
 			_value2 = _selectedValues[1];
 		}
 		else if (_selectedValues.Count == 0)
-		{// do nothing if unselected the last one
+		{
+			// do nothing if unselected the last one
 			_value1 = string.Empty;
-		} 
+		}
 		else
 		{
 			if (_filterType != FilterTypes.NotIn)
@@ -329,9 +336,11 @@ public partial class PDFilter : IAsyncDisposable
 				_filterType = _filterType == FilterTypes.DoesNotEqual ? FilterTypes.NotIn : FilterTypes.In;
 			}
 
-			_value1 = string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()).ToArray());
+			_value1 = JoinSelectedValues();
 		}
 	}
+
+	private string JoinSelectedValues() => string.Join("|", _selectedValues.Select(x => x.QuoteIfContainsWhitespace()));
 
 	private async Task RefreshValues()
 	{

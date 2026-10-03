@@ -3,7 +3,7 @@ namespace PanoramicData.Blazor.Models;
 /// <summary>
 /// Represents a single message in a chat conversation.
 /// </summary>
-public class ChatMessage()
+public class ChatMessage
 {
 	/// <summary>
 	/// A unique id per message.  This allows existing messages to be updated.

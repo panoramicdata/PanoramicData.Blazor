@@ -280,6 +280,20 @@ public class PDFormMessageTests : BunitContext
 		answer.Values.Should().Equal("Blue", "Green", "Red");
 	}
 
+	/// <summary>Moving the first option up, or the last down, changes nothing and leaves the ranking unanswered.</summary>
+	[Fact]
+	public void A_ranking_cannot_move_past_its_ends()
+	{
+		var component = RenderForm(null, Q("q1", ChatFormAnswerKind.Ranking, Colours));
+
+		component.FindAll("button[title='Move up']")[0].Click();
+		component.FindAll("button[title='Move down']")[^1].Click();
+
+		component.FindAll(".pdchat-form-ranking .pdchat-form-option-label").Select(e => e.TextContent)
+			.Should().Equal("Red", "Blue", "Green");
+		Submit(component).WasSkipped.Should().BeTrue();
+	}
+
 	/// <summary>An acknowledgement uses its first option as the label, and unticking it makes it a skip.</summary>
 	[Fact]
 	public void An_acknowledgement_can_be_given_and_withdrawn()

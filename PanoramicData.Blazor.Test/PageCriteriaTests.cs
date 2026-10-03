@@ -193,4 +193,25 @@ public class PageCriteriaTests
 
         pc.PreviousItems.ShouldBe(20u);
     }
+
+    /// <summary>Verifies that a page alone gives ten items per page and no items.</summary>
+    [Fact]
+    public void WhenOnlyPageGivenThenDefaultsApply()
+    {
+        var pc = new PageCriteria(1);
+
+        pc.PageSize.ShouldBe(10u);
+        pc.TotalCount.ShouldBe(0u);
+        pc.Page.ShouldBe(1u);
+    }
+
+    /// <summary>Verifies that a page and page size give no items.</summary>
+    [Fact]
+    public void WhenPageAndPageSizeGivenThenThereAreNoItems()
+    {
+        var pc = new PageCriteria(1, 25);
+
+        pc.PageSize.ShouldBe(25u);
+        pc.TotalCount.ShouldBe(0u);
+    }
 }

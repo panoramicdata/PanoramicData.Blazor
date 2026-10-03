@@ -176,7 +176,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	private async Task OnCancelAsync(MouseEventArgs args)
+	private async Task OnCancelAsync()
 	{
 		if (Form?.Item != null)
 		{
@@ -192,7 +192,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	private async Task OnDeleteAsync(MouseEventArgs args)
+	private async Task OnDeleteAsync()
 	{
 		if (Form?.Item != null)
 		{
@@ -200,7 +200,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	private async Task OnNoAsync(MouseEventArgs args)
+	private async Task OnNoAsync()
 	{
 		if (Form?.Item != null)
 		{
@@ -209,7 +209,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		}
 	}
 
-	private async Task OnSaveAsync(MouseEventArgs args)
+	private async Task OnSaveAsync()
 	{
 		if (Form?.Item != null && Form.DataProvider != null)
 		{
@@ -225,7 +225,7 @@ public partial class PDFormFooter<TItem> : IDisposable where TItem : class
 		await Click.InvokeAsync("Save").ConfigureAwait(true);
 	}
 
-	private async Task OnYesAsync(MouseEventArgs args)
+	private async Task OnYesAsync()
 	{
 		if (Form?.Item != null)
 		{

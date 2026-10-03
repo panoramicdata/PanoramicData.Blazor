@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using PanoramicData.Blazor.Extensions;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
@@ -100,6 +101,15 @@ public class ReflectionExtensionsTests
 		typeof(Item).GetEvent(nameof(Item.Changed))!.GetMemberUnderlyingType().Should().Be<EventHandler>();
 	}
 
+	/// <summary>An event without a handler type has no underlying type.</summary>
+	[Fact]
+	public void GetMemberUnderlyingType_EventWithoutHandlerType_Throws()
+	{
+		var act = () => new HandlerlessEvent().GetMemberUnderlyingType();
+
+		act.Should().Throw<ArgumentException>().WithParameterName("member").WithMessage("*EventHandlerType is null*");
+	}
+
 	/// <summary>Any other kind of member is rejected.</summary>
 	[Fact]
 	public void GetMemberUnderlyingType_Method_Throws()
@@ -182,5 +192,31 @@ public class ReflectionExtensionsTests
 		public event EventHandler? Changed;
 
 		public void RaiseChanged() => Changed?.Invoke(this, EventArgs.Empty);
+	}
+
+	/// <summary>An event description that, unlike any compiled event, has no handler type.</summary>
+	private sealed class HandlerlessEvent : EventInfo
+	{
+		public override EventAttributes Attributes => EventAttributes.None;
+
+		public override Type? DeclaringType => typeof(HandlerlessEvent);
+
+		public override Type? EventHandlerType => null;
+
+		public override string Name => "Handlerless";
+
+		public override Type? ReflectedType => typeof(HandlerlessEvent);
+
+		public override MethodInfo? GetAddMethod(bool nonPublic) => null;
+
+		public override object[] GetCustomAttributes(bool inherit) => [];
+
+		public override object[] GetCustomAttributes(Type attributeType, bool inherit) => [];
+
+		public override MethodInfo? GetRaiseMethod(bool nonPublic) => null;
+
+		public override MethodInfo? GetRemoveMethod(bool nonPublic) => null;
+
+		public override bool IsDefined(Type attributeType, bool inherit) => false;
 	}
 }
