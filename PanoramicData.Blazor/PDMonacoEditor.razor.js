@@ -6,7 +6,10 @@ var languageOptions = {};
 // Characters that may start a (dotted) function name: ASCII letters, "_" and "$"
 function isIdentifierStart(ch) {
 	return (
-		(ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z") || ch === "_" || ch === "$"
+		(ch >= "a" && ch <= "z") ||
+		(ch >= "A" && ch <= "Z") ||
+		ch === "_" ||
+		ch === "$"
 	);
 }
 
