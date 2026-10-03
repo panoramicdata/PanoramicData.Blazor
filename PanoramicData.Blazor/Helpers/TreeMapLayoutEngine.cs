@@ -16,6 +16,117 @@ namespace PanoramicData.Blazor.Helpers;
 public static class TreeMapLayoutEngine
 {
 	/// <summary>
+	/// The number of levels emitted below the root when no maximum depth is given.
+	/// </summary>
+	private const int DefaultMaxDepth = 3;
+
+	/// <summary>
+	/// Lays out a hierarchy within the given area, aggregating branch sizes, emitting three levels below
+	/// the root and applying no padding or header.
+	/// </summary>
+	/// <typeparam name="TItem">The type of the item in the source hierarchy.</typeparam>
+	/// <param name="root">The root of the hierarchy. The root itself is not emitted; its children are laid out across the whole area.</param>
+	/// <param name="childrenSelector">Returns the children of an item, or null or empty for a leaf.</param>
+	/// <param name="sizeSelector">Returns the size of an item. Negative, NaN and infinite values are treated as zero.</param>
+	/// <param name="width">The width of the layout area.</param>
+	/// <param name="height">The height of the layout area.</param>
+	/// <returns>The positioned rectangles, ordered parents before children so that later rectangles paint over earlier ones.</returns>
+	public static IReadOnlyList<TreeMapRect<TItem>> Layout<TItem>(
+		TItem? root,
+		Func<TItem, IEnumerable<TItem>?>? childrenSelector,
+		Func<TItem, double> sizeSelector,
+		double width,
+		double height) where TItem : class
+		=> Layout(root, childrenSelector, sizeSelector, width, height, DefaultMaxDepth, 0, 0, TreeMapSizeMode.Aggregate);
+
+	/// <summary>
+	/// Lays out a hierarchy within the given area, emitting three levels below the root and applying no
+	/// padding or header.
+	/// </summary>
+	/// <typeparam name="TItem">The type of the item in the source hierarchy.</typeparam>
+	/// <param name="root">The root of the hierarchy. The root itself is not emitted; its children are laid out across the whole area.</param>
+	/// <param name="childrenSelector">Returns the children of an item, or null or empty for a leaf.</param>
+	/// <param name="sizeSelector">Returns the size of an item. Negative, NaN and infinite values are treated as zero.</param>
+	/// <param name="width">The width of the layout area.</param>
+	/// <param name="height">The height of the layout area.</param>
+	/// <param name="sizeMode">Determines whether a branch node's size includes its descendants.</param>
+	/// <returns>The positioned rectangles, ordered parents before children so that later rectangles paint over earlier ones.</returns>
+	public static IReadOnlyList<TreeMapRect<TItem>> Layout<TItem>(
+		TItem? root,
+		Func<TItem, IEnumerable<TItem>?>? childrenSelector,
+		Func<TItem, double> sizeSelector,
+		double width,
+		double height,
+		TreeMapSizeMode sizeMode) where TItem : class
+		=> Layout(root, childrenSelector, sizeSelector, width, height, DefaultMaxDepth, 0, 0, sizeMode);
+
+	/// <summary>
+	/// Lays out a hierarchy within the given area, aggregating branch sizes and applying no padding or header.
+	/// </summary>
+	/// <typeparam name="TItem">The type of the item in the source hierarchy.</typeparam>
+	/// <param name="root">The root of the hierarchy. The root itself is not emitted; its children are laid out across the whole area.</param>
+	/// <param name="childrenSelector">Returns the children of an item, or null or empty for a leaf.</param>
+	/// <param name="sizeSelector">Returns the size of an item. Negative, NaN and infinite values are treated as zero.</param>
+	/// <param name="width">The width of the layout area.</param>
+	/// <param name="height">The height of the layout area.</param>
+	/// <param name="maxDepth">The maximum number of levels to emit below the root. Items at the cut are emitted as aggregated rectangles that still account for their whole subtree.</param>
+	/// <returns>The positioned rectangles, ordered parents before children so that later rectangles paint over earlier ones.</returns>
+	public static IReadOnlyList<TreeMapRect<TItem>> Layout<TItem>(
+		TItem? root,
+		Func<TItem, IEnumerable<TItem>?>? childrenSelector,
+		Func<TItem, double> sizeSelector,
+		double width,
+		double height,
+		int maxDepth) where TItem : class
+		=> Layout(root, childrenSelector, sizeSelector, width, height, maxDepth, 0, 0, TreeMapSizeMode.Aggregate);
+
+	/// <summary>
+	/// Lays out a hierarchy within the given area, aggregating branch sizes and reserving no header.
+	/// </summary>
+	/// <typeparam name="TItem">The type of the item in the source hierarchy.</typeparam>
+	/// <param name="root">The root of the hierarchy. The root itself is not emitted; its children are laid out across the whole area.</param>
+	/// <param name="childrenSelector">Returns the children of an item, or null or empty for a leaf.</param>
+	/// <param name="sizeSelector">Returns the size of an item. Negative, NaN and infinite values are treated as zero.</param>
+	/// <param name="width">The width of the layout area.</param>
+	/// <param name="height">The height of the layout area.</param>
+	/// <param name="maxDepth">The maximum number of levels to emit below the root. Items at the cut are emitted as aggregated rectangles that still account for their whole subtree.</param>
+	/// <param name="nestedPadding">The inset applied to a branch rectangle before laying out its children, leaving room for a border.</param>
+	/// <returns>The positioned rectangles, ordered parents before children so that later rectangles paint over earlier ones.</returns>
+	public static IReadOnlyList<TreeMapRect<TItem>> Layout<TItem>(
+		TItem? root,
+		Func<TItem, IEnumerable<TItem>?>? childrenSelector,
+		Func<TItem, double> sizeSelector,
+		double width,
+		double height,
+		int maxDepth,
+		double nestedPadding) where TItem : class
+		=> Layout(root, childrenSelector, sizeSelector, width, height, maxDepth, nestedPadding, 0, TreeMapSizeMode.Aggregate);
+
+	/// <summary>
+	/// Lays out a hierarchy within the given area, aggregating branch sizes.
+	/// </summary>
+	/// <typeparam name="TItem">The type of the item in the source hierarchy.</typeparam>
+	/// <param name="root">The root of the hierarchy. The root itself is not emitted; its children are laid out across the whole area.</param>
+	/// <param name="childrenSelector">Returns the children of an item, or null or empty for a leaf.</param>
+	/// <param name="sizeSelector">Returns the size of an item. Negative, NaN and infinite values are treated as zero.</param>
+	/// <param name="width">The width of the layout area.</param>
+	/// <param name="height">The height of the layout area.</param>
+	/// <param name="maxDepth">The maximum number of levels to emit below the root. Items at the cut are emitted as aggregated rectangles that still account for their whole subtree.</param>
+	/// <param name="nestedPadding">The inset applied to a branch rectangle before laying out its children, leaving room for a border.</param>
+	/// <param name="headerHeight">Additional space reserved at the top of a branch rectangle for its own label, so that a parent label cannot collide with its children. Applied only where the rectangle is tall enough to spare it.</param>
+	/// <returns>The positioned rectangles, ordered parents before children so that later rectangles paint over earlier ones.</returns>
+	public static IReadOnlyList<TreeMapRect<TItem>> Layout<TItem>(
+		TItem? root,
+		Func<TItem, IEnumerable<TItem>?>? childrenSelector,
+		Func<TItem, double> sizeSelector,
+		double width,
+		double height,
+		int maxDepth,
+		double nestedPadding,
+		double headerHeight) where TItem : class
+		=> Layout(root, childrenSelector, sizeSelector, width, height, maxDepth, nestedPadding, headerHeight, TreeMapSizeMode.Aggregate);
+
+	/// <summary>
 	/// Lays out a hierarchy within the given area.
 	/// </summary>
 	/// <typeparam name="TItem">The type of the item in the source hierarchy.</typeparam>
@@ -35,10 +146,10 @@ public static class TreeMapLayoutEngine
 		Func<TItem, double> sizeSelector,
 		double width,
 		double height,
-		int maxDepth = 3,
-		double nestedPadding = 0,
-		double headerHeight = 0,
-		TreeMapSizeMode sizeMode = TreeMapSizeMode.Aggregate) where TItem : class
+		int maxDepth,
+		double nestedPadding,
+		double headerHeight,
+		TreeMapSizeMode sizeMode) where TItem : class
 	{
 		ArgumentNullException.ThrowIfNull(sizeSelector);
 
@@ -82,11 +193,8 @@ public static class TreeMapLayoutEngine
 			return;
 		}
 
+		// Every remaining child has a positive size, so the total is positive too.
 		var totalSize = children.Sum(c => c.Size);
-		if (totalSize <= 0)
-		{
-			return;
-		}
 
 		// Convert sizes into areas that exactly fill the available bounds.
 		var scale = bounds.Width * bounds.Height / totalSize;
@@ -266,31 +374,13 @@ public static class TreeMapLayoutEngine
 		try
 		{
 			var ownSize = Sanitise(sizeSelector(item));
-			var children = new List<SizedNode<TItem>>();
-			var ordinal = 0;
+			var children = BuildSizedChildren(childrenSelector?.Invoke(item), childrenSelector, sizeSelector, sizeMode, ancestry);
 
-			var rawChildren = childrenSelector?.Invoke(item);
-			if (rawChildren is not null)
+			var size = ownSize;
+			if (sizeMode == TreeMapSizeMode.Aggregate)
 			{
-				foreach (var rawChild in rawChildren)
-				{
-					if (rawChild is null)
-					{
-						continue;
-					}
-
-					var child = BuildSizedTree(rawChild, childrenSelector, sizeSelector, sizeMode, ancestry);
-					if (child is not null)
-					{
-						child.Ordinal = ordinal++;
-						children.Add(child);
-					}
-				}
+				size += children.Sum(c => c.Size);
 			}
-
-			var size = sizeMode == TreeMapSizeMode.Aggregate
-				? ownSize + children.Sum(c => c.Size)
-				: ownSize;
 
 			return new SizedNode<TItem>(item, size, children);
 		}
@@ -298,6 +388,33 @@ public static class TreeMapLayoutEngine
 		{
 			ancestry.Remove(item);
 		}
+	}
+
+	private static List<SizedNode<TItem>> BuildSizedChildren<TItem>(
+		IEnumerable<TItem>? rawChildren,
+		Func<TItem, IEnumerable<TItem>?>? childrenSelector,
+		Func<TItem, double> sizeSelector,
+		TreeMapSizeMode sizeMode,
+		HashSet<TItem> ancestry) where TItem : class
+	{
+		var children = new List<SizedNode<TItem>>();
+		if (rawChildren is null)
+		{
+			return children;
+		}
+
+		// Null entries are skipped, as are children that would close a cycle.
+		foreach (var rawChild in rawChildren.OfType<TItem>())
+		{
+			var child = BuildSizedTree(rawChild, childrenSelector, sizeSelector, sizeMode, ancestry);
+			if (child is not null)
+			{
+				child.Ordinal = children.Count;
+				children.Add(child);
+			}
+		}
+
+		return children;
 	}
 
 	private static double Sanitise(double value)

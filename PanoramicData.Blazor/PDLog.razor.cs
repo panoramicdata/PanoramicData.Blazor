@@ -9,7 +9,10 @@ public partial class PDLog : ILogger
 {
 	private readonly List<LogEntry> _logEntries = [];
 
-	private ElementReference _logContainer;
+	/// <summary>
+	/// Gets the scrolling log container element, set by the markup.
+	/// </summary>
+	internal ElementReference LogContainer { get; set; }
 
 	/// <summary>
 	/// Gets or sets JavaScript runtime used for scrolling interop.
@@ -69,22 +72,22 @@ public partial class PDLog : ILogger
 	/// <summary>
 	/// Gets or sets whether to wrap long lines.
 	/// </summary>
-	[Parameter] public bool WordWrap { get; set; } = false; // Toggle for word wrapping
+	[Parameter] public bool WordWrap { get; set; } // Toggle for word wrapping
 
 	/// <summary>
 	/// Gets or sets whether to automatically scroll to the bottom of the log.
 	/// </summary>
-	[Parameter] public bool Tail { get; set; } = false; // Auto-scroll to bottom
+	[Parameter] public bool Tail { get; set; } // Auto-scroll to bottom
 
 	/// <summary>
 	/// Gets or sets whether to display timestamps in local time.
 	/// </summary>
-	[Parameter] public bool UseLocalTime { get; set; } = false;
+	[Parameter] public bool UseLocalTime { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether to display log entries in reverse chronological order.
 	/// </summary>
-	[Parameter] public bool Reverse { get; set; } = false;
+	[Parameter] public bool Reverse { get; set; }
 
 	private List<LogEntry> OrderedEntries => (Reverse ? [.. _logEntries.OrderByDescending(x => x.Timestamp)] : _logEntries);
 
@@ -232,6 +235,6 @@ public partial class PDLog : ILogger
 		}
 
 		// TODO - Get this working
-		await _commonModule.InvokeVoidAsync("scrollToBottom", _logContainer);
+		await _commonModule.InvokeVoidAsync("scrollToBottom", LogContainer);
 	}
 }

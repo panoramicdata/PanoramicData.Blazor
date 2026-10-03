@@ -259,6 +259,49 @@ public partial class PDTimelineTests
 	}
 
 	/// <summary>
+	/// Verifies that panning to a position that is not one of the defined positions pans to the start.
+	/// </summary>
+	[Fact]
+	public async Task PanTo_UnknownPosition_PansToTheStart()
+	{
+		var timeline = RenderTimeline();
+		await timeline.InvokeAsync(() => timeline.Instance.PanTo(Day(30)));
+
+		await timeline.InvokeAsync(() => timeline.Instance.PanTo(Day(30), (TimelinePositions)99));
+		timeline.Render();
+
+		timeline.FindComponents<PDStackedBar>()[0].Instance.DataPoint.StartTime.Should().Be(Day(1));
+	}
+
+	/// <summary>
+	/// Verifies that setting the scale with a focus date centres the viewport on that date.
+	/// </summary>
+	[Fact]
+	public async Task SetScale_WithFocusDate_CentresOnIt()
+	{
+		var timeline = RenderTimeline();
+
+		await timeline.InvokeAsync(() => timeline.Instance.SetScale(TimelineScale.Days, true, Day(30)));
+
+		timeline.FindComponents<PDStackedBar>()[0].Instance.DataPoint.StartTime.Should().Be(Day(20));
+		_queries[^1].Should().Be((Day(20), Day(41), "Days"));
+	}
+
+	/// <summary>
+	/// Verifies that the scale chosen to fit from a date alone fits the range from that date to the end.
+	/// </summary>
+	[Fact]
+	public void GetScaleToFit_FromDate_FitsToTheEnd()
+	{
+		var timeline = RenderTimeline();
+
+		var scale = timeline.Instance.GetScaleToFit(Day(50));
+
+		scale.Should().BeSameAs(timeline.Instance.GetScaleToFit(Day(50), timeline.Instance.RoundedMaxDateTime));
+		scale!.Name.Should().NotBe(timeline.Instance.GetScaleToFit()!.Name);
+	}
+
+	/// <summary>
 	/// Verifies that panning to a date at the start makes it the first visible column, and a date too near the
 	/// end to be first pans as far as the timeline allows (#161).
 	/// </summary>

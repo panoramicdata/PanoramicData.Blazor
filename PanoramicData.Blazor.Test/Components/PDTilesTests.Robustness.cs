@@ -190,6 +190,21 @@ public partial class PDTilesTests
 		cut.Instance.IsAnimating.Should().BeFalse();
 	}
 
+	/// <summary>An animation tick that arrives after the component is disposed leaves the animation where it was.</summary>
+	[Fact]
+	public async Task AnimationTick_AfterDisposal_IsIgnored()
+	{
+		var cut = RenderAnimated();
+		await cut.InvokeAsync(async () => await cut.Instance.DisposeAsync());
+		cut.Instance.IsAnimating.Should().BeFalse();
+		var offset = cut.Instance.AnimationOffset;
+
+		await Task.Delay(50, Xunit.TestContext.Current.CancellationToken);
+		cut.Instance.AdvanceAnimation();
+
+		cut.Instance.AnimationOffset.Should().Be(offset);
+	}
+
 	/// <summary>
 	/// A per-tile <see cref="TileDefinition.Glow"/> gives that tile's top face its own glow filter at that
 	/// intensity; zero removes the glow; tiles without an override keep the shared filter.

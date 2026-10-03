@@ -272,6 +272,40 @@ public class PDTreeMapTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that the breadcrumb path is found through an item shared by two branches, which is visited
+	/// once only.
+	/// </summary>
+	[Fact]
+	public void The_breadcrumb_path_is_found_past_an_item_shared_by_two_branches()
+	{
+		var shared = new Node("Shared", 5);
+		var target = new Node("Target", 0, new Node("T1", 5), new Node("T2", 5));
+		var root = new Node("Top", 0, new Node("P", 0, shared), new Node("Q", 0, shared, target));
+
+		var component = RenderMap(p => p.Add(x => x.ZoomRoot, target), root);
+
+		component.FindAll(".pdtm-crumb").Select(b => b.TextContent.Trim()).Should().Equal("Top", "Q", "Target");
+	}
+
+	/// <summary>
+	/// Verifies that when fewer rectangles are laid out the focus moves to the last one that remains.
+	/// </summary>
+	[Fact]
+	public async Task The_focus_is_kept_within_fewer_rectangles()
+	{
+		var component = RenderMap();
+		await PressKeyAsync(component, "End");
+		component.FindAll("g.pdtm-node")[^1].ClassList.Should().Contain("pdtm-node-focused");
+
+		component.Render(p => p.Add(x => x.Root, new Node("Small", 0, new Node("S1", 10), new Node("S2", 5))));
+
+		var nodes = component.FindAll("g.pdtm-node");
+		nodes.Should().HaveCount(2);
+		nodes[1].ClassList.Should().Contain("pdtm-node-focused");
+		nodes[0].ClassList.Should().NotContain("pdtm-node-focused");
+	}
+
+	/// <summary>
 	/// Verifies that arrow, Home and End keys move the focus and selection through the rectangles.
 	/// </summary>
 	[Fact]

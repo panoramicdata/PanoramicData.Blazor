@@ -7,11 +7,10 @@
 
 	@{
 		DataPoint[] points = GetViewPortDataPoints();
-		var snappedWidth = (_canvasWidth - (_canvasWidth % Options.Bar.Width));
 	}
 
 	@* PLOT AREA *@
-	<svg @ref="_svgPlotElement"
+	<svg @ref="SvgPlotElement"
 			class="tl-plot-area"
 			@onpointerdown="OnChartPointerDown"
 			@onpointermove="OnChartPointerMove"
@@ -51,7 +50,7 @@
 			{
 				if (Options.Selection.CanChangeStart)
 				{
-					<rect @ref="_svgSelectionHandleStart"
+					<rect @ref="SvgSelectionHandleStart"
 						@onpointerdown="OnSelectionStartPointerDown"
 						@onpointermove="OnSelectionStartPointerMove"
 						@onpointerup="OnSelectionStartPointerUp"
@@ -64,7 +63,7 @@
 				}
 				if(Options.Selection.CanChangeEnd)
 				{
-					<rect @ref="_svgSelectionHandleEnd"
+					<rect @ref="SvgSelectionHandleEnd"
 						@onpointerdown="OnSelectionEndPointerDown"
 						@onpointermove="OnSelectionEndPointerMove"
 						@onpointerup="OnSelectionEndPointerUp"
@@ -187,7 +186,7 @@
 	</svg>
 
 	@* PAN *@
-	<svg @ref="_svgPanElement"
+	<svg @ref="SvgPanElement"
 		@onpointerdown="OnPanPointerDown"
 		@onpointermove="OnPanPointerMove"
 		@onpointerup="OnPanPointerUp"
