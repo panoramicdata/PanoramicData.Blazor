@@ -10,10 +10,18 @@ namespace PanoramicData.Blazor;
 public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 {
 	private PDSplitter? _splitter;
-	private PDGraph<TItem>? _graph;
-	private PDGraphInfo<TItem>? _graphInfo;
 	private GraphNode? _selectedNode;
 	private GraphEdge? _selectedEdge;
+
+	/// <summary>
+	/// Gets the graph, set by the markup.
+	/// </summary>
+	internal PDGraph<TItem>? Graph { get; set; }
+
+	/// <summary>
+	/// Gets the graph information panel, set by the markup.
+	/// </summary>
+	internal PDGraphInfo<TItem>? GraphInfo { get; set; }
 
 	/// <summary>
 	/// Gets or sets the data provider for the graph data.
@@ -110,7 +118,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		_selectedNode = node;
 		_selectedEdge = null;
 
-		_graphInfo?.SetSelection(node, null);
+		GraphInfo?.SetSelection(node, null);
 
 		await NodeClick.InvokeAsync(node).ConfigureAwait(true);
 		await SelectionChanged.InvokeAsync((node, null)).ConfigureAwait(true);
@@ -121,7 +129,7 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		_selectedNode = null;
 		_selectedEdge = edge;
 
-		_graphInfo?.SetSelection(null, edge);
+		GraphInfo?.SetSelection(null, edge);
 
 		await EdgeClick.InvokeAsync(edge).ConfigureAwait(true);
 		await SelectionChanged.InvokeAsync((null, edge)).ConfigureAwait(true);
@@ -146,9 +154,9 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 		Damping = config.Damping;
 
 		// ✅ FIXED: Use UpdateConfigurationAsync to preserve positions
-		if (_graph is not null)
+		if (Graph is not null)
 		{
-			await _graph.UpdateConfigurationAsync(config.Visualization, config.Clustering).ConfigureAwait(true);
+			await Graph.UpdateConfigurationAsync(config.Visualization, config.Clustering).ConfigureAwait(true);
 		}
 
 		await ConfigurationChanged.InvokeAsync(config).ConfigureAwait(true);
@@ -163,12 +171,17 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	/// <summary>
 	/// Refreshes the graph data from the data provider.
 	/// </summary>
+	public Task RefreshAsync() => RefreshAsync(CancellationToken.None);
+
+	/// <summary>
+	/// Refreshes the graph data from the data provider.
+	/// </summary>
 	/// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-	public async Task RefreshAsync(CancellationToken cancellationToken = default)
+	public async Task RefreshAsync(CancellationToken cancellationToken)
 	{
-		if (_graph is not null)
+		if (Graph is not null)
 		{
-			await _graph.RefreshAsync(cancellationToken).ConfigureAwait(true);
+			await Graph.RefreshAsync(cancellationToken).ConfigureAwait(true);
 		}
 	}
 
@@ -178,9 +191,9 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	/// <param name="nodeId">The ID of the node to center on.</param>
 	public async Task CenterOnNodeAsync(string nodeId)
 	{
-		if (_graph is not null)
+		if (Graph is not null)
 		{
-			await _graph.CenterOnNodeAsync(nodeId).ConfigureAwait(true);
+			await Graph.CenterOnNodeAsync(nodeId).ConfigureAwait(true);
 		}
 	}
 
@@ -189,9 +202,9 @@ public partial class PDGraphViewer<TItem> : PDComponentBase where TItem : class
 	/// </summary>
 	public async Task FitToViewAsync()
 	{
-		if (_graph is not null)
+		if (Graph is not null)
 		{
-			await _graph.FitToViewAsync().ConfigureAwait(true);
+			await Graph.FitToViewAsync().ConfigureAwait(true);
 		}
 	}
 }

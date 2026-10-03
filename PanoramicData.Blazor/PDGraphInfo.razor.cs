@@ -10,7 +10,11 @@ public partial class PDGraphInfo<TItem> : PDComponentBase where TItem : class
 {
 	private PDSplitter? _splitter;
 	private PDGraphControls<TItem>? _controls;
-	private PDGraphSelectionInfo<TItem>? _selectionInfo;
+
+	/// <summary>
+	/// Gets the selection information panel, set by the markup.
+	/// </summary>
+	internal PDGraphSelectionInfo<TItem>? SelectionInfo { get; set; }
 
 	/// <summary>
 	/// Gets or sets the split direction for the controls and selection info panels.
@@ -81,7 +85,7 @@ public partial class PDGraphInfo<TItem> : PDComponentBase where TItem : class
 		SelectedNode = node;
 		SelectedEdge = edge;
 		
-		_selectionInfo?.UpdateSelection(node, edge);
+		SelectionInfo?.UpdateSelection(node, edge);
 		
 		StateHasChanged();
 	}

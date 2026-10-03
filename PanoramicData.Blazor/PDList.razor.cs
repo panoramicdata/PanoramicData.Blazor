@@ -1,3 +1,5 @@
+using PanoramicData.Blazor.Helpers;
+
 namespace PanoramicData.Blazor;
 
 /// <summary>
@@ -64,7 +66,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	/// Example: Overriding default Id.
 	/// </remarks>
 	[Parameter]
-	public override string Id { get; set; } = $"pd-list-{PDListSequence.Next()}";
+	public override string Id { get; set; } = $"pd-list-{ComponentIdSequence.Next()}";
 
 	/// <summary>
 	/// A function to get the key for a given item.
@@ -144,7 +146,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 			? "fa-square"
 			: "fa-minus-square";
 
-	private DataRequest<TItem> BuildRequest(bool observePaging = true)
+	private DataRequest<TItem> BuildRequest()
 	{
 		var request = new DataRequest<TItem>();
 		if (SortExpression != null)
@@ -204,31 +206,9 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 			try
 			{
 				var state = await StateManager.LoadStateAsync<string>(Id).ConfigureAwait(true);
-				if (state != null && state != string.Empty && state != Constants.TokenNone)
+				if (!string.IsNullOrEmpty(state) && state != Constants.TokenNone)
 				{
-					if (state == Constants.TokenAll)
-					{
-						Selection.AllSelected = true;
-					}
-					else
-					{
-						// Without an ItemKeyFunction the selection was saved as Selection.ToString(), which separates
-						// the items with ", ", so each id is trimmed or every item after the first fails to match.
-						var ids = ItemKeyFunction is null
-							? state.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-							: state.Split(',', StringSplitOptions.RemoveEmptyEntries);
-						foreach (var item in _allItems.Where(x => ItemVisible(x)))
-						{
-							var itemKey = ItemKeyFunction is null
-								? item.ToString()?.Trim() ?? string.Empty
-								: ItemKeyFunction(item).ToString();
-							if (ids.Contains(itemKey))
-							{
-								Selection.Items.Add(item);
-							}
-						}
-					}
-
+					RestoreSelection(state);
 					StateHasChanged();
 				}
 			}
@@ -238,6 +218,39 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 			}
 		}
 	}
+
+	/// <summary>
+	/// Applies a persisted selection state: the (All) token, or the keys of the selected items.
+	/// </summary>
+	/// <param name="state">The persisted state, neither empty nor the (None) token.</param>
+	private void RestoreSelection(string state)
+	{
+		if (state == Constants.TokenAll)
+		{
+			Selection.AllSelected = true;
+			return;
+		}
+
+		// Without an ItemKeyFunction the selection was saved as Selection.ToString(), which separates
+		// the items with ", ", so each id is trimmed or every item after the first fails to match.
+		var ids = ItemKeyFunction is null
+			? state.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			: state.Split(',', StringSplitOptions.RemoveEmptyEntries);
+		foreach (var item in _allItems.Where(x => ItemVisible(x) && ids.Contains(GetStateKey(x))))
+		{
+			Selection.Items.Add(item);
+		}
+	}
+
+	/// <summary>
+	/// Gets the key under which an item's selection is persisted.
+	/// </summary>
+	/// <param name="item">The item.</param>
+	/// <returns>The item key, from <see cref="ItemKeyFunction"/> when set, otherwise the item's trimmed text.</returns>
+	private string? GetStateKey(TItem item)
+		=> ItemKeyFunction is null
+			? item.ToString()?.Trim() ?? string.Empty
+			: ItemKeyFunction(item).ToString();
 
 	private Task OnApplyAsync() => Apply.InvokeAsync(Selection);
 
@@ -370,110 +383,136 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 			return;
 		}
 
-		var updateLastSelected = true;
-		if (SelectionMode == TableSelectionMode.Single)
+		var outcome = SelectionMode == TableSelectionMode.Single
+			? UpdateSingleSelection(item)
+			: await UpdateMultipleSelectionAsync(args, item).ConfigureAwait(true);
+		if (outcome == SelectionOutcome.Ignored)
 		{
-			var addItem = true;
-			if (Selection.Items.Any(x => x == item))
-			{
-				if (ShowCheckBoxes)
-				{
-					// in effect toggle item
-					addItem = false;
-				}
-				else
-				{
-					// ignore if currently selected
-					return;
-				}
-			}
-
-			// update selection
-			Selection.Items.Clear();
-			if (addItem)
-			{
-				Selection.Items.Add(item);
-			}
-
-			Selection.AllSelected = false; // can never be true with single selection
-		}
-
-		if (SelectionMode == TableSelectionMode.Multiple)
-		{
-			if (args.ShiftKey && _lastSelectedItem != null)
-			{
-				// range selection
-				var list = _allItems.ToList();
-				var idx1 = list.IndexOf(_lastSelectedItem);
-				var idx2 = list.IndexOf(item);
-				if (idx2 < idx1)
-				{
-					(idx2, idx1) = (idx1, idx2);
-				}
-
-				Selection.Items.Clear();
-				for (var i = idx1; i <= idx2; i++)
-				{
-					Selection.Items.Add(list[i]);
-				}
-
-				updateLastSelected = false;
-
-				// update all selected?
-				Selection.AllSelected = Selection.Items.Count == _allItems.Count();
-				if (Selection.AllSelected)
-				{
-					Selection.Items.Clear();
-				}
-			}
-			else if (args.CtrlKey || ShowCheckBoxes)
-			{
-				// toggle selection
-				if (Selection.AllSelected)
-				{
-					// re-populate selection with all items
-					var request = BuildRequest(false);
-					var response = await DataProvider!.GetDataAsync(request, default).ConfigureAwait(true);
-					Selection.Items.Clear();
-					Selection.Items.AddRange(response.Items);
-				}
-
-				// TItem might need to override Equals operator
-				if (!Selection.Items.Remove(item))
-				{
-					Selection.Items.Add(item);
-				}
-
-				// update all selected?
-				Selection.AllSelected = Selection.Items.Count == _allItems.Count();
-				if (Selection.AllSelected)
-				{
-					Selection.Items.Clear();
-				}
-			}
-			else
-			{
-				// ignore if currently selected
-				if (Selection.Items.Contains(item) && Selection.Items.Count == 1)
-				{
-					return;
-				}
-
-				// clear previous selection and select single item
-				Selection.Items.Clear();
-				Selection.Items.Add(item);
-				Selection.AllSelected = false;
-			}
+			return;
 		}
 
 		// remember this item for range selection
-		if (updateLastSelected)
+		if (outcome == SelectionOutcome.Updated)
 		{
 			_lastSelectedItem = item;
 		}
 
 		// selection has been updated
 		await OnSelectionUpdatedAsync().ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// The result of applying a click to the selection.
+	/// </summary>
+	private enum SelectionOutcome
+	{
+		/// <summary>The click left the selection unchanged.</summary>
+		Ignored,
+
+		/// <summary>The selection changed and the clicked item becomes the anchor for range selection.</summary>
+		Updated,
+
+		/// <summary>A range was selected; the existing range anchor is kept.</summary>
+		RangeSelected
+	}
+
+	private SelectionOutcome UpdateSingleSelection(TItem item)
+	{
+		var isSelected = Selection.Items.Any(x => x == item);
+
+		// ignore if currently selected, unless check boxes are shown, in which case the click toggles the item
+		if (isSelected && !ShowCheckBoxes)
+		{
+			return SelectionOutcome.Ignored;
+		}
+
+		// update selection
+		Selection.Items.Clear();
+		if (!isSelected)
+		{
+			Selection.Items.Add(item);
+		}
+
+		Selection.AllSelected = false; // can never be true with single selection
+		return SelectionOutcome.Updated;
+	}
+
+	private async Task<SelectionOutcome> UpdateMultipleSelectionAsync(MouseEventArgs args, TItem item)
+	{
+		if (args.ShiftKey && _lastSelectedItem != null)
+		{
+			SelectRange(_lastSelectedItem, item);
+			return SelectionOutcome.RangeSelected;
+		}
+
+		if (args.CtrlKey || ShowCheckBoxes)
+		{
+			await ToggleItemAsync(item).ConfigureAwait(true);
+			return SelectionOutcome.Updated;
+		}
+
+		// ignore if currently selected
+		if (Selection.Items.Contains(item) && Selection.Items.Count == 1)
+		{
+			return SelectionOutcome.Ignored;
+		}
+
+		// clear previous selection and select single item
+		Selection.Items.Clear();
+		Selection.Items.Add(item);
+		Selection.AllSelected = false;
+		return SelectionOutcome.Updated;
+	}
+
+	private void SelectRange(TItem anchor, TItem item)
+	{
+		var list = _allItems.ToList();
+		var idx1 = list.IndexOf(anchor);
+		var idx2 = list.IndexOf(item);
+		if (idx2 < idx1)
+		{
+			(idx2, idx1) = (idx1, idx2);
+		}
+
+		Selection.Items.Clear();
+		for (var i = idx1; i <= idx2; i++)
+		{
+			Selection.Items.Add(list[i]);
+		}
+
+		UpdateAllSelected();
+	}
+
+	private async Task ToggleItemAsync(TItem item)
+	{
+		if (Selection.AllSelected)
+		{
+			// re-populate selection with all items
+			var request = BuildRequest();
+			var response = await DataProvider!.GetDataAsync(request, default).ConfigureAwait(true);
+			Selection.Items.Clear();
+			Selection.Items.AddRange(response.Items);
+		}
+
+		// TItem might need to override Equals operator
+		if (!Selection.Items.Remove(item))
+		{
+			Selection.Items.Add(item);
+		}
+
+		UpdateAllSelected();
+	}
+
+	/// <summary>
+	/// Switches to the 'all selected' state, which holds no individual items, once every item is selected.
+	/// </summary>
+	private void UpdateAllSelected()
+	{
+		Selection.AllSelected = Selection.Items.Count == _allItems.Count();
+		if (Selection.AllSelected)
+		{
+			Selection.Items.Clear();
+		}
 	}
 
 	#region Attributes
@@ -488,7 +527,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 		var iconCls = Selection.AllSelected || Selection.Items.Contains(item)
 			? "far fa-check-square"
 			: "far fa-square";
-		var dict = new Dictionary<string, object>()
+		var dict = new Dictionary<string, object>
 		{
 			{ "class", $"me-2 {iconCls}" }
 		};
@@ -503,7 +542,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	public Dictionary<string, object> ItemAttributes(TItem? item)
 	{
 		var selectedCss = item is not null && !ShowCheckBoxes && (Selection.AllSelected || Selection.Items.Contains(item));
-		var dict = new Dictionary<string, object>()
+		var dict = new Dictionary<string, object>
 		{
 			{ "class", $"list-item d-flex align-items-center {(SelectionMode == TableSelectionMode.None || !IsEnabled ? "" : "cursor-pointer")} {(selectedCss ? "selected" : "")}" }
 		};
@@ -516,7 +555,7 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	/// <returns>Attribute dictionary.</returns>
 	public Dictionary<string, object> ListAttributes()
 	{
-		var dict = new Dictionary<string, object>()
+		var dict = new Dictionary<string, object>
 		{
 			{ "class", $"pd-list {CssClass}{(IsVisible ? "" : " d-none")}{(IsEnabled ? "" : " disabled")}" },
 			{ "id", Id },
@@ -534,32 +573,9 @@ public partial class PDList<TItem> : IAsyncDisposable where TItem : class
 	/// </summary>
 	public ValueTask DisposeAsync()
 	{
-		try
-		{
-			GC.SuppressFinalize(this);
-
-		}
-		catch
-		{
-		}
-
+		GC.SuppressFinalize(this);
 		return ValueTask.CompletedTask;
 	}
 
 	#endregion
-}
-
-/// <summary>
-/// The counter behind <see cref="PDList{TItem}"/>'s default ids (issue #159). It is thread safe, and it is not
-/// generic, so lists of different item types never share an id.
-/// </summary>
-internal static class PDListSequence
-{
-	private static int _value;
-
-	/// <summary>
-	/// Returns the next value, atomically.
-	/// </summary>
-	/// <returns>The next sequence value.</returns>
-	internal static int Next() => Interlocked.Increment(ref _value);
 }

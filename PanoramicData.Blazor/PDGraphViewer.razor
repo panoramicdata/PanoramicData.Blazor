@@ -15,7 +15,7 @@
 					NodeClick="OnNodeClick"
 					EdgeClick="OnEdgeClick"
 					SelectionChanged="OnSelectionChanged"
-					@ref="_graph" />
+					@ref="Graph" />
 			</PDSplitPanel>
 			<PDSplitPanel Size="1" MinSize="250">
 				<PDGraphInfo TItem="TItem"
@@ -27,7 +27,7 @@
 					ReadOnlyControls="ReadOnlyControls"
 					SplitDirection="SplitDirection.Vertical"
 					ConfigurationChanged="OnConfigurationChanged"
-					@ref="_graphInfo" />
+					@ref="GraphInfo" />
 			</PDSplitPanel>
 		</PDSplitter>
 	}
@@ -44,7 +44,7 @@
 					NodeClick="OnNodeClick"
 					EdgeClick="OnEdgeClick"
 					SelectionChanged="OnSelectionChanged"
-					@ref="_graph" />
+					@ref="Graph" />
 			</PDSplitPanel>
 			<PDSplitPanel Size="1" MinSize="200">
 				<PDGraphInfo TItem="TItem"
@@ -56,7 +56,7 @@
 					ReadOnlyControls="ReadOnlyControls"
 					SplitDirection="SplitDirection.Horizontal"
 					ConfigurationChanged="OnConfigurationChanged"
-					@ref="_graphInfo" />
+					@ref="GraphInfo" />
 			</PDSplitPanel>
 		</PDSplitter>
 	}
@@ -71,6 +71,6 @@
 			NodeClick="OnNodeClick"
 			EdgeClick="OnEdgeClick"
 			SelectionChanged="OnSelectionChanged"
-			@ref="_graph" />
+			@ref="Graph" />
 	}
 </div>

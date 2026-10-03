@@ -6,9 +6,13 @@
 public partial class PDZoomBar : IAsyncDisposable
 {
 	private static int _seq;
-	private PDCanvas _canvas = null!;
 	private DotNetObjectReference<PDZoomBar>? _objRef;
 	private IJSObjectReference? _module;
+
+	/// <summary>
+	/// Gets the zoom bar canvas, set by the markup.
+	/// </summary>
+	internal PDCanvas? Canvas { get; set; }
 
 	/// <summary>
 	/// Gets the injected JavaScript runtime.
@@ -133,6 +137,9 @@ public partial class PDZoomBar : IAsyncDisposable
 		}
 		catch
 		{
+			// Disposal is best effort: when the circuit has already gone (for example after fast page
+			// switching in Server Side Blazor) the JavaScript module cannot be reached, and there is
+			// nothing left to clean up.
 		}
 	}
 }

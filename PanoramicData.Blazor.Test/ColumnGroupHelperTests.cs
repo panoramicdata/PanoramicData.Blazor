@@ -52,7 +52,7 @@ public class ColumnGroupHelperTests
 			new() { Name = "Identity", Ordinal = 10 },
 			new() { Name = "Contact", Ordinal = 20 },
 		};
-		var columnGroups = new string?[] { "Identity", "Identity", "Contact", "Dates" };
+		string?[] columnGroups = ["Identity", "Identity", "Contact", "Dates"];
 
 		var pills = ColumnGroupHelper.BuildPills(registered, columnGroups);
 
@@ -64,7 +64,7 @@ public class ColumnGroupHelperTests
 	public void BuildPills_CountsListableColumnsPerGroup()
 	{
 		var registered = new List<ColumnGroupContext> { new() { Name = "Identity", Ordinal = 10 } };
-		var columnGroups = new string?[] { "Identity", "Identity", "Identity", null, "" };
+		string?[] columnGroups = ["Identity", "Identity", "Identity", null, ""];
 
 		var pills = ColumnGroupHelper.BuildPills(registered, columnGroups);
 
@@ -76,7 +76,7 @@ public class ColumnGroupHelperTests
 	public void BuildPills_IncludesStringOnlyGroupsAfterRegistered_InFirstSeenOrder()
 	{
 		var registered = new List<ColumnGroupContext> { new() { Name = "Identity", Ordinal = 10 } };
-		var columnGroups = new string?[] { "Identity", "Zeta", "Alpha" };
+		string?[] columnGroups = ["Identity", "Zeta", "Alpha"];
 
 		var pills = ColumnGroupHelper.BuildPills(registered, columnGroups);
 

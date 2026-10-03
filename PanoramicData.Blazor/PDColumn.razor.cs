@@ -75,22 +75,12 @@ public partial class PDColumn<TItem> where TItem : class
 	/// </summary>
 	[Parameter] public Expression<Func<TItem, object>>? Field { get; set; }
 
-	private static PropertyInfo? GetPropertyInfo(Expression value)
+	private static PropertyInfo? GetPropertyInfo(Expression value) => value switch
 	{
-		if (value is MemberExpression memberExpr)
-		{
-			if (memberExpr.Member is PropertyInfo propInfo)
-			{
-				return propInfo;
-			}
-		}
-		else if (value is UnaryExpression unaryExpr)
-		{
-			return GetPropertyInfo(unaryExpr.Operand);
-		}
-
-		return null;
-	}
+		MemberExpression { Member: PropertyInfo propInfo } => propInfo,
+		UnaryExpression unaryExpr => GetPropertyInfo(unaryExpr.Operand),
+		_ => null
+	};
 
 	/// <summary>
 	/// Gets whether the column's field is a computed value (for example <c>r =&gt; r.Name + "!"</c>) that selects
@@ -176,37 +166,44 @@ public partial class PDColumn<TItem> where TItem : class
 		try
 		{
 			var value = CompiledFunc?.Invoke(item);
-			if (value is null)
-			{
-				return string.Empty;
-			}
-
-			// password / sensitive info?
-			if (IsPassword || IsSensitive(item, null))
-			{
-				return "".PadRight((value.ToString() ?? string.Empty).Length, '*');
-			}
-
-			// if enumeration value - does it have display attribute?
-			var memberInfo = Field?.GetPropertyMemberInfo();
-			if (memberInfo is PropertyInfo propInfo && propInfo.PropertyType.IsEnum)
-			{
-				value = propInfo.PropertyType.GetMember($"{value}")
-								?.First()
-								.GetCustomAttribute<DisplayAttribute>()
-								?.Name ?? value;
-			}
-
-			// return the string to be rendered
-			return string.IsNullOrEmpty(Format)
-				? value.ToString() ?? string.Empty
-				: string.Format(CultureInfo.CurrentCulture, "{0:" + Format + "}", value);
+			return value is null ? string.Empty : FormatRenderValue(item, value);
 		}
 		catch
 		{
 			// if field expression is nested member then parent object may be nullable
 			return string.Empty;
 		}
+	}
+
+	private string FormatRenderValue(TItem item, object value)
+	{
+		// password / sensitive info?
+		if (IsPassword || IsSensitive(item, null))
+		{
+			return "".PadRight((value.ToString() ?? string.Empty).Length, '*');
+		}
+
+		// if enumeration value - does it have display attribute?
+		value = GetEnumDisplayName(value);
+
+		// return the string to be rendered
+		return string.IsNullOrEmpty(Format)
+			? value.ToString() ?? string.Empty
+			: string.Format(CultureInfo.CurrentCulture, "{0:" + Format + "}", value);
+	}
+
+	private object GetEnumDisplayName(object value)
+	{
+		var memberInfo = Field?.GetPropertyMemberInfo();
+		if (memberInfo is PropertyInfo propInfo && propInfo.PropertyType.IsEnum)
+		{
+			return propInfo.PropertyType.GetMember($"{value}")
+							?.First()
+							.GetCustomAttribute<DisplayAttribute>()
+							?.Name ?? value;
+		}
+
+		return value;
 	}
 
 	/// <summary>
@@ -514,23 +511,19 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <returns>Resolved title text.</returns>
 	/// <remarks>A runtime title set with <see cref="SetTitle(string)"/>, for example from a
 	/// <see cref="PDColumnConfig.Title"/>, takes precedence over <see cref="TitleFunc"/> and <see cref="Title"/>.</remarks>
-	public string GetTitle(TItem? item = default)
+	public string GetTitle(TItem? item)
+		=> _title ?? (TitleFunc is null ? Title ?? GetFieldTitle() : TitleFunc(item));
+
+	/// <summary>
+	/// Gets the display title for this column without row context.
+	/// </summary>
+	/// <returns>Resolved title text.</returns>
+	/// <remarks>A runtime title set with <see cref="SetTitle(string)"/>, for example from a
+	/// <see cref="PDColumnConfig.Title"/>, takes precedence over <see cref="TitleFunc"/> and <see cref="Title"/>.</remarks>
+	public string GetTitle() => GetTitle(default);
+
+	private string GetFieldTitle()
 	{
-		if (_title is not null)
-		{
-			return _title;
-		}
-
-		if (TitleFunc is not null)
-		{
-			return TitleFunc(item);
-		}
-
-		if (Title is not null)
-		{
-			return Title;
-		}
-
 		var memberInfo = Field?.GetPropertyMemberInfo();
 		return memberInfo is PropertyInfo propInfo
 			? propInfo.GetCustomAttribute<DisplayAttribute>()?.Name ?? propInfo.Name
@@ -636,35 +629,25 @@ public partial class PDColumn<TItem> where TItem : class
 	/// <returns>Filter data type.</returns>
 	public FilterDataTypes GetFilterDataType()
 	{
-		var memberInfo = Field?.GetPropertyMemberInfo();
-		if (memberInfo is PropertyInfo propInfo)
+		if (Field?.GetPropertyMemberInfo() is not PropertyInfo propInfo)
 		{
-			// nullable?
-			var ut = Nullable.GetUnderlyingType(propInfo.PropertyType);
-
-			if (propInfo.PropertyType.IsEnum || ut?.IsEnum == true)
-			{
-				return FilterDataTypes.Enum;
-			}
-
-			if (propInfo.PropertyType.FullName == "System.Boolean" || ut?.FullName == "System.Boolean")
-			{
-				return FilterDataTypes.Bool;
-			}
-
-			if (propInfo.PropertyType.FullName == "System.String")
-			{
-				return FilterDataTypes.Text;
-			}
-
-			if (propInfo.PropertyType.FullName == "System.DateTime" || propInfo.PropertyType.FullName == "System.DateTimeOffset"
-				 || ut?.FullName == "System.DateTime" || ut?.FullName == "System.DateTimeOffset")
-			{
-				return FilterDataTypes.Date;
-			}
+			return FilterDataTypes.Numeric;
 		}
 
-		return FilterDataTypes.Numeric;
+		// a nullable value type filters as its underlying type
+		var type = Nullable.GetUnderlyingType(propInfo.PropertyType) ?? propInfo.PropertyType;
+		if (type.IsEnum)
+		{
+			return FilterDataTypes.Enum;
+		}
+
+		return type.FullName switch
+		{
+			"System.Boolean" => FilterDataTypes.Bool,
+			"System.String" => FilterDataTypes.Text,
+			"System.DateTime" or "System.DateTimeOffset" => FilterDataTypes.Date,
+			_ => FilterDataTypes.Numeric
+		};
 	}
 
 	/// <summary>
