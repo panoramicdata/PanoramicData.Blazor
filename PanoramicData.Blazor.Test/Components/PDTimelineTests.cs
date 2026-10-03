@@ -342,6 +342,36 @@ public partial class PDTimelineTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that disposing the timeline after its circuit has gone does not fail.
+	/// </summary>
+	[Fact]
+	public async Task Dispose_AfterDisconnect_DoesNotThrow()
+	{
+		_module.SetupVoid("dispose", _ => true).SetException(new Microsoft.JSInterop.JSDisconnectedException("gone"));
+		RenderTimeline();
+
+		var dispose = async () => await DisposeComponentsAsync();
+
+		await dispose.Should().NotThrowAsync();
+		_module.VerifyInvoke("dispose");
+	}
+
+	/// <summary>
+	/// Verifies that clearing without saying whether to keep the selection clears the selection too.
+	/// </summary>
+	[Fact]
+	public async Task Clear_ByDefault_ClearsSelection()
+	{
+		var timeline = RenderTimeline();
+		await timeline.InvokeAsync(() => timeline.Instance.SetSelection(Day(2), Day(4)));
+
+		await timeline.InvokeAsync(timeline.Instance.Clear);
+
+		timeline.Instance.GetSelection().Should().BeNull();
+		_selections[^1].Should().BeNull();
+	}
+
+	/// <summary>
 	/// Verifies that a non-positive follow-now refresh interval is rejected.
 	/// </summary>
 	[Fact]
