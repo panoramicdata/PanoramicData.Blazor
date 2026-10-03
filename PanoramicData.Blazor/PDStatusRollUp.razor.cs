@@ -140,14 +140,9 @@ public partial class PDStatusRollUp : IAsyncDisposable
 		return node;
 	}
 
+	// Only called for a descendant: an update to the root (the empty path) is applied to it in place.
 	private static void PatchNode(PDStatusRollUpNode root, string path, PDStatusRollUpNode replacement)
 	{
-		if (string.IsNullOrEmpty(path))
-		{
-			// Root replacement not supported - callers update root externally.
-			return;
-		}
-
 		var segments = path.Split('.');
 		var node = root;
 		for (var i = 0; i < segments.Length - 1; i++)

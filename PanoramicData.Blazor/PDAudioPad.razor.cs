@@ -39,7 +39,7 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 	/// <summary>
 	/// Gets or sets minimum output value for this pad.
 	/// </summary>
-	[Parameter] public double MinValue { get; set; } = 0.0;
+	[Parameter] public double MinValue { get; set; }
 	/// <summary>
 	/// Gets or sets the pad width in pixels.
 	/// </summary>
@@ -55,11 +55,11 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 	/// <summary>
 	/// Gets or sets optional symbol color override.
 	/// </summary>
-	[Parameter] public string? SymbolColor { get; set; } = null;
+	[Parameter] public string? SymbolColor { get; set; }
 	/// <summary>
 	/// Gets or sets optional overlay label color override.
 	/// </summary>
-	[Parameter] public string? LabelColor { get; set; } = null;
+	[Parameter] public string? LabelColor { get; set; }
 
 	/// <summary>
 	/// Throttle interval in milliseconds for decay events (default 100ms).
@@ -78,12 +78,7 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 
 	private string OverlayLabelColor => LabelColor ?? "black";
 
-	/// <summary>
-	/// Gets the JavaScript module path used by the base audio control.
-	/// </summary>
-	protected override string JsFileName => string.Empty;
-
-	private async void Activate()
+	private async Task ActivateAsync()
 	{
 		_cts?.Cancel();
 		_cts = new CancellationTokenSource();
@@ -161,23 +156,7 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 				break;
 			}
 
-			var elapsed = DateTime.UtcNow - startTime;
-
-			if (DecayMode == DecayMode.Exponential)
-			{
-				var decayFactor = Math.Pow(0.5, elapsed.TotalMilliseconds / DecayHalfLife.TotalMilliseconds);
-				Value = initialValue * decayFactor;
-			}
-			else if (DecayMode == DecayMode.Linear)
-			{
-				var decayAmount = elapsed.TotalMilliseconds / (DecayHalfLife.TotalMilliseconds * 2);
-				Value = initialValue - decayAmount;
-			}
-
-			if (Value < MinValue)
-			{
-				Value = MinValue;
-			}
+			Value = Math.Max(GetDecayedValue(initialValue, DateTime.UtcNow - startTime), MinValue);
 
 			await ValueChanged.InvokeAsync(Value);
 			await EmitValueChangedEvent(); // Throttled emission
@@ -191,6 +170,17 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 			return;
 		}
 
+		await SettleDecayAsync();
+	}
+
+	// Only the Exponential and Linear modes decay: ActivateAsync never starts a decay in Toggle mode.
+	private double GetDecayedValue(double initialValue, TimeSpan elapsed)
+		=> DecayMode == DecayMode.Exponential
+			? initialValue * Math.Pow(0.5, elapsed.TotalMilliseconds / DecayHalfLife.TotalMilliseconds)
+			: initialValue - (elapsed.TotalMilliseconds / (DecayHalfLife.TotalMilliseconds * 2));
+
+	private async Task SettleDecayAsync()
+	{
 		if (Value != MinValue)
 		{
 			Value = MinValue;
@@ -210,22 +200,24 @@ public partial class PDAudioPad : PDAudioControl, IAsyncDisposable
 	/// <summary>
 	/// Handles press interaction and triggers activation when configured for press behavior.
 	/// </summary>
-	protected void HandlePress()
+	/// <returns>A task that completes once the activation has been reported.</returns>
+	protected async Task HandlePress()
 	{
 		if (DecayUpon == DecayUpon.Press)
 		{
-			Activate();
+			await ActivateAsync().ConfigureAwait(true);
 		}
 	}
 
 	/// <summary>
 	/// Handles release interaction and triggers activation when configured for release behavior.
 	/// </summary>
-	protected void HandleRelease()
+	/// <returns>A task that completes once the activation has been reported.</returns>
+	protected async Task HandleRelease()
 	{
 		if (DecayUpon == DecayUpon.Release)
 		{
-			Activate();
+			await ActivateAsync().ConfigureAwait(true);
 		}
 	}
 

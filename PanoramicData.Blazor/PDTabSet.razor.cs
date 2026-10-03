@@ -39,7 +39,7 @@ public partial class PDTabSet : ComponentBase
 	/// <summary>
 	/// Gets or sets whether tabs can be closed.
 	/// </summary>
-	[Parameter] public bool IsTabClosingEnabled { get; set; } = false;
+	[Parameter] public bool IsTabClosingEnabled { get; set; }
 
 	/// <summary>
 	/// Gets or sets the minimum width of a tab.
@@ -54,7 +54,7 @@ public partial class PDTabSet : ComponentBase
 	/// <summary>
 	/// Gets or sets whether new tabs can be added.
 	/// </summary>
-	[Parameter] public bool IsTabAdditionEnabled { get; set; } = false;
+	[Parameter] public bool IsTabAdditionEnabled { get; set; }
 
 	/// <summary>
 	/// Gets or sets the position of the create tab button.
@@ -64,12 +64,12 @@ public partial class PDTabSet : ComponentBase
 	/// <summary>
 	/// Gets or sets whether tabs can be renamed.
 	/// </summary>
-	[Parameter] public bool IsTabRenamingEnabled { get; set; } = false;
+	[Parameter] public bool IsTabRenamingEnabled { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether tabs can be reordered by dragging. When enabled, the underlying <see cref="Tabs"/> list order is updated on drop.
 	/// </summary>
-	[Parameter] public bool IsTabReorderingEnabled { get; set; } = false;
+	[Parameter] public bool IsTabReorderingEnabled { get; set; }
 
 	/// <summary>
 	/// An event callback that is invoked when the tab order changes after a drag-reorder operation.

@@ -7,6 +7,16 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDToolbarDropdown : IDisposable, IEnablable
 {
+	private readonly EventHandler<KeyboardInfo> _keyUpHandler;
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="PDToolbarDropdown"/> class.
+	/// </summary>
+	public PDToolbarDropdown()
+	{
+		_keyUpHandler = async (_, e) => await OnGlobalKeyUpAsync(e).ConfigureAwait(true);
+	}
+
 	#region Inject
 	[Inject] IGlobalEventService GlobalEventService { get; set; } = null!;
 	#endregion
@@ -129,7 +139,7 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
-		GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
+		GlobalEventService.KeyUpEvent += _keyUpHandler;
 		foreach (var item in Items)
 		{
 			if (item.ShortcutKey.HasValue)
@@ -139,7 +149,7 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 		}
 	}
 
-	private async void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e)
+	private async Task OnGlobalKeyUpAsync(KeyboardInfo e)
 	{
 		foreach (var item in Items)
 		{
@@ -162,7 +172,7 @@ public partial class PDToolbarDropdown : IDisposable, IEnablable
 			}
 		}
 
-		GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
+		GlobalEventService.KeyUpEvent -= _keyUpHandler;
 
 		GC.SuppressFinalize(this);
 	}

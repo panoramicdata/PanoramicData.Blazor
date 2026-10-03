@@ -34,6 +34,25 @@ public partial class PDDropDownTests
 		component.Find("button i.fa-angle-up").Should().NotBeNull();
 	}
 
+	/// <summary>
+	/// Verifies that a callback arriving from JavaScript off the renderer's dispatcher (as one can after the page has
+	/// gone) records the new state and logs that it could not re-render, rather than throwing.
+	/// </summary>
+	[Fact]
+	public async Task A_callback_that_cannot_re_render_is_logged_at_debug()
+	{
+		var logger = UseRecordingLogger();
+		var component = Render<PDDropDown>(parameters => parameters.Add(p => p.Id, "menu"));
+
+		// Deliberately not through component.InvokeAsync, so StateHasChanged is called off the dispatcher
+		await component.Instance.OnDropDownShown();
+
+		logger.Entries.Should().ContainSingle(e => e.Level == LogLevel.Debug)
+			.Which.Message.Should().Contain("menu");
+		component.Render();
+		component.Find("button i.fa-angle-up").Should().NotBeNull();
+	}
+
 	/// <summary>Verifies that an exception thrown by DropDownHidden is logged and passed to the ExceptionHandler.</summary>
 	[Fact]
 	public async Task An_exception_thrown_by_DropDownHidden_is_passed_to_the_exception_handler()

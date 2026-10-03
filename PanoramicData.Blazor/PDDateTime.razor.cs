@@ -82,48 +82,32 @@ public partial class PDDateTime
 	[Parameter]
 	public EventCallback<DateTime> ValueChanged { get; set; }
 
-	private async Task OnBlur(FocusEventArgs args) => await Blur.InvokeAsync().ConfigureAwait(true);
+	private async Task OnBlur() => await Blur.InvokeAsync().ConfigureAwait(true);
 
 	private Task OnDateInputAsync(ChangeEventArgs args)
 	{
-		try
+		if (TryParseDate(args.Value?.ToString(), out var dt))
 		{
-			if (TryParseDate(args.Value?.ToString(), out var dt))
-			{
-				Value = dt.Date.Add(Value.TimeOfDay);
-				_dateCssClass = string.Empty;
-				return ValueChanged.InvokeAsync(Value);
-			}
-
-			_dateCssClass = "invalid";
-		}
-		catch
-		{
-			_dateCssClass = "invalid";
+			Value = dt.Date.Add(Value.TimeOfDay);
+			_dateCssClass = string.Empty;
+			return ValueChanged.InvokeAsync(Value);
 		}
 
+		_dateCssClass = "invalid";
 		return Task.CompletedTask;
 	}
 
 	private Task OnTimeInputAsync(ChangeEventArgs args)
 	{
-		try
+		var value = args.Value?.ToString();
+		if (value != null && DateTime.TryParseExact(value, "HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
 		{
-			var value = args.Value?.ToString();
-			if (value != null && DateTime.TryParseExact(value, "HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
-			{
-				Value = Value.Date.Add(dt.TimeOfDay);
-				_timeCssClass = string.Empty;
-				return ValueChanged.InvokeAsync(Value);
-			}
-
-			_timeCssClass = "invalid";
-		}
-		catch
-		{
-			_timeCssClass = "invalid";
+			Value = Value.Date.Add(dt.TimeOfDay);
+			_timeCssClass = string.Empty;
+			return ValueChanged.InvokeAsync(Value);
 		}
 
+		_timeCssClass = "invalid";
 		return Task.CompletedTask;
 	}
 }

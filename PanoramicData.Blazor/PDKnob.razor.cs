@@ -192,7 +192,6 @@ public partial class PDKnob : PDAudioControl
 	/// <returns>A list of label markings.</returns>
 	protected List<Mark> GetMarkings()
 	{
-		var marks = new List<Mark>();
 		// Adjusted label distance - reduced from Radius + 10 to Radius + 6 to fit within SVG bounds
 		var labelDistance = Radius + 6;
 
@@ -200,60 +199,53 @@ public partial class PDKnob : PDAudioControl
 		if (!string.IsNullOrEmpty(MinLabel) && !string.IsNullOrEmpty(MaxLabel))
 		{
 			// Custom labels mode (similar to Gain mode but with custom text)
-			var (xMin, yMin) = PolarToCartesian(Center, Center, labelDistance, StartAngle);
-			var (xMax, yMax) = PolarToCartesian(Center, Center, labelDistance, EndAngle);
-			marks.Add(new Mark(xMin, yMin, MinLabel));
-			marks.Add(new Mark(xMax, yMax, MaxLabel));
-			return marks;
+			return GetEndMarkings(labelDistance, MinLabel, MaxLabel);
 		}
 
-		switch (Mode)
+		return Mode switch
 		{
-			case PDKnobMode.Volume:
-				{
-					int step = CalculateMarkingStep(MaxDisplay);
-					for (int i = 0; i <= MaxDisplay; i += step)
-					{
-						double frac = (double)i / MaxDisplay;
-						double angle = StartAngle + ArcAngle * frac;
-						var (x, y) = PolarToCartesian(Center, Center, labelDistance, angle);
-						marks.Add(new Mark(x, y, i.ToString(CultureInfo.InvariantCulture)));
-					}
+			PDKnobMode.Volume => GetVolumeMarkings(labelDistance),
+			PDKnobMode.Balance => GetEndMarkings(labelDistance, "L", "R"),
+			PDKnobMode.Gain => GetEndMarkings(labelDistance, "-∞", "+∞"),
+			_ => []
+		};
+	}
 
-					// Ensure the last mark (MaxVolume) is always included if not already
-					if (MaxDisplay % step != 0 && MaxDisplay > 0)
-					{
-						double frac = (double)MaxDisplay / MaxDisplay;
-						double angle = StartAngle + ArcAngle * frac;
-						var (x, y) = PolarToCartesian(Center, Center, labelDistance, angle);
-						if (!marks.Any(m => m.Label == MaxDisplay.ToString(CultureInfo.InvariantCulture)))
-						{
-							marks.Add(new Mark(x, y, MaxDisplay.ToString(CultureInfo.InvariantCulture)));
-						}
-					}
+	/// <summary>
+	/// Labels the two ends of the knob's travel.
+	/// </summary>
+	private List<Mark> GetEndMarkings(double labelDistance, string startLabel, string endLabel)
+	{
+		var (xStart, yStart) = PolarToCartesian(Center, Center, labelDistance, StartAngle);
+		var (xEnd, yEnd) = PolarToCartesian(Center, Center, labelDistance, EndAngle);
+		return [new Mark(xStart, yStart, startLabel), new Mark(xEnd, yEnd, endLabel)];
+	}
 
-					break;
-				}
+	/// <summary>
+	/// Labels the volume scale at a readable step, always including the maximum.
+	/// </summary>
+	private List<Mark> GetVolumeMarkings(double labelDistance)
+	{
+		var marks = new List<Mark>();
+		int step = CalculateMarkingStep(MaxDisplay);
+		for (int i = 0; i <= MaxDisplay; i += step)
+		{
+			double frac = (double)i / MaxDisplay;
+			double angle = StartAngle + ArcAngle * frac;
+			var (x, y) = PolarToCartesian(Center, Center, labelDistance, angle);
+			marks.Add(new Mark(x, y, i.ToString(CultureInfo.InvariantCulture)));
+		}
 
-			case PDKnobMode.Balance:
-				{
-					// L and R
-					var (xL, yL) = PolarToCartesian(Center, Center, labelDistance, StartAngle);
-					var (xR, yR) = PolarToCartesian(Center, Center, labelDistance, EndAngle);
-					marks.Add(new Mark(xL, yL, "L"));
-					marks.Add(new Mark(xR, yR, "R"));
-					break;
-				}
-
-			case PDKnobMode.Gain:
-				{
-					// -∞ and +∞
-					var (xMin, yMin) = PolarToCartesian(Center, Center, labelDistance, StartAngle);
-					var (xMax, yMax) = PolarToCartesian(Center, Center, labelDistance, EndAngle);
-					marks.Add(new Mark(xMin, yMin, "-∞"));
-					marks.Add(new Mark(xMax, yMax, "+∞"));
-					break;
-				}
+		// Ensure the last mark (MaxVolume) is always included if not already
+		if (MaxDisplay % step != 0 && MaxDisplay > 0)
+		{
+			double frac = (double)MaxDisplay / MaxDisplay;
+			double angle = StartAngle + ArcAngle * frac;
+			var (x, y) = PolarToCartesian(Center, Center, labelDistance, angle);
+			if (!marks.Any(m => m.Label == MaxDisplay.ToString(CultureInfo.InvariantCulture)))
+			{
+				marks.Add(new Mark(x, y, MaxDisplay.ToString(CultureInfo.InvariantCulture)));
+			}
 		}
 
 		return marks;

@@ -378,7 +378,7 @@ public partial class PDDropDown : IAsyncDisposable, IEnablable
 		}
 	}
 
-	private Task OnMouseEnter(MouseEventArgs args)
+	private Task OnMouseEnter()
 		=> IsEnabled && ShowOnMouseEnter ? ShowAsync() : Task.CompletedTask;
 
 	/// <summary>

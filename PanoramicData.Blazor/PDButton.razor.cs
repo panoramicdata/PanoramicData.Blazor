@@ -5,7 +5,16 @@
 /// </summary>
 public partial class PDButton : IEnablable, IDisposable
 {
+	private readonly EventHandler<KeyboardInfo> _keyUpHandler;
 	private bool _operationInProgress;
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="PDButton"/> class.
+	/// </summary>
+	public PDButton()
+	{
+		_keyUpHandler = async (_, e) => await OnGlobalKeyUpAsync(e).ConfigureAwait(true);
+	}
 
 	#region Inject
 	[Inject]
@@ -159,14 +168,14 @@ public partial class PDButton : IEnablable, IDisposable
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
-		GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
+		GlobalEventService.KeyUpEvent += _keyUpHandler;
 		if (ShortcutKey.HasValue)
 		{
 			GlobalEventService.RegisterShortcutKey(ShortcutKey);
 		}
 	}
 
-	private async void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e)
+	private async Task OnGlobalKeyUpAsync(KeyboardInfo e)
 	{
 		if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.Code, e.AltKey, e.CtrlKey, e.ShiftKey))
 		{
@@ -210,7 +219,7 @@ public partial class PDButton : IEnablable, IDisposable
 			GlobalEventService.UnregisterShortcutKey(ShortcutKey);
 		}
 
-		GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
+		GlobalEventService.KeyUpEvent -= _keyUpHandler;
 		GC.SuppressFinalize(this);
 	}
 }

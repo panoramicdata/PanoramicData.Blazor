@@ -92,6 +92,18 @@ public class PDKnobTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that a mode the knob does not know has no markings rather than failing to render.
+	/// </summary>
+	[Fact]
+	public void UnknownMode_HasNoMarkings()
+	{
+		var knob = Render<PDKnob>(parameters => parameters.Add(p => p.Mode, (PDKnobMode)99));
+
+		MarkLabels(knob).Should().BeEmpty();
+		knob.FindAll(TickSelector).Should().BeEmpty();
+	}
+
+	/// <summary>
 	/// Verifies that custom range labels replace the volume markings and suppress automatic snapping.
 	/// </summary>
 	[Fact]

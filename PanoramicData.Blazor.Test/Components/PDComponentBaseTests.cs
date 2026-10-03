@@ -162,6 +162,25 @@ public class PDComponentBaseTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that the shared sequence reports the number behind the latest generated id, and that moving it on
+	/// moves on the ids generated after it.
+	/// </summary>
+	[Fact]
+	public void The_shared_sequence_numbers_the_generated_ids()
+	{
+		// Other tests create components concurrently, so the sequence is only ever moved forwards here (never
+		// risking a repeated id) and the assertions allow for ids taken in between.
+		var movedTo = ProbeComponent.SharedSequence + 1000;
+		ProbeComponent.SharedSequence = movedTo;
+
+		var component = Render<ProbeComponent>(parameters => parameters.Add(p => p.Name, "valid"));
+
+		var number = int.Parse(component.Instance.Id["pd-component-".Length..], System.Globalization.CultureInfo.InvariantCulture);
+		number.Should().BeGreaterThan(movedTo);
+		ProbeComponent.SharedSequence.Should().BeGreaterThanOrEqualTo(number);
+	}
+
+	/// <summary>
 	/// A model validated by FluentValidation in these tests.
 	/// </summary>
 	private sealed class Candidate
@@ -182,6 +201,13 @@ public class PDComponentBaseTests : BunitContext
 
 		/// <summary>Gets the validation errors.</summary>
 		public Dictionary<string, string> Errors => ValidationErrors;
+
+		/// <summary>Gets or sets the sequence shared by every component's generated id.</summary>
+		public static int SharedSequence
+		{
+			get => Sequence;
+			set => Sequence = value;
+		}
 
 		/// <summary>Gets whether the component is valid.</summary>
 		public bool Valid => IsValid;

@@ -42,7 +42,7 @@ public partial class PDSplitPanel
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
-		Id = $"pdsp{++_idSequence}";
+		Id = $"pdsp{Interlocked.Increment(ref _idSequence)}";
 		Splitter.AddPanel(this);
 	}
 }

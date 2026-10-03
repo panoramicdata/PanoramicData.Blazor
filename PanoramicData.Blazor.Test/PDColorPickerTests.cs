@@ -267,6 +267,25 @@ public partial class PDColorPickerTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that the saturation/value square uses the size the script measured, rather than the configured one.
+	/// </summary>
+	[Fact]
+	public async Task SaturationValueSquare_UsesTheMeasuredSize()
+	{
+		var module = JSInterop.SetupModule(ModulePath);
+		module
+			.Setup<PDColorPicker.ElementBounds?>("getElementBounds", _ => true)
+			.SetResult(new PDColorPicker.ElementBounds(512, 300, 10, 20));
+		var (component, reported) = RenderPicker("#FF0000");
+		await OpenAsync(component);
+
+		// Halfway across and down the measured 512 x 300 square, not the configured 256 x 150 one.
+		await component.Find(".pd-color-sv-gradient").PointerDownAsync(new PointerEventArgs { OffsetX = 256, OffsetY = 150 });
+
+		reported.Should().Equal(ColorValue.FromHsv(0, 0.5, 0.5).ToHex());
+	}
+
+	/// <summary>
 	/// Verifies that the hue strip sets the hue from the pointer, and only while pressed.
 	/// </summary>
 	[Fact]

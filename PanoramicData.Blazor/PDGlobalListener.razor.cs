@@ -5,8 +5,17 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDGlobalListener : IAsyncDisposable
 {
+	private readonly EventHandler<IEnumerable<ShortcutKey>> _shortcutsChangedHandler;
 	private DotNetObjectReference<PDGlobalListener>? _dotNetObjectReference;
 	private IJSObjectReference? _module;
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="PDGlobalListener"/> class.
+	/// </summary>
+	public PDGlobalListener()
+	{
+		_shortcutsChangedHandler = async (_, shortcuts) => await OnShortcutsChangedAsync(shortcuts).ConfigureAwait(true);
+	}
 
 	/// <summary>
 	/// Gets or sets the child content of the component.
@@ -25,7 +34,7 @@ public partial class PDGlobalListener : IAsyncDisposable
 	{
 		try
 		{
-			GlobalEventService.ShortcutsChanged -= GlobalEventService_ShortcutsChanged;
+			GlobalEventService.ShortcutsChanged -= _shortcutsChangedHandler;
 			GC.SuppressFinalize(this);
 			if (_module != null)
 			{
@@ -47,7 +56,7 @@ public partial class PDGlobalListener : IAsyncDisposable
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
-		GlobalEventService.ShortcutsChanged += GlobalEventService_ShortcutsChanged;
+		GlobalEventService.ShortcutsChanged += _shortcutsChangedHandler;
 	}
 
 	/// <inheritdoc />
@@ -78,7 +87,7 @@ public partial class PDGlobalListener : IAsyncDisposable
 		}
 	}
 
-	private async void GlobalEventService_ShortcutsChanged(object? sender, IEnumerable<ShortcutKey> shortcuts)
+	private async Task OnShortcutsChangedAsync(IEnumerable<ShortcutKey> shortcuts)
 	{
 		try
 		{

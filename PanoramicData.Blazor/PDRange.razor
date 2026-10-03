@@ -44,7 +44,7 @@
 			}
 
 			@* range start handle *@
-			<rect @ref="_svgRangeHandleStart"
+			<rect @ref="SvgRangeHandleStart"
 				  @onpointerdown="OnStartHandlePointerDown"
 				  @onpointermove="OnStartHandlePointerMove"
 				  @onpointerup="OnHandlePointerUp"
@@ -56,7 +56,7 @@
 				  y="@CalcHandleY" />
 
 			@* range end handle *@
-			<rect @ref="_svgRangeHandleEnd"
+			<rect @ref="SvgRangeHandleEnd"
 				  @onpointerdown="OnEndHandlePointerDown"
 				  @onpointermove="OnEndHandlePointerMove"
 				  @onpointerup="OnHandlePointerUp"

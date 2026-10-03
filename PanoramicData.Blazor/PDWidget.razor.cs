@@ -29,7 +29,12 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 	private bool _previousEffectiveIsEditable;
 	private bool _isInternallyEditable;
 	private string _configContent = string.Empty;
-	private PDConfirm? _confirmCancel;
+
+	/// <summary>
+	/// Gets or sets the cancel confirmation dialog, set by the component markup.
+	/// </summary>
+	internal PDConfirm? ConfirmCancel { get; set; }
+
 
 	// Snapshot state for cancel/revert
 	private string _snapshotContent = string.Empty;
@@ -368,9 +373,9 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 			return;
 		}
 
-		if (_confirmCancel is not null)
+		if (ConfirmCancel is not null)
 		{
-			var result = await _confirmCancel.ShowAndWaitResultAsync().ConfigureAwait(true);
+			var result = await ConfirmCancel.ShowAndWaitResultAsync().ConfigureAwait(true);
 			if (result != PDConfirm.Outcomes.Yes)
 			{
 				return;
@@ -554,7 +559,8 @@ public partial class PDWidget : PDComponentBase, IAsyncDisposable
 				LoadImage();
 				break;
 
-			case PDWidgetType.Custom:
+			default:
+				// Custom widgets render the consumer's own content, so there is nothing to load
 				break;
 		}
 

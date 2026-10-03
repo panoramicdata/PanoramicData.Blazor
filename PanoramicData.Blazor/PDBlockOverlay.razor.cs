@@ -6,7 +6,7 @@
 /// Users can implement their own one of these and bind to the actions
 /// on the IBlockOverlayService once it's registers in services.
 /// </summary>
-public partial class PDBlockOverlay
+public partial class PDBlockOverlay : IDisposable
 {
 	/// <summary>
 	/// Gets or sets the service that controls overlay visibility requests.

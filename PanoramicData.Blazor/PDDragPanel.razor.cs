@@ -6,12 +6,8 @@ namespace PanoramicData.Blazor;
 /// <typeparam name="TItem">The type of item in the panel.</typeparam>
 public partial class PDDragPanel<TItem> where TItem : class
 {
-	private static int _sequence;
-
 	private double _lastY;
 	private List<TItem> _localItems = [];
-	//private IJSObjectReference? _module;
-	//private bool _disposedValue;
 
 	/// <summary>
 	/// Gets the injected JavaScript runtime.
@@ -41,7 +37,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 	/// Gets or sets the unique identifier for the panel.
 	/// </summary>
 	[Parameter]
-	public string Id { get; set; } = $"pd-dragpanel-{++_sequence}";
+	public string Id { get; set; } = $"pd-dragpanel-{PDDragPanelSequence.Next()}";
 
 	/// <summary>
 	/// An event callback that is invoked when the order of items changes.
@@ -63,7 +59,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 
 	private Dictionary<string, object> GetItemAttributes(TItem? item)
 	{
-		var dict = new Dictionary<string, object>()
+		var dict = new Dictionary<string, object>
 		{
 			{ "class", $"pd-dragitem {(item == Container?.Payload ? "dragging" : "")}" }
 		};
@@ -77,18 +73,6 @@ public partial class PDDragPanel<TItem> where TItem : class
 	}
 
 	private IEnumerable<TItem> DisplayItems => _localItems;
-
-	//protected override async Task OnAfterRenderAsync(bool firstRender)
-	//{
-	//	if (firstRender)
-	//	{
-	//		_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDragPanel.razor.js").ConfigureAwait(true);
-	//		if (_module != null)
-	//		{
-	//			await _module.InvokeVoidAsync("init", Id);
-	//		}
-	//	}
-	//}
 
 	/// <inheritdoc />
 	protected override void OnParametersSet()
@@ -119,7 +103,7 @@ public partial class PDDragPanel<TItem> where TItem : class
 		}
 	}
 
-	private async Task OnDragEndAsync(DragEventArgs args, TItem? item)
+	private async Task OnDragEndAsync()
 	{
 		if (Container?.Payload != null)
 		{
@@ -138,31 +122,11 @@ public partial class PDDragPanel<TItem> where TItem : class
 		}
 	}
 
-
-	private async Task OnSelectionChanged(ISelectable _)
+	private async Task OnSelectionChanged()
 	{
 		if (Container != null)
 		{
 			await Container.OnSelectionChangedAsync();
 		}
 	}
-
-	//#region IDisposable
-
-	//public async ValueTask DisposeAsync()
-	//{
-	//	if (_module != null)
-	//	{
-	//		try
-	//		{
-	//			await _module.DisposeAsync();
-	//		}
-	//		catch
-	//		{
-	//		}
-	//	}
-	//	GC.SuppressFinalize(this);
-	//}
-
-	//#endregion
 }

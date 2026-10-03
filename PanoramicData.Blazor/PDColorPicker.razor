@@ -25,7 +25,7 @@
 				@* Color space selector *@
 				@if (Options.EnabledSelectors.HasFlag(ColorSpaceSelector.SaturationValueSquare))
 				{
-					<div class="pd-color-sv-container" style="height: @(Options.SelectorHeight)px;" @ref="_svContainerRef">
+					<div class="pd-color-sv-container" style="height: @(Options.SelectorHeight)px;" @ref="SvContainerRef">
 						<div class="pd-color-sv-gradient"
 							 style="background-color: hsl(@(_currentColor.H), 100%, 50%);"
 							 @onpointerdown="OnSvPointerDown"

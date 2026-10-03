@@ -89,9 +89,17 @@ public partial class PDMessages : IAsyncDisposable
 	/// </summary>
 	[Parameter] public string MessageTimestampFormat { get; set; } = "HH:mm:ss";
 
-	private ElementReference MessagesContainer { get; set; }
+	/// <summary>
+	/// Gets or sets the messages container element, set by the component markup.
+	/// </summary>
+	internal ElementReference MessagesContainer { get; set; }
+
+	/// <summary>
+	/// Gets or sets the message input element, set by the component markup.
+	/// </summary>
+	internal ElementReference InputRef { get; set; }
+
 	private IJSObjectReference? _module;
-	private ElementReference _inputRef;
 	private string _localInput = string.Empty;
 	private string _inputKey = Guid.NewGuid().ToString();
 	private DotNetObjectReference<PDMessages>? _dotNetRef;
@@ -139,14 +147,14 @@ public partial class PDMessages : IAsyncDisposable
 
 		await ScrollToBottomAsync();
 
-		if (!_enterHandlerAttached && _module is not null && _inputRef.Context != null)
+		if (!_enterHandlerAttached && _module is not null && InputRef.Context != null)
 		{
 			try
 			{
 				_dotNetRef ??= DotNetObjectReference.Create(this);
-				await _module.InvokeVoidAsync("attachEnterHandler", _inputRef, _dotNetRef);
+				await _module.InvokeVoidAsync("attachEnterHandler", InputRef, _dotNetRef);
 				_enterHandlerAttached = true;
-				await _inputRef.FocusAsync();
+				await InputRef.FocusAsync();
 			}
 			catch (Exception)
 			{
@@ -162,9 +170,9 @@ public partial class PDMessages : IAsyncDisposable
 
 		try
 		{
-			if (_module is not null && _inputRef.Context != null)
+			if (_module is not null && InputRef.Context != null)
 			{
-				await _module.InvokeVoidAsync("detachEnterHandler", _inputRef);
+				await _module.InvokeVoidAsync("detachEnterHandler", InputRef);
 			}
 		}
 		catch (Exception)

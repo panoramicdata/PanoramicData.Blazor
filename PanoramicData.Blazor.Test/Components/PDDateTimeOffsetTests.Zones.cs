@@ -60,6 +60,32 @@ public partial class PDDateTimeOffsetTests
 		PDDateTimeOffset.ResolveListedTimeZoneId(odd, TimeZoneInfo.GetSystemTimeZones()).Should().BeNull();
 	}
 
+	/// <summary>A zone that is listed is offered among the listed zones, and selected by its own id.</summary>
+	[Fact]
+	public void GetTimeZoneOptions_ForAListedZone_OffersTheListedZones()
+	{
+		var utc = TimeZoneInfo.FindSystemTimeZoneById("UTC");
+		TimeZoneInfo[] listed = [FixedZone(9), utc];
+
+		var (options, selectedId) = PDDateTimeOffset.GetTimeZoneOptions(utc, listed);
+
+		options.Should().Equal(listed);
+		selectedId.Should().Be(utc.Id);
+	}
+
+	/// <summary>A zone with no listed equivalent is offered first, ahead of the listed zones, and selected.</summary>
+	[Fact]
+	public void GetTimeZoneOptions_ForAZoneWithNoEquivalent_OffersItFirst()
+	{
+		var odd = TimeZoneInfo.CreateCustomTimeZone("Nowhere/Odd", TimeSpan.FromMinutes(17), "Odd", "Odd");
+		TimeZoneInfo[] listed = [FixedZone(9), TimeZoneInfo.FindSystemTimeZoneById("UTC")];
+
+		var (options, selectedId) = PDDateTimeOffset.GetTimeZoneOptions(odd, listed);
+
+		options.Should().Equal(odd, listed[0], listed[1]);
+		selectedId.Should().Be("Nowhere/Odd");
+	}
+
 	/// <summary>The native date and time inputs get ISO values in a culture with another calendar or time separator.</summary>
 	[Theory]
 	[InlineData("th-TH")]
