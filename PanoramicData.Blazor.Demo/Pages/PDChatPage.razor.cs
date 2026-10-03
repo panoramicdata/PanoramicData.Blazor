@@ -29,19 +29,22 @@ public partial class PDChatPage : IDisposable
 		IsSupport = true
 	};
 
+	private readonly Action<PDChatDockMode> _onDockModeChanged;
+
+	public PDChatPage()
+	{
+		// The new dock mode is read from the service when re-rendering
+		_onDockModeChanged = _ => StateHasChanged();
+	}
+
 	protected override void OnInitialized()
 	{
 		// Subscribe to configuration changes to trigger UI updates
 		ChatService.OnConfigurationChanged += OnConfigurationChanged;
-		ChatService.OnDockModeChanged += OnDockModeChanged;
+		ChatService.OnDockModeChanged += _onDockModeChanged;
 	}
 
 	private void OnConfigurationChanged()
-	{
-		StateHasChanged();
-	}
-
-	private void OnDockModeChanged(PDChatDockMode newMode)
 	{
 		StateHasChanged();
 	}
@@ -287,7 +290,7 @@ public partial class PDChatPage : IDisposable
 	public void Dispose()
 	{
 		ChatService.OnConfigurationChanged -= OnConfigurationChanged;
-		ChatService.OnDockModeChanged -= OnDockModeChanged;
+		ChatService.OnDockModeChanged -= _onDockModeChanged;
 		GC.SuppressFinalize(this);
 	}
 }

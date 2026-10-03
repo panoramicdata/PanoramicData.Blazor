@@ -1,23 +1,10 @@
-﻿::deep .pd-sort, .pd-sort:hover {
+﻿/* The sort icons inside .pd-sort are MarkupString, so their styles live in wwwroot/css/main.scss. */
+.pd-sort:hover {
 	color: var(--bs-primary);
 }
 
-::deep .pd-sort .fa-stack {
-	width: 20px;
-}
-
-::deep .pd-sort.fa-sort, .pd-sort.fa-sort:hover {
+.pd-sort.fa-sort:hover {
 	opacity: 0.3;
-}
-
-/* ✅ ADDED: Make sort icon match filter icon size and alignment */
-::deep .pd-sort .fa-stack {
-	font-size: 1rem; /* Match filter icon size */
-	vertical-align: middle;
-}
-
-::deep .pd-sort i {
-	vertical-align: middle;
 }
 
 .pdtable {
@@ -54,7 +41,7 @@
 
 .pdtable.disabled {
 	background-color: #d3d3d3;
-	color: #dddddd;
+	color: #ddd;
 	filter: grayscale(1);
 }
 
@@ -75,7 +62,7 @@
 }
 
 .pdtable .form-check-input {
-	margin-left: 0px;
+	margin-left: 0;
 	transform: scale(1.3);
 }
 
@@ -118,14 +105,14 @@ th.text-left .hdr {
 }
 
 /* Sticky header styles for scrollable table mode */
-::deep .pdtable-sticky-header {
+.pdtable-sticky-header {
 	position: sticky;
 	top: 0;
 	z-index: 1;
 	background-color: var(--bs-body-bg, #fff);
 }
 
-::deep .pdtable-sticky-header th {
+.pdtable-sticky-header th {
 	background-color: inherit;
 }
 

@@ -170,6 +170,18 @@ public partial class PDTableTests
 		changes.Should().Be(2);
 	}
 
+	/// <summary>SelectItemAsync with shift selects the range from the previous selection, as a shift-click does.</summary>
+	[Fact]
+	public async Task SelectItemAsync_with_shift_selects_a_range()
+	{
+		var table = RenderTable(p => p.Add(x => x.SelectionMode, TableSelectionMode.Multiple));
+
+		await table.InvokeAsync(() => table.Instance.SelectItemAsync("1"));
+		await table.InvokeAsync(() => table.Instance.SelectItemAsync("3", true));
+
+		table.Instance.Selection.Should().Equal("1", "2", "3");
+	}
+
 	/// <summary>Without a key field no items are reported as selected.</summary>
 	[Fact]
 	public void GetSelectedItems_without_a_key_field_is_empty()

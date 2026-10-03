@@ -1,10 +1,8 @@
-::deep .monaco-editor-container {
-	height: 100px;
-}
+/* The Monaco container is BlazorMonaco's markup, so its height is set in wwwroot/css/main.scss. */
 
 .pd-monacoeditor {
 	border: 1px solid silver;
 	display: grid;
-	grid-template-columns: minmax(0px, auto);
+	grid-template-columns: minmax(0, auto);
 	height: 100%;
 }

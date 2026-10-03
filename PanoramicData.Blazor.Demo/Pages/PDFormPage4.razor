@@ -3,7 +3,7 @@
 
 <h1>PDForm</h1>
 
-<DemoSourceView SourceFiles="Pages/PDFormPage4.razor, Pages/PDFormPage4.razor.cs, Pages/PDFormPage4.razor.css">
+<DemoSourceView SourceFiles="Pages/PDFormPage4.razor, Pages/PDFormPage4.razor.cs, wwwroot/css/site.css">
 
 	<PDToolbar>
 
@@ -18,9 +18,9 @@
 
 	</PDToolbar>
 
-	<div class="d-flex">
+	<div class="d-flex pdform4-page">
 
-		<PDForm @ref="_registerForm"
+		<PDForm @ref="RegisterForm"
 				CssClass="w-100"
 				TItem="RegisterModel"
 				Item="_model"

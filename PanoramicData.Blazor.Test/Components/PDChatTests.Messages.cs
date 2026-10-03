@@ -124,6 +124,41 @@ public partial class PDChatTests
 		component.Find(".pdchat-toggle-collapsed").ClassList.Should().Contain("pdchat-success");
 	}
 
+	/// <summary>
+	/// Verifies that an unread message of a type with no severity of its own (information, a form) leaves the
+	/// badge without a severity colour or pulse.
+	/// </summary>
+	[Theory]
+	[InlineData(MessageType.Information)]
+	[InlineData(MessageType.Form)]
+	public async Task Unread_messages_without_a_severity_leave_the_badge_uncoloured(MessageType type)
+	{
+		var service = Minimised();
+		var component = RenderChat(service);
+
+		await component.InvokeAsync(() => service.Receive(Message("fyi", type)));
+
+		component.Find(".pdchat-toggle-collapsed").ClassList.Should()
+			.NotContain(["pdchat-info", "pdchat-warning", "pdchat-error", "pdchat-critical", "pdchat-success", "pulsate"]);
+	}
+
+	/// <summary>
+	/// Verifies that a message stamped before the chat was last read does not raise the badge's severity: it is
+	/// shown as an ordinary unread message.
+	/// </summary>
+	[Fact]
+	public async Task A_message_older_than_the_last_read_does_not_raise_the_severity()
+	{
+		var service = Minimised();
+		var component = RenderChat(service);
+		var old = Message("from last week", MessageType.Critical);
+		old.Timestamp = DateTimeOffset.UtcNow.AddDays(-7);
+
+		await component.InvokeAsync(() => service.Receive(old));
+
+		component.Find(".pdchat-toggle-collapsed").ClassList.Should().Contain("pdchat-info").And.NotContain("pdchat-critical");
+	}
+
 	/// <summary>Verifies that a typing indicator on its own leaves the minimised badge unmarked (#190).</summary>
 	[Fact]
 	public async Task A_typing_indicator_does_not_mark_the_badge_unread()

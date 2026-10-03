@@ -13,8 +13,8 @@ public partial class PDTreeMapPage
 		TreeMapColourMode.Custom
 	];
 
-	private int _maxDepth = 3;
-	private DiskNode? _zoom;
+	protected int MaxDepth { get; set; } = 3;
+	protected DiskNode? Zoom { get; set; }
 	private DiskNode? _lastClicked;
 	private string _zoomMessage = string.Empty;
 
@@ -22,7 +22,7 @@ public partial class PDTreeMapPage
 	/// A folder or file. Folders report zero bytes of their own, exactly as a directory listing does,
 	/// which is what the default Aggregate size mode exists to handle.
 	/// </summary>
-	public sealed class DiskNode(string name, long bytes, string category = "other", params DiskNode[] children)
+	public sealed class DiskNode(string name, long bytes, string category, params DiskNode[] children)
 	{
 		public string Name { get; } = name;
 
@@ -140,14 +140,12 @@ public partial class PDTreeMapPage
 			File("secret.bin", 2_000, "archive"),
 			File("secret2.bin", 1_000, "archive")));
 
-	private static readonly DiskNode _empty = new("empty", 0);
+	private static readonly DiskNode _empty = new("empty", 0, "other");
 
 	private static readonly DiskNode _large = BuildLarge();
 
 	private static DiskNode BuildLarge()
 	{
-		// Deterministic so the demo looks the same on every visit.
-		var random = new Random(1701);
 		string[] categories = ["video", "image", "document", "code", "archive", "other"];
 
 		var branches = Enumerable.Range(0, 100)
@@ -155,9 +153,17 @@ public partial class PDTreeMapPage
 				$"branch-{i:000}",
 				0,
 				categories[i % categories.Length],
-				[.. Enumerable.Range(0, 100).Select(j => File($"leaf-{i:000}-{j:000}", random.Next(1_000, 10_000_000), categories[j % categories.Length]))]))
+				[.. Enumerable.Range(0, 100).Select(j => File($"leaf-{i:000}-{j:000}", GetLeafBytes(i, j), categories[j % categories.Length]))]))
 			.ToArray();
 
 		return new DiskNode("10,000 leaves", 0, "other", branches);
 	}
+
+	/// <summary>
+	/// Gets a leaf size between 1 KB and 10 MB that varies from leaf to leaf but is deterministic,
+	/// so the demo looks the same on every visit: a multiplicative (Knuth) hash of the leaf index
+	/// spreads the sizes across the range without needing a random number generator.
+	/// </summary>
+	private static long GetLeafBytes(int branch, int leaf)
+		=> 1_000 + ((branch * 100L) + leaf) * 2_654_435_761L % 9_999_000;
 }

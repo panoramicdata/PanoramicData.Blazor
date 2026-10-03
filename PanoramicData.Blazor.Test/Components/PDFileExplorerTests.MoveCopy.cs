@@ -240,6 +240,34 @@ public partial class PDFileExplorerTests
 		_provider.Updates.Should().ContainSingle().Which.Delta["Path"].Should().Be("/Docs/a Copy.docx");
 	}
 
+	/// <summary>A folder renamed on copy gets "Copy" after its whole name, having no extension to keep.</summary>
+	[Fact]
+	public async Task PresetRename_Folder_AppendsCopyToTheName()
+	{
+		var cut = RenderExplorer(p => p.Add(x => x.ConflictResolution, ConflictResolutions.Rename));
+		await NavigateAsync(cut, "/Docs");
+		await SelectRowsAsync(cut, "/Docs/Sub");
+		await KeyDownTableAsync(cut, "KeyC", ctrl: true);
+		await Table(cut).InvokeAsync(() => Table(cut).Instance.ClearSelectionAsync());
+
+		await KeyDownTableAsync(cut, "KeyV", ctrl: true);
+
+		_provider.Updates.Should().ContainSingle().Which.Delta["Path"].Should().Be("/Docs/Sub Copy");
+	}
+
+	/// <summary>The root folder has no name, so renamed on copy it is simply called "Copy".</summary>
+	[Fact]
+	public async Task PresetRename_RootFolder_IsCalledCopy()
+	{
+		var cut = RenderExplorer(p => p.Add(x => x.ConflictResolution, ConflictResolutions.Rename));
+		await KeyDownTreeAsync(cut, "KeyC", ctrl: true);
+		await NavigateAsync(cut, "/Empty");
+
+		await KeyDownTreeAsync(cut, "KeyV", ctrl: true);
+
+		_provider.Updates.Should().ContainSingle().Which.Delta["Path"].Should().Be("/Empty/Copy");
+	}
+
 	/// <summary>Overwriting an item with itself is refused with an explanation.</summary>
 	[Fact]
 	public async Task Conflict_OverwriteOntoItself_IsReported()

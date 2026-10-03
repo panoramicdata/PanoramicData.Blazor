@@ -116,8 +116,9 @@ public class PDGraphInfoTests : BunitContext
 		component.Find("input[type=checkbox][id$='-clustering-enabled']").Change(true);
 
 		component.WaitForAssertion(() => received.Should().NotBeNull());
-		received!.Value.Clustering.IsEnabled.Should().BeTrue();
-		component.Instance.ClusteringConfig.Should().BeSameAs(received.Value.Clustering);
-		component.Instance.VisualizationConfig.Should().BeSameAs(received.Value.Visualization);
+		var args = received.GetValueOrDefault();
+		args.Clustering.IsEnabled.Should().BeTrue();
+		component.Instance.ClusteringConfig.Should().BeSameAs(args.Clustering);
+		component.Instance.VisualizationConfig.Should().BeSameAs(args.Visualization);
 	}
 }

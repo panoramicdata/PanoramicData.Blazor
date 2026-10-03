@@ -37,14 +37,18 @@ public class PDChatConversationHistoryTests : BunitContext
 	[Fact]
 	public void Without_a_conversation_service_the_chat_shows_no_conversation_history()
 	{
+		var chatService = new SilentChatService();
+
 		var component = Render<PDChat>(parameters => parameters
-			.Add(p => p.ChatService, new SilentChatService())
+			.Add(p => p.ChatService, chatService)
 			.Add(p => p.User, new ChatMessageSender { Name = "Tester", IsUser = true, IsHuman = true }));
 
 		component.Instance.ConversationService.Should().BeNull(
 			"a host that supplies nothing must not acquire a conversation store by some other route");
 
 		component.Markup.Should().NotContain("pdchat-conversation-");
+		chatService.InitializeCount.Should().Be(1, "the chat still initialises its service exactly as before");
+		chatService.Sent.Should().BeEmpty("rendering alone sends nothing");
 	}
 
 	/// <summary>
@@ -60,7 +64,7 @@ public class PDChatConversationHistoryTests : BunitContext
 	[Fact]
 	public void A_conversation_service_is_supplied_as_a_parameter()
 	{
-		var conversationService = new SilentConversationService();
+		var conversationService = new InMemoryChatConversationService();
 
 		var component = Render<PDChat>(parameters => parameters
 			.Add(p => p.ChatService, new SilentChatService())
@@ -70,39 +74,17 @@ public class PDChatConversationHistoryTests : BunitContext
 		component.Instance.ConversationService.Should().BeSameAs(conversationService);
 	}
 
-	/// <summary>A chat service that holds no messages and sends nowhere.</summary>
+	/// <summary>A chat service that holds no messages; anything sent to it is recorded and goes no further.</summary>
 	private sealed class SilentChatService : TestChatServiceBase
 	{
+		private readonly List<ChatMessage> _sent = [];
+
 		public override IReadOnlyList<ChatMessage> Messages => [];
 
-		public override void SendMessage(ChatMessage chatMessage)
-		{
-		}
+		public IReadOnlyList<ChatMessage> Sent => _sent;
 
-		public override void ClearMessages()
-		{
-		}
-	}
+		public override void SendMessage(ChatMessage chatMessage) => _sent.Add(chatMessage);
 
-	/// <summary>A conversation store holding nothing, present only so the parameter has something to hold.</summary>
-	private sealed class SilentConversationService : IChatConversationService
-	{
-		public Task<ChatConversationPage> ListAsync(ChatConversationQuery query, CancellationToken cancellationToken)
-			=> Task.FromResult(ChatConversationPage.Empty);
-
-		public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(Guid id, CancellationToken cancellationToken)
-			=> Task.FromResult<IReadOnlyList<ChatMessage>>([]);
-
-		public Task<ChatConversation> CreateAsync(CancellationToken cancellationToken)
-			=> Task.FromResult(new ChatConversation { Id = Guid.NewGuid() });
-
-		public Task RenameAsync(Guid id, string title, CancellationToken cancellationToken)
-			=> Task.CompletedTask;
-
-		public Task ArchiveAsync(Guid id, CancellationToken cancellationToken)
-			=> Task.CompletedTask;
-
-		public Task UnarchiveAsync(Guid id, CancellationToken cancellationToken)
-			=> Task.CompletedTask;
+		public override void ClearMessages() => _sent.Clear();
 	}
 }

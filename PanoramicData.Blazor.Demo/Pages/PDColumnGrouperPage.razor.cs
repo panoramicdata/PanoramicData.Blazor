@@ -5,15 +5,15 @@ public partial class PDColumnGrouperPage
 	private readonly PersonDataProvider _personDataProvider = new();
 	private readonly PageCriteria _pageCriteria = new(1, 20);
 	private readonly SortCriteria _sortCriteria = new("Last Name", SortDirection.Descending);
-	private PDTable<Person> _table = null!;
-	private PDColumnGroupVariant _variant = PDColumnGroupVariant.Segmented;
-	private bool _showCounts = true;
+	protected PDTable<Person> Table { get; set; } = null!;
+	protected PDColumnGroupVariant Variant { get; set; } = PDColumnGroupVariant.Segmented;
+	protected bool ShowCounts { get; set; } = true;
 
 	// Second, independent table used by the custom-CSS example.
 	private readonly PersonDataProvider _brandedDataProvider = new();
 	private readonly PageCriteria _brandedPageCriteria = new(1, 5);
 	private readonly SortCriteria _brandedSortCriteria = new("Last Name", SortDirection.Descending);
-	private PDTable<Person> _brandedTable = null!;
+	protected PDTable<Person> BrandedTable { get; set; } = null!;
 
 	protected override void OnAfterRender(bool firstRender)
 	{

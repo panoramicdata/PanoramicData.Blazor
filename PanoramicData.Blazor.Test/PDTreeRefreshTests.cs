@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
+using PanoramicData.Blazor.Exceptions;
 using PanoramicData.Blazor.Extensions;
 using PanoramicData.Blazor.Models;
 
@@ -135,6 +136,47 @@ public class PDTreeRefreshTests : BunitContext
 		Node(tree, "b").Should().BeSameAs(before);
 		Node(tree, "b").Text.Should().Be("Bravo renamed");
 		Node(tree, "b").Data!.Name.Should().Be("Bravo renamed");
+	}
+
+	/// <summary>An item whose parent changed is moved, as the same node object, under its new parent.</summary>
+	[Fact]
+	public async Task Refresh_MovesANodeWhoseParentChanged_KeepingTheNode()
+	{
+		var tree = RenderItemTree();
+		var before = Node(tree, "a1x");
+
+		_provider.Items[_provider.Items.FindIndex(i => i.Id == "a1x")] = new Item("a1x", "b", "Alpha one x");
+		await RefreshAsync(tree);
+
+		Node(tree, "a1x").Should().BeSameAs(before);
+		before.ParentNode.Should().BeSameAs(Node(tree, "b"));
+		Node(tree, "b").Nodes!.Select(n => n.Key).Should().Equal("a1x", "b1");
+		Node(tree, "a1").Nodes.Should().BeEmpty();
+	}
+
+	/// <summary>A refresh that returns an item whose parent is not in the tree is refused.</summary>
+	[Fact]
+	public async Task Refresh_WithAnItemWhoseParentIsMissing_Throws()
+	{
+		var tree = RenderItemTree();
+
+		_provider.Items.Add(new Item("orphan", "missing", "Orphan"));
+		var act = () => RefreshAsync(tree);
+
+		(await act.Should().ThrowAsync<PDTreeException>())
+			.WithMessage("A parent item with key 'missing' could not be found");
+	}
+
+	/// <summary>A refresh that returns an item without a key is refused.</summary>
+	[Fact]
+	public async Task Refresh_WithAnItemWithoutAKey_Throws()
+	{
+		var tree = RenderItemTree();
+
+		_provider.Items.Add(new Item(string.Empty, null, "Nameless"));
+		var act = () => RefreshAsync(tree);
+
+		(await act.Should().ThrowAsync<PDTreeException>()).WithMessage("Items must supply a key value.");
 	}
 
 	/// <summary>Removing the selected node selects its nearest surviving ancestor, announced once.</summary>

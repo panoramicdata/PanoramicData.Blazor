@@ -156,6 +156,67 @@ public partial class PDDashboardTests
 		tabs[0].Tiles[1].RowSpanCount.Should().Be(1);
 	}
 
+	/// <summary>Outside edit mode a drag moves nothing.</summary>
+	[Fact]
+	public async Task Drag_OutsideEditMode_MovesNothing()
+	{
+		var tabs = TwoTabs();
+		var dashboard = RenderDashboard(tabs);
+
+		await TileElement(dashboard, "A").DragStartAsync(new DragEventArgs());
+		await TileElement(dashboard, "B").DragOverAsync(new DragEventArgs());
+
+		tabs[0].Tiles[0].ColumnIndex.Should().Be(0);
+		tabs[0].Tiles[1].ColumnIndex.Should().Be(1);
+	}
+
+	/// <summary>Dragging over a tile with no drag in progress moves nothing.</summary>
+	[Fact]
+	public async Task DragOver_WithoutADrag_MovesNothing()
+	{
+		var tabs = TwoTabs();
+		var dashboard = RenderDashboard(tabs, p => p.Add(x => x.IsEditable, true));
+
+		await TileElement(dashboard, "B").DragOverAsync(new DragEventArgs());
+
+		tabs[0].Tiles[0].ColumnIndex.Should().Be(0);
+		tabs[0].Tiles[1].ColumnIndex.Should().Be(1);
+		TileElement(dashboard, "B").ClassList.Should().NotContain("pd-dashboard-tile-dragover");
+	}
+
+	/// <summary>A pointer move with no resize in progress changes no tile.</summary>
+	[Fact]
+	public async Task ResizeMove_WithoutAResize_ChangesNothing()
+	{
+		var tabs = TwoTabs();
+		var dashboard = RenderDashboard(tabs, p => p.Add(x => x.IsEditable, true));
+
+		await dashboard.InvokeAsync(() => dashboard.Instance.OnResizePointerMove(new PointerEventArgs { ClientX = 500, ClientY = 500 }));
+
+		tabs[0].Tiles.Should().AllSatisfy(t => (t.ColumnSpanCount, t.RowSpanCount).Should().Be((1, 1)));
+	}
+
+	/// <summary>
+	/// Packing the grid around a tile wider than the grid places it on the next empty row rather than searching
+	/// for a column that cannot exist.
+	/// </summary>
+	[Fact]
+	public async Task Drag_WithATileWiderThanTheGrid_StillPacksTheGrid()
+	{
+		var tabs = new List<PDDashboardTab>
+		{
+			new() { ColumnCount = 2, Tiles = [Tile(0, 0, "A"), Tile(0, 1, "B"), Tile(1, 0, "Wide", colSpan: 4)] }
+		};
+		var dashboard = RenderDashboard(tabs, p => p.Add(x => x.IsEditable, true));
+
+		await TileElement(dashboard, "A").DragStartAsync(new DragEventArgs());
+		await TileElement(dashboard, "B").DragOverAsync(new DragEventArgs());
+
+		tabs[0].Tiles[0].ColumnIndex.Should().Be(1);
+		tabs[0].Tiles[1].ColumnIndex.Should().Be(0);
+		(tabs[0].Tiles[2].RowIndex, tabs[0].Tiles[2].ColumnIndex).Should().Be((1, 0));
+	}
+
 	/// <summary>FindNextAvailablePosition finds the first gap that fits, or the next empty row.</summary>
 	[Fact]
 	public void FindNextAvailablePosition_FindsTheFirstGap()
@@ -165,7 +226,7 @@ public partial class PDDashboardTests
 
 		dashboard.Instance.FindNextAvailablePosition().Should().Be((0, 1));
 		dashboard.Instance.FindNextAvailablePosition(colSpan: 2).Should().Be((2, 0));
-		dashboard.Instance.FindNextAvailablePosition(rowSpan: 3).Should().Be((2, 0));
+		dashboard.Instance.FindNextAvailablePosition(colSpan: 1, rowSpan: 3).Should().Be((2, 0));
 	}
 
 	/// <summary>An empty tab places the next tile at the origin.</summary>
@@ -175,5 +236,14 @@ public partial class PDDashboardTests
 		var dashboard = RenderDashboard([new PDDashboardTab()]);
 
 		dashboard.Instance.FindNextAvailablePosition(2, 2).Should().Be((0, 0));
+	}
+
+	/// <summary>With no tab showing, the next tile would go at the origin.</summary>
+	[Fact]
+	public void FindNextAvailablePosition_WithNoActiveTab_IsTheOrigin()
+	{
+		var dashboard = RenderDashboard(TwoTabs(), p => p.Add(x => x.StartTab, 5));
+
+		dashboard.Instance.FindNextAvailablePosition().Should().Be((0, 0));
 	}
 }

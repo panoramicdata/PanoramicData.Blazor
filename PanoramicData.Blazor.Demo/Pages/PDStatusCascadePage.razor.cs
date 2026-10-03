@@ -185,18 +185,7 @@ public partial class PDStatusCascadePage
         if (node == _lazyDeepRoot)
         {
             await Task.Delay(600).ConfigureAwait(true);
-            return new PDStatusCascadeNode
-            {
-                Status  = StatusType.Red,
-                Title   = "Pipelines",
-                Summary = "1 pipeline failed, 1 running — fetched at " + DateTime.Now.ToString("HH:mm:ss"),
-                Children =
-                [
-                    new() { Status = StatusType.Red,   Title = "ETL Pipeline",    Summary = "Load stage failed — click to drill in.",    Expandable = true },
-                    new() { Status = Running,          Title = "Report Pipeline", Summary = "Render stage running — click to drill in.", Expandable = true },
-                    new() { Status = Stopped,          Title = "Sync Pipeline",   Summary = "Fetch stage stopped — click to drill in.",  Expandable = true },
-                ]
-            };
+            return CreatePipelinesNode();
         }
 
         // Level 1 — a pipeline opened: return its jobs (500 ms)
@@ -216,13 +205,9 @@ public partial class PDStatusCascadePage
         if (_jobSteps.TryGetValue(node.Title, out var steps))
         {
             await Task.Delay(400).ConfigureAwait(true);
-            var worst = steps.Any(s => s.Status == StatusType.Red) ? StatusType.Red
-                      : steps.Any(s => s.Status == StatusType.Amber || s.Status == Stopped) ? StatusType.Amber
-                      : steps.Any(s => s.Status == Running || s.Status == Pending) ? Running
-                      : StatusType.Green;
             return new PDStatusCascadeNode
             {
-                Status   = worst,
+                Status   = GetWorstStatus(steps),
                 Title    = node.Title,
                 Summary  = "Steps fetched at " + DateTime.Now.ToString("HH:mm:ss"),
                 Children = [.. steps]
@@ -231,5 +216,36 @@ public partial class PDStatusCascadePage
 
         // Leaf steps — nothing further to load
         return null;
+    }
+
+    private static PDStatusCascadeNode CreatePipelinesNode()
+    {
+        return new PDStatusCascadeNode
+        {
+            Status  = StatusType.Red,
+            Title   = "Pipelines",
+            Summary = "1 pipeline failed, 1 running — fetched at " + DateTime.Now.ToString("HH:mm:ss"),
+            Children =
+            [
+                new() { Status = StatusType.Red,   Title = "ETL Pipeline",    Summary = "Load stage failed — click to drill in.",    Expandable = true },
+                new() { Status = Running,          Title = "Report Pipeline", Summary = "Render stage running — click to drill in.", Expandable = true },
+                new() { Status = Stopped,          Title = "Sync Pipeline",   Summary = "Fetch stage stopped — click to drill in.",  Expandable = true },
+            ]
+        };
+    }
+
+    private static StatusType GetWorstStatus(PDStatusCascadeNode[] steps)
+    {
+        if (steps.Any(s => s.Status == StatusType.Red))
+        {
+            return StatusType.Red;
+        }
+
+        if (steps.Any(s => s.Status == StatusType.Amber || s.Status == Stopped))
+        {
+            return StatusType.Amber;
+        }
+
+        return steps.Any(s => s.Status == Running || s.Status == Pending) ? Running : StatusType.Green;
     }
 }

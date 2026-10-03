@@ -12,9 +12,6 @@ public partial class PDAudioButton : PDAudioControl
     /// <summary>Gets or sets the color displayed when the button is in the inactive (off) state.</summary>
     [Parameter] public string InactiveColor { get; set; } = "#444";
 
-	/// <inheritdoc />
-    protected override string JsFileName => string.Empty;
-
     /// <summary>
     /// Toggles the button between the active (on) and inactive (off) state and raises the <see cref="PDAudioControl.ValueChanged"/> callback.
     /// </summary>

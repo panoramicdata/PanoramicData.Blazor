@@ -2,42 +2,42 @@
 
 <h1>PDRange</h1>
 
-<DemoSourceView SourceFiles="Pages/PDRangePage.razor, Pages/PDRangePage.razor.cs, Pages/PDRangePage.razor.css">
+<DemoSourceView SourceFiles="Pages/PDRangePage.razor, Pages/PDRangePage.razor.cs, wwwroot/css/site.css">
 <DocumentationContent>
 <PDRangeDocumentation />
 </DocumentationContent>
 <ChildContent>
 
-<div>
+<div class="pdrange-page">
 		<div>
 			<EditForm Model="this" class="toolbar">
 
 				<div class="">
 					<label class="form-check-label">Enabled</label>
-					<InputCheckbox @bind-Value="_isEnabled" />
+					<InputCheckbox @bind-Value="IsEnabled" />
 				</div>
 
 				<div class="">
 					<label class="form-check-label">Invert</label>
-					<InputCheckbox @bind-Value="_invert" />
+					<InputCheckbox @bind-Value="Invert" />
 				</div>
 
 				<div class="">
 					<label class="form-label">Start</label>
-					<InputNumber @bind-Value="_range1.Start" step="5" />
+					<InputNumber @bind-Value="Range1.Start" step="5" />
 				</div>
 
 				<div class="">
 					<label class="form-label">End</label>
-					<InputNumber @bind-Value="_range1.End" step="5" />
+					<InputNumber @bind-Value="Range1.End" step="5" />
 				</div>
 
 			</EditForm>
 		</div>
 
-		<PDRange @bind-Range="_range1"
-				 IsEnabled="_isEnabled"
-				 Invert="_invert"
+		<PDRange @bind-Range="Range1"
+				 IsEnabled="IsEnabled"
+				 Invert="Invert"
 				 Height="20"
 				 Min="0"
 				 MinGap="10"
@@ -48,12 +48,12 @@
 				 TrackHeight="0.6" />
 
 		<div>
-			Range: @($"{_range1?.Start} - {_range1?.End}")
+			Range: @($"{Range1?.Start} - {Range1?.End}")
 		</div>
 
 		<hr />
 
-		<PDRange @bind-Range="_range2"
+		<PDRange @bind-Range="Range2"
 				 Height="30"
 				 MinGap="1"
 				 Max="23"
@@ -63,7 +63,7 @@
 				 TickMajorLabelFn="@((v) => $"{v:00}:00")" />
 
 		<div>
-			Timer on: @($"{_range2?.Start:00}:00 to {_range2?.End:00}:00")
+			Timer on: @($"{Range2?.Start:00}:00 to {Range2?.End:00}:00")
 		</div>
 
 	</div>

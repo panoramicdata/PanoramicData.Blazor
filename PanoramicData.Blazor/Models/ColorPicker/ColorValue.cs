@@ -5,7 +5,7 @@ namespace PanoramicData.Blazor.Models.ColorPicker;
 /// <summary>
 /// Represents a color value with support for multiple color spaces.
 /// </summary>
-public class ColorValue : IEquatable<ColorValue>
+public class ColorValue : System.IEquatable<ColorValue>
 {
 	/// <summary>
 	/// Red component (0-255).
@@ -57,9 +57,17 @@ public class ColorValue : IEquatable<ColorValue>
 	}
 
 	/// <summary>
+	/// Creates a new, fully opaque ColorValue from RGB values.
+	/// </summary>
+	public ColorValue(byte r, byte g, byte b)
+		: this(r, g, b, 1.0)
+	{
+	}
+
+	/// <summary>
 	/// Creates a new ColorValue from RGB values.
 	/// </summary>
-	public ColorValue(byte r, byte g, byte b, double a = 1.0)
+	public ColorValue(byte r, byte g, byte b, double a)
 	{
 		R = r;
 		G = g;
@@ -80,9 +88,15 @@ public class ColorValue : IEquatable<ColorValue>
 	}
 
 	/// <summary>
+	/// Creates a fully opaque ColorValue from HSV values.
+	/// </summary>
+	public static ColorValue FromHsv(double h, double s, double v)
+		=> FromHsv(h, s, v, 1.0);
+
+	/// <summary>
 	/// Creates a ColorValue from HSV values.
 	/// </summary>
-	public static ColorValue FromHsv(double h, double s, double v, double a = 1.0)
+	public static ColorValue FromHsv(double h, double s, double v, double a)
 	{
 		var color = new ColorValue { A = Math.Clamp(a, 0, 1) };
 		color.SetFromHsv(h, s, v);
@@ -90,9 +104,15 @@ public class ColorValue : IEquatable<ColorValue>
 	}
 
 	/// <summary>
+	/// Creates a fully opaque ColorValue from HSL values.
+	/// </summary>
+	public static ColorValue FromHsl(double h, double s, double l)
+		=> FromHsl(h, s, l, 1.0);
+
+	/// <summary>
 	/// Creates a ColorValue from HSL values.
 	/// </summary>
-	public static ColorValue FromHsl(double h, double s, double l, double a = 1.0)
+	public static ColorValue FromHsl(double h, double s, double l, double a)
 	{
 		var color = new ColorValue { A = Math.Clamp(a, 0, 1) };
 		color.SetFromHsl(h, s, l);
@@ -352,7 +372,8 @@ public class ColorValue : IEquatable<ColorValue>
 
 	private void UpdateRgbFromHsl(double saturation)
 	{
-		if (saturation == 0)
+		// saturation is clamped to 0-1, so anything not above zero is achromatic
+		if (saturation <= 0)
 		{
 			var gray = (byte)Math.Round(L * 255);
 			R = G = B = gray;

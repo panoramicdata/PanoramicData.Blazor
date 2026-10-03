@@ -28,7 +28,7 @@
 	flex-shrink: 0; /* Prevent top row from shrinking */
 }
 
-	.top-row ::deep a, .top-row .btn-link {
+	.top-row a, .top-row .btn-link {
 		white-space: nowrap;
 		margin-left: 1.5rem;
 	}
@@ -38,31 +38,8 @@
 		text-overflow: ellipsis;
 	}
 
-	/* Chat controls in top bar */
-	.top-row ::deep .form-check-label {
-		color: #333;
-		font-size: 0.875rem;
-	}
-
-	.top-row ::deep .form-select-sm {
-		font-size: 0.775rem;
-	}
-
-/* CRITICAL: Ensure PDChatContainer takes full remaining height */
-.main ::deep .pdchat-container-wrapper {
-	height: 100% !important; /* Force full height */
-	flex: 1 !important; /* Take all remaining space */
-	min-height: 0 !important; /* Allow shrinking */
-	display: flex !important; /* Ensure flex behavior */
-	flex-direction: column !important; /* Column layout */
-}
-
-/* Ensure the splitter within PDChatContainer takes full height */
-.main ::deep .pdchat-container-splitter {
-	height: 100% !important;
-	flex: 1 !important;
-	min-height: 0 !important;
-}
+/* The rules for PDChatContainer and for the graph viewer pages style child-component markup, so
+   they live in wwwroot/css/site.css. */
 
 /* Basic content styling - let PDChatContainer handle the height */
 .content {
@@ -71,51 +48,9 @@
 	width: 100%;
 	min-width: 0;
 	box-sizing: border-box;
+
 	/* Remove explicit height - let the split panel handle it */
 }
-
-	/* SPECIAL HANDLING FOR GRAPH VIEWER PAGES */
-	.content ::deep .graph-demo {
-		height: calc(100vh - 6rem) !important; /* ✅ REDUCED: Less space for toolbar */
-		min-height: 600px !important;
-		display: flex !important;
-		flex-direction: column !important;
-	}
-
-	.content ::deep .graph-container {
-		flex: 1 !important;
-		height: auto !important; /* Let flex handle the height */
-		min-height: 500px !important;
-		overflow: hidden !important;
-	}
-
-	/* Ensure PDGraphViewer takes full container height */
-	.content ::deep .pd-graph-viewer {
-		height: 100% !important;
-		min-height: 500px !important;
-	}
-
-		/* Ensure PDSplitter in graphs works properly */
-		.content ::deep .pd-graph-viewer .pd-splitter {
-			height: 100% !important;
-			width: 100% !important;
-		}
-
-		.content ::deep .pd-graph-viewer .pd-split-panel {
-			height: 100% !important;
-			overflow: hidden !important;
-		}
-
-	/* Ensure PDGraph SVG takes full height */
-	.content ::deep .pd-graph {
-		height: 100% !important;
-		min-height: 400px !important;
-	}
-
-	.content ::deep .graph-svg {
-		height: 100% !important;
-		width: 100% !important;
-	}
 
 @media (max-width: 767.98px) {
 	.top-row:not(.auth) {
@@ -131,27 +66,8 @@
 	}
 
 	/* Hide dock mode selector on mobile to save space */
-	.top-row ::deep .me-3 {
+	.top-row .me-3 {
 		display: none;
-	}
-
-	/* Ensure PDChatContainer takes full height on mobile */
-	.main ::deep .pdchat-container-wrapper {
-		height: 100% !important;
-	}
-
-	/* Adjust graph demo for mobile */
-	.content ::deep .graph-demo {
-		height: calc(100vh - 6rem) !important; /* Less space on mobile */
-		min-height: 400px !important;
-	}
-
-	.content ::deep .graph-container {
-		min-height: 350px !important;
-	}
-
-	.content ::deep .pd-graph {
-		min-height: 300px !important;
 	}
 }
 
@@ -181,31 +97,11 @@
 		z-index: 1;
 	}
 
-	/* CRITICAL: Account for top row height in desktop layout */
-	.main > ::deep .pdchat-container-wrapper {
-		height: calc(100vh - 3.5rem) !important; /* Account for top row height */
-		flex: 1 !important;
-		min-height: 0 !important;
-	}
-
 	.main .content {
 		padding-left: 2rem !important;
 		padding-right: 1.5rem !important;
-		/* Let PDChatContainer and PDSplitPanel handle the height and scrolling */
 		box-sizing: border-box;
-	}
 
-	/* Desktop graph demo adjustments */
-	.content ::deep .graph-demo {
-		height: calc(100vh - 8rem) !important; /* ✅ REDUCED: Less space for desktop toolbar */
-		min-height: 600px !important;
-	}
-
-	.content ::deep .graph-container {
-		min-height: 500px !important;
-	}
-
-	.content ::deep .pd-graph {
-		min-height: 450px !important;
+		/* Let PDChatContainer and PDSplitPanel handle the height and scrolling */
 	}
 }

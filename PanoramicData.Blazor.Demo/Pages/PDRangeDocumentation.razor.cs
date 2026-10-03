@@ -2,7 +2,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDRangeDocumentation
 {
-	private double _value = 50;
+	protected double Value { get; set; } = 50;
 
 	private const string _example1Code = """
 		<PDRange @bind-Value="_value" 

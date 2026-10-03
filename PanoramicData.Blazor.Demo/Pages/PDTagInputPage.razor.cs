@@ -12,17 +12,17 @@ public partial class PDTagInputPage
 		"Demo"
 	];
 
-	private List<string> _basicTags = [];
-	private List<string> _suggestionTags = ["Production"];
-	private List<string> _restrictedTags = [];
-	private List<string> _limitedTags = [];
-	private List<string> _templateTags = ["Demo"];
-	private List<string> _themedTags = ["Production", "Test"];
+	protected List<string> BasicTags { get; set; } = [];
+	protected List<string> SuggestionTags { get; set; } = ["Production"];
+	protected List<string> RestrictedTags { get; set; } = [];
+	protected List<string> LimitedTags { get; set; } = [];
+	protected List<string> TemplateTags { get; set; } = ["Demo"];
+	protected List<string> ThemedTags { get; set; } = ["Production", "Test"];
 	private readonly List<string> _fixedTags = ["Production", "Training", "Demo"];
 
 	// Wizard demo
-	private List<string> _wizardTags = [];
-	private string _wizardName = string.Empty;
+	protected List<string> WizardTags { get; set; } = [];
+	protected string WizardName { get; set; } = string.Empty;
 	private string? _wizardResult;
 
 	[CascadingParameter]
@@ -40,7 +40,7 @@ public partial class PDTagInputPage
 
 	private void OnWizardComplete()
 	{
-		_wizardResult = $"Completed: {_wizardName} [{string.Join(", ", _wizardTags)}]";
+		_wizardResult = $"Completed: {WizardName} [{string.Join(", ", WizardTags)}]";
 	}
 
 	private void OnWizardCancel()

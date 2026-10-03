@@ -2,9 +2,12 @@
 
 ## Supported Versions
 
-If a vulnerability is found in our software, we will issue an update to the latest available public release at the time the vulnerability is identified. Versions of this project that are currently supported with security updates are **Version 2.1**. Any version earlier than this is unsupported.
+If a vulnerability is found in our software, we will issue an update to the latest public release available at that time.
+Only **Version 2.1** currently receives security updates.
+Earlier versions are unsupported.
 
-We recommend you always use the latest version of any software to benefit from up to date bug fixes and security patches.
+We recommend that you use the latest version of any software, to benefit from up-to-date bug fixes and security patches.
+If you need to stay on an older version for a while (for example, while you test an upgrade), check the release notes for any security fixes you are missing.
 
 ## Reporting a Vulnerability
 

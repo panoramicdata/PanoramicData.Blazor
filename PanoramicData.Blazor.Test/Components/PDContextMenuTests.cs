@@ -192,7 +192,7 @@ public partial class PDContextMenuTests : BunitContext
 		new MenuItem("copy", "Copy", string.Empty, enabled: false),
 		new MenuItem { IsSeparator = true },
 		new MenuItem { Key = "bold", Content = "<b>Bold</b>" },
-		new MenuItem("hidden", "Hidden", string.Empty, visible: false)
+		new MenuItem("hidden", "Hidden", string.Empty, enabled: true, visible: false)
 	];
 
 	private IRenderedComponent<PDContextMenu> RenderMenu(

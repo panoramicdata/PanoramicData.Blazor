@@ -24,22 +24,22 @@
 					   TooltipSelector="GetTooltip"
 					   CategorySelector="n => n.Category"
 					   ColourMode="TreeMapColourMode.Category"
-					   MaxRenderDepth="_maxDepth"
+					   MaxRenderDepth="MaxDepth"
 					   Click="OnNodeClicked"
-					   @bind-ZoomRoot="_zoom" />
+					   @bind-ZoomRoot="Zoom" />
 		</div>
 
 		<div class="d-flex align-items-center gap-3 flex-wrap mt-2">
 			<label class="form-label mb-0">
 				Max render depth
 				<input type="range" class="form-range align-middle" style="width: 160px;"
-					   min="1" max="5" @bind="_maxDepth" @bind:event="oninput" />
-				<span class="badge bg-secondary">@_maxDepth</span>
+					   min="1" max="5" @bind="MaxDepth" @bind:event="oninput" />
+				<span class="badge bg-secondary">@MaxDepth</span>
 			</label>
 			<span class="text-muted small">
 				Selected: <strong>@(_lastClicked?.Name ?? "none")</strong>
 			</span>
-			<button class="btn btn-sm btn-outline-secondary" @onclick="() => _zoom = null">Reset zoom</button>
+			<button class="btn btn-sm btn-outline-secondary" @onclick="() => Zoom = null">Reset zoom</button>
 		</div>
 
 		<h5 class="mt-4">Colour modes</h5>

@@ -1,10 +1,11 @@
-﻿namespace PanoramicData.Blazor.Demo.Pages;
+﻿using System.Security.Cryptography;
+
+namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDContextMenuPage
 {
-	private readonly Random _random = new(System.Environment.TickCount);
 	private readonly List<MenuItem> _items = [];
-	private bool _showOnMouseUp;
+	protected bool ShowOnMouseUp { get; set; }
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
@@ -31,7 +32,7 @@ public partial class PDContextMenuPage
 
 		// randomly disable one item
 		_items.ForEach(x => x.IsDisabled = false);
-		_items[_random.Next(2, 8)].IsDisabled = true;
+		_items[RandomNumberGenerator.GetInt32(2, 8)].IsDisabled = true;
 	}
 
 	public void OnItemClick(MenuItem item) => EventManager?.Add(new Event("ItemClick", new EventArgument("Text", item.Text)));

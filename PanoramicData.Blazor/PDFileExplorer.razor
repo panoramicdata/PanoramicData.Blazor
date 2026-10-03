@@ -83,7 +83,7 @@
 
 <PDModal @ref="UploadDialog" Size="ModalSizes.Large" HideOnBackgroundClick="true" ButtonClick="OnHideUploadDialog">
 
-	<PDDropZone @ref="_dropZone1"
+	<PDDropZone @ref="DropZone1"
 				AllUploadsComplete="OnAllUploadsComplete"
 				AllUploadsProgress="OnAllUploadsProgress"
 				AllUploadsReady="OnAllUploadsReady"
@@ -124,7 +124,7 @@
 				   ButtonClick="OnToolbarButtonClickAsync" />
 	</div>
 
-	<PDSplitter @ref="_splitter" GutterSize="6">
+	<PDSplitter @ref="Splitter" GutterSize="6">
 
 		<PDSplitPanel Size="1">
 
@@ -133,7 +133,7 @@
 					   UpdateState="OnTreeContextMenuUpdateStateAsync"
 					   ItemClick="OnTreeContextMenuItemClickAsync">
 
-				<PDDropZone @ref="_dropZone2"
+				<PDDropZone @ref="DropZone2"
 							AllUploadsComplete="OnAllUploadsComplete"
 							AllUploadsProgress="OnAllUploadsProgress"
 							AllUploadsReady="OnAllUploadsReady"

@@ -5,6 +5,14 @@
 /// </summary>
 public static class ObjectExtensions
 {
+	private static readonly Dictionary<Type, Func<string, object>> _parsers = new()
+	{
+		[typeof(Guid)] = text => Guid.Parse(text),
+		[typeof(int?)] = text => int.Parse(text, CultureInfo.CurrentCulture),
+		[typeof(DateTime)] = text => DateTime.Parse(text, CultureInfo.CurrentCulture),
+		[typeof(DateTimeOffset)] = text => DateTimeOffset.Parse(text, CultureInfo.CurrentCulture)
+	};
+
 	/// <summary>
 	/// Inspects the incoming data type and casts to the requested type.
 	/// </summary>
@@ -22,27 +30,13 @@ public static class ObjectExtensions
 
 		if (actualType.IsEnum)
 		{
-			return Enum.Parse(actualType, value?.ToString() ?? string.Empty);
+			return Enum.Parse(actualType, value.ToString() ?? string.Empty);
 		}
-		else if (actualType.FullName == "System.Guid")
+
+		// a nullable int is parsed from its text, whereas a plain int is converted
+		if (_parsers.TryGetValue(type, out var parser) || _parsers.TryGetValue(actualType, out parser))
 		{
-			return Guid.Parse(value.ToString() ?? string.Empty);
-		}
-		else if (type.FullName?.StartsWith("System.Nullable`1[[System.Int32", StringComparison.InvariantCultureIgnoreCase) == true)
-		{
-			return (int?)int.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
-		}
-		else if (actualType.FullName == "System.DateTime")
-		{
-			return DateTime.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
-		}
-		else if (type.FullName?.StartsWith("System.Nullable`1[[System.DateTimeOffset", StringComparison.InvariantCultureIgnoreCase) == true)
-		{
-			return (DateTimeOffset?)DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
-		}
-		else if (actualType.FullName == "System.DateTimeOffset")
-		{
-			return DateTimeOffset.Parse(value.ToString() ?? string.Empty, CultureInfo.CurrentCulture);
+			return parser(value.ToString() ?? string.Empty);
 		}
 
 		return Convert.ChangeType(value, actualType, CultureInfo.CurrentCulture);

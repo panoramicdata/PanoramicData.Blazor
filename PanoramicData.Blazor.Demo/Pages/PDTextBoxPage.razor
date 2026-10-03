@@ -46,43 +46,43 @@
 
 	<label>Text Box 2 - Example using debounced input</label>
 	<div class="input-group">
-		<PDTextBox @bind-Value="_textBox2"
+		<PDTextBox @bind-Value="TextBox2"
 				   DebounceWait="250"
 				   ShowSpeechButton="true" />
 	</div>
 	<div>
-		Text Box 2 Value: <b>@_textBox2</b>
+		Text Box 2 Value: <b>@TextBox2</b>
 	</div>
 
 	<hr />
 
 	<label>Text Box 3 - Example showing update on keypress</label>
 	<div class="input-group">
-		<PDTextBox @bind-Value="_textBox3"
+		<PDTextBox @bind-Value="TextBox3"
 				   KeypressEvent="true" />
 	</div>
 	<div>
-		Text Box 3 Value: <b>@_textBox3</b>
+		Text Box 3 Value: <b>@TextBox3</b>
 	</div>
 
 	<hr />
 
 	<label>Text Box 4 - Example showing update on lost focus (blur)</label>
 	<div class="input-group">
-		<PDTextBox @bind-Value="_textBox4" />
+		<PDTextBox @bind-Value="TextBox4" />
 	</div>
 	<div>
-		Text Box 4 Value: <b>@_textBox4</b>
+		Text Box 4 Value: <b>@TextBox4</b>
 	</div>
 
 	<hr />
 
 	<label>Text Area 1 - Example binding two PDTextAreas to a single backing field</label>
 	<div class="input-group">
-		<PDTextArea @ref="_textArea1"
+		<PDTextArea @ref="TextArea1"
 					Value="@_textArea"
 					ValueChanged="OnTextAreaChanged" />
-		<PDTextArea @ref="_textArea2"
+		<PDTextArea @ref="TextArea2"
 					Value="@_textArea"
 					ValueChanged="OnTextAreaChanged" />
 	</div>
@@ -99,7 +99,7 @@
 		Text Area Selection: @_textSelection
 	</div>
 	<div class="input-group">
-		<PDTextArea @ref="_textArea3" @bind-Value="@_text3" SelectionChanged="OnTextAreaSelectionChanged" />
+		<PDTextArea @ref="TextArea3" @bind-Value="@Text3" SelectionChanged="OnTextAreaSelectionChanged" />
 	</div>
 	<div>
 	</div>

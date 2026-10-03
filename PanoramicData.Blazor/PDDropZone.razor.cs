@@ -147,7 +147,7 @@ public partial class PDDropZone : IAsyncDisposable
 		base.OnInitialized();
 		if (Id == string.Empty)
 		{
-			Id = $"pddz{++_idSequence}";
+			Id = $"pddz{Interlocked.Increment(ref _idSequence)}";
 		}
 	}
 
@@ -410,6 +410,7 @@ public partial class PDDropZone : IAsyncDisposable
 		}
 		catch
 		{
+			// BC-40 - the circuit may already be gone, in which case there is no JavaScript side left to tear down
 		}
 	}
 }

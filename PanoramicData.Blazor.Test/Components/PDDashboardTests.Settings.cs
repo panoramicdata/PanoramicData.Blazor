@@ -119,6 +119,39 @@ public partial class PDDashboardTests
 		dashboard.FindAll(".pd-dashboard-config-dialog").Should().BeEmpty();
 	}
 
+	/// <summary>With no tab showing, the settings dialog does not open, as there is no tab for it to edit.</summary>
+	[Fact]
+	public async Task SettingsDialog_WithNoActiveTab_DoesNotOpen()
+	{
+		var dashboard = RenderDashboard(TwoTabs(), p => p.Add(x => x.IsEditable, true).Add(x => x.StartTab, 5));
+
+		await dashboard.Find(".pd-dashboard-settings-btn").ClickAsync(new MouseEventArgs());
+
+		dashboard.FindAll(".pd-dashboard-config-field").Should().BeEmpty();
+	}
+
+	/// <summary>
+	/// The active tab's own rotation interval overrides the dashboard's, a non-positive interval means never
+	/// rotate, and nothing rotates while rotation is off.
+	/// </summary>
+	[Theory]
+	[InlineData(true, null, 30, 30)]
+	[InlineData(true, 7, 30, 7)]
+	[InlineData(true, 0, 30, 0)]
+	[InlineData(true, -3, 30, 0)]
+	[InlineData(true, null, -1, 0)]
+	[InlineData(false, 7, 30, 0)]
+	public void RotationInterval_PrefersTheActiveTabsOverride(bool enabled, int? tabOverride, int dashboardInterval, int expected)
+	{
+		var tabs = TwoTabs();
+		tabs[0].RotationIntervalSecondsOverride = tabOverride;
+		var dashboard = RenderDashboard(tabs, p => p
+			.Add(x => x.IsRotationEnabled, enabled)
+			.Add(x => x.RotationIntervalSeconds, dashboardInterval));
+
+		dashboard.Instance.GetEffectiveRotationInterval().Should().Be(expected);
+	}
+
 	/// <summary>Disposing the dashboard stops its timer and is safe.</summary>
 	[Fact]
 	public async Task Dispose_IsSafe()

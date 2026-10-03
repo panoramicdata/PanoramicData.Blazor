@@ -20,275 +20,347 @@ let _activeId = null;
 // ── Public API ────────────────────────────────────────────────────
 
 export function init(triggerId, nodeJson, dotNetRef) {
-    _ensureInfra();
+	_ensureInfra();
 
-    const el = document.getElementById(triggerId);
-    if (!el) return;
+	const el = document.getElementById(triggerId);
+	if (!el) return;
 
-    const node = typeof nodeJson === 'string' ? JSON.parse(nodeJson) : nodeJson;
-    const abortCtrl = new AbortController();
-    const opts = { signal: abortCtrl.signal };
+	const node = typeof nodeJson === "string" ? JSON.parse(nodeJson) : nodeJson;
+	const abortCtrl = new AbortController();
+	const opts = { signal: abortCtrl.signal };
 
-    _triggers.set(triggerId, { node, el, abortCtrl, dotNetRef: dotNetRef ?? null });
+	_triggers.set(triggerId, {
+		node,
+		el,
+		abortCtrl,
+		dotNetRef: dotNetRef ?? null,
+	});
 
-    el.addEventListener('click', async e => {
-        e.stopPropagation();
-        if (_activeId === triggerId) {
-            _closeAll();
-        } else {
-            _closeAll();
-            await _open(triggerId);
-        }
-    }, opts);
+	el.addEventListener(
+		"click",
+		async (e) => {
+			e.stopPropagation();
+			if (_activeId === triggerId) {
+				_closeAll();
+			} else {
+				_closeAll();
+				await _open(triggerId);
+			}
+		},
+		opts,
+	);
 
-    el.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
-        if (e.key === 'Escape') _closeAll();
-    }, opts);
+	el.addEventListener(
+		"keydown",
+		(e) => {
+			if (e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				el.click();
+			}
+			if (e.key === "Escape") _closeAll();
+		},
+		opts,
+	);
 }
 
 export function dispose(triggerId) {
-    const entry = _triggers.get(triggerId);
-    if (entry) {
-        entry.abortCtrl.abort();
-        _triggers.delete(triggerId);
-    }
-    if (_activeId === triggerId) _closeAll();
+	const entry = _triggers.get(triggerId);
+	if (entry) {
+		entry.abortCtrl.abort();
+		_triggers.delete(triggerId);
+	}
+	if (_activeId === triggerId) _closeAll();
 }
 
 // ── Infrastructure ────────────────────────────────────────────────
 
 function _ensureInfra() {
-    if (_infra) return;
+	if (_infra) return;
 
-    if (!document.getElementById('pdsc-global-styles')) {
-        const style = document.createElement('style');
-        style.id = 'pdsc-global-styles';
-        style.textContent = _globalStyles();
-        document.head.appendChild(style);
-    }
+	if (!document.getElementById("pdsc-global-styles")) {
+		const style = document.createElement("style");
+		style.id = "pdsc-global-styles";
+		style.textContent = _GLOBAL_STYLES;
+		document.head.appendChild(style);
+	}
 
-    const overlay = document.createElement('div');
-    overlay.id = 'pdsc-overlay';
-    overlay.className = 'pdsc-overlay';
-    overlay.addEventListener('click', () => _closeAll());
-    overlay.addEventListener('keydown', e => { if (e.key === 'Escape') _closeAll(); });
-    document.body.appendChild(overlay);
+	const overlay = document.createElement("div");
+	overlay.id = "pdsc-overlay";
+	overlay.className = "pdsc-overlay";
+	overlay.addEventListener("click", () => _closeAll());
+	overlay.addEventListener("keydown", (e) => {
+		if (e.key === "Escape") _closeAll();
+	});
+	document.body.appendChild(overlay);
 
-    const popups = [];
-    for (let i = 0; i <= MAX_DEPTH; i++) {
-        const popup = document.createElement('div');
-        popup.className = 'pdsc-popup';
-        popup.dataset.depth = i;
-        popup.setAttribute('role', i === 0 ? 'dialog' : 'region');
-        popup.addEventListener('click', e => e.stopPropagation());
-        document.body.appendChild(popup);
-        popups.push(popup);
-    }
+	const popups = [];
+	for (let i = 0; i <= MAX_DEPTH; i++) {
+		const popup = document.createElement("div");
+		popup.className = "pdsc-popup";
+		popup.dataset.depth = i;
+		popup.setAttribute("role", i === 0 ? "dialog" : "region");
+		popup.addEventListener("click", (e) => e.stopPropagation());
+		document.body.appendChild(popup);
+		popups.push(popup);
+	}
 
-    _infra = { overlay, popups };
+	_infra = { overlay, popups };
 }
 
 // ── Open / Close ──────────────────────────────────────────────────
 
 async function _open(triggerId) {
-    const entry = _triggers.get(triggerId);
-    if (!entry) return;
+	const entry = _triggers.get(triggerId);
+	if (!entry) return;
 
-    _activeId = triggerId;
-    entry.el.setAttribute('aria-expanded', 'true');
-    _infra.overlay.classList.add('pdsc-overlay--active');
+	_activeId = triggerId;
+	entry.el.setAttribute("aria-expanded", "true");
+	_infra.overlay.classList.add("pdsc-overlay--active");
 
-    const node = await _maybeExpand(entry, entry.node, '', entry.el);
-    _renderPopup(0, node, entry.el, entry, '');
+	const node = await _maybeExpand(entry, entry.node, "", entry.el);
+	_renderPopup(0, node, entry.el, entry, "");
 }
 
 function _closeAll() {
-    if (_activeId) {
-        const entry = _triggers.get(_activeId);
-        if (entry) entry.el.setAttribute('aria-expanded', 'false');
-        _activeId = null;
-    }
-    if (_infra) {
-        _infra.overlay.classList.remove('pdsc-overlay--active');
-        _infra.popups.forEach(p => {
-            p.classList.remove('pdsc-popup--open');
-            p.innerHTML = '';
-        });
-    }
+	if (_activeId) {
+		const entry = _triggers.get(_activeId);
+		if (entry) entry.el.setAttribute("aria-expanded", "false");
+		_activeId = null;
+	}
+	if (_infra) {
+		_infra.overlay.classList.remove("pdsc-overlay--active");
+		_infra.popups.forEach((p) => {
+			p.classList.remove("pdsc-popup--open");
+			p.textContent = "";
+		});
+	}
 }
 
 function _closeFrom(depth) {
-    if (!_infra) return;
-    for (let i = depth; i <= MAX_DEPTH; i++) {
-        _infra.popups[i].classList.remove('pdsc-popup--open');
-        _infra.popups[i].innerHTML = '';
-    }
+	if (!_infra) return;
+	for (let i = depth; i <= MAX_DEPTH; i++) {
+		_infra.popups[i].classList.remove("pdsc-popup--open");
+		_infra.popups[i].textContent = "";
+	}
 }
 
 // ── Lazy expansion helper ─────────────────────────────────────────
 
 async function _maybeExpand(entry, node, nodePath, anchorEl) {
-    if (!entry.dotNetRef) return node;
+	if (!entry.dotNetRef) return node;
 
-    const depth = nodePath === '' ? 0 : nodePath.split('.').length;
-    const popup = _infra.popups[Math.min(depth, MAX_DEPTH)];
+	const depth = nodePath === "" ? 0 : nodePath.split(".").length;
+	const popup = _infra.popups[Math.min(depth, MAX_DEPTH)];
 
-    popup.innerHTML = `<div class="pdsc-spinner"><i class="fas fa-spinner fa-spin"></i></div>`;
-    _positionPopup(popup, anchorEl, depth);
-    popup.classList.add('pdsc-popup--open');
+	popup.textContent = "";
+	popup.appendChild(_createSpinner());
+	_positionPopup(popup, anchorEl, depth);
+	popup.classList.add("pdsc-popup--open");
 
-    try {
-        const json = await entry.dotNetRef.invokeMethodAsync('ExpandNodeAsync', nodePath);
-        if (json) {
-            return JSON.parse(json);
-        }
-    } catch {
-        // Fall through to render with existing node
-    }
+	try {
+		const json = await entry.dotNetRef.invokeMethodAsync(
+			"ExpandNodeAsync",
+			nodePath,
+		);
+		if (json) {
+			return JSON.parse(json);
+		}
+	} catch {
+		// Fall through to render with existing node
+	}
 
-    return node;
+	return node;
 }
 
 // ── Popup Rendering ───────────────────────────────────────────────
 
+const DEFAULT_ICON = "fas fa-question-circle";
+const DEFAULT_COLOR = "text-secondary";
+
+function _text(value) {
+	return value ? String(value) : "";
+}
+
+function _createElement(tagName, className, text) {
+	const element = document.createElement(tagName);
+	if (className) element.className = className;
+	if (text !== undefined) element.textContent = _text(text);
+	return element;
+}
+
+function _createIcon(className) {
+	const icon = _createElement("i", className);
+	icon.setAttribute("aria-hidden", "true");
+	return icon;
+}
+
+function _statusIconClass(status) {
+	const s = status || {};
+	return `${s.iconClass || DEFAULT_ICON} ${s.colorClass || DEFAULT_COLOR}`;
+}
+
+function _createSpinner() {
+	const spinner = _createElement("div", "pdsc-spinner");
+	spinner.appendChild(_createElement("i", "fas fa-spinner fa-spin"));
+	return spinner;
+}
+
+function _createHeader(node) {
+	const head = _createElement("div", "pdsc-popup-head");
+
+	const titleRow = _createElement("div", "pdsc-popup-title-row");
+	titleRow.appendChild(_createIcon(_statusIconClass(node.status)));
+	titleRow.appendChild(_createElement("span", "pdsc-popup-title", node.title));
+	head.appendChild(titleRow);
+
+	if (node.summary) {
+		head.appendChild(_createElement("p", "pdsc-popup-summary", node.summary));
+	}
+	if (node.detail) {
+		head.appendChild(_createElement("p", "pdsc-popup-detail", node.detail));
+	}
+	return head;
+}
+
+function _isDrillable(child, depth) {
+	if (depth >= MAX_DEPTH) return false;
+	if (child.expandable === true) return true;
+	const hasChildren = child.children && child.children.length > 0;
+	return child.expandable !== false && hasChildren;
+}
+
+function _createItem(child, idx, drillable) {
+	const item = _createElement(
+		"div",
+		drillable ? "pdsc-item pdsc-item--drillable" : "pdsc-item",
+	);
+	item.dataset.idx = idx;
+	item.setAttribute("role", drillable ? "button" : "listitem");
+	if (drillable) item.setAttribute("tabindex", "0");
+
+	item.appendChild(_createIcon(_statusIconClass(child.status)));
+
+	const body = _createElement("div", "pdsc-item-body");
+	body.appendChild(_createElement("span", "pdsc-item-label", child.title));
+	if (child.summary) {
+		body.appendChild(
+			_createElement("span", "pdsc-item-summary", child.summary),
+		);
+	}
+	item.appendChild(body);
+
+	if (child.detail) {
+		const aside = _createElement(
+			"i",
+			"fa-solid fa-circle-info pdsc-item-aside",
+		);
+		aside.setAttribute("title", _text(child.detail));
+		aside.setAttribute("aria-label", "Has detail");
+		item.appendChild(aside);
+	}
+	if (drillable) {
+		item.appendChild(_createIcon("fas fa-chevron-right pdsc-item-chevron"));
+	}
+	return item;
+}
+
+function _attachDrillHandler(popup, item, context) {
+	const { depth, node, entry, nodePath } = context;
+	const idx = parseInt(item.dataset.idx, 10);
+	const childPath = nodePath === "" ? `${idx}` : `${nodePath}.${idx}`;
+
+	const drill = async (e) => {
+		e.stopPropagation();
+		_closeFrom(depth + 1);
+		popup
+			.querySelectorAll(".pdsc-item")
+			.forEach((i) => i.classList.remove("pdsc-item--active"));
+		item.classList.add("pdsc-item--active");
+		const childNode = await _maybeExpand(
+			entry,
+			node.children[idx],
+			childPath,
+			item,
+		);
+		node.children[idx] = childNode;
+		_updateItemIcon(item, childNode.status);
+		_renderPopup(depth + 1, childNode, item, entry, childPath);
+	};
+
+	item.addEventListener("click", drill);
+	item.addEventListener("keydown", (e) => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			drill(e);
+		}
+	});
+}
+
 function _renderPopup(depth, node, anchorEl, entry, nodePath) {
-    if (depth > MAX_DEPTH) return;
+	if (depth > MAX_DEPTH) return;
 
-    const popup = _infra.popups[depth];
-    const status = node.status || {};
-    const iconCls = status.iconClass || 'fas fa-question-circle';
-    const colorCls = status.colorClass || 'text-secondary';
+	const popup = _infra.popups[depth];
+	popup.textContent = "";
+	popup.appendChild(_createHeader(node));
 
-    // ── Header ──
-    let html = `<div class="pdsc-popup-head">
-        <div class="pdsc-popup-title-row">
-            <i class="${_esc(iconCls)} ${_esc(colorCls)}" aria-hidden="true"></i>
-            <span class="pdsc-popup-title">${_esc(node.title)}</span>
-        </div>`;
+	// ── Children (with drill-down handlers) ──
+	if (node.children && node.children.length > 0) {
+		const body = _createElement("div", "pdsc-popup-body");
+		const context = { depth, node, entry, nodePath };
+		node.children.forEach((child, idx) => {
+			const drillable = _isDrillable(child, depth);
+			const item = _createItem(child, idx, drillable);
+			if (drillable) _attachDrillHandler(popup, item, context);
+			body.appendChild(item);
+		});
+		popup.appendChild(body);
+	}
 
-    if (node.summary) {
-        html += `<p class="pdsc-popup-summary">${_esc(node.summary)}</p>`;
-    }
-    if (node.detail) {
-        html += `<p class="pdsc-popup-detail">${_esc(node.detail)}</p>`;
-    }
-    html += `</div>`;
-
-    // ── Children ──
-    if (node.children && node.children.length > 0) {
-        html += `<div class="pdsc-popup-body">`;
-        node.children.forEach((child, idx) => {
-            const hasChildren = child.children && child.children.length > 0;
-            const cStatus = child.status || {};
-            const cIcon = cStatus.iconClass || 'fas fa-question-circle';
-            const cColor = cStatus.colorClass || 'text-secondary';
-            const drillable = depth < MAX_DEPTH && (
-                child.expandable === true ||
-                (child.expandable !== false && hasChildren)
-            );
-
-            html += `<div class="pdsc-item${drillable ? ' pdsc-item--drillable' : ''}" data-idx="${idx}" role="${drillable ? 'button' : 'listitem'}"${drillable ? ' tabindex="0"' : ''}>
-                <i class="${_esc(cIcon)} ${_esc(cColor)}" aria-hidden="true"></i>
-                <div class="pdsc-item-body">
-                    <span class="pdsc-item-label">${_esc(child.title)}</span>
-                    ${child.summary ? `<span class="pdsc-item-summary">${_esc(child.summary)}</span>` : ''}
-                </div>`;
-
-            if (child.detail) {
-                html += `<i class="fa-solid fa-circle-info pdsc-item-aside" title="${_esc(child.detail)}" aria-label="Has detail"></i>`;
-            }
-            if (drillable) {
-                html += `<i class="fas fa-chevron-right pdsc-item-chevron" aria-hidden="true"></i>`;
-            }
-
-            html += `</div>`;
-        });
-        html += `</div>`;
-    }
-
-    popup.innerHTML = html;
-
-    // ── Drill-down handlers ──
-    if (node.children) {
-        popup.querySelectorAll('.pdsc-item--drillable').forEach(item => {
-            const idx = parseInt(item.dataset.idx, 10);
-            const childPath = nodePath === '' ? `${idx}` : `${nodePath}.${idx}`;
-
-            const drill = async e => {
-                e.stopPropagation();
-                _closeFrom(depth + 1);
-                popup.querySelectorAll('.pdsc-item').forEach(i => i.classList.remove('pdsc-item--active'));
-                item.classList.add('pdsc-item--active');
-                const childNode = await _maybeExpand(entry, node.children[idx], childPath, item);
-                node.children[idx] = childNode;
-                _updateItemIcon(item, childNode.status);
-                _renderPopup(depth + 1, childNode, item, entry, childPath);
-            };
-
-            item.addEventListener('click', drill);
-            item.addEventListener('keydown', e => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); drill(e); }
-            });
-        });
-    }
-
-    _positionPopup(popup, anchorEl, depth);
-    popup.classList.add('pdsc-popup--open');
+	_positionPopup(popup, anchorEl, depth);
+	popup.classList.add("pdsc-popup--open");
 }
 
 // ── Helpers ───────────────────────────────────────────────────────
 
 function _updateItemIcon(itemEl, status) {
-    const icon = itemEl.querySelector('i:first-child');
-    if (!icon) return;
-    const s = status || {};
-    icon.className = `${s.iconClass || 'fas fa-question-circle'} ${s.colorClass || 'text-secondary'}`;
+	const icon = itemEl.querySelector("i:first-child");
+	if (!icon) return;
+	icon.className = _statusIconClass(status);
 }
 
 function _positionPopup(popup, anchor, depth) {
-    popup.style.visibility = 'hidden';
-    popup.style.display = 'block';
+	popup.style.visibility = "hidden";
+	popup.style.display = "block";
 
-    const rect = anchor.getBoundingClientRect();
-    const pw = popup.offsetWidth || 280;
-    const ph = popup.offsetHeight || 200;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+	const rect = anchor.getBoundingClientRect();
+	const pw = popup.offsetWidth || 280;
+	const ph = popup.offsetHeight || 200;
+	const vw = window.innerWidth;
+	const vh = window.innerHeight;
 
-    let left, top;
+	let left, top;
 
-    if (depth === 0) {
-        left = rect.left;
-        top = rect.bottom + 4;
-        if (left + pw > vw - 8) left = Math.max(8, rect.right - pw);
-    } else {
-        left = rect.right + 4;
-        top = rect.top;
-        if (left + pw > vw - 8) left = Math.max(8, rect.left - pw - 4);
-    }
+	if (depth === 0) {
+		left = rect.left;
+		top = rect.bottom + 4;
+		if (left + pw > vw - 8) left = Math.max(8, rect.right - pw);
+	} else {
+		left = rect.right + 4;
+		top = rect.top;
+		if (left + pw > vw - 8) left = Math.max(8, rect.left - pw - 4);
+	}
 
-    if (top + ph > vh - 8) top = Math.max(8, vh - ph - 8);
+	if (top + ph > vh - 8) top = Math.max(8, vh - ph - 8);
 
-    popup.style.left = `${left}px`;
-    popup.style.top = `${top}px`;
-    popup.style.visibility = '';
-    popup.style.display = '';
-}
-
-function _esc(text) {
-    if (!text) return '';
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+	popup.style.left = `${left}px`;
+	popup.style.top = `${top}px`;
+	popup.style.visibility = "";
+	popup.style.display = "";
 }
 
 // ── Global popup styles (injected once) ───────────────────────────
 
-function _globalStyles() {
-    return `
+const _GLOBAL_STYLES = `
 /* PDStatusCascade — popup styles */
 .pdsc-overlay {
     display: none;
@@ -413,4 +485,3 @@ function _globalStyles() {
    Override --pdsc-color-amber on any ancestor element if needed. */
 .pdsc-icon-amber { color: var(--pdsc-color-amber, #fd7e14); }
 `;
-}

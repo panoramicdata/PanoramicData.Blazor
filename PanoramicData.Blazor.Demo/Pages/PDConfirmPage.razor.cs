@@ -5,25 +5,25 @@ namespace PanoramicData.Blazor.Demo.Pages;
 public partial class PDConfirmPage
 {
 	[AllowNull]
-	private PDConfirm _confirmModal1 = null!;
+	protected PDConfirm ConfirmModal1 { get; set; } = null!;
 	private PDConfirm.Outcomes? _result1;
 
 	[AllowNull]
-	private PDConfirm _confirmModal2 = null!;
+	protected PDConfirm ConfirmModal2 { get; set; } = null!;
 	private PDConfirm.Outcomes? _result2;
 	private CancellationTokenSource _cancellationToken2 = new();
 
 	[AllowNull]
-	private PDConfirm _confirmModal3 = null!;
+	protected PDConfirm ConfirmModal3 { get; set; } = null!;
 	private PDConfirm.Outcomes? _result3;
 
 	[AllowNull]
-	private PDConfirm _confirmModal4 = null!;
+	protected PDConfirm ConfirmModal4 { get; set; } = null!;
 	private PDConfirm.Outcomes? _result4;
 
 	private async Task OnAction1ClickAsync()
 	{
-		_result1 = await _confirmModal1!
+		_result1 = await ConfirmModal1!
 			.ShowAndWaitResultAsync()
 			.ConfigureAwait(true);
 		if (_result1 == PDConfirm.Outcomes.Yes)
@@ -35,7 +35,7 @@ public partial class PDConfirmPage
 	private async Task OnAction2ClickAsync()
 	{
 		_cancellationToken2 = new();
-		_result2 = await _confirmModal2!
+		_result2 = await ConfirmModal2!
 			.ShowAndWaitResultAsync(_cancellationToken2.Token)
 			.ConfigureAwait(true);
 		if (_result2 == PDConfirm.Outcomes.Yes)
@@ -46,7 +46,7 @@ public partial class PDConfirmPage
 
 	private async Task OnAction3ClickAsync()
 	{
-		_result3 = await _confirmModal3!
+		_result3 = await ConfirmModal3!
 			.ShowAndWaitResultAsync("Do you want to do action 3?", "Action 3")
 			.ConfigureAwait(true);
 		if (_result3 == PDConfirm.Outcomes.Yes)
@@ -57,7 +57,7 @@ public partial class PDConfirmPage
 
 	private async Task OnAction4ClickAsync()
 	{
-		_result3 = await _confirmModal3!
+		_result3 = await ConfirmModal3!
 			.ShowAndWaitResultAsync("Do you want to do action 4?", "Action 4")
 			.ConfigureAwait(true);
 		if (_result3 == PDConfirm.Outcomes.Yes)
@@ -68,7 +68,7 @@ public partial class PDConfirmPage
 
 	private async Task OnAction5ClickAsync()
 	{
-		_result4 = await _confirmModal4!
+		_result4 = await ConfirmModal4!
 			.ShowAndWaitResultAsync()
 			.ConfigureAwait(true);
 		if (_result4 == PDConfirm.Outcomes.Yes)

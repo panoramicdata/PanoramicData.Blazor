@@ -32,7 +32,12 @@ public partial class PDColorPicker : IAsyncDisposable
 	private ColorValue _originalColor = new();
 	private DotNetObjectReference<PDColorPicker>? _objRef;
 	private IJSObjectReference? _module;
-	private ElementReference _svContainerRef;
+
+	/// <summary>
+	/// Gets or sets the saturation/value container element, set by the component markup.
+	/// </summary>
+	internal ElementReference SvContainerRef { get; set; }
+
 	private ElementReference _hueStripRef;
 	private double _svWidth;
 	private double _svHeight;
@@ -203,9 +208,9 @@ public partial class PDColorPicker : IAsyncDisposable
 			await _module.InvokeVoidAsync("initialize", Id, _objRef).ConfigureAwait(true);
 
 			// Get the actual dimensions of the SV container for accurate positioning
-			if (_svContainerRef.Id != null)
+			if (SvContainerRef.Id != null)
 			{
-				var bounds = await _module.InvokeAsync<ElementBounds?>("getElementBounds", _svContainerRef).ConfigureAwait(true);
+				var bounds = await _module.InvokeAsync<ElementBounds?>("getElementBounds", SvContainerRef).ConfigureAwait(true);
 				if (bounds != null)
 				{
 					_svWidth = bounds.Width;
@@ -237,18 +242,21 @@ public partial class PDColorPicker : IAsyncDisposable
 		}
 		else
 		{
-			DisposeClickHandler();
+			DisposeClickHandlerInBackground();
 		}
 	}
 
 	private void ClosePicker()
 	{
 		_isOpen = false;
-		DisposeClickHandler();
+		DisposeClickHandlerInBackground();
 		StateHasChanged();
 	}
 
-	private async void DisposeClickHandler()
+	// The JavaScript clean-up swallows its own errors, so it is safe to let it finish in the background.
+	private void DisposeClickHandlerInBackground() => _ = DisposeClickHandlerAsync();
+
+	private async Task DisposeClickHandlerAsync()
 	{
 		try
 		{
@@ -263,7 +271,7 @@ public partial class PDColorPicker : IAsyncDisposable
 		}
 	}
 
-	private sealed record ElementBounds(double Width, double Height, double Left, double Top);
+	internal sealed record ElementBounds(double Width, double Height, double Left, double Top);
 
 	private string GetSwatchBackground()
 	{
@@ -293,26 +301,26 @@ public partial class PDColorPicker : IAsyncDisposable
 
 	#region Saturation/Value Selector
 
-	private void OnSvPointerDown(PointerEventArgs e)
+	private async Task OnSvPointerDown(PointerEventArgs e)
 	{
 		_isDraggingSv = true;
-		UpdateSvFromPointer(e);
+		await UpdateSvFromPointerAsync(e).ConfigureAwait(true);
 	}
 
-	private void OnSvPointerMove(PointerEventArgs e)
+	private async Task OnSvPointerMove(PointerEventArgs e)
 	{
 		if (_isDraggingSv)
 		{
-			UpdateSvFromPointer(e);
+			await UpdateSvFromPointerAsync(e).ConfigureAwait(true);
 		}
 	}
 
-	private void OnSvPointerUp(PointerEventArgs e)
+	private void OnSvPointerUp()
 	{
 		_isDraggingSv = false;
 	}
 
-	private void UpdateSvFromPointer(PointerEventArgs e)
+	private async Task UpdateSvFromPointerAsync(PointerEventArgs e)
 	{
 		// Use actual element dimensions if available, otherwise fall back to options
 		var width = _svWidth > 0 ? _svWidth : Options.PopupWidth - 24; // Account for padding
@@ -321,96 +329,96 @@ public partial class PDColorPicker : IAsyncDisposable
 		var s = Math.Clamp(e.OffsetX / width, 0, 1);
 		var v = Math.Clamp(1 - e.OffsetY / height, 0, 1);
 		_currentColor.SetFromHsv(_currentColor.H, s, v);
-		NotifyColorChange();
+		await NotifyColorChangeAsync().ConfigureAwait(true);
 	}
 
 	#endregion
 
 	#region Hue Slider
 
-	private void OnHuePointerDown(PointerEventArgs e)
+	private async Task OnHuePointerDown(PointerEventArgs e)
 	{
 		_isDraggingHue = true;
-		UpdateHueFromPointer(e);
+		await UpdateHueFromPointerAsync(e).ConfigureAwait(true);
 	}
 
-	private void OnHuePointerMove(PointerEventArgs e)
+	private async Task OnHuePointerMove(PointerEventArgs e)
 	{
 		if (_isDraggingHue)
 		{
-			UpdateHueFromPointer(e);
+			await UpdateHueFromPointerAsync(e).ConfigureAwait(true);
 		}
 	}
 
-	private void OnHuePointerUp(PointerEventArgs e)
+	private void OnHuePointerUp()
 	{
 		_isDraggingHue = false;
 	}
 
-	private void UpdateHueFromPointer(PointerEventArgs e)
+	private async Task UpdateHueFromPointerAsync(PointerEventArgs e)
 	{
 		var hue = Math.Clamp(e.OffsetX / (Options.PopupWidth - 20) * 360, 0, 360);
 		_currentColor.SetFromHsv(hue, _currentColor.S, _currentColor.V);
-		NotifyColorChange();
+		await NotifyColorChangeAsync().ConfigureAwait(true);
 	}
 
 	#endregion
 
 	#region Alpha Slider
 
-	private void OnAlphaPointerDown(PointerEventArgs e)
+	private async Task OnAlphaPointerDown(PointerEventArgs e)
 	{
 		_isDraggingAlpha = true;
-		UpdateAlphaFromPointer(e);
+		await UpdateAlphaFromPointerAsync(e).ConfigureAwait(true);
 	}
 
-	private void OnAlphaPointerMove(PointerEventArgs e)
+	private async Task OnAlphaPointerMove(PointerEventArgs e)
 	{
 		if (_isDraggingAlpha)
 		{
-			UpdateAlphaFromPointer(e);
+			await UpdateAlphaFromPointerAsync(e).ConfigureAwait(true);
 		}
 	}
 
-	private void OnAlphaPointerUp(PointerEventArgs e)
+	private void OnAlphaPointerUp()
 	{
 		_isDraggingAlpha = false;
 	}
 
-	private void UpdateAlphaFromPointer(PointerEventArgs e)
+	private async Task UpdateAlphaFromPointerAsync(PointerEventArgs e)
 	{
 		_currentColor.A = Math.Clamp(e.OffsetX / (Options.PopupWidth - 20), 0, 1);
-		NotifyColorChange();
+		await NotifyColorChangeAsync().ConfigureAwait(true);
 	}
 
 	#endregion
 
 	#region RGB Sliders
 
-	private void OnRedSliderChange(ChangeEventArgs e)
+	private async Task OnRedSliderChange(ChangeEventArgs e)
 	{
 		if (byte.TryParse(e.Value?.ToString(), out var value))
 		{
 			_currentColor.SetRgb(value, _currentColor.G, _currentColor.B);
-			NotifyColorChange();
+			await NotifyColorChangeAsync().ConfigureAwait(true);
 		}
 	}
 
-	private void OnGreenSliderChange(ChangeEventArgs e)
+	private async Task OnGreenSliderChange(ChangeEventArgs e)
 	{
 		if (byte.TryParse(e.Value?.ToString(), out var value))
 		{
 			_currentColor.SetRgb(_currentColor.R, value, _currentColor.B);
-			NotifyColorChange();
+			await NotifyColorChangeAsync().ConfigureAwait(true);
 		}
 	}
 
-	private void OnBlueSliderChange(ChangeEventArgs e)
+	private async Task OnBlueSliderChange(ChangeEventArgs e)
 	{
 		if (byte.TryParse(e.Value?.ToString(), out var value))
 		{
 			_currentColor.SetRgb(_currentColor.R, _currentColor.G, value);
-			NotifyColorChange();
+			await NotifyColorChangeAsync().ConfigureAwait(true);
 		}
 	}
 
@@ -418,30 +426,30 @@ public partial class PDColorPicker : IAsyncDisposable
 
 	#region HSV Sliders
 
-	private void OnHueSliderChange(ChangeEventArgs e)
+	private async Task OnHueSliderChange(ChangeEventArgs e)
 	{
 		if (double.TryParse(e.Value?.ToString(), out var value))
 		{
 			_currentColor.SetFromHsv(Math.Clamp(value, 0, 360), _currentColor.S, _currentColor.V);
-			NotifyColorChange();
+			await NotifyColorChangeAsync().ConfigureAwait(true);
 		}
 	}
 
-	private void OnSaturationSliderChange(ChangeEventArgs e)
+	private async Task OnSaturationSliderChange(ChangeEventArgs e)
 	{
 		if (double.TryParse(e.Value?.ToString(), out var value))
 		{
 			_currentColor.SetFromHsv(_currentColor.H, Math.Clamp(value / 100.0, 0, 1), _currentColor.V);
-			NotifyColorChange();
+			await NotifyColorChangeAsync().ConfigureAwait(true);
 		}
 	}
 
-	private void OnValueSliderChange(ChangeEventArgs e)
+	private async Task OnValueSliderChange(ChangeEventArgs e)
 	{
 		if (double.TryParse(e.Value?.ToString(), out var value))
 		{
 			_currentColor.SetFromHsv(_currentColor.H, _currentColor.S, Math.Clamp(value / 100.0, 0, 1));
-			NotifyColorChange();
+			await NotifyColorChangeAsync().ConfigureAwait(true);
 		}
 	}
 
@@ -449,14 +457,14 @@ public partial class PDColorPicker : IAsyncDisposable
 
 	#region Input Handlers
 
-	private void OnHexInputChange(ChangeEventArgs e)
+	private async Task OnHexInputChange(ChangeEventArgs e)
 	{
 		var hex = e.Value?.ToString() ?? "";
 		_currentColor.SetFromHex(hex);
-		NotifyColorChange();
+		await NotifyColorChangeAsync().ConfigureAwait(true);
 	}
 
-	private void OnRgbInputChange(ChangeEventArgs e, char component)
+	private async Task OnRgbInputChange(ChangeEventArgs e, char component)
 	{
 		if (byte.TryParse(e.Value?.ToString(), out var value))
 		{
@@ -468,25 +476,25 @@ public partial class PDColorPicker : IAsyncDisposable
 				case 'G':
 					_currentColor.SetRgb(_currentColor.R, value, _currentColor.B);
 					break;
-				case 'B':
+				default:
 					_currentColor.SetRgb(_currentColor.R, _currentColor.G, value);
 					break;
 			}
 
-			NotifyColorChange();
+			await NotifyColorChangeAsync().ConfigureAwait(true);
 		}
 	}
 
-	private void OnAlphaInputChange(ChangeEventArgs e)
+	private async Task OnAlphaInputChange(ChangeEventArgs e)
 	{
 		if (int.TryParse(e.Value?.ToString(), out var value))
 		{
 			_currentColor.A = Math.Clamp(value / 100.0, 0, 1);
-			NotifyColorChange();
+			await NotifyColorChangeAsync().ConfigureAwait(true);
 		}
 	}
 
-	private void OnHsvInputChange(ChangeEventArgs e, char component)
+	private async Task OnHsvInputChange(ChangeEventArgs e, char component)
 	{
 		if (double.TryParse(e.Value?.ToString(), out var value))
 		{
@@ -498,12 +506,12 @@ public partial class PDColorPicker : IAsyncDisposable
 				case 'S':
 					_currentColor.SetFromHsv(_currentColor.H, Math.Clamp(value / 100.0, 0, 1), _currentColor.V);
 					break;
-				case 'V':
+				default:
 					_currentColor.SetFromHsv(_currentColor.H, _currentColor.S, Math.Clamp(value / 100.0, 0, 1));
 					break;
 			}
 
-			NotifyColorChange();
+			await NotifyColorChangeAsync().ConfigureAwait(true);
 		}
 	}
 
@@ -542,7 +550,7 @@ public partial class PDColorPicker : IAsyncDisposable
 	private async Task SelectPaletteColor(string color)
 	{
 		_currentColor.SetFromHex(color);
-		NotifyColorChange();
+		await NotifyColorChangeAsync().ConfigureAwait(true);
 
 		if (Options.CloseOnSelect && !Options.ShowButtons)
 		{
@@ -558,10 +566,10 @@ public partial class PDColorPicker : IAsyncDisposable
 		ClosePicker();
 	}
 
-	private void RevertColor()
+	private async Task RevertColor()
 	{
 		_currentColor = _originalColor.Clone();
-		NotifyColorChange();
+		await NotifyColorChangeAsync().ConfigureAwait(true);
 	}
 
 	#endregion
@@ -594,7 +602,7 @@ public partial class PDColorPicker : IAsyncDisposable
 		ClosePicker();
 	}
 
-	private async void NotifyColorChange()
+	private async Task NotifyColorChangeAsync()
 	{
 		if (Options.LivePreview)
 		{

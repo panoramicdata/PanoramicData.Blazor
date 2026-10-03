@@ -3,18 +3,18 @@
 
 <h1>PDForm</h1>
 
-<DemoSourceView SourceFiles="Pages/PDFormPage5.razor, Pages/PDFormPage5.razor.cs, Pages/PDFormPage5.razor.css">
+<DemoSourceView SourceFiles="Pages/PDFormPage5.razor, Pages/PDFormPage5.razor.cs">
 
 	<PDToolbar>
 		<PDToolbarButton Click="OnBeginEditAsync"
 						 CssClass="btn-primary"
-						 IsEnabled="_queryForm?.Mode == FormModes.ReadOnly"
+						 IsEnabled="QueryForm?.Mode == FormModes.ReadOnly"
 						 Text="Edit" />
 	</PDToolbar>
 
 	<div class="d-flex">
 
-		<PDForm @ref="_queryForm"
+		<PDForm @ref="QueryForm"
 				CssClass="w-100"
 				TItem="DatabaseQueryModel"
 				Item="_model"

@@ -11,7 +11,7 @@ public partial class DemoSourceView : IDisposable
 	private readonly HttpClient _httpClient = new();
 	private readonly Dictionary<string, SourceFile> _sourceFiles = [];
 	private string _activeSourceFile = string.Empty;
-	private StandaloneCodeEditor? Editor { get; set; }
+	protected StandaloneCodeEditor? Editor { get; set; }
 
 	[Inject] private INavigationCancelService NavigationCancelService { get; set; } = default!;
 
@@ -195,7 +195,7 @@ public partial class DemoSourceView : IDisposable
 		}
 	}
 
-	private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor _) => new()
+	private StandaloneEditorConstructionOptions EditorConstructionOptions() => new()
 	{
 		AutomaticLayout = true,
 		Language = GetLanguageForFile(_activeSourceFile),

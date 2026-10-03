@@ -3,7 +3,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 public partial class PDWizardPage
 {
     // Basic wizard
-    private string _basicName = string.Empty;
+    protected string BasicName { get; set; } = string.Empty;
     private string? _basicResult;
 
     // Indicator style demos
@@ -15,22 +15,22 @@ public partial class PDWizardPage
     private string _asyncData = string.Empty;
 
     // Conditional step visibility
-    private bool _showOptionalStep = true;
+    protected bool ShowOptionalStep { get; set; } = true;
     private string? _conditionalResult;
 
     // Modal wizard
-    private PDModal _wizardModal = null!;
-    private PDModal _simpleModalWizard = null!;
-    private PDWizard _modalWizard = null!;
-    private string _modalDescription = string.Empty;
+    protected PDModal WizardModal { get; set; } = null!;
+    protected PDModal SimpleModalWizard { get; set; } = null!;
+    protected PDWizard ModalWizard { get; set; } = null!;
+    protected string ModalDescription { get; set; } = string.Empty;
     private string? _modalResult;
-    private int _modalJobCount = 3;
-    private string _simpleModalName = string.Empty;
+    protected int ModalJobCount { get; set; } = 3;
+    protected string SimpleModalName { get; set; } = string.Empty;
     private string? _simpleModalResult;
 
     private void OnBasicComplete()
     {
-        _basicResult = $"Completed with name: {_basicName}";
+        _basicResult = $"Completed with name: {BasicName}";
     }
 
     private void OnBasicCancel()
@@ -57,19 +57,19 @@ public partial class PDWizardPage
     private void OnThemingCancel() => _themingResult = "Cancelled";
 
     // Fixed body height demo
-    private PDModal _fixedHeightModal = null!;
+    protected PDModal FixedHeightModal { get; set; } = null!;
     private string? _fixedHeightResult;
 
     private async Task OnFixedHeightComplete()
     {
         _fixedHeightResult = "Completed!";
-        await _fixedHeightModal.HideAsync().ConfigureAwait(true);
+        await FixedHeightModal.HideAsync().ConfigureAwait(true);
     }
 
     private async Task OnFixedHeightCancel()
     {
         _fixedHeightResult = "Cancelled";
-        await _fixedHeightModal.HideAsync().ConfigureAwait(true);
+        await FixedHeightModal.HideAsync().ConfigureAwait(true);
     }
 
     // Custom button icons demo
@@ -88,7 +88,7 @@ public partial class PDWizardPage
 
     // Title bar / no-indicator demo
     private string? _titleDemoResult;
-    private int _titleDemoItemCount = 5;
+    protected int TitleDemoItemCount { get; set; } = 5;
 
     private void OnTitleDemoComplete() => _titleDemoResult = "Completed!";
     private void OnTitleDemoCancel() => _titleDemoResult = "Cancelled";
@@ -107,24 +107,24 @@ public partial class PDWizardPage
 
     private async Task OnSimpleModalComplete()
     {
-        _simpleModalResult = $"Completed with name: {_simpleModalName}";
-        await _simpleModalWizard.HideAsync().ConfigureAwait(true);
+        _simpleModalResult = $"Completed with name: {SimpleModalName}";
+        await SimpleModalWizard.HideAsync().ConfigureAwait(true);
     }
 
     private async Task OnSimpleModalCancel()
     {
         _simpleModalResult = "Cancelled";
-        await _simpleModalWizard.HideAsync().ConfigureAwait(true);
+        await SimpleModalWizard.HideAsync().ConfigureAwait(true);
     }
 
     private async Task OnModalWizardComplete()
     {
-        _modalResult = $"Completed with description: {_modalDescription}";
-        await _wizardModal.HideAsync().ConfigureAwait(true);
+        _modalResult = $"Completed with description: {ModalDescription}";
+        await WizardModal.HideAsync().ConfigureAwait(true);
     }
 
     private async Task OnModalWizardCancel()
     {
-        await _wizardModal.HideAsync().ConfigureAwait(true);
+        await WizardModal.HideAsync().ConfigureAwait(true);
     }
 }

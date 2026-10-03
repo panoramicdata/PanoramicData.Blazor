@@ -2,12 +2,12 @@
 
 public partial class PDButtonPage : IAsyncDisposable
 {
-	private bool _buttonEnabled = true;
+	protected bool ButtonEnabled { get; set; } = true;
 	private IJSObjectReference? _commonModule;
 	private readonly ShortcutKey _shortcut1 = ShortcutKey.Create("Shift-Ctrl-Digit1");
 	private readonly ShortcutKey _shortcut2 = ShortcutKey.Create("Shift-Ctrl-Digit2");
 	private readonly ShortcutKey _shortcut3 = ShortcutKey.Create("Shift-Ctrl-Digit3");
-	private int Counter { get; set; }
+	protected int Counter { get; set; }
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
@@ -15,7 +15,7 @@ public partial class PDButtonPage : IAsyncDisposable
 
 	[Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
-	private async Task DoLongRunningOperation(MouseEventArgs args)
+	private async Task DoLongRunningOperation()
 	{
 		EventManager?.Add(new Event("Long running operation started"));
 

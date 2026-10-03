@@ -67,21 +67,14 @@
     border: none;
 }
 
-/* Override the Monaco editor container height specifically within PDStudio */
-.pd-studio .pd-studio-editor-container ::deep .monaco-editor-container {
-    height: 100% !important;
-}
+/* The Monaco editor's own containers are BlazorMonaco markup; the rules that size them to fill
+   .pd-studio-editor-container live in wwwroot/css/main.scss. */
 
 /* Ensure Monaco editor component itself stretches within PDStudio */
 .pd-studio .pd-studio-editor-container .pd-monacoeditor .monaco-editor,
 .pd-studio .pd-studio-editor-container .pd-monacoeditor .resizable {
     height: 100% !important;
     width: 100% !important;
-}
-
-/* Force the underlying Monaco editor to fill its container within PDStudio */
-.pd-studio .pd-studio-editor-container ::deep .resizable {
-    height: 100% !important;
 }
 
 .pd-studio-editor-overlay {
@@ -129,14 +122,11 @@
         flex-wrap: wrap !important;
         white-space: normal;
         align-content: flex-start;
-    }
-    
-    .pd-studio-toolbar {
-        padding: 0.25rem;
         gap: 0.125rem;
     }
-    
-    .pd-studio-toolbar .pdtoolbar {
+
+    .pd-studio-toolbar {
+        padding: 0.25rem;
         gap: 0.125rem;
     }
     
@@ -201,8 +191,7 @@
 }
 
 /* Improved toolbar separator spacing for wrapped layout */
-.pd-studio-toolbar .toolbar-separator,
-.pd-studio-toolbar ::deep .pdtoolbar-separator {
+.pd-studio-toolbar .toolbar-separator {
     margin: 0 0.25rem;
     height: 1.5rem;
     border-left: 1px solid var(--bs-border-color);
@@ -212,8 +201,7 @@
 
 /* Hide separators on very small screens to save space */
 @media (max-width: 480px) {
-    .pd-studio-toolbar .toolbar-separator,
-    .pd-studio-toolbar ::deep .pdtoolbar-separator {
+    .pd-studio-toolbar .toolbar-separator {
         display: none;
     }
 }
@@ -260,12 +248,6 @@
 .pd-studio.theme-dark .pd-log {
     border-color: var(--bs-secondary);
     background-color: var(--bs-dark);
-}
-
-/* Force Monaco editor to use automatic layout which adapts to container changes */
-.pd-studio .pd-studio-editor-container .pd-monacoeditor ::deep .monaco-editor {
-    /* Ensure Monaco recalculates when container changes */
-    resize: both;
 }
 
 /* Demo page specific styles - ensure PDStudio works well in constrained containers */

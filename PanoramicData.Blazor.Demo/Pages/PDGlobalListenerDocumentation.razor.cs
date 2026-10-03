@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDGlobalListenerDocumentation
+public partial class PDGlobalListenerDocumentation : ComponentBase
 {
 	private const string _example1Code = """
 		<PDGlobalListener 

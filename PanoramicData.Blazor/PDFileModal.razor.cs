@@ -172,33 +172,27 @@ public partial class PDFileModal
 	private string? GetItemIconCssClassInternal(FileExplorerItem item) => GetItemIconCssClass is null ? null : GetItemIconCssClass(item);
 
 	/// <summary>
+	/// Shows the dialog in Open mode for any file, starting at the root, and returns once the user has dismissed it.
+	/// </summary>
+	public Task ShowOpenAsync() => ShowOpenAsync(false, "", "");
+
+	/// <summary>
+	/// Shows the dialog in Open mode, for any file or for a folder, starting at the root, and returns once the user
+	/// has dismissed it.
+	/// </summary>
+	public Task ShowOpenAsync(bool folderSelect) => ShowOpenAsync(folderSelect, "", "");
+
+	/// <summary>
+	/// Shows the dialog in Open mode, starting at the root, and returns once the user has dismissed it.
+	/// </summary>
+	public Task ShowOpenAsync(bool folderSelect, string filenamePattern) => ShowOpenAsync(folderSelect, filenamePattern, "");
+
+	/// <summary>
 	/// Shows the dialog in Open mode and returns once the user has dismissed it.
 	/// </summary>
-	public async Task ShowOpenAsync(bool folderSelect = false, string filenamePattern = "", string initialFolder = "")
+	public async Task ShowOpenAsync(bool folderSelect, string filenamePattern, string initialFolder)
 	{
-		_showOpen = true;
-		_showFiles = !folderSelect;
-		_folderSelect = folderSelect;
-		_filenamePattern = filenamePattern;
-		_modalTitle = OpenTitle;
-		_filenameTextbox.Value = "";
-		_okButton.IsEnabled = folderSelect && !string.IsNullOrEmpty(FileExplorer.FolderPath);
-		if (_filenameTextbox.IsVisible)
-		{
-			_filenameTextbox.IsVisible = false;
-		}
-
-		if (_okButton.Text != OpenButtonText)
-		{
-			_okButton.Text = OpenButtonText;
-		}
-
-		if (_okButton.IconCssClass != OpenButtonIconCssClass)
-		{
-			_okButton.IconCssClass = OpenButtonIconCssClass;
-		}
-
-		StateHasChanged();
+		PrepareOpen(folderSelect, filenamePattern);
 
 		// show the modal
 		await Modal.ShowAsync().ConfigureAwait(true);
@@ -217,33 +211,22 @@ public partial class PDFileModal
 	}
 
 	/// <summary>
+	/// Shows the dialog in Open mode for any file and waits for the user to select one, returning the selected path.
+	/// </summary>
+	public Task<string> ShowOpenAndWaitResultAsync() => ShowOpenAndWaitResultAsync(false, "");
+
+	/// <summary>
+	/// Shows the dialog in Open mode, for any file or for a folder, and waits for the user to select one, returning
+	/// the selected path.
+	/// </summary>
+	public Task<string> ShowOpenAndWaitResultAsync(bool folderSelect) => ShowOpenAndWaitResultAsync(folderSelect, "");
+
+	/// <summary>
 	/// Shows the dialog in Open mode and waits for the user to select a file, returning the selected path.
 	/// </summary>
-	public async Task<string> ShowOpenAndWaitResultAsync(bool folderSelect = false, string filenamePattern = "")
+	public async Task<string> ShowOpenAndWaitResultAsync(bool folderSelect, string filenamePattern)
 	{
-		_showOpen = true;
-		_showFiles = !folderSelect;
-		_folderSelect = folderSelect;
-		_filenamePattern = filenamePattern;
-		_modalTitle = OpenTitle;
-		_filenameTextbox.Value = "";
-		_okButton.IsEnabled = folderSelect && !string.IsNullOrEmpty(FileExplorer.FolderPath);
-		if (_filenameTextbox.IsVisible)
-		{
-			_filenameTextbox.IsVisible = false;
-		}
-
-		if (_okButton.Text != OpenButtonText)
-		{
-			_okButton.Text = OpenButtonText;
-		}
-
-		if (_okButton.IconCssClass != OpenButtonIconCssClass)
-		{
-			_okButton.IconCssClass = OpenButtonIconCssClass;
-		}
-
-		StateHasChanged();
+		PrepareOpen(folderSelect, filenamePattern);
 
 		// refresh the current folder contents
 		await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
@@ -264,98 +247,48 @@ public partial class PDFileModal
 	public async Task RefreshFileExplorerAsync() => await FileExplorer.RefreshAllAsync().ConfigureAwait(true);
 
 	/// <summary>
+	/// Shows the dialog in Save As mode, with no initial file, and returns once the user has dismissed it.
+	/// </summary>
+	public Task ShowSaveAsAsync() => ShowSaveAsAsync("", "");
+
+	/// <summary>
+	/// Shows the dialog in Save As mode, for any file, and returns once the user has dismissed it.
+	/// </summary>
+	public Task ShowSaveAsAsync(string initialFilename) => ShowSaveAsAsync(initialFilename, "");
+
+	/// <summary>
 	/// Shows the dialog in Save As mode and returns once the user has dismissed it.
 	/// </summary>
-	public async Task ShowSaveAsAsync(string initialFilename = "", string filenamePattern = "")
+	public async Task ShowSaveAsAsync(string initialFilename, string filenamePattern)
 	{
-		_showOpen = false;
-		_showFiles = true;
-		_filenamePattern = filenamePattern;
-		_modalTitle = SaveTitle;
-		if (!string.IsNullOrWhiteSpace(initialFilename))
-		{
-			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
-			_okButton.IsEnabled = true;
-		}
-
-		if (!_filenameTextbox.IsVisible)
-		{
-			_filenameTextbox.IsVisible = true;
-		}
-
-		if (_okButton.Text != SaveButtonText)
-		{
-			_okButton.Text = SaveButtonText;
-		}
-
-		if (_okButton.IconCssClass != SaveButtonIconCssClass)
-		{
-			_okButton.IconCssClass = SaveButtonIconCssClass;
-		}
-
-		StateHasChanged();
+		PrepareSaveAs(initialFilename, filenamePattern);
 
 		await Modal.ShowAsync().ConfigureAwait(true);
 
-		// default folder?
-		if (!string.IsNullOrWhiteSpace(initialFilename))
-		{
-			// default to current initial files location
-			await FileExplorer.NavigateToAsync(initialFilename).ConfigureAwait(true);
-		}
-		else
-		{
-			// default to root
-			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
-		}
+		await NavigateToSaveAsFolderAsync(initialFilename).ConfigureAwait(true);
 	}
+
+	/// <summary>
+	/// Shows the dialog in Save As mode, with no initial file, and waits for the user to confirm a filename,
+	/// returning the selected path.
+	/// </summary>
+	public Task<string> ShowSaveAsAndWaitResultAsync() => ShowSaveAsAndWaitResultAsync("", "");
+
+	/// <summary>
+	/// Shows the dialog in Save As mode, for any file, and waits for the user to confirm a filename, returning the
+	/// selected path.
+	/// </summary>
+	public Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename) => ShowSaveAsAndWaitResultAsync(initialFilename, "");
 
 	/// <summary>
 	/// Shows the dialog in Save As mode and waits for the user to confirm a filename, returning the selected path.
 	/// </summary>
-	public async Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename = "", string filenamePattern = "")
+	public async Task<string> ShowSaveAsAndWaitResultAsync(string initialFilename, string filenamePattern)
 	{
-		_showOpen = false;
-		_showFiles = true;
-		_filenamePattern = filenamePattern;
-		_modalTitle = SaveTitle;
-		if (!string.IsNullOrWhiteSpace(initialFilename))
-		{
-			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
-			_okButton.IsEnabled = true;
-		}
+		PrepareSaveAs(initialFilename, filenamePattern);
 
-		if (!_filenameTextbox.IsVisible)
-		{
-			_filenameTextbox.IsVisible = true;
-		}
+		await NavigateToSaveAsFolderAsync(initialFilename).ConfigureAwait(true);
 
-		if (_okButton.Text != SaveButtonText)
-		{
-			_okButton.Text = SaveButtonText;
-		}
-
-		if (_okButton.IconCssClass != SaveButtonIconCssClass)
-		{
-			_okButton.IconCssClass = SaveButtonIconCssClass;
-		}
-
-		StateHasChanged();
-
-		// default folder?
-		if (!string.IsNullOrWhiteSpace(initialFilename))
-		{
-			// default to current initial files location
-			await FileExplorer.NavigateToAsync(initialFilename).ConfigureAwait(true);
-		}
-		else
-		{
-			// default to root
-			await FileExplorer.NavigateToAsync("/").ConfigureAwait(true);
-			//await FileExplorer.RefreshTableAsync().ConfigureAwait(true);
-		}
-
-		FileExplorerItem? existing = null;
 		do
 		{
 			var userAction = await Modal.ShowAndWaitResultAsync().ConfigureAwait(true);
@@ -363,21 +296,65 @@ public partial class PDFileModal
 			{
 				return string.Empty;
 			}
-
-			// check for over write?
-			existing = Array.Find(FileExplorer.FileItems ?? [], x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
-			if (existing != null)
-			{
-				var confirmation = await ModalConfirm.ShowAndWaitResultAsync().ConfigureAwait(true);
-				if (confirmation == "Yes")
-				{
-					existing = null;
-				}
-			}
-
-		} while (existing != null);
+		}
+		while (!await ConfirmOverwriteAsync().ConfigureAwait(true));
 
 		return $"{FileExplorer.FolderPath.TrimEnd('/')}/{_filenameTextbox.Value}";
+	}
+
+	/// <summary>
+	/// Sets the dialog up to open a file, or to select a folder.
+	/// </summary>
+	private void PrepareOpen(bool folderSelect, string filenamePattern)
+	{
+		_showOpen = true;
+		_showFiles = !folderSelect;
+		_folderSelect = folderSelect;
+		_filenamePattern = filenamePattern;
+		_modalTitle = OpenTitle;
+		_filenameTextbox.Value = "";
+		_okButton.IsEnabled = folderSelect && !string.IsNullOrEmpty(FileExplorer.FolderPath);
+		_filenameTextbox.IsVisible = false;
+		_okButton.Text = OpenButtonText;
+		_okButton.IconCssClass = OpenButtonIconCssClass;
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Sets the dialog up to save a file, starting with the given name, if any.
+	/// </summary>
+	private void PrepareSaveAs(string initialFilename, string filenamePattern)
+	{
+		_showOpen = false;
+		_showFiles = true;
+		_filenamePattern = filenamePattern;
+		_modalTitle = SaveTitle;
+		if (!string.IsNullOrWhiteSpace(initialFilename))
+		{
+			_filenameTextbox.Value = FileExplorerItem.GetNameFromPath(initialFilename);
+			_okButton.IsEnabled = true;
+		}
+
+		_filenameTextbox.IsVisible = true;
+		_okButton.Text = SaveButtonText;
+		_okButton.IconCssClass = SaveButtonIconCssClass;
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Shows the initial file's location, or the root when there is no initial file.
+	/// </summary>
+	private Task NavigateToSaveAsFolderAsync(string initialFilename)
+		=> FileExplorer.NavigateToAsync(string.IsNullOrWhiteSpace(initialFilename) ? "/" : initialFilename);
+
+	/// <summary>
+	/// Returns whether the entered file name can be saved: either no file has it, or the user agrees to overwrite it.
+	/// </summary>
+	private async Task<bool> ConfirmOverwriteAsync()
+	{
+		var existing = Array.Find(FileExplorer.FileItems ?? [], x => x.EntryType == FileExplorerItemType.File && x.Name == _filenameTextbox.Value);
+		return existing is null
+			|| await ModalConfirm.ShowAndWaitResultAsync().ConfigureAwait(true) == "Yes";
 	}
 
 	private async Task OnButtonClick(string text)
@@ -417,6 +394,7 @@ public partial class PDFileModal
 		}
 		catch
 		{
+			// a failing ModalHidden handler is the caller's problem, and must not leave the dialog open
 		}
 
 		await Modal.HideAsync().ConfigureAwait(true);
@@ -431,13 +409,23 @@ public partial class PDFileModal
 		}
 		else
 		{
-			_okButton.IsEnabled =
-				(!string.IsNullOrEmpty(FileExplorer.FolderPath) && selection.Length == 0 &&
-				 (CanSelectFolder == null || (_currentFolderItem != null && CanSelectFolder(_currentFolderItem)))) ||
-				(selection.Length == 1 && selection[0].EntryType == FileExplorerItemType.Directory &&
-				 selection[0].Name != ".." && (CanSelectFolder == null || CanSelectFolder(selection[0])));
+			_okButton.IsEnabled = selection.Length switch
+			{
+				0 => IsCurrentFolderSelectable(),
+				1 => IsSelectableFolder(selection[0]),
+				_ => false
+			};
 		}
 	}
+
+	private bool IsCurrentFolderSelectable()
+		=> !string.IsNullOrEmpty(FileExplorer.FolderPath)
+			&& (CanSelectFolder == null || (_currentFolderItem != null && CanSelectFolder(_currentFolderItem)));
+
+	private bool IsSelectableFolder(FileExplorerItem item)
+		=> item.EntryType == FileExplorerItemType.Directory
+			&& item.Name != ".."
+			&& (CanSelectFolder == null || CanSelectFolder(item));
 
 	private async Task OnItemDoubleClick(FileExplorerItem item)
 	{

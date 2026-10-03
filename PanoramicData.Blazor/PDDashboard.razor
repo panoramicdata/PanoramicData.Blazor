@@ -132,11 +132,11 @@
 								 style="@gridStyle"
 								 data-resize-info="@resizeInfo"
 								 draggable="@(EffectiveIsEditable && _resizingTile is null && !isMaximized ? "true" : "false")"
-								 @ondragstart="(e) => OnTileDragStart(e, tile)"
-								 @ondragover="(e) => OnTileDragOver(e, tile)"
+								 @ondragstart="() => OnTileDragStart(tile)"
+								 @ondragover="() => OnTileDragOver(tile)"
 								 @ondragover:preventDefault="@EffectiveIsEditable"
 								 @ondragleave="OnTileDragLeave"
-								 @ondrop="(e) => OnTileDropAsync(e, tile)"
+								 @ondrop="() => OnTileDropAsync(tile)"
 								 @ondrop:preventDefault="@EffectiveIsEditable"
 								 @ondragend="OnTileDragEnd">
 										@tile.ChildContent
@@ -308,7 +308,7 @@
 
 		@if (EffectiveIsEditable && ConfirmTileDelete)
 		{
-			<PDConfirm @ref="_confirmDelete"
+			<PDConfirm @ref="ConfirmDeleteDialog"
 					   Title="Delete Widget"
 					   Message="Are you sure you want to delete this widget?" />
 		}

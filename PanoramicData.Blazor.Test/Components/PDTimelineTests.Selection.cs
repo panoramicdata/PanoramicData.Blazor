@@ -108,6 +108,24 @@ public partial class PDTimelineTests
 	}
 
 	/// <summary>
+	/// Verifies that a selection reaching into the disabled start of the timeline, when that is allowed, is
+	/// pushed out of it by a shift-drag but still stops at the last column.
+	/// </summary>
+	[Fact]
+	public async Task ShiftDrag_OutOfDisabledStart_StopsAtTheEnd()
+	{
+		var options = new TimelineOptions { General = new TimelineGeneralOptions { AllowDisableSelection = true } };
+		var timeline = RenderTimeline(p => p
+			.Add(x => x.Options, options)
+			.Add(x => x.DisableBefore, Day(41)));
+		await timeline.InvokeAsync(() => timeline.Instance.SetSelection(Day(21), Day(52)));
+
+		DragColumns(timeline, 45, 44, shift: true);
+
+		_selections[^1].Should().BeEquivalentTo(Range(Day(30), new DateTime(2026, 3, 2)));
+	}
+
+	/// <summary>
 	/// Verifies that a shift-click outside the selection starts a new selection instead of moving it.
 	/// </summary>
 	[Fact]
@@ -197,6 +215,26 @@ public partial class PDTimelineTests
 		_selections[^1].Should().BeEquivalentTo(Range(Day(4), new DateTime(2026, 3, 2)));
 		timeline.FindAll("rect.tl-selection-handle").Should().ContainSingle()
 			.Which.GetAttribute("x").Should().Be("60");
+	}
+
+	/// <summary>
+	/// Verifies that with chart selection turned off a set selection can still be resized by its start handle,
+	/// and its end is not then forced to the end of the timeline.
+	/// </summary>
+	[Fact]
+	public async Task SelectionDisabled_StartHandle_KeepsTheEnd()
+	{
+		var options = new TimelineOptions { Selection = new TimelineSelectionOptions { Enabled = false, CanChangeEnd = false } };
+		var timeline = RenderTimeline(p => p.Add(x => x.Options, options));
+		await timeline.InvokeAsync(() => timeline.Instance.SetSelection(Day(3), Day(6)));
+		timeline.Render();
+
+		var handle = timeline.FindAll("rect.tl-selection-handle").Should().ContainSingle().Subject;
+		handle.PointerDown(new PointerEventArgs { ClientX = ColumnX(2), PointerId = 2 });
+		timeline.Find("rect.tl-selection-handle").PointerMove(new PointerEventArgs { ClientX = ColumnX(1) });
+		timeline.Find("rect.tl-selection-handle").PointerUp(new PointerEventArgs { ClientX = ColumnX(1) });
+
+		_selections[^1].Should().BeEquivalentTo(Range(Day(2), Day(6)));
 	}
 
 	/// <summary>

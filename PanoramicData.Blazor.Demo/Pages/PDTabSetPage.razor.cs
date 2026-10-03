@@ -13,12 +13,12 @@ public partial class PDTabSetPage
 	private string _eventLog = string.Empty;
 
 	// Control-panel bindings
-	private bool _isReorderingEnabled = true;
-	private bool _isClosingEnabled    = true;
-	private bool _isRenamingEnabled   = true;
-	private bool _isAddingEnabled     = true;
-	private string _tabMinWidth = "100px";
-	private string _tabMaxWidth = "200px";
+	protected bool IsReorderingEnabled { get; set; } = true;
+	protected bool IsClosingEnabled { get; set; }    = true;
+	protected bool IsRenamingEnabled { get; set; }   = true;
+	protected bool IsAddingEnabled { get; set; }     = true;
+	protected string TabMinWidth { get; set; } = "100px";
+	protected string TabMaxWidth { get; set; } = "200px";
 
 	private void AddTab()
 	{

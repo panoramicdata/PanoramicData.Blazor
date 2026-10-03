@@ -18,12 +18,31 @@ public class PageCriteria
 	}
 
 	/// <summary>
+	/// Initializes a new instance of the PageCriteria class with 10 items per page and no items.
+	/// </summary>
+	/// <param name="page">Page number.</param>
+	public PageCriteria(uint page)
+		: this(page, 10, 0)
+	{
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the PageCriteria class with no items.
+	/// </summary>
+	/// <param name="page">Page number.</param>
+	/// <param name="pageSize">Number of items per page.</param>
+	public PageCriteria(uint page, uint pageSize)
+		: this(page, pageSize, 0)
+	{
+	}
+
+	/// <summary>
 	/// Initializes a new instance of the PageCriteria class.
 	/// </summary>
 	/// <param name="page">Page number.</param>
 	/// <param name="pageSize">Number of items per page.</param>
 	/// <param name="totalCount">The total number of items.</param>
-	public PageCriteria(uint page, uint pageSize = 10, uint totalCount = 0)
+	public PageCriteria(uint page, uint pageSize, uint totalCount)
 	{
 		_page = page;
 		_pageSize = pageSize;
@@ -33,17 +52,17 @@ public class PageCriteria
 	/// <summary>
 	/// Event raised whenever the current page number changes.
 	/// </summary>
-	public event EventHandler? PageChanged;
+	public event System.EventHandler? PageChanged;
 
 	/// <summary>
 	/// Event raised whenever the current page size changes.
 	/// </summary>
-	public event EventHandler? PageSizeChanged;
+	public event System.EventHandler? PageSizeChanged;
 
 	/// <summary>
 	/// Event raised whenever the total item count changes.
 	/// </summary>
-	public event EventHandler? TotalCountChanged;
+	public event System.EventHandler? TotalCountChanged;
 
 	/// <summary>
 	/// Gets or sets page number.
@@ -165,11 +184,11 @@ public class PageCriteria
 	public uint PreviousItems => (_page - 1) * _pageSize;
 
 	/// <summary>Raises the <see cref="PageChanged"/> event.</summary>
-	protected void OnPageChanged() => PageChanged?.Invoke(this, EventArgs.Empty);
+	protected void OnPageChanged() => PageChanged?.Invoke(this, System.EventArgs.Empty);
 
 	/// <summary>Raises the <see cref="PageSizeChanged"/> event.</summary>
-	protected void OnPageSizeChanged() => PageSizeChanged?.Invoke(this, EventArgs.Empty);
+	protected void OnPageSizeChanged() => PageSizeChanged?.Invoke(this, System.EventArgs.Empty);
 
 	/// <summary>Raises the <see cref="TotalCountChanged"/> event.</summary>
-	protected void OnTotalCountChanged() => TotalCountChanged?.Invoke(this, EventArgs.Empty);
+	protected void OnTotalCountChanged() => TotalCountChanged?.Invoke(this, System.EventArgs.Empty);
 }

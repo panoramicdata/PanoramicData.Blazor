@@ -4,16 +4,16 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDLogPage
 {
-	private PDLog? _log;
-	private string _rows = "10";
-	private string _capacity = "20";
-	private bool _wordWrap = true;
-	private bool _reverse = true;
-	private bool _tail;
-	private bool _useLocalTime;
-	private bool _showTimestamp = true;
-	private bool _showException = true;
-	private bool _showIcon = true;
+	protected PDLog? LogComponent { get; set; }
+	protected string Rows { get; set; } = "10";
+	protected string Capacity { get; set; } = "20";
+	protected bool WordWrap { get; set; } = true;
+	protected bool Reverse { get; set; } = true;
+	protected bool Tail { get; set; }
+	protected bool UseLocalTime { get; set; }
+	protected bool ShowTimestamp { get; set; } = true;
+	protected bool ShowException { get; set; } = true;
+	protected bool ShowIcon { get; set; } = true;
 	private LogLevel _logLevel = LogLevel.Information;
 
 	private static List<MenuItem> LogLevelMenuItems
@@ -25,7 +25,7 @@ public partial class PDLogPage
 	{
 		if (isException)
 		{
-			_log?.Log(
+			LogComponent?.Log(
 					logLevel,
 					new InvalidOperationException("Example Invalid Operation Exception"),
 					isLongEntry
@@ -35,7 +35,7 @@ public partial class PDLogPage
 			return;
 		}
 
-		_log?.Log(
+		LogComponent?.Log(
 				logLevel,
 				isLongEntry
 					? "Some {LogLevel} text\nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
@@ -50,5 +50,5 @@ public partial class PDLogPage
 	}
 
 	private void Clear()
-		=> _log?.Clear();
+		=> LogComponent?.Clear();
 }

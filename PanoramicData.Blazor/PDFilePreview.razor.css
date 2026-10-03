@@ -8,6 +8,7 @@
 .pdfilepreview.html, .pdfilepreview.url
 {
 	overflow: clip;
+	background-color: white;
 }
 
 .pdfilepreview.basic
@@ -17,24 +18,9 @@
 	justify-content: center;
 }
 
-.pdfilepreview.html, .pdfilepreview.url
-{
-	background-color: white;
-}
-
-.pdfilepreview.md
-{
-}
-
 .pdfilepreview.txt
 {
 	white-space: pre-wrap;
-}
-
-.pdfilepreview
-{
-	width: 100%;
-	height: 100%;
 }
 
 iframe
@@ -43,21 +29,4 @@ iframe
 	height: calc(100% - 0px);
 }
 
-::deep .stacked
-{
-	align-items: center;
-	display: flex;
-	flex-direction: column;
-	text-align: center;
-}
-
-::deep .stacked span
-{
-	margin-top: 4px;
-}
-
-::deep .h1, ::deep h2, ::deep h3, ::deep .h4
-{
-	margin: 0px !important;
-	padding: 0px !important;
-}
+/* The preview content itself is MarkupString, so its styles live in wwwroot/css/main.scss. */

@@ -18,14 +18,12 @@ namespace PanoramicData.Blazor;
 /// </remarks>
 public partial class PDTreeMap<TItem> : IAsyncDisposable where TItem : class
 {
-	private static int _idSequence;
 
-	private readonly string _id = $"pdtm-{++_idSequence}";
+	private readonly string _id = $"pdtm-{ComponentIdSequence.Next()}";
 	private readonly List<TItem> _breadcrumb = [];
 
 	private IJSObjectReference? _module;
 	private DotNetObjectReference<PDTreeMap<TItem>>? _dotNetRef;
-	private ElementReference _canvasElement;
 	private IReadOnlyList<TreeMapRect<TItem>> _rects = [];
 	private TItem? _selected;
 	private int _focusedIndex = -1;
@@ -140,6 +138,9 @@ public partial class PDTreeMap<TItem> : IAsyncDisposable where TItem : class
 	/// <summary>Gets the rectangles currently laid out, which is useful for tests and for co-ordinating a paired table.</summary>
 	public IReadOnlyList<TreeMapRect<TItem>> Rectangles => _rects;
 
+	/// <summary>Gets or sets the container element whose size is observed, set by the markup.</summary>
+	protected ElementReference CanvasElement { get; set; }
+
 	private static string F(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 
 	private string ViewBox => string.Create(CultureInfo.InvariantCulture, $"0 0 {_width:0.##} {_height:0.##}");
@@ -176,7 +177,7 @@ public partial class PDTreeMap<TItem> : IAsyncDisposable where TItem : class
 				"import",
 				"./_content/PanoramicData.Blazor/PDTreeMap.razor.js").ConfigureAwait(true);
 
-			await _module.InvokeVoidAsync("init", _id, _canvasElement, _dotNetRef).ConfigureAwait(true);
+			await _module.InvokeVoidAsync("init", _id, CanvasElement, _dotNetRef).ConfigureAwait(true);
 		}
 		catch (JSDisconnectedException)
 		{
@@ -335,24 +336,14 @@ public partial class PDTreeMap<TItem> : IAsyncDisposable where TItem : class
 		}
 
 		// A leaf has nothing to zoom into, so treat it as a selection instead.
-		if (target is not null)
+		if (target is not null && !HasChildren(target))
 		{
-			var children = ChildrenSelector?.Invoke(target);
-			if (children is null || !children.Any())
-			{
-				return;
-			}
+			return;
 		}
 
-		if (BeforeZoomChange.HasDelegate)
+		if (await IsZoomCancelledAsync(target).ConfigureAwait(true))
 		{
-			var args = new TreeMapBeforeZoomEventArgs<TItem>(ZoomRoot, target);
-			await BeforeZoomChange.InvokeAsync(args).ConfigureAwait(true);
-
-			if (args.Cancel)
-			{
-				return;
-			}
+			return;
 		}
 
 		ZoomRoot = target;
@@ -361,6 +352,27 @@ public partial class PDTreeMap<TItem> : IAsyncDisposable where TItem : class
 
 		await ZoomRootChanged.InvokeAsync(target).ConfigureAwait(true);
 		StateHasChanged();
+	}
+
+	private bool HasChildren(TItem item)
+	{
+		var children = ChildrenSelector?.Invoke(item);
+		return children is not null && children.Any();
+	}
+
+	/// <summary>
+	/// Raises <see cref="BeforeZoomChange"/>, if handled, and reports whether the handler cancelled the zoom.
+	/// </summary>
+	private async Task<bool> IsZoomCancelledAsync(TItem? target)
+	{
+		if (!BeforeZoomChange.HasDelegate)
+		{
+			return false;
+		}
+
+		var args = new TreeMapBeforeZoomEventArgs<TItem>(ZoomRoot, target);
+		await BeforeZoomChange.InvokeAsync(args).ConfigureAwait(true);
+		return args.Cancel;
 	}
 
 	private async Task OnKeyDownAsync(KeyboardEventArgs args)
@@ -373,53 +385,61 @@ public partial class PDTreeMap<TItem> : IAsyncDisposable where TItem : class
 			return;
 		}
 
-		switch (args.Key)
+		var focusTarget = GetFocusTarget(args.Key);
+		if (focusTarget.HasValue)
 		{
-			case "ArrowRight":
-			case "ArrowDown":
-				_focusedIndex = Math.Min(_rects.Count - 1, _focusedIndex + 1);
-				break;
-
-			case "ArrowLeft":
-			case "ArrowUp":
-				_focusedIndex = Math.Max(0, _focusedIndex - 1);
-				break;
-
-			case "Home":
-				_focusedIndex = 0;
-				break;
-
-			case "End":
-				_focusedIndex = _rects.Count - 1;
-				break;
-
-			case "Enter":
-			case " ":
-				if (_focusedIndex >= 0)
-				{
-					await OnNodeClickAsync(_focusedIndex).ConfigureAwait(true);
-					await ZoomToAsync(_rects[_focusedIndex].Item).ConfigureAwait(true);
-				}
-
-				return;
-
-			case "Backspace":
-			case "Escape":
-				if (_breadcrumb.Count > 1)
-				{
-					await ZoomToAsync(_breadcrumb[^2]).ConfigureAwait(true);
-				}
-
-				return;
-
-			default:
-				return;
-		}
-
-		if (_focusedIndex >= 0)
-		{
+			// every focus target is a valid index, as there is at least one rectangle
+			_focusedIndex = focusTarget.Value;
 			_selected = _rects[_focusedIndex].Item;
 			await SelectionChanged.InvokeAsync().ConfigureAwait(true);
+			return;
+		}
+
+		if (args.Key is "Enter" or " ")
+		{
+			await ActivateFocusedAsync().ConfigureAwait(true);
+		}
+		else if (args.Key is "Backspace" or "Escape")
+		{
+			await ZoomOutAsync().ConfigureAwait(true);
+		}
+	}
+
+	/// <summary>
+	/// The index a navigation key moves the focus to, or null for any other key.
+	/// </summary>
+	private int? GetFocusTarget(string key)
+	{
+		return key switch
+		{
+			"ArrowRight" or "ArrowDown" => Math.Min(_rects.Count - 1, _focusedIndex + 1),
+			"ArrowLeft" or "ArrowUp" => Math.Max(0, _focusedIndex - 1),
+			"Home" => 0,
+			"End" => _rects.Count - 1,
+			_ => null
+		};
+	}
+
+	/// <summary>
+	/// Clicks the focused rectangle, if any, and zooms into it.
+	/// </summary>
+	private async Task ActivateFocusedAsync()
+	{
+		if (_focusedIndex >= 0)
+		{
+			await OnNodeClickAsync(_focusedIndex).ConfigureAwait(true);
+			await ZoomToAsync(_rects[_focusedIndex].Item).ConfigureAwait(true);
+		}
+	}
+
+	/// <summary>
+	/// Zooms out to the parent of the current zoom target, if zoomed in.
+	/// </summary>
+	private async Task ZoomOutAsync()
+	{
+		if (_breadcrumb.Count > 1)
+		{
+			await ZoomToAsync(_breadcrumb[^2]).ConfigureAwait(true);
 		}
 	}
 
@@ -478,24 +498,14 @@ public partial class PDTreeMap<TItem> : IAsyncDisposable where TItem : class
 			return;
 		}
 
-		var minimum = double.MaxValue;
-		var maximum = double.MinValue;
+		// NaN and infinite values take no part in the scale; with no finite value at all the range is 0 to 0
+		var values = _rects
+			.Select(rect => HeatSelector(rect.Item))
+			.Where(double.IsFinite)
+			.ToList();
 
-		foreach (var rect in _rects)
-		{
-			var value = HeatSelector(rect.Item);
-
-			if (double.IsNaN(value) || double.IsInfinity(value))
-			{
-				continue;
-			}
-
-			minimum = Math.Min(minimum, value);
-			maximum = Math.Max(maximum, value);
-		}
-
-		_heatMinimum = minimum == double.MaxValue ? 0 : minimum;
-		_heatMaximum = maximum == double.MinValue ? 0 : maximum;
+		_heatMinimum = values.Count == 0 ? 0 : values.Min();
+		_heatMaximum = values.Count == 0 ? 0 : values.Max();
 		_heatRangeValid = true;
 	}
 
@@ -543,13 +553,12 @@ public partial class PDTreeMap<TItem> : IAsyncDisposable where TItem : class
 	/// Builds the absolute position of an HTML label overlaying its rectangle. Percentages are used
 	/// so the labels track the SVG, which scales to the container.
 	/// </summary>
+	/// <remarks>
+	/// Rectangles exist only for a positive width and height (the layout engine produces none otherwise, and
+	/// every change of size re-runs the layout), so the divisions below are safe.
+	/// </remarks>
 	private string GetLabelStyle(TreeMapRect<TItem> rect)
 	{
-		if (_width <= 0 || _height <= 0)
-		{
-			return "display:none";
-		}
-
 		// A branch whose children are drawn keeps its label inside the header band; anything else may
 		// use its whole rectangle.
 		var boxHeight = rect.HasChildren && !rect.IsAggregated

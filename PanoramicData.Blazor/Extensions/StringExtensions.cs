@@ -5,6 +5,8 @@
 /// </summary>
 public static class StringExtensions
 {
+	private static readonly char[] _whitespaceChars = [' ', '\t', '\r', '\n'];
+
 	/// <summary>
 	/// Checks if the given path starts with the given old prefix, if it does than it replaces the old prefix
 	/// with the given new prefix. This function is specifically for updating relative and absolute path strings.
@@ -101,18 +103,11 @@ public static class StringExtensions
 	/// <returns>A double-quoted copy of the string, or the original string.</returns>
 	public static string QuoteIfContainsWhitespace(this string text)
 	{
-		if (text.Length > 0)
-		{
-			if (!(text.StartsWith('"') && text.StartsWith('"')) && !(text.StartsWith('#') && text.StartsWith('#')))
-			{
-				if (text.Contains(' ') || text.Contains('\t') || text.Contains('\r') || text.Contains('\n'))
-				{
-					return $"\"{text}\"";
-				}
-			}
-		}
+		var needsQuotes = !text.StartsWith('"')
+			&& !text.StartsWith('#')
+			&& text.IndexOfAny(_whitespaceChars) >= 0;
 
-		return text;
+		return needsQuotes ? $"\"{text}\"" : text;
 	}
 
 	/// <summary>

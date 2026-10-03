@@ -3,19 +3,20 @@ var unloadListenerIds = {};
 
 export function beforeUnloadListener(event) {
 	event.preventDefault();
-	return event.returnValue = "Exit and lose changes?";
+	return (event.returnValue = "Exit and lose changes?");
 }
 
-export function removeUnloadListener () {
+export function removeUnloadListener() {
 	if (unloadListener) {
-		removeEventListener("beforeunload", beforeUnloadListener, { capture: true });
+		removeEventListener("beforeunload", beforeUnloadListener, {
+			capture: true,
+		});
 		unloadListener = false;
 	}
 	unloadListenerIds = {};
 }
 
-export function setUnloadListener (id, changesMade) {
-
+export function setUnloadListener(id, changesMade) {
 	// update dictionary
 	if (changesMade) {
 		unloadListenerIds[id] = true;
@@ -28,9 +29,10 @@ export function setUnloadListener (id, changesMade) {
 	if (listenerCount > 0 && !unloadListener) {
 		addEventListener("beforeunload", beforeUnloadListener, { capture: true });
 		unloadListener = true;
-	}
-	else if (listenerCount === 0 && unloadListener) {
-		removeEventListener("beforeunload", beforeUnloadListener, { capture: true });
+	} else if (listenerCount === 0 && unloadListener) {
+		removeEventListener("beforeunload", beforeUnloadListener, {
+			capture: true,
+		});
 		unloadListener = false;
 	}
 }

@@ -79,13 +79,6 @@
 	flex-shrink: 0;
 }
 
-.pd-widget-body {
-}
-
-.pd-widget-loading,
-.pd-widget-error {
-}
-
 /* Clock */
 .pd-widget-clock-time {
 	font-size: 2rem;

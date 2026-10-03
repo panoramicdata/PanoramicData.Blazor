@@ -1,10 +1,11 @@
 ﻿@page "/pdtoggleswitch"
 
-<DemoSourceView SourceFiles="Pages/PDToggleSwitchPage.razor, Pages/PDToggleSwitchPage.razor.cs, Pages/PDToggleSwitchPage.razor.css">
+<DemoSourceView SourceFiles="Pages/PDToggleSwitchPage.razor, Pages/PDToggleSwitchPage.razor.cs, wwwroot/css/site.css">
 <DocumentationContent>
 <PDToggleSwitchDocumentation />
 </DocumentationContent>
 <ChildContent>
+<div class="pdtoggleswitch-page">
 
 <div>
 		The PDToggleSwitch component is used to display and control a boolean value.<br />
@@ -15,8 +16,8 @@
 
 	<div class="mt-4">
 		<p>Example 1: A basic toggle switch data-bound to a field</p>
-		<PDToggleSwitch @bind-Value="_toggle1" />
-		<p class="mt-3">Value: @_toggle1</p>
+		<PDToggleSwitch @bind-Value="Toggle1" />
+		<p class="mt-3">Value: @Toggle1</p>
 	</div>
 
 	<div>
@@ -82,5 +83,6 @@
 		<PDToggleSwitch OnText="YES" OffText="NO" Rounded="true" TextCssClass="sw-custom-text" />
 	</div>
 
+</div>
 	</ChildContent>
 </DemoSourceView>

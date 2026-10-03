@@ -2,13 +2,13 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDModalDocumentation
 {
-	private PDModal? _modal;
+	protected PDModal? Modal { get; set; }
 
 	private async Task ShowModal()
 	{
-		if (_modal != null)
+		if (Modal != null)
 		{
-			await _modal.ShowAsync().ConfigureAwait(true);
+			await Modal.ShowAsync().ConfigureAwait(true);
 		}
 	}
 

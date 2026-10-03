@@ -69,6 +69,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 		}
 		catch
 		{
+			// the module may already be gone with the circuit, and there is nothing left to release
 		}
 	}
 
@@ -87,7 +88,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 			if (string.IsNullOrWhiteSpace(field.Group))
 			{
 				// create separate group for single field
-				groups.Add(new FieldGroup<TItem>() { Id = $"group-{++index}", Fields = [field] });
+				groups.Add(new FieldGroup<TItem> { Id = $"group-{++index}", Fields = [field] });
 			}
 			else
 			{
@@ -98,7 +99,7 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 				else
 				{
 					// create new group
-					var g = new FieldGroup<TItem>()
+					var g = new FieldGroup<TItem>
 					{
 						Id = $"group-{++index}",
 						Fields = [field]
@@ -191,26 +192,26 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 	/// <param name="field">Field metadata.</param>
 	/// <param name="mode">Optional mode override.</param>
 	/// <returns>True when the field is visible.</returns>
-	public bool IsShown(FormField<TItem> field, FormModes? mode)
+	public bool IsShown(FormField<TItem> field, FormModes? mode) => (mode ?? Form?.Mode) switch
 	{
-		mode ??= Form?.Mode;
-
-		return (mode == FormModes.Create && field.ShowInCreate(Form?.GetItemWithUpdates())) ||
-			((mode == FormModes.Edit || mode == FormModes.ReadOnly) && field.ShowInEdit(Form?.GetItemWithUpdates())) ||
-			(mode == FormModes.Delete && field.ShowInDelete(Form?.GetItemWithUpdates()));
-	}
+		FormModes.Create => field.ShowInCreate(Form?.GetItemWithUpdates()),
+		FormModes.Edit or FormModes.ReadOnly => field.ShowInEdit(Form?.GetItemWithUpdates()),
+		FormModes.Delete => field.ShowInDelete(Form?.GetItemWithUpdates()),
+		_ => false
+	};
 
 	/// <summary>
 	/// Determines whether a field is read-only for the current form mode.
 	/// </summary>
 	/// <param name="field">Field metadata.</param>
 	/// <returns>True when the field is read-only.</returns>
-	public bool IsReadOnly(FormField<TItem> field) =>
-		(Form?.Mode == FormModes.Create && field.ReadOnlyInCreate(Form?.GetItemWithUpdates())) ||
-		(Form?.Mode == FormModes.Edit && field.ReadOnlyInEdit(Form?.GetItemWithUpdates())) ||
-		Form?.Mode == FormModes.Delete ||
-		Form?.Mode == FormModes.Cancel ||
-		Form?.Mode == FormModes.ReadOnly;
+	public bool IsReadOnly(FormField<TItem> field) => Form?.Mode switch
+	{
+		FormModes.Create => field.ReadOnlyInCreate(Form.GetItemWithUpdates()),
+		FormModes.Edit => field.ReadOnlyInEdit(Form.GetItemWithUpdates()),
+		FormModes.Delete or FormModes.Cancel or FormModes.ReadOnly => true,
+		_ => false
+	};
 
 	/// <summary>
 	/// Gets editor CSS class values based on field validation state.
@@ -221,22 +222,17 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 
 	private async Task OnHelperClick(FormField<TItem> field)
 	{
-		if (field != null && Form != null && (field?.Helper?.Click != null || field?.Helper?.ClickAsync != null))
+		if (Form is null || field?.Helper is not { } helper)
 		{
-			FormFieldResult result = new() { Canceled = true };
-			if (field.Helper?.Click != null)
-			{
-				result = field.Helper.Click(field);
-			}
-			else if (field.Helper?.ClickAsync != null)
-			{
-				result = await field.Helper.ClickAsync(field).ConfigureAwait(true);
-			}
+			return;
+		}
 
-			if (!result.Canceled && result.NewValue != null)
-			{
-				await Form.SetFieldValueAsync(field, result.NewValue).ConfigureAwait(true);
-			}
+		var result = helper.Click is not null
+			? helper.Click(field)
+			: helper.ClickAsync is not null ? await helper.ClickAsync(field).ConfigureAwait(true) : null;
+		if (result is { Canceled: false, NewValue: not null })
+		{
+			await Form.SetFieldValueAsync(field, result.NewValue).ConfigureAwait(true);
 		}
 	}
 
@@ -250,23 +246,18 @@ public partial class PDFormBody<TItem> : IAsyncDisposable where TItem : class
 
 	private string GetValidationCssClass(FormField<TItem> field)
 	{
-		var fieldName = field.GetName();
 		if (IsReadOnly(field) || !field.ShowValidationResult)
 		{
 			return string.Empty;
 		}
-		else if (fieldName != null && !field.SuppressErrors && Form?.Errors?.ContainsKey(fieldName) == true)
-		{
-			return "alert-danger";
-		}
-		else if (fieldName != null && field.SuppressErrors && Form?.Errors?.ContainsKey(fieldName) == true)
-		{
-			return "alert-warning";
-		}
-		else
+
+		var fieldName = field.GetName();
+		if (fieldName is null || Form?.Errors?.ContainsKey(fieldName) != true)
 		{
 			return "alert-success";
 		}
+
+		return field.SuppressErrors ? "alert-warning" : "alert-danger";
 	}
 
 	private string GetValidationCssClass(IEnumerable<FormField<TItem>> fields)

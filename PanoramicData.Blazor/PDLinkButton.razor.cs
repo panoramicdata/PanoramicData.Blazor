@@ -6,7 +6,16 @@
 public partial class PDLinkButton : IAsyncDisposable, IEnablable
 {
 	private static int _sequence;
+	private readonly EventHandler<KeyboardInfo> _keyUpHandler;
 	private IJSObjectReference? _commonModule;
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="PDLinkButton"/> class.
+	/// </summary>
+	public PDLinkButton()
+	{
+		_keyUpHandler = async (_, e) => await OnGlobalKeyUpAsync(e).ConfigureAwait(true);
+	}
 
 	#region Inject
 	[Inject] private IGlobalEventService GlobalEventService { get; set; } = null!;
@@ -109,7 +118,7 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 				GlobalEventService.UnregisterShortcutKey(ShortcutKey);
 			}
 
-			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
+			GlobalEventService.KeyUpEvent -= _keyUpHandler;
 			if (_commonModule != null)
 			{
 				await _commonModule.DisposeAsync().ConfigureAwait(true);
@@ -117,6 +126,7 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 		}
 		catch
 		{
+			// BC-40 - the circuit may already be gone, in which case there is no JavaScript side left to tear down
 		}
 	}
 
@@ -125,7 +135,7 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 	/// </summary>
 	protected override void OnInitialized()
 	{
-		GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
+		GlobalEventService.KeyUpEvent += _keyUpHandler;
 		if (ShortcutKey.HasValue)
 		{
 			GlobalEventService.RegisterShortcutKey(ShortcutKey);
@@ -153,7 +163,7 @@ public partial class PDLinkButton : IAsyncDisposable, IEnablable
 		}
 	}
 
-	private async void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e)
+	private async Task OnGlobalKeyUpAsync(KeyboardInfo e)
 	{
 		if (ShortcutKey.HasValue && ShortcutKey.IsMatch(e.Key, e.Code, e.AltKey, e.CtrlKey, e.ShiftKey))
 		{

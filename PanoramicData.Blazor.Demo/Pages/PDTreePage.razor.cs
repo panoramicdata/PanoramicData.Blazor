@@ -4,19 +4,19 @@ public partial class PDTreePage
 {
 	private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 	private FileExplorerItem? _selectedEntry;
-	private bool _cancelSelection;
+	protected bool CancelSelection { get; set; }
 
-	private bool ShowLines { get; set; }
+	protected bool ShowLines { get; set; }
 
 	private bool ShowRoot { get; set; } = true;
 
-	private PDTree<FileExplorerItem>? Tree { get; set; }
+	protected PDTree<FileExplorerItem>? Tree { get; set; }
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	private void OnBeforeSelectionChanged(TreeBeforeSelectionChangeEventArgs<FileExplorerItem> args)
 	{
-		if (_cancelSelection)
+		if (CancelSelection)
 		{
 			args.Cancel = true;
 			return;

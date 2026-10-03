@@ -1,4 +1,4 @@
-# -----------------------------------------------------------------------------
+﻿# -----------------------------------------------------------------------------
 # PowerShell Script for Blazor Component Documentation
 # -----------------------------------------------------------------------------
 #
@@ -22,6 +22,25 @@
 #
 # -----------------------------------------------------------------------------
 
+# Shows a message to the user, in colour when one is given. The message goes through the information
+# stream rather than straight to the host, so it can also be captured or redirected (stream 6).
+function Write-Status {
+    param(
+        [Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [string]$Message,
+
+        [System.ConsoleColor]$ForegroundColor
+    )
+
+    $hostMessage = [System.Management.Automation.HostInformationMessage]@{ Message = $Message }
+    if ($PSBoundParameters.ContainsKey('ForegroundColor')) {
+        $hostMessage.ForegroundColor = $ForegroundColor
+    }
+
+    Write-Information -MessageData $hostMessage -InformationAction Continue
+}
+
 # --- Configuration ---
 # Automatically detect the project root (script location)
 $projectRoot = $PSScriptRoot
@@ -29,15 +48,15 @@ if ([string]::IsNullOrWhiteSpace($projectRoot)) {
     $projectRoot = Get-Location
 }
 
-Write-Host "Project Root: $projectRoot" -ForegroundColor Cyan
+Write-Status -Message "Project Root: $projectRoot" -ForegroundColor Cyan
 
 $componentPath = Join-Path $projectRoot "PanoramicData.Blazor"
 $outputFile = Join-Path $projectRoot "ComponentDocumentation.md"
 
 # Validate paths
 if (-not (Test-Path $componentPath)) {
-    Write-Host "Error: Component path not found: $componentPath" -ForegroundColor Red
-    Write-Host "Please run this script from the project root directory." -ForegroundColor Yellow
+    Write-Status -Message "Error: Component path not found: $componentPath" -ForegroundColor Red
+    Write-Status -Message "Please run this script from the project root directory." -ForegroundColor Yellow
     exit 1
 }
 
@@ -57,7 +76,7 @@ Add-Content -Path $tempOutputFile -Value ""
 # Find all .razor files for the components
 $razorFiles = Get-ChildItem -Path $componentPath -Filter "PD*.razor"
 
-Write-Host "Found $($razorFiles.Count) components. Generating documentation..."
+Write-Status -Message "Found $($razorFiles.Count) components. Generating documentation..."
 
 foreach ($razorFile in $razorFiles) {
     $componentName = $razorFile.BaseName
@@ -163,7 +182,7 @@ foreach ($razorFile in $razorFiles) {
     Add-Content -Path $tempOutputFile -Value ""
 }
 
-Write-Host "Documentation generation complete."
+Write-Status -Message "Documentation generation complete."
 
 # --- Git Commit Logic ---
 
@@ -180,19 +199,19 @@ if ($isDifferent) {
     # Replace the old file with the new one
     Move-Item -Path $tempOutputFile -Destination $outputFile -Force
     
-    Write-Host "ComponentDocumentation.md has been updated."
+    Write-Status -Message "ComponentDocumentation.md has been updated."
     $confirmation = Read-Host "Do you want to commit the changes? (y/n)"
 
     if ($confirmation -eq 'y') {
-        Write-Host "Staging and committing changes..."
+        Write-Status -Message "Staging and committing changes..."
         git add $outputFile
         git commit -m "docs: Update component documentation"
-        Write-Host "Changes have been committed."
+        Write-Status -Message "Changes have been committed."
     } else {
-        Write-Host "Changes were not committed."
+        Write-Status -Message "Changes were not committed."
     }
 } else {
     # Clean up the temporary file
     Remove-Item -Path $tempOutputFile
-    Write-Host "No changes detected in ComponentDocumentation.md."
+    Write-Status -Message "No changes detected in ComponentDocumentation.md."
 }

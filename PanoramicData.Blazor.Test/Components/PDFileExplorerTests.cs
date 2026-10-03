@@ -85,7 +85,7 @@ public partial class PDFileExplorerTests : BunitContext
 		{
 			var path = paths[i];
 			var ctrl = i > 0;
-			await table.InvokeAsync(() => table.Instance.SelectItemAsync(path, ctrlKey: ctrl));
+			await table.InvokeAsync(() => table.Instance.SelectItemAsync(path, false, ctrl));
 		}
 	}
 

@@ -10,11 +10,6 @@ namespace PanoramicData.Blazor;
 public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 {
 	/// <summary>
-	/// A unique sequence number for each instance of this component.`
-	/// </summary>
-	private static int _sequence;
-
-	/// <summary>
 	/// Holds a list of destination deck IDs that are part of the current card migration process (this is for UI only).
 	/// </summary>
 	private readonly List<string> _destinations = [];
@@ -25,14 +20,19 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	private PDCardDeck<TCard> _sourceDeck = null!;
 
 	/// <summary>
-	/// Reference to the loading icon that is displayed when the data is being loaded for the decks in this group.
+	/// Gets or sets the loading icon displayed while the decks in this group load; set by the markup's <c>@ref</c>.
 	/// </summary>
-	private PDCardDeckLoadingIcon _loadingIcon = new();
+	internal PDCardDeckLoadingIcon? LoadingIcon { get; set; }
 
 	/// <summary>
 	/// Holds references to the decks that are part of this group
 	/// </summary>
 	private readonly List<PDCardDeck<TCard>> _decks = [];
+
+	/// <summary>
+	/// Gets the decks registered as children of this group.
+	/// </summary>
+	internal IReadOnlyList<PDCardDeck<TCard>> Decks => _decks;
 
 
 	/// <summary>
@@ -47,7 +47,7 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	/// Unique identifier for this card deck group.
 	/// </summary>
 	[Parameter]
-	public override string Id { get; set; } = $"pd-carddeckgroup-{++_sequence}";
+	public override string Id { get; set; } = PDCardDeckIdSequence.NextGroupId();
 
 	/// <summary>
 	/// Data Provider for this Card Deck Group.
@@ -244,33 +244,19 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	/// <returns></returns>
 	public bool AllDataLoaded()
 	{
-		if (_decks.Count == 0)
+		if (_decks.Count > 0 && _decks.All(deck => deck.DataLoaded))
 		{
-			// Show the Blocker overlay only when the icon is active, to avoid flickering.
-			if (_loadingIcon.IsActive)
-			{
-				BlockOverlayService.Show();
-			}
-
-			return false;
+			BlockOverlayService.Hide();
+			return true;
 		}
 
-		foreach (var deck in _decks)
+		// Show the Blocker overlay only when the icon is active, to avoid flickering.
+		if (LoadingIcon?.IsActive == true)
 		{
-			if (!deck.DataLoaded)
-			{
-				// Show the Blocker overlay only when the icon is active, to avoid flickering.
-				if (_loadingIcon.IsActive)
-				{
-					BlockOverlayService.Show();
-				}
-
-				return false;
-			}
+			BlockOverlayService.Show();
 		}
 
-		BlockOverlayService.Hide();
-		return true;
+		return false;
 	}
 
 	/// <summary>
@@ -297,7 +283,7 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	/// <param name="deck"></param>
 	internal void RegisterDeckAsChild(PDCardDeck<TCard> deck)
 	{
-		if (deck == null || _destinations.Contains(deck.Id))
+		if (_destinations.Contains(deck.Id))
 		{
 			return;
 		}
@@ -336,7 +322,7 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	/// <inheritdoc />
 	public void Dispose()
 	{
-		_loadingIcon?.Dispose();
+		LoadingIcon?.Dispose();
 		GC.SuppressFinalize(this);
 	}
 }

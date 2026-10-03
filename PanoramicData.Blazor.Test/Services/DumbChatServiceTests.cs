@@ -188,6 +188,28 @@ public sealed class DumbChatServiceTests : IDisposable
 		_service.EnsureConversation(Guid.NewGuid()).Should().BeTrue();
 	}
 
+	/// <summary>
+	/// The periodic time check is ambient: it comes from <see cref="DumbChatService.TimeBot"/> and lands in whichever
+	/// conversation is active, announced like any other message.
+	/// </summary>
+	[Fact]
+	public void SendTimeCheck_DeliversToTheActiveConversation()
+	{
+		var conversation = _service.CreateConversation();
+		_service.ActiveConversationId = conversation;
+		var received = new List<ChatMessage>();
+		_service.OnMessageReceived += received.Add;
+
+		_service.SendTimeCheck();
+
+		var message = received.Should().ContainSingle().Subject;
+		message.Sender.Should().BeSameAs(DumbChatService.TimeBot);
+		message.Title.Should().Be("Time Check");
+		message.Message.Should().StartWith("The current time is ");
+		_service.GetMessages(conversation).Should().ContainSingle().Which.Should().BeSameAs(message);
+		_service.GetMessages(ChatConversation.ImplicitConversationId).Should().BeEmpty();
+	}
+
 	/// <summary>The bot senders are named, non-human and not the user.</summary>
 	[Fact]
 	public void Bots_AreNonHumanSenders()

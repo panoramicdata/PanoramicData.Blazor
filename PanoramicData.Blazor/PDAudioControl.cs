@@ -219,7 +219,6 @@ public abstract class PDAudioControl : ComponentBase, IAsyncDisposable
 
 		return rawStep switch
 		{
-			<= 1 => 1,
 			<= 2 => 2,
 			<= 5 => 5,
 			<= 10 => 10,

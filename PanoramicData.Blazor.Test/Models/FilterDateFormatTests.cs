@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace PanoramicData.Blazor.Test.Models;
 
-/// <summary>Tests for the date formats recognised by <see cref="Filter.IsDateTime(string?, out DateTime, out string, out DatePrecision)"/>.</summary>
+/// <summary>Tests for the date formats recognised by <see cref="Filter.ParseDateTime(string?)"/>.</summary>
 public class FilterDateFormatTests
 {
 	/// <summary>
@@ -61,30 +61,31 @@ public class FilterDateFormatTests
 	[InlineData("05/15/2024 09:30:15.123 +02:00", "MM'/'dd'/'yyyy HH:mm:ss.fff zzz", DatePrecision.Millisecond, "2024-05-15T09:30:15.123", 120)]
 	[InlineData("05/15/2024 09:30:15.123 Z", "MM'/'dd'/'yyyy HH:mm:ss.fff K", DatePrecision.Millisecond, "2024-05-15T09:30:15.123", 0)]
 	[InlineData("\"2024-05-15\"", "yyyy'-'MM'-'dd", DatePrecision.Day, "2024-05-15T00:00:00.000", null)]
-	public void IsDateTime_PreviouslyAcceptedStrings_ParseAsBefore(string input, string expectedFormat, DatePrecision expectedPrecision, string expectedWallClock, int? offsetMinutes)
+	public void ParseDateTime_PreviouslyAcceptedStrings_ParseAsBefore(string input, string expectedFormat, DatePrecision expectedPrecision, string expectedWallClock, int? offsetMinutes)
 	{
-		var result = Filter.IsDateTime(input, out var dateTime, out var format, out var precision);
+		var parsed = Filter.ParseDateTime(input);
 
-		result.Should().BeTrue();
-		format.Should().Be(expectedFormat);
-		precision.Should().Be(expectedPrecision);
-		dateTime.Should().Be(Expected(expectedWallClock, offsetMinutes));
-		dateTime.Kind.Should().Be(offsetMinutes is null ? DateTimeKind.Unspecified : DateTimeKind.Local);
+		parsed.Should().NotBeNull();
+		parsed!.Format.Should().Be(expectedFormat);
+		parsed.Precision.Should().Be(expectedPrecision);
+		parsed.Value.Should().Be(Expected(expectedWallClock, offsetMinutes));
+		parsed.Value.Kind.Should().Be(offsetMinutes is null ? DateTimeKind.Unspecified : DateTimeKind.Local);
 	}
 
 	/// <summary>The ISO 8601 form ending in Z is read as UTC and converted to the machine's local time.</summary>
 	[Fact]
-	public void IsDateTime_IsoEndingInZ_ParsesAsUtcConvertedToLocal()
+	public void ParseDateTime_IsoEndingInZ_ParsesAsUtcConvertedToLocal()
 	{
-		Filter.IsDateTime("2024-05-15T09:30:15Z", out var dateTime, out var format, out var precision).Should().BeTrue();
+		var parsed = Filter.ParseDateTime("2024-05-15T09:30:15Z");
 
-		format.Should().Be("yyyy-MM-ddTHH:mm:ssZ");
-		precision.Should().Be(DatePrecision.Second);
-		dateTime.Should().Be(Expected("2024-05-15T09:30:15.000", 0));
-		dateTime.Kind.Should().Be(DateTimeKind.Local);
+		parsed.Should().NotBeNull();
+		parsed!.Format.Should().Be("yyyy-MM-ddTHH:mm:ssZ");
+		parsed.Precision.Should().Be(DatePrecision.Second);
+		parsed.Value.Should().Be(Expected("2024-05-15T09:30:15.000", 0));
+		parsed.Value.Kind.Should().Be(DateTimeKind.Local);
 	}
 
-	/// <summary>Strings that are not dates, including plain numbers, are still rejected by the default overload.</summary>
+	/// <summary>Strings that are not dates, including plain numbers, are still rejected.</summary>
 	/// <param name="input">A value that must not be taken for a date.</param>
 	[Theory]
 	[InlineData("2026")]
@@ -93,12 +94,9 @@ public class FilterDateFormatTests
 	[InlineData("not a date")]
 	[InlineData("")]
 	[InlineData("31/02/2024")]
-	public void IsDateTime_NonDates_AreRejected(string input)
+	public void ParseDateTime_NonDates_AreRejected(string input)
 	{
-		Filter.IsDateTime(input, out var dateTime, out var format, out _).Should().BeFalse();
-
-		dateTime.Should().Be(DateTime.MinValue);
-		format.Should().BeEmpty();
+		Filter.ParseDateTime(input).Should().BeNull();
 	}
 
 	/// <summary>A US-style date without a time zone parses as month, day, year (#197).</summary>
@@ -113,24 +111,26 @@ public class FilterDateFormatTests
 	[InlineData("03/14/2026 09:30:15", "MM'/'dd'/'yyyy HH:mm:ss", DatePrecision.Second, "2026-03-14T09:30:15.000")]
 	[InlineData("03/14/2026 09:30.123", "MM'/'dd'/'yyyy HH:m.fff", DatePrecision.Millisecond, "2026-03-14T09:30:00.123")]
 	[InlineData("03/14/2026 09:30:15.123", "MM'/'dd'/'yyyy HH:mm:ss.fff", DatePrecision.Millisecond, "2026-03-14T09:30:15.123")]
-	public void IsDateTime_UsDateWithoutTimeZone_Parses(string input, string expectedFormat, DatePrecision expectedPrecision, string expectedWallClock)
+	public void ParseDateTime_UsDateWithoutTimeZone_Parses(string input, string expectedFormat, DatePrecision expectedPrecision, string expectedWallClock)
 	{
-		Filter.IsDateTime(input, out var dateTime, out var format, out var precision).Should().BeTrue();
+		var parsed = Filter.ParseDateTime(input);
 
-		format.Should().Be(expectedFormat);
-		precision.Should().Be(expectedPrecision);
-		dateTime.Should().Be(Expected(expectedWallClock, null));
+		parsed.Should().NotBeNull();
+		parsed!.Format.Should().Be(expectedFormat);
+		parsed.Precision.Should().Be(expectedPrecision);
+		parsed.Value.Should().Be(Expected(expectedWallClock, null));
 	}
 
 	/// <summary>A date with only an hour is detected at hour precision (#197).</summary>
 	[Fact]
-	public void IsDateTime_DateAndHour_HasHourPrecision()
+	public void ParseDateTime_DateAndHour_HasHourPrecision()
 	{
-		Filter.IsDateTime("2026-03-14 09", out var dateTime, out var format, out var precision).Should().BeTrue();
+		var parsed = Filter.ParseDateTime("2026-03-14 09");
 
-		format.Should().Be("yyyy'-'MM'-'dd HH");
-		precision.Should().Be(DatePrecision.Hour);
-		dateTime.Should().Be(new DateTime(2026, 3, 14, 9, 0, 0, DateTimeKind.Unspecified));
+		parsed.Should().NotBeNull();
+		parsed!.Format.Should().Be("yyyy'-'MM'-'dd HH");
+		parsed.Precision.Should().Be(DatePrecision.Hour);
+		parsed.Value.Should().Be(new DateTime(2026, 3, 14, 9, 0, 0, DateTimeKind.Unspecified));
 	}
 
 	/// <summary>A year, or a year and month, is recognised only when asked for, at year or month precision (#197).</summary>
@@ -159,12 +159,13 @@ public class FilterDateFormatTests
 	{
 		foreach (var input in new[] { "2024-05-15", "15/05/2024 09:30", "2024-05-15 09:30:15 +02:00", "03/14/2026", "2024-05-15T09:30:15Z", "2026-03-14 09" })
 		{
-			Filter.IsDateTime(input, out var expected, out var expectedFormat, out var expectedPrecision).Should().BeTrue();
+			var expected = Filter.ParseDateTime(input);
 			Filter.IsDateTime(input, true, out var actual, out var format, out var precision).Should().BeTrue();
 
-			actual.Should().Be(expected);
-			format.Should().Be(expectedFormat);
-			precision.Should().Be(expectedPrecision);
+			expected.Should().NotBeNull();
+			actual.Should().Be(expected!.Value);
+			format.Should().Be(expected.Format);
+			precision.Should().Be(expected.Precision);
 		}
 	}
 

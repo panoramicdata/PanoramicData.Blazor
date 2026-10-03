@@ -41,10 +41,44 @@ public static class ColumnGroupHelper
 		ArgumentNullException.ThrowIfNull(registeredGroups);
 		ArgumentNullException.ThrowIfNull(listableColumnGroupNames);
 
-		// Count columns per group and remember the order in which each group was first seen.
+		var (counts, firstSeen) = CountGroups(listableColumnGroupNames);
+
+		// Registered groups first, de-duplicated by name (keeping the first registration) and ordered by
+		// ordinal (OrderBy is stable, preserving registration order).
+		var pills = registeredGroups
+			.Where(g => !string.IsNullOrEmpty(g.Name))
+			.GroupBy(g => g.Name, StringComparer.Ordinal)
+			.Select(g => g.First())
+			.OrderBy(g => g.Ordinal)
+			.Select(context => new ColumnGroupPill
+			{
+				Name = context.Name,
+				Icon = context.Icon,
+				Description = context.Description,
+				Count = counts.GetValueOrDefault(context.Name)
+			})
+			.ToList();
+
+		// Then any groups referenced only by a bare Group="..." string (no PDColumnGroup metadata).
+		var seen = new HashSet<string>(pills.Select(p => p.Name), StringComparer.Ordinal);
+		foreach (var name in firstSeen.Where(seen.Add))
+		{
+			pills.Add(new ColumnGroupPill { Name = name, Count = counts[name] });
+		}
+
+		return pills;
+	}
+
+	/// <summary>
+	/// Counts the columns in each group and records the order in which the groups were first seen.
+	/// </summary>
+	/// <param name="columnGroupNames">The group name of every column; null/empty names are ignored.</param>
+	/// <returns>The number of columns in each group, and the distinct group names in first-seen order.</returns>
+	private static (Dictionary<string, int> Counts, List<string> FirstSeen) CountGroups(IEnumerable<string?> columnGroupNames)
+	{
 		var counts = new Dictionary<string, int>(StringComparer.Ordinal);
 		var firstSeen = new List<string>();
-		foreach (var name in listableColumnGroupNames)
+		foreach (var name in columnGroupNames)
 		{
 			if (string.IsNullOrEmpty(name))
 			{
@@ -62,42 +96,6 @@ public static class ColumnGroupHelper
 			}
 		}
 
-		// De-duplicate registered groups by name, keeping the first registration.
-		var registered = registeredGroups
-			.Where(g => !string.IsNullOrEmpty(g.Name))
-			.GroupBy(g => g.Name, StringComparer.Ordinal)
-			.Select(g => g.First())
-			.ToList();
-
-		var pills = new List<ColumnGroupPill>();
-		var seen = new HashSet<string>(StringComparer.Ordinal);
-
-		// Registered groups first, ordered by ordinal (OrderBy is stable, preserving registration order).
-		foreach (var context in registered.OrderBy(g => g.Ordinal))
-		{
-			if (!seen.Add(context.Name))
-			{
-				continue;
-			}
-
-			pills.Add(new ColumnGroupPill
-			{
-				Name = context.Name,
-				Icon = context.Icon,
-				Description = context.Description,
-				Count = counts.TryGetValue(context.Name, out var count) ? count : 0
-			});
-		}
-
-		// Then any groups referenced only by a bare Group="..." string (no PDColumnGroup metadata).
-		foreach (var name in firstSeen)
-		{
-			if (seen.Add(name))
-			{
-				pills.Add(new ColumnGroupPill { Name = name, Count = counts[name] });
-			}
-		}
-
-		return pills;
+		return (counts, firstSeen);
 	}
 }

@@ -93,16 +93,9 @@ public class MethodCache
 		public string ToString(MethodCacheOptions options)
 		{
 			var signature = new StringBuilder();
-			if (options.HideDataTypes)
+			if (!options.HideDataTypes)
 			{
-			}
-			else if (ReturnType is null)
-			{
-				signature.Append("void ");
-			}
-			else
-			{
-				signature.Append(options.TypeNameFn(ReturnType)).Append(' ');
+				signature.Append(ReturnType is null ? "void" : options.TypeNameFn(ReturnType)).Append(' ');
 			}
 
 			if (options.IncludeMethodTypeName)
@@ -229,14 +222,33 @@ public class MethodCache
 	}
 
 	/// <summary>
+	/// Reflects over the public methods of the given type and adds them to the cache under the specified language.
+	/// </summary>
+	/// <param name="language">The language identifier.</param>
+	/// <param name="type">The CLR type whose methods are to be cached.</param>
+	/// <returns>The number of methods added.</returns>
+	public int AddTypeMethods(string language, Type type)
+		=> AddTypeMethods(language, type, null, null);
+
+	/// <summary>
+	/// Reflects over the methods of the given type and adds them to the cache under the specified language.
+	/// </summary>
+	/// <param name="language">The language identifier.</param>
+	/// <param name="type">The CLR type whose methods are to be cached.</param>
+	/// <param name="flags">Optional binding flags to filter methods; defaults to all public methods.</param>
+	/// <returns>The number of methods added.</returns>
+	public int AddTypeMethods(string language, Type type, BindingFlags? flags)
+		=> AddTypeMethods(language, type, flags, null);
+
+	/// <summary>
 	/// Reflects over the methods of the given type and adds them to the cache under the specified language, optionally enriching descriptions via a provider.
 	/// </summary>
 	/// <param name="language">The language identifier.</param>
 	/// <param name="type">The CLR type whose methods are to be cached.</param>
-	/// <param name="flags">Optional binding flags to filter methods; defaults to all public instance methods.</param>
+	/// <param name="flags">Optional binding flags to filter methods; defaults to all public methods.</param>
 	/// <param name="descriptionProvider">Optional provider that adds descriptions to the discovered methods.</param>
 	/// <returns>The number of methods added.</returns>
-	public int AddTypeMethods(string language, Type type, BindingFlags? flags = null, IDescriptionProvider? descriptionProvider = null)
+	public int AddTypeMethods(string language, Type type, BindingFlags? flags, IDescriptionProvider? descriptionProvider)
 	{
 		var count = 0;
 
@@ -282,13 +294,22 @@ public class MethodCache
 	}
 
 	/// <summary>
+	/// Adds all public static methods from the given type to the cache.
+	/// </summary>
+	/// <param name="language">The language identifier.</param>
+	/// <param name="type">The CLR type whose public static methods are to be cached.</param>
+	/// <returns>The number of methods added.</returns>
+	public int AddPublicStaticTypeMethods(string language, Type type)
+		=> AddPublicStaticTypeMethods(language, type, null);
+
+	/// <summary>
 	/// Adds all public static methods from the given type to the cache, optionally enriching them with descriptions.
 	/// </summary>
 	/// <param name="language">The language identifier.</param>
 	/// <param name="type">The CLR type whose public static methods are to be cached.</param>
 	/// <param name="descriptionProvider">Optional provider that adds descriptions to the discovered methods.</param>
 	/// <returns>The number of methods added.</returns>
-	public int AddPublicStaticTypeMethods(string language, Type type, IDescriptionProvider? descriptionProvider = null)
+	public int AddPublicStaticTypeMethods(string language, Type type, IDescriptionProvider? descriptionProvider)
 		=> AddTypeMethods(language, type, BindingFlags.Public | BindingFlags.Static, descriptionProvider);
 
 	/// <summary>Removes all cached entries for all languages.</summary>
@@ -330,68 +351,58 @@ public class MethodCache
 	public IEnumerable<CompletionItem> GetCompletionItems(string language, string functionName)
 	{
 		var items = new List<CompletionItem>();
-		if (_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
+		if (!_languageDict.TryGetValue(language, out MethodDictionary? methodDict))
 		{
-			var functions = new HashSet<string>();
+			return items;
+		}
 
-			// iterate over each method
-			foreach (var kvp in methodDict)
+		// iterate over each method, describing it by its first overload
+		foreach (var (name, overloads) in methodDict.Where(x => x.Value.Count > 0))
+		{
+			var method = overloads[0];
+			items.Add(GetMethodCompletionItem(method, overloads.Count));
+
+			// add parameters?
+			if (!string.IsNullOrWhiteSpace(functionName) && functionName == name)
 			{
-				if (!functions.Contains(kvp.Key) && kvp.Value.FirstOrDefault() is Method method)
+				items.AddRange(method.Parameters.Select(p => new CompletionItem
 				{
-					// build signature from first overload
-					var documentation = new StringBuilder();
-					documentation.Append(method.ToString(Options));
-					var signature = documentation.ToString();
-
-					// overloads?
-					if (kvp.Value.Count > 1)
-					{
-						documentation.AppendLine().AppendLine();
-						documentation.Append("(+").Append(kvp.Value.Count - 1).Append(" overloads)");
-					}
-
-					if (!string.IsNullOrWhiteSpace(method.Description))
-					{
-						documentation.AppendLine().AppendLine();
-						documentation.AppendLine(method.Description);
-					}
-
-					items.Add(new CompletionItem
-					{
-						LabelAsString = method.MethodName,
-						DocumentationAsString = documentation.ToString(),
-						Kind = CompletionItemKind.Function,
-						InsertText = method.MethodName
-					});
-
-					functions.Add(kvp.Key);
-
-					// add parameters?
-					if (!string.IsNullOrWhiteSpace(functionName) && functionName == kvp.Key)
-					{
-						if (kvp.Value.Count == 0)
-						{
-							// Todo: fetch parameters?
-						}
-
-						var m = kvp.Value.First();
-						foreach (var p in m.Parameters)
-						{
-							items.Add(new CompletionItem
-							{
-								LabelAsString = p.Name,
-								DocumentationAsString = p.Description,
-								Kind = CompletionItemKind.Property,
-								InsertText = p.Name
-							});
-						}
-					}
-				}
+					LabelAsString = p.Name,
+					DocumentationAsString = p.Description,
+					Kind = CompletionItemKind.Property,
+					InsertText = p.Name
+				}));
 			}
 		}
 
 		return items;
+	}
+
+	private CompletionItem GetMethodCompletionItem(Method method, int overloadCount)
+	{
+		var documentation = new StringBuilder();
+		documentation.Append(method.ToString(Options));
+
+		// overloads?
+		if (overloadCount > 1)
+		{
+			documentation.AppendLine().AppendLine();
+			documentation.Append("(+").Append(overloadCount - 1).Append(" overloads)");
+		}
+
+		if (!string.IsNullOrWhiteSpace(method.Description))
+		{
+			documentation.AppendLine().AppendLine();
+			documentation.AppendLine(method.Description);
+		}
+
+		return new CompletionItem
+		{
+			LabelAsString = method.MethodName,
+			DocumentationAsString = documentation.ToString(),
+			Kind = CompletionItemKind.Function,
+			InsertText = method.MethodName
+		};
 	}
 
 	/// <summary>

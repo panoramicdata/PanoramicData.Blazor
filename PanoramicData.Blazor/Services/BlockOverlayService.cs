@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor.Services;
+﻿using System;
+
+namespace PanoramicData.Blazor.Services;
 
 /// <summary>
 /// See IBlockOverlayService for description.

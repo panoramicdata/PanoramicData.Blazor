@@ -5,11 +5,11 @@ public partial class PDCheckboxTreePage
 	private readonly IDataProviderService<FileExplorerItem> _dataProvider = new TestFileSystemDataProvider();
 	private readonly IDataProviderService<FileExplorerItem> _folderProvider = new FoldersOnlyDataProvider(new TestFileSystemDataProvider());
 
-	private bool _showLines = true;
-	private bool _showRoot = true;
+	protected bool ShowLines { get; set; } = true;
+	protected bool ShowRoot { get; set; } = true;
 
 	private List<string> _checkedKeys = [];
-	private List<string> _checkedFolders = [];
+	protected List<string> CheckedFolders { get; set; } = [];
 
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
@@ -19,13 +19,12 @@ public partial class PDCheckboxTreePage
 		EventManager?.Add(new Event("CheckedKeysChanged", new EventArgument("Count", keys.Count), new EventArgument("Keys", string.Join(", ", keys))));
 	}
 
-	private static string GetIconCssClass(FileExplorerItem item, int _)
-		=> item.EntryType == FileExplorerItemType.Directory
-			? "fas fa-fw fa-folder text-warning me-1"
-			: "far fa-fw fa-file text-secondary me-1";
+	private const string _folderIconCssClass = "fas fa-fw fa-folder text-warning me-1";
 
-	private static string GetFolderIconCssClass(FileExplorerItem item, int _)
-		=> "fas fa-fw fa-folder text-warning me-1";
+	private static string GetIconCssClass(FileExplorerItem item)
+		=> item.EntryType == FileExplorerItemType.Directory
+			? _folderIconCssClass
+			: "far fa-fw fa-file text-secondary me-1";
 
 	private static int OnSort(FileExplorerItem a, FileExplorerItem b)
 	{
@@ -40,7 +39,7 @@ public partial class PDCheckboxTreePage
 	/// Checking a folder implies its whole subtree, so descendants of a checked folder are disabled.
 	/// </summary>
 	private bool IsUnderCheckedFolder(FileExplorerItem item)
-		=> _checkedFolders.Exists(checkedPath =>
+		=> CheckedFolders.Exists(checkedPath =>
 			item.Path != checkedPath &&
 			item.Path.StartsWith(checkedPath.TrimEnd('/') + "/", StringComparison.OrdinalIgnoreCase));
 

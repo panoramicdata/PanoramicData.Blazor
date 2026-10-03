@@ -2,14 +2,14 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDConfirmDocumentation
 {
-	private PDConfirm? _confirm;
+	protected PDConfirm? Confirm { get; set; }
 	private string _result = "(none)";
 
 	private async Task ShowConfirm()
 	{
-		if (_confirm != null)
+		if (Confirm != null)
 		{
-			await _confirm.ShowAsync().ConfigureAwait(true);
+			await Confirm.ShowAsync().ConfigureAwait(true);
 			_result = "Dialog shown";
 		}
 	}

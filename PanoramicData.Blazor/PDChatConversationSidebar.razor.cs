@@ -184,7 +184,7 @@ public partial class PDChatConversationSidebar : ComponentBase, IDisposable
 		}
 		catch (OperationCanceledException)
 		{
-			return;
+			// Superseded by a newer search, which owns the list and the loading state from here on.
 		}
 #pragma warning disable CA1031 // The component cannot know what a host's store throws, and must not take
 		// the chat down with it - the transcript beside this stays usable whatever happens here.

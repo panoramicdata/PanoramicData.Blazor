@@ -3,175 +3,175 @@ namespace PanoramicData.Blazor.Demo.Pages;
 public partial class PDMixingDeskPage
 {
 	// Basic Mixing Desk section - ALL controls
-	private double _basic1Fader = 0.8;
-	private double _basic1Gain = 0.6;
-	private double _basic1Comp = 0.5;
-	private double _basic1EqHigh = 0.5;
-	private double _basic1EqMid = 0.5;
-	private double _basic1EqLow = 0.5;
-	private double _basic1Dsp = 0.5;
-	private double _basic1Pan = 0.5;
-	private double _basic1Pfl = 0;
-	private double _basic1Mute = 0;
+	protected double Basic1Fader { get; set; } = 0.8;
+	protected double Basic1Gain { get; set; } = 0.6;
+	protected double Basic1Comp { get; set; } = 0.5;
+	protected double Basic1EqHigh { get; set; } = 0.5;
+	protected double Basic1EqMid { get; set; } = 0.5;
+	protected double Basic1EqLow { get; set; } = 0.5;
+	protected double Basic1Dsp { get; set; } = 0.5;
+	protected double Basic1Pan { get; set; } = 0.5;
+	protected double Basic1Pfl { get; set; }
+	protected double Basic1Mute { get; set; }
 
-	private double _basic2Fader = 0.5;
-	private double _basic2Gain = 0.5;
-	private double _basic2Comp = 0.5;
-	private double _basic2EqHigh = 0.5;
-	private double _basic2EqMid = 0.5;
-	private double _basic2EqLow = 0.5;
-	private double _basic2Dsp = 0.5;
-	private double _basic2Pan = 0.5;
-	private double _basic2Pfl = 0;
-	private double _basic2Mute = 0;
+	protected double Basic2Fader { get; set; } = 0.5;
+	protected double Basic2Gain { get; set; } = 0.5;
+	protected double Basic2Comp { get; set; } = 0.5;
+	protected double Basic2EqHigh { get; set; } = 0.5;
+	protected double Basic2EqMid { get; set; } = 0.5;
+	protected double Basic2EqLow { get; set; } = 0.5;
+	protected double Basic2Dsp { get; set; } = 0.5;
+	protected double Basic2Pan { get; set; } = 0.5;
+	protected double Basic2Pfl { get; set; }
+	protected double Basic2Mute { get; set; }
 
-	private double _basic3Fader = 0.7;
-	private double _basic3Gain = 0.5;
-	private double _basic3Comp = 0.5;
-	private double _basic3EqHigh = 0.5;
-	private double _basic3EqMid = 0.5;
-	private double _basic3EqLow = 0.5;
-	private double _basic3Dsp = 0.5;
-	private double _basic3Pan = 0.3;
-	private double _basic3Pfl = 0;
-	private double _basic3Mute = 0;
+	protected double Basic3Fader { get; set; } = 0.7;
+	protected double Basic3Gain { get; set; } = 0.5;
+	protected double Basic3Comp { get; set; } = 0.5;
+	protected double Basic3EqHigh { get; set; } = 0.5;
+	protected double Basic3EqMid { get; set; } = 0.5;
+	protected double Basic3EqLow { get; set; } = 0.5;
+	protected double Basic3Dsp { get; set; } = 0.5;
+	protected double Basic3Pan { get; set; } = 0.3;
+	protected double Basic3Pfl { get; set; }
+	protected double Basic3Mute { get; set; }
 
-	private double _basic4Fader = 0.6;
-	private double _basic4Gain = 0.5;
-	private double _basic4Comp = 0.5;
-	private double _basic4EqHigh = 0.5;
-	private double _basic4EqMid = 0.5;
-	private double _basic4EqLow = 0.5;
-	private double _basic4Dsp = 0.5;
-	private double _basic4Pan = 0.7;
-	private double _basic4Pfl = 0;
-	private double _basic4Mute = 0;
+	protected double Basic4Fader { get; set; } = 0.6;
+	protected double Basic4Gain { get; set; } = 0.5;
+	protected double Basic4Comp { get; set; } = 0.5;
+	protected double Basic4EqHigh { get; set; } = 0.5;
+	protected double Basic4EqMid { get; set; } = 0.5;
+	protected double Basic4EqLow { get; set; } = 0.5;
+	protected double Basic4Dsp { get; set; } = 0.5;
+	protected double Basic4Pan { get; set; } = 0.7;
+	protected double Basic4Pfl { get; set; }
+	protected double Basic4Mute { get; set; }
 
-	private double _basic5Fader = 0.9;
-	private double _basic5Gain = 0.5;
-	private double _basic5Comp = 0.5;
-	private double _basic5EqHigh = 0.5;
-	private double _basic5EqMid = 0.5;
-	private double _basic5EqLow = 0.5;
-	private double _basic5Dsp = 0.5;
-	private double _basic5Pan = 0.5;
-	private double _basic5Mute = 0;
-	private double _basic5Pfl = 0;
+	protected double Basic5Fader { get; set; } = 0.9;
+	protected double Basic5Gain { get; set; } = 0.5;
+	protected double Basic5Comp { get; set; } = 0.5;
+	protected double Basic5EqHigh { get; set; } = 0.5;
+	protected double Basic5EqMid { get; set; } = 0.5;
+	protected double Basic5EqLow { get; set; } = 0.5;
+	protected double Basic5Dsp { get; set; } = 0.5;
+	protected double Basic5Pan { get; set; } = 0.5;
+	protected double Basic5Mute { get; set; }
+	protected double Basic5Pfl { get; set; }
 
 	// Custom Colors section - ALL controls
-	private double _color1Fader = 0.7;
-	private double _color1Gain = 0.5;
-	private double _color1Comp = 0.5;
-	private double _color1EqHigh = 0.5;
-	private double _color1EqMid = 0.5;
-	private double _color1EqLow = 0.5;
-	private double _color1Dsp = 0.5;
-	private double _color1Pan = 0.5;
-	private double _color1Pfl = 0;
-	private double _color1Mute = 0;
+	protected double Color1Fader { get; set; } = 0.7;
+	protected double Color1Gain { get; set; } = 0.5;
+	protected double Color1Comp { get; set; } = 0.5;
+	protected double Color1EqHigh { get; set; } = 0.5;
+	protected double Color1EqMid { get; set; } = 0.5;
+	protected double Color1EqLow { get; set; } = 0.5;
+	protected double Color1Dsp { get; set; } = 0.5;
+	protected double Color1Pan { get; set; } = 0.5;
+	protected double Color1Pfl { get; set; }
+	protected double Color1Mute { get; set; }
 
-	private double _color2Fader = 0.8;
-	private double _color2Gain = 0.5;
-	private double _color2Comp = 0.5;
-	private double _color2EqHigh = 0.5;
-	private double _color2EqMid = 0.5;
-	private double _color2EqLow = 0.5;
-	private double _color2Dsp = 0.5;
-	private double _color2Pan = 0.5;
-	private double _color2Pfl = 0;
-	private double _color2Mute = 0;
+	protected double Color2Fader { get; set; } = 0.8;
+	protected double Color2Gain { get; set; } = 0.5;
+	protected double Color2Comp { get; set; } = 0.5;
+	protected double Color2EqHigh { get; set; } = 0.5;
+	protected double Color2EqMid { get; set; } = 0.5;
+	protected double Color2EqLow { get; set; } = 0.5;
+	protected double Color2Dsp { get; set; } = 0.5;
+	protected double Color2Pan { get; set; } = 0.5;
+	protected double Color2Pfl { get; set; }
+	protected double Color2Mute { get; set; }
 
-	private double _color3Fader = 0.9;
-	private double _color3Gain = 0.5;
-	private double _color3Comp = 0.5;
-	private double _color3EqHigh = 0.5;
-	private double _color3EqMid = 0.5;
-	private double _color3EqLow = 0.5;
-	private double _color3Dsp = 0.5;
-	private double _color3Pan = 0.5;
-	private double _color3Pfl = 0;
-	private double _color3Mute = 0;
+	protected double Color3Fader { get; set; } = 0.9;
+	protected double Color3Gain { get; set; } = 0.5;
+	protected double Color3Comp { get; set; } = 0.5;
+	protected double Color3EqHigh { get; set; } = 0.5;
+	protected double Color3EqMid { get; set; } = 0.5;
+	protected double Color3EqLow { get; set; } = 0.5;
+	protected double Color3Dsp { get; set; } = 0.5;
+	protected double Color3Pan { get; set; } = 0.5;
+	protected double Color3Pfl { get; set; }
+	protected double Color3Mute { get; set; }
 
 	// Interactive section - ALL controls for each channel
-	private double _channel1Fader = 0.75;
-	private double _channel1Gain = 0.7;
-	private double _channel1Comp = 0.5;
-	private double _channel1EqHigh = 0.5;
-	private double _channel1EqMid = 0.5;
-	private double _channel1EqLow = 0.5;
-	private double _channel1Dsp = 0.5;
-	private double _channel1Pan = 0.5;
-	private double _channel1Mute = 0;
-	private double _channel1Pfl = 0;
+	protected double Channel1Fader { get; set; } = 0.75;
+	protected double Channel1Gain { get; set; } = 0.7;
+	protected double Channel1Comp { get; set; } = 0.5;
+	protected double Channel1EqHigh { get; set; } = 0.5;
+	protected double Channel1EqMid { get; set; } = 0.5;
+	protected double Channel1EqLow { get; set; } = 0.5;
+	protected double Channel1Dsp { get; set; } = 0.5;
+	protected double Channel1Pan { get; set; } = 0.5;
+	protected double Channel1Mute { get; set; }
+	protected double Channel1Pfl { get; set; }
 
-	private double _channel2Fader = 0.6;
-	private double _channel2Gain = 0.5;
-	private double _channel2Comp = 0.5;
-	private double _channel2EqHigh = 0.5;
-	private double _channel2EqMid = 0.5;
-	private double _channel2EqLow = 0.5;
-	private double _channel2Dsp = 0.5;
-	private double _channel2Pan = 0.5;
-	private double _channel2Mute = 0;
-	private double _channel2Pfl = 0;
+	protected double Channel2Fader { get; set; } = 0.6;
+	protected double Channel2Gain { get; set; } = 0.5;
+	protected double Channel2Comp { get; set; } = 0.5;
+	protected double Channel2EqHigh { get; set; } = 0.5;
+	protected double Channel2EqMid { get; set; } = 0.5;
+	protected double Channel2EqLow { get; set; } = 0.5;
+	protected double Channel2Dsp { get; set; } = 0.5;
+	protected double Channel2Pan { get; set; } = 0.5;
+	protected double Channel2Mute { get; set; }
+	protected double Channel2Pfl { get; set; }
 
-	private double _channel3Fader = 0.85;
-	private double _channel3Gain = 0.5;
-	private double _channel3Comp = 0.5;
-	private double _channel3EqHigh = 0.5;
-	private double _channel3EqMid = 0.5;
-	private double _channel3EqLow = 0.5;
-	private double _channel3Dsp = 0.5;
-	private double _channel3Pan = 0.5;
-	private double _channel3Mute = 0;
-	private double _channel3Pfl = 0;
+	protected double Channel3Fader { get; set; } = 0.85;
+	protected double Channel3Gain { get; set; } = 0.5;
+	protected double Channel3Comp { get; set; } = 0.5;
+	protected double Channel3EqHigh { get; set; } = 0.5;
+	protected double Channel3EqMid { get; set; } = 0.5;
+	protected double Channel3EqLow { get; set; } = 0.5;
+	protected double Channel3Dsp { get; set; } = 0.5;
+	protected double Channel3Pan { get; set; } = 0.5;
+	protected double Channel3Mute { get; set; }
+	protected double Channel3Pfl { get; set; }
 
-	private double _channel4Fader = 0.5;
-	private double _channel4Gain = 0.5;
-	private double _channel4Comp = 0.5;
-	private double _channel4EqHigh = 0.5;
-	private double _channel4EqMid = 0.5;
-	private double _channel4EqLow = 0.5;
-	private double _channel4Dsp = 0.5;
-	private double _channel4Pan = 0.5;
-	private double _channel4Mute = 0;
-	private double _channel4Pfl = 0;
+	protected double Channel4Fader { get; set; } = 0.5;
+	protected double Channel4Gain { get; set; } = 0.5;
+	protected double Channel4Comp { get; set; } = 0.5;
+	protected double Channel4EqHigh { get; set; } = 0.5;
+	protected double Channel4EqMid { get; set; } = 0.5;
+	protected double Channel4EqLow { get; set; } = 0.5;
+	protected double Channel4Dsp { get; set; } = 0.5;
+	protected double Channel4Pan { get; set; } = 0.5;
+	protected double Channel4Mute { get; set; }
+	protected double Channel4Pfl { get; set; }
 
 	// Separate event managers for each section
 	private readonly EventManager _basicEventManager = new();
 	private readonly EventManager _colorEventManager = new();
 	private readonly EventManager _interactiveEventManager = new();
 
-	private void OnBasicDeskValueChanged(string channel, string control, ref double field, double value)
+	private double OnBasicDeskValueChanged(string channel, string control, double value)
 	{
-		field = value;
 		var evt = new Event($"{channel} {control}Changed", 
 			new EventArgument("Channel", channel),
 			new EventArgument("Control", control),
 			new EventArgument("Value", value.ToString("F3")));
 		
 		_basicEventManager.Add(evt);
+		return value;
 	}
 
-	private void OnColorDeskValueChanged(string channel, string control, ref double field, double value)
+	private double OnColorDeskValueChanged(string channel, string control, double value)
 	{
-		field = value;
 		var evt = new Event($"{channel} {control}Changed", 
 			new EventArgument("Channel", channel),
 			new EventArgument("Control", control),
 			new EventArgument("Value", value.ToString("F3")));
 		
 		_colorEventManager.Add(evt);
+		return value;
 	}
 
-	private void OnChannelValueChanged(string channel, string control, ref double field, double value)
+	private double OnChannelValueChanged(string channel, string control, double value)
 	{
-		field = value;
 		var evt = new Event($"{channel} {control}Changed", 
 			new EventArgument("Channel", channel),
 			new EventArgument("Control", control),
 			new EventArgument("Value", value.ToString("F3")));
 		
 		_interactiveEventManager.Add(evt);
+		return value;
 	}
 }

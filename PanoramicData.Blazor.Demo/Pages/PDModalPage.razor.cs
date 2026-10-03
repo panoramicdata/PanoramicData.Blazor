@@ -2,17 +2,17 @@
 
 public partial class PDModalPage
 {
-	private PDModal _basicModal = null!;
-	private PDModal _smallModal = null!;
-	private PDModal _mediumModal = null!;
-	private PDModal _largeModal = null!;
-	private PDModal _xlModal = null!;
-	private PDModal _centeredModal = null!;
-	private PDModal _closeButtonModal = null!;
-	private PDModal _noFooterModal = null!;
-	private PDModal _customButtonsModal = null!;
-	private PDModal _awaitModal = null!;
-	private PDModal _noEscapeModal = null!;
+	protected PDModal BasicModal { get; set; } = null!;
+	protected PDModal SmallModal { get; set; } = null!;
+	protected PDModal MediumModal { get; set; } = null!;
+	protected PDModal LargeModal { get; set; } = null!;
+	protected PDModal XlModal { get; set; } = null!;
+	protected PDModal CenteredModal { get; set; } = null!;
+	protected PDModal CloseButtonModal { get; set; } = null!;
+	protected PDModal NoFooterModal { get; set; } = null!;
+	protected PDModal CustomButtonsModal { get; set; } = null!;
+	protected PDModal AwaitModal { get; set; } = null!;
+	protected PDModal NoEscapeModal { get; set; } = null!;
 
 	private string? _customButtonResult;
 	private string? _awaitedResult;
@@ -22,19 +22,19 @@ public partial class PDModalPage
 	private async Task OnCustomButtonClick(string key)
 	{
 		_customButtonResult = key;
-		await _customButtonsModal.HideAsync();
+		await CustomButtonsModal.HideAsync();
 		EventManager?.Add(new Event("ButtonClick", new EventArgument("Key", key)));
 	}
 
 	private async Task OnConfirmClick()
 	{
 		_awaitedResult = null;
-		var result = await _awaitModal.ShowAndWaitResultAsync();
+		var result = await AwaitModal.ShowAndWaitResultAsync();
 		_awaitedResult = result;
 		EventManager?.Add(new Event("AwaitResult", new EventArgument("Key", result)));
 	}
 
 	// kept for demo source compatibility
-	private Task OnClick(MouseEventArgs e) => _basicModal.ShowAsync();
-	private Task CloseModal(MouseEventArgs e) => _basicModal.HideAsync();
+	private Task OnClick() => BasicModal.ShowAsync();
+	private Task CloseModal() => BasicModal.HideAsync();
 }

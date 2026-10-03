@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDTreeDocumentation
+public partial class PDTreeDocumentation : ComponentBase
 {
 	private const string _example1Code = """
 		<PDTree TItem="MyItem"

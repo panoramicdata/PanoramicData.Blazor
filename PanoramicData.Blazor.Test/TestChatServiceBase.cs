@@ -1,3 +1,4 @@
+using System;
 using PanoramicData.Blazor.Interfaces;
 using PanoramicData.Blazor.Models;
 
@@ -16,19 +17,43 @@ namespace PanoramicData.Blazor.Test;
 /// pass by agreeing with themselves rather than by exercising the interface.
 /// </para>
 /// <para>
+/// The change events are raised the way a real service raises them: when the property they report on changes.
+/// </para>
+/// <para>
 /// Test-only, and so it lives in the test project rather than beside the production services.
 /// </para>
 /// </remarks>
 public abstract class TestChatServiceBase : IChatService
 {
+	private bool _isLive = true;
+	private PDChatDockMode _preferredDockMode = PDChatDockMode.BottomRight;
+	private bool _isMuted;
+	private string _title = "Test Chat";
+
 	/// <inheritdoc />
-	public bool IsLive { get; set; } = true;
+	public bool IsLive
+	{
+		get => _isLive;
+		set
+		{
+			_isLive = value;
+			OnLiveStatusChanged?.Invoke(value);
+		}
+	}
 
 	/// <inheritdoc />
 	public PDChatDockMode DockMode { get; set; } = PDChatDockMode.BottomRight;
 
 	/// <inheritdoc />
-	public PDChatDockMode PreferredDockMode { get; set; } = PDChatDockMode.BottomRight;
+	public PDChatDockMode PreferredDockMode
+	{
+		get => _preferredDockMode;
+		set
+		{
+			_preferredDockMode = value;
+			OnDockModeChanged?.Invoke(value);
+		}
+	}
 
 	/// <inheritdoc />
 	public PDChatDockMode RestoreMode { get; set; } = PDChatDockMode.BottomRight;
@@ -37,10 +62,26 @@ public abstract class TestChatServiceBase : IChatService
 	public PDChatButtonPosition MinimizedButtonPosition { get; set; } = PDChatButtonPosition.BottomRight;
 
 	/// <inheritdoc />
-	public bool IsMuted { get; set; }
+	public bool IsMuted
+	{
+		get => _isMuted;
+		set
+		{
+			_isMuted = value;
+			OnMuteStatusChanged?.Invoke(value);
+		}
+	}
 
 	/// <inheritdoc />
-	public string Title { get; set; } = "Test Chat";
+	public string Title
+	{
+		get => _title;
+		set
+		{
+			_title = value;
+			OnConfigurationChanged?.Invoke();
+		}
+	}
 
 	/// <inheritdoc />
 	public bool IsMaximizePermitted { get; set; } = true;
@@ -84,6 +125,11 @@ public abstract class TestChatServiceBase : IChatService
 	/// <inheritdoc />
 	public abstract IReadOnlyList<ChatMessage> Messages { get; }
 
+	/// <summary>
+	/// Gets how many times <see cref="Initialize"/> has been called.
+	/// </summary>
+	public int InitializeCount { get; private set; }
+
 	/// <inheritdoc />
 	public event Action<ChatMessage>? OnMessageReceived;
 
@@ -106,24 +152,13 @@ public abstract class TestChatServiceBase : IChatService
 	public abstract void ClearMessages();
 
 	/// <inheritdoc />
-	public void Initialize()
-	{
-	}
+	public void Initialize() => InitializeCount++;
 
 	/// <inheritdoc />
 	public void Dispose() => GC.SuppressFinalize(this);
 
 	/// <summary>
-	/// Raises <see cref="OnMessageReceived"/>. Present so that the events above are not merely declared and
-	/// never used, which the compiler would otherwise warn about, and so a double can simulate an inbound
-	/// message on the singular path.
+	/// Raises <see cref="OnMessageReceived"/>, so a double can simulate an inbound message on the singular path.
 	/// </summary>
-	protected void RaiseMessageReceived(ChatMessage message)
-	{
-		OnMessageReceived?.Invoke(message);
-		OnLiveStatusChanged?.Invoke(IsLive);
-		OnDockModeChanged?.Invoke(DockMode);
-		OnMuteStatusChanged?.Invoke(IsMuted);
-		OnConfigurationChanged?.Invoke();
-	}
+	protected void RaiseMessageReceived(ChatMessage message) => OnMessageReceived?.Invoke(message);
 }

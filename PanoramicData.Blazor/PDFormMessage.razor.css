@@ -21,6 +21,7 @@
 	display: flex;
 	align-items: stretch;
 	gap: 0.15rem;
+
 	/* Many questions must not blow out the message width. */
 	overflow-x: auto;
 	border-bottom: 1px solid var(--pd-chat-border, #dee2e6);
@@ -39,6 +40,11 @@
 	border-bottom: 2px solid transparent;
 }
 
+.pdchat-form-tab:disabled {
+	cursor: default;
+	opacity: 0.6;
+}
+
 .pdchat-form-tab:hover:not(:disabled) {
 	color: var(--pd-chat-color, #212529);
 }
@@ -54,11 +60,6 @@
 .pdchat-form-tab.answered::after {
 	content: " \00b7";
 	opacity: 0.7;
-}
-
-.pdchat-form-tab:disabled {
-	cursor: default;
-	opacity: 0.6;
 }
 
 .pdchat-form-dismiss {
@@ -86,6 +87,7 @@
 .pdchat-form-question {
 	font-weight: 600;
 	padding: 0.6rem 0.75rem 0.4rem;
+
 	/* The question is HTML-escaped text, not markup, so normal wrapping is right. */
 	white-space: normal;
 }

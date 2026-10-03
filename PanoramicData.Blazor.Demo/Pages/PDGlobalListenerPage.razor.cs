@@ -8,32 +8,37 @@ public partial class PDGlobalListenerPage : IDisposable
 
 	[Inject] public IGlobalEventService? GlobalEventService { get; set; }
 
+	private readonly EventHandler<KeyboardInfo> _keyDownHandler;
+	private readonly EventHandler<KeyboardInfo> _keyUpHandler;
+
+	public PDGlobalListenerPage()
+	{
+		// the event sender is not needed, only the keyboard details
+		_keyDownHandler = (_, e) => AddKeyEvent("KeyDown", e);
+		_keyUpHandler = (_, e) => AddKeyEvent("KeyUp", e);
+	}
+
 	protected override void OnInitialized()
 	{
 		if (GlobalEventService != null)
 		{
-			GlobalEventService.KeyDownEvent += GlobalEventService_KeyDownEvent;
-			GlobalEventService.KeyUpEvent += GlobalEventService_KeyUpEvent;
+			GlobalEventService.KeyDownEvent += _keyDownHandler;
+			GlobalEventService.KeyUpEvent += _keyUpHandler;
 			GlobalEventService.RegisterShortcutKey(_ctrlS);
 		}
 	}
 
-	private void GlobalEventService_KeyDownEvent(object? sender, KeyboardInfo e) => EventManager?.Add(new Event("KeyDown", new EventArgument("Key", e.Key),
-					 						 new EventArgument("AltKey", e.AltKey),
-					 						 new EventArgument("ShiftKey", e.ShiftKey),
-											 new EventArgument("CtrlKey", e.CtrlKey)));
-
-	private void GlobalEventService_KeyUpEvent(object? sender, KeyboardInfo e) => EventManager?.Add(new Event("KeyUp", new EventArgument("Key", e.Key),
-					 						 new EventArgument("AltKey", e.AltKey),
-					 						 new EventArgument("ShiftKey", e.ShiftKey),
+	private void AddKeyEvent(string name, KeyboardInfo e) => EventManager?.Add(new Event(name, new EventArgument("Key", e.Key),
+											 new EventArgument("AltKey", e.AltKey),
+											 new EventArgument("ShiftKey", e.ShiftKey),
 											 new EventArgument("CtrlKey", e.CtrlKey)));
 
 	public void Dispose()
 	{
 		if (GlobalEventService != null)
 		{
-			GlobalEventService.KeyUpEvent -= GlobalEventService_KeyUpEvent;
-			GlobalEventService.KeyDownEvent -= GlobalEventService_KeyDownEvent;
+			GlobalEventService.KeyUpEvent -= _keyUpHandler;
+			GlobalEventService.KeyDownEvent -= _keyDownHandler;
 			GlobalEventService.UnregisterShortcutKey(_ctrlS);
 		}
 

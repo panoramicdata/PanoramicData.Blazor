@@ -121,7 +121,7 @@
 						@if (!_isConversationSidebarCollapsed)
 						{
 							<div class="pdchat-conversation-sidebar-pane">
-								<PDChatConversationSidebar @ref="_conversationSidebar"
+								<PDChatConversationSidebar @ref="ConversationSidebar"
 														   ConversationService="ConversationService!"
 														   SelectedConversationId="_selectedConversationId"
 														   OnConversationSelected="OpenConversationAsync"
@@ -163,7 +163,7 @@
 							   strip: a second tab implementation in the same component library would drift from the
 							   first within one release. Open is not the same as exists - the sidebar lists
 							   everything, tabs hold what the user is currently working on. *@
-							<PDTabSet @ref="_conversationTabSet"
+							<PDTabSet @ref="ConversationTabSet"
 									  CssClass="pdchat-conversation-tabset"
 									  IsTabClosingEnabled="true"
 									  IsTabAdditionEnabled="true"
@@ -183,7 +183,7 @@
 										   CssClass="@(_unreadConversationIds.Contains(open.Id) ? "pdchat-conversation-tab-unread" : string.Empty)">
 										@* Only the active tab's content is rendered, so this is one transcript on
 										   screen at a time rather than one per open conversation. *@
-										<PDMessages @ref="_messagesComponent"
+										<PDMessages @ref="MessagesComponent"
 													Messages="_messages"
 													CurrentInput="@_currentInput"
 													CurrentInputChanged="@((string v) => _currentInput = v)"
@@ -221,7 +221,7 @@
 					<PDSplitter Direction="@(SplitDirection.Horizontal)" GutterSize="6" CssClass="pdchat-splitter">
 						<PDSplitPanel Size="3" MinSize="200">
 							<div class="pdchat-canvas-flex">
-								<PDTabSet @ref="_tabSetRef"
+								<PDTabSet @ref="CanvasTabSet"
 										  IsTabClosingEnabled="true"
 										  IsTabAdditionEnabled="true"
 										  IsTabRenamingEnabled="true"
@@ -230,7 +230,7 @@
 							</div>
 						</PDSplitPanel>
 						<PDSplitPanel Size="2" MinSize="200">
-							<PDMessages @ref="_messagesComponent"
+							<PDMessages @ref="MessagesComponent"
 										Messages="_messages"
 										CurrentInput="@_currentInput"
 										CurrentInputChanged="@((string v) => _currentInput = v)"
@@ -251,7 +251,7 @@
 				}
 				else
 				{
-					<PDMessages @ref="_messagesComponent"
+					<PDMessages @ref="MessagesComponent"
 								Messages="_messages"
 								CurrentInput="@_currentInput"
 								CurrentInputChanged="@((string v) => _currentInput = v)"

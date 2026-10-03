@@ -8,13 +8,6 @@ public class CardDeckDataProviderService<TItem> : IDataProviderService<TItem>
 	where TItem : class
 {
 	/// <summary>
-	/// Initializes an empty card-deck data provider.
-	/// </summary>
-	public CardDeckDataProviderService()
-	{
-	}
-
-	/// <summary>
 	/// Gets the underlying mutable item list.
 	/// </summary>
 	public List<TItem> List { get; private set; } = [];

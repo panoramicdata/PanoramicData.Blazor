@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using NCalc;
 using NCalc.Exceptions;
+using System;
 using PanoramicData.NCalcExtensions;
 using System.Text;
 
@@ -47,165 +48,38 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 		int timeoutSeconds,
 		CancellationToken cancellationToken)
 	{
-		IsExecuting = true;
-		_currentTimeoutSeconds = timeoutSeconds > 0 ? timeoutSeconds : _defaultTimeoutSeconds;
-		CurrentStatus = language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase) ? StudioExecutionStatus.StartingNCalc : StudioExecutionStatus.Starting;
+		var isNCalc = IsNCalc(language);
+		BeginExecution(timeoutSeconds, isNCalc);
 
-		OnExecutionEvent(new StudioExecutionEventArgs
-		{
-			EventType = StudioExecutionEventType.Started,
-			Status = CurrentStatus.ToDisplayString(),
-			Timestamp = DateTime.Now
-		});
-
-		CancellationTokenSource? timeoutCts = null;
+		// Create a timeout cancellation token (the configured timeout is always positive)
+		using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+		timeoutCts.CancelAfter(TimeSpan.FromSeconds(_currentTimeoutSeconds));
 
 		try
 		{
-			// Create a timeout cancellation token only if timeout is configured
-			if (_currentTimeoutSeconds > 0)
-			{
-				timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-				timeoutCts.CancelAfter(TimeSpan.FromSeconds(_currentTimeoutSeconds));
-			}
-
-			var effectiveToken = timeoutCts?.Token ?? cancellationToken;
-
-			// Small delay to show the executing state
-			await Task.Delay(language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase) ? 100 : 1000, effectiveToken);
-
-			CurrentStatus = language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase) ? StudioExecutionStatus.EvaluatingExpression : StudioExecutionStatus.Processing;
-			OnExecutionEvent(new StudioExecutionEventArgs
-			{
-				EventType = StudioExecutionEventType.Progress,
-				Status = CurrentStatus.ToDisplayString(),
-				Progress = 0.5
-			});
-
-			// Generate output based on language
-			var result = await GenerateOutputAsync(code, language, resultsProgress, effectiveToken);
-
-			// Report intermediate results
-			resultsProgress?.Report(result);
-			OnExecutionEvent(new StudioExecutionEventArgs
-			{
-				EventType = StudioExecutionEventType.UpdateOutput,
-				Output = result,
-				Status = "Generating output..."
-			});
-
-			if (!language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
-			{
-				await Task.Delay(500, effectiveToken);
-			}
-
-			CurrentStatus = StudioExecutionStatus.Complete;
-			OnExecutionEvent(new StudioExecutionEventArgs
-			{
-				EventType = StudioExecutionEventType.Completed,
-				Output = result,
-				Status = CurrentStatus.ToDisplayString(),
-				IsComplete = true
-			});
-
-			logger.LogInformation("Code execution completed for language: {Language}", language);
-			return result;
+			return await RunExecutionAsync(code, language, resultsProgress, timeoutCts.Token);
 		}
-		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested && (timeoutCts == null || !timeoutCts.IsCancellationRequested))
+		catch (OperationCanceledException) when (IsUserCancellation(cancellationToken, timeoutCts))
 		{
 			// User cancellation
-			CurrentStatus = StudioExecutionStatus.Cancelled;
-			OnExecutionEvent(new StudioExecutionEventArgs
-			{
-				EventType = StudioExecutionEventType.Cancelled,
-				Status = CurrentStatus.ToDisplayString()
-			});
-			logger.LogInformation("Code execution was cancelled by user");
+			ReportCancelled();
 			throw;
 		}
 		catch (OperationCanceledException)
 		{
 			// Timeout occurred
-			CurrentStatus = StudioExecutionStatus.ExecutionTimedOut;
-			var timeoutMessage = $"Timed out after {_currentTimeoutSeconds}s";
-
-			// For NCalc, return timeout result but still signal error status
-			if (language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
-			{
-				// Fire error event to set the status correctly
-				OnExecutionEvent(new StudioExecutionEventArgs
-				{
-					EventType = StudioExecutionEventType.Error,
-					Status = timeoutMessage,
-					Exception = new TimeoutException($"Execution timed out after {_currentTimeoutSeconds} seconds")
-				});
-				logger.LogWarning("Code execution timed out after {TimeoutSeconds} seconds", _currentTimeoutSeconds);
-
-				// Return timeout content but don't fire completed event
-				var timeoutResult = GenerateNCalcTimeoutOutput(_currentTimeoutSeconds);
-
-				// Update output but keep error status
-				OnExecutionEvent(new StudioExecutionEventArgs
-				{
-					EventType = StudioExecutionEventType.UpdateOutput,
-					Output = timeoutResult,
-					Status = timeoutMessage // Keep timeout status
-				});
-
-				return timeoutResult;
-			}
-
-			// For non-NCalc languages, fire error event and throw
-			OnExecutionEvent(new StudioExecutionEventArgs
-			{
-				EventType = StudioExecutionEventType.Error,
-				Status = timeoutMessage,
-				Exception = new TimeoutException($"Execution timed out after {_currentTimeoutSeconds} seconds")
-			});
-			logger.LogWarning("Code execution timed out after {TimeoutSeconds} seconds", _currentTimeoutSeconds);
-			throw new TimeoutException($"Execution timed out after {_currentTimeoutSeconds} seconds");
+			return HandleTimeout(isNCalc);
 		}
-		catch (ArgumentException ex) when (language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
+		catch (Exception ex) when (isNCalc && IsNCalcExpressionError(ex))
 		{
-			// NCalc invalid syntax
-			CurrentStatus = StudioExecutionStatus.InvalidCode;
-			OnExecutionEvent(new StudioExecutionEventArgs
-			{
-				EventType = StudioExecutionEventType.Error,
-				Status = CurrentStatus.ToDisplayString(),
-				Exception = ex
-			});
-
-			logger.LogWarning(ex, "Invalid NCalc expression: {Message}", ex.Message);
-			return GenerateNCalcInvalidCodeOutput(ex);
-		}
-		catch (NCalcEvaluationException ex) when (language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
-		{
-			// NCalc runtime error during evaluation
-			CurrentStatus = StudioExecutionStatus.RuntimeError;
-			OnExecutionEvent(new StudioExecutionEventArgs
-			{
-				EventType = StudioExecutionEventType.Error,
-				Status = CurrentStatus.ToDisplayString(),
-				Exception = ex
-			});
-
-			logger.LogWarning(ex, "NCalc runtime error: {Message}", ex.Message);
-			return GenerateNCalcRuntimeErrorOutput(ex);
+			return HandleNCalcExpressionError(ex);
 		}
 		catch (Exception ex)
 		{
-			CurrentStatus = StudioExecutionStatus.Error;
-			OnExecutionEvent(new StudioExecutionEventArgs
-			{
-				EventType = StudioExecutionEventType.Error,
-				Status = $"Error: {ex.Message}",
-				Exception = ex
-			});
-			logger.LogError(ex, "Error executing code");
+			ReportError(ex);
 
 			// For NCalc, return error result instead of throwing
-			if (language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase))
+			if (isNCalc)
 			{
 				return GenerateNCalcErrorOutput(ex);
 			}
@@ -215,8 +89,159 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 		finally
 		{
 			IsExecuting = false;
-			timeoutCts?.Dispose();
 		}
+	}
+
+	private void BeginExecution(int timeoutSeconds, bool isNCalc)
+	{
+		IsExecuting = true;
+		_currentTimeoutSeconds = timeoutSeconds > 0 ? timeoutSeconds : _defaultTimeoutSeconds;
+		CurrentStatus = isNCalc ? StudioExecutionStatus.StartingNCalc : StudioExecutionStatus.Starting;
+
+		OnExecutionEvent(new StudioExecutionEventArgs
+		{
+			EventType = StudioExecutionEventType.Started,
+			Status = CurrentStatus.ToDisplayString(),
+			Timestamp = DateTime.Now
+		});
+	}
+
+	private void ReportCancelled()
+	{
+		CurrentStatus = StudioExecutionStatus.Cancelled;
+		OnExecutionEvent(new StudioExecutionEventArgs
+		{
+			EventType = StudioExecutionEventType.Cancelled,
+			Status = CurrentStatus.ToDisplayString()
+		});
+		logger.LogInformation("Code execution was cancelled by user");
+	}
+
+	private void ReportError(Exception ex)
+	{
+		CurrentStatus = StudioExecutionStatus.Error;
+		OnExecutionEvent(new StudioExecutionEventArgs
+		{
+			EventType = StudioExecutionEventType.Error,
+			Status = $"Error: {ex.Message}",
+			Exception = ex
+		});
+		logger.LogError(ex, "Error executing code");
+	}
+
+	private static bool IsNCalcExpressionError(Exception ex)
+		=> ex is ArgumentException or NCalcEvaluationException;
+
+	private string HandleNCalcExpressionError(Exception ex)
+	{
+		if (ex is ArgumentException)
+		{
+			// NCalc invalid syntax
+			ReportNCalcError(StudioExecutionStatus.InvalidCode, ex);
+			logger.LogWarning(ex, "Invalid NCalc expression: {Message}", ex.Message);
+			return GenerateNCalcInvalidCodeOutput(ex);
+		}
+
+		// NCalc runtime error during evaluation
+		ReportNCalcError(StudioExecutionStatus.RuntimeError, ex);
+		logger.LogWarning(ex, "NCalc runtime error: {Message}", ex.Message);
+		return GenerateNCalcRuntimeErrorOutput(ex);
+	}
+
+	private static bool IsNCalc(string language)
+		=> language.Equals("ncalc", StringComparison.InvariantCultureIgnoreCase);
+
+	private static bool IsUserCancellation(CancellationToken cancellationToken, CancellationTokenSource? timeoutCts)
+		=> cancellationToken.IsCancellationRequested && (timeoutCts == null || !timeoutCts.IsCancellationRequested);
+
+	private async Task<string> RunExecutionAsync(string code, string language, IProgress<string>? resultsProgress, CancellationToken effectiveToken)
+	{
+		var isNCalc = IsNCalc(language);
+
+		// Small delay to show the executing state
+		await Task.Delay(isNCalc ? 100 : 1000, effectiveToken);
+
+		CurrentStatus = isNCalc ? StudioExecutionStatus.EvaluatingExpression : StudioExecutionStatus.Processing;
+		OnExecutionEvent(new StudioExecutionEventArgs
+		{
+			EventType = StudioExecutionEventType.Progress,
+			Status = CurrentStatus.ToDisplayString(),
+			Progress = 0.5
+		});
+
+		// Generate output based on language
+		var result = await GenerateOutputAsync(code, language, resultsProgress, effectiveToken);
+
+		// Report intermediate results
+		resultsProgress?.Report(result);
+		OnExecutionEvent(new StudioExecutionEventArgs
+		{
+			EventType = StudioExecutionEventType.UpdateOutput,
+			Output = result,
+			Status = "Generating output..."
+		});
+
+		if (!isNCalc)
+		{
+			await Task.Delay(500, effectiveToken);
+		}
+
+		CurrentStatus = StudioExecutionStatus.Complete;
+		OnExecutionEvent(new StudioExecutionEventArgs
+		{
+			EventType = StudioExecutionEventType.Completed,
+			Output = result,
+			Status = CurrentStatus.ToDisplayString(),
+			IsComplete = true
+		});
+
+		logger.LogInformation("Code execution completed for language: {Language}", language);
+		return result;
+	}
+
+	private string HandleTimeout(bool isNCalc)
+	{
+		CurrentStatus = StudioExecutionStatus.ExecutionTimedOut;
+		var timeoutMessage = $"Timed out after {_currentTimeoutSeconds}s";
+
+		// Fire error event to set the status correctly
+		OnExecutionEvent(new StudioExecutionEventArgs
+		{
+			EventType = StudioExecutionEventType.Error,
+			Status = timeoutMessage,
+			Exception = new TimeoutException($"Execution timed out after {_currentTimeoutSeconds} seconds")
+		});
+		logger.LogWarning("Code execution timed out after {TimeoutSeconds} seconds", _currentTimeoutSeconds);
+
+		// For non-NCalc languages, throw
+		if (!isNCalc)
+		{
+			throw new TimeoutException($"Execution timed out after {_currentTimeoutSeconds} seconds");
+		}
+
+		// For NCalc, return timeout content but don't fire completed event
+		var timeoutResult = GenerateNCalcTimeoutOutput(_currentTimeoutSeconds);
+
+		// Update output but keep error status
+		OnExecutionEvent(new StudioExecutionEventArgs
+		{
+			EventType = StudioExecutionEventType.UpdateOutput,
+			Output = timeoutResult,
+			Status = timeoutMessage // Keep timeout status
+		});
+
+		return timeoutResult;
+	}
+
+	private void ReportNCalcError(StudioExecutionStatus status, Exception ex)
+	{
+		CurrentStatus = status;
+		OnExecutionEvent(new StudioExecutionEventArgs
+		{
+			EventType = StudioExecutionEventType.Error,
+			Status = CurrentStatus.ToDisplayString(),
+			Exception = ex
+		});
 	}
 
 	private async Task<string> GenerateOutputAsync(string code, string language, IProgress<string>? resultsProgress, CancellationToken cancellationToken)
@@ -237,8 +262,10 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 
 		try
 		{
+			var isSleepTest = code.Trim().Contains("sleep(", StringComparison.OrdinalIgnoreCase);
+
 			// Check for special test cases first
-			if (code.Trim().Contains("sleep(", StringComparison.OrdinalIgnoreCase) && code.Contains("10"))
+			if (isSleepTest && code.Contains("10"))
 			{
 				// Simulate a long-running operation that will timeout
 				await Task.Delay(10000, cancellationToken); // 10 seconds - will timeout based on configured timeout
@@ -263,47 +290,18 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 			resultsProgress?.Report(intermediateResult);
 
 			// Small delay to show progress (unless it's a timeout test)
-			if (!code.Trim().Contains("sleep(", StringComparison.OrdinalIgnoreCase))
+			if (!isSleepTest)
 			{
 				await Task.Delay(50, cancellationToken);
 			}
 
 			// Evaluate the expression
-			var result = expression.Evaluate();
-
-			resultBuilder.AppendLine("<div class='success'>✓ Expression evaluated successfully</div>");
-			resultBuilder.AppendLine("<div class='result-section'>");
-			resultBuilder.AppendLine("<h4>Result:</h4>");
-
-			if (result != null)
-			{
-				var resultType = result.GetType();
-				var resultValue = FormatResult(result);
-
-				resultBuilder.AppendLine($"<div class='result-value'>{System.Net.WebUtility.HtmlEncode(resultValue)}</div>");
-				resultBuilder.AppendLine($"<div class='result-type'>Type: {resultType.Name}</div>");
-			}
-			else
-			{
-				resultBuilder.AppendLine("<div class='result-value'>null</div>");
-			}
-
-			resultBuilder.AppendLine("</div>");
-
-			// Show expression info
-			resultBuilder.AppendLine("<div class='expression-info'>");
-			resultBuilder.AppendLine($"<div class='info'>Expression length: {code.Length} characters</div>");
-			resultBuilder.AppendLine($"<div class='info'>Evaluation completed at: {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}</div>");
-			resultBuilder.AppendLine("</div>");
+			AppendEvaluationResult(resultBuilder, expression.Evaluate(), code);
 		}
-		catch (OperationCanceledException)
+		catch (Exception ex) when (ex is not OperationCanceledException)
 		{
-			// Re-throw OperationCanceledException so it can be handled by the main method
+			// OperationCanceledException is not caught so that it can be handled by the main method
 			// This allows proper timeout detection and status setting
-			throw;
-		}
-		catch (Exception ex)
-		{
 			resultBuilder.AppendLine($"<div class='error'>❌ Evaluation Error: {System.Net.WebUtility.HtmlEncode(ex.Message)}</div>");
 
 			if (ex.InnerException != null)
@@ -314,6 +312,34 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 
 		resultBuilder.AppendLine("</div>");
 		return resultBuilder.ToString();
+	}
+
+	private static void AppendEvaluationResult(StringBuilder resultBuilder, object? result, string code)
+	{
+		resultBuilder.AppendLine("<div class='success'>✓ Expression evaluated successfully</div>");
+		resultBuilder.AppendLine("<div class='result-section'>");
+		resultBuilder.AppendLine("<h4>Result:</h4>");
+
+		if (result != null)
+		{
+			var resultType = result.GetType();
+			var resultValue = FormatResult(result);
+
+			resultBuilder.AppendLine($"<div class='result-value'>{System.Net.WebUtility.HtmlEncode(resultValue)}</div>");
+			resultBuilder.AppendLine($"<div class='result-type'>Type: {resultType.Name}</div>");
+		}
+		else
+		{
+			resultBuilder.AppendLine("<div class='result-value'>null</div>");
+		}
+
+		resultBuilder.AppendLine("</div>");
+
+		// Show expression info
+		resultBuilder.AppendLine("<div class='expression-info'>");
+		resultBuilder.AppendLine($"<div class='info'>Expression length: {code.Length} characters</div>");
+		resultBuilder.AppendLine($"<div class='info'>Evaluation completed at: {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}</div>");
+		resultBuilder.AppendLine("</div>");
 	}
 
 	private static void AddCommonFunctions(ExtendedExpression expression)
@@ -337,7 +363,7 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 			decimal dec => dec.ToString("N"),
 			double dbl => dbl.ToString("N"),
 			float flt => flt.ToString("N"),
-			bool boolean => boolean.ToString().ToLower(),
+			bool boolean => boolean.ToString().ToLowerInvariant(),
 			null => "null",
 			_ => result.ToString() ?? "null"
 		};
@@ -540,5 +566,10 @@ public class DemoStudioService(ILogger<DemoStudioService> logger) : IPDStudioSer
 	}
 
 	private void OnExecutionEvent(StudioExecutionEventArgs args)
-		=> ExecutionEvent?.Invoke(this, args);
+	{
+		if (ExecutionEvent != null)
+		{
+			ExecutionEvent(this, args);
+		}
+	}
 }

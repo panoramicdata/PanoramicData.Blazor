@@ -2,7 +2,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDTagInputDocumentation
 {
-	private List<string> _quickStartTags = ["Production"];
+	protected List<string> QuickStartTags { get; set; } = ["Production"];
 
 	private const string _example1Code = """
 		<PDTagInput @bind-Values="_tags"

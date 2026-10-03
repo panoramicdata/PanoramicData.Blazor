@@ -361,7 +361,7 @@ public class TreeMapLayoutEngineTests
 			new Node("parent", 0,
 				new Node("child", 100)));
 
-		var rects = Layout(root, 400, 300, maxDepth: 3, nestedPadding: 10);
+		var rects = Layout(root, 400, 300, nestedPadding: 10);
 
 		var parent = rects.Single(r => r.Item.Name == "parent");
 		var child = rects.Single(r => r.Item.Name == "child");
@@ -388,10 +388,10 @@ public class TreeMapLayoutEngineTests
 	[Fact]
 	public void WhenTreeIsLargeThenLayoutCompletes()
 	{
-		var random = new Random(42);
+		// Varied but deterministic leaf sizes in the range 1 to 999.
 		var children = Enumerable.Range(0, 100)
 			.Select(i => new Node($"b{i}", 0,
-				[.. Enumerable.Range(0, 100).Select(j => new Node($"l{i}_{j}", random.Next(1, 1000)))]))
+				[.. Enumerable.Range(0, 100).Select(j => new Node($"l{i}_{j}", ((i * 100 + j) * 7919 % 999) + 1))]))
 			.ToArray();
 
 		var rects = Layout(new Node("root", 0, children), 1920, 1080, maxDepth: 2);
@@ -410,7 +410,7 @@ public class TreeMapLayoutEngineTests
 			new Node("parent", 0,
 				new Node("child", 100)));
 
-		var rects = Layout(root, 400, 300, maxDepth: 3, nestedPadding: 0, headerHeight: 20);
+		var rects = Layout(root, 400, 300, headerHeight: 20);
 
 		var parent = rects.Single(r => r.Item.Name == "parent");
 		var child = rects.Single(r => r.Item.Name == "child");
@@ -431,7 +431,7 @@ public class TreeMapLayoutEngineTests
 			new Node("short", 0, new Node("b", 4)));
 
 		// The 'short' branch gets a sliver of a very wide, flat container.
-		var rects = Layout(root, 1200, 24, maxDepth: 3, nestedPadding: 0, headerHeight: 20);
+		var rects = Layout(root, 1200, 24, headerHeight: 20);
 
 		var shortBranch = rects.Single(r => r.Item.Name == "short");
 		var b = rects.Single(r => r.Item.Name == "b");

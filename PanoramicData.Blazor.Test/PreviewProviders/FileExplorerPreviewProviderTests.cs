@@ -134,6 +134,21 @@ public class FileExplorerPreviewProviderTests : BunitContext
 		info.HtmlContent.Value.Should().Be("hello");
 	}
 
+	/// <summary>A download string with no colon is an address relative to the client's base address.</summary>
+	[Fact]
+	public async Task VisiblePreviewPanel_RelativeAddress_IsDownloadedFromTheBaseAddress()
+	{
+		var handler = new RecordingHandler("hello");
+		var explorer = RenderExplorer(FilePreviewModes.On, item => $"files/{item.Name}");
+		var client = new HttpClient(handler) { BaseAddress = new Uri("https://files.example/") };
+		var provider = new FileExplorerPreviewProvider(client) { FileExplorer = explorer };
+
+		var info = await provider.GetPreviewInfoAsync(Item("/notes.txt"));
+
+		handler.Requests.Should().Equal(new Uri("https://files.example/files/notes.txt"));
+		info.CssClass.Should().Be("txt");
+	}
+
 	/// <summary>
 	/// With no download URL (the explorer's default) nothing is downloaded and the basic details are shown,
 	/// rather than a request with no address being sent (#174).
@@ -181,6 +196,31 @@ public class FileExplorerPreviewProviderTests : BunitContext
 
 		act.Should().Throw<ArgumentNullException>().WithParameterName("httpClient");
 	}
+
+	/// <summary>Outside the browser the shared client recycles its pooled connections, so it sees DNS changes.</summary>
+	[Fact]
+	public void CreateSharedHttpClient_OutsideTheBrowser_RecyclesPooledConnections()
+	{
+		using var client = FileExplorerPreviewProvider.CreateSharedHttpClient(false);
+
+		GetHandler(client).Should().BeOfType<SocketsHttpHandler>()
+			.Which.PooledConnectionLifetime.Should().Be(TimeSpan.FromMinutes(5));
+	}
+
+	/// <summary>In the browser the shared client keeps the platform's default handler.</summary>
+	[Fact]
+	public void CreateSharedHttpClient_InTheBrowser_UsesTheDefaultHandler()
+	{
+		using var client = FileExplorerPreviewProvider.CreateSharedHttpClient(true);
+
+		GetHandler(client).Should().NotBeOfType<SocketsHttpHandler>();
+	}
+
+	/// <summary>Reads the handler a client sends through; <see cref="HttpMessageInvoker"/> does not expose it.</summary>
+	private static HttpMessageHandler GetHandler(HttpClient client)
+		=> (HttpMessageHandler)typeof(HttpMessageInvoker)
+			.GetField("_handler", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+			.GetValue(client)!;
 
 	/// <summary>A message handler that records each request address and answers it with fixed UTF-8 content.</summary>
 	/// <param name="content">The content every response carries.</param>

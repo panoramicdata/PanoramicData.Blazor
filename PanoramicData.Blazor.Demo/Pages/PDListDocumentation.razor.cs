@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDListDocumentation
+public partial class PDListDocumentation : ComponentBase
 {
 	private const string _example1Code = """
 		<PDList TItem="string"

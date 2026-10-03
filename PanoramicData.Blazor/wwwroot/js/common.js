@@ -1,18 +1,14 @@
-export function clickClosest(id, cls)
-{
+export function clickClosest(id, cls) {
 	var el = document.getElementById(id);
-	if (el)
-	{
+	if (el) {
 		var closest = el.closest(cls);
-		if (closest)
-		{
+		if (closest) {
 			closest.click();
 		}
 	}
 }
 
-export function addClass(id, cls)
-{
+export function addClass(id, cls) {
 	var el = document.getElementById(id);
 	if (el) {
 		el.classList.add(cls);
@@ -26,11 +22,11 @@ export function click(id) {
 	}
 }
 
-export function confirm (msg) {
+export function confirm(msg) {
 	return window.confirm(msg);
 }
 
-export function debounce (func, wait) {
+export function debounce(func, wait) {
 	let timeout;
 	return function executedFunction(...args) {
 		const later = () => {
@@ -42,11 +38,11 @@ export function debounce (func, wait) {
 	};
 }
 
-export function debounceInput (id, wait, objRef) {
+export function debounceInput(id, wait, objRef) {
 	var el = document.getElementById(id);
 	if (el) {
 		var debouncedFunction = debounce(function (ev) {
-			objRef.invokeMethodAsync("OnDebouncedInput", ev.srcElement.value)
+			objRef.invokeMethodAsync("OnDebouncedInput", ev.srcElement.value);
 		}, wait);
 		el.addEventListener("input", debouncedFunction);
 	}
@@ -61,7 +57,7 @@ export function focus(id) {
 	return false;
 }
 
-export function getElementAtPoint (x, y) {
+export function getElementAtPoint(x, y) {
 	var el = document.elementFromPoint(x, y);
 	if (el) {
 		var baseInfo = getElementInfo(el);
@@ -81,8 +77,8 @@ export function getElementInfo(el) {
 	var info = {
 		id: el.id || "",
 		tag: el.tagName,
-		classList: []
-	}
+		classList: [],
+	};
 	for (var i = 0; i < el.classList.length; i++) {
 		info.classList.push(el.classList[i]);
 	}
@@ -121,10 +117,12 @@ export function getY(el) {
 	return rect.top || 0;
 }
 
-export function isTouchDevice () {
-	return (("ontouchstart" in window) ||
-		(navigator.maxTouchPoints > 0) ||
-		(navigator.msMaxTouchPoints > 0));
+export function isTouchDevice() {
+	return (
+		"ontouchstart" in window ||
+		navigator.maxTouchPoints > 0 ||
+		navigator.msMaxTouchPoints > 0
+	);
 }
 
 export function openUrl(url, target) {
@@ -149,9 +147,9 @@ export function scrollIntoViewEx(selector, behaviour, block, inline) {
 	const el = document.querySelector(selector);
 	if (el) {
 		el.scrollIntoView({
-			behavior: 'smooth', // or 'auto' for immediate scrolling
-			block: 'nearest',   // aligns vertically (not usually needed for columns)
-			inline: 'center'    // aligns horizontally
+			behavior: behaviour, // e.g. "smooth", or "auto" for immediate scrolling
+			block: block, // vertical alignment, e.g. "nearest"
+			inline: inline, // horizontal alignment, e.g. "center"
 		});
 	}
 }
@@ -188,7 +186,7 @@ export function setPointerCapture(id, el) {
 	el.setPointerCapture(id);
 }
 
-export function setValue (id, value) {
+export function setValue(id, value) {
 	var node = document.getElementById(id);
 	if (node) {
 		node.value = value;
@@ -204,7 +202,7 @@ export function onTableDragStart(id) {
 
 export function clearInlineStyle(element) {
 	if (element && element.style) {
-		element.style.cssText = '';
+		element.style.cssText = "";
 	}
 }
 
@@ -212,11 +210,15 @@ export function initDragImage(id) {
 	var el = document.getElementById(id);
 	if (!el || el._dragImageInitialized) return;
 	el._dragImageInitialized = true;
-	el.addEventListener('dragstart', function (e) {
-		if (e.dataTransfer) {
-			e.dataTransfer.setDragImage(el, 0, 0);
-		}
-	}, { capture: true });
+	el.addEventListener(
+		"dragstart",
+		function (e) {
+			if (e.dataTransfer) {
+				e.dataTransfer.setDragImage(el, 0, 0);
+			}
+		},
+		{ capture: true },
+	);
 }
 
 export function setProperty(element, property, value) {
@@ -225,12 +227,12 @@ export function setProperty(element, property, value) {
 	}
 }
 
-function scrollToBottom(element) {
+export function scrollToBottom(element) {
 	element.scrollTop = element.scrollHeight;
 }
 
 function onDragStart(evt) {
-	var url = evt.target.getAttribute('data-downloadurl');
+	var url = evt.target.getAttribute("data-downloadurl");
 	if (url) {
 		evt.dataTransfer.setData("DownloadURL", url);
 	}

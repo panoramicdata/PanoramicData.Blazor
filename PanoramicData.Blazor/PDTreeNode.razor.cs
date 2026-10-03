@@ -91,23 +91,38 @@ public partial class PDTreeNode<TItem> where TItem : class
 
 		if (Node != null)
 		{
-			// focus and select text in edit box after first rendered
-			if (Node.IsEditing && Node.BeginEditEvent.WaitOne(0))
-			{
-				if (_commonModule != null)
-				{
-					await _commonModule.InvokeVoidAsync("selectText", $"PDTNE{Node.Id}", 0, Node.Text.Length).ConfigureAwait(true);
-				}
+			await SelectEditTextAsync(Node).ConfigureAwait(true);
+			await InitDragImageAsync(Node).ConfigureAwait(true);
+		}
+	}
 
-				Node.BeginEditEvent.Reset();
+	/// <summary>
+	/// Focuses and selects the text in the edit box after it is first rendered.
+	/// </summary>
+	/// <param name="node">The rendered node.</param>
+	private async Task SelectEditTextAsync(TreeNode<TItem> node)
+	{
+		if (node.IsEditing && node.BeginEditEvent.WaitOne(0))
+		{
+			if (_commonModule != null)
+			{
+				await _commonModule.InvokeVoidAsync("selectText", $"PDTNE{node.Id}", 0, node.Text.Length).ConfigureAwait(true);
 			}
 
-			// Fix #38: register a native dragstart listener so we can call setDragImage on
-			// the real dataTransfer object (Blazor DragEventArgs doesn't carry it)
-			if (AllowDrag && _commonModule != null)
-			{
-				await _commonModule.InvokeVoidAsync("initDragImage", $"pdtnc-{Node.Id}").ConfigureAwait(true);
-			}
+			node.BeginEditEvent.Reset();
+		}
+	}
+
+	/// <summary>
+	/// Fix #38: registers a native dragstart listener so that setDragImage can be called on the real
+	/// dataTransfer object (Blazor DragEventArgs doesn't carry it).
+	/// </summary>
+	/// <param name="node">The rendered node.</param>
+	private async Task InitDragImageAsync(TreeNode<TItem> node)
+	{
+		if (AllowDrag && _commonModule != null)
+		{
+			await _commonModule.InvokeVoidAsync("initDragImage", $"pdtnc-{node.Id}").ConfigureAwait(true);
 		}
 	}
 
@@ -119,7 +134,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 		}
 	}
 
-	private void OnDragStart(DragEventArgs _)
+	private void OnDragStart()
 	{
 		// need to set the data being dragged
 		if (DragContext != null && Node?.Data != null)
@@ -143,14 +158,6 @@ public partial class PDTreeNode<TItem> where TItem : class
 
 	private async Task OnEndEdit() => await EndEdit.InvokeAsync(null).ConfigureAwait(true);
 
-	private static Dictionary<string, object> TreeAttributes
-	{
-		get
-		{
-			return [];
-		}
-	}
-
 	private Dictionary<string, object> ContentAttributes
 	{
 		get
@@ -169,7 +176,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 		|| Tree?.IsDropValid is null
 		|| Tree.IsDropValid(Node.Data, DragContext?.Payload);
 
-	private void OnDragEnter(DragEventArgs _)
+	private void OnDragEnter()
 	{
 		if (AllowDrop)
 		{
@@ -178,7 +185,7 @@ public partial class PDTreeNode<TItem> where TItem : class
 		}
 	}
 
-	private void OnDragLeave(DragEventArgs _)
+	private void OnDragLeave()
 	{
 		if (AllowDrop)
 		{

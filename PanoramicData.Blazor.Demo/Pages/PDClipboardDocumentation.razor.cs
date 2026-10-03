@@ -1,6 +1,6 @@
 namespace PanoramicData.Blazor.Demo.Pages;
 
-public partial class PDClipboardDocumentation
+public partial class PDClipboardDocumentation : ComponentBase
 {
 	private const string _example1Code = """
 		<span>API Key: abc123</span>

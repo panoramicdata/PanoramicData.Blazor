@@ -34,34 +34,29 @@ public static class ExpressionExtensions
 	/// <returns>A dot-separated property path (e.g. <c>"Address.City"</c>), or an empty string when the path cannot be determined.</returns>
 	public static string GetPropertyName<TItem>(this Expression<Func<TItem, object>> expr)
 	{
-		if (expr != null)
+		if (expr is null)
 		{
-			var body = expr.Body.ToString();
-			if (expr.Body is MemberExpression)
-			{
-				return body.Contains('.') ? string.Join(".", body.Split('.').Skip(1)) : body;
-			}
-			else if (expr.Body is ConditionalExpression ce1 && ce1.IfTrue is MemberExpression tme)
-			{
-				return tme.ToString().Contains('.') ? string.Join(".", tme.ToString().Split('.').Skip(1)) : tme.ToString();
-			}
-			else if (expr.Body is ConditionalExpression ce2 && ce2.IfFalse is MemberExpression fme)
-			{
-				return fme.ToString().Contains('.') ? string.Join(".", fme.ToString().Split('.').Skip(1)) : fme.ToString();
-			}
-			else
-			{
-				var idx1 = body.IndexOf("Convert(", StringComparison.Ordinal);
-				var idx2 = body.IndexOf(',', StringComparison.Ordinal);
-				if (idx1 > -1 && idx2 > idx1)
-				{
-					body = body[(idx1 + 8)..idx2];
-					var path = body.Contains('.') ? string.Join(".", body.Split('.').Skip(1)) : body;
-					return path;
-				}
-			}
+			return string.Empty;
 		}
 
-		return string.Empty;
+		return expr.Body switch
+		{
+			MemberExpression member => StripParameter(member.ToString()),
+			ConditionalExpression { IfTrue: MemberExpression trueMember } => StripParameter(trueMember.ToString()),
+			ConditionalExpression { IfFalse: MemberExpression falseMember } => StripParameter(falseMember.ToString()),
+			_ => GetConvertedPropertyName(expr.Body.ToString())
+		};
 	}
+
+	private static string GetConvertedPropertyName(string body)
+	{
+		var idx1 = body.IndexOf("Convert(", StringComparison.Ordinal);
+		var idx2 = body.IndexOf(',', StringComparison.Ordinal);
+		return idx1 > -1 && idx2 > idx1
+			? StripParameter(body[(idx1 + 8)..idx2])
+			: string.Empty;
+	}
+
+	private static string StripParameter(string path)
+		=> path.Contains('.') ? string.Join(".", path.Split('.').Skip(1)) : path;
 }

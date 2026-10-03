@@ -5,7 +5,7 @@
 
 <DemoSourceView SourceFiles="Pages/PDMonaco.razor, Pages/PDMonaco.razor.cs">
 
-	<div class="host">
+	<div class="host pdmonaco-page">
 
 		<PDToolbar>
 			<PDToolbarButton Click="@(() => OnSetLanguage("sql"))"
@@ -41,7 +41,7 @@
 							 Text="Dark" />
 
 			<PDToolbarPlaceholder>
-				<PDToggleSwitch @bind-Value="_showSuggestions"
+				<PDToggleSwitch @bind-Value="ShowSuggestions"
 								Label="Show Suggestions"
 								LabelBefore="true"
 								Rounded="true" />
@@ -72,8 +72,8 @@
 		@*    - it forces a new instance of the component when the Language parameter changes *@
 		<PDMonacoEditor @bind-Value="@_value"
 						@key="@_language"
-						@ref="_editor"
-						ShowSuggestions="_showSuggestions"
+						@ref="Editor"
+						ShowSuggestions="ShowSuggestions"
 						InitializeCache="InitializeCache"
 						InitializeOptions="InitializeOptions"
 						InitializeLanguageAsync="InitializeLanguageAsync"

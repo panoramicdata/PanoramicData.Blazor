@@ -9,16 +9,15 @@ public partial class PDTreePage3
 
 	private void OnReady() => Tree.ExpandAll();
 
-	private static string GetIconCssClass(TreeItem item, int _) => item.IsGroup ? "fas fa-fw fa-building" : "fas fa-fw fa-user";
+	private static string GetIconCssClass(TreeItem item) => item.IsGroup ? "fas fa-fw fa-building" : "fas fa-fw fa-user";
+
+	private static TreeItem? GetFirstPayloadItem(object? payload)
+		=> payload is List<TreeItem> items && items.Count > 0 ? items[0] : null;
 
 	private void OnDrop(DropEventArgs args)
 	{
 		var targetItem = (args.Target as TreeNode<TreeItem>)?.Data;
-		TreeItem? sourceItem = null;
-		if (args.Payload is List<TreeItem> items && items.Count > 0)
-		{
-			sourceItem = items[0];
-		}
+		var sourceItem = GetFirstPayloadItem(args.Payload);
 
 		EventManager?.Add(new Event("Drop",
 			new EventArgument("Source", sourceItem?.Name),
@@ -32,50 +31,59 @@ public partial class PDTreePage3
 		}
 	}
 
+	/// <summary>
+	/// Validates a move: a group can only be dragged onto another group and a person
+	/// can only be dropped onto a group itself (not before or after it).
+	/// </summary>
+	private static bool IsValidMove(TreeItem source, TreeItem target, bool? before)
+		=> source.IsGroup ? target.IsGroup : !(target.IsGroup && before != null);
+
 	public void ReOrder(TreeItem source, TreeItem target, bool? before)
 	{
 		// validate the move
-		if (source.IsGroup)
+		if (!IsValidMove(source, target, before))
 		{
-			// can only drag group onto another group
-			if (!target.IsGroup)
-			{
-				return;
-			}
-		}
-		else
-		{
-			// can only drop person onto group itself (not before or after)
-			if (target.IsGroup && before != null)
-			{
-				return;
-			}
+			return;
 		}
 
 		// find source and target nodes
 		var sourceNode = Tree.RootNode.Find(source.Id.ToString());
 		var targetNode = Tree.RootNode.Find(target.Id.ToString());
-		if (sourceNode?.ParentNode?.Nodes is null || targetNode?.ParentNode?.Nodes is null)
+		var sourceSiblings = GetSiblings(sourceNode);
+		var targetSiblings = GetSiblings(targetNode);
+		if (sourceNode is null || targetNode is null || sourceSiblings is null || targetSiblings is null)
 		{
 			return;
 		}
 
 		// remove source node from parent node
-		sourceNode.ParentNode?.Nodes?.Remove(sourceNode);
+		sourceSiblings.Remove(sourceNode);
 
 		if (source.IsGroup || !target.IsGroup)
 		{
-			var tIdx = targetNode.ParentNode.Nodes.IndexOf(targetNode);
-			targetNode.ParentNode.Nodes.Insert(before == true ? tIdx : tIdx + 1, sourceNode);
-			sourceNode.ParentNode = targetNode.ParentNode;
-			ReOrderNodes(targetNode.ParentNode.Nodes);
+			InsertBesideNode(sourceNode, targetNode, targetSiblings, before == true);
 		}
 		else
 		{
-			targetNode.Nodes?.Add(sourceNode);
-			sourceNode.ParentNode = targetNode;
-			ReOrderNodes(targetNode.Nodes);
+			MoveIntoNode(sourceNode, targetNode);
 		}
+	}
+
+	private static List<TreeNode<TreeItem>>? GetSiblings(TreeNode<TreeItem>? node) => node?.ParentNode?.Nodes;
+
+	private static void InsertBesideNode(TreeNode<TreeItem> sourceNode, TreeNode<TreeItem> targetNode, List<TreeNode<TreeItem>> siblings, bool before)
+	{
+		var tIdx = siblings.IndexOf(targetNode);
+		siblings.Insert(before ? tIdx : tIdx + 1, sourceNode);
+		sourceNode.ParentNode = targetNode.ParentNode;
+		ReOrderNodes(siblings);
+	}
+
+	private static void MoveIntoNode(TreeNode<TreeItem> sourceNode, TreeNode<TreeItem> targetNode)
+	{
+		targetNode.Nodes?.Add(sourceNode);
+		sourceNode.ParentNode = targetNode;
+		ReOrderNodes(targetNode.Nodes);
 	}
 
 	private static void ReOrderNodes(IEnumerable<TreeNode<TreeItem>>? nodes)

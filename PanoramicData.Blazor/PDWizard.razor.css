@@ -56,6 +56,20 @@
     flex-shrink: 0;
 }
 
+.pd-wizard-step-circle {
+    width: var(--pd-wizard-circle-size);
+    height: var(--pd-wizard-circle-size);
+    border-radius: 50%;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--pd-wizard-circle-font-size, 0.9rem);
+    font-weight: 600;
+    line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
+}
+
 .pd-wizard-step-node--active .pd-wizard-step-circle {
     background: var(--pd-wizard-active-color);
     border-color: var(--pd-wizard-active-color);
@@ -72,20 +86,6 @@
     background: transparent;
     border-color: var(--pd-wizard-pending-color);
     color: var(--pd-wizard-pending-color);
-}
-
-.pd-wizard-step-circle {
-    width: var(--pd-wizard-circle-size);
-    height: var(--pd-wizard-circle-size);
-    border-radius: 50%;
-    border: 2px solid;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--pd-wizard-circle-font-size, 0.9rem);
-    font-weight: 600;
-    line-height: 1;
-    transition: background 0.2s, border-color 0.2s;
 }
 
 .pd-wizard-step-circle i {
@@ -137,10 +137,6 @@
     cursor: pointer;
 }
 
-.pd-wizard--navigable .pd-wizard-dot--completed {
-    cursor: pointer;
-}
-
 /* ── Dots style ────────────────────────────────────────────────────────── */
 .pd-wizard-indicator--dots {
     display: flex;
@@ -168,6 +164,11 @@
 .pd-wizard-dot--completed {
     background: var(--pd-wizard-completed-color);
     border-color: var(--pd-wizard-completed-color);
+}
+
+/* Clickable dots when AllowStepNavigation is on */
+.pd-wizard--navigable .pd-wizard-dot--completed {
+    cursor: pointer;
 }
 
 /* ── Breadcrumb style ──────────────────────────────────────────────────── */
@@ -243,6 +244,7 @@
 }
 
 /* ── Modal integration ─────────────────────────────────────────────────── */
+
 /* When used inside a PDModal, remove the extra padding from the modal-body */
 .modal-body > .pd-wizard {
     margin: -1rem;

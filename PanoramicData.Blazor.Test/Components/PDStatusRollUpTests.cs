@@ -291,4 +291,28 @@ public class PDStatusRollUpTests : BunitContext
 		received[1].Should().BeSameAs(update);
 		tree.Status.Should().Be(RollUpStatus.Amber);
 	}
+
+	/// <summary>
+	/// Verifies that an update is not patched in when the callback itself removed the node it was asked about,
+	/// rather than being written to a position that now holds something else.
+	/// </summary>
+	[Theory]
+	[InlineData("0")]
+	[InlineData("1.0")]
+	public async Task ExpandNode_ForANodeThatVanished_DoesNotPatchTheTree(string path)
+	{
+		var tree = Tree();
+		var component = Render<PDStatusRollUp>(parameters => parameters
+			.Add(p => p.Node, tree)
+			.Add(p => p.OnBeforeExpand, _ =>
+			{
+				tree.Children.Clear();
+				return Task.FromResult<PDStatusRollUpNode?>(new PDStatusRollUpNode { Title = "Late" });
+			}));
+
+		var result = await component.InvokeAsync(() => component.Instance.ExpandNodeAsync(path));
+
+		result.Should().Contain("\"title\":\"Late\"");
+		tree.Children.Should().BeEmpty();
+	}
 }

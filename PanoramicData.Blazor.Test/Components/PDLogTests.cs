@@ -25,6 +25,7 @@ public class PDLogTests : BunitContext
 	[InlineData(LogLevel.Warning, "fas fa-exclamation-triangle text-warning", "text-warning")]
 	[InlineData(LogLevel.Error, "fas fa-times-circle text-danger", "text-danger")]
 	[InlineData(LogLevel.Critical, "fas fa-bomb text-danger", "text-danger")]
+	[InlineData(LogLevel.None, "fas fa-info-circle text-muted", "text-muted")]
 	public void Entry_IsShownWithTheIconAndColourOfItsLevel(LogLevel level, string icon, string timestampClass)
 	{
 		var log = Render<PDLog>(parameters => parameters.Add(p => p.LogLevel, LogLevel.Trace));

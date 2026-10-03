@@ -344,23 +344,7 @@ public partial class PDModal : IAsyncDisposable
 
 		try
 		{
-			if (_commonModule != null)
-			{
-				await _commonModule.DisposeAsync().ConfigureAwait(true);
-				_commonModule = null;
-			}
-
-			if (_module != null)
-			{
-				await _module.DisposeAsync().ConfigureAwait(true);
-				_module = null;
-			}
-
-			if (_modalObj != null)
-			{
-				await _modalObj.DisposeAsync().ConfigureAwait(true);
-				_modalObj = null;
-			}
+			await DisposeJavaScriptReferencesAsync().ConfigureAwait(true);
 		}
 		catch (ObjectDisposedException)
 		{
@@ -374,6 +358,27 @@ public partial class PDModal : IAsyncDisposable
 
 		_dotNetReference?.Dispose();
 		_dotNetReference = null;
+	}
+
+	private async Task DisposeJavaScriptReferencesAsync()
+	{
+		if (_commonModule != null)
+		{
+			await _commonModule.DisposeAsync().ConfigureAwait(true);
+			_commonModule = null;
+		}
+
+		if (_module != null)
+		{
+			await _module.DisposeAsync().ConfigureAwait(true);
+			_module = null;
+		}
+
+		if (_modalObj != null)
+		{
+			await _modalObj.DisposeAsync().ConfigureAwait(true);
+			_modalObj = null;
+		}
 	}
 
 	private string ModalCssClass

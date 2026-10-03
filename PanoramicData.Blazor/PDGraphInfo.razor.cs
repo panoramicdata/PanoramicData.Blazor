@@ -1,3 +1,5 @@
+using PanoramicData.Blazor.Helpers;
+
 namespace PanoramicData.Blazor;
 
 /// <summary>
@@ -6,10 +8,13 @@ namespace PanoramicData.Blazor;
 /// <typeparam name="TItem">The type of data items used to generate graph data.</typeparam>
 public partial class PDGraphInfo<TItem> : PDComponentBase where TItem : class
 {
-	private static int _idSequence;
 	private PDSplitter? _splitter;
 	private PDGraphControls<TItem>? _controls;
-	private PDGraphSelectionInfo<TItem>? _selectionInfo;
+
+	/// <summary>
+	/// Gets the selection information panel, set by the markup.
+	/// </summary>
+	internal PDGraphSelectionInfo<TItem>? SelectionInfo { get; set; }
 
 	/// <summary>
 	/// Gets or sets the split direction for the controls and selection info panels.
@@ -66,7 +71,7 @@ public partial class PDGraphInfo<TItem> : PDComponentBase where TItem : class
 		// Set a unique ID if not provided
 		if (HasDefaultId)
 		{
-			Id = $"pd-graph-info-{Interlocked.Increment(ref _idSequence)}";
+			Id = $"pd-graph-info-{ComponentIdSequence.Next()}";
 		}
 	}
 
@@ -80,7 +85,7 @@ public partial class PDGraphInfo<TItem> : PDComponentBase where TItem : class
 		SelectedNode = node;
 		SelectedEdge = edge;
 		
-		_selectionInfo?.UpdateSelection(node, edge);
+		SelectionInfo?.UpdateSelection(node, edge);
 		
 		StateHasChanged();
 	}

@@ -110,13 +110,9 @@ public partial class PDStatusCascade : IAsyncDisposable
         return node;
     }
 
+    // Only called for a descendant: an update to the root (the empty path) is applied to it in place.
     private static void PatchNode(PDStatusCascadeNode root, string path, PDStatusCascadeNode replacement)
     {
-        if (string.IsNullOrEmpty(path))
-        {
-            return;
-        }
-
         var segments = path.Split('.');
         var node = root;
         for (var i = 0; i < segments.Length - 1; i++)

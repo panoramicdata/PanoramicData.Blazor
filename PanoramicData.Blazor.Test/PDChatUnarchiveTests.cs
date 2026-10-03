@@ -1,3 +1,4 @@
+using System;
 using AwesomeAssertions;
 using Bunit;
 using PanoramicData.Blazor.Interfaces;
@@ -145,23 +146,38 @@ public class PDChatUnarchiveTests : BunitContext
 		public List<Guid> Archived { get; } = [];
 
 		public Task<ChatConversationPage> ListAsync(ChatConversationQuery query, CancellationToken cancellationToken)
-			=> Task.FromResult(new ChatConversationPage
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			return Task.FromResult(new ChatConversationPage
 			{
 				Conversations = query.IncludeArchived || !Conversation.IsArchived ? [Conversation] : [],
 				TotalCount = 1
 			});
+		}
 
 		public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(Guid id, CancellationToken cancellationToken)
-			=> Task.FromResult<IReadOnlyList<ChatMessage>>([]);
+		{
+			EnsureHeld(id, cancellationToken);
+			return Task.FromResult<IReadOnlyList<ChatMessage>>([]);
+		}
 
+		// The store holds exactly one conversation, so it has no room for another.
 		public Task<ChatConversation> CreateAsync(CancellationToken cancellationToken)
-			=> Task.FromResult(new ChatConversation { Id = Guid.NewGuid() });
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			throw new NotSupportedException("This store holds exactly one conversation.");
+		}
 
 		public Task RenameAsync(Guid id, string title, CancellationToken cancellationToken)
-			=> Task.CompletedTask;
+		{
+			EnsureHeld(id, cancellationToken);
+			Conversation.Title = title;
+			return Task.CompletedTask;
+		}
 
 		public Task ArchiveAsync(Guid id, CancellationToken cancellationToken)
 		{
+			EnsureHeld(id, cancellationToken);
 			Archived.Add(id);
 			Conversation.IsArchived = true;
 			return Task.CompletedTask;
@@ -169,9 +185,19 @@ public class PDChatUnarchiveTests : BunitContext
 
 		public Task UnarchiveAsync(Guid id, CancellationToken cancellationToken)
 		{
+			EnsureHeld(id, cancellationToken);
 			Unarchived.Add(id);
 			Conversation.IsArchived = false;
 			return Task.CompletedTask;
+		}
+
+		private void EnsureHeld(Guid id, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			if (id != ConversationId)
+			{
+				throw new InvalidOperationException($"This store does not hold conversation {id}.");
+			}
 		}
 	}
 }

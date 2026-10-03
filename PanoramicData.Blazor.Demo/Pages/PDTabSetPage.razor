@@ -19,30 +19,30 @@
 
 				<h6 class="text-muted text-uppercase small mb-2">Behaviour</h6>
 				<div class="form-check form-switch mb-2">
-					<input class="form-check-input" type="checkbox" id="chkReorder" @bind="_isReorderingEnabled" />
+					<input class="form-check-input" type="checkbox" id="chkReorder" @bind="IsReorderingEnabled" />
 					<label class="form-check-label" for="chkReorder">Allow drag to reorder</label>
 				</div>
 				<div class="form-check form-switch mb-2">
-					<input class="form-check-input" type="checkbox" id="chkClose" @bind="_isClosingEnabled" />
+					<input class="form-check-input" type="checkbox" id="chkClose" @bind="IsClosingEnabled" />
 					<label class="form-check-label" for="chkClose">Allow close</label>
 				</div>
 				<div class="form-check form-switch mb-2">
-					<input class="form-check-input" type="checkbox" id="chkRename" @bind="_isRenamingEnabled" />
+					<input class="form-check-input" type="checkbox" id="chkRename" @bind="IsRenamingEnabled" />
 					<label class="form-check-label" for="chkRename">Allow rename (dbl-click)</label>
 				</div>
 				<div class="form-check form-switch mb-3">
-					<input class="form-check-input" type="checkbox" id="chkAdd" @bind="_isAddingEnabled" />
+					<input class="form-check-input" type="checkbox" id="chkAdd" @bind="IsAddingEnabled" />
 					<label class="form-check-label" for="chkAdd">Allow add tab</label>
 				</div>
 
 				<h6 class="text-muted text-uppercase small mb-2">Dimensions</h6>
 				<div class="mb-2">
 					<label class="form-label small mb-1">Min width</label>
-					<input class="form-control form-control-sm" @bind="_tabMinWidth" @bind:event="oninput" placeholder="e.g. 80px" />
+					<input class="form-control form-control-sm" @bind="TabMinWidth" @bind:event="oninput" placeholder="e.g. 80px" />
 				</div>
 				<div class="mb-3">
 					<label class="form-label small mb-1">Max width</label>
-					<input class="form-control form-control-sm" @bind="_tabMaxWidth" @bind:event="oninput" placeholder="e.g. 240px" />
+					<input class="form-control form-control-sm" @bind="TabMaxWidth" @bind:event="oninput" placeholder="e.g. 240px" />
 				</div>
 
 				<h6 class="text-muted text-uppercase small mb-2">Tabs</h6>
@@ -67,12 +67,12 @@
 	<div class="col-xl-9 col-lg-8">
 
 		<div style="border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;overflow:hidden;">
-			<PDTabSet IsTabReorderingEnabled="@_isReorderingEnabled"
-					  IsTabClosingEnabled="@_isClosingEnabled"
-					  IsTabRenamingEnabled="@_isRenamingEnabled"
-					  IsTabAdditionEnabled="@_isAddingEnabled"
-					  TabMinWidth="@_tabMinWidth"
-					  TabMaxWidth="@_tabMaxWidth"
+			<PDTabSet IsTabReorderingEnabled="@IsReorderingEnabled"
+					  IsTabClosingEnabled="@IsClosingEnabled"
+					  IsTabRenamingEnabled="@IsRenamingEnabled"
+					  IsTabAdditionEnabled="@IsAddingEnabled"
+					  TabMinWidth="@TabMinWidth"
+					  TabMaxWidth="@TabMaxWidth"
 					  OnTabSelected="OnTabSelected"
 					  OnTabClosed="OnTabClosed"
 					  OnTabAdded="OnTabAdded"
