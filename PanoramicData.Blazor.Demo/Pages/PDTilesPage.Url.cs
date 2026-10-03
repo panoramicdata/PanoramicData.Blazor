@@ -85,7 +85,12 @@ public partial class PDTilesPage
 		}
 
 		var newUrl = QueryHelpers.AddQueryString(NavigationManager.Uri.Split('?')[0], queryParams!);
-		NavigationManager.NavigateTo(newUrl, replace: true);
+
+		// Navigating while prerendering redirects, so navigating to the current URL would redirect forever
+		if (newUrl != NavigationManager.Uri)
+		{
+			NavigationManager.NavigateTo(newUrl, replace: true);
+		}
 	}
 
 	private static string FormatNullable(int? value) => $"{value}";
