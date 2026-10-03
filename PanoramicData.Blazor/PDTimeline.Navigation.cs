@@ -5,6 +5,15 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDTimeline
 {
+	private int _totalColumns;
+	private int _viewportColumns;
+	private TimelineScale _previousScale = TimelineScale.Years;
+	private bool _scaleApplied;
+	private CancellationTokenSource? _refreshCancellationToken;
+	private DateTime _lastQueryEnd = DateTime.MinValue;
+	private DateTime _lastQueryStart = DateTime.MinValue;
+	private TimelineScale _lastQueryScale = TimelineScale.Years;
+
 	/// <summary>
 	/// Determines whether zoom-in is currently possible.
 	/// </summary>

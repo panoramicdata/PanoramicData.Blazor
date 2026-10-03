@@ -21,8 +21,6 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	private int _canvasWidth;
 	private int _canvasX;
 	private int _columnOffset;
-	private int _totalColumns;
-	private int _viewportColumns;
 
 	private bool _isChartDragging;
 	private bool _isPotentialDrag; // Track if pointer is down but not yet dragging
@@ -31,8 +29,6 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 	private int _dragSelectionEndOffset; // Original end index when drag began
 	private double _chartDragStartX;
 	private const double _dragThreshold = 5.0; // pixels
-	private int _selectionStartIndex = -1;
-	private int _selectionEndIndex = -1;
 	private int _lastSelectionStartIndex;
 	private int _lastSelectionEndIndex;
 	private TimeRange? _selectionRange;
@@ -46,27 +42,12 @@ public partial class PDTimeline : IAsyncDisposable, IEnablable
 
 	private IJSObjectReference? _module;
 	private DotNetObjectReference<PDTimeline>? _objRef;
-	private TimelineScale _previousScale = TimelineScale.Years;
-	private bool _scaleApplied;
-	private CancellationTokenSource? _refreshCancellationToken;
 	private bool _loading;
 	private DateTime _lastMinDateTime;
 	private DateTime? _lastMaxDateTime;
 	private IJSObjectReference? _commonModule;
 	private readonly Dictionary<int, DataPoint> _dataPoints = [];
 
-	private DateTime _lastQueryEnd = DateTime.MinValue;
-	private DateTime _lastQueryStart = DateTime.MinValue;
-	private TimelineScale _lastQueryScale = TimelineScale.Years;
-	private CancellationTokenSource? _followNowCancellationTokenSource;
-	private Task? _followNowTask;
-	private TimeSpan _activeFollowNowRefreshInterval;
-	private TimeProvider? _activeFollowNowClock;
-	private bool _isFollowingNow;
-	private bool _followNowSuspendedByUser;
-	private bool? _lastFollowNowParameter;
-	private DateTime _lastFollowNowBoundary = DateTime.MinValue;
-	private TimeSpan? _followNowSelectionDuration;
 	private bool _disposed;
 
 	/// <summary>

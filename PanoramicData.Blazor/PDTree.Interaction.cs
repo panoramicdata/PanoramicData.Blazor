@@ -5,6 +5,10 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDTree<TItem>
 {
+	private int _clickCount;
+	private Timer? _clickTimer;
+	private TreeNode<TItem>? _clickedNode;
+
 	/// <summary>
 	/// Handles the click timer callback for distinguishing between single and double clicks.
 	/// </summary>
@@ -306,19 +310,13 @@ public partial class PDTree<TItem>
 	/// <param name="code">The key code.</param>
 	private async Task HandleEditKeyAsync(string code)
 	{
-		switch (code)
+		if (code == "Escape")
 		{
-			case "Escape":
-				CancelEdit();
-				break;
-
-			case "Enter":
-			case "Return":
-				await CommitEdit().ConfigureAwait(true);
-				break;
-
-			default:
-				break;
+			CancelEdit();
+		}
+		else if (code is "Enter" or "Return")
+		{
+			await CommitEdit().ConfigureAwait(true);
 		}
 	}
 
@@ -329,31 +327,16 @@ public partial class PDTree<TItem>
 	/// <param name="code">The key code.</param>
 	private async Task HandleNavigationKeyAsync(TreeNode<TItem> node, string code)
 	{
-		switch (code)
+		var action = code switch
 		{
-			case "F2":
-				await BeginEdit().ConfigureAwait(true);
-				break;
-
-			case "ArrowRight":
-				await SetExpandedAsync(node, true).ConfigureAwait(true);
-				break;
-
-			case "ArrowLeft":
-				await SetExpandedAsync(node, false).ConfigureAwait(true);
-				break;
-
-			case "ArrowDown":
-				await SelectNextAsync(node).ConfigureAwait(true);
-				break;
-
-			case "ArrowUp":
-				await SelectPreviousAsync(node).ConfigureAwait(true);
-				break;
-
-			default:
-				break;
-		}
+			"F2" => BeginEdit(),
+			"ArrowRight" => SetExpandedAsync(node, true),
+			"ArrowLeft" => SetExpandedAsync(node, false),
+			"ArrowDown" => SelectNextAsync(node),
+			"ArrowUp" => SelectPreviousAsync(node),
+			_ => Task.CompletedTask
+		};
+		await action.ConfigureAwait(true);
 	}
 
 	/// <summary>

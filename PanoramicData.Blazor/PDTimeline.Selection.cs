@@ -5,6 +5,9 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDTimeline
 {
+	private int _selectionStartIndex = -1;
+	private int _selectionEndIndex = -1;
+
 	private double SelectionStartX => (Math.Min(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width;
 
 	private double SelectionEndX => ((Math.Max(_selectionStartIndex, _selectionEndIndex) - _columnOffset) * Options.Bar.Width) + Options.Bar.Width;

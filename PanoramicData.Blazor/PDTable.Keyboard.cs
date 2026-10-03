@@ -21,19 +21,13 @@ public partial class PDTable<TItem>
 	/// </summary>
 	private async Task OnEditingKeyDownAsync(KeyboardEventArgs args)
 	{
-		switch (args.Code)
+		if (args.Code == "Escape")
 		{
-			case "Escape":
-				await CancelEdit().ConfigureAwait(true);
-				break;
-
-			case "Enter":
-			case "Return":
-				await CommitEditAsync().ConfigureAwait(true);
-				break;
-
-			default:
-				break;
+			await CancelEdit().ConfigureAwait(true);
+		}
+		else if (args.Code is "Enter" or "Return")
+		{
+			await CommitEditAsync().ConfigureAwait(true);
 		}
 	}
 

@@ -13,18 +13,6 @@ public partial class PDTiles : ComponentBase, IAsyncDisposable
 	private TileColors _colors = new();
 	private readonly Dictionary<string, TileGradientInfo> _tileColorGradients = [];
 	private readonly Dictionary<string, TileDefinition> _tileOverrides = [];
-	private List<string?> _tileLogos = [];
-	private List<bool> _tileVisible = [];
-
-	// The generated (random) logo and visibility of each tile, before per-tile overrides are applied
-	private List<string?> _generatedLogos = [];
-	private List<bool> _generatedVisible = [];
-
-	// Track last known grid configuration to avoid re-randomizing on every render
-	private int _lastColumns;
-	private int _lastRows;
-	private int _lastPopulation;
-	private int _lastLogoCount;
 
 	// Animation state
 	private double _animationOffset;
