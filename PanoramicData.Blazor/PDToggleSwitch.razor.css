@@ -3,21 +3,21 @@
 	display:inline-block;
 }
 
-.pdtoggleswitch svg:focus {
-	outline: 0;
-	box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+.pdtoggleswitch svg {
+	cursor: pointer;
+	vertical-align: middle; /* ? ADDED: Align with toolbar buttons */
 }
 
-.pdtoggleswitch.sm.rd svg:focus {
-	border-radius: 8px;
+.pdtoggleswitch text {
+	stroke-width: 0;
 }
 
-.pdtoggleswitch.md.rd svg:focus {
-	border-radius: 12px;
+.pdtoggleswitch .switch {
+	stroke-width: 2;
 }
 
-.pdtoggleswitch.lg.rd svg:focus {
-	border-radius: 16px;
+.pdtoggleswitch .toggle {
+	fill: white;
 }
 
 /* ? ADDED: Toolbar integration styles */
@@ -26,9 +26,9 @@
 	border-radius: var(--bs-border-radius, 0.375rem); /* Match toolbar button border radius */
 }
 
-.pdtoolbaritem .pdtoggleswitch.rd svg,
-.pdtoolbar .pdtoggleswitch.rd svg {
-	border-radius: calc(var(--bs-border-radius, 0.375rem) * 2); /* More rounded when explicitly set */
+.pdtoggleswitch svg:focus {
+	outline: 0;
+	box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
 }
 
 .pdtoggleswitch.sm text {
@@ -39,19 +39,6 @@
 	font-size: 1.5rem;
 }
 
-.pdtoggleswitch svg {
-	cursor: pointer;
-	vertical-align: middle; /* ? ADDED: Align with toolbar buttons */
-}
-
-.pdtoggleswitch .switch {
-	stroke-width: 2;
-}
-
-.pdtoggleswitch text {
-	stroke-width: 0;
-}
-
 .pdtoggleswitch text.on {
 	fill: var(--pd-toggle-on-text-color, white);
 }
@@ -60,8 +47,14 @@
 	fill: var(--pd-toggle-off-text-color, white);
 }
 
-.pdtoggleswitch .toggle {
-	fill: white;
+.pdtoggleswitch.disabled svg {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.pdtoolbaritem .pdtoggleswitch.rd svg,
+.pdtoolbar .pdtoggleswitch.rd svg {
+	border-radius: calc(var(--bs-border-radius, 0.375rem) * 2); /* More rounded when explicitly set */
 }
 
 .pdtoggleswitch .switch.on {
@@ -74,7 +67,14 @@
 	fill: var(--pd-toggle-off-color, #adb5bd);
 }
 
-.pdtoggleswitch.disabled svg {
-	opacity: 0.5;
-	cursor: default;
+.pdtoggleswitch.sm.rd svg:focus {
+	border-radius: 8px;
+}
+
+.pdtoggleswitch.md.rd svg:focus {
+	border-radius: 12px;
+}
+
+.pdtoggleswitch.lg.rd svg:focus {
+	border-radius: 16px;
 }
