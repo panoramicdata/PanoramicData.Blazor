@@ -31,7 +31,9 @@ export function interpolate(from, to, eased) {
 }
 
 export function currentTransform(graph) {
-	return { x: graph.transform.x, y: graph.transform.y, k: graph.transform.k };
+	const transform = graph.transform;
+	const copy = { x: transform.x, y: transform.y, k: transform.k };
+	return copy;
 }
 
 export function animateTransform(graph, from, to) {
