@@ -25,6 +25,6 @@
     <PackageVersion Include="xunit.v3" Version="4.0.1" />
     <PackageVersion Include="bunit" Version="2.11.3" />
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.11.2" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
   </ItemGroup>
 </Project>
