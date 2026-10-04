@@ -4,122 +4,73 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDStatusRollUpPage
 {
+	// ── Node factories ─────────────────────────────────────────────
+	private static PDStatusRollUpNode Node(RollUpStatus status, string title, string summary)
+		=> new() { Status = status, Title = title, Summary = summary };
+
+	private static PDStatusRollUpNode Node(RollUpStatus status, string title, string summary, string detail)
+		=> new() { Status = status, Title = title, Summary = summary, Detail = detail };
+
+	private static PDStatusRollUpNode Group(PDStatusRollUpNode node, params PDStatusRollUpNode[] children)
+	{
+		node.Children.AddRange(children);
+		return node;
+	}
+
+	private static PDStatusRollUpNode[] WithExpandable(bool expandable, params PDStatusRollUpNode[] nodes)
+	{
+		foreach (var node in nodes)
+		{
+			node.Expandable = expandable;
+		}
+
+		return nodes;
+	}
+
 	// ── Simple leaf nodes ──────────────────────────────────────────
-	private readonly PDStatusRollUpNode _greenLeaf = new()
-	{
-		Status = RollUpStatus.Green,
-		Title = "Service A",
-		Summary = "All checks passed."
-	};
-
-	private readonly PDStatusRollUpNode _amberLeaf = new()
-	{
-		Status = RollUpStatus.Amber,
-		Title = "Service B",
-		Summary = "Response time elevated — monitoring."
-	};
-
-	private readonly PDStatusRollUpNode _redLeaf = new()
-	{
-		Status = RollUpStatus.Red,
-		Title = "Service C",
-		Summary = "Connection refused.",
-		Detail = "ECONNREFUSED 10.0.0.42:8080"
-	};
-
-	private readonly PDStatusRollUpNode _grayLeaf = new()
-	{
-		Status = RollUpStatus.Gray,
-		Title = "Service D",
-		Summary = "Status unknown — agent unreachable."
-	};
+	private readonly PDStatusRollUpNode _greenLeaf = Node(RollUpStatus.Green, "Service A", "All checks passed.");
+	private readonly PDStatusRollUpNode _amberLeaf = Node(RollUpStatus.Amber, "Service B", "Response time elevated — monitoring.");
+	private readonly PDStatusRollUpNode _redLeaf = Node(RollUpStatus.Red, "Service C", "Connection refused.", "ECONNREFUSED 10.0.0.42:8080");
+	private readonly PDStatusRollUpNode _grayLeaf = Node(RollUpStatus.Gray, "Service D", "Status unknown — agent unreachable.");
 
 	// ── Server nodes with children ─────────────────────────────────
-	private readonly PDStatusRollUpNode _serverOk = new()
-	{
-		Status = RollUpStatus.Green,
-		Title = "srv-prod-01",
-		Summary = "All checks healthy.",
-		Children =
-		[
-			new() { Status = RollUpStatus.Green, Title = "Connectivity",  Summary = "HTTP 200 in 42 ms" },
-			new() { Status = RollUpStatus.Green, Title = "Disk",          Summary = "87 GB free (74 %)" },
-			new() { Status = RollUpStatus.Green, Title = "Version",       Summary = "v4.2.1104" },
-			new() { Status = RollUpStatus.Green, Title = "VM node",       Summary = "pdl-kvm-01" }
-		]
-	};
+	private readonly PDStatusRollUpNode _serverOk = Group(
+		Node(RollUpStatus.Green, "srv-prod-01", "All checks healthy."),
+		Node(RollUpStatus.Green, "Connectivity", "HTTP 200 in 42 ms"),
+		Node(RollUpStatus.Green, "Disk", "87 GB free (74 %)"),
+		Node(RollUpStatus.Green, "Version", "v4.2.1104"),
+		Node(RollUpStatus.Green, "VM node", "pdl-kvm-01"));
 
-	private readonly PDStatusRollUpNode _serverWarn = new()
-	{
-		Status = RollUpStatus.Amber,
-		Title = "srv-prod-02",
-		Summary = "Disk space is low.",
-		Children =
-		[
-			new() { Status = RollUpStatus.Green, Title = "Connectivity",  Summary = "HTTP 200 in 38 ms" },
-			new() { Status = RollUpStatus.Amber, Title = "Disk",          Summary = "12 GB free (8 %)", Detail = "Threshold: 15 GB" },
-			new() { Status = RollUpStatus.Green, Title = "Version",       Summary = "v4.2.1104" },
-			new() { Status = RollUpStatus.Green, Title = "VM node",       Summary = "pdl-kvm-02" }
-		]
-	};
+	private readonly PDStatusRollUpNode _serverWarn = Group(
+		Node(RollUpStatus.Amber, "srv-prod-02", "Disk space is low."),
+		Node(RollUpStatus.Green, "Connectivity", "HTTP 200 in 38 ms"),
+		Node(RollUpStatus.Amber, "Disk", "12 GB free (8 %)", "Threshold: 15 GB"),
+		Node(RollUpStatus.Green, "Version", "v4.2.1104"),
+		Node(RollUpStatus.Green, "VM node", "pdl-kvm-02"));
 
-	private readonly PDStatusRollUpNode _serverError = new()
-	{
-		Status = RollUpStatus.Red,
-		Title = "srv-prod-03",
-		Summary = "Connection refused on port 8080.",
-		Detail = "ECONNREFUSED 10.0.0.43:8080",
-		Children =
-		[
-			new() { Status = RollUpStatus.Red,  Title = "Connectivity",  Summary = "Connection refused", Detail = "ECONNREFUSED 10.0.0.43:8080" },
-			new() { Status = RollUpStatus.Gray, Title = "Disk",          Summary = "Unknown — agent not responding" },
-			new() { Status = RollUpStatus.Gray, Title = "Version",       Summary = "Unknown — agent not responding" },
-			new() { Status = RollUpStatus.Green, Title = "VM node",      Summary = "pdl-kvm-03" }
-		]
-	};
+	private readonly PDStatusRollUpNode _serverError = Group(
+		Node(RollUpStatus.Red, "srv-prod-03", "Connection refused on port 8080.", "ECONNREFUSED 10.0.0.43:8080"),
+		Node(RollUpStatus.Red, "Connectivity", "Connection refused", "ECONNREFUSED 10.0.0.43:8080"),
+		Node(RollUpStatus.Gray, "Disk", "Unknown — agent not responding"),
+		Node(RollUpStatus.Gray, "Version", "Unknown — agent not responding"),
+		Node(RollUpStatus.Green, "VM node", "pdl-kvm-03"));
 
 	// ── Deep three-level tree ──────────────────────────────────────
-	private readonly PDStatusRollUpNode _deepTree = new()
-	{
-		Status = RollUpStatus.Amber,
-		Title = "Infrastructure",
-		Summary = "1 warning across 2 clusters.",
-		Children =
-		[
-			new()
-			{
-				Status = RollUpStatus.Green,
-				Title = "Prod cluster",
-				Summary = "All 6 nodes healthy.",
-				Children =
-				[
-					new() { Status = RollUpStatus.Green, Title = "pdl-kvm-01", Summary = "32 GB RAM · 8 vCPU" },
-					new() { Status = RollUpStatus.Green, Title = "pdl-kvm-02", Summary = "32 GB RAM · 8 vCPU" }
-				]
-			},
-			new()
-			{
-				Status = RollUpStatus.Amber,
-				Title = "Test cluster",
-				Summary = "1 of 3 nodes has a warning.",
-				Children =
-				[
-					new() { Status = RollUpStatus.Green, Title = "pdl-kvm-test-01", Summary = "16 GB RAM · 4 vCPU" },
-					new() { Status = RollUpStatus.Amber, Title = "pdl-kvm-test-02", Summary = "Disk 92 % full",       Detail = "Only 4 GB free" },
-					new() { Status = RollUpStatus.Green, Title = "pdl-kvm-test-03", Summary = "16 GB RAM · 4 vCPU" }
-				]
-			}
-		]
-	};
+	private readonly PDStatusRollUpNode _deepTree = Group(
+		Node(RollUpStatus.Amber, "Infrastructure", "1 warning across 2 clusters."),
+		Group(
+			Node(RollUpStatus.Green, "Prod cluster", "All 6 nodes healthy."),
+			Node(RollUpStatus.Green, "pdl-kvm-01", "32 GB RAM · 8 vCPU"),
+			Node(RollUpStatus.Green, "pdl-kvm-02", "32 GB RAM · 8 vCPU")),
+		Group(
+			Node(RollUpStatus.Amber, "Test cluster", "1 of 3 nodes has a warning."),
+			Node(RollUpStatus.Green, "pdl-kvm-test-01", "16 GB RAM · 4 vCPU"),
+			Node(RollUpStatus.Amber, "pdl-kvm-test-02", "Disk 92 % full", "Only 4 GB free"),
+			Node(RollUpStatus.Green, "pdl-kvm-test-03", "16 GB RAM · 4 vCPU")));
 
 	// ── Lazy-loaded example ────────────────────────────────────────
 	// Root node has no children on load; OnBeforeExpand populates them.
-	private readonly PDStatusRollUpNode _lazyRoot = new()
-	{
-		Status = RollUpStatus.Amber,
-		Title = "Live Services",
-		Summary = "Click to load current status…"
-	};
+	private readonly PDStatusRollUpNode _lazyRoot = Node(RollUpStatus.Amber, "Live Services", "Click to load current status…");
 
 	private async Task<PDStatusRollUpNode?> OnLazyExpandAsync(PDStatusRollUpNode node)
 	{
@@ -132,77 +83,58 @@ public partial class PDStatusRollUpPage
 			return null;
 		}
 
-		return new PDStatusRollUpNode
-		{
-			Status = RollUpStatus.Amber,
-			Title = node.Title,
-			Summary = "1 service degraded — fetched at " + DateTime.Now.ToString("HH:mm:ss"),
-			Children =
-			[
-				new() { Status = RollUpStatus.Green, Title = "Auth API",      Summary = "Responding — 38 ms avg" },
-				new() { Status = RollUpStatus.Green, Title = "Reporting API", Summary = "Responding — 92 ms avg" },
-				new() { Status = RollUpStatus.Amber, Title = "Export Worker", Summary = "Queue depth elevated (142)", Detail = "Threshold: 50" },
-				new() { Status = RollUpStatus.Green, Title = "Database",      Summary = "All replicas in sync" },
-			]
-		};
+		return Group(
+			Node(RollUpStatus.Amber, node.Title, "1 service degraded — fetched at " + DateTime.Now.ToString("HH:mm:ss")),
+			Node(RollUpStatus.Green, "Auth API", "Responding — 38 ms avg"),
+			Node(RollUpStatus.Green, "Reporting API", "Responding — 92 ms avg"),
+			Node(RollUpStatus.Amber, "Export Worker", "Queue depth elevated (142)", "Threshold: 50"),
+			Node(RollUpStatus.Green, "Database", "All replicas in sync"));
 	}
 
 	// ── Lazy deep — 3 levels fetched independently ────────────────
 	// Each level has no children until OnBeforeExpand populates them.
-	private readonly PDStatusRollUpNode _lazyDeepRoot = new()
-	{
-		Status = RollUpStatus.Gray,
-		Title = "Data Centres",
-		Summary = "Click to load current status…"
-	};
+	private readonly PDStatusRollUpNode _lazyDeepRoot = Node(RollUpStatus.Gray, "Data Centres", "Click to load current status…");
 
 	// Server nodes returned when a cluster (London/Amsterdam) is expanded.
 	// Status is already known from monitoring; individual checks load lazily on the next click.
 	private static readonly PDStatusRollUpNode[][] _lazyClusters =
 	[
-		[
-			new() { Status = RollUpStatus.Green, Title = "web-01", Summary = "All checks passing — click to drill in",  Expandable = true },
-			new() { Status = RollUpStatus.Amber, Title = "web-02", Summary = "HTTP slow — click to drill in",           Expandable = true },
-			new() { Status = RollUpStatus.Red,   Title = "db-01",  Summary = "Disk critical — click to drill in",       Expandable = true },
-		],
-		[
-			new() { Status = RollUpStatus.Green, Title = "web-03", Summary = "All checks passing — click to drill in",  Expandable = true },
-			new() { Status = RollUpStatus.Green, Title = "db-02",  Summary = "All checks passing — click to drill in",  Expandable = true },
-		]
+		WithExpandable(true,
+			Node(RollUpStatus.Green, "web-01", "All checks passing — click to drill in"),
+			Node(RollUpStatus.Amber, "web-02", "HTTP slow — click to drill in"),
+			Node(RollUpStatus.Red, "db-01", "Disk critical — click to drill in")),
+		WithExpandable(true,
+			Node(RollUpStatus.Green, "web-03", "All checks passing — click to drill in"),
+			Node(RollUpStatus.Green, "db-02", "All checks passing — click to drill in")),
 	];
 
 	private static readonly PDStatusRollUpNode[][] _lazyChecks =
 	[
 		// web-01
-		[
-			new() { Status = RollUpStatus.Green, Title = "HTTP",        Summary = "200 OK in 38 ms",           Expandable = false },
-			new() { Status = RollUpStatus.Green, Title = "Disk",        Summary = "210 GB free (71 %)",         Expandable = false },
-			new() { Status = RollUpStatus.Green, Title = "CPU",         Summary = "12 % avg over 5 min",        Expandable = false },
-		],
+		WithExpandable(false,
+			Node(RollUpStatus.Green, "HTTP", "200 OK in 38 ms"),
+			Node(RollUpStatus.Green, "Disk", "210 GB free (71 %)"),
+			Node(RollUpStatus.Green, "CPU", "12 % avg over 5 min")),
 		// web-02
-		[
-			new() { Status = RollUpStatus.Amber, Title = "HTTP",        Summary = "200 OK in 940 ms", Detail = "Threshold: 500 ms", Expandable = false },
-			new() { Status = RollUpStatus.Green, Title = "Disk",        Summary = "198 GB free (67 %)",         Expandable = false },
-			new() { Status = RollUpStatus.Green, Title = "CPU",         Summary = "18 % avg over 5 min",        Expandable = false },
-		],
+		WithExpandable(false,
+			Node(RollUpStatus.Amber, "HTTP", "200 OK in 940 ms", "Threshold: 500 ms"),
+			Node(RollUpStatus.Green, "Disk", "198 GB free (67 %)"),
+			Node(RollUpStatus.Green, "CPU", "18 % avg over 5 min")),
 		// db-01
-		[
-			new() { Status = RollUpStatus.Green, Title = "Replication", Summary = "Replica lag < 1 s",          Expandable = false },
-			new() { Status = RollUpStatus.Red,   Title = "Disk",        Summary = "4 GB free (3 %)", Detail = "Critical: < 5 GB", Expandable = false },
-			new() { Status = RollUpStatus.Green, Title = "Connections", Summary = "42 / 200 in use",            Expandable = false },
-		],
+		WithExpandable(false,
+			Node(RollUpStatus.Green, "Replication", "Replica lag < 1 s"),
+			Node(RollUpStatus.Red, "Disk", "4 GB free (3 %)", "Critical: < 5 GB"),
+			Node(RollUpStatus.Green, "Connections", "42 / 200 in use")),
 		// web-03
-		[
-			new() { Status = RollUpStatus.Green, Title = "HTTP",        Summary = "200 OK in 51 ms",            Expandable = false },
-			new() { Status = RollUpStatus.Green, Title = "Disk",        Summary = "175 GB free (59 %)",         Expandable = false },
-			new() { Status = RollUpStatus.Green, Title = "CPU",         Summary = "9 % avg over 5 min",         Expandable = false },
-		],
+		WithExpandable(false,
+			Node(RollUpStatus.Green, "HTTP", "200 OK in 51 ms"),
+			Node(RollUpStatus.Green, "Disk", "175 GB free (59 %)"),
+			Node(RollUpStatus.Green, "CPU", "9 % avg over 5 min")),
 		// db-02
-		[
-			new() { Status = RollUpStatus.Green, Title = "Replication", Summary = "Replica lag < 1 s",          Expandable = false },
-			new() { Status = RollUpStatus.Green, Title = "Disk",        Summary = "88 GB free (30 %)",          Expandable = false },
-			new() { Status = RollUpStatus.Green, Title = "Connections", Summary = "17 / 200 in use",            Expandable = false },
-		],
+		WithExpandable(false,
+			Node(RollUpStatus.Green, "Replication", "Replica lag < 1 s"),
+			Node(RollUpStatus.Green, "Disk", "88 GB free (30 %)"),
+			Node(RollUpStatus.Green, "Connections", "17 / 200 in use")),
 	];
 
 	// Maps a cluster node back to its check data by matching title.
@@ -258,19 +190,11 @@ public partial class PDStatusRollUpPage
 	}
 
 	private static PDStatusRollUpNode CreateDataCentresNode()
-	{
-		return new PDStatusRollUpNode
-		{
-			Status = RollUpStatus.Red,
-			Title = "Data Centres",
-			Summary = "1 critical issue — fetched at " + DateTime.Now.ToString("HH:mm:ss"),
-			Children =
-			[
-				new() { Status = RollUpStatus.Red,   Title = "London",    Summary = "1 node critical — click to drill in",  Expandable = true },
-				new() { Status = RollUpStatus.Green, Title = "Amsterdam", Summary = "All nodes healthy — click to drill in", Expandable = true },
-			]
-		};
-	}
+		=> Group(
+			Node(RollUpStatus.Red, "Data Centres", "1 critical issue — fetched at " + DateTime.Now.ToString("HH:mm:ss")),
+			WithExpandable(true,
+				Node(RollUpStatus.Red, "London", "1 node critical — click to drill in"),
+				Node(RollUpStatus.Green, "Amsterdam", "All nodes healthy — click to drill in")));
 
 	private static RollUpStatus GetWorstStatus(IEnumerable<PDStatusRollUpNode> checks)
 	{
@@ -285,11 +209,11 @@ public partial class PDStatusRollUpPage
 	// ── Status bar ─────────────────────────────────────────────────
 	private readonly PDStatusRollUpNode[] _statusBar =
 	[
-		new() { Status = RollUpStatus.Green, Title = "API",       Summary = "Healthy" },
-		new() { Status = RollUpStatus.Green, Title = "Database",  Summary = "Healthy" },
-		new() { Status = RollUpStatus.Amber, Title = "Cache",     Summary = "Redis degraded — replica lag 4 s" },
-		new() { Status = RollUpStatus.Green, Title = "Storage",   Summary = "Healthy" },
-		new() { Status = RollUpStatus.Red,   Title = "Email",     Summary = "SMTP relay unreachable",            Detail = "smtp.example.com:587 — ECONNREFUSED" },
-		new() { Status = RollUpStatus.Gray,  Title = "Analytics", Summary = "Monitoring agent not responding" }
+		Node(RollUpStatus.Green, "API", "Healthy"),
+		Node(RollUpStatus.Green, "Database", "Healthy"),
+		Node(RollUpStatus.Amber, "Cache", "Redis degraded — replica lag 4 s"),
+		Node(RollUpStatus.Green, "Storage", "Healthy"),
+		Node(RollUpStatus.Red, "Email", "SMTP relay unreachable", "smtp.example.com:587 — ECONNREFUSED"),
+		Node(RollUpStatus.Gray, "Analytics", "Monitoring agent not responding")
 	];
 }

@@ -1,3 +1,4 @@
+using PanoramicData.Blazor.Helpers;
 using PanoramicData.Blazor.Models.Tiles;
 
 namespace PanoramicData.Blazor;
@@ -79,45 +80,19 @@ public partial class PDTiles
 
 	private static TileColors GenerateTileColors(string baseColor)
 	{
-		var (r, g, b) = ParseHexColor(baseColor);
+		var (r, g, b) = HexColor.Parse(baseColor);
 		return new TileColors
 		{
-			Dark = ToHex((int)(r * 0.25), (int)(g * 0.25), (int)(b * 0.25)),
-			Mid = ToHex((int)(r * 0.5), (int)(g * 0.5), (int)(b * 0.5)),
+			Dark = HexColor.Format((int)(r * 0.25), (int)(g * 0.25), (int)(b * 0.25)),
+			Mid = HexColor.Format((int)(r * 0.5), (int)(g * 0.5), (int)(b * 0.5)),
 			Base = baseColor,
-			Light = ToHex(Math.Min(255, (int)(r * 1.4)), Math.Min(255, (int)(g * 1.4)), Math.Min(255, (int)(b * 1.4)))
+			Light = HexColor.Format(Math.Min(255, (int)(r * 1.4)), Math.Min(255, (int)(g * 1.4)), Math.Min(255, (int)(b * 1.4)))
 		};
 	}
 
-	/// <summary>
-	/// Parses a hex colour in the #RRGGBB or short #RGB form (the leading # is optional).
-	/// </summary>
-	/// <exception cref="ArgumentException">The value is not a hex colour in either form.</exception>
-	private static (int r, int g, int b) ParseHexColor(string hex)
-	{
-		var digits = (hex ?? string.Empty).TrimStart('#');
-		if (digits.Length == 3)
-		{
-			digits = string.Concat(digits.Select(c => new string(c, 2)));
-		}
-
-		if (digits.Length != 6 || !digits.All(Uri.IsHexDigit))
-		{
-			throw new ArgumentException($"'{hex}' is not a valid colour: PDTiles accepts hex colours in the form #RGB or #RRGGBB.", nameof(hex));
-		}
-
-		return (
-			Convert.ToInt32(digits[..2], 16),
-			Convert.ToInt32(digits.Substring(2, 2), 16),
-			Convert.ToInt32(digits.Substring(4, 2), 16)
-		);
-	}
-
-	private static string ToHex(int r, int g, int b) => $"#{Math.Clamp(r, 0, 255):X2}{Math.Clamp(g, 0, 255):X2}{Math.Clamp(b, 0, 255):X2}";
-
 	private static string HexToRgba(string hex, double alpha)
 	{
-		var (r, g, b) = ParseHexColor(hex);
+		var (r, g, b) = HexColor.Parse(hex);
 		return $"rgba({r}, {g}, {b}, {F(alpha)})";
 	}
 

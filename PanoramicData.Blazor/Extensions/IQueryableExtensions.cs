@@ -5,8 +5,6 @@
 /// </summary>
 public static class IQueryableExtensions
 {
-	private static readonly string[] _valueSeparators = ["|"];
-
 	/// <summary>
 	/// Applies a single <see cref="PanoramicData.Blazor.Models.Filter"/> to the query.
 	/// The property to filter on is resolved from the filter key using
@@ -52,8 +50,8 @@ public static class IQueryableExtensions
 			// apply query only if property name is known
 			if (!string.IsNullOrWhiteSpace(filter.PropertyName))
 			{
-				var parameters = GetParameters<T>(filter);
-				var predicate = GetPredicate(filter.FilterType, filter.PropertyName, parameters.Length);
+				var parameters = FilterPredicateBuilder.GetParameters(filter, typeof(T));
+				var predicate = FilterPredicateBuilder.GetPredicate(filter.FilterType, filter.PropertyName, parameters.Length);
 				return string.IsNullOrWhiteSpace(predicate) ? query : query.Where(predicate, parameters);
 			}
 		}
@@ -106,62 +104,5 @@ public static class IQueryableExtensions
 
 		// fallback is to simply use key
 		return propertyInfo?.Name ?? key.UpperFirstChar();
-	}
-
-	private static object[] GetParameters<T>(Filter filter)
-	{
-		object[] parameters = filter.FilterType switch
-		{
-			FilterTypes.In or FilterTypes.NotIn => [.. filter.Value.Split(_valueSeparators, StringSplitOptions.RemoveEmptyEntries).Select(x => x.RemoveQuotes())],
-			FilterTypes.Range => [filter.Value.RemoveQuotes(), filter.Value2.RemoveQuotes()],
-			FilterTypes.IsEmpty or FilterTypes.IsNotEmpty => [string.Empty],
-			_ => [filter.Value.RemoveQuotes()]
-		};
-
-		// for enum properties, translate display names back to member names for dynamic LINQ
-		if (filter.FilterType is FilterTypes.Equals or FilterTypes.In or FilterTypes.NotIn or FilterTypes.DoesNotEqual)
-		{
-			var propType = typeof(T).GetProperty(filter.PropertyName)?.PropertyType;
-
-			// unwrap Nullable<TEnum> if needed
-			var enumType = propType is null ? null : Nullable.GetUnderlyingType(propType) ?? propType;
-			if (enumType?.IsEnum == true)
-			{
-				parameters = [.. parameters.Select(p => p is string s ? Filter.GetMemberName(enumType, s) : p)];
-			}
-		}
-
-		return parameters;
-	}
-
-	private static string GetPredicate(FilterTypes filterType, string propertyName, int parameterCount)
-	{
-		// if using nested properties - surround by null propagating function
-		if (propertyName.Contains('.'))
-		{
-			propertyName = $"np({propertyName})";
-		}
-
-		return filterType switch
-		{
-			FilterTypes.Contains => $"{propertyName} != null and ({propertyName}).Contains(@0)",
-			FilterTypes.DoesNotContain => $"{propertyName} != null and !({propertyName}).Contains(@0)",
-			FilterTypes.DoesNotEqual => $"{propertyName} != @0",
-			FilterTypes.EndsWith => $"{propertyName} != null and ({propertyName}).EndsWith(@0)",
-			FilterTypes.Equals => $"{propertyName} == @0",
-			FilterTypes.StartsWith => $"{propertyName} != null and ({propertyName}).StartsWith(@0)",
-			FilterTypes.In => string.Join(" || ", Enumerable.Range(0, parameterCount).Select(i => $"{propertyName} == @{i}")),
-			FilterTypes.NotIn => string.Join(" && ", Enumerable.Range(0, parameterCount).Select(i => $"{propertyName} != @{i}")),
-			FilterTypes.GreaterThan => $"{propertyName} > @0",
-			FilterTypes.GreaterThanOrEqual => $"{propertyName} >= @0",
-			FilterTypes.LessThanOrEqual => $"{propertyName} <= @0",
-			FilterTypes.LessThan => $"{propertyName} < @0",
-			FilterTypes.Range => $"{propertyName} >= @0 and {propertyName} <= @1",
-			FilterTypes.IsNull => $"{propertyName} == null",
-			FilterTypes.IsNotNull => $"{propertyName} != null",
-			FilterTypes.IsEmpty => $"{propertyName} == \"\"",
-			FilterTypes.IsNotEmpty => $"{propertyName} != \"\"",
-			_ => ""
-		};
 	}
 }

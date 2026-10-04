@@ -57,12 +57,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		try
 		{
-			if (JSRuntime is null || _module is null)
-			{
-				throw new InvalidOperationException("JavaScript runtime is not available");
-			}
-
-			var data = await _module.InvokeAsync<string>("getItem", key);
+			var data = await GetModule().InvokeAsync<string>("getItem", key);
 			if (data == null)
 			{
 				return default;
@@ -85,12 +80,7 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		try
 		{
-			if (JSRuntime is null || _module is null)
-			{
-				throw new InvalidOperationException("JavaScript runtime is not available");
-			}
-
-			await _module.InvokeVoidAsync("removeItem", key);
+			await GetModule().InvokeVoidAsync("removeItem", key);
 		}
 		catch (Exception e)
 		{
@@ -108,18 +98,24 @@ public partial class PDLocalStorageStateManager : IAsyncStateManager, IAsyncDisp
 	{
 		try
 		{
-			if (JSRuntime is null || _module is null)
-			{
-				throw new InvalidOperationException("JavaScript runtime is not available");
-			}
-
-			var data = System.Text.Json.JsonSerializer.Serialize(state);
-			await _module.InvokeVoidAsync("setItem", key, data);
+			var module = GetModule();
+			var data = JsonSerializer.Serialize(state);
+			await module.InvokeVoidAsync("setItem", key, data);
 		}
 		catch (Exception e)
 		{
 			throw new StateException("Failed to save state: see inner exception for more information", e);
 		}
+	}
+
+	private IJSObjectReference GetModule()
+	{
+		if (JSRuntime is null || _module is null)
+		{
+			throw new InvalidOperationException("JavaScript runtime is not available");
+		}
+
+		return _module;
 	}
 
 	#endregion

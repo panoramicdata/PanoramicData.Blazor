@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using AwesomeAssertions;
 using Bunit;
 using PanoramicData.Blazor.Extensions;
-using PanoramicData.Blazor.Models;
 
 namespace PanoramicData.Blazor.Test.Components;
 
@@ -11,7 +10,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// so when another component is constructed between their construction and their initialisation, as happens
 /// under concurrent rendering (issue #159), and that the shared sequence never hands out the same id twice.
 /// </summary>
-public class GeneratedIdTests : BunitContext
+public partial class GeneratedIdTests : BunitContext
 {
 	/// <summary>Sets up the rendering context.</summary>
 	public GeneratedIdTests()
@@ -84,78 +83,5 @@ public class GeneratedIdTests : BunitContext
 	{
 		component.Instance.Id.Should().MatchRegex($"^{prefix}[0-9]+$");
 		component.Find($"#{component.Instance.Id}").Should().NotBeNull();
-	}
-
-	/// <summary>A dashboard that constructs another component before it is initialised.</summary>
-	private sealed class RacedDashboard : PDDashboard
-	{
-		/// <summary>Constructs the dashboard, then the interloper.</summary>
-		public RacedDashboard() => Interloper = new PDComponentBase();
-
-		/// <summary>Gets the component constructed after this one.</summary>
-		public PDComponentBase Interloper { get; }
-	}
-
-	/// <summary>A widget that constructs another component before it is initialised.</summary>
-	private sealed class RacedWidget : PDWidget
-	{
-		/// <summary>Constructs the widget, then the interloper.</summary>
-		public RacedWidget() => Interloper = new PDComponentBase();
-
-		/// <summary>Gets the component constructed after this one.</summary>
-		public PDComponentBase Interloper { get; }
-	}
-
-	/// <summary>Graph controls that construct another component before they are initialised.</summary>
-	private sealed class RacedGraphControls : PDGraphControls<object>
-	{
-		/// <summary>Constructs the controls, then the interloper.</summary>
-		public RacedGraphControls() => Interloper = new PDComponentBase();
-
-		/// <summary>Gets the component constructed after this one.</summary>
-		public PDComponentBase Interloper { get; }
-	}
-
-	/// <summary>A graph information panel that constructs another component before it is initialised.</summary>
-	private sealed class RacedGraphInfo : PDGraphInfo<object>
-	{
-		/// <summary>Constructs the panel, then the interloper.</summary>
-		public RacedGraphInfo() => Interloper = new PDComponentBase();
-
-		/// <summary>Gets the component constructed after this one.</summary>
-		public PDComponentBase Interloper { get; }
-	}
-
-	/// <summary>A graph selection panel that constructs another component before it is initialised.</summary>
-	private sealed class RacedGraphSelectionInfo : PDGraphSelectionInfo<object>
-	{
-		/// <summary>Constructs the panel, then the interloper.</summary>
-		public RacedGraphSelectionInfo() => Interloper = new PDComponentBase();
-
-		/// <summary>Gets the component constructed after this one.</summary>
-		public PDComponentBase Interloper { get; }
-	}
-
-	/// <summary>A graph viewer that constructs another component before it is initialised.</summary>
-	private sealed class RacedGraphViewer : PDGraphViewer<GraphData>
-	{
-		/// <summary>Constructs the viewer, then the interloper.</summary>
-		public RacedGraphViewer() => Interloper = new PDComponentBase();
-
-		/// <summary>Gets the component constructed after this one.</summary>
-		public PDComponentBase Interloper { get; }
-	}
-
-	/// <summary>A graph selection panel whose initialisation can be run directly, off any renderer.</summary>
-	private sealed class InitialisableSelectionInfo : PDGraphSelectionInfo<object>
-	{
-		/// <summary>Constructs a panel, initialises it and returns the id it chose.</summary>
-		/// <returns>The panel's id after initialisation.</returns>
-		public static string CreateAndInitialise()
-		{
-			var panel = new InitialisableSelectionInfo();
-			panel.OnInitialized();
-			return panel.Id;
-		}
 	}
 }

@@ -6,6 +6,15 @@
 const grids = new Map();
 
 /**
+ * Get the grid created for a container, if any.
+ * @param {string} id - Container element ID
+ */
+function getGrid(id) {
+	const entry = grids.get(id);
+	return entry?.grid;
+}
+
+/**
  * Initialize a new tile grid.
  * @param {string} id - Container element ID
  * @param {object} config - Grid configuration
@@ -71,10 +80,8 @@ export function initialize(id, config, dotNetRef) {
  * @param {object} config - New configuration
  */
 export function update(id, config) {
-	const entry = grids.get(id);
-	if (entry && entry.grid) {
-		entry.grid.update(config);
-	}
+	const grid = getGrid(id);
+	grid?.update(config);
 }
 
 /**
@@ -82,10 +89,8 @@ export function update(id, config) {
  * @param {string} id - Container element ID
  */
 export function shuffle(id) {
-	const entry = grids.get(id);
-	if (entry && entry.grid) {
-		entry.grid.shuffle();
-	}
+	const grid = getGrid(id);
+	grid?.shuffle();
 }
 
 /**
@@ -93,11 +98,11 @@ export function shuffle(id) {
  * @param {string} id - Container element ID
  */
 export function randomizeConnectors(id) {
-	const entry = grids.get(id);
-	if (entry && entry.grid) {
-		const cfg = entry.grid.getConfig();
+	const grid = getGrid(id);
+	if (grid) {
+		const cfg = grid.getConfig();
 		const connectors = window.IsometricTileGrid.generateRandomConnectors(cfg);
-		entry.grid.setConnectors(connectors);
+		grid.setConnectors(connectors);
 	}
 }
 
@@ -106,10 +111,8 @@ export function randomizeConnectors(id) {
  * @param {string} id - Container element ID
  */
 export function clearConnectors(id) {
-	const entry = grids.get(id);
-	if (entry && entry.grid) {
-		entry.grid.setConnectors([]);
-	}
+	const grid = getGrid(id);
+	grid?.setConnectors([]);
 }
 
 /**
@@ -117,10 +120,7 @@ export function clearConnectors(id) {
  * @param {string} id - Container element ID
  */
 export function dispose(id) {
-	const entry = grids.get(id);
-	if (entry) {
-		// Note: IsometricTileGrid may not have a dispose method
-		// Clean up our reference
-		grids.delete(id);
-	}
+	// Note: IsometricTileGrid may not have a dispose method
+	// Clean up our reference
+	grids.delete(id);
 }

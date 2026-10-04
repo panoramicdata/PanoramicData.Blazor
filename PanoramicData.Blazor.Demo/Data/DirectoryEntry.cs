@@ -1,6 +1,6 @@
 ﻿namespace PanoramicData.Blazor.Demo.Data;
 
-public class DirectoryEntry
+public partial class DirectoryEntry
 {
 	public string Alias { get; set; } = string.Empty;
 	public bool CanAddItems => !IsReadOnly;
@@ -23,42 +23,9 @@ public class DirectoryEntry
 	{
 	}
 
-	public DirectoryEntry(FileExplorerItem item)
-	{
-		CanCopyMove = item.CanCopyMove;
-		CanDelete = item.CanDelete;
-		CanRename = item.CanRename;
-		DateCreated = item.DateCreated ?? DateTimeOffset.UtcNow;
-		DateModified = item.DateModified ?? DateTimeOffset.UtcNow;
-		IsHidden = item.IsHidden;
-		IsReadOnly = item.IsReadOnly;
-		IsSystem = item.IsSystem;
-		Name = item.Name;
-		Size = item.FileSize;
-		Type = item.EntryType;
-	}
-
 	public DirectoryEntry(string name, params DirectoryEntry[] items)
+		: this(name, false, true, true, items)
 	{
-		Name = name;
-		foreach (var item in items)
-		{
-			item.Parent = this;
-		}
-
-		Items.AddRange(items);
-	}
-
-	public DirectoryEntry(string name, bool readOnly, params DirectoryEntry[] items)
-	{
-		Name = name;
-		IsReadOnly = readOnly;
-		foreach (var item in items)
-		{
-			item.Parent = this;
-		}
-
-		Items.AddRange(items);
 	}
 
 	public DirectoryEntry(string name, bool readOnly, bool canDelete, bool canRename, params DirectoryEntry[] items)
@@ -67,27 +34,17 @@ public class DirectoryEntry
 		CanDelete = canDelete;
 		CanRename = canRename;
 		IsReadOnly = readOnly;
-		foreach (var item in items)
-		{
-			item.Parent = this;
-		}
-
-		Items.AddRange(items);
+		AddItems(items);
 	}
 
 	public DirectoryEntry(string name, FileExplorerItemType type, int size)
+		: this(name, type, size, false)
 	{
-		Name = name;
-		Type = type;
-		Size = size;
 	}
 
 	public DirectoryEntry(string name, FileExplorerItemType type, int size, bool readOnly)
+		: this(name, type, size, readOnly, true, true)
 	{
-		Name = name;
-		Type = type;
-		Size = size;
-		IsReadOnly = readOnly;
 	}
 
 	public DirectoryEntry(string name, FileExplorerItemType type, int size, bool readOnly, bool canDelete, bool canRename)
@@ -101,13 +58,17 @@ public class DirectoryEntry
 	}
 
 	public DirectoryEntry(params DirectoryEntry[] items)
+		: this(string.Empty, items)
+	{
+	}
+
+	private void AddItems(IEnumerable<DirectoryEntry> items)
 	{
 		foreach (var item in items)
 		{
 			item.Parent = this;
+			Items.Add(item);
 		}
-
-		Items.AddRange(items);
 	}
 
 	public DirectoryEntry Clone() => Clone(true);
@@ -130,57 +91,10 @@ public class DirectoryEntry
 		};
 		if (deep)
 		{
-			foreach (var item in Items)
-			{
-				var clonedItem = item.Clone(true);
-				clonedItem.Parent = clone;
-				clone.Items.Add(clonedItem);
-			}
+			clone.AddItems(Items.Select(x => x.Clone(true)));
 		}
 
 		return clone;
-	}
-
-	public int Count() => Reduce((_, pv) => pv + 1, 0);
-
-	public void ForEach(Action<DirectoryEntry> action)
-	{
-		action(this);
-		foreach (var item in Items)
-		{
-			item.ForEach(action);
-		}
-	}
-
-	public string Path() => Path("/");
-
-	public string Path(string separator)
-	{
-		var stack = new Stack<string>();
-		var node = this;
-		while (node != null)
-		{
-			if (!string.IsNullOrWhiteSpace(node.Name))
-			{
-				stack.Push(node.Name);
-			}
-
-			node = node.Parent;
-		}
-
-		var path = string.Join(separator, [.. stack]);
-		return $"{separator}{path}";
-	}
-
-	public T Reduce<T>(Func<DirectoryEntry, T, T> func, T previousValue)
-	{
-		var value = func(this, previousValue);
-		foreach (var item in Items)
-		{
-			value = item.Reduce(func, value);
-		}
-
-		return value;
 	}
 
 	public FileExplorerItem ToFileExploreritem() => ToFileExploreritem("/");
@@ -201,19 +115,4 @@ public class DirectoryEntry
 		Name = string.IsNullOrWhiteSpace(Alias) ? Name : Alias,
 		Path = Path(pathSeparator)
 	};
-
-	public override string ToString() => Path();
-
-	public IEnumerable<DirectoryEntry> Where(Predicate<DirectoryEntry> predicate)
-	{
-		var items = new List<DirectoryEntry>();
-		ForEach((x) =>
-		{
-			if (predicate(x))
-			{
-				items.Add(x);
-			}
-		});
-		return items;
-	}
 }

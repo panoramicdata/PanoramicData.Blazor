@@ -2,27 +2,25 @@ var _recognition = null;
 var _ref = null;
 
 export function abortListenForSpeech() {
-	if (_recognition) {
-		_recognition.abort();
-	}
+	_recognition?.abort();
 }
 
 export function initSpeech(lang) {
-	if (!_recognition) {
-		if (window.SpeechRecognition) {
-			_recognition = new window.SpeechRecognition();
-		} else if (window.webkitSpeechRecognition) {
-			_recognition = new window.webkitSpeechRecognition();
-		}
-		if (_recognition) {
-			if (lang && lang != "") {
-				_recognition.lang = lang; // "en-GB"
-			}
-			_recognition.addEventListener("result", onSpeechResult);
-			_recognition.addEventListener("audiostart", onAudioStart);
-			_recognition.addEventListener("audioend", onAudioEnd);
-		}
+	if (_recognition) {
+		return;
 	}
+	const Recognition =
+		window.SpeechRecognition || window.webkitSpeechRecognition;
+	if (!Recognition) {
+		return;
+	}
+	_recognition = new Recognition();
+	if (lang) {
+		_recognition.lang = lang; // "en-GB"
+	}
+	_recognition.addEventListener("result", onSpeechResult);
+	_recognition.addEventListener("audiostart", onAudioStart);
+	_recognition.addEventListener("audioend", onAudioEnd);
 }
 
 export function startListenForSpeech(ref) {
@@ -45,33 +43,30 @@ export function termSpeech() {
 	}
 }
 
-function onAudioEnd() {
+// Calls the .NET text box that is listening, if any
+function invokeListener(method, ...args) {
 	if (_ref) {
-		_ref.invokeMethodAsync("OnListeningStopped");
+		_ref.invokeMethodAsync(method, ...args);
 	}
 }
 
+function onAudioEnd() {
+	invokeListener("OnListeningStopped");
+}
+
 function onAudioStart() {
-	if (_ref) {
-		_ref.invokeMethodAsync("OnListeningStarted");
-	}
+	invokeListener("OnListeningStarted");
 }
 
 // Returns the transcript of the first alternative of the first result, if any
 function getFirstTranscript(evt) {
-	if (!evt || !evt.results || !(evt.results.length > 0)) {
-		return null;
-	}
-	var results = evt.results[0];
-	return results.length > 0 ? results[0].transcript : null;
+	const results = evt?.results?.[0];
+	return results?.length > 0 ? results[0].transcript : null;
 }
 
 function onSpeechResult(evt) {
-	if (!_ref) {
-		return;
-	}
 	var transcript = getFirstTranscript(evt);
 	if (transcript) {
-		_ref.invokeMethodAsync("OnSpeechResult", transcript);
+		invokeListener("OnSpeechResult", transcript);
 	}
 }

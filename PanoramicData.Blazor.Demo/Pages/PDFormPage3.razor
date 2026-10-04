@@ -17,7 +17,7 @@
 	}
 </style>
 
-<DemoSourceView SourceFiles="Pages/PDFormPage3.razor, Pages/PDFormPage3.razor.cs, Data/PersonDataProvider.cs">
+<DemoSourceView SourceFiles="Pages/PDFormPage3.razor, Pages/PDFormPage3.razor.cs, Pages/PDFormPage3.Validation.cs, Data/PersonDataProvider.cs, Data/PersonDataProvider.Query.cs, Data/PersonDataProvider.Editing.cs">
 
 	<PDToolbar>
 
@@ -174,9 +174,9 @@
 					DataProvider="_personDataProvider"
 					DefaultMode="FormModes.Empty"
 					Error="OnError"
-					Deleted="OnPersonDeleted"
-					Updated="OnPersonUpdated"
-					Created="OnPersonCreated"
+					Deleted="@(p => OnPersonChanged("PersonDeleted", p))"
+					Updated="@(p => OnPersonChanged("PersonUpdated", p))"
+					Created="@(p => OnPersonChanged("PersonCreated", p))"
 					HelpTextMode="HelpTextMode.Toggle">
 
 				<PDFormHeader TItem="Person"

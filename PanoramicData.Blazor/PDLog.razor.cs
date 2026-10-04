@@ -124,10 +124,7 @@ public partial class PDLog : ILogger
 	/// </summary>
 	protected override void OnParametersSet()
 	{
-		if (Capacity < 1)
-		{
-			Capacity = 1;
-		}
+		Capacity = Math.Max(Capacity, 1);
 
 		if (Capacity < _logEntries.Count)
 		{
@@ -174,14 +171,15 @@ public partial class PDLog : ILogger
 		}
 
 		var message = formatter(state, exception);
+		var (icon, timestampClass) = _logLevelStyles.GetValueOrDefault(logLevel, _defaultLogLevelStyle);
 
 		var entry = new LogEntry
 		{
 			LogLevel = logLevel,
 			Message = message,
-			Icon = GetLogLevelIcon(logLevel),
+			Icon = icon,
 			Timestamp = DateTime.UtcNow,
-			TimestampClass = GetLogLevelTimestampClass(logLevel),
+			TimestampClass = timestampClass,
 			Exception = exception
 		};
 
@@ -203,29 +201,18 @@ public partial class PDLog : ILogger
 	private string GetTimestamp(DateTime timestamp)
 		=> (UseLocalTime ? timestamp.ToLocalTime() : timestamp).ToString(UtcTimestampFormat, CultureInfo.InvariantCulture);
 
-	private static string GetLogLevelIcon(LogLevel logLevel) => logLevel switch
-	{
-		LogLevel.Information => "fas fa-info-circle text-info",
-		LogLevel.Warning => "fas fa-exclamation-triangle text-warning",
-		LogLevel.Error => "fas fa-times-circle text-danger",
-		LogLevel.Critical => "fas fa-bomb text-danger",
-		LogLevel.Debug => "fas fa-bug text-secondary",
-		LogLevel.Trace => "fas fa-search text-primary",
-		_ => "fas fa-info-circle text-muted"
-	};
+	private static readonly (string Icon, string TimestampClass) _defaultLogLevelStyle = ("fas fa-info-circle text-muted", "text-muted");
 
-	// Get the timestamp color class matching the log level
-	private static string GetLogLevelTimestampClass(LogLevel logLevel) => logLevel switch
+	// The icon and timestamp color class matching each log level
+	private static readonly Dictionary<LogLevel, (string Icon, string TimestampClass)> _logLevelStyles = new()
 	{
-		LogLevel.Information => "text-info",
-		LogLevel.Warning => "text-warning",
-		LogLevel.Error => "text-danger",
-		LogLevel.Critical => "text-danger",
-		LogLevel.Debug => "text-secondary",
-		LogLevel.Trace => "text-primary",
-		_ => "text-muted"
+		[LogLevel.Information] = ("fas fa-info-circle text-info", "text-info"),
+		[LogLevel.Warning] = ("fas fa-exclamation-triangle text-warning", "text-warning"),
+		[LogLevel.Error] = ("fas fa-times-circle text-danger", "text-danger"),
+		[LogLevel.Critical] = ("fas fa-bomb text-danger", "text-danger"),
+		[LogLevel.Debug] = ("fas fa-bug text-secondary", "text-secondary"),
+		[LogLevel.Trace] = ("fas fa-search text-primary", "text-primary"),
 	};
-
 
 	private async Task ScrollToBottomAsync()
 	{

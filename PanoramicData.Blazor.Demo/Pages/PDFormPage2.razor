@@ -3,7 +3,7 @@
 
 <h1>PDForm</h1>
 
-<DemoSourceView SourceFiles="Pages/PDFormPage2.razor, Pages/PDFormPage2.razor.cs, Data/PersonDataProvider.cs">
+<DemoSourceView SourceFiles="Pages/PDFormPage2.razor, Pages/PDFormPage2.razor.cs, Data/PersonDataProvider.cs, Data/PersonDataProvider.Query.cs, Data/PersonDataProvider.Editing.cs">
 
 	@* Shared person list *@
 	<div class="mb-3">
@@ -13,16 +13,16 @@
 			{
 				<div class="person-list">
 					<span>@person.FirstName&nbsp;@person.LastName</span>
-					<button class="btn btn-sm btn-outline-primary ms-2"   @onclick="(_) => OnExample1EditAsync(person)">Ex1</button>
-					<button class="btn btn-sm btn-outline-secondary ms-1" @onclick="(_) => OnExample2ViewAsync(person)">Ex2</button>
-					<button class="btn btn-sm btn-outline-danger ms-1"    @onclick="(_) => OnExample3DeleteAsync(person)">Ex3</button>
-					<button class="btn btn-sm btn-outline-success ms-1"   @onclick="(_) => OnExample4ApproveAsync(person)">Ex4</button>
-					<button class="btn btn-sm btn-outline-warning ms-1"   @onclick="(_) => OnExample5NoCancelAsync(person)">Ex5</button>
-					<button class="btn btn-sm btn-outline-info ms-1"      @onclick="OnExample6ValidateAsync">Ex6</button>
+					<button class="btn btn-sm btn-outline-primary ms-2"   @onclick="(_) => ShowExampleAsync(1, Form1, Modal1, person, FormModes.Edit, null)">Ex1</button>
+					<button class="btn btn-sm btn-outline-secondary ms-1" @onclick="(_) => ShowExampleAsync(2, Form2, Modal2, person, FormModes.ReadOnly, null)">Ex2</button>
+					<button class="btn btn-sm btn-outline-danger ms-1"    @onclick="(_) => ShowExampleAsync(3, Form3, Modal3, person, FormModes.Edit, null)">Ex3</button>
+					<button class="btn btn-sm btn-outline-success ms-1"   @onclick="(_) => ShowExampleAsync(4, Form4, Modal4, person, FormModes.Edit, null)">Ex4</button>
+					<button class="btn btn-sm btn-outline-warning ms-1"   @onclick="(_) => ShowExampleAsync(5, Form5, Modal5, person, FormModes.Edit, null)">Ex5</button>
+					<button class="btn btn-sm btn-outline-info ms-1"      @onclick="(_) => ShowExampleAsync(6, Form6, Modal6, new Person(), FormModes.Create, true)">Ex6</button>
 				</div>
 			}
 			<div class="person-list">
-				<button class="btn btn-sm btn-primary" @onclick="OnExample1CreateAsync">+ Create (Ex1)</button>
+				<button class="btn btn-sm btn-primary" @onclick="(_) => ShowExampleAsync(1, Form1, Modal1, new Person(), FormModes.Create, null)">+ Create (Ex1)</button>
 			</div>
 		</div>
 	</div>
@@ -42,7 +42,7 @@
 	@* ── Example 1: Standard Edit / Create ── *@
 	<PDForm @ref="Form1"
 			TItem="Person"
-			Item="_selected1"
+			Item="_selected[0]"
 			DataProvider="_personDataProvider"
 			Error="OnError"
 			ConfirmCancel="false"
@@ -64,7 +64,7 @@
 	@* ── Example 2: ReadOnly – Close button only ── *@
 	<PDForm @ref="Form2"
 			TItem="Person"
-			Item="_selected2"
+			Item="_selected[1]"
 			DataProvider="_personDataProvider"
 			Error="OnError">
 		<PDModal @ref="Modal2">
@@ -82,7 +82,7 @@
 	@* ── Example 3: Edit + Delete (with confirmation) ── *@
 	<PDForm @ref="Form3"
 			TItem="Person"
-			Item="_selected3"
+			Item="_selected[2]"
 			DataProvider="_personDataProvider"
 			Error="OnError"
 			ConfirmCancel="false"
@@ -102,7 +102,7 @@
 	@* ── Example 4: Custom button text/style (Approve / Reject) ── *@
 	<PDForm @ref="Form4"
 			TItem="Person"
-			Item="_selected4"
+			Item="_selected[3]"
 			DataProvider="_personDataProvider"
 			Error="OnError"
 			ConfirmCancel="false"
@@ -127,7 +127,7 @@
 	@* ── Example 5: No Cancel button ── *@
 	<PDForm @ref="Form5"
 			TItem="Person"
-			Item="_selected5"
+			Item="_selected[4]"
 			DataProvider="_personDataProvider"
 			Error="OnError"
 			ConfirmCancel="false"
@@ -147,7 +147,7 @@
 	@* ── Example 6: Validation shown immediately on open ── *@
 	<PDForm @ref="Form6"
 			TItem="Person"
-			Item="_selected6"
+			Item="_selected[5]"
 			DataProvider="_personDataProvider"
 			Error="OnError"
 			ConfirmCancel="false"
