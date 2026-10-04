@@ -1,0 +1,822 @@
+﻿.cursor-pointer {
+	cursor: pointer;
+}
+
+.fa-hidden {
+	color: transparent;
+}
+
+.pd-pointer {
+	cursor: pointer;
+}
+
+.pd-hidden {
+	display: none !important;
+}
+
+.pd-empty-icon {
+	height: 16px;
+	width: 16px;
+}
+
+.resize-h {
+	overflow: auto;
+	resize: vertical;
+}
+
+.resize-w {
+	overflow: auto;
+	resize: horizontal;
+}
+
+.h-100 {
+	height: 100px !important;
+}
+
+.h-200 {
+	height: 200px !important;
+}
+
+.h-300 {
+	height: 300px !important;
+}
+
+.h-400 {
+	height: 400px !important;
+}
+
+.h-500 {
+	height: 500px !important;
+}
+
+.h-100-pct {
+	height: 100%;
+}
+
+.w-100-pct {
+	width: 100%;
+}
+
+.w-100-px {
+	width: 100px;
+}
+
+.w-125-px {
+	width: 125px;
+}
+
+.w-150-px {
+	width: 150px;
+}
+
+.w-200-px {
+	width: 200px;
+}
+
+.mh-50-px {
+	min-height: 50px;
+}
+
+.mh-100-px {
+	min-height: 100px;
+}
+
+.mh-150-px {
+	min-height: 150px;
+}
+
+.mh-200-px {
+	min-height: 200px;
+}
+
+.mh-250-px {
+	min-height: 250px;
+}
+
+.mh-300-px {
+	min-height: 300px;
+}
+
+.mw-100-px {
+	min-width: 100px;
+}
+
+.mw-125-px {
+	min-width: 125px;
+}
+
+.mw-150-px {
+	min-width: 150px;
+}
+
+.mw-200-px {
+	min-width: 200px;
+}
+
+.text-small {
+	font-size: 0.75rem;
+}
+
+.text-tiny {
+	font-size: 0.5rem;
+}
+
+.z-1000 {
+	z-index: 1000;
+}
+
+.z-1100 {
+	z-index: 1100;
+}
+
+.z-1200 {
+	z-index: 1200;
+}
+
+/* PDFormBody - Support dynamic title widths using CSS custom properties */
+.pd-form-body .title-box {
+	width: var(--title-width, 200px) !important;
+	min-width: var(--title-width, 200px) !important;
+	max-width: var(--title-width, 200px) !important;
+	flex: 0 0 var(--title-width, 200px) !important;
+}
+
+/* ==============================================
+   Component styles that reach into child components
+   ==============================================
+   These rules style markup that a component does not render itself (a child component's
+   elements, MarkupString content, or elements created by JavaScript). Blazor CSS isolation
+   cannot reach that markup from a component's .razor.css without the non-standard ::deep
+   combinator, so the rules live here instead. Each is anchored to the owning component's
+   own class so that it only applies inside that component. Where the scoped rule's scope
+   attribute sat on an element that already appears in the selector, that element's class is
+   repeated (e.g. .pd-filter.pd-filter) so the rule keeps exactly the specificity it had as a
+   scoped rule. Sections are ordered so that a later rule never has a lower specificity than an
+   earlier rule for the same element (no-descending-specificity); rules that can apply to the same
+   element keep their original relative order. */
+
+/* PDSplitter - the gutters are created by split.js */
+.pdsplitter .gutter {
+	background-color: #eee;
+}
+
+.pdsplitter .gutter-vertical {
+	cursor: row-resize;
+}
+
+.pdsplitter .gutter-horizontal {
+	cursor: col-resize;
+}
+
+/* PDFilePreview - the preview content is MarkupString */
+.pdfilepreview .stacked {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+
+.pdfilepreview .stacked span {
+	margin-top: 4px;
+}
+
+.pdfilepreview .h1,
+.pdfilepreview h2,
+.pdfilepreview h3,
+.pdfilepreview .h4 {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* PDMessage - rendered markdown. Message and partial (in-progress) HTML is MarkupString, so it
+   carries no scope attribute. .pdchat-text sets white-space: pre-line so a PLAIN TEXT message
+   keeps the line breaks the sender typed. When the message is HTML - which every Merlin reply is,
+   because the markdown is run through Markdig before it gets here - that same rule also preserves
+   the newlines Markdig puts BETWEEN block elements:
+
+       <p>...</p>\n<ul>\n<li>One</li>\n<li>Two</li>\n</ul>
+
+   Each of those newlines rendered as a line break ON TOP OF the margins those elements already
+   carry, which is the doubled spacing: a blank line before the list, and one between every item.
+   The partial (issue #98) gets the same treatment: pre-wrap would preserve the newlines between
+   block elements and double-space them.
+
+   <pre> is deliberately absent: its UA default of white-space: pre must keep winning, or fenced
+   code blocks lose their indentation. */
+.pdchat-message .pdchat-partial p,
+.pdchat-message .pdchat-partial ul,
+.pdchat-message .pdchat-partial ol,
+.pdchat-message .pdchat-partial li,
+.pdchat-message .pdchat-partial table,
+.pdchat-message .pdchat-partial blockquote,
+.pdchat-message .pdchat-partial h1,
+.pdchat-message .pdchat-partial h2,
+.pdchat-message .pdchat-partial h3,
+.pdchat-message .pdchat-partial h4,
+.pdchat-message .pdchat-partial h5,
+.pdchat-message .pdchat-partial h6,
+.pdchat-message .pdchat-text p,
+.pdchat-message .pdchat-text ul,
+.pdchat-message .pdchat-text ol,
+.pdchat-message .pdchat-text li,
+.pdchat-message .pdchat-text blockquote,
+.pdchat-message .pdchat-text table,
+.pdchat-message .pdchat-text h1,
+.pdchat-message .pdchat-text h2,
+.pdchat-message .pdchat-text h3,
+.pdchat-message .pdchat-text h4,
+.pdchat-message .pdchat-text h5,
+.pdchat-message .pdchat-text h6 {
+	white-space: normal;
+}
+
+/* Tighter than a browser's document defaults: a chat reply is read as a dense exchange, not a
+   page. Margins are in em so they track the message font size. */
+.pdchat-message .pdchat-partial p,
+.pdchat-message .pdchat-text p {
+	margin: 0 0 0.5em;
+}
+
+.pdchat-message .pdchat-partial ul,
+.pdchat-message .pdchat-partial ol,
+.pdchat-message .pdchat-text ul,
+.pdchat-message .pdchat-text ol {
+	margin: 0.25em 0 0.5em;
+
+	/* Enough to hold the marker without the deep indent a browser applies by default. */
+	padding-left: 1.5em;
+}
+
+.pdchat-message .pdchat-partial li + li,
+.pdchat-message .pdchat-text li + li {
+	margin-top: 0.15em;
+}
+
+/* Markdig wraps each item's content in <p> for a "loose" list - one with blank lines between
+   items - so without this every bullet carries a paragraph margin inside itself as well. */
+.pdchat-message .pdchat-partial li > p,
+.pdchat-message .pdchat-text li > p {
+	margin: 0;
+}
+
+/* No trailing gap inside the message bubble. */
+.pdchat-message .pdchat-partial p:last-child,
+.pdchat-message .pdchat-partial ul:last-child,
+.pdchat-message .pdchat-partial ol:last-child,
+.pdchat-message .pdchat-text p:last-child,
+.pdchat-message .pdchat-text ul:last-child,
+.pdchat-message .pdchat-text ol:last-child {
+	margin-bottom: 0;
+}
+
+/* A table appearing row by row is the most distracting thing on screen while an answer streams, so
+   it is kept compact and quiet until the answer settles. */
+.pdchat-message .pdchat-partial table {
+	border-collapse: collapse;
+	font-size: 0.95em;
+}
+
+.pdchat-message .pdchat-partial th,
+.pdchat-message .pdchat-partial td {
+	border: 1px solid var(--pd-chat-border, #dee2e6);
+	padding: 0.15rem 0.4rem;
+	text-align: left;
+}
+
+/* PDChat - conversation tabs are PDTabSet's markup, not PDChat's. The tab set's content area is
+   where the transcript lives, so it takes the remaining height and scrolls internally rather
+   than pushing the message input off the bottom. */
+.pdchat-container .pdchat-conversation-main .pdchat-conversation-tabset {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.pdchat-container .pdchat-conversation-main .pdchat-conversation-tabset .pdtabset-content {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* The unread marker is what makes "ask, switch away, come back" work: a reply arriving for a tab the
+   user is not reading marks it rather than stealing focus. Rendered as a leading dot via ::before so
+   that it needs no extra element inside PDTabSet's own tab markup. */
+.pdchat-container .pdchat-conversation-main .pdtabset-tab.pdchat-conversation-tab-unread::before {
+	content: "\25CF";
+	margin-right: 4px;
+	font-size: 0.625rem;
+	line-height: 1;
+	color: var(--pd-chat-info-border, #0078d4);
+}
+
+.pdchat-container .pdchat-conversation-main .pdtabset-tab.pdchat-conversation-tab-unread .pdtabset-tab-title {
+	font-weight: 600;
+}
+
+/* PDChatContainer - non-split dock modes (Minimized, the four corners, FullScreen): the chat panel and
+   its drag gutter are collapsed to nothing rather than removed from the tree - see the
+   accompanying comment in PDChatContainer.razor for why the splitter stays mounted at all
+   times. PDChat renders itself through its own fixed-position dock-mode CSS in this state
+   (see PDChat.razor.css, .pdchat-container is position:fixed by default), so it floats
+   correctly irrespective of this collapsed layout slot. split.js sets an inline width on
+   each panel ONCE (at first render) and never updates it again on its own - the two panels'
+   widths are independent, so collapsing the chat panel does NOT make the content panel
+   expand to fill the freed space by itself. Both panels need their own !important override
+   here. The direct-child gutter selector (rather than a bare .gutter) deliberately avoids
+   hiding PDChat's own unrelated internal FullScreen canvas-splitter gutter, which is nested
+   deeper inside ChatContent. */
+.pdchat-container-wrapper.pdchat-container-wrapper.pdchat-split-inactive .pdchat-chat-panel {
+	flex: 0 0 0% !important;
+	width: 0 !important;
+	min-width: 0 !important;
+	padding: 0 !important;
+	border: none !important;
+	overflow: hidden !important;
+}
+
+.pdchat-container-wrapper.pdchat-container-wrapper.pdchat-split-inactive .pdchat-content-panel {
+	flex: 1 1 100% !important;
+	width: 100% !important;
+}
+
+.pdchat-container-wrapper.pdchat-container-wrapper.pdchat-split-inactive .pdchat-container-splitter > .gutter {
+	display: none !important;
+	width: 0 !important;
+	min-width: 0 !important;
+}
+
+/* Override PDChat positioning when in container split mode */
+.pdchat-container-wrapper.pdchat-container-wrapper .pdchat-container.dock-left,
+.pdchat-container-wrapper.pdchat-container-wrapper .pdchat-container.dock-right {
+	position: static !important;
+	transform: none !important;
+	top: auto !important;
+	left: auto !important;
+	right: auto !important;
+	bottom: auto !important;
+	width: 100% !important;
+	height: 100% !important;
+	z-index: auto !important;
+}
+
+/* Ensure the chat window fills the split panel */
+.pdchat-container-wrapper.pdchat-container-wrapper .pdchat-window {
+	width: 100% !important;
+	height: 100% !important;
+	max-width: none !important;
+	max-height: none !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+}
+
+/* PDList */
+.pd-list .filter input {
+	border-top-right-radius: 0 !important;
+	border-bottom-right-radius: 0 !important;
+}
+
+.pd-list .filter .input-group-text {
+	border-top-left-radius: 0 !important;
+	border-bottom-left-radius: 0 !important;
+}
+
+/* PDToolbarTextbox - ensure the textbox input itself can shrink */
+.pdtoolbartextbox.pdtoolbartextbox input {
+	min-width: 0;
+	width: 100%;
+}
+
+/* PDToolbarButton */
+.pdtoolbarbuttonitem .pdtoolbarbutton {
+	white-space: nowrap;
+}
+
+/* PDToolbarDropdown */
+.pdtoolbardropdown .pdtoolbarbutton {
+	white-space: nowrap;
+	border-radius: var(--bs-border-radius, 0.375rem); /* Rounded corners */
+	display: inline-flex; /* Use flexbox for proper alignment */
+	align-items: center; /* Center content vertically */
+	line-height: 1.5; /* Consistent line height */
+}
+
+/* Style dropdown buttons to look like proper Bootstrap dropdown buttons */
+.pdtoolbardropdown .pdtoolbarbutton.dropdown-toggle {
+	padding: 0.375rem 0.75rem;
+	border: 1px solid var(--bs-border-color, #dee2e6);
+	border-radius: var(--bs-border-radius, 0.375rem); /* Explicit rounded corners */
+	background-color: var(--bs-body-bg, #fff);
+	color: var(--bs-body-color, #212529);
+	transition: all 0.15s ease-in-out;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	line-height: 1.5; /* Consistent line height */
+}
+
+.pdtoolbardropdown .pdtoolbarbutton.dropdown-toggle:hover {
+	background-color: var(--bs-secondary-bg, #e9ecef);
+	border-color: var(--bs-border-color-translucent, #adb5bd);
+}
+
+.pdtoolbardropdown .pdtoolbarbutton.dropdown-toggle::after {
+	margin-left: auto;
+}
+
+/* Ensure icon and text are properly spaced in dropdown buttons */
+.pdtoolbardropdown .pdtoolbarbutton.dropdown-toggle > span {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+/* PDDropDown - the menu items are the caller's ChildContent */
+.pd-dropdown.pd-dropdown .dropdown-menu ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.pd-dropdown.pd-dropdown .dropdown-menu li {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	transition: background-color 0.15s ease-in-out;
+}
+
+.pd-dropdown.pd-dropdown .dropdown-menu li:hover {
+	background-color: var(--bs-secondary-bg);
+}
+
+.pd-dropdown.pd-dropdown .dropdown-menu li .pd-label {
+	display: block;
+	padding: 0.5rem 1rem;
+	color: var(--bs-body-color);
+	text-decoration: none;
+	white-space: nowrap;
+	width: 100%;
+}
+
+/* PDFileExplorer */
+.pdfileexplorer.pdfileexplorer .pdtree {
+	height: 0;
+}
+
+.pdfileexplorer.pdfileexplorer .pdsplitter.horizontal {
+	height: calc(100% - 50px);
+}
+
+/* Suppress the whole-panel Dropzone.js hover highlight on the tree side;
+   individual node highlighting is handled by PDTreeNode.drag-over instead. */
+.pdfileexplorer.pdfileexplorer .pddropzone.dz-drag-hover {
+	background-color: unset;
+	border-color: transparent;
+}
+
+.pdfileexplorer.pdfileexplorer .pdtablerow:hover td {
+	background-color: var(--bs-tertiary-bg, rgba(128, 128, 128, 0.15));
+}
+
+.pdfileexplorer.pdfileexplorer .pdtablerow.selected:hover td {
+	background-color: var(--pd-selected-bg, var(--bs-primary));
+}
+
+/* PDFileModal */
+.pdfilemodalexplorer.pdfilemodalexplorer .pdfileexplorer {
+	height: 100%;
+}
+
+.pdfilemodalexplorer.pdfilemodalexplorer .pdsplitter {
+	flex-grow: 1;
+}
+
+/* PDFilter */
+.pd-filter.pd-filter .filter-icon {
+	color: var(--bs-primary) !important;
+}
+
+.pd-filter.pd-filter:not(.filtered) .filter-icon {
+	opacity: 0.3;
+}
+
+/* This rule prevents the filter icons looking like buttons */
+.pd-filter.pd-filter .pd-dropdown > button {
+	border: none !important;
+	background: unset !important;
+}
+
+.pd-filter .filter-toolbar .pd-button {
+	flex: 1;
+}
+
+/* PDFormBody */
+.pd-form-body .pdtoggleswitch.disabled {
+	background-color: #e9ecef;
+}
+
+.pd-form-body .fg-1 {
+	flex-grow: 1;
+}
+
+.pd-form-body .fg-2 {
+	flex-grow: 2;
+}
+
+.pd-form-body .fg-3 {
+	flex-grow: 3;
+}
+
+.pd-form-body .fg-4 {
+	flex-grow: 4;
+}
+
+.pd-form-body .fg-5 {
+	flex-grow: 5;
+}
+
+.pd-form-body .fg-6 {
+	flex-grow: 6;
+}
+
+.pd-form-body .fg-7 {
+	flex-grow: 7;
+}
+
+.pd-form-body .fg-8 {
+	flex-grow: 8;
+}
+
+.pd-form-body .fg-9 {
+	flex-grow: 9;
+}
+
+/* PDFormFieldEditor - this is required to allow monaco editor to shrink when user resizes page */
+.pd-form-field-editor .monaco-editor-container {
+	display: grid;
+	height: 100%;
+	grid-template-columns: minmax(0, auto);
+}
+
+.pd-form-field-editor.editor .form-control {
+	border: none;
+}
+
+.pd-form-field-editor .ms-nullable {
+	margin: 0 4px 2px 12px;
+	line-height: 0.5rem;
+	vertical-align: middle;
+	padding: 0;
+	width: 16px;
+}
+
+.pd-form-field-editor.editor .pddatetime input {
+	flex-grow: 1;
+}
+
+.pd-form-field-editor.editor .pddatetimeoffset input {
+	flex-grow: 1;
+}
+
+.pd-form-field-editor.editor .no-resize {
+	resize: none;
+}
+
+.pd-form-field-editor.editor.readonly .view-lines {
+	background-color: #e9ecef;
+}
+
+.pd-form-field-editor.editor.readonly .margin {
+	background-color: #e9ecef;
+}
+
+.pd-form-field-editor.editor.readonly .minimap canvas {
+	background-color: #e9ecef;
+}
+
+/* Remove the default arrow in most browsers */
+.pd-form-field-editor .form-select:disabled {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: none !important;
+}
+
+/* override disabled grey out */
+.pd-form-field-editor.editor.readonly .form-control:disabled {
+	border-radius: 0 !important;
+}
+
+/* PDFormFooter - no padding needed, modal-footer / page context already provides it */
+.pd-form-footer.pd-form-footer .pdtoolbar {
+	flex-wrap: nowrap;
+	padding: 0;
+	flex-shrink: 0;
+}
+
+/* PDMonacoEditor */
+.pd-monacoeditor .monaco-editor-container {
+	height: 100px;
+}
+
+/* PDPager - the direction buttons are PDButtons */
+.pdpager .direction-buttons button:nth-child(1) {
+	border-radius: 0.25rem 0 0 0.25rem;
+}
+
+.pdpager .direction-buttons button:nth-child(2) {
+	border-radius: 0;
+}
+
+.pdpager .direction-buttons button:nth-child(4) {
+	border-radius: 0;
+}
+
+.pdpager .direction-buttons button:nth-child(5) {
+	border-radius: 0 0.25rem 0.25rem 0;
+}
+
+/* PDStudio - override the Monaco editor container height specifically within PDStudio */
+.pd-studio.pd-studio .pd-studio-editor-container .monaco-editor-container {
+	height: 100% !important;
+}
+
+/* Force the underlying Monaco editor to fill its container within PDStudio */
+.pd-studio.pd-studio .pd-studio-editor-container .resizable {
+	height: 100% !important;
+}
+
+/* PDTable - the sort icons are MarkupString */
+.pdtable .pd-sort {
+	color: var(--bs-primary);
+}
+
+.pdtable .pd-sort .fa-stack {
+	width: 20px;
+
+	/* Make sort icon match filter icon size and alignment */
+	font-size: 1rem;
+	vertical-align: middle;
+}
+
+.pdtable .pd-sort.fa-sort {
+	opacity: 0.3;
+}
+
+.pdtable .pd-sort i {
+	vertical-align: middle;
+}
+
+/* PDTableColumnSelector - override PDDragPanel styles for better column selector appearance */
+.pd-column-selector.pd-column-selector .pd-dragpanel {
+	border: none;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+}
+
+.pd-column-selector.pd-column-selector .pd-dragitem {
+	background-color: transparent;
+	border: none;
+	margin: 0;
+	padding: 0.5rem 1rem;
+	min-height: auto;
+	transition: background-color 0.15s ease-in-out;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.pd-column-selector.pd-column-selector .pd-dragitem:hover {
+	background-color: var(--bs-secondary-bg, #e9ecef);
+}
+
+.pd-column-selector.pd-column-selector .pd-dragitem.dragging {
+	background-color: var(--bs-primary-bg-subtle, #cfe2ff);
+	border-color: var(--bs-primary, #0d6efd);
+	opacity: 0.6;
+}
+
+/* Style checkboxes properly */
+.pd-column-selector.pd-column-selector .pd-dragitem input[type="checkbox"] {
+	width: 1rem;
+	height: 1rem;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+/* Style checkbox labels */
+.pd-column-selector.pd-column-selector .pd-dragitem label {
+	margin: 0;
+	cursor: pointer;
+	flex: 1;
+	user-select: none;
+	color: var(--bs-body-color, #212529);
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .pd-column-selector.pd-column-selector .pd-dragitem:hover {
+	background-color: var(--bs-secondary-bg, #343a40);
+}
+
+[data-bs-theme="dark"] .pd-column-selector.pd-column-selector .pd-dragitem label {
+	color: var(--bs-body-color, #f8f9fa);
+}
+
+/* Disabled items */
+.pd-column-selector.pd-column-selector .pd-dragitem input[type="checkbox"]:disabled,
+.pd-column-selector.pd-column-selector .pd-dragitem input[type="checkbox"]:disabled + label {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* PDTimeline - the bars are PDStackedBar SVGs */
+.pd-timeline.pd-timeline svg.disabled {
+	background-color: #d3d3d3;
+	filter: grayscale(1);
+}
+
+/* PDToolbar - the items are the toolbar item components */
+.pdtoolbar .pdtoolbaritem {
+	padding: 0 0.25rem; /* Reduce padding, rely on gap instead */
+	align-items: center;
+	flex-shrink: 0; /* Prevent items from shrinking by default */
+	vertical-align: middle;
+	white-space: nowrap; /* Prevent content from wrapping */
+	position: relative; /* Establish positioning context for dropdowns */
+}
+
+/* Kept separate from the rule above so that .pd-hidden items can still have display: none
+   (.pd-hidden is !important too). This also must not apply to d-none classes, e.g. some toolbar
+   separators have d-none to hide them. */
+.pdtoolbar .pdtoolbaritem:not(.pd-hidden, .d-none) {
+	display: inline-flex !important; /* Force inline-flex */
+}
+
+/* Allow specific items (like textbox) to grow and use available space */
+.pdtoolbar .pdtoolbaritem:has(.pdtoolbartextbox) {
+	flex: 1 1 200px; /* Grow to fill space, but have a reasonable base size */
+	min-width: 150px; /* Minimum width before wrapping */
+	max-width: 400px; /* Maximum width to prevent it from getting too wide */
+}
+
+.pdtoolbar .pdtoolbaritem:first-child {
+	padding-left: 0;
+}
+
+.pdtoolbar .pdtoolbaritem:last-child {
+	padding-right: 0;
+}
+
+.pdtoolbar .pdtoolbaritem.align-right {
+	margin-left: auto;
+	flex-shrink: 0; /* Items aligned right should not shrink */
+}
+
+/* Ensure buttons inside toolbar items stay inline and have proper sizing */
+.pdtoolbar .pdtoolbaritem .btn,
+.pdtoolbar .pdtoolbaritem .dropdown {
+	margin-bottom: 0 !important; /* Remove any bottom margin */
+	display: inline-flex;
+	vertical-align: middle;
+	align-items: center;
+	flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+/* Ensure dropdown toggles have proper styling */
+.pdtoolbar .pdtoolbaritem .dropdown-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	border-radius: var(--bs-border-radius, 0.375rem); /* Rounded corners */
+}
+
+/* Ensure dropdown menus overflow properly */
+.pdtoolbar .pdtoolbaritem .dropdown-menu {
+	position: absolute;
+	z-index: 1050; /* High z-index to appear above everything */
+}
+
+/* Style toolbar buttons consistently */
+.pdtoolbar .pdtoolbaritem .pdtoolbarbutton {
+	border-radius: var(--bs-border-radius, 0.375rem); /* Rounded corners */
+	height: 100%; /* Ensures that buttons WITHOUT text are the same height as those with text */
+	white-space: nowrap;
+}
+
+/* Mobile is already handled by wrapping - adjust for smaller screens */
+@media (max-width: 768px) {
+	.pdtoolbar .pdtoolbaritem {
+		margin-bottom: 0.25rem;
+	}
+
+	.pdtoolbar .pdtoolbaritem:has(.pdtoolbartextbox) {
+		flex: 1 1 100%; /* Full width on mobile */
+		max-width: none; /* Remove max-width constraint on mobile */
+		min-width: 0; /* Allow full shrinking on mobile */
+	}
+}
