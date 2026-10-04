@@ -2,7 +2,9 @@ var _recognition = null;
 var _ref = null;
 
 export function abortListenForSpeech() {
-	_recognition?.abort();
+	if (_recognition) {
+		_recognition.abort();
+	}
 }
 
 export function initSpeech(lang) {
