@@ -98,6 +98,10 @@ public partial class PDChatTests
 		var speak = module.Invocations["speak"].Should().ContainSingle().Subject;
 		speak.Arguments[0].Should().Be("/voice/speak");
 		((string)speak.Arguments[1]!).Trim().Should().Be("Yes, it is  done .");
+		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Speaking);
+
+		await component.InvokeAsync(() => component.Instance.OnVoiceSpoken());
+
 		module.Invocations["pause"].Select(call => call.Arguments[0]).Should().Equal(true, false);
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Listening);
 	}

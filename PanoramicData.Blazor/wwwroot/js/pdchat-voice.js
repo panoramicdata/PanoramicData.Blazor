@@ -1,50 +1,25 @@
 // PDChat Voice Mode: the microphone to a host websocket at 24 kHz, and spoken answers played as they arrive.
 
 const SAMPLE_RATE = 24000;
-const FRAME_SAMPLES = 1920;
 
-// Resampled in the worklet from the device's own rate: a 24 kHz AudioContext cannot be connected to a
-// microphone in every browser.
-const CAPTURE_WORKLET = `
-class PdChatVoiceCapture extends AudioWorkletProcessor {
-	constructor() {
-		super();
-		this.step = sampleRate / ${SAMPLE_RATE};
-		this.position = 0;
-		this.frame = new Float32Array(${FRAME_SAMPLES});
-		this.length = 0;
-	}
-	process(inputs) {
-		const input = inputs[0] && inputs[0][0];
-		if (!input) {
-			return true;
-		}
-		while (this.position < input.length) {
-			const index = Math.floor(this.position);
-			const next = Math.min(index + 1, input.length - 1);
-			const fraction = this.position - index;
-			this.frame[this.length++] = input[index] + (input[next] - input[index]) * fraction;
-			if (this.length === ${FRAME_SAMPLES}) {
-				this.port.postMessage(this.frame.buffer, [this.frame.buffer]);
-				this.frame = new Float32Array(${FRAME_SAMPLES});
-				this.length = 0;
-			}
-			this.position += this.step;
-		}
-		this.position -= input.length;
-		return true;
-	}
-}
-registerProcessor("pdchat-voice-capture", PdChatVoiceCapture);
-`;
+// Beside this module; a separate file rather than a Blob so a Content Security Policy need not allow blob: scripts.
+const CAPTURE_MODULE = import.meta.url.replace(
+	/[^/]*$/,
+	"pdchat-voice-capture.js",
+);
 
 let listening = null;
 let speaking = null;
 
 function toWebSocketUrl(url) {
-	const absolute = new URL(url, document.baseURI);
-	absolute.protocol = absolute.protocol === "https:" ? "wss:" : "ws:";
-	return absolute.toString();
+	if (/^wss?:\/\//i.test(url)) {
+		return url;
+	}
+	if (/^https?:\/\//i.test(url)) {
+		return url.replace(/^http/i, "ws");
+	}
+	const scheme = location.protocol === "https:" ? "wss://" : "ws://";
+	return scheme + location.host + (/^\//.test(url) ? url : "/" + url);
 }
 
 function onListenMessage(event, dotNet) {
@@ -76,11 +51,7 @@ export async function start(listenUrl, dotNet) {
 		},
 	});
 	const context = new AudioContext();
-	const workletUrl = URL.createObjectURL(
-		new Blob([CAPTURE_WORKLET], { type: "text/javascript" }),
-	);
-	await context.audioWorklet.addModule(workletUrl);
-	URL.revokeObjectURL(workletUrl);
+	await context.audioWorklet.addModule(CAPTURE_MODULE);
 
 	const capture = new AudioWorkletNode(context, "pdchat-voice-capture");
 	const socket = new WebSocket(toWebSocketUrl(listenUrl));
@@ -104,7 +75,7 @@ export async function start(listenUrl, dotNet) {
 	listening = state;
 }
 
-/** While paused the microphone is still open but nothing is sent, so Merlin does not hear itself. */
+/** While paused the microphone is still open but nothing is sent, so the assistant does not hear itself. */
 export function pause(paused) {
 	if (listening) {
 		listening.paused = paused;
@@ -136,35 +107,33 @@ export function stopSpeaking() {
 	state.finish();
 }
 
-/** Speaks an answer, resolving once the last of the audio has played. */
-export function speak(speakUrl, text) {
+/** Speaks an answer, and calls OnVoiceSpoken once the last of the audio has played. */
+export function speak(speakUrl, text, dotNet) {
 	stopSpeaking();
-	return new Promise((resolve) => {
-		const context = new AudioContext({ sampleRate: SAMPLE_RATE });
-		const socket = new WebSocket(toWebSocketUrl(speakUrl));
-		socket.binaryType = "arraybuffer";
-		const state = { context, socket, startAt: 0, last: null, finished: false };
-		state.finish = () => {
-			if (!state.finished) {
-				state.finished = true;
-				resolve();
-			}
-		};
+	const context = new AudioContext({ sampleRate: SAMPLE_RATE });
+	const socket = new WebSocket(toWebSocketUrl(speakUrl));
+	socket.binaryType = "arraybuffer";
+	const state = { context, socket, startAt: 0, last: null, finished: false };
+	state.finish = () => {
+		if (!state.finished) {
+			state.finished = true;
+			dotNet.invokeMethodAsync("OnVoiceSpoken");
+		}
+	};
 
-		socket.onopen = () => socket.send(JSON.stringify({ text }));
-		socket.onmessage = (event) => {
-			if (typeof event.data === "string") {
-				if (JSON.parse(event.data).type === "done") {
-					finishAfterPlayback(state);
-				}
-				return;
+	socket.onopen = () => socket.send(JSON.stringify({ text }));
+	socket.onmessage = (event) => {
+		if (typeof event.data === "string") {
+			if (JSON.parse(event.data).type === "done") {
+				finishAfterPlayback(state);
 			}
-			queueAudio(state, new Float32Array(event.data));
-		};
-		socket.onerror = () => finishAfterPlayback(state);
-		socket.onclose = () => finishAfterPlayback(state);
-		speaking = state;
-	});
+			return;
+		}
+		queueAudio(state, new Float32Array(event.data));
+	};
+	socket.onerror = () => finishAfterPlayback(state);
+	socket.onclose = () => finishAfterPlayback(state);
+	speaking = state;
 }
 
 function queueAudio(state, samples) {

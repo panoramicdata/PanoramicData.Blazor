@@ -165,14 +165,22 @@ public partial class PDChat
 		VoiceState = PDChatVoiceState.Speaking;
 		await InvokeAsync(StateHasChanged);
 
-		await _voiceModule.InvokeVoidAsync("speak", endpoints.SpeakUrl, ToSpeakableText(message));
+		// The module calls OnVoiceSpoken when the last of the audio has played.
+		await _voiceModule.InvokeVoidAsync("speak", endpoints.SpeakUrl, ToSpeakableText(message), _voiceReference);
+	}
 
-		if (VoiceState == PDChatVoiceState.Speaking)
+	/// <summary>Called by the voice module when an answer has finished playing; listening resumes.</summary>
+	[JSInvokable]
+	public async Task OnVoiceSpoken()
+	{
+		if (VoiceState != PDChatVoiceState.Speaking)
 		{
-			VoiceState = PDChatVoiceState.Listening;
-			await _voiceModule.InvokeVoidAsync("pause", false);
-			await InvokeAsync(StateHasChanged);
+			return;
 		}
+
+		VoiceState = PDChatVoiceState.Listening;
+		await (_voiceModule?.InvokeVoidAsync("pause", false) ?? ValueTask.CompletedTask);
+		await InvokeAsync(StateHasChanged);
 	}
 
 	// The host turns the text into speech; this only removes HTML markup, which would otherwise be read out.
