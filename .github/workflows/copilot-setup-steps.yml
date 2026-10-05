@@ -3,6 +3,9 @@ name: "Copilot Setup Steps"
 on:
   workflow_dispatch:
   push:
+    # Branches only: a tag push (every release) would otherwise start this workflow too, because path
+    # filters are not applied to tags.
+    branches: [main]
     paths:
       - .github/workflows/copilot-setup-steps.yml
   pull_request:
@@ -18,6 +21,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0 # Nerdbank.GitVersioning needs the full history to calculate the version
 
     - uses: actions/setup-node@v7
       with:
@@ -29,6 +34,10 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
-    # Customize this step as needed
+    - uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.0.x
+
+    # The library and its demo hosts are built with .NET; there is no npm build script.
     - name: Build application
-      run: npx run build
+      run: dotnet build PanoramicData.Blazor.slnx --configuration Release
