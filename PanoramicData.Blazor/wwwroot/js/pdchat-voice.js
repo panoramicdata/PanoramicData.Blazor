@@ -13,7 +13,7 @@ let speaking = null;
 
 function toWebSocketUrl(url) {
 	// The page's own scheme decides: an https page gets wss, so a secure page never opens an insecure socket.
-	if (/^(wss?|https?):/i.test(url)) {
+	if (/^(?:wss?|https?):/i.test(url)) {
 		return url.replace(/^http/i, "ws");
 	}
 	const scheme = location.protocol.replace(/^http/, "ws");
