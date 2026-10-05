@@ -84,6 +84,15 @@
 							<span>🗑️</span>
 						</button>
 					}
+					@if (IsVoiceModeOffered)
+					{
+						<button class="pdchat-header-btn pdchat-voice-toggle@(IsVoiceModeOn ? " active" : string.Empty)"
+								@onclick="ToggleVoiceModeAsync"
+								title="@VoiceButtonTitle"
+								aria-pressed="@(IsVoiceModeOn ? "true" : "false")">
+							<span>🎙️ Voice</span>
+						</button>
+					}
 					<button class="pdchat-header-btn" @onclick="ToggleMuteAsync" title="@(_isMuted ? "Unmute" : "Mute")">
 						<span>@(_isMuted ? "🔇" : "🔊")</span>
 					</button>
@@ -111,6 +120,13 @@
 					}
 					<button class="pdchat-close" @onclick="ToggleChatAsync" title="Minimize">🗕</button>
 				</div>
+
+				@if (IsVoiceModeOn || VoiceError is not null)
+				{
+					<div class="@VoiceStatusCssClass" role="status" aria-live="polite">
+						@VoiceStatusText
+					</div>
+				}
 
 				@* Conversation history: full-screen only, and only when the host supplied a store to back it
 				   (issues #111 and #112). Takes precedence over the canvas layout below because both want the

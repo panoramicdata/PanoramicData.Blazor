@@ -543,6 +543,34 @@ body:has(.pdchat-container.dock-fullscreen) {
 	outline-offset: 1px;
 }
 
+/* Voice Mode: the switch carries a word as well as an icon, so it says what it does. */
+.pdchat-voice-toggle {
+	font-size: 14px;
+	min-width: auto;
+	white-space: nowrap;
+}
+
+.pdchat-voice-toggle.active {
+	background: rgba(255,255,255,0.25);
+	box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+}
+
+.pdchat-voice-status {
+	padding: 6px 12px;
+	font-size: 13px;
+	border-bottom: 1px solid var(--pd-chat-border, #dee2e6);
+	background: var(--pd-chat-info-bg, #e7f1ff);
+	color: var(--pd-chat-color, inherit);
+}
+
+.pdchat-voice-status.pdchat-voice-listening::before {
+	content: "● ";
+	color: #dc3545;
+}
+
+.pdchat-voice-status.pdchat-voice-error {
+	background: var(--pd-chat-warning-bg, #fff3cd);
+}
 /* ==============================================
    PDMessages Layout - Ensure Full Height
    ============================================== */

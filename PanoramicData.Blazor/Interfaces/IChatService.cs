@@ -89,6 +89,12 @@ public interface IChatService : IDisposable
 	}
 
 	/// <summary>
+	/// Gets where Voice Mode sends speech and fetches spoken answers, or null (the default) when the host
+	/// offers no Voice Mode, in which case no Voice Mode control is shown.
+	/// </summary>
+	PDChatVoiceEndpoints? VoiceEndpoints => null;
+
+	/// <summary>
 	/// Gets or sets whether the chat should auto-restore when new messages arrive.
 	/// </summary>
 	bool AutoRestoreOnNewMessage { get; set; }

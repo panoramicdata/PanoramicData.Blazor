@@ -275,6 +275,8 @@ public partial class PDChat : JSModuleComponentBase
 	{
 		var isNewMessage = UpsertMessage(message);
 
+		await SpeakAnswerIfAwaitedAsync(message);
+
 		// Emit OnMessageReceived event for new messages
 		if (isNewMessage && OnMessageReceivedEvent.HasDelegate)
 		{
@@ -585,6 +587,8 @@ public partial class PDChat : JSModuleComponentBase
 	/// <inheritdoc />
 	public override async ValueTask DisposeAsync()
 	{
+		await DisposeVoiceAsync();
+
 		// Clean up event handlers
 		ChatService.OnMessageReceived -= OnMessageReceived;
 
