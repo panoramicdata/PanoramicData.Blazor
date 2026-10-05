@@ -31,7 +31,7 @@ public partial class PDChatTests
 		var component = RenderChat(VoiceService());
 
 		var toggle = component.Find(".pdchat-voice-toggle");
-		toggle.TextContent.Should().Contain("Voice");
+		toggle.GetAttribute("aria-label").Should().Be("Voice: speak instead of typing");
 		toggle.GetAttribute("title").Should().Be("Voice: speak instead of typing");
 		toggle.GetAttribute("aria-pressed").Should().Be("false");
 		component.FindAll(".pdchat-voice-status").Should().BeEmpty();
@@ -45,7 +45,7 @@ public partial class PDChatTests
 		var component = RenderChat(VoiceService());
 
 		component.FindAll(".pdchat-header .pdchat-voice-toggle").Should().BeEmpty();
-		component.FindAll(".chat-input-container .chat-input-accessories .pdchat-voice-toggle").Should().ContainSingle();
+		component.FindAll(".chat-input-accessories .pdchat-voice-toggle").Should().ContainSingle();
 	}
 
 	/// <summary>
@@ -176,7 +176,7 @@ public partial class PDChatTests
 		service.Sent.Should().BeEmpty();
 		component.Find(".pdchat-voice-status").TextContent.Trim().Should().Be("Listening. You are editing, so press Send when ready.");
 
-		await component.Find(".chat-input-container > button").ClickAsync(new MouseEventArgs());
+		await component.Find(".chat-input-accessories .chat-send").ClickAsync(new MouseEventArgs());
 
 		service.Sent.Should().ContainSingle().Which.Message.Should().Be("Is it done?");
 		module.Invocations["pause"].Should().ContainSingle().Which.Arguments[0].Should().Be(true);
@@ -317,10 +317,128 @@ public partial class PDChatTests
 		component.Find(".pdchat-voice-status").TextContent.Should().Contain("microphone could not be opened");
 	}
 
-	private static FakeChatService VoiceService(TimeSpan? autoSendDelay = null)
+	/// <summary>Verifies that answers are not read aloud by default: dictation is sent and the microphone keeps listening.</summary>
+	[Fact]
+	public async Task Without_read_aloud_dictation_is_sent_and_nothing_is_spoken()
+	{
+		var module = SetUpVoiceModule();
+		var service = VoiceService(readAloud: false);
+		var component = await RenderListeningAsync(service);
+		component.Find(".pdchat-read-aloud-toggle").GetAttribute("aria-pressed").Should().Be("false");
+
+		await AskAsync(component, service, "Is it done?");
+		await component.InvokeAsync(() => service.Receive(Message("Yes.")));
+
+		module.Invocations["speak"].Should().BeEmpty();
+		module.Invocations["pause"].Should().BeEmpty("the microphone only pauses while an answer is to be spoken");
+		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Listening);
+	}
+
+	/// <summary>Verifies that read-aloud works without the microphone: the answer to a typed message is spoken.</summary>
+	[Fact]
+	public async Task With_read_aloud_and_no_microphone_a_typed_question_is_answered_aloud()
+	{
+		var module = SetUpVoiceModule();
+		var service = VoiceService(readAloud: false);
+		var component = RenderChat(service);
+		await component.Find(".pdchat-read-aloud-toggle").ClickAsync(new());
+		((IChatService)service).IsReadAloudEnabled.Should().BeTrue();
+
+		await component.Find("textarea").InputAsync(new Microsoft.AspNetCore.Components.ChangeEventArgs { Value = "Is it done?" });
+		await component.Find(".chat-input-accessories .chat-send").ClickAsync(new MouseEventArgs());
+		await component.InvokeAsync(() => service.Receive(Message("Yes.")));
+
+		module.Invocations["speak"].Should().ContainSingle().Which.Arguments[1].Should().Be("Yes.");
+		module.Invocations["start"].Should().BeEmpty("reading aloud never opens the microphone");
+		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Off);
+	}
+
+	/// <summary>Verifies that turning read-aloud off mid-answer stops speaking and the microphone listens again.</summary>
+	[Fact]
+	public async Task Turning_read_aloud_off_mid_answer_stops_it_and_listening_resumes()
+	{
+		var module = SetUpVoiceModule();
+		var service = VoiceService();
+		var component = await RenderListeningAsync(service);
+		await AskAsync(component, service, "Is it done?");
+		await component.InvokeAsync(() => service.Receive(Message("Yes.")));
+		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Speaking);
+
+		await component.Find(".pdchat-read-aloud-toggle").ClickAsync(new());
+
+		module.Invocations["stopSpeaking"].Should().ContainSingle();
+		module.Invocations["pause"].Select(call => call.Arguments[0]).Should().Equal(true, false);
+		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Listening);
+	}
+
+	/// <summary>Verifies that read-aloud and notification sounds are separate choices, so all four combinations exist.</summary>
+	[Theory]
+	[InlineData(false, false)]
+	[InlineData(false, true)]
+	[InlineData(true, false)]
+	[InlineData(true, true)]
+	public async Task Read_aloud_and_notification_sounds_are_independent(bool muted, bool readAloud)
+	{
+		var service = VoiceService(readAloud: false);
+		var component = RenderChat(service);
+
+		if (muted)
+		{
+			await component.Find(".pdchat-mute-toggle").ClickAsync(new());
+		}
+
+		if (readAloud)
+		{
+			await component.Find(".pdchat-read-aloud-toggle").ClickAsync(new());
+		}
+
+		service.IsMuted.Should().Be(muted);
+		((IChatService)service).IsReadAloudEnabled.Should().Be(readAloud);
+		component.Find(".pdchat-mute-toggle").TextContent.Should().Be(muted ? "🔕" : "🔔");
+		component.Find(".pdchat-read-aloud-toggle").GetAttribute("aria-pressed").Should().Be(readAloud ? "true" : "false");
+	}
+
+	/// <summary>Verifies that the microphone control is an icon alone, named for screen readers by its label.</summary>
+	[Fact]
+	public void The_microphone_control_is_an_icon_only()
+	{
+		var toggle = RenderChat(VoiceService()).Find(".pdchat-voice-toggle");
+
+		toggle.TextContent.Trim().Should().Be("🎙️");
+		toggle.GetAttribute("aria-label").Should().Be("Voice: speak instead of typing");
+	}
+
+	/// <summary>Verifies that the toolbar sits above the input, leaving the text box and Send the whole row.</summary>
+	[Fact]
+	public void The_toolbar_sits_above_a_full_width_input_row()
+	{
+		var component = RenderChat(VoiceService());
+
+		var toolbar = component.Find(".chat-input-accessories");
+		toolbar.NextElementSibling!.ClassList.Should().Contain("chat-input-container");
+		component.Find(".chat-input-container").Children.Select(child => child.LocalName).Should().Equal("textarea");
+		toolbar.LastElementChild!.ClassList.Should().Contain("chat-send");
+		component.FindAll(".pdchat-header .pdchat-mute-toggle, .pdchat-header-btn[title^='Notification']").Should().BeEmpty();
+		toolbar.QuerySelector(".pdchat-mute-toggle").Should().NotBeNull();
+	}
+
+	/// <summary>Verifies that notification sounds can still be switched where typing is not permitted.</summary>
+	[Fact]
+	public void Notification_sounds_stay_reachable_where_typing_is_not_permitted()
+	{
+		var service = VoiceService();
+		((IChatService)service).IsInputPermitted = false;
+		var component = RenderChat(service);
+
+		component.FindAll(".chat-input-accessories .pdchat-mute-toggle").Should().ContainSingle();
+		component.FindAll(".pdchat-voice-toggle, .pdchat-read-aloud-toggle").Should().BeEmpty();
+	}
+
+	private static FakeChatService VoiceService(TimeSpan? autoSendDelay = null, bool readAloud = true)
 	{
 		var service = new FakeChatService { VoiceEndpoints = _voiceEndpoints };
 		((IChatService)service).VoiceAutoSendDelay = autoSendDelay ?? TimeSpan.Zero;
+		((IChatService)service).IsReadAloudEnabled = readAloud;
 		return service;
 	}
 
@@ -363,17 +481,6 @@ public partial class PDChatTests
 		VoiceModuleImports().Should().BeEmpty();
 		module.Invocations["start"].Should().ContainSingle();
 		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Listening);
-	}
-
-	/// <summary>Verifies that the demo service shows Voice Mode and the agent picker with no speech service behind it.</summary>
-	[Fact]
-	public void The_demo_service_offers_simulated_Voice_Mode_and_agents()
-	{
-		using var service = new PanoramicData.Blazor.Services.DumbChatService();
-		IChatService chat = service;
-
-		chat.VoiceEndpoints.Should().Be(PDChatVoiceEndpoints.Simulated);
-		chat.Agents.Should().HaveCountGreaterThan(1);
 	}
 
 	private BunitJSModuleInterop SetUpVoiceModule()

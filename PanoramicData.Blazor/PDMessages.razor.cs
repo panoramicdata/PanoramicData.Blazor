@@ -100,7 +100,8 @@ public partial class PDMessages : IChatInput
 	internal ElementReference InputRef { get; set; }
 
 	/// <summary>
-	/// Gets or sets optional controls shown in the input row beside the Send button, such as a voice or agent control.
+	/// Gets or sets optional controls shown in the thin toolbar above the text box, before Send. The toolbar is shown
+	/// even where input is not permitted, so a control such as notification sounds stays reachable.
 	/// </summary>
 	[Parameter] public RenderFragment? InputAccessories { get; set; }
 

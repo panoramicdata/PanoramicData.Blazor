@@ -17,6 +17,17 @@
 			}
 		}
 	</div>
+	@if (InputAccessories is not null || IsInputPermitted)
+	{
+		@* Every control sits in this thin bar, so the text box below has the whole width. *@
+		<div class="chat-input-accessories" role="toolbar">
+			@InputAccessories
+			@if (IsInputPermitted)
+			{
+				<button class="btn btn-sm btn-secondary chat-send" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
+			}
+		</div>
+	}
 	@if (IsInputPermitted)
 	{
 		<div class="chat-input-container">
@@ -30,11 +41,6 @@
 				placeholder="Type a message..."
 				rows="3"
 				disabled="@(!IsLive)"></textarea>
-			@if (InputAccessories is not null)
-			{
-				<div class="chat-input-accessories">@InputAccessories</div>
-			}
-			<button class="btn btn-sm btn-secondary" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
 		</div>
 	}
 	else if (!string.IsNullOrWhiteSpace(InputDisabledMessage))

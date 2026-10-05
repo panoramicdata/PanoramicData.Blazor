@@ -24,7 +24,7 @@ public partial class PDChatTests
 		var component = RenderChat(new FakeChatService { Agents = [.. new[] { _merlin, _alice }.Take(count)] });
 
 		component.FindAll(".pdchat-agent-picker").Should().BeEmpty();
-		component.FindAll(".chat-input-accessories").Should().BeEmpty("there is nothing else to show there");
+		component.Find(".chat-input-accessories").QuerySelectorAll("select").Should().BeEmpty();
 	}
 
 	/// <summary>Verifies that no picker is shown when the service does not list agents at all.</summary>
@@ -38,7 +38,7 @@ public partial class PDChatTests
 	{
 		var component = RenderChat(new FakeChatService { Agents = [_merlin, _alice] });
 
-		var select = component.Find(".chat-input-container .chat-input-accessories .pdchat-agent-picker select");
+		var select = component.Find(".chat-input-accessories .pdchat-agent-picker select");
 		select.GetAttribute("title").Should().Be("Who you are talking to");
 		var options = select.QuerySelectorAll("option");
 		options.Select(option => option.TextContent).Should().Equal("Merlin", "Alice");

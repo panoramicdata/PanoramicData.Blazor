@@ -113,15 +113,35 @@
 	flex-shrink: 0;
 }
 
-/* Host-supplied controls (voice, agent) stacked beside Send. */
+/* Host-supplied controls in a thin toolbar above the input, which keeps the full width. */
 .chat-input-accessories {
+	container-type: inline-size;
 	display: flex;
-	flex-direction: column;
-	align-items: stretch;
+	flex-wrap: wrap;
+	align-items: center;
 	gap: 4px;
 	flex-shrink: 0;
 	min-width: 0;
-	max-width: 40%;
+	margin-top: auto;
+	padding: 2px 6px;
+	font-size: 0.8rem;
+	background: var(--pd-chat-secondary-bg, #f5f7fa);
+	border-top: 1px solid var(--pd-chat-border, #dee2e6);
+}
+
+/* Send ends the bar, after any host controls. */
+.chat-input-accessories .chat-send {
+	margin-left: auto;
+	padding: 0 8px;
+	flex-shrink: 0;
+}
+
+.chat-input-accessories + .chat-input-container,
+.chat-input-accessories + .chat-input-disabled,
+.pdchat-window.fullscreen .chat-input-accessories + .chat-input-container {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: none;
 }
 
 /* Message shown in place of the input when input is not permitted (IsInputPermitted = false).

@@ -50,6 +50,10 @@ internal sealed class ChatServiceDefaultState
 
 	public string? SelectedAgentId { get; set; }
 
+	public string? SelectedModelId { get; set; }
+
+	public bool IsReadAloudEnabled { get; set; }
+
 	/// <summary>
 	/// Gets or sets the handlers subscribed to the default <see cref="IChatService.OnConversationMessageReceived"/>.
 	/// They are kept so that subscribing and unsubscribing behave as they would on any event, but a service that

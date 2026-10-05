@@ -68,19 +68,22 @@ public partial class PDMessagesTests
 		events.Should().Equal("input:spoken", "input:spoken", "send");
 	}
 
-	/// <summary>Verifies that host controls are shown between the text box and Send, and not at all when absent.</summary>
+	/// <summary>Verifies that host controls and Send share a toolbar above a full-width text box.</summary>
 	[Fact]
-	public void Input_accessories_sit_beside_send()
+	public void Input_accessories_sit_in_a_toolbar_above_the_input()
 	{
-		RenderLive([]).FindAll(".chat-input-accessories").Should().BeEmpty();
+		RenderLive([]).Find(".chat-input-accessories").Children.Select(child => child.ClassName).Should().Equal("btn btn-sm btn-secondary chat-send");
 
 		var component = Render<PDMessages>(parameters => parameters
 			.Add(p => p.IsLive, true)
 			.Add(p => p.InputAccessories, builder => builder.AddMarkupContent(0, "<button class=\"extra\">Extra</button>")));
 
-		var row = component.Find(".chat-input-container");
-		row.Children.Select(child => child.LocalName).Should().Equal("textarea", "div", "button");
-		row.QuerySelector(".chat-input-accessories .extra").Should().NotBeNull();
+		var toolbar = component.Find(".chat-input-accessories");
+		toolbar.GetAttribute("role").Should().Be("toolbar");
+		toolbar.QuerySelector(".extra").Should().NotBeNull();
+		toolbar.NextElementSibling!.ClassList.Should().Contain("chat-input-container");
+		component.Find(".chat-input-container").Children.Select(child => child.LocalName).Should().Equal("textarea");
+		toolbar.LastElementChild!.ClassList.Should().Contain("chat-send");
 	}
 
 	/// <summary>Verifies that the text box takes focus when shown, unless that is turned off.</summary>

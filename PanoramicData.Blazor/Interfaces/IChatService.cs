@@ -122,6 +122,32 @@ public interface IChatService : IDisposable
 	}
 
 	/// <summary>
+	/// Gets or sets whether the answer to each message the user sends is read aloud. False by default. Independent of
+	/// both the microphone and <see cref="IsMuted"/>, which governs notification sounds. Needs <see cref="VoiceEndpoints"/>.
+	/// </summary>
+	bool IsReadAloudEnabled
+	{
+		get => ChatServiceDefaultState.For(this).IsReadAloudEnabled;
+		set => ChatServiceDefaultState.For(this).IsReadAloudEnabled = value;
+	}
+
+	/// <summary>
+	/// Gets the models the user may choose to answer, or null (the default) when the host offers no choice.
+	/// A picker is shown in the input toolbar only when there are two or more.
+	/// </summary>
+	IReadOnlyList<PDChatModelOption>? Models => null;
+
+	/// <summary>
+	/// Gets or sets the <see cref="PDChatModelOption.Id"/> of the model that answers, or null (the default) for the
+	/// host's default. The chat sets this when the user picks a model; a host that needs to react implements the setter.
+	/// </summary>
+	string? SelectedModelId
+	{
+		get => ChatServiceDefaultState.For(this).SelectedModelId;
+		set => ChatServiceDefaultState.For(this).SelectedModelId = value;
+	}
+
+	/// <summary>
 	/// Gets or sets whether the chat should auto-restore when new messages arrive.
 	/// </summary>
 	bool AutoRestoreOnNewMessage { get; set; }

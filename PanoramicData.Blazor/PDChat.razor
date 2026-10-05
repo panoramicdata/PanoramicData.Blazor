@@ -84,9 +84,6 @@
 							<span>🗑️</span>
 						</button>
 					}
-					<button class="pdchat-header-btn" @onclick="ToggleMuteAsync" title="@(_isMuted ? "Unmute" : "Mute")">
-						<span>@(_isMuted ? "🔇" : "🔊")</span>
-					</button>
 					@* Show dock to side button for corner modes *@
 					@if (ChatService.DockMode is PDChatDockMode.BottomRight or PDChatDockMode.TopRight
 					   or PDChatDockMode.BottomLeft or PDChatDockMode.TopLeft)
@@ -291,34 +288,56 @@
 </CascadingValue>
 
 @code {
-	private RenderFragment InputAccessoriesContent => @<text>
+	private RenderFragment InputAccessories => @<text>
 		@if (IsAgentPickerOffered)
 		{
-			<div class="pdchat-agent-picker">
+			<label class="pdchat-toolbar-picker pdchat-agent-picker">
+				<span class="pdchat-toolbar-label">Agent</span>
 				@if (SelectedAgent?.IconUrl is { } iconUrl)
 				{
 					<img class="pdchat-agent-icon" src="@iconUrl" alt="" />
 				}
-				<select class="form-select form-select-sm"
-						title="Who you are talking to"
-						aria-label="Who you are talking to"
-						@onchange="OnAgentSelected">
+				<select title="Who you are talking to" aria-label="Agent" @onchange="OnAgentSelected">
 					@foreach (var agent in ChatService.Agents!)
 					{
 						<option value="@agent.Id" title="@agent.Description" selected="@(agent.Id == SelectedAgent?.Id)">@agent.Name</option>
 					}
 				</select>
-			</div>
+			</label>
 		}
+		@if (IsModelPickerOffered)
+		{
+			<label class="pdchat-toolbar-picker pdchat-model-picker">
+				<span class="pdchat-toolbar-label">Model</span>
+				<select title="Which model answers" aria-label="Model" @onchange="OnModelSelected">
+					@foreach (var model in ChatService.Models!)
+					{
+						<option value="@model.Id" title="@model.Description" selected="@(model.Id == SelectedModel?.Id)">@model.Name</option>
+					}
+				</select>
+			</label>
+		}
+		<span class="pdchat-toolbar-spacer"></span>
+		<button type="button"
+				class="pdchat-toolbar-btn pdchat-mute-toggle"
+				@onclick="ToggleMuteAsync"
+				title="@MuteButtonTitle"
+				aria-label="@MuteButtonTitle"
+				aria-pressed="@(_isMuted ? "false" : "true")">@(_isMuted ? "🔕" : "🔔")</button>
 		@if (IsVoiceModeOffered)
 		{
 			<button type="button"
-					class="btn btn-sm btn-outline-secondary pdchat-voice-toggle@(IsVoiceModeOn ? " active" : string.Empty)"
+					class="pdchat-toolbar-btn pdchat-read-aloud-toggle@(IsReadAloudOn ? " active" : string.Empty)"
+					@onclick="ToggleReadAloudAsync"
+					title="@ReadAloudButtonTitle"
+					aria-label="@ReadAloudButtonTitle"
+					aria-pressed="@(IsReadAloudOn ? "true" : "false")">@(IsReadAloudOn ? "🔊" : "🔇")</button>
+			<button type="button"
+					class="pdchat-toolbar-btn pdchat-voice-toggle@(IsVoiceModeOn ? " active" : string.Empty)"
 					@onclick="ToggleVoiceModeAsync"
 					title="@VoiceButtonTitle"
-					aria-pressed="@(IsVoiceModeOn ? "true" : "false")">
-				<span>🎙️ Voice</span>
-			</button>
+					aria-label="@VoiceButtonTitle"
+					aria-pressed="@(IsVoiceModeOn ? "true" : "false")">🎙️</button>
 		}
 	</text>;
 }
