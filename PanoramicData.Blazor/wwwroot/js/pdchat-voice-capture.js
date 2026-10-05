@@ -7,7 +7,7 @@ const FRAME_SAMPLES = 1920;
 class PdChatVoiceCapture extends AudioWorkletProcessor {
 	constructor() {
 		super();
-		this.step = sampleRate / TARGET_RATE;
+		this.step = globalThis.sampleRate / TARGET_RATE;
 		this.position = 0;
 		this.frame = new Float32Array(FRAME_SAMPLES);
 		this.length = 0;

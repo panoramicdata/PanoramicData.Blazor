@@ -12,14 +12,12 @@ let listening = null;
 let speaking = null;
 
 function toWebSocketUrl(url) {
-	if (/^wss?:\/\//i.test(url)) {
-		return url;
-	}
-	if (/^https?:\/\//i.test(url)) {
+	// The page's own scheme decides: an https page gets wss, so a secure page never opens an insecure socket.
+	if (/^(wss?|https?):/i.test(url)) {
 		return url.replace(/^http/i, "ws");
 	}
-	const scheme = location.protocol === "https:" ? "wss://" : "ws://";
-	return scheme + location.host + (/^\//.test(url) ? url : "/" + url);
+	const scheme = location.protocol.replace(/^http/, "ws");
+	return scheme + "//" + location.host + (/^\//.test(url) ? url : "/" + url);
 }
 
 function onListenMessage(event, dotNet) {
