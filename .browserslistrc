@@ -1,0 +1,3 @@
+# Browsers the library supports. Opera Mini cannot run Blazor at all: it does not support WebSockets.
+defaults
+not op_mini all
