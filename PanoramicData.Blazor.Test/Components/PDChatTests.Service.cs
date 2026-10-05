@@ -21,10 +21,10 @@ public partial class PDChatTests
 		var service = new FakeChatService();
 		var component = RenderChat(service, p => p.Add(x => x.OnMuteToggled, () => toggles++));
 
-		await HeaderButton(component, "Mute").ClickAsync(new MouseEventArgs());
+		await InputToolbarButton(component, "Notification sounds: on").ClickAsync(new MouseEventArgs());
 
 		service.IsMuted.Should().BeTrue();
-		HeaderButton(component, "Unmute").TextContent.Should().Contain("🔇");
+		InputToolbarButton(component, "Notification sounds: off").TextContent.Should().Contain("🔕");
 		toggles.Should().Be(1);
 	}
 
@@ -37,7 +37,7 @@ public partial class PDChatTests
 
 		await component.InvokeAsync(() => service.AnnounceMute(true));
 
-		component.WaitForAssertion(() => HeaderButton(component, "Unmute").Should().NotBeNull(), Patience);
+		component.WaitForAssertion(() => InputToolbarButton(component, "Notification sounds: off").Should().NotBeNull(), Patience);
 	}
 
 	/// <summary>Verifies that live-status and configuration announcements re-render the chat.</summary>

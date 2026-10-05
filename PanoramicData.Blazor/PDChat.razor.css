@@ -543,26 +543,66 @@ body:has(.pdchat-container.dock-fullscreen) {
 	outline-offset: 1px;
 }
 
-/* Input-area controls: the Voice switch carries a word as well as an icon, so it says what it does. */
-.pdchat-voice-toggle {
-	white-space: nowrap;
+/* Input toolbar: icon-only toggles (each titled) and compact pickers. */
+.pdchat-toolbar-btn {
+	padding: 1px 3px;
+	line-height: 1.4;
+	font-size: 0.85rem;
+	background: none;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	cursor: pointer;
+	opacity: 0.6;
+}
+
+.pdchat-toolbar-btn:hover,
+.pdchat-toolbar-btn:focus-visible {
+	opacity: 1;
+	border-color: var(--pd-chat-border, #dee2e6);
+}
+
+.pdchat-mute-toggle[aria-pressed="true"],
+.pdchat-toolbar-btn.active {
+	opacity: 1;
 }
 
 .pdchat-voice-toggle.active {
-	color: var(--pd-chat-bg, #fff);
 	background: #dc3545;
 	border-color: #dc3545;
 }
 
-.pdchat-agent-picker {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	min-width: 0;
+.pdchat-toolbar-spacer {
+	flex: 1;
 }
 
-.pdchat-agent-picker select {
-	min-width: 0;
+.pdchat-toolbar-picker {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	gap: 4px;
+	margin: 0;
+}
+
+.pdchat-toolbar-label {
+	color: var(--pd-chat-muted-color, #6c757d);
+}
+
+/* A corner-docked chat is too narrow for the words; each select keeps its tooltip and accessible name. */
+@container (max-width: 420px) {
+	.pdchat-toolbar-label {
+		display: none;
+	}
+}
+
+.pdchat-toolbar-picker select {
+	field-sizing: content;
+	max-width: 10rem;
+	padding: 0 4px;
+	font-size: inherit;
+	color: var(--pd-chat-color, #212529);
+	background: var(--pd-chat-bg, #fff);
+	border: 1px solid var(--pd-chat-border, #ccc);
+	border-radius: 4px;
 }
 
 .pdchat-agent-icon {

@@ -22,14 +22,14 @@ public enum PDChatVoiceState
 }
 
 /// <summary>
-/// Voice Mode for <see cref="PDChat"/>: the user dictates into the text box, and hears the answer. Off by default, and
-/// offered only when the chat service supplies <see cref="IChatService.VoiceEndpoints"/>.
+/// Voice for <see cref="PDChat"/>: two independent choices, both off by default and offered only when the chat service
+/// supplies <see cref="IChatService.VoiceEndpoints"/>. Dictation (the microphone) types into the text box; read-aloud
+/// (<see cref="IChatService.IsReadAloudEnabled"/>) speaks the answer to each message the user sends.
 /// </summary>
 /// <remarks>
 /// Recognised words are appended to the text box, where they can be edited. When the speaker pauses and the box does
 /// not have focus, the text is sent after <see cref="IChatService.VoiceAutoSendDelay"/> as if Send had been pressed;
-/// while the user is editing, they press Send themselves. The first finished reply to a message sent while Voice Mode
-/// is listening is read aloud.
+/// while the user is editing, they press Send themselves. While an answer is read aloud the microphone sends nothing.
 /// </remarks>
 public partial class PDChat
 {
@@ -54,9 +54,15 @@ public partial class PDChat
 
 	private bool IsVoiceModeOn => VoiceState != PDChatVoiceState.Off;
 
+	private bool IsReadAloudOn => IsVoiceModeOffered && ChatService.IsReadAloudEnabled;
+
 	private string VoiceButtonTitle => IsVoiceModeOn
 		? "Voice: stop listening"
 		: "Voice: speak instead of typing";
+
+	private string ReadAloudButtonTitle => IsReadAloudOn
+		? "Read answers aloud: on"
+		: "Read answers aloud: off";
 
 	private string VoiceStatusCssClass => $"pdchat-voice-status pdchat-voice-{VoiceState.ToString().ToLowerInvariant()}" + (VoiceError is null ? string.Empty : " pdchat-voice-error");
 
@@ -67,7 +73,7 @@ public partial class PDChat
 			? "Listening. You are editing, so press Send when ready."
 			: "Listening. Ask your question, then pause.",
 		PDChatVoiceState.Thinking => "Thinking…",
-		PDChatVoiceState.Speaking => "Speaking. Turn Voice off to stop.",
+		PDChatVoiceState.Speaking => "Reading the answer aloud.",
 		_ => string.Empty,
 	};
 
@@ -88,9 +94,8 @@ public partial class PDChat
 		VoiceState = PDChatVoiceState.Starting;
 		try
 		{
-			_voiceModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", endpoints.ModulePath ?? _voiceModulePath);
-			_voiceReference ??= DotNetObjectReference.Create(this);
-			await _voiceModule.InvokeVoidAsync("start", endpoints.ListenUrl, _voiceReference);
+			var module = await GetVoiceModuleAsync(endpoints);
+			await module.InvokeVoidAsync("start", endpoints.ListenUrl, _voiceReference);
 			VoiceState = PDChatVoiceState.Listening;
 		}
 		catch (JSException)
@@ -98,6 +103,41 @@ public partial class PDChat
 			VoiceState = PDChatVoiceState.Off;
 			VoiceError = "The microphone could not be opened. Check that this site may use it.";
 		}
+	}
+
+	// Loaded on first use, so the page asks for nothing until the user turns a voice control on.
+	private async Task<IJSObjectReference> GetVoiceModuleAsync(PDChatVoiceEndpoints endpoints)
+	{
+		_voiceModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", endpoints.ModulePath ?? _voiceModulePath);
+		_voiceReference ??= DotNetObjectReference.Create(this);
+		return _voiceModule;
+	}
+
+	private async Task ToggleReadAloudAsync()
+	{
+		ChatService.IsReadAloudEnabled = !ChatService.IsReadAloudEnabled;
+		if (ChatService.IsReadAloudEnabled)
+		{
+			return;
+		}
+
+		// Turned off mid-answer: stop talking, and give the microphone back if it was waiting.
+		_isAwaitingSpokenAnswer = false;
+		if (_voiceModule is not null)
+		{
+			await _voiceModule.InvokeVoidAsync("stopSpeaking");
+		}
+
+		if (VoiceState is PDChatVoiceState.Thinking or PDChatVoiceState.Speaking)
+		{
+			await ResumeListeningAsync();
+		}
+	}
+
+	private async Task ResumeListeningAsync()
+	{
+		VoiceState = PDChatVoiceState.Listening;
+		await (_voiceModule?.InvokeVoidAsync("pause", false) ?? ValueTask.CompletedTask);
 	}
 
 	private async Task StopVoiceModeAsync()
@@ -232,52 +272,65 @@ public partial class PDChat
 	}
 
 	/// <summary>
-	/// Marks a message about to be sent while listening as a spoken exchange: the microphone pauses and the reply is read aloud.
+	/// Called as a message is about to be sent. The dictation turn is over; with read-aloud on, the answer is awaited,
+	/// and a listening microphone pauses until it has been spoken.
 	/// </summary>
 	private async Task BeginSpokenExchangeAsync()
 	{
-		if (VoiceState != PDChatVoiceState.Listening)
+		CancelAutoSend();
+		_hasDictatedSinceTurn = false;
+		_isAwaitingSpokenAnswer = IsReadAloudOn;
+		if (!_isAwaitingSpokenAnswer || VoiceState != PDChatVoiceState.Listening)
 		{
 			return;
 		}
 
-		CancelAutoSend();
-		_hasDictatedSinceTurn = false;
 		VoiceState = PDChatVoiceState.Thinking;
-		_isAwaitingSpokenAnswer = true;
 
 		// Half duplex: while Merlin thinks and speaks, the microphone sends nothing, so it never hears itself.
 		await (_voiceModule?.InvokeVoidAsync("pause", true) ?? ValueTask.CompletedTask);
 	}
 
-	/// <summary>Reads the first finished reply to a spoken question aloud, then listens again.</summary>
+	/// <summary>Reads the first finished reply to a sent message aloud, when read-aloud is on.</summary>
 	private async Task SpeakAnswerIfAwaitedAsync(ChatMessage message)
 	{
 		if (!_isAwaitingSpokenAnswer || message.Sender.IsUser || message.Type == MessageType.Typing
-			|| ChatService.VoiceEndpoints is not { } endpoints || _voiceModule is null)
+			|| ChatService.VoiceEndpoints is not { } endpoints)
 		{
 			return;
 		}
 
 		_isAwaitingSpokenAnswer = false;
-		VoiceState = PDChatVoiceState.Speaking;
-		await InvokeAsync(StateHasChanged);
+		if (VoiceState == PDChatVoiceState.Thinking)
+		{
+			VoiceState = PDChatVoiceState.Speaking;
+			await InvokeAsync(StateHasChanged);
+		}
 
-		// The module calls OnVoiceSpoken when the last of the audio has played.
-		await _voiceModule.InvokeVoidAsync("speak", endpoints.SpeakUrl, ToSpeakableText(message), _voiceReference);
+		try
+		{
+			var module = await GetVoiceModuleAsync(endpoints);
+
+			// The module calls OnVoiceSpoken when the last of the audio has played.
+			await module.InvokeVoidAsync("speak", endpoints.SpeakUrl, ToSpeakableText(message), _voiceReference);
+		}
+		catch (JSException)
+		{
+			VoiceError = "The answer could not be read aloud.";
+			await OnVoiceSpoken();
+		}
 	}
 
-	/// <summary>Called by the voice module when an answer has finished playing; listening resumes.</summary>
+	/// <summary>Called by the voice module when an answer has finished playing; a paused microphone listens again.</summary>
 	[JSInvokable]
 	public async Task OnVoiceSpoken()
 	{
-		if (VoiceState != PDChatVoiceState.Speaking)
+		if (VoiceState is not (PDChatVoiceState.Speaking or PDChatVoiceState.Thinking))
 		{
 			return;
 		}
 
-		VoiceState = PDChatVoiceState.Listening;
-		await (_voiceModule?.InvokeVoidAsync("pause", false) ?? ValueTask.CompletedTask);
+		await ResumeListeningAsync();
 		await InvokeAsync(StateHasChanged);
 	}
 

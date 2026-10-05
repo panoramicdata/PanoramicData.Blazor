@@ -89,6 +89,10 @@ public partial class PDChatTests : BunitContext
 		where TComponent : IComponent
 		=> component.Find($".pdchat-header-btn[title='{title}']");
 
+	private static IElement InputToolbarButton<TComponent>(IRenderedComponent<TComponent> component, string title)
+		where TComponent : IComponent
+		=> component.Find($".chat-input-accessories .pdchat-toolbar-btn[title='{title}']");
+
 	private static ChatMessage Message(string text, MessageType type = MessageType.Normal) => new()
 	{
 		Id = Guid.NewGuid(),
