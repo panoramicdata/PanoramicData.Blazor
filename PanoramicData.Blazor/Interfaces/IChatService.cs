@@ -95,6 +95,33 @@ public interface IChatService : IDisposable
 	PDChatVoiceEndpoints? VoiceEndpoints => null;
 
 	/// <summary>
+	/// Gets or sets how long after the speaker pauses Voice Mode sends the dictated text, when the user is not
+	/// editing it. Defaults to one second.
+	/// </summary>
+	TimeSpan VoiceAutoSendDelay
+	{
+		get => ChatServiceDefaultState.For(this).VoiceAutoSendDelay;
+		set => ChatServiceDefaultState.For(this).VoiceAutoSendDelay = value;
+	}
+
+	/// <summary>
+	/// Gets the agents the user may choose to talk to, or null (the default) when the host offers no choice.
+	/// A picker is shown in the input area only when there are two or more.
+	/// </summary>
+	IReadOnlyList<PDChatAgentOption>? Agents => null;
+
+	/// <summary>
+	/// Gets or sets the <see cref="PDChatAgentOption.Id"/> of the agent the user is talking to, or null (the default)
+	/// for the host's default. The chat sets this when the user picks an agent; a host that needs to react implements
+	/// the setter.
+	/// </summary>
+	string? SelectedAgentId
+	{
+		get => ChatServiceDefaultState.For(this).SelectedAgentId;
+		set => ChatServiceDefaultState.For(this).SelectedAgentId = value;
+	}
+
+	/// <summary>
 	/// Gets or sets whether the chat should auto-restore when new messages arrive.
 	/// </summary>
 	bool AutoRestoreOnNewMessage { get; set; }

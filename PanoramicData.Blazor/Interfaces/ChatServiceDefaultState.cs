@@ -46,6 +46,10 @@ internal sealed class ChatServiceDefaultState
 
 	public PDChatButtonPosition ToastAnchor { get; set; } = PDChatButtonPosition.BottomRight;
 
+	public TimeSpan VoiceAutoSendDelay { get; set; } = TimeSpan.FromMilliseconds(1000);
+
+	public string? SelectedAgentId { get; set; }
+
 	/// <summary>
 	/// Gets or sets the handlers subscribed to the default <see cref="IChatService.OnConversationMessageReceived"/>.
 	/// They are kept so that subscribing and unsubscribing behave as they would on any event, but a service that

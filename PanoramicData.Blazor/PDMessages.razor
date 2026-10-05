@@ -25,9 +25,15 @@
 				@ref="InputRef"
 				value="@_localInput"
 				@oninput="OnInputChanged"
+				@onfocus="() => SetInputFocusedAsync(true)"
+				@onblur="() => SetInputFocusedAsync(false)"
 				placeholder="Type a message..."
 				rows="3"
 				disabled="@(!IsLive)"></textarea>
+			@if (InputAccessories is not null)
+			{
+				<div class="chat-input-accessories">@InputAccessories</div>
+			}
 			<button class="btn btn-sm btn-secondary" @onclick="OnSendClickedInternal" disabled="@(!CanSendLocal)">Send</button>
 		</div>
 	}

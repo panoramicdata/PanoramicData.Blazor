@@ -543,18 +543,34 @@ body:has(.pdchat-container.dock-fullscreen) {
 	outline-offset: 1px;
 }
 
-/* Voice Mode: the switch carries a word as well as an icon, so it says what it does. */
+/* Input-area controls: the Voice switch carries a word as well as an icon, so it says what it does. */
 .pdchat-voice-toggle {
-	font-size: 14px;
-	min-width: auto;
 	white-space: nowrap;
 }
 
 .pdchat-voice-toggle.active {
-	background: rgba(255,255,255,0.25);
-	box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+	color: var(--pd-chat-bg, #fff);
+	background: #dc3545;
+	border-color: #dc3545;
 }
 
+.pdchat-agent-picker {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	min-width: 0;
+}
+
+.pdchat-agent-picker select {
+	min-width: 0;
+}
+
+.pdchat-agent-icon {
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+	border-radius: 50%;
+}
 .pdchat-voice-status {
 	padding: 6px 12px;
 	font-size: 13px;

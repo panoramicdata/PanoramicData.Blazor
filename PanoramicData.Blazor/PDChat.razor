@@ -84,15 +84,6 @@
 							<span>🗑️</span>
 						</button>
 					}
-					@if (IsVoiceModeOffered)
-					{
-						<button class="pdchat-header-btn pdchat-voice-toggle@(IsVoiceModeOn ? " active" : string.Empty)"
-								@onclick="ToggleVoiceModeAsync"
-								title="@VoiceButtonTitle"
-								aria-pressed="@(IsVoiceModeOn ? "true" : "false")">
-							<span>🎙️ Voice</span>
-						</button>
-					}
 					<button class="pdchat-header-btn" @onclick="ToggleMuteAsync" title="@(_isMuted ? "Unmute" : "Mute")">
 						<span>@(_isMuted ? "🔇" : "🔊")</span>
 					</button>
@@ -208,6 +199,9 @@
 													IsInputPermitted="@ChatService.IsInputPermitted"
 													InputDisabledMessage="@ChatService.InputDisabledMessage"
 													OnSendClicked="SendCurrentMessageAsync"
+													InputAccessories="InputAccessories"
+													InputFocusChanged="OnInputFocusChangedAsync"
+													IsInputAutoFocused="@(!IsVoiceModeOn)"
 													UserIconSelector="UserIconSelector"
 													UseFullWidthMessages="@ChatService.UseFullWidthMessages"
 													MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
@@ -255,6 +249,9 @@
 										IsInputPermitted="@ChatService.IsInputPermitted"
 										InputDisabledMessage="@ChatService.InputDisabledMessage"
 										OnSendClicked="SendCurrentMessageAsync"
+										InputAccessories="InputAccessories"
+										InputFocusChanged="OnInputFocusChangedAsync"
+										IsInputAutoFocused="@(!IsVoiceModeOn)"
 										UserIconSelector="UserIconSelector"
 										UseFullWidthMessages="@ChatService.UseFullWidthMessages"
 										MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
@@ -276,6 +273,9 @@
 								IsInputPermitted="@ChatService.IsInputPermitted"
 								InputDisabledMessage="@ChatService.InputDisabledMessage"
 								OnSendClicked="SendCurrentMessageAsync"
+								InputAccessories="InputAccessories"
+								InputFocusChanged="OnInputFocusChangedAsync"
+								IsInputAutoFocused="@(!IsVoiceModeOn)"
 								UserIconSelector="UserIconSelector"
 								UseFullWidthMessages="@ChatService.UseFullWidthMessages"
 								MessageMetadataDisplayMode="@ChatService.MessageMetadataDisplayMode"
@@ -289,3 +289,36 @@
 	}
 </div>
 </CascadingValue>
+
+@code {
+	private RenderFragment InputAccessoriesContent => @<text>
+		@if (IsAgentPickerOffered)
+		{
+			<div class="pdchat-agent-picker">
+				@if (SelectedAgent?.IconUrl is { } iconUrl)
+				{
+					<img class="pdchat-agent-icon" src="@iconUrl" alt="" />
+				}
+				<select class="form-select form-select-sm"
+						title="Who you are talking to"
+						aria-label="Who you are talking to"
+						@onchange="OnAgentSelected">
+					@foreach (var agent in ChatService.Agents!)
+					{
+						<option value="@agent.Id" title="@agent.Description" selected="@(agent.Id == SelectedAgent?.Id)">@agent.Name</option>
+					}
+				</select>
+			</div>
+		}
+		@if (IsVoiceModeOffered)
+		{
+			<button type="button"
+					class="btn btn-sm btn-outline-secondary pdchat-voice-toggle@(IsVoiceModeOn ? " active" : string.Empty)"
+					@onclick="ToggleVoiceModeAsync"
+					title="@VoiceButtonTitle"
+					aria-pressed="@(IsVoiceModeOn ? "true" : "false")">
+				<span>🎙️ Voice</span>
+			</button>
+		}
+	</text>;
+}

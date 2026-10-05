@@ -22,12 +22,14 @@ public enum PDChatVoiceState
 }
 
 /// <summary>
-/// Voice Mode for <see cref="PDChat"/>: the user speaks a question, pauses, and hears the answer. Off by default, and
+/// Voice Mode for <see cref="PDChat"/>: the user dictates into the text box, and hears the answer. Off by default, and
 /// offered only when the chat service supplies <see cref="IChatService.VoiceEndpoints"/>.
 /// </summary>
 /// <remarks>
-/// A spoken question goes through the same path as a typed one, so the question and the written answer are both in
-/// the transcript. Only the first finished reply to a spoken question is read aloud.
+/// Recognised words are appended to the text box, where they can be edited. When the speaker pauses and the box does
+/// not have focus, the text is sent after <see cref="IChatService.VoiceAutoSendDelay"/> as if Send had been pressed;
+/// while the user is editing, they press Send themselves. The first finished reply to a message sent while Voice Mode
+/// is listening is read aloud.
 /// </remarks>
 public partial class PDChat
 {
@@ -36,7 +38,8 @@ public partial class PDChat
 	private IJSObjectReference? _voiceModule;
 	private DotNetObjectReference<PDChat>? _voiceReference;
 	private bool _isAwaitingSpokenAnswer;
-	private string _voiceHeard = string.Empty;
+	private bool _hasDictatedSinceTurn;
+	private CancellationTokenSource? _autoSendCancellation;
 
 	/// <summary>Gets where Voice Mode is in a spoken exchange.</summary>
 	public PDChatVoiceState VoiceState { get; private set; } = PDChatVoiceState.Off;
@@ -44,22 +47,27 @@ public partial class PDChat
 	/// <summary>Gets the last problem Voice Mode reported, shown in place of its status.</summary>
 	public string? VoiceError { get; private set; }
 
+	// Dictation goes through the same text box as typing, via its IChatInput members.
+	private PDMessages? VoiceInput => MessagesComponent;
+
 	private bool IsVoiceModeOffered => ChatService.VoiceEndpoints is not null && ChatService.IsInputPermitted;
 
 	private bool IsVoiceModeOn => VoiceState != PDChatVoiceState.Off;
 
 	private string VoiceButtonTitle => IsVoiceModeOn
-		? "Turn Voice Mode off"
-		: "Turn Voice Mode on: ask out loud and hear the answer";
+		? "Voice: stop listening"
+		: "Voice: speak instead of typing";
 
 	private string VoiceStatusCssClass => $"pdchat-voice-status pdchat-voice-{VoiceState.ToString().ToLowerInvariant()}" + (VoiceError is null ? string.Empty : " pdchat-voice-error");
 
 	private string VoiceStatusText => VoiceError ?? VoiceState switch
 	{
 		PDChatVoiceState.Starting => "Opening the microphone…",
-		PDChatVoiceState.Listening => _voiceHeard.Length > 0 ? _voiceHeard : "Listening. Ask your question, then pause.",
+		PDChatVoiceState.Listening => VoiceInput?.IsFocused == true
+			? "Listening. You are editing, so press Send when ready."
+			: "Listening. Ask your question, then pause.",
 		PDChatVoiceState.Thinking => "Thinking…",
-		PDChatVoiceState.Speaking => "Speaking. Turn Voice Mode off to stop.",
+		PDChatVoiceState.Speaking => "Speaking. Turn Voice off to stop.",
 		_ => string.Empty,
 	};
 
@@ -80,7 +88,7 @@ public partial class PDChat
 		VoiceState = PDChatVoiceState.Starting;
 		try
 		{
-			_voiceModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", _voiceModulePath);
+			_voiceModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", endpoints.ModulePath ?? _voiceModulePath);
 			_voiceReference ??= DotNetObjectReference.Create(this);
 			await _voiceModule.InvokeVoidAsync("start", endpoints.ListenUrl, _voiceReference);
 			VoiceState = PDChatVoiceState.Listening;
@@ -94,44 +102,61 @@ public partial class PDChat
 
 	private async Task StopVoiceModeAsync()
 	{
+		CancelAutoSend();
 		VoiceState = PDChatVoiceState.Off;
 		_isAwaitingSpokenAnswer = false;
-		_voiceHeard = string.Empty;
+		_hasDictatedSinceTurn = false;
 		if (_voiceModule is not null)
 		{
 			await _voiceModule.InvokeVoidAsync("stop");
 		}
 	}
 
-	/// <summary>Called by the voice module as words are recognised.</summary>
+	/// <summary>Called by the voice module as words are recognised; appends them to the text box.</summary>
 	/// <param name="text">The word just heard.</param>
 	[JSInvokable]
-	public Task OnVoiceWord(string text)
+	public Task OnVoiceWord(string text) => InvokeAsync(async () =>
 	{
-		_voiceHeard = $"{_voiceHeard} {text}".Trim();
-		return InvokeAsync(StateHasChanged);
-	}
-
-	/// <summary>Called by the voice module when the speaker has finished; sends what they said as a question.</summary>
-	/// <param name="text">The whole question.</param>
-	[JSInvokable]
-	public async Task OnVoiceTurn(string text)
-	{
-		if (VoiceState != PDChatVoiceState.Listening || string.IsNullOrWhiteSpace(text))
+		if (VoiceState != PDChatVoiceState.Listening || VoiceInput is not { } input)
 		{
 			return;
 		}
 
-		_voiceHeard = string.Empty;
-		_currentInput = text;
-		VoiceState = PDChatVoiceState.Thinking;
-		_isAwaitingSpokenAnswer = true;
+		// The speaker has carried on, so the pause that scheduled a send is over.
+		CancelAutoSend();
+		_hasDictatedSinceTurn = true;
+		await input.AppendAsync(text);
+	});
 
-		// Half duplex: while Merlin thinks and speaks, the microphone sends nothing, so it never hears itself.
-		await (_voiceModule?.InvokeVoidAsync("pause", true) ?? ValueTask.CompletedTask);
-		await SendCurrentMessageAsync();
-		await InvokeAsync(StateHasChanged);
-	}
+	/// <summary>
+	/// Called by the voice module when the speaker pauses. Unless the user is editing the text box, its text is sent
+	/// after <see cref="IChatService.VoiceAutoSendDelay"/>.
+	/// </summary>
+	/// <param name="text">Everything said since the last pause.</param>
+	[JSInvokable]
+	public Task OnVoiceTurn(string text) => InvokeAsync(async () =>
+	{
+		if (VoiceState != PDChatVoiceState.Listening || VoiceInput is not { } input)
+		{
+			return;
+		}
+
+		CancelAutoSend();
+
+		// A host that reports no words still has its pause recorded.
+		if (!_hasDictatedSinceTurn)
+		{
+			await input.AppendAsync(text);
+		}
+
+		_hasDictatedSinceTurn = false;
+		if (!input.IsFocused && !string.IsNullOrWhiteSpace(input.Text))
+		{
+			ScheduleAutoSend();
+		}
+
+		StateHasChanged();
+	});
 
 	/// <summary>Called by the voice module when speech recognition reports a problem.</summary>
 	/// <param name="text">What went wrong, for the user.</param>
@@ -146,10 +171,83 @@ public partial class PDChat
 	[JSInvokable]
 	public Task OnVoiceClosed()
 	{
+		CancelAutoSend();
 		VoiceState = PDChatVoiceState.Off;
 		_isAwaitingSpokenAnswer = false;
 		VoiceError ??= "Voice Mode stopped: the connection closed.";
 		return InvokeAsync(StateHasChanged);
+	}
+
+	private Task OnInputFocusChangedAsync(bool isFocused)
+	{
+		// The user is editing, so whatever was dictated waits for them to press Send.
+		if (isFocused)
+		{
+			CancelAutoSend();
+		}
+
+		return Task.CompletedTask;
+	}
+
+	private void ScheduleAutoSend()
+	{
+		var cancellation = new CancellationTokenSource();
+		_autoSendCancellation = cancellation;
+		_ = AutoSendAfterDelayAsync(cancellation.Token);
+	}
+
+	private void CancelAutoSend()
+	{
+		if (_autoSendCancellation is null)
+		{
+			return;
+		}
+
+		_autoSendCancellation.Cancel();
+		_autoSendCancellation.Dispose();
+		_autoSendCancellation = null;
+	}
+
+	private async Task AutoSendAfterDelayAsync(CancellationToken cancellationToken)
+	{
+		try
+		{
+			var delay = ChatService.VoiceAutoSendDelay;
+			await Task.Delay(delay < TimeSpan.Zero ? TimeSpan.Zero : delay, cancellationToken);
+			await InvokeAsync(async () =>
+			{
+				if (cancellationToken.IsCancellationRequested || VoiceState != PDChatVoiceState.Listening
+					|| VoiceInput is not { IsFocused: false } input)
+				{
+					return;
+				}
+
+				await input.SendAsync();
+			});
+		}
+		catch (Exception ex) when (ex is JSDisconnectedException or OperationCanceledException or ObjectDisposedException)
+		{
+			// Cancelled by the speaker or the user, or the circuit is going away.
+		}
+	}
+
+	/// <summary>
+	/// Marks a message about to be sent while listening as a spoken exchange: the microphone pauses and the reply is read aloud.
+	/// </summary>
+	private async Task BeginSpokenExchangeAsync()
+	{
+		if (VoiceState != PDChatVoiceState.Listening)
+		{
+			return;
+		}
+
+		CancelAutoSend();
+		_hasDictatedSinceTurn = false;
+		VoiceState = PDChatVoiceState.Thinking;
+		_isAwaitingSpokenAnswer = true;
+
+		// Half duplex: while Merlin thinks and speaks, the microphone sends nothing, so it never hears itself.
+		await (_voiceModule?.InvokeVoidAsync("pause", true) ?? ValueTask.CompletedTask);
 	}
 
 	/// <summary>Reads the first finished reply to a spoken question aloud, then listens again.</summary>
@@ -192,6 +290,7 @@ public partial class PDChat
 
 	private async ValueTask DisposeVoiceAsync()
 	{
+		CancelAutoSend();
 		if (_voiceModule is not null)
 		{
 			try
