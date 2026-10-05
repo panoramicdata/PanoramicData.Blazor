@@ -38,7 +38,10 @@ public partial class PDMessages : IAsyncDisposable
 				_dotNetRef ??= DotNetObjectReference.Create(this);
 				await _module.InvokeVoidAsync("attachEnterHandler", InputRef, _dotNetRef);
 				_enterHandlerAttached = true;
-				await InputRef.FocusAsync();
+				if (IsInputAutoFocused)
+				{
+					await InputRef.FocusAsync();
+				}
 			}
 			catch (Exception)
 			{

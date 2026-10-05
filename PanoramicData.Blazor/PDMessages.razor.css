@@ -113,6 +113,17 @@
 	flex-shrink: 0;
 }
 
+/* Host-supplied controls (voice, agent) stacked beside Send. */
+.chat-input-accessories {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 4px;
+	flex-shrink: 0;
+	min-width: 0;
+	max-width: 40%;
+}
+
 /* Message shown in place of the input when input is not permitted (IsInputPermitted = false).
    Theme-aware via the --pd-chat-* variables. */
 .chat-input-disabled {

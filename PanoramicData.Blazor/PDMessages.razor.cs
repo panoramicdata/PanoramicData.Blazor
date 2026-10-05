@@ -3,7 +3,7 @@ namespace PanoramicData.Blazor;
 /// <summary>
 /// A Blazor component that displays a list of chat messages with a send input area.
 /// </summary>
-public partial class PDMessages
+public partial class PDMessages : IChatInput
 {
 	/// <summary>
 	/// Gets or sets the injected JavaScript runtime.
@@ -99,10 +99,50 @@ public partial class PDMessages
 	/// </summary>
 	internal ElementReference InputRef { get; set; }
 
+	/// <summary>
+	/// Gets or sets optional controls shown in the input row beside the Send button, such as a voice or agent control.
+	/// </summary>
+	[Parameter] public RenderFragment? InputAccessories { get; set; }
+
+	/// <summary>
+	/// An event callback that is invoked when the text box gains (<c>true</c>) or loses (<c>false</c>) focus.
+	/// </summary>
+	[Parameter] public EventCallback<bool> InputFocusChanged { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the text box takes focus when first shown and after each send. Defaults to true.
+	/// </summary>
+	[Parameter] public bool IsInputAutoFocused { get; set; } = true;
+
 	private string _localInput = string.Empty;
 	private string _inputKey = Guid.NewGuid().ToString();
 
 	private bool CanSendLocal => IsInputPermitted && IsLive && !string.IsNullOrWhiteSpace(_localInput);
+
+	/// <inheritdoc />
+	public string Text => _localInput;
+
+	/// <inheritdoc />
+	public bool IsFocused { get; private set; }
+
+	/// <inheritdoc />
+	public async Task AppendAsync(string text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return;
+		}
+
+		var addition = text.Trim();
+		_localInput = _localInput.Length == 0 || char.IsWhiteSpace(_localInput[^1])
+			? _localInput + addition
+			: $"{_localInput} {addition}";
+		await CurrentInputChanged.InvokeAsync(_localInput);
+		StateHasChanged();
+	}
+
+	/// <inheritdoc />
+	public Task SendAsync() => OnSendClickedInternal();
 
 	/// <summary>
 	/// Clears the textarea. Called by the parent after a message is sent.
@@ -111,8 +151,17 @@ public partial class PDMessages
 	{
 		_localInput = string.Empty;
 		_inputKey = Guid.NewGuid().ToString();
+
+		// The text box is replaced, and a removed element does not reliably report losing focus.
+		IsFocused = false;
 		ResetEnterHandler();
 		StateHasChanged();
+	}
+
+	private async Task SetInputFocusedAsync(bool isFocused)
+	{
+		IsFocused = isFocused;
+		await InputFocusChanged.InvokeAsync(isFocused);
 	}
 
 	/// <summary>

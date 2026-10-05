@@ -537,6 +537,9 @@ public partial class PDChat : JSModuleComponentBase
 			Timestamp = DateTime.UtcNow
 		};
 
+		// Before sending, so a reply that arrives at once is still the one spoken.
+		await BeginSpokenExchangeAsync();
+
 		// Fire it off
 		ChatService.SendMessage(message);
 
