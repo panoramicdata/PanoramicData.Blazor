@@ -347,6 +347,35 @@ public partial class PDChatTests
 		component.WaitForAssertion(() => service.Sent.Should().ContainSingle(), Patience);
 	}
 
+	/// <summary>Verifies that endpoints naming their own module have Voice Mode driven by it, not the standard one.</summary>
+	[Fact]
+	public async Task Simulated_Voice_Mode_uses_its_own_module()
+	{
+		var simulated = PDChatVoiceEndpoints.Simulated;
+		var module = JSInterop.SetupModule(simulated.ModulePath!);
+		module.Mode = JSRuntimeMode.Loose;
+		var service = VoiceService();
+		service.VoiceEndpoints = simulated;
+		var component = RenderChat(service);
+
+		await component.Find(".pdchat-voice-toggle").ClickAsync(new());
+
+		VoiceModuleImports().Should().BeEmpty();
+		module.Invocations["start"].Should().ContainSingle();
+		component.Instance.VoiceState.Should().Be(PDChatVoiceState.Listening);
+	}
+
+	/// <summary>Verifies that the demo service shows Voice Mode and the agent picker with no speech service behind it.</summary>
+	[Fact]
+	public void The_demo_service_offers_simulated_Voice_Mode_and_agents()
+	{
+		using var service = new PanoramicData.Blazor.Services.DumbChatService();
+		IChatService chat = service;
+
+		chat.VoiceEndpoints.Should().Be(PDChatVoiceEndpoints.Simulated);
+		chat.Agents.Should().HaveCountGreaterThan(1);
+	}
+
 	private BunitJSModuleInterop SetUpVoiceModule()
 	{
 		var module = JSInterop.SetupModule(VoiceModulePath);

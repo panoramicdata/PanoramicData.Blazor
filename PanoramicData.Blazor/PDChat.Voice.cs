@@ -88,7 +88,7 @@ public partial class PDChat
 		VoiceState = PDChatVoiceState.Starting;
 		try
 		{
-			_voiceModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", _voiceModulePath);
+			_voiceModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", endpoints.ModulePath ?? _voiceModulePath);
 			_voiceReference ??= DotNetObjectReference.Create(this);
 			await _voiceModule.InvokeVoidAsync("start", endpoints.ListenUrl, _voiceReference);
 			VoiceState = PDChatVoiceState.Listening;
