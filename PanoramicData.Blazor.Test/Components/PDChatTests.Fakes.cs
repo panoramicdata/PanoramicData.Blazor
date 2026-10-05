@@ -54,6 +54,7 @@ public partial class PDChatTests
 		public string ToastMaxHeight { get; set; } = string.Empty;
 		public int ToastMaxVisible { get; set; } = 3;
 		public PDChatButtonPosition ToastAnchor { get; set; } = PDChatButtonPosition.BottomRight;
+		public PDChatVoiceEndpoints? VoiceEndpoints { get; set; }
 
 		public IReadOnlyList<ChatMessage> Messages => Store;
 		public bool SupportsConversations { get; init; }
