@@ -66,23 +66,14 @@
 	overflow-x: hidden;
 }
 
-/* Chat input container - always at bottom */
+/* The text box, full width under the toolbar, which carries the top border and the push to the bottom. */
 .chat-input-container {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	padding: 8px;
+	padding: 0 8px 8px;
 	background: var(--pd-chat-secondary-bg, #f5f7fa);
-	border-top: 1px solid var(--pd-chat-border, #dee2e6);
 	flex-shrink: 0;
 	min-height: 0;
-	margin-top: auto; /* Push to bottom when messages area has minimal content */
-}
-
-.pdchat-window.fullscreen .chat-input-container {
-	flex-shrink: 0;
-	padding: 8px;
-	margin-top: auto;
 }
 
 .chat-input-container textarea {
@@ -107,12 +98,6 @@
 	box-shadow: 0 0 5px var(--pd-chat-focus-shadow, rgba(74, 144, 226, 0.4));
 }
 
-/* Send button is a standard Bootstrap .btn.btn-sm.btn-secondary — no custom colours/padding,
-   Bootstrap handles hover/active/disabled/theming. Only layout is protected here. */
-.chat-input-container .btn {
-	flex-shrink: 0;
-}
-
 /* Host-supplied controls in a thin toolbar above the input, which keeps the full width. */
 .chat-input-accessories {
 	container-type: inline-size;
@@ -129,19 +114,11 @@
 	border-top: 1px solid var(--pd-chat-border, #dee2e6);
 }
 
-/* Send ends the bar, after any host controls. */
+/* Send ends the bar, after any host controls. A standard Bootstrap button; only layout is set here. */
 .chat-input-accessories .chat-send {
 	margin-left: auto;
 	padding: 0 8px;
 	flex-shrink: 0;
-}
-
-.chat-input-accessories + .chat-input-container,
-.chat-input-accessories + .chat-input-disabled,
-.pdchat-window.fullscreen .chat-input-accessories + .chat-input-container {
-	margin-top: 0;
-	padding-top: 0;
-	border-top: none;
 }
 
 /* Message shown in place of the input when input is not permitted (IsInputPermitted = false).
@@ -157,6 +134,12 @@
 	color: var(--pd-chat-muted-color, #6c757d);
 	background: var(--pd-chat-secondary-bg, #f5f7fa);
 	border-top: 1px solid var(--pd-chat-border, #dee2e6);
+}
+
+/* Under a toolbar, which already carries the border and the push to the bottom. */
+.chat-input-accessories + .chat-input-disabled {
+	margin-top: 0;
+	border-top: none;
 }
 
 /* Scrollbar and focus-ring colours are theme-aware via --pd-chat-* variables above now.
