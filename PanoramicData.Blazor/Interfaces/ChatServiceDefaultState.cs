@@ -48,6 +48,10 @@ internal sealed class ChatServiceDefaultState
 
 	public TimeSpan VoiceAutoSendDelay { get; set; } = TimeSpan.FromMilliseconds(1000);
 
+	public IReadOnlyList<string>? WakePhrases { get; set; }
+
+	public TimeSpan VoiceIdleTimeout { get; set; } = TimeSpan.FromSeconds(10);
+
 	public string? SelectedAgentId { get; set; }
 
 	public string? SelectedModelId { get; set; }

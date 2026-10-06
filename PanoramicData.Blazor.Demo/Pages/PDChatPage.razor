@@ -288,6 +288,65 @@
 						<input type="text" @bind="ChatService.InputDisabledMessage" @bind:event="oninput" class="form-control form-control-sm" placeholder="(blank = notifications-only, nothing shown)">
 						<div class="form-text">Uncheck "Enable Message Input" above to see this. Leave blank for pure toast-only mode (the input simply disappears with no message).</div>
 					</div>
+
+					<hr />
+					<h6 class="small text-uppercase text-muted mb-2"><i class="fas fa-microphone me-1"></i>Voice and Assistant</h6>
+					<div class="form-text mb-2">The input toolbar above the text box. The simulated microphone makes up what it hears, and starts every other utterance with "Hey DumbBot".</div>
+
+					<div class="row">
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="IsVoiceOffered" id="voiceOfferedCheck" disabled="@(DemoService is null)">
+								<label class="form-check-label small" for="voiceOfferedCheck">Voice (simulated)</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="ChatService.IsReadAloudEnabled" id="readAloudCheck">
+								<label class="form-check-label small" for="readAloudCheck">Read Answers Aloud</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="IsAgentPickerShown" id="agentPickerCheck" disabled="@(DemoService is null)">
+								<label class="form-check-label small" for="agentPickerCheck">Agent Picker (two agents)</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="IsModelPickerShown" id="modelPickerCheck" disabled="@(DemoService is null)">
+								<label class="form-check-label small" for="modelPickerCheck">Model Picker (two models)</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="IsWakePhraseOn" id="wakePhraseCheck">
+								<label class="form-check-label small" for="wakePhraseCheck">Wake Phrase</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="row mt-2">
+						<div class="col-6 mb-3">
+							<label class="form-label small">Auto-Send Delay (ms):</label>
+							<input type="number" @bind="AutoSendDelayMs" min="0" max="10000" step="100" class="form-control form-control-sm">
+						</div>
+						<div class="col-6 mb-3">
+							<label class="form-label small">Idle Before Dormant (seconds):</label>
+							<input type="number" @bind="IdleTimeoutSeconds" min="1" max="300" step="1" class="form-control form-control-sm">
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label small">Wake Phrases (comma-separated):</label>
+						<input type="text" @bind="WakePhraseText" class="form-control form-control-sm" placeholder="Hey DumbBot, OK DumbBot">
+						<div class="form-text">With Wake Phrase on, the microphone goes dormant after the idle time and types nothing until it hears one of these. It is still streaming audio while dormant.</div>
+					</div>
+
+					<div class="small text-muted">
+						Agent: <code>@(ChatService.SelectedAgentId ?? "(default)")</code>,
+						Model: <code>@(ChatService.SelectedModelId ?? "(default)")</code>
+					</div>
 				</div>
 			</div>
 		</div>
