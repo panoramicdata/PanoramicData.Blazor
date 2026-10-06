@@ -243,7 +243,9 @@ public partial class PDChatTests
 	{
 		((IChatService)service).VoiceIdleTimeout = _briefIdle;
 		var component = await RenderListeningAsync(service);
-		component.WaitForAssertion(() => component.Instance.VoiceState.Should().Be(PDChatVoiceState.Dormant), Patience);
+
+		// Wait for the render, not just the state, so tests reading the markup see the dormant status.
+		component.WaitForAssertion(() => component.Find(".pdchat-voice-status").ClassList.Should().Contain("pdchat-voice-dormant"), Patience);
 		((IChatService)service).VoiceIdleTimeout = TimeSpan.FromMinutes(10);
 		return component;
 	}

@@ -54,6 +54,7 @@ public class DumbChatServiceVoiceTests
 		service.WakePhrases.Should().BeSameAs(phrases);
 	}
 
+	/// <summary>The settable voice and assistant settings, by name.</summary>
 	public static TheoryData<string> Settings() => [.. _changes.Keys];
 
 	private static readonly string[] _phrases = ["Hey DumbBot"];
