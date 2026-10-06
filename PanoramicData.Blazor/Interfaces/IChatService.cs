@@ -105,6 +105,32 @@ public interface IChatService : IDisposable
 	}
 
 	/// <summary>
+	/// Gets or sets the phrases that wake a dormant microphone, such as "Hey Merlin", or null or empty (the default)
+	/// for a microphone that never goes dormant. Matching ignores case and punctuation.
+	/// </summary>
+	/// <remarks>
+	/// When set, Voice Mode goes dormant after <see cref="VoiceIdleTimeout"/> with no words, and then types and sends
+	/// nothing until one of these phrases is heard; the words after it are typed as usual. The phrase itself is never
+	/// typed. While dormant the microphone keeps streaming to the speech service, which must hear the audio to
+	/// recognise the phrase, so a host should make clear to its users that a dormant microphone is still listening.
+	/// </remarks>
+	IReadOnlyList<string>? WakePhrases
+	{
+		get => ChatServiceDefaultState.For(this).WakePhrases;
+		set => ChatServiceDefaultState.For(this).WakePhrases = value;
+	}
+
+	/// <summary>
+	/// Gets or sets how long Voice Mode may listen without hearing a word before the microphone goes dormant to wait
+	/// for one of the <see cref="WakePhrases"/>. Applies only when they are set. Defaults to ten seconds.
+	/// </summary>
+	TimeSpan VoiceIdleTimeout
+	{
+		get => ChatServiceDefaultState.For(this).VoiceIdleTimeout;
+		set => ChatServiceDefaultState.For(this).VoiceIdleTimeout = value;
+	}
+
+	/// <summary>
 	/// Gets the agents the user may choose to talk to, or null (the default) when the host offers no choice.
 	/// A picker is shown in the input area only when there are two or more.
 	/// </summary>

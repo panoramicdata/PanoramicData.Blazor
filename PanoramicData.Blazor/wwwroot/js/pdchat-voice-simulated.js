@@ -10,21 +10,29 @@ const PHRASES = [
 	"Testing, testing, one two three. Is this thing on?",
 ];
 
+// Every other utterance starts with the demo's wake phrase, so a dormant microphone can be seen to wake.
+const WAKE_PHRASE = "Hey DumbBot,";
+
 const LOUD = 0.02;
 const WORD_MS = 220;
 const PAUSE_MS = 700;
 
 let listening = null;
-let phraseIndex = 0;
+let utteranceIndex = 0;
 let wordIndex = 0;
 
+function utteranceWords(index) {
+	const phrase = PHRASES[index % PHRASES.length];
+	return (index % 2 === 0 ? `${WAKE_PHRASE} ${phrase}` : phrase).split(" ");
+}
+
 function nextWord() {
-	const words = PHRASES[phraseIndex].split(" ");
+	const words = utteranceWords(utteranceIndex);
 	const word = words[wordIndex];
 	wordIndex++;
 	if (wordIndex >= words.length) {
 		wordIndex = 0;
-		phraseIndex = (phraseIndex + 1) % PHRASES.length;
+		utteranceIndex = (utteranceIndex + 1) % (PHRASES.length * 2);
 	}
 	return word;
 }

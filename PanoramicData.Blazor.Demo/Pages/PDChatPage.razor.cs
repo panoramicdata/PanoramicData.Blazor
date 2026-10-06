@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.Blazor.Demo.Pages;
+﻿using PanoramicData.Blazor.Services;
+
+namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDChatPage : IDisposable
 {
@@ -22,6 +24,63 @@ public partial class PDChatPage : IDisposable
 	};
 
 	private readonly Action<PDChatDockMode> _onDockModeChanged;
+
+	private string _wakePhraseText = string.Join(", ", DumbChatService.DemoWakePhrases);
+
+	// Voice endpoints, agents and models are read-only on IChatService, so the demo sets them on its own service.
+	private DumbChatService? DemoService => ChatService as DumbChatService;
+
+	private bool IsVoiceOffered
+	{
+		get => ChatService.VoiceEndpoints is not null;
+		set => DemoService?.VoiceEndpoints = value ? PDChatVoiceEndpoints.Simulated : null;
+	}
+
+	private bool IsAgentPickerShown
+	{
+		get => ChatService.Agents is { Count: > 1 };
+		set => DemoService?.Agents = value ? DumbChatService.DemoAgents : null;
+	}
+
+	private bool IsModelPickerShown
+	{
+		get => ChatService.Models is { Count: > 1 };
+		set => DemoService?.Models = value ? DumbChatService.DemoModels : null;
+	}
+
+	private int AutoSendDelayMs
+	{
+		get => (int)ChatService.VoiceAutoSendDelay.TotalMilliseconds;
+		set => ChatService.VoiceAutoSendDelay = TimeSpan.FromMilliseconds(Math.Max(0, value));
+	}
+
+	private double IdleTimeoutSeconds
+	{
+		get => ChatService.VoiceIdleTimeout.TotalSeconds;
+		set => ChatService.VoiceIdleTimeout = TimeSpan.FromSeconds(Math.Max(1, value));
+	}
+
+	private bool IsWakePhraseOn
+	{
+		get => ChatService.WakePhrases is { Count: > 0 };
+		set => ChatService.WakePhrases = value ? ParseWakePhrases(_wakePhraseText) : null;
+	}
+
+	private string WakePhraseText
+	{
+		get => _wakePhraseText;
+		set
+		{
+			_wakePhraseText = value;
+			if (IsWakePhraseOn)
+			{
+				ChatService.WakePhrases = ParseWakePhrases(value);
+			}
+		}
+	}
+
+	private static string[] ParseWakePhrases(string text)
+		=> text.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 	public PDChatPage()
 	{

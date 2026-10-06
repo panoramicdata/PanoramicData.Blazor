@@ -127,4 +127,34 @@
 			<code>ToastEnabled</code> / <code>ToastDisplayDurationSeconds</code> for backward compatibility.
 		</p>
 	</section>
+	<section id="input-toolbar">
+		<h2 class="doc-section">Input toolbar, voice and wake phrase</h2>
+		<p>
+			A thin toolbar sits above the text box. It holds an agent picker and a model picker (each shown only when
+			the service lists two or more), the notification sounds bell (<code>IsMuted</code>), and, when the service
+			supplies <code>VoiceEndpoints</code>, a read-aloud speaker and a microphone. Dictated words are typed into
+			the text box and sent after a pause unless the user is editing. All of these are configured on
+			<code>IChatService</code> and have defaults, so an existing service needs no change.
+		</p>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>IChatService member</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>Agents</code> / <code>SelectedAgentId</code></td><td><code>IReadOnlyList&lt;PDChatAgentOption&gt;?</code> / <code>string?</code></td><td><code>null</code></td><td>Who the user is talking to.</td></tr>
+				<tr><td><code>Models</code> / <code>SelectedModelId</code></td><td><code>IReadOnlyList&lt;PDChatModelOption&gt;?</code> / <code>string?</code></td><td><code>null</code></td><td>Which model answers.</td></tr>
+				<tr><td><code>VoiceEndpoints</code></td><td><code>PDChatVoiceEndpoints?</code></td><td><code>null</code></td><td>Where speech is sent and answers fetched; <code>null</code> hides the voice controls. <code>PDChatVoiceEndpoints.Simulated</code> needs no speech service.</td></tr>
+				<tr><td><code>IsReadAloudEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Reads the answer to each sent message aloud. Independent of the microphone and of notification sounds.</td></tr>
+				<tr><td><code>VoiceAutoSendDelay</code></td><td><code>TimeSpan</code></td><td>1 second</td><td>How long after a pause dictation is sent, when the user is not editing.</td></tr>
+				<tr><td><code>WakePhrases</code></td><td><code>IReadOnlyList&lt;string&gt;?</code></td><td><code>null</code> (off)</td><td>Phrases such as "Hey DumbBot" that wake a dormant microphone. Case and punctuation are ignored, and the phrase itself is never typed.</td></tr>
+				<tr><td><code>VoiceIdleTimeout</code></td><td><code>TimeSpan</code></td><td>10 seconds</td><td>How long the microphone may hear nothing before it goes dormant. Applies only with wake phrases.</td></tr>
+			</tbody>
+		</table>
+		<p>
+			With wake phrases set, Voice Mode goes <code>Dormant</code> after the idle timeout (never while the user is
+			editing or a send is pending). While dormant nothing is typed or sent until a wake phrase is heard; the words
+			after it are typed as usual. The microphone keeps streaming to the speech service while dormant, since it
+			must hear the phrase, so tell your users that a dormant microphone is still listening. Try it with the
+			<strong>Voice and Assistant</strong> settings on this page: the simulated microphone starts every other
+			utterance with "Hey DumbBot".
+		</p>
+	</section>
 </div>

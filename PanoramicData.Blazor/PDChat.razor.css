@@ -624,6 +624,11 @@ body:has(.pdchat-container.dock-fullscreen) {
 	color: #dc3545;
 }
 
+.pdchat-voice-status.pdchat-voice-dormant::before {
+	content: "○ ";
+	color: var(--pd-chat-muted-color, #6c757d);
+}
+
 .pdchat-voice-status.pdchat-voice-error {
 	background: var(--pd-chat-warning-bg, #fff3cd);
 }
