@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace PanoramicData.Blazor;
 
@@ -71,6 +72,12 @@ public partial class PDMessage
 
 	private bool ShouldShowAnyMetadata()
 		=> ShowMessageUserIcon || ShowMessageUserName || ShowMessageTimestamp;
+
+	/// <summary>The author image's source: the SVG as a data URI, else the URL, else null.</summary>
+	private string? GetAuthorImageSource()
+		=> !string.IsNullOrWhiteSpace(Message.AuthorImageSvg)
+			? "data:image/svg+xml;base64," + Convert.ToBase64String(Encoding.UTF8.GetBytes(Message.AuthorImageSvg))
+			: string.IsNullOrWhiteSpace(Message.AuthorImageUrl) ? null : Message.AuthorImageUrl;
 
 	private string GetFormattedTimestamp()
 		=> Message.Timestamp.ToLocalTime().ToString(MessageTimestampFormat, CultureInfo.CurrentCulture);

@@ -442,3 +442,17 @@
 /* Rendered markdown (issue #101): message and partial HTML is MarkupString and carries no
    CSS-isolation scope attribute, so the rules for the elements inside .pdchat-text and
    .pdchat-partial live in wwwroot/css/main.scss. */
+
+/* The author image beside the sender's name, the same size as the agent picker's face. */
+.pdchat-author {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.pdchat-author-image {
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+	border-radius: 50%;
+}

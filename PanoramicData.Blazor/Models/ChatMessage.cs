@@ -25,6 +25,21 @@ public class ChatMessage
 	/// <summary>Gets or sets a value indicating whether <see cref="Message"/> is interpreted as HTML markup.</summary>
 	public bool IsMessageHtml { get; set; }
 
+	/// <summary>
+	/// Gets or sets an optional image URL shown, small and round, beside the sender's name.
+	/// </summary>
+	/// <remarks>Ignored when <see cref="AuthorImageSvg"/> is set. Shown only when sender names are shown.</remarks>
+	public string? AuthorImageUrl { get; set; }
+
+	/// <summary>
+	/// Gets or sets an optional SVG document shown, small and round, beside the sender's name.
+	/// </summary>
+	/// <remarks>
+	/// Rendered through an image element as a data URI, never as markup, so scripts and external
+	/// references in it do not run. Takes precedence over <see cref="AuthorImageUrl"/>.
+	/// </remarks>
+	public string? AuthorImageSvg { get; set; }
+
 	/// <summary>Gets or sets the semantic type of this message, which controls its visual presentation.</summary>
 	public required MessageType Type { get; set; } = MessageType.Normal;
 

@@ -42,6 +42,7 @@ public partial class DumbChatService
 		{
 			Id = responseId,
 			Sender = DumbBot,
+			AuthorImageSvg = DumbBotFaceSvg,
 			Title = "Typing...",
 			Message = "...",
 			Type = MessageType.Typing,
@@ -72,6 +73,7 @@ public partial class DumbChatService
 			{
 				Id = Guid.NewGuid(),
 				Sender = DumbBot,
+				AuthorImageSvg = DumbBotFaceSvg,
 				Message = "A few quick questions - answer what you like and skip the rest.",
 				Type = MessageType.Form,
 				Timestamp = DateTime.UtcNow,
@@ -94,6 +96,7 @@ public partial class DumbChatService
 		{
 			Id = Guid.NewGuid(),
 			Sender = DumbBot,
+			AuthorImageSvg = DumbBotFaceSvg,
 			Message = $"Thanks - I got {answered} of {submission.Answers.Count} answers.",
 			Type = MessageType.Success,
 			Timestamp = DateTime.UtcNow
@@ -109,6 +112,7 @@ public partial class DumbChatService
 		{
 			Id = responseId,
 			Sender = DumbBot,
+			AuthorImageSvg = DumbBotFaceSvg,
 			Title = "Going Offline",
 			Message = "I'm going offline for a short break. Please wait...",
 			Type = MessageType.Warning
@@ -122,6 +126,7 @@ public partial class DumbChatService
 		{
 			Id = Guid.NewGuid(),
 			Sender = DumbBot,
+			AuthorImageSvg = DumbBotFaceSvg,
 			Title = "Back Online",
 			Message = "I'm back online! How can I assist you?",
 			Type = MessageType.Normal
@@ -132,6 +137,7 @@ public partial class DumbChatService
 	{
 		Id = responseId,
 		Sender = DumbBot,
+		AuthorImageSvg = DumbBotFaceSvg,
 		Title = "<b>Help</b>",
 		IsTitleHtml = true,
 		Message = "Available commands: <ul><li>help</li><li>go away</li></ul>",
@@ -144,6 +150,7 @@ public partial class DumbChatService
 	{
 		Id = responseId,
 		Sender = DumbBot,
+		AuthorImageSvg = DumbBotFaceSvg,
 		Message = $"You said: \"{text}\"",
 		Type = _messageTypes[RandomNumberGenerator.GetInt32(_messageTypes.Length)]
 	};
