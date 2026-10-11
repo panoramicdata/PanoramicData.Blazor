@@ -44,7 +44,7 @@
 					<div class="pdchat-details">
 						@if (ShowMessageUserName)
 						{
-							<span class="pdchat-username">@Message.Sender.Name</span>
+							@RenderUserName
 						}
 						@if (ShowMessageTimestamp)
 						{
@@ -67,7 +67,7 @@
 					<div class="pdchat-details">
 						@if (ShowMessageUserName)
 						{
-							<span class="pdchat-username">@Message.Sender.Name</span>
+							@RenderUserName
 						}
 						@if (ShowMessageTimestamp)
 						{
@@ -117,7 +117,7 @@
 				}
 				@if (ShowMessageUserName)
 				{
-					<span class="pdchat-username">@Message.Sender.Name</span>
+					@RenderUserName
 				}
 				@if (ShowMessageTimestamp)
 				{
@@ -216,5 +216,21 @@
 
 			<span class="typing-ellipsis">&nbsp;</span>
 		</div>
+	};
+
+	/// <summary>The sender's name, with the author image beside it when the message has one.</summary>
+	private RenderFragment RenderUserName => __builder =>
+	{
+		if (GetAuthorImageSource() is { } authorImage)
+		{
+			<span class="pdchat-author">
+				<img class="pdchat-author-image" src="@authorImage" alt="" />
+				<span class="pdchat-username">@Message.Sender.Name</span>
+			</span>
+		}
+		else
+		{
+			<span class="pdchat-username">@Message.Sender.Name</span>
+		}
 	};
 }

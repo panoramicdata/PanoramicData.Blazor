@@ -43,6 +43,9 @@ public partial class DumbChatService : IChatService, IDisposable
 		IsSupport = false
 	};
 
+	/// <summary>DumbBot's face, shown beside its name on its answers.</summary>
+	public static string DumbBotFaceSvg => "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><rect width=\"24\" height=\"24\" fill=\"#6f42c1\"/><rect x=\"11\" y=\"3\" width=\"2\" height=\"4\" fill=\"#fff\"/><rect x=\"5\" y=\"7\" width=\"14\" height=\"11\" rx=\"3\" fill=\"#fff\"/><circle cx=\"9.5\" cy=\"12\" r=\"1.5\" fill=\"#6f42c1\"/><circle cx=\"14.5\" cy=\"12\" r=\"1.5\" fill=\"#6f42c1\"/></svg>";
+
 	/// <inheritdoc />
 	public PDChatDockMode DockMode { get; set; }
 

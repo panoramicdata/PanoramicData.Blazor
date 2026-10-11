@@ -65,6 +65,22 @@ public sealed class DumbChatServiceReplyTests : IDisposable
 		acknowledgement.Type.Should().Be(MessageType.Success);
 	}
 
+	/// <summary>DumbBot's answers carry its face, so the demo shows an author image.</summary>
+	[Fact]
+	public void BotAnswer_CarriesDumbBotsFace()
+	{
+		_service.SendMessage(new ChatMessage
+		{
+			Id = Guid.NewGuid(),
+			Sender = _user,
+			Message = "answers",
+			Type = MessageType.Normal,
+			FormSubmission = new ChatFormSubmission { FormId = Guid.NewGuid(), Answers = [] }
+		});
+
+		_service.Messages[^1].AuthorImageSvg.Should().Be(DumbChatService.DumbBotFaceSvg);
+	}
+
 	/// <summary>A message from someone other than the user is recorded but not answered.</summary>
 	[Fact]
 	public void BotMessage_IsNotAnswered()
