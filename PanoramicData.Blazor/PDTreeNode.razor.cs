@@ -8,6 +8,46 @@ public partial class PDTreeNode<TItem> where TItem : class
 	private IJSObjectReference? _commonModule;
 	private int _dragOverCount;
 
+	// Everything ShouldRender compares against, taken from the previous render. Node itself is a
+	// mutable, long-lived instance (expand/collapse mutate it in place rather than replacing it), so
+	// reference equality on Node alone would miss those changes — each piece of state the markup
+	// actually reads is captured individually instead. A record struct's generated equality (reference
+	// equality for the Node/Nodes fields, since neither TreeNode<TItem> nor List<T> overrides Equals)
+	// does the comparison in one expression rather than a long hand-written || chain.
+	private readonly record struct RenderSnapshot(
+		TreeNode<TItem>? Node,
+		bool IsExpanded,
+		bool IsSelected,
+		bool IsEditing,
+		List<TreeNode<TItem>>? Nodes,
+		int RenderVersion,
+		bool ShowLines,
+		bool AllowDrag,
+		bool AllowDrop,
+		bool AllowDropInBetween,
+		int DragOverCount);
+
+	private RenderSnapshot _lastRenderSnapshot;
+
+	/// <inheritdoc />
+	protected override bool ShouldRender()
+	{
+		if (Tree?.OptimizeRendering != true || Node is null)
+		{
+			return true;
+		}
+
+		var node = Node;
+		var snapshot = new RenderSnapshot(
+			node, node.IsExpanded, node.IsSelected, node.IsEditing, node.Nodes, node.RenderVersion,
+			ShowLines, AllowDrag, AllowDrop, AllowDropInBetween, _dragOverCount);
+
+		var changed = snapshot != _lastRenderSnapshot;
+		_lastRenderSnapshot = snapshot;
+
+		return changed;
+	}
+
 	/// <summary>
 	/// Gets the injected JavaScript runtime.
 	/// </summary>

@@ -73,6 +73,13 @@ public class TreeNode<T> : IComparable
 	public List<TreeNode<T>>? Nodes { get; set; }
 
 	/// <summary>
+	/// Gets a counter bumped by <see cref="PDTree{T}.RefreshNode"/> whenever something this node's
+	/// template depends on changes without changing the node itself. Only consulted by
+	/// <see cref="PDTreeNode{T}"/> when <see cref="PDTree{T}.OptimizeRendering"/> is enabled.
+	/// </summary>
+	public int RenderVersion { get; internal set; }
+
+	/// <summary>
 	/// Initializes a new instance of the TreeNode class.
 	/// </summary>
 	public TreeNode()
