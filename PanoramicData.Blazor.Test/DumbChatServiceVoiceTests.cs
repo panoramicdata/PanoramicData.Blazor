@@ -20,6 +20,7 @@ public class DumbChatServiceVoiceTests
 
 		chat.VoiceEndpoints.Should().Be(PDChatVoiceEndpoints.Simulated);
 		chat.Agents.Should().HaveCount(2);
+		chat.AgentPickerAction!.DisplayText.Should().Be("[+] New Agent");
 		chat.Models.Should().HaveCount(2);
 		chat.WakePhrases.Should().BeNull();
 		chat.VoiceIdleTimeout.Should().Be(TimeSpan.FromSeconds(10));
@@ -54,6 +55,22 @@ public class DumbChatServiceVoiceTests
 		service.WakePhrases.Should().BeSameAs(phrases);
 	}
 
+	/// <summary>Verifies that the demo's picker action answers in the chat and leaves the agent unchanged.</summary>
+	[Fact]
+	public async Task The_demo_picker_action_answers_and_keeps_the_agent()
+	{
+		using var service = new DumbChatService();
+		IChatService chat = service;
+		chat.SelectedAgentId = "pedant";
+		var received = new List<ChatMessage>();
+		service.OnMessageReceived += received.Add;
+
+		await chat.AgentPickerAction!.OnChosen();
+
+		received.Should().ContainSingle().Which.Message.Should().Contain("new agent");
+		chat.SelectedAgentId.Should().Be("pedant");
+	}
+
 	/// <summary>The settable voice and assistant settings, by name.</summary>
 	public static TheoryData<string> Settings() => [.. _changes.Keys];
 
@@ -63,6 +80,7 @@ public class DumbChatServiceVoiceTests
 	{
 		[nameof(DumbChatService.VoiceEndpoints)] = service => service.VoiceEndpoints = null,
 		[nameof(DumbChatService.Agents)] = service => service.Agents = null,
+		[nameof(DumbChatService.AgentPickerAction)] = service => service.AgentPickerAction = null,
 		[nameof(DumbChatService.Models)] = service => service.Models = null,
 		[nameof(IChatService.WakePhrases)] = service => ((IChatService)service).WakePhrases = _phrases,
 		[nameof(IChatService.VoiceIdleTimeout)] = service => ((IChatService)service).VoiceIdleTimeout = TimeSpan.FromSeconds(3),

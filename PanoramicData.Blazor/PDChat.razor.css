@@ -605,6 +605,10 @@ body:has(.pdchat-container.dock-fullscreen) {
 	border-radius: 4px;
 }
 
+.pdchat-toolbar-picker .pdchat-picker-action {
+	font-weight: 600;
+}
+
 .pdchat-agent-icon {
 	width: 20px;
 	height: 20px;

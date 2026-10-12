@@ -314,6 +314,12 @@
 						</div>
 						<div class="col-6">
 							<div class="form-check">
+								<input class="form-check-input" type="checkbox" @bind="IsAgentPickerActionShown" id="agentPickerActionCheck" disabled="@(DemoService is null)">
+								<label class="form-check-label small" for="agentPickerActionCheck">Agent Picker Action ([+] New Agent)</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
 								<input class="form-check-input" type="checkbox" @bind="IsModelPickerShown" id="modelPickerCheck" disabled="@(DemoService is null)">
 								<label class="form-check-label small" for="modelPickerCheck">Model Picker (two models)</label>
 							</div>
