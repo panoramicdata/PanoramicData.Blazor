@@ -6,7 +6,14 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDChat
 {
-	private bool IsAgentPickerOffered => ChatService.Agents is { Count: > 1 };
+	// The action option's value; an agent with this id cannot be chosen.
+	private const string AgentPickerActionValue = "pdchat:agent-picker-action";
+
+	// Bumped to rebuild the select, so it snaps back to the selected agent after the action is chosen.
+	private int _agentPickerRevision;
+
+	private bool IsAgentPickerOffered => ChatService.Agents is { Count: > 1 }
+		|| (ChatService.Agents is { Count: 1 } && ChatService.AgentPickerAction is not null);
 
 	private bool IsModelPickerOffered => ChatService.Models is { Count: > 1 };
 
@@ -19,9 +26,16 @@ public partial class PDChat
 
 	private string MuteButtonTitle => _isMuted ? "Notification sounds: off" : "Notification sounds: on";
 
-	private void OnAgentSelected(ChangeEventArgs args)
+	private async Task OnAgentSelected(ChangeEventArgs args)
 	{
 		var id = args.Value?.ToString();
+		if (id == AgentPickerActionValue && ChatService.AgentPickerAction is { } action)
+		{
+			_agentPickerRevision++;
+			await action.OnChosen();
+			return;
+		}
+
 		if (ChatService.Agents?.Any(agent => agent.Id == id) == true)
 		{
 			ChatService.SelectedAgentId = id;

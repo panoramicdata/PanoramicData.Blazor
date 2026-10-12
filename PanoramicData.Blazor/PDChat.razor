@@ -297,10 +297,15 @@
 				{
 					<img class="pdchat-agent-icon" src="@iconUrl" alt="" />
 				}
-				<select title="Who you are talking to" aria-label="Agent" @onchange="OnAgentSelected">
+				<select @key="_agentPickerRevision" title="Who you are talking to" aria-label="Agent" @onchange="OnAgentSelected">
 					@foreach (var agent in ChatService.Agents!)
 					{
 						<option value="@agent.Id" title="@agent.Description" selected="@(agent.Id == SelectedAgent?.Id)">@agent.Name</option>
+					}
+					@if (ChatService.AgentPickerAction is { } pickerAction)
+					{
+						<option class="pdchat-picker-separator" disabled>──────────</option>
+						<option class="pdchat-picker-action" value="@AgentPickerActionValue" title="@pickerAction.Description">@pickerAction.DisplayText</option>
 					}
 				</select>
 			</label>

@@ -140,6 +140,7 @@
 			<thead><tr><th>IChatService member</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
 			<tbody>
 				<tr><td><code>Agents</code> / <code>SelectedAgentId</code></td><td><code>IReadOnlyList&lt;PDChatAgentOption&gt;?</code> / <code>string?</code></td><td><code>null</code></td><td>Who the user is talking to.</td></tr>
+				<tr><td><code>AgentPickerAction</code></td><td><code>PDChatPickerAction?</code></td><td><code>null</code></td><td>An action ending the agent picker after a separator, such as <code>[+] New Assistant</code>. Choosing it runs its <code>OnChosen</code> callback and never changes <code>SelectedAgentId</code>. With an action the picker shows for a single agent too.</td></tr>
 				<tr><td><code>Models</code> / <code>SelectedModelId</code></td><td><code>IReadOnlyList&lt;PDChatModelOption&gt;?</code> / <code>string?</code></td><td><code>null</code></td><td>Which model answers.</td></tr>
 				<tr><td><code>VoiceEndpoints</code></td><td><code>PDChatVoiceEndpoints?</code></td><td><code>null</code></td><td>Where speech is sent and answers fetched; <code>null</code> hides the voice controls. <code>PDChatVoiceEndpoints.Simulated</code> needs no speech service.</td></tr>
 				<tr><td><code>IsReadAloudEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Reads the answer to each sent message aloud. Independent of the microphone and of notification sounds.</td></tr>

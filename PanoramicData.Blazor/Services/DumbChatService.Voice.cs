@@ -34,6 +34,20 @@ public partial class DumbChatService
 	private bool _isReadAloudEnabled;
 	private string? _selectedAgentId;
 	private string? _selectedModelId;
+	private PDChatPickerAction? _agentPickerAction;
+
+	/// <summary>Initializes the demo service, offering <see cref="AgentPickerAction"/> by default.</summary>
+	public DumbChatService()
+	{
+		_agentPickerAction = new PDChatPickerAction("New Agent", AnnounceNewAgentAsync, "[+]", "Where a host would open its page for making an agent.");
+	}
+
+	/// <summary>Gets or sets the action ending the agent picker; a demo "[+] New Agent" by default, and null hides it.</summary>
+	public PDChatPickerAction? AgentPickerAction
+	{
+		get => _agentPickerAction;
+		set => SetConfiguration(ref _agentPickerAction, value);
+	}
 
 	/// <summary>Gets or sets the voice endpoints; simulated by default, and null hides the voice controls.</summary>
 	public PDChatVoiceEndpoints? VoiceEndpoints
@@ -96,5 +110,19 @@ public partial class DumbChatService
 	{
 		get => _selectedModelId;
 		set => SetConfiguration(ref _selectedModelId, value);
+	}
+
+	private Task AnnounceNewAgentAsync()
+	{
+		Deliver(_activeConversationId, new ChatMessage
+		{
+			Id = Guid.NewGuid(),
+			Sender = DumbBot,
+			AuthorImageSvg = DumbBotFaceSvg,
+			Message = "A host would open its page for making a new agent here. Your agent is unchanged.",
+			Type = MessageType.Normal,
+			Timestamp = DateTime.UtcNow,
+		});
+		return Task.CompletedTask;
 	}
 }

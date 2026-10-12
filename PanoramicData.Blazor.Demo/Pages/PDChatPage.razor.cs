@@ -42,6 +42,23 @@ public partial class PDChatPage : IDisposable
 		set => DemoService?.Agents = value ? DumbChatService.DemoAgents : null;
 	}
 
+	// Kept while hidden, so showing it again restores the demo's action.
+	private PDChatPickerAction? _hiddenAgentPickerAction;
+
+	private bool IsAgentPickerActionShown
+	{
+		get => ChatService.AgentPickerAction is not null;
+		set
+		{
+			if (DemoService is null || value == IsAgentPickerActionShown)
+			{
+				return;
+			}
+
+			(_hiddenAgentPickerAction, DemoService.AgentPickerAction) = (DemoService.AgentPickerAction, _hiddenAgentPickerAction);
+		}
+	}
+
 	private bool IsModelPickerShown
 	{
 		get => ChatService.Models is { Count: > 1 };

@@ -137,6 +137,13 @@ public interface IChatService : IDisposable
 	IReadOnlyList<PDChatAgentOption>? Agents => null;
 
 	/// <summary>
+	/// Gets an action offered as the last entry of the agent picker, separated from the agents, or null (the default)
+	/// for none. Choosing it invokes <see cref="PDChatPickerAction.OnChosen"/> and leaves <see cref="SelectedAgentId"/>
+	/// unchanged. With an action the picker is shown for a single agent too.
+	/// </summary>
+	PDChatPickerAction? AgentPickerAction => null;
+
+	/// <summary>
 	/// Gets or sets the <see cref="PDChatAgentOption.Id"/> of the agent the user is talking to, or null (the default)
 	/// for the host's default. The chat sets this when the user picks an agent; a host that needs to react implements
 	/// the setter.
