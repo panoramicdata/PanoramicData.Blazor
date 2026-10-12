@@ -161,6 +161,18 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
     [Parameter] public EventCallback<TreeNode<TItem>> NodeUpdated { get; set; }
 
     /// <summary>
+    /// Gets or sets whether each <see cref="PDTreeNode{TItem}"/> skips re-rendering (and so skips
+    /// re-invoking <see cref="NodeTemplate"/>) when none of its own observable state has changed since
+    /// its last render. Without this, every render of an ancestor component — including one entirely
+    /// unrelated to the tree — unconditionally re-renders every currently expanded node, which scales
+    /// with (expanded node count) and dominates render time on a large, mostly-expanded tree.
+    /// Off by default to preserve existing behaviour for callers that mutate node data in place without
+    /// signalling the change through <see cref="TreeNode{TItem}.RenderVersion"/> — call
+    /// <see cref="RefreshNode"/> after such a mutation once this is enabled.
+    /// </summary>
+    [Parameter] public bool OptimizeRendering { get; set; }
+
+    /// <summary>
     /// A function that selects the field that contains the parent key value.
     /// </summary>
     [Parameter] public Func<TItem, object>? ParentKeyField { get; set; }
@@ -249,6 +261,30 @@ public partial class PDTree<TItem> : IDisposable where TItem : class
 	public async Task ScrollNodeIntoViewAsync(TreeNode<TItem> node)
 	{
 		await ScrollNodeIntoViewAsync($"tree-node-{node.Id}");
+	}
+
+	/// <summary>
+	/// Marks a node as needing to be re-rendered, along with every one of its ancestors up to the root.
+	/// </summary>
+	/// <remarks>
+	/// Only meaningful when <see cref="OptimizeRendering"/> is true. Call this after mutating state that
+	/// a <see cref="NodeTemplate"/> reads but that isn't reflected on the <see cref="TreeNode{TItem}"/>
+	/// itself (for example, a status flag on an unrelated object that the template looks up by key) —
+	/// otherwise, with optimisation on, the node's unchanged <see cref="TreeNode{TItem}"/> state gives
+	/// <see cref="PDTreeNode{TItem}"/> no reason to re-render it.
+	/// Ancestors are bumped too, and not just the target node, because reaching the target during the
+	/// next render depends on every component on the path down to it also deciding to render — skipping
+	/// an ancestor would skip everything beneath it, the target included.
+	/// </remarks>
+	/// <param name="node">The node whose displayed state changed.</param>
+	public void RefreshNode(TreeNode<TItem> node)
+	{
+		var current = node;
+		while (current is not null)
+		{
+			current.RenderVersion++;
+			current = current.ParentNode;
+		}
 	}
 
 

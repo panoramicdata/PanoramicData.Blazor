@@ -8,6 +8,59 @@ public partial class PDTreeNode<TItem> where TItem : class
 	private IJSObjectReference? _commonModule;
 	private int _dragOverCount;
 
+	// Snapshot of everything ShouldRender compares against, taken from the previous render. Node itself
+	// is a mutable, long-lived instance (expand/collapse mutate it in place rather than replacing it), so
+	// reference equality on Node alone would miss those changes — each piece of state it exposes that the
+	// markup actually reads is tracked individually instead.
+	private TreeNode<TItem>? _lastRenderedNode;
+	private bool _lastIsExpanded;
+	private bool _lastIsSelected;
+	private bool _lastIsEditing;
+	private List<TreeNode<TItem>>? _lastRenderedNodes;
+	private int _lastRenderedVersion = -1;
+	private bool _lastShowLines;
+	private bool _lastAllowDrag;
+	private bool _lastAllowDrop;
+	private bool _lastAllowDropInBetween;
+	private int _lastDragOverCount;
+
+	/// <inheritdoc />
+	protected override bool ShouldRender()
+	{
+		if (Tree?.OptimizeRendering != true || Node is null)
+		{
+			return true;
+		}
+
+		var node = Node;
+		var changed =
+			!ReferenceEquals(node, _lastRenderedNode) ||
+			node.IsExpanded != _lastIsExpanded ||
+			node.IsSelected != _lastIsSelected ||
+			node.IsEditing != _lastIsEditing ||
+			!ReferenceEquals(node.Nodes, _lastRenderedNodes) ||
+			node.RenderVersion != _lastRenderedVersion ||
+			ShowLines != _lastShowLines ||
+			AllowDrag != _lastAllowDrag ||
+			AllowDrop != _lastAllowDrop ||
+			AllowDropInBetween != _lastAllowDropInBetween ||
+			_dragOverCount != _lastDragOverCount;
+
+		_lastRenderedNode = node;
+		_lastIsExpanded = node.IsExpanded;
+		_lastIsSelected = node.IsSelected;
+		_lastIsEditing = node.IsEditing;
+		_lastRenderedNodes = node.Nodes;
+		_lastRenderedVersion = node.RenderVersion;
+		_lastShowLines = ShowLines;
+		_lastAllowDrag = AllowDrag;
+		_lastAllowDrop = AllowDrop;
+		_lastAllowDropInBetween = AllowDropInBetween;
+		_lastDragOverCount = _dragOverCount;
+
+		return changed;
+	}
+
 	/// <summary>
 	/// Gets the injected JavaScript runtime.
 	/// </summary>
