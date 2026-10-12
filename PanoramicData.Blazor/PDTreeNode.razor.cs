@@ -8,21 +8,26 @@ public partial class PDTreeNode<TItem> where TItem : class
 	private IJSObjectReference? _commonModule;
 	private int _dragOverCount;
 
-	// Snapshot of everything ShouldRender compares against, taken from the previous render. Node itself
-	// is a mutable, long-lived instance (expand/collapse mutate it in place rather than replacing it), so
-	// reference equality on Node alone would miss those changes — each piece of state it exposes that the
-	// markup actually reads is tracked individually instead.
-	private TreeNode<TItem>? _lastRenderedNode;
-	private bool _lastIsExpanded;
-	private bool _lastIsSelected;
-	private bool _lastIsEditing;
-	private List<TreeNode<TItem>>? _lastRenderedNodes;
-	private int _lastRenderedVersion = -1;
-	private bool _lastShowLines;
-	private bool _lastAllowDrag;
-	private bool _lastAllowDrop;
-	private bool _lastAllowDropInBetween;
-	private int _lastDragOverCount;
+	// Everything ShouldRender compares against, taken from the previous render. Node itself is a
+	// mutable, long-lived instance (expand/collapse mutate it in place rather than replacing it), so
+	// reference equality on Node alone would miss those changes — each piece of state the markup
+	// actually reads is captured individually instead. A record struct's generated equality (reference
+	// equality for the Node/Nodes fields, since neither TreeNode<TItem> nor List<T> overrides Equals)
+	// does the comparison in one expression rather than a long hand-written || chain.
+	private readonly record struct RenderSnapshot(
+		TreeNode<TItem>? Node,
+		bool IsExpanded,
+		bool IsSelected,
+		bool IsEditing,
+		List<TreeNode<TItem>>? Nodes,
+		int RenderVersion,
+		bool ShowLines,
+		bool AllowDrag,
+		bool AllowDrop,
+		bool AllowDropInBetween,
+		int DragOverCount);
+
+	private RenderSnapshot _lastRenderSnapshot;
 
 	/// <inheritdoc />
 	protected override bool ShouldRender()
@@ -33,30 +38,12 @@ public partial class PDTreeNode<TItem> where TItem : class
 		}
 
 		var node = Node;
-		var changed =
-			!ReferenceEquals(node, _lastRenderedNode) ||
-			node.IsExpanded != _lastIsExpanded ||
-			node.IsSelected != _lastIsSelected ||
-			node.IsEditing != _lastIsEditing ||
-			!ReferenceEquals(node.Nodes, _lastRenderedNodes) ||
-			node.RenderVersion != _lastRenderedVersion ||
-			ShowLines != _lastShowLines ||
-			AllowDrag != _lastAllowDrag ||
-			AllowDrop != _lastAllowDrop ||
-			AllowDropInBetween != _lastAllowDropInBetween ||
-			_dragOverCount != _lastDragOverCount;
+		var snapshot = new RenderSnapshot(
+			node, node.IsExpanded, node.IsSelected, node.IsEditing, node.Nodes, node.RenderVersion,
+			ShowLines, AllowDrag, AllowDrop, AllowDropInBetween, _dragOverCount);
 
-		_lastRenderedNode = node;
-		_lastIsExpanded = node.IsExpanded;
-		_lastIsSelected = node.IsSelected;
-		_lastIsEditing = node.IsEditing;
-		_lastRenderedNodes = node.Nodes;
-		_lastRenderedVersion = node.RenderVersion;
-		_lastShowLines = ShowLines;
-		_lastAllowDrag = AllowDrag;
-		_lastAllowDrop = AllowDrop;
-		_lastAllowDropInBetween = AllowDropInBetween;
-		_lastDragOverCount = _dragOverCount;
+		var changed = snapshot != _lastRenderSnapshot;
+		_lastRenderSnapshot = snapshot;
 
 		return changed;
 	}
