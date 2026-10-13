@@ -25,6 +25,14 @@ public partial class PDTabSet : ComponentBase
 	private PDTab? _dragOverTab;
 	/// <summary>Index at which the next <see cref="AddTab"/> call should insert; -1 means append.</summary>
 	private int _pendingInsertIndex = -1;
+	/// <summary>
+	/// The tab id the host asked for through <see cref="SelectedTabId"/> that has not been honoured yet,
+	/// because no tab with that id has been added so far. Cleared once that tab is selected, or when a tab is
+	/// selected by the user.
+	/// </summary>
+	private Guid? _requestedTabId;
+	/// <summary>The last <see cref="SelectedTabId"/> received, so a re-render with the same value is not treated as a new request.</summary>
+	private Guid? _lastSelectedTabId;
 
 	/// <summary>
 	/// Gets or sets the child content of the component.
@@ -77,6 +85,33 @@ public partial class PDTabSet : ComponentBase
 	[Parameter] public EventCallback<IReadOnlyList<PDTab>> OnTabsReordered { get; set; }
 
 	/// <summary>
+	/// Gets or sets the <see cref="PDTab.Id"/> of the selected tab, so a host can choose which tab is selected
+	/// (for example from a URL) and use <c>@bind-SelectedTabId</c>.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// A new value selects the tab with that id. If no such tab has been added yet - because it is rendered
+	/// later, for example inside an <c>@if</c> - the request is kept and honoured when the tab is added.
+	/// An id that never matches a tab leaves the current selection unchanged.
+	/// </para>
+	/// <para>
+	/// Give each tab the host needs to select a stable <see cref="PDTab.Id"/>; a tab without one is assigned
+	/// a new id every time it is created.
+	/// </para>
+	/// </remarks>
+	[Parameter] public Guid? SelectedTabId { get; set; }
+
+	/// <summary>
+	/// An event callback that is invoked with the <see cref="PDTab.Id"/> of the tab the user selected, or
+	/// <c>null</c> when that tab has no id (<see cref="Guid.Empty"/>). Enables <c>@bind-SelectedTabId</c>.
+	/// </summary>
+	/// <remarks>
+	/// It is invoked alongside <see cref="OnTabSelected"/>, but not for a selection made by setting
+	/// <see cref="SelectedTabId"/>, so binding it back to the same property does not loop.
+	/// </remarks>
+	[Parameter] public EventCallback<Guid?> SelectedTabIdChanged { get; set; }
+
+	/// <summary>
 	/// An event callback that is invoked when a tab is selected.
 	/// </summary>
 	[Parameter] public EventCallback<PDTab> OnTabSelected { get; set; }
@@ -97,6 +132,46 @@ public partial class PDTabSet : ComponentBase
 	/// </summary>
 	[Parameter] public EventCallback<PDTab> OnTabRenamed { get; set; }
 
+	/// <inheritdoc />
+	protected override void OnParametersSet()
+	{
+		// Only a changed value is a new request: the host re-rendering with the value it already gave must
+		// not undo a tab the user has picked since.
+		if (SelectedTabId == _lastSelectedTabId)
+		{
+			return;
+		}
+
+		_lastSelectedTabId = SelectedTabId;
+		_requestedTabId = SelectedTabId is { } id && id != Guid.Empty ? id : null;
+		ApplyRequestedTab();
+	}
+
+	/// <summary>
+	/// Selects the tab named by <see cref="_requestedTabId"/> if it has been added, which clears the request.
+	/// If it has not been added yet the request is kept for <see cref="AddTab"/>.
+	/// </summary>
+	private void ApplyRequestedTab()
+	{
+		if (_requestedTabId is not { } id)
+		{
+			return;
+		}
+
+		var tab = Tabs.FirstOrDefault(candidate => candidate.Id == id);
+		if (tab is null)
+		{
+			return;
+		}
+
+		_requestedTabId = null;
+		if (!ReferenceEquals(tab, ActiveTab))
+		{
+			// Not reported through SelectedTabIdChanged: the host already holds this value.
+			SelectTab(tab, raiseSelectedTabIdChanged: false);
+		}
+	}
+
 	internal void AddTab(PDTab tab)
 	{
 		if (_pendingInsertIndex >= 0 && _pendingInsertIndex <= Tabs.Count)
@@ -110,6 +185,7 @@ public partial class PDTabSet : ComponentBase
 
 		_pendingInsertIndex = -1;
 		ActiveTab ??= tab;
+		ApplyRequestedTab();
 		StateHasChanged();
 	}
 
@@ -161,8 +237,10 @@ public partial class PDTabSet : ComponentBase
 	/// <remarks>
 	/// Lets a host that owns the collection behind the tabs select one by the identity it already holds,
 	/// rather than having to keep a reference to a component instance it did not create.
+	/// Selecting a different tab raises <see cref="SelectedTabIdChanged"/> as well as <see cref="OnTabSelected"/>,
+	/// so a host using <c>@bind-SelectedTabId</c> stays in step. An unknown id changes nothing and returns <c>false</c>.
 	/// </remarks>
-	internal bool SelectTabById(Guid id)
+	public bool SelectTabById(Guid id)
 	{
 		var tab = Tabs.FirstOrDefault(candidate => candidate.Id == id);
 		if (tab is null || ReferenceEquals(tab, ActiveTab))
@@ -174,9 +252,22 @@ public partial class PDTabSet : ComponentBase
 		return true;
 	}
 
-	internal void SelectTab(PDTab tab)
+	internal void SelectTab(PDTab tab) => SelectTab(tab, raiseSelectedTabIdChanged: true);
+
+	private void SelectTab(PDTab tab, bool raiseSelectedTabIdChanged)
 	{
 		ActiveTab = tab;
+		if (raiseSelectedTabIdChanged)
+		{
+			// A choice made by the user (or by method) wins over a request through the parameter that has
+			// not found its tab yet, which must not override it when that tab turns up later.
+			_requestedTabId = null;
+			if (SelectedTabIdChanged.HasDelegate)
+			{
+				_ = SelectedTabIdChanged.InvokeAsync(tab.Id == Guid.Empty ? null : tab.Id);
+			}
+		}
+
 		if (OnTabSelected.HasDelegate)
 		{
 			OnTabSelected.InvokeAsync(tab);
@@ -190,9 +281,22 @@ public partial class PDTabSet : ComponentBase
 	{
 		if (Tabs.Remove(tab))
 		{
+			if (_requestedTabId == tab.Id)
+			{
+				_requestedTabId = null;
+			}
+
 			if (ActiveTab == tab)
 			{
 				ActiveTab = Tabs.FirstOrDefault();
+
+				// The selection moved without the user choosing a tab, so tell a bound host which one is
+				// selected now (null when none is left or it has no id).
+				if (SelectedTabIdChanged.HasDelegate)
+				{
+					var newId = ActiveTab?.Id;
+					_ = SelectedTabIdChanged.InvokeAsync(newId == Guid.Empty ? null : newId);
+				}
 			}
 
 			if (OnTabClosed.HasDelegate)

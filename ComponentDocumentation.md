@@ -1717,6 +1717,8 @@ No code-behind file found for this component.
 | IsTabAdditionEnabled | bool | Gets or sets whether new tabs can be added. |
 | CreateTabPosition | CreateTabPosition | Gets or sets the position of the create tab button. |
 | IsTabRenamingEnabled | bool | Gets or sets whether tabs can be renamed. |
+| SelectedTabId | Guid? | Gets or sets the Id of the selected tab, so a host can choose which tab is selected (for example from a URL) and use @bind-SelectedTabId. |
+| SelectedTabIdChanged | EventCallback<Guid?> | An event callback that is invoked with the Id of the tab the user selected, or null when that tab has no id. Enables @bind-SelectedTabId. |
 | OnTabSelected | EventCallback<PDTab> | An event callback that is invoked when a tab is selected. |
 | OnTabClosed | EventCallback<PDTab> | An event callback that is invoked when a tab is closed. |
 | OnTabAdded | EventCallback | An event callback that is invoked when a new tab is added. |

@@ -2,6 +2,11 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDTabSetDocumentation : ComponentBase
 {
+	private static readonly Guid _firstTabId = new("3c9a1d0e-5b7f-4e21-8a64-0d2f9b6c1e01");
+	private static readonly Guid _secondTabId = new("3c9a1d0e-5b7f-4e21-8a64-0d2f9b6c1e02");
+
+	private Guid? _selectedTabId = _firstTabId;
+
 	private const string _example1Code = """
 		<PDTabSet>
 		    <PDTab Title="Tab 1">
@@ -28,6 +33,21 @@ public partial class PDTabSetDocumentation : ComponentBase
 		        <p class="p-3">Reports content</p>
 		    </PDTab>
 		</PDTabSet>
+		""";
+
+	private const string _example4Code = """
+		<button @onclick="() => _selectedTabId = _secondTabId">Select second tab</button>
+
+		<PDTabSet @bind-SelectedTabId="_selectedTabId">
+		    <PDTab Id="_firstTabId" Title="First"><p class="p-3">First tab</p></PDTab>
+		    <PDTab Id="_secondTabId" Title="Second"><p class="p-3">Second tab</p></PDTab>
+		</PDTabSet>
+
+		@code {
+		    private static readonly Guid _firstTabId = Guid.Parse("3c9a1d0e-5b7f-4e21-8a64-0d2f9b6c1e01");
+		    private static readonly Guid _secondTabId = Guid.Parse("3c9a1d0e-5b7f-4e21-8a64-0d2f9b6c1e02");
+		    private Guid? _selectedTabId = _firstTabId;
+		}
 		""";
 
 	private const string _example3Code = """
