@@ -9,8 +9,43 @@ public partial class PDTabSetPage
 		new TabInfo { Title = "Reports",   IconCssClass = "fas fa-chart-bar", Content = "This is the reports tab." },
 	];
 
+	// Fixed ids so a query-string value can be mapped to a tab. The PDTabSet itself never touches the URL.
+	private static readonly (string Name, Guid Id)[] _urlTabs =
+	[
+		("Overview", new Guid("7d1f3b52-0c4e-4a38-9b6a-1e2f5c8d0a01")),
+		("Settings", new Guid("7d1f3b52-0c4e-4a38-9b6a-1e2f5c8d0a02")),
+		("Reports", new Guid("7d1f3b52-0c4e-4a38-9b6a-1e2f5c8d0a03")),
+	];
+
 	private int _tabCounter = 4;
 	private string _eventLog = string.Empty;
+
+	[Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+	/// <summary>The <c>section</c> query-string value, for example <c>reports</c>. (<c>tab</c> is used by the demo shell.)</summary>
+	[SupplyParameterFromQuery(Name = "section")]
+	public string? Section { get; set; }
+
+	// The tab named in the URL, or null (leave the first tab selected) when absent or unrecognised.
+	private Guid? UrlSelectedTabId => _urlTabs
+		.Where(t => string.Equals(t.Name, Section, StringComparison.OrdinalIgnoreCase))
+		.Select(t => (Guid?)t.Id)
+		.FirstOrDefault();
+
+	private void OnUrlSelectedTabIdChanged(Guid? id)
+	{
+		var name = _urlTabs.FirstOrDefault(t => t.Id == id).Name;
+		if (name is null)
+		{
+			return;
+		}
+
+		// replace: true so clicking through tabs does not fill the browser history.
+		NavigationManager.NavigateTo(
+			NavigationManager.GetUriWithQueryParameter("section", name.ToLowerInvariant()),
+			replace: true);
+		LogEvent($"URL updated: ?section={name.ToLowerInvariant()}");
+	}
 
 	// Control-panel bindings
 	protected bool IsReorderingEnabled { get; set; } = true;

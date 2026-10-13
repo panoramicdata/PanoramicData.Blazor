@@ -83,6 +83,39 @@
 				</p>
 			</Description>
 		</DocExample>
+
+		<DocExample Title="Choosing the Selected Tab"
+					AnchorId="selected-tab"
+					Code="@_example4Code"
+					Language="razor"
+					DemoStyle="min-height: 150px;">
+			<DemoContent>
+				<div class="p-2">
+					<button class="btn btn-sm btn-outline-primary mb-2" @onclick="() => _selectedTabId = _secondTabId">Select second tab</button>
+					<PDTabSet @bind-SelectedTabId="_selectedTabId">
+						<PDTab Id="_firstTabId" Title="First"><p class="p-3">First tab</p></PDTab>
+						<PDTab Id="_secondTabId" Title="Second"><p class="p-3">Second tab</p></PDTab>
+					</PDTabSet>
+					<p class="small text-muted mt-2 mb-0">SelectedTabId: <code>@(_selectedTabId?.ToString() ?? "null")</code></p>
+				</div>
+			</DemoContent>
+			<Description>
+				<p>
+					Bind <code>SelectedTabId</code> (<code>@@bind-SelectedTabId</code>) to the <code>Id</code> of a
+					<code>PDTab</code> to let the host page choose the selected tab, for example from a URL. When the
+					user clicks a tab, <code>SelectedTabIdChanged</code> is raised with that tab's <code>Id</code>.
+					A tab that is rendered later (inside an <code>@@if</code>, say) is selected when it appears, and an
+					id that matches no tab leaves the selection unchanged. <code>PDTabSet</code> does not read or write
+					the URL itself: the page maps a query-string value to a tab id and updates the address with
+					<code>NavigationManager.NavigateTo(..., replace: true)</code> in <code>SelectedTabIdChanged</code>;
+					see the URL-driven example on the demo page.
+				</p>
+				<p>
+					Give each tab you want to select a stable <code>Id</code>; <code>SelectTabById(Guid)</code> selects
+					a tab by id from code.
+				</p>
+			</Description>
+		</DocExample>
 	</section>
 
 	<section id="parameters">
@@ -102,6 +135,7 @@
 				<tr><td><code>IsTabAdditionEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show the + add-tab button</td></tr>
 				<tr><td><code>CreateTabPosition</code></td><td><code>CreateTabPosition</code></td><td><code>End</code></td><td>Position of the add-tab button (<code>Start</code>, <code>End</code>, <code>Both</code>)</td></tr>
 				<tr><td><code>IsTabReorderingEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Allow drag-and-drop tab reordering</td></tr>
+				<tr><td><code>SelectedTabId</code></td><td><code>Guid?</code></td><td><code>null</code></td><td>The <code>Id</code> of the selected tab; supports <code>@@bind-SelectedTabId</code>. A tab added later is selected when it appears; an unknown id changes nothing</td></tr>
 			</tbody>
 		</table>
 
@@ -112,6 +146,7 @@
 			</thead>
 			<tbody>
 				<tr><td><code>OnTabSelected</code></td><td><code>EventCallback&lt;PDTab&gt;</code></td><td>Fires when a tab is clicked</td></tr>
+				<tr><td><code>SelectedTabIdChanged</code></td><td><code>EventCallback&lt;Guid?&gt;</code></td><td>Fires with the clicked tab's <code>Id</code> (<code>null</code> if it has none), alongside <code>OnTabSelected</code>; not raised when the selection was set through <code>SelectedTabId</code></td></tr>
 				<tr><td><code>OnTabClosed</code></td><td><code>EventCallback&lt;PDTab&gt;</code></td><td>Fires when a tab is closed</td></tr>
 				<tr><td><code>OnTabAdded</code></td><td><code>EventCallback&lt;CreateTabPosition&gt;</code></td><td>Fires when the + button is clicked; the argument indicates which end (<code>Start</code> or <code>End</code>) was pressed so callers can insert at the correct position</td></tr>
 				<tr><td><code>OnTabRenamed</code></td><td><code>EventCallback&lt;PDTab&gt;</code></td><td>Fires when a tab rename is committed</td></tr>
