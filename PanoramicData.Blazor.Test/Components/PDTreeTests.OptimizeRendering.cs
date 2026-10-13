@@ -98,4 +98,25 @@ public partial class PDTreeTests
 		invocations.Should().NotContain("b");
 		invocations.Should().NotContain("b1");
 	}
+
+	/// <summary>
+	/// PDTree.ApplyItem reuses the same TreeNode instance across a refresh, replacing only its Data,
+	/// Text and IconCssClass — none of which ShouldRender's other checks cover. Without tracking them
+	/// too, a refresh that changes an item's content without changing the tree's shape would leave that
+	/// node's template showing stale data indefinitely.
+	/// </summary>
+	[Fact]
+	public async Task OptimizeRendering_On_RefreshAsyncChangingAnItemsContentStillReRendersIt()
+	{
+		List<string> invocations = [];
+		var tree = RenderItemTreeWithTemplateCounter(invocations, optimizeRendering: true);
+		var nodeBeforeRefresh = Node(tree, "a1x");
+
+		var index = _provider.Items.FindIndex(i => i.Id == "a1x");
+		_provider.Items[index] = new Item("a1x", "a1", "Alpha one x, renamed");
+		await tree.InvokeAsync(() => tree.Instance.RefreshAsync());
+
+		Node(tree, "a1x").Should().BeSameAs(nodeBeforeRefresh, "a refresh merges by key rather than rebuilding");
+		invocations.Should().Contain("a1x");
+	}
 }

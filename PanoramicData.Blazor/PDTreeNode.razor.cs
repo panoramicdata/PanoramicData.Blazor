@@ -16,6 +16,9 @@ public partial class PDTreeNode<TItem> where TItem : class
 	// does the comparison in one expression rather than a long hand-written || chain.
 	private readonly record struct RenderSnapshot(
 		TreeNode<TItem>? Node,
+		TItem? Data,
+		string Text,
+		string IconCssClass,
 		bool IsExpanded,
 		bool IsSelected,
 		bool IsEditing,
@@ -37,10 +40,14 @@ public partial class PDTreeNode<TItem> where TItem : class
 			return true;
 		}
 
+		// Data, Text and IconCssClass are included alongside Node itself because PDTree.ApplyItem
+		// refreshes an existing node in place — same TreeNode instance, new Data/Text/IconCssClass —
+		// when a refresh merges updated items into the tree by key rather than rebuilding it.
 		var node = Node;
 		var snapshot = new RenderSnapshot(
-			node, node.IsExpanded, node.IsSelected, node.IsEditing, node.Nodes, node.RenderVersion,
-			ShowLines, AllowDrag, AllowDrop, AllowDropInBetween, _dragOverCount);
+			node, node.Data, node.Text, node.IconCssClass, node.IsExpanded, node.IsSelected,
+			node.IsEditing, node.Nodes, node.RenderVersion, ShowLines, AllowDrag, AllowDrop,
+			AllowDropInBetween, _dragOverCount);
 
 		var changed = snapshot != _lastRenderSnapshot;
 		_lastRenderSnapshot = snapshot;
