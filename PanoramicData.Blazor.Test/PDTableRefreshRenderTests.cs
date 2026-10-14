@@ -78,12 +78,16 @@ public class PDTableRefreshRenderTests : BunitContext
 	/// <param name="Name">Display name.</param>
 	public sealed record Row(int Id, string Name);
 
-	/// <summary>An in-memory provider returning whatever rows it currently holds.</summary>
+	/// <summary>An in-memory provider returning the requested page of whatever rows it currently holds.</summary>
 	private sealed class RowProvider : DataProviderBase<Row>
 	{
 		public List<Row> Rows { get; } = [new(1, "Alpha"), new(2, "Beta"), new(3, "Gamma")];
 
 		public override Task<DataResponse<Row>> GetDataAsync(DataRequest<Row> request, CancellationToken cancellationToken)
-			=> Task.FromResult(new DataResponse<Row>([.. Rows], Rows.Count));
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			var page = Rows.Skip(request.Skip ?? 0).Take(request.Take ?? Rows.Count);
+			return Task.FromResult(new DataResponse<Row>([.. page], Rows.Count));
+		}
 	}
 }
