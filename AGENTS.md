@@ -1,4 +1,4 @@
-# Agent Instructions
+# Agent instructions
 
 Version: 1.2
 
@@ -20,7 +20,7 @@ repository's root at:
 
     ../PanoramicData.Skills/.github/skills/copilot-instructions.md
 
-If that path exists, read it before starting work — it documents organization-wide
+If that path exists, read it before starting work, as it documents organization-wide
 conventions and skills.
 
 **If that path does not exist** (for example, you are an external contributor without access
