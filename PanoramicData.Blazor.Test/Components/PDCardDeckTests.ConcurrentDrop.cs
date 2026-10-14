@@ -35,7 +35,7 @@ public partial class PDCardDeckTests
 	[Fact]
 	public async Task Group_DropReachingEveryDeck_TransformsOnce()
 	{
-		var board = new Board { TransformDuration = TimeSpan.FromMilliseconds(100) };
+		var board = new Board(transformDuration: TimeSpan.FromMilliseconds(100));
 		var group = RenderGroup(board);
 		await group.InvokeAsync(() => group.FindAll("#left div.card")[0].DragStartAsync(new DragEventArgs()));
 		await group.InvokeAsync(() => group.Find("#right").DragEnterAsync(new DragEventArgs()));
@@ -54,7 +54,7 @@ public partial class PDCardDeckTests
 	[Fact]
 	public async Task Group_DropDuringTheMigration_PutsTheCardInTheDestinationOnce()
 	{
-		var board = new Board { MovesTheDroppedCards = true };
+		var board = new Board(movesTheDroppedCards: true);
 		var cancelAnimation = JSInterop.SetupModule(AnimationModulePath).SetupVoid("cancelAnimation", _ => true);
 		var group = RenderAnimatedGroup(board);
 		await group.InvokeAsync(() => group.FindAll("#left div.card")[0].DragStartAsync(new DragEventArgs()));
