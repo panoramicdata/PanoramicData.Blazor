@@ -199,8 +199,13 @@ public partial class PDTable<TItem>
 	}
 
 	/// <summary>
-	/// Releases the fetch's cancellation source, hides the overlay and raises <see cref="AfterFetch"/>.
+	/// Releases the fetch's cancellation source, hides the overlay, raises <see cref="AfterFetch"/> and
+	/// re-renders the table.
 	/// </summary>
+	/// <remarks>
+	/// The re-render is needed when the fetch was started from outside the table, such as a parent calling
+	/// <see cref="RefreshAsync()"/>: nothing else would render the new rows (issue #241).
+	/// </remarks>
 	private async Task EndFetchAsync()
 	{
 		_cancellationTokenSource?.Dispose();
@@ -212,6 +217,8 @@ public partial class PDTable<TItem>
 		}
 
 		await AfterFetch.InvokeAsync();
+
+		StateHasChanged();
 	}
 
 	/// <summary>
