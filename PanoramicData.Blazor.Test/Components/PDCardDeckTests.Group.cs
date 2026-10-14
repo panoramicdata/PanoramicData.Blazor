@@ -12,7 +12,7 @@ namespace PanoramicData.Blazor.Test.Components;
 /// </summary>
 public partial class PDCardDeckTests
 {
-	private sealed class Board
+	private sealed class Board(TimeSpan transformDuration = default, bool movesTheDroppedCards = false)
 	{
 		public Dictionary<string, List<Card>> Decks { get; } = new()
 		{
@@ -25,12 +25,30 @@ public partial class PDCardDeckTests
 		public Func<Task<DataResponse<Card>>> DataFor(string deckId)
 			=> () => Task.FromResult(new DataResponse<Card>([.. Decks[deckId]], Decks[deckId].Count));
 
-		public Task Transform(PDCardDeck<Card> source, PDCardDeck<Card> destination, List<Card> cards)
+		private readonly TimeSpan _transformDuration = transformDuration;
+
+		/// <summary>Moves the dropped cards in the data store, as a board backed by a real data source does, rather than copying what the decks show.</summary>
+		private readonly bool _movesTheDroppedCards = movesTheDroppedCards;
+
+		public async Task Transform(PDCardDeck<Card> source, PDCardDeck<Card> destination, List<Card> cards)
 		{
 			Transforms.Add((source.Id, destination.Id, [.. cards.Select(c => c.Name)]));
-			Decks[source.Id] = [.. source.Cards];
-			Decks[destination.Id] = [.. destination.Cards];
-			return Task.CompletedTask;
+			if (_movesTheDroppedCards)
+			{
+				Decks[source.Id].RemoveAll(cards.Contains);
+				Decks[destination.Id].InsertRange(0, cards);
+			}
+			else
+			{
+				Decks[source.Id] = [.. source.Cards];
+				Decks[destination.Id] = [.. destination.Cards];
+			}
+
+			if (_transformDuration > TimeSpan.Zero)
+			{
+				await Task.Delay(_transformDuration);
+			}
+
 		}
 	}
 

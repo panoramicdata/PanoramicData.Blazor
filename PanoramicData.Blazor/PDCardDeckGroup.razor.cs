@@ -10,6 +10,12 @@ namespace PanoramicData.Blazor;
 public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 {
 	/// <summary>
+	/// Serialises card migration, drop and end of drag: each awaits the browser part way through, and a drop
+	/// that arrives in that gap would otherwise run against a half-migrated group.
+	/// </summary>
+	private readonly SemaphoreSlim _dragLock = new(1, 1);
+
+	/// <summary>
 	/// Holds a list of destination deck IDs that are part of the current card migration process (this is for UI only).
 	/// </summary>
 	private readonly List<string> _destinations = [];
@@ -167,6 +173,19 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	/// <returns></returns>
 	internal async Task UpdateGraphicalCardLocationsAsync()
 	{
+		await _dragLock.WaitAsync();
+		try
+		{
+			await MigrateCardsAsync();
+		}
+		finally
+		{
+			_ = _dragLock.Release();
+		}
+	}
+
+	private async Task MigrateCardsAsync()
+	{
 		// Must have two destinations to perform a migration.
 		if (_destinations.Count < 2)
 		{
@@ -208,9 +227,20 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 
 	internal async Task InitiateTransformAsync()
 	{
-		await Task.CompletedTask;
+		await _dragLock.WaitAsync();
+		try
+		{
+			await TransformCardsAsync();
+		}
+		finally
+		{
+			_ = _dragLock.Release();
+		}
+	}
 
-		// Refresh if a transform has occurred
+	private async Task TransformCardsAsync()
+	{
+		// Every deck listens for the drop on the document, so one drop arrives once per deck; later ones find the drag over.
 		if (Transformation is null || _destinations.Count == 0)
 		{
 			return;
@@ -235,7 +265,7 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 		await Transformation(_dataProviderService, _sourceDeck, destination, movingCards);
 
 		// Refresh the source deck and destination deck
-		await EndDragOperationAsync();
+		await RefreshDecksAsync();
 	}
 
 	/// <summary>
@@ -301,6 +331,19 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 
 	internal async Task EndDragOperationAsync()
 	{
+		await _dragLock.WaitAsync();
+		try
+		{
+			await RefreshDecksAsync();
+		}
+		finally
+		{
+			_ = _dragLock.Release();
+		}
+	}
+
+	private async Task RefreshDecksAsync()
+	{
 
 		var destination = _decks.FirstOrDefault(d => _destinations.Count > 0 && d.Id == _destinations.Last());
 
@@ -323,6 +366,7 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	public void Dispose()
 	{
 		LoadingIcon?.Dispose();
+		_dragLock.Dispose();
 		GC.SuppressFinalize(this);
 	}
 }
