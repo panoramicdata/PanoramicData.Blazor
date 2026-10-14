@@ -1,27 +1,10 @@
-﻿param(
+param(
 	# Skips waiting for the release run. The tag is still pushed, but nothing confirms a package
-	# reached nuget.org — use it only if you are checking the run yourself.
+	# reached nuget.org; use it only if you are checking the run yourself.
 	[switch]$SkipPublishVerification
 )
 
-# Shows a message to the user, in colour when one is given. The message goes through the information
-# stream rather than straight to the host, so it can also be captured or redirected (stream 6).
-function Write-Status {
-	param(
-		[Parameter(Mandatory)]
-		[AllowEmptyString()]
-		[string]$Message,
-
-		[System.ConsoleColor]$ForegroundColor
-	)
-
-	$hostMessage = [System.Management.Automation.HostInformationMessage]@{ Message = $Message }
-	if ($PSBoundParameters.ContainsKey('ForegroundColor')) {
-		$hostMessage.ForegroundColor = $ForegroundColor
-	}
-
-	Write-Information -MessageData $hostMessage -InformationAction Continue
-}
+$InformationPreference = 'Continue'
 
 # Ensure we are on the main branch
 $branch = git rev-parse --abbrev-ref HEAD
@@ -55,9 +38,11 @@ if (-not $SkipPublishVerification) {
 		exit 1
 	}
 
-	gh auth status 2>&1 | Out-Null
+	# This only reads the stored login. The "status" subcommand makes an API call instead, so a GitHub
+	# rate limit makes it report "The token in keyring is invalid" for a perfectly good login.
+	gh auth token 2>&1 | Out-Null
 	if ($LASTEXITCODE -ne 0) {
-		Write-Error "The GitHub CLI is not authenticated. Run 'gh auth login', or re-run with -SkipPublishVerification to publish without verification."
+		Write-Error "The GitHub CLI has no stored login. Run 'gh auth login', or re-run with -SkipPublishVerification to publish without verification."
 		exit 1
 	}
 }
@@ -65,20 +50,31 @@ if (-not $SkipPublishVerification) {
 # Get version from Nerdbank.GitVersioning via the project's MSBuild targets (the
 # referenced NuGet package), so this does not depend on the global 'nbgv' CLI tool
 # being installed or on PATH.
-$packableProject = Get-ChildItem -Recurse -Filter *.csproj |
-	Where-Object { $_.FullName -notmatch '[\\/]obj[\\/]' -and (Get-Content $_.FullName -Raw) -match 'Nerdbank\.GitVersioning' } |
+#
+# Only projects git tracks in this checkout are considered. A recursive file search also walks
+# git-ignored folders such as .claude/worktrees/, where each agent worktree holds a full checkout
+# on its own branch: versioning one of those yields a version that is not a public release.
+$packableProject = git ls-files '*.csproj' |
+	Where-Object { (Test-Path $_) -and (Get-Content $_ -Raw) -match 'Nerdbank\.GitVersioning' } |
 	Select-Object -First 1
 if (-not $packableProject) {
-	Write-Error "Could not find a packable project referencing Nerdbank.GitVersioning."
+	Write-Error "Could not find a tracked project referencing Nerdbank.GitVersioning."
 	exit 1
 }
-$buildOutput = dotnet build $packableProject.FullName -t:GetBuildVersion --getProperty:NuGetPackageVersion -nologo -v:quiet -p:TreatWarningsAsErrors=false
+$buildOutput = dotnet build $packableProject -t:GetBuildVersion --getProperty:NuGetPackageVersion -nologo -v:quiet -p:TreatWarningsAsErrors=false
 if ($LASTEXITCODE -ne 0) {
 	Write-Error "Failed to determine version from Nerdbank.GitVersioning.`n$buildOutput"
 	exit 1
 }
 $version = ($buildOutput | Select-Object -Last 1).ToString().Trim()
-Write-Status -Message "Version: $version"
+Write-Information "Version: $version"
+
+# On main the version must be a public release (1.2.3). Anything else, such as 1.2.3-gabcdef,
+# would be tagged with a name that misses publicReleaseRefSpec and publish a prerelease.
+if ($version -notmatch '^\d+\.\d+\.\d+$') {
+	Write-Error "Version '$version' is not a public-release version (expected major.minor.patch). Not tagging."
+	exit 1
+}
 
 # Check if tag already exists
 $existingTag = git tag -l $version
@@ -87,10 +83,27 @@ if ($existingTag) {
 	exit 1
 }
 
-# Create and push tag
+# Create and push tag. A push can fail transiently (a dropped connection, a DNS error), so it is
+# retried, and the tag is never reported as pushed unless git says it was. If it still fails, the
+# local tag is removed, so a re-run starts clean instead of stopping at "Tag already exists".
 git tag $version
-git push origin $version
-Write-Status -Message "Tag $version pushed."
+$pushed = $false
+for ($attempt = 1; $attempt -le 3 -and -not $pushed; $attempt++) {
+	git push origin $version
+	if ($LASTEXITCODE -eq 0) {
+		$pushed = $true
+	}
+	elseif ($attempt -lt 3) {
+		Write-Warning "Pushing tag $version failed (attempt $attempt of 3); retrying."
+		Start-Sleep -Seconds 5
+	}
+}
+if (-not $pushed) {
+	git tag -d $version | Out-Null
+	Write-Error "Could not push tag $version to origin, so nothing was published. The local tag has been removed; re-run when the connection is back."
+	exit 1
+}
+Write-Information "Tag $version pushed."
 
 if ($SkipPublishVerification) {
 	Write-Warning "Not waiting for the release run (-SkipPublishVerification). Nothing has confirmed that a package reached nuget.org."
@@ -101,13 +114,14 @@ if ($SkipPublishVerification) {
 $originUrl = git remote get-url origin
 $repoFullName = ($originUrl -replace '^.*github\.com[:/]', '') -replace '\.git$', ''
 
-Write-Status -Message "Waiting for the release run for $version..."
+Write-Information "Waiting for the release run for $version..."
 
 # The run takes a few seconds to appear after the tag push.
 $runId = $null
 for ($attempt = 1; $attempt -le 12 -and -not $runId; $attempt++) {
 	Start-Sleep -Seconds 5
-	$runListJson = gh run list --repo $repoFullName --branch $version --limit 1 --json databaseId 2>$null
+	# A tag push can start several workflows; only the release workflow's run is the one to watch.
+	$runListJson = gh run list --repo $repoFullName --workflow ci.yml --branch $version --limit 1 --json databaseId 2>$null
 	if ($LASTEXITCODE -eq 0 -and $runListJson) {
 		$runList = $runListJson | ConvertFrom-Json
 		if ($runList.Count -gt 0) { $runId = $runList[0].databaseId }
@@ -115,32 +129,32 @@ for ($attempt = 1; $attempt -le 12 -and -not $runId; $attempt++) {
 }
 
 if (-not $runId) {
-	Write-Error "Tag $version was pushed but no run appeared for it. Check https://github.com/$repoFullName/actions — the workflow may not trigger on tags."
+	Write-Error "Tag $version was pushed but no run appeared for it. Check https://github.com/$repoFullName/actions: the workflow may not trigger on tags, or GitHub may be rate-limiting the lookups."
 	exit 1
 }
 
-Write-Status -Message "Run: https://github.com/$repoFullName/actions/runs/$runId"
+Write-Information "Run: https://github.com/$repoFullName/actions/runs/$runId"
 gh run watch $runId --repo $repoFullName --exit-status --interval 20
 $runExitCode = $LASTEXITCODE
 
 if ($runExitCode -ne 0) {
-	Write-Status -Message ""
-	Write-Status -Message "The release run did not succeed: https://github.com/$repoFullName/actions/runs/$runId" -ForegroundColor Red
+	Write-Information ""
+	Write-Warning "The release run did not succeed: https://github.com/$repoFullName/actions/runs/$runId"
 
-	# A refused job — an exhausted Actions budget, for instance — fails before any step runs, so it
+	# A refused job (an exhausted Actions budget, for instance) fails before any step runs, so it
 	# has no failed step to report. The check-run annotation is the only place the reason appears.
 	$jobId = gh api "repos/$repoFullName/actions/runs/$runId/jobs" --jq '.jobs[0].id' 2>$null
 	if ($LASTEXITCODE -eq 0 -and $jobId) {
 		$annotation = gh api "repos/$repoFullName/check-runs/$jobId/annotations" --jq '.[0].message' 2>$null
 		if ($LASTEXITCODE -eq 0 -and $annotation) {
-			Write-Status -Message "Reason: $annotation" -ForegroundColor Red
+			Write-Warning "Reason: $annotation"
 		}
 	}
 
-	Write-Status -Message ""
-	Write-Status -Message "Tag $version is pushed but no package was published. Once the cause is fixed:" -ForegroundColor Yellow
-	Write-Status -Message "  gh run rerun $runId --repo $repoFullName --failed" -ForegroundColor Cyan
+	Write-Information ""
+	Write-Warning "Tag $version is pushed but no package was published. Once the cause is fixed:"
+	Write-Information "  gh run rerun $runId --repo $repoFullName --failed"
 	exit 1
 }
 
-Write-Status -Message "Package $version published." -ForegroundColor Green
+Write-Information "Package $version published."
