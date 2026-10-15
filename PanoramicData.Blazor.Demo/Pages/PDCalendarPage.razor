@@ -2,7 +2,29 @@
 
 <h1>PDCalendar</h1>
 
-<DemoSourceView SourceFiles="Pages/PDCalendarPage.razor, Pages/PDCalendarPage.razor.cs, Pages/PDCalendarPage.razor.css">
+<style>
+	/* Item colours come from CssClassSelector: each class only sets the calendar's item colour variables. */
+	.calendar-demo .demo-cal-city {
+		--pd-calendar-item-bg: #dbe7fd;
+		--pd-calendar-item-fg: #0a3a8a;
+	}
+
+	.calendar-demo .demo-cal-coast {
+		--pd-calendar-item-bg: #d4f1e4;
+		--pd-calendar-item-fg: #0b5a3a;
+	}
+
+	.calendar-demo .demo-cal-special {
+		--pd-calendar-item-bg: #fde2c8;
+		--pd-calendar-item-fg: #7a3a00;
+	}
+
+	.calendar-demo .demo-cal-clock-change .pdcal-day-number {
+		text-decoration: underline dotted;
+	}
+</style>
+
+<DemoSourceView SourceFiles="Pages/PDCalendarPage.razor, Pages/PDCalendarPage.razor.cs">
 	<DocumentationContent>
 		<PDCalendarDocumentation />
 	</DocumentationContent>

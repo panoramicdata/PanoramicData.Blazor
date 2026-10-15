@@ -13,7 +13,7 @@ public static class CalendarMath
 	/// <summary>
 	/// The number of days in a week.
 	/// </summary>
-	public const int DaysPerWeek = 7;
+	public static int DaysPerWeek { get; } = 7;
 
 	/// <summary>
 	/// Gets the first day of the week containing a date.
@@ -69,12 +69,14 @@ public static class CalendarMath
 	/// <param name="agendaDays">The number of days the agenda view lists.</param>
 	/// <returns>The days, in order.</returns>
 	public static IReadOnlyList<DateOnly> GetVisibleDates(CalendarView view, DateOnly date, DayOfWeek firstDayOfWeek, int agendaDays)
-		=> view switch
+	{
+		return view switch
 		{
 			CalendarView.Month => [.. GetMonthWeeks(date, firstDayOfWeek).SelectMany(week => week)],
 			CalendarView.Week => GetWeekDates(date, firstDayOfWeek),
 			_ => [.. Enumerable.Range(0, Math.Max(1, agendaDays)).Select(date.AddDays)]
 		};
+	}
 
 	/// <summary>
 	/// Gets the span of time shown by a view, from the start of its first day to the start of the day after its last.
@@ -105,12 +107,14 @@ public static class CalendarMath
 	/// <param name="agendaDays">The number of days the agenda view lists.</param>
 	/// <returns>The moved date. Moving by months keeps the day of the month where it can, else uses the last day of the month.</returns>
 	public static DateOnly Navigate(CalendarView view, DateOnly date, int periods, int agendaDays)
-		=> view switch
+	{
+		return view switch
 		{
 			CalendarView.Month => date.AddMonths(periods),
 			CalendarView.Week => date.AddDays(periods * DaysPerWeek),
 			_ => date.AddDays(periods * Math.Max(1, agendaDays))
 		};
+	}
 
 	/// <summary>
 	/// Limits a date to optional bounds.

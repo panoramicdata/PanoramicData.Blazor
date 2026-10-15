@@ -41,43 +41,16 @@ public static class CalendarLayoutEngine
 		}
 
 		var days = dates
-			.Select(date => (Date: date, Start: CalendarMath.GetStartOfDay(date, timeZone), End: CalendarMath.GetStartOfDay(date.AddDays(1), timeZone)))
+			.Select(date => new DayBounds(date, CalendarMath.GetStartOfDay(date, timeZone), CalendarMath.GetStartOfDay(date.AddDays(1), timeZone)))
 			.ToList();
 
-		var rangeStart = days.Min(day => day.Start);
-		var rangeEnd = days.Max(day => day.End);
+		// most items fall outside a short visible range, so they are rejected before visiting each day
+		var range = new DayBounds(dates[0], days.Min(day => day.Start), days.Max(day => day.End));
 		var byDay = days.Select(_ => new List<CalendarSegment<TItem>>()).ToList();
 
 		foreach (var item in items)
 		{
-			var start = startSelector(item);
-			var end = endSelector(item);
-			if (end < start)
-			{
-				end = start;
-			}
-
-			// most items fall outside a short visible range, so reject them before visiting each day
-			if (start >= rangeEnd || end < rangeStart || (end == rangeStart && end > start))
-			{
-				continue;
-			}
-
-			for (var dayIndex = 0; dayIndex < days.Count; dayIndex++)
-			{
-				var day = days[dayIndex];
-				var overlaps = start < day.End && (end > day.Start || (start == end && start >= day.Start));
-				if (overlaps)
-				{
-					byDay[dayIndex].Add(new CalendarSegment<TItem>(
-						item,
-						day.Date,
-						start > day.Start ? start : day.Start,
-						end < day.End ? end : day.End,
-						start < day.Start,
-						end > day.End));
-				}
-			}
+			AddSegments(item, startSelector(item), endSelector(item), range, days, byDay);
 		}
 
 		return [.. byDay.SelectMany(segments => segments.OrderBy(segment => segment.Start).ThenByDescending(segment => segment.End))];
@@ -151,5 +124,68 @@ public static class CalendarLayoutEngine
 	{
 		result.AddRange(group.Select(entry => entry.Segment with { Column = entry.Column, ColumnCount = columnCount }));
 		group.Clear();
+	}
+
+	/// <summary>
+	/// Adds the segments of one item to the days it touches.
+	/// </summary>
+	private static void AddSegments<TItem>(
+		TItem item,
+		DateTimeOffset start,
+		DateTimeOffset end,
+		DayBounds range,
+		List<DayBounds> days,
+		List<List<CalendarSegment<TItem>>> byDay)
+	{
+		var finish = end < start ? start : end;
+		if (!range.Touches(start, finish))
+		{
+			return;
+		}
+
+		for (var dayIndex = 0; dayIndex < days.Count; dayIndex++)
+		{
+			var day = days[dayIndex];
+			if (day.Touches(start, finish))
+			{
+				byDay[dayIndex].Add(day.Clip(item, start, finish));
+			}
+		}
+	}
+
+	/// <summary>
+	/// The span of one day, or of several, in a time zone.
+	/// </summary>
+	private readonly record struct DayBounds(DateOnly Date, DateTimeOffset Start, DateTimeOffset End)
+	{
+		/// <summary>
+		/// Gets whether an item from start to end belongs in this span: it overlaps it, or has no duration and
+		/// occurs within it. An item ending exactly at the start does not belong.
+		/// </summary>
+		public bool Touches(DateTimeOffset start, DateTimeOffset end)
+		{
+			if (start >= End)
+			{
+				return false;
+			}
+
+			return end > Start || (start == end && start >= Start);
+		}
+
+		/// <summary>
+		/// Gets the part of an item that falls within this span.
+		/// </summary>
+		public CalendarSegment<TItem> Clip<TItem>(TItem item, DateTimeOffset start, DateTimeOffset end)
+		{
+			var continuesBefore = start < Start;
+			var continuesAfter = end > End;
+			return new CalendarSegment<TItem>(
+				item,
+				Date,
+				continuesBefore ? Start : start,
+				continuesAfter ? End : end,
+				continuesBefore,
+				continuesAfter);
+		}
 	}
 }

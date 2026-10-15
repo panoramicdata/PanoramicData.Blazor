@@ -241,8 +241,8 @@ public partial class PDCalendarTests : BunitContext
 	{
 		var calendar = Render<PDCalendar<Untitled>>(p => p
 			.Add(x => x.Items, [new Untitled(At(15, 12))])
-			.Add(x => x.StartSelector, s => s.At)
-			.Add(x => x.EndSelector, s => s.At)
+			.Add(x => x.StartSelector, s => s.OccursAt)
+			.Add(x => x.EndSelector, s => s.OccursAt)
 			.Add(x => x.TimeZone, CalendarTestZones.London)
 			.Add(x => x.Clock, _clock)
 			.Add(x => x.Date, _oct15));
@@ -255,7 +255,7 @@ public partial class PDCalendarTests : BunitContext
 	public sealed class Untitled(DateTimeOffset at)
 	{
 		/// <summary>Gets when the item occurs.</summary>
-		public DateTimeOffset At { get; } = at;
+		public DateTimeOffset OccursAt { get; } = at;
 
 		/// <summary>Gets no text at all.</summary>
 		/// <returns>Null.</returns>
@@ -346,15 +346,20 @@ public partial class PDCalendarTests : BunitContext
 	/// <summary>A timer that records how it was set up and fires on demand.</summary>
 	private sealed class TestTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period) : ITimer
 	{
-		public TimeSpan DueTime { get; } = dueTime;
+		public TimeSpan DueTime { get; private set; } = dueTime;
 
-		public TimeSpan Period { get; } = period;
+		public TimeSpan Period { get; private set; } = period;
 
 		public bool IsDisposed { get; private set; }
 
 		public void Fire() => callback(state);
 
-		public bool Change(TimeSpan dueTime, TimeSpan period) => true;
+		public bool Change(TimeSpan dueTime, TimeSpan period)
+		{
+			DueTime = dueTime;
+			Period = period;
+			return true;
+		}
 
 		public void Dispose() => IsDisposed = true;
 

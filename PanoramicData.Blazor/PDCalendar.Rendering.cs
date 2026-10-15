@@ -7,8 +7,6 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDCalendar<TItem>
 {
-	private static readonly TimeSpan _standardDay = TimeSpan.FromHours(24);
-
 	private string TitleId => $"{_id}-title";
 
 	private static string F(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
@@ -20,16 +18,25 @@ public partial class PDCalendar<TItem>
 
 	private string SlotId(DateOnly date, int rowIndex) => $"{CellId(date)}-{rowIndex}";
 
-	private string ActiveDescendantId => _view == CalendarView.Week ? SlotId(_date, _focusedRow) : CellId(_date);
+	private string ActiveDescendantId
+	{
+		get
+		{
+			return _view == CalendarView.Week ? SlotId(_date, _focusedRow) : CellId(_date);
+		}
+	}
 
 	private static string GetViewName(CalendarView view) => view.ToString();
 
-	private string GetPeriodName() => _view switch
+	private string GetPeriodName()
 	{
-		CalendarView.Month => "month",
-		CalendarView.Week => "week",
-		_ => $"{Math.Max(1, AgendaDays)} days"
-	};
+		return _view switch
+		{
+			CalendarView.Month => "month",
+			CalendarView.Week => "week",
+			_ => $"{Math.Max(1, AgendaDays)} days"
+		};
+	}
 
 	private static string LongDate(DateOnly date) => date.ToString("dddd d MMMM yyyy", CultureInfo.CurrentCulture);
 
@@ -111,7 +118,10 @@ public partial class PDCalendar<TItem>
 		return string.Join(' ', classes);
 	}
 
-	private string GetItemTitle(TItem item) => TitleSelector?.Invoke(item) ?? item?.ToString() ?? string.Empty;
+	private string GetItemTitle(TItem item)
+	{
+		return TitleSelector?.Invoke(item) ?? item?.ToString() ?? string.Empty;
+	}
 
 	private string FormatTime(DateTimeOffset instant)
 		=> TimeZoneInfo.ConvertTime(instant, TimeZone).ToString(TimeFormat, CultureInfo.CurrentCulture);
@@ -120,7 +130,8 @@ public partial class PDCalendar<TItem>
 	/// Describes the times of a segment within its day, noting where the item carries on from or to another day.
 	/// </summary>
 	private string GetTimeText(CalendarSegment<TItem> segment)
-		=> (segment.ContinuesBefore, segment.ContinuesAfter) switch
+	{
+		return (segment.ContinuesBefore, segment.ContinuesAfter) switch
 		{
 			(true, true) => "All day",
 			(true, false) => $"Until {FormatTime(segment.End)}",
@@ -128,6 +139,7 @@ public partial class PDCalendar<TItem>
 			_ when segment.Start == segment.End => FormatTime(segment.Start),
 			_ => $"{FormatTime(segment.Start)} to {FormatTime(segment.End)}"
 		};
+	}
 
 	private string GetItemLabel(CalendarSegment<TItem> segment)
 	{
@@ -176,12 +188,17 @@ public partial class PDCalendar<TItem>
 	}
 
 	private static string FormatOffset(TimeSpan offset)
-		=> $"UTC{(offset < TimeSpan.Zero ? "-" : "+")}{offset.Duration().ToString(@"hh\:mm", CultureInfo.InvariantCulture)}";
+	{
+		var sign = offset < TimeSpan.Zero ? "-" : "+";
+		return $"UTC{sign}{offset.Duration().ToString(@"hh\:mm", CultureInfo.InvariantCulture)}";
+	}
 
 	private string GetSlotLabel(DateOnly date, CalendarHourSlot? slot)
-		=> slot is null
+	{
+		return slot is null
 			? $"{LongDate(date)}, this hour does not occur on this day"
 			: $"{LongDate(date)}, {FormatTime(slot.Start)}";
+	}
 
 	private string GetSlotClass(DateOnly date, CalendarHourSlot? slot, int rowIndex)
 	{
@@ -216,7 +233,7 @@ public partial class PDCalendar<TItem>
 	private string? GetDayLengthNote(DateOnly date)
 	{
 		var length = CalendarMath.GetDayLength(date, TimeZone);
-		return length == _standardDay ? null : $"{F(length.TotalHours)} hours";
+		return length == CalendarDefaults.StandardDay ? null : $"{F(length.TotalHours)} hours";
 	}
 
 	/// <summary>

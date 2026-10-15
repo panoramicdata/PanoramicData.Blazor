@@ -37,7 +37,7 @@
 
 /* Hosts that set no theme attribute at all still follow the operating system. */
 @media (prefers-color-scheme: dark) {
-	.pdcal:not([data-bs-theme="light"]):not([data-theme="light"]) {
+	.pdcal:not([data-bs-theme="light"], [data-theme="light"]) {
 		--pd-calendar-default-weekend: rgba(255, 255, 255, 0.03);
 		--pd-calendar-default-outside: rgba(255, 255, 255, 0.04);
 		--pd-calendar-default-item-bg: #1d3557;
@@ -88,10 +88,6 @@
 	transition: filter 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
 }
 
-.pdcal-item:hover:not(:disabled) {
-	filter: brightness(0.95);
-}
-
 .pdcal-item:focus-visible {
 	outline: 2px solid var(--pd-calendar-accent);
 	outline-offset: 1px;
@@ -102,7 +98,7 @@
 	width: 0.5rem;
 	height: 0.5rem;
 	border-radius: 50%;
-	background: currentColor;
+	background: currentcolor;
 }
 
 .pdcal-item-time {
@@ -178,12 +174,12 @@
 	cursor: pointer;
 }
 
-.pdcal-month .pdcal-day:hover:not(.pdcal-day-disabled) {
-	background-color: var(--pd-calendar-hover);
-}
-
 .pdcal-month-row > .pdcal-day:last-child {
 	border-right: 0;
+}
+
+.pdcal-month .pdcal-day:hover:not(.pdcal-day-disabled) {
+	background-color: var(--pd-calendar-hover);
 }
 
 .pdcal-weekend {
@@ -262,6 +258,7 @@
 .pdcal-week-canvas {
 	--pdcal-axis-width: 4.75rem;
 	--pdcal-header-height: 3.25rem;
+
 	position: relative;
 }
 
@@ -334,7 +331,7 @@
 	transition: background-color 0.12s ease-in-out;
 }
 
-.pdcal-slot:hover:not(.pdcal-slot-none):not(.pdcal-day-disabled) {
+.pdcal-slot:hover:not(.pdcal-slot-none, .pdcal-day-disabled) {
 	background-color: var(--pd-calendar-hover);
 }
 
@@ -345,10 +342,7 @@
 
 .pdcal-week-items {
 	position: absolute;
-	top: var(--pdcal-header-height);
-	left: var(--pdcal-axis-width);
-	right: 0;
-	bottom: 0;
+	inset: var(--pdcal-header-height) 0 0 var(--pdcal-axis-width);
 	z-index: 1;
 	display: grid;
 	grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -466,9 +460,15 @@
 	text-align: center;
 }
 
+/* Hover states come last, as they are the most specific of the rules for items */
+
+.pdcal-item:hover:not(:disabled) {
+	filter: brightness(0.95);
+}
+
 /* Phones: the month view collapses each item to a dot, keeping its accessible label */
 
-@media (max-width: 575.98px) {
+@media (width < 576px) {
 	.pdcal-title {
 		flex-basis: 100%;
 		order: -1;
@@ -480,8 +480,7 @@
 	}
 
 	.pdcal-month .pdcal-day-items {
-		flex-direction: row;
-		flex-wrap: wrap;
+		flex-flow: row wrap;
 		gap: 2px;
 	}
 

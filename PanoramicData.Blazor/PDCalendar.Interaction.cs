@@ -60,36 +60,34 @@ public partial class PDCalendar<TItem>
 
 	private async Task OnKeyDownAsync(KeyboardEventArgs args)
 	{
-		_preventDefaultKey = args.Key is "ArrowLeft" or "ArrowRight" or "ArrowUp" or "ArrowDown"
-			or "PageUp" or "PageDown" or "Home" or "Enter" or " ";
+		var action = GetKeyAction(args.Key);
 
-		switch (args.Key)
+		// the keys the calendar handles must not also scroll the page
+		_preventDefaultKey = action is not null;
+
+		if (action is not null)
 		{
-			case "ArrowLeft":
-				await MoveFocusAsync(-1).ConfigureAwait(true);
-				break;
-			case "ArrowRight":
-				await MoveFocusAsync(1).ConfigureAwait(true);
-				break;
-			case "ArrowUp":
-				await MoveFocusVerticallyAsync(-1).ConfigureAwait(true);
-				break;
-			case "ArrowDown":
-				await MoveFocusVerticallyAsync(1).ConfigureAwait(true);
-				break;
-			case "PageUp":
-				await NavigateAsync(-1).ConfigureAwait(true);
-				break;
-			case "PageDown":
-				await NavigateAsync(1).ConfigureAwait(true);
-				break;
-			case "Home":
-				await GoToTodayAsync().ConfigureAwait(true);
-				break;
-			case "Enter" or " ":
-				await SelectFocusedSlotAsync().ConfigureAwait(true);
-				break;
+			await action().ConfigureAwait(true);
 		}
+	}
+
+	/// <summary>
+	/// Gets what a key does, or null for a key the calendar does not handle.
+	/// </summary>
+	private Func<Task>? GetKeyAction(string key)
+	{
+		return key switch
+		{
+			"ArrowLeft" => () => MoveFocusAsync(-1),
+			"ArrowRight" => () => MoveFocusAsync(1),
+			"ArrowUp" => () => MoveFocusVerticallyAsync(-1),
+			"ArrowDown" => () => MoveFocusVerticallyAsync(1),
+			"PageUp" => () => NavigateAsync(-1),
+			"PageDown" => () => NavigateAsync(1),
+			"Home" => GoToTodayAsync,
+			"Enter" or " " => SelectFocusedSlotAsync,
+			_ => null
+		};
 	}
 
 	/// <summary>
@@ -147,5 +145,8 @@ public partial class PDCalendar<TItem>
 			: Equals(KeySelector(item), KeySelector(_selected));
 	}
 
-	private bool IsItemDisabled(TItem item) => IsDisabledSelector?.Invoke(item) == true;
+	private bool IsItemDisabled(TItem item)
+	{
+		return IsDisabledSelector?.Invoke(item) == true;
+	}
 }

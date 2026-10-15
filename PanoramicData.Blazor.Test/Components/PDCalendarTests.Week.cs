@@ -373,6 +373,8 @@ public partial class PDCalendarTests
 		Services.AddSingleton<IJSRuntime>(runtime);
 		var calendar = RenderWeek(p => p.Add(x => x.ScrollToHour, 8));
 		runtime.Module.Calls.Should().Equal("setProperty");
+		runtime.Module.ArgumentCount.Should().Be(3);
+		runtime.Imports.Should().Equal(JSInteropVersionHelper.CommonJsUrl);
 
 		await calendar.Instance.DisposeAsync();
 		await calendar.Instance.DisposeAsync();
@@ -388,13 +390,22 @@ public partial class PDCalendarTests
 		/// <summary>Gets or sets an exception thrown when the module is imported, if any.</summary>
 		public Exception? ImportException { get; init; }
 
+		/// <summary>Gets the module paths imported.</summary>
+		public List<string?> Imports { get; } = [];
+
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-			=> ImportException is null
+		{
+			Imports.Add(args?.FirstOrDefault() as string);
+			return ImportException is null
 				? ValueTask.FromResult((TValue)(object)Module)
 				: ValueTask.FromException<TValue>(ImportException);
+		}
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-			=> InvokeAsync<TValue>(identifier, args);
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			return InvokeAsync<TValue>(identifier, args);
+		}
 	}
 
 	/// <summary>A module that records calls and throws when disposed.</summary>
@@ -404,14 +415,20 @@ public partial class PDCalendarTests
 
 		public int DisposeCalls { get; private set; }
 
+		public int ArgumentCount { get; private set; }
+
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
 		{
 			Calls.Add(identifier);
+			ArgumentCount += args?.Length ?? 0;
 			return ValueTask.FromResult(default(TValue)!);
 		}
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-			=> InvokeAsync<TValue>(identifier, args);
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			return InvokeAsync<TValue>(identifier, args);
+		}
 
 		public ValueTask DisposeAsync()
 		{

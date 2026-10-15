@@ -17,9 +17,6 @@ namespace PanoramicData.Blazor;
 /// </remarks>
 public partial class PDCalendar<TItem> : IAsyncDisposable
 {
-	private static readonly DayOfWeek[] _defaultWeekendDays = [DayOfWeek.Saturday, DayOfWeek.Sunday];
-	private static readonly CalendarView[] _allViews = [CalendarView.Month, CalendarView.Week, CalendarView.Agenda];
-
 	private readonly string _id = $"pdcal-{ComponentIdSequence.Next()}";
 
 	private bool _initialised;
@@ -94,7 +91,7 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 	[Parameter] public EventCallback<CalendarView> ViewChanged { get; set; }
 
 	/// <summary>Gets or sets the views offered by the view switcher, in order.</summary>
-	[Parameter] public IReadOnlyList<CalendarView> AvailableViews { get; set; } = _allViews;
+	[Parameter] public IReadOnlyList<CalendarView> AvailableViews { get; set; } = CalendarDefaults.AllViews;
 
 	/// <summary>Gets or sets the day on which weeks start. The default is Monday.</summary>
 	[Parameter] public DayOfWeek FirstDayOfWeek { get; set; } = DayOfWeek.Monday;
@@ -136,7 +133,7 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 	[Parameter] public bool ShadeWeekends { get; set; } = true;
 
 	/// <summary>Gets or sets the days treated as the weekend. The default is Saturday and Sunday.</summary>
-	[Parameter] public IReadOnlyCollection<DayOfWeek> WeekendDays { get; set; } = _defaultWeekendDays;
+	[Parameter] public IReadOnlyCollection<DayOfWeek> WeekendDays { get; set; } = CalendarDefaults.WeekendDays;
 
 	/// <summary>Gets or sets the most items listed in a day of the month view before a "+n more" button is shown, which opens that day's agenda.</summary>
 	[Parameter] public int MaxItemsPerDay { get; set; } = 3;
@@ -217,7 +214,22 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 	protected override async Task OnParametersSetAsync()
 	{
 		_today = Today;
+		AdoptParameters();
+		_initialised = true;
 
+		_date = CalendarMath.Clamp(_date, MinDate, MaxDate);
+		EnsureTimer();
+		BuildView();
+
+		await RaiseVisibleRangeChangedAsync().ConfigureAwait(true);
+	}
+
+	/// <summary>
+	/// Takes the Date, View and SelectedItem parameters when they are first set or have changed since they
+	/// were last seen, so that a host re-rendering with unchanged values keeps where the user navigated to.
+	/// </summary>
+	private void AdoptParameters()
+	{
 		if (!_initialised || Date != _lastDateParameter)
 		{
 			_date = Date ?? _today;
@@ -225,8 +237,7 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 
 		if (!_initialised || View != _lastViewParameter)
 		{
-			_scrollPending |= View == CalendarView.Week && (!_initialised || _view != View);
-			_view = View;
+			AdoptView();
 		}
 
 		if (!_initialised || !EqualityComparer<TItem?>.Default.Equals(SelectedItem, _lastSelectedParameter))
@@ -237,32 +248,47 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 		_lastDateParameter = Date;
 		_lastViewParameter = View;
 		_lastSelectedParameter = SelectedItem;
-		_initialised = true;
+	}
 
-		_date = CalendarMath.Clamp(_date, MinDate, MaxDate);
-		EnsureTimer();
-		BuildView();
-
-		await RaiseVisibleRangeChangedAsync().ConfigureAwait(true);
+	private void AdoptView()
+	{
+		var showsWeek = View == CalendarView.Week;
+		var isNewView = !_initialised || _view != View;
+		_scrollPending |= showsWeek && isNewView;
+		_view = View;
 	}
 
 	/// <inheritdoc />
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (!_scrollPending || _view != CalendarView.Week || !ScrollToHour.HasValue || _axis is null)
+		if (!ShouldScroll)
 		{
 			return;
 		}
 
 		_scrollPending = false;
-		var rowIndex = FindRowAtOrAfter(ScrollToHour.Value);
+		await ScrollToAsync(FindRowAtOrAfter(ScrollToHour!.Value) * SlotHeight).ConfigureAwait(true);
+	}
 
+	private bool ShouldScroll
+	{
+		get
+		{
+			return _scrollPending && _view == CalendarView.Week && ScrollToHour.HasValue;
+		}
+	}
+
+	/// <summary>
+	/// Scrolls the week view, using the library's common module.
+	/// </summary>
+	private async Task ScrollToAsync(double scrollTop)
+	{
 		try
 		{
 			_commonModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", JSInteropVersionHelper.CommonJsUrl).ConfigureAwait(true);
 			if (_commonModule is not null)
 			{
-				await _commonModule.InvokeVoidAsync("setProperty", ScrollElement, "scrollTop", rowIndex * SlotHeight).ConfigureAwait(true);
+				await _commonModule.InvokeVoidAsync("setProperty", ScrollElement, "scrollTop", scrollTop).ConfigureAwait(true);
 			}
 		}
 		catch (JSDisconnectedException)
@@ -385,7 +411,11 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 		=> CalendarMath.Clamp(CalendarMath.Navigate(_view, _date, periods, AgendaDays), MinDate, MaxDate);
 
 	private bool IsDateDisabled(DateOnly date)
-		=> (MinDate.HasValue && date < MinDate.Value) || (MaxDate.HasValue && date > MaxDate.Value);
+	{
+		var beforeMin = MinDate.HasValue && date < MinDate.Value;
+		var afterMax = MaxDate.HasValue && date > MaxDate.Value;
+		return beforeMin || afterMax;
+	}
 
 	private bool IsWeekend(DateOnly date) => WeekendDays.Contains(date.DayOfWeek);
 
@@ -448,7 +478,9 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 	}
 
 	private IReadOnlyList<CalendarSegment<TItem>> GetSegments(DateOnly date)
-		=> _segmentsByDate.TryGetValue(date, out var segments) ? segments : [];
+	{
+		return _segmentsByDate.TryGetValue(date, out var segments) ? segments : [];
+	}
 
 	private int FindRowAtOrAfter(int hour)
 	{
@@ -483,7 +515,22 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 		// tick on each minute boundary, so the indicator moves when the clock's minute does
 		var now = Clock.GetUtcNow();
 		var untilNextMinute = TimeSpan.FromMinutes(1) - TimeSpan.FromTicks(now.Ticks % TimeSpan.TicksPerMinute);
-		_timer = Clock.CreateTimer(_ => _ = OnTimerTickAsync(), null, untilNextMinute, TimeSpan.FromMinutes(1));
+		_timer = Clock.CreateTimer(static state => ((PDCalendar<TItem>)state!).OnTimerElapsed(), this, untilNextMinute, TimeSpan.FromMinutes(1));
+	}
+
+	/// <summary>
+	/// Moves today on if the date has changed, and re-renders so the current time line moves.
+	/// </summary>
+	private void RefreshNow()
+	{
+		var today = Today;
+		if (today != _today)
+		{
+			_today = today;
+			BuildView();
+		}
+
+		StateHasChanged();
 	}
 
 	private void StopTimer()
@@ -492,6 +539,11 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 		_timer = null;
 		_timerClock = null;
 	}
+
+	/// <summary>
+	/// Called by the minute timer, on a timer thread.
+	/// </summary>
+	private void OnTimerElapsed() => _ = OnTimerTickAsync();
 
 	private async Task OnTimerTickAsync()
 	{
@@ -502,17 +554,7 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 
 		try
 		{
-			await InvokeAsync(() =>
-			{
-				var today = Today;
-				if (today != _today)
-				{
-					_today = today;
-					BuildView();
-				}
-
-				StateHasChanged();
-			}).ConfigureAwait(true);
+			await InvokeAsync(RefreshNow).ConfigureAwait(true);
 		}
 		catch (ObjectDisposedException)
 		{

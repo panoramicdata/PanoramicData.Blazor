@@ -16,7 +16,7 @@ public sealed class CalendarTimeAxis
 {
 	private readonly Dictionary<(int Hour, int Occurrence), CalendarHourSlot>[] _slots;
 
-	private CalendarTimeAxis(
+	internal CalendarTimeAxis(
 		IReadOnlyList<DateOnly> dates,
 		IReadOnlyList<CalendarAxisRow> rows,
 		Dictionary<(int Hour, int Occurrence), CalendarHourSlot>[] slots)
