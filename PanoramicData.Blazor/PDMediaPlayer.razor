@@ -1,0 +1,464 @@
+@using PanoramicData.Blazor.Helpers
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@inherits JSModuleComponentBase
+
+@{
+	var current = CurrentMarker;
+	var canSeek = CanSeek;
+	var showKindFilter = ShowKindFilter && _kindCounts.Count > 0;
+	var showMarkerList = ShowMarkerList && _sortedMarkers.Count > 0;
+	var hasSegments = _sortedSegments.Count > 0;
+	var currentSegment = CurrentSegment;
+	var segmentsAbove = SegmentLanePlacement == MediaSegmentLanePlacement.Above;
+}
+
+<div id="@Id"
+	 class="@GetRootClass()"
+	 role="region"
+	 aria-label="@AccessibleName"
+	 aria-keyshortcuts="@KeyShortcuts"
+	 tabindex="-1"
+	 @onkeydown="OnKeyDownAsync">
+
+	<div class="pdmp-player">
+
+		@if (!string.IsNullOrWhiteSpace(Title))
+		{
+			<div class="pdmp-title">@Title</div>
+		}
+
+		@if (_kind == MediaKind.Video)
+		{
+			<video @key="MediaKind.Video"
+				   @ref="MediaElement"
+				   class="pdmp-media pdmp-video"
+				   src="@(HasSource ? _src : null)"
+				   poster="@Poster"
+				   preload="@PreloadValue"
+				   autoplay="@Autoplay"
+				   loop="@Loop"
+				   muted="@_muted"
+				   playsinline
+				   aria-label="@AccessibleName"
+				   @onclick="TogglePlayAsync"></video>
+		}
+		else
+		{
+			<audio @key="MediaKind.Audio"
+				   @ref="MediaElement"
+				   class="pdmp-media"
+				   src="@(HasSource ? _src : null)"
+				   preload="@PreloadValue"
+				   autoplay="@Autoplay"
+				   loop="@Loop"
+				   muted="@_muted"></audio>
+		}
+
+		@if (ShowErrors && _error is not null)
+		{
+			<div class="alert alert-warning pdmp-error" role="alert">
+				<i class="fas fa-exclamation-triangle me-1" aria-hidden="true"></i>@_error.Message
+			</div>
+		}
+
+		<div class="pdmp-timeline">
+			@if (segmentsAbove)
+			{
+				@RenderSegmentLanes(canSeek)
+			}
+			@if (_visibleMarkers.Count > 0 && canSeek)
+			{
+				<div class="pdmp-lane" aria-hidden="true">
+					@foreach (var tick in GetTicks())
+					{
+						var thisTick = tick;
+						<span class="@GetTickClass(thisTick)"
+							  style="@GetTickStyle(thisTick)"
+							  title="@GetTickTitle(thisTick)"
+							  @onclick="() => SeekToMarkerAsync(thisTick.First)"></span>
+					}
+				</div>
+			}
+			<div class="pdmp-track">
+				@if (RangeSegment is { } range)
+				{
+					<div class="pdmp-range" style="@GetSegmentStyle(range)"></div>
+				}
+				@foreach (var segment in BufferedSegments)
+				{
+					<div class="pdmp-buffered" style="@GetSegmentStyle(segment)"></div>
+				}
+				<div class="pdmp-progress" style="width:@Percent(ProgressPercent)"></div>
+				<input type="range"
+					   class="pdmp-seek"
+					   min="0"
+					   max="@FormatNumber(DurationSeconds)"
+					   step="@SeekStepText"
+					   value="@FormatNumber(DisplayPosition.TotalSeconds)"
+					   disabled="@(!canSeek)"
+					   aria-label="Seek"
+					   aria-valuetext="@SeekValueText"
+					   @oninput="OnSeekInput"
+					   @onchange="OnSeekChangeAsync" />
+			</div>
+			@if (!segmentsAbove)
+			{
+				@RenderSegmentLanes(canSeek)
+			}
+		</div>
+
+		<div class="pdmp-controls">
+			<div class="btn-group btn-group-sm pdmp-transport" role="group" aria-label="Playback">
+				@if (_sortedMarkers.Count > 0)
+				{
+					<button type="button"
+							class="btn btn-outline-secondary pdmp-previous-marker"
+							title="Previous marker (J)"
+							aria-label="Previous marker"
+							disabled="@(!CanNavigateMarkers)"
+							@onclick="() => PreviousMarkerAsync()">
+						<i class="fas fa-step-backward" aria-hidden="true"></i>
+					</button>
+				}
+				<button type="button"
+						class="btn btn-outline-secondary pdmp-skip-back"
+						title="@($"Back {Math.Abs(SkipBackSeconds)} seconds")"
+						aria-label="@($"Back {Math.Abs(SkipBackSeconds)} seconds")"
+						disabled="@(!canSeek)"
+						@onclick="SkipBackAsync">
+					<i class="fas fa-undo-alt" aria-hidden="true"></i><span class="pdmp-skip-label" aria-hidden="true">@Math.Abs(SkipBackSeconds)</span>
+				</button>
+				<button type="button"
+						class="btn btn-primary pdmp-play"
+						title="@(_isPlaying ? "Pause (K)" : "Play (K)")"
+						aria-label="@(_isPlaying ? "Pause" : "Play")"
+						disabled="@(!HasSource)"
+						@onclick="TogglePlayAsync">
+					<i class="fas @(_isPlaying ? "fa-pause" : "fa-play")" aria-hidden="true"></i>
+				</button>
+				<button type="button"
+						class="btn btn-outline-secondary pdmp-skip-forward"
+						title="@($"Forward {Math.Abs(SkipForwardSeconds)} seconds")"
+						aria-label="@($"Forward {Math.Abs(SkipForwardSeconds)} seconds")"
+						disabled="@(!canSeek)"
+						@onclick="SkipForwardAsync">
+					<i class="fas fa-redo-alt" aria-hidden="true"></i><span class="pdmp-skip-label" aria-hidden="true">@Math.Abs(SkipForwardSeconds)</span>
+				</button>
+				@if (_sortedMarkers.Count > 0)
+				{
+					<button type="button"
+							class="btn btn-outline-secondary pdmp-next-marker"
+							title="Next marker (L)"
+							aria-label="Next marker"
+							disabled="@(!CanNavigateMarkers)"
+							@onclick="() => NextMarkerAsync()">
+						<i class="fas fa-step-forward" aria-hidden="true"></i>
+					</button>
+				}
+				@if (hasSegments)
+				{
+					<button type="button"
+							class="btn btn-outline-secondary pdmp-previous-segment"
+							title="Previous segment (,)"
+							aria-label="Previous segment"
+							disabled="@(!CanNavigateSegments)"
+							@onclick="() => PreviousSegmentAsync()">
+						<i class="fas fa-fast-backward" aria-hidden="true"></i>
+					</button>
+					<button type="button"
+							class="btn btn-outline-secondary pdmp-next-segment"
+							title="Next segment (.)"
+							aria-label="Next segment"
+							disabled="@(!CanNavigateSegments)"
+							@onclick="() => NextSegmentAsync()">
+						<i class="fas fa-fast-forward" aria-hidden="true"></i>
+					</button>
+				}
+			</div>
+
+			<div class="pdmp-time" aria-hidden="true">
+				<span class="pdmp-position">@PositionText</span>
+				<span class="pdmp-separator">/</span>
+				<span class="pdmp-duration">@DurationText</span>
+			</div>
+
+			<div class="pdmp-volume">
+				<button type="button"
+						class="btn btn-sm btn-outline-secondary pdmp-mute"
+						title="@(_muted ? "Unmute (M)" : "Mute (M)")"
+						aria-label="Mute"
+						aria-pressed="@(_muted ? "true" : "false")"
+						@onclick="ToggleMuteAsync">
+					<i class="fas @(_muted || _volume == 0 ? "fa-volume-mute" : "fa-volume-up")" aria-hidden="true"></i>
+				</button>
+				<input type="range"
+					   class="form-range pdmp-volume-slider"
+					   min="0"
+					   max="1"
+					   step="0.05"
+					   value="@FormatNumber(_volume)"
+					   aria-label="Volume"
+					   aria-valuetext="@VolumePercentText"
+					   @oninput="OnVolumeInputAsync" />
+			</div>
+
+			<select class="form-select form-select-sm pdmp-rate"
+					title="Playback speed (&lt; and &gt;)"
+					aria-label="Playback speed"
+					value="@RateValue"
+					@onchange="OnRateChangeAsync"
+					@onkeydown:stopPropagation="true">
+				@if (!_rates.Contains(_rate))
+				{
+					<option value="@RateValue">@MediaPlaybackRates.FormatLabel(_rate)</option>
+				}
+				@foreach (var rate in _rates)
+				{
+					<option value="@FormatNumber(rate)">@MediaPlaybackRates.FormatLabel(rate)</option>
+				}
+			</select>
+
+			@if (ShowDownload && !string.IsNullOrWhiteSpace(DownloadHref))
+			{
+				<a class="btn btn-sm btn-outline-secondary pdmp-download"
+				   href="@DownloadHref"
+				   download="@(DownloadFileName ?? string.Empty)"
+				   title="Download"
+				   aria-label="Download">
+					<i class="fas fa-download" aria-hidden="true"></i>
+				</a>
+			}
+		</div>
+
+		@if (showKindFilter && !showMarkerList)
+		{
+			@RenderMarkerKindFilter()
+		}
+
+		@if (ShowNowPlaying && hasSegments)
+		{
+			@RenderNowPlaying(currentSegment)
+		}
+	</div>
+
+	@if (showMarkerList)
+	{
+		<div class="pdmp-markers">
+			<div class="pdmp-markers-header">
+				<button type="button"
+						class="btn btn-sm btn-link pdmp-markers-toggle"
+						aria-expanded="@(_isMarkerListExpanded ? "true" : "false")"
+						aria-controls="@MarkerListId"
+						@onclick="ToggleMarkerList">
+					<i class="fas @(_isMarkerListExpanded ? "fa-chevron-down" : "fa-chevron-right") me-1" aria-hidden="true"></i>Markers
+					<span class="badge text-bg-secondary ms-1">@_visibleMarkers.Count</span>
+				</button>
+				@if (showKindFilter)
+				{
+					@RenderMarkerKindFilter()
+				}
+			</div>
+			@if (_isMarkerListExpanded)
+			{
+				@if (_visibleMarkers.Count == 0)
+				{
+					<p class="pdmp-markers-empty text-muted small mb-0" id="@MarkerListId">No markers of the selected kinds.</p>
+				}
+				else
+				{
+					<ul class="list-group list-group-flush pdmp-marker-list" id="@MarkerListId" style="max-height:@MarkerListMaxHeight" aria-label="Markers">
+						<Virtualize Items="_visibleMarkers" Context="marker" ItemSize="52" OverscanCount="6" SpacerElement="li">
+							<li class="list-group-item p-0 @(ReferenceEquals(marker, current) ? "pdmp-current" : null) @marker.CssClass">
+								<button type="button"
+										class="pdmp-marker-button"
+										style="@GetMarkerStyle(marker)"
+										aria-current="@(ReferenceEquals(marker, current) ? "true" : null)"
+										@onclick="() => SeekToMarkerAsync(marker)">
+									<span class="pdmp-marker-time">@GetMarkerTimeText(marker)</span>
+									<span class="pdmp-marker-kind">@GetKindLabel(MediaMarkerNavigator.GetKind(marker))</span>
+									<span class="pdmp-marker-label">@marker.Label</span>
+									@if (!string.IsNullOrWhiteSpace(marker.Detail))
+									{
+										<span class="pdmp-marker-detail">@marker.Detail</span>
+									}
+								</button>
+							</li>
+						</Virtualize>
+					</ul>
+				}
+			}
+		</div>
+	}
+
+	@if (ShowSegmentList && hasSegments)
+	{
+		<div class="pdmp-markers pdmp-segments-panel">
+			<div class="pdmp-markers-header">
+				<button type="button"
+						class="btn btn-sm btn-link pdmp-markers-toggle pdmp-segments-toggle"
+						aria-expanded="@(_isSegmentListExpanded ? "true" : "false")"
+						aria-controls="@SegmentListId"
+						@onclick="ToggleSegmentList">
+					<i class="fas @(_isSegmentListExpanded ? "fa-chevron-down" : "fa-chevron-right") me-1" aria-hidden="true"></i>Segments
+					<span class="badge text-bg-secondary ms-1">@_visibleSegments.Count</span>
+				</button>
+				@if (ShowKindFilter)
+				{
+					@RenderSegmentKindFilter()
+				}
+			</div>
+			@if (_isSegmentListExpanded)
+			{
+				@if (_visibleSegments.Count == 0)
+				{
+					<p class="pdmp-markers-empty text-muted small mb-0" id="@SegmentListId">No segments of the selected kinds.</p>
+				}
+				else
+				{
+					<ul class="list-group list-group-flush pdmp-marker-list pdmp-segment-list" id="@SegmentListId" style="max-height:@MarkerListMaxHeight" aria-label="Segments">
+						<Virtualize Items="_visibleSegments" Context="segment" ItemSize="52" OverscanCount="6" SpacerElement="li">
+							<li class="list-group-item p-0 pdmp-segment-item @(ReferenceEquals(segment, currentSegment) ? "pdmp-current" : null) @segment.CssClass">
+								<button type="button"
+										class="pdmp-marker-button pdmp-segment-button"
+										style="@GetSegmentColorStyle(segment)"
+										aria-current="@(ReferenceEquals(segment, currentSegment) ? "true" : null)"
+										@onclick="() => SeekToSegmentAsync(segment)">
+									<span class="pdmp-marker-time">@GetSegmentTimeText(segment) <span class="pdmp-segment-length">(@GetSegmentLengthText(segment))</span></span>
+									<span class="pdmp-marker-kind">@GetKindLabel(MediaSegmentNavigator.GetKind(segment))</span>
+									<span class="pdmp-marker-label">@segment.Label</span>
+									@if (!string.IsNullOrWhiteSpace(segment.Detail))
+									{
+										<span class="pdmp-marker-detail">@segment.Detail</span>
+									}
+								</button>
+								<button type="button"
+										class="btn btn-sm btn-link pdmp-segment-play"
+										title="Play this segment only"
+										aria-label="@($"Play {segment.Label ?? GetKindLabel(MediaSegmentNavigator.GetKind(segment))} only")"
+										@onclick="() => PlaySegmentAsync(segment)">
+									<i class="fas fa-play-circle" aria-hidden="true"></i>
+								</button>
+							</li>
+						</Virtualize>
+					</ul>
+				}
+			}
+		</div>
+	}
+</div>
+
+@code {
+	private RenderFragment RenderMarkerKindFilter()
+		=> RenderKindFilter(_kindCounts, IsKindVisible, ToggleKindAsync, GetKindChipStyle, "marker", "pdmp-kinds");
+
+	private RenderFragment RenderSegmentKindFilter()
+		=> RenderKindFilter(_segmentKindCounts, IsSegmentKindVisible, ToggleSegmentKindAsync, GetSegmentChipStyle, "segment", "pdmp-kinds pdmp-segment-kinds");
+
+	private RenderFragment RenderKindFilter(
+		IReadOnlyList<KeyValuePair<string, int>> counts,
+		Func<string, bool> isVisible,
+		Func<string, Task> toggle,
+		Func<string, string> chipStyle,
+		string noun,
+		string cssClass) => __builder =>
+	{
+		<div class="@cssClass" role="group" aria-label="@($"{char.ToUpperInvariant(noun[0])}{noun[1..]} kinds")">
+			@foreach (var pair in counts)
+			{
+				var kind = pair.Key;
+				var visible = isVisible(kind);
+				<button type="button"
+						class="btn btn-sm pdmp-kind-chip @(visible ? "pdmp-kind-on" : "pdmp-kind-off")"
+						style="@chipStyle(kind)"
+						aria-pressed="@(visible ? "true" : "false")"
+						title="@(visible ? $"Hide {GetKindLabel(kind)} {noun}s" : $"Show {GetKindLabel(kind)} {noun}s")"
+						@onclick="() => toggle(kind)">
+					<span class="pdmp-swatch" aria-hidden="true"></span>@GetKindLabel(kind)
+					<span class="badge text-bg-light ms-1">@pair.Value</span>
+				</button>
+			}
+		</div>
+	};
+
+	private RenderFragment RenderSegmentLanes(bool canSeek) => __builder =>
+	{
+		@if (canSeek && _visibleSegments.Count > 0)
+		{
+			var bars = GetBars();
+			<div class="pdmp-segment-lanes" style="@GetLanesStyle(SegmentLaneCount)" aria-hidden="true">
+				@foreach (var bar in bars)
+				{
+					var thisBar = bar;
+					<span class="@GetBarClass(thisBar)"
+						  style="@GetBarStyle(thisBar)"
+						  title="@GetBarTitle(thisBar)"
+						  @onclick="() => SeekToSegmentAsync(thisBar.First)"
+						  @ondblclick="() => PlaySegmentAsync(thisBar.First)">@thisBar.First.Label</span>
+				}
+			</div>
+		}
+	};
+
+	private RenderFragment RenderNowPlaying(PDMediaSegment? segment) => __builder =>
+	{
+		<div class="pdmp-now" aria-live="polite">
+			@if (segment is null)
+			{
+				<span class="pdmp-now-empty text-muted small">Between segments</span>
+			}
+			else
+			{
+				<span class="pdmp-marker-kind" style="@GetSegmentColorStyle(segment)">@GetKindLabel(MediaSegmentNavigator.GetKind(segment))</span>
+				<span class="pdmp-now-label">@(segment.Label ?? GetKindLabel(MediaSegmentNavigator.GetKind(segment)))</span>
+				<span class="pdmp-now-time small text-muted">@GetSegmentTimeText(segment)</span>
+				@if (!string.IsNullOrWhiteSpace(segment.Detail))
+				{
+					<span class="pdmp-now-detail small text-muted">@segment.Detail</span>
+				}
+				<span class="pdmp-now-actions btn-group btn-group-sm" role="group" aria-label="Segment playback">
+					<button type="button" class="btn btn-outline-secondary pdmp-play-segment" title="Play this segment only (P)" aria-label="Play this segment only" @onclick="() => PlaySegmentAsync(segment)">
+						<i class="fas fa-play-circle" aria-hidden="true"></i>
+					</button>
+					<button type="button" class="btn btn-outline-secondary pdmp-loop-segment @(_loopSegment ? "active" : null)" title="Loop this segment" aria-label="Loop this segment" aria-pressed="@(_loopSegment ? "true" : "false")" @onclick="ToggleSegmentLoopAsync">
+						<i class="fas fa-redo" aria-hidden="true"></i>
+					</button>
+					@if (segment.Lines is { Count: > 0 } || !string.IsNullOrWhiteSpace(segment.Text))
+					{
+						<button type="button" class="btn btn-outline-secondary pdmp-transcript-toggle" title="Transcript" aria-label="Transcript" aria-expanded="@(_isTranscriptExpanded ? "true" : "false")" aria-controls="@TranscriptId" @onclick="ToggleTranscript">
+							<i class="fas fa-align-left" aria-hidden="true"></i>
+						</button>
+					}
+				</span>
+				@if (_isTranscriptExpanded)
+				{
+					@RenderTranscript(segment)
+				}
+			}
+		</div>
+	};
+
+	private RenderFragment RenderTranscript(PDMediaSegment segment) => __builder =>
+	{
+		@if (segment.Lines is { Count: > 0 } lines)
+		{
+			var active = MediaSegmentNavigator.ActiveLine(lines, DisplayPosition);
+			<ol class="pdmp-transcript" id="@TranscriptId" style="max-height:@TranscriptMaxHeight" @ref="TranscriptElement" aria-label="Transcript">
+				@foreach (var line in lines)
+				{
+					var thisLine = line;
+					var isActive = ReferenceEquals(thisLine, active);
+					<li class="@(isActive ? "pdmp-line pdmp-line-active" : "pdmp-line")">
+						<button type="button" class="pdmp-line-button" aria-current="@(isActive ? "true" : null)" @onclick="() => SeekToLineAsync(thisLine)">
+							<span class="pdmp-line-time">@MediaTimeFormatter.Format(thisLine.Start, _duration)</span>
+							<span class="pdmp-line-text">@GetLineSpeaker(thisLine)@thisLine.Text</span>
+						</button>
+					</li>
+				}
+			</ol>
+		}
+		else if (!string.IsNullOrWhiteSpace(segment.Text))
+		{
+			<div class="pdmp-transcript pdmp-transcript-text" id="@TranscriptId" style="max-height:@TranscriptMaxHeight">@segment.Text</div>
+		}
+	};
+}

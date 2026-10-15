@@ -1343,6 +1343,81 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 
 ---
 
+## PDMediaPlayer
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Clock | TimeProvider | Gets or sets the clock used to throttle saving the position. The default is the system clock. |
+| Id | string | Gets or sets the unique identifier of the player's root element. |
+| CssClass | string? | Gets or sets additional CSS classes for the player's root element. |
+| Src | string? | Gets or sets the URL of the media. Changing it loads the new media and resets the position, duration and error, while the chosen speed, volume and mute are kept. |
+| MediaKind | MediaKind | Gets or sets whether to render an audio or a video element. The default is <see cref="MediaKind.Audio"/>. |
+| Poster | string? | Gets or sets the URL of an image shown before a video plays. |
+| Title | string? | Gets or sets the title shown above the controls, also used as the accessible name of the player. |
+| Preload | MediaPreload | Gets or sets how much of the media the browser loads before playback. The default is <see cref="MediaPreload.Metadata"/>. |
+| Autoplay | bool | Gets or sets whether playback starts as soon as the media can play. Browsers may block this unless the media is muted. The default is false. |
+| Loop | bool | Gets or sets whether playback starts again from the beginning when it ends. |
+| Muted | bool | Gets or sets whether the sound is muted. Use with <see cref="MutedChanged"/> for two-way binding. |
+| MutedChanged | EventCallback<bool> | Gets or sets the callback invoked when the user mutes or unmutes. |
+| Volume | double | Gets or sets the volume, from 0 to 1. The default is 1. Use with <see cref="VolumeChanged"/> for two-way binding. |
+| VolumeChanged | EventCallback<double> | Gets or sets the callback invoked when the user changes the volume. |
+| ShowDownload | bool | Gets or sets whether to show a download button. The default is false. |
+| DownloadUrl | string? | Gets or sets the URL the download button links to, for example an authorised download endpoint. When not set, the button links to <see cref="Src"/>. |
+| DownloadFileName | string? | Gets or sets the file name suggested to the browser for a download. |
+| SkipBackSeconds | int | Gets or sets how many seconds the skip back button moves. The default is 15. |
+| SkipForwardSeconds | int | Gets or sets how many seconds the skip forward button moves. The default is 30. |
+| PlaybackRates | IReadOnlyList<double>? | Gets or sets the speeds offered in the speed menu. Values outside 0.5 to 4 are dropped; the default is 0.75, 1, 1.25, 1.5, 1.75 and 2. |
+| PlaybackRate | double | Gets or sets the playback speed, from 0.5 to 4. Pitch is preserved. The chosen speed is kept when <see cref="Src"/> changes. Like <see cref="Volume"/> and <see cref="Muted"/>, it is applied when the host passes a different value from last time, so the user's own choice survives the host re-rendering. Use with <see cref="PlaybackRateChanged"/> for two-way binding. |
+| PlaybackRateChanged | EventCallback<double> | Gets or sets the callback invoked when the playback speed changes. |
+| PersistKey | string? | Gets or sets a key under which the chosen speed and the position (one per source, the 50 most recent) are kept in browser local storage, so that both survive a reload. The position is saved every <see cref="PersistInterval"/> while playing and on pause, restored when the same source loads again and cleared when playback ends. When the player is inside a <see cref="PDLocalStorageStateManager"/> (or any other cascaded <see cref="IAsyncStateManager"/>), that is used; otherwise the player uses local storage directly. |
+| PersistInterval | TimeSpan | Gets or sets the minimum time between saves of the position while playing. The default is 5 seconds. |
+| TimeUpdateRate | double | Gets or sets how many times a second, at most, the position is reported while playing (and so how often <see cref="OnTimeUpdate"/> and <see cref="PositionChanged"/> are raised). It is limited to 1 to 30; the default is 4. |
+| Position | TimeSpan | Gets or sets the playback position. Setting it to a new value seeks; a value the player itself recently reported through <see cref="PositionChanged"/> does not. Use with <see cref="PositionChanged"/> for two-way binding. |
+| PositionChanged | EventCallback<TimeSpan> | Gets or sets the callback invoked when the position changes, at most <see cref="TimeUpdateRate"/> times a second while playing, and on every seek. |
+| StartAt | TimeSpan? | Gets or sets a position to seek to when each source has loaded. A position saved under <see cref="PersistKey"/>, or a seek requested before loading, takes precedence. |
+| RangeStart | TimeSpan? | Gets or sets the start of a range to shade on the seek bar, such as the part of a recording that is the show proper. A missing start means the start of the media. The media itself is never trimmed. |
+| RangeEnd | TimeSpan? | Gets or sets the end of the shaded range. A missing end means the end of the media. |
+| OnRangeEntered | EventCallback<TimeSpan> | Gets or sets the callback invoked with the position when playback enters the shaded range (including when it first starts inside it). |
+| OnRangeLeft | EventCallback<TimeSpan> | Gets or sets the callback invoked with the position when playback leaves the shaded range. |
+| Markers | IEnumerable<PDMediaMarker>? | Gets or sets the markers: events along the timeline, in any order. Assign a new collection to change them. |
+| SeekLead | TimeSpan | Gets or sets how far before a marker to seek when it is selected, so that the lead-up can be heard. The default is zero. Marker navigation and the current marker are worked out from the position plus this lead. |
+| MarkerTolerance | TimeSpan | Gets or sets how close to the current position a marker (or segment start) may be before next and previous skip over it. Previous within this time of a marker's start goes to the marker before; further in, it returns to the marker's start. The default is half a second. |
+| VisibleKinds | IReadOnlySet<string>? | Gets or sets the kinds of marker to show, or <c>null</c> (the default) to show every kind. Hidden kinds are left off the seek bar and the list and skipped by next and previous. A kind missing from the set is hidden, including a kind that only appears when <see cref="Markers"/> changes. Use with <see cref="VisibleKindsChanged"/> for two-way binding. |
+| VisibleKindsChanged | EventCallback<IReadOnlySet<string>?> | Gets or sets the callback invoked when the user shows or hides a kind. |
+| KindLabels | IReadOnlyDictionary<string, string>? | Gets or sets display names for marker kinds, for example <c>dead-air</c> to <c>Dead air</c>. A kind without a name is shown as it is. |
+| KindColors | IReadOnlyDictionary<string, string>? | Gets or sets CSS colours for marker kinds. A kind without a colour gets one from a built-in palette, and a marker's own <see cref="PDMediaMarker.Color"/> takes precedence. |
+| ShowKindFilter | bool | Gets or sets whether to show the toggle chips (with counts) that show or hide each kind of marker. The default is true. |
+| ShowMarkerList | bool | Gets or sets whether to show the marker list. The default is true. |
+| MarkerListExpanded | bool | Gets or sets whether the marker list starts expanded. The user can collapse and expand it. The default is true. |
+| MarkerListPlacement | MediaMarkerListPlacement | Gets or sets where the marker list is shown. The default is <see cref="MediaMarkerListPlacement.Below"/>. |
+| MarkerListMaxHeight | string | Gets or sets the maximum height of the marker list, as a CSS length. The list scrolls and only renders the items in view, so it stays fast with thousands of markers. The default is <c>16rem</c>. |
+| MarkerTickResolution | int | Gets or sets the number of slots the seek bar is divided into for drawing markers and segments. Markers of the same kind that fall in the same slot are drawn as one tick (its tooltip gives the count), so at most this many ticks are drawn per kind; segments shorter than a slot merge in the same way. The default is 400. |
+| Segments | IEnumerable<PDMediaSegment>? | Gets or sets the segments: stretches of the timeline such as songs or talking sections, in any order. They may overlap and leave gaps; segments whose end is not after their start are ignored. Assign a new collection to change them. See <see cref="PDMediaSegment.FromMarkers(IEnumerable{PDMediaMarker}, TimeSpan)"/> to derive them from markers. |
+| VisibleSegmentKinds | IReadOnlySet<string>? | Gets or sets the kinds of segment to show, or <c>null</c> (the default) to show every kind. Hidden kinds are left out of the lanes and the list and skipped by next and previous segment. Use with <see cref="VisibleSegmentKindsChanged"/> for two-way binding. |
+| VisibleSegmentKindsChanged | EventCallback<IReadOnlySet<string>?> | Gets or sets the callback invoked when the user shows or hides a kind of segment. |
+| SegmentLanePlacement | MediaSegmentLanePlacement | Gets or sets whether the segment lanes are drawn beneath or above the seek bar. The default is <see cref="MediaSegmentLanePlacement.Below"/>. |
+| MaxSegmentLanes | int | Gets or sets the most lanes used to draw overlapping segments; further overlaps are drawn in the last lane. The default is 3. |
+| ShowSegmentList | bool | Gets or sets whether to show the segment list. It shares <see cref="MarkerListMaxHeight"/> with the marker list and only renders the items in view. The default is true. |
+| SegmentListExpanded | bool | Gets or sets whether the segment list starts expanded. The default is true. |
+| ShowNowPlaying | bool | Gets or sets whether to show the now playing strip with the current segment, its time range and the play segment and loop buttons. The default is true. |
+| TranscriptExpanded | bool | Gets or sets whether the transcript pane (the current segment's <see cref="PDMediaSegment.Lines"/> or <see cref="PDMediaSegment.Text"/>) starts expanded. The user can expand and collapse it. The default is false. |
+| TranscriptMaxHeight | string | Gets or sets the maximum height of the transcript pane, as a CSS length. It scrolls to keep the line being spoken in view. The default is <c>10rem</c>. |
+| OnSegmentSelected | EventCallback<PDMediaSegment> | Gets or sets the callback invoked when a segment is selected, from its bar, the list, the next and previous segment buttons or shortcuts, or a call to <see cref="SeekToSegmentAsync"/> or <see cref="PlaySegmentAsync(PDMediaSegment)"/>. |
+| OnSegmentEntered | EventCallback<PDMediaSegment> | Gets or sets the callback invoked when playback (or a seek) enters a segment. With overlapping segments it is raised for each. Every segment counts, whether or not its kind is visible. |
+| OnSegmentLeft | EventCallback<PDMediaSegment> | Gets or sets the callback invoked when playback (or a seek) leaves a segment. |
+| ShowErrors | bool | Gets or sets whether to show a message inside the player when the media cannot be played. The default is true. |
+| OnReady | EventCallback<TimeSpan?> | Gets or sets the callback invoked when the media has loaded enough to know its duration, with the duration, or <c>null</c> for a live stream. |
+| OnTimeUpdate | EventCallback<TimeSpan> | Gets or sets the callback invoked with the position while playing, at most <see cref="TimeUpdateRate"/> times a second, and after each seek. |
+| OnPlay | EventCallback | Gets or sets the callback invoked when playback starts. |
+| OnPause | EventCallback | Gets or sets the callback invoked when playback pauses. |
+| OnEnded | EventCallback | Gets or sets the callback invoked when playback reaches the end. |
+| OnError | EventCallback<MediaPlayerError> | Gets or sets the callback invoked when the media cannot be played, with a friendly reason (for example <see cref="MediaErrorKind.Unauthorized"/> for a 401 response). |
+| OnMarkerSelected | EventCallback<PDMediaMarker> | Gets or sets the callback invoked when a marker is selected, from the list, the seek bar, the next and previous buttons or shortcuts, or a call to <see cref="SeekToMarkerAsync"/>. |
+
+---
+
 ## PDMenuItem
 
 **Parameters:**

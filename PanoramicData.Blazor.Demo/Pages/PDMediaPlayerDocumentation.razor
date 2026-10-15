@@ -1,0 +1,245 @@
+<div class="pd-mediaplayer-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDMediaPlayer</code> plays audio (and video) through the browser's own media element, with an
+			accessible Bootstrap transport and <strong>markers</strong>: events along the timeline that are drawn on the
+			seek bar, listed beside or beneath the player, filtered by kind and jumped between. It suits long
+			recordings, such as radio shows, where the listener wants to speed up and to hop between points of interest.
+		</p>
+		<ul>
+			<li><strong>Transport</strong>: play and pause, skip back and forward (15 and 30 seconds by default), a seek slider with the buffered ranges, time and duration, mute and volume, a speed menu and an optional download button.</li>
+			<li><strong>Speed</strong>: 0.5× to 4× with the pitch preserved; the chosen speed is kept when the source changes, and can be remembered in local storage.</li>
+			<li><strong>Markers</strong>: points or spans of any kind, coloured by kind, shown as ticks on the seek bar and in a virtualised list with the current marker highlighted.</li>
+			<li><strong>Kind filter</strong>: a toggle chip per kind, with counts, hides or shows that kind everywhere, including next and previous.</li>
+			<li><strong>Range</strong>: an optional shaded part of the seek bar (for example the show between its margins), with events as playback enters and leaves it. The audio is never trimmed.</li>
+			<li><strong>Streaming</strong>: the element fetches the source itself, so a server that supports HTTP range requests lets the user seek anywhere without downloading the whole file.</li>
+		</ul>
+	</section>
+
+	<section id="quick-start">
+		<h2 class="doc-section">Quick Start</h2>
+
+		<DocExample Title="Basic player"
+					AnchorId="basic-player"
+					Code="@_basicCode"
+					Language="razor">
+			<DemoContent>
+				<PDMediaPlayer Src="@ShowUrl" Title="The breakfast show" />
+			</DemoContent>
+			<Description>
+				<p>Set <code>Src</code>. Everything else is optional.</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="Markers, range and speed"
+					AnchorId="markers"
+					Code="@_markersCode"
+					Language="razor">
+			<DemoContent>
+				<PDMediaPlayer Src="@ShowUrl"
+							   Markers="_markers"
+							   KindLabels="_kindLabels"
+							   SeekLead="TimeSpan.FromSeconds(3)"
+							   RangeStart="TimeSpan.FromSeconds(5)"
+							   RangeEnd="TimeSpan.FromSeconds(55)"
+							   @bind-PlaybackRate="Rate"
+							   OnMarkerSelected="m => Selected = m" />
+				<p class="small text-muted mt-2 mb-0">Speed @Rate.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)×; selected: @(Selected?.Label ?? "none")</p>
+			</DemoContent>
+			<Description>
+				<p>
+					Selecting a marker seeks <code>SeekLead</code> before it, so the lead-up can be heard, and raises
+					<code>OnMarkerSelected</code>. Markers may be given in any order, may overlap, and may run past the
+					end of the media (they are drawn at the end).
+				</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="Controlling the player from code"
+					AnchorId="api"
+					Code="@_apiCode"
+					Language="razor">
+			<DemoContent>
+				<p class="small text-muted mb-0">See the Demo tab, whose buttons call these methods.</p>
+			</DemoContent>
+			<Description>
+				<p>
+					Every method can be called before the media is ready: a seek waits for the media to load, and a play
+					request waits for the player's script.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="segments">
+		<h2 class="doc-section">Segments</h2>
+
+		<DocExample Title="Songs, talk and transcripts"
+					AnchorId="segments-example"
+					Code="@_segmentsCode"
+					Language="razor">
+			<DemoContent>
+				<PDMediaPlayer Src="@ShowUrl"
+							   Segments="_segments"
+							   TranscriptExpanded="true"
+							   OnSegmentEntered="s => NowPlaying = s.Label" />
+				<p class="small text-muted mt-2 mb-0">Last segment entered: @(NowPlaying ?? "none")</p>
+			</DemoContent>
+			<Description>
+				<p>
+					<code>PDMediaSegment</code>s are stretches of the timeline with a start and an end: songs, talking
+					sections, adverts. They may overlap (overlaps are packed into extra lanes, up to
+					<code>MaxSegmentLanes</code>) and may leave gaps. Segments whose end is not after their start are
+					ignored, and segments past the end of the media are cut at the end. Each has <code>Id</code>,
+					<code>Start</code>, <code>End</code>, <code>Kind</code>, <code>Label</code>, <code>Detail</code>,
+					<code>Text</code> (plain text such as a transcript), <code>Lines</code> (timed
+					<code>PDMediaTextLine</code>s with <code>Start</code>, <code>End</code>, <code>Text</code> and
+					<code>Speaker</code>), <code>Lane</code>, <code>CssClass</code>, <code>Color</code>,
+					<code>Confidence</code> and <code>Source</code>.
+				</p>
+				<p>
+					Clicking a segment seeks to its start (less <code>SeekLead</code>); double clicking it, or its play
+					button, plays just that segment and pauses at its end (within one position report, about a quarter
+					of a second), and the loop button plays it over and over. The now playing strip shows the current
+					segment, and its transcript pane highlights the line being spoken and keeps it in view; selecting a
+					line seeks to it. <code>PDMediaSegment.FromMarkers</code> derives segments marker to marker, with
+					options to skip kinds, end a segment with an end kind, and merge neighbours of the same kind.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="keyboard">
+		<h2 class="doc-section">Keyboard</h2>
+		<p>Shortcuts work only while focus is inside the player (never page wide), and not while the speed menu has focus.</p>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>Key</th><th>Action</th></tr></thead>
+			<tbody>
+				<tr><td><kbd>K</kbd></td><td>Play or pause</td></tr>
+				<tr><td><kbd>J</kbd> or <kbd>[</kbd></td><td>Previous marker</td></tr>
+				<tr><td><kbd>L</kbd> or <kbd>]</kbd></td><td>Next marker</td></tr>
+				<tr><td><kbd>M</kbd></td><td>Mute or unmute</td></tr>
+				<tr><td><kbd>&lt;</kbd> and <kbd>&gt;</kbd></td><td>Next slower and next faster speed</td></tr>
+				<tr><td><kbd>,</kbd> and <kbd>.</kbd></td><td>Previous and next segment</td></tr>
+				<tr><td><kbd>P</kbd></td><td>Play the current segment on its own</td></tr>
+				<tr><td>Arrow keys, <kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>Home</kbd>, <kbd>End</kbd></td><td>Move the seek slider (it is a native range input)</td></tr>
+				<tr><td><kbd>Enter</kbd> or <kbd>Space</kbd> on a list item</td><td>Select that marker</td></tr>
+			</tbody>
+		</table>
+		<p>Presses with <kbd>Ctrl</kbd>, <kbd>Alt</kbd> or <kbd>Meta</kbd> held, and held-down repeats, are ignored.</p>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>Src</code></td><td><code>string?</code></td><td></td><td>URL of the media. Changing it resets position, duration and error, but keeps speed, volume and mute.</td></tr>
+				<tr><td><code>MediaKind</code></td><td><code>MediaKind</code></td><td><code>Audio</code></td><td>Audio or Video.</td></tr>
+				<tr><td><code>Poster</code>, <code>Title</code></td><td><code>string?</code></td><td></td><td>Video poster image; title, also the accessible name.</td></tr>
+				<tr><td><code>Preload</code></td><td><code>MediaPreload</code></td><td><code>Metadata</code></td><td>The element's preload attribute.</td></tr>
+				<tr><td><code>Autoplay</code>, <code>Loop</code></td><td><code>bool</code></td><td>false</td><td>Start when ready; repeat at the end.</td></tr>
+				<tr><td><code>Muted</code>, <code>Volume</code></td><td><code>bool</code>, <code>double</code></td><td>false, 1</td><td>Two-way bindable.</td></tr>
+				<tr><td><code>ShowDownload</code>, <code>DownloadUrl</code>, <code>DownloadFileName</code></td><td></td><td>false</td><td>Optional download button; the host decides the URL (for example an authorised endpoint), otherwise <code>Src</code>.</td></tr>
+				<tr><td><code>SkipBackSeconds</code>, <code>SkipForwardSeconds</code></td><td><code>int</code></td><td>15, 30</td><td>Skip button distances.</td></tr>
+				<tr><td><code>PlaybackRates</code></td><td><code>IReadOnlyList&lt;double&gt;?</code></td><td>0.75 to 2</td><td>The speed menu; values outside 0.5 to 4 are dropped.</td></tr>
+				<tr><td><code>PlaybackRate</code></td><td><code>double</code></td><td>1</td><td>Two-way bindable speed; pitch is preserved.</td></tr>
+				<tr><td><code>Position</code></td><td><code>TimeSpan</code></td><td></td><td>Two-way bindable position; setting a new value seeks.</td></tr>
+				<tr><td><code>StartAt</code></td><td><code>TimeSpan?</code></td><td></td><td>Seek here once each source loads (a remembered position wins).</td></tr>
+				<tr><td><code>PersistKey</code>, <code>PersistInterval</code></td><td><code>string?</code>, <code>TimeSpan</code></td><td>null, 5 s</td><td>Remember the speed and the position (per source) in local storage, through a cascaded <code>PDLocalStorageStateManager</code> when there is one.</td></tr>
+				<tr><td><code>TimeUpdateRate</code></td><td><code>double</code></td><td>4</td><td>Position reports per second while playing (1 to 30).</td></tr>
+				<tr><td><code>RangeStart</code>, <code>RangeEnd</code></td><td><code>TimeSpan?</code></td><td></td><td>Shade part of the seek bar.</td></tr>
+				<tr><td><code>Markers</code></td><td><code>IEnumerable&lt;PDMediaMarker&gt;?</code></td><td></td><td>The markers, in any order.</td></tr>
+				<tr><td><code>SeekLead</code></td><td><code>TimeSpan</code></td><td>0</td><td>Seek this far before a selected marker.</td></tr>
+				<tr><td><code>MarkerTolerance</code></td><td><code>TimeSpan</code></td><td>0.5 s</td><td>How close a marker may be before next and previous skip it; previous further into a marker than this returns to its start.</td></tr>
+				<tr><td><code>VisibleKinds</code></td><td><code>IReadOnlySet&lt;string&gt;?</code></td><td>null (all)</td><td>Two-way bindable kind filter.</td></tr>
+				<tr><td><code>KindLabels</code>, <code>KindColors</code></td><td><code>IReadOnlyDictionary&lt;string, string&gt;?</code></td><td></td><td>Display names and CSS colours per kind.</td></tr>
+				<tr><td><code>ShowKindFilter</code>, <code>ShowMarkerList</code>, <code>MarkerListExpanded</code></td><td><code>bool</code></td><td>true</td><td>Show the chips and the list; start the list expanded.</td></tr>
+				<tr><td><code>MarkerListPlacement</code></td><td><code>MediaMarkerListPlacement</code></td><td><code>Below</code></td><td>Below or beside the player.</td></tr>
+				<tr><td><code>MarkerListMaxHeight</code></td><td><code>string</code></td><td>16rem</td><td>Height of the scrolling list.</td></tr>
+				<tr><td><code>MarkerTickResolution</code></td><td><code>int</code></td><td>400</td><td>Slots on the seek bar; markers of a kind in the same slot are drawn as one tick, and segments shorter than a slot merge.</td></tr>
+				<tr><td><code>Segments</code></td><td><code>IEnumerable&lt;PDMediaSegment&gt;?</code></td><td></td><td>The segments, in any order.</td></tr>
+				<tr><td><code>VisibleSegmentKinds</code></td><td><code>IReadOnlySet&lt;string&gt;?</code></td><td>null (all)</td><td>Two-way bindable segment kind filter.</td></tr>
+				<tr><td><code>SegmentLanePlacement</code></td><td><code>MediaSegmentLanePlacement</code></td><td><code>Below</code></td><td>Lanes beneath or above the seek bar.</td></tr>
+				<tr><td><code>MaxSegmentLanes</code></td><td><code>int</code></td><td>3</td><td>Lanes for overlapping segments; further overlaps share the last lane.</td></tr>
+				<tr><td><code>ShowSegmentList</code>, <code>SegmentListExpanded</code>, <code>ShowNowPlaying</code></td><td><code>bool</code></td><td>true</td><td>The segment list and the now playing strip.</td></tr>
+				<tr><td><code>TranscriptExpanded</code>, <code>TranscriptMaxHeight</code></td><td><code>bool</code>, <code>string</code></td><td>false, 10rem</td><td>The transcript pane.</td></tr>
+				<tr><td><code>ShowErrors</code></td><td><code>bool</code></td><td>true</td><td>Show a message in the player when the media cannot be played.</td></tr>
+			</tbody>
+		</table>
+		<p>
+			<code>PDMediaMarker</code> has <code>Id</code>, <code>Position</code>, an optional <code>Length</code> (a span
+			rather than a point), <code>Kind</code> (such as <code>dead-air</code>), <code>Label</code>, <code>Detail</code>,
+			<code>CssClass</code> and <code>Color</code>.
+		</p>
+	</section>
+
+	<section id="methods">
+		<h2 class="doc-section">Methods</h2>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>Method</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>PlayAsync</code>, <code>PauseAsync</code>, <code>TogglePlayAsync</code></td><td>Playback.</td></tr>
+				<tr><td><code>SeekAsync(TimeSpan)</code>, <code>SkipAsync(TimeSpan)</code></td><td>Seek to, or by, a time; limited to the media.</td></tr>
+				<tr><td><code>SeekToMarkerAsync(PDMediaMarker)</code></td><td>Seek to a marker (less <code>SeekLead</code>) and raise <code>OnMarkerSelected</code>.</td></tr>
+				<tr><td><code>NextMarkerAsync(string? kind)</code>, <code>PreviousMarkerAsync(string? kind)</code></td><td>Jump relative to the position; without a kind, only visible kinds count. Returns the marker, or null.</td></tr>
+				<tr><td><code>SetPlaybackRateAsync</code>, <code>SetVolumeAsync</code>, <code>SetMutedAsync</code>, <code>ToggleMuteAsync</code></td><td>Speed and sound.</td></tr>
+				<tr><td><code>SetKindVisibleAsync(string, bool)</code>, <code>IsKindVisible(string)</code></td><td>The kind filter.</td></tr>
+				<tr><td><code>SeekToSegmentAsync(PDMediaSegment)</code></td><td>Seek to a segment (less <code>SeekLead</code>) and raise <code>OnSegmentSelected</code>.</td></tr>
+				<tr><td><code>NextSegmentAsync(string? kind)</code>, <code>PreviousSegmentAsync(string? kind)</code></td><td>Jump between segment starts; returns the segment, or null.</td></tr>
+				<tr><td><code>PlaySegmentAsync(PDMediaSegment, bool loop)</code>, <code>SetSegmentLoopAsync(bool)</code></td><td>Play one segment and stop (or loop) at its end.</td></tr>
+				<tr><td><code>SetSegmentKindVisibleAsync(string, bool)</code>, <code>IsSegmentKindVisible(string)</code></td><td>The segment kind filter.</td></tr>
+			</tbody>
+		</table>
+		<p>
+			Read-only properties: <code>CurrentPosition</code>, <code>Duration</code>, <code>IsReady</code>, <code>IsLive</code>,
+			<code>IsPlaying</code>, <code>CurrentPlaybackRate</code>, <code>CurrentVolume</code>, <code>IsMuted</code>,
+			<code>LastError</code>, <code>CurrentMarker</code>, <code>SortedMarkers</code>, <code>VisibleMarkers</code>,
+			<code>CurrentSegment</code>, <code>CurrentSegments</code>, <code>SortedSegments</code>, <code>VisibleSegments</code>,
+			<code>PlayingSegment</code>, <code>IsLoopingSegment</code>.
+		</p>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<table class="table table-sm doc-props-table">
+			<thead><tr><th>Event</th><th>Type</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>OnReady</code></td><td><code>EventCallback&lt;TimeSpan?&gt;</code></td><td>The duration is known (null for a live stream).</td></tr>
+				<tr><td><code>OnTimeUpdate</code>, <code>PositionChanged</code></td><td><code>EventCallback&lt;TimeSpan&gt;</code></td><td>The position, throttled to <code>TimeUpdateRate</code>.</td></tr>
+				<tr><td><code>OnPlay</code>, <code>OnPause</code>, <code>OnEnded</code></td><td><code>EventCallback</code></td><td>Playback state.</td></tr>
+				<tr><td><code>OnError</code></td><td><code>EventCallback&lt;MediaPlayerError&gt;</code></td><td>A friendly reason: 401, 403, 404, server error, network, decode or unsupported format.</td></tr>
+				<tr><td><code>OnMarkerSelected</code></td><td><code>EventCallback&lt;PDMediaMarker&gt;</code></td><td>A marker was selected by any means.</td></tr>
+				<tr><td><code>OnRangeEntered</code>, <code>OnRangeLeft</code></td><td><code>EventCallback&lt;TimeSpan&gt;</code></td><td>Playback crossed into or out of the shaded range.</td></tr>
+				<tr><td><code>OnSegmentSelected</code></td><td><code>EventCallback&lt;PDMediaSegment&gt;</code></td><td>A segment was selected by any means.</td></tr>
+				<tr><td><code>OnSegmentEntered</code>, <code>OnSegmentLeft</code></td><td><code>EventCallback&lt;PDMediaSegment&gt;</code></td><td>Playback or a seek crossed a segment boundary; raised for each of overlapping segments, whatever the kind filter.</td></tr>
+				<tr><td><code>PlaybackRateChanged</code>, <code>VolumeChanged</code>, <code>MutedChanged</code>, <code>VisibleKindsChanged</code>, <code>VisibleSegmentKindsChanged</code></td><td></td><td>For two-way binding.</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="performance">
+		<h2 class="doc-section">Many markers</h2>
+		<p>
+			The marker list is virtualised (only the rows in view are rendered). On the seek bar, the bar is divided into
+			<code>MarkerTickResolution</code> slots and markers of the same kind (and colour and class) that fall in the
+			same slot, or overlap a span already drawn there, are merged into one tick whose tooltip gives the count. So
+			at most that many ticks per kind are drawn, whether there are ten markers or ten thousand. Next, previous
+			and the current marker use binary search over the sorted markers.
+		</p>
+	</section>
+
+	<section id="errors">
+		<h2 class="doc-section">Errors and live streams</h2>
+		<p>
+			A media element does not reveal the HTTP status of its request. When loading fails with a network or format
+			error, the player asks the server for the first byte of the source to tell a refused (401 or 403) or missing
+			(404) file from a genuinely unplayable one, and reports a <code>MediaPlayerError</code> with a friendly
+			message. A source whose duration is infinite (a live stream) disables the seek bar and the skip buttons, and
+			<code>OnReady</code> receives null.
+		</p>
+	</section>
+
+</div>
