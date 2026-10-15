@@ -25,6 +25,12 @@ public partial class PDDiffPanel : IAsyncDisposable
 	private bool _sideBySideSeen;
 	private bool _shownSideBySide = true;
 	private bool _shownReadOnly = true;
+	private bool _disposed;
+	private int _editorGeneration;
+	private int _initAttempts;
+
+	// Monaco loads asynchronously; give it this many retries before giving up quietly.
+	private const int MaxInitAttempts = 10;
 
 	/// <summary>Gets or sets the JavaScript runtime.</summary>
 	[Inject]
@@ -79,6 +85,7 @@ public partial class PDDiffPanel : IAsyncDisposable
 			ReadOnly = ReadOnly,
 			OriginalEditable = false,
 			RenderSideBySide = _sideBySide,
+			UseInlineViewWhenSpaceIsLimited = false,
 			Theme = string.IsNullOrEmpty(Theme) ? null : Theme
 		};
 
@@ -104,9 +111,49 @@ public partial class PDDiffPanel : IAsyncDisposable
 		// Capture first: the parameters can change while the awaits below are pending.
 		var (original, modified, language, theme) = (Original, Modified, EffectiveLanguage, Theme);
 		var (sideBySide, readOnly) = (_sideBySide, ReadOnly);
-		_originalModel = await Global.CreateModel(JSRuntime, original, language, null).ConfigureAwait(true);
-		_modifiedModel = await Global.CreateModel(JSRuntime, modified, language, null).ConfigureAwait(true);
-		await _editor.SetModel(new DiffEditorModel { Original = _originalModel, Modified = _modifiedModel }).ConfigureAwait(true);
+		TextModel? originalModel = null;
+		TextModel? modifiedModel = null;
+		try
+		{
+			originalModel = await Global.CreateModel(JSRuntime, original, language, null).ConfigureAwait(true);
+			modifiedModel = await Global.CreateModel(JSRuntime, modified, language, null).ConfigureAwait(true);
+			if (_disposed)
+			{
+				// Disposed while the models were being created: do not leak them.
+				await DisposeModelsAsync(originalModel, modifiedModel).ConfigureAwait(true);
+				return;
+			}
+
+			// Publish the models before attaching them so a concurrent dispose releases them in the right order.
+			_originalModel = originalModel;
+			_modifiedModel = modifiedModel;
+			await _editor.SetModel(new DiffEditorModel { Original = originalModel, Modified = modifiedModel }).ConfigureAwait(true);
+			if (_disposed)
+			{
+				await ReleaseEditorAsync().ConfigureAwait(true);
+				return;
+			}
+		}
+		catch (Exception ex) when (ex is JSException or JSDisconnectedException)
+		{
+			// Monaco is probably not loaded yet, or the circuit went away. Clean up and, unless disposed, retry
+			// by recreating the editor component (the JS editor is only created on first render).
+			_originalModel = null;
+			_modifiedModel = null;
+			await DisposeModelsAsync(originalModel, modifiedModel).ConfigureAwait(true);
+			if (!_disposed && ex is JSException && ++_initAttempts <= MaxInitAttempts)
+			{
+				await Task.Delay(300).ConfigureAwait(true);
+				if (!_disposed)
+				{
+					_editorGeneration++;
+					await InvokeAsync(StateHasChanged).ConfigureAwait(true);
+				}
+			}
+
+			return;
+		}
+
 		(_shownOriginal, _shownModified, _shownLanguage, _shownTheme) = (original, modified, language, theme);
 		(_shownSideBySide, _shownReadOnly) = (sideBySide, readOnly);
 		_initialized = true;
@@ -155,11 +202,11 @@ public partial class PDDiffPanel : IAsyncDisposable
 			if (_shownSideBySide != _sideBySide || _shownReadOnly != ReadOnly)
 			{
 				var (sideBySide, readOnly) = (_sideBySide, ReadOnly);
-				await _editor.UpdateOptions(new DiffEditorOptions { RenderSideBySide = sideBySide, ReadOnly = readOnly }).ConfigureAwait(true);
+				await _editor.UpdateOptions(new DiffEditorOptions { RenderSideBySide = sideBySide, ReadOnly = readOnly, UseInlineViewWhenSpaceIsLimited = false }).ConfigureAwait(true);
 				(_shownSideBySide, _shownReadOnly) = (sideBySide, readOnly);
 			}
 		}
-		catch (JSException)
+		catch (Exception ex) when (ex is JSException or JSDisconnectedException)
 		{
 			// The editor can be disposed before the parameters are applied; safe to ignore.
 		}
@@ -171,30 +218,53 @@ public partial class PDDiffPanel : IAsyncDisposable
 		await SyncAsync().ConfigureAwait(true);
 	}
 
+	private static async Task DisposeModelsAsync(params TextModel?[] models)
+	{
+		foreach (var model in models)
+		{
+			if (model is null)
+			{
+				continue;
+			}
+
+			try
+			{
+				await model.DisposeModel().ConfigureAwait(true);
+			}
+			catch (Exception ex) when (ex is JSException or JSDisconnectedException)
+			{
+				// The JS runtime may already be gone; nothing left to release.
+			}
+		}
+	}
+
+	// Detaches the models from the diff widget and disposes the widget, then disposes the models.
+	private async Task ReleaseEditorAsync()
+	{
+		var (original, modified) = (_originalModel, _modifiedModel);
+		_originalModel = null;
+		_modifiedModel = null;
+		try
+		{
+			if (JSRuntime is not null && original is not null)
+			{
+				var module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDiffPanel.razor.js").ConfigureAwait(true);
+				await module.InvokeVoidAsync("releaseEditor", Id).ConfigureAwait(true);
+			}
+		}
+		catch (Exception ex) when (ex is JSException or JSDisconnectedException)
+		{
+			// Ignore failures during disposal; the editor or JS runtime may already be gone.
+		}
+
+		await DisposeModelsAsync(original, modified).ConfigureAwait(true);
+	}
+
 	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		GC.SuppressFinalize(this);
-		try
-		{
-			if (_originalModel is not null)
-			{
-				await _originalModel.DisposeModel().ConfigureAwait(true);
-			}
-
-			if (_modifiedModel is not null)
-			{
-				await _modifiedModel.DisposeModel().ConfigureAwait(true);
-			}
-		}
-		catch
-		{
-			// Ignore failures during disposal; the JS runtime may already be gone.
-		}
-		finally
-		{
-			_originalModel = null;
-			_modifiedModel = null;
-		}
+		_disposed = true;
+		await ReleaseEditorAsync().ConfigureAwait(true);
 	}
 }

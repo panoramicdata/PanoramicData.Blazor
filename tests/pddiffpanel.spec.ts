@@ -26,11 +26,18 @@ test.describe("PDDiffPanel", () => {
 		const modifiedText = page.locator(".monaco-editor.modified-in-monaco-diff-editor .lines-content > .view-lines");
 		await expect(modifiedText).toContainText("Hello");
 
+		// The demo passes Theme="vs-dark": the diff renders on a dark background.
+		await expect(page.locator(".monaco-editor.vs-dark").first()).toBeVisible();
+		const background = await diff.evaluate((element) => getComputedStyle(element.querySelector(".monaco-editor")!).getPropertyValue("--vscode-editor-background").trim());
+		expect(background.toLowerCase()).toBe("#1e1e1e");
+
 		// Editing the demo textarea updates the modified side without recreating the editor.
 		await diff.evaluate((element) => element.setAttribute("data-marker", "same-editor"));
+		const editorNode = await diff.elementHandle();
 		await page.locator("#diff-modified").fill("public string Greet() => \"Updated text\";\n");
 		await expect(modifiedText).toContainText("Updated text");
 		await expect(page.locator(".monaco-diff-editor[data-marker='same-editor']")).toHaveCount(1);
+		expect(await page.evaluate((node) => node === document.querySelector(".monaco-diff-editor"), editorNode)).toBe(true);
 
 		// Layout toggle.
 		await expect(page.locator(".monaco-diff-editor.side-by-side")).toHaveCount(1);
@@ -41,9 +48,7 @@ test.describe("PDDiffPanel", () => {
 		await expect(page.locator(".monaco-diff-editor.side-by-side")).toHaveCount(1);
 	});
 
-	// Known component bug: disposing the models before the diff widget has reset logs
-	// "TextModel got disposed before DiffEditorWidget model got reset". Remove fixme once PDDiffPanel is fixed.
-	test.fixme("navigating away disposes the panel without console errors", async ({ page }) => {
+	test("navigating away disposes the panel without console errors", async ({ page }) => {
 		const errors: string[] = [];
 		await openDiffPanel(page, errors);
 		await expect(page.locator(".monaco-diff-editor")).toBeVisible();
@@ -52,5 +57,22 @@ test.describe("PDDiffPanel", () => {
 		await expect(page.locator(".monaco-diff-editor")).toHaveCount(0);
 		await page.waitForTimeout(500);
 		expect(errors).toEqual([]);
+	});
+
+	test("stays side by side in a narrow pane", async ({ page }) => {
+		await openDiffPanel(page, []);
+		await expect(page.locator(".monaco-diff-editor.side-by-side")).toHaveCount(1);
+		await page.setViewportSize({ width: 700, height: 900 });
+		await page.waitForTimeout(500);
+		await expect(page.locator(".monaco-diff-editor.side-by-side")).toHaveCount(1);
+		await expect(page.getByRole("button", { name: "Inline" })).toBeVisible();
+	});
+
+	test("recovers when the page is loaded directly before Monaco is ready", async ({ page }) => {
+		await page.setViewportSize({ width: 1800, height: 900 });
+		await page.goto("/pddiffpanel");
+		await expect(page.locator(".monaco-diff-editor")).toBeVisible({ timeout: 15000 });
+		await expect(page.locator(".monaco-editor.modified-in-monaco-diff-editor .lines-content > .view-lines")).toContainText("Hello");
+		await expect(page.locator("#blazor-error-ui")).toBeHidden();
 	});
 });

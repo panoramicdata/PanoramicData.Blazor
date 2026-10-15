@@ -9,7 +9,7 @@
 			<div class="col"><textarea id="diff-original" class="form-control" rows="6" @bind="_original" @bind:event="oninput"></textarea></div>
 			<div class="col"><textarea id="diff-modified" class="form-control" rows="6" @bind="_modified" @bind:event="oninput"></textarea></div>
 		</div>
-		<PDDiffPanel Original="@_original" Modified="@_modified" FileName="@_fileName" Height="400px" />
+		<PDDiffPanel Original="@_original" Modified="@_modified" FileName="@_fileName" Theme="vs-dark" Height="400px" />
 	</div>
 </DemoSourceView>
 

@@ -2,6 +2,7 @@ using AwesomeAssertions;
 using System.Reflection;
 using BlazorMonaco.Editor;
 using Bunit;
+using Microsoft.JSInterop;
 
 namespace PanoramicData.Blazor.Test.Components;
 
@@ -96,7 +97,7 @@ public class PDDiffPanelTests : BunitContext
 		var init = typeof(PDDiffPanel).GetMethod("OnEditorInitAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
 		// Init is now suspended at its first createModel call; change the parameters while it waits.
-		var task = (Task)init.Invoke(cut.Instance, null)!;
+		var task = cut.InvokeAsync(() => (Task)init.Invoke(cut.Instance, null)!);
 		task.IsCompleted.Should().BeFalse();
 		cut.Render(p => p.Add(c => c.Original, "new-original").Add(c => c.Modified, "new-modified"));
 		createModel.SetResult(new TextModel { Id = "m1", Uri = "inmemory://model/1" });
@@ -109,7 +110,6 @@ public class PDDiffPanelTests : BunitContext
 		setValues.Should().Contain("new-original").And.Contain("new-modified");
 	}
 
-
 	/// <summary>A ReadOnly change after init is pushed to the live editor.</summary>
 	[Fact]
 	public async Task ReadOnly_ChangeAfterInit_IsPushedToEditor()
@@ -121,5 +121,38 @@ public class PDDiffPanelTests : BunitContext
 		await (Task)init.Invoke(cut.Instance, null)!;
 		cut.Render(p => p.Add(c => c.ReadOnly, false));
 		JSInterop.Invocations.Count(i => i.Identifier.EndsWith("updateOptions", StringComparison.Ordinal)).Should().BeGreaterThan(0);
+	}
+
+	/// <summary>Disposing detaches the models from the widget before the models are disposed.</summary>
+	[Fact]
+	public async Task Dispose_ReleasesEditorBeforeDisposingModels()
+	{
+		JSInterop.Setup<TextModel>(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal))
+			.SetResult(new TextModel { Id = "m1", Uri = "inmemory://model/1" });
+		var module = JSInterop.SetupModule("./_content/PanoramicData.Blazor/PDDiffPanel.razor.js");
+		module.Mode = JSRuntimeMode.Loose;
+		var cut = Render<PDDiffPanel>(p => p.Add(c => c.Original, "a").Add(c => c.Modified, "b"));
+		var init = typeof(PDDiffPanel).GetMethod("OnEditorInitAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		await (Task)init.Invoke(cut.Instance, null)!;
+
+		await cut.Instance.DisposeAsync();
+
+		module.Invocations.Select(i => i.Identifier).Should().Contain("releaseEditor");
+		var identifiers = JSInterop.Invocations.Select(i => i.Identifier).ToList();
+		identifiers.Should().Contain(i => i.EndsWith("dispose", StringComparison.OrdinalIgnoreCase));
+	}
+
+	/// <summary>A JavaScript failure while creating the models (Monaco not loaded yet) does not escape init.</summary>
+	[Fact]
+	public async Task Init_JSException_DoesNotThrow()
+	{
+		JSInterop.Setup<TextModel>(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal))
+			.SetException(new JSException("monaco is not defined"));
+		var cut = Render<PDDiffPanel>(p => p.Add(c => c.Original, "a").Add(c => c.Modified, "b"));
+		var init = typeof(PDDiffPanel).GetMethod("OnEditorInitAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+		var act = async () => await (Task)init.Invoke(cut.Instance, null)!;
+
+		await act.Should().NotThrowAsync();
 	}
 }

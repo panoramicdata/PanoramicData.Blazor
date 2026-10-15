@@ -13,7 +13,8 @@
 		<div class="pd-diffpanel-empty">No changes</div>
 	}
 	<div class="pd-diffpanel-editor" hidden="@(!HasChanges)">
-		<StandaloneDiffEditor @ref="_editor"
+		<StandaloneDiffEditor @key="_editorGeneration"
+							  @ref="_editor"
 							  Id="@Id"
 							  ConstructionOptions="GetOptions"
 							  OnDidInit="OnEditorInitAsync" />
