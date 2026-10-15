@@ -5,6 +5,7 @@
 	--pdmp-muted-bg: var(--bs-secondary-bg, #e9ecef);
 	--pdmp-buffered-bg: var(--bs-tertiary-color, rgba(33, 37, 41, 0.3));
 	--pdmp-range-bg: var(--bs-warning-bg-subtle, #fff3cd);
+
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
@@ -15,19 +16,6 @@
 	.pd-media-player:focus {
 		outline: none;
 	}
-
-	.pd-media-player.pdmp-side {
-		flex-flow: row wrap;
-		align-items: flex-start;
-	}
-
-		.pd-media-player.pdmp-side .pdmp-player {
-			flex: 1 1 20rem;
-		}
-
-		.pd-media-player.pdmp-side .pdmp-markers {
-			flex: 1 1 16rem;
-		}
 
 .pdmp-player {
 	display: flex;
@@ -362,6 +350,20 @@
 	font-weight: normal;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+/* the marker list beside the player; it wraps beneath at narrow widths */
+.pd-media-player.pdmp-side {
+	flex-flow: row wrap;
+	align-items: flex-start;
+}
+
+.pd-media-player.pdmp-side .pdmp-player {
+	flex: 1 1 20rem;
+}
+
+.pd-media-player.pdmp-side .pdmp-markers {
+	flex: 1 1 16rem;
 }
 
 @media (max-width: 575.98px) {

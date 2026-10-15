@@ -62,6 +62,6 @@ public partial class PDMediaPlayerDocumentation
 		}
 		""";
 
-	private double _rate = 1;
-	private PDMediaMarker? _selected;
+	private double Rate { get; set; } = 1;
+	private PDMediaMarker? Selected { get; set; }
 }

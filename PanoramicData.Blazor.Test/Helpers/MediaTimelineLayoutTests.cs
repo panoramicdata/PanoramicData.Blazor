@@ -142,7 +142,7 @@ public class MediaTimelineLayoutTests
 	[Fact]
 	public void GetMarkerTicks_ClampsToTheMedia()
 	{
-		var ticks = Ticks([At(-5, "a"), At(90, "b"), At(55, "c", length: 30)], _minute);
+		var ticks = Ticks([At(-5), At(90, "b"), At(55, "c", length: 30)], _minute);
 
 		ticks.Single(t => t.Kind == "a").LeftPercent.Should().Be(0);
 		ticks.Single(t => t.Kind == "b").LeftPercent.Should().Be(100);

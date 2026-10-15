@@ -14,13 +14,16 @@ public class MediaMarkerNavigatorTests
 
 	private static readonly IReadOnlyList<PDMediaMarker> _sorted = MediaMarkerNavigator.Sort(
 	[
-		At(10, "a"),
+		At(10),
 		At(20, "b"),
-		At(30, "a"),
+		At(30),
 		At(40, "b")
 	]);
 
 	private static string? IdOf(PDMediaMarker? marker) => marker?.Id;
+
+	// a deterministic, evenly spread sequence in [0, 1): the fractional parts of multiples of the golden ratio
+	private static double Spread(int i) => i * 0.6180339887498949 % 1;
 
 	/// <summary>Sorting orders by position, keeps the given order for ties and drops nulls.</summary>
 	[Fact]
@@ -48,7 +51,7 @@ public class MediaMarkerNavigatorTests
 	[Fact]
 	public void Filter_ByKind_KeepsThatKind()
 	{
-		var markers = MediaMarkerNavigator.Sort([At(1, "a"), At(2, "B"), At(3, ""), new PDMediaMarker { Position = TimeSpan.FromSeconds(4), Kind = null! }]);
+		var markers = MediaMarkerNavigator.Sort([At(1), At(2, "B"), At(3, ""), new PDMediaMarker { Position = TimeSpan.FromSeconds(4), Kind = null! }]);
 
 		MediaMarkerNavigator.Filter(markers, " b ").Select(m => m.Position.TotalSeconds).Should().Equal(2);
 		MediaMarkerNavigator.Filter(markers, (string)null!).Select(m => m.Position.TotalSeconds).Should().Equal(3, 4);
@@ -57,7 +60,7 @@ public class MediaMarkerNavigatorTests
 	/// <summary>Counts are per kind, ignoring case, ordered by kind.</summary>
 	[Fact]
 	public void CountByKind_CountsEachKind()
-		=> MediaMarkerNavigator.CountByKind([At(1, "b"), At(2, "a"), At(3, "B"), At(4, "")])
+		=> MediaMarkerNavigator.CountByKind([At(1, "b"), At(2), At(3, "B"), At(4, "")])
 			.Should().Equal(
 				new KeyValuePair<string, int>("", 1),
 				new KeyValuePair<string, int>("a", 1),
@@ -119,11 +122,10 @@ public class MediaMarkerNavigatorTests
 	[Fact]
 	public void LargeList_LookupsMatchALinearSearch()
 	{
-		var random = new Random(42);
-		var markers = MediaMarkerNavigator.Sort(Enumerable.Range(0, 10_000).Select(i => At(random.NextDouble() * 7200, id: $"m{i}")));
+		var markers = MediaMarkerNavigator.Sort(Enumerable.Range(0, 10_000).Select(i => At(Spread(i) * 7200, id: $"m{i}")));
 		for (var i = 0; i < 200; i++)
 		{
-			var cursor = TimeSpan.FromSeconds(random.NextDouble() * 7300);
+			var cursor = TimeSpan.FromSeconds(Spread(i + 10_000) * 7300);
 			MediaMarkerNavigator.Next(markers, cursor, _tolerance).Should().BeSameAs(markers.FirstOrDefault(m => m.Position > cursor + _tolerance));
 			MediaMarkerNavigator.Previous(markers, cursor, _tolerance).Should().BeSameAs(markers.LastOrDefault(m => m.Position < cursor - _tolerance));
 			MediaMarkerNavigator.Current(markers, cursor).Should().BeSameAs(markers.LastOrDefault(m => m.Position <= cursor));

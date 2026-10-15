@@ -139,7 +139,7 @@ public partial class PDMediaPlayerTests
 	[Fact]
 	public async Task VisibleKindsParameter_Filters()
 	{
-		var cut = await RenderWithMarkersAsync(p => p.Add(x => x.VisibleKinds, new HashSet<string> { "SEGMENT", " dead-air " }));
+		var cut = await RenderWithMarkersAsync(p => p.Add(x => x.VisibleKinds, new HashSet<string> { "SEGMENT", " dead-air ", null! }));
 
 		ListedLabels(cut).Should().Equal("Gap", "News", "After the end");
 

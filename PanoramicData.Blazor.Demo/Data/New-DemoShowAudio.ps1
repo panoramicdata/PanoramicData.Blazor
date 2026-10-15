@@ -28,23 +28,23 @@ $samples = [byte[]]::new($count)
 $notes = @(261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 440.00, 392.00, 329.63, 293.66)
 $noteLength = 0.5
 
-function Test-Between([double]$t, [double]$from, [double]$to) {
-	return $t -ge $from -and $t -lt $to
+function Test-Between([double]$Time, [double]$From, [double]$To) {
+	return $Time -ge $From -and $Time -lt $To
 }
 
 for ($i = 0; $i -lt $count; $i++) {
 	$t = $i / $sampleRate
 	$value = 0.0
 
-	if ((Test-Between $t 0 5) -or (Test-Between $t 55 60)) {
+	if ((Test-Between -Time $t -From 0 -To 5) -or (Test-Between -Time $t -From 55 -To 60)) {
 		# margin: a quiet 110 Hz hum
 		$value = 0.12 * [Math]::Sin(2 * [Math]::PI * 110 * $t)
 	}
-	elseif ((Test-Between $t 18 21) -or (Test-Between $t 40 42.5)) {
+	elseif ((Test-Between -Time $t -From 18 -To 21) -or (Test-Between -Time $t -From 40 -To 42.5)) {
 		# dead air
 		$value = 0.0
 	}
-	elseif ((Test-Between $t 30 31) -or (Test-Between $t 47 47.5)) {
+	elseif ((Test-Between -Time $t -From 30 -To 31) -or (Test-Between -Time $t -From 47 -To 47.5)) {
 		# clipping: a loud tone squared off at full scale
 		$value = [Math]::Max(-1.0, [Math]::Min(1.0, 3.0 * [Math]::Sin(2 * [Math]::PI * 330 * $t)))
 	}

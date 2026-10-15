@@ -1,12 +1,35 @@
 using PanoramicData.Blazor.Helpers;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace PanoramicData.Blazor;
 
 public partial class PDMediaPlayer
 {
+	// the events the script reports, and what each one does; any other event is ignored
+	private static readonly Dictionary<string, Func<PDMediaPlayer, MediaElementState, Task>> _mediaEventHandlers = new(StringComparer.Ordinal)
+	{
+		["loadedmetadata"] = (player, state) => player.OnMetadataAsync(state),
+		["durationchange"] = (player, state) => player.OnMetadataAsync(state),
+		["timeupdate"] = (player, state) => player.OnProgressAsync(state, raiseTimeUpdate: true),
+		["seeked"] = (player, state) => player.OnProgressAsync(state, raiseTimeUpdate: true),
+		["progress"] = (player, state) => player.OnProgressAsync(state, raiseTimeUpdate: false),
+		["play"] = (player, _) => player.OnPlayEventAsync(),
+		["pause"] = (player, state) => player.OnPauseEventAsync(state),
+		["ended"] = (player, state) => player.OnEndedEventAsync(state),
+		["error"] = (player, state) => player.OnMediaErrorAsync(state)
+	};
+
+	private DotNetObjectReference<PDMediaPlayer>? _objRef;
+	private MediaKind? _attachedKind;
+	private bool _disposed;
 	private MediaPlayerPersistedState? _persisted;
 	private DateTimeOffset _lastPersist = DateTimeOffset.MinValue;
+
+	/// <summary>
+	/// Gets or sets the media element, set by the markup's <c>@ref</c>.
+	/// </summary>
+	internal ElementReference MediaElement { get; set; }
 
 	/// <summary>
 	/// Called by the player's script when the media element raises an event. The script sends
@@ -55,7 +78,7 @@ public partial class PDMediaPlayer
 			if (Module is not null)
 			{
 				await SavePositionAsync(force: true).ConfigureAwait(true);
-				await TryInvokeVoidAsync("detach", _mediaElement).ConfigureAwait(true);
+				await TryInvokeVoidAsync("detach", MediaElement).ConfigureAwait(true);
 			}
 
 			await base.DisposeAsync().ConfigureAwait(true);
@@ -70,58 +93,60 @@ public partial class PDMediaPlayer
 	{
 		_objRef ??= DotNetObjectReference.Create(this);
 		_attachedKind = _kind;
-		await TryInvokeVoidAsync("attach", _mediaElement, _objRef, _updateInterval).ConfigureAwait(true);
-		await TryInvokeVoidAsync("setRate", _mediaElement, _rate).ConfigureAwait(true);
-		await TryInvokeVoidAsync("setVolume", _mediaElement, _volume, _muted).ConfigureAwait(true);
+		await TryInvokeVoidAsync("attach", MediaElement, _objRef, _updateInterval).ConfigureAwait(true);
+		await TryInvokeVoidAsync("setRate", MediaElement, _rate).ConfigureAwait(true);
+		await TryInvokeVoidAsync("setVolume", MediaElement, _volume, _muted).ConfigureAwait(true);
 	}
 
 	private async Task HandleMediaEventAsync(string eventName, MediaElementState? state)
 	{
-		if (_disposed || state is null)
+		var handler = GetMediaEventHandler(eventName);
+		if (_disposed || state is null || handler is null)
 		{
 			return;
 		}
 
-		switch (eventName)
-		{
-			case "loadedmetadata" or "durationchange":
-				await OnMetadataAsync(state).ConfigureAwait(true);
-				break;
-			case "timeupdate" or "seeked":
-				await OnProgressAsync(state, raiseTimeUpdate: true).ConfigureAwait(true);
-				break;
-			case "progress":
-				await OnProgressAsync(state, raiseTimeUpdate: false).ConfigureAwait(true);
-				break;
-			case "play":
-				_isPlaying = true;
-				await OnPlay.InvokeAsync().ConfigureAwait(true);
-				break;
-			case "pause":
-				_isPlaying = false;
-				UpdatePosition(state);
-				await OnPause.InvokeAsync().ConfigureAwait(true);
-				await SavePositionAsync(force: true).ConfigureAwait(true);
-				break;
-			case "ended":
-				_isPlaying = false;
-				UpdatePosition(state);
-				await OnEnded.InvokeAsync().ConfigureAwait(true);
-				await ClearPositionAsync().ConfigureAwait(true);
-				break;
-			case "error":
-				await OnMediaErrorAsync(state).ConfigureAwait(true);
-				break;
-			default:
-				return;
-		}
-
+		await handler(this, state).ConfigureAwait(true);
 		StateHasChanged();
+	}
+
+	private static Func<PDMediaPlayer, MediaElementState, Task>? GetMediaEventHandler(string eventName)
+		=> _mediaEventHandlers.GetValueOrDefault(eventName);
+
+	private Task OnPlayEventAsync()
+	{
+		_isPlaying = true;
+		return OnPlay.InvokeAsync();
+	}
+
+	private async Task OnPauseEventAsync(MediaElementState state)
+	{
+		_isPlaying = false;
+		UpdatePosition(state);
+		await OnPause.InvokeAsync().ConfigureAwait(true);
+		await SavePositionAsync(force: true).ConfigureAwait(true);
+	}
+
+	private async Task OnEndedEventAsync(MediaElementState state)
+	{
+		_isPlaying = false;
+		UpdatePosition(state);
+		await OnEnded.InvokeAsync().ConfigureAwait(true);
+		await ClearPositionAsync().ConfigureAwait(true);
 	}
 
 	private async Task OnMetadataAsync(MediaElementState state)
 	{
 		_buffered = state.Buffered;
+		UpdateDuration(state);
+		if (!_isReady && (_duration is not null || _isLive))
+		{
+			await BecomeReadyAsync(state).ConfigureAwait(true);
+		}
+	}
+
+	private void UpdateDuration(MediaElementState state)
+	{
 		_isLive = state.IsInfinite;
 		var duration = _isLive ? null : MediaTimeFormatter.FromSeconds(state.Duration);
 		if (duration != _duration)
@@ -129,26 +154,24 @@ public partial class PDMediaPlayer
 			_duration = duration;
 			InvalidateTicks();
 		}
+	}
 
-		if (_isReady || (duration is null && !_isLive))
-		{
-			return;
-		}
-
+	private async Task BecomeReadyAsync(MediaElementState state)
+	{
 		_isReady = true;
 		_error = null;
 
 		// a new source starts at the element's default rate, which the script keeps equal to the chosen rate
 		if (Math.Abs(state.PlaybackRate - _rate) > 0.001)
 		{
-			await TryInvokeVoidAsync("setRate", _mediaElement, _rate).ConfigureAwait(true);
+			await TryInvokeVoidAsync("setRate", MediaElement, _rate).ConfigureAwait(true);
 		}
 
-		var target = _isLive ? null : _pendingSeek ?? GetSavedPosition() ?? StartAt;
+		var target = GetStartPosition();
 		_pendingSeek = null;
-		if (target is { } position && position > TimeSpan.Zero)
+		if (target > TimeSpan.Zero)
 		{
-			await SeekCoreAsync(position).ConfigureAwait(true);
+			await SeekCoreAsync(target).ConfigureAwait(true);
 		}
 		else
 		{
@@ -157,6 +180,10 @@ public partial class PDMediaPlayer
 
 		await OnReady.InvokeAsync(_duration).ConfigureAwait(true);
 	}
+
+	// where a newly loaded source starts: a seek asked for before loading, else the saved position, else StartAt
+	private TimeSpan GetStartPosition()
+		=> _isLive ? TimeSpan.Zero : _pendingSeek ?? GetSavedPosition() ?? StartAt ?? TimeSpan.Zero;
 
 	private async Task OnProgressAsync(MediaElementState state, bool raiseTimeUpdate)
 	{
@@ -265,15 +292,15 @@ public partial class PDMediaPlayer
 		await WritePersistedStateAsync().ConfigureAwait(true);
 	}
 
+	// a position is worth saving for loaded, seekable media when a key and the loaded state are available
+	[MemberNotNullWhen(true, nameof(_persisted), nameof(_src))]
+	private bool CanSavePosition
+		=> _persisted is not null && !string.IsNullOrWhiteSpace(PersistKey) && _isReady && !_isLive && !string.IsNullOrWhiteSpace(_src);
+
 	private async Task SavePositionAsync(bool force)
 	{
-		if (_persisted is null || string.IsNullOrWhiteSpace(PersistKey) || !_isReady || _isLive || string.IsNullOrWhiteSpace(_src))
-		{
-			return;
-		}
-
 		var now = Clock.GetUtcNow();
-		if (!force && now - _lastPersist < PersistInterval)
+		if (!CanSavePosition || (!force && now - _lastPersist < PersistInterval))
 		{
 			return;
 		}

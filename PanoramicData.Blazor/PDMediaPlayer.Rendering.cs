@@ -113,6 +113,9 @@ public partial class PDMediaPlayer
 			case MediaShortcut.Faster:
 				await SetPlaybackRateAsync(MediaPlaybackRates.Step(_rates, _rate, faster: true)).ConfigureAwait(true);
 				break;
+			default:
+				// not a shortcut: the key keeps its usual meaning
+				break;
 		}
 	}
 

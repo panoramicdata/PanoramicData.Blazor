@@ -27,10 +27,6 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 	private const string DefaultKindLabel = "Marker";
 	private const int MaxReportedPositions = 8;
 
-	private ElementReference _mediaElement;
-	private DotNetObjectReference<PDMediaPlayer>? _objRef;
-	private MediaKind? _attachedKind;
-	private bool _disposed;
 	private bool _parametersInitialized;
 
 	private string? _src;
@@ -517,7 +513,22 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 		await ApplyChangedParametersAsync().ConfigureAwait(true);
 	}
 
+	// each parameter is applied only when the host passes a different value from last time
 	private async Task ApplyChangedParametersAsync()
+	{
+		await ApplySoundParametersAsync().ConfigureAwait(true);
+		await ApplyPositionParameterAsync().ConfigureAwait(true);
+		await ApplyPersistKeyParameterAsync().ConfigureAwait(true);
+
+		var interval = MediaTimelineLayout.GetUpdateIntervalMilliseconds(TimeUpdateRate);
+		if (interval != _updateInterval)
+		{
+			_updateInterval = interval;
+			await TryInvokeVoidAsync("configure", MediaElement, _updateInterval).ConfigureAwait(true);
+		}
+	}
+
+	private async Task ApplySoundParametersAsync()
 	{
 		if (!_lastRateParameter.Equals(PlaybackRate))
 		{
@@ -536,39 +547,44 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 			_lastMutedParameter = Muted;
 			await SetMutedAsync(Muted).ConfigureAwait(true);
 		}
+	}
 
-		if (_lastPositionParameter != Position)
+	private async Task ApplyPositionParameterAsync()
+	{
+		if (_lastPositionParameter == Position)
 		{
-			_lastPositionParameter = Position;
-
-			// a host bound to Position passes back the positions the player reported, which are not requests to seek
-			if (Position != _position && !_reportedPositions.Contains(Position))
-			{
-				await SeekAsync(Position).ConfigureAwait(true);
-			}
+			return;
 		}
 
-		if (_lastPersistKey != PersistKey)
+		_lastPositionParameter = Position;
+
+		// a host bound to Position passes back the positions the player reported, which are not requests to seek
+		if (Position != _position && !_reportedPositions.Contains(Position))
 		{
-			// a different key holds a different speed and different positions
-			_lastPersistKey = PersistKey;
-			_persisted = null;
-			if (Module is not null)
-			{
-				await LoadPersistedStateAsync().ConfigureAwait(true);
-				await TryInvokeVoidAsync("setRate", _mediaElement, _rate).ConfigureAwait(true);
-				if (_isReady && !_isLive && GetSavedPosition() is { } saved)
-				{
-					await SeekCoreAsync(saved).ConfigureAwait(true);
-				}
-			}
+			await SeekAsync(Position).ConfigureAwait(true);
+		}
+	}
+
+	private async Task ApplyPersistKeyParameterAsync()
+	{
+		if (_lastPersistKey == PersistKey)
+		{
+			return;
 		}
 
-		var interval = MediaTimelineLayout.GetUpdateIntervalMilliseconds(TimeUpdateRate);
-		if (interval != _updateInterval)
+		// a different key holds a different speed and different positions
+		_lastPersistKey = PersistKey;
+		_persisted = null;
+		if (Module is null)
 		{
-			_updateInterval = interval;
-			await TryInvokeVoidAsync("configure", _mediaElement, _updateInterval).ConfigureAwait(true);
+			return;
+		}
+
+		await LoadPersistedStateAsync().ConfigureAwait(true);
+		await TryInvokeVoidAsync("setRate", MediaElement, _rate).ConfigureAwait(true);
+		if (_isReady && !_isLive && GetSavedPosition() is { } saved)
+		{
+			await SeekCoreAsync(saved).ConfigureAwait(true);
 		}
 	}
 
@@ -594,7 +610,7 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 		_error = null;
 		// the script answers null when playback started, or the name of the error (NotAllowedError when the browser
 		// blocks playback that the user did not start)
-		var failure = await TryInvokeAsync<string?>("Error", "play", _mediaElement).ConfigureAwait(true);
+		var failure = await TryInvokeAsync<string?>("Error", "play", MediaElement).ConfigureAwait(true);
 		_isPlaying = failure is null;
 		await RefreshAsync().ConfigureAwait(true);
 	}
@@ -607,7 +623,7 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 	{
 		_pendingPlay = false;
 		_isPlaying = false;
-		await TryInvokeVoidAsync("pause", _mediaElement).ConfigureAwait(true);
+		await TryInvokeVoidAsync("pause", MediaElement).ConfigureAwait(true);
 		await RefreshAsync().ConfigureAwait(true);
 	}
 
@@ -646,7 +662,7 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 		var clamped = MediaPlaybackRates.Clamp(rate);
 		var changed = !clamped.Equals(_rate);
 		_rate = clamped;
-		await TryInvokeVoidAsync("setRate", _mediaElement, _rate).ConfigureAwait(true);
+		await TryInvokeVoidAsync("setRate", MediaElement, _rate).ConfigureAwait(true);
 		if (changed)
 		{
 			await PlaybackRateChanged.InvokeAsync(_rate).ConfigureAwait(true);
@@ -666,7 +682,7 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 		var clamped = ClampVolume(volume);
 		var changed = !clamped.Equals(_volume);
 		_volume = clamped;
-		await TryInvokeVoidAsync("setVolume", _mediaElement, _volume, _muted).ConfigureAwait(true);
+		await TryInvokeVoidAsync("setVolume", MediaElement, _volume, _muted).ConfigureAwait(true);
 		if (changed)
 		{
 			await VolumeChanged.InvokeAsync(_volume).ConfigureAwait(true);
@@ -684,7 +700,7 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 	{
 		var changed = muted != _muted;
 		_muted = muted;
-		await TryInvokeVoidAsync("setVolume", _mediaElement, _volume, _muted).ConfigureAwait(true);
+		await TryInvokeVoidAsync("setVolume", MediaElement, _volume, _muted).ConfigureAwait(true);
 		if (changed)
 		{
 			await MutedChanged.InvokeAsync(_muted).ConfigureAwait(true);
@@ -709,7 +725,7 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 		if (_isReady && Module is not null && _attachedKind is not null)
 		{
 			_pendingSeek = null;
-			await TryInvokeVoidAsync("seek", _mediaElement, target.TotalSeconds).ConfigureAwait(true);
+			await TryInvokeVoidAsync("seek", MediaElement, target.TotalSeconds).ConfigureAwait(true);
 		}
 		else
 		{

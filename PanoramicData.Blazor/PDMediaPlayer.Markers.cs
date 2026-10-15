@@ -50,11 +50,17 @@ public partial class PDMediaPlayer
 	}
 
 	/// <summary>
+	/// Seeks to the next visible marker after the current position (see <see cref="MarkerTolerance"/>).
+	/// </summary>
+	/// <returns>The marker sought to, or <c>null</c> when there is none.</returns>
+	public Task<PDMediaMarker?> NextMarkerAsync() => NextMarkerAsync(null);
+
+	/// <summary>
 	/// Seeks to the next marker after the current position (see <see cref="MarkerTolerance"/>).
 	/// </summary>
 	/// <param name="kind">The kind of marker to go to, whether or not it is visible; <c>null</c> for any visible kind.</param>
 	/// <returns>The marker sought to, or <c>null</c> when there is none.</returns>
-	public async Task<PDMediaMarker?> NextMarkerAsync(string? kind = null)
+	public async Task<PDMediaMarker?> NextMarkerAsync(string? kind)
 	{
 		var markers = GetNavigableMarkers(kind);
 		var position = _scrubPosition ?? _pendingSeek ?? _position;
@@ -75,12 +81,19 @@ public partial class PDMediaPlayer
 	}
 
 	/// <summary>
+	/// Seeks to the previous visible marker: the start of the current marker when more than
+	/// <see cref="MarkerTolerance"/> into it, otherwise the marker before.
+	/// </summary>
+	/// <returns>The marker sought to, or <c>null</c> when there is none.</returns>
+	public Task<PDMediaMarker?> PreviousMarkerAsync() => PreviousMarkerAsync(null);
+
+	/// <summary>
 	/// Seeks to the previous marker: the start of the current marker when more than <see cref="MarkerTolerance"/>
 	/// into it, otherwise the marker before.
 	/// </summary>
 	/// <param name="kind">The kind of marker to go to, whether or not it is visible; <c>null</c> for any visible kind.</param>
 	/// <returns>The marker sought to, or <c>null</c> when there is none.</returns>
-	public async Task<PDMediaMarker?> PreviousMarkerAsync(string? kind = null)
+	public async Task<PDMediaMarker?> PreviousMarkerAsync(string? kind)
 	{
 		var marker = MediaMarkerNavigator.Previous(GetNavigableMarkers(kind), MarkerCursor, MarkerTolerance);
 		if (marker is not null)
@@ -137,23 +150,8 @@ public partial class PDMediaPlayer
 
 	private void ApplyMarkerParameters()
 	{
-		var markersChanged = !ReferenceEquals(Markers, _lastMarkers) || (Markers?.TryGetNonEnumeratedCount(out var count) == true && count != _lastMarkerCount);
-		if (markersChanged)
-		{
-			_lastMarkers = Markers;
-			_sortedMarkers = MediaMarkerNavigator.Sort(Markers);
-			_lastMarkerCount = _sortedMarkers.Count;
-			_kindCounts = MediaMarkerNavigator.CountByKind(_sortedMarkers);
-		}
-
-		var kindsChanged = !_visibleKindsInitialized || !ReferenceEquals(VisibleKinds, _lastVisibleKindsParameter);
-		if (kindsChanged)
-		{
-			_visibleKindsInitialized = true;
-			_lastVisibleKindsParameter = VisibleKinds;
-			_visibleKinds = VisibleKinds is null ? null : new HashSet<string>(VisibleKinds.Select(k => k?.Trim() ?? string.Empty), MediaMarkerNavigator.KindComparer);
-		}
-
+		var markersChanged = ApplyMarkersParameter();
+		var kindsChanged = ApplyVisibleKindsParameter();
 		if (markersChanged || kindsChanged)
 		{
 			UpdateVisibleMarkers();
@@ -166,6 +164,39 @@ public partial class PDMediaPlayer
 			InvalidateTicks();
 		}
 	}
+
+	// re-sorts the markers when the host passes a new collection, or the same list with a different count
+	private bool ApplyMarkersParameter()
+	{
+		if (ReferenceEquals(Markers, _lastMarkers) && !HasMarkerCountChanged())
+		{
+			return false;
+		}
+
+		_lastMarkers = Markers;
+		_sortedMarkers = MediaMarkerNavigator.Sort(Markers);
+		_lastMarkerCount = _sortedMarkers.Count;
+		_kindCounts = MediaMarkerNavigator.CountByKind(_sortedMarkers);
+		return true;
+	}
+
+	private bool HasMarkerCountChanged()
+		=> Markers is not null && Markers.TryGetNonEnumeratedCount(out var count) && count != _lastMarkerCount;
+
+	private bool ApplyVisibleKindsParameter()
+	{
+		if (_visibleKindsInitialized && ReferenceEquals(VisibleKinds, _lastVisibleKindsParameter))
+		{
+			return false;
+		}
+
+		_visibleKindsInitialized = true;
+		_lastVisibleKindsParameter = VisibleKinds;
+		_visibleKinds = VisibleKinds is null ? null : new HashSet<string>(VisibleKinds.Select(NormalizeKind), MediaMarkerNavigator.KindComparer);
+		return true;
+	}
+
+	private static string NormalizeKind(string? kind) => kind?.Trim() ?? string.Empty;
 
 	private void UpdateVisibleMarkers()
 	{

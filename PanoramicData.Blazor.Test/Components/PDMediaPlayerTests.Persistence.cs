@@ -227,7 +227,7 @@ public partial class PDMediaPlayerTests
 	public async Task Dispose_AfterTheCircuitHasGone_DoesNotThrow()
 	{
 		_module.SetupVoid("detach", _ => true).SetException(new JSDisconnectedException("gone"));
-		var cut = RenderPlayer();
+		RenderPlayer();
 
 		var dispose = () => DisposeComponentsAsync();
 

@@ -44,9 +44,9 @@
 							   SeekLead="TimeSpan.FromSeconds(3)"
 							   RangeStart="TimeSpan.FromSeconds(5)"
 							   RangeEnd="TimeSpan.FromSeconds(55)"
-							   @bind-PlaybackRate="_rate"
-							   OnMarkerSelected="m => _selected = m" />
-				<p class="small text-muted mt-2 mb-0">Speed @_rate.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)×; selected: @(_selected?.Label ?? "none")</p>
+							   @bind-PlaybackRate="Rate"
+							   OnMarkerSelected="m => Selected = m" />
+				<p class="small text-muted mt-2 mb-0">Speed @Rate.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)×; selected: @(Selected?.Label ?? "none")</p>
 			</DemoContent>
 			<Description>
 				<p>

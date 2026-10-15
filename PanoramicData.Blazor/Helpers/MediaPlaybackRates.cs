@@ -6,13 +6,13 @@ namespace PanoramicData.Blazor.Helpers;
 public static class MediaPlaybackRates
 {
 	/// <summary>The slowest rate allowed.</summary>
-	public const double Minimum = 0.5;
+	public static double Minimum { get; } = 0.5;
 
 	/// <summary>The fastest rate allowed.</summary>
-	public const double Maximum = 4;
+	public static double Maximum { get; } = 4;
 
 	/// <summary>The normal rate.</summary>
-	public const double Normal = 1;
+	public static double Normal { get; } = 1;
 
 	/// <summary>
 	/// Gets the rates offered when none are given: 0.75, 1, 1.25, 1.5, 1.75 and 2.

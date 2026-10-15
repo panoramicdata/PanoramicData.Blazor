@@ -27,7 +27,7 @@
 		@if (_kind == MediaKind.Video)
 		{
 			<video @key="MediaKind.Video"
-				   @ref="_mediaElement"
+				   @ref="MediaElement"
 				   class="pdmp-media pdmp-video"
 				   src="@(HasSource ? _src : null)"
 				   poster="@Poster"
@@ -42,7 +42,7 @@
 		else
 		{
 			<audio @key="MediaKind.Audio"
-				   @ref="_mediaElement"
+				   @ref="MediaElement"
 				   class="pdmp-media"
 				   src="@(HasSource ? _src : null)"
 				   preload="@PreloadValue"

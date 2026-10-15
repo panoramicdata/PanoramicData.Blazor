@@ -3,7 +3,15 @@
 // reports what the element did and does what it is told.
 
 const players = new WeakMap();
-const immediateEvents = ["loadedmetadata", "durationchange", "play", "pause", "ended", "error", "seeked"];
+const immediateEvents = [
+	"loadedmetadata",
+	"durationchange",
+	"play",
+	"pause",
+	"ended",
+	"error",
+	"seeked",
+];
 const throttledEvents = ["timeupdate", "progress"];
 
 function snapshot(el) {
@@ -32,19 +40,21 @@ export function attach(el, dotNetRef, intervalMs) {
 	const player = { dotNetRef, intervalMs, last: 0, timer: null, listeners: [] };
 	const send = (type) => {
 		if (player.dotNetRef) {
-			player.dotNetRef.invokeMethodAsync("OnMediaEvent", type, snapshot(el)).catch(() => { });
+			player.dotNetRef
+				.invokeMethodAsync("OnMediaEvent", type, snapshot(el))
+				.catch(() => {});
 		}
 	};
 	// timeupdate and progress are sent at most once per interval, with a trailing send so the last position arrives
 	const sendThrottled = (type) => {
-		const wait = player.intervalMs - (performance.now() - player.last);
+		const wait = player.intervalMs - (Date.now() - player.last);
 		if (wait <= 0) {
-			player.last = performance.now();
+			player.last = Date.now();
 			send(type);
 		} else if (!player.timer) {
 			player.timer = setTimeout(() => {
 				player.timer = null;
-				player.last = performance.now();
+				player.last = Date.now();
 				send(type);
 			}, wait);
 		}
@@ -86,13 +96,12 @@ export function configure(el, intervalMs) {
 	}
 }
 
-export async function play(el) {
-	try {
-		await el.play();
-		return null;
-	} catch (e) {
-		return (e && e.name) || "Error";
-	}
+// resolves to null when playback starts, or to the error's name (NotAllowedError when the browser blocks it)
+export function play(el) {
+	return el.play().then(
+		() => null,
+		(e) => (e && e.name) || "Error",
+	);
 }
 
 export function pause(el) {
@@ -122,14 +131,21 @@ export function setVolume(el, volume, muted) {
 }
 
 // asks for the first byte of a source that failed, to learn its HTTP status (401, 403, 404...)
-export async function probe(url) {
-	try {
-		const response = await fetch(url, { headers: { Range: "bytes=0-0" }, credentials: "same-origin", cache: "no-store" });
-		response.body?.cancel();
-		return response.status;
-	} catch {
-		return null;
-	}
+export function probe(url) {
+	return new Promise((resolve) => {
+		const request = new XMLHttpRequest();
+		request.open("GET", url);
+		request.setRequestHeader("Range", "bytes=0-0");
+		// the status is all that is wanted, so the body is not waited for
+		request.onreadystatechange = () => {
+			if (request.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
+				resolve(request.status || null);
+				request.abort();
+			}
+		};
+		request.onerror = () => resolve(null);
+		request.send();
+	});
 }
 
 export function getItem(key) {
