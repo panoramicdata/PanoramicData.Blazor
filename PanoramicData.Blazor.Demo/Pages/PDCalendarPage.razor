@@ -1,0 +1,138 @@
+@page "/pdcalendar"
+
+<h1>PDCalendar</h1>
+
+<DemoSourceView SourceFiles="Pages/PDCalendarPage.razor, Pages/PDCalendarPage.razor.cs, Pages/PDCalendarPage.razor.css">
+	<DocumentationContent>
+		<PDCalendarDocumentation />
+	</DocumentationContent>
+	<ChildContent>
+
+		<p class="text-muted small mt-3">
+			A two-station radio schedule, loaded lazily for whatever range is visible (watch the busy overlay and the
+			<code>OnVisibleRangeChanged</code> events below). Shows that overlap sit side by side, the late show runs past
+			midnight into the next day's column, and the Harbour Festival runs across a whole weekend. All times are in
+			<code>Europe/London</code>.
+		</p>
+
+		<div class="d-flex flex-wrap align-items-end gap-3 mb-3">
+			<label class="form-label mb-0">
+				View
+				<select class="form-select form-select-sm" @bind="View">
+					@foreach (var view in _views)
+					{
+						<option value="@view">@view</option>
+					}
+				</select>
+			</label>
+			<label class="form-label mb-0">
+				First day of week
+				<select class="form-select form-select-sm" @bind="FirstDayOfWeek">
+					@foreach (var day in _firstDays)
+					{
+						<option value="@day">@day</option>
+					}
+				</select>
+			</label>
+			<label class="form-label mb-0">
+				Hours
+				<span class="d-flex gap-1">
+					<input type="number" class="form-control form-control-sm" style="width: 4.5rem;" min="0" max="23" @bind="FirstVisibleHour" />
+					<input type="number" class="form-control form-control-sm" style="width: 4.5rem;" min="1" max="24" @bind="LastVisibleHour" />
+				</span>
+			</label>
+			<label class="form-label mb-0">
+				Items per day (month)
+				<input type="number" class="form-control form-control-sm" style="width: 4.5rem;" min="0" max="10" @bind="MaxItemsPerDay" />
+			</label>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="cal-now" @bind="NowIndicator" />
+				<label class="form-check-label" for="cal-now">Now indicator</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="cal-weekends" @bind="ShadeWeekends" />
+				<label class="form-check-label" for="cal-weekends">Shade weekends</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="cal-bounds" @bind="UseBounds" />
+				<label class="form-check-label" for="cal-bounds">Limit to Sep to Dec 2026</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="cal-slow" @bind="SlowLoading" />
+				<label class="form-check-label" for="cal-slow">Slow loading</label>
+			</div>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="ShowClockChange">
+				Show the clock change week (25 Oct 2026)
+			</button>
+		</div>
+
+		<div class="calendar-demo">
+			<PDCalendar TItem="Broadcast"
+						Items="_items"
+						StartSelector="b => b.Start"
+						EndSelector="b => b.End"
+						TitleSelector="b => b.Title"
+						KeySelector="b => b.Id"
+						CssClassSelector="b => b.CssClass"
+						TooltipSelector="GetTooltip"
+						TimeZone="_london"
+						@bind-Date="Date"
+						@bind-View="View"
+						@bind-SelectedItem="_selected"
+						FirstDayOfWeek="FirstDayOfWeek"
+						FirstVisibleHour="FirstVisibleHour"
+						LastVisibleHour="LastVisibleHour"
+						MaxItemsPerDay="MaxItemsPerDay"
+						NowIndicator="NowIndicator"
+						ShadeWeekends="ShadeWeekends"
+						MinDate="MinDate"
+						MaxDate="MaxDate"
+						DayCssClassSelector="GetDayCssClass"
+						ScrollToHour="6"
+						IsLoading="_isLoading"
+						OnVisibleRangeChanged="OnVisibleRangeChangedAsync"
+						OnItemSelected="OnItemSelected"
+						OnItemDoubleClick="OnItemDoubleClick"
+						OnSlotSelected="OnSlotSelected"
+						AriaLabel="Radio schedule" />
+		</div>
+
+		<div class="d-flex flex-wrap gap-3 small mt-2">
+			<span>Date: <strong>@(Date?.ToString("ddd d MMM yyyy") ?? "today")</strong></span>
+			<span>Selected: <strong>@(_selected is null ? "none" : $"{_selected.Station}: {_selected.Title}")</strong></span>
+			<span>Last slot: <strong>@_lastSlot</strong></span>
+			<span>Loaded: <strong>@_items.Count broadcasts</strong></span>
+		</div>
+
+		<h5 class="mt-4">Custom item template in the agenda</h5>
+		<p class="text-muted small">
+			<code>ItemTemplate</code> replaces the content of each item. This agenda shares the schedule above and only
+			offers the agenda view, as a narrow screen might.
+		</p>
+		<div class="calendar-demo" style="max-width: 28rem;">
+			<PDCalendar TItem="Broadcast"
+						Items="_items"
+						StartSelector="b => b.Start"
+						EndSelector="b => b.End"
+						KeySelector="b => b.Id"
+						CssClassSelector="b => b.CssClass"
+						TimeZone="_london"
+						Date="Date"
+						View="CalendarView.Agenda"
+						AvailableViews="[CalendarView.Agenda]"
+						AgendaDays="2"
+						IsDisabledSelector="b => b.IsRepeat"
+						AriaLabel="Schedule summary">
+				<ItemTemplate Context="broadcast">
+					<span class="d-flex flex-column">
+						<span class="fw-semibold">@broadcast.Title @(broadcast.IsRepeat ? "(repeat)" : string.Empty)</span>
+						<span class="small opacity-75">@broadcast.Station, @TimeZoneInfo.ConvertTime(broadcast.Start, _london).ToString("HH:mm")</span>
+					</span>
+				</ItemTemplate>
+			</PDCalendar>
+		</div>
+
+		<EventView />
+
+	</ChildContent>
+</DemoSourceView>

@@ -1,0 +1,20 @@
+/* Item colours come from CssClassSelector: each class only sets the calendar's item colour variables. */
+
+.calendar-demo ::deep .demo-cal-city {
+	--pd-calendar-item-bg: #dbe7fd;
+	--pd-calendar-item-fg: #0a3a8a;
+}
+
+.calendar-demo ::deep .demo-cal-coast {
+	--pd-calendar-item-bg: #d4f1e4;
+	--pd-calendar-item-fg: #0b5a3a;
+}
+
+.calendar-demo ::deep .demo-cal-special {
+	--pd-calendar-item-bg: #fde2c8;
+	--pd-calendar-item-fg: #7a3a00;
+}
+
+.calendar-demo ::deep .demo-cal-clock-change .pdcal-day-number {
+	text-decoration: underline dotted;
+}

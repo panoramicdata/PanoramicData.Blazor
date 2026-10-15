@@ -1,0 +1,175 @@
+<div class="pd-calendar-documentation">
+
+	<section id="overview">
+		<h2 class="doc-section">Overview</h2>
+		<p>
+			<code>PDCalendar&lt;TItem&gt;</code> shows anything that has a start and an end in time on a calendar. It is
+			generic over your own item type and reads everything through selector delegates, so there is no calendar
+			model to convert into.
+		</p>
+		<ul>
+			<li>Three views: a <strong>Month</strong> grid, a <strong>Week</strong> time grid with an hour axis, and an <strong>Agenda</strong> list for narrow screens.</li>
+			<li>Overlapping items in the week view sit side by side, using greedy column packing.</li>
+			<li>Items spanning midnight, or several days, appear on every day they cover.</li>
+			<li>A <code>TimeZone</code> decides which day and hour an item falls in, and daylight saving days are drawn with their true 23 or 25 hours.</li>
+			<li><code>OnVisibleRangeChanged</code> tells the host what to load, and <code>IsLoading</code> shows the busy overlay meanwhile.</li>
+			<li>Keyboard accessible, with ARIA grid roles, and no JavaScript unless <code>ScrollToHour</code> is set.</li>
+		</ul>
+	</section>
+
+	<section id="examples">
+		<h2 class="doc-section">Examples</h2>
+
+		<DocExample Title="Basic usage"
+					AnchorId="basic-usage"
+					Code="@_basicCode"
+					Language="razor"
+					DemoStyle="min-height: 420px;">
+			<DemoContent>
+				<PDCalendar TItem="Meeting"
+							Items="_meetings"
+							StartSelector="m => m.Start"
+							EndSelector="m => m.End"
+							TitleSelector="m => m.Title"
+							Date="_date"
+							View="CalendarView.Month" />
+			</DemoContent>
+			<Description>
+				<p>
+					Supply the items and the two time selectors; everything else has a default. The date and view
+					are two-way bindable with <code>@@bind-Date</code> and <code>@@bind-View</code>.
+				</p>
+			</Description>
+		</DocExample>
+
+		<DocExample Title="Lazy loading"
+					AnchorId="lazy-loading"
+					Code="@_lazyCode"
+					Language="razor">
+			<DemoContent>
+				<p class="text-muted">The Demo tab loads a two-station radio schedule this way, with a deliberate delay so the busy overlay shows.</p>
+			</DemoContent>
+			<Description>
+				<p>
+					<code>OnVisibleRangeChanged</code> is raised when the calendar is first shown and whenever the range it
+					shows changes, whether by navigation, a new view or a new date. The range runs from the start of the
+					first visible day to the start of the day after the last, in the calendar's time zone, so it is ready
+					to use as a half-open query. The calendar lays out only the items inside its range, so the host may
+					supply just those.
+				</p>
+			</Description>
+		</DocExample>
+	</section>
+
+	<section id="parameters">
+		<h2 class="doc-section">Parameters</h2>
+
+		<h5>Data</h5>
+		<table class="table table-sm">
+			<thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>Items</code></td><td><code>IEnumerable&lt;TItem&gt;?</code></td><td>The items to show.</td></tr>
+				<tr><td><code>StartSelector</code>, <code>EndSelector</code></td><td><code>Func&lt;TItem, DateTimeOffset&gt;?</code></td><td>Required. When an item starts and ends; an end before the start is treated as the start.</td></tr>
+				<tr><td><code>TitleSelector</code></td><td><code>Func&lt;TItem, string&gt;?</code></td><td>The title; defaults to <code>ToString()</code>.</td></tr>
+				<tr><td><code>KeySelector</code></td><td><code>Func&lt;TItem, object&gt;?</code></td><td>Identifies an item, so the selection survives reloading items as new instances.</td></tr>
+				<tr><td><code>CssClassSelector</code></td><td><code>Func&lt;TItem, string?&gt;?</code></td><td>Extra classes for an item, for example to set <code>--pd-calendar-item-bg</code>.</td></tr>
+				<tr><td><code>TooltipSelector</code></td><td><code>Func&lt;TItem, string?&gt;?</code></td><td>Hover text; defaults to the title and times.</td></tr>
+				<tr><td><code>IsDisabledSelector</code></td><td><code>Func&lt;TItem, bool&gt;?</code></td><td>A disabled item is shown but cannot be selected.</td></tr>
+				<tr><td><code>ItemTemplate</code></td><td><code>RenderFragment&lt;TItem&gt;?</code></td><td>Custom item content.</td></tr>
+				<tr><td><code>TimeZone</code></td><td><code>TimeZoneInfo</code></td><td>Decides days and hours. Defaults to <code>TimeZoneInfo.Local</code>.</td></tr>
+				<tr><td><code>Clock</code></td><td><code>TimeProvider</code></td><td>The source of today and now; replace it in tests. Defaults to <code>TimeProvider.System</code>.</td></tr>
+			</tbody>
+		</table>
+
+		<h5>State</h5>
+		<table class="table table-sm">
+			<thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>Date</code> / <code>DateChanged</code></td><td><code>DateOnly?</code></td><td>The focused date, which decides the period shown; null means today.</td></tr>
+				<tr><td><code>View</code> / <code>ViewChanged</code></td><td><code>CalendarView</code></td><td><code>Month</code> (default), <code>Week</code> or <code>Agenda</code>.</td></tr>
+				<tr><td><code>AvailableViews</code></td><td><code>IReadOnlyList&lt;CalendarView&gt;</code></td><td>The views offered by the switcher.</td></tr>
+				<tr><td><code>SelectedItem</code> / <code>SelectedItemChanged</code></td><td><code>TItem?</code></td><td>The selected item.</td></tr>
+				<tr><td><code>FirstDayOfWeek</code></td><td><code>DayOfWeek</code></td><td>Defaults to Monday.</td></tr>
+				<tr><td><code>MinDate</code>, <code>MaxDate</code></td><td><code>DateOnly?</code></td><td>Days outside are disabled and navigation stops at them.</td></tr>
+				<tr><td><code>IsLoading</code></td><td><code>bool</code></td><td>Shows the busy overlay.</td></tr>
+			</tbody>
+		</table>
+
+		<h5>Layout and appearance</h5>
+		<table class="table table-sm">
+			<thead><tr><th>Name</th><th>Default</th><th>Description</th></tr></thead>
+			<tbody>
+				<tr><td><code>FirstVisibleHour</code>, <code>LastVisibleHour</code></td><td>0, 24</td><td>The local hours shown by the week view.</td></tr>
+				<tr><td><code>SlotHeight</code></td><td>48</td><td>Pixels per hour in the week view.</td></tr>
+				<tr><td><code>MinItemHeight</code></td><td>22</td><td>The smallest height of a week view item; short items are also kept apart in packing.</td></tr>
+				<tr><td><code>ScrollHeight</code></td><td>36rem</td><td>The maximum height of the week view before it scrolls.</td></tr>
+				<tr><td><code>ScrollToHour</code></td><td>null</td><td>Scrolls the week view to an hour when shown, using the library's common module.</td></tr>
+				<tr><td><code>MaxItemsPerDay</code></td><td>3</td><td>Items listed in a month day before a "+n more" button, which opens that day's agenda.</td></tr>
+				<tr><td><code>AgendaDays</code></td><td>7</td><td>Days listed by the agenda, starting at the focused date.</td></tr>
+				<tr><td><code>NowIndicator</code></td><td>true</td><td>A line at the current time in the week view, moved every minute.</td></tr>
+				<tr><td><code>ShadeWeekends</code>, <code>WeekendDays</code></td><td>true, Sat and Sun</td><td>Weekend shading.</td></tr>
+				<tr><td><code>DayCssClassSelector</code></td><td>null</td><td>Extra classes for a day.</td></tr>
+				<tr><td><code>TimeFormat</code></td><td>HH:mm</td><td>The format of times.</td></tr>
+				<tr><td><code>ShowToolbar</code>, <code>ShowNavigation</code>, <code>ShowToday</code>, <code>ShowTitle</code>, <code>ShowViewSwitcher</code></td><td>true</td><td>Hide the toolbar or any part of it.</td></tr>
+				<tr><td><code>EmptyText</code>, <code>AriaLabel</code>, <code>CssClass</code></td><td></td><td>Text for an empty agenda, the accessible name and extra root classes.</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="events">
+		<h2 class="doc-section">Events</h2>
+		<ul>
+			<li><code>OnVisibleRangeChanged</code>: <code>(DateTimeOffset From, DateTimeOffset To)</code>, raised on first show and on every change of range.</li>
+			<li><code>OnItemSelected</code>: an item was clicked or activated with Enter. <code>SelectedItemChanged</code> is raised only when the selection changes.</li>
+			<li><code>OnItemDoubleClick</code>: an item was double clicked.</li>
+			<li><code>OnSlotSelected</code>: an empty hour slot (week view) or a day (month and agenda views) was chosen, giving the instant it starts.</li>
+		</ul>
+		<p>
+			The component also has methods for use through a reference: <code>NavigateAsync(periods)</code>,
+			<code>GoToTodayAsync()</code>, <code>GoToDateAsync(date)</code>, <code>SetViewAsync(view)</code>,
+			<code>ShowDayAgendaAsync(date)</code> and <code>CanNavigate(periods)</code>, plus the read-only
+			<code>CurrentDate</code>, <code>CurrentView</code>, <code>CurrentSelection</code>, <code>VisibleRange</code> and
+			<code>Title</code>.
+		</p>
+	</section>
+
+	<section id="keyboard">
+		<h2 class="doc-section">Keyboard and accessibility</h2>
+		<ul>
+			<li>The month and week views are ARIA grids; the focused day or hour is the grid's active descendant.</li>
+			<li><kbd>Left</kbd> and <kbd>Right</kbd> move a day; <kbd>Up</kbd> and <kbd>Down</kbd> move a week in the month view, an hour in the week view and a day in the agenda.</li>
+			<li><kbd>Enter</kbd> or <kbd>Space</kbd> selects the focused day or hour; <kbd>Page Up</kbd> and <kbd>Page Down</kbd> change period; <kbd>Home</kbd> goes to today.</li>
+			<li>Items are buttons, reachable with <kbd>Tab</kbd>, with an accessible name giving title, date and times.</li>
+			<li>Transitions are turned off for users who prefer reduced motion.</li>
+			<li>Below 576 pixels wide the month view shows each item as a dot; the agenda view is recommended there.</li>
+		</ul>
+	</section>
+
+	<section id="time-zones">
+		<h2 class="doc-section">Time zones and daylight saving</h2>
+		<p>
+			Items are instants (<code>DateTimeOffset</code>), and <code>TimeZone</code> decides which day and hour they fall
+			in. The week view's hour axis is made of real elapsed hours: on the day the clocks go forward that day's column
+			has no slot for the skipped hour, and in the week the clocks go back the repeated hour gets a row of its own,
+			labelled with both UTC offsets. Each day header notes a day of 23 or 25 hours, and items are drawn exactly as
+			long as they really last. Open the clock change week on the demo tab to see it.
+		</p>
+		<p>
+			The arithmetic is in public static helpers, usable on their own: <code>CalendarMath</code> (visible dates and
+			ranges, navigation, the start and length of a day, wall clock to instant), <code>CalendarLayoutEngine</code>
+			(splitting items by day and packing overlaps into columns) and <code>CalendarTimeAxis</code> (the week view's
+			hour axis).
+		</p>
+	</section>
+
+	<section id="styling">
+		<h2 class="doc-section">Styling</h2>
+		<p>
+			The calendar uses Bootstrap's buttons and colours, follows <code>data-bs-theme</code> and the operating system's
+			dark mode, and exposes CSS variables such as <code>--pd-calendar-item-bg</code>, <code>--pd-calendar-item-fg</code>,
+			<code>--pd-calendar-weekend</code>, <code>--pd-calendar-accent</code> and <code>--pd-calendar-now</code>. Set
+			the item variables in a class returned from <code>CssClassSelector</code> to colour items by category.
+		</p>
+	</section>
+
+</div>
