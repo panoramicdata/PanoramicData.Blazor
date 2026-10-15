@@ -123,7 +123,8 @@ public partial class PDMediaPlayerPage
 		TimeSpan.FromSeconds(60),
 		new MediaSegmentsFromMarkersOptions { SkipKinds = [DeadAir, Clipping] });
 
-	private PDMediaPlayer? Player { get; set; }
+	// set by the markup's @ref
+	protected PDMediaPlayer? Player { get; set; }
 	private PDMediaMarker[] _markers = _showMarkers;
 	private bool _manyMarkers;
 	private TimeSpan? _duration;
