@@ -1,0 +1,20 @@
+@page "/pddiffpanel"
+
+<h1>Diff Panel</h1>
+
+<DemoSourceView SourceFiles="Pages/PDDiffPanel.razor">
+	<div class="host">
+		<input id="diff-filename" class="form-control mb-2" @bind="_fileName" @bind:event="oninput" />
+		<div class="row mb-2">
+			<div class="col"><textarea id="diff-original" class="form-control" rows="6" @bind="_original" @bind:event="oninput"></textarea></div>
+			<div class="col"><textarea id="diff-modified" class="form-control" rows="6" @bind="_modified" @bind:event="oninput"></textarea></div>
+		</div>
+		<PDDiffPanel Original="@_original" Modified="@_modified" FileName="@_fileName" Height="400px" />
+	</div>
+</DemoSourceView>
+
+@code {
+	private string _fileName = "Greeter.cs";
+	private string _original = "public string Greet() => \"Hello\";\n";
+	private string _modified = "public string Greet(string name) => $\"Hello {name}\";\n";
+}
