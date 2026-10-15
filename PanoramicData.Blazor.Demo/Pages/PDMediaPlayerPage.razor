@@ -1,0 +1,90 @@
+@page "/pdmediaplayer"
+
+<h1>PDMediaPlayer</h1>
+
+<DemoSourceView SourceFiles="Pages/PDMediaPlayerPage.razor, Pages/PDMediaPlayerPage.razor.cs">
+	<DocumentationContent>
+		<PDMediaPlayerDocumentation />
+	</DocumentationContent>
+	<ChildContent>
+
+		<p class="text-muted small mt-3">
+			A one minute recording of a pretend radio show, synthesised for this demo (no network needed). The shaded
+			part of the seek bar is the show proper, between hum-filled margins. Its markers point at the gaps
+			(dead air), the squared-off loud bits (clipping) and the segments. Try K to play or pause, J and L (or
+			[ and ]) to jump between markers, and &lt; and &gt; to change the speed, with focus inside the player.
+		</p>
+
+		<div class="d-flex flex-wrap align-items-end gap-3 mb-3">
+			<label class="form-label mb-0">
+				Source
+				<select class="form-select form-select-sm" @bind="SourceName">
+					@foreach (var name in _sources.Keys)
+					{
+						<option value="@name">@name</option>
+					}
+				</select>
+			</label>
+			<label class="form-label mb-0">
+				Marker list
+				<select class="form-select form-select-sm" @bind="Placement">
+					<option value="@MediaMarkerListPlacement.Below">Below</option>
+					<option value="@MediaMarkerListPlacement.Side">Side</option>
+				</select>
+			</label>
+			<label class="form-label mb-0">
+				Seek lead (seconds)
+				<input type="number" class="form-control form-control-sm" style="width: 5rem;" min="0" max="10" @bind="SeekLeadSeconds" />
+			</label>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-range" @bind="ShadeRange" />
+				<label class="form-check-label" for="mp-range">Shade the show (0:05 to 0:55)</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-many" @bind="ManyMarkers" />
+				<label class="form-check-label" for="mp-many">Add 5,000 generated markers</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-persist" @bind="Persist" />
+				<label class="form-check-label" for="mp-persist">Remember speed and position</label>
+			</div>
+		</div>
+
+		<PDMediaPlayer @ref="_player"
+					   Src="@CurrentSource"
+					   MediaKind="@CurrentKind"
+					   Title="@($"Demo show: {SourceName}")"
+					   Markers="_markers"
+					   KindLabels="_kindLabels"
+					   KindColors="_kindColors"
+					   SeekLead="TimeSpan.FromSeconds(SeekLeadSeconds)"
+					   RangeStart="@(ShadeRange ? TimeSpan.FromSeconds(5) : null)"
+					   RangeEnd="@(ShadeRange ? TimeSpan.FromSeconds(55) : null)"
+					   MarkerListPlacement="Placement"
+					   PersistKey="@(Persist ? "pdmediaplayer-demo" : null)"
+					   ShowDownload="true"
+					   DownloadFileName="demo-show.wav"
+					   @bind-PlaybackRate="Rate"
+					   @bind-Position="Position"
+					   @bind-VisibleKinds="VisibleKinds"
+					   OnReady="OnReady"
+					   OnPlay="@(() => Log("OnPlay"))"
+					   OnPause="@(() => Log("OnPause"))"
+					   OnEnded="@(() => Log("OnEnded"))"
+					   OnError="OnError"
+					   OnMarkerSelected="OnMarkerSelected"
+					   OnRangeEntered="@(p => Log("OnRangeEntered", p))"
+					   OnRangeLeft="@(p => Log("OnRangeLeft", p))" />
+
+		<div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.SeekAsync(TimeSpan.FromSeconds(30))">Seek to 0:30</button>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.NextMarkerAsync(DeadAir)">Next dead air</button>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.PreviousMarkerAsync(Clipping)">Previous clipping</button>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.SetPlaybackRateAsync(1.5)">Speed 1.5×</button>
+			<span class="small text-muted ms-2">
+				Position @PositionText, speed @Rate.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)×, @_lastMarkerText
+			</span>
+		</div>
+
+	</ChildContent>
+</DemoSourceView>
