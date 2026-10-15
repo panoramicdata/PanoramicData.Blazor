@@ -12,6 +12,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageId>PanoramicData.Blazor.WebAssembly.Client</PackageId>
     <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+    <PackageIcon>Logo.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
@@ -20,5 +21,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\PanoramicData.Blazor.Demo\PanoramicData.Blazor.Demo.csproj" />
     <ProjectReference Include="..\..\PanoramicData.Blazor\PanoramicData.Blazor.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Logo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

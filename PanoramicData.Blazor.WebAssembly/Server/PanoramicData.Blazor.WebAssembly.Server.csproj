@@ -12,11 +12,15 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageId>PanoramicData.Blazor.WebAssembly.Server</PackageId>
     <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+    <PackageIcon>Logo.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Client\PanoramicData.Blazor.WebAssembly.Client.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Logo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

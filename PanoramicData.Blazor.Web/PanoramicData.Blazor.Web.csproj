@@ -13,6 +13,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageId>PanoramicData.Blazor.Web</PackageId>
     <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+    <PackageIcon>Logo.png</PackageIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>0</WarningLevel>
@@ -36,5 +37,8 @@
   <ItemGroup>
     <Folder Include="Pages\" />
     <Folder Include="wwwroot\css\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Logo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
