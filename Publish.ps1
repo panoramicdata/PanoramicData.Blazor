@@ -55,7 +55,7 @@ if (-not $SkipPublishVerification) {
 # git-ignored folders such as .claude/worktrees/, where each agent worktree holds a full checkout
 # on its own branch: versioning one of those yields a version that is not a public release.
 $packableProject = git ls-files '*.csproj' |
-	Where-Object { (Test-Path $_) -and (Get-Content $_ -Raw) -match 'Nerdbank\.GitVersioning' } |
+	Where-Object { (Test-Path $_) -and (Get-Content $_ -Raw) -match '<PackageReference\s+Include="Nerdbank\.GitVersioning"' } |
 	Select-Object -First 1
 if (-not $packableProject) {
 	Write-Error "Could not find a tracked project referencing Nerdbank.GitVersioning."
