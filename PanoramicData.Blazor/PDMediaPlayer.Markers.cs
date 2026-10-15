@@ -137,7 +137,6 @@ public partial class PDMediaPlayer
 		}
 
 		_visibleKinds = kinds;
-		_lastVisibleKindsParameter = kinds;
 		UpdateVisibleMarkers();
 		await VisibleKindsChanged.InvokeAsync(kinds).ConfigureAwait(true);
 		await RefreshAsync().ConfigureAwait(true);
@@ -204,7 +203,12 @@ public partial class PDMediaPlayer
 		InvalidateTicks();
 	}
 
-	private void InvalidateTicks() => _ticks = null;
+	// the drawn ticks and segment bars depend on the duration, the filters and the colours
+	private void InvalidateTicks()
+	{
+		_ticks = null;
+		_bars = null;
+	}
 
 	private IReadOnlyList<MediaMarkerTick> GetTicks()
 		=> _ticks ??= MediaTimelineLayout.GetMarkerTicks(_visibleMarkers, _duration, MarkerTickResolution, GetMarkerColor);
@@ -220,7 +224,10 @@ public partial class PDMediaPlayer
 		return string.IsNullOrEmpty(kind) ? DefaultKindLabel : kind;
 	}
 
-	private string GetKindColor(string kind)
+	private string GetKindColor(string kind) => GetKindColor(kind, _kindCounts);
+
+	// a kind's colour from KindColors, otherwise from the palette by the kind's place among the kinds present
+	private string GetKindColor(string kind, IReadOnlyList<KeyValuePair<string, int>> kinds)
 	{
 		var color = MediaTimelineLayout.SanitizeColor(Lookup(KindColors, kind));
 		if (color is not null)
@@ -228,16 +235,7 @@ public partial class PDMediaPlayer
 			return color;
 		}
 
-		var index = 0;
-		for (var i = 0; i < _kindCounts.Count; i++)
-		{
-			if (MediaMarkerNavigator.KindComparer.Equals(_kindCounts[i].Key, kind))
-			{
-				index = i;
-				break;
-			}
-		}
-
+		var index = Math.Max(0, kinds.Select(k => k.Key).ToList().FindIndex(k => MediaMarkerNavigator.KindComparer.Equals(k, kind)));
 		return MediaTimelineLayout.Palette[index % MediaTimelineLayout.Palette.Count];
 	}
 

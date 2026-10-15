@@ -33,6 +33,11 @@ public partial class PDMediaPlayer
 	internal ElementReference MediaElement { get; set; }
 
 	/// <summary>
+	/// Gets or sets the transcript pane, set by the markup's <c>@ref</c>.
+	/// </summary>
+	internal ElementReference TranscriptElement { get; set; }
+
+	/// <summary>
 	/// Called by the player's script when the media element raises an event. The script sends
 	/// <c>loadedmetadata</c>, <c>durationchange</c>, <c>play</c>, <c>pause</c>, <c>ended</c>, <c>error</c> and
 	/// <c>seeked</c> as they happen, and <c>timeupdate</c> and <c>progress</c> at most
@@ -64,6 +69,8 @@ public partial class PDMediaPlayer
 		{
 			await AttachAsync().ConfigureAwait(true);
 		}
+
+		await RevealActiveLineAsync().ConfigureAwait(true);
 	}
 
 	/// <summary>
@@ -198,6 +205,8 @@ public partial class PDMediaPlayer
 		await OnTimeUpdate.InvokeAsync(_position).ConfigureAwait(true);
 		await RaisePositionChangedAsync().ConfigureAwait(true);
 		await CheckRangeAsync().ConfigureAwait(true);
+		await CheckSegmentCrossingsAsync().ConfigureAwait(true);
+		await CheckSegmentPlaybackAsync().ConfigureAwait(true);
 		await SavePositionAsync(force: false).ConfigureAwait(true);
 	}
 

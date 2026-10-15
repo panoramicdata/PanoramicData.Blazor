@@ -4,7 +4,7 @@ namespace PanoramicData.Blazor;
 
 public partial class PDMediaPlayer
 {
-	private const string KeyShortcuts = "K J L [ ] M < >";
+	private const string KeyShortcuts = "K J L [ ] M < > , . P";
 
 	private string MarkerListId => $"{Id}-markers";
 
@@ -91,31 +91,26 @@ public partial class PDMediaPlayer
 
 	private string GetKindChipStyle(string kind) => $"--pdmp-marker-color:{GetKindColor(kind)}";
 
+	// what each keyboard shortcut does
+	private static readonly Dictionary<MediaShortcut, Func<PDMediaPlayer, Task>> _shortcutActions = new()
+	{
+		[MediaShortcut.TogglePlay] = player => player.TogglePlayAsync(),
+		[MediaShortcut.PreviousMarker] = player => player.PreviousMarkerAsync(),
+		[MediaShortcut.NextMarker] = player => player.NextMarkerAsync(),
+		[MediaShortcut.ToggleMute] = player => player.ToggleMuteAsync(),
+		[MediaShortcut.Slower] = player => player.SetPlaybackRateAsync(MediaPlaybackRates.Step(player._rates, player._rate, faster: false)),
+		[MediaShortcut.Faster] = player => player.SetPlaybackRateAsync(MediaPlaybackRates.Step(player._rates, player._rate, faster: true)),
+		[MediaShortcut.PreviousSegment] = player => player.PreviousSegmentAsync(),
+		[MediaShortcut.NextSegment] = player => player.NextSegmentAsync(),
+		[MediaShortcut.PlaySegment] = player => player.PlayCurrentSegmentAsync()
+	};
+
 	private async Task OnKeyDownAsync(KeyboardEventArgs args)
 	{
-		switch (MediaKeyboard.Resolve(args))
+		// a key that is not a shortcut keeps its usual meaning
+		if (_shortcutActions.TryGetValue(MediaKeyboard.Resolve(args), out var action))
 		{
-			case MediaShortcut.TogglePlay:
-				await TogglePlayAsync().ConfigureAwait(true);
-				break;
-			case MediaShortcut.PreviousMarker:
-				await PreviousMarkerAsync().ConfigureAwait(true);
-				break;
-			case MediaShortcut.NextMarker:
-				await NextMarkerAsync().ConfigureAwait(true);
-				break;
-			case MediaShortcut.ToggleMute:
-				await ToggleMuteAsync().ConfigureAwait(true);
-				break;
-			case MediaShortcut.Slower:
-				await SetPlaybackRateAsync(MediaPlaybackRates.Step(_rates, _rate, faster: false)).ConfigureAwait(true);
-				break;
-			case MediaShortcut.Faster:
-				await SetPlaybackRateAsync(MediaPlaybackRates.Step(_rates, _rate, faster: true)).ConfigureAwait(true);
-				break;
-			default:
-				// not a shortcut: the key keeps its usual meaning
-				break;
+			await action(this).ConfigureAwait(true);
 		}
 	}
 
@@ -167,4 +162,41 @@ public partial class PDMediaPlayer
 			&& double.IsFinite(result)
 			&& Math.Abs(result) < TimeSpan.MaxValue.TotalSeconds / 2;
 	}
+
+	private string SegmentListId => $"{Id}-segments";
+
+	private string TranscriptId => $"{Id}-transcript";
+
+	private int SegmentLaneCount => GetBars().Select(b => b.Lane + 1).DefaultIfEmpty(0).Max();
+
+	private bool CanNavigateSegments => HasSource && _visibleSegments.Count > 0;
+
+	private static string GetBarStyle(MediaSegmentBar bar)
+		=> $"left:{Percent(bar.LeftPercent)};width:{Percent(bar.WidthPercent)};--pdmp-segment-lane:{bar.Lane};--pdmp-marker-color:{bar.Color}";
+
+	private string GetBarClass(MediaSegmentBar bar)
+	{
+		var classes = new StringBuilder("pdmp-segment-bar");
+		classes.Append(bar.Start <= DisplayPosition && DisplayPosition < bar.End ? " pdmp-segment-current" : string.Empty);
+		classes.Append(bar.Count > 1 ? " pdmp-segment-merged" : string.Empty);
+		return $"{classes} {bar.First.CssClass}".TrimEnd();
+	}
+
+	private string GetBarTitle(MediaSegmentBar bar)
+		=> MediaSegmentLayout.DescribeBar(bar, GetKindLabel(MediaSegmentNavigator.GetKind(bar.First)), _duration);
+
+	private static string GetLanesStyle(int lanes) => $"--pdmp-segment-lanes:{lanes}";
+
+	private string GetSegmentTimeText(PDMediaSegment segment)
+		=> $"{MediaTimeFormatter.Format(segment.Start, _duration)} to {MediaTimeFormatter.Format(segment.End, _duration)}";
+
+	private static string GetSegmentLengthText(PDMediaSegment segment) => MediaTimeFormatter.Format(segment.Length, false);
+
+	private string GetSegmentColorStyle(PDMediaSegment segment) => $"--pdmp-marker-color:{GetSegmentColor(segment)}";
+
+	private string GetSegmentChipStyle(string kind) => $"--pdmp-marker-color:{GetKindColor(kind, _segmentKindCounts)}";
+
+	private static string? GetLineSpeaker(PDMediaTextLine line) => string.IsNullOrWhiteSpace(line.Speaker) ? null : $"{line.Speaker}: ";
+
+	private Task SeekToLineAsync(PDMediaTextLine line) => SeekAsync(line.Start);
 }

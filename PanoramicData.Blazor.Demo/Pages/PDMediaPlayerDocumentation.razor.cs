@@ -62,6 +62,59 @@ public partial class PDMediaPlayerDocumentation
 		}
 		""";
 
+	private readonly PDMediaSegment[] _segments =
+	[
+		new() { Id = "a", Start = TimeSpan.Zero, End = TimeSpan.FromSeconds(5), Kind = "jingle", Label = "Station ident" },
+		new()
+		{
+			Id = "b",
+			Start = TimeSpan.FromSeconds(5),
+			End = TimeSpan.FromSeconds(12),
+			Kind = "talk",
+			Label = "News headlines",
+			Lines =
+			[
+				new() { Start = TimeSpan.FromSeconds(5), Text = "Good morning, here is the news.", Speaker = "Presenter" },
+				new() { Start = TimeSpan.FromSeconds(8), Text = "Markets opened higher." }
+			]
+		},
+		new() { Id = "c", Start = TimeSpan.FromSeconds(12), End = TimeSpan.FromSeconds(18), Kind = "song", Label = "The Pentatonics: Morning Tune" }
+	];
+
+	private const string _segmentsCode = """
+		<PDMediaPlayer Src="/recordings/show.wav"
+		               Segments="_segments"
+		               OnSegmentEntered="s => _nowPlaying = s.Label" />
+
+		@code {
+		    private string? _nowPlaying;
+
+		    private readonly PDMediaSegment[] _segments =
+		    [
+		        new() { Start = TimeSpan.Zero, End = TimeSpan.FromSeconds(5), Kind = "jingle", Label = "Station ident" },
+		        new()
+		        {
+		            Start = TimeSpan.FromSeconds(5),
+		            End = TimeSpan.FromSeconds(12),
+		            Kind = "talk",
+		            Label = "News headlines",
+		            Lines =
+		            [
+		                new() { Start = TimeSpan.FromSeconds(5), Text = "Good morning, here is the news.", Speaker = "Presenter" },
+		                new() { Start = TimeSpan.FromSeconds(8), Text = "Markets opened higher." }
+		            ]
+		        },
+		        new() { Start = TimeSpan.FromSeconds(12), End = TimeSpan.FromSeconds(18), Kind = "song", Label = "The Pentatonics: Morning Tune" }
+		    ];
+
+		    // or, marker to marker:
+		    // Segments = PDMediaSegment.FromMarkers(markers, duration,
+		    //     new MediaSegmentsFromMarkersOptions { SkipKinds = ["clipping"], MergeAdjacentSameKind = true });
+		}
+		""";
+
 	private double Rate { get; set; } = 1;
+
+	private string? NowPlaying { get; set; }
 	private PDMediaMarker? Selected { get; set; }
 }

@@ -24,7 +24,16 @@ internal enum MediaShortcut
 	Slower,
 
 	/// <summary>Choose the next faster rate (&gt;).</summary>
-	Faster
+	Faster,
+
+	/// <summary>Go to the previous segment (,).</summary>
+	PreviousSegment,
+
+	/// <summary>Go to the next segment (.).</summary>
+	NextSegment,
+
+	/// <summary>Play the current segment on its own (P).</summary>
+	PlaySegment
 }
 
 /// <summary>
@@ -33,29 +42,37 @@ internal enum MediaShortcut
 /// </summary>
 internal static class MediaKeyboard
 {
+	// the shortcut for each key; keys are compared exactly, so both cases of a letter are listed
+	private static readonly Dictionary<string, MediaShortcut> _shortcuts = new(StringComparer.Ordinal)
+	{
+		["k"] = MediaShortcut.TogglePlay,
+		["K"] = MediaShortcut.TogglePlay,
+		["j"] = MediaShortcut.PreviousMarker,
+		["J"] = MediaShortcut.PreviousMarker,
+		["["] = MediaShortcut.PreviousMarker,
+		["l"] = MediaShortcut.NextMarker,
+		["L"] = MediaShortcut.NextMarker,
+		["]"] = MediaShortcut.NextMarker,
+		["m"] = MediaShortcut.ToggleMute,
+		["M"] = MediaShortcut.ToggleMute,
+		["<"] = MediaShortcut.Slower,
+		[">"] = MediaShortcut.Faster,
+		[","] = MediaShortcut.PreviousSegment,
+		["."] = MediaShortcut.NextSegment,
+		["p"] = MediaShortcut.PlaySegment,
+		["P"] = MediaShortcut.PlaySegment
+	};
+
 	/// <summary>
 	/// Gets the shortcut for a key press. Presses with Ctrl, Alt or Meta held are never shortcuts, so browser and
-	/// system shortcuts keep working.
+	/// system shortcuts keep working, and neither are held-down repeats.
 	/// </summary>
 	/// <param name="args">The key press.</param>
 	/// <returns>The shortcut, or <see cref="MediaShortcut.None"/>.</returns>
 	internal static MediaShortcut Resolve(KeyboardEventArgs args)
 	{
 		ArgumentNullException.ThrowIfNull(args);
-		if (args.CtrlKey || args.AltKey || args.MetaKey || args.Repeat)
-		{
-			return MediaShortcut.None;
-		}
-
-		return args.Key switch
-		{
-			"k" or "K" => MediaShortcut.TogglePlay,
-			"j" or "J" or "[" => MediaShortcut.PreviousMarker,
-			"l" or "L" or "]" => MediaShortcut.NextMarker,
-			"m" or "M" => MediaShortcut.ToggleMute,
-			"<" => MediaShortcut.Slower,
-			">" => MediaShortcut.Faster,
-			_ => MediaShortcut.None
-		};
+		var modified = args.CtrlKey || args.AltKey || args.MetaKey || args.Repeat;
+		return modified || args.Key is null ? MediaShortcut.None : _shortcuts.GetValueOrDefault(args.Key, MediaShortcut.None);
 	}
 }

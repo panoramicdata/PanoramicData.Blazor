@@ -14,7 +14,8 @@ namespace PanoramicData.Blazor;
 /// </para>
 /// <para>
 /// Keyboard shortcuts work while focus is inside the player: K plays or pauses, J or [ goes to the previous marker,
-/// L or ] to the next marker, M mutes, and &lt; or &gt; chooses the next slower or faster speed. The seek bar is a
+/// L or ] to the next marker, M mutes, &lt; or &gt; chooses the next slower or faster speed, comma and full stop go
+/// to the previous and next segment, and P plays the current segment on its own. The seek bar is a
 /// native slider, so the arrow keys, Page Up, Page Down, Home and End move it.
 /// </para>
 /// <para>
@@ -291,9 +292,9 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 	public TimeSpan SeekLead { get; set; }
 
 	/// <summary>
-	/// Gets or sets how close to the current position a marker may be before next and previous skip over it. Previous
-	/// within this time of a marker's start goes to the marker before; further in, it returns to the marker's start.
-	/// The default is half a second.
+	/// Gets or sets how close to the current position a marker (or segment start) may be before next and previous
+	/// skip over it. Previous within this time of a marker's start goes to the marker before; further in, it returns
+	/// to the marker's start. The default is half a second.
 	/// </summary>
 	[Parameter]
 	public TimeSpan MarkerTolerance { get; set; } = TimeSpan.FromSeconds(0.5);
@@ -360,12 +361,104 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 	public string MarkerListMaxHeight { get; set; } = "16rem";
 
 	/// <summary>
-	/// Gets or sets the number of slots the seek bar is divided into for drawing markers. Markers of the same kind
-	/// that fall in the same slot are drawn as one tick (its tooltip gives the count), so at most this many ticks are
-	/// drawn per kind. The default is 400.
+	/// Gets or sets the number of slots the seek bar is divided into for drawing markers and segments. Markers of the
+	/// same kind that fall in the same slot are drawn as one tick (its tooltip gives the count), so at most this many
+	/// ticks are drawn per kind; segments shorter than a slot merge in the same way. The default is 400.
 	/// </summary>
 	[Parameter]
 	public int MarkerTickResolution { get; set; } = MediaTimelineLayout.DefaultTickResolution;
+
+	/// <summary>
+	/// Gets or sets the segments: stretches of the timeline such as songs or talking sections, in any order. They may
+	/// overlap and leave gaps; segments whose end is not after their start are ignored. Assign a new collection to
+	/// change them. See <see cref="PDMediaSegment.FromMarkers(IEnumerable{PDMediaMarker}, TimeSpan)"/> to derive them
+	/// from markers.
+	/// </summary>
+	[Parameter]
+	public IEnumerable<PDMediaSegment>? Segments { get; set; }
+
+	/// <summary>
+	/// Gets or sets the kinds of segment to show, or <c>null</c> (the default) to show every kind. Hidden kinds are left
+	/// out of the lanes and the list and skipped by next and previous segment. Use with
+	/// <see cref="VisibleSegmentKindsChanged"/> for two-way binding.
+	/// </summary>
+	[Parameter]
+	public IReadOnlySet<string>? VisibleSegmentKinds { get; set; }
+
+	/// <summary>
+	/// Gets or sets the callback invoked when the user shows or hides a kind of segment.
+	/// </summary>
+	[Parameter]
+	public EventCallback<IReadOnlySet<string>?> VisibleSegmentKindsChanged { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether the segment lanes are drawn beneath or above the seek bar. The default is
+	/// <see cref="MediaSegmentLanePlacement.Below"/>.
+	/// </summary>
+	[Parameter]
+	public MediaSegmentLanePlacement SegmentLanePlacement { get; set; } = MediaSegmentLanePlacement.Below;
+
+	/// <summary>
+	/// Gets or sets the most lanes used to draw overlapping segments; further overlaps are drawn in the last lane.
+	/// The default is 3.
+	/// </summary>
+	[Parameter]
+	public int MaxSegmentLanes { get; set; } = 3;
+
+	/// <summary>
+	/// Gets or sets whether to show the segment list. It shares <see cref="MarkerListMaxHeight"/> with the marker
+	/// list and only renders the items in view. The default is true.
+	/// </summary>
+	[Parameter]
+	public bool ShowSegmentList { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets whether the segment list starts expanded. The default is true.
+	/// </summary>
+	[Parameter]
+	public bool SegmentListExpanded { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets whether to show the now playing strip with the current segment, its time range and the play
+	/// segment and loop buttons. The default is true.
+	/// </summary>
+	[Parameter]
+	public bool ShowNowPlaying { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets whether the transcript pane (the current segment's <see cref="PDMediaSegment.Lines"/> or
+	/// <see cref="PDMediaSegment.Text"/>) starts expanded. The user can expand and collapse it. The default is false.
+	/// </summary>
+	[Parameter]
+	public bool TranscriptExpanded { get; set; }
+
+	/// <summary>
+	/// Gets or sets the maximum height of the transcript pane, as a CSS length. It scrolls to keep the line being
+	/// spoken in view. The default is <c>10rem</c>.
+	/// </summary>
+	[Parameter]
+	public string TranscriptMaxHeight { get; set; } = "10rem";
+
+	/// <summary>
+	/// Gets or sets the callback invoked when a segment is selected, from its bar, the list, the next and previous
+	/// segment buttons or shortcuts, or a call to <see cref="SeekToSegmentAsync"/> or
+	/// <see cref="PlaySegmentAsync(PDMediaSegment)"/>.
+	/// </summary>
+	[Parameter]
+	public EventCallback<PDMediaSegment> OnSegmentSelected { get; set; }
+
+	/// <summary>
+	/// Gets or sets the callback invoked when playback (or a seek) enters a segment. With overlapping segments it is
+	/// raised for each. Every segment counts, whether or not its kind is visible.
+	/// </summary>
+	[Parameter]
+	public EventCallback<PDMediaSegment> OnSegmentEntered { get; set; }
+
+	/// <summary>
+	/// Gets or sets the callback invoked when playback (or a seek) leaves a segment.
+	/// </summary>
+	[Parameter]
+	public EventCallback<PDMediaSegment> OnSegmentLeft { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether to show a message inside the player when the media cannot be played. The default is true.
@@ -477,6 +570,7 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 	{
 		_rates = MediaPlaybackRates.Normalize(PlaybackRates);
 		ApplyMarkerParameters();
+		ApplySegmentParameters();
 
 		if (!_parametersInitialized)
 		{
@@ -760,6 +854,7 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 		_wasInRange = null;
 		_reportedPositions.Clear();
 		_pendingError = null;
+		ResetSegmentPlayback();
 		InvalidateTicks();
 	}
 

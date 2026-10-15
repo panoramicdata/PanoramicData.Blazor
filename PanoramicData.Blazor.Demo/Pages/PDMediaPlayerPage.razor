@@ -11,8 +11,11 @@
 		<p class="text-muted small mt-3">
 			A one minute recording of a pretend radio show, synthesised for this demo (no network needed). The shaded
 			part of the seek bar is the show proper, between hum-filled margins. Its markers point at the gaps
-			(dead air), the squared-off loud bits (clipping) and the segments. Try K to play or pause, J and L (or
-			[ and ]) to jump between markers, and &lt; and &gt; to change the speed, with focus inside the player.
+			(dead air), the squared-off loud bits (clipping) and the segments. Beneath the seek bar, the programme is
+			divided into songs, talk (with timed transcripts), an advert and idents. Try K to play or pause, J and L
+			(or [ and ]) to jump between markers, comma and full stop to jump between segments, P to play the current
+			segment on its own, and &lt; and &gt; to change the speed, with focus inside the player. Double click a
+			segment to play just that segment.
 		</p>
 
 		<div class="d-flex flex-wrap align-items-end gap-3 mb-3">
@@ -23,6 +26,14 @@
 					{
 						<option value="@name">@name</option>
 					}
+				</select>
+			</label>
+			<label class="form-label mb-0">
+				Segments
+				<select class="form-select form-select-sm" id="mp-segments" @bind="SegmentSourceName">
+					<option value="@HandMadeSegments">@HandMadeSegments</option>
+					<option value="@DerivedSegments">@DerivedSegments</option>
+					<option value="@NoSegments">@NoSegments</option>
 				</select>
 			</label>
 			<label class="form-label mb-0">
@@ -55,6 +66,7 @@
 					   MediaKind="@CurrentKind"
 					   Title="@($"Demo show: {SourceName}")"
 					   Markers="_markers"
+					   Segments="CurrentSegments"
 					   KindLabels="_kindLabels"
 					   KindColors="_kindColors"
 					   SeekLead="TimeSpan.FromSeconds(SeekLeadSeconds)"
@@ -74,13 +86,18 @@
 					   OnError="OnError"
 					   OnMarkerSelected="OnMarkerSelected"
 					   OnRangeEntered="@(p => Log("OnRangeEntered", p))"
-					   OnRangeLeft="@(p => Log("OnRangeLeft", p))" />
+					   OnRangeLeft="@(p => Log("OnRangeLeft", p))"
+					   OnSegmentSelected="@(s => OnSegment("OnSegmentSelected", s))"
+					   OnSegmentEntered="@(s => OnSegment("OnSegmentEntered", s))"
+					   OnSegmentLeft="@(s => OnSegment("OnSegmentLeft", s))" />
 
 		<div class="d-flex flex-wrap align-items-center gap-2 mt-3">
 			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.SeekAsync(TimeSpan.FromSeconds(30))">Seek to 0:30</button>
 			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.NextMarkerAsync(DeadAir)">Next dead air</button>
 			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.PreviousMarkerAsync(Clipping)">Previous clipping</button>
 			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.SetPlaybackRateAsync(1.5)">Speed 1.5×</button>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.NextSegmentAsync(Song)">Next song</button>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="PlayInterviewAsync">Play the interview only</button>
 			<span class="small text-muted ms-2">
 				Position @PositionText, speed @Rate.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)×, @_lastMarkerText
 			</span>

@@ -39,13 +39,7 @@ public static class MediaMarkerNavigator
 	public static IReadOnlyList<PDMediaMarker> Filter(IReadOnlyList<PDMediaMarker> sorted, IReadOnlySet<string>? visibleKinds)
 	{
 		ArgumentNullException.ThrowIfNull(sorted);
-		if (visibleKinds is null)
-		{
-			return sorted;
-		}
-
-		var kinds = new HashSet<string>(visibleKinds, KindComparer);
-		return [.. sorted.Where(m => kinds.Contains(GetKind(m)))];
+		return MediaKinds.Filter(sorted, GetKind, visibleKinds);
 	}
 
 	/// <summary>
@@ -57,8 +51,7 @@ public static class MediaMarkerNavigator
 	public static IReadOnlyList<PDMediaMarker> Filter(IReadOnlyList<PDMediaMarker> sorted, string kind)
 	{
 		ArgumentNullException.ThrowIfNull(sorted);
-		var wanted = kind?.Trim() ?? string.Empty;
-		return [.. sorted.Where(m => KindComparer.Equals(GetKind(m), wanted))];
+		return MediaKinds.Filter(sorted, GetKind, kind);
 	}
 
 	/// <summary>
@@ -69,10 +62,7 @@ public static class MediaMarkerNavigator
 	public static IReadOnlyList<KeyValuePair<string, int>> CountByKind(IEnumerable<PDMediaMarker> markers)
 	{
 		ArgumentNullException.ThrowIfNull(markers);
-		return [.. markers
-			.GroupBy(GetKind, KindComparer)
-			.Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
-			.OrderBy(p => p.Key, KindComparer)];
+		return MediaKinds.CountByKind(markers, GetKind);
 	}
 
 	/// <summary>
@@ -86,8 +76,7 @@ public static class MediaMarkerNavigator
 	public static PDMediaMarker? Next(IReadOnlyList<PDMediaMarker> sorted, TimeSpan cursor, TimeSpan tolerance)
 	{
 		ArgumentNullException.ThrowIfNull(sorted);
-		var index = CountAtOrBefore(sorted, cursor + NonNegative(tolerance));
-		return index < sorted.Count ? sorted[index] : null;
+		return MediaTimelineSearch.Next(sorted, PositionOf, cursor, tolerance);
 	}
 
 	/// <summary>
@@ -102,8 +91,7 @@ public static class MediaMarkerNavigator
 	public static PDMediaMarker? Previous(IReadOnlyList<PDMediaMarker> sorted, TimeSpan cursor, TimeSpan tolerance)
 	{
 		ArgumentNullException.ThrowIfNull(sorted);
-		var index = CountBefore(sorted, cursor - NonNegative(tolerance)) - 1;
-		return index >= 0 ? sorted[index] : null;
+		return MediaTimelineSearch.Previous(sorted, PositionOf, cursor, tolerance);
 	}
 
 	/// <summary>
@@ -115,49 +103,8 @@ public static class MediaMarkerNavigator
 	public static PDMediaMarker? Current(IReadOnlyList<PDMediaMarker> sorted, TimeSpan cursor)
 	{
 		ArgumentNullException.ThrowIfNull(sorted);
-		var index = CountAtOrBefore(sorted, cursor) - 1;
-		return index >= 0 ? sorted[index] : null;
+		return MediaTimelineSearch.Current(sorted, PositionOf, cursor);
 	}
 
-	private static TimeSpan NonNegative(TimeSpan value) => value < TimeSpan.Zero ? TimeSpan.Zero : value;
-
-	// the number of markers whose position is at or before the given time
-	private static int CountAtOrBefore(IReadOnlyList<PDMediaMarker> sorted, TimeSpan time)
-	{
-		int low = 0, high = sorted.Count;
-		while (low < high)
-		{
-			var middle = low + ((high - low) / 2);
-			if (sorted[middle].Position <= time)
-			{
-				low = middle + 1;
-			}
-			else
-			{
-				high = middle;
-			}
-		}
-
-		return low;
-	}
-
-	// the number of markers whose position is strictly before the given time
-	private static int CountBefore(IReadOnlyList<PDMediaMarker> sorted, TimeSpan time)
-	{
-		int low = 0, high = sorted.Count;
-		while (low < high)
-		{
-			var middle = low + ((high - low) / 2);
-			if (sorted[middle].Position < time)
-			{
-				low = middle + 1;
-			}
-			else
-			{
-				high = middle;
-			}
-		}
-
-		return low;
-	}
+	private static TimeSpan PositionOf(PDMediaMarker marker) => marker.Position;
 }

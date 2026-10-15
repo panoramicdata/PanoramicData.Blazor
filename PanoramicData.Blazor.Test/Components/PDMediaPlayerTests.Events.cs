@@ -21,7 +21,7 @@ public partial class PDMediaPlayerTests
 	{
 		var root = RenderPlayer().Find(".pd-media-player");
 
-		root.GetAttribute("aria-keyshortcuts").Should().Be("K J L [ ] M < >");
+		root.GetAttribute("aria-keyshortcuts").Should().Be("K J L [ ] M < > , . P");
 		root.GetAttribute("tabindex").Should().Be("-1");
 	}
 

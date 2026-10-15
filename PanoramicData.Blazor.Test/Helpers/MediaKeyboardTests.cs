@@ -21,6 +21,10 @@ public class MediaKeyboardTests
 	[InlineData("M", MediaShortcutCase.ToggleMute)]
 	[InlineData("<", MediaShortcutCase.Slower)]
 	[InlineData(">", MediaShortcutCase.Faster)]
+	[InlineData(",", MediaShortcutCase.PreviousSegment)]
+	[InlineData(".", MediaShortcutCase.NextSegment)]
+	[InlineData("p", MediaShortcutCase.PlaySegment)]
+	[InlineData("P", MediaShortcutCase.PlaySegment)]
 	[InlineData("x", MediaShortcutCase.None)]
 	[InlineData(" ", MediaShortcutCase.None)]
 	public void Keyboard_MapsTheShortcutKeys(string key, MediaShortcutCase expected)
@@ -35,6 +39,7 @@ public class MediaKeyboardTests
 		MediaKeyboard.Resolve(new KeyboardEventArgs { Key = "k", MetaKey = true }).Should().Be(MediaShortcut.None);
 		MediaKeyboard.Resolve(new KeyboardEventArgs { Key = "k", Repeat = true }).Should().Be(MediaShortcut.None);
 		MediaKeyboard.Resolve(new KeyboardEventArgs { Key = ">", ShiftKey = true }).Should().Be(MediaShortcut.Faster);
+		MediaKeyboard.Resolve(new KeyboardEventArgs()).Should().Be(MediaShortcut.None);
 		new Action(() => MediaKeyboard.Resolve(null!)).Should().Throw<ArgumentNullException>();
 	}
 
@@ -60,6 +65,15 @@ public class MediaKeyboardTests
 		Slower,
 
 		/// <summary>See <see cref="MediaShortcut.Faster"/>.</summary>
-		Faster
+		Faster,
+
+		/// <summary>See <see cref="MediaShortcut.PreviousSegment"/>.</summary>
+		PreviousSegment,
+
+		/// <summary>See <see cref="MediaShortcut.NextSegment"/>.</summary>
+		NextSegment,
+
+		/// <summary>See <see cref="MediaShortcut.PlaySegment"/>.</summary>
+		PlaySegment
 	}
 }

@@ -170,3 +170,20 @@ export function setItem(key, value) {
 		// storage is full or blocked; the position is simply not remembered
 	}
 }
+
+// scrolls a transcript pane so that its active line is in view, without scrolling the page
+export function reveal(container) {
+	const line = container ? container.querySelector(".pdmp-line-active") : null;
+	if (line) {
+		const top =
+			line.getBoundingClientRect().top -
+			container.getBoundingClientRect().top +
+			container.scrollTop;
+		if (
+			top < container.scrollTop ||
+			top + line.offsetHeight > container.scrollTop + container.clientHeight
+		) {
+			container.scrollTop = top - container.clientHeight / 3;
+		}
+	}
+}

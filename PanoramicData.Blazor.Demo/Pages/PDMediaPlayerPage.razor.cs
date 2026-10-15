@@ -8,6 +8,7 @@ public partial class PDMediaPlayerPage
 	private const string Clipping = "clipping";
 	private const string Segment = "segment";
 	private const string Generated = "generated";
+	private const string Song = "song";
 
 	private const string AudioSource = "Audio (WAV, 1 minute)";
 
@@ -24,7 +25,11 @@ public partial class PDMediaPlayerPage
 		[DeadAir] = "Dead air",
 		[Clipping] = "Clipping",
 		[Segment] = "Segment",
-		[Generated] = "Generated"
+		[Generated] = "Generated",
+		[Song] = "Song",
+		["talk"] = "Talk",
+		["ad"] = "Advert",
+		["jingle"] = "Ident"
 	};
 
 	private readonly Dictionary<string, string> _kindColors = new()
@@ -32,7 +37,11 @@ public partial class PDMediaPlayerPage
 		[DeadAir] = "#dc3545",
 		[Clipping] = "#fd7e14",
 		[Segment] = "#0d6efd",
-		[Generated] = "#6c757d"
+		[Generated] = "#6c757d",
+		[Song] = "#20c997",
+		["talk"] = "#198754",
+		["ad"] = "#6f42c1",
+		["jingle"] = "#d63384"
 	};
 
 	private static readonly PDMediaMarker[] _showMarkers =
@@ -47,6 +56,72 @@ public partial class PDMediaPlayerPage
 		new() { Id = "clip-3", Position = TimeSpan.FromSeconds(47), Kind = Clipping, Label = "Clipped peaks", Detail = "Full scale for 0.5 s" },
 		new() { Id = "seg-weather", Position = TimeSpan.FromSeconds(50), Kind = Segment, Label = "Weather" }
 	];
+
+	private const string HandMadeSegments = "Songs, talk and transcripts";
+	private const string DerivedSegments = "Derived from the segment markers";
+	private const string NoSegments = "None";
+
+	private static PDMediaTextLine Line(double seconds, string text, string? speaker = null)
+		=> new() { Start = TimeSpan.FromSeconds(seconds), Text = text, Speaker = speaker };
+
+	private static PDMediaSegment Part(string id, double start, double end, string kind, string label)
+		=> new() { Id = id, Start = TimeSpan.FromSeconds(start), End = TimeSpan.FromSeconds(end), Kind = kind, Label = label };
+
+	// the demo recording's programme, as a playout log or a speech-to-text service might describe it
+	private static readonly PDMediaSegment[] _showSegments =
+	[
+		Part("ident-1", 0, 5, "jingle", "Station ident"),
+		new()
+		{
+			Id = "news",
+			Start = TimeSpan.FromSeconds(5),
+			End = TimeSpan.FromSeconds(12),
+			Kind = "talk",
+			Label = "News headlines",
+			Detail = "Presenter",
+			Lines =
+			[
+				Line(5, "Good morning, here is the news.", "Presenter"),
+				Line(7.5, "Markets opened higher this morning."),
+				Line(10, "And now, back to the music.")
+			]
+		},
+		Part("song-1", 12, 18, "song", "The Pentatonics: Morning Tune"),
+		new()
+		{
+			Id = "interview",
+			Start = TimeSpan.FromSeconds(21),
+			End = TimeSpan.FromSeconds(30),
+			Kind = "talk",
+			Label = "Interview",
+			Confidence = 0.92,
+			Source = "speech detector",
+			Lines =
+			[
+				Line(21, "Thanks for coming in today.", "Presenter"),
+				Line(24, "It is a pleasure to be here.", "Guest"),
+				Line(27, "Tell us about the new record.", "Presenter")
+			]
+		},
+		Part("song-2", 31, 40, "song", "The Pentatonics: Second Tune"),
+		new()
+		{
+			Id = "advert",
+			Start = TimeSpan.FromSeconds(42.5),
+			End = TimeSpan.FromSeconds(47),
+			Kind = "ad",
+			Label = "Advert",
+			Text = "This programme was brought to you by the PanoramicData.Blazor demo.\nNo audio was harmed in its making."
+		},
+		Part("song-3", 47.5, 55, "song", "The Pentatonics: Outro"),
+		Part("ident-2", 55, 60, "jingle", "Station ident")
+	];
+
+	// marker to marker: each segment marker opens a segment that runs to the next one, ignoring the fault markers
+	private static readonly IReadOnlyList<PDMediaSegment> _derivedSegments = PDMediaSegment.FromMarkers(
+		_showMarkers,
+		TimeSpan.FromSeconds(60),
+		new MediaSegmentsFromMarkersOptions { SkipKinds = [DeadAir, Clipping] });
 
 	private PDMediaPlayer? _player;
 	private PDMediaMarker[] _markers = _showMarkers;
@@ -72,6 +147,8 @@ public partial class PDMediaPlayerPage
 
 	protected IReadOnlySet<string>? VisibleKinds { get; set; }
 
+	protected string SegmentSourceName { get; set; } = HandMadeSegments;
+
 	protected bool ManyMarkers
 	{
 		get => _manyMarkers;
@@ -88,6 +165,13 @@ public partial class PDMediaPlayerPage
 	private string? CurrentSource => _sources[SourceName].Src;
 
 	private MediaKind CurrentKind => _sources[SourceName].Kind;
+
+	private IReadOnlyList<PDMediaSegment>? CurrentSegments => SegmentSourceName switch
+	{
+		HandMadeSegments => _showSegments,
+		DerivedSegments => _derivedSegments,
+		_ => null
+	};
 
 	private string PositionText => MediaTimeFormatter.Format(Position, _duration);
 
@@ -117,6 +201,11 @@ public partial class PDMediaPlayerPage
 		_lastMarkerText = $"last marker: {marker.Label}";
 		EventManager?.Add(new Event("OnMarkerSelected", new EventArgument("Id", marker.Id), new EventArgument("Kind", marker.Kind)));
 	}
+
+	private Task PlayInterviewAsync() => _player!.PlaySegmentAsync(_showSegments.Single(s => s.Id == "interview"));
+
+	private void OnSegment(string name, PDMediaSegment segment)
+		=> EventManager?.Add(new Event(name, new EventArgument("Id", segment.Id), new EventArgument("Label", segment.Label)));
 
 	private void Log(string name) => EventManager?.Add(new Event(name));
 
