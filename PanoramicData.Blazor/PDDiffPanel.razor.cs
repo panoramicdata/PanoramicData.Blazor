@@ -20,6 +20,11 @@ public partial class PDDiffPanel : IAsyncDisposable
 	private string _shownModified = string.Empty;
 	private string _shownLanguage = string.Empty;
 	private string _shownTheme = string.Empty;
+	private bool _sideBySide = true;
+	private bool _lastParamSideBySide = true;
+	private bool _sideBySideSeen;
+	private bool _shownSideBySide = true;
+	private bool _shownReadOnly = true;
 
 	/// <summary>Gets or sets the JavaScript runtime.</summary>
 	[Inject]
@@ -73,9 +78,21 @@ public partial class PDDiffPanel : IAsyncDisposable
 			AutomaticLayout = true,
 			ReadOnly = ReadOnly,
 			OriginalEditable = false,
-			RenderSideBySide = SideBySide,
+			RenderSideBySide = _sideBySide,
 			Theme = string.IsNullOrEmpty(Theme) ? null : Theme
 		};
+
+	/// <inheritdoc />
+	protected override void OnParametersSet()
+	{
+		// Only a change of the parent's value resets the layout; a user toggle survives re-renders.
+		if (!_sideBySideSeen || SideBySide != _lastParamSideBySide)
+		{
+			_sideBySide = SideBySide;
+			_lastParamSideBySide = SideBySide;
+			_sideBySideSeen = true;
+		}
+	}
 
 	private async Task OnEditorInitAsync()
 	{
@@ -84,15 +101,23 @@ public partial class PDDiffPanel : IAsyncDisposable
 			return;
 		}
 
-		_originalModel = await Global.CreateModel(JSRuntime, Original, EffectiveLanguage, null).ConfigureAwait(true);
-		_modifiedModel = await Global.CreateModel(JSRuntime, Modified, EffectiveLanguage, null).ConfigureAwait(true);
+		// Capture first: the parameters can change while the awaits below are pending.
+		var (original, modified, language, theme) = (Original, Modified, EffectiveLanguage, Theme);
+		var (sideBySide, readOnly) = (_sideBySide, ReadOnly);
+		_originalModel = await Global.CreateModel(JSRuntime, original, language, null).ConfigureAwait(true);
+		_modifiedModel = await Global.CreateModel(JSRuntime, modified, language, null).ConfigureAwait(true);
 		await _editor.SetModel(new DiffEditorModel { Original = _originalModel, Modified = _modifiedModel }).ConfigureAwait(true);
-		(_shownOriginal, _shownModified, _shownLanguage, _shownTheme) = (Original, Modified, EffectiveLanguage, Theme);
+		(_shownOriginal, _shownModified, _shownLanguage, _shownTheme) = (original, modified, language, theme);
+		(_shownSideBySide, _shownReadOnly) = (sideBySide, readOnly);
 		_initialized = true;
+		await SyncAsync().ConfigureAwait(true);
 	}
 
 	/// <inheritdoc />
-	protected override async Task OnParametersSetAsync()
+	protected override Task OnParametersSetAsync() => SyncAsync();
+
+	// Pushes any drift between the parameters and what the live editor shows.
+	private async Task SyncAsync()
 	{
 		if (!_initialized || _editor is null || _originalModel is null || _modifiedModel is null || JSRuntime is null)
 		{
@@ -126,6 +151,13 @@ public partial class PDDiffPanel : IAsyncDisposable
 				await Global.SetTheme(JSRuntime, Theme).ConfigureAwait(true);
 				_shownTheme = Theme;
 			}
+
+			if (_shownSideBySide != _sideBySide || _shownReadOnly != ReadOnly)
+			{
+				var (sideBySide, readOnly) = (_sideBySide, ReadOnly);
+				await _editor.UpdateOptions(new DiffEditorOptions { RenderSideBySide = sideBySide, ReadOnly = readOnly }).ConfigureAwait(true);
+				(_shownSideBySide, _shownReadOnly) = (sideBySide, readOnly);
+			}
 		}
 		catch (JSException)
 		{
@@ -135,11 +167,8 @@ public partial class PDDiffPanel : IAsyncDisposable
 
 	private async Task ToggleLayoutAsync()
 	{
-		SideBySide = !SideBySide;
-		if (_editor is not null)
-		{
-			await _editor.UpdateOptions(new DiffEditorOptions { RenderSideBySide = SideBySide }).ConfigureAwait(true);
-		}
+		_sideBySide = !_sideBySide;
+		await SyncAsync().ConfigureAwait(true);
 	}
 
 	/// <inheritdoc />

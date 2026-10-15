@@ -5,7 +5,7 @@
 			<span class="pd-diffpanel-filename">@FileName</span>
 		}
 		<button type="button" class="btn btn-sm btn-outline-secondary pd-diffpanel-toggle" @onclick="ToggleLayoutAsync">
-			@(SideBySide ? "Inline" : "Side by side")
+			@(_sideBySide ? "Inline" : "Side by side")
 		</button>
 	</div>
 	@if (!HasChanges)

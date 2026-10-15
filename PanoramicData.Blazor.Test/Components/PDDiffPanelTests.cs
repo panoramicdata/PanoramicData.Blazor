@@ -1,4 +1,6 @@
 using AwesomeAssertions;
+using System.Reflection;
+using BlazorMonaco.Editor;
 using Bunit;
 
 namespace PanoramicData.Blazor.Test.Components;
@@ -56,13 +58,68 @@ public class PDDiffPanelTests : BunitContext
 		cut.Markup.Should().NotContain("No changes");
 	}
 
-	/// <summary>Clicking the toggle switches between side-by-side and inline.</summary>
+	/// <summary>Clicking the toggle switches between side-by-side and inline, and the label follows.</summary>
 	[Fact]
 	public void SideBySideToggle_FlipsOnButtonClick()
 	{
 		var cut = Render<PDDiffPanel>(p => p.Add(c => c.Original, "a").Add(c => c.Modified, "b"));
-		cut.Instance.SideBySide.Should().BeTrue();
+		cut.Find(".pd-diffpanel-toggle").TextContent.Trim().Should().Be("Inline");
 		cut.Find(".pd-diffpanel-toggle").Click();
-		cut.Instance.SideBySide.Should().BeFalse();
+		cut.Find(".pd-diffpanel-toggle").TextContent.Trim().Should().Be("Side by side");
+	}
+
+	/// <summary>A user toggle survives a parent re-render that leaves SideBySide unchanged.</summary>
+	[Fact]
+	public void SideBySideToggle_SurvivesRerenderWithSameParameter()
+	{
+		var cut = Render<PDDiffPanel>(p => p.Add(c => c.SideBySide, true).Add(c => c.Modified, "b"));
+		cut.Find(".pd-diffpanel-toggle").Click();
+		cut.Render(p => p.Add(c => c.SideBySide, true).Add(c => c.Modified, "c"));
+		cut.Find(".pd-diffpanel-toggle").TextContent.Trim().Should().Be("Side by side");
+	}
+
+	/// <summary>A parent changing SideBySide after init takes effect.</summary>
+	[Fact]
+	public void SideBySide_ParentChangeIsApplied()
+	{
+		var cut = Render<PDDiffPanel>(p => p.Add(c => c.SideBySide, true));
+		cut.Render(p => p.Add(c => c.SideBySide, false));
+		cut.Find(".pd-diffpanel-toggle").TextContent.Trim().Should().Be("Side by side");
+	}
+
+	/// <summary>Parameters that change while the editor is still creating its models reach the models.</summary>
+	[Fact]
+	public async Task Init_RaceWithParameterChange_PushesLatestText()
+	{
+		var createModel = JSInterop.Setup<TextModel>(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal));
+		var cut = Render<PDDiffPanel>(p => p.Add(c => c.Original, "old").Add(c => c.Modified, "old"));
+		var init = typeof(PDDiffPanel).GetMethod("OnEditorInitAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+		// Init is now suspended at its first createModel call; change the parameters while it waits.
+		var task = (Task)init.Invoke(cut.Instance, null)!;
+		task.IsCompleted.Should().BeFalse();
+		cut.Render(p => p.Add(c => c.Original, "new-original").Add(c => c.Modified, "new-modified"));
+		createModel.SetResult(new TextModel { Id = "m1", Uri = "inmemory://model/1" });
+		await task;
+
+		var setValues = JSInterop.Invocations
+			.Where(i => i.Identifier.EndsWith("setValue", StringComparison.Ordinal))
+			.SelectMany(i => i.Arguments.OfType<string>())
+			.ToList();
+		setValues.Should().Contain("new-original").And.Contain("new-modified");
+	}
+
+
+	/// <summary>A ReadOnly change after init is pushed to the live editor.</summary>
+	[Fact]
+	public async Task ReadOnly_ChangeAfterInit_IsPushedToEditor()
+	{
+		JSInterop.Setup<TextModel>(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal))
+			.SetResult(new TextModel { Id = "m1", Uri = "inmemory://model/1" });
+		var cut = Render<PDDiffPanel>(p => p.Add(c => c.ReadOnly, true));
+		var init = typeof(PDDiffPanel).GetMethod("OnEditorInitAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		await (Task)init.Invoke(cut.Instance, null)!;
+		cut.Render(p => p.Add(c => c.ReadOnly, false));
+		JSInterop.Invocations.Count(i => i.Identifier.EndsWith("updateOptions", StringComparison.Ordinal)).Should().BeGreaterThan(0);
 	}
 }
