@@ -374,7 +374,7 @@ public partial class PDCalendarTests
 		var calendar = RenderWeek(p => p.Add(x => x.ScrollToHour, 8));
 		runtime.Module.Calls.Should().Equal("setProperty");
 		runtime.Module.ArgumentCount.Should().Be(3);
-		runtime.Imports.Should().Equal(JSInteropVersionHelper.CommonJsUrl);
+		runtime.Calls.Should().Equal(("import", JSInteropVersionHelper.CommonJsUrl));
 
 		await calendar.Instance.DisposeAsync();
 		await calendar.Instance.DisposeAsync();
@@ -390,12 +390,12 @@ public partial class PDCalendarTests
 		/// <summary>Gets or sets an exception thrown when the module is imported, if any.</summary>
 		public Exception? ImportException { get; init; }
 
-		/// <summary>Gets the module paths imported.</summary>
-		public List<string?> Imports { get; } = [];
+		/// <summary>Gets each call made, with the identifier and the first argument, such as the module path imported.</summary>
+		public List<(string Identifier, string? FirstArgument)> Calls { get; } = [];
 
 		public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
 		{
-			Imports.Add(args?.FirstOrDefault() as string);
+			Calls.Add((identifier, args?.FirstOrDefault() as string));
 			return ImportException is null
 				? ValueTask.FromResult((TValue)(object)Module)
 				: ValueTask.FromException<TValue>(ImportException);

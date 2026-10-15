@@ -42,38 +42,28 @@ public partial class PDCalendar<TItem>
 
 	private string GetDayClass(DateOnly date)
 	{
-		var classes = new List<string> { "pdcal-day" };
+		var isOutsideMonth = _view == CalendarView.Month && date.Month != _date.Month;
+		var isShadedWeekend = ShadeWeekends && IsWeekend(date);
 
-		if (_view == CalendarView.Month && date.Month != _date.Month)
-		{
-			classes.Add("pdcal-day-outside");
-		}
+		return JoinClasses(
+			"pdcal-day",
+			(isOutsideMonth, "pdcal-day-outside"),
+			(date == _today, "pdcal-today"),
+			(isShadedWeekend, "pdcal-weekend"),
+			(IsDateDisabled(date), "pdcal-day-disabled"),
+			(date == _date, "pdcal-focused"),
+			(true, DayCssClassSelector?.Invoke(date)));
+	}
 
-		if (date == _today)
-		{
-			classes.Add("pdcal-today");
-		}
-
-		if (ShadeWeekends && IsWeekend(date))
-		{
-			classes.Add("pdcal-weekend");
-		}
-
-		if (IsDateDisabled(date))
-		{
-			classes.Add("pdcal-day-disabled");
-		}
-
-		if (date == _date)
-		{
-			classes.Add("pdcal-focused");
-		}
-
-		var extra = DayCssClassSelector?.Invoke(date);
-		if (!string.IsNullOrWhiteSpace(extra))
-		{
-			classes.Add(extra);
-		}
+	/// <summary>
+	/// Joins a base class with each optional class whose condition holds and which is not blank.
+	/// </summary>
+	private static string JoinClasses(string baseClass, params (bool Applies, string? CssClass)[] optional)
+	{
+		var classes = optional
+			.Where(entry => entry.Applies && !string.IsNullOrWhiteSpace(entry.CssClass))
+			.Select(entry => entry.CssClass!)
+			.Prepend(baseClass);
 
 		return string.Join(' ', classes);
 	}
@@ -87,35 +77,13 @@ public partial class PDCalendar<TItem>
 
 	private string GetItemClass(CalendarSegment<TItem> segment)
 	{
-		var classes = new List<string> { "pdcal-item" };
-
-		if (IsSelected(segment.Item))
-		{
-			classes.Add("pdcal-item-selected");
-		}
-
-		if (IsItemDisabled(segment.Item))
-		{
-			classes.Add("pdcal-item-disabled");
-		}
-
-		if (segment.ContinuesBefore)
-		{
-			classes.Add("pdcal-item-continues-before");
-		}
-
-		if (segment.ContinuesAfter)
-		{
-			classes.Add("pdcal-item-continues-after");
-		}
-
-		var extra = CssClassSelector?.Invoke(segment.Item);
-		if (!string.IsNullOrWhiteSpace(extra))
-		{
-			classes.Add(extra);
-		}
-
-		return string.Join(' ', classes);
+		return JoinClasses(
+			"pdcal-item",
+			(IsSelected(segment.Item), "pdcal-item-selected"),
+			(IsItemDisabled(segment.Item), "pdcal-item-disabled"),
+			(segment.ContinuesBefore, "pdcal-item-continues-before"),
+			(segment.ContinuesAfter, "pdcal-item-continues-after"),
+			(true, CssClassSelector?.Invoke(segment.Item)));
 	}
 
 	private string GetItemTitle(TItem item)
@@ -202,29 +170,15 @@ public partial class PDCalendar<TItem>
 
 	private string GetSlotClass(DateOnly date, CalendarHourSlot? slot, int rowIndex)
 	{
-		var classes = new List<string> { "pdcal-slot" };
+		var isShadedWeekend = ShadeWeekends && IsWeekend(date);
+		var isFocused = date == _date && rowIndex == _focusedRow;
 
-		if (slot is null)
-		{
-			classes.Add("pdcal-slot-none");
-		}
-
-		if (ShadeWeekends && IsWeekend(date))
-		{
-			classes.Add("pdcal-weekend");
-		}
-
-		if (IsDateDisabled(date))
-		{
-			classes.Add("pdcal-day-disabled");
-		}
-
-		if (date == _date && rowIndex == _focusedRow)
-		{
-			classes.Add("pdcal-focused");
-		}
-
-		return string.Join(' ', classes);
+		return JoinClasses(
+			"pdcal-slot",
+			(slot is null, "pdcal-slot-none"),
+			(isShadedWeekend, "pdcal-weekend"),
+			(IsDateDisabled(date), "pdcal-day-disabled"),
+			(isFocused, "pdcal-focused"));
 	}
 
 	/// <summary>
