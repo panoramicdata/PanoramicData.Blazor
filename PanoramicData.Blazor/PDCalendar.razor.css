@@ -299,6 +299,12 @@
 	color: var(--pd-calendar-muted);
 }
 
+.pdcal-week-day-header .pdcal-day-number {
+	align-self: center;
+	min-width: 1.5rem;
+	height: 1.5rem;
+}
+
 .pdcal-day-length {
 	font-size: 0.6rem;
 }
@@ -367,6 +373,15 @@
 
 .pdcal-week-column .pdcal-item-dot {
 	display: none;
+}
+
+/* In a narrow time block the title matters most, so it comes before the times */
+.pdcal-week-column .pdcal-item-title {
+	order: -1;
+}
+
+.pdcal-week-column .pdcal-item-time {
+	font-size: 0.7rem;
 }
 
 .pdcal-week-column .pdcal-item-continues-before {
