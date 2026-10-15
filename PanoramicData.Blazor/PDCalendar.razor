@@ -1,0 +1,290 @@
+@typeparam TItem
+
+<div class="@GetRootClass()" id="@Id" aria-busy="@(IsLoading ? "true" : "false")">
+
+	@if (ShowToolbar)
+	{
+		<div class="pdcal-toolbar" role="toolbar" aria-label="@($"{AriaLabel} navigation")" aria-controls="@($"{Id}-body")">
+			@if (ShowNavigation)
+			{
+				<div class="btn-group btn-group-sm" role="group">
+					<button type="button"
+							class="btn btn-outline-secondary pdcal-previous"
+							title="@($"Previous {GetPeriodName()}")"
+							aria-label="@($"Previous {GetPeriodName()}")"
+							disabled="@(!CanNavigate(-1))"
+							@onclick="() => NavigateAsync(-1)">
+						<i class="fas fa-chevron-left" aria-hidden="true"></i>
+					</button>
+					<button type="button"
+							class="btn btn-outline-secondary pdcal-next"
+							title="@($"Next {GetPeriodName()}")"
+							aria-label="@($"Next {GetPeriodName()}")"
+							disabled="@(!CanNavigate(1))"
+							@onclick="() => NavigateAsync(1)">
+						<i class="fas fa-chevron-right" aria-hidden="true"></i>
+					</button>
+				</div>
+			}
+
+			@if (ShowToday)
+			{
+				<button type="button"
+						class="btn btn-sm btn-outline-secondary pdcal-today-button"
+						disabled="@IsDateDisabled(_today)"
+						@onclick="GoToTodayAsync">
+					Today
+				</button>
+			}
+
+			@if (ShowTitle)
+			{
+				<h2 class="pdcal-title" id="@TitleId" aria-live="polite">@Title</h2>
+			}
+
+			@if (ShowViewSwitcher && AvailableViews.Count > 1)
+			{
+				<div class="btn-group btn-group-sm pdcal-views" role="group" aria-label="View">
+					@foreach (var view in AvailableViews)
+					{
+						var thisView = view;
+						var isActive = thisView == _view;
+						<button type="button"
+								class="btn @(isActive ? "btn-secondary active" : "btn-outline-secondary") pdcal-view-button"
+								aria-pressed="@(isActive ? "true" : "false")"
+								@onclick="() => SetViewAsync(thisView)">
+							@GetViewName(thisView)
+						</button>
+					}
+				</div>
+			}
+		</div>
+	}
+
+	<PDBusyOverlay IsBusy="IsLoading" CssClass="d-block pdcal-busy">
+		<div class="pdcal-body" id="@($"{Id}-body")">
+			@switch (_view)
+			{
+				case CalendarView.Month:
+					@RenderMonth()
+					break;
+				case CalendarView.Week:
+					@RenderWeek()
+					break;
+				default:
+					@RenderAgenda()
+					break;
+			}
+		</div>
+	</PDBusyOverlay>
+</div>
+
+@code {
+
+	private RenderFragment RenderMonth() => @<div class="pdcal-month"
+		 role="grid"
+		 tabindex="0"
+		 aria-label="@($"{AriaLabel}, {Title}")"
+		 aria-activedescendant="@ActiveDescendantId"
+		 @onkeydown="OnKeyDownAsync"
+		 @onkeydown:preventDefault="_preventDefaultKey">
+
+		<div class="pdcal-month-row pdcal-weekdays" role="row">
+			@foreach (var date in _weeks[0])
+			{
+				<div class="pdcal-weekday" role="columnheader" aria-label="@date.ToString("dddd", CultureInfo.CurrentCulture)">
+					@date.ToString("ddd", CultureInfo.CurrentCulture)
+				</div>
+			}
+		</div>
+
+		@foreach (var week in _weeks)
+		{
+			<div class="pdcal-month-row" role="row">
+				@foreach (var day in week)
+				{
+					var date = day;
+					var segments = GetSegments(date);
+					var shown = Math.Max(0, MaxItemsPerDay);
+					var hidden = segments.Count - shown;
+
+					<div class="@GetDayClass(date)"
+						 id="@CellId(date)"
+						 role="gridcell"
+						 aria-label="@GetDayLabel(date)"
+						 aria-selected="@(date == _date ? "true" : "false")"
+						 aria-disabled="@(IsDateDisabled(date) ? "true" : null)"
+						 aria-current="@(date == _today ? "date" : null)"
+						 @onclick="() => OnDayClickAsync(date)">
+
+						<div class="pdcal-day-number" aria-hidden="true">@date.Day</div>
+
+						<div class="pdcal-day-items">
+							@foreach (var segment in segments.Take(shown))
+							{
+								@RenderItemButton(segment, null)
+							}
+
+							@if (hidden > 0)
+							{
+								<button type="button"
+										class="pdcal-more"
+										aria-label="@GetMoreLabel(date, segments.Count)"
+										@onclick="() => ShowDayAgendaAsync(date)"
+										@onclick:stopPropagation="true"
+										@onkeydown:stopPropagation="true">
+									+@hidden more
+								</button>
+							}
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</div>;
+
+	private RenderFragment RenderWeek() => @<div class="pdcal-week-scroll" @ref="ScrollElement" style="@($"max-height:{ScrollHeight}")">
+		<div class="pdcal-week-canvas">
+			<div class="pdcal-week"
+				 role="grid"
+				 tabindex="0"
+				 aria-label="@($"{AriaLabel}, {Title}")"
+				 aria-activedescendant="@ActiveDescendantId"
+				 @onkeydown="OnKeyDownAsync"
+				 @onkeydown:preventDefault="_preventDefaultKey">
+
+				<div class="pdcal-week-row pdcal-week-header" role="row">
+					<div class="pdcal-axis-corner" role="columnheader"><span class="visually-hidden">Time</span></div>
+					@foreach (var day in _dates)
+					{
+						var date = day;
+						var note = GetDayLengthNote(date);
+						<div class="@GetDayClass(date) pdcal-week-day-header"
+							 role="columnheader"
+							 aria-label="@(note is null ? LongDate(date) : $"{LongDate(date)}, {note}")"
+							 aria-current="@(date == _today ? "date" : null)">
+							<span class="pdcal-weekday-name">@date.ToString("ddd", CultureInfo.CurrentCulture)</span>
+							<span class="pdcal-day-number">@date.Day</span>
+							@if (note is not null)
+							{
+								<span class="pdcal-day-length badge text-bg-warning">@note</span>
+							}
+						</div>
+					}
+				</div>
+
+				<div class="pdcal-week-body" role="rowgroup" style="@CanvasStyle">
+					@for (var r = 0; r < _axis!.Rows.Count; r++)
+					{
+						var rowIndex = r;
+						<div class="pdcal-week-row" role="row">
+							<div class="pdcal-hour-label" role="rowheader">@GetRowLabel(rowIndex)</div>
+							@for (var d = 0; d < _dates.Count; d++)
+							{
+								var dayIndex = d;
+								var date = _dates[dayIndex];
+								var slot = _axis.GetSlot(dayIndex, rowIndex);
+								<div class="@GetSlotClass(date, slot, rowIndex)"
+									 id="@SlotId(date, rowIndex)"
+									 role="gridcell"
+									 aria-label="@GetSlotLabel(date, slot)"
+									 aria-selected="@(date == _date && rowIndex == _focusedRow ? "true" : "false")"
+									 aria-disabled="@(slot is null || IsDateDisabled(date) ? "true" : null)"
+									 @onclick="() => OnSlotClickAsync(dayIndex, rowIndex)"></div>
+							}
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="pdcal-week-items">
+				@for (var d = 0; d < _dates.Count; d++)
+				{
+					var dayIndex = d;
+					var date = _dates[dayIndex];
+					var now = GetNowOffset(dayIndex);
+					<div class="pdcal-week-column" data-date="@date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+						@foreach (var segment in GetSegments(date))
+						{
+							var style = GetWeekItemStyle(dayIndex, segment);
+							if (style is not null)
+							{
+								@RenderItemButton(segment, style)
+							}
+						}
+
+						@if (now.HasValue)
+						{
+							<div class="pdcal-now" style="@($"top:{F(now.Value)}px")" aria-hidden="true"></div>
+						}
+					</div>
+				}
+			</div>
+		</div>
+	</div>;
+
+	private RenderFragment RenderAgenda() => @<div class="pdcal-agenda"
+		 role="region"
+		 tabindex="0"
+		 aria-label="@($"{AriaLabel}, {Title}")"
+		 @onkeydown="OnKeyDownAsync"
+		 @onkeydown:preventDefault="_preventDefaultKey">
+		@if (_segmentsByDate.Count == 0)
+		{
+			<div class="pdcal-empty">@EmptyText</div>
+		}
+		else
+		{
+			@foreach (var day in _dates)
+			{
+				var date = day;
+				var segments = GetSegments(date);
+				if (segments.Count == 0)
+				{
+					continue;
+				}
+
+				<section class="@GetDayClass(date) pdcal-agenda-day" aria-label="@LongDate(date)">
+					<h3 class="pdcal-agenda-date">
+						@LongDate(date)
+						@if (date == _today)
+						{
+							<span class="badge text-bg-primary ms-2">Today</span>
+						}
+					</h3>
+					<ul class="pdcal-agenda-items list-unstyled">
+						@foreach (var segment in segments)
+						{
+							<li>
+								@RenderItemButton(segment, null)
+							</li>
+						}
+					</ul>
+				</section>
+			}
+		}
+	</div>;
+
+	private RenderFragment RenderItemButton(CalendarSegment<TItem> segment, string? style) => @<button type="button"
+		 class="@GetItemClass(segment)"
+		 style="@style"
+		 title="@GetTooltip(segment)"
+		 aria-label="@GetItemLabel(segment)"
+		 aria-pressed="@(IsSelected(segment.Item) ? "true" : "false")"
+		 disabled="@IsItemDisabled(segment.Item)"
+		 @onclick="() => OnItemClickAsync(segment.Item)"
+		 @onclick:stopPropagation="true"
+		 @ondblclick="() => OnItemDoubleClickAsync(segment.Item)"
+		 @onkeydown:stopPropagation="true">
+		@if (ItemTemplate is null)
+		{
+			<span class="pdcal-item-dot" aria-hidden="true"></span>
+			<span class="pdcal-item-time">@GetTimeText(segment)</span>
+			<span class="pdcal-item-title">@GetItemTitle(segment.Item)</span>
+		}
+		else
+		{
+			@ItemTemplate(segment.Item)
+		}
+	</button>;
+}

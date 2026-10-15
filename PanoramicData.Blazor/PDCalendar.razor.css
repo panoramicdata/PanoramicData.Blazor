@@ -1,0 +1,504 @@
+.pdcal {
+	--pd-calendar-border: var(--bs-border-color, #dee2e6);
+	--pd-calendar-grid-line: var(--bs-border-color-translucent, rgba(0, 0, 0, 0.1));
+	--pd-calendar-muted: var(--bs-secondary-color, #6c757d);
+	--pd-calendar-bg: var(--bs-body-bg, #fff);
+	--pd-calendar-hover: var(--bs-tertiary-bg, rgba(0, 0, 0, 0.04));
+	--pd-calendar-weekend: var(--pd-calendar-default-weekend);
+	--pd-calendar-outside: var(--pd-calendar-default-outside);
+	--pd-calendar-item-bg: var(--pd-calendar-default-item-bg);
+	--pd-calendar-item-fg: var(--pd-calendar-default-item-fg);
+	--pd-calendar-accent: var(--bs-primary, #0d6efd);
+	--pd-calendar-now: var(--bs-danger, #dc3545);
+	--pd-calendar-focus: var(--bs-focus-ring-color, rgba(13, 110, 253, 0.5));
+	--pd-calendar-none: var(--pd-calendar-default-none);
+
+	/* Light is the base definition, so a host that sets no theme at all still gets a complete palette. */
+	--pd-calendar-default-weekend: rgba(0, 0, 0, 0.025);
+	--pd-calendar-default-outside: rgba(0, 0, 0, 0.035);
+	--pd-calendar-default-item-bg: #dbe7fd;
+	--pd-calendar-default-item-fg: #0a3a8a;
+	--pd-calendar-default-none: rgba(0, 0, 0, 0.06);
+
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	min-width: 0;
+}
+
+[data-bs-theme="dark"] .pdcal,
+[data-theme="dark"] .pdcal {
+	--pd-calendar-default-weekend: rgba(255, 255, 255, 0.03);
+	--pd-calendar-default-outside: rgba(255, 255, 255, 0.04);
+	--pd-calendar-default-item-bg: #1d3557;
+	--pd-calendar-default-item-fg: #dbe7fd;
+	--pd-calendar-default-none: rgba(255, 255, 255, 0.07);
+}
+
+/* Hosts that set no theme attribute at all still follow the operating system. */
+@media (prefers-color-scheme: dark) {
+	.pdcal:not([data-bs-theme="light"]):not([data-theme="light"]) {
+		--pd-calendar-default-weekend: rgba(255, 255, 255, 0.03);
+		--pd-calendar-default-outside: rgba(255, 255, 255, 0.04);
+		--pd-calendar-default-item-bg: #1d3557;
+		--pd-calendar-default-item-fg: #dbe7fd;
+		--pd-calendar-default-none: rgba(255, 255, 255, 0.07);
+	}
+}
+
+/* Toolbar */
+
+.pdcal-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.pdcal-title {
+	flex: 1 1 auto;
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 600;
+}
+
+.pdcal-views {
+	margin-left: auto;
+}
+
+/* Items, shared by every view */
+
+.pdcal-item {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	width: 100%;
+	min-width: 0;
+	padding: 0.05rem 0.3rem;
+	border: 0;
+	border-radius: 0.2rem;
+	background: var(--pd-calendar-item-bg);
+	color: var(--pd-calendar-item-fg);
+	font-size: 0.75rem;
+	line-height: 1.3;
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+	transition: filter 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
+}
+
+.pdcal-item:hover:not(:disabled) {
+	filter: brightness(0.95);
+}
+
+.pdcal-item:focus-visible {
+	outline: 2px solid var(--pd-calendar-accent);
+	outline-offset: 1px;
+}
+
+.pdcal-item-dot {
+	flex: none;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+.pdcal-item-time {
+	flex: none;
+	opacity: 0.8;
+}
+
+.pdcal-item-title {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-weight: 500;
+}
+
+.pdcal-item-selected {
+	box-shadow: 0 0 0 2px var(--pd-calendar-accent);
+}
+
+.pdcal-item-disabled,
+.pdcal-item:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.pdcal-item-continues-before {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+.pdcal-item-continues-after {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+/* Month view */
+
+.pdcal-month {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--pd-calendar-border);
+	border-radius: 0.25rem;
+	overflow: hidden;
+}
+
+.pdcal-month:focus-visible {
+	outline: 2px solid var(--pd-calendar-focus);
+	outline-offset: 2px;
+}
+
+.pdcal-month-row {
+	display: grid;
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.pdcal-weekday {
+	padding: 0.25rem;
+	border-bottom: 1px solid var(--pd-calendar-border);
+	color: var(--pd-calendar-muted);
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-align: center;
+}
+
+.pdcal-month .pdcal-day {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	min-width: 0;
+	min-height: 6.5rem;
+	padding: 0.2rem;
+	border-right: 1px solid var(--pd-calendar-grid-line);
+	border-bottom: 1px solid var(--pd-calendar-grid-line);
+	cursor: pointer;
+}
+
+.pdcal-month .pdcal-day:hover:not(.pdcal-day-disabled) {
+	background-color: var(--pd-calendar-hover);
+}
+
+.pdcal-month-row > .pdcal-day:last-child {
+	border-right: 0;
+}
+
+.pdcal-weekend {
+	background-color: var(--pd-calendar-weekend);
+}
+
+.pdcal-day-outside {
+	background-color: var(--pd-calendar-outside);
+	color: var(--pd-calendar-muted);
+}
+
+.pdcal-day-outside .pdcal-item {
+	opacity: 0.7;
+}
+
+.pdcal-day-number {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	align-self: flex-start;
+	min-width: 1.6rem;
+	height: 1.6rem;
+	padding: 0 0.25rem;
+	border-radius: 0.8rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+
+.pdcal-today .pdcal-day-number {
+	background: var(--pd-calendar-accent);
+	color: #fff;
+}
+
+.pdcal-day-disabled {
+	color: var(--pd-calendar-muted);
+	background-image: repeating-linear-gradient(135deg, transparent 0 6px, var(--pd-calendar-none) 6px 7px);
+	cursor: not-allowed;
+}
+
+.pdcal-month:focus-visible .pdcal-focused,
+.pdcal-week:focus-visible .pdcal-focused,
+.pdcal-month .pdcal-focused:focus-within {
+	outline: 2px solid var(--pd-calendar-accent);
+	outline-offset: -2px;
+}
+
+.pdcal-day-items {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	min-width: 0;
+}
+
+.pdcal-more {
+	align-self: flex-start;
+	padding: 0 0.3rem;
+	border: 0;
+	background: transparent;
+	color: var(--bs-link-color, #0d6efd);
+	font-size: 0.75rem;
+	cursor: pointer;
+}
+
+.pdcal-more:hover {
+	text-decoration: underline;
+}
+
+/* Week view */
+
+.pdcal-week-scroll {
+	overflow-y: auto;
+	border: 1px solid var(--pd-calendar-border);
+	border-radius: 0.25rem;
+}
+
+.pdcal-week-canvas {
+	--pdcal-axis-width: 4.75rem;
+	--pdcal-header-height: 3.25rem;
+	position: relative;
+}
+
+.pdcal-week:focus-visible {
+	outline: 2px solid var(--pd-calendar-focus);
+	outline-offset: -2px;
+}
+
+.pdcal-week-row {
+	display: grid;
+	grid-template-columns: var(--pdcal-axis-width) repeat(7, minmax(0, 1fr));
+}
+
+.pdcal-week-header {
+	position: sticky;
+	top: 0;
+	z-index: 3;
+	height: var(--pdcal-header-height);
+	border-bottom: 1px solid var(--pd-calendar-border);
+	background: var(--pd-calendar-bg);
+}
+
+.pdcal-week-day-header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-width: 0;
+	border-left: 1px solid var(--pd-calendar-grid-line);
+	font-size: 0.8rem;
+	line-height: 1.1;
+}
+
+.pdcal-weekday-name {
+	color: var(--pd-calendar-muted);
+}
+
+.pdcal-day-length {
+	font-size: 0.6rem;
+}
+
+.pdcal-week-body .pdcal-week-row {
+	height: var(--pdcal-slot-height);
+}
+
+.pdcal-hour-label {
+	padding-right: 0.35rem;
+	color: var(--pd-calendar-muted);
+	font-size: 0.7rem;
+	line-height: 1;
+	text-align: right;
+	white-space: nowrap;
+	transform: translateY(-0.45em);
+}
+
+.pdcal-week-body .pdcal-week-row:first-child .pdcal-hour-label {
+	transform: none;
+}
+
+.pdcal-slot {
+	border-left: 1px solid var(--pd-calendar-grid-line);
+	border-top: 1px solid var(--pd-calendar-grid-line);
+	cursor: pointer;
+	transition: background-color 0.12s ease-in-out;
+}
+
+.pdcal-slot:hover:not(.pdcal-slot-none):not(.pdcal-day-disabled) {
+	background-color: var(--pd-calendar-hover);
+}
+
+.pdcal-slot-none {
+	background-image: repeating-linear-gradient(45deg, transparent 0 5px, var(--pd-calendar-none) 5px 6px);
+	cursor: default;
+}
+
+.pdcal-week-items {
+	position: absolute;
+	top: var(--pdcal-header-height);
+	left: var(--pdcal-axis-width);
+	right: 0;
+	bottom: 0;
+	z-index: 1;
+	display: grid;
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+	pointer-events: none;
+}
+
+.pdcal-week-column {
+	position: relative;
+	min-width: 0;
+}
+
+.pdcal-week-column .pdcal-item {
+	position: absolute;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0;
+	padding: 0.1rem 0.25rem;
+	border: 1px solid var(--pd-calendar-bg);
+	white-space: normal;
+	pointer-events: auto;
+}
+
+.pdcal-week-column .pdcal-item-dot {
+	display: none;
+}
+
+.pdcal-week-column .pdcal-item-continues-before {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-bottom-left-radius: 0.2rem;
+}
+
+.pdcal-week-column .pdcal-item-continues-after {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0.2rem;
+}
+
+.pdcal-now {
+	position: absolute;
+	left: 0;
+	right: 0;
+	z-index: 2;
+	height: 0;
+	border-top: 2px solid var(--pd-calendar-now);
+	pointer-events: none;
+}
+
+.pdcal-now::before {
+	content: "";
+	position: absolute;
+	top: -5px;
+	left: -4px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--pd-calendar-now);
+}
+
+/* Agenda view */
+
+.pdcal-agenda {
+	padding: 0.25rem 0.5rem;
+	border: 1px solid var(--pd-calendar-border);
+	border-radius: 0.25rem;
+}
+
+.pdcal-agenda:focus-visible {
+	outline: 2px solid var(--pd-calendar-focus);
+	outline-offset: 2px;
+}
+
+.pdcal-agenda-day {
+	padding: 0.25rem 0;
+}
+
+.pdcal-agenda-day + .pdcal-agenda-day {
+	border-top: 1px solid var(--pd-calendar-grid-line);
+}
+
+.pdcal-agenda-date {
+	margin: 0.25rem 0;
+	font-size: 0.95rem;
+	font-weight: 600;
+}
+
+.pdcal-agenda-items {
+	margin: 0;
+}
+
+.pdcal-agenda .pdcal-item {
+	margin-bottom: 0.25rem;
+	padding: 0.35rem 0.5rem;
+	font-size: 0.875rem;
+	white-space: normal;
+}
+
+.pdcal-agenda .pdcal-item-time {
+	min-width: 6.5rem;
+}
+
+.pdcal-empty {
+	padding: 2rem 1rem;
+	color: var(--pd-calendar-muted);
+	font-style: italic;
+	text-align: center;
+}
+
+/* Phones: the month view collapses each item to a dot, keeping its accessible label */
+
+@media (max-width: 575.98px) {
+	.pdcal-title {
+		flex-basis: 100%;
+		order: -1;
+	}
+
+	.pdcal-month .pdcal-day {
+		min-height: 3.25rem;
+		padding: 0.1rem;
+	}
+
+	.pdcal-month .pdcal-day-items {
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 2px;
+	}
+
+	.pdcal-month .pdcal-item {
+		width: 0.55rem;
+		height: 0.55rem;
+		padding: 0;
+		border-radius: 50%;
+		background: var(--pd-calendar-item-fg);
+	}
+
+	.pdcal-month .pdcal-item > * {
+		display: none;
+	}
+
+	.pdcal-more {
+		padding: 0;
+		font-size: 0.65rem;
+	}
+
+	.pdcal-week-canvas {
+		--pdcal-axis-width: 3.25rem;
+	}
+
+	.pdcal-week-day-header {
+		font-size: 0.7rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pdcal-item,
+	.pdcal-slot {
+		transition: none;
+	}
+}
