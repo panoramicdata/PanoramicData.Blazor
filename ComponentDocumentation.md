@@ -2,7 +2,7 @@
 
 This document provides an overview of the Blazor components in this project.
 
-Generated on: 2026-07-05 15:32:57
+Generated on: 2026-10-15 14:55:56
 
 ## PDAnimation
 
@@ -23,8 +23,8 @@ Generated on: 2026-07-05 15:32:57
 
 | Name | Type | Description |
 |------|------|-------------|
-| ActiveColor | string |  |
-| InactiveColor | string |  |
+| ActiveColor | string | Gets or sets the color displayed when the button is in the active (on) state. |
+| InactiveColor | string | Gets or sets the color displayed when the button is in the inactive (off) state. |
 
 ---
 
@@ -140,6 +140,62 @@ This component has no public parameters.
 
 ---
 
+## PDCalendar
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Items | IEnumerable<TItem>? | Gets or sets the items to show. Only the items within the visible range are laid out, so a host may supply just those (see <see cref="OnVisibleRangeChanged"/>). |
+| StartSelector | Func<TItem, DateTimeOffset>? | Gets or sets the function returning the instant an item starts. Required for items to be shown. |
+| EndSelector | Func<TItem, DateTimeOffset>? | Gets or sets the function returning the instant an item ends. Required for items to be shown; an end before the start is treated as the start. |
+| TitleSelector | Func<TItem, string>? | Gets or sets the function returning the title of an item. When not supplied, the item's ToString is used. |
+| KeySelector | Func<TItem, object>? | Gets or sets the function returning a key that identifies an item, used to recognise the selected item when items are reloaded as new instances. When not supplied, items are compared with their own equality. |
+| CssClassSelector | Func<TItem, string?>? | Gets or sets the function returning extra CSS classes for an item. |
+| TooltipSelector | Func<TItem, string?>? | Gets or sets the function returning the hover text for an item. When not supplied, the title and times are used. |
+| IsDisabledSelector | Func<TItem, bool>? | Gets or sets the function deciding whether an item is disabled. A disabled item is shown but cannot be selected. |
+| ItemTemplate | RenderFragment<TItem>? | Gets or sets an optional template for the content of an item, replacing the default title and time. |
+| TimeZone | TimeZoneInfo | Gets or sets the time zone that decides which day and hour an item falls in. The default is the local time zone. |
+| Clock | TimeProvider | Gets or sets the clock used for today and the current time indicator. The default is the system clock. |
+| Date | DateOnly? | Gets or sets the focused date, which decides the period shown. When null, today is used. |
+| DateChanged | EventCallback<DateOnly?> | Gets or sets the callback raised when the focused date changes, supporting two-way binding. |
+| View | CalendarView | Gets or sets the view shown. |
+| ViewChanged | EventCallback<CalendarView> | Gets or sets the callback raised when the view changes, supporting two-way binding. |
+| AvailableViews | IReadOnlyList<CalendarView> | Gets or sets the views offered by the view switcher, in order. |
+| FirstDayOfWeek | DayOfWeek | Gets or sets the day on which weeks start. The default is Monday. |
+| SelectedItem | TItem? | Gets or sets the selected item. |
+| SelectedItemChanged | EventCallback<TItem?> | Gets or sets the callback raised when the selected item changes, supporting two-way binding. |
+| OnItemSelected | EventCallback<TItem> | Gets or sets the callback raised when the user selects an item by clicking it or pressing Enter on it. |
+| OnItemDoubleClick | EventCallback<TItem> | Gets or sets the callback raised when the user double clicks an item. |
+| OnSlotSelected | EventCallback<DateTimeOffset> | Gets or sets the callback raised when the user selects an empty hour slot or a day, giving the instant the slot or day starts. |
+| OnVisibleRangeChanged | EventCallback<(DateTimeOffset From, DateTimeOffset To)> | Gets or sets the callback raised whenever the visible range changes, including when first shown, so that a host can load items lazily. The range runs from the start of the first visible day to the start of the day after the last. |
+| IsLoading | bool | Gets or sets a value indicating whether items are loading, which shows the busy overlay. |
+| NowIndicator | bool | Gets or sets a value indicating whether the week view draws a line at the current time, refreshed every minute. |
+| MinDate | DateOnly? | Gets or sets the earliest date that can be shown or navigated to. |
+| MaxDate | DateOnly? | Gets or sets the latest date that can be shown or navigated to. |
+| DayCssClassSelector | Func<DateOnly, string?>? | Gets or sets the function returning extra CSS classes for a day. |
+| ShadeWeekends | bool | Gets or sets a value indicating whether weekend days are shaded. |
+| WeekendDays | IReadOnlyCollection<DayOfWeek> | Gets or sets the days treated as the weekend. The default is Saturday and Sunday. |
+| MaxItemsPerDay | int | Gets or sets the most items listed in a day of the month view before a "+n more" button is shown, which opens that day's agenda. |
+| AgendaDays | int | Gets or sets the number of days listed by the agenda view, starting at the focused date. |
+| FirstVisibleHour | int | Gets or sets the first local hour shown by the week view, from 0 to 23. |
+| LastVisibleHour | int | Gets or sets the local hour at which the week view stops, from 1 to 24. |
+| SlotHeight | double | Gets or sets the height in pixels of one hour of the week view. |
+| MinItemHeight | double | Gets or sets the smallest height in pixels at which an item is drawn in the week view, so that short items stay clickable. |
+| ScrollHeight | string | Gets or sets the CSS maximum height of the scrolling area of the week view. |
+| ScrollToHour | int? | Gets or sets the local hour the week view scrolls to when it is shown. When null, no scrolling is done and no JavaScript is loaded. |
+| TimeFormat | string | Gets or sets the .NET format string used for times. |
+| ShowToolbar | bool | Gets or sets a value indicating whether the toolbar is shown at all. |
+| ShowNavigation | bool | Gets or sets a value indicating whether the toolbar shows the previous and next buttons. |
+| ShowToday | bool | Gets or sets a value indicating whether the toolbar shows the today button. |
+| ShowTitle | bool | Gets or sets a value indicating whether the toolbar shows the title of the visible period. |
+| ShowViewSwitcher | bool | Gets or sets a value indicating whether the toolbar shows the view switcher. |
+| EmptyText | string | Gets or sets the text shown by the agenda view when there are no items. |
+| AriaLabel | string | Gets or sets the accessible label of the calendar. |
+| CssClass | string? | Gets or sets extra CSS classes for the outermost element. |
+
+---
+
 ## PDCanvas
 
 **Parameters:**
@@ -199,7 +255,11 @@ This component has no public parameters.
 
 ## PDCardDeckLoadingIcon
 
-This component has no public parameters.
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Clock | TimeProvider | Gets or sets the clock that supplies the current time and drives the start-up delay and the elapsed-time counter. Defaults to <see cref="TimeProvider.System"/>. |
 
 ---
 
@@ -211,7 +271,7 @@ This component has no public parameters.
 |------|------|-------------|
 | ChatService | required IChatService |  |
 | User | required ChatMessageSender |  |
-| ConversationService | IChatConversationService? | Optional conversation history. `null` (the default) means the host has no conversation store, and no conversation UI is rendered. |
+| ConversationService | IChatConversationService? | Gets or sets an optional conversation history: the list of previous conversations that can be searched, opened and archived (issue #108). <c>null</c> - the default - means the host has no such store. |
 | ChatDockPosition | PDChatDockPosition | Gets or sets the dock position of the chat window. |
 | CollapsedIcon | string | Gets or sets the icon to display when the chat window is collapsed. |
 | UserIconSelector | Func<ChatMessage, string?>? | A function to select a user icon for a given message. |
@@ -283,6 +343,19 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 | ChatMinSize | int | Gets or sets the minimum size of the chat panel. |
 | ContentMinSize | int | Gets or sets the minimum size of the main content. |
 | ChatService | required IChatService | Gets or sets the chat service for the container. |
+
+---
+
+## PDChatConversationSidebar
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| ConversationService | required IChatConversationService |  |
+| SelectedConversationId | Guid? | Gets or sets the conversation currently being shown, so that its row reads as selected. |
+| OnConversationSelected | EventCallback<ChatConversation> | Raised when the user picks a conversation to open. |
+| OnConversationsLoaded | EventCallback<IReadOnlyList<ChatConversation>> | Raised after each successful load, with the conversations now listed. |
 
 ---
 
@@ -582,9 +655,16 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 | Name | Type | Description |
 |------|------|-------------|
 | Blur | EventCallback | An event callback that is invoked when the component loses focus. |
+| IsNow | bool | Gets or sets whether the value tracks the live current time. When <c>true</c> (and <see cref="ShowNow"/> is enabled) the value is updated automatically and the date, time and time zone inputs are disabled. Supports two-way binding via <c>@bind-IsNow</c>. |
+| IsNowChanged | EventCallback<bool> | An event callback that is invoked when <see cref="IsNow"/> changes. |
+| LiveUpdateIntervalMs | int | Gets or sets the interval, in milliseconds, at which the value is refreshed while <see cref="IsNow"/> is true. |
+| ShowNow | bool | Gets or sets whether to show a "Now" checkbox that lets the user follow the live clock or pin a fixed instant. |
 | ShowOffset | bool | Gets or sets whether to show the offset from UTC. |
 | ShowTime | bool | Gets or sets whether to show the time part of the value. |
+| ShowTimeZones | bool | Gets or sets whether to show a named time zone selector (the full set of system time zones) instead of the numeric UTC offset selector. When enabled, the value's offset is derived from the selected zone for the chosen instant, so daylight saving is applied correctly. Takes precedence over <see cref="ShowOffset"/>. |
 | TimeStepSecs | int | Gets or sets the step in seconds for the time input. |
+| TimeZoneId | string? | Gets or sets the identifier of the selected time zone (see <see cref="TimeZoneInfo.Id"/>) when <see cref="ShowTimeZones"/> is enabled. Defaults to the local time zone when null or unrecognised. Supports two-way binding via <c>@bind-TimeZoneId</c>. |
+| TimeZoneIdChanged | EventCallback<string?> | An event callback that is invoked when <see cref="TimeZoneId"/> changes. |
 | Value | DateTimeOffset | Gets or sets the current value. |
 | ValueChanged | EventCallback<DateTimeOffset> | An event callback that is invoked when the value changes. |
 
@@ -646,6 +726,7 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 
 | Name | Type | Description |
 |------|------|-------------|
+| ExceptionHandler | EventCallback<Exception> | An optional event callback that receives any exception thrown by the <see cref="DropDownShown"/>, <see cref="DropDownHidden"/> or <see cref="KeyPress"/> callbacks. |
 | Click | EventCallback<MouseEventArgs> | An event callback that is invoked when the dropdown is clicked. |
 | ChildContent | RenderFragment? | Gets or sets the child content of the dropdown. |
 | CloseOption | CloseOptions | Gets or sets when the dropdown should close. |
@@ -788,7 +869,7 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 | UploadMaxSize | int | Gets or sets the maximum file upload size in MB. |
 | MoveCopyConflict | EventCallback<MoveCopyArgs> | Event called whenever a move or copy operation is subject to conflicts. |
 | NewFolderName | string | Gets or sets the default name for new folders. |
-| PreviewProvider | IPreviewProvider | Gets or sets an optional File Preview provider. |
+| PreviewProvider | IPreviewProvider | Gets or sets an optional File Preview provider. Defaults to a <see cref="FileExplorerPreviewProvider"/> bound to this explorer. A supplied <see cref="FileExplorerPreviewProvider"/> whose <see cref="FileExplorerPreviewProvider.FileExplorer"/> is not set is bound to this explorer when it initializes; any other supplied provider is used as given. |
 | PreviewPanel | FilePreviewModes | Preview Panel mode. |
 | ReadOnlyPostfix | string | Gets or sets string to append after a Read-Only items name. |
 | ReadOnlyIconClass | string? | Gets or sets the CSS class for the read-only icon (e.g., "fa fa-solid fa-lock"). When set, this icon is used instead of ReadOnlyPostfix text. |
@@ -1015,6 +1096,18 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 | CreateTitle | string | Gets or sets the title for a create form. if omitted then an automatic title is generated. |
 | EditTitle | string | Gets or sets the title for an edit form. if omitted then an automatic title is generated. |
 | DeleteTitle | string | Gets or sets the title for a delete form. if omitted then an automatic title is generated. |
+
+---
+
+## PDFormMessage
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Form | ChatForm? | The questions to ask. Nothing renders when null or empty. |
+| OnSubmitted | EventCallback<ChatFormSubmission> | Raised when the user submits, with one answer per question including the skipped ones. |
+| OnDismissed | EventCallback<Guid> | Raised when the user dismisses the form without answering. |
 
 ---
 
@@ -1295,6 +1388,8 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 | CurrentInputChanged | EventCallback<string> | An event callback that is invoked when the user input changes. |
 | IsLive | bool | Gets or sets whether the message stream is live. |
 | CanSend | bool | Gets or sets whether the user can send a message. |
+| IsInputPermitted | bool | Gets or sets whether the message input (text area and send button) is rendered. When false, the input is hidden and, if <see cref="InputDisabledMessage"/> is set, that message is shown in its place. Defaults to true. |
+| InputDisabledMessage | string? | Gets or sets an optional message shown where the input would normally appear when <see cref="IsInputPermitted"/> is false. When null or empty, nothing is rendered in place of the input. Rendered as plain text. |
 | OnSendClicked | EventCallback | An event callback that is invoked when the send button is clicked. |
 | UserIconSelector | Func<ChatMessage, string?>? | A function to select a user icon for a given message. |
 | UseFullWidthMessages | bool | Gets or sets whether messages should use the full width of the container. |
@@ -1303,6 +1398,9 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 | ShowMessageUserName | bool | Gets or sets whether to show the user name for each message. |
 | ShowMessageTimestamp | bool | Gets or sets whether to show the timestamp for each message. |
 | MessageTimestampFormat | string | Gets or sets the format for the message timestamp. |
+| InputAccessories | RenderFragment? | Gets or sets optional controls shown in the thin toolbar above the text box, before Send. The toolbar is shown even where input is not permitted, so a control such as notification sounds stays reachable. |
+| InputFocusChanged | EventCallback<bool> | An event callback that is invoked when the text box gains (<c>true</c>) or loses (<c>false</c>) focus. |
+| IsInputAutoFocused | bool | Gets or sets whether the text box takes focus when first shown and after each send. Defaults to true. |
 
 ---
 
@@ -1314,7 +1412,7 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 |------|------|-------------|
 | ChildContent | RenderFragment? | Gets or sets the child content (typically PDAudioChannel components). |
 | CssClass | string | Gets or sets additional CSS classes. |
-| MinHeight | string | Gets or sets the minimum height of the mixing desk. |
+| MinHeight | string | Gets or sets the minimum height of the mixing desk, as a CSS length such as "600px". |
 
 ---
 
@@ -1343,6 +1441,7 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 | HideOnBackgroundClick | bool | Should clicking on the background hide the modal? |
 | Id | string | Gets the unique identifier of the modal. |
 | ShowFooter | bool | Gets or sets whether the modal footer is rendered. |
+| HideOnNavigation | bool | Automatically hide the modal when the user navigates to a new location, so a dialog (and its backdrop) is never left open after navigation. Defaults to true. |
 
 ---
 
@@ -1607,6 +1706,7 @@ No code-behind file found for this component.
 | Title | string | Gets or sets the title of the tab. |
 | ChildContent | RenderFragment? | Gets or sets the child content of the tab. |
 | CssClass | string | Gets or sets the CSS class for the tab. |
+| IconCssClass | string? | Gets or sets an icon CSS class to display before the tab title (e.g. "bi bi-star" for Bootstrap Icons). |
 | IsClosingEnabled | bool? | Gets or sets whether the tab can be closed. This overrides the parent TabSet's setting. |
 | IsRenamingEnabled | bool? | Gets or sets whether the tab can be renamed. This overrides the parent TabSet's setting. |
 | OnSelected | EventCallback | An event callback that is invoked when the tab is selected. |
@@ -1671,6 +1771,7 @@ No code-behind file found for this component.
 | PageSizeChoices | uint[] | Gets or sets the possible page sizes offered to the user. |
 | Ready | EventCallback | Gets or sets an event callback raised when the component has perform all it initialization. |
 | RetainSelectionOnPage | bool | Gets or sets whether the selection is maintained across pages. |
+| RetainSelectionOnRefresh | bool | Gets or sets whether a refresh keeps the selection (issue #151). A refresh is a fetch for the same search text, sort and page as the previous one, such as <see cref="RefreshAsync()"/> on an auto-refreshing page. When true, the selection is kept, keys whose rows have gone are dropped, and <see cref="SelectionChanged"/> is raised only if that changed the selection. When false (the default), every fetch clears the selection unless <see cref="RetainSelectionOnPage"/> is set, as before. |
 | RightClickSelectsRow | bool | Gets whether right-clicking selects a row versus left-clicking. |
 | SaveChanges | bool | Gets whether the table will save changes via the DataProvider (if set). |
 | SearchText | string? | Search text to be passed to IDataProvider when querying for data. |
@@ -1717,11 +1818,13 @@ No code-behind file found for this component.
 | IsTabAdditionEnabled | bool | Gets or sets whether new tabs can be added. |
 | CreateTabPosition | CreateTabPosition | Gets or sets the position of the create tab button. |
 | IsTabRenamingEnabled | bool | Gets or sets whether tabs can be renamed. |
-| SelectedTabId | Guid? | Gets or sets the Id of the selected tab, so a host can choose which tab is selected (for example from a URL) and use @bind-SelectedTabId. |
-| SelectedTabIdChanged | EventCallback<Guid?> | An event callback that is invoked with the Id of the tab the user selected, or null when that tab has no id. Enables @bind-SelectedTabId. |
+| IsTabReorderingEnabled | bool | Gets or sets whether tabs can be reordered by dragging. When enabled, the underlying <see cref="Tabs"/> list order is updated on drop. |
+| OnTabsReordered | EventCallback<IReadOnlyList<PDTab>> | An event callback that is invoked when the tab order changes after a drag-reorder operation. |
+| SelectedTabId | Guid? | Gets or sets the <see cref="PDTab.Id"/> of the selected tab, so a host can choose which tab is selected (for example from a URL) and use <c>@bind-SelectedTabId</c>. |
+| SelectedTabIdChanged | EventCallback<Guid?> | An event callback that is invoked with the <see cref="PDTab.Id"/> of the tab the user selected, or <c>null</c> when that tab has no id (<see cref="Guid.Empty"/>). Enables <c>@bind-SelectedTabId</c>. |
 | OnTabSelected | EventCallback<PDTab> | An event callback that is invoked when a tab is selected. |
 | OnTabClosed | EventCallback<PDTab> | An event callback that is invoked when a tab is closed. |
-| OnTabAdded | EventCallback | An event callback that is invoked when a new tab is added. |
+| OnTabAdded | EventCallback<CreateTabPosition> | An event callback that is invoked when a new tab is added. The <see cref="CreateTabPosition"/> argument indicates which + button was pressed. |
 | OnTabRenamed | EventCallback<PDTab> | An event callback that is invoked when a tab is renamed. |
 
 ---
@@ -1859,17 +1962,18 @@ No code-behind file found for this component.
 | DisableBefore | DateTime | Gets or sets the date and time before which the timeline is disabled. |
 | Initialized | EventCallback | An event callback that is invoked when the component has been initialized. |
 | IsEnabled | bool | Gets or sets whether the timeline is enabled. |
-| FollowNow | bool | Gets or sets whether the right-hand edge remains anchored to the current time. Defaults to false for backward compatibility. |
-| FollowNowChanged | EventCallback<bool> | Invoked when following is resumed or suspended. |
-| FollowNowRefreshInterval | TimeSpan | Gets or sets how frequently the timeline checks for a new scale boundary. |
-| FollowNowSelection | bool | Gets or sets whether an existing selection rolls forward while following. |
-| Clock | TimeProvider | Gets or sets the clock used by live following. Defaults to TimeProvider.System. |
+| FollowNow | bool | Gets or sets whether the right-hand edge should remain anchored to the current time. This is opt-in and defaults to false to preserve the existing static timeline behaviour. Direct user navigation suspends following until <see cref="ResumeFollowNowAsync"/> is called. |
+| FollowNowChanged | EventCallback<bool> | An event callback that is invoked when following is resumed or suspended. |
+| FollowNowRefreshInterval | TimeSpan | Gets or sets how frequently the component checks whether the current scale has advanced. |
+| FollowNowSelection | bool | Gets or sets whether an existing selection should roll forward while following now. |
+| Clock | TimeProvider | Gets or sets the clock used by live following. The default is the system clock. |
 | Scale | TimelineScale | Gets or sets the current scale of the timeline. |
 | ScaleChanged | EventCallback<TimelineScale> | An event callback that is invoked when the timeline scale changes. |
 | Refreshed | EventCallback | An event callback that is invoked when the timeline has been refreshed. |
 | SelectionChanged | EventCallback<TimeRange?> | An event callback that is invoked when the time selection changes. |
 | SelectionChangeEnd | EventCallback | An event callback that is invoked when the time selection change is complete. |
 | DataProvider | DataProviderDelegate? | A delegate that provides data points to the timeline. |
+| RefetchDataOnResize | bool | When true (the default, preserving the original behaviour) a browser resize forces a full data re-fetch. When false a resize only re-lays-out the timeline; data is re-fetched only if the visible range actually changed (the normal unchanged-range guard still applies). Set this to false for timelines that fetch the whole window, where a resize never changes what data is needed. |
 | Id | string | Gets or sets the unique identifier for the component. |
 | NewMaxDateTimeAvailable | bool | Gets or sets whether a new maximum date/time is available. |
 | NewMinDateTimeAvailable | bool | Gets or sets whether a new minimum date/time is available. |
@@ -2110,12 +2214,51 @@ This component has no public parameters.
 | ParentKeyField | Func<TItem, object>? | A function that selects the field that contains the parent key value. |
 | Ready | EventCallback | Gets or sets an event callback raised when the component has performed all its initialization. |
 | RightClickSelectsItem | bool | Gets or sets whether right clicking on an item selects it. |
+| RaiseSelectionChangeOnRefresh | bool | Gets or sets whether <see cref="RefreshAsync"/> raises <see cref="SelectionChange"/> for a selected node that survives the refresh. True by default, matching earlier versions, where a refresh always re-announced the selection; a consumer that reloads a detail view on that event keeps working. Set false for an auto-refreshing tree, so the selection is not re-announced (and the detail view not reloaded) on every refresh. A selected node that is removed by the refresh is always announced (issue #152). |
 | SelectionChange | EventCallback<TreeNode<TItem>> | Gets or sets an event callback raised whenever the selection changes. |
 | ShowLines | bool | Gets or sets whether expanded nodes should show lines to help identify nested levels. |
 | ShowRoot | bool | Gets or sets whether the root node is displayed. |
 | Sort | Comparison<TItem>? | A function used to determine sort order of child nodes. |
 | TextField | Func<TItem, object>? | A function that selects the field to display for the item. |
 | ToolTip | Func<TItem, string>? | A function that returns the tool tip text for a node. |
+
+---
+
+## PDTreeMap
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Root | TItem? | Gets or sets the root of the hierarchy to display. The root itself is not drawn; its children fill the area. |
+| ChildrenSelector | Func<TItem, IEnumerable<TItem>?>? | Gets or sets the function returning the children of an item, or null for a leaf. |
+| SizeSelector | Func<TItem, double> | Gets or sets the function returning the size of an item. This determines rectangle area and is required. |
+| TextSelector | Func<TItem, string>? | Gets or sets the function returning the label for an item. |
+| TooltipSelector | Func<TItem, string>? | Gets or sets the function returning the hover text for an item. |
+| SizeMode | TreeMapSizeMode | Gets or sets how a branch item's size is derived from its descendants. |
+| MaxRenderDepth | int | Gets or sets the number of levels drawn nested at once. Items at the cut still account for their whole subtree. |
+| ZoomRoot | TItem? | Gets or sets the item currently zoomed into. When null, the whole hierarchy is shown. |
+| ZoomRootChanged | EventCallback<TItem?> | Gets or sets the callback raised when the zoom target changes, supporting two-way binding. |
+| ShowBreadcrumb | bool | Gets or sets a value indicating whether a breadcrumb showing the current path is displayed. |
+| ColourMode | TreeMapColourMode | Gets or sets how rectangle colours are determined. |
+| ColourSelector | Func<TItem, string>? | Gets or sets the function returning an explicit CSS colour for an item. When supplied it overrides every other colour mode. |
+| CategorySelector | Func<TItem, string>? | Gets or sets the function returning the grouping key used by the categorical palette. |
+| HeatSelector | Func<TItem, double>? | Gets or sets the function returning the value used by the heat scale, independent of size. |
+| MinLabelPx | double | Gets or sets the smallest rectangle dimension, in pixels, that will carry a label. |
+| LabelFontSize | double | Gets or sets the label font size in pixels. |
+| LabelPadding | double | Gets or sets the inset between a rectangle edge and its label. |
+| NestedPadding | double | Gets or sets the inset applied to a branch rectangle before its children are laid out. |
+| HeaderHeight | double | Gets or sets the space reserved at the top of a branch rectangle for its own label, so a parent label cannot collide with its children. Reserved only where the rectangle is tall enough. |
+| CornerRadius | double | Gets or sets the corner radius applied to each rectangle. |
+| Width | double? | Gets or sets an explicit width. When null, the width is measured from the container. |
+| Height | double? | Gets or sets an explicit height. When null, the height is measured from the container. |
+| EmptyText | string | Gets or sets the text shown when there is nothing to display. |
+| AriaLabel | string | Gets or sets the accessible label applied to the tree map. |
+| Click | EventCallback<TItem> | Gets or sets the callback raised when an item is clicked. |
+| DoubleClick | EventCallback<TItem> | Gets or sets the callback raised when an item is double clicked. |
+| SelectionChanged | EventCallback | Gets or sets the callback raised when the selected item changes. |
+| BeforeZoomChange | EventCallback<TreeMapBeforeZoomEventArgs<TItem>> | Gets or sets the callback raised before the zoom target changes. Cancelling the arguments prevents the zoom. |
+| ExceptionHandler | EventCallback<Exception> | Gets or sets the callback raised when an unexpected error occurs. |
 
 ---
 
