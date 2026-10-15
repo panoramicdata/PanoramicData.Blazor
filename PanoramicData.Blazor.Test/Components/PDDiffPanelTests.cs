@@ -123,6 +123,23 @@ public class PDDiffPanelTests : BunitContext
 		JSInterop.Invocations.Count(i => i.Identifier.EndsWith("updateOptions", StringComparison.Ordinal)).Should().BeGreaterThan(0);
 	}
 
+	private static readonly MethodInfo _initMethod = typeof(PDDiffPanel).GetMethod("OnEditorInitAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+	private static T GetField<T>(PDDiffPanel panel, string name)
+		=> (T)typeof(PDDiffPanel).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(panel)!;
+
+	private static void SetField(PDDiffPanel panel, string name, object value)
+		=> typeof(PDDiffPanel).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(panel, value);
+
+	private IRenderedComponent<PDDiffPanel> RenderFailingInit(TimeSpan retryDelay)
+	{
+		JSInterop.Setup<TextModel>(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal))
+			.SetException(new JSException("monaco is not defined"));
+		var cut = Render<PDDiffPanel>(p => p.Add(c => c.Original, "a").Add(c => c.Modified, "b"));
+		SetField(cut.Instance, "_initRetryDelay", retryDelay);
+		return cut;
+	}
+
 	/// <summary>Disposing detaches the models from the widget before the models are disposed.</summary>
 	[Fact]
 	public async Task Dispose_ReleasesEditorBeforeDisposingModels()
@@ -130,29 +147,71 @@ public class PDDiffPanelTests : BunitContext
 		JSInterop.Setup<TextModel>(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal))
 			.SetResult(new TextModel { Id = "m1", Uri = "inmemory://model/1" });
 		var module = JSInterop.SetupModule("./_content/PanoramicData.Blazor/PDDiffPanel.razor.js");
-		module.Mode = JSRuntimeMode.Loose;
+		// releaseEditor stays pending until released, so we can observe what dispose does while it is outstanding.
+		var release = module.SetupVoid("releaseEditor", _ => true);
 		var cut = Render<PDDiffPanel>(p => p.Add(c => c.Original, "a").Add(c => c.Modified, "b"));
-		var init = typeof(PDDiffPanel).GetMethod("OnEditorInitAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
-		await (Task)init.Invoke(cut.Instance, null)!;
+		await (Task)_initMethod.Invoke(cut.Instance, null)!;
+		bool ModelDisposed() => JSInterop.Invocations.Any(i => i.Identifier.EndsWith("dispose", StringComparison.OrdinalIgnoreCase));
+		ModelDisposed().Should().BeFalse();
 
-		await cut.Instance.DisposeAsync();
+		var dispose = cut.Instance.DisposeAsync().AsTask();
+		await Task.Delay(50, Xunit.TestContext.Current.CancellationToken);
 
 		module.Invocations.Select(i => i.Identifier).Should().Contain("releaseEditor");
-		var identifiers = JSInterop.Invocations.Select(i => i.Identifier).ToList();
-		identifiers.Should().Contain(i => i.EndsWith("dispose", StringComparison.OrdinalIgnoreCase));
+		ModelDisposed().Should().BeFalse("the models must not be disposed while the editor is still attached");
+		release.SetVoidResult();
+		await dispose;
+		ModelDisposed().Should().BeTrue();
 	}
 
-	/// <summary>A JavaScript failure while creating the models (Monaco not loaded yet) does not escape init.</summary>
-	[Fact]
-	public async Task Init_JSException_DoesNotThrow()
+	// Rendering recreates the editor after a bump, which (in bUnit's loose interop) fires init again, so the retry
+	// loop runs by itself; these tests observe it rather than driving it.
+	private static async Task WaitForAsync(Func<bool> condition)
 	{
-		JSInterop.Setup<TextModel>(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal))
-			.SetException(new JSException("monaco is not defined"));
-		var cut = Render<PDDiffPanel>(p => p.Add(c => c.Original, "a").Add(c => c.Modified, "b"));
-		var init = typeof(PDDiffPanel).GetMethod("OnEditorInitAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		for (var i = 0; i < 500 && !condition(); i++)
+		{
+			await Task.Delay(10, Xunit.TestContext.Current.CancellationToken);
+		}
 
-		var act = async () => await (Task)init.Invoke(cut.Instance, null)!;
+		condition().Should().BeTrue("the condition should be reached within 5 seconds");
+	}
 
-		await act.Should().NotThrowAsync();
+	/// <summary>A JavaScript failure while creating the models (Monaco not loaded yet) bumps the editor generation to retry.</summary>
+	[Fact]
+	public async Task Init_JSException_RetriesByRecreatingTheEditor()
+	{
+		var cut = RenderFailingInit(TimeSpan.FromMilliseconds(5));
+
+		await WaitForAsync(() => GetField<int>(cut.Instance, "_editorGeneration") >= 1);
+
+		GetField<int>(cut.Instance, "_initAttempts").Should().BeGreaterThanOrEqualTo(1);
+	}
+
+	/// <summary>The retry stops once MaxInitAttempts is exceeded.</summary>
+	[Fact]
+	public async Task Init_JSException_StopsRetryingAfterMaxAttempts()
+	{
+		var max = (int)typeof(PDDiffPanel).GetField("MaxInitAttempts", BindingFlags.Static | BindingFlags.NonPublic)!.GetRawConstantValue()!;
+		var cut = RenderFailingInit(TimeSpan.FromMilliseconds(1));
+
+		await WaitForAsync(() => GetField<int>(cut.Instance, "_initAttempts") > max);
+		await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
+
+		GetField<int>(cut.Instance, "_editorGeneration").Should().Be(max);
+		GetField<int>(cut.Instance, "_initAttempts").Should().Be(max + 1);
+	}
+
+	/// <summary>Disposing during the retry delay produces no generation bump.</summary>
+	[Fact]
+	public async Task Init_JSException_DisposedDuringDelay_DoesNotBump()
+	{
+		var cut = RenderFailingInit(TimeSpan.FromMilliseconds(200));
+		var before = GetField<int>(cut.Instance, "_editorGeneration");
+
+		var init = cut.InvokeAsync(() => (Task)_initMethod.Invoke(cut.Instance, null)!);
+		await cut.Instance.DisposeAsync();
+		await init;
+
+		GetField<int>(cut.Instance, "_editorGeneration").Should().Be(before);
 	}
 }

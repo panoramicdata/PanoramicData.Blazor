@@ -29,6 +29,9 @@ public partial class PDDiffPanel : IAsyncDisposable
 	private int _editorGeneration;
 	private int _initAttempts;
 
+	// Delay before recreating the editor after a failed init; a field so tests can shorten it.
+	private TimeSpan _initRetryDelay = TimeSpan.FromMilliseconds(300);
+
 	// Monaco loads asynchronously; give it this many retries before giving up quietly.
 	private const int MaxInitAttempts = 10;
 
@@ -143,7 +146,7 @@ public partial class PDDiffPanel : IAsyncDisposable
 			await DisposeModelsAsync(originalModel, modifiedModel).ConfigureAwait(true);
 			if (!_disposed && ex is JSException && ++_initAttempts <= MaxInitAttempts)
 			{
-				await Task.Delay(300).ConfigureAwait(true);
+				await Task.Delay(_initRetryDelay).ConfigureAwait(true);
 				if (!_disposed)
 				{
 					_editorGeneration++;
