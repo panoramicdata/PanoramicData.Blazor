@@ -269,5 +269,5 @@ public partial class PDCalendar<TItem>
 	}
 
 	private string CanvasStyle
-		=> string.Create(CultureInfo.InvariantCulture, $"--pdcal-slot-height:{SlotHeight:0.##}px;height:{(_axis?.Rows.Count ?? 0) * SlotHeight:0.##}px");
+		=> string.Create(CultureInfo.InvariantCulture, $"--pdcal-slot-height:{SlotHeight:0.##}px;height:{_axis!.Rows.Count * SlotHeight:0.##}px");
 }

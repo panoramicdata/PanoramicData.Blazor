@@ -331,6 +331,7 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 		_view = view;
 		_scrollPending = view == CalendarView.Week;
 		BuildView();
+		StateHasChanged();
 
 		await ViewChanged.InvokeAsync(view).ConfigureAwait(true);
 		await RaiseVisibleRangeChangedAsync().ConfigureAwait(true);
@@ -353,6 +354,7 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 		var viewChanged = _view != CalendarView.Agenda;
 		_view = CalendarView.Agenda;
 		BuildView();
+		StateHasChanged();
 
 		if (dateChanged)
 		{
@@ -396,6 +398,7 @@ public partial class PDCalendar<TItem> : IAsyncDisposable
 
 		_date = date;
 		BuildView();
+		StateHasChanged();
 
 		await DateChanged.InvokeAsync(date).ConfigureAwait(true);
 		await RaiseVisibleRangeChangedAsync().ConfigureAwait(true);
