@@ -1,0 +1,279 @@
+@using PanoramicData.Blazor.Helpers
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@inherits JSModuleComponentBase
+
+@{
+	var current = CurrentMarker;
+	var canSeek = CanSeek;
+	var showKindFilter = ShowKindFilter && _kindCounts.Count > 0;
+	var showMarkerList = ShowMarkerList && _sortedMarkers.Count > 0;
+}
+
+<div id="@Id"
+	 class="@GetRootClass()"
+	 role="region"
+	 aria-label="@AccessibleName"
+	 aria-keyshortcuts="@KeyShortcuts"
+	 tabindex="-1"
+	 @onkeydown="OnKeyDownAsync">
+
+	<div class="pdmp-player">
+
+		@if (!string.IsNullOrWhiteSpace(Title))
+		{
+			<div class="pdmp-title">@Title</div>
+		}
+
+		@if (_kind == MediaKind.Video)
+		{
+			<video @key="MediaKind.Video"
+				   @ref="_mediaElement"
+				   class="pdmp-media pdmp-video"
+				   src="@(HasSource ? _src : null)"
+				   poster="@Poster"
+				   preload="@PreloadValue"
+				   autoplay="@Autoplay"
+				   loop="@Loop"
+				   muted="@_muted"
+				   playsinline
+				   aria-label="@AccessibleName"
+				   @onclick="TogglePlayAsync"></video>
+		}
+		else
+		{
+			<audio @key="MediaKind.Audio"
+				   @ref="_mediaElement"
+				   class="pdmp-media"
+				   src="@(HasSource ? _src : null)"
+				   preload="@PreloadValue"
+				   autoplay="@Autoplay"
+				   loop="@Loop"
+				   muted="@_muted"></audio>
+		}
+
+		@if (ShowErrors && _error is not null)
+		{
+			<div class="alert alert-warning pdmp-error" role="alert">
+				<i class="fas fa-exclamation-triangle me-1" aria-hidden="true"></i>@_error.Message
+			</div>
+		}
+
+		<div class="pdmp-timeline">
+			@if (_visibleMarkers.Count > 0 && canSeek)
+			{
+				<div class="pdmp-lane" aria-hidden="true">
+					@foreach (var tick in GetTicks())
+					{
+						var thisTick = tick;
+						<span class="@GetTickClass(thisTick)"
+							  style="@GetTickStyle(thisTick)"
+							  title="@GetTickTitle(thisTick)"
+							  @onclick="() => SeekToMarkerAsync(thisTick.First)"></span>
+					}
+				</div>
+			}
+			<div class="pdmp-track">
+				@if (RangeSegment is { } range)
+				{
+					<div class="pdmp-range" style="@GetSegmentStyle(range)"></div>
+				}
+				@foreach (var segment in BufferedSegments)
+				{
+					<div class="pdmp-buffered" style="@GetSegmentStyle(segment)"></div>
+				}
+				<div class="pdmp-progress" style="width:@Percent(ProgressPercent)"></div>
+				<input type="range"
+					   class="pdmp-seek"
+					   min="0"
+					   max="@FormatNumber(DurationSeconds)"
+					   step="@SeekStepText"
+					   value="@FormatNumber(DisplayPosition.TotalSeconds)"
+					   disabled="@(!canSeek)"
+					   aria-label="Seek"
+					   aria-valuetext="@SeekValueText"
+					   @oninput="OnSeekInput"
+					   @onchange="OnSeekChangeAsync" />
+			</div>
+		</div>
+
+		<div class="pdmp-controls">
+			<div class="btn-group btn-group-sm pdmp-transport" role="group" aria-label="Playback">
+				@if (_sortedMarkers.Count > 0)
+				{
+					<button type="button"
+							class="btn btn-outline-secondary pdmp-previous-marker"
+							title="Previous marker (J)"
+							aria-label="Previous marker"
+							disabled="@(!CanNavigateMarkers)"
+							@onclick="() => PreviousMarkerAsync()">
+						<i class="fas fa-step-backward" aria-hidden="true"></i>
+					</button>
+				}
+				<button type="button"
+						class="btn btn-outline-secondary pdmp-skip-back"
+						title="@($"Back {Math.Abs(SkipBackSeconds)} seconds")"
+						aria-label="@($"Back {Math.Abs(SkipBackSeconds)} seconds")"
+						disabled="@(!canSeek)"
+						@onclick="SkipBackAsync">
+					<i class="fas fa-undo-alt" aria-hidden="true"></i><span class="pdmp-skip-label" aria-hidden="true">@Math.Abs(SkipBackSeconds)</span>
+				</button>
+				<button type="button"
+						class="btn btn-primary pdmp-play"
+						title="@(_isPlaying ? "Pause (K)" : "Play (K)")"
+						aria-label="@(_isPlaying ? "Pause" : "Play")"
+						disabled="@(!HasSource)"
+						@onclick="TogglePlayAsync">
+					<i class="fas @(_isPlaying ? "fa-pause" : "fa-play")" aria-hidden="true"></i>
+				</button>
+				<button type="button"
+						class="btn btn-outline-secondary pdmp-skip-forward"
+						title="@($"Forward {Math.Abs(SkipForwardSeconds)} seconds")"
+						aria-label="@($"Forward {Math.Abs(SkipForwardSeconds)} seconds")"
+						disabled="@(!canSeek)"
+						@onclick="SkipForwardAsync">
+					<i class="fas fa-redo-alt" aria-hidden="true"></i><span class="pdmp-skip-label" aria-hidden="true">@Math.Abs(SkipForwardSeconds)</span>
+				</button>
+				@if (_sortedMarkers.Count > 0)
+				{
+					<button type="button"
+							class="btn btn-outline-secondary pdmp-next-marker"
+							title="Next marker (L)"
+							aria-label="Next marker"
+							disabled="@(!CanNavigateMarkers)"
+							@onclick="() => NextMarkerAsync()">
+						<i class="fas fa-step-forward" aria-hidden="true"></i>
+					</button>
+				}
+			</div>
+
+			<div class="pdmp-time" aria-hidden="true">
+				<span class="pdmp-position">@PositionText</span>
+				<span class="pdmp-separator">/</span>
+				<span class="pdmp-duration">@DurationText</span>
+			</div>
+
+			<div class="pdmp-volume">
+				<button type="button"
+						class="btn btn-sm btn-outline-secondary pdmp-mute"
+						title="@(_muted ? "Unmute (M)" : "Mute (M)")"
+						aria-label="Mute"
+						aria-pressed="@(_muted ? "true" : "false")"
+						@onclick="ToggleMuteAsync">
+					<i class="fas @(_muted || _volume == 0 ? "fa-volume-mute" : "fa-volume-up")" aria-hidden="true"></i>
+				</button>
+				<input type="range"
+					   class="form-range pdmp-volume-slider"
+					   min="0"
+					   max="1"
+					   step="0.05"
+					   value="@FormatNumber(_volume)"
+					   aria-label="Volume"
+					   aria-valuetext="@VolumePercentText"
+					   @oninput="OnVolumeInputAsync" />
+			</div>
+
+			<select class="form-select form-select-sm pdmp-rate"
+					title="Playback speed (&lt; and &gt;)"
+					aria-label="Playback speed"
+					value="@RateValue"
+					@onchange="OnRateChangeAsync"
+					@onkeydown:stopPropagation="true">
+				@if (!_rates.Contains(_rate))
+				{
+					<option value="@RateValue">@MediaPlaybackRates.FormatLabel(_rate)</option>
+				}
+				@foreach (var rate in _rates)
+				{
+					<option value="@FormatNumber(rate)">@MediaPlaybackRates.FormatLabel(rate)</option>
+				}
+			</select>
+
+			@if (ShowDownload && !string.IsNullOrWhiteSpace(DownloadHref))
+			{
+				<a class="btn btn-sm btn-outline-secondary pdmp-download"
+				   href="@DownloadHref"
+				   download="@(DownloadFileName ?? string.Empty)"
+				   title="Download"
+				   aria-label="Download">
+					<i class="fas fa-download" aria-hidden="true"></i>
+				</a>
+			}
+		</div>
+
+		@if (showKindFilter && !showMarkerList)
+		{
+			@RenderKindFilter()
+		}
+	</div>
+
+	@if (showMarkerList)
+	{
+		<div class="pdmp-markers">
+			<div class="pdmp-markers-header">
+				<button type="button"
+						class="btn btn-sm btn-link pdmp-markers-toggle"
+						aria-expanded="@(_isMarkerListExpanded ? "true" : "false")"
+						aria-controls="@MarkerListId"
+						@onclick="ToggleMarkerList">
+					<i class="fas @(_isMarkerListExpanded ? "fa-chevron-down" : "fa-chevron-right") me-1" aria-hidden="true"></i>Markers
+					<span class="badge text-bg-secondary ms-1">@_visibleMarkers.Count</span>
+				</button>
+				@if (showKindFilter)
+				{
+					@RenderKindFilter()
+				}
+			</div>
+			@if (_isMarkerListExpanded)
+			{
+				@if (_visibleMarkers.Count == 0)
+				{
+					<p class="pdmp-markers-empty text-muted small mb-0" id="@MarkerListId">No markers of the selected kinds.</p>
+				}
+				else
+				{
+					<ul class="list-group list-group-flush pdmp-marker-list" id="@MarkerListId" style="max-height:@MarkerListMaxHeight" aria-label="Markers">
+						<Virtualize Items="_visibleMarkers" Context="marker" ItemSize="52" OverscanCount="6" SpacerElement="li">
+							<li class="list-group-item p-0 @(ReferenceEquals(marker, current) ? "pdmp-current" : null) @marker.CssClass">
+								<button type="button"
+										class="pdmp-marker-button"
+										style="@GetMarkerStyle(marker)"
+										aria-current="@(ReferenceEquals(marker, current) ? "true" : null)"
+										@onclick="() => SeekToMarkerAsync(marker)">
+									<span class="pdmp-marker-time">@GetMarkerTimeText(marker)</span>
+									<span class="pdmp-marker-kind">@GetKindLabel(MediaMarkerNavigator.GetKind(marker))</span>
+									<span class="pdmp-marker-label">@marker.Label</span>
+									@if (!string.IsNullOrWhiteSpace(marker.Detail))
+									{
+										<span class="pdmp-marker-detail">@marker.Detail</span>
+									}
+								</button>
+							</li>
+						</Virtualize>
+					</ul>
+				}
+			}
+		</div>
+	}
+</div>
+
+@code {
+	private RenderFragment RenderKindFilter() => __builder =>
+	{
+		<div class="pdmp-kinds" role="group" aria-label="Marker kinds">
+			@foreach (var pair in _kindCounts)
+			{
+				var kind = pair.Key;
+				var visible = IsKindVisible(kind);
+				<button type="button"
+						class="btn btn-sm pdmp-kind-chip @(visible ? "pdmp-kind-on" : "pdmp-kind-off")"
+						style="@GetKindChipStyle(kind)"
+						aria-pressed="@(visible ? "true" : "false")"
+						title="@(visible ? $"Hide {GetKindLabel(kind)} markers" : $"Show {GetKindLabel(kind)} markers")"
+						@onclick="() => ToggleKindAsync(kind)">
+					<span class="pdmp-swatch" aria-hidden="true"></span>@GetKindLabel(kind)
+					<span class="badge text-bg-light ms-1">@pair.Value</span>
+				</button>
+			}
+		</div>
+	};
+}
