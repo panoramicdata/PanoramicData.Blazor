@@ -460,6 +460,7 @@
 	flex: 0 0 auto;
 	text-decoration: none;
 }
+
 /* the marker list beside the player; it wraps beneath at narrow widths */
 .pd-media-player.pdmp-side {
 	flex-flow: row wrap;

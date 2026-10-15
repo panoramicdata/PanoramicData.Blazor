@@ -61,7 +61,7 @@
 			</div>
 		</div>
 
-		<PDMediaPlayer @ref="_player"
+		<PDMediaPlayer @ref="Player"
 					   Src="@CurrentSource"
 					   MediaKind="@CurrentKind"
 					   Title="@($"Demo show: {SourceName}")"
@@ -92,11 +92,11 @@
 					   OnSegmentLeft="@(s => OnSegment("OnSegmentLeft", s))" />
 
 		<div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.SeekAsync(TimeSpan.FromSeconds(30))">Seek to 0:30</button>
-			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.NextMarkerAsync(DeadAir)">Next dead air</button>
-			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.PreviousMarkerAsync(Clipping)">Previous clipping</button>
-			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.SetPlaybackRateAsync(1.5)">Speed 1.5×</button>
-			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => _player!.NextSegmentAsync(Song)">Next song</button>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => Player!.SeekAsync(TimeSpan.FromSeconds(30))">Seek to 0:30</button>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => Player!.NextMarkerAsync(DeadAir)">Next dead air</button>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => Player!.PreviousMarkerAsync(Clipping)">Previous clipping</button>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => Player!.SetPlaybackRateAsync(1.5)">Speed 1.5×</button>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => Player!.NextSegmentAsync(Song)">Next song</button>
 			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="PlayInterviewAsync">Play the interview only</button>
 			<span class="small text-muted ms-2">
 				Position @PositionText, speed @Rate.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)×, @_lastMarkerText

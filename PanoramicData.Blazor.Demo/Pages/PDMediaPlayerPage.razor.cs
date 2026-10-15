@@ -123,7 +123,7 @@ public partial class PDMediaPlayerPage
 		TimeSpan.FromSeconds(60),
 		new MediaSegmentsFromMarkersOptions { SkipKinds = [DeadAir, Clipping] });
 
-	private PDMediaPlayer? _player;
+	private PDMediaPlayer? Player { get; set; }
 	private PDMediaMarker[] _markers = _showMarkers;
 	private bool _manyMarkers;
 	private TimeSpan? _duration;
@@ -202,7 +202,7 @@ public partial class PDMediaPlayerPage
 		EventManager?.Add(new Event("OnMarkerSelected", new EventArgument("Id", marker.Id), new EventArgument("Kind", marker.Kind)));
 	}
 
-	private Task PlayInterviewAsync() => _player!.PlaySegmentAsync(_showSegments.Single(s => s.Id == "interview"));
+	private Task PlayInterviewAsync() => Player!.PlaySegmentAsync(_showSegments.Single(s => s.Id == "interview"));
 
 	private void OnSegment(string name, PDMediaSegment segment)
 		=> EventManager?.Add(new Event(name, new EventArgument("Id", segment.Id), new EventArgument("Label", segment.Label)));
