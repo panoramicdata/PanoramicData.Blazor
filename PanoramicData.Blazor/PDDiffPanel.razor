@@ -1,0 +1,21 @@
+<div class="pd-diffpanel" style="height:@Height">
+	<div class="pd-diffpanel-toolbar">
+		@if (!string.IsNullOrEmpty(FileName))
+		{
+			<span class="pd-diffpanel-filename">@FileName</span>
+		}
+		<button type="button" class="btn btn-sm btn-outline-secondary pd-diffpanel-toggle" @onclick="ToggleLayoutAsync">
+			@(SideBySide ? "Inline" : "Side by side")
+		</button>
+	</div>
+	@if (!HasChanges)
+	{
+		<div class="pd-diffpanel-empty">No changes</div>
+	}
+	<div class="pd-diffpanel-editor" hidden="@(!HasChanges)">
+		<StandaloneDiffEditor @ref="_editor"
+							  Id="@Id"
+							  ConstructionOptions="GetOptions"
+							  OnDidInit="OnEditorInitAsync" />
+	</div>
+</div>
