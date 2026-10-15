@@ -130,24 +130,31 @@ export function setVolume(el, volume, muted) {
 	}
 }
 
-// asks for the first byte of a source that failed, to learn its HTTP status (401, 403, 404...)
-export function probe(url) {
-	return new Promise((resolve) => {
-		const request = new XMLHttpRequest();
-		request.open("GET", url);
-		request.setRequestHeader("Range", "bytes=0-0");
-		// the status is all that is wanted, so the body is not waited for
-		request.onreadystatechange = () => {
-			if (request.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
-				resolve(request.status || null);
-				request.abort();
-			}
-		};
-		request.onerror = () => resolve(null);
-		request.send();
-	});
+// asks for the first byte of a source that failed, to learn its HTTP status (401, 403, 404...), and reports it
+// to .NET through OnProbeResult; returns true once the request has been sent
+export function probe(el, url) {
+	const report = (status) => {
+		const player = el ? players.get(el) : null;
+		if (player && player.dotNetRef) {
+			player.dotNetRef
+				.invokeMethodAsync("OnProbeResult", url, status)
+				.catch(() => {});
+		}
+	};
+	const request = new XMLHttpRequest();
+	request.open("GET", url);
+	request.setRequestHeader("Range", "bytes=0-0");
+	// the status is all that is wanted, so the body is not waited for
+	request.onreadystatechange = () => {
+		if (request.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
+			report(request.status || null);
+			request.abort();
+		}
+	};
+	request.onerror = () => report(null);
+	request.send();
+	return true;
 }
-
 export function getItem(key) {
 	try {
 		return localStorage.getItem(key);

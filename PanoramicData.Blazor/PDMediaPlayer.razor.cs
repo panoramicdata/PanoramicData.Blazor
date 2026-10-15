@@ -759,6 +759,7 @@ public partial class PDMediaPlayer : JSModuleComponentBase
 		_pendingSeek = null;
 		_wasInRange = null;
 		_reportedPositions.Clear();
+		_pendingError = null;
 		InvalidateTicks();
 	}
 

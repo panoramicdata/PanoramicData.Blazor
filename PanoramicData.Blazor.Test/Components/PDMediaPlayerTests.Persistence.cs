@@ -220,6 +220,8 @@ public partial class PDMediaPlayerTests
 		await RaiseAsync(cut, "timeupdate", State(time: 99));
 		SeekTargets().Should().BeEmpty();
 		cut.Instance.CurrentPosition.Should().Be(TimeSpan.FromSeconds(5));
+		await cut.InvokeAsync(() => cut.Instance.OnProbeResult(Src, 404));
+		cut.Instance.LastError.Should().BeNull();
 	}
 
 	/// <summary>Disposing after the circuit has gone does not throw.</summary>

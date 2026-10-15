@@ -23,6 +23,7 @@ public partial class PDMediaPlayer
 	private DotNetObjectReference<PDMediaPlayer>? _objRef;
 	private MediaKind? _attachedKind;
 	private bool _disposed;
+	private MediaElementState? _pendingError;
 	private MediaPlayerPersistedState? _persisted;
 	private DateTimeOffset _lastPersist = DateTimeOffset.MinValue;
 
@@ -223,22 +224,48 @@ public partial class PDMediaPlayer
 		}
 	}
 
+	/// <summary>
+	/// Called by the player's script with the HTTP status of a source that failed to load, or <c>null</c> when the
+	/// server could not be asked. The error is then reported through <see cref="OnError"/>.
+	/// </summary>
+	/// <param name="url">The source that was asked about.</param>
+	/// <param name="status">The HTTP status, or <c>null</c>.</param>
+	/// <returns>A task that completes when the error has been reported.</returns>
+	[JSInvokable]
+	public Task OnProbeResult(string url, int? status) => InvokeAsync(() => CompleteProbeAsync(url, status));
+
 	private async Task OnMediaErrorAsync(MediaElementState state)
 	{
 		_isPlaying = false;
 		_pendingPlay = false;
-		var src = _src;
-		int? status = null;
-		if (MediaErrorMapper.ShouldProbe(state.ErrorCode, src))
+		_pendingError = null;
+
+		// the browser hides the HTTP status, so the script asks the server and answers through OnProbeResult
+		if (MediaErrorMapper.ShouldProbe(state.ErrorCode, _src)
+			&& await TryInvokeAsync(false, "probe", MediaElement, _src).ConfigureAwait(true))
 		{
-			status = await TryInvokeAsync<int?>(null, "probe", src).ConfigureAwait(true);
-			if (src != _src)
-			{
-				// the source changed while the server was asked; the error belonged to the old one
-				return;
-			}
+			_pendingError = state;
+			return;
 		}
 
+		await ReportErrorAsync(state, null).ConfigureAwait(true);
+	}
+
+	private async Task CompleteProbeAsync(string url, int? status)
+	{
+		// a result for a source that has since been replaced, or that nothing is waiting for, is dropped
+		if (_disposed || _pendingError is not { } pending || url != _src)
+		{
+			return;
+		}
+
+		_pendingError = null;
+		await ReportErrorAsync(pending, status).ConfigureAwait(true);
+		StateHasChanged();
+	}
+
+	private async Task ReportErrorAsync(MediaElementState state, int? status)
+	{
 		_error = MediaErrorMapper.Map(state.ErrorCode, state.ErrorMessage, status);
 		await OnError.InvokeAsync(_error).ConfigureAwait(true);
 	}

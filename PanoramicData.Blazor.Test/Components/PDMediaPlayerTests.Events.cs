@@ -118,7 +118,7 @@ public partial class PDMediaPlayerTests
 		crossings.Should().Equal("in", "in");
 	}
 
-	/// <summary>A refused source is reported with the HTTP status found by asking the server.</summary>
+	/// <summary>A refused source is reported with the HTTP status the script found by asking the server.</summary>
 	[Theory]
 	[InlineData(401, MediaErrorKind.Unauthorized)]
 	[InlineData(403, MediaErrorKind.Forbidden)]
@@ -126,19 +126,27 @@ public partial class PDMediaPlayerTests
 	[InlineData(200, MediaErrorKind.NotSupported)]
 	public async Task Error_IsClassifiedWithTheHttpStatus(int status, MediaErrorKind kind)
 	{
-		_module.Setup<int?>("probe", _ => true).SetResult(status);
+		_module.Setup<bool>("probe", _ => true).SetResult(true);
 		MediaPlayerError? raised = null;
 		var cut = RenderPlayer(p => p.Add(x => x.OnError, e => raised = e));
 		await cut.InvokeAsync(() => cut.Instance.PlayAsync());
 
 		await RaiseAsync(cut, "error", new MediaElementState { ErrorCode = 4, ErrorMessage = "MEDIA_ELEMENT_ERROR" });
 
-		_module.VerifyInvoke("probe").Arguments.Should().Equal(Src);
+		_module.VerifyInvoke("probe").Arguments[1].Should().Be(Src);
+		cut.Instance.IsPlaying.Should().BeFalse();
+		raised.Should().BeNull();
+
+		await cut.InvokeAsync(() => cut.Instance.OnProbeResult(Src, status));
+
 		raised!.Kind.Should().Be(kind);
 		cut.Instance.LastError.Should().BeSameAs(raised);
-		cut.Instance.IsPlaying.Should().BeFalse();
 		cut.Find(".pdmp-error").GetAttribute("role").Should().Be("alert");
 		cut.Find(".pdmp-error").TextContent.Should().Contain(raised.Message);
+
+		// a second answer has nothing waiting for it
+		await cut.InvokeAsync(() => cut.Instance.OnProbeResult(Src, 500));
+		cut.Instance.LastError.Should().BeSameAs(raised);
 	}
 
 	/// <summary>A decode error needs no server check; ShowErrors false keeps the message out of the player.</summary>
@@ -155,11 +163,11 @@ public partial class PDMediaPlayerTests
 		cut.FindAll(".pdmp-error").Should().BeEmpty();
 	}
 
-	/// <summary>A failed server check leaves the browser's own classification.</summary>
+	/// <summary>When the server cannot be asked, the browser's own classification is reported at once.</summary>
 	[Fact]
 	public async Task Error_ProbeFails_UsesTheBrowserCode()
 	{
-		_module.Setup<int?>("probe", _ => true).SetException(new JSException("offline"));
+		_module.Setup<bool>("probe", _ => true).SetException(new JSException("offline"));
 		MediaPlayerError? raised = null;
 		var cut = RenderPlayer(p => p.Add(x => x.OnError, e => raised = e));
 
@@ -168,23 +176,22 @@ public partial class PDMediaPlayerTests
 		raised!.Kind.Should().Be(MediaErrorKind.Network);
 	}
 
-	/// <summary>An error for a source that has since been replaced is dropped.</summary>
+	/// <summary>An answer about a source that has since been replaced is dropped.</summary>
 	[Fact]
 	public async Task Error_ForAReplacedSource_IsDropped()
 	{
-		var probe = _module.Setup<int?>("probe", _ => true);
+		_module.Setup<bool>("probe", _ => true).SetResult(true);
 		var raised = 0;
 		var cut = RenderPlayer(p => p.Add(x => x.OnError, _ => raised++));
 
-		var pending = RaiseAsync(cut, "error", new MediaElementState { ErrorCode = 4 });
+		await RaiseAsync(cut, "error", new MediaElementState { ErrorCode = 4 });
 		cut.Render(p => p.Add(x => x.Src, "/media/other.wav"));
-		probe.SetResult(404);
-		await pending;
+		await cut.InvokeAsync(() => cut.Instance.OnProbeResult(Src, 404));
+		await cut.InvokeAsync(() => cut.Instance.OnProbeResult("/media/other.wav", 404));
 
 		raised.Should().Be(0);
 		cut.Instance.LastError.Should().BeNull();
 	}
-
 	/// <summary>Loading clears the error, and so does playing again.</summary>
 	[Fact]
 	public async Task Error_IsClearedByLoadingOrPlaying()
