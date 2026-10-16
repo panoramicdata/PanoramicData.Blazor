@@ -75,4 +75,53 @@ test.describe("PDDiffPanel", () => {
 		await expect(page.locator(".monaco-editor.modified-in-monaco-diff-editor .lines-content > .view-lines")).toContainText("Hello");
 		await expect(page.locator("#blazor-error-ui")).toBeHidden();
 	});
+
+	test("scroll position survives a live refresh", async ({ page }) => {
+		await openDiffPanel(page, []);
+		await expect(page.locator(".monaco-diff-editor")).toBeVisible();
+
+		const lines = Array.from({ length: 200 }, (_, i) => `line ${i + 1};`);
+		await page.locator("#diff-original").fill(lines.join("\n") + "\n");
+		await page.locator("#diff-modified").fill(lines.join("\n") + "\nextra;\n");
+		await expect(page.locator(".monaco-editor.modified-in-monaco-diff-editor .lines-content > .view-lines")).toContainText("line 1;");
+
+		const scrollTop = () => page.evaluate(() => {
+			const id = document.querySelector(".monaco-editor-container")!.id;
+			return (window as any).blazorMonaco.editors.find((h: any) => h.id === id + "_modified").editor.getScrollTop();
+		});
+		await page.evaluate(() => {
+			const id = document.querySelector(".monaco-editor-container")!.id;
+			(window as any).blazorMonaco.editors.find((h: any) => h.id === id + "_modified").editor.setScrollTop(1000);
+		});
+		await expect.poll(scrollTop).toBeGreaterThan(900);
+		const before = await scrollTop();
+
+		// A live refresh: change one line inside the scrolled-to viewport.
+		const edited = [...lines];
+		edited[60] = "line 61 EDITED;";
+		await page.locator("#diff-modified").fill(edited.join("\n") + "\nextra;\n");
+		await expect(page.locator(".monaco-editor.modified-in-monaco-diff-editor .lines-content > .view-lines")).toContainText("EDITED");
+
+		expect(Math.abs((await scrollTop()) - before)).toBeLessThan(100);
+	});
+
+	test("mounting and unmounting does not grow BlazorMonaco's editor registry", async ({ page }) => {
+		await openDiffPanel(page, []);
+		await expect(page.locator(".monaco-diff-editor")).toBeVisible();
+		const count = () => page.evaluate(() => (window as any).blazorMonaco.editors.length);
+		const mounted = await count();
+
+		for (let i = 0; i < 3; i++) {
+			await page.getByRole("link", { name: "PDPager" }).click();
+			await expect(page.locator(".monaco-diff-editor")).toHaveCount(0);
+			await page.getByRole("link", { name: "PDDiffPanel" }).click();
+			await expect(page.locator(".monaco-diff-editor")).toBeVisible();
+			await expect(page.locator(".monaco-editor.modified-in-monaco-diff-editor .lines-content > .view-lines")).toContainText("Hello");
+		}
+
+		expect(await count()).toBe(mounted);
+		await page.getByRole("link", { name: "PDPager" }).click();
+		await expect(page.locator(".monaco-diff-editor")).toHaveCount(0);
+		expect(await count()).toBe(mounted - 3);
+	});
 });
