@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDTable: fixed a double vertical scrollbar wherever a table sits directly under an ancestor with a definite height. BC-81 added overflow-x:auto to contain wide columns but left overflow-y unset, and the CSS overflow spec silently coerces an unset overflow-y to auto whenever overflow-x isn't visible - combined with the table's pre-existing height:100%, that let PDTable self-clip and grow its own inner scrollbar stacked on top of whatever was already scrolling the page around it. The base .pdtable rule now uses height:auto, so the table box always matches its own content height and can never have vertical overflow of its own to scroll; overflow-x containment is unaffected. The opt-in MaxHeight/StickyHeader/StickyPager scrollable-table mode keeps its own height:100% via .pdtable-container, so that behaviour is unchanged (BC-81).
+      - PDDiffPanel: new Monaco diff component showing two texts side by side or inline, with a toolbar toggle, a No changes state, language inference from FileName and a Theme parameter. Changing Original or Modified swaps text into the existing models rather than recreating the editor, so the view is not rebuilt on live refresh. It retries with backoff (about 30 seconds) when Monaco has not finished loading and shows a failed state if it never does, and it releases its Monaco editor and models on disposal. New public static MonacoLanguage.FromFileName maps a file name to a Monaco language id.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

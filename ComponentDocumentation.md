@@ -1544,6 +1544,26 @@ A failing `ListAsync` degrades to a visible message in the sidebar with a retry,
 
 ---
 
+## PDDiffPanel
+
+A Monaco diff view of two texts. Changing `Original` or `Modified` swaps text into the existing models, so scroll position survives a live refresh. Shows "No changes" when the texts are identical.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| Id | string | Gets or sets the editor id. |
+| Original | string | Gets or sets the left-hand (before) text. A null value is treated as empty. |
+| Modified | string | Gets or sets the right-hand (after) text. A null value is treated as empty. |
+| FileName | string? | Gets or sets the file name shown in the toolbar and used to infer the language. |
+| Language | string? | Gets or sets an explicit Monaco language id, overriding the one inferred from FileName. |
+| SideBySide | bool | Gets or sets whether the two sides are shown side by side (true) or inline (false). Defaults to true. A toolbar button toggles the layout at runtime until the parent changes this value. |
+| ReadOnly | bool | Gets or sets whether the modified side is read-only. Defaults to true. |
+| Height | string | Gets or sets the CSS height of the panel. Defaults to 100%. |
+| Theme | string | Gets or sets the Monaco theme; empty uses Monaco's default. Monaco themes are global to the page: panels with different themes end up with whichever was set last, and setting this back to empty does not revert it. |
+
+---
+
 ## PDNavLink
 
 **Parameters:**
