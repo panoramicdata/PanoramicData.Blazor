@@ -28,12 +28,16 @@ public partial class PDDiffPanel : IAsyncDisposable
 	private bool _disposed;
 	private int _editorGeneration;
 	private int _initAttempts;
+	private bool _editorCreated;
+	private IJSObjectReference? _module;
+	private bool _loadFailed;
 
-	// Delay before recreating the editor after a failed init; a field so tests can shorten it.
+	// Base delay before recreating the editor after a failed init; doubles per attempt (capped at 16x) and is a
+	// field so tests can shorten it. With the default 300ms and 9 attempts the total budget is about 30 seconds.
 	private TimeSpan _initRetryDelay = TimeSpan.FromMilliseconds(300);
 
-	// Monaco loads asynchronously; give it this many retries before giving up quietly.
-	private const int MaxInitAttempts = 10;
+	// Monaco loads asynchronously and a cold load can be slow; retry this many times before showing a failed state.
+	private const int MaxInitAttempts = 9;
 
 	/// <summary>Gets or sets the JavaScript runtime.</summary>
 	[Inject]
@@ -43,11 +47,11 @@ public partial class PDDiffPanel : IAsyncDisposable
 	[Parameter]
 	public string Id { get; set; } = $"PDDiffPanel-{++_seq}";
 
-	/// <summary>Gets or sets the left-hand (before) text.</summary>
+	/// <summary>Gets or sets the left-hand (before) text. A null value is treated as empty.</summary>
 	[Parameter]
 	public string Original { get; set; } = string.Empty;
 
-	/// <summary>Gets or sets the right-hand (after) text.</summary>
+	/// <summary>Gets or sets the right-hand (after) text. A null value is treated as empty.</summary>
 	[Parameter]
 	public string Modified { get; set; } = string.Empty;
 
@@ -59,27 +63,33 @@ public partial class PDDiffPanel : IAsyncDisposable
 	[Parameter]
 	public string? Language { get; set; }
 
-	/// <summary>Gets or sets whether the two sides are shown side by side (true) or inline (false).</summary>
+	/// <summary>
+	/// Gets or sets whether the two sides are shown side by side (true) or inline (false). Defaults to true.
+	/// A toolbar button toggles the layout at runtime until the parent changes this value.
+	/// </summary>
 	[Parameter]
 	public bool SideBySide { get; set; } = true;
 
-	/// <summary>Gets or sets whether the modified side is read-only.</summary>
+	/// <summary>Gets or sets whether the modified side is read-only. Defaults to true.</summary>
 	[Parameter]
 	public bool ReadOnly { get; set; } = true;
 
-	/// <summary>Gets or sets the CSS height of the panel.</summary>
+	/// <summary>Gets or sets the CSS height of the panel. Defaults to 100%.</summary>
 	[Parameter]
 	public string Height { get; set; } = "100%";
 
-	/// <summary>Gets or sets the Monaco theme; empty uses Monaco's default.</summary>
+	/// <summary>
+	/// Gets or sets the Monaco theme; empty uses Monaco's default. Monaco themes are global to the page: panels with
+	/// different themes end up with whichever was set last, and setting this back to empty does not revert it.
+	/// </summary>
 	[Parameter]
 	public string Theme { get; set; } = string.Empty;
 
-	/// <summary>Gets the language id in effect.</summary>
-	public string EffectiveLanguage => Language ?? DiffLanguage.FromFileName(FileName);
+	// The language id in effect.
+	internal string EffectiveLanguage => Language ?? MonacoLanguage.FromFileName(FileName);
 
-	/// <summary>Gets whether the two texts differ.</summary>
-	public bool HasChanges => !string.Equals(Original, Modified, StringComparison.Ordinal);
+	// Whether the two texts differ.
+	internal bool HasChanges => !string.Equals(Original ?? string.Empty, Modified ?? string.Empty, StringComparison.Ordinal);
 
 	private StandaloneDiffEditorConstructionOptions GetOptions(StandaloneDiffEditor _)
 		=> new()
@@ -111,8 +121,10 @@ public partial class PDDiffPanel : IAsyncDisposable
 			return;
 		}
 
+		_editorCreated = true;
+
 		// Capture first: the parameters can change while the awaits below are pending.
-		var (original, modified, language, theme) = (Original, Modified, EffectiveLanguage, Theme);
+		var (original, modified, language, theme) = (Original ?? string.Empty, Modified ?? string.Empty, EffectiveLanguage, Theme);
 		var (sideBySide, readOnly) = (_sideBySide, ReadOnly);
 		TextModel? originalModel = null;
 		TextModel? modifiedModel = null;
@@ -122,7 +134,8 @@ public partial class PDDiffPanel : IAsyncDisposable
 			modifiedModel = await Global.CreateModel(JSRuntime, modified, language, null).ConfigureAwait(true);
 			if (_disposed)
 			{
-				// Disposed while the models were being created: do not leak them.
+				// Disposed while the models were being created: release the editor and do not leak the models.
+				await ReleaseEditorAsync().ConfigureAwait(true);
 				await DisposeModelsAsync(originalModel, modifiedModel).ConfigureAwait(true);
 				return;
 			}
@@ -146,12 +159,18 @@ public partial class PDDiffPanel : IAsyncDisposable
 			await DisposeModelsAsync(originalModel, modifiedModel).ConfigureAwait(true);
 			if (!_disposed && ex is JSException && ++_initAttempts <= MaxInitAttempts)
 			{
-				await Task.Delay(_initRetryDelay).ConfigureAwait(true);
+				await Task.Delay(_initRetryDelay * Math.Min(1 << (_initAttempts - 1), 16)).ConfigureAwait(true);
 				if (!_disposed)
 				{
 					_editorGeneration++;
 					await InvokeAsync(StateHasChanged).ConfigureAwait(true);
 				}
+			}
+			else if (!_disposed && ex is JSException)
+			{
+				// Out of retries: say so instead of leaving a blank panel.
+				_loadFailed = true;
+				await InvokeAsync(StateHasChanged).ConfigureAwait(true);
 			}
 
 			return;
@@ -176,16 +195,13 @@ public partial class PDDiffPanel : IAsyncDisposable
 
 		try
 		{
-			if (_shownOriginal != Original)
+			var (original, modified) = (Original ?? string.Empty, Modified ?? string.Empty);
+			if (_shownOriginal != original || _shownModified != modified)
 			{
-				await _originalModel.SetValue(Original).ConfigureAwait(true);
-				_shownOriginal = Original;
-			}
-
-			if (_shownModified != Modified)
-			{
-				await _modifiedModel.SetValue(Modified).ConfigureAwait(true);
-				_shownModified = Modified;
+				// Model.setValue resets the scroll position, so swap the text in JavaScript and restore the scroll.
+				var module = await GetModuleAsync().ConfigureAwait(true);
+				await module.InvokeVoidAsync("setTexts", Id, _shownOriginal != original ? original : null, _shownModified != modified ? modified : null).ConfigureAwait(true);
+				(_shownOriginal, _shownModified) = (original, modified);
 			}
 
 			if (_shownLanguage != EffectiveLanguage)
@@ -241,6 +257,9 @@ public partial class PDDiffPanel : IAsyncDisposable
 		}
 	}
 
+	private async Task<IJSObjectReference> GetModuleAsync()
+		=> _module ??= await JSRuntime!.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDiffPanel.razor.js").ConfigureAwait(true);
+
 	// Detaches the models from the diff widget and disposes the widget, then disposes the models.
 	private async Task ReleaseEditorAsync()
 	{
@@ -249,15 +268,32 @@ public partial class PDDiffPanel : IAsyncDisposable
 		_modifiedModel = null;
 		try
 		{
-			if (JSRuntime is not null && original is not null)
+			// Only once the JS editor exists (never during prerendering).
+			if (JSRuntime is not null && _editorCreated)
 			{
-				var module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PanoramicData.Blazor/PDDiffPanel.razor.js").ConfigureAwait(true);
+				_editorCreated = false;
+				var module = await GetModuleAsync().ConfigureAwait(true);
 				await module.InvokeVoidAsync("releaseEditor", Id).ConfigureAwait(true);
 			}
 		}
 		catch (Exception ex) when (ex is JSException or JSDisconnectedException)
 		{
 			// Ignore failures during disposal; the editor or JS runtime may already be gone.
+		}
+
+		// The module handle is only needed while the editor exists.
+		var handle = _module;
+		_module = null;
+		if (handle is not null)
+		{
+			try
+			{
+				await handle.DisposeAsync().ConfigureAwait(true);
+			}
+			catch (Exception ex) when (ex is JSException or JSDisconnectedException)
+			{
+				// The JS runtime may already be gone.
+			}
 		}
 
 		await DisposeModelsAsync(original, modified).ConfigureAwait(true);

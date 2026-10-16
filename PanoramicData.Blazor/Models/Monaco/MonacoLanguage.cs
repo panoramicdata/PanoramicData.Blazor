@@ -3,7 +3,7 @@ namespace PanoramicData.Blazor.Models.Monaco;
 /// <summary>
 /// Maps a file name to the Monaco language id used to highlight it.
 /// </summary>
-public static class DiffLanguage
+public static class MonacoLanguage
 {
 	private static readonly Dictionary<string, string> _byExtension = new(StringComparer.OrdinalIgnoreCase)
 	{

@@ -12,6 +12,10 @@
 	{
 		<div class="pd-diffpanel-empty">No changes</div>
 	}
+	@if (_loadFailed)
+	{
+		<div class="pd-diffpanel-failed">Diff viewer failed to load</div>
+	}
 	<div class="pd-diffpanel-editor" hidden="@(!HasChanges)">
 		<StandaloneDiffEditor @key="_editorGeneration"
 							  @ref="_editor"

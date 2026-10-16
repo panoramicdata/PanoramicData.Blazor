@@ -93,6 +93,8 @@ public class PDDiffPanelTests : BunitContext
 	public async Task Init_RaceWithParameterChange_PushesLatestText()
 	{
 		var createModel = JSInterop.Setup<TextModel>(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal));
+		var module = JSInterop.SetupModule("./_content/PanoramicData.Blazor/PDDiffPanel.razor.js");
+		module.Mode = JSRuntimeMode.Loose;
 		var cut = Render<PDDiffPanel>(p => p.Add(c => c.Original, "old").Add(c => c.Modified, "old"));
 		var init = typeof(PDDiffPanel).GetMethod("OnEditorInitAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
@@ -103,8 +105,8 @@ public class PDDiffPanelTests : BunitContext
 		createModel.SetResult(new TextModel { Id = "m1", Uri = "inmemory://model/1" });
 		await task;
 
-		var setValues = JSInterop.Invocations
-			.Where(i => i.Identifier.EndsWith("setValue", StringComparison.Ordinal))
+		var setValues = module.Invocations
+			.Where(i => i.Identifier == "setTexts")
 			.SelectMany(i => i.Arguments.OfType<string>())
 			.ToList();
 		setValues.Should().Contain("new-original").And.Contain("new-modified");
@@ -213,5 +215,69 @@ public class PDDiffPanelTests : BunitContext
 		await init;
 
 		GetField<int>(cut.Instance, "_editorGeneration").Should().Be(before);
+	}
+
+	/// <summary>Exhausting the retries shows a visible failed state.</summary>
+	[Fact]
+	public async Task Init_JSException_AfterMaxAttempts_ShowsFailedState()
+	{
+		var max = (int)typeof(PDDiffPanel).GetField("MaxInitAttempts", BindingFlags.Static | BindingFlags.NonPublic)!.GetRawConstantValue()!;
+		var cut = RenderFailingInit(TimeSpan.FromMilliseconds(1));
+		cut.Markup.Should().NotContain("pd-diffpanel-failed");
+
+		await WaitForAsync(() => GetField<int>(cut.Instance, "_initAttempts") > max);
+		await WaitForAsync(() => cut.Markup.Contains("pd-diffpanel-failed", StringComparison.Ordinal));
+
+		cut.Markup.Should().Contain("Diff viewer failed to load");
+	}
+
+	/// <summary>Disposing while the models are still being created releases the JS editor and disposes the models.</summary>
+	[Fact]
+	public async Task Dispose_WhileCreateModelPending_ReleasesEditor()
+	{
+		var createModel = JSInterop.Setup<TextModel>(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal));
+		var module = JSInterop.SetupModule("./_content/PanoramicData.Blazor/PDDiffPanel.razor.js");
+		module.Mode = JSRuntimeMode.Loose;
+		var cut = Render<PDDiffPanel>(p => p.Add(c => c.Original, "a").Add(c => c.Modified, "b"));
+
+		var init = cut.InvokeAsync(() => (Task)_initMethod.Invoke(cut.Instance, null)!);
+		init.IsCompleted.Should().BeFalse();
+		await cut.Instance.DisposeAsync();
+		createModel.SetResult(new TextModel { Id = "m1", Uri = "inmemory://model/1" });
+		await init;
+
+		module.Invocations.Select(i => i.Identifier).Should().Contain("releaseEditor");
+		JSInterop.Invocations.Should().Contain(i => i.Identifier.EndsWith("dispose", StringComparison.OrdinalIgnoreCase), "models created after disposal must not leak");
+	}
+
+	/// <summary>Disposing a panel whose JS editor was never created does not touch the JS module (prerender safe).</summary>
+	[Fact]
+	public async Task Dispose_BeforeEditorCreated_DoesNotCallModule()
+	{
+		var module = JSInterop.SetupModule("./_content/PanoramicData.Blazor/PDDiffPanel.razor.js");
+		module.Mode = JSRuntimeMode.Loose;
+		var cut = Render<PDDiffPanel>();
+		// bUnit raises OnDidInit on render; undo it to model a panel whose JS editor was never created.
+		SetField(cut.Instance, "_editorCreated", false);
+
+		await cut.Instance.DisposeAsync();
+
+		module.Invocations.Should().BeEmpty();
+	}
+
+	/// <summary>Null texts are treated as empty and never reach createModel as null.</summary>
+	[Fact]
+	public async Task NullTexts_AreCoalescedToEmpty()
+	{
+		JSInterop.Setup<TextModel>(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal))
+			.SetResult(new TextModel { Id = "m1", Uri = "inmemory://model/1" });
+		var cut = Render<PDDiffPanel>(p => p.Add(c => c.Original, null!).Add(c => c.Modified, null!));
+		cut.Instance.HasChanges.Should().BeFalse();
+
+		await cut.InvokeAsync(() => (Task)_initMethod.Invoke(cut.Instance, null)!);
+
+		var values = JSInterop.Invocations.Where(i => i.Identifier.EndsWith("createModel", StringComparison.Ordinal)).Select(i => i.Arguments[0]).ToList();
+		values.Should().NotBeEmpty().And.AllSatisfy(v => v.Should().Be(string.Empty));
+		GetField<int>(cut.Instance, "_initAttempts").Should().Be(0);
 	}
 }

@@ -4,9 +4,9 @@ using PanoramicData.Blazor.Models.Monaco;
 namespace PanoramicData.Blazor.Test.Components;
 
 /// <summary>
-/// Tests that <see cref="DiffLanguage"/> maps file extensions to Monaco language ids.
+/// Tests that <see cref="MonacoLanguage"/> maps file extensions to Monaco language ids.
 /// </summary>
-public class DiffLanguageTests
+public class MonacoLanguageTests
 {
 	/// <summary>Verifies that known extensions map to their Monaco language and unknown or missing names map to plaintext.</summary>
 	[Theory]
@@ -25,5 +25,5 @@ public class DiffLanguageTests
 	[InlineData("weird.zzz", "plaintext")]
 	[InlineData(null, "plaintext")]
 	public void FromFileName_MapsExtension(string? fileName, string expected)
-		=> DiffLanguage.FromFileName(fileName).Should().Be(expected);
+		=> MonacoLanguage.FromFileName(fileName).Should().Be(expected);
 }
