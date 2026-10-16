@@ -1,0 +1,193 @@
+﻿var timelines = {};
+
+class Timeline {
+	el = null;
+	options = {
+		bar: {
+			padding: 2,
+			width: 20,
+		},
+		colours: {
+			background: "White",
+			border: "Silver",
+		},
+		series: [],
+	};
+	ref = null;
+	debouncedResizeHandler = null;
+	plotElement = null;
+	shiftKeyDown = false;
+	lastMouseX = 0;
+	resizeObserver = null;
+	data = null;
+
+	// bound once, so that term() removes exactly the functions the constructor added
+	boundKeyDown = this.onKeyDown.bind(this);
+	boundKeyUp = this.onKeyUp.bind(this);
+	boundMouseMove = this.onMouseMove.bind(this);
+	boundMouseLeave = this.onMouseLeave.bind(this);
+
+	constructor(id, options, ref) {
+		var el = document.getElementById(id);
+		if (el) {
+			this.el = el;
+			this.ref = ref;
+			this.options = options || this.options;
+			this.plotElement = el.querySelector(".tl-plot-area");
+			this.debouncedResizeHandler = this.debounce(() => this.onResize(), 500);
+			this.log("init timeline: ", arguments);
+			el.addEventListener("wheel", this.onWheel, { passive: false });
+			window.addEventListener("resize", this.debouncedResizeHandler, {
+				passive: false,
+			});
+
+			// Add key event listeners for cursor management
+			window.addEventListener("keydown", this.boundKeyDown);
+			window.addEventListener("keyup", this.boundKeyUp);
+
+			// Add mouse move listener on plot element to track position
+			if (this.plotElement) {
+				this.plotElement.addEventListener("mousemove", this.boundMouseMove);
+				this.plotElement.addEventListener("mouseleave", this.boundMouseLeave);
+			}
+
+			// Add ResizeObserver to detect container size changes (e.g., when splitter is adjusted)
+			if (typeof ResizeObserver !== "undefined") {
+				this.resizeObserver = new ResizeObserver(this.debouncedResizeHandler);
+				this.resizeObserver.observe(el);
+			}
+		}
+	}
+
+	onKeyDown(ev) {
+		if (ev.key === "Shift" && !this.shiftKeyDown) {
+			this.shiftKeyDown = true;
+			this.updateCursor(this.lastMouseX);
+		}
+	}
+
+	onKeyUp(ev) {
+		if (ev.key === "Shift" && this.shiftKeyDown) {
+			this.shiftKeyDown = false;
+			this.updateCursor(this.lastMouseX);
+		}
+	}
+
+	onMouseMove(ev) {
+		this.lastMouseX = ev.clientX;
+		this.updateCursor(ev.clientX);
+	}
+
+	onMouseLeave() {
+		// Remove cursor class when mouse leaves the plot area
+		if (this.plotElement) {
+			this.plotElement.classList.remove("shift-move-cursor");
+		}
+	}
+
+	async updateCursor(clientX) {
+		if (!this.plotElement || !this.ref) {
+			return;
+		}
+
+		// Only show move cursor if Shift is pressed AND mouse is over selection
+		if (this.shiftKeyDown && clientX > 0) {
+			try {
+				const isInSelection = await this.ref.invokeMethodAsync(
+					"PanoramicData.Blazor.PDTimeline.IsPointInSelection",
+					clientX,
+				);
+
+				if (isInSelection) {
+					this.plotElement.classList.add("shift-move-cursor");
+				} else {
+					this.plotElement.classList.remove("shift-move-cursor");
+				}
+			} catch (e) {
+				// Handle case where component might be disposed
+				this.plotElement.classList.remove("shift-move-cursor");
+			}
+		} else {
+			this.plotElement.classList.remove("shift-move-cursor");
+		}
+	}
+
+	debounce(func, wait) {
+		let timeout;
+		return function executedFunction(...args) {
+			const later = () => {
+				timeout = null;
+				func(...args);
+			};
+			clearTimeout(timeout);
+			timeout = setTimeout(later, wait);
+		};
+	}
+
+	log() {
+		//console.log(...arguments);
+	}
+
+	onWheel(ev) {
+		if (ev.ctrlKey) {
+			ev.preventDefault();
+		}
+	}
+
+	onResize() {
+		if (this.ref) {
+			this.ref.invokeMethodAsync("PanoramicData.Blazor.PDTimeline.OnResize");
+		}
+	}
+
+	term() {
+		if (this.el) {
+			this.el.removeEventListener("wheel", this.onWheel);
+			window.removeEventListener("resize", this.debouncedResizeHandler);
+			window.removeEventListener("keydown", this.boundKeyDown);
+			window.removeEventListener("keyup", this.boundKeyUp);
+			if (this.plotElement) {
+				this.plotElement.removeEventListener("mousemove", this.boundMouseMove);
+				this.plotElement.removeEventListener(
+					"mouseleave",
+					this.boundMouseLeave,
+				);
+			}
+			if (this.resizeObserver) {
+				this.resizeObserver.disconnect();
+				this.resizeObserver = null;
+			}
+			// a debounced resize still pending must not call back into the disposed component
+			this.ref = null;
+			this.log("term timeline: ", this.el.id);
+		}
+	}
+
+	// the component draws the data itself; the latest data set is kept for script callers of setData
+	setData(data) {
+		this.data = data;
+	}
+}
+
+//export { Timeline };
+
+export function dispose(id) {
+	var tl = timelines[id];
+	if (tl) {
+		tl.term();
+		delete timelines[id];
+	}
+}
+
+export function initialize(id, options, ref) {
+	// initialising an id twice must not leave the first instance's listeners attached
+	dispose(id);
+	timelines[id] = new Timeline(id, options, ref);
+}
+
+export function setData(id, data) {
+	var tl = timelines[id];
+	if (tl) {
+		tl.setData(data);
+	}
+}
