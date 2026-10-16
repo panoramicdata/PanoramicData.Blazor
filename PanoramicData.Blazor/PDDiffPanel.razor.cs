@@ -12,8 +12,17 @@ public partial class PDDiffPanel : IAsyncDisposable
 {
 	private static int _seq;
 
-	// Assigned by @ref in the markup; a property so the compiler sees the assignment (S3459).
-	private StandaloneDiffEditor? Editor { get; set; }
+	private StandaloneDiffEditor? _editor;
+
+	// Assigned by @ref in the markup; the setter is what the analyzer sees as the assignment (S3459).
+	private StandaloneDiffEditor? Editor
+	{
+		get => _editor;
+		set => _editor = value;
+	}
+
+	// The parameter texts with null treated as empty.
+	private (string Original, string Modified) Texts => (Original ?? string.Empty, Modified ?? string.Empty);
 
 	private TextModel? _originalModel;
 	private TextModel? _modifiedModel;
@@ -126,7 +135,8 @@ public partial class PDDiffPanel : IAsyncDisposable
 		_editorCreated = true;
 
 		// Capture first: the parameters can change while the awaits below are pending.
-		var (original, modified, language, theme) = (Original ?? string.Empty, Modified ?? string.Empty, EffectiveLanguage, Theme);
+		var (original, modified) = Texts;
+		var (language, theme) = (EffectiveLanguage, Theme);
 		var (sideBySide, readOnly) = (_sideBySide, ReadOnly);
 		TextModel? originalModel = null;
 		TextModel? modifiedModel = null;
@@ -139,7 +149,7 @@ public partial class PDDiffPanel : IAsyncDisposable
 				return;
 			}
 		}
-		catch (Exception ex) when (ex is JSException or JSDisconnectedException)
+		catch (Exception ex) when (IsJsFailure(ex))
 		{
 			await HandleInitFailureAsync(ex, originalModel, modifiedModel).ConfigureAwait(true);
 			return;
@@ -150,6 +160,9 @@ public partial class PDDiffPanel : IAsyncDisposable
 		_initialized = true;
 		await SyncAsync().ConfigureAwait(true);
 	}
+
+	// A JavaScript-side failure: Monaco not loaded yet, or the circuit went away.
+	private static bool IsJsFailure(Exception ex) => ex is JSException or JSDisconnectedException;
 
 	// Hands the new models to the editor; false if the panel was disposed meanwhile (everything is then released).
 	private async Task<bool> TryAttachModelsAsync(StandaloneDiffEditor editor, TextModel originalModel, TextModel modifiedModel)
@@ -230,7 +243,7 @@ public partial class PDDiffPanel : IAsyncDisposable
 
 	private async Task SyncTextsAsync()
 	{
-		var (original, modified) = (Original ?? string.Empty, Modified ?? string.Empty);
+		var (original, modified) = Texts;
 		if (_shownOriginal == original && _shownModified == modified)
 		{
 			return;
