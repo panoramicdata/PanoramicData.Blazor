@@ -12,7 +12,9 @@ public partial class PDDiffPanel : IAsyncDisposable
 {
 	private static int _seq;
 
-	private StandaloneDiffEditor? _editor;
+	// Assigned by @ref in the markup; a property so the compiler sees the assignment (S3459).
+	private StandaloneDiffEditor? Editor { get; set; }
+
 	private TextModel? _originalModel;
 	private TextModel? _modifiedModel;
 	private bool _initialized;
@@ -34,7 +36,7 @@ public partial class PDDiffPanel : IAsyncDisposable
 
 	// Base delay before recreating the editor after a failed init; doubles per attempt (capped at 16x) and is a
 	// field so tests can shorten it. With the default 300ms and 9 attempts the total budget is about 30 seconds.
-	private TimeSpan _initRetryDelay = TimeSpan.FromMilliseconds(300);
+	private readonly TimeSpan _initRetryDelay = TimeSpan.FromMilliseconds(300);
 
 	// Monaco loads asynchronously and a cold load can be slow; retry this many times before showing a failed state.
 	private const int MaxInitAttempts = 9;
@@ -91,7 +93,7 @@ public partial class PDDiffPanel : IAsyncDisposable
 	// Whether the two texts differ.
 	internal bool HasChanges => !string.Equals(Original ?? string.Empty, Modified ?? string.Empty, StringComparison.Ordinal);
 
-	private StandaloneDiffEditorConstructionOptions GetOptions(StandaloneDiffEditor _)
+	private StandaloneDiffEditorConstructionOptions GetOptions()
 		=> new()
 		{
 			AutomaticLayout = true,
@@ -116,7 +118,7 @@ public partial class PDDiffPanel : IAsyncDisposable
 
 	private async Task OnEditorInitAsync()
 	{
-		if (_editor is null || JSRuntime is null)
+		if (Editor is null || JSRuntime is null)
 		{
 			return;
 		}
@@ -132,47 +134,14 @@ public partial class PDDiffPanel : IAsyncDisposable
 		{
 			originalModel = await Global.CreateModel(JSRuntime, original, language, null).ConfigureAwait(true);
 			modifiedModel = await Global.CreateModel(JSRuntime, modified, language, null).ConfigureAwait(true);
-			if (_disposed)
+			if (!await TryAttachModelsAsync(Editor, originalModel, modifiedModel).ConfigureAwait(true))
 			{
-				// Disposed while the models were being created: release the editor and do not leak the models.
-				await ReleaseEditorAsync().ConfigureAwait(true);
-				await DisposeModelsAsync(originalModel, modifiedModel).ConfigureAwait(true);
-				return;
-			}
-
-			// Publish the models before attaching them so a concurrent dispose releases them in the right order.
-			_originalModel = originalModel;
-			_modifiedModel = modifiedModel;
-			await _editor.SetModel(new DiffEditorModel { Original = originalModel, Modified = modifiedModel }).ConfigureAwait(true);
-			if (_disposed)
-			{
-				await ReleaseEditorAsync().ConfigureAwait(true);
 				return;
 			}
 		}
 		catch (Exception ex) when (ex is JSException or JSDisconnectedException)
 		{
-			// Monaco is probably not loaded yet, or the circuit went away. Clean up and, unless disposed, retry
-			// by recreating the editor component (the JS editor is only created on first render).
-			_originalModel = null;
-			_modifiedModel = null;
-			await DisposeModelsAsync(originalModel, modifiedModel).ConfigureAwait(true);
-			if (!_disposed && ex is JSException && ++_initAttempts <= MaxInitAttempts)
-			{
-				await Task.Delay(_initRetryDelay * Math.Min(1 << (_initAttempts - 1), 16)).ConfigureAwait(true);
-				if (!_disposed)
-				{
-					_editorGeneration++;
-					await InvokeAsync(StateHasChanged).ConfigureAwait(true);
-				}
-			}
-			else if (!_disposed && ex is JSException)
-			{
-				// Out of retries: say so instead of leaving a blank panel.
-				_loadFailed = true;
-				await InvokeAsync(StateHasChanged).ConfigureAwait(true);
-			}
-
+			await HandleInitFailureAsync(ex, originalModel, modifiedModel).ConfigureAwait(true);
 			return;
 		}
 
@@ -182,53 +151,131 @@ public partial class PDDiffPanel : IAsyncDisposable
 		await SyncAsync().ConfigureAwait(true);
 	}
 
+	// Hands the new models to the editor; false if the panel was disposed meanwhile (everything is then released).
+	private async Task<bool> TryAttachModelsAsync(StandaloneDiffEditor editor, TextModel originalModel, TextModel modifiedModel)
+	{
+		if (_disposed)
+		{
+			// Disposed while the models were being created: release the editor and do not leak the models.
+			await ReleaseEditorAsync().ConfigureAwait(true);
+			await DisposeModelsAsync(originalModel, modifiedModel).ConfigureAwait(true);
+			return false;
+		}
+
+		// Publish the models before attaching them so a concurrent dispose releases them in the right order.
+		_originalModel = originalModel;
+		_modifiedModel = modifiedModel;
+		await editor.SetModel(new DiffEditorModel { Original = originalModel, Modified = modifiedModel }).ConfigureAwait(true);
+		if (_disposed)
+		{
+			await ReleaseEditorAsync().ConfigureAwait(true);
+			return false;
+		}
+
+		return true;
+	}
+
+	// Monaco is probably not loaded yet, or the circuit went away. Clean up and, unless disposed, retry
+	// by recreating the editor component (the JS editor is only created on first render).
+	private async Task HandleInitFailureAsync(Exception ex, TextModel? originalModel, TextModel? modifiedModel)
+	{
+		_originalModel = null;
+		_modifiedModel = null;
+		await DisposeModelsAsync(originalModel, modifiedModel).ConfigureAwait(true);
+		if (_disposed || ex is not JSException)
+		{
+			return;
+		}
+
+		if (++_initAttempts <= MaxInitAttempts)
+		{
+			await Task.Delay(_initRetryDelay * Math.Min(1 << (_initAttempts - 1), 16)).ConfigureAwait(true);
+			if (!_disposed)
+			{
+				_editorGeneration++;
+				await InvokeAsync(StateHasChanged).ConfigureAwait(true);
+			}
+		}
+		else
+		{
+			// Out of retries: say so instead of leaving a blank panel.
+			_loadFailed = true;
+			await InvokeAsync(StateHasChanged).ConfigureAwait(true);
+		}
+	}
+
 	/// <inheritdoc />
 	protected override Task OnParametersSetAsync() => SyncAsync();
 
 	// Pushes any drift between the parameters and what the live editor shows.
 	private async Task SyncAsync()
 	{
-		if (!_initialized || _editor is null || _originalModel is null || _modifiedModel is null || JSRuntime is null)
+		if (!_initialized || Editor is null || _originalModel is null || _modifiedModel is null || JSRuntime is null)
 		{
 			return;
 		}
 
 		try
 		{
-			var (original, modified) = (Original ?? string.Empty, Modified ?? string.Empty);
-			if (_shownOriginal != original || _shownModified != modified)
-			{
-				// Model.setValue resets the scroll position, so swap the text in JavaScript and restore the scroll.
-				var module = await GetModuleAsync().ConfigureAwait(true);
-				await module.InvokeVoidAsync("setTexts", Id, _shownOriginal != original ? original : null, _shownModified != modified ? modified : null).ConfigureAwait(true);
-				(_shownOriginal, _shownModified) = (original, modified);
-			}
-
-			if (_shownLanguage != EffectiveLanguage)
-			{
-				await Global.SetModelLanguage(JSRuntime, _originalModel, EffectiveLanguage).ConfigureAwait(true);
-				await Global.SetModelLanguage(JSRuntime, _modifiedModel, EffectiveLanguage).ConfigureAwait(true);
-				_shownLanguage = EffectiveLanguage;
-			}
-
-			// Same rule as PDMonacoEditor: only a non-empty, changed theme is pushed to the live editor.
-			if (!string.IsNullOrEmpty(Theme) && Theme != _shownTheme)
-			{
-				await Global.SetTheme(JSRuntime, Theme).ConfigureAwait(true);
-				_shownTheme = Theme;
-			}
-
-			if (_shownSideBySide != _sideBySide || _shownReadOnly != ReadOnly)
-			{
-				var (sideBySide, readOnly) = (_sideBySide, ReadOnly);
-				await _editor.UpdateOptions(new DiffEditorOptions { RenderSideBySide = sideBySide, ReadOnly = readOnly, UseInlineViewWhenSpaceIsLimited = false }).ConfigureAwait(true);
-				(_shownSideBySide, _shownReadOnly) = (sideBySide, readOnly);
-			}
+			await SyncTextsAsync().ConfigureAwait(true);
+			await SyncLanguageAsync(_originalModel, _modifiedModel).ConfigureAwait(true);
+			await SyncThemeAsync().ConfigureAwait(true);
+			await SyncOptionsAsync(Editor).ConfigureAwait(true);
 		}
 		catch (Exception ex) when (ex is JSException or JSDisconnectedException)
 		{
 			// The editor can be disposed before the parameters are applied; safe to ignore.
 		}
+	}
+
+	private async Task SyncTextsAsync()
+	{
+		var (original, modified) = (Original ?? string.Empty, Modified ?? string.Empty);
+		if (_shownOriginal == original && _shownModified == modified)
+		{
+			return;
+		}
+
+		// Model.setValue resets the scroll position, so swap the text in JavaScript and restore the scroll.
+		var module = await GetModuleAsync().ConfigureAwait(true);
+		await module.InvokeVoidAsync("setTexts", Id, _shownOriginal != original ? original : null, _shownModified != modified ? modified : null).ConfigureAwait(true);
+		(_shownOriginal, _shownModified) = (original, modified);
+	}
+
+	private async Task SyncLanguageAsync(TextModel originalModel, TextModel modifiedModel)
+	{
+		if (_shownLanguage == EffectiveLanguage)
+		{
+			return;
+		}
+
+		await Global.SetModelLanguage(JSRuntime!, originalModel, EffectiveLanguage).ConfigureAwait(true);
+		await Global.SetModelLanguage(JSRuntime!, modifiedModel, EffectiveLanguage).ConfigureAwait(true);
+		_shownLanguage = EffectiveLanguage;
+	}
+
+	// Same rule as PDMonacoEditor: only a non-empty, changed theme is pushed to the live editor.
+	private async Task SyncThemeAsync()
+	{
+		if (string.IsNullOrEmpty(Theme) || Theme == _shownTheme)
+		{
+			return;
+		}
+
+		await Global.SetTheme(JSRuntime!, Theme).ConfigureAwait(true);
+		_shownTheme = Theme;
+	}
+
+	private async Task SyncOptionsAsync(StandaloneDiffEditor editor)
+	{
+		if (_shownSideBySide == _sideBySide && _shownReadOnly == ReadOnly)
+		{
+			return;
+		}
+
+		var (sideBySide, readOnly) = (_sideBySide, ReadOnly);
+		await editor.UpdateOptions(new DiffEditorOptions { RenderSideBySide = sideBySide, ReadOnly = readOnly, UseInlineViewWhenSpaceIsLimited = false }).ConfigureAwait(true);
+		(_shownSideBySide, _shownReadOnly) = (sideBySide, readOnly);
 	}
 
 	private async Task ToggleLayoutAsync()

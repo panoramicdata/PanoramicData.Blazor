@@ -622,6 +622,11 @@
 	height: 100px;
 }
 
+/* PDDiffPanel - the Monaco container is BlazorMonaco's markup, so it is sized here rather than in the .razor.css */
+.pd-diffpanel-editor .monaco-editor-container {
+	height: 100%;
+}
+
 /* PDPager - the direction buttons are PDButtons */
 .pdpager .direction-buttons button:nth-child(1) {
 	border-radius: 0.25rem 0 0 0.25rem;

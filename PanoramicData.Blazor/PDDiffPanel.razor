@@ -18,9 +18,9 @@
 	}
 	<div class="pd-diffpanel-editor" hidden="@(!HasChanges)">
 		<StandaloneDiffEditor @key="_editorGeneration"
-							  @ref="_editor"
+							  @ref="Editor"
 							  Id="@Id"
-							  ConstructionOptions="GetOptions"
+							  ConstructionOptions="_ => GetOptions()"
 							  OnDidInit="OnEditorInitAsync" />
 	</div>
 </div>
