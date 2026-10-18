@@ -2,9 +2,9 @@
 @typeparam TCard
 
 <div @attributes=@GetAttributes()>
-	@if (!AllDataLoaded())
+	@if (!AllDataLoaded() && ShowLoadingIcon)
     {
-        <PDCardDeckLoadingIcon @ref="LoadingIcon" />
+        <PDCardDeckLoadingIcon @ref="LoadingIcon" Message="@LoadingMessage" ShowElapsedTime="@ShowLoadingElapsedTime" />
     }
 
     <CascadingValue Value="this">

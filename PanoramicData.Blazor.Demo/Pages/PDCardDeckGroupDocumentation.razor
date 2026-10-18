@@ -8,8 +8,25 @@
 		<table class="table table-sm doc-props-table">
 			<thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
 			<tbody>
-				<tr><td><code>Decks</code></td><td><code>List&lt;PDCardDeck&gt;</code></td><td>Card decks in the group</td></tr>
-				<tr><td><code>AllowDragBetweenDecks</code></td><td><code>bool</code></td><td>Enable cross-deck dragging</td></tr>
+				<tr><td><code>DataProvider</code></td><td><code>IDataProviderService&lt;TCard&gt;</code></td><td>Data provider for the cards, passed to the transformation</td></tr>
+				<tr><td><code>ChildContent</code></td><td><code>RenderFragment</code></td><td>The decks in the group</td></tr>
+				<tr><td><code>ValidateCardMove</code></td><td><code>Func&lt;PDCardDeck&lt;TCard&gt;, PDCardDeck&lt;TCard&gt;, bool&gt;</code></td><td>Decides whether cards may move from one deck to another</td></tr>
+				<tr><td><code>Transformation</code></td><td><code>Func&lt;IDataProviderService&lt;TCard&gt;, PDCardDeck&lt;TCard&gt;, PDCardDeck&lt;TCard&gt;, List&lt;TCard&gt;, Task&gt;</code></td><td>Applies a completed move, within one deck or from one deck to another</td></tr>
+				<tr><td><code>CssClass</code></td><td><code>string</code></td><td>CSS class for the group's container, in place of <code>pd-carddeck-group-default</code></td></tr>
+				<tr><td><code>ShowLoadingIcon</code></td><td><code>bool</code></td><td>Whether a loading icon is shown, and the page blocked, while the decks load. Defaults to true</td></tr>
+				<tr><td><code>LoadingMessage</code></td><td><code>string</code></td><td>The message shown with the loading icon. Defaults to "Loading Data..."</td></tr>
+				<tr><td><code>ShowLoadingElapsedTime</code></td><td><code>bool</code></td><td>Whether the loading icon shows how many seconds the decks have been loading. Defaults to true</td></tr>
+			</tbody>
+		</table>
+	</section>
+	<section id="css-variables">
+		<h2 class="doc-section">CSS Variables</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>--pd-carddeck-loading-color</code></td><td>--bs-emphasis-color</td><td>Colour of the loading icon's cards, set on <code>.pd-carddeck-loading</code></td></tr>
 			</tbody>
 		</table>
 	</section>

@@ -3,8 +3,8 @@
 	<section id="overview">
 		<h2 class="doc-section">Overview</h2>
 		<p>
-			<code>PDCardDeck</code> is a container for displaying a collection of cards in a responsive grid layout.
-			Supports filtering, sorting, and custom card templates.
+			<code>PDCardDeck</code> shows a deck of cards loaded through a data function.
+			Cards can be selected and dragged to reorder them and, inside a <code>PDCardDeckGroup</code>, moved between decks.
 		</p>
 	</section>
 
@@ -23,7 +23,7 @@
 			</DemoContent>
 			<Description>
 				<p>
-					Provide items via the <code>Items</code> property and customize display using
+					Provide the cards through <code>DataFunction</code> and decide how each one looks with
 					<code>CardTemplate</code>.
 				</p>
 			</Description>
@@ -37,10 +37,28 @@
 				<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
 			</thead>
 			<tbody>
-				<tr><td><code>TItem</code></td><td>Type parameter</td><td>Type of items</td></tr>
-				<tr><td><code>Items</code></td><td><code>IEnumerable&lt;TItem&gt;</code></td><td>Items to display as cards</td></tr>
-				<tr><td><code>CardTemplate</code></td><td><code>RenderFragment&lt;TItem&gt;</code></td><td>Template for each card</td></tr>
-				<tr><td><code>MinCardWidth</code></td><td><code>int</code></td><td>Minimum card width in pixels</td></tr>
+				<tr><td><code>TCard</code></td><td>Type parameter</td><td>Type of the cards, which implements <code>ICard</code></td></tr>
+				<tr><td><code>DataFunction</code></td><td><code>Func&lt;Task&lt;DataResponse&lt;TCard&gt;&gt;&gt;</code></td><td>Loads the deck's cards</td></tr>
+				<tr><td><code>CardTemplate</code></td><td><code>RenderFragment&lt;TCard&gt;</code></td><td>Template for each card</td></tr>
+				<tr><td><code>DeckTemplate</code></td><td><code>RenderFragment&lt;PDCardDeck&lt;TCard&gt;&gt;</code></td><td>Template for the whole deck, in place of the cards</td></tr>
+				<tr><td><code>CardCss</code></td><td><code>Func&lt;TCard, string&gt;</code></td><td>CSS class for each card</td></tr>
+				<tr><td><code>IsAnimated</code></td><td><code>bool</code></td><td>Whether cards animate as they move. Defaults to false</td></tr>
+				<tr><td><code>MultipleSelection</code></td><td><code>bool</code></td><td>Whether several cards can be selected and dragged together. Defaults to false</td></tr>
+				<tr><td><code>ShowLoadingIcon</code></td><td><code>bool</code></td><td>Whether a deck outside a group shows a loading icon while its cards load. Defaults to true</td></tr>
+				<tr><td><code>LoadingMessage</code></td><td><code>string</code></td><td>The message shown with the loading icon. Defaults to "Loading Data..."</td></tr>
+				<tr><td><code>ShowLoadingElapsedTime</code></td><td><code>bool</code></td><td>Whether the loading icon shows how many seconds the cards have been loading. Defaults to true</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<section id="css-variables">
+		<h2 class="doc-section">CSS Variables</h2>
+		<table class="table table-sm doc-props-table">
+			<thead>
+				<tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>--pd-carddeck-loading-color</code></td><td>--bs-emphasis-color</td><td>Colour of the loading icon's cards, set on <code>.pd-carddeck-loading</code></td></tr>
 			</tbody>
 		</table>
 	</section>

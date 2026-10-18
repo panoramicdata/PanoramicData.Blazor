@@ -236,6 +236,9 @@ This component has no public parameters.
 | DeckTemplate | RenderFragment<PDCardDeck<TCard>>? | Template for rendering this Deck |
 | CardCss | Func<TCard, string>? | Global CSS Class to outline the styling of each Card |
 | MultipleSelection | bool | Whether the deck has multiple selection enabled or not. Defaults to false. |
+| ShowLoadingIcon | bool | Whether a deck outside a group shows a loading icon while its cards load. Defaults to true. A deck in a group never shows one: see <see cref="PDCardDeckGroup{TCard}.ShowLoadingIcon"/>. |
+| LoadingMessage | string | The message shown with the loading icon. Defaults to <see cref="PDCardDeckLoadingIcon.DefaultMessage"/>. |
+| ShowLoadingElapsedTime | bool | Whether the loading icon shows how many seconds the cards have been loading. Defaults to true. |
 
 ---
 
@@ -250,6 +253,9 @@ This component has no public parameters.
 | ChildContent | RenderFragment? |  |
 | ValidateCardMove | Func<PDCardDeck<TCard>, PDCardDeck<TCard>, bool>? | Determines if a card move is valid. |
 | Transformation | Func<IDataProviderService<TCard>, PDCardDeck<TCard>, PDCardDeck<TCard>, List<TCard>, Task>? | Transformation that is applied to the cards when they are moved within this group. This can be a Reordering operation or Migration (cards moving from one deck to another) |
+| ShowLoadingIcon | bool | Whether a loading icon is shown, and the page blocked, while the decks load. Defaults to true. |
+| LoadingMessage | string | The message shown with the loading icon. Defaults to <see cref="PDCardDeckLoadingIcon.DefaultMessage"/>. |
+| ShowLoadingElapsedTime | bool | Whether the loading icon shows how many seconds the decks have been loading. Defaults to true. |
 
 ---
 
@@ -260,6 +266,8 @@ This component has no public parameters.
 | Name | Type | Description |
 |------|------|-------------|
 | Clock | TimeProvider | Gets or sets the clock that supplies the current time and drives the start-up delay and the elapsed-time counter. Defaults to <see cref="TimeProvider.System"/>. |
+| Message | string | Gets or sets the message shown under the loading cards. Defaults to <see cref="DefaultMessage"/>. |
+| ShowElapsedTime | bool | Gets or sets whether the message is followed by the number of seconds spent loading. Defaults to true. |
 
 ---
 

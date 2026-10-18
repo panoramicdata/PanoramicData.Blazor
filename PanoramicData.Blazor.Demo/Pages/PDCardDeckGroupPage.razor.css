@@ -1,0 +1,4 @@
+﻿/* Example 6 recolours the loading icon through its CSS variable */
+.custom-loading ::deep .pd-carddeck-loading {
+	--pd-carddeck-loading-color: var(--bs-primary, #0d6efd);
+}

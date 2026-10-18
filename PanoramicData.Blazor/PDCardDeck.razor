@@ -3,9 +3,9 @@
 
 <div @ref="DeckElement" @attributes="GetDeckAttributes()" ondragover="event.preventDefault();">
 
-	@if (!DataLoaded && Parent is null)
+	@if (!DataLoaded && Parent is null && ShowLoadingIcon)
 	{
-	<PDCardDeckLoadingIcon />
+		<PDCardDeckLoadingIcon Message="@LoadingMessage" ShowElapsedTime="@ShowLoadingElapsedTime" />
 	}
 
 	else if (DeckTemplate is not null)
@@ -18,7 +18,7 @@
 		{
 			<PDCard @ref="@Ref"
 					@key="@($"{Id}_{card.Id}")"
-					DraggingEnabled="IsEnabled"
+					DraggingEnabled="@(IsEnabled && _canDrag)"
 					Template="CardTemplate"
 					Css="CardCss"
 					Card="card"

@@ -23,6 +23,7 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	public PDCardDragDropInformation DragState { get; private set; } = new();
 
 	#endregion
+
 	/// <summary>
 	/// References to each PDCardComponent in the Deck. This is used for animations, without this, the cards will not animate correctly.
 	/// </summary>
@@ -63,6 +64,9 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 
 	private DotNetObjectReference<PDCardDeck<TCard>>? _dotNetRef;
 	private bool _disposed;
+
+	// A card dropped before the script's drop listener is in place would never reach the group's transformation.
+	private bool _canDrag;
 
 	/// <summary>Gets the injected logger for this component.</summary>
 	[Inject] private ILogger<PDCardDeck<TCard>> Logger { get; set; } = null!;
@@ -116,6 +120,25 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	public bool MultipleSelection { get; set; }
 
 	/// <summary>
+	/// Whether a deck outside a group shows a loading icon while its cards load. Defaults to true.
+	/// A deck in a group never shows one: see <see cref="PDCardDeckGroup{TCard}.ShowLoadingIcon"/>.
+	/// </summary>
+	[Parameter]
+	public bool ShowLoadingIcon { get; set; } = true;
+
+	/// <summary>
+	/// The message shown with the loading icon. Defaults to <see cref="PDCardDeckLoadingIcon.DefaultMessage"/>.
+	/// </summary>
+	[Parameter]
+	public string LoadingMessage { get; set; } = PDCardDeckLoadingIcon.DefaultMessage;
+
+	/// <summary>
+	/// Whether the loading icon shows how many seconds the cards have been loading. Defaults to true.
+	/// </summary>
+	[Parameter]
+	public bool ShowLoadingElapsedTime { get; set; } = true;
+
+	/// <summary>
 	/// The parent deck group that this deck belongs to, if any. This is used for migrating cards between decks.
 	/// </summary>
 	[CascadingParameter]
@@ -156,6 +179,15 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 	{
 		if (firstRender)
 		{
+			// The cards come first, so a full page load shows them without waiting for the script to download.
+			await RefreshAsync();
+			if (_disposed)
+			{
+				return;
+			}
+
+			Parent?.RegisterDeckAsChild(this);
+
 			_dotNetRef = DotNetObjectReference.Create(this);
 			_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
 				"import", "./_content/PanoramicData.Blazor/PDCardDeck.razor.js");
@@ -173,8 +205,8 @@ public partial class PDCardDeck<TCard> : IAsyncDisposable where TCard : ICard
 				await _jsModule.InvokeVoidAsync("registerInvalidDragOperationListeners", DeckElement, _dotNetRef);
 			}
 
-			await RefreshAsync();
-			Parent?.RegisterDeckAsChild(this);
+			_canDrag = true;
+			StateHasChanged();
 		}
 	}
 

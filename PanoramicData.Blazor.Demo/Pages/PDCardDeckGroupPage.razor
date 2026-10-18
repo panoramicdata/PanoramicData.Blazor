@@ -1,6 +1,6 @@
 @page "/pdcarddeckgroup"
 
-<DemoSourceView SourceFiles="Pages/PDCardDeckGroupPage.razor, Pages/PDCardDeckGroupPage.razor.cs">
+<DemoSourceView SourceFiles="Pages/PDCardDeckGroupPage.razor, Pages/PDCardDeckGroupPage.razor.cs, Pages/PDCardDeckGroupPage.razor.css">
 <DocumentationContent>
 <PDCardDeckGroupDocumentation />
 </DocumentationContent>
@@ -154,6 +154,41 @@
 		<PDCardDeck DataFunction="GetDelayedDataFunction(TodoList5, TodoProgress.BeingDefined)" />
 		<PDCardDeck DataFunction="GetDelayedDataFunction(TodoList5, TodoProgress.InProgress)" />
 		<PDCardDeck DataFunction="GetDelayedDataFunction(TodoList5, TodoProgress.Done)" />
+
+	</PDCardDeckGroup>
+
+	<hr />
+
+	<div>
+		<p>Example 6: Delayed Data Load (5 seconds) with a custom message, no elapsed time and a recoloured loading icon</p>
+	</div>
+
+	<div class="custom-loading">
+		<PDCardDeckGroup DataProvider="TodoList6"
+						 CssClass="pd-kanbanboard"
+						 LoadingMessage="Fetching the tickets..."
+						 ShowLoadingElapsedTime="false">
+
+			<PDCardDeck DataFunction="GetDelayedDataFunction(TodoList6, TodoProgress.BeingDefined)" />
+			<PDCardDeck DataFunction="GetDelayedDataFunction(TodoList6, TodoProgress.InProgress)" />
+			<PDCardDeck DataFunction="GetDelayedDataFunction(TodoList6, TodoProgress.Done)" />
+
+		</PDCardDeckGroup>
+	</div>
+
+	<hr />
+
+	<div>
+		<p>Example 7: Delayed Data Load (5 seconds) with no loading icon</p>
+	</div>
+
+	<PDCardDeckGroup DataProvider="TodoList7"
+					 CssClass="pd-kanbanboard"
+					 ShowLoadingIcon="false">
+
+		<PDCardDeck DataFunction="GetDelayedDataFunction(TodoList7, TodoProgress.BeingDefined)" />
+		<PDCardDeck DataFunction="GetDelayedDataFunction(TodoList7, TodoProgress.InProgress)" />
+		<PDCardDeck DataFunction="GetDelayedDataFunction(TodoList7, TodoProgress.Done)" />
 
 	</PDCardDeckGroup>
 
