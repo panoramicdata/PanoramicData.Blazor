@@ -29,7 +29,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      - PDDiffPanel: new Monaco diff component showing two texts side by side or inline, with a toolbar toggle, a No changes state, language inference from FileName and a Theme parameter. Changing Original or Modified swaps text into the existing models rather than recreating the editor, so the view is not rebuilt on live refresh. It retries with backoff (about 30 seconds) when Monaco has not finished loading and shows a failed state if it never does, and it releases its Monaco editor and models on disposal. New public static MonacoLanguage.FromFileName maps a file name to a Monaco language id.
+      - PDCardDeckGroup and PDCardDeck: new ShowLoadingIcon, LoadingMessage and ShowLoadingElapsedTime parameters turn the loading icon off (which also stops a group blocking the page while its decks load), change its message and hide its elapsed-time counter, through new Message and ShowElapsedTime parameters on PDCardDeckLoadingIcon. The icon's colour is the new --pd-carddeck-loading-color CSS variable, defaulting to --bs-emphasis-color, so it follows Bootstrap 5.3 dark mode instead of always being black. A deck now loads its cards and joins its group before it downloads its script, so a full page load no longer shows the loading icon while the script downloads, and its cards can be dragged once the script's drop listener is in place.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

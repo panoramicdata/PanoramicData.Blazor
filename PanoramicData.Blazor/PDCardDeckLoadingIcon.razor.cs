@@ -5,6 +5,11 @@ namespace PanoramicData.Blazor;
 /// </summary>
 public partial class PDCardDeckLoadingIcon : IDisposable
 {
+	/// <summary>
+	/// The message shown when no other is given.
+	/// </summary>
+	public const string DefaultMessage = "Loading Data...";
+
 	private readonly CancellationTokenSource _cts = new();
 	private DateTime _loadStart = DateTime.UtcNow;
 	private int _currentLoadTime;
@@ -21,6 +26,22 @@ public partial class PDCardDeckLoadingIcon : IDisposable
 	/// </summary>
 	[Parameter]
 	public TimeProvider Clock { get; set; } = TimeProvider.System;
+
+	/// <summary>
+	/// Gets or sets the message shown under the loading cards. Defaults to <see cref="DefaultMessage"/>.
+	/// </summary>
+	[Parameter]
+	public string Message { get; set; } = DefaultMessage;
+
+	/// <summary>
+	/// Gets or sets whether the message is followed by the number of seconds spent loading. Defaults to true.
+	/// </summary>
+	[Parameter]
+	public bool ShowElapsedTime { get; set; } = true;
+
+	private string MessageText => ShowElapsedTime
+		? string.Create(CultureInfo.InvariantCulture, $"{Message} (current elapsed time {_currentLoadTime} seconds)")
+		: Message;
 
 	/// <inheritdoc />
 	protected override async Task OnInitializedAsync()

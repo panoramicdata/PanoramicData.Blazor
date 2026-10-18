@@ -124,6 +124,54 @@ public class PDCardDeckLoadingIconTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that, by default, the default message is followed by the elapsed time.
+	/// </summary>
+	[Fact]
+	public async Task Default_ShowsTheDefaultMessageAndElapsedTime()
+	{
+		var component = await RenderActiveAsync(_ => { });
+
+		component.Find(".loading-message").TextContent.Should().Be("Loading Data... (current elapsed time 0 seconds)");
+	}
+
+	/// <summary>
+	/// Verifies that a given message replaces the default one, still followed by the elapsed time.
+	/// </summary>
+	[Fact]
+	public async Task Message_ReplacesTheDefault()
+	{
+		var component = await RenderActiveAsync(parameters => parameters.Add(p => p.Message, "Opening the board"));
+
+		component.Find(".loading-message").TextContent.Should().Be("Opening the board (current elapsed time 0 seconds)");
+	}
+
+	/// <summary>
+	/// Verifies that the elapsed time can be left out, leaving only the message.
+	/// </summary>
+	[Fact]
+	public async Task WithoutElapsedTime_ShowsOnlyTheMessage()
+	{
+		var component = await RenderActiveAsync(parameters => parameters.Add(p => p.ShowElapsedTime, false));
+
+		component.Find(".loading-message").TextContent.Should().Be(PDCardDeckLoadingIcon.DefaultMessage);
+	}
+
+	private async Task<IRenderedComponent<PDCardDeckLoadingIcon>> RenderActiveAsync(
+		Action<ComponentParameterCollectionBuilder<PDCardDeckLoadingIcon>> configure)
+	{
+		var clock = new StepClock();
+		var component = Render<PDCardDeckLoadingIcon>(parameters =>
+		{
+			parameters.Add(p => p.Clock, clock);
+			configure(parameters);
+		});
+
+		await component.InvokeAsync(() => clock.FireAll());
+		component.WaitForAssertion(() => component.FindAll(".loading-message").Should().ContainSingle(), _timeout);
+		return component;
+	}
+
+	/// <summary>
 	/// A clock whose timers fire only when the test says so.
 	/// </summary>
 	private sealed class StepClock : TimeProvider

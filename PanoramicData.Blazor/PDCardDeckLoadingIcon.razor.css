@@ -1,4 +1,7 @@
-﻿.pd-carddeck-loading {
+﻿/* ── CSS custom properties ─────────────────────────────────────────────── */
+.pd-carddeck-loading {
+	--pd-carddeck-loading-color: var(--bs-emphasis-color, #000);
+
 	display: flex;
 	flex-direction: column;
 	gap: 0.1em;
@@ -61,31 +64,28 @@
 	width: 6em;
 	height: 1.25em;
 	border: solid;
-	border-color: black;
+	border-color: var(--pd-carddeck-loading-color);
 	border-width: 0.2em;
 	border-radius: 0.25em;
-	background-color: black;
+	background-color: var(--pd-carddeck-loading-color);
 	animation: loading-card-lighten-darken 2s infinite ease-in-out;
 }
 
+/* Fades rather than recolours, so it suits any card colour */
 @keyframes loading-card-lighten-darken {
 	0% {
-		background-color: black;
-		border-color: black;
+		opacity: 1;
 	}
 
 	30% {
-		background-color: #222;
-		border-color: #222;
+		opacity: 0.87;
 	}
 
 	60% {
-		background-color: #444;
-		border-color: #444;
+		opacity: 0.73;
 	}
 
 	100% {
-		background-color: black;
-		border-color: black;
+		opacity: 1;
 	}
 }

@@ -3,16 +3,11 @@ namespace PanoramicData.Blazor.Demo.Pages;
 public partial class PDCardDeckDocumentation : ComponentBase
 {
 	private const string _example1Code = """
-		<PDCardDeck TItem="Product"
-		            Items="_products"
-		            MinCardWidth="200">
-		    <CardTemplate Context="item">
-		        <div class="card">
-		            <div class="card-body">
-		                <h5>@item.Name</h5>
-		                <p>@item.Description</p>
-		            </div>
-		        </div>
+		<PDCardDeck TCard="Ticket"
+		            DataFunction="GetTicketsAsync">
+		    <CardTemplate Context="ticket">
+		        <h6>@ticket.Title</h6>
+		        <p>@ticket.Description</p>
 		    </CardTemplate>
 		</PDCardDeck>
 		""";

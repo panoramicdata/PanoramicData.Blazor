@@ -1,6 +1,3 @@
-
-
-
 namespace PanoramicData.Blazor;
 
 /// <summary>
@@ -99,6 +96,24 @@ public partial class PDCardDeckGroup<TCard> : IDisposable where TCard : ICard
 	/// </remarks>
 	[Parameter]
 	public Func<IDataProviderService<TCard>, PDCardDeck<TCard>, PDCardDeck<TCard>, List<TCard>, Task>? Transformation { get; set; }
+
+	/// <summary>
+	/// Whether a loading icon is shown, and the page blocked, while the decks load. Defaults to true.
+	/// </summary>
+	[Parameter]
+	public bool ShowLoadingIcon { get; set; } = true;
+
+	/// <summary>
+	/// The message shown with the loading icon. Defaults to <see cref="PDCardDeckLoadingIcon.DefaultMessage"/>.
+	/// </summary>
+	[Parameter]
+	public string LoadingMessage { get; set; } = PDCardDeckLoadingIcon.DefaultMessage;
+
+	/// <summary>
+	/// Whether the loading icon shows how many seconds the decks have been loading. Defaults to true.
+	/// </summary>
+	[Parameter]
+	public bool ShowLoadingElapsedTime { get; set; } = true;
 
 	#endregion
 

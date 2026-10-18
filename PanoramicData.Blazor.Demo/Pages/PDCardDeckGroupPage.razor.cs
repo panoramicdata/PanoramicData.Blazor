@@ -15,6 +15,10 @@ public partial class PDCardDeckGroupPage
 
 	public CardDeckDataProviderService<Todo> TodoList5 { get; set; } = new();
 
+	public CardDeckDataProviderService<Todo> TodoList6 { get; set; } = new();
+
+	public CardDeckDataProviderService<Todo> TodoList7 { get; set; } = new();
+
 	[CascadingParameter] protected EventManager? EventManager { get; set; }
 
 	protected override void OnInitialized()
@@ -40,6 +44,16 @@ public partial class PDCardDeckGroupPage
 		new() { Title = "Mow the Lawn", Description = "a description" }]);
 
 		TodoList5.List.AddRange([new() {
+			Title = "A Todo", Description = "a description" },
+		new() { Title = "Put out Pan Fire", Description = "a description" },
+		new() { Title = "Mow the Lawn", Description = "a description" }]);
+
+		TodoList6.List.AddRange([new() {
+			Title = "A Todo", Description = "a description" },
+		new() { Title = "Put out Pan Fire", Description = "a description" },
+		new() { Title = "Mow the Lawn", Description = "a description" }]);
+
+		TodoList7.List.AddRange([new() {
 			Title = "A Todo", Description = "a description" },
 		new() { Title = "Put out Pan Fire", Description = "a description" },
 		new() { Title = "Mow the Lawn", Description = "a description" }]);

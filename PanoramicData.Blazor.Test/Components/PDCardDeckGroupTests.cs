@@ -141,6 +141,35 @@ public partial class PDCardDeckGroupTests : BunitContext
 	}
 
 	/// <summary>
+	/// Verifies that a group told not to show a loading icon never creates one, so nothing can block the page while
+	/// its decks load.
+	/// </summary>
+	[Fact]
+	public void ShowLoadingIconOff_NeverCreatesTheIcon()
+	{
+		var group = RenderConfiguredGroup(p => p.Add(x => x.ShowLoadingIcon, false));
+
+		group.Instance.AllDataLoaded().Should().BeFalse();
+		group.FindComponents<PDCardDeckLoadingIcon>().Should().BeEmpty();
+		group.Instance.LoadingIcon.Should().BeNull();
+	}
+
+	/// <summary>
+	/// Verifies that the group gives its loading icon the group's message and elapsed-time choice.
+	/// </summary>
+	[Fact]
+	public void LoadingMessageAndElapsedTime_ArePassedToTheIcon()
+	{
+		var group = RenderConfiguredGroup(p => p
+			.Add(x => x.LoadingMessage, "Opening the board")
+			.Add(x => x.ShowLoadingElapsedTime, false));
+
+		var icon = group.FindComponent<PDCardDeckLoadingIcon>().Instance;
+		icon.Message.Should().Be("Opening the board");
+		icon.ShowElapsedTime.Should().BeFalse();
+	}
+
+	/// <summary>
 	/// Verifies that disposing the group can be done more than once without error.
 	/// </summary>
 	[Fact]
