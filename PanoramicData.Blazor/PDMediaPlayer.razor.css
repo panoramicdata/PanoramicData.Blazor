@@ -496,6 +496,66 @@
 	}
 }
 
+.pdmp-piano {
+	position: relative;
+	padding-left: 3rem;
+}
+
+.pdmp-pitch-labels {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 2.8rem;
+	height: 15rem;
+	font-size: 0.75rem;
+}
+
+.pdmp-pitch-labels span {
+	position: absolute;
+	right: 0;
+}
+
+.pdmp-note-grid {
+	position: relative;
+	height: 15rem;
+	overflow: hidden;
+	background: #101827;
+	border: 1px solid #445;
+}
+
+.pdmp-note {
+	position: absolute;
+	border: 1px solid #101827;
+	padding: 0;
+	min-width: 2px;
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.pdmp-note:disabled {
+	opacity: 0.8;
+}
+
+.pdmp-note:focus-visible {
+	outline: 2px solid white;
+	z-index: 2;
+}
+
+.pdmp-note-playhead {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 1px;
+	background: white;
+	pointer-events: none;
+}
+
+.pdmp-note-times {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.75rem;
+}
+
 /* optional visualisation: spectrogram, key points and landmarks drawn on a canvas, with its own labelled axes */
 .pdmp-visual {
 	position: relative;

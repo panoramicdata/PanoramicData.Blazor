@@ -4,6 +4,13 @@ namespace PanoramicData.Blazor.Demo.Pages;
 
 public partial class PDMediaPlayerPage
 {
+	private bool showNotes;
+	private readonly PDMediaNote[] exampleNotes =
+	[
+		new() { Start = TimeSpan.FromSeconds(12), Duration = TimeSpan.FromSeconds(2), MidiNote = 60, Voice = "Example", Label = "C4 (illustration)", Color = "#20c997" },
+		new() { Start = TimeSpan.FromSeconds(14), Duration = TimeSpan.FromSeconds(2), MidiNote = 64, Voice = "Example", Label = "E4 (illustration)", Color = "#20c997" }
+	];
+
 	private const string DeadAir = "dead-air";
 	private const string Clipping = "clipping";
 	private const string Segment = "segment";
