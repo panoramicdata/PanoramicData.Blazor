@@ -79,6 +79,22 @@ public partial class PDMediaPlayer
 	public DateTimeOffset? SpectrogramStartTime { get; set; }
 
 	/// <summary>
+	/// Gets or sets whether the controls are shown: the seek bar with its markers and segment lanes, and the buttons, time, volume
+	/// and speed. Set it to false for a display-only player, such as a visualisation that follows a live feed. The default is true.
+	/// </summary>
+	[Parameter]
+	public bool ShowControls { get; set; } = true;
+
+	/// <summary>
+	/// Gets or sets the length of a sliding window. When set, the visualisation shows only the most recent part of that length,
+	/// ending at the playhead or, for a live feed (see <see cref="PushSpectrumAsync"/>), at the latest data; it slides as playback
+	/// or the feed advances, and the playhead line is not drawn because the right edge is the present. The default is null, which
+	/// shows the whole media. Values are limited to between one second and one hour.
+	/// </summary>
+	[Parameter]
+	public TimeSpan? SpectrogramWindow { get; set; }
+
+	/// <summary>
 	/// Gets or sets the height in pixels of the visualisation, from 80 to 800. The default is 260.
 	/// </summary>
 	[Parameter]
@@ -164,6 +180,13 @@ public partial class PDMediaPlayer
 	internal double SpectrogramMaxFrequencyValue =>
 		Math.Clamp(double.IsFinite(SpectrogramMaxFrequency) ? SpectrogramMaxFrequency : DefaultSpectrogramMaxFrequency, 100, SpectrogramSampleRateValue / 2.0);
 
+	/// <summary>
+	/// Gets the sliding window in seconds after clamping, or null when the whole media is shown.
+	/// </summary>
+	internal double? SlidingWindowSeconds => SpectrogramWindow is { } w && w > TimeSpan.Zero
+		? Math.Clamp(w.TotalSeconds, 1, 3600)
+		: null;
+
 	private string VisualAccessibleName =>
 		$"{AccessibleName}: {(ShowSpectrogram ? "spectrogram" : "time and frequency plot")} (time across, frequency up)"
 		+ (ShowKeyPoints ? ", with key points" : string.Empty)
@@ -215,6 +238,48 @@ public partial class PDMediaPlayer
 		StateHasChanged();
 	});
 
+	/// <summary>
+	/// Appends columns to the live spectrogram, for a spectrum that comes from somewhere other than the media's source, such as a
+	/// microphone. Set <see cref="ShowSpectrogram"/>, and usually <see cref="SpectrogramWindow"/> so that it slides. Each column is
+	/// <paramref name="bins"/> bytes from 0 (quiet) to 255 (loud), spread evenly from 0 Hz up to
+	/// <see cref="SpectrogramMaxFrequency"/>, and lasts <paramref name="columnDuration"/>; each batch continues where the last
+	/// ended, and time starts at zero with the first column. Key points and landmarks given in the same time base line up with it.
+	/// </summary>
+	/// <param name="levels">The columns, one after another, each <paramref name="bins"/> bytes (a whole number of columns).</param>
+	/// <param name="bins">The number of frequency values in each column, at least 2.</param>
+	/// <param name="columnDuration">The time each column covers, greater than zero.</param>
+	/// <returns>A task that completes when the columns have been handed to the browser.</returns>
+	/// <exception cref="ArgumentNullException"><paramref name="levels"/> is null.</exception>
+	/// <exception cref="ArgumentOutOfRangeException"><paramref name="bins"/> is below 2, or <paramref name="columnDuration"/> is not above zero.</exception>
+	/// <exception cref="ArgumentException"><paramref name="levels"/> is not a whole number of columns.</exception>
+	public async Task PushSpectrumAsync(byte[] levels, int bins, TimeSpan columnDuration)
+	{
+		ArgumentNullException.ThrowIfNull(levels);
+		ArgumentOutOfRangeException.ThrowIfLessThan(bins, 2);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(columnDuration, TimeSpan.Zero);
+		if (levels.Length % bins != 0)
+		{
+			throw new ArgumentException("The levels must be a whole number of columns of bins bytes.", nameof(levels));
+		}
+
+		if (!_disposed && levels.Length > 0)
+		{
+			await TryInvokeVoidAsync("pushSpectrum", MediaElement, levels, bins, columnDuration.TotalSeconds).ConfigureAwait(true);
+		}
+	}
+
+	/// <summary>
+	/// Removes everything from the live spectrogram, so that the next columns start again at time zero.
+	/// </summary>
+	/// <returns>A task that completes when the live spectrogram has been cleared.</returns>
+	public async Task ClearSpectrumAsync()
+	{
+		if (!_disposed)
+		{
+			await TryInvokeVoidAsync("clearSpectrum", MediaElement).ConfigureAwait(true);
+		}
+	}
+
 	private async Task SyncVisualisationAsync()
 	{
 		if (!HasVisualisation)
@@ -241,11 +306,17 @@ public partial class PDMediaPlayer
 			SpectrogramMaxFrequencyValue,
 			SpectrogramMaxDuration.TotalSeconds,
 			ShowSpectrogramFrequencyLabels,
-			SpectrogramStartTime);
-		if (key == _visualKey
-			&& ReferenceEquals(KeyPoints, _visualKeyPoints)
-			&& ReferenceEquals(Landmarks, _visualLandmarks))
+			SpectrogramStartTime,
+			SlidingWindowSeconds);
+		if (key == _visualKey)
 		{
+			if (!ReferenceEquals(KeyPoints, _visualKeyPoints) || !ReferenceEquals(Landmarks, _visualLandmarks))
+			{
+				_visualKeyPoints = KeyPoints;
+				_visualLandmarks = Landmarks;
+				await TryInvokeVoidAsync("updateVisualisation", MediaElement, BuildVisualisationOptions()).ConfigureAwait(true);
+			}
+
 			return;
 		}
 
@@ -261,6 +332,7 @@ public partial class PDMediaPlayer
 		showKeyPoints = ShowKeyPoints,
 		showLandmarks = ShowLandmarks,
 		frequencyLabels = ShowSpectrogramFrequencyLabels,
+			windowSeconds = SlidingWindowSeconds,
 			startSeconds = SpectrogramStartTime is { } start ? start.TimeOfDay.TotalSeconds : (double?)null,
 			sampleRate = SpectrogramSampleRateValue,
 		windowSize = SpectrogramWindowValue,

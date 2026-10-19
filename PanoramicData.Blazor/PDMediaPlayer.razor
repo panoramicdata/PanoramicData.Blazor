@@ -76,6 +76,8 @@
 			</div>
 		}
 
+		@if (ShowControls)
+		{
 		<div class="pdmp-timeline">
 			@if (segmentsAbove)
 			{
@@ -244,6 +246,7 @@
 				</a>
 			}
 		</div>
+		}
 
 		@if (showKindFilter && !showMarkerList)
 		{

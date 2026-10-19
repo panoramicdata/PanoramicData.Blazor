@@ -132,6 +132,10 @@ public partial class PDMediaPlayerPage
 
 	protected bool BroadcastClock { get; set; }
 
+	protected bool SlidingWindow { get; set; }
+
+	protected bool Controls { get; set; } = true;
+
 	protected bool ShowKeyPoints { get; set; }
 
 	protected bool ShowLandmarks { get; set; }

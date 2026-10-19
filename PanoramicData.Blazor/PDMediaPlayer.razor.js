@@ -78,6 +78,9 @@ export function attach(el, dotNetRef, intervalMs) {
 
 export function detach(el) {
 	clearVisualisation(el);
+	if (el) {
+		liveBuffers.delete(el);
+	}
 	const player = el ? players.get(el) : null;
 	if (!player) {
 		return;
@@ -195,6 +198,8 @@ export function reveal(container) {
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 const visuals = new WeakMap();
+const liveBuffers = new WeakMap();
+const maxLiveColumns = 16384;
 const timeSteps = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 1800, 3600];
 const tinyAmount = Math.pow(10, -9);
 const silenceFloor = Math.pow(10, -12);
@@ -212,6 +217,7 @@ export function visualise(el, canvas, dotNetRef, options) {
 		dotNetRef,
 		options,
 		spectrogram: null,
+		live: liveBuffers.get(el) || null,
 		generation: 0,
 		timer: 0,
 		listeners: [],
@@ -267,6 +273,42 @@ function attachVisualListeners(v) {
 	if (typeof ResizeObserver !== "undefined") {
 		v.observer = new ResizeObserver(redraw);
 		v.observer.observe(v.canvas);
+	}
+}
+
+// swaps the options (the points and lines, mostly) without attaching again
+export function updateVisualisation(el, options) {
+	const v = el ? visuals.get(el) : null;
+	if (v) {
+		v.options = options;
+		draw(v);
+	}
+}
+
+// appends columns to the live spectrogram: levels holds columns of bins bytes each, quiet 0 to loud 255, spread from 0 Hz up to
+// the maximum frequency; every column lasts columnSeconds and follows the one before it
+export function pushSpectrum(el, levels, bins, columnSeconds) {
+	const v = el ? visuals.get(el) : null;
+	if (!v) {
+		return;
+	}
+	if (!liveFits(v.live, v.options, bins, columnSeconds)) {
+		v.live = createLive(v.options, bins, columnSeconds);
+		liveBuffers.set(el, v.live);
+	}
+	const columns = Math.floor(levels.length / bins);
+	for (let i = 0; i < columns; i++) {
+		writeColumn(v.live, levels, i * bins);
+	}
+	draw(v);
+}
+
+export function clearSpectrum(el) {
+	const v = el ? visuals.get(el) : null;
+	liveBuffers.delete(el);
+	if (v) {
+		v.live = null;
+		draw(v);
 	}
 }
 
@@ -536,6 +578,52 @@ function makeSpectrogram(decoded, options) {
 	};
 }
 
+// ---- the live spectrogram: a ring of columns held on an off-screen canvas, one pixel wide each ----
+
+function liveCapacity(options, columnSeconds) {
+	const span =
+		options.windowSeconds > 0 ? options.windowSeconds : options.maxDuration;
+	return Math.min(maxLiveColumns, Math.ceil(span / columnSeconds) + 2);
+}
+
+function liveFits(live, options, bins, columnSeconds) {
+	return (
+		live &&
+		live.bins === bins &&
+		live.columnSeconds === columnSeconds &&
+		live.capacity === liveCapacity(options, columnSeconds)
+	);
+}
+
+function createLive(options, bins, columnSeconds) {
+	const capacity = liveCapacity(options, columnSeconds);
+	const canvas = document.createElement("canvas");
+	canvas.width = capacity;
+	canvas.height = bins;
+	return {
+		bins,
+		columnSeconds,
+		capacity,
+		canvas,
+		context: canvas.getContext("2d"),
+		count: 0,
+	};
+}
+
+function liveEnd(live) {
+	return live.count * live.columnSeconds;
+}
+
+function writeColumn(live, levels, offset) {
+	const image = live.context.createImageData(1, live.bins);
+	for (let b = 0; b < live.bins; b++) {
+		const [red, green, blue] = heatColour(levels[offset + b] / 255);
+		image.data.set([red, green, blue, 255], (live.bins - 1 - b) * 4);
+	}
+	live.context.putImageData(image, live.count % live.capacity, 0);
+	live.count++;
+}
+
 // ---- layout and axes ----
 
 function dataSeconds(options) {
@@ -550,6 +638,9 @@ function dataSeconds(options) {
 }
 
 function plotSeconds(v) {
+	if (v.live && v.live.count > 0) {
+		return liveEnd(v.live);
+	}
 	if (v.spectrogram) {
 		return v.spectrogram.seconds;
 	}
@@ -557,6 +648,20 @@ function plotSeconds(v) {
 	return Number.isFinite(duration) && duration > 0
 		? duration
 		: dataSeconds(v.options);
+}
+
+// the time the plot ends at: the end of the live data, or the playhead
+function nowSeconds(v) {
+	return v.live && v.live.count > 0 ? liveEnd(v.live) : v.el.currentTime || 0;
+}
+
+// the first time shown and how many seconds are shown: all of it, or a window that slides to end at the present
+function timeRange(v) {
+	const windowSeconds = v.options.windowSeconds;
+	if (windowSeconds > 0) {
+		return { start: nowSeconds(v) - windowSeconds, seconds: windowSeconds };
+	}
+	return { start: 0, seconds: plotSeconds(v) || 1 };
 }
 
 function sizeCanvas(v) {
@@ -588,7 +693,7 @@ function layout(v) {
 		top,
 		pw: width,
 		ph: height - top - bottom,
-		seconds: plotSeconds(v) || 1,
+		...timeRange(v),
 		maxHz: v.spectrogram ? v.spectrogram.maxHz : v.options.maxFrequency,
 	};
 }
@@ -601,7 +706,10 @@ function fromPixel(v, e) {
 	if (x < 0 || y < 0 || x > l.pw || y > l.ph) {
 		return null;
 	}
-	return { seconds: (x / l.pw) * l.seconds, hz: (1 - y / l.ph) * l.maxHz };
+	return {
+		seconds: l.start + (x / l.pw) * l.seconds,
+		hz: (1 - y / l.ph) * l.maxHz,
+	};
 }
 
 function niceStep(span, pixels, minPixels) {
@@ -641,7 +749,7 @@ function frequencyStep(maxHz) {
 
 function scales(l) {
 	return {
-		x: (t) => l.left + (t / l.seconds) * l.pw,
+		x: (t) => l.left + ((t - l.start) / l.seconds) * l.pw,
 		y: (hz) => l.top + l.ph - (hz / l.maxHz) * l.ph,
 	};
 }
@@ -653,33 +761,76 @@ function drawBackground(ctx, v, l) {
 	ctx.clearRect(0, 0, l.width, l.height);
 	ctx.fillStyle = "#0a0e18";
 	ctx.fillRect(l.left, l.top, l.pw, l.ph);
-	const s = v.spectrogram;
-	if (!s || !v.options.showSpectrogram) {
+	if (!v.options.showSpectrogram) {
+		return;
+	}
+	if (v.spectrogram) {
+		drawDecoded(ctx, v.spectrogram, l);
+	}
+	if (v.live && v.live.count > 0) {
+		drawLiveSpectrum(ctx, v.live, l);
+	}
+}
+
+// the part of the decoded spectrogram that falls inside the time range
+function drawDecoded(ctx, s, l) {
+	const from = Math.max(0, l.start);
+	const to = Math.min(s.seconds, l.start + l.seconds);
+	if (to <= from) {
 		return;
 	}
 	const rows = Math.min(s.bins, l.maxHz / s.hzPerBin + 1);
-	const width = (s.seconds / l.seconds) * l.pw;
+	const sx = (from / s.seconds) * s.frames;
+	const sw = ((to - from) / s.seconds) * s.frames;
+	const dx = l.left + ((from - l.start) / l.seconds) * l.pw;
+	const dw = ((to - from) / l.seconds) * l.pw;
 	ctx.imageSmoothingEnabled = true;
+	ctx.drawImage(s.image, sx, s.bins - rows, sw, rows, dx, l.top, dw, l.ph);
+}
+
+function drawLiveSpectrum(ctx, live, l) {
+	const earliest = Math.max(0, live.count - live.capacity);
+	const first = Math.max(earliest, Math.floor(l.start / live.columnSeconds));
+	const last = Math.min(
+		live.count,
+		Math.ceil((l.start + l.seconds) / live.columnSeconds),
+	);
+	if (last > first) {
+		drawLiveColumns(ctx, live, l, first, last);
+	}
+}
+
+// draws columns first to last (exclusive), in two pieces when they wrap round the end of the ring
+function drawLiveColumns(ctx, live, l, first, last) {
+	const room = live.capacity - (first % live.capacity);
+	if (last - first > room) {
+		drawLiveColumns(ctx, live, l, first, first + room);
+		drawLiveColumns(ctx, live, l, first + room, last);
+		return;
+	}
+	const cs = live.columnSeconds;
+	const dx = l.left + ((first * cs - l.start) / l.seconds) * l.pw;
+	const dw = (((last - first) * cs) / l.seconds) * l.pw;
+	ctx.imageSmoothingEnabled = false;
 	ctx.drawImage(
-		s.image,
+		live.canvas,
+		first % live.capacity,
 		0,
-		s.bins - rows,
-		s.frames,
-		rows,
-		l.left,
+		last - first,
+		live.bins,
+		dx,
 		l.top,
-		width,
+		dw,
 		l.ph,
 	);
 }
 
 // the times (in seconds from the start of the media) of the ticks; on the broadcast clock they fall on round clock times
 function timeTicks(l, clock, offset, step) {
-	const first = clock
-		? Math.ceil(offset / step - tinyAmount) * step - offset
-		: 0;
+	const from = Math.max(l.start, 0) + offset;
+	const first = Math.ceil(from / step - tinyAmount) * step - offset;
 	const ticks = [];
-	for (let t = first; t <= l.seconds + tinyAmount; t += step) {
+	for (let t = first; t <= l.start + l.seconds + tinyAmount; t += step) {
 		ticks.push(t);
 	}
 	return ticks;
@@ -797,7 +948,9 @@ function drawOverlays(ctx, v, l, sc) {
 	if (v.options.showKeyPoints) {
 		drawKeyPoints(ctx, v, sc);
 	}
-	drawPlayhead(ctx, v, l, sc);
+	if (!(v.options.windowSeconds > 0)) {
+		drawPlayhead(ctx, v, l, sc);
+	}
 	ctx.restore();
 }
 
