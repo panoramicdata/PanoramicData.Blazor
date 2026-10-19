@@ -250,4 +250,7 @@
 		The optional lane shares the media time axis and adds octave pitch names, a playback cursor and buttons that seek to each note.
 		HiddenNoteVoices filters voice identifiers using ordinal comparison. It changes the display only; provide matching audio when muting a voice.
 		Notes are off by default. Nonpositive durations, negative starts and pitches outside MIDI 0 to 127 are ignored; notes are clipped to the media duration.</p>
+	<p>The full-file piano roll, segment lanes, seek track and full-file spectrogram share their left and right time bounds. Pitch names are drawn inside the grid rather than reserving a gutter.
+		The time axis selects a small set of readable ticks, with fewer labels at phone widths. Set <code>NotesHeight</code> to size the grid in pixels (80 to 800, default 240).
+		Visible <code>Segments</code> provide coloured section labels and vertical boundaries; selecting a label seeks to that segment. Set <code>ShowNoteSegments="false"</code> to hide these annotations without hiding the seek bar's segment lanes.</p>
 </section>

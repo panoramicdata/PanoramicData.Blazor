@@ -66,17 +66,37 @@
 			var notes = VisibleNotes;
 			var low = notes.Count > 0 ? Math.Max(0, notes.Min(n => n.MidiNote) - 1) : 48;
 			var high = notes.Count > 0 ? Math.Min(127, Math.Max(low + 11, notes.Max(n => n.MidiNote) + 1)) : 72;
+			var times = NoteTimeTicks();
+			IReadOnlyList<MediaSegmentBar> noteBars = ShowNoteSegments ? GetBars() : [];
 			<div class="pdmp-piano" aria-label="Piano roll: pitch against time in seconds">
-				<div class="pdmp-pitch-labels" aria-hidden="true">
-					@for (var midi = low; midi <= high; midi++)
-					{
-						if (midi % 12 == 0)
+				@foreach (var lane in noteBars.GroupBy(b => b.Lane))
+				{
+					<div class="pdmp-note-sections" aria-label="Sections in the note timeline">
+						@foreach (var bar in lane)
 						{
-							<span style="bottom:@Percent(100.0 * (midi - low) / (high - low + 1))">@NoteName(midi)</span>
+							<button type="button" class="pdmp-note-section" style="@GetBarStyle(bar)" title="@GetBarTitle(bar)"
+								aria-label="@GetBarTitle(bar)" disabled="@(!canSeek)" @onclick="() => SeekToSegmentAsync(bar.First)">@(bar.First.Label ?? GetKindLabel(MediaSegmentNavigator.GetKind(bar.First)))</button>
 						}
+					</div>
+				}
+				<div class="pdmp-note-grid" style="height:@(NotesHeightValue)px">
+					<div class="pdmp-pitch-labels" aria-hidden="true">
+						@for (var midi = low; midi <= high; midi++)
+						{
+							if (midi % 12 == 0)
+							{
+								<div class="pdmp-note-pitch-line" style="bottom:@Percent(100.0 * (midi - low) / (high - low + 1))"><span>@NoteName(midi)</span></div>
+							}
+						}
+					</div>
+					@foreach (var time in times)
+					{
+						<span class="pdmp-note-time-line" style="left:@Percent(100 * time / DurationSeconds)" aria-hidden="true"></span>
 					}
-				</div>
-				<div class="pdmp-note-grid">
+					@foreach (var boundary in noteBars.SelectMany(b => new[] { b.LeftPercent, b.LeftPercent + b.WidthPercent }).Distinct())
+					{
+						<span class="pdmp-note-boundary" style="left:@Percent(boundary)" aria-hidden="true"></span>
+					}
 					@foreach (var note in notes)
 					{
 						<button type="button" class="pdmp-note" style="@NoteStyle(note, low, high)" title="@NoteTitle(note)"
@@ -84,7 +104,12 @@
 					}
 					<div class="pdmp-note-playhead" style="left:@Percent(ProgressPercent)" aria-hidden="true"></div>
 				</div>
-				<div class="pdmp-note-times"><span>0 s</span><span>@FormatNumber(DurationSeconds) s</span></div>
+				<div class="pdmp-note-times" aria-hidden="true">
+					@foreach (var time in times)
+					{
+						<span style="left:@Percent(100 * time / DurationSeconds)">@FormatNumber(time) s</span>
+					}
+				</div>
 			</div>
 		}
 

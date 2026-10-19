@@ -406,7 +406,8 @@ function spectrogramFor(v, decoded) {
 
 function loadSpectrogram(v) {
 	const generation = ++v.generation;
-	const src = v.el.currentSrc || v.el.src;
+	// currentSrc may still name the previous resource immediately after the host replaces src.
+	const src = v.el.src;
 	if (!src) {
 		draw(v);
 		return;

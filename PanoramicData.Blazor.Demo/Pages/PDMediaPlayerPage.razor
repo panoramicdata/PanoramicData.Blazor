@@ -90,8 +90,9 @@
 		</div>
 
 		<label class="form-check mb-3"><input type="checkbox" class="form-check-input" @bind="showNotes" /> Show example piano roll (illustrative notes)</label>
+		<label class="form-check mb-3"><input type="checkbox" class="form-check-input" @bind="showNoteSegments" disabled="@(!showNotes)" /> Show section labels and boundaries on the piano roll</label>
 		<PDMediaPlayer @ref="Player"
-					   ShowNotes="showNotes" Notes="exampleNotes"
+					   ShowNotes="showNotes" Notes="exampleNotes" NotesHeight="260" ShowNoteSegments="showNoteSegments"
 					   Src="@CurrentSource"
 					   MediaKind="@CurrentKind"
 					   Title="@($"Demo show: {SourceName}")"
