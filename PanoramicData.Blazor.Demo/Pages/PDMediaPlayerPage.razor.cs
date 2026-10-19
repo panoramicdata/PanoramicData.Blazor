@@ -5,6 +5,7 @@ namespace PanoramicData.Blazor.Demo.Pages;
 public partial class PDMediaPlayerPage
 {
 	private bool showNotes;
+	private bool ShowNoteSegments { get; set; } = true;
 	private readonly PDMediaNote[] exampleNotes =
 	[
 		new() { Start = TimeSpan.FromSeconds(12), Duration = TimeSpan.FromSeconds(2), MidiNote = 60, Voice = "Example", Label = "C4 (illustration)", Color = "#20c997" },
