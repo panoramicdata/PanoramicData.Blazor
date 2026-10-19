@@ -70,6 +70,8 @@ public partial class PDMediaPlayer
 			await AttachAsync().ConfigureAwait(true);
 		}
 
+		await SyncVisualisationAsync().ConfigureAwait(true);
+
 		await RevealActiveLineAsync().ConfigureAwait(true);
 	}
 
@@ -101,6 +103,7 @@ public partial class PDMediaPlayer
 	{
 		_objRef ??= DotNetObjectReference.Create(this);
 		_attachedKind = _kind;
+		_visualKey = null;
 		await TryInvokeVoidAsync("attach", MediaElement, _objRef, _updateInterval).ConfigureAwait(true);
 		await TryInvokeVoidAsync("setRate", MediaElement, _rate).ConfigureAwait(true);
 		await TryInvokeVoidAsync("setVolume", MediaElement, _volume, _muted).ConfigureAwait(true);

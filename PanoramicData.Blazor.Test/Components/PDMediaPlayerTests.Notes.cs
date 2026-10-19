@@ -44,4 +44,21 @@ public partial class PDMediaPlayerTests
 		await cut.Find(".pdmp-note").ClickAsync(new());
 		SeekTargets().Should().Contain(2);
 	}
+	/// <summary>Pitch and frequency views can coexist and be switched off independently.</summary>
+	[Fact]
+	public async Task Notes_AndSpectrogram_RenderIndependently()
+	{
+		var cut = await RenderReadyAsync(p => p
+			.Add(x => x.ShowNotes, true)
+			.Add(x => x.ShowSpectrogram, true), 10);
+		cut.FindAll(".pdmp-piano").Should().HaveCount(1);
+		cut.FindAll("canvas.pdmp-visual-canvas").Should().HaveCount(1);
+		cut.Render(p => p.Add(x => x.ShowNotes, false));
+		cut.FindAll(".pdmp-piano").Should().BeEmpty();
+		cut.FindAll("canvas.pdmp-visual-canvas").Should().HaveCount(1);
+		cut.Render(p => p.Add(x => x.ShowNotes, true).Add(x => x.ShowSpectrogram, false));
+		cut.FindAll(".pdmp-piano").Should().HaveCount(1);
+		cut.FindAll("canvas.pdmp-visual-canvas").Should().BeEmpty();
+	}
+
 }

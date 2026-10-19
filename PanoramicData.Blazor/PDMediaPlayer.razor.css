@@ -555,3 +555,19 @@
 	justify-content: space-between;
 	font-size: 0.75rem;
 }
+
+/* optional visualisation: spectrogram, key points and landmarks drawn on a canvas, with its own labelled axes */
+.pdmp-visual {
+	position: relative;
+	margin: 0.25rem 0.5rem;
+}
+
+.pdmp-visual-canvas {
+	display: block;
+	width: 100%;
+	cursor: crosshair;
+}
+
+.pdmp-visual-status {
+	padding: 0.125rem 0;
+}

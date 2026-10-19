@@ -59,6 +59,26 @@
 				<input class="form-check-input" type="checkbox" id="mp-persist" @bind="Persist" />
 				<label class="form-check-label" for="mp-persist">Remember speed and position</label>
 			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-spectrogram" @bind="ShowSpectrogram" />
+				<label class="form-check-label" for="mp-spectrogram">Spectrogram</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-clock" @bind="BroadcastClock" />
+				<label class="form-check-label" for="mp-clock">Broadcast clock time (14:30:00 start)</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-freqlabels" @bind="FrequencyLabels" />
+				<label class="form-check-label" for="mp-freqlabels">Frequency labels</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-keypoints" @bind="ShowKeyPoints" />
+				<label class="form-check-label" for="mp-keypoints">Key points (example data)</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="mp-landmarks" @bind="ShowLandmarks" />
+				<label class="form-check-label" for="mp-landmarks">Landmarks (example data)</label>
+			</div>
 		</div>
 
 		<label class="form-check mb-3"><input type="checkbox" class="form-check-input" @bind="showNotes" /> Show example piano roll (illustrative notes)</label>
@@ -76,6 +96,13 @@
 					   RangeEnd="@(ShadeRange ? TimeSpan.FromSeconds(55) : null)"
 					   MarkerListPlacement="Placement"
 					   PersistKey="@(Persist ? "pdmediaplayer-demo" : null)"
+					   ShowSpectrogram="ShowSpectrogram"
+					   ShowSpectrogramFrequencyLabels="FrequencyLabels"
+					   SpectrogramStartTime="@(BroadcastClock ? new DateTimeOffset(2026, 10, 19, 14, 30, 0, TimeSpan.Zero) : null)"
+					   ShowKeyPoints="ShowKeyPoints"
+					   KeyPoints="_keyPoints"
+					   ShowLandmarks="ShowLandmarks"
+					   Landmarks="_landmarks"
 					   ShowDownload="true"
 					   DownloadFileName="demo-show.wav"
 					   @bind-PlaybackRate="Rate"
