@@ -196,54 +196,31 @@ export function reveal(container) {
 
 const visuals = new WeakMap();
 const timeSteps = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 1800, 3600];
+const tinyAmount = 0.000000001;
+const silenceFloor = 0.000000000001;
+const redrawIntervalMs = 40;
+const dynamicRangeDb = 80;
 
 export function visualise(el, canvas, dotNetRef, options) {
 	clearVisualisation(el);
 	if (!el || !canvas) {
 		return;
 	}
-	const v = { el, canvas, dotNetRef, options, spectrogram: null, token: 0, raf: 0, listeners: [], observer: null };
+	const v = {
+		el,
+		canvas,
+		dotNetRef,
+		options,
+		spectrogram: null,
+		generation: 0,
+		timer: 0,
+		listeners: [],
+		observer: null,
+	};
 	visuals.set(el, v);
-	const redraw = () => draw(v);
-	const startLoop = () => {
-		cancelAnimationFrame(v.raf);
-		const tick = () => {
-			draw(v);
-			v.raf = requestAnimationFrame(tick);
-		};
-		v.raf = requestAnimationFrame(tick);
-	};
-	const stopLoop = () => {
-		cancelAnimationFrame(v.raf);
-		v.raf = 0;
-		draw(v);
-	};
-	const handlers = [
-		["play", startLoop],
-		["pause", stopLoop],
-		["ended", stopLoop],
-		["seeked", redraw],
-		["timeupdate", redraw],
-		["loadedmetadata", redraw],
-		["durationchange", redraw],
-	];
-	for (const [type, fn] of handlers) {
-		el.addEventListener(type, fn);
-		v.listeners.push([type, fn]);
-	}
-	v.onClick = (e) => {
-		const point = fromPixel(v, e);
-		if (point && v.dotNetRef) {
-			v.dotNetRef.invokeMethodAsync("OnVisualisationPointer", point.seconds, point.hz).catch(() => {});
-		}
-	};
-	canvas.addEventListener("click", v.onClick);
-	if (typeof ResizeObserver !== "undefined") {
-		v.observer = new ResizeObserver(redraw);
-		v.observer.observe(canvas);
-	}
+	attachVisualListeners(v);
 	if (!el.paused) {
-		startLoop();
+		startRedraw(v);
 	}
 	if (options.showSpectrogram) {
 		loadSpectrogram(v);
@@ -257,7 +234,7 @@ export function clearVisualisation(el) {
 	if (!v) {
 		return;
 	}
-	cancelAnimationFrame(v.raf);
+	clearInterval(v.timer);
 	for (const [type, fn] of v.listeners) {
 		el.removeEventListener(type, fn);
 	}
@@ -265,180 +242,338 @@ export function clearVisualisation(el) {
 	if (v.observer) {
 		v.observer.disconnect();
 	}
-	v.token++;
+	v.generation++;
 	v.dotNetRef = null;
 	visuals.delete(el);
 }
 
+function attachVisualListeners(v) {
+	const redraw = () => draw(v);
+	const handlers = [
+		["play", () => startRedraw(v)],
+		["pause", () => stopRedraw(v)],
+		["ended", () => stopRedraw(v)],
+		["seeked", redraw],
+		["timeupdate", redraw],
+		["loadedmetadata", redraw],
+		["durationchange", redraw],
+	];
+	for (const [type, fn] of handlers) {
+		v.el.addEventListener(type, fn);
+		v.listeners.push([type, fn]);
+	}
+	v.onClick = (e) => reportClick(v, e);
+	v.canvas.addEventListener("click", v.onClick);
+	if (typeof ResizeObserver !== "undefined") {
+		v.observer = new ResizeObserver(redraw);
+		v.observer.observe(v.canvas);
+	}
+}
+
+function startRedraw(v) {
+	clearInterval(v.timer);
+	v.timer = setInterval(() => draw(v), redrawIntervalMs);
+}
+
+function stopRedraw(v) {
+	clearInterval(v.timer);
+	v.timer = 0;
+	draw(v);
+}
+
+function reportClick(v, e) {
+	const point = fromPixel(v, e);
+	if (point && v.dotNetRef) {
+		v.dotNetRef
+			.invokeMethodAsync("OnVisualisationPointer", point.seconds, point.hz)
+			.catch(() => {});
+	}
+}
+
 function report(v, status) {
 	if (v.dotNetRef) {
-		v.dotNetRef.invokeMethodAsync("OnSpectrogramStatus", status).catch(() => {});
+		v.dotNetRef
+			.invokeMethodAsync("OnSpectrogramStatus", status)
+			.catch(() => {});
+	}
+}
+
+// ---- getting the audio and making the spectrogram ----
+
+function fetchBytes(url) {
+	return new Promise((resolve, reject) => {
+		const request = new XMLHttpRequest();
+		request.open("GET", url);
+		request.responseType = "arraybuffer";
+		request.onload = () =>
+			request.status >= 200 && request.status < 300
+				? resolve(request.response)
+				: reject(new Error(String(request.status)));
+		request.onerror = () => reject(new Error("network"));
+		request.send();
+	});
+}
+
+function createAudioContext(sampleRate) {
+	try {
+		return new AudioContext({ sampleRate });
+	} catch {
+		return new AudioContext();
+	}
+}
+
+async function decodeSource(src, sampleRate) {
+	const bytes = await fetchBytes(src);
+	const context = createAudioContext(sampleRate);
+	try {
+		return await context.decodeAudioData(bytes);
+	} finally {
+		await context.close();
+	}
+}
+
+async function analyseSource(v, src) {
+	try {
+		const decoded = await decodeSource(src, v.options.sampleRate);
+		if (decoded.duration > v.options.maxDuration) {
+			return { spectrogram: null, status: "toolong" };
+		}
+		return {
+			spectrogram: makeSpectrogram(decoded, v.options),
+			status: "ready",
+		};
+	} catch {
+		return { spectrogram: null, status: "failed" };
 	}
 }
 
 async function loadSpectrogram(v) {
-	const token = ++v.token;
+	const generation = ++v.generation;
 	const src = v.el.currentSrc || v.el.src;
 	if (!src) {
 		draw(v);
 		return;
 	}
 	report(v, "loading");
-	try {
-		const response = await fetch(src);
-		const buffer = await response.arrayBuffer();
-		let context;
-		try {
-			context = new AudioContext({ sampleRate: v.options.sampleRate });
-		} catch {
-			context = new AudioContext();
-		}
-		const decoded = await context.decodeAudioData(buffer);
-		await context.close();
-		if (token !== v.token) {
-			return;
-		}
-		if (decoded.duration > v.options.maxDuration) {
-			v.spectrogram = null;
-			report(v, "toolong");
-		} else {
-			v.spectrogram = makeSpectrogram(decoded, v.options);
-			report(v, "ready");
-		}
-	} catch {
-		if (token === v.token) {
-			v.spectrogram = null;
-			report(v, "failed");
+	const result = await analyseSource(v, src);
+	if (generation !== v.generation) {
+		return;
+	}
+	v.spectrogram = result.spectrogram;
+	report(v, result.status);
+	draw(v);
+}
+
+function mixToMono(decoded) {
+	const mono = new Float32Array(decoded.length);
+	const channels = decoded.numberOfChannels;
+	for (let c = 0; c < channels; c++) {
+		const channel = decoded.getChannelData(c);
+		for (let i = 0; i < mono.length; i++) {
+			mono[i] += channel[i] / channels;
 		}
 	}
-	if (token === v.token) {
-		draw(v);
+	return mono;
+}
+
+// the Hann window, the twiddle factors and the bit-reversed order that a radix-2 FFT of this size needs
+function fftTables(size) {
+	const hann = new Float64Array(size);
+	const cos = new Float64Array(size / 2);
+	const sin = new Float64Array(size / 2);
+	const reverse = new Uint32Array(size);
+	const bits = Math.log2(size);
+	for (let i = 0; i < size; i++) {
+		hann[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / size);
+		reverse[i] = reverseBits(i, bits);
+	}
+	for (let i = 0; i < size / 2; i++) {
+		cos[i] = Math.cos((-2 * Math.PI * i) / size);
+		sin[i] = Math.sin((-2 * Math.PI * i) / size);
+	}
+	return { size, hann, cos, sin, reverse };
+}
+
+function reverseBits(value, bits) {
+	let result = 0;
+	for (let b = 0; b < bits; b++) {
+		result |= ((value >> b) & 1) << (bits - 1 - b);
+	}
+	return result;
+}
+
+function loadFrame(mono, start, t, re, im) {
+	for (let i = 0; i < t.size; i++) {
+		re[t.reverse[i]] = mono[start + i] * t.hann[i];
+		im[t.reverse[i]] = 0;
 	}
 }
 
-// Short-time Fourier transform: Hann window, radix-2 FFT, decibels scaled over the 80 dB below the loudest cell. Column m is the
-// window that starts at m * hop samples, so it is drawn at time m * hop / rate.
-function makeSpectrogram(decoded, options) {
-	const rate = decoded.sampleRate;
-	const win = options.windowSize;
-	const hop = options.hopSize;
-	const length = decoded.length;
-	const mono = new Float32Array(length);
-	for (let c = 0; c < decoded.numberOfChannels; c++) {
-		const channel = decoded.getChannelData(c);
-		for (let i = 0; i < length; i++) {
-			mono[i] += channel[i] / decoded.numberOfChannels;
+function butterfly(re, im, a, b, wr, wi) {
+	const tr = re[b] * wr - im[b] * wi;
+	const ti = re[b] * wi + im[b] * wr;
+	re[b] = re[a] - tr;
+	im[b] = im[a] - ti;
+	re[a] += tr;
+	im[a] += ti;
+}
+
+function fftInPlace(re, im, t) {
+	for (let size = 2; size <= t.size; size <<= 1) {
+		const half = size >> 1;
+		const step = t.size / size;
+		for (let start = 0; start < t.size; start += size) {
+			for (let k = 0; k < half; k++) {
+				butterfly(
+					re,
+					im,
+					start + k,
+					start + k + half,
+					t.cos[k * step],
+					t.sin[k * step],
+				);
+			}
 		}
 	}
-	const hzPerBin = rate / win;
+}
+
+// writes the power in decibels of the first `bins` frequencies into db and returns the loudest
+function powerColumn(re, im, bins, db, offset) {
+	let loudest = -Infinity;
+	for (let k = 0; k < bins; k++) {
+		const value = 10 * Math.log10(re[k] * re[k] + im[k] * im[k] + silenceFloor);
+		db[offset + k] = value;
+		loudest = Math.max(loudest, value);
+	}
+	return loudest;
+}
+
+// Short-time Fourier transform: column m is the window that starts at m * hop samples.
+function analyseFrames(mono, rate, options) {
+	const t = fftTables(options.windowSize);
+	const hzPerBin = rate / t.size;
 	const maxHz = Math.min(options.maxFrequency, rate / 2);
-	const bins = Math.min(win / 2 + 1, Math.ceil(maxHz / hzPerBin) + 1);
-	const frames = Math.max(0, Math.floor((length - win) / hop) + 1);
-	const hann = new Float64Array(win);
-	for (let i = 0; i < win; i++) {
-		hann[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / win);
-	}
-	const cos = new Float64Array(win / 2);
-	const sin = new Float64Array(win / 2);
-	for (let i = 0; i < win / 2; i++) {
-		cos[i] = Math.cos((-2 * Math.PI * i) / win);
-		sin[i] = Math.sin((-2 * Math.PI * i) / win);
-	}
-	const reverse = new Uint32Array(win);
-	const bits = Math.log2(win);
-	for (let i = 0; i < win; i++) {
-		let r = 0;
-		for (let b = 0; b < bits; b++) {
-			r |= ((i >> b) & 1) << (bits - 1 - b);
-		}
-		reverse[i] = r;
-	}
-	const re = new Float64Array(win);
-	const im = new Float64Array(win);
+	const bins = Math.min(t.size / 2 + 1, Math.ceil(maxHz / hzPerBin) + 1);
+	const frames = Math.max(
+		0,
+		Math.floor((mono.length - t.size) / options.hopSize) + 1,
+	);
 	const db = new Float32Array(frames * bins);
-	let max = -Infinity;
+	const re = new Float64Array(t.size);
+	const im = new Float64Array(t.size);
+	let loudest = -Infinity;
 	for (let f = 0; f < frames; f++) {
-		for (let i = 0; i < win; i++) {
-			re[reverse[i]] = mono[f * hop + i] * hann[i];
-			im[reverse[i]] = 0;
-		}
-		for (let size = 2; size <= win; size <<= 1) {
-			const half = size >> 1;
-			const step = win / size;
-			for (let start = 0; start < win; start += size) {
-				for (let k = 0; k < half; k++) {
-					const a = start + k;
-					const b = a + half;
-					const wr = cos[k * step];
-					const wi = sin[k * step];
-					const tr = re[b] * wr - im[b] * wi;
-					const ti = re[b] * wi + im[b] * wr;
-					re[b] = re[a] - tr;
-					im[b] = im[a] - ti;
-					re[a] += tr;
-					im[a] += ti;
-				}
-			}
-		}
-		for (let k = 0; k < bins; k++) {
-			const value = 10 * Math.log10(re[k] * re[k] + im[k] * im[k] + 1e-12);
-			db[f * bins + k] = value;
-			if (value > max) {
-				max = value;
-			}
-		}
+		loadFrame(mono, f * options.hopSize, t, re, im);
+		fftInPlace(re, im, t);
+		loudest = Math.max(loudest, powerColumn(re, im, bins, db, f * bins));
 	}
+	return { db, loudest, frames, bins, hzPerBin, maxHz };
+}
+
+function clamp01(value) {
+	return Math.min(1, Math.max(0, value));
+}
+
+// a dark blue to magenta to yellow ramp for a level from 0 (quiet) to 1 (loud)
+function heatColour(level) {
+	const red = Math.round(255 * Math.pow(level, 0.9) * 1.25);
+	const green = Math.round(255 * Math.pow(level, 2.2) * 1.1);
+	const wave = Math.sin(Math.PI * Math.min(1, level * 1.2));
+	const blue =
+		level < 0.05 ? 20 : Math.round(70 + 140 * wave * (1 - level * 0.6));
+	return [Math.min(255, red), Math.min(255, green), blue];
+}
+
+function paintSpectrogram(a) {
 	const image = document.createElement("canvas");
-	image.width = Math.max(1, frames);
-	image.height = bins;
-	const ictx = image.getContext("2d");
-	const data = ictx.createImageData(image.width, image.height);
-	for (let f = 0; f < frames; f++) {
-		for (let k = 0; k < bins; k++) {
-			const level = Math.min(1, Math.max(0, (db[f * bins + k] - (max - 80)) / 80));
-			const p = ((bins - 1 - k) * image.width + f) * 4;
-			data.data[p] = Math.min(255, Math.round(255 * Math.pow(level, 0.9) * 1.25));
-			data.data[p + 1] = Math.min(255, Math.round(255 * Math.pow(level, 2.2) * 1.1));
-			data.data[p + 2] = level < 0.05 ? 20 : Math.round(70 + 140 * Math.sin(Math.PI * Math.min(1, level * 1.2)) * (1 - level * 0.6));
-			data.data[p + 3] = 255;
+	image.width = Math.max(1, a.frames);
+	image.height = a.bins;
+	const context = image.getContext("2d");
+	const data = context.createImageData(image.width, image.height);
+	for (let f = 0; f < a.frames; f++) {
+		for (let k = 0; k < a.bins; k++) {
+			const level = clamp01(
+				(a.db[f * a.bins + k] - (a.loudest - dynamicRangeDb)) / dynamicRangeDb,
+			);
+			const p = ((a.bins - 1 - k) * image.width + f) * 4;
+			const [red, green, blue] = heatColour(level);
+			data.data.set([red, green, blue, 255], p);
 		}
 	}
-	ictx.putImageData(data, 0, 0);
-	return { image, frames, bins, hzPerBin, seconds: (frames * hop) / rate, maxHz };
+	context.putImageData(data, 0, 0);
+	return image;
+}
+
+function makeSpectrogram(decoded, options) {
+	const analysis = analyseFrames(
+		mixToMono(decoded),
+		decoded.sampleRate,
+		options,
+	);
+	return {
+		image: paintSpectrogram(analysis),
+		frames: analysis.frames,
+		bins: analysis.bins,
+		hzPerBin: analysis.hzPerBin,
+		seconds: (analysis.frames * options.hopSize) / decoded.sampleRate,
+		maxHz: analysis.maxHz,
+	};
+}
+
+// ---- layout and axes ----
+
+function dataSeconds(options) {
+	let seconds = 0;
+	for (let i = 0; i < options.keyPoints.length; i += 3) {
+		seconds = Math.max(seconds, options.keyPoints[i] + 0.5);
+	}
+	for (let i = 0; i < options.landmarks.length; i += 4) {
+		seconds = Math.max(seconds, options.landmarks[i], options.landmarks[i + 2]);
+	}
+	return seconds;
+}
+
+function plotSeconds(v) {
+	if (v.spectrogram) {
+		return v.spectrogram.seconds;
+	}
+	const duration = v.el.duration;
+	return Number.isFinite(duration) && duration > 0
+		? duration
+		: dataSeconds(v.options);
+}
+
+function sizeCanvas(v) {
+	const dpr = window.devicePixelRatio || 1;
+	const width = v.canvas.clientWidth || 600;
+	const height = v.canvas.clientHeight || 200;
+	v.canvas.width = Math.round(width * dpr);
+	v.canvas.height = Math.round(height * dpr);
+	return { dpr, width, height };
 }
 
 function layout(v) {
 	const dpr = window.devicePixelRatio || 1;
 	const width = v.canvas.clientWidth || 600;
 	const height = v.canvas.clientHeight || 200;
-	if (v.canvas.width !== Math.round(width * dpr) || v.canvas.height !== Math.round(height * dpr)) {
-		v.canvas.width = Math.round(width * dpr);
-		v.canvas.height = Math.round(height * dpr);
+	if (
+		v.canvas.width !== Math.round(width * dpr) ||
+		v.canvas.height !== Math.round(height * dpr)
+	) {
+		sizeCanvas(v);
 	}
-	const left = 0;
-	const right = 0;
 	const top = 8;
 	const bottom = 22;
-	const options = v.options;
-	let seconds = v.spectrogram ? v.spectrogram.seconds : Number.isFinite(v.el.duration) ? v.el.duration : 0;
-	if (!seconds) {
-		for (let i = 0; i < options.keyPoints.length; i += 3) {
-			seconds = Math.max(seconds, options.keyPoints[i] + 0.5);
-		}
-		for (let i = 0; i < options.landmarks.length; i += 4) {
-			seconds = Math.max(seconds, options.landmarks[i], options.landmarks[i + 2]);
-		}
-	}
 	return {
 		dpr,
 		width,
 		height,
-		left,
+		left: 0,
 		top,
-		pw: width - left - right,
+		pw: width,
 		ph: height - top - bottom,
-		seconds: seconds || 1,
-		maxHz: v.spectrogram ? v.spectrogram.maxHz : options.maxFrequency,
+		seconds: plotSeconds(v) || 1,
+		maxHz: v.spectrogram ? v.spectrogram.maxHz : v.options.maxFrequency,
 	};
 }
 
@@ -454,12 +589,8 @@ function fromPixel(v, e) {
 }
 
 function niceStep(span, pixels, minPixels) {
-	for (const step of timeSteps) {
-		if ((step / span) * pixels >= minPixels) {
-			return step;
-		}
-	}
-	return timeSteps[timeSteps.length - 1];
+	const step = timeSteps.find((s) => (s / span) * pixels >= minPixels);
+	return step ?? timeSteps[timeSteps.length - 1];
 }
 
 function formatTime(seconds) {
@@ -467,7 +598,8 @@ function formatTime(seconds) {
 	if (whole < 60) {
 		return Number.isInteger(whole) ? String(whole) : whole.toFixed(1);
 	}
-	return Math.floor(whole / 60) + ":" + String(Math.round(whole % 60)).padStart(2, "0");
+	const minutes = Math.floor(whole / 60);
+	return minutes + ":" + String(Math.round(whole % 60)).padStart(2, "0");
 }
 
 // A clock label for a time in seconds on the broadcast clock. wallSeconds counts from midnight of the wall-clock day the
@@ -476,10 +608,181 @@ function formatClock(wallSeconds, step) {
 	const day = ((Math.round(wallSeconds) % 86400) + 86400) % 86400;
 	const h = String(Math.floor(day / 3600)).padStart(2, "0");
 	const m = String(Math.floor((day % 3600) / 60)).padStart(2, "0");
-	if (step >= 60) {
-		return h + ":" + m;
+	return step >= 60
+		? h + ":" + m
+		: h + ":" + m + ":" + String(day % 60).padStart(2, "0");
+}
+
+function frequencyStep(maxHz) {
+	if (maxHz >= 4000) {
+		return 1000;
 	}
-	return h + ":" + m + ":" + String(day % 60).padStart(2, "0");
+	if (maxHz >= 1500) {
+		return 500;
+	}
+	return maxHz >= 600 ? 200 : 100;
+}
+
+function scales(l) {
+	return {
+		x: (t) => l.left + (t / l.seconds) * l.pw,
+		y: (hz) => l.top + l.ph - (hz / l.maxHz) * l.ph,
+	};
+}
+
+// ---- drawing ----
+
+function drawBackground(ctx, v, l) {
+	ctx.setTransform(l.dpr, 0, 0, l.dpr, 0, 0);
+	ctx.clearRect(0, 0, l.width, l.height);
+	ctx.fillStyle = "#0a0e18";
+	ctx.fillRect(l.left, l.top, l.pw, l.ph);
+	const s = v.spectrogram;
+	if (!s || !v.options.showSpectrogram) {
+		return;
+	}
+	const rows = Math.min(s.bins, l.maxHz / s.hzPerBin + 1);
+	const width = (s.seconds / l.seconds) * l.pw;
+	ctx.imageSmoothingEnabled = true;
+	ctx.drawImage(
+		s.image,
+		0,
+		s.bins - rows,
+		s.frames,
+		rows,
+		l.left,
+		l.top,
+		width,
+		l.ph,
+	);
+}
+
+// the times (in seconds from the start of the media) of the ticks; on the broadcast clock they fall on round clock times
+function timeTicks(l, clock, offset, step) {
+	const first = clock
+		? Math.ceil(offset / step - tinyAmount) * step - offset
+		: 0;
+	const ticks = [];
+	for (let t = first; t <= l.seconds + tinyAmount; t += step) {
+		ticks.push(t);
+	}
+	return ticks;
+}
+
+function drawTimeAxis(ctx, v, l, sc) {
+	const clock = Number.isFinite(v.options.startSeconds);
+	const step = niceStep(l.seconds, l.pw, clock ? 70 : 60);
+	const offset = clock ? v.options.startSeconds : 0;
+	ctx.strokeStyle = "rgba(143,155,184,0.9)";
+	ctx.fillStyle = "#8f9bb8";
+	ctx.lineWidth = 1;
+	ctx.font = "11px system-ui, sans-serif";
+	ctx.strokeRect(l.left + 0.5, l.top + 0.5, l.pw, l.ph);
+	for (const t of timeTicks(l, clock, offset, step)) {
+		const px = Math.round(sc.x(t)) + 0.5;
+		ctx.beginPath();
+		ctx.moveTo(px, l.top + l.ph);
+		ctx.lineTo(px, l.top + l.ph + 4);
+		ctx.stroke();
+		const text = clock ? formatClock(offset + t, step) : formatTime(t);
+		drawEdgeAwareLabel(ctx, text, px, l);
+	}
+}
+
+// keeps the first and last labels inside the plot instead of half cut off
+function drawEdgeAwareLabel(ctx, text, px, l) {
+	const atStart = px < l.left + 12;
+	const atEnd = px > l.left + l.pw - 12;
+	ctx.textAlign = atStart ? "left" : atEnd ? "right" : "center";
+	const x = atStart ? l.left : atEnd ? l.left + l.pw : px;
+	ctx.fillText(text, x, l.top + l.ph + 16);
+}
+
+function drawFrequencyLabel(ctx, l, text, py) {
+	const labelY = py - 3 < l.top + 9 ? py + 12 : py - 3;
+	ctx.lineWidth = 3;
+	ctx.strokeStyle = "rgba(10,14,24,0.85)";
+	ctx.strokeText(text, l.left + 4, labelY);
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = "rgba(143,155,184,0.9)";
+	ctx.fillText(text, l.left + 4, labelY);
+}
+
+function drawFrequencyAxis(ctx, l, sc) {
+	const step = frequencyStep(l.maxHz);
+	ctx.textAlign = "left";
+	for (let hz = 0; hz <= l.maxHz + tinyAmount; hz += step) {
+		const py = Math.round(sc.y(hz)) + 0.5;
+		drawFrequencyLabel(
+			ctx,
+			l,
+			hz >= 1000 ? hz / 1000 + " kHz" : hz + " Hz",
+			py,
+		);
+		if (hz > 0) {
+			ctx.strokeStyle = "rgba(255,255,255,0.07)";
+			ctx.beginPath();
+			ctx.moveTo(l.left, py);
+			ctx.lineTo(l.left + l.pw, py);
+			ctx.stroke();
+		}
+	}
+}
+
+function drawLandmarks(ctx, v, sc) {
+	const lines = v.options.landmarks;
+	const colours = v.options.landmarkColors;
+	ctx.lineWidth = 1;
+	for (let i = 0, n = 0; i + 3 < lines.length; i += 4, n++) {
+		ctx.strokeStyle = colours[n] || "rgba(124,240,178,0.65)";
+		ctx.beginPath();
+		ctx.moveTo(sc.x(lines[i]), sc.y(lines[i + 1]));
+		ctx.lineTo(sc.x(lines[i + 2]), sc.y(lines[i + 3]));
+		ctx.stroke();
+	}
+}
+
+function drawKeyPoints(ctx, v, sc) {
+	const points = v.options.keyPoints;
+	ctx.fillStyle = "#4cc2ff";
+	ctx.strokeStyle = "#06202e";
+	for (let i = 0; i + 2 < points.length; i += 3) {
+		ctx.beginPath();
+		ctx.arc(
+			sc.x(points[i]),
+			sc.y(points[i + 1]),
+			2 + points[i + 2] * 2.5,
+			0,
+			Math.PI * 2,
+		);
+		ctx.fill();
+		ctx.stroke();
+	}
+}
+
+function drawPlayhead(ctx, v, l, sc) {
+	const px = sc.x(Math.min(v.el.currentTime || 0, l.seconds));
+	ctx.strokeStyle = "#ffffff";
+	ctx.lineWidth = 1.5;
+	ctx.beginPath();
+	ctx.moveTo(px, l.top);
+	ctx.lineTo(px, l.top + l.ph);
+	ctx.stroke();
+}
+
+function drawOverlays(ctx, v, l, sc) {
+	ctx.save();
+	ctx.beginPath();
+	ctx.rect(l.left, l.top, l.pw, l.ph);
+	ctx.clip();
+	if (v.options.showLandmarks) {
+		drawLandmarks(ctx, v, sc);
+	}
+	if (v.options.showKeyPoints) {
+		drawKeyPoints(ctx, v, sc);
+	}
+	drawPlayhead(ctx, v, l, sc);
+	ctx.restore();
 }
 
 function draw(v) {
@@ -488,104 +791,11 @@ function draw(v) {
 	}
 	const l = layout(v);
 	const ctx = v.canvas.getContext("2d");
-	ctx.setTransform(l.dpr, 0, 0, l.dpr, 0, 0);
-	ctx.clearRect(0, 0, l.width, l.height);
-	ctx.fillStyle = "#0a0e18";
-	ctx.fillRect(l.left, l.top, l.pw, l.ph);
-	const x = (t) => l.left + (t / l.seconds) * l.pw;
-	const y = (hz) => l.top + l.ph - (hz / l.maxHz) * l.ph;
-
-	if (v.spectrogram && v.options.showSpectrogram) {
-		const s = v.spectrogram;
-		const rows = Math.min(s.bins, l.maxHz / s.hzPerBin + 1);
-		const sy = s.bins - rows;
-		ctx.imageSmoothingEnabled = true;
-		ctx.drawImage(s.image, 0, sy, s.frames, rows, l.left, l.top, (s.seconds / l.seconds) * l.pw, l.ph);
-	}
-
-	ctx.strokeStyle = "rgba(143,155,184,0.9)";
-	ctx.fillStyle = "#8f9bb8";
-	ctx.lineWidth = 1;
-	ctx.font = "11px system-ui, sans-serif";
-	ctx.strokeRect(l.left + 0.5, l.top + 0.5, l.pw, l.ph);
-	const clock = Number.isFinite(v.options.startSeconds);
-	const tStep = niceStep(l.seconds, l.pw, clock ? 70 : 60);
-	// on the broadcast clock the ticks fall on round times (for example every 10 seconds on the :00), not on round offsets
-	const offset = clock ? v.options.startSeconds : 0;
-	const firstTick = clock ? Math.ceil(offset / tStep - 1e-9) * tStep - offset : 0;
-	ctx.textAlign = "center";
-	for (let t = firstTick; t <= l.seconds + 1e-9; t += tStep) {
-		const px = Math.round(x(t)) + 0.5;
-		ctx.beginPath();
-		ctx.moveTo(px, l.top + l.ph);
-		ctx.lineTo(px, l.top + l.ph + 4);
-		ctx.stroke();
-		const first = x(t) < l.left + 12;
-		const last = x(t) > l.left + l.pw - 12;
-		ctx.textAlign = first ? "left" : last ? "right" : "center";
-		ctx.fillText(clock ? formatClock(offset + t, tStep) : formatTime(t), first ? l.left : last ? l.left + l.pw : px, l.top + l.ph + 16);
-	}
+	const sc = scales(l);
+	drawBackground(ctx, v, l);
+	drawTimeAxis(ctx, v, l, sc);
 	if (v.options.frequencyLabels) {
-		const hzStep = l.maxHz >= 4000 ? 1000 : l.maxHz >= 1500 ? 500 : l.maxHz >= 600 ? 200 : 100;
-		ctx.textAlign = "left";
-		for (let hz = 0; hz <= l.maxHz + 1e-9; hz += hzStep) {
-			const py = Math.round(y(hz)) + 0.5;
-			const label = hz >= 1000 ? hz / 1000 + " kHz" : hz + " Hz";
-			const ly = py - 3 < l.top + 9 ? py + 12 : py - 3;
-			ctx.lineWidth = 3;
-			ctx.strokeStyle = "rgba(10,14,24,0.85)";
-			ctx.strokeText(label, l.left + 4, ly);
-			ctx.lineWidth = 1;
-			ctx.strokeStyle = "rgba(143,155,184,0.9)";
-			ctx.fillText(label, l.left + 4, ly);
-			if (hz > 0) {
-				ctx.save();
-				ctx.strokeStyle = "rgba(255,255,255,0.07)";
-				ctx.beginPath();
-				ctx.moveTo(l.left, py);
-				ctx.lineTo(l.left + l.pw, py);
-				ctx.stroke();
-				ctx.restore();
-			}
-		}
+		drawFrequencyAxis(ctx, l, sc);
 	}
-	ctx.textAlign = "center";
-	ctx.fillStyle = "#c9d3ea";
-
-	ctx.save();
-	ctx.beginPath();
-	ctx.rect(l.left, l.top, l.pw, l.ph);
-	ctx.clip();
-	if (v.options.showLandmarks) {
-		const lines = v.options.landmarks;
-		const colours = v.options.landmarkColors;
-		ctx.lineWidth = 1;
-		for (let i = 0, n = 0; i + 3 < lines.length; i += 4, n++) {
-			ctx.strokeStyle = colours[n] || "rgba(124,240,178,0.65)";
-			ctx.beginPath();
-			ctx.moveTo(x(lines[i]), y(lines[i + 1]));
-			ctx.lineTo(x(lines[i + 2]), y(lines[i + 3]));
-			ctx.stroke();
-		}
-	}
-	if (v.options.showKeyPoints) {
-		const points = v.options.keyPoints;
-		ctx.fillStyle = "#4cc2ff";
-		ctx.strokeStyle = "#06202e";
-		for (let i = 0; i + 2 < points.length; i += 3) {
-			ctx.beginPath();
-			ctx.arc(x(points[i]), y(points[i + 1]), 2 + points[i + 2] * 2.5, 0, Math.PI * 2);
-			ctx.fill();
-			ctx.stroke();
-		}
-	}
-	const now = v.el.currentTime || 0;
-	const px = x(Math.min(now, l.seconds));
-	ctx.strokeStyle = "#ffffff";
-	ctx.lineWidth = 1.5;
-	ctx.beginPath();
-	ctx.moveTo(px, l.top);
-	ctx.lineTo(px, l.top + l.ph);
-	ctx.stroke();
-	ctx.restore();
+	drawOverlays(ctx, v, l, sc);
 }
